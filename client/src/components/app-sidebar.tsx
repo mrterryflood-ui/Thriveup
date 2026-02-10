@@ -71,6 +71,7 @@ export function AppSidebar() {
                       asChild
                       data-active={isActive}
                       className={isActive ? "bg-sidebar-accent" : ""}
+                      data-testid={`link-sidebar-${item.title.toLowerCase().replace(/\s/g, '-')}`}
                     >
                       <Link href={item.url}>
                         <item.icon className="h-4 w-4" />

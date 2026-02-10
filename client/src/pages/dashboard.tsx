@@ -203,7 +203,7 @@ export default function DashboardPage() {
               </h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <Link href="/subjects">
+              <Link href="/subjects" data-testid="link-quick-subjects">
                 <Card className="p-4 hover-elevate cursor-pointer">
                   <div className="flex items-center gap-3">
                     <GraduationCap className="h-5 w-5 text-primary shrink-0" />
@@ -214,7 +214,7 @@ export default function DashboardPage() {
                   </div>
                 </Card>
               </Link>
-              <Link href="/ai-companion">
+              <Link href="/ai-companion" data-testid="link-quick-spark">
                 <Card className="p-4 hover-elevate cursor-pointer">
                   <div className="flex items-center gap-3">
                     <Sparkles className="h-5 w-5 text-primary shrink-0" />
@@ -225,7 +225,7 @@ export default function DashboardPage() {
                   </div>
                 </Card>
               </Link>
-              <Link href="/curriculum">
+              <Link href="/curriculum" data-testid="link-quick-curriculum">
                 <Card className="p-4 hover-elevate cursor-pointer">
                   <div className="flex items-center gap-3">
                     <BookOpen className="h-5 w-5 text-primary shrink-0" />
@@ -236,7 +236,7 @@ export default function DashboardPage() {
                   </div>
                 </Card>
               </Link>
-              <Link href="/achievements">
+              <Link href="/achievements" data-testid="link-quick-achievements">
                 <Card className="p-4 hover-elevate cursor-pointer">
                   <div className="flex items-center gap-3">
                     <Award className="h-5 w-5 text-amber-500 shrink-0" />
