@@ -8,12 +8,40 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   Compass, Map, Building2, Lightbulb, Crown,
   BookOpen, Trophy, Star, Zap, Target,
-  ChevronRight, Award, Flame, TrendingUp
+  ChevronRight, Award, Flame, TrendingUp,
+  CheckCircle2, Shield, ShieldCheck, ShieldPlus, Swords, Medal
 } from "lucide-react";
-import { LEVEL_COLORS } from "@/lib/curriculum-data";
+import { LEVEL_COLORS, getRankForLevel, ALL_RANKS } from "@/lib/curriculum-data";
 import type { StudentProgress, Level, Module, EarnedBadge, Badge as BadgeType } from "@shared/schema";
 
 const levelIcons = [Compass, Map, Building2, Lightbulb, Crown];
+const rankIcons: Record<string, typeof Shield> = {
+  Shield, ShieldCheck, ShieldPlus, Swords, Medal,
+};
+
+function RankDisplay({ level, size = "lg" }: { level: number; size?: "sm" | "lg" }) {
+  const rank = getRankForLevel(level);
+  const RankIcon = rankIcons[rank.icon] || Shield;
+  const isGeneral = rank.stars > 0;
+
+  return (
+    <div className="flex items-center gap-2.5">
+      <div className={`rounded-md flex items-center justify-center shrink-0 bg-gradient-to-br from-amber-500 to-orange-600 ${size === "lg" ? "w-11 h-11" : "w-8 h-8"}`}>
+        <RankIcon className={`text-white ${size === "lg" ? "h-6 w-6" : "h-4 w-4"}`} />
+      </div>
+      <div>
+        <p className={`font-bold leading-tight ${size === "lg" ? "text-lg" : "text-sm"}`}>{rank.title}</p>
+        {isGeneral && (
+          <div className="flex items-center gap-0.5 mt-0.5">
+            {Array.from({ length: rank.stars }).map((_, i) => (
+              <Star key={i} className={`fill-amber-500 text-amber-500 ${size === "lg" ? "h-3.5 w-3.5" : "h-3 w-3"}`} />
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 interface DashboardData {
   progress: StudentProgress;
@@ -74,12 +102,23 @@ export default function DashboardPage() {
 
         <Card className="p-5">
           <div className="flex items-center justify-between mb-3 gap-1">
-            <span className="text-sm text-muted-foreground">Current Level</span>
-            <div className={`rounded-md p-1.5 bg-gradient-to-br ${colors.gradient}`}>
-              <LevelIcon className="h-4 w-4 text-white" />
+            <span className="text-sm text-muted-foreground">Current Rank</span>
+            <div className="rounded-md p-1.5 bg-gradient-to-br from-amber-500 to-orange-600">
+              {(() => {
+                const rank = getRankForLevel(progress.currentLevel);
+                const RIcon = rankIcons[rank.icon] || Shield;
+                return <RIcon className="h-4 w-4 text-white" />;
+              })()}
             </div>
           </div>
-          <p className="text-2xl font-bold" data-testid="text-current-level">{currentLevel.title}</p>
+          <p className="text-2xl font-bold" data-testid="text-current-rank">{getRankForLevel(progress.currentLevel).title}</p>
+          {getRankForLevel(progress.currentLevel).stars > 0 && (
+            <div className="flex items-center gap-0.5 mt-1">
+              {Array.from({ length: getRankForLevel(progress.currentLevel).stars }).map((_, i) => (
+                <Star key={i} className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
+              ))}
+            </div>
+          )}
         </Card>
 
         <Card className="p-5">
@@ -223,23 +262,25 @@ export default function DashboardPage() {
 
           <Card className="p-6 bg-gradient-to-br from-primary/5 to-accent/5">
             <h2 className="font-semibold mb-3 flex items-center gap-2">
-              <Zap className="h-5 w-5 text-primary" /> Level Journey
+              <Medal className="h-5 w-5 text-amber-500" /> Rank Progression
             </h2>
             <div className="space-y-3">
               {[1, 2, 3, 4, 5].map((lvl) => {
-                const LIcon = levelIcons[(lvl - 1) % 5];
+                const rank = getRankForLevel(lvl);
+                const RIcon = rankIcons[rank.icon] || Shield;
                 const c = LEVEL_COLORS[lvl];
                 const isActive = lvl === progress.currentLevel;
                 const isCompleted = lvl < progress.currentLevel;
                 return (
                   <div key={lvl} className={`flex items-center gap-3 p-2 rounded-md ${isActive ? 'bg-primary/10' : ''}`}>
-                    <div className={`rounded-md p-1.5 ${isCompleted || isActive ? `bg-gradient-to-br ${c.gradient}` : 'bg-muted'} shrink-0`}>
-                      <LIcon className={`h-4 w-4 ${isCompleted || isActive ? 'text-white' : 'text-muted-foreground'}`} />
+                    <div className={`rounded-md p-1.5 ${isCompleted || isActive ? 'bg-gradient-to-br from-amber-500 to-orange-600' : 'bg-muted'} shrink-0`}>
+                      <RIcon className={`h-4 w-4 ${isCompleted || isActive ? 'text-white' : 'text-muted-foreground'}`} />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className={`text-sm font-medium ${!isCompleted && !isActive ? 'text-muted-foreground' : ''}`}>
-                        Level {lvl}
+                        {rank.title}
                       </p>
+                      <p className="text-xs text-muted-foreground">Level {lvl}</p>
                     </div>
                     {isCompleted && <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />}
                     {isActive && <Badge variant="secondary" className="text-xs shrink-0">Current</Badge>}
@@ -252,8 +293,4 @@ export default function DashboardPage() {
       </div>
     </div>
   );
-}
-
-function CheckCircle2Icon(props: any) {
-  return <CheckCircle2 {...props} />;
 }

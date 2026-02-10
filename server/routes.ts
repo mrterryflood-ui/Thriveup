@@ -163,6 +163,7 @@ export async function registerRoutes(
       allBadges,
       earnedBadges: earnedBadgesList,
       totalPoints: progress.totalPoints,
+      currentLevel: progress.currentLevel,
     });
   });
 

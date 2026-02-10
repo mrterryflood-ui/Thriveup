@@ -39,6 +39,37 @@ export const LEVEL_ICONS: Record<number, string> = {
   5: "Crown",
 };
 
+export interface RankInfo {
+  title: string;
+  stars: number;
+  icon: string;
+}
+
+export function getRankForLevel(level: number): RankInfo {
+  switch (level) {
+    case 1: return { title: "Specialist", stars: 0, icon: "Shield" };
+    case 2: return { title: "Sergeant", stars: 0, icon: "ShieldCheck" };
+    case 3: return { title: "Master Sergeant", stars: 0, icon: "ShieldPlus" };
+    case 4: return { title: "Captain", stars: 0, icon: "Swords" };
+    case 5: return { title: "General", stars: 1, icon: "Medal" };
+    case 6: return { title: "General", stars: 2, icon: "Medal" };
+    case 7: return { title: "General", stars: 3, icon: "Medal" };
+    case 8: return { title: "General", stars: 4, icon: "Medal" };
+    default: return { title: "Specialist", stars: 0, icon: "Shield" };
+  }
+}
+
+export const ALL_RANKS: RankInfo[] = [
+  { title: "Specialist", stars: 0, icon: "Shield" },
+  { title: "Sergeant", stars: 0, icon: "ShieldCheck" },
+  { title: "Master Sergeant", stars: 0, icon: "ShieldPlus" },
+  { title: "Captain", stars: 0, icon: "Swords" },
+  { title: "General", stars: 1, icon: "Medal" },
+  { title: "General", stars: 2, icon: "Medal" },
+  { title: "General", stars: 3, icon: "Medal" },
+  { title: "General", stars: 4, icon: "Medal" },
+];
+
 export const BADGE_RARITY_COLORS: Record<string, string> = {
   common: "border-slate-300 dark:border-slate-600",
   uncommon: "border-emerald-400 dark:border-emerald-500",

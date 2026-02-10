@@ -1,4 +1,5 @@
 import { useLocation, Link } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 import {
   Sidebar,
   SidebarContent,
@@ -12,8 +13,11 @@ import {
   SidebarFooter,
 } from "@/components/ui/sidebar";
 import {
-  Home, BookOpen, Award, Brain, Compass
+  Home, BookOpen, Award, Brain, Star,
+  Shield, ShieldCheck, ShieldPlus, Swords, Medal
 } from "lucide-react";
+import { getRankForLevel } from "@/lib/curriculum-data";
+import type { StudentProgress } from "@shared/schema";
 
 const menuItems = [
   { title: "Dashboard", url: "/dashboard", icon: Home },
@@ -21,8 +25,18 @@ const menuItems = [
   { title: "Achievements", url: "/achievements", icon: Award },
 ];
 
+const rankIcons: Record<string, typeof Shield> = {
+  Shield, ShieldCheck, ShieldPlus, Swords, Medal,
+};
+
 export function AppSidebar() {
   const [location] = useLocation();
+  const { data: progress } = useQuery<StudentProgress>({
+    queryKey: ["/api/progress"],
+  });
+
+  const rank = progress ? getRankForLevel(progress.currentLevel) : null;
+  const RankIcon = rank ? (rankIcons[rank.icon] || Shield) : Shield;
 
   return (
     <Sidebar>
@@ -64,10 +78,37 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {rank && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Your Rank</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <div className="px-3 py-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-md bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shrink-0">
+                    <RankIcon className="h-4.5 w-4.5 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold leading-tight" data-testid="text-sidebar-rank">{rank.title}</p>
+                    {rank.stars > 0 ? (
+                      <div className="flex items-center gap-0.5 mt-0.5">
+                        {Array.from({ length: rank.stars }).map((_, i) => (
+                          <Star key={i} className="h-3 w-3 fill-amber-500 text-amber-500" />
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-xs text-muted-foreground">Level {progress?.currentLevel}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
       <SidebarFooter className="p-4">
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <Compass className="h-3.5 w-3.5 shrink-0" />
+          <Medal className="h-3.5 w-3.5 shrink-0" />
           <span>Guiding the AI generation</span>
         </div>
       </SidebarFooter>
