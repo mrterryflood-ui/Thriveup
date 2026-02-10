@@ -14,7 +14,7 @@ import { LEVEL_COLORS } from "@/lib/curriculum-data";
 const levelIcons = [Compass, Map, Building2, Lightbulb, Crown];
 
 const levels = [
-  { id: 1, title: "AI Explorer", grades: "K-2", desc: "Discovery & basics" },
+  { id: 1, title: "AI Explorer", grades: "3-5", desc: "Discovery & basics" },
   { id: 2, title: "AI Guide", grades: "3-5", desc: "Prompting & creative applications" },
   { id: 3, title: "AI Architect", grades: "6-8", desc: "Building & ethics deepening" },
   { id: 4, title: "AI Innovator", grades: "9-10", desc: "Advanced creation & societal impact" },
@@ -44,7 +44,7 @@ const features = [
   {
     icon: Target,
     title: "Age-Appropriate",
-    desc: "From PreK through 12th grade, every lesson meets children exactly where they are developmentally.",
+    desc: "From 3rd through 12th grade, every lesson meets children exactly where they are developmentally.",
   },
   {
     icon: Sparkles,
@@ -72,7 +72,7 @@ export default function LandingPage() {
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSA2MCAwIEwgMCAwIDAgNjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjA1KSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-40" />
         <div className="relative mx-auto max-w-5xl text-center">
           <Badge variant="secondary" className="mb-6 bg-white/15 text-white border-white/20">
-            PreK-12 Whole-Child Learning Platform
+            Grades 3-12 Whole-Child Learning Platform
           </Badge>
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 tracking-tight leading-tight">
             Learning<br />Academy
@@ -234,7 +234,7 @@ export default function LandingPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
             {[
               { value: "6", label: "Subject Areas" },
-              { value: "PreK-12", label: "Grade Range" },
+              { value: "3-12", label: "Grade Range" },
               { value: "5", label: "AI Mastery Levels" },
               { value: "100+", label: "Activities" },
             ].map((stat) => (

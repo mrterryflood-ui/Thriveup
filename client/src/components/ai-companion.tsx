@@ -15,7 +15,7 @@ interface AICompanionProps {
   className?: string;
 }
 
-const GRADE_LEVELS = ["PreK-K", "1-2", "3-5", "6-8", "9-12"];
+const GRADE_LEVELS = ["3-5", "6-8", "9-12"];
 
 const WELCOME_MESSAGE: Message = {
   role: "assistant",

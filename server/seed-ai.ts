@@ -7,7 +7,7 @@ export async function seedAILevels(db: any): Promise<void> {
       title: "AI Explorer",
       subtitle: "Meeting Your Smart New Friend",
       description: "Discover the basics of AI through stories, games, and creative activities. Learn what AI is, how to talk to it, and why it sometimes makes mistakes.",
-      grades: "Grades K-2",
+      grades: "Grades 3-5",
       duration: "8 weeks (2 sessions/week, 20 min each)",
       theme: "Discovery & Basics",
       color: "emerald",

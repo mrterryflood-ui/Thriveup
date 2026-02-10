@@ -11,19 +11,15 @@ import {
 } from "lucide-react";
 import type { Subject, Module } from "@shared/schema";
 
-const GRADE_BANDS = ["PreK-K", "1-2", "3-5", "6-8", "9-12"];
+const GRADE_BANDS = ["3-5", "6-8", "9-12"];
 
 const GRADE_BAND_LABELS: Record<string, string> = {
-  "PreK-K": "Pre-Kindergarten & Kindergarten",
-  "1-2": "Grades 1-2",
   "3-5": "Grades 3-5",
   "6-8": "Grades 6-8",
   "9-12": "Grades 9-12",
 };
 
 const GRADE_BAND_DESCRIPTIONS: Record<string, string> = {
-  "PreK-K": "Playful learning through stories, songs, tracing, and sensory activities. Big ideas in simple, warm language.",
-  "1-2": "Building confidence with hands-on activities, beginning reading, writing, and number skills.",
   "3-5": "Deeper thinking, collaborative projects, and connecting learning to the real world.",
   "6-8": "Abstract reasoning, identity exploration, research skills, and preparing for high school.",
   "9-12": "Advanced analysis, leadership development, mental health awareness, and life planning.",
@@ -43,7 +39,7 @@ const SUBJECT_COLORS: Record<string, { bg: string; gradient: string }> = {
 };
 
 export default function SubjectsPage() {
-  const [selectedBand, setSelectedBand] = useState<string>("PreK-K");
+  const [selectedBand, setSelectedBand] = useState<string>("3-5");
 
   const { data: allSubjects, isLoading } = useQuery<Subject[]>({
     queryKey: ["/api/subjects"],
@@ -71,7 +67,7 @@ export default function SubjectsPage() {
           <h1 className="text-3xl font-bold" data-testid="text-subjects-heading">Subjects</h1>
         </div>
         <p className="text-muted-foreground">
-          Six core subject areas designed to support the whole child across every developmental stage.
+          Six core subject areas designed to support the whole child across grades 3 through 12.
         </p>
       </div>
 
