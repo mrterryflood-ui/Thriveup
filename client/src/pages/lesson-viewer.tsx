@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Link, useParams, useLocation } from "wouter";
 import { Card } from "@/components/ui/card";
@@ -16,6 +17,7 @@ import MatchingGame from "@/components/activities/matching-game";
 import SortingActivity from "@/components/activities/sorting-activity";
 import BreathingExercise from "@/components/activities/breathing-exercise";
 import EmotionCheck from "@/components/activities/emotion-check";
+import AICompanion from "@/components/ai-companion";
 
 function parseActivityData(lesson: Lesson) {
   if (!lesson.activityData || !lesson.activityType) return null;
@@ -54,6 +56,7 @@ export default function LessonViewerPage() {
   const lessonId = params.lessonId || "";
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const [showSpark, setShowSpark] = useState(false);
 
   const { data: lesson, isLoading } = useQuery<Lesson>({
     queryKey: ["/api/lessons", lessonId],
@@ -153,6 +156,25 @@ export default function LessonViewerPage() {
       </Card>
 
       {hasActivity && <ActivityRenderer lesson={lesson} />}
+
+      {/* AI Learning Companion */}
+      <div className="mt-6">
+        <Button
+          variant="outline"
+          onClick={() => setShowSpark(!showSpark)}
+          className="w-full mb-3"
+          data-testid="button-toggle-spark"
+        >
+          <Sparkles className="mr-2 h-4 w-4" />
+          {showSpark ? "Hide Spark" : "Need help? Ask Spark!"}
+        </Button>
+        {showSpark && (
+          <AICompanion
+            lessonContext={lesson.title + ": " + lesson.content.substring(0, 300)}
+            className="h-[400px]"
+          />
+        )}
+      </div>
 
       <div className="flex items-center justify-between gap-4 flex-wrap mt-6">
         <Link href={`/module/${lesson.moduleId}`}>

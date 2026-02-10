@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/sidebar";
 import {
   Home, BookOpen, Award, Brain, Star, GraduationCap,
-  Shield, ShieldCheck, ShieldPlus, Swords, Medal, Heart
+  Shield, ShieldCheck, ShieldPlus, Swords, Medal, Heart, Sparkles
 } from "lucide-react";
 import { getRankForLevel } from "@/lib/curriculum-data";
 import type { StudentProgress } from "@shared/schema";
@@ -23,6 +23,7 @@ const menuItems = [
   { title: "Dashboard", url: "/dashboard", icon: Home },
   { title: "Subjects", url: "/subjects", icon: GraduationCap },
   { title: "AI Curriculum", url: "/curriculum", icon: Brain },
+  { title: "Spark", url: "/ai-companion", icon: Sparkles },
   { title: "Achievements", url: "/achievements", icon: Award },
 ];
 

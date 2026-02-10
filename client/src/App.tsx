@@ -16,6 +16,7 @@ import LessonViewerPage from "@/pages/lesson-viewer";
 import QuizPage from "@/pages/quiz";
 import DashboardPage from "@/pages/dashboard";
 import AchievementsPage from "@/pages/achievements";
+import AICompanionPage from "@/pages/ai-companion";
 
 function AppRouter() {
   return (
@@ -30,6 +31,7 @@ function AppRouter() {
       <Route path="/quiz/:moduleId" component={QuizPage} />
       <Route path="/dashboard" component={DashboardPage} />
       <Route path="/achievements" component={AchievementsPage} />
+      <Route path="/ai-companion" component={AICompanionPage} />
       <Route component={NotFound} />
     </Switch>
   );

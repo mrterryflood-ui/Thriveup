@@ -9,7 +9,8 @@ import {
   Compass, Map, Building2, Lightbulb, Crown,
   BookOpen, Trophy, Star, Zap, Target,
   ChevronRight, Award, Flame, TrendingUp,
-  CheckCircle2, Shield, ShieldCheck, ShieldPlus, Swords, Medal
+  CheckCircle2, Shield, ShieldCheck, ShieldPlus, Swords, Medal,
+  Sparkles, GraduationCap
 } from "lucide-react";
 import { LEVEL_COLORS, getRankForLevel, ALL_RANKS } from "@/lib/curriculum-data";
 import type { StudentProgress, Level, Module, EarnedBadge, Badge as BadgeType } from "@shared/schema";
@@ -85,7 +86,7 @@ export default function DashboardPage() {
           Welcome back, {progress.studentName}!
         </h1>
         <p className="text-muted-foreground">
-          Continue your AI Mastery journey. You're doing great!
+          Keep exploring and growing. You're doing great!
         </p>
       </div>
 
@@ -202,13 +203,35 @@ export default function DashboardPage() {
               </h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <Link href="/subjects">
+                <Card className="p-4 hover-elevate cursor-pointer">
+                  <div className="flex items-center gap-3">
+                    <GraduationCap className="h-5 w-5 text-primary shrink-0" />
+                    <div>
+                      <p className="font-medium text-sm">Subjects</p>
+                      <p className="text-xs text-muted-foreground">6 core subject areas</p>
+                    </div>
+                  </div>
+                </Card>
+              </Link>
+              <Link href="/ai-companion">
+                <Card className="p-4 hover-elevate cursor-pointer">
+                  <div className="flex items-center gap-3">
+                    <Sparkles className="h-5 w-5 text-primary shrink-0" />
+                    <div>
+                      <p className="font-medium text-sm">Ask Spark</p>
+                      <p className="text-xs text-muted-foreground">Your learning companion</p>
+                    </div>
+                  </div>
+                </Card>
+              </Link>
               <Link href="/curriculum">
                 <Card className="p-4 hover-elevate cursor-pointer">
                   <div className="flex items-center gap-3">
                     <BookOpen className="h-5 w-5 text-primary shrink-0" />
                     <div>
-                      <p className="font-medium text-sm">Browse Curriculum</p>
-                      <p className="text-xs text-muted-foreground">Explore all 5 levels</p>
+                      <p className="font-medium text-sm">AI Curriculum</p>
+                      <p className="text-xs text-muted-foreground">5 mastery levels</p>
                     </div>
                   </div>
                 </Card>

@@ -1,6 +1,12 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import OpenAI from "openai";
+
+const openai = new OpenAI({
+  apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
+  baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
+});
 
 export async function registerRoutes(
   httpServer: Server,
@@ -191,6 +197,72 @@ export async function registerRoutes(
   app.get("/api/badges", async (_req, res) => {
     const allBadges = await storage.getBadges();
     res.json(allBadges);
+  });
+
+  app.post("/api/ai-companion/chat", async (req, res) => {
+    const { message, gradeLevel, subject, lessonContext } = req.body;
+
+    if (!message || typeof message !== "string") {
+      return res.status(400).json({ error: "Message is required and must be a string" });
+    }
+
+    if (!gradeLevel || typeof gradeLevel !== "string") {
+      return res.status(400).json({ error: "Grade level is required and must be a string" });
+    }
+
+    const systemPrompt = `You are a warm, caring learning companion for a ${gradeLevel} student. Your name is "Spark" and you help children learn.
+
+RULES YOU MUST FOLLOW:
+1. NEVER give direct answers to quiz questions, homework, or tests. Instead, guide the student to find the answer themselves through hints and questions.
+2. Adjust your language complexity to match the grade level:
+   - PreK-K: Very simple words, short sentences, lots of encouragement ("Great job thinking about that!")
+   - 1-2: Simple sentences, concrete examples, gentle guidance
+   - 3-5: Clear explanations, real-world connections, encourage curiosity
+   - 6-8: Relatable analogies, respect their growing independence, validate their thinking
+   - 9-12: Direct and honest, treat them as emerging adults, discuss nuance and complexity
+3. Always be empathetic. If a student expresses frustration, acknowledge it warmly before helping.
+4. Promote a growth mindset: "You're not bad at this - you're just learning!"
+5. Never discuss anything inappropriate, violent, or harmful.
+6. If asked about something outside education, gently redirect: "That's an interesting question! Let's focus on what we're learning today."
+7. Celebrate every small win and effort.
+8. If the student mentions feeling sad, anxious, or upset, be supportive and suggest they talk to a trusted adult.
+${subject ? `\nThe student is studying: ${subject}` : ""}
+${lessonContext ? `Current lesson context: ${lessonContext}` : ""}`;
+
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+
+    try {
+      const stream = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [
+          {
+            role: "system",
+            content: systemPrompt,
+          },
+          {
+            role: "user",
+            content: message,
+          },
+        ],
+        stream: true,
+      });
+
+      for await (const chunk of stream) {
+        const content = chunk.choices[0]?.delta?.content || "";
+        if (content) {
+          res.write(`data: ${JSON.stringify({ content: content })}\n\n`);
+        }
+      }
+
+      res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
+      res.end();
+    } catch (error) {
+      console.error("Error in AI chat endpoint:", error);
+      res.write(`data: ${JSON.stringify({ error: "Failed to generate response" })}\n\n`);
+      res.end();
+    }
   });
 
   return httpServer;
