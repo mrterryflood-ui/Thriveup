@@ -8,6 +8,27 @@ export async function registerRoutes(
 ): Promise<Server> {
   await storage.seedData();
 
+  app.get("/api/subjects", async (_req, res) => {
+    const allSubjects = await storage.getSubjects();
+    res.json(allSubjects);
+  });
+
+  app.get("/api/subjects/grade-band/:gradeBand", async (req, res) => {
+    const subjectsByBand = await storage.getSubjectsByGradeBand(decodeURIComponent(req.params.gradeBand));
+    res.json(subjectsByBand);
+  });
+
+  app.get("/api/subjects/:subjectId", async (req, res) => {
+    const subject = await storage.getSubject(req.params.subjectId);
+    if (!subject) return res.status(404).json({ error: "Subject not found" });
+    res.json(subject);
+  });
+
+  app.get("/api/subjects/:subjectId/modules", async (req, res) => {
+    const mods = await storage.getModulesBySubject(req.params.subjectId);
+    res.json(mods);
+  });
+
   app.get("/api/levels", async (_req, res) => {
     const allLevels = await storage.getLevels();
     res.json(allLevels);

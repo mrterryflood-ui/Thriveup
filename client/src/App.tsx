@@ -10,6 +10,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import NotFound from "@/pages/not-found";
 import LandingPage from "@/pages/landing";
 import CurriculumPage, { LevelDetailPage } from "@/pages/curriculum";
+import SubjectsPage, { SubjectDetailPage } from "@/pages/subjects";
 import ModuleDetailPage from "@/pages/module-detail";
 import LessonViewerPage from "@/pages/lesson-viewer";
 import QuizPage from "@/pages/quiz";
@@ -20,6 +21,8 @@ function AppRouter() {
   return (
     <Switch>
       <Route path="/" component={LandingPage} />
+      <Route path="/subjects" component={SubjectsPage} />
+      <Route path="/subject/:subjectId" component={SubjectDetailPage} />
       <Route path="/curriculum" component={CurriculumPage} />
       <Route path="/curriculum/:levelId" component={LevelDetailPage} />
       <Route path="/module/:moduleId" component={ModuleDetailPage} />

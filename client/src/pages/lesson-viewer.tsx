@@ -4,14 +4,50 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import {
-  ArrowLeft, ArrowRight, BookOpen, Clock, CheckCircle2,
+  ArrowLeft, BookOpen, Clock, CheckCircle2,
   Sparkles, Brain
 } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import type { Lesson } from "@shared/schema";
+import LetterTracing from "@/components/activities/letter-tracing";
+import MatchingGame from "@/components/activities/matching-game";
+import SortingActivity from "@/components/activities/sorting-activity";
+import BreathingExercise from "@/components/activities/breathing-exercise";
+import EmotionCheck from "@/components/activities/emotion-check";
+
+function parseActivityData(lesson: Lesson) {
+  if (!lesson.activityData || !lesson.activityType) return null;
+  try {
+    const parsed = typeof lesson.activityData === "string"
+      ? JSON.parse(lesson.activityData)
+      : lesson.activityData;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+function ActivityRenderer({ lesson }: { lesson: Lesson }) {
+  const data = parseActivityData(lesson);
+  if (!data) return null;
+
+  switch (data.type) {
+    case "tracing":
+      return <LetterTracing data={data} />;
+    case "matching":
+      return <MatchingGame data={data} />;
+    case "sorting":
+      return <SortingActivity data={data} />;
+    case "breathing":
+      return <BreathingExercise data={data} />;
+    case "emotion_check":
+      return <EmotionCheck data={data} />;
+    default:
+      return null;
+  }
+}
 
 export default function LessonViewerPage() {
   const params = useParams<{ lessonId: string }>();
@@ -52,6 +88,7 @@ export default function LessonViewerPage() {
   if (!lesson) return null;
 
   const paragraphs = lesson.content.split("\n\n").filter(Boolean);
+  const hasActivity = !!lesson.activityType && !!lesson.activityData;
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -68,13 +105,13 @@ export default function LessonViewerPage() {
             <Clock className="h-3.5 w-3.5" /> {lesson.durationMinutes} min
           </span>
           {lesson.activityType && (
-            <Badge variant="outline" className="text-xs">{lesson.activityType}</Badge>
+            <Badge variant="outline" className="text-xs capitalize">{lesson.activityType.replace("_", " ")}</Badge>
           )}
         </div>
         <h1 className="text-2xl md:text-3xl font-bold" data-testid="text-lesson-title">{lesson.title}</h1>
       </div>
 
-      <Card className="p-6 md:p-8 mb-8">
+      <Card className="p-6 md:p-8 mb-6">
         <div className="prose dark:prose-invert max-w-none">
           {paragraphs.map((paragraph, i) => {
             if (paragraph.startsWith("## ")) {
@@ -115,7 +152,9 @@ export default function LessonViewerPage() {
         </div>
       </Card>
 
-      <div className="flex items-center justify-between gap-4 flex-wrap">
+      {hasActivity && <ActivityRenderer lesson={lesson} />}
+
+      <div className="flex items-center justify-between gap-4 flex-wrap mt-6">
         <Link href={`/module/${lesson.moduleId}`}>
           <Button variant="outline" data-testid="button-back-to-module">
             <ArrowLeft className="mr-1 h-4 w-4" /> Module Overview

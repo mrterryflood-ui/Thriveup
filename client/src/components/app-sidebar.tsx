@@ -13,15 +13,16 @@ import {
   SidebarFooter,
 } from "@/components/ui/sidebar";
 import {
-  Home, BookOpen, Award, Brain, Star,
-  Shield, ShieldCheck, ShieldPlus, Swords, Medal
+  Home, BookOpen, Award, Brain, Star, GraduationCap,
+  Shield, ShieldCheck, ShieldPlus, Swords, Medal, Heart
 } from "lucide-react";
 import { getRankForLevel } from "@/lib/curriculum-data";
 import type { StudentProgress } from "@shared/schema";
 
 const menuItems = [
   { title: "Dashboard", url: "/dashboard", icon: Home },
-  { title: "Curriculum", url: "/curriculum", icon: BookOpen },
+  { title: "Subjects", url: "/subjects", icon: GraduationCap },
+  { title: "AI Curriculum", url: "/curriculum", icon: Brain },
   { title: "Achievements", url: "/achievements", icon: Award },
 ];
 
@@ -44,10 +45,10 @@ export function AppSidebar() {
         <Link href="/">
           <div className="flex items-center gap-2.5 cursor-pointer" data-testid="link-home">
             <div className="rounded-md p-1.5 bg-gradient-to-br from-violet-500 to-indigo-600">
-              <Brain className="h-5 w-5 text-white" />
+              <Heart className="h-5 w-5 text-white" />
             </div>
             <div>
-              <p className="font-bold text-sm leading-tight">AI Mastery</p>
+              <p className="font-bold text-sm leading-tight">Learning</p>
               <p className="text-xs text-muted-foreground leading-tight">Academy</p>
             </div>
           </div>
@@ -59,7 +60,10 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {menuItems.map((item) => {
-                const isActive = location === item.url || location.startsWith(item.url + "/");
+                const isActive = location === item.url || 
+                  (item.url === "/subjects" && location.startsWith("/subject")) ||
+                  (item.url === "/curriculum" && location.startsWith("/curriculum")) ||
+                  location.startsWith(item.url + "/");
                 return (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton
@@ -108,8 +112,8 @@ export function AppSidebar() {
       </SidebarContent>
       <SidebarFooter className="p-4">
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <Medal className="h-3.5 w-3.5 shrink-0" />
-          <span>Guiding the AI generation</span>
+          <Heart className="h-3.5 w-3.5 shrink-0" />
+          <span>Supporting the whole child</span>
         </div>
       </SidebarFooter>
     </Sidebar>

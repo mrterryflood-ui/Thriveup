@@ -3,6 +3,17 @@ import { pgTable, text, varchar, integer, boolean, timestamp, jsonb, decimal } f
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+export const subjects = pgTable("subjects", {
+  id: varchar("id", { length: 100 }).primaryKey(),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  gradeBand: text("grade_band").notNull(),
+  theme: text("theme").notNull(),
+  color: text("color").notNull(),
+  iconName: text("icon_name").notNull(),
+  sortOrder: integer("sort_order").notNull().default(0),
+});
+
 export const levels = pgTable("levels", {
   id: integer("id").primaryKey(),
   title: text("title").notNull(),
@@ -18,6 +29,7 @@ export const levels = pgTable("levels", {
 export const modules = pgTable("modules", {
   id: varchar("id", { length: 100 }).primaryKey(),
   levelId: integer("level_id").notNull().references(() => levels.id),
+  subjectId: varchar("subject_id", { length: 100 }).references(() => subjects.id),
   moduleNumber: integer("module_number").notNull(),
   title: text("title").notNull(),
   description: text("description").notNull(),
@@ -36,6 +48,7 @@ export const lessons = pgTable("lessons", {
   content: text("content").notNull(),
   durationMinutes: integer("duration_minutes").notNull(),
   activityType: text("activity_type"),
+  activityData: jsonb("activity_data"),
 });
 
 export const quizQuestions = pgTable("quiz_questions", {
@@ -94,6 +107,7 @@ export const earnedBadges = pgTable("earned_badges", {
   earnedAt: timestamp("earned_at").defaultNow(),
 });
 
+export const insertSubjectSchema = createInsertSchema(subjects);
 export const insertLevelSchema = createInsertSchema(levels);
 export const insertModuleSchema = createInsertSchema(modules).omit({ id: true });
 export const insertLessonSchema = createInsertSchema(lessons).omit({ id: true });
@@ -104,6 +118,7 @@ export const insertCompletedLessonSchema = createInsertSchema(completedLessons).
 export const insertQuizAttemptSchema = createInsertSchema(quizAttempts).omit({ id: true });
 export const insertEarnedBadgeSchema = createInsertSchema(earnedBadges).omit({ id: true });
 
+export type Subject = typeof subjects.$inferSelect;
 export type Level = typeof levels.$inferSelect;
 export type Module = typeof modules.$inferSelect;
 export type Lesson = typeof lessons.$inferSelect;
@@ -114,6 +129,7 @@ export type CompletedLesson = typeof completedLessons.$inferSelect;
 export type QuizAttempt = typeof quizAttempts.$inferSelect;
 export type EarnedBadge = typeof earnedBadges.$inferSelect;
 
+export type InsertSubject = z.infer<typeof insertSubjectSchema>;
 export type InsertLevel = z.infer<typeof insertLevelSchema>;
 export type InsertModule = z.infer<typeof insertModuleSchema>;
 export type InsertLesson = z.infer<typeof insertLessonSchema>;
