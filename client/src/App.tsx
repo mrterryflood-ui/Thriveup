@@ -17,6 +17,11 @@ import QuizPage from "@/pages/quiz";
 import DashboardPage from "@/pages/dashboard";
 import AchievementsPage from "@/pages/achievements";
 import AICompanionPage from "@/pages/ai-companion";
+import CommunityPage from "@/pages/community";
+import ParentResourcesPage from "@/pages/parents";
+import { LanguageProvider } from "@/lib/i18n";
+import { BandwidthProvider } from "@/lib/bandwidth-mode";
+import { HeaderControls } from "@/components/header-controls";
 
 function AppRouter() {
   return (
@@ -32,6 +37,8 @@ function AppRouter() {
       <Route path="/dashboard" component={DashboardPage} />
       <Route path="/achievements" component={AchievementsPage} />
       <Route path="/ai-companion" component={AICompanionPage} />
+      <Route path="/community" component={CommunityPage} />
+      <Route path="/parents" component={ParentResourcesPage} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -50,7 +57,7 @@ function AppLayout() {
         <div className="flex flex-col flex-1 min-w-0">
           <header className="flex items-center justify-between gap-2 p-2 border-b sticky top-0 z-50 bg-background">
             <SidebarTrigger data-testid="button-sidebar-toggle" />
-            <ThemeToggle />
+            <HeaderControls />
           </header>
           <main className="flex-1 overflow-auto">
             <AppRouter />
@@ -64,12 +71,16 @@ function AppLayout() {
 function App() {
   return (
     <ThemeProvider>
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <AppLayout />
-          <Toaster />
-        </TooltipProvider>
-      </QueryClientProvider>
+      <LanguageProvider>
+        <BandwidthProvider>
+          <QueryClientProvider client={queryClient}>
+            <TooltipProvider>
+              <AppLayout />
+              <Toaster />
+            </TooltipProvider>
+          </QueryClientProvider>
+        </BandwidthProvider>
+      </LanguageProvider>
     </ThemeProvider>
   );
 }

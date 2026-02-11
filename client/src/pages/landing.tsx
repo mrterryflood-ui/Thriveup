@@ -7,7 +7,7 @@ import {
   BookOpen, Users, Award, Brain, Sparkles,
   ArrowRight, ChevronRight, Shield, Target, Zap,
   Heart, Calculator, Microscope, Globe, Salad,
-  GraduationCap
+  GraduationCap, MapPin, Languages, Laptop
 } from "lucide-react";
 import { LEVEL_COLORS } from "@/lib/curriculum-data";
 
@@ -22,7 +22,7 @@ const levels = [
 ];
 
 const subjectAreas = [
-  { name: "ELA & Phonics", icon: BookOpen, color: "from-rose-500 to-pink-600", desc: "Reading, writing, and language arts with phonics foundations" },
+  { name: "ELA", icon: BookOpen, color: "from-rose-500 to-pink-600", desc: "Reading, writing, and language arts across all grade levels" },
   { name: "Mathematics", icon: Calculator, color: "from-blue-500 to-indigo-600", desc: "Number sense, problem solving, and mathematical thinking" },
   { name: "Science", icon: Microscope, color: "from-emerald-500 to-teal-600", desc: "Observation, experiments, and understanding our world" },
   { name: "Social Studies", icon: Globe, color: "from-amber-500 to-orange-600", desc: "Community, history, geography, and civic understanding" },
@@ -59,7 +59,7 @@ const features = [
   {
     icon: Zap,
     title: "Interactive & Engaging",
-    desc: "Letter tracing, matching games, breathing exercises, and hands-on activities that make learning joyful.",
+    desc: "Matching games, sorting activities, breathing exercises, and hands-on activities that make learning joyful.",
   },
 ];
 
@@ -176,7 +176,7 @@ export default function LandingPage() {
               From Explorer to Master
             </h2>
             <p className="text-muted-foreground max-w-lg mx-auto">
-              A dedicated AI curriculum teaching responsible, ethical use of artificial intelligence across K-12.
+              A dedicated AI curriculum teaching responsible, ethical use of artificial intelligence across grades 3-12.
             </p>
           </div>
           <div className="space-y-3">
@@ -225,6 +225,50 @@ export default function LandingPage() {
               </Link>
             </div>
           </Card>
+        </div>
+      </section>
+
+      {/* Austin Community Access */}
+      <section className="py-20 px-6">
+        <div className="mx-auto max-w-5xl">
+          <div className="text-center mb-14">
+            <Badge variant="secondary" className="mb-4">
+              <MapPin className="mr-1 h-3 w-3" /> Launching in Austin, TX
+            </Badge>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4" data-testid="text-austin-heading">
+              Equity-First, Community-Driven
+            </h2>
+            <p className="text-muted-foreground max-w-lg mx-auto">
+              Austin is our launching city. We're building partnerships to ensure every family has access - regardless of income, language, or technology.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {[
+              { icon: Heart, title: "Free Access", desc: "Subsidized and free access for qualifying Austin families and Title I school partnerships" },
+              { icon: Laptop, title: "Device Lending", desc: "Chromebook and tablet lending through community centers for families without devices" },
+              { icon: Languages, title: "En Español", desc: "Full Spanish language support with culturally relevant content for Austin's families" },
+            ].map((item) => (
+              <Card key={item.title} className="p-5 hover-elevate" data-testid={`card-austin-${item.title.toLowerCase().replace(/\s/g, '-')}`}>
+                <div className="flex items-start gap-4">
+                  <div className="rounded-md bg-primary/10 p-2.5 shrink-0">
+                    <item.icon className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-1">{item.title}</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+          <div className="text-center mt-8">
+            <Link href="/community">
+              <Button variant="outline" data-testid="button-view-community">
+                View All Community Programs
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
         </div>
       </section>
 

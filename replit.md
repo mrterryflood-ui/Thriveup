@@ -8,9 +8,11 @@ Learning Academy is a comprehensive grades 3-12 whole-child education platform. 
 - **Backend**: Express.js on Node, Drizzle ORM with PostgreSQL
 - **Database**: PostgreSQL (Neon-backed via Replit)
 - **AI Integration**: OpenAI via Replit AI Integrations (gpt-4o-mini, SSE streaming)
+- **i18n**: Custom language provider (English/Spanish) with translation strings
+- **Bandwidth Mode**: Low-bandwidth toggle that strips animations, images, and shadows
 
 ## Key Pages
-- `/` - Landing page with whole-child philosophy, 6 subjects, AI levels, Spark CTA
+- `/` - Landing page with whole-child philosophy, 6 subjects, AI levels, Spark CTA, Austin community section
 - `/dashboard` - Student dashboard with progress, points, badges, quick actions
 - `/subjects` - Browse all 6 subject areas with grade band filtering
 - `/subject/:subjectId` - Subject detail with topics and lessons
@@ -21,6 +23,8 @@ Learning Academy is a comprehensive grades 3-12 whole-child education platform. 
 - `/quiz/:moduleId` - Interactive quiz with scoring and badge awarding
 - `/ai-companion` - Standalone Spark AI learning companion page
 - `/achievements` - Badge collection and achievement stats
+- `/community` - Austin community access programs (6 equity initiatives)
+- `/parents` - Parent digital literacy resources and training modules
 
 ## API Routes
 - `GET /api/levels` - All curriculum levels
@@ -65,6 +69,26 @@ Learning Academy is a comprehensive grades 3-12 whole-child education platform. 
 - Breathing Exercises (all grades, SEL/Wellness)
 - Emotion Check-ins (all grades, SEL)
 
+## Austin Community Access Programs
+1. Free & Subsidized Access - Income-based free/reduced access for Austin families
+2. Title I School Partnerships - Integration with Austin ISD Title I schools
+3. Device Lending Program - Chromebook/tablet lending through community centers
+4. Offline & Low-Bandwidth Mode - Content caching, stripped UI for unreliable internet
+5. Spanish Language Support - Full i18n with English/Spanish toggle
+6. Parent Digital Literacy - Training modules, workshops, tech support for parents
+
+## i18n System
+- Provider: `client/src/lib/i18n.tsx` with LanguageProvider and useLanguage hook
+- Translations: `client/src/lib/translations.ts` with en/es translation strings
+- Language toggle in header (Globe icon)
+- Persisted to localStorage
+
+## Low-Bandwidth Mode
+- Provider: `client/src/lib/bandwidth-mode.tsx` with BandwidthProvider
+- Toggle in header (Wifi/WifiOff icon)
+- CSS class `low-bandwidth` on document root strips animations, shadows, images
+- Persisted to localStorage
+
 ## Design Tokens
 - Primary: Purple (256 80% 58%) - main brand color
 - Accent: Teal (190 80% 44%) - secondary accent
@@ -72,9 +96,11 @@ Learning Academy is a comprehensive grades 3-12 whole-child education platform. 
 - Dark mode supported with class-based toggle
 
 ## Recent Changes
-- Narrowed grade range from PreK-12 to Grades 3-12 (removed PreK-K and 1-2 content)
-- Removed letter tracing activities (PreK-K specific)
-- Updated all UI references, seed data, and Spark AI guardrails for 3-12 focus
-- Built Spark AI learning companion with ethical guardrails and SSE streaming
-- Updated dashboard with Subjects, Spark, AI Curriculum, Achievements quick actions
-- Integrated Spark into lesson viewer as collapsible help section
+- Added 6 Austin community equity programs (free access, Title I, device lending, offline mode, Spanish, parent literacy)
+- Built Community Access page (/community) showcasing all Austin programs
+- Built Parent Resources page (/parents) with digital literacy training modules
+- Added Spanish language support with i18n system and language toggle
+- Added low-bandwidth mode with CSS-based asset stripping
+- Updated landing page with Austin community section
+- Updated sidebar with Community and Parents navigation links
+- Added header controls: language toggle, bandwidth toggle, theme toggle

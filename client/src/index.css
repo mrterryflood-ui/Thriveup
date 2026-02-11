@@ -286,3 +286,25 @@
     inset: -1px;
   }
 }
+
+.low-bandwidth .low-bw-hidden {
+  display: none !important;
+}
+
+.low-bandwidth .bg-gradient-to-br,
+.low-bandwidth .bg-gradient-to-r,
+.low-bandwidth .bg-gradient-to-bl {
+  animation: none !important;
+}
+
+.low-bandwidth img:not(.low-bw-keep),
+.low-bandwidth video,
+.low-bandwidth iframe {
+  display: none !important;
+}
+
+.low-bandwidth * {
+  animation: none !important;
+  transition: none !important;
+  box-shadow: none !important;
+}
