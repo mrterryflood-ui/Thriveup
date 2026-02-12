@@ -22,6 +22,9 @@ import ParentResourcesPage from "@/pages/parents";
 import CurriculumDocumentsPage, { CurriculumDocumentViewPage, CurriculumDocumentCreatePage } from "@/pages/curriculum-documents";
 import Module12ToolsPage from "@/pages/module-1-2-tools";
 import ParentDashboardPage from "@/pages/parent-dashboard";
+import ClassroomsPage, { ClassroomDetailPage } from "@/pages/classrooms";
+import TeacherDashboardPage from "@/pages/teacher-dashboard";
+import CertificatesPage, { CertificateViewPage } from "@/pages/certificates";
 import { LanguageProvider } from "@/lib/i18n";
 import { BandwidthProvider } from "@/lib/bandwidth-mode";
 import { HeaderControls } from "@/components/header-controls";
@@ -47,6 +50,11 @@ function AppRouter() {
       <Route path="/curriculum-documents" component={CurriculumDocumentsPage} />
       <Route path="/curriculum-documents/new" component={CurriculumDocumentCreatePage} />
       <Route path="/curriculum-documents/:id" component={CurriculumDocumentViewPage} />
+      <Route path="/classrooms" component={ClassroomsPage} />
+      <Route path="/classrooms/:classroomId" component={ClassroomDetailPage} />
+      <Route path="/teacher-dashboard" component={TeacherDashboardPage} />
+      <Route path="/certificates" component={CertificatesPage} />
+      <Route path="/certificates/:id" component={CertificateViewPage} />
       <Route component={NotFound} />
     </Switch>
   );

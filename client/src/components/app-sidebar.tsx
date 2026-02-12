@@ -15,7 +15,7 @@ import {
 import {
   Home, BookOpen, Award, Brain, Star, GraduationCap,
   Shield, ShieldCheck, ShieldPlus, Swords, Medal, Heart, Sparkles,
-  Users, Globe, FileText, LogIn, LogOut, Flame, BarChart3
+  Users, Globe, FileText, LogIn, LogOut, Flame, BarChart3, School, ScrollText
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -29,6 +29,9 @@ const menuItems = [
   { title: "AI Curriculum", url: "/curriculum", icon: Brain },
   { title: "Spark", url: "/ai-companion", icon: Sparkles },
   { title: "Achievements", url: "/achievements", icon: Award },
+  { title: "Certificates", url: "/certificates", icon: ScrollText },
+  { title: "Classrooms", url: "/classrooms", icon: School },
+  { title: "Teacher Dashboard", url: "/teacher-dashboard", icon: BarChart3 },
   { title: "Curriculum Docs", url: "/curriculum-documents", icon: FileText },
   { title: "Community", url: "/community", icon: Globe },
   { title: "Parents", url: "/parents", icon: Users },
@@ -104,7 +107,9 @@ export function AppSidebar() {
                   (item.url === "/subjects" && location.startsWith("/subject")) ||
                   (item.url === "/curriculum" && location.startsWith("/curriculum/")) ||
                   (item.url === "/curriculum-documents" && location.startsWith("/curriculum-documents/")) ||
-                  location.startsWith(item.url + "/");
+                  (item.url === "/classrooms" && location.startsWith("/classrooms/")) ||
+                  (item.url === "/certificates" && location.startsWith("/certificates/")) ||
+                  (item.url !== "/parents" && location.startsWith(item.url + "/"));
                 return (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton

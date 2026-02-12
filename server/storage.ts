@@ -2,10 +2,12 @@ import {
   levels, modules, lessons, quizQuestions, badges, subjects,
   studentProgress, completedLessons, quizAttempts, earnedBadges, curriculumDocuments,
   lessonComments, lessonReactions, studyTips,
+  classrooms, classroomMembers, certificates,
   type Level, type Module, type Lesson, type QuizQuestion, type Badge, type Subject,
   type StudentProgress, type CompletedLesson, type QuizAttempt, type EarnedBadge,
   type CurriculumDocument, type InsertCurriculumDocument,
   type LessonComment, type LessonReaction, type StudyTip,
+  type Classroom, type ClassroomMember, type Certificate,
 } from "@shared/schema";
 import { eq, and, desc, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
@@ -53,6 +55,21 @@ export interface IStorage {
   getStudyTipsByModule(moduleId: string): Promise<StudyTip[]>;
   addStudyTip(moduleId: string, userId: string | undefined, userName: string, content: string): Promise<StudyTip>;
   upvoteStudyTip(tipId: string): Promise<StudyTip>;
+
+  createClassroom(teacherUserId: string, teacherName: string, name: string, gradeBand: string): Promise<Classroom>;
+  getClassroomsByTeacher(teacherUserId: string): Promise<Classroom[]>;
+  getClassroomByInviteCode(inviteCode: string): Promise<Classroom | undefined>;
+  getClassroom(id: string): Promise<Classroom | undefined>;
+  joinClassroom(classroomId: string, userId: string, studentName: string): Promise<ClassroomMember>;
+  getClassroomMembers(classroomId: string): Promise<ClassroomMember[]>;
+  getStudentClassrooms(userId: string): Promise<Classroom[]>;
+
+  issueCertificate(userId: string, userName: string, levelId: number, levelTitle: string): Promise<Certificate>;
+  getCertificatesByUser(userId: string): Promise<Certificate[]>;
+  getCertificate(id: string): Promise<Certificate | undefined>;
+
+  getProgressByUserId(userId: string): Promise<StudentProgress | undefined>;
+
   seedData(): Promise<void>;
 }
 
@@ -296,6 +313,70 @@ export class DatabaseStorage implements IStorage {
   async upvoteStudyTip(tipId: string): Promise<StudyTip> {
     const [updated] = await db.update(studyTips).set({ upvotes: sql`${studyTips.upvotes} + 1` }).where(eq(studyTips.id, tipId)).returning();
     return updated;
+  }
+
+  async createClassroom(teacherUserId: string, teacherName: string, name: string, gradeBand: string): Promise<Classroom> {
+    const inviteCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+    const [created] = await db.insert(classrooms).values({ teacherUserId, teacherName, name, inviteCode, gradeBand }).returning();
+    return created;
+  }
+
+  async getClassroomsByTeacher(teacherUserId: string): Promise<Classroom[]> {
+    return db.select().from(classrooms).where(eq(classrooms.teacherUserId, teacherUserId)).orderBy(desc(classrooms.createdAt));
+  }
+
+  async getClassroomByInviteCode(inviteCode: string): Promise<Classroom | undefined> {
+    const [classroom] = await db.select().from(classrooms).where(eq(classrooms.inviteCode, inviteCode));
+    return classroom;
+  }
+
+  async getClassroom(id: string): Promise<Classroom | undefined> {
+    const [classroom] = await db.select().from(classrooms).where(eq(classrooms.id, id));
+    return classroom;
+  }
+
+  async joinClassroom(classroomId: string, userId: string, studentName: string): Promise<ClassroomMember> {
+    const existing = await db.select().from(classroomMembers)
+      .where(and(eq(classroomMembers.classroomId, classroomId), eq(classroomMembers.userId, userId)));
+    if (existing.length > 0) return existing[0];
+    const [created] = await db.insert(classroomMembers).values({ classroomId, userId, studentName }).returning();
+    return created;
+  }
+
+  async getClassroomMembers(classroomId: string): Promise<ClassroomMember[]> {
+    return db.select().from(classroomMembers).where(eq(classroomMembers.classroomId, classroomId)).orderBy(classroomMembers.studentName);
+  }
+
+  async getStudentClassrooms(userId: string): Promise<Classroom[]> {
+    const memberships = await db.select().from(classroomMembers).where(eq(classroomMembers.userId, userId));
+    const result: Classroom[] = [];
+    for (const m of memberships) {
+      const [classroom] = await db.select().from(classrooms).where(eq(classrooms.id, m.classroomId));
+      if (classroom) result.push(classroom);
+    }
+    return result;
+  }
+
+  async issueCertificate(userId: string, userName: string, levelId: number, levelTitle: string): Promise<Certificate> {
+    const existing = await db.select().from(certificates)
+      .where(and(eq(certificates.userId, userId), eq(certificates.levelId, levelId)));
+    if (existing.length > 0) return existing[0];
+    const [created] = await db.insert(certificates).values({ userId, userName, levelId, levelTitle }).returning();
+    return created;
+  }
+
+  async getCertificatesByUser(userId: string): Promise<Certificate[]> {
+    return db.select().from(certificates).where(eq(certificates.userId, userId)).orderBy(desc(certificates.issuedAt));
+  }
+
+  async getCertificate(id: string): Promise<Certificate | undefined> {
+    const [cert] = await db.select().from(certificates).where(eq(certificates.id, id));
+    return cert;
+  }
+
+  async getProgressByUserId(userId: string): Promise<StudentProgress | undefined> {
+    const [progress] = await db.select().from(studentProgress).where(eq(studentProgress.userId, userId));
+    return progress;
   }
 
   async seedData(): Promise<void> {

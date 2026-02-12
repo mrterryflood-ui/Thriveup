@@ -166,7 +166,33 @@ Learning Academy is a comprehensive grades 3-12 whole-child education platform. 
 - Recent activity (earned badges)
 - Recommendations and tips for parents
 
+## Classrooms System
+- Teachers create classrooms with name and grade band, auto-generated invite code
+- Students join classrooms using invite code
+- Teacher sees detailed student progress per classroom
+- Database tables: `classrooms` (id, name, teacherUserId, teacherName, inviteCode, gradeBand, createdAt), `classroomMembers` (id, classroomId, userId, studentName, joinedAt)
+- Pages: `/classrooms` (create/join/list), `/classrooms/:id` (classroom detail with student progress table)
+- API: POST /api/classrooms, GET /api/classrooms, POST /api/classrooms/join, GET /api/classrooms/:id
+
+## Teacher Dashboard
+- Page: `/teacher-dashboard`
+- Summary cards: Total Students, Total Classrooms, Average Score, Total Lessons Completed
+- Classroom cards with per-classroom metrics (student count, avg score, avg points, total lessons/quizzes)
+- Each classroom links to detailed view with individual student progress
+- API: GET /api/teacher/dashboard
+
+## Certificate System
+- Certificates auto-issued when student passes all module quizzes in a level
+- Database table: `certificates` (id, userId, userName, levelId, levelTitle, issuedAt)
+- Pages: `/certificates` (list of earned certificates), `/certificates/:id` (printable certificate view)
+- Certificate design: golden decorative border, formal layout, student name, level title, date
+- Print-optimized with @media print CSS hiding navigation
+- API: GET /api/certificates, GET /api/certificates/:id
+
 ## Recent Changes
+- Added Classrooms system: teachers create classrooms with invite codes, students join, teacher views student progress
+- Added Teacher Dashboard with aggregate classroom analytics
+- Added Certificate system: auto-issued on level completion (all module quizzes passed), printable certificates
 - Added Replit Auth with OIDC (magic link/Google/GitHub login)
 - User-bound progress tracking with streak days and longest streak
 - Protected write endpoints with requireAuth middleware

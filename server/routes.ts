@@ -124,6 +124,22 @@ export async function registerRoutes(
       await storage.earnBadge(progress.id, "perfect_score");
     }
 
+    if (passed) {
+      const mod = await storage.getModule(req.params.moduleId);
+      if (mod) {
+        const levelModules = await storage.getModulesByLevel(mod.levelId);
+        const allAttempts2 = await storage.getQuizAttempts(progress.id);
+        const passedModuleIds = new Set(allAttempts2.filter(a => a.passed).map(a => a.moduleId));
+        const allPassed = levelModules.every(m => passedModuleIds.has(m.id));
+        if (allPassed) {
+          const level = await storage.getLevel(mod.levelId);
+          if (level) {
+            await storage.issueCertificate(getUserId(req)!, getUserName(req) || "Student", level.id, level.title);
+          }
+        }
+      }
+    }
+
     res.json({
       score: correct,
       total: questions.length,
@@ -398,6 +414,124 @@ ${lessonContext ? `Current lesson context: ${lessonContext}` : ""}`;
     } catch {
       res.status(404).json({ error: "Tip not found" });
     }
+  });
+
+  app.post("/api/classrooms", requireAuth, async (req, res) => {
+    const { name, gradeBand } = req.body;
+    if (!name || !gradeBand) return res.status(400).json({ error: "Name and grade band are required" });
+    const classroom = await storage.createClassroom(getUserId(req)!, getUserName(req) || "Teacher", name, gradeBand);
+    res.status(201).json(classroom);
+  });
+
+  app.get("/api/classrooms", requireAuth, async (req, res) => {
+    const teacherClassrooms = await storage.getClassroomsByTeacher(getUserId(req)!);
+    const studentClassrooms = await storage.getStudentClassrooms(getUserId(req)!);
+    const teacherWithCounts = [];
+    for (const c of teacherClassrooms) {
+      const members = await storage.getClassroomMembers(c.id);
+      teacherWithCounts.push({ ...c, studentCount: members.length });
+    }
+    res.json({ teacherClassrooms: teacherWithCounts, studentClassrooms });
+  });
+
+  app.post("/api/classrooms/join", requireAuth, async (req, res) => {
+    const { inviteCode } = req.body;
+    if (!inviteCode) return res.status(400).json({ error: "Invite code is required" });
+    const classroom = await storage.getClassroomByInviteCode(inviteCode.toUpperCase());
+    if (!classroom) return res.status(404).json({ error: "Classroom not found" });
+    if (classroom.teacherUserId === getUserId(req)) return res.status(400).json({ error: "You cannot join your own classroom" });
+    const member = await storage.joinClassroom(classroom.id, getUserId(req)!, getUserName(req) || "Student");
+    res.json({ classroom, member });
+  });
+
+  app.get("/api/classrooms/:classroomId", requireAuth, async (req, res) => {
+    const classroom = await storage.getClassroom(req.params.classroomId);
+    if (!classroom) return res.status(404).json({ error: "Classroom not found" });
+    if (classroom.teacherUserId !== getUserId(req)) return res.status(403).json({ error: "Not authorized" });
+    const members = await storage.getClassroomMembers(req.params.classroomId);
+
+    const memberDetails = [];
+    for (const member of members) {
+      const progress = await storage.getProgressByUserId(member.userId);
+      const earnedBadgesList = progress ? await storage.getEarnedBadges(progress.id) : [];
+      memberDetails.push({
+        id: member.id,
+        classroomId: member.classroomId,
+        userId: member.userId,
+        studentName: member.studentName,
+        joinedAt: member.joinedAt,
+        lessonsCompleted: progress?.lessonsCompleted || 0,
+        quizzesCompleted: progress?.quizzesCompleted || 0,
+        averageScore: progress?.averageScore || 0,
+        totalPoints: progress?.totalPoints || 0,
+        badgesEarned: earnedBadgesList.length,
+      });
+    }
+
+    const withProgress = memberDetails.filter(m => m.lessonsCompleted > 0 || m.quizzesCompleted > 0);
+    const avgScore = withProgress.length > 0
+      ? Math.round(memberDetails.reduce((sum, m) => sum + m.averageScore, 0) / memberDetails.length)
+      : 0;
+    const avgLessons = memberDetails.length > 0
+      ? Math.round(memberDetails.reduce((sum, m) => sum + m.lessonsCompleted, 0) / memberDetails.length)
+      : 0;
+
+    res.json({
+      classroom,
+      members: memberDetails,
+      stats: {
+        studentCount: members.length,
+        averageScore: avgScore,
+        averageLessonsCompleted: avgLessons,
+      },
+    });
+  });
+
+  app.get("/api/teacher/dashboard", requireAuth, async (req, res) => {
+    const teacherClassrooms = await storage.getClassroomsByTeacher(getUserId(req)!);
+
+    const classroomSummaries = [];
+    for (const classroom of teacherClassrooms) {
+      const members = await storage.getClassroomMembers(classroom.id);
+      let totalScore = 0;
+      let totalLessons = 0;
+      let totalQuizzes = 0;
+      let totalPoints = 0;
+      let progressCount = 0;
+
+      for (const member of members) {
+        const progress = await storage.getProgressByUserId(member.userId);
+        if (progress) {
+          totalScore += progress.averageScore;
+          totalLessons += progress.lessonsCompleted;
+          totalQuizzes += progress.quizzesCompleted;
+          totalPoints += progress.totalPoints;
+          progressCount++;
+        }
+      }
+
+      classroomSummaries.push({
+        ...classroom,
+        studentCount: members.length,
+        averageScore: progressCount > 0 ? Math.round(totalScore / progressCount) : 0,
+        totalLessonsCompleted: totalLessons,
+        totalQuizzesCompleted: totalQuizzes,
+        averagePoints: progressCount > 0 ? Math.round(totalPoints / progressCount) : 0,
+      });
+    }
+
+    res.json({ classrooms: classroomSummaries });
+  });
+
+  app.get("/api/certificates", requireAuth, async (req, res) => {
+    const certs = await storage.getCertificatesByUser(getUserId(req)!);
+    res.json(certs);
+  });
+
+  app.get("/api/certificates/:id", async (req, res) => {
+    const cert = await storage.getCertificate(req.params.id);
+    if (!cert) return res.status(404).json({ error: "Certificate not found" });
+    res.json(cert);
   });
 
   return httpServer;

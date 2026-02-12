@@ -151,6 +151,33 @@ export const studyTips = pgTable("study_tips", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const classrooms = pgTable("classrooms", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  teacherUserId: varchar("teacher_user_id", { length: 255 }).notNull(),
+  teacherName: text("teacher_name").notNull(),
+  inviteCode: varchar("invite_code", { length: 20 }).notNull(),
+  gradeBand: text("grade_band").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const classroomMembers = pgTable("classroom_members", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  classroomId: varchar("classroom_id", { length: 100 }).notNull().references(() => classrooms.id),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  studentName: text("student_name").notNull(),
+  joinedAt: timestamp("joined_at").defaultNow(),
+});
+
+export const certificates = pgTable("certificates", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  userName: text("user_name").notNull(),
+  levelId: integer("level_id").notNull().references(() => levels.id),
+  levelTitle: text("level_title").notNull(),
+  issuedAt: timestamp("issued_at").defaultNow(),
+});
+
 export const insertSubjectSchema = createInsertSchema(subjects);
 export const insertLevelSchema = createInsertSchema(levels);
 export const insertModuleSchema = createInsertSchema(modules).omit({ id: true });
@@ -165,6 +192,9 @@ export const insertCurriculumDocumentSchema = createInsertSchema(curriculumDocum
 export const insertLessonCommentSchema = createInsertSchema(lessonComments).omit({ id: true, createdAt: true });
 export const insertLessonReactionSchema = createInsertSchema(lessonReactions).omit({ id: true, createdAt: true });
 export const insertStudyTipSchema = createInsertSchema(studyTips).omit({ id: true, createdAt: true, upvotes: true });
+export const insertClassroomSchema = createInsertSchema(classrooms).omit({ id: true, createdAt: true, inviteCode: true });
+export const insertClassroomMemberSchema = createInsertSchema(classroomMembers).omit({ id: true, joinedAt: true });
+export const insertCertificateSchema = createInsertSchema(certificates).omit({ id: true, issuedAt: true });
 
 export type Subject = typeof subjects.$inferSelect;
 export type Level = typeof levels.$inferSelect;
@@ -195,5 +225,11 @@ export type LessonReaction = typeof lessonReactions.$inferSelect;
 export type InsertLessonReaction = z.infer<typeof insertLessonReactionSchema>;
 export type StudyTip = typeof studyTips.$inferSelect;
 export type InsertStudyTip = z.infer<typeof insertStudyTipSchema>;
+export type Classroom = typeof classrooms.$inferSelect;
+export type InsertClassroom = z.infer<typeof insertClassroomSchema>;
+export type ClassroomMember = typeof classroomMembers.$inferSelect;
+export type InsertClassroomMember = z.infer<typeof insertClassroomMemberSchema>;
+export type Certificate = typeof certificates.$inferSelect;
+export type InsertCertificate = z.infer<typeof insertCertificateSchema>;
 
 export * from "./models/auth";
