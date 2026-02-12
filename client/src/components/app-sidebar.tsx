@@ -15,9 +15,12 @@ import {
 import {
   Home, BookOpen, Award, Brain, Star, GraduationCap,
   Shield, ShieldCheck, ShieldPlus, Swords, Medal, Heart, Sparkles,
-  Users, Globe, FileText
+  Users, Globe, FileText, LogIn, LogOut, Flame
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getRankForLevel } from "@/lib/curriculum-data";
+import { useAuth } from "@/hooks/use-auth";
 import type { StudentProgress } from "@shared/schema";
 
 const menuItems = [
@@ -37,12 +40,17 @@ const rankIcons: Record<string, typeof Shield> = {
 
 export function AppSidebar() {
   const [location] = useLocation();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const { data: progress } = useQuery<StudentProgress>({
     queryKey: ["/api/progress"],
   });
 
   const rank = progress ? getRankForLevel(progress.currentLevel) : null;
   const RankIcon = rank ? (rankIcons[rank.icon] || Shield) : Shield;
+
+  const initials = user
+    ? ((user.firstName?.[0] || "") + (user.lastName?.[0] || "")).toUpperCase() || (user.email?.[0]?.toUpperCase() || "?")
+    : "?";
 
   return (
     <Sidebar>
@@ -60,6 +68,32 @@ export function AppSidebar() {
         </Link>
       </SidebarHeader>
       <SidebarContent>
+        {isAuthenticated && user && (
+          <SidebarGroup>
+            <SidebarGroupContent>
+              <div className="px-3 py-2">
+                <div className="flex items-center gap-2.5">
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src={user.profileImageUrl || undefined} alt={user.firstName || "User"} />
+                    <AvatarFallback className="text-xs bg-primary/10 text-primary">{initials}</AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold truncate" data-testid="text-sidebar-username">
+                      {user.firstName ? `${user.firstName}${user.lastName ? ` ${user.lastName}` : ""}` : user.email || "Student"}
+                    </p>
+                    {progress && progress.streakDays > 0 && (
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <Flame className="h-3 w-3 text-orange-500" />
+                        <span>{progress.streakDays} day streak</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
+
         <SidebarGroup>
           <SidebarGroupLabel>Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
@@ -118,7 +152,22 @@ export function AppSidebar() {
         )}
       </SidebarContent>
       <SidebarFooter className="p-4">
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+        {!authLoading && (
+          isAuthenticated ? (
+            <a href="/api/logout">
+              <Button variant="ghost" size="sm" className="w-full justify-start" data-testid="button-logout">
+                <LogOut className="mr-2 h-4 w-4" /> Sign Out
+              </Button>
+            </a>
+          ) : (
+            <a href="/api/login">
+              <Button variant="default" size="sm" className="w-full" data-testid="button-login">
+                <LogIn className="mr-2 h-4 w-4" /> Sign In
+              </Button>
+            </a>
+          )
+        )}
+        <div className="flex items-center gap-2 text-xs text-muted-foreground mt-2">
           <Heart className="h-3.5 w-3.5 shrink-0" />
           <span>Supporting the whole child</span>
         </div>

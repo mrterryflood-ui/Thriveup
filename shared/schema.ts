@@ -74,6 +74,7 @@ export const badges = pgTable("badges", {
 
 export const studentProgress = pgTable("student_progress", {
   id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id", { length: 255 }),
   studentName: text("student_name").notNull(),
   currentLevel: integer("current_level").notNull().default(1),
   currentModuleId: varchar("current_module_id", { length: 100 }),
@@ -81,6 +82,9 @@ export const studentProgress = pgTable("student_progress", {
   lessonsCompleted: integer("lessons_completed").notNull().default(0),
   quizzesCompleted: integer("quizzes_completed").notNull().default(0),
   averageScore: integer("average_score").notNull().default(0),
+  streakDays: integer("streak_days").notNull().default(0),
+  lastActiveDate: text("last_active_date"),
+  longestStreak: integer("longest_streak").notNull().default(0),
 });
 
 export const completedLessons = pgTable("completed_lessons", {
@@ -155,3 +159,5 @@ export type InsertQuizAttempt = z.infer<typeof insertQuizAttemptSchema>;
 export type InsertEarnedBadge = z.infer<typeof insertEarnedBadgeSchema>;
 export type CurriculumDocument = typeof curriculumDocuments.$inferSelect;
 export type InsertCurriculumDocument = z.infer<typeof insertCurriculumDocumentSchema>;
+
+export * from "./models/auth";

@@ -29,7 +29,7 @@ export interface IStorage {
   getQuizByModule(moduleId: string): Promise<QuizQuestion[]>;
   getBadges(): Promise<Badge[]>;
   getBadge(id: string): Promise<Badge | undefined>;
-  getOrCreateProgress(name?: string): Promise<StudentProgress>;
+  getOrCreateProgress(userId?: string, name?: string): Promise<StudentProgress>;
   updateProgress(id: string, data: Partial<StudentProgress>): Promise<StudentProgress>;
   completeLesson(progressId: string, lessonId: string): Promise<CompletedLesson>;
   getCompletedLessons(progressId: string): Promise<CompletedLesson[]>;
@@ -105,7 +105,35 @@ export class DatabaseStorage implements IStorage {
     return badge;
   }
 
-  async getOrCreateProgress(name?: string): Promise<StudentProgress> {
+  async getOrCreateProgress(userId?: string, name?: string): Promise<StudentProgress> {
+    if (userId) {
+      const existing = await db.select().from(studentProgress).where(eq(studentProgress.userId, userId)).limit(1);
+      if (existing.length > 0) {
+        const today = new Date().toISOString().split("T")[0];
+        if (existing[0].lastActiveDate !== today) {
+          const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
+          const newStreak = existing[0].lastActiveDate === yesterday ? existing[0].streakDays + 1 : 1;
+          const longestStreak = Math.max(existing[0].longestStreak, newStreak);
+          await db.update(studentProgress).set({ lastActiveDate: today, streakDays: newStreak, longestStreak }).where(eq(studentProgress.id, existing[0].id));
+          return { ...existing[0], lastActiveDate: today, streakDays: newStreak, longestStreak };
+        }
+        return existing[0];
+      }
+      const [created] = await db.insert(studentProgress).values({
+        userId,
+        studentName: name || "Explorer",
+        currentLevel: 1,
+        currentModuleId: "level_1_module_1",
+        totalPoints: 0,
+        lessonsCompleted: 0,
+        quizzesCompleted: 0,
+        averageScore: 0,
+        streakDays: 1,
+        lastActiveDate: new Date().toISOString().split("T")[0],
+        longestStreak: 1,
+      }).returning();
+      return created;
+    }
     const existing = await db.select().from(studentProgress).limit(1);
     if (existing.length > 0) return existing[0];
 
@@ -117,6 +145,8 @@ export class DatabaseStorage implements IStorage {
       lessonsCompleted: 0,
       quizzesCompleted: 0,
       averageScore: 0,
+      streakDays: 0,
+      longestStreak: 0,
     }).returning();
     return created;
   }
@@ -229,7 +259,6 @@ export class DatabaseStorage implements IStorage {
       await seedSubjects(db);
     }
 
-    await this.getOrCreateProgress("Alex");
   }
 }
 

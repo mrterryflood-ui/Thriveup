@@ -1,8 +1,21 @@
-import type { Express } from "express";
+import type { Express, Request } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertCurriculumDocumentSchema } from "@shared/schema";
 import OpenAI from "openai";
+
+function getUserId(req: Request): string | undefined {
+  const user = (req as any).user;
+  return user?.claims?.sub;
+}
+
+function getUserName(req: Request): string | undefined {
+  const user = (req as any).user;
+  if (!user?.claims) return undefined;
+  const first = user.claims.first_name || "";
+  const last = user.claims.last_name || "";
+  return (first + " " + last).trim() || user.claims.email || undefined;
+}
 
 const openai = new OpenAI({
   apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
@@ -74,7 +87,7 @@ export async function registerRoutes(
       return res.status(400).json({ error: "Answers object is required" });
     }
     const questions = await storage.getQuizByModule(req.params.moduleId);
-    const progress = await storage.getOrCreateProgress();
+    const progress = await storage.getOrCreateProgress(getUserId(req), getUserName(req));
 
     let correct = 0;
     for (const q of questions) {
@@ -122,7 +135,7 @@ export async function registerRoutes(
     const lesson = await storage.getLesson(req.params.lessonId);
     if (!lesson) return res.status(404).json({ error: "Lesson not found" });
 
-    const progress = await storage.getOrCreateProgress();
+    const progress = await storage.getOrCreateProgress(getUserId(req), getUserName(req));
     await storage.completeLesson(progress.id, req.params.lessonId);
 
     const completed = await storage.getCompletedLessons(progress.id);
@@ -147,13 +160,13 @@ export async function registerRoutes(
     res.json({ success: true, pointsEarned });
   });
 
-  app.get("/api/progress", async (_req, res) => {
-    const progress = await storage.getOrCreateProgress();
+  app.get("/api/progress", async (req, res) => {
+    const progress = await storage.getOrCreateProgress(getUserId(req), getUserName(req));
     res.json(progress);
   });
 
-  app.get("/api/dashboard", async (_req, res) => {
-    const progress = await storage.getOrCreateProgress();
+  app.get("/api/dashboard", async (req, res) => {
+    const progress = await storage.getOrCreateProgress(getUserId(req), getUserName(req));
     const currentLevel = await storage.getLevel(progress.currentLevel);
     const currentModule = progress.currentModuleId
       ? await storage.getModule(progress.currentModuleId)
@@ -182,8 +195,8 @@ export async function registerRoutes(
     });
   });
 
-  app.get("/api/achievements", async (_req, res) => {
-    const progress = await storage.getOrCreateProgress();
+  app.get("/api/achievements", async (req, res) => {
+    const progress = await storage.getOrCreateProgress(getUserId(req), getUserName(req));
     const allBadges = await storage.getBadges();
     const earnedBadgesList = await storage.getEarnedBadges(progress.id);
 
