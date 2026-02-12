@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { insertCurriculumDocumentSchema } from "@shared/schema";
 import OpenAI from "openai";
 
 const openai = new OpenAI({
@@ -261,6 +262,64 @@ ${lessonContext ? `Current lesson context: ${lessonContext}` : ""}`;
       res.write(`data: ${JSON.stringify({ error: "Failed to generate response" })}\n\n`);
       res.end();
     }
+  });
+
+  app.get("/api/curriculum-documents", async (_req, res) => {
+    const docs = await storage.getCurriculumDocuments();
+    res.json(docs);
+  });
+
+  app.get("/api/curriculum-documents/module/:moduleId", async (req, res) => {
+    const docs = await storage.getCurriculumDocumentsByModule(req.params.moduleId);
+    res.json(docs);
+  });
+
+  app.get("/api/curriculum-documents/level/:levelId", async (req, res) => {
+    const levelId = parseInt(req.params.levelId);
+    if (isNaN(levelId)) return res.status(400).json({ error: "Invalid level ID" });
+    const docs = await storage.getCurriculumDocumentsByLevel(levelId);
+    res.json(docs);
+  });
+
+  app.get("/api/curriculum-documents/:id", async (req, res) => {
+    const doc = await storage.getCurriculumDocument(req.params.id);
+    if (!doc) return res.status(404).json({ error: "Document not found" });
+    res.json(doc);
+  });
+
+  app.post("/api/curriculum-documents", async (req, res) => {
+    const parsed = insertCurriculumDocumentSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: "Invalid document data", details: parsed.error.flatten() });
+    }
+    try {
+      const doc = await storage.createCurriculumDocument(parsed.data);
+      res.status(201).json(doc);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create document" });
+    }
+  });
+
+  app.patch("/api/curriculum-documents/:id", async (req, res) => {
+    const existing = await storage.getCurriculumDocument(req.params.id);
+    if (!existing) return res.status(404).json({ error: "Document not found" });
+    const partial = insertCurriculumDocumentSchema.partial().safeParse(req.body);
+    if (!partial.success) {
+      return res.status(400).json({ error: "Invalid update data", details: partial.error.flatten() });
+    }
+    try {
+      const doc = await storage.updateCurriculumDocument(req.params.id, partial.data);
+      res.json(doc);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update document" });
+    }
+  });
+
+  app.delete("/api/curriculum-documents/:id", async (req, res) => {
+    const existing = await storage.getCurriculumDocument(req.params.id);
+    if (!existing) return res.status(404).json({ error: "Document not found" });
+    await storage.deleteCurriculumDocument(req.params.id);
+    res.json({ success: true });
   });
 
   return httpServer;

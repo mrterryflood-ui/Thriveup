@@ -1,0 +1,127 @@
+You are a curriculum designer for Learning Academy, a Grades 3-12 whole-child education platform launching in Austin, TX. The platform has two curriculum tracks:
+
+TRACK 1: AI MASTERY CURRICULUM (5 Levels)
+
+Level 1 - AI Explorer (Grades 3-5, 8 weeks, 2x/week, 20 min)
+Theme: Discovery & Basics
+
+Module 1: "What is AI?" - AI as a smart helper, AI in daily life, AI limitations
+Module 2: "Talking to AI" - Clear instructions, garbage in/garbage out, polite communication
+Module 3: "AI Can Make Mistakes" - Imperfect data, wrong answers, fact-checking with adults
+Module 4: "Creating with AI" - Art/stories/music with AI, human creativity + AI tools
+Level 2 - AI Guide (Grades 3-5, 12 weeks, 2x/week, 30 min)
+Theme: Prompting & Creative Applications
+
+Module 1: "The Art of Asking" - 5 W's of prompting, context, iterating prompts
+Module 2: "AI Ethics & Responsibility" - Bias, help-or-harm test, when NOT to use AI
+Module 3: "AI as a Learning Tool" - Research, fact-checking, AI-assisted vs. cheating
+Module 4: "Creating Solutions with AI" - Problem identification, project design, presenting solutions
+Level 3 - AI Architect (Grades 6-8, 16 weeks, 2x/week, 45 min)
+Theme: Building & Ethics Deepening
+
+Module 1: "Advanced Prompting & Prompt Engineering" - Multi-step prompting, chain-of-thought, role prompting
+Module 2: "AI, Society & Ethics Deep Dive" - Algorithmic bias, environmental impact, regulation
+Module 3: "Introduction to How AI Works" - Machine learning basics, neural networks, AI types
+Module 4: "Building AI-Powered Projects" - Design thinking, prototyping, testing
+Level 4 - AI Innovator (Grades 9-10, 20 weeks, 2x/week, 60 min)
+Theme: Advanced Creation & Societal Impact
+
+Module 1: "Advanced AI Systems" - NLP, computer vision, generative AI
+Module 2: "AI Safety & Alignment" - Existential risk, value alignment, responsible development
+Module 3: "AI Entrepreneurship" - Problem validation, business models, pitch development
+Module 4: "Social Impact Projects" - Community needs assessment, AI solutions, impact measurement
+Level 5 - AI Master (Grades 11-12, Full academic year)
+Theme: Leadership & Teaching Others
+
+Module 1: "AI Educator Path" - Pedagogical design, mentoring younger students
+Module 2: "AI Researcher Path" - Original research, academic writing, peer review
+Module 3: "AI Implementation Leader Path" - Real-world adoption, change management, leadership
+TRACK 2: CORE SUBJECTS (6 Areas x 3 Grade Bands = 18 Subject-Courses)
+
+ELA:
+
+Grades 3-5: "The Writer's Workshop" - Reading comprehension, paragraph writing, vocabulary
+Grades 6-8: "The Literary Guild" - Literary analysis, essay writing, persuasive communication
+Grades 9-12: "The Scholar's Forum" - Critical analysis, research writing, rhetoric
+Mathematics:
+
+Grades 3-5: "The Problem-Solving Quest" - Multiplication, division, fractions, geometry
+Grades 6-8: "The Logic Lab" - Pre-algebra, ratios, statistics, reasoning
+Grades 9-12: "The Analytics Studio" - Algebra, geometry proofs, statistics, modeling
+Science:
+
+Grades 3-5: "The Investigation Station" - Ecosystems, matter/energy, earth science, scientific method
+Grades 6-8: "The Research Center" - Biology, chemistry basics, physics, experimental design
+Grades 9-12: "The Innovation Lab" - Advanced biology, chemistry, physics, research methodology
+Social Studies:
+
+Grades 3-5: "The Time Travelers" - American history, world cultures, geography, civics
+Grades 6-8: "The Global Forum" - Government, economics, world history, diverse perspectives
+Grades 9-12: "The Leadership Council" - Political science, economics, sociology, civic engagement
+Social-Emotional Learning (SEL):
+
+Grades 3-5: "The Teamwork Tower" - Emotional intelligence, conflict resolution, growth mindset
+Grades 6-8: "The Inner Compass" - Self-awareness, stress management, identity exploration
+Grades 9-12: "The Leadership Journey" - Mental health awareness, communication, leadership
+Wellness & Self-Care:
+
+Grades 3-5: "The Wellness Quest" - Nutrition science, fitness, sleep hygiene, stress management
+Grades 6-8: "The Wellness Lab" - Adolescent health, mental wellness, digital wellness
+Grades 9-12: "The Wellness Blueprint" - Comprehensive wellness, mental health, nutrition, fitness
+YOUR TASK:
+
+For EACH module listed above, generate a Curriculum Alignment Document in the following format:
+
+# [Module Title] - Curriculum Document
+## Level/Subject: [Level or Subject Name]
+## Grade Band: [3-5, 6-8, or 9-12]
+## Duration: [weeks]
+### Standards Alignment
+- List 3-5 relevant national/state standards (CCSS for ELA/Math, NGSS for Science, C3 for Social Studies, CASEL for SEL, SHAPE for Wellness, CSTA/ISTE for AI)
+### Learning Objectives
+- [Restate and expand the module's learning objectives with measurable outcomes using Bloom's taxonomy verbs]
+### Scope & Sequence
+Week-by-week breakdown:
+- Week 1: [Topic, key concepts, activities]
+- Week 2: [Topic, key concepts, activities]
+- (continue for each week)
+### Lesson Plans
+For each lesson in the module:
+- **Lesson Title**
+  - Duration: [minutes]
+  - Objective: [What students will know/do]
+  - Materials: [What's needed]
+  - Warm-Up (5 min): [Opening activity]
+  - Direct Instruction (10-15 min): [Teaching content]
+  - Guided Practice (10-15 min): [Activity with support]
+  - Independent Practice (5-10 min): [Student work]
+  - Closure (5 min): [Reflection/summary]
+  - Assessment: [How learning is measured]
+### Differentiation Strategies
+- **Below Grade Level:** [Scaffolding approaches]
+- **On Grade Level:** [Core instruction]
+- **Above Grade Level:** [Extension activities]
+- **English Language Learners:** [Language supports]
+- **Students with IEPs:** [Accommodations]
+### Assessment Plan
+- **Formative:** [Ongoing checks - exit tickets, observation, discussion]
+- **Summative:** [End-of-module assessment - project, quiz, presentation]
+- **Rubric:** [Scoring criteria with 4 levels: Beginning, Developing, Proficient, Advanced]
+### Cross-Curricular Connections
+- How this module connects to other subject areas in the platform
+### Family Engagement
+- Parent/guardian take-home activities or discussion prompts
+- Connection to Parent Digital Literacy resources
+### Austin Community Connections
+- Local field trip or community partner opportunities relevant to this module
+IMPORTANT GUIDELINES:
+
+Content must be deeply empathetic and age-appropriate for the grade band
+Grades 3-5: Use clear explanations, real-world connections, encouraging tone
+Grades 6-8: Use relatable analogies, acknowledge growing independence, validate feelings
+Grades 9-12: Be direct and honest, embrace nuance and complexity, treat as emerging adults
+All SEL and Wellness content should normalize seeking help and emphasize "you are enough"
+AI curriculum should emphasize ethical use, critical thinking, and human agency over AI
+Include equity considerations throughout (low-income access, multilingual families, varied tech access)
+Generate the complete curriculum document for [INSERT MODULE NAME HERE] first, then I will ask for each subsequent module.
+

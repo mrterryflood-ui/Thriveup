@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   ArrowLeft, BookOpen, Clock, Target, Sparkles,
-  ChevronRight, CheckCircle2, PlayCircle, MessageCircle
+  ChevronRight, CheckCircle2, PlayCircle, MessageCircle, FileText
 } from "lucide-react";
 import type { Module, Lesson } from "@shared/schema";
 
@@ -131,10 +131,15 @@ export default function ModuleDetailPage() {
         ))}
       </div>
 
-      <div className="mt-8">
+      <div className="mt-8 flex flex-col gap-3">
         <Link href={`/quiz/${moduleId}`}>
           <Button className="w-full" size="lg" data-testid="button-take-quiz">
             <CheckCircle2 className="mr-2 h-5 w-5" /> Take Module Quiz
+          </Button>
+        </Link>
+        <Link href={`/curriculum-documents?module=${moduleId}`}>
+          <Button variant="outline" className="w-full" size="lg" data-testid="button-view-curriculum-docs">
+            <FileText className="mr-2 h-5 w-5" /> View Curriculum Documents
           </Button>
         </Link>
       </div>

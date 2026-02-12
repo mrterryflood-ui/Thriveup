@@ -25,6 +25,9 @@ Learning Academy is a comprehensive grades 3-12 whole-child education platform. 
 - `/achievements` - Badge collection and achievement stats
 - `/community` - Austin community access programs (6 equity initiatives)
 - `/parents` - Parent digital literacy resources and training modules
+- `/curriculum-documents` - Browse, create, and manage curriculum alignment documents
+- `/curriculum-documents/new` - Create new curriculum document
+- `/curriculum-documents/:id` - View/edit a single curriculum document
 
 ## API Routes
 - `GET /api/levels` - All curriculum levels
@@ -43,6 +46,13 @@ Learning Academy is a comprehensive grades 3-12 whole-child education platform. 
 - `GET /api/subjects/:id` - Single subject with topics
 - `GET /api/subjects/:subjectId/topics/:topicId/lessons` - Lessons for a topic
 - `POST /api/ai-companion/chat` - Spark AI chat endpoint (SSE streaming)
+- `GET /api/curriculum-documents` - All curriculum documents
+- `GET /api/curriculum-documents/:id` - Single document
+- `GET /api/curriculum-documents/module/:moduleId` - Documents for a module
+- `GET /api/curriculum-documents/level/:levelId` - Documents for a level
+- `POST /api/curriculum-documents` - Create document
+- `PATCH /api/curriculum-documents/:id` - Update document
+- `DELETE /api/curriculum-documents/:id` - Delete document
 
 ## Spark AI Companion
 - Model: gpt-4o-mini via OpenAI
@@ -95,7 +105,21 @@ Learning Academy is a comprehensive grades 3-12 whole-child education platform. 
 - Font: Plus Jakarta Sans (sans), JetBrains Mono (mono)
 - Dark mode supported with class-based toggle
 
+## Curriculum Documents System
+- Database table: `curriculum_documents` with fields for title, content (markdown), gradeBand, documentType, moduleId, levelId, standardsAlignment
+- Document types: curriculum_guide, lesson_plan, scope_sequence, assessment_rubric, standards_alignment
+- Browse page with filtering by level and grade band
+- Create/edit form with level/module selection and markdown content
+- Document viewer with built-in markdown rendering
+- Linked from module detail pages ("View Curriculum Documents" button)
+- Sidebar: "Curriculum Docs" link
+
 ## Recent Changes
+- Built Curriculum Documents system for managing standards-aligned curriculum guides
+- Added curriculum_documents database table and full CRUD API
+- Built browse, create, view, and edit pages for curriculum documents
+- Added "Curriculum Docs" to sidebar navigation
+- Added "View Curriculum Documents" button to module detail pages
 - Added 6 Austin community equity programs (free access, Title I, device lending, offline mode, Spanish, parent literacy)
 - Built Community Access page (/community) showcasing all Austin programs
 - Built Parent Resources page (/parents) with digital literacy training modules

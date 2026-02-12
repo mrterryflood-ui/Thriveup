@@ -107,6 +107,19 @@ export const earnedBadges = pgTable("earned_badges", {
   earnedAt: timestamp("earned_at").defaultNow(),
 });
 
+export const curriculumDocuments = pgTable("curriculum_documents", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  moduleId: varchar("module_id", { length: 100 }).references(() => modules.id),
+  levelId: integer("level_id").references(() => levels.id),
+  title: text("title").notNull(),
+  content: text("content").notNull(),
+  gradeBand: text("grade_band").notNull(),
+  documentType: text("document_type").notNull().default("curriculum_guide"),
+  standardsAlignment: text("standards_alignment").array(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 export const insertSubjectSchema = createInsertSchema(subjects);
 export const insertLevelSchema = createInsertSchema(levels);
 export const insertModuleSchema = createInsertSchema(modules).omit({ id: true });
@@ -117,6 +130,7 @@ export const insertStudentProgressSchema = createInsertSchema(studentProgress).o
 export const insertCompletedLessonSchema = createInsertSchema(completedLessons).omit({ id: true });
 export const insertQuizAttemptSchema = createInsertSchema(quizAttempts).omit({ id: true });
 export const insertEarnedBadgeSchema = createInsertSchema(earnedBadges).omit({ id: true });
+export const insertCurriculumDocumentSchema = createInsertSchema(curriculumDocuments).omit({ id: true, createdAt: true, updatedAt: true });
 
 export type Subject = typeof subjects.$inferSelect;
 export type Level = typeof levels.$inferSelect;
@@ -139,3 +153,5 @@ export type InsertStudentProgress = z.infer<typeof insertStudentProgressSchema>;
 export type InsertCompletedLesson = z.infer<typeof insertCompletedLessonSchema>;
 export type InsertQuizAttempt = z.infer<typeof insertQuizAttemptSchema>;
 export type InsertEarnedBadge = z.infer<typeof insertEarnedBadgeSchema>;
+export type CurriculumDocument = typeof curriculumDocuments.$inferSelect;
+export type InsertCurriculumDocument = z.infer<typeof insertCurriculumDocumentSchema>;

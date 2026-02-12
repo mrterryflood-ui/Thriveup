@@ -1,8 +1,9 @@
 import {
   levels, modules, lessons, quizQuestions, badges, subjects,
-  studentProgress, completedLessons, quizAttempts, earnedBadges,
+  studentProgress, completedLessons, quizAttempts, earnedBadges, curriculumDocuments,
   type Level, type Module, type Lesson, type QuizQuestion, type Badge, type Subject,
   type StudentProgress, type CompletedLesson, type QuizAttempt, type EarnedBadge,
+  type CurriculumDocument, type InsertCurriculumDocument,
 } from "@shared/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
@@ -36,6 +37,13 @@ export interface IStorage {
   getQuizAttempts(progressId: string): Promise<QuizAttempt[]>;
   earnBadge(progressId: string, badgeId: string): Promise<EarnedBadge>;
   getEarnedBadges(progressId: string): Promise<Array<EarnedBadge & { badge: Badge }>>;
+  getCurriculumDocuments(): Promise<CurriculumDocument[]>;
+  getCurriculumDocumentsByModule(moduleId: string): Promise<CurriculumDocument[]>;
+  getCurriculumDocumentsByLevel(levelId: number): Promise<CurriculumDocument[]>;
+  getCurriculumDocument(id: string): Promise<CurriculumDocument | undefined>;
+  createCurriculumDocument(doc: InsertCurriculumDocument): Promise<CurriculumDocument>;
+  updateCurriculumDocument(id: string, doc: Partial<InsertCurriculumDocument>): Promise<CurriculumDocument>;
+  deleteCurriculumDocument(id: string): Promise<void>;
   seedData(): Promise<void>;
 }
 
@@ -174,6 +182,37 @@ export class DatabaseStorage implements IStorage {
       }
     }
     return result;
+  }
+
+  async getCurriculumDocuments(): Promise<CurriculumDocument[]> {
+    return db.select().from(curriculumDocuments).orderBy(desc(curriculumDocuments.createdAt));
+  }
+
+  async getCurriculumDocumentsByModule(moduleId: string): Promise<CurriculumDocument[]> {
+    return db.select().from(curriculumDocuments).where(eq(curriculumDocuments.moduleId, moduleId));
+  }
+
+  async getCurriculumDocumentsByLevel(levelId: number): Promise<CurriculumDocument[]> {
+    return db.select().from(curriculumDocuments).where(eq(curriculumDocuments.levelId, levelId));
+  }
+
+  async getCurriculumDocument(id: string): Promise<CurriculumDocument | undefined> {
+    const [doc] = await db.select().from(curriculumDocuments).where(eq(curriculumDocuments.id, id));
+    return doc;
+  }
+
+  async createCurriculumDocument(doc: InsertCurriculumDocument): Promise<CurriculumDocument> {
+    const [created] = await db.insert(curriculumDocuments).values(doc).returning();
+    return created;
+  }
+
+  async updateCurriculumDocument(id: string, doc: Partial<InsertCurriculumDocument>): Promise<CurriculumDocument> {
+    const [updated] = await db.update(curriculumDocuments).set({ ...doc, updatedAt: new Date() }).where(eq(curriculumDocuments.id, id)).returning();
+    return updated;
+  }
+
+  async deleteCurriculumDocument(id: string): Promise<void> {
+    await db.delete(curriculumDocuments).where(eq(curriculumDocuments.id, id));
   }
 
   async seedData(): Promise<void> {

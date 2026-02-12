@@ -15,7 +15,7 @@ import {
 import {
   Home, BookOpen, Award, Brain, Star, GraduationCap,
   Shield, ShieldCheck, ShieldPlus, Swords, Medal, Heart, Sparkles,
-  Users, Globe
+  Users, Globe, FileText
 } from "lucide-react";
 import { getRankForLevel } from "@/lib/curriculum-data";
 import type { StudentProgress } from "@shared/schema";
@@ -26,6 +26,7 @@ const menuItems = [
   { title: "AI Curriculum", url: "/curriculum", icon: Brain },
   { title: "Spark", url: "/ai-companion", icon: Sparkles },
   { title: "Achievements", url: "/achievements", icon: Award },
+  { title: "Curriculum Docs", url: "/curriculum-documents", icon: FileText },
   { title: "Community", url: "/community", icon: Globe },
   { title: "Parents", url: "/parents", icon: Users },
 ];
@@ -66,7 +67,8 @@ export function AppSidebar() {
               {menuItems.map((item) => {
                 const isActive = location === item.url || 
                   (item.url === "/subjects" && location.startsWith("/subject")) ||
-                  (item.url === "/curriculum" && location.startsWith("/curriculum")) ||
+                  (item.url === "/curriculum" && location.startsWith("/curriculum/")) ||
+                  (item.url === "/curriculum-documents" && location.startsWith("/curriculum-documents/")) ||
                   location.startsWith(item.url + "/");
                 return (
                   <SidebarMenuItem key={item.title}>
