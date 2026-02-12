@@ -124,6 +124,33 @@ export const curriculumDocuments = pgTable("curriculum_documents", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+export const lessonComments = pgTable("lesson_comments", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  lessonId: varchar("lesson_id", { length: 100 }).notNull().references(() => lessons.id),
+  userId: varchar("user_id", { length: 255 }),
+  userName: text("user_name").notNull(),
+  content: text("content").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const lessonReactions = pgTable("lesson_reactions", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  lessonId: varchar("lesson_id", { length: 100 }).notNull().references(() => lessons.id),
+  userId: varchar("user_id", { length: 255 }),
+  reactionType: text("reaction_type").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const studyTips = pgTable("study_tips", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  moduleId: varchar("module_id", { length: 100 }).notNull().references(() => modules.id),
+  userId: varchar("user_id", { length: 255 }),
+  userName: text("user_name").notNull(),
+  content: text("content").notNull(),
+  upvotes: integer("upvotes").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const insertSubjectSchema = createInsertSchema(subjects);
 export const insertLevelSchema = createInsertSchema(levels);
 export const insertModuleSchema = createInsertSchema(modules).omit({ id: true });
@@ -135,6 +162,9 @@ export const insertCompletedLessonSchema = createInsertSchema(completedLessons).
 export const insertQuizAttemptSchema = createInsertSchema(quizAttempts).omit({ id: true });
 export const insertEarnedBadgeSchema = createInsertSchema(earnedBadges).omit({ id: true });
 export const insertCurriculumDocumentSchema = createInsertSchema(curriculumDocuments).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertLessonCommentSchema = createInsertSchema(lessonComments).omit({ id: true, createdAt: true });
+export const insertLessonReactionSchema = createInsertSchema(lessonReactions).omit({ id: true, createdAt: true });
+export const insertStudyTipSchema = createInsertSchema(studyTips).omit({ id: true, createdAt: true, upvotes: true });
 
 export type Subject = typeof subjects.$inferSelect;
 export type Level = typeof levels.$inferSelect;
@@ -159,5 +189,11 @@ export type InsertQuizAttempt = z.infer<typeof insertQuizAttemptSchema>;
 export type InsertEarnedBadge = z.infer<typeof insertEarnedBadgeSchema>;
 export type CurriculumDocument = typeof curriculumDocuments.$inferSelect;
 export type InsertCurriculumDocument = z.infer<typeof insertCurriculumDocumentSchema>;
+export type LessonComment = typeof lessonComments.$inferSelect;
+export type InsertLessonComment = z.infer<typeof insertLessonCommentSchema>;
+export type LessonReaction = typeof lessonReactions.$inferSelect;
+export type InsertLessonReaction = z.infer<typeof insertLessonReactionSchema>;
+export type StudyTip = typeof studyTips.$inferSelect;
+export type InsertStudyTip = z.infer<typeof insertStudyTipSchema>;
 
 export * from "./models/auth";

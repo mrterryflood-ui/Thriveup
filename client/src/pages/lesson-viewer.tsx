@@ -18,6 +18,7 @@ import SortingActivity from "@/components/activities/sorting-activity";
 import BreathingExercise from "@/components/activities/breathing-exercise";
 import EmotionCheck from "@/components/activities/emotion-check";
 import AICompanion from "@/components/ai-companion";
+import LessonComments from "@/components/lesson-comments";
 
 function parseActivityData(lesson: Lesson) {
   if (!lesson.activityData || !lesson.activityType) return null;
@@ -174,6 +175,10 @@ export default function LessonViewerPage() {
             className="h-[400px]"
           />
         )}
+      </div>
+
+      <div className="mt-6">
+        <LessonComments lessonId={lessonId} />
       </div>
 
       <div className="flex items-center justify-between gap-4 flex-wrap mt-6">

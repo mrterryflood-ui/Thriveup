@@ -15,7 +15,7 @@ import {
 import {
   Home, BookOpen, Award, Brain, Star, GraduationCap,
   Shield, ShieldCheck, ShieldPlus, Swords, Medal, Heart, Sparkles,
-  Users, Globe, FileText, LogIn, LogOut, Flame
+  Users, Globe, FileText, LogIn, LogOut, Flame, BarChart3
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -32,6 +32,7 @@ const menuItems = [
   { title: "Curriculum Docs", url: "/curriculum-documents", icon: FileText },
   { title: "Community", url: "/community", icon: Globe },
   { title: "Parents", url: "/parents", icon: Users },
+  { title: "Parent Dashboard", url: "/parents/dashboard", icon: BarChart3 },
 ];
 
 const rankIcons: Record<string, typeof Shield> = {

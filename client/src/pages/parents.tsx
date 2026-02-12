@@ -107,6 +107,26 @@ const resources = [
 export default function ParentResourcesPage() {
   return (
     <div className="min-h-screen">
+      {/* Progress Dashboard CTA */}
+      <section className="px-6 pt-6">
+        <div className="mx-auto max-w-5xl">
+          <Link href="/parents/dashboard">
+            <Card className="p-6 hover-elevate cursor-pointer border-primary/20 bg-gradient-to-r from-primary/5 to-accent/5" data-testid="card-view-progress-dashboard">
+              <div className="flex items-center gap-4 flex-wrap">
+                <div className="rounded-md p-2.5 bg-primary/10 shrink-0">
+                  <BarChart3 className="h-6 w-6 text-primary" />
+                </div>
+                <div className="flex-1 min-w-[200px]">
+                  <h2 className="text-lg font-bold mb-0.5">View Your Child's Progress</h2>
+                  <p className="text-sm text-muted-foreground">Track scores, completion stats, streaks, and personalized recommendations</p>
+                </div>
+                <ArrowRight className="h-5 w-5 text-muted-foreground shrink-0" />
+              </div>
+            </Card>
+          </Link>
+        </div>
+      </section>
+
       {/* Hero */}
       <section className="relative overflow-hidden py-20 px-6 md:py-32">
         <div className="absolute inset-0 bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700" />

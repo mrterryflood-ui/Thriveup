@@ -9,6 +9,7 @@ import {
   ChevronRight, CheckCircle2, PlayCircle, MessageCircle, FileText, Gamepad2
 } from "lucide-react";
 import type { Module, Lesson } from "@shared/schema";
+import StudyTips from "@/components/study-tips";
 
 function findBestLessonForActivity(activity: string, lessons: Lesson[]): Lesson | null {
   if (!lessons || lessons.length === 0) return null;
@@ -170,6 +171,10 @@ export default function ModuleDetailPage() {
             })}
           </ul>
         </Card>
+      </div>
+
+      <div className="mb-8">
+        <StudyTips moduleId={moduleId} />
       </div>
 
       <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">

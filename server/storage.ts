@@ -1,11 +1,13 @@
 import {
   levels, modules, lessons, quizQuestions, badges, subjects,
   studentProgress, completedLessons, quizAttempts, earnedBadges, curriculumDocuments,
+  lessonComments, lessonReactions, studyTips,
   type Level, type Module, type Lesson, type QuizQuestion, type Badge, type Subject,
   type StudentProgress, type CompletedLesson, type QuizAttempt, type EarnedBadge,
   type CurriculumDocument, type InsertCurriculumDocument,
+  type LessonComment, type LessonReaction, type StudyTip,
 } from "@shared/schema";
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and, desc, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import pg from "pg";
 
@@ -44,6 +46,13 @@ export interface IStorage {
   createCurriculumDocument(doc: InsertCurriculumDocument): Promise<CurriculumDocument>;
   updateCurriculumDocument(id: string, doc: Partial<InsertCurriculumDocument>): Promise<CurriculumDocument>;
   deleteCurriculumDocument(id: string): Promise<void>;
+  getCommentsByLesson(lessonId: string): Promise<LessonComment[]>;
+  addComment(lessonId: string, userId: string | undefined, userName: string, content: string): Promise<LessonComment>;
+  getReactionsByLesson(lessonId: string): Promise<Record<string, number>>;
+  addReaction(lessonId: string, userId: string | undefined, reactionType: string): Promise<void>;
+  getStudyTipsByModule(moduleId: string): Promise<StudyTip[]>;
+  addStudyTip(moduleId: string, userId: string | undefined, userName: string, content: string): Promise<StudyTip>;
+  upvoteStudyTip(tipId: string): Promise<StudyTip>;
   seedData(): Promise<void>;
 }
 
@@ -245,9 +254,55 @@ export class DatabaseStorage implements IStorage {
     await db.delete(curriculumDocuments).where(eq(curriculumDocuments.id, id));
   }
 
+  async getCommentsByLesson(lessonId: string): Promise<LessonComment[]> {
+    return db.select().from(lessonComments).where(eq(lessonComments.lessonId, lessonId)).orderBy(desc(lessonComments.createdAt));
+  }
+
+  async addComment(lessonId: string, userId: string | undefined, userName: string, content: string): Promise<LessonComment> {
+    const [created] = await db.insert(lessonComments).values({ lessonId, userId, userName, content }).returning();
+    return created;
+  }
+
+  async getReactionsByLesson(lessonId: string): Promise<Record<string, number>> {
+    const reactions = await db.select().from(lessonReactions).where(eq(lessonReactions.lessonId, lessonId));
+    const counts: Record<string, number> = { helpful: 0, inspiring: 0, challenging: 0, fun: 0 };
+    for (const r of reactions) {
+      counts[r.reactionType] = (counts[r.reactionType] || 0) + 1;
+    }
+    return counts;
+  }
+
+  async addReaction(lessonId: string, userId: string | undefined, reactionType: string): Promise<void> {
+    if (userId) {
+      const existing = await db.select().from(lessonReactions)
+        .where(and(eq(lessonReactions.lessonId, lessonId), eq(lessonReactions.userId, userId), eq(lessonReactions.reactionType, reactionType)));
+      if (existing.length > 0) {
+        await db.delete(lessonReactions).where(eq(lessonReactions.id, existing[0].id));
+        return;
+      }
+    }
+    await db.insert(lessonReactions).values({ lessonId, userId, reactionType });
+  }
+
+  async getStudyTipsByModule(moduleId: string): Promise<StudyTip[]> {
+    return db.select().from(studyTips).where(eq(studyTips.moduleId, moduleId)).orderBy(desc(studyTips.upvotes));
+  }
+
+  async addStudyTip(moduleId: string, userId: string | undefined, userName: string, content: string): Promise<StudyTip> {
+    const [created] = await db.insert(studyTips).values({ moduleId, userId, userName, content }).returning();
+    return created;
+  }
+
+  async upvoteStudyTip(tipId: string): Promise<StudyTip> {
+    const [updated] = await db.update(studyTips).set({ upvotes: sql`${studyTips.upvotes} + 1` }).where(eq(studyTips.id, tipId)).returning();
+    return updated;
+  }
+
   async seedData(): Promise<void> {
     const { seedAILevels } = await import("./seed-ai");
     const { seedSubjects } = await import("./seed-subjects");
+    const { seedAdditionalLessons } = await import("./seed-lessons");
+    const { seedCurriculumDocuments } = await import("./seed-curriculum-docs");
 
     const existingLevels = await db.select().from(levels).limit(1);
     if (existingLevels.length === 0) {
@@ -259,6 +314,15 @@ export class DatabaseStorage implements IStorage {
       await seedSubjects(db);
     }
 
+    const existingLessons = await db.select().from(lessons);
+    if (existingLessons.length < 50) {
+      await seedAdditionalLessons(db);
+    }
+
+    const existingDocs = await db.select().from(curriculumDocuments).limit(1);
+    if (existingDocs.length < 50) {
+      await seedCurriculumDocuments(db);
+    }
   }
 }
 

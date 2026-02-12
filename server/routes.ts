@@ -335,5 +335,63 @@ ${lessonContext ? `Current lesson context: ${lessonContext}` : ""}`;
     res.json({ success: true });
   });
 
+  app.get("/api/lessons/:lessonId/comments", async (req, res) => {
+    const comments = await storage.getCommentsByLesson(req.params.lessonId);
+    res.json(comments);
+  });
+
+  app.post("/api/lessons/:lessonId/comments", async (req, res) => {
+    const { content } = req.body;
+    if (!content || typeof content !== "string" || content.trim().length === 0) {
+      return res.status(400).json({ error: "Content is required" });
+    }
+    const userId = getUserId(req);
+    const userName = getUserName(req) || "Anonymous";
+    const comment = await storage.addComment(req.params.lessonId, userId, userName, content.trim());
+    res.status(201).json(comment);
+  });
+
+  app.get("/api/lessons/:lessonId/reactions", async (req, res) => {
+    const reactions = await storage.getReactionsByLesson(req.params.lessonId);
+    res.json(reactions);
+  });
+
+  app.post("/api/lessons/:lessonId/reactions", async (req, res) => {
+    const { reactionType } = req.body;
+    const validTypes = ["helpful", "inspiring", "challenging", "fun"];
+    if (!reactionType || !validTypes.includes(reactionType)) {
+      return res.status(400).json({ error: "Invalid reaction type" });
+    }
+    const userId = getUserId(req);
+    await storage.addReaction(req.params.lessonId, userId, reactionType);
+    const reactions = await storage.getReactionsByLesson(req.params.lessonId);
+    res.json(reactions);
+  });
+
+  app.get("/api/modules/:moduleId/tips", async (req, res) => {
+    const tips = await storage.getStudyTipsByModule(req.params.moduleId);
+    res.json(tips);
+  });
+
+  app.post("/api/modules/:moduleId/tips", async (req, res) => {
+    const { content } = req.body;
+    if (!content || typeof content !== "string" || content.trim().length === 0) {
+      return res.status(400).json({ error: "Content is required" });
+    }
+    const userId = getUserId(req);
+    const userName = getUserName(req) || "Anonymous";
+    const tip = await storage.addStudyTip(req.params.moduleId, userId, userName, content.trim());
+    res.status(201).json(tip);
+  });
+
+  app.post("/api/tips/:tipId/upvote", async (req, res) => {
+    try {
+      const tip = await storage.upvoteStudyTip(req.params.tipId);
+      res.json(tip);
+    } catch {
+      res.status(404).json({ error: "Tip not found" });
+    }
+  });
+
   return httpServer;
 }
