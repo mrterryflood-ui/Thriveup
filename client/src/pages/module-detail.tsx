@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Link, useParams } from "wouter";
+import { Link, useParams, useLocation } from "wouter";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -10,9 +10,45 @@ import {
 } from "lucide-react";
 import type { Module, Lesson } from "@shared/schema";
 
+function findBestLessonForActivity(activity: string, lessons: Lesson[]): Lesson | null {
+  if (!lessons || lessons.length === 0) return null;
+  const actLower = activity.toLowerCase();
+  const actWords = actLower.split(/[\s:,\-()]+/).filter(w => w.length > 3);
+  let bestLesson: Lesson | null = null;
+  let bestScore = 0;
+  for (const lesson of lessons) {
+    const titleLower = lesson.title.toLowerCase();
+    let score = 0;
+    for (const word of actWords) {
+      if (titleLower.includes(word)) score += 2;
+    }
+    if (lesson.activityType) {
+      const typeLower = lesson.activityType.toLowerCase();
+      if (actLower.includes("sort") && typeLower.includes("sort")) score += 3;
+      if (actLower.includes("hunt") && (typeLower.includes("explor") || typeLower.includes("discovery"))) score += 3;
+      if (actLower.includes("creat") && typeLower.includes("creat")) score += 3;
+      if (actLower.includes("practice") && typeLower.includes("practice")) score += 3;
+      if (actLower.includes("game") && typeLower.includes("interactive")) score += 2;
+    }
+    if (score > bestScore) {
+      bestScore = score;
+      bestLesson = lesson;
+    }
+  }
+  return bestLesson;
+}
+
+function isSparkActivity(activity: string): boolean {
+  const lower = activity.toLowerCase();
+  return lower.includes("talk to alex") || lower.includes("voice/chat") ||
+    lower.includes("chat interaction") || lower.includes("ask an adult") ||
+    lower.includes("ask ai");
+}
+
 export default function ModuleDetailPage() {
   const params = useParams<{ moduleId: string }>();
   const moduleId = params.moduleId || "";
+  const [, setLocation] = useLocation();
 
   const { data: mod, isLoading: modLoading } = useQuery<Module>({
     queryKey: ["/api/modules", moduleId],
@@ -90,13 +126,48 @@ export default function ModuleDetailPage() {
           <h3 className="font-semibold mb-3 flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-primary" /> Activities
           </h3>
-          <ul className="space-y-2">
-            {mod.activities.map((act, i) => (
-              <li key={i} className="flex items-start gap-2 text-sm">
-                <PlayCircle className="h-4 w-4 text-accent mt-0.5 shrink-0" />
-                <span className="text-muted-foreground">{act}</span>
-              </li>
-            ))}
+          <ul className="space-y-1.5">
+            {mod.activities.map((act, i) => {
+              const isSpark = isSparkActivity(act);
+              const matchedLesson = !isSpark ? findBestLessonForActivity(act, moduleLessons || []) : null;
+              const activityName = act.includes(":") ? act.split(":")[0].trim() : act;
+              const activityDesc = act.includes(":") ? act.split(":").slice(1).join(":").trim() : "";
+
+              function handleClick() {
+                if (isSpark) {
+                  setLocation("/ai-companion");
+                } else if (matchedLesson) {
+                  setLocation(`/lesson/${matchedLesson.id}`);
+                } else if (moduleLessons && moduleLessons.length > 0) {
+                  setLocation(`/lesson/${moduleLessons[0].id}`);
+                }
+              }
+
+              return (
+                <li
+                  key={i}
+                  className="flex items-center gap-2 text-sm rounded-md p-2 cursor-pointer hover-elevate group"
+                  onClick={handleClick}
+                  data-testid={`button-activity-${i}`}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") handleClick(); }}
+                >
+                  <PlayCircle className="h-4 w-4 text-accent shrink-0" />
+                  <span className="flex-1 min-w-0">
+                    {activityDesc ? (
+                      <>
+                        <span className="font-medium text-foreground">{activityName}:</span>{" "}
+                        <span className="text-muted-foreground">{activityDesc}</span>
+                      </>
+                    ) : (
+                      <span className="text-muted-foreground">{act}</span>
+                    )}
+                  </span>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
+                </li>
+              );
+            })}
           </ul>
         </Card>
       </div>
