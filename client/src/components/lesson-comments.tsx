@@ -4,8 +4,9 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
-import { MessageSquare, ThumbsUp, Heart, Star, Zap, Send } from "lucide-react";
+import { MessageSquare, ThumbsUp, Heart, Star, Zap, Send, LogIn } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useAuth } from "@/hooks/use-auth";
 import type { LessonComment } from "@shared/schema";
 
 const REACTION_CONFIG = [
@@ -31,6 +32,7 @@ function formatTimeAgo(date: string | Date | null): string {
 
 export default function LessonComments({ lessonId }: { lessonId: string }) {
   const [commentText, setCommentText] = useState("");
+  const { isAuthenticated } = useAuth();
 
   const { data: comments, isLoading: commentsLoading } = useQuery<LessonComment[]>({
     queryKey: ["/api/lessons", lessonId, "comments"],
@@ -77,7 +79,7 @@ export default function LessonComments({ lessonId }: { lessonId: string }) {
               key={type}
               variant="outline"
               size="sm"
-              onClick={() => addReactionMutation.mutate(type)}
+              onClick={() => isAuthenticated ? addReactionMutation.mutate(type) : (window.location.href = "/api/login")}
               disabled={addReactionMutation.isPending}
               data-testid={`button-reaction-${type}`}
             >
@@ -93,26 +95,35 @@ export default function LessonComments({ lessonId }: { lessonId: string }) {
         )}
       </div>
 
-      <div className="flex gap-2 mb-4">
-        <Textarea
-          value={commentText}
-          onChange={(e) => setCommentText(e.target.value)}
-          placeholder="Share your thoughts about this lesson..."
-          className="resize-none text-sm"
-          rows={2}
-          data-testid="input-comment"
-        />
-        <Button
-          size="icon"
-          onClick={() => {
-            if (commentText.trim()) addCommentMutation.mutate(commentText);
-          }}
-          disabled={!commentText.trim() || addCommentMutation.isPending}
-          data-testid="button-submit-comment"
-        >
-          <Send className="h-4 w-4" />
-        </Button>
-      </div>
+      {isAuthenticated ? (
+        <div className="flex gap-2 mb-4">
+          <Textarea
+            value={commentText}
+            onChange={(e) => setCommentText(e.target.value)}
+            placeholder="Share your thoughts about this lesson..."
+            className="resize-none text-sm"
+            rows={2}
+            data-testid="input-comment"
+          />
+          <Button
+            size="icon"
+            onClick={() => {
+              if (commentText.trim()) addCommentMutation.mutate(commentText);
+            }}
+            disabled={!commentText.trim() || addCommentMutation.isPending}
+            data-testid="button-submit-comment"
+          >
+            <Send className="h-4 w-4" />
+          </Button>
+        </div>
+      ) : (
+        <div className="mb-4 p-3 rounded-md bg-muted/50 flex items-center gap-2">
+          <LogIn className="h-4 w-4 text-muted-foreground shrink-0" />
+          <span className="text-sm text-muted-foreground">
+            <a href="/api/login" className="text-primary underline" data-testid="link-login-to-comment">Sign in</a> to leave comments and reactions
+          </span>
+        </div>
+      )}
 
       {commentsLoading ? (
         <div className="space-y-3">

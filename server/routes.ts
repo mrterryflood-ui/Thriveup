@@ -17,6 +17,13 @@ function getUserName(req: Request): string | undefined {
   return (first + " " + last).trim() || user.claims.email || undefined;
 }
 
+function requireAuth(req: Request, res: any, next: any) {
+  if (!getUserId(req)) {
+    return res.status(401).json({ error: "Authentication required" });
+  }
+  next();
+}
+
 const openai = new OpenAI({
   apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
   baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
@@ -81,7 +88,7 @@ export async function registerRoutes(
     res.json(questions);
   });
 
-  app.post("/api/modules/:moduleId/quiz/submit", async (req, res) => {
+  app.post("/api/modules/:moduleId/quiz/submit", requireAuth, async (req, res) => {
     const { answers } = req.body;
     if (!answers || typeof answers !== "object") {
       return res.status(400).json({ error: "Answers object is required" });
@@ -131,7 +138,7 @@ export async function registerRoutes(
     res.json(lesson);
   });
 
-  app.post("/api/lessons/:lessonId/complete", async (req, res) => {
+  app.post("/api/lessons/:lessonId/complete", requireAuth, async (req, res) => {
     const lesson = await storage.getLesson(req.params.lessonId);
     if (!lesson) return res.status(404).json({ error: "Lesson not found" });
 
@@ -340,7 +347,7 @@ ${lessonContext ? `Current lesson context: ${lessonContext}` : ""}`;
     res.json(comments);
   });
 
-  app.post("/api/lessons/:lessonId/comments", async (req, res) => {
+  app.post("/api/lessons/:lessonId/comments", requireAuth, async (req, res) => {
     const { content } = req.body;
     if (!content || typeof content !== "string" || content.trim().length === 0) {
       return res.status(400).json({ error: "Content is required" });
@@ -356,7 +363,7 @@ ${lessonContext ? `Current lesson context: ${lessonContext}` : ""}`;
     res.json(reactions);
   });
 
-  app.post("/api/lessons/:lessonId/reactions", async (req, res) => {
+  app.post("/api/lessons/:lessonId/reactions", requireAuth, async (req, res) => {
     const { reactionType } = req.body;
     const validTypes = ["helpful", "inspiring", "challenging", "fun"];
     if (!reactionType || !validTypes.includes(reactionType)) {
@@ -373,7 +380,7 @@ ${lessonContext ? `Current lesson context: ${lessonContext}` : ""}`;
     res.json(tips);
   });
 
-  app.post("/api/modules/:moduleId/tips", async (req, res) => {
+  app.post("/api/modules/:moduleId/tips", requireAuth, async (req, res) => {
     const { content } = req.body;
     if (!content || typeof content !== "string" || content.trim().length === 0) {
       return res.status(400).json({ error: "Content is required" });

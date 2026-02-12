@@ -8,8 +8,19 @@ Learning Academy is a comprehensive grades 3-12 whole-child education platform. 
 - **Backend**: Express.js on Node, Drizzle ORM with PostgreSQL
 - **Database**: PostgreSQL (Neon-backed via Replit)
 - **AI Integration**: OpenAI via Replit AI Integrations (gpt-4o-mini, SSE streaming)
+- **Auth**: Replit Auth (OIDC) with magic link/Google/GitHub login
 - **i18n**: Custom language provider (English/Spanish) with translation strings
 - **Bandwidth Mode**: Low-bandwidth toggle that strips animations, images, and shadows
+
+## Authentication
+- Replit Auth with OIDC (magic link, Google, GitHub login)
+- Auth routes: /api/login, /api/logout, /api/auth/user
+- User sessions stored in `sessions` table
+- Users table: `users` with id, email, firstName, lastName, profileImageUrl
+- Auth hook: `client/src/hooks/use-auth.ts` with useAuth()
+- Write endpoints (quiz submit, lesson complete, comments, reactions, tips) require auth via requireAuth middleware
+- Read endpoints (subjects, levels, modules, lessons) are public for browsing
+- Progress is user-bound via userId in studentProgress table
 
 ## Key Pages
 - `/` - Landing page with whole-child philosophy, 6 subjects, AI levels, Spark CTA, Austin community section
@@ -18,13 +29,14 @@ Learning Academy is a comprehensive grades 3-12 whole-child education platform. 
 - `/subject/:subjectId` - Subject detail with topics and lessons
 - `/curriculum` - Browse all 5 AI curriculum levels
 - `/curriculum/:levelId` - Level detail with modules
-- `/module/:moduleId` - Module detail with lessons, objectives, activities
-- `/lesson/:lessonId` - Lesson viewer with content, interactive activities, and embedded Spark help
+- `/module/:moduleId` - Module detail with lessons, objectives, activities, study tips
+- `/lesson/:lessonId` - Lesson viewer with content, interactive activities, embedded Spark help, comments/reactions
 - `/quiz/:moduleId` - Interactive quiz with scoring and badge awarding
 - `/ai-companion` - Standalone Spark AI learning companion page
-- `/achievements` - Badge collection and achievement stats
+- `/achievements` - Badge collection with visual badges, category/rarity filters, celebration animations
 - `/community` - Austin community access programs (6 equity initiatives)
 - `/parents` - Parent digital literacy resources and training modules
+- `/parents/dashboard` - Parent progress dashboard showing child's scores, completion, recommendations
 - `/curriculum-documents` - Browse, create, and manage curriculum alignment documents
 - `/curriculum-documents/new` - Create new curriculum document
 - `/curriculum-documents/:id` - View/edit a single curriculum document
@@ -36,23 +48,56 @@ Learning Academy is a comprehensive grades 3-12 whole-child education platform. 
 - `GET /api/modules/:id` - Single module
 - `GET /api/modules/:id/lessons` - Lessons for a module
 - `GET /api/modules/:id/quiz` - Quiz questions for a module
-- `POST /api/modules/:id/quiz/submit` - Submit quiz answers
+- `POST /api/modules/:id/quiz/submit` - Submit quiz answers (auth required)
 - `GET /api/lessons/:id` - Single lesson
-- `POST /api/lessons/:id/complete` - Complete a lesson
+- `POST /api/lessons/:id/complete` - Complete a lesson (auth required)
 - `GET /api/dashboard` - Dashboard data
 - `GET /api/achievements` - Badges and achievement stats
 - `GET /api/progress` - Student progress
-- `GET /api/subjects` - All subjects (optional gradeLevel query param)
+- `GET /api/subjects` - All subjects
 - `GET /api/subjects/:id` - Single subject with topics
-- `GET /api/subjects/:subjectId/topics/:topicId/lessons` - Lessons for a topic
 - `POST /api/ai-companion/chat` - Spark AI chat endpoint (SSE streaming)
+- `GET /api/lessons/:lessonId/comments` - Lesson comments
+- `POST /api/lessons/:lessonId/comments` - Add comment (auth required)
+- `GET /api/lessons/:lessonId/reactions` - Reaction counts
+- `POST /api/lessons/:lessonId/reactions` - Add reaction (auth required)
+- `GET /api/modules/:moduleId/tips` - Study tips
+- `POST /api/modules/:moduleId/tips` - Add tip (auth required)
+- `POST /api/tips/:tipId/upvote` - Upvote a tip
 - `GET /api/curriculum-documents` - All curriculum documents
-- `GET /api/curriculum-documents/:id` - Single document
-- `GET /api/curriculum-documents/module/:moduleId` - Documents for a module
-- `GET /api/curriculum-documents/level/:levelId` - Documents for a level
 - `POST /api/curriculum-documents` - Create document
 - `PATCH /api/curriculum-documents/:id` - Update document
 - `DELETE /api/curriculum-documents/:id` - Delete document
+- `GET /api/auth/user` - Current authenticated user
+- `GET /api/login` - Begin OIDC login
+- `GET /api/logout` - Logout
+
+## Collaborative Features
+- Lesson Comments: Users can comment on lessons (auth required), view all comments
+- Lesson Reactions: 4 reaction types (helpful, inspiring, challenging, fun) with toggle
+- Study Tips: Users share tips per module, upvoting system
+- All write operations require authentication, read operations are public
+- Components: `client/src/components/lesson-comments.tsx`, `client/src/components/study-tips.tsx`
+
+## Badge System
+- 28 badges across categories (skill, character, milestone) and rarities (common, uncommon, rare, legendary)
+- Visual BadgeIcon component: `client/src/components/badge-icon.tsx`
+  - Category-based gradient backgrounds (skill=blue, character=pink, milestone=amber)
+  - Rarity-based glow effects (common, uncommon=silver, rare=gold, legendary=rainbow animated)
+  - Maps each badge to a specific lucide-react icon
+  - Three sizes (sm, md, lg)
+- Celebration overlay: `client/src/components/celebration.tsx`
+  - Full-screen animated confetti on badge earn / level up
+  - Auto-dismiss after 3s
+  - useCelebration hook
+- Achievements page: category/rarity filter tabs, progress bars, earned/unearned visual states
+
+## Seed Data
+- `server/seed-ai.ts` - AI curriculum levels, modules, badges, quiz questions
+- `server/seed-subjects.ts` - Subject areas and subject modules
+- `server/seed-lessons.ts` - 92+ lessons with rich content and interactive activities
+- `server/seed-curriculum-docs.ts` - 93+ curriculum documents (student guides, teacher guides, rubrics)
+- All seeds use onConflictDoNothing() for safe re-runs
 
 ## Spark AI Companion
 - Model: gpt-4o-mini via OpenAI
@@ -78,6 +123,8 @@ Learning Academy is a comprehensive grades 3-12 whole-child education platform. 
 - Sorting Activities (3-5+)
 - Breathing Exercises (all grades, SEL/Wellness)
 - Emotion Check-ins (all grades, SEL)
+- Writing Prompts
+- Discussion Questions
 
 ## Austin Community Access Programs
 1. Free & Subsidized Access - Income-based free/reduced access for Austin families
@@ -105,39 +152,29 @@ Learning Academy is a comprehensive grades 3-12 whole-child education platform. 
 - Font: Plus Jakarta Sans (sans), JetBrains Mono (mono)
 - Dark mode supported with class-based toggle
 
-## Curriculum Documents System
-- Database table: `curriculum_documents` with fields for title, content (markdown), gradeBand, documentType, moduleId, levelId, standardsAlignment
-- Document types: curriculum_guide, lesson_plan, scope_sequence, assessment_rubric, standards_alignment
-- Browse page with filtering by level and grade band
-- Create/edit form with level/module selection and markdown content
-- Document viewer with built-in markdown rendering
-- Linked from module detail pages ("View Curriculum Documents" button)
-- Sidebar: "Curriculum Docs" link
+## Progress Tracking
+- Per-user progress via userId in studentProgress table
+- Streak tracking: daily login streak with lastActiveDate, longestStreak
+- Points earned: 50 per lesson, 100 for passing quiz, 25 for failing quiz
+- Badges auto-awarded at milestones (first_steps at 1 lesson, curious_mind at 3, etc.)
+- Quiz scoring with pass threshold of 70%
 
-## Module 1.2 Interactive Tools
-- Page: `/module-1-2-tools` with 4 interactive learning tools for "Talking to AI"
-- Tool 1: 5 W's Prompt Builder - fill WHO/WHAT/WHEN/WHERE/WHY, real-time prompt generation, quality score
-- Tool 2: Garbage or Gold - sort 10 prompts as vague or clear, scoring and feedback
-- Tool 3: Prompt Improver - analyze any prompt for missing W's, quality score, suggestions
-- Tool 4: Polite Prompts Quiz - 5 multiple-choice questions on polite AI communication
-- Progress saved to localStorage
-- Linked from Module 1.2 detail page ("Interactive Tools: Talking to AI" button)
-- 3 curriculum documents created: Student Workbook, Teacher Implementation Guide, Assessment Rubric
+## Parent Dashboard
+- Page: `/parents/dashboard`
+- Overview cards: Total Points, Lessons Completed, Quizzes Completed, Streak, Avg Score
+- Progress by subject area visualization
+- Recent activity (earned badges)
+- Recommendations and tips for parents
 
 ## Recent Changes
-- Built Module 1.2 Interactive Tools page with 4 learning tools (5 W's Builder, Garbage or Gold, Prompt Improver, Polite Prompts Quiz)
-- Created 3 curriculum documents for Module 1.2 (workbook, teacher guide, assessment rubric)
-- Added /module-1-2-tools route and conditional button on module detail page
-- Built Curriculum Documents system for managing standards-aligned curriculum guides
-- Added curriculum_documents database table and full CRUD API
-- Built browse, create, view, and edit pages for curriculum documents
-- Added "Curriculum Docs" to sidebar navigation
-- Added "View Curriculum Documents" button to module detail pages
-- Added 6 Austin community equity programs (free access, Title I, device lending, offline mode, Spanish, parent literacy)
-- Built Community Access page (/community) showcasing all Austin programs
-- Built Parent Resources page (/parents) with digital literacy training modules
-- Added Spanish language support with i18n system and language toggle
-- Added low-bandwidth mode with CSS-based asset stripping
-- Updated landing page with Austin community section
-- Updated sidebar with Community and Parents navigation links
-- Added header controls: language toggle, bandwidth toggle, theme toggle
+- Added Replit Auth with OIDC (magic link/Google/GitHub login)
+- User-bound progress tracking with streak days and longest streak
+- Protected write endpoints with requireAuth middleware
+- Generated 92+ lessons with rich content and interactive activities across all 31 modules
+- Generated 93+ curriculum documents (student guides, teacher guides, rubrics) for all modules
+- Built visual badge system with BadgeIcon component, category/rarity styling, celebration animations
+- Added achievements page with category/rarity filters and progress tracking
+- Built parent progress dashboard with overview stats, subject progress, recommendations
+- Added collaborative features: lesson comments, reactions (4 types), study tips with upvoting
+- Auth-aware UI: login prompts for unauthenticated users on write actions
+- Updated sidebar with user profile, streak display, login/logout buttons

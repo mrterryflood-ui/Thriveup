@@ -4,8 +4,9 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Lightbulb, ThumbsUp, Send } from "lucide-react";
+import { Lightbulb, ThumbsUp, Send, LogIn } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useAuth } from "@/hooks/use-auth";
 import type { StudyTip } from "@shared/schema";
 
 function formatTimeAgo(date: string | Date | null): string {
@@ -24,6 +25,7 @@ function formatTimeAgo(date: string | Date | null): string {
 
 export default function StudyTips({ moduleId }: { moduleId: string }) {
   const [tipText, setTipText] = useState("");
+  const { isAuthenticated } = useAuth();
 
   const { data: tips, isLoading } = useQuery<StudyTip[]>({
     queryKey: ["/api/modules", moduleId, "tips"],
@@ -57,26 +59,35 @@ export default function StudyTips({ moduleId }: { moduleId: string }) {
         Study Tips
       </h3>
 
-      <div className="flex gap-2 mb-4">
-        <Textarea
-          value={tipText}
-          onChange={(e) => setTipText(e.target.value)}
-          placeholder="Share a study tip for this module..."
-          className="resize-none text-sm"
-          rows={2}
-          data-testid="input-study-tip"
-        />
-        <Button
-          size="icon"
-          onClick={() => {
-            if (tipText.trim()) addTipMutation.mutate(tipText);
-          }}
-          disabled={!tipText.trim() || addTipMutation.isPending}
-          data-testid="button-submit-tip"
-        >
-          <Send className="h-4 w-4" />
-        </Button>
-      </div>
+      {isAuthenticated ? (
+        <div className="flex gap-2 mb-4">
+          <Textarea
+            value={tipText}
+            onChange={(e) => setTipText(e.target.value)}
+            placeholder="Share a study tip for this module..."
+            className="resize-none text-sm"
+            rows={2}
+            data-testid="input-study-tip"
+          />
+          <Button
+            size="icon"
+            onClick={() => {
+              if (tipText.trim()) addTipMutation.mutate(tipText);
+            }}
+            disabled={!tipText.trim() || addTipMutation.isPending}
+            data-testid="button-submit-tip"
+          >
+            <Send className="h-4 w-4" />
+          </Button>
+        </div>
+      ) : (
+        <div className="mb-4 p-3 rounded-md bg-muted/50 flex items-center gap-2">
+          <LogIn className="h-4 w-4 text-muted-foreground shrink-0" />
+          <span className="text-sm text-muted-foreground">
+            <a href="/api/login" className="text-primary underline" data-testid="link-login-to-tip">Sign in</a> to share study tips
+          </span>
+        </div>
+      )}
 
       {isLoading ? (
         <div className="space-y-3">
