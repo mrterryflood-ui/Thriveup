@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   ArrowLeft, BookOpen, Clock, Target, Sparkles,
-  ChevronRight, CheckCircle2, PlayCircle, MessageCircle, FileText
+  ChevronRight, CheckCircle2, PlayCircle, MessageCircle, FileText, Gamepad2
 } from "lucide-react";
 import type { Module, Lesson } from "@shared/schema";
 
@@ -132,6 +132,13 @@ export default function ModuleDetailPage() {
       </div>
 
       <div className="mt-8 flex flex-col gap-3">
+        {moduleId === "level_1_module_2" && (
+          <Link href="/module-1-2-tools">
+            <Button variant="outline" className="w-full bg-gradient-to-r from-primary/10 to-accent/10" size="lg" data-testid="button-interactive-tools">
+              <Gamepad2 className="mr-2 h-5 w-5" /> Interactive Tools: Talking to AI
+            </Button>
+          </Link>
+        )}
         <Link href={`/quiz/${moduleId}`}>
           <Button className="w-full" size="lg" data-testid="button-take-quiz">
             <CheckCircle2 className="mr-2 h-5 w-5" /> Take Module Quiz

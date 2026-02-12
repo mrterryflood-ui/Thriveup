@@ -1,0 +1,305 @@
+Page 8
+🎯 The 5 W's Make Better Prompts!
+Use WHO, WHAT, WHEN, WHERE, and WHY to help AI understand exactly what you need!
+
+W WHO - Who is this for?
+Vague: "Tell me about presidents"
+
+Better: "Tell me about presidents for a 4th grader"
+
+✏️ Why it matters: AI can explain simply for kids or in detail for adults!
+
+W WHAT - What exactly do you want?
+Vague: "Help with math"
+
+Better: "Help me understand how to multiply two-digit numbers"
+
+✏️ Why it matters: Be specific about the topic!
+
+W WHEN - When does this apply?
+Vague: "Tell me about technology"
+
+Better: "Tell me about technology in the 2020s"
+
+✏️ Why it matters: Time period makes a big difference!
+
+🌟 Pro Tip: You don't need ALL 5 W's in every prompt—just the ones that help AI understand what you need!
+Page 9
+🎯 The 5 W's (continued)
+W WHERE - Where is this happening?
+Vague: "What's the weather?"
+
+Better: "What's the weather in Austin, Texas today?"
+
+✏️ Why it matters: Location is important for many questions!
+
+W WHY/HOW - Why do you need this?
+Vague: "Explain photosynthesis"
+
+Better: "Explain photosynthesis simply because I'm writing a children's book"
+
+✏️ Why it matters: AI adjusts complexity based on your purpose!
+
+Compare These Prompts:
+❌ VAGUE
+"Write a story"
+
+AI doesn't know what kind, for who, about what...
+
+✅ GREAT
+"Write a short story about a dog lost at a park in Austin for 3rd graders learning about being brave"
+
+Perfect! Has all the details AI needs!
+
+✏️ YOUR TURN!
+Pick ONE vague prompt and improve it using at least 3 W's:
+
+□ "Tell me about animals" □ "Find a video" □ "Help me with homework"
+
+Vague prompt:
+
+My improved prompt:
+
+Which W's did I use? Circle: WHO • WHAT • WHEN • WHERE • WHY
+
+Page 10
+🗑️ Garbage In, Garbage Out! 🥇
+What you PUT IN determines what you GET OUT!
+
+The GIGO Principle
+🗑️
+GARBAGE IN
+(vague)
+→
+🤖
+AI
+→
+🗑️
+GARBAGE OUT
+(unhelpful)
+BUT...
+🥇
+GOLD IN
+(clear)
+→
+🤖
+AI
+→
+🥇
+GOLD OUT
+(helpful!)
+📖 Real Examples:
+🗑️ Garbage In	🗑️ Garbage Out
+"How do I do math?"	AI gives vague answer about all of math
+🥇 Gold In	🥇 Gold Out
+"How do I add fractions with different denominators? Explain for 4th grade."	AI gives clear step-by-step instructions!
+📱 Watch the Video!
+[QR CODE]
+Scan to watch
+"GIGO Explained"
+Or visit: LearningAcademy.org/Module-1-2-GIGO
+
+Page 11
+🎮 Garbage or Gold? Sort These!
+✏️ Instructions: Read each prompt. Write the number in the correct column!
+
+🗑️ GARBAGE (Vague)	🥇 GOLD (Clear)
+📝 PROMPTS TO SORT:
+1. "Tell me about space"
+2. "Explain how clouds form for a 3rd grader's science project in a short paragraph"
+3. "Help me"
+4. "What are 5 fun outdoor activities for kids in Austin, Texas during spring?"
+5. "Find stuff about dogs"
+6. "Please suggest 3 books similar to 'Charlotte's Web' for a 4th grader who loves animal stories"
+7. "Do my math homework"
+8. "How do I solve 3x + 5 = 14? Please show steps."
+9. "Tell me things"
+10. "Create a list of healthy breakfasts that take less than 10 minutes"
+✏️ NOW IMPROVE ONE!
+Pick a GARBAGE prompt and turn it into GOLD:
+
+Garbage prompt #___:
+
+My GOLD version:
+
+
+Page 12
+🎨 Adding Context & Details
+Make your prompts even better by adding helpful context!
+
+What is Context?
+Context = All the background information that helps someone understand something better.
+
+Without context: "It's cold."
+
+With context: "It's cold outside in December in Minnesota, so I need a heavy winter coat."
+
+The context (December, Minnesota, outside) helps us understand HOW cold and WHAT to do!
+
+Types of Helpful Context:
+Context Type	Example
+Your Background	"I'm a 4th grader" or "I've never done this before"
+Your Goal	"I need this for a school project" or "I want to learn for fun"
+Constraints	"Keep it under 5 sentences" or "I have 15 minutes"
+Examples	"Like the book Charlotte's Web" or "Similar to a golden retriever"
+Preferences	"I like science fiction" or "Make it funny"
+💡 Remember: You don't have to make the perfect prompt the first time! You can keep adding details to make it better, just like revising your writing!
+Page 13
+🔧 Pump Up Your Prompt!
+Watch a Prompt Get Better!
+Version 1 (Basic): "Tell me about dogs"
+
+↓ Add WHO
+
+Version 2: "Tell me about dogs for a 4th grader"
+
+↓ Add WHAT specifically
+
+Version 3: "Tell me about what dogs eat for a 4th grader"
+
+↓ Add WHY & constraint
+
+Version 4 (GOLD!): "Explain what dogs eat and why it's important for a 4th grader's science report, using 3-5 sentences"
+
+✏️ YOUR TURN - Pump Up This Prompt!
+Start with: "Tell me about weather"
+
+Version 1 (add WHO):
+
+Version 2 (add WHAT specifically):
+
+Version 3 (add WHY or constraint):
+
+Which version is best? Circle one: Version 1 Version 2 Version 3
+
+Why?
+
+[QR CODE]
+Interactive Tool
+Practice online! LearningAcademy.org/prompt-builder
+
+Page 14
+🔄 Practice Makes Better!
+Keep improving your prompts with each try!
+
+The Power of Iteration
+Iteration means trying something, seeing how it works, and making it better!
+
+Just like when you revise an essay or practice a skill, prompts get better when you improve them!
+
+✏️ Three-Try Challenge!
+Scenario: You want AI to help you learn about the Texas Revolution for your history project.
+
+Try #1 - Your first attempt:
+
+Try #2 - Add more W's and context:
+
+Try #3 - Make it even clearer and more specific:
+
+Reflection: How did your prompt improve from Try #1 to Try #3?
+
+Page 18
+😊 AI Manners Matter!
+Being polite with AI builds good habits!
+
+Why Be Polite to AI?
+AI doesn't have feelings... but YOU do! And your habits matter!
+
+Three Reasons to Use Good Manners:
+Reason	Why It Matters
+🎯 Build Good Habits	Practice being polite ALWAYS so it becomes automatic!
+📊 Better Results	Polite prompts are often clearer prompts!
+🎨 Respect Creators	Real people made AI tools—honor their work!
+Compare These:
+❌ Rude: "Do my homework"
+
+✅ Polite: "Hi! Could you please help me understand how to solve this math problem? I'm working on fractions. Thank you!"
+
+✏️ Golden Words Checklist
+Use these polite words in your prompts:
+
+ Please
+
+ Could you / Would you
+
+ Thank you / Thanks
+
+ Hi / Hello (optional)
+
+Page 20
+🎯 Module 1.2 Assessment
+Show what you've learned about talking to AI!
+
+Prompt Expert Challenge
+Choose ONE scenario:
+
+□ Learn about the Texas Revolution for history
+□ Find a book similar to your favorite book
+□ Understand how to multiply fractions
+□ Plan a science experiment
+
+Part 1: First Draft
+Write your first attempt at a prompt:
+
+Part 2: Self-Check
+What could be better? Check what's missing:
+
+ WHO (audience)
+ WHAT (specific topic)
+ WHEN (if needed)
+ WHERE (if needed)
+ WHY (purpose)
+ Polite words
+
+Part 3: Improved Version
+Write your improved prompt:
+
+Part 4: Final Polish
+Make it even better:
+
+Part 5: Reflection
+Why is your final prompt good?
+
+Page 22
+🏠 Family Connection
+Practice at home with your family!
+
+📱 Family Challenge #1: Prompt Practice
+This Week: Work with your family to improve these prompts using the 5 W's!
+
+Prompt 1: "Find a recipe"
+
+Improved together:
+
+Prompt 2: "Tell me about animals"
+
+Improved together:
+
+Prompt 3: "Help with homework"
+
+Improved together:
+
+💬 Family Discussion
+Talk about these questions together:
+
+What AI tools does our family use? (Voice assistants, recommendations, etc.)
+Have we noticed AI making mistakes? What happened?
+Do we use polite words with technology? Why or why not?
+What's something our family can do that AI never will?
+🌟 Parent Note
+Your child learned how to communicate effectively with AI by using clear, specific prompts. The 5 W's (Who, What, When, Where, Why) help make any request clearer—not just with AI, but in everyday communication too!
+
+Practice together: Next time you use Alexa, Siri, or Google Assistant, practice asking clear questions with your child!
+
+Questions? Email: help@learningacademy.org
+
+🎉 Great Work!
+You've completed Module 1.2: Talking to AI
+
+Learning Academy • AI Mastery Level 1
+
+© 2026 Learning Academy • For Educational Use
+
+Next: Module 1.3 - AI Can Make Mistakes
+
+Get ready to learn about AI's limitations and how to fact-check!

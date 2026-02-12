@@ -20,6 +20,7 @@ import AICompanionPage from "@/pages/ai-companion";
 import CommunityPage from "@/pages/community";
 import ParentResourcesPage from "@/pages/parents";
 import CurriculumDocumentsPage, { CurriculumDocumentViewPage, CurriculumDocumentCreatePage } from "@/pages/curriculum-documents";
+import Module12ToolsPage from "@/pages/module-1-2-tools";
 import { LanguageProvider } from "@/lib/i18n";
 import { BandwidthProvider } from "@/lib/bandwidth-mode";
 import { HeaderControls } from "@/components/header-controls";
@@ -40,6 +41,7 @@ function AppRouter() {
       <Route path="/ai-companion" component={AICompanionPage} />
       <Route path="/community" component={CommunityPage} />
       <Route path="/parents" component={ParentResourcesPage} />
+      <Route path="/module-1-2-tools" component={Module12ToolsPage} />
       <Route path="/curriculum-documents" component={CurriculumDocumentsPage} />
       <Route path="/curriculum-documents/new" component={CurriculumDocumentCreatePage} />
       <Route path="/curriculum-documents/:id" component={CurriculumDocumentViewPage} />

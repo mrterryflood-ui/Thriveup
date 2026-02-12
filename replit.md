@@ -114,7 +114,20 @@ Learning Academy is a comprehensive grades 3-12 whole-child education platform. 
 - Linked from module detail pages ("View Curriculum Documents" button)
 - Sidebar: "Curriculum Docs" link
 
+## Module 1.2 Interactive Tools
+- Page: `/module-1-2-tools` with 4 interactive learning tools for "Talking to AI"
+- Tool 1: 5 W's Prompt Builder - fill WHO/WHAT/WHEN/WHERE/WHY, real-time prompt generation, quality score
+- Tool 2: Garbage or Gold - sort 10 prompts as vague or clear, scoring and feedback
+- Tool 3: Prompt Improver - analyze any prompt for missing W's, quality score, suggestions
+- Tool 4: Polite Prompts Quiz - 5 multiple-choice questions on polite AI communication
+- Progress saved to localStorage
+- Linked from Module 1.2 detail page ("Interactive Tools: Talking to AI" button)
+- 3 curriculum documents created: Student Workbook, Teacher Implementation Guide, Assessment Rubric
+
 ## Recent Changes
+- Built Module 1.2 Interactive Tools page with 4 learning tools (5 W's Builder, Garbage or Gold, Prompt Improver, Polite Prompts Quiz)
+- Created 3 curriculum documents for Module 1.2 (workbook, teacher guide, assessment rubric)
+- Added /module-1-2-tools route and conditional button on module detail page
 - Built Curriculum Documents system for managing standards-aligned curriculum guides
 - Added curriculum_documents database table and full CRUD API
 - Built browse, create, view, and edit pages for curriculum documents
