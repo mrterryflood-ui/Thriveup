@@ -124,6 +124,17 @@ export const curriculumDocuments = pgTable("curriculum_documents", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+export const documentAttachments = pgTable("document_attachments", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  documentId: varchar("document_id", { length: 100 }).references(() => curriculumDocuments.id, { onDelete: "cascade" }),
+  fileName: text("file_name").notNull(),
+  fileSize: integer("file_size").notNull(),
+  contentType: text("content_type").notNull(),
+  objectPath: text("object_path").notNull(),
+  uploadedBy: varchar("uploaded_by", { length: 255 }),
+  uploadedAt: timestamp("uploaded_at").defaultNow(),
+});
+
 export const lessonComments = pgTable("lesson_comments", {
   id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
   lessonId: varchar("lesson_id", { length: 100 }).notNull().references(() => lessons.id),
@@ -189,6 +200,7 @@ export const insertCompletedLessonSchema = createInsertSchema(completedLessons).
 export const insertQuizAttemptSchema = createInsertSchema(quizAttempts).omit({ id: true });
 export const insertEarnedBadgeSchema = createInsertSchema(earnedBadges).omit({ id: true });
 export const insertCurriculumDocumentSchema = createInsertSchema(curriculumDocuments).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertDocumentAttachmentSchema = createInsertSchema(documentAttachments).omit({ id: true, uploadedAt: true });
 export const insertLessonCommentSchema = createInsertSchema(lessonComments).omit({ id: true, createdAt: true });
 export const insertLessonReactionSchema = createInsertSchema(lessonReactions).omit({ id: true, createdAt: true });
 export const insertStudyTipSchema = createInsertSchema(studyTips).omit({ id: true, createdAt: true, upvotes: true });
@@ -219,6 +231,8 @@ export type InsertQuizAttempt = z.infer<typeof insertQuizAttemptSchema>;
 export type InsertEarnedBadge = z.infer<typeof insertEarnedBadgeSchema>;
 export type CurriculumDocument = typeof curriculumDocuments.$inferSelect;
 export type InsertCurriculumDocument = z.infer<typeof insertCurriculumDocumentSchema>;
+export type DocumentAttachment = typeof documentAttachments.$inferSelect;
+export type InsertDocumentAttachment = z.infer<typeof insertDocumentAttachmentSchema>;
 export type LessonComment = typeof lessonComments.$inferSelect;
 export type InsertLessonComment = z.infer<typeof insertLessonCommentSchema>;
 export type LessonReaction = typeof lessonReactions.$inferSelect;

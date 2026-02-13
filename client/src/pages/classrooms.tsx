@@ -24,7 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { School, Users, Copy, Plus, UserPlus, BookOpen } from "lucide-react";
+import { School, Users, Copy, Plus, UserPlus, BookOpen, Wand2 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -344,6 +344,14 @@ export default function ClassroomsPage() {
         <p className="text-muted-foreground" data-testid="text-classrooms-subtitle">
           Create or join classrooms to collaborate and track learning progress.
         </p>
+      </div>
+
+      <div className="mb-6">
+        <Link href="/classrooms/wizard">
+          <Button variant="outline" className="gap-2" data-testid="button-classroom-wizard">
+            <Wand2 className="h-4 w-4" /> Create with AI Wizard
+          </Button>
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">

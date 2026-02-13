@@ -37,9 +37,13 @@ import {
   Filter,
   ListChecks,
   Clock,
+  Paperclip,
+  Upload,
+  Download,
 } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useUpload } from "@/hooks/use-upload";
 import type { CurriculumDocument, Level, Module } from "@shared/schema";
 
 const GRADE_BANDS = ["3-5", "6-8", "9-12"] as const;
@@ -473,6 +477,8 @@ export function CurriculumDocumentViewPage() {
         {renderMarkdown(doc.content)}
       </Card>
 
+      <DocumentAttachments docId={docId} />
+
       <div className="flex items-center gap-3 flex-wrap">
         <Button
           variant="outline"
@@ -492,6 +498,157 @@ export function CurriculumDocumentViewPage() {
         </Button>
       </div>
     </div>
+  );
+}
+
+interface DocumentAttachment {
+  id: string;
+  documentId: string | null;
+  fileName: string;
+  fileSize: number;
+  contentType: string;
+  objectPath: string;
+  uploadedBy: string | null;
+  uploadedAt: string | null;
+}
+
+function formatFileSize(bytes: number): string {
+  if (bytes < 1024) return bytes + " B";
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+  return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+}
+
+function DocumentAttachments({ docId }: { docId: string }) {
+  const { toast } = useToast();
+  const { uploadFile, isUploading } = useUpload({
+    onError: (err) => toast({ title: "Upload failed", description: err.message, variant: "destructive" }),
+  });
+
+  const { data: attachments, isLoading } = useQuery<DocumentAttachment[]>({
+    queryKey: ["/api/curriculum-documents", docId, "attachments"],
+  });
+
+  const saveMutation = useMutation({
+    mutationFn: async (meta: { fileName: string; fileSize: number; contentType: string; objectPath: string }) => {
+      const res = await apiRequest("POST", `/api/curriculum-documents/${docId}/attachments`, meta);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/curriculum-documents", docId, "attachments"] });
+      toast({ title: "File attached successfully" });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (attachmentId: string) => {
+      await apiRequest("DELETE", `/api/curriculum-documents/${docId}/attachments/${attachmentId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/curriculum-documents", docId, "attachments"] });
+      toast({ title: "Attachment removed" });
+    },
+  });
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const result = await uploadFile(file);
+    if (result) {
+      saveMutation.mutate({
+        fileName: file.name,
+        fileSize: file.size,
+        contentType: file.type || "application/octet-stream",
+        objectPath: result.objectPath,
+      });
+    }
+    e.target.value = "";
+  };
+
+  return (
+    <Card className="p-5 mb-6" data-testid="card-attachments">
+      <div className="flex items-center justify-between gap-2 mb-4 flex-wrap">
+        <h3 className="font-semibold flex items-center gap-2 text-sm">
+          <Paperclip className="h-4 w-4 text-primary" /> Attachments
+        </h3>
+        <label>
+          <input
+            type="file"
+            className="hidden"
+            onChange={handleFileChange}
+            disabled={isUploading || saveMutation.isPending}
+            data-testid="input-file-upload"
+          />
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={isUploading || saveMutation.isPending}
+            onClick={(e) => {
+              const input = (e.currentTarget as HTMLElement).parentElement?.querySelector("input[type=file]") as HTMLInputElement;
+              input?.click();
+            }}
+            data-testid="button-upload-file"
+          >
+            <Upload className="mr-1.5 h-3.5 w-3.5" />
+            {isUploading ? "Uploading..." : "Upload File"}
+          </Button>
+        </label>
+      </div>
+
+      {isLoading ? (
+        <div className="space-y-2">
+          <Skeleton className="h-10" />
+          <Skeleton className="h-10" />
+        </div>
+      ) : attachments && attachments.length > 0 ? (
+        <div className="space-y-2">
+          {attachments.map((att) => (
+            <div
+              key={att.id}
+              className="flex items-center justify-between gap-3 px-3 py-2 rounded-md bg-muted/40"
+              data-testid={`attachment-row-${att.id}`}
+            >
+              <div className="flex items-center gap-2 min-w-0 flex-1">
+                <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
+                <div className="min-w-0">
+                  <a
+                    href={att.objectPath}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm font-medium hover:underline truncate block"
+                    data-testid={`link-attachment-${att.id}`}
+                  >
+                    {att.fileName}
+                  </a>
+                  <span className="text-xs text-muted-foreground">
+                    {formatFileSize(att.fileSize)} &middot; {att.contentType}
+                  </span>
+                </div>
+              </div>
+              <div className="flex items-center gap-1">
+                <a href={att.objectPath} target="_blank" rel="noopener noreferrer">
+                  <Button size="icon" variant="ghost" data-testid={`button-download-${att.id}`}>
+                    <Download className="h-3.5 w-3.5" />
+                  </Button>
+                </a>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => deleteMutation.mutate(att.id)}
+                  disabled={deleteMutation.isPending}
+                  data-testid={`button-delete-attachment-${att.id}`}
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="text-sm text-muted-foreground text-center py-4" data-testid="text-no-attachments">
+          No files attached yet. Upload PDFs, images, or other documents.
+        </p>
+      )}
+    </Card>
   );
 }
 

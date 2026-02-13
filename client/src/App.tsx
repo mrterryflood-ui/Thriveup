@@ -23,6 +23,7 @@ import CurriculumDocumentsPage, { CurriculumDocumentViewPage, CurriculumDocument
 import Module12ToolsPage from "@/pages/module-1-2-tools";
 import ParentDashboardPage from "@/pages/parent-dashboard";
 import ClassroomsPage, { ClassroomDetailPage } from "@/pages/classrooms";
+import ClassroomWizardPage from "@/pages/classroom-wizard";
 import TeacherDashboardPage from "@/pages/teacher-dashboard";
 import CertificatesPage, { CertificateViewPage } from "@/pages/certificates";
 import { LanguageProvider } from "@/lib/i18n";
@@ -51,6 +52,7 @@ function AppRouter() {
       <Route path="/curriculum-documents/new" component={CurriculumDocumentCreatePage} />
       <Route path="/curriculum-documents/:id" component={CurriculumDocumentViewPage} />
       <Route path="/classrooms" component={ClassroomsPage} />
+      <Route path="/classrooms/wizard" component={ClassroomWizardPage} />
       <Route path="/classrooms/:classroomId" component={ClassroomDetailPage} />
       <Route path="/teacher-dashboard" component={TeacherDashboardPage} />
       <Route path="/certificates" component={CertificatesPage} />

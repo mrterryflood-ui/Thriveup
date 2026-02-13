@@ -15,7 +15,7 @@ import {
 import {
   Home, BookOpen, Award, Brain, Star, GraduationCap,
   Shield, ShieldCheck, ShieldPlus, Swords, Medal, Heart, Sparkles,
-  Users, Globe, FileText, LogIn, LogOut, Flame, BarChart3, School, ScrollText
+  Users, Globe, FileText, LogIn, LogOut, Flame, BarChart3, School, ScrollText, Wand2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -31,6 +31,7 @@ const menuItems = [
   { title: "Achievements", url: "/achievements", icon: Award },
   { title: "Certificates", url: "/certificates", icon: ScrollText },
   { title: "Classrooms", url: "/classrooms", icon: School },
+  { title: "Classroom Wizard", url: "/classrooms/wizard", icon: Wand2 },
   { title: "Teacher Dashboard", url: "/teacher-dashboard", icon: BarChart3 },
   { title: "Curriculum Docs", url: "/curriculum-documents", icon: FileText },
   { title: "Community", url: "/community", icon: Globe },

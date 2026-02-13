@@ -6,6 +6,7 @@ import {
   type Level, type Module, type Lesson, type QuizQuestion, type Badge, type Subject,
   type StudentProgress, type CompletedLesson, type QuizAttempt, type EarnedBadge,
   type CurriculumDocument, type InsertCurriculumDocument,
+  documentAttachments, type DocumentAttachment, type InsertDocumentAttachment,
   type LessonComment, type LessonReaction, type StudyTip,
   type Classroom, type ClassroomMember, type Certificate,
 } from "@shared/schema";
@@ -69,6 +70,10 @@ export interface IStorage {
   getCertificate(id: string): Promise<Certificate | undefined>;
 
   getProgressByUserId(userId: string): Promise<StudentProgress | undefined>;
+
+  getAttachmentsByDocument(documentId: string): Promise<DocumentAttachment[]>;
+  addAttachment(attachment: InsertDocumentAttachment): Promise<DocumentAttachment>;
+  deleteAttachment(id: string): Promise<void>;
 
   seedData(): Promise<void>;
 }
@@ -377,6 +382,19 @@ export class DatabaseStorage implements IStorage {
   async getProgressByUserId(userId: string): Promise<StudentProgress | undefined> {
     const [progress] = await db.select().from(studentProgress).where(eq(studentProgress.userId, userId));
     return progress;
+  }
+
+  async getAttachmentsByDocument(documentId: string): Promise<DocumentAttachment[]> {
+    return db.select().from(documentAttachments).where(eq(documentAttachments.documentId, documentId)).orderBy(desc(documentAttachments.uploadedAt));
+  }
+
+  async addAttachment(attachment: InsertDocumentAttachment): Promise<DocumentAttachment> {
+    const [result] = await db.insert(documentAttachments).values(attachment).returning();
+    return result;
+  }
+
+  async deleteAttachment(id: string): Promise<void> {
+    await db.delete(documentAttachments).where(eq(documentAttachments.id, id));
   }
 
   async seedData(): Promise<void> {

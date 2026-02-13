@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertCurriculumDocumentSchema } from "@shared/schema";
 import OpenAI from "openai";
+import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
 
 function getUserId(req: Request): string | undefined {
   const user = (req as any).user;
@@ -33,6 +34,7 @@ export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
+  registerObjectStorageRoutes(app);
   await storage.seedData();
 
   app.get("/api/subjects", async (_req, res) => {
@@ -300,6 +302,58 @@ ${lessonContext ? `Current lesson context: ${lessonContext}` : ""}`;
     }
   });
 
+  app.post("/api/classroom-wizard/suggest", requireAuth, async (req, res) => {
+    const { name, gradeBand, subjectFocus } = req.body;
+    if (!name || !gradeBand) return res.status(400).json({ error: "Name and grade band are required" });
+
+    const subjectContext = subjectFocus && subjectFocus !== "all" ? `with a focus on ${subjectFocus}` : "covering all subjects (ELA, Math, Science, Social Studies, Social-Emotional Learning, Wellness)";
+
+    const systemPrompt = `You are an expert K-12 curriculum designer creating classroom setup suggestions. Generate content for a classroom called "${name}" for grades ${gradeBand} ${subjectContext}.
+
+Your response MUST use exactly these section headers with ## prefix:
+
+## Description
+Write a 2-3 sentence classroom description that is warm, inviting, and age-appropriate for grades ${gradeBand}.
+
+## Learning Objectives
+List 4-5 specific, measurable learning objectives appropriate for grades ${gradeBand}. One per line, starting with a dash.
+
+## Activities
+List 4-5 engaging classroom activities appropriate for grades ${gradeBand}. One per line, starting with a dash. Include a mix of individual and collaborative activities.
+
+## Welcome Message
+Write a warm, encouraging welcome message for students joining this classroom. Make it age-appropriate for grades ${gradeBand}. 2-3 sentences.`;
+
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+
+    try {
+      const stream = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: `Generate classroom setup suggestions for "${name}" (Grades ${gradeBand})${subjectFocus && subjectFocus !== "all" ? ` focusing on ${subjectFocus}` : ""}.` },
+        ],
+        stream: true,
+      });
+
+      for await (const chunk of stream) {
+        const content = chunk.choices[0]?.delta?.content || "";
+        if (content) {
+          res.write(`data: ${JSON.stringify({ content })}\n\n`);
+        }
+      }
+
+      res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
+      res.end();
+    } catch (error) {
+      console.error("Error in classroom wizard:", error);
+      res.write(`data: ${JSON.stringify({ error: "Failed to generate suggestions" })}\n\n`);
+      res.end();
+    }
+  });
+
   app.get("/api/curriculum-documents", async (_req, res) => {
     const docs = await storage.getCurriculumDocuments();
     res.json(docs);
@@ -355,6 +409,30 @@ ${lessonContext ? `Current lesson context: ${lessonContext}` : ""}`;
     const existing = await storage.getCurriculumDocument(req.params.id);
     if (!existing) return res.status(404).json({ error: "Document not found" });
     await storage.deleteCurriculumDocument(req.params.id);
+    res.json({ success: true });
+  });
+
+  app.get("/api/curriculum-documents/:docId/attachments", async (req, res) => {
+    const attachments = await storage.getAttachmentsByDocument(req.params.docId as string);
+    res.json(attachments);
+  });
+
+  app.post("/api/curriculum-documents/:docId/attachments", requireAuth, async (req, res) => {
+    const { fileName, fileSize, contentType, objectPath } = req.body;
+    if (!fileName || !objectPath) return res.status(400).json({ error: "fileName and objectPath are required" });
+    const attachment = await storage.addAttachment({
+      documentId: req.params.docId as string,
+      fileName,
+      fileSize: fileSize || 0,
+      contentType: contentType || "application/octet-stream",
+      objectPath,
+      uploadedBy: getUserId(req) || null,
+    });
+    res.status(201).json(attachment);
+  });
+
+  app.delete("/api/curriculum-documents/:docId/attachments/:attachmentId", requireAuth, async (req, res) => {
+    await storage.deleteAttachment(req.params.attachmentId as string);
     res.json({ success: true });
   });
 
