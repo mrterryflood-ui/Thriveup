@@ -26,6 +26,7 @@ import ClassroomsPage, { ClassroomDetailPage } from "@/pages/classrooms";
 import ClassroomWizardPage from "@/pages/classroom-wizard";
 import TeacherDashboardPage from "@/pages/teacher-dashboard";
 import CertificatesPage, { CertificateViewPage } from "@/pages/certificates";
+import SocialMediaLiteracyPage from "@/pages/social-media-literacy";
 import { LanguageProvider } from "@/lib/i18n";
 import { BandwidthProvider } from "@/lib/bandwidth-mode";
 import { HeaderControls } from "@/components/header-controls";
@@ -57,6 +58,7 @@ function AppRouter() {
       <Route path="/teacher-dashboard" component={TeacherDashboardPage} />
       <Route path="/certificates" component={CertificatesPage} />
       <Route path="/certificates/:id" component={CertificateViewPage} />
+      <Route path="/social-media-literacy" component={SocialMediaLiteracyPage} />
       <Route component={NotFound} />
     </Switch>
   );
