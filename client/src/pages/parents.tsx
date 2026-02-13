@@ -6,7 +6,7 @@ import {
   Users, BookOpen, Shield, Brain, Wifi, Heart,
   MonitorSmartphone, MessageSquare, BarChart3,
   Video, FileText, Phone, MessagesSquare,
-  Calendar, MapPin, Clock, ArrowRight, Sparkles
+  Calendar, MapPin, Clock, ArrowRight, Sparkles, Mail
 } from "lucide-react";
 
 const whyItMatters = [
@@ -313,6 +313,9 @@ export default function ParentResourcesPage() {
           <p className="text-sm text-muted-foreground">
             Supporting the whole family - because learning is better together.
           </p>
+          <a href="mailto:mr.terryflood@gmail.com" className="flex items-center gap-1.5 text-sm text-muted-foreground" data-testid="link-support-email">
+            <Mail className="h-3.5 w-3.5" /> mr.terryflood@gmail.com
+          </a>
         </div>
       </footer>
     </div>

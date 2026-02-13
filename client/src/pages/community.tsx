@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   DollarSign, Building2, Laptop, WifiOff, Languages, GraduationCap,
-  ArrowRight, MapPin, Globe, Heart, CheckCircle2
+  ArrowRight, MapPin, Globe, Heart, CheckCircle2, Mail
 } from "lucide-react";
 
 const programs = [
@@ -229,6 +229,9 @@ export default function CommunityPage() {
           <p className="text-sm text-muted-foreground">
             Equity in education — because every child deserves access.
           </p>
+          <a href="mailto:mr.terryflood@gmail.com" className="flex items-center gap-1.5 text-sm text-muted-foreground" data-testid="link-support-email">
+            <Mail className="h-3.5 w-3.5" /> mr.terryflood@gmail.com
+          </a>
         </div>
       </footer>
     </div>
