@@ -15,7 +15,8 @@ import {
 import {
   Home, BookOpen, Award, Brain, Star, GraduationCap,
   Shield, ShieldCheck, ShieldPlus, Swords, Medal, Heart, Sparkles,
-  Users, Globe, FileText, LogIn, LogOut, Flame, BarChart3, School, ScrollText, Wand2, Smartphone
+  Users, Globe, FileText, LogIn, LogOut, Flame, BarChart3, School, ScrollText, Wand2, Smartphone,
+  Rocket, User, TrendingUp, Wallet, Building2, Trophy, Flag, Target, ShoppingBag
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -38,6 +39,18 @@ const menuItems = [
   { title: "Parents", url: "/parents", icon: Users },
   { title: "Parent Dashboard", url: "/parents/dashboard", icon: BarChart3 },
   { title: "Social Media Literacy", url: "/social-media-literacy", icon: Smartphone },
+];
+
+const academyItems = [
+  { title: "Academy Hub", url: "/academy", icon: Rocket },
+  { title: "My Avatar", url: "/academy/avatar", icon: User },
+  { title: "Stock Market", url: "/academy/stocks", icon: TrendingUp },
+  { title: "My Wallet", url: "/academy/wallet", icon: Wallet },
+  { title: "Build Campus", url: "/academy/campus", icon: Building2 },
+  { title: "Competitions", url: "/academy/competitions", icon: Trophy },
+  { title: "House Points", url: "/academy/houses", icon: Flag },
+  { title: "Dream Design", url: "/academy/dreams", icon: Target },
+  { title: "Print Shop", url: "/academy/merch", icon: ShoppingBag },
 ];
 
 const rankIcons: Record<string, typeof Shield> = {
@@ -112,6 +125,33 @@ export function AppSidebar() {
                   (item.url === "/classrooms" && location.startsWith("/classrooms/")) ||
                   (item.url === "/certificates" && location.startsWith("/certificates/")) ||
                   (item.url !== "/parents" && location.startsWith(item.url + "/"));
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton
+                      asChild
+                      data-active={isActive}
+                      className={isActive ? "bg-sidebar-accent" : ""}
+                      data-testid={`link-sidebar-${item.title.toLowerCase().replace(/\s/g, '-')}`}
+                    >
+                      <Link href={item.url}>
+                        <item.icon className="h-4 w-4" />
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>6th Grade Academy</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {academyItems.map((item) => {
+                const isActive = location === item.url ||
+                  (item.url === "/academy" && location.startsWith("/academy/") && !academyItems.some(a => a.url !== "/academy" && location === a.url));
                 return (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton

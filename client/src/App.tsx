@@ -27,6 +27,15 @@ import ClassroomWizardPage from "@/pages/classroom-wizard";
 import TeacherDashboardPage from "@/pages/teacher-dashboard";
 import CertificatesPage, { CertificateViewPage } from "@/pages/certificates";
 import SocialMediaLiteracyPage from "@/pages/social-media-literacy";
+import AcademyHubPage from "@/pages/academy-hub";
+import AcademyAvatarPage from "@/pages/academy-avatar";
+import AcademyStocksPage from "@/pages/academy-stocks";
+import AcademyCampusPage from "@/pages/academy-campus";
+import AcademyCompetitionsPage from "@/pages/academy-competitions";
+import AcademyHousesPage from "@/pages/academy-houses";
+import AcademyDreamsPage from "@/pages/academy-dreams";
+import AcademyWalletPage from "@/pages/academy-wallet";
+import AcademyMerchPage from "@/pages/academy-merch";
 import { LanguageProvider } from "@/lib/i18n";
 import { BandwidthProvider } from "@/lib/bandwidth-mode";
 import { HeaderControls } from "@/components/header-controls";
@@ -59,6 +68,15 @@ function AppRouter() {
       <Route path="/certificates" component={CertificatesPage} />
       <Route path="/certificates/:id" component={CertificateViewPage} />
       <Route path="/social-media-literacy" component={SocialMediaLiteracyPage} />
+      <Route path="/academy" component={AcademyHubPage} />
+      <Route path="/academy/avatar" component={AcademyAvatarPage} />
+      <Route path="/academy/stocks" component={AcademyStocksPage} />
+      <Route path="/academy/wallet" component={AcademyWalletPage} />
+      <Route path="/academy/campus" component={AcademyCampusPage} />
+      <Route path="/academy/competitions" component={AcademyCompetitionsPage} />
+      <Route path="/academy/houses" component={AcademyHousesPage} />
+      <Route path="/academy/dreams" component={AcademyDreamsPage} />
+      <Route path="/academy/merch" component={AcademyMerchPage} />
       <Route component={NotFound} />
     </Switch>
   );

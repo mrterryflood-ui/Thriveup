@@ -9,6 +9,24 @@ import {
   documentAttachments, type DocumentAttachment, type InsertDocumentAttachment,
   type LessonComment, type LessonReaction, type StudyTip,
   type Classroom, type ClassroomMember, type Certificate,
+  academyAvatars, academyHouses, academyMeritEvents, academyWallets, academyTransactions,
+  academyStocks, academyPortfolios, academyCommunityPortfolio,
+  academyCampusProjects, academyCompetitions, academyCompetitionEntries,
+  academyDreamProfiles, academyMerchItems, academyMerchOrders,
+  type AcademyAvatar, type InsertAcademyAvatar,
+  type AcademyHouse, type InsertAcademyHouse,
+  type AcademyMeritEvent, type InsertAcademyMeritEvent,
+  type AcademyWallet, type InsertAcademyWallet,
+  type AcademyTransaction, type InsertAcademyTransaction,
+  type AcademyStock, type InsertAcademyStock,
+  type AcademyPortfolio, type InsertAcademyPortfolio,
+  type AcademyCommunityPortfolioItem,
+  type AcademyCampusProject, type InsertAcademyCampusProject,
+  type AcademyCompetition, type InsertAcademyCompetition,
+  type AcademyCompetitionEntry, type InsertAcademyCompetitionEntry,
+  type AcademyDreamProfile, type InsertAcademyDreamProfile,
+  type AcademyMerchItem, type InsertAcademyMerchItem,
+  type AcademyMerchOrder, type InsertAcademyMerchOrder,
 } from "@shared/schema";
 import { eq, and, desc, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
@@ -74,6 +92,55 @@ export interface IStorage {
   getAttachmentsByDocument(documentId: string): Promise<DocumentAttachment[]>;
   addAttachment(attachment: InsertDocumentAttachment): Promise<DocumentAttachment>;
   deleteAttachment(id: string): Promise<void>;
+
+  getAcademyAvatar(userId: string): Promise<AcademyAvatar | undefined>;
+  createAcademyAvatar(avatar: InsertAcademyAvatar): Promise<AcademyAvatar>;
+  updateAcademyAvatar(id: string, data: Partial<InsertAcademyAvatar>): Promise<AcademyAvatar>;
+  getAllAcademyAvatars(): Promise<AcademyAvatar[]>;
+
+  getAcademyHouses(): Promise<AcademyHouse[]>;
+  getAcademyHouse(id: string): Promise<AcademyHouse | undefined>;
+  createAcademyHouse(house: InsertAcademyHouse): Promise<AcademyHouse>;
+  updateHousePoints(houseId: string, points: number): Promise<AcademyHouse>;
+
+  getMeritEventsByUser(userId: string): Promise<AcademyMeritEvent[]>;
+  getMeritEventsByHouse(houseId: string): Promise<AcademyMeritEvent[]>;
+  createMeritEvent(event: InsertAcademyMeritEvent): Promise<AcademyMeritEvent>;
+  getAllMeritEvents(): Promise<AcademyMeritEvent[]>;
+
+  getOrCreateWallet(userId: string): Promise<AcademyWallet>;
+  updateWalletBalance(id: string, data: Partial<AcademyWallet>): Promise<AcademyWallet>;
+  getTransactionsByWallet(walletId: string): Promise<AcademyTransaction[]>;
+  createTransaction(transaction: InsertAcademyTransaction): Promise<AcademyTransaction>;
+
+  getAllStocks(): Promise<AcademyStock[]>;
+  getStock(id: string): Promise<AcademyStock | undefined>;
+  updateStock(id: string, data: Partial<AcademyStock>): Promise<AcademyStock>;
+  createStock(stock: InsertAcademyStock): Promise<AcademyStock>;
+
+  getPortfolioByUser(userId: string): Promise<AcademyPortfolio[]>;
+  createOrUpdatePortfolio(userId: string, stockId: string, shares: number, avgPrice: string): Promise<AcademyPortfolio>;
+  getCommunityPortfolio(): Promise<AcademyCommunityPortfolioItem[]>;
+
+  getCampusProject(userId: string): Promise<AcademyCampusProject | undefined>;
+  createCampusProject(project: InsertAcademyCampusProject): Promise<AcademyCampusProject>;
+  updateCampusProject(id: string, data: Partial<InsertAcademyCampusProject>): Promise<AcademyCampusProject>;
+
+  getAllCompetitions(): Promise<AcademyCompetition[]>;
+  getCompetition(id: string): Promise<AcademyCompetition | undefined>;
+  createCompetition(comp: InsertAcademyCompetition): Promise<AcademyCompetition>;
+  getCompetitionEntries(competitionId: string): Promise<AcademyCompetitionEntry[]>;
+  createCompetitionEntry(entry: InsertAcademyCompetitionEntry): Promise<AcademyCompetitionEntry>;
+  updateCompetitionEntry(id: string, data: Partial<InsertAcademyCompetitionEntry>): Promise<AcademyCompetitionEntry>;
+
+  getDreamProfile(userId: string): Promise<AcademyDreamProfile | undefined>;
+  createOrUpdateDreamProfile(userId: string, data: Partial<InsertAcademyDreamProfile>): Promise<AcademyDreamProfile>;
+
+  getAllMerchItems(): Promise<AcademyMerchItem[]>;
+  createMerchItem(item: InsertAcademyMerchItem): Promise<AcademyMerchItem>;
+  getMerchOrders(userId?: string): Promise<AcademyMerchOrder[]>;
+  createMerchOrder(order: InsertAcademyMerchOrder): Promise<AcademyMerchOrder>;
+  updateMerchOrder(id: string, data: Partial<InsertAcademyMerchOrder>): Promise<AcademyMerchOrder>;
 
   seedData(): Promise<void>;
 }
@@ -397,6 +464,207 @@ export class DatabaseStorage implements IStorage {
     await db.delete(documentAttachments).where(eq(documentAttachments.id, id));
   }
 
+  async getAcademyAvatar(userId: string): Promise<AcademyAvatar | undefined> {
+    const [avatar] = await db.select().from(academyAvatars).where(eq(academyAvatars.userId, userId));
+    return avatar;
+  }
+
+  async createAcademyAvatar(avatar: InsertAcademyAvatar): Promise<AcademyAvatar> {
+    const [created] = await db.insert(academyAvatars).values(avatar).returning();
+    return created;
+  }
+
+  async updateAcademyAvatar(id: string, data: Partial<InsertAcademyAvatar>): Promise<AcademyAvatar> {
+    const [updated] = await db.update(academyAvatars).set(data).where(eq(academyAvatars.id, id)).returning();
+    return updated;
+  }
+
+  async getAllAcademyAvatars(): Promise<AcademyAvatar[]> {
+    return db.select().from(academyAvatars);
+  }
+
+  async getAcademyHouses(): Promise<AcademyHouse[]> {
+    return db.select().from(academyHouses).orderBy(desc(academyHouses.totalPoints));
+  }
+
+  async getAcademyHouse(id: string): Promise<AcademyHouse | undefined> {
+    const [house] = await db.select().from(academyHouses).where(eq(academyHouses.id, id));
+    return house;
+  }
+
+  async createAcademyHouse(house: InsertAcademyHouse): Promise<AcademyHouse> {
+    const [created] = await db.insert(academyHouses).values(house).returning();
+    return created;
+  }
+
+  async updateHousePoints(houseId: string, points: number): Promise<AcademyHouse> {
+    const [updated] = await db.update(academyHouses).set({
+      totalPoints: sql`${academyHouses.totalPoints} + ${points}`,
+    }).where(eq(academyHouses.id, houseId)).returning();
+    return updated;
+  }
+
+  async getMeritEventsByUser(userId: string): Promise<AcademyMeritEvent[]> {
+    return db.select().from(academyMeritEvents).where(eq(academyMeritEvents.userId, userId)).orderBy(desc(academyMeritEvents.createdAt));
+  }
+
+  async getMeritEventsByHouse(houseId: string): Promise<AcademyMeritEvent[]> {
+    return db.select().from(academyMeritEvents).where(eq(academyMeritEvents.houseId, houseId)).orderBy(desc(academyMeritEvents.createdAt));
+  }
+
+  async createMeritEvent(event: InsertAcademyMeritEvent): Promise<AcademyMeritEvent> {
+    const [created] = await db.insert(academyMeritEvents).values(event).returning();
+    return created;
+  }
+
+  async getAllMeritEvents(): Promise<AcademyMeritEvent[]> {
+    return db.select().from(academyMeritEvents).orderBy(desc(academyMeritEvents.createdAt));
+  }
+
+  async getOrCreateWallet(userId: string): Promise<AcademyWallet> {
+    const [existing] = await db.select().from(academyWallets).where(eq(academyWallets.userId, userId));
+    if (existing) return existing;
+    const [created] = await db.insert(academyWallets).values({ userId, balance: "1000.00" }).returning();
+    return created;
+  }
+
+  async updateWalletBalance(id: string, data: Partial<AcademyWallet>): Promise<AcademyWallet> {
+    const [updated] = await db.update(academyWallets).set(data).where(eq(academyWallets.id, id)).returning();
+    return updated;
+  }
+
+  async getTransactionsByWallet(walletId: string): Promise<AcademyTransaction[]> {
+    return db.select().from(academyTransactions).where(eq(academyTransactions.walletId, walletId)).orderBy(desc(academyTransactions.createdAt));
+  }
+
+  async createTransaction(transaction: InsertAcademyTransaction): Promise<AcademyTransaction> {
+    const [created] = await db.insert(academyTransactions).values(transaction).returning();
+    return created;
+  }
+
+  async getAllStocks(): Promise<AcademyStock[]> {
+    return db.select().from(academyStocks);
+  }
+
+  async getStock(id: string): Promise<AcademyStock | undefined> {
+    const [stock] = await db.select().from(academyStocks).where(eq(academyStocks.id, id));
+    return stock;
+  }
+
+  async updateStock(id: string, data: Partial<AcademyStock>): Promise<AcademyStock> {
+    const [updated] = await db.update(academyStocks).set(data).where(eq(academyStocks.id, id)).returning();
+    return updated;
+  }
+
+  async createStock(stock: InsertAcademyStock): Promise<AcademyStock> {
+    const [created] = await db.insert(academyStocks).values(stock).returning();
+    return created;
+  }
+
+  async getPortfolioByUser(userId: string): Promise<AcademyPortfolio[]> {
+    return db.select().from(academyPortfolios).where(eq(academyPortfolios.userId, userId));
+  }
+
+  async createOrUpdatePortfolio(userId: string, stockId: string, shares: number, avgPrice: string): Promise<AcademyPortfolio> {
+    const [existing] = await db.select().from(academyPortfolios).where(
+      and(eq(academyPortfolios.userId, userId), eq(academyPortfolios.stockId, stockId))
+    );
+    if (existing) {
+      const [updated] = await db.update(academyPortfolios).set({ shares, avgBuyPrice: avgPrice }).where(eq(academyPortfolios.id, existing.id)).returning();
+      return updated;
+    }
+    const [created] = await db.insert(academyPortfolios).values({ userId, stockId, shares, avgBuyPrice: avgPrice }).returning();
+    return created;
+  }
+
+  async getCommunityPortfolio(): Promise<AcademyCommunityPortfolioItem[]> {
+    return db.select().from(academyCommunityPortfolio);
+  }
+
+  async getCampusProject(userId: string): Promise<AcademyCampusProject | undefined> {
+    const [project] = await db.select().from(academyCampusProjects).where(eq(academyCampusProjects.userId, userId));
+    return project;
+  }
+
+  async createCampusProject(project: InsertAcademyCampusProject): Promise<AcademyCampusProject> {
+    const [created] = await db.insert(academyCampusProjects).values(project).returning();
+    return created;
+  }
+
+  async updateCampusProject(id: string, data: Partial<InsertAcademyCampusProject>): Promise<AcademyCampusProject> {
+    const [updated] = await db.update(academyCampusProjects).set(data).where(eq(academyCampusProjects.id, id)).returning();
+    return updated;
+  }
+
+  async getAllCompetitions(): Promise<AcademyCompetition[]> {
+    return db.select().from(academyCompetitions).orderBy(desc(academyCompetitions.createdAt));
+  }
+
+  async getCompetition(id: string): Promise<AcademyCompetition | undefined> {
+    const [comp] = await db.select().from(academyCompetitions).where(eq(academyCompetitions.id, id));
+    return comp;
+  }
+
+  async createCompetition(comp: InsertAcademyCompetition): Promise<AcademyCompetition> {
+    const [created] = await db.insert(academyCompetitions).values(comp).returning();
+    return created;
+  }
+
+  async getCompetitionEntries(competitionId: string): Promise<AcademyCompetitionEntry[]> {
+    return db.select().from(academyCompetitionEntries).where(eq(academyCompetitionEntries.competitionId, competitionId)).orderBy(desc(academyCompetitionEntries.score));
+  }
+
+  async createCompetitionEntry(entry: InsertAcademyCompetitionEntry): Promise<AcademyCompetitionEntry> {
+    const [created] = await db.insert(academyCompetitionEntries).values(entry).returning();
+    return created;
+  }
+
+  async updateCompetitionEntry(id: string, data: Partial<InsertAcademyCompetitionEntry>): Promise<AcademyCompetitionEntry> {
+    const [updated] = await db.update(academyCompetitionEntries).set(data).where(eq(academyCompetitionEntries.id, id)).returning();
+    return updated;
+  }
+
+  async getDreamProfile(userId: string): Promise<AcademyDreamProfile | undefined> {
+    const [profile] = await db.select().from(academyDreamProfiles).where(eq(academyDreamProfiles.userId, userId));
+    return profile;
+  }
+
+  async createOrUpdateDreamProfile(userId: string, data: Partial<InsertAcademyDreamProfile>): Promise<AcademyDreamProfile> {
+    const [existing] = await db.select().from(academyDreamProfiles).where(eq(academyDreamProfiles.userId, userId));
+    if (existing) {
+      const [updated] = await db.update(academyDreamProfiles).set({ ...data, updatedAt: new Date() }).where(eq(academyDreamProfiles.id, existing.id)).returning();
+      return updated;
+    }
+    const [created] = await db.insert(academyDreamProfiles).values({ userId, ...data }).returning();
+    return created;
+  }
+
+  async getAllMerchItems(): Promise<AcademyMerchItem[]> {
+    return db.select().from(academyMerchItems);
+  }
+
+  async createMerchItem(item: InsertAcademyMerchItem): Promise<AcademyMerchItem> {
+    const [created] = await db.insert(academyMerchItems).values(item).returning();
+    return created;
+  }
+
+  async getMerchOrders(userId?: string): Promise<AcademyMerchOrder[]> {
+    if (userId) {
+      return db.select().from(academyMerchOrders).where(eq(academyMerchOrders.userId, userId)).orderBy(desc(academyMerchOrders.createdAt));
+    }
+    return db.select().from(academyMerchOrders).orderBy(desc(academyMerchOrders.createdAt));
+  }
+
+  async createMerchOrder(order: InsertAcademyMerchOrder): Promise<AcademyMerchOrder> {
+    const [created] = await db.insert(academyMerchOrders).values(order).returning();
+    return created;
+  }
+
+  async updateMerchOrder(id: string, data: Partial<InsertAcademyMerchOrder>): Promise<AcademyMerchOrder> {
+    const [updated] = await db.update(academyMerchOrders).set(data).where(eq(academyMerchOrders.id, id)).returning();
+    return updated;
+  }
+
   async seedData(): Promise<void> {
     const { seedAILevels } = await import("./seed-ai");
     const { seedSubjects } = await import("./seed-subjects");
@@ -421,6 +689,32 @@ export class DatabaseStorage implements IStorage {
     const existingDocs = await db.select().from(curriculumDocuments).limit(1);
     if (existingDocs.length < 50) {
       await seedCurriculumDocuments(db);
+    }
+
+    const existingHouses = await db.select().from(academyHouses).limit(1);
+    if (existingHouses.length === 0) {
+      await db.insert(academyHouses).values([
+        { name: "Phoenix Rising", color: "#DC2626", motto: "Rise from the ashes", iconName: "Flame" },
+        { name: "Golden Eagles", color: "#D97706", motto: "Soar above the rest", iconName: "Bird" },
+        { name: "Ocean Tide", color: "#0891B2", motto: "Flow together, unstoppable", iconName: "Waves" },
+        { name: "Emerald Forest", color: "#059669", motto: "Grow strong, grow together", iconName: "TreePine" },
+      ]);
+    }
+
+    const stockSeedData = [
+      { symbol: "LEARN", name: "EduTech Corp", sector: "Education", currentPrice: "42.50", previousPrice: "42.50", changePercent: "0.00", priceHistory: [] },
+      { symbol: "DREAM", name: "Dream Builders Inc", sector: "Real Estate", currentPrice: "67.00", previousPrice: "67.00", changePercent: "0.00", priceHistory: [] },
+      { symbol: "SPARK", name: "Spark Innovation", sector: "Technology", currentPrice: "89.25", previousPrice: "89.25", changePercent: "0.00", priceHistory: [] },
+      { symbol: "UNITE", name: "Unity Community Fund", sector: "Finance", currentPrice: "31.75", previousPrice: "31.75", changePercent: "0.00", priceHistory: [] },
+      { symbol: "GROW", name: "GreenGrow Farms", sector: "Agriculture", currentPrice: "18.50", previousPrice: "18.50", changePercent: "0.00", priceHistory: [] },
+      { symbol: "CARE", name: "CarePlus Health", sector: "Healthcare", currentPrice: "55.00", previousPrice: "55.00", changePercent: "0.00", priceHistory: [] },
+      { symbol: "BUILD", name: "BuildRight Construction", sector: "Construction", currentPrice: "43.25", previousPrice: "43.25", changePercent: "0.00", priceHistory: [] },
+      { symbol: "CREATE", name: "Creative Arts Studio", sector: "Entertainment", currentPrice: "29.00", previousPrice: "29.00", changePercent: "0.00", priceHistory: [] },
+      { symbol: "MOVE", name: "MoveForward Transport", sector: "Transportation", currentPrice: "36.50", previousPrice: "36.50", changePercent: "0.00", priceHistory: [] },
+      { symbol: "THRIVE", name: "Thrive Wellness", sector: "Wellness", currentPrice: "22.75", previousPrice: "22.75", changePercent: "0.00", priceHistory: [] },
+    ];
+    for (const stock of stockSeedData) {
+      await db.insert(academyStocks).values(stock).onConflictDoNothing();
     }
   }
 }

@@ -612,5 +612,379 @@ Write a warm, encouraging welcome message for students joining this classroom. M
     res.json(cert);
   });
 
+  // ==================== ACADEMY ROUTES ====================
+
+  app.get("/api/academy/dashboard", async (req, res) => {
+    try {
+      const houses = await storage.getAcademyHouses();
+      const competitions = await storage.getAllCompetitions();
+      const recentMerit = await storage.getAllMeritEvents();
+      const userId = getUserId(req);
+      let wallet = null;
+      if (userId) {
+        wallet = await storage.getOrCreateWallet(userId);
+      }
+      res.json({ houses, wallet, recentMeritEvents: recentMerit.slice(0, 10), competitions });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to load academy dashboard" });
+    }
+  });
+
+  app.get("/api/academy/avatars", async (_req, res) => {
+    const avatars = await storage.getAllAcademyAvatars();
+    res.json(avatars);
+  });
+
+  app.get("/api/academy/avatar", requireAuth, async (req, res) => {
+    const avatar = await storage.getAcademyAvatar(getUserId(req)!);
+    if (!avatar) return res.status(404).json({ error: "Avatar not found" });
+    res.json(avatar);
+  });
+
+  app.post("/api/academy/avatar", requireAuth, async (req, res) => {
+    try {
+      const userId = getUserId(req)!;
+      const existing = await storage.getAcademyAvatar(userId);
+      if (existing) {
+        const updated = await storage.updateAcademyAvatar(existing.id, req.body);
+        return res.json(updated);
+      }
+      const avatar = await storage.createAcademyAvatar({ ...req.body, userId });
+      res.status(201).json(avatar);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to save avatar" });
+    }
+  });
+
+  app.get("/api/academy/houses", async (_req, res) => {
+    const houses = await storage.getAcademyHouses();
+    res.json(houses);
+  });
+
+  app.post("/api/academy/merit", requireAuth, async (req, res) => {
+    try {
+      const { userId, houseId, points, reason, category } = req.body;
+      if (!userId || !points || !reason) {
+        return res.status(400).json({ error: "userId, points, and reason are required" });
+      }
+      const event = await storage.createMeritEvent({
+        userId,
+        houseId: houseId || null,
+        points,
+        reason,
+        category: category || "academic",
+        awardedBy: getUserId(req) || null,
+        awardedByName: getUserName(req) || null,
+      });
+      if (houseId) {
+        await storage.updateHousePoints(houseId, points);
+      }
+      res.status(201).json(event);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to award merit points" });
+    }
+  });
+
+  app.get("/api/academy/merit/user/:userId", async (req, res) => {
+    const events = await storage.getMeritEventsByUser(req.params.userId);
+    res.json(events);
+  });
+
+  app.get("/api/academy/merit/house/:houseId", async (req, res) => {
+    const events = await storage.getMeritEventsByHouse(req.params.houseId);
+    res.json(events);
+  });
+
+  app.get("/api/academy/wallet", requireAuth, async (req, res) => {
+    const wallet = await storage.getOrCreateWallet(getUserId(req)!);
+    res.json(wallet);
+  });
+
+  app.get("/api/academy/transactions", requireAuth, async (req, res) => {
+    const wallet = await storage.getOrCreateWallet(getUserId(req)!);
+    const transactions = await storage.getTransactionsByWallet(wallet.id);
+    res.json(transactions);
+  });
+
+  app.post("/api/academy/transactions", requireAuth, async (req, res) => {
+    try {
+      const wallet = await storage.getOrCreateWallet(getUserId(req)!);
+      const { type, amount, description, category } = req.body;
+      if (!type || !amount || !description) {
+        return res.status(400).json({ error: "type, amount, and description are required" });
+      }
+      const transaction = await storage.createTransaction({
+        walletId: wallet.id,
+        type,
+        amount,
+        description,
+        category: category || "general",
+      });
+      res.status(201).json(transaction);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create transaction" });
+    }
+  });
+
+  app.get("/api/academy/stocks", async (_req, res) => {
+    const stocks = await storage.getAllStocks();
+    res.json(stocks);
+  });
+
+  app.post("/api/academy/stocks/trade", requireAuth, async (req, res) => {
+    try {
+      const { stockId, action, shares } = req.body;
+      if (!stockId || !action || !shares || shares <= 0) {
+        return res.status(400).json({ error: "stockId, action (buy/sell), and shares (> 0) are required" });
+      }
+      const stock = await storage.getStock(stockId);
+      if (!stock) return res.status(404).json({ error: "Stock not found" });
+
+      const userId = getUserId(req)!;
+      const wallet = await storage.getOrCreateWallet(userId);
+      const price = parseFloat(stock.currentPrice);
+      const totalCost = price * shares;
+
+      if (action === "buy") {
+        if (parseFloat(wallet.balance) < totalCost) {
+          return res.status(400).json({ error: "Insufficient funds" });
+        }
+        const newBalance = (parseFloat(wallet.balance) - totalCost).toFixed(2);
+        const newInvested = (parseFloat(wallet.totalInvested) + totalCost).toFixed(2);
+        await storage.updateWalletBalance(wallet.id, { balance: newBalance, totalInvested: newInvested });
+
+        const existingPortfolio = (await storage.getPortfolioByUser(userId)).find(p => p.stockId === stockId);
+        const existingShares = existingPortfolio ? existingPortfolio.shares : 0;
+        const existingAvg = existingPortfolio ? parseFloat(existingPortfolio.avgBuyPrice) : 0;
+        const newTotalShares = existingShares + shares;
+        const newAvgPrice = ((existingAvg * existingShares + price * shares) / newTotalShares).toFixed(2);
+        await storage.createOrUpdatePortfolio(userId, stockId, newTotalShares, newAvgPrice);
+
+        await storage.createTransaction({
+          walletId: wallet.id,
+          type: "stock_buy",
+          amount: (-totalCost).toFixed(2),
+          description: `Bought ${shares} shares of ${stock.symbol} at $${price}`,
+          category: "investment",
+        });
+
+        res.json({ success: true, action: "buy", shares, totalCost, newBalance });
+      } else if (action === "sell") {
+        const portfolio = (await storage.getPortfolioByUser(userId)).find(p => p.stockId === stockId);
+        if (!portfolio || portfolio.shares < shares) {
+          return res.status(400).json({ error: "Insufficient shares" });
+        }
+        const newBalance = (parseFloat(wallet.balance) + totalCost).toFixed(2);
+        await storage.updateWalletBalance(wallet.id, { balance: newBalance });
+
+        const remainingShares = portfolio.shares - shares;
+        await storage.createOrUpdatePortfolio(userId, stockId, remainingShares, portfolio.avgBuyPrice);
+
+        await storage.createTransaction({
+          walletId: wallet.id,
+          type: "stock_sell",
+          amount: totalCost.toFixed(2),
+          description: `Sold ${shares} shares of ${stock.symbol} at $${price}`,
+          category: "investment",
+        });
+
+        res.json({ success: true, action: "sell", shares, totalRevenue: totalCost, newBalance });
+      } else {
+        res.status(400).json({ error: "Action must be 'buy' or 'sell'" });
+      }
+    } catch (error) {
+      res.status(500).json({ error: "Failed to execute trade" });
+    }
+  });
+
+  app.get("/api/academy/portfolio", requireAuth, async (req, res) => {
+    const portfolio = await storage.getPortfolioByUser(getUserId(req)!);
+    res.json(portfolio);
+  });
+
+  app.get("/api/academy/community-portfolio", async (_req, res) => {
+    const portfolio = await storage.getCommunityPortfolio();
+    res.json(portfolio);
+  });
+
+  app.post("/api/academy/stocks/simulate", async (_req, res) => {
+    try {
+      const stocks = await storage.getAllStocks();
+      const updated = [];
+      for (const stock of stocks) {
+        const changePercent = (Math.random() * 10 - 5);
+        const prevPrice = parseFloat(stock.currentPrice);
+        const newPrice = Math.max(1, prevPrice * (1 + changePercent / 100));
+        const history = Array.isArray(stock.priceHistory) ? [...(stock.priceHistory as number[])] : [];
+        history.push(prevPrice);
+        if (history.length > 30) history.splice(0, history.length - 30);
+        const updatedStock = await storage.updateStock(stock.id, {
+          previousPrice: stock.currentPrice,
+          currentPrice: newPrice.toFixed(2),
+          changePercent: changePercent.toFixed(2),
+          priceHistory: history,
+        });
+        updated.push(updatedStock);
+      }
+      res.json(updated);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to simulate stock prices" });
+    }
+  });
+
+  app.get("/api/academy/campus", requireAuth, async (req, res) => {
+    const project = await storage.getCampusProject(getUserId(req)!);
+    if (!project) return res.status(404).json({ error: "No campus project found" });
+    res.json(project);
+  });
+
+  app.post("/api/academy/campus", requireAuth, async (req, res) => {
+    try {
+      const userId = getUserId(req)!;
+      const existing = await storage.getCampusProject(userId);
+      if (existing) {
+        const updated = await storage.updateCampusProject(existing.id, req.body);
+        return res.json(updated);
+      }
+      const project = await storage.createCampusProject({ ...req.body, userId });
+      res.status(201).json(project);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to save campus project" });
+    }
+  });
+
+  app.post("/api/academy/campus/fund", requireAuth, async (req, res) => {
+    try {
+      const { amount } = req.body;
+      if (!amount || parseFloat(amount) <= 0) {
+        return res.status(400).json({ error: "Valid amount is required" });
+      }
+      const userId = getUserId(req)!;
+      const wallet = await storage.getOrCreateWallet(userId);
+      const fundAmount = parseFloat(amount);
+      if (parseFloat(wallet.balance) < fundAmount) {
+        return res.status(400).json({ error: "Insufficient funds" });
+      }
+      const project = await storage.getCampusProject(userId);
+      if (!project) return res.status(404).json({ error: "No campus project found" });
+
+      const newBalance = (parseFloat(wallet.balance) - fundAmount).toFixed(2);
+      const newCampusContributed = (parseFloat(wallet.campusContributed) + fundAmount).toFixed(2);
+      await storage.updateWalletBalance(wallet.id, { balance: newBalance, campusContributed: newCampusContributed });
+
+      const newAmountFunded = (parseFloat(project.amountFunded) + fundAmount).toFixed(2);
+      const updated = await storage.updateCampusProject(project.id, { amountFunded: newAmountFunded });
+
+      await storage.createTransaction({
+        walletId: wallet.id,
+        type: "campus_fund",
+        amount: (-fundAmount).toFixed(2),
+        description: `Funded campus project: ${project.projectName}`,
+        category: "campus",
+      });
+
+      res.json({ success: true, project: updated, newBalance });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fund campus project" });
+    }
+  });
+
+  app.get("/api/academy/competitions", async (_req, res) => {
+    const competitions = await storage.getAllCompetitions();
+    res.json(competitions);
+  });
+
+  app.post("/api/academy/competitions", requireAuth, async (req, res) => {
+    try {
+      const comp = await storage.createCompetition(req.body);
+      res.status(201).json(comp);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create competition" });
+    }
+  });
+
+  app.get("/api/academy/competitions/:id/entries", async (req, res) => {
+    const entries = await storage.getCompetitionEntries(req.params.id);
+    res.json(entries);
+  });
+
+  app.post("/api/academy/competitions/:id/enter", requireAuth, async (req, res) => {
+    try {
+      const comp = await storage.getCompetition(req.params.id);
+      if (!comp) return res.status(404).json({ error: "Competition not found" });
+      const entry = await storage.createCompetitionEntry({
+        competitionId: req.params.id,
+        userId: getUserId(req)!,
+        userName: getUserName(req) || "Student",
+        ...req.body,
+      });
+      res.status(201).json(entry);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to enter competition" });
+    }
+  });
+
+  app.post("/api/academy/competitions/:id/score", requireAuth, async (req, res) => {
+    try {
+      const { entryId, score, placement } = req.body;
+      if (!entryId) return res.status(400).json({ error: "entryId is required" });
+      const updated = await storage.updateCompetitionEntry(entryId, {
+        score,
+        placement,
+        completedAt: new Date(),
+      });
+      res.json(updated);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update score" });
+    }
+  });
+
+  app.get("/api/academy/dream-profile", requireAuth, async (req, res) => {
+    const profile = await storage.getDreamProfile(getUserId(req)!);
+    if (!profile) return res.status(404).json({ error: "Dream profile not found" });
+    res.json(profile);
+  });
+
+  app.post("/api/academy/dream-profile", requireAuth, async (req, res) => {
+    try {
+      const profile = await storage.createOrUpdateDreamProfile(getUserId(req)!, req.body);
+      res.json(profile);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to save dream profile" });
+    }
+  });
+
+  app.get("/api/academy/merch", async (_req, res) => {
+    const items = await storage.getAllMerchItems();
+    res.json(items);
+  });
+
+  app.post("/api/academy/merch", requireAuth, async (req, res) => {
+    try {
+      const item = await storage.createMerchItem(req.body);
+      res.status(201).json(item);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create merch item" });
+    }
+  });
+
+  app.get("/api/academy/merch/orders", requireAuth, async (req, res) => {
+    const orders = await storage.getMerchOrders(getUserId(req)!);
+    res.json(orders);
+  });
+
+  app.post("/api/academy/merch/orders", requireAuth, async (req, res) => {
+    try {
+      const order = await storage.createMerchOrder({
+        ...req.body,
+        userId: getUserId(req)!,
+        userName: getUserName(req) || "Student",
+      });
+      res.status(201).json(order);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create order" });
+    }
+  });
+
   return httpServer;
 }
