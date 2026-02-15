@@ -13,6 +13,7 @@ import {
   CheckCircle,
   Server,
   Database,
+  GraduationCap,
 } from "lucide-react";
 
 const SUPPORT_PORTAL_URL = "https://student-support-portal--mrterryflood.replit.app";
@@ -26,6 +27,8 @@ const apiEndpoints = [
   { method: "GET", path: "/api/external/early-warnings", description: "All active early warning flags" },
   { method: "GET", path: "/api/external/reflections/recent", description: "Recent journal entries & mood alerts" },
   { method: "POST", path: "/api/external/interventions/receive", description: "Receive intervention data from Support Portal" },
+  { method: "GET", path: "/api/external/students/:userId/pathway", description: "Longitudinal career pathway (grades 6-12+)" },
+  { method: "GET", path: "/api/external/pathways/overview", description: "All pathways with grade distribution & graduation tracking" },
 ];
 
 const academyToPortal = [
@@ -35,6 +38,9 @@ const academyToPortal = [
   "Panther Power",
   "Self-assessments",
   "Journal mood alerts",
+  "Career pathways (6-12+)",
+  "Grade progression",
+  "Graduation tracking",
 ];
 
 const portalToAcademy = [
@@ -65,7 +71,7 @@ export default function AcademyIntegrationPage() {
         <div className="bg-[#800000] text-white py-8 px-4">
           <div className="max-w-4xl mx-auto">
             <h1 className="text-2xl font-bold" data-testid="text-page-title">Platform Integration</h1>
-            <p className="text-white/80 mt-1">Connect the Academy with the Student Support Portal</p>
+            <p className="text-white/80 mt-1">Connect the Academy with the Student Support Portal — Grades 6-12+</p>
           </div>
         </div>
         <div className="max-w-4xl mx-auto p-4">
@@ -96,7 +102,7 @@ export default function AcademyIntegrationPage() {
       <div className="bg-[#800000] text-white py-8 px-4">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-2xl font-bold" data-testid="text-page-title">Platform Integration</h1>
-          <p className="text-white/80 mt-1">Connect the Academy with the Student Support Portal</p>
+          <p className="text-white/80 mt-1">Connect the Academy with the Student Support Portal — Grades 6-12+</p>
         </div>
       </div>
 
@@ -203,6 +209,34 @@ export default function AcademyIntegrationPage() {
                 ))}
               </div>
             </div>
+          </div>
+        </Card>
+
+        <Card className="p-6" data-testid="card-longitudinal-tracking">
+          <div className="flex items-center gap-2 mb-4">
+            <GraduationCap className="w-5 h-5 text-[#800000]" />
+            <h3 className="text-lg font-semibold" data-testid="text-longitudinal-title">Longitudinal Tracking (Grades 6-12+)</h3>
+          </div>
+          <p className="text-sm text-muted-foreground mb-4" data-testid="text-longitudinal-description">
+            Track students continuously from 6th grade through high school graduation. Career pathways, milestones, and education plans persist across grade levels for a complete developmental picture.
+          </p>
+          <div className="flex flex-wrap gap-3 mb-4">
+            <Badge variant="secondary" className="bg-[#800000]/10 text-[#800000]" data-testid="badge-middle-school">Middle School (6-8)</Badge>
+            <Badge variant="secondary" className="bg-[#800000]/10 text-[#800000]" data-testid="badge-high-school">High School (9-12)</Badge>
+          </div>
+          <div className="space-y-2">
+            {[
+              { label: "Career pathway progress", testId: "text-tracked-career-pathway" },
+              { label: "Education path type", testId: "text-tracked-education-path" },
+              { label: "Milestone completion", testId: "text-tracked-milestone" },
+              { label: "Grade-level transitions", testId: "text-tracked-grade-transitions" },
+              { label: "Graduation readiness", testId: "text-tracked-graduation-readiness" },
+            ].map((item) => (
+              <div key={item.testId} className="flex items-center gap-2" data-testid={item.testId}>
+                <CheckCircle className="w-3 h-3 text-green-600 shrink-0" />
+                <span className="text-sm">{item.label}</span>
+              </div>
+            ))}
           </div>
         </Card>
 

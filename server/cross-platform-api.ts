@@ -3,7 +3,8 @@ import { db } from "./storage";
 import { 
   studentProgress, earnedBadges, academyPantherPower, 
   attendanceLogs, studentReflections,
-  studentSelfAssessments, thriveScores, earlyWarningFlags
+  studentSelfAssessments, thriveScores, earlyWarningFlags,
+  pathwayPlans
 } from "@shared/schema";
 import { eq, desc, gte, sql } from "drizzle-orm";
 
@@ -21,14 +22,18 @@ const requireApiKey = (req: Request, res: Response, next: NextFunction) => {
 export function registerCrossPlatformRoutes(app: Express) {
   app.get("/api/external/students/overview", requireApiKey, async (_req, res) => {
     try {
+      const gradeFilter = _req.query.grade ? parseInt(_req.query.grade as string, 10) : null;
       const progress = await db.select().from(studentProgress);
       const power = await db.select().from(academyPantherPower);
+      const pathways = await db.select().from(pathwayPlans);
       
       const powerMap = new Map(power.map(p => [p.userId, p]));
+      const pathwayMap = new Map(pathways.map(pw => [pw.userId, pw]));
       
-      const students = progress.map(p => {
+      let students = progress.map(p => {
         const uid = p.userId ?? "";
         const pp = uid ? powerMap.get(uid) : undefined;
+        const pw = uid ? pathwayMap.get(uid) : undefined;
         return {
           userId: p.userId,
           studentName: p.studentName,
@@ -48,8 +53,19 @@ export function registerCrossPlatformRoutes(app: Express) {
             level: pp.level,
             title: pp.title,
           } : null,
+          pathway: pw ? {
+            currentGrade: pw.currentGrade,
+            primaryCareerInterest: pw.primaryCareerInterest,
+            educationPathType: pw.educationPathType,
+            pathwayStatus: pw.status,
+          } : null,
         };
       });
+
+      if (gradeFilter !== null && !isNaN(gradeFilter)) {
+        students = students.filter(s => s.pathway?.currentGrade === gradeFilter);
+      }
+
       res.json({ students, count: students.length, timestamp: new Date().toISOString() });
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch student overview" });
@@ -158,6 +174,79 @@ export function registerCrossPlatformRoutes(app: Express) {
     }
   });
 
+  app.get("/api/external/students/:userId/pathway", requireApiKey, async (req, res) => {
+    try {
+      const userId = req.params.userId;
+      const [plan] = await db.select().from(pathwayPlans).where(sql`${pathwayPlans.userId} = ${userId}`);
+      if (!plan) {
+        return res.json({ userId, pathway: null, timestamp: new Date().toISOString() });
+      }
+      res.json({
+        userId,
+        pathway: {
+          userId: plan.userId,
+          userName: plan.userName,
+          currentGrade: plan.currentGrade,
+          primaryCareerInterest: plan.primaryCareerInterest,
+          secondaryCareerInterest: plan.secondaryCareerInterest,
+          educationPathType: plan.educationPathType,
+          completedMilestones: plan.completedMilestones,
+          status: plan.status,
+          revisionsThisYear: plan.revisionsThisYear,
+          createdAt: plan.createdAt,
+        },
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch pathway data" });
+    }
+  });
+
+  app.get("/api/external/pathways/overview", requireApiKey, async (_req, res) => {
+    try {
+      const allPlans = await db.select().from(pathwayPlans);
+      const pathways = allPlans.map(plan => ({
+        userId: plan.userId,
+        userName: plan.userName,
+        currentGrade: plan.currentGrade,
+        primaryCareerInterest: plan.primaryCareerInterest,
+        secondaryCareerInterest: plan.secondaryCareerInterest,
+        educationPathType: plan.educationPathType,
+        completedMilestones: plan.completedMilestones,
+        status: plan.status,
+        revisionsThisYear: plan.revisionsThisYear,
+        createdAt: plan.createdAt,
+      }));
+
+      const gradeDistribution: Record<number, number> = { 6: 0, 7: 0, 8: 0, 9: 0, 10: 0, 11: 0, 12: 0 };
+      const educationPathCounts: Record<string, number> = {};
+      let activeCount = 0;
+
+      for (const plan of allPlans) {
+        const grade = plan.currentGrade;
+        if (grade >= 6 && grade <= 12) {
+          gradeDistribution[grade] = (gradeDistribution[grade] || 0) + 1;
+        }
+        const pathType = plan.educationPathType || "unspecified";
+        educationPathCounts[pathType] = (educationPathCounts[pathType] || 0) + 1;
+        if (plan.status === "active") {
+          activeCount++;
+        }
+      }
+
+      res.json({
+        pathways,
+        gradeDistribution,
+        educationPathCounts,
+        totalActive: activeCount,
+        total: pathways.length,
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch pathways overview" });
+    }
+  });
+
   app.get("/api/external/health", requireApiKey, async (_req, res) => {
     res.json({ 
       status: "ok", 
@@ -167,9 +256,11 @@ export function registerCrossPlatformRoutes(app: Express) {
         "GET /api/external/students/overview",
         "GET /api/external/students/:userId/thrive",
         "GET /api/external/students/:userId/assessments",
+        "GET /api/external/students/:userId/pathway",
         "GET /api/external/attendance/summary",
         "GET /api/external/early-warnings",
         "GET /api/external/reflections/recent",
+        "GET /api/external/pathways/overview",
         "POST /api/external/interventions/receive",
       ],
       timestamp: new Date().toISOString()
