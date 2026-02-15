@@ -43,7 +43,7 @@ const menuItems = [
 ];
 
 const academyItems = [
-  { title: "Academy Hub", url: "/academy", icon: Rocket },
+  { title: "Panther Village", url: "/academy", icon: Rocket },
   { title: "Panther Power", url: "/academy/power", icon: Zap },
   { title: "Daily Quests", url: "/academy/quests", icon: CalendarCheck },
   { title: "Life Lessons", url: "/academy/lessons", icon: Lightbulb },

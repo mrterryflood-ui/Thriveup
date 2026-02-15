@@ -28,6 +28,7 @@ import TeacherDashboardPage from "@/pages/teacher-dashboard";
 import CertificatesPage, { CertificateViewPage } from "@/pages/certificates";
 import SocialMediaLiteracyPage from "@/pages/social-media-literacy";
 import AcademyHubPage from "@/pages/academy-hub";
+import AcademyVillagePage from "@/pages/academy-village";
 import AcademyAvatarPage from "@/pages/academy-avatar";
 import AcademyStocksPage from "@/pages/academy-stocks";
 import AcademyCampusPage from "@/pages/academy-campus";
@@ -75,7 +76,8 @@ function AppRouter() {
       <Route path="/certificates" component={CertificatesPage} />
       <Route path="/certificates/:id" component={CertificateViewPage} />
       <Route path="/social-media-literacy" component={SocialMediaLiteracyPage} />
-      <Route path="/academy" component={AcademyHubPage} />
+      <Route path="/academy" component={AcademyVillagePage} />
+      <Route path="/academy/hub" component={AcademyHubPage} />
       <Route path="/academy/avatar" component={AcademyAvatarPage} />
       <Route path="/academy/stocks" component={AcademyStocksPage} />
       <Route path="/academy/wallet" component={AcademyWalletPage} />

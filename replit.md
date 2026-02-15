@@ -19,15 +19,16 @@ Key features include:
 - **Classroom Management:** Teachers can create and manage classrooms, inviting students to track their progress.
 - **Certificate System:** Automated certificate issuance for level completion, with printable views.
 - **Sixth Grade Academy:**
-    - **Avatar Customization:** Sims-inspired virtual avatar creation.
+    - **Panther Village:** Interactive visual campus landing page (/academy) with clickable building cards linking to all features, student avatar display, classmates section, community activity feed, and quick stats bar. Replaces the old dashboard hub.
+    - **Avatar Customization:** Sims-inspired virtual avatar creation with skin tone, hair, outfit, accessories, and background.
     - **Virtual Economy:** Simulated stock market with 10 stocks, virtual wallets, and transaction tracking.
     - **Campus Builder:** A "Build Your Black Campus" project with funding and phased development.
     - **Competitions & Houses:** Academic/cultural competitions and a Ron Clark/Harry Potter-inspired house points system.
     - **Dream Design:** Holistic resume building and goal setting.
     - **Merchandise Shop:** Integration with UBO for real college tuition fundraising through merchandise sales.
     - **Choose Your Own Adventure:** Branching CYOA scenarios teaching financial literacy, leadership, investing, and community building through choices and consequences with empathy and setback recovery.
-    - **Panther Marketplace:** Peer-to-peer commerce where students list items/services, buy from each other, with wallet integration and entrepreneurship power rewards.
-    - **Admin Command Center:** Dashboard for teachers/admins to monitor student metrics, activity feed, wallet balances, Panther Power scores, and add intervention notes.
+    - **Panther Marketplace:** Peer-to-peer commerce where students list items/services, buy from each other, with wallet integration, content moderation filter, community guidelines, and student report/flag system for safety.
+    - **Admin Command Center:** Dashboard for teachers/admins to monitor student metrics, activity feed, wallet balances, Panther Power scores, add intervention notes, and review flagged content reports.
 - **Internationalization (i18n):** Custom language provider supporting English and Spanish.
 - **Low-Bandwidth Mode:** User-toggleable mode to strip animations, images, and shadows for improved performance on limited connections.
 - **Panther Power Score:** Unified empowerment metric across 5 categories (Education, Character, Leadership, Entrepreneurship, Community) with levels and titles.
