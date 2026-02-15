@@ -30,6 +30,11 @@ import {
   ArrowRight,
   Mail,
   Shield,
+  Sparkles,
+  Brain,
+  HeartHandshake,
+  Presentation,
+  MessageCircle,
 } from "lucide-react";
 
 interface ChapterStats {
@@ -57,6 +62,7 @@ interface Chapter {
   quoteAuthor: string;
   links: ChapterLink[];
   stats: ChapterStats;
+  characters?: string[];
 }
 
 const CHAPTERS: Chapter[] = [
@@ -64,11 +70,11 @@ const CHAPTERS: Chapter[] = [
     title: "Welcome, Arthur",
     subtitle: "First Day & Avatar Creation",
     icon: User,
+    characters: ["Arthur", "Coach Marcus"],
     narrative: [
-      "Arthur Wakanda walks through the doors of TxEA 6th Grade Academy for the very first time. His hands are a little sweaty, his backpack feels heavier than usual, and the hallway seems to stretch forever. But then he sees it -- a giant banner that reads: \"Welcome, Young Panthers. Your Empire Starts Here.\"",
-      "His first stop is the Avatar Creator, where he gets to design his own digital identity. He picks his hairstyle, his outfit, and even adds a pair of cool sneakers. For the first time today, Arthur smiles. This version of himself looks confident, ready for anything.",
-      "Next comes the House Sorting. Arthur gets placed into the Crimson Lions -- a house known for courage and heart. His house leader explains how the merit system works: every act of kindness, every completed assignment, every moment of leadership earns points for the team. Arthur realizes this is not just about him. His whole house is counting on him.",
-      "Arthur receives his starter wallet with $100 in virtual credits. It is not much, but it is a beginning. Every great empire started with a single step.",
+      "Arthur Wakanda walks through the doors of TxEA 6th Grade Academy for the very first time. His hands are a little sweaty, his backpack feels heavier than usual, and the hallway seems to stretch forever. But then he sees it -- a giant banner that reads: \"Welcome, Young Panthers. Your Empire Starts Here.\" Something in his chest loosens, just a little.",
+      "His first stop is the Avatar Creator, where he designs his own digital identity. He picks his hairstyle, adds a fresh pair of sneakers, and even chooses a panther emblem for his jacket. For the first time today, Arthur smiles. This version of himself looks confident, ready for anything. He receives his starter wallet with $100 in virtual credits -- not much, but every empire begins somewhere.",
+      "A tall man with kind eyes and a Howard University polo steps forward. \"I am Coach Marcus, your house leader,\" he says, extending a hand. \"I have been where you are, young brother. Nervous, unsure, full of questions. That is exactly where greatness begins.\" Arthur shakes his hand and feels a spark of belonging. Coach Marcus explains the merit system, the house competitions, and the Panther Power pillars. Arthur does not understand everything yet, but he knows one thing: someone here believes in him already.",
     ],
     quote: "The journey of a thousand miles begins with a single step. Today, you took yours.",
     quoteAuthor: "Welcome message to all new Panthers",
@@ -76,17 +82,70 @@ const CHAPTERS: Chapter[] = [
       { label: "Avatar Creator", href: "/academy/avatar", icon: User },
       { label: "House System", href: "/academy/houses", icon: Flag },
     ],
-    stats: { wallet: 100, pantherPower: 0, housePoints: 0 },
+    stats: { wallet: 100, pantherPower: 0, housePoints: 0, collegeFund: 0 },
   },
   {
-    title: "Finding His Voice",
-    subtitle: "Daily Quests & Life Lessons",
-    icon: CalendarCheck,
+    title: "Meet the Panthers",
+    subtitle: "Sim Characters & House Sorting",
+    icon: Users,
+    characters: ["Arthur", "Maya", "DeShawn", "Jasmine", "Amara", "Coach Marcus"],
     narrative: [
-      "A week into the Academy, Arthur starts getting the hang of things. Every morning, he checks his Daily Quests -- small challenges that push him to grow. Today's quest: \"Introduce yourself to someone new and learn one thing about them.\" Arthur is nervous, but he walks up to a classmate named Maya and learns that she wants to be an architect.",
-      "In Life Lessons class, Arthur discovers something amazing: the things he is learning in school connect directly to the real world. A math lesson about percentages turns into a conversation about business profits. A reading assignment about community leaders becomes a discussion about what leadership really means.",
-      "Arthur's Panther Power score starts growing across five categories: Education, Character, Leadership, Entrepreneurship, and Community. He is not the strongest in any single area yet, but he is growing in all of them. His teachers notice. His house notices. And most importantly, Arthur notices.",
-      "By the end of the second week, Arthur has completed twelve quests and attended four Life Lessons. He is starting to understand that success is not about being perfect -- it is about showing up every day and giving your best.",
+      "Homeroom buzzes with energy as Arthur slides into his seat. The girl next to him is sketching a building on her tablet with precise, elegant lines. \"I am Maya Chen,\" she says without looking up. \"I am going to design buildings that change skylines someday.\" Across the aisle, a boy in a sharp blazer is checking stock prices on his phone. \"DeShawn Williams,\" he says with a confident nod. \"I will be on Wall Street before I am twenty.\"",
+      "At the art table, Jasmine Torres is already designing a logo for the class. Her sketchbook is bursting with color -- fonts, patterns, brand concepts that look professional. Near the window, Amara Okafor is organizing a sign-up sheet for a community garden project she started over the summer. She has already collected twelve signatures before the first bell rings.",
+      "House sorting happens after lunch. Coach Marcus calls names one by one. Arthur and Maya land in the Crimson Lions -- a house known for courage and heart. DeShawn joins the Golden Eagles, and the friendly rivalry begins immediately. \"Lions versus Eagles,\" DeShawn grins. \"May the best house win.\" Arthur feels the weight of his house name settle on his shoulders. These are his people now, and he wants to make them proud.",
+    ],
+    quote: "Surround yourself with people who push you to be better. That is your first investment.",
+    quoteAuthor: "Coach Marcus, House Sorting Day",
+    links: [
+      { label: "House System", href: "/academy/houses", icon: Flag },
+      { label: "Avatar Creator", href: "/academy/avatar", icon: User },
+    ],
+    stats: { wallet: 100, pantherPower: 10, housePoints: 5, collegeFund: 0 },
+  },
+  {
+    title: "Spark Lights the Way",
+    subtitle: "AI Companion Discovery",
+    icon: Sparkles,
+    characters: ["Arthur", "Spark AI"],
+    narrative: [
+      "Arthur is stuck. The Social Studies reading assignment might as well be written in another language. He stares at the screen, re-reading the same paragraph about economic systems for the fourth time. Nothing clicks. Then he notices a glowing icon in the corner of his dashboard labeled \"Spark -- Your AI Learning Companion.\" He clicks it, half-expecting a boring chatbot.",
+      "Spark is different. Instead of dumping answers, Spark asks Arthur what he already knows. \"What do you think an economy is, in your own words?\" Arthur types something simple, and Spark builds on it, connecting his everyday experiences -- buying lunch, trading cards with friends -- to bigger concepts. Within fifteen minutes, the reading assignment makes sense. Spark never made him feel dumb. It met him exactly where he was.",
+      "Arthur starts using Spark every day. Before a Science quiz, Spark walks him through the water cycle using questions that make Arthur think instead of memorize. After a tough ELA essay, Spark helps him find stronger words without rewriting his sentences. \"I believe in your ability to figure this out,\" Spark says after every session. Arthur realizes he has something he has never had before: a tutor who is available at 2 AM, who never loses patience, and who genuinely believes he can learn anything.",
+    ],
+    quote: "The best teachers do not give you the answers. They help you find your own.",
+    quoteAuthor: "Arthur, after his first week with Spark",
+    links: [
+      { label: "Spark AI Companion", href: "/ai-companion", icon: Sparkles },
+    ],
+    stats: { wallet: 120, pantherPower: 25, housePoints: 10, collegeFund: 0 },
+  },
+  {
+    title: "The AI Mastery Path",
+    subtitle: "Curriculum & Core Subjects",
+    icon: Brain,
+    characters: ["Arthur", "Ms. Richardson", "Spark AI"],
+    narrative: [
+      "Arthur opens the AI Mastery curriculum and discovers five levels waiting for him, each one building on the last. Level 1 starts with the basics: understanding how AI works, how to ask good questions, and how to think critically about information. He moves through modules on ELA, Math, Science, and Social Studies, each one showing him how AI tools can help him learn faster and deeper.",
+      "Ms. Richardson's Social Studies class changes everything. She is the kind of teacher who makes history feel alive. When she talks about how communities build wealth across generations, Arthur leans forward in his seat. She notices. After class, she pulls him aside. \"You have a natural curiosity for how the world works, Arthur. That is rare. Feed it.\" Those words become fuel.",
+      "Arthur completes his Level 1 modules and earns his first digital certificate. He screenshots it and sends it to his parents. The subjects blur together in the best way -- a Math lesson on percentages connects to a Science lesson on data, which connects to a Social Studies project on community economics. Spark helps him see the threads between everything. For the first time, school feels less like separate boxes and more like one big, connected puzzle.",
+    ],
+    quote: "Education is not the filling of a pail, but the lighting of a fire.",
+    quoteAuthor: "Ms. Richardson, Social Studies class",
+    links: [
+      { label: "AI Mastery Curriculum", href: "/curriculum", icon: Brain },
+      { label: "Core Subjects", href: "/subjects", icon: BookOpen },
+    ],
+    stats: { wallet: 150, pantherPower: 55, housePoints: 20, collegeFund: 0 },
+  },
+  {
+    title: "Daily Grind",
+    subtitle: "Quests & Life Lessons",
+    icon: CalendarCheck,
+    characters: ["Arthur", "Amara"],
+    narrative: [
+      "Every morning, Arthur checks his Daily Quests before breakfast. Today's challenge: \"Teach someone one thing you learned this week.\" He finds a younger student struggling with fractions and spends ten minutes at the whiteboard. The student's face lights up when it finally clicks, and Arthur earns 15 Panther Power points. He is starting to understand that teaching is just learning from the other side.",
+      "Life Lessons class connects the classroom to the real world in ways Arthur never expected. A lesson about budgeting turns into a conversation about his parents' grocery shopping. A discussion about leadership becomes a debate about what makes a good team captain. Arthur starts carrying a small notebook to write down the things that surprise him.",
+      "Amara challenges him to a community quest: organize a book drive for the elementary school next door. Arthur is hesitant -- he has never organized anything -- but Amara walks him through it. They collect sixty-two books in three days. The five Panther Power pillars start making real sense now: Education, Character, Leadership, Entrepreneurship, and Community. They are not just categories on a screen. They are the shape of the person Arthur is becoming.",
     ],
     quote: "You do not have to be great to start, but you have to start to be great.",
     quoteAuthor: "Life Lesson #3",
@@ -94,110 +153,261 @@ const CHAPTERS: Chapter[] = [
       { label: "Daily Quests", href: "/academy/quests", icon: CalendarCheck },
       { label: "Life Lessons", href: "/academy/lessons", icon: Lightbulb },
     ],
-    stats: { wallet: 150, pantherPower: 45, housePoints: 15 },
+    stats: { wallet: 200, pantherPower: 95, housePoints: 35, collegeFund: 0 },
+  },
+  {
+    title: "Finding His Voice",
+    subtitle: "Social-Emotional Learning",
+    icon: HeartHandshake,
+    characters: ["Arthur", "Maya", "Spark AI"],
+    narrative: [
+      "Arthur fails a Math quiz. Not by a little -- by a lot. He stares at the score and feels his face burn. He wants to shove the paper in his backpack and pretend it never happened. At lunch, he sits alone for the first time in weeks, poking at his food and replaying every wrong answer in his head.",
+      "That night, he opens Spark, not for homework but because he does not know who else to talk to. Spark walks him through a Social-Emotional Learning exercise: naming what he feels, understanding why he feels it, and choosing what to do next. \"Embarrassment is not a sign of weakness,\" Spark says. \"It is a sign that you care about doing well. That matters.\" Arthur works through the Wellness and Self-Care module, learning about resilience, growth mindset, and the science of bouncing back.",
+      "The next day, Maya sits down next to him. \"I saw your face yesterday,\" she says quietly. \"I failed reading in 4th grade. Like, really failed. I cried every night for a month.\" Arthur looks at her -- this brilliant girl who sketches skyscrapers -- and cannot believe she ever struggled. \"The struggle is the point,\" she says. \"That is where the growing happens.\" Arthur retakes the quiz a week later and scores 82. Not perfect, but proof that he is not defined by his worst day.",
+    ],
+    quote: "Vulnerability is not weakness. It is the birthplace of courage, connection, and growth.",
+    quoteAuthor: "Wellness module, SEL curriculum",
+    links: [
+      { label: "Core Subjects & SEL", href: "/subjects", icon: HeartHandshake },
+      { label: "Spark AI Companion", href: "/ai-companion", icon: Sparkles },
+    ],
+    stats: { wallet: 220, pantherPower: 130, housePoints: 45, collegeFund: 0 },
   },
   {
     title: "The Lemonade Stand Empire",
-    subtitle: "Choose Your Own Adventure",
+    subtitle: "First CYOA Adventure",
     icon: Gamepad2,
+    characters: ["Arthur", "DeShawn"],
     narrative: [
-      "Arthur's eyes light up when he discovers the Choose Your Own Adventure scenarios. His first adventure: \"The Lemonade Stand Empire.\" He gets to make real business decisions -- where to set up shop, how to price his drinks, whether to spend money on fancy cups or save it for advertising.",
-      "Arthur chooses a busy corner near the school, prices his lemonade at $2 a cup, and spends some of his wallet credits on a colorful sign. Business is booming on day one! He sells 45 cups and feels like a real entrepreneur.",
-      "Then disaster strikes. A massive rainstorm hits on day two. Nobody wants cold lemonade in the rain. Arthur loses money on supplies he already bought. He feels defeated. Was this whole thing a mistake?",
-      "But the adventure does not end there. Arthur gets a choice: give up, or adapt. He chooses to adapt. He pivots to selling hot chocolate instead, uses the leftover lemons to make lemon cookies, and even offers a \"rainy day special\" discount. By the end of the week, he has made back everything he lost -- and then some.",
-      "The lesson hits Arthur like a bolt of lightning: Every entrepreneur faces setbacks. The ones who succeed are the ones who learn and try again. He writes this in his journal and underlines it twice.",
+      "Arthur's eyes light up when he discovers the Choose Your Own Adventure scenarios. His first adventure is \"The Lemonade Stand Empire\" -- a business simulation where every decision has real consequences. He chooses a busy corner near the school, prices his lemonade at two dollars a cup, and spends wallet credits on a colorful sign. Day one is a hit: forty-five cups sold. Arthur feels invincible.",
+      "Then disaster strikes. A massive rainstorm rolls in on day two. Nobody wants cold lemonade in the rain. Arthur watches his virtual customers walk past, and his stomach sinks. He has already spent money on supplies. The adventure gives him a choice: quit and cut his losses, or adapt and try something new.",
+      "Arthur pivots. He switches to hot chocolate, uses the leftover lemons for cookies, and runs a \"rainy day special.\" By the end of the week, he has earned back everything he lost and then some. DeShawn finds him after class and grins. \"That is what real investors do,\" he says. \"They do not cry about the rain. They sell umbrellas.\" Arthur writes the lesson in his journal and underlines it twice: every setback is a setup for a comeback.",
     ],
     quote: "Every entrepreneur faces setbacks. The ones who succeed are the ones who learn and try again.",
     quoteAuthor: "Arthur's journal entry",
     links: [
       { label: "Adventures (CYOA)", href: "/academy/scenarios", icon: Gamepad2 },
     ],
-    stats: { wallet: 275, pantherPower: 120, housePoints: 35 },
+    stats: { wallet: 350, pantherPower: 175, housePoints: 60, collegeFund: 0 },
   },
   {
-    title: "Wall Street Panther",
+    title: "Wall Street Panthers",
     subtitle: "Stock Market & Investments",
     icon: TrendingUp,
+    characters: ["Arthur", "DeShawn"],
     narrative: [
-      "Arthur hears some older students talking about the virtual stock market, and his curiosity takes over. He opens the Stock Market page and sees a world of companies, charts, and numbers. It is intimidating at first, but Arthur remembers what he learned from the lemonade stand: research first, then act.",
-      "He starts small, investing carefully in three companies that catch his eye. TechPanthers Inc, a company building educational technology, gets his first investment. Then CommunityBuild Co, which focuses on neighborhood improvement. And finally EduFuture Ltd, an education innovation company that Arthur believes in deeply.",
-      "The results are a rollercoaster. TechPanthers Inc climbs 15% -- a solid win. CommunityBuild Co drops 5% -- Arthur's stomach sinks, but he holds steady. Then EduFuture Ltd starts climbing: 10%, 15%, 22%. Arthur learns that patience pays off.",
-      "The big moment comes when EduFuture releases a positive earnings report and the stock doubles. Arthur's small investment turns into a serious return. But more importantly, he learns three lessons that will stay with him forever: do your research, diversify your investments, and be patient even when things look scary.",
-      "Arthur starts tracking his portfolio like a hawk. He is not just playing a game -- he is learning how money really works.",
+      "DeShawn has been talking about the virtual stock market all week, and Arthur finally takes the plunge. DeShawn walks him through the basics during study hall: how to read charts, what market cap means, why diversification matters. \"Never put all your eggs in one basket,\" DeShawn says, tapping the screen. \"That is rule number one.\"",
+      "Arthur invests in three companies. TechPanthers Inc, an ed-tech firm, climbs 15% -- a solid first win. CommunityBuild Co drops 5%, and Arthur's stomach sinks, but DeShawn tells him to hold steady. Then EduFuture Ltd starts climbing: 10%, 15%, 22%. When EduFuture releases a positive earnings report and the stock doubles, Arthur's small investment turns into his biggest return yet.",
+      "But the real lesson is not about the money. Arthur learns patience -- watching a stock dip and resisting the urge to panic sell. He learns research -- reading about companies before investing instead of guessing. And he learns from DeShawn that even the best investors lose sometimes. \"The goal is not to never lose,\" DeShawn says. \"The goal is to learn from every trade.\" Arthur starts tracking his portfolio daily, and the numbers start telling stories he can actually read.",
     ],
     quote: "The stock market is a device for transferring money from the impatient to the patient.",
     quoteAuthor: "Financial Literacy lesson",
     links: [
       { label: "Stock Market", href: "/academy/stocks", icon: TrendingUp },
     ],
-    stats: { wallet: 520, pantherPower: 200, housePoints: 55 },
+    stats: { wallet: 580, pantherPower: 230, housePoints: 80, collegeFund: 0 },
   },
   {
-    title: "Building Dreams",
-    subtitle: "Campus Builder & Competitions",
-    icon: Building2,
+    title: "House of Lions",
+    subtitle: "House Points & Competitions",
+    icon: Trophy,
+    characters: ["Arthur", "Maya", "DeShawn", "Coach Marcus"],
     narrative: [
-      "Arthur discovers the Build Your Black Campus project and something clicks inside him. He gets to help design a virtual campus inspired by historically Black colleges and universities. He adds a library with floor-to-ceiling windows, a community garden, and a student entrepreneurship center. Every contribution earns him campus points and wallet credits.",
-      "When the Academic Bowl competition is announced, Arthur's house -- the Crimson Lions -- rallies together. Arthur enters the Social Sciences category because he has fallen in love with understanding how communities work, how economies function, and how leaders create change.",
-      "The competition is fierce. Students from every house bring their A-game. Arthur studies hard, reviews his Life Lessons notes, and even asks his teachers for extra practice questions. On competition day, his hands shake as he answers question after question.",
-      "When the results come in, Arthur has won 2nd place in Social Sciences. He did not get first, but he is proud. His house erupts in cheers, and they earn massive house points. Arthur learns that competing is not just about winning -- it is about pushing yourself to be better than you were yesterday.",
-      "That night, Arthur opens Dream Design for the first time. He types in his dream college: Howard University. He types in his dream career: Social Science Engineer. The profile starts building, and so does his confidence.",
+      "The house standings go up on the big screen, and the Crimson Lions are sitting in third place. Arthur stares at the board and feels something ignite. He gathers his housemates in the common room. \"We are not third-place people,\" he says, surprised by the conviction in his own voice. Maya nods. Coach Marcus watches from the doorway, arms crossed, a quiet smile on his face.",
+      "The Academic Bowl competition is announced: four subjects, four rounds, one champion house. Arthur signs up for Social Sciences. Maya takes Math. They study together every afternoon, quizzing each other until the material becomes second nature. Spark helps Arthur prepare with practice questions that adapt to his weak spots. The night before the competition, Coach Marcus pulls Arthur aside. \"Win or lose, I am proud of you for stepping up. That is what leaders do.\"",
+      "Competition day is electric. Students from every house bring their best. Arthur's hands shake as he answers question after question in Social Sciences. When the results come in, Maya wins first place in Math and Arthur takes second in Social Sciences. The combined points surge the Crimson Lions from third to first place. The room erupts. Arthur has never felt anything like this -- the roar of his house, Maya's high-five, Coach Marcus's proud nod from the back of the room.",
     ],
     quote: "You are not competing against others. You are competing against the person you were yesterday.",
-    quoteAuthor: "Competition day speech",
+    quoteAuthor: "Coach Marcus, competition day",
     links: [
-      { label: "Build Campus", href: "/academy/campus", icon: Building2 },
+      { label: "House System", href: "/academy/houses", icon: Flag },
       { label: "Competitions", href: "/academy/competitions", icon: Trophy },
-      { label: "Dream Design", href: "/academy/dreams", icon: Target },
     ],
-    stats: { wallet: 680, pantherPower: 350, housePoints: 120 },
+    stats: { wallet: 650, pantherPower: 300, housePoints: 150, collegeFund: 0 },
   },
   {
-    title: "Panther Marketplace Mogul",
-    subtitle: "Entrepreneurship",
-    icon: Store,
+    title: "Building the Dream Campus",
+    subtitle: "Campus Builder",
+    icon: Building2,
+    characters: ["Arthur", "Maya"],
     narrative: [
-      "Arthur has an idea that keeps him up at night: What if he could share what he has learned with other students? He remembers how hard Social Sciences felt at first, and how his notes and study strategies eventually made everything click. What if he turned those notes into something others could use?",
-      "He opens the Panther Marketplace and lists his first product: \"Arthur's Social Science Study Guide -- Volume 1.\" It is a collection of his best notes, practice questions, and memory tricks. He prices it at 25 wallet credits.",
-      "The first sale comes within an hour. Then another. And another. By the end of the week, classmates from every house are buying Arthur's guides. Students start telling him that his guides helped them understand concepts they were struggling with. Arthur realizes that entrepreneurship is not just about making money -- it is about solving problems for people.",
-      "He takes some of his earnings and buys a graphic design service from a classmate named Jasmine, who creates beautiful cover art for his guides. Version 2 of the study guides sells even faster. Arthur learns the power of collaboration -- he does not have to do everything alone.",
-      "His marketplace sales grow his wallet significantly, and his Entrepreneurship Panther Power score skyrockets. Arthur is building something real.",
+      "The Build Your Black Campus project launches, and something clicks inside Arthur. Inspired by historically Black colleges and universities, students get to design a virtual campus from the ground up. Arthur and Maya become building partners immediately. Her architectural eye and his vision for community spaces make them a powerful team.",
+      "Together they design a library with floor-to-ceiling windows that flood the reading rooms with light. They add a student entrepreneurship center with co-working spaces and a pitch stage. Maya sketches a community garden between the buildings, and Arthur adds a mentorship pavilion where older students can meet with younger ones. Every contribution earns campus points and wallet credits.",
+      "Arthur spends some of his hard-earned wallet credits to fund the entrepreneurship center's development. When he sees his name appear on the contributor wall alongside Maya's and dozens of other students, something shifts inside him. This is not just a project -- it is proof that his ideas can become real things in the world. He screenshots the contributor wall and stares at it for a long time before closing his laptop.",
+    ],
+    quote: "Build something that outlasts you. That is the definition of legacy.",
+    quoteAuthor: "Campus Builder welcome message",
+    links: [
+      { label: "Build Campus", href: "/academy/campus", icon: Building2 },
+    ],
+    stats: { wallet: 600, pantherPower: 370, housePoints: 190, collegeFund: 0 },
+  },
+  {
+    title: "Dream Design",
+    subtitle: "Planning for Howard",
+    icon: Target,
+    characters: ["Arthur", "Ms. Richardson", "Coach Marcus"],
+    narrative: [
+      "Arthur opens Dream Design and types two words that make his heart pound: \"Howard University.\" The platform asks him what he wants to study, and he types \"Social Science Engineering\" because Ms. Richardson told him about a program that combines community development with data and design. He starts building his profile -- academic scores, leadership roles, community service hours, entrepreneurship ventures -- and watches a roadmap form on the screen.",
+      "Ms. Richardson sits with him after class and walks him through what admissions committees look for. \"They want to see who you are, not just what you scored,\" she says. \"They want to see growth, curiosity, and impact.\" Arthur sets concrete goals for each Panther Power category. Education: complete Level 3 of AI Mastery. Leadership: become a house captain. Community: organize two more service projects. The goals feel ambitious but reachable.",
+      "The moment that changes everything comes after school. Coach Marcus finds Arthur at his locker and leans against the wall. \"You know I went to Howard, right?\" Arthur shakes his head. Coach Marcus smiles. \"I walked those halls. I sat in those classrooms. I wore that bison blue.\" He pauses. \"And someday, Arthur, you will too. I see it in you.\" Arthur does not cry, but his eyes sting all the way home. Someone who has been where he wants to go just told him he can make it.",
+    ],
+    quote: "A dream written down with a plan becomes a goal. A goal broken down into steps becomes a reality.",
+    quoteAuthor: "Dream Design welcome screen",
+    links: [
+      { label: "Dream Design", href: "/academy/dreams", icon: Target },
+    ],
+    stats: { wallet: 650, pantherPower: 420, housePoints: 210, collegeFund: 0 },
+  },
+  {
+    title: "Study Guide Empire",
+    subtitle: "Marketplace Launch",
+    icon: Store,
+    characters: ["Arthur", "Jasmine", "Amara"],
+    narrative: [
+      "The idea keeps Arthur up at night: what if he could share what he has learned with other students? He remembers how lost he felt in Social Studies before Spark and Ms. Richardson made it click. His notes, memory tricks, and practice questions could help someone else the way they helped him. He opens the Panther Marketplace and lists his first product: \"Arthur's Social Science Study Guide -- Volume 1\" for 25 credits.",
+      "The first sale comes within an hour. Then another. By the end of the day, Arthur has sold six copies. Students from every house start telling him his guides helped them understand concepts they were struggling with. But Arthur knows the guides could look better. He finds Jasmine Torres in the art room and asks for help. Jasmine designs stunning covers with bold typography and clean layouts. Version 2 launches and sales double overnight.",
+      "Scaling becomes the next challenge. Arthur cannot keep up with orders and customer questions alone. He asks Amara to help with distribution and customer support, offering her a percentage of each sale. Amara agrees instantly -- she is already running the biggest marketplace store in the academy. Arthur learns something that no textbook taught him: delegation is not weakness. It is the sign of a leader who knows their limits and trusts their team.",
     ],
     quote: "The best businesses do not just make money. They make a difference in people's lives.",
     quoteAuthor: "Entrepreneurship Life Lesson",
     links: [
       { label: "Marketplace", href: "/academy/marketplace", icon: Store },
     ],
-    stats: { wallet: 1250, pantherPower: 500, housePoints: 180 },
+    stats: { wallet: 1100, pantherPower: 490, housePoints: 240, collegeFund: 0 },
   },
   {
-    title: "Fundraising for the Future",
-    subtitle: "Print Shop & Merch",
-    icon: ShoppingBag,
+    title: "The Leadership Challenge",
+    subtitle: "Second CYOA Adventure",
+    icon: Gamepad2,
+    characters: ["Arthur", "Coach Marcus"],
     narrative: [
-      "Arthur discovers the Print Shop and his creative side explodes. He can design real merchandise -- t-shirts, stickers, notebooks -- and sell them to support his goals. An idea forms: What if he created merchandise that represented his dream?",
-      "He designs a t-shirt that reads \"Future Howard Bison\" with a powerful panther silhouette. He creates stickers with motivational quotes from his journey. He even designs a notebook cover that says \"My Empire Starts Here.\" Every design reflects who Arthur is becoming.",
-      "When Arthur learns about the UBO partnership for real college tuition fundraising, his heart races. This is not just a game anymore. The money from his merch sales can go toward actual college savings. He partners with the program and watches as his merch raises $450 toward his college fund.",
-      "The community rallies behind Arthur's story. Teachers share his designs. Parents buy his merchandise. Other students start creating their own merch, inspired by what Arthur built. The Print Shop becomes a place where dreams take physical form.",
-      "Arthur stares at his college fund balance: $450. It is not enough for four years of college, but it is proof that his dreams are not just fantasies. They are becoming real, one t-shirt at a time.",
+      "Arthur's second Choose Your Own Adventure scenario is called \"The Team Project Challenge,\" and it is nothing like the lemonade stand. This time, he is leading a team of five virtual students on a community project. Everything starts smoothly until two team members clash over the direction of the project. One wants to build a playground, the other insists on a community kitchen. The tension is real, even in a simulation.",
+      "Arthur makes a choice: he sides with one team member without hearing the other out. The result is devastating. The excluded member quits the project, morale drops, and the deadline slips. Arthur stares at the screen, feeling the weight of a bad decision. But the scenario does not end there. It offers a path forward: go back, listen to both sides, and find a compromise.",
+      "Arthur takes the second path. He schedules individual conversations, uses active listening techniques from his SEL training, and proposes a combined project: a community kitchen with an outdoor eating area near a small playground. The team rallies. The project succeeds. When Arthur finishes the scenario, Coach Marcus is standing behind him. \"I saw what you did there,\" Coach Marcus says. \"You made a mistake, and instead of running, you fixed it. That is leadership, young brother.\" Arthur's Leadership power surges to its highest level yet.",
+    ],
+    quote: "A leader is not someone who never makes mistakes. A leader is someone who learns from them and lifts others up.",
+    quoteAuthor: "CYOA scenario debrief",
+    links: [
+      { label: "Adventures (CYOA)", href: "/academy/scenarios", icon: Gamepad2 },
+    ],
+    stats: { wallet: 1200, pantherPower: 560, housePoints: 270, collegeFund: 0 },
+  },
+  {
+    title: "Parents in the Picture",
+    subtitle: "Stakeholder Spotlight",
+    icon: Heart,
+    characters: ["Arthur", "Mr. & Mrs. Wakanda", "Ms. Richardson", "Coach Marcus"],
+    narrative: [
+      "Mr. and Mrs. Wakanda have been hearing Arthur talk about the Academy every night at dinner -- Panther Power, Spark, marketplace sales, house competitions -- but they have not seen it for themselves until they discover the Parent Dashboard. Mrs. Wakanda opens it on her tablet after dinner and scrolls through Arthur's progress: every quest completed, every module passed, every power category growing steadily upward. Her eyes fill with tears. \"Baby, look at this,\" she whispers to her husband.",
+      "Parent-teacher conference night arrives. Ms. Richardson pulls up Arthur's growth data on the Teacher Dashboard and walks his parents through every milestone. \"Arthur is not just keeping up,\" she says. \"He is leading. His Social Science scores have climbed forty percent since September, and his marketplace business is teaching him skills that most adults are still learning.\" Coach Marcus joins the conversation. \"Arthur is not just a student,\" he says. \"He is becoming a leader. I see it every day.\"",
+      "That weekend, Mr. and Mrs. Wakanda buy Arthur's \"Future Howard Bison\" merchandise and attend the virtual campus open house. They walk through the buildings Arthur helped design, read his name on the contributor wall, and browse his marketplace store. Mr. Wakanda claps his son on the shoulder. \"We always knew you had it in you, son. Now the whole world is going to see it.\" The first $200 enters Arthur's college fund, contributed by his family's belief in his dream.",
+    ],
+    quote: "Behind every great student is a family that refused to stop believing.",
+    quoteAuthor: "Parent Dashboard welcome message",
+    links: [
+      { label: "Parent Dashboard", href: "/parents/dashboard", icon: Heart },
+    ],
+    stats: { wallet: 1400, pantherPower: 620, housePoints: 300, collegeFund: 200 },
+  },
+  {
+    title: "Print Shop Dreams",
+    subtitle: "Fundraising Begins",
+    icon: ShoppingBag,
+    characters: ["Arthur", "Jasmine", "Mr. & Mrs. Wakanda"],
+    narrative: [
+      "Arthur discovers the Print Shop and his creative side explodes. He can design real merchandise -- t-shirts, hoodies, stickers, notebooks -- and sell them to support his college dream. The idea forms instantly: what if he created merch that represented not just himself but every student chasing a dream bigger than their circumstances?",
+      "Jasmine becomes his design partner. Together they create a \"Future Howard Bison\" t-shirt with a powerful panther silhouette, stickers with motivational quotes from Arthur's journey, and a notebook that reads \"My Empire Starts Here\" on the cover. When Arthur learns about the UBO partnership -- that real money from merch sales can go toward actual college tuition -- his heart races. This is not a game anymore. This is his future taking shape.",
+      "The community rallies. Teachers buy hoodies. Mr. and Mrs. Wakanda share the merch link with their church, their neighbors, their coworkers. Parents from other houses start ordering. Local businesses sponsor bulk purchases. The first fundraising milestone arrives: $500. Then $1,000. Then $1,500. Arthur watches the number climb and feels something he has never felt before -- the power of a community investing in his potential. His college fund is no longer a fantasy. It is a number that grows every single day.",
     ],
     quote: "Your dreams deserve to be funded. Start building today, and the world will invest in your tomorrow.",
     quoteAuthor: "UBO Partnership message",
     links: [
       { label: "Print Shop", href: "/academy/merch", icon: ShoppingBag },
     ],
-    stats: { wallet: 1800, pantherPower: 650, housePoints: 230, collegeFund: 450 },
+    stats: { wallet: 1800, pantherPower: 680, housePoints: 330, collegeFund: 1500 },
+  },
+  {
+    title: "Teacher's Impact",
+    subtitle: "Ms. Richardson's Classroom",
+    icon: Presentation,
+    characters: ["Arthur", "Ms. Richardson"],
+    narrative: [
+      "Ms. Richardson uses the Teacher Dashboard every morning before her students arrive. She tracks reading levels, quiz scores, participation patterns, and Panther Power growth for every student in her class. When she notices that Arthur's Social Science scores have been climbing steadily for three months, she creates a special project just for him: a research presentation on \"How Communities Build Wealth Across Generations.\"",
+      "Arthur spends two weeks on the project, using Spark to help him find data, organize his arguments, and rehearse his delivery. He interviews his grandmother about how her neighborhood changed over fifty years. He maps economic patterns in historically Black communities. When he stands in front of the class and presents, his voice is steady, his data is clear, and his passion is unmistakable.",
+      "The ripple effect is immediate. Three classmates approach Arthur after class, asking how he built his marketplace store. Within a week, four new student businesses launch on the platform, all inspired by Arthur's presentation. Ms. Richardson stays late that Friday, drafting the first paragraphs of Arthur's recommendation letter. She writes: \"In twenty years of teaching, I have rarely seen a student who combines intellectual curiosity with genuine compassion the way Arthur Wakanda does. He does not just learn for himself. He learns so he can lift others.\"",
+    ],
+    quote: "A great teacher does not just teach content. A great teacher changes the trajectory of a life.",
+    quoteAuthor: "Arthur, end-of-semester reflection",
+    links: [
+      { label: "Teacher Dashboard", href: "/teacher-dashboard", icon: Presentation },
+      { label: "Core Subjects", href: "/subjects", icon: BookOpen },
+    ],
+    stats: { wallet: 2100, pantherPower: 740, housePoints: 360, collegeFund: 2800 },
+  },
+  {
+    title: "Investing in Community",
+    subtitle: "Third CYOA Adventure",
+    icon: Gamepad2,
+    characters: ["Arthur", "Amara"],
+    narrative: [
+      "Arthur's third Choose Your Own Adventure is called \"Building Community,\" and it hits close to home. The scenario places him in a neighborhood that needs revitalization. He makes choices about community gardens, mentorship programs, a neighborhood improvement fund, and youth employment initiatives. Every decision has trade-offs, and the simulation does not let him take shortcuts.",
+      "Midway through, disaster strikes. The neighborhood improvement fund loses its main donor, and three of Arthur's projects are at risk of shutting down. He feels the familiar sting of a setback. But this time, Arthur does not panic. He pivots -- reaching out to local businesses in the simulation, organizing a fundraising event, and partnering with other community leaders to share resources. The projects survive, leaner but stronger.",
+      "After the scenario ends, Arthur finds Amara in the real-world common room. \"I just played the community building adventure,\" he says. \"It felt like what you do every day.\" Amara smiles. \"Then let us do it for real.\" They partner on a mentorship program connecting Academy students with younger kids at the elementary school. The community response is overwhelming. Donations pour in through merch sales and the college fund grows past $4,500 on the strength of a community that believes in what these students are building.",
+    ],
+    quote: "The measure of a community is how it treats its youngest dreamers.",
+    quoteAuthor: "CYOA scenario closing message",
+    links: [
+      { label: "Adventures (CYOA)", href: "/academy/scenarios", icon: Gamepad2 },
+    ],
+    stats: { wallet: 2600, pantherPower: 800, housePoints: 400, collegeFund: 4500 },
+  },
+  {
+    title: "The Panther Power Summit",
+    subtitle: "Elite Status",
+    icon: Zap,
+    characters: ["Arthur", "Coach Marcus"],
+    narrative: [
+      "The notification appears on Arthur's dashboard in bold letters: \"Congratulations, Arthur Wakanda. You have achieved Elite Panther Power Status.\" He stares at it for a full minute before it sinks in. All five categories are strong -- Education at 190, Character at 185, Leadership at 180, Entrepreneurship at 170, Community at 175. There is no single category carrying the others. Arthur has grown in every direction.",
+      "The ceremony happens in the Academy's main hall. Coach Marcus stands at the podium, and when he calls Arthur's name, the room is loud with applause. \"This young man walked through our doors with sweaty palms and a hundred credits in his wallet,\" Coach Marcus says. \"Today he stands before you as proof that when you invest in yourself every single day, there is no ceiling on who you can become.\" Arthur accepts the Elite badge and fights to keep his composure.",
+      "The next week, Arthur begins mentoring three younger students who are just starting their Academy journey. He sees himself in their nervous faces, their hesitant questions, their uncertain steps. He tells them what Coach Marcus told him on day one: \"Greatness begins in the space where you feel most unsure.\" Meanwhile, the merch fundraising campaign hits $7,000. Arthur's dream of Howard is no longer distant. It is approaching with the momentum of an entire community behind it.",
+    ],
+    quote: "True power is not what you accumulate. It is what you give away.",
+    quoteAuthor: "Coach Marcus, Elite ceremony speech",
+    links: [
+      { label: "Panther Power", href: "/academy/power", icon: Zap },
+    ],
+    stats: { wallet: 3200, pantherPower: 900, housePoints: 450, collegeFund: 7000 },
+  },
+  {
+    title: "It Takes a Village",
+    subtitle: "The Support Network",
+    icon: MessageCircle,
+    characters: ["Arthur", "Maya", "DeShawn", "Jasmine", "Amara", "Coach Marcus", "Ms. Richardson", "Mr. & Mrs. Wakanda", "Spark AI"],
+    narrative: [
+      "Arthur sits on the bleachers after the last house competition of the year and thinks about how he got here. Not just his own choices, but every person who showed up for him. Coach Marcus, who believed in him before Arthur believed in himself. Ms. Richardson, who saw a spark of curiosity and fanned it into a fire, who spent hours writing a recommendation letter that captured Arthur's entire journey. His parents, who attended every event, bought every piece of merch, and checked the Parent Dashboard like it was the morning news.",
+      "He thinks about Maya, who sat next to him on his worst day and told him that struggle is where growth happens. DeShawn, who taught him that patience is the most valuable currency on Wall Street and in life. Jasmine, who turned his rough ideas into beautiful designs that people actually wanted to buy. Amara, who showed him that community service is not a checkbox -- it is a way of living. And Spark, the AI companion that was there at midnight, at 6 AM, on weekends, never judging, always encouraging, always asking the right question at the right time.",
+      "Arthur realizes something profound: no one builds an empire alone. Every credit in his wallet, every point on his power score, every dollar in his college fund has someone else's fingerprints on it. The entire TxEA community -- students buying study guides, parents ordering merch, teachers tracking progress, mentors pushing harder, an AI companion guiding every step -- all of it wove together into something bigger than any single person could build. The college fund pushes past $9,200, and Arthur knows that the number represents trust, love, and collective belief.",
+    ],
+    quote: "Success is never a solo performance. It is a symphony, and every person in your life plays a note.",
+    quoteAuthor: "Arthur, year-end reflection essay",
+    links: [
+      { label: "Academy Hub", href: "/academy", icon: Rocket },
+      { label: "Spark AI Companion", href: "/ai-companion", icon: Sparkles },
+      { label: "Parent Dashboard", href: "/parents/dashboard", icon: Heart },
+    ],
+    stats: { wallet: 3800, pantherPower: 940, housePoints: 480, collegeFund: 9200 },
   },
   {
     title: "The Howard Dream",
     subtitle: "Acceptance & Legacy",
     icon: GraduationCap,
+    characters: ["Arthur", "Maya", "DeShawn", "Jasmine", "Amara", "Coach Marcus", "Ms. Richardson", "Mr. & Mrs. Wakanda", "Spark AI"],
     narrative: [
-      "Arthur sits at his desk and looks at his Panther Power dashboard. Every single category is glowing: Education at 170, Character at 165, Leadership at 180, Entrepreneurship at 185, Community at 150. He has reached elite level. The boy who walked in with sweaty hands on day one has become a young leader.",
-      "His Dream Design profile tells a story that no test score ever could. Academic excellence: top performer in Social Sciences, Academic Bowl finalist. Leadership awards: house captain for the Crimson Lions, mentor to three younger students. Community impact: $450 raised for college, campus builder contributor, marketplace entrepreneur. Entrepreneurship portfolio: study guide business with 23 sales, Print Shop designer, stock market investor.",
-      "Arthur fills out his application to Howard University for the Social Science Engineering program. He writes about how a 6th grade academy taught him that success is not about where you start -- it is about the choices you make along the way. He writes about lemonade stands and rainstorms, about stocks that dropped and patience that paid off, about selling study guides and designing t-shirts for a dream.",
-      "Weeks later, Arthur opens his mailbox and sees it: a large envelope with the Howard University seal. His hands tremble as he tears it open. \"Dear Arthur Wakanda, Congratulations! You have been accepted to Howard University, Class of 2032, Social Science Engineering program.\"",
-      "Arthur does not just celebrate for himself. He goes back to the Academy Hub and leaves a message for every future Panther: \"I was exactly where you are right now. Nervous. Unsure. Wondering if any of this was real. It is real. Every quest you complete, every lesson you learn, every setback you overcome -- it all adds up. Your story is being written right now. Make it a good one.\"",
+      "Arthur sits at his desk and opens his Howard University application. His Dream Design profile tells a story no test score ever could. Academic excellence: top performer in Social Sciences, Academic Bowl finalist, AI Mastery Level 5 certified. Leadership: Crimson Lions house captain, mentor to three younger students, team conflict mediator. Community impact: $10,000 raised for college, campus builder contributor, mentorship program co-founder. Entrepreneurship: marketplace business with 47 sales, Print Shop designer, stock market portfolio at $850.",
+      "He writes his personal essay about lemonade stands and rainstorms, about stocks that dropped and patience that paid off, about a Math quiz he failed and the friend who reminded him that struggle is where growth happens. He writes about Spark, the AI companion that never slept and never judged. He writes about Coach Marcus, who walked the halls of Howard before him and promised Arthur he would walk them too. Ms. Richardson's recommendation letter is attached -- four pages of fierce advocacy for a student she calls \"once in a generation.\"",
+      "Weeks later, Arthur opens his mailbox and sees it: a large envelope with the Howard University seal. His hands tremble. \"Dear Arthur Wakanda, Congratulations! You have been accepted to Howard University, Class of 2032, Social Science Engineering program.\" The college fund hits $10,000 with a final community fundraiser that brings together everyone who believed in him. Mrs. Wakanda cries. Mr. Wakanda holds Arthur so tight he cannot breathe. Coach Marcus simply nods -- the kind of nod that says everything.",
+      "The celebrations cascade. Maya is accepted to MIT for Architecture. DeShawn gets into Wharton for Business. Jasmine is headed to RISD for Graphic Design. Amara receives a full scholarship to Spelman for Community Development. Arthur returns to the Academy Hub one last time and leaves a message for every future Panther: \"I was exactly where you are right now. Nervous. Unsure. Wondering if any of this was real. It is real. Every quest you complete, every lesson you learn, every setback you overcome -- it all adds up. Your story is being written right now. Make it a good one. Every student at TxEA can write their own story.\"",
     ],
     quote: "Your story is being written right now. Make it a good one.",
     quoteAuthor: "Arthur Wakanda, Howard University Class of 2032",
@@ -207,13 +417,13 @@ const CHAPTERS: Chapter[] = [
       { label: "Academy Hub", href: "/academy", icon: Rocket },
     ],
     stats: {
-      wallet: 2500,
-      pantherPower: 850,
-      housePoints: 310,
-      collegeFund: 1200,
+      wallet: 4500,
+      pantherPower: 1000,
+      housePoints: 520,
+      collegeFund: 10000,
       adventuresCompleted: 4,
-      marketplaceSales: 23,
-      stocksPortfolio: 380,
+      marketplaceSales: 47,
+      stocksPortfolio: 850,
     },
   },
 ];
@@ -228,17 +438,29 @@ const POWER_CATEGORIES = [
 
 const POWER_BY_CHAPTER: number[][] = [
   [0, 0, 0, 0, 0],
-  [12, 10, 8, 5, 10],
-  [20, 22, 18, 35, 25],
-  [35, 30, 30, 60, 45],
-  [65, 55, 75, 70, 85],
-  [80, 75, 85, 140, 120],
-  [110, 100, 120, 170, 150],
-  [170, 165, 180, 185, 150],
+  [3, 2, 2, 1, 2],
+  [8, 5, 3, 2, 7],
+  [18, 12, 8, 5, 12],
+  [22, 18, 15, 12, 28],
+  [28, 35, 20, 14, 33],
+  [35, 40, 28, 35, 37],
+  [42, 45, 32, 55, 40],
+  [55, 50, 60, 60, 45],
+  [70, 58, 72, 65, 65],
+  [80, 68, 78, 72, 72],
+  [95, 78, 85, 80, 82],
+  [105, 90, 110, 120, 90],
+  [115, 100, 130, 125, 100],
+  [125, 115, 135, 130, 115],
+  [140, 130, 140, 140, 130],
+  [155, 145, 150, 150, 140],
+  [190, 185, 180, 170, 175],
+  [195, 190, 188, 185, 184],
+  [200, 200, 200, 200, 200],
 ];
 
 function StatsFooter({ stats, chapterIndex }: { stats: ChapterStats; chapterIndex: number }) {
-  const isFinale = chapterIndex === 7;
+  const isFinale = chapterIndex === 19;
 
   return (
     <Card className="p-5 mt-6" data-testid={`card-stats-chapter-${chapterIndex}`}>
@@ -250,7 +472,7 @@ function StatsFooter({ stats, chapterIndex }: { stats: ChapterStats; chapterInde
           {isFinale ? "Arthur's Final Dashboard" : "Arthur's Stats"}
         </span>
       </div>
-      <div className={`grid gap-4 ${isFinale ? "grid-cols-2 sm:grid-cols-4" : "grid-cols-3"}`}>
+      <div className={`grid gap-4 ${isFinale ? "grid-cols-2 sm:grid-cols-4" : "grid-cols-2 sm:grid-cols-4"}`}>
         <div>
           <p className="text-xs text-muted-foreground">Wallet</p>
           <p className="text-lg font-bold" data-testid={`text-stat-wallet-${chapterIndex}`}>
@@ -324,7 +546,7 @@ function StatsFooter({ stats, chapterIndex }: { stats: ChapterStats; chapterInde
 }
 
 function ChapterContent({ chapter, index }: { chapter: Chapter; index: number }) {
-  const isFinale = index === 7;
+  const isFinale = index === 19;
 
   return (
     <div className="space-y-6" data-testid={`chapter-content-${index}`}>
@@ -338,6 +560,18 @@ function ChapterContent({ chapter, index }: { chapter: Chapter; index: number })
           <p className="text-sm text-muted-foreground">{chapter.subtitle}</p>
         </div>
       </div>
+
+      {chapter.characters && chapter.characters.length > 0 && (
+        <div className="flex items-center gap-2 flex-wrap" data-testid={`characters-${index}`}>
+          <Users className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+          <span className="text-xs text-muted-foreground shrink-0">In this chapter:</span>
+          {chapter.characters.map((name) => (
+            <Badge key={name} variant="secondary" className="text-xs">
+              {name}
+            </Badge>
+          ))}
+        </div>
+      )}
 
       <Card className="p-6" data-testid={`card-narrative-${index}`}>
         <div className="space-y-4">
