@@ -48,6 +48,7 @@ import AcademyTutorialPage from "@/pages/academy-tutorial";
 import AcademyCareersPage from "@/pages/academy-careers";
 import AcademyPathwayPage from "@/pages/academy-pathway";
 import AcademyMentorsPage from "@/pages/academy-mentors";
+import AcademyFinancialLiteracyPage from "@/pages/academy-financial-literacy";
 import AcademyStudentWizardPage from "@/pages/academy-student-wizard";
 import AcademySelfAssessmentPage from "@/pages/academy-self-assessment";
 import AcademyThrivePage from "@/pages/academy-thrive";
@@ -116,6 +117,7 @@ function AppRouter() {
       <Route path="/academy/mentor-finder" component={AcademyMentorFinderPage} />
       <Route path="/academy/games" component={AcademyGameLobbyPage} />
       <Route path="/academy/games/dominoes/:id" component={AcademyDominoesGame} />
+      <Route path="/academy/financial-literacy" component={AcademyFinancialLiteracyPage} />
       <Route path="/privacy" component={PrivacyPolicyPage} />
       <Route component={NotFound} />
     </Switch>

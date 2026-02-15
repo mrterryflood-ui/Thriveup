@@ -29,7 +29,9 @@ import {
   Briefcase,
   Bot,
   User,
+  Lightbulb,
 } from "lucide-react";
+import { Link } from "wouter";
 
 interface Stock {
   id: string;
@@ -63,6 +65,17 @@ interface WalletData {
   balance: string;
 }
 
+const INVESTING_WISDOM = [
+  { tip: "Warren Buffett bought his first stock at age 11. He says the best time to plant a tree was 20 years ago. The second best time is now.", source: "Warren Buffett" },
+  { tip: "The stock market is a device for transferring money from the impatient to the patient. Real investing means holding through ups AND downs.", source: "Warren Buffett" },
+  { tip: "Never put all your eggs in one basket. Spreading your investments across different stocks reduces your risk if one drops.", source: "Diversification Principle" },
+  { tip: "A stock dropping 10% is not a reason to panic. Even the best companies have bad days. Look at the long-term trend, not today's price.", source: "Long-Term Investing" },
+  { tip: "Before you buy a stock, ask: What does this company actually DO? If you cannot explain it simply, you do not understand it well enough to invest.", source: "Peter Lynch" },
+  { tip: "Day trading is gambling in disguise. 90% of day traders lose money. Real wealth comes from buying good companies and holding them for years.", source: "Market Research" },
+  { tip: "If someone promises guaranteed returns, walk away. No investment is guaranteed. The higher the promised return, the higher the risk of losing everything.", source: "Scam Prevention" },
+  { tip: "Compound interest is the eighth wonder of the world. A penny doubled every day for 30 days becomes over $5 million. Time is your greatest asset.", source: "Albert Einstein" },
+];
+
 export default function AcademyStocksPage() {
   const { toast } = useToast();
   const [tradingStock, setTradingStock] = useState<Stock | null>(null);
@@ -70,6 +83,7 @@ export default function AcademyStocksPage() {
   const [tradeShares, setTradeShares] = useState(1);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedStockForChart, setSelectedStockForChart] = useState<Stock | null>(null);
+  const [wisdomIndex, setWisdomIndex] = useState(() => Math.floor(Math.random() * INVESTING_WISDOM.length));
 
   const { data: stocks, isLoading: stocksLoading } = useQuery<Stock[]>({
     queryKey: ["/api/academy/stocks"],
@@ -210,6 +224,37 @@ export default function AcademyStocksPage() {
           Learn investing in a safe environment - simulated money only
         </p>
       </div>
+
+      <Card className="p-4 mb-6 bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800" data-testid="card-investing-wisdom">
+        <div className="flex items-start gap-3">
+          <div className="rounded-md p-1.5 bg-amber-100 dark:bg-amber-900/30 shrink-0 mt-0.5">
+            <Lightbulb className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between gap-2 mb-1 flex-wrap">
+              <p className="text-xs font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-400">Investor Wisdom</p>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setWisdomIndex((prev) => (prev + 1) % INVESTING_WISDOM.length)}
+                className="text-xs h-auto py-1 px-2 text-amber-700 dark:text-amber-400"
+                data-testid="button-next-wisdom"
+              >
+                Next Tip
+              </Button>
+            </div>
+            <p className="text-sm" data-testid="text-wisdom-tip">{INVESTING_WISDOM[wisdomIndex].tip}</p>
+            <div className="flex items-center justify-between gap-2 mt-2 flex-wrap">
+              <p className="text-xs text-muted-foreground" data-testid="text-wisdom-source">-- {INVESTING_WISDOM[wisdomIndex].source}</p>
+              <Link href="/academy/financial-literacy">
+                <Button variant="ghost" size="sm" className="text-xs h-auto py-1 px-2" data-testid="link-financial-literacy">
+                  Learn More
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </Card>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <Card className="p-5">

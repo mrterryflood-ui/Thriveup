@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import { Link } from "wouter";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
@@ -49,6 +50,7 @@ import {
   Filter,
   Shield,
   Flag,
+  Lightbulb,
 } from "lucide-react";
 
 interface Listing {
@@ -106,6 +108,17 @@ type ListingFormValues = z.infer<typeof listingSchema>;
 
 const CATEGORIES = ["All", "Service", "Product", "Skill", "Tutoring"];
 
+const BUSINESS_WISDOM = [
+  { tip: "The best businesses solve real problems. Before you list something, ask: who needs this and why? That is how every successful business starts.", source: "Business Foundations" },
+  { tip: "Your reputation is worth more than any single sale. One dishonest deal can destroy years of trust. Always deliver what you promise.", source: "Business Ethics" },
+  { tip: "Pricing too low hurts everyone. It devalues your work and makes it harder for others to sell fairly. Know your worth.", source: "Fair Pricing" },
+  { tip: "If someone offers you something that sounds too good to be true, it probably is. Scammers prey on excitement and urgency.", source: "Scam Awareness" },
+  { tip: "Great entrepreneurs do not just sell things. They build relationships. A happy customer tells 3 friends. An unhappy one tells 10.", source: "Customer Service" },
+  { tip: "Keep records of every transaction. An audit trail protects you if there is ever a dispute. Good records are a sign of a serious business.", source: "Financial Records" },
+  { tip: "Oprah Winfrey said: 'Do what you love and the money will follow.' But she also worked harder than anyone around her. Passion plus effort equals success.", source: "Oprah Winfrey" },
+  { tip: "A pyramid scheme asks you to pay money to join and recruit others. A real business makes money by providing value to customers. Know the difference.", source: "Fraud Prevention" },
+];
+
 function getCategoryColor(category: string) {
   switch (category.toLowerCase()) {
     case "service": return "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300";
@@ -142,6 +155,7 @@ export default function AcademyMarketplacePage() {
   const [categoryFilter, setCategoryFilter] = useState("All");
   const [reportingId, setReportingId] = useState<string | null>(null);
   const [reportReason, setReportReason] = useState("");
+  const [businessTipIndex, setBusinessTipIndex] = useState(() => Math.floor(Math.random() * BUSINESS_WISDOM.length));
 
   const { data: listings, isLoading: listingsLoading } = useQuery<Listing[]>({
     queryKey: ["/api/academy/marketplace"],
@@ -291,6 +305,37 @@ export default function AcademyMarketplacePage() {
               All listings are monitored by teachers. If you see something that does not belong, 
               use the report button to let a teacher know.
             </p>
+          </div>
+        </div>
+      </Card>
+
+      <Card className="p-4 mb-6 bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800" data-testid="card-business-wisdom">
+        <div className="flex items-start gap-3">
+          <div className="rounded-md p-1.5 bg-emerald-100 dark:bg-emerald-900/30 shrink-0 mt-0.5">
+            <Lightbulb className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between gap-2 mb-1 flex-wrap">
+              <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-400">Business Wisdom</p>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setBusinessTipIndex((prev) => (prev + 1) % BUSINESS_WISDOM.length)}
+                className="text-xs h-auto py-1 px-2 text-emerald-700 dark:text-emerald-400"
+                data-testid="button-next-business-tip"
+              >
+                Next Tip
+              </Button>
+            </div>
+            <p className="text-sm" data-testid="text-business-tip">{BUSINESS_WISDOM[businessTipIndex].tip}</p>
+            <div className="flex items-center justify-between gap-2 mt-2 flex-wrap">
+              <p className="text-xs text-muted-foreground" data-testid="text-business-source">-- {BUSINESS_WISDOM[businessTipIndex].source}</p>
+              <Link href="/academy/financial-literacy">
+                <Button variant="ghost" size="sm" className="text-xs h-auto py-1 px-2" data-testid="link-financial-literacy-marketplace">
+                  Learn More
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </Card>

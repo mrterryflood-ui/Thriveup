@@ -6,7 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import {
   Home, Building2, Wand2, Users, Activity, AlertTriangle,
   ClipboardCheck, Briefcase, Route, UserPlus, MapPin, Wallet,
-  Zap, Shield, CheckCircle, ChevronLeft, ChevronRight, Lightbulb, Gamepad2,
+  Zap, Shield, CheckCircle, ChevronLeft, ChevronRight, Lightbulb, Gamepad2, DollarSign,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -157,6 +157,20 @@ const slides: SlideData[] = [
     tip: "Monitor flagged content daily and use teachable moments",
   },
   {
+    title: "Financial Literacy Academy",
+    icon: DollarSign,
+    overview: "Comprehensive financial education with 8 modules covering investing patience, scam detection, predatory practices, residual income, and real-world business stories. Embedded wisdom tips appear on the Stock Market and Marketplace pages.",
+    keyPoints: [
+      "8 structured modules with real-world examples and stories",
+      "Scam and pyramid scheme detection with clear red flags",
+      "Predatory lending and interest rate awareness",
+      "Residual income concepts (laundromats, car washes, royalties)",
+      "Embedded tips on Stock Market and Marketplace pages",
+      "Key financial terms glossary for each module",
+    ],
+    tip: "Review the modules with students during advisory period \u2014 the scam detection and predatory lending modules are especially important for real-world safety",
+  },
+  {
     title: "Panther Power & Houses",
     icon: Zap,
     overview: "Five empowerment categories plus house competition system. Build character and community through friendly rivalry.",
@@ -207,6 +221,7 @@ const slides: SlideData[] = [
       "Check GIS data for your area",
       "Set up parent notifications",
       "Explore the Game Room and review play-time settings",
+      "Introduce Financial Literacy modules during first month",
     ],
     isChecklist: true,
     tip: "You're building the future \u2014 one student at a time",

@@ -35,6 +35,7 @@ import {
   HeartHandshake,
   Presentation,
   MessageCircle,
+  DollarSign,
 } from "lucide-react";
 
 interface ChapterStats {
@@ -208,6 +209,24 @@ const CHAPTERS: Chapter[] = [
     stats: { wallet: 580, pantherPower: 230, housePoints: 80, collegeFund: 0 },
   },
   {
+    title: "The Money Truth",
+    subtitle: "Financial Literacy Academy",
+    icon: DollarSign,
+    characters: ["Arthur", "DeShawn", "Coach Marcus"],
+    narrative: [
+      "A new building appears on the Panther Village map: the Financial Literacy Academy. Arthur clicks on it out of curiosity and finds himself reading the story of Warren Buffett, who bought his first stock at age 11 and became one of the richest people in history -- not through shortcuts, but through patience and discipline. \"The stock market transfers money from the impatient to the patient,\" the lesson reads. Arthur thinks about his own virtual portfolio and realizes he has been checking prices every five minutes instead of thinking long-term.",
+      "The lesson on scams hits differently. Arthur watches a video about pyramid schemes and suddenly recognizes the pattern: someone at school was trying to convince kids to each chip in credits for a 'guaranteed doubling' scheme. The math does not work. If each person recruits five, by level thirteen you would need more people than exist on Earth. Arthur tells DeShawn, who was about to join. \"Bro, that is a pyramid scheme,\" Arthur says, showing him the red flags: guaranteed returns, recruit-your-friends pressure, act-now urgency. DeShawn's eyes widen. \"You just saved me fifty credits.\"",
+      "But the module that sticks with Arthur the most is about residual income. He learns that a laundromat owner invests once and earns money every day while the machines work around the clock. A car wash, a rental property, a song that plays on the radio for decades -- these are assets, not just jobs. Coach Marcus finds Arthur after class sketching out a plan for a digital study guide subscription service. \"Instead of selling each guide once, what if students pay a small monthly fee for access to all of them?\" Arthur asks. Coach Marcus grins. \"Now you are thinking like a real businessman. Not a one-hit wonder -- a system builder.\"",
+    ],
+    quote: "Rich people do not work for money. They build systems that work for them. Start building yours today.",
+    quoteAuthor: "Financial Literacy Academy, Module 7",
+    links: [
+      { label: "Financial Literacy", href: "/academy/financial-literacy", icon: DollarSign },
+      { label: "Stock Market", href: "/academy/stocks", icon: TrendingUp },
+    ],
+    stats: { wallet: 700, pantherPower: 320, housePoints: 140, collegeFund: 0 },
+  },
+  {
     title: "House of Lions",
     subtitle: "House Points & Competitions",
     icon: Trophy,
@@ -223,7 +242,7 @@ const CHAPTERS: Chapter[] = [
       { label: "House System", href: "/academy/houses", icon: Flag },
       { label: "Competitions", href: "/academy/competitions", icon: Trophy },
     ],
-    stats: { wallet: 650, pantherPower: 300, housePoints: 150, collegeFund: 0 },
+    stats: { wallet: 700, pantherPower: 320, housePoints: 160, collegeFund: 0 },
   },
   {
     title: "Game Room Showdown",
@@ -241,7 +260,7 @@ const CHAPTERS: Chapter[] = [
       { label: "Game Room", href: "/academy/games", icon: Gamepad2 },
       { label: "Competitions", href: "/academy/competitions", icon: Trophy },
     ],
-    stats: { wallet: 700, pantherPower: 330, housePoints: 170, collegeFund: 0 },
+    stats: { wallet: 750, pantherPower: 350, housePoints: 180, collegeFund: 0 },
   },
   {
     title: "Building the Dream Campus",
@@ -258,7 +277,7 @@ const CHAPTERS: Chapter[] = [
     links: [
       { label: "Build Campus", href: "/academy/campus", icon: Building2 },
     ],
-    stats: { wallet: 750, pantherPower: 400, housePoints: 210, collegeFund: 0 },
+    stats: { wallet: 800, pantherPower: 420, housePoints: 220, collegeFund: 0 },
   },
   {
     title: "Dream Design",
@@ -275,7 +294,7 @@ const CHAPTERS: Chapter[] = [
     links: [
       { label: "Dream Design", href: "/academy/dreams", icon: Target },
     ],
-    stats: { wallet: 700, pantherPower: 450, housePoints: 230, collegeFund: 0 },
+    stats: { wallet: 750, pantherPower: 470, housePoints: 240, collegeFund: 0 },
   },
   {
     title: "Study Guide Empire",
@@ -292,7 +311,7 @@ const CHAPTERS: Chapter[] = [
     links: [
       { label: "Marketplace", href: "/academy/marketplace", icon: Store },
     ],
-    stats: { wallet: 1150, pantherPower: 520, housePoints: 260, collegeFund: 0 },
+    stats: { wallet: 1200, pantherPower: 540, housePoints: 270, collegeFund: 0 },
   },
   {
     title: "The Leadership Challenge",
@@ -309,7 +328,7 @@ const CHAPTERS: Chapter[] = [
     links: [
       { label: "Adventures (CYOA)", href: "/academy/scenarios", icon: Gamepad2 },
     ],
-    stats: { wallet: 1250, pantherPower: 590, housePoints: 290, collegeFund: 0 },
+    stats: { wallet: 1300, pantherPower: 610, housePoints: 300, collegeFund: 0 },
   },
   {
     title: "Parents in the Picture",
@@ -326,7 +345,7 @@ const CHAPTERS: Chapter[] = [
     links: [
       { label: "Parent Dashboard", href: "/parents/dashboard", icon: Heart },
     ],
-    stats: { wallet: 1450, pantherPower: 650, housePoints: 320, collegeFund: 200 },
+    stats: { wallet: 1500, pantherPower: 670, housePoints: 330, collegeFund: 200 },
   },
   {
     title: "Print Shop Dreams",
@@ -343,7 +362,7 @@ const CHAPTERS: Chapter[] = [
     links: [
       { label: "Print Shop", href: "/academy/merch", icon: ShoppingBag },
     ],
-    stats: { wallet: 1850, pantherPower: 710, housePoints: 350, collegeFund: 1500 },
+    stats: { wallet: 1900, pantherPower: 730, housePoints: 360, collegeFund: 1500 },
   },
   {
     title: "Teacher's Impact",
@@ -361,7 +380,7 @@ const CHAPTERS: Chapter[] = [
       { label: "Teacher Dashboard", href: "/teacher-dashboard", icon: Presentation },
       { label: "Core Subjects", href: "/subjects", icon: BookOpen },
     ],
-    stats: { wallet: 2150, pantherPower: 770, housePoints: 380, collegeFund: 2800 },
+    stats: { wallet: 2200, pantherPower: 790, housePoints: 390, collegeFund: 2800 },
   },
   {
     title: "Investing in Community",
@@ -378,7 +397,7 @@ const CHAPTERS: Chapter[] = [
     links: [
       { label: "Adventures (CYOA)", href: "/academy/scenarios", icon: Gamepad2 },
     ],
-    stats: { wallet: 2650, pantherPower: 830, housePoints: 420, collegeFund: 4500 },
+    stats: { wallet: 2700, pantherPower: 850, housePoints: 430, collegeFund: 4500 },
   },
   {
     title: "The Panther Power Summit",
@@ -395,7 +414,7 @@ const CHAPTERS: Chapter[] = [
     links: [
       { label: "Panther Power", href: "/academy/power", icon: Zap },
     ],
-    stats: { wallet: 3250, pantherPower: 930, housePoints: 470, collegeFund: 7000 },
+    stats: { wallet: 3300, pantherPower: 950, housePoints: 480, collegeFund: 7000 },
   },
   {
     title: "It Takes a Village",
@@ -414,7 +433,7 @@ const CHAPTERS: Chapter[] = [
       { label: "Spark AI Companion", href: "/ai-companion", icon: Sparkles },
       { label: "Parent Dashboard", href: "/parents/dashboard", icon: Heart },
     ],
-    stats: { wallet: 3850, pantherPower: 970, housePoints: 500, collegeFund: 9200 },
+    stats: { wallet: 3900, pantherPower: 990, housePoints: 510, collegeFund: 9200 },
   },
   {
     title: "The Howard Dream",
@@ -435,9 +454,9 @@ const CHAPTERS: Chapter[] = [
       { label: "Academy Hub", href: "/academy", icon: Rocket },
     ],
     stats: {
-      wallet: 4550,
-      pantherPower: 1030,
-      housePoints: 540,
+      wallet: 4600,
+      pantherPower: 1050,
+      housePoints: 550,
       collegeFund: 10000,
       adventuresCompleted: 4,
       marketplaceSales: 47,
@@ -463,6 +482,7 @@ const POWER_BY_CHAPTER: number[][] = [
   [28, 35, 20, 14, 33],
   [35, 40, 28, 35, 37],
   [42, 45, 32, 55, 40],
+  [48, 48, 36, 58, 42],
   [55, 50, 60, 60, 45],
   [60, 54, 65, 62, 50],
   [70, 58, 72, 65, 65],
@@ -479,7 +499,7 @@ const POWER_BY_CHAPTER: number[][] = [
 ];
 
 function StatsFooter({ stats, chapterIndex }: { stats: ChapterStats; chapterIndex: number }) {
-  const isFinale = chapterIndex === 20;
+  const isFinale = chapterIndex === 21;
 
   return (
     <Card className="p-5 mt-6" data-testid={`card-stats-chapter-${chapterIndex}`}>
@@ -565,7 +585,7 @@ function StatsFooter({ stats, chapterIndex }: { stats: ChapterStats; chapterInde
 }
 
 function ChapterContent({ chapter, index }: { chapter: Chapter; index: number }) {
-  const isFinale = index === 20;
+  const isFinale = index === 21;
 
   return (
     <div className="space-y-6" data-testid={`chapter-content-${index}`}>

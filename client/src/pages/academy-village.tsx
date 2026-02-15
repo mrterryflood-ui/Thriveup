@@ -29,6 +29,7 @@ import {
   ClipboardCheck,
   Handshake,
   Gamepad2,
+  DollarSign,
 } from "lucide-react";
 import type { AcademyAvatar } from "@shared/schema";
 
@@ -92,6 +93,7 @@ const BUILDINGS = [
   { name: "My Pathway", icon: Route, href: "/academy/pathway", description: "Plan your 6-12 journey", color: "bg-fuchsia-100 dark:bg-fuchsia-900/30", iconColor: "text-fuchsia-600 dark:text-fuchsia-400" },
   { name: "Thrive Dashboard", icon: Activity, href: "/academy/thrive", description: "Your navigation score", color: "bg-emerald-100 dark:bg-emerald-900/30", iconColor: "text-emerald-600 dark:text-emerald-400" },
   { name: "Daily Check-In", icon: ClipboardCheck, href: "/academy/self-assessment", description: "How are you today?", color: "bg-sky-100 dark:bg-sky-900/30", iconColor: "text-sky-600 dark:text-sky-400" },
+  { name: "Financial Literacy", icon: DollarSign, href: "/academy/financial-literacy", description: "Real-world money skills", color: "bg-green-100 dark:bg-green-900/30", iconColor: "text-green-600 dark:text-green-400" },
 ];
 
 interface DashboardData {

@@ -27,7 +27,7 @@ import {
   Users, Globe, FileText, LogIn, LogOut, Flame, BarChart3, School, ScrollText, Wand2, Smartphone,
   Rocket, User, TrendingUp, Wallet, Building2, Trophy, Flag, Target, ShoppingBag,
   Zap, CalendarCheck, Lightbulb, Gamepad2, Map, Store, Briefcase, Route,
-  Activity, ClipboardCheck, Handshake, ChevronRight,
+  Activity, ClipboardCheck, Handshake, ChevronRight, DollarSign,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -83,6 +83,7 @@ const academySubGroups: NavSubGroup[] = [
       { title: "Marketplace", url: "/academy/marketplace", icon: Store },
       { title: "Stock Market", url: "/academy/stocks", icon: TrendingUp },
       { title: "My Wallet", url: "/academy/wallet", icon: Wallet },
+      { title: "Financial Literacy", url: "/academy/financial-literacy", icon: DollarSign },
     ],
   },
   {
