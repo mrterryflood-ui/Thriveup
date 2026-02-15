@@ -44,6 +44,7 @@ import {
   type AcademyAdminNote, type InsertAcademyAdminNote,
   type AcademyContentReport, type InsertAcademyContentReport,
   careerFields, careerMilestones,
+  interventionPlaybooks,
 } from "@shared/schema";
 import { eq, and, desc, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
@@ -1055,6 +1056,13 @@ export class DatabaseStorage implements IStorage {
     const existingScenarios = await db.select().from(academyScenarios).limit(1);
     if (existingScenarios.length === 0) {
       await seedScenarios(db);
+    }
+
+    const { seedPlaybooks } = await import("./seed-playbooks");
+    const existingPlaybooks = await db.select().from(interventionPlaybooks).limit(1);
+    if (existingPlaybooks.length === 0) {
+      await seedPlaybooks(db);
+      console.log("Intervention playbooks seeded (9 playbooks)");
     }
 
     const { seedCareerFields, seedCareerMilestones } = await import("./seed-careers");

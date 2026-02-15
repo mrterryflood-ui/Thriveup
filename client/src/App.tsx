@@ -49,6 +49,10 @@ import AcademyCareersPage from "@/pages/academy-careers";
 import AcademyPathwayPage from "@/pages/academy-pathway";
 import AcademyMentorsPage from "@/pages/academy-mentors";
 import AcademyStudentWizardPage from "@/pages/academy-student-wizard";
+import AcademySelfAssessmentPage from "@/pages/academy-self-assessment";
+import AcademyThrivePage from "@/pages/academy-thrive";
+import AcademyAdminTutorialPage from "@/pages/academy-admin-tutorial";
+import AcademyMentorFinderPage from "@/pages/academy-mentor-finder";
 import { LanguageProvider } from "@/lib/i18n";
 import { BandwidthProvider } from "@/lib/bandwidth-mode";
 import { HeaderControls } from "@/components/header-controls";
@@ -103,6 +107,10 @@ function AppRouter() {
       <Route path="/academy/pathway" component={AcademyPathwayPage} />
       <Route path="/academy/mentors" component={AcademyMentorsPage} />
       <Route path="/academy/student-wizard" component={AcademyStudentWizardPage} />
+      <Route path="/academy/self-assessment" component={AcademySelfAssessmentPage} />
+      <Route path="/academy/thrive" component={AcademyThrivePage} />
+      <Route path="/academy/admin-tutorial" component={AcademyAdminTutorialPage} />
+      <Route path="/academy/mentor-finder" component={AcademyMentorFinderPage} />
       <Route component={NotFound} />
     </Switch>
   );

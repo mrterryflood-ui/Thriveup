@@ -15,9 +15,46 @@ import { useToast } from "@/hooks/use-toast";
 import {
   Save, Users, Scissors, Shirt, Glasses,
   Eye, Palette, User, Crown, Star,
-  GraduationCap, Target, Loader2
+  GraduationCap, Target, Loader2,
+  Battery, Heart, Shield, Smile
 } from "lucide-react";
+import { Link } from "wouter";
 import type { AcademyAvatar } from "@shared/schema";
+
+interface SelfAssessmentData {
+  id: string;
+  energyLevel: number | null;
+  stressLevel: number | null;
+  focusLevel: number | null;
+  belongingLevel: number | null;
+  confidenceLevel: number | null;
+  moodRating: number | null;
+  reflectionText: string | null;
+  goalsForToday: string | null;
+  gratitudeNote: string | null;
+  createdAt: string;
+}
+
+function getTraitBarColor(value: number): string {
+  if (value >= 7) return "bg-emerald-500";
+  if (value >= 4) return "bg-amber-500";
+  return "bg-red-500";
+}
+
+function getTraitBgColor(value: number): string {
+  if (value >= 7) return "bg-emerald-500/15";
+  if (value >= 4) return "bg-amber-500/15";
+  return "bg-red-500/15";
+}
+
+const PERSONALITY_TRAITS = [
+  { key: "energy", label: "Energy", field: "energyLevel" as const, icon: Battery },
+  { key: "calm", label: "Calm", field: "stressLevel" as const, icon: Heart, invert: true },
+  { key: "focus", label: "Focus", field: "focusLevel" as const, icon: Target },
+  { key: "connection", label: "Connection", field: "belongingLevel" as const, icon: Users },
+  { key: "confidence", label: "Confidence", field: "confidenceLevel" as const, icon: Shield },
+  { key: "mood", label: "Mood", field: "moodRating" as const, icon: Smile },
+] as const;
 
 const SKIN_TONES = ["#F5D6BA", "#E8B88A", "#C68642", "#8B6914", "#6B4226", "#3B2414"];
 const HAIR_COLORS = ["#1a1a1a", "#4a3728", "#8B4513", "#DAA520", "#C0392B", "#2C3E50"];
@@ -314,6 +351,10 @@ export default function AcademyAvatarPage() {
     queryKey: ["/api/academy/avatars"],
   });
 
+  const { data: selfAssessment, isLoading: assessmentLoading } = useQuery<SelfAssessmentData | null>({
+    queryKey: ["/api/self-assessments/latest"],
+  });
+
   useEffect(() => {
     if (existingAvatar) {
       setForm({
@@ -574,6 +615,121 @@ export default function AcademyAvatarPage() {
             </div>
           </Card>
         </div>
+      </div>
+
+      <div className="mb-12" data-testid="section-personality-profile">
+        <h2 className="text-2xl font-bold mb-1 flex items-center gap-2" data-testid="text-personality-title">
+          <Smile className="h-6 w-6 text-primary" /> My Personality Profile
+        </h2>
+        <p className="text-muted-foreground mb-6">See yourself as you see yourself</p>
+
+        {assessmentLoading ? (
+          <Skeleton className="h-64" data-testid="skeleton-personality" />
+        ) : selfAssessment ? (
+          <div className="space-y-4">
+            <Card className="p-6" data-testid="card-personality-today">
+              <div className="flex items-center justify-between gap-2 mb-5 flex-wrap">
+                <h3 className="font-semibold text-lg" data-testid="text-personality-card-title">My Personality Today</h3>
+                <Badge variant="secondary" data-testid="badge-assessment-date">
+                  {new Date(selfAssessment.createdAt).toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                  })}
+                </Badge>
+              </div>
+
+              <div className="space-y-4">
+                {PERSONALITY_TRAITS.map((trait) => {
+                  const rawValue = selfAssessment[trait.field];
+                  if (rawValue == null) return null;
+                  const value = "invert" in trait && trait.invert ? 11 - rawValue : rawValue;
+                  const percentage = (value / 10) * 100;
+                  const IconComp = trait.icon;
+
+                  return (
+                    <div key={trait.key} data-testid={`trait-row-${trait.key}`}>
+                      <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                        <div className={`rounded-md p-1.5 shrink-0 ${getTraitBgColor(value)}`}>
+                          <IconComp className="h-4 w-4" data-testid={`trait-icon-${trait.key}`} />
+                        </div>
+                        <span className="text-sm font-medium" data-testid={`trait-label-${trait.key}`}>
+                          {trait.label}
+                        </span>
+                        <span className="ml-auto text-sm font-bold tabular-nums" data-testid={`trait-value-${trait.key}`}>
+                          {value}/10
+                        </span>
+                      </div>
+                      <div
+                        className="h-3 rounded-md bg-muted overflow-hidden"
+                        data-testid={`trait-bar-bg-${trait.key}`}
+                      >
+                        <div
+                          className={`h-full rounded-md transition-all ${getTraitBarColor(value)}`}
+                          style={{ width: `${percentage}%` }}
+                          data-testid={`trait-bar-fill-${trait.key}`}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </Card>
+
+            {selfAssessment.reflectionText && (
+              <Card className="p-6" data-testid="card-reflection-quote">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">
+                  In my own words...
+                </p>
+                <blockquote
+                  className="text-sm italic pl-4 border-l-2 border-primary/30"
+                  data-testid="text-reflection"
+                >
+                  {selfAssessment.reflectionText}
+                </blockquote>
+              </Card>
+            )}
+
+            {selfAssessment.goalsForToday && (
+              <Card className="p-6" data-testid="card-goals">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">
+                  Today's Mission:
+                </p>
+                <p className="text-sm" data-testid="text-goals">
+                  {selfAssessment.goalsForToday}
+                </p>
+              </Card>
+            )}
+
+            {selfAssessment.gratitudeNote && (
+              <Card className="p-6" data-testid="card-gratitude">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">
+                  Grateful for:
+                </p>
+                <p className="text-sm" data-testid="text-gratitude">
+                  {selfAssessment.gratitudeNote}
+                </p>
+              </Card>
+            )}
+
+            <Link href="/academy/self-assessment">
+              <Button variant="outline" className="w-full" data-testid="button-update-checkin">
+                Update My Check-In
+              </Button>
+            </Link>
+          </div>
+        ) : (
+          <Card className="p-8 text-center" data-testid="card-no-assessment">
+            <Smile className="h-10 w-10 mx-auto text-muted-foreground/30 mb-3" />
+            <p className="text-muted-foreground mb-4" data-testid="text-no-assessment">
+              Complete your Daily Check-In to build your personality profile!
+            </p>
+            <Link href="/academy/self-assessment">
+              <Button data-testid="button-start-checkin">
+                Start My Check-In
+              </Button>
+            </Link>
+          </Card>
+        )}
       </div>
 
       <div>

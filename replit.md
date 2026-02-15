@@ -43,6 +43,13 @@ Key features include:
 - **Life Lessons Engine:** Business-to-life parallel universe mapping each Academy activity to real-world skills with reflections.
 - **AI Mentor Wizards:** Spark-powered step-by-step guided onboarding for every Academy feature (10 wizard types).
 - **Interdependent Universe:** Stock trades earn entrepreneurship power, merit awards earn leadership power, competition entries earn education power, campus funding earns community power, dream profiles earn character power.
+- **IGN-Thrive™ System:** Structured Autonomy + Context-Aware Navigation System for 6-12+ students:
+    - **Thrive Scoring Engine:** Six-domain scoring (Learning/Engagement 25%, Executive Function 20%, Belonging 15%, Wellbeing 10% opt-in, Context Load 15%, Protective Factors 15%) producing 0-100 scores with trend lines and composite formula.
+    - **Student Self-Assessment:** Opt-in daily check-in system measuring energy, stress, focus, belonging, confidence, mood with reflection prompts and support requests. Feeds into Thrive Domains D (Wellbeing) and B (Executive Function).
+    - **GIS Context Engine:** CDC PLACES (public health), CDC/ATSDR SVI (social vulnerability), FBI Crime Data API integration. Caches public data per census tract/ZCTA, computes Context_Load_Index. Privacy-first: no raw addresses stored.
+    - **Early Warning System:** Watch/Support/Stabilize flag classification based on multi-domain decline detection, slope analysis, engagement drift, decision pattern risk, and context shock. Each flag produces 4-part explainable cards (what changed, why it matters, navigation action, 30-day SMART target).
+    - **Intervention Playbooks:** 9 navigation action playbooks (3 flag levels x 3 trigger classes) with objectives, conversation scripts, resource options, follow-up cadence, and success indicators.
+    - **Thrive Dashboard:** Student view with composite score visualization, six domain cards with progress bars and trend indicators, 90-day history chart, and active early warning flags.
 - **Internationalization (i18n):** Custom language provider supporting English and Spanish.
 - **Low-Bandwidth Mode:** User-toggleable mode to strip animations, images, and shadows for improved performance on limited connections.
 - **Design System:** Utilizes TxEA maroon and silver colors, with Plus Jakarta Sans and JetBrains Mono fonts, supporting dark mode. Branding: Texas Empowerment Academy Panthers, "Education, Character, Leadership".
@@ -51,6 +58,7 @@ Key features include:
 - **Database:** PostgreSQL (Neon-backed)
 - **AI Integration:** OpenAI (gpt-4o-mini model)
 - **Authentication:** Replit Auth (OIDC)
+- **GIS Data Sources:** CDC PLACES API (Socrata), CDC/ATSDR SVI, FBI Crime Data API
 - **UI Components:** shadcn/ui
 - **Styling:** Tailwind CSS
 - **Data Fetching:** TanStack Query

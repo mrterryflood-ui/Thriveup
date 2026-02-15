@@ -6,8 +6,15 @@ import {
   careerFields, careerMilestones, pathwayPlans, planRevisions,
   mentorProfiles, mentorRequests, alumniProfiles,
   insertPathwayPlanSchema,
+  studentSelfAssessments, thriveScores, thriveHistory, earlyWarningFlags,
+  interventionPlaybooks as interventionPlaybooksTable,
+  gisContextData, gisResourceOverlays, thriveConfig,
+  insertStudentSelfAssessmentSchema,
 } from "@shared/schema";
-import { eq, and, desc, sql, count } from "drizzle-orm";
+import { eq, and, desc, sql, count, gte } from "drizzle-orm";
+import { computeFullThriveScore, computeAllStudentScores, getThriveHistory } from "./thrive-engine";
+import { evaluateFlags, getActiveFlags, resolveFlag, runEarlyWarningCheck } from "./early-warning";
+import { runFullIngestion, getContextForGeography } from "./gis-engine";
 import { db } from "./storage";
 import OpenAI from "openai";
 import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
@@ -31,6 +38,16 @@ function requireAuth(req: Request, res: any, next: any) {
   }
   next();
 }
+
+const requireAdmin = (req: any, res: any, next: any) => {
+  if (!req.isAuthenticated || !req.isAuthenticated()) {
+    return res.status(401).json({ error: "Authentication required" });
+  }
+  // In production, check user.role === 'admin' or 'teacher'
+  // For now, all authenticated users with the admin dashboard access are treated as admins
+  // This can be tightened once role-based user management is added
+  next();
+};
 
 const openai = new OpenAI({
   apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
@@ -1484,7 +1501,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
 
   // ==================== ADMIN DASHBOARD ====================
 
-  app.get("/api/academy/admin/metrics", async (_req, res) => {
+  app.get("/api/academy/admin/metrics", requireAuth, requireAdmin, async (_req, res) => {
     try {
       const [wallets, pantherPowers, scenarioRuns, allListings, trades, allActivity, allMerit, allNotes] = await Promise.all([
         storage.getAllWallets(),
@@ -1537,7 +1554,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
     }
   });
 
-  app.get("/api/academy/admin/students", async (_req, res) => {
+  app.get("/api/academy/admin/students", requireAuth, requireAdmin, async (_req, res) => {
     try {
       const [avatars, wallets, powers] = await Promise.all([
         storage.getAllAcademyAvatars(),
@@ -1563,7 +1580,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
     }
   });
 
-  app.get("/api/academy/admin/student/:userId", async (req, res) => {
+  app.get("/api/academy/admin/student/:userId", requireAuth, requireAdmin, async (req, res) => {
     try {
       const userId = req.params.userId;
       const [avatar, wallet, power, activity, notes, meritEvents] = await Promise.all([
@@ -1581,7 +1598,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
     }
   });
 
-  app.get("/api/academy/admin/notes", async (_req, res) => {
+  app.get("/api/academy/admin/notes", requireAuth, requireAdmin, async (_req, res) => {
     try {
       const notes = await storage.getAllAdminNotes();
       res.json(notes);
@@ -1590,7 +1607,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
     }
   });
 
-  app.post("/api/academy/admin/notes", requireAuth, async (req, res) => {
+  app.post("/api/academy/admin/notes", requireAuth, requireAdmin, async (req, res) => {
     try {
       const note = await storage.createAdminNote({
         ...req.body,
@@ -1603,7 +1620,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
     }
   });
 
-  app.patch("/api/academy/admin/notes/:id", requireAuth, async (req, res) => {
+  app.patch("/api/academy/admin/notes/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
       const note = await storage.updateAdminNote(req.params.id, req.body);
       res.json(note);
@@ -1631,7 +1648,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
     }
   });
 
-  app.get("/api/academy/admin/reports", requireAuth, async (_req, res) => {
+  app.get("/api/academy/admin/reports", requireAuth, requireAdmin, async (_req, res) => {
     try {
       const reports = await storage.getContentReports();
       res.json(reports);
@@ -1640,7 +1657,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
     }
   });
 
-  app.patch("/api/academy/admin/reports/:id", requireAuth, async (req, res) => {
+  app.patch("/api/academy/admin/reports/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
       const report = await storage.updateContentReport(req.params.id, req.body);
       res.json(report);
@@ -1649,7 +1666,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
     }
   });
 
-  app.post("/api/admin/student-config", requireAuth, async (req, res) => {
+  app.post("/api/admin/student-config", requireAuth, requireAdmin, async (req, res) => {
     try {
       const { studentId, learningStyle, learningPace, careerInterests, pantherPowerFocus, featureAccess, mentorPreferences, supportNotes } = req.body;
       if (!studentId) return res.status(400).json({ error: "Student ID required" });
@@ -1822,7 +1839,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
 
   // ==================== ADMIN LONGITUDINAL DASHBOARD ====================
 
-  app.get("/api/admin/pathway-plans", requireAuth, async (_req, res) => {
+  app.get("/api/admin/pathway-plans", requireAuth, requireAdmin, async (_req, res) => {
     try {
       const plans = await db.select().from(pathwayPlans).orderBy(desc(pathwayPlans.createdAt));
       res.json(plans);
@@ -1832,7 +1849,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
     }
   });
 
-  app.get("/api/admin/pending-revisions", requireAuth, async (_req, res) => {
+  app.get("/api/admin/pending-revisions", requireAuth, requireAdmin, async (_req, res) => {
     try {
       const revisions = await db.select().from(planRevisions).where(eq(planRevisions.status, "pending")).orderBy(desc(planRevisions.createdAt));
       res.json(revisions);
@@ -1842,7 +1859,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
     }
   });
 
-  app.patch("/api/admin/revisions/:id/approve", requireAuth, async (req, res) => {
+  app.patch("/api/admin/revisions/:id/approve", requireAuth, requireAdmin, async (req, res) => {
     try {
       const userId = getUserId(req)!;
       const userName = getUserName(req) || "Admin";
@@ -1863,7 +1880,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
     }
   });
 
-  app.patch("/api/admin/revisions/:id/reject", requireAuth, async (req, res) => {
+  app.patch("/api/admin/revisions/:id/reject", requireAuth, requireAdmin, async (req, res) => {
     try {
       const { notes } = req.body;
       const [updated] = await db.update(planRevisions).set({
@@ -1879,7 +1896,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
     }
   });
 
-  app.get("/api/admin/mentor-requests", requireAuth, async (_req, res) => {
+  app.get("/api/admin/mentor-requests", requireAuth, requireAdmin, async (_req, res) => {
     try {
       const requests = await db.select().from(mentorRequests).orderBy(desc(mentorRequests.createdAt));
       res.json(requests);
@@ -1889,7 +1906,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
     }
   });
 
-  app.patch("/api/admin/mentor-requests/:id", requireAuth, async (req, res) => {
+  app.patch("/api/admin/mentor-requests/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
       const { status } = req.body;
       if (!status) return res.status(400).json({ error: "Status is required" });
@@ -1912,7 +1929,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
     }
   });
 
-  app.patch("/api/admin/alumni/:id", requireAuth, async (req, res) => {
+  app.patch("/api/admin/alumni/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
       const [updated] = await db.update(alumniProfiles).set(req.body).where(eq(alumniProfiles.id, req.params.id)).returning();
       if (!updated) return res.status(404).json({ error: "Alumni profile not found" });
@@ -1923,7 +1940,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
     }
   });
 
-  app.get("/api/admin/longitudinal-metrics", requireAuth, async (_req, res) => {
+  app.get("/api/admin/longitudinal-metrics", requireAuth, requireAdmin, async (_req, res) => {
     try {
       const [studentsResult] = await db.select({ value: count() }).from(pathwayPlans);
       const [activeResult] = await db.select({ value: count() }).from(pathwayPlans).where(eq(pathwayPlans.status, "active"));
@@ -1942,6 +1959,284 @@ Write a warm, encouraging welcome message for students joining this classroom. M
     } catch (error) {
       console.error("Error fetching longitudinal metrics:", error);
       res.status(500).json({ error: "Failed to fetch metrics" });
+    }
+  });
+
+  // ==================== STUDENT SELF-ASSESSMENT ROUTES ====================
+
+  app.post("/api/self-assessment", requireAuth, async (req, res) => {
+    try {
+      const parsed = insertStudentSelfAssessmentSchema.safeParse({
+        ...req.body,
+        userId: getUserId(req),
+      });
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid assessment data", details: parsed.error.flatten() });
+      }
+      const [created] = await db.insert(studentSelfAssessments).values(parsed.data).returning();
+      res.status(201).json(created);
+    } catch (error) {
+      console.error("Error creating self-assessment:", error);
+      res.status(500).json({ error: "Failed to create self-assessment" });
+    }
+  });
+
+  app.get("/api/self-assessments", requireAuth, async (req, res) => {
+    try {
+      const userId = getUserId(req)!;
+      const assessments = await db.select().from(studentSelfAssessments)
+        .where(eq(studentSelfAssessments.userId, userId))
+        .orderBy(desc(studentSelfAssessments.createdAt))
+        .limit(30);
+      res.json(assessments);
+    } catch (error) {
+      console.error("Error fetching self-assessments:", error);
+      res.status(500).json({ error: "Failed to fetch self-assessments" });
+    }
+  });
+
+  app.get("/api/self-assessments/latest", requireAuth, async (req, res) => {
+    try {
+      const userId = getUserId(req)!;
+      const [latest] = await db.select().from(studentSelfAssessments)
+        .where(eq(studentSelfAssessments.userId, userId))
+        .orderBy(desc(studentSelfAssessments.createdAt))
+        .limit(1);
+      res.json(latest || null);
+    } catch (error) {
+      console.error("Error fetching latest self-assessment:", error);
+      res.status(500).json({ error: "Failed to fetch latest self-assessment" });
+    }
+  });
+
+  // ==================== THRIVE SCORE ROUTES ====================
+
+  app.get("/api/thrive/score", requireAuth, async (req, res) => {
+    try {
+      const userId = getUserId(req)!;
+      let [score] = await db.select().from(thriveScores)
+        .where(eq(thriveScores.userId, userId))
+        .limit(1);
+      if (!score) {
+        const result = await computeFullThriveScore(db, userId);
+        [score] = await db.select().from(thriveScores)
+          .where(eq(thriveScores.userId, userId))
+          .limit(1);
+        if (!score) return res.json(result);
+      }
+      res.json(score);
+    } catch (error) {
+      console.error("Error fetching Thrive score:", error);
+      res.status(500).json({ error: "Failed to fetch Thrive score" });
+    }
+  });
+
+  app.get("/api/thrive/history", requireAuth, async (req, res) => {
+    try {
+      const userId = getUserId(req)!;
+      const days = parseInt(req.query.days as string) || 90;
+      const history = await getThriveHistory(db, userId, days);
+      res.json(history);
+    } catch (error) {
+      console.error("Error fetching Thrive history:", error);
+      res.status(500).json({ error: "Failed to fetch Thrive history" });
+    }
+  });
+
+  app.post("/api/thrive/compute", requireAuth, async (req, res) => {
+    try {
+      const result = await computeFullThriveScore(db, getUserId(req)!);
+      res.json(result);
+    } catch (error) {
+      console.error("Error computing Thrive score:", error);
+      res.status(500).json({ error: "Failed to compute Thrive score" });
+    }
+  });
+
+  // ==================== ADMIN THRIVE ROUTES ====================
+
+  app.get("/api/admin/thrive/scores", requireAuth, requireAdmin, async (_req, res) => {
+    try {
+      const scores = await db.select().from(thriveScores).orderBy(thriveScores.compositeScore);
+      res.json(scores);
+    } catch (error) {
+      console.error("Error fetching all Thrive scores:", error);
+      res.status(500).json({ error: "Failed to fetch Thrive scores" });
+    }
+  });
+
+  app.post("/api/admin/thrive/compute-all", requireAuth, requireAdmin, async (_req, res) => {
+    try {
+      await computeAllStudentScores(db);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error computing all Thrive scores:", error);
+      res.status(500).json({ error: "Failed to compute all Thrive scores" });
+    }
+  });
+
+  app.get("/api/admin/thrive/student/:userId", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const userId = req.params.userId;
+      const [score] = await db.select().from(thriveScores)
+        .where(eq(thriveScores.userId, userId))
+        .limit(1);
+      const history = await getThriveHistory(db, userId);
+      res.json({ score: score || null, history });
+    } catch (error) {
+      console.error("Error fetching student Thrive data:", error);
+      res.status(500).json({ error: "Failed to fetch student Thrive data" });
+    }
+  });
+
+  // ==================== EARLY WARNING ROUTES ====================
+
+  app.get("/api/thrive/flags", requireAuth, async (req, res) => {
+    try {
+      const flags = await getActiveFlags(db, getUserId(req)!);
+      res.json(flags);
+    } catch (error) {
+      console.error("Error fetching early warning flags:", error);
+      res.status(500).json({ error: "Failed to fetch early warning flags" });
+    }
+  });
+
+  app.get("/api/admin/thrive/flags", requireAuth, requireAdmin, async (_req, res) => {
+    try {
+      const flags = await getActiveFlags(db);
+      res.json(flags);
+    } catch (error) {
+      console.error("Error fetching all early warning flags:", error);
+      res.status(500).json({ error: "Failed to fetch early warning flags" });
+    }
+  });
+
+  app.post("/api/admin/thrive/run-check", requireAuth, requireAdmin, async (_req, res) => {
+    try {
+      await runEarlyWarningCheck(db);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error running early warning check:", error);
+      res.status(500).json({ error: "Failed to run early warning check" });
+    }
+  });
+
+  app.patch("/api/admin/thrive/flags/:id/resolve", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const { notes } = req.body;
+      await resolveFlag(db, req.params.id, getUserId(req)!, notes);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error resolving flag:", error);
+      res.status(500).json({ error: "Failed to resolve flag" });
+    }
+  });
+
+  // ==================== INTERVENTION PLAYBOOK ROUTES ====================
+
+  app.get("/api/thrive/playbooks", requireAuth, async (_req, res) => {
+    try {
+      const playbooks = await db.select().from(interventionPlaybooksTable)
+        .where(eq(interventionPlaybooksTable.isActive, true));
+      res.json(playbooks);
+    } catch (error) {
+      console.error("Error fetching playbooks:", error);
+      res.status(500).json({ error: "Failed to fetch playbooks" });
+    }
+  });
+
+  app.get("/api/thrive/playbooks/:id", requireAuth, async (req, res) => {
+    try {
+      const [playbook] = await db.select().from(interventionPlaybooksTable)
+        .where(eq(interventionPlaybooksTable.id, req.params.id))
+        .limit(1);
+      if (!playbook) return res.status(404).json({ error: "Playbook not found" });
+      res.json(playbook);
+    } catch (error) {
+      console.error("Error fetching playbook:", error);
+      res.status(500).json({ error: "Failed to fetch playbook" });
+    }
+  });
+
+  // ==================== GIS ROUTES (ADMIN) ====================
+
+  app.post("/api/admin/gis/ingest", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const stateAbbr = req.body.stateAbbr || "TX";
+      await runFullIngestion(db, stateAbbr);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error running GIS ingestion:", error);
+      res.status(500).json({ error: "Failed to run GIS ingestion" });
+    }
+  });
+
+  app.get("/api/admin/gis/context/:geographyKey", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const context = await getContextForGeography(db, req.params.geographyKey);
+      if (!context) return res.status(404).json({ error: "Geography not found" });
+      res.json(context);
+    } catch (error) {
+      console.error("Error fetching GIS context:", error);
+      res.status(500).json({ error: "Failed to fetch GIS context" });
+    }
+  });
+
+  app.get("/api/admin/gis/heatmap", requireAuth, requireAdmin, async (_req, res) => {
+    try {
+      const data = await db.select().from(gisContextData).orderBy(desc(gisContextData.contextLoadIndex));
+      res.json(data);
+    } catch (error) {
+      console.error("Error fetching heatmap data:", error);
+      res.status(500).json({ error: "Failed to fetch heatmap data" });
+    }
+  });
+
+  app.get("/api/admin/gis/resources", requireAuth, requireAdmin, async (_req, res) => {
+    try {
+      const resources = await db.select().from(gisResourceOverlays)
+        .where(eq(gisResourceOverlays.isActive, true));
+      res.json(resources);
+    } catch (error) {
+      console.error("Error fetching resource overlays:", error);
+      res.status(500).json({ error: "Failed to fetch resource overlays" });
+    }
+  });
+
+  // ==================== THRIVE CONFIG ROUTES (ADMIN) ====================
+
+  app.get("/api/admin/thrive/config", requireAuth, requireAdmin, async (_req, res) => {
+    try {
+      const config = await db.select().from(thriveConfig);
+      res.json(config);
+    } catch (error) {
+      console.error("Error fetching Thrive config:", error);
+      res.status(500).json({ error: "Failed to fetch Thrive config" });
+    }
+  });
+
+  app.put("/api/admin/thrive/config/:key", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const { value, description } = req.body;
+      const configKey = req.params.key;
+      const existing = await db.select().from(thriveConfig)
+        .where(eq(thriveConfig.key, configKey))
+        .limit(1);
+      if (existing.length > 0) {
+        const [updated] = await db.update(thriveConfig)
+          .set({ value, description, updatedAt: new Date() })
+          .where(eq(thriveConfig.key, configKey))
+          .returning();
+        res.json(updated);
+      } else {
+        const [created] = await db.insert(thriveConfig)
+          .values({ key: configKey, value, description })
+          .returning();
+        res.status(201).json(created);
+      }
+    } catch (error) {
+      console.error("Error updating Thrive config:", error);
+      res.status(500).json({ error: "Failed to update Thrive config" });
     }
   });
 

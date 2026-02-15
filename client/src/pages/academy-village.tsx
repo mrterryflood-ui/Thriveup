@@ -23,6 +23,9 @@ import {
   Users,
   Briefcase,
   Route,
+  Activity,
+  ClipboardCheck,
+  Handshake,
 } from "lucide-react";
 import type { AcademyAvatar } from "@shared/schema";
 
@@ -81,7 +84,10 @@ const BUILDINGS = [
   { name: "My Wallet", icon: Wallet, href: "/academy/wallet", description: "Check your balance", color: "bg-lime-100 dark:bg-lime-900/30", iconColor: "text-lime-600 dark:text-lime-400" },
   { name: "Career Explorer", icon: Briefcase, href: "/academy/careers", description: "Explore 50+ career paths", color: "bg-blue-100 dark:bg-blue-900/30", iconColor: "text-blue-600 dark:text-blue-400" },
   { name: "Mentor Hub", icon: Users, href: "/academy/mentors", description: "Connect with professionals", color: "bg-purple-100 dark:bg-purple-900/30", iconColor: "text-purple-600 dark:text-purple-400" },
+  { name: "Mentor Finder", icon: Handshake, href: "/academy/mentor-finder", description: "Find local mentors & partners", color: "bg-violet-100 dark:bg-violet-900/30", iconColor: "text-violet-600 dark:text-violet-400" },
   { name: "My Pathway", icon: Route, href: "/academy/pathway", description: "Plan your 6-12 journey", color: "bg-fuchsia-100 dark:bg-fuchsia-900/30", iconColor: "text-fuchsia-600 dark:text-fuchsia-400" },
+  { name: "Thrive Dashboard", icon: Activity, href: "/academy/thrive", description: "Your navigation score", color: "bg-emerald-100 dark:bg-emerald-900/30", iconColor: "text-emerald-600 dark:text-emerald-400" },
+  { name: "Daily Check-In", icon: ClipboardCheck, href: "/academy/self-assessment", description: "How are you today?", color: "bg-sky-100 dark:bg-sky-900/30", iconColor: "text-sky-600 dark:text-sky-400" },
 ];
 
 interface DashboardData {
