@@ -28,7 +28,7 @@ import {
   Rocket, User, TrendingUp, Wallet, Building2, Trophy, Flag, Target, ShoppingBag,
   Zap, CalendarCheck, Lightbulb, Gamepad2, Map, Store, Briefcase, Route,
   Activity, ClipboardCheck, Handshake, ChevronRight, DollarSign,
-  PenLine, Megaphone, Calendar, HelpCircle, ClipboardList, Printer,
+  PenLine, Megaphone, Calendar, HelpCircle, ClipboardList, Printer, Link2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -122,6 +122,7 @@ const academySubGroups: NavSubGroup[] = [
       { title: "Arthur's Journey", url: "/academy/tutorial", icon: GraduationCap },
       { title: "Longitudinal Dashboard", url: "/academy/longitudinal", icon: BarChart3 },
       { title: "Attendance", url: "/academy/attendance", icon: ClipboardList },
+      { title: "Support Portal", url: "/academy/integration", icon: Link2 },
     ],
   },
 ];

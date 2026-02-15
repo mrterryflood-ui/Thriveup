@@ -77,3 +77,4 @@ Key features include:
 - **Routing:** wouter
 - **Icons:** lucide-react (for badges)
 - **Fundraising Partner:** UBO (for Sixth Grade Academy merchandise)
+- **Cross-Platform Integration:** Student Support Portal (ISSS) at student-support-portal--mrterryflood.replit.app, connected via shared API key (CROSS_PLATFORM_API_KEY) with external endpoints under /api/external/

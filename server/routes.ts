@@ -20,6 +20,7 @@ import { runFullIngestion, getContextForGeography } from "./gis-engine";
 import { db } from "./storage";
 import OpenAI from "openai";
 import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
+import { registerCrossPlatformRoutes } from "./cross-platform-api";
 
 function getUserId(req: Request): string | undefined {
   const user = (req as any).user;
@@ -77,6 +78,7 @@ export async function registerRoutes(
   });
 
   registerObjectStorageRoutes(app);
+  registerCrossPlatformRoutes(app);
   await storage.seedData();
 
   app.get("/api/subjects", async (_req, res) => {
