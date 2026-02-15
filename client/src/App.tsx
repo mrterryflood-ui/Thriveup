@@ -53,6 +53,7 @@ import AcademySelfAssessmentPage from "@/pages/academy-self-assessment";
 import AcademyThrivePage from "@/pages/academy-thrive";
 import AcademyAdminTutorialPage from "@/pages/academy-admin-tutorial";
 import AcademyMentorFinderPage from "@/pages/academy-mentor-finder";
+import PrivacyPolicyPage from "@/pages/privacy-policy";
 import { LanguageProvider } from "@/lib/i18n";
 import { BandwidthProvider } from "@/lib/bandwidth-mode";
 import { HeaderControls } from "@/components/header-controls";
@@ -111,6 +112,7 @@ function AppRouter() {
       <Route path="/academy/thrive" component={AcademyThrivePage} />
       <Route path="/academy/admin-tutorial" component={AcademyAdminTutorialPage} />
       <Route path="/academy/mentor-finder" component={AcademyMentorFinderPage} />
+      <Route path="/privacy" component={PrivacyPolicyPage} />
       <Route component={NotFound} />
     </Switch>
   );

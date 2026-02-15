@@ -321,20 +321,20 @@ export default function AcademyMentorFinderPage() {
   const activeMentors = (mentors ?? []).filter((m) => m.isActive);
 
   return (
-    <div className="p-6 max-w-6xl mx-auto" data-testid="academy-mentor-finder-page">
+    <div className="p-4 sm:p-6 max-w-6xl mx-auto" data-testid="academy-mentor-finder-page">
       <div
-        className="rounded-md bg-gradient-to-r from-rose-900 to-red-700 p-8 mb-8"
+        className="rounded-md bg-gradient-to-r from-rose-900 to-red-700 p-4 sm:p-6 lg:p-8 mb-8"
         data-testid="section-hero"
       >
-        <div className="flex items-center gap-3 mb-3">
+        <div className="flex items-center gap-3 mb-3 flex-wrap">
           <div className="rounded-md p-2.5 bg-white/10">
             <Handshake className="h-7 w-7 text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-white" data-testid="text-mentor-finder-title">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white" data-testid="text-mentor-finder-title">
             Find a Mentor & Partner
           </h1>
         </div>
-        <p className="text-rose-100 text-lg mb-2" data-testid="text-mentor-finder-subtitle">
+        <p className="text-rose-100 text-base sm:text-lg mb-2" data-testid="text-mentor-finder-subtitle">
           Connect with local professionals, businesses, and organizations through the Minority Center of Excellence network
         </p>
         <p className="text-rose-200 text-sm" data-testid="text-mentor-finder-description">
@@ -347,7 +347,7 @@ export default function AcademyMentorFinderPage() {
           <Search className="h-5 w-5 text-muted-foreground" />
           <h2 className="text-xl font-semibold">Browse by Category</h2>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {CATEGORY_CARDS.map((cat) => {
             const kebab = cat.name.toLowerCase().replace(/[&\s/]+/g, "-");
             return (
@@ -380,7 +380,7 @@ export default function AcademyMentorFinderPage() {
           <Globe className="h-5 w-5 text-muted-foreground" />
           <h2 className="text-xl font-semibold">Browse by Ownership Type</h2>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {OWNERSHIP_CARDS.map((own) => {
             const kebab = own.name.toLowerCase().replace(/[+/\s]+/g, "-");
             return (
@@ -415,7 +415,7 @@ export default function AcademyMentorFinderPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card className="p-6" data-testid="card-outreach-form">
+          <Card className="p-4 sm:p-6" data-testid="card-outreach-form">
             <h3 className="font-semibold mb-4">Submit a Mentor Request</h3>
             <div className="space-y-4">
               <div>

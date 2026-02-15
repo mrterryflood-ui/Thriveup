@@ -132,20 +132,20 @@ export default function AcademyCareersPage() {
   const bookmarkedCareers = allCareers.filter((c) => bookmarked.includes(c.id));
 
   return (
-    <div className="p-6 max-w-6xl mx-auto" data-testid="academy-careers-page">
+    <div className="p-4 sm:p-6 max-w-6xl mx-auto" data-testid="academy-careers-page">
       <div
-        className="rounded-md bg-gradient-to-r from-rose-900 to-red-700 p-8 mb-8"
+        className="rounded-md bg-gradient-to-r from-rose-900 to-red-700 p-4 sm:p-6 lg:p-8 mb-8"
         data-testid="section-hero"
       >
-        <div className="flex items-center gap-3 mb-3">
+        <div className="flex items-center gap-3 mb-3 flex-wrap">
           <div className="rounded-md p-2.5 bg-white/10">
             <Briefcase className="h-7 w-7 text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-white" data-testid="text-careers-title">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white" data-testid="text-careers-title">
             Career Explorer
           </h1>
         </div>
-        <p className="text-rose-100 text-lg" data-testid="text-careers-subtitle">
+        <p className="text-rose-100 text-base sm:text-lg" data-testid="text-careers-subtitle">
           Discover Your Future Path
         </p>
       </div>
@@ -165,7 +165,7 @@ export default function AcademyCareersPage() {
         ))}
       </div>
 
-      <div className="relative mb-6 max-w-sm" data-testid="section-search">
+      <div className="relative mb-6 w-full sm:max-w-sm" data-testid="section-search">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           placeholder="Search careers..."
@@ -178,7 +178,7 @@ export default function AcademyCareersPage() {
 
       {filteredCareers.length > 0 ? (
         <div
-          className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 mb-8"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8"
           data-testid="section-career-grid"
         >
           {filteredCareers.map((career) => {
@@ -278,7 +278,7 @@ export default function AcademyCareersPage() {
           <h2 className="font-semibold text-lg mb-4 flex items-center gap-2">
             <Star className="h-5 w-5 text-amber-500" /> My Interests
           </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {bookmarkedCareers.map((career) => {
               const IconComp = getCategoryIcon(career.category);
               return (

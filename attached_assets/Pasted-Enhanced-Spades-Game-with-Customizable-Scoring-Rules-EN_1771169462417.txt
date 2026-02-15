@@ -1,0 +1,1042 @@
+Enhanced Spades Game with Customizable Scoring Rules
+
+"""
+ENHANCED SPADES IMPLEMENTATION
+Extended features:
+- Customizable winning score (100, 150, 200, 250, 300, 350, 400, 450, 500)
+- 10 bags penalty = -150 points (configurable)
+- Auto-loss at -250 points
+- Blind Nil: 150 points if successful
+- Regular Nil: 100 points if successful
+- Team bid bonuses
+"""
+
+import random
+import time
+from datetime import datetime, timedelta
+from enum import Enum
+from typing import List, Dict, Optional, Tuple
+import json
+
+# ============================================================================
+# SPADES SCORING CONFIGURATION
+# ============================================================================
+
+class SpadesScoreConfig:
+    """Configuration for Spades scoring rules"""
+    
+    AVAILABLE_WIN_SCORES = [100, 150, 200, 250, 300, 350, 400, 450, 500]
+    
+    def __init__(self, 
+                 win_score: int = 500,
+                 bag_penalty_threshold: int = 10,
+                 bag_penalty_points: int = -150,
+                 auto_loss_score: int = -250,
+                 nil_points: int = 100,
+                 blind_nil_points: int = 150,
+                 successful_bid_points_per_trick: int = 10,
+                 failed_bid_penalty_per_trick: int = -10,
+                 bag_points: int = 1):
+        
+        # Validate win score
+        if win_score not in self.AVAILABLE_WIN_SCORES:
+            raise ValueError(f"Win score must be one of {self.AVAILABLE_WIN_SCORES}")
+        
+        self.win_score = win_score
+        self.bag_penalty_threshold = bag_penalty_threshold
+        self.bag_penalty_points = bag_penalty_points
+        self.auto_loss_score = auto_loss_score
+        self.nil_points = nil_points
+        self.blind_nil_points = blind_nil_points
+        self.successful_bid_points_per_trick = successful_bid_points_per_trick
+        self.failed_bid_penalty_per_trick = failed_bid_penalty_per_trick
+        self.bag_points = bag_points
+    
+    def to_dict(self) -> Dict:
+        """Convert to dictionary for display"""
+        return {
+            "win_score": self.win_score,
+            "bag_penalty_threshold": self.bag_penalty_threshold,
+            "bag_penalty_points": self.bag_penalty_points,
+            "auto_loss_score": self.auto_loss_score,
+            "nil_points": self.nil_points,
+            "blind_nil_points": self.blind_nil_points,
+            "successful_bid_points_per_trick": self.successful_bid_points_per_trick,
+            "failed_bid_penalty_per_trick": self.failed_bid_penalty_per_trick,
+            "bag_points": self.bag_points
+        }
+
+class BidType(Enum):
+    """Types of bids in Spades"""
+    REGULAR = "regular"      # Normal bid (1-13 tricks)
+    NIL = "nil"              # Bid to take 0 tricks (100 points)
+    BLIND_NIL = "blind_nil"  # Bid nil before seeing cards (150 points)
+
+class Bid:
+    """Represents a player's bid"""
+    
+    def __init__(self, bid_type: BidType, tricks: int = 0, is_blind: bool = False):
+        self.bid_type = bid_type
+        self.tricks = tricks
+        self.is_blind = is_blind
+        
+        # Validate
+        if bid_type == BidType.REGULAR and not (1 <= tricks <= 13):
+            raise ValueError("Regular bid must be 1-13 tricks")
+        elif bid_type in [BidType.NIL, BidType.BLIND_NIL]:
+            self.tricks = 0
+    
+    def __repr__(self):
+        if self.bid_type == BidType.BLIND_NIL:
+            return "Blind Nil"
+        elif self.bid_type == BidType.NIL:
+            return "Nil"
+        else:
+            return f"{self.tricks}"
+    
+    def to_dict(self):
+        return {
+            "bid_type": self.bid_type.value,
+            "tricks": self.tricks,
+            "is_blind": self.is_blind
+        }
+
+# ============================================================================
+# ENHANCED CARD CLASSES
+# ============================================================================
+
+class Card:
+    """Playing card"""
+    
+    SUITS = ['spades', 'hearts', 'diamonds', 'clubs']
+    RANKS = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
+    RANK_VALUES = {
+        '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9,
+        '10': 10, 'J': 11, 'Q': 12, 'K': 13, 'A': 14
+    }
+    
+    def __init__(self, suit: str, rank: str):
+        self.suit = suit
+        self.rank = rank
+        self.value = self.RANK_VALUES[rank]
+    
+    def __repr__(self):
+        return f"{self.rank} of {self.suit}"
+    
+    def __eq__(self, other):
+        return self.suit == other.suit and self.rank == other.rank
+    
+    def to_dict(self):
+        return {"suit": self.suit, "rank": self.rank}
+
+# ============================================================================
+# ENHANCED SPADES GAME WITH CUSTOM SCORING
+# ============================================================================
+
+class EnhancedSpadesGame:
+    """
+    Enhanced Spades game with customizable scoring
+    
+    Features:
+    - Configurable win score (100-500 points)
+    - Nil bidding (100 points)
+    - Blind Nil bidding (150 points)
+    - Bag penalty: 10 bags = -150 points
+    - Auto-loss at -250 points
+    - Partner support for nil bids
+    - Detailed scoring breakdown
+    """
+    
+    def __init__(self, 
+                 mode,
+                 players: List,
+                 score_config: SpadesScoreConfig = None,
+                 cpu_fill: bool = False):
+        
+        self.mode = mode
+        self.score_config = score_config or SpadesScoreConfig()
+        
+        # Deck and hands
+        self.deck = []
+        self.hands = {i: [] for i in range(4)}  # 4 players
+        self.players = self._setup_players(players, cpu_fill)
+        
+        # Game state
+        self.current_trick = []
+        self.tricks_won = {0: 0, 1: 0, 2: 0, 3: 0}  # By player position
+        self.bids = {0: None, 1: None, 2: None, 3: None}  # Bid objects
+        
+        # Scoring
+        self.scores = {
+            "team1": 0,  # Players 0 & 2 (North/South)
+            "team2": 0   # Players 1 & 3 (East/West)
+        }
+        self.bags = {"team1": 0, "team2": 0}
+        self.round_scores = []  # History of each round's scoring
+        
+        self.current_player = 0
+        self.dealer = 0
+        self.round_number = 0
+        self.spades_broken = False
+        self.game_phase = "bidding"  # bidding, playing, scoring
+        self.game_over = False
+        self.winner = None
+        
+        # Blind nil tracking
+        self.blind_nil_declared = {0: False, 1: False, 2: False, 3: False}
+        
+        # Timing for tournament mode
+        self.move_deadline = None
+        if hasattr(mode, 'name') and 'TIMED' in mode.name:
+            self.time_limit = 15  # 15 seconds for Spades
+    
+    def _setup_players(self, players: List, cpu_fill: bool) -> List:
+        """Setup 4 players, filling with CPU if needed"""
+        game_players = []
+        
+        # Add provided players
+        for p in players[:4]:
+            game_players.append(p)
+        
+        # Fill remaining slots with CPU if enabled
+        if cpu_fill:
+            while len(game_players) < 4:
+                # Create simple CPU player object
+                cpu_player = type('CPUPlayer', (), {
+                    'user_id': f"cpu_{len(game_players)}",
+                    'username': f"CPU Player {len(game_players) + 1}",
+                    'is_cpu': True
+                })()
+                game_players.append(cpu_player)
+        
+        return game_players
+    
+    def set_score_configuration(self, score_config: SpadesScoreConfig):
+        """Allow changing score configuration before game starts"""
+        if self.round_number > 0:
+            raise ValueError("Cannot change scoring after game has started")
+        self.score_config = score_config
+    
+    def initialize_game(self):
+        """Start new round of Spades"""
+        # Create and shuffle deck
+        self.deck = [Card(suit, rank) 
+                    for suit in Card.SUITS 
+                    for rank in Card.RANKS]
+        random.shuffle(self.deck)
+        
+        # Deal cards (13 each to 4 players)
+        for i in range(4):
+            self.hands[i] = self.deck[i*13:(i+1)*13]
+            
+            # Don't show cards to blind nil bidders until after they bid
+            if not self.blind_nil_declared[i]:
+                # Sort hands for non-blind-nil players
+                self.hands[i].sort(key=lambda c: (
+                    c.suit != 'spades', 
+                    Card.SUITS.index(c.suit), 
+                    c.value
+                ))
+        
+        # Reset round state
+        self.current_trick = []
+        self.tricks_won = {0: 0, 1: 0, 2: 0, 3: 0}
+        self.bids = {0: None, 1: None, 2: None, 3: None}
+        self.spades_broken = False
+        self.blind_nil_declared = {0: False, 1: False, 2: False, 3: False}
+        
+        # Bidding starts left of dealer
+        self.current_player = (self.dealer + 1) % 4
+        self.game_phase = "bidding"
+        
+        self.round_number += 1
+    
+    def can_bid_blind_nil(self, player_index: int) -> bool:
+        """Check if player can bid blind nil"""
+        # Can only bid blind nil before seeing cards
+        # Typically only available at start of game or when team is far behind
+        
+        # Get team scores
+        if player_index in [0, 2]:
+            team = "team1"
+            opponent_team = "team2"
+        else:
+            team = "team2"
+            opponent_team = "team1"
+        
+        # Usually allowed if:
+        # 1. First round, OR
+        # 2. Team is losing by significant margin
+        if self.round_number == 1:
+            return True
+        
+        score_difference = self.scores[opponent_team] - self.scores[team]
+        if score_difference >= 100:
+            return True
+        
+        return False
+    
+    def declare_blind_nil(self, player_index: int) -> bool:
+        """Declare blind nil before bidding phase"""
+        if not self.can_bid_blind_nil(player_index):
+            return False
+        
+        self.blind_nil_declared[player_index] = True
+        return True
+    
+    def get_legal_bids(self, player_index: int) -> List[Dict]:
+        """Get valid bid options"""
+        legal_bids = []
+        
+        # Check if blind nil was declared
+        if self.blind_nil_declared[player_index]:
+            legal_bids.append({
+                "bid_type": BidType.BLIND_NIL,
+                "tricks": 0,
+                "points_if_successful": self.score_config.blind_nil_points,
+                "points_if_failed": -self.score_config.blind_nil_points
+            })
+            return legal_bids
+        
+        # Regular bids (1-13)
+        for tricks in range(1, 14):
+            legal_bids.append({
+                "bid_type": BidType.REGULAR,
+                "tricks": tricks,
+                "points_if_successful": tricks * self.score_config.successful_bid_points_per_trick,
+                "points_if_failed": tricks * self.score_config.failed_bid_penalty_per_trick
+            })
+        
+        # Nil bid
+        legal_bids.append({
+            "bid_type": BidType.NIL,
+            "tricks": 0,
+            "points_if_successful": self.score_config.nil_points,
+            "points_if_failed": -self.score_config.nil_points
+        })
+        
+        return legal_bids
+    
+    def make_bid(self, player_index: int, bid_type: BidType, tricks: int = 0) -> bool:
+        """Player makes a bid"""
+        if self.game_phase != "bidding":
+            return False
+        
+        if player_index != self.current_player:
+            return False
+        
+        # Validate bid
+        legal_bids = self.get_legal_bids(player_index)
+        is_legal = any(
+            b["bid_type"] == bid_type and b["tricks"] == tricks 
+            for b in legal_bids
+        )
+        
+        if not is_legal:
+            return False
+        
+        # Create bid object
+        is_blind = self.blind_nil_declared[player_index]
+        bid = Bid(bid_type, tricks, is_blind)
+        self.bids[player_index] = bid
+        
+        # After blind nil bid, reveal cards to player
+        if is_blind:
+            self.hands[player_index].sort(key=lambda c: (
+                c.suit != 'spades', 
+                Card.SUITS.index(c.suit), 
+                c.value
+            ))
+        
+        self.current_player = (self.current_player + 1) % 4
+        
+        # Check if all bids are in
+        if all(b is not None for b in self.bids.values()):
+            self.game_phase = "playing"
+            self.current_player = (self.dealer + 1) % 4
+            
+            if hasattr(self.mode, 'name') and 'TIMED' in self.mode.name:
+                self._start_move_timer()
+        
+        return True
+    
+    def get_legal_plays(self, player_index: int) -> List[Card]:
+        """Get cards that can be legally played"""
+        hand = self.hands[player_index]
+        
+        if not hand:
+            return []
+        
+        # First card of trick - any card except spades unless broken
+        if len(self.current_trick) == 0:
+            if not self.spades_broken:
+                non_spades = [c for c in hand if c.suit != 'spades']
+                # Can lead spades if that's all you have
+                if non_spades:
+                    return non_spades
+            return hand
+        
+        # Must follow suit if possible
+        lead_suit = self.current_trick[0]["card"].suit
+        same_suit = [c for c in hand if c.suit == lead_suit]
+        
+        if same_suit:
+            return same_suit
+        
+        # Can't follow suit - can play anything
+        return hand
+    
+    def play_card(self, player_index: int, card: Card) -> bool:
+        """Player plays a card"""
+        if self.game_phase != "playing":
+            return False
+        
+        if player_index != self.current_player:
+            return False
+        
+        legal_plays = self.get_legal_plays(player_index)
+        
+        # Check if card is legal
+        card_match = None
+        for legal_card in legal_plays:
+            if legal_card.suit == card.suit and legal_card.rank == card.rank:
+                card_match = legal_card
+                break
+        
+        if not card_match:
+            return False
+        
+        # Remove card from hand
+        self.hands[player_index].remove(card_match)
+        
+        # Add to current trick
+        self.current_trick.append({
+            "player": player_index,
+            "card": card_match
+        })
+        
+        # Check if spades broken
+        if card_match.suit == 'spades':
+            self.spades_broken = True
+        
+        # Check if trick is complete
+        if len(self.current_trick) == 4:
+            self._complete_trick()
+        else:
+            self.current_player = (self.current_player + 1) % 4
+            
+            if hasattr(self.mode, 'name') and 'TIMED' in self.mode.name:
+                self._start_move_timer()
+        
+        return True
+    
+    def _complete_trick(self):
+        """Determine trick winner and update state"""
+        lead_suit = self.current_trick[0]["card"].suit
+        
+        # Find highest card
+        winner_index = 0
+        highest_value = -1
+        
+        for i, play in enumerate(self.current_trick):
+            card = play["card"]
+            
+            # Spades trump everything
+            if card.suit == 'spades':
+                if highest_value == -1 or (
+                    self.current_trick[winner_index]["card"].suit != 'spades' or
+                    card.value > self.current_trick[winner_index]["card"].value
+                ):
+                    winner_index = i
+                    highest_value = card.value
+            # Otherwise, highest of lead suit wins
+            elif card.suit == lead_suit and self.current_trick[winner_index]["card"].suit != 'spades':
+                if card.value > highest_value:
+                    winner_index = i
+                    highest_value = card.value
+        
+        winner_player = self.current_trick[winner_index]["player"]
+        self.tricks_won[winner_player] += 1
+        
+        # Clear trick
+        self.current_trick = []
+        
+        # Winner leads next trick
+        self.current_player = winner_player
+        
+        # Check if round is over (all 13 tricks played)
+        if sum(self.tricks_won.values()) == 13:
+            self._score_round()
+    
+    def _score_round(self):
+        """Calculate scores for the round with enhanced rules"""
+        self.game_phase = "scoring"
+        
+        round_scoring = {
+            "team1": {"breakdown": [], "total": 0},
+            "team2": {"breakdown": [], "total": 0}
+        }
+        
+        for team_name, players in [("team1", [0, 2]), ("team2", [1, 3])]:
+            team_points = 0
+            breakdown = []
+            
+            # Process each player's bid individually
+            for player_idx in players:
+                bid = self.bids[player_idx]
+                tricks = self.tricks_won[player_idx]
+                partner_idx = players[0] if player_idx == players[1] else players[1]
+                partner_tricks = self.tricks_won[partner_idx]
+                partner_bid = self.bids[partner_idx]
+                
+                # Handle Nil bids (regular or blind)
+                if bid.bid_type in [BidType.NIL, BidType.BLIND_NIL]:
+                    nil_points = (self.score_config.blind_nil_points 
+                                 if bid.bid_type == BidType.BLIND_NIL 
+                                 else self.score_config.nil_points)
+                    
+                    if tricks == 0:
+                        # Successful nil
+                        team_points += nil_points
+                        breakdown.append({
+                            "player": player_idx,
+                            "player_name": self.players[player_idx].username,
+                            "bid": str(bid),
+                            "tricks_won": tricks,
+                            "result": "Successful Nil",
+                            "points": nil_points
+                        })
+                    else:
+                        # Failed nil
+                        team_points -= nil_points
+                        breakdown.append({
+                            "player": player_idx,
+                            "player_name": self.players[player_idx].username,
+                            "bid": str(bid),
+                            "tricks_won": tricks,
+                            "result": "Failed Nil",
+                            "points": -nil_points
+                        })
+                        
+                        # Tricks taken during failed nil count as bags
+                        self.bags[team_name] += tricks
+                
+                # Handle regular bids
+                else:
+                    # Check if partner has nil bid
+                    partner_has_nil = (partner_bid.bid_type in [BidType.NIL, BidType.BLIND_NIL])
+                    
+                    if partner_has_nil:
+                        # If partner bid nil, this player's bid stands alone
+                        # They must make their bid with their own tricks only
+                        if tricks >= bid.tricks:
+                            # Made bid
+                            bid_points = bid.tricks * self.score_config.successful_bid_points_per_trick
+                            team_points += bid_points
+                            
+                            # Overtricks are bags
+                            bags = tricks - bid.tricks
+                            if bags > 0:
+                                self.bags[team_name] += bags
+                                team_points += bags * self.score_config.bag_points
+                            
+                            breakdown.append({
+                                "player": player_idx,
+                                "player_name": self.players[player_idx].username,
+                                "bid": str(bid),
+                                "tricks_won": tricks,
+                                "result": f"Made bid ({bags} bags)" if bags > 0 else "Made bid exactly",
+                                "points": bid_points + (bags * self.score_config.bag_points)
+                            })
+                        else:
+                            # Failed bid
+                            penalty = bid.tricks * self.score_config.failed_bid_penalty_per_trick
+                            team_points += penalty  # penalty is negative
+                            
+                            breakdown.append({
+                                "player": player_idx,
+                                "player_name": self.players[player_idx].username,
+                                "bid": str(bid),
+                                "tricks_won": tricks,
+                                "result": "Failed bid",
+                                "points": penalty
+                            })
+                    else:
+                        # Both partners have regular bids - combine tricks
+                        # Only calculate once (for first player in pair)
+                        if player_idx == players[0]:
+                            team_bid = bid.tricks + partner_bid.tricks
+                            team_tricks = tricks + partner_tricks
+                            
+                            if team_tricks >= team_bid:
+                                # Made team bid
+                                bid_points = team_bid * self.score_config.successful_bid_points_per_trick
+                                team_points += bid_points
+                                
+                                # Overtricks are bags
+                                bags = team_tricks - team_bid
+                                if bags > 0:
+                                    self.bags[team_name] += bags
+                                    team_points += bags * self.score_config.bag_points
+                                
+                                breakdown.append({
+                                    "player": "team",
+                                    "player_name": f"{self.players[players[0]].username} & {self.players[players[1]].username}",
+                                    "bid": f"{team_bid} (combined)",
+                                    "tricks_won": team_tricks,
+                                    "result": f"Made bid ({bags} bags)" if bags > 0 else "Made bid exactly",
+                                    "points": bid_points + (bags * self.score_config.bag_points)
+                                })
+                            else:
+                                # Failed team bid
+                                penalty = team_bid * self.score_config.failed_bid_penalty_per_trick
+                                team_points += penalty  # penalty is negative
+                                
+                                breakdown.append({
+                                    "player": "team",
+                                    "player_name": f"{self.players[players[0]].username} & {self.players[players[1]].username}",
+                                    "bid": f"{team_bid} (combined)",
+                                    "tricks_won": team_tricks,
+                                    "result": "Failed bid",
+                                    "points": penalty
+                                })
+            
+            # Check for bag penalty
+            if self.bags[team_name] >= self.score_config.bag_penalty_threshold:
+                num_penalties = self.bags[team_name] // self.score_config.bag_penalty_threshold
+                penalty_points = num_penalties * self.score_config.bag_penalty_points
+                team_points += penalty_points  # penalty is negative
+                
+                # Reset bags
+                self.bags[team_name] -= (num_penalties * self.score_config.bag_penalty_threshold)
+                
+                breakdown.append({
+                    "player": "team",
+                    "player_name": "Bag Penalty",
+                    "bid": "",
+                    "tricks_won": "",
+                    "result": f"{num_penalties}x {self.score_config.bag_penalty_threshold} bags",
+                    "points": penalty_points
+                })
+            
+            # Update team score
+            self.scores[team_name] += team_points
+            
+            round_scoring[team_name]["breakdown"] = breakdown
+            round_scoring[team_name]["total"] = team_points
+        
+        # Store round scoring history
+        self.round_scores.append({
+            "round": self.round_number,
+            "scoring": round_scoring,
+            "team1_total": self.scores["team1"],
+            "team2_total": self.scores["team2"],
+            "team1_bags": self.bags["team1"],
+            "team2_bags": self.bags["team2"]
+        })
+        
+        # Check for game over conditions
+        
+        # Win condition: First to reach win score
+        if (self.scores["team1"] >= self.score_config.win_score or 
+            self.scores["team2"] >= self.score_config.win_score):
+            self.game_over = True
+            self.winner = "team1" if self.scores["team1"] > self.scores["team2"] else "team2"
+        
+        # Auto-loss condition: -250 or below
+        elif (self.scores["team1"] <= self.score_config.auto_loss_score or 
+              self.scores["team2"] <= self.score_config.auto_loss_score):
+            self.game_over = True
+            # Team that didn't hit auto-loss wins
+            self.winner = "team2" if self.scores["team1"] <= self.score_config.auto_loss_score else "team1"
+            
+            # Add auto-loss notification
+            losing_team = "team1" if self.winner == "team2" else "team2"
+            round_scoring[losing_team]["breakdown"].append({
+                "player": "team",
+                "player_name": "AUTO-LOSS",
+                "bid": "",
+                "tricks_won": "",
+                "result": f"Reached {self.score_config.auto_loss_score} points",
+                "points": 0
+            })
+        
+        else:
+            # Next round
+            self.dealer = (self.dealer + 1) % 4
+            self.initialize_game()
+    
+    def _start_move_timer(self):
+        """Start countdown timer for current player"""
+        if hasattr(self.mode, 'name') and 'TIMED' in self.mode.name:
+            self.move_deadline = datetime.now() + timedelta(seconds=self.time_limit)
+    
+    def check_time_expired(self) -> bool:
+        """Check if current player's time has expired"""
+        if hasattr(self.mode, 'name') and 'TIMED' in self.mode.name and self.move_deadline:
+            return datetime.now() > self.move_deadline
+        return False
+    
+    def force_forfeit_move(self) -> Dict:
+        """Force a move when time expires - player forfeits"""
+        current_player_obj = self.players[self.current_player]
+        
+        return {
+            "action": "time_forfeit",
+            "player": self.current_player,
+            "player_name": current_player_obj.username,
+            "phase": self.game_phase
+        }
+    
+    def get_game_state(self) -> Dict:
+        """Get current game state"""
+        return {
+            "game_phase": self.game_phase,
+            "current_player": self.current_player,
+            "current_trick": [{"player": p["player"], 
+                              "card": p["card"].to_dict()} 
+                             for p in self.current_trick],
+            "scores": self.scores,
+            "bags": self.bags,
+            "bids": {k: v.to_dict() if v else None for k, v in self.bids.items()},
+            "tricks_won": self.tricks_won,
+            "spades_broken": self.spades_broken,
+            "game_over": self.game_over,
+            "winner": self.winner,
+            "round_number": self.round_number,
+            "score_config": self.score_config.to_dict(),
+            "time_remaining": (self.move_deadline - datetime.now()).total_seconds() 
+                             if self.move_deadline else None,
+            "blind_nil_declared": self.blind_nil_declared,
+            "latest_round_scoring": self.round_scores[-1] if self.round_scores else None
+        }
+    
+    def get_player_hand(self, player_index: int) -> List[Dict]:
+        """Get a player's cards"""
+        # Don't show cards if player declared blind nil and hasn't bid yet
+        if self.blind_nil_declared[player_index] and self.bids[player_index] is None:
+            return []  # Hidden until after bid
+        
+        return [card.to_dict() for card in self.hands[player_index]]
+    
+    def get_score_summary(self) -> Dict:
+        """Get detailed scoring summary"""
+        return {
+            "current_scores": self.scores,
+            "current_bags": self.bags,
+            "win_score": self.score_config.win_score,
+            "auto_loss_score": self.score_config.auto_loss_score,
+            "round_history": self.round_scores,
+            "game_over": self.game_over,
+            "winner": self.winner
+        }
+
+# ============================================================================
+# GAME SETUP UI HELPER
+# ============================================================================
+
+class SpadesGameSetup:
+    """Helper class for setting up Spades games with custom rules"""
+    
+    @staticmethod
+    def get_score_options() -> List[Dict]:
+        """Get available scoring options for UI"""
+        return [
+            {
+                "value": score,
+                "label": f"{score} Points to Win",
+                "description": f"First team to {score} points wins"
+            }
+            for score in SpadesScoreConfig.AVAILABLE_WIN_SCORES
+        ]
+    
+    @staticmethod
+    def create_custom_config(win_score: int = 500) -> SpadesScoreConfig:
+        """Create configuration with custom win score"""
+        return SpadesScoreConfig(
+            win_score=win_score,
+            bag_penalty_threshold=10,
+            bag_penalty_points=-150,
+            auto_loss_score=-250,
+            nil_points=100,
+            blind_nil_points=150
+        )
+    
+    @staticmethod
+    def get_scoring_rules_summary(config: SpadesScoreConfig) -> str:
+        """Get human-readable summary of scoring rules"""
+        return f"""
+SPADES SCORING RULES
+{'=' * 50}
+
+Win Condition: First team to {config.win_score} points
+Auto-Loss: Team reaching {config.auto_loss_score} points automatically loses
+
+BIDDING:
+• Regular Bid: {config.successful_bid_points_per_trick} points per trick bid
+• Failed Bid: {config.failed_bid_penalty_per_trick} points per trick bid
+• Nil Bid: {config.nil_points} points if successful, {-config.nil_points} if failed
+• Blind Nil: {config.blind_nil_points} points if successful, {-config.blind_nil_points} if failed
+
+BAGS:
+• Overtricks: {config.bag_points} point each
+• Bag Penalty: {config.bag_penalty_points} points for every {config.bag_penalty_threshold} bags
+
+TEAMS:
+• Team 1: North & South (Players 0 & 2)
+• Team 2: East & West (Players 1 & 3)
+"""
+
+# ============================================================================
+# DEMONSTRATION
+# ============================================================================
+
+def demonstrate_enhanced_spades():
+    """Demonstrate enhanced Spades features"""
+    
+    print("=" * 80)
+    print("ENHANCED SPADES GAME - CUSTOMIZABLE SCORING DEMONSTRATION")
+    print("=" * 80)
+    
+    # Create mock players
+    class MockPlayer:
+        def __init__(self, user_id, username):
+            self.user_id = user_id
+            self.username = username
+            self.is_cpu = False
+    
+    players = [
+        MockPlayer("p1", "Alice"),
+        MockPlayer("p2", "Bob"),
+        MockPlayer("p3", "Carol"),
+        MockPlayer("p4", "Dave")
+    ]
+    
+    # Show available score options
+    print("\n=== Available Scoring Options ===")
+    score_options = SpadesGameSetup.get_score_options()
+    for opt in score_options:
+        print(f"{opt['value']:3d} points - {opt['description']}")
+    
+    # Create custom scoring configuration
+    print("\n=== Creating Custom Game Configuration ===")
+    custom_config = SpadesGameSetup.create_custom_config(win_score=250)
+    
+    print(SpadesGameSetup.get_scoring_rules_summary(custom_config))
+    
+    # Create game with custom scoring
+    print("\n=== Starting Spades Game (250 points to win) ===")
+    
+    # Mock mode object
+    class MockMode:
+        name = "SPADES_TIMED"
+    
+    game = EnhancedSpadesGame(
+        mode=MockMode(),
+        players=players,
+        score_config=custom_config,
+        cpu_fill=False
+    )
+    
+    game.initialize_game()
+    
+    # Demonstrate bidding
+    print("\n=== Bidding Phase ===")
+    print(f"Round {game.round_number}")
+    
+    # Player 0 bids blind nil
+    print(f"\n{players[0].username} considering Blind Nil...")
+    if game.can_bid_blind_nil(0):
+        game.declare_blind_nil(0)
+        print(f"  ✓ {players[0].username} declared Blind Nil!")
+    
+    # Show legal bids for each player
+    for i in range(4):
+        legal_bids = game.get_legal_bids(i)
+        print(f"\n{players[i].username}'s legal bids:")
+        
+        if game.blind_nil_declared[i]:
+            print(f"  • Blind Nil: {custom_config.blind_nil_points} points if successful")
+        else:
+            print(f"  • Regular bids: 1-13 tricks")
+            print(f"  • Nil: {custom_config.nil_points} points if successful")
+        
+        # Make a bid
+        if game.blind_nil_declared[i]:
+            success = game.make_bid(i, BidType.BLIND_NIL, 0)
+            print(f"  → Bid: Blind Nil")
+        else:
+            # Random bid for demo
+            bid_tricks = random.randint(3, 6)
+            success = game.make_bid(i, BidType.REGULAR, bid_tricks)
+            print(f"  → Bid: {bid_tricks} tricks")
+    
+    print(f"\nAll bids complete. Phase: {game.game_phase}")
+    
+    # Show current bids
+    print("\n=== Current Bids ===")
+    for i in range(4):
+        bid = game.bids[i]
+        print(f"{players[i].username}: {bid}")
+    
+    # Simulate playing some cards
+    print("\n=== Playing Phase ===")
+    tricks_to_play = 3
+    
+    for trick_num in range(tricks_to_play):
+        print(f"\nTrick #{trick_num + 1}")
+        
+        for card_num in range(4):
+            current_idx = game.current_player
+            legal_plays = game.get_legal_plays(current_idx)
+            
+            if legal_plays:
+                # Play random legal card
+                card = random.choice(legal_plays)
+                game.play_card(current_idx, card)
+                print(f"  {players[current_idx].username} plays {card}")
+    
+    # Show current state
+    print("\n=== Current Game State ===")
+    state = game.get_game_state()
+    print(f"Round: {state['round_number']}")
+    print(f"Tricks won: {state['tricks_won']}")
+    print(f"Team 1 Score: {state['scores']['team1']} (Bags: {state['bags']['team1']})")
+    print(f"Team 2 Score: {state['scores']['team2']} (Bags: {state['bags']['team2']})")
+    
+    # Demonstrate different win scores
+    print("\n" + "=" * 80)
+    print("SCORING VARIATIONS")
+    print("=" * 80)
+    
+    variations = [100, 200, 300, 500]
+    
+    for win_score in variations:
+        config = SpadesGameSetup.create_custom_config(win_score)
+        print(f"\n{win_score} Point Game:")
+        print(f"  • Win at: {config.win_score} points")
+        print(f"  • Auto-loss at: {config.auto_loss_score} points")
+        print(f"  • Nil: {config.nil_points} points")
+        print(f"  • Blind Nil: {config.blind_nil_points} points")
+        print(f"  • Bag penalty: {config.bag_penalty_points} points every {config.bag_penalty_threshold} bags")
+    
+    print("\n" + "=" * 80)
+    print("FEATURE SUMMARY")
+    print("=" * 80)
+    print("""
+✓ Customizable Win Score
+  - Players choose from 100, 150, 200, 250, 300, 350, 400, 450, or 500 points
+  
+✓ Enhanced Bag Penalty
+  - 10 bags = -150 points (configurable)
+  - Bags carry over between rounds
+  
+✓ Auto-Loss Rule
+  - Any team reaching -250 points automatically loses
+  
+✓ Nil Bidding
+  - Regular Nil: 100 points if successful
+  - Take 0 tricks to succeed
+  
+✓ Blind Nil Bidding
+  - Blind Nil: 150 points if successful
+  - Bid before seeing cards
+  - Available when team is far behind or in first round
+  
+✓ Partnership Support
+  - Partners can support nil bids by taking extra tricks
+  - Combined bidding for regular bids
+  
+✓ Detailed Scoring Breakdown
+  - Per-player scoring
+  - Round-by-round history
+  - Clear indication of why points were awarded/deducted
+    """)
+
+if __name__ == "__main__":
+    demonstrate_enhanced_spades()
+
+
+Key Enhancements:
+1. Customizable Win Score (100-500 points)
+
+# Players can choose from:
+[100, 150, 200, 250, 300, 350, 400, 450, 500]
+
+# Example usage:
+config = SpadesScoreConfig(win_score=250)
+game = EnhancedSpadesGame(mode, players, score_config=config)
+
+
+2. Enhanced Bag Penalty (-150 points)
+	∙	10 bags = -150 points (was -100)
+	∙	Bags accumulate across rounds
+	∙	Multiple penalties possible (20 bags = -300, etc.)
+3. Auto-Loss at -250
+	∙	Any team reaching -250 points or below automatically loses
+	∙	Game ends immediately
+	∙	Opponent team wins regardless of their score
+4. Nil Bidding (100 points)
+	∙	Player bids to take 0 tricks
+	∙	Success: +100 points
+	∙	Failure: -100 points
+	∙	Tricks taken during failed nil become bags
+5. Blind Nil (150 points)
+	∙	Bid before seeing cards
+	∙	Success: +150 points
+	∙	Failure: -150 points
+	∙	Available when:
+	∙	First round, OR
+	∙	Team is losing by 100+ points
+6. Detailed Scoring Breakdown
+
+# Each round shows:
+{
+  "player": "Alice",
+  "bid": "Blind Nil",
+  "tricks_won": 0,
+  "result": "Successful Nil",
+  "points": 150
+}
+
+
+Integration Example:
+
+# In your game platform:
+def start_spades_game(players, win_score=500):
+    # Create custom scoring
+    score_config = SpadesScoreConfig(
+        win_score=win_score,
+        bag_penalty_threshold=10,
+        bag_penalty_points=-150,
+        auto_loss_score=-250,
+        nil_points=100,
+        blind_nil_points=150
+    )
+    
+    # Start game
+    game = EnhancedSpadesGame(
+        mode=GameMode.SPADES_TIMED,
+        players=players,
+        score_config=score_config,
+        cpu_fill=True  # Fill empty slots with CPU
+    )
+    
+    return game
+
+# UI for score selection:
+def show_score_options():
+    options = SpadesGameSetup.get_score_options()
+    # Display to user:
+    # [ ] 100 Points to Win
+    # [ ] 150 Points to Win
+    # [x] 250 Points to Win  ← Selected
+    # [ ] 500 Points to Win
+
+
+Would you like me to add any other features, such as:
+	∙	Double nil (both partners bid nil)
+	∙	Boston (bid 13 tricks for bonus)
+	∙	Custom bag penalty thresholds
+	∙	Tournament bracket system
+	∙	Or integration with your avatar/simulation system?​​​​​​​​​​​​​​​​

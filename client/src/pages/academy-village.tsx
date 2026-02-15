@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
+import WelcomeOnboarding from "@/components/welcome-onboarding";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -193,6 +195,13 @@ function LoadingSkeleton() {
 }
 
 export default function AcademyVillagePage() {
+  const [showOnboarding, setShowOnboarding] = useState(() => !localStorage.getItem("txea_onboarding_complete"));
+
+  const completeOnboarding = () => {
+    localStorage.setItem("txea_onboarding_complete", "true");
+    setShowOnboarding(false);
+  };
+
   const { data: myAvatar, isLoading: avatarLoading } = useQuery<AcademyAvatar | null>({
     queryKey: ["/api/academy/avatars/me"],
     retry: false,
@@ -229,14 +238,15 @@ export default function AcademyVillagePage() {
   const classmates = allAvatars ?? [];
 
   return (
-    <div className="p-6 max-w-6xl mx-auto" data-testid="academy-village-page">
+    <div className="p-4 sm:p-6 max-w-6xl mx-auto" data-testid="academy-village-page">
+      <WelcomeOnboarding isOpen={showOnboarding} onComplete={completeOnboarding} />
       <div
-        className="rounded-md bg-gradient-to-r from-rose-900 to-red-700 p-8 mb-6"
+        className="rounded-md bg-gradient-to-r from-rose-900 to-red-700 p-4 sm:p-6 lg:p-8 mb-6"
         data-testid="section-hero"
       >
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <div>
-            <h1 className="text-3xl font-bold text-white mb-1" data-testid="text-village-title">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-1" data-testid="text-village-title">
               Panther Village
             </h1>
             <p className="text-rose-100 text-lg" data-testid="text-village-subtitle">
@@ -251,7 +261,7 @@ export default function AcademyVillagePage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6" data-testid="section-quick-stats">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6" data-testid="section-quick-stats">
         <Card className="p-4">
           <div className="flex items-center justify-between gap-1 mb-2">
             <span className="text-sm text-muted-foreground">Wallet</span>
@@ -404,7 +414,7 @@ export default function AcademyVillagePage() {
           <h2 className="font-semibold text-lg mb-4 flex items-center gap-2">
             <Building2 className="h-5 w-5 text-muted-foreground" /> Campus Map
           </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {BUILDINGS.map((building) => {
               const kebab = building.name.toLowerCase().replace(/\s+/g, "-");
               return (

@@ -220,7 +220,7 @@ export default function AcademyAdminTutorialPage() {
   };
 
   return (
-    <div className="p-6 max-w-3xl mx-auto" data-testid="admin-tutorial-page">
+    <div className="p-4 sm:p-6 max-w-3xl mx-auto" data-testid="admin-tutorial-page">
       <div className="mb-6">
         <div className="rounded-md p-4 bg-gradient-to-r from-rose-900 to-red-950 text-white mb-6">
           <h1 className="text-2xl font-bold" data-testid="text-admin-tutorial-title">
@@ -242,7 +242,7 @@ export default function AcademyAdminTutorialPage() {
         <Progress value={progressPercent} className="h-2" data-testid="progress-bar" />
       </div>
 
-      <Card className="p-6" data-testid={`slide-card-${currentSlide}`}>
+      <Card className="p-4 sm:p-6" data-testid={`slide-card-${currentSlide}`}>
         <div className="flex items-center gap-3 mb-4">
           <div className="rounded-md p-2.5 bg-gradient-to-br from-rose-900 to-red-950 shrink-0">
             <SlideIcon className="h-5 w-5 text-white" />
@@ -298,7 +298,7 @@ export default function AcademyAdminTutorialPage() {
         </div>
       </Card>
 
-      <div className="flex items-center justify-between gap-2 mt-6">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-2 mt-6">
         <Button
           variant="outline"
           onClick={goPrev}
@@ -309,13 +309,13 @@ export default function AcademyAdminTutorialPage() {
           Previous
         </Button>
 
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 overflow-x-auto max-w-[40vw] sm:max-w-none">
           {slides.map((_, idx) => (
             <button
               key={idx}
               type="button"
               onClick={() => setCurrentSlide(idx)}
-              className={`w-2 h-2 rounded-full transition-colors ${
+              className={`w-2 h-2 rounded-full transition-colors shrink-0 ${
                 idx === currentSlide ? "bg-primary" : "bg-muted-foreground/30"
               }`}
               data-testid={`dot-slide-${idx}`}

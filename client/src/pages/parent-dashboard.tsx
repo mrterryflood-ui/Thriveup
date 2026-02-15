@@ -9,10 +9,47 @@ import {
   Star, BookOpen, Trophy, TrendingUp, Flame, Target,
   ChevronRight, Award, CheckCircle2, Clock,
   BarChart3, Lightbulb, GraduationCap, Brain, Users,
-  ArrowRight, Sparkles
+  ArrowRight, Sparkles, AlertTriangle
 } from "lucide-react";
 import { LEVEL_COLORS, getRankForLevel } from "@/lib/curriculum-data";
 import type { StudentProgress, Level, Module, EarnedBadge, Badge as BadgeType } from "@shared/schema";
+
+interface SupportAlert {
+  id: string;
+  userId: string;
+  supportType: string | null;
+  createdAt: string;
+  energyLevel: number | null;
+  stressLevel: number | null;
+  moodRating: number | null;
+}
+
+function formatRelativeTime(dateStr: string): string {
+  const now = new Date();
+  const date = new Date(dateStr);
+  const diffMs = now.getTime() - date.getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  if (diffMins < 1) return "just now";
+  if (diffMins < 60) return `${diffMins} minute${diffMins !== 1 ? "s" : ""} ago`;
+  const diffHours = Math.floor(diffMins / 60);
+  if (diffHours < 24) return `${diffHours} hour${diffHours !== 1 ? "s" : ""} ago`;
+  const diffDays = Math.floor(diffHours / 24);
+  if (diffDays < 7) return `${diffDays} day${diffDays !== 1 ? "s" : ""} ago`;
+  return date.toLocaleDateString();
+}
+
+function getContextLine(alert: SupportAlert): string {
+  const parts: string[] = [];
+  if (alert.moodRating !== null && alert.moodRating <= 3) parts.push("low mood");
+  if (alert.energyLevel !== null && alert.energyLevel <= 3) parts.push("low energy");
+  if (alert.stressLevel !== null && alert.stressLevel >= 7) parts.push("high stress");
+  if (parts.length === 0) {
+    if (alert.moodRating !== null) parts.push(`mood: ${alert.moodRating}/10`);
+    if (alert.energyLevel !== null) parts.push(`energy: ${alert.energyLevel}/10`);
+    if (alert.stressLevel !== null) parts.push(`stress: ${alert.stressLevel}/10`);
+  }
+  return parts.length > 0 ? `Reported ${parts.join(", ")}` : "Student indicated they need support";
+}
 
 interface DashboardData {
   progress: StudentProgress;
@@ -65,6 +102,10 @@ export default function ParentDashboardPage() {
     queryKey: ["/api/achievements"],
   });
 
+  const { data: supportAlerts } = useQuery<SupportAlert[]>({
+    queryKey: ["/api/parent/support-alerts"],
+  });
+
   const isLoading = dashLoading || achLoading;
 
   if (isLoading) {
@@ -113,6 +154,55 @@ export default function ParentDashboardPage() {
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
+      {supportAlerts && supportAlerts.length > 0 && (
+        <Card
+          className="mb-6 border-destructive/50 bg-destructive/5 dark:bg-destructive/10"
+          data-testid="parent-support-alerts"
+        >
+          <div className="p-5">
+            <div className="flex items-center gap-2 mb-4 flex-wrap">
+              <AlertTriangle className="h-5 w-5 text-destructive shrink-0" />
+              <h2 className="font-semibold text-destructive" data-testid="text-support-alert-title">
+                Your child needs support
+              </h2>
+              <Badge variant="destructive" className="ml-auto">
+                {supportAlerts.length} alert{supportAlerts.length !== 1 ? "s" : ""}
+              </Badge>
+            </div>
+            <div className="space-y-3">
+              {supportAlerts.map((alert) => (
+                <div
+                  key={alert.id}
+                  className="flex items-start justify-between gap-4 p-3 rounded-md bg-background/80 flex-wrap"
+                  data-testid={`support-alert-${alert.id}`}
+                >
+                  <div className="flex-1 min-w-0 space-y-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {alert.supportType && (
+                        <Badge variant="outline" data-testid={`badge-support-type-${alert.id}`}>
+                          {alert.supportType}
+                        </Badge>
+                      )}
+                      <span className="text-xs text-muted-foreground" data-testid={`text-alert-time-${alert.id}`}>
+                        {formatRelativeTime(alert.createdAt)}
+                      </span>
+                    </div>
+                    <p className="text-sm text-muted-foreground" data-testid={`text-alert-context-${alert.id}`}>
+                      {getContextLine(alert)}
+                    </p>
+                  </div>
+                  <Link href="/academy/self-assessment">
+                    <Button variant="outline" size="sm" data-testid={`button-view-alert-${alert.id}`}>
+                      View Details
+                    </Button>
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </div>
+        </Card>
+      )}
+
       <div className="mb-8">
         <div className="flex items-center gap-2 mb-1">
           <BarChart3 className="h-6 w-6 text-primary" />

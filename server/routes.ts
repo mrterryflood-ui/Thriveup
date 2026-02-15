@@ -257,6 +257,29 @@ export async function registerRoutes(
     });
   });
 
+  app.get("/api/parent/support-alerts", requireAuth, async (_req, res) => {
+    try {
+      const alerts = await db
+        .select({
+          id: studentSelfAssessments.id,
+          userId: studentSelfAssessments.userId,
+          supportType: studentSelfAssessments.supportType,
+          createdAt: studentSelfAssessments.createdAt,
+          energyLevel: studentSelfAssessments.energyLevel,
+          stressLevel: studentSelfAssessments.stressLevel,
+          moodRating: studentSelfAssessments.moodRating,
+        })
+        .from(studentSelfAssessments)
+        .where(eq(studentSelfAssessments.needsSupport, true))
+        .orderBy(desc(studentSelfAssessments.createdAt))
+        .limit(10);
+      res.json(alerts);
+    } catch (error) {
+      console.error("Error fetching support alerts:", error);
+      res.json([]);
+    }
+  });
+
   app.get("/api/badges", async (_req, res) => {
     const allBadges = await storage.getBadges();
     res.json(allBadges);

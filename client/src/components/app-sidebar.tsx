@@ -233,6 +233,11 @@ export function AppSidebar() {
             </a>
           )
         )}
+        <Link href="/privacy">
+          <Button variant="ghost" size="sm" className="w-full justify-start" data-testid="link-privacy-policy">
+            <Shield className="mr-2 h-4 w-4" /> Privacy Policy
+          </Button>
+        </Link>
         <div className="flex items-center gap-2 text-xs text-muted-foreground mt-2">
           <Heart className="h-3.5 w-3.5 shrink-0" />
           <span>Education, Character, Leadership</span>

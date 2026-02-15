@@ -413,9 +413,9 @@ export default function AcademyAvatarPage() {
   }
 
   return (
-    <div className="p-6 max-w-5xl mx-auto" data-testid="academy-avatar-page">
+    <div className="p-4 sm:p-6 max-w-5xl mx-auto" data-testid="academy-avatar-page">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-1" data-testid="text-avatar-title">
+        <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-1" data-testid="text-avatar-title">
           Avatar & Community
         </h1>
         <p className="text-muted-foreground">
@@ -425,7 +425,7 @@ export default function AcademyAvatarPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12">
         <div>
-          <Card className="p-6">
+          <Card className="p-4 sm:p-6">
             <h2 className="font-semibold mb-4 flex items-center gap-2">
               <User className="h-5 w-5 text-primary" /> Avatar Preview
             </h2>
@@ -451,7 +451,7 @@ export default function AcademyAvatarPage() {
         </div>
 
         <div>
-          <Card className="p-6">
+          <Card className="p-4 sm:p-6">
             <h2 className="font-semibold mb-4 flex items-center gap-2">
               <Palette className="h-5 w-5 text-primary" /> Customize
             </h2>
@@ -618,7 +618,7 @@ export default function AcademyAvatarPage() {
       </div>
 
       <div className="mb-12" data-testid="section-personality-profile">
-        <h2 className="text-2xl font-bold mb-1 flex items-center gap-2" data-testid="text-personality-title">
+        <h2 className="text-xl sm:text-2xl font-bold mb-1 flex items-center gap-2" data-testid="text-personality-title">
           <Smile className="h-6 w-6 text-primary" /> My Personality Profile
         </h2>
         <p className="text-muted-foreground mb-6">See yourself as you see yourself</p>
@@ -627,7 +627,7 @@ export default function AcademyAvatarPage() {
           <Skeleton className="h-64" data-testid="skeleton-personality" />
         ) : selfAssessment ? (
           <div className="space-y-4">
-            <Card className="p-6" data-testid="card-personality-today">
+            <Card className="p-4 sm:p-6" data-testid="card-personality-today">
               <div className="flex items-center justify-between gap-2 mb-5 flex-wrap">
                 <h3 className="font-semibold text-lg" data-testid="text-personality-card-title">My Personality Today</h3>
                 <Badge variant="secondary" data-testid="badge-assessment-date">
@@ -733,7 +733,7 @@ export default function AcademyAvatarPage() {
       </div>
 
       <div>
-        <h2 className="text-2xl font-bold mb-1 flex items-center gap-2" data-testid="text-community-title">
+        <h2 className="text-xl sm:text-2xl font-bold mb-1 flex items-center gap-2" data-testid="text-community-title">
           <Users className="h-6 w-6 text-primary" /> Community
         </h2>
         <p className="text-muted-foreground mb-6">See all academy members</p>

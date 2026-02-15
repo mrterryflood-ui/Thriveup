@@ -263,20 +263,20 @@ export default function AcademyThrivePage() {
   const activeFlags = (flags ?? []).filter((f) => f.status === "active");
 
   return (
-    <div className="p-6 max-w-5xl mx-auto" data-testid="academy-thrive-page">
+    <div className="p-4 sm:p-6 max-w-5xl mx-auto" data-testid="academy-thrive-page">
       <div
-        className="rounded-md bg-gradient-to-r from-rose-900 to-red-700 p-8 mb-8"
+        className="rounded-md bg-gradient-to-r from-rose-900 to-red-700 p-4 sm:p-6 lg:p-8 mb-8"
         data-testid="section-hero"
       >
         <div className="flex items-center gap-3 mb-3 flex-wrap">
           <div className="rounded-md p-2.5 bg-white/10">
             <Activity className="h-7 w-7 text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-white" data-testid="text-page-title">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white" data-testid="text-page-title">
             Thrive Dashboard
           </h1>
         </div>
-        <p className="text-rose-100 text-lg" data-testid="text-page-subtitle">
+        <p className="text-rose-100 text-base sm:text-lg" data-testid="text-page-subtitle">
           Your holistic growth across six domains
         </p>
       </div>
