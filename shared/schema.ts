@@ -1048,4 +1048,62 @@ export const insertPlaySessionSchema = createInsertSchema(playSessions).omit({ i
 export type InsertPlaySession = z.infer<typeof insertPlaySessionSchema>;
 export type PlaySession = typeof playSessions.$inferSelect;
 
+export const studentReflections = pgTable("student_reflections", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  studentName: text("student_name").notNull(),
+  entryDate: text("entry_date").notNull(),
+  period: text("period").notNull().default("daily"),
+  content: text("content").notNull(),
+  mood: text("mood"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertStudentReflectionSchema = createInsertSchema(studentReflections).omit({ id: true, createdAt: true });
+export type InsertStudentReflection = z.infer<typeof insertStudentReflectionSchema>;
+export type StudentReflection = typeof studentReflections.$inferSelect;
+
+export const announcements = pgTable("announcements", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  title: text("title").notNull(),
+  content: text("content").notNull(),
+  category: text("category").notNull().default("general"),
+  createdByUserId: varchar("created_by_user_id", { length: 255 }).notNull(),
+  createdByName: text("created_by_name").notNull(),
+  pinned: boolean("pinned").notNull().default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertAnnouncementSchema = createInsertSchema(announcements).omit({ id: true, createdAt: true });
+export type InsertAnnouncement = z.infer<typeof insertAnnouncementSchema>;
+export type Announcement = typeof announcements.$inferSelect;
+
+export const academyEvents = pgTable("academy_events", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  title: text("title").notNull(),
+  description: text("description"),
+  eventDate: text("event_date").notNull(),
+  eventTime: text("event_time"),
+  category: text("category").notNull().default("school"),
+  createdByUserId: varchar("created_by_user_id", { length: 255 }).notNull(),
+  createdByName: text("created_by_name").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertAcademyEventSchema = createInsertSchema(academyEvents).omit({ id: true, createdAt: true });
+export type InsertAcademyEvent = z.infer<typeof insertAcademyEventSchema>;
+export type AcademyEvent = typeof academyEvents.$inferSelect;
+
+export const attendanceLogs = pgTable("attendance_logs", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  studentName: text("student_name").notNull(),
+  loginDate: text("login_date").notNull(),
+  loginTime: timestamp("login_time").defaultNow(),
+});
+
+export const insertAttendanceLogSchema = createInsertSchema(attendanceLogs).omit({ id: true, loginTime: true });
+export type InsertAttendanceLog = z.infer<typeof insertAttendanceLogSchema>;
+export type AttendanceLog = typeof attendanceLogs.$inferSelect;
+
 export * from "./models/auth";
