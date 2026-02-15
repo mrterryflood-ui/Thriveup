@@ -45,8 +45,13 @@ import {
   type AcademyContentReport, type InsertAcademyContentReport,
   careerFields, careerMilestones,
   interventionPlaybooks, mentorProfiles,
+  gameSessions, gamePlayers, playerRatings, playSessions,
+  type GameSession, type InsertGameSession,
+  type GamePlayer, type InsertGamePlayer,
+  type PlayerRating, type InsertPlayerRating,
+  type PlaySession, type InsertPlaySession,
 } from "@shared/schema";
-import { eq, and, desc, sql } from "drizzle-orm";
+import { eq, and, desc, sql, inArray } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import pg from "pg";
 
@@ -220,6 +225,26 @@ export interface IStorage {
   getContentReports(): Promise<AcademyContentReport[]>;
   createContentReport(report: InsertAcademyContentReport): Promise<AcademyContentReport>;
   updateContentReport(id: string, data: Partial<AcademyContentReport>): Promise<AcademyContentReport>;
+
+  // Game Platform
+  createGameSession(session: InsertGameSession): Promise<GameSession>;
+  getGameSession(id: string): Promise<GameSession | undefined>;
+  updateGameSession(id: string, data: Partial<GameSession>): Promise<GameSession>;
+  getGameSessionsByUser(userId: string): Promise<GameSession[]>;
+  getActiveGameSessions(): Promise<GameSession[]>;
+
+  addGamePlayer(player: InsertGamePlayer): Promise<GamePlayer>;
+  getGamePlayers(sessionId: string): Promise<GamePlayer[]>;
+  updateGamePlayer(id: string, data: Partial<GamePlayer>): Promise<GamePlayer>;
+
+  getOrCreateRating(userId: string, gameType: string): Promise<PlayerRating>;
+  updateRating(id: string, data: Partial<PlayerRating>): Promise<PlayerRating>;
+  getRatingsByUser(userId: string): Promise<PlayerRating[]>;
+  getLeaderboard(gameType: string, limit?: number): Promise<PlayerRating[]>;
+
+  startPlaySession(userId: string, gameType: string): Promise<PlaySession>;
+  endPlaySession(id: string): Promise<PlaySession>;
+  getFlaggedPlaySessions(): Promise<PlaySession[]>;
 
   seedData(): Promise<void>;
 }
@@ -975,6 +1000,107 @@ export class DatabaseStorage implements IStorage {
   async updateContentReport(id: string, data: Partial<AcademyContentReport>): Promise<AcademyContentReport> {
     const [result] = await db.update(academyContentReports).set(data).where(eq(academyContentReports.id, id)).returning();
     return result;
+  }
+
+  // ==================== GAME PLATFORM ====================
+
+  async createGameSession(session: InsertGameSession): Promise<GameSession> {
+    const [created] = await db.insert(gameSessions).values(session).returning();
+    return created;
+  }
+
+  async getGameSession(id: string): Promise<GameSession | undefined> {
+    const [session] = await db.select().from(gameSessions).where(eq(gameSessions.id, id));
+    return session;
+  }
+
+  async updateGameSession(id: string, data: Partial<GameSession>): Promise<GameSession> {
+    const [updated] = await db.update(gameSessions).set(data).where(eq(gameSessions.id, id)).returning();
+    return updated;
+  }
+
+  async getGameSessionsByUser(userId: string): Promise<GameSession[]> {
+    const playerRows = await db.select({ sessionId: gamePlayers.sessionId }).from(gamePlayers).where(eq(gamePlayers.userId, userId));
+    if (playerRows.length === 0) return [];
+    const sessionIds = playerRows.map(r => r.sessionId);
+    return db.select().from(gameSessions).where(inArray(gameSessions.id, sessionIds)).orderBy(desc(gameSessions.createdAt));
+  }
+
+  async getActiveGameSessions(): Promise<GameSession[]> {
+    return db.select().from(gameSessions).where(inArray(gameSessions.status, ['waiting', 'in_progress'])).orderBy(desc(gameSessions.createdAt));
+  }
+
+  async addGamePlayer(player: InsertGamePlayer): Promise<GamePlayer> {
+    const [created] = await db.insert(gamePlayers).values(player).returning();
+    return created;
+  }
+
+  async getGamePlayers(sessionId: string): Promise<GamePlayer[]> {
+    return db.select().from(gamePlayers).where(eq(gamePlayers.sessionId, sessionId));
+  }
+
+  async updateGamePlayer(id: string, data: Partial<GamePlayer>): Promise<GamePlayer> {
+    const [updated] = await db.update(gamePlayers).set(data).where(eq(gamePlayers.id, id)).returning();
+    return updated;
+  }
+
+  async getOrCreateRating(userId: string, gameType: string): Promise<PlayerRating> {
+    const existing = await db.select().from(playerRatings)
+      .where(and(eq(playerRatings.userId, userId), eq(playerRatings.gameType, gameType)))
+      .limit(1);
+    if (existing.length > 0) return existing[0];
+    const [created] = await db.insert(playerRatings).values({
+      userId,
+      gameType,
+      rating: 1200,
+      gamesPlayed: 0,
+      wins: 0,
+      losses: 0,
+      draws: 0,
+    }).returning();
+    return created;
+  }
+
+  async updateRating(id: string, data: Partial<PlayerRating>): Promise<PlayerRating> {
+    const [updated] = await db.update(playerRatings).set(data).where(eq(playerRatings.id, id)).returning();
+    return updated;
+  }
+
+  async getRatingsByUser(userId: string): Promise<PlayerRating[]> {
+    return db.select().from(playerRatings).where(eq(playerRatings.userId, userId));
+  }
+
+  async getLeaderboard(gameType: string, limit: number = 10): Promise<PlayerRating[]> {
+    return db.select().from(playerRatings)
+      .where(eq(playerRatings.gameType, gameType))
+      .orderBy(desc(playerRatings.rating))
+      .limit(limit);
+  }
+
+  async startPlaySession(userId: string, gameType: string): Promise<PlaySession> {
+    const [created] = await db.insert(playSessions).values({
+      userId,
+      gameType,
+    }).returning();
+    return created;
+  }
+
+  async endPlaySession(id: string): Promise<PlaySession> {
+    const [session] = await db.select().from(playSessions).where(eq(playSessions.id, id));
+    const now = new Date();
+    const startedAt = new Date(session.startedAt);
+    const durationMinutes = Math.round((now.getTime() - startedAt.getTime()) / 60000);
+    const flagged = durationMinutes >= 35;
+    const [updated] = await db.update(playSessions).set({
+      endedAt: now,
+      durationMinutes,
+      flagged,
+    }).where(eq(playSessions.id, id)).returning();
+    return updated;
+  }
+
+  async getFlaggedPlaySessions(): Promise<PlaySession[]> {
+    return db.select().from(playSessions).where(eq(playSessions.flagged, true)).orderBy(desc(playSessions.startedAt));
   }
 
   async seedData(): Promise<void> {

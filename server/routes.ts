@@ -49,6 +49,12 @@ const requireAdmin = (req: any, res: any, next: any) => {
   next();
 };
 
+function calculateElo(playerRating: number, opponentRating: number, result: number): number {
+  const K = 32;
+  const expected = 1 / (1 + Math.pow(10, (opponentRating - playerRating) / 400));
+  return Math.round(playerRating + K * (result - expected));
+}
+
 const openai = new OpenAI({
   apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
   baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
@@ -2261,6 +2267,122 @@ Write a warm, encouraging welcome message for students joining this classroom. M
       console.error("Error updating Thrive config:", error);
       res.status(500).json({ error: "Failed to update Thrive config" });
     }
+  });
+
+  // ==================== GAME PLATFORM API ====================
+
+  app.post("/api/games", requireAuth, async (req, res) => {
+    const userId = getUserId(req)!;
+    const session = await storage.createGameSession({
+      ...req.body,
+      createdBy: userId,
+      status: "waiting",
+      startedAt: new Date(),
+    });
+    await storage.addGamePlayer({
+      sessionId: session.id,
+      userId,
+      seat: 0,
+      isCpu: false,
+    });
+    if (req.body.mode === 'single_vs_cpu') {
+      await storage.addGamePlayer({
+        sessionId: session.id,
+        userId: null,
+        seat: 1,
+        isCpu: true,
+        cpuDifficulty: req.body.difficulty || 'intermediate',
+      });
+      await storage.updateGameSession(session.id, { status: 'in_progress' });
+    }
+    const playSession = await storage.startPlaySession(userId, req.body.gameType);
+    res.json({ session: await storage.getGameSession(session.id), playSessionId: playSession.id });
+  });
+
+  app.get("/api/games", requireAuth, async (req, res) => {
+    const userId = getUserId(req)!;
+    const sessions = await storage.getGameSessionsByUser(userId);
+    res.json(sessions);
+  });
+
+  app.get("/api/games/active", async (req, res) => {
+    const sessions = await storage.getActiveGameSessions();
+    res.json(sessions);
+  });
+
+  app.get("/api/games/:id", async (req, res) => {
+    const session = await storage.getGameSession(req.params.id);
+    if (!session) return res.status(404).json({ error: "Game not found" });
+    const players = await storage.getGamePlayers(req.params.id);
+    res.json({ session, players });
+  });
+
+  app.patch("/api/games/:id", requireAuth, async (req, res) => {
+    const session = await storage.updateGameSession(req.params.id, req.body);
+    res.json(session);
+  });
+
+  app.post("/api/games/:id/finish", requireAuth, async (req, res) => {
+    const { winnerId, scores, playSessionId } = req.body;
+    const session = await storage.updateGameSession(req.params.id, {
+      status: 'completed',
+      winnerId,
+      scores,
+      completedAt: new Date(),
+    });
+
+    if (playSessionId) {
+      await storage.endPlaySession(playSessionId);
+    }
+
+    const players = await storage.getGamePlayers(req.params.id);
+    for (const player of players) {
+      if (!player.isCpu && player.userId) {
+        const rating = await storage.getOrCreateRating(player.userId, session.gameType);
+        const isWinner = player.userId === winnerId;
+        const isDraw = !winnerId;
+        const newRating = calculateElo(rating.rating, 1200, isWinner ? 1 : isDraw ? 0.5 : 0);
+        await storage.updateRating(rating.id, {
+          rating: newRating,
+          gamesPlayed: rating.gamesPlayed + 1,
+          wins: rating.wins + (isWinner ? 1 : 0),
+          losses: rating.losses + (!isWinner && !isDraw ? 1 : 0),
+          draws: rating.draws + (isDraw ? 1 : 0),
+        });
+        await storage.updateGamePlayer(player.id, {
+          ratingBefore: rating.rating,
+          ratingAfter: newRating,
+        });
+      }
+    }
+
+    res.json(session);
+  });
+
+  app.get("/api/ratings", requireAuth, async (req, res) => {
+    const userId = getUserId(req)!;
+    const ratings = await storage.getRatingsByUser(userId);
+    res.json(ratings);
+  });
+
+  app.get("/api/leaderboard/:gameType", async (req, res) => {
+    const leaderboard = await storage.getLeaderboard(req.params.gameType, 20);
+    res.json(leaderboard);
+  });
+
+  app.post("/api/play-sessions/end", requireAuth, async (req, res) => {
+    const { playSessionId } = req.body;
+    if (playSessionId) {
+      const session = await storage.endPlaySession(playSessionId);
+      res.json(session);
+    } else {
+      res.status(400).json({ error: "playSessionId required" });
+    }
+  });
+
+  app.get("/api/play-sessions/flagged", requireAdmin, async (req, res) => {
+    const flagged = await storage.getFlaggedPlaySessions();
+    res.json(flagged);
   });
 
   return httpServer;

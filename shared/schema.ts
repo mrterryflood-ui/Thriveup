@@ -980,4 +980,71 @@ export const gisResourceOverlays = pgTable("gis_resource_overlays", {
 
 export type GisResourceOverlay = typeof gisResourceOverlays.$inferSelect;
 
+// ==================== GAME PLATFORM TABLES ====================
+
+export const gameSessions = pgTable("game_sessions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  gameType: varchar("game_type").notNull(),
+  mode: varchar("mode").notNull(),
+  status: varchar("status").notNull().default("waiting"),
+  difficulty: varchar("difficulty"),
+  createdBy: varchar("created_by"),
+  timeLimitSeconds: integer("time_limit_seconds"),
+  state: jsonb("state"),
+  winnerId: varchar("winner_id"),
+  scores: jsonb("scores"),
+  startedAt: timestamp("started_at"),
+  completedAt: timestamp("completed_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertGameSessionSchema = createInsertSchema(gameSessions).omit({ id: true, createdAt: true });
+export type InsertGameSession = z.infer<typeof insertGameSessionSchema>;
+export type GameSession = typeof gameSessions.$inferSelect;
+
+export const gamePlayers = pgTable("game_players", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  sessionId: varchar("session_id").notNull().references(() => gameSessions.id),
+  userId: varchar("user_id"),
+  seat: integer("seat").notNull(),
+  isCpu: boolean("is_cpu").notNull().default(false),
+  cpuDifficulty: varchar("cpu_difficulty"),
+  ratingBefore: integer("rating_before"),
+  ratingAfter: integer("rating_after"),
+});
+
+export const insertGamePlayerSchema = createInsertSchema(gamePlayers).omit({ id: true });
+export type InsertGamePlayer = z.infer<typeof insertGamePlayerSchema>;
+export type GamePlayer = typeof gamePlayers.$inferSelect;
+
+export const playerRatings = pgTable("player_ratings", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull(),
+  gameType: varchar("game_type").notNull(),
+  rating: integer("rating").notNull().default(1200),
+  gamesPlayed: integer("games_played").notNull().default(0),
+  wins: integer("wins").notNull().default(0),
+  losses: integer("losses").notNull().default(0),
+  draws: integer("draws").notNull().default(0),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const insertPlayerRatingSchema = createInsertSchema(playerRatings).omit({ id: true, updatedAt: true });
+export type InsertPlayerRating = z.infer<typeof insertPlayerRatingSchema>;
+export type PlayerRating = typeof playerRatings.$inferSelect;
+
+export const playSessions = pgTable("play_sessions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull(),
+  gameType: varchar("game_type").notNull(),
+  startedAt: timestamp("started_at").defaultNow().notNull(),
+  endedAt: timestamp("ended_at"),
+  durationMinutes: integer("duration_minutes"),
+  flagged: boolean("flagged").notNull().default(false),
+});
+
+export const insertPlaySessionSchema = createInsertSchema(playSessions).omit({ id: true, startedAt: true });
+export type InsertPlaySession = z.infer<typeof insertPlaySessionSchema>;
+export type PlaySession = typeof playSessions.$inferSelect;
+
 export * from "./models/auth";

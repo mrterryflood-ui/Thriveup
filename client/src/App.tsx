@@ -53,6 +53,8 @@ import AcademySelfAssessmentPage from "@/pages/academy-self-assessment";
 import AcademyThrivePage from "@/pages/academy-thrive";
 import AcademyAdminTutorialPage from "@/pages/academy-admin-tutorial";
 import AcademyMentorFinderPage from "@/pages/academy-mentor-finder";
+import AcademyGameLobbyPage from "@/pages/academy-game-lobby";
+import AcademyDominoesGame from "@/pages/academy-dominoes-game";
 import PrivacyPolicyPage from "@/pages/privacy-policy";
 import { LanguageProvider } from "@/lib/i18n";
 import { BandwidthProvider } from "@/lib/bandwidth-mode";
@@ -112,6 +114,8 @@ function AppRouter() {
       <Route path="/academy/thrive" component={AcademyThrivePage} />
       <Route path="/academy/admin-tutorial" component={AcademyAdminTutorialPage} />
       <Route path="/academy/mentor-finder" component={AcademyMentorFinderPage} />
+      <Route path="/academy/games" component={AcademyGameLobbyPage} />
+      <Route path="/academy/games/dominoes/:id" component={AcademyDominoesGame} />
       <Route path="/privacy" component={PrivacyPolicyPage} />
       <Route component={NotFound} />
     </Switch>

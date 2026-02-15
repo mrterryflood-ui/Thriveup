@@ -17,7 +17,7 @@ import {
   Shield, ShieldCheck, ShieldPlus, Swords, Medal, Heart, Sparkles,
   Users, Globe, FileText, LogIn, LogOut, Flame, BarChart3, School, ScrollText, Wand2, Smartphone,
   Rocket, User, TrendingUp, Wallet, Building2, Trophy, Flag, Target, ShoppingBag,
-  Zap, CalendarCheck, Lightbulb, Gamepad2, Store, Briefcase, Route,
+  Zap, CalendarCheck, Lightbulb, Gamepad2, Map, Store, Briefcase, Route,
   Activity, ClipboardCheck, AlertTriangle, Handshake,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -56,7 +56,8 @@ const academyItems = [
   { title: "House Points", url: "/academy/houses", icon: Flag },
   { title: "Dream Design", url: "/academy/dreams", icon: Target },
   { title: "Print Shop", url: "/academy/merch", icon: ShoppingBag },
-  { title: "Adventures", url: "/academy/scenarios", icon: Gamepad2 },
+  { title: "Game Room", url: "/academy/games", icon: Gamepad2 },
+  { title: "Adventures", url: "/academy/scenarios", icon: Map },
   { title: "Marketplace", url: "/academy/marketplace", icon: Store },
   { title: "Career Explorer", url: "/academy/careers", icon: Briefcase },
   { title: "My Pathway", url: "/academy/pathway", icon: Route },
