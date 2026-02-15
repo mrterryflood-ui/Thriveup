@@ -19,7 +19,16 @@ import {
   Clock,
   Users,
   Zap,
+  CalendarCheck,
+  Lightbulb,
+  CheckCircle2,
+  Circle,
+  ArrowRight,
+  Link2,
 } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import AcademyWizard from "@/components/academy-wizard";
+import { WIZARD_STEPS } from "@/lib/wizard-data";
 
 interface House {
   id: string;
@@ -78,6 +87,9 @@ const quickActions = [
   { label: "House Points", href: "/academy/houses", icon: Flag, description: "Track standings" },
   { label: "Dream Design", href: "/academy/dreams", icon: Target, description: "Plan your goals" },
   { label: "Print Shop", href: "/academy/merch", icon: ShoppingBag, description: "Create merchandise" },
+  { label: "Panther Power", href: "/academy/power", icon: Zap, description: "Your empowerment score" },
+  { label: "Daily Quests", href: "/academy/quests", icon: CalendarCheck, description: "Today's challenges" },
+  { label: "Life Lessons", href: "/academy/lessons", icon: Lightbulb, description: "Business meets life" },
 ];
 
 function LoadingSkeleton() {
@@ -107,6 +119,9 @@ export default function AcademyHubPage() {
     queryKey: ["/api/academy/dashboard"],
   });
 
+  const { data: powerData } = useQuery<any>({ queryKey: ["/api/academy/panther-power"] });
+  const { data: questsData } = useQuery<any>({ queryKey: ["/api/academy/quests"] });
+
   if (isLoading) {
     return <LoadingSkeleton />;
   }
@@ -126,12 +141,12 @@ export default function AcademyHubPage() {
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
-      <div className="rounded-md bg-gradient-to-r from-purple-600 to-indigo-600 p-8 mb-8" data-testid="section-hero">
+      <div className="rounded-md bg-gradient-to-r from-rose-900 to-red-950 p-8 mb-8" data-testid="section-hero">
         <h1 className="text-3xl font-bold text-white mb-2" data-testid="text-academy-title">
-          Sixth Grade Academy
+          TxEA Sixth Grade Academy
         </h1>
-        <p className="text-purple-100 text-lg">
-          60 Young Entrepreneurs Building Their Future
+        <p className="text-rose-100 text-lg">
+          60 Young Panthers Building Their Empire
         </p>
       </div>
 
@@ -163,8 +178,8 @@ export default function AcademyHubPage() {
         <Card className="p-5">
           <div className="flex items-center justify-between mb-3 gap-1">
             <span className="text-sm text-muted-foreground">Active Competitions</span>
-            <div className="rounded-md p-1.5 bg-violet-100 dark:bg-violet-900/30">
-              <Trophy className="h-4 w-4 text-violet-600 dark:text-violet-400" />
+            <div className="rounded-md p-1.5 bg-rose-100 dark:bg-rose-900/30">
+              <Trophy className="h-4 w-4 text-rose-600 dark:text-rose-400" />
             </div>
           </div>
           <p className="text-2xl font-bold" data-testid="text-active-competitions">
@@ -183,6 +198,104 @@ export default function AcademyHubPage() {
             {totalMeritPoints.toLocaleString()}
           </p>
         </Card>
+      </div>
+
+      <div className="mb-8" data-testid="section-panther-power">
+        <h2 className="font-semibold text-lg mb-4 flex items-center gap-2">
+          <Zap className="h-5 w-5 text-primary" /> Panther Power
+        </h2>
+        <Card className="p-6" data-testid="card-panther-power">
+          <div className="flex items-center justify-between gap-4 flex-wrap mb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-md bg-gradient-to-br from-amber-400 to-rose-500 flex items-center justify-center shrink-0">
+                <Zap className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <p className="font-bold text-lg" data-testid="text-power-level">
+                  Level {powerData?.level ?? 1} - {powerData?.title ?? "Young Panther"}
+                </p>
+                <p className="text-sm text-muted-foreground">Your empowerment score</p>
+              </div>
+            </div>
+            <div className="text-right">
+              <p className="text-3xl font-bold" data-testid="text-power-score">
+                {(powerData?.totalScore ?? 0).toLocaleString()}
+              </p>
+              <p className="text-xs text-muted-foreground">total power</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-4">
+            {[
+              { name: "Education", score: powerData?.educationScore ?? 0 },
+              { name: "Character", score: powerData?.characterScore ?? 0 },
+              { name: "Leadership", score: powerData?.leadershipScore ?? 0 },
+              { name: "Entrepreneurship", score: powerData?.entrepreneurshipScore ?? 0 },
+              { name: "Community", score: powerData?.communityScore ?? 0 },
+            ].map((cat) => (
+              <div key={cat.name} data-testid={`power-category-${cat.name.toLowerCase()}`}>
+                <div className="flex items-center justify-between gap-1 mb-1">
+                  <span className="text-xs font-medium truncate">{cat.name}</span>
+                  <span className="text-xs text-muted-foreground">{cat.score}</span>
+                </div>
+                <Progress value={Math.min((cat.score / 200) * 100, 100)} className="h-1.5" />
+              </div>
+            ))}
+          </div>
+          <Link href="/academy/power">
+            <Button variant="outline" size="sm" data-testid="button-view-power">
+              View Full Stats <ChevronRight className="ml-1 h-3.5 w-3.5" />
+            </Button>
+          </Link>
+        </Card>
+      </div>
+
+      <div className="mb-8" data-testid="section-daily-quests">
+        <h2 className="font-semibold text-lg mb-4 flex items-center gap-2">
+          <CalendarCheck className="h-5 w-5 text-primary" /> Daily Quests
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {(Array.isArray(questsData) ? questsData : []).slice(0, 3).map((quest: any) => (
+            <Card
+              key={quest.id}
+              className="p-4"
+              data-testid={`card-quest-${quest.id}`}
+            >
+              <div className="flex items-start gap-3">
+                <div className="shrink-0 mt-0.5">
+                  {quest.completed ? (
+                    <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+                  ) : (
+                    <Circle className="h-5 w-5 text-muted-foreground/40" />
+                  )}
+                </div>
+                <div className="min-w-0">
+                  <p className={`text-sm font-medium ${quest.completed ? "line-through text-muted-foreground" : ""}`} data-testid={`text-quest-title-${quest.id}`}>
+                    {quest.title}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">{quest.description}</p>
+                  {quest.rewardPoints && (
+                    <Badge variant="secondary" className="mt-2">
+                      +{quest.rewardPoints} Power
+                    </Badge>
+                  )}
+                </div>
+              </div>
+            </Card>
+          ))}
+          {(!Array.isArray(questsData) || questsData.length === 0) && (
+            <Card className="p-6 text-center col-span-full" data-testid="card-no-quests">
+              <CalendarCheck className="h-8 w-8 mx-auto text-muted-foreground/30 mb-2" />
+              <p className="text-sm text-muted-foreground">No quests available yet. Check back soon!</p>
+            </Card>
+          )}
+        </div>
+        <div className="mt-3">
+          <Link href="/academy/quests">
+            <Button variant="outline" size="sm" data-testid="button-view-quests">
+              View All Quests <ChevronRight className="ml-1 h-3.5 w-3.5" />
+            </Button>
+          </Link>
+        </div>
       </div>
 
       <div className="mb-8">
@@ -244,6 +357,44 @@ export default function AcademyHubPage() {
         </div>
       </div>
 
+      <div className="mb-8" data-testid="section-connected-universe">
+        <h2 className="font-semibold text-lg mb-4 flex items-center gap-2">
+          <Link2 className="h-5 w-5 text-primary" /> Connected Universe
+        </h2>
+        <div className="overflow-x-auto">
+          <div className="flex items-center gap-3 min-w-max pb-2">
+            {[
+              { from: "Stock Market", fromIcon: TrendingUp, to: "Fund Campus", toIcon: Building2, color: "from-emerald-400 to-emerald-600" },
+              { from: "Competition Wins", fromIcon: Trophy, to: "House Points", toIcon: Flag, color: "from-amber-400 to-amber-600" },
+              { from: "House Points", fromIcon: Flag, to: "Unlock Rewards", toIcon: Star, color: "from-rose-400 to-rose-600" },
+              { from: "All Activities", fromIcon: Target, to: "Panther Power", toIcon: Zap, color: "from-violet-400 to-violet-600" },
+              { from: "Business Concepts", fromIcon: TrendingUp, to: "Life Lessons", toIcon: Lightbulb, color: "from-sky-400 to-sky-600" },
+            ].map((connection, idx) => (
+              <div key={idx} className="flex items-center gap-2" data-testid={`connection-${idx}`}>
+                <Card className="p-3 min-w-[120px]">
+                  <div className="flex flex-col items-center text-center gap-1.5">
+                    <div className={`rounded-md p-2 bg-gradient-to-br ${connection.color}`}>
+                      <connection.fromIcon className="h-4 w-4 text-white" />
+                    </div>
+                    <span className="text-xs font-medium">{connection.from}</span>
+                  </div>
+                </Card>
+                <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0" />
+                <Card className="p-3 min-w-[120px]">
+                  <div className="flex flex-col items-center text-center gap-1.5">
+                    <div className={`rounded-md p-2 bg-gradient-to-br ${connection.color}`}>
+                      <connection.toIcon className="h-4 w-4 text-white" />
+                    </div>
+                    <span className="text-xs font-medium">{connection.to}</span>
+                  </div>
+                </Card>
+                {idx < 4 && <div className="w-4" />}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
       <div>
         <h2 className="font-semibold text-lg mb-4 flex items-center gap-2">
           <Clock className="h-5 w-5 text-primary" /> Recent Activity
@@ -278,6 +429,8 @@ export default function AcademyHubPage() {
           </Card>
         )}
       </div>
+
+      <AcademyWizard wizardType="welcome" steps={WIZARD_STEPS["welcome"]} />
     </div>
   );
 }

@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import AcademyWizard from "@/components/academy-wizard";
+import { WIZARD_STEPS } from "@/lib/wizard-data";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -53,7 +55,7 @@ const statusColors: Record<string, string> = {
 };
 
 const typeColors: Record<string, string> = {
-  academic: "bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400",
+  academic: "bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400",
   cultural: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
 };
 
@@ -65,7 +67,7 @@ const categoryColors: Record<string, string> = {
 const featuredGames = [
   { name: "Number Challenge", description: "Quick mental math", icon: Hash, color: "from-blue-500 to-indigo-600" },
   { name: "Word Builder", description: "Vocabulary and spelling", icon: BookOpen, color: "from-emerald-500 to-teal-600" },
-  { name: "Trivia Quest", description: "General knowledge", icon: Brain, color: "from-purple-500 to-violet-600" },
+  { name: "Trivia Quest", description: "General knowledge", icon: Brain, color: "from-rose-800 to-red-900" },
   { name: "Pattern Master", description: "Logic and patterns", icon: Target, color: "from-orange-500 to-red-600" },
 ];
 
@@ -584,6 +586,7 @@ export default function AcademyCompetitionsPage() {
         </h2>
         <CompetitionHistoryTable competitions={competitions || []} />
       </Card>
+      <AcademyWizard wizardType="competitions" steps={WIZARD_STEPS["competitions"]} />
     </div>
   );
 }

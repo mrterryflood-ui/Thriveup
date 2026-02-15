@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import AcademyWizard from "@/components/academy-wizard";
+import { WIZARD_STEPS } from "@/lib/wizard-data";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -242,8 +244,8 @@ export default function AcademyStocksPage() {
         <Card className="p-5">
           <div className="flex items-center justify-between mb-3 gap-1">
             <span className="text-sm text-muted-foreground">Community Portfolio</span>
-            <div className="rounded-md p-1.5 bg-violet-100 dark:bg-violet-900/30">
-              <Users className="h-4 w-4 text-violet-600 dark:text-violet-400" />
+            <div className="rounded-md p-1.5 bg-rose-100 dark:bg-rose-900/30">
+              <Users className="h-4 w-4 text-rose-600 dark:text-rose-400" />
             </div>
           </div>
           <p className="text-2xl font-bold" data-testid="text-community-value">
@@ -502,8 +504,8 @@ export default function AcademyStocksPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         <Card className="p-6">
           <div className="flex items-center gap-2 mb-4">
-            <div className="rounded-md p-1.5 bg-violet-100 dark:bg-violet-900/30">
-              <Bot className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+            <div className="rounded-md p-1.5 bg-rose-100 dark:bg-rose-900/30">
+              <Bot className="h-5 w-5 text-rose-600 dark:text-rose-400" />
             </div>
             <h3 className="font-semibold">AI Bot Portfolio</h3>
           </div>
@@ -610,6 +612,7 @@ export default function AcademyStocksPage() {
           />
         </Card>
       )}
+      <AcademyWizard wizardType="stocks" steps={WIZARD_STEPS["stocks"]} />
     </div>
   );
 }

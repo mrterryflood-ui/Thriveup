@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import AcademyWizard from "@/components/academy-wizard";
+import { WIZARD_STEPS } from "@/lib/wizard-data";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -53,7 +55,7 @@ const STATUS_CONFIG: Record<string, { label: string; variant: "default" | "secon
   pending: { label: "Pending", variant: "secondary", className: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300" },
   processing: { label: "Processing", variant: "secondary", className: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300" },
   completed: { label: "Completed", variant: "secondary", className: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300" },
-  shipped: { label: "Shipped", variant: "secondary", className: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300" },
+  shipped: { label: "Shipped", variant: "secondary", className: "bg-rose-100 text-rose-800 dark:bg-rose-900/30 dark:text-rose-300" },
 };
 
 const STATUS_ICONS: Record<string, typeof Clock> = {
@@ -397,6 +399,7 @@ export default function AcademyMerchPage() {
           </span>
         </div>
       </Card>
+      <AcademyWizard wizardType="merch" steps={WIZARD_STEPS["merch"]} />
     </div>
   );
 }

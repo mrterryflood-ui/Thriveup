@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import AcademyWizard from "@/components/academy-wizard";
+import { WIZARD_STEPS } from "@/lib/wizard-data";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -546,6 +548,7 @@ export default function AcademyDreamsPage() {
           })}
         </div>
       </div>
+      <AcademyWizard wizardType="dreams" steps={WIZARD_STEPS["dreams"]} />
     </div>
   );
 }

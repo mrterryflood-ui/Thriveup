@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import AcademyWizard from "@/components/academy-wizard";
+import { WIZARD_STEPS } from "@/lib/wizard-data";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -462,7 +464,7 @@ export default function AcademyHousesPage() {
           House Points & Merit System
         </h1>
         <p className="text-muted-foreground" data-testid="text-page-subtitle">
-          Earn points for your house through excellence and character
+          Panthers earn points through Education, Character, and Leadership
         </p>
       </div>
 
@@ -472,6 +474,7 @@ export default function AcademyHousesPage() {
       <AwardPointsForm houses={houseData} />
       <RecentMeritFeed houses={houseData} />
       <InstantRewards />
+      <AcademyWizard wizardType="houses" steps={WIZARD_STEPS["houses"]} />
     </div>
   );
 }

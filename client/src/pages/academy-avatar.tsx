@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import AcademyWizard from "@/components/academy-wizard";
+import { WIZARD_STEPS } from "@/lib/wizard-data";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -63,7 +65,7 @@ const BACKGROUND_SCENES: Record<string, { gradient: string; label: string }> = {
   school: { gradient: "from-blue-200 to-sky-300 dark:from-blue-900 dark:to-sky-800", label: "School" },
   park: { gradient: "from-green-200 to-emerald-300 dark:from-green-900 dark:to-emerald-800", label: "Park" },
   library: { gradient: "from-amber-200 to-orange-300 dark:from-amber-900 dark:to-orange-800", label: "Library" },
-  space: { gradient: "from-indigo-300 to-purple-400 dark:from-indigo-900 dark:to-purple-800", label: "Space" },
+  space: { gradient: "from-rose-300 to-red-400 dark:from-rose-900 dark:to-red-800", label: "Space" },
 };
 
 interface AvatarFormState {
@@ -599,6 +601,7 @@ export default function AcademyAvatarPage() {
           </Card>
         )}
       </div>
+      <AcademyWizard wizardType="avatar" steps={WIZARD_STEPS["avatar"]} />
     </div>
   );
 }

@@ -36,6 +36,9 @@ import AcademyHousesPage from "@/pages/academy-houses";
 import AcademyDreamsPage from "@/pages/academy-dreams";
 import AcademyWalletPage from "@/pages/academy-wallet";
 import AcademyMerchPage from "@/pages/academy-merch";
+import AcademyPowerPage from "@/pages/academy-power";
+import AcademyQuestsPage from "@/pages/academy-quests";
+import AcademyLessonsPage from "@/pages/academy-lessons";
 import { LanguageProvider } from "@/lib/i18n";
 import { BandwidthProvider } from "@/lib/bandwidth-mode";
 import { HeaderControls } from "@/components/header-controls";
@@ -77,6 +80,9 @@ function AppRouter() {
       <Route path="/academy/houses" component={AcademyHousesPage} />
       <Route path="/academy/dreams" component={AcademyDreamsPage} />
       <Route path="/academy/merch" component={AcademyMerchPage} />
+      <Route path="/academy/power" component={AcademyPowerPage} />
+      <Route path="/academy/quests" component={AcademyQuestsPage} />
+      <Route path="/academy/lessons" component={AcademyLessonsPage} />
       <Route component={NotFound} />
     </Switch>
   );

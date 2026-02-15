@@ -3,6 +3,8 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "wouter";
+import AcademyWizard from "@/components/academy-wizard";
+import { WIZARD_STEPS } from "@/lib/wizard-data";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -176,8 +178,8 @@ export default function AcademyWalletPage() {
         <Card className="p-5" data-testid="card-total-invested">
           <div className="flex items-center justify-between mb-3 gap-1">
             <span className="text-sm text-muted-foreground">Total Invested</span>
-            <div className="rounded-md p-1.5 bg-violet-100 dark:bg-violet-900/30">
-              <TrendingUp className="h-4 w-4 text-violet-600 dark:text-violet-400" />
+            <div className="rounded-md p-1.5 bg-rose-100 dark:bg-rose-900/30">
+              <TrendingUp className="h-4 w-4 text-rose-600 dark:text-rose-400" />
             </div>
           </div>
           <p className="text-2xl font-bold" data-testid="text-total-invested">{formatMoney(parseFloat(wallet.totalInvested) || 0)}</p>
@@ -279,6 +281,7 @@ export default function AcademyWalletPage() {
           </div>
         )}
       </Card>
+      <AcademyWizard wizardType="wallet" steps={WIZARD_STEPS["wallet"]} />
     </div>
   );
 }

@@ -27,6 +27,11 @@ import {
   type AcademyDreamProfile, type InsertAcademyDreamProfile,
   type AcademyMerchItem, type InsertAcademyMerchItem,
   type AcademyMerchOrder, type InsertAcademyMerchOrder,
+  academyPantherPower, academyDailyQuests, academyLifeLessons, academyWizardProgress,
+  type AcademyPantherPower, type InsertAcademyPantherPower,
+  type AcademyDailyQuest, type InsertAcademyDailyQuest,
+  type AcademyLifeLesson, type InsertAcademyLifeLesson,
+  type AcademyWizardProgress, type InsertAcademyWizardProgress,
 } from "@shared/schema";
 import { eq, and, desc, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
@@ -141,6 +146,21 @@ export interface IStorage {
   getMerchOrders(userId?: string): Promise<AcademyMerchOrder[]>;
   createMerchOrder(order: InsertAcademyMerchOrder): Promise<AcademyMerchOrder>;
   updateMerchOrder(id: string, data: Partial<InsertAcademyMerchOrder>): Promise<AcademyMerchOrder>;
+
+  getOrCreatePantherPower(userId: string): Promise<AcademyPantherPower>;
+  updatePantherPower(userId: string, data: Partial<InsertAcademyPantherPower>): Promise<AcademyPantherPower>;
+
+  getDailyQuests(userId: string, date: string): Promise<AcademyDailyQuest[]>;
+  createDailyQuest(quest: InsertAcademyDailyQuest): Promise<AcademyDailyQuest>;
+  completeDailyQuest(id: string): Promise<AcademyDailyQuest>;
+
+  getAllLifeLessons(): Promise<AcademyLifeLesson[]>;
+  getLifeLessonsByFeature(featureArea: string): Promise<AcademyLifeLesson[]>;
+  createLifeLesson(lesson: InsertAcademyLifeLesson): Promise<AcademyLifeLesson>;
+
+  getWizardProgress(userId: string, wizardType: string): Promise<AcademyWizardProgress | undefined>;
+  createOrUpdateWizardProgress(userId: string, wizardType: string, currentStep: number, totalSteps: number): Promise<AcademyWizardProgress>;
+  completeWizard(userId: string, wizardType: string): Promise<AcademyWizardProgress>;
 
   seedData(): Promise<void>;
 }
@@ -665,6 +685,79 @@ export class DatabaseStorage implements IStorage {
     return updated;
   }
 
+  async getOrCreatePantherPower(userId: string): Promise<AcademyPantherPower> {
+    const [existing] = await db.select().from(academyPantherPower).where(eq(academyPantherPower.userId, userId));
+    if (existing) return existing;
+    const [created] = await db.insert(academyPantherPower).values({ userId }).returning();
+    return created;
+  }
+
+  async updatePantherPower(userId: string, data: Partial<InsertAcademyPantherPower>): Promise<AcademyPantherPower> {
+    const power = await this.getOrCreatePantherPower(userId);
+    const totalScore = (data.educationScore ?? power.educationScore) + 
+      (data.characterScore ?? power.characterScore) + 
+      (data.leadershipScore ?? power.leadershipScore) + 
+      (data.entrepreneurshipScore ?? power.entrepreneurshipScore) + 
+      (data.communityScore ?? power.communityScore);
+    const level = Math.floor(totalScore / 100) + 1;
+    const titles = ["Young Panther", "Rising Panther", "Bold Panther", "Elite Panther", "Panther Leader", "Panther Champion", "Panther Legend"];
+    const title = titles[Math.min(level - 1, titles.length - 1)];
+    const [updated] = await db.update(academyPantherPower).set({ ...data, totalScore, level, title, updatedAt: new Date() }).where(eq(academyPantherPower.id, power.id)).returning();
+    return updated;
+  }
+
+  async getDailyQuests(userId: string, date: string): Promise<AcademyDailyQuest[]> {
+    return db.select().from(academyDailyQuests).where(and(eq(academyDailyQuests.userId, userId), eq(academyDailyQuests.questDate, date)));
+  }
+
+  async createDailyQuest(quest: InsertAcademyDailyQuest): Promise<AcademyDailyQuest> {
+    const [created] = await db.insert(academyDailyQuests).values(quest).returning();
+    return created;
+  }
+
+  async completeDailyQuest(id: string): Promise<AcademyDailyQuest> {
+    const [updated] = await db.update(academyDailyQuests).set({ completed: true, completedAt: new Date() }).where(eq(academyDailyQuests.id, id)).returning();
+    return updated;
+  }
+
+  async getAllLifeLessons(): Promise<AcademyLifeLesson[]> {
+    return db.select().from(academyLifeLessons).orderBy(academyLifeLessons.sortOrder);
+  }
+
+  async getLifeLessonsByFeature(featureArea: string): Promise<AcademyLifeLesson[]> {
+    return db.select().from(academyLifeLessons).where(eq(academyLifeLessons.featureArea, featureArea)).orderBy(academyLifeLessons.sortOrder);
+  }
+
+  async createLifeLesson(lesson: InsertAcademyLifeLesson): Promise<AcademyLifeLesson> {
+    const [created] = await db.insert(academyLifeLessons).values(lesson).returning();
+    return created;
+  }
+
+  async getWizardProgress(userId: string, wizardType: string): Promise<AcademyWizardProgress | undefined> {
+    const [progress] = await db.select().from(academyWizardProgress).where(and(eq(academyWizardProgress.userId, userId), eq(academyWizardProgress.wizardType, wizardType)));
+    return progress;
+  }
+
+  async createOrUpdateWizardProgress(userId: string, wizardType: string, currentStep: number, totalSteps: number): Promise<AcademyWizardProgress> {
+    const existing = await this.getWizardProgress(userId, wizardType);
+    if (existing) {
+      const [updated] = await db.update(academyWizardProgress).set({ currentStep, totalSteps }).where(eq(academyWizardProgress.id, existing.id)).returning();
+      return updated;
+    }
+    const [created] = await db.insert(academyWizardProgress).values({ userId, wizardType, currentStep, totalSteps }).returning();
+    return created;
+  }
+
+  async completeWizard(userId: string, wizardType: string): Promise<AcademyWizardProgress> {
+    const existing = await this.getWizardProgress(userId, wizardType);
+    if (existing) {
+      const [updated] = await db.update(academyWizardProgress).set({ completed: true, completedAt: new Date(), currentStep: existing.totalSteps }).where(eq(academyWizardProgress.id, existing.id)).returning();
+      return updated;
+    }
+    const [created] = await db.insert(academyWizardProgress).values({ userId, wizardType, currentStep: 1, totalSteps: 1, completed: true, completedAt: new Date() }).returning();
+    return created;
+  }
+
   async seedData(): Promise<void> {
     const { seedAILevels } = await import("./seed-ai");
     const { seedSubjects } = await import("./seed-subjects");
@@ -715,6 +808,29 @@ export class DatabaseStorage implements IStorage {
     ];
     for (const stock of stockSeedData) {
       await db.insert(academyStocks).values(stock).onConflictDoNothing();
+    }
+
+    // Seed life lessons
+    const existingLifeLessons = await db.select().from(academyLifeLessons);
+    if (existingLifeLessons.length === 0) {
+      await db.insert(academyLifeLessons).values([
+        { featureArea: "stocks", businessConcept: "Investing & Risk Management", lifeSkillesson: "Making smart choices means weighing risks and rewards - in money and in life", reflection: "When have you taken a calculated risk that paid off?", iconName: "trending-up", sortOrder: 1 },
+        { featureArea: "stocks", businessConcept: "Market Research & Analysis", lifeSkillesson: "Good decisions come from gathering information before acting", reflection: "How do you research before making an important decision?", iconName: "search", sortOrder: 2 },
+        { featureArea: "stocks", businessConcept: "Diversification", lifeSkillesson: "Don't put all your eggs in one basket - develop multiple skills and interests", reflection: "What are three different strengths you're building?", iconName: "layers", sortOrder: 3 },
+        { featureArea: "wallet", businessConcept: "Budgeting & Savings", lifeSkillesson: "Managing money well means knowing the difference between needs and wants", reflection: "What's something you saved for that felt rewarding?", iconName: "piggy-bank", sortOrder: 4 },
+        { featureArea: "wallet", businessConcept: "Financial Literacy", lifeSkillesson: "Understanding money gives you power to make your dreams real", reflection: "What financial goal would you set for yourself this year?", iconName: "dollar-sign", sortOrder: 5 },
+        { featureArea: "campus", businessConcept: "Project Management", lifeSkillesson: "Big dreams get built one step at a time through planning and persistence", reflection: "What's a big project you broke into smaller steps?", iconName: "clipboard", sortOrder: 6 },
+        { featureArea: "campus", businessConcept: "Real Estate & Development", lifeSkillesson: "Building something lasting requires vision, resources, and teamwork", reflection: "What would you build for your community if you could?", iconName: "building", sortOrder: 7 },
+        { featureArea: "competitions", businessConcept: "Competitive Strategy", lifeSkillesson: "Competition pushes you to grow - the real win is becoming your best self", reflection: "How has competing made you stronger?", iconName: "trophy", sortOrder: 8 },
+        { featureArea: "competitions", businessConcept: "Teamwork & Collaboration", lifeSkillesson: "The best teams combine different strengths to achieve what no one could alone", reflection: "What role do you play best on a team?", iconName: "users", sortOrder: 9 },
+        { featureArea: "houses", businessConcept: "Leadership & Mentoring", lifeSkillesson: "True leaders lift others up and create opportunities for everyone", reflection: "Who is someone you've helped grow?", iconName: "crown", sortOrder: 10 },
+        { featureArea: "houses", businessConcept: "Character & Integrity", lifeSkillesson: "Your character is your most valuable asset - it opens doors money can't buy", reflection: "What value do you never compromise on?", iconName: "shield", sortOrder: 11 },
+        { featureArea: "dreams", businessConcept: "Goal Setting & Vision", lifeSkillesson: "Knowing where you want to go is the first step to getting there", reflection: "Where do you see yourself in 5 years?", iconName: "target", sortOrder: 12 },
+        { featureArea: "dreams", businessConcept: "Personal Branding", lifeSkillesson: "Your reputation is built by what you do when no one is watching", reflection: "What three words would your friends use to describe you?", iconName: "star", sortOrder: 13 },
+        { featureArea: "merch", businessConcept: "Entrepreneurship & Sales", lifeSkillesson: "Creating value for others is the heart of every successful business", reflection: "What product or service could you create that helps people?", iconName: "shopping-bag", sortOrder: 14 },
+        { featureArea: "merch", businessConcept: "Social Enterprise", lifeSkillesson: "Business can be a force for good when profits serve a purpose", reflection: "How can making money also help your community?", iconName: "heart", sortOrder: 15 },
+        { featureArea: "avatar", businessConcept: "Personal Identity", lifeSkillesson: "Knowing who you are gives you confidence to show up authentically", reflection: "What makes you uniquely you?", iconName: "user", sortOrder: 16 },
+      ]);
     }
   }
 }

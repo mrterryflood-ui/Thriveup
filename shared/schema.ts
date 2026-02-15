@@ -355,6 +355,61 @@ export const academyMerchOrders = pgTable("academy_merch_orders", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// ==================== PANTHER POWER & QUESTS ====================
+
+export const academyPantherPower = pgTable("academy_panther_power", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  totalScore: integer("total_score").notNull().default(0),
+  educationScore: integer("education_score").notNull().default(0),
+  characterScore: integer("character_score").notNull().default(0),
+  leadershipScore: integer("leadership_score").notNull().default(0),
+  entrepreneurshipScore: integer("entrepreneurship_score").notNull().default(0),
+  communityScore: integer("community_score").notNull().default(0),
+  currentStreak: integer("current_streak").notNull().default(0),
+  longestStreak: integer("longest_streak").notNull().default(0),
+  level: integer("level").notNull().default(1),
+  title: text("title").notNull().default("Young Panther"),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const academyDailyQuests = pgTable("academy_daily_quests", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  questDate: text("quest_date").notNull(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  category: text("category").notNull(),
+  featureLink: text("feature_link").notNull(),
+  rewardPoints: integer("reward_points").notNull().default(10),
+  rewardType: text("reward_type").notNull().default("power"),
+  completed: boolean("completed").notNull().default(false),
+  completedAt: timestamp("completed_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const academyLifeLessons = pgTable("academy_life_lessons", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  featureArea: text("feature_area").notNull(),
+  businessConcept: text("business_concept").notNull(),
+  lifeSkillesson: text("life_skill_lesson").notNull(),
+  reflection: text("reflection").notNull(),
+  ageGroup: text("age_group").notNull().default("6th-grade"),
+  iconName: text("icon_name").notNull().default("lightbulb"),
+  sortOrder: integer("sort_order").notNull().default(0),
+});
+
+export const academyWizardProgress = pgTable("academy_wizard_progress", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  wizardType: text("wizard_type").notNull(),
+  currentStep: integer("current_step").notNull().default(0),
+  totalSteps: integer("total_steps").notNull(),
+  completed: boolean("completed").notNull().default(false),
+  completedAt: timestamp("completed_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // ==================== ACADEMY INSERT SCHEMAS ====================
 
 export const insertAcademyAvatarSchema = createInsertSchema(academyAvatars).omit({ id: true, createdAt: true });
@@ -370,6 +425,11 @@ export const insertAcademyCompetitionEntrySchema = createInsertSchema(academyCom
 export const insertAcademyDreamProfileSchema = createInsertSchema(academyDreamProfiles).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertAcademyMerchItemSchema = createInsertSchema(academyMerchItems).omit({ id: true, createdAt: true });
 export const insertAcademyMerchOrderSchema = createInsertSchema(academyMerchOrders).omit({ id: true, createdAt: true });
+
+export const insertAcademyPantherPowerSchema = createInsertSchema(academyPantherPower).omit({ id: true, updatedAt: true });
+export const insertAcademyDailyQuestSchema = createInsertSchema(academyDailyQuests).omit({ id: true, createdAt: true, completedAt: true });
+export const insertAcademyLifeLessonSchema = createInsertSchema(academyLifeLessons).omit({ id: true });
+export const insertAcademyWizardProgressSchema = createInsertSchema(academyWizardProgress).omit({ id: true, createdAt: true, completedAt: true });
 
 export const insertSubjectSchema = createInsertSchema(subjects);
 export const insertLevelSchema = createInsertSchema(levels);
@@ -455,5 +515,13 @@ export type AcademyMerchItem = typeof academyMerchItems.$inferSelect;
 export type InsertAcademyMerchItem = z.infer<typeof insertAcademyMerchItemSchema>;
 export type AcademyMerchOrder = typeof academyMerchOrders.$inferSelect;
 export type InsertAcademyMerchOrder = z.infer<typeof insertAcademyMerchOrderSchema>;
+export type AcademyPantherPower = typeof academyPantherPower.$inferSelect;
+export type InsertAcademyPantherPower = z.infer<typeof insertAcademyPantherPowerSchema>;
+export type AcademyDailyQuest = typeof academyDailyQuests.$inferSelect;
+export type InsertAcademyDailyQuest = z.infer<typeof insertAcademyDailyQuestSchema>;
+export type AcademyLifeLesson = typeof academyLifeLessons.$inferSelect;
+export type InsertAcademyLifeLesson = z.infer<typeof insertAcademyLifeLessonSchema>;
+export type AcademyWizardProgress = typeof academyWizardProgress.$inferSelect;
+export type InsertAcademyWizardProgress = z.infer<typeof insertAcademyWizardProgressSchema>;
 
 export * from "./models/auth";

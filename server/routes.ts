@@ -621,10 +621,15 @@ Write a warm, encouraging welcome message for students joining this classroom. M
       const recentMerit = await storage.getAllMeritEvents();
       const userId = getUserId(req);
       let wallet = null;
+      let pantherPower = null;
+      let dailyQuests: any[] = [];
       if (userId) {
         wallet = await storage.getOrCreateWallet(userId);
+        pantherPower = await storage.getOrCreatePantherPower(userId);
+        const today = new Date().toISOString().split("T")[0];
+        dailyQuests = await storage.getDailyQuests(userId, today);
       }
-      res.json({ houses, wallet, recentMeritEvents: recentMerit.slice(0, 10), competitions });
+      res.json({ houses, wallet, recentMeritEvents: recentMerit.slice(0, 10), competitions, pantherPower, dailyQuests });
     } catch (error) {
       res.status(500).json({ error: "Failed to load academy dashboard" });
     }
@@ -679,6 +684,12 @@ Write a warm, encouraging welcome message for students joining this classroom. M
       if (houseId) {
         await storage.updateHousePoints(houseId, points);
       }
+      try {
+        const power = await storage.getOrCreatePantherPower(getUserId(req)!);
+        await storage.updatePantherPower(getUserId(req)!, {
+          leadershipScore: power.leadershipScore + 3,
+        });
+      } catch (e) { /* ignore */ }
       res.status(201).json(event);
     } catch (error) {
       res.status(500).json({ error: "Failed to award merit points" });
@@ -768,6 +779,13 @@ Write a warm, encouraging welcome message for students joining this classroom. M
           category: "investment",
         });
 
+        try {
+          const power = await storage.getOrCreatePantherPower(getUserId(req)!);
+          await storage.updatePantherPower(getUserId(req)!, {
+            entrepreneurshipScore: power.entrepreneurshipScore + 5,
+          });
+        } catch (e) { /* ignore power update errors */ }
+
         res.json({ success: true, action: "buy", shares, totalCost, newBalance });
       } else if (action === "sell") {
         const portfolio = (await storage.getPortfolioByUser(userId)).find(p => p.stockId === stockId);
@@ -787,6 +805,13 @@ Write a warm, encouraging welcome message for students joining this classroom. M
           description: `Sold ${shares} shares of ${stock.symbol} at $${price}`,
           category: "investment",
         });
+
+        try {
+          const power = await storage.getOrCreatePantherPower(getUserId(req)!);
+          await storage.updatePantherPower(getUserId(req)!, {
+            entrepreneurshipScore: power.entrepreneurshipScore + 5,
+          });
+        } catch (e) { /* ignore power update errors */ }
 
         res.json({ success: true, action: "sell", shares, totalRevenue: totalCost, newBalance });
       } else {
@@ -883,6 +908,13 @@ Write a warm, encouraging welcome message for students joining this classroom. M
         category: "campus",
       });
 
+      try {
+        const power = await storage.getOrCreatePantherPower(getUserId(req)!);
+        await storage.updatePantherPower(getUserId(req)!, {
+          communityScore: power.communityScore + 10,
+        });
+      } catch (e) { /* ignore */ }
+
       res.json({ success: true, project: updated, newBalance });
     } catch (error) {
       res.status(500).json({ error: "Failed to fund campus project" });
@@ -918,6 +950,12 @@ Write a warm, encouraging welcome message for students joining this classroom. M
         userName: getUserName(req) || "Student",
         ...req.body,
       });
+      try {
+        const power = await storage.getOrCreatePantherPower(getUserId(req)!);
+        await storage.updatePantherPower(getUserId(req)!, {
+          educationScore: power.educationScore + 5,
+        });
+      } catch (e) { /* ignore */ }
       res.status(201).json(entry);
     } catch (error) {
       res.status(500).json({ error: "Failed to enter competition" });
@@ -948,6 +986,12 @@ Write a warm, encouraging welcome message for students joining this classroom. M
   app.post("/api/academy/dream-profile", requireAuth, async (req, res) => {
     try {
       const profile = await storage.createOrUpdateDreamProfile(getUserId(req)!, req.body);
+      try {
+        const power = await storage.getOrCreatePantherPower(getUserId(req)!);
+        await storage.updatePantherPower(getUserId(req)!, {
+          characterScore: power.characterScore + 5,
+        });
+      } catch (e) { /* ignore */ }
       res.json(profile);
     } catch (error) {
       res.status(500).json({ error: "Failed to save dream profile" });
@@ -983,6 +1027,119 @@ Write a warm, encouraging welcome message for students joining this classroom. M
       res.status(201).json(order);
     } catch (error) {
       res.status(500).json({ error: "Failed to create order" });
+    }
+  });
+
+  // ==================== PANTHER POWER ====================
+  app.get("/api/academy/panther-power", requireAuth, async (req, res) => {
+    try {
+      const power = await storage.getOrCreatePantherPower(getUserId(req)!);
+      res.json(power);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to get panther power" });
+    }
+  });
+
+  app.post("/api/academy/panther-power", requireAuth, async (req, res) => {
+    try {
+      const updated = await storage.updatePantherPower(getUserId(req)!, req.body);
+      res.json(updated);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update panther power" });
+    }
+  });
+
+  // ==================== DAILY QUESTS ====================
+  app.get("/api/academy/quests", requireAuth, async (req, res) => {
+    try {
+      const today = new Date().toISOString().split("T")[0];
+      let quests = await storage.getDailyQuests(getUserId(req)!, today);
+      if (quests.length === 0) {
+        const questTemplates = [
+          { title: "Market Watch", description: "Check the stock market and review at least 3 stock prices", category: "entrepreneurship", featureLink: "/academy/stocks", rewardPoints: 15 },
+          { title: "Community Builder", description: "Award merit points to a fellow Panther for something great they did", category: "character", featureLink: "/academy/houses", rewardPoints: 10 },
+          { title: "Dream Architect", description: "Update your Dream Design with a new goal or reflection", category: "leadership", featureLink: "/academy/dreams", rewardPoints: 20 },
+          { title: "Campus Investor", description: "Fund your campus project with earnings from your wallet", category: "community", featureLink: "/academy/campus", rewardPoints: 25 },
+          { title: "Style Statement", description: "Update your avatar to express your personality today", category: "education", featureLink: "/academy/avatar", rewardPoints: 10 },
+        ];
+        const todayQuests = questTemplates.sort(() => Math.random() - 0.5).slice(0, 3);
+        for (const q of todayQuests) {
+          await storage.createDailyQuest({ userId: getUserId(req)!, questDate: today, title: q.title, description: q.description, category: q.category, featureLink: q.featureLink, rewardPoints: q.rewardPoints, rewardType: "power", completed: false });
+        }
+        quests = await storage.getDailyQuests(getUserId(req)!, today);
+      }
+      res.json(quests);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to get daily quests" });
+    }
+  });
+
+  app.post("/api/academy/quests/:id/complete", requireAuth, async (req, res) => {
+    try {
+      const quest = await storage.completeDailyQuest(req.params.id);
+      const power = await storage.getOrCreatePantherPower(getUserId(req)!);
+      const categoryMap: Record<string, string> = {
+        education: "educationScore",
+        character: "characterScore",
+        leadership: "leadershipScore",
+        entrepreneurship: "entrepreneurshipScore",
+        community: "communityScore",
+      };
+      const field = categoryMap[quest.category] || "educationScore";
+      const updateData: Record<string, number> = {};
+      updateData[field] = (power as any)[field] + quest.rewardPoints;
+      await storage.updatePantherPower(getUserId(req)!, updateData as any);
+      res.json(quest);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to complete quest" });
+    }
+  });
+
+  // ==================== LIFE LESSONS ====================
+  app.get("/api/academy/life-lessons", async (_req, res) => {
+    try {
+      const lessons = await storage.getAllLifeLessons();
+      res.json(lessons);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to get life lessons" });
+    }
+  });
+
+  app.get("/api/academy/life-lessons/:feature", async (req, res) => {
+    try {
+      const lessons = await storage.getLifeLessonsByFeature(req.params.feature);
+      res.json(lessons);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to get life lessons" });
+    }
+  });
+
+  // ==================== WIZARD PROGRESS ====================
+  app.get("/api/academy/wizard/:type", requireAuth, async (req, res) => {
+    try {
+      const progress = await storage.getWizardProgress(getUserId(req)!, req.params.type);
+      res.json(progress || { currentStep: 0, totalSteps: 0, completed: false });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to get wizard progress" });
+    }
+  });
+
+  app.post("/api/academy/wizard/:type", requireAuth, async (req, res) => {
+    try {
+      const { currentStep, totalSteps } = req.body;
+      const progress = await storage.createOrUpdateWizardProgress(getUserId(req)!, req.params.type, currentStep, totalSteps);
+      res.json(progress);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update wizard progress" });
+    }
+  });
+
+  app.post("/api/academy/wizard/:type/complete", requireAuth, async (req, res) => {
+    try {
+      const progress = await storage.completeWizard(getUserId(req)!, req.params.type);
+      res.json(progress);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to complete wizard" });
     }
   });
 

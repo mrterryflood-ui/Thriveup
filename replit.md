@@ -27,7 +27,14 @@ Key features include:
     - **Merchandise Shop:** Integration with UBO for real college tuition fundraising through merchandise sales.
 - **Internationalization (i18n):** Custom language provider supporting English and Spanish.
 - **Low-Bandwidth Mode:** User-toggleable mode to strip animations, images, and shadows for improved performance on limited connections.
-- **Design System:** Utilizes primary purple and accent teal colors, with Plus Jakarta Sans and JetBrains Mono fonts, supporting dark mode.
+- **Panther Power Score:** Unified empowerment metric across 5 categories (Education, Character, Leadership, Entrepreneurship, Community) with levels and titles.
+- **Daily Quests:** AI-generated daily cross-feature challenges that reward Panther Power points.
+- **Life Lessons Engine:** Business-to-life parallel universe mapping each Academy activity to real-world skills with reflections.
+- **AI Mentor Wizards:** Spark-powered step-by-step guided onboarding for every Academy feature (10 wizard types).
+- **Interdependent Universe:** Stock trades earn entrepreneurship power, merit awards earn leadership power, competition entries earn education power, campus funding earns community power, dream profiles earn character power.
+- **Internationalization (i18n):** Custom language provider supporting English and Spanish.
+- **Low-Bandwidth Mode:** User-toggleable mode to strip animations, images, and shadows for improved performance on limited connections.
+- **Design System:** Utilizes TxEA maroon and silver colors, with Plus Jakarta Sans and JetBrains Mono fonts, supporting dark mode. Branding: Texas Empowerment Academy Panthers, "Education, Character, Leadership".
 
 ## External Dependencies
 - **Database:** PostgreSQL (Neon-backed)

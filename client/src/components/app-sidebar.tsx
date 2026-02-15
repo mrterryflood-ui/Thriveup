@@ -16,7 +16,8 @@ import {
   Home, BookOpen, Award, Brain, Star, GraduationCap,
   Shield, ShieldCheck, ShieldPlus, Swords, Medal, Heart, Sparkles,
   Users, Globe, FileText, LogIn, LogOut, Flame, BarChart3, School, ScrollText, Wand2, Smartphone,
-  Rocket, User, TrendingUp, Wallet, Building2, Trophy, Flag, Target, ShoppingBag
+  Rocket, User, TrendingUp, Wallet, Building2, Trophy, Flag, Target, ShoppingBag,
+  Zap, CalendarCheck, Lightbulb,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -43,6 +44,9 @@ const menuItems = [
 
 const academyItems = [
   { title: "Academy Hub", url: "/academy", icon: Rocket },
+  { title: "Panther Power", url: "/academy/power", icon: Zap },
+  { title: "Daily Quests", url: "/academy/quests", icon: CalendarCheck },
+  { title: "Life Lessons", url: "/academy/lessons", icon: Lightbulb },
   { title: "My Avatar", url: "/academy/avatar", icon: User },
   { title: "Stock Market", url: "/academy/stocks", icon: TrendingUp },
   { title: "My Wallet", url: "/academy/wallet", icon: Wallet },
@@ -76,12 +80,12 @@ export function AppSidebar() {
       <SidebarHeader className="p-4">
         <Link href="/">
           <div className="flex items-center gap-2.5 cursor-pointer" data-testid="link-home">
-            <div className="rounded-md p-1.5 bg-gradient-to-br from-violet-500 to-indigo-600">
+            <div className="rounded-md p-1.5 bg-gradient-to-br from-rose-900 to-red-950">
               <Heart className="h-5 w-5 text-white" />
             </div>
             <div>
-              <p className="font-bold text-sm leading-tight">Learning</p>
-              <p className="text-xs text-muted-foreground leading-tight">Academy</p>
+              <p className="font-bold text-sm leading-tight">TxEA</p>
+              <p className="text-xs text-muted-foreground leading-tight">Panthers</p>
             </div>
           </div>
         </Link>
@@ -146,7 +150,7 @@ export function AppSidebar() {
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel>6th Grade Academy</SidebarGroupLabel>
+          <SidebarGroupLabel>TxEA 6th Grade Academy</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {academyItems.map((item) => {
@@ -217,7 +221,7 @@ export function AppSidebar() {
         )}
         <div className="flex items-center gap-2 text-xs text-muted-foreground mt-2">
           <Heart className="h-3.5 w-3.5 shrink-0" />
-          <span>Supporting the whole child</span>
+          <span>Education, Character, Leadership</span>
         </div>
       </SidebarFooter>
     </Sidebar>
