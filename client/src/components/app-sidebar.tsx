@@ -244,6 +244,7 @@ export function AppSidebar() {
         </SidebarGroup>
 
         <SidebarGroup>
+          <SidebarGroupLabel>School / Classroom</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               <Collapsible open={schoolOpen} onOpenChange={setSchoolOpen} className="group/collapsible">
