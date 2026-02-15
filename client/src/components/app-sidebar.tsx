@@ -17,7 +17,7 @@ import {
   Shield, ShieldCheck, ShieldPlus, Swords, Medal, Heart, Sparkles,
   Users, Globe, FileText, LogIn, LogOut, Flame, BarChart3, School, ScrollText, Wand2, Smartphone,
   Rocket, User, TrendingUp, Wallet, Building2, Trophy, Flag, Target, ShoppingBag,
-  Zap, CalendarCheck, Lightbulb, Gamepad2, Store,
+  Zap, CalendarCheck, Lightbulb, Gamepad2, Store, Briefcase, Route,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -57,7 +57,12 @@ const academyItems = [
   { title: "Print Shop", url: "/academy/merch", icon: ShoppingBag },
   { title: "Adventures", url: "/academy/scenarios", icon: Gamepad2 },
   { title: "Marketplace", url: "/academy/marketplace", icon: Store },
+  { title: "Career Explorer", url: "/academy/careers", icon: Briefcase },
+  { title: "My Pathway", url: "/academy/pathway", icon: Route },
+  { title: "Mentor Network", url: "/academy/mentors", icon: Users },
+  { title: "Longitudinal Dashboard", url: "/academy/longitudinal", icon: BarChart3 },
   { title: "Arthur's Journey", url: "/academy/tutorial", icon: GraduationCap },
+  { title: "Student Wizards", url: "/academy/student-wizard", icon: Wand2 },
   { title: "Admin Dashboard", url: "/academy/admin", icon: BarChart3 },
 ];
 

@@ -677,4 +677,144 @@ export type InsertAcademyAdminNote = z.infer<typeof insertAcademyAdminNoteSchema
 export type AcademyContentReport = typeof academyContentReports.$inferSelect;
 export type InsertAcademyContentReport = z.infer<typeof insertAcademyContentReportSchema>;
 
+// ==================== CAREER & PATHWAY SYSTEM ====================
+
+export const careerFields = pgTable("career_fields", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: varchar("name").notNull(),
+  category: varchar("category").notNull(),
+  description: text("description").notNull(),
+  educationPath: text("education_path").notNull(),
+  salaryRange: varchar("salary_range"),
+  requiredSkills: text("required_skills").array(),
+  relatedSubjects: text("related_subjects").array(),
+  gradeLevel: varchar("grade_level"),
+  iconName: varchar("icon_name"),
+  sortOrder: integer("sort_order").default(0),
+});
+
+export const insertCareerFieldSchema = createInsertSchema(careerFields).omit({ id: true });
+export type InsertCareerField = z.infer<typeof insertCareerFieldSchema>;
+export type CareerField = typeof careerFields.$inferSelect;
+
+export const careerMilestones = pgTable("career_milestones", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  gradeLevel: integer("grade_level").notNull(),
+  title: varchar("title").notNull(),
+  description: text("description").notNull(),
+  category: varchar("category").notNull(),
+  awardName: varchar("award_name"),
+  awardDescription: text("award_description"),
+  requirements: text("requirements"),
+  sortOrder: integer("sort_order").default(0),
+});
+
+export const insertCareerMilestoneSchema = createInsertSchema(careerMilestones).omit({ id: true });
+export type InsertCareerMilestone = z.infer<typeof insertCareerMilestoneSchema>;
+export type CareerMilestone = typeof careerMilestones.$inferSelect;
+
+export const pathwayPlans = pgTable("pathway_plans", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull(),
+  userName: varchar("user_name").notNull(),
+  currentGrade: integer("current_grade").notNull().default(6),
+  primaryCareerInterest: varchar("primary_career_interest"),
+  secondaryCareerInterest: varchar("secondary_career_interest"),
+  educationPathType: varchar("education_path_type"),
+  goals: jsonb("goals"),
+  completedMilestones: text("completed_milestones").array(),
+  revisionsThisYear: integer("revisions_this_year").notNull().default(0),
+  lastRevisionDate: timestamp("last_revision_date"),
+  status: varchar("status").notNull().default("active"),
+  advisorId: varchar("advisor_id"),
+  advisorName: varchar("advisor_name"),
+  lockedForRevision: boolean("locked_for_revision").notNull().default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const insertPathwayPlanSchema = createInsertSchema(pathwayPlans).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertPathwayPlan = z.infer<typeof insertPathwayPlanSchema>;
+export type PathwayPlan = typeof pathwayPlans.$inferSelect;
+
+export const planRevisions = pgTable("plan_revisions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  planId: varchar("plan_id").notNull(),
+  userId: varchar("user_id").notNull(),
+  requestedBy: varchar("requested_by").notNull(),
+  requestReason: text("request_reason").notNull(),
+  previousSnapshot: jsonb("previous_snapshot"),
+  newSnapshot: jsonb("new_snapshot"),
+  status: varchar("status").notNull().default("pending"),
+  parentNotified: boolean("parent_notified").notNull().default(false),
+  facultyApproved: boolean("faculty_approved").notNull().default(false),
+  approvedBy: varchar("approved_by"),
+  approvedByName: varchar("approved_by_name"),
+  reviewNotes: text("review_notes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertPlanRevisionSchema = createInsertSchema(planRevisions).omit({ id: true, createdAt: true });
+export type InsertPlanRevision = z.infer<typeof insertPlanRevisionSchema>;
+export type PlanRevision = typeof planRevisions.$inferSelect;
+
+export const mentorProfiles = pgTable("mentor_profiles", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: varchar("name").notNull(),
+  title: varchar("title").notNull(),
+  organization: varchar("organization"),
+  careerField: varchar("career_field").notNull(),
+  bio: text("bio"),
+  expertise: text("expertise").array(),
+  availability: varchar("availability"),
+  contactEmail: varchar("contact_email"),
+  yearsExperience: integer("years_experience"),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertMentorProfileSchema = createInsertSchema(mentorProfiles).omit({ id: true, createdAt: true });
+export type InsertMentorProfile = z.infer<typeof insertMentorProfileSchema>;
+export type MentorProfile = typeof mentorProfiles.$inferSelect;
+
+export const mentorRequests = pgTable("mentor_requests", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  studentId: varchar("student_id").notNull(),
+  studentName: varchar("student_name").notNull(),
+  mentorId: varchar("mentor_id").notNull(),
+  mentorName: varchar("mentor_name").notNull(),
+  careerField: varchar("career_field").notNull(),
+  message: text("message"),
+  status: varchar("status").notNull().default("pending"),
+  approvedBy: varchar("approved_by"),
+  approvedByName: varchar("approved_by_name"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertMentorRequestSchema = createInsertSchema(mentorRequests).omit({ id: true, createdAt: true });
+export type InsertMentorRequest = z.infer<typeof insertMentorRequestSchema>;
+export type MentorRequest = typeof mentorRequests.$inferSelect;
+
+export const alumniProfiles = pgTable("alumni_profiles", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull(),
+  userName: varchar("user_name").notNull(),
+  graduationYear: integer("graduation_year").notNull(),
+  currentRole: varchar("current_role"),
+  currentOrganization: varchar("current_organization"),
+  careerField: varchar("career_field"),
+  educationPath: varchar("education_path"),
+  bio: text("bio"),
+  isAmbassador: boolean("is_ambassador").notNull().default(false),
+  isChampion: boolean("is_champion").notNull().default(false),
+  achievements: text("achievements").array(),
+  willingToMentor: boolean("willing_to_mentor").notNull().default(false),
+  contactPreference: varchar("contact_preference"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertAlumniProfileSchema = createInsertSchema(alumniProfiles).omit({ id: true, createdAt: true });
+export type InsertAlumniProfile = z.infer<typeof insertAlumniProfileSchema>;
+export type AlumniProfile = typeof alumniProfiles.$inferSelect;
+
 export * from "./models/auth";

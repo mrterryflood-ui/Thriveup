@@ -321,6 +321,35 @@ export async function seedAILevels(db: any): Promise<void> {
       ],
     },
     {
+      id: "level_3_module_5",
+      levelId: 3,
+      subjectId: null,
+      moduleNumber: 5,
+      title: "Vibe Coding & 3D Printing: Foundation First",
+      description: "Explore the exciting world of AI-assisted coding ('vibe coding') and 3D printing — but learn why understanding the fundamentals is what makes these tools truly powerful. Without a foundation, you're just pressing buttons.",
+      durationWeeks: 4,
+      storyArcTitle: "The Builder's Secret: Know Before You Create",
+      storyArcNarrative: "Everyone wants to build cool things with AI and 3D printers. But the students who truly succeed are the ones who understand WHY things work, not just HOW to click buttons. Alex learned this lesson too — copying code without understanding it led to bugs nobody could fix. The real builders know the foundation.",
+      learningObjectives: [
+        "Understand what 'vibe coding' means: using AI tools like Cursor, Replit Agent, and GitHub Copilot to write code through natural language conversations",
+        "Learn why coding fundamentals (variables, loops, logic, debugging) are essential BEFORE relying on AI code generation",
+        "Explore 3D printing technology: how CAD software, slicing, materials, and printer mechanics work together",
+        "Recognize that AI-assisted tools amplify your skills — they don't replace the need to understand what you're building",
+        "Practice the 'Foundation First' principle: learn the basics, then use AI to accelerate — not skip — the learning process",
+        "Design, iterate, and print a simple 3D object while understanding every step of the process",
+      ],
+      activities: [
+        "Foundation Challenge: Write a simple program by hand (HTML page, calculator, quiz game) — THEN rebuild it using vibe coding with AI. Compare: which version did you understand better? Which could you debug?",
+        "Vibe Coding Lab: Use Replit's AI tools to build a small app by describing what you want in plain English. Document every prompt you used and evaluate: did the AI get it right? How did you know?",
+        "The Debugging Test: AI generates code with 5 intentional bugs. Can you find and fix them? Students who understand the foundation catch bugs fast. Students who don't... struggle.",
+        "3D Print Design Sprint: Learn TinkerCAD basics (shapes, measurements, alignment). Design a custom keychain, phone stand, or school mascot. Understand dimensions, materials, and structural integrity BEFORE hitting print.",
+        "From Concept to Object: Walk through the full 3D printing pipeline — CAD design, export to STL, slicing software settings (layer height, infill, supports), material selection (PLA vs ABS), and printer calibration. Print your design and analyze: what would you change?",
+        "AI + 3D Printing Mashup: Use AI to generate a 3D model description, then manually refine it in CAD software. Learn that AI gives you a starting point, but YOUR knowledge of geometry, physics, and design makes it actually work.",
+        "Reflection Journal: Write about a time you tried to skip the fundamentals and it backfired. How does the 'Foundation First' principle apply to coding, 3D printing, AND real life?",
+        "Capstone Presentation: Present your vibe-coded app AND your 3D printed object to the class. Explain what you learned about foundations, what the AI did well, and where YOUR knowledge was the difference-maker.",
+      ],
+    },
+    {
       id: "level_4_module_1",
       levelId: 4,
       subjectId: null,
@@ -696,6 +725,250 @@ For your big project, you're going to create an "All About Me" poster! You'll:
 - Show your family what you created and how you guided AI to help!
 
 Remember: The best creations come from YOUR imagination + AI's abilities working together!`,
+    },
+    {
+      id: "level_3_module_5_lesson_1",
+      moduleId: "level_3_module_5",
+      lessonNumber: 1,
+      title: "What is Vibe Coding?",
+      durationMinutes: 45,
+      activityType: "exploration",
+      content: `## What is Vibe Coding?
+
+Welcome to the future of coding — but with a warning label attached.
+
+### The Rise of AI-Assisted Coding
+
+"Vibe coding" is a term coined to describe a new way of writing software: instead of typing every line of code yourself, you describe what you want in plain English, and an AI tool writes the code for you. Tools like **Replit Agent**, **Cursor**, and **GitHub Copilot** can generate entire applications from natural language descriptions.
+
+Sounds amazing, right? It IS amazing — but only if you understand what's happening under the hood.
+
+### How These Tools Work
+
+AI coding assistants are trained on millions of lines of code written by human developers. When you give them a prompt like "Build me a quiz app with a score counter," the AI:
+
+1. Analyzes your request and breaks it into coding tasks
+2. Generates code based on patterns it learned from existing code
+3. Assembles the pieces into a working (hopefully!) application
+
+### The Incredible Part
+
+When you **understand** coding fundamentals — variables, loops, functions, logic, debugging — these tools become superpowers:
+- You can evaluate whether the generated code is correct
+- You can spot bugs before they become problems
+- You can modify and improve what the AI creates
+- You can ask better questions because you know the right terminology
+
+### The Dangerous Part
+
+When you **don't** understand the fundamentals:
+- You can't tell if the code works correctly or just looks like it does
+- You can't fix bugs because you don't understand what the code is doing
+- You copy-paste without comprehension, building on a shaky foundation
+- You become dependent on a tool instead of developing real skills
+
+### The Foundation First Principle
+
+The best developers in the world use AI tools every day. But they learned the fundamentals FIRST. AI didn't replace their knowledge — it amplified it.
+
+Think of it this way: A calculator is an incredible tool. But if you don't understand multiplication, you won't know when the calculator gives you a wrong answer (and yes, you CAN enter things wrong!).
+
+### Your Challenge
+
+This week, we're going to prove this principle. You'll write code by hand first, then rebuild it with AI assistance. The difference in your understanding will be dramatic — and that's the lesson.`,
+    },
+    {
+      id: "level_3_module_5_lesson_2",
+      moduleId: "level_3_module_5",
+      lessonNumber: 2,
+      title: "The Foundation Test",
+      durationMinutes: 45,
+      activityType: "interactive",
+      content: `## The Foundation Test: Prove It To Yourself
+
+Today is the day you prove — to yourself — why foundations matter.
+
+### The Experiment
+
+We're going to do something simple but powerful:
+
+**Step 1: Build It By Hand**
+Write a simple program manually. Choose one:
+- An HTML page with a button that counts clicks
+- A basic calculator that adds, subtracts, multiplies, and divides
+- A quiz game with 5 questions and a score
+
+No AI. No copying. Just you, a text editor, and your brain. It will be slow. It will be frustrating. You might get stuck. That's the point.
+
+**Step 2: Build It With AI**
+Now rebuild the same thing using vibe coding. Describe what you want to Replit's AI tools in plain English. Watch as it generates the code in seconds.
+
+**Step 3: Compare**
+
+Ask yourself these questions:
+- Which version do you understand better?
+- If there's a bug in the AI version, can you find it? Can you fix it?
+- Could you explain the AI-generated code to someone else line by line?
+- If you needed to change one feature, which version would be easier to modify?
+
+### What You'll Discover
+
+Students who understand the foundation will notice:
+- "Oh, the AI used a different approach than I did, but I can see why both work"
+- "I found a bug in the AI's code because I knew what the output should be"
+- "I can improve the AI's version because I understand the logic"
+
+Students without the foundation will say:
+- "It works... I think? I don't know how to check"
+- "Something's broken but I have no idea where to look"
+- "I need to ask the AI to fix the AI's code" (this is a red flag!)
+
+### The Key Insight
+
+**AI amplifies your existing knowledge. If your foundation is zero, AI amplifies zero.**
+
+A chef who understands flavors, textures, and techniques can use a food processor to work faster. Someone who has never cooked before will just make a mess faster.
+
+### Document Everything
+
+Keep a journal of this experiment:
+- What prompts did you give the AI?
+- What did the AI get right? What did it get wrong?
+- How did your manual coding experience help (or would have helped) you evaluate the AI's output?
+
+This documentation isn't busywork — it's building your meta-skills: the ability to think about your own thinking.`,
+    },
+    {
+      id: "level_3_module_5_lesson_3",
+      moduleId: "level_3_module_5",
+      lessonNumber: 3,
+      title: "3D Printing: From Screen to Reality",
+      durationMinutes: 45,
+      activityType: "exploration",
+      content: `## 3D Printing: From Screen to Reality
+
+Welcome to the world of turning digital designs into physical objects. But first — the foundation.
+
+### How 3D Printers Actually Work
+
+A 3D printer builds objects layer by layer, from the bottom up. The most common type (FDM — Fused Deposition Modeling) works like a very precise hot glue gun:
+
+1. **Filament** (a spool of plastic) feeds into the print head
+2. The print head **heats** the filament until it melts
+3. The melted plastic is **extruded** through a tiny nozzle
+4. The printer moves in precise patterns, laying down one thin layer at a time
+5. Each layer cools and hardens before the next one goes on top
+6. Hundreds or thousands of layers stack up to form your object
+
+### CAD: Computer-Aided Design
+
+Before you can print anything, you need a digital 3D model. **TinkerCAD** is a free, browser-based CAD tool perfect for beginners:
+
+- Start with basic shapes: cubes, cylinders, spheres, cones
+- Combine shapes by grouping them together
+- Subtract shapes by making them "holes" (a cylinder hole through a cube = a tube!)
+- Precise measurements matter: 1mm off can mean the difference between parts that fit and parts that don't
+
+### Materials Science: Know Your Plastics
+
+Different materials have different properties. The foundation matters here too:
+
+- **PLA (Polylactic Acid)**: Easiest to print with, made from corn starch, biodegradable. Great for models and prototypes. Not heat-resistant (your PLA phone stand will warp in a hot car!)
+- **ABS (Acrylonitrile Butadiene Styrene)**: Stronger, heat-resistant, but harder to print. What LEGO bricks are made of. Needs a heated bed and good ventilation.
+- **PETG (Polyethylene Terephthalate Glycol)**: A middle ground — stronger than PLA, easier than ABS. Good for functional parts.
+
+### The Slicing Process
+
+Your 3D model (an STL file) can't go directly to the printer. It needs to be "sliced" into layers by software like Cura or PrusaSlicer:
+
+- **Layer height**: Thinner layers = smoother surface but longer print time
+- **Infill**: How solid is the inside? 20% infill = mostly hollow (lighter, faster). 100% = completely solid (strongest, slowest)
+- **Supports**: Overhanging parts need temporary supports that you remove after printing
+- **Print speed**: Faster = rougher quality. Slower = better quality
+
+### The Foundation Lesson
+
+You COULD just download a model from the internet, hit "print," and wait. But:
+- What if the dimensions are wrong?
+- What if you chose the wrong material for your use case?
+- What if the infill is too low and your object breaks?
+- What if you don't understand supports and your print fails halfway through?
+
+Understanding the machine, the materials, and the process IS the foundation. The fancy designs come AFTER you understand the fundamentals.
+
+### Your Design Sprint
+
+This week, design a simple object in TinkerCAD:
+- A custom keychain, a phone stand, or your school mascot
+- Measure twice, design once
+- Think about: What material? What infill? Does it need supports?
+- Document your design decisions and WHY you made them`,
+    },
+    {
+      id: "level_3_module_5_lesson_4",
+      moduleId: "level_3_module_5",
+      lessonNumber: 4,
+      title: "The Builder's Mindset",
+      durationMinutes: 45,
+      activityType: "creative",
+      content: `## The Builder's Mindset: Capstone
+
+This is the lesson where everything comes together. Vibe coding + 3D printing + the Foundation First principle.
+
+### The Builder's Mindset
+
+The best builders in the world — software developers, engineers, architects, artists — share one thing in common: they understand the fundamentals so deeply that their tools become extensions of their thinking.
+
+- A master carpenter doesn't just know how to use a power saw. They understand wood grain, joinery, structural load, and finishing techniques. The power saw just makes them faster.
+- A great chef doesn't just follow recipes. They understand flavor chemistry, heat transfer, and ingredient interactions. Kitchen tools just extend their capabilities.
+- A skilled developer doesn't just use AI to generate code. They understand algorithms, data structures, and system design. AI tools just amplify their productivity.
+
+### Your Capstone Project
+
+You're going to combine everything from this module into two deliverables:
+
+**Deliverable 1: Your Vibe-Coded App**
+- Choose a problem that matters to you or your community
+- Build a solution using AI-assisted coding tools
+- BUT: be able to explain every piece of the code
+- Document: What prompts did you use? What did the AI get right? Where did you have to intervene because of YOUR knowledge?
+
+**Deliverable 2: Your 3D Printed Object**
+- Design something functional — not just decorative
+- Walk through the full pipeline: CAD design, STL export, slicing configuration, material selection, printing
+- Document: What design decisions did you make? Why those dimensions? Why that material? Why that infill percentage?
+
+### The Presentation
+
+Present both projects to your class. For each, answer:
+
+1. **What did you build and why?**
+2. **What foundations did you need to understand?**
+3. **How did AI/tools help you?**
+4. **Where did YOUR knowledge make the difference?**
+5. **What would have gone wrong if you had skipped the fundamentals?**
+
+### The Bigger Picture
+
+This module wasn't about teaching you to be afraid of AI tools or 3D printers. These are incredible technologies that are changing the world.
+
+This module was about teaching you the secret that separates the people who USE these tools effectively from the people who are USED BY them:
+
+**Foundation first. Tools second. Mastery comes from understanding, not from access.**
+
+Everyone has access to AI coding tools. Everyone can buy a 3D printer. But the people who will build the future are the ones who took the time to understand the fundamentals — and then used these powerful tools to amplify what they already knew.
+
+That's the Builder's Mindset. And now it's yours.
+
+### Reflection
+
+In your journal, write your answer to this question:
+
+"Six months from now, AI tools will be even more powerful than they are today. How will the Foundation First principle help you use those future tools — tools that don't even exist yet?"
+
+The answer: because foundations don't expire. Variables, logic, debugging, design thinking, materials science, problem-solving — these fundamentals transfer to EVERY new tool, EVERY new technology, EVERY new challenge.
+
+That's the real superpower.`,
     },
   ]);
 

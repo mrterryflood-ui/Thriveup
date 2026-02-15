@@ -43,6 +43,7 @@ import {
   type AcademyActivityFeedItem, type InsertAcademyActivityFeedItem,
   type AcademyAdminNote, type InsertAcademyAdminNote,
   type AcademyContentReport, type InsertAcademyContentReport,
+  careerFields, careerMilestones,
 } from "@shared/schema";
 import { eq, and, desc, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
@@ -1054,6 +1055,18 @@ export class DatabaseStorage implements IStorage {
     const existingScenarios = await db.select().from(academyScenarios).limit(1);
     if (existingScenarios.length === 0) {
       await seedScenarios(db);
+    }
+
+    const { seedCareerFields, seedCareerMilestones } = await import("./seed-careers");
+    const existingCareers = await db.select().from(careerFields).limit(1);
+    if (existingCareers.length === 0) {
+      await seedCareerFields(db);
+      console.log("Career fields seeded (50+ careers)");
+    }
+    const existingMilestones = await db.select().from(careerMilestones).limit(1);
+    if (existingMilestones.length === 0) {
+      await seedCareerMilestones(db);
+      console.log("Career milestones seeded (grades 6-12 + post-grad)");
     }
   }
 }

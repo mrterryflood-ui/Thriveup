@@ -21,6 +21,8 @@ import {
   Award,
   User,
   Users,
+  Briefcase,
+  Route,
 } from "lucide-react";
 import type { AcademyAvatar } from "@shared/schema";
 
@@ -77,6 +79,9 @@ const BUILDINGS = [
   { name: "Quest Board", icon: CalendarCheck, href: "/academy/quests", description: "Daily challenges", color: "bg-cyan-100 dark:bg-cyan-900/30", iconColor: "text-cyan-600 dark:text-cyan-400" },
   { name: "Power Station", icon: Zap, href: "/academy/power", description: "Your empowerment score", color: "bg-yellow-100 dark:bg-yellow-900/30", iconColor: "text-yellow-600 dark:text-yellow-400" },
   { name: "My Wallet", icon: Wallet, href: "/academy/wallet", description: "Check your balance", color: "bg-lime-100 dark:bg-lime-900/30", iconColor: "text-lime-600 dark:text-lime-400" },
+  { name: "Career Explorer", icon: Briefcase, href: "/academy/careers", description: "Explore 50+ career paths", color: "bg-blue-100 dark:bg-blue-900/30", iconColor: "text-blue-600 dark:text-blue-400" },
+  { name: "Mentor Hub", icon: Users, href: "/academy/mentors", description: "Connect with professionals", color: "bg-purple-100 dark:bg-purple-900/30", iconColor: "text-purple-600 dark:text-purple-400" },
+  { name: "My Pathway", icon: Route, href: "/academy/pathway", description: "Plan your 6-12 journey", color: "bg-fuchsia-100 dark:bg-fuchsia-900/30", iconColor: "text-fuchsia-600 dark:text-fuchsia-400" },
 ];
 
 interface DashboardData {

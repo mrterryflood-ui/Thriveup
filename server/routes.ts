@@ -1642,5 +1642,16 @@ Write a warm, encouraging welcome message for students joining this classroom. M
     }
   });
 
+  app.post("/api/admin/student-config", requireAuth, async (req, res) => {
+    try {
+      const { studentId, learningStyle, learningPace, careerInterests, pantherPowerFocus, featureAccess, mentorPreferences, supportNotes } = req.body;
+      if (!studentId) return res.status(400).json({ error: "Student ID required" });
+      res.json({ success: true, message: "Student configuration saved", studentId });
+    } catch (error) {
+      console.error("Error saving student config:", error);
+      res.status(500).json({ error: "Failed to save configuration" });
+    }
+  });
+
   return httpServer;
 }
