@@ -1,7 +1,14 @@
 import type { Express, Request } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertCurriculumDocumentSchema } from "@shared/schema";
+import {
+  insertCurriculumDocumentSchema,
+  careerFields, careerMilestones, pathwayPlans, planRevisions,
+  mentorProfiles, mentorRequests, alumniProfiles,
+  insertPathwayPlanSchema,
+} from "@shared/schema";
+import { eq, and, desc, sql, count } from "drizzle-orm";
+import { db } from "./storage";
 import OpenAI from "openai";
 import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
 
@@ -1650,6 +1657,291 @@ Write a warm, encouraging welcome message for students joining this classroom. M
     } catch (error) {
       console.error("Error saving student config:", error);
       res.status(500).json({ error: "Failed to save configuration" });
+    }
+  });
+
+  // ==================== CAREER EXPLORER (public) ====================
+
+  app.get("/api/careers", async (_req, res) => {
+    try {
+      const fields = await db.select().from(careerFields);
+      res.json(fields);
+    } catch (error) {
+      console.error("Error fetching careers:", error);
+      res.status(500).json({ error: "Failed to fetch careers" });
+    }
+  });
+
+  app.get("/api/career-milestones", async (_req, res) => {
+    try {
+      const milestones = await db.select().from(careerMilestones);
+      res.json(milestones);
+    } catch (error) {
+      console.error("Error fetching career milestones:", error);
+      res.status(500).json({ error: "Failed to fetch career milestones" });
+    }
+  });
+
+  // ==================== MY PATHWAY (requireAuth) ====================
+
+  app.get("/api/pathway-plan", requireAuth, async (req, res) => {
+    try {
+      const userId = getUserId(req)!;
+      const plans = await db.select().from(pathwayPlans).where(eq(pathwayPlans.userId, userId));
+      res.json(plans[0] || null);
+    } catch (error) {
+      console.error("Error fetching pathway plan:", error);
+      res.status(500).json({ error: "Failed to fetch pathway plan" });
+    }
+  });
+
+  app.post("/api/pathway-plan", requireAuth, async (req, res) => {
+    try {
+      const userId = getUserId(req)!;
+      const userName = getUserName(req) || "Student";
+      const parsed = insertPathwayPlanSchema.safeParse({ ...req.body, userId, userName });
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid pathway plan data", details: parsed.error.flatten() });
+      }
+      const [plan] = await db.insert(pathwayPlans).values(parsed.data).returning();
+      res.status(201).json(plan);
+    } catch (error) {
+      console.error("Error creating pathway plan:", error);
+      res.status(500).json({ error: "Failed to create pathway plan" });
+    }
+  });
+
+  app.patch("/api/pathway-plan/:id", requireAuth, async (req, res) => {
+    try {
+      const userId = getUserId(req)!;
+      const [existing] = await db.select().from(pathwayPlans).where(eq(pathwayPlans.id, req.params.id));
+      if (!existing) return res.status(404).json({ error: "Plan not found" });
+      if (existing.userId !== userId) return res.status(403).json({ error: "Not authorized" });
+      const [updated] = await db.update(pathwayPlans).set({ ...req.body, updatedAt: new Date() }).where(eq(pathwayPlans.id, req.params.id)).returning();
+      res.json(updated);
+    } catch (error) {
+      console.error("Error updating pathway plan:", error);
+      res.status(500).json({ error: "Failed to update pathway plan" });
+    }
+  });
+
+  app.post("/api/pathway-plan/:id/request-revision", requireAuth, async (req, res) => {
+    try {
+      const userId = getUserId(req)!;
+      const userName = getUserName(req) || "Student";
+      const [plan] = await db.select().from(pathwayPlans).where(eq(pathwayPlans.id, req.params.id));
+      if (!plan) return res.status(404).json({ error: "Plan not found" });
+      if (plan.userId !== userId) return res.status(403).json({ error: "Not authorized" });
+      if (plan.revisionsThisYear >= 3) {
+        return res.status(400).json({ error: "Maximum 3 revisions per year exceeded" });
+      }
+      const { requestReason, newSnapshot } = req.body;
+      if (!requestReason) return res.status(400).json({ error: "Request reason is required" });
+      const [revision] = await db.insert(planRevisions).values({
+        planId: plan.id,
+        userId,
+        requestedBy: userName,
+        requestReason,
+        previousSnapshot: plan,
+        newSnapshot: newSnapshot || null,
+        status: "pending",
+      }).returning();
+      await db.update(pathwayPlans).set({
+        revisionsThisYear: plan.revisionsThisYear + 1,
+        lastRevisionDate: new Date(),
+        lockedForRevision: true,
+        updatedAt: new Date(),
+      }).where(eq(pathwayPlans.id, plan.id));
+      res.status(201).json(revision);
+    } catch (error) {
+      console.error("Error requesting revision:", error);
+      res.status(500).json({ error: "Failed to request revision" });
+    }
+  });
+
+  app.get("/api/pathway-plan/:id/revisions", requireAuth, async (req, res) => {
+    try {
+      const userId = getUserId(req)!;
+      const [plan] = await db.select().from(pathwayPlans).where(eq(pathwayPlans.id, req.params.id));
+      if (!plan) return res.status(404).json({ error: "Plan not found" });
+      if (plan.userId !== userId) return res.status(403).json({ error: "Not authorized" });
+      const revisions = await db.select().from(planRevisions).where(eq(planRevisions.planId, req.params.id)).orderBy(desc(planRevisions.createdAt));
+      res.json(revisions);
+    } catch (error) {
+      console.error("Error fetching revisions:", error);
+      res.status(500).json({ error: "Failed to fetch revisions" });
+    }
+  });
+
+  // ==================== MENTOR NETWORK ====================
+
+  app.get("/api/mentors", async (_req, res) => {
+    try {
+      const mentors = await db.select().from(mentorProfiles).where(eq(mentorProfiles.isActive, true));
+      res.json(mentors);
+    } catch (error) {
+      console.error("Error fetching mentors:", error);
+      res.status(500).json({ error: "Failed to fetch mentors" });
+    }
+  });
+
+  app.post("/api/mentors/request", requireAuth, async (req, res) => {
+    try {
+      const userId = getUserId(req)!;
+      const userName = getUserName(req) || "Student";
+      const { mentorId, message } = req.body;
+      if (!mentorId) return res.status(400).json({ error: "Mentor ID is required" });
+      const [mentor] = await db.select().from(mentorProfiles).where(eq(mentorProfiles.id, mentorId));
+      if (!mentor) return res.status(404).json({ error: "Mentor not found" });
+      const [request] = await db.insert(mentorRequests).values({
+        studentId: userId,
+        studentName: userName,
+        mentorId,
+        mentorName: mentor.name,
+        careerField: mentor.careerField,
+        message: message || null,
+        status: "pending",
+      }).returning();
+      res.status(201).json(request);
+    } catch (error) {
+      console.error("Error creating mentor request:", error);
+      res.status(500).json({ error: "Failed to create mentor request" });
+    }
+  });
+
+  app.get("/api/mentors/my-requests", requireAuth, async (req, res) => {
+    try {
+      const userId = getUserId(req)!;
+      const requests = await db.select().from(mentorRequests).where(eq(mentorRequests.studentId, userId)).orderBy(desc(mentorRequests.createdAt));
+      res.json(requests);
+    } catch (error) {
+      console.error("Error fetching mentor requests:", error);
+      res.status(500).json({ error: "Failed to fetch mentor requests" });
+    }
+  });
+
+  // ==================== ADMIN LONGITUDINAL DASHBOARD ====================
+
+  app.get("/api/admin/pathway-plans", requireAuth, async (_req, res) => {
+    try {
+      const plans = await db.select().from(pathwayPlans).orderBy(desc(pathwayPlans.createdAt));
+      res.json(plans);
+    } catch (error) {
+      console.error("Error fetching all pathway plans:", error);
+      res.status(500).json({ error: "Failed to fetch pathway plans" });
+    }
+  });
+
+  app.get("/api/admin/pending-revisions", requireAuth, async (_req, res) => {
+    try {
+      const revisions = await db.select().from(planRevisions).where(eq(planRevisions.status, "pending")).orderBy(desc(planRevisions.createdAt));
+      res.json(revisions);
+    } catch (error) {
+      console.error("Error fetching pending revisions:", error);
+      res.status(500).json({ error: "Failed to fetch pending revisions" });
+    }
+  });
+
+  app.patch("/api/admin/revisions/:id/approve", requireAuth, async (req, res) => {
+    try {
+      const userId = getUserId(req)!;
+      const userName = getUserName(req) || "Admin";
+      const { notes } = req.body;
+      const [updated] = await db.update(planRevisions).set({
+        status: "approved",
+        facultyApproved: true,
+        approvedBy: userId,
+        approvedByName: userName,
+        reviewNotes: notes || null,
+      }).where(eq(planRevisions.id, req.params.id)).returning();
+      if (!updated) return res.status(404).json({ error: "Revision not found" });
+      await db.update(pathwayPlans).set({ lockedForRevision: false, updatedAt: new Date() }).where(eq(pathwayPlans.id, updated.planId));
+      res.json(updated);
+    } catch (error) {
+      console.error("Error approving revision:", error);
+      res.status(500).json({ error: "Failed to approve revision" });
+    }
+  });
+
+  app.patch("/api/admin/revisions/:id/reject", requireAuth, async (req, res) => {
+    try {
+      const { notes } = req.body;
+      const [updated] = await db.update(planRevisions).set({
+        status: "rejected",
+        reviewNotes: notes || null,
+      }).where(eq(planRevisions.id, req.params.id)).returning();
+      if (!updated) return res.status(404).json({ error: "Revision not found" });
+      await db.update(pathwayPlans).set({ lockedForRevision: false, updatedAt: new Date() }).where(eq(pathwayPlans.id, updated.planId));
+      res.json(updated);
+    } catch (error) {
+      console.error("Error rejecting revision:", error);
+      res.status(500).json({ error: "Failed to reject revision" });
+    }
+  });
+
+  app.get("/api/admin/mentor-requests", requireAuth, async (_req, res) => {
+    try {
+      const requests = await db.select().from(mentorRequests).orderBy(desc(mentorRequests.createdAt));
+      res.json(requests);
+    } catch (error) {
+      console.error("Error fetching all mentor requests:", error);
+      res.status(500).json({ error: "Failed to fetch mentor requests" });
+    }
+  });
+
+  app.patch("/api/admin/mentor-requests/:id", requireAuth, async (req, res) => {
+    try {
+      const { status } = req.body;
+      if (!status) return res.status(400).json({ error: "Status is required" });
+      const [updated] = await db.update(mentorRequests).set({ status }).where(eq(mentorRequests.id, req.params.id)).returning();
+      if (!updated) return res.status(404).json({ error: "Mentor request not found" });
+      res.json(updated);
+    } catch (error) {
+      console.error("Error updating mentor request:", error);
+      res.status(500).json({ error: "Failed to update mentor request" });
+    }
+  });
+
+  app.get("/api/alumni", async (_req, res) => {
+    try {
+      const alumni = await db.select().from(alumniProfiles).orderBy(desc(alumniProfiles.createdAt));
+      res.json(alumni);
+    } catch (error) {
+      console.error("Error fetching alumni:", error);
+      res.status(500).json({ error: "Failed to fetch alumni" });
+    }
+  });
+
+  app.patch("/api/admin/alumni/:id", requireAuth, async (req, res) => {
+    try {
+      const [updated] = await db.update(alumniProfiles).set(req.body).where(eq(alumniProfiles.id, req.params.id)).returning();
+      if (!updated) return res.status(404).json({ error: "Alumni profile not found" });
+      res.json(updated);
+    } catch (error) {
+      console.error("Error updating alumni profile:", error);
+      res.status(500).json({ error: "Failed to update alumni profile" });
+    }
+  });
+
+  app.get("/api/admin/longitudinal-metrics", requireAuth, async (_req, res) => {
+    try {
+      const [studentsResult] = await db.select({ value: count() }).from(pathwayPlans);
+      const [activeResult] = await db.select({ value: count() }).from(pathwayPlans).where(eq(pathwayPlans.status, "active"));
+      const [milestonesResult] = await db.select({ value: count() }).from(careerMilestones);
+      const [pendingResult] = await db.select({ value: count() }).from(planRevisions).where(eq(planRevisions.status, "pending"));
+      const [mentorshipsResult] = await db.select({ value: count() }).from(mentorRequests).where(eq(mentorRequests.status, "approved"));
+      const [alumniResult] = await db.select({ value: count() }).from(alumniProfiles);
+      res.json({
+        totalStudents: studentsResult?.value || 0,
+        activePathways: activeResult?.value || 0,
+        completedMilestones: milestonesResult?.value || 0,
+        pendingRevisions: pendingResult?.value || 0,
+        activeMentorships: mentorshipsResult?.value || 0,
+        alumniCount: alumniResult?.value || 0,
+      });
+    } catch (error) {
+      console.error("Error fetching longitudinal metrics:", error);
+      res.status(500).json({ error: "Failed to fetch metrics" });
     }
   });
 

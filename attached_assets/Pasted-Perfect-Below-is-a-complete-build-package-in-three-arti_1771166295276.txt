@@ -1,0 +1,384 @@
+Perfect. Below is a complete build package in three artifacts:
+	1.	System Requirements Document (SRD)
+	2.	Data Dictionary + Scoring Specification
+	3.	GIS Integration & Privacy Architecture Spec
+
+This is written so it can go directly to:
+	•	Developers
+	•	District IT
+	•	Legal/compliance
+	•	Research partners
+	•	Superintendent-level leadership
+
+⸻
+
+ARTIFACT 1
+
+IGN-Thrive™ System Requirements Document (SRD)
+
+⸻
+
+1. System Overview
+
+IGN-Thrive™ is a longitudinal, context-aware, structured autonomy system embedded within TxEA Empowerment Academy.
+
+It integrates:
+	•	Student simulation (Panther Village)
+	•	Pathway governance
+	•	Mentor pairing & tracking
+	•	Executive function measurement
+	•	GIS-layered contextual analytics
+	•	Early warning & navigation workflows
+	•	Alumni continuity
+
+Core Principle
+
+Every feature must support:
+	1.	Autonomy
+	2.	Guardrails
+	3.	Navigation
+
+If one is missing, feature is redesigned.
+
+⸻
+
+2. User Roles & Permissions Matrix
+
+Role	View Student Data	Edit Pathway	View Thrive Context	Approve Revisions	See GIS Heatmaps	View Flags
+Student	Own profile only	Yes (request)	No raw GIS	No	No	Own
+Parent	Child only	No	No raw GIS	Notification only	No	Child only
+Advisor	Assigned students	Yes	Yes (support view)	Yes	No	Yes
+Admin	All students	Yes	Yes	Yes	Yes	Yes
+Mentor	Assigned student (limited)	No	No	No	No	No
+Research/Evaluator	De-identified only	No	Aggregated only	No	Yes (aggregated)	Aggregated
+
+
+⸻
+
+3. Core Modules
+
+3.1 Student Identity & Pathway Module
+	•	Pathway creation
+	•	Revision request workflow
+	•	Version history audit log
+	•	Milestone tracking
+	•	Career cluster alignment
+
+3.2 Panther Village Simulation Engine
+	•	Stock exchange
+	•	Marketplace
+	•	CYOA scenario engine
+	•	House competition system
+	•	Quest board
+
+3.3 Mentor Network Module
+	•	Mentor profile management
+	•	Request & approval workflow
+	•	Meeting log cadence tracking
+	•	Interaction depth rubric scoring
+
+3.4 IGN Governance Engine
+	•	Revision cap enforcement (default 3/year)
+	•	Parent notification triggers
+	•	Reflection requirement enforcement
+	•	Justification rubric scoring
+	•	Lock/unlock workflow
+
+3.5 Thrive Analytics Engine
+	•	Domain scoring
+	•	Trend detection
+	•	Flag classification
+	•	Navigation action suggestions
+	•	30-day goal tracking
+
+3.6 GIS Context Engine
+	•	Census tract / ZCTA join
+	•	Public dataset ingestion (SVI, PLACES, crime)
+	•	Context Load scoring
+	•	Resource overlay layer
+	•	Heatmap generation
+
+3.7 Early Warning & Intervention Workflow
+	•	Watch / Support / Stabilize logic
+	•	Playbook assignment
+	•	Advisor task assignment
+	•	Follow-up deadline tracking
+	•	Success metric validation
+
+3.8 Alumni Continuity Module
+	•	Status transition at graduation
+	•	Champion/Ambassador designation
+	•	Mentor reintegration
+	•	Annual alumni check-in tracking
+
+⸻
+
+4. Revision Workflow Requirements
+	1.	Student submits revision request.
+	2.	System checks annual revision count.
+	3.	Parent notification auto-sent.
+	4.	Advisor receives request.
+	5.	Revision justification rubric completed.
+	6.	Advisor session required.
+	7.	Plan edited collaboratively.
+	8.	Version saved with timestamp.
+	9.	Plan re-locked.
+
+No silent changes permitted.
+
+⸻
+
+5. Early Warning Requirements
+
+Flags triggered only when:
+	•	Multi-domain decline OR
+	•	Slope shift exceeds threshold OR
+	•	Decision pattern risk clusters OR
+	•	Context shock combined with protective factor deficit
+
+All flags must generate:
+	•	Explanation
+	•	Assigned navigation action
+	•	30-day measurable target
+
+⸻
+
+6. Security Requirements
+	•	FERPA compliant
+	•	Role-based access
+	•	Minimal necessary data collection
+	•	Audit logs for all edits
+	•	No raw address storage required
+	•	Encrypted database
+	•	Public dataset ingestion isolated from student DB
+
+⸻
+
+⸻
+
+ARTIFACT 2
+
+Data Dictionary + Scoring Specification
+
+⸻
+
+1. Core Identifiers
+
+Field	Type	Description
+Student_ID	UUID	Internal only
+Geography_Key	String	Census tract or ZCTA
+Grade_Level	Integer	6–12
+Advisor_ID	UUID	Assigned advisor
+
+
+⸻
+
+2. Pathway Fields
+
+Field	Type	Notes
+Pathway_Version_ID	UUID	Unique per revision
+Primary_Career_Cluster	Enum	Standardized list
+Education_Path	Enum	College/Trade/Military/Entrepreneurship
+Revision_Count_Annual	Integer	Auto-reset yearly
+Revision_Justification_Score	0–100	Rubric-based
+
+
+⸻
+
+3. Thrive Domain Scoring
+
+Domain A — Learning & Engagement (25%)
+
+Score formula example:
+	•	Attendance consistency: 30%
+	•	Milestone completion: 30%
+	•	Quest completion rate: 20%
+	•	Portfolio update cadence: 20%
+
+Domain A Score = weighted composite (0–100)
+
+⸻
+
+Domain B — Executive Function (20%)
+
+Components:
+	•	Reflection rubric average
+	•	Revision justification quality
+	•	Decision pattern stability index
+	•	Recovery after loss behavior index
+
+⸻
+
+Domain C — Belonging (15%)
+
+Components:
+	•	Mentor meeting consistency
+	•	House participation rate
+	•	Peer collaboration logs
+	•	Help-seeking behavior
+
+⸻
+
+Domain D — Wellbeing (10% if active)
+
+Opt-in student check-ins.
+If not active, weight redistributed proportionally.
+
+⸻
+
+Domain E — Context Load (15%)
+
+Derived from GIS layer:
+	•	SVI percentile
+	•	Health burden composite
+	•	Crime trend percentile
+Normalized to 0–100 scale.
+
+Note: This domain influences navigation urgency, not student penalty.
+
+⸻
+
+Domain F — Protective Factors (15%)
+	•	Stable adult contact cadence
+	•	Service participation
+	•	Leadership engagement
+	•	Portfolio momentum
+	•	Club/activity anchors
+
+⸻
+
+4. Composite Thrive Formula
+
+Thrive Score =
+(0.25A + 0.20B + 0.15C + 0.10D + 0.15E + 0.15F)
+
+Plus trend slope modifier (improving vs declining).
+
+⸻
+
+5. Flag Logic
+
+Watch
+	•	≥10% decline in one domain
+	•	OR engagement drop >2 consecutive weeks
+
+Support
+	•	≥10% decline in two domains
+	•	OR revision attempts ≥3 in one semester
+	•	OR decision risk index > threshold
+
+Stabilize
+	•	≥15% decline in three domains
+	•	OR declining slope across 60 days
+	•	AND protective factor deficit
+
+All thresholds configurable.
+
+⸻
+
+⸻
+
+ARTIFACT 3
+
+GIS Integration & Privacy Architecture Specification
+
+⸻
+
+1. Public Data Connectors
+
+CDC PLACES
+	•	API ingestion quarterly
+	•	Variables selected for youth-relevant health proxies
+
+CDC SVI
+	•	Annual ingestion
+	•	Tract + ZCTA compatible
+
+FBI Crime Data API
+	•	Quarterly ingestion
+	•	Supplement with city open data where possible
+
+⸻
+
+2. Data Join Logic
+	1.	Student Geography_Key stored.
+	2.	Public datasets stored separately.
+	3.	Join occurs via tract/ZCTA.
+	4.	Only derived Context_Load_Index stored in student record.
+	5.	Raw public data remains external.
+
+⸻
+
+3. Map Layers
+
+Student Support View (Advisor)
+	•	Context heat shading
+	•	Resource overlay
+	•	Protective factor density
+
+Admin View
+	•	Cohort heatmaps
+	•	Mentor density map
+	•	Engagement drift clusters
+	•	Equity monitoring dashboard
+
+District View
+	•	Resource allocation recommendations
+	•	Internship site distribution
+	•	Community partner gap zones
+
+⸻
+
+4. Privacy Controls
+	•	No raw addresses visible in dashboard.
+	•	Aggregated visualization for population maps.
+	•	De-identified export for research.
+	•	Consent gating for wellbeing.
+	•	Annual data retention review.
+
+⸻
+
+Implementation Timeline
+
+Month 1–2
+	•	Finalize rubrics
+	•	Finalize data connectors
+	•	Configure role permissions
+	•	Build scoring engine
+
+Month 3–4
+	•	Pilot Thrive scoring
+	•	Calibrate thresholds
+	•	Advisor training
+
+Month 5–6
+	•	Launch GIS heatmaps
+	•	Activate early warning
+	•	Begin intervention tracking
+
+⸻
+
+Strategic Insight
+
+What stands out as this comes together is this:
+
+You are not just building analytics.
+
+You are building a navigation infrastructure that:
+	•	recognizes context
+	•	strengthens protection
+	•	preserves autonomy
+	•	prevents drift
+	•	measures growth longitudinally
+
+It is a micro-society with adult guardrails.
+
+⸻
+
+If you want, the next level is:
+	•	Full 5-year financial projection with staffing model
+	•	Research white paper draft
+	•	IGN-Thrive trademark positioning strategy
+	•	Federal grant alignment (e.g., Full-Service Community Schools, CTE Innovation, Title I enhancements)
+
+Which direction do we take next?
