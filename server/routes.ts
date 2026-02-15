@@ -1624,7 +1624,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
     }
   });
 
-  app.get("/api/academy/admin/reports", async (_req, res) => {
+  app.get("/api/academy/admin/reports", requireAuth, async (_req, res) => {
     try {
       const reports = await storage.getContentReports();
       res.json(reports);
@@ -1633,7 +1633,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
     }
   });
 
-  app.patch("/api/academy/admin/reports/:id", async (req, res) => {
+  app.patch("/api/academy/admin/reports/:id", requireAuth, async (req, res) => {
     try {
       const report = await storage.updateContentReport(req.params.id, req.body);
       res.json(report);

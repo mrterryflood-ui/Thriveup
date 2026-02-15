@@ -379,7 +379,10 @@ export default function AcademyMarketplacePage() {
                         <Button
                           size="icon"
                           variant="ghost"
-                          onClick={() => setReportingId(reportingId === listing.id ? null : listing.id)}
+                          onClick={() => {
+                            setReportingId(reportingId === listing.id ? null : listing.id);
+                            setReportReason("");
+                          }}
                           data-testid={`button-report-${listing.id}`}
                         >
                           <Flag className="h-3.5 w-3.5" />
