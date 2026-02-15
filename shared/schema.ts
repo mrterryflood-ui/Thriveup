@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, integer, boolean, timestamp, jsonb, decimal } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, integer, boolean, timestamp, jsonb, decimal, real } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -816,5 +816,168 @@ export const alumniProfiles = pgTable("alumni_profiles", {
 export const insertAlumniProfileSchema = createInsertSchema(alumniProfiles).omit({ id: true, createdAt: true });
 export type InsertAlumniProfile = z.infer<typeof insertAlumniProfileSchema>;
 export type AlumniProfile = typeof alumniProfiles.$inferSelect;
+
+export const gisContextData = pgTable("gis_context_data", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  geographyKey: varchar("geography_key").notNull(),
+  geographyType: varchar("geography_type").notNull().default("tract"),
+  sviPercentile: real("svi_percentile"),
+  healthBurdenComposite: real("health_burden_composite"),
+  crimeTrendPercentile: real("crime_trend_percentile"),
+  povertyRate: real("poverty_rate"),
+  unemploymentRate: real("unemployment_rate"),
+  housingInstabilityIndex: real("housing_instability_index"),
+  contextLoadIndex: real("context_load_index"),
+  dataSource: varchar("data_source"),
+  dataYear: integer("data_year"),
+  rawPlacesData: jsonb("raw_places_data"),
+  rawSviData: jsonb("raw_svi_data"),
+  rawCrimeData: jsonb("raw_crime_data"),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const insertGisContextDataSchema = createInsertSchema(gisContextData).omit({ id: true, updatedAt: true });
+export type InsertGisContextData = z.infer<typeof insertGisContextDataSchema>;
+export type GisContextData = typeof gisContextData.$inferSelect;
+
+export const studentSelfAssessments = pgTable("student_self_assessments", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull(),
+  assessmentType: varchar("assessment_type").notNull().default("daily_checkin"),
+  energyLevel: integer("energy_level"),
+  stressLevel: integer("stress_level"),
+  focusLevel: integer("focus_level"),
+  belongingLevel: integer("belonging_level"),
+  confidenceLevel: integer("confidence_level"),
+  moodRating: integer("mood_rating"),
+  reflectionText: text("reflection_text"),
+  goalsForToday: text("goals_for_today"),
+  gratitudeNote: text("gratitude_note"),
+  needsSupport: boolean("needs_support").notNull().default(false),
+  supportType: varchar("support_type"),
+  consentGiven: boolean("consent_given").notNull().default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertStudentSelfAssessmentSchema = createInsertSchema(studentSelfAssessments).omit({ id: true, createdAt: true });
+export type InsertStudentSelfAssessment = z.infer<typeof insertStudentSelfAssessmentSchema>;
+export type StudentSelfAssessment = typeof studentSelfAssessments.$inferSelect;
+
+export const thriveScores = pgTable("thrive_scores", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull(),
+  domainAScore: real("domain_a_score").notNull().default(50),
+  domainATrend: varchar("domain_a_trend").notNull().default("flat"),
+  domainBScore: real("domain_b_score").notNull().default(50),
+  domainBTrend: varchar("domain_b_trend").notNull().default("flat"),
+  domainCScore: real("domain_c_score").notNull().default(50),
+  domainCTrend: varchar("domain_c_trend").notNull().default("flat"),
+  domainDScore: real("domain_d_score"),
+  domainDTrend: varchar("domain_d_trend"),
+  domainDActive: boolean("domain_d_active").notNull().default(false),
+  domainEScore: real("domain_e_score").notNull().default(50),
+  domainETrend: varchar("domain_e_trend").notNull().default("flat"),
+  domainFScore: real("domain_f_score").notNull().default(50),
+  domainFTrend: varchar("domain_f_trend").notNull().default("flat"),
+  compositeScore: real("composite_score").notNull().default(50),
+  compositeTrend: varchar("composite_trend").notNull().default("flat"),
+  flagLevel: varchar("flag_level"),
+  flagDomains: text("flag_domains").array(),
+  nextBestActions: jsonb("next_best_actions"),
+  geographyKey: varchar("geography_key"),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const insertThriveScoreSchema = createInsertSchema(thriveScores).omit({ id: true, updatedAt: true });
+export type InsertThriveScore = z.infer<typeof insertThriveScoreSchema>;
+export type ThriveScore = typeof thriveScores.$inferSelect;
+
+export const thriveHistory = pgTable("thrive_history", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull(),
+  domainAScore: real("domain_a_score"),
+  domainBScore: real("domain_b_score"),
+  domainCScore: real("domain_c_score"),
+  domainDScore: real("domain_d_score"),
+  domainEScore: real("domain_e_score"),
+  domainFScore: real("domain_f_score"),
+  compositeScore: real("composite_score"),
+  flagLevel: varchar("flag_level"),
+  snapshotDate: timestamp("snapshot_date").defaultNow().notNull(),
+});
+
+export const insertThriveHistorySchema = createInsertSchema(thriveHistory).omit({ id: true, snapshotDate: true });
+export type InsertThriveHistory = z.infer<typeof insertThriveHistorySchema>;
+export type ThriveHistory = typeof thriveHistory.$inferSelect;
+
+export const earlyWarningFlags = pgTable("early_warning_flags", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull(),
+  flagLevel: varchar("flag_level").notNull(),
+  triggerClass: varchar("trigger_class").notNull(),
+  whatChanged: text("what_changed").notNull(),
+  whyItMatters: text("why_it_matters").notNull(),
+  navigationAction: text("navigation_action").notNull(),
+  thirtyDayTarget: text("thirty_day_target").notNull(),
+  affectedDomains: text("affected_domains").array(),
+  playbookId: varchar("playbook_id"),
+  assignedAdvisorId: varchar("assigned_advisor_id"),
+  status: varchar("status").notNull().default("active"),
+  resolvedAt: timestamp("resolved_at"),
+  resolvedBy: varchar("resolved_by"),
+  resolutionNotes: text("resolution_notes"),
+  followUpDate: timestamp("follow_up_date"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertEarlyWarningFlagSchema = createInsertSchema(earlyWarningFlags).omit({ id: true, createdAt: true });
+export type InsertEarlyWarningFlag = z.infer<typeof insertEarlyWarningFlagSchema>;
+export type EarlyWarningFlag = typeof earlyWarningFlags.$inferSelect;
+
+export const interventionPlaybooks = pgTable("intervention_playbooks", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: varchar("name").notNull(),
+  triggerClass: varchar("trigger_class").notNull(),
+  flagLevel: varchar("flag_level").notNull(),
+  objective: text("objective").notNull(),
+  scripts: jsonb("scripts"),
+  resourceOptions: jsonb("resource_options"),
+  thirtyDayTargets: jsonb("thirty_day_targets"),
+  followUpCadence: varchar("follow_up_cadence"),
+  successIndicators: jsonb("success_indicators"),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertInterventionPlaybookSchema = createInsertSchema(interventionPlaybooks).omit({ id: true, createdAt: true });
+export type InsertInterventionPlaybook = z.infer<typeof insertInterventionPlaybookSchema>;
+export type InterventionPlaybook = typeof interventionPlaybooks.$inferSelect;
+
+export const thriveConfig = pgTable("thrive_config", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  configKey: varchar("config_key").notNull(),
+  configValue: jsonb("config_value").notNull(),
+  description: text("description"),
+  updatedBy: varchar("updated_by"),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export type ThriveConfig = typeof thriveConfig.$inferSelect;
+
+export const gisResourceOverlays = pgTable("gis_resource_overlays", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: varchar("name").notNull(),
+  category: varchar("category").notNull(),
+  geographyKey: varchar("geography_key"),
+  latitude: real("latitude"),
+  longitude: real("longitude"),
+  address: varchar("address"),
+  contactInfo: varchar("contact_info"),
+  description: text("description"),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type GisResourceOverlay = typeof gisResourceOverlays.$inferSelect;
 
 export * from "./models/auth";
