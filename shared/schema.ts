@@ -189,6 +189,188 @@ export const certificates = pgTable("certificates", {
   issuedAt: timestamp("issued_at").defaultNow(),
 });
 
+// ==================== SIXTH GRADE ACADEMY TABLES ====================
+
+export const academyAvatars = pgTable("academy_avatars", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  displayName: text("display_name").notNull(),
+  role: text("role").notNull().default("student"),
+  skinTone: text("skin_tone").notNull().default("#8B6914"),
+  hairStyle: text("hair_style").notNull().default("short"),
+  hairColor: text("hair_color").notNull().default("#1a1a1a"),
+  outfit: text("outfit").notNull().default("casual"),
+  outfitColor: text("outfit_color").notNull().default("#4F46E5"),
+  accessory: text("accessory").notNull().default("none"),
+  background: text("background").notNull().default("school"),
+  bio: text("bio").notNull().default(""),
+  dreamGoal: text("dream_goal").notNull().default(""),
+  houseId: varchar("house_id", { length: 100 }),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const academyHouses = pgTable("academy_houses", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  color: text("color").notNull(),
+  motto: text("motto").notNull(),
+  iconName: text("icon_name").notNull(),
+  totalPoints: integer("total_points").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const academyMeritEvents = pgTable("academy_merit_events", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  houseId: varchar("house_id", { length: 100 }).references(() => academyHouses.id),
+  points: integer("points").notNull(),
+  reason: text("reason").notNull(),
+  category: text("category").notNull().default("academic"),
+  awardedBy: varchar("awarded_by", { length: 255 }),
+  awardedByName: text("awarded_by_name"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const academyWallets = pgTable("academy_wallets", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  balance: decimal("balance", { precision: 12, scale: 2 }).notNull().default("1000.00"),
+  totalEarned: decimal("total_earned", { precision: 12, scale: 2 }).notNull().default("0.00"),
+  totalInvested: decimal("total_invested", { precision: 12, scale: 2 }).notNull().default("0.00"),
+  campusContributed: decimal("campus_contributed", { precision: 12, scale: 2 }).notNull().default("0.00"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const academyTransactions = pgTable("academy_transactions", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  walletId: varchar("wallet_id", { length: 100 }).notNull().references(() => academyWallets.id),
+  type: text("type").notNull(),
+  amount: decimal("amount", { precision: 12, scale: 2 }).notNull(),
+  description: text("description").notNull(),
+  category: text("category").notNull().default("general"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const academyStocks = pgTable("academy_stocks", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  symbol: varchar("symbol", { length: 10 }).notNull(),
+  name: text("name").notNull(),
+  sector: text("sector").notNull(),
+  currentPrice: decimal("current_price", { precision: 12, scale: 2 }).notNull(),
+  previousPrice: decimal("previous_price", { precision: 12, scale: 2 }).notNull(),
+  changePercent: decimal("change_percent", { precision: 6, scale: 2 }).notNull().default("0.00"),
+  priceHistory: jsonb("price_history").notNull().default([]),
+});
+
+export const academyPortfolios = pgTable("academy_portfolios", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  stockId: varchar("stock_id", { length: 100 }).notNull().references(() => academyStocks.id),
+  shares: integer("shares").notNull().default(0),
+  avgBuyPrice: decimal("avg_buy_price", { precision: 12, scale: 2 }).notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const academyCommunityPortfolio = pgTable("academy_community_portfolio", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  stockId: varchar("stock_id", { length: 100 }).notNull().references(() => academyStocks.id),
+  shares: integer("shares").notNull().default(0),
+  avgBuyPrice: decimal("avg_buy_price", { precision: 12, scale: 2 }).notNull(),
+  strategy: text("strategy").notNull().default("ai_managed"),
+});
+
+export const academyCampusProjects = pgTable("academy_campus_projects", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  projectName: text("project_name").notNull(),
+  totalBudget: decimal("total_budget", { precision: 12, scale: 2 }).notNull().default("50000.00"),
+  amountFunded: decimal("amount_funded", { precision: 12, scale: 2 }).notNull().default("0.00"),
+  currentPhase: integer("current_phase").notNull().default(1),
+  completedPhases: jsonb("completed_phases").notNull().default([]),
+  features: jsonb("features").notNull().default([]),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const academyCompetitions = pgTable("academy_competitions", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  type: text("type").notNull(),
+  category: text("category").notNull(),
+  description: text("description").notNull(),
+  maxParticipants: integer("max_participants").notNull().default(60),
+  status: text("status").notNull().default("upcoming"),
+  startDate: timestamp("start_date"),
+  endDate: timestamp("end_date"),
+  prizePoints: integer("prize_points").notNull().default(100),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const academyCompetitionEntries = pgTable("academy_competition_entries", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  competitionId: varchar("competition_id", { length: 100 }).notNull().references(() => academyCompetitions.id),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  userName: text("user_name").notNull(),
+  score: integer("score"),
+  placement: integer("placement"),
+  completedAt: timestamp("completed_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const academyDreamProfiles = pgTable("academy_dream_profiles", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  dreamCareer: text("dream_career").notNull().default(""),
+  dreamCollege: text("dream_college").notNull().default(""),
+  shortTermGoals: text("short_term_goals").array().notNull().default(sql`'{}'::text[]`),
+  longTermGoals: text("long_term_goals").array().notNull().default(sql`'{}'::text[]`),
+  strengths: text("strengths").array().notNull().default(sql`'{}'::text[]`),
+  growthAreas: text("growth_areas").array().notNull().default(sql`'{}'::text[]`),
+  academicScore: integer("academic_score").notNull().default(0),
+  leadershipScore: integer("leadership_score").notNull().default(0),
+  communityScore: integer("community_score").notNull().default(0),
+  wellnessScore: integer("wellness_score").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const academyMerchItems = pgTable("academy_merch_items", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  price: decimal("price", { precision: 8, scale: 2 }).notNull(),
+  category: text("category").notNull(),
+  imageUrl: text("image_url"),
+  inStock: boolean("in_stock").notNull().default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const academyMerchOrders = pgTable("academy_merch_orders", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  userName: text("user_name").notNull(),
+  itemId: varchar("item_id", { length: 100 }).notNull().references(() => academyMerchItems.id),
+  quantity: integer("quantity").notNull().default(1),
+  totalPrice: decimal("total_price", { precision: 8, scale: 2 }).notNull(),
+  status: text("status").notNull().default("pending"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// ==================== ACADEMY INSERT SCHEMAS ====================
+
+export const insertAcademyAvatarSchema = createInsertSchema(academyAvatars).omit({ id: true, createdAt: true });
+export const insertAcademyHouseSchema = createInsertSchema(academyHouses).omit({ id: true, createdAt: true, totalPoints: true });
+export const insertAcademyMeritEventSchema = createInsertSchema(academyMeritEvents).omit({ id: true, createdAt: true });
+export const insertAcademyWalletSchema = createInsertSchema(academyWallets).omit({ id: true, createdAt: true });
+export const insertAcademyTransactionSchema = createInsertSchema(academyTransactions).omit({ id: true, createdAt: true });
+export const insertAcademyStockSchema = createInsertSchema(academyStocks).omit({ id: true });
+export const insertAcademyPortfolioSchema = createInsertSchema(academyPortfolios).omit({ id: true, createdAt: true });
+export const insertAcademyCampusProjectSchema = createInsertSchema(academyCampusProjects).omit({ id: true, createdAt: true });
+export const insertAcademyCompetitionSchema = createInsertSchema(academyCompetitions).omit({ id: true, createdAt: true });
+export const insertAcademyCompetitionEntrySchema = createInsertSchema(academyCompetitionEntries).omit({ id: true, createdAt: true });
+export const insertAcademyDreamProfileSchema = createInsertSchema(academyDreamProfiles).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertAcademyMerchItemSchema = createInsertSchema(academyMerchItems).omit({ id: true, createdAt: true });
+export const insertAcademyMerchOrderSchema = createInsertSchema(academyMerchOrders).omit({ id: true, createdAt: true });
+
 export const insertSubjectSchema = createInsertSchema(subjects);
 export const insertLevelSchema = createInsertSchema(levels);
 export const insertModuleSchema = createInsertSchema(modules).omit({ id: true });
@@ -245,5 +427,33 @@ export type ClassroomMember = typeof classroomMembers.$inferSelect;
 export type InsertClassroomMember = z.infer<typeof insertClassroomMemberSchema>;
 export type Certificate = typeof certificates.$inferSelect;
 export type InsertCertificate = z.infer<typeof insertCertificateSchema>;
+
+export type AcademyAvatar = typeof academyAvatars.$inferSelect;
+export type InsertAcademyAvatar = z.infer<typeof insertAcademyAvatarSchema>;
+export type AcademyHouse = typeof academyHouses.$inferSelect;
+export type InsertAcademyHouse = z.infer<typeof insertAcademyHouseSchema>;
+export type AcademyMeritEvent = typeof academyMeritEvents.$inferSelect;
+export type InsertAcademyMeritEvent = z.infer<typeof insertAcademyMeritEventSchema>;
+export type AcademyWallet = typeof academyWallets.$inferSelect;
+export type InsertAcademyWallet = z.infer<typeof insertAcademyWalletSchema>;
+export type AcademyTransaction = typeof academyTransactions.$inferSelect;
+export type InsertAcademyTransaction = z.infer<typeof insertAcademyTransactionSchema>;
+export type AcademyStock = typeof academyStocks.$inferSelect;
+export type InsertAcademyStock = z.infer<typeof insertAcademyStockSchema>;
+export type AcademyPortfolio = typeof academyPortfolios.$inferSelect;
+export type InsertAcademyPortfolio = z.infer<typeof insertAcademyPortfolioSchema>;
+export type AcademyCommunityPortfolioItem = typeof academyCommunityPortfolio.$inferSelect;
+export type AcademyCampusProject = typeof academyCampusProjects.$inferSelect;
+export type InsertAcademyCampusProject = z.infer<typeof insertAcademyCampusProjectSchema>;
+export type AcademyCompetition = typeof academyCompetitions.$inferSelect;
+export type InsertAcademyCompetition = z.infer<typeof insertAcademyCompetitionSchema>;
+export type AcademyCompetitionEntry = typeof academyCompetitionEntries.$inferSelect;
+export type InsertAcademyCompetitionEntry = z.infer<typeof insertAcademyCompetitionEntrySchema>;
+export type AcademyDreamProfile = typeof academyDreamProfiles.$inferSelect;
+export type InsertAcademyDreamProfile = z.infer<typeof insertAcademyDreamProfileSchema>;
+export type AcademyMerchItem = typeof academyMerchItems.$inferSelect;
+export type InsertAcademyMerchItem = z.infer<typeof insertAcademyMerchItemSchema>;
+export type AcademyMerchOrder = typeof academyMerchOrders.$inferSelect;
+export type InsertAcademyMerchOrder = z.infer<typeof insertAcademyMerchOrderSchema>;
 
 export * from "./models/auth";
