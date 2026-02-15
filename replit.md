@@ -31,7 +31,8 @@ Key features include:
     - **Admin Command Center:** Dashboard for teachers/admins to monitor student metrics, activity feed, wallet balances, Panther Power scores, add intervention notes, and review flagged content reports.
     - **Career Explorer:** 50+ career fields across 12 categories equally representing college, trade school, technical certification, military, and entrepreneurship paths. Students explore careers and save interests.
     - **My Pathway (Longitudinal Career Tracking):** Grade 6-12+ milestone tracker with portfolio evidence uploads (multi-file, any format via presigned URLs), revision workflows with parent/faculty approval (3x/year limit), and progress visualization.
-    - **Mentor Network:** Browse/request mentors from local professionals; admin approval workflow, session scheduling, and mentor-student matching by career interest.
+    - **Mentor Network:** Browse/request mentors from local professionals; admin approval workflow, session scheduling, and mentor-student matching by career interest. 8 seeded mentor profiles across Technology, Skilled Trades, Military, Healthcare, Entrepreneurship, Law & Public Safety.
+    - **Mentor & Partner Finder:** MCOE-integrated discovery page linking to minoritycenterofexcellence.com directory (112K+ businesses), browse by category and ownership type, mentor outreach form, partnership resources.
     - **Admin Longitudinal Dashboard:** District-scale view of all students' career pathway progress, milestone completion rates, revision approval queue, and cohort analytics.
     - **Admin Student Wizards:** Three wizard types (Initial Setup, Career Pathway Builder, Quarterly Review) for collaborative staff-student configuration of learning style, pace, career interests (up to 5), Panther Power focus areas, feature access toggles, mentor preferences, and staff-only support notes.
     - **Multi-File Upload Component:** Reusable upload system supporting any file format with presigned URL flow, used across portfolio evidence, mentor documents, and more.
@@ -52,6 +53,10 @@ Key features include:
     - **Thrive Dashboard:** Student view with composite score visualization, six domain cards with progress bars and trend indicators, 90-day history chart, and active early warning flags.
 - **Internationalization (i18n):** Custom language provider supporting English and Spanish.
 - **Low-Bandwidth Mode:** User-toggleable mode to strip animations, images, and shadows for improved performance on limited connections.
+- **Parent Support Alerts:** Parent dashboard shows prominent alert banners when a student's self-assessment indicates they need support, with context about mood/energy/stress levels and direct links to details.
+- **Student Welcome Onboarding:** 6-step guided onboarding dialog on first visit to Panther Village, introducing avatar, careers, Panther Power, self-assessments. Tracked via localStorage.
+- **Privacy Policy:** Comprehensive 11-section privacy page covering FERPA/COPPA compliance, GIS data practices, wellbeing data handling, access controls, third-party services, and parent rights. Accessible at /privacy.
+- **Mobile Responsive:** All Academy pages optimized for 375px phone screens with responsive grids, adaptive padding, and scaled typography.
 - **Design System:** Utilizes TxEA maroon and silver colors, with Plus Jakarta Sans and JetBrains Mono fonts, supporting dark mode. Branding: Texas Empowerment Academy Panthers, "Education, Character, Leadership".
 
 ## External Dependencies
