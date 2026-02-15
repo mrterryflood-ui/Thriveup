@@ -1143,5 +1143,438 @@ Write a warm, encouraging welcome message for students joining this classroom. M
     }
   });
 
+  // ==================== CYOA SCENARIOS ====================
+
+  app.get("/api/academy/scenarios", async (_req, res) => {
+    try {
+      const scenarios = await storage.getAllScenarios();
+      res.json(scenarios);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to load scenarios" });
+    }
+  });
+
+  app.get("/api/academy/scenarios/:id", async (req, res) => {
+    try {
+      const scenario = await storage.getScenario(req.params.id);
+      if (!scenario) return res.status(404).json({ error: "Scenario not found" });
+      const nodes = await storage.getScenarioNodes(req.params.id);
+      res.json({ ...scenario, nodes });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to load scenario" });
+    }
+  });
+
+  app.post("/api/academy/scenarios/:id/start", requireAuth, async (req, res) => {
+    try {
+      const userId = getUserId(req)!;
+      const scenario = await storage.getScenario(req.params.id);
+      if (!scenario) return res.status(404).json({ error: "Scenario not found" });
+      const run = await storage.createScenarioRun({
+        userId,
+        scenarioId: req.params.id,
+        currentNodeKey: "start",
+        status: "in_progress",
+        totalChoicesMade: 0,
+      });
+      await storage.createActivityFeedItem({
+        userId,
+        userName: getUserName(req) || "Student",
+        activityType: "scenario_start",
+        title: `Started: ${scenario.title}`,
+        description: `Began the "${scenario.title}" adventure`,
+        metadata: { scenarioId: scenario.id, theme: scenario.theme },
+        powerCategory: scenario.rewardCategory,
+        pointsEarned: 0,
+      });
+      res.status(201).json(run);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to start scenario" });
+    }
+  });
+
+  app.post("/api/academy/scenarios/runs/:runId/choose", requireAuth, async (req, res) => {
+    try {
+      const userId = getUserId(req)!;
+      const { choiceKey, choiceLabel, nodeKey } = req.body;
+      const run = await storage.getScenarioRun(req.params.runId);
+      if (!run || run.userId !== userId) return res.status(404).json({ error: "Run not found" });
+      
+      const currentNode = await storage.getScenarioNode(run.scenarioId, nodeKey);
+      if (!currentNode) return res.status(404).json({ error: "Node not found" });
+      
+      const choices = (currentNode.choices as any[]) || [];
+      const selectedChoice = choices.find((c: any) => c.key === choiceKey);
+      if (!selectedChoice) return res.status(400).json({ error: "Invalid choice" });
+      
+      const nextNodeKey = selectedChoice.nextNodeKey;
+      const nextNode = await storage.getScenarioNode(run.scenarioId, nextNodeKey);
+      
+      await storage.createChoiceLog({
+        runId: run.id,
+        userId,
+        nodeKey,
+        choiceKey,
+        choiceLabel,
+        consequence: selectedChoice.consequence || {},
+      });
+      
+      const walletImpact = nextNode ? parseFloat(String(nextNode.walletImpact || "0")) : 0;
+      const powerImpact = nextNode ? (nextNode.powerImpact || 0) : 0;
+      
+      if (walletImpact !== 0) {
+        try {
+          const wallet = await storage.getOrCreateWallet(userId);
+          const newBalance = parseFloat(String(wallet.balance)) + walletImpact;
+          await storage.updateWalletBalance(wallet.id, { balance: String(Math.max(0, newBalance)) });
+        } catch (e) {}
+      }
+      
+      const meritImpact = nextNode ? (nextNode.meritImpact || 0) : 0;
+      if (meritImpact > 0) {
+        try {
+          const avatar = await storage.getAcademyAvatar(userId);
+          if (avatar?.houseId) {
+            await storage.createMeritEvent({
+              userId,
+              houseId: avatar.houseId,
+              points: meritImpact,
+              reason: "Adventure choice reward",
+              category: "adventure",
+              awardedBy: "system",
+              awardedByName: "Adventure System",
+            });
+            await storage.updateHousePoints(avatar.houseId, meritImpact);
+          }
+        } catch (e) {}
+      }
+      
+      const isEnd = nextNode?.isEnd ?? false;
+      const updatedRun = await storage.updateScenarioRun(run.id, {
+        currentNodeKey: nextNodeKey,
+        totalChoicesMade: (run.totalChoicesMade || 0) + 1,
+        totalWalletImpact: String(parseFloat(String(run.totalWalletImpact || "0")) + walletImpact),
+        totalPowerEarned: (run.totalPowerEarned || 0) + powerImpact,
+        status: isEnd ? "completed" : "in_progress",
+        completedAt: isEnd ? new Date() : undefined,
+      });
+      
+      if (isEnd && powerImpact > 0) {
+        try {
+          const scenario = await storage.getScenario(run.scenarioId);
+          const category = scenario?.rewardCategory || "education";
+          const power = await storage.getOrCreatePantherPower(userId);
+          const categoryKey = `${category}Score` as any;
+          await storage.updatePantherPower(userId, { [categoryKey]: (power as any)[categoryKey] + powerImpact });
+        } catch (e) {}
+      }
+      
+      if (isEnd) {
+        await storage.createActivityFeedItem({
+          userId,
+          userName: getUserName(req) || "Student",
+          activityType: "scenario_complete",
+          title: "Completed an Adventure",
+          description: `Finished with ${(run.totalChoicesMade || 0) + 1} choices made`,
+          metadata: { scenarioId: run.scenarioId, runId: run.id },
+          powerCategory: null,
+          pointsEarned: powerImpact,
+        });
+      }
+      
+      res.json({ run: updatedRun, nextNode, isEnd });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to process choice" });
+    }
+  });
+
+  app.get("/api/academy/scenarios/runs/mine", requireAuth, async (req, res) => {
+    try {
+      const runs = await storage.getScenarioRunsByUser(getUserId(req)!);
+      res.json(runs);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to load runs" });
+    }
+  });
+
+  app.get("/api/academy/scenarios/runs/:runId", requireAuth, async (req, res) => {
+    try {
+      const run = await storage.getScenarioRun(req.params.runId);
+      if (!run) return res.status(404).json({ error: "Run not found" });
+      const logs = await storage.getChoiceLogsByRun(run.id);
+      res.json({ ...run, choiceLogs: logs });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to load run" });
+    }
+  });
+
+  // ==================== MARKETPLACE ====================
+
+  app.get("/api/academy/marketplace", async (_req, res) => {
+    try {
+      const listings = await storage.getActiveListings();
+      res.json(listings);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to load marketplace" });
+    }
+  });
+
+  app.get("/api/academy/marketplace/my-listings", requireAuth, async (req, res) => {
+    try {
+      const listings = await storage.getListingsByUser(getUserId(req)!);
+      res.json(listings);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to load your listings" });
+    }
+  });
+
+  app.post("/api/academy/marketplace", requireAuth, async (req, res) => {
+    try {
+      const userId = getUserId(req)!;
+      const userName = getUserName(req) || "Student";
+      const listing = await storage.createListing({
+        ...req.body,
+        sellerId: userId,
+        sellerName: userName,
+        status: "active",
+      });
+      await storage.createActivityFeedItem({
+        userId,
+        userName,
+        activityType: "marketplace_list",
+        title: `Listed: ${listing.itemName}`,
+        description: `Listed "${listing.itemName}" for $${listing.price}`,
+        metadata: { listingId: listing.id, price: listing.price },
+        powerCategory: "entrepreneurship",
+        pointsEarned: 5,
+      });
+      try {
+        const power = await storage.getOrCreatePantherPower(userId);
+        await storage.updatePantherPower(userId, { entrepreneurshipScore: power.entrepreneurshipScore + 5 });
+      } catch (e) {}
+      res.status(201).json(listing);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create listing" });
+    }
+  });
+
+  app.post("/api/academy/marketplace/:id/buy", requireAuth, async (req, res) => {
+    try {
+      const buyerId = getUserId(req)!;
+      const buyerName = getUserName(req) || "Student";
+      const listing = await storage.getActiveListings().then(ls => ls.find(l => l.id === req.params.id));
+      if (!listing) return res.status(404).json({ error: "Listing not found or no longer active" });
+      if (listing.sellerId === buyerId) return res.status(400).json({ error: "Cannot buy your own listing" });
+      
+      const buyerWallet = await storage.getOrCreateWallet(buyerId);
+      const price = parseFloat(String(listing.price));
+      const buyerBalance = parseFloat(String(buyerWallet.balance));
+      if (buyerBalance < price) return res.status(400).json({ error: "Insufficient funds" });
+      
+      await storage.updateWalletBalance(buyerWallet.id, { balance: String(buyerBalance - price) });
+      const buyerTx = await storage.createTransaction({ walletId: buyerWallet.id, type: "purchase", amount: String(-price), description: `Bought "${listing.itemName}" from ${listing.sellerName}`, category: "marketplace" });
+      
+      const sellerWallet = await storage.getOrCreateWallet(listing.sellerId);
+      const sellerBalance = parseFloat(String(sellerWallet.balance));
+      await storage.updateWalletBalance(sellerWallet.id, { balance: String(sellerBalance + price) });
+      await storage.createTransaction({ walletId: sellerWallet.id, type: "sale", amount: String(price), description: `Sold "${listing.itemName}" to ${buyerName}`, category: "marketplace" });
+      
+      const newQty = listing.quantity - (req.body.quantity || 1);
+      await storage.updateListing(listing.id, { quantity: Math.max(0, newQty), status: newQty <= 0 ? "sold" : "active" });
+      
+      const trade = await storage.createPeerTrade({
+        listingId: listing.id,
+        buyerId,
+        buyerName,
+        sellerId: listing.sellerId,
+        sellerName: listing.sellerName,
+        quantity: req.body.quantity || 1,
+        totalPrice: String(price),
+        status: "completed",
+      });
+      
+      await storage.createActivityFeedItem({
+        userId: buyerId,
+        userName: buyerName,
+        activityType: "marketplace_buy",
+        title: `Purchased: ${listing.itemName}`,
+        description: `Bought "${listing.itemName}" for $${price}`,
+        metadata: { listingId: listing.id, tradeId: trade.id },
+        powerCategory: "entrepreneurship",
+        pointsEarned: 3,
+      });
+      
+      try {
+        const buyerPower = await storage.getOrCreatePantherPower(buyerId);
+        await storage.updatePantherPower(buyerId, { entrepreneurshipScore: buyerPower.entrepreneurshipScore + 3 });
+        const sellerPower = await storage.getOrCreatePantherPower(listing.sellerId);
+        await storage.updatePantherPower(listing.sellerId, { entrepreneurshipScore: sellerPower.entrepreneurshipScore + 5 });
+      } catch (e) {}
+      
+      res.json({ trade, message: "Purchase successful!" });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to process purchase" });
+    }
+  });
+
+  app.get("/api/academy/marketplace/trades", requireAuth, async (req, res) => {
+    try {
+      const trades = await storage.getTradesByUser(getUserId(req)!);
+      res.json(trades);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to load trades" });
+    }
+  });
+
+  // ==================== ACTIVITY FEED ====================
+
+  app.get("/api/academy/activity", async (_req, res) => {
+    try {
+      const feed = await storage.getActivityFeed(100);
+      res.json(feed);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to load activity feed" });
+    }
+  });
+
+  app.get("/api/academy/activity/:userId", async (req, res) => {
+    try {
+      const feed = await storage.getActivityFeedByUser(req.params.userId);
+      res.json(feed);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to load user activity" });
+    }
+  });
+
+  // ==================== ADMIN DASHBOARD ====================
+
+  app.get("/api/academy/admin/metrics", async (_req, res) => {
+    try {
+      const [wallets, pantherPowers, scenarioRuns, allListings, trades, allActivity, allMerit, allNotes] = await Promise.all([
+        storage.getAllWallets(),
+        storage.getAllPantherPower(),
+        storage.getAllScenarioRuns(),
+        storage.getActiveListings(),
+        storage.getAllPeerTrades(),
+        storage.getActivityFeed(100),
+        storage.getAllMeritEvents(),
+        storage.getAllAdminNotes(),
+      ]);
+      
+      const totalStudents = wallets.length;
+      const totalWalletValue = wallets.reduce((sum, w) => sum + parseFloat(String(w.balance)), 0);
+      const avgWalletBalance = totalStudents > 0 ? totalWalletValue / totalStudents : 0;
+      const avgPantherScore = pantherPowers.length > 0 ? pantherPowers.reduce((sum, p) => sum + p.totalScore, 0) / pantherPowers.length : 0;
+      const scenarioCompletions = scenarioRuns.filter(r => r.status === "completed").length;
+      const tradeCount = trades.length;
+      const activeListings = allListings.length;
+      const totalMeritEvents = allMerit.length;
+      const unresolvedNotes = allNotes.filter(n => !n.isResolved).length;
+      
+      const topStudents = pantherPowers.sort((a, b) => b.totalScore - a.totalScore).slice(0, 10).map(p => ({
+        userId: p.userId,
+        totalScore: p.totalScore,
+        level: p.level,
+        title: p.title,
+        education: p.educationScore,
+        character: p.characterScore,
+        leadership: p.leadershipScore,
+        entrepreneurship: p.entrepreneurshipScore,
+        community: p.communityScore,
+      }));
+      
+      res.json({
+        totalStudents,
+        totalWalletValue: totalWalletValue.toFixed(2),
+        avgWalletBalance: avgWalletBalance.toFixed(2),
+        avgPantherScore: Math.round(avgPantherScore),
+        scenarioCompletions,
+        tradeCount,
+        activeListings,
+        totalMeritEvents,
+        unresolvedNotes,
+        topStudents,
+        recentActivity: allActivity.slice(0, 20),
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to load admin metrics" });
+    }
+  });
+
+  app.get("/api/academy/admin/students", async (_req, res) => {
+    try {
+      const [avatars, wallets, powers] = await Promise.all([
+        storage.getAllAcademyAvatars(),
+        storage.getAllWallets(),
+        storage.getAllPantherPower(),
+      ]);
+      
+      const walletMap = new Map(wallets.map(w => [w.userId, w]));
+      const powerMap = new Map(powers.map(p => [p.userId, p]));
+      
+      const students = avatars.map(a => ({
+        userId: a.userId,
+        displayName: a.displayName,
+        role: a.role,
+        houseId: a.houseId,
+        wallet: walletMap.get(a.userId) || null,
+        power: powerMap.get(a.userId) || null,
+      }));
+      
+      res.json(students);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to load students" });
+    }
+  });
+
+  app.get("/api/academy/admin/student/:userId", async (req, res) => {
+    try {
+      const userId = req.params.userId;
+      const [avatar, wallet, power, activity, notes, meritEvents] = await Promise.all([
+        storage.getAcademyAvatar(userId),
+        storage.getOrCreateWallet(userId),
+        storage.getOrCreatePantherPower(userId),
+        storage.getActivityFeedByUser(userId),
+        storage.getAdminNotesByUser(userId),
+        storage.getMeritEventsByUser(userId),
+      ]);
+      
+      res.json({ avatar, wallet, power, activity, notes, meritEvents });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to load student details" });
+    }
+  });
+
+  app.get("/api/academy/admin/notes", async (_req, res) => {
+    try {
+      const notes = await storage.getAllAdminNotes();
+      res.json(notes);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to load admin notes" });
+    }
+  });
+
+  app.post("/api/academy/admin/notes", requireAuth, async (req, res) => {
+    try {
+      const note = await storage.createAdminNote({
+        ...req.body,
+        adminId: getUserId(req)!,
+        adminName: getUserName(req) || "Admin",
+      });
+      res.status(201).json(note);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create note" });
+    }
+  });
+
+  app.patch("/api/academy/admin/notes/:id", requireAuth, async (req, res) => {
+    try {
+      const note = await storage.updateAdminNote(req.params.id, req.body);
+      res.json(note);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update note" });
+    }
+  });
+
   return httpServer;
 }

@@ -410,6 +410,114 @@ export const academyWizardProgress = pgTable("academy_wizard_progress", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// ==================== CHOOSE-YOUR-OWN-ADVENTURE & MARKETPLACE TABLES ====================
+
+export const academyScenarios = pgTable("academy_scenarios", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  title: text("title").notNull(),
+  theme: text("theme").notNull(), // "finance", "social", "business", "leadership", "community"
+  summary: text("summary").notNull(),
+  difficulty: text("difficulty").notNull().default("medium"), // "easy", "medium", "hard"
+  empathyPrompt: text("empathy_prompt").notNull(), // IGN-style empathy hook
+  featureArea: text("feature_area").notNull().default("general"), // ties to stocks, wallet, campus, etc.
+  totalNodes: integer("total_nodes").notNull().default(1),
+  rewardCategory: text("reward_category").notNull().default("education"), // panther power category
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const academyScenarioNodes = pgTable("academy_scenario_nodes", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  scenarioId: varchar("scenario_id", { length: 100 }).notNull().references(() => academyScenarios.id),
+  nodeKey: text("node_key").notNull(), // "start", "choice_a", "choice_b", "outcome_a1", etc.
+  narrative: text("narrative").notNull(), // the story text
+  isStart: boolean("is_start").notNull().default(false),
+  isEnd: boolean("is_end").notNull().default(false),
+  choices: jsonb("choices").notNull().default([]), // [{key: "a", label: "Invest wisely", nextNodeKey: "outcome_a1", consequence: {...}}]
+  consequenceSummary: text("consequence_summary"), // what happened as a result
+  walletImpact: decimal("wallet_impact", { precision: 12, scale: 2 }).default("0.00"), // +/- wallet
+  powerImpact: integer("power_impact").default(0), // +/- panther power
+  meritImpact: integer("merit_impact").default(0), // +/- merit/house points
+  emotionalTone: text("emotional_tone").default("neutral"), // "triumph", "setback", "learning", "neutral"
+  pathForward: text("path_forward"), // encouragement text when facing setbacks
+  sortOrder: integer("sort_order").notNull().default(0),
+});
+
+export const academyScenarioRuns = pgTable("academy_scenario_runs", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  scenarioId: varchar("scenario_id", { length: 100 }).notNull().references(() => academyScenarios.id),
+  currentNodeKey: text("current_node_key").notNull().default("start"),
+  status: text("status").notNull().default("in_progress"), // "in_progress", "completed", "abandoned"
+  totalChoicesMade: integer("total_choices_made").notNull().default(0),
+  totalWalletImpact: decimal("total_wallet_impact", { precision: 12, scale: 2 }).default("0.00"),
+  totalPowerEarned: integer("total_power_earned").default(0),
+  outcome: jsonb("outcome").default({}), // final outcome summary
+  startedAt: timestamp("started_at").defaultNow(),
+  completedAt: timestamp("completed_at"),
+});
+
+export const academyChoiceLogs = pgTable("academy_choice_logs", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  runId: varchar("run_id", { length: 100 }).notNull().references(() => academyScenarioRuns.id),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  nodeKey: text("node_key").notNull(),
+  choiceKey: text("choice_key").notNull(),
+  choiceLabel: text("choice_label").notNull(),
+  consequence: jsonb("consequence").default({}),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const academyMarketListings = pgTable("academy_market_listings", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  sellerId: varchar("seller_id", { length: 255 }).notNull(),
+  sellerName: text("seller_name").notNull(),
+  itemName: text("item_name").notNull(),
+  description: text("description").notNull(),
+  category: text("category").notNull().default("general"), // "service", "product", "skill", "tutoring"
+  price: decimal("price", { precision: 12, scale: 2 }).notNull(),
+  quantity: integer("quantity").notNull().default(1),
+  status: text("status").notNull().default("active"), // "active", "sold", "cancelled"
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const academyPeerTrades = pgTable("academy_peer_trades", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  listingId: varchar("listing_id", { length: 100 }).notNull().references(() => academyMarketListings.id),
+  buyerId: varchar("buyer_id", { length: 255 }).notNull(),
+  buyerName: text("buyer_name").notNull(),
+  sellerId: varchar("seller_id", { length: 255 }).notNull(),
+  sellerName: text("seller_name").notNull(),
+  quantity: integer("quantity").notNull().default(1),
+  totalPrice: decimal("total_price", { precision: 12, scale: 2 }).notNull(),
+  status: text("status").notNull().default("completed"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const academyActivityFeed = pgTable("academy_activity_feed", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  userName: text("user_name").notNull(),
+  activityType: text("activity_type").notNull(), // "trade", "scenario_choice", "scenario_complete", "stock_trade", "merit_award", "campus_fund", "quest_complete", "marketplace_list", "marketplace_buy"
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  metadata: jsonb("metadata").default({}),
+  powerCategory: text("power_category"), // which panther power category this relates to
+  pointsEarned: integer("points_earned").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const academyAdminNotes = pgTable("academy_admin_notes", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  adminId: varchar("admin_id", { length: 255 }).notNull(),
+  adminName: text("admin_name").notNull(),
+  userId: varchar("user_id", { length: 255 }), // null = general note
+  note: text("note").notNull(),
+  category: text("category").notNull().default("observation"), // "observation", "intervention", "praise", "concern"
+  isResolved: boolean("is_resolved").notNull().default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // ==================== ACADEMY INSERT SCHEMAS ====================
 
 export const insertAcademyAvatarSchema = createInsertSchema(academyAvatars).omit({ id: true, createdAt: true });
@@ -430,6 +538,15 @@ export const insertAcademyPantherPowerSchema = createInsertSchema(academyPanther
 export const insertAcademyDailyQuestSchema = createInsertSchema(academyDailyQuests).omit({ id: true, createdAt: true, completedAt: true });
 export const insertAcademyLifeLessonSchema = createInsertSchema(academyLifeLessons).omit({ id: true });
 export const insertAcademyWizardProgressSchema = createInsertSchema(academyWizardProgress).omit({ id: true, createdAt: true, completedAt: true });
+
+export const insertAcademyScenarioSchema = createInsertSchema(academyScenarios).omit({ id: true, createdAt: true });
+export const insertAcademyScenarioNodeSchema = createInsertSchema(academyScenarioNodes).omit({ id: true });
+export const insertAcademyScenarioRunSchema = createInsertSchema(academyScenarioRuns).omit({ id: true, startedAt: true, completedAt: true });
+export const insertAcademyChoiceLogSchema = createInsertSchema(academyChoiceLogs).omit({ id: true, createdAt: true });
+export const insertAcademyMarketListingSchema = createInsertSchema(academyMarketListings).omit({ id: true, createdAt: true });
+export const insertAcademyPeerTradeSchema = createInsertSchema(academyPeerTrades).omit({ id: true, createdAt: true });
+export const insertAcademyActivityFeedSchema = createInsertSchema(academyActivityFeed).omit({ id: true, createdAt: true });
+export const insertAcademyAdminNoteSchema = createInsertSchema(academyAdminNotes).omit({ id: true, createdAt: true });
 
 export const insertSubjectSchema = createInsertSchema(subjects);
 export const insertLevelSchema = createInsertSchema(levels);
@@ -523,5 +640,21 @@ export type AcademyLifeLesson = typeof academyLifeLessons.$inferSelect;
 export type InsertAcademyLifeLesson = z.infer<typeof insertAcademyLifeLessonSchema>;
 export type AcademyWizardProgress = typeof academyWizardProgress.$inferSelect;
 export type InsertAcademyWizardProgress = z.infer<typeof insertAcademyWizardProgressSchema>;
+export type AcademyScenario = typeof academyScenarios.$inferSelect;
+export type InsertAcademyScenario = z.infer<typeof insertAcademyScenarioSchema>;
+export type AcademyScenarioNode = typeof academyScenarioNodes.$inferSelect;
+export type InsertAcademyScenarioNode = z.infer<typeof insertAcademyScenarioNodeSchema>;
+export type AcademyScenarioRun = typeof academyScenarioRuns.$inferSelect;
+export type InsertAcademyScenarioRun = z.infer<typeof insertAcademyScenarioRunSchema>;
+export type AcademyChoiceLog = typeof academyChoiceLogs.$inferSelect;
+export type InsertAcademyChoiceLog = z.infer<typeof insertAcademyChoiceLogSchema>;
+export type AcademyMarketListing = typeof academyMarketListings.$inferSelect;
+export type InsertAcademyMarketListing = z.infer<typeof insertAcademyMarketListingSchema>;
+export type AcademyPeerTrade = typeof academyPeerTrades.$inferSelect;
+export type InsertAcademyPeerTrade = z.infer<typeof insertAcademyPeerTradeSchema>;
+export type AcademyActivityFeedItem = typeof academyActivityFeed.$inferSelect;
+export type InsertAcademyActivityFeedItem = z.infer<typeof insertAcademyActivityFeedSchema>;
+export type AcademyAdminNote = typeof academyAdminNotes.$inferSelect;
+export type InsertAcademyAdminNote = z.infer<typeof insertAcademyAdminNoteSchema>;
 
 export * from "./models/auth";

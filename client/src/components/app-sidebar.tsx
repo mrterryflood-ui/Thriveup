@@ -17,7 +17,7 @@ import {
   Shield, ShieldCheck, ShieldPlus, Swords, Medal, Heart, Sparkles,
   Users, Globe, FileText, LogIn, LogOut, Flame, BarChart3, School, ScrollText, Wand2, Smartphone,
   Rocket, User, TrendingUp, Wallet, Building2, Trophy, Flag, Target, ShoppingBag,
-  Zap, CalendarCheck, Lightbulb,
+  Zap, CalendarCheck, Lightbulb, Gamepad2, Store,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -55,6 +55,9 @@ const academyItems = [
   { title: "House Points", url: "/academy/houses", icon: Flag },
   { title: "Dream Design", url: "/academy/dreams", icon: Target },
   { title: "Print Shop", url: "/academy/merch", icon: ShoppingBag },
+  { title: "Adventures", url: "/academy/scenarios", icon: Gamepad2 },
+  { title: "Marketplace", url: "/academy/marketplace", icon: Store },
+  { title: "Admin Dashboard", url: "/academy/admin", icon: BarChart3 },
 ];
 
 const rankIcons: Record<string, typeof Shield> = {

@@ -28,10 +28,20 @@ import {
   type AcademyMerchItem, type InsertAcademyMerchItem,
   type AcademyMerchOrder, type InsertAcademyMerchOrder,
   academyPantherPower, academyDailyQuests, academyLifeLessons, academyWizardProgress,
+  academyScenarios, academyScenarioNodes, academyScenarioRuns, academyChoiceLogs,
+  academyMarketListings, academyPeerTrades, academyActivityFeed, academyAdminNotes,
   type AcademyPantherPower, type InsertAcademyPantherPower,
   type AcademyDailyQuest, type InsertAcademyDailyQuest,
   type AcademyLifeLesson, type InsertAcademyLifeLesson,
   type AcademyWizardProgress, type InsertAcademyWizardProgress,
+  type AcademyScenario, type InsertAcademyScenario,
+  type AcademyScenarioNode, type InsertAcademyScenarioNode,
+  type AcademyScenarioRun, type InsertAcademyScenarioRun,
+  type AcademyChoiceLog, type InsertAcademyChoiceLog,
+  type AcademyMarketListing, type InsertAcademyMarketListing,
+  type AcademyPeerTrade, type InsertAcademyPeerTrade,
+  type AcademyActivityFeedItem, type InsertAcademyActivityFeedItem,
+  type AcademyAdminNote, type InsertAcademyAdminNote,
 } from "@shared/schema";
 import { eq, and, desc, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
@@ -161,6 +171,49 @@ export interface IStorage {
   getWizardProgress(userId: string, wizardType: string): Promise<AcademyWizardProgress | undefined>;
   createOrUpdateWizardProgress(userId: string, wizardType: string, currentStep: number, totalSteps: number): Promise<AcademyWizardProgress>;
   completeWizard(userId: string, wizardType: string): Promise<AcademyWizardProgress>;
+
+  // Scenarios
+  getAllScenarios(): Promise<AcademyScenario[]>;
+  getScenario(id: string): Promise<AcademyScenario | undefined>;
+  createScenario(scenario: InsertAcademyScenario): Promise<AcademyScenario>;
+  getScenarioNodes(scenarioId: string): Promise<AcademyScenarioNode[]>;
+  getScenarioNode(scenarioId: string, nodeKey: string): Promise<AcademyScenarioNode | undefined>;
+  createScenarioNode(node: InsertAcademyScenarioNode): Promise<AcademyScenarioNode>;
+  
+  // Scenario Runs
+  getScenarioRun(id: string): Promise<AcademyScenarioRun | undefined>;
+  getScenarioRunsByUser(userId: string): Promise<AcademyScenarioRun[]>;
+  createScenarioRun(run: InsertAcademyScenarioRun): Promise<AcademyScenarioRun>;
+  updateScenarioRun(id: string, data: Partial<AcademyScenarioRun>): Promise<AcademyScenarioRun>;
+  
+  // Choice Logs
+  createChoiceLog(log: InsertAcademyChoiceLog): Promise<AcademyChoiceLog>;
+  getChoiceLogsByRun(runId: string): Promise<AcademyChoiceLog[]>;
+  
+  // Marketplace
+  getActiveListings(): Promise<AcademyMarketListing[]>;
+  getListingsByUser(userId: string): Promise<AcademyMarketListing[]>;
+  createListing(listing: InsertAcademyMarketListing): Promise<AcademyMarketListing>;
+  updateListing(id: string, data: Partial<AcademyMarketListing>): Promise<AcademyMarketListing>;
+  
+  // Peer Trades
+  createPeerTrade(trade: InsertAcademyPeerTrade): Promise<AcademyPeerTrade>;
+  getTradesByUser(userId: string): Promise<AcademyPeerTrade[]>;
+  
+  // Activity Feed
+  getActivityFeed(limit?: number): Promise<AcademyActivityFeedItem[]>;
+  getActivityFeedByUser(userId: string): Promise<AcademyActivityFeedItem[]>;
+  createActivityFeedItem(item: InsertAcademyActivityFeedItem): Promise<AcademyActivityFeedItem>;
+  
+  // Admin
+  getAllAdminNotes(): Promise<AcademyAdminNote[]>;
+  getAdminNotesByUser(userId: string): Promise<AcademyAdminNote[]>;
+  createAdminNote(note: InsertAcademyAdminNote): Promise<AcademyAdminNote>;
+  updateAdminNote(id: string, data: Partial<AcademyAdminNote>): Promise<AcademyAdminNote>;
+  getAllWallets(): Promise<AcademyWallet[]>;
+  getAllPantherPower(): Promise<AcademyPantherPower[]>;
+  getAllScenarioRuns(): Promise<AcademyScenarioRun[]>;
+  getAllPeerTrades(): Promise<AcademyPeerTrade[]>;
 
   seedData(): Promise<void>;
 }
@@ -758,11 +811,158 @@ export class DatabaseStorage implements IStorage {
     return created;
   }
 
+  // ==================== SCENARIOS ====================
+  
+  async getAllScenarios(): Promise<AcademyScenario[]> {
+    return db.select().from(academyScenarios).where(eq(academyScenarios.isActive, true)).orderBy(academyScenarios.createdAt);
+  }
+
+  async getScenario(id: string): Promise<AcademyScenario | undefined> {
+    const [s] = await db.select().from(academyScenarios).where(eq(academyScenarios.id, id));
+    return s;
+  }
+
+  async createScenario(scenario: InsertAcademyScenario): Promise<AcademyScenario> {
+    const [created] = await db.insert(academyScenarios).values(scenario).returning();
+    return created;
+  }
+
+  async getScenarioNodes(scenarioId: string): Promise<AcademyScenarioNode[]> {
+    return db.select().from(academyScenarioNodes).where(eq(academyScenarioNodes.scenarioId, scenarioId)).orderBy(academyScenarioNodes.sortOrder);
+  }
+
+  async getScenarioNode(scenarioId: string, nodeKey: string): Promise<AcademyScenarioNode | undefined> {
+    const [node] = await db.select().from(academyScenarioNodes).where(and(eq(academyScenarioNodes.scenarioId, scenarioId), eq(academyScenarioNodes.nodeKey, nodeKey)));
+    return node;
+  }
+
+  async createScenarioNode(node: InsertAcademyScenarioNode): Promise<AcademyScenarioNode> {
+    const [created] = await db.insert(academyScenarioNodes).values(node).returning();
+    return created;
+  }
+
+  // ==================== SCENARIO RUNS ====================
+
+  async getScenarioRun(id: string): Promise<AcademyScenarioRun | undefined> {
+    const [run] = await db.select().from(academyScenarioRuns).where(eq(academyScenarioRuns.id, id));
+    return run;
+  }
+
+  async getScenarioRunsByUser(userId: string): Promise<AcademyScenarioRun[]> {
+    return db.select().from(academyScenarioRuns).where(eq(academyScenarioRuns.userId, userId)).orderBy(desc(academyScenarioRuns.startedAt));
+  }
+
+  async createScenarioRun(run: InsertAcademyScenarioRun): Promise<AcademyScenarioRun> {
+    const [created] = await db.insert(academyScenarioRuns).values(run).returning();
+    return created;
+  }
+
+  async updateScenarioRun(id: string, data: Partial<AcademyScenarioRun>): Promise<AcademyScenarioRun> {
+    const [updated] = await db.update(academyScenarioRuns).set(data).where(eq(academyScenarioRuns.id, id)).returning();
+    return updated;
+  }
+
+  // ==================== CHOICE LOGS ====================
+
+  async createChoiceLog(log: InsertAcademyChoiceLog): Promise<AcademyChoiceLog> {
+    const [created] = await db.insert(academyChoiceLogs).values(log).returning();
+    return created;
+  }
+
+  async getChoiceLogsByRun(runId: string): Promise<AcademyChoiceLog[]> {
+    return db.select().from(academyChoiceLogs).where(eq(academyChoiceLogs.runId, runId)).orderBy(academyChoiceLogs.createdAt);
+  }
+
+  // ==================== MARKETPLACE ====================
+
+  async getActiveListings(): Promise<AcademyMarketListing[]> {
+    return db.select().from(academyMarketListings).where(eq(academyMarketListings.status, "active")).orderBy(desc(academyMarketListings.createdAt));
+  }
+
+  async getListingsByUser(userId: string): Promise<AcademyMarketListing[]> {
+    return db.select().from(academyMarketListings).where(eq(academyMarketListings.sellerId, userId)).orderBy(desc(academyMarketListings.createdAt));
+  }
+
+  async createListing(listing: InsertAcademyMarketListing): Promise<AcademyMarketListing> {
+    const [created] = await db.insert(academyMarketListings).values(listing).returning();
+    return created;
+  }
+
+  async updateListing(id: string, data: Partial<AcademyMarketListing>): Promise<AcademyMarketListing> {
+    const [updated] = await db.update(academyMarketListings).set(data).where(eq(academyMarketListings.id, id)).returning();
+    return updated;
+  }
+
+  // ==================== PEER TRADES ====================
+
+  async createPeerTrade(trade: InsertAcademyPeerTrade): Promise<AcademyPeerTrade> {
+    const [created] = await db.insert(academyPeerTrades).values(trade).returning();
+    return created;
+  }
+
+  async getTradesByUser(userId: string): Promise<AcademyPeerTrade[]> {
+    return db.select().from(academyPeerTrades).where(
+      sql`${academyPeerTrades.buyerId} = ${userId} OR ${academyPeerTrades.sellerId} = ${userId}`
+    ).orderBy(desc(academyPeerTrades.createdAt));
+  }
+
+  // ==================== ACTIVITY FEED ====================
+
+  async getActivityFeed(limit: number = 50): Promise<AcademyActivityFeedItem[]> {
+    return db.select().from(academyActivityFeed).orderBy(desc(academyActivityFeed.createdAt)).limit(limit);
+  }
+
+  async getActivityFeedByUser(userId: string): Promise<AcademyActivityFeedItem[]> {
+    return db.select().from(academyActivityFeed).where(eq(academyActivityFeed.userId, userId)).orderBy(desc(academyActivityFeed.createdAt)).limit(50);
+  }
+
+  async createActivityFeedItem(item: InsertAcademyActivityFeedItem): Promise<AcademyActivityFeedItem> {
+    const [created] = await db.insert(academyActivityFeed).values(item).returning();
+    return created;
+  }
+
+  // ==================== ADMIN ====================
+
+  async getAllAdminNotes(): Promise<AcademyAdminNote[]> {
+    return db.select().from(academyAdminNotes).orderBy(desc(academyAdminNotes.createdAt));
+  }
+
+  async getAdminNotesByUser(userId: string): Promise<AcademyAdminNote[]> {
+    return db.select().from(academyAdminNotes).where(eq(academyAdminNotes.userId, userId)).orderBy(desc(academyAdminNotes.createdAt));
+  }
+
+  async createAdminNote(note: InsertAcademyAdminNote): Promise<AcademyAdminNote> {
+    const [created] = await db.insert(academyAdminNotes).values(note).returning();
+    return created;
+  }
+
+  async updateAdminNote(id: string, data: Partial<AcademyAdminNote>): Promise<AcademyAdminNote> {
+    const [updated] = await db.update(academyAdminNotes).set(data).where(eq(academyAdminNotes.id, id)).returning();
+    return updated;
+  }
+
+  async getAllWallets(): Promise<AcademyWallet[]> {
+    return db.select().from(academyWallets);
+  }
+
+  async getAllPantherPower(): Promise<AcademyPantherPower[]> {
+    return db.select().from(academyPantherPower);
+  }
+
+  async getAllScenarioRuns(): Promise<AcademyScenarioRun[]> {
+    return db.select().from(academyScenarioRuns);
+  }
+
+  async getAllPeerTrades(): Promise<AcademyPeerTrade[]> {
+    return db.select().from(academyPeerTrades);
+  }
+
   async seedData(): Promise<void> {
     const { seedAILevels } = await import("./seed-ai");
     const { seedSubjects } = await import("./seed-subjects");
     const { seedAdditionalLessons } = await import("./seed-lessons");
     const { seedCurriculumDocuments } = await import("./seed-curriculum-docs");
+    const { seedScenarios } = await import("./seed-scenarios");
 
     const existingLevels = await db.select().from(levels).limit(1);
     if (existingLevels.length === 0) {
@@ -831,6 +1031,11 @@ export class DatabaseStorage implements IStorage {
         { featureArea: "merch", businessConcept: "Social Enterprise", lifeSkillesson: "Business can be a force for good when profits serve a purpose", reflection: "How can making money also help your community?", iconName: "heart", sortOrder: 15 },
         { featureArea: "avatar", businessConcept: "Personal Identity", lifeSkillesson: "Knowing who you are gives you confidence to show up authentically", reflection: "What makes you uniquely you?", iconName: "user", sortOrder: 16 },
       ]);
+    }
+
+    const existingScenarios = await db.select().from(academyScenarios).limit(1);
+    if (existingScenarios.length === 0) {
+      await seedScenarios(db);
     }
   }
 }

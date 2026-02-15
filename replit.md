@@ -25,6 +25,9 @@ Key features include:
     - **Competitions & Houses:** Academic/cultural competitions and a Ron Clark/Harry Potter-inspired house points system.
     - **Dream Design:** Holistic resume building and goal setting.
     - **Merchandise Shop:** Integration with UBO for real college tuition fundraising through merchandise sales.
+    - **Choose Your Own Adventure:** Branching CYOA scenarios teaching financial literacy, leadership, investing, and community building through choices and consequences with empathy and setback recovery.
+    - **Panther Marketplace:** Peer-to-peer commerce where students list items/services, buy from each other, with wallet integration and entrepreneurship power rewards.
+    - **Admin Command Center:** Dashboard for teachers/admins to monitor student metrics, activity feed, wallet balances, Panther Power scores, and add intervention notes.
 - **Internationalization (i18n):** Custom language provider supporting English and Spanish.
 - **Low-Bandwidth Mode:** User-toggleable mode to strip animations, images, and shadows for improved performance on limited connections.
 - **Panther Power Score:** Unified empowerment metric across 5 categories (Education, Character, Leadership, Entrepreneurship, Community) with levels and titles.
