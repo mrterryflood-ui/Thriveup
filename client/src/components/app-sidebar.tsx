@@ -57,6 +57,7 @@ const academyItems = [
   { title: "Print Shop", url: "/academy/merch", icon: ShoppingBag },
   { title: "Adventures", url: "/academy/scenarios", icon: Gamepad2 },
   { title: "Marketplace", url: "/academy/marketplace", icon: Store },
+  { title: "Arthur's Journey", url: "/academy/tutorial", icon: GraduationCap },
   { title: "Admin Dashboard", url: "/academy/admin", icon: BarChart3 },
 ];
 

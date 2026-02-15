@@ -42,6 +42,7 @@ import AcademyLessonsPage from "@/pages/academy-lessons";
 import AcademyScenariosPage from "@/pages/academy-scenarios";
 import AcademyMarketplacePage from "@/pages/academy-marketplace";
 import AcademyAdminPage from "@/pages/academy-admin";
+import AcademyTutorialPage from "@/pages/academy-tutorial";
 import { LanguageProvider } from "@/lib/i18n";
 import { BandwidthProvider } from "@/lib/bandwidth-mode";
 import { HeaderControls } from "@/components/header-controls";
@@ -89,6 +90,7 @@ function AppRouter() {
       <Route path="/academy/scenarios" component={AcademyScenariosPage} />
       <Route path="/academy/marketplace" component={AcademyMarketplacePage} />
       <Route path="/academy/admin" component={AcademyAdminPage} />
+      <Route path="/academy/tutorial" component={AcademyTutorialPage} />
       <Route component={NotFound} />
     </Switch>
   );
