@@ -19,6 +19,7 @@ import {
   ChevronUp,
   Quote,
   Brain,
+  BarChart3,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -103,6 +104,10 @@ const modules: Module[] = [
       {
         title: "Study Now, Win Later",
         content: "Think about a student who studies for 2 hours every evening while their friend plays video games. In the short term, the gamer is having more fun. But after a year, the student has better grades, more scholarship opportunities, and more doors opening for their future. The gamer is still at level 99 in a game that nobody will care about in 5 years. Short-term pain leads to long-term gain.",
+      },
+      {
+        title: "LeBron James: The Long Game",
+        content: "LeBron James earned his first NBA contract at 18 years old. But instead of blowing his money on flashy purchases, he lived off his endorsement deals and invested almost every dollar of his NBA salary. He hired financial advisors before buying his first house. By his 30s, he had built a business empire worth over a billion dollars including a production company, a pizza chain investment, and ownership stakes in the Boston Red Sox and Liverpool FC. When other athletes were going broke after retirement, LeBron was just getting started. He once said he treats every business decision like a chess move, thinking five steps ahead.",
       },
     ],
     thinkAboutIt: "Can you think of a time when waiting for something made it even better? What did that teach you?",
@@ -250,6 +255,18 @@ const modules: Module[] = [
         title: "Two Lemonade Stands",
         content: "Two kids started lemonade stands on the same street. Kid A's stand went viral on social media. Hundreds of people showed up one weekend. But Kid A wasn't prepared for the demand, ran out of supplies, and never set up again. Kid B served 10 customers the first day, 15 the second, and 20 the third. Kid B built a regular customer base, started delivering to neighbors, and eventually expanded to three locations. The viral stand is a memory. The steady stand is a business.",
       },
+      {
+        title: "Allen Iverson: $200 Million, Then Broke",
+        content: "Allen Iverson earned over $200 million during his NBA career. He was one of the most talented players ever. But he spent $600,000 per month on jewelry, cars, and an entourage of 50 people he supported financially. He gambled heavily, bought multiple mansions, and had no budget. By 2012, he was broke and owed millions in debt. His talent earned the money, but his lack of a financial plan lost it all. Thankfully, Reebok had set aside a $30 million trust fund he couldn't touch until age 55, which saved him from total ruin. Without that safety net, one of basketball's greatest players would have had nothing.",
+      },
+      {
+        title: "Antoine Walker: $108 Million Gone",
+        content: "Antoine Walker played 12 seasons in the NBA and earned $108 million. He bought 140 pairs of shoes at a time, owned multiple houses, and financed the lifestyles of dozens of friends and family members. He once said he spent a million dollars in a single weekend. Two years after retirement, he filed for bankruptcy. He lost everything -- the cars, the houses, the jewelry. Walker now speaks to young athletes about financial literacy, telling them the hardest lesson he ever learned: 'You think the money will never stop coming. But it does. And if you don't have a plan, it all disappears overnight.'",
+      },
+      {
+        title: "Shaq vs. The Average Pro Athlete",
+        content: "Studies show that 60% of NBA players go broke within five years of retirement. 78% of NFL players face financial hardship within two years. But Shaquille O'Neal took a completely different path. After wasting a million dollars in his first 30 minutes as a millionaire, he got serious. He earned an MBA, hired financial advisors, and built a business empire including over 150 car washes, 40 fitness centers, and franchises in Auntie Anne's, Papa John's, and Five Guys. He invested in Google and Apple before they became giants. Today his net worth exceeds $400 million -- more than he ever earned playing basketball. The difference between Shaq and the players who went broke? A business plan, patience, and the humility to learn what he didn't know.",
+      },
     ],
     keyInsights: [
       "Have a business plan before the money comes",
@@ -293,6 +310,14 @@ const modules: Module[] = [
         title: "Songs That Pay Forever",
         content: "When a songwriter creates a hit song, they earn royalties every single time that song plays on the radio, streams on a platform, or gets used in a movie. Some songs written decades ago still generate thousands of dollars per month. The songwriter did the work once, but the income keeps flowing for years or even a lifetime. This is the ultimate example of residual income: create something valuable once, and get paid for it over and over again.",
       },
+      {
+        title: "Shaq's Car Wash and Franchise Empire",
+        content: "Shaquille O'Neal owns over 150 car washes across the country. Each location runs whether Shaq is there or not, generating revenue 365 days a year. He also owns dozens of franchise restaurants. When asked why car washes and fast food instead of something glamorous, Shaq said: 'People always need clean cars and food. It's not exciting, but it's consistent.' That consistency is the definition of residual income. While other retired athletes struggle, Shaq's systems generate millions annually without him lifting a finger.",
+      },
+      {
+        title: "Jay-Z: From Brooklyn to Billionaire",
+        content: "Jay-Z didn't just make money from music. He built Roc-A-Fella Records and earned royalties from every artist on the label, not just himself. He invested in Tidal, a streaming platform. He launched a clothing line, Rocawear, and sold it for $204 million. He bought Armand de Brignac champagne and D'Usse cognac brands. He invested in real estate across New York City. Each of these businesses generates residual income whether Jay-Z records another song or not. He went from selling CDs out of his car trunk to becoming hip-hop's first billionaire because he understood one principle: own the system, don't just work in it.",
+      },
     ],
     thinkAboutIt: "What's the difference between a job and a business? Which one keeps paying you even when you stop working?",
     lifeLesson: "Rich people don't work for money. They build systems that work for them.",
@@ -329,6 +354,53 @@ const modules: Module[] = [
     thinkAboutIt: "If you had to split $100 between 5 different investments, how would you divide it and why?",
     lifeLesson: "The biggest risk is not taking any risk at all, but smart risk means doing your homework first.",
   },
+  {
+    id: "data-driven-decisions",
+    title: "Data-Driven Decisions: Let the Numbers Guide You",
+    icon: BarChart3,
+    intro: "Every choice you make can be improved with data. Right here in this program, you already have powerful analytics tools that show you patterns, trends, and insights. Learning to read data isn't just a school skill -- it's how successful people and businesses make winning decisions every single day.",
+    points: 75,
+    keyTerms: [
+      { term: "Data Analysis", definition: "Examining information to find patterns, trends, and insights that help you make better decisions." },
+      { term: "Trend", definition: "A pattern that shows whether something is going up, going down, or staying the same over time." },
+      { term: "Metric", definition: "A specific measurement used to track performance or progress." },
+      { term: "Dashboard", definition: "A visual display that shows your most important information at a glance, like the instrument panel of a car." },
+      { term: "Benchmark", definition: "A standard or point of reference you compare your performance against." },
+      { term: "Correlation", definition: "When two things tend to change together. If one goes up, the other often does too." },
+      { term: "ROI (Return on Investment)", definition: "A measure of how much you gained compared to how much you put in." },
+    ],
+    stories: [
+      {
+        title: "Your Thrive Dashboard: A Personal GPS",
+        content: "Right here in your Panther Village, the Thrive Dashboard tracks six areas of your life: Learning, Executive Function, Belonging, Wellbeing, Context, and Protective Factors. It produces a 0-to-100 score with trend lines so you can see exactly where you are growing and where you might need support. Imagine if you noticed your Belonging score dropping for three weeks straight. Without the data, you might not realize something is off. With it, you can talk to a mentor, join a study group, or reconnect with classmates before the dip becomes a problem. That is the power of data: it catches what your feelings might miss.",
+      },
+      {
+        title: "Stock Market Page: Patterns Tell the Story",
+        content: "When you look at the virtual Stock Market in this program, you see price charts that move up and down over time. Those are not random squiggles -- they are data telling a story. A stock trending upward for weeks might signal a strong company. One swinging wildly might be too risky for a patient investor. Professional traders on Wall Street and right here on East Sixth Street in Austin use the same skill: reading charts to spot patterns before making a move. You are already practicing that skill every time you check your portfolio.",
+      },
+      {
+        title: "Panther Power Score: Measuring What Matters",
+        content: "Your Panther Power Score tracks five categories: Education, Character, Leadership, Entrepreneurship, and Community. Every action you take in the Academy feeds data into these scores. If you notice your Leadership score is lower than your Education score, the data is telling you something: maybe you need to enter a competition, lead a study group, or mentor a younger student. In Austin, the Chamber of Commerce uses similar scorecards to measure whether the city is growing in the right ways. Businesses use them to decide where to invest. You already have your own personal scorecard right here.",
+      },
+      {
+        title: "Marketplace Analytics: Supply, Demand, and Smart Pricing",
+        content: "Every item listed on the Panther Marketplace generates data: how many views it gets, how quickly it sells, and at what price. If you list a study guide for 50 credits and it sells in two minutes, the data tells you the price was probably too low -- there was more demand than you expected. If it sits for a week with no buyers, the price might be too high or nobody needs that subject right now. Real businesses in Austin do the same thing. A food truck owner on South Congress tracks which tacos sell fastest at lunch versus dinner and adjusts the menu. An Airbnb host on East Riverside checks occupancy rates to set nightly prices. Data turns guessing into strategy.",
+      },
+      {
+        title: "Self-Assessment Check-Ins: Data About You",
+        content: "The daily self-assessment in this program asks about your energy, stress, focus, belonging, confidence, and mood. Over time, this builds a personal data set about you. Maybe you discover that your focus drops every Wednesday afternoon, which means you should schedule your hardest homework on Tuesday evening instead. Or maybe your confidence peaks after competition days, which tells you that challenges fuel your growth. Professional athletes track sleep, nutrition, and heart rate the same way. The Houston Texans and Austin FC analyze player data every single day. You have that same capability right here in Panther Village.",
+      },
+    ],
+    keyPrinciples: [
+      "Data does not lie, but it needs context to be useful",
+      "Track trends over time, not single data points",
+      "Use your dashboards regularly -- data only helps if you look at it",
+      "Compare your progress to your own past performance, not just to others",
+      "When the data and your gut feeling disagree, investigate further before deciding",
+    ],
+    thinkAboutIt: "Look at your Panther Power scores right now. Which category is highest and which is lowest? What does that data tell you about where to focus your energy this week?",
+    lifeLesson: "The best decision-makers do not guess. They gather data, study the patterns, and then act. You already have the tools -- now use them.",
+  },
 ];
 
 export default function AcademyFinancialLiteracyPage() {
@@ -359,10 +431,10 @@ export default function AcademyFinancialLiteracyPage() {
         </p>
         <div className="flex items-center gap-2 mt-4 flex-wrap">
           <Badge variant="secondary" className="bg-white/15 text-white border-white/20 no-default-hover-elevate no-default-active-elevate" data-testid="badge-module-count">
-            8 Learning Modules
+            9 Learning Modules
           </Badge>
           <Badge variant="secondary" className="bg-white/15 text-white border-white/20 no-default-hover-elevate no-default-active-elevate" data-testid="badge-total-points">
-            475 Panther Power Points Available
+            550 Panther Power Points Available
           </Badge>
         </div>
       </div>

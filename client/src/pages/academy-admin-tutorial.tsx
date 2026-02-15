@@ -7,6 +7,7 @@ import {
   Home, Building2, Wand2, Users, Activity, AlertTriangle,
   ClipboardCheck, Briefcase, Route, UserPlus, MapPin, Wallet,
   Zap, Shield, CheckCircle, ChevronLeft, ChevronRight, Lightbulb, Gamepad2, DollarSign,
+  BarChart3,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -159,16 +160,32 @@ const slides: SlideData[] = [
   {
     title: "Financial Literacy Academy",
     icon: DollarSign,
-    overview: "Comprehensive financial education with 8 modules covering investing patience, scam detection, predatory practices, residual income, and real-world business stories. Embedded wisdom tips appear on the Stock Market and Marketplace pages.",
+    overview: "Comprehensive financial education with 9 modules covering investing patience, scam detection, predatory practices, residual income, data-driven decisions, and real-world business stories. Features relatable examples of athletes and rappers who lost millions (Allen Iverson, Antoine Walker) versus those who built empires (LeBron James, Shaq, Jay-Z).",
     keyPoints: [
-      "8 structured modules with real-world examples and stories",
+      "9 structured modules with real-world examples and stories",
       "Scam and pyramid scheme detection with clear red flags",
       "Predatory lending and interest rate awareness",
       "Residual income concepts (laundromats, car washes, royalties)",
       "Embedded tips on Stock Market and Marketplace pages",
       "Key financial terms glossary for each module",
+      "Real athlete and rapper success/failure stories for relatability",
+      "Data-Driven Decisions module ties platform analytics to real-world skills",
     ],
     tip: "Review the modules with students during advisory period \u2014 the scam detection and predatory lending modules are especially important for real-world safety",
+  },
+  {
+    title: "Data-Driven Decision Making",
+    icon: BarChart3,
+    overview: "The platform's built-in analytics tools teach students to read data and make evidence-based decisions. Thrive Dashboard scores, Stock Market trends, Panther Power breakdowns, Marketplace analytics, and self-assessment check-ins all generate real data students learn to interpret and act on.",
+    keyPoints: [
+      "Thrive Dashboard shows 6-domain scores with trend lines for self-awareness",
+      "Stock Market charts teach pattern recognition and trend analysis",
+      "Panther Power breakdown reveals growth areas across 5 categories",
+      "Marketplace data teaches supply, demand, and pricing strategy",
+      "Self-assessment check-ins build personal data literacy over time",
+      "Same analytical skills used by Austin businesses and professional organizations",
+    ],
+    tip: "Encourage students to check their Thrive Dashboard and Panther Power breakdown weekly -- building the habit of data review is as important as the insights themselves",
   },
   {
     title: "Panther Power & Houses",

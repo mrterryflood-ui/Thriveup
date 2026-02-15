@@ -36,6 +36,7 @@ import {
   Presentation,
   MessageCircle,
   DollarSign,
+  BarChart3,
 } from "lucide-react";
 
 interface ChapterStats {
@@ -227,6 +228,41 @@ const CHAPTERS: Chapter[] = [
     stats: { wallet: 700, pantherPower: 320, housePoints: 140, collegeFund: 0 },
   },
   {
+    title: "Ballers and Broke",
+    subtitle: "Athletes, Rappers & Real Wealth",
+    icon: TrendingUp,
+    characters: ["Arthur", "DeShawn", "Ms. Rivera"],
+    narrative: [
+      "The Financial Literacy Academy has a section Arthur cannot stop reading: real stories about athletes and rappers who earned millions and lost it all. Allen Iverson made over $200 million in the NBA and went broke because he spent $600,000 a month on jewelry, cars, and an entourage of 50 people. Antoine Walker earned $108 million and filed for bankruptcy two years after retiring. He once spent a million dollars in a single weekend. \"How do you lose $108 million?\" DeShawn asks, genuinely confused. Ms. Rivera answers quietly: \"The same way you lose $108 -- one bad decision at a time, with no plan.\"",
+      "But then Arthur reads about LeBron James and Shaquille O'Neal, and the contrast is stark. LeBron lived off his endorsement money and invested almost every dollar of his NBA salary. He hired financial advisors before buying his first house. By his thirties, his business empire was worth over a billion dollars. Shaq wasted a million dollars in his first thirty minutes as a millionaire, but then got serious. He earned an MBA, bought over 150 car washes and dozens of restaurant franchises, and invested in Google and Apple early. Today Shaq is worth more than he ever earned playing basketball. \"Same league, same money, completely different outcomes,\" Arthur says. \"The difference is a plan.\"",
+      "Jay-Z's story hits Arthur hardest. He went from selling CDs out of his car trunk to becoming hip-hop's first billionaire, not just from music but from owning record labels, clothing lines, champagne brands, and real estate. He built systems that generate money whether he makes another song or not. Arthur looks at his own virtual study guide business and thinks: what if instead of just selling guides, he built a subscription platform? What if he licensed his content to other students to resell? He starts sketching a business plan right there in the Academy. Ms. Rivera sees it and smiles. \"Now you are thinking like an owner, not just an earner.\"",
+    ],
+    quote: "Talent makes you money. Financial literacy lets you keep it. Only one of those is taught in school -- until now.",
+    quoteAuthor: "Financial Literacy Academy",
+    links: [
+      { label: "Financial Literacy", href: "/academy/financial-literacy", icon: DollarSign },
+      { label: "Stock Market", href: "/academy/stocks", icon: TrendingUp },
+    ],
+    stats: { wallet: 750, pantherPower: 340, housePoints: 150, collegeFund: 0 },
+  },
+  {
+    title: "Reading the Signs",
+    subtitle: "Data-Driven Decisions",
+    icon: BarChart3,
+    characters: ["Arthur", "Ms. Rivera", "Spark"],
+    narrative: [
+      "Ms. Rivera pulls up the class Thrive Dashboard on the main screen. \"Every one of you has a personal analytics dashboard tracking six areas of your growth,\" she explains. Arthur opens his own and sees the trend lines for the first time. His Learning score is climbing steadily, but his Belonging score has been dipping for two weeks. He had not noticed, but the data caught it. \"That is the power of tracking patterns,\" Ms. Rivera says. \"Data spots what feelings might miss.\"",
+      "Spark walks Arthur through the Stock Market charts next. \"See how TechVenture stock rose slowly for three weeks before jumping on earnings day? That upward trend was a signal. But PantherMedia swung up and down wildly every day, which means high risk.\" Arthur realizes he has been buying stocks based on names he liked instead of reading the actual data. He pulls up the Marketplace too and notices his study guide sat unsold for five days. \"The data says your price was too high or nobody needed that subject,\" Spark explains. \"A food truck owner in Austin does the exact same analysis every night, checking which items sold and which did not.\"",
+      "The real breakthrough comes when Arthur checks his Panther Power breakdown. Education and Entrepreneurship are strong, but Leadership and Community are lagging. The data is clear: he has been focused on individual work and has not led a group or contributed to campus projects. He signs up to captain a competition team that afternoon. \"I thought I was doing great overall,\" Arthur tells Ms. Rivera. She smiles. \"You were. But great is not the same as balanced. The data showed you exactly where to grow next.\"",
+    ],
+    quote: "The best decision-makers do not guess. They gather data, study the patterns, and then act.",
+    quoteAuthor: "Financial Literacy Academy, Module 9",
+    links: [
+      { label: "Financial Literacy", href: "/academy/financial-literacy", icon: DollarSign },
+    ],
+    stats: { wallet: 800, pantherPower: 360, housePoints: 160, collegeFund: 0 },
+  },
+  {
     title: "House of Lions",
     subtitle: "House Points & Competitions",
     icon: Trophy,
@@ -242,7 +278,7 @@ const CHAPTERS: Chapter[] = [
       { label: "House System", href: "/academy/houses", icon: Flag },
       { label: "Competitions", href: "/academy/competitions", icon: Trophy },
     ],
-    stats: { wallet: 700, pantherPower: 320, housePoints: 160, collegeFund: 0 },
+    stats: { wallet: 800, pantherPower: 360, housePoints: 180, collegeFund: 0 },
   },
   {
     title: "Game Room Showdown",
@@ -260,7 +296,7 @@ const CHAPTERS: Chapter[] = [
       { label: "Game Room", href: "/academy/games", icon: Gamepad2 },
       { label: "Competitions", href: "/academy/competitions", icon: Trophy },
     ],
-    stats: { wallet: 750, pantherPower: 350, housePoints: 180, collegeFund: 0 },
+    stats: { wallet: 850, pantherPower: 390, housePoints: 200, collegeFund: 0 },
   },
   {
     title: "Building the Dream Campus",
@@ -277,7 +313,7 @@ const CHAPTERS: Chapter[] = [
     links: [
       { label: "Build Campus", href: "/academy/campus", icon: Building2 },
     ],
-    stats: { wallet: 800, pantherPower: 420, housePoints: 220, collegeFund: 0 },
+    stats: { wallet: 900, pantherPower: 460, housePoints: 240, collegeFund: 0 },
   },
   {
     title: "Dream Design",
@@ -294,7 +330,7 @@ const CHAPTERS: Chapter[] = [
     links: [
       { label: "Dream Design", href: "/academy/dreams", icon: Target },
     ],
-    stats: { wallet: 750, pantherPower: 470, housePoints: 240, collegeFund: 0 },
+    stats: { wallet: 850, pantherPower: 510, housePoints: 260, collegeFund: 0 },
   },
   {
     title: "Study Guide Empire",
@@ -311,7 +347,7 @@ const CHAPTERS: Chapter[] = [
     links: [
       { label: "Marketplace", href: "/academy/marketplace", icon: Store },
     ],
-    stats: { wallet: 1200, pantherPower: 540, housePoints: 270, collegeFund: 0 },
+    stats: { wallet: 1300, pantherPower: 580, housePoints: 290, collegeFund: 0 },
   },
   {
     title: "The Leadership Challenge",
@@ -328,7 +364,7 @@ const CHAPTERS: Chapter[] = [
     links: [
       { label: "Adventures (CYOA)", href: "/academy/scenarios", icon: Gamepad2 },
     ],
-    stats: { wallet: 1300, pantherPower: 610, housePoints: 300, collegeFund: 0 },
+    stats: { wallet: 1400, pantherPower: 650, housePoints: 320, collegeFund: 0 },
   },
   {
     title: "Parents in the Picture",
@@ -345,7 +381,7 @@ const CHAPTERS: Chapter[] = [
     links: [
       { label: "Parent Dashboard", href: "/parents/dashboard", icon: Heart },
     ],
-    stats: { wallet: 1500, pantherPower: 670, housePoints: 330, collegeFund: 200 },
+    stats: { wallet: 1600, pantherPower: 710, housePoints: 350, collegeFund: 200 },
   },
   {
     title: "Print Shop Dreams",
@@ -362,7 +398,7 @@ const CHAPTERS: Chapter[] = [
     links: [
       { label: "Print Shop", href: "/academy/merch", icon: ShoppingBag },
     ],
-    stats: { wallet: 1900, pantherPower: 730, housePoints: 360, collegeFund: 1500 },
+    stats: { wallet: 2000, pantherPower: 770, housePoints: 380, collegeFund: 1500 },
   },
   {
     title: "Teacher's Impact",
@@ -380,7 +416,7 @@ const CHAPTERS: Chapter[] = [
       { label: "Teacher Dashboard", href: "/teacher-dashboard", icon: Presentation },
       { label: "Core Subjects", href: "/subjects", icon: BookOpen },
     ],
-    stats: { wallet: 2200, pantherPower: 790, housePoints: 390, collegeFund: 2800 },
+    stats: { wallet: 2300, pantherPower: 830, housePoints: 410, collegeFund: 2800 },
   },
   {
     title: "Investing in Community",
@@ -397,7 +433,7 @@ const CHAPTERS: Chapter[] = [
     links: [
       { label: "Adventures (CYOA)", href: "/academy/scenarios", icon: Gamepad2 },
     ],
-    stats: { wallet: 2700, pantherPower: 850, housePoints: 430, collegeFund: 4500 },
+    stats: { wallet: 2800, pantherPower: 890, housePoints: 450, collegeFund: 4500 },
   },
   {
     title: "The Panther Power Summit",
@@ -414,7 +450,7 @@ const CHAPTERS: Chapter[] = [
     links: [
       { label: "Panther Power", href: "/academy/power", icon: Zap },
     ],
-    stats: { wallet: 3300, pantherPower: 950, housePoints: 480, collegeFund: 7000 },
+    stats: { wallet: 3400, pantherPower: 990, housePoints: 500, collegeFund: 7000 },
   },
   {
     title: "It Takes a Village",
@@ -433,7 +469,7 @@ const CHAPTERS: Chapter[] = [
       { label: "Spark AI Companion", href: "/ai-companion", icon: Sparkles },
       { label: "Parent Dashboard", href: "/parents/dashboard", icon: Heart },
     ],
-    stats: { wallet: 3900, pantherPower: 990, housePoints: 510, collegeFund: 9200 },
+    stats: { wallet: 4000, pantherPower: 1030, housePoints: 530, collegeFund: 9200 },
   },
   {
     title: "The Howard Dream",
@@ -454,9 +490,9 @@ const CHAPTERS: Chapter[] = [
       { label: "Academy Hub", href: "/academy", icon: Rocket },
     ],
     stats: {
-      wallet: 4600,
-      pantherPower: 1050,
-      housePoints: 550,
+      wallet: 4700,
+      pantherPower: 1090,
+      housePoints: 570,
       collegeFund: 10000,
       adventuresCompleted: 4,
       marketplaceSales: 47,
@@ -483,6 +519,8 @@ const POWER_BY_CHAPTER: number[][] = [
   [35, 40, 28, 35, 37],
   [42, 45, 32, 55, 40],
   [48, 48, 36, 58, 42],
+  [50, 49, 40, 59, 43],
+  [53, 50, 48, 60, 44],
   [55, 50, 60, 60, 45],
   [60, 54, 65, 62, 50],
   [70, 58, 72, 65, 65],
@@ -499,7 +537,7 @@ const POWER_BY_CHAPTER: number[][] = [
 ];
 
 function StatsFooter({ stats, chapterIndex }: { stats: ChapterStats; chapterIndex: number }) {
-  const isFinale = chapterIndex === 21;
+  const isFinale = chapterIndex === 23;
 
   return (
     <Card className="p-5 mt-6" data-testid={`card-stats-chapter-${chapterIndex}`}>
@@ -585,7 +623,7 @@ function StatsFooter({ stats, chapterIndex }: { stats: ChapterStats; chapterInde
 }
 
 function ChapterContent({ chapter, index }: { chapter: Chapter; index: number }) {
-  const isFinale = index === 21;
+  const isFinale = index === 23;
 
   return (
     <div className="space-y-6" data-testid={`chapter-content-${index}`}>
