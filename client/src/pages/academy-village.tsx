@@ -28,6 +28,7 @@ import {
   Activity,
   ClipboardCheck,
   Handshake,
+  Gamepad2,
 } from "lucide-react";
 import type { AcademyAvatar } from "@shared/schema";
 
@@ -74,6 +75,7 @@ const BACKGROUND_SCENES: Record<string, string> = {
 const BUILDINGS = [
   { name: "Stock Exchange", icon: TrendingUp, href: "/academy/stocks", description: "Trade & invest virtual stocks", color: "bg-emerald-100 dark:bg-emerald-900/30", iconColor: "text-emerald-600 dark:text-emerald-400" },
   { name: "Panther Marketplace", icon: ShoppingBag, href: "/academy/marketplace", description: "Buy & sell with classmates", color: "bg-amber-100 dark:bg-amber-900/30", iconColor: "text-amber-600 dark:text-amber-400" },
+  { name: "Game Room", icon: Gamepad2, href: "/academy/games", description: "Play Dominoes & more", color: "bg-red-100 dark:bg-red-900/30", iconColor: "text-red-600 dark:text-red-400" },
   { name: "Competition Arena", icon: Trophy, href: "/academy/competitions", description: "Compete & win", color: "bg-rose-100 dark:bg-rose-900/30", iconColor: "text-rose-600 dark:text-rose-400" },
   { name: "Adventure Hall", icon: Map, href: "/academy/scenarios", description: "Choose your own adventure", color: "bg-sky-100 dark:bg-sky-900/30", iconColor: "text-sky-600 dark:text-sky-400" },
   { name: "House Hall", icon: Flag, href: "/academy/houses", description: "House points & rankings", color: "bg-violet-100 dark:bg-violet-900/30", iconColor: "text-violet-600 dark:text-violet-400" },
@@ -90,7 +92,6 @@ const BUILDINGS = [
   { name: "My Pathway", icon: Route, href: "/academy/pathway", description: "Plan your 6-12 journey", color: "bg-fuchsia-100 dark:bg-fuchsia-900/30", iconColor: "text-fuchsia-600 dark:text-fuchsia-400" },
   { name: "Thrive Dashboard", icon: Activity, href: "/academy/thrive", description: "Your navigation score", color: "bg-emerald-100 dark:bg-emerald-900/30", iconColor: "text-emerald-600 dark:text-emerald-400" },
   { name: "Daily Check-In", icon: ClipboardCheck, href: "/academy/self-assessment", description: "How are you today?", color: "bg-sky-100 dark:bg-sky-900/30", iconColor: "text-sky-600 dark:text-sky-400" },
-  { name: "Game Room", icon: Trophy, href: "/academy/games", description: "Play Dominoes & more", color: "bg-red-100 dark:bg-red-900/30", iconColor: "text-red-600 dark:text-red-400" },
 ];
 
 interface DashboardData {

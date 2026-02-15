@@ -6,7 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import {
   Home, Building2, Wand2, Users, Activity, AlertTriangle,
   ClipboardCheck, Briefcase, Route, UserPlus, MapPin, Wallet,
-  Zap, Shield, CheckCircle, ChevronLeft, ChevronRight, Lightbulb,
+  Zap, Shield, CheckCircle, ChevronLeft, ChevronRight, Lightbulb, Gamepad2,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -170,6 +170,20 @@ const slides: SlideData[] = [
     tip: "Celebrate house achievements publicly to build belonging",
   },
   {
+    title: "Panther Game Room",
+    icon: Gamepad2,
+    overview: "Educational gaming platform with Dominoes (fully playable), plus Checkers, Chess, Memory Match, Spades, and Strategy Tiles. Games build strategic thinking while tracking play time and ratings.",
+    keyPoints: [
+      "Dominoes with 4 CPU difficulty levels (Beginner to Expert)",
+      "ELO rating system and school-wide leaderboard",
+      "Special timer/draw mechanics teaching time management",
+      "Play session tracking with 35+ minute admin flags",
+      "Earns Panther Power points in Education and Leadership",
+      "Live online player count shows campus engagement",
+    ],
+    tip: "Monitor the admin play-time flags daily \u2014 students playing over 35 minutes may need a gentle redirect to other activities",
+  },
+  {
     title: "Reports & Safety",
     icon: Shield,
     overview: "Content moderation, student reports, and intervention tracking. Keep your campus safe and documented.",
@@ -192,6 +206,7 @@ const slides: SlideData[] = [
       "Explore Career Explorer",
       "Check GIS data for your area",
       "Set up parent notifications",
+      "Explore the Game Room and review play-time settings",
     ],
     isChecklist: true,
     tip: "You're building the future \u2014 one student at a time",

@@ -2310,6 +2310,11 @@ Write a warm, encouraging welcome message for students joining this classroom. M
     res.json(sessions);
   });
 
+  app.get("/api/games/online-count", async (_req, res) => {
+    const count = await storage.getActivePlayerCount();
+    res.json({ count });
+  });
+
   app.get("/api/games/:id", async (req, res) => {
     const session = await storage.getGameSession(req.params.id);
     if (!session) return res.status(404).json({ error: "Game not found" });

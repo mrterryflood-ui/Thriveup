@@ -37,6 +37,7 @@ import {
   CheckCircle2,
   Circle,
   XCircle,
+  Info,
 } from "lucide-react";
 
 interface MentorProfile {
@@ -51,6 +52,7 @@ interface MentorProfile {
   contactEmail: string | null;
   yearsExperience: number | null;
   isActive: boolean;
+  isExample: boolean;
   createdAt: string;
 }
 
@@ -194,6 +196,16 @@ export default function AcademyMentorsPage() {
         </TabsList>
 
         <TabsContent value="browse">
+          <div
+            className="rounded-md bg-rose-900/10 dark:bg-rose-900/20 border border-rose-900/20 dark:border-rose-800/30 p-4 mb-6 flex items-start gap-3"
+            data-testid="banner-example-info"
+          >
+            <Info className="h-5 w-5 text-rose-800 dark:text-rose-300 shrink-0 mt-0.5" />
+            <p className="text-sm text-rose-900 dark:text-rose-200">
+              The profiles below marked as &lsquo;Example&rsquo; are sample mentors showing the types of professionals in your community. Your school will add real Austin-based mentors for you to connect with.
+            </p>
+          </div>
+
           <div className="mb-6 max-w-xs" data-testid="section-field-filter">
             <Select value={fieldFilter} onValueChange={setFieldFilter}>
               <SelectTrigger data-testid="select-career-field-filter">
@@ -210,118 +222,155 @@ export default function AcademyMentorsPage() {
             </Select>
           </div>
 
-          {filteredMentors.length > 0 ? (
-            <div
-              className="grid grid-cols-2 sm:grid-cols-3 gap-4"
-              data-testid="section-mentor-grid"
-            >
-              {filteredMentors.map((mentor, idx) => {
-                const availBadge = getAvailabilityBadge(mentor.availability);
-                const avatarColor = AVATAR_COLORS[idx % AVATAR_COLORS.length];
-                return (
-                  <Card
-                    key={mentor.id}
-                    className="p-4"
-                    data-testid={`card-mentor-${mentor.id}`}
-                  >
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${avatarColor}`}>
-                        <User className="h-5 w-5 text-muted-foreground" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <h3 className="font-semibold text-sm truncate" data-testid={`text-mentor-name-${mentor.id}`}>
-                          {mentor.name}
-                        </h3>
-                        <p className="text-xs text-muted-foreground truncate" data-testid={`text-mentor-title-${mentor.id}`}>
-                          {mentor.title}
-                        </p>
-                      </div>
+          {(() => {
+            const realMentors = filteredMentors.filter((m) => !m.isExample);
+            const exampleMentors = filteredMentors.filter((m) => m.isExample);
+
+            const renderMentorCard = (mentor: MentorProfile, idx: number) => {
+              const availBadge = getAvailabilityBadge(mentor.availability);
+              const avatarColor = AVATAR_COLORS[idx % AVATAR_COLORS.length];
+              return (
+                <Card
+                  key={mentor.id}
+                  className="p-4"
+                  data-testid={`card-mentor-${mentor.id}`}
+                >
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${avatarColor}`}>
+                      <User className="h-5 w-5 text-muted-foreground" />
                     </div>
-
-                    {mentor.organization && (
-                      <p className="text-xs text-muted-foreground mb-2" data-testid={`text-mentor-org-${mentor.id}`}>
-                        {mentor.organization}
+                    <div className="min-w-0 flex-1">
+                      <h3 className="font-semibold text-sm truncate" data-testid={`text-mentor-name-${mentor.id}`}>
+                        {mentor.name}
+                      </h3>
+                      <p className="text-xs text-muted-foreground truncate" data-testid={`text-mentor-title-${mentor.id}`}>
+                        {mentor.title}
                       </p>
-                    )}
+                    </div>
+                  </div>
 
+                  {mentor.isExample && (
+                    <Badge
+                      variant="outline"
+                      className="mb-2 text-rose-700 border-rose-300 dark:text-rose-300 dark:border-rose-700"
+                      data-testid={`badge-example-${mentor.id}`}
+                    >
+                      Example Profile
+                    </Badge>
+                  )}
+
+                  {mentor.organization && (
+                    <p className="text-xs text-muted-foreground mb-2" data-testid={`text-mentor-org-${mentor.id}`}>
+                      {mentor.organization}
+                    </p>
+                  )}
+
+                  <Badge
+                    variant="secondary"
+                    className="mb-2"
+                    data-testid={`badge-mentor-field-${mentor.id}`}
+                  >
+                    <Briefcase className="h-3 w-3 mr-1" />
+                    {mentor.careerField}
+                  </Badge>
+
+                  {mentor.bio && (
+                    <p
+                      className="text-xs text-muted-foreground line-clamp-2 mb-3"
+                      data-testid={`text-mentor-bio-${mentor.id}`}
+                    >
+                      {mentor.bio}
+                    </p>
+                  )}
+
+                  {mentor.expertise && mentor.expertise.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mb-3" data-testid={`section-expertise-${mentor.id}`}>
+                      {mentor.expertise.slice(0, 3).map((exp) => (
+                        <Badge
+                          key={exp}
+                          variant="outline"
+                          className="text-[10px] px-1.5"
+                          data-testid={`badge-expertise-${mentor.id}-${exp}`}
+                        >
+                          {exp}
+                        </Badge>
+                      ))}
+                      {mentor.expertise.length > 3 && (
+                        <Badge variant="outline" className="text-[10px] px-1.5">
+                          +{mentor.expertise.length - 3}
+                        </Badge>
+                      )}
+                    </div>
+                  )}
+
+                  <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
+                    {mentor.yearsExperience != null && (
+                      <span className="text-xs text-muted-foreground flex items-center gap-1" data-testid={`text-experience-${mentor.id}`}>
+                        <Star className="h-3 w-3" />
+                        {mentor.yearsExperience} yrs
+                      </span>
+                    )}
                     <Badge
                       variant="secondary"
-                      className="mb-2"
-                      data-testid={`badge-mentor-field-${mentor.id}`}
+                      className={availBadge.className}
+                      data-testid={`badge-availability-${mentor.id}`}
                     >
-                      <Briefcase className="h-3 w-3 mr-1" />
-                      {mentor.careerField}
+                      {availBadge.label}
                     </Badge>
+                  </div>
 
-                    {mentor.bio && (
-                      <p
-                        className="text-xs text-muted-foreground line-clamp-2 mb-3"
-                        data-testid={`text-mentor-bio-${mentor.id}`}
-                      >
-                        {mentor.bio}
-                      </p>
-                    )}
+                  {mentor.availability?.toLowerCase() !== "unavailable" && (
+                    <Button
+                      size="sm"
+                      className="w-full"
+                      onClick={() => {
+                        setRequestMentor(mentor);
+                        setRequestMessage("");
+                      }}
+                      data-testid={`button-request-${mentor.id}`}
+                    >
+                      <Send className="h-3.5 w-3.5 mr-1" />
+                      Request Pairing
+                    </Button>
+                  )}
+                </Card>
+              );
+            };
 
-                    {mentor.expertise && mentor.expertise.length > 0 && (
-                      <div className="flex flex-wrap gap-1 mb-3" data-testid={`section-expertise-${mentor.id}`}>
-                        {mentor.expertise.slice(0, 3).map((exp) => (
-                          <Badge
-                            key={exp}
-                            variant="outline"
-                            className="text-[10px] px-1.5"
-                            data-testid={`badge-expertise-${mentor.id}-${exp}`}
-                          >
-                            {exp}
-                          </Badge>
-                        ))}
-                        {mentor.expertise.length > 3 && (
-                          <Badge variant="outline" className="text-[10px] px-1.5">
-                            +{mentor.expertise.length - 3}
-                          </Badge>
-                        )}
-                      </div>
-                    )}
+            if (filteredMentors.length === 0) {
+              return (
+                <Card className="p-8 text-center" data-testid="card-no-mentors">
+                  <Users className="h-10 w-10 mx-auto text-muted-foreground/30 mb-3" />
+                  <p className="text-muted-foreground">No mentors found matching your criteria.</p>
+                </Card>
+              );
+            }
 
-                    <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
-                      {mentor.yearsExperience != null && (
-                        <span className="text-xs text-muted-foreground flex items-center gap-1" data-testid={`text-experience-${mentor.id}`}>
-                          <Star className="h-3 w-3" />
-                          {mentor.yearsExperience} yrs
-                        </span>
-                      )}
-                      <Badge
-                        variant="secondary"
-                        className={availBadge.className}
-                        data-testid={`badge-availability-${mentor.id}`}
-                      >
-                        {availBadge.label}
-                      </Badge>
+            return (
+              <div className="space-y-8">
+                {realMentors.length > 0 && (
+                  <div data-testid="section-real-mentors">
+                    <h2 className="text-lg font-semibold mb-4">Mentors</h2>
+                    <div
+                      className="grid grid-cols-2 sm:grid-cols-3 gap-4"
+                      data-testid="section-mentor-grid"
+                    >
+                      {realMentors.map((mentor, idx) => renderMentorCard(mentor, idx))}
                     </div>
+                  </div>
+                )}
 
-                    {mentor.availability?.toLowerCase() !== "unavailable" && (
-                      <Button
-                        size="sm"
-                        className="w-full"
-                        onClick={() => {
-                          setRequestMentor(mentor);
-                          setRequestMessage("");
-                        }}
-                        data-testid={`button-request-${mentor.id}`}
-                      >
-                        <Send className="h-3.5 w-3.5 mr-1" />
-                        Request Pairing
-                      </Button>
-                    )}
-                  </Card>
-                );
-              })}
-            </div>
-          ) : (
-            <Card className="p-8 text-center" data-testid="card-no-mentors">
-              <Users className="h-10 w-10 mx-auto text-muted-foreground/30 mb-3" />
-              <p className="text-muted-foreground">No mentors found matching your criteria.</p>
-            </Card>
-          )}
+                {exampleMentors.length > 0 && (
+                  <div data-testid="section-example-mentors">
+                    <h2 className="text-lg font-semibold mb-4 text-muted-foreground">Example Profiles</h2>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                      {exampleMentors.map((mentor, idx) => renderMentorCard(mentor, idx))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
         </TabsContent>
 
         <TabsContent value="my-requests">

@@ -770,6 +770,7 @@ export const mentorProfiles = pgTable("mentor_profiles", {
   contactEmail: varchar("contact_email"),
   yearsExperience: integer("years_experience"),
   isActive: boolean("is_active").notNull().default(true),
+  isExample: boolean("is_example").notNull().default(false),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

@@ -226,6 +226,24 @@ const CHAPTERS: Chapter[] = [
     stats: { wallet: 650, pantherPower: 300, housePoints: 150, collegeFund: 0 },
   },
   {
+    title: "Game Room Showdown",
+    subtitle: "Strategy & Competition",
+    icon: Gamepad2,
+    characters: ["Arthur", "DeShawn", "Maya"],
+    narrative: [
+      "The Panther Game Room opens during lunch period, and the buzz is immediate. Arthur watches as students crowd around the entrance, eager to play. Inside, six game stations line the walls: Dominoes, Checkers, Chess, Memory Match, Spades, and Strategy Tiles. The Dominoes table is already packed. Arthur has never played Block Dominoes before, but DeShawn waves him over. \"Come on, Wakanda. Let me show you how we do this.\"",
+      "Arthur picks Beginner difficulty against the computer and learns the rules quickly -- match the dots, block your opponent, manage your hand. But then he discovers the special draw rule: if he needs to draw from the boneyard, he has to do it within his remaining time. He draws with just one second left and gets a fifteen-second bonus. His heart pounds as he races to play the drawn tile before the clock runs out. He wins his first game and watches his ELO rating appear on the leaderboard. It is not high yet, but it is his.",
+      "Within a week, Arthur has climbed from Beginner to Intermediate difficulty. Maya challenges him to see who can reach Pro level first. The competition pushes both of them to study strategy -- counting tiles, blocking opponents, managing the clock. Arthur starts seeing patterns everywhere, not just in dominoes but in math class and even in his stock market decisions. Coach Marcus notices the change. \"Games teach you to think three moves ahead,\" he says. \"That is not just a domino skill. That is a life skill.\" Arthur's ELO rating climbs to 1,350, and his name sits fourth on the school leaderboard. Not bad for someone who did not know the rules two weeks ago.",
+    ],
+    quote: "Every game you play is a lesson in strategy, patience, and resilience. The board does not care about excuses -- only your next move.",
+    quoteAuthor: "Coach Marcus, Game Room opening day",
+    links: [
+      { label: "Game Room", href: "/academy/games", icon: Gamepad2 },
+      { label: "Competitions", href: "/academy/competitions", icon: Trophy },
+    ],
+    stats: { wallet: 700, pantherPower: 330, housePoints: 170, collegeFund: 0 },
+  },
+  {
     title: "Building the Dream Campus",
     subtitle: "Campus Builder",
     icon: Building2,
@@ -240,7 +258,7 @@ const CHAPTERS: Chapter[] = [
     links: [
       { label: "Build Campus", href: "/academy/campus", icon: Building2 },
     ],
-    stats: { wallet: 600, pantherPower: 370, housePoints: 190, collegeFund: 0 },
+    stats: { wallet: 750, pantherPower: 400, housePoints: 210, collegeFund: 0 },
   },
   {
     title: "Dream Design",
@@ -257,7 +275,7 @@ const CHAPTERS: Chapter[] = [
     links: [
       { label: "Dream Design", href: "/academy/dreams", icon: Target },
     ],
-    stats: { wallet: 650, pantherPower: 420, housePoints: 210, collegeFund: 0 },
+    stats: { wallet: 700, pantherPower: 450, housePoints: 230, collegeFund: 0 },
   },
   {
     title: "Study Guide Empire",
@@ -274,7 +292,7 @@ const CHAPTERS: Chapter[] = [
     links: [
       { label: "Marketplace", href: "/academy/marketplace", icon: Store },
     ],
-    stats: { wallet: 1100, pantherPower: 490, housePoints: 240, collegeFund: 0 },
+    stats: { wallet: 1150, pantherPower: 520, housePoints: 260, collegeFund: 0 },
   },
   {
     title: "The Leadership Challenge",
@@ -291,7 +309,7 @@ const CHAPTERS: Chapter[] = [
     links: [
       { label: "Adventures (CYOA)", href: "/academy/scenarios", icon: Gamepad2 },
     ],
-    stats: { wallet: 1200, pantherPower: 560, housePoints: 270, collegeFund: 0 },
+    stats: { wallet: 1250, pantherPower: 590, housePoints: 290, collegeFund: 0 },
   },
   {
     title: "Parents in the Picture",
@@ -308,7 +326,7 @@ const CHAPTERS: Chapter[] = [
     links: [
       { label: "Parent Dashboard", href: "/parents/dashboard", icon: Heart },
     ],
-    stats: { wallet: 1400, pantherPower: 620, housePoints: 300, collegeFund: 200 },
+    stats: { wallet: 1450, pantherPower: 650, housePoints: 320, collegeFund: 200 },
   },
   {
     title: "Print Shop Dreams",
@@ -325,7 +343,7 @@ const CHAPTERS: Chapter[] = [
     links: [
       { label: "Print Shop", href: "/academy/merch", icon: ShoppingBag },
     ],
-    stats: { wallet: 1800, pantherPower: 680, housePoints: 330, collegeFund: 1500 },
+    stats: { wallet: 1850, pantherPower: 710, housePoints: 350, collegeFund: 1500 },
   },
   {
     title: "Teacher's Impact",
@@ -343,7 +361,7 @@ const CHAPTERS: Chapter[] = [
       { label: "Teacher Dashboard", href: "/teacher-dashboard", icon: Presentation },
       { label: "Core Subjects", href: "/subjects", icon: BookOpen },
     ],
-    stats: { wallet: 2100, pantherPower: 740, housePoints: 360, collegeFund: 2800 },
+    stats: { wallet: 2150, pantherPower: 770, housePoints: 380, collegeFund: 2800 },
   },
   {
     title: "Investing in Community",
@@ -360,7 +378,7 @@ const CHAPTERS: Chapter[] = [
     links: [
       { label: "Adventures (CYOA)", href: "/academy/scenarios", icon: Gamepad2 },
     ],
-    stats: { wallet: 2600, pantherPower: 800, housePoints: 400, collegeFund: 4500 },
+    stats: { wallet: 2650, pantherPower: 830, housePoints: 420, collegeFund: 4500 },
   },
   {
     title: "The Panther Power Summit",
@@ -377,7 +395,7 @@ const CHAPTERS: Chapter[] = [
     links: [
       { label: "Panther Power", href: "/academy/power", icon: Zap },
     ],
-    stats: { wallet: 3200, pantherPower: 900, housePoints: 450, collegeFund: 7000 },
+    stats: { wallet: 3250, pantherPower: 930, housePoints: 470, collegeFund: 7000 },
   },
   {
     title: "It Takes a Village",
@@ -396,7 +414,7 @@ const CHAPTERS: Chapter[] = [
       { label: "Spark AI Companion", href: "/ai-companion", icon: Sparkles },
       { label: "Parent Dashboard", href: "/parents/dashboard", icon: Heart },
     ],
-    stats: { wallet: 3800, pantherPower: 940, housePoints: 480, collegeFund: 9200 },
+    stats: { wallet: 3850, pantherPower: 970, housePoints: 500, collegeFund: 9200 },
   },
   {
     title: "The Howard Dream",
@@ -417,9 +435,9 @@ const CHAPTERS: Chapter[] = [
       { label: "Academy Hub", href: "/academy", icon: Rocket },
     ],
     stats: {
-      wallet: 4500,
-      pantherPower: 1000,
-      housePoints: 520,
+      wallet: 4550,
+      pantherPower: 1030,
+      housePoints: 540,
       collegeFund: 10000,
       adventuresCompleted: 4,
       marketplaceSales: 47,
@@ -446,6 +464,7 @@ const POWER_BY_CHAPTER: number[][] = [
   [35, 40, 28, 35, 37],
   [42, 45, 32, 55, 40],
   [55, 50, 60, 60, 45],
+  [60, 54, 65, 62, 50],
   [70, 58, 72, 65, 65],
   [80, 68, 78, 72, 72],
   [95, 78, 85, 80, 82],
@@ -460,7 +479,7 @@ const POWER_BY_CHAPTER: number[][] = [
 ];
 
 function StatsFooter({ stats, chapterIndex }: { stats: ChapterStats; chapterIndex: number }) {
-  const isFinale = chapterIndex === 19;
+  const isFinale = chapterIndex === 20;
 
   return (
     <Card className="p-5 mt-6" data-testid={`card-stats-chapter-${chapterIndex}`}>
@@ -546,7 +565,7 @@ function StatsFooter({ stats, chapterIndex }: { stats: ChapterStats; chapterInde
 }
 
 function ChapterContent({ chapter, index }: { chapter: Chapter; index: number }) {
-  const isFinale = index === 19;
+  const isFinale = index === 20;
 
   return (
     <div className="space-y-6" data-testid={`chapter-content-${index}`}>

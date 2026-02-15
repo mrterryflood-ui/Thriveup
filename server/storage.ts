@@ -51,7 +51,7 @@ import {
   type PlayerRating, type InsertPlayerRating,
   type PlaySession, type InsertPlaySession,
 } from "@shared/schema";
-import { eq, and, desc, sql, inArray } from "drizzle-orm";
+import { eq, and, desc, sql, inArray, isNull, gte } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import pg from "pg";
 
@@ -245,6 +245,7 @@ export interface IStorage {
   startPlaySession(userId: string, gameType: string): Promise<PlaySession>;
   endPlaySession(id: string): Promise<PlaySession>;
   getFlaggedPlaySessions(): Promise<PlaySession[]>;
+  getActivePlayerCount(): Promise<number>;
 
   seedData(): Promise<void>;
 }
@@ -1101,6 +1102,20 @@ export class DatabaseStorage implements IStorage {
 
   async getFlaggedPlaySessions(): Promise<PlaySession[]> {
     return db.select().from(playSessions).where(eq(playSessions.flagged, true)).orderBy(desc(playSessions.startedAt));
+  }
+
+  async getActivePlayerCount(): Promise<number> {
+    const fifteenMinAgo = new Date(Date.now() - 15 * 60 * 1000);
+    const result = await db
+      .selectDistinct({ userId: playSessions.userId })
+      .from(playSessions)
+      .where(
+        and(
+          isNull(playSessions.endedAt),
+          gte(playSessions.startedAt, fifteenMinAgo)
+        )
+      );
+    return result.length;
   }
 
   async seedData(): Promise<void> {

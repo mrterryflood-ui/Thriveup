@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/form";
 import {
   Trophy, Star, Medal, Crown, Gamepad2, Brain, BookOpen,
-  Users, Calendar, Award, Target, Zap, Hash, Sparkles, Plus,
+  Users, Calendar, Award, Target, Zap, Sparkles, Plus,
 } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -64,12 +64,6 @@ const categoryColors: Record<string, string> = {
   "in-person": "bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400",
 };
 
-const featuredGames = [
-  { name: "Number Challenge", description: "Quick mental math", icon: Hash, color: "from-blue-500 to-indigo-600" },
-  { name: "Word Builder", description: "Vocabulary and spelling", icon: BookOpen, color: "from-emerald-500 to-teal-600" },
-  { name: "Trivia Quest", description: "General knowledge", icon: Brain, color: "from-rose-800 to-red-900" },
-  { name: "Pattern Master", description: "Logic and patterns", icon: Target, color: "from-orange-500 to-red-600" },
-];
 
 function placementLabel(placement: number): string {
   if (placement === 1) return "1st";
@@ -551,31 +545,22 @@ export default function AcademyCompetitionsPage() {
       <Card className="p-6 mb-8" data-testid="card-featured-games">
         <h2 className="font-semibold mb-4 flex items-center gap-2">
           <Gamepad2 className="h-5 w-5 text-primary" />
-          Featured Games
+          Panther Game Room
         </h2>
         <p className="text-sm text-muted-foreground mb-4">
-          Virtual competition game modes - test your skills
+          Play games against the computer or challenge classmates. Earn Panther Power points and climb the leaderboard!
         </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {featuredGames.map((game) => {
-            const GameIcon = game.icon;
-            return (
-              <Card key={game.name} className="p-4 hover-elevate cursor-pointer" data-testid={`card-game-${game.name.toLowerCase().replace(/\s/g, "-")}`}>
-                <div className="flex flex-col items-center text-center gap-3">
-                  <div className={`w-12 h-12 rounded-md bg-gradient-to-br ${game.color} flex items-center justify-center shrink-0`}>
-                    <GameIcon className="h-6 w-6 text-white" />
-                  </div>
-                  <div>
-                    <p className="font-medium text-sm">{game.name}</p>
-                    <p className="text-xs text-muted-foreground">{game.description}</p>
-                  </div>
-                  <Badge variant="secondary" className="text-xs no-default-hover-elevate no-default-active-elevate">
-                    Coming Soon
-                  </Badge>
-                </div>
-              </Card>
-            );
-          })}
+        <div className="flex items-center gap-4 flex-wrap">
+          <a href="/academy/games">
+            <Button data-testid="button-go-to-games">
+              <Gamepad2 className="h-4 w-4 mr-2" />
+              Go to Game Room
+            </Button>
+          </a>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Gamepad2 className="h-4 w-4" />
+            Dominoes, Checkers, Chess & more
+          </div>
         </div>
       </Card>
 

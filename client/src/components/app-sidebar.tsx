@@ -1,3 +1,4 @@
+import { useState, useMemo } from "react";
 import { useLocation, Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -9,72 +10,142 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
+  SidebarMenuSubButton,
   SidebarHeader,
   SidebarFooter,
 } from "@/components/ui/sidebar";
+import {
+  Collapsible,
+  CollapsibleTrigger,
+  CollapsibleContent,
+} from "@/components/ui/collapsible";
 import {
   Home, BookOpen, Award, Brain, Star, GraduationCap,
   Shield, ShieldCheck, ShieldPlus, Swords, Medal, Heart, Sparkles,
   Users, Globe, FileText, LogIn, LogOut, Flame, BarChart3, School, ScrollText, Wand2, Smartphone,
   Rocket, User, TrendingUp, Wallet, Building2, Trophy, Flag, Target, ShoppingBag,
   Zap, CalendarCheck, Lightbulb, Gamepad2, Map, Store, Briefcase, Route,
-  Activity, ClipboardCheck, AlertTriangle, Handshake,
+  Activity, ClipboardCheck, Handshake, ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getRankForLevel } from "@/lib/curriculum-data";
 import { useAuth } from "@/hooks/use-auth";
 import type { StudentProgress } from "@shared/schema";
+import type { LucideIcon } from "lucide-react";
 
-const menuItems = [
+interface NavItem {
+  title: string;
+  url: string;
+  icon: LucideIcon;
+}
+
+interface NavSubGroup {
+  title: string;
+  icon: LucideIcon;
+  items: NavItem[];
+  defaultOpen?: boolean;
+}
+
+const platformItems: NavItem[] = [
   { title: "Dashboard", url: "/dashboard", icon: Home },
-  { title: "Subjects", url: "/subjects", icon: GraduationCap },
   { title: "AI Curriculum", url: "/curriculum", icon: Brain },
   { title: "Spark", url: "/ai-companion", icon: Sparkles },
+  { title: "Community", url: "/community", icon: Globe },
+  { title: "Subjects", url: "/subjects", icon: GraduationCap },
   { title: "Achievements", url: "/achievements", icon: Award },
   { title: "Certificates", url: "/certificates", icon: ScrollText },
+];
+
+const academySubGroups: NavSubGroup[] = [
+  {
+    title: "My Student",
+    icon: User,
+    items: [
+      { title: "My Avatar", url: "/academy/avatar", icon: User },
+      { title: "Panther Power", url: "/academy/power", icon: Zap },
+      { title: "Daily Check-In", url: "/academy/self-assessment", icon: ClipboardCheck },
+      { title: "My Pathway", url: "/academy/pathway", icon: Route },
+      { title: "Thrive Dashboard", url: "/academy/thrive", icon: Activity },
+      { title: "Daily Quests", url: "/academy/quests", icon: CalendarCheck },
+    ],
+  },
+  {
+    title: "Campus Life",
+    icon: Gamepad2,
+    items: [
+      { title: "Game Room", url: "/academy/games", icon: Gamepad2 },
+      { title: "Competitions", url: "/academy/competitions", icon: Trophy },
+      { title: "House Points", url: "/academy/houses", icon: Flag },
+      { title: "Adventures", url: "/academy/scenarios", icon: Map },
+      { title: "Marketplace", url: "/academy/marketplace", icon: Store },
+      { title: "Stock Market", url: "/academy/stocks", icon: TrendingUp },
+      { title: "My Wallet", url: "/academy/wallet", icon: Wallet },
+    ],
+  },
+  {
+    title: "Career & Mentors",
+    icon: Briefcase,
+    items: [
+      { title: "Career Explorer", url: "/academy/careers", icon: Briefcase },
+      { title: "Mentor Network", url: "/academy/mentors", icon: Users },
+      { title: "Find Mentor/Partner", url: "/academy/mentor-finder", icon: Handshake },
+      { title: "Dream Design", url: "/academy/dreams", icon: Target },
+      { title: "Life Lessons", url: "/academy/lessons", icon: Lightbulb },
+    ],
+  },
+  {
+    title: "Build & Create",
+    icon: Building2,
+    items: [
+      { title: "Build Campus", url: "/academy/campus", icon: Building2 },
+      { title: "Print Shop", url: "/academy/merch", icon: ShoppingBag },
+    ],
+  },
+  {
+    title: "Staff & Admin",
+    icon: BarChart3,
+    defaultOpen: false,
+    items: [
+      { title: "Admin Dashboard", url: "/academy/admin", icon: BarChart3 },
+      { title: "Admin Guide", url: "/academy/admin-tutorial", icon: BookOpen },
+      { title: "Student Wizards", url: "/academy/student-wizard", icon: Wand2 },
+      { title: "Arthur's Journey", url: "/academy/tutorial", icon: GraduationCap },
+      { title: "Longitudinal Dashboard", url: "/academy/longitudinal", icon: BarChart3 },
+    ],
+  },
+];
+
+const teachingItems: NavItem[] = [
   { title: "Classrooms", url: "/classrooms", icon: School },
   { title: "Classroom Wizard", url: "/classrooms/wizard", icon: Wand2 },
   { title: "Teacher Dashboard", url: "/teacher-dashboard", icon: BarChart3 },
-  { title: "Curriculum Docs", url: "/curriculum-documents", icon: FileText },
-  { title: "Community", url: "/community", icon: Globe },
   { title: "Parents", url: "/parents", icon: Users },
   { title: "Parent Dashboard", url: "/parents/dashboard", icon: BarChart3 },
+  { title: "Curriculum Docs", url: "/curriculum-documents", icon: FileText },
   { title: "Social Media Literacy", url: "/social-media-literacy", icon: Smartphone },
-];
-
-const academyItems = [
-  { title: "Panther Village", url: "/academy", icon: Rocket },
-  { title: "Panther Power", url: "/academy/power", icon: Zap },
-  { title: "Daily Quests", url: "/academy/quests", icon: CalendarCheck },
-  { title: "Life Lessons", url: "/academy/lessons", icon: Lightbulb },
-  { title: "My Avatar", url: "/academy/avatar", icon: User },
-  { title: "Stock Market", url: "/academy/stocks", icon: TrendingUp },
-  { title: "My Wallet", url: "/academy/wallet", icon: Wallet },
-  { title: "Build Campus", url: "/academy/campus", icon: Building2 },
-  { title: "Competitions", url: "/academy/competitions", icon: Trophy },
-  { title: "House Points", url: "/academy/houses", icon: Flag },
-  { title: "Dream Design", url: "/academy/dreams", icon: Target },
-  { title: "Print Shop", url: "/academy/merch", icon: ShoppingBag },
-  { title: "Game Room", url: "/academy/games", icon: Gamepad2 },
-  { title: "Adventures", url: "/academy/scenarios", icon: Map },
-  { title: "Marketplace", url: "/academy/marketplace", icon: Store },
-  { title: "Career Explorer", url: "/academy/careers", icon: Briefcase },
-  { title: "My Pathway", url: "/academy/pathway", icon: Route },
-  { title: "Mentor Network", url: "/academy/mentors", icon: Users },
-  { title: "Find Mentor/Partner", url: "/academy/mentor-finder", icon: Handshake },
-  { title: "Longitudinal Dashboard", url: "/academy/longitudinal", icon: BarChart3 },
-  { title: "Thrive Dashboard", url: "/academy/thrive", icon: Activity },
-  { title: "Daily Check-In", url: "/academy/self-assessment", icon: ClipboardCheck },
-  { title: "Arthur's Journey", url: "/academy/tutorial", icon: GraduationCap },
-  { title: "Student Wizards", url: "/academy/student-wizard", icon: Wand2 },
-  { title: "Admin Dashboard", url: "/academy/admin", icon: BarChart3 },
-  { title: "Admin Guide", url: "/academy/admin-tutorial", icon: BookOpen },
 ];
 
 const rankIcons: Record<string, typeof Shield> = {
   Shield, ShieldCheck, ShieldPlus, Swords, Medal,
 };
+
+function isItemActive(location: string, url: string): boolean {
+  if (location === url) return true;
+  if (url === "/subjects" && location.startsWith("/subject")) return true;
+  if (url === "/curriculum" && location.startsWith("/curriculum/")) return true;
+  if (url === "/curriculum-documents" && location.startsWith("/curriculum-documents/")) return true;
+  if (url === "/classrooms" && location.startsWith("/classrooms/")) return true;
+  if (url === "/certificates" && location.startsWith("/certificates/")) return true;
+  if (url !== "/parents" && url !== "/academy" && location.startsWith(url + "/")) return true;
+  return false;
+}
+
+function groupContainsActive(location: string, items: NavItem[]): boolean {
+  return items.some((item) => isItemActive(location, item.url));
+}
 
 export function AppSidebar() {
   const [location] = useLocation();
@@ -89,6 +160,20 @@ export function AppSidebar() {
   const initials = user
     ? ((user.firstName?.[0] || "") + (user.lastName?.[0] || "")).toUpperCase() || (user.email?.[0]?.toUpperCase() || "?")
     : "?";
+
+  const anyAcademyActive = useMemo(() => {
+    return location.startsWith("/academy");
+  }, [location]);
+
+  const teachingActive = useMemo(() => {
+    return groupContainsActive(location, teachingItems);
+  }, [location]);
+
+  const [schoolOpen, setSchoolOpen] = useState(true);
+  const [gradeOpen, setGradeOpen] = useState(true);
+  const [teachingOpen, setTeachingOpen] = useState(false);
+
+  const resolvedTeachingOpen = teachingOpen || teachingActive;
 
   return (
     <Sidebar>
@@ -133,17 +218,11 @@ export function AppSidebar() {
         )}
 
         <SidebarGroup>
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+          <SidebarGroupLabel>Platform</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {menuItems.map((item) => {
-                const isActive = location === item.url || 
-                  (item.url === "/subjects" && location.startsWith("/subject")) ||
-                  (item.url === "/curriculum" && location.startsWith("/curriculum/")) ||
-                  (item.url === "/curriculum-documents" && location.startsWith("/curriculum-documents/")) ||
-                  (item.url === "/classrooms" && location.startsWith("/classrooms/")) ||
-                  (item.url === "/certificates" && location.startsWith("/certificates/")) ||
-                  (item.url !== "/parents" && location.startsWith(item.url + "/"));
+              {platformItems.map((item) => {
+                const isActive = isItemActive(location, item.url);
                 return (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton
@@ -165,28 +244,110 @@ export function AppSidebar() {
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel>TxEA 6th Grade Academy</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {academyItems.map((item) => {
-                const isActive = location === item.url ||
-                  (item.url === "/academy" && location.startsWith("/academy/") && !academyItems.some(a => a.url !== "/academy" && location === a.url));
-                return (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton
-                      asChild
-                      data-active={isActive}
-                      className={isActive ? "bg-sidebar-accent" : ""}
-                      data-testid={`link-sidebar-${item.title.toLowerCase().replace(/\s/g, '-')}`}
-                    >
-                      <Link href={item.url}>
-                        <item.icon className="h-4 w-4" />
-                        <span>{item.title}</span>
-                      </Link>
+              <Collapsible open={schoolOpen} onOpenChange={setSchoolOpen} className="group/collapsible">
+                <SidebarMenuItem>
+                  <CollapsibleTrigger asChild>
+                    <SidebarMenuButton data-testid="link-sidebar-txea-panthers">
+                      <School className="h-4 w-4" />
+                      <span>TxEA Panthers</span>
+                      <ChevronRight className="ml-auto h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-90" />
                     </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <SidebarMenuSub>
+                      <Collapsible open={gradeOpen} onOpenChange={setGradeOpen} className="group/grade">
+                        <SidebarMenuSubItem>
+                          <CollapsibleTrigger asChild>
+                            <SidebarMenuSubButton data-testid="link-sidebar-6th-grade-academy" className="cursor-pointer">
+                              <GraduationCap className="h-4 w-4" />
+                              <span>6th Grade Academy</span>
+                              <ChevronRight className="ml-auto h-4 w-4 transition-transform group-data-[state=open]/grade:rotate-90" />
+                            </SidebarMenuSubButton>
+                          </CollapsibleTrigger>
+                          <CollapsibleContent>
+                            <SidebarMenuSub>
+                              <SidebarMenuSubItem>
+                                {(() => {
+                                  const isActive = location === "/academy" && !location.startsWith("/academy/");
+                                  return (
+                                    <SidebarMenuSubButton
+                                      asChild
+                                      data-active={isActive}
+                                      className={isActive ? "bg-sidebar-accent" : ""}
+                                      data-testid="link-sidebar-panther-village"
+                                    >
+                                      <Link href="/academy">
+                                        <Rocket className="h-4 w-4" />
+                                        <span>Panther Village</span>
+                                      </Link>
+                                    </SidebarMenuSubButton>
+                                  );
+                                })()}
+                              </SidebarMenuSubItem>
+
+                              {academySubGroups.map((group) => {
+                                const hasActive = groupContainsActive(location, group.items);
+                                const defaultShouldOpen = group.defaultOpen !== false ? false : false;
+                                return (
+                                  <CollapsibleSubGroup
+                                    key={group.title}
+                                    group={group}
+                                    location={location}
+                                    forceOpen={hasActive}
+                                    defaultOpen={group.defaultOpen ?? false}
+                                  />
+                                );
+                              })}
+                            </SidebarMenuSub>
+                          </CollapsibleContent>
+                        </SidebarMenuSubItem>
+                      </Collapsible>
+                    </SidebarMenuSub>
+                  </CollapsibleContent>
+                </SidebarMenuItem>
+              </Collapsible>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <Collapsible open={resolvedTeachingOpen} onOpenChange={setTeachingOpen} className="group/collapsible">
+                <SidebarMenuItem>
+                  <CollapsibleTrigger asChild>
+                    <SidebarMenuButton data-testid="link-sidebar-teaching-&-parents">
+                      <Users className="h-4 w-4" />
+                      <span>Teaching & Parents</span>
+                      <ChevronRight className="ml-auto h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-90" />
+                    </SidebarMenuButton>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <SidebarMenuSub>
+                      {teachingItems.map((item) => {
+                        const isActive = isItemActive(location, item.url);
+                        return (
+                          <SidebarMenuSubItem key={item.title}>
+                            <SidebarMenuSubButton
+                              asChild
+                              data-active={isActive}
+                              className={isActive ? "bg-sidebar-accent" : ""}
+                              data-testid={`link-sidebar-${item.title.toLowerCase().replace(/\s/g, '-')}`}
+                            >
+                              <Link href={item.url}>
+                                <item.icon className="h-4 w-4" />
+                                <span>{item.title}</span>
+                              </Link>
+                            </SidebarMenuSubButton>
+                          </SidebarMenuSubItem>
+                        );
+                      })}
+                    </SidebarMenuSub>
+                  </CollapsibleContent>
+                </SidebarMenuItem>
+              </Collapsible>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -227,11 +388,16 @@ export function AppSidebar() {
               </Button>
             </a>
           ) : (
-            <a href="/api/login">
-              <Button variant="default" size="sm" className="w-full" data-testid="button-login">
-                <LogIn className="mr-2 h-4 w-4" /> Sign In
-              </Button>
-            </a>
+            <div className="space-y-1.5">
+              <a href="/api/login">
+                <Button variant="default" size="sm" className="w-full" data-testid="button-login">
+                  <LogIn className="mr-2 h-4 w-4" /> Sign In
+                </Button>
+              </a>
+              <p className="text-[10px] text-muted-foreground text-center" data-testid="text-login-hint">
+                Use your school email or Google account
+              </p>
+            </div>
           )
         )}
         <Link href="/privacy">
@@ -245,5 +411,59 @@ export function AppSidebar() {
         </div>
       </SidebarFooter>
     </Sidebar>
+  );
+}
+
+function CollapsibleSubGroup({
+  group,
+  location,
+  forceOpen,
+  defaultOpen,
+}: {
+  group: NavSubGroup;
+  location: string;
+  forceOpen: boolean;
+  defaultOpen: boolean;
+}) {
+  const [userOpen, setUserOpen] = useState(defaultOpen);
+  const isOpen = userOpen || forceOpen;
+
+  return (
+    <Collapsible open={isOpen} onOpenChange={setUserOpen} className="group/subgroup">
+      <SidebarMenuSubItem>
+        <CollapsibleTrigger asChild>
+          <SidebarMenuSubButton
+            className="cursor-pointer"
+            data-testid={`link-sidebar-${group.title.toLowerCase().replace(/\s+/g, '-')}`}
+          >
+            <group.icon className="h-4 w-4" />
+            <span>{group.title}</span>
+            <ChevronRight className="ml-auto h-4 w-4 transition-transform group-data-[state=open]/subgroup:rotate-90" />
+          </SidebarMenuSubButton>
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+          <SidebarMenuSub>
+            {group.items.map((item) => {
+              const isActive = isItemActive(location, item.url);
+              return (
+                <SidebarMenuSubItem key={item.title}>
+                  <SidebarMenuSubButton
+                    asChild
+                    data-active={isActive}
+                    className={isActive ? "bg-sidebar-accent" : ""}
+                    data-testid={`link-sidebar-${item.title.toLowerCase().replace(/\s/g, '-')}`}
+                  >
+                    <Link href={item.url}>
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuSubButton>
+                </SidebarMenuSubItem>
+              );
+            })}
+          </SidebarMenuSub>
+        </CollapsibleContent>
+      </SidebarMenuSubItem>
+    </Collapsible>
   );
 }
