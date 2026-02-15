@@ -518,6 +518,24 @@ export const academyAdminNotes = pgTable("academy_admin_notes", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// ==================== CONTENT REPORTS ====================
+
+export const academyContentReports = pgTable("academy_content_reports", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  reporterId: varchar("reporter_id").notNull(),
+  reporterName: varchar("reporter_name").notNull(),
+  contentType: varchar("content_type").notNull(),
+  contentId: varchar("content_id").notNull(),
+  reason: varchar("reason").notNull(),
+  details: text("details"),
+  status: varchar("status").notNull().default("pending"),
+  reviewedBy: varchar("reviewed_by"),
+  reviewNotes: text("review_notes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertAcademyContentReportSchema = createInsertSchema(academyContentReports).omit({ id: true, createdAt: true });
+
 // ==================== ACADEMY INSERT SCHEMAS ====================
 
 export const insertAcademyAvatarSchema = createInsertSchema(academyAvatars).omit({ id: true, createdAt: true });
@@ -656,5 +674,7 @@ export type AcademyActivityFeedItem = typeof academyActivityFeed.$inferSelect;
 export type InsertAcademyActivityFeedItem = z.infer<typeof insertAcademyActivityFeedSchema>;
 export type AcademyAdminNote = typeof academyAdminNotes.$inferSelect;
 export type InsertAcademyAdminNote = z.infer<typeof insertAcademyAdminNoteSchema>;
+export type AcademyContentReport = typeof academyContentReports.$inferSelect;
+export type InsertAcademyContentReport = z.infer<typeof insertAcademyContentReportSchema>;
 
 export * from "./models/auth";

@@ -49,6 +49,8 @@ import {
   Clock,
   BookOpen,
   Filter,
+  Flag,
+  XCircle,
 } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -110,6 +112,20 @@ interface AdminNote {
   note: string;
   category: string;
   isResolved: boolean;
+  createdAt: string;
+}
+
+interface ContentReport {
+  id: string;
+  reporterId: string;
+  reporterName: string;
+  contentType: string;
+  contentId: string;
+  reason: string;
+  details: string | null;
+  status: string;
+  reviewedBy: string | null;
+  reviewNotes: string | null;
   createdAt: string;
 }
 
@@ -350,6 +366,10 @@ export default function AcademyAdminPage() {
     queryKey: ["/api/academy/activity"],
   });
 
+  const { data: reports, isLoading: reportsLoading } = useQuery<ContentReport[]>({
+    queryKey: ["/api/academy/admin/reports"],
+  });
+
   const createNoteMutation = useMutation({
     mutationFn: async (body: { userId?: string; note: string; category: string }) => {
       const res = await apiRequest("POST", "/api/academy/admin/notes", body);
@@ -376,6 +396,20 @@ export default function AcademyAdminPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/academy/admin/notes"] });
       queryClient.invalidateQueries({ queryKey: ["/api/academy/admin/metrics"] });
+    },
+  });
+
+  const updateReportMutation = useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: string }) => {
+      const res = await apiRequest("PATCH", `/api/academy/admin/reports/${id}`, { status });
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/academy/admin/reports"] });
+      toast({ title: "Report Updated", description: "Report status has been updated." });
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Failed to update report.", variant: "destructive" });
     },
   });
 
@@ -483,6 +517,9 @@ export default function AcademyAdminPage() {
           </TabsTrigger>
           <TabsTrigger value="notes" data-testid="tab-notes">
             <MessageSquare className="h-4 w-4 mr-1.5" /> Notes
+          </TabsTrigger>
+          <TabsTrigger value="reports" data-testid="tab-reports">
+            <Flag className="h-4 w-4 mr-1.5" /> Reports
           </TabsTrigger>
         </TabsList>
 
@@ -841,6 +878,92 @@ export default function AcademyAdminPage() {
                 </Card>
               )}
             </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="reports">
+          <div className="space-y-4">
+            <h2 className="font-semibold text-lg flex items-center gap-2">
+              <Flag className="h-5 w-5 text-primary" /> Content Reports
+            </h2>
+            {reportsLoading ? (
+              <div className="space-y-3">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <Skeleton key={i} className="h-24" />
+                ))}
+              </div>
+            ) : (reports ?? []).length > 0 ? (
+              <div className="space-y-3">
+                {(reports ?? []).map((report) => (
+                  <Card key={report.id} className="p-5" data-testid={`card-report-${report.id}`}>
+                    <div className="flex items-start gap-3">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-2 flex-wrap">
+                          <Badge
+                            variant="secondary"
+                            className={
+                              report.status === "pending"
+                                ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300"
+                                : report.status === "reviewed"
+                                ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300"
+                                : "bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300"
+                            }
+                            data-testid={`badge-report-status-${report.id}`}
+                          >
+                            {report.status}
+                          </Badge>
+                          <Badge variant="outline" data-testid={`badge-report-type-${report.id}`}>
+                            {report.contentType}
+                          </Badge>
+                          <span className="text-xs text-muted-foreground ml-auto" data-testid={`text-report-time-${report.id}`}>
+                            {timeAgo(report.createdAt)}
+                          </span>
+                        </div>
+                        <p className="text-sm mb-1" data-testid={`text-report-reason-${report.id}`}>
+                          <span className="font-medium">Reason:</span> {report.reason}
+                        </p>
+                        {report.details && (
+                          <p className="text-sm text-muted-foreground mb-1" data-testid={`text-report-details-${report.id}`}>
+                            {report.details}
+                          </p>
+                        )}
+                        <p className="text-xs text-muted-foreground" data-testid={`text-report-reporter-${report.id}`}>
+                          Reported by: {report.reporterName}
+                        </p>
+                      </div>
+                      {report.status === "pending" && (
+                        <div className="flex flex-col gap-2 shrink-0">
+                          <Button
+                            size="sm"
+                            onClick={() => updateReportMutation.mutate({ id: report.id, status: "reviewed" })}
+                            disabled={updateReportMutation.isPending}
+                            data-testid={`button-review-report-${report.id}`}
+                          >
+                            <CheckCircle2 className="h-3.5 w-3.5 mr-1" />
+                            Reviewed
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => updateReportMutation.mutate({ id: report.id, status: "dismissed" })}
+                            disabled={updateReportMutation.isPending}
+                            data-testid={`button-dismiss-report-${report.id}`}
+                          >
+                            <XCircle className="h-3.5 w-3.5 mr-1" />
+                            Dismiss
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <Card className="p-6 text-center" data-testid="card-no-reports">
+                <Flag className="h-8 w-8 mx-auto text-muted-foreground/30 mb-2" />
+                <p className="text-sm text-muted-foreground">No content reports. Your community is doing great!</p>
+              </Card>
+            )}
           </div>
         </TabsContent>
       </Tabs>

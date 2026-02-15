@@ -47,6 +47,8 @@ import {
   Handshake,
   TrendingUp,
   Filter,
+  Shield,
+  Flag,
 } from "lucide-react";
 
 interface Listing {
@@ -138,6 +140,8 @@ export default function AcademyMarketplacePage() {
   const { toast } = useToast();
   const { user } = useAuth();
   const [categoryFilter, setCategoryFilter] = useState("All");
+  const [reportingId, setReportingId] = useState<string | null>(null);
+  const [reportReason, setReportReason] = useState("");
 
   const { data: listings, isLoading: listingsLoading } = useQuery<Listing[]>({
     queryKey: ["/api/academy/marketplace"],
@@ -211,6 +215,21 @@ export default function AcademyMarketplacePage() {
     },
   });
 
+  const reportMutation = useMutation({
+    mutationFn: async ({ id, reason }: { id: string; reason: string }) => {
+      const res = await apiRequest("POST", `/api/academy/marketplace/${id}/report`, { reason, details: reason });
+      return res.json();
+    },
+    onSuccess: () => {
+      toast({ title: "Report Submitted", description: "Thank you for helping keep our community safe. A teacher will review this." });
+      setReportingId(null);
+      setReportReason("");
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Could not submit report. Please try again.", variant: "destructive" });
+    },
+  });
+
   const filteredListings = (listings ?? []).filter(l => {
     if (categoryFilter === "All") return true;
     return l.category.toLowerCase() === categoryFilter.toLowerCase();
@@ -258,6 +277,23 @@ export default function AcademyMarketplacePage() {
           </span>
         </div>
       </div>
+
+      <Card className="p-4 mb-6 border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-900/10" data-testid="card-community-guidelines">
+        <div className="flex items-start gap-3">
+          <div className="rounded-md p-1.5 bg-amber-100 dark:bg-amber-900/30 shrink-0 mt-0.5">
+            <Shield className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+          </div>
+          <div>
+            <p className="text-sm font-semibold mb-1">Panther Community Guidelines</p>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Our marketplace is a safe space for learning and growing together. Be respectful, 
+              use kind language, and treat every Panther the way you want to be treated. 
+              All listings are monitored by teachers. If you see something that does not belong, 
+              use the report button to let a teacher know.
+            </p>
+          </div>
+        </div>
+      </Card>
 
       <Tabs defaultValue="browse" data-testid="tabs-marketplace">
         <TabsList className="mb-6" data-testid="tabs-list">
@@ -340,8 +376,47 @@ export default function AcademyMarketplacePage() {
                           <ShoppingCart className="h-3.5 w-3.5 mr-1" />
                           {isOwn ? "Your Item" : cantAfford ? "No Funds" : "Buy Now"}
                         </Button>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => setReportingId(reportingId === listing.id ? null : listing.id)}
+                          data-testid={`button-report-${listing.id}`}
+                        >
+                          <Flag className="h-3.5 w-3.5" />
+                        </Button>
                       </div>
                     </div>
+                    {reportingId === listing.id && (
+                      <Card className="p-3 mt-3 border-rose-200 dark:border-rose-800 bg-rose-50/50 dark:bg-rose-900/10" data-testid={`card-report-form-${listing.id}`}>
+                        <p className="text-xs font-semibold mb-2">Report this listing</p>
+                        <Input
+                          placeholder="Why are you reporting this?"
+                          value={reportReason}
+                          onChange={(e) => setReportReason(e.target.value)}
+                          className="mb-2"
+                          data-testid={`input-report-reason-${listing.id}`}
+                        />
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => reportMutation.mutate({ id: listing.id, reason: reportReason })}
+                            disabled={!reportReason.trim() || reportMutation.isPending}
+                            data-testid={`button-submit-report-${listing.id}`}
+                          >
+                            {reportMutation.isPending ? "Submitting..." : "Submit Report"}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => { setReportingId(null); setReportReason(""); }}
+                            data-testid={`button-cancel-report-${listing.id}`}
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      </Card>
+                    )}
                   </Card>
                 );
               })}

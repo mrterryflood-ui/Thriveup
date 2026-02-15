@@ -29,7 +29,7 @@ import {
   type AcademyMerchOrder, type InsertAcademyMerchOrder,
   academyPantherPower, academyDailyQuests, academyLifeLessons, academyWizardProgress,
   academyScenarios, academyScenarioNodes, academyScenarioRuns, academyChoiceLogs,
-  academyMarketListings, academyPeerTrades, academyActivityFeed, academyAdminNotes,
+  academyMarketListings, academyPeerTrades, academyActivityFeed, academyAdminNotes, academyContentReports,
   type AcademyPantherPower, type InsertAcademyPantherPower,
   type AcademyDailyQuest, type InsertAcademyDailyQuest,
   type AcademyLifeLesson, type InsertAcademyLifeLesson,
@@ -42,6 +42,7 @@ import {
   type AcademyPeerTrade, type InsertAcademyPeerTrade,
   type AcademyActivityFeedItem, type InsertAcademyActivityFeedItem,
   type AcademyAdminNote, type InsertAcademyAdminNote,
+  type AcademyContentReport, type InsertAcademyContentReport,
 } from "@shared/schema";
 import { eq, and, desc, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
@@ -214,6 +215,9 @@ export interface IStorage {
   getAllPantherPower(): Promise<AcademyPantherPower[]>;
   getAllScenarioRuns(): Promise<AcademyScenarioRun[]>;
   getAllPeerTrades(): Promise<AcademyPeerTrade[]>;
+  getContentReports(): Promise<AcademyContentReport[]>;
+  createContentReport(report: InsertAcademyContentReport): Promise<AcademyContentReport>;
+  updateContentReport(id: string, data: Partial<AcademyContentReport>): Promise<AcademyContentReport>;
 
   seedData(): Promise<void>;
 }
@@ -955,6 +959,20 @@ export class DatabaseStorage implements IStorage {
 
   async getAllPeerTrades(): Promise<AcademyPeerTrade[]> {
     return db.select().from(academyPeerTrades);
+  }
+
+  async getContentReports(): Promise<AcademyContentReport[]> {
+    return db.select().from(academyContentReports).orderBy(desc(academyContentReports.createdAt));
+  }
+
+  async createContentReport(report: InsertAcademyContentReport): Promise<AcademyContentReport> {
+    const [result] = await db.insert(academyContentReports).values(report).returning();
+    return result;
+  }
+
+  async updateContentReport(id: string, data: Partial<AcademyContentReport>): Promise<AcademyContentReport> {
+    const [result] = await db.update(academyContentReports).set(data).where(eq(academyContentReports.id, id)).returning();
+    return result;
   }
 
   async seedData(): Promise<void> {

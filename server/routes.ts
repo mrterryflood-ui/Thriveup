@@ -1308,6 +1308,30 @@ Write a warm, encouraging welcome message for students joining this classroom. M
     }
   });
 
+  function moderateContent(text: string): { safe: boolean; reason?: string } {
+    const normalized = text.toLowerCase().trim();
+    
+    const blockedPatterns = [
+      /\b(damn|hell|crap|stupid|idiot|dumb|shut\s*up|hate\s+you|loser|suck|butt|fart)\b/i,
+      /\b(kill|die|dead|murder|fight|punch|hit|hurt|attack|destroy|weapon|gun|knife|blood)\b/i,
+      /\b(drugs?|alcohol|beer|wine|smoke|vape|cigarette|weed|marijuana)\b/i,
+      /\b(sexy|nude|naked|kiss|dating|boyfriend|girlfriend|crush)\b/i,
+      /[!@#$%]{3,}/,
+    ];
+    
+    for (const pattern of blockedPatterns) {
+      if (pattern.test(normalized)) {
+        return { safe: false, reason: "Your listing contains language that isn't appropriate for our learning community. Please use respectful, school-appropriate language and try again." };
+      }
+    }
+    
+    if (normalized.length < 3) {
+      return { safe: false, reason: "Please provide a more descriptive name or description." };
+    }
+    
+    return { safe: true };
+  }
+
   // ==================== MARKETPLACE ====================
 
   app.get("/api/academy/marketplace", async (_req, res) => {
@@ -1332,6 +1356,11 @@ Write a warm, encouraging welcome message for students joining this classroom. M
     try {
       const userId = getUserId(req)!;
       const userName = getUserName(req) || "Student";
+      const { itemName, description } = req.body;
+      const nameCheck = moderateContent(itemName || "");
+      if (!nameCheck.safe) return res.status(400).json({ error: nameCheck.reason });
+      const descCheck = moderateContent(description || "");
+      if (!descCheck.safe) return res.status(400).json({ error: descCheck.reason });
       const listing = await storage.createListing({
         ...req.body,
         sellerId: userId,
@@ -1573,6 +1602,43 @@ Write a warm, encouraging welcome message for students joining this classroom. M
       res.json(note);
     } catch (error) {
       res.status(500).json({ error: "Failed to update note" });
+    }
+  });
+
+  app.post("/api/academy/marketplace/:id/report", requireAuth, async (req, res) => {
+    try {
+      const userId = getUserId(req)!;
+      const userName = getUserName(req) || "Student";
+      const report = await storage.createContentReport({
+        reporterId: userId,
+        reporterName: userName,
+        contentType: "marketplace_listing",
+        contentId: req.params.id,
+        reason: req.body.reason || "inappropriate",
+        details: req.body.details || "",
+        status: "pending",
+      });
+      res.status(201).json({ message: "Thank you for helping keep our community safe. Your report has been sent to a teacher for review.", report });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to submit report" });
+    }
+  });
+
+  app.get("/api/academy/admin/reports", async (_req, res) => {
+    try {
+      const reports = await storage.getContentReports();
+      res.json(reports);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to load reports" });
+    }
+  });
+
+  app.patch("/api/academy/admin/reports/:id", async (req, res) => {
+    try {
+      const report = await storage.updateContentReport(req.params.id, req.body);
+      res.json(report);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update report" });
     }
   });
 
