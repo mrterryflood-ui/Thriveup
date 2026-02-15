@@ -28,6 +28,7 @@ import {
   Rocket, User, TrendingUp, Wallet, Building2, Trophy, Flag, Target, ShoppingBag,
   Zap, CalendarCheck, Lightbulb, Gamepad2, Map, Store, Briefcase, Route,
   Activity, ClipboardCheck, Handshake, ChevronRight, DollarSign,
+  PenLine, Megaphone, Calendar, HelpCircle, ClipboardList, Printer,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -70,6 +71,8 @@ const academySubGroups: NavSubGroup[] = [
       { title: "My Pathway", url: "/academy/pathway", icon: Route },
       { title: "Thrive Dashboard", url: "/academy/thrive", icon: Activity },
       { title: "Daily Quests", url: "/academy/quests", icon: CalendarCheck },
+      { title: "My Journal", url: "/academy/journal", icon: PenLine },
+      { title: "Progress Report", url: "/academy/progress-report", icon: Printer },
     ],
   },
   {
@@ -84,6 +87,9 @@ const academySubGroups: NavSubGroup[] = [
       { title: "Stock Market", url: "/academy/stocks", icon: TrendingUp },
       { title: "My Wallet", url: "/academy/wallet", icon: Wallet },
       { title: "Financial Literacy", url: "/academy/financial-literacy", icon: DollarSign },
+      { title: "Announcements", url: "/academy/announcements", icon: Megaphone },
+      { title: "Calendar", url: "/academy/calendar", icon: Calendar },
+      { title: "Help & FAQ", url: "/academy/help", icon: HelpCircle },
     ],
   },
   {
@@ -115,6 +121,7 @@ const academySubGroups: NavSubGroup[] = [
       { title: "Student Wizards", url: "/academy/student-wizard", icon: Wand2 },
       { title: "Arthur's Journey", url: "/academy/tutorial", icon: GraduationCap },
       { title: "Longitudinal Dashboard", url: "/academy/longitudinal", icon: BarChart3 },
+      { title: "Attendance", url: "/academy/attendance", icon: ClipboardList },
     ],
   },
 ];

@@ -50,6 +50,11 @@ import {
   type GamePlayer, type InsertGamePlayer,
   type PlayerRating, type InsertPlayerRating,
   type PlaySession, type InsertPlaySession,
+  studentReflections, announcements, academyEvents, attendanceLogs,
+  type StudentReflection, type InsertStudentReflection,
+  type Announcement, type InsertAnnouncement,
+  type AcademyEvent, type InsertAcademyEvent,
+  type AttendanceLog, type InsertAttendanceLog,
 } from "@shared/schema";
 import { eq, and, desc, sql, inArray, isNull, gte } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
@@ -246,6 +251,20 @@ export interface IStorage {
   endPlaySession(id: string): Promise<PlaySession>;
   getFlaggedPlaySessions(): Promise<PlaySession[]>;
   getActivePlayerCount(): Promise<number>;
+
+  getReflectionsByUser(userId: string): Promise<StudentReflection[]>;
+  createReflection(data: InsertStudentReflection): Promise<StudentReflection>;
+
+  getAnnouncements(): Promise<Announcement[]>;
+  createAnnouncement(data: InsertAnnouncement): Promise<Announcement>;
+  deleteAnnouncement(id: string): Promise<void>;
+
+  getAcademyEvents(): Promise<AcademyEvent[]>;
+  createAcademyEvent(data: InsertAcademyEvent): Promise<AcademyEvent>;
+  deleteAcademyEvent(id: string): Promise<void>;
+
+  getAttendanceLogs(): Promise<AttendanceLog[]>;
+  logAttendance(data: InsertAttendanceLog): Promise<AttendanceLog>;
 
   seedData(): Promise<void>;
 }
@@ -1224,6 +1243,50 @@ export class DatabaseStorage implements IStorage {
       await seedCareerMilestones(db);
       console.log("Career milestones seeded (grades 6-12 + post-grad)");
     }
+  }
+
+  async getReflectionsByUser(userId: string): Promise<StudentReflection[]> {
+    return db.select().from(studentReflections).where(eq(studentReflections.userId, userId)).orderBy(desc(studentReflections.createdAt));
+  }
+
+  async createReflection(data: InsertStudentReflection): Promise<StudentReflection> {
+    const [reflection] = await db.insert(studentReflections).values(data).returning();
+    return reflection;
+  }
+
+  async getAnnouncements(): Promise<Announcement[]> {
+    return db.select().from(announcements).orderBy(desc(announcements.pinned), desc(announcements.createdAt));
+  }
+
+  async createAnnouncement(data: InsertAnnouncement): Promise<Announcement> {
+    const [announcement] = await db.insert(announcements).values(data).returning();
+    return announcement;
+  }
+
+  async deleteAnnouncement(id: string): Promise<void> {
+    await db.delete(announcements).where(eq(announcements.id, id));
+  }
+
+  async getAcademyEvents(): Promise<AcademyEvent[]> {
+    return db.select().from(academyEvents).orderBy(desc(academyEvents.eventDate));
+  }
+
+  async createAcademyEvent(data: InsertAcademyEvent): Promise<AcademyEvent> {
+    const [event] = await db.insert(academyEvents).values(data).returning();
+    return event;
+  }
+
+  async deleteAcademyEvent(id: string): Promise<void> {
+    await db.delete(academyEvents).where(eq(academyEvents.id, id));
+  }
+
+  async getAttendanceLogs(): Promise<AttendanceLog[]> {
+    return db.select().from(attendanceLogs).orderBy(desc(attendanceLogs.loginTime));
+  }
+
+  async logAttendance(data: InsertAttendanceLog): Promise<AttendanceLog> {
+    const [log] = await db.insert(attendanceLogs).values(data).returning();
+    return log;
   }
 }
 

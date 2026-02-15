@@ -56,6 +56,12 @@ Key features include:
 - **Low-Bandwidth Mode:** User-toggleable mode to strip animations, images, and shadows for improved performance on limited connections.
 - **Parent Support Alerts:** Parent dashboard shows prominent alert banners when a student's self-assessment indicates they need support, with context about mood/energy/stress levels and direct links to details.
 - **Student Welcome Onboarding:** 6-step guided onboarding dialog on first visit to Panther Village, introducing avatar, careers, Panther Power, self-assessments. Tracked via localStorage.
+- **Student Reflection Journal:** Daily/weekly free-form journaling with mood tracking (happy/neutral/focused/tired/excited). Students write reflections on learning, goals, and feelings. Accessible at /academy/journal.
+- **Announcements Board:** Admin-created announcements with categories (general/important/event/reminder), pinning support, and delete capability. Visible to all users at /academy/announcements.
+- **Progress Report:** Printable one-page student progress snapshot showing academic progress, Panther Power scores, Thrive score, and earned achievements. Print-friendly layout at /academy/progress-report.
+- **Calendar / Events:** Central event calendar with Today/This Week/Upcoming grouping. Admin creates events with categories (school/competition/mentor/quest/special). At /academy/calendar.
+- **Student Help / FAQ:** Static 10-section accordion-based help page covering all Academy features in student-friendly language. At /academy/help.
+- **Attendance Tracking:** Auto-logs student logins, admin-only dashboard showing login patterns, streaks, and daily summaries. At /academy/attendance.
 - **Privacy Policy:** Comprehensive 11-section privacy page covering FERPA/COPPA compliance, GIS data practices, wellbeing data handling, access controls, third-party services, and parent rights. Accessible at /privacy.
 - **Mobile Responsive:** All Academy pages optimized for 375px phone screens with responsive grids, adaptive padding, and scaled typography.
 - **Design System:** Utilizes TxEA maroon and silver colors, with Plus Jakarta Sans and JetBrains Mono fonts, supporting dark mode. Branding: Texas Empowerment Academy Panthers, "Education, Character, Leadership".

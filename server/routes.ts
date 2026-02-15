@@ -10,6 +10,8 @@ import {
   interventionPlaybooks as interventionPlaybooksTable,
   gisContextData, gisResourceOverlays, thriveConfig,
   insertStudentSelfAssessmentSchema,
+  studentReflections, announcements as announcementsTable, academyEvents as academyEventsTable, attendanceLogs,
+  insertStudentReflectionSchema, insertAnnouncementSchema, insertAcademyEventSchema, insertAttendanceLogSchema,
 } from "@shared/schema";
 import { eq, and, desc, sql, count, gte } from "drizzle-orm";
 import { computeFullThriveScore, computeAllStudentScores, getThriveHistory } from "./thrive-engine";
@@ -2398,6 +2400,122 @@ Write a warm, encouraging welcome message for students joining this classroom. M
   app.get("/api/play-sessions/flagged", requireAdmin, async (req, res) => {
     const flagged = await storage.getFlaggedPlaySessions();
     res.json(flagged);
+  });
+
+  // ==================== STUDENT REFLECTIONS ====================
+  app.get("/api/reflections", requireAuth, async (req, res) => {
+    try {
+      const userId = getUserId(req);
+      if (!userId) return res.status(401).json({ error: "Not authenticated" });
+      const reflections = await storage.getReflectionsByUser(userId);
+      res.json(reflections);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to get reflections" });
+    }
+  });
+
+  app.post("/api/reflections", requireAuth, async (req, res) => {
+    try {
+      const userId = getUserId(req);
+      const userName = getUserName(req) || "Student";
+      if (!userId) return res.status(401).json({ error: "Not authenticated" });
+      const parsed = insertStudentReflectionSchema.safeParse({ ...req.body, userId, studentName: userName });
+      if (!parsed.success) return res.status(400).json({ error: "Invalid reflection data", details: parsed.error.errors });
+      const reflection = await storage.createReflection(parsed.data);
+      res.json(reflection);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create reflection" });
+    }
+  });
+
+  // ==================== ANNOUNCEMENTS ====================
+  app.get("/api/announcements", async (_req, res) => {
+    try {
+      const items = await storage.getAnnouncements();
+      res.json(items);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to get announcements" });
+    }
+  });
+
+  app.post("/api/announcements", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const userId = getUserId(req);
+      const userName = getUserName(req) || "Admin";
+      if (!userId) return res.status(401).json({ error: "Not authenticated" });
+      const parsed = insertAnnouncementSchema.safeParse({ ...req.body, createdByUserId: userId, createdByName: userName });
+      if (!parsed.success) return res.status(400).json({ error: "Invalid announcement data", details: parsed.error.errors });
+      const announcement = await storage.createAnnouncement(parsed.data);
+      res.json(announcement);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create announcement" });
+    }
+  });
+
+  app.delete("/api/announcements/:id", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      await storage.deleteAnnouncement(req.params.id);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete announcement" });
+    }
+  });
+
+  // ==================== ACADEMY EVENTS ====================
+  app.get("/api/events", async (_req, res) => {
+    try {
+      const events = await storage.getAcademyEvents();
+      res.json(events);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to get events" });
+    }
+  });
+
+  app.post("/api/events", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const userId = getUserId(req);
+      const userName = getUserName(req) || "Admin";
+      if (!userId) return res.status(401).json({ error: "Not authenticated" });
+      const parsed = insertAcademyEventSchema.safeParse({ ...req.body, createdByUserId: userId, createdByName: userName });
+      if (!parsed.success) return res.status(400).json({ error: "Invalid event data", details: parsed.error.errors });
+      const event = await storage.createAcademyEvent(parsed.data);
+      res.json(event);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create event" });
+    }
+  });
+
+  app.delete("/api/events/:id", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      await storage.deleteAcademyEvent(req.params.id);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete event" });
+    }
+  });
+
+  // ==================== ATTENDANCE ====================
+  app.post("/api/attendance/log", requireAuth, async (req, res) => {
+    try {
+      const userId = getUserId(req);
+      const userName = getUserName(req) || "Student";
+      if (!userId) return res.status(401).json({ error: "Not authenticated" });
+      const today = new Date().toISOString().split("T")[0];
+      const data = { userId, studentName: userName, loginDate: today };
+      const log = await storage.logAttendance(data);
+      res.json(log);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to log attendance" });
+    }
+  });
+
+  app.get("/api/attendance", requireAuth, requireAdmin, async (_req, res) => {
+    try {
+      const logs = await storage.getAttendanceLogs();
+      res.json(logs);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to get attendance logs" });
+    }
   });
 
   return httpServer;

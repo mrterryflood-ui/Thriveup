@@ -1,5 +1,6 @@
+import { useEffect, useRef } from "react";
 import { Switch, Route } from "wouter";
-import { queryClient } from "./lib/queryClient";
+import { queryClient, apiRequest } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -56,6 +57,12 @@ import AcademyAdminTutorialPage from "@/pages/academy-admin-tutorial";
 import AcademyMentorFinderPage from "@/pages/academy-mentor-finder";
 import AcademyGameLobbyPage from "@/pages/academy-game-lobby";
 import AcademyDominoesGame from "@/pages/academy-dominoes-game";
+import AcademyJournalPage from "@/pages/academy-journal";
+import AcademyAnnouncementsPage from "@/pages/academy-announcements";
+import AcademyCalendarPage from "@/pages/academy-calendar";
+import AcademyHelpPage from "@/pages/academy-help";
+import AcademyProgressReportPage from "@/pages/academy-progress-report";
+import AcademyAttendancePage from "@/pages/academy-attendance";
 import PrivacyPolicyPage from "@/pages/privacy-policy";
 import { LanguageProvider } from "@/lib/i18n";
 import { BandwidthProvider } from "@/lib/bandwidth-mode";
@@ -118,13 +125,29 @@ function AppRouter() {
       <Route path="/academy/games" component={AcademyGameLobbyPage} />
       <Route path="/academy/games/dominoes/:id" component={AcademyDominoesGame} />
       <Route path="/academy/financial-literacy" component={AcademyFinancialLiteracyPage} />
+      <Route path="/academy/journal" component={AcademyJournalPage} />
+      <Route path="/academy/announcements" component={AcademyAnnouncementsPage} />
+      <Route path="/academy/calendar" component={AcademyCalendarPage} />
+      <Route path="/academy/help" component={AcademyHelpPage} />
+      <Route path="/academy/progress-report" component={AcademyProgressReportPage} />
+      <Route path="/academy/attendance" component={AcademyAttendancePage} />
       <Route path="/privacy" component={PrivacyPolicyPage} />
       <Route component={NotFound} />
     </Switch>
   );
 }
 
+function useAttendanceLog() {
+  const logged = useRef(false);
+  useEffect(() => {
+    if (logged.current) return;
+    logged.current = true;
+    apiRequest("POST", "/api/attendance/log", {}).catch(() => {});
+  }, []);
+}
+
 function AppLayout() {
+  useAttendanceLog();
   const style = {
     "--sidebar-width": "16rem",
     "--sidebar-width-icon": "3rem",
