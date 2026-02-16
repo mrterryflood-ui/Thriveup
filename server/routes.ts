@@ -19,7 +19,7 @@ import { computeFullThriveScore, computeAllStudentScores, getThriveHistory } fro
 import { evaluateFlags, getActiveFlags, resolveFlag, runEarlyWarningCheck } from "./early-warning";
 import { runFullIngestion, getContextForGeography } from "./gis-engine";
 import { db } from "./storage";
-import OpenAI from "openai";
+import { streamAIResponse, getProviderInfo } from "./ai-provider";
 import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
 import { registerCrossPlatformRoutes } from "./cross-platform-api";
 
@@ -94,11 +94,6 @@ function calculateElo(playerRating: number, opponentRating: number, result: numb
   return Math.round(playerRating + K * (result - expected));
 }
 
-const openai = new OpenAI({
-  apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
-  baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
-});
-
 export async function registerRoutes(
   httpServer: Server,
   app: Express
@@ -118,6 +113,14 @@ export async function registerRoutes(
   registerObjectStorageRoutes(app);
   registerCrossPlatformRoutes(app);
   await storage.seedData();
+
+  app.get("/api/ai-provider", (_req, res) => {
+    try {
+      res.json(getProviderInfo());
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
 
   app.get("/api/subjects", async (_req, res) => {
     const allSubjects = await storage.getSubjects();
@@ -471,22 +474,22 @@ Remember: You're not just answering questions — you're building a relationship
 
       msgs.push({ role: "user", content: message });
 
-      const stream = await openai.chat.completions.create({
-        model: "gpt-5-nano",
+      await streamAIResponse({
         messages: msgs,
-        stream: true,
-        max_completion_tokens: 1000,
-      });
-
-      for await (const chunk of stream) {
-        const content = chunk.choices[0]?.delta?.content || "";
-        if (content) {
+        maxTokens: 1000,
+        onChunk: (content) => {
           res.write(`data: ${JSON.stringify({ content })}\n\n`);
-        }
-      }
-
-      res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
-      res.end();
+        },
+        onDone: () => {
+          res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
+          res.end();
+        },
+        onError: (error) => {
+          console.error("AI error:", error);
+          res.write(`data: ${JSON.stringify({ error: "Failed to generate response" })}\n\n`);
+          res.end();
+        },
+      });
     } catch (error) {
       console.error("Error in AI chat endpoint:", error);
       res.write(`data: ${JSON.stringify({ error: "Failed to generate response" })}\n\n`);
@@ -580,22 +583,22 @@ Remember: The adults you support are the most important people in students' live
 
       msgs.push({ role: "user", content: message });
 
-      const stream = await openai.chat.completions.create({
-        model: "gpt-5-nano",
+      await streamAIResponse({
         messages: msgs,
-        stream: true,
-        max_completion_tokens: 1500,
-      });
-
-      for await (const chunk of stream) {
-        const content = chunk.choices[0]?.delta?.content || "";
-        if (content) {
+        maxTokens: 1500,
+        onChunk: (content) => {
           res.write(`data: ${JSON.stringify({ content })}\n\n`);
-        }
-      }
-
-      res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
-      res.end();
+        },
+        onDone: () => {
+          res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
+          res.end();
+        },
+        onError: (error) => {
+          console.error("AI error:", error);
+          res.write(`data: ${JSON.stringify({ error: "Failed to generate response" })}\n\n`);
+          res.end();
+        },
+      });
     } catch (error) {
       console.error("Error in Sparky chat:", error);
       res.write(`data: ${JSON.stringify({ error: "Failed to generate response" })}\n\n`);
@@ -630,24 +633,25 @@ Write a warm, encouraging welcome message for students joining this classroom. M
     res.setHeader("Connection", "keep-alive");
 
     try {
-      const stream = await openai.chat.completions.create({
-        model: "gpt-5-nano",
+      await streamAIResponse({
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: `Generate classroom setup suggestions for "${name}" (Grades ${gradeBand})${subjectFocus && subjectFocus !== "all" ? ` focusing on ${subjectFocus}` : ""}.` },
         ],
-        stream: true,
-      });
-
-      for await (const chunk of stream) {
-        const content = chunk.choices[0]?.delta?.content || "";
-        if (content) {
+        maxTokens: 2000,
+        onChunk: (content) => {
           res.write(`data: ${JSON.stringify({ content })}\n\n`);
-        }
-      }
-
-      res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
-      res.end();
+        },
+        onDone: () => {
+          res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
+          res.end();
+        },
+        onError: (error) => {
+          console.error("AI error:", error);
+          res.write(`data: ${JSON.stringify({ error: "Failed to generate suggestions" })}\n\n`);
+          res.end();
+        },
+      });
     } catch (error) {
       console.error("Error in classroom wizard:", error);
       res.write(`data: ${JSON.stringify({ error: "Failed to generate suggestions" })}\n\n`);
@@ -3079,25 +3083,25 @@ Be thorough, practical, and age-appropriate. Format your response with clear hea
     res.setHeader("Connection", "keep-alive");
 
     try {
-      const stream = await openai.chat.completions.create({
-        model: "gpt-5-nano",
+      await streamAIResponse({
         messages: [
           { role: "system", content: systemMsg },
           { role: "user", content: prompt },
         ],
-        stream: true,
-        max_completion_tokens: 3000,
-      });
-
-      for await (const chunk of stream) {
-        const content = chunk.choices[0]?.delta?.content || "";
-        if (content) {
+        maxTokens: 3000,
+        onChunk: (content) => {
           res.write(`data: ${JSON.stringify({ content })}\n\n`);
-        }
-      }
-
-      res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
-      res.end();
+        },
+        onDone: () => {
+          res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
+          res.end();
+        },
+        onError: (error) => {
+          console.error("AI error:", error);
+          res.write(`data: ${JSON.stringify({ error: "Failed to generate content" })}\n\n`);
+          res.end();
+        },
+      });
     } catch (error) {
       console.error("Error in AI tool run:", error);
       res.write(`data: ${JSON.stringify({ error: "Failed to generate content" })}\n\n`);
