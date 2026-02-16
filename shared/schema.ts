@@ -1106,4 +1106,38 @@ export const insertAttendanceLogSchema = createInsertSchema(attendanceLogs).omit
 export type InsertAttendanceLog = z.infer<typeof insertAttendanceLogSchema>;
 export type AttendanceLog = typeof attendanceLogs.$inferSelect;
 
+export const riskDecisions = pgTable("risk_decisions", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  studentName: text("student_name").notNull(),
+  featureArea: varchar("feature_area", { length: 50 }).notNull(),
+  actionType: varchar("action_type", { length: 50 }).notNull(),
+  riskLevel: varchar("risk_level", { length: 20 }).notNull().default("moderate"),
+  warningMessage: text("warning_message").notNull(),
+  overrideChosen: boolean("override_chosen").notNull().default(false),
+  metadata: jsonb("metadata"),
+  financialLiteracyModule: varchar("financial_literacy_module", { length: 100 }),
+  adminReviewed: boolean("admin_reviewed").notNull().default(false),
+  adminNotes: text("admin_notes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertRiskDecisionSchema = createInsertSchema(riskDecisions).omit({ id: true, createdAt: true, adminReviewed: true, adminNotes: true });
+export type InsertRiskDecision = z.infer<typeof insertRiskDecisionSchema>;
+export type RiskDecision = typeof riskDecisions.$inferSelect;
+
+export const riskNotificationSettings = pgTable("risk_notification_settings", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  settingKey: varchar("setting_key", { length: 100 }).notNull().unique(),
+  overrideCountThreshold: integer("override_count_threshold").notNull().default(3),
+  tradeAmountThreshold: integer("trade_amount_threshold").notNull().default(500),
+  notifyOnHighRisk: boolean("notify_on_high_risk").notNull().default(true),
+  notifyOnEveryOverride: boolean("notify_on_every_override").notNull().default(false),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const insertRiskNotificationSettingsSchema = createInsertSchema(riskNotificationSettings).omit({ id: true, updatedAt: true });
+export type InsertRiskNotificationSettings = z.infer<typeof insertRiskNotificationSettingsSchema>;
+export type RiskNotificationSettings = typeof riskNotificationSettings.$inferSelect;
+
 export * from "./models/auth";

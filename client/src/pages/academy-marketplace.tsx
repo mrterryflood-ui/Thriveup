@@ -4,6 +4,7 @@ import { Link } from "wouter";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
+import { RiskDecisionDialog } from "@/components/risk-decision-dialog";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -156,6 +157,9 @@ export default function AcademyMarketplacePage() {
   const [reportingId, setReportingId] = useState<string | null>(null);
   const [reportReason, setReportReason] = useState("");
   const [businessTipIndex, setBusinessTipIndex] = useState(() => Math.floor(Math.random() * BUSINESS_WISDOM.length));
+  const [riskDialogOpen, setRiskDialogOpen] = useState(false);
+  const [pendingBuyId, setPendingBuyId] = useState<string | null>(null);
+  const [pendingBuyListing, setPendingBuyListing] = useState<any>(null);
 
   const { data: listings, isLoading: listingsLoading } = useQuery<Listing[]>({
     queryKey: ["/api/academy/marketplace"],
@@ -414,7 +418,7 @@ export default function AcademyMarketplacePage() {
                         </span>
                         <Button
                           size="sm"
-                          onClick={() => buyMutation.mutate(listing.id)}
+                          onClick={() => { setPendingBuyId(listing.id); setPendingBuyListing(listing); setRiskDialogOpen(true); }}
                           disabled={isOwn || cantAfford || buyMutation.isPending}
                           data-testid={`button-buy-${listing.id}`}
                         >
@@ -747,6 +751,18 @@ export default function AcademyMarketplacePage() {
           )}
         </TabsContent>
       </Tabs>
+      <RiskDecisionDialog
+        open={riskDialogOpen}
+        onOpenChange={setRiskDialogOpen}
+        riskLevel="low"
+        featureArea="marketplace"
+        actionType="purchase"
+        warningMessage={pendingBuyListing ? `You're about to spend ${pendingBuyListing.price} credits on "${pendingBuyListing.title}." Before you buy, ask yourself: Is this something I need, or something I want? Do I still have enough saved for unexpected expenses?` : "Think carefully before purchasing."}
+        financialLiteracyModule="rainy-day-fund"
+        metadata={{ listingId: pendingBuyId, title: pendingBuyListing?.title, price: pendingBuyListing?.price }}
+        onProceed={() => { if (pendingBuyId) buyMutation.mutate(pendingBuyId); setRiskDialogOpen(false); setPendingBuyId(null); setPendingBuyListing(null); }}
+        onCancel={() => { setRiskDialogOpen(false); setPendingBuyId(null); setPendingBuyListing(null); }}
+      />
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import AcademyWizard from "@/components/academy-wizard";
 import { WIZARD_STEPS } from "@/lib/wizard-data";
+import { RiskDecisionDialog } from "@/components/risk-decision-dialog";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -84,6 +85,8 @@ export default function AcademyStocksPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedStockForChart, setSelectedStockForChart] = useState<Stock | null>(null);
   const [wisdomIndex, setWisdomIndex] = useState(() => Math.floor(Math.random() * INVESTING_WISDOM.length));
+  const [riskDialogOpen, setRiskDialogOpen] = useState(false);
+  const [pendingTrade, setPendingTrade] = useState<{stockId: string; action: "buy" | "sell"; shares: number} | null>(null);
 
   const { data: stocks, isLoading: stocksLoading } = useQuery<Stock[]>({
     queryKey: ["/api/academy/stocks"],
@@ -193,6 +196,27 @@ export default function AcademyStocksPage() {
     const performancePercent = totalCost > 0 ? ((totalValue - totalCost) / totalCost) * 100 : 0;
     return { totalValue, stockCount: communityItems.length, performancePercent };
   })();
+
+  const determineRiskLevel = (): "low" | "moderate" | "high" => {
+    if (!tradingStock || !wallet) return "moderate";
+    const totalCost = parseFloat(tradingStock.currentPrice) * tradeShares;
+    const balance = parseFloat(wallet.balance) || 0;
+    if (totalCost > balance * 0.5) return "high";
+    if (totalCost > balance * 0.25) return "moderate";
+    return "low";
+  };
+
+  const getTradeWarning = (): string => {
+    if (!tradingStock || !wallet) return "Make sure you've thought this through.";
+    const totalCost = parseFloat(tradingStock.currentPrice) * tradeShares;
+    const balance = parseFloat(wallet.balance) || 0;
+    if (tradeAction === "buy") {
+      if (totalCost > balance * 0.5) return `This trade costs $${totalCost.toFixed(2)}, which is more than half your wallet balance of $${balance.toFixed(2)}. Putting most of your money into one stock is very risky. If the price drops, you could lose a lot.`;
+      if (totalCost > balance * 0.25) return `This trade costs $${totalCost.toFixed(2)}, which is a significant chunk of your $${balance.toFixed(2)} balance. Consider whether you'd want some of that money available for other opportunities.`;
+      return `You're about to spend $${totalCost.toFixed(2)} on ${tradeShares} share(s) of ${tradingStock.name}. Stock prices go up and down — make sure this is money you're okay with having tied up.`;
+    }
+    return `You're about to sell ${tradeShares} share(s) of ${tradingStock.name}. Remember, selling stocks held less than a year means higher capital gains taxes on any profit.`;
+  };
 
   const totalMarketValue = stocks?.reduce((sum, s) => sum + (parseFloat(s.currentPrice) || 0) * 1000, 0) ?? 0;
   const portfolioValue = portfolio.reduce((sum, p) => sum + p.currentValue, 0);
@@ -452,13 +476,14 @@ export default function AcademyStocksPage() {
 
               <Button
                 className="w-full"
-                onClick={() =>
-                  tradeMutation.mutate({
+                onClick={() => {
+                  setPendingTrade({
                     stockId: tradingStock.id,
                     action: tradeAction,
                     shares: tradeShares,
-                  })
-                }
+                  });
+                  setRiskDialogOpen(true);
+                }}
                 disabled={tradeMutation.isPending}
                 data-testid="button-confirm-trade"
               >
@@ -657,6 +682,18 @@ export default function AcademyStocksPage() {
           />
         </Card>
       )}
+      <RiskDecisionDialog
+        open={riskDialogOpen}
+        onOpenChange={setRiskDialogOpen}
+        riskLevel={determineRiskLevel()}
+        featureArea="stocks"
+        actionType={tradeAction === "buy" ? "buy_stock" : "sell_stock"}
+        warningMessage={getTradeWarning()}
+        financialLiteracyModule={tradeAction === "sell" ? "patience-pays" : "rainy-day-fund"}
+        metadata={{ stockId: tradingStock?.id, stockName: tradingStock?.name, shares: tradeShares, totalCost: tradingStock ? (parseFloat(tradingStock.currentPrice) * tradeShares).toFixed(2) : "0" }}
+        onProceed={() => { if (pendingTrade) tradeMutation.mutate(pendingTrade); setRiskDialogOpen(false); }}
+        onCancel={() => { setRiskDialogOpen(false); setPendingTrade(null); }}
+      />
       <AcademyWizard wizardType="stocks" steps={WIZARD_STEPS["stocks"]} />
     </div>
   );

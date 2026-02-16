@@ -55,6 +55,9 @@ import {
   type Announcement, type InsertAnnouncement,
   type AcademyEvent, type InsertAcademyEvent,
   type AttendanceLog, type InsertAttendanceLog,
+  riskDecisions, riskNotificationSettings,
+  type InsertRiskDecision, type RiskDecision,
+  type InsertRiskNotificationSettings, type RiskNotificationSettings,
 } from "@shared/schema";
 import { eq, and, desc, sql, inArray, isNull, gte } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
@@ -265,6 +268,14 @@ export interface IStorage {
 
   getAttendanceLogs(): Promise<AttendanceLog[]>;
   logAttendance(data: InsertAttendanceLog): Promise<AttendanceLog>;
+
+  // Risk Decision Tracking
+  createRiskDecision(data: InsertRiskDecision): Promise<RiskDecision>;
+  getRiskDecisionsByUser(userId: string): Promise<RiskDecision[]>;
+  getAllRiskDecisions(): Promise<RiskDecision[]>;
+  updateRiskDecision(id: string, data: Partial<RiskDecision>): Promise<RiskDecision>;
+  getRiskNotificationSettings(): Promise<RiskNotificationSettings | undefined>;
+  updateRiskNotificationSettings(data: Partial<InsertRiskNotificationSettings>): Promise<RiskNotificationSettings>;
 
   seedData(): Promise<void>;
 }
@@ -1287,6 +1298,39 @@ export class DatabaseStorage implements IStorage {
   async logAttendance(data: InsertAttendanceLog): Promise<AttendanceLog> {
     const [log] = await db.insert(attendanceLogs).values(data).returning();
     return log;
+  }
+
+  async createRiskDecision(data: InsertRiskDecision): Promise<RiskDecision> {
+    const [decision] = await db.insert(riskDecisions).values(data).returning();
+    return decision;
+  }
+
+  async getRiskDecisionsByUser(userId: string): Promise<RiskDecision[]> {
+    return db.select().from(riskDecisions).where(eq(riskDecisions.userId, userId)).orderBy(desc(riskDecisions.createdAt));
+  }
+
+  async getAllRiskDecisions(): Promise<RiskDecision[]> {
+    return db.select().from(riskDecisions).orderBy(desc(riskDecisions.createdAt));
+  }
+
+  async updateRiskDecision(id: string, data: Partial<RiskDecision>): Promise<RiskDecision> {
+    const [updated] = await db.update(riskDecisions).set(data).where(eq(riskDecisions.id, id)).returning();
+    return updated;
+  }
+
+  async getRiskNotificationSettings(): Promise<RiskNotificationSettings | undefined> {
+    const [settings] = await db.select().from(riskNotificationSettings).where(eq(riskNotificationSettings.settingKey, "global"));
+    return settings;
+  }
+
+  async updateRiskNotificationSettings(data: Partial<InsertRiskNotificationSettings>): Promise<RiskNotificationSettings> {
+    const existing = await this.getRiskNotificationSettings();
+    if (existing) {
+      const [updated] = await db.update(riskNotificationSettings).set({ ...data, updatedAt: new Date() }).where(eq(riskNotificationSettings.id, existing.id)).returning();
+      return updated;
+    }
+    const [created] = await db.insert(riskNotificationSettings).values({ ...data, settingKey: "global" } as any).returning();
+    return created;
   }
 }
 

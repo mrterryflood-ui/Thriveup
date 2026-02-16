@@ -2520,5 +2520,95 @@ Write a warm, encouraging welcome message for students joining this classroom. M
     }
   });
 
+  // Risk Decision Tracking
+  app.post("/api/risk-decisions", async (req, res) => {
+    const user = (req as any).session?.user;
+    if (!user) return res.status(401).json({ error: "Not authenticated" });
+    try {
+      const decision = await storage.createRiskDecision({
+        ...req.body,
+        userId: user.id,
+        studentName: user.name || user.username || "Unknown",
+      });
+
+      const settings = await storage.getRiskNotificationSettings();
+      if (settings && decision.overrideChosen) {
+        const userDecisions = await storage.getRiskDecisionsByUser(user.id);
+        const overrideCount = userDecisions.filter(d => d.overrideChosen).length;
+
+        const shouldNotify =
+          (settings.notifyOnEveryOverride) ||
+          (settings.notifyOnHighRisk && decision.riskLevel === "high") ||
+          (overrideCount >= settings.overrideCountThreshold);
+
+        if (shouldNotify) {
+          await storage.createAdminNote({
+            userId: user.id,
+            adminId: "system",
+            adminName: "Risk Monitor",
+            category: "concern",
+            note: `Risk override #${overrideCount}: ${decision.actionType} in ${decision.featureArea}. Risk level: ${decision.riskLevel}. Warning: ${decision.warningMessage}`,
+          });
+        }
+      }
+
+      res.json(decision);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create risk decision" });
+    }
+  });
+
+  app.get("/api/risk-decisions", async (req, res) => {
+    const user = (req as any).session?.user;
+    if (!user) return res.status(401).json({ error: "Not authenticated" });
+    try {
+      const decisions = await storage.getRiskDecisionsByUser(user.id);
+      res.json(decisions);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch risk decisions" });
+    }
+  });
+
+  app.get("/api/admin/risk-decisions", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const decisions = await storage.getAllRiskDecisions();
+      res.json(decisions);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch all risk decisions" });
+    }
+  });
+
+  app.get("/api/admin/risk-settings", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const settings = await storage.getRiskNotificationSettings();
+      res.json(settings || {
+        overrideCountThreshold: 3,
+        tradeAmountThreshold: 500,
+        notifyOnHighRisk: true,
+        notifyOnEveryOverride: false,
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch risk settings" });
+    }
+  });
+
+  app.patch("/api/admin/risk-settings", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const settings = await storage.updateRiskNotificationSettings(req.body);
+      res.json(settings);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update risk settings" });
+    }
+  });
+
+  app.patch("/api/admin/risk-decisions/:id", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const decision = await storage.updateRiskDecision(req.params.id, req.body);
+      res.json(decision);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update risk decision" });
+    }
+  });
+
   return httpServer;
 }

@@ -64,6 +64,7 @@ import AcademyHelpPage from "@/pages/academy-help";
 import AcademyProgressReportPage from "@/pages/academy-progress-report";
 import AcademyAttendancePage from "@/pages/academy-attendance";
 import AcademyIntegrationPage from "@/pages/academy-integration";
+import AcademyRiskMonitorPage from "@/pages/academy-risk-monitor";
 import PrivacyPolicyPage from "@/pages/privacy-policy";
 import { LanguageProvider } from "@/lib/i18n";
 import { BandwidthProvider } from "@/lib/bandwidth-mode";
@@ -133,6 +134,7 @@ function AppRouter() {
       <Route path="/academy/progress-report" component={AcademyProgressReportPage} />
       <Route path="/academy/attendance" component={AcademyAttendancePage} />
       <Route path="/academy/integration" component={AcademyIntegrationPage} />
+      <Route path="/academy/risk-monitor" component={AcademyRiskMonitorPage} />
       <Route path="/privacy" component={PrivacyPolicyPage} />
       <Route component={NotFound} />
     </Switch>

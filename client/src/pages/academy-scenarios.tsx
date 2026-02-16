@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
+import { RiskDecisionDialog } from "@/components/risk-decision-dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -153,6 +154,8 @@ export default function AcademyScenariosPage() {
   const [lastWalletImpact, setLastWalletImpact] = useState<number | null>(null);
   const [lastPowerImpact, setLastPowerImpact] = useState<number | null>(null);
   const [isComplete, setIsComplete] = useState(false);
+  const [riskDialogOpen, setRiskDialogOpen] = useState(false);
+  const [pendingChoice, setPendingChoice] = useState<{runId: string; choiceKey: string; choiceLabel: string; nodeKey: string} | null>(null);
 
   const { data: scenarios, isLoading: scenariosLoading } = useQuery<Scenario[]>({
     queryKey: ["/api/academy/scenarios"],
@@ -467,14 +470,15 @@ export default function AcademyScenariosPage() {
                     key={choice.key}
                     variant="outline"
                     className="w-full justify-start text-left h-auto py-3 px-4"
-                    onClick={() =>
-                      chooseMutation.mutate({
-                        runId: activeRun.id,
-                        choiceKey: choice.key,
-                        choiceLabel: choice.label,
-                        nodeKey: currentNode.nodeKey,
-                      })
-                    }
+                    onClick={() => {
+                      const isRisky = choice.consequence && /lose|risk|debt|penalty|cost|danger|gambl/i.test(choice.consequence);
+                      if (isRisky) {
+                        setPendingChoice({ runId: activeRun.id, choiceKey: choice.key, choiceLabel: choice.label, nodeKey: currentNode.nodeKey });
+                        setRiskDialogOpen(true);
+                      } else {
+                        chooseMutation.mutate({ runId: activeRun.id, choiceKey: choice.key, choiceLabel: choice.label, nodeKey: currentNode.nodeKey });
+                      }
+                    }}
                     disabled={chooseMutation.isPending}
                     data-testid={`button-choice-${choice.key}`}
                   >
@@ -494,6 +498,19 @@ export default function AcademyScenariosPage() {
           )}
         </div>
       )}
+
+      <RiskDecisionDialog
+        open={riskDialogOpen}
+        onOpenChange={setRiskDialogOpen}
+        riskLevel="moderate"
+        featureArea="scenarios"
+        actionType="risky_choice"
+        warningMessage={pendingChoice ? `The choice "${pendingChoice.choiceLabel}" could have some tough consequences. In real life, risky decisions can affect your money, your relationships, and your future. This is a safe space to learn from those choices.` : "This choice involves some risk."}
+        financialLiteracyModule="investing-vs-gambling"
+        metadata={{ choiceKey: pendingChoice?.choiceKey, choiceLabel: pendingChoice?.choiceLabel }}
+        onProceed={() => { if (pendingChoice) chooseMutation.mutate(pendingChoice); setRiskDialogOpen(false); setPendingChoice(null); }}
+        onCancel={() => { setRiskDialogOpen(false); setPendingChoice(null); }}
+      />
 
       {isComplete && currentNode && (
         <div data-testid="section-completed">

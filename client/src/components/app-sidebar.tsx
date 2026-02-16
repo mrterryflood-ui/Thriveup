@@ -123,6 +123,7 @@ const academySubGroups: NavSubGroup[] = [
       { title: "Longitudinal Dashboard", url: "/academy/longitudinal", icon: BarChart3 },
       { title: "Attendance", url: "/academy/attendance", icon: ClipboardList },
       { title: "Support Portal", url: "/academy/integration", icon: Link2 },
+      { title: "Risk Monitor", url: "/academy/risk-monitor", icon: Shield },
     ],
   },
 ];
