@@ -182,9 +182,9 @@ function DistributionBar({ label, count, total, color }: {
 }
 
 function OverviewTab({ metrics }: { metrics: LongitudinalMetrics }) {
-  const careerEntries = Object.entries(metrics.careerInterests);
+  const careerEntries = Object.entries(metrics.careerInterests || {});
   const careerTotal = careerEntries.reduce((sum, [, v]) => sum + v, 0);
-  const pathEntries = Object.entries(metrics.pathDistribution);
+  const pathEntries = Object.entries(metrics.pathDistribution || {});
   const pathTotal = pathEntries.reduce((sum, [, v]) => sum + v, 0);
 
   const careerColors = [
