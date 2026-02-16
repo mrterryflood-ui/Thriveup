@@ -11,7 +11,7 @@ The application uses a React + Vite frontend with shadcn/ui, Tailwind CSS, woute
 
 Key architectural decisions and features include:
 - **Comprehensive Curriculum:** Structured content for subjects and AI mastery levels, with interactive lessons, quizzes, and progress tracking.
-- **AI Companions (Spark & Sparky):** Spark is a grade-band-specific AI learning companion (gpt-5-nano via Replit AI Integrations with SSE streaming, emotional intelligence framework, Socratic questioning, growth mindset, cultural awareness, bilingual support, safety guardrails). Sparky is an adult AI companion for parents and teachers, offering compassionate support without child-safety restrictions, including evidence-based strategies and context-aware conversations. Both link to the AI Creation Studio.
+- **AI Companions (Spark & Sparky):** Spark is a grade-band-specific AI learning companion (configurable AI provider with SSE streaming, emotional intelligence framework, Socratic questioning, growth mindset, cultural awareness, bilingual support, safety guardrails). Sparky is an adult AI companion for parents and teachers, offering compassionate support without child-safety restrictions, including evidence-based strategies and context-aware conversations. Both link to the AI Creation Studio.
 - **AI Creation Studio:** A unified productivity platform with 10 AI-powered tools (Presentation Builder, Video Script Creator, Sales Pitch Builder, Business Plan Generator, Research Assistant, Life Planner, Project Planner, Document Writer, Resume Builder, Brainstorm Studio). Features wizard workflows for seamless project flow between tools (e.g., brainstorm -> business plan -> pitch -> presentation), project import/export, file attachment with text content reading, streaming AI generation, and project saving. Tools are module-gated for students (must complete AI Course modules to unlock) but ungated for adults via Sparky (?mode=adult). At /ai-tools and /ai-tools/:toolKey.
 - **Sixth Grade Academy:** An immersive experience including Panther Village (interactive campus landing page), avatar customization, a simulated stock market, a "Build Your Black Campus" project, academic competitions, and a virtual merchandise shop for college tuition fundraising.
 - **Career & Mentorship Systems:** Features a Career Explorer, a longitudinal "My Pathway" tracker with portfolio evidence upload, and a Mentor Network for connecting students with professionals, integrated with the MCOE directory.
@@ -28,7 +28,7 @@ Key architectural decisions and features include:
 
 ## External Dependencies
 - **Database:** PostgreSQL (Neon-backed)
-- **AI Integration:** Replit AI Integrations (gpt-5-nano model, free, no API key required)
+- **AI Integration:** Provider-agnostic abstraction layer (server/ai-provider.ts). Default: Google Gemini Flash (gemini-2.0-flash, free via Google AI Studio API key). Also supports OpenAI (gpt-4o-mini) and Replit AI Integrations (gpt-5-nano) as fallbacks. School districts can bring their own provider by setting GEMINI_API_KEY, OPENAI_API_KEY, or other provider keys.
 - **Authentication:** Replit Auth (OIDC)
 - **GIS Data Sources:** CDC PLACES API (Socrata), CDC/ATSDR SVI, FBI Crime Data API
 - **UI Components:** shadcn/ui

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -354,7 +355,7 @@ const AI_STRENGTHS = [
   { title: "Emotional Intelligence Layer", evidence: "Growth mindset reinforcement embedded in all AI responses, aligned with Dweck research", icon: Lightbulb },
   { title: "Safety Guardrails", evidence: "Spark (student) vs Sparky (adult) separation ensures age-appropriate interactions", icon: Shield },
   { title: "Bilingual Support", evidence: "English/Spanish support for diverse learner populations, reducing language barriers", icon: Users },
-  { title: "Zero-Cost AI Infrastructure", evidence: "Uses Replit AI Integrations (gpt-5-nano) — no API keys, no per-call charges, no vendor contracts. Cost is never a barrier to adoption.", icon: Unlock },
+  { title: "Zero-Cost AI Infrastructure", evidence: "Default free AI via Google Gemini Flash. School districts can also bring their own enterprise AI provider (OpenAI, Anthropic, etc.) with zero code changes.", icon: Unlock },
 ];
 
 const AI_GAPS = [
@@ -366,8 +367,8 @@ const AI_GAPS = [
 ];
 
 const SUSTAINABILITY_RISKS = [
-  { risk: "API cost modeling at scale (MITIGATED)", detail: "Using Replit AI Integrations with gpt-5-nano — included free with platform hosting. No per-API-call charges. District scaling from 60 to 6,000+ students does not increase AI costs. Response caching and token limits provide additional efficiency.", severity: "low" as const },
-  { risk: "Model vendor dependency (MITIGATED)", detail: "Replit AI Integrations abstracts the underlying model provider. The platform can switch between models (gpt-5-nano, gpt-5-mini, gpt-5) without code changes. No direct API key dependency on any single vendor.", severity: "low" as const },
+  { risk: "API cost modeling at scale (MITIGATED)", detail: "Default configuration uses Google Gemini Flash with a free API key — no per-call charges. District scaling from 60 to 6,000+ students does not increase AI costs on the free tier. Schools can optionally switch to a paid provider if needed.", severity: "low" as const },
+  { risk: "Model vendor dependency (MITIGATED)", detail: "Provider abstraction layer automatically detects which AI provider is configured and routes all features through it. Switch between Gemini, OpenAI, or other providers by changing one environment variable — no code changes required.", severity: "low" as const },
   { risk: "Data privacy at scale", detail: "FERPA and COPPA compliance becomes exponentially complex with more students and AI interactions. Requires clear data retention policies and parental consent workflows.", severity: "high" as const },
   { risk: "Teacher training burden", detail: "Each new feature requires PD hours. Teacher burnout risk increases without adequate support. Phased rollout mitigates this by spreading training across weeks.", severity: "medium" as const },
   { risk: "Content freshness cycle", detail: "AI curriculum, career data, and financial literacy content require regular updates to stay relevant. Recommend quarterly content review cycles.", severity: "medium" as const },
@@ -657,6 +658,7 @@ function AIFrameworkEvaluation() {
   const AVG_COST_PER_INTERACTION = useFreeTier ? 0 : AVG_COST_PER_INTERACTION_PAID;
   const SCHOOL_DAYS_PER_MONTH = 20;
   const monthlyCost = studentCount * interactionsPerDay * AVG_COST_PER_INTERACTION * SCHOOL_DAYS_PER_MONTH;
+  const { data: providerInfo } = useQuery<{name: string, model: string, isFree: boolean}>({ queryKey: ["/api/ai-provider"] });
 
   return (
     <div className="space-y-8">
@@ -732,27 +734,27 @@ function AIFrameworkEvaluation() {
               <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
             </div>
             <div>
-              <p className="font-semibold" data-testid="text-free-ai-title">Zero Additional AI Cost</p>
+              <p className="font-semibold" data-testid="text-free-ai-title">Configurable AI Provider Architecture</p>
               <p className="text-sm text-muted-foreground mt-1" data-testid="text-free-ai-detail">
-                This platform uses Replit AI Integrations with gpt-5-nano, which is included free with platform hosting. There are no per-API-call charges, no API keys to manage, and no vendor contracts required. The AI layer scales from 60 to 6,000+ students at zero marginal cost.
+                This platform uses a provider abstraction layer that automatically detects which AI provider is configured and routes all AI features through it. By default, it uses Google Gemini Flash (gemini-2.0-flash) via a free API key from Google AI Studio — no per-call charges. School districts can plug in their own AI provider (OpenAI, Anthropic, etc.) just by setting an API key — no code changes needed. Set GEMINI_API_KEY for free Gemini, OPENAI_API_KEY for OpenAI, or other providers as they are added.
               </p>
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="p-4 rounded-md bg-muted/50" data-testid="card-ai-model-current">
-              <p className="text-sm font-semibold mb-1">Current Model</p>
-              <Badge variant="outline" className="mb-2">gpt-5-nano</Badge>
-              <p className="text-xs text-muted-foreground">Fastest, most cost-effective. Ideal for student interactions, Spark/Sparky conversations, and AI Creation Studio tools.</p>
+              <p className="text-sm font-semibold mb-1">Default (Free)</p>
+              <Badge variant="outline" className="mb-2 border-emerald-500 text-emerald-600 dark:text-emerald-400">gemini-2.0-flash</Badge>
+              <p className="text-xs text-muted-foreground">Google Gemini Flash. Free via Google AI Studio API key. Ideal for student interactions, Spark/Sparky, and AI Creation Studio.</p>
             </div>
             <div className="p-4 rounded-md bg-muted/50" data-testid="card-ai-model-upgrade">
-              <p className="text-sm font-semibold mb-1">Available Upgrade</p>
-              <Badge variant="outline" className="mb-2">gpt-5-mini</Badge>
-              <p className="text-xs text-muted-foreground">More capable for complex reasoning. Can be enabled for advanced tools (Research Assistant, Business Plan Generator) without code changes.</p>
+              <p className="text-sm font-semibold mb-1">School-Managed</p>
+              <Badge variant="outline" className="mb-2">gpt-4o-mini or higher</Badge>
+              <p className="text-xs text-muted-foreground">OpenAI models. School pays OpenAI directly. Set OPENAI_API_KEY to activate. No code changes required.</p>
             </div>
             <div className="p-4 rounded-md bg-muted/50" data-testid="card-ai-model-premium">
-              <p className="text-sm font-semibold mb-1">Premium Option</p>
-              <Badge variant="outline" className="mb-2">gpt-5</Badge>
-              <p className="text-xs text-muted-foreground">Most capable model. Reserve for teacher/admin tools, portfolio evaluation, and capstone projects where quality is critical.</p>
+              <p className="text-sm font-semibold mb-1">Extensible</p>
+              <Badge variant="outline" className="mb-2">Any Provider</Badge>
+              <p className="text-xs text-muted-foreground">Architecture supports adding Anthropic Claude, Mistral, or other providers. Contact your admin to configure.</p>
             </div>
           </div>
         </Card>
@@ -760,12 +762,12 @@ function AIFrameworkEvaluation() {
           <h4 className="font-semibold text-sm mb-3">Why This Eliminates Cost as a Barrier</h4>
           <div className="space-y-2">
             {[
-              "No API keys needed — AI is provisioned automatically with the platform",
-              "No per-student or per-interaction billing — flat hosting cost only",
-              "Model abstraction layer — switch between gpt-5-nano, gpt-5-mini, or gpt-5 without code changes",
-              "No vendor lock-in — Replit AI Integrations can swap underlying providers transparently",
-              "Built-in rate limiting and token budgets prevent runaway usage",
-              "Response caching available for common student questions to reduce redundant calls",
+              "Default provider (Gemini Flash) requires only a free Google AI Studio API key — no credit card needed",
+              "No per-student or per-interaction billing on the free tier",
+              "Provider abstraction layer — switch between Gemini, OpenAI, or other providers by changing one environment variable",
+              "School districts can bring their own enterprise AI contract and plug it in directly",
+              "Built-in safety filters on Gemini protect student interactions by default",
+              "Streaming responses minimize perceived latency for interactive AI features",
             ].map((item, i) => (
               <div key={i} className="flex items-start gap-2 text-sm" data-testid={`text-free-benefit-${i}`}>
                 <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
@@ -777,9 +779,20 @@ function AIFrameworkEvaluation() {
       </div>
 
       <div data-testid="section-cost-calculator">
-        <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
-          <Calculator className="h-5 w-5 text-primary" /> Cost Comparison Calculator
-        </h3>
+        <div className="flex items-center justify-between gap-2 mb-4 flex-wrap">
+          <h3 className="font-semibold text-lg flex items-center gap-2">
+            <Calculator className="h-5 w-5 text-primary" /> Cost Comparison Calculator
+          </h3>
+          {providerInfo && (
+            <Badge
+              variant={providerInfo.isFree ? "outline" : "secondary"}
+              className={providerInfo.isFree ? "border-emerald-500 text-emerald-600 dark:text-emerald-400" : ""}
+              data-testid="badge-active-provider"
+            >
+              {providerInfo.name}: {providerInfo.model}
+            </Badge>
+          )}
+        </div>
         <Card className="p-6">
           <div className="flex items-center gap-3 mb-6 p-3 rounded-md bg-muted/50">
             <div className="flex items-center gap-2">
@@ -789,7 +802,7 @@ function AIFrameworkEvaluation() {
                 data-testid="checkbox-free-tier"
               />
               <label className="text-sm font-medium cursor-pointer" onClick={() => setUseFreeTier(!useFreeTier)}>
-                Use Replit AI Integrations (Free)
+                Use Google Gemini Flash (Free)
               </label>
             </div>
             {useFreeTier && (
@@ -855,13 +868,13 @@ function AIFrameworkEvaluation() {
             <div className="mt-4 p-3 rounded-md bg-emerald-50 dark:bg-emerald-900/20 flex items-start gap-2">
               <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
               <p className="text-sm text-emerald-700 dark:text-emerald-300" data-testid="text-free-tier-note">
-                Using Replit AI Integrations with gpt-5-nano. AI costs are included with platform hosting — no additional charges regardless of student count or usage volume.
+                Using Google Gemini Flash with a free API key from Google AI Studio. No per-call charges regardless of student count or usage volume. The school can switch to a paid provider at any time by setting a different API key.
               </p>
             </div>
           )}
           {!useFreeTier && (
             <p className="text-xs text-muted-foreground mt-4">
-              Comparison estimates based on typical paid API pricing ($0.015/interaction avg). Toggle "Free" above to see the current zero-cost configuration using Replit AI Integrations.
+              Comparison estimates based on typical paid API pricing. Toggle "Free" above to see the zero-cost Google Gemini configuration.
             </p>
           )}
         </Card>
