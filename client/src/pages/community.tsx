@@ -167,7 +167,7 @@ export default function CommunityPage() {
         <div className="mx-auto max-w-5xl">
           <div className="text-center mb-8">
             <Badge variant="secondary" className="mb-4">
-              <Globe className="mr-1 h-3 w-3" /> Coming Soon
+              <Globe className="mr-1 h-3 w-3" /> Growing Nationwide
             </Badge>
             <h2 className="text-3xl md:text-4xl font-bold mb-4" data-testid="text-expanding-heading">
               Expanding Nationwide

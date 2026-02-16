@@ -43,11 +43,11 @@ interface GameDef {
 
 const GAMES: GameDef[] = [
   { id: "dominoes", name: "Dominoes", description: "Block Dominoes with special draw rules", icon: Dices, playable: true, gameType: "dominoes" },
-  { id: "checkers", name: "Checkers", description: "Classic 8x8 board game", icon: Grid3X3, playable: false, gameType: "checkers" },
-  { id: "chess", name: "Chess", description: "The ultimate strategy game", icon: Crown, playable: false, gameType: "chess" },
-  { id: "memory", name: "Memory Match", description: "Test your concentration", icon: Brain, playable: false, gameType: "memory" },
-  { id: "spades", name: "Spades", description: "Classic team card game", icon: Heart, playable: false, gameType: "spades" },
-  { id: "strategy", name: "Strategy Tiles", description: "Dominate the board", icon: LayoutGrid, playable: false, gameType: "strategy" },
+  { id: "checkers", name: "Checkers", description: "Classic 8x8 board game", icon: Grid3X3, playable: true, gameType: "checkers" },
+  { id: "chess", name: "Chess", description: "The ultimate strategy game", icon: Crown, playable: true, gameType: "chess" },
+  { id: "memory", name: "Memory Match", description: "Test your concentration", icon: Brain, playable: true, gameType: "memory" },
+  { id: "spades", name: "Spades", description: "Classic team card game", icon: Heart, playable: true, gameType: "spades" },
+  { id: "strategy", name: "Strategy Tiles", description: "Dominate the board", icon: LayoutGrid, playable: true, gameType: "strategy" },
 ];
 
 const DIFFICULTIES = [
@@ -121,13 +121,6 @@ export default function AcademyGameLobbyPage() {
   });
 
   function handleGameClick(game: GameDef) {
-    if (!game.playable) {
-      toast({
-        title: `${game.name} - Coming Soon`,
-        description: "This game is still in development. Stay tuned!",
-      });
-      return;
-    }
     setSelectedGame(game);
     setDifficulty("beginner");
     setTournamentTimer(false);
@@ -212,7 +205,7 @@ export default function AcademyGameLobbyPage() {
           {GAMES.map((game) => (
             <Card
               key={game.id}
-              className={`hover-elevate cursor-pointer ${!game.playable ? "opacity-70" : ""}`}
+              className="hover-elevate cursor-pointer"
               onClick={() => handleGameClick(game)}
               data-testid={`card-game-${game.id}`}
             >
@@ -220,13 +213,11 @@ export default function AcademyGameLobbyPage() {
                 <div className="flex items-start gap-4">
                   <div
                     className="rounded-md p-2.5 shrink-0"
-                    style={{
-                      backgroundColor: game.playable ? "rgba(122,31,62,0.1)" : undefined,
-                    }}
+                    style={{ backgroundColor: "rgba(122,31,62,0.1)" }}
                   >
                     <game.icon
                       className="h-6 w-6"
-                      style={{ color: game.playable ? "#7A1F3E" : undefined }}
+                      style={{ color: "#7A1F3E" }}
                     />
                   </div>
                   <div className="min-w-0 flex-1">
@@ -235,10 +226,10 @@ export default function AcademyGameLobbyPage() {
                         {game.name}
                       </p>
                       <Badge
-                        variant={game.playable ? "default" : "secondary"}
+                        variant="default"
                         data-testid={`badge-game-${game.id}`}
                       >
-                        {game.playable ? "Play Now" : "Coming Soon"}
+                        Play Now
                       </Badge>
                     </div>
                     <p className="text-sm text-muted-foreground" data-testid={`text-game-desc-${game.id}`}>

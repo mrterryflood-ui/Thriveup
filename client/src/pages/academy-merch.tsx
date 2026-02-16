@@ -170,7 +170,7 @@ export default function AcademyMerchPage() {
       <div className="mb-8">
         <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
           <Tag className="h-5 w-5 text-primary" />
-          {hasItems ? "Merchandise Catalog" : "Coming Soon"}
+          {hasItems ? "Merchandise Catalog" : "Preview Catalog"}
         </h2>
 
         {hasItems ? (
@@ -220,22 +220,35 @@ export default function AcademyMerchPage() {
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" data-testid="grid-coming-soon">
-            {PLACEHOLDER_ITEMS.map((item) => (
-              <Card key={item.name} className="p-4" data-testid={`card-placeholder-${item.name.toLowerCase().replace(/\s+/g, "-")}`}>
-                <div className="flex items-center justify-between gap-2 mb-2 flex-wrap">
-                  <Badge variant="outline">{item.category}</Badge>
-                  <Badge variant="secondary">Coming Soon</Badge>
-                </div>
-                <div className="flex items-center gap-2 mb-2">
-                  <Gift className="h-4 w-4 text-muted-foreground shrink-0" />
-                  <h3 className="font-semibold text-sm">{item.name}</h3>
-                </div>
-                <p className="text-xs text-muted-foreground mb-3">{item.description}</p>
-                <span className="text-lg font-bold">${item.price}</span>
-              </Card>
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" data-testid="grid-preview-catalog">
+              {PLACEHOLDER_ITEMS.map((item) => (
+                <Card key={item.name} className="p-4 flex flex-col" data-testid={`card-preview-${item.name.toLowerCase().replace(/\s+/g, "-")}`}>
+                  <div className="flex items-center justify-between gap-2 mb-2 flex-wrap">
+                    <Badge variant="outline">{item.category}</Badge>
+                    <Badge variant="secondary" className="bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300">${item.price}</Badge>
+                  </div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Package className="h-4 w-4 text-muted-foreground shrink-0" />
+                    <h3 className="font-semibold text-sm">{item.name}</h3>
+                  </div>
+                  <p className="text-xs text-muted-foreground mb-3 flex-1">{item.description}</p>
+                  <span className="text-lg font-bold">${item.price}</span>
+                </Card>
+              ))}
+            </div>
+            <Card className="p-4 mt-4" data-testid="card-preview-notice">
+              <div className="flex items-center gap-3 flex-wrap">
+                <Mail className="h-4 w-4 text-muted-foreground shrink-0" />
+                <p className="text-sm text-muted-foreground">
+                  Contact your school administrator to enable ordering.{" "}
+                  <a href="mailto:mr.terryflood@gmail.com" className="text-primary underline" data-testid="link-admin-contact">
+                    mr.terryflood@gmail.com
+                  </a>
+                </p>
+              </div>
+            </Card>
+          </>
         )}
       </div>
 
