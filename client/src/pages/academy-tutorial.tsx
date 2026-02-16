@@ -499,6 +499,40 @@ const CHAPTERS: Chapter[] = [
       stocksPortfolio: 850,
     },
   },
+  {
+    title: "The AI Creation Studio",
+    subtitle: "Building with AI Tools",
+    icon: Presentation,
+    characters: ["Arthur", "Maya", "Spark AI"],
+    narrative: [
+      "Arthur discovers the AI Creation Studio — a suite of 10 powerful tools that let him create presentations, business plans, research papers, and more using AI. He's earned access by completing his AI Mastery modules, and the first tool he tries is the Brainstorm Studio. He types in \"community garden business\" and watches as ideas flow across his screen — revenue models, marketing strategies, partnership opportunities. It feels like having a creative partner who never runs out of ideas.",
+      "Maya shows him the wizard workflow feature. \"Watch this,\" she says, taking her brainstorm output and flowing it directly into the Business Plan Generator, then into the Sales Pitch Builder, and finally into the Presentation Builder. In one afternoon, she goes from a rough idea to a polished pitch deck. Arthur is amazed — each tool builds on the last, creating a complete project pipeline.",
+      "Arthur uses the Document Writer to draft a proposal for his study guide subscription service, then the Research Assistant to find data backing up his ideas. He saves every project to his portfolio. The tools do not do the thinking for him — they help him organize his thoughts, find better words, and structure his ideas professionally. \"This is what adults use in real offices,\" Ms. Richardson tells the class. \"You are learning it at twelve.\"",
+    ],
+    quote: "AI does not replace your creativity. It amplifies it. The ideas are always yours.",
+    quoteAuthor: "Arthur, presenting his first AI-assisted project",
+    links: [
+      { label: "AI Creation Studio", href: "/ai-tools", icon: Presentation },
+    ],
+    stats: { wallet: 1200, pantherPower: 680, housePoints: 280, collegeFund: 45 },
+  },
+  {
+    title: "Sparky Talks to Mom",
+    subtitle: "AI Support for Families",
+    icon: MessageCircle,
+    characters: ["Arthur", "Arthur's Mom", "Sparky AI"],
+    narrative: [
+      "Arthur's mom has been curious about the platform ever since Arthur started talking about stock portfolios and business plans at the dinner table. One evening, she logs in with her parent account and discovers Sparky — an AI companion designed specifically for parents and teachers. Unlike Spark, which speaks to kids at their level, Sparky is built for adults. It offers evidence-based strategies, explains educational research, and helps parents understand how to support their child's learning journey.",
+      "She asks Sparky how to help Arthur with his Math struggles. Instead of generic advice, Sparky looks at Arthur's progress data and suggests specific strategies: practice with real-world problems he cares about, celebrate effort over scores, and use the platform's adaptive quiz system to target his weak areas. Sparky even explains the research behind growth mindset in language that makes sense. \"Your son is not bad at Math,\" Sparky says. \"He just has not found his way in yet.\"",
+      "Arthur walks in to find his mom taking notes from Sparky. She looks up and says, \"I had no idea this platform tracked all of this. I can see exactly where you are growing and where you need help.\" For the first time, Arthur's school life and home life feel connected. His mom starts checking his Thrive Dashboard weekly and celebrating his wins at dinner. \"Sparky told me that belonging scores matter as much as test scores,\" she says one night. Arthur groans, but secretly he loves that she cares enough to learn the system.",
+    ],
+    quote: "When parents understand the journey, they become the most powerful support system a child can have.",
+    quoteAuthor: "Sparky, in a conversation with Arthur's mom",
+    links: [
+      { label: "Sparky (Parent AI)", href: "/sparky", icon: MessageCircle },
+    ],
+    stats: { wallet: 1200, pantherPower: 700, housePoints: 290, collegeFund: 50 },
+  },
 ];
 
 const POWER_CATEGORIES = [
@@ -534,10 +568,12 @@ const POWER_BY_CHAPTER: number[][] = [
   [190, 185, 180, 170, 175],
   [195, 190, 188, 185, 184],
   [200, 200, 200, 200, 200],
+  [205, 205, 205, 210, 205],
+  [210, 210, 210, 215, 210],
 ];
 
 function StatsFooter({ stats, chapterIndex }: { stats: ChapterStats; chapterIndex: number }) {
-  const isFinale = chapterIndex === 23;
+  const isFinale = chapterIndex === CHAPTERS.length - 1;
 
   return (
     <Card className="p-5 mt-6" data-testid={`card-stats-chapter-${chapterIndex}`}>
@@ -623,7 +659,7 @@ function StatsFooter({ stats, chapterIndex }: { stats: ChapterStats; chapterInde
 }
 
 function ChapterContent({ chapter, index }: { chapter: Chapter; index: number }) {
-  const isFinale = index === 23;
+  const isFinale = index === CHAPTERS.length - 1;
 
   return (
     <div className="space-y-6" data-testid={`chapter-content-${index}`}>

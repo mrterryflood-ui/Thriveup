@@ -77,7 +77,7 @@ const slides: SlideData[] = [
       "Context",
       "Protective Factors",
     ],
-    tip: "Focus on trends, not single scores \u2014 declining trends need attention first",
+    tip: "Focus on trends, not single scores — declining trends need attention first",
   },
   {
     title: "Early Warning System",
@@ -89,7 +89,7 @@ const slides: SlideData[] = [
       "Context shock alerts",
       "4-part explainable cards",
     ],
-    tip: "Check flags daily \u2014 early intervention prevents escalation",
+    tip: "Check flags daily — early intervention prevents escalation",
   },
   {
     title: "Student Self-Assessments",
@@ -100,7 +100,7 @@ const slides: SlideData[] = [
       "Feeds directly into Thrive scoring",
       "Support request alerts for immediate action",
     ],
-    tip: "Review \"needs support\" flags immediately \u2014 students are asking for help",
+    tip: "Review \"needs support\" flags immediately — students are asking for help",
   },
   {
     title: "Career Explorer & Pathways",
@@ -122,7 +122,7 @@ const slides: SlideData[] = [
       "Portfolio evidence uploads",
       "Revision workflows (3x/year max)",
     ],
-    tip: "Review pending revisions weekly \u2014 students need timely feedback",
+    tip: "Review pending revisions weekly — students need timely feedback",
   },
   {
     title: "Mentor Network",
@@ -142,7 +142,7 @@ const slides: SlideData[] = [
     keyPoints: [
       "CDC PLACES health data",
       "SVI social vulnerability index",
-      "FBI crime data \u2014 no personal addresses stored",
+      "FBI crime data — no personal addresses stored",
     ],
     tip: "Use context data to allocate resources, not to label students",
   },
@@ -171,7 +171,7 @@ const slides: SlideData[] = [
       "Real athlete and rapper success/failure stories for relatability",
       "Data-Driven Decisions module ties platform analytics to real-world skills",
     ],
-    tip: "Review the modules with students during advisory period \u2014 the scam detection and predatory lending modules are especially important for real-world safety",
+    tip: "Review the modules with students during advisory period — the scam detection and predatory lending modules are especially important for real-world safety",
   },
   {
     title: "Data-Driven Decision Making",
@@ -212,7 +212,7 @@ const slides: SlideData[] = [
       "Earns Panther Power points in Education and Leadership",
       "Live online player count shows campus engagement",
     ],
-    tip: "Monitor the admin play-time flags daily \u2014 students playing over 35 minutes may need a gentle redirect to other activities",
+    tip: "Monitor the admin play-time flags daily — students playing over 35 minutes may need a gentle redirect to other activities",
   },
   {
     title: "Reports & Safety",
@@ -223,7 +223,59 @@ const slides: SlideData[] = [
       "Admin notes per student",
       "Intervention playbooks",
     ],
-    tip: "Document everything \u2014 notes create accountability and continuity",
+    tip: "Document everything — notes create accountability and continuity",
+  },
+  {
+    title: "Spark & Sparky AI Companions",
+    icon: Wand2,
+    overview: "Two AI companions serve different audiences. Spark helps students with grade-appropriate learning support, Socratic questioning, and emotional intelligence. Sparky helps parents and teachers with evidence-based strategies and student progress insights.",
+    keyPoints: [
+      "Spark: age-appropriate for students with safety guardrails",
+      "Sparky: adult-level support for parents and teachers",
+      "Bilingual English/Spanish support",
+      "Growth mindset and cultural awareness built in",
+      "Powered by configurable AI — currently Google Gemini Flash (free)",
+    ],
+    tip: "Encourage parents to try Sparky during onboarding — it helps them understand and support their child's progress",
+  },
+  {
+    title: "AI Creation Studio",
+    icon: Briefcase,
+    overview: "A suite of 10 AI-powered productivity tools including Presentation Builder, Business Plan Generator, Research Assistant, and more. Students unlock tools by completing AI Mastery modules. Adults access all tools through Sparky.",
+    keyPoints: [
+      "10 AI-powered tools with wizard workflows",
+      "Module-gated for students (complete AI courses to unlock)",
+      "Ungated for adults via Sparky (?mode=adult)",
+      "Wizard workflows connect tools (brainstorm to business plan to pitch to presentation)",
+      "Project saving and portfolio integration",
+    ],
+    tip: "Have students start with Brainstorm Studio — it's the gateway to all other tools through wizard workflows",
+  },
+  {
+    title: "AI Provider Configuration",
+    icon: Shield,
+    overview: "The platform uses a flexible AI provider system. By default, it runs on Google Gemini Flash for free. Schools can plug in their own AI provider (OpenAI, Anthropic, etc.) by setting a single API key — no code changes needed.",
+    keyPoints: [
+      "Default: Google Gemini Flash (free, no credit card needed)",
+      "School option: Bring your own OpenAI or Anthropic key",
+      "Provider switch requires only an environment variable change",
+      "Built-in safety filters for student interactions",
+      "See Implementation Plan page for full cost comparison",
+    ],
+    tip: "Start with the free Gemini tier — it handles 60+ students easily. Upgrade only if your district requires a specific provider",
+  },
+  {
+    title: "Implementation Planning",
+    icon: Route,
+    overview: "A comprehensive planning guide for district administrators. Includes grade-by-grade deployment strategy (6-12), pre-rollout checklists, AI cost comparison calculator, and a phased rollout timeline.",
+    keyPoints: [
+      "Grade-by-grade deployment cards (6th through 12th)",
+      "4-phase pre-rollout checklist",
+      "AI framework evaluation with strengths and gaps",
+      "Cost comparison calculator with free tier toggle",
+      "Sustainability risk analysis",
+    ],
+    tip: "Share the Implementation Plan page with district leadership — it demonstrates the platform's scalability and zero AI cost",
   },
   {
     title: "Getting Started Checklist",
@@ -239,9 +291,13 @@ const slides: SlideData[] = [
       "Set up parent notifications",
       "Explore the Game Room and review play-time settings",
       "Introduce Financial Literacy modules during first month",
+      "Introduce Spark to students and Sparky to parents",
+      "Walk through AI Creation Studio tools with teachers",
+      "Review AI provider settings (default: free Gemini)",
+      "Share Implementation Plan with district leadership",
     ],
     isChecklist: true,
-    tip: "You're building the future \u2014 one student at a time",
+    tip: "You're building the future — one student at a time",
   },
 ];
 
