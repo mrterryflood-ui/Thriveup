@@ -472,11 +472,10 @@ Remember: You're not just answering questions — you're building a relationship
       msgs.push({ role: "user", content: message });
 
       const stream = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
+        model: "gpt-5-nano",
         messages: msgs,
         stream: true,
-        temperature: 0.8,
-        max_tokens: 1000,
+        max_completion_tokens: 1000,
       });
 
       for await (const chunk of stream) {
@@ -582,11 +581,10 @@ Remember: The adults you support are the most important people in students' live
       msgs.push({ role: "user", content: message });
 
       const stream = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
+        model: "gpt-5-nano",
         messages: msgs,
         stream: true,
-        temperature: 0.7,
-        max_tokens: 1500,
+        max_completion_tokens: 1500,
       });
 
       for await (const chunk of stream) {
@@ -633,7 +631,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
 
     try {
       const stream = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
+        model: "gpt-5-nano",
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: `Generate classroom setup suggestions for "${name}" (Grades ${gradeBand})${subjectFocus && subjectFocus !== "all" ? ` focusing on ${subjectFocus}` : ""}.` },
@@ -3082,14 +3080,13 @@ Be thorough, practical, and age-appropriate. Format your response with clear hea
 
     try {
       const stream = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
+        model: "gpt-5-nano",
         messages: [
           { role: "system", content: systemMsg },
           { role: "user", content: prompt },
         ],
         stream: true,
-        temperature: 0.7,
-        max_tokens: 3000,
+        max_completion_tokens: 3000,
       });
 
       for await (const chunk of stream) {

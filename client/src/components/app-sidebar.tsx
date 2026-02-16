@@ -139,6 +139,7 @@ const teachingItems: NavItem[] = [
   { title: "Parent Dashboard", url: "/parents/dashboard", icon: BarChart3 },
   { title: "Curriculum Docs", url: "/curriculum-documents", icon: FileText },
   { title: "Social Media Literacy", url: "/social-media-literacy", icon: Smartphone },
+  { title: "Implementation Plan", url: "/implementation", icon: ClipboardList },
 ];
 
 const rankIcons: Record<string, typeof Shield> = {
@@ -152,6 +153,7 @@ function isItemActive(location: string, url: string): boolean {
   if (url === "/curriculum-documents" && location.startsWith("/curriculum-documents/")) return true;
   if (url === "/classrooms" && location.startsWith("/classrooms/")) return true;
   if (url === "/certificates" && location.startsWith("/certificates/")) return true;
+  if (url === "/implementation" && location.startsWith("/implementation")) return true;
   if (url !== "/parents" && url !== "/academy" && location.startsWith(url + "/")) return true;
   return false;
 }

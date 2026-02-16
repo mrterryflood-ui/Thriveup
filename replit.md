@@ -11,7 +11,7 @@ The application uses a React + Vite frontend with shadcn/ui, Tailwind CSS, woute
 
 Key architectural decisions and features include:
 - **Comprehensive Curriculum:** Structured content for subjects and AI mastery levels, with interactive lessons, quizzes, and progress tracking.
-- **AI Companions (Spark & Sparky):** Spark is a grade-band-specific AI learning companion (gpt-4o-mini with SSE streaming, emotional intelligence framework, Socratic questioning, growth mindset, cultural awareness, bilingual support, safety guardrails). Sparky is an adult AI companion for parents and teachers, offering compassionate support without child-safety restrictions, including evidence-based strategies and context-aware conversations. Both link to the AI Creation Studio.
+- **AI Companions (Spark & Sparky):** Spark is a grade-band-specific AI learning companion (gpt-5-nano via Replit AI Integrations with SSE streaming, emotional intelligence framework, Socratic questioning, growth mindset, cultural awareness, bilingual support, safety guardrails). Sparky is an adult AI companion for parents and teachers, offering compassionate support without child-safety restrictions, including evidence-based strategies and context-aware conversations. Both link to the AI Creation Studio.
 - **AI Creation Studio:** A unified productivity platform with 10 AI-powered tools (Presentation Builder, Video Script Creator, Sales Pitch Builder, Business Plan Generator, Research Assistant, Life Planner, Project Planner, Document Writer, Resume Builder, Brainstorm Studio). Features wizard workflows for seamless project flow between tools (e.g., brainstorm -> business plan -> pitch -> presentation), project import/export, file attachment with text content reading, streaming AI generation, and project saving. Tools are module-gated for students (must complete AI Course modules to unlock) but ungated for adults via Sparky (?mode=adult). At /ai-tools and /ai-tools/:toolKey.
 - **Sixth Grade Academy:** An immersive experience including Panther Village (interactive campus landing page), avatar customization, a simulated stock market, a "Build Your Black Campus" project, academic competitions, and a virtual merchandise shop for college tuition fundraising.
 - **Career & Mentorship Systems:** Features a Career Explorer, a longitudinal "My Pathway" tracker with portfolio evidence upload, and a Mentor Network for connecting students with professionals, integrated with the MCOE directory.
@@ -23,11 +23,12 @@ Key architectural decisions and features include:
 - **Risk Management:** A "Risk Decision Tracking" system for financial decisions with configurable thresholds and educational components.
 - **Multi-Game Platform (Panther Game Room):** A game lobby with various games, including a fully functional Dominoes game with CPU AI and ELO rating.
 - **Internationalization (i18n):** Custom language provider supporting English and Spanish.
+- **Implementation Recommendations:** District administrator planning guide with grade-by-grade (6-12) deployment strategy, pre-rollout checklists, AI framework evaluation, open-source AI strategy, cost comparison calculator, and phased rollout timeline. At /implementation.
 - **Low-Bandwidth Mode:** User-toggleable mode to strip animations, images, and shadows for improved performance.
 
 ## External Dependencies
 - **Database:** PostgreSQL (Neon-backed)
-- **AI Integration:** OpenAI (gpt-4o-mini model)
+- **AI Integration:** Replit AI Integrations (gpt-5-nano model, free, no API key required)
 - **Authentication:** Replit Auth (OIDC)
 - **GIS Data Sources:** CDC PLACES API (Socrata), CDC/ATSDR SVI, FBI Crime Data API
 - **UI Components:** shadcn/ui
