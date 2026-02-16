@@ -11,13 +11,22 @@ interface StreamAIResponseParams {
   onError: (error: Error) => void;
 }
 
+function getAvailableProviders(): Provider[] {
+  const providers: Provider[] = [];
+  if (process.env.GEMINI_API_KEY) providers.push("gemini");
+  if (process.env.OPENAI_API_KEY) providers.push("openai");
+  if (process.env.AI_INTEGRATIONS_OPENAI_API_KEY && process.env.AI_INTEGRATIONS_OPENAI_BASE_URL) providers.push("replit-ai-integrations");
+  return providers;
+}
+
 function detectProvider(): Provider {
-  if (process.env.GEMINI_API_KEY) return "gemini";
-  if (process.env.OPENAI_API_KEY) return "openai";
-  if (process.env.AI_INTEGRATIONS_OPENAI_API_KEY && process.env.AI_INTEGRATIONS_OPENAI_BASE_URL) return "replit-ai-integrations";
-  throw new Error(
-    "No AI provider configured. Set one of: GEMINI_API_KEY (free), OPENAI_API_KEY, or AI_INTEGRATIONS_OPENAI_API_KEY + AI_INTEGRATIONS_OPENAI_BASE_URL"
-  );
+  const providers = getAvailableProviders();
+  if (providers.length === 0) {
+    throw new Error(
+      "No AI provider configured. Set one of: GEMINI_API_KEY (free), OPENAI_API_KEY, or AI_INTEGRATIONS_OPENAI_API_KEY + AI_INTEGRATIONS_OPENAI_BASE_URL"
+    );
+  }
+  return providers[0];
 }
 
 const PROVIDER_CONFIG: Record<Provider, { model: string; isFree: boolean }> = {
@@ -34,6 +43,17 @@ export function getProviderInfo(): { name: string; model: string; isFree: boolea
   const provider = detectProvider();
   const config = PROVIDER_CONFIG[provider];
   return { name: provider, model: config.model, isFree: config.isFree };
+}
+
+function isRateLimitError(error: unknown): boolean {
+  if (error && typeof error === "object") {
+    const e = error as any;
+    if (e.status === 429 || e.statusCode === 429) return true;
+    if (e.code === "rate_limit_exceeded") return true;
+    const msg = e.message || "";
+    if (typeof msg === "string" && (msg.includes("429") || msg.includes("quota") || msg.includes("rate limit") || msg.includes("Too Many Requests"))) return true;
+  }
+  return false;
 }
 
 async function streamGemini(params: StreamAIResponseParams): Promise<void> {
@@ -111,16 +131,59 @@ async function streamOpenAI(params: StreamAIResponseParams, provider: "openai" |
   params.onDone();
 }
 
-export async function streamAIResponse(params: StreamAIResponseParams): Promise<void> {
-  const provider = detectProvider();
+async function tryProvider(provider: Provider, params: StreamAIResponseParams): Promise<void> {
+  if (provider === "gemini") {
+    await streamGemini(params);
+  } else {
+    await streamOpenAI(params, provider);
+  }
+}
 
-  try {
-    if (provider === "gemini") {
-      await streamGemini(params);
-    } else {
-      await streamOpenAI(params, provider);
+export async function streamAIResponse(params: StreamAIResponseParams): Promise<void> {
+  const providers = getAvailableProviders();
+  if (providers.length === 0) {
+    params.onError(new Error("No AI provider configured"));
+    return;
+  }
+
+  for (let i = 0; i < providers.length; i++) {
+    const provider = providers[i];
+    try {
+      const wrappedParams: StreamAIResponseParams = {
+        ...params,
+        onDone: () => {},
+        onError: () => {},
+      };
+
+      let chunks: string[] = [];
+      wrappedParams.onChunk = (content: string) => {
+        chunks.push(content);
+        params.onChunk(content);
+      };
+
+      if (provider === "gemini") {
+        await streamGemini(wrappedParams);
+      } else {
+        await streamOpenAI(wrappedParams, provider);
+      }
+
+      params.onDone();
+      return;
+    } catch (error) {
+      const isLast = i === providers.length - 1;
+
+      if (isRateLimitError(error) && !isLast) {
+        const next = providers[i + 1];
+        console.log(`[AI Provider] ${provider} rate limited, falling back to ${next}`);
+        continue;
+      }
+
+      if (!isLast && isRateLimitError(error)) {
+        continue;
+      }
+
+      params.onError(error instanceof Error ? error : new Error(String(error)));
+      return;
     }
-  } catch (error) {
-    params.onError(error instanceof Error ? error : new Error(String(error)));
   }
 }
