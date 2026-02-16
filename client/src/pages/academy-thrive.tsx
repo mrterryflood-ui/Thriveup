@@ -1,7 +1,9 @@
+import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { apiRequest, queryClient } from "@/lib/queryClient";
+import { apiRequest, queryClient, getQueryFn } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -21,6 +23,7 @@ import {
   RefreshCw,
   ClipboardCheck,
   Activity,
+  LogIn,
 } from "lucide-react";
 
 interface ThriveScore {
@@ -227,17 +230,22 @@ function LoadingSkeleton() {
 
 export default function AcademyThrivePage() {
   const { toast } = useToast();
+  const { user, isLoading: authLoading, isAuthenticated } = useAuth();
+  const [hasAutoComputed, setHasAutoComputed] = useState(false);
 
-  const { data: score, isLoading: scoreLoading } = useQuery<ThriveScore>({
+  const { data: score, isLoading: scoreLoading, isError: scoreError } = useQuery<ThriveScore>({
     queryKey: ["/api/thrive/score"],
+    enabled: isAuthenticated,
   });
 
   const { data: history, isLoading: historyLoading } = useQuery<ThriveHistoryEntry[]>({
     queryKey: ["/api/thrive/history"],
+    enabled: isAuthenticated,
   });
 
   const { data: flags, isLoading: flagsLoading } = useQuery<EarlyWarningFlag[]>({
     queryKey: ["/api/thrive/flags"],
+    enabled: isAuthenticated,
   });
 
   const computeMutation = useMutation({
@@ -256,8 +264,50 @@ export default function AcademyThrivePage() {
     },
   });
 
-  if (scoreLoading) {
+  useEffect(() => {
+    if (isAuthenticated && !scoreLoading && !score && !scoreError && !hasAutoComputed && !computeMutation.isPending) {
+      setHasAutoComputed(true);
+      computeMutation.mutate();
+    }
+  }, [isAuthenticated, scoreLoading, score, scoreError, hasAutoComputed, computeMutation.isPending]);
+
+  if (authLoading || (isAuthenticated && scoreLoading)) {
     return <LoadingSkeleton />;
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="p-4 sm:p-6 max-w-5xl mx-auto" data-testid="academy-thrive-page">
+        <div
+          className="rounded-md bg-gradient-to-r from-rose-900 to-red-700 p-4 sm:p-6 lg:p-8 mb-8"
+          data-testid="section-hero"
+        >
+          <div className="flex items-center gap-3 mb-3 flex-wrap">
+            <div className="rounded-md p-2.5 bg-white/10">
+              <Activity className="h-7 w-7 text-white" />
+            </div>
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white" data-testid="text-page-title">
+              Thrive Dashboard
+            </h1>
+          </div>
+          <p className="text-rose-100 text-base sm:text-lg" data-testid="text-page-subtitle">
+            Your holistic growth across six domains
+          </p>
+        </div>
+        <Card className="p-8 text-center max-w-md mx-auto" data-testid="card-sign-in-required">
+          <LogIn className="h-10 w-10 mx-auto text-muted-foreground/30 mb-3" />
+          <h2 className="font-semibold text-lg mb-2">Sign In Required</h2>
+          <p className="text-muted-foreground mb-4">
+            Sign in to view your personalized Thrive scores and track your growth across all six domains.
+          </p>
+          <a href="/api/login">
+            <Button data-testid="button-sign-in">
+              <LogIn className="h-4 w-4 mr-1" /> Sign In
+            </Button>
+          </a>
+        </Card>
+      </div>
+    );
   }
 
   const activeFlags = (flags ?? []).filter((f) => f.status === "active");
@@ -288,30 +338,43 @@ export default function AcademyThrivePage() {
             trend={score.compositeTrend}
             flagLevel={score.flagLevel}
           />
+        ) : computeMutation.isPending ? (
+          <div className="flex flex-col items-center gap-3" data-testid="section-computing">
+            <RefreshCw className="h-10 w-10 animate-spin text-muted-foreground/50" />
+            <p className="text-muted-foreground">Computing your Thrive score...</p>
+          </div>
         ) : (
           <Card className="p-8 text-center" data-testid="card-no-score">
             <Activity className="h-10 w-10 mx-auto text-muted-foreground/30 mb-3" />
             <p className="text-muted-foreground mb-4">No Thrive score computed yet.</p>
+            <Button
+              onClick={() => computeMutation.mutate()}
+              data-testid="button-compute-first-score"
+            >
+              <RefreshCw className="h-4 w-4 mr-1" /> Compute My Score
+            </Button>
           </Card>
         )}
       </div>
 
-      <div className="flex items-center justify-center gap-3 mb-8 flex-wrap">
-        <Button
-          variant="outline"
-          onClick={() => computeMutation.mutate()}
-          disabled={computeMutation.isPending}
-          data-testid="button-refresh-score"
-        >
-          <RefreshCw className={`h-4 w-4 mr-1 ${computeMutation.isPending ? "animate-spin" : ""}`} />
-          {computeMutation.isPending ? "Computing..." : "Refresh Score"}
-        </Button>
-        <Link href="/academy/self-assessment">
-          <Button variant="outline" data-testid="link-daily-checkin">
-            <ClipboardCheck className="h-4 w-4 mr-1" /> Take Daily Check-In
+      {score && (
+        <div className="flex items-center justify-center gap-3 mb-8 flex-wrap">
+          <Button
+            variant="outline"
+            onClick={() => computeMutation.mutate()}
+            disabled={computeMutation.isPending}
+            data-testid="button-refresh-score"
+          >
+            <RefreshCw className={`h-4 w-4 mr-1 ${computeMutation.isPending ? "animate-spin" : ""}`} />
+            {computeMutation.isPending ? "Computing..." : "Refresh Score"}
           </Button>
-        </Link>
-      </div>
+          <Link href="/academy/self-assessment">
+            <Button variant="outline" data-testid="link-daily-checkin">
+              <ClipboardCheck className="h-4 w-4 mr-1" /> Take Daily Check-In
+            </Button>
+          </Link>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8" data-testid="section-domain-cards">
         {DOMAINS.map((domain) => {
