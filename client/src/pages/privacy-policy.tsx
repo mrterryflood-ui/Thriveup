@@ -65,9 +65,9 @@ export default function PrivacyPolicyPage() {
 
       <section id="commitment">
         <SectionCard num={1} icon={Lock} title="Our Commitment to Student Privacy">
-          <p>
+          <div>
             The Texas Empowerment Academy Learning Academy is built with student privacy as a foundational principle. We comply with <Badge variant="outline">FERPA</Badge> (Family Educational Rights and Privacy Act), <Badge variant="outline">COPPA</Badge> (Children's Online Privacy Protection Act), and state privacy regulations.
-          </p>
+          </div>
           <p className="mt-3">
             This platform serves students in grades 3-12 and we take our responsibility to protect young learners seriously.
           </p>
