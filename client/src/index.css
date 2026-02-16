@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Lexie+Readable&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -355,4 +357,102 @@
   animation: none !important;
   transition: none !important;
   box-shadow: none !important;
+}
+
+/* Accessibility Modes */
+
+.dyslexia-font,
+.dyslexia-font * {
+  font-family: 'OpenDyslexic', 'Lexie Readable', 'Comic Sans MS', cursive, sans-serif !important;
+  letter-spacing: 0.05em;
+  word-spacing: 0.15em;
+}
+
+.large-text {
+  font-size: 118% !important;
+}
+
+.large-text .text-xs { font-size: 0.85rem !important; }
+.large-text .text-sm { font-size: 1rem !important; }
+.large-text .text-base { font-size: 1.15rem !important; }
+.large-text .text-lg { font-size: 1.3rem !important; }
+
+.line-spacing-relaxed { line-height: 1.8 !important; }
+.line-spacing-relaxed * { line-height: inherit; }
+.line-spacing-loose { line-height: 2.2 !important; }
+.line-spacing-loose * { line-height: inherit; }
+
+.high-contrast {
+  --contrast-boost: 1;
+}
+.high-contrast .text-muted-foreground {
+  opacity: 1 !important;
+  color: hsl(var(--foreground)) !important;
+}
+.high-contrast .border {
+  border-color: hsl(var(--foreground) / 0.4) !important;
+}
+
+.reduced-motion,
+.reduced-motion * {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+.focus-mode .animate-pulse,
+.focus-mode .animate-bounce,
+.focus-mode .animate-spin {
+  animation: none !important;
+}
+
+.simplified-layout [data-decorative="true"],
+.simplified-layout .decoration-only {
+  display: none !important;
+}
+
+.overlay-warm::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 200, 100, 0.08);
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.overlay-cool::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: rgba(100, 150, 255, 0.06);
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.overlay-yellow::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 255, 100, 0.07);
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  padding: 8px 16px;
+  z-index: 10000;
+  transition: top 0.2s;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+*:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
 }

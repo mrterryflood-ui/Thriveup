@@ -65,10 +65,13 @@ import AcademyProgressReportPage from "@/pages/academy-progress-report";
 import AcademyAttendancePage from "@/pages/academy-attendance";
 import AcademyIntegrationPage from "@/pages/academy-integration";
 import AcademyRiskMonitorPage from "@/pages/academy-risk-monitor";
+import SparkyCompanionPage from "@/pages/sparky-companion";
 import PrivacyPolicyPage from "@/pages/privacy-policy";
 import { LanguageProvider } from "@/lib/i18n";
 import { BandwidthProvider } from "@/lib/bandwidth-mode";
+import { AccessibilityProvider } from "@/lib/accessibility";
 import { HeaderControls } from "@/components/header-controls";
+import { AccessibilityPanel } from "@/components/accessibility-panel";
 
 function AppRouter() {
   return (
@@ -84,6 +87,7 @@ function AppRouter() {
       <Route path="/dashboard" component={DashboardPage} />
       <Route path="/achievements" component={AchievementsPage} />
       <Route path="/ai-companion" component={AICompanionPage} />
+      <Route path="/sparky" component={SparkyCompanionPage} />
       <Route path="/community" component={CommunityPage} />
       <Route path="/parents" component={ParentResourcesPage} />
       <Route path="/parents/dashboard" component={ParentDashboardPage} />
@@ -162,11 +166,15 @@ function AppLayout() {
       <div className="flex h-screen w-full">
         <AppSidebar />
         <div className="flex flex-col flex-1 min-w-0">
+          <a href="#main-content" className="skip-link bg-primary text-primary-foreground" data-testid="link-skip-nav">Skip to main content</a>
           <header className="flex items-center justify-between gap-2 p-2 border-b sticky top-0 z-50 bg-background">
             <SidebarTrigger data-testid="button-sidebar-toggle" />
-            <HeaderControls />
+            <div className="flex items-center gap-1">
+              <AccessibilityPanel />
+              <HeaderControls />
+            </div>
           </header>
-          <main className="flex-1 overflow-auto">
+          <main id="main-content" className="flex-1 overflow-auto">
             <AppRouter />
           </main>
         </div>
@@ -179,14 +187,16 @@ function App() {
   return (
     <ThemeProvider>
       <LanguageProvider>
-        <BandwidthProvider>
-          <QueryClientProvider client={queryClient}>
-            <TooltipProvider>
-              <AppLayout />
-              <Toaster />
-            </TooltipProvider>
-          </QueryClientProvider>
-        </BandwidthProvider>
+        <AccessibilityProvider>
+          <BandwidthProvider>
+            <QueryClientProvider client={queryClient}>
+              <TooltipProvider>
+                <AppLayout />
+                <Toaster />
+              </TooltipProvider>
+            </QueryClientProvider>
+          </BandwidthProvider>
+        </AccessibilityProvider>
       </LanguageProvider>
     </ThemeProvider>
   );

@@ -29,6 +29,7 @@ import {
   Zap, CalendarCheck, Lightbulb, Gamepad2, Map, Store, Briefcase, Route,
   Activity, ClipboardCheck, Handshake, ChevronRight, DollarSign,
   PenLine, Megaphone, Calendar, HelpCircle, ClipboardList, Printer, Link2,
+  MessageCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -54,6 +55,7 @@ const platformItems: NavItem[] = [
   { title: "Dashboard", url: "/dashboard", icon: Home },
   { title: "AI Curriculum", url: "/curriculum", icon: Brain },
   { title: "Spark", url: "/ai-companion", icon: Sparkles },
+  { title: "Sparky (Adults)", url: "/sparky", icon: MessageCircle },
   { title: "Community", url: "/community", icon: Globe },
   { title: "Subjects", url: "/subjects", icon: GraduationCap },
   { title: "Achievements", url: "/achievements", icon: Award },
