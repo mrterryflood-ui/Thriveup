@@ -3,9 +3,10 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { MessageCircle, Send, Bot, User, Briefcase, BookOpen, Users, Settings, Trash2, Heart } from "lucide-react";
+import { MessageCircle, Send, Bot, User, Briefcase, BookOpen, Users, Settings, Trash2, Heart, Wand2 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useLanguage } from "@/lib/i18n";
+import { Link } from "wouter";
 
 interface Message {
   role: "user" | "assistant";
@@ -183,6 +184,12 @@ export default function SparkyCompanionPage() {
             ? "Sparky esta aqui para apoyar a padres, maestros y administradores con orientacion, estrategias y navegacion de la plataforma."
             : "Sparky is here to support parents, teachers, and administrators with guidance, strategies, and platform navigation."}
         </p>
+        <Link href="/ai-tools?mode=adult">
+          <Button variant="outline" size="sm" className="mt-2" data-testid="button-sparky-ai-tools">
+            <Wand2 className="h-3.5 w-3.5 mr-1.5" />
+            {language === "es" ? "Abrir herramientas de IA" : "Open AI Creation Tools"}
+          </Button>
+        </Link>
       </div>
 
       <Card className="flex flex-col h-[calc(100vh-220px)]">

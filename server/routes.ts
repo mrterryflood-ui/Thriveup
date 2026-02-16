@@ -12,6 +12,7 @@ import {
   insertStudentSelfAssessmentSchema,
   studentReflections, announcements as announcementsTable, academyEvents as academyEventsTable, attendanceLogs,
   insertStudentReflectionSchema, insertAnnouncementSchema, insertAcademyEventSchema, insertAttendanceLogSchema,
+  aiToolCatalog, aiToolUnlocks, aiToolProjects, aiToolAttachments,
 } from "@shared/schema";
 import { eq, and, desc, sql, count, gte } from "drizzle-orm";
 import { computeFullThriveScore, computeAllStudentScores, getThriveHistory } from "./thrive-engine";
@@ -21,6 +22,41 @@ import { db } from "./storage";
 import OpenAI from "openai";
 import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
 import { registerCrossPlatformRoutes } from "./cross-platform-api";
+
+const AI_TOOLS = [
+  { toolKey: "presentation-builder", name: "Presentation Builder", description: "Create slide-by-slide presentations with AI-generated content, talking points, and visual suggestions", category: "create", iconName: "presentation", gradeBand: "all", requiredModuleKey: "ai-presentations", promptTemplate: "PRESENTATION_BUILDER", outputFormat: "slides", sortOrder: 1 },
+  { toolKey: "video-creator", name: "Video Script Creator", description: "Write video scripts with scene descriptions, dialogue, camera angles, and storyboard outlines", category: "create", iconName: "video", gradeBand: "all", requiredModuleKey: "ai-video", promptTemplate: "VIDEO_CREATOR", outputFormat: "storyboard", sortOrder: 2 },
+  { toolKey: "sales-pitch", name: "Sales Pitch Builder", description: "Craft compelling sales pitches with hooks, value propositions, objection handling, and closing statements", category: "write", iconName: "megaphone", gradeBand: "6-8", requiredModuleKey: "ai-sales", promptTemplate: "SALES_PITCH", outputFormat: "structured", sortOrder: 3 },
+  { toolKey: "business-plan", name: "Business Plan Generator", description: "Build comprehensive business plans with market analysis, financial projections, and growth strategy", category: "plan", iconName: "briefcase", gradeBand: "6-8", requiredModuleKey: "ai-business", promptTemplate: "BUSINESS_PLAN", outputFormat: "structured", sortOrder: 4 },
+  { toolKey: "research-assistant", name: "Research Assistant", description: "Get help organizing research topics, finding key points, creating outlines, and writing citations", category: "research", iconName: "search", gradeBand: "all", requiredModuleKey: "ai-research", promptTemplate: "RESEARCH", outputFormat: "markdown", sortOrder: 5 },
+  { toolKey: "life-planner", name: "Life Planner", description: "Map out your goals, create action plans, set milestones, and track your personal development journey", category: "plan", iconName: "compass", gradeBand: "all", requiredModuleKey: "ai-life-planning", promptTemplate: "LIFE_PLANNER", outputFormat: "structured", sortOrder: 6 },
+  { toolKey: "project-planner", name: "Project Planner", description: "Break down projects into tasks, set timelines, assign resources, and create Gantt-style plans", category: "plan", iconName: "clipboard-list", gradeBand: "all", requiredModuleKey: "ai-project-planning", promptTemplate: "PROJECT_PLANNER", outputFormat: "structured", sortOrder: 7 },
+  { toolKey: "document-writer", name: "Document Writer", description: "Write essays, reports, letters, and other documents with AI assistance for structure and content", category: "write", iconName: "file-text", gradeBand: "all", requiredModuleKey: "ai-documents", promptTemplate: "DOCUMENT_WRITER", outputFormat: "markdown", sortOrder: 8 },
+  { toolKey: "resume-builder", name: "Resume & Portfolio Builder", description: "Create professional resumes, cover letters, and portfolio pages showcasing your best work", category: "write", iconName: "user-check", gradeBand: "9-12", requiredModuleKey: "ai-resume", promptTemplate: "RESUME_BUILDER", outputFormat: "structured", sortOrder: 9 },
+  { toolKey: "brainstorm", name: "Brainstorm Studio", description: "Generate ideas, mind maps, and creative concepts for any project or challenge", category: "research", iconName: "lightbulb", gradeBand: "all", requiredModuleKey: "ai-brainstorm", promptTemplate: "BRAINSTORM", outputFormat: "markdown", sortOrder: 10 },
+];
+
+async function seedAiToolCatalog() {
+  const existing = await db.select().from(aiToolCatalog);
+  if (existing.length === 0) {
+    for (const tool of AI_TOOLS) {
+      await db.insert(aiToolCatalog).values(tool);
+    }
+  }
+}
+
+const AI_COURSE_MODULES = [
+  { key: "ai-brainstorm", title: "Module 1: AI & Creative Thinking", description: "Learn how AI can help you brainstorm and generate creative ideas", unlocksTool: "brainstorm", lessonCount: 3 },
+  { key: "ai-research", title: "Module 2: AI-Powered Research", description: "Master research techniques using AI to find, organize, and cite information", unlocksTool: "research-assistant", lessonCount: 3 },
+  { key: "ai-documents", title: "Module 3: Writing with AI", description: "Learn to use AI as a writing partner for essays, reports, and creative pieces", unlocksTool: "document-writer", lessonCount: 3 },
+  { key: "ai-presentations", title: "Module 4: Presentations & Public Speaking", description: "Create compelling presentations with AI-generated content and structure", unlocksTool: "presentation-builder", lessonCount: 3 },
+  { key: "ai-video", title: "Module 5: Video Storytelling", description: "Write scripts, plan storyboards, and create video outlines with AI", unlocksTool: "video-creator", lessonCount: 3 },
+  { key: "ai-project-planning", title: "Module 6: Project Management", description: "Break down projects into manageable tasks and timelines with AI", unlocksTool: "project-planner", lessonCount: 3 },
+  { key: "ai-life-planning", title: "Module 7: Life Design", description: "Use AI to set goals, create personal development plans, and map your future", unlocksTool: "life-planner", lessonCount: 3 },
+  { key: "ai-business", title: "Module 8: Entrepreneurship & Business", description: "Build business plans, analyze markets, and plan ventures with AI", unlocksTool: "business-plan", lessonCount: 3 },
+  { key: "ai-sales", title: "Module 9: Persuasion & Sales", description: "Craft compelling pitches and learn the art of ethical persuasion with AI", unlocksTool: "sales-pitch", lessonCount: 3 },
+  { key: "ai-resume", title: "Module 10: Professional Branding", description: "Build resumes, portfolios, and professional profiles with AI", unlocksTool: "resume-builder", lessonCount: 3 },
+];
 
 function getUserId(req: Request): string | undefined {
   const user = (req as any).user;
@@ -67,6 +103,8 @@ export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
+  await seedAiToolCatalog();
+
   app.use((_req, res, next) => {
     res.setHeader("X-Content-Type-Options", "nosniff");
     res.setHeader("X-Frame-Options", "DENY");
@@ -2806,6 +2844,315 @@ Write a warm, encouraging welcome message for students joining this classroom. M
     } catch (error) {
       res.status(500).json({ error: "Failed to update risk decision" });
     }
+  });
+
+  // ==================== AI TOOLS ROUTES ====================
+
+  app.get("/api/ai-tools", async (req, res) => {
+    const userId = getUserId(req);
+    const isAdult = req.query.mode === "adult";
+
+    const tools = await db.select().from(aiToolCatalog).where(eq(aiToolCatalog.isActive, true)).orderBy(aiToolCatalog.sortOrder);
+
+    let unlocks: any[] = [];
+    if (userId && !isAdult) {
+      unlocks = await db.select().from(aiToolUnlocks).where(eq(aiToolUnlocks.userId, userId));
+    }
+
+    const unlockedToolIds = new Set(unlocks.map((u: any) => u.toolId));
+
+    const toolsWithStatus = tools.map(tool => ({
+      ...tool,
+      isUnlocked: isAdult || unlockedToolIds.has(tool.id),
+      moduleInfo: AI_COURSE_MODULES.find(m => m.key === tool.requiredModuleKey),
+    }));
+
+    res.json(toolsWithStatus);
+  });
+
+  app.get("/api/ai-tools/modules", requireAuth, async (req, res) => {
+    const userId = getUserId(req)!;
+    const unlocks = await db.select().from(aiToolUnlocks).where(eq(aiToolUnlocks.userId, userId));
+    const unlockedModuleKeys = new Set<string>();
+
+    const tools = await db.select().from(aiToolCatalog);
+    for (const unlock of unlocks) {
+      const tool = tools.find(t => t.id === unlock.toolId);
+      if (tool) unlockedModuleKeys.add(tool.requiredModuleKey!);
+    }
+
+    const modulesWithStatus = AI_COURSE_MODULES.map(mod => ({
+      ...mod,
+      completed: unlockedModuleKeys.has(mod.key),
+      unlocksTool: mod.unlocksTool,
+    }));
+
+    res.json(modulesWithStatus);
+  });
+
+  app.post("/api/ai-tools/modules/:moduleKey/complete", requireAuth, async (req, res) => {
+    const userId = getUserId(req)!;
+    const { moduleKey } = req.params;
+
+    const mod = AI_COURSE_MODULES.find(m => m.key === moduleKey);
+    if (!mod) return res.status(404).json({ error: "Module not found" });
+
+    const tool = await db.select().from(aiToolCatalog).where(eq(aiToolCatalog.requiredModuleKey, moduleKey));
+    if (!tool.length) return res.status(404).json({ error: "Tool not found for module" });
+
+    const existing = await db.select().from(aiToolUnlocks).where(and(eq(aiToolUnlocks.userId, userId), eq(aiToolUnlocks.toolId, tool[0].id)));
+    if (existing.length > 0) return res.json({ message: "Already unlocked", toolId: tool[0].id });
+
+    await db.insert(aiToolUnlocks).values({ userId, toolId: tool[0].id, unlockedVia: "module_completion" });
+
+    res.json({ message: "Module completed! Tool unlocked.", toolId: tool[0].id, toolName: tool[0].name });
+  });
+
+  app.post("/api/ai-tools/:toolId/run", requireAuth, async (req, res) => {
+    const userId = getUserId(req)!;
+    const { toolId } = req.params;
+    const { prompt, context, existingContent, language, isAdult } = req.body;
+
+    if (!prompt) return res.status(400).json({ error: "Prompt is required" });
+
+    const tool = await db.select().from(aiToolCatalog).where(eq(aiToolCatalog.id, toolId));
+    if (!tool.length) return res.status(404).json({ error: "Tool not found" });
+
+    if (!isAdult) {
+      const unlock = await db.select().from(aiToolUnlocks).where(and(eq(aiToolUnlocks.userId, userId), eq(aiToolUnlocks.toolId, toolId)));
+      if (!unlock.length) return res.status(403).json({ error: "Tool is locked. Complete the required module first." });
+    }
+
+    const toolData = tool[0];
+    const langInstruction = language === "es" ? "\n\nRespond entirely in Spanish." : "";
+
+    const toolPrompts: Record<string, string> = {
+      "PRESENTATION_BUILDER": `You are an expert presentation designer. Create a complete slide-by-slide presentation based on the user's request.
+
+For each slide, provide:
+- **Slide [number]: [Title]**
+- **Content:** Key bullet points or text
+- **Speaker Notes:** What to say when presenting this slide
+- **Visual Suggestion:** What image, chart, or graphic would work well
+
+Structure the presentation with: Title Slide, Agenda, Main Content (3-7 slides), Key Takeaways, Call to Action/Conclusion.
+Keep language age-appropriate for students. Make it engaging and visual.`,
+
+      "VIDEO_CREATOR": `You are a professional video scriptwriter. Create a complete video script/storyboard based on the user's request.
+
+For each scene, provide:
+- **Scene [number]: [Title]** (with estimated duration)
+- **Visual:** What the viewer sees (camera angle, setting, actions)
+- **Audio/Narration:** What is said or heard
+- **Text on Screen:** Any titles, captions, or graphics
+- **Transition:** How to move to the next scene
+
+Include: Hook/Intro, Main Content, B-Roll suggestions, Outro/Call to Action.
+Keep it age-appropriate and engaging for student creators.`,
+
+      "SALES_PITCH": `You are a business coach teaching ethical sales. Create a compelling sales pitch based on the user's request.
+
+Structure the pitch with:
+- **The Hook:** Opening line that grabs attention (10 seconds)
+- **The Problem:** What pain point does the product/service solve?
+- **The Solution:** How does it solve the problem?
+- **Social Proof:** Evidence it works (testimonials, data, examples)
+- **Value Proposition:** Why this is worth it
+- **Objection Handling:** Common concerns and responses
+- **The Close:** Call to action
+- **Follow-up Plan:** Next steps after the pitch
+
+Emphasize ethical persuasion — never manipulate, always create genuine value.`,
+
+      "BUSINESS_PLAN": `You are a business strategist helping create a comprehensive business plan.
+
+Structure the plan with:
+- **Executive Summary:** One-paragraph overview
+- **Business Description:** What the business does, mission, vision
+- **Market Analysis:** Target audience, market size, competition
+- **Products/Services:** What you're selling, pricing strategy
+- **Marketing Strategy:** How to reach customers
+- **Operations Plan:** How the business runs day-to-day
+- **Financial Projections:** Revenue estimates, costs, break-even
+- **Team:** Who's involved and their roles
+- **Timeline:** Key milestones for the first year
+- **Risk Assessment:** Potential challenges and mitigation strategies
+
+Make it practical and educational. Use realistic numbers and examples.`,
+
+      "RESEARCH": `You are a research librarian and academic coach. Help organize and structure research.
+
+Provide:
+- **Research Question:** Refined version of the user's question
+- **Key Topics to Investigate:** 5-7 subtopics to explore
+- **Outline:** Structured outline for a research paper/project
+- **Key Points:** Important facts and information to include
+- **Sources to Find:** Types of sources to look for (books, articles, data)
+- **Citation Format:** How to cite sources properly (MLA/APA simplified)
+- **Research Tips:** How to evaluate sources for reliability
+
+Teach good research habits. Encourage critical thinking about sources.`,
+
+      "LIFE_PLANNER": `You are a life coach helping create a personal development plan.
+
+Structure the plan with:
+- **Vision Statement:** Where do you want to be in 5-10 years?
+- **Core Values:** What matters most to you?
+- **Goal Categories:** Academic, Career, Personal, Health, Relationships, Financial
+- **SMART Goals:** Specific, Measurable, Achievable, Relevant, Time-bound goals for each category
+- **Action Steps:** Weekly/monthly actions for each goal
+- **Milestones:** Checkpoints to celebrate progress
+- **Potential Obstacles:** Challenges you might face and how to overcome them
+- **Support System:** Who can help you on this journey?
+- **Daily Habits:** Small habits that build toward big goals
+
+Be encouraging and realistic. Help students dream big while planning practically.`,
+
+      "PROJECT_PLANNER": `You are a project management expert. Help break down a project into manageable pieces.
+
+Structure the plan with:
+- **Project Overview:** What are we building/creating?
+- **Goals & Success Criteria:** How will we know it's done well?
+- **Task Breakdown:** All tasks organized by phase (Planning, Execution, Review)
+- **Timeline:** When each task should be completed (use a week-by-week format)
+- **Resources Needed:** Materials, tools, people, budget
+- **Task Dependencies:** What must be done before other things can start
+- **Risk Assessment:** What could go wrong and backup plans
+- **Team Roles:** Who does what (if group project)
+- **Check-in Points:** When to review progress
+- **Deliverables:** What the final output looks like
+
+Make it practical and student-friendly. Include templates they can fill in.`,
+
+      "DOCUMENT_WRITER": `You are a skilled writing coach. Help create well-structured documents.
+
+Based on the document type requested, provide:
+- **Title & Header**
+- **Introduction:** Hook, thesis/purpose, roadmap
+- **Body Sections:** Well-organized paragraphs with topic sentences, evidence, analysis
+- **Transitions:** Smooth connections between sections
+- **Conclusion:** Summary, significance, call to action
+- **Writing Tips:** Specific suggestions for improvement
+
+Adapt style to the document type (essay, report, letter, article, speech).
+Teach good writing habits along the way. Never write the entire thing for them — provide structure, examples, and guidance.`,
+
+      "RESUME_BUILDER": `You are a career counselor. Help create professional documents.
+
+For resumes, provide:
+- **Contact Information** section format
+- **Professional Summary:** 2-3 sentence overview
+- **Education:** How to format school, GPA, relevant coursework
+- **Experience:** How to write bullet points with action verbs and results
+- **Skills:** Technical and soft skills relevant to the field
+- **Activities & Leadership:** Clubs, volunteer work, sports
+- **Portfolio Section:** How to showcase projects and achievements
+
+For cover letters, provide structure and examples.
+Teach professional communication. Help students present their best selves authentically.`,
+
+      "BRAINSTORM": `You are a creative thinking facilitator. Help generate and organize ideas.
+
+Provide:
+- **Brain Dump:** List every idea related to the topic (aim for 20+)
+- **Categories:** Group ideas into themes
+- **Top 5 Ideas:** Most promising ideas with brief explanations of why
+- **Mind Map:** Central topic with branching ideas and sub-ideas (in text format)
+- **SCAMPER Analysis:** Substitute, Combine, Adapt, Modify, Put to other use, Eliminate, Reverse
+- **"What If" Questions:** 5 creative "what if" scenarios to push thinking further
+- **Next Steps:** How to develop the best ideas further
+
+Be wildly creative. No bad ideas in brainstorming! Encourage unusual connections.`,
+    };
+
+    const toolSystemPrompt = toolPrompts[toolData.promptTemplate] || toolPrompts["BRAINSTORM"];
+
+    const systemMsg = `${toolSystemPrompt}
+
+TOOL: ${toolData.name}
+${context ? `ADDITIONAL CONTEXT: ${context}` : ""}
+${existingContent ? `EXISTING CONTENT TO IMPROVE/CONTINUE:\n${existingContent}` : ""}
+${langInstruction}
+
+Be thorough, practical, and age-appropriate. Format your response with clear headings and structure using Markdown.`;
+
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+
+    try {
+      const stream = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [
+          { role: "system", content: systemMsg },
+          { role: "user", content: prompt },
+        ],
+        stream: true,
+        temperature: 0.7,
+        max_tokens: 3000,
+      });
+
+      for await (const chunk of stream) {
+        const content = chunk.choices[0]?.delta?.content || "";
+        if (content) {
+          res.write(`data: ${JSON.stringify({ content })}\n\n`);
+        }
+      }
+
+      res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
+      res.end();
+    } catch (error) {
+      console.error("Error in AI tool run:", error);
+      res.write(`data: ${JSON.stringify({ error: "Failed to generate content" })}\n\n`);
+      res.end();
+    }
+  });
+
+  app.get("/api/ai-tools/projects", requireAuth, async (req, res) => {
+    const userId = getUserId(req)!;
+    const projects = await db.select().from(aiToolProjects).where(eq(aiToolProjects.userId, userId)).orderBy(desc(aiToolProjects.createdAt));
+    res.json(projects);
+  });
+
+  app.post("/api/ai-tools/projects", requireAuth, async (req, res) => {
+    const userId = getUserId(req)!;
+    const { toolId, title, prompt, content, outputType, status } = req.body;
+
+    if (!toolId || !title || !prompt) return res.status(400).json({ error: "toolId, title, and prompt are required" });
+
+    const [project] = await db.insert(aiToolProjects).values({
+      userId,
+      toolId,
+      title,
+      prompt,
+      content: content || "",
+      outputType: outputType || "markdown",
+      status: status || "draft",
+    }).returning();
+
+    res.json(project);
+  });
+
+  app.patch("/api/ai-tools/projects/:id", requireAuth, async (req, res) => {
+    const userId = getUserId(req)!;
+    const { id } = req.params;
+    const { title, content, status } = req.body;
+
+    const updateData: any = { updatedAt: new Date() };
+    if (title) updateData.title = title;
+    if (content !== undefined) updateData.content = content;
+    if (status) updateData.status = status;
+
+    const [project] = await db.update(aiToolProjects).set(updateData).where(and(eq(aiToolProjects.id, id), eq(aiToolProjects.userId, userId))).returning();
+
+    if (!project) return res.status(404).json({ error: "Project not found" });
+    res.json(project);
+  });
+
+  app.delete("/api/ai-tools/projects/:id", requireAuth, async (req, res) => {
+    const userId = getUserId(req)!;
+    await db.delete(aiToolProjects).where(and(eq(aiToolProjects.id, req.params.id), eq(aiToolProjects.userId, userId)));
+    res.json({ success: true });
   });
 
   return httpServer;

@@ -66,6 +66,8 @@ import AcademyAttendancePage from "@/pages/academy-attendance";
 import AcademyIntegrationPage from "@/pages/academy-integration";
 import AcademyRiskMonitorPage from "@/pages/academy-risk-monitor";
 import SparkyCompanionPage from "@/pages/sparky-companion";
+import AIToolsHubPage from "@/pages/ai-tools-hub";
+import AIToolsWorkspacePage from "@/pages/ai-tools-workspace";
 import PrivacyPolicyPage from "@/pages/privacy-policy";
 import { LanguageProvider } from "@/lib/i18n";
 import { BandwidthProvider } from "@/lib/bandwidth-mode";
@@ -139,6 +141,8 @@ function AppRouter() {
       <Route path="/academy/attendance" component={AcademyAttendancePage} />
       <Route path="/academy/integration" component={AcademyIntegrationPage} />
       <Route path="/academy/risk-monitor" component={AcademyRiskMonitorPage} />
+      <Route path="/ai-tools" component={AIToolsHubPage} />
+      <Route path="/ai-tools/:toolKey" component={AIToolsWorkspacePage} />
       <Route path="/privacy" component={PrivacyPolicyPage} />
       <Route component={NotFound} />
     </Switch>

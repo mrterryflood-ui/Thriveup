@@ -54,6 +54,7 @@ interface NavSubGroup {
 const platformItems: NavItem[] = [
   { title: "Dashboard", url: "/dashboard", icon: Home },
   { title: "AI Curriculum", url: "/curriculum", icon: Brain },
+  { title: "AI Creation Studio", url: "/ai-tools", icon: Wand2 },
   { title: "Spark", url: "/ai-companion", icon: Sparkles },
   { title: "Sparky (Adults)", url: "/sparky", icon: MessageCircle },
   { title: "Community", url: "/community", icon: Globe },

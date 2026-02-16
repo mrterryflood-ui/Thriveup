@@ -1140,4 +1140,69 @@ export const insertRiskNotificationSettingsSchema = createInsertSchema(riskNotif
 export type InsertRiskNotificationSettings = z.infer<typeof insertRiskNotificationSettingsSchema>;
 export type RiskNotificationSettings = typeof riskNotificationSettings.$inferSelect;
 
+// ==================== AI TOOLS TABLES ====================
+
+export const aiToolCatalog = pgTable("ai_tool_catalog", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  toolKey: varchar("tool_key", { length: 50 }).notNull().unique(),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  category: text("category").notNull(),
+  iconName: text("icon_name").notNull(),
+  gradeBand: text("grade_band").notNull().default("all"),
+  requiredModuleKey: varchar("required_module_key", { length: 100 }),
+  promptTemplate: text("prompt_template").notNull(),
+  outputFormat: text("output_format").notNull().default("markdown"),
+  isActive: boolean("is_active").notNull().default(true),
+  sortOrder: integer("sort_order").notNull().default(0),
+});
+
+export const insertAiToolCatalogSchema = createInsertSchema(aiToolCatalog).omit({ id: true });
+export type InsertAiToolCatalog = z.infer<typeof insertAiToolCatalogSchema>;
+export type AiToolCatalog = typeof aiToolCatalog.$inferSelect;
+
+export const aiToolUnlocks = pgTable("ai_tool_unlocks", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  toolId: varchar("tool_id", { length: 100 }).notNull().references(() => aiToolCatalog.id),
+  unlockedAt: timestamp("unlocked_at").defaultNow(),
+  unlockedVia: text("unlocked_via").notNull().default("module_completion"),
+});
+
+export const insertAiToolUnlocksSchema = createInsertSchema(aiToolUnlocks).omit({ id: true, unlockedAt: true });
+export type InsertAiToolUnlocks = z.infer<typeof insertAiToolUnlocksSchema>;
+export type AiToolUnlocks = typeof aiToolUnlocks.$inferSelect;
+
+export const aiToolProjects = pgTable("ai_tool_projects", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  toolId: varchar("tool_id", { length: 100 }).notNull().references(() => aiToolCatalog.id),
+  title: text("title").notNull(),
+  prompt: text("prompt").notNull(),
+  content: text("content").notNull().default(""),
+  outputType: text("output_type").notNull().default("markdown"),
+  status: text("status").notNull().default("draft"),
+  metadata: jsonb("metadata").default({}),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertAiToolProjectsSchema = createInsertSchema(aiToolProjects).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertAiToolProjects = z.infer<typeof insertAiToolProjectsSchema>;
+export type AiToolProjects = typeof aiToolProjects.$inferSelect;
+
+export const aiToolAttachments = pgTable("ai_tool_attachments", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  projectId: varchar("project_id", { length: 100 }).notNull().references(() => aiToolProjects.id),
+  fileName: text("file_name").notNull(),
+  fileSize: integer("file_size").notNull(),
+  contentType: text("content_type").notNull(),
+  objectPath: text("object_path").notNull(),
+  uploadedAt: timestamp("uploaded_at").defaultNow(),
+});
+
+export const insertAiToolAttachmentsSchema = createInsertSchema(aiToolAttachments).omit({ id: true, uploadedAt: true });
+export type InsertAiToolAttachments = z.infer<typeof insertAiToolAttachmentsSchema>;
+export type AiToolAttachments = typeof aiToolAttachments.$inferSelect;
+
 export * from "./models/auth";
