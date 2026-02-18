@@ -13,6 +13,7 @@ import {
   studentReflections, announcements as announcementsTable, academyEvents as academyEventsTable, attendanceLogs,
   insertStudentReflectionSchema, insertAnnouncementSchema, insertAcademyEventSchema, insertAttendanceLogSchema,
   aiToolCatalog, aiToolUnlocks, aiToolProjects, aiToolAttachments,
+  insertAcademyCourseSchema, insertCourseModuleSchema, insertCourseLessonSchema, insertCourseEnrollmentSchema,
 } from "@shared/schema";
 import { eq, and, desc, sql, count, gte } from "drizzle-orm";
 import { computeFullThriveScore, computeAllStudentScores, getThriveHistory } from "./thrive-engine";
@@ -3154,6 +3155,148 @@ Be thorough, practical, and age-appropriate. Format your response with clear hea
     const userId = getUserId(req)!;
     await db.delete(aiToolProjects).where(and(eq(aiToolProjects.id, req.params.id), eq(aiToolProjects.userId, userId)));
     res.json({ success: true });
+  });
+
+  // ==================== ADMIN COURSE CREATOR (LMS) ROUTES ====================
+
+  app.get("/api/admin/courses", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const courses = await storage.getAdminCourses();
+      res.json(courses);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch courses" });
+    }
+  });
+
+  app.get("/api/admin/courses/:id", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const course = await storage.getAdminCourse(req.params.id);
+      if (!course) return res.status(404).json({ error: "Course not found" });
+      const modules = await storage.getCourseModules(req.params.id);
+      const modulesWithLessons = await Promise.all(
+        modules.map(async (mod) => {
+          const lessons = await storage.getCourseLessons(mod.id);
+          return { ...mod, lessons };
+        })
+      );
+      const enrollments = await storage.getCourseEnrollments(req.params.id);
+      res.json({ ...course, modules: modulesWithLessons, enrollments });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch course" });
+    }
+  });
+
+  app.post("/api/admin/courses", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const parsed = insertAcademyCourseSchema.parse(req.body);
+      const course = await storage.createAdminCourse(parsed);
+      res.json(course);
+    } catch (error: any) {
+      res.status(400).json({ error: error.message || "Failed to create course" });
+    }
+  });
+
+  app.patch("/api/admin/courses/:id", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const existing = await storage.getAdminCourse(req.params.id);
+      if (!existing) return res.status(404).json({ error: "Course not found" });
+      const course = await storage.updateAdminCourse(req.params.id, req.body);
+      res.json(course);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update course" });
+    }
+  });
+
+  app.delete("/api/admin/courses/:id", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      await storage.deleteAdminCourse(req.params.id);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete course" });
+    }
+  });
+
+  app.post("/api/admin/courses/:courseId/modules", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const parsed = insertCourseModuleSchema.parse({ ...req.body, courseId: req.params.courseId });
+      const mod = await storage.createCourseModule(parsed);
+      res.json(mod);
+    } catch (error: any) {
+      res.status(400).json({ error: error.message || "Failed to create module" });
+    }
+  });
+
+  app.patch("/api/admin/courses/modules/:id", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const mod = await storage.updateCourseModule(req.params.id, req.body);
+      res.json(mod);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update module" });
+    }
+  });
+
+  app.delete("/api/admin/courses/modules/:id", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      await storage.deleteCourseModule(req.params.id);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete module" });
+    }
+  });
+
+  app.post("/api/admin/courses/modules/:moduleId/lessons", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const parsed = insertCourseLessonSchema.parse({ ...req.body, moduleId: req.params.moduleId });
+      const lesson = await storage.createCourseLesson(parsed);
+      res.json(lesson);
+    } catch (error: any) {
+      res.status(400).json({ error: error.message || "Failed to create lesson" });
+    }
+  });
+
+  app.patch("/api/admin/courses/lessons/:id", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const lesson = await storage.updateCourseLesson(req.params.id, req.body);
+      res.json(lesson);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update lesson" });
+    }
+  });
+
+  app.delete("/api/admin/courses/lessons/:id", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      await storage.deleteCourseLesson(req.params.id);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete lesson" });
+    }
+  });
+
+  app.post("/api/admin/courses/:courseId/enroll", requireAuth, async (req, res) => {
+    try {
+      const userId = getUserId(req)!;
+      const userName = req.headers["x-replit-user-name"] as string || "Student";
+      const enrollment = await storage.createCourseEnrollment({
+        courseId: req.params.courseId,
+        userId,
+        userName,
+        status: "active",
+        progressPercent: 0,
+      });
+      res.json(enrollment);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to enroll" });
+    }
+  });
+
+  app.get("/api/courses/my-enrollments", requireAuth, async (req, res) => {
+    try {
+      const userId = getUserId(req)!;
+      const enrollments = await storage.getEnrollmentsByUser(userId);
+      res.json(enrollments);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch enrollments" });
+    }
   });
 
   return httpServer;

@@ -1205,4 +1205,98 @@ export const insertAiToolAttachmentsSchema = createInsertSchema(aiToolAttachment
 export type InsertAiToolAttachments = z.infer<typeof insertAiToolAttachmentsSchema>;
 export type AiToolAttachments = typeof aiToolAttachments.$inferSelect;
 
+// ==================== ADMIN-CREATED COURSES (LMS COURSE CREATOR) ====================
+
+export const academyCourses = pgTable("academy_courses", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  category: text("category").notNull(),
+  subcategory: text("subcategory"),
+  coverImage: text("cover_image"),
+  createdBy: varchar("created_by", { length: 255 }).notNull(),
+  createdByName: text("created_by_name").notNull(),
+  status: text("status").notNull().default("draft"),
+  visibility: text("visibility").notNull().default("private"),
+  pricingType: text("pricing_type").notNull().default("free"),
+  price: decimal("price", { precision: 10, scale: 2 }),
+  currency: text("currency").notNull().default("USD"),
+  enrollmentLimit: integer("enrollment_limit"),
+  tags: text("tags").array(),
+  prerequisites: text("prerequisites"),
+  estimatedDuration: text("estimated_duration"),
+  difficultyLevel: text("difficulty_level").notNull().default("beginner"),
+  targetAudience: text("target_audience"),
+  learningOutcomes: text("learning_outcomes").array(),
+  certificateEnabled: boolean("certificate_enabled").notNull().default(false),
+  sortOrder: integer("sort_order").notNull().default(0),
+  publishedAt: timestamp("published_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertAcademyCourseSchema = createInsertSchema(academyCourses).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertAcademyCourse = z.infer<typeof insertAcademyCourseSchema>;
+export type AcademyCourse = typeof academyCourses.$inferSelect;
+
+export const courseModules = pgTable("course_modules", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  courseId: varchar("course_id", { length: 100 }).notNull().references(() => academyCourses.id),
+  title: text("title").notNull(),
+  description: text("description"),
+  sortOrder: integer("sort_order").notNull().default(0),
+  isPublished: boolean("is_published").notNull().default(false),
+  estimatedMinutes: integer("estimated_minutes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertCourseModuleSchema = createInsertSchema(courseModules).omit({ id: true, createdAt: true });
+export type InsertCourseModule = z.infer<typeof insertCourseModuleSchema>;
+export type CourseModule = typeof courseModules.$inferSelect;
+
+export const courseLessons = pgTable("course_lessons", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  moduleId: varchar("module_id", { length: 100 }).notNull().references(() => courseModules.id),
+  title: text("title").notNull(),
+  contentType: text("content_type").notNull().default("text"),
+  content: text("content").notNull().default(""),
+  videoUrl: text("video_url"),
+  sortOrder: integer("sort_order").notNull().default(0),
+  isPublished: boolean("is_published").notNull().default(false),
+  estimatedMinutes: integer("estimated_minutes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertCourseLessonSchema = createInsertSchema(courseLessons).omit({ id: true, createdAt: true });
+export type InsertCourseLesson = z.infer<typeof insertCourseLessonSchema>;
+export type CourseLesson = typeof courseLessons.$inferSelect;
+
+export const courseEnrollments = pgTable("course_enrollments", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  courseId: varchar("course_id", { length: 100 }).notNull().references(() => academyCourses.id),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  userName: text("user_name"),
+  status: text("status").notNull().default("active"),
+  enrolledAt: timestamp("enrolled_at").defaultNow(),
+  completedAt: timestamp("completed_at"),
+  progressPercent: integer("progress_percent").notNull().default(0),
+  lastAccessedAt: timestamp("last_accessed_at"),
+});
+
+export const insertCourseEnrollmentSchema = createInsertSchema(courseEnrollments).omit({ id: true, enrolledAt: true });
+export type InsertCourseEnrollment = z.infer<typeof insertCourseEnrollmentSchema>;
+export type CourseEnrollment = typeof courseEnrollments.$inferSelect;
+
+export const courseLessonProgress = pgTable("course_lesson_progress", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  enrollmentId: varchar("enrollment_id", { length: 100 }).notNull().references(() => courseEnrollments.id),
+  lessonId: varchar("lesson_id", { length: 100 }).notNull().references(() => courseLessons.id),
+  completed: boolean("completed").notNull().default(false),
+  completedAt: timestamp("completed_at"),
+});
+
+export const insertCourseLessonProgressSchema = createInsertSchema(courseLessonProgress).omit({ id: true });
+export type InsertCourseLessonProgress = z.infer<typeof insertCourseLessonProgressSchema>;
+export type CourseLessonProgress = typeof courseLessonProgress.$inferSelect;
+
 export * from "./models/auth";
