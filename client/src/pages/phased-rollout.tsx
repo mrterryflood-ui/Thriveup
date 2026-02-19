@@ -52,9 +52,9 @@ const PHASES = [
   {
     id: 1,
     title: "The Print Shop",
-    subtitle: "Panther Merch Store + Fundraising",
-    tagline: "Where entrepreneurship becomes tangible",
-    timeline: "Weeks 1-4",
+    subtitle: "Real Merchandise, Real Revenue, Real Impact",
+    tagline: "Where entrepreneurship becomes tangible -- physical products, actual revenue, college tuition funded",
+    timeline: "Quarter 1 (Q1)",
     status: "Ready to Launch",
     icon: ShoppingBag,
     color: "from-rose-900 to-red-800",
@@ -65,7 +65,7 @@ const PHASES = [
     title: "AI Training Ground",
     subtitle: "AI Companions + Creation Studio",
     tagline: "Teaching students to think with AI, not just use it",
-    timeline: "Weeks 5-10",
+    timeline: "Quarter 2 (Q2)",
     status: "Ready to Launch",
     icon: Brain,
     color: "from-violet-900 to-purple-800",
@@ -76,7 +76,7 @@ const PHASES = [
     title: "The Virtual Village",
     subtitle: "Stock Market + Campus + Full Ecosystem",
     tagline: "Building the world they'll lead",
-    timeline: "Weeks 11-16",
+    timeline: "Quarter 3 (Q3)",
     status: "Ready to Launch",
     icon: Building2,
     color: "from-emerald-900 to-teal-800",
@@ -85,9 +85,9 @@ const PHASES = [
 ];
 
 const PHASE_STORIES = [
-  "Students design merchandise, learn pricing, manage inventory, and fundraise for college tuition through the UBO partnership. This is where virtual learning produces real-world results -- actual products, actual revenue, actual impact.",
-  "Spark becomes every student's personal learning companion -- emotionally intelligent, grade-band aware, bilingual. Students don't just consume AI; they master it through the AI Course, unlocking creation tools one by one. By the end, they're building presentations, business plans, and video scripts. Sparky supports parents and teachers with evidence-based strategies.",
-  "The full Panther Village comes alive. Students trade stocks, build virtual campuses, compete in academic challenges, earn house points, and track their longitudinal journey from 6th grade through graduation. The IGN-Thrive system watches over every student. Career pathways connect today's learning to tomorrow's opportunities. This is where every phase converges into a living, breathing ecosystem.",
+  "This is not a simulation. The Print Shop is a real business producing physical merchandise -- t-shirts, hoodies, hats, and branded gear that students design, price, and sell. Revenue goes directly to college tuition funds through the UBO partnership. Families hold the products in their hands. The community sees real results. Students learn entrepreneurship by doing it, not reading about it. Admins manage inventory, approve designs, track orders, and report revenue to the district every step of the way.",
+  "Spark becomes every student's personal learning companion -- emotionally intelligent, grade-band aware, bilingual. Students don't just consume AI; they master it through the AI Course, unlocking creation tools one by one. By the end, they're building presentations, business plans, and video scripts. Sparky supports parents and teachers with evidence-based strategies. Admins control AI configuration, monitor safety guardrails, review usage analytics, and manage course content throughout the quarter.",
+  "The full Panther Village comes alive. Students trade stocks, build virtual campuses, compete in academic challenges, earn house points, and track their longitudinal journey from 6th grade through graduation. The IGN-Thrive system watches over every student. Career pathways connect today's learning to tomorrow's opportunities. Admins manage the entire ecosystem -- from early warning interventions to mentor approvals, competition scheduling to progress reporting. This is where every phase converges into a living, breathing ecosystem.",
 ];
 
 const PHASE_FEATURES = [
@@ -128,30 +128,33 @@ const PHASE_FEATURES = [
 const STAKEHOLDER_DATA = [
   {
     items: [
-      { label: "Revenue Model", value: "Real merchandise sales through UBO partnership", icon: DollarSign },
-      { label: "Parent Engagement", value: "Tangible products families can see and support", icon: Users },
-      { label: "Community Impact", value: "College tuition fundraising from day one", icon: Heart },
-      { label: "Success Metrics", value: "Orders placed, revenue generated, families engaged, tuition funds raised", icon: BarChart3 },
-      { label: "Risk Level", value: "Low -- this is the most concrete, visible phase", icon: Shield },
+      { label: "Revenue Model", value: "Real physical merchandise sales through UBO partnership -- t-shirts, hoodies, branded gear shipped to real customers", icon: DollarSign },
+      { label: "Parent Engagement", value: "Families hold physical products in their hands. This is not virtual -- it is tangible proof of student work", icon: Users },
+      { label: "Community Impact", value: "Every dollar of revenue goes toward college tuition funds. Community fundraising events amplify reach", icon: Heart },
+      { label: "Admin Role (Q1)", value: "Admins approve product designs, manage inventory levels, oversee order fulfillment, generate quarterly revenue reports, coordinate UBO partnership logistics, and host parent information sessions", icon: Settings },
+      { label: "Success Metrics", value: "Physical orders shipped, total revenue generated, families participating, tuition dollars raised, inventory turnover rate", icon: BarChart3 },
+      { label: "Risk Level", value: "Low -- this is the most concrete, visible phase. Physical products create immediate credibility with families and district leadership", icon: Shield },
     ],
   },
   {
     items: [
-      { label: "Educational Impact", value: "AI literacy as a core competency, not an add-on", icon: GraduationCap },
+      { label: "Educational Impact", value: "AI literacy as a core competency, not an add-on. Students learn to think critically with AI tools", icon: GraduationCap },
       { label: "Differentiation", value: "No other K-12 platform has grade-band emotional AI with progressive tool unlocking", icon: Sparkles },
-      { label: "Parent Trust", value: "Spark has full safety guardrails; Sparky gives parents their own companion", icon: Shield },
-      { label: "Success Metrics", value: "AI interactions per student, tools unlocked, projects created, course completions", icon: BarChart3 },
-      { label: "Risk Level", value: "Medium -- requires teacher PD on AI integration, parent communication about AI safety", icon: AlertTriangle },
+      { label: "Parent Trust", value: "Spark has full safety guardrails; Sparky gives parents their own companion for support and understanding", icon: Shield },
+      { label: "Admin Role (Q2)", value: "Admins configure AI providers, set safety thresholds, review conversation analytics, create and publish courses through LMS Course Creator, approve tool unlock progressions, monitor student engagement, and run teacher PD sessions", icon: Settings },
+      { label: "Success Metrics", value: "AI interactions per student, tools unlocked, projects created, course completions, parent Sparky adoption rate", icon: BarChart3 },
+      { label: "Risk Level", value: "Medium -- requires teacher PD on AI integration, parent communication about AI safety. Admin-led parent nights mitigate this", icon: AlertTriangle },
     ],
   },
   {
     items: [
-      { label: "Full Ecosystem", value: "Every feature interconnected -- stocks fund merch, AI builds business plans, careers guide pathways", icon: Layers },
-      { label: "Longitudinal Impact", value: "Tracking students from 6th grade through college", icon: Route },
-      { label: "District Scalability", value: "Implementation guide with cost calculators at /implementation", icon: Globe },
-      { label: "Community Building", value: "House system, competitions, and mentorship create belonging", icon: Users },
-      { label: "Success Metrics", value: "Thrive scores, career pathway completions, mentor connections, graduation tracking", icon: BarChart3 },
-      { label: "Risk Level", value: "Low-medium -- complex but all components are built and tested; phased activation within this phase recommended", icon: Shield },
+      { label: "Full Ecosystem", value: "Every feature interconnected -- stocks fund merch, AI builds business plans, careers guide pathways. The real and virtual worlds merge", icon: Layers },
+      { label: "Longitudinal Impact", value: "Tracking students from 6th grade through college. Every achievement, pathway, and milestone captured", icon: Route },
+      { label: "District Scalability", value: "Implementation guide with cost calculators at /implementation. Ready for multi-campus deployment", icon: Globe },
+      { label: "Community Building", value: "House system, competitions, and mentorship create belonging. Mentor verification ensures student safety", icon: Users },
+      { label: "Admin Role (Q3)", value: "Admins manage IGN-Thrive early warnings and interventions, approve mentors, schedule competitions, oversee stock market parameters, review longitudinal progress, generate district-level analytics, and coordinate cross-platform ISSS integration", icon: Settings },
+      { label: "Success Metrics", value: "Thrive scores, career pathway completions, mentor connections, graduation tracking, early warning resolution rate", icon: BarChart3 },
+      { label: "Risk Level", value: "Low-medium -- complex but all components are built and tested. Admin-managed phased activation within this quarter recommended", icon: Shield },
     ],
   },
 ];
@@ -159,29 +162,32 @@ const STAKEHOLDER_DATA = [
 const IS_ARCHITECTURE_DATA = [
   {
     items: [
-      { label: "Systems", value: "Merch catalog DB, order management, wallet/transaction engine", icon: Server },
-      { label: "Integrations", value: "UBO fundraising partner API, payment processing readiness", icon: LinkIcon },
-      { label: "Data", value: "Order analytics, wallet balance reporting, financial literacy progress", icon: Database },
-      { label: "Security", value: "Transaction integrity, wallet balance validation", icon: Lock },
-      { label: "Infrastructure", value: "Object storage for product images, PostgreSQL for orders/wallets", icon: Monitor },
+      { label: "Systems", value: "Merch catalog DB, order management, wallet/transaction engine, UBO fulfillment pipeline", icon: Server },
+      { label: "Integrations", value: "UBO fundraising partner API, payment processing, shipping/fulfillment tracking", icon: LinkIcon },
+      { label: "Data", value: "Order analytics, wallet balance reporting, financial literacy progress, quarterly revenue dashboards", icon: Database },
+      { label: "Security", value: "Transaction integrity, wallet balance validation, order audit trail", icon: Lock },
+      { label: "Infrastructure", value: "Object storage for product images, PostgreSQL for orders/wallets, admin approval workflows", icon: Monitor },
+      { label: "Admin Controls", value: "Product approval queue, inventory management console, revenue reporting, order status dashboard, UBO partnership coordination panel", icon: Settings },
     ],
   },
   {
     items: [
-      { label: "Systems", value: "AI provider abstraction layer, SSE streaming, tool catalog, unlock tracking", icon: Server },
-      { label: "Integrations", value: "Google Gemini (default), OpenAI fallback, Replit AI fallback", icon: LinkIcon },
-      { label: "Data", value: "Conversation logs (privacy-compliant), tool usage analytics, unlock progression", icon: Database },
-      { label: "Security", value: "Content filtering, age-appropriate responses, no PII in AI prompts", icon: Lock },
-      { label: "Infrastructure", value: "Streaming API endpoints, configurable provider switching, rate limiting", icon: Monitor },
+      { label: "Systems", value: "AI provider abstraction layer, SSE streaming, tool catalog, unlock tracking, course management", icon: Server },
+      { label: "Integrations", value: "Google Gemini (default), OpenAI fallback, Replit AI fallback -- admin-switchable", icon: LinkIcon },
+      { label: "Data", value: "Conversation logs (privacy-compliant), tool usage analytics, unlock progression, course enrollment metrics", icon: Database },
+      { label: "Security", value: "Content filtering, age-appropriate responses, no PII in AI prompts, admin-configurable safety thresholds", icon: Lock },
+      { label: "Infrastructure", value: "Streaming API endpoints, configurable provider switching, rate limiting, LMS course authoring", icon: Monitor },
+      { label: "Admin Controls", value: "AI provider configuration panel, safety threshold settings, usage analytics dashboard, LMS Course Creator with 10 categories, student progress monitoring", icon: Settings },
     ],
   },
   {
     items: [
       { label: "Systems", value: "Stock engine, portfolio tracker, Thrive scoring engine, GIS context engine, early warning system", icon: Server },
       { label: "Integrations", value: "CDC PLACES API, CDC/ATSDR SVI, FBI Crime Data (GIS), ISSS cross-platform", icon: LinkIcon },
-      { label: "Data", value: "Longitudinal student records, thrive analytics, career tracking, mentor matching", icon: Database },
-      { label: "Security", value: "Student data privacy (FERPA), mentor verification, GIS data handling", icon: Lock },
-      { label: "Infrastructure", value: "Full PostgreSQL schema (40+ tables), real-time dashboards, admin tooling", icon: Monitor },
+      { label: "Data", value: "Longitudinal student records, thrive analytics, career tracking, mentor matching, district-level reporting", icon: Database },
+      { label: "Security", value: "Student data privacy (FERPA), mentor verification, GIS data handling, role-based access control", icon: Lock },
+      { label: "Infrastructure", value: "Full PostgreSQL schema (40+ tables), real-time dashboards, admin tooling, cross-platform sync", icon: Monitor },
+      { label: "Admin Controls", value: "Thrive early warning intervention panel, mentor approval workflow, competition scheduler, stock market parameter controls, progress report generator, ISSS integration manager", icon: Settings },
     ],
   },
 ];
@@ -189,21 +195,23 @@ const IS_ARCHITECTURE_DATA = [
 const ENGINEERING_DATA = [
   {
     items: [
-      { label: "API Endpoints", value: "/api/academy/merch, /api/academy/merch/orders, /api/academy/wallet" },
+      { label: "API Endpoints", value: "/api/academy/merch, /api/academy/merch/orders, /api/academy/wallet, /api/academy/financial-literacy" },
       { label: "Database Tables", value: "academy_merch_items, academy_merch_orders, academy_wallets, academy_transactions" },
-      { label: "Dependencies", value: "None -- fully self-contained module" },
-      { label: "Test Coverage", value: "Order flow, wallet transactions, financial literacy module completion" },
-      { label: "Deployment", value: "Feature flags for gradual merchant rollout" },
+      { label: "Dependencies", value: "None -- fully self-contained module, ready for Q1 launch" },
+      { label: "Admin APIs", value: "POST/PUT/DELETE /api/academy/merch (admin-only CRUD), order status management, inventory controls" },
+      { label: "Test Coverage", value: "Order flow, wallet transactions, financial literacy module completion, admin CRUD operations" },
+      { label: "Deployment", value: "Feature flags for gradual rollout within Q1. Admin dashboard live from day one" },
     ],
   },
   {
     items: [
       { label: "API Endpoints", value: "/api/ai/chat (SSE stream), /api/ai-tools, /api/ai-tools/modules, /api/ai-tools/projects" },
-      { label: "AI Provider", value: "server/ai-provider.ts - provider-agnostic with Gemini default" },
-      { label: "Database Tables", value: "ai_tool_catalog, ai_tool_unlocks, ai_tool_projects, ai_tool_attachments" },
-      { label: "Dependencies", value: "Phase 1 wallet system (Panther Power points from AI completions)" },
-      { label: "Configuration", value: "GEMINI_API_KEY (default), OPENAI_API_KEY (fallback), district-configurable" },
-      { label: "Test Coverage", value: "AI response safety, tool unlock flow, streaming, project save/load" },
+      { label: "AI Provider", value: "server/ai-provider.ts - provider-agnostic with Gemini default, admin-switchable" },
+      { label: "Database Tables", value: "ai_tool_catalog, ai_tool_unlocks, ai_tool_projects, academy_courses, course_modules, course_lessons" },
+      { label: "Admin APIs", value: "Course Creator CRUD (/api/courses), AI provider config, safety threshold management, usage analytics export" },
+      { label: "Dependencies", value: "Q1 wallet system (Panther Power points from AI completions)" },
+      { label: "Configuration", value: "GEMINI_API_KEY (default), OPENAI_API_KEY (fallback), district-configurable by admin" },
+      { label: "Test Coverage", value: "AI response safety, tool unlock flow, streaming, project save/load, course CRUD, admin controls" },
     ],
   },
   {
@@ -211,9 +219,10 @@ const ENGINEERING_DATA = [
       { label: "API Endpoints", value: "/api/academy/stocks, /api/academy/portfolio, /api/thrive, /api/careers, /api/pathway, /api/mentors, etc." },
       { label: "Core Engines", value: "server/thrive-engine.ts, server/early-warning.ts, server/gis-engine.ts" },
       { label: "Database", value: "40+ interconnected tables across all modules" },
-      { label: "Dependencies", value: "Phases 1 & 2 (wallet, AI, financial literacy feed into this ecosystem)" },
-      { label: "Cross-Platform", value: "server/cross-platform-api.ts for ISSS integration" },
-      { label: "Test Coverage", value: "Stock trades, Thrive scoring, early warning triggers, career pathway CRUD" },
+      { label: "Admin APIs", value: "Thrive intervention endpoints, mentor approval workflow, competition management, stock market parameter config, district analytics export" },
+      { label: "Dependencies", value: "Q1 & Q2 (wallet, AI, financial literacy feed into this ecosystem)" },
+      { label: "Cross-Platform", value: "server/cross-platform-api.ts for ISSS integration, admin-managed sync configuration" },
+      { label: "Test Coverage", value: "Stock trades, Thrive scoring, early warning triggers, career pathway CRUD, admin intervention flows" },
     ],
   },
 ];
@@ -407,7 +416,7 @@ export default function PhasedRolloutPage() {
           Phased Rollout: From Vision to Village
         </h1>
         <p className="text-rose-100 text-base sm:text-lg mb-6" data-testid="text-hero-subtitle">
-          A strategic deployment plan bridging the real and virtual worlds -- delivering measurable impact at every phase
+          A quarterly deployment plan bridging the real and virtual worlds -- with admin leadership at every milestone, delivering measurable impact from real products to living ecosystems
         </p>
         <div className="flex items-center gap-3 flex-wrap">
           {PHASES.map((phase, idx) => (
@@ -495,9 +504,9 @@ export default function PhasedRolloutPage() {
               {PHASES.map((phase, idx) => {
                 const PhaseIcon = phase.icon;
                 const narratives = [
-                  "Students start by creating real products -- merchandise they design, price, and sell. Revenue flows to college tuition funds through the UBO partnership. Families see tangible results from day one.",
-                  "Students learn to think with AI, not just use it. Spark becomes their personal learning companion. They unlock creation tools by mastering AI literacy modules. By the end, they're building presentations and business plans.",
-                  "The full village comes alive. Every previous phase feeds into a living ecosystem where students trade stocks, compete in challenges, track their journey from 6th grade to graduation, and build the world they'll lead.",
+                  "Q1: Students launch a real business. Physical merchandise -- designed, priced, and sold by students -- ships to real customers. Revenue funds college tuition through UBO. Admins manage inventory, approve designs, and report revenue to the district. Families hold the proof in their hands.",
+                  "Q2: Students learn to think with AI, not just use it. Spark becomes their personal learning companion. They unlock creation tools by mastering AI literacy modules. Admins configure providers, monitor safety, and build curriculum through the Course Creator. Parents meet Sparky.",
+                  "Q3: The full village comes alive. Every previous quarter feeds into a living ecosystem where students trade stocks, compete in challenges, track their journey from 6th grade to graduation, and build the world they'll lead. Admins orchestrate the entire ecosystem -- interventions, mentors, competitions, and district-level analytics.",
                 ];
                 return (
                   <div key={phase.id} className="relative" data-testid={`story-arc-phase-${phase.id}`}>
@@ -515,7 +524,7 @@ export default function PhasedRolloutPage() {
           </div>
           <Card className="mt-6 p-4 bg-muted/50" data-testid="card-story-summary">
             <p className="text-sm text-center italic text-muted-foreground">
-              "Each phase builds on the last. By graduation, they haven't just learned -- they've built something."
+              "Quarter by quarter, the virtual and real worlds converge. By graduation, students haven't just learned -- they've built real businesses, mastered AI, and led communities. Admins have guided every step."
             </p>
           </Card>
         </CardContent>
@@ -562,6 +571,74 @@ export default function PhasedRolloutPage() {
                 </tr>
               </tbody>
             </table>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="mb-8" data-testid="card-admin-involvement">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2" data-testid="text-admin-title">
+            <Settings className="h-5 w-5 text-primary" />
+            Admin Involvement: Quarter by Quarter
+          </CardTitle>
+          <p className="text-sm text-muted-foreground mt-1">
+            Administrators are not observers -- they are active leaders in every phase of the rollout.
+          </p>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-6">
+            {[
+              {
+                quarter: "Q1: The Print Shop",
+                color: "from-rose-900 to-red-800",
+                icon: ShoppingBag,
+                checkpoints: [
+                  { month: "Month 1", tasks: "Onboard UBO partnership, configure merch catalog, approve initial product designs, set pricing tiers, launch parent information campaign" },
+                  { month: "Month 2", tasks: "Monitor order fulfillment, manage inventory restocking, review financial literacy module engagement, host first community fundraising event" },
+                  { month: "Month 3", tasks: "Generate quarterly revenue report, analyze wallet transaction trends, review student financial literacy progress, prepare Q2 transition briefing for stakeholders" },
+                ],
+              },
+              {
+                quarter: "Q2: AI Training Ground",
+                color: "from-violet-900 to-purple-800",
+                icon: Brain,
+                checkpoints: [
+                  { month: "Month 4", tasks: "Configure AI provider (Gemini/OpenAI), set safety thresholds, launch teacher PD sessions, publish first courses through LMS Course Creator, host parent AI safety night" },
+                  { month: "Month 5", tasks: "Monitor AI conversation analytics, review tool unlock progressions, manage course enrollments, assess student engagement metrics, coordinate Sparky rollout to parents" },
+                  { month: "Month 6", tasks: "Generate AI usage report, review safety incident logs (if any), evaluate course completion rates, prepare Q3 transition with ecosystem integration plan" },
+                ],
+              },
+              {
+                quarter: "Q3: The Virtual Village",
+                color: "from-emerald-900 to-teal-800",
+                icon: Building2,
+                checkpoints: [
+                  { month: "Month 7", tasks: "Launch stock market with initial parameters, activate house system and competitions, begin mentor verification and approvals, configure IGN-Thrive scoring domains" },
+                  { month: "Month 8", tasks: "Monitor early warning system, manage intervention workflows, review longitudinal pathway data, schedule academic competitions, coordinate ISSS cross-platform sync" },
+                  { month: "Month 9", tasks: "Generate comprehensive district analytics, review full-year student progress, produce longitudinal reports, plan next academic year expansion, present ecosystem impact to district leadership" },
+                ],
+              },
+            ].map((q) => {
+              const QIcon = q.icon;
+              return (
+                <div key={q.quarter} data-testid={`admin-quarter-${q.quarter.slice(0, 2).toLowerCase()}`}>
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className={`rounded-md p-1.5 bg-gradient-to-br ${q.color}`}>
+                      <QIcon className="h-4 w-4 text-white" />
+                    </div>
+                    <h4 className="font-semibold text-sm">{q.quarter}</h4>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 ml-8">
+                    {q.checkpoints.map((cp) => (
+                      <Card key={cp.month} className="p-3 bg-muted/30">
+                        <p className="text-xs font-semibold text-primary mb-1">{cp.month}</p>
+                        <p className="text-xs text-muted-foreground leading-relaxed">{cp.tasks}</p>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </CardContent>
       </Card>
