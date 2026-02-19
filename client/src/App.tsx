@@ -65,6 +65,7 @@ import AcademyProgressReportPage from "@/pages/academy-progress-report";
 import AcademyAttendancePage from "@/pages/academy-attendance";
 import AcademyIntegrationPage from "@/pages/academy-integration";
 import AcademyRiskMonitorPage from "@/pages/academy-risk-monitor";
+import PhasedRolloutPage from "@/pages/phased-rollout";
 import CourseCreatorPage from "@/pages/course-creator";
 import AdminVideoScriptPage from "@/pages/admin-video-script";
 import SparkyCompanionPage from "@/pages/sparky-companion";
@@ -144,6 +145,7 @@ function AppRouter() {
       <Route path="/academy/attendance" component={AcademyAttendancePage} />
       <Route path="/academy/integration" component={AcademyIntegrationPage} />
       <Route path="/academy/risk-monitor" component={AcademyRiskMonitorPage} />
+      <Route path="/academy/phased-rollout" component={PhasedRolloutPage} />
       <Route path="/academy/course-creator" component={CourseCreatorPage} />
       <Route path="/academy/admin-video-script" component={AdminVideoScriptPage} />
       <Route path="/ai-tools" component={AIToolsHubPage} />
