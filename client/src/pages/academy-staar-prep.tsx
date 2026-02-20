@@ -73,17 +73,19 @@ export default function AcademyStaarPrepPage() {
     enabled: activeTab === "practice",
   });
 
-  const { data: mastery = [] } = useQuery<any[]>({
+  const { data: masteryRaw = [] } = useQuery<any[]>({
     queryKey: ["/api/staar/mastery", currentGrade, selectedSubject],
     queryFn: () => fetch(`/api/staar/mastery?grade=${currentGrade}&subject=${encodeURIComponent(selectedSubject)}`).then(r => r.json()),
     enabled: activeTab === "progress",
   });
+  const mastery = Array.isArray(masteryRaw) ? masteryRaw : [];
 
-  const { data: assessmentHistory = [] } = useQuery<any[]>({
+  const { data: assessmentHistoryRaw = [] } = useQuery<any[]>({
     queryKey: ["/api/staar/assessments", currentGrade, selectedSubject],
     queryFn: () => fetch(`/api/staar/assessments?grade=${currentGrade}&subject=${encodeURIComponent(selectedSubject)}`).then(r => r.json()),
     enabled: activeTab === "progress",
   });
+  const assessmentHistory = Array.isArray(assessmentHistoryRaw) ? assessmentHistoryRaw : [];
 
   const submitAssessment = useMutation({
     mutationFn: async (data: any) => {

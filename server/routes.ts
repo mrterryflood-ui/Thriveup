@@ -3461,9 +3461,10 @@ Be thorough, practical, and age-appropriate. Format your response with clear hea
     }
   });
 
-  app.get("/api/staar/assessments", requireAuth, async (req, res) => {
+  app.get("/api/staar/assessments", async (req, res) => {
     try {
-      const userId = getUserId(req)!;
+      const userId = getUserId(req);
+      if (!userId) return res.json([]);
       const grade = req.query.grade ? parseInt(req.query.grade as string) : undefined;
       const subject = req.query.subject as string | undefined;
       const conditions: any[] = [eq(staarStudentAssessments.userId, userId)];
@@ -3478,9 +3479,10 @@ Be thorough, practical, and age-appropriate. Format your response with clear hea
     }
   });
 
-  app.get("/api/staar/mastery", requireAuth, async (req, res) => {
+  app.get("/api/staar/mastery", async (req, res) => {
     try {
-      const userId = getUserId(req)!;
+      const userId = getUserId(req);
+      if (!userId) return res.json([]);
       const grade = req.query.grade ? parseInt(req.query.grade as string) : undefined;
       const subject = req.query.subject as string | undefined;
       const conditions: any[] = [eq(staarTopicMastery.userId, userId)];
