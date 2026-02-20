@@ -68,6 +68,7 @@ import AcademyRiskMonitorPage from "@/pages/academy-risk-monitor";
 import PhasedRolloutPage from "@/pages/phased-rollout";
 import CourseCreatorPage from "@/pages/course-creator";
 import AdminVideoScriptPage from "@/pages/admin-video-script";
+import AcademyStaarPrepPage from "@/pages/academy-staar-prep";
 import SparkyCompanionPage from "@/pages/sparky-companion";
 import AIToolsHubPage from "@/pages/ai-tools-hub";
 import AIToolsWorkspacePage from "@/pages/ai-tools-workspace";
@@ -148,6 +149,7 @@ function AppRouter() {
       <Route path="/academy/phased-rollout" component={PhasedRolloutPage} />
       <Route path="/academy/course-creator" component={CourseCreatorPage} />
       <Route path="/academy/admin-video-script" component={AdminVideoScriptPage} />
+      <Route path="/academy/staar-prep" component={AcademyStaarPrepPage} />
       <Route path="/ai-tools" component={AIToolsHubPage} />
       <Route path="/ai-tools/:toolKey" component={AIToolsWorkspacePage} />
       <Route path="/implementation" component={ImplementationRecommendationsPage} />
