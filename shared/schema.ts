@@ -1299,4 +1299,79 @@ export const insertCourseLessonProgressSchema = createInsertSchema(courseLessonP
 export type InsertCourseLessonProgress = z.infer<typeof insertCourseLessonProgressSchema>;
 export type CourseLessonProgress = typeof courseLessonProgress.$inferSelect;
 
+// ==================== STAAR TEST PREP TABLES ====================
+
+export const staarStudyGuides = pgTable("staar_study_guides", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  grade: integer("grade").notNull(),
+  subject: text("subject").notNull(),
+  topicName: text("topic_name").notNull(),
+  tekCode: text("tek_code").notNull(),
+  tekDescription: text("tek_description").notNull(),
+  content: text("content").notNull(),
+  keyVocabulary: text("key_vocabulary").array(),
+  studyTips: text("study_tips").array(),
+  difficultyLevel: text("difficulty_level").notNull().default("medium"),
+  sortOrder: integer("sort_order").notNull().default(0),
+});
+
+export const insertStaarStudyGuideSchema = createInsertSchema(staarStudyGuides).omit({ id: true });
+export type InsertStaarStudyGuide = z.infer<typeof insertStaarStudyGuideSchema>;
+export type StaarStudyGuide = typeof staarStudyGuides.$inferSelect;
+
+export const staarPracticeQuestions = pgTable("staar_practice_questions", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  guideId: varchar("guide_id", { length: 100 }).notNull().references(() => staarStudyGuides.id),
+  grade: integer("grade").notNull(),
+  subject: text("subject").notNull(),
+  tekCode: text("tek_code").notNull(),
+  questionText: text("question_text").notNull(),
+  questionType: text("question_type").notNull().default("multiple_choice"),
+  options: jsonb("options").notNull(),
+  correctAnswer: text("correct_answer").notNull(),
+  explanation: text("explanation").notNull(),
+  difficultyLevel: text("difficulty_level").notNull().default("medium"),
+  sortOrder: integer("sort_order").notNull().default(0),
+});
+
+export const insertStaarPracticeQuestionSchema = createInsertSchema(staarPracticeQuestions).omit({ id: true });
+export type InsertStaarPracticeQuestion = z.infer<typeof insertStaarPracticeQuestionSchema>;
+export type StaarPracticeQuestion = typeof staarPracticeQuestions.$inferSelect;
+
+export const staarStudentAssessments = pgTable("staar_student_assessments", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  grade: integer("grade").notNull(),
+  subject: text("subject").notNull(),
+  totalQuestions: integer("total_questions").notNull(),
+  correctAnswers: integer("correct_answers").notNull(),
+  scorePercent: integer("score_percent").notNull(),
+  timeSpentSeconds: integer("time_spent_seconds"),
+  answers: jsonb("answers").notNull(),
+  strengths: text("strengths").array(),
+  weaknesses: text("weaknesses").array(),
+  completedAt: timestamp("completed_at").defaultNow(),
+});
+
+export const insertStaarStudentAssessmentSchema = createInsertSchema(staarStudentAssessments).omit({ id: true, completedAt: true });
+export type InsertStaarStudentAssessment = z.infer<typeof insertStaarStudentAssessmentSchema>;
+export type StaarStudentAssessment = typeof staarStudentAssessments.$inferSelect;
+
+export const staarTopicMastery = pgTable("staar_topic_mastery", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  grade: integer("grade").notNull(),
+  subject: text("subject").notNull(),
+  tekCode: text("tek_code").notNull(),
+  topicName: text("topic_name").notNull(),
+  totalAttempts: integer("total_attempts").notNull().default(0),
+  correctAttempts: integer("correct_attempts").notNull().default(0),
+  masteryLevel: text("mastery_level").notNull().default("not_started"),
+  lastAttemptAt: timestamp("last_attempt_at"),
+});
+
+export const insertStaarTopicMasterySchema = createInsertSchema(staarTopicMastery).omit({ id: true });
+export type InsertStaarTopicMastery = z.infer<typeof insertStaarTopicMasterySchema>;
+export type StaarTopicMastery = typeof staarTopicMastery.$inferSelect;
+
 export * from "./models/auth";

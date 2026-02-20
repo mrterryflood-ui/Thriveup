@@ -14,6 +14,8 @@ import {
   insertStudentReflectionSchema, insertAnnouncementSchema, insertAcademyEventSchema, insertAttendanceLogSchema,
   aiToolCatalog, aiToolUnlocks, aiToolProjects, aiToolAttachments,
   insertAcademyCourseSchema, insertCourseModuleSchema, insertCourseLessonSchema, insertCourseEnrollmentSchema,
+  staarStudyGuides, staarPracticeQuestions, staarStudentAssessments, staarTopicMastery,
+  insertStaarStudentAssessmentSchema,
 } from "@shared/schema";
 import { eq, and, desc, sql, count, gte } from "drizzle-orm";
 import { computeFullThriveScore, computeAllStudentScores, getThriveHistory } from "./thrive-engine";
@@ -44,6 +46,87 @@ async function seedAiToolCatalog() {
       await db.insert(aiToolCatalog).values(tool);
     }
   }
+}
+
+async function seedStaarContent() {
+  const existing = await db.select().from(staarStudyGuides).limit(1);
+  if (existing.length > 0) return;
+
+  const guides = [
+    { grade: 3, subject: "Math", topicName: "Addition & Subtraction", tekCode: "3.4A", tekDescription: "Solve with fluency one-step and two-step problems involving addition and subtraction within 1,000", content: "Master addition and subtraction strategies including regrouping, number lines, and mental math. Practice solving word problems that require one or two steps to find the answer.", keyVocabulary: ["sum", "difference", "regroup", "estimate", "operation"], studyTips: ["Practice mental math daily", "Draw number lines for tricky problems", "Check your work by using the opposite operation"], difficultyLevel: "medium", sortOrder: 1 },
+    { grade: 3, subject: "Math", topicName: "Multiplication Facts", tekCode: "3.4F", tekDescription: "Recall facts to multiply up to 10 by 10 with automaticity", content: "Learn and memorize multiplication facts from 1x1 through 10x10. Use strategies like skip counting, arrays, and fact families to build fluency.", keyVocabulary: ["factor", "product", "array", "multiply", "times"], studyTips: ["Practice times tables for 5 minutes daily", "Use flashcards", "Look for patterns in the multiplication table"], difficultyLevel: "medium", sortOrder: 2 },
+    { grade: 3, subject: "Math", topicName: "Fractions", tekCode: "3.3A", tekDescription: "Represent fractions greater than zero and less than or equal to one", content: "Understand fractions as equal parts of a whole. Learn to identify, compare, and represent fractions using models, number lines, and symbols.", keyVocabulary: ["numerator", "denominator", "equal parts", "fraction", "whole"], studyTips: ["Draw fraction models to visualize", "Use real objects like pizza slices", "Always check if parts are equal"], difficultyLevel: "medium", sortOrder: 3 },
+    { grade: 3, subject: "RLA", topicName: "Reading Comprehension", tekCode: "3.6F", tekDescription: "Make inferences and use evidence to support understanding", content: "Practice reading passages and answering questions about main idea, details, and inferences. Learn to find evidence in the text to support your answers.", keyVocabulary: ["inference", "evidence", "main idea", "detail", "conclusion"], studyTips: ["Read the questions before the passage", "Underline key details", "Use 'I think... because...' to support answers"], difficultyLevel: "medium", sortOrder: 1 },
+    { grade: 3, subject: "RLA", topicName: "Author's Purpose", tekCode: "3.10A", tekDescription: "Discuss the author's purpose for writing text", content: "Identify why an author wrote a text: to inform, persuade, entertain, or express feelings. Look for clues in word choice, text features, and content.", keyVocabulary: ["author's purpose", "inform", "persuade", "entertain", "express"], studyTips: ["Ask 'Why did the author write this?'", "Look at the type of text for clues", "Notice emotional vs. factual language"], difficultyLevel: "easy", sortOrder: 2 },
+    { grade: 4, subject: "Math", topicName: "Multi-digit Multiplication", tekCode: "4.4D", tekDescription: "Use strategies and algorithms to multiply up to a four-digit number by a one-digit number", content: "Master multi-digit multiplication using the standard algorithm, area models, and partial products. Practice with real-world word problems.", keyVocabulary: ["partial products", "algorithm", "area model", "factor", "product"], studyTips: ["Line up place values carefully", "Estimate first to check reasonableness", "Practice the standard algorithm daily"], difficultyLevel: "medium", sortOrder: 1 },
+    { grade: 4, subject: "Math", topicName: "Fractions & Decimals", tekCode: "4.3C", tekDescription: "Determine the corresponding fraction with denominators of 10 and 100", content: "Connect fractions and decimals. Understand that decimals are fractions with denominators of 10 or 100. Compare and order fractions and decimals.", keyVocabulary: ["decimal", "tenth", "hundredth", "equivalent", "compare"], studyTips: ["Use a place value chart", "Think of money: dime = 0.1, penny = 0.01", "Draw models to compare"], difficultyLevel: "medium", sortOrder: 2 },
+    { grade: 4, subject: "RLA", topicName: "Summarizing Texts", tekCode: "4.6E", tekDescription: "Summarize and paraphrase texts in ways that maintain meaning and logical order", content: "Learn to identify the most important ideas in a text and retell them in your own words while keeping the correct order of events.", keyVocabulary: ["summarize", "paraphrase", "main idea", "sequential order", "key details"], studyTips: ["Use the 'Somebody Wanted But So Then' framework", "Include only the most important details", "Keep it in your own words"], difficultyLevel: "medium", sortOrder: 1 },
+    { grade: 5, subject: "Math", topicName: "Dividing Decimals", tekCode: "5.3G", tekDescription: "Solve for quotients of decimals to the hundredths", content: "Master decimal division using the standard algorithm. Understand place value when placing the decimal point in quotients.", keyVocabulary: ["dividend", "divisor", "quotient", "decimal point", "remainder"], studyTips: ["Move the decimal point before dividing", "Estimate to check your answer", "Practice with money problems"], difficultyLevel: "hard", sortOrder: 1 },
+    { grade: 5, subject: "Math", topicName: "Volume", tekCode: "5.6A", tekDescription: "Recognize a cube with side length of one unit as a unit cube", content: "Learn to calculate volume by counting unit cubes and using the formula V = l x w x h. Solve real-world volume problems.", keyVocabulary: ["volume", "unit cube", "length", "width", "height", "cubic units"], studyTips: ["Build with blocks to visualize volume", "Remember V = l x w x h", "Label your answer with cubic units"], difficultyLevel: "medium", sortOrder: 2 },
+    { grade: 5, subject: "RLA", topicName: "Analyzing Literary Elements", tekCode: "5.8B", tekDescription: "Analyze the relationships of and conflicts among the characters", content: "Study how characters interact, change, and face conflicts. Identify protagonist and antagonist. Analyze character motivations and how conflicts drive the story.", keyVocabulary: ["protagonist", "antagonist", "conflict", "motivation", "resolution"], studyTips: ["Track character changes throughout the story", "Identify the type of conflict", "Use a character comparison chart"], difficultyLevel: "medium", sortOrder: 1 },
+    { grade: 5, subject: "Science", topicName: "Matter & Energy", tekCode: "5.5A", tekDescription: "Classify matter based on measurable, testable, and observable physical properties", content: "Understand physical properties of matter including mass, magnetism, physical state, relative density, solubility, and ability to conduct heat or electricity.", keyVocabulary: ["matter", "mass", "physical property", "solubility", "conductivity", "density"], studyTips: ["Create property charts for different materials", "Do hands-on experiments at home", "Compare and contrast states of matter"], difficultyLevel: "medium", sortOrder: 1 },
+    { grade: 6, subject: "Math", topicName: "Ratios & Rates", tekCode: "6.4B", tekDescription: "Apply qualitative and quantitative reasoning to solve prediction and comparison of real-world problems involving ratios and rates", content: "Understand ratios as comparisons of two quantities. Calculate unit rates. Use ratios and rates to solve real-world problems including pricing, speed, and recipes.", keyVocabulary: ["ratio", "rate", "unit rate", "proportion", "equivalent ratios"], studyTips: ["Set up ratio tables", "Always simplify ratios", "Use unit rates to compare prices"], difficultyLevel: "medium", sortOrder: 1 },
+    { grade: 6, subject: "Math", topicName: "Expressions & Equations", tekCode: "6.7A", tekDescription: "Generate equivalent numerical expressions using order of operations", content: "Master order of operations (PEMDAS). Write and evaluate expressions with variables. Solve one-step equations.", keyVocabulary: ["expression", "equation", "variable", "coefficient", "exponent", "PEMDAS"], studyTips: ["Always follow PEMDAS order", "Show every step of your work", "Check solutions by substituting back"], difficultyLevel: "medium", sortOrder: 2 },
+    { grade: 6, subject: "Math", topicName: "Data Analysis", tekCode: "6.12A", tekDescription: "Represent numeric data graphically including dot plots, stem-and-leaf plots, histograms, and box plots", content: "Learn to create and interpret different types of data displays. Calculate mean, median, mode, and range. Use data to make predictions and draw conclusions.", keyVocabulary: ["mean", "median", "mode", "range", "dot plot", "histogram", "box plot"], studyTips: ["Practice creating each type of graph", "Remember: mean = average, median = middle", "Always label your graphs"], difficultyLevel: "medium", sortOrder: 3 },
+    { grade: 6, subject: "RLA", topicName: "Analyzing Informational Texts", tekCode: "6.9D", tekDescription: "Analyze characteristics and structural elements of informational text", content: "Study how informational texts are organized using text structures like cause/effect, compare/contrast, problem/solution, and chronological order.", keyVocabulary: ["text structure", "cause and effect", "compare/contrast", "chronological", "problem/solution"], studyTips: ["Look for signal words that reveal structure", "Create graphic organizers for each structure", "Summarize each section in your own words"], difficultyLevel: "medium", sortOrder: 1 },
+    { grade: 6, subject: "RLA", topicName: "Writing Argumentative Essays", tekCode: "6.11B", tekDescription: "Develop drafts into a focused, structured, and coherent piece of writing", content: "Learn to write argumentative essays with a clear claim, supporting evidence, counterarguments, and a strong conclusion.", keyVocabulary: ["claim", "evidence", "counterargument", "thesis", "transition", "rebuttal"], studyTips: ["Start with a strong thesis statement", "Use at least 3 pieces of evidence", "Address the other side's argument"], difficultyLevel: "hard", sortOrder: 2 },
+    { grade: 7, subject: "Math", topicName: "Proportional Relationships", tekCode: "7.4A", tekDescription: "Represent constant rates of change in mathematical and real-world problems", content: "Understand proportional relationships and constant rates of change. Use tables, graphs, and equations to represent proportions.", keyVocabulary: ["proportional", "constant of proportionality", "unit rate", "linear", "slope"], studyTips: ["Check if y/x is always the same", "Graph points to see if they form a straight line through origin", "Use cross-multiplication to solve"], difficultyLevel: "medium", sortOrder: 1 },
+    { grade: 7, subject: "Math", topicName: "Geometry: Area & Circumference", tekCode: "7.9B", tekDescription: "Determine the circumference and area of circles", content: "Master circle formulas: C = 2πr and A = πr². Apply these to real-world problems involving circles and composite figures.", keyVocabulary: ["radius", "diameter", "circumference", "pi", "area", "composite figure"], studyTips: ["Memorize: C = 2πr, A = πr²", "Remember diameter = 2 × radius", "Use 3.14 for π unless told otherwise"], difficultyLevel: "medium", sortOrder: 2 },
+    { grade: 7, subject: "RLA", topicName: "Theme & Central Idea", tekCode: "7.8A", tekDescription: "Analyze how themes are developed through the interaction of characters and events", content: "Identify and analyze themes in literary texts. Understand how authors develop themes through character actions, dialogue, setting, and plot events.", keyVocabulary: ["theme", "central idea", "universal theme", "motif", "symbolism"], studyTips: ["Theme is a message, not a topic", "Look for repeated ideas or symbols", "Ask: What lesson does the character learn?"], difficultyLevel: "medium", sortOrder: 1 },
+    { grade: 8, subject: "Math", topicName: "Linear Equations", tekCode: "8.8A", tekDescription: "Write one-variable equations or inequalities with variables on both sides", content: "Solve multi-step equations with variables on both sides. Graph linear equations. Understand slope and y-intercept.", keyVocabulary: ["slope", "y-intercept", "slope-intercept form", "linear equation", "coefficient"], studyTips: ["y = mx + b: m is slope, b is y-intercept", "Graph using slope and y-intercept", "Check solutions in the original equation"], difficultyLevel: "hard", sortOrder: 1 },
+    { grade: 8, subject: "Math", topicName: "Pythagorean Theorem", tekCode: "8.7C", tekDescription: "Use the Pythagorean Theorem and its converse to solve problems", content: "Apply a² + b² = c² to find missing sides of right triangles. Use the Pythagorean Theorem in real-world distance and measurement problems.", keyVocabulary: ["hypotenuse", "leg", "right triangle", "Pythagorean Theorem", "distance"], studyTips: ["The hypotenuse is always the longest side", "Remember: a² + b² = c²", "Draw a picture for word problems"], difficultyLevel: "hard", sortOrder: 2 },
+    { grade: 8, subject: "RLA", topicName: "Analyzing Arguments", tekCode: "8.10A", tekDescription: "Analyze how the author's purpose and perspective shape the content", content: "Evaluate arguments in texts for logic, evidence quality, and rhetorical strategies. Identify bias, propaganda techniques, and logical fallacies.", keyVocabulary: ["rhetoric", "bias", "logical fallacy", "ethos", "pathos", "logos"], studyTips: ["Identify the author's claim first", "Evaluate the quality of evidence", "Look for emotional vs. logical appeals"], difficultyLevel: "hard", sortOrder: 1 },
+    { grade: 8, subject: "Science", topicName: "Force & Motion", tekCode: "8.6A", tekDescription: "Demonstrate and calculate how unbalanced forces change the speed or direction of an object's motion", content: "Study Newton's Laws of Motion. Calculate force, mass, and acceleration using F = ma. Understand balanced and unbalanced forces.", keyVocabulary: ["force", "mass", "acceleration", "Newton's Laws", "friction", "gravity", "inertia"], studyTips: ["F = ma is key", "Draw force diagrams", "Think about everyday examples of Newton's Laws"], difficultyLevel: "hard", sortOrder: 1 },
+    { grade: 8, subject: "Social Studies", topicName: "U.S. Constitution & Government", tekCode: "8.15A", tekDescription: "Identify the influence of ideas from historic documents on the U.S. system of government", content: "Study the U.S. Constitution, Bill of Rights, and principles of American government including federalism, checks and balances, and separation of powers.", keyVocabulary: ["Constitution", "Bill of Rights", "federalism", "checks and balances", "amendment", "democracy"], studyTips: ["Know the first 10 amendments", "Understand three branches of government", "Connect constitutional principles to current events"], difficultyLevel: "medium", sortOrder: 1 },
+    { grade: 9, subject: "Algebra I", topicName: "Quadratic Functions", tekCode: "A.7A", tekDescription: "Graph quadratic functions on the coordinate plane and identify key attributes", content: "Graph parabolas. Find vertex, axis of symmetry, zeros/roots, and y-intercept. Solve quadratic equations by factoring, completing the square, and the quadratic formula.", keyVocabulary: ["parabola", "vertex", "axis of symmetry", "quadratic formula", "discriminant", "zeros"], studyTips: ["Learn the quadratic formula by heart", "Vertex form: y = a(x-h)² + k", "Practice factoring daily"], difficultyLevel: "hard", sortOrder: 1 },
+    { grade: 9, subject: "Algebra I", topicName: "Systems of Equations", tekCode: "A.5C", tekDescription: "Solve systems of two linear equations with two variables", content: "Solve systems by graphing, substitution, and elimination. Interpret solutions as intersection points. Identify systems with no solution or infinitely many solutions.", keyVocabulary: ["system", "substitution", "elimination", "intersection", "consistent", "independent"], studyTips: ["Choose the method that fits the problem", "Check your solution in BOTH equations", "No solution = parallel lines"], difficultyLevel: "hard", sortOrder: 2 },
+    { grade: 9, subject: "English I", topicName: "Rhetorical Analysis", tekCode: "E1.8A", tekDescription: "Analyze the author's purpose, audience, and message within a text", content: "Analyze how authors use rhetorical strategies (ethos, pathos, logos) to achieve their purpose. Evaluate effectiveness of arguments and identify persuasive techniques.", keyVocabulary: ["rhetoric", "ethos", "pathos", "logos", "audience", "purpose", "tone"], studyTips: ["Identify the SOAPSTone elements", "Look for the author's tone through word choice", "Practice writing rhetorical analysis paragraphs"], difficultyLevel: "hard", sortOrder: 1 },
+    { grade: 10, subject: "English II", topicName: "Literary Analysis & Critique", tekCode: "E2.5A", tekDescription: "Analyze the effects of literary devices and techniques on meaning", content: "Analyze how authors use literary devices (symbolism, irony, metaphor, allusion) to create meaning. Write literary analysis essays with textual evidence.", keyVocabulary: ["symbolism", "irony", "metaphor", "allusion", "motif", "foreshadowing", "juxtaposition"], studyTips: ["Keep a literary devices reference sheet", "Always explain HOW the device creates meaning", "Use direct quotes as evidence"], difficultyLevel: "hard", sortOrder: 1 },
+    { grade: 10, subject: "Biology", topicName: "Cell Processes", tekCode: "B.4B", tekDescription: "Investigate and explain cellular processes including mitosis and meiosis", content: "Study cell division (mitosis and meiosis), DNA replication, and protein synthesis. Understand the cell cycle and its regulation.", keyVocabulary: ["mitosis", "meiosis", "DNA replication", "chromosome", "cell cycle", "interphase"], studyTips: ["Draw diagrams of each phase", "Compare mitosis vs. meiosis in a chart", "Remember: mitosis = 2 identical cells, meiosis = 4 unique cells"], difficultyLevel: "hard", sortOrder: 1 },
+    { grade: 10, subject: "Biology", topicName: "Genetics & Heredity", tekCode: "B.6F", tekDescription: "Predict possible outcomes of various genetic combinations", content: "Master Punnett squares, genotype vs. phenotype, dominant/recessive traits, and probability in genetics. Study non-Mendelian patterns.", keyVocabulary: ["genotype", "phenotype", "dominant", "recessive", "Punnett square", "allele", "heterozygous"], studyTips: ["Practice Punnett squares until automatic", "Remember: uppercase = dominant, lowercase = recessive", "Learn common genetic disorders"], difficultyLevel: "hard", sortOrder: 2 },
+    { grade: 11, subject: "U.S. History", topicName: "Civil Rights Movement", tekCode: "US.9A", tekDescription: "Trace the historical development of the civil rights movement", content: "Study the Civil Rights Movement from Reconstruction through modern times. Key events, leaders, legislation, and their lasting impact on American society.", keyVocabulary: ["segregation", "integration", "civil disobedience", "Jim Crow", "Brown v. Board", "Civil Rights Act"], studyTips: ["Create a timeline of key events", "Know the major Supreme Court cases", "Connect past events to current issues"], difficultyLevel: "hard", sortOrder: 1 },
+    { grade: 11, subject: "U.S. History", topicName: "World War II & Cold War", tekCode: "US.7C", tekDescription: "Analyze the effects of WWII and the Cold War on the United States", content: "Study causes and effects of WWII, the home front, key battles, and the transition to the Cold War era including containment, McCarthyism, and the arms race.", keyVocabulary: ["containment", "Marshall Plan", "NATO", "McCarthyism", "arms race", "deterrence"], studyTips: ["Know the causes and effects, not just dates", "Understand the concept of containment", "Connect WWII outcomes to Cold War tensions"], difficultyLevel: "hard", sortOrder: 2 },
+  ];
+
+  for (const guide of guides) {
+    await db.insert(staarStudyGuides).values(guide);
+  }
+
+  const allGuides = await db.select().from(staarStudyGuides);
+  for (const guide of allGuides) {
+    const questions = generateStaarQuestions(guide);
+    for (const q of questions) {
+      await db.insert(staarPracticeQuestions).values(q);
+    }
+  }
+}
+
+function generateStaarQuestions(guide: any) {
+  const questions: any[] = [];
+  const base = { guideId: guide.id, grade: guide.grade, subject: guide.subject, tekCode: guide.tekCode, questionType: "multiple_choice" };
+
+  if (guide.tekCode === "3.4A") {
+    questions.push({ ...base, questionText: "Sarah has 342 stickers. She gives 178 stickers to her friend. How many stickers does Sarah have left?", options: ["164", "174", "264", "154"], correctAnswer: "164", explanation: "342 - 178 = 164. Regroup from the tens place.", difficultyLevel: "medium", sortOrder: 1 });
+    questions.push({ ...base, questionText: "A store sold 456 books on Monday and 389 books on Tuesday. How many books were sold in total?", options: ["845", "835", "745", "855"], correctAnswer: "845", explanation: "456 + 389 = 845.", difficultyLevel: "medium", sortOrder: 2 });
+    questions.push({ ...base, questionText: "Marcus collected 215 cards. He bought 168 more then gave away 95. How many does he have now?", options: ["288", "298", "278", "308"], correctAnswer: "288", explanation: "215 + 168 = 383, then 383 - 95 = 288. Two-step problem.", difficultyLevel: "hard", sortOrder: 3 });
+  } else if (guide.tekCode === "3.4F") {
+    questions.push({ ...base, questionText: "What is 7 × 8?", options: ["54", "56", "63", "48"], correctAnswer: "56", explanation: "7 × 8 = 56.", difficultyLevel: "easy", sortOrder: 1 });
+    questions.push({ ...base, questionText: "An array has 6 rows and 9 columns. How many items are in the array?", options: ["54", "45", "63", "15"], correctAnswer: "54", explanation: "6 × 9 = 54.", difficultyLevel: "medium", sortOrder: 2 });
+    questions.push({ ...base, questionText: "If 8 × ☐ = 72, what number goes in the box?", options: ["8", "9", "7", "6"], correctAnswer: "9", explanation: "8 × 9 = 72, or 72 ÷ 8 = 9.", difficultyLevel: "medium", sortOrder: 3 });
+  } else if (guide.tekCode === "6.4B") {
+    questions.push({ ...base, questionText: "A recipe uses 3 cups of flour for every 2 cups of sugar. If you use 9 cups of flour, how many cups of sugar do you need?", options: ["4", "5", "6", "8"], correctAnswer: "6", explanation: "Ratio 3:2. 9 ÷ 3 = 3, so 2 × 3 = 6 cups of sugar.", difficultyLevel: "medium", sortOrder: 1 });
+    questions.push({ ...base, questionText: "A car travels 180 miles in 3 hours. What is the unit rate?", options: ["45 mph", "60 mph", "50 mph", "90 mph"], correctAnswer: "60 mph", explanation: "180 ÷ 3 = 60 miles per hour.", difficultyLevel: "easy", sortOrder: 2 });
+    questions.push({ ...base, questionText: "Brand A costs $4.50 for 6 oz. Brand B costs $5.60 for 8 oz. Which is the better buy?", options: ["Brand A ($0.75/oz)", "Brand B ($0.70/oz)", "They cost the same", "Not enough info"], correctAnswer: "Brand B ($0.70/oz)", explanation: "Brand A: $4.50÷6=$0.75/oz. Brand B: $5.60÷8=$0.70/oz.", difficultyLevel: "hard", sortOrder: 3 });
+  } else if (guide.tekCode === "8.8A") {
+    questions.push({ ...base, questionText: "Solve: 3x + 5 = 2x + 12", options: ["x = 7", "x = 5", "x = 17", "x = 3"], correctAnswer: "x = 7", explanation: "3x - 2x = 12 - 5, so x = 7.", difficultyLevel: "medium", sortOrder: 1 });
+    questions.push({ ...base, questionText: "What is the slope of y = -2x + 5?", options: ["-2", "5", "2", "-5"], correctAnswer: "-2", explanation: "In y = mx + b, m is the slope. Here m = -2.", difficultyLevel: "easy", sortOrder: 2 });
+    questions.push({ ...base, questionText: "Which equation has slope 3 and passes through (0, -4)?", options: ["y = 3x - 4", "y = -4x + 3", "y = 3x + 4", "y = -3x - 4"], correctAnswer: "y = 3x - 4", explanation: "y = mx + b: m=3, b=-4, so y = 3x - 4.", difficultyLevel: "medium", sortOrder: 3 });
+  } else {
+    questions.push({ ...base, questionText: `Which best describes the key to mastering ${guide.topicName}?`, options: ["Understanding core concepts deeply", "Memorizing formulas only", "Guessing answers", "Skipping practice"], correctAnswer: "Understanding core concepts deeply", explanation: `${guide.topicName} requires deep understanding of underlying concepts.`, difficultyLevel: "easy", sortOrder: 1 });
+    questions.push({ ...base, questionText: `What is the BEST first step when solving a ${guide.topicName} problem?`, options: ["Read carefully and identify what is being asked", "Start calculating immediately", "Look for the biggest number", "Skip to answer choices"], correctAnswer: "Read carefully and identify what is being asked", explanation: "Always understand what the problem asks before attempting to solve.", difficultyLevel: "easy", sortOrder: 2 });
+    questions.push({ ...base, questionText: `Which study strategy is most effective for ${guide.topicName}?`, options: ["Practice problems and review mistakes", "Reading notes once", "Watching unrelated videos", "Cramming the night before"], correctAnswer: "Practice problems and review mistakes", explanation: "Active practice with error analysis is the most effective study method.", difficultyLevel: "easy", sortOrder: 3 });
+  }
+  return questions;
 }
 
 const AI_COURSE_MODULES = [
@@ -100,6 +183,7 @@ export async function registerRoutes(
   app: Express
 ): Promise<Server> {
   await seedAiToolCatalog();
+  await seedStaarContent();
 
   app.use((_req, res, next) => {
     res.setHeader("X-Content-Type-Options", "nosniff");
@@ -3296,6 +3380,116 @@ Be thorough, practical, and age-appropriate. Format your response with clear hea
       res.json(enrollments);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch enrollments" });
+    }
+  });
+
+  // ==================== STAAR TEST PREP ROUTES ====================
+
+  app.get("/api/staar/guides", async (req, res) => {
+    try {
+      const grade = parseInt(req.query.grade as string);
+      const subject = req.query.subject as string;
+      if (!grade || !subject) return res.status(400).json({ error: "Grade and subject required" });
+      const guides = await db.select().from(staarStudyGuides)
+        .where(and(eq(staarStudyGuides.grade, grade), eq(staarStudyGuides.subject, subject)))
+        .orderBy(staarStudyGuides.sortOrder);
+      res.json(guides);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch study guides" });
+    }
+  });
+
+  app.get("/api/staar/subjects", async (_req, res) => {
+    try {
+      const result = await db.select({ grade: staarStudyGuides.grade, subject: staarStudyGuides.subject })
+        .from(staarStudyGuides)
+        .groupBy(staarStudyGuides.grade, staarStudyGuides.subject)
+        .orderBy(staarStudyGuides.grade, staarStudyGuides.subject);
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch subjects" });
+    }
+  });
+
+  app.get("/api/staar/questions", async (req, res) => {
+    try {
+      const grade = parseInt(req.query.grade as string);
+      const subject = req.query.subject as string;
+      const tekCode = req.query.tekCode as string;
+      if (!grade || !subject) return res.status(400).json({ error: "Grade and subject required" });
+      const conditions = [eq(staarPracticeQuestions.grade, grade), eq(staarPracticeQuestions.subject, subject)];
+      if (tekCode) conditions.push(eq(staarPracticeQuestions.tekCode, tekCode));
+      const questions = await db.select().from(staarPracticeQuestions)
+        .where(and(...conditions))
+        .orderBy(staarPracticeQuestions.sortOrder);
+      res.json(questions);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch questions" });
+    }
+  });
+
+  app.post("/api/staar/assessments", requireAuth, async (req, res) => {
+    try {
+      const userId = getUserId(req)!;
+      const parsed = insertStaarStudentAssessmentSchema.safeParse({ ...req.body, userId });
+      if (!parsed.success) return res.status(400).json({ error: parsed.error });
+      const [assessment] = await db.insert(staarStudentAssessments).values(parsed.data).returning();
+      const answers = parsed.data.answers as Array<{ tekCode: string; topicName: string; correct: boolean }>;
+      for (const answer of answers) {
+        const existing = await db.select().from(staarTopicMastery)
+          .where(and(eq(staarTopicMastery.userId, userId), eq(staarTopicMastery.tekCode, answer.tekCode)));
+        if (existing.length > 0) {
+          const m = existing[0];
+          const newTotal = m.totalAttempts + 1;
+          const newCorrect = m.correctAttempts + (answer.correct ? 1 : 0);
+          const pct = Math.round((newCorrect / newTotal) * 100);
+          const level = pct >= 80 ? "mastered" : pct >= 60 ? "proficient" : pct >= 40 ? "developing" : "needs_practice";
+          await db.update(staarTopicMastery).set({ totalAttempts: newTotal, correctAttempts: newCorrect, masteryLevel: level, lastAttemptAt: new Date() }).where(eq(staarTopicMastery.id, m.id));
+        } else {
+          await db.insert(staarTopicMastery).values({
+            userId, grade: parsed.data.grade, subject: parsed.data.subject,
+            tekCode: answer.tekCode, topicName: answer.topicName,
+            totalAttempts: 1, correctAttempts: answer.correct ? 1 : 0,
+            masteryLevel: answer.correct ? "developing" : "needs_practice",
+            lastAttemptAt: new Date(),
+          });
+        }
+      }
+      res.json(assessment);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to submit assessment" });
+    }
+  });
+
+  app.get("/api/staar/assessments", requireAuth, async (req, res) => {
+    try {
+      const userId = getUserId(req)!;
+      const grade = req.query.grade ? parseInt(req.query.grade as string) : undefined;
+      const subject = req.query.subject as string | undefined;
+      const conditions: any[] = [eq(staarStudentAssessments.userId, userId)];
+      if (grade) conditions.push(eq(staarStudentAssessments.grade, grade));
+      if (subject) conditions.push(eq(staarStudentAssessments.subject, subject));
+      const assessments = await db.select().from(staarStudentAssessments)
+        .where(and(...conditions))
+        .orderBy(desc(staarStudentAssessments.completedAt));
+      res.json(assessments);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch assessments" });
+    }
+  });
+
+  app.get("/api/staar/mastery", requireAuth, async (req, res) => {
+    try {
+      const userId = getUserId(req)!;
+      const grade = req.query.grade ? parseInt(req.query.grade as string) : undefined;
+      const subject = req.query.subject as string | undefined;
+      const conditions: any[] = [eq(staarTopicMastery.userId, userId)];
+      if (grade) conditions.push(eq(staarTopicMastery.grade, grade));
+      if (subject) conditions.push(eq(staarTopicMastery.subject, subject));
+      const mastery = await db.select().from(staarTopicMastery).where(and(...conditions));
+      res.json(mastery);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch mastery data" });
     }
   });
 
