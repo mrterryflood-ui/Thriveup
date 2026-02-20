@@ -24,6 +24,7 @@ Key architectural decisions and features include:
 - **Risk Management:** A "Risk Decision Tracking" system for financial decisions with configurable thresholds and educational components.
 - **Multi-Game Platform (Panther Game Room):** A game lobby with various games, including a fully functional Dominoes game with CPU AI and ELO rating.
 - **Internationalization (i18n):** Custom language provider supporting English and Spanish.
+- **TX STAAR Test Prep:** Grade-level study guides (Grades 3-11) aligned to Texas Essential Knowledge and Skills (TEKS). Features expandable study guides with key vocabulary and study tips, interactive practice assessments with instant feedback and explanations, mastery tracking (4 levels: needs_practice, developing, proficient, mastered), assessment history with scoring, and personalized recommendations based on weak areas. Covers Math, RLA for Grades 3-8, Science for Grades 5/8, Social Studies for Grade 8, and high school EOCs (Algebra I, English I/II, Biology, U.S. History). DB tables: staar_study_guides, staar_practice_questions, staar_student_assessments, staar_topic_mastery. At /academy/staar-prep.
 - **Implementation Recommendations:** District administrator planning guide with grade-by-grade (6-12) deployment strategy, pre-rollout checklists, AI framework evaluation, open-source AI strategy, cost comparison calculator, and phased rollout timeline. At /implementation.
 - **Low-Bandwidth Mode:** User-toggleable mode to strip animations, images, and shadows for improved performance.
 
