@@ -66,6 +66,7 @@ const myStudentItems: NavItem[] = [
   { title: "Daily Quests", url: "/academy/quests", icon: CalendarCheck },
   { title: "My Journal", url: "/academy/journal", icon: PenLine },
   { title: "Progress Report", url: "/academy/progress-report", icon: Printer },
+  { title: "STAAR Test Prep", url: "/academy/staar-prep", icon: GraduationCap },
 ];
 
 const campusLifeItems: NavItem[] = [
