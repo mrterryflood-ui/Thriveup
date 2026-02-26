@@ -244,6 +244,9 @@ export default function AcademyMerchPage() {
                   Contact your school administrator to enable ordering.{" "}
                   <a href="mailto:sisnett.meredith@gmail.com" className="text-primary underline" data-testid="link-admin-contact">
                     sisnett.meredith@gmail.com
+                  </a>{" | "}
+                  <a href="mailto:mr.terryflood@gmail.com" className="text-primary underline" data-testid="link-admin-contact-2">
+                    mr.terryflood@gmail.com
                   </a>
                 </p>
               </div>
@@ -404,7 +407,7 @@ export default function AcademyMerchPage() {
           <div className="flex items-center gap-2">
             <Mail className="h-4 w-4 text-muted-foreground shrink-0" />
             <span className="text-sm text-muted-foreground" data-testid="text-contact-email">
-              Questions? Contact sisnett.meredith@gmail.com
+              Questions? Contact sisnett.meredith@gmail.com | mr.terryflood@gmail.com
             </span>
           </div>
           <span className="text-sm text-muted-foreground" data-testid="text-footer-partner">

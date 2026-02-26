@@ -415,9 +415,14 @@ export default function LandingPage() {
           <p className="text-sm text-muted-foreground">
             Supporting the whole child - because every part of growing up matters.
           </p>
-          <a href="mailto:sisnett.meredith@gmail.com" className="flex items-center gap-1.5 text-sm text-muted-foreground" data-testid="link-support-email">
-            <Mail className="h-3.5 w-3.5" /> sisnett.meredith@gmail.com
-          </a>
+          <div className="flex flex-col items-end gap-1">
+            <a href="mailto:sisnett.meredith@gmail.com" className="flex items-center gap-1.5 text-sm text-muted-foreground" data-testid="link-support-email">
+              <Mail className="h-3.5 w-3.5" /> sisnett.meredith@gmail.com
+            </a>
+            <a href="mailto:mr.terryflood@gmail.com" className="flex items-center gap-1.5 text-sm text-muted-foreground" data-testid="link-support-email-2">
+              <Mail className="h-3.5 w-3.5" /> mr.terryflood@gmail.com
+            </a>
+          </div>
         </div>
       </footer>
     </div>
