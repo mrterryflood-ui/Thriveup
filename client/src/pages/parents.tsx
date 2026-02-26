@@ -313,8 +313,8 @@ export default function ParentResourcesPage() {
           <p className="text-sm text-muted-foreground">
             Supporting the whole family - because learning is better together.
           </p>
-          <a href="mailto:mr.terryflood@gmail.com" className="flex items-center gap-1.5 text-sm text-muted-foreground" data-testid="link-support-email">
-            <Mail className="h-3.5 w-3.5" /> mr.terryflood@gmail.com
+          <a href="mailto:sisnett.meredith@gmail.com" className="flex items-center gap-1.5 text-sm text-muted-foreground" data-testid="link-support-email">
+            <Mail className="h-3.5 w-3.5" /> sisnett.meredith@gmail.com
           </a>
         </div>
       </footer>

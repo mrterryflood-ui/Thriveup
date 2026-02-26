@@ -312,7 +312,7 @@ const parentModules: ParentModule[] = [
         paragraphs: [
           "Learning about social media and digital safety is not a one-time conversation — it is an ongoing process that evolves as technology changes and your children grow. Staying informed does not require you to become a tech expert. It just means staying curious and checking in regularly with trusted sources of information.",
           "Common Sense Media (commonsensemedia.org) is an excellent resource for age-appropriate reviews of apps, games, movies, and more. They also offer guides specifically for parents on topics like screen time, social media, and digital citizenship. Your child's school may also offer digital literacy resources or parent education events — take advantage of these when they are available.",
-          "Learning Academy is always here to support your family's digital literacy journey. Whether you have questions about a specific platform, need advice on setting up parental controls, or just want to talk through a situation your child is dealing with online, do not hesitate to reach out. Contact our tech support team at mr.terryflood@gmail.com — we are here to help.",
+          "Learning Academy is always here to support your family's digital literacy journey. Whether you have questions about a specific platform, need advice on setting up parental controls, or just want to talk through a situation your child is dealing with online, do not hesitate to reach out. Contact our tech support team at sisnett.meredith@gmail.com — we are here to help.",
         ],
       },
     ],
@@ -564,12 +564,12 @@ export default function SocialMediaLiteracyPage() {
                 <p className="text-sm text-muted-foreground">
                   Have questions about social media literacy or need tech support? Reach out to us at{" "}
                   <a
-                    href="mailto:mr.terryflood@gmail.com"
+                    href="mailto:sisnett.meredith@gmail.com"
                     className="text-primary underline underline-offset-2"
                     data-testid="link-support-email-cta"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    mr.terryflood@gmail.com
+                    sisnett.meredith@gmail.com
                   </a>
                 </p>
               </div>
@@ -589,11 +589,11 @@ export default function SocialMediaLiteracyPage() {
             <span data-testid="text-footer-email">
               Need help? Contact us at{" "}
               <a
-                href="mailto:mr.terryflood@gmail.com"
+                href="mailto:sisnett.meredith@gmail.com"
                 className="text-primary underline underline-offset-2"
                 data-testid="link-support-email-footer"
               >
-                mr.terryflood@gmail.com
+                sisnett.meredith@gmail.com
               </a>
             </span>
           </div>
