@@ -1,3 +1,4 @@
+import { useRef, useState } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -7,9 +8,11 @@ import {
   BookOpen, Users, Award, Brain, Sparkles,
   ArrowRight, ChevronRight, Shield, Target, Zap,
   Heart, Calculator, Microscope, Globe, Salad,
-  GraduationCap, MapPin, Languages, Laptop, Mail
+  GraduationCap, MapPin, Languages, Laptop, Mail,
+  Play, Pause, Volume2, VolumeX, Maximize
 } from "lucide-react";
 import { LEVEL_COLORS } from "@/lib/curriculum-data";
+import featureVideoSrc from "@assets/Learning_Academy_1.0_1772131808280.mp4";
 
 const levelIcons = [Compass, Map, Building2, Lightbulb, Crown];
 
@@ -63,6 +66,97 @@ const features = [
   },
 ];
 
+function FeatureVideoPlayer() {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const [showOverlay, setShowOverlay] = useState(true);
+
+  const togglePlay = () => {
+    if (!videoRef.current) return;
+    if (videoRef.current.paused) {
+      videoRef.current.play();
+      setIsPlaying(true);
+      setShowOverlay(false);
+    } else {
+      videoRef.current.pause();
+      setIsPlaying(false);
+      setShowOverlay(true);
+    }
+  };
+
+  const toggleMute = () => {
+    if (!videoRef.current) return;
+    videoRef.current.muted = !videoRef.current.muted;
+    setIsMuted(!isMuted);
+  };
+
+  const toggleFullscreen = () => {
+    if (!videoRef.current) return;
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    } else {
+      videoRef.current.requestFullscreen();
+    }
+  };
+
+  const handleOverlayKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      togglePlay();
+    }
+  };
+
+  return (
+    <Card className="overflow-hidden shadow-xl border-2 border-primary/10" data-testid="card-feature-video">
+      <div className="relative group">
+        <video
+          ref={videoRef}
+          src={featureVideoSrc}
+          className="w-full aspect-video bg-black"
+          aria-label="Learning Academy platform tour with Arthur Wakanda"
+          onEnded={() => { setIsPlaying(false); setShowOverlay(true); }}
+          onClick={togglePlay}
+          playsInline
+          data-testid="video-feature-guide"
+        />
+
+        {showOverlay && !isPlaying && (
+          <div
+            className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20 flex flex-col items-center justify-center cursor-pointer"
+            onClick={togglePlay}
+            onKeyDown={handleOverlayKeyDown}
+            role="button"
+            tabIndex={0}
+            aria-label="Play platform tour video"
+            data-testid="overlay-video-play"
+          >
+            <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-white/90 flex items-center justify-center shadow-2xl mb-4 transition-transform hover:scale-110">
+              <Play className="h-10 w-10 md:h-12 md:w-12 text-violet-700 ml-1" />
+            </div>
+            <p className="text-white text-lg md:text-xl font-semibold" data-testid="text-video-title">Watch the Platform Tour</p>
+            <p className="text-white/70 text-sm mt-1" data-testid="text-video-subtitle">7 minutes with Arthur Wakanda</p>
+          </div>
+        )}
+
+        <div className={`absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/60 to-transparent flex items-center justify-between transition-opacity ${isPlaying ? 'opacity-0 group-hover:opacity-100' : 'opacity-100'}`}>
+          <Button variant="ghost" size="sm" className="text-white hover:text-white hover:bg-white/20" onClick={togglePlay} aria-label={isPlaying ? "Pause video" : "Play video"} data-testid="button-video-playpause">
+            {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+          </Button>
+          <div className="flex items-center gap-1">
+            <Button variant="ghost" size="sm" className="text-white hover:text-white hover:bg-white/20" onClick={toggleMute} aria-label={isMuted ? "Unmute video" : "Mute video"} data-testid="button-video-mute">
+              {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+            </Button>
+            <Button variant="ghost" size="sm" className="text-white hover:text-white hover:bg-white/20" onClick={toggleFullscreen} aria-label="Toggle fullscreen" data-testid="button-video-fullscreen">
+              <Maximize className="h-5 w-5" />
+            </Button>
+          </div>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
 export default function LandingPage() {
   return (
     <div className="min-h-screen">
@@ -97,6 +191,24 @@ export default function LandingPage() {
               </Button>
             </Link>
           </div>
+        </div>
+      </section>
+
+      {/* Feature Video Guide */}
+      <section className="py-20 px-6 bg-card">
+        <div className="mx-auto max-w-5xl">
+          <div className="text-center mb-10">
+            <Badge variant="secondary" className="mb-4">
+              <Play className="mr-1 h-3 w-3" /> Platform Tour
+            </Badge>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4" data-testid="text-video-heading">
+              See Learning Academy in Action
+            </h2>
+            <p className="text-muted-foreground max-w-lg mx-auto">
+              Join Arthur Wakanda on a 7-minute tour of the platform -- from Youth AI Learning to career pathways, Panther Village, and beyond.
+            </p>
+          </div>
+          <FeatureVideoPlayer />
         </div>
       </section>
 
