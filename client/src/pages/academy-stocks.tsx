@@ -33,6 +33,8 @@ import {
   Lightbulb,
 } from "lucide-react";
 import { Link } from "wouter";
+import { ErrorRetry } from "@/components/error-retry";
+import { PageHeader } from "@/components/page-header";
 
 interface Stock {
   id: string;
@@ -89,7 +91,7 @@ export default function AcademyStocksPage() {
   const [riskDialogOpen, setRiskDialogOpen] = useState(false);
   const [pendingTrade, setPendingTrade] = useState<{stockId: string; action: "buy" | "sell"; shares: number} | null>(null);
 
-  const { data: stocks, isLoading: stocksLoading } = useQuery<Stock[]>({
+  const { data: stocks, isLoading: stocksLoading, error: stocksError, refetch: refetchStocks } = useQuery<Stock[]>({
     queryKey: ["/api/academy/stocks"],
   });
 
@@ -239,16 +241,17 @@ export default function AcademyStocksPage() {
     );
   }
 
+  if (stocksError) {
+    return <div className="p-6"><ErrorRetry message="Failed to load stock market data. Please try again." onRetry={refetchStocks} /></div>;
+  }
+
   return (
     <div className="p-6 max-w-6xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-1" data-testid="text-stock-market-title">
-          Virtual Stock Market
-        </h1>
-        <p className="text-muted-foreground" data-testid="text-stock-market-subtitle">
-          Learn investing in a safe environment - simulated money only
-        </p>
-      </div>
+      <PageHeader
+        title="Virtual Stock Market"
+        description="Learn investing in a safe environment - simulated money only"
+        breadcrumbs={[{ label: "Academy", href: "/academy" }, { label: "Stock Market" }]}
+      />
 
       <Card className="p-4 mb-6 bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800" data-testid="card-investing-wisdom">
         <div className="flex items-start gap-3">

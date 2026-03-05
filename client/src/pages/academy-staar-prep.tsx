@@ -18,6 +18,7 @@ import {
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { PageHeader } from "@/components/page-header";
+import { ErrorRetry } from "@/components/error-retry";
 
 const STAAR_GRADES = [
   { grade: 3, name: "3rd Grade", subjects: ["Math", "RLA"], band: "elementary" },
@@ -209,7 +210,7 @@ export default function AcademyStaarPrepPage() {
     setCurrentFunFact(getRandomItem(facts));
   }, [selectedSubject, selectedGradeIdx]);
 
-  const { data: guides = [], isLoading: guidesLoading } = useQuery<any[]>({
+  const { data: guides = [], isLoading: guidesLoading, error: guidesError, refetch: refetchGuides } = useQuery<any[]>({
     queryKey: ["/api/staar/guides", currentGrade, selectedSubject],
     queryFn: () => fetch(`/api/staar/guides?grade=${currentGrade}&subject=${encodeURIComponent(selectedSubject)}`).then(r => r.json()),
   });
@@ -317,6 +318,10 @@ export default function AcademyStaarPrepPage() {
 
   const correctCount = answers.filter(a => a.correct).length;
   const scorePercent = answers.length > 0 ? Math.round((correctCount / answers.length) * 100) : 0;
+
+  if (guidesError) {
+    return <div className="p-6"><ErrorRetry message="Failed to load STAAR prep data." onRetry={refetchGuides} /></div>;
+  }
 
   return (
     <div className="min-h-screen bg-background">

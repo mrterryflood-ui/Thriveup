@@ -4,6 +4,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import AcademyWizard from "@/components/academy-wizard";
 import { WIZARD_STEPS } from "@/lib/wizard-data";
+import { PageHeader } from "@/components/page-header";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -39,6 +40,7 @@ import {
   Target,
 } from "lucide-react";
 import type { AcademyHouse, AcademyMeritEvent } from "@shared/schema";
+import { ErrorRetry } from "@/components/error-retry";
 
 const HOUSE_ICONS: Record<string, typeof Flame> = {
   flame: Flame,
@@ -437,7 +439,7 @@ function InstantRewards() {
 
 export default function AcademyHousesPage() {
   useEffect(() => { document.title = 'Houses | AI Mastery Academy'; }, []);
-  const { data: houses, isLoading } = useQuery<AcademyHouse[]>({
+  const { data: houses, isLoading, error: housesError, refetch: refetchHouses } = useQuery<AcademyHouse[]>({
     queryKey: ["/api/academy/houses"],
   });
 
@@ -456,18 +458,19 @@ export default function AcademyHousesPage() {
     );
   }
 
+  if (housesError) {
+    return <div className="p-6"><ErrorRetry message="Failed to load house data. Please try again." onRetry={refetchHouses} /></div>;
+  }
+
   const houseData = houses || [];
 
   return (
     <div className="p-6 max-w-6xl mx-auto space-y-8" data-testid="page-academy-houses">
-      <div>
-        <h1 className="text-3xl font-bold mb-1" data-testid="text-page-title">
-          House Points & Merit System
-        </h1>
-        <p className="text-muted-foreground" data-testid="text-page-subtitle">
-          Panthers earn points through Education, Character, and Leadership
-        </p>
-      </div>
+      <PageHeader
+        title="House Points & Merit System"
+        description="Panthers earn points through Education, Character, and Leadership"
+        breadcrumbs={[{label:"Academy",href:"/academy"},{label:"Houses"}]}
+      />
 
       <HouseStandings houses={houseData} />
       <MeritCategories />

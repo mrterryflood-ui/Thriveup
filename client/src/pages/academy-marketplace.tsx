@@ -36,6 +36,7 @@ import {
   TabsTrigger,
   TabsContent,
 } from "@/components/ui/tabs";
+import { ErrorRetry } from "@/components/error-retry";
 import {
   Store,
   ShoppingCart,
@@ -164,7 +165,7 @@ export default function AcademyMarketplacePage() {
   const [pendingBuyId, setPendingBuyId] = useState<string | null>(null);
   const [pendingBuyListing, setPendingBuyListing] = useState<any>(null);
 
-  const { data: listings, isLoading: listingsLoading } = useQuery<Listing[]>({
+  const { data: listings, isLoading: listingsLoading, error: listingsError, refetch: refetchListings } = useQuery<Listing[]>({
     queryKey: ["/api/academy/marketplace"],
   });
 
@@ -272,6 +273,10 @@ export default function AcademyMarketplacePage() {
         </div>
       </div>
     );
+  }
+
+  if (listingsError) {
+    return <div className="p-6"><ErrorRetry message="Failed to load marketplace listings. Please try again." onRetry={refetchListings} /></div>;
   }
 
   return (

@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/select";
 import { Smile, Meh, Brain, BatteryLow, Sparkles, BookOpen, Calendar } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
+import { ErrorRetry } from "@/components/error-retry";
 import type { StudentReflection } from "@shared/schema";
 
 const moods = [
@@ -45,7 +46,7 @@ export default function AcademyJournalPage() {
   const [mood, setMood] = useState("");
   const [content, setContent] = useState("");
 
-  const { data: reflections, isLoading } = useQuery<StudentReflection[]>({
+  const { data: reflections, isLoading, error: reflectionsError, refetch: refetchReflections } = useQuery<StudentReflection[]>({
     queryKey: ["/api/reflections"],
     enabled: !!user,
   });
@@ -90,6 +91,10 @@ export default function AcademyJournalPage() {
         </div>
       </div>
     );
+  }
+
+  if (reflectionsError) {
+    return <div className="p-6"><ErrorRetry message="Failed to load reflections." onRetry={refetchReflections} /></div>;
   }
 
   if (!user) {

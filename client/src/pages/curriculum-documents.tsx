@@ -44,6 +44,7 @@ import {
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useUpload } from "@/hooks/use-upload";
+import { ErrorRetry } from "@/components/error-retry";
 import type { CurriculumDocument, Level, Module } from "@shared/schema";
 
 const GRADE_BANDS = ["3-5", "6-8", "9-12"] as const;
@@ -183,7 +184,7 @@ function renderMarkdown(content: string) {
 export default function CurriculumDocumentsPage() {
   const [, navigate] = useLocation();
 
-  const { data: documents, isLoading } = useQuery<CurriculumDocument[]>({
+  const { data: documents, isLoading, error, refetch } = useQuery<CurriculumDocument[]>({
     queryKey: ["/api/curriculum-documents"],
   });
 
@@ -221,6 +222,10 @@ export default function CurriculumDocumentsPage() {
         </div>
       </div>
     );
+  }
+
+  if (error) {
+    return <div className="p-6"><ErrorRetry message="Failed to load curriculum documents." onRetry={refetch} /></div>;
   }
 
   return (

@@ -3,6 +3,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { PageHeader } from "@/components/page-header";
+import { ErrorRetry } from "@/components/error-retry";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -132,7 +133,7 @@ export default function AcademyMentorsPage() {
   const [requestMentor, setRequestMentor] = useState<MentorProfile | null>(null);
   const [requestMessage, setRequestMessage] = useState("");
 
-  const { data: mentors, isLoading: mentorsLoading, isError: mentorsError, error: mentorsErrorObj } = useQuery<MentorProfile[]>({
+  const { data: mentors, isLoading: mentorsLoading, isError: mentorsError, error: mentorsErrorObj, refetch } = useQuery<MentorProfile[]>({
     queryKey: ["/api/mentors"],
   });
 
@@ -162,17 +163,8 @@ export default function AcademyMentorsPage() {
 
   if (mentorsError) {
     return (
-      <div className="p-6 max-w-6xl mx-auto" data-testid="mentors-error-state">
-        <Card className="p-8 text-center">
-          <Users className="h-10 w-10 mx-auto text-muted-foreground/30 mb-3" />
-          <h2 className="text-lg font-semibold mb-2" data-testid="text-error-title">Unable to Load Mentors</h2>
-          <p className="text-sm text-muted-foreground mb-4" data-testid="text-error-message">
-            {mentorsErrorObj instanceof Error ? mentorsErrorObj.message : "Something went wrong while loading mentor data. Please try again."}
-          </p>
-          <Button onClick={() => window.location.reload()} data-testid="button-retry-mentors">
-            Try Again
-          </Button>
-        </Card>
+      <div className="p-6 max-w-6xl mx-auto">
+        <ErrorRetry message={mentorsErrorObj instanceof Error ? mentorsErrorObj.message : "Failed to load mentor data. Please try again."} onRetry={refetch} />
       </div>
     );
   }

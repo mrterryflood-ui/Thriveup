@@ -18,6 +18,7 @@ import {
   ArrowLeft, Sparkles, RefreshCw, ChevronRight, FileUp, X, Paperclip,
   LayoutGrid
 } from "lucide-react";
+import { ErrorRetry } from "@/components/error-retry";
 
 const ICON_MAP: Record<string, any> = {
   "presentation": Presentation,
@@ -96,7 +97,7 @@ export default function AIToolsWorkspacePage() {
 
   const toolsQueryKey = isAdult ? "/api/ai-tools?mode=adult" : "/api/ai-tools";
 
-  const { data: rawTools = [] } = useQuery<Tool[]>({
+  const { data: rawTools = [], error: toolsError, refetch: refetchTools } = useQuery<Tool[]>({
     queryKey: [toolsQueryKey],
   });
 
@@ -307,6 +308,10 @@ export default function AIToolsWorkspacePage() {
       contentRef.current.scrollTop = contentRef.current.scrollHeight;
     }
   }, [generatedContent]);
+
+  if (toolsError) {
+    return <div className="p-6"><ErrorRetry message="Failed to load AI tools." onRetry={refetchTools} /></div>;
+  }
 
   if (!currentTool) {
   

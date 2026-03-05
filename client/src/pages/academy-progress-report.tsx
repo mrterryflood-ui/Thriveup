@@ -6,13 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Printer, Trophy, Zap, Award, Star, BookOpen, Users, Lightbulb, Heart, GraduationCap } from "lucide-react";
+import { ErrorRetry } from "@/components/error-retry";
 
 export default function AcademyProgressReportPage() {
   useEffect(() => { document.title = 'Progress Report | AI Mastery Academy'; }, []);
 
   const { user, isLoading: authLoading } = useAuth();
 
-  const { data: progress, isLoading: progressLoading } = useQuery<any>({
+  const { data: progress, isLoading: progressLoading, error: progressError, refetch: refetchProgress } = useQuery<any>({
     queryKey: ["/api/progress"],
     enabled: !!user,
   });
@@ -41,6 +42,10 @@ export default function AcademyProgressReportPage() {
     { label: "Entrepreneurship", value: pantherPower?.entrepreneurshipScore ?? 0, icon: Lightbulb },
     { label: "Community", value: pantherPower?.communityScore ?? 0, icon: Users },
   ];
+
+  if (progressError) {
+    return <div className="p-6"><ErrorRetry message="Failed to load progress report." onRetry={refetchProgress} /></div>;
+  }
 
   if (isLoading) {
     return (

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "wouter";
+import { ErrorRetry } from "@/components/error-retry";
 import {
   Swords,
   CheckCircle,
@@ -20,6 +21,7 @@ import {
   ExternalLink,
   Target,
 } from "lucide-react";
+import { PageHeader } from "@/components/page-header";
 
 interface Quest {
   id: string;
@@ -100,7 +102,7 @@ function LoadingSkeleton() {
 
 export default function AcademyQuestsPage() {
   useEffect(() => { document.title = 'Daily Quests | AI Mastery Academy'; }, []);
-  const { data: quests, isLoading: questsLoading } = useQuery<Quest[]>({
+  const { data: quests, isLoading: questsLoading, error: questsError, refetch: refetchQuests } = useQuery<Quest[]>({
     queryKey: ["/api/academy/quests"],
   });
 
@@ -122,6 +124,10 @@ export default function AcademyQuestsPage() {
     return <LoadingSkeleton />;
   }
 
+  if (questsError) {
+    return <div className="p-6"><ErrorRetry message="Failed to load daily quests. Please try again." onRetry={refetchQuests} /></div>;
+  }
+
   const questList = quests ?? [];
   const completedCount = questList.filter((q) => q.completed).length;
   const totalCount = questList.length;
@@ -141,20 +147,14 @@ export default function AcademyQuestsPage() {
 
   return (
     <div className="p-6 max-w-5xl mx-auto" data-testid="page-academy-quests">
-      <div className="rounded-md bg-gradient-to-r from-rose-900 to-red-950 p-8 mb-8" data-testid="section-hero">
-        <div className="flex items-center gap-3 mb-2">
-          <Swords className="h-7 w-7 text-white" />
-          <h1 className="text-3xl font-bold text-white" data-testid="text-quests-title">
-            Daily Quests
-          </h1>
-        </div>
-        <p className="text-rose-100 text-lg" data-testid="text-quests-subtitle">
-          Complete challenges across the Academy to earn Panther Power
-        </p>
-        <p className="text-rose-200 text-sm mt-2" data-testid="text-today-date">
-          {todayFormatted}
-        </p>
-      </div>
+      <PageHeader
+        title="Daily Quests"
+        description="Complete challenges across the Academy to earn Panther Power"
+        breadcrumbs={[
+          { label: "Academy", href: "/academy" },
+          { label: "Quests" },
+        ]}
+      />
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8" data-testid="section-summary">
         <Card className="p-5">

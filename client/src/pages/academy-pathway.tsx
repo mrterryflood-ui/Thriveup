@@ -21,6 +21,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { ErrorRetry } from "@/components/error-retry";
 import {
   Target,
   ChevronRight,
@@ -696,7 +697,7 @@ function PathwayTimeline({ plan }: { plan: PathwayPlan }) {
 export default function AcademyPathwayPage() {
   useEffect(() => { document.title = 'Career Pathway | AI Mastery Academy'; }, []);
 
-  const { data: plan, isLoading: planLoading } = useQuery<PathwayPlan | null>({
+  const { data: plan, isLoading: planLoading, error: planError, refetch: refetchPlan } = useQuery<PathwayPlan | null>({
     queryKey: ["/api/pathway-plan"],
     retry: false,
   });
@@ -707,6 +708,10 @@ export default function AcademyPathwayPage() {
 
   if (planLoading) {
     return <LoadingSkeleton />;
+  }
+
+  if (planError) {
+    return <div className="p-6"><ErrorRetry message="Failed to load pathway plan. Please try again." onRetry={refetchPlan} /></div>;
   }
 
   return (

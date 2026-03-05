@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { PageHeader } from "@/components/page-header";
 import {
   Users, BookOpen, Shield, Brain, Wifi, Heart,
   MonitorSmartphone, MessageSquare, BarChart3,
@@ -113,6 +114,15 @@ export default function ParentResourcesPage() {
 
   return (
     <div className="min-h-screen">
+      <div className="px-6 pt-6">
+        <div className="mx-auto max-w-5xl">
+          <PageHeader
+            title="Parent Resources"
+            description="Empowering families to support their children's workforce readiness journey"
+            breadcrumbs={[{label:"Parent Resources"}]}
+          />
+        </div>
+      </div>
       <section className="px-6 pt-6">
         <div className="mx-auto max-w-5xl">
           <Link href="/parents/dashboard" aria-label="View your child's progress dashboard">

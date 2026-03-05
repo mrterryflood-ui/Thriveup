@@ -30,6 +30,8 @@ import {
 import { Progress } from "@/components/ui/progress";
 import AcademyWizard from "@/components/academy-wizard";
 import { WIZARD_STEPS } from "@/lib/wizard-data";
+import { ErrorRetry } from "@/components/error-retry";
+import { PageHeader } from "@/components/page-header";
 import type { AcademyPantherPower, AcademyDailyQuest } from "@shared/schema";
 
 interface House {
@@ -157,7 +159,7 @@ export default function AcademyHubPage() {
     document.title = "Academy Hub | AI Mastery Academy";
   }, []);
 
-  const { data, isLoading } = useQuery<DashboardData>({
+  const { data, isLoading, error, refetch } = useQuery<DashboardData>({
     queryKey: ["/api/academy/dashboard"],
   });
 
@@ -166,6 +168,10 @@ export default function AcademyHubPage() {
 
   if (isLoading) {
     return <LoadingSkeleton />;
+  }
+
+  if (error) {
+    return <div className="p-6"><ErrorRetry message="Failed to load Academy Hub. Please try again." onRetry={refetch} /></div>;
   }
 
   const houses = data?.houses ?? [];
@@ -183,14 +189,13 @@ export default function AcademyHubPage() {
 
   return (
     <div className="p-6 max-w-5xl mx-auto" data-testid="academy-hub-page">
-      <div className="rounded-md bg-gradient-to-r from-rose-900 to-red-950 p-8 mb-8" data-testid="section-hero">
-        <h1 className="text-3xl font-bold text-white mb-2" data-testid="text-academy-title">
-          AI Mastery Academy
-        </h1>
-        <p className="text-rose-100 text-lg" data-testid="text-academy-subtitle">
-          Young Leaders Building Their Future Through AI
-        </p>
-      </div>
+      <PageHeader
+        title="Academy Hub"
+        description="Young Leaders Building Their Future Through AI"
+        breadcrumbs={[
+          { label: "Academy Hub" },
+        ]}
+      />
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8" data-testid="section-quick-stats">
         <Card className="p-5">

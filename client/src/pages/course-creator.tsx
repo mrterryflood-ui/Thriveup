@@ -62,6 +62,7 @@ import {
 } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { ErrorRetry } from "@/components/error-retry";
 import type { AcademyCourse, CourseModule, CourseLesson, CourseEnrollment } from "@shared/schema";
 
 const CATEGORIES = [
@@ -1127,7 +1128,7 @@ export default function CourseCreatorPage() {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
 
-  const { data: courses, isLoading } = useQuery<AcademyCourse[]>({
+  const { data: courses, isLoading, error, refetch } = useQuery<AcademyCourse[]>({
     queryKey: ["/api/admin/courses"],
   });
 
@@ -1142,6 +1143,10 @@ export default function CourseCreatorPage() {
 
   if (isLoading) {
     return <LoadingSkeleton />;
+  }
+
+  if (error) {
+    return <div className="p-6"><ErrorRetry message="Failed to load courses." onRetry={refetch} /></div>;
   }
 
   const filteredCourses = (courses ?? []).filter((c) =>

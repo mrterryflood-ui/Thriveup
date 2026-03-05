@@ -17,6 +17,7 @@ import {
   BookmarkPlus, Bookmark, Phone, Sparkles, ArrowRight, Globe, Shield,
   Star, Filter, X, RefreshCw, MessageCircle, Loader2, CheckCircle2,
 } from "lucide-react";
+import { ErrorRetry } from "@/components/error-retry";
 import type { SavedResource } from "@shared/schema";
 
 interface StateOption {
@@ -82,7 +83,7 @@ export default function ResourceFinderPage() {
   const [aiLoading, setAiLoading] = useState(false);
   const aiResponseRef = useRef<HTMLDivElement>(null);
 
-  const { data: states, isLoading: statesLoading } = useQuery<StateOption[]>({
+  const { data: states, isLoading: statesLoading, error: statesError, refetch: refetchStates } = useQuery<StateOption[]>({
     queryKey: ["/api/resources/states"],
   });
 
@@ -222,6 +223,10 @@ export default function ResourceFinderPage() {
         </div>
       </div>
     );
+  }
+
+  if (statesError) {
+    return <div className="p-6"><ErrorRetry message="Failed to load resource finder data." onRetry={refetchStates} /></div>;
   }
 
   return (

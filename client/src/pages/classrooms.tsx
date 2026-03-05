@@ -29,6 +29,7 @@ import { PageHeader } from "@/components/page-header";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { ErrorRetry } from "@/components/error-retry";
 import type { Classroom, ClassroomMember } from "@shared/schema";
 
 const createClassroomSchema = z.object({
@@ -315,7 +316,7 @@ function StudentClassroomsList({ classrooms }: { classrooms: Classroom[] }) {
 export default function ClassroomsPage() {
   const { user, isLoading: authLoading, isAuthenticated } = useAuth();
 
-  const { data, isLoading } = useQuery<ClassroomsData>({
+  const { data, isLoading, error, refetch } = useQuery<ClassroomsData>({
     queryKey: ["/api/classrooms"],
     enabled: isAuthenticated,
   });
@@ -335,6 +336,10 @@ export default function ClassroomsPage() {
 
   if (!isAuthenticated) {
     return <LoginPrompt />;
+  }
+
+  if (error) {
+    return <div className="p-6"><ErrorRetry message="Failed to load classrooms." onRetry={refetch} /></div>;
   }
 
   return (

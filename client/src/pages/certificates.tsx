@@ -7,20 +7,21 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Award, Printer, ArrowLeft, GraduationCap, Star } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { PageHeader } from "@/components/page-header";
+import { ErrorRetry } from "@/components/error-retry";
 import type { Certificate } from "@shared/schema";
 
 export default function CertificatesPage() {
   const { user, isLoading: authLoading, isAuthenticated } = useAuth();
 
-  const { data: certificates, isLoading } = useQuery<Certificate[]>({
+  const { data: certificates, isLoading, error, refetch } = useQuery<Certificate[]>({
     queryKey: ["/api/certificates"],
     enabled: isAuthenticated,
   });
 
-  if (authLoading) {
-  
   useEffect(() => { document.title = "Certificates | AI Mastery Academy"; }, []);
-  return (
+
+  if (authLoading) {
+    return (
       <div className="p-6 max-w-5xl mx-auto space-y-4">
         <Skeleton className="h-10 w-48 mb-2" />
         <Skeleton className="h-6 w-72 mb-8" />
@@ -65,6 +66,8 @@ export default function CertificatesPage() {
       </div>
     );
   }
+
+  if (error) return <div className="p-6"><ErrorRetry message="Failed to load certificates. Please try again." onRetry={refetch} /></div>;
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
@@ -134,7 +137,7 @@ export default function CertificatesPage() {
 export function CertificateViewPage() {
   const params = useParams<{ id: string }>();
 
-  const { data: cert, isLoading } = useQuery<Certificate>({
+  const { data: cert, isLoading, error, refetch } = useQuery<Certificate>({
     queryKey: ["/api/certificates", params.id],
   });
 
@@ -146,6 +149,8 @@ export function CertificateViewPage() {
       </div>
     );
   }
+
+  if (error) return <div className="p-6"><ErrorRetry message="Failed to load certificate. Please try again." onRetry={refetch} /></div>;
 
   if (!cert) {
     return (

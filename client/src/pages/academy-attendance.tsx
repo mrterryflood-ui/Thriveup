@@ -5,6 +5,8 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ClipboardList, Users, Calendar, Flame, ShieldAlert } from "lucide-react";
+import { ErrorRetry } from "@/components/error-retry";
+import { PageHeader } from "@/components/page-header";
 
 interface AttendanceLog {
   id: string;
@@ -70,7 +72,7 @@ export default function AcademyAttendancePage() {
   const { user, isLoading: authLoading } = useAuth();
   const isAdmin = !!(user as any)?.isAdmin;
 
-  const { data: logs, isLoading: logsLoading } = useQuery<AttendanceLog[]>({
+  const { data: logs, isLoading: logsLoading, error: logsError, refetch: refetchLogs } = useQuery<AttendanceLog[]>({
     queryKey: ["/api/attendance"],
     enabled: isAdmin,
   });
@@ -86,11 +88,15 @@ export default function AcademyAttendancePage() {
   if (!isAdmin) {
     return (
       <div className="min-h-screen bg-background">
-        <div className="bg-[#800000] text-white py-8 px-4">
-          <div className="max-w-4xl mx-auto">
-            <h1 className="text-2xl font-bold" data-testid="text-page-title">Attendance Tracking</h1>
-            <p className="text-white/80">Student login activity</p>
-          </div>
+        <div className="max-w-4xl mx-auto px-4 pt-6">
+        <PageHeader
+          title="Attendance Tracking"
+          description="Student login activity"
+          breadcrumbs={[
+            { label: "Academy", href: "/academy" },
+            { label: "Attendance" },
+          ]}
+        />
         </div>
         <div className="max-w-4xl mx-auto p-4">
           <Card className="p-8 text-center">
@@ -109,15 +115,21 @@ export default function AcademyAttendancePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="bg-[#800000] text-white py-8 px-4">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-2xl font-bold" data-testid="text-page-title">Attendance Tracking</h1>
-          <p className="text-white/80">Monitor student login activity and streaks</p>
-        </div>
+      <div className="max-w-4xl mx-auto px-4 pt-6">
+        <PageHeader
+          title="Attendance Tracking"
+          description="Monitor student login activity and streaks"
+          breadcrumbs={[
+            { label: "Academy", href: "/academy" },
+            { label: "Attendance" },
+          ]}
+        />
       </div>
 
       <div className="max-w-4xl mx-auto p-4 space-y-4">
-        {logsLoading ? (
+        {logsError ? (
+          <div className="p-6"><ErrorRetry message="Failed to load attendance data. Please try again." onRetry={refetchLogs} /></div>
+        ) : logsLoading ? (
           <div data-testid="loading-skeleton-academy-attendance" className="space-y-4">
             <Card className="p-6">
               <Skeleton className="h-5 w-40 mb-4" />

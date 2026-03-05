@@ -43,7 +43,7 @@ Key architectural decisions and features include:
 - **Multi-Game Platform (Panther Game Room):** A game lobby with educational games including Dominoes with CPU AI and ELO rating.
 - **Internationalization (i18n):** Custom language provider supporting English and Spanish.
 - **TX STAAR Test Prep:** Grade-level study guides (Grades 3-11) aligned to TEKS. Covers Math, RLA, Science, Social Studies, and high school EOCs. Gamified with streaks, celebrations, and mastery tracking. At /academy/staar-prep.
-- **Feature Video Guide:** Homepage video player with Arthur Wakanda platform tour (play/pause, mute, fullscreen controls with accessibility labels).
+- **Feature Video Guide:** Homepage video player with Arthur Wakanda platform tour (play/pause, mute, fullscreen controls with accessibility labels, closed caption track, CC indicator).
 - **Implementation Recommendations:** District administrator planning guide with phased rollout timeline. At /implementation.
 - **Low-Bandwidth Mode:** User-toggleable mode for improved performance.
 - **Orientation-MAP-GAP Framework:** System improvement methodology integrated into platform development approach.
@@ -74,12 +74,13 @@ Key architectural decisions and features include:
 ## Performance & Navigation
 - **Code Splitting:** React.lazy + Suspense for 60+ pages; only landing, curriculum, subjects, dashboard, AI companion eagerly loaded
 - **Loading Skeletons:** Skeleton loading states on dashboard, career explorer, financial literacy, academy hub, and attendance pages
-- **Error Retry:** Reusable ErrorRetry component on 9+ pages (dashboard, subjects, curriculum, achievements, teacher/parent dashboards, competitions, game lobby, impact)
+- **Error Retry:** Reusable ErrorRetry component used in 49 pages for graceful API error recovery with retry button
 - **Back-to-Top:** Floating scroll-to-top button on landing page, binds to #main-content scroll
 - **Command Palette:** Ctrl+K keyboard shortcut for quick navigation across all pages
 - **Collapsible Sidebar:** All sidebar sections collapsible for cleaner navigation
-- **PageHeader Component:** Reusable page header with title, description, breadcrumbs, and action slot - deployed on 13+ pages
-- **Breadcrumbs:** Reusable breadcrumb navigation component on career explorer, mentors, financial literacy, marketplace, certificates, achievements, STAAR prep, journal, and more
+- **PageHeader Component:** Reusable page header with title, description, breadcrumbs, and action slot - deployed on 32+ pages
+- **Breadcrumbs:** Reusable breadcrumb navigation component on career explorer, mentors, financial literacy, marketplace, certificates, achievements, STAAR prep, journal, stocks, merch, dreams, scenarios, self-assessment, power score, community, social media literacy, parents, privacy policy, risk monitor, impact tracking, houses, and more
+- **ErrorRetry:** Consistent error recovery across 49 pages with useQuery error/refetch handling and retry button
 - **API Caching:** Cache-Control headers on public/impact (5 min), subjects (1 hour), levels (1 hour) endpoints
 - **Print CSS:** @media print styles hide navigation, sharing buttons; format metrics for clean printing
 

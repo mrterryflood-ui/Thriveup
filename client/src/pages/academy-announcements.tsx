@@ -28,6 +28,8 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Megaphone, Pin, Trash2, Plus } from "lucide-react";
+import { ErrorRetry } from "@/components/error-retry";
+import { PageHeader } from "@/components/page-header";
 import type { Announcement } from "@shared/schema";
 
 const categories = [
@@ -60,7 +62,7 @@ export default function AcademyAnnouncementsPage() {
 
   const isAdmin = !!(user as any)?.isAdmin;
 
-  const { data: announcements, isLoading } = useQuery<Announcement[]>({
+  const { data: announcements, isLoading, error, refetch } = useQuery<Announcement[]>({
     queryKey: ["/api/announcements"],
   });
 
@@ -110,15 +112,15 @@ export default function AcademyAnnouncementsPage() {
   useEffect(() => { document.title = "Announcements | AI Mastery Academy"; }, []);
   return (
     <div className="min-h-screen bg-background">
-      <div className="bg-[#800000] text-white py-8 px-4">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-3xl font-bold flex items-center gap-2" data-testid="text-announcements-title">
-            <Megaphone className="h-8 w-8" /> Announcements
-          </h1>
-          <p className="mt-2 text-white/80" data-testid="text-announcements-description">
-            Stay updated with the latest news from your teachers and administrators
-          </p>
-        </div>
+      <div className="max-w-4xl mx-auto px-4 pt-6">
+        <PageHeader
+          title="Announcements"
+          description="Stay updated with the latest news from your teachers and administrators"
+          breadcrumbs={[
+            { label: "Academy", href: "/academy" },
+            { label: "Announcements" },
+          ]}
+        />
       </div>
 
       <div className="max-w-4xl mx-auto p-4 space-y-4">
@@ -212,7 +214,9 @@ export default function AcademyAnnouncementsPage() {
           </div>
         )}
 
-        {isLoading || authLoading ? (
+        {error ? (
+          <div className="p-6"><ErrorRetry message="Failed to load announcements. Please try again." onRetry={refetch} /></div>
+        ) : isLoading || authLoading ? (
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
               <Skeleton key={i} className="h-32 w-full" />

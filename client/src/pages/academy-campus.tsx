@@ -40,6 +40,7 @@ import {
   Trophy,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { ErrorRetry } from "@/components/error-retry";
 
 interface CampusProject {
   id: string;
@@ -245,7 +246,7 @@ function FundFromWallet({ project }: { project: CampusProject }) {
 
 export default function AcademyCampusPage() {
   useEffect(() => { document.title = 'Campus Builder | AI Mastery Academy'; }, []);
-  const { data: project, isLoading, error } = useQuery<CampusProject>({
+  const { data: project, isLoading, error, refetch: refetchCampus } = useQuery<CampusProject>({
     queryKey: ["/api/academy/campus"],
   });
 
@@ -261,6 +262,10 @@ export default function AcademyCampusPage() {
         <Skeleton className="h-48" />
       </div>
     );
+  }
+
+  if (error && !(error as any)?.message?.includes("404")) {
+    return <div className="p-6"><ErrorRetry message="Failed to load campus project." onRetry={refetchCampus} /></div>;
   }
 
   if (error || !project) {

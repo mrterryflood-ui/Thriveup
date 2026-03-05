@@ -151,6 +151,9 @@ function FeatureVideoPlayer() {
             {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
           </Button>
           <div className="flex items-center gap-1">
+            <span className="text-white/70 text-xs px-2 py-1 rounded bg-white/10 hidden sm:inline-flex items-center gap-1" data-testid="text-video-cc-indicator" aria-label="Closed captions available">
+              CC
+            </span>
             <Button variant="ghost" size="icon" className="text-white hover:text-white hover:bg-white/20 min-h-[44px] min-w-[44px]" onClick={toggleMute} aria-label={isMuted ? "Unmute video" : "Mute video"} data-testid="button-video-mute">
               {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
             </Button>
@@ -504,7 +507,7 @@ export default function LandingPage() {
                 </li>
               </ul>
               <div className="mt-6">
-                <Link href="/academy-integration">
+                <Link href="/academy/integration">
                   <Button variant="outline" className="w-full min-h-[44px]" data-testid="button-stakeholder-schools-cta" aria-label="Learn about school integration options">
                     <School className="mr-2 h-4 w-4" />
                     Explore Integration
@@ -537,7 +540,7 @@ export default function LandingPage() {
                 </li>
               </ul>
               <div className="mt-6">
-                <Link href="/academy-careers">
+                <Link href="/academy/careers">
                   <Button variant="outline" className="w-full min-h-[44px]" data-testid="button-stakeholder-employers-cta" aria-label="Explore employer partnership opportunities">
                     <Briefcase className="mr-2 h-4 w-4" />
                     Partner With Us

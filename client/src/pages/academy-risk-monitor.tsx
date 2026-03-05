@@ -3,6 +3,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
+import { PageHeader } from "@/components/page-header";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { Settings, AlertTriangle, Brain, Users, Shield, CheckCircle, Clock, Eye } from "lucide-react";
 import type { RiskDecision, RiskNotificationSettings } from "@shared/schema";
+import { ErrorRetry } from "@/components/error-retry";
 
 interface StudentSummary {
   studentName: string;
@@ -92,7 +94,7 @@ export default function AcademyRiskMonitorPage() {
     },
   });
 
-  const { data: decisions, isLoading: decisionsLoading } = useQuery<RiskDecision[]>({
+  const { data: decisions, isLoading: decisionsLoading, error: decisionsError, refetch: refetchDecisions } = useQuery<RiskDecision[]>({
     queryKey: ["/api/admin/risk-decisions"],
     enabled: !!user,
   });
@@ -164,6 +166,10 @@ export default function AcademyRiskMonitorPage() {
     );
   }
 
+  if (decisionsError) {
+    return <div className="p-6"><ErrorRetry message="Failed to load risk decisions." onRetry={refetchDecisions} /></div>;
+  }
+
   if (!user) {
     return (
       <div className="p-6 text-center">
@@ -176,6 +182,13 @@ export default function AcademyRiskMonitorPage() {
 
   return (
     <div className="min-h-screen">
+      <div className="max-w-5xl mx-auto px-6 pt-6">
+        <PageHeader
+          title="Risk Decision Monitor"
+          description="Supporting student autonomy with compassionate oversight"
+          breadcrumbs={[{label:"Academy",href:"/academy"},{label:"Risk Monitor"}]}
+        />
+      </div>
       <div
         className="px-6 py-10 text-white"
         style={{ background: "linear-gradient(135deg, #800000 0%, #4a0000 100%)" }}

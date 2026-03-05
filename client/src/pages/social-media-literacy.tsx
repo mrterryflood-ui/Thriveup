@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { PageHeader } from "@/components/page-header";
 import {
   Smartphone, Shield, Heart, Users, BookOpen, Brain,
   Fingerprint, Sparkles, ArrowRight,
@@ -338,6 +339,15 @@ export default function SocialMediaLiteracyPage() {
   useEffect(() => { document.title = "Social Media Literacy | AI Mastery Academy"; }, []);
   return (
     <div className="min-h-screen">
+      <div className="px-6 pt-6">
+        <div className="mx-auto max-w-5xl">
+          <PageHeader
+            title="Social Media Literacy"
+            description="Teaching students and families to navigate social media safely and responsibly"
+            breadcrumbs={[{label:"Social Media Literacy"}]}
+          />
+        </div>
+      </div>
       <section className="relative overflow-hidden py-20 px-6 md:py-32">
         <div className="absolute inset-0 bg-gradient-to-br from-cyan-600 via-teal-600 to-emerald-700" />
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSA2MCAwIEwgMCAwIDAgNjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjA1KSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-40" />

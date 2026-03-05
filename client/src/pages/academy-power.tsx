@@ -4,6 +4,8 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ErrorRetry } from "@/components/error-retry";
+import { PageHeader } from "@/components/page-header";
 import {
   BookOpen,
   Heart,
@@ -80,12 +82,16 @@ function LoadingSkeleton() {
 export default function AcademyPowerPage() {
   useEffect(() => { document.title = 'Panther Power | AI Mastery Academy'; }, []);
 
-  const { data, isLoading } = useQuery<PantherPowerData>({
+  const { data, isLoading, error, refetch } = useQuery<PantherPowerData>({
     queryKey: ["/api/academy/panther-power"],
   });
 
   if (isLoading) {
     return <LoadingSkeleton />;
+  }
+
+  if (error) {
+    return <div className="p-6"><ErrorRetry message="Failed to load Panther Power data." onRetry={refetch} /></div>;
   }
 
   const totalScore = data?.totalScore ?? 0;
@@ -109,14 +115,11 @@ export default function AcademyPowerPage() {
 
   return (
     <div className="p-6 max-w-5xl mx-auto" data-testid="page-academy-power">
-      <div className="rounded-md bg-gradient-to-r from-rose-900 to-red-950 p-8 mb-8" data-testid="section-hero">
-        <h1 className="text-3xl font-bold text-white mb-2" data-testid="text-power-title">
-          Panther Power Score
-        </h1>
-        <p className="text-rose-100 text-lg" data-testid="text-power-subtitle">
-          Your unified empowerment metric across all Academy activities
-        </p>
-      </div>
+      <PageHeader
+        title="Panther Power Score"
+        description="Your unified empowerment metric across all Academy activities"
+        breadcrumbs={[{ label: "Academy", href: "/academy" }, { label: "Power Score" }]}
+      />
 
       <div className="flex flex-col items-center mb-8" data-testid="section-total-score">
         <div className="w-44 h-44 rounded-full border-4 border-primary flex flex-col items-center justify-center bg-card mb-4">

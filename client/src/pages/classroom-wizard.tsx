@@ -32,6 +32,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import type { Subject } from "@shared/schema";
+import { ErrorRetry } from "@/components/error-retry";
 
 interface WizardData {
   name: string;
@@ -571,7 +572,7 @@ export default function ClassroomWizardPage() {
     welcomeMessage: "",
   });
 
-  const { data: subjects } = useQuery<Subject[]>({
+  const { data: subjects, error: subjectsError, refetch: refetchSubjects } = useQuery<Subject[]>({
     queryKey: ["/api/subjects"],
   });
 
@@ -614,6 +615,8 @@ export default function ClassroomWizardPage() {
   if (!isAuthenticated) {
     return <LoginPrompt />;
   }
+
+  if (subjectsError) return <div className="p-6"><ErrorRetry message="Failed to load subject data. Please try again." onRetry={refetchSubjects} /></div>;
 
   return (
     <div className="p-6 max-w-2xl mx-auto">

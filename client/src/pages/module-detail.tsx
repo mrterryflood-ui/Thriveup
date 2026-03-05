@@ -14,6 +14,7 @@ import {
   ChevronRight, CheckCircle2, PlayCircle, MessageCircle, FileText, Gamepad2, Home
 } from "lucide-react";
 import type { Module, Lesson } from "@shared/schema";
+import { ErrorRetry } from "@/components/error-retry";
 import StudyTips from "@/components/study-tips";
 
 function findBestLessonForActivity(activity: string, lessons: Lesson[]): Lesson | null {
@@ -56,7 +57,7 @@ export default function ModuleDetailPage() {
   const moduleId = params.moduleId || "";
   const [, setLocation] = useLocation();
 
-  const { data: mod, isLoading: modLoading } = useQuery<Module>({
+  const { data: mod, isLoading: modLoading, error, refetch } = useQuery<Module>({
     queryKey: ["/api/modules", moduleId],
   });
 
@@ -79,6 +80,8 @@ export default function ModuleDetailPage() {
       </div>
     );
   }
+
+  if (error) return <div className="p-6"><ErrorRetry message="Failed to load module details. Please try again." onRetry={refetch} /></div>;
 
   if (!mod) return null;
 

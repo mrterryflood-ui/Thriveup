@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import type { Lesson } from "@shared/schema";
+import { ErrorRetry } from "@/components/error-retry";
 import LetterTracing from "@/components/activities/letter-tracing";
 import MatchingGame from "@/components/activities/matching-game";
 import SortingActivity from "@/components/activities/sorting-activity";
@@ -63,7 +64,7 @@ export default function LessonViewerPage() {
   const { toast } = useToast();
   const [showSpark, setShowSpark] = useState(false);
 
-  const { data: lesson, isLoading } = useQuery<Lesson>({
+  const { data: lesson, isLoading, error, refetch } = useQuery<Lesson>({
     queryKey: ["/api/lessons", lessonId],
   });
 
@@ -94,6 +95,8 @@ export default function LessonViewerPage() {
       </div>
     );
   }
+
+  if (error) return <div className="p-6"><ErrorRetry message="Failed to load lesson. Please try again." onRetry={refetch} /></div>;
 
   if (!lesson) return null;
 

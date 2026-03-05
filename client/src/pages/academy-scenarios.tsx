@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ErrorRetry } from "@/components/error-retry";
+import { PageHeader } from "@/components/page-header";
 import {
   BookOpen,
   Gamepad2,
@@ -159,7 +161,7 @@ export default function AcademyScenariosPage() {
   const [riskDialogOpen, setRiskDialogOpen] = useState(false);
   const [pendingChoice, setPendingChoice] = useState<{runId: string; choiceKey: string; choiceLabel: string; nodeKey: string} | null>(null);
 
-  const { data: scenarios, isLoading: scenariosLoading } = useQuery<Scenario[]>({
+  const { data: scenarios, isLoading: scenariosLoading, error: scenariosError, refetch: refetchScenarios } = useQuery<Scenario[]>({
     queryKey: ["/api/academy/scenarios"],
   });
 
@@ -234,21 +236,19 @@ export default function AcademyScenariosPage() {
     return <LoadingSkeleton />;
   }
 
+  if (scenariosError) {
+    return <div className="p-6"><ErrorRetry message="Failed to load adventure scenarios. Please try again." onRetry={refetchScenarios} /></div>;
+  }
+
   const toneStyles = currentNode ? getToneStyles(currentNode.emotionalTone) : getToneStyles(null);
 
   return (
     <div className="p-6 max-w-5xl mx-auto" data-testid="page-academy-scenarios">
-      <div className="rounded-md bg-gradient-to-r from-rose-900 to-red-950 dark:from-rose-950 dark:to-background p-8 mb-8" data-testid="section-hero">
-        <div className="flex items-center gap-3 mb-2">
-          <Gamepad2 className="h-8 w-8 text-rose-200" />
-          <h1 className="text-3xl font-bold text-white" data-testid="text-scenarios-title">
-            Choose Your Adventure
-          </h1>
-        </div>
-        <p className="text-rose-100 text-lg" data-testid="text-scenarios-subtitle">
-          Walk in someone else's shoes. Every choice matters, and every path teaches empathy.
-        </p>
-      </div>
+      <PageHeader
+        title="Choose Your Adventure"
+        description="Walk in someone else's shoes. Every choice matters, and every path teaches empathy."
+        breadcrumbs={[{ label: "Academy", href: "/academy" }, { label: "Scenarios" }]}
+      />
 
       {!selectedScenarioId && (
         <>

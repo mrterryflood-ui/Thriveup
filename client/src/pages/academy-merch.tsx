@@ -39,6 +39,8 @@ import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import type { AcademyMerchItem, AcademyMerchOrder } from "@shared/schema";
+import { ErrorRetry } from "@/components/error-retry";
+import { PageHeader } from "@/components/page-header";
 
 const PLACEHOLDER_ITEMS = [
   { name: "T-Shirts", price: "25.00", category: "Apparel", description: "AI Mastery Academy branded t-shirts in various sizes" },
@@ -74,7 +76,7 @@ export default function AcademyMerchPage() {
   const [selectedItem, setSelectedItem] = useState<AcademyMerchItem | null>(null);
   const [orderQuantity, setOrderQuantity] = useState(1);
 
-  const { data: merchItems, isLoading: itemsLoading } = useQuery<AcademyMerchItem[]>({
+  const { data: merchItems, isLoading: itemsLoading, error: itemsError, refetch: refetchItems } = useQuery<AcademyMerchItem[]>({
     queryKey: ["/api/academy/merch"],
   });
 
@@ -137,17 +139,17 @@ export default function AcademyMerchPage() {
     );
   }
 
+  if (itemsError) {
+    return <div className="p-6"><ErrorRetry message="Failed to load merchandise. Please try again." onRetry={refetchItems} /></div>;
+  }
+
   return (
     <div className="p-6 max-w-6xl mx-auto" data-testid="page-academy-merch">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-1 flex items-center gap-3 flex-wrap" data-testid="text-merch-title">
-          <ShoppingBag className="h-8 w-8 text-primary shrink-0" />
-          AI Mastery Academy Merch Shop
-        </h1>
-        <p className="text-muted-foreground" data-testid="text-merch-subtitle">
-          Official AI Mastery Academy merchandise - Real fundraising in partnership with UBO
-        </p>
-      </div>
+      <PageHeader
+        title="AI Mastery Academy Merch Shop"
+        description="Official AI Mastery Academy merchandise - Real fundraising in partnership with UBO"
+        breadcrumbs={[{ label: "Academy", href: "/academy" }, { label: "Store" }]}
+      />
 
       <Card className="p-6 mb-8 bg-gradient-to-br from-primary/5 to-accent/5" data-testid="card-mission-statement">
         <div className="flex items-start gap-4 flex-wrap">

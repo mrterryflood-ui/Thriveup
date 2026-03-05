@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, ArrowUp, ArrowDown } from "lucide-react";
+import { ErrorRetry } from "@/components/error-retry";
 
 const PIP_POSITIONS: Record<number, Array<[number, number]>> = {
   0: [],
@@ -292,6 +293,7 @@ export default function AcademyDominoesGame() {
     data: session,
     isLoading: sessionLoading,
     error: sessionError,
+    refetch: refetchSession,
   } = useQuery<SessionData>({
     queryKey: ["/api/games", sessionId],
     enabled: !!sessionId,
@@ -496,7 +498,15 @@ export default function AcademyDominoesGame() {
     );
   }
 
-  if (sessionError || !session) {
+  if (sessionError) {
+    return (
+      <div className="p-6">
+        <ErrorRetry message="Could not load game session." onRetry={refetchSession} />
+      </div>
+    );
+  }
+
+  if (!session) {
     return (
       <div
         className="flex flex-col items-center justify-center h-full p-6"

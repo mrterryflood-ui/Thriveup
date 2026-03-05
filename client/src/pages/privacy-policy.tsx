@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/page-header";
 import {
   Shield, Lock, Eye, Database, MapPin, Heart, Users,
   Globe, Clock, Scale, Mail, Baby, FileCheck, AlertTriangle,
@@ -35,14 +36,11 @@ export default function PrivacyPolicyPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 space-y-6" data-testid="page-privacy-policy">
-      <div className="mb-4">
-        <Link href="/">
-          <Button variant="ghost" size="sm" data-testid="link-back-home">
-            <ArrowLeft className="h-4 w-4 mr-1" />
-            Back to Home
-          </Button>
-        </Link>
-      </div>
+      <PageHeader
+        title="Privacy Policy"
+        description="Privacy & Data Protection Policy for AI Mastery Academy"
+        breadcrumbs={[{label:"Privacy Policy"}]}
+      />
 
       <div className="text-center space-y-3 mb-8">
         <div className="flex justify-center">

@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { Link } from "wouter";
 import type { AcademyAvatar } from "@shared/schema";
+import { ErrorRetry } from "@/components/error-retry";
 
 interface SelfAssessmentData {
   id: string;
@@ -343,7 +344,7 @@ export default function AcademyAvatarPage() {
   const { toast } = useToast();
   const [form, setForm] = useState<AvatarFormState>(DEFAULT_STATE);
 
-  const { data: existingAvatar, isLoading: avatarLoading } = useQuery<AcademyAvatar | null>({
+  const { data: existingAvatar, isLoading: avatarLoading, error: avatarError, refetch: refetchAvatar } = useQuery<AcademyAvatar | null>({
     queryKey: ["/api/academy/avatar"],
     retry: false,
   });
@@ -411,6 +412,10 @@ export default function AcademyAvatarPage() {
         </div>
       </div>
     );
+  }
+
+  if (avatarError) {
+    return <div className="p-6"><ErrorRetry message="Failed to load avatar data. Please try again." onRetry={refetchAvatar} /></div>;
   }
 
   return (

@@ -15,6 +15,7 @@ import {
   Sparkles, BookOpen, ChevronRight
 } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
+import { ErrorRetry } from "@/components/error-retry";
 
 const ICON_MAP: Record<string, any> = {
   "presentation": Presentation,
@@ -124,7 +125,7 @@ export default function AIToolsHubPage() {
 
   const toolsQueryKey = isAdult ? "/api/ai-tools?mode=adult" : "/api/ai-tools";
 
-  const { data: rawTools = [], isLoading: toolsLoading } = useQuery<Tool[]>({
+  const { data: rawTools = [], isLoading: toolsLoading, error: toolsError, refetch: refetchTools } = useQuery<Tool[]>({
     queryKey: [toolsQueryKey],
   });
 
@@ -190,6 +191,11 @@ export default function AIToolsHubPage() {
 
 
   useEffect(() => { document.title = "AI Creation Studio | AI Mastery Academy"; }, []);
+
+  if (toolsError) {
+    return <div className="p-6"><ErrorRetry message="Failed to load AI tools." onRetry={refetchTools} /></div>;
+  }
+
   return (
     <div className="p-4 md:p-6 max-w-7xl mx-auto">
       <PageHeader

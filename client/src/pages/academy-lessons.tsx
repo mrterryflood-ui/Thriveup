@@ -19,6 +19,7 @@ import {
   Lightbulb,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { ErrorRetry } from "@/components/error-retry";
 
 interface LifeLesson {
   id: string;
@@ -80,12 +81,16 @@ export default function AcademyLessonsPage() {
 
   const [activeFilter, setActiveFilter] = useState("all");
 
-  const { data: lessons = [], isLoading } = useQuery<LifeLesson[]>({
+  const { data: lessons = [], isLoading, error, refetch } = useQuery<LifeLesson[]>({
     queryKey: ["/api/academy/life-lessons"],
   });
 
   if (isLoading) {
     return <LoadingSkeleton />;
+  }
+
+  if (error) {
+    return <div className="p-6"><ErrorRetry message="Failed to load life lessons. Please try again." onRetry={refetch} /></div>;
   }
 
   const filtered = activeFilter === "all"

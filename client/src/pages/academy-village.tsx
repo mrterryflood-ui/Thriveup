@@ -32,6 +32,7 @@ import {
   DollarSign,
 } from "lucide-react";
 import type { AcademyAvatar } from "@shared/schema";
+import { ErrorRetry } from "@/components/error-retry";
 
 function timeAgo(date: string): string {
   const now = new Date();
@@ -216,7 +217,7 @@ export default function AcademyVillagePage() {
     queryKey: ["/api/academy/avatars"],
   });
 
-  const { data: dashboardData, isLoading: dashboardLoading } = useQuery<DashboardData>({
+  const { data: dashboardData, isLoading: dashboardLoading, error: dashboardError, refetch: refetchDashboard } = useQuery<DashboardData>({
     queryKey: ["/api/academy/dashboard"],
   });
 
@@ -230,6 +231,10 @@ export default function AcademyVillagePage() {
 
   if (avatarLoading && dashboardLoading) {
     return <LoadingSkeleton />;
+  }
+
+  if (dashboardError) {
+    return <div className="p-6"><ErrorRetry message="Failed to load Panther Village. Please try again." onRetry={refetchDashboard} /></div>;
   }
 
   const walletBalance = dashboardData?.wallet?.balance ? parseFloat(dashboardData.wallet.balance) : 0;

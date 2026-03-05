@@ -27,6 +27,8 @@ import {
   FormItem,
   FormLabel,
 } from "@/components/ui/form";
+import { ErrorRetry } from "@/components/error-retry";
+import { PageHeader } from "@/components/page-header";
 import {
   Battery,
   Gauge,
@@ -128,7 +130,7 @@ export default function AcademySelfAssessmentPage() {
 
   const needsSupport = form.watch("needsSupport");
 
-  const { data: history, isLoading: historyLoading } = useQuery<SelfAssessment[]>({
+  const { data: history, isLoading: historyLoading, error: historyError, refetch: refetchHistory } = useQuery<SelfAssessment[]>({
     queryKey: ["/api/self-assessments"],
   });
 
@@ -159,22 +161,11 @@ export default function AcademySelfAssessmentPage() {
 
   return (
     <div className="p-4 sm:p-6 max-w-3xl mx-auto" data-testid="academy-self-assessment-page">
-      <div
-        className="rounded-md bg-gradient-to-r from-rose-900 to-red-700 p-4 sm:p-6 lg:p-8 mb-8"
-        data-testid="section-hero"
-      >
-        <div className="flex items-center gap-3 mb-3 flex-wrap">
-          <div className="rounded-md p-2.5 bg-white/10">
-            <ClipboardCheck className="h-7 w-7 text-white" />
-          </div>
-          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white" data-testid="text-page-title">
-            Daily Check-In
-          </h1>
-        </div>
-        <p className="text-rose-100 text-base sm:text-lg" data-testid="text-page-subtitle">
-          How are you doing today?
-        </p>
-      </div>
+      <PageHeader
+        title="Daily Check-In"
+        description="How are you doing today?"
+        breadcrumbs={[{ label: "Academy", href: "/academy" }, { label: "Self-Assessment" }]}
+      />
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -373,7 +364,9 @@ export default function AcademySelfAssessmentPage() {
 
       <div className="mt-8" data-testid="section-history">
         <h2 className="font-semibold text-lg mb-4">Recent Check-Ins</h2>
-        {historyLoading ? (
+        {historyError ? (
+          <ErrorRetry message="Failed to load check-in history. Please try again." onRetry={refetchHistory} />
+        ) : historyLoading ? (
           <div className="space-y-3">
             {Array.from({ length: 3 }).map((_, i) => (
               <Skeleton key={i} className="h-24" />

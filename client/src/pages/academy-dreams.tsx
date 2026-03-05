@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { AcademyDreamProfile } from "@shared/schema";
+import { ErrorRetry } from "@/components/error-retry";
 import {
   Target,
   GraduationCap,
@@ -27,6 +28,7 @@ import {
   TrendingUp,
   ChevronRight,
 } from "lucide-react";
+import { PageHeader } from "@/components/page-header";
 
 interface ScoreItem {
   label: string;
@@ -500,7 +502,7 @@ export default function AcademyDreamsPage() {
 
   const [editing, setEditing] = useState(false);
 
-  const { data: profile, isLoading, error } = useQuery<AcademyDreamProfile>({
+  const { data: profile, isLoading, error, refetch } = useQuery<AcademyDreamProfile>({
     queryKey: ["/api/academy/dream-profile"],
   });
 
@@ -517,16 +519,17 @@ export default function AcademyDreamsPage() {
     );
   }
 
+  if (error && !(error as any)?.message?.includes("404")) {
+    return <div className="p-6"><ErrorRetry message="Failed to load dream profile." onRetry={refetch} /></div>;
+  }
+
   return (
     <div className="p-6 max-w-5xl mx-auto" data-testid="page-academy-dreams">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-1" data-testid="text-page-title">
-          Dream Design & Assessment
-        </h1>
-        <p className="text-muted-foreground" data-testid="text-page-subtitle">
-          Plan your future, build your holistic resume
-        </p>
-      </div>
+      <PageHeader
+        title="Dream Design & Assessment"
+        description="Plan your future, build your holistic resume"
+        breadcrumbs={[{ label: "Academy", href: "/academy" }, { label: "Dream Board" }]}
+      />
 
       {editing || !hasProfile ? (
         <DreamProfileForm

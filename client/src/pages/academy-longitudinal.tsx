@@ -4,6 +4,7 @@ import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { PageHeader } from "@/components/page-header";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -27,6 +28,7 @@ import {
 } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { ErrorRetry } from "@/components/error-retry";
 
 interface LongitudinalMetrics {
   activePlans: number;
@@ -713,12 +715,16 @@ export default function AcademyLongitudinalPage() {
 
   const [activeTab, setActiveTab] = useState("overview");
 
-  const { data: metrics, isLoading: metricsLoading } = useQuery<LongitudinalMetrics>({
+  const { data: metrics, isLoading: metricsLoading, error, refetch } = useQuery<LongitudinalMetrics>({
     queryKey: ["/api/admin/longitudinal-metrics"],
   });
 
   if (metricsLoading) {
     return <LoadingSkeleton />;
+  }
+
+  if (error) {
+    return <div className="p-6"><ErrorRetry message="Failed to load longitudinal metrics." onRetry={refetch} /></div>;
   }
 
   const m = metrics ?? {
@@ -731,6 +737,11 @@ export default function AcademyLongitudinalPage() {
 
   return (
     <div className="p-6 max-w-6xl mx-auto" data-testid="academy-longitudinal-page">
+      <PageHeader
+        title="Impact Tracking"
+        description="Longitudinal pathway plans, mentorship, and alumni tracking"
+        breadcrumbs={[{label:"Academy",href:"/academy"},{label:"Impact Tracking"}]}
+      />
       <div
         className="rounded-md bg-gradient-to-r from-rose-900 to-red-950 dark:from-rose-950 dark:to-background p-8 mb-8"
         data-testid="section-hero"

@@ -5,11 +5,13 @@ import { useToast } from "@/hooks/use-toast";
 import { Link } from "wouter";
 import AcademyWizard from "@/components/academy-wizard";
 import { WIZARD_STEPS } from "@/lib/wizard-data";
+import { ErrorRetry } from "@/components/error-retry";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PageHeader } from "@/components/page-header";
 import {
   Wallet,
   DollarSign,
@@ -112,7 +114,7 @@ export default function AcademyWalletPage() {
   useEffect(() => { document.title = 'Wallet | AI Mastery Academy'; }, []);
   const [showFundSection, setShowFundSection] = useState(false);
 
-  const { data: wallet, isLoading: walletLoading } = useQuery<WalletData>({
+  const { data: wallet, isLoading: walletLoading, error: walletError, refetch: refetchWallet } = useQuery<WalletData>({
     queryKey: ["/api/academy/wallet"],
   });
 
@@ -137,6 +139,10 @@ export default function AcademyWalletPage() {
     );
   }
 
+  if (walletError) {
+    return <div className="p-6"><ErrorRetry message="Failed to load wallet data. Please try again." onRetry={refetchWallet} /></div>;
+  }
+
   if (!wallet) return null;
 
   const sortedTransactions = transactions
@@ -145,15 +151,14 @@ export default function AcademyWalletPage() {
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-1 flex items-center gap-3" data-testid="text-wallet-title">
-          <Wallet className="h-8 w-8 text-primary" />
-          My Virtual Wallet
-        </h1>
-        <p className="text-muted-foreground" data-testid="text-wallet-subtitle">
-          Track your earnings and investments
-        </p>
-      </div>
+      <PageHeader
+        title="My Virtual Wallet"
+        description="Track your earnings and investments"
+        breadcrumbs={[
+          { label: "Academy", href: "/academy" },
+          { label: "Wallet" },
+        ]}
+      />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <Card className="p-5 border-primary/20" data-testid="card-balance">

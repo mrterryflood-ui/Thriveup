@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { BackToTop } from "@/components/back-to-top";
+import { ErrorRetry } from "@/components/error-retry";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -661,7 +662,9 @@ function AIFrameworkEvaluation() {
   const AVG_COST_PER_INTERACTION = useFreeTier ? 0 : AVG_COST_PER_INTERACTION_PAID;
   const SCHOOL_DAYS_PER_MONTH = 20;
   const monthlyCost = studentCount * interactionsPerDay * AVG_COST_PER_INTERACTION * SCHOOL_DAYS_PER_MONTH;
-  const { data: providerInfo } = useQuery<{name: string, model: string, isFree: boolean}>({ queryKey: ["/api/ai-provider"] });
+  const { data: providerInfo, error: providerError, refetch: refetchProvider } = useQuery<{name: string, model: string, isFree: boolean}>({ queryKey: ["/api/ai-provider"] });
+
+  if (providerError) return <div className="p-6"><ErrorRetry message="Failed to load AI provider information. Please try again." onRetry={refetchProvider} /></div>;
 
   return (
     <div className="space-y-8">

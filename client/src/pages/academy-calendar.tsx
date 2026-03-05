@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar, Clock, Plus, Trash2, Loader2 } from "lucide-react";
+import { ErrorRetry } from "@/components/error-retry";
+import { PageHeader } from "@/components/page-header";
 import type { AcademyEvent } from "@shared/schema";
 
 function getCategoryBadge(category: string) {
@@ -133,7 +135,7 @@ export default function AcademyCalendarPage() {
   const [category, setCategory] = useState("school");
   const [showForm, setShowForm] = useState(false);
 
-  const { data: events = [], isLoading } = useQuery<AcademyEvent[]>({
+  const { data: events = [], isLoading, error, refetch } = useQuery<AcademyEvent[]>({
     queryKey: ["/api/events"],
   });
 
@@ -171,14 +173,15 @@ export default function AcademyCalendarPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="bg-[#800000] text-white py-8 px-4">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-2xl font-bold flex items-center gap-2" data-testid="text-calendar-title">
-            <Calendar className="w-7 h-7" />
-            Academy Calendar
-          </h1>
-          <p className="text-white/80 mt-1" data-testid="text-calendar-subtitle">Stay up to date with upcoming events, competitions, and activities.</p>
-        </div>
+      <div className="max-w-4xl mx-auto px-4 pt-6">
+        <PageHeader
+          title="Academy Calendar"
+          description="Stay up to date with upcoming events, competitions, and activities."
+          breadcrumbs={[
+            { label: "Academy", href: "/academy" },
+            { label: "Calendar" },
+          ]}
+        />
       </div>
       <div className="max-w-4xl mx-auto p-4 space-y-4">
         {isAdmin && (
@@ -250,7 +253,9 @@ export default function AcademyCalendarPage() {
           </div>
         )}
 
-        {isLoading ? (
+        {error ? (
+          <div className="p-6"><ErrorRetry message="Failed to load calendar events. Please try again." onRetry={refetch} /></div>
+        ) : isLoading ? (
           <div className="flex justify-center py-12">
             <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" data-testid="loading-events" />
           </div>

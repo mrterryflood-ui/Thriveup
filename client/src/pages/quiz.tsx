@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import type { QuizQuestion } from "@shared/schema";
+import { ErrorRetry } from "@/components/error-retry";
 
 export default function QuizPage() {
   const params = useParams<{ moduleId: string }>();
@@ -29,7 +30,7 @@ export default function QuizPage() {
   const [showResults, setShowResults] = useState(false);
   const [quizResult, setQuizResult] = useState<{ score: number; total: number; passed: boolean; pointsEarned: number } | null>(null);
 
-  const { data: questions, isLoading } = useQuery<QuizQuestion[]>({
+  const { data: questions, isLoading, error, refetch } = useQuery<QuizQuestion[]>({
     queryKey: ["/api/modules", moduleId, "quiz"],
   });
 
@@ -45,16 +46,18 @@ export default function QuizPage() {
     },
   });
 
-  if (isLoading) {
-  
   useEffect(() => { document.title = "Quiz | AI Mastery Academy"; }, []);
-  return (
+
+  if (isLoading) {
+    return (
       <div className="p-6 max-w-3xl mx-auto space-y-4">
         <Skeleton className="h-8 w-32 mb-4" />
         <Skeleton className="h-64 w-full" />
       </div>
     );
   }
+
+  if (error) return <div className="p-6"><ErrorRetry message="Failed to load quiz questions. Please try again." onRetry={refetch} /></div>;
 
   if (!questions || questions.length === 0) {
     return (

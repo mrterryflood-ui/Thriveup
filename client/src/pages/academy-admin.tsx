@@ -62,6 +62,7 @@ import {
 } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { ErrorRetry } from "@/components/error-retry";
 
 interface MetricsData {
   totalStudents: number;
@@ -590,7 +591,7 @@ export default function AcademyAdminPage() {
   const [noteCategory, setNoteCategory] = useState("observation");
   const [noteText, setNoteText] = useState("");
 
-  const { data: metrics, isLoading: metricsLoading } = useQuery<MetricsData>({
+  const { data: metrics, isLoading: metricsLoading, error: metricsError, refetch: refetchMetrics } = useQuery<MetricsData>({
     queryKey: ["/api/academy/admin/metrics"],
   });
 
@@ -655,6 +656,10 @@ export default function AcademyAdminPage() {
 
   if (metricsLoading) {
     return <LoadingSkeleton />;
+  }
+
+  if (metricsError) {
+    return <div className="p-6"><ErrorRetry message="Failed to load admin dashboard data." onRetry={refetchMetrics} /></div>;
   }
 
   const topStudents = metrics?.topStudents ?? [];

@@ -47,6 +47,7 @@ import {
   Flag,
   Clock,
 } from "lucide-react";
+import { ErrorRetry } from "@/components/error-retry";
 
 interface MentorProfile {
   id: string;
@@ -277,7 +278,7 @@ export default function AcademyMentorFinderPage() {
   const [locationPref, setLocationPref] = useState("");
   const [outreachMessage, setOutreachMessage] = useState("");
 
-  const { data: mentors, isLoading: mentorsLoading, isError: mentorsError, error: mentorsErrorObj } = useQuery<MentorProfile[]>({
+  const { data: mentors, isLoading: mentorsLoading, isError: mentorsError, error: mentorsErrorObj, refetch: refetchMentors } = useQuery<MentorProfile[]>({
     queryKey: ["/api/mentors"],
   });
 
@@ -506,16 +507,7 @@ export default function AcademyMentorFinderPage() {
                 ))}
               </div>
             ) : mentorsError ? (
-              <Card className="p-8 text-center" data-testid="card-mentors-error">
-                <Users className="h-10 w-10 mx-auto text-muted-foreground/30 mb-3" />
-                <h3 className="font-semibold mb-2" data-testid="text-mentors-error-title">Unable to Load Mentors</h3>
-                <p className="text-sm text-muted-foreground mb-4" data-testid="text-mentors-error-message">
-                  {mentorsErrorObj instanceof Error ? mentorsErrorObj.message : "Something went wrong. Please try again."}
-                </p>
-                <Button variant="outline" onClick={() => window.location.reload()} data-testid="button-retry-mentors">
-                  Try Again
-                </Button>
-              </Card>
+              <ErrorRetry message={mentorsErrorObj instanceof Error ? mentorsErrorObj.message : "Failed to load mentors. Please try again."} onRetry={refetchMentors} />
             ) : activeMentors.length > 0 ? (
               <div className="space-y-3 max-h-[520px] overflow-y-auto pr-1">
                 {activeMentors.map((mentor, idx) => {
