@@ -196,8 +196,8 @@ export function AppSidebar() {
               <Heart className="h-5 w-5 text-white" />
             </div>
             <div>
-              <p className="font-bold text-sm leading-tight">TxEA</p>
-              <p className="text-xs text-muted-foreground leading-tight">Panthers</p>
+              <p className="font-bold text-sm leading-tight">AI Mastery Academy</p>
+              <p className="text-xs text-muted-foreground leading-tight">School Support Hub</p>
             </div>
           </div>
         </Link>
@@ -330,7 +330,7 @@ export function AppSidebar() {
         </Link>
         <div className="flex items-center gap-2 text-xs text-muted-foreground mt-2">
           <Heart className="h-3.5 w-3.5 shrink-0" />
-          <span>Education, Character, Leadership</span>
+          <span>AI Mastery Academy & School Support Hub</span>
         </div>
       </SidebarFooter>
     </Sidebar>

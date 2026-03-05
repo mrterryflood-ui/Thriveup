@@ -15,7 +15,7 @@ const WEBSITE_URL = "https://55376bb2-2aea-463e-b6a9-2c1d5c123d53-00-5trt8miml0v
 
 const VIDEO_SCRIPT = {
   title: "The Command Center Behind the Culture",
-  subtitle: "A 3-Minute Tour of the TxEA Learning Academy Admin Suite",
+  subtitle: "A 3-Minute Tour of the AI Mastery Academy Admin Suite",
   totalDuration: "3:00",
   sections: [
     {
@@ -23,9 +23,9 @@ const VIDEO_SCRIPT = {
       timestamp: "0:00 - 0:20",
       duration: "20 sec",
       label: "OPENING",
-      direction: "FADE IN from black. Soft ambient music builds. Animated particles converge to form the TxEA Panther silhouette.",
+      direction: "FADE IN from black. Soft ambient music builds. Animated particles converge to form the AI Mastery Academy Panther silhouette.",
       voiceover: "Every great learning community has something invisible powering it. Behind every student breakthrough, every parent sigh of relief, every teacher celebration... there is a system. A command center. Built not just for managing students, but for believing in them.",
-      visualNotes: "Slow zoom into the Panther Village campus. Golden hour lighting. Subtle animated sparkles around buildings. Text appears: 'TxEA Learning Academy'. Then fades to: 'The Admin Suite'.",
+      visualNotes: "Slow zoom into the Panther Village campus. Golden hour lighting. Subtle animated sparkles around buildings. Text appears: 'AI Mastery Academy'. Then fades to: 'The Admin Suite'.",
       icon: Sparkles,
     },
     {
@@ -94,7 +94,7 @@ const VIDEO_SCRIPT = {
       duration: "25 sec",
       label: "CLOSING",
       direction: "PULL BACK to a wide shot of the Panther Village campus at sunset. Music reaches its peak. All feature icons orbit the campus like a constellation.",
-      voiceover: "This is not just software. This is infrastructure for belief. Every dashboard, every alert, every course you create, every student you track... it all adds up to one thing: a community that refuses to let any child be invisible. The TxEA Learning Academy Admin Suite. Built by educators. For educators. See it live.",
+      voiceover: "This is not just software. This is infrastructure for belief. Every dashboard, every alert, every course you create, every student you track... it all adds up to one thing: a community that refuses to let any child be invisible. The AI Mastery Academy Admin Suite. Built by educators. For educators. See it live.",
       visualNotes: `Feature icons (shield, book, brain, gamepad, globe) orbit and merge into the Panther logo. Final frame: '${WEBSITE_URL}' with the tagline 'Infrastructure for Belief.' Fade to black.`,
       icon: GraduationCap,
     },
@@ -102,7 +102,7 @@ const VIDEO_SCRIPT = {
   productionNotes: [
     "Total runtime: 3 minutes flat",
     "Music: Inspirational ambient, building to an emotional peak at the close. Suggest royalty-free tracks from Epidemic Sound or Artlist.",
-    "Animation style: Clean motion graphics with the TxEA maroon (#7A1F3E) and silver palette. Smooth transitions, no jarring cuts.",
+    "Animation style: Clean motion graphics with the AI Mastery Academy maroon (#7A1F3E) and silver palette. Smooth transitions, no jarring cuts.",
     "Voice talent: Warm, confident, measured pace. Not a sales pitch. A story.",
     "Screen recordings: Capture live from the platform at each URL listed. Use slight zoom and pan effects over the UI.",
     `Website URL for end card and watermark: ${WEBSITE_URL}`,

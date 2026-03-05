@@ -244,7 +244,7 @@ export function CertificateViewPage() {
               style={{ color: "#b8942e" }}
               data-testid="text-certificate-subtitle"
             >
-              Learning Academy
+              AI Mastery Academy
             </p>
 
             <hr
@@ -272,7 +272,7 @@ export function CertificateViewPage() {
               <span className="font-semibold" data-testid="text-certificate-level">
                 {cert.levelTitle}
               </span>{" "}
-              in the Learning Academy AI Curriculum.
+              in the AI Mastery Academy Curriculum.
             </p>
 
             <hr
@@ -301,7 +301,7 @@ export function CertificateViewPage() {
                 style={{ borderColor: "#c9a84c" }}
               />
               <p className="text-sm font-medium" style={{ color: "#8b6914" }}>
-                Learning Academy Faculty
+                AI Mastery Academy Faculty
               </p>
             </div>
 

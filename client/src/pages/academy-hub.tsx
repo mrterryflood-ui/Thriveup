@@ -143,10 +143,10 @@ export default function AcademyHubPage() {
     <div className="p-6 max-w-5xl mx-auto">
       <div className="rounded-md bg-gradient-to-r from-rose-900 to-red-950 p-8 mb-8" data-testid="section-hero">
         <h1 className="text-3xl font-bold text-white mb-2" data-testid="text-academy-title">
-          TxEA Sixth Grade Academy
+          AI Mastery Academy
         </h1>
         <p className="text-rose-100 text-lg">
-          60 Young Panthers Building Their Empire
+          Young Leaders Building Their Future Through AI
         </p>
       </div>
 

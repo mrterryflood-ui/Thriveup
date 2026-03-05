@@ -250,7 +250,7 @@ export function registerCrossPlatformRoutes(app: Express) {
   app.get("/api/external/health", requireApiKey, async (_req, res) => {
     res.json({ 
       status: "ok", 
-      platform: "TxEA Learning Academy",
+      platform: "AI Mastery Academy & School Support Hub",
       version: "1.0",
       endpoints: [
         "GET /api/external/students/overview",

@@ -937,7 +937,7 @@ export default function ImplementationRecommendationsPage() {
           District Administrator Planning Guide
         </p>
         <p className="text-rose-200 text-sm mt-2 max-w-2xl" data-testid="text-impl-description">
-          Grade-by-grade deployment strategy, pre-rollout checklists, AI framework evaluation, and phased rollout timeline for the Learning Academy platform.
+          Grade-by-grade deployment strategy, pre-rollout checklists, AI framework evaluation, and phased rollout timeline for the AI Mastery Academy platform.
         </p>
       </div>
 

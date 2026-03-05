@@ -83,7 +83,7 @@ const STEPS = [
     icon: Sparkles,
     title: "You're Ready!",
     description:
-      "That's it! You're officially a TxEA Panther. Your campus, your career, your future — it all starts right here.",
+      "That's it! You're officially an AI Mastery Academy Panther. Your campus, your career, your future — it all starts right here.",
     secondary: "Click 'Start Exploring' to begin your journey!",
     bgColor: "bg-emerald-100 dark:bg-emerald-900/40",
     iconColor: "text-emerald-700 dark:text-emerald-300",

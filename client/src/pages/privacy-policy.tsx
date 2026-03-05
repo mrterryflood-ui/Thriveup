@@ -31,7 +31,7 @@ export default function PrivacyPolicyPage() {
           Privacy & Data Protection Policy
         </h1>
         <p className="text-muted-foreground" data-testid="text-privacy-subtitle">
-          Texas Empowerment Academy - Learning Academy Platform
+          AI Mastery Academy & School Support Hub
         </p>
         <p className="text-sm text-muted-foreground" data-testid="text-privacy-updated">
           Last Updated: February 2026
@@ -66,10 +66,10 @@ export default function PrivacyPolicyPage() {
       <section id="commitment">
         <SectionCard num={1} icon={Lock} title="Our Commitment to Student Privacy">
           <div>
-            The Texas Empowerment Academy Learning Academy is built with student privacy as a foundational principle. We comply with <Badge variant="outline">FERPA</Badge> (Family Educational Rights and Privacy Act), <Badge variant="outline">COPPA</Badge> (Children's Online Privacy Protection Act), and state privacy regulations.
+            The AI Mastery Academy & School Support Hub is built with student privacy as a foundational principle. We comply with <Badge variant="outline">FERPA</Badge> (Family Educational Rights and Privacy Act), <Badge variant="outline">COPPA</Badge> (Children's Online Privacy Protection Act), and state privacy regulations.
           </div>
           <p className="mt-3">
-            This platform serves students in grades 3-12 and we take our responsibility to protect young learners seriously.
+            This platform serves youth ages 14-24 and we take our responsibility to protect learners seriously.
           </p>
         </SectionCard>
       </section>
@@ -226,7 +226,7 @@ export default function PrivacyPolicyPage() {
         <SectionCard num={11} icon={Mail} title="Contact Information">
           <p className="text-sm">For privacy questions or data requests, please contact:</p>
           <div className="mt-3 space-y-1 text-sm">
-            <p className="font-semibold" data-testid="text-contact-office">Texas Empowerment Academy - Data Privacy Office</p>
+            <p className="font-semibold" data-testid="text-contact-office">AI Mastery Academy - Data Privacy Office</p>
             <p className="text-muted-foreground" data-testid="text-contact-email">Email: privacy@txea.edu</p>
           </div>
           <p className="mt-4 text-sm text-muted-foreground">

@@ -41,13 +41,13 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import type { AcademyMerchItem, AcademyMerchOrder } from "@shared/schema";
 
 const PLACEHOLDER_ITEMS = [
-  { name: "T-Shirts", price: "25.00", category: "Apparel", description: "Academy branded t-shirts in various sizes" },
-  { name: "Hoodies", price: "45.00", category: "Apparel", description: "Warm hoodies with academy logo" },
+  { name: "T-Shirts", price: "25.00", category: "Apparel", description: "AI Mastery Academy branded t-shirts in various sizes" },
+  { name: "Hoodies", price: "45.00", category: "Apparel", description: "Warm hoodies with AI Mastery Academy logo" },
   { name: "Caps", price: "20.00", category: "Accessories", description: "Adjustable caps with embroidered logo" },
   { name: "Tote Bags", price: "15.00", category: "Accessories", description: "Durable tote bags for everyday use" },
-  { name: "Water Bottles", price: "18.00", category: "Accessories", description: "Reusable water bottles with academy branding" },
+  { name: "Water Bottles", price: "18.00", category: "Accessories", description: "Reusable water bottles with AI Mastery Academy branding" },
   { name: "Notebooks", price: "12.00", category: "Stationery", description: "Lined notebooks for learning and notes" },
-  { name: "Stickers Pack", price: "8.00", category: "Stationery", description: "Pack of academy-themed stickers" },
+  { name: "Stickers Pack", price: "8.00", category: "Stationery", description: "Pack of AI Mastery Academy-themed stickers" },
   { name: "Wristbands", price: "5.00", category: "Accessories", description: "Silicone wristbands showing your support" },
 ];
 
@@ -141,10 +141,10 @@ export default function AcademyMerchPage() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-1 flex items-center gap-3 flex-wrap" data-testid="text-merch-title">
           <ShoppingBag className="h-8 w-8 text-primary shrink-0" />
-          Print Shop & Merchandise
+          AI Mastery Academy Merch Shop
         </h1>
         <p className="text-muted-foreground" data-testid="text-merch-subtitle">
-          Real merchandise, real fundraising - Partnership with UBO
+          Official AI Mastery Academy merchandise - Real fundraising in partnership with UBO
         </p>
       </div>
 

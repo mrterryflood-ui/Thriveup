@@ -86,7 +86,7 @@ export default function DashboardPage() {
           Welcome back, {progress.studentName}!
         </h1>
         <p className="text-muted-foreground">
-          Keep exploring and growing. You're doing great!
+          AI Mastery Academy — Keep exploring and growing. You're doing great!
         </p>
       </div>
 
@@ -220,7 +220,7 @@ export default function DashboardPage() {
                     <Sparkles className="h-5 w-5 text-primary shrink-0" />
                     <div>
                       <p className="font-medium text-sm">Ask Spark</p>
-                      <p className="text-xs text-muted-foreground">Your learning companion</p>
+                      <p className="text-xs text-muted-foreground">Your AI mastery companion</p>
                     </div>
                   </div>
                 </Card>
@@ -230,7 +230,7 @@ export default function DashboardPage() {
                   <div className="flex items-center gap-3">
                     <BookOpen className="h-5 w-5 text-primary shrink-0" />
                     <div>
-                      <p className="font-medium text-sm">AI Curriculum</p>
+                      <p className="font-medium text-sm">AI Mastery Curriculum</p>
                       <p className="text-xs text-muted-foreground">5 mastery levels</p>
                     </div>
                   </div>

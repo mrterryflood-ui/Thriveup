@@ -1,36 +1,56 @@
-# Learning Academy (Grades 3-12)
+# AI Mastery Academy & School Support Hub
 
 ## Overview
-Learning Academy is an education platform for students in grades 3-12, focusing on holistic development across six core subjects and an AI Mastery curriculum. It features age-appropriate content, an AI learning companion named Spark with ethical guardrails, and a dedicated Sixth Grade Academy. The platform integrates an entrepreneurship ecosystem, virtual campus building, and real fundraising opportunities for college tuition, fostering community engagement and preparing students for future success. The project aims to provide comprehensive, empathetic, and innovative learning experiences that promote whole-child development and equip students with essential life skills.
+AI Mastery Academy is an education platform and school support hub for under-resourced youth ages 14-24, built on the foundation that the students who learn to think with AI today will lead tomorrow. The platform features a five-level AI Mastery curriculum (Explorer through Master), 50+ school-to-career pipelines, professional mentorship, workforce development, and an AI Creation Studio with 10 professional-grade tools students earn through demonstrated mastery. It integrates an entrepreneurship ecosystem, virtual campus (Panther Village), financial literacy, real fundraising opportunities for college tuition, and IGN-Thrive analytics for whole-child support. The platform is aligned with NBA Foundation grant eligibility criteria: school-to-career employment opportunities, job readiness, skill training, job placement, career advancement, and mentorship for under-resourced communities.
 
 ## User Preferences
 The agent should prioritize iterative development, clearly explaining major changes before implementation. It should focus on delivering high-quality, well-tested code, and use clear, simple language when describing technical concepts. Avoid making changes to sensitive configuration files or core architectural components without explicit instruction.
+
+## Branding & Identity
+- **Platform Name:** AI Mastery Academy (primary), School Support Hub (secondary positioning)
+- **Legacy Name:** Texas Empowerment Academy (TxEA) - used in some narrative content
+- **Mission:** Empowering under-resourced youth with AI mastery, workforce readiness, and school-to-career pipelines
+- **Tagline:** Teaching the first generation to guide their smartest classmate
+- **Values:** AI Mastery, Workforce Development, Mentorship, Equity, Whole-Child Support
+- **Contact:** sisnett.meredith@gmail.com, mr.terryflood@gmail.com
+
+## NBA Foundation Alignment
+The platform is positioned for NBA Foundation grant eligibility:
+- **Target Population:** Under-resourced youth ages 14-24
+- **Core Focus:** School-to-career employment pipelines
+- **Key Areas:** Job readiness, skill training, job placement, career advancement
+- **Mentorship:** Professional coaching and pipeline development
+- **Impact Metrics:** Youth served, career pathways, mentorship connections, workforce skills, program retention
+- **Community:** Launching in Austin, TX with plans for national scaling
 
 ## System Architecture
 The application uses a React + Vite frontend with shadcn/ui, Tailwind CSS, wouter for routing, and TanStack Query for data management. The backend is an Express.js server on Node.js, interacting with a PostgreSQL database via Drizzle ORM. Authentication is handled by Replit Auth (OIDC) supporting magic link, Google, and GitHub logins, with user sessions and profiles stored in the database.
 
 Key architectural decisions and features include:
-- **Comprehensive Curriculum:** Structured content for subjects and AI mastery levels, with interactive lessons, quizzes, and progress tracking.
+- **AI Mastery Curriculum:** Five-level progression (Explorer, Guide, Architect, Innovator, Master) teaching responsible, ethical AI use. Module-gated tool access. Parent Teachback verification. Capstone projects at each level.
 - **AI Companions (Spark & Sparky):** Spark is a grade-band-specific AI learning companion (configurable AI provider with SSE streaming, emotional intelligence framework, Socratic questioning, growth mindset, cultural awareness, bilingual support, safety guardrails). Sparky is an adult AI companion for parents and teachers, offering compassionate support without child-safety restrictions, including evidence-based strategies and context-aware conversations. Both link to the AI Creation Studio.
-- **AI Creation Studio:** A unified productivity platform with 10 AI-powered tools (Presentation Builder, Video Script Creator, Sales Pitch Builder, Business Plan Generator, Research Assistant, Life Planner, Project Planner, Document Writer, Resume Builder, Brainstorm Studio). Features wizard workflows for seamless project flow between tools (e.g., brainstorm -> business plan -> pitch -> presentation), project import/export, file attachment with text content reading, streaming AI generation, and project saving. Tools are module-gated for students (must complete AI Course modules to unlock) but ungated for adults via Sparky (?mode=adult). At /ai-tools and /ai-tools/:toolKey.
-- **Sixth Grade Academy:** An immersive experience including Panther Village (interactive campus landing page), avatar customization, a simulated stock market, a "Build Your Black Campus" project, academic competitions, and a virtual merchandise shop for college tuition fundraising.
-- **Career & Mentorship Systems:** Features a Career Explorer, a longitudinal "My Pathway" tracker with portfolio evidence upload, and a Mentor Network for connecting students with professionals, integrated with the MCOE directory.
-- **IGN-Thrive™ System:** A structured autonomy and context-aware navigation system for students, featuring a six-domain Thrive Scoring Engine, student self-assessment, GIS Context Engine for external factors, and an Early Warning System with intervention playbooks.
-- **Engagement & Progression:** Includes a badge achievement system, detailed progress tracking, daily quests, and a "Panther Power Score" (unified empowerment metric across five categories).
-- **Administrative & Support Tools:** Parent & Teacher Dashboards, classroom management, certificate system, student reflection journal, announcements, calendar, student help, and attendance tracking.
-- **LMS Course Creator:** Admin-only LearnWorlds-style course management at /academy/course-creator. Multi-step wizard for course creation with 10 categories (Coaching, Creators, Customer Training, Enterprise LMS, Finance, Fitness, Health, Non-profit, Education, Technology). Course editor with Details, Modules & Lessons, and Enrollments tabs. Full CRUD for courses, modules, and lessons with enrollment tracking. DB tables: academy_courses, course_modules, course_lessons, course_enrollments, course_lesson_progress.
-- **Accessibility & Responsiveness:** Comprehensive `AccessibilityProvider` with dyslexia-friendly fonts, large text, high contrast, reduced motion, and screen reader optimization. WCAG 2.1 AA compliance and mobile responsiveness are prioritized.
-- **Design System:** Utilizes TxEA maroon and silver colors with Plus Jakarta Sans and JetBrains Mono fonts, supporting dark mode.
-- **Risk Management:** A "Risk Decision Tracking" system for financial decisions with configurable thresholds and educational components.
-- **Multi-Game Platform (Panther Game Room):** A game lobby with various games, including a fully functional Dominoes game with CPU AI and ELO rating.
+- **AI Creation Studio:** A unified productivity platform with 10 AI-powered tools (Presentation Builder, Video Script Creator, Sales Pitch Builder, Business Plan Generator, Research Assistant, Life Planner, Project Planner, Document Writer, Resume Builder, Brainstorm Studio). Features wizard workflows for seamless project flow between tools, project import/export, file attachment with text content reading, streaming AI generation, and project saving. Tools are module-gated for students (must complete AI Course modules to unlock) but ungated for adults via Sparky (?mode=adult). At /ai-tools and /ai-tools/:toolKey.
+- **Panther Village Academy:** An immersive virtual campus with interactive buildings, avatar customization, a simulated stock market, academic competitions, and a virtual merchandise shop for college tuition fundraising.
+- **School-to-Career Pipelines:** 50+ career pathways with structured progression from exploration to job readiness, skill training, and career placement. Career readiness assessments, workforce milestones, and industry partnership pipelines.
+- **Mentor Network:** Professional coaching connecting under-resourced youth with industry mentors for career advancement and workforce readiness.
+- **IGN-Thrive System:** A structured autonomy and context-aware navigation system featuring a six-domain Thrive Scoring Engine, student self-assessment, GIS Context Engine for external factors, and an Early Warning System with intervention playbooks.
+- **Engagement & Progression:** Badge achievement system, detailed progress tracking, daily quests, and "Panther Power Score" (unified empowerment metric across five categories).
+- **Administrative & Support Tools:** Parent & Teacher Dashboards (School Support Hub), classroom management, certificate system, student reflection journal, announcements, calendar, student help, and attendance tracking.
+- **LMS Course Creator:** Admin-only LearnWorlds-style course management at /academy/course-creator. Multi-step wizard for course creation with 10 categories. Course editor with Details, Modules & Lessons, and Enrollments tabs. Full CRUD for courses, modules, and lessons with enrollment tracking.
+- **Accessibility & Responsiveness:** Comprehensive AccessibilityProvider with dyslexia-friendly fonts, large text, high contrast, reduced motion, and screen reader optimization. WCAG 2.1 AA compliance and mobile responsiveness.
+- **Design System:** Maroon and silver colors with Plus Jakarta Sans and JetBrains Mono fonts, supporting dark mode.
+- **Financial Literacy & Workforce Development:** Financial literacy academy, stock market simulation, entrepreneurship training, and real fundraising for college tuition.
+- **Multi-Game Platform (Panther Game Room):** A game lobby with educational games including Dominoes with CPU AI and ELO rating.
 - **Internationalization (i18n):** Custom language provider supporting English and Spanish.
-- **TX STAAR Test Prep:** Grade-level study guides (Grades 3-11) aligned to Texas Essential Knowledge and Skills (TEKS). Features expandable study guides with key vocabulary and study tips, interactive practice assessments with instant feedback and explanations, mastery tracking (4 levels: needs_practice, developing, proficient, mastered), assessment history with scoring, and personalized recommendations based on weak areas. Covers Math, RLA for Grades 3-8, Science for Grades 5/8, Social Studies for Grade 8, and high school EOCs (Algebra I, English I/II, Biology, U.S. History). DB tables: staar_study_guides, staar_practice_questions, staar_student_assessments, staar_topic_mastery. At /academy/staar-prep.
-- **Implementation Recommendations:** District administrator planning guide with grade-by-grade (6-12) deployment strategy, pre-rollout checklists, AI framework evaluation, open-source AI strategy, cost comparison calculator, and phased rollout timeline. At /implementation.
-- **Low-Bandwidth Mode:** User-toggleable mode to strip animations, images, and shadows for improved performance.
+- **TX STAAR Test Prep:** Grade-level study guides (Grades 3-11) aligned to TEKS. Covers Math, RLA, Science, Social Studies, and high school EOCs. Gamified with streaks, celebrations, and mastery tracking. At /academy/staar-prep.
+- **Feature Video Guide:** Homepage video player with Arthur Wakanda platform tour (play/pause, mute, fullscreen controls with accessibility labels).
+- **Implementation Recommendations:** District administrator planning guide with phased rollout timeline. At /implementation.
+- **Low-Bandwidth Mode:** User-toggleable mode for improved performance.
+- **Orientation-MAP-GAP Framework:** System improvement methodology integrated into platform development approach.
 
 ## External Dependencies
 - **Database:** PostgreSQL (Neon-backed)
-- **AI Integration:** Provider-agnostic abstraction layer (server/ai-provider.ts). Default: Google Gemini Flash (gemini-2.0-flash, free via Google AI Studio API key). Also supports OpenAI (gpt-4o-mini) and Replit AI Integrations (gpt-5-nano) as fallbacks. School districts can bring their own provider by setting GEMINI_API_KEY, OPENAI_API_KEY, or other provider keys.
+- **AI Integration:** Provider-agnostic abstraction layer (server/ai-provider.ts). Default: Google Gemini Flash (gemini-2.0-flash, free via Google AI Studio API key). Also supports OpenAI (gpt-4o-mini) and Replit AI Integrations (gpt-5-nano) as fallbacks.
 - **Authentication:** Replit Auth (OIDC)
 - **GIS Data Sources:** CDC PLACES API (Socrata), CDC/ATSDR SVI, FBI Crime Data API
 - **UI Components:** shadcn/ui

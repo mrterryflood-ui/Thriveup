@@ -22,7 +22,7 @@ interface SlideData {
 
 const slides: SlideData[] = [
   {
-    title: "Welcome to TxEA Admin Center",
+    title: "Welcome to AI Mastery Academy Admin Center",
     icon: Home,
     overview: "You manage 60 sixth graders' entire learning journey from this platform. Every tool you need is right here.",
     keyPoints: [
@@ -327,7 +327,7 @@ export default function AcademyAdminTutorialPage() {
       <div className="mb-6">
         <div className="rounded-md p-4 bg-gradient-to-r from-rose-900 to-red-950 text-white mb-6">
           <h1 className="text-2xl font-bold" data-testid="text-admin-tutorial-title">
-            TxEA Admin Guide
+            AI Mastery Academy Admin Guide
           </h1>
           <p className="text-sm text-white/80 mt-1">
             A complete walkthrough of every platform management feature

@@ -40,6 +40,10 @@ import {
   FlaskConical,
   Hammer,
   Monitor,
+  TrendingUp,
+  Users,
+  Building2,
+  Handshake,
 } from "lucide-react";
 
 interface CareerField {
@@ -130,18 +134,18 @@ function getCategoryColor(category: string) {
 }
 
 const CATEGORY_DESCRIPTIONS: Record<string, string> = {
-  "Agriculture & Environment": "Careers focused on farming, conservation, sustainability, and protecting our natural world.",
-  "Arts & Creative": "Express yourself through visual arts, music, design, writing, and other creative pursuits.",
-  "Business & Finance": "Manage money, lead organizations, and drive economic growth in the business world.",
-  "Education": "Shape future generations by teaching, mentoring, and developing educational programs.",
-  "Engineering": "Design and build solutions to real-world problems using math, science, and creativity.",
-  "Healthcare": "Help people stay healthy, treat illnesses, and improve quality of life.",
-  "Law & Justice": "Protect rights, enforce laws, and ensure fairness in our communities.",
-  "Media & Communications": "Tell stories, share news, and connect people through various media platforms.",
-  "Military & Public Service": "Serve your country and community through defense, government, and public safety.",
-  "Science & Research": "Explore the unknown, conduct experiments, and push the boundaries of human knowledge.",
-  "Skilled Trades": "Master hands-on crafts like electrical work, plumbing, welding, and construction.",
-  "Technology": "Build software, manage networks, and create the digital tools that power our world.",
+  "Agriculture & Environment": "Build job-ready skills in farming, conservation, and sustainability. A growing pipeline to careers in environmental science, agribusiness, and green energy.",
+  "Arts & Creative": "Develop workforce-ready talents in visual arts, music, design, and digital media. Industry partnerships connect youth to creative economy careers.",
+  "Business & Finance": "Gain job readiness in financial literacy, management, and entrepreneurship. School-to-career pathways into banking, consulting, and business leadership.",
+  "Education": "Shape future generations through teaching, mentoring, and program development. Career advancement pathways from classroom aide to school leadership.",
+  "Engineering": "Master in-demand STEM skills through hands-on training. Industry-aligned pathways to high-growth engineering careers with strong earning potential.",
+  "Healthcare": "Develop critical workforce skills in patient care, medical technology, and public health. High-demand career pipeline with clear advancement opportunities.",
+  "Law & Justice": "Build career-ready skills in legal analysis, public policy, and community advocacy. Pathways to careers protecting rights and serving communities.",
+  "Media & Communications": "Train in digital storytelling, journalism, and content creation. Industry partnerships open doors to careers in media, marketing, and public relations.",
+  "Military & Public Service": "Develop leadership and service skills through structured career pathways. Opportunities in defense, government, emergency services, and community development.",
+  "Science & Research": "Build research and analytical skills aligned with industry needs. School-to-career pipeline into laboratories, universities, and innovation-driven companies.",
+  "Skilled Trades": "Gain certifications and hands-on training in electrical, plumbing, welding, and construction. High-demand career pathways with strong job placement rates.",
+  "Technology": "Master coding, cybersecurity, AI, and data science skills. Industry-partnered school-to-career pipeline into the fastest-growing job market.",
 };
 
 interface AssessmentQuestion {
@@ -336,10 +340,10 @@ function CareerAssessment({
           </div>
           <div className="flex-1 min-w-0">
             <h2 className="font-semibold text-lg mb-1" data-testid="text-assessment-title">
-              Career Interest Assessment
+              Career Readiness Assessment
             </h2>
             <p className="text-sm text-muted-foreground">
-              Answer 12 quick questions to discover which career categories match your interests and personality. Takes about 3 minutes!
+              Answer 12 quick questions to discover your school-to-career pathway. Identify workforce-ready skills and career fields that match your strengths. Takes about 3 minutes!
             </p>
           </div>
           <Button
@@ -348,7 +352,7 @@ function CareerAssessment({
             data-testid="button-start-assessment"
           >
             <Target className="h-4 w-4 mr-2" />
-            Take Career Assessment
+            Start Career Readiness Assessment
           </Button>
         </div>
       </Card>
@@ -402,7 +406,7 @@ function CareerAssessment({
           <Sparkles className="h-5 w-5 text-white" />
         </div>
         <h2 className="font-semibold text-lg" data-testid="text-results-title">
-          Your Career Assessment Results
+          Your School-to-Career Pathway Results
         </h2>
       </div>
 
@@ -434,7 +438,7 @@ function CareerAssessment({
               </p>
               {matchingCareers.length > 0 && (
                 <div className="space-y-1.5">
-                  <p className="text-xs font-medium">Top careers:</p>
+                  <p className="text-xs font-medium">Top career pathways:</p>
                   {matchingCareers.map((career) => (
                     <div key={career.id} className="flex items-center gap-1.5" data-testid={`text-result-career-${career.id}`}>
                       <ChevronRight className="h-3 w-3 text-muted-foreground shrink-0" />
@@ -550,12 +554,62 @@ export default function AcademyCareersPage() {
             <Briefcase className="h-7 w-7 text-white" />
           </div>
           <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white" data-testid="text-careers-title">
-            Career Explorer
+            School-to-Career Pipeline
           </h1>
         </div>
-        <p className="text-rose-100 text-base sm:text-lg" data-testid="text-careers-subtitle">
-          Discover Your Future Path
+        <p className="text-rose-100 text-base sm:text-lg mb-2" data-testid="text-careers-subtitle">
+          Your Workforce Development Pathway Starts Here
         </p>
+        <p className="text-rose-200 text-sm max-w-2xl" data-testid="text-careers-description">
+          Explore industry-aligned career pathways designed to build job readiness, skill training, and career advancement for youth ages 14-24. Our school-to-career pipeline connects you with real workforce opportunities.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8" data-testid="section-pipeline-stats">
+        <Card className="p-4">
+          <div className="flex items-center gap-3">
+            <div className="rounded-md p-2 bg-rose-100 dark:bg-rose-900/30 shrink-0">
+              <TrendingUp className="h-5 w-5 text-rose-600 dark:text-rose-400" />
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Career Pathways</p>
+              <p className="font-semibold text-lg" data-testid="text-stat-pathways">12 Industries</p>
+            </div>
+          </div>
+        </Card>
+        <Card className="p-4">
+          <div className="flex items-center gap-3">
+            <div className="rounded-md p-2 bg-blue-100 dark:bg-blue-900/30 shrink-0">
+              <Briefcase className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Job Readiness</p>
+              <p className="font-semibold text-lg" data-testid="text-stat-readiness">Skills-First</p>
+            </div>
+          </div>
+        </Card>
+        <Card className="p-4">
+          <div className="flex items-center gap-3">
+            <div className="rounded-md p-2 bg-emerald-100 dark:bg-emerald-900/30 shrink-0">
+              <Building2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Industry Partners</p>
+              <p className="font-semibold text-lg" data-testid="text-stat-partners">Connected</p>
+            </div>
+          </div>
+        </Card>
+        <Card className="p-4">
+          <div className="flex items-center gap-3">
+            <div className="rounded-md p-2 bg-amber-100 dark:bg-amber-900/30 shrink-0">
+              <Handshake className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Mentorship</p>
+              <p className="font-semibold text-lg" data-testid="text-stat-mentorship">1-on-1</p>
+            </div>
+          </div>
+        </Card>
       </div>
 
       <CareerAssessment
@@ -689,7 +743,7 @@ export default function AcademyCareersPage() {
       {bookmarkedCareers.length > 0 && (
         <div className="mb-8" data-testid="section-my-interests">
           <h2 className="font-semibold text-lg mb-4 flex items-center gap-2">
-            <Star className="h-5 w-5 text-amber-500" /> My Interests
+            <Star className="h-5 w-5 text-amber-500" /> My Career Pathway Interests
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {bookmarkedCareers.map((career) => {
@@ -723,9 +777,44 @@ export default function AcademyCareersPage() {
         </div>
       )}
 
+      <Card className="p-5 sm:p-6 mb-8" data-testid="section-industry-partnerships">
+        <div className="flex items-center gap-3 mb-4 flex-wrap">
+          <div className="rounded-md p-2 bg-gradient-to-br from-emerald-500 to-teal-600 shrink-0">
+            <Building2 className="h-5 w-5 text-white" />
+          </div>
+          <div>
+            <h2 className="font-semibold text-lg" data-testid="text-partnerships-title">Industry Partnership Pipeline</h2>
+            <p className="text-sm text-muted-foreground">Connecting youth to real workforce opportunities through employer partnerships</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="flex items-start gap-3">
+            <Users className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-medium" data-testid="text-partnership-mentorship">Professional Mentorship</p>
+              <p className="text-xs text-muted-foreground">Industry professionals guide youth through career readiness and skill development</p>
+            </div>
+          </div>
+          <div className="flex items-start gap-3">
+            <Briefcase className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-medium" data-testid="text-partnership-placement">Job Placement Support</p>
+              <p className="text-xs text-muted-foreground">Direct pathways to internships, apprenticeships, and entry-level positions</p>
+            </div>
+          </div>
+          <div className="flex items-start gap-3">
+            <TrendingUp className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-medium" data-testid="text-partnership-advancement">Career Advancement</p>
+              <p className="text-xs text-muted-foreground">Ongoing skill training and professional development for long-term career growth</p>
+            </div>
+          </div>
+        </div>
+      </Card>
+
       <div data-testid="section-milestones">
         <h2 className="font-semibold text-lg mb-4 flex items-center gap-2">
-          <Award className="h-5 w-5 text-muted-foreground" /> Grade-Level Milestones
+          <Award className="h-5 w-5 text-muted-foreground" /> Workforce Readiness Milestones
         </h2>
         {milestonesLoading ? (
           <div className="space-y-3">
@@ -821,7 +910,7 @@ export default function AcademyCareersPage() {
                 </div>
                 {selectedCareer.requiredSkills && selectedCareer.requiredSkills.length > 0 && (
                   <div data-testid="section-dialog-skills">
-                    <p className="text-sm font-medium mb-2">Required Skills</p>
+                    <p className="text-sm font-medium mb-2">Workforce-Ready Skills</p>
                     <div className="flex flex-wrap gap-1">
                       {selectedCareer.requiredSkills.map((skill) => (
                         <Badge key={skill} variant="outline" data-testid={`badge-dialog-skill-${skill}`}>

@@ -12,9 +12,9 @@ export const translations: Record<Language, Record<string, string>> = {
     "nav.parents": "Parents",
     "nav.home": "Home",
 
-    "landing.badge": "Grades 3-12 Whole-Child Learning Platform",
-    "landing.title": "Learning Academy",
-    "landing.subtitle": "Nurturing the whole child through empathetic, age-appropriate education",
+    "landing.badge": "AI Mastery Academy & School Support Hub for Youth Ages 14-24",
+    "landing.title": "AI Mastery Academy",
+    "landing.subtitle": "Empowering under-resourced youth with AI mastery, workforce readiness, and school-to-career pipelines",
     "landing.exploreSubjects": "Explore Subjects",
     "landing.startLearning": "Start Learning",
     "landing.philosophy": "Designed for Every Child to Thrive",
@@ -72,7 +72,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "nav.mentors": "Mentor Network",
     "nav.privacy": "Privacy Policy",
 
-    "spark.title": "Learning Companion",
+    "spark.title": "AI Mastery Companion",
     "spark.subtitle": "Meet Spark — your personal learning buddy who's here to help you understand, explore, and grow.",
     "spark.placeholder": "Ask Spark anything...",
     "spark.send": "Send message",
@@ -168,9 +168,9 @@ export const translations: Record<Language, Record<string, string>> = {
     "nav.parents": "Padres",
     "nav.home": "Inicio",
 
-    "landing.badge": "Plataforma de Aprendizaje Integral para Grados 3-12",
-    "landing.title": "Academia de Aprendizaje",
-    "landing.subtitle": "Nutriendo al niño integral a través de educación empática y apropiada para su edad",
+    "landing.badge": "Academia de Dominio de IA y Centro de Apoyo Escolar para Jóvenes de 14-24 Años",
+    "landing.title": "Academia de Dominio de IA",
+    "landing.subtitle": "Empoderando a jóvenes de comunidades desatendidas con dominio de IA, preparación laboral y trayectorias de escuela a carrera",
     "landing.exploreSubjects": "Explorar Materias",
     "landing.startLearning": "Comenzar a Aprender",
     "landing.philosophy": "Diseñado para que Cada Niño Prospere",
@@ -228,7 +228,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "nav.mentors": "Red de Mentores",
     "nav.privacy": "Politica de Privacidad",
 
-    "spark.title": "Companero de Aprendizaje",
+    "spark.title": "Compañero de Dominio de IA",
     "spark.subtitle": "Conoce a Spark — tu companero personal de aprendizaje que esta aqui para ayudarte a entender, explorar y crecer.",
     "spark.placeholder": "Preguntale algo a Spark...",
     "spark.send": "Enviar mensaje",

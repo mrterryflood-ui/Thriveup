@@ -9,7 +9,8 @@ import {
   ArrowRight, ChevronRight, Shield, Target, Zap,
   Heart, Calculator, Microscope, Globe, Salad,
   GraduationCap, MapPin, Languages, Laptop, Mail,
-  Play, Pause, Volume2, VolumeX, Maximize
+  Play, Pause, Volume2, VolumeX, Maximize,
+  Briefcase, TrendingUp, HandshakeIcon, BarChart3
 } from "lucide-react";
 import { LEVEL_COLORS } from "@/lib/curriculum-data";
 import featureVideoSrc from "@assets/Learning_Academy_1.0_1772131808280.mp4";
@@ -35,34 +36,34 @@ const subjectAreas = [
 
 const features = [
   {
-    icon: Heart,
-    title: "Whole-Child Approach",
-    desc: "We nurture every dimension of your child's growth - academic, emotional, social, and physical.",
+    icon: Brain,
+    title: "AI Mastery Curriculum",
+    desc: "Five-level progression from AI Explorer to AI Master, teaching youth to think critically with artificial intelligence.",
   },
   {
-    icon: Shield,
-    title: "Safe & Empathetic",
-    desc: "Content designed with deep empathy - like having a caring teacher who truly understands each child.",
+    icon: Briefcase,
+    title: "School-to-Career Pipelines",
+    desc: "50+ career pathways with structured progression from exploration to job readiness, skill training, and career placement.",
   },
   {
-    icon: Target,
-    title: "Age-Appropriate",
-    desc: "From 3rd through 12th grade, every lesson meets children exactly where they are developmentally.",
+    icon: HandshakeIcon,
+    title: "Mentorship Network",
+    desc: "Professional coaching connecting under-resourced youth with industry mentors for career advancement and workforce readiness.",
   },
   {
     icon: Sparkles,
-    title: "AI-Powered Learning",
-    desc: "Spark, our AI learning companion, provides safe, ethical guidance that promotes thinking - never just answers.",
+    title: "AI Creation Studio",
+    desc: "10 professional-grade AI tools students earn through mastery, building real presentations, business plans, and portfolios.",
   },
   {
-    icon: Users,
-    title: "Family Learning",
-    desc: "Children teach parents through structured teachback sessions, strengthening bonds and understanding.",
+    icon: TrendingUp,
+    title: "Workforce Development",
+    desc: "Job readiness skills, financial literacy, entrepreneurship training, and real fundraising for college tuition.",
   },
   {
-    icon: Zap,
-    title: "Interactive & Engaging",
-    desc: "Matching games, sorting activities, breathing exercises, and hands-on activities that make learning joyful.",
+    icon: Shield,
+    title: "Whole-Child Support",
+    desc: "IGN-Thrive analytics tracking six domains of wellbeing with early warning systems so no student falls through the cracks.",
   },
 ];
 
@@ -114,7 +115,7 @@ function FeatureVideoPlayer() {
           ref={videoRef}
           src={featureVideoSrc}
           className="w-full aspect-video bg-black"
-          aria-label="Learning Academy platform tour with Arthur Wakanda"
+          aria-label="AI Mastery Academy platform tour with Arthur Wakanda"
           onEnded={() => { setIsPlaying(false); setShowOverlay(true); }}
           onClick={togglePlay}
           playsInline
@@ -166,16 +167,16 @@ export default function LandingPage() {
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSA2MCAwIEwgMCAwIDAgNjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjA1KSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-40" />
         <div className="relative mx-auto max-w-5xl text-center">
           <Badge variant="secondary" className="mb-6 bg-white/15 text-white border-white/20">
-            Grades 3-12 Whole-Child Learning Platform
+            AI Mastery Academy & School Support Hub
           </Badge>
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 tracking-tight leading-tight">
-            Learning<br />Academy
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 tracking-tight leading-tight" data-testid="text-hero-title">
+            AI Mastery<br />Academy
           </h1>
-          <p className="text-lg md:text-xl text-white/80 max-w-2xl mx-auto mb-4">
-            Nurturing the whole child through empathetic, age-appropriate education
+          <p className="text-lg md:text-xl text-white/80 max-w-2xl mx-auto mb-4" data-testid="text-hero-subtitle">
+            Empowering under-resourced youth with AI mastery, workforce readiness, and school-to-career pipelines
           </p>
           <p className="text-sm md:text-base text-white/60 max-w-xl mx-auto mb-10">
-            Six core subjects, AI-powered guidance, and interactive activities designed by education specialists who think like caring teachers, counselors, and parents.
+            Teaching the first generation to guide their smartest classmate. Five-level AI curriculum, 50+ career pathways, professional mentorship, and real workforce development for youth ages 14-24.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link href="/subjects">
@@ -202,7 +203,7 @@ export default function LandingPage() {
               <Play className="mr-1 h-3 w-3" /> Platform Tour
             </Badge>
             <h2 className="text-3xl md:text-4xl font-bold mb-4" data-testid="text-video-heading">
-              See Learning Academy in Action
+              See AI Mastery Academy in Action
             </h2>
             <p className="text-muted-foreground max-w-lg mx-auto">
               Join Arthur Wakanda on a 7-minute tour of the platform -- from Youth AI Learning to career pathways, Panther Village, and beyond.
@@ -217,10 +218,10 @@ export default function LandingPage() {
         <div className="mx-auto max-w-5xl">
           <div className="text-center mb-14">
             <h2 className="text-3xl md:text-4xl font-bold mb-4" data-testid="text-philosophy-heading">
-              Designed for Every Child to Thrive
+              Driving Economic Opportunity for Youth
             </h2>
             <p className="text-muted-foreground max-w-lg mx-auto">
-              Built with empathy at every level - like having a caring teacher, counselor, and champion all in one.
+              Building school-to-career pipelines through AI mastery, workforce development, mentorship, and whole-child support for under-resourced communities.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -345,20 +346,20 @@ export default function LandingPage() {
         <div className="mx-auto max-w-5xl">
           <div className="text-center mb-14">
             <Badge variant="secondary" className="mb-4">
-              <MapPin className="mr-1 h-3 w-3" /> Launching in Austin, TX
+              <MapPin className="mr-1 h-3 w-3" /> Serving Under-Resourced Communities
             </Badge>
             <h2 className="text-3xl md:text-4xl font-bold mb-4" data-testid="text-austin-heading">
               Equity-First, Community-Driven
             </h2>
             <p className="text-muted-foreground max-w-lg mx-auto">
-              Austin is our launching city. We're building partnerships to ensure every family has access - regardless of income, language, or technology.
+              Launching in Austin, TX and scaling nationally. Removing every barrier to workforce development and AI education for under-resourced youth.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {[
-              { icon: Heart, title: "Free Access", desc: "Subsidized and free access for qualifying Austin families and Title I school partnerships" },
+              { icon: Heart, title: "Free Access", desc: "Subsidized access for qualifying families, Title I school partnerships, and community center programs" },
               { icon: Laptop, title: "Device Lending", desc: "Chromebook and tablet lending through community centers for families without devices" },
-              { icon: Languages, title: "En Español", desc: "Full Spanish language support with culturally relevant content for Austin's families" },
+              { icon: Languages, title: "Bilingual Support", desc: "Full English and Spanish language support with culturally relevant content for diverse communities" },
             ].map((item) => (
               <Card key={item.title} className="p-5 hover-elevate" data-testid={`card-austin-${item.title.toLowerCase().replace(/\s/g, '-')}`}>
                 <div className="flex items-start gap-4">
@@ -389,10 +390,10 @@ export default function LandingPage() {
         <div className="mx-auto max-w-5xl">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
             {[
-              { value: "6", label: "Subject Areas" },
-              { value: "3-12", label: "Grade Range" },
+              { value: "50+", label: "Career Pathways" },
+              { value: "14-24", label: "Youth Age Range" },
               { value: "5", label: "AI Mastery Levels" },
-              { value: "100+", label: "Activities" },
+              { value: "10", label: "AI Creation Tools" },
             ].map((stat) => (
               <div key={stat.label}>
                 <p className="text-3xl md:text-4xl font-bold text-primary" data-testid={`text-stat-${stat.label.toLowerCase().replace(/\s/g, '-')}`}>
@@ -410,10 +411,10 @@ export default function LandingPage() {
         <div className="mx-auto max-w-5xl flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <Heart className="h-5 w-5 text-primary" />
-            <span className="font-semibold">Learning Academy</span>
+            <span className="font-semibold">AI Mastery Academy</span>
           </div>
           <p className="text-sm text-muted-foreground">
-            Supporting the whole child - because every part of growing up matters.
+            Driving economic opportunity for under-resourced youth through AI mastery and workforce development.
           </p>
           <div className="flex flex-col items-end gap-1">
             <a href="mailto:sisnett.meredith@gmail.com" className="flex items-center gap-1.5 text-sm text-muted-foreground" data-testid="link-support-email">
