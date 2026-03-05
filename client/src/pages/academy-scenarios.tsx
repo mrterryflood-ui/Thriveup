@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { RiskDecisionDialog } from "@/components/risk-decision-dialog";
@@ -147,6 +147,8 @@ function LoadingSkeleton() {
 }
 
 export default function AcademyScenariosPage() {
+  useEffect(() => { document.title = 'Adventure Scenarios | AI Mastery Academy'; }, []);
+
   const [selectedScenarioId, setSelectedScenarioId] = useState<string | null>(null);
   const [activeRun, setActiveRun] = useState<ScenarioRun | null>(null);
   const [currentNode, setCurrentNode] = useState<ScenarioNode | null>(null);

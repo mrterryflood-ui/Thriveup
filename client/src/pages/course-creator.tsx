@@ -147,6 +147,7 @@ function CreateCourseDialog({ open, onOpenChange }: { open: boolean; onOpenChang
   const [description, setDescription] = useState("");
   const [difficulty, setDifficulty] = useState("beginner");
   const [instructorName, setInstructorName] = useState("");
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
 
   const createMutation = useMutation({
     mutationFn: async (data: Record<string, unknown>) => {
@@ -170,6 +171,7 @@ function CreateCourseDialog({ open, onOpenChange }: { open: boolean; onOpenChang
     setDescription("");
     setDifficulty("beginner");
     setInstructorName("");
+    setTouched({});
     onOpenChange(false);
   }
 
@@ -227,13 +229,21 @@ function CreateCourseDialog({ open, onOpenChange }: { open: boolean; onOpenChang
                 );
               })}
             </div>
+            {touched.category && !selectedCategory && (
+              <p className="text-sm text-destructive mt-3" data-testid="error-category">Please select a category to continue</p>
+            )}
             <div className="flex justify-end mt-6 gap-3">
               <Button variant="outline" onClick={resetAndClose} data-testid="button-cancel-create">
                 Cancel
               </Button>
               <Button
-                onClick={() => setStep(1)}
-                disabled={!selectedCategory}
+                onClick={() => {
+                  if (!selectedCategory) {
+                    setTouched((p) => ({ ...p, category: true }));
+                    return;
+                  }
+                  setStep(1);
+                }}
                 data-testid="button-next-step-1"
               >
                 Next
@@ -250,9 +260,14 @@ function CreateCourseDialog({ open, onOpenChange }: { open: boolean; onOpenChang
               <Input
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
+                onBlur={() => setTouched((p) => ({ ...p, title: true }))}
                 placeholder="Enter course title"
                 data-testid="input-create-title"
+                aria-invalid={!!(touched.title && !title.trim())}
               />
+              {touched.title && !title.trim() && (
+                <p className="text-sm text-destructive mt-1" data-testid="error-create-title">Course title is required</p>
+              )}
             </div>
             <div>
               <Label>Description</Label>
@@ -291,8 +306,13 @@ function CreateCourseDialog({ open, onOpenChange }: { open: boolean; onOpenChang
                 Back
               </Button>
               <Button
-                onClick={() => setStep(2)}
-                disabled={!title.trim()}
+                onClick={() => {
+                  if (!title.trim()) {
+                    setTouched((p) => ({ ...p, title: true }));
+                    return;
+                  }
+                  setStep(2);
+                }}
                 data-testid="button-next-step-2"
               >
                 Next
@@ -368,6 +388,7 @@ function LessonEditDialog({
   const [content, setContent] = useState(lesson?.content ?? "");
   const [videoUrl, setVideoUrl] = useState(lesson?.videoUrl ?? "");
   const [estimatedMinutes, setEstimatedMinutes] = useState(lesson?.estimatedMinutes?.toString() ?? "");
+  const [lessonTouched, setLessonTouched] = useState<Record<string, boolean>>({});
 
   const isEditing = !!lesson;
 
@@ -402,7 +423,10 @@ function LessonEditDialog({
   });
 
   function handleSave() {
-    if (!lessonTitle.trim()) return;
+    if (!lessonTitle.trim()) {
+      setLessonTouched((p) => ({ ...p, lessonTitle: true }));
+      return;
+    }
     const data: Record<string, unknown> = {
       title: lessonTitle.trim(),
       contentType,
@@ -438,9 +462,14 @@ function LessonEditDialog({
             <Input
               value={lessonTitle}
               onChange={(e) => setLessonTitle(e.target.value)}
+              onBlur={() => setLessonTouched((p) => ({ ...p, lessonTitle: true }))}
               placeholder="Lesson title"
               data-testid="input-lesson-title"
+              aria-invalid={!!(lessonTouched.lessonTitle && !lessonTitle.trim())}
             />
+            {lessonTouched.lessonTitle && !lessonTitle.trim() && (
+              <p className="text-sm text-destructive mt-1" data-testid="error-lesson-title">Lesson title is required</p>
+            )}
           </div>
           <div>
             <Label>Content Type</Label>
@@ -508,6 +537,7 @@ function CourseEditor({ courseId, onBack }: { courseId: string; onBack: () => vo
   const [showAddModule, setShowAddModule] = useState(false);
   const [newModuleTitle, setNewModuleTitle] = useState("");
   const [newModuleDescription, setNewModuleDescription] = useState("");
+  const [editorTouched, setEditorTouched] = useState<Record<string, boolean>>({});
   const [lessonDialogOpen, setLessonDialogOpen] = useState(false);
   const [editingLesson, setEditingLesson] = useState<CourseLesson | null>(null);
   const [activeLessonModuleId, setActiveLessonModuleId] = useState("");
@@ -620,6 +650,11 @@ function CourseEditor({ courseId, onBack }: { courseId: string; onBack: () => vo
   }
 
   function handleSaveDetails() {
+    if (!editTitle.trim()) {
+      setEditorTouched((p) => ({ ...p, editTitle: true }));
+      toast({ title: "Validation Error", description: "Course title is required.", variant: "destructive" });
+      return;
+    }
     updateCourseMutation.mutate({
       title: editTitle.trim(),
       description: editDescription.trim(),
@@ -642,7 +677,11 @@ function CourseEditor({ courseId, onBack }: { courseId: string; onBack: () => vo
   }
 
   function handleAddModule() {
-    if (!newModuleTitle.trim()) return;
+    if (!newModuleTitle.trim()) {
+      setEditorTouched((p) => ({ ...p, moduleTitle: true }));
+      return;
+    }
+    setEditorTouched((p) => ({ ...p, moduleTitle: false }));
     createModuleMutation.mutate({
       title: newModuleTitle.trim(),
       description: newModuleDescription.trim() || null,
@@ -739,8 +778,13 @@ function CourseEditor({ courseId, onBack }: { courseId: string; onBack: () => vo
                 <Input
                   value={editTitle}
                   onChange={(e) => setEditTitle(e.target.value)}
+                  onBlur={() => setEditorTouched((p) => ({ ...p, editTitle: true }))}
                   data-testid="input-edit-title"
+                  aria-invalid={!!(editorTouched.editTitle && !editTitle.trim())}
                 />
+                {editorTouched.editTitle && !editTitle.trim() && (
+                  <p className="text-sm text-destructive mt-1" data-testid="error-edit-title">Course title is required</p>
+                )}
               </div>
               <div>
                 <Label>Description</Label>
@@ -845,12 +889,19 @@ function CourseEditor({ courseId, onBack }: { courseId: string; onBack: () => vo
             {showAddModule && (
               <Card className="p-4" data-testid="card-add-module-form">
                 <div className="space-y-3">
-                  <Input
-                    value={newModuleTitle}
-                    onChange={(e) => setNewModuleTitle(e.target.value)}
-                    placeholder="Module title"
-                    data-testid="input-new-module-title"
-                  />
+                  <div>
+                    <Input
+                      value={newModuleTitle}
+                      onChange={(e) => setNewModuleTitle(e.target.value)}
+                      onBlur={() => setEditorTouched((p) => ({ ...p, moduleTitle: true }))}
+                      placeholder="Module title"
+                      data-testid="input-new-module-title"
+                      aria-invalid={!!(editorTouched.moduleTitle && !newModuleTitle.trim())}
+                    />
+                    {editorTouched.moduleTitle && !newModuleTitle.trim() && (
+                      <p className="text-sm text-destructive mt-1" data-testid="error-module-title">Module title is required</p>
+                    )}
+                  </div>
                   <Input
                     value={newModuleDescription}
                     onChange={(e) => setNewModuleDescription(e.target.value)}

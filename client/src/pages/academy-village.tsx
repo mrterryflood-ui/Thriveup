@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import WelcomeOnboarding from "@/components/welcome-onboarding";
@@ -199,6 +199,7 @@ function LoadingSkeleton() {
 }
 
 export default function AcademyVillagePage() {
+  useEffect(() => { document.title = 'Panther Village | AI Mastery Academy'; }, []);
   const [showOnboarding, setShowOnboarding] = useState(() => !localStorage.getItem("txea_onboarding_complete"));
 
   const completeOnboarding = () => {
@@ -404,9 +405,9 @@ export default function AcademyVillagePage() {
                 ))}
               </div>
             ) : (
-              <Card className="p-4 text-center">
+              <Card className="p-4 text-center" data-testid="card-no-classmates">
                 <Users className="h-6 w-6 mx-auto text-muted-foreground/30 mb-2" />
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-muted-foreground" data-testid="text-no-classmates">
                   No classmates yet. Invite friends to join!
                 </p>
               </Card>
@@ -467,7 +468,7 @@ export default function AcademyVillagePage() {
                       </p>
                     </div>
                     {item.pointsEarned > 0 && (
-                      <Badge variant="secondary" className="shrink-0">
+                      <Badge variant="secondary" className="shrink-0" data-testid={`badge-activity-points-${item.id}`}>
                         +{item.pointsEarned}
                       </Badge>
                     )}

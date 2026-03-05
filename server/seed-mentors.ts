@@ -1,8 +1,6 @@
 import { mentorProfiles } from "@shared/schema";
 
 export async function seedMentors(db: any): Promise<void> {
-  console.log("[Seed Mentors] Seeding mentor profiles...");
-
   const mentors = [
     {
       name: "Dr. Angela Washington",
@@ -118,9 +116,6 @@ export async function seedMentors(db: any): Promise<void> {
         .onConflictDoNothing();
     }
 
-    console.log(
-      `[Seed Mentors] Successfully seeded ${mentors.length} mentor profiles`
-    );
   } catch (error) {
     console.error("[Seed Mentors] Error seeding mentors:", error);
     throw error;

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -206,6 +207,7 @@ const helpSections: HelpSection[] = [
 ];
 
 export default function AcademyHelpPage() {
+  useEffect(() => { document.title = 'Student Help | AI Mastery Academy'; }, []);
   return (
     <div className="min-h-screen bg-background">
       <div className="bg-[#800000] text-white py-8 px-4">

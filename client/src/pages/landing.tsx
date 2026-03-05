@@ -140,15 +140,15 @@ function FeatureVideoPlayer() {
           </div>
         )}
 
-        <div className={`absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/60 to-transparent flex items-center justify-between transition-opacity ${isPlaying ? 'opacity-0 group-hover:opacity-100' : 'opacity-100'}`}>
-          <Button variant="ghost" size="sm" className="text-white hover:text-white hover:bg-white/20" onClick={togglePlay} aria-label={isPlaying ? "Pause video" : "Play video"} data-testid="button-video-playpause">
+        <div className={`absolute bottom-0 left-0 right-0 p-2 sm:p-3 bg-gradient-to-t from-black/60 to-transparent flex items-center justify-between gap-2 transition-opacity ${isPlaying ? 'opacity-0 group-hover:opacity-100' : 'opacity-100'}`}>
+          <Button variant="ghost" size="icon" className="text-white hover:text-white hover:bg-white/20 min-h-[44px] min-w-[44px]" onClick={togglePlay} aria-label={isPlaying ? "Pause video" : "Play video"} data-testid="button-video-playpause">
             {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
           </Button>
           <div className="flex items-center gap-1">
-            <Button variant="ghost" size="sm" className="text-white hover:text-white hover:bg-white/20" onClick={toggleMute} aria-label={isMuted ? "Unmute video" : "Mute video"} data-testid="button-video-mute">
+            <Button variant="ghost" size="icon" className="text-white hover:text-white hover:bg-white/20 min-h-[44px] min-w-[44px]" onClick={toggleMute} aria-label={isMuted ? "Unmute video" : "Mute video"} data-testid="button-video-mute">
               {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
             </Button>
-            <Button variant="ghost" size="sm" className="text-white hover:text-white hover:bg-white/20" onClick={toggleFullscreen} aria-label="Toggle fullscreen" data-testid="button-video-fullscreen">
+            <Button variant="ghost" size="icon" className="text-white hover:text-white hover:bg-white/20 min-h-[44px] min-w-[44px]" onClick={toggleFullscreen} aria-label="Toggle fullscreen" data-testid="button-video-fullscreen">
               <Maximize className="h-5 w-5" />
             </Button>
           </div>
@@ -162,31 +162,31 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen">
       {/* Hero */}
-      <section className="relative overflow-hidden py-20 px-6 md:py-32">
+      <section className="relative overflow-hidden py-12 px-4 sm:py-20 sm:px-6 md:py-32">
         <div className="absolute inset-0 bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700" />
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSA2MCAwIEwgMCAwIDAgNjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjA1KSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-40" />
         <div className="relative mx-auto max-w-5xl text-center">
-          <Badge variant="secondary" className="mb-6 bg-white/15 text-white border-white/20">
+          <Badge variant="secondary" className="mb-4 sm:mb-6 bg-white/15 text-white border-white/20 text-xs sm:text-sm">
             AI Mastery Academy & School Support Hub
           </Badge>
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 tracking-tight leading-tight" data-testid="text-hero-title">
+          <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-4 sm:mb-6 tracking-tight leading-tight" data-testid="text-hero-title">
             AI Mastery<br />Academy
           </h1>
-          <p className="text-lg md:text-xl text-white/80 max-w-2xl mx-auto mb-4" data-testid="text-hero-subtitle">
+          <p className="text-base sm:text-lg md:text-xl text-white/80 max-w-2xl mx-auto mb-3 sm:mb-4 px-2" data-testid="text-hero-subtitle">
             Empowering under-resourced youth with AI mastery, workforce readiness, and school-to-career pipelines
           </p>
-          <p className="text-sm md:text-base text-white/60 max-w-xl mx-auto mb-10">
+          <p className="text-xs sm:text-sm md:text-base text-white/60 max-w-xl mx-auto mb-8 sm:mb-10 px-2">
             Teaching the first generation to guide their smartest classmate. Five-level AI curriculum, 50+ career pathways, professional mentorship, and real workforce development for youth ages 14-24.
           </p>
-          <div className="flex flex-wrap justify-center gap-4">
+          <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-4 px-4 sm:px-0">
             <Link href="/subjects">
-              <Button size="lg" className="bg-white text-violet-700 border-white/80" data-testid="button-explore-subjects">
+              <Button size="lg" className="bg-white text-violet-700 border-white/80 w-full sm:w-auto min-h-[44px]" data-testid="button-explore-subjects">
                 <GraduationCap className="mr-2 h-5 w-5" />
                 Explore Subjects
               </Button>
             </Link>
             <Link href="/dashboard">
-              <Button size="lg" variant="outline" className="text-white border-white/30 backdrop-blur-sm bg-white/10" data-testid="button-start-learning">
+              <Button size="lg" variant="outline" className="text-white border-white/30 backdrop-blur-sm bg-white/10 w-full sm:w-auto min-h-[44px]" data-testid="button-start-learning">
                 Start Learning
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
@@ -196,16 +196,16 @@ export default function LandingPage() {
       </section>
 
       {/* Feature Video Guide */}
-      <section className="py-20 px-6 bg-card">
+      <section className="py-12 px-4 sm:py-20 sm:px-6 bg-card">
         <div className="mx-auto max-w-5xl">
-          <div className="text-center mb-10">
+          <div className="text-center mb-8 sm:mb-10">
             <Badge variant="secondary" className="mb-4">
               <Play className="mr-1 h-3 w-3" /> Platform Tour
             </Badge>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4" data-testid="text-video-heading">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4" data-testid="text-video-heading">
               See AI Mastery Academy in Action
             </h2>
-            <p className="text-muted-foreground max-w-lg mx-auto">
+            <p className="text-sm sm:text-base text-muted-foreground max-w-lg mx-auto px-2">
               Join Arthur Wakanda on a 7-minute tour of the platform -- from Youth AI Learning to career pathways, Panther Village, and beyond.
             </p>
           </div>
@@ -214,17 +214,17 @@ export default function LandingPage() {
       </section>
 
       {/* Features / Philosophy */}
-      <section className="py-20 px-6">
+      <section className="py-12 px-4 sm:py-20 sm:px-6">
         <div className="mx-auto max-w-5xl">
-          <div className="text-center mb-14">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4" data-testid="text-philosophy-heading">
+          <div className="text-center mb-10 sm:mb-14">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4" data-testid="text-philosophy-heading">
               Driving Economic Opportunity for Youth
             </h2>
-            <p className="text-muted-foreground max-w-lg mx-auto">
+            <p className="text-sm sm:text-base text-muted-foreground max-w-lg mx-auto px-2">
               Building school-to-career pipelines through AI mastery, workforce development, mentorship, and whole-child support for under-resourced communities.
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {features.map((feature) => (
               <Card key={feature.title} className="p-6 hover-elevate">
                 <div className="flex items-start gap-4">
@@ -245,20 +245,20 @@ export default function LandingPage() {
       </section>
 
       {/* Subject Areas */}
-      <section className="py-20 px-6 bg-card">
+      <section className="py-12 px-4 sm:py-20 sm:px-6 bg-card">
         <div className="mx-auto max-w-5xl">
-          <div className="text-center mb-14">
+          <div className="text-center mb-10 sm:mb-14">
             <Badge variant="secondary" className="mb-4">
               <Heart className="mr-1 h-3 w-3" /> 6 Core Subject Areas
             </Badge>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4" data-testid="text-subjects-heading">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4" data-testid="text-subjects-heading">
               Supporting the Whole Child
             </h2>
-            <p className="text-muted-foreground max-w-lg mx-auto">
+            <p className="text-sm sm:text-base text-muted-foreground max-w-lg mx-auto px-2">
               From reading and math to emotional wellness and self-care - every part of your child's growth matters.
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {subjectAreas.map((subject) => (
               <Link key={subject.name} href="/subjects">
                 <Card className="p-5 hover-elevate cursor-pointer group h-full" data-testid={`card-subject-${subject.name.toLowerCase().replace(/\s/g, '-')}`}>
@@ -279,16 +279,16 @@ export default function LandingPage() {
       </section>
 
       {/* AI Curriculum Levels */}
-      <section className="py-20 px-6">
+      <section className="py-12 px-4 sm:py-20 sm:px-6">
         <div className="mx-auto max-w-5xl">
-          <div className="text-center mb-14">
+          <div className="text-center mb-10 sm:mb-14">
             <Badge variant="secondary" className="mb-4">
               <Brain className="mr-1 h-3 w-3" /> AI Mastery Track
             </Badge>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4" data-testid="text-levels-heading">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4" data-testid="text-levels-heading">
               From Explorer to Master
             </h2>
-            <p className="text-muted-foreground max-w-lg mx-auto">
+            <p className="text-sm sm:text-base text-muted-foreground max-w-lg mx-auto px-2">
               A dedicated AI curriculum teaching responsible, ethical use of artificial intelligence across grades 3-12.
             </p>
           </div>
@@ -298,14 +298,14 @@ export default function LandingPage() {
               const colors = LEVEL_COLORS[level.id];
               return (
                 <Link key={level.id} href={`/curriculum/${level.id}`}>
-                  <Card className="p-5 hover-elevate cursor-pointer group" data-testid={`card-level-${level.id}`}>
-                    <div className="flex items-center gap-4 flex-wrap">
+                  <Card className="p-4 sm:p-5 hover-elevate cursor-pointer group" data-testid={`card-level-${level.id}`}>
+                    <div className="flex items-center gap-3 sm:gap-4 flex-wrap">
                       <div className={`rounded-md p-2.5 bg-gradient-to-br ${colors.gradient} shrink-0`}>
                         <Icon className="h-5 w-5 text-white" />
                       </div>
-                      <div className="flex-1 min-w-[200px]">
+                      <div className="flex-1 min-w-[150px] sm:min-w-[200px]">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <h3 className="font-semibold">Level {level.id}: {level.title}</h3>
+                          <h3 className="font-semibold text-sm sm:text-base">Level {level.id}: {level.title}</h3>
                           <Badge variant="outline" className="text-xs">{level.grades}</Badge>
                         </div>
                         <p className="text-sm text-muted-foreground mt-0.5">{level.desc}</p>
@@ -321,17 +321,17 @@ export default function LandingPage() {
       </section>
 
       {/* Spark AI Companion CTA */}
-      <section className="py-20 px-6 bg-card">
+      <section className="py-12 px-4 sm:py-20 sm:px-6 bg-card">
         <div className="mx-auto max-w-5xl">
-          <Card className="p-8 md:p-12 bg-gradient-to-br from-violet-600 to-indigo-700 border-none text-white">
+          <Card className="p-6 sm:p-8 md:p-12 bg-gradient-to-br from-violet-600 to-indigo-700 border-none text-white">
             <div className="text-center">
-              <Sparkles className="h-10 w-10 mx-auto mb-4 text-white/80" />
-              <h2 className="text-2xl md:text-3xl font-bold mb-3">Meet Spark, Your Learning Companion</h2>
-              <p className="text-white/80 max-w-2xl mx-auto text-base md:text-lg leading-relaxed mb-6">
+              <Sparkles className="h-8 w-8 sm:h-10 sm:w-10 mx-auto mb-4 text-white/80" />
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3">Meet Spark, Your Learning Companion</h2>
+              <p className="text-white/80 max-w-2xl mx-auto text-sm sm:text-base md:text-lg leading-relaxed mb-6 px-2">
                 Spark is an AI-powered buddy who helps students learn by asking great questions, giving gentle hints, and celebrating every step forward. Spark never gives answers directly - instead, Spark helps children think for themselves.
               </p>
               <Link href="/ai-companion">
-                <Button size="lg" className="bg-white text-violet-700 border-white/80" data-testid="button-meet-spark">
+                <Button size="lg" className="bg-white text-violet-700 border-white/80 min-h-[44px]" data-testid="button-meet-spark">
                   <Sparkles className="mr-2 h-5 w-5" />
                   Chat with Spark
                 </Button>
@@ -342,20 +342,20 @@ export default function LandingPage() {
       </section>
 
       {/* Austin Community Access */}
-      <section className="py-20 px-6">
+      <section className="py-12 px-4 sm:py-20 sm:px-6">
         <div className="mx-auto max-w-5xl">
-          <div className="text-center mb-14">
+          <div className="text-center mb-10 sm:mb-14">
             <Badge variant="secondary" className="mb-4">
               <MapPin className="mr-1 h-3 w-3" /> Serving Under-Resourced Communities
             </Badge>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4" data-testid="text-austin-heading">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4" data-testid="text-austin-heading">
               Equity-First, Community-Driven
             </h2>
-            <p className="text-muted-foreground max-w-lg mx-auto">
+            <p className="text-sm sm:text-base text-muted-foreground max-w-lg mx-auto px-2">
               Launching in Austin, TX and scaling nationally. Removing every barrier to workforce development and AI education for under-resourced youth.
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
             {[
               { icon: Heart, title: "Free Access", desc: "Subsidized access for qualifying families, Title I school partnerships, and community center programs" },
               { icon: Laptop, title: "Device Lending", desc: "Chromebook and tablet lending through community centers for families without devices" },
@@ -374,9 +374,9 @@ export default function LandingPage() {
               </Card>
             ))}
           </div>
-          <div className="text-center mt-8">
+          <div className="text-center mt-6 sm:mt-8">
             <Link href="/community">
-              <Button variant="outline" data-testid="button-view-community">
+              <Button variant="outline" className="min-h-[44px]" data-testid="button-view-community">
                 View All Community Programs
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
@@ -386,20 +386,20 @@ export default function LandingPage() {
       </section>
 
       {/* Stats */}
-      <section className="py-16 px-6">
+      <section className="py-10 px-4 sm:py-16 sm:px-6">
         <div className="mx-auto max-w-5xl">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 text-center">
             {[
               { value: "50+", label: "Career Pathways" },
               { value: "14-24", label: "Youth Age Range" },
               { value: "5", label: "AI Mastery Levels" },
               { value: "10", label: "AI Creation Tools" },
             ].map((stat) => (
-              <div key={stat.label}>
-                <p className="text-3xl md:text-4xl font-bold text-primary" data-testid={`text-stat-${stat.label.toLowerCase().replace(/\s/g, '-')}`}>
+              <div key={stat.label} className="py-2">
+                <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary" data-testid={`text-stat-${stat.label.toLowerCase().replace(/\s/g, '-')}`}>
                   {stat.value}
                 </p>
-                <p className="text-sm text-muted-foreground mt-1">{stat.label}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground mt-1">{stat.label}</p>
               </div>
             ))}
           </div>
@@ -407,20 +407,20 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="py-10 px-6 border-t">
-        <div className="mx-auto max-w-5xl flex flex-col md:flex-row items-center justify-between gap-4">
+      <footer className="py-8 px-4 sm:py-10 sm:px-6 border-t">
+        <div className="mx-auto max-w-5xl flex flex-col items-center gap-4 sm:gap-6 md:flex-row md:justify-between">
           <div className="flex items-center gap-2">
             <Heart className="h-5 w-5 text-primary" />
             <span className="font-semibold">AI Mastery Academy</span>
           </div>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-xs sm:text-sm text-muted-foreground text-center md:text-left">
             Driving economic opportunity for under-resourced youth through AI mastery and workforce development.
           </p>
-          <div className="flex flex-col items-end gap-1">
-            <a href="mailto:sisnett.meredith@gmail.com" className="flex items-center gap-1.5 text-sm text-muted-foreground" data-testid="link-support-email">
+          <div className="flex flex-col items-center md:items-end gap-1">
+            <a href="mailto:sisnett.meredith@gmail.com" className="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground min-h-[44px]" data-testid="link-support-email">
               <Mail className="h-3.5 w-3.5" /> sisnett.meredith@gmail.com
             </a>
-            <a href="mailto:mr.terryflood@gmail.com" className="flex items-center gap-1.5 text-sm text-muted-foreground" data-testid="link-support-email-2">
+            <a href="mailto:mr.terryflood@gmail.com" className="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground min-h-[44px]" data-testid="link-support-email-2">
               <Mail className="h-3.5 w-3.5" /> mr.terryflood@gmail.com
             </a>
           </div>

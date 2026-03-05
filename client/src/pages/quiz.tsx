@@ -6,10 +6,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
+import {
+  Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink,
+  BreadcrumbSeparator, BreadcrumbPage,
+} from "@/components/ui/breadcrumb";
 import { useToast } from "@/hooks/use-toast";
 import {
   ArrowLeft, CheckCircle2, XCircle, Award,
-  ChevronRight, RotateCcw, Trophy
+  ChevronRight, RotateCcw, Trophy, Home
 } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import type { QuizQuestion } from "@shared/schema";
@@ -122,11 +126,33 @@ export default function QuizPage() {
 
   return (
     <div className="p-6 max-w-3xl mx-auto">
-      <Link href={`/module/${moduleId}`}>
-        <Button variant="ghost" size="sm" className="mb-6" data-testid="button-back-quiz">
-          <ArrowLeft className="mr-1 h-4 w-4" /> Back to Module
-        </Button>
-      </Link>
+      <Breadcrumb className="mb-6" data-testid="breadcrumb-quiz">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link href="/dashboard" data-testid="breadcrumb-home">
+                <Home className="h-4 w-4" />
+              </Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link href="/curriculum" data-testid="breadcrumb-curriculum">Curriculum</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link href={`/module/${moduleId}`} data-testid="breadcrumb-module">Module</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage data-testid="breadcrumb-current">Quiz</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
 
       <div className="mb-6">
         <div className="flex items-center justify-between mb-2 flex-wrap gap-2">

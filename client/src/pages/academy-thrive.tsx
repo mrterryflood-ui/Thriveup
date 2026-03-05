@@ -229,6 +229,8 @@ function LoadingSkeleton() {
 }
 
 export default function AcademyThrivePage() {
+  useEffect(() => { document.title = 'Thrive Score | AI Mastery Academy'; }, []);
+
   const { toast } = useToast();
   const { user, isLoading: authLoading, isAuthenticated } = useAuth();
   const [hasAutoComputed, setHasAutoComputed] = useState(false);

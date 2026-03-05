@@ -339,6 +339,7 @@ function CommunityAvatarCard({ avatar }: { avatar: AcademyAvatar }) {
 }
 
 export default function AcademyAvatarPage() {
+  useEffect(() => { document.title = 'Avatar Customizer | AI Mastery Academy'; }, []);
   const { toast } = useToast();
   const [form, setForm] = useState<AvatarFormState>(DEFAULT_STATE);
 
@@ -732,7 +733,7 @@ export default function AcademyAvatarPage() {
         )}
       </div>
 
-      <div>
+      <div data-testid="section-community">
         <h2 className="text-xl sm:text-2xl font-bold mb-1 flex items-center gap-2" data-testid="text-community-title">
           <Users className="h-6 w-6 text-primary" /> Community
         </h2>
@@ -751,9 +752,9 @@ export default function AcademyAvatarPage() {
             ))}
           </div>
         ) : (
-          <Card className="p-8 text-center">
+          <Card className="p-8 text-center" data-testid="card-no-community">
             <Users className="h-10 w-10 mx-auto text-muted-foreground/30 mb-3" />
-            <p className="text-muted-foreground">No community members yet. Be the first to create your avatar!</p>
+            <p className="text-muted-foreground" data-testid="text-no-community">No community members yet. Be the first to create your avatar!</p>
           </Card>
         )}
       </div>

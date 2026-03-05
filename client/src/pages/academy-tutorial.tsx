@@ -794,6 +794,7 @@ export default function AcademyTutorialPage() {
             onClick={() => setActiveChapter((c) => Math.max(0, c - 1))}
             disabled={activeChapter === 0}
             data-testid="button-prev-chapter"
+            aria-label="Previous chapter"
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
@@ -813,6 +814,7 @@ export default function AcademyTutorialPage() {
                         : "bg-muted/50 text-muted-foreground hover-elevate"
                     }`}
                     data-testid={`button-chapter-${idx}`}
+                    aria-label={`Chapter ${idx + 1}: ${ch.title}`}
                   >
                     <Icon className="h-4 w-4 shrink-0" />
                     <span className="hidden sm:inline">{ch.title}</span>
@@ -829,6 +831,7 @@ export default function AcademyTutorialPage() {
             onClick={() => setActiveChapter((c) => Math.min(CHAPTERS.length - 1, c + 1))}
             disabled={activeChapter === CHAPTERS.length - 1}
             data-testid="button-next-chapter"
+            aria-label="Next chapter"
           >
             <ChevronRight className="h-4 w-4" />
           </Button>

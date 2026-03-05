@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -764,6 +764,7 @@ const modules: Module[] = [
 ];
 
 export default function AcademyFinancialLiteracyPage() {
+  useEffect(() => { document.title = 'Financial Literacy | AI Mastery Academy'; }, []);
   const [expandedModule, setExpandedModule] = useState<string | null>(null);
 
   const toggleModule = (id: string) => {

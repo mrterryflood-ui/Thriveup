@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -151,6 +151,8 @@ function getActivityGradient(type: string) {
 }
 
 export default function AcademyMarketplacePage() {
+  useEffect(() => { document.title = 'Marketplace | AI Mastery Academy'; }, []);
+
   const { toast } = useToast();
   const { user } = useAuth();
   const [categoryFilter, setCategoryFilter] = useState("All");
@@ -475,8 +477,37 @@ export default function AcademyMarketplacePage() {
             </div>
           ) : (
             <Card className="p-8 text-center" data-testid="card-no-listings">
-              <Store className="h-10 w-10 mx-auto text-muted-foreground/30 mb-3" />
-              <p className="text-muted-foreground">No listings found. Be the first to list something!</p>
+              <Store className="h-12 w-12 mx-auto text-muted-foreground/30 mb-4" />
+              <h3 className="text-lg font-semibold mb-2" data-testid="text-empty-marketplace-title">
+                {categoryFilter !== "All" ? `No ${categoryFilter} Listings` : "The Marketplace is Empty"}
+              </h3>
+              <p className="text-muted-foreground mb-4 max-w-md mx-auto">
+                {categoryFilter !== "All"
+                  ? `There are no ${categoryFilter.toLowerCase()} listings right now. Try browsing all categories or be the first to list a ${categoryFilter.toLowerCase()}.`
+                  : "Be the first entrepreneur to list something. Offer a service, share a skill, or sell a product to your classmates."}
+              </p>
+              <div className="flex items-center justify-center gap-3 flex-wrap">
+                {categoryFilter !== "All" && (
+                  <Button
+                    variant="outline"
+                    onClick={() => setCategoryFilter("All")}
+                    data-testid="button-clear-filter"
+                  >
+                    <Filter className="h-4 w-4 mr-2" />
+                    View All Categories
+                  </Button>
+                )}
+                <Button
+                  onClick={() => {
+                    const tabTrigger = document.querySelector('[data-testid="tab-my-listings"]') as HTMLButtonElement;
+                    if (tabTrigger) tabTrigger.click();
+                  }}
+                  data-testid="button-create-first-listing"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create a Listing
+                </Button>
+              </div>
             </Card>
           )}
         </TabsContent>
@@ -654,8 +685,11 @@ export default function AcademyMarketplacePage() {
                 </div>
               ) : (
                 <Card className="p-6 text-center" data-testid="card-no-my-listings">
-                  <Package className="h-8 w-8 mx-auto text-muted-foreground/30 mb-2" />
-                  <p className="text-sm text-muted-foreground">You have no listings yet. Create one above!</p>
+                  <Package className="h-10 w-10 mx-auto text-muted-foreground/30 mb-3" />
+                  <h4 className="font-semibold mb-1" data-testid="text-empty-my-listings-title">No Listings Yet</h4>
+                  <p className="text-sm text-muted-foreground max-w-xs mx-auto">
+                    Use the form above to create your first listing and start earning in the Panther economy.
+                  </p>
                 </Card>
               )}
 
@@ -691,8 +725,11 @@ export default function AcademyMarketplacePage() {
                 </div>
               ) : (
                 <Card className="p-6 text-center" data-testid="card-no-trades">
-                  <Handshake className="h-8 w-8 mx-auto text-muted-foreground/30 mb-2" />
-                  <p className="text-sm text-muted-foreground">No trades yet. Start buying or selling!</p>
+                  <Handshake className="h-10 w-10 mx-auto text-muted-foreground/30 mb-3" />
+                  <h4 className="font-semibold mb-1" data-testid="text-empty-trades-title">No Trades Yet</h4>
+                  <p className="text-sm text-muted-foreground max-w-xs mx-auto">
+                    Your purchase and sale history will appear here once you start trading with classmates.
+                  </p>
                 </Card>
               )}
             </div>
@@ -745,8 +782,22 @@ export default function AcademyMarketplacePage() {
             </div>
           ) : (
             <Card className="p-8 text-center" data-testid="card-no-activity">
-              <Activity className="h-10 w-10 mx-auto text-muted-foreground/30 mb-3" />
-              <p className="text-muted-foreground">No activity yet. The feed will update as students buy and sell!</p>
+              <Activity className="h-12 w-12 mx-auto text-muted-foreground/30 mb-4" />
+              <h3 className="text-lg font-semibold mb-2" data-testid="text-empty-activity-title">No Activity Yet</h3>
+              <p className="text-muted-foreground mb-4 max-w-md mx-auto">
+                The live commerce feed will light up as Panthers start buying, selling, and trading. Be the first to make a move!
+              </p>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  const tabTrigger = document.querySelector('[data-testid="tab-browse"]') as HTMLButtonElement;
+                  if (tabTrigger) tabTrigger.click();
+                }}
+                data-testid="button-browse-from-activity"
+              >
+                <ShoppingCart className="h-4 w-4 mr-2" />
+                Browse the Marketplace
+              </Button>
             </Card>
           )}
         </TabsContent>

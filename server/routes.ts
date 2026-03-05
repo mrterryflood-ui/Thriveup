@@ -264,14 +264,22 @@ function requireAuth(req: Request, res: any, next: any) {
   next();
 }
 
-const requireAdmin = (req: any, res: any, next: any) => {
+const requireAdmin = async (req: any, res: any, next: any) => {
   if (!req.isAuthenticated || !req.isAuthenticated()) {
     return res.status(401).json({ error: "Authentication required" });
   }
-  // In production, check user.role === 'admin' or 'teacher'
-  // For now, all authenticated users with the admin dashboard access are treated as admins
-  // This can be tightened once role-based user management is added
-  next();
+  const userId = getUserId(req);
+  if (userId) {
+    try {
+      const user = await storage.getUser(userId);
+      if (user?.role === "admin" || user?.role === "teacher") {
+        return next();
+      }
+    } catch (e) {
+      console.error("Admin check error:", e);
+    }
+  }
+  return res.status(403).json({ error: "Admin access required" });
 };
 
 function calculateElo(playerRating: number, opponentRating: number, result: number): number {
@@ -533,7 +541,20 @@ export async function registerRoutes(
     res.json(allBadges);
   });
 
-  app.post("/api/ai-companion/chat", async (req, res) => {
+  const chatRateLimit = new Map<string, { count: number; resetAt: number }>();
+  app.post("/api/ai-companion/chat", requireAuth, async (req, res) => {
+    const rateLimitUserId = getUserId(req)!;
+    const now = Date.now();
+    const userLimit = chatRateLimit.get(rateLimitUserId);
+    if (userLimit && now < userLimit.resetAt) {
+      if (userLimit.count >= 20) {
+        return res.status(429).json({ error: "Rate limit exceeded. Please wait before sending more messages." });
+      }
+      userLimit.count++;
+    } else {
+      chatRateLimit.set(rateLimitUserId, { count: 1, resetAt: now + 60000 });
+    }
+
     const { message, gradeLevel, subject, lessonContext, conversationHistory, language } = req.body;
 
     if (!message || typeof message !== "string") {
@@ -869,7 +890,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
     res.json(doc);
   });
 
-  app.post("/api/curriculum-documents", async (req, res) => {
+  app.post("/api/curriculum-documents", requireAuth, async (req, res) => {
     const parsed = insertCurriculumDocumentSchema.safeParse(req.body);
     if (!parsed.success) {
       return res.status(400).json({ error: "Invalid document data", details: parsed.error.flatten() });
@@ -882,7 +903,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
     }
   });
 
-  app.patch("/api/curriculum-documents/:id", async (req, res) => {
+  app.patch("/api/curriculum-documents/:id", requireAuth, async (req, res) => {
     const existing = await storage.getCurriculumDocument(req.params.id);
     if (!existing) return res.status(404).json({ error: "Document not found" });
     const partial = insertCurriculumDocumentSchema.partial().safeParse(req.body);
@@ -897,7 +918,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
     }
   });
 
-  app.delete("/api/curriculum-documents/:id", async (req, res) => {
+  app.delete("/api/curriculum-documents/:id", requireAuth, async (req, res) => {
     const existing = await storage.getCurriculumDocument(req.params.id);
     if (!existing) return res.status(404).json({ error: "Document not found" });
     await storage.deleteCurriculumDocument(req.params.id);
@@ -911,12 +932,30 @@ Write a warm, encouraging welcome message for students joining this classroom. M
 
   app.post("/api/curriculum-documents/:docId/attachments", requireAuth, async (req, res) => {
     const { fileName, fileSize, contentType, objectPath } = req.body;
-    if (!fileName || !objectPath) return res.status(400).json({ error: "fileName and objectPath are required" });
+    if (!fileName || typeof fileName !== 'string' || fileName.trim().length === 0) {
+      return res.status(400).json({ error: "fileName is required" });
+    }
+    if (!objectPath || typeof objectPath !== 'string') {
+      return res.status(400).json({ error: "objectPath is required" });
+    }
+    if (fileSize !== undefined && (typeof fileSize !== 'number' || fileSize < 0)) {
+      return res.status(400).json({ error: "fileSize must be a non-negative number" });
+    }
+    const allowedMimeTypes = [
+      "application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "application/vnd.ms-powerpoint", "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      "image/png", "image/jpeg", "image/gif", "image/webp", "text/plain", "text/csv",
+      "application/octet-stream", "video/mp4", "audio/mpeg",
+    ];
+    const resolvedContentType = contentType || "application/octet-stream";
+    if (!allowedMimeTypes.includes(resolvedContentType)) {
+      return res.status(400).json({ error: "Unsupported content type" });
+    }
     const attachment = await storage.addAttachment({
       documentId: req.params.docId as string,
-      fileName,
+      fileName: fileName.trim(),
       fileSize: fileSize || 0,
-      contentType: contentType || "application/octet-stream",
+      contentType: resolvedContentType,
       objectPath,
       uploadedBy: getUserId(req) || null,
     });
@@ -977,7 +1016,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
     res.status(201).json(tip);
   });
 
-  app.post("/api/tips/:tipId/upvote", async (req, res) => {
+  app.post("/api/tips/:tipId/upvote", requireAuth, async (req, res) => {
     try {
       const tip = await storage.upvoteStudyTip(req.params.tipId);
       res.json(tip);
@@ -1143,10 +1182,12 @@ Write a warm, encouraging welcome message for students joining this classroom. M
       const userId = getUserId(req)!;
       const existing = await storage.getAcademyAvatar(userId);
       if (existing) {
-        const updated = await storage.updateAcademyAvatar(existing.id, req.body);
+        const { displayName, role, skinTone, hairStyle, hairColor, outfit, outfitColor, accessory, background, bio } = req.body;
+        const updated = await storage.updateAcademyAvatar(existing.id, { displayName, role, skinTone, hairStyle, hairColor, outfit, outfitColor, accessory, background, bio });
         return res.json(updated);
       }
-      const avatar = await storage.createAcademyAvatar({ ...req.body, userId });
+      const { displayName, role, skinTone, hairStyle, hairColor, outfit, outfitColor, accessory, background, bio } = req.body;
+      const avatar = await storage.createAcademyAvatar({ displayName, role, skinTone, hairStyle, hairColor, outfit, outfitColor, accessory, background, bio, userId });
       res.status(201).json(avatar);
     } catch (error) {
       res.status(500).json({ error: "Failed to save avatar" });
@@ -1188,7 +1229,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
     }
   });
 
-  app.get("/api/academy/merit/user/:userId", async (req, res) => {
+  app.get("/api/academy/merit/user/:userId", requireAuth, async (req, res) => {
     const events = await storage.getMeritEventsByUser(req.params.userId);
     res.json(events);
   });
@@ -1324,7 +1365,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
     res.json(portfolio);
   });
 
-  app.post("/api/academy/stocks/simulate", async (_req, res) => {
+  app.post("/api/academy/stocks/simulate", requireAdmin, async (_req, res) => {
     try {
       const stocks = await storage.getAllStocks();
       const updated = [];
@@ -1360,10 +1401,12 @@ Write a warm, encouraging welcome message for students joining this classroom. M
       const userId = getUserId(req)!;
       const existing = await storage.getCampusProject(userId);
       if (existing) {
-        const updated = await storage.updateCampusProject(existing.id, req.body);
+        const { projectName, buildings, totalFunded, totalCost, theme } = req.body;
+        const updated = await storage.updateCampusProject(existing.id, { projectName, buildings, totalFunded, totalCost, theme });
         return res.json(updated);
       }
-      const project = await storage.createCampusProject({ ...req.body, userId });
+      const { projectName, buildings, totalFunded, totalCost, theme } = req.body;
+      const project = await storage.createCampusProject({ projectName, buildings, totalFunded, totalCost, theme, userId });
       res.status(201).json(project);
     } catch (error) {
       res.status(500).json({ error: "Failed to save campus project" });
@@ -1436,11 +1479,12 @@ Write a warm, encouraging welcome message for students joining this classroom. M
     try {
       const comp = await storage.getCompetition(req.params.id);
       if (!comp) return res.status(404).json({ error: "Competition not found" });
+      const { score } = req.body;
       const entry = await storage.createCompetitionEntry({
         competitionId: req.params.id,
         userId: getUserId(req)!,
         userName: getUserName(req) || "Student",
-        ...req.body,
+        score,
       });
       try {
         const power = await storage.getOrCreatePantherPower(getUserId(req)!);
@@ -1511,8 +1555,9 @@ Write a warm, encouraging welcome message for students joining this classroom. M
 
   app.post("/api/academy/merch/orders", requireAuth, async (req, res) => {
     try {
+      const { itemId, quantity, totalPrice } = req.body;
       const order = await storage.createMerchOrder({
-        ...req.body,
+        itemId, quantity, totalPrice,
         userId: getUserId(req)!,
         userName: getUserName(req) || "Student",
       });
@@ -1719,7 +1764,9 @@ Write a warm, encouraging welcome message for students joining this classroom. M
           const wallet = await storage.getOrCreateWallet(userId);
           const newBalance = parseFloat(String(wallet.balance)) + walletImpact;
           await storage.updateWalletBalance(wallet.id, { balance: String(Math.max(0, newBalance)) });
-        } catch (e) {}
+        } catch (e) {
+          console.error("Failed to update wallet from adventure:", e);
+        }
       }
       
       const meritImpact = nextNode ? (nextNode.meritImpact || 0) : 0;
@@ -1738,7 +1785,9 @@ Write a warm, encouraging welcome message for students joining this classroom. M
             });
             await storage.updateHousePoints(avatar.houseId, meritImpact);
           }
-        } catch (e) {}
+        } catch (e) {
+          console.error("Failed to award merit from adventure:", e);
+        }
       }
       
       const isEnd = nextNode?.isEnd ?? false;
@@ -1758,7 +1807,9 @@ Write a warm, encouraging welcome message for students joining this classroom. M
           const power = await storage.getOrCreatePantherPower(userId);
           const categoryKey = `${category}Score` as any;
           await storage.updatePantherPower(userId, { [categoryKey]: (power as any)[categoryKey] + powerImpact });
-        } catch (e) {}
+        } catch (e) {
+          console.error("Failed to update panther power from adventure:", e);
+        }
       }
       
       if (isEnd) {
@@ -1848,13 +1899,13 @@ Write a warm, encouraging welcome message for students joining this classroom. M
     try {
       const userId = getUserId(req)!;
       const userName = getUserName(req) || "Student";
-      const { itemName, description } = req.body;
+      const { itemName, description, price, category, quantity } = req.body;
       const nameCheck = moderateContent(itemName || "");
       if (!nameCheck.safe) return res.status(400).json({ error: nameCheck.reason });
       const descCheck = moderateContent(description || "");
       if (!descCheck.safe) return res.status(400).json({ error: descCheck.reason });
       const listing = await storage.createListing({
-        ...req.body,
+        itemName, description, price, category, quantity,
         sellerId: userId,
         sellerName: userName,
         status: "active",
@@ -1872,7 +1923,9 @@ Write a warm, encouraging welcome message for students joining this classroom. M
       try {
         const power = await storage.getOrCreatePantherPower(userId);
         await storage.updatePantherPower(userId, { entrepreneurshipScore: power.entrepreneurshipScore + 5 });
-      } catch (e) {}
+      } catch (e) {
+        console.error("Failed to update power score for listing:", e);
+      }
       res.status(201).json(listing);
     } catch (error) {
       res.status(500).json({ error: "Failed to create listing" });
@@ -1930,7 +1983,9 @@ Write a warm, encouraging welcome message for students joining this classroom. M
         await storage.updatePantherPower(buyerId, { entrepreneurshipScore: buyerPower.entrepreneurshipScore + 3 });
         const sellerPower = await storage.getOrCreatePantherPower(listing.sellerId);
         await storage.updatePantherPower(listing.sellerId, { entrepreneurshipScore: sellerPower.entrepreneurshipScore + 5 });
-      } catch (e) {}
+      } catch (e) {
+        console.error("Failed to update power scores for marketplace trade:", e);
+      }
       
       res.json({ trade, message: "Purchase successful!" });
     } catch (error) {
@@ -2077,8 +2132,9 @@ Write a warm, encouraging welcome message for students joining this classroom. M
 
   app.post("/api/academy/admin/notes", requireAuth, requireAdmin, async (req, res) => {
     try {
+      const { userId: targetUserId, note: noteText, category } = req.body;
       const note = await storage.createAdminNote({
-        ...req.body,
+        userId: targetUserId, note: noteText, category,
         adminId: getUserId(req)!,
         adminName: getUserName(req) || "Admin",
       });
@@ -2202,7 +2258,8 @@ Write a warm, encouraging welcome message for students joining this classroom. M
       const [existing] = await db.select().from(pathwayPlans).where(eq(pathwayPlans.id, req.params.id));
       if (!existing) return res.status(404).json({ error: "Plan not found" });
       if (existing.userId !== userId) return res.status(403).json({ error: "Not authorized" });
-      const [updated] = await db.update(pathwayPlans).set({ ...req.body, updatedAt: new Date() }).where(eq(pathwayPlans.id, req.params.id)).returning();
+      const { goals, status, primaryCareerInterest, secondaryCareerInterest, educationPathType, completedMilestones } = req.body;
+      const [updated] = await db.update(pathwayPlans).set({ goals, status, primaryCareerInterest, secondaryCareerInterest, educationPathType, completedMilestones, updatedAt: new Date() }).where(eq(pathwayPlans.id, req.params.id)).returning();
       res.json(updated);
     } catch (error) {
       console.error("Error updating pathway plan:", error);
@@ -2712,8 +2769,13 @@ Write a warm, encouraging welcome message for students joining this classroom. M
 
   app.post("/api/games", requireAuth, async (req, res) => {
     const userId = getUserId(req)!;
+    const { gameType, mode, difficulty } = req.body;
+    if (!gameType || typeof gameType !== 'string') {
+      return res.status(400).json({ error: "gameType is required" });
+    }
     const session = await storage.createGameSession({
-      ...req.body,
+      gameType,
+      mode: mode || 'single_vs_cpu',
       createdBy: userId,
       status: "waiting",
       startedAt: new Date(),
@@ -2762,7 +2824,13 @@ Write a warm, encouraging welcome message for students joining this classroom. M
   });
 
   app.patch("/api/games/:id", requireAuth, async (req, res) => {
-    const session = await storage.updateGameSession(req.params.id, req.body);
+    const { status, currentTurn, gameState, scores } = req.body;
+    const allowedFields: Record<string, any> = {};
+    if (status) allowedFields.status = status;
+    if (currentTurn !== undefined) allowedFields.currentTurn = currentTurn;
+    if (gameState !== undefined) allowedFields.gameState = gameState;
+    if (scores !== undefined) allowedFields.scores = scores;
+    const session = await storage.updateGameSession(req.params.id, allowedFields);
     res.json(session);
   });
 
@@ -2950,8 +3018,9 @@ Write a warm, encouraging welcome message for students joining this classroom. M
     const user = (req as any).session?.user;
     if (!user) return res.status(401).json({ error: "Not authenticated" });
     try {
+      const { featureArea, actionType, riskLevel, warningMessage, overrideChosen, metadata, financialLiteracyModule } = req.body;
       const decision = await storage.createRiskDecision({
-        ...req.body,
+        featureArea, actionType, riskLevel, warningMessage, overrideChosen, metadata, financialLiteracyModule,
         userId: user.id,
         studentName: user.name || user.username || "Unknown",
       });
@@ -2983,7 +3052,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
     }
   });
 
-  app.get("/api/risk-decisions", async (req, res) => {
+  app.get("/api/risk-decisions", requireAuth, async (req, res) => {
     const user = (req as any).session?.user;
     if (!user) return res.status(401).json({ error: "Not authenticated" });
     try {
@@ -3458,7 +3527,7 @@ Be thorough, practical, and age-appropriate. Format your response with clear hea
     }
   });
 
-  app.post("/api/admin/courses/:courseId/enroll", requireAuth, async (req, res) => {
+  app.post("/api/admin/courses/:courseId/enroll", requireAdmin, async (req, res) => {
     try {
       const userId = getUserId(req)!;
       const userName = req.headers["x-replit-user-name"] as string || "Student";
@@ -3563,7 +3632,7 @@ Be thorough, practical, and age-appropriate. Format your response with clear hea
     }
   });
 
-  app.get("/api/staar/assessments", async (req, res) => {
+  app.get("/api/staar/assessments", requireAuth, async (req, res) => {
     try {
       const userId = getUserId(req);
       if (!userId) return res.json([]);
@@ -3581,7 +3650,7 @@ Be thorough, practical, and age-appropriate. Format your response with clear hea
     }
   });
 
-  app.get("/api/staar/mastery", async (req, res) => {
+  app.get("/api/staar/mastery", requireAuth, async (req, res) => {
     try {
       const userId = getUserId(req);
       if (!userId) return res.json([]);

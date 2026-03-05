@@ -151,8 +151,8 @@ function NavSection({ label, items, location }: { label: string; items: NavItem[
                   className={isActive ? "bg-sidebar-accent" : ""}
                   data-testid={`link-sidebar-${item.title.toLowerCase().replace(/\s/g, '-')}`}
                 >
-                  <Link href={item.url}>
-                    <item.icon className="h-4 w-4" />
+                  <Link href={item.url} aria-label={item.title}>
+                    <item.icon className="h-4 w-4" aria-hidden="true" />
                     <span>{item.title}</span>
                   </Link>
                 </SidebarMenuButton>
@@ -188,12 +188,12 @@ export function AppSidebar() {
   const resolvedTeachingOpen = teachingOpen || teachingActive;
 
   return (
-    <Sidebar>
+    <Sidebar aria-label="Main navigation">
       <SidebarHeader className="p-4">
-        <Link href="/">
+        <Link href="/" aria-label="AI Mastery Academy home">
           <div className="flex items-center gap-2.5 cursor-pointer" data-testid="link-home">
             <div className="rounded-md p-1.5 bg-gradient-to-br from-rose-900 to-red-950">
-              <Heart className="h-5 w-5 text-white" />
+              <Heart className="h-5 w-5 text-white" aria-hidden="true" />
             </div>
             <div>
               <p className="font-bold text-sm leading-tight">AI Mastery Academy</p>
@@ -209,7 +209,7 @@ export function AppSidebar() {
               <div className="px-3 py-2">
                 <div className="flex items-center gap-2.5">
                   <Avatar className="h-8 w-8">
-                    <AvatarImage src={user.profileImageUrl || undefined} alt={user.firstName || "User"} />
+                    <AvatarImage src={user.profileImageUrl || undefined} alt={`${user.firstName || "User"} profile picture`} />
                     <AvatarFallback className="text-xs bg-primary/10 text-primary">{initials}</AvatarFallback>
                   </Avatar>
                   <div className="flex-1 min-w-0">
@@ -218,8 +218,8 @@ export function AppSidebar() {
                     </p>
                     {progress && progress.streakDays > 0 && (
                       <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                        <Flame className="h-3 w-3 text-orange-500" />
-                        <span>{progress.streakDays} day streak</span>
+                        <Flame className="h-3 w-3 text-orange-500" aria-hidden="true" />
+                        <span aria-label={`${progress.streakDays} day streak`}>{progress.streakDays} day streak</span>
                       </div>
                     )}
                   </div>
@@ -241,10 +241,10 @@ export function AppSidebar() {
               <Collapsible open={resolvedTeachingOpen} onOpenChange={setTeachingOpen} className="group/collapsible">
                 <SidebarMenuItem>
                   <CollapsibleTrigger asChild>
-                    <SidebarMenuButton data-testid="link-sidebar-teaching-&-staff">
-                      <Users className="h-4 w-4" />
+                    <SidebarMenuButton data-testid="link-sidebar-teaching-&-staff" aria-label="Teaching & Staff section">
+                      <Users className="h-4 w-4" aria-hidden="true" />
                       <span>Teaching & Staff</span>
-                      <ChevronRight className="ml-auto h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-90" />
+                      <ChevronRight className="ml-auto h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-90" aria-hidden="true" />
                     </SidebarMenuButton>
                   </CollapsibleTrigger>
                   <CollapsibleContent>
@@ -259,8 +259,8 @@ export function AppSidebar() {
                               className={isActive ? "bg-sidebar-accent" : ""}
                               data-testid={`link-sidebar-${item.title.toLowerCase().replace(/\s/g, '-')}`}
                             >
-                              <Link href={item.url}>
-                                <item.icon className="h-4 w-4" />
+                              <Link href={item.url} aria-label={item.title}>
+                                <item.icon className="h-4 w-4" aria-hidden="true" />
                                 <span>{item.title}</span>
                               </Link>
                             </SidebarMenuSubButton>
@@ -281,15 +281,15 @@ export function AppSidebar() {
             <SidebarGroupContent>
               <div className="px-3 py-3">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-md bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shrink-0">
+                  <div className="w-9 h-9 rounded-md bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shrink-0" aria-hidden="true">
                     <RankIcon className="h-4.5 w-4.5 text-white" />
                   </div>
                   <div>
                     <p className="text-sm font-bold leading-tight" data-testid="text-sidebar-rank">{rank.title}</p>
                     {rank.stars > 0 ? (
-                      <div className="flex items-center gap-0.5 mt-0.5">
+                      <div className="flex items-center gap-0.5 mt-0.5" aria-label={`${rank.stars} stars`}>
                         {Array.from({ length: rank.stars }).map((_, i) => (
-                          <Star key={i} className="h-3 w-3 fill-amber-500 text-amber-500" />
+                          <Star key={i} className="h-3 w-3 fill-amber-500 text-amber-500" aria-hidden="true" />
                         ))}
                       </div>
                     ) : (
@@ -302,19 +302,19 @@ export function AppSidebar() {
           </SidebarGroup>
         )}
       </SidebarContent>
-      <SidebarFooter className="p-4">
+      <SidebarFooter className="p-4" aria-label="Sidebar footer">
         {!authLoading && (
           isAuthenticated ? (
-            <a href="/api/logout">
+            <a href="/api/logout" aria-label="Sign out">
               <Button variant="ghost" size="sm" className="w-full justify-start" data-testid="button-logout">
-                <LogOut className="mr-2 h-4 w-4" /> Sign Out
+                <LogOut className="mr-2 h-4 w-4" aria-hidden="true" /> Sign Out
               </Button>
             </a>
           ) : (
             <div className="space-y-1.5">
-              <a href="/api/login">
+              <a href="/api/login" aria-label="Sign in">
                 <Button variant="default" size="sm" className="w-full" data-testid="button-login">
-                  <LogIn className="mr-2 h-4 w-4" /> Sign In
+                  <LogIn className="mr-2 h-4 w-4" aria-hidden="true" /> Sign In
                 </Button>
               </a>
               <p className="text-[10px] text-muted-foreground text-center" data-testid="text-login-hint">
@@ -323,13 +323,13 @@ export function AppSidebar() {
             </div>
           )
         )}
-        <Link href="/privacy">
+        <Link href="/privacy" aria-label="Privacy Policy">
           <Button variant="ghost" size="sm" className="w-full justify-start" data-testid="link-privacy-policy">
-            <Shield className="mr-2 h-4 w-4" /> Privacy Policy
+            <Shield className="mr-2 h-4 w-4" aria-hidden="true" /> Privacy Policy
           </Button>
         </Link>
         <div className="flex items-center gap-2 text-xs text-muted-foreground mt-2">
-          <Heart className="h-3.5 w-3.5 shrink-0" />
+          <Heart className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
           <span>AI Mastery Academy & School Support Hub</span>
         </div>
       </SidebarFooter>

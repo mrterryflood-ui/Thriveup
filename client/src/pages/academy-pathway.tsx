@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { MultiFileUpload, type UploadedFile } from "@/components/multi-file-upload";
@@ -694,6 +694,8 @@ function PathwayTimeline({ plan }: { plan: PathwayPlan }) {
 }
 
 export default function AcademyPathwayPage() {
+  useEffect(() => { document.title = 'Career Pathway | AI Mastery Academy'; }, []);
+
   const { data: plan, isLoading: planLoading } = useQuery<PathwayPlan | null>({
     queryKey: ["/api/pathway-plan"],
     retry: false,

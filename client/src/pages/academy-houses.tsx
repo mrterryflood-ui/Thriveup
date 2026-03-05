@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -127,7 +127,7 @@ function HouseStandings({ houses }: { houses: AcademyHouse[] }) {
                   <h3 className="font-semibold text-sm truncate" data-testid={`text-house-name-${house.id}`}>
                     {house.name}
                   </h3>
-                  <p className="text-xs text-muted-foreground truncate">{house.motto}</p>
+                  <p className="text-xs text-muted-foreground truncate" data-testid={`text-house-motto-${house.id}`}>{house.motto}</p>
                 </div>
               </div>
               <p className="text-3xl font-bold mb-1" data-testid={`text-house-points-${house.id}`}>
@@ -163,9 +163,9 @@ function MeritCategories() {
                   <CatIcon className={`h-5 w-5 ${cat.color}`} />
                 </div>
                 <div className="min-w-0">
-                  <h3 className="font-medium text-sm">{cat.name}</h3>
-                  <p className="text-xs text-muted-foreground mt-0.5">{cat.description}</p>
-                  <Badge variant="secondary" className="mt-2 text-xs">{cat.range}</Badge>
+                  <h3 className="font-medium text-sm" data-testid={`text-category-name-${cat.id}`}>{cat.name}</h3>
+                  <p className="text-xs text-muted-foreground mt-0.5" data-testid={`text-category-desc-${cat.id}`}>{cat.description}</p>
+                  <Badge variant="secondary" className="mt-2 text-xs" data-testid={`badge-category-range-${cat.id}`}>{cat.range}</Badge>
                 </div>
               </div>
             </Card>
@@ -192,10 +192,10 @@ function RefereeLevels() {
               </div>
               <div>
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-medium text-sm">Level {ref.level}: {ref.name}</span>
-                  <Badge variant="secondary" className="text-xs">{ref.range}</Badge>
+                  <span className="font-medium text-sm" data-testid={`text-referee-name-${ref.level}`}>Level {ref.level}: {ref.name}</span>
+                  <Badge variant="secondary" className="text-xs" data-testid={`badge-referee-range-${ref.level}`}>{ref.range}</Badge>
                 </div>
-                <p className="text-xs text-muted-foreground">{ref.description} {ref.range}</p>
+                <p className="text-xs text-muted-foreground" data-testid={`text-referee-desc-${ref.level}`}>{ref.description} {ref.range}</p>
               </div>
             </Card>
           );
@@ -374,12 +374,12 @@ function RecentMeritFeed({ houses }: { houses: AcademyHouse[] }) {
                   className="flex items-center gap-3 p-3 rounded-md bg-muted/30 flex-wrap"
                   data-testid={`row-merit-event-${event.id}`}
                 >
-                  <Badge variant="secondary" className={`text-xs shrink-0 ${catColor}`}>
+                  <Badge variant="secondary" className={`text-xs shrink-0 ${catColor}`} data-testid={`badge-merit-points-${event.id}`}>
                     +{event.points}
                   </Badge>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{event.userId}</p>
-                    <p className="text-xs text-muted-foreground truncate">{event.reason}</p>
+                    <p className="text-sm font-medium truncate" data-testid={`text-merit-user-${event.id}`}>{event.userId}</p>
+                    <p className="text-xs text-muted-foreground truncate" data-testid={`text-merit-reason-${event.id}`}>{event.reason}</p>
                   </div>
                   <div className="flex items-center gap-2 flex-wrap">
                     {house && (
@@ -423,8 +423,8 @@ function InstantRewards() {
                   <RewardIcon className="h-5 w-5 text-amber-600 dark:text-amber-400" />
                 </div>
                 <div className="min-w-0">
-                  <p className="font-medium text-sm">{reward.name}</p>
-                  <p className="text-xs text-muted-foreground">{reward.points.toLocaleString()} points</p>
+                  <p className="font-medium text-sm" data-testid={`text-reward-name-${reward.points}`}>{reward.name}</p>
+                  <p className="text-xs text-muted-foreground" data-testid={`text-reward-points-${reward.points}`}>{reward.points.toLocaleString()} points</p>
                 </div>
               </div>
             </Card>
@@ -436,13 +436,14 @@ function InstantRewards() {
 }
 
 export default function AcademyHousesPage() {
+  useEffect(() => { document.title = 'Houses | AI Mastery Academy'; }, []);
   const { data: houses, isLoading } = useQuery<AcademyHouse[]>({
     queryKey: ["/api/academy/houses"],
   });
 
   if (isLoading) {
     return (
-      <div className="p-6 max-w-6xl mx-auto space-y-6">
+      <div className="p-6 max-w-6xl mx-auto space-y-6" data-testid="houses-loading">
         <Skeleton className="h-10 w-80" />
         <Skeleton className="h-6 w-96" />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

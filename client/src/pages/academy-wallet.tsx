@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -109,6 +109,7 @@ function FundCampusSection({ campusContributed }: { campusContributed: string })
 }
 
 export default function AcademyWalletPage() {
+  useEffect(() => { document.title = 'Wallet | AI Mastery Academy'; }, []);
   const [showFundSection, setShowFundSection] = useState(false);
 
   const { data: wallet, isLoading: walletLoading } = useQuery<WalletData>({
@@ -266,7 +267,7 @@ export default function AcademyWalletPage() {
                       </td>
                       <td className="py-3 pr-4">{tx.description}</td>
                       <td className="py-3">
-                        <Badge variant="secondary">{tx.category}</Badge>
+                        <Badge variant="secondary" data-testid={`badge-category-${tx.id}`}>{tx.category}</Badge>
                       </td>
                     </tr>
                   );

@@ -89,7 +89,10 @@ function Step1Basics({
   onNext: () => void;
   subjects: Subject[] | undefined;
 }) {
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
   const isValid = data.name.trim().length > 0 && data.gradeBand.length > 0;
+  const nameError = touched.name && !data.name.trim() ? "Classroom name is required" : "";
+  const gradeError = touched.gradeBand && !data.gradeBand ? "Please select a grade band" : "";
 
   return (
     <div className="space-y-6">
@@ -109,14 +112,25 @@ function Step1Basics({
             placeholder="e.g. AI Explorers - Period 3"
             value={data.name}
             onChange={(e) => onChange({ name: e.target.value })}
+            onBlur={() => setTouched((p) => ({ ...p, name: true }))}
             data-testid="input-wizard-name"
+            aria-invalid={!!nameError}
           />
+          {nameError && (
+            <p className="text-sm text-destructive mt-1" data-testid="error-wizard-name">{nameError}</p>
+          )}
         </div>
 
         <div>
           <label className="text-sm font-medium mb-1.5 block">Grade Band</label>
-          <Select value={data.gradeBand} onValueChange={(val) => onChange({ gradeBand: val })}>
-            <SelectTrigger data-testid="select-wizard-grade">
+          <Select
+            value={data.gradeBand}
+            onValueChange={(val) => {
+              onChange({ gradeBand: val });
+              setTouched((p) => ({ ...p, gradeBand: true }));
+            }}
+          >
+            <SelectTrigger data-testid="select-wizard-grade" aria-invalid={!!gradeError}>
               <SelectValue placeholder="Select grade band" />
             </SelectTrigger>
             <SelectContent>
@@ -125,6 +139,9 @@ function Step1Basics({
               <SelectItem value="9-12">Grades 9-12</SelectItem>
             </SelectContent>
           </Select>
+          {gradeError && (
+            <p className="text-sm text-destructive mt-1" data-testid="error-wizard-grade">{gradeError}</p>
+          )}
         </div>
 
         <div>
@@ -146,7 +163,16 @@ function Step1Basics({
       </div>
 
       <div className="flex justify-end">
-        <Button onClick={onNext} disabled={!isValid} data-testid="button-step1-next">
+        <Button
+          onClick={() => {
+            if (!isValid) {
+              setTouched({ name: true, gradeBand: true });
+              return;
+            }
+            onNext();
+          }}
+          data-testid="button-step1-next"
+        >
           Next: AI Suggestions <ArrowRight className="ml-1.5 h-4 w-4" />
         </Button>
       </div>

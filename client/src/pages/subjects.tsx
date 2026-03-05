@@ -66,7 +66,7 @@ export default function SubjectsPage() {
           <GraduationCap className="h-7 w-7 text-primary" />
           <h1 className="text-3xl font-bold" data-testid="text-subjects-heading">Subjects</h1>
         </div>
-        <p className="text-muted-foreground">
+        <p className="text-muted-foreground" data-testid="text-subjects-description">
           Six core subject areas designed to support the whole child across grades 3 through 12.
         </p>
       </div>
@@ -125,8 +125,8 @@ export default function SubjectsPage() {
       </div>
 
       {filteredSubjects.length === 0 && (
-        <Card className="p-8 text-center">
-          <p className="text-muted-foreground">No subjects found for this grade band yet.</p>
+        <Card className="p-8 text-center" data-testid="card-empty-subjects">
+          <p className="text-muted-foreground" data-testid="text-empty-subjects">No subjects found for this grade band yet.</p>
         </Card>
       )}
     </div>
@@ -177,9 +177,9 @@ export function SubjectDetailPage() {
           </div>
           <div className="flex-1 min-w-[200px]">
             <Badge className="mb-2 bg-white/20 text-white border-white/30">{subject.gradeBand}</Badge>
-            <h1 className="text-2xl md:text-3xl font-bold mb-2">{subject.name}</h1>
-            <p className="text-white/80 text-sm mb-2">{subject.theme}</p>
-            <p className="text-white/70 text-sm leading-relaxed">{subject.description}</p>
+            <h1 className="text-2xl md:text-3xl font-bold mb-2" data-testid="text-subject-detail-name">{subject.name}</h1>
+            <p className="text-white/80 text-sm mb-2" data-testid="text-subject-detail-theme">{subject.theme}</p>
+            <p className="text-white/70 text-sm leading-relaxed" data-testid="text-subject-detail-description">{subject.description}</p>
           </div>
         </div>
       </Card>

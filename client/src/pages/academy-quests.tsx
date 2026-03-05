@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Card } from "@/components/ui/card";
@@ -97,6 +98,7 @@ function LoadingSkeleton() {
 }
 
 export default function AcademyQuestsPage() {
+  useEffect(() => { document.title = 'Daily Quests | AI Mastery Academy'; }, []);
   const { data: quests, isLoading: questsLoading } = useQuery<Quest[]>({
     queryKey: ["/api/academy/quests"],
   });
@@ -328,8 +330,8 @@ export default function AcademyQuestsPage() {
                     <CatIcon className={`h-5 w-5 ${style?.text ?? "text-muted-foreground"}`} />
                   </div>
                   <div className="min-w-0">
-                    <h3 className="font-medium text-sm">{cat.name}</h3>
-                    <p className="text-xs text-muted-foreground mt-0.5">{cat.description}</p>
+                    <h3 className="font-medium text-sm" data-testid={`text-category-name-${cat.key}`}>{cat.name}</h3>
+                    <p className="text-xs text-muted-foreground mt-0.5" data-testid={`text-category-desc-${cat.key}`}>{cat.description}</p>
                   </div>
                 </div>
               </Card>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/use-auth";
@@ -38,6 +38,7 @@ function getMoodLabel(mood: string | null) {
 }
 
 export default function AcademyJournalPage() {
+  useEffect(() => { document.title = 'Reflection Journal | AI Mastery Academy'; }, []);
   const { user, isLoading: authLoading } = useAuth();
   const [period, setPeriod] = useState("daily");
   const [mood, setMood] = useState("");
@@ -204,7 +205,22 @@ export default function AcademyJournalPage() {
           </div>
         ) : !reflections || reflections.length === 0 ? (
           <Card className="p-8 text-center" data-testid="card-no-entries">
-            <p className="text-muted-foreground">No reflections yet. Write your first entry above!</p>
+            <BookOpen className="h-12 w-12 mx-auto text-muted-foreground/30 mb-4" />
+            <h3 className="text-lg font-semibold mb-2" data-testid="text-empty-title">Your Journal Awaits</h3>
+            <p className="text-muted-foreground mb-4 max-w-md mx-auto">
+              Reflecting on your learning helps you grow. Write your first entry above to start tracking your thoughts, moods, and progress over time.
+            </p>
+            <Button
+              onClick={() => {
+                const textarea = document.querySelector('[data-testid="textarea-reflection"]') as HTMLTextAreaElement;
+                if (textarea) textarea.focus();
+              }}
+              className="bg-[#800000]"
+              data-testid="button-start-first-entry"
+            >
+              <Sparkles className="h-4 w-4 mr-2" />
+              Write Your First Reflection
+            </Button>
           </Card>
         ) : (
           <div className="space-y-4">

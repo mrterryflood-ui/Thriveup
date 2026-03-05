@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -77,6 +78,8 @@ function LoadingSkeleton() {
 }
 
 export default function AcademyPowerPage() {
+  useEffect(() => { document.title = 'Panther Power | AI Mastery Academy'; }, []);
+
   const { data, isLoading } = useQuery<PantherPowerData>({
     queryKey: ["/api/academy/panther-power"],
   });

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import AcademyWizard from "@/components/academy-wizard";
 import { WIZARD_STEPS } from "@/lib/wizard-data";
@@ -68,6 +68,7 @@ const STATUS_ICONS: Record<string, typeof Clock> = {
 const FUNDRAISING_GOAL = 10000;
 
 export default function AcademyMerchPage() {
+  useEffect(() => { document.title = 'Merch Shop | AI Mastery Academy'; }, []);
   const { user } = useAuth();
   const { toast } = useToast();
   const [selectedItem, setSelectedItem] = useState<AcademyMerchItem | null>(null);

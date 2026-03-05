@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -50,6 +50,7 @@ const portalToAcademy = [
 ];
 
 export default function AcademyIntegrationPage() {
+  useEffect(() => { document.title = 'Integration Portal | AI Mastery Academy'; }, []);
   const { user, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);

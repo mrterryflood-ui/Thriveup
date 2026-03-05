@@ -5,8 +5,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  ArrowLeft, BookOpen, Clock, Target, Sparkles,
-  ChevronRight, CheckCircle2, PlayCircle, MessageCircle, FileText, Gamepad2
+  Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink,
+  BreadcrumbSeparator, BreadcrumbPage,
+} from "@/components/ui/breadcrumb";
+import {
+  BookOpen, Clock, Target, Sparkles,
+  ChevronRight, CheckCircle2, PlayCircle, MessageCircle, FileText, Gamepad2, Home
 } from "lucide-react";
 import type { Module, Lesson } from "@shared/schema";
 import StudyTips from "@/components/study-tips";
@@ -77,11 +81,33 @@ export default function ModuleDetailPage() {
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
-      <Link href={`/curriculum/${mod.levelId}`}>
-        <Button variant="ghost" size="sm" className="mb-6" data-testid="button-back-level">
-          <ArrowLeft className="mr-1 h-4 w-4" /> Back to Level
-        </Button>
-      </Link>
+      <Breadcrumb className="mb-6" data-testid="breadcrumb-module">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link href="/dashboard" data-testid="breadcrumb-home">
+                <Home className="h-4 w-4" />
+              </Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link href="/curriculum" data-testid="breadcrumb-curriculum">Curriculum</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link href={`/curriculum/${mod.levelId}`} data-testid="breadcrumb-level">Level</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage data-testid="breadcrumb-current">{mod.title}</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
 
       <div className="mb-8">
         <Badge variant="secondary" className="mb-3">Module {mod.moduleNumber}</Badge>

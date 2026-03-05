@@ -218,7 +218,23 @@ export default function AcademyAnnouncementsPage() {
           </div>
         ) : sorted.length === 0 ? (
           <Card className="p-8 text-center" data-testid="card-no-announcements">
-            <p className="text-muted-foreground">No announcements yet.</p>
+            <Megaphone className="h-12 w-12 mx-auto text-muted-foreground/30 mb-4" />
+            <h3 className="text-lg font-semibold mb-2" data-testid="text-empty-announcements-title">No Announcements Yet</h3>
+            <p className="text-muted-foreground mb-4 max-w-md mx-auto">
+              {isAdmin
+                ? "Share important updates with your students. Create your first announcement to keep everyone informed."
+                : "Check back soon for updates from your teachers and administrators. Important news and events will appear here."}
+            </p>
+            {isAdmin && (
+              <Button
+                onClick={() => setShowForm(true)}
+                className="bg-[#800000]"
+                data-testid="button-create-first-announcement"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Create First Announcement
+              </Button>
+            )}
           </Card>
         ) : (
           <div className="space-y-4">

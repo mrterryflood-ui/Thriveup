@@ -79,6 +79,7 @@ import { BandwidthProvider } from "@/lib/bandwidth-mode";
 import { AccessibilityProvider } from "@/lib/accessibility";
 import { HeaderControls } from "@/components/header-controls";
 import { AccessibilityPanel } from "@/components/accessibility-panel";
+import { ErrorBoundary } from "@/components/error-boundary";
 
 function AppRouter() {
   return (
@@ -189,7 +190,9 @@ function AppLayout() {
             </div>
           </header>
           <main id="main-content" className="flex-1 overflow-auto">
-            <AppRouter />
+            <ErrorBoundary>
+              <AppRouter />
+            </ErrorBoundary>
           </main>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import AcademyWizard from "@/components/academy-wizard";
 import { WIZARD_STEPS } from "@/lib/wizard-data";
@@ -90,7 +90,7 @@ function CompetitionCard({
   isEntering: boolean;
   onViewResults: (id: string) => void;
 }) {
-  const entryCount = (competition as any)._entryCount ?? 0;
+  const entryCount = (competition as AcademyCompetition & { _entryCount?: number })._entryCount ?? 0;
   return (
     <Card className="p-5" data-testid={`card-competition-${competition.id}`}>
       <div className="flex items-start justify-between gap-2 mb-3 flex-wrap">
@@ -237,6 +237,7 @@ function LeaderboardSection({ competitionId }: { competitionId: string }) {
 }
 
 export default function AcademyCompetitionsPage() {
+  useEffect(() => { document.title = 'Competitions | AI Mastery Academy'; }, []);
   const { toast } = useToast();
   const [typeFilter, setTypeFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -262,7 +263,7 @@ export default function AcademyCompetitionsPage() {
 
   const createMutation = useMutation({
     mutationFn: async (data: CreateCompetitionForm) => {
-      const body: any = { ...data };
+      const body: Record<string, string | number | undefined> = { ...data };
       if (data.startDate) body.startDate = new Date(data.startDate).toISOString();
       if (data.endDate) body.endDate = new Date(data.endDate).toISOString();
       await apiRequest("POST", "/api/academy/competitions", body);

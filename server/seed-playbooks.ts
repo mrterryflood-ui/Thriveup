@@ -1,8 +1,6 @@
 import { interventionPlaybooks } from "@shared/schema";
 
 export async function seedPlaybooks(db: any): Promise<void> {
-  console.log("[Seed Playbooks] Seeding intervention playbooks...");
-
   const playbooks = [
     {
       name: "Re-Engage Nudge",
@@ -412,9 +410,6 @@ export async function seedPlaybooks(db: any): Promise<void> {
         .onConflictDoNothing();
     }
 
-    console.log(
-      `[Seed Playbooks] Successfully seeded ${playbooks.length} intervention playbooks`
-    );
   } catch (error) {
     console.error("[Seed Playbooks] Error seeding playbooks:", error);
     throw error;

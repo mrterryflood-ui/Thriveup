@@ -129,7 +129,7 @@ export default function AcademyMentorsPage() {
   const [requestMentor, setRequestMentor] = useState<MentorProfile | null>(null);
   const [requestMessage, setRequestMessage] = useState("");
 
-  const { data: mentors, isLoading: mentorsLoading } = useQuery<MentorProfile[]>({
+  const { data: mentors, isLoading: mentorsLoading, isError: mentorsError, error: mentorsErrorObj } = useQuery<MentorProfile[]>({
     queryKey: ["/api/mentors"],
   });
 
@@ -155,6 +155,23 @@ export default function AcademyMentorsPage() {
 
   if (mentorsLoading) {
     return <LoadingSkeleton />;
+  }
+
+  if (mentorsError) {
+    return (
+      <div className="p-6 max-w-6xl mx-auto" data-testid="mentors-error-state">
+        <Card className="p-8 text-center">
+          <Users className="h-10 w-10 mx-auto text-muted-foreground/30 mb-3" />
+          <h2 className="text-lg font-semibold mb-2" data-testid="text-error-title">Unable to Load Mentors</h2>
+          <p className="text-sm text-muted-foreground mb-4" data-testid="text-error-message">
+            {mentorsErrorObj instanceof Error ? mentorsErrorObj.message : "Something went wrong while loading mentor data. Please try again."}
+          </p>
+          <Button onClick={() => window.location.reload()} data-testid="button-retry-mentors">
+            Try Again
+          </Button>
+        </Card>
+      </div>
+    );
   }
 
   const allMentors = (mentors ?? []).filter((m) => m.isActive);

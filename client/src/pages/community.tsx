@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -129,6 +130,10 @@ const impactMetrics = [
 ];
 
 export default function CommunityPage() {
+  useEffect(() => {
+    document.title = "Community Access & Career Pipeline | AI Mastery Academy";
+  }, []);
+
   return (
     <div className="min-h-screen">
       <section className="relative overflow-hidden py-20 px-6 md:py-32">
@@ -298,10 +303,10 @@ export default function CommunityPage() {
             Empowering under-resourced youth through AI skills, career pipelines, and workforce development.
           </p>
           <div className="flex flex-col items-end gap-1">
-            <a href="mailto:sisnett.meredith@gmail.com" className="flex items-center gap-1.5 text-sm text-muted-foreground" data-testid="link-support-email">
+            <a href="mailto:sisnett.meredith@gmail.com" className="flex items-center gap-1.5 text-sm text-muted-foreground" data-testid="link-support-email" aria-label="Email sisnett.meredith@gmail.com">
               <Mail className="h-3.5 w-3.5" /> sisnett.meredith@gmail.com
             </a>
-            <a href="mailto:mr.terryflood@gmail.com" className="flex items-center gap-1.5 text-sm text-muted-foreground" data-testid="link-support-email-2">
+            <a href="mailto:mr.terryflood@gmail.com" className="flex items-center gap-1.5 text-sm text-muted-foreground" data-testid="link-support-email-2" aria-label="Email mr.terryflood@gmail.com">
               <Mail className="h-3.5 w-3.5" /> mr.terryflood@gmail.com
             </a>
           </div>

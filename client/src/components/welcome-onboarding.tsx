@@ -125,7 +125,7 @@ export default function WelcomeOnboarding({
           </p>
 
           {current.link && (
-            <Link href={current.link}>
+            <Link href={current.link} data-testid="link-onboarding-action">
               <Button
                 variant="outline"
                 size="sm"

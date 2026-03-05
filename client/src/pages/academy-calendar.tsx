@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/use-auth";
@@ -121,6 +121,7 @@ function EventSection({ title, events, isAdmin, onDelete }: { title: string; eve
 }
 
 export default function AcademyCalendarPage() {
+  useEffect(() => { document.title = 'Calendar | AI Mastery Academy'; }, []);
   const { user } = useAuth();
   const isAdmin = !!(user as any)?.isAdmin;
 

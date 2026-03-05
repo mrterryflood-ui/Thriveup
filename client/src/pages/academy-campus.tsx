@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -136,7 +136,7 @@ function VisualBuilding({ fundedPercent }: { fundedPercent: number }) {
       )}
 
       {fundedPercent < 10 && (
-        <p className="absolute bottom-8 text-xs text-muted-foreground">Empty lot - start funding to build!</p>
+        <p className="absolute bottom-8 text-xs text-muted-foreground" data-testid="text-empty-lot">Empty lot - start funding to build!</p>
       )}
     </div>
   );
@@ -163,8 +163,8 @@ function CreateProjectForm() {
     <div className="p-6 max-w-lg mx-auto mt-12" data-testid="create-project-form">
       <Card className="p-8 text-center">
         <Building2 className="h-12 w-12 mx-auto text-primary mb-4" />
-        <h2 className="text-2xl font-bold mb-2">Build Your Black Campus</h2>
-        <p className="text-muted-foreground mb-6">Design your dream home and community space</p>
+        <h2 className="text-2xl font-bold mb-2" data-testid="text-create-title">Build Your Black Campus</h2>
+        <p className="text-muted-foreground mb-6" data-testid="text-create-subtitle">Design your dream home and community space</p>
         <div className="space-y-4">
           <Input
             placeholder="Enter your project name"
@@ -218,7 +218,7 @@ function FundFromWallet({ project }: { project: CampusProject }) {
     <div className="space-y-3" data-testid="fund-from-wallet">
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
         <Wallet className="h-4 w-4" />
-        <span>Wallet Balance: {formatMoney(walletBalance)}</span>
+        <span data-testid="text-wallet-balance">Wallet Balance: {formatMoney(walletBalance)}</span>
       </div>
       <div className="flex gap-2 flex-wrap">
         <Input
@@ -244,13 +244,14 @@ function FundFromWallet({ project }: { project: CampusProject }) {
 }
 
 export default function AcademyCampusPage() {
+  useEffect(() => { document.title = 'Campus Builder | AI Mastery Academy'; }, []);
   const { data: project, isLoading, error } = useQuery<CampusProject>({
     queryKey: ["/api/academy/campus"],
   });
 
   if (isLoading) {
     return (
-      <div className="p-6 max-w-5xl mx-auto space-y-4">
+      <div className="p-6 max-w-5xl mx-auto space-y-4" data-testid="campus-loading">
         <Skeleton className="h-10 w-64" />
         <Skeleton className="h-6 w-96" />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
@@ -285,7 +286,7 @@ export default function AcademyCampusPage() {
             </div>
             <div className="flex-1 min-w-[150px]">
               <h2 className="font-semibold text-lg" data-testid="text-project-name">{project.projectName}</h2>
-              <p className="text-sm text-muted-foreground">Phase {project.currentPhase} of 5</p>
+              <p className="text-sm text-muted-foreground" data-testid="text-current-phase">Phase {project.currentPhase} of 5</p>
             </div>
             <Badge variant="secondary" data-testid="badge-current-phase">Phase {project.currentPhase}</Badge>
           </div>
@@ -295,7 +296,7 @@ export default function AcademyCampusPage() {
             <span className="font-medium" data-testid="text-funding-progress">{formatMoney(funded)} / {formatMoney(budget)}</span>
           </div>
           <Progress value={fundedPercent} className="h-2.5 mb-4" data-testid="progress-funding" />
-          <p className="text-xs text-muted-foreground mb-4">{Math.round(fundedPercent)}% funded</p>
+          <p className="text-xs text-muted-foreground mb-4" data-testid="text-funded-percent">{Math.round(fundedPercent)}% funded</p>
 
           <FundFromWallet project={project} />
         </Card>
@@ -340,15 +341,15 @@ export default function AcademyCampusPage() {
                 </div>
                 <div className="flex-1 min-w-0 pb-2">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <p className={`font-medium ${status === "locked" ? "text-muted-foreground" : ""}`}>
+                    <p className={`font-medium ${status === "locked" ? "text-muted-foreground" : ""}`} data-testid={`text-phase-name-${phase.phase}`}>
                       Phase {phase.phase}: {phase.name}
                     </p>
                     <Badge variant={status === "completed" ? "default" : "secondary"} className="text-xs" data-testid={`badge-phase-status-${phase.phase}`}>
                       {status === "completed" ? "Completed" : status === "in-progress" ? "In Progress" : "Locked"}
                     </Badge>
                   </div>
-                  <p className="text-sm text-muted-foreground mt-0.5">{phase.description}</p>
-                  <p className="text-xs text-muted-foreground mt-1">Cost: {formatMoney(phase.cost)} (Cumulative: {formatMoney(phase.cumulative)})</p>
+                  <p className="text-sm text-muted-foreground mt-0.5" data-testid={`text-phase-desc-${phase.phase}`}>{phase.description}</p>
+                  <p className="text-xs text-muted-foreground mt-1" data-testid={`text-phase-cost-${phase.phase}`}>Cost: {formatMoney(phase.cost)} (Cumulative: {formatMoney(phase.cumulative)})</p>
                 </div>
               </div>
             );
@@ -384,7 +385,7 @@ export default function AcademyCampusPage() {
                       }`} />
                     </div>
                     <div className="min-w-0">
-                      <p className={`text-sm font-medium truncate ${!unlocked ? "text-muted-foreground" : ""}`}>{feature.name}</p>
+                      <p className={`text-sm font-medium truncate ${!unlocked ? "text-muted-foreground" : ""}`} data-testid={`text-feature-name-${feature.name.toLowerCase().replace(/\s+/g, "-")}`}>{feature.name}</p>
                       <div className="flex items-center gap-1 mt-0.5">
                         {unlocked ? (
                           <Unlock className="h-3 w-3 text-emerald-500" />

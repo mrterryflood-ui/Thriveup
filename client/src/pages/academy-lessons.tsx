@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { Card } from "@/components/ui/card";
@@ -76,6 +76,8 @@ function LoadingSkeleton() {
 }
 
 export default function AcademyLessonsPage() {
+  useEffect(() => { document.title = 'Lessons | AI Mastery Academy'; }, []);
+
   const [activeFilter, setActiveFilter] = useState("all");
 
   const { data: lessons = [], isLoading } = useQuery<LifeLesson[]>({

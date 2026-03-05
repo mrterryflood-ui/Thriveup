@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { Card } from "@/components/ui/card";
@@ -53,19 +54,24 @@ interface DashboardData {
 }
 
 export default function DashboardPage() {
+  useEffect(() => {
+    document.title = "Dashboard | AI Mastery Academy";
+  }, []);
+
   const { data, isLoading } = useQuery<DashboardData>({
     queryKey: ["/api/dashboard"],
   });
 
   if (isLoading) {
     return (
-      <div className="p-6 max-w-5xl mx-auto space-y-4">
-        <Skeleton className="h-12 w-48 mb-2" />
-        <Skeleton className="h-6 w-72 mb-8" />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Skeleton className="h-32" />
-          <Skeleton className="h-32" />
-          <Skeleton className="h-32" />
+      <div className="p-4 sm:p-6 max-w-5xl mx-auto space-y-4">
+        <Skeleton className="h-10 sm:h-12 w-48 mb-2" />
+        <Skeleton className="h-5 sm:h-6 w-72 mb-6 sm:mb-8" />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          <Skeleton className="h-24 sm:h-32" />
+          <Skeleton className="h-24 sm:h-32" />
+          <Skeleton className="h-24 sm:h-32" />
+          <Skeleton className="h-24 sm:h-32" />
         </div>
         <Skeleton className="h-64 mt-4" />
       </div>
@@ -80,30 +86,30 @@ export default function DashboardPage() {
   const lessonProgress = stats.totalLessons > 0 ? (stats.completedLessons / stats.totalLessons) * 100 : 0;
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-1" data-testid="text-dashboard-greeting">
+    <div className="p-4 sm:p-6 max-w-5xl mx-auto">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-1" data-testid="text-dashboard-greeting">
           Welcome back, {progress.studentName}!
         </h1>
-        <p className="text-muted-foreground">
-          AI Mastery Academy — Keep exploring and growing. You're doing great!
+        <p className="text-sm sm:text-base text-muted-foreground">
+          AI Mastery Academy — Keep exploring and growing!
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <Card className="p-5">
-          <div className="flex items-center justify-between mb-3 gap-1">
-            <span className="text-sm text-muted-foreground">Total Points</span>
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
+        <Card className="p-3 sm:p-5">
+          <div className="flex items-center justify-between mb-2 sm:mb-3 gap-1">
+            <span className="text-xs sm:text-sm text-muted-foreground">Total Points</span>
             <div className="rounded-md p-1.5 bg-amber-100 dark:bg-amber-900/30">
               <Star className="h-4 w-4 text-amber-600 dark:text-amber-400" />
             </div>
           </div>
-          <p className="text-2xl font-bold" data-testid="text-total-points">{progress.totalPoints.toLocaleString()}</p>
+          <p className="text-xl sm:text-2xl font-bold" data-testid="text-total-points">{progress.totalPoints.toLocaleString()}</p>
         </Card>
 
-        <Card className="p-5">
-          <div className="flex items-center justify-between mb-3 gap-1">
-            <span className="text-sm text-muted-foreground">Current Rank</span>
+        <Card className="p-3 sm:p-5">
+          <div className="flex items-center justify-between mb-2 sm:mb-3 gap-1">
+            <span className="text-xs sm:text-sm text-muted-foreground">Current Rank</span>
             <div className="rounded-md p-1.5 bg-gradient-to-br from-amber-500 to-orange-600">
               {(() => {
                 const rank = getRankForLevel(progress.currentLevel);
@@ -112,7 +118,7 @@ export default function DashboardPage() {
               })()}
             </div>
           </div>
-          <p className="text-2xl font-bold" data-testid="text-current-rank">{getRankForLevel(progress.currentLevel).title}</p>
+          <p className="text-xl sm:text-2xl font-bold truncate" data-testid="text-current-rank">{getRankForLevel(progress.currentLevel).title}</p>
           {getRankForLevel(progress.currentLevel).stars > 0 && (
             <div className="flex items-center gap-0.5 mt-1">
               {Array.from({ length: getRankForLevel(progress.currentLevel).stars }).map((_, i) => (
@@ -122,30 +128,30 @@ export default function DashboardPage() {
           )}
         </Card>
 
-        <Card className="p-5">
-          <div className="flex items-center justify-between mb-3 gap-1">
-            <span className="text-sm text-muted-foreground">Lessons Done</span>
+        <Card className="p-3 sm:p-5">
+          <div className="flex items-center justify-between mb-2 sm:mb-3 gap-1">
+            <span className="text-xs sm:text-sm text-muted-foreground">Lessons Done</span>
             <div className="rounded-md p-1.5 bg-emerald-100 dark:bg-emerald-900/30">
               <BookOpen className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
             </div>
           </div>
-          <p className="text-2xl font-bold" data-testid="text-lessons-done">{progress.lessonsCompleted}</p>
+          <p className="text-xl sm:text-2xl font-bold" data-testid="text-lessons-done">{progress.lessonsCompleted}</p>
         </Card>
 
-        <Card className="p-5">
-          <div className="flex items-center justify-between mb-3 gap-1">
-            <span className="text-sm text-muted-foreground">Avg Score</span>
+        <Card className="p-3 sm:p-5">
+          <div className="flex items-center justify-between mb-2 sm:mb-3 gap-1">
+            <span className="text-xs sm:text-sm text-muted-foreground">Avg Score</span>
             <div className="rounded-md p-1.5 bg-violet-100 dark:bg-violet-900/30">
               <TrendingUp className="h-4 w-4 text-violet-600 dark:text-violet-400" />
             </div>
           </div>
-          <p className="text-2xl font-bold" data-testid="text-avg-score">{progress.averageScore}%</p>
+          <p className="text-xl sm:text-2xl font-bold" data-testid="text-avg-score">{progress.averageScore}%</p>
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
-          <Card className="p-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+        <div className="lg:col-span-2 space-y-4 sm:space-y-6">
+          <Card className="p-4 sm:p-6">
             <h2 className="font-semibold mb-4 flex items-center gap-2">
               <Flame className="h-5 w-5 text-primary" /> Current Progress
             </h2>
@@ -167,7 +173,7 @@ export default function DashboardPage() {
             {currentModule ? (
               <div>
                 <h3 className="text-sm font-medium text-muted-foreground mb-3">Continue Where You Left Off</h3>
-                <Link href={`/module/${currentModule.id}`}>
+                <Link href={`/module/${currentModule.id}`} aria-label={`Continue module: ${currentModule.title}`}>
                   <Card className="p-4 hover-elevate cursor-pointer group border-primary/20">
                     <div className="flex items-center gap-3 flex-wrap">
                       <div className={`rounded-md flex items-center justify-center w-9 h-9 ${colors.badge} font-bold text-sm shrink-0`}>
@@ -196,14 +202,14 @@ export default function DashboardPage() {
             )}
           </Card>
 
-          <Card className="p-6">
-            <div className="flex items-center justify-between mb-4 gap-2 flex-wrap">
+          <Card className="p-4 sm:p-6">
+            <div className="flex items-center justify-between mb-3 sm:mb-4 gap-2 flex-wrap">
               <h2 className="font-semibold flex items-center gap-2">
                 <Target className="h-5 w-5 text-primary" /> Quick Actions
               </h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <Link href="/subjects" data-testid="link-quick-subjects">
+              <Link href="/subjects" data-testid="link-quick-subjects" aria-label="Navigate to Subjects">
                 <Card className="p-4 hover-elevate cursor-pointer">
                   <div className="flex items-center gap-3">
                     <GraduationCap className="h-5 w-5 text-primary shrink-0" />
@@ -214,7 +220,7 @@ export default function DashboardPage() {
                   </div>
                 </Card>
               </Link>
-              <Link href="/ai-companion" data-testid="link-quick-spark">
+              <Link href="/ai-companion" data-testid="link-quick-spark" aria-label="Navigate to Ask Spark AI companion">
                 <Card className="p-4 hover-elevate cursor-pointer">
                   <div className="flex items-center gap-3">
                     <Sparkles className="h-5 w-5 text-primary shrink-0" />
@@ -225,7 +231,7 @@ export default function DashboardPage() {
                   </div>
                 </Card>
               </Link>
-              <Link href="/curriculum" data-testid="link-quick-curriculum">
+              <Link href="/curriculum" data-testid="link-quick-curriculum" aria-label="Navigate to AI Mastery Curriculum">
                 <Card className="p-4 hover-elevate cursor-pointer">
                   <div className="flex items-center gap-3">
                     <BookOpen className="h-5 w-5 text-primary shrink-0" />
@@ -236,7 +242,7 @@ export default function DashboardPage() {
                   </div>
                 </Card>
               </Link>
-              <Link href="/achievements" data-testid="link-quick-achievements">
+              <Link href="/achievements" data-testid="link-quick-achievements" aria-label="Navigate to Achievements">
                 <Card className="p-4 hover-elevate cursor-pointer">
                   <div className="flex items-center gap-3">
                     <Award className="h-5 w-5 text-amber-500 shrink-0" />
@@ -251,8 +257,8 @@ export default function DashboardPage() {
           </Card>
         </div>
 
-        <div className="space-y-6">
-          <Card className="p-6">
+        <div className="space-y-4 sm:space-y-6">
+          <Card className="p-4 sm:p-6">
             <h2 className="font-semibold mb-4 flex items-center gap-2">
               <Trophy className="h-5 w-5 text-amber-500" /> Recent Badges
             </h2>
@@ -283,7 +289,7 @@ export default function DashboardPage() {
             </Link>
           </Card>
 
-          <Card className="p-6 bg-gradient-to-br from-primary/5 to-accent/5">
+          <Card className="p-4 sm:p-6 bg-gradient-to-br from-primary/5 to-accent/5">
             <h2 className="font-semibold mb-3 flex items-center gap-2">
               <Medal className="h-5 w-5 text-amber-500" /> Rank Progression
             </h2>

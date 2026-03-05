@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
 import { Card } from "@/components/ui/card";
@@ -7,6 +8,8 @@ import { Progress } from "@/components/ui/progress";
 import { Printer, Trophy, Zap, Award, Star, BookOpen, Users, Lightbulb, Heart, GraduationCap } from "lucide-react";
 
 export default function AcademyProgressReportPage() {
+  useEffect(() => { document.title = 'Progress Report | AI Mastery Academy'; }, []);
+
   const { user, isLoading: authLoading } = useAuth();
 
   const { data: progress, isLoading: progressLoading } = useQuery<any>({

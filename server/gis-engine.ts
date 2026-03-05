@@ -27,8 +27,6 @@ export async function ingestCdcPlacesData(
   stateAbbr: string,
   countyFips?: string
 ): Promise<number> {
-  console.log(`[GIS Engine] Ingesting CDC PLACES data for state=${stateAbbr}${countyFips ? `, county=${countyFips}` : ""}...`);
-
   try {
     const measuresFilter = PLACES_MEASURES.map((m) => `'${m}'`).join(",");
     let whereClause = `stateabbr='${stateAbbr.toUpperCase()}' AND measureid IN(${measuresFilter})`;
@@ -40,11 +38,8 @@ export async function ingestCdcPlacesData(
     const data = await fetchJson(url);
 
     if (!Array.isArray(data) || data.length === 0) {
-      console.log(`[GIS Engine] No CDC PLACES data returned for ${stateAbbr}`);
       return 0;
     }
-
-    console.log(`[GIS Engine] Received ${data.length} CDC PLACES records`);
 
     const tractMap = new Map<string, Map<string, number>>();
     for (const record of data) {
@@ -105,7 +100,6 @@ export async function ingestCdcPlacesData(
       upsertCount++;
     }
 
-    console.log(`[GIS Engine] Upserted ${upsertCount} tracts with CDC PLACES data`);
     return upsertCount;
   } catch (error) {
     console.error(`[GIS Engine] Error ingesting CDC PLACES data:`, error);
@@ -117,19 +111,14 @@ export async function ingestSviData(
   db: any,
   stateAbbr: string
 ): Promise<number> {
-  console.log(`[GIS Engine] Ingesting SVI data for state=${stateAbbr}...`);
-
   try {
     const whereClause = `st_abbr='${stateAbbr.toUpperCase()}'`;
     const url = `${CDC_SVI_URL}?$where=${encodeURIComponent(whereClause)}&$limit=50000`;
     const data = await fetchJson(url);
 
     if (!Array.isArray(data) || data.length === 0) {
-      console.log(`[GIS Engine] No SVI data returned for ${stateAbbr}`);
       return 0;
     }
-
-    console.log(`[GIS Engine] Received ${data.length} SVI records`);
 
     let upsertCount = 0;
     for (const record of data) {
@@ -188,7 +177,6 @@ export async function ingestSviData(
       upsertCount++;
     }
 
-    console.log(`[GIS Engine] Upserted ${upsertCount} tracts with SVI data`);
     return upsertCount;
   } catch (error) {
     console.error(`[GIS Engine] Error ingesting SVI data:`, error);
@@ -200,22 +188,20 @@ export async function ingestFbiCrimeData(
   db: any,
   stateAbbr: string
 ): Promise<number> {
-  console.log(`[GIS Engine] Ingesting FBI crime data for state=${stateAbbr}...`);
-
   try {
-    const fbiApiKey = process.env.FBI_CRIME_API_KEY || 'DEMO_KEY';
+    const fbiApiKey = process.env.FBI_CRIME_API_KEY;
+    if (!fbiApiKey) {
+      return 0;
+    }
     const url = `${FBI_CRIME_URL}/${stateAbbr.toUpperCase()}?API_KEY=${fbiApiKey}`;
     const data = await fetchJson(url);
 
     const results = data?.results ?? data?.data ?? data;
     if (!results || (Array.isArray(results) && results.length === 0)) {
-      console.log(`[GIS Engine] No FBI crime data returned for ${stateAbbr}`);
       return 0;
     }
 
     const records = Array.isArray(results) ? results : [results];
-    console.log(`[GIS Engine] Received ${records.length} FBI crime records`);
-
     let maxViolent = 0;
     let maxProperty = 0;
     for (const record of records) {
@@ -276,7 +262,6 @@ export async function ingestFbiCrimeData(
       upsertCount++;
     }
 
-    console.log(`[GIS Engine] Upserted ${upsertCount} records with FBI crime data`);
     return upsertCount;
   } catch (error) {
     console.error(`[GIS Engine] Error ingesting FBI crime data:`, error);
@@ -296,7 +281,6 @@ export async function computeContextLoadIndex(
       .limit(1);
 
     if (!record) {
-      console.log(`[GIS Engine] No data found for geography ${geographyKey}, cannot compute Context Load Index`);
       return null;
     }
 
@@ -321,7 +305,6 @@ export async function computeContextLoadIndex(
     }
 
     if (totalWeight === 0) {
-      console.log(`[GIS Engine] No component data available for geography ${geographyKey}`);
       return null;
     }
 
@@ -335,7 +318,6 @@ export async function computeContextLoadIndex(
       })
       .where(eq(gisContextData.geographyKey, geographyKey));
 
-    console.log(`[GIS Engine] Context Load Index for ${geographyKey}: ${contextLoadIndex.toFixed(2)}`);
     return contextLoadIndex;
   } catch (error) {
     console.error(`[GIS Engine] Error computing Context Load Index for ${geographyKey}:`, error);
@@ -347,19 +329,12 @@ export async function runFullIngestion(
   db: any,
   stateAbbr: string
 ): Promise<{ placesCount: number; sviCount: number; crimeCount: number; indexCount: number }> {
-  console.log(`[GIS Engine] Starting full ingestion for state=${stateAbbr}...`);
-  const startTime = Date.now();
-
   const placesCount = await ingestCdcPlacesData(db, stateAbbr);
-  console.log(`[GIS Engine] CDC PLACES ingestion complete: ${placesCount} records`);
 
   const sviCount = await ingestSviData(db, stateAbbr);
-  console.log(`[GIS Engine] SVI ingestion complete: ${sviCount} records`);
 
   const crimeCount = await ingestFbiCrimeData(db, stateAbbr);
-  console.log(`[GIS Engine] FBI crime ingestion complete: ${crimeCount} records`);
 
-  console.log(`[GIS Engine] Computing Context Load Index for all geographies...`);
   const allRecords = await db.select().from(gisContextData);
   let indexCount = 0;
 
@@ -369,12 +344,6 @@ export async function runFullIngestion(
       indexCount++;
     }
   }
-
-  const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
-  console.log(
-    `[GIS Engine] Full ingestion complete in ${elapsed}s. ` +
-    `PLACES: ${placesCount}, SVI: ${sviCount}, Crime: ${crimeCount}, Indices computed: ${indexCount}`
-  );
 
   return { placesCount, sviCount, crimeCount, indexCount };
 }

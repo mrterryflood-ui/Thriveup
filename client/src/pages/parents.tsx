@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -106,11 +107,15 @@ const resources = [
 ];
 
 export default function ParentResourcesPage() {
+  useEffect(() => {
+    document.title = "Family Resources & Workforce Readiness | AI Mastery Academy";
+  }, []);
+
   return (
     <div className="min-h-screen">
       <section className="px-6 pt-6">
         <div className="mx-auto max-w-5xl">
-          <Link href="/parents/dashboard">
+          <Link href="/parents/dashboard" aria-label="View your child's progress dashboard">
             <Card className="p-6 hover-elevate cursor-pointer border-primary/20 bg-gradient-to-r from-primary/5 to-accent/5" data-testid="card-view-progress-dashboard">
               <div className="flex items-center gap-4 flex-wrap">
                 <div className="rounded-md p-2.5 bg-primary/10 shrink-0">
@@ -308,10 +313,10 @@ export default function ParentResourcesPage() {
             School Support Hub - empowering families for workforce readiness together.
           </p>
           <div className="flex flex-col items-end gap-1">
-            <a href="mailto:sisnett.meredith@gmail.com" className="flex items-center gap-1.5 text-sm text-muted-foreground" data-testid="link-support-email">
+            <a href="mailto:sisnett.meredith@gmail.com" className="flex items-center gap-1.5 text-sm text-muted-foreground" data-testid="link-support-email" aria-label="Email sisnett.meredith@gmail.com">
               <Mail className="h-3.5 w-3.5" /> sisnett.meredith@gmail.com
             </a>
-            <a href="mailto:mr.terryflood@gmail.com" className="flex items-center gap-1.5 text-sm text-muted-foreground" data-testid="link-support-email-2">
+            <a href="mailto:mr.terryflood@gmail.com" className="flex items-center gap-1.5 text-sm text-muted-foreground" data-testid="link-support-email-2" aria-label="Email mr.terryflood@gmail.com">
               <Mail className="h-3.5 w-3.5" /> mr.terryflood@gmail.com
             </a>
           </div>

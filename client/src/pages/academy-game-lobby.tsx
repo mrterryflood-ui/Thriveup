@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -73,6 +73,7 @@ interface LeaderboardEntry {
 }
 
 export default function AcademyGameLobbyPage() {
+  useEffect(() => { document.title = 'Game Room | AI Mastery Academy'; }, []);
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const [setupOpen, setSetupOpen] = useState(false);

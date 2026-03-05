@@ -393,21 +393,7 @@ export class DatabaseStorage implements IStorage {
       }).returning();
       return created;
     }
-    const existing = await db.select().from(studentProgress).limit(1);
-    if (existing.length > 0) return existing[0];
-
-    const [created] = await db.insert(studentProgress).values({
-      studentName: name || "Explorer",
-      currentLevel: 1,
-      currentModuleId: "level_1_module_1",
-      totalPoints: 0,
-      lessonsCompleted: 0,
-      quizzesCompleted: 0,
-      averageScore: 0,
-      streakDays: 0,
-      longestStreak: 0,
-    }).returning();
-    return created;
+    throw new Error("userId is required to get or create progress");
   }
 
   async updateProgress(id: string, data: Partial<StudentProgress>): Promise<StudentProgress> {
@@ -1259,26 +1245,22 @@ export class DatabaseStorage implements IStorage {
     const existingPlaybooks = await db.select().from(interventionPlaybooks).limit(1);
     if (existingPlaybooks.length === 0) {
       await seedPlaybooks(db);
-      console.log("Intervention playbooks seeded (9 playbooks)");
     }
 
     const { seedMentors } = await import("./seed-mentors");
     const existingMentors = await db.select().from(mentorProfiles).limit(1);
     if (existingMentors.length === 0) {
       await seedMentors(db);
-      console.log("Mentor profiles seeded (8 mentors)");
     }
 
     const { seedCareerFields, seedCareerMilestones } = await import("./seed-careers");
     const existingCareers = await db.select().from(careerFields).limit(1);
     if (existingCareers.length === 0) {
       await seedCareerFields(db);
-      console.log("Career fields seeded (50+ careers)");
     }
     const existingMilestones = await db.select().from(careerMilestones).limit(1);
     if (existingMilestones.length === 0) {
       await seedCareerMilestones(db);
-      console.log("Career milestones seeded (grades 6-12 + post-grad)");
     }
   }
 

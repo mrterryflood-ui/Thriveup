@@ -1,7 +1,7 @@
 # AI Mastery Academy & School Support Hub
 
 ## Overview
-AI Mastery Academy is an education platform and school support hub for under-resourced youth ages 14-24, built on the foundation that the students who learn to think with AI today will lead tomorrow. The platform features a five-level AI Mastery curriculum (Explorer through Master), 50+ school-to-career pipelines, professional mentorship, workforce development, and an AI Creation Studio with 10 professional-grade tools students earn through demonstrated mastery. It integrates an entrepreneurship ecosystem, virtual campus (Panther Village), financial literacy, real fundraising opportunities for college tuition, and IGN-Thrive analytics for whole-child support. The platform is aligned with NBA Foundation grant eligibility criteria: school-to-career employment opportunities, job readiness, skill training, job placement, career advancement, and mentorship for under-resourced communities.
+AI Mastery Academy is an education platform and school support hub for under-resourced youth ages 14-24, built on the foundation that the students who learn to think with AI today will lead tomorrow. The platform features a five-level AI Mastery curriculum (Explorer through Master), 50+ school-to-career pipelines, professional mentorship, workforce development, and an AI Creation Studio with 10 professional-grade tools students earn through demonstrated mastery. It integrates an entrepreneurship ecosystem, virtual campus (Panther Village), financial literacy, real fundraising opportunities for college tuition, and IGN-Thrive analytics for whole-child support. The platform is aligned with workforce development grant criteria: school-to-career employment opportunities, job readiness, skill training, job placement, career advancement, and mentorship for under-resourced communities.
 
 ## User Preferences
 The agent should prioritize iterative development, clearly explaining major changes before implementation. It should focus on delivering high-quality, well-tested code, and use clear, simple language when describing technical concepts. Avoid making changes to sensitive configuration files or core architectural components without explicit instruction.
@@ -14,8 +14,8 @@ The agent should prioritize iterative development, clearly explaining major chan
 - **Values:** AI Mastery, Workforce Development, Mentorship, Equity, Whole-Child Support
 - **Contact:** sisnett.meredith@gmail.com, mr.terryflood@gmail.com
 
-## NBA Foundation Alignment
-The platform is positioned for NBA Foundation grant eligibility:
+## Grant Alignment
+The platform is positioned for workforce development grant eligibility:
 - **Target Population:** Under-resourced youth ages 14-24
 - **Core Focus:** School-to-career employment pipelines
 - **Key Areas:** Job readiness, skill training, job placement, career advancement
@@ -47,6 +47,28 @@ Key architectural decisions and features include:
 - **Implementation Recommendations:** District administrator planning guide with phased rollout timeline. At /implementation.
 - **Low-Bandwidth Mode:** User-toggleable mode for improved performance.
 - **Orientation-MAP-GAP Framework:** System improvement methodology integrated into platform development approach.
+
+## Security Hardening (Completed)
+- **Authentication:** All mutating routes (POST/PATCH/DELETE) require `requireAuth` middleware
+- **Authorization:** `requireAdmin` checks `user.role` for admin/teacher access; all `/api/admin/` routes protected
+- **Mass Assignment:** All `req.body` spreads either use explicit field picking or are wrapped in Zod schema validation
+- **Rate Limiting:** AI companion chat rate-limited at 20 requests/minute per user (in-memory)
+- **Input Validation:** Attachment uploads validate MIME types; all form submissions validated via Zod schemas
+- **Sensitive Routes:** User-specific GET routes (`/api/academy/merit/user/:userId`, `/api/risk-decisions`, `/api/staar/*`) require authentication
+- **No Hardcoded Keys:** GIS engine uses environment variables only; no DEMO_KEY fallbacks
+
+## Quality & Accessibility (Completed)
+- **Error Boundary:** React ErrorBoundary wraps all routes; crashes show friendly fallback UI
+- **Document Titles:** All 30+ pages set descriptive `document.title` via `useEffect`
+- **data-testid:** All interactive elements across all pages have `data-testid` attributes
+- **Aria Labels:** Icon-only buttons, navigation elements, and sidebar links have proper aria-labels
+- **Skip-to-Content:** Keyboard navigation skip link at top of layout
+- **Focus Visible:** Global focus-visible ring styles for keyboard navigation
+- **Empty States:** Journal, announcements, and marketplace show meaningful empty states with CTAs
+- **404 Page:** Polished with navigation links to home, dashboard, and academy
+- **Privacy Policy:** COPPA compliance, parental consent, data retention, and third-party sharing sections
+- **Console Cleanup:** All `console.log` removed from production server files; only `console.error` retained
+- **Content Consistency:** No "NBA Foundation" branding anywhere; "NBA" only appears in educational athlete stories
 
 ## External Dependencies
 - **Database:** PostgreSQL (Neon-backed)

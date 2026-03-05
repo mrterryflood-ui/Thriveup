@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -496,12 +496,16 @@ function LoadingSkeleton() {
 }
 
 export default function AcademyCareersPage() {
+  useEffect(() => {
+    document.title = "School-to-Career Pipeline | AI Mastery Academy";
+  }, []);
+
   const [activeCategory, setActiveCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [bookmarked, setBookmarked] = useState<string[]>([]);
   const [selectedCareer, setSelectedCareer] = useState<CareerField | null>(null);
 
-  const { data: careers, isLoading: careersLoading } = useQuery<CareerField[]>({
+  const { data: careers, isLoading: careersLoading, isError: careersError, error: careersErrorObj } = useQuery<CareerField[]>({
     queryKey: ["/api/careers"],
   });
 
@@ -517,6 +521,24 @@ export default function AcademyCareersPage() {
 
   if (careersLoading) {
     return <LoadingSkeleton />;
+  }
+
+  if (careersError) {
+    return (
+      <div className="p-6 max-w-6xl mx-auto" data-testid="careers-error-state">
+        <Card className="p-8 text-center">
+          <Briefcase className="h-10 w-10 mx-auto text-muted-foreground/30 mb-3" />
+          <h2 className="text-lg font-semibold mb-2" data-testid="text-error-title">Unable to Load Careers</h2>
+          <p className="text-sm text-muted-foreground mb-4" data-testid="text-error-message">
+            {careersErrorObj instanceof Error ? careersErrorObj.message : "Something went wrong while loading career data. Please try again."}
+          </p>
+          <Button onClick={() => window.location.reload()} data-testid="button-retry-careers">
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Try Again
+          </Button>
+        </Card>
+      </div>
+    );
   }
 
   const allCareers = careers ?? [];

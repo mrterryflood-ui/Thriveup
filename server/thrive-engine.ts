@@ -621,8 +621,6 @@ export async function computeFullThriveScore(
 }
 
 export async function computeAllStudentScores(db: any): Promise<void> {
-  console.log("[Thrive Engine] Starting batch computation for all students...");
-
   const avatars = await db
     .select({ userId: academyAvatars.userId })
     .from(academyAvatars);
@@ -640,7 +638,6 @@ export async function computeAllStudentScores(db: any): Promise<void> {
     }
   }
 
-  console.log(`[Thrive Engine] Batch complete: ${processed} processed, ${errors} errors out of ${avatars.length} students`);
 }
 
 export async function getThriveHistory(

@@ -174,7 +174,7 @@ export async function streamAIResponse(params: StreamAIResponseParams): Promise<
 
       if (isRateLimitError(error) && !isLast) {
         const next = providers[i + 1];
-        console.log(`[AI Provider] ${provider} rate limited, falling back to ${next}`);
+        console.error(`[AI Provider] ${provider} rate limited, falling back to ${next}`);
         continue;
       }
 

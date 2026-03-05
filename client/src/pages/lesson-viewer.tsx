@@ -5,10 +5,14 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink,
+  BreadcrumbSeparator, BreadcrumbPage,
+} from "@/components/ui/breadcrumb";
 import { useToast } from "@/hooks/use-toast";
 import {
   ArrowLeft, BookOpen, Clock, CheckCircle2,
-  Sparkles, Brain
+  Sparkles, Brain, Home
 } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import type { Lesson } from "@shared/schema";
@@ -96,26 +100,48 @@ export default function LessonViewerPage() {
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
-      <Link href={`/module/${lesson.moduleId}`}>
-        <Button variant="ghost" size="sm" className="mb-6" data-testid="button-back-module">
-          <ArrowLeft className="mr-1 h-4 w-4" /> Back to Module
-        </Button>
-      </Link>
+      <Breadcrumb className="mb-6" data-testid="breadcrumb-lesson">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link href="/dashboard" data-testid="breadcrumb-home">
+                <Home className="h-4 w-4" />
+              </Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link href="/curriculum" data-testid="breadcrumb-curriculum">Curriculum</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link href={`/module/${lesson.moduleId}`} data-testid="breadcrumb-module">Module</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage data-testid="breadcrumb-current">{lesson.title}</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
 
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-3 flex-wrap">
-          <Badge variant="secondary">Lesson {lesson.lessonNumber}</Badge>
-          <span className="text-sm text-muted-foreground flex items-center gap-1">
+          <Badge variant="secondary" data-testid="badge-lesson-number">Lesson {lesson.lessonNumber}</Badge>
+          <span className="text-sm text-muted-foreground flex items-center gap-1" data-testid="text-lesson-duration">
             <Clock className="h-3.5 w-3.5" /> {lesson.durationMinutes} min
           </span>
           {lesson.activityType && (
-            <Badge variant="outline" className="text-xs capitalize">{lesson.activityType.replace("_", " ")}</Badge>
+            <Badge variant="outline" className="text-xs capitalize" data-testid="badge-activity-type">{lesson.activityType.replace("_", " ")}</Badge>
           )}
         </div>
         <h1 className="text-2xl md:text-3xl font-bold" data-testid="text-lesson-title">{lesson.title}</h1>
       </div>
 
-      <Card className="p-6 md:p-8 mb-6">
+      <Card className="p-6 md:p-8 mb-6" data-testid="card-lesson-content">
         <div className="prose dark:prose-invert max-w-none">
           {paragraphs.map((paragraph, i) => {
             if (paragraph.startsWith("## ")) {

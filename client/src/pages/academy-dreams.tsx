@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -490,6 +490,8 @@ function DreamProfileForm({
 }
 
 export default function AcademyDreamsPage() {
+  useEffect(() => { document.title = 'Dream Profile | AI Mastery Academy'; }, []);
+
   const [editing, setEditing] = useState(false);
 
   const { data: profile, isLoading, error } = useQuery<AcademyDreamProfile>({

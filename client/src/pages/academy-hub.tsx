@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -29,6 +30,7 @@ import {
 import { Progress } from "@/components/ui/progress";
 import AcademyWizard from "@/components/academy-wizard";
 import { WIZARD_STEPS } from "@/lib/wizard-data";
+import type { AcademyPantherPower, AcademyDailyQuest } from "@shared/schema";
 
 interface House {
   id: string;
@@ -115,12 +117,16 @@ function LoadingSkeleton() {
 }
 
 export default function AcademyHubPage() {
+  useEffect(() => {
+    document.title = "Academy Hub | AI Mastery Academy";
+  }, []);
+
   const { data, isLoading } = useQuery<DashboardData>({
     queryKey: ["/api/academy/dashboard"],
   });
 
-  const { data: powerData } = useQuery<any>({ queryKey: ["/api/academy/panther-power"] });
-  const { data: questsData } = useQuery<any>({ queryKey: ["/api/academy/quests"] });
+  const { data: powerData } = useQuery<AcademyPantherPower>({ queryKey: ["/api/academy/panther-power"] });
+  const { data: questsData } = useQuery<AcademyDailyQuest[]>({ queryKey: ["/api/academy/quests"] });
 
   if (isLoading) {
     return <LoadingSkeleton />;
@@ -140,17 +146,17 @@ export default function AcademyHubPage() {
   const myHouse = houses.length > 0 ? houses[0] : null;
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
+    <div className="p-6 max-w-5xl mx-auto" data-testid="academy-hub-page">
       <div className="rounded-md bg-gradient-to-r from-rose-900 to-red-950 p-8 mb-8" data-testid="section-hero">
         <h1 className="text-3xl font-bold text-white mb-2" data-testid="text-academy-title">
           AI Mastery Academy
         </h1>
-        <p className="text-rose-100 text-lg">
+        <p className="text-rose-100 text-lg" data-testid="text-academy-subtitle">
           Young Leaders Building Their Future Through AI
         </p>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8" data-testid="section-quick-stats">
         <Card className="p-5">
           <div className="flex items-center justify-between mb-3 gap-1">
             <span className="text-sm text-muted-foreground">House Points</span>
@@ -254,7 +260,7 @@ export default function AcademyHubPage() {
           <CalendarCheck className="h-5 w-5 text-primary" /> Daily Quests
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {(Array.isArray(questsData) ? questsData : []).slice(0, 3).map((quest: any) => (
+          {(Array.isArray(questsData) ? questsData : []).slice(0, 3).map((quest: AcademyDailyQuest) => (
             <Card
               key={quest.id}
               className="p-4"
@@ -274,7 +280,7 @@ export default function AcademyHubPage() {
                   </p>
                   <p className="text-xs text-muted-foreground mt-1">{quest.description}</p>
                   {quest.rewardPoints && (
-                    <Badge variant="secondary" className="mt-2">
+                    <Badge variant="secondary" className="mt-2" data-testid={`badge-quest-reward-${quest.id}`}>
                       +{quest.rewardPoints} Power
                     </Badge>
                   )}
@@ -298,7 +304,7 @@ export default function AcademyHubPage() {
         </div>
       </div>
 
-      <div className="mb-8">
+      <div className="mb-8" data-testid="section-your-house">
         <h2 className="font-semibold text-lg mb-4 flex items-center gap-2">
           <Users className="h-5 w-5 text-primary" /> Your House
         </h2>
@@ -312,11 +318,11 @@ export default function AcademyHubPage() {
                 <Flag className="h-6 w-6 text-white" />
               </div>
               <div className="flex-1 min-w-[150px]">
-                <p className="font-bold text-lg">{myHouse.name}</p>
-                <p className="text-sm text-muted-foreground italic">{myHouse.motto}</p>
+                <p className="font-bold text-lg" data-testid="text-house-name">{myHouse.name}</p>
+                <p className="text-sm text-muted-foreground italic" data-testid="text-house-motto">{myHouse.motto}</p>
               </div>
               <div className="text-right">
-                <p className="text-2xl font-bold">{myHouse.totalPoints.toLocaleString()}</p>
+                <p className="text-2xl font-bold" data-testid="text-house-total-points">{myHouse.totalPoints.toLocaleString()}</p>
                 <p className="text-xs text-muted-foreground">points</p>
               </div>
             </div>
@@ -336,19 +342,19 @@ export default function AcademyHubPage() {
         )}
       </div>
 
-      <div className="mb-8">
+      <div className="mb-8" data-testid="section-quick-actions">
         <h2 className="font-semibold text-lg mb-4 flex items-center gap-2">
           <Zap className="h-5 w-5 text-primary" /> Quick Actions
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {quickActions.map((action) => (
             <Link key={action.href} href={action.href} data-testid={`link-action-${action.label.toLowerCase().replace(/\s+/g, "-")}`}>
-              <Card className="p-4 hover-elevate cursor-pointer h-full">
+              <Card className="p-4 hover-elevate cursor-pointer h-full" data-testid={`card-action-${action.label.toLowerCase().replace(/\s+/g, "-")}`}>
                 <div className="flex flex-col items-center text-center gap-2">
                   <div className="rounded-md p-2.5 bg-primary/10">
                     <action.icon className="h-5 w-5 text-primary" />
                   </div>
-                  <p className="font-medium text-sm">{action.label}</p>
+                  <p className="font-medium text-sm" data-testid={`text-action-label-${action.label.toLowerCase().replace(/\s+/g, "-")}`}>{action.label}</p>
                   <p className="text-xs text-muted-foreground">{action.description}</p>
                 </div>
               </Card>
@@ -395,7 +401,7 @@ export default function AcademyHubPage() {
         </div>
       </div>
 
-      <div>
+      <div data-testid="section-recent-activity">
         <h2 className="font-semibold text-lg mb-4 flex items-center gap-2">
           <Clock className="h-5 w-5 text-primary" /> Recent Activity
         </h2>
@@ -408,12 +414,12 @@ export default function AcademyHubPage() {
                     <Award className="h-4 w-4 text-white" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{event.reason}</p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-sm font-medium truncate" data-testid={`text-merit-reason-${event.id}`}>{event.reason}</p>
+                    <p className="text-xs text-muted-foreground" data-testid={`text-merit-date-${event.id}`}>
                       {new Date(event.createdAt).toLocaleDateString()}
                     </p>
                   </div>
-                  <Badge variant="secondary" className="shrink-0">
+                  <Badge variant="secondary" className="shrink-0" data-testid={`badge-merit-points-${event.id}`}>
                     +{event.points}
                   </Badge>
                 </div>

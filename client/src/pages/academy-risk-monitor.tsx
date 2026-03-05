@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/use-auth";
@@ -64,6 +64,7 @@ function getPatternBadge(rate: number) {
 }
 
 export default function AcademyRiskMonitorPage() {
+  useEffect(() => { document.title = 'Risk Monitor | AI Mastery Academy'; }, []);
   const { user, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
 

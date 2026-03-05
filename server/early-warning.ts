@@ -711,8 +711,6 @@ export async function getActiveFlags(
 }
 
 export async function runEarlyWarningCheck(db: any): Promise<void> {
-  console.log("[Early Warning] Starting batch early warning check...");
-
   const avatars = await db
     .select({ userId: academyAvatars.userId })
     .from(academyAvatars);
@@ -767,7 +765,4 @@ export async function runEarlyWarningCheck(db: any): Promise<void> {
     }
   }
 
-  console.log(
-    `[Early Warning] Batch complete: ${processed} processed, ${flagsCreated} flags created, ${errors} errors out of ${avatars.length} students`
-  );
 }

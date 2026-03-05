@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -78,6 +78,7 @@ const INVESTING_WISDOM = [
 ];
 
 export default function AcademyStocksPage() {
+  useEffect(() => { document.title = 'Stock Market | AI Mastery Academy'; }, []);
   const { toast } = useToast();
   const [tradingStock, setTradingStock] = useState<Stock | null>(null);
   const [tradeAction, setTradeAction] = useState<"buy" | "sell">("buy");
@@ -382,7 +383,7 @@ export default function AcademyStocksPage() {
                     </td>
                     <td className="py-3 pr-4">{stock.name}</td>
                     <td className="py-3 pr-4">
-                      <Badge variant="outline">{stock.sector}</Badge>
+                      <Badge variant="outline" data-testid={`badge-sector-${stock.id}`}>{stock.sector}</Badge>
                     </td>
                     <td className="py-3 pr-4 text-right font-mono font-medium">
                       ${currentPrice.toFixed(2)}

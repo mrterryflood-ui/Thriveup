@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
 import { Card } from "@/components/ui/card";
@@ -64,6 +65,7 @@ function groupByStudent(logs: AttendanceLog[]): StudentStats[] {
 }
 
 export default function AcademyAttendancePage() {
+  useEffect(() => { document.title = 'Attendance | AI Mastery Academy'; }, []);
   const { user, isLoading: authLoading } = useAuth();
   const isAdmin = !!(user as any)?.isAdmin;
 
