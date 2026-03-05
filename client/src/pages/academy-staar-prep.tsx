@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { PageHeader } from "@/components/page-header";
 
 const STAAR_GRADES = [
   { grade: 3, name: "3rd Grade", subjects: ["Math", "RLA"], band: "elementary" },
@@ -322,6 +323,14 @@ export default function AcademyStaarPrepPage() {
       {showCelebration && (
         <CelebrationOverlay score={scorePercent} onClose={() => setShowCelebration(false)} />
       )}
+
+      <div className="max-w-6xl mx-auto px-4 pt-6">
+        <PageHeader
+          title="STAAR Test Prep"
+          description="Grade-level study guides aligned to Texas Essential Knowledge and Skills (TEKS)"
+          breadcrumbs={[{ label: "Academy", href: "/academy" }, { label: "STAAR Prep" }]}
+        />
+      </div>
 
       <div className="bg-gradient-to-br from-rose-950 via-rose-900 to-rose-800 text-white py-8 px-4 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">

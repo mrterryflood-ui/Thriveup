@@ -13,6 +13,9 @@ import {
   CheckCircle2, Shield, Rocket, Building2, Share2, Printer, Link2,
 } from "lucide-react";
 import { SiLinkedin, SiX } from "react-icons/si";
+import { BackToTop } from "@/components/back-to-top";
+import { ErrorRetry } from "@/components/error-retry";
+import { PageHeader } from "@/components/page-header";
 
 interface ImpactData {
   youthServed: number;
@@ -66,7 +69,7 @@ export default function ImpactPage() {
     document.title = "Impact Dashboard | AI Mastery Academy";
   }, []);
 
-  const { data: impact, isLoading } = useQuery<ImpactData>({
+  const { data: impact, isLoading, error, refetch } = useQuery<ImpactData>({
     queryKey: ["/api/public/impact"],
   });
 
@@ -83,8 +86,14 @@ export default function ImpactPage() {
     );
   }
 
+  if (error) return <div className="p-6"><ErrorRetry message="Failed to load impact data. Please try again." onRetry={refetch} /></div>;
+
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-10">
+      <PageHeader
+        title="Impact Dashboard"
+        description="Live platform metrics for stakeholders and grant reporting"
+      />
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700 text-white p-8 md:p-12">
         <div className="absolute inset-0 opacity-10">
           <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
@@ -310,6 +319,7 @@ export default function ImpactPage() {
           sisnett.meredith@gmail.com | mr.terryflood@gmail.com
         </div>
       </div>
+      <BackToTop />
     </div>
   );
 }

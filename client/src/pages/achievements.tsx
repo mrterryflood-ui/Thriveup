@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
+import { PageHeader } from "@/components/page-header";
 import {
   Award, Star, Zap, Crown,
   CheckCircle2, Lock,
@@ -13,6 +14,7 @@ import {
   Filter, Heart,
 } from "lucide-react";
 import { BADGE_RARITY_COLORS, getRankForLevel } from "@/lib/curriculum-data";
+import { ErrorRetry } from "@/components/error-retry";
 import { BadgeIcon } from "@/components/badge-icon";
 import { CelebrationOverlay, useCelebration } from "@/components/celebration";
 import type { Badge as BadgeType, EarnedBadge } from "@shared/schema";
@@ -58,7 +60,7 @@ export default function AchievementsPage() {
   const [rarityFilter, setRarityFilter] = useState<string>("all");
   const { state: celebrationState, celebrate, dismiss } = useCelebration();
 
-  const { data, isLoading } = useQuery<AchievementsData>({
+  const { data, isLoading, error, refetch } = useQuery<AchievementsData>({
     queryKey: ["/api/achievements"],
   });
 
@@ -77,6 +79,8 @@ export default function AchievementsPage() {
       </div>
     );
   }
+
+  if (error) return <div className="p-6"><ErrorRetry message="Failed to load achievements. Please try again." onRetry={refetch} /></div>;
 
   if (!data) return null;
 
@@ -152,14 +156,11 @@ export default function AchievementsPage() {
         onDismiss={dismiss}
       />
 
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2" data-testid="text-achievements-heading">
-          Achievements
-        </h1>
-        <p className="text-muted-foreground">
-          Collect badges, earn ranks, and track your mastery progress.
-        </p>
-      </div>
+      <PageHeader
+        title="Achievements"
+        description="Collect badges, earn ranks, and track your mastery progress."
+        breadcrumbs={[{label:"Achievements"}]}
+      />
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-10">
         <Card className="p-5 text-center">

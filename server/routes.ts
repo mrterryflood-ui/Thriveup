@@ -321,22 +321,39 @@ export async function registerRoutes(
   });
 
   app.get("/api/public/impact", async (_req, res) => {
+    res.setHeader("Cache-Control", "public, max-age=300");
     try {
-      const [studentsResult] = await db.select({ count: count() }).from(studentProgress);
-      const [lessonsResult] = await db.select({ count: count() }).from(completedLessons);
-      const [badgesResult] = await db.select({ count: count() }).from(earnedBadges);
-      const [certificatesResult] = await db.select({ count: count() }).from(certificates);
-      const [careersResult] = await db.select({ count: count() }).from(careerFields);
-      const [pathwaysResult] = await db.select({ count: count() }).from(pathwayPlans);
-      const [mentorsResult] = await db.select({ count: count() }).from(mentorProfiles);
-      const [mentorConnectionsResult] = await db.select({ count: count() }).from(mentorRequests);
-      const [milestonesResult] = await db.select({ count: count() }).from(careerMilestones);
-      const [alumniResult] = await db.select({ count: count() }).from(alumniProfiles);
+      const safeCount = async (table: any) => {
+        try {
+          const [result] = await db.select({ count: count() }).from(table);
+          return result?.count ?? 0;
+        } catch {
+          return 0;
+        }
+      };
 
-      const allProgress = await db.select({
-        totalScore: studentProgress.totalScore,
-        level: studentProgress.currentLevel,
-      }).from(studentProgress);
+      const [studentsCount, lessonsCount, badgesCount, certificatesCount,
+             careersCount, pathwaysCount, mentorsCount, mentorConnectionsCount,
+             milestonesCount, alumniCount] = await Promise.all([
+        safeCount(studentProgress),
+        safeCount(completedLessons),
+        safeCount(earnedBadges),
+        safeCount(certificates),
+        safeCount(careerFields),
+        safeCount(pathwayPlans),
+        safeCount(mentorProfiles),
+        safeCount(mentorRequests),
+        safeCount(careerMilestones),
+        safeCount(alumniProfiles),
+      ]);
+
+      let allProgress: { totalScore: number | null; level: number | null }[] = [];
+      try {
+        allProgress = await db.select({
+          totalScore: studentProgress.totalScore,
+          level: studentProgress.currentLevel,
+        }).from(studentProgress);
+      } catch { /* table may not exist */ }
 
       const avgScore = allProgress.length > 0
         ? Math.round(allProgress.reduce((sum, p) => sum + (p.totalScore || 0), 0) / allProgress.length)
@@ -345,21 +362,21 @@ export async function registerRoutes(
       const levels = await storage.getLevels();
       const modules = [];
       for (const level of levels) {
-        const mods = await storage.getModulesByLevelId(level.id);
+        const mods = await storage.getModulesByLevel(level.id);
         modules.push(...mods);
       }
 
       res.json({
-        youthServed: studentsResult.count,
-        lessonsCompleted: lessonsResult.count,
-        badgesEarned: badgesResult.count,
-        certificatesIssued: certificatesResult.count,
-        careerPathways: careersResult.count,
-        pathwayPlansCreated: pathwaysResult.count,
-        mentorsAvailable: mentorsResult.count,
-        mentorConnections: mentorConnectionsResult.count,
-        careerMilestones: milestonesResult.count,
-        alumniNetwork: alumniResult.count,
+        youthServed: studentsCount,
+        lessonsCompleted: lessonsCount,
+        badgesEarned: badgesCount,
+        certificatesIssued: certificatesCount,
+        careerPathways: careersCount,
+        pathwayPlansCreated: pathwaysCount,
+        mentorsAvailable: mentorsCount,
+        mentorConnections: mentorConnectionsCount,
+        careerMilestones: milestonesCount,
+        alumniNetwork: alumniCount,
         averageScore: avgScore,
         curriculumLevels: levels.length,
         totalModules: modules.length,
@@ -384,6 +401,7 @@ export async function registerRoutes(
   });
 
   app.get("/api/subjects", async (_req, res) => {
+    res.setHeader("Cache-Control", "public, max-age=3600");
     const allSubjects = await storage.getSubjects();
     res.json(allSubjects);
   });
@@ -405,6 +423,7 @@ export async function registerRoutes(
   });
 
   app.get("/api/levels", async (_req, res) => {
+    res.setHeader("Cache-Control", "public, max-age=3600");
     const allLevels = await storage.getLevels();
     res.json(allLevels);
   });

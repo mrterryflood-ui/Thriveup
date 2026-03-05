@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { ClipboardList, Users, Calendar, Flame, ShieldAlert } from "lucide-react";
 
 interface AttendanceLog {
@@ -117,9 +118,37 @@ export default function AcademyAttendancePage() {
 
       <div className="max-w-4xl mx-auto p-4 space-y-4">
         {logsLoading ? (
-          <div className="text-center py-12">
-            <div className="animate-spin w-8 h-8 border-4 border-[#800000] border-t-transparent rounded-full mx-auto" />
-            <p className="text-muted-foreground mt-2" data-testid="text-loading">Loading attendance data...</p>
+          <div data-testid="loading-skeleton-academy-attendance" className="space-y-4">
+            <Card className="p-6">
+              <Skeleton className="h-5 w-40 mb-4" />
+              <div className="flex items-center gap-6 flex-wrap">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className="text-center space-y-2">
+                    <Skeleton className="h-9 w-16 mx-auto" />
+                    <Skeleton className="h-3 w-28 mx-auto" />
+                  </div>
+                ))}
+              </div>
+            </Card>
+            <Card className="p-6">
+              <Skeleton className="h-5 w-36 mb-4" />
+              <div className="space-y-3">
+                <div className="flex items-center gap-4">
+                  <Skeleton className="h-4 w-1/3" />
+                  <Skeleton className="h-4 w-1/6" />
+                  <Skeleton className="h-4 w-1/6" />
+                  <Skeleton className="h-4 w-1/6" />
+                </div>
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div key={i} className="flex items-center gap-4">
+                    <Skeleton className="h-4 w-1/3" />
+                    <Skeleton className="h-4 w-1/6" />
+                    <Skeleton className="h-4 w-1/6" />
+                    <Skeleton className="h-4 w-1/6" />
+                  </div>
+                ))}
+              </div>
+            </Card>
           </div>
         ) : (
           <>

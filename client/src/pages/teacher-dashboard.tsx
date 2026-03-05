@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { School, Users, BarChart3, BookOpen, Award, TrendingUp } from "lucide-react";
+import { ErrorRetry } from "@/components/error-retry";
 import { useAuth } from "@/hooks/use-auth";
 
 interface ClassroomWithStats {
@@ -28,7 +29,7 @@ interface TeacherDashboardData {
 export default function TeacherDashboardPage() {
   const { isLoading: authLoading, isAuthenticated } = useAuth();
 
-  const { data, isLoading } = useQuery<TeacherDashboardData>({
+  const { data, isLoading, error, refetch } = useQuery<TeacherDashboardData>({
     queryKey: ["/api/teacher/dashboard"],
     enabled: isAuthenticated,
   });
@@ -87,6 +88,8 @@ export default function TeacherDashboardPage() {
       </div>
     );
   }
+
+  if (error) return <div className="p-6"><ErrorRetry message="Failed to load teacher dashboard. Please try again." onRetry={refetch} /></div>;
 
   const classrooms = data?.classrooms ?? [];
 

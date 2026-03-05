@@ -11,13 +11,14 @@ import {
   BookOpen, Clock, Target, ChevronRight, ArrowLeft,
   GraduationCap, Sparkles, CheckCircle2
 } from "lucide-react";
+import { ErrorRetry } from "@/components/error-retry";
 import { LEVEL_COLORS } from "@/lib/curriculum-data";
 import type { Level, Module } from "@shared/schema";
 
 const levelIcons = [Compass, Map, Building2, Lightbulb, Crown];
 
 export default function CurriculumPage() {
-  const { data: levels, isLoading } = useQuery<Level[]>({
+  const { data: levels, isLoading, error, refetch } = useQuery<Level[]>({
     queryKey: ["/api/levels"],
   });
 
@@ -33,6 +34,8 @@ export default function CurriculumPage() {
       </div>
     );
   }
+
+  if (error) return <div className="p-6"><ErrorRetry message="Failed to load curriculum. Please try again." onRetry={refetch} /></div>;
 
   return (
     <div className="p-6 max-w-5xl mx-auto">

@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 
 interface BreadcrumbItem {
@@ -9,7 +10,7 @@ interface PageHeaderProps {
   title: string;
   description?: string;
   breadcrumbs?: BreadcrumbItem[];
-  actions?: React.ReactNode;
+  actions?: ReactNode;
 }
 
 export function PageHeader({ title, description, breadcrumbs, actions }: PageHeaderProps) {

@@ -13,6 +13,7 @@ import {
   CheckCircle2, Shield, ShieldCheck, ShieldPlus, Swords, Medal,
   Sparkles, GraduationCap, Briefcase, Users, BarChart3, Circle,
 } from "lucide-react";
+import { ErrorRetry } from "@/components/error-retry";
 import { LEVEL_COLORS, getRankForLevel, ALL_RANKS } from "@/lib/curriculum-data";
 import type { StudentProgress, Level, Module, EarnedBadge, Badge as BadgeType } from "@shared/schema";
 
@@ -58,7 +59,7 @@ export default function DashboardPage() {
     document.title = "Dashboard | AI Mastery Academy";
   }, []);
 
-  const { data, isLoading } = useQuery<DashboardData>({
+  const { data, isLoading, error, refetch } = useQuery<DashboardData>({
     queryKey: ["/api/dashboard"],
   });
 
@@ -82,6 +83,8 @@ export default function DashboardPage() {
       </div>
     );
   }
+
+  if (error) return <div className="p-6"><ErrorRetry message="Failed to load dashboard. Please try again." onRetry={refetch} /></div>;
 
   if (!data) return null;
 

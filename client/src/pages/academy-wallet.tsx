@@ -276,10 +276,20 @@ export default function AcademyWalletPage() {
             </table>
           </div>
         ) : (
-          <div className="text-center py-8">
-            <Wallet className="h-8 w-8 mx-auto text-muted-foreground/30 mb-2" />
-            <p className="text-sm text-muted-foreground">No transactions yet. Start earning to see your history!</p>
-          </div>
+          <Card className="p-8 text-center border-0 shadow-none" data-testid="empty-state-wallet">
+            <div className="flex flex-col items-center">
+              <div className="rounded-full bg-muted p-4 mb-4">
+                <Wallet className="h-8 w-8 text-muted-foreground" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">No Transactions Yet</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Start earning Panther Coins by completing lessons, quests, and challenges.
+              </p>
+              <Link href="/academy/quests">
+                <Button data-testid="button-go-quests">View Quests</Button>
+              </Link>
+            </div>
+          </Card>
         )}
       </Card>
       <AcademyWizard wizardType="wallet" steps={WIZARD_STEPS["wallet"]} />

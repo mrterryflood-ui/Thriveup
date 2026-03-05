@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Code2, Globe, Key, Shield, ArrowRight } from "lucide-react";
+import { PageHeader } from "@/components/page-header";
 
 const API_ENDPOINTS = [
   {
@@ -92,6 +93,11 @@ export default function APIDocsPage() {
 
   return (
     <div className="max-w-5xl mx-auto p-6 space-y-8">
+      <PageHeader
+        title="API Documentation"
+        description="Integration endpoints for partner organizations"
+        breadcrumbs={[{ label: "API Documentation" }]}
+      />
       <div className="space-y-3">
         <Badge variant="outline" data-testid="badge-api-docs">
           <Code2 className="h-3 w-3 mr-1" />

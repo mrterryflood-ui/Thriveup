@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { BackToTop } from "@/components/back-to-top";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -975,6 +976,7 @@ export default function ImplementationRecommendationsPage() {
           <RolloutTimeline />
         </TabsContent>
       </Tabs>
+      <BackToTop />
     </div>
   );
 }

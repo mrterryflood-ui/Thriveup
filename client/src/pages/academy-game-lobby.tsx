@@ -31,6 +31,7 @@ import {
   Users,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { ErrorRetry } from "@/components/error-retry";
 
 interface GameDef {
   id: string;
@@ -81,7 +82,7 @@ export default function AcademyGameLobbyPage() {
   const [difficulty, setDifficulty] = useState("beginner");
   const [tournamentTimer, setTournamentTimer] = useState(false);
 
-  const { data: ratings, isLoading: ratingsLoading } = useQuery<RatingData>({
+  const { data: ratings, isLoading: ratingsLoading, error, refetch } = useQuery<RatingData>({
     queryKey: ["/api/ratings"],
     retry: false,
   });
@@ -137,6 +138,8 @@ export default function AcademyGameLobbyPage() {
       timeLimitSeconds: tournamentTimer ? 25 : null,
     });
   }
+
+  if (error) return <div className="p-6"><ErrorRetry message="Failed to load games. Please try again." onRetry={refetch} /></div>;
 
   const totalGames = ratings
     ? Object.values(ratings).reduce((sum, r) => sum + (r?.gamesPlayed ?? 0), 0)

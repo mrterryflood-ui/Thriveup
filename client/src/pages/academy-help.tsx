@@ -1,6 +1,7 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import {
   Accordion,
   AccordionContent,
@@ -18,6 +19,7 @@ import {
   Trophy,
   DollarSign,
   HelpCircle,
+  Search,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -208,6 +210,23 @@ const helpSections: HelpSection[] = [
 
 export default function AcademyHelpPage() {
   useEffect(() => { document.title = 'Student Help | AI Mastery Academy'; }, []);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredSections = searchQuery.trim() === ""
+    ? helpSections
+    : helpSections
+        .map((section) => {
+          const query = searchQuery.toLowerCase();
+          const matchingFaqs = section.faqs.filter(
+            (faq) =>
+              faq.question.toLowerCase().includes(query) ||
+              faq.answer.toLowerCase().includes(query)
+          );
+          if (matchingFaqs.length === 0) return null;
+          return { ...section, faqs: matchingFaqs };
+        })
+        .filter((s): s is HelpSection => s !== null);
+
   return (
     <div className="min-h-screen bg-background">
       <div className="bg-[#800000] text-white py-8 px-4">
@@ -222,7 +241,16 @@ export default function AcademyHelpPage() {
         </div>
       </div>
       <div className="max-w-4xl mx-auto p-4 space-y-4">
-        {helpSections.map((section) => {
+        <div className="relative mb-6">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input placeholder="Search help topics..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-9" data-testid="input-help-search" aria-label="Search help topics" />
+        </div>
+        {filteredSections.length === 0 && (
+          <div className="text-center py-8 text-muted-foreground" data-testid="text-help-no-results">
+            No help topics found matching your search.
+          </div>
+        )}
+        {filteredSections.map((section) => {
           const Icon = section.icon;
           return (
             <Card className="p-4" key={section.id} data-testid={`card-help-section-${section.id}`}>

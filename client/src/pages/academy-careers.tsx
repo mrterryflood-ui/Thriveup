@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { PageHeader } from "@/components/page-header";
+import { BackToTop } from "@/components/back-to-top";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -601,6 +603,11 @@ export default function AcademyCareersPage() {
 
   return (
     <div className="p-4 sm:p-6 max-w-6xl mx-auto" data-testid="academy-careers-page">
+      <PageHeader
+        title="Career Explorer"
+        description="Explore industry-aligned career pathways and discover your workforce development journey."
+        breadcrumbs={[{label:"Academy",href:"/academy"},{label:"Career Explorer"}]}
+      />
       <div
         className="rounded-md bg-gradient-to-r from-rose-900 to-red-700 p-4 sm:p-6 lg:p-8 mb-8"
         data-testid="section-hero"
@@ -1057,6 +1064,7 @@ export default function AcademyCareersPage() {
           )}
         </DialogContent>
       </Dialog>
+      <BackToTop />
     </div>
   );
 }

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { PageHeader } from "@/components/page-header";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { RiskDecisionDialog } from "@/components/risk-decision-dialog";
@@ -275,6 +276,11 @@ export default function AcademyMarketplacePage() {
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
+      <PageHeader
+        title="Panther Marketplace"
+        description="Buy, sell, and trade with your classmates in our peer-to-peer economy"
+        breadcrumbs={[{label:"Academy",href:"/academy"},{label:"Marketplace"}]}
+      />
       <div
         className="rounded-md bg-gradient-to-r from-rose-900 to-red-950 dark:from-rose-950 dark:to-background p-8 mb-8"
         data-testid="section-hero"

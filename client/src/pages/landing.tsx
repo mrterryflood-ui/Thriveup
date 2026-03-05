@@ -550,6 +550,42 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Compliance Badges */}
+      <section className="py-8 px-4 sm:px-8 border-t" data-testid="section-compliance">
+        <div className="max-w-5xl mx-auto">
+          <div className="flex flex-wrap items-center justify-center gap-4">
+            <Badge variant="outline" className="border-primary/30 text-muted-foreground" data-testid="badge-coppa">
+              <Shield className="mr-1.5 h-3.5 w-3.5 text-primary" />
+              COPPA Compliant
+            </Badge>
+            <Badge variant="outline" className="border-primary/30 text-muted-foreground" data-testid="badge-ferpa">
+              <Shield className="mr-1.5 h-3.5 w-3.5 text-primary" />
+              FERPA Ready
+            </Badge>
+            <Badge variant="outline" className="border-primary/30 text-muted-foreground" data-testid="badge-wcag">
+              <Shield className="mr-1.5 h-3.5 w-3.5 text-primary" />
+              WCAG 2.1 AA
+            </Badge>
+          </div>
+        </div>
+      </section>
+
+      {/* Enterprise Standards */}
+      <section className="py-8 px-4 sm:px-8 bg-muted/50" data-testid="section-standards">
+        <div className="max-w-5xl mx-auto text-center">
+          <p className="text-sm text-muted-foreground mb-3">Built with enterprise-grade standards</p>
+          <div className="flex flex-wrap items-center justify-center gap-6 text-xs text-muted-foreground">
+            <span data-testid="text-standard-teks">TEKS Aligned</span>
+            <span aria-hidden="true">&#183;</span>
+            <span data-testid="text-standard-common-core">Common Core Ready</span>
+            <span aria-hidden="true">&#183;</span>
+            <span data-testid="text-standard-508">Section 508</span>
+            <span aria-hidden="true">&#183;</span>
+            <span data-testid="text-standard-soc2">SOC 2 Framework</span>
+          </div>
+        </div>
+      </section>
+
       {/* Featured Career Pathways */}
       <section className="py-12 px-4 sm:py-20 sm:px-6 bg-card" data-testid="section-career-pathways">
         <div className="mx-auto max-w-5xl">

@@ -64,7 +64,7 @@ Key architectural decisions and features include:
 - **Aria Labels:** 95+ aria-labels on icon-only buttons across all components (header-controls, theme-toggle, study-tips, lesson-comments, academy-wizard, multi-file-upload, welcome-onboarding, resource-finder, academy-dreams, academy-student-wizard, ai-tools-workspace, classrooms, curriculum-documents, admin-video-script, course-creator, academy-marketplace, academy-journal, academy-calendar, academy-admin, academy-announcements, academy-careers, academy-dominoes-game, implementation-recommendations)
 - **Skip-to-Content:** Keyboard navigation skip link at top of layout
 - **Focus Visible:** Global focus-visible ring styles for keyboard navigation
-- **Empty States:** Journal, announcements, and marketplace show meaningful empty states with CTAs
+- **Empty States:** Journal, announcements, marketplace, quests, and wallet show meaningful empty states with CTAs
 - **404 Page:** Polished with navigation links to home, dashboard, curriculum, plus popular pages grid (Career Explorer, Ask Spark, AI Creation Studio, Resource Finder)
 - **Privacy Policy:** COPPA compliance, parental consent, data retention, and third-party sharing sections
 - **Console Cleanup:** All `console.log` removed from production server files; only `console.error` retained
@@ -73,13 +73,15 @@ Key architectural decisions and features include:
 
 ## Performance & Navigation
 - **Code Splitting:** React.lazy + Suspense for 60+ pages; only landing, curriculum, subjects, dashboard, AI companion eagerly loaded
-- **Loading Skeletons:** Skeleton loading states on dashboard and career explorer pages
-- **Error Retry:** Reusable ErrorRetry component for API error states with retry button
+- **Loading Skeletons:** Skeleton loading states on dashboard, career explorer, financial literacy, academy hub, and attendance pages
+- **Error Retry:** Reusable ErrorRetry component on 9+ pages (dashboard, subjects, curriculum, achievements, teacher/parent dashboards, competitions, game lobby, impact)
 - **Back-to-Top:** Floating scroll-to-top button on landing page, binds to #main-content scroll
 - **Command Palette:** Ctrl+K keyboard shortcut for quick navigation across all pages
 - **Collapsible Sidebar:** All sidebar sections collapsible for cleaner navigation
-- **PageHeader Component:** Reusable page header with title, description, breadcrumbs, and action slot
-- **Breadcrumbs:** Reusable breadcrumb navigation component
+- **PageHeader Component:** Reusable page header with title, description, breadcrumbs, and action slot - deployed on 13+ pages
+- **Breadcrumbs:** Reusable breadcrumb navigation component on career explorer, mentors, financial literacy, marketplace, certificates, achievements, STAAR prep, journal, and more
+- **API Caching:** Cache-Control headers on public/impact (5 min), subjects (1 hour), levels (1 hour) endpoints
+- **Print CSS:** @media print styles hide navigation, sharing buttons; format metrics for clean printing
 
 ## Stakeholder & Funder Features
 - **Public Impact Dashboard:** /impact page with live metrics, grant alignment, program outcomes, share/print
@@ -87,7 +89,8 @@ Key architectural decisions and features include:
 - **API Documentation:** /api-docs page showing available external API endpoints for integration partners
 - **CSV Export:** Admin grant metrics tab exports CSV via /api/admin/grant-metrics/export
 - **Grant Alignment Checklist:** Visual checklist on admin grant tab showing criteria met status
-- **Landing Page Sections:** Audience cards (Funders/Schools/Employers), featured careers, How It Works, Success Stories, grant alignment badges, professional footer
+- **Landing Page Sections:** Audience cards (Funders/Schools/Employers), featured careers, How It Works, Success Stories, grant alignment badges, COPPA/FERPA/WCAG compliance badges, enterprise standards section, professional footer
+- **Help Page Search:** FAQ search filter with instant results filtering
 
 ## External Dependencies
 - **Database:** PostgreSQL (Neon-backed)

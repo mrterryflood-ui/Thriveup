@@ -25,6 +25,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { School, Users, Copy, Plus, UserPlus, BookOpen, Wand2 } from "lucide-react";
+import { PageHeader } from "@/components/page-header";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -338,15 +339,11 @@ export default function ClassroomsPage() {
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
-      <div className="mb-8">
-        <div className="flex items-center gap-2 mb-1">
-          <School className="h-6 w-6 text-primary" />
-          <h1 className="text-3xl font-bold" data-testid="text-classrooms-heading">Classrooms</h1>
-        </div>
-        <p className="text-muted-foreground" data-testid="text-classrooms-subtitle">
-          Create or join classrooms to collaborate and track learning progress.
-        </p>
-      </div>
+      <PageHeader
+        title="Classrooms"
+        description="Manage your classroom sections and student rosters"
+        breadcrumbs={[{ label: "Classrooms" }]}
+      />
 
       <div className="mb-6">
         <Link href="/classrooms/wizard">

@@ -18,6 +18,7 @@ import {
   Users,
   Zap,
   ExternalLink,
+  Target,
 } from "lucide-react";
 
 interface Quest {
@@ -202,11 +203,19 @@ export default function AcademyQuestsPage() {
             <Swords className="h-5 w-5 text-primary" /> Today's Quests
           </h2>
           {questList.length === 0 ? (
-            <Card className="p-6 text-center" data-testid="card-no-quests">
-              <Swords className="h-8 w-8 mx-auto text-muted-foreground/30 mb-2" />
-              <p className="text-sm text-muted-foreground">
-                No quests available today. Check back tomorrow!
-              </p>
+            <Card className="p-8 text-center" data-testid="empty-state-quests">
+              <div className="flex flex-col items-center">
+                <div className="rounded-full bg-muted p-4 mb-4">
+                  <Target className="h-8 w-8 text-muted-foreground" />
+                </div>
+                <h3 className="text-lg font-semibold mb-2">No Quests Available</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Check back soon for new daily quests and challenges.
+                </p>
+                <Link href="/dashboard">
+                  <Button data-testid="button-back-dashboard">Go to Dashboard</Button>
+                </Link>
+              </div>
             </Card>
           ) : (
             questList.map((quest) => {

@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Smile, Meh, Brain, BatteryLow, Sparkles, BookOpen, Calendar } from "lucide-react";
+import { PageHeader } from "@/components/page-header";
 import type { StudentReflection } from "@shared/schema";
 
 const moods = [
@@ -115,6 +116,14 @@ export default function AcademyJournalPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <div className="max-w-4xl mx-auto px-4 pt-6">
+        <PageHeader
+          title="Reflection Journal"
+          description="Track your learning journey with daily reflections"
+          breadcrumbs={[{ label: "Academy", href: "/academy" }, { label: "Journal" }]}
+        />
+      </div>
+
       <div className="bg-[#800000] text-white py-8 px-4">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-3xl font-bold flex items-center gap-2" data-testid="text-journal-title">

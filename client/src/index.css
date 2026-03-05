@@ -456,3 +456,31 @@
   outline: 2px solid hsl(var(--ring));
   outline-offset: 2px;
 }
+
+@media print {
+  header, nav, aside, footer,
+  [data-testid="button-back-to-top"],
+  [data-testid="button-sidebar-toggle"],
+  [data-testid="button-copy-link"],
+  [data-testid="button-share-linkedin"],
+  [data-testid="button-share-x"],
+  [data-testid="button-print-report"],
+  .skip-link,
+  button[aria-label="Scroll to top"] {
+    display: none !important;
+  }
+
+  body, main, #main-content {
+    overflow: visible !important;
+    height: auto !important;
+  }
+
+  .flex.h-screen {
+    display: block !important;
+    height: auto !important;
+  }
+
+  * {
+    box-shadow: none !important;
+  }
+}

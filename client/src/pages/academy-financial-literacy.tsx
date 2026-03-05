@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
+import { PageHeader } from "@/components/page-header";
 import { Card } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -766,13 +768,48 @@ const modules: Module[] = [
 export default function AcademyFinancialLiteracyPage() {
   useEffect(() => { document.title = 'Financial Literacy | AI Mastery Academy'; }, []);
   const [expandedModule, setExpandedModule] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 300);
+    return () => clearTimeout(timer);
+  }, []);
 
   const toggleModule = (id: string) => {
     setExpandedModule(expandedModule === id ? null : id);
   };
 
+  if (isLoading) {
+    return (
+      <div className="p-4 sm:p-6 max-w-5xl mx-auto space-y-6" data-testid="loading-skeleton-financial-literacy">
+        <Skeleton className="h-6 w-48" />
+        <Skeleton className="h-40 w-full rounded-md" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Card key={i} className="p-5">
+              <div className="flex items-center gap-3 mb-3">
+                <Skeleton className="h-10 w-10 rounded-md" />
+                <div className="space-y-2 flex-1">
+                  <Skeleton className="h-5 w-3/4" />
+                  <Skeleton className="h-3 w-1/2" />
+                </div>
+              </div>
+              <Skeleton className="h-4 w-full mb-2" />
+              <Skeleton className="h-4 w-5/6" />
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-4 sm:p-6 max-w-5xl mx-auto" data-testid="financial-literacy-page">
+      <PageHeader
+        title="Financial Literacy"
+        description="Real-world money skills for future leaders."
+        breadcrumbs={[{label:"Academy",href:"/academy"},{label:"Financial Literacy"}]}
+      />
       <div
         className="rounded-md bg-gradient-to-r from-rose-900 to-red-950 p-6 sm:p-8 mb-8"
         data-testid="section-hero"

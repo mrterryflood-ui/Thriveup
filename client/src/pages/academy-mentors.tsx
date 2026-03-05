@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { PageHeader } from "@/components/page-header";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -185,6 +186,11 @@ export default function AcademyMentorsPage() {
 
   return (
     <div className="p-6 max-w-6xl mx-auto" data-testid="academy-mentors-page">
+      <PageHeader
+        title="Mentor Network"
+        description="Connect with professionals who care about your future."
+        breadcrumbs={[{label:"Academy",href:"/academy"},{label:"Mentor Network"}]}
+      />
       <div
         className="rounded-md bg-gradient-to-r from-rose-900 to-red-700 p-8 mb-8"
         data-testid="section-hero"

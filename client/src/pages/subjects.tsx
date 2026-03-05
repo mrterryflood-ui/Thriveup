@@ -9,6 +9,7 @@ import {
   BookOpen, Calculator, Microscope, Globe, Heart, Salad,
   ChevronRight, Sparkles, GraduationCap, Clock, Target
 } from "lucide-react";
+import { ErrorRetry } from "@/components/error-retry";
 import type { Subject, Module } from "@shared/schema";
 
 const GRADE_BANDS = ["3-5", "6-8", "9-12"];
@@ -41,7 +42,7 @@ const SUBJECT_COLORS: Record<string, { bg: string; gradient: string }> = {
 export default function SubjectsPage() {
   const [selectedBand, setSelectedBand] = useState<string>("3-5");
 
-  const { data: allSubjects, isLoading } = useQuery<Subject[]>({
+  const { data: allSubjects, isLoading, error, refetch } = useQuery<Subject[]>({
     queryKey: ["/api/subjects"],
   });
 
@@ -60,6 +61,8 @@ export default function SubjectsPage() {
       </div>
     );
   }
+
+  if (error) return <div className="p-6"><ErrorRetry message="Failed to load subjects. Please try again." onRetry={refetch} /></div>;
 
   return (
     <div className="p-6 max-w-5xl mx-auto">

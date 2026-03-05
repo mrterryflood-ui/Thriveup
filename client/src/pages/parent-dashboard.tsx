@@ -12,6 +12,7 @@ import {
   BarChart3, Lightbulb, GraduationCap, Brain, Users,
   ArrowRight, Sparkles, AlertTriangle
 } from "lucide-react";
+import { ErrorRetry } from "@/components/error-retry";
 import { LEVEL_COLORS, getRankForLevel } from "@/lib/curriculum-data";
 import type { StudentProgress, Level, Module, EarnedBadge, Badge as BadgeType } from "@shared/schema";
 
@@ -97,7 +98,7 @@ function LoadingSkeleton() {
 }
 
 export default function ParentDashboardPage() {
-  const { data: dashboardData, isLoading: dashLoading } = useQuery<DashboardData>({
+  const { data: dashboardData, isLoading: dashLoading, error, refetch } = useQuery<DashboardData>({
     queryKey: ["/api/dashboard"],
   });
 
@@ -114,6 +115,8 @@ export default function ParentDashboardPage() {
   if (isLoading) {
     return <LoadingSkeleton />;
   }
+
+  if (error) return <div className="p-6"><ErrorRetry message="Failed to load parent dashboard. Please try again." onRetry={refetch} /></div>;
 
   if (!dashboardData) return null;
 

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Award, Printer, ArrowLeft, GraduationCap, Star } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
+import { PageHeader } from "@/components/page-header";
 import type { Certificate } from "@shared/schema";
 
 export default function CertificatesPage() {
@@ -67,14 +68,11 @@ export default function CertificatesPage() {
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2" data-testid="text-certificates-heading">
-          My Certificates
-        </h1>
-        <p className="text-muted-foreground">
-          Certificates earned by completing all module quizzes in a level.
-        </p>
-      </div>
+      <PageHeader
+        title="My Certificates"
+        description="Certificates earned by completing all module quizzes in a level."
+        breadcrumbs={[{label:"Certificates"}]}
+      />
 
       {!certificates || certificates.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-center">

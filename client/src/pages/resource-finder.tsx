@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
+import { PageHeader } from "@/components/page-header";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -225,17 +226,11 @@ export default function ResourceFinderPage() {
 
   return (
     <div className="p-4 md:p-6 max-w-6xl mx-auto space-y-6" data-testid="resource-finder-page">
-      <div className="space-y-2">
-        <div className="flex items-center gap-3">
-          <div className="p-3 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white">
-            <Globe className="h-7 w-7" />
-          </div>
-          <div>
-            <h1 className="text-2xl md:text-3xl font-bold" data-testid="text-page-title">Community Resource Finder</h1>
-            <p className="text-muted-foreground">Find real government and community resources across all 50 states, DC, and U.S. territories</p>
-          </div>
-        </div>
-      </div>
+      <PageHeader
+        title="Community Resource Finder"
+        description="Find real government and community resources across all 50 states, DC, and U.S. territories"
+        breadcrumbs={[{label:"Resource Finder"}]}
+      />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} data-testid="resource-tabs">
         <TabsList className="grid w-full grid-cols-3">

@@ -96,22 +96,58 @@ const quickActions = [
 
 function LoadingSkeleton() {
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-6">
+    <div className="p-6 max-w-5xl mx-auto space-y-6" data-testid="loading-skeleton-academy-hub">
       <Skeleton className="h-40 w-full rounded-md" />
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <Skeleton className="h-24" />
-        <Skeleton className="h-24" />
-        <Skeleton className="h-24" />
-        <Skeleton className="h-24" />
+        {Array.from({ length: 4 }).map((_, i) => (
+          <Card key={i} className="p-5">
+            <Skeleton className="h-4 w-24 mb-3" />
+            <Skeleton className="h-8 w-16" />
+          </Card>
+        ))}
       </div>
-      <Skeleton className="h-32" />
+      <Card className="p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <Skeleton className="h-12 w-12 rounded-md" />
+          <div className="space-y-2 flex-1">
+            <Skeleton className="h-5 w-40" />
+            <Skeleton className="h-3 w-28" />
+          </div>
+          <Skeleton className="h-10 w-20" />
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="space-y-1">
+              <Skeleton className="h-3 w-full" />
+              <Skeleton className="h-1.5 w-full" />
+            </div>
+          ))}
+        </div>
+      </Card>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <Card key={i} className="p-4">
+            <div className="flex items-start gap-3">
+              <Skeleton className="h-5 w-5 rounded-full shrink-0" />
+              <div className="space-y-2 flex-1">
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-3 w-full" />
+              </div>
+            </div>
+          </Card>
+        ))}
+      </div>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <Skeleton className="h-28" />
-        <Skeleton className="h-28" />
-        <Skeleton className="h-28" />
-        <Skeleton className="h-28" />
+        {Array.from({ length: 8 }).map((_, i) => (
+          <Card key={i} className="p-4">
+            <div className="flex flex-col items-center gap-2">
+              <Skeleton className="h-10 w-10 rounded-md" />
+              <Skeleton className="h-4 w-20" />
+              <Skeleton className="h-3 w-24" />
+            </div>
+          </Card>
+        ))}
       </div>
-      <Skeleton className="h-48" />
     </div>
   );
 }

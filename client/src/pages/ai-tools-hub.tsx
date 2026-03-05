@@ -14,6 +14,7 @@ import {
   ClipboardList, FileText, UserCheck, Lightbulb, Lock, CheckCircle,
   Sparkles, BookOpen, ChevronRight
 } from "lucide-react";
+import { PageHeader } from "@/components/page-header";
 
 const ICON_MAP: Record<string, any> = {
   "presentation": Presentation,
@@ -191,17 +192,11 @@ export default function AIToolsHubPage() {
   useEffect(() => { document.title = "AI Creation Studio | AI Mastery Academy"; }, []);
   return (
     <div className="p-4 md:p-6 max-w-7xl mx-auto">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold flex items-center gap-2" data-testid="text-tools-heading">
-          <Sparkles className="h-7 w-7 text-primary" />
-          {language === "es" ? "Estudio de Creacion con IA" : "AI Creation Studio"}
-        </h1>
-        <p className="text-muted-foreground mt-1">
-          {language === "es"
-            ? "Todas tus herramientas de creacion con IA en un solo lugar. Completa los modulos del curso para desbloquear cada herramienta."
-            : "All your AI-powered creation tools in one place. Complete course modules to unlock each tool."}
-        </p>
-      </div>
+      <PageHeader
+        title="AI Creation Studio"
+        description="Professional-grade AI tools for creativity and productivity"
+        breadcrumbs={[{ label: "AI Creation Studio" }]}
+      />
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="mb-4">

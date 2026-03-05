@@ -34,6 +34,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import type { AcademyCompetition, AcademyCompetitionEntry } from "@shared/schema";
+import { ErrorRetry } from "@/components/error-retry";
 
 const createCompetitionSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -244,7 +245,7 @@ export default function AcademyCompetitionsPage() {
   const [selectedCompetitionId, setSelectedCompetitionId] = useState<string | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
 
-  const { data: competitions, isLoading } = useQuery<AcademyCompetition[]>({
+  const { data: competitions, isLoading, error, refetch } = useQuery<AcademyCompetition[]>({
     queryKey: ["/api/academy/competitions"],
   });
 
@@ -319,6 +320,8 @@ export default function AcademyCompetitionsPage() {
       </div>
     );
   }
+
+  if (error) return <div className="p-6"><ErrorRetry message="Failed to load competitions data. Please try again." onRetry={refetch} /></div>;
 
   return (
     <div className="p-6 max-w-6xl mx-auto" data-testid="page-competitions">
