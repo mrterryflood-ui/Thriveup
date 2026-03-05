@@ -74,6 +74,7 @@ import AIToolsHubPage from "@/pages/ai-tools-hub";
 import AIToolsWorkspacePage from "@/pages/ai-tools-workspace";
 import ImplementationRecommendationsPage from "@/pages/implementation-recommendations";
 import PrivacyPolicyPage from "@/pages/privacy-policy";
+import ResourceFinderPage from "@/pages/resource-finder";
 import { LanguageProvider } from "@/lib/i18n";
 import { BandwidthProvider } from "@/lib/bandwidth-mode";
 import { AccessibilityProvider } from "@/lib/accessibility";
@@ -155,6 +156,7 @@ function AppRouter() {
       <Route path="/ai-tools/:toolKey" component={AIToolsWorkspacePage} />
       <Route path="/implementation" component={ImplementationRecommendationsPage} />
       <Route path="/privacy" component={PrivacyPolicyPage} />
+      <Route path="/resources" component={ResourceFinderPage} />
       <Route component={NotFound} />
     </Switch>
   );

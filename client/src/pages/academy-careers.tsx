@@ -692,6 +692,7 @@ export default function AcademyCareersPage() {
                       toggleBookmark(career.id);
                     }}
                     data-testid={`button-bookmark-${career.id}`}
+                    aria-label={bookmarkedCareers.includes(career.id) ? "Remove bookmark" : "Bookmark career"}
                   >
                     {isBookmarked ? (
                       <Bookmark className="h-4 w-4 text-amber-500" />
@@ -764,7 +765,7 @@ export default function AcademyCareersPage() {
 
       {bookmarkedCareers.length > 0 && (
         <div className="mb-8" data-testid="section-my-interests">
-          <h2 className="font-semibold text-lg mb-4 flex items-center gap-2">
+          <h2 className="font-semibold text-lg mb-4 flex items-center gap-2" data-testid="text-my-interests-title">
             <Star className="h-5 w-5 text-amber-500" /> My Career Pathway Interests
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -835,7 +836,7 @@ export default function AcademyCareersPage() {
       </Card>
 
       <div data-testid="section-milestones">
-        <h2 className="font-semibold text-lg mb-4 flex items-center gap-2">
+        <h2 className="font-semibold text-lg mb-4 flex items-center gap-2" data-testid="text-milestones-title">
           <Award className="h-5 w-5 text-muted-foreground" /> Workforce Readiness Milestones
         </h2>
         {milestonesLoading ? (

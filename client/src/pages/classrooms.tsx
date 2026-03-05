@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -71,6 +71,8 @@ interface ClassroomDetailData {
 }
 
 function LoginPrompt() {
+
+  useEffect(() => { document.title = "Classrooms | AI Mastery Academy"; }, []);
   return (
     <div className="p-6 max-w-md mx-auto text-center mt-20">
       <Card className="p-8">
@@ -226,7 +228,7 @@ function InviteCodeDisplay({ code }: { code: string }) {
       <code className="px-2 py-1 rounded-md bg-muted text-sm font-mono" data-testid={`text-invite-code-${code}`}>
         {code}
       </code>
-      <Button size="icon" variant="ghost" onClick={copyToClipboard} data-testid={`button-copy-code-${code}`}>
+      <Button size="icon" variant="ghost" onClick={copyToClipboard} data-testid={`button-copy-code-${code}`} aria-label="Copy invite code">
         <Copy className="h-4 w-4" />
       </Button>
     </div>
@@ -468,7 +470,7 @@ export function ClassroomDetailPage({ params }: { params: { classroomId: string 
                 <code className="px-2 py-1 rounded-md bg-muted text-sm font-mono font-bold" data-testid="text-detail-invite-code">
                   {classroom.inviteCode}
                 </code>
-                <Button size="icon" variant="ghost" onClick={copyInviteCode} data-testid="button-copy-detail-code">
+                <Button size="icon" variant="ghost" onClick={copyInviteCode} data-testid="button-copy-detail-code" aria-label="Copy invite code">
                   <Copy className="h-4 w-4" />
                 </Button>
               </div>

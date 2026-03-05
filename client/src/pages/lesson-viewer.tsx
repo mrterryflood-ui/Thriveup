@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Link, useParams, useLocation } from "wouter";
 import { Card } from "@/components/ui/card";
@@ -85,7 +85,9 @@ export default function LessonViewerPage() {
   });
 
   if (isLoading) {
-    return (
+  
+  useEffect(() => { document.title = "Lesson | AI Mastery Academy"; }, []);
+  return (
       <div className="p-6 max-w-4xl mx-auto space-y-4">
         <Skeleton className="h-8 w-32 mb-4" />
         <Skeleton className="h-64 w-full" />

@@ -336,7 +336,7 @@ export default function AcademyMarketplacePage() {
             <p className="text-sm" data-testid="text-business-tip">{BUSINESS_WISDOM[businessTipIndex].tip}</p>
             <div className="flex items-center justify-between gap-2 mt-2 flex-wrap">
               <p className="text-xs text-muted-foreground" data-testid="text-business-source">-- {BUSINESS_WISDOM[businessTipIndex].source}</p>
-              <Link href="/academy/financial-literacy">
+              <Link href="/academy/financial-literacy" data-testid="link-financial-literacy">
                 <Button variant="ghost" size="sm" className="text-xs h-auto py-1 px-2" data-testid="link-financial-literacy-marketplace">
                   Learn More
                 </Button>
@@ -435,6 +435,7 @@ export default function AcademyMarketplacePage() {
                             setReportReason("");
                           }}
                           data-testid={`button-report-${listing.id}`}
+                          aria-label="Report listing"
                         >
                           <Flag className="h-3.5 w-3.5" />
                         </Button>

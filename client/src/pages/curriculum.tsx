@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useParams } from "wouter";
 import { Card } from "@/components/ui/card";
@@ -20,8 +21,10 @@ export default function CurriculumPage() {
     queryKey: ["/api/levels"],
   });
 
+  useEffect(() => { document.title = "AI Curriculum | AI Mastery Academy"; }, []);
+
   if (isLoading) {
-    return (
+  return (
       <div className="p-6 max-w-5xl mx-auto space-y-4">
         <Skeleton className="h-10 w-64 mb-8" />
         {[1, 2, 3, 4, 5].map((i) => (
@@ -45,7 +48,7 @@ export default function CurriculumPage() {
           const Icon = levelIcons[(level.id - 1) % 5];
           const colors = LEVEL_COLORS[level.id];
           return (
-            <Link key={level.id} href={`/curriculum/${level.id}`}>
+            <Link key={level.id} href={`/curriculum/${level.id}`} data-testid={`link-curriculum-level-${level.id}`}>
               <Card className="p-6 hover-elevate cursor-pointer group" data-testid={`card-curriculum-level-${level.id}`}>
                 <div className="flex items-start gap-5 flex-wrap">
                   <div className={`rounded-md p-3 bg-gradient-to-br ${colors.gradient} shrink-0`}>
@@ -142,7 +145,7 @@ export function LevelDetailPage() {
 
       <div className="space-y-3">
         {levelModules?.map((mod) => (
-          <Link key={mod.id} href={`/module/${mod.id}`}>
+          <Link key={mod.id} href={`/module/${mod.id}`} data-testid={`link-module-${mod.id}`}>
             <Card className="p-5 hover-elevate cursor-pointer group" data-testid={`card-module-${mod.id}`}>
               <div className="flex items-start gap-4 flex-wrap">
                 <div className={`rounded-md flex items-center justify-center w-10 h-10 font-bold text-sm ${colors.badge} shrink-0`}>

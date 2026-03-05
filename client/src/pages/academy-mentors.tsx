@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -110,6 +110,8 @@ const AVATAR_COLORS = [
 ];
 
 function LoadingSkeleton() {
+
+  useEffect(() => { document.title = "Mentor Network | AI Mastery Academy"; }, []);
   return (
     <div className="p-6 max-w-6xl mx-auto space-y-6">
       <Skeleton className="h-36 w-full rounded-md" />

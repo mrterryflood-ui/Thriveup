@@ -29,7 +29,7 @@ import {
   Zap, CalendarCheck, Lightbulb, Gamepad2, Map, Store, Briefcase, Route,
   Activity, ClipboardCheck, Handshake, ChevronRight, DollarSign,
   PenLine, Megaphone, Calendar, HelpCircle, ClipboardList, Printer, Link2,
-  MessageCircle,
+  MessageCircle, MapPin,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -54,6 +54,7 @@ const platformItems: NavItem[] = [
   { title: "Subjects", url: "/subjects", icon: GraduationCap },
   { title: "Achievements", url: "/achievements", icon: Award },
   { title: "Certificates", url: "/certificates", icon: ScrollText },
+  { title: "Resource Finder", url: "/resources", icon: MapPin },
 ];
 
 const myStudentItems: NavItem[] = [

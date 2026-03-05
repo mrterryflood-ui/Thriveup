@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { Card } from "@/components/ui/card";
@@ -33,7 +34,9 @@ export default function TeacherDashboardPage() {
   });
 
   if (authLoading) {
-    return (
+  
+  useEffect(() => { document.title = "Teacher Dashboard | AI Mastery Academy"; }, []);
+  return (
       <div className="p-6 max-w-6xl mx-auto space-y-4">
         <Skeleton className="h-10 w-64" />
         <Skeleton className="h-6 w-96" />

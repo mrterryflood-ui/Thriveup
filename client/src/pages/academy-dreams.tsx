@@ -302,6 +302,7 @@ function DreamProfileForm({
                 variant="outline"
                 onClick={() => addItem(shortTermGoals, setShortTermGoals, newShortGoal, setNewShortGoal)}
                 data-testid="button-add-short-goal"
+                aria-label="Add short-term goal"
               >
                 <Plus className="h-4 w-4" />
               </Button>
@@ -315,6 +316,7 @@ function DreamProfileForm({
                     variant="ghost"
                     onClick={() => removeItem(shortTermGoals, setShortTermGoals, i)}
                     data-testid={`button-remove-short-goal-${i}`}
+                    aria-label={`Remove short-term goal ${i + 1}`}
                   >
                     <X className="h-3.5 w-3.5" />
                   </Button>
@@ -338,6 +340,7 @@ function DreamProfileForm({
                 variant="outline"
                 onClick={() => addItem(longTermGoals, setLongTermGoals, newLongGoal, setNewLongGoal)}
                 data-testid="button-add-long-goal"
+                aria-label="Add long-term goal"
               >
                 <Plus className="h-4 w-4" />
               </Button>
@@ -351,6 +354,7 @@ function DreamProfileForm({
                     variant="ghost"
                     onClick={() => removeItem(longTermGoals, setLongTermGoals, i)}
                     data-testid={`button-remove-long-goal-${i}`}
+                    aria-label={`Remove long-term goal ${i + 1}`}
                   >
                     <X className="h-3.5 w-3.5" />
                   </Button>
@@ -376,6 +380,7 @@ function DreamProfileForm({
                 variant="outline"
                 onClick={() => addItem(strengths, setStrengths, newStrength, setNewStrength)}
                 data-testid="button-add-strength"
+                aria-label="Add strength"
               >
                 <Plus className="h-4 w-4" />
               </Button>
@@ -407,6 +412,7 @@ function DreamProfileForm({
                 variant="outline"
                 onClick={() => addItem(growthAreas, setGrowthAreas, newGrowthArea, setNewGrowthArea)}
                 data-testid="button-add-growth-area"
+                aria-label="Add growth area"
               >
                 <Plus className="h-4 w-4" />
               </Button>

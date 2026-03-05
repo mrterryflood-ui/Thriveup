@@ -172,6 +172,8 @@ export default function SparkyCompanionPage() {
   const prompts = QUICK_PROMPTS[language === "es" ? "es" : "en"];
   const selectedContext = CONTEXT_OPTIONS.find(c => c.value === context);
 
+
+  useEffect(() => { document.title = "Sparky AI Companion | AI Mastery Academy"; }, []);
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="mb-6">

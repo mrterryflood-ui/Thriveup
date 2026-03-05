@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -320,6 +320,8 @@ export default function AcademyMentorFinderPage() {
 
   const activeMentors = (mentors ?? []).filter((m) => m.isActive);
 
+
+  useEffect(() => { document.title = "Find a Mentor | AI Mastery Academy"; }, []);
   return (
     <div className="p-4 sm:p-6 max-w-6xl mx-auto" data-testid="academy-mentor-finder-page">
       <div
@@ -364,7 +366,7 @@ export default function AcademyMentorFinderPage() {
                     rel="noopener noreferrer"
                     data-testid={`link-category-${kebab}`}
                   >
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" size="sm" data-testid={`button-browse-category-${kebab}`}>
                       Browse <ExternalLink className="h-3.5 w-3.5 ml-1" />
                     </Button>
                   </a>
@@ -641,7 +643,7 @@ export default function AcademyMentorFinderPage() {
           rel="noopener noreferrer"
           data-testid="link-mcoe-visit"
         >
-          <Button variant="outline" className="bg-white/10 border-white/20 text-white backdrop-blur-sm">
+          <Button variant="outline" className="bg-white/10 border-white/20 text-white backdrop-blur-sm" data-testid="button-visit-mcoe">
             Visit MCOE <ExternalLink className="h-3.5 w-3.5 ml-1" />
           </Button>
         </a>

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Sparkles, Wand2 } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -6,6 +7,8 @@ import { useLanguage } from "@/lib/i18n";
 
 export default function AICompanionPage() {
   const { language } = useLanguage();
+
+  useEffect(() => { document.title = "Spark AI Companion | AI Mastery Academy"; }, []);
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="mb-6">

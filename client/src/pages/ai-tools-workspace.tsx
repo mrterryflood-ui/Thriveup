@@ -309,7 +309,9 @@ export default function AIToolsWorkspacePage() {
   }, [generatedContent]);
 
   if (!currentTool) {
-    return (
+  
+  useEffect(() => { document.title = "AI Tool Workspace | AI Mastery Academy"; }, []);
+  return (
       <div className="p-6 max-w-4xl mx-auto text-center">
         <p className="text-muted-foreground">{isEs ? "Herramienta no encontrada" : "Tool not found"}</p>
         <Button variant="outline" onClick={() => navigate(`/ai-tools${isAdult ? "?mode=adult" : ""}`)} className="mt-4" data-testid="button-back-to-tools">
@@ -342,7 +344,7 @@ export default function AIToolsWorkspacePage() {
     <div className="flex flex-col h-[calc(100vh-64px)]" data-testid="container-workspace">
       <div className="flex items-center justify-between gap-2 p-3 border-b flex-wrap">
         <div className="flex items-center gap-2">
-          <Button size="icon" variant="ghost" onClick={() => navigate(`/ai-tools${isAdult ? "?mode=adult" : ""}`)} data-testid="button-back">
+          <Button size="icon" variant="ghost" onClick={() => navigate(`/ai-tools${isAdult ? "?mode=adult" : ""}`)} data-testid="button-back" aria-label="Back to tools">
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div className="p-1.5 rounded-md bg-primary/10">
@@ -387,7 +389,7 @@ export default function AIToolsWorkspacePage() {
                     <Sparkles className="h-3 w-3" />
                     {isEs ? "Contexto importado" : "Imported context"}
                   </span>
-                  <Button size="icon" variant="ghost" className="h-5 w-5" onClick={() => setImportedContext("")}>
+                  <Button size="icon" variant="ghost" className="h-5 w-5" onClick={() => setImportedContext("")} aria-label="Clear imported context">
                     <X className="h-3 w-3" />
                   </Button>
                 </div>
@@ -461,7 +463,7 @@ export default function AIToolsWorkspacePage() {
                     <span className="text-muted-foreground shrink-0">
                       {(file.size / 1024).toFixed(0)}KB
                     </span>
-                    <Button size="icon" variant="ghost" className="h-4 w-4" onClick={() => removeFile(i)}>
+                    <Button size="icon" variant="ghost" className="h-4 w-4" onClick={() => removeFile(i)} aria-label={`Remove file ${file.name}`}>
                       <X className="h-3 w-3" />
                     </Button>
                   </div>

@@ -159,6 +159,7 @@ export default function AcademyJournalPage() {
                       onClick={() => setMood(m.value)}
                       data-testid={`button-mood-${m.value}`}
                       title={m.label}
+                      aria-label={`Select mood: ${m.label}`}
                     >
                       <Icon className="h-5 w-5" />
                     </Button>

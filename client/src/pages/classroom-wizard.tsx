@@ -46,6 +46,8 @@ interface WizardData {
 const STEPS = ["Basics", "AI Suggestions", "Review & Create"];
 
 function StepIndicator({ currentStep }: { currentStep: number }) {
+
+  useEffect(() => { document.title = "Classroom Setup | AI Mastery Academy"; }, []);
   return (
     <div className="flex items-center gap-2 mb-8" data-testid="step-indicator">
       {STEPS.map((step, i) => (

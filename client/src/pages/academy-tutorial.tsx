@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -575,6 +575,8 @@ const POWER_BY_CHAPTER: number[][] = [
 function StatsFooter({ stats, chapterIndex }: { stats: ChapterStats; chapterIndex: number }) {
   const isFinale = chapterIndex === CHAPTERS.length - 1;
 
+
+  useEffect(() => { document.title = "Platform Tutorial | AI Mastery Academy"; }, []);
   return (
     <Card className="p-5 mt-6" data-testid={`card-stats-chapter-${chapterIndex}`}>
       <div className="flex items-center gap-2 mb-4">

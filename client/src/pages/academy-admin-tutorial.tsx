@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -322,6 +322,8 @@ export default function AcademyAdminTutorialPage() {
     setCheckedItems((prev) => ({ ...prev, [idx]: !prev[idx] }));
   };
 
+
+  useEffect(() => { document.title = "Admin Tutorial | AI Mastery Academy"; }, []);
   return (
     <div className="p-4 sm:p-6 max-w-3xl mx-auto" data-testid="admin-tutorial-page">
       <div className="mb-6">

@@ -70,6 +70,8 @@ function PipHalf({
 }) {
   const positions = PIP_POSITIONS[value] || [];
   const dotR = size * 0.09;
+
+  useEffect(() => { document.title = "Dominoes | AI Mastery Academy"; }, []);
   return (
     <g>
       {positions.map(([cx, cy], i) => (
@@ -562,6 +564,7 @@ export default function AcademyDominoesGame() {
           variant="ghost"
           onClick={() => navigate("/academy/games")}
           data-testid="button-back"
+          aria-label="Back to games"
         >
           <ArrowLeft className="h-4 w-4" />
         </Button>

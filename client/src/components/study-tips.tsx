@@ -76,6 +76,7 @@ export default function StudyTips({ moduleId }: { moduleId: string }) {
             }}
             disabled={!tipText.trim() || addTipMutation.isPending}
             data-testid="button-submit-tip"
+            aria-label="Submit study tip"
           >
             <Send className="h-4 w-4" />
           </Button>
@@ -110,6 +111,7 @@ export default function StudyTips({ moduleId }: { moduleId: string }) {
                 disabled={upvoteMutation.isPending}
                 className="shrink-0 toggle-elevate"
                 data-testid={`button-upvote-${tip.id}`}
+                aria-label="Upvote tip"
               >
                 <ThumbsUp className="h-4 w-4" />
               </Button>

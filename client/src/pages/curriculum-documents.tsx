@@ -626,7 +626,7 @@ function DocumentAttachments({ docId }: { docId: string }) {
               </div>
               <div className="flex items-center gap-1">
                 <a href={att.objectPath} target="_blank" rel="noopener noreferrer">
-                  <Button size="icon" variant="ghost" data-testid={`button-download-${att.id}`}>
+                  <Button size="icon" variant="ghost" data-testid={`button-download-${att.id}`} aria-label={`Download ${att.fileName}`}>
                     <Download className="h-3.5 w-3.5" />
                   </Button>
                 </a>
@@ -636,6 +636,7 @@ function DocumentAttachments({ docId }: { docId: string }) {
                   onClick={() => deleteMutation.mutate(att.id)}
                   disabled={deleteMutation.isPending}
                   data-testid={`button-delete-attachment-${att.id}`}
+                  aria-label={`Delete ${att.fileName}`}
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                 </Button>

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { Card } from "@/components/ui/card";
@@ -76,6 +77,8 @@ const subjectAreas = [
 ];
 
 function LoadingSkeleton() {
+
+  useEffect(() => { document.title = "Parent Dashboard | AI Mastery Academy"; }, []);
   return (
     <div className="p-6 max-w-6xl mx-auto space-y-6">
       <Skeleton className="h-10 w-64 mb-2" />

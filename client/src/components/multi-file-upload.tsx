@@ -315,6 +315,7 @@ export function MultiFileUpload({
                     }}
                     disabled={tf.status === "uploading"}
                     data-testid={`button-remove-${tf.id}`}
+                    aria-label={`Remove file ${tf.name}`}
                   >
                     <X className="h-4 w-4" />
                   </Button>

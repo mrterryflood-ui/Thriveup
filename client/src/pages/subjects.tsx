@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useParams as useWouterParams } from "wouter";
 import { Card } from "@/components/ui/card";
@@ -48,7 +48,9 @@ export default function SubjectsPage() {
   const filteredSubjects = allSubjects?.filter(s => s.gradeBand === selectedBand) || [];
 
   if (isLoading) {
-    return (
+  
+  useEffect(() => { document.title = "Subjects | AI Mastery Academy"; }, []);
+  return (
       <div className="p-6 max-w-5xl mx-auto space-y-4">
         <Skeleton className="h-10 w-64 mb-8" />
         <div className="flex gap-2 mb-8">

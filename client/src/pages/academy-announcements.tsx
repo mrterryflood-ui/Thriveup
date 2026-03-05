@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/use-auth";
@@ -106,6 +106,8 @@ export default function AcademyAnnouncementsPage() {
       })
     : [];
 
+
+  useEffect(() => { document.title = "Announcements | AI Mastery Academy"; }, []);
   return (
     <div className="min-h-screen bg-background">
       <div className="bg-[#800000] text-white py-8 px-4">
@@ -278,6 +280,7 @@ export default function AcademyAnnouncementsPage() {
                           size="icon"
                           variant="ghost"
                           data-testid={`button-delete-${announcement.id}`}
+                          aria-label="Delete announcement"
                         >
                           <Trash2 className="h-4 w-4 text-destructive" />
                         </Button>

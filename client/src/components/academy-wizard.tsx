@@ -186,6 +186,7 @@ export default function AcademyWizard({ wizardType, steps, onComplete, onDismiss
                 variant="ghost"
                 onClick={handleDismiss}
                 data-testid="button-wizard-dismiss"
+                aria-label="Dismiss wizard"
               >
                 <X className="h-4 w-4" />
               </Button>

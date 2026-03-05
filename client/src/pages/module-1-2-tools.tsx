@@ -85,6 +85,8 @@ function PromptBuilderTool({ onScoreUpdate }: { onScoreUpdate: (score: number) =
     setFields({ who: "", what: "", when: "", where: "", why: "" });
   }
 
+
+  useEffect(() => { document.title = "Module Tools | AI Mastery Academy"; }, []);
   return (
     <div className="space-y-6">
       <Card className="p-6">

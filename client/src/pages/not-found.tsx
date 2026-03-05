@@ -1,9 +1,12 @@
+import { useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, Home, LayoutDashboard, GraduationCap, ArrowLeft } from "lucide-react";
 import { Link } from "wouter";
 
 export default function NotFound() {
+
+  useEffect(() => { document.title = "Page Not Found | AI Mastery Academy"; }, []);
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-background" data-testid="page-not-found">
       <Card className="w-full max-w-md mx-4">

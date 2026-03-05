@@ -25,6 +25,7 @@ export function HeaderControls() {
             onClick={() => setLanguage(language === "en" ? "es" : "en")}
             data-testid="button-language-toggle"
             className="toggle-elevate"
+            aria-label={language === "en" ? "Switch to Spanish" : "Switch to English"}
           >
             <Globe className="h-4 w-4" />
           </Button>
@@ -42,6 +43,7 @@ export function HeaderControls() {
             onClick={toggleBandwidth}
             data-testid="button-bandwidth-toggle"
             className={`toggle-elevate ${isLowBandwidth ? "toggle-elevated" : ""}`}
+            aria-label={isLowBandwidth ? "Disable low-bandwidth mode" : "Enable low-bandwidth mode"}
           >
             {isLowBandwidth ? <WifiOff className="h-4 w-4" /> : <Wifi className="h-4 w-4" />}
           </Button>
@@ -58,6 +60,7 @@ export function HeaderControls() {
         variant="ghost"
         onClick={toggleTheme}
         data-testid="button-theme-toggle"
+        aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
       >
         {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
       </Button>

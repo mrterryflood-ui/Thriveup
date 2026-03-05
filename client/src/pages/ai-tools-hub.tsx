@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useLanguage } from "@/lib/i18n";
@@ -187,6 +187,8 @@ export default function AIToolsHubPage() {
     return quiz.every((q, i) => quizAnswers[i] === q.answer);
   };
 
+
+  useEffect(() => { document.title = "AI Creation Studio | AI Mastery Academy"; }, []);
   return (
     <div className="p-4 md:p-6 max-w-7xl mx-auto">
       <div className="mb-6">
@@ -422,7 +424,7 @@ export default function AIToolsHubPage() {
 
               <DialogFooter>
                 {lessonStep === 0 && (
-                  <Button onClick={() => setLessonStep(1)}>
+                  <Button onClick={() => setLessonStep(1)} data-testid="button-continue-to-quiz">
                     {language === "es" ? "Continuar al Cuestionario" : "Continue to Quiz"}
                   </Button>
                 )}
@@ -430,6 +432,7 @@ export default function AIToolsHubPage() {
                   <Button
                     onClick={() => setLessonStep(2)}
                     disabled={!isQuizCorrect()}
+                    data-testid="button-continue-from-quiz"
                   >
                     {language === "es" ? "Continuar" : "Continue"}
                   </Button>

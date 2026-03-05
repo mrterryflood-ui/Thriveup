@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -69,6 +69,8 @@ function InitialSetupWizard({ onComplete }: { onComplete: () => void }) {
     setList(list.includes(item) ? list.filter((i) => i !== item) : [...list, item]);
   }
 
+
+  useEffect(() => { document.title = "Student Setup | AI Mastery Academy"; }, []);
   return (
     <div className="space-y-6" data-testid="wizard-initial-setup">
       <Progress value={progress} className="h-2" data-testid="progress-wizard" />
@@ -420,7 +422,7 @@ function QuarterlyReviewWizard({ onComplete }: { onComplete: () => void }) {
               onKeyDown={(e) => e.key === "Enter" && addAchievement()}
               data-testid="input-achievement"
             />
-            <Button size="icon" onClick={addAchievement} data-testid="button-add-achievement">
+            <Button size="icon" onClick={addAchievement} data-testid="button-add-achievement" aria-label="Add achievement">
               <Plus className="h-4 w-4" />
             </Button>
           </div>
@@ -433,6 +435,7 @@ function QuarterlyReviewWizard({ onComplete }: { onComplete: () => void }) {
                   variant="ghost"
                   onClick={() => setAchievements(achievements.filter((_, idx) => idx !== i))}
                   data-testid={`button-remove-achievement-${i}`}
+                  aria-label={`Remove achievement ${i + 1}`}
                 >
                   <X className="h-3 w-3" />
                 </Button>
@@ -457,7 +460,7 @@ function QuarterlyReviewWizard({ onComplete }: { onComplete: () => void }) {
               onKeyDown={(e) => e.key === "Enter" && addGoal()}
               data-testid="input-goal"
             />
-            <Button size="icon" onClick={addGoal} data-testid="button-add-goal">
+            <Button size="icon" onClick={addGoal} data-testid="button-add-goal" aria-label="Add goal">
               <Plus className="h-4 w-4" />
             </Button>
           </div>
@@ -470,6 +473,7 @@ function QuarterlyReviewWizard({ onComplete }: { onComplete: () => void }) {
                   variant="ghost"
                   onClick={() => setGoals(goals.filter((_, idx) => idx !== i))}
                   data-testid={`button-remove-goal-${i}`}
+                  aria-label={`Remove goal ${i + 1}`}
                 >
                   <X className="h-3 w-3" />
                 </Button>

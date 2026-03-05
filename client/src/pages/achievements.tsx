@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -63,7 +63,9 @@ export default function AchievementsPage() {
   });
 
   if (isLoading) {
-    return (
+  
+  useEffect(() => { document.title = "Achievements | AI Mastery Academy"; }, []);
+  return (
       <div className="p-6 max-w-5xl mx-auto space-y-4">
         <Skeleton className="h-10 w-48 mb-2" />
         <Skeleton className="h-6 w-72 mb-8" />

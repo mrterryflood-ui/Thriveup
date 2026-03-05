@@ -99,6 +99,7 @@ function EventCard({ event, isAdmin, onDelete }: { event: AcademyEvent; isAdmin:
             variant="ghost"
             onClick={() => onDelete(event.id)}
             data-testid={`button-delete-event-${event.id}`}
+            aria-label="Delete event"
           >
             <Trash2 className="w-4 h-4" />
           </Button>

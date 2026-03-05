@@ -181,6 +181,7 @@ export default function WelcomeOnboarding({
                 size="icon"
                 onClick={() => setStep(step - 1)}
                 data-testid="button-previous-step"
+                aria-label="Previous step"
               >
                 <ChevronLeft className="h-4 w-4" />
               </Button>

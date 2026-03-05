@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -108,6 +108,8 @@ function FeatureVideoPlayer() {
     }
   };
 
+
+  useEffect(() => { document.title = "AI Mastery Academy - Empowering Youth with AI"; }, []);
   return (
     <Card className="overflow-hidden shadow-xl border-2 border-primary/10" data-testid="card-feature-video">
       <div className="relative group">

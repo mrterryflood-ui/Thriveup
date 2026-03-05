@@ -866,7 +866,7 @@ export default function AcademyAdminPage() {
                         <Badge variant="secondary">Lv {student.power?.level ?? 1}</Badge>
                       </TableCell>
                       <TableCell>
-                        <Button size="icon" variant="ghost" data-testid={`button-view-student-${student.userId}`}>
+                        <Button size="icon" variant="ghost" data-testid={`button-view-student-${student.userId}`} aria-label="View student details">
                           <Eye className="h-4 w-4" />
                         </Button>
                       </TableCell>
@@ -1045,6 +1045,7 @@ export default function AcademyAdminPage() {
                           variant={note.isResolved ? "default" : "outline"}
                           onClick={() => toggleResolveMutation.mutate({ id: note.id, isResolved: !note.isResolved })}
                           data-testid={`button-toggle-resolve-${note.id}`}
+                          aria-label={note.isResolved ? "Mark as unresolved" : "Mark as resolved"}
                         >
                           {note.isResolved ? (
                             <CheckCircle2 className="h-4 w-4" />

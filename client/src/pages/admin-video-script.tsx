@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -151,6 +151,8 @@ export default function AdminVideoScriptPage() {
     toast({ title: "Full script copied to clipboard" });
   };
 
+
+  useEffect(() => { document.title = "Video Script | AI Mastery Academy"; }, []);
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-5xl mx-auto p-6 space-y-8">
@@ -160,6 +162,7 @@ export default function AdminVideoScriptPage() {
             size="icon"
             onClick={() => navigate("/academy/admin")}
             data-testid="button-back"
+            aria-label="Back to admin"
           >
             <ArrowLeft className="w-5 h-5" />
           </Button>
@@ -202,6 +205,7 @@ export default function AdminVideoScriptPage() {
                 size="icon"
                 onClick={() => copyToClipboard(WEBSITE_URL, "url")}
                 data-testid="button-copy-url"
+                aria-label="Copy URL"
               >
                 {copiedSection === "url" ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
               </Button>
@@ -240,6 +244,7 @@ export default function AdminVideoScriptPage() {
                       section.id
                     )}
                     data-testid={`button-copy-scene-${section.id}`}
+                    aria-label={`Copy scene ${index + 1}`}
                   >
                     {copiedSection === section.id ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                   </Button>

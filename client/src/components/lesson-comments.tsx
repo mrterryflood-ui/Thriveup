@@ -112,6 +112,7 @@ export default function LessonComments({ lessonId }: { lessonId: string }) {
             }}
             disabled={!commentText.trim() || addCommentMutation.isPending}
             data-testid="button-submit-comment"
+            aria-label="Submit comment"
           >
             <Send className="h-4 w-4" />
           </Button>

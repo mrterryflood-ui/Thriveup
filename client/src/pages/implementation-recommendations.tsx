@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -401,6 +401,8 @@ function RiskBadge({ severity }: { severity: string }) {
 }
 
 function GradeCard({ data, expanded, onToggle }: { data: GradeData; expanded: boolean; onToggle: () => void }) {
+
+  useEffect(() => { document.title = "Implementation Guide | AI Mastery Academy"; }, []);
   return (
     <Card data-testid={`card-grade-${data.grade}`}>
       <CardHeader className="cursor-pointer" onClick={onToggle}>
@@ -417,7 +419,7 @@ function GradeCard({ data, expanded, onToggle }: { data: GradeData; expanded: bo
           <div className="flex items-center gap-2 flex-wrap">
             <Badge variant="secondary">{data.aiModules}</Badge>
             <Badge variant="secondary">{data.financialLiteracy}</Badge>
-            <Button size="icon" variant="ghost" data-testid={`button-toggle-grade-${data.grade}`}>
+            <Button size="icon" variant="ghost" data-testid={`button-toggle-grade-${data.grade}`} aria-label={expanded ? "Collapse grade details" : "Expand grade details"}>
               {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
             </Button>
           </div>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -260,6 +260,8 @@ function PhaseCard({
 }) {
   const PhaseIcon = phase.icon;
 
+
+  useEffect(() => { document.title = "Phased Rollout Plan | AI Mastery Academy"; }, []);
   return (
     <Card data-testid={`card-phase-${phase.id}-${perspective}`} className="mb-6">
       <CardHeader>

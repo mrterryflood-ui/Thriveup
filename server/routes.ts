@@ -16,7 +16,9 @@ import {
   insertAcademyCourseSchema, insertCourseModuleSchema, insertCourseLessonSchema, insertCourseEnrollmentSchema,
   staarStudyGuides, staarPracticeQuestions, staarStudentAssessments, staarTopicMastery,
   insertStaarStudentAssessmentSchema,
+  savedResources, insertSavedResourceSchema, resourceSearchHistory,
 } from "@shared/schema";
+import { searchResources, getResourceCategories, getStatesList, getStateName, fetchBLSWageData } from "./resource-engine";
 import { eq, and, desc, sql, count, gte } from "drizzle-orm";
 import { computeFullThriveScore, computeAllStudentScores, getThriveHistory } from "./thrive-engine";
 import { evaluateFlags, getActiveFlags, resolveFlag, runEarlyWarningCheck } from "./early-warning";
@@ -1222,7 +1224,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
         await storage.updatePantherPower(getUserId(req)!, {
           leadershipScore: power.leadershipScore + 3,
         });
-      } catch (e) { /* ignore */ }
+      } catch (e) { console.error("Power update error:", e); }
       res.status(201).json(event);
     } catch (error) {
       res.status(500).json({ error: "Failed to award merit points" });
@@ -1317,7 +1319,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
           await storage.updatePantherPower(getUserId(req)!, {
             entrepreneurshipScore: power.entrepreneurshipScore + 5,
           });
-        } catch (e) { /* ignore power update errors */ }
+        } catch (e) { console.error("Power update error:", e); }
 
         res.json({ success: true, action: "buy", shares, totalCost, newBalance });
       } else if (action === "sell") {
@@ -1344,7 +1346,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
           await storage.updatePantherPower(getUserId(req)!, {
             entrepreneurshipScore: power.entrepreneurshipScore + 5,
           });
-        } catch (e) { /* ignore power update errors */ }
+        } catch (e) { console.error("Power update error:", e); }
 
         res.json({ success: true, action: "sell", shares, totalRevenue: totalCost, newBalance });
       } else {
@@ -1448,7 +1450,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
         await storage.updatePantherPower(getUserId(req)!, {
           communityScore: power.communityScore + 10,
         });
-      } catch (e) { /* ignore */ }
+      } catch (e) { console.error("Power update error:", e); }
 
       res.json({ success: true, project: updated, newBalance });
     } catch (error) {
@@ -1491,7 +1493,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
         await storage.updatePantherPower(getUserId(req)!, {
           educationScore: power.educationScore + 5,
         });
-      } catch (e) { /* ignore */ }
+      } catch (e) { console.error("Power update error:", e); }
       res.status(201).json(entry);
     } catch (error) {
       res.status(500).json({ error: "Failed to enter competition" });
@@ -1527,7 +1529,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
         await storage.updatePantherPower(getUserId(req)!, {
           characterScore: power.characterScore + 5,
         });
-      } catch (e) { /* ignore */ }
+      } catch (e) { console.error("Power update error:", e); }
       res.json(profile);
     } catch (error) {
       res.status(500).json({ error: "Failed to save dream profile" });
@@ -3014,20 +3016,23 @@ Write a warm, encouraging welcome message for students joining this classroom. M
   });
 
   // Risk Decision Tracking
-  app.post("/api/risk-decisions", async (req, res) => {
-    const user = (req as any).session?.user;
-    if (!user) return res.status(401).json({ error: "Not authenticated" });
+  app.post("/api/risk-decisions", requireAuth, async (req, res) => {
+    const userId = getUserId(req);
+    if (!userId) return res.status(401).json({ error: "Not authenticated" });
     try {
       const { featureArea, actionType, riskLevel, warningMessage, overrideChosen, metadata, financialLiteracyModule } = req.body;
+      if (!featureArea || !actionType || !riskLevel) {
+        return res.status(400).json({ error: "featureArea, actionType, and riskLevel are required" });
+      }
       const decision = await storage.createRiskDecision({
         featureArea, actionType, riskLevel, warningMessage, overrideChosen, metadata, financialLiteracyModule,
-        userId: user.id,
-        studentName: user.name || user.username || "Unknown",
+        userId,
+        studentName: getUserName(req) || "Unknown",
       });
 
       const settings = await storage.getRiskNotificationSettings();
       if (settings && decision.overrideChosen) {
-        const userDecisions = await storage.getRiskDecisionsByUser(user.id);
+        const userDecisions = await storage.getRiskDecisionsByUser(userId);
         const overrideCount = userDecisions.filter(d => d.overrideChosen).length;
 
         const shouldNotify =
@@ -3663,6 +3668,169 @@ Be thorough, practical, and age-appropriate. Format your response with clear hea
       res.json(mastery);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch mastery data" });
+    }
+  });
+
+  // ==================== RESOURCE FINDER ROUTES ====================
+
+  app.get("/api/resources/states", (_req, res) => {
+    try {
+      res.json(getStatesList());
+    } catch (error) {
+      console.error("Error fetching states:", error);
+      res.status(500).json({ error: "Failed to fetch states" });
+    }
+  });
+
+  app.get("/api/resources/categories", (_req, res) => {
+    try {
+      res.json(getResourceCategories());
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      res.status(500).json({ error: "Failed to fetch categories" });
+    }
+  });
+
+  app.get("/api/resources/search", async (req, res) => {
+    try {
+      const stateCode = req.query.state as string | undefined;
+      const categoriesRaw = req.query.categories as string | undefined;
+      const categories = categoriesRaw ? categoriesRaw.split(",") : undefined;
+      const query = req.query.q as string | undefined;
+      const ageRange = req.query.age as string | undefined;
+
+      const results = searchResources({ stateCode, categories, query, ageRange });
+
+      const userId = getUserId(req);
+      if (userId) {
+        await db.insert(resourceSearchHistory).values({
+          userId,
+          stateCode: stateCode || null,
+          categories: categories || null,
+          query: query || null,
+          resultCount: results.length,
+        }).catch((e) => { console.error("Error saving search history:", e); });
+      }
+
+      res.json(results);
+    } catch (error) {
+      console.error("Error searching resources:", error);
+      res.status(500).json({ error: "Failed to search resources" });
+    }
+  });
+
+  app.get("/api/resources/bls-wages/:stateCode", async (req, res) => {
+    try {
+      const { stateCode } = req.params;
+      const occupationCode = req.query.occupation as string | undefined;
+      const data = await fetchBLSWageData(stateCode, occupationCode);
+      res.json(data || []);
+    } catch (error) {
+      console.error("Error fetching BLS data:", error);
+      res.json([]);
+    }
+  });
+
+  app.get("/api/resources/saved", requireAuth, async (req, res) => {
+    try {
+      const userId = getUserId(req);
+      if (!userId) return res.json([]);
+      const saved = await db.select().from(savedResources)
+        .where(eq(savedResources.userId, userId))
+        .orderBy(desc(savedResources.savedAt));
+      res.json(saved);
+    } catch (error) {
+      console.error("Error fetching saved resources:", error);
+      res.status(500).json({ error: "Failed to fetch saved resources" });
+    }
+  });
+
+  app.post("/api/resources/save", requireAuth, async (req, res) => {
+    try {
+      const userId = getUserId(req);
+      if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+      const { resourceName, resourceUrl, category, subcategory, stateCode, notes } = req.body;
+      const parsed = insertSavedResourceSchema.safeParse({
+        userId, resourceName, resourceUrl, category,
+        subcategory: subcategory || null, stateCode: stateCode || null, notes: notes || null,
+      });
+
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid resource data", details: parsed.error.flatten() });
+      }
+
+      const [saved] = await db.insert(savedResources).values(parsed.data).returning();
+      res.status(201).json(saved);
+    } catch (error) {
+      console.error("Error saving resource:", error);
+      res.status(500).json({ error: "Failed to save resource" });
+    }
+  });
+
+  app.delete("/api/resources/saved/:id", requireAuth, async (req, res) => {
+    try {
+      const userId = getUserId(req);
+      if (!userId) return res.status(401).json({ error: "Unauthorized" });
+      await db.delete(savedResources).where(
+        and(eq(savedResources.id, req.params.id), eq(savedResources.userId, userId))
+      );
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error removing saved resource:", error);
+      res.status(500).json({ error: "Failed to remove resource" });
+    }
+  });
+
+  app.post("/api/resources/ai-guide", requireAuth, async (req, res) => {
+    try {
+      const userId = getUserId(req);
+      if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+      const { stateCode, categories, age, situation } = req.body;
+      const stateName = getStateName(stateCode || "TX");
+      const categoryNames = (categories || []).join(", ") || "all categories";
+
+      const systemPrompt = `You are a compassionate, knowledgeable community resource guide for AI Mastery Academy, a platform supporting under-resourced youth ages 14-24. Your role is to help young people and their families find real government and community resources.
+
+Key guidelines:
+- Be warm, encouraging, and supportive
+- Focus on real, actionable resources they can access
+- Explain eligibility in simple terms
+- Emphasize that seeking help is a sign of strength
+- Provide specific next steps they can take today
+- Be culturally aware and sensitive
+- If mentioning phone numbers or websites, be specific
+- Always encourage them to also explore the Resource Finder on this platform
+- Align with workforce development, career readiness, and youth empowerment values`;
+
+      const userMessage = `A young person${age ? ` (age ${age})` : ''} in ${stateName} is looking for help with: ${categoryNames}.${situation ? ` Their situation: ${situation}` : ''}\n\nPlease provide:\n1. A brief encouraging introduction\n2. The top 3-5 most relevant programs or resources they should explore\n3. Step-by-step guidance on how to access these resources\n4. Any important eligibility tips\n5. An empowering closing message reminding them of their potential`;
+
+      res.setHeader("Content-Type", "text/event-stream");
+      res.setHeader("Cache-Control", "no-cache");
+      res.setHeader("Connection", "keep-alive");
+
+      await streamAIResponse(systemPrompt, userMessage, res);
+    } catch (error) {
+      console.error("Error generating AI guide:", error);
+      if (!res.headersSent) {
+        res.status(500).json({ error: "Failed to generate guide" });
+      }
+    }
+  });
+
+  app.get("/api/resources/search-history", requireAuth, async (req, res) => {
+    try {
+      const userId = getUserId(req);
+      if (!userId) return res.json([]);
+      const history = await db.select().from(resourceSearchHistory)
+        .where(eq(resourceSearchHistory.userId, userId))
+        .orderBy(desc(resourceSearchHistory.searchedAt))
+        .limit(20);
+      res.json(history);
+    } catch (error) {
+      console.error("Error fetching search history:", error);
+      res.json([]);
     }
   });
 

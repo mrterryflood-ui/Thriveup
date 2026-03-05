@@ -133,6 +133,8 @@ function getRandomItem<T>(arr: T[]): T {
 
 function StreakBadge({ count }: { count: number }) {
   if (count <= 0) return null;
+
+  useEffect(() => { document.title = "STAAR Test Prep | AI Mastery Academy"; }, []);
   return (
     <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full text-sm font-bold shadow-lg animate-bounce" data-testid="badge-streak">
       <Flame className="h-4 w-4" />
@@ -666,7 +668,7 @@ export default function AcademyStaarPrepPage() {
                   <p className="text-sm font-medium leading-relaxed" data-testid="text-question">
                     {questions[currentQuestion].questionText}
                   </p>
-                  <RadioGroup value={selectedAnswer} onValueChange={handleAnswerSelect} disabled={showResult}>
+                  <RadioGroup value={selectedAnswer} onValueChange={handleAnswerSelect} disabled={showResult} data-testid="group-answer-options">
                     {(questions[currentQuestion].options as string[]).map((opt: string, i: number) => {
                       const letters = ["A", "B", "C", "D"];
                       return (

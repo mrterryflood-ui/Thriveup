@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -334,6 +334,8 @@ export default function SocialMediaLiteracyPage() {
     });
   };
 
+
+  useEffect(() => { document.title = "Social Media Literacy | AI Mastery Academy"; }, []);
   return (
     <div className="min-h-screen">
       <section className="relative overflow-hidden py-20 px-6 md:py-32">

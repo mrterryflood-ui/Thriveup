@@ -1374,4 +1374,36 @@ export const insertStaarTopicMasterySchema = createInsertSchema(staarTopicMaster
 export type InsertStaarTopicMastery = z.infer<typeof insertStaarTopicMasterySchema>;
 export type StaarTopicMastery = typeof staarTopicMastery.$inferSelect;
 
+// ==================== RESOURCE FINDER ====================
+
+export const savedResources = pgTable("saved_resources", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  resourceName: text("resource_name").notNull(),
+  resourceUrl: text("resource_url").notNull(),
+  category: varchar("category", { length: 100 }).notNull(),
+  subcategory: varchar("subcategory", { length: 200 }),
+  stateCode: varchar("state_code", { length: 10 }),
+  notes: text("notes"),
+  savedAt: timestamp("saved_at").defaultNow(),
+});
+
+export const insertSavedResourceSchema = createInsertSchema(savedResources).omit({ id: true, savedAt: true });
+export type InsertSavedResource = z.infer<typeof insertSavedResourceSchema>;
+export type SavedResource = typeof savedResources.$inferSelect;
+
+export const resourceSearchHistory = pgTable("resource_search_history", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  stateCode: varchar("state_code", { length: 10 }),
+  categories: text("categories").array(),
+  query: text("query"),
+  resultCount: integer("result_count"),
+  searchedAt: timestamp("searched_at").defaultNow(),
+});
+
+export const insertResourceSearchHistorySchema = createInsertSchema(resourceSearchHistory).omit({ id: true, searchedAt: true });
+export type InsertResourceSearchHistory = z.infer<typeof insertResourceSearchHistorySchema>;
+export type ResourceSearchHistory = typeof resourceSearchHistory.$inferSelect;
+
 export * from "./models/auth";

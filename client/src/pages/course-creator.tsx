@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -91,6 +91,8 @@ interface CourseWithDetails extends AcademyCourse {
 }
 
 function LoadingSkeleton() {
+
+  useEffect(() => { document.title = "Course Creator | AI Mastery Academy"; }, []);
   return (
     <div className="p-6 max-w-6xl mx-auto space-y-6">
       <Skeleton className="h-20 w-full rounded-md" />
@@ -967,6 +969,7 @@ function CourseEditor({ courseId, onBack }: { courseId: string; onBack: () => vo
                             variant="ghost"
                             onClick={() => openLessonDialog(mod.id)}
                             data-testid={`button-add-lesson-${mod.id}`}
+                            aria-label="Add lesson"
                           >
                             <Plus className="h-4 w-4" />
                           </Button>
@@ -975,6 +978,7 @@ function CourseEditor({ courseId, onBack }: { courseId: string; onBack: () => vo
                             variant="ghost"
                             onClick={() => deleteModuleMutation.mutate(mod.id)}
                             data-testid={`button-delete-module-${mod.id}`}
+                            aria-label="Delete module"
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -1015,6 +1019,7 @@ function CourseEditor({ courseId, onBack }: { courseId: string; onBack: () => vo
                                       variant="ghost"
                                       onClick={() => openLessonDialog(mod.id, lesson)}
                                       data-testid={`button-edit-lesson-${lesson.id}`}
+                                      aria-label="Edit lesson"
                                     >
                                       <Edit3 className="h-3.5 w-3.5" />
                                     </Button>
@@ -1023,6 +1028,7 @@ function CourseEditor({ courseId, onBack }: { courseId: string; onBack: () => vo
                                       variant="ghost"
                                       onClick={() => deleteLessonMutation.mutate(lesson.id)}
                                       data-testid={`button-delete-lesson-${lesson.id}`}
+                                      aria-label="Delete lesson"
                                     >
                                       <Trash2 className="h-3.5 w-3.5" />
                                     </Button>
