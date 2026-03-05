@@ -85,10 +85,10 @@ export default function LessonViewerPage() {
     },
   });
 
-  if (isLoading) {
-  
   useEffect(() => { document.title = "Lesson | AI Mastery Academy"; }, []);
-  return (
+
+  if (isLoading) {
+    return (
       <div className="p-6 max-w-4xl mx-auto space-y-4">
         <Skeleton className="h-8 w-32 mb-4" />
         <Skeleton className="h-64 w-full" />

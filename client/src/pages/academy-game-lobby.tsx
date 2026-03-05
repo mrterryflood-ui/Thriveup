@@ -32,6 +32,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { ErrorRetry } from "@/components/error-retry";
+import { PageHeader } from "@/components/page-header";
 
 interface GameDef {
   id: string;
@@ -151,6 +152,13 @@ export default function AcademyGameLobbyPage() {
 
   return (
     <div className="p-4 sm:p-6 max-w-6xl mx-auto" data-testid="game-lobby-page">
+      <PageHeader
+        title="Game Room"
+        breadcrumbs={[
+          { label: "Academy", href: "/academy" },
+          { label: "Games" },
+        ]}
+      />
       <div
         className="rounded-md p-4 sm:p-6 lg:p-8 mb-6"
         style={{ background: "linear-gradient(135deg, #7A1F3E 0%, #5a1730 100%)" }}

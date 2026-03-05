@@ -63,6 +63,7 @@ import {
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { ErrorRetry } from "@/components/error-retry";
+import { PageHeader } from "@/components/page-header";
 
 interface MetricsData {
   totalStudents: number;
@@ -689,6 +690,13 @@ export default function AcademyAdminPage() {
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
+      <PageHeader
+        title="Academy Administration"
+        breadcrumbs={[
+          { label: "Academy", href: "/academy" },
+          { label: "Administration" },
+        ]}
+      />
       <div
         className="rounded-md bg-gradient-to-r from-rose-900 to-red-950 dark:from-rose-950 dark:to-background p-8 mb-8"
         data-testid="section-hero"

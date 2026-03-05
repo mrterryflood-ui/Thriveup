@@ -141,6 +141,10 @@ export function CertificateViewPage() {
     queryKey: ["/api/certificates", params.id],
   });
 
+  useEffect(() => {
+    document.title = cert ? `${cert.levelTitle} Certificate | AI Mastery Academy` : "Certificate | AI Mastery Academy";
+  }, [cert]);
+
   if (isLoading) {
     return (
       <div className="p-6 max-w-4xl mx-auto space-y-4">

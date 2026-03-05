@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Link, useParams, useLocation } from "wouter";
 import { useForm } from "react-hook-form";
@@ -45,6 +45,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useUpload } from "@/hooks/use-upload";
 import { ErrorRetry } from "@/components/error-retry";
+import { PageHeader } from "@/components/page-header";
 import type { CurriculumDocument, Level, Module } from "@shared/schema";
 
 const GRADE_BANDS = ["3-5", "6-8", "9-12"] as const;
@@ -188,6 +189,8 @@ export default function CurriculumDocumentsPage() {
     queryKey: ["/api/curriculum-documents"],
   });
 
+  useEffect(() => { document.title = "Curriculum Documents | AI Mastery Academy"; }, []);
+
   const { data: levels } = useQuery<Level[]>({
     queryKey: ["/api/levels"],
   });
@@ -230,21 +233,18 @@ export default function CurriculumDocumentsPage() {
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
-      <div className="flex items-start justify-between gap-4 mb-6 flex-wrap">
-        <div>
-          <h1 className="text-3xl font-bold mb-2" data-testid="text-curriculum-docs-heading">
-            Curriculum Documents
-          </h1>
-          <p className="text-muted-foreground">
-            Standards-aligned curriculum guides, lesson plans, and assessment rubrics organized by level and grade band.
-          </p>
-        </div>
-        <Link href="/curriculum-documents/new">
-          <Button data-testid="button-create-document">
-            <Plus className="mr-1.5 h-4 w-4" /> Create Document
-          </Button>
-        </Link>
-      </div>
+      <PageHeader
+        title="Curriculum Documents"
+        description="Standards-aligned curriculum guides, lesson plans, and assessment rubrics organized by level and grade band."
+        breadcrumbs={[{ label: "Teaching", href: "/teacher-dashboard" }, { label: "Documents" }]}
+        actions={
+          <Link href="/curriculum-documents/new">
+            <Button data-testid="button-create-document">
+              <Plus className="mr-1.5 h-4 w-4" /> Create Document
+            </Button>
+          </Link>
+        }
+      />
 
       <div className="flex items-center gap-2 mb-6 flex-wrap">
         <Filter className="h-4 w-4 text-muted-foreground shrink-0" />
@@ -347,6 +347,10 @@ export function CurriculumDocumentViewPage() {
   const { data: doc, isLoading } = useQuery<CurriculumDocument>({
     queryKey: ["/api/curriculum-documents", docId],
   });
+
+  useEffect(() => {
+    document.title = doc ? `${doc.title} | AI Mastery Academy` : "Document | AI Mastery Academy";
+  }, [doc]);
 
   const { data: levels } = useQuery<Level[]>({
     queryKey: ["/api/levels"],
@@ -943,6 +947,7 @@ function DocumentForm({
 }
 
 export function CurriculumDocumentCreatePage() {
+  useEffect(() => { document.title = "Create Document | AI Mastery Academy"; }, []);
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <Link href="/curriculum-documents">

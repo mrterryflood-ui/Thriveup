@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { ErrorRetry } from "@/components/error-retry";
+import { PageHeader } from "@/components/page-header";
 
 interface LifeLesson {
   id: string;
@@ -99,6 +100,13 @@ export default function AcademyLessonsPage() {
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
+      <PageHeader
+        title="Life Lessons"
+        breadcrumbs={[
+          { label: "Academy", href: "/academy" },
+          { label: "Life Lessons" },
+        ]}
+      />
       <div className="rounded-md bg-gradient-to-r from-rose-900 to-red-950 p-8 mb-8" data-testid="section-hero">
         <h1 className="text-3xl font-bold text-white mb-2" data-testid="text-lessons-title">
           Life Lessons

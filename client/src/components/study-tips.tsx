@@ -27,7 +27,7 @@ export default function StudyTips({ moduleId }: { moduleId: string }) {
   const [tipText, setTipText] = useState("");
   const { isAuthenticated } = useAuth();
 
-  const { data: tips, isLoading } = useQuery<StudyTip[]>({
+  const { data: tips, isLoading, error } = useQuery<StudyTip[]>({
     queryKey: ["/api/modules", moduleId, "tips"],
   });
 
@@ -90,7 +90,9 @@ export default function StudyTips({ moduleId }: { moduleId: string }) {
         </div>
       )}
 
-      {isLoading ? (
+      {error ? (
+        <p className="text-sm text-muted-foreground" data-testid="text-tips-error">Could not load tips.</p>
+      ) : isLoading ? (
         <div className="space-y-3">
           {[1, 2].map((i) => (
             <Skeleton key={i} className="h-16 w-full" />

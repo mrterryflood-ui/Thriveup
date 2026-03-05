@@ -99,6 +99,10 @@ export function LevelDetailPage() {
   const Icon = levelIcons[(levelId - 1) % 5];
   const colors = LEVEL_COLORS[levelId];
 
+  useEffect(() => {
+    document.title = level ? `Level ${level.id}: ${level.title} | AI Mastery Academy` : "Curriculum Level | AI Mastery Academy";
+  }, [level]);
+
   if (isLoading) {
     return (
       <div className="p-6 max-w-5xl mx-auto space-y-4">

@@ -411,6 +411,10 @@ export function ClassroomDetailPage({ params }: { params: { classroomId: string 
     enabled: isAuthenticated,
   });
 
+  useEffect(() => {
+    document.title = data?.classroom ? `${data.classroom.name} | AI Mastery Academy` : "Classroom | AI Mastery Academy";
+  }, [data]);
+
   if (authLoading) {
     return (
       <div className="p-6 max-w-5xl mx-auto space-y-4">

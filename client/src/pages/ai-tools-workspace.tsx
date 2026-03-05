@@ -309,14 +309,14 @@ export default function AIToolsWorkspacePage() {
     }
   }, [generatedContent]);
 
+  useEffect(() => { document.title = "AI Tool Workspace | AI Mastery Academy"; }, []);
+
   if (toolsError) {
     return <div className="p-6"><ErrorRetry message="Failed to load AI tools." onRetry={refetchTools} /></div>;
   }
 
   if (!currentTool) {
-  
-  useEffect(() => { document.title = "AI Tool Workspace | AI Mastery Academy"; }, []);
-  return (
+    return (
       <div className="p-6 max-w-4xl mx-auto text-center">
         <p className="text-muted-foreground">{isEs ? "Herramienta no encontrada" : "Tool not found"}</p>
         <Button variant="outline" onClick={() => navigate(`/ai-tools${isAdult ? "?mode=adult" : ""}`)} className="mt-4" data-testid="button-back-to-tools">

@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Printer, Trophy, Zap, Award, Star, BookOpen, Users, Lightbulb, Heart, GraduationCap } from "lucide-react";
 import { ErrorRetry } from "@/components/error-retry";
+import { PageHeader } from "@/components/page-header";
 
 export default function AcademyProgressReportPage() {
   useEffect(() => { document.title = 'Progress Report | AI Mastery Academy'; }, []);
@@ -60,6 +61,15 @@ export default function AcademyProgressReportPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <div className="max-w-4xl mx-auto px-4 pt-4 print:hidden">
+        <PageHeader
+          title="Progress Report"
+          breadcrumbs={[
+            { label: "Academy", href: "/academy" },
+            { label: "Progress Report" },
+          ]}
+        />
+      </div>
       <div className="bg-[#800000] text-white py-8 px-4 print:hidden">
         <div className="max-w-4xl mx-auto flex items-center justify-between gap-4 flex-wrap">
           <div>

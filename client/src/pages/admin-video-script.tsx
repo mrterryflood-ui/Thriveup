@@ -3,13 +3,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-  ArrowLeft, Play, Clock, Film, Copy, Check,
+  Play, Clock, Film, Copy, Check,
   Shield, Users, BookOpen, BarChart3, Brain,
   Gamepad2, AlertTriangle, GraduationCap, Calendar,
   Megaphone, ClipboardList, Globe, Sparkles
 } from "lucide-react";
 import { useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
+import { PageHeader } from "@/components/page-header";
 
 const WEBSITE_URL = "https://55376bb2-2aea-463e-b6a9-2c1d5c123d53-00-5trt8miml0vw.janeway.replit.dev";
 
@@ -156,37 +157,27 @@ export default function AdminVideoScriptPage() {
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-5xl mx-auto p-6 space-y-8">
-        <div className="flex items-center gap-4 flex-wrap">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate("/academy/admin")}
-            data-testid="button-back"
-            aria-label="Back to admin"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <div className="flex-1 min-w-0">
-            <h1 className="text-2xl font-bold" data-testid="text-page-title">
-              {VIDEO_SCRIPT.title}
-            </h1>
-            <p className="text-muted-foreground">{VIDEO_SCRIPT.subtitle}</p>
-          </div>
-          <div className="flex items-center gap-2 flex-wrap">
-            <Badge variant="outline" className="gap-1">
-              <Clock className="w-3 h-3" />
-              {VIDEO_SCRIPT.totalDuration}
-            </Badge>
-            <Badge variant="outline" className="gap-1">
-              <Film className="w-3 h-3" />
-              {VIDEO_SCRIPT.sections.length} Scenes
-            </Badge>
-            <Button onClick={copyFullScript} data-testid="button-copy-full-script">
-              <Copy className="w-4 h-4 mr-2" />
-              Copy Full Script
-            </Button>
-          </div>
-        </div>
+        <PageHeader
+          title="Video Script Generator"
+          description={VIDEO_SCRIPT.subtitle}
+          breadcrumbs={[{ label: "Admin", href: "/academy/admin" }, { label: "Video Script" }]}
+          actions={
+            <div className="flex items-center gap-2 flex-wrap">
+              <Badge variant="outline" className="gap-1">
+                <Clock className="w-3 h-3" />
+                {VIDEO_SCRIPT.totalDuration}
+              </Badge>
+              <Badge variant="outline" className="gap-1">
+                <Film className="w-3 h-3" />
+                {VIDEO_SCRIPT.sections.length} Scenes
+              </Badge>
+              <Button onClick={copyFullScript} data-testid="button-copy-full-script">
+                <Copy className="w-4 h-4 mr-2" />
+                Copy Full Script
+              </Button>
+            </div>
+          }
+        />
 
         <Card>
           <CardHeader>

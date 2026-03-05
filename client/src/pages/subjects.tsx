@@ -48,10 +48,10 @@ export default function SubjectsPage() {
 
   const filteredSubjects = allSubjects?.filter(s => s.gradeBand === selectedBand) || [];
 
-  if (isLoading) {
-  
   useEffect(() => { document.title = "Subjects | AI Mastery Academy"; }, []);
-  return (
+
+  if (isLoading) {
+    return (
       <div className="p-6 max-w-5xl mx-auto space-y-4">
         <Skeleton className="h-10 w-64 mb-8" />
         <div className="flex gap-2 mb-8">
@@ -151,6 +151,10 @@ export function SubjectDetailPage() {
   });
 
   const isLoading = subjectLoading || modulesLoading;
+
+  useEffect(() => {
+    document.title = subject ? `${subject.name} | AI Mastery Academy` : "Subject | AI Mastery Academy";
+  }, [subject]);
 
   if (isLoading) {
     return (

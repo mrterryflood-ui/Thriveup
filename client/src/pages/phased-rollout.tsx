@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { PageHeader } from "@/components/page-header";
 import {
   ArrowLeft,
   CheckCircle2,
@@ -400,20 +401,15 @@ export default function PhasedRolloutPage() {
 
   return (
     <div className="p-4 sm:p-6 max-w-6xl mx-auto" data-testid="page-phased-rollout">
+      <PageHeader
+        title="Implementation Roadmap"
+        description="A quarterly deployment plan bridging the real and virtual worlds -- with admin leadership at every milestone."
+        breadcrumbs={[{ label: "Home", href: "/" }, { label: "Rollout" }]}
+      />
       <div
         className="rounded-md bg-gradient-to-r from-rose-900 to-red-950 dark:from-rose-950 dark:to-background p-6 sm:p-8 mb-8"
         data-testid="section-hero"
       >
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-rose-200 mb-4"
-          onClick={() => navigate("/academy/admin")}
-          data-testid="button-back-admin"
-        >
-          <ArrowLeft className="h-4 w-4 mr-1" />
-          Back to Admin
-        </Button>
         <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2" data-testid="text-hero-title">
           Phased Rollout: From Vision to Village
         </h1>

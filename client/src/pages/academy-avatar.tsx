@@ -21,6 +21,7 @@ import {
 import { Link } from "wouter";
 import type { AcademyAvatar } from "@shared/schema";
 import { ErrorRetry } from "@/components/error-retry";
+import { PageHeader } from "@/components/page-header";
 
 interface SelfAssessmentData {
   id: string;
@@ -420,14 +421,14 @@ export default function AcademyAvatarPage() {
 
   return (
     <div className="p-4 sm:p-6 max-w-5xl mx-auto" data-testid="academy-avatar-page">
-      <div className="mb-8">
-        <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-1" data-testid="text-avatar-title">
-          Avatar & Community
-        </h1>
-        <p className="text-muted-foreground">
-          Customize your academy avatar and see your classmates
-        </p>
-      </div>
+      <PageHeader
+        title="Your Avatar"
+        description="Customize your academy avatar and see your classmates"
+        breadcrumbs={[
+          { label: "Academy", href: "/academy" },
+          { label: "Avatar" },
+        ]}
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12">
         <div>

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { School, Users, BarChart3, BookOpen, Award, TrendingUp } from "lucide-react";
 import { ErrorRetry } from "@/components/error-retry";
+import { PageHeader } from "@/components/page-header";
 import { useAuth } from "@/hooks/use-auth";
 
 interface ClassroomWithStats {
@@ -34,10 +35,10 @@ export default function TeacherDashboardPage() {
     enabled: isAuthenticated,
   });
 
-  if (authLoading) {
-  
   useEffect(() => { document.title = "Teacher Dashboard | AI Mastery Academy"; }, []);
-  return (
+
+  if (authLoading) {
+    return (
       <div className="p-6 max-w-6xl mx-auto space-y-4">
         <Skeleton className="h-10 w-64" />
         <Skeleton className="h-6 w-96" />
@@ -96,13 +97,11 @@ export default function TeacherDashboardPage() {
   if (classrooms.length === 0) {
     return (
       <div className="p-6 max-w-6xl mx-auto">
-        <div className="mb-8">
-          <div className="flex items-center gap-2 mb-1">
-            <BarChart3 className="h-6 w-6 text-primary" />
-            <h1 className="text-3xl font-bold" data-testid="text-teacher-dashboard-title">Teacher Dashboard</h1>
-          </div>
-          <p className="text-muted-foreground">View analytics and track student progress across your classrooms.</p>
-        </div>
+        <PageHeader
+          title="Teacher Dashboard"
+          description="View analytics and track student progress across your classrooms."
+          breadcrumbs={[{ label: "Teaching", href: "/teacher-dashboard" }, { label: "Dashboard" }]}
+        />
         <div className="text-center py-16">
           <School className="h-16 w-16 mx-auto mb-4 text-muted-foreground/30" />
           <h2 className="text-xl font-semibold mb-2" data-testid="text-empty-state">No classrooms yet</h2>
@@ -126,15 +125,11 @@ export default function TeacherDashboardPage() {
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
-      <div className="mb-8">
-        <div className="flex items-center gap-2 mb-1">
-          <BarChart3 className="h-6 w-6 text-primary" />
-          <h1 className="text-3xl font-bold" data-testid="text-teacher-dashboard-title">Teacher Dashboard</h1>
-        </div>
-        <p className="text-muted-foreground" data-testid="text-teacher-dashboard-subtitle">
-          View analytics and track student progress across your classrooms.
-        </p>
-      </div>
+      <PageHeader
+        title="Teacher Dashboard"
+        description="View analytics and track student progress across your classrooms."
+        breadcrumbs={[{ label: "Teaching", href: "/teacher-dashboard" }, { label: "Dashboard" }]}
+      />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <Card className="p-5" data-testid="card-total-students">

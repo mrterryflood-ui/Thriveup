@@ -33,6 +33,7 @@ import {
 } from "lucide-react";
 import type { AcademyAvatar } from "@shared/schema";
 import { ErrorRetry } from "@/components/error-retry";
+import { PageHeader } from "@/components/page-header";
 
 function timeAgo(date: string): string {
   const now = new Date();
@@ -249,6 +250,13 @@ export default function AcademyVillagePage() {
 
   return (
     <div className="p-4 sm:p-6 max-w-6xl mx-auto" data-testid="academy-village-page">
+      <PageHeader
+        title="The Global Village"
+        breadcrumbs={[
+          { label: "Academy", href: "/academy" },
+          { label: "Village" },
+        ]}
+      />
       <WelcomeOnboarding isOpen={showOnboarding} onComplete={completeOnboarding} />
       <div
         className="rounded-md bg-gradient-to-r from-rose-900 to-red-700 p-4 sm:p-6 lg:p-8 mb-6"

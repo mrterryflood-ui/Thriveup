@@ -34,11 +34,11 @@ export default function LessonComments({ lessonId }: { lessonId: string }) {
   const [commentText, setCommentText] = useState("");
   const { isAuthenticated } = useAuth();
 
-  const { data: comments, isLoading: commentsLoading } = useQuery<LessonComment[]>({
+  const { data: comments, isLoading: commentsLoading, error: commentsError } = useQuery<LessonComment[]>({
     queryKey: ["/api/lessons", lessonId, "comments"],
   });
 
-  const { data: reactions, isLoading: reactionsLoading } = useQuery<Record<string, number>>({
+  const { data: reactions, isLoading: reactionsLoading, error: reactionsError } = useQuery<Record<string, number>>({
     queryKey: ["/api/lessons", lessonId, "reactions"],
   });
 
@@ -71,7 +71,9 @@ export default function LessonComments({ lessonId }: { lessonId: string }) {
       </h3>
 
       <div className="flex items-center gap-2 mb-6 flex-wrap">
-        {reactionsLoading ? (
+        {reactionsError ? (
+          <p className="text-sm text-muted-foreground" data-testid="text-reactions-error">Could not load reactions.</p>
+        ) : reactionsLoading ? (
           <Skeleton className="h-9 w-64" />
         ) : (
           REACTION_CONFIG.map(({ type, label, icon: Icon }) => (
@@ -126,7 +128,9 @@ export default function LessonComments({ lessonId }: { lessonId: string }) {
         </div>
       )}
 
-      {commentsLoading ? (
+      {commentsError ? (
+        <p className="text-sm text-muted-foreground" data-testid="text-comments-error">Could not load comments.</p>
+      ) : commentsLoading ? (
         <div className="space-y-3">
           {[1, 2].map((i) => (
             <Skeleton key={i} className="h-16 w-full" />

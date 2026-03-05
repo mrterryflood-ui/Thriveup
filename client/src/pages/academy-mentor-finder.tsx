@@ -48,6 +48,7 @@ import {
   Clock,
 } from "lucide-react";
 import { ErrorRetry } from "@/components/error-retry";
+import { PageHeader } from "@/components/page-header";
 
 interface MentorProfile {
   id: string;
@@ -325,6 +326,13 @@ export default function AcademyMentorFinderPage() {
   useEffect(() => { document.title = "Find a Mentor | AI Mastery Academy"; }, []);
   return (
     <div className="p-4 sm:p-6 max-w-6xl mx-auto" data-testid="academy-mentor-finder-page">
+      <PageHeader
+        title="Find a Mentor"
+        breadcrumbs={[
+          { label: "Academy", href: "/academy" },
+          { label: "Mentor Finder" },
+        ]}
+      />
       <div
         className="rounded-md bg-gradient-to-r from-rose-900 to-red-700 p-4 sm:p-6 lg:p-8 mb-8"
         data-testid="section-hero"

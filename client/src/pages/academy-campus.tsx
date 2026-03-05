@@ -41,6 +41,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { ErrorRetry } from "@/components/error-retry";
+import { PageHeader } from "@/components/page-header";
 
 interface CampusProject {
   id: string;
@@ -278,10 +279,14 @@ export default function AcademyCampusPage() {
 
   return (
     <div className="p-6 max-w-5xl mx-auto" data-testid="campus-page">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-1" data-testid="text-page-title">Build Your Black Campus</h1>
-        <p className="text-muted-foreground" data-testid="text-page-subtitle">Design your dream home and community space</p>
-      </div>
+      <PageHeader
+        title="Build Your Campus"
+        description="Design your dream home and community space"
+        breadcrumbs={[
+          { label: "Academy", href: "/academy" },
+          { label: "Campus" },
+        ]}
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         <Card className="p-6" data-testid="card-project-overview">

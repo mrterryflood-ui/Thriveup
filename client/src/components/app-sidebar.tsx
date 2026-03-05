@@ -189,9 +189,10 @@ function NavSection({ label, items, location }: { label: string; items: NavItem[
 export function AppSidebar() {
   const [location] = useLocation();
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
-  const { data: progress } = useQuery<StudentProgress>({
+  const { data: progressData } = useQuery<StudentProgress>({
     queryKey: ["/api/progress"],
   });
+  const progress = progressData ?? null;
 
   const rank = progress ? getRankForLevel(progress.currentLevel) : null;
   const RankIcon = rank ? (rankIcons[rank.icon] || Shield) : Shield;

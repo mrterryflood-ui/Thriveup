@@ -22,6 +22,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { ErrorRetry } from "@/components/error-retry";
+import { PageHeader } from "@/components/page-header";
 import {
   Target,
   ChevronRight,
@@ -716,6 +717,13 @@ export default function AcademyPathwayPage() {
 
   return (
     <div className="p-6 max-w-4xl mx-auto" data-testid="academy-pathway-page">
+      <PageHeader
+        title="Career Pathways"
+        breadcrumbs={[
+          { label: "Academy", href: "/academy" },
+          { label: "My Pathway" },
+        ]}
+      />
       <div
         className="rounded-md bg-gradient-to-r from-rose-900 to-red-700 p-8 mb-8"
         data-testid="section-hero"

@@ -67,10 +67,10 @@ export default function ModuleDetailPage() {
 
   const isLoading = modLoading || lessonsLoading;
 
-  if (isLoading) {
-  
   useEffect(() => { document.title = "Module | AI Mastery Academy"; }, []);
-  return (
+
+  if (isLoading) {
+    return (
       <div className="p-6 max-w-5xl mx-auto space-y-4">
         <Skeleton className="h-8 w-32 mb-4" />
         <Skeleton className="h-48 w-full" />

@@ -16,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Shield,
   GraduationCap,
@@ -662,9 +663,54 @@ function AIFrameworkEvaluation() {
   const AVG_COST_PER_INTERACTION = useFreeTier ? 0 : AVG_COST_PER_INTERACTION_PAID;
   const SCHOOL_DAYS_PER_MONTH = 20;
   const monthlyCost = studentCount * interactionsPerDay * AVG_COST_PER_INTERACTION * SCHOOL_DAYS_PER_MONTH;
-  const { data: providerInfo, error: providerError, refetch: refetchProvider } = useQuery<{name: string, model: string, isFree: boolean}>({ queryKey: ["/api/ai-provider"] });
+  const { data: providerInfo, isLoading: providerLoading, error: providerError, refetch: refetchProvider } = useQuery<{name: string, model: string, isFree: boolean}>({ queryKey: ["/api/ai-provider"] });
 
   if (providerError) return <div className="p-6"><ErrorRetry message="Failed to load AI provider information. Please try again." onRetry={refetchProvider} /></div>;
+
+  if (providerLoading) {
+    return (
+      <div className="space-y-8" data-testid="skeleton-ai-framework">
+        <div>
+          <Skeleton className="h-6 w-48 mb-4" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Card key={i} className="p-5">
+                <div className="flex items-start gap-3">
+                  <Skeleton className="h-8 w-8 rounded-md shrink-0" />
+                  <div className="flex-1">
+                    <Skeleton className="h-4 w-32 mb-2" />
+                    <Skeleton className="h-3 w-full" />
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
+        <div>
+          <Skeleton className="h-6 w-64 mb-4" />
+          <div className="space-y-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <Card key={i} className="p-5">
+                <Skeleton className="h-4 w-48 mb-2" />
+                <Skeleton className="h-3 w-full" />
+              </Card>
+            ))}
+          </div>
+        </div>
+        <div>
+          <Skeleton className="h-6 w-56 mb-4" />
+          <Card className="p-6">
+            <Skeleton className="h-4 w-64 mb-4" />
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <Skeleton key={i} className="h-24 rounded-md" />
+              ))}
+            </div>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">

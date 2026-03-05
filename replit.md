@@ -59,7 +59,7 @@ Key architectural decisions and features include:
 
 ## Quality & Accessibility (Completed)
 - **Error Boundary:** React ErrorBoundary wraps all routes; crashes show friendly fallback UI
-- **Document Titles:** All 55+ pages set descriptive `document.title` via top-level `useEffect` (no hook violations)
+- **Document Titles:** All 55+ pages and 7 sub-page components set descriptive `document.title` via top-level `useEffect` (no hook violations)
 - **data-testid:** 2,338+ data-testid attributes across all pages and components; all interactive elements covered
 - **Aria Labels:** 95+ aria-labels on icon-only buttons across all components (header-controls, theme-toggle, study-tips, lesson-comments, academy-wizard, multi-file-upload, welcome-onboarding, resource-finder, academy-dreams, academy-student-wizard, ai-tools-workspace, classrooms, curriculum-documents, admin-video-script, course-creator, academy-marketplace, academy-journal, academy-calendar, academy-admin, academy-announcements, academy-careers, academy-dominoes-game, implementation-recommendations)
 - **Skip-to-Content:** Keyboard navigation skip link at top of layout
@@ -73,14 +73,14 @@ Key architectural decisions and features include:
 
 ## Performance & Navigation
 - **Code Splitting:** React.lazy + Suspense for 60+ pages; only landing, curriculum, subjects, dashboard, AI companion eagerly loaded
-- **Loading Skeletons:** Skeleton loading states on dashboard, career explorer, financial literacy, academy hub, and attendance pages
-- **Error Retry:** Reusable ErrorRetry component used in 49 pages for graceful API error recovery with retry button
+- **Loading Skeletons:** Skeleton loading states on dashboard, career explorer, financial literacy, academy hub, attendance, and implementation-recommendations pages
+- **Error Retry:** Reusable ErrorRetry component used in 50 pages for graceful API error recovery with retry button
 - **Back-to-Top:** Floating scroll-to-top button on landing page, binds to #main-content scroll
 - **Command Palette:** Ctrl+K keyboard shortcut for quick navigation across all pages
 - **Collapsible Sidebar:** All sidebar sections collapsible for cleaner navigation
-- **PageHeader Component:** Reusable page header with title, description, breadcrumbs, and action slot - deployed on 32+ pages
-- **Breadcrumbs:** Reusable breadcrumb navigation component on career explorer, mentors, financial literacy, marketplace, certificates, achievements, STAAR prep, journal, stocks, merch, dreams, scenarios, self-assessment, power score, community, social media literacy, parents, privacy policy, risk monitor, impact tracking, houses, and more
-- **ErrorRetry:** Consistent error recovery across 49 pages with useQuery error/refetch handling and retry button
+- **PageHeader Component:** Reusable page header with title, description, breadcrumbs, and action slot - deployed on 49 pages
+- **Breadcrumbs:** Reusable breadcrumb navigation on nearly all navigable pages (academy, careers, mentors, financial literacy, marketplace, certificates, achievements, STAAR prep, journal, stocks, merch, dreams, scenarios, self-assessment, power score, community, social media literacy, parents, privacy policy, risk monitor, impact tracking, houses, admin, teacher, curriculum docs, games, competitions, help, and more)
+- **ErrorRetry:** Consistent error recovery across 50 pages with useQuery error/refetch handling and retry button; shared components (lesson-comments, study-tips) have inline error messages; sidebar has silent fallback
 - **API Caching:** Cache-Control headers on public/impact (5 min), subjects (1 hour), levels (1 hour) endpoints
 - **Print CSS:** @media print styles hide navigation, sharing buttons; format metrics for clean printing
 

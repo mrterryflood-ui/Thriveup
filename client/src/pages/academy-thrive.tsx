@@ -25,6 +25,7 @@ import {
   Activity,
   LogIn,
 } from "lucide-react";
+import { PageHeader } from "@/components/page-header";
 
 interface ThriveScore {
   id: string;
@@ -316,6 +317,13 @@ export default function AcademyThrivePage() {
 
   return (
     <div className="p-4 sm:p-6 max-w-5xl mx-auto" data-testid="academy-thrive-page">
+      <PageHeader
+        title="IGN Thrive System"
+        breadcrumbs={[
+          { label: "Academy", href: "/academy" },
+          { label: "Thrive" },
+        ]}
+      />
       <div
         className="rounded-md bg-gradient-to-r from-rose-900 to-red-700 p-4 sm:p-6 lg:p-8 mb-8"
         data-testid="section-hero"

@@ -22,6 +22,7 @@ import {
   Search,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { PageHeader } from "@/components/page-header";
 
 interface FaqItem {
   question: string;
@@ -229,6 +230,15 @@ export default function AcademyHelpPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <div className="max-w-4xl mx-auto px-4 pt-4">
+        <PageHeader
+          title="Help Center"
+          breadcrumbs={[
+            { label: "Academy", href: "/academy" },
+            { label: "Help" },
+          ]}
+        />
+      </div>
       <div className="bg-[#800000] text-white py-8 px-4">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-2xl font-bold flex items-center gap-2" data-testid="text-help-title">

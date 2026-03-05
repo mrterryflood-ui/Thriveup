@@ -35,6 +35,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import type { AcademyCompetition, AcademyCompetitionEntry } from "@shared/schema";
 import { ErrorRetry } from "@/components/error-retry";
+import { PageHeader } from "@/components/page-header";
 
 const createCompetitionSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -325,6 +326,13 @@ export default function AcademyCompetitionsPage() {
 
   return (
     <div className="p-6 max-w-6xl mx-auto" data-testid="page-competitions">
+      <PageHeader
+        title="Competitions"
+        breadcrumbs={[
+          { label: "Academy", href: "/academy" },
+          { label: "Competitions" },
+        ]}
+      />
       <div className="mb-6">
         <div className="flex items-start justify-between gap-4 flex-wrap mb-1">
           <div>

@@ -13,6 +13,7 @@ import {
   ArrowRight, Sparkles, AlertTriangle
 } from "lucide-react";
 import { ErrorRetry } from "@/components/error-retry";
+import { PageHeader } from "@/components/page-header";
 import { LEVEL_COLORS, getRankForLevel } from "@/lib/curriculum-data";
 import type { StudentProgress, Level, Module, EarnedBadge, Badge as BadgeType } from "@shared/schema";
 
@@ -209,17 +210,11 @@ export default function ParentDashboardPage() {
         </Card>
       )}
 
-      <div className="mb-8">
-        <div className="flex items-center gap-2 mb-1">
-          <BarChart3 className="h-6 w-6 text-primary" />
-          <h1 className="text-3xl font-bold" data-testid="text-parent-dashboard-title">
-            Parent Dashboard
-          </h1>
-        </div>
-        <p className="text-muted-foreground" data-testid="text-parent-dashboard-subtitle">
-          Track {progress.studentName}'s learning progress, scores, and achievements
-        </p>
-      </div>
+      <PageHeader
+        title="Parent Dashboard"
+        description={`Track ${progress.studentName}'s learning progress, scores, and achievements`}
+        breadcrumbs={[{ label: "Parents", href: "/parents" }, { label: "Dashboard" }]}
+      />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
         <Card className="p-5" data-testid="card-total-points">

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { PageHeader } from "@/components/page-header";
 import { BackToTop } from "@/components/back-to-top";
+import { ErrorRetry } from "@/components/error-retry";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -541,7 +542,7 @@ export default function AcademyCareersPage() {
   const [bookmarked, setBookmarked] = useState<string[]>([]);
   const [selectedCareer, setSelectedCareer] = useState<CareerField | null>(null);
 
-  const { data: careers, isLoading: careersLoading, isError: careersError, error: careersErrorObj } = useQuery<CareerField[]>({
+  const { data: careers, isLoading: careersLoading, isError: careersError, refetch: refetchCareers } = useQuery<CareerField[]>({
     queryKey: ["/api/careers"],
   });
 
@@ -560,21 +561,7 @@ export default function AcademyCareersPage() {
   }
 
   if (careersError) {
-    return (
-      <div className="p-6 max-w-6xl mx-auto" data-testid="careers-error-state">
-        <Card className="p-8 text-center">
-          <Briefcase className="h-10 w-10 mx-auto text-muted-foreground/30 mb-3" />
-          <h2 className="text-lg font-semibold mb-2" data-testid="text-error-title">Unable to Load Careers</h2>
-          <p className="text-sm text-muted-foreground mb-4" data-testid="text-error-message">
-            {careersErrorObj instanceof Error ? careersErrorObj.message : "Something went wrong while loading career data. Please try again."}
-          </p>
-          <Button onClick={() => window.location.reload()} data-testid="button-retry-careers">
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Try Again
-          </Button>
-        </Card>
-      </div>
-    );
+    return <div className="p-6 max-w-6xl mx-auto"><ErrorRetry message="Failed to load career data. Please try again." onRetry={refetchCareers} /></div>;
   }
 
   const allCareers = careers ?? [];
