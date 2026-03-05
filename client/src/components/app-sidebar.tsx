@@ -114,6 +114,8 @@ const teachingStaffItems: NavItem[] = [
   { title: "Attendance", url: "/academy/attendance", icon: ClipboardList },
   { title: "Support Portal", url: "/academy/integration", icon: Link2 },
   { title: "Risk Monitor", url: "/academy/risk-monitor", icon: Shield },
+  { title: "Impact Dashboard", url: "/impact", icon: TrendingUp },
+  { title: "API Documentation", url: "/api-docs", icon: Globe },
 ];
 
 const rankIcons: Record<string, typeof Shield> = {
@@ -137,29 +139,47 @@ function groupContainsActive(location: string, items: NavItem[]): boolean {
 }
 
 function NavSection({ label, items, location }: { label: string; items: NavItem[]; location: string }) {
+  const containsActive = groupContainsActive(location, items);
+  const [isOpen, setIsOpen] = useState(true);
+  const resolvedOpen = isOpen || containsActive;
+  const testId = `trigger-sidebar-${label.toLowerCase().replace(/\s+/g, '-')}`;
+
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>{label}</SidebarGroupLabel>
       <SidebarGroupContent>
         <SidebarMenu>
-          {items.map((item) => {
-            const isActive = isItemActive(location, item.url);
-            return (
-              <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton
-                  asChild
-                  data-active={isActive}
-                  className={isActive ? "bg-sidebar-accent" : ""}
-                  data-testid={`link-sidebar-${item.title.toLowerCase().replace(/\s/g, '-')}`}
-                >
-                  <Link href={item.url} aria-label={item.title}>
-                    <item.icon className="h-4 w-4" aria-hidden="true" />
-                    <span>{item.title}</span>
-                  </Link>
+          <Collapsible open={resolvedOpen} onOpenChange={setIsOpen} className="group/collapsible">
+            <SidebarMenuItem>
+              <CollapsibleTrigger asChild>
+                <SidebarMenuButton data-testid={testId} aria-label={`${label} section`}>
+                  <span>{label}</span>
+                  <ChevronRight className="ml-auto h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-90" aria-hidden="true" />
                 </SidebarMenuButton>
-              </SidebarMenuItem>
-            );
-          })}
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <SidebarMenuSub>
+                  {items.map((item) => {
+                    const isActive = isItemActive(location, item.url);
+                    return (
+                      <SidebarMenuSubItem key={item.title}>
+                        <SidebarMenuSubButton
+                          asChild
+                          data-active={isActive}
+                          className={isActive ? "bg-sidebar-accent" : ""}
+                          data-testid={`link-sidebar-${item.title.toLowerCase().replace(/\s/g, '-')}`}
+                        >
+                          <Link href={item.url} aria-label={item.title}>
+                            <item.icon className="h-4 w-4" aria-hidden="true" />
+                            <span>{item.title}</span>
+                          </Link>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuSubItem>
+                    );
+                  })}
+                </SidebarMenuSub>
+              </CollapsibleContent>
+            </SidebarMenuItem>
+          </Collapsible>
         </SidebarMenu>
       </SidebarGroupContent>
     </SidebarGroup>

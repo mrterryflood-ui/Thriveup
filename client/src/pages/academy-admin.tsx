@@ -57,6 +57,8 @@ import {
   UserCheck,
   Target,
   GraduationCap,
+  Download,
+  Printer,
 } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -417,11 +419,39 @@ function GrantMetrics({ metrics, students }: { metrics: MetricsData | undefined;
   return (
     <div className="space-y-8" data-testid="section-grant-metrics">
       <div className="rounded-md bg-gradient-to-r from-indigo-900 to-blue-950 dark:from-indigo-950 dark:to-background p-8" data-testid="section-grant-metrics-header">
-        <div className="flex items-center gap-3 mb-3 flex-wrap">
-          <Award className="h-8 w-8 text-white" />
-          <h2 className="text-2xl font-bold text-white" data-testid="text-grant-metrics-title">
-            Grant Impact Metrics
-          </h2>
+        <div className="flex items-center justify-between gap-3 mb-3 flex-wrap">
+          <div className="flex items-center gap-3">
+            <Award className="h-8 w-8 text-white" />
+            <h2 className="text-2xl font-bold text-white" data-testid="text-grant-metrics-title">
+              Grant Impact Metrics
+            </h2>
+          </div>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+              onClick={() => {
+                window.open("/api/admin/grant-metrics/export", "_blank");
+              }}
+              data-testid="button-export-grant-csv"
+              aria-label="Export grant metrics as CSV"
+            >
+              <Download className="h-4 w-4 mr-1" />
+              Export CSV
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+              onClick={() => window.print()}
+              data-testid="button-print-grant-report"
+              aria-label="Print grant report"
+            >
+              <Printer className="h-4 w-4 mr-1" />
+              Print
+            </Button>
+          </div>
         </div>
         <p className="text-indigo-100 text-sm max-w-2xl" data-testid="text-grant-metrics-description">
           Key performance indicators for workforce development grant reporting.
@@ -436,7 +466,7 @@ function GrantMetrics({ metrics, students }: { metrics: MetricsData | undefined;
           const progress = Math.min(100, Math.round((numericValue / metric.target) * 100));
 
           return (
-            <Card key={metric.label} className="p-6" data-testid={`card-nba-metric-${metric.label.toLowerCase().replace(/\s+/g, "-")}`}>
+            <Card key={metric.label} className="p-6" data-testid={`card-grant-metric-${metric.label.toLowerCase().replace(/\s+/g, "-")}`}>
               <div className="flex items-center justify-between gap-2 mb-4">
                 <div className="flex items-center gap-3">
                   <div className={`rounded-md p-2 ${metric.bg}`}>
@@ -444,7 +474,7 @@ function GrantMetrics({ metrics, students }: { metrics: MetricsData | undefined;
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">{metric.label}</p>
-                    <p className="text-2xl font-bold" data-testid={`text-nba-metric-value-${metric.label.toLowerCase().replace(/\s+/g, "-")}`}>
+                    <p className="text-2xl font-bold" data-testid={`text-grant-metric-value-${metric.label.toLowerCase().replace(/\s+/g, "-")}`}>
                       {metric.value}
                     </p>
                   </div>
@@ -452,7 +482,7 @@ function GrantMetrics({ metrics, students }: { metrics: MetricsData | undefined;
                 <div className="text-right">
                   <div className="flex items-center gap-1">
                     <Target className="h-3.5 w-3.5 text-muted-foreground" />
-                    <span className="text-xs text-muted-foreground" data-testid={`text-nba-metric-target-${metric.label.toLowerCase().replace(/\s+/g, "-")}`}>
+                    <span className="text-xs text-muted-foreground" data-testid={`text-grant-metric-target-${metric.label.toLowerCase().replace(/\s+/g, "-")}`}>
                       {typeof metric.value === "string" ? `${metric.target}%` : metric.target}
                     </span>
                   </div>
@@ -465,7 +495,7 @@ function GrantMetrics({ metrics, students }: { metrics: MetricsData | undefined;
                         ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300"
                         : "bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300"
                     }
-                    data-testid={`badge-nba-metric-progress-${metric.label.toLowerCase().replace(/\s+/g, "-")}`}
+                    data-testid={`badge-grant-metric-progress-${metric.label.toLowerCase().replace(/\s+/g, "-")}`}
                   >
                     {progress}%
                   </Badge>
@@ -481,10 +511,10 @@ function GrantMetrics({ metrics, students }: { metrics: MetricsData | undefined;
                       : "bg-rose-500"
                   }`}
                   style={{ width: `${Math.min(progress, 100)}%` }}
-                  data-testid={`progress-nba-metric-${metric.label.toLowerCase().replace(/\s+/g, "-")}`}
+                  data-testid={`progress-grant-metric-${metric.label.toLowerCase().replace(/\s+/g, "-")}`}
                 />
               </div>
-              <p className="text-xs text-muted-foreground" data-testid={`text-nba-metric-desc-${metric.label.toLowerCase().replace(/\s+/g, "-")}`}>
+              <p className="text-xs text-muted-foreground" data-testid={`text-grant-metric-desc-${metric.label.toLowerCase().replace(/\s+/g, "-")}`}>
                 {metric.description}
               </p>
             </Card>
@@ -492,27 +522,55 @@ function GrantMetrics({ metrics, students }: { metrics: MetricsData | undefined;
         })}
       </div>
 
-      <Card className="p-6" data-testid="card-nba-impact-summary">
+      <Card className="p-6" data-testid="card-grant-impact-summary">
         <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
           <BarChart3 className="h-5 w-5 text-primary" /> Impact Summary
         </h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          <div className="text-center" data-testid="text-nba-total-interactions">
+          <div className="text-center" data-testid="text-grant-total-interactions">
             <p className="text-3xl font-bold">{(totalMeritEvents + scenarioCompletions + communityEngagement).toLocaleString()}</p>
             <p className="text-sm text-muted-foreground">Total Interactions</p>
           </div>
-          <div className="text-center" data-testid="text-nba-avg-score">
+          <div className="text-center" data-testid="text-grant-avg-score">
             <p className="text-3xl font-bold">{avgScore}</p>
             <p className="text-sm text-muted-foreground">Avg Panther Score</p>
           </div>
-          <div className="text-center" data-testid="text-nba-active-learners">
+          <div className="text-center" data-testid="text-grant-active-learners">
             <p className="text-3xl font-bold">{studentsWithScores.length}</p>
             <p className="text-sm text-muted-foreground">Active Learners</p>
           </div>
-          <div className="text-center" data-testid="text-nba-total-wallet-value">
+          <div className="text-center" data-testid="text-grant-total-wallet-value">
             <p className="text-3xl font-bold">{formatCurrency(metrics?.totalWalletValue ?? 0)}</p>
             <p className="text-sm text-muted-foreground">Total Economy Value</p>
           </div>
+        </div>
+      </Card>
+
+      <Card className="p-6" data-testid="card-grant-alignment-checklist">
+        <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
+          <CheckCircle2 className="h-5 w-5 text-primary" /> Grant Alignment Criteria
+        </h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {[
+            { criterion: "School-to-Career Pipelines", met: totalYouthServed > 0, detail: `${careerExplorations} career explorations completed` },
+            { criterion: "Job Readiness Training", met: skillGrowthRate > 0, detail: `${skillGrowthRate}% skill growth rate` },
+            { criterion: "Workforce Skill Training", met: scenarioCompletions > 0, detail: `${scenarioCompletions} scenario completions` },
+            { criterion: "Youth Mentorship", met: mentorshipConnections > 0, detail: `${mentorshipConnections} mentor connections` },
+            { criterion: "Program Retention", met: retentionRate >= 80, detail: `${retentionRate}% retention rate` },
+            { criterion: "Community Engagement", met: communityEngagement > 0, detail: `${communityEngagement} community activities` },
+          ].map((item) => (
+            <div
+              key={item.criterion}
+              className={`flex items-start gap-3 p-3 rounded-lg border ${item.met ? "border-emerald-200 bg-emerald-50 dark:border-emerald-900 dark:bg-emerald-950/30" : "border-muted"}`}
+              data-testid={`grant-criterion-${item.criterion.toLowerCase().replace(/\s+/g, "-")}`}
+            >
+              <CheckCircle2 className={`h-5 w-5 mt-0.5 flex-shrink-0 ${item.met ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground"}`} />
+              <div>
+                <p className="text-sm font-medium">{item.criterion}</p>
+                <p className="text-xs text-muted-foreground">{item.detail}</p>
+              </div>
+            </div>
+          ))}
         </div>
       </Card>
     </div>

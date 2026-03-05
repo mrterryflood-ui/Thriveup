@@ -10,8 +10,12 @@ import {
   Heart, Calculator, Microscope, Globe, Salad,
   GraduationCap, MapPin, Languages, Laptop, Mail,
   Play, Pause, Volume2, VolumeX, Maximize,
-  Briefcase, TrendingUp, HandshakeIcon, BarChart3
+  Briefcase, TrendingUp, HandshakeIcon, BarChart3,
+  DollarSign, School, Factory, CheckCircle2, ClipboardList,
+  Wrench, UserCheck, Link2, Quote, Search,
+  Hammer, Cpu, Stethoscope, HardHat
 } from "lucide-react";
+import { BackToTop } from "@/components/back-to-top";
 import { LEVEL_COLORS } from "@/lib/curriculum-data";
 import featureVideoSrc from "@assets/Learning_Academy_1.0_1772131808280.mp4";
 
@@ -160,12 +164,25 @@ function FeatureVideoPlayer() {
   );
 }
 
+const heroGradientStyle: React.CSSProperties = {
+  background: "linear-gradient(135deg, #7c3aed, #9333ea, #6366f1, #7c3aed)",
+  backgroundSize: "300% 300%",
+  animation: "heroGradientShift 12s ease infinite",
+};
+
 export default function LandingPage() {
   return (
     <div className="min-h-screen">
+      <style>{`
+        @keyframes heroGradientShift {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+      `}</style>
       {/* Hero */}
-      <section className="relative overflow-hidden py-12 px-4 sm:py-20 sm:px-6 md:py-32">
-        <div className="absolute inset-0 bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700" />
+      <section className="relative overflow-hidden py-14 px-4 sm:py-24 sm:px-6 md:py-36">
+        <div className="absolute inset-0" style={heroGradientStyle} />
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSA2MCAwIEwgMCAwIDAgNjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjA1KSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-40" />
         <div className="relative mx-auto max-w-5xl text-center">
           <Badge variant="secondary" className="mb-4 sm:mb-6 bg-white/15 text-white border-white/20 text-xs sm:text-sm">
@@ -182,9 +199,15 @@ export default function LandingPage() {
           </p>
           <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-4 px-4 sm:px-0">
             <Link href="/subjects">
-              <Button size="lg" className="bg-white text-violet-700 border-white/80 w-full sm:w-auto min-h-[44px]" data-testid="button-explore-subjects">
+              <Button size="lg" className="bg-white text-violet-700 border-white font-semibold shadow-lg w-full sm:w-auto min-h-[44px]" data-testid="button-explore-subjects">
                 <GraduationCap className="mr-2 h-5 w-5" />
                 Explore Subjects
+              </Button>
+            </Link>
+            <Link href="/impact">
+              <Button size="lg" variant="outline" className="text-white border-white/40 backdrop-blur-sm bg-white/15 w-full sm:w-auto min-h-[44px]" data-testid="button-view-impact-dashboard">
+                <BarChart3 className="mr-2 h-5 w-5" />
+                View Impact Dashboard
               </Button>
             </Link>
             <Link href="/dashboard">
@@ -408,26 +431,327 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="py-8 px-4 sm:py-10 sm:px-6 border-t">
-        <div className="mx-auto max-w-5xl flex flex-col items-center gap-4 sm:gap-6 md:flex-row md:justify-between">
-          <div className="flex items-center gap-2">
-            <Heart className="h-5 w-5 text-primary" />
-            <span className="font-semibold">AI Mastery Academy</span>
+      {/* Stakeholder Audience Sections */}
+      <section className="py-12 px-4 sm:py-20 sm:px-6 bg-card">
+        <div className="mx-auto max-w-5xl">
+          <div className="text-center mb-10 sm:mb-14">
+            <Badge variant="secondary" className="mb-4">
+              <Users className="mr-1 h-3 w-3" /> Built for Every Stakeholder
+            </Badge>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4" data-testid="text-stakeholders-heading">
+              Who We Serve
+            </h2>
+            <p className="text-sm sm:text-base text-muted-foreground max-w-lg mx-auto px-2">
+              Purpose-built tools and outcomes for funders, schools, and employer partners driving youth workforce development.
+            </p>
           </div>
-          <p className="text-xs sm:text-sm text-muted-foreground text-center md:text-left">
-            Driving economic opportunity for under-resourced youth through AI mastery and workforce development.
-          </p>
-          <div className="flex flex-col items-center md:items-end gap-1">
-            <a href="mailto:sisnett.meredith@gmail.com" className="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground min-h-[44px]" data-testid="link-support-email">
-              <Mail className="h-3.5 w-3.5" /> sisnett.meredith@gmail.com
-            </a>
-            <a href="mailto:mr.terryflood@gmail.com" className="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground min-h-[44px]" data-testid="link-support-email-2">
-              <Mail className="h-3.5 w-3.5" /> mr.terryflood@gmail.com
-            </a>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+
+            <Card className="p-6 flex flex-col" data-testid="card-stakeholder-funders" aria-label="For Funders and Grant Partners">
+              <div className="flex items-start gap-4 mb-4">
+                <div className="rounded-md bg-primary/10 p-2.5 shrink-0">
+                  <DollarSign className="h-5 w-5 text-primary" />
+                </div>
+                <h3 className="font-semibold text-lg" data-testid="text-stakeholder-funders-heading">
+                  For Funders & Grant Partners
+                </h3>
+              </div>
+              <ul className="space-y-3 text-sm text-muted-foreground leading-relaxed flex-1">
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                  <span>Grant-aligned platform with measurable workforce development outcomes and transparent reporting</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <BarChart3 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                  <span>Real-time impact metrics tracking student progress, career placement, and community reach</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <TrendingUp className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                  <span>Scalable workforce development model designed for Title I communities and under-resourced youth</span>
+                </li>
+              </ul>
+              <div className="mt-6">
+                <Link href="/impact">
+                  <Button variant="outline" className="w-full min-h-[44px]" data-testid="button-stakeholder-funders-cta" aria-label="View impact metrics for funders">
+                    <BarChart3 className="mr-2 h-4 w-4" />
+                    View Impact Metrics
+                  </Button>
+                </Link>
+              </div>
+            </Card>
+
+            <Card className="p-6 flex flex-col" data-testid="card-stakeholder-schools" aria-label="For Schools and Districts">
+              <div className="flex items-start gap-4 mb-4">
+                <div className="rounded-md bg-primary/10 p-2.5 shrink-0">
+                  <School className="h-5 w-5 text-primary" />
+                </div>
+                <h3 className="font-semibold text-lg" data-testid="text-stakeholder-schools-heading">
+                  For Schools & Districts
+                </h3>
+              </div>
+              <ul className="space-y-3 text-sm text-muted-foreground leading-relaxed flex-1">
+                <li className="flex items-start gap-2">
+                  <ClipboardList className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                  <span>Easy integration with existing curricula and alignment to state standards including TEKS and STAAR</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Wrench className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                  <span>Comprehensive teacher tools with dashboards, lesson plans, and real-time student analytics</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Users className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                  <span>Dedicated implementation support with onboarding, training, and ongoing technical assistance</span>
+                </li>
+              </ul>
+              <div className="mt-6">
+                <Link href="/academy-integration">
+                  <Button variant="outline" className="w-full min-h-[44px]" data-testid="button-stakeholder-schools-cta" aria-label="Learn about school integration options">
+                    <School className="mr-2 h-4 w-4" />
+                    Explore Integration
+                  </Button>
+                </Link>
+              </div>
+            </Card>
+
+            <Card className="p-6 flex flex-col" data-testid="card-stakeholder-employers" aria-label="For Employers and Partners">
+              <div className="flex items-start gap-4 mb-4">
+                <div className="rounded-md bg-primary/10 p-2.5 shrink-0">
+                  <Factory className="h-5 w-5 text-primary" />
+                </div>
+                <h3 className="font-semibold text-lg" data-testid="text-stakeholder-employers-heading">
+                  For Employers & Partners
+                </h3>
+              </div>
+              <ul className="space-y-3 text-sm text-muted-foreground leading-relaxed flex-1">
+                <li className="flex items-start gap-2">
+                  <UserCheck className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                  <span>Access career-ready graduates trained in AI literacy, professional skills, and industry workflows</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Link2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                  <span>Industry partnership programs connecting employers directly with emerging youth talent pipelines</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <HandshakeIcon className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                  <span>Mentor matching system pairing professionals with students for career coaching and guidance</span>
+                </li>
+              </ul>
+              <div className="mt-6">
+                <Link href="/academy-careers">
+                  <Button variant="outline" className="w-full min-h-[44px]" data-testid="button-stakeholder-employers-cta" aria-label="Explore employer partnership opportunities">
+                    <Briefcase className="mr-2 h-4 w-4" />
+                    Partner With Us
+                  </Button>
+                </Link>
+              </div>
+            </Card>
+
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Career Pathways */}
+      <section className="py-12 px-4 sm:py-20 sm:px-6 bg-card" data-testid="section-career-pathways">
+        <div className="mx-auto max-w-5xl">
+          <div className="text-center mb-10 sm:mb-14">
+            <Badge variant="secondary" className="mb-4">
+              <Briefcase className="mr-1 h-3 w-3" /> Career Exploration
+            </Badge>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4" data-testid="text-career-pathways-heading">
+              Featured Career Pathways
+            </h2>
+            <p className="text-sm sm:text-base text-muted-foreground max-w-lg mx-auto px-2">
+              Explore high-demand career fields with structured progression from exploration to placement.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+            {[
+              { title: "Technology", icon: Cpu, salary: "$55K - $130K", desc: "Software development, cybersecurity, data science, and IT infrastructure careers with hands-on project experience." },
+              { title: "Healthcare", icon: Stethoscope, salary: "$40K - $120K", desc: "Medical assisting, nursing pathways, health informatics, and community health careers serving local populations." },
+              { title: "Business & Finance", icon: DollarSign, salary: "$45K - $110K", desc: "Accounting, financial planning, entrepreneurship, and business management with real-world simulations." },
+              { title: "Skilled Trades", icon: Hammer, salary: "$35K - $85K", desc: "Electrician, plumbing, HVAC, and construction management pathways with apprenticeship connections." },
+              { title: "Engineering", icon: HardHat, salary: "$60K - $140K", desc: "Mechanical, civil, and electrical engineering foundations with CAD training and project-based learning." },
+              { title: "Education", icon: GraduationCap, salary: "$38K - $75K", desc: "Teaching, tutoring, curriculum design, and educational technology careers building the next generation." },
+            ].map((career) => (
+              <Card key={career.title} className="p-5 hover-elevate" data-testid={`card-career-${career.title.toLowerCase().replace(/\s+/g, '-')}`}>
+                <div className="flex items-start gap-4">
+                  <div className="rounded-md bg-primary/10 p-2.5 shrink-0">
+                    <career.icon className="h-5 w-5 text-primary" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 className="font-semibold" data-testid={`text-career-title-${career.title.toLowerCase().replace(/\s+/g, '-')}`}>{career.title}</h3>
+                      <Badge variant="outline" className="text-xs" data-testid={`badge-salary-${career.title.toLowerCase().replace(/\s+/g, '-')}`}>{career.salary}</Badge>
+                    </div>
+                    <p className="text-sm text-muted-foreground leading-relaxed mt-1" data-testid={`text-career-desc-${career.title.toLowerCase().replace(/\s+/g, '-')}`}>{career.desc}</p>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works */}
+      <section className="py-12 px-4 sm:py-20 sm:px-6" data-testid="section-how-it-works">
+        <div className="mx-auto max-w-5xl">
+          <div className="text-center mb-10 sm:mb-14">
+            <Badge variant="secondary" className="mb-4">
+              <Target className="mr-1 h-3 w-3" /> Getting Started
+            </Badge>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4" data-testid="text-how-it-works-heading">
+              How It Works
+            </h2>
+            <p className="text-sm sm:text-base text-muted-foreground max-w-lg mx-auto px-2">
+              Three steps from exploration to career launch.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+            {[
+              { step: 1, title: "Explore & Assess", desc: "Take career assessment, explore 50+ pathways, and discover your strengths and interests.", icon: Search },
+              { step: 2, title: "Learn & Build", desc: "Complete AI mastery curriculum, build real projects, and develop workforce-ready skills.", icon: BookOpen },
+              { step: 3, title: "Connect & Launch", desc: "Match with mentors, earn certifications, and launch your career with confidence.", icon: Zap },
+            ].map((item) => (
+              <Card key={item.step} className="p-6 text-center" data-testid={`card-step-${item.step}`}>
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                  <span className="text-lg font-bold text-primary" data-testid={`text-step-number-${item.step}`}>{item.step}</span>
+                </div>
+                <item.icon className="h-6 w-6 text-primary mx-auto mb-3" />
+                <h3 className="font-semibold text-lg mb-2" data-testid={`text-step-title-${item.step}`}>{item.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed" data-testid={`text-step-desc-${item.step}`}>{item.desc}</p>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Success Stories */}
+      <section className="py-12 px-4 sm:py-20 sm:px-6 bg-card" data-testid="section-success-stories">
+        <div className="mx-auto max-w-5xl">
+          <div className="text-center mb-10 sm:mb-14">
+            <Badge variant="secondary" className="mb-4">
+              <Award className="mr-1 h-3 w-3" /> Student Impact
+            </Badge>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4" data-testid="text-success-stories-heading">
+              Success Stories
+            </h2>
+            <p className="text-sm sm:text-base text-muted-foreground max-w-lg mx-auto px-2">
+              Hear from students whose lives have been transformed through the platform.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+            {[
+              { name: "Maria Santos", age: 17, pathway: "Technology", quote: "Before this program, I had never written a line of code. Now I have built three apps and earned my first internship at a local tech company. The AI curriculum taught me how to think through problems, and my mentor helped me believe I belonged in this field." },
+              { name: "James Richardson", age: 19, pathway: "Healthcare", quote: "Growing up, nobody in my family went to college. The career assessment showed me a path into healthcare I never knew existed. The mentorship program connected me with a nurse practitioner who guided me through every step. I start my clinical program this fall." },
+              { name: "Aisha Patel", age: 16, pathway: "Business & Finance", quote: "The financial literacy modules changed how I see money and opportunity. I used the AI tools to build a real business plan for my community tutoring service. Last month I earned my first certification, and I am already saving for college." },
+            ].map((story, idx) => (
+              <Card key={idx} className="p-6 flex flex-col" data-testid={`card-testimonial-${idx}`}>
+                <Quote className="h-6 w-6 text-primary/30 mb-3 shrink-0" />
+                <p className="text-sm text-muted-foreground leading-relaxed flex-1 italic" data-testid={`text-testimonial-quote-${idx}`}>
+                  "{story.quote}"
+                </p>
+                <div className="mt-4 pt-4 border-t">
+                  <p className="font-semibold text-sm" data-testid={`text-testimonial-name-${idx}`}>{story.name}</p>
+                  <div className="flex items-center gap-2 mt-1 flex-wrap">
+                    <span className="text-xs text-muted-foreground" data-testid={`text-testimonial-age-${idx}`}>Age {story.age}</span>
+                    <Badge variant="outline" className="text-xs" data-testid={`badge-testimonial-pathway-${idx}`}>{story.pathway}</Badge>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Grant Alignment */}
+      <section className="py-12 px-4 sm:py-20 sm:px-6" data-testid="section-grant-alignment">
+        <div className="mx-auto max-w-5xl">
+          <div className="text-center mb-10 sm:mb-14">
+            <Badge variant="secondary" className="mb-4">
+              <Shield className="mr-1 h-3 w-3" /> Grant Compliance
+            </Badge>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4" data-testid="text-grant-alignment-heading">
+              Grant Alignment
+            </h2>
+            <p className="text-sm sm:text-base text-muted-foreground max-w-lg mx-auto px-2">
+              Our platform meets key workforce development grant criteria across all major funding categories.
+            </p>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+            {[
+              { label: "School-to-Career", icon: School },
+              { label: "Job Readiness", icon: ClipboardList },
+              { label: "Skill Training", icon: Wrench },
+              { label: "Job Placement", icon: Briefcase },
+              { label: "Career Advancement", icon: TrendingUp },
+              { label: "Mentorship", icon: HandshakeIcon },
+            ].map((criterion) => (
+              <Card key={criterion.label} className="p-4 text-center" data-testid={`card-grant-${criterion.label.toLowerCase().replace(/\s+/g, '-')}`}>
+                <div className="flex items-center justify-center gap-1.5 mb-2">
+                  <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400 shrink-0" />
+                  <criterion.icon className="h-4 w-4 text-primary shrink-0" />
+                </div>
+                <p className="text-xs sm:text-sm font-medium" data-testid={`text-grant-label-${criterion.label.toLowerCase().replace(/\s+/g, '-')}`}>{criterion.label}</p>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="py-10 px-4 sm:py-14 sm:px-6 border-t bg-card" data-testid="footer-main">
+        <div className="mx-auto max-w-5xl">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <Heart className="h-5 w-5 text-primary" />
+                <span className="font-semibold" data-testid="text-footer-brand">AI Mastery Academy</span>
+              </div>
+              <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed" data-testid="text-footer-tagline">
+                Driving economic opportunity for under-resourced youth through AI mastery and workforce development.
+              </p>
+            </div>
+
+            <div data-testid="footer-column-students">
+              <h4 className="font-semibold text-sm mb-3" data-testid="text-footer-students-heading">For Students</h4>
+              <ul className="space-y-2">
+                <li><Link href="/dashboard"><a className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-dashboard">Dashboard</a></Link></li>
+                <li><Link href="/curriculum"><a className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-curriculum">Curriculum</a></Link></li>
+                <li><Link href="/ai-tools"><a className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-ai-tools">AI Tools</a></Link></li>
+                <li><Link href="/academy/careers"><a className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-careers">Careers</a></Link></li>
+              </ul>
+            </div>
+
+            <div data-testid="footer-column-partners">
+              <h4 className="font-semibold text-sm mb-3" data-testid="text-footer-partners-heading">For Partners</h4>
+              <ul className="space-y-2">
+                <li><Link href="/impact"><a className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-impact">Impact Metrics</a></Link></li>
+                <li><Link href="/api-docs"><a className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-api-docs">API Documentation</a></Link></li>
+                <li><Link href="/implementation"><a className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-implementation">Implementation</a></Link></li>
+              </ul>
+            </div>
+
+            <div data-testid="footer-column-resources">
+              <h4 className="font-semibold text-sm mb-3" data-testid="text-footer-resources-heading">Resources</h4>
+              <ul className="space-y-2">
+                <li><Link href="/resources"><a className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-resources">Resource Finder</a></Link></li>
+                <li><Link href="/privacy"><a className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-privacy">Privacy Policy</a></Link></li>
+                <li>
+                  <a href="mailto:sisnett.meredith@gmail.com" className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5" data-testid="link-footer-email-1">
+                    <Mail className="h-3.5 w-3.5" /> sisnett.meredith@gmail.com
+                  </a>
+                </li>
+                <li>
+                  <a href="mailto:mr.terryflood@gmail.com" className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5" data-testid="link-footer-email-2">
+                    <Mail className="h-3.5 w-3.5" /> mr.terryflood@gmail.com
+                  </a>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
       </footer>
+      <BackToTop />
     </div>
   );
 }

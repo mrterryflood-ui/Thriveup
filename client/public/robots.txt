@@ -1,5 +1,17 @@
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
 User-agent: *
-Disallow: /
+Allow: /
 
 User-agent: GPTBot
 Disallow: /

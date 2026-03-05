@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, lazy, Suspense } from "react";
 import { Switch, Route } from "wouter";
 import { queryClient, apiRequest } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -8,79 +8,105 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { Skeleton } from "@/components/ui/skeleton";
 import NotFound from "@/pages/not-found";
 import LandingPage from "@/pages/landing";
 import CurriculumPage, { LevelDetailPage } from "@/pages/curriculum";
 import SubjectsPage, { SubjectDetailPage } from "@/pages/subjects";
-import ModuleDetailPage from "@/pages/module-detail";
-import LessonViewerPage from "@/pages/lesson-viewer";
-import QuizPage from "@/pages/quiz";
 import DashboardPage from "@/pages/dashboard";
-import AchievementsPage from "@/pages/achievements";
 import AICompanionPage from "@/pages/ai-companion";
-import CommunityPage from "@/pages/community";
-import ParentResourcesPage from "@/pages/parents";
-import CurriculumDocumentsPage, { CurriculumDocumentViewPage, CurriculumDocumentCreatePage } from "@/pages/curriculum-documents";
-import Module12ToolsPage from "@/pages/module-1-2-tools";
-import ParentDashboardPage from "@/pages/parent-dashboard";
-import ClassroomsPage, { ClassroomDetailPage } from "@/pages/classrooms";
-import ClassroomWizardPage from "@/pages/classroom-wizard";
-import TeacherDashboardPage from "@/pages/teacher-dashboard";
-import CertificatesPage, { CertificateViewPage } from "@/pages/certificates";
-import SocialMediaLiteracyPage from "@/pages/social-media-literacy";
-import AcademyHubPage from "@/pages/academy-hub";
-import AcademyVillagePage from "@/pages/academy-village";
-import AcademyAvatarPage from "@/pages/academy-avatar";
-import AcademyStocksPage from "@/pages/academy-stocks";
-import AcademyCampusPage from "@/pages/academy-campus";
-import AcademyCompetitionsPage from "@/pages/academy-competitions";
-import AcademyHousesPage from "@/pages/academy-houses";
-import AcademyDreamsPage from "@/pages/academy-dreams";
-import AcademyWalletPage from "@/pages/academy-wallet";
-import AcademyMerchPage from "@/pages/academy-merch";
-import AcademyPowerPage from "@/pages/academy-power";
-import AcademyQuestsPage from "@/pages/academy-quests";
-import AcademyLessonsPage from "@/pages/academy-lessons";
-import AcademyScenariosPage from "@/pages/academy-scenarios";
-import AcademyMarketplacePage from "@/pages/academy-marketplace";
-import AcademyAdminPage from "@/pages/academy-admin";
-import AcademyLongitudinalPage from "@/pages/academy-longitudinal";
-import AcademyTutorialPage from "@/pages/academy-tutorial";
-import AcademyCareersPage from "@/pages/academy-careers";
-import AcademyPathwayPage from "@/pages/academy-pathway";
-import AcademyMentorsPage from "@/pages/academy-mentors";
-import AcademyFinancialLiteracyPage from "@/pages/academy-financial-literacy";
-import AcademyStudentWizardPage from "@/pages/academy-student-wizard";
-import AcademySelfAssessmentPage from "@/pages/academy-self-assessment";
-import AcademyThrivePage from "@/pages/academy-thrive";
-import AcademyAdminTutorialPage from "@/pages/academy-admin-tutorial";
-import AcademyMentorFinderPage from "@/pages/academy-mentor-finder";
-import AcademyGameLobbyPage from "@/pages/academy-game-lobby";
-import AcademyDominoesGame from "@/pages/academy-dominoes-game";
-import AcademyJournalPage from "@/pages/academy-journal";
-import AcademyAnnouncementsPage from "@/pages/academy-announcements";
-import AcademyCalendarPage from "@/pages/academy-calendar";
-import AcademyHelpPage from "@/pages/academy-help";
-import AcademyProgressReportPage from "@/pages/academy-progress-report";
-import AcademyAttendancePage from "@/pages/academy-attendance";
-import AcademyIntegrationPage from "@/pages/academy-integration";
-import AcademyRiskMonitorPage from "@/pages/academy-risk-monitor";
-import PhasedRolloutPage from "@/pages/phased-rollout";
-import CourseCreatorPage from "@/pages/course-creator";
-import AdminVideoScriptPage from "@/pages/admin-video-script";
-import AcademyStaarPrepPage from "@/pages/academy-staar-prep";
-import SparkyCompanionPage from "@/pages/sparky-companion";
-import AIToolsHubPage from "@/pages/ai-tools-hub";
-import AIToolsWorkspacePage from "@/pages/ai-tools-workspace";
-import ImplementationRecommendationsPage from "@/pages/implementation-recommendations";
-import PrivacyPolicyPage from "@/pages/privacy-policy";
-import ResourceFinderPage from "@/pages/resource-finder";
+
+const ModuleDetailPage = lazy(() => import("@/pages/module-detail"));
+const LessonViewerPage = lazy(() => import("@/pages/lesson-viewer"));
+const QuizPage = lazy(() => import("@/pages/quiz"));
+const AchievementsPage = lazy(() => import("@/pages/achievements"));
+const CommunityPage = lazy(() => import("@/pages/community"));
+const ParentResourcesPage = lazy(() => import("@/pages/parents"));
+const CurriculumDocumentsPage = lazy(() => import("@/pages/curriculum-documents").then(m => ({ default: m.default })));
+const CurriculumDocumentViewPage = lazy(() => import("@/pages/curriculum-documents").then(m => ({ default: m.CurriculumDocumentViewPage })));
+const CurriculumDocumentCreatePage = lazy(() => import("@/pages/curriculum-documents").then(m => ({ default: m.CurriculumDocumentCreatePage })));
+const Module12ToolsPage = lazy(() => import("@/pages/module-1-2-tools"));
+const ParentDashboardPage = lazy(() => import("@/pages/parent-dashboard"));
+const ClassroomsPage = lazy(() => import("@/pages/classrooms").then(m => ({ default: m.default })));
+const ClassroomDetailPage = lazy(() => import("@/pages/classrooms").then(m => ({ default: m.ClassroomDetailPage })));
+const ClassroomWizardPage = lazy(() => import("@/pages/classroom-wizard"));
+const TeacherDashboardPage = lazy(() => import("@/pages/teacher-dashboard"));
+const CertificatesPage = lazy(() => import("@/pages/certificates").then(m => ({ default: m.default })));
+const CertificateViewPage = lazy(() => import("@/pages/certificates").then(m => ({ default: m.CertificateViewPage })));
+const SocialMediaLiteracyPage = lazy(() => import("@/pages/social-media-literacy"));
+const AcademyHubPage = lazy(() => import("@/pages/academy-hub"));
+const AcademyVillagePage = lazy(() => import("@/pages/academy-village"));
+const AcademyAvatarPage = lazy(() => import("@/pages/academy-avatar"));
+const AcademyStocksPage = lazy(() => import("@/pages/academy-stocks"));
+const AcademyCampusPage = lazy(() => import("@/pages/academy-campus"));
+const AcademyCompetitionsPage = lazy(() => import("@/pages/academy-competitions"));
+const AcademyHousesPage = lazy(() => import("@/pages/academy-houses"));
+const AcademyDreamsPage = lazy(() => import("@/pages/academy-dreams"));
+const AcademyWalletPage = lazy(() => import("@/pages/academy-wallet"));
+const AcademyMerchPage = lazy(() => import("@/pages/academy-merch"));
+const AcademyPowerPage = lazy(() => import("@/pages/academy-power"));
+const AcademyQuestsPage = lazy(() => import("@/pages/academy-quests"));
+const AcademyLessonsPage = lazy(() => import("@/pages/academy-lessons"));
+const AcademyScenariosPage = lazy(() => import("@/pages/academy-scenarios"));
+const AcademyMarketplacePage = lazy(() => import("@/pages/academy-marketplace"));
+const AcademyAdminPage = lazy(() => import("@/pages/academy-admin"));
+const AcademyLongitudinalPage = lazy(() => import("@/pages/academy-longitudinal"));
+const AcademyTutorialPage = lazy(() => import("@/pages/academy-tutorial"));
+const AcademyCareersPage = lazy(() => import("@/pages/academy-careers"));
+const AcademyPathwayPage = lazy(() => import("@/pages/academy-pathway"));
+const AcademyMentorsPage = lazy(() => import("@/pages/academy-mentors"));
+const AcademyFinancialLiteracyPage = lazy(() => import("@/pages/academy-financial-literacy"));
+const AcademyStudentWizardPage = lazy(() => import("@/pages/academy-student-wizard"));
+const AcademySelfAssessmentPage = lazy(() => import("@/pages/academy-self-assessment"));
+const AcademyThrivePage = lazy(() => import("@/pages/academy-thrive"));
+const AcademyAdminTutorialPage = lazy(() => import("@/pages/academy-admin-tutorial"));
+const AcademyMentorFinderPage = lazy(() => import("@/pages/academy-mentor-finder"));
+const AcademyGameLobbyPage = lazy(() => import("@/pages/academy-game-lobby"));
+const AcademyDominoesGame = lazy(() => import("@/pages/academy-dominoes-game"));
+const AcademyJournalPage = lazy(() => import("@/pages/academy-journal"));
+const AcademyAnnouncementsPage = lazy(() => import("@/pages/academy-announcements"));
+const AcademyCalendarPage = lazy(() => import("@/pages/academy-calendar"));
+const AcademyHelpPage = lazy(() => import("@/pages/academy-help"));
+const AcademyProgressReportPage = lazy(() => import("@/pages/academy-progress-report"));
+const AcademyAttendancePage = lazy(() => import("@/pages/academy-attendance"));
+const AcademyIntegrationPage = lazy(() => import("@/pages/academy-integration"));
+const AcademyRiskMonitorPage = lazy(() => import("@/pages/academy-risk-monitor"));
+const PhasedRolloutPage = lazy(() => import("@/pages/phased-rollout"));
+const CourseCreatorPage = lazy(() => import("@/pages/course-creator"));
+const AdminVideoScriptPage = lazy(() => import("@/pages/admin-video-script"));
+const AcademyStaarPrepPage = lazy(() => import("@/pages/academy-staar-prep"));
+const SparkyCompanionPage = lazy(() => import("@/pages/sparky-companion"));
+const AIToolsHubPage = lazy(() => import("@/pages/ai-tools-hub"));
+const AIToolsWorkspacePage = lazy(() => import("@/pages/ai-tools-workspace"));
+const ImplementationRecommendationsPage = lazy(() => import("@/pages/implementation-recommendations"));
+const PrivacyPolicyPage = lazy(() => import("@/pages/privacy-policy"));
+const ResourceFinderPage = lazy(() => import("@/pages/resource-finder"));
+const ImpactPage = lazy(() => import("@/pages/impact"));
+const APIDocsPage = lazy(() => import("@/pages/api-docs"));
+
+function PageFallback() {
+  return (
+    <div className="p-6 max-w-5xl mx-auto space-y-4">
+      <Skeleton className="h-10 w-64" />
+      <Skeleton className="h-6 w-96" />
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+        <Skeleton className="h-32" />
+        <Skeleton className="h-32" />
+        <Skeleton className="h-32" />
+        <Skeleton className="h-32" />
+      </div>
+      <Skeleton className="h-64 mt-4" />
+    </div>
+  );
+}
+
 import { LanguageProvider } from "@/lib/i18n";
 import { BandwidthProvider } from "@/lib/bandwidth-mode";
 import { AccessibilityProvider } from "@/lib/accessibility";
 import { HeaderControls } from "@/components/header-controls";
 import { AccessibilityPanel } from "@/components/accessibility-panel";
 import { ErrorBoundary } from "@/components/error-boundary";
+import { CommandPalette } from "@/components/command-palette";
 
 function AppRouter() {
   return (
@@ -157,6 +183,8 @@ function AppRouter() {
       <Route path="/implementation" component={ImplementationRecommendationsPage} />
       <Route path="/privacy" component={PrivacyPolicyPage} />
       <Route path="/resources" component={ResourceFinderPage} />
+      <Route path="/impact" component={ImpactPage} />
+      <Route path="/api-docs" component={APIDocsPage} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -193,11 +221,14 @@ function AppLayout() {
           </header>
           <main id="main-content" className="flex-1 overflow-auto">
             <ErrorBoundary>
-              <AppRouter />
+              <Suspense fallback={<PageFallback />}>
+                <AppRouter />
+              </Suspense>
             </ErrorBoundary>
           </main>
         </div>
       </div>
+      <CommandPalette />
     </SidebarProvider>
   );
 }

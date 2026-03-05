@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import {
   insertCurriculumDocumentSchema,
+  studentProgress, completedLessons, earnedBadges, certificates,
   careerFields, careerMilestones, pathwayPlans, planRevisions,
   mentorProfiles, mentorRequests, alumniProfiles,
   insertPathwayPlanSchema,
@@ -300,7 +301,7 @@ export async function registerRoutes(
   app.use((_req, res, next) => {
     res.setHeader("X-Content-Type-Options", "nosniff");
     res.setHeader("X-Frame-Options", "DENY");
-    res.setHeader("X-Robots-Tag", "noindex, nofollow, noarchive, noimageindex, nosnippet");
+    res.setHeader("X-Robots-Tag", "index, follow");
     res.setHeader("Referrer-Policy", "no-referrer");
     res.setHeader("Permissions-Policy", "interest-cohort=()");
     res.setHeader("Content-Security-Policy", "frame-ancestors 'none'");
@@ -316,6 +317,69 @@ export async function registerRoutes(
       res.json(getProviderInfo());
     } catch (error: any) {
       res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.get("/api/public/impact", async (_req, res) => {
+    try {
+      const [studentsResult] = await db.select({ count: count() }).from(studentProgress);
+      const [lessonsResult] = await db.select({ count: count() }).from(completedLessons);
+      const [badgesResult] = await db.select({ count: count() }).from(earnedBadges);
+      const [certificatesResult] = await db.select({ count: count() }).from(certificates);
+      const [careersResult] = await db.select({ count: count() }).from(careerFields);
+      const [pathwaysResult] = await db.select({ count: count() }).from(pathwayPlans);
+      const [mentorsResult] = await db.select({ count: count() }).from(mentorProfiles);
+      const [mentorConnectionsResult] = await db.select({ count: count() }).from(mentorRequests);
+      const [milestonesResult] = await db.select({ count: count() }).from(careerMilestones);
+      const [alumniResult] = await db.select({ count: count() }).from(alumniProfiles);
+
+      const allProgress = await db.select({
+        totalScore: studentProgress.totalScore,
+        level: studentProgress.currentLevel,
+      }).from(studentProgress);
+
+      const avgScore = allProgress.length > 0
+        ? Math.round(allProgress.reduce((sum, p) => sum + (p.totalScore || 0), 0) / allProgress.length)
+        : 0;
+
+      const levels = await storage.getLevels();
+      const modules = [];
+      for (const level of levels) {
+        const mods = await storage.getModulesByLevelId(level.id);
+        modules.push(...mods);
+      }
+
+      res.json({
+        youthServed: studentsResult.count,
+        lessonsCompleted: lessonsResult.count,
+        badgesEarned: badgesResult.count,
+        certificatesIssued: certificatesResult.count,
+        careerPathways: careersResult.count,
+        pathwayPlansCreated: pathwaysResult.count,
+        mentorsAvailable: mentorsResult.count,
+        mentorConnections: mentorConnectionsResult.count,
+        careerMilestones: milestonesResult.count,
+        alumniNetwork: alumniResult.count,
+        averageScore: avgScore,
+        curriculumLevels: levels.length,
+        totalModules: modules.length,
+        grantAlignment: {
+          workforceDevelopment: true,
+          schoolToCareerPipelines: true,
+          jobReadiness: true,
+          skillTraining: true,
+          jobPlacement: true,
+          careerAdvancement: true,
+          mentorship: true,
+          communityImpact: true,
+        },
+        targetPopulation: "Under-resourced youth ages 14-24",
+        launchLocation: "Austin, TX",
+        scalingPlan: "National",
+      });
+    } catch (error) {
+      console.error("Error fetching public impact data:", error);
+      res.status(500).json({ error: "Failed to fetch impact data" });
     }
   });
 
@@ -2076,6 +2140,53 @@ Write a warm, encouraging welcome message for students joining this classroom. M
       });
     } catch (error) {
       res.status(500).json({ error: "Failed to load admin metrics" });
+    }
+  });
+
+  app.get("/api/admin/grant-metrics/export", requireAuth, requireAdmin, async (_req, res) => {
+    try {
+      const [studentsResult] = await db.select({ count: count() }).from(studentProgress);
+      const [lessonsResult] = await db.select({ count: count() }).from(completedLessons);
+      const [badgesResult] = await db.select({ count: count() }).from(earnedBadges);
+      const [certificatesResult] = await db.select({ count: count() }).from(certificates);
+      const [careersResult] = await db.select({ count: count() }).from(careerFields);
+      const [pathwaysResult] = await db.select({ count: count() }).from(pathwayPlans);
+      const [mentorsResult] = await db.select({ count: count() }).from(mentorProfiles);
+      const [mentorConnectionsResult] = await db.select({ count: count() }).from(mentorRequests);
+
+      const [wallets, pantherPowers] = await Promise.all([
+        storage.getAllWallets(),
+        storage.getAllPantherPower(),
+      ]);
+
+      const avgPantherScore = pantherPowers.length > 0
+        ? Math.round(pantherPowers.reduce((sum, p) => sum + p.totalScore, 0) / pantherPowers.length)
+        : 0;
+
+      const csvRows = [
+        ["Metric", "Value", "Target", "Category"],
+        ["Youth Served", String(studentsResult.count), "500", "Impact"],
+        ["Lessons Completed", String(lessonsResult.count), "", "Engagement"],
+        ["Badges Earned", String(badgesResult.count), "", "Achievement"],
+        ["Certificates Issued", String(certificatesResult.count), "", "Completion"],
+        ["Career Pathways Available", String(careersResult.count), "50", "Career Pipeline"],
+        ["Pathway Plans Created", String(pathwaysResult.count), "200", "Career Pipeline"],
+        ["Mentors Available", String(mentorsResult.count), "150", "Mentorship"],
+        ["Mentor Connections", String(mentorConnectionsResult.count), "150", "Mentorship"],
+        ["Active Wallets", String(wallets.length), "", "Economy"],
+        ["Average Panther Score", String(avgPantherScore), "", "Performance"],
+        ["Report Date", new Date().toISOString().split("T")[0], "", "Meta"],
+        ["Target Population", "Under-resourced youth ages 14-24", "", "Meta"],
+        ["Launch Location", "Austin TX", "", "Meta"],
+      ];
+
+      const csv = csvRows.map(row => row.map(cell => `"${cell}"`).join(",")).join("\n");
+      res.setHeader("Content-Type", "text/csv");
+      res.setHeader("Content-Disposition", `attachment; filename="grant-metrics-${new Date().toISOString().split("T")[0]}.csv"`);
+      res.send(csv);
+    } catch (error) {
+      console.error("Error exporting grant metrics:", error);
+      res.status(500).json({ error: "Failed to export grant metrics" });
     }
   });
 

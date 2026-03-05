@@ -65,11 +65,29 @@ Key architectural decisions and features include:
 - **Skip-to-Content:** Keyboard navigation skip link at top of layout
 - **Focus Visible:** Global focus-visible ring styles for keyboard navigation
 - **Empty States:** Journal, announcements, and marketplace show meaningful empty states with CTAs
-- **404 Page:** Polished with navigation links to home, dashboard, and academy
+- **404 Page:** Polished with navigation links to home, dashboard, curriculum, plus popular pages grid (Career Explorer, Ask Spark, AI Creation Studio, Resource Finder)
 - **Privacy Policy:** COPPA compliance, parental consent, data retention, and third-party sharing sections
 - **Console Cleanup:** All `console.log` removed from production server files; only `console.error` retained
 - **Error Logging:** Zero silent catch blocks; all catches have `console.error` with descriptive messages
 - **Content Consistency:** No "NBA Foundation" branding anywhere; "NBA" only appears in educational athlete stories
+
+## Performance & Navigation
+- **Code Splitting:** React.lazy + Suspense for 60+ pages; only landing, curriculum, subjects, dashboard, AI companion eagerly loaded
+- **Loading Skeletons:** Skeleton loading states on dashboard and career explorer pages
+- **Error Retry:** Reusable ErrorRetry component for API error states with retry button
+- **Back-to-Top:** Floating scroll-to-top button on landing page, binds to #main-content scroll
+- **Command Palette:** Ctrl+K keyboard shortcut for quick navigation across all pages
+- **Collapsible Sidebar:** All sidebar sections collapsible for cleaner navigation
+- **PageHeader Component:** Reusable page header with title, description, breadcrumbs, and action slot
+- **Breadcrumbs:** Reusable breadcrumb navigation component
+
+## Stakeholder & Funder Features
+- **Public Impact Dashboard:** /impact page with live metrics, grant alignment, program outcomes, share/print
+- **Impact Sharing:** Copy link, Share on LinkedIn, Share on X, Print buttons on impact page
+- **API Documentation:** /api-docs page showing available external API endpoints for integration partners
+- **CSV Export:** Admin grant metrics tab exports CSV via /api/admin/grant-metrics/export
+- **Grant Alignment Checklist:** Visual checklist on admin grant tab showing criteria met status
+- **Landing Page Sections:** Audience cards (Funders/Schools/Employers), featured careers, How It Works, Success Stories, grant alignment badges, professional footer
 
 ## External Dependencies
 - **Database:** PostgreSQL (Neon-backed)

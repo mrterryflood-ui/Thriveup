@@ -11,7 +11,7 @@ import {
   BookOpen, Trophy, Star, Zap, Target,
   ChevronRight, Award, Flame, TrendingUp,
   CheckCircle2, Shield, ShieldCheck, ShieldPlus, Swords, Medal,
-  Sparkles, GraduationCap
+  Sparkles, GraduationCap, Briefcase, Users, BarChart3, Circle,
 } from "lucide-react";
 import { LEVEL_COLORS, getRankForLevel, ALL_RANKS } from "@/lib/curriculum-data";
 import type { StudentProgress, Level, Module, EarnedBadge, Badge as BadgeType } from "@shared/schema";
@@ -64,16 +64,21 @@ export default function DashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="p-4 sm:p-6 max-w-5xl mx-auto space-y-4">
-        <Skeleton className="h-10 sm:h-12 w-48 mb-2" />
-        <Skeleton className="h-5 sm:h-6 w-72 mb-6 sm:mb-8" />
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-          <Skeleton className="h-24 sm:h-32" />
-          <Skeleton className="h-24 sm:h-32" />
-          <Skeleton className="h-24 sm:h-32" />
-          <Skeleton className="h-24 sm:h-32" />
+      <div className="p-4 sm:p-6 max-w-5xl mx-auto space-y-4" data-testid="dashboard-loading-skeleton">
+        <Skeleton className="h-10 sm:h-12 w-48 mb-2" data-testid="skeleton-dashboard-title" />
+        <Skeleton className="h-5 sm:h-6 w-72 mb-6 sm:mb-8" data-testid="skeleton-dashboard-subtitle" />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4" data-testid="skeleton-dashboard-stats-grid">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Card key={i} className="p-3 sm:p-5 space-y-3" data-testid={`skeleton-stat-card-${i}`}>
+              <div className="flex items-center justify-between gap-1">
+                <Skeleton className="h-4 w-20" data-testid={`skeleton-stat-label-${i}`} />
+                <Skeleton className="h-8 w-8 rounded-md" data-testid={`skeleton-stat-icon-${i}`} />
+              </div>
+              <Skeleton className="h-7 w-16" data-testid={`skeleton-stat-value-${i}`} />
+            </Card>
+          ))}
         </div>
-        <Skeleton className="h-64 mt-4" />
+        <Skeleton className="h-64 mt-4" data-testid="skeleton-dashboard-content" />
       </div>
     );
   }
@@ -85,6 +90,15 @@ export default function DashboardPage() {
   const colors = LEVEL_COLORS[progress.currentLevel];
   const lessonProgress = stats.totalLessons > 0 ? (stats.completedLessons / stats.totalLessons) * 100 : 0;
 
+  const isNewUser = progress.totalPoints === 0 && stats.completedLessons === 0;
+  const checklistItems = [
+    { label: "Explore your first subject", done: stats.completedLessons > 0, link: "/subjects" },
+    { label: "Complete a curriculum lesson", done: stats.completedLessons > 0, link: "/curriculum" },
+    { label: "Chat with Spark AI companion", done: progress.totalPoints > 0, link: "/ai-companion" },
+    { label: "Explore career pathways", done: false, link: "/academy/careers" },
+    { label: "Try the AI Creation Studio", done: false, link: "/ai-tools" },
+  ];
+
   return (
     <div className="p-4 sm:p-6 max-w-5xl mx-auto">
       <div className="mb-6 sm:mb-8">
@@ -95,6 +109,30 @@ export default function DashboardPage() {
           AI Mastery Academy — Keep exploring and growing!
         </p>
       </div>
+
+      {isNewUser && (
+        <Card className="p-4 sm:p-6 mb-6 border-primary/20 bg-primary/5" data-testid="card-getting-started">
+          <h2 className="font-semibold mb-3 flex items-center gap-2">
+            <Zap className="h-5 w-5 text-primary" /> Getting Started
+          </h2>
+          <p className="text-sm text-muted-foreground mb-4">Complete these steps to get the most out of the academy:</p>
+          <div className="space-y-2">
+            {checklistItems.map((item, i) => (
+              <Link key={i} href={item.link}>
+                <div className="flex items-center gap-3 p-2 rounded-md hover:bg-muted/50 cursor-pointer" data-testid={`checklist-item-${i}`}>
+                  {item.done ? (
+                    <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                  ) : (
+                    <Circle className="h-4 w-4 text-muted-foreground shrink-0" />
+                  )}
+                  <span className={`text-sm ${item.done ? 'text-muted-foreground line-through' : 'font-medium'}`}>{item.label}</span>
+                  <ChevronRight className="h-3 w-3 text-muted-foreground ml-auto" />
+                </div>
+              </Link>
+            ))}
+          </div>
+        </Card>
+      )}
 
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
         <Card className="p-3 sm:p-5">

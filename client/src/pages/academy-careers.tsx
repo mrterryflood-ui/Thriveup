@@ -44,6 +44,10 @@ import {
   Users,
   Building2,
   Handshake,
+  Compass,
+  PenTool,
+  BadgeCheck,
+  MapPin,
 } from "lucide-react";
 
 interface CareerField {
@@ -130,6 +134,31 @@ function getCategoryColor(category: string) {
     case "Military": return "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300";
     case "Entrepreneurship": return "bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300";
     default: return "";
+  }
+}
+
+const PIPELINE_STAGES = [
+  { key: "explore", label: "Explore", icon: Compass },
+  { key: "learn", label: "Learn", icon: BookOpen },
+  { key: "practice", label: "Practice", icon: PenTool },
+  { key: "certify", label: "Certify", icon: BadgeCheck },
+  { key: "place", label: "Place", icon: MapPin },
+];
+
+function getDemandLevel(category: string): { label: string; className: string } {
+  switch (category) {
+    case "Technology":
+    case "Healthcare":
+    case "Skilled Trades":
+    case "Engineering":
+      return { label: "High Demand", className: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800" };
+    case "Business & Finance":
+    case "Science & Research":
+    case "Media & Communications":
+    case "Education":
+      return { label: "Growing", className: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 border-blue-200 dark:border-blue-800" };
+    default:
+      return { label: "Stable", className: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 border-amber-200 dark:border-amber-800" };
   }
 }
 
@@ -478,17 +507,22 @@ function CareerAssessment({
 
 function LoadingSkeleton() {
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-6">
-      <Skeleton className="h-36 w-full rounded-md" />
+    <div className="p-6 max-w-6xl mx-auto space-y-6" data-testid="careers-loading-skeleton">
+      <Skeleton className="h-36 w-full rounded-md" data-testid="skeleton-careers-header" />
       <div className="flex gap-2 flex-wrap">
         {Array.from({ length: 5 }).map((_, i) => (
-          <Skeleton key={i} className="h-9 w-28" />
+          <Skeleton key={i} className="h-9 w-28" data-testid={`skeleton-careers-filter-${i}`} />
         ))}
       </div>
-      <Skeleton className="h-9 w-full max-w-sm" />
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-        {Array.from({ length: 8 }).map((_, i) => (
-          <Skeleton key={i} className="h-56" />
+      <Skeleton className="h-9 w-full max-w-sm" data-testid="skeleton-careers-search" />
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4" data-testid="skeleton-careers-grid">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <Card key={i} className="p-4 space-y-3" data-testid={`skeleton-career-card-${i}`}>
+            <Skeleton className="h-32 w-full rounded-md" data-testid={`skeleton-career-image-${i}`} />
+            <Skeleton className="h-5 w-3/4" data-testid={`skeleton-career-title-${i}`} />
+            <Skeleton className="h-4 w-full" data-testid={`skeleton-career-desc-${i}`} />
+            <Skeleton className="h-4 w-2/3" data-testid={`skeleton-career-desc2-${i}`} />
+          </Card>
         ))}
       </div>
     </div>
@@ -634,6 +668,32 @@ export default function AcademyCareersPage() {
         </Card>
       </div>
 
+      <Card className="p-4 sm:p-5 mb-8" data-testid="section-pipeline-stages">
+        <h2 className="text-sm font-semibold text-muted-foreground mb-4 text-center" data-testid="text-pipeline-title">
+          Career Pipeline Stages
+        </h2>
+        <div className="flex items-center justify-center gap-1 sm:gap-2 flex-wrap">
+          {PIPELINE_STAGES.map((stage, idx) => {
+            const StageIcon = stage.icon;
+            return (
+              <div key={stage.key} className="flex items-center gap-1 sm:gap-2" data-testid={`pipeline-stage-${stage.key}`}>
+                <div className="flex flex-col items-center gap-1.5">
+                  <div className="rounded-md p-2 sm:p-2.5 bg-rose-100 dark:bg-rose-900/30">
+                    <StageIcon className="h-4 w-4 sm:h-5 sm:w-5 text-rose-600 dark:text-rose-400" />
+                  </div>
+                  <span className="text-[10px] sm:text-xs font-medium" data-testid={`text-pipeline-label-${stage.key}`}>
+                    {stage.label}
+                  </span>
+                </div>
+                {idx < PIPELINE_STAGES.length - 1 && (
+                  <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0 mb-5" data-testid={`icon-pipeline-arrow-${idx}`} />
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </Card>
+
       <CareerAssessment
         careers={allCareers}
         onExploreCategory={handleExploreCategory}
@@ -707,13 +767,22 @@ export default function AcademyCareersPage() {
                 >
                   {career.name}
                 </h3>
-                <Badge
-                  variant="secondary"
-                  className={`mb-2 ${getCategoryColor(career.category)}`}
-                  data-testid={`badge-category-${career.id}`}
-                >
-                  {career.category}
-                </Badge>
+                <div className="flex items-center gap-1.5 mb-2 flex-wrap">
+                  <Badge
+                    variant="secondary"
+                    className={getCategoryColor(career.category)}
+                    data-testid={`badge-category-${career.id}`}
+                  >
+                    {career.category}
+                  </Badge>
+                  <Badge
+                    variant="outline"
+                    className={getDemandLevel(career.category).className}
+                    data-testid={`badge-demand-${career.id}`}
+                  >
+                    {getDemandLevel(career.category).label}
+                  </Badge>
+                </div>
                 <p
                   className="text-xs text-muted-foreground line-clamp-3 mb-3"
                   data-testid={`text-career-desc-${career.id}`}
