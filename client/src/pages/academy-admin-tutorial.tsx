@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { PageHeader } from "@/components/page-header";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -326,6 +327,14 @@ export default function AcademyAdminTutorialPage() {
   useEffect(() => { document.title = "Admin Tutorial | AI Mastery Academy"; }, []);
   return (
     <div className="p-4 sm:p-6 max-w-3xl mx-auto" data-testid="admin-tutorial-page">
+      <PageHeader
+        title="Admin Guide"
+        description="A complete walkthrough of every platform management feature"
+        breadcrumbs={[
+          { label: "Academy", href: "/academy" },
+          { label: "Admin Guide" },
+        ]}
+      />
       <div className="mb-6">
         <div className="rounded-md p-4 bg-gradient-to-r from-rose-900 to-red-950 text-white mb-6">
           <h1 className="text-2xl font-bold" data-testid="text-admin-tutorial-title">

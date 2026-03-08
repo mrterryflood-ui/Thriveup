@@ -401,58 +401,108 @@ export async function registerRoutes(
   });
 
   app.get("/api/subjects", async (_req, res) => {
-    res.setHeader("Cache-Control", "public, max-age=3600");
-    const allSubjects = await storage.getSubjects();
-    res.json(allSubjects);
+    try {
+      res.setHeader("Cache-Control", "public, max-age=3600");
+      const allSubjects = await storage.getSubjects();
+      res.json(allSubjects);
+    } catch (error) {
+      console.error("Error in GET /api/subjects", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   app.get("/api/subjects/grade-band/:gradeBand", async (req, res) => {
-    const subjectsByBand = await storage.getSubjectsByGradeBand(decodeURIComponent(req.params.gradeBand));
-    res.json(subjectsByBand);
+    try {
+      const subjectsByBand = await storage.getSubjectsByGradeBand(decodeURIComponent(req.params.gradeBand));
+      res.json(subjectsByBand);
+    } catch (error) {
+      console.error("Error in GET /api/subjects/grade-band/:gradeBand", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   app.get("/api/subjects/:subjectId", async (req, res) => {
-    const subject = await storage.getSubject(req.params.subjectId);
-    if (!subject) return res.status(404).json({ error: "Subject not found" });
-    res.json(subject);
+    try {
+      const subject = await storage.getSubject(req.params.subjectId);
+      if (!subject) return res.status(404).json({ error: "Subject not found" });
+      res.json(subject);
+    } catch (error) {
+      console.error("Error in GET /api/subjects/:subjectId", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   app.get("/api/subjects/:subjectId/modules", async (req, res) => {
-    const mods = await storage.getModulesBySubject(req.params.subjectId);
-    res.json(mods);
+    try {
+      const mods = await storage.getModulesBySubject(req.params.subjectId);
+      res.json(mods);
+    } catch (error) {
+      console.error("Error in GET /api/subjects/:subjectId/modules", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   app.get("/api/levels", async (_req, res) => {
-    res.setHeader("Cache-Control", "public, max-age=3600");
-    const allLevels = await storage.getLevels();
-    res.json(allLevels);
+    try {
+      res.setHeader("Cache-Control", "public, max-age=3600");
+      const allLevels = await storage.getLevels();
+      res.json(allLevels);
+    } catch (error) {
+      console.error("Error in GET /api/levels", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   app.get("/api/levels/:levelId", async (req, res) => {
-    const level = await storage.getLevel(parseInt(req.params.levelId));
-    if (!level) return res.status(404).json({ error: "Level not found" });
-    res.json(level);
+    try {
+      const level = await storage.getLevel(parseInt(req.params.levelId));
+      if (!level) return res.status(404).json({ error: "Level not found" });
+      res.json(level);
+    } catch (error) {
+      console.error("Error in GET /api/levels/:levelId", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   app.get("/api/levels/:levelId/modules", async (req, res) => {
-    const mods = await storage.getModulesByLevel(parseInt(req.params.levelId));
-    res.json(mods);
+    try {
+      const mods = await storage.getModulesByLevel(parseInt(req.params.levelId));
+      res.json(mods);
+    } catch (error) {
+      console.error("Error in GET /api/levels/:levelId/modules", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   app.get("/api/modules/:moduleId", async (req, res) => {
-    const mod = await storage.getModule(req.params.moduleId);
-    if (!mod) return res.status(404).json({ error: "Module not found" });
-    res.json(mod);
+    try {
+      const mod = await storage.getModule(req.params.moduleId);
+      if (!mod) return res.status(404).json({ error: "Module not found" });
+      res.json(mod);
+    } catch (error) {
+      console.error("Error in GET /api/modules/:moduleId", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   app.get("/api/modules/:moduleId/lessons", async (req, res) => {
-    const moduleLessons = await storage.getLessonsByModule(req.params.moduleId);
-    res.json(moduleLessons);
+    try {
+      const moduleLessons = await storage.getLessonsByModule(req.params.moduleId);
+      res.json(moduleLessons);
+    } catch (error) {
+      console.error("Error in GET /api/modules/:moduleId/lessons", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   app.get("/api/modules/:moduleId/quiz", async (req, res) => {
-    const questions = await storage.getQuizByModule(req.params.moduleId);
-    res.json(questions);
+    try {
+      const questions = await storage.getQuizByModule(req.params.moduleId);
+      res.json(questions);
+    } catch (error) {
+      console.error("Error in GET /api/modules/:moduleId/quiz", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   app.post("/api/modules/:moduleId/quiz/submit", requireAuth, async (req, res) => {
@@ -516,9 +566,14 @@ export async function registerRoutes(
   });
 
   app.get("/api/lessons/:lessonId", async (req, res) => {
-    const lesson = await storage.getLesson(req.params.lessonId);
-    if (!lesson) return res.status(404).json({ error: "Lesson not found" });
-    res.json(lesson);
+    try {
+      const lesson = await storage.getLesson(req.params.lessonId);
+      if (!lesson) return res.status(404).json({ error: "Lesson not found" });
+      res.json(lesson);
+    } catch (error) {
+      console.error("Error in GET /api/lessons/:lessonId", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   app.post("/api/lessons/:lessonId/complete", requireAuth, async (req, res) => {
@@ -550,52 +605,72 @@ export async function registerRoutes(
     res.json({ success: true, pointsEarned });
   });
 
-  app.get("/api/progress", async (req, res) => {
-    const progress = await storage.getOrCreateProgress(getUserId(req), getUserName(req));
-    res.json(progress);
-  });
-
-  app.get("/api/dashboard", async (req, res) => {
-    const progress = await storage.getOrCreateProgress(getUserId(req), getUserName(req));
-    const currentLevel = await storage.getLevel(progress.currentLevel);
-    const currentModule = progress.currentModuleId
-      ? await storage.getModule(progress.currentModuleId)
-      : null;
-    const recentBadges = await storage.getEarnedBadges(progress.id);
-
-    const allModules = await storage.getModulesByLevel(progress.currentLevel);
-    let totalLessons = 0;
-    for (const mod of allModules) {
-      const modLessons = await storage.getLessonsByModule(mod.id);
-      totalLessons += modLessons.length;
+  app.get("/api/progress", requireAuth, async (req, res) => {
+    try {
+      const progress = await storage.getOrCreateProgress(getUserId(req), getUserName(req));
+      res.json(progress);
+    } catch (error) {
+      console.error("Error in GET /api/progress", error);
+      res.status(500).json({ error: "Internal server error" });
     }
-    const completedLessonsList = await storage.getCompletedLessons(progress.id);
-
-    res.json({
-      progress,
-      currentLevel,
-      currentModule,
-      recentBadges,
-      stats: {
-        totalLessons,
-        completedLessons: completedLessonsList.length,
-        totalModules: allModules.length,
-        completedModules: 0,
-      },
-    });
   });
 
-  app.get("/api/achievements", async (req, res) => {
-    const progress = await storage.getOrCreateProgress(getUserId(req), getUserName(req));
-    const allBadges = await storage.getBadges();
-    const earnedBadgesList = await storage.getEarnedBadges(progress.id);
+  app.get("/api/dashboard", requireAuth, async (req, res) => {
+    try {
+      const progress = await storage.getOrCreateProgress(getUserId(req), getUserName(req));
+      const currentLevel = await storage.getLevel(progress.currentLevel);
+      const currentModule = progress.currentModuleId
+        ? await storage.getModule(progress.currentModuleId)
+        : null;
+      const recentBadges = await storage.getEarnedBadges(progress.id);
+  
+      const allModules = await storage.getModulesByLevel(progress.currentLevel);
+      let totalLessons = 0;
+      let completedModulesCount = 0;
+      const completedLessonsList = await storage.getCompletedLessons(progress.id);
+      const completedLessonIds = new Set(completedLessonsList.map((cl: any) => cl.lessonId));
+      for (const mod of allModules) {
+        const modLessons = await storage.getLessonsByModule(mod.id);
+        totalLessons += modLessons.length;
+        if (modLessons.length > 0 && modLessons.every((l: any) => completedLessonIds.has(l.id))) {
+          completedModulesCount++;
+        }
+      }
 
-    res.json({
-      allBadges,
-      earnedBadges: earnedBadgesList,
-      totalPoints: progress.totalPoints,
-      currentLevel: progress.currentLevel,
-    });
+      res.json({
+        progress,
+        currentLevel,
+        currentModule,
+        recentBadges,
+        stats: {
+          totalLessons,
+          completedLessons: completedLessonsList.length,
+          totalModules: allModules.length,
+          completedModules: completedModulesCount,
+        },
+      });
+    } catch (error) {
+      console.error("Error in GET /api/dashboard", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.get("/api/achievements", requireAuth, async (req, res) => {
+    try {
+      const progress = await storage.getOrCreateProgress(getUserId(req), getUserName(req));
+      const allBadges = await storage.getBadges();
+      const earnedBadgesList = await storage.getEarnedBadges(progress.id);
+  
+      res.json({
+        allBadges,
+        earnedBadges: earnedBadgesList,
+        totalPoints: progress.totalPoints,
+        currentLevel: progress.currentLevel,
+      });
+    } catch (error) {
+      console.error("Error in GET /api/achievements", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   app.get("/api/parent/support-alerts", requireAuth, async (_req, res) => {
@@ -622,8 +697,13 @@ export async function registerRoutes(
   });
 
   app.get("/api/badges", async (_req, res) => {
-    const allBadges = await storage.getBadges();
-    res.json(allBadges);
+    try {
+      const allBadges = await storage.getBadges();
+      res.json(allBadges);
+    } catch (error) {
+      console.error("Error in GET /api/badges", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   const chatRateLimit = new Map<string, { count: number; resetAt: number }>();
@@ -953,26 +1033,46 @@ Write a warm, encouraging welcome message for students joining this classroom. M
   });
 
   app.get("/api/curriculum-documents", async (_req, res) => {
-    const docs = await storage.getCurriculumDocuments();
-    res.json(docs);
+    try {
+      const docs = await storage.getCurriculumDocuments();
+      res.json(docs);
+    } catch (error) {
+      console.error("Error in GET /api/curriculum-documents", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   app.get("/api/curriculum-documents/module/:moduleId", async (req, res) => {
-    const docs = await storage.getCurriculumDocumentsByModule(req.params.moduleId);
-    res.json(docs);
+    try {
+      const docs = await storage.getCurriculumDocumentsByModule(req.params.moduleId);
+      res.json(docs);
+    } catch (error) {
+      console.error("Error in GET /api/curriculum-documents/module/:moduleId", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   app.get("/api/curriculum-documents/level/:levelId", async (req, res) => {
-    const levelId = parseInt(req.params.levelId);
-    if (isNaN(levelId)) return res.status(400).json({ error: "Invalid level ID" });
-    const docs = await storage.getCurriculumDocumentsByLevel(levelId);
-    res.json(docs);
+    try {
+      const levelId = parseInt(req.params.levelId);
+      if (isNaN(levelId)) return res.status(400).json({ error: "Invalid level ID" });
+      const docs = await storage.getCurriculumDocumentsByLevel(levelId);
+      res.json(docs);
+    } catch (error) {
+      console.error("Error in GET /api/curriculum-documents/level/:levelId", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   app.get("/api/curriculum-documents/:id", async (req, res) => {
-    const doc = await storage.getCurriculumDocument(req.params.id);
-    if (!doc) return res.status(404).json({ error: "Document not found" });
-    res.json(doc);
+    try {
+      const doc = await storage.getCurriculumDocument(req.params.id);
+      if (!doc) return res.status(404).json({ error: "Document not found" });
+      res.json(doc);
+    } catch (error) {
+      console.error("Error in GET /api/curriculum-documents/:id", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   app.post("/api/curriculum-documents", requireAuth, async (req, res) => {
@@ -1011,8 +1111,13 @@ Write a warm, encouraging welcome message for students joining this classroom. M
   });
 
   app.get("/api/curriculum-documents/:docId/attachments", async (req, res) => {
-    const attachments = await storage.getAttachmentsByDocument(req.params.docId as string);
-    res.json(attachments);
+    try {
+      const attachments = await storage.getAttachmentsByDocument(req.params.docId as string);
+      res.json(attachments);
+    } catch (error) {
+      console.error("Error in GET /api/curriculum-documents/:docId/attachments", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   app.post("/api/curriculum-documents/:docId/attachments", requireAuth, async (req, res) => {
@@ -1053,8 +1158,13 @@ Write a warm, encouraging welcome message for students joining this classroom. M
   });
 
   app.get("/api/lessons/:lessonId/comments", async (req, res) => {
-    const comments = await storage.getCommentsByLesson(req.params.lessonId);
-    res.json(comments);
+    try {
+      const comments = await storage.getCommentsByLesson(req.params.lessonId);
+      res.json(comments);
+    } catch (error) {
+      console.error("Error in GET /api/lessons/:lessonId/comments", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   app.post("/api/lessons/:lessonId/comments", requireAuth, async (req, res) => {
@@ -1069,8 +1179,13 @@ Write a warm, encouraging welcome message for students joining this classroom. M
   });
 
   app.get("/api/lessons/:lessonId/reactions", async (req, res) => {
-    const reactions = await storage.getReactionsByLesson(req.params.lessonId);
-    res.json(reactions);
+    try {
+      const reactions = await storage.getReactionsByLesson(req.params.lessonId);
+      res.json(reactions);
+    } catch (error) {
+      console.error("Error in GET /api/lessons/:lessonId/reactions", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   app.post("/api/lessons/:lessonId/reactions", requireAuth, async (req, res) => {
@@ -1086,8 +1201,13 @@ Write a warm, encouraging welcome message for students joining this classroom. M
   });
 
   app.get("/api/modules/:moduleId/tips", async (req, res) => {
-    const tips = await storage.getStudyTipsByModule(req.params.moduleId);
-    res.json(tips);
+    try {
+      const tips = await storage.getStudyTipsByModule(req.params.moduleId);
+      res.json(tips);
+    } catch (error) {
+      console.error("Error in GET /api/modules/:moduleId/tips", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   app.post("/api/modules/:moduleId/tips", requireAuth, async (req, res) => {
@@ -1118,14 +1238,19 @@ Write a warm, encouraging welcome message for students joining this classroom. M
   });
 
   app.get("/api/classrooms", requireAuth, async (req, res) => {
-    const teacherClassrooms = await storage.getClassroomsByTeacher(getUserId(req)!);
-    const studentClassrooms = await storage.getStudentClassrooms(getUserId(req)!);
-    const teacherWithCounts = [];
-    for (const c of teacherClassrooms) {
-      const members = await storage.getClassroomMembers(c.id);
-      teacherWithCounts.push({ ...c, studentCount: members.length });
+    try {
+      const teacherClassrooms = await storage.getClassroomsByTeacher(getUserId(req)!);
+      const studentClassrooms = await storage.getStudentClassrooms(getUserId(req)!);
+      const teacherWithCounts = [];
+      for (const c of teacherClassrooms) {
+        const members = await storage.getClassroomMembers(c.id);
+        teacherWithCounts.push({ ...c, studentCount: members.length });
+      }
+      res.json({ teacherClassrooms: teacherWithCounts, studentClassrooms });
+    } catch (error) {
+      console.error("Error in GET /api/classrooms", error);
+      res.status(500).json({ error: "Internal server error" });
     }
-    res.json({ teacherClassrooms: teacherWithCounts, studentClassrooms });
   });
 
   app.post("/api/classrooms/join", requireAuth, async (req, res) => {
@@ -1139,93 +1264,113 @@ Write a warm, encouraging welcome message for students joining this classroom. M
   });
 
   app.get("/api/classrooms/:classroomId", requireAuth, async (req, res) => {
-    const classroom = await storage.getClassroom(req.params.classroomId);
-    if (!classroom) return res.status(404).json({ error: "Classroom not found" });
-    if (classroom.teacherUserId !== getUserId(req)) return res.status(403).json({ error: "Not authorized" });
-    const members = await storage.getClassroomMembers(req.params.classroomId);
-
-    const memberDetails = [];
-    for (const member of members) {
-      const progress = await storage.getProgressByUserId(member.userId);
-      const earnedBadgesList = progress ? await storage.getEarnedBadges(progress.id) : [];
-      memberDetails.push({
-        id: member.id,
-        classroomId: member.classroomId,
-        userId: member.userId,
-        studentName: member.studentName,
-        joinedAt: member.joinedAt,
-        lessonsCompleted: progress?.lessonsCompleted || 0,
-        quizzesCompleted: progress?.quizzesCompleted || 0,
-        averageScore: progress?.averageScore || 0,
-        totalPoints: progress?.totalPoints || 0,
-        badgesEarned: earnedBadgesList.length,
+    try {
+      const classroom = await storage.getClassroom(req.params.classroomId);
+      if (!classroom) return res.status(404).json({ error: "Classroom not found" });
+      if (classroom.teacherUserId !== getUserId(req)) return res.status(403).json({ error: "Not authorized" });
+      const members = await storage.getClassroomMembers(req.params.classroomId);
+  
+      const memberDetails = [];
+      for (const member of members) {
+        const progress = await storage.getProgressByUserId(member.userId);
+        const earnedBadgesList = progress ? await storage.getEarnedBadges(progress.id) : [];
+        memberDetails.push({
+          id: member.id,
+          classroomId: member.classroomId,
+          userId: member.userId,
+          studentName: member.studentName,
+          joinedAt: member.joinedAt,
+          lessonsCompleted: progress?.lessonsCompleted || 0,
+          quizzesCompleted: progress?.quizzesCompleted || 0,
+          averageScore: progress?.averageScore || 0,
+          totalPoints: progress?.totalPoints || 0,
+          badgesEarned: earnedBadgesList.length,
+        });
+      }
+  
+      const withProgress = memberDetails.filter(m => m.lessonsCompleted > 0 || m.quizzesCompleted > 0);
+      const avgScore = withProgress.length > 0
+        ? Math.round(memberDetails.reduce((sum, m) => sum + m.averageScore, 0) / memberDetails.length)
+        : 0;
+      const avgLessons = memberDetails.length > 0
+        ? Math.round(memberDetails.reduce((sum, m) => sum + m.lessonsCompleted, 0) / memberDetails.length)
+        : 0;
+  
+      res.json({
+        classroom,
+        members: memberDetails,
+        stats: {
+          studentCount: members.length,
+          averageScore: avgScore,
+          averageLessonsCompleted: avgLessons,
+        },
       });
+    } catch (error) {
+      console.error("Error in GET /api/classrooms/:classroomId", error);
+      res.status(500).json({ error: "Internal server error" });
     }
-
-    const withProgress = memberDetails.filter(m => m.lessonsCompleted > 0 || m.quizzesCompleted > 0);
-    const avgScore = withProgress.length > 0
-      ? Math.round(memberDetails.reduce((sum, m) => sum + m.averageScore, 0) / memberDetails.length)
-      : 0;
-    const avgLessons = memberDetails.length > 0
-      ? Math.round(memberDetails.reduce((sum, m) => sum + m.lessonsCompleted, 0) / memberDetails.length)
-      : 0;
-
-    res.json({
-      classroom,
-      members: memberDetails,
-      stats: {
-        studentCount: members.length,
-        averageScore: avgScore,
-        averageLessonsCompleted: avgLessons,
-      },
-    });
   });
 
   app.get("/api/teacher/dashboard", requireAuth, async (req, res) => {
-    const teacherClassrooms = await storage.getClassroomsByTeacher(getUserId(req)!);
-
-    const classroomSummaries = [];
-    for (const classroom of teacherClassrooms) {
-      const members = await storage.getClassroomMembers(classroom.id);
-      let totalScore = 0;
-      let totalLessons = 0;
-      let totalQuizzes = 0;
-      let totalPoints = 0;
-      let progressCount = 0;
-
-      for (const member of members) {
-        const progress = await storage.getProgressByUserId(member.userId);
-        if (progress) {
-          totalScore += progress.averageScore;
-          totalLessons += progress.lessonsCompleted;
-          totalQuizzes += progress.quizzesCompleted;
-          totalPoints += progress.totalPoints;
-          progressCount++;
+    try {
+      const teacherClassrooms = await storage.getClassroomsByTeacher(getUserId(req)!);
+  
+      const classroomSummaries = [];
+      for (const classroom of teacherClassrooms) {
+        const members = await storage.getClassroomMembers(classroom.id);
+        let totalScore = 0;
+        let totalLessons = 0;
+        let totalQuizzes = 0;
+        let totalPoints = 0;
+        let progressCount = 0;
+  
+        for (const member of members) {
+          const progress = await storage.getProgressByUserId(member.userId);
+          if (progress) {
+            totalScore += progress.averageScore;
+            totalLessons += progress.lessonsCompleted;
+            totalQuizzes += progress.quizzesCompleted;
+            totalPoints += progress.totalPoints;
+            progressCount++;
+          }
         }
+  
+        classroomSummaries.push({
+          ...classroom,
+          studentCount: members.length,
+          averageScore: progressCount > 0 ? Math.round(totalScore / progressCount) : 0,
+          totalLessonsCompleted: totalLessons,
+          totalQuizzesCompleted: totalQuizzes,
+          averagePoints: progressCount > 0 ? Math.round(totalPoints / progressCount) : 0,
+        });
       }
-
-      classroomSummaries.push({
-        ...classroom,
-        studentCount: members.length,
-        averageScore: progressCount > 0 ? Math.round(totalScore / progressCount) : 0,
-        totalLessonsCompleted: totalLessons,
-        totalQuizzesCompleted: totalQuizzes,
-        averagePoints: progressCount > 0 ? Math.round(totalPoints / progressCount) : 0,
-      });
+  
+      res.json({ classrooms: classroomSummaries });
+    } catch (error) {
+      console.error("Error in GET /api/teacher/dashboard", error);
+      res.status(500).json({ error: "Internal server error" });
     }
-
-    res.json({ classrooms: classroomSummaries });
   });
 
   app.get("/api/certificates", requireAuth, async (req, res) => {
-    const certs = await storage.getCertificatesByUser(getUserId(req)!);
-    res.json(certs);
+    try {
+      const certs = await storage.getCertificatesByUser(getUserId(req)!);
+      res.json(certs);
+    } catch (error) {
+      console.error("Error in GET /api/certificates", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   app.get("/api/certificates/:id", async (req, res) => {
-    const cert = await storage.getCertificate(req.params.id);
-    if (!cert) return res.status(404).json({ error: "Certificate not found" });
-    res.json(cert);
+    try {
+      const cert = await storage.getCertificate(req.params.id);
+      if (!cert) return res.status(404).json({ error: "Certificate not found" });
+      res.json(cert);
+    } catch (error) {
+      console.error("Error in GET /api/certificates/:id", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   // ==================== ACADEMY ROUTES ====================
@@ -1247,19 +1392,30 @@ Write a warm, encouraging welcome message for students joining this classroom. M
       }
       res.json({ houses, wallet, recentMeritEvents: recentMerit.slice(0, 10), competitions, pantherPower, dailyQuests });
     } catch (error) {
+      console.error("Error in GET /api/academy/dashboard", error);
       res.status(500).json({ error: "Failed to load academy dashboard" });
     }
   });
 
   app.get("/api/academy/avatars", async (_req, res) => {
-    const avatars = await storage.getAllAcademyAvatars();
-    res.json(avatars);
+    try {
+      const avatars = await storage.getAllAcademyAvatars();
+      res.json(avatars);
+    } catch (error) {
+      console.error("Error in GET /api/academy/avatars", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   app.get("/api/academy/avatar", requireAuth, async (req, res) => {
-    const avatar = await storage.getAcademyAvatar(getUserId(req)!);
-    if (!avatar) return res.status(404).json({ error: "Avatar not found" });
-    res.json(avatar);
+    try {
+      const avatar = await storage.getAcademyAvatar(getUserId(req)!);
+      if (!avatar) return res.status(404).json({ error: "Avatar not found" });
+      res.json(avatar);
+    } catch (error) {
+      console.error("Error in GET /api/academy/avatar", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   app.post("/api/academy/avatar", requireAuth, async (req, res) => {
@@ -1280,8 +1436,13 @@ Write a warm, encouraging welcome message for students joining this classroom. M
   });
 
   app.get("/api/academy/houses", async (_req, res) => {
-    const houses = await storage.getAcademyHouses();
-    res.json(houses);
+    try {
+      const houses = await storage.getAcademyHouses();
+      res.json(houses);
+    } catch (error) {
+      console.error("Error in GET /api/academy/houses", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   app.post("/api/academy/merit", requireAuth, async (req, res) => {
@@ -1315,24 +1476,44 @@ Write a warm, encouraging welcome message for students joining this classroom. M
   });
 
   app.get("/api/academy/merit/user/:userId", requireAuth, async (req, res) => {
-    const events = await storage.getMeritEventsByUser(req.params.userId);
-    res.json(events);
+    try {
+      const events = await storage.getMeritEventsByUser(req.params.userId);
+      res.json(events);
+    } catch (error) {
+      console.error("Error in GET /api/academy/merit/user/:userId", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   app.get("/api/academy/merit/house/:houseId", async (req, res) => {
-    const events = await storage.getMeritEventsByHouse(req.params.houseId);
-    res.json(events);
+    try {
+      const events = await storage.getMeritEventsByHouse(req.params.houseId);
+      res.json(events);
+    } catch (error) {
+      console.error("Error in GET /api/academy/merit/house/:houseId", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   app.get("/api/academy/wallet", requireAuth, async (req, res) => {
-    const wallet = await storage.getOrCreateWallet(getUserId(req)!);
-    res.json(wallet);
+    try {
+      const wallet = await storage.getOrCreateWallet(getUserId(req)!);
+      res.json(wallet);
+    } catch (error) {
+      console.error("Error in GET /api/academy/wallet", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   app.get("/api/academy/transactions", requireAuth, async (req, res) => {
-    const wallet = await storage.getOrCreateWallet(getUserId(req)!);
-    const transactions = await storage.getTransactionsByWallet(wallet.id);
-    res.json(transactions);
+    try {
+      const wallet = await storage.getOrCreateWallet(getUserId(req)!);
+      const transactions = await storage.getTransactionsByWallet(wallet.id);
+      res.json(transactions);
+    } catch (error) {
+      console.error("Error in GET /api/academy/transactions", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   app.post("/api/academy/transactions", requireAuth, async (req, res) => {
@@ -1356,8 +1537,13 @@ Write a warm, encouraging welcome message for students joining this classroom. M
   });
 
   app.get("/api/academy/stocks", async (_req, res) => {
-    const stocks = await storage.getAllStocks();
-    res.json(stocks);
+    try {
+      const stocks = await storage.getAllStocks();
+      res.json(stocks);
+    } catch (error) {
+      console.error("Error in GET /api/academy/stocks", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   app.post("/api/academy/stocks/trade", requireAuth, async (req, res) => {
@@ -1441,13 +1627,23 @@ Write a warm, encouraging welcome message for students joining this classroom. M
   });
 
   app.get("/api/academy/portfolio", requireAuth, async (req, res) => {
-    const portfolio = await storage.getPortfolioByUser(getUserId(req)!);
-    res.json(portfolio);
+    try {
+      const portfolio = await storage.getPortfolioByUser(getUserId(req)!);
+      res.json(portfolio);
+    } catch (error) {
+      console.error("Error in GET /api/academy/portfolio", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   app.get("/api/academy/community-portfolio", async (_req, res) => {
-    const portfolio = await storage.getCommunityPortfolio();
-    res.json(portfolio);
+    try {
+      const portfolio = await storage.getCommunityPortfolio();
+      res.json(portfolio);
+    } catch (error) {
+      console.error("Error in GET /api/academy/community-portfolio", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   app.post("/api/academy/stocks/simulate", requireAdmin, async (_req, res) => {
@@ -1476,9 +1672,14 @@ Write a warm, encouraging welcome message for students joining this classroom. M
   });
 
   app.get("/api/academy/campus", requireAuth, async (req, res) => {
-    const project = await storage.getCampusProject(getUserId(req)!);
-    if (!project) return res.status(404).json({ error: "No campus project found" });
-    res.json(project);
+    try {
+      const project = await storage.getCampusProject(getUserId(req)!);
+      if (!project) return res.status(404).json({ error: "No campus project found" });
+      res.json(project);
+    } catch (error) {
+      console.error("Error in GET /api/academy/campus", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   app.post("/api/academy/campus", requireAuth, async (req, res) => {
@@ -1542,8 +1743,13 @@ Write a warm, encouraging welcome message for students joining this classroom. M
   });
 
   app.get("/api/academy/competitions", async (_req, res) => {
-    const competitions = await storage.getAllCompetitions();
-    res.json(competitions);
+    try {
+      const competitions = await storage.getAllCompetitions();
+      res.json(competitions);
+    } catch (error) {
+      console.error("Error in GET /api/academy/competitions", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   app.post("/api/academy/competitions", requireAuth, async (req, res) => {
@@ -1556,8 +1762,13 @@ Write a warm, encouraging welcome message for students joining this classroom. M
   });
 
   app.get("/api/academy/competitions/:id/entries", async (req, res) => {
-    const entries = await storage.getCompetitionEntries(req.params.id);
-    res.json(entries);
+    try {
+      const entries = await storage.getCompetitionEntries(req.params.id);
+      res.json(entries);
+    } catch (error) {
+      console.error("Error in GET /api/academy/competitions/:id/entries", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   app.post("/api/academy/competitions/:id/enter", requireAuth, async (req, res) => {
@@ -1599,9 +1810,14 @@ Write a warm, encouraging welcome message for students joining this classroom. M
   });
 
   app.get("/api/academy/dream-profile", requireAuth, async (req, res) => {
-    const profile = await storage.getDreamProfile(getUserId(req)!);
-    if (!profile) return res.status(404).json({ error: "Dream profile not found" });
-    res.json(profile);
+    try {
+      const profile = await storage.getDreamProfile(getUserId(req)!);
+      if (!profile) return res.status(404).json({ error: "Dream profile not found" });
+      res.json(profile);
+    } catch (error) {
+      console.error("Error in GET /api/academy/dream-profile", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   app.post("/api/academy/dream-profile", requireAuth, async (req, res) => {
@@ -1620,8 +1836,13 @@ Write a warm, encouraging welcome message for students joining this classroom. M
   });
 
   app.get("/api/academy/merch", async (_req, res) => {
-    const items = await storage.getAllMerchItems();
-    res.json(items);
+    try {
+      const items = await storage.getAllMerchItems();
+      res.json(items);
+    } catch (error) {
+      console.error("Error in GET /api/academy/merch", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   app.post("/api/academy/merch", requireAuth, async (req, res) => {
@@ -1634,8 +1855,13 @@ Write a warm, encouraging welcome message for students joining this classroom. M
   });
 
   app.get("/api/academy/merch/orders", requireAuth, async (req, res) => {
-    const orders = await storage.getMerchOrders(getUserId(req)!);
-    res.json(orders);
+    try {
+      const orders = await storage.getMerchOrders(getUserId(req)!);
+      res.json(orders);
+    } catch (error) {
+      console.error("Error in GET /api/academy/merch/orders", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   app.post("/api/academy/merch/orders", requireAuth, async (req, res) => {
@@ -2933,26 +3159,46 @@ Write a warm, encouraging welcome message for students joining this classroom. M
   });
 
   app.get("/api/games", requireAuth, async (req, res) => {
-    const userId = getUserId(req)!;
-    const sessions = await storage.getGameSessionsByUser(userId);
-    res.json(sessions);
+    try {
+      const userId = getUserId(req)!;
+      const sessions = await storage.getGameSessionsByUser(userId);
+      res.json(sessions);
+    } catch (error) {
+      console.error("Error in GET /api/games", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   app.get("/api/games/active", async (req, res) => {
-    const sessions = await storage.getActiveGameSessions();
-    res.json(sessions);
+    try {
+      const sessions = await storage.getActiveGameSessions();
+      res.json(sessions);
+    } catch (error) {
+      console.error("Error in GET /api/games/active", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   app.get("/api/games/online-count", async (_req, res) => {
-    const count = await storage.getActivePlayerCount();
-    res.json({ count });
+    try {
+      const count = await storage.getActivePlayerCount();
+      res.json({ count });
+    } catch (error) {
+      console.error("Error in GET /api/games/online-count", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   app.get("/api/games/:id", async (req, res) => {
-    const session = await storage.getGameSession(req.params.id);
-    if (!session) return res.status(404).json({ error: "Game not found" });
-    const players = await storage.getGamePlayers(req.params.id);
-    res.json({ session, players });
+    try {
+      const session = await storage.getGameSession(req.params.id);
+      if (!session) return res.status(404).json({ error: "Game not found" });
+      const players = await storage.getGamePlayers(req.params.id);
+      res.json({ session, players });
+    } catch (error) {
+      console.error("Error in GET /api/games/:id", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   app.patch("/api/games/:id", requireAuth, async (req, res) => {
@@ -3004,14 +3250,24 @@ Write a warm, encouraging welcome message for students joining this classroom. M
   });
 
   app.get("/api/ratings", requireAuth, async (req, res) => {
-    const userId = getUserId(req)!;
-    const ratings = await storage.getRatingsByUser(userId);
-    res.json(ratings);
+    try {
+      const userId = getUserId(req)!;
+      const ratings = await storage.getRatingsByUser(userId);
+      res.json(ratings);
+    } catch (error) {
+      console.error("Error in GET /api/ratings", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   app.get("/api/leaderboard/:gameType", async (req, res) => {
-    const leaderboard = await storage.getLeaderboard(req.params.gameType, 20);
-    res.json(leaderboard);
+    try {
+      const leaderboard = await storage.getLeaderboard(req.params.gameType, 20);
+      res.json(leaderboard);
+    } catch (error) {
+      console.error("Error in GET /api/leaderboard/:gameType", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   app.post("/api/play-sessions/end", requireAuth, async (req, res) => {
@@ -3025,8 +3281,13 @@ Write a warm, encouraging welcome message for students joining this classroom. M
   });
 
   app.get("/api/play-sessions/flagged", requireAdmin, async (req, res) => {
-    const flagged = await storage.getFlaggedPlaySessions();
-    res.json(flagged);
+    try {
+      const flagged = await storage.getFlaggedPlaySessions();
+      res.json(flagged);
+    } catch (error) {
+      console.error("Error in GET /api/play-sessions/flagged", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   // ==================== STUDENT REFLECTIONS ====================
@@ -3242,45 +3503,55 @@ Write a warm, encouraging welcome message for students joining this classroom. M
   // ==================== AI TOOLS ROUTES ====================
 
   app.get("/api/ai-tools", async (req, res) => {
-    const userId = getUserId(req);
-    const isAdult = req.query.mode === "adult";
-
-    const tools = await db.select().from(aiToolCatalog).where(eq(aiToolCatalog.isActive, true)).orderBy(aiToolCatalog.sortOrder);
-
-    let unlocks: any[] = [];
-    if (userId && !isAdult) {
-      unlocks = await db.select().from(aiToolUnlocks).where(eq(aiToolUnlocks.userId, userId));
+    try {
+      const userId = getUserId(req);
+      const isAdult = req.query.mode === "adult";
+  
+      const tools = await db.select().from(aiToolCatalog).where(eq(aiToolCatalog.isActive, true)).orderBy(aiToolCatalog.sortOrder);
+  
+      let unlocks: any[] = [];
+      if (userId && !isAdult) {
+        unlocks = await db.select().from(aiToolUnlocks).where(eq(aiToolUnlocks.userId, userId));
+      }
+  
+      const unlockedToolIds = new Set(unlocks.map((u: any) => u.toolId));
+  
+      const toolsWithStatus = tools.map(tool => ({
+        ...tool,
+        isUnlocked: isAdult || unlockedToolIds.has(tool.id),
+        moduleInfo: AI_COURSE_MODULES.find(m => m.key === tool.requiredModuleKey),
+      }));
+  
+      res.json(toolsWithStatus);
+    } catch (error) {
+      console.error("Error in GET /api/ai-tools", error);
+      res.status(500).json({ error: "Internal server error" });
     }
-
-    const unlockedToolIds = new Set(unlocks.map((u: any) => u.toolId));
-
-    const toolsWithStatus = tools.map(tool => ({
-      ...tool,
-      isUnlocked: isAdult || unlockedToolIds.has(tool.id),
-      moduleInfo: AI_COURSE_MODULES.find(m => m.key === tool.requiredModuleKey),
-    }));
-
-    res.json(toolsWithStatus);
   });
 
   app.get("/api/ai-tools/modules", requireAuth, async (req, res) => {
-    const userId = getUserId(req)!;
-    const unlocks = await db.select().from(aiToolUnlocks).where(eq(aiToolUnlocks.userId, userId));
-    const unlockedModuleKeys = new Set<string>();
-
-    const tools = await db.select().from(aiToolCatalog);
-    for (const unlock of unlocks) {
-      const tool = tools.find(t => t.id === unlock.toolId);
-      if (tool) unlockedModuleKeys.add(tool.requiredModuleKey!);
+    try {
+      const userId = getUserId(req)!;
+      const unlocks = await db.select().from(aiToolUnlocks).where(eq(aiToolUnlocks.userId, userId));
+      const unlockedModuleKeys = new Set<string>();
+  
+      const tools = await db.select().from(aiToolCatalog);
+      for (const unlock of unlocks) {
+        const tool = tools.find(t => t.id === unlock.toolId);
+        if (tool) unlockedModuleKeys.add(tool.requiredModuleKey!);
+      }
+  
+      const modulesWithStatus = AI_COURSE_MODULES.map(mod => ({
+        ...mod,
+        completed: unlockedModuleKeys.has(mod.key),
+        unlocksTool: mod.unlocksTool,
+      }));
+  
+      res.json(modulesWithStatus);
+    } catch (error) {
+      console.error("Error in GET /api/ai-tools/modules", error);
+      res.status(500).json({ error: "Internal server error" });
     }
-
-    const modulesWithStatus = AI_COURSE_MODULES.map(mod => ({
-      ...mod,
-      completed: unlockedModuleKeys.has(mod.key),
-      unlocksTool: mod.unlocksTool,
-    }));
-
-    res.json(modulesWithStatus);
   });
 
   app.post("/api/ai-tools/modules/:moduleKey/complete", requireAuth, async (req, res) => {
@@ -3501,9 +3772,14 @@ Be thorough, practical, and age-appropriate. Format your response with clear hea
   });
 
   app.get("/api/ai-tools/projects", requireAuth, async (req, res) => {
-    const userId = getUserId(req)!;
-    const projects = await db.select().from(aiToolProjects).where(eq(aiToolProjects.userId, userId)).orderBy(desc(aiToolProjects.createdAt));
-    res.json(projects);
+    try {
+      const userId = getUserId(req)!;
+      const projects = await db.select().from(aiToolProjects).where(eq(aiToolProjects.userId, userId)).orderBy(desc(aiToolProjects.createdAt));
+      res.json(projects);
+    } catch (error) {
+      console.error("Error in GET /api/ai-tools/projects", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   app.post("/api/ai-tools/projects", requireAuth, async (req, res) => {

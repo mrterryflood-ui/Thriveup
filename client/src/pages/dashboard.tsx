@@ -14,6 +14,7 @@ import {
   Sparkles, GraduationCap, Briefcase, Users, BarChart3, Circle,
 } from "lucide-react";
 import { ErrorRetry } from "@/components/error-retry";
+import { PageHeader } from "@/components/page-header";
 import { LEVEL_COLORS, getRankForLevel, ALL_RANKS } from "@/lib/curriculum-data";
 import type { StudentProgress, Level, Module, EarnedBadge, Badge as BadgeType } from "@shared/schema";
 
@@ -95,6 +96,7 @@ export default function DashboardPage() {
 
   const isNewUser = progress.totalPoints === 0 && stats.completedLessons === 0;
   const checklistItems = [
+    { label: "Take the Campus Tour", done: false, link: "/academy" },
     { label: "Explore your first subject", done: stats.completedLessons > 0, link: "/subjects" },
     { label: "Complete a curriculum lesson", done: stats.completedLessons > 0, link: "/curriculum" },
     { label: "Chat with Spark AI companion", done: progress.totalPoints > 0, link: "/ai-companion" },
@@ -104,14 +106,10 @@ export default function DashboardPage() {
 
   return (
     <div className="p-4 sm:p-6 max-w-5xl mx-auto">
-      <div className="mb-6 sm:mb-8">
-        <h1 className="text-2xl sm:text-3xl font-bold mb-1" data-testid="text-dashboard-greeting">
-          Welcome back, {progress.studentName}!
-        </h1>
-        <p className="text-sm sm:text-base text-muted-foreground">
-          AI Mastery Academy — Keep exploring and growing!
-        </p>
-      </div>
+      <PageHeader
+        title={`Welcome back, ${progress.studentName}!`}
+        description="AI Mastery Academy — Keep exploring and growing!"
+      />
 
       {isNewUser && (
         <Card className="p-4 sm:p-6 mb-6 border-primary/20 bg-primary/5" data-testid="card-getting-started">

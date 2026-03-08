@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { PageHeader } from "@/components/page-header";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -1155,6 +1156,14 @@ export default function CourseCreatorPage() {
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
+      <PageHeader
+        title="Course Creator"
+        description="Build, manage, and publish your courses"
+        breadcrumbs={[
+          { label: "Academy", href: "/academy" },
+          { label: "Course Creator" },
+        ]}
+      />
       <div
         className="rounded-md bg-gradient-to-r from-rose-900 to-red-950 dark:from-rose-950 dark:to-background p-8 mb-8"
         data-testid="section-hero"

@@ -54,7 +54,8 @@ Key architectural decisions and features include:
 - **Mass Assignment:** All `req.body` spreads either use explicit field picking or are wrapped in Zod schema validation
 - **Rate Limiting:** AI companion chat rate-limited at 20 requests/minute per user (in-memory)
 - **Input Validation:** Attachment uploads validate MIME types; all form submissions validated via Zod schemas
-- **Sensitive Routes:** User-specific GET routes (`/api/academy/merit/user/:userId`, `/api/risk-decisions`, `/api/staar/*`) require authentication
+- **Sensitive Routes:** User-specific GET routes (`/api/progress`, `/api/dashboard`, `/api/achievements`, `/api/academy/merit/user/:userId`, `/api/risk-decisions`, `/api/staar/*`) require authentication
+- **Server Error Handling:** All 124 GET routes wrapped in try/catch with console.error logging and 500 JSON responses
 - **No Hardcoded Keys:** GIS engine uses environment variables only; no DEMO_KEY fallbacks
 
 ## Quality & Accessibility (Completed)
@@ -77,8 +78,8 @@ Key architectural decisions and features include:
 - **Error Retry:** Reusable ErrorRetry component used in 50 pages for graceful API error recovery with retry button
 - **Back-to-Top:** Floating scroll-to-top button on landing page, binds to #main-content scroll
 - **Command Palette:** Ctrl+K keyboard shortcut for quick navigation across all pages
-- **Collapsible Sidebar:** All sidebar sections collapsible for cleaner navigation
-- **PageHeader Component:** Reusable page header with title, description, breadcrumbs, and action slot - deployed on 49 pages
+- **Collapsible Sidebar:** All sidebar sections collapsible for cleaner navigation; role-based visibility (admin items hidden from students, teacher items for teachers/admins)
+- **PageHeader Component:** Reusable page header with title, description, breadcrumbs, and action slot - deployed on 55 pages
 - **Breadcrumbs:** Reusable breadcrumb navigation on nearly all navigable pages (academy, careers, mentors, financial literacy, marketplace, certificates, achievements, STAAR prep, journal, stocks, merch, dreams, scenarios, self-assessment, power score, community, social media literacy, parents, privacy policy, risk monitor, impact tracking, houses, admin, teacher, curriculum docs, games, competitions, help, and more)
 - **ErrorRetry:** Consistent error recovery across 50 pages with useQuery error/refetch handling and retry button; shared components (lesson-comments, study-tips) have inline error messages; sidebar has silent fallback
 - **API Caching:** Cache-Control headers on public/impact (5 min), subjects (1 hour), levels (1 hour) endpoints

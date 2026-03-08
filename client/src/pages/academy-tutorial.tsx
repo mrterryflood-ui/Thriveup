@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "wouter";
+import { PageHeader } from "@/components/page-header";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -776,6 +777,14 @@ export default function AcademyTutorialPage() {
 
   return (
     <div className="p-6 max-w-5xl mx-auto" data-testid="page-academy-tutorial">
+      <PageHeader
+        title="Arthur's Journey"
+        description="From his first day at AI Mastery Academy to Howard University"
+        breadcrumbs={[
+          { label: "Academy", href: "/academy" },
+          { label: "Tutorial" },
+        ]}
+      />
       <div className="rounded-md bg-gradient-to-r from-rose-900 to-red-950 p-8 mb-8" data-testid="section-hero">
         <h1 className="text-3xl font-bold text-white mb-2" data-testid="text-tutorial-title">
           Arthur's Academy Journey

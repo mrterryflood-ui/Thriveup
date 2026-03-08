@@ -35,7 +35,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getRankForLevel } from "@/lib/curriculum-data";
 import { useAuth } from "@/hooks/use-auth";
-import type { StudentProgress } from "@shared/schema";
+import type { StudentProgress, AcademyAvatar } from "@shared/schema";
 import type { LucideIcon } from "lucide-react";
 
 interface NavItem {
@@ -97,24 +97,30 @@ const buildCreateItems: NavItem[] = [
   { title: "Print Shop", url: "/academy/merch", icon: ShoppingBag },
 ];
 
-const teachingStaffItems: NavItem[] = [
-  { title: "Classrooms", url: "/classrooms", icon: School },
-  { title: "Classroom Wizard", url: "/classrooms/wizard", icon: Wand2 },
-  { title: "Teacher Dashboard", url: "/teacher-dashboard", icon: BarChart3 },
+const teachingPublicItems: NavItem[] = [
   { title: "Parents", url: "/parents", icon: Users },
   { title: "Parent Dashboard", url: "/parents/dashboard", icon: BarChart3 },
   { title: "Curriculum Docs", url: "/curriculum-documents", icon: FileText },
   { title: "Social Media Literacy", url: "/social-media-literacy", icon: Smartphone },
   { title: "Implementation Plan", url: "/implementation", icon: ClipboardList },
+];
+
+const teachingTeacherItems: NavItem[] = [
+  { title: "Classrooms", url: "/classrooms", icon: School },
+  { title: "Classroom Wizard", url: "/classrooms/wizard", icon: Wand2 },
+  { title: "Teacher Dashboard", url: "/teacher-dashboard", icon: BarChart3 },
+  { title: "Attendance", url: "/academy/attendance", icon: ClipboardList },
+  { title: "Support Portal", url: "/academy/integration", icon: Link2 },
+  { title: "Impact Dashboard", url: "/impact", icon: TrendingUp },
+];
+
+const teachingAdminItems: NavItem[] = [
   { title: "Admin Dashboard", url: "/academy/admin", icon: BarChart3 },
   { title: "Admin Guide", url: "/academy/admin-tutorial", icon: BookOpen },
   { title: "Student Wizards", url: "/academy/student-wizard", icon: Wand2 },
   { title: "Arthur's Journey", url: "/academy/tutorial", icon: GraduationCap },
   { title: "Longitudinal Dashboard", url: "/academy/longitudinal", icon: BarChart3 },
-  { title: "Attendance", url: "/academy/attendance", icon: ClipboardList },
-  { title: "Support Portal", url: "/academy/integration", icon: Link2 },
   { title: "Risk Monitor", url: "/academy/risk-monitor", icon: Shield },
-  { title: "Impact Dashboard", url: "/impact", icon: TrendingUp },
   { title: "API Documentation", url: "/api-docs", icon: Globe },
 ];
 
@@ -194,6 +200,14 @@ export function AppSidebar() {
   });
   const progress = progressData ?? null;
 
+  const { data: avatarData } = useQuery<AcademyAvatar>({
+    queryKey: ["/api/academy/avatar"],
+    enabled: isAuthenticated,
+  });
+  const userRole = avatarData?.role || "student";
+  const isAdmin = userRole === "admin";
+  const isTeacher = userRole === "teacher" || isAdmin;
+
   const rank = progress ? getRankForLevel(progress.currentLevel) : null;
   const RankIcon = rank ? (rankIcons[rank.icon] || Shield) : Shield;
 
@@ -201,9 +215,16 @@ export function AppSidebar() {
     ? ((user.firstName?.[0] || "") + (user.lastName?.[0] || "")).toUpperCase() || (user.email?.[0]?.toUpperCase() || "?")
     : "?";
 
+  const visibleTeachingItems = useMemo(() => {
+    const items = [...teachingPublicItems];
+    if (isTeacher) items.push(...teachingTeacherItems);
+    if (isAdmin) items.push(...teachingAdminItems);
+    return items;
+  }, [isTeacher, isAdmin]);
+
   const teachingActive = useMemo(() => {
-    return groupContainsActive(location, teachingStaffItems);
-  }, [location]);
+    return groupContainsActive(location, visibleTeachingItems);
+  }, [location, visibleTeachingItems]);
 
   const [teachingOpen, setTeachingOpen] = useState(false);
 
@@ -271,7 +292,7 @@ export function AppSidebar() {
                   </CollapsibleTrigger>
                   <CollapsibleContent>
                     <SidebarMenuSub>
-                      {teachingStaffItems.map((item) => {
+                      {visibleTeachingItems.map((item) => {
                         const isActive = isItemActive(location, item.url);
                         return (
                           <SidebarMenuSubItem key={item.title}>

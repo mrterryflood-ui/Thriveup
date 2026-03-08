@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { PageHeader } from "@/components/page-header";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -617,6 +618,16 @@ export default function AcademyStudentWizardPage() {
 
   return (
     <div className="min-h-screen">
+      <div className="max-w-6xl mx-auto px-6 pt-6">
+        <PageHeader
+          title="Student Setup"
+          description="Personalize every student's learning journey"
+          breadcrumbs={[
+            { label: "Academy", href: "/academy" },
+            { label: "Student Setup" },
+          ]}
+        />
+      </div>
       <div className="bg-gradient-to-r from-rose-900 via-rose-800 to-rose-700 text-white p-8">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center gap-3 mb-2">

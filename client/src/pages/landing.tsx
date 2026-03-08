@@ -754,27 +754,27 @@ export default function LandingPage() {
             <div data-testid="footer-column-students">
               <h4 className="font-semibold text-sm mb-3" data-testid="text-footer-students-heading">For Students</h4>
               <ul className="space-y-2">
-                <li><Link href="/dashboard"><a className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-dashboard">Dashboard</a></Link></li>
-                <li><Link href="/curriculum"><a className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-curriculum">Curriculum</a></Link></li>
-                <li><Link href="/ai-tools"><a className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-ai-tools">AI Tools</a></Link></li>
-                <li><Link href="/academy/careers"><a className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-careers">Careers</a></Link></li>
+                <li><Link href="/dashboard" className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-dashboard">Dashboard</Link></li>
+                <li><Link href="/curriculum" className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-curriculum">Curriculum</Link></li>
+                <li><Link href="/ai-tools" className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-ai-tools">AI Tools</Link></li>
+                <li><Link href="/academy/careers" className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-careers">Careers</Link></li>
               </ul>
             </div>
 
             <div data-testid="footer-column-partners">
               <h4 className="font-semibold text-sm mb-3" data-testid="text-footer-partners-heading">For Partners</h4>
               <ul className="space-y-2">
-                <li><Link href="/impact"><a className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-impact">Impact Metrics</a></Link></li>
-                <li><Link href="/api-docs"><a className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-api-docs">API Documentation</a></Link></li>
-                <li><Link href="/implementation"><a className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-implementation">Implementation</a></Link></li>
+                <li><Link href="/impact" className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-impact">Impact Metrics</Link></li>
+                <li><Link href="/api-docs" className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-api-docs">API Documentation</Link></li>
+                <li><Link href="/implementation" className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-implementation">Implementation</Link></li>
               </ul>
             </div>
 
             <div data-testid="footer-column-resources">
               <h4 className="font-semibold text-sm mb-3" data-testid="text-footer-resources-heading">Resources</h4>
               <ul className="space-y-2">
-                <li><Link href="/resources"><a className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-resources">Resource Finder</a></Link></li>
-                <li><Link href="/privacy"><a className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-privacy">Privacy Policy</a></Link></li>
+                <li><Link href="/resources" className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-resources">Resource Finder</Link></li>
+                <li><Link href="/privacy" className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-privacy">Privacy Policy</Link></li>
                 <li>
                   <a href="mailto:sisnett.meredith@gmail.com" className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5" data-testid="link-footer-email-1">
                     <Mail className="h-3.5 w-3.5" /> sisnett.meredith@gmail.com

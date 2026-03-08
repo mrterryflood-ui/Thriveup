@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { PageHeader } from "@/components/page-header";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -100,6 +101,16 @@ export default function AcademyIntegrationPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <div className="max-w-4xl mx-auto px-4 pt-4">
+        <PageHeader
+          title="Support Portal"
+          description="Connect the Academy with the Student Support Portal — Grades 6-12+"
+          breadcrumbs={[
+            { label: "Academy", href: "/academy" },
+            { label: "Support Portal" },
+          ]}
+        />
+      </div>
       <div className="bg-[#800000] text-white py-8 px-4">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-2xl font-bold" data-testid="text-page-title">Platform Integration</h1>
