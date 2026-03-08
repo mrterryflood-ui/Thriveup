@@ -46,7 +46,7 @@ Key architectural decisions and features include:
 - **Feature Video Guide:** Homepage video player with Arthur Wakanda platform tour (play/pause, mute, fullscreen controls with accessibility labels, closed caption track, CC indicator).
 - **Implementation Recommendations:** District administrator planning guide with phased rollout timeline. At /implementation.
 - **Low-Bandwidth Mode:** User-toggleable mode for improved performance.
-- **Orientation-MAP-GAP Framework:** System improvement methodology integrated into platform development approach.
+- **MAP-GAP Framework:** Reflective Adaptive Learning Architecture for continuous improvement. Five-phase cycle: MAP (observe with automated health checks), GAP (prioritize by severity and stakeholder impact), EXECUTE (parallel fixes with cycle sizing), VALIDATE (multi-layer verification), LEARN (persist lessons). Skill at `.agents/skills/map-gap/SKILL.md` with lessons registry at `.agents/skills/map-gap/lessons-learned.md`. Cycles named E-series through G-series (and beyond).
 
 ## Security Hardening (Completed)
 - **Authentication:** All mutating routes (POST/PATCH/DELETE) require `requireAuth` middleware
