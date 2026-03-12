@@ -29,7 +29,7 @@ import {
   Zap, CalendarCheck, Lightbulb, Gamepad2, Map, Store, Briefcase, Route,
   Activity, ClipboardCheck, Handshake, ChevronRight, DollarSign,
   PenLine, Megaphone, Calendar, HelpCircle, ClipboardList, Printer, Link2,
-  MessageCircle, MapPin,
+  MessageCircle, MapPin, Presentation,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -112,6 +112,7 @@ const teachingTeacherItems: NavItem[] = [
   { title: "Attendance", url: "/academy/attendance", icon: ClipboardList },
   { title: "Support Portal", url: "/academy/integration", icon: Link2 },
   { title: "Impact Dashboard", url: "/impact", icon: TrendingUp },
+  { title: "Stakeholder Deck", url: "/presentation", icon: Presentation },
 ];
 
 const teachingAdminItems: NavItem[] = [
