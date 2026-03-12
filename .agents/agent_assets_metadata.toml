@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "mLSi3ve8jUxLf3ChTRdbX"
+uri = "file://AI_Mastery_Academy_Stakeholder_Deck.pptx"
+type = "slides"
+title = "AI Mastery Academy - Stakeholder Presentation (21 Slides)"
