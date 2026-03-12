@@ -55,6 +55,7 @@ const platformItems: NavItem[] = [
   { title: "Achievements", url: "/achievements", icon: Award },
   { title: "Certificates", url: "/certificates", icon: ScrollText },
   { title: "Resource Finder", url: "/resources", icon: MapPin },
+  { title: "Stakeholder Deck", url: "/presentation", icon: Presentation },
 ];
 
 const myStudentItems: NavItem[] = [
@@ -103,7 +104,6 @@ const teachingPublicItems: NavItem[] = [
   { title: "Curriculum Docs", url: "/curriculum-documents", icon: FileText },
   { title: "Social Media Literacy", url: "/social-media-literacy", icon: Smartphone },
   { title: "Implementation Plan", url: "/implementation", icon: ClipboardList },
-  { title: "Stakeholder Deck", url: "/presentation", icon: Presentation },
 ];
 
 const teachingTeacherItems: NavItem[] = [
