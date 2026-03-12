@@ -103,6 +103,7 @@ const teachingPublicItems: NavItem[] = [
   { title: "Curriculum Docs", url: "/curriculum-documents", icon: FileText },
   { title: "Social Media Literacy", url: "/social-media-literacy", icon: Smartphone },
   { title: "Implementation Plan", url: "/implementation", icon: ClipboardList },
+  { title: "Stakeholder Deck", url: "/presentation", icon: Presentation },
 ];
 
 const teachingTeacherItems: NavItem[] = [
@@ -112,7 +113,6 @@ const teachingTeacherItems: NavItem[] = [
   { title: "Attendance", url: "/academy/attendance", icon: ClipboardList },
   { title: "Support Portal", url: "/academy/integration", icon: Link2 },
   { title: "Impact Dashboard", url: "/impact", icon: TrendingUp },
-  { title: "Stakeholder Deck", url: "/presentation", icon: Presentation },
 ];
 
 const teachingAdminItems: NavItem[] = [
