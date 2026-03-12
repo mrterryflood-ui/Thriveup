@@ -83,6 +83,7 @@ const PrivacyPolicyPage = lazy(() => import("@/pages/privacy-policy"));
 const ResourceFinderPage = lazy(() => import("@/pages/resource-finder"));
 const ImpactPage = lazy(() => import("@/pages/impact"));
 const APIDocsPage = lazy(() => import("@/pages/api-docs"));
+const StakeholderPresentationPage = lazy(() => import("@/pages/stakeholder-presentation"));
 
 function PageFallback() {
   return (
@@ -233,6 +234,14 @@ function AppLayout() {
   );
 }
 
+function PresentationLayout() {
+  return (
+    <Suspense fallback={<PageFallback />}>
+      <StakeholderPresentationPage />
+    </Suspense>
+  );
+}
+
 function App() {
   return (
     <ThemeProvider>
@@ -241,7 +250,14 @@ function App() {
           <BandwidthProvider>
             <QueryClientProvider client={queryClient}>
               <TooltipProvider>
-                <AppLayout />
+                <Switch>
+                  <Route path="/presentation">
+                    <PresentationLayout />
+                  </Route>
+                  <Route>
+                    <AppLayout />
+                  </Route>
+                </Switch>
                 <Toaster />
               </TooltipProvider>
             </QueryClientProvider>
