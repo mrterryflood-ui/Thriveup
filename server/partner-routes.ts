@@ -8,7 +8,7 @@ import { z } from "zod";
 import { eq, desc, sql } from "drizzle-orm";
 
 function getUserId(req: Request): string | undefined {
-  const u = (req as Record<string, unknown>).user as { claims?: { sub?: string }; id?: string } | undefined;
+  const u = (req as unknown as Record<string, unknown>).user as { claims?: { sub?: string }; id?: string } | undefined;
   return u?.claims?.sub || u?.id;
 }
 
@@ -76,7 +76,8 @@ export function registerPartnerRoutes(app: Express) {
 
   app.get("/api/partners/:id", requireAuth, async (req, res) => {
     try {
-      const [partner] = await db.select().from(communityPartners).where(eq(communityPartners.id, req.params.id));
+      const id = req.params.id as string;
+      const [partner] = await db.select().from(communityPartners).where(eq(communityPartners.id, id));
       if (!partner) return res.status(404).json({ error: "Partner not found" });
       const referrals = await db.select().from(partnerReferrals).where(eq(partnerReferrals.partnerId, partner.id)).orderBy(desc(partnerReferrals.createdAt));
       res.json({ ...partner, referrals });
@@ -88,9 +89,11 @@ export function registerPartnerRoutes(app: Express) {
 
   app.patch("/api/partners/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
+      const id = req.params.id as string;
       const parsed = partnerUpdateSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Invalid update data", details: parsed.error.flatten().fieldErrors });
-      const [updated] = await db.update(communityPartners).set({ ...parsed.data, updatedAt: new Date() }).where(eq(communityPartners.id, req.params.id)).returning();
+      const updateData: Record<string, unknown> = { ...parsed.data, updatedAt: new Date() };
+      const [updated] = await db.update(communityPartners).set(updateData).where(eq(communityPartners.id, id)).returning();
       res.json(updated);
     } catch (error) {
       console.error("Failed to update partner:", error);
@@ -100,7 +103,8 @@ export function registerPartnerRoutes(app: Express) {
 
   app.delete("/api/partners/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
-      await db.delete(communityPartners).where(eq(communityPartners.id, req.params.id));
+      const id = req.params.id as string;
+      await db.delete(communityPartners).where(eq(communityPartners.id, id));
       res.json({ success: true });
     } catch (error) {
       console.error("Failed to delete partner:", error);
@@ -134,7 +138,12 @@ export function registerPartnerRoutes(app: Express) {
     try {
       const parsed = referralUpdateSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Invalid update data", details: parsed.error.flatten().fieldErrors });
-      const [updated] = await db.update(partnerReferrals).set({ ...parsed.data, updatedAt: new Date() }).where(eq(partnerReferrals.id, req.params.id)).returning();
+      const id = req.params.id as string;
+      const updateData: Record<string, unknown> = { ...parsed.data, updatedAt: new Date() };
+      if (parsed.data.completedDate) {
+        updateData.completedDate = new Date(parsed.data.completedDate);
+      }
+      const [updated] = await db.update(partnerReferrals).set(updateData).where(eq(partnerReferrals.id, id)).returning();
       res.json(updated);
     } catch (error) {
       console.error("Failed to update referral:", error);

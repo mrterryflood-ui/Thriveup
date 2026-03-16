@@ -360,7 +360,7 @@ export async function registerRoutes(
       let allProgress: { totalScore: number | null; level: number | null }[] = [];
       try {
         allProgress = await db.select({
-          totalScore: studentProgress.totalScore,
+          totalScore: studentProgress.totalPoints,
           level: studentProgress.currentLevel,
         }).from(studentProgress);
       } catch { /* table may not exist */ }
@@ -423,7 +423,7 @@ export async function registerRoutes(
 
   app.get("/api/subjects/grade-band/:gradeBand", async (req, res) => {
     try {
-      const subjectsByBand = await storage.getSubjectsByGradeBand(decodeURIComponent(req.params.gradeBand));
+      const subjectsByBand = await storage.getSubjectsByGradeBand(decodeURIComponent(req.params.gradeBand as string));
       res.json(subjectsByBand);
     } catch (error) {
       console.error("Error in GET /api/subjects/grade-band/:gradeBand", error);
@@ -433,7 +433,7 @@ export async function registerRoutes(
 
   app.get("/api/subjects/:subjectId", async (req, res) => {
     try {
-      const subject = await storage.getSubject(req.params.subjectId);
+      const subject = await storage.getSubject(req.params.subjectId as string);
       if (!subject) return res.status(404).json({ error: "Subject not found" });
       res.json(subject);
     } catch (error) {
@@ -444,7 +444,7 @@ export async function registerRoutes(
 
   app.get("/api/subjects/:subjectId/modules", async (req, res) => {
     try {
-      const mods = await storage.getModulesBySubject(req.params.subjectId);
+      const mods = await storage.getModulesBySubject(req.params.subjectId as string);
       res.json(mods);
     } catch (error) {
       console.error("Error in GET /api/subjects/:subjectId/modules", error);
@@ -465,7 +465,7 @@ export async function registerRoutes(
 
   app.get("/api/levels/:levelId", async (req, res) => {
     try {
-      const level = await storage.getLevel(parseInt(req.params.levelId));
+      const level = await storage.getLevel(parseInt(req.params.levelId as string));
       if (!level) return res.status(404).json({ error: "Level not found" });
       res.json(level);
     } catch (error) {
@@ -476,7 +476,7 @@ export async function registerRoutes(
 
   app.get("/api/levels/:levelId/modules", async (req, res) => {
     try {
-      const mods = await storage.getModulesByLevel(parseInt(req.params.levelId));
+      const mods = await storage.getModulesByLevel(parseInt(req.params.levelId as string));
       res.json(mods);
     } catch (error) {
       console.error("Error in GET /api/levels/:levelId/modules", error);
@@ -486,7 +486,7 @@ export async function registerRoutes(
 
   app.get("/api/modules/:moduleId", async (req, res) => {
     try {
-      const mod = await storage.getModule(req.params.moduleId);
+      const mod = await storage.getModule(req.params.moduleId as string);
       if (!mod) return res.status(404).json({ error: "Module not found" });
       res.json(mod);
     } catch (error) {
@@ -497,7 +497,7 @@ export async function registerRoutes(
 
   app.get("/api/modules/:moduleId/lessons", async (req, res) => {
     try {
-      const moduleLessons = await storage.getLessonsByModule(req.params.moduleId);
+      const moduleLessons = await storage.getLessonsByModule(req.params.moduleId as string);
       res.json(moduleLessons);
     } catch (error) {
       console.error("Error in GET /api/modules/:moduleId/lessons", error);
@@ -507,7 +507,7 @@ export async function registerRoutes(
 
   app.get("/api/modules/:moduleId/quiz", async (req, res) => {
     try {
-      const questions = await storage.getQuizByModule(req.params.moduleId);
+      const questions = await storage.getQuizByModule(req.params.moduleId as string);
       res.json(questions);
     } catch (error) {
       console.error("Error in GET /api/modules/:moduleId/quiz", error);
@@ -520,7 +520,7 @@ export async function registerRoutes(
     if (!answers || typeof answers !== "object") {
       return res.status(400).json({ error: "Answers object is required" });
     }
-    const questions = await storage.getQuizByModule(req.params.moduleId);
+    const questions = await storage.getQuizByModule(req.params.moduleId as string);
     const progress = await storage.getOrCreateProgress(getUserId(req), getUserName(req));
 
     let correct = 0;
@@ -531,7 +531,7 @@ export async function registerRoutes(
     }
 
     const passed = questions.length > 0 && (correct / questions.length) >= 0.7;
-    const attempt = await storage.submitQuiz(progress.id, req.params.moduleId, correct, questions.length, passed);
+    const attempt = await storage.submitQuiz(progress.id, req.params.moduleId as string, correct, questions.length, passed);
 
     const pointsEarned = passed ? 100 : 25;
     const allAttempts = await storage.getQuizAttempts(progress.id);
@@ -552,7 +552,7 @@ export async function registerRoutes(
     }
 
     if (passed) {
-      const mod = await storage.getModule(req.params.moduleId);
+      const mod = await storage.getModule(req.params.moduleId as string);
       if (mod) {
         const levelModules = await storage.getModulesByLevel(mod.levelId);
         const allAttempts2 = await storage.getQuizAttempts(progress.id);
@@ -577,7 +577,7 @@ export async function registerRoutes(
 
   app.get("/api/lessons/:lessonId", async (req, res) => {
     try {
-      const lesson = await storage.getLesson(req.params.lessonId);
+      const lesson = await storage.getLesson(req.params.lessonId as string);
       if (!lesson) return res.status(404).json({ error: "Lesson not found" });
       res.json(lesson);
     } catch (error) {
@@ -587,11 +587,11 @@ export async function registerRoutes(
   });
 
   app.post("/api/lessons/:lessonId/complete", requireAuth, async (req, res) => {
-    const lesson = await storage.getLesson(req.params.lessonId);
+    const lesson = await storage.getLesson(req.params.lessonId as string);
     if (!lesson) return res.status(404).json({ error: "Lesson not found" });
 
     const progress = await storage.getOrCreateProgress(getUserId(req), getUserName(req));
-    await storage.completeLesson(progress.id, req.params.lessonId);
+    await storage.completeLesson(progress.id, req.params.lessonId as string);
 
     const completed = await storage.getCompletedLessons(progress.id);
     const pointsEarned = 50;
@@ -1054,7 +1054,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
 
   app.get("/api/curriculum-documents/module/:moduleId", async (req, res) => {
     try {
-      const docs = await storage.getCurriculumDocumentsByModule(req.params.moduleId);
+      const docs = await storage.getCurriculumDocumentsByModule(req.params.moduleId as string);
       res.json(docs);
     } catch (error) {
       console.error("Error in GET /api/curriculum-documents/module/:moduleId", error);
@@ -1064,7 +1064,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
 
   app.get("/api/curriculum-documents/level/:levelId", async (req, res) => {
     try {
-      const levelId = parseInt(req.params.levelId);
+      const levelId = parseInt(req.params.levelId as string);
       if (isNaN(levelId)) return res.status(400).json({ error: "Invalid level ID" });
       const docs = await storage.getCurriculumDocumentsByLevel(levelId);
       res.json(docs);
@@ -1076,7 +1076,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
 
   app.get("/api/curriculum-documents/:id", async (req, res) => {
     try {
-      const doc = await storage.getCurriculumDocument(req.params.id);
+      const doc = await storage.getCurriculumDocument(req.params.id as string);
       if (!doc) return res.status(404).json({ error: "Document not found" });
       res.json(doc);
     } catch (error) {
@@ -1099,14 +1099,14 @@ Write a warm, encouraging welcome message for students joining this classroom. M
   });
 
   app.patch("/api/curriculum-documents/:id", requireAuth, async (req, res) => {
-    const existing = await storage.getCurriculumDocument(req.params.id);
+    const existing = await storage.getCurriculumDocument(req.params.id as string);
     if (!existing) return res.status(404).json({ error: "Document not found" });
     const partial = insertCurriculumDocumentSchema.partial().safeParse(req.body);
     if (!partial.success) {
       return res.status(400).json({ error: "Invalid update data", details: partial.error.flatten() });
     }
     try {
-      const doc = await storage.updateCurriculumDocument(req.params.id, partial.data);
+      const doc = await storage.updateCurriculumDocument(req.params.id as string, partial.data);
       res.json(doc);
     } catch (error) {
       res.status(500).json({ error: "Failed to update document" });
@@ -1114,9 +1114,9 @@ Write a warm, encouraging welcome message for students joining this classroom. M
   });
 
   app.delete("/api/curriculum-documents/:id", requireAuth, async (req, res) => {
-    const existing = await storage.getCurriculumDocument(req.params.id);
+    const existing = await storage.getCurriculumDocument(req.params.id as string);
     if (!existing) return res.status(404).json({ error: "Document not found" });
-    await storage.deleteCurriculumDocument(req.params.id);
+    await storage.deleteCurriculumDocument(req.params.id as string);
     res.json({ success: true });
   });
 
@@ -1169,7 +1169,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
 
   app.get("/api/lessons/:lessonId/comments", async (req, res) => {
     try {
-      const comments = await storage.getCommentsByLesson(req.params.lessonId);
+      const comments = await storage.getCommentsByLesson(req.params.lessonId as string);
       res.json(comments);
     } catch (error) {
       console.error("Error in GET /api/lessons/:lessonId/comments", error);
@@ -1184,13 +1184,13 @@ Write a warm, encouraging welcome message for students joining this classroom. M
     }
     const userId = getUserId(req);
     const userName = getUserName(req) || "Anonymous";
-    const comment = await storage.addComment(req.params.lessonId, userId, userName, content.trim());
+    const comment = await storage.addComment(req.params.lessonId as string, userId, userName, content.trim());
     res.status(201).json(comment);
   });
 
   app.get("/api/lessons/:lessonId/reactions", async (req, res) => {
     try {
-      const reactions = await storage.getReactionsByLesson(req.params.lessonId);
+      const reactions = await storage.getReactionsByLesson(req.params.lessonId as string);
       res.json(reactions);
     } catch (error) {
       console.error("Error in GET /api/lessons/:lessonId/reactions", error);
@@ -1205,14 +1205,14 @@ Write a warm, encouraging welcome message for students joining this classroom. M
       return res.status(400).json({ error: "Invalid reaction type" });
     }
     const userId = getUserId(req);
-    await storage.addReaction(req.params.lessonId, userId, reactionType);
-    const reactions = await storage.getReactionsByLesson(req.params.lessonId);
+    await storage.addReaction(req.params.lessonId as string, userId, reactionType);
+    const reactions = await storage.getReactionsByLesson(req.params.lessonId as string);
     res.json(reactions);
   });
 
   app.get("/api/modules/:moduleId/tips", async (req, res) => {
     try {
-      const tips = await storage.getStudyTipsByModule(req.params.moduleId);
+      const tips = await storage.getStudyTipsByModule(req.params.moduleId as string);
       res.json(tips);
     } catch (error) {
       console.error("Error in GET /api/modules/:moduleId/tips", error);
@@ -1227,13 +1227,13 @@ Write a warm, encouraging welcome message for students joining this classroom. M
     }
     const userId = getUserId(req);
     const userName = getUserName(req) || "Anonymous";
-    const tip = await storage.addStudyTip(req.params.moduleId, userId, userName, content.trim());
+    const tip = await storage.addStudyTip(req.params.moduleId as string, userId, userName, content.trim());
     res.status(201).json(tip);
   });
 
   app.post("/api/tips/:tipId/upvote", requireAuth, async (req, res) => {
     try {
-      const tip = await storage.upvoteStudyTip(req.params.tipId);
+      const tip = await storage.upvoteStudyTip(req.params.tipId as string);
       res.json(tip);
     } catch {
       res.status(404).json({ error: "Tip not found" });
@@ -1275,10 +1275,10 @@ Write a warm, encouraging welcome message for students joining this classroom. M
 
   app.get("/api/classrooms/:classroomId", requireAuth, async (req, res) => {
     try {
-      const classroom = await storage.getClassroom(req.params.classroomId);
+      const classroom = await storage.getClassroom(req.params.classroomId as string);
       if (!classroom) return res.status(404).json({ error: "Classroom not found" });
       if (classroom.teacherUserId !== getUserId(req)) return res.status(403).json({ error: "Not authorized" });
-      const members = await storage.getClassroomMembers(req.params.classroomId);
+      const members = await storage.getClassroomMembers(req.params.classroomId as string);
   
       const memberDetails = [];
       for (const member of members) {
@@ -1374,7 +1374,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
 
   app.get("/api/certificates/:id", async (req, res) => {
     try {
-      const cert = await storage.getCertificate(req.params.id);
+      const cert = await storage.getCertificate(req.params.id as string);
       if (!cert) return res.status(404).json({ error: "Certificate not found" });
       res.json(cert);
     } catch (error) {
@@ -1487,7 +1487,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
 
   app.get("/api/academy/merit/user/:userId", requireAuth, async (req, res) => {
     try {
-      const events = await storage.getMeritEventsByUser(req.params.userId);
+      const events = await storage.getMeritEventsByUser(req.params.userId as string);
       res.json(events);
     } catch (error) {
       console.error("Error in GET /api/academy/merit/user/:userId", error);
@@ -1497,7 +1497,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
 
   app.get("/api/academy/merit/house/:houseId", async (req, res) => {
     try {
-      const events = await storage.getMeritEventsByHouse(req.params.houseId);
+      const events = await storage.getMeritEventsByHouse(req.params.houseId as string);
       res.json(events);
     } catch (error) {
       console.error("Error in GET /api/academy/merit/house/:houseId", error);
@@ -1696,13 +1696,12 @@ Write a warm, encouraging welcome message for students joining this classroom. M
     try {
       const userId = getUserId(req)!;
       const existing = await storage.getCampusProject(userId);
+      const { projectName, totalBudget, amountFunded, currentPhase, completedPhases, features } = req.body;
       if (existing) {
-        const { projectName, buildings, totalFunded, totalCost, theme } = req.body;
-        const updated = await storage.updateCampusProject(existing.id, { projectName, buildings, totalFunded, totalCost, theme });
+        const updated = await storage.updateCampusProject(existing.id, { projectName, totalBudget, amountFunded, currentPhase, completedPhases, features });
         return res.json(updated);
       }
-      const { projectName, buildings, totalFunded, totalCost, theme } = req.body;
-      const project = await storage.createCampusProject({ projectName, buildings, totalFunded, totalCost, theme, userId });
+      const project = await storage.createCampusProject({ projectName, totalBudget, amountFunded, currentPhase, completedPhases, features, userId });
       res.status(201).json(project);
     } catch (error) {
       res.status(500).json({ error: "Failed to save campus project" });
@@ -1773,7 +1772,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
 
   app.get("/api/academy/competitions/:id/entries", async (req, res) => {
     try {
-      const entries = await storage.getCompetitionEntries(req.params.id);
+      const entries = await storage.getCompetitionEntries(req.params.id as string);
       res.json(entries);
     } catch (error) {
       console.error("Error in GET /api/academy/competitions/:id/entries", error);
@@ -1783,11 +1782,11 @@ Write a warm, encouraging welcome message for students joining this classroom. M
 
   app.post("/api/academy/competitions/:id/enter", requireAuth, async (req, res) => {
     try {
-      const comp = await storage.getCompetition(req.params.id);
+      const comp = await storage.getCompetition(req.params.id as string);
       if (!comp) return res.status(404).json({ error: "Competition not found" });
       const { score } = req.body;
       const entry = await storage.createCompetitionEntry({
-        competitionId: req.params.id,
+        competitionId: req.params.id as string,
         userId: getUserId(req)!,
         userName: getUserName(req) || "Student",
         score,
@@ -1934,7 +1933,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
 
   app.post("/api/academy/quests/:id/complete", requireAuth, async (req, res) => {
     try {
-      const quest = await storage.completeDailyQuest(req.params.id);
+      const quest = await storage.completeDailyQuest(req.params.id as string);
       const power = await storage.getOrCreatePantherPower(getUserId(req)!);
       const categoryMap: Record<string, string> = {
         education: "educationScore",
@@ -1965,7 +1964,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
 
   app.get("/api/academy/life-lessons/:feature", async (req, res) => {
     try {
-      const lessons = await storage.getLifeLessonsByFeature(req.params.feature);
+      const lessons = await storage.getLifeLessonsByFeature(req.params.feature as string);
       res.json(lessons);
     } catch (error) {
       res.status(500).json({ error: "Failed to get life lessons" });
@@ -1975,7 +1974,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
   // ==================== WIZARD PROGRESS ====================
   app.get("/api/academy/wizard/:type", requireAuth, async (req, res) => {
     try {
-      const progress = await storage.getWizardProgress(getUserId(req)!, req.params.type);
+      const progress = await storage.getWizardProgress(getUserId(req)!, req.params.type as string);
       res.json(progress || { currentStep: 0, totalSteps: 0, completed: false });
     } catch (error) {
       res.status(500).json({ error: "Failed to get wizard progress" });
@@ -1985,7 +1984,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
   app.post("/api/academy/wizard/:type", requireAuth, async (req, res) => {
     try {
       const { currentStep, totalSteps } = req.body;
-      const progress = await storage.createOrUpdateWizardProgress(getUserId(req)!, req.params.type, currentStep, totalSteps);
+      const progress = await storage.createOrUpdateWizardProgress(getUserId(req)!, req.params.type as string, currentStep, totalSteps);
       res.json(progress);
     } catch (error) {
       res.status(500).json({ error: "Failed to update wizard progress" });
@@ -1994,7 +1993,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
 
   app.post("/api/academy/wizard/:type/complete", requireAuth, async (req, res) => {
     try {
-      const progress = await storage.completeWizard(getUserId(req)!, req.params.type);
+      const progress = await storage.completeWizard(getUserId(req)!, req.params.type as string);
       res.json(progress);
     } catch (error) {
       res.status(500).json({ error: "Failed to complete wizard" });
@@ -2014,9 +2013,9 @@ Write a warm, encouraging welcome message for students joining this classroom. M
 
   app.get("/api/academy/scenarios/:id", async (req, res) => {
     try {
-      const scenario = await storage.getScenario(req.params.id);
+      const scenario = await storage.getScenario(req.params.id as string);
       if (!scenario) return res.status(404).json({ error: "Scenario not found" });
-      const nodes = await storage.getScenarioNodes(req.params.id);
+      const nodes = await storage.getScenarioNodes(req.params.id as string);
       res.json({ ...scenario, nodes });
     } catch (error) {
       res.status(500).json({ error: "Failed to load scenario" });
@@ -2026,11 +2025,11 @@ Write a warm, encouraging welcome message for students joining this classroom. M
   app.post("/api/academy/scenarios/:id/start", requireAuth, async (req, res) => {
     try {
       const userId = getUserId(req)!;
-      const scenario = await storage.getScenario(req.params.id);
+      const scenario = await storage.getScenario(req.params.id as string);
       if (!scenario) return res.status(404).json({ error: "Scenario not found" });
       const run = await storage.createScenarioRun({
         userId,
-        scenarioId: req.params.id,
+        scenarioId: req.params.id as string,
         currentNodeKey: "start",
         status: "in_progress",
         totalChoicesMade: 0,
@@ -2055,7 +2054,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
     try {
       const userId = getUserId(req)!;
       const { choiceKey, choiceLabel, nodeKey } = req.body;
-      const run = await storage.getScenarioRun(req.params.runId);
+      const run = await storage.getScenarioRun(req.params.runId as string);
       if (!run || run.userId !== userId) return res.status(404).json({ error: "Run not found" });
       
       const currentNode = await storage.getScenarioNode(run.scenarioId, nodeKey);
@@ -2163,7 +2162,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
 
   app.get("/api/academy/scenarios/runs/:runId", requireAuth, async (req, res) => {
     try {
-      const run = await storage.getScenarioRun(req.params.runId);
+      const run = await storage.getScenarioRun(req.params.runId as string);
       if (!run) return res.status(404).json({ error: "Run not found" });
       const logs = await storage.getChoiceLogsByRun(run.id);
       res.json({ ...run, choiceLogs: logs });
@@ -2257,7 +2256,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
     try {
       const buyerId = getUserId(req)!;
       const buyerName = getUserName(req) || "Student";
-      const listing = await storage.getActiveListings().then(ls => ls.find(l => l.id === req.params.id));
+      const listing = await storage.getActiveListings().then(ls => ls.find(l => l.id === req.params.id as string));
       if (!listing) return res.status(404).json({ error: "Listing not found or no longer active" });
       if (listing.sellerId === buyerId) return res.status(400).json({ error: "Cannot buy your own listing" });
       
@@ -2336,7 +2335,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
 
   app.get("/api/academy/activity/:userId", async (req, res) => {
     try {
-      const feed = await storage.getActivityFeedByUser(req.params.userId);
+      const feed = await storage.getActivityFeedByUser(req.params.userId as string);
       res.json(feed);
     } catch (error) {
       res.status(500).json({ error: "Failed to load user activity" });
@@ -2473,7 +2472,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
 
   app.get("/api/academy/admin/student/:userId", requireAuth, requireAdmin, async (req, res) => {
     try {
-      const userId = req.params.userId;
+      const userId = req.params.userId as string;
       const [avatar, wallet, power, activity, notes, meritEvents] = await Promise.all([
         storage.getAcademyAvatar(userId),
         storage.getOrCreateWallet(userId),
@@ -2514,7 +2513,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
 
   app.patch("/api/academy/admin/notes/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
-      const note = await storage.updateAdminNote(req.params.id, req.body);
+      const note = await storage.updateAdminNote(req.params.id as string, req.body);
       res.json(note);
     } catch (error) {
       res.status(500).json({ error: "Failed to update note" });
@@ -2529,7 +2528,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
         reporterId: userId,
         reporterName: userName,
         contentType: "marketplace_listing",
-        contentId: req.params.id,
+        contentId: req.params.id as string,
         reason: req.body.reason || "inappropriate",
         details: req.body.details || "",
         status: "pending",
@@ -2551,7 +2550,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
 
   app.patch("/api/academy/admin/reports/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
-      const report = await storage.updateContentReport(req.params.id, req.body);
+      const report = await storage.updateContentReport(req.params.id as string, req.body);
       res.json(report);
     } catch (error) {
       res.status(500).json({ error: "Failed to update report" });
@@ -2623,11 +2622,11 @@ Write a warm, encouraging welcome message for students joining this classroom. M
   app.patch("/api/pathway-plan/:id", requireAuth, async (req, res) => {
     try {
       const userId = getUserId(req)!;
-      const [existing] = await db.select().from(pathwayPlans).where(eq(pathwayPlans.id, req.params.id));
+      const [existing] = await db.select().from(pathwayPlans).where(eq(pathwayPlans.id, req.params.id as string));
       if (!existing) return res.status(404).json({ error: "Plan not found" });
       if (existing.userId !== userId) return res.status(403).json({ error: "Not authorized" });
       const { goals, status, primaryCareerInterest, secondaryCareerInterest, educationPathType, completedMilestones } = req.body;
-      const [updated] = await db.update(pathwayPlans).set({ goals, status, primaryCareerInterest, secondaryCareerInterest, educationPathType, completedMilestones, updatedAt: new Date() }).where(eq(pathwayPlans.id, req.params.id)).returning();
+      const [updated] = await db.update(pathwayPlans).set({ goals, status, primaryCareerInterest, secondaryCareerInterest, educationPathType, completedMilestones, updatedAt: new Date() }).where(eq(pathwayPlans.id, req.params.id as string)).returning();
       res.json(updated);
     } catch (error) {
       console.error("Error updating pathway plan:", error);
@@ -2639,7 +2638,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
     try {
       const userId = getUserId(req)!;
       const userName = getUserName(req) || "Student";
-      const [plan] = await db.select().from(pathwayPlans).where(eq(pathwayPlans.id, req.params.id));
+      const [plan] = await db.select().from(pathwayPlans).where(eq(pathwayPlans.id, req.params.id as string));
       if (!plan) return res.status(404).json({ error: "Plan not found" });
       if (plan.userId !== userId) return res.status(403).json({ error: "Not authorized" });
       if (plan.revisionsThisYear >= 3) {
@@ -2672,10 +2671,10 @@ Write a warm, encouraging welcome message for students joining this classroom. M
   app.get("/api/pathway-plan/:id/revisions", requireAuth, async (req, res) => {
     try {
       const userId = getUserId(req)!;
-      const [plan] = await db.select().from(pathwayPlans).where(eq(pathwayPlans.id, req.params.id));
+      const [plan] = await db.select().from(pathwayPlans).where(eq(pathwayPlans.id, req.params.id as string));
       if (!plan) return res.status(404).json({ error: "Plan not found" });
       if (plan.userId !== userId) return res.status(403).json({ error: "Not authorized" });
-      const revisions = await db.select().from(planRevisions).where(eq(planRevisions.planId, req.params.id)).orderBy(desc(planRevisions.createdAt));
+      const revisions = await db.select().from(planRevisions).where(eq(planRevisions.planId, req.params.id as string)).orderBy(desc(planRevisions.createdAt));
       res.json(revisions);
     } catch (error) {
       console.error("Error fetching revisions:", error);
@@ -2763,7 +2762,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
         approvedBy: userId,
         approvedByName: userName,
         reviewNotes: notes || null,
-      }).where(eq(planRevisions.id, req.params.id)).returning();
+      }).where(eq(planRevisions.id, req.params.id as string)).returning();
       if (!updated) return res.status(404).json({ error: "Revision not found" });
       await db.update(pathwayPlans).set({ lockedForRevision: false, updatedAt: new Date() }).where(eq(pathwayPlans.id, updated.planId));
       res.json(updated);
@@ -2779,7 +2778,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
       const [updated] = await db.update(planRevisions).set({
         status: "rejected",
         reviewNotes: notes || null,
-      }).where(eq(planRevisions.id, req.params.id)).returning();
+      }).where(eq(planRevisions.id, req.params.id as string)).returning();
       if (!updated) return res.status(404).json({ error: "Revision not found" });
       await db.update(pathwayPlans).set({ lockedForRevision: false, updatedAt: new Date() }).where(eq(pathwayPlans.id, updated.planId));
       res.json(updated);
@@ -2803,7 +2802,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
     try {
       const { status } = req.body;
       if (!status) return res.status(400).json({ error: "Status is required" });
-      const [updated] = await db.update(mentorRequests).set({ status }).where(eq(mentorRequests.id, req.params.id)).returning();
+      const [updated] = await db.update(mentorRequests).set({ status }).where(eq(mentorRequests.id, req.params.id as string)).returning();
       if (!updated) return res.status(404).json({ error: "Mentor request not found" });
       res.json(updated);
     } catch (error) {
@@ -2824,7 +2823,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
 
   app.patch("/api/admin/alumni/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
-      const [updated] = await db.update(alumniProfiles).set(req.body).where(eq(alumniProfiles.id, req.params.id)).returning();
+      const [updated] = await db.update(alumniProfiles).set(req.body).where(eq(alumniProfiles.id, req.params.id as string)).returning();
       if (!updated) return res.status(404).json({ error: "Alumni profile not found" });
       res.json(updated);
     } catch (error) {
@@ -2970,7 +2969,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
 
   app.get("/api/admin/thrive/student/:userId", requireAuth, requireAdmin, async (req, res) => {
     try {
-      const userId = req.params.userId;
+      const userId = req.params.userId as string;
       const [score] = await db.select().from(thriveScores)
         .where(eq(thriveScores.userId, userId))
         .limit(1);
@@ -3017,7 +3016,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
   app.patch("/api/admin/thrive/flags/:id/resolve", requireAuth, requireAdmin, async (req, res) => {
     try {
       const { notes } = req.body;
-      await resolveFlag(db, req.params.id, getUserId(req)!, notes);
+      await resolveFlag(db, req.params.id as string, getUserId(req)!, notes);
       res.json({ success: true });
     } catch (error) {
       console.error("Error resolving flag:", error);
@@ -3041,7 +3040,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
   app.get("/api/thrive/playbooks/:id", requireAuth, async (req, res) => {
     try {
       const [playbook] = await db.select().from(interventionPlaybooksTable)
-        .where(eq(interventionPlaybooksTable.id, req.params.id))
+        .where(eq(interventionPlaybooksTable.id, req.params.id as string))
         .limit(1);
       if (!playbook) return res.status(404).json({ error: "Playbook not found" });
       res.json(playbook);
@@ -3066,7 +3065,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
 
   app.get("/api/admin/gis/context/:geographyKey", requireAuth, requireAdmin, async (req, res) => {
     try {
-      const context = await getContextForGeography(db, req.params.geographyKey);
+      const context = await getContextForGeography(db, req.params.geographyKey as string);
       if (!context) return res.status(404).json({ error: "Geography not found" });
       res.json(context);
     } catch (error) {
@@ -3111,19 +3110,19 @@ Write a warm, encouraging welcome message for students joining this classroom. M
   app.put("/api/admin/thrive/config/:key", requireAuth, requireAdmin, async (req, res) => {
     try {
       const { value, description } = req.body;
-      const configKey = req.params.key;
+      const configKey = req.params.key as string;
       const existing = await db.select().from(thriveConfig)
-        .where(eq(thriveConfig.key, configKey))
+        .where(eq(thriveConfig.configKey, configKey))
         .limit(1);
       if (existing.length > 0) {
         const [updated] = await db.update(thriveConfig)
-          .set({ value, description, updatedAt: new Date() })
-          .where(eq(thriveConfig.key, configKey))
+          .set({ configValue: value, description, updatedAt: new Date() })
+          .where(eq(thriveConfig.configKey, configKey))
           .returning();
         res.json(updated);
       } else {
         const [created] = await db.insert(thriveConfig)
-          .values({ key: configKey, value, description })
+          .values({ configKey, configValue: value, description })
           .returning();
         res.status(201).json(created);
       }
@@ -3201,9 +3200,9 @@ Write a warm, encouraging welcome message for students joining this classroom. M
 
   app.get("/api/games/:id", async (req, res) => {
     try {
-      const session = await storage.getGameSession(req.params.id);
+      const session = await storage.getGameSession(req.params.id as string);
       if (!session) return res.status(404).json({ error: "Game not found" });
-      const players = await storage.getGamePlayers(req.params.id);
+      const players = await storage.getGamePlayers(req.params.id as string);
       res.json({ session, players });
     } catch (error) {
       console.error("Error in GET /api/games/:id", error);
@@ -3218,13 +3217,13 @@ Write a warm, encouraging welcome message for students joining this classroom. M
     if (currentTurn !== undefined) allowedFields.currentTurn = currentTurn;
     if (gameState !== undefined) allowedFields.gameState = gameState;
     if (scores !== undefined) allowedFields.scores = scores;
-    const session = await storage.updateGameSession(req.params.id, allowedFields);
+    const session = await storage.updateGameSession(req.params.id as string, allowedFields);
     res.json(session);
   });
 
   app.post("/api/games/:id/finish", requireAuth, async (req, res) => {
     const { winnerId, scores, playSessionId } = req.body;
-    const session = await storage.updateGameSession(req.params.id, {
+    const session = await storage.updateGameSession(req.params.id as string, {
       status: 'completed',
       winnerId,
       scores,
@@ -3235,7 +3234,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
       await storage.endPlaySession(playSessionId);
     }
 
-    const players = await storage.getGamePlayers(req.params.id);
+    const players = await storage.getGamePlayers(req.params.id as string);
     for (const player of players) {
       if (!player.isCpu && player.userId) {
         const rating = await storage.getOrCreateRating(player.userId, session.gameType);
@@ -3272,7 +3271,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
 
   app.get("/api/leaderboard/:gameType", async (req, res) => {
     try {
-      const leaderboard = await storage.getLeaderboard(req.params.gameType, 20);
+      const leaderboard = await storage.getLeaderboard(req.params.gameType as string, 20);
       res.json(leaderboard);
     } catch (error) {
       console.error("Error in GET /api/leaderboard/:gameType", error);
@@ -3352,7 +3351,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
 
   app.delete("/api/announcements/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
-      await storage.deleteAnnouncement(req.params.id);
+      await storage.deleteAnnouncement(req.params.id as string);
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: "Failed to delete announcement" });
@@ -3385,7 +3384,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
 
   app.delete("/api/events/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
-      await storage.deleteAcademyEvent(req.params.id);
+      await storage.deleteAcademyEvent(req.params.id as string);
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: "Failed to delete event" });
@@ -3443,7 +3442,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
 
         if (shouldNotify) {
           await storage.createAdminNote({
-            userId: user.id,
+            userId: userId,
             adminId: "system",
             adminName: "Risk Monitor",
             category: "concern",
@@ -3503,7 +3502,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
 
   app.patch("/api/admin/risk-decisions/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
-      const decision = await storage.updateRiskDecision(req.params.id, req.body);
+      const decision = await storage.updateRiskDecision(req.params.id as string, req.body);
       res.json(decision);
     } catch (error) {
       res.status(500).json({ error: "Failed to update risk decision" });
@@ -3566,12 +3565,12 @@ Write a warm, encouraging welcome message for students joining this classroom. M
 
   app.post("/api/ai-tools/modules/:moduleKey/complete", requireAuth, async (req, res) => {
     const userId = getUserId(req)!;
-    const { moduleKey } = req.params;
+    const moduleKey = req.params.moduleKey as string;
 
     const mod = AI_COURSE_MODULES.find(m => m.key === moduleKey);
     if (!mod) return res.status(404).json({ error: "Module not found" });
 
-    const tool = await db.select().from(aiToolCatalog).where(eq(aiToolCatalog.requiredModuleKey, moduleKey));
+    const tool = await db.select().from(aiToolCatalog).where(eq(aiToolCatalog.requiredModuleKey, moduleKey as string));
     if (!tool.length) return res.status(404).json({ error: "Tool not found for module" });
 
     const existing = await db.select().from(aiToolUnlocks).where(and(eq(aiToolUnlocks.userId, userId), eq(aiToolUnlocks.toolId, tool[0].id)));
@@ -3584,7 +3583,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
 
   app.post("/api/ai-tools/:toolId/run", requireAuth, async (req, res) => {
     const userId = getUserId(req)!;
-    const { toolId } = req.params;
+    const toolId = req.params.toolId as string;
     const { prompt, context, existingContent, language, isAdult } = req.body;
 
     if (!prompt) return res.status(400).json({ error: "Prompt is required" });
@@ -3813,7 +3812,7 @@ Be thorough, practical, and age-appropriate. Format your response with clear hea
 
   app.patch("/api/ai-tools/projects/:id", requireAuth, async (req, res) => {
     const userId = getUserId(req)!;
-    const { id } = req.params;
+    const id = req.params.id as string;
     const { title, content, status } = req.body;
 
     const updateData: any = { updatedAt: new Date() };
@@ -3829,7 +3828,7 @@ Be thorough, practical, and age-appropriate. Format your response with clear hea
 
   app.delete("/api/ai-tools/projects/:id", requireAuth, async (req, res) => {
     const userId = getUserId(req)!;
-    await db.delete(aiToolProjects).where(and(eq(aiToolProjects.id, req.params.id), eq(aiToolProjects.userId, userId)));
+    await db.delete(aiToolProjects).where(and(eq(aiToolProjects.id, req.params.id as string), eq(aiToolProjects.userId, userId)));
     res.json({ success: true });
   });
 
@@ -3846,16 +3845,16 @@ Be thorough, practical, and age-appropriate. Format your response with clear hea
 
   app.get("/api/admin/courses/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
-      const course = await storage.getAdminCourse(req.params.id);
+      const course = await storage.getAdminCourse(req.params.id as string);
       if (!course) return res.status(404).json({ error: "Course not found" });
-      const modules = await storage.getCourseModules(req.params.id);
+      const modules = await storage.getCourseModules(req.params.id as string);
       const modulesWithLessons = await Promise.all(
         modules.map(async (mod) => {
           const lessons = await storage.getCourseLessons(mod.id);
           return { ...mod, lessons };
         })
       );
-      const enrollments = await storage.getCourseEnrollments(req.params.id);
+      const enrollments = await storage.getCourseEnrollments(req.params.id as string);
       res.json({ ...course, modules: modulesWithLessons, enrollments });
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch course" });
@@ -3874,9 +3873,9 @@ Be thorough, practical, and age-appropriate. Format your response with clear hea
 
   app.patch("/api/admin/courses/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
-      const existing = await storage.getAdminCourse(req.params.id);
+      const existing = await storage.getAdminCourse(req.params.id as string);
       if (!existing) return res.status(404).json({ error: "Course not found" });
-      const course = await storage.updateAdminCourse(req.params.id, req.body);
+      const course = await storage.updateAdminCourse(req.params.id as string, req.body);
       res.json(course);
     } catch (error) {
       res.status(500).json({ error: "Failed to update course" });
@@ -3885,7 +3884,7 @@ Be thorough, practical, and age-appropriate. Format your response with clear hea
 
   app.delete("/api/admin/courses/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
-      await storage.deleteAdminCourse(req.params.id);
+      await storage.deleteAdminCourse(req.params.id as string);
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: "Failed to delete course" });
@@ -3894,7 +3893,7 @@ Be thorough, practical, and age-appropriate. Format your response with clear hea
 
   app.post("/api/admin/courses/:courseId/modules", requireAuth, requireAdmin, async (req, res) => {
     try {
-      const parsed = insertCourseModuleSchema.parse({ ...req.body, courseId: req.params.courseId });
+      const parsed = insertCourseModuleSchema.parse({ ...req.body, courseId: req.params.courseId as string });
       const mod = await storage.createCourseModule(parsed);
       res.json(mod);
     } catch (error: any) {
@@ -3904,7 +3903,7 @@ Be thorough, practical, and age-appropriate. Format your response with clear hea
 
   app.patch("/api/admin/courses/modules/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
-      const mod = await storage.updateCourseModule(req.params.id, req.body);
+      const mod = await storage.updateCourseModule(req.params.id as string, req.body);
       res.json(mod);
     } catch (error) {
       res.status(500).json({ error: "Failed to update module" });
@@ -3913,7 +3912,7 @@ Be thorough, practical, and age-appropriate. Format your response with clear hea
 
   app.delete("/api/admin/courses/modules/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
-      await storage.deleteCourseModule(req.params.id);
+      await storage.deleteCourseModule(req.params.id as string);
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: "Failed to delete module" });
@@ -3922,7 +3921,7 @@ Be thorough, practical, and age-appropriate. Format your response with clear hea
 
   app.post("/api/admin/courses/modules/:moduleId/lessons", requireAuth, requireAdmin, async (req, res) => {
     try {
-      const parsed = insertCourseLessonSchema.parse({ ...req.body, moduleId: req.params.moduleId });
+      const parsed = insertCourseLessonSchema.parse({ ...req.body, moduleId: req.params.moduleId as string });
       const lesson = await storage.createCourseLesson(parsed);
       res.json(lesson);
     } catch (error: any) {
@@ -3932,7 +3931,7 @@ Be thorough, practical, and age-appropriate. Format your response with clear hea
 
   app.patch("/api/admin/courses/lessons/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
-      const lesson = await storage.updateCourseLesson(req.params.id, req.body);
+      const lesson = await storage.updateCourseLesson(req.params.id as string, req.body);
       res.json(lesson);
     } catch (error) {
       res.status(500).json({ error: "Failed to update lesson" });
@@ -3941,7 +3940,7 @@ Be thorough, practical, and age-appropriate. Format your response with clear hea
 
   app.delete("/api/admin/courses/lessons/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
-      await storage.deleteCourseLesson(req.params.id);
+      await storage.deleteCourseLesson(req.params.id as string);
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: "Failed to delete lesson" });
@@ -3953,7 +3952,7 @@ Be thorough, practical, and age-appropriate. Format your response with clear hea
       const userId = getUserId(req)!;
       const userName = req.headers["x-replit-user-name"] as string || "Student";
       const enrollment = await storage.createCourseEnrollment({
-        courseId: req.params.courseId,
+        courseId: req.params.courseId as string,
         userId,
         userName,
         status: "active",
@@ -4137,7 +4136,7 @@ Be thorough, practical, and age-appropriate. Format your response with clear hea
 
   app.get("/api/resources/bls-wages/:stateCode", async (req, res) => {
     try {
-      const { stateCode } = req.params;
+      const stateCode = req.params.stateCode as string;
       const occupationCode = req.query.occupation as string | undefined;
       const data = await fetchBLSWageData(stateCode, occupationCode);
       res.json(data || []);
@@ -4189,7 +4188,7 @@ Be thorough, practical, and age-appropriate. Format your response with clear hea
       const userId = getUserId(req);
       if (!userId) return res.status(401).json({ error: "Unauthorized" });
       await db.delete(savedResources).where(
-        and(eq(savedResources.id, req.params.id), eq(savedResources.userId, userId))
+        and(eq(savedResources.id, req.params.id as string), eq(savedResources.userId, userId))
       );
       res.json({ success: true });
     } catch (error) {
@@ -4226,7 +4225,15 @@ Key guidelines:
       res.setHeader("Cache-Control", "no-cache");
       res.setHeader("Connection", "keep-alive");
 
-      await streamAIResponse(systemPrompt, userMessage, res);
+      await streamAIResponse({
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userMessage },
+        ],
+        onChunk: (content) => { res.write(`data: ${JSON.stringify({ content })}\n\n`); },
+        onDone: () => { res.write("data: [DONE]\n\n"); res.end(); },
+        onError: (error) => { res.write(`data: ${JSON.stringify({ error: error.message })}\n\n`); res.end(); },
+      });
     } catch (error) {
       console.error("Error generating AI guide:", error);
       if (!res.headersSent) {

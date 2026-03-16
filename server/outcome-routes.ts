@@ -8,7 +8,7 @@ import { z } from "zod";
 import { eq, desc, sql, and } from "drizzle-orm";
 
 function getUserId(req: Request): string | undefined {
-  const u = (req as Record<string, unknown>).user as { claims?: { sub?: string }; id?: string } | undefined;
+  const u = (req as unknown as Record<string, unknown>).user as { claims?: { sub?: string }; id?: string } | undefined;
   return u?.claims?.sub || u?.id;
 }
 
@@ -63,7 +63,8 @@ export function registerOutcomeRoutes(app: Express) {
 
   app.get("/api/outcomes/user/:userId", requireAuth, requireAdmin, async (req, res) => {
     try {
-      const outcomes = await db.select().from(outcomeTracking).where(eq(outcomeTracking.userId, req.params.userId)).orderBy(desc(outcomeTracking.measurementDate));
+      const userId = req.params.userId as string;
+      const outcomes = await db.select().from(outcomeTracking).where(eq(outcomeTracking.userId, userId)).orderBy(desc(outcomeTracking.measurementDate));
       res.json(outcomes);
     } catch (error) {
       console.error("Failed to fetch user outcomes:", error);

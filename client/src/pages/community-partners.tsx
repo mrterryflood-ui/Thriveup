@@ -280,9 +280,9 @@ export default function CommunityPartnersPage() {
                     </div>
                   )}
                 </div>
-                {partnerDetail.serviceCategories?.length > 0 && (
+                {(partnerDetail.serviceCategories?.length ?? 0) > 0 && (
                   <div className="mt-3 flex flex-wrap gap-1">
-                    {partnerDetail.serviceCategories.map((cat: string) => (
+                    {partnerDetail.serviceCategories!.map((cat: string) => (
                       <Badge key={cat} variant="outline" className="text-xs">{cat}</Badge>
                     ))}
                   </div>
@@ -315,7 +315,7 @@ export default function CommunityPartnersPage() {
                 </Card>
               )}
 
-              {partnerDetail.referrals?.length > 0 && (
+              {(partnerDetail.referrals?.length ?? 0) > 0 && (
                 <Card className="p-5" data-testid="card-referrals-list">
                   <h3 className="font-semibold mb-3">Referral History ({partnerDetail.referrals.length})</h3>
                   <div className="space-y-2">
@@ -323,7 +323,7 @@ export default function CommunityPartnersPage() {
                       <div key={ref.id} className="flex items-center gap-3 p-3 rounded-lg border">
                         <div className="flex-1">
                           <p className="text-sm font-medium">User: {ref.userId}</p>
-                          <p className="text-xs text-muted-foreground">{ref.serviceType} - {new Date(ref.createdAt).toLocaleDateString()}</p>
+                          <p className="text-xs text-muted-foreground">{ref.serviceType} - {ref.createdAt ? new Date(ref.createdAt).toLocaleDateString() : "N/A"}</p>
                         </div>
                         <Badge variant={ref.status === "completed" ? "default" : "secondary"}>{ref.status}</Badge>
                       </div>

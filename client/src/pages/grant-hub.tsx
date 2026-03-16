@@ -223,7 +223,7 @@ export default function GrantHubPage() {
                       ))}
                     </div>
                   )}
-                  {grant.readinessChecklist && (
+                  {Array.isArray(grant.readinessChecklist) && (
                     <div className="mt-3">
                       <p className="text-xs font-medium text-muted-foreground mb-1">Readiness ({(grant.readinessChecklist as ReadinessItem[]).filter((c) => c.status === "ready").length}/{(grant.readinessChecklist as ReadinessItem[]).length} criteria met)</p>
                       <div className="w-full bg-muted rounded-full h-2">

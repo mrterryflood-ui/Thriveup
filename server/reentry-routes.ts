@@ -9,7 +9,7 @@ import { z } from "zod";
 import { eq, desc, sql, and } from "drizzle-orm";
 
 function getUserId(req: Request): string | undefined {
-  const u = (req as Record<string, unknown>).user as { claims?: { sub?: string }; id?: string } | undefined;
+  const u = (req as unknown as Record<string, unknown>).user as { claims?: { sub?: string }; id?: string } | undefined;
   return u?.claims?.sub || u?.id;
 }
 
@@ -113,7 +113,8 @@ export function registerReentryRoutes(app: Express) {
 
   app.get("/api/reentry/plans/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
-      const [plan] = await db.select().from(reentryPlans).where(eq(reentryPlans.id, req.params.id));
+      const id = req.params.id as string;
+      const [plan] = await db.select().from(reentryPlans).where(eq(reentryPlans.id, id));
       if (!plan) return res.status(404).json({ error: "Plan not found" });
       const milestones = await db.select().from(reentryMilestones).where(eq(reentryMilestones.planId, plan.id));
       const [intake] = await db.select().from(reentryIntakeAssessments).where(eq(reentryIntakeAssessments.planId, plan.id));
@@ -131,12 +132,13 @@ export function registerReentryRoutes(app: Express) {
 
   app.patch("/api/reentry/plans/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
+      const id = req.params.id as string;
       const parsed = planUpdateSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Invalid update data", details: parsed.error.flatten().fieldErrors });
-      const oldPlan = await db.select().from(reentryPlans).where(eq(reentryPlans.id, req.params.id));
+      const oldPlan = await db.select().from(reentryPlans).where(eq(reentryPlans.id, id));
       if (!oldPlan.length) return res.status(404).json({ error: "Plan not found" });
       const updateData: Record<string, unknown> = { ...parsed.data, updatedAt: new Date() };
-      const [updated] = await db.update(reentryPlans).set(updateData).where(eq(reentryPlans.id, req.params.id)).returning();
+      const [updated] = await db.update(reentryPlans).set(updateData).where(eq(reentryPlans.id, id)).returning();
       if (parsed.data.phase && oldPlan[0].phase !== parsed.data.phase) {
         const newMilestones = DEFAULT_MILESTONES[parsed.data.phase] || [];
         for (const m of newMilestones) {
@@ -152,7 +154,8 @@ export function registerReentryRoutes(app: Express) {
 
   app.get("/api/reentry/plans/:planId/milestones", requireAuth, requireAdmin, async (req, res) => {
     try {
-      const milestones = await db.select().from(reentryMilestones).where(eq(reentryMilestones.planId, req.params.planId));
+      const planId = req.params.planId as string;
+      const milestones = await db.select().from(reentryMilestones).where(eq(reentryMilestones.planId, planId));
       res.json(milestones);
     } catch (error) {
       console.error("Failed to fetch milestones:", error);
@@ -176,7 +179,12 @@ export function registerReentryRoutes(app: Express) {
     try {
       const parsed = milestoneUpdateSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Invalid milestone data", details: parsed.error.flatten().fieldErrors });
-      const [updated] = await db.update(reentryMilestones).set(parsed.data).where(eq(reentryMilestones.id, req.params.id)).returning();
+      const id = req.params.id as string;
+      const updateData: Record<string, unknown> = { ...parsed.data };
+      if (parsed.data.completedDate) {
+        updateData.completedDate = new Date(parsed.data.completedDate);
+      }
+      const [updated] = await db.update(reentryMilestones).set(updateData).where(eq(reentryMilestones.id, id)).returning();
       res.json(updated);
     } catch (error) {
       console.error("Failed to update milestone:", error);
@@ -198,7 +206,8 @@ export function registerReentryRoutes(app: Express) {
 
   app.get("/api/reentry/intake/:planId", requireAuth, requireAdmin, async (req, res) => {
     try {
-      const [assessment] = await db.select().from(reentryIntakeAssessments).where(eq(reentryIntakeAssessments.planId, req.params.planId));
+      const planId = req.params.planId as string;
+      const [assessment] = await db.select().from(reentryIntakeAssessments).where(eq(reentryIntakeAssessments.planId, planId));
       res.json(assessment || null);
     } catch (error) {
       console.error("Failed to fetch intake assessment:", error);
@@ -236,7 +245,8 @@ export function registerReentryRoutes(app: Express) {
 
   app.get("/api/reentry/plans/:id/report", requireAuth, requireAdmin, async (req, res) => {
     try {
-      const [plan] = await db.select().from(reentryPlans).where(eq(reentryPlans.id, req.params.id));
+      const id = req.params.id as string;
+      const [plan] = await db.select().from(reentryPlans).where(eq(reentryPlans.id, id));
       if (!plan) return res.status(404).json({ error: "Plan not found" });
       const milestones = await db.select().from(reentryMilestones).where(eq(reentryMilestones.planId, plan.id));
       const [intake] = await db.select().from(reentryIntakeAssessments).where(eq(reentryIntakeAssessments.planId, plan.id));

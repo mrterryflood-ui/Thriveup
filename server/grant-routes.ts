@@ -6,7 +6,7 @@ import { z } from "zod";
 import { eq, desc, sql } from "drizzle-orm";
 
 function getUserId(req: Request): string | undefined {
-  const u = (req as Record<string, unknown>).user as { claims?: { sub?: string }; id?: string } | undefined;
+  const u = (req as unknown as Record<string, unknown>).user as { claims?: { sub?: string }; id?: string } | undefined;
   return u?.claims?.sub || u?.id;
 }
 
@@ -42,7 +42,7 @@ interface FitResult {
   matchedAreas: string[];
 }
 
-function computeFitScore(grant: { title?: string; description?: string; focusAreas?: string[]; eligibilityCriteria?: string }): FitResult {
+function computeFitScore(grant: { title?: string | null; description?: string | null; focusAreas?: string[] | null; eligibilityCriteria?: string | null }): FitResult {
   const searchText = [grant.title, grant.description, ...(grant.focusAreas || []), grant.eligibilityCriteria].join(" ").toLowerCase();
   const matchedAreas: string[] = [];
   const matchedKeywords: string[] = [];
@@ -108,7 +108,8 @@ export function registerGrantRoutes(app: Express) {
 
   app.get("/api/grants/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
-      const [grant] = await db.select().from(grantOpportunities).where(eq(grantOpportunities.id, req.params.id));
+      const id = req.params.id as string;
+      const [grant] = await db.select().from(grantOpportunities).where(eq(grantOpportunities.id, id));
       if (!grant) return res.status(404).json({ error: "Grant not found" });
       res.json(grant);
     } catch (error) {
@@ -119,6 +120,7 @@ export function registerGrantRoutes(app: Express) {
 
   app.patch("/api/grants/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
+      const id = req.params.id as string;
       const parsed = grantCreateSchema.partial().safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Invalid grant data", details: parsed.error.flatten().fieldErrors });
       const data: Record<string, unknown> = { ...parsed.data, updatedAt: new Date() };
@@ -128,7 +130,7 @@ export function registerGrantRoutes(app: Express) {
         data.fitAnalysis = fitResult.analysis;
         data.readinessChecklist = generateReadinessChecklist(fitResult.matchedAreas);
       }
-      const [updated] = await db.update(grantOpportunities).set(data).where(eq(grantOpportunities.id, req.params.id)).returning();
+      const [updated] = await db.update(grantOpportunities).set(data).where(eq(grantOpportunities.id, id)).returning();
       res.json(updated);
     } catch (error) {
       console.error("Failed to update grant:", error);
@@ -138,7 +140,8 @@ export function registerGrantRoutes(app: Express) {
 
   app.delete("/api/grants/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
-      await db.delete(grantOpportunities).where(eq(grantOpportunities.id, req.params.id));
+      const id = req.params.id as string;
+      await db.delete(grantOpportunities).where(eq(grantOpportunities.id, id));
       res.json({ success: true });
     } catch (error) {
       console.error("Failed to delete grant:", error);

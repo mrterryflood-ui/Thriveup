@@ -89,7 +89,7 @@ export default function APIDocsPage() {
     document.title = "API Documentation | AI Mastery Academy";
   }, []);
 
-  const categories = [...new Set(API_ENDPOINTS.map(e => e.category))];
+  const categories = Array.from(new Set(API_ENDPOINTS.map(e => e.category)));
 
   return (
     <div className="max-w-5xl mx-auto p-6 space-y-8">

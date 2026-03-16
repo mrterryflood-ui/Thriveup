@@ -18,7 +18,7 @@ const requireApiKey = (req: Request, res: Response, next: Function) => {
 };
 
 function getUserId(req: Request): string | undefined {
-  const u = (req as Record<string, unknown>).user as { claims?: { sub?: string }; id?: string } | undefined;
+  const u = (req as unknown as Record<string, unknown>).user as { claims?: { sub?: string }; id?: string } | undefined;
   return u?.claims?.sub || u?.id;
 }
 
@@ -78,7 +78,8 @@ export function registerJusticeRoutes(app: Express) {
 
   app.get("/api/external/justice/referrals/:id/progress", requireApiKey, async (req, res) => {
     try {
-      const [referral] = await db.select().from(justiceReferrals).where(eq(justiceReferrals.id, req.params.id));
+      const id = req.params.id as string;
+      const [referral] = await db.select().from(justiceReferrals).where(eq(justiceReferrals.id, id));
       if (!referral) return res.status(404).json({ error: "Referral not found" });
 
       let planData = null;
@@ -115,7 +116,8 @@ export function registerJusticeRoutes(app: Express) {
 
   app.get("/api/external/justice/referrals/:id/report", requireApiKey, async (req, res) => {
     try {
-      const [referral] = await db.select().from(justiceReferrals).where(eq(justiceReferrals.id, req.params.id));
+      const id = req.params.id as string;
+      const [referral] = await db.select().from(justiceReferrals).where(eq(justiceReferrals.id, id));
       if (!referral) return res.status(404).json({ error: "Referral not found" });
 
       let planData = null;
@@ -189,7 +191,8 @@ export function registerJusticeRoutes(app: Express) {
     try {
       const parsed = referralUpdateSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Invalid update data", details: parsed.error.flatten().fieldErrors });
-      const [updated] = await db.update(justiceReferrals).set({ ...parsed.data, updatedAt: new Date() }).where(eq(justiceReferrals.id, req.params.id)).returning();
+      const id = req.params.id as string;
+      const [updated] = await db.update(justiceReferrals).set({ ...parsed.data, updatedAt: new Date() }).where(eq(justiceReferrals.id, id)).returning();
       res.json(updated);
     } catch (error) {
       console.error("Failed to update referral:", error);
@@ -223,7 +226,12 @@ export function registerJusticeRoutes(app: Express) {
     try {
       const parsed = complianceUpdateSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Invalid update data", details: parsed.error.flatten().fieldErrors });
-      const [updated] = await db.update(supervisionCompliance).set(parsed.data).where(eq(supervisionCompliance.id, req.params.id)).returning();
+      const id = req.params.id as string;
+      const updateData: Record<string, unknown> = { ...parsed.data };
+      if (parsed.data.completedDate) {
+        updateData.completedDate = new Date(parsed.data.completedDate);
+      }
+      const [updated] = await db.update(supervisionCompliance).set(updateData).where(eq(supervisionCompliance.id, id)).returning();
       res.json(updated);
     } catch (error) {
       console.error("Failed to update compliance:", error);

@@ -746,7 +746,7 @@ export default function AcademyCareersPage() {
                       toggleBookmark(career.id);
                     }}
                     data-testid={`button-bookmark-${career.id}`}
-                    aria-label={bookmarkedCareers.includes(career.id) ? "Remove bookmark" : "Bookmark career"}
+                    aria-label={bookmarked.includes(career.id) ? "Remove bookmark" : "Bookmark career"}
                   >
                     {isBookmarked ? (
                       <Bookmark className="h-4 w-4 text-amber-500" />
