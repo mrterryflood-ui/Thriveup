@@ -120,6 +120,7 @@ import { HeaderControls } from "@/components/header-controls";
 import { AccessibilityPanel } from "@/components/accessibility-panel";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { CommandPalette } from "@/components/command-palette";
+import { AINavigator } from "@/components/ai-navigator";
 
 function AppRouter() {
   return (
@@ -254,6 +255,7 @@ function AppLayout() {
         </div>
       </div>
       <CommandPalette />
+      <AINavigator />
     </SidebarProvider>
   );
 }

@@ -1966,4 +1966,32 @@ export const insertConsentRecordSchema = createInsertSchema(consentRecords).omit
 export type InsertConsentRecord = z.infer<typeof insertConsentRecordSchema>;
 export type ConsentRecord = typeof consentRecords.$inferSelect;
 
+export const navigatorConversations = pgTable("navigator_conversations", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  title: varchar("title", { length: 500 }).notNull().default("New Conversation"),
+  summary: text("summary"),
+  identifiedNeeds: text("identified_needs").array(),
+  userContext: jsonb("user_context"),
+  lastMessageAt: timestamp("last_message_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const navigatorMessages = pgTable("navigator_messages", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  conversationId: varchar("conversation_id", { length: 100 }).notNull(),
+  role: varchar("role", { length: 20 }).notNull(),
+  content: text("content").notNull(),
+  metadata: jsonb("metadata"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertNavigatorConversationSchema = createInsertSchema(navigatorConversations).omit({ id: true, createdAt: true, lastMessageAt: true });
+export type InsertNavigatorConversation = z.infer<typeof insertNavigatorConversationSchema>;
+export type NavigatorConversation = typeof navigatorConversations.$inferSelect;
+
+export const insertNavigatorMessageSchema = createInsertSchema(navigatorMessages).omit({ id: true, createdAt: true });
+export type InsertNavigatorMessage = z.infer<typeof insertNavigatorMessageSchema>;
+export type NavigatorMessage = typeof navigatorMessages.$inferSelect;
+
 export * from "./models/auth";
