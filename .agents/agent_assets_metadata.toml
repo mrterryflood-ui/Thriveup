@@ -6,3 +6,9 @@ id = "mLSi3ve8jUxLf3ChTRdbX"
 uri = "file://AI_Mastery_Academy_Stakeholder_Deck.pptx"
 type = "slides"
 title = "AI Mastery Academy - Stakeholder Presentation (21 Slides)"
+
+[[outputs]]
+id = "vtdm7VjsOhcPtg3u1WCGw"
+uri = "file://MAP-GAP-REPORT.md"
+type = "text"
+title = "ThriveUp Academy — MAP-GAP Strategic Report"
