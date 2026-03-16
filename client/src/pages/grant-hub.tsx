@@ -13,6 +13,18 @@ import {
 } from "lucide-react";
 import type { GrantOpportunity } from "@shared/schema";
 
+interface AlignmentReport {
+  totalGrants: number;
+  highFitGrants: number;
+  mediumFitGrants: number;
+  capabilities: Array<{ area: string; features: string[] }>;
+}
+
+interface ReadinessItem {
+  requirement: string;
+  status: string;
+}
+
 function FitScoreBadge({ score }: { score: number | null }) {
   if (score === null || score === undefined) return <Badge variant="outline">Not scored</Badge>;
   if (score >= 70) return <Badge className="bg-emerald-600 text-white">{score}% Fit</Badge>;
@@ -30,7 +42,7 @@ function StatusBadge({ status }: { status: string | null }) {
     declined: { label: "Declined", variant: "destructive" },
   };
   const info = map[status || "identified"] || map.identified;
-  return <Badge variant={info.variant as any}>{info.label}</Badge>;
+  return <Badge variant={info.variant as "outline" | "secondary" | "default" | "destructive"}>{info.label}</Badge>;
 }
 
 export default function GrantHubPage() {
@@ -71,7 +83,7 @@ export default function GrantHubPage() {
     createMutation.mutate({ ...formData, focusAreas: fa.length ? fa : undefined });
   };
 
-  const alignmentReport = report as any;
+  const alignmentReport = report as AlignmentReport | undefined;
 
   return (
     <div className="p-4 sm:p-6 max-w-6xl mx-auto space-y-6">
@@ -158,7 +170,7 @@ export default function GrantHubPage() {
         <Card className="p-6" data-testid="card-platform-capabilities">
           <h2 className="font-semibold text-lg mb-4">Platform Capabilities for Grant Alignment</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {(alignmentReport.capabilities as any[]).map((cap: any) => (
+            {alignmentReport.capabilities.map((cap) => (
               <div key={cap.area} className="flex items-start gap-3 p-3 rounded-lg border">
                 <CheckCircle2 className="h-5 w-5 text-emerald-600 mt-0.5 shrink-0" />
                 <div>
@@ -213,9 +225,9 @@ export default function GrantHubPage() {
                   )}
                   {grant.readinessChecklist && (
                     <div className="mt-3">
-                      <p className="text-xs font-medium text-muted-foreground mb-1">Readiness ({(grant.readinessChecklist as any[]).filter((c: any) => c.status === "ready").length}/{(grant.readinessChecklist as any[]).length} criteria met)</p>
+                      <p className="text-xs font-medium text-muted-foreground mb-1">Readiness ({(grant.readinessChecklist as ReadinessItem[]).filter((c) => c.status === "ready").length}/{(grant.readinessChecklist as ReadinessItem[]).length} criteria met)</p>
                       <div className="w-full bg-muted rounded-full h-2">
-                        <div className="bg-emerald-600 h-2 rounded-full transition-all" style={{ width: `${((grant.readinessChecklist as any[]).filter((c: any) => c.status === "ready").length / (grant.readinessChecklist as any[]).length) * 100}%` }} />
+                        <div className="bg-emerald-600 h-2 rounded-full transition-all" style={{ width: `${((grant.readinessChecklist as ReadinessItem[]).filter((c) => c.status === "ready").length / (grant.readinessChecklist as ReadinessItem[]).length) * 100}%` }} />
                       </div>
                     </div>
                   )}

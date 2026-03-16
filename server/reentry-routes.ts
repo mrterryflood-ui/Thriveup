@@ -56,7 +56,7 @@ const DEFAULT_MILESTONES: Record<string, Array<{ category: string; title: string
 };
 
 export function registerReentryRoutes(app: Express) {
-  app.get("/api/reentry/plans", requireAuth, async (req, res) => {
+  app.get("/api/reentry/plans", requireAuth, requireAdmin, async (req, res) => {
     try {
       const plans = await db.select().from(reentryPlans).orderBy(desc(reentryPlans.createdAt));
       res.json(plans);
@@ -84,7 +84,7 @@ export function registerReentryRoutes(app: Express) {
     }
   });
 
-  app.get("/api/reentry/plans/:id", requireAuth, async (req, res) => {
+  app.get("/api/reentry/plans/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
       const [plan] = await db.select().from(reentryPlans).where(eq(reentryPlans.id, req.params.id));
       if (!plan) return res.status(404).json({ error: "Plan not found" });
@@ -124,7 +124,7 @@ export function registerReentryRoutes(app: Express) {
     }
   });
 
-  app.get("/api/reentry/plans/:planId/milestones", requireAuth, async (req, res) => {
+  app.get("/api/reentry/plans/:planId/milestones", requireAuth, requireAdmin, async (req, res) => {
     try {
       const milestones = await db.select().from(reentryMilestones).where(eq(reentryMilestones.planId, req.params.planId));
       res.json(milestones);
@@ -160,7 +160,7 @@ export function registerReentryRoutes(app: Express) {
     }
   });
 
-  app.get("/api/reentry/intake/:planId", requireAuth, async (req, res) => {
+  app.get("/api/reentry/intake/:planId", requireAuth, requireAdmin, async (req, res) => {
     try {
       const [assessment] = await db.select().from(reentryIntakeAssessments).where(eq(reentryIntakeAssessments.planId, req.params.planId));
       res.json(assessment || null);
@@ -202,7 +202,7 @@ export function registerReentryRoutes(app: Express) {
     }
   });
 
-  app.get("/api/reentry/plans/:id/report", requireAuth, async (req, res) => {
+  app.get("/api/reentry/plans/:id/report", requireAuth, requireAdmin, async (req, res) => {
     try {
       const [plan] = await db.select().from(reentryPlans).where(eq(reentryPlans.id, req.params.id));
       if (!plan) return res.status(404).json({ error: "Plan not found" });

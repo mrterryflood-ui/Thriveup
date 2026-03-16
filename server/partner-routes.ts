@@ -71,7 +71,7 @@ export function registerPartnerRoutes(app: Express) {
     }
   });
 
-  app.get("/api/partner-referrals", requireAuth, async (_req, res) => {
+  app.get("/api/partner-referrals", requireAuth, requireAdmin, async (_req, res) => {
     try {
       const referrals = await db.select().from(partnerReferrals).orderBy(desc(partnerReferrals.createdAt));
       res.json(referrals);
@@ -80,7 +80,7 @@ export function registerPartnerRoutes(app: Express) {
     }
   });
 
-  app.post("/api/partner-referrals", requireAuth, async (req, res) => {
+  app.post("/api/partner-referrals", requireAuth, requireAdmin, async (req, res) => {
     try {
       const [referral] = await db.insert(partnerReferrals).values(req.body).returning();
       res.json(referral);
@@ -89,7 +89,7 @@ export function registerPartnerRoutes(app: Express) {
     }
   });
 
-  app.patch("/api/partner-referrals/:id", requireAuth, async (req, res) => {
+  app.patch("/api/partner-referrals/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
       const [updated] = await db.update(partnerReferrals).set({ ...req.body, updatedAt: new Date() }).where(eq(partnerReferrals.id, req.params.id)).returning();
       res.json(updated);

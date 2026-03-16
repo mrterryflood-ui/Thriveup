@@ -75,6 +75,7 @@ const pool = new pg.Pool({
 export const db = drizzle(pool);
 
 export interface IStorage {
+  getUser(userId: string): Promise<{ id: string; role: string } | undefined>;
   getLevels(): Promise<Level[]>;
   getLevel(id: number): Promise<Level | undefined>;
   getSubjects(): Promise<Subject[]>;
@@ -307,6 +308,13 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
+  async getUser(userId: string): Promise<{ id: string; role: string } | undefined> {
+    const [avatar] = await db.select({ id: academyAvatars.userId, role: academyAvatars.role })
+      .from(academyAvatars)
+      .where(eq(academyAvatars.userId, userId));
+    return avatar || undefined;
+  }
+
   async getLevels(): Promise<Level[]> {
     return db.select().from(levels).orderBy(levels.id);
   }

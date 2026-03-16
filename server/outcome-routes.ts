@@ -48,7 +48,7 @@ export function registerOutcomeRoutes(app: Express) {
     }
   });
 
-  app.get("/api/outcomes/user/:userId", requireAuth, async (req, res) => {
+  app.get("/api/outcomes/user/:userId", requireAuth, requireAdmin, async (req, res) => {
     try {
       const outcomes = await db.select().from(outcomeTracking).where(eq(outcomeTracking.userId, req.params.userId)).orderBy(desc(outcomeTracking.measurementDate));
       res.json(outcomes);
