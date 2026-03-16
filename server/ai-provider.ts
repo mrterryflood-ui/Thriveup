@@ -139,6 +139,50 @@ async function tryProvider(provider: Provider, params: StreamAIResponseParams): 
   }
 }
 
+export async function generateAIJSON<T = unknown>(prompt: string, systemPrompt?: string): Promise<T> {
+  const providers = getAvailableProviders();
+  if (providers.length === 0) throw new Error("No AI provider configured");
+
+  for (let i = 0; i < providers.length; i++) {
+    const provider = providers[i];
+    try {
+      let text = "";
+      if (provider === "gemini") {
+        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+        const model = genAI.getGenerativeModel({
+          model: "gemini-2.0-flash",
+          systemInstruction: systemPrompt,
+          generationConfig: { maxOutputTokens: 4000, responseMimeType: "application/json" },
+        });
+        const result = await model.generateContent(prompt);
+        text = result.response.text();
+      } else {
+        const isReplit = provider === "replit-ai-integrations";
+        const client = new OpenAI({
+          apiKey: isReplit ? process.env.AI_INTEGRATIONS_OPENAI_API_KEY : process.env.OPENAI_API_KEY,
+          baseURL: isReplit ? process.env.AI_INTEGRATIONS_OPENAI_BASE_URL : undefined,
+        });
+        const msgs: Array<{ role: "system" | "user"; content: string }> = [];
+        if (systemPrompt) msgs.push({ role: "system", content: systemPrompt });
+        msgs.push({ role: "user", content: prompt });
+        const resp = await client.chat.completions.create({
+          model: isReplit ? "gpt-5-nano" : "gpt-4o-mini",
+          messages: msgs,
+          max_completion_tokens: 4000,
+          response_format: { type: "json_object" },
+        });
+        text = resp.choices[0]?.message?.content || "{}";
+      }
+      const cleaned = text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+      return JSON.parse(cleaned) as T;
+    } catch (error) {
+      if (isRateLimitError(error) && i < providers.length - 1) continue;
+      throw error;
+    }
+  }
+  throw new Error("All AI providers failed");
+}
+
 export async function streamAIResponse(params: StreamAIResponseParams): Promise<void> {
   const providers = getAvailableProviders();
   if (providers.length === 0) {
