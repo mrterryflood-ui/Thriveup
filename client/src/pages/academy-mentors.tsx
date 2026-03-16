@@ -113,7 +113,7 @@ const AVATAR_COLORS = [
 
 function LoadingSkeleton() {
 
-  useEffect(() => { document.title = "Mentor Network | AI Mastery Academy"; }, []);
+  useEffect(() => { document.title = "Mentor Network | ThriveUp Academy"; }, []);
   return (
     <div className="p-6 max-w-6xl mx-auto space-y-6">
       <Skeleton className="h-36 w-full rounded-md" />

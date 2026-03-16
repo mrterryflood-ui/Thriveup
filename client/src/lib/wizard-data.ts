@@ -6,7 +6,7 @@ export interface WizardStep {
 
 export const WIZARD_STEPS: Record<string, WizardStep[]> = {
   "welcome": [
-    { title: "Welcome, Young Panther!", instruction: "Welcome to the AI Mastery Academy! This is your launchpad for learning about business, finance, leadership, and life.", sparkTip: "I'm Spark, your AI learning companion. I'll guide you through everything!" },
+    { title: "Welcome, Young Panther!", instruction: "Welcome to the ThriveUp Academy! This is your launchpad for learning about business, finance, leadership, and life.", sparkTip: "I'm Spark, your AI learning companion. I'll guide you through everything!" },
     { title: "Your Power Score", instruction: "Everything you do in the Academy earns Panther Power points across 5 categories: Education, Character, Leadership, Entrepreneurship, and Community.", sparkTip: "The more you explore, the more powerful you become!" },
     { title: "Daily Quests", instruction: "Each day, you'll get 3 unique quests that challenge you across different Academy features. Complete them to earn bonus Power points!", sparkTip: "Consistency is key - your streak multiplies your rewards!" },
     { title: "You're Ready!", instruction: "Start by customizing your avatar, then explore the Stock Market or check your House Points. Your journey begins now!", sparkTip: "Remember: every business skill teaches a life lesson. Look for the connections!" },

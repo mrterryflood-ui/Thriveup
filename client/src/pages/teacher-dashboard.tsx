@@ -35,7 +35,7 @@ export default function TeacherDashboardPage() {
     enabled: isAuthenticated,
   });
 
-  useEffect(() => { document.title = "Teacher Dashboard | AI Mastery Academy"; }, []);
+  useEffect(() => { document.title = "Teacher Dashboard | ThriveUp Academy"; }, []);
 
   if (authLoading) {
     return (

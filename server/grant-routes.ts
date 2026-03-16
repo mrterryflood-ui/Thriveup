@@ -31,7 +31,7 @@ const PLATFORM_CAPABILITIES = [
   { area: "Youth Reentry Support", features: ["Reentry case management", "Intake assessments", "Phase-based plans", "Court-ready reporting"], grantKeywords: ["reentry", "juvenile justice", "second chance", "recidivism"] },
   { area: "Mentorship & Coaching", features: ["Mentor matching network", "Industry professional connections", "Career coaching", "Peer mentoring"], grantKeywords: ["mentoring", "coaching", "youth development"] },
   { area: "Community-Based Services", features: ["Community partner network", "Resource finder (50 states)", "Partner referral workflows", "Multi-agency coordination"], grantKeywords: ["community", "wraparound", "services", "partnership"] },
-  { area: "Data & Outcome Tracking", features: ["IGN-Thrive analytics", "Recidivism tracking", "Employment outcomes", "DOJ-aligned reporting"], grantKeywords: ["outcomes", "data", "measurement", "evidence-based"] },
+  { area: "Data & Outcome Tracking", features: ["Thrive analytics", "Recidivism tracking", "Employment outcomes", "DOJ-aligned reporting"], grantKeywords: ["outcomes", "data", "measurement", "evidence-based"] },
   { area: "Financial Literacy", features: ["Financial education courses", "Stock market simulation", "Entrepreneurship training", "College fundraising"], grantKeywords: ["financial", "economic", "entrepreneurship", "sustainability"] },
   { area: "Whole-Child Support", features: ["Six-domain Thrive scoring", "Early warning system", "GIS context engine", "Behavioral health integration"], grantKeywords: ["holistic", "whole-child", "behavioral health", "trauma-informed"] },
 ];
@@ -178,7 +178,7 @@ export function registerGrantRoutes(app: Express) {
       const grants = await db.select().from(grantOpportunities).orderBy(desc(grantOpportunities.fitScore));
       const report = {
         generatedAt: new Date().toISOString(),
-        platform: "AI Mastery Academy & School Support Hub",
+        platform: "ThriveUp Academy",
         totalGrants: grants.length,
         highFitGrants: grants.filter(g => (g.fitScore || 0) >= 70).length,
         mediumFitGrants: grants.filter(g => (g.fitScore || 0) >= 40 && (g.fitScore || 0) < 70).length,

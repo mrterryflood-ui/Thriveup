@@ -33,7 +33,7 @@ const whyItMatters = [
 const trainingModules = [
   {
     icon: MonitorSmartphone,
-    title: "Getting Started with AI Mastery Academy",
+    title: "Getting Started with ThriveUp Academy",
     difficulty: "Beginner",
     desc: "Navigating the platform, setting up profiles, understanding progress tracking and career pathway tools.",
   },
@@ -109,7 +109,7 @@ const resources = [
 
 export default function ParentResourcesPage() {
   useEffect(() => {
-    document.title = "Family Resources & Workforce Readiness | AI Mastery Academy";
+    document.title = "Family Resources & Workforce Readiness | ThriveUp Academy";
   }, []);
 
   return (
@@ -147,7 +147,7 @@ export default function ParentResourcesPage() {
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSA2MCAwIEwgMCAwIDAgNjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjA1KSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-40" />
         <div className="relative mx-auto max-w-5xl text-center">
           <Badge variant="secondary" className="mb-6 bg-white/15 text-white border-white/20" data-testid="badge-for-parents">
-            School Support Hub for Families
+            Family & Community Resource Hub
           </Badge>
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 tracking-tight leading-tight" data-testid="text-hero-title">
             Family Resources &<br />Workforce Readiness
@@ -317,10 +317,10 @@ export default function ParentResourcesPage() {
         <div className="mx-auto max-w-5xl flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <Heart className="h-5 w-5 text-primary" />
-            <span className="font-semibold">AI Mastery Academy</span>
+            <span className="font-semibold">ThriveUp Academy</span>
           </div>
           <p className="text-sm text-muted-foreground">
-            School Support Hub - empowering families for workforce readiness together.
+            Empowering families and communities for workforce readiness together.
           </p>
           <div className="flex flex-col items-end gap-1">
             <a href="mailto:sisnett.meredith@gmail.com" className="flex items-center gap-1.5 text-sm text-muted-foreground" data-testid="link-support-email" aria-label="Email sisnett.meredith@gmail.com">

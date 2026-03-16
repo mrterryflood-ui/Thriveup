@@ -418,7 +418,7 @@ export const academyScenarios = pgTable("academy_scenarios", {
   theme: text("theme").notNull(), // "finance", "social", "business", "leadership", "community"
   summary: text("summary").notNull(),
   difficulty: text("difficulty").notNull().default("medium"), // "easy", "medium", "hard"
-  empathyPrompt: text("empathy_prompt").notNull(), // IGN-style empathy hook
+  empathyPrompt: text("empathy_prompt").notNull(),
   featureArea: text("feature_area").notNull().default("general"), // ties to stocks, wallet, campus, etc.
   totalNodes: integer("total_nodes").notNull().default(1),
   rewardCategory: text("reward_category").notNull().default("education"), // panther power category

@@ -75,7 +75,7 @@ interface LeaderboardEntry {
 }
 
 export default function AcademyGameLobbyPage() {
-  useEffect(() => { document.title = 'Game Room | AI Mastery Academy'; }, []);
+  useEffect(() => { document.title = 'Game Room | ThriveUp Academy'; }, []);
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const [setupOpen, setSetupOpen] = useState(false);

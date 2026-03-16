@@ -16,7 +16,7 @@ const sections = [
   { id: "parental-consent", title: "Parental & Guardian Consent", icon: UserCheck },
   { id: "collection", title: "What Information We Collect", icon: Eye },
   { id: "usage", title: "How We Use Student Data", icon: Database },
-  { id: "gis", title: "GIS & Context Data (IGN-Thrive System)", icon: MapPin },
+  { id: "gis", title: "GIS & Context Data (Thrive System)", icon: MapPin },
   { id: "wellbeing", title: "Self-Assessment & Wellbeing Data", icon: Heart },
   { id: "access", title: "Who Can Access Student Data", icon: Users },
   { id: "third-party", title: "Third-Party Services & Data Sharing", icon: Globe },
@@ -31,14 +31,14 @@ const sections = [
 
 export default function PrivacyPolicyPage() {
   useEffect(() => {
-    document.title = "Privacy & Data Protection Policy | AI Mastery Academy";
+    document.title = "Privacy & Data Protection Policy | ThriveUp Academy";
   }, []);
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 space-y-6" data-testid="page-privacy-policy">
       <PageHeader
         title="Privacy Policy"
-        description="Privacy & Data Protection Policy for AI Mastery Academy"
+        description="Privacy & Data Protection Policy for ThriveUp Academy"
         breadcrumbs={[{label:"Privacy Policy"}]}
       />
 
@@ -50,7 +50,7 @@ export default function PrivacyPolicyPage() {
           Privacy & Data Protection Policy
         </h1>
         <p className="text-muted-foreground" data-testid="text-privacy-subtitle">
-          AI Mastery Academy & School Support Hub
+          ThriveUp Academy
         </p>
         <p className="text-sm text-muted-foreground" data-testid="text-privacy-updated">
           Last Updated: February 2026
@@ -87,10 +87,10 @@ export default function PrivacyPolicyPage() {
       <section id="commitment">
         <SectionCard num={1} icon={Lock} title="Our Commitment to Student Privacy">
           <div>
-            The AI Mastery Academy & School Support Hub is built with student privacy as a foundational principle. We comply with <Badge variant="outline">FERPA</Badge> (Family Educational Rights and Privacy Act), <Badge variant="outline">COPPA</Badge> (Children's Online Privacy Protection Act), <Badge variant="outline">CIPA</Badge> (Children's Internet Protection Act), and applicable state privacy regulations.
+            ThriveUp Academy is built with user privacy as a foundational principle. We comply with <Badge variant="outline">FERPA</Badge> (Family Educational Rights and Privacy Act), <Badge variant="outline">COPPA</Badge> (Children's Online Privacy Protection Act), <Badge variant="outline">CIPA</Badge> (Children's Internet Protection Act), and applicable state privacy regulations.
           </div>
           <p className="mt-3">
-            This platform serves youth ages 14-24 and we take our responsibility to protect learners seriously. All users under the age of 18 are considered minors and receive enhanced privacy protections as outlined in this policy.
+            This platform serves learners of all ages and we take our responsibility to protect every user seriously. All users under the age of 18 are considered minors and receive enhanced privacy protections as outlined in this policy.
           </p>
           <p className="mt-3">
             We adhere to the principle of data minimization: we collect only the information necessary to provide our educational services, and we never collect more data than is reasonably required.
@@ -101,7 +101,7 @@ export default function PrivacyPolicyPage() {
       <section id="coppa">
         <SectionCard num={2} icon={Baby} title="COPPA Compliance & Youth Under 13">
           <p className="mb-3">
-            While our platform is primarily designed for youth ages 14-24, we recognize that some users may be under 13 years of age. In full compliance with the Children's Online Privacy Protection Act (COPPA), we implement the following safeguards:
+            While our platform serves learners of all ages, we recognize that some users may be under 13 years of age. In full compliance with the Children's Online Privacy Protection Act (COPPA), we implement the following safeguards:
           </p>
           <ul className="list-disc list-inside space-y-1.5 text-sm">
             <li>Verifiable parental consent is required before collecting any personal information from children under 13</li>
@@ -211,7 +211,7 @@ export default function PrivacyPolicyPage() {
           <ul className="list-disc list-inside space-y-1.5 text-sm">
             <li>Personalize learning pathways and content recommendations</li>
             <li>Track academic progress and milestone achievements</li>
-            <li>Power the IGN-Thrive wellness scoring system (only with opt-in consent)</li>
+            <li>Power the Thrive wellness scoring system (only with opt-in consent)</li>
             <li>Generate aggregate analytics for administrators and teachers</li>
             <li>Identify students who may need additional support through the Early Warning System</li>
             <li>Issue digital badges, certificates, and recognition for achievements</li>
@@ -226,9 +226,9 @@ export default function PrivacyPolicyPage() {
       </section>
 
       <section id="gis">
-        <SectionCard num={6} icon={MapPin} title="GIS & Context Data (IGN-Thrive System)">
+        <SectionCard num={6} icon={MapPin} title="GIS & Context Data (Thrive System)">
           <p>
-            The IGN-Thrive system uses publicly available community-level data (CDC PLACES health data, Social Vulnerability Index, FBI crime statistics) to understand the broader context of student environments.
+            The Thrive system uses publicly available community-level data (CDC PLACES health data, Social Vulnerability Index, FBI crime statistics) to understand the broader context of student environments.
           </p>
           <div className="mt-4 p-3 rounded-md bg-primary/5 border border-primary/10">
             <p className="text-sm font-semibold" data-testid="text-no-addresses">
@@ -381,7 +381,7 @@ export default function PrivacyPolicyPage() {
             We design our platform with age-appropriate experiences in mind:
           </p>
           <ul className="list-disc list-inside space-y-1.5 text-sm">
-            <li>Content is curated and moderated for the target age group (14-24)</li>
+            <li>Content is curated and moderated appropriately for all age groups</li>
             <li>AI companion responses are filtered for age-appropriate language and topics</li>
             <li>Gamification elements (marketplace, wallet, stocks simulator) use virtual currency only — no real money transactions</li>
             <li>Social features are limited to school-supervised environments</li>
@@ -462,7 +462,7 @@ export default function PrivacyPolicyPage() {
         <SectionCard num={16} icon={Mail} title="Contact Information">
           <p className="text-sm">For privacy questions, data requests, or concerns, please contact:</p>
           <div className="mt-3 space-y-1 text-sm">
-            <p className="font-semibold" data-testid="text-contact-office">AI Mastery Academy - Data Privacy Office</p>
+            <p className="font-semibold" data-testid="text-contact-office">ThriveUp Academy - Data Privacy Office</p>
             <p className="text-muted-foreground" data-testid="text-contact-email">Email: privacy@txea.edu</p>
           </div>
           <div className="mt-4 space-y-1 text-sm">

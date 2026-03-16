@@ -189,7 +189,7 @@ export default function CurriculumDocumentsPage() {
     queryKey: ["/api/curriculum-documents"],
   });
 
-  useEffect(() => { document.title = "Curriculum Documents | AI Mastery Academy"; }, []);
+  useEffect(() => { document.title = "Curriculum Documents | ThriveUp Academy"; }, []);
 
   const { data: levels } = useQuery<Level[]>({
     queryKey: ["/api/levels"],
@@ -349,7 +349,7 @@ export function CurriculumDocumentViewPage() {
   });
 
   useEffect(() => {
-    document.title = doc ? `${doc.title} | AI Mastery Academy` : "Document | AI Mastery Academy";
+    document.title = doc ? `${doc.title} | ThriveUp Academy` : "Document | ThriveUp Academy";
   }, [doc]);
 
   const { data: levels } = useQuery<Level[]>({
@@ -947,7 +947,7 @@ function DocumentForm({
 }
 
 export function CurriculumDocumentCreatePage() {
-  useEffect(() => { document.title = "Create Document | AI Mastery Academy"; }, []);
+  useEffect(() => { document.title = "Create Document | ThriveUp Academy"; }, []);
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <Link href="/curriculum-documents">

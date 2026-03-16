@@ -6,7 +6,7 @@ import { Link } from "wouter";
 
 export default function NotFound() {
 
-  useEffect(() => { document.title = "Page Not Found | AI Mastery Academy"; }, []);
+  useEffect(() => { document.title = "Page Not Found | ThriveUp Academy"; }, []);
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-background" data-testid="page-not-found">
       <Card className="w-full max-w-lg mx-4">

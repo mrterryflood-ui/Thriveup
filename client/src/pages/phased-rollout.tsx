@@ -88,7 +88,7 @@ const PHASES = [
 const PHASE_STORIES = [
   "This is not a simulation. The Print Shop is a real business producing physical merchandise -- t-shirts, hoodies, hats, and branded gear that students design, price, and sell. Revenue goes directly to college tuition funds through the UBO partnership. Families hold the products in their hands. The community sees real results. Students learn entrepreneurship by doing it, not reading about it. Admins manage inventory, approve designs, track orders, and report revenue to the district every step of the way.",
   "Spark becomes every student's personal learning companion -- emotionally intelligent, grade-band aware, bilingual. Students don't just consume AI; they master it through the AI Course, unlocking creation tools one by one. By the end, they're building presentations, business plans, and video scripts. Sparky supports parents and teachers with evidence-based strategies. Admins control AI configuration, monitor safety guardrails, review usage analytics, and manage course content throughout the quarter.",
-  "The full Panther Village comes alive. Students trade stocks, build virtual campuses, compete in academic challenges, earn house points, and track their longitudinal journey from 6th grade through graduation. The IGN-Thrive system watches over every student. Career pathways connect today's learning to tomorrow's opportunities. Admins manage the entire ecosystem -- from early warning interventions to mentor approvals, competition scheduling to progress reporting. This is where every phase converges into a living, breathing ecosystem.",
+  "The full Panther Village comes alive. Students trade stocks, build virtual campuses, compete in academic challenges, earn house points, and track their longitudinal journey from 6th grade through graduation. The Thrive system watches over every student. Career pathways connect today's learning to tomorrow's opportunities. Admins manage the entire ecosystem -- from early warning interventions to mentor approvals, competition scheduling to progress reporting. This is where every phase converges into a living, breathing ecosystem.",
 ];
 
 const PHASE_FEATURES = [
@@ -114,7 +114,7 @@ const PHASE_FEATURES = [
     { name: "Career Explorer", path: "/academy/careers", desc: "50+ career pathways" },
     { name: "My Pathway", path: "/academy/pathway", desc: "Longitudinal tracker grades 6-12+" },
     { name: "Mentor Network", path: "/academy/mentors", desc: "Professional connections" },
-    { name: "IGN-Thrive", path: "/academy/thrive", desc: "Six-domain scoring, early warning system" },
+    { name: "Thrive", path: "/academy/thrive", desc: "Six-domain scoring, early warning system" },
     { name: "Game Room", path: "/academy/games", desc: "ELO-rated educational games" },
     { name: "Scenarios & Marketplace", path: "/academy/scenarios", desc: "Decision simulations, peer trading" },
     { name: "Daily Quests", path: "/academy/quests", desc: "Engagement system" },
@@ -153,7 +153,7 @@ const STAKEHOLDER_DATA = [
       { label: "Longitudinal Impact", value: "Tracking students from 6th grade through college. Every achievement, pathway, and milestone captured", icon: Route },
       { label: "District Scalability", value: "Implementation guide with cost calculators at /implementation. Ready for multi-campus deployment", icon: Globe },
       { label: "Community Building", value: "House system, competitions, and mentorship create belonging. Mentor verification ensures student safety", icon: Users },
-      { label: "Admin Role (Q3)", value: "Admins manage IGN-Thrive early warnings and interventions, approve mentors, schedule competitions, oversee stock market parameters, review longitudinal progress, generate district-level analytics, and coordinate cross-platform ISSS integration", icon: Settings },
+      { label: "Admin Role (Q3)", value: "Admins manage Thrive early warnings and interventions, approve mentors, schedule competitions, oversee stock market parameters, review longitudinal progress, generate district-level analytics, and coordinate cross-platform ISSS integration", icon: Settings },
       { label: "Success Metrics", value: "Thrive scores, career pathway completions, mentor connections, graduation tracking, early warning resolution rate", icon: BarChart3 },
       { label: "Risk Level", value: "Low-medium -- complex but all components are built and tested. Admin-managed phased activation within this quarter recommended", icon: Shield },
     ],
@@ -245,7 +245,7 @@ const QUICK_LINKS = [
   { name: "Admin Tutorial", path: "/academy/admin-tutorial", desc: "Step-by-step admin walkthrough", icon: Presentation },
   { name: "Video Script Generator", path: "/academy/admin-video-script", desc: "Create promotional video scripts", icon: FileText },
   { name: "Progress Reports", path: "/academy/progress-report", desc: "Student analytics and reporting", icon: BarChart3 },
-  { name: "Thrive Dashboard", path: "/academy/thrive", desc: "Six-domain IGN-Thrive scoring", icon: Activity },
+  { name: "Thrive Dashboard", path: "/academy/thrive", desc: "Six-domain Thrive scoring", icon: Activity },
 ];
 
 function PhaseCard({
@@ -262,7 +262,7 @@ function PhaseCard({
   const PhaseIcon = phase.icon;
 
 
-  useEffect(() => { document.title = "Phased Rollout Plan | AI Mastery Academy"; }, []);
+  useEffect(() => { document.title = "Phased Rollout Plan | ThriveUp Academy"; }, []);
   return (
     <Card data-testid={`card-phase-${phase.id}-${perspective}`} className="mb-6">
       <CardHeader>
@@ -611,7 +611,7 @@ export default function PhasedRolloutPage() {
                 color: "from-emerald-900 to-teal-800",
                 icon: Building2,
                 checkpoints: [
-                  { month: "Month 7", tasks: "Launch stock market with initial parameters, activate house system and competitions, begin mentor verification and approvals, configure IGN-Thrive scoring domains" },
+                  { month: "Month 7", tasks: "Launch stock market with initial parameters, activate house system and competitions, begin mentor verification and approvals, configure Thrive scoring domains" },
                   { month: "Month 8", tasks: "Monitor early warning system, manage intervention workflows, review longitudinal pathway data, schedule academic competitions, coordinate ISSS cross-platform sync" },
                   { month: "Month 9", tasks: "Generate comprehensive district analytics, review full-year student progress, produce longitudinal reports, plan next academic year expansion, present ecosystem impact to district leadership" },
                 ],

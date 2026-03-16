@@ -230,7 +230,7 @@ function LoadingSkeleton() {
 }
 
 export default function AcademyThrivePage() {
-  useEffect(() => { document.title = 'Thrive Score | AI Mastery Academy'; }, []);
+  useEffect(() => { document.title = 'Thrive Score | ThriveUp Academy'; }, []);
 
   const { toast } = useToast();
   const { user, isLoading: authLoading, isAuthenticated } = useAuth();
@@ -318,7 +318,7 @@ export default function AcademyThrivePage() {
   return (
     <div className="p-4 sm:p-6 max-w-5xl mx-auto" data-testid="academy-thrive-page">
       <PageHeader
-        title="IGN Thrive System"
+        title="Thrive System"
         breadcrumbs={[
           { label: "Academy", href: "/academy" },
           { label: "Thrive" },

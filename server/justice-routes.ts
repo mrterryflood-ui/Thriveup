@@ -242,7 +242,7 @@ export function registerJusticeRoutes(app: Express) {
   app.get("/api/external/justice/health", requireApiKey, async (_req, res) => {
     res.json({
       status: "ok",
-      platform: "AI Mastery Academy - Justice System Integration",
+      platform: "ThriveUp Academy - Justice System Integration",
       version: "1.0",
       endpoints: [
         "POST /api/external/justice/referrals",

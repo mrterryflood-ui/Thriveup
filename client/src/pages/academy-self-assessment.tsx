@@ -106,7 +106,7 @@ function LoadingSkeleton() {
 }
 
 export default function AcademySelfAssessmentPage() {
-  useEffect(() => { document.title = 'Self Assessment | AI Mastery Academy'; }, []);
+  useEffect(() => { document.title = 'Self Assessment | ThriveUp Academy'; }, []);
 
   const { toast } = useToast();
 

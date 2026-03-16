@@ -698,7 +698,7 @@ const FEDERAL_PROGRAMS: StateResource[] = [
   },
   {
     state: "All States", stateCode: "US", category: "workforce", subcategory: "WIOA Programs",
-    name: "WIOA Youth Program", description: "Workforce Innovation and Opportunity Act youth programs provide employment and training services to youth ages 14-24 facing barriers to employment. Includes tutoring, mentoring, work experiences, and occupational skills training.", url: "https://www.dol.gov/agencies/eta/youth", eligibility: "Ages 14-24, facing barriers", ageRange: "14-24",
+    name: "WIOA Youth Program", description: "Workforce Innovation and Opportunity Act youth programs provide employment and training services to young adults facing barriers to employment. Includes tutoring, mentoring, work experiences, and occupational skills training. WIOA also funds adult and dislocated worker programs for all ages.", url: "https://www.dol.gov/agencies/eta/youth", eligibility: "Young adults facing barriers; adult programs available for all ages", ageRange: "14-24",
     tags: ["WIOA", "federal", "job training", "mentoring", "work experience"]
   },
   {

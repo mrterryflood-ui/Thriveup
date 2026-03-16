@@ -156,7 +156,7 @@ function LoadingSkeleton() {
 
 export default function AcademyHubPage() {
   useEffect(() => {
-    document.title = "Academy Hub | AI Mastery Academy";
+    document.title = "Academy Hub | ThriveUp Academy";
   }, []);
 
   const { data, isLoading, error, refetch } = useQuery<DashboardData>({

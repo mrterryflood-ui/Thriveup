@@ -94,7 +94,7 @@ interface CourseWithDetails extends AcademyCourse {
 
 function LoadingSkeleton() {
 
-  useEffect(() => { document.title = "Course Creator | AI Mastery Academy"; }, []);
+  useEffect(() => { document.title = "Course Creator | ThriveUp Academy"; }, []);
   return (
     <div className="p-6 max-w-6xl mx-auto space-y-6">
       <Skeleton className="h-20 w-full rounded-md" />

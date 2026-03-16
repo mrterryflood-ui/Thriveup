@@ -66,7 +66,7 @@ export default function ImpactPage() {
   const { toast } = useToast();
 
   useEffect(() => {
-    document.title = "Impact Dashboard | Community Enablement Platform";
+    document.title = "Impact Dashboard | ThriveUp Academy";
   }, []);
 
   const { data: impact, isLoading, error, refetch } = useQuery<ImpactData>({
@@ -111,10 +111,10 @@ export default function ImpactPage() {
             Public Impact Dashboard
           </Badge>
           <h1 className="text-3xl md:text-5xl font-bold mb-3" data-testid="heading-impact-title">
-            Community Impact Dashboard
+            ThriveUp Academy Impact
           </h1>
           <p className="text-lg md:text-xl text-white/90 max-w-3xl mb-4">
-            AI-powered workforce development, reentry support, and community enablement.
+            AI-powered workforce development, reentry support, and community enablement for all ages.
             Real-time platform metrics for stakeholders, funders, and partners.
           </p>
           <div className="flex flex-wrap gap-3">
@@ -153,7 +153,7 @@ export default function ImpactPage() {
           </Button>
           <Button variant="outline" size="sm" onClick={() => {
             const url = encodeURIComponent(window.location.href);
-            const text = encodeURIComponent("Check out our Community Impact Dashboard");
+            const text = encodeURIComponent("Check out the ThriveUp Academy Impact Dashboard");
             window.open(`https://x.com/intent/tweet?url=${url}&text=${text}`, "_blank", "noopener,noreferrer");
           }} data-testid="button-share-x" aria-label="Share on X">
             <SiX className="h-4 w-4 mr-1" />
@@ -261,7 +261,7 @@ export default function ImpactPage() {
               </div>
               <div>
                 <h3 className="font-semibold">Individualized Reentry Plans</h3>
-                <p className="text-sm text-muted-foreground">Phase-based (Pre-Release to Independence) with milestone tracking and IGN-Thrive scoring</p>
+                <p className="text-sm text-muted-foreground">Phase-based (Pre-Release to Independence) with milestone tracking and Thrive scoring</p>
               </div>
             </CardContent>
           </Card>
@@ -310,7 +310,7 @@ export default function ImpactPage() {
       <div>
         <h2 className="text-2xl font-bold mb-4" data-testid="heading-grant-alignment">Grant Criteria Alignment</h2>
         <p className="text-muted-foreground mb-6">
-          This platform is designed to meet workforce development, reentry, and community enablement grant criteria across all major funding categories.
+          ThriveUp Academy is designed to meet workforce development, reentry, and community enablement grant criteria across all major funding categories.
           Each criterion below is addressed through real, deliverable programs and measurable outcomes.
         </p>
         <div className="grid md:grid-cols-2 gap-4">
@@ -358,7 +358,7 @@ export default function ImpactPage() {
         <Shield className="h-12 w-12 mx-auto text-violet-500" />
         <h2 className="text-2xl font-bold" data-testid="heading-cta-partner">Partner With Us</h2>
         <p className="text-muted-foreground max-w-2xl mx-auto">
-          This platform is grant-aligned and ready for workforce development, reentry, and community enablement partnerships.
+          ThriveUp Academy is grant-aligned and ready for workforce development, reentry, and community enablement partnerships.
           Contact us to learn how your organization can strengthen communities through coordinated service delivery.
         </p>
         <div className="flex flex-wrap justify-center gap-3">

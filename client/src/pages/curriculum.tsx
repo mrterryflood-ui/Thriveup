@@ -22,7 +22,7 @@ export default function CurriculumPage() {
     queryKey: ["/api/levels"],
   });
 
-  useEffect(() => { document.title = "AI Curriculum | AI Mastery Academy"; }, []);
+  useEffect(() => { document.title = "AI Curriculum | ThriveUp Academy"; }, []);
 
   if (isLoading) {
   return (
@@ -100,7 +100,7 @@ export function LevelDetailPage() {
   const colors = LEVEL_COLORS[levelId];
 
   useEffect(() => {
-    document.title = level ? `Level ${level.id}: ${level.title} | AI Mastery Academy` : "Curriculum Level | AI Mastery Academy";
+    document.title = level ? `Level ${level.id}: ${level.title} | ThriveUp Academy` : "Curriculum Level | ThriveUp Academy";
   }, [level]);
 
   if (isLoading) {

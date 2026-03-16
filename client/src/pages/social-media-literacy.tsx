@@ -313,7 +313,7 @@ const parentModules: ParentModule[] = [
         paragraphs: [
           "Learning about social media and digital safety is not a one-time conversation — it is an ongoing process that evolves as technology changes and your children grow. Staying informed does not require you to become a tech expert. It just means staying curious and checking in regularly with trusted sources of information.",
           "Common Sense Media (commonsensemedia.org) is an excellent resource for age-appropriate reviews of apps, games, movies, and more. They also offer guides specifically for parents on topics like screen time, social media, and digital citizenship. Your child's school may also offer digital literacy resources or parent education events — take advantage of these when they are available.",
-          "AI Mastery Academy is always here to support your family's digital literacy journey. Whether you have questions about a specific platform, need advice on setting up parental controls, or just want to talk through a situation your child is dealing with online, do not hesitate to reach out. Contact our tech support team at sisnett.meredith@gmail.com or mr.terryflood@gmail.com — we are here to help.",
+          "ThriveUp Academy is always here to support your family's digital literacy journey. Whether you have questions about a specific platform, need advice on setting up parental controls, or just want to talk through a situation your child is dealing with online, do not hesitate to reach out. Contact our tech support team at sisnett.meredith@gmail.com or mr.terryflood@gmail.com — we are here to help.",
         ],
       },
     ],
@@ -336,7 +336,7 @@ export default function SocialMediaLiteracyPage() {
   };
 
 
-  useEffect(() => { document.title = "Social Media Literacy | AI Mastery Academy"; }, []);
+  useEffect(() => { document.title = "Social Media Literacy | ThriveUp Academy"; }, []);
   return (
     <div className="min-h-screen">
       <div className="px-6 pt-6">
@@ -602,7 +602,7 @@ export default function SocialMediaLiteracyPage() {
         <div className="mx-auto max-w-5xl flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <Heart className="h-5 w-5 text-primary" />
-            <span className="font-semibold">AI Mastery Academy</span>
+            <span className="font-semibold">ThriveUp Academy</span>
           </div>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Mail className="h-4 w-4 shrink-0" />

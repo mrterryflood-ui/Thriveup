@@ -16,37 +16,40 @@ interface Message {
 const CONTEXT_OPTIONS = [
   { value: "general", label: "General Support", labelEs: "Apoyo General", icon: Heart },
   { value: "academic", label: "Academic Help", labelEs: "Ayuda Academica", icon: BookOpen },
+  { value: "career", label: "Career & Workforce", labelEs: "Carrera y Empleo", icon: Briefcase },
   { value: "parenting", label: "Parenting Support", labelEs: "Apoyo para Padres", icon: Users },
   { value: "classroom", label: "Classroom Management", labelEs: "Gestion del Aula", icon: Settings },
 ];
 
 const QUICK_PROMPTS: Record<string, Array<{ label: string; prefix: string }>> = {
   en: [
-    { label: "Understand Thrive scores", prefix: "Can you help me understand what Thrive scores mean and how to interpret them for my student? " },
-    { label: "Homework battles", prefix: "I'm dealing with homework battles at home. What strategies can help? " },
-    { label: "Interpret progress reports", prefix: "Can you help me interpret my student's progress report and identify areas to focus on? " },
-    { label: "Support struggling students", prefix: "I have a student who is struggling academically and emotionally. What support strategies do you recommend? " },
-    { label: "Self-care strategies", prefix: "As an educator/parent, I'm feeling burned out. What self-care strategies do you recommend? " },
-    { label: "Explain Academy features", prefix: "Can you explain the key features of the Academy platform and how to make the most of them? " },
+    { label: "Career guidance", prefix: "I'm looking for career guidance. Can you help me explore workforce opportunities and next steps? " },
+    { label: "Resume help", prefix: "Can you help me with my resume? I need advice on presenting my skills and experience effectively. " },
+    { label: "Understand Thrive scores", prefix: "Can you help me understand what Thrive scores mean and how to interpret them? " },
+    { label: "Community resources", prefix: "What community resources are available to help me with my current situation? " },
+    { label: "Support a learner", prefix: "I'm supporting a learner who is struggling. What strategies do you recommend? " },
+    { label: "Self-care strategies", prefix: "I'm feeling burned out. What self-care strategies do you recommend? " },
+    { label: "Explore the platform", prefix: "Can you explain the key features of the platform and how to make the most of them? " },
   ],
   es: [
-    { label: "Entender puntajes Thrive", prefix: "Puedes ayudarme a entender que significan los puntajes Thrive y como interpretarlos para mi estudiante? " },
-    { label: "Batallas con la tarea", prefix: "Estoy lidiando con batallas de tarea en casa. Que estrategias pueden ayudar? " },
-    { label: "Interpretar reportes", prefix: "Puedes ayudarme a interpretar el reporte de progreso de mi estudiante e identificar areas de enfoque? " },
-    { label: "Apoyar estudiantes", prefix: "Tengo un estudiante que esta luchando academica y emocionalmente. Que estrategias de apoyo recomiendas? " },
-    { label: "Autocuidado", prefix: "Como educador/padre, me siento agotado/a. Que estrategias de autocuidado recomiendas? " },
-    { label: "Funciones de Academy", prefix: "Puedes explicar las funciones clave de la plataforma Academy y como aprovecharlas al maximo? " },
+    { label: "Orientacion profesional", prefix: "Estoy buscando orientacion profesional. Puedes ayudarme a explorar oportunidades laborales y proximos pasos? " },
+    { label: "Ayuda con curriculum", prefix: "Puedes ayudarme con mi curriculum? Necesito consejos para presentar mis habilidades y experiencia. " },
+    { label: "Entender puntajes Thrive", prefix: "Puedes ayudarme a entender que significan los puntajes Thrive y como interpretarlos? " },
+    { label: "Recursos comunitarios", prefix: "Que recursos comunitarios estan disponibles para ayudarme con mi situacion actual? " },
+    { label: "Apoyar a un alumno", prefix: "Estoy apoyando a un alumno que esta luchando. Que estrategias recomiendas? " },
+    { label: "Autocuidado", prefix: "Me siento agotado/a. Que estrategias de autocuidado recomiendas? " },
+    { label: "Explorar la plataforma", prefix: "Puedes explicar las funciones clave de la plataforma y como aprovecharlas al maximo? " },
   ],
 };
 
 const WELCOME_EN: Message = {
   role: "assistant",
-  content: "Hello! I'm Sparky, your adult companion for the Academy. Whether you're a parent, teacher, or administrator, I'm here to help you support your students and navigate the platform. How can I assist you today?",
+  content: "Hello! I'm Sparky, your companion at ThriveUp Academy. Whether you're a parent, teacher, returning citizen, veteran, career changer, or community leader — I'm here to help with career guidance, workforce resources, learner support, and navigating the platform. How can I assist you today?",
 };
 
 const WELCOME_ES: Message = {
   role: "assistant",
-  content: "Hola! Soy Sparky, tu companero para adultos en la Academia. Ya seas padre, maestro o administrador, estoy aqui para ayudarte a apoyar a tus estudiantes y navegar la plataforma. Como puedo ayudarte hoy?",
+  content: "Hola! Soy Sparky, tu companero en ThriveUp Academy. Ya seas padre, maestro, ciudadano en reintegracion, veterano, profesional en transicion o lider comunitario — estoy aqui para ayudarte con orientacion profesional, recursos laborales, apoyo al aprendizaje y navegacion de la plataforma. Como puedo ayudarte hoy?",
 };
 
 export default function SparkyCompanionPage() {
@@ -173,7 +176,7 @@ export default function SparkyCompanionPage() {
   const selectedContext = CONTEXT_OPTIONS.find(c => c.value === context);
 
 
-  useEffect(() => { document.title = "Sparky AI Companion | AI Mastery Academy"; }, []);
+  useEffect(() => { document.title = "Sparky AI Companion | ThriveUp Academy"; }, []);
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="mb-6">

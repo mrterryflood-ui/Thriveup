@@ -246,7 +246,7 @@ function FundFromWallet({ project }: { project: CampusProject }) {
 }
 
 export default function AcademyCampusPage() {
-  useEffect(() => { document.title = 'Campus Builder | AI Mastery Academy'; }, []);
+  useEffect(() => { document.title = 'Campus Builder | ThriveUp Academy'; }, []);
   const { data: project, isLoading, error, refetch: refetchCampus } = useQuery<CampusProject>({
     queryKey: ["/api/academy/campus"],
   });

@@ -67,7 +67,7 @@ export default function ModuleDetailPage() {
 
   const isLoading = modLoading || lessonsLoading;
 
-  useEffect(() => { document.title = "Module | AI Mastery Academy"; }, []);
+  useEffect(() => { document.title = "Module | ThriveUp Academy"; }, []);
 
   if (isLoading) {
     return (

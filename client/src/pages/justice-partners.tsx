@@ -16,7 +16,7 @@ const VALUE_PROPS = [
   {
     icon: BarChart3,
     title: "Real-Time Progress Monitoring",
-    desc: "IGN-Thrive analytics track six domains of wellbeing with configurable alert thresholds and early warning systems.",
+    desc: "Thrive analytics track six domains of wellbeing with configurable alert thresholds and early warning systems.",
   },
   {
     icon: FileText,
@@ -69,7 +69,7 @@ export default function JusticePartnersPage() {
           Community-Based Reentry Ecosystem
         </h1>
         <p className="text-muted-foreground max-w-2xl mx-auto text-base sm:text-lg">
-          AI Mastery Academy provides a comprehensive, evidence-based platform for youth reentry, workforce development, and whole-child support -- designed to integrate with juvenile justice agency workflows.
+          ThriveUp Academy provides a comprehensive, evidence-based platform for youth reentry, workforce development, and whole-child support -- designed to integrate with juvenile justice agency workflows.
         </p>
       </section>
 

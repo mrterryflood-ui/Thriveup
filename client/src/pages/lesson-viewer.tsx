@@ -85,7 +85,7 @@ export default function LessonViewerPage() {
     },
   });
 
-  useEffect(() => { document.title = "Lesson | AI Mastery Academy"; }, []);
+  useEffect(() => { document.title = "Lesson | ThriveUp Academy"; }, []);
 
   if (isLoading) {
     return (

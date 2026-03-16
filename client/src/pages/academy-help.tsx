@@ -210,7 +210,7 @@ const helpSections: HelpSection[] = [
 ];
 
 export default function AcademyHelpPage() {
-  useEffect(() => { document.title = 'Student Help | AI Mastery Academy'; }, []);
+  useEffect(() => { document.title = 'Student Help | ThriveUp Academy'; }, []);
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredSections = searchQuery.trim() === ""

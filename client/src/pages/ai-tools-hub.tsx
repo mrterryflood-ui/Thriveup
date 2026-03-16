@@ -190,7 +190,7 @@ export default function AIToolsHubPage() {
   };
 
 
-  useEffect(() => { document.title = "AI Creation Studio | AI Mastery Academy"; }, []);
+  useEffect(() => { document.title = "AI Creation Studio | ThriveUp Academy"; }, []);
 
   if (toolsError) {
     return <div className="p-6"><ErrorRetry message="Failed to load AI tools." onRetry={refetchTools} /></div>;

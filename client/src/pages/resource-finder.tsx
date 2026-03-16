@@ -68,7 +68,7 @@ const CATEGORY_COLORS: Record<string, string> = {
 };
 
 export default function ResourceFinderPage() {
-  useEffect(() => { document.title = "Resource Finder | AI Mastery Academy"; }, []);
+  useEffect(() => { document.title = "Resource Finder | ThriveUp Academy"; }, []);
 
   const { toast } = useToast();
   const [wizardStep, setWizardStep] = useState(1);

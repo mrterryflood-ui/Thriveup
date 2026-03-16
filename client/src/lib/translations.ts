@@ -12,9 +12,9 @@ export const translations: Record<Language, Record<string, string>> = {
     "nav.parents": "Parents",
     "nav.home": "Home",
 
-    "landing.badge": "AI Mastery Academy & School Support Hub for Youth Ages 14-24",
-    "landing.title": "AI Mastery Academy",
-    "landing.subtitle": "Empowering under-resourced youth with AI mastery, workforce readiness, and school-to-career pipelines",
+    "landing.badge": "ThriveUp Academy — AI-Powered Workforce Development for All Ages",
+    "landing.title": "ThriveUp Academy",
+    "landing.subtitle": "Empowering under-resourced communities with AI mastery, workforce readiness, and career pipelines",
     "landing.exploreSubjects": "Explore Subjects",
     "landing.startLearning": "Start Learning",
     "landing.philosophy": "Designed for Every Child to Thrive",
@@ -168,7 +168,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "nav.parents": "Padres",
     "nav.home": "Inicio",
 
-    "landing.badge": "Academia de Dominio de IA y Centro de Apoyo Escolar para Jóvenes de 14-24 Años",
+    "landing.badge": "ThriveUp Academy — Desarrollo Laboral Impulsado por IA para Todas las Edades",
     "landing.title": "Academia de Dominio de IA",
     "landing.subtitle": "Empoderando a jóvenes de comunidades desatendidas con dominio de IA, preparación laboral y trayectorias de escuela a carrera",
     "landing.exploreSubjects": "Explorar Materias",

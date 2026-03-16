@@ -11,9 +11,9 @@ const WHITE = "FFFFFF";
 const GREEN = "10B981";
 
 const pptx = new PptxGenJS();
-pptx.author = "AI Mastery Academy";
-pptx.title = "AI Mastery Academy - Stakeholder Presentation";
-pptx.subject = "School Support Hub for Under-Resourced Youth";
+pptx.author = "ThriveUp Academy";
+pptx.title = "ThriveUp Academy - Stakeholder Presentation";
+pptx.subject = "AI-Powered Workforce Development & Community Enablement";
 pptx.layout = "LAYOUT_WIDE";
 
 function addSlide({ bg, title, speakerNotes, buildFn }) {
@@ -31,12 +31,12 @@ function addSlide({ bg, title, speakerNotes, buildFn }) {
 // Slide 1: Title
 addSlide({
   bg: { color: MAROON },
-  speakerNotes: "Welcome to the AI Mastery Academy stakeholder presentation. This platform is a comprehensive School Support Hub designed for under-resourced youth ages 14-24, focused on AI mastery and workforce development. Our tagline captures our mission: teaching the first generation to guide their smartest classmate.",
+  speakerNotes: "Welcome to the ThriveUp Academy stakeholder presentation. This platform is an AI-powered workforce development and community enablement platform serving under-resourced communities of all ages, focused on AI mastery, career pipelines, and reentry support. Our tagline captures our mission: teaching the first generation to guide their smartest classmate.",
   buildFn: (slide) => {
-    slide.addText("AI Mastery Academy", { x: 0.8, y: 1.5, w: 11.5, h: 1.5, fontSize: 44, fontFace: "Arial", color: WHITE, bold: true, align: "center" });
-    slide.addText("School Support Hub for Under-Resourced Youth", { x: 0.8, y: 3.0, w: 11.5, h: 0.8, fontSize: 22, fontFace: "Arial", color: "D0D0D0", align: "center" });
+    slide.addText("ThriveUp Academy", { x: 0.8, y: 1.5, w: 11.5, h: 1.5, fontSize: 44, fontFace: "Arial", color: WHITE, bold: true, align: "center" });
+    slide.addText("AI-Powered Workforce Development & Community Enablement", { x: 0.8, y: 3.0, w: 11.5, h: 0.8, fontSize: 22, fontFace: "Arial", color: "D0D0D0", align: "center" });
     slide.addText([
-      { text: "Ages 14-24", options: { fontSize: 14, color: "E8E8E8" } },
+      { text: "All Ages", options: { fontSize: 14, color: "E8E8E8" } },
       { text: "    |    ", options: { fontSize: 14, color: "999999" } },
       { text: "Workforce Development", options: { fontSize: 14, color: "E8E8E8" } },
       { text: "    |    ", options: { fontSize: 14, color: "999999" } },
@@ -49,15 +49,15 @@ addSlide({
 // Slide 2: Mission
 addSlide({
   bg: LIGHT_BG,
-  speakerNotes: "Our mission is empowering under-resourced youth with AI literacy, workforce readiness, and direct school-to-career pipelines. We focus on three pillars: AI literacy as the new foundation for every career, direct pipelines from classroom to career placement, and whole-child support through mentorship and community resources.",
+  speakerNotes: "Our mission is empowering under-resourced communities of all ages with AI literacy, workforce readiness, and career pipelines. We focus on three pillars: AI literacy as the new foundation for every career, direct pipelines from learning to career placement, and whole-person support through mentorship and community resources.",
   buildFn: (slide) => {
     slide.addShape(pptx.ShapeType.rect, { x: 0, y: 0, w: 4.5, h: 7.5, fill: { color: MAROON } });
     slide.addText("Our\nMission", { x: 0.5, y: 2.0, w: 3.5, h: 2.0, fontSize: 40, fontFace: "Arial", color: WHITE, bold: true });
-    slide.addText("Empowering under-resourced youth with AI mastery, workforce readiness, and school-to-career pipelines.", { x: 5.0, y: 1.0, w: 7.5, h: 1.2, fontSize: 20, fontFace: "Arial", color: DARK_TEXT });
+    slide.addText("Empowering under-resourced communities with AI mastery, workforce readiness, and career pipelines for all ages.", { x: 5.0, y: 1.0, w: 7.5, h: 1.2, fontSize: 20, fontFace: "Arial", color: DARK_TEXT });
     const items = [
       "AI literacy as the new foundation for career success",
-      "Direct pipelines from classroom to career placement",
-      "Whole-child support through mentorship and community",
+      "Direct pipelines from learning to career placement",
+      "Whole-person support through mentorship and community",
     ];
     items.forEach((item, i) => {
       slide.addText(`\u2713  ${item}`, { x: 5.0, y: 2.8 + i * 1.0, w: 7.5, h: 0.7, fontSize: 16, fontFace: "Arial", color: BODY_TEXT });
@@ -71,7 +71,7 @@ addSlide({
   speakerNotes: "The challenge is significant. 67% of low-income students lack career readiness programs. Without workforce training, they are 3x more likely to face unemployment. And 82% of future jobs will require digital and AI literacy. These compounding barriers create a cycle that our platform is designed to break.",
   buildFn: (slide) => {
     slide.addText("THE CHALLENGE", { x: 0.8, y: 0.5, w: 11, h: 0.5, fontSize: 12, fontFace: "Arial", color: SILVER_TEXT, bold: true, charSpacing: 4 });
-    slide.addText("Under-resourced youth face\ncompounding barriers", { x: 0.8, y: 1.0, w: 11, h: 1.5, fontSize: 32, fontFace: "Arial", color: WHITE, bold: true });
+    slide.addText("Under-resourced communities face\ncompounding barriers", { x: 0.8, y: 1.0, w: 11, h: 1.5, fontSize: 32, fontFace: "Arial", color: WHITE, bold: true });
     const stats = [
       { stat: "67%", label: "of low-income students lack access\nto career readiness programs" },
       { stat: "3x", label: "more likely to face unemployment\nwithout workforce training" },
@@ -227,12 +227,12 @@ addSlide({
 // Slide 10: Impact Metrics
 addSlide({
   bg: LIGHT_BG,
-  speakerNotes: "These are live numbers from our platform. We track youth served, career pathways available, professional mentors, mastery levels, learning modules, and career milestones. The full impact dashboard is available online.",
+  speakerNotes: "These are live numbers from our platform. We track learners served, career pathways available, professional mentors, mastery levels, learning modules, and career milestones. The full impact dashboard is available online.",
   buildFn: (slide) => {
     slide.addText("LIVE PLATFORM DATA", { x: 0.8, y: 0.4, w: 11, h: 0.5, fontSize: 12, fontFace: "Arial", color: MAROON, bold: true, charSpacing: 4 });
     slide.addText("Impact at a Glance", { x: 0.8, y: 0.9, w: 11, h: 0.8, fontSize: 30, fontFace: "Arial", color: DARK_TEXT, bold: true });
     const metrics = [
-      { value: "14", label: "Youth Served" },
+      { value: "14", label: "Learners Served" },
       { value: "55", label: "Career Pathways" },
       { value: "8", label: "Professional Mentors" },
       { value: "5", label: "Mastery Levels" },
@@ -266,7 +266,7 @@ addSlide({
       "Job placement support",
       "Career advancement pathways",
       "Professional mentorship programs",
-      "Community impact for under-resourced youth",
+      "Community impact for under-resourced populations",
     ];
     criteria.forEach((c, i) => {
       const y = 0.8 + i * 0.78;
@@ -279,7 +279,7 @@ addSlide({
 // Slide 12: Mentor Network
 addSlide({
   bg: LIGHT_BG,
-  speakerNotes: "Our mentor network connects youth with professional coaches across all 12 career categories. The system includes structured pathway planning with milestone tracking.",
+  speakerNotes: "Our mentor network connects learners with professional coaches across all 12 career categories. The system includes structured pathway planning with milestone tracking.",
   buildFn: (slide) => {
     slide.addText("MENTOR NETWORK", { x: 0.8, y: 0.4, w: 11, h: 0.5, fontSize: 12, fontFace: "Arial", color: MAROON, bold: true, charSpacing: 4 });
     slide.addText("8 professional mentors and growing", { x: 0.8, y: 0.9, w: 11, h: 0.8, fontSize: 28, fontFace: "Arial", color: DARK_TEXT, bold: true });
@@ -300,12 +300,12 @@ addSlide({
 // Slide 13: Whole-Child Support
 addSlide({
   bg: { color: MAROON },
-  speakerNotes: "Beyond academics, we provide whole-child support including the IGN-Thrive six-domain scoring engine with early warning systems, financial literacy through stock market simulation, a nationwide community resource finder, and STAAR test preparation.",
+  speakerNotes: "Beyond academics, we provide whole-person support including the Thrive six-domain scoring engine with early warning systems, financial literacy through stock market simulation, a nationwide community resource finder, and STAAR test preparation.",
   buildFn: (slide) => {
     slide.addText("BEYOND ACADEMICS", { x: 0.8, y: 0.4, w: 11, h: 0.5, fontSize: 12, fontFace: "Arial", color: "D0D0D0", bold: true, charSpacing: 4 });
     slide.addText("Whole-child support system", { x: 0.8, y: 0.9, w: 11, h: 0.8, fontSize: 30, fontFace: "Arial", color: WHITE, bold: true });
     const items = [
-      { title: "IGN-Thrive Analytics", desc: "Six-domain scoring engine with early warning system and intervention playbooks" },
+      { title: "Thrive Analytics", desc: "Six-domain scoring engine with early warning system and intervention playbooks" },
       { title: "Financial Literacy", desc: "Stock market simulation, entrepreneurship training, and real fundraising for college tuition" },
       { title: "Community Resources", desc: "Nationwide resource finder covering 55 U.S. jurisdictions with real-time data" },
       { title: "STAAR Test Prep", desc: "Grade-level study guides for Grades 3-11 aligned to Texas TEKS standards" },
@@ -346,12 +346,12 @@ addSlide({
 // Slide 15: Who We Serve
 addSlide({
   bg: DARK_BG,
-  speakerNotes: "We serve three primary audiences. Students ages 14-24, schools and districts, and funders and employers. Each audience gets specific value from the platform.",
+  speakerNotes: "We serve multiple audiences. Learners of all ages, schools and districts, community organizations, and funders and employers. Each audience gets specific value from the platform.",
   buildFn: (slide) => {
     slide.addText("WHO WE SERVE", { x: 0.8, y: 0.4, w: 11, h: 0.5, fontSize: 12, fontFace: "Arial", color: SILVER_TEXT, bold: true, charSpacing: 4 });
     slide.addText("Multiple stakeholder value", { x: 0.8, y: 0.9, w: 11, h: 0.8, fontSize: 30, fontFace: "Arial", color: WHITE, bold: true });
     const groups = [
-      { title: "Students (14-24)", items: ["AI mastery curriculum", "Career exploration tools", "Professional mentorship", "College tuition fundraising"] },
+      { title: "Learners (All Ages)", items: ["AI mastery curriculum", "Career exploration tools", "Professional mentorship", "Workforce reintegration"] },
       { title: "Schools & Districts", items: ["LMS course creator", "Classroom management", "Progress tracking", "STAAR test preparation"] },
       { title: "Funders & Employers", items: ["Grant-aligned metrics", "Impact dashboard", "CSV data export", "API integration"] },
     ];
@@ -377,7 +377,7 @@ addSlide({
       { title: "Earn Through Mastery", desc: "AI tools are unlocked by completing curriculum modules, not purchased. Students prove readiness before accessing professional tools." },
       { title: "Safety-First AI", desc: "Every AI interaction includes age-appropriate guardrails, Socratic questioning, and cultural awareness. Never just a chatbot." },
       { title: "Real Impact Data", desc: "Live metrics dashboard with grant-aligned reporting. Funders see real numbers, not projections." },
-      { title: "Community-Embedded", desc: "Nationwide resource finder, GIS context engine, and early warning system connecting youth to local support." },
+      { title: "Community-Embedded", desc: "Nationwide resource finder, GIS context engine, and early warning system connecting people to local support." },
     ];
     diffs.forEach((d, i) => {
       const col = i % 2;
@@ -496,10 +496,10 @@ addSlide({
 // Slide 21: Closing
 addSlide({
   bg: { color: MAROON },
-  speakerNotes: "The students who learn to think with AI today will lead tomorrow. We invite you to explore the live platform, review our impact dashboard, and connect with us. Contact us at sisnett.meredith@gmail.com and mr.terryflood@gmail.com.",
+  speakerNotes: "The people who learn to think with AI today will lead tomorrow. We invite you to explore the live platform, review our impact dashboard, and connect with us. Contact us at sisnett.meredith@gmail.com and mr.terryflood@gmail.com.",
   buildFn: (slide) => {
     slide.addText("Ready to transform futures?", { x: 0.8, y: 1.5, w: 11.5, h: 1.2, fontSize: 40, fontFace: "Arial", color: WHITE, bold: true, align: "center" });
-    slide.addText("The students who learn to think with AI today will lead tomorrow.", { x: 1.5, y: 3.0, w: 10.0, h: 0.8, fontSize: 18, fontFace: "Arial", color: "DDDDDD", align: "center" });
+    slide.addText("The people who learn to think with AI today will lead tomorrow.", { x: 1.5, y: 3.0, w: 10.0, h: 0.8, fontSize: 18, fontFace: "Arial", color: "DDDDDD", align: "center" });
     slide.addText("Contact Us", { x: 0.8, y: 4.2, w: 11.5, h: 0.6, fontSize: 18, fontFace: "Arial", color: "F5F5F5", align: "center" });
     slide.addText("sisnett.meredith@gmail.com    |    mr.terryflood@gmail.com", { x: 0.8, y: 4.8, w: 11.5, h: 0.6, fontSize: 16, fontFace: "Arial", color: "E8E8E8", align: "center" });
     slide.addShape(pptx.ShapeType.roundRect, { x: 3.5, y: 5.8, w: 3.0, h: 0.7, fill: { color: WHITE }, rectRadius: 0.1 });
@@ -509,6 +509,6 @@ addSlide({
   },
 });
 
-pptx.writeFile({ fileName: "AI_Mastery_Academy_Stakeholder_Deck.pptx" })
-  .then(() => console.log("PowerPoint saved: AI_Mastery_Academy_Stakeholder_Deck.pptx"))
+pptx.writeFile({ fileName: "ThriveUp_Academy_Stakeholder_Deck.pptx" })
+  .then(() => console.log("PowerPoint saved: ThriveUp_Academy_Stakeholder_Deck.pptx"))
   .catch((err) => console.error("Error:", err));

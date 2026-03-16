@@ -136,7 +136,7 @@ function getRandomItem<T>(arr: T[]): T {
 function StreakBadge({ count }: { count: number }) {
   if (count <= 0) return null;
 
-  useEffect(() => { document.title = "STAAR Test Prep | AI Mastery Academy"; }, []);
+  useEffect(() => { document.title = "STAAR Test Prep | ThriveUp Academy"; }, []);
   return (
     <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full text-sm font-bold shadow-lg animate-bounce" data-testid="badge-streak">
       <Flame className="h-4 w-4" />

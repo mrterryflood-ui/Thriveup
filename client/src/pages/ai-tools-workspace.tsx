@@ -309,7 +309,7 @@ export default function AIToolsWorkspacePage() {
     }
   }, [generatedContent]);
 
-  useEffect(() => { document.title = "AI Tool Workspace | AI Mastery Academy"; }, []);
+  useEffect(() => { document.title = "AI Tool Workspace | ThriveUp Academy"; }, []);
 
   if (toolsError) {
     return <div className="p-6"><ErrorRetry message="Failed to load AI tools." onRetry={refetchTools} /></div>;

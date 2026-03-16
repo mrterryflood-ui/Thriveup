@@ -16,7 +16,7 @@ const programs = [
     title: "Free & Subsidized Access",
     icon: DollarSign,
     gradient: "from-emerald-500 to-teal-600",
-    description: "Free platform access for under-resourced youth ages 14-24, removing financial barriers to AI mastery and career readiness training.",
+    description: "Free platform access for under-resourced community members, removing financial barriers to AI mastery and career readiness training.",
     features: [
       "Free access for youth from under-resourced communities",
       "Income-based sliding scale for partial subsidies",
@@ -44,7 +44,7 @@ const programs = [
     gradient: "from-violet-500 to-purple-600",
     description: "Direct partnerships with Title I schools providing seamless access to AI mastery curriculum and workforce development resources for students and teachers.",
     features: [
-      "School-provided access codes for all enrolled students ages 14-24",
+      "Organization-provided access codes for all enrolled participants",
       "Teacher dashboards for tracking student progress and career readiness",
       "Integration with existing school curriculum and career pathways",
       "Dedicated support line for school administrators",
@@ -55,7 +55,7 @@ const programs = [
     title: "Device Lending Program",
     icon: Laptop,
     gradient: "from-amber-500 to-orange-600",
-    description: "Chromebook and tablet lending library ensuring under-resourced youth have the technology needed for AI skill development and career training.",
+    description: "Chromebook and tablet lending library ensuring under-resourced community members have the technology needed for AI skill development and career training.",
     features: [
       "Request a device online or at any partner location",
       "Pickup and return at 12+ community centers citywide",
@@ -94,8 +94,8 @@ const programs = [
 const impactMetrics = [
   {
     value: "2,500+",
-    label: "Youth Served",
-    description: "Under-resourced youth ages 14-24 actively engaged",
+    label: "Learners Served",
+    description: "Under-resourced community members actively engaged",
     icon: Users,
   },
   {
@@ -132,7 +132,7 @@ const impactMetrics = [
 
 export default function CommunityPage() {
   useEffect(() => {
-    document.title = "Community Access & Career Pipeline | AI Mastery Academy";
+    document.title = "Community Access & Career Pipeline | ThriveUp Academy";
   }, []);
 
   return (
@@ -141,7 +141,7 @@ export default function CommunityPage() {
         <div className="mx-auto max-w-5xl">
           <PageHeader
             title="Community Access & Career Pipeline"
-            description="Programs removing barriers to workforce development for under-resourced youth"
+            description="Programs removing barriers to workforce development for under-resourced communities"
             breadcrumbs={[{label:"Community"}]}
           />
         </div>
@@ -157,7 +157,7 @@ export default function CommunityPage() {
             Community Access &<br />Career Pipeline Programs
           </h1>
           <p className="text-lg md:text-xl text-white/80 max-w-2xl mx-auto mb-4">
-            AI Mastery Academy empowers under-resourced youth ages 14-24 with AI skills training, career readiness, and school-to-career employment pathways.
+            ThriveUp Academy empowers under-resourced communities of all ages with AI skills training, career readiness, and workforce-to-career employment pathways.
           </p>
           <p className="text-sm md:text-base text-white/60 max-w-xl mx-auto mb-10">
             Six dedicated programs removing barriers to workforce development — from free access and mentorship to career placement and bilingual support.
@@ -187,7 +187,7 @@ export default function CommunityPage() {
               Building School-to-Career Pipelines
             </h2>
             <p className="text-muted-foreground max-w-lg mx-auto">
-              From financial assistance to career placement, these programs ensure under-resourced youth ages 14-24 gain the AI skills and workforce readiness they need to thrive.
+              From financial assistance to career placement, these programs ensure under-resourced community members of all ages gain the AI skills and workforce readiness they need to thrive.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -256,7 +256,7 @@ export default function CommunityPage() {
               Expanding Career Pipelines Nationwide
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Austin is our pilot city — the proving ground for a workforce development model designed to scale. Every lesson learned here shapes how we bring equitable career access to under-resourced youth in cities across the country. Our goal is to launch in 10 additional cities by 2027, adapting each program to local workforce needs while maintaining the quality and impact that define AI Mastery Academy.
+              Austin is our pilot city — the proving ground for a workforce development model designed to scale. Every lesson learned here shapes how we bring equitable career access to under-resourced communities in cities across the country. Our goal is to launch in 10 additional cities by 2027, adapting each program to local workforce needs while maintaining the quality and impact that define ThriveUp Academy.
             </p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center mt-12">
@@ -307,10 +307,10 @@ export default function CommunityPage() {
         <div className="mx-auto max-w-5xl flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <GraduationCap className="h-5 w-5 text-primary" />
-            <span className="font-semibold">AI Mastery Academy & School Support Hub</span>
+            <span className="font-semibold">ThriveUp Academy</span>
           </div>
           <p className="text-sm text-muted-foreground">
-            Empowering under-resourced youth through AI skills, career pipelines, and workforce development.
+            Empowering under-resourced communities through AI skills, career pipelines, and workforce development.
           </p>
           <div className="flex flex-col items-end gap-1">
             <a href="mailto:sisnett.meredith@gmail.com" className="flex items-center gap-1.5 text-sm text-muted-foreground" data-testid="link-support-email" aria-label="Email sisnett.meredith@gmail.com">

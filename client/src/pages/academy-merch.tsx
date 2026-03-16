@@ -43,13 +43,13 @@ import { ErrorRetry } from "@/components/error-retry";
 import { PageHeader } from "@/components/page-header";
 
 const PLACEHOLDER_ITEMS = [
-  { name: "T-Shirts", price: "25.00", category: "Apparel", description: "AI Mastery Academy branded t-shirts in various sizes" },
-  { name: "Hoodies", price: "45.00", category: "Apparel", description: "Warm hoodies with AI Mastery Academy logo" },
+  { name: "T-Shirts", price: "25.00", category: "Apparel", description: "ThriveUp Academy branded t-shirts in various sizes" },
+  { name: "Hoodies", price: "45.00", category: "Apparel", description: "Warm hoodies with ThriveUp Academy logo" },
   { name: "Caps", price: "20.00", category: "Accessories", description: "Adjustable caps with embroidered logo" },
   { name: "Tote Bags", price: "15.00", category: "Accessories", description: "Durable tote bags for everyday use" },
-  { name: "Water Bottles", price: "18.00", category: "Accessories", description: "Reusable water bottles with AI Mastery Academy branding" },
+  { name: "Water Bottles", price: "18.00", category: "Accessories", description: "Reusable water bottles with ThriveUp Academy branding" },
   { name: "Notebooks", price: "12.00", category: "Stationery", description: "Lined notebooks for learning and notes" },
-  { name: "Stickers Pack", price: "8.00", category: "Stationery", description: "Pack of AI Mastery Academy-themed stickers" },
+  { name: "Stickers Pack", price: "8.00", category: "Stationery", description: "Pack of ThriveUp Academy-themed stickers" },
   { name: "Wristbands", price: "5.00", category: "Accessories", description: "Silicone wristbands showing your support" },
 ];
 
@@ -70,7 +70,7 @@ const STATUS_ICONS: Record<string, typeof Clock> = {
 const FUNDRAISING_GOAL = 10000;
 
 export default function AcademyMerchPage() {
-  useEffect(() => { document.title = 'Merch Shop | AI Mastery Academy'; }, []);
+  useEffect(() => { document.title = 'Merch Shop | ThriveUp Academy'; }, []);
   const { user } = useAuth();
   const { toast } = useToast();
   const [selectedItem, setSelectedItem] = useState<AcademyMerchItem | null>(null);
@@ -146,8 +146,8 @@ export default function AcademyMerchPage() {
   return (
     <div className="p-6 max-w-6xl mx-auto" data-testid="page-academy-merch">
       <PageHeader
-        title="AI Mastery Academy Merch Shop"
-        description="Official AI Mastery Academy merchandise - Real fundraising in partnership with UBO"
+        title="ThriveUp Academy Merch Shop"
+        description="Official ThriveUp Academy merchandise - Real fundraising in partnership with UBO"
         breadcrumbs={[{ label: "Academy", href: "/academy" }, { label: "Store" }]}
       />
 

@@ -1,7 +1,7 @@
 {
-  "name": "AI Mastery Academy & School Support Hub",
-  "short_name": "AI Mastery Academy",
-  "description": "Empowering under-resourced youth ages 14-24 with AI mastery, workforce development, and school-to-career pipelines.",
+  "name": "ThriveUp Academy",
+  "short_name": "ThriveUp",
+  "description": "AI-powered workforce development and community enablement platform for all ages.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

@@ -17,7 +17,7 @@ interface AICompanionProps {
   language?: string;
 }
 
-const GRADE_LEVELS = ["3-5", "6-8", "9-12"];
+const GRADE_LEVELS = ["3-5", "6-8", "9-12", "adult"];
 
 const MOOD_OPTIONS = [
   { value: "focused", label: "Focused", labelEs: "Enfocado/a", icon: Brain },
@@ -46,12 +46,12 @@ const QUICK_PROMPTS: Record<string, Array<{label: string; prefix: string}>> = {
 
 const WELCOME_EN: Message = {
   role: "assistant",
-  content: "Hey there, Panther! I'm Spark, your learning companion. I'm here to help you explore, think, and grow. What's on your mind today?",
+  content: "Welcome! I'm Spark, your learning companion. I'm here to help you explore, think, and grow — whether you're a student, career changer, or lifelong learner. What's on your mind today?",
 };
 
 const WELCOME_ES: Message = {
   role: "assistant",
-  content: "Hola, Pantera! Soy Spark, tu companero de aprendizaje. Estoy aqui para ayudarte a explorar, pensar y crecer. Que tienes en mente hoy?",
+  content: "Bienvenido! Soy Spark, tu companero de aprendizaje. Estoy aqui para ayudarte a explorar, pensar y crecer — ya seas estudiante, profesional en transicion, o aprendiz de por vida. Que tienes en mente hoy?",
 };
 
 export default function AICompanion({ subject, lessonContext, className, language = "en" }: AICompanionProps) {
@@ -216,7 +216,7 @@ export default function AICompanion({ subject, lessonContext, className, languag
             <SelectContent>
               {GRADE_LEVELS.map((level) => (
                 <SelectItem key={level} value={level} data-testid={`select-grade-${level}`}>
-                  {level}
+                  {level === "adult" ? (language === "es" ? "Adulto" : "Adult") : level}
                 </SelectItem>
               ))}
             </SelectContent>

@@ -711,7 +711,7 @@ function AlumniTab() {
 }
 
 export default function AcademyLongitudinalPage() {
-  useEffect(() => { document.title = 'My Pathway | AI Mastery Academy'; }, []);
+  useEffect(() => { document.title = 'My Pathway | ThriveUp Academy'; }, []);
 
   const [activeTab, setActiveTab] = useState("overview");
 

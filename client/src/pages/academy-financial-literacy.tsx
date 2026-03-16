@@ -766,7 +766,7 @@ const modules: Module[] = [
 ];
 
 export default function AcademyFinancialLiteracyPage() {
-  useEffect(() => { document.title = 'Financial Literacy | AI Mastery Academy'; }, []);
+  useEffect(() => { document.title = 'Financial Literacy | ThriveUp Academy'; }, []);
   const [expandedModule, setExpandedModule] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 

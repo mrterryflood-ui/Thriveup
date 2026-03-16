@@ -101,7 +101,7 @@ function LoadingSkeleton() {
 }
 
 export default function AcademyQuestsPage() {
-  useEffect(() => { document.title = 'Daily Quests | AI Mastery Academy'; }, []);
+  useEffect(() => { document.title = 'Daily Quests | ThriveUp Academy'; }, []);
   const { data: quests, isLoading: questsLoading, error: questsError, refetch: refetchQuests } = useQuery<Quest[]>({
     queryKey: ["/api/academy/quests"],
   });

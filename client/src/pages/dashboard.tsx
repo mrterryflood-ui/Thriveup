@@ -57,7 +57,7 @@ interface DashboardData {
 
 export default function DashboardPage() {
   useEffect(() => {
-    document.title = "Dashboard | AI Mastery Academy";
+    document.title = "Dashboard | ThriveUp Academy";
   }, []);
 
   const { data, isLoading, error, refetch } = useQuery<DashboardData>({
@@ -108,7 +108,7 @@ export default function DashboardPage() {
     <div className="p-4 sm:p-6 max-w-5xl mx-auto">
       <PageHeader
         title={`Welcome back, ${progress.studentName}!`}
-        description="AI Mastery Academy — Keep exploring and growing!"
+        description="ThriveUp Academy — Keep exploring and growing!"
       />
 
       {isNewUser && (

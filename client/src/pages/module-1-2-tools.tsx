@@ -86,7 +86,7 @@ function PromptBuilderTool({ onScoreUpdate }: { onScoreUpdate: (score: number) =
   }
 
 
-  useEffect(() => { document.title = "Module Tools | AI Mastery Academy"; }, []);
+  useEffect(() => { document.title = "Module Tools | ThriveUp Academy"; }, []);
   return (
     <div className="space-y-6">
       <Card className="p-6">

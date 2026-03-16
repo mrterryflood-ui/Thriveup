@@ -66,7 +66,7 @@ function getPatternBadge(rate: number) {
 }
 
 export default function AcademyRiskMonitorPage() {
-  useEffect(() => { document.title = 'Risk Monitor | AI Mastery Academy'; }, []);
+  useEffect(() => { document.title = 'Risk Monitor | ThriveUp Academy'; }, []);
   const { user, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
 

@@ -16,7 +16,7 @@ const WEBSITE_URL = "https://55376bb2-2aea-463e-b6a9-2c1d5c123d53-00-5trt8miml0v
 
 const VIDEO_SCRIPT = {
   title: "The Command Center Behind the Culture",
-  subtitle: "A 3-Minute Tour of the AI Mastery Academy Admin Suite",
+  subtitle: "A 3-Minute Tour of the ThriveUp Academy Admin Suite",
   totalDuration: "3:00",
   sections: [
     {
@@ -24,9 +24,9 @@ const VIDEO_SCRIPT = {
       timestamp: "0:00 - 0:20",
       duration: "20 sec",
       label: "OPENING",
-      direction: "FADE IN from black. Soft ambient music builds. Animated particles converge to form the AI Mastery Academy Panther silhouette.",
+      direction: "FADE IN from black. Soft ambient music builds. Animated particles converge to form the ThriveUp Academy Panther silhouette.",
       voiceover: "Every great learning community has something invisible powering it. Behind every student breakthrough, every parent sigh of relief, every teacher celebration... there is a system. A command center. Built not just for managing students, but for believing in them.",
-      visualNotes: "Slow zoom into the Panther Village campus. Golden hour lighting. Subtle animated sparkles around buildings. Text appears: 'AI Mastery Academy'. Then fades to: 'The Admin Suite'.",
+      visualNotes: "Slow zoom into the Panther Village campus. Golden hour lighting. Subtle animated sparkles around buildings. Text appears: 'ThriveUp Academy'. Then fades to: 'The Admin Suite'.",
       icon: Sparkles,
     },
     {
@@ -53,9 +53,9 @@ const VIDEO_SCRIPT = {
       id: "thrive-system",
       timestamp: "1:10 - 1:35",
       duration: "25 sec",
-      label: "IGN-THRIVE ANALYTICS & EARLY WARNING",
+      label: "THRIVE ANALYTICS & EARLY WARNING",
       direction: "TRANSITION with a pulsing radar animation. Show the six-domain Thrive wheel spinning, then zoom into the Early Warning flags.",
-      voiceover: "The IGN-Thrive system scores every student across six dimensions: academics, social-emotional health, engagement, life skills, community, and self-advocacy. But here is where it gets powerful. The Early Warning System watches for students slipping through the cracks. Declining scores trigger intervention playbooks. Not punishment. Support. Because the goal is never to catch students failing. It is to catch them before they fall.",
+      voiceover: "The Thrive system scores every student across six dimensions: academics, social-emotional health, engagement, life skills, community, and self-advocacy. But here is where it gets powerful. The Early Warning System watches for students slipping through the cracks. Declining scores trigger intervention playbooks. Not punishment. Support. Because the goal is never to catch students failing. It is to catch them before they fall.",
       visualNotes: `Animate the Thrive hexagon filling with scores. Show warning flags appearing with amber/red indicators. Intervention playbook cards fanning out. URL callout: ${WEBSITE_URL}/academy/thrive`,
       icon: Brain,
     },
@@ -95,7 +95,7 @@ const VIDEO_SCRIPT = {
       duration: "25 sec",
       label: "CLOSING",
       direction: "PULL BACK to a wide shot of the Panther Village campus at sunset. Music reaches its peak. All feature icons orbit the campus like a constellation.",
-      voiceover: "This is not just software. This is infrastructure for belief. Every dashboard, every alert, every course you create, every student you track... it all adds up to one thing: a community that refuses to let any child be invisible. The AI Mastery Academy Admin Suite. Built by educators. For educators. See it live.",
+      voiceover: "This is not just software. This is infrastructure for belief. Every dashboard, every alert, every course you create, every student you track... it all adds up to one thing: a community that refuses to let any child be invisible. The ThriveUp Academy Admin Suite. Built by educators. For educators. See it live.",
       visualNotes: `Feature icons (shield, book, brain, gamepad, globe) orbit and merge into the Panther logo. Final frame: '${WEBSITE_URL}' with the tagline 'Infrastructure for Belief.' Fade to black.`,
       icon: GraduationCap,
     },
@@ -103,7 +103,7 @@ const VIDEO_SCRIPT = {
   productionNotes: [
     "Total runtime: 3 minutes flat",
     "Music: Inspirational ambient, building to an emotional peak at the close. Suggest royalty-free tracks from Epidemic Sound or Artlist.",
-    "Animation style: Clean motion graphics with the AI Mastery Academy maroon (#7A1F3E) and silver palette. Smooth transitions, no jarring cuts.",
+    "Animation style: Clean motion graphics with the ThriveUp Academy maroon (#7A1F3E) and silver palette. Smooth transitions, no jarring cuts.",
     "Voice talent: Warm, confident, measured pace. Not a sales pitch. A story.",
     "Screen recordings: Capture live from the platform at each URL listed. Use slight zoom and pan effects over the UI.",
     `Website URL for end card and watermark: ${WEBSITE_URL}`,
@@ -113,7 +113,7 @@ const VIDEO_SCRIPT = {
   adminPagesShowcased: [
     { name: "Admin Dashboard", path: "/academy/admin", description: "Central command center with metrics, leaderboard, and activity feed" },
     { name: "Course Creator", path: "/academy/course-creator", description: "LMS with wizard, modules, lessons, and enrollment tracking" },
-    { name: "IGN-Thrive Analytics", path: "/academy/thrive", description: "Six-domain scoring engine with early warning system" },
+    { name: "Thrive Analytics", path: "/academy/thrive", description: "Six-domain scoring engine with early warning system" },
     { name: "Risk Decision Monitor", path: "/academy/risk-monitor", description: "Financial decision tracking with configurable thresholds" },
     { name: "Teacher Dashboard", path: "/teacher-dashboard", description: "Classroom management, student oversight, and progress" },
     { name: "Attendance Tracker", path: "/academy/attendance", description: "Real-time attendance logging and reporting" },
@@ -153,7 +153,7 @@ export default function AdminVideoScriptPage() {
   };
 
 
-  useEffect(() => { document.title = "Video Script | AI Mastery Academy"; }, []);
+  useEffect(() => { document.title = "Video Script | ThriveUp Academy"; }, []);
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-5xl mx-auto p-6 space-y-8">

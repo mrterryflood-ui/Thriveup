@@ -44,18 +44,35 @@ interface NavItem {
   icon: LucideIcon;
 }
 
-const platformItems: NavItem[] = [
+const communityIntelItems: NavItem[] = [
   { title: "Dashboard", url: "/dashboard", icon: Home },
-  { title: "AI Navigator", url: "/ai-companion", icon: Sparkles },
-  { title: "Resource Finder", url: "/resources", icon: MapPin },
   { title: "Community", url: "/community", icon: Globe },
+  { title: "Resource Finder", url: "/resources", icon: MapPin },
+  { title: "Impact Dashboard", url: "/impact", icon: TrendingUp },
+];
+
+const workforceSolutionsItems: NavItem[] = [
+  { title: "Career Explorer", url: "/academy/careers", icon: Briefcase },
+  { title: "Mentor Network", url: "/academy/mentors", icon: Users },
+  { title: "Find Mentor/Partner", url: "/academy/mentor-finder", icon: Handshake },
+  { title: "My Pathway", url: "/academy/pathway", icon: Route },
+  { title: "Dream Design", url: "/academy/dreams", icon: Target },
+  { title: "Reentry Dashboard", url: "/reentry", icon: Shield },
+  { title: "Community Partners", url: "/partners", icon: Handshake },
+  { title: "For Justice Partners", url: "/justice-partners", icon: Scale },
+];
+
+const grantEngineItems: NavItem[] = [
+  { title: "Grant Hub", url: "/grants", icon: Target },
+  { title: "Outcome Reporting", url: "/outcomes", icon: FileBarChart },
   { title: "Stakeholder Deck", url: "/presentation", icon: Presentation },
 ];
 
-const workforceItems: NavItem[] = [
-  { title: "AI Curriculum", url: "/curriculum", icon: Brain },
+const aiToolsItems: NavItem[] = [
   { title: "AI Creation Studio", url: "/ai-tools", icon: Wand2 },
-  { title: "Career Explorer", url: "/academy/careers", icon: Briefcase },
+  { title: "Spark", url: "/ai-companion", icon: Sparkles },
+  { title: "Sparky", url: "/sparky", icon: MessageCircle },
+  { title: "AI Curriculum", url: "/curriculum", icon: Brain },
   { title: "Subjects", url: "/subjects", icon: GraduationCap },
   { title: "Achievements", url: "/achievements", icon: Award },
   { title: "Certificates", url: "/certificates", icon: ScrollText },
@@ -89,9 +106,6 @@ const campusLifeItems: NavItem[] = [
 ];
 
 const careerMentorsItems: NavItem[] = [
-  { title: "Mentor Network", url: "/academy/mentors", icon: Users },
-  { title: "Find Mentor/Partner", url: "/academy/mentor-finder", icon: Handshake },
-  { title: "Dream Design", url: "/academy/dreams", icon: Target },
   { title: "Life Lessons", url: "/academy/lessons", icon: Lightbulb },
 ];
 
@@ -100,11 +114,7 @@ const buildCreateItems: NavItem[] = [
   { title: "Print Shop", url: "/academy/merch", icon: ShoppingBag },
 ];
 
-const caseManagementItems: NavItem[] = [
-  { title: "Reentry Dashboard", url: "/reentry", icon: Shield },
-  { title: "Community Partners", url: "/partners", icon: Handshake },
-  { title: "Outcome Reporting", url: "/outcomes", icon: FileBarChart },
-  { title: "Justice Partners", url: "/justice-partners", icon: Scale },
+const campusExtrasItems: NavItem[] = [
 ];
 
 const teachingPublicItems: NavItem[] = [
@@ -245,14 +255,14 @@ export function AppSidebar() {
   return (
     <Sidebar aria-label="Main navigation">
       <SidebarHeader className="p-4">
-        <Link href="/" aria-label="Community Enablement Platform home">
+        <Link href="/" aria-label="ThriveUp Academy home">
           <div className="flex items-center gap-2.5 cursor-pointer" data-testid="link-home">
             <div className="rounded-md p-1.5 bg-gradient-to-br from-violet-700 to-indigo-800">
               <Heart className="h-5 w-5 text-white" aria-hidden="true" />
             </div>
             <div>
-              <p className="font-bold text-sm leading-tight">Community Platform</p>
-              <p className="text-xs text-muted-foreground leading-tight">Workforce & Enablement</p>
+              <p className="font-bold text-sm leading-tight">ThriveUp Academy</p>
+              <p className="text-xs text-muted-foreground leading-tight">Workforce Development & Community Enablement</p>
             </div>
           </div>
         </Link>
@@ -284,11 +294,11 @@ export function AppSidebar() {
           </SidebarGroup>
         )}
 
-        <NavSection label="Platform" items={platformItems} location={location} />
-        <NavSection label="Workforce & Training" items={workforceItems} location={location} />
-        <NavSection label="Case Management" items={caseManagementItems} location={location} />
-        <NavSection label="Mentors & Career" items={careerMentorsItems} location={location} />
-        <NavSection label="My Progress" items={myStudentItems} location={location} />
+        <NavSection label="Community Intelligence" items={communityIntelItems} location={location} />
+        <NavSection label="Workforce Solutions" items={workforceSolutionsItems} location={location} />
+        <NavSection label="Grant Engine" items={grantEngineItems} location={location} />
+        <NavSection label="AI Tools" items={aiToolsItems} location={location} />
+        <NavSection label="Case Management" items={myStudentItems} location={location} />
         <NavSection label="Campus Life" items={campusLifeItems} location={location} />
         <NavSection label="Build & Create" items={buildCreateItems} location={location} />
 
@@ -387,7 +397,7 @@ export function AppSidebar() {
         </Link>
         <div className="flex items-center gap-2 text-xs text-muted-foreground mt-2">
           <Heart className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-          <span>Workforce Development & Community Enablement</span>
+          <span>ThriveUp Academy</span>
         </div>
       </SidebarFooter>
     </Sidebar>

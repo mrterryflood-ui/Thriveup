@@ -149,7 +149,7 @@ function LoadingSkeleton() {
 }
 
 export default function AcademyScenariosPage() {
-  useEffect(() => { document.title = 'Adventure Scenarios | AI Mastery Academy'; }, []);
+  useEffect(() => { document.title = 'Adventure Scenarios | ThriveUp Academy'; }, []);
 
   const [selectedScenarioId, setSelectedScenarioId] = useState<string | null>(null);
   const [activeRun, setActiveRun] = useState<ScenarioRun | null>(null);

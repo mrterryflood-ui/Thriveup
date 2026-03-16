@@ -74,7 +74,7 @@ interface ClassroomDetailData {
 
 function LoginPrompt() {
 
-  useEffect(() => { document.title = "Classrooms | AI Mastery Academy"; }, []);
+  useEffect(() => { document.title = "Classrooms | ThriveUp Academy"; }, []);
   return (
     <div className="p-6 max-w-md mx-auto text-center mt-20">
       <Card className="p-8">
@@ -412,7 +412,7 @@ export function ClassroomDetailPage({ params }: { params: { classroomId: string 
   });
 
   useEffect(() => {
-    document.title = data?.classroom ? `${data.classroom.name} | AI Mastery Academy` : "Classroom | AI Mastery Academy";
+    document.title = data?.classroom ? `${data.classroom.name} | ThriveUp Academy` : "Classroom | ThriveUp Academy";
   }, [data]);
 
   if (authLoading) {

@@ -75,7 +75,7 @@ const CHAPTERS: Chapter[] = [
     icon: User,
     characters: ["Arthur", "Coach Marcus"],
     narrative: [
-      "Arthur Wakanda walks through the doors of AI Mastery Academy for the very first time. His hands are a little sweaty, his backpack feels heavier than usual, and the hallway seems to stretch forever. But then he sees it -- a giant banner that reads: \"Welcome, Young Panthers. Your Empire Starts Here.\" Something in his chest loosens, just a little.",
+      "Arthur Wakanda walks through the doors of ThriveUp Academy for the very first time. His hands are a little sweaty, his backpack feels heavier than usual, and the hallway seems to stretch forever. But then he sees it -- a giant banner that reads: \"Welcome, Young Panthers. Your Empire Starts Here.\" Something in his chest loosens, just a little.",
       "His first stop is the Avatar Creator, where he designs his own digital identity. He picks his hairstyle, adds a fresh pair of sneakers, and even chooses a panther emblem for his jacket. For the first time today, Arthur smiles. This version of himself looks confident, ready for anything. He receives his starter wallet with $100 in virtual credits -- not much, but every empire begins somewhere.",
       "A tall man with kind eyes and a Howard University polo steps forward. \"I am Coach Marcus, your house leader,\" he says, extending a hand. \"I have been where you are, young brother. Nervous, unsure, full of questions. That is exactly where greatness begins.\" Arthur shakes his hand and feels a spark of belonging. Coach Marcus explains the merit system, the house competitions, and the Panther Power pillars. Arthur does not understand everything yet, but he knows one thing: someone here believes in him already.",
     ],
@@ -461,7 +461,7 @@ const CHAPTERS: Chapter[] = [
     narrative: [
       "Arthur sits on the bleachers after the last house competition of the year and thinks about how he got here. Not just his own choices, but every person who showed up for him. Coach Marcus, who believed in him before Arthur believed in himself. Ms. Richardson, who saw a spark of curiosity and fanned it into a fire, who spent hours writing a recommendation letter that captured Arthur's entire journey. His parents, who attended every event, bought every piece of merch, and checked the Parent Dashboard like it was the morning news.",
       "He thinks about Maya, who sat next to him on his worst day and told him that struggle is where growth happens. DeShawn, who taught him that patience is the most valuable currency on Wall Street and in life. Jasmine, who turned his rough ideas into beautiful designs that people actually wanted to buy. Amara, who showed him that community service is not a checkbox -- it is a way of living. And Spark, the AI companion that was there at midnight, at 6 AM, on weekends, never judging, always encouraging, always asking the right question at the right time.",
-      "Arthur realizes something profound: no one builds an empire alone. Every credit in his wallet, every point on his power score, every dollar in his college fund has someone else's fingerprints on it. The entire AI Mastery Academy community -- students buying study guides, parents ordering merch, teachers tracking progress, mentors pushing harder, an AI companion guiding every step -- all of it wove together into something bigger than any single person could build. The college fund pushes past $9,200, and Arthur knows that the number represents trust, love, and collective belief.",
+      "Arthur realizes something profound: no one builds an empire alone. Every credit in his wallet, every point on his power score, every dollar in his college fund has someone else's fingerprints on it. The entire ThriveUp Academy community -- students buying study guides, parents ordering merch, teachers tracking progress, mentors pushing harder, an AI companion guiding every step -- all of it wove together into something bigger than any single person could build. The college fund pushes past $9,200, and Arthur knows that the number represents trust, love, and collective belief.",
     ],
     quote: "Success is never a solo performance. It is a symphony, and every person in your life plays a note.",
     quoteAuthor: "Arthur, year-end reflection essay",
@@ -481,7 +481,7 @@ const CHAPTERS: Chapter[] = [
       "Arthur sits at his desk and opens his Howard University application. His Dream Design profile tells a story no test score ever could. Academic excellence: top performer in Social Sciences, Academic Bowl finalist, AI Mastery Level 5 certified. Leadership: Crimson Lions house captain, mentor to three younger students, team conflict mediator. Community impact: $10,000 raised for college, campus builder contributor, mentorship program co-founder. Entrepreneurship: marketplace business with 47 sales, Print Shop designer, stock market portfolio at $850.",
       "He writes his personal essay about lemonade stands and rainstorms, about stocks that dropped and patience that paid off, about a Math quiz he failed and the friend who reminded him that struggle is where growth happens. He writes about Spark, the AI companion that never slept and never judged. He writes about Coach Marcus, who walked the halls of Howard before him and promised Arthur he would walk them too. Ms. Richardson's recommendation letter is attached -- four pages of fierce advocacy for a student she calls \"once in a generation.\"",
       "Weeks later, Arthur opens his mailbox and sees it: a large envelope with the Howard University seal. His hands tremble. \"Dear Arthur Wakanda, Congratulations! You have been accepted to Howard University, Class of 2032, Social Science Engineering program.\" The college fund hits $10,000 with a final community fundraiser that brings together everyone who believed in him. Mrs. Wakanda cries. Mr. Wakanda holds Arthur so tight he cannot breathe. Coach Marcus simply nods -- the kind of nod that says everything.",
-      "The celebrations cascade. Maya is accepted to MIT for Architecture. DeShawn gets into Wharton for Business. Jasmine is headed to RISD for Graphic Design. Amara receives a full scholarship to Spelman for Community Development. Arthur returns to the Academy Hub one last time and leaves a message for every future Panther: \"I was exactly where you are right now. Nervous. Unsure. Wondering if any of this was real. It is real. Every quest you complete, every lesson you learn, every setback you overcome -- it all adds up. Your story is being written right now. Make it a good one. Every student at AI Mastery Academy can write their own story.\"",
+      "The celebrations cascade. Maya is accepted to MIT for Architecture. DeShawn gets into Wharton for Business. Jasmine is headed to RISD for Graphic Design. Amara receives a full scholarship to Spelman for Community Development. Arthur returns to the Academy Hub one last time and leaves a message for every future Panther: \"I was exactly where you are right now. Nervous. Unsure. Wondering if any of this was real. It is real. Every quest you complete, every lesson you learn, every setback you overcome -- it all adds up. Your story is being written right now. Make it a good one. Every student at ThriveUp Academy can write their own story.\"",
     ],
     quote: "Your story is being written right now. Make it a good one.",
     quoteAuthor: "Arthur Wakanda, Howard University Class of 2032",
@@ -577,7 +577,7 @@ function StatsFooter({ stats, chapterIndex }: { stats: ChapterStats; chapterInde
   const isFinale = chapterIndex === CHAPTERS.length - 1;
 
 
-  useEffect(() => { document.title = "Platform Tutorial | AI Mastery Academy"; }, []);
+  useEffect(() => { document.title = "Platform Tutorial | ThriveUp Academy"; }, []);
   return (
     <Card className="p-5 mt-6" data-testid={`card-stats-chapter-${chapterIndex}`}>
       <div className="flex items-center gap-2 mb-4">
@@ -779,7 +779,7 @@ export default function AcademyTutorialPage() {
     <div className="p-6 max-w-5xl mx-auto" data-testid="page-academy-tutorial">
       <PageHeader
         title="Arthur's Journey"
-        description="From his first day at AI Mastery Academy to Howard University"
+        description="From his first day at ThriveUp Academy to Howard University"
         breadcrumbs={[
           { label: "Academy", href: "/academy" },
           { label: "Tutorial" },
@@ -790,7 +790,7 @@ export default function AcademyTutorialPage() {
           Arthur's Academy Journey
         </h1>
         <p className="text-rose-100 text-lg mb-1">
-          From his first day at AI Mastery Academy to Howard University
+          From his first day at ThriveUp Academy to Howard University
         </p>
         <p className="text-rose-200 text-sm">
           Follow Arthur Wakanda through every feature of the Academy and see how one student built his empire

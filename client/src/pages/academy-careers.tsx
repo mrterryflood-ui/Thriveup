@@ -534,7 +534,7 @@ function LoadingSkeleton() {
 
 export default function AcademyCareersPage() {
   useEffect(() => {
-    document.title = "School-to-Career Pipeline | AI Mastery Academy";
+    document.title = "Career Pipeline | ThriveUp Academy";
   }, []);
 
   const [activeCategory, setActiveCategory] = useState("All");
@@ -611,7 +611,7 @@ export default function AcademyCareersPage() {
           Your Workforce Development Pathway Starts Here
         </p>
         <p className="text-rose-200 text-sm max-w-2xl" data-testid="text-careers-description">
-          Explore industry-aligned career pathways designed to build job readiness, skill training, and career advancement for youth ages 14-24. Our school-to-career pipeline connects you with real workforce opportunities.
+          Explore industry-aligned career pathways designed to build job readiness, skill training, and career advancement for learners of all ages. Our workforce pipeline connects you with real career opportunities.
         </p>
       </div>
 

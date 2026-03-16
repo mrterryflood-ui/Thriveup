@@ -48,7 +48,7 @@ export default function SubjectsPage() {
 
   const filteredSubjects = allSubjects?.filter(s => s.gradeBand === selectedBand) || [];
 
-  useEffect(() => { document.title = "Subjects | AI Mastery Academy"; }, []);
+  useEffect(() => { document.title = "Subjects | ThriveUp Academy"; }, []);
 
   if (isLoading) {
     return (
@@ -153,7 +153,7 @@ export function SubjectDetailPage() {
   const isLoading = subjectLoading || modulesLoading;
 
   useEffect(() => {
-    document.title = subject ? `${subject.name} | AI Mastery Academy` : "Subject | AI Mastery Academy";
+    document.title = subject ? `${subject.name} | ThriveUp Academy` : "Subject | ThriveUp Academy";
   }, [subject]);
 
   if (isLoading) {

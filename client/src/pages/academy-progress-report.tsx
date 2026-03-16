@@ -10,7 +10,7 @@ import { ErrorRetry } from "@/components/error-retry";
 import { PageHeader } from "@/components/page-header";
 
 export default function AcademyProgressReportPage() {
-  useEffect(() => { document.title = 'Progress Report | AI Mastery Academy'; }, []);
+  useEffect(() => { document.title = 'Progress Report | ThriveUp Academy'; }, []);
 
   const { user, isLoading: authLoading } = useAuth();
 

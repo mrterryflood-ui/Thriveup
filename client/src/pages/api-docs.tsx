@@ -86,7 +86,7 @@ const METHOD_COLORS: Record<string, string> = {
 
 export default function APIDocsPage() {
   useEffect(() => {
-    document.title = "API Documentation | AI Mastery Academy";
+    document.title = "API Documentation | ThriveUp Academy";
   }, []);
 
   const categories = Array.from(new Set(API_ENDPOINTS.map(e => e.category)));
@@ -105,7 +105,7 @@ export default function APIDocsPage() {
         </Badge>
         <h1 className="text-3xl font-bold" data-testid="heading-api-docs">API Documentation</h1>
         <p className="text-muted-foreground max-w-2xl">
-          Integrate with AI Mastery Academy using our REST API. Public endpoints require no authentication.
+          Integrate with ThriveUp Academy using our REST API. Public endpoints require no authentication.
           Protected endpoints require an API key or admin session.
         </p>
       </div>

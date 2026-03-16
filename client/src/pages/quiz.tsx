@@ -46,7 +46,7 @@ export default function QuizPage() {
     },
   });
 
-  useEffect(() => { document.title = "Quiz | AI Mastery Academy"; }, []);
+  useEffect(() => { document.title = "Quiz | ThriveUp Academy"; }, []);
 
   if (isLoading) {
     return (

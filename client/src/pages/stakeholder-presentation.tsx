@@ -79,7 +79,7 @@ function TitleSlide({ isFullscreen }: SlideProps) {
           </div>
         </div>
         <h1 className="text-white font-bold tracking-tight leading-[1.05]" style={{ fontSize: "5.5vw" }}>
-          Strengthening Communities
+          ThriveUp Academy
         </h1>
         <p className="text-white/80 mt-[2vh] max-w-[60vw] leading-relaxed" style={{ fontSize: "2vw" }}>
           Workforce Development & Community Enablement Platform
@@ -114,7 +114,7 @@ function MissionSlide({ isFullscreen }: SlideProps) {
         </div>
         <div className="w-[60%] flex flex-col justify-center px-[4vw]">
           <p className="text-[#3a2020] leading-relaxed mb-[3vh]" style={{ fontSize: "2vw" }}>
-            AI-powered workforce development, reentry support, and community enablement for under-resourced communities.
+            Empowering under-resourced communities with AI mastery, workforce readiness, and career pipelines for all ages.
           </p>
           <div className="space-y-[2vh]">
             {[
@@ -513,7 +513,7 @@ function WholeChildSlide({ isFullscreen }: SlideProps) {
         <h2 className="text-white font-bold tracking-tight leading-tight mb-[4vh]" style={{ fontSize: "3.5vw" }}>Whole-child support system</h2>
         <div className="grid grid-cols-2 gap-[2vw]">
           {[
-            { icon: Heart, title: "IGN-Thrive Analytics", desc: "Six-domain scoring engine with early warning system and intervention playbooks", link: "/academy/thrive" },
+            { icon: Heart, title: "Thrive Analytics", desc: "Six-domain scoring engine with early warning system and intervention playbooks", link: "/academy/thrive" },
             { icon: BarChart3, title: "Financial Literacy", desc: "Stock market simulation, entrepreneurship training, and real fundraising for college tuition", link: "/academy/financial-literacy" },
             { icon: Globe, title: "Community Resources", desc: "Nationwide resource finder covering 55 U.S. jurisdictions with real-time data", link: "/resources" },
             { icon: BookOpen, title: "STAAR Test Prep", desc: "Grade-level study guides for Grades 3-11 aligned to Texas TEKS standards", link: "/academy/staar-prep" },
@@ -805,8 +805,8 @@ function ClosingSlide({ isFullscreen }: SlideProps) {
 }
 
 const SLIDES = [
-  { component: TitleSlide, title: "Strengthening Communities", speakerNotes: "Welcome to our stakeholder presentation. This platform is a comprehensive workforce development and community enablement ecosystem serving under-resourced communities of all ages. Our mission: reducing recidivism, increasing employment, and strengthening communities through AI-powered tools and coordinated service delivery." },
-  { component: MissionSlide, title: "Our Mission", speakerNotes: "Our mission is AI-powered workforce development, reentry support, and community enablement for under-resourced communities. We focus on three pillars: AI literacy as the new foundation for career success, direct pipelines from training to career placement, and whole-person support through mentorship and community resources." },
+  { component: TitleSlide, title: "ThriveUp Academy", speakerNotes: "Welcome to the ThriveUp Academy stakeholder presentation. This platform is a comprehensive workforce development and community enablement ecosystem serving under-resourced communities of all ages. Our mission: reducing recidivism, increasing employment, and strengthening communities through AI-powered tools and coordinated service delivery. We focus on teaching the first generation to guide their smartest classmate." },
+  { component: MissionSlide, title: "Our Mission", speakerNotes: "Our mission is empowering under-resourced communities with AI mastery, workforce readiness, and career pipelines for all ages. We focus on three pillars: AI literacy as the new foundation for career success, direct pipelines from classroom to career placement, and whole-person support through mentorship and community resources." },
   { component: ProblemSlide, title: "The Challenge", speakerNotes: "The challenge is significant. 67% of low-income students lack career readiness programs. Without workforce training, they are 3x more likely to face unemployment. And 82% of future jobs will require digital and AI literacy. These compounding barriers create a cycle that our platform is designed to break." },
   { component: SolutionSlide, title: "Our Solution", speakerNotes: "Our solution is a complete ecosystem, not just a course. It includes a 5-level AI curriculum, 55 career pathways across 12 industries, an AI Creation Studio with 10 professional tools, and a growing mentor network. Each component links to the live platform where you can explore it in detail." },
   { component: CurriculumSlide, title: "AI Mastery Curriculum", speakerNotes: "The curriculum progresses through five mastery levels: Explorer, Guide, Architect, Innovator, and Master. Each level has specific competencies, capstone projects, and parent teachback verification. The 31 modules are structured so students build skills progressively, and tool access is gated behind demonstrated mastery." },
@@ -817,7 +817,7 @@ const SLIDES = [
   { component: ImpactMetricsSlide, title: "Impact Metrics", speakerNotes: "These are live numbers pulled from our platform right now. We track participants served, career pathways available, professional mentors, mastery levels, learning modules, and career milestones. The full impact dashboard is available at the link shown and can be shared with funders directly." },
   { component: GrantAlignmentSlide, title: "Grant Alignment", speakerNotes: "Our platform meets every criterion for workforce development grant eligibility. Each green checkmark represents a fully implemented capability, not a planned feature. School-to-career pipelines, workforce development, job readiness, skill training, job placement, career advancement, mentorship, and community impact are all active." },
   { component: MentorNetworkSlide, title: "Mentor Network", speakerNotes: "Our mentor network connects participants with professional coaches across all 12 career categories. The system includes structured pathway planning with milestone tracking, career readiness assessments, and revision support. The goal is direct pipelines from skill demonstration to workforce entry." },
-  { component: WholeChildSlide, title: "Whole-Child Support", speakerNotes: "Beyond academics, we provide whole-child support including the IGN-Thrive six-domain scoring engine with early warning systems, financial literacy through stock market simulation, a nationwide community resource finder covering 55 U.S. jurisdictions, and STAAR test preparation aligned to Texas standards." },
+  { component: WholeChildSlide, title: "Whole-Child Support", speakerNotes: "Beyond academics, we provide whole-child support including the ThriveUp Academy six-domain scoring engine with early warning systems, financial literacy through stock market simulation, a nationwide community resource finder covering 55 U.S. jurisdictions, and STAAR test preparation aligned to Texas standards." },
   { component: ResourceFinderSlide, title: "Resource Finder", speakerNotes: "Our Community Resource Finder connects families to local support services including healthcare, food assistance, housing, education, and employment across all 50 states plus DC, Puerto Rico, U.S. Virgin Islands, Guam, and American Samoa. It uses real-time GIS data from CDC, FBI, and ATSDR sources." },
   { component: AudienceSlide, title: "Who We Serve", speakerNotes: "We serve multiple stakeholders. Participants of all ages get AI and digital literacy training, career exploration and placement, reentry case management, and workforce development. Community partners get service delivery tracking, referral workflows, volunteer coordination, and collective impact reporting. Funders and grant makers get grant-aligned outcome reports, impact dashboards, CSV exports, and API integration." },
   { component: DifferentiatorsSlide, title: "What Makes Us Different", speakerNotes: "Four things differentiate us. First, tools are earned through mastery, not purchased. Second, our AI has safety-first design with age-appropriate guardrails. Third, we provide real impact data, not projections. Fourth, we are community-embedded with nationwide resource support and early warning systems." },
@@ -825,7 +825,7 @@ const SLIDES = [
   { component: ComplianceSlide, title: "Security & Compliance", speakerNotes: "We are COPPA compliant with parental consent and data retention policies, FERPA aligned with student data protection and role-based access control, secure OIDC authentication, and rate-limited AI interactions. All 124 API routes have comprehensive error handling." },
   { component: TechnicalSlide, title: "Technical Architecture", speakerNotes: "The platform runs on a production-ready stack with 70+ pages, 124 API routes with 100% error handling coverage, 60+ code-split components for performance. The frontend uses React, Vite, and TanStack Query. The backend runs Express with PostgreSQL and Drizzle ORM. AI is powered by Gemini with fallback providers." },
   { component: ImplementationSlide, title: "Implementation Plan", speakerNotes: "Our phased rollout starts with foundation deployment and initial school partnerships in months 1-3, moves to growth with mentor expansion and career pipeline activation in months 4-6, and scales to multi-district rollout with employer partnerships and national expansion planning in months 7-12." },
-  { component: ClosingSlide, title: "Let's Connect", speakerNotes: "Stronger communities start with coordinated action. We invite you to explore the live platform, review our impact dashboard, and connect with us to discuss partnership opportunities. Contact us at the email addresses shown. Thank you for your time and interest in strengthening communities together." },
+  { component: ClosingSlide, title: "Let's Connect", speakerNotes: "The people who learn to think with AI today will lead tomorrow. We invite you to explore the live platform, review our impact dashboard, and connect with us to discuss partnership opportunities. Contact us at the email addresses shown. Thank you for your time and interest in ThriveUp Academy." },
 ];
 
 export default function StakeholderPresentation() {
@@ -838,7 +838,7 @@ export default function StakeholderPresentation() {
   });
 
   useEffect(() => {
-    document.title = "Stakeholder Presentation - Community Enablement Platform";
+    document.title = "Stakeholder Presentation - ThriveUp Academy";
   }, []);
 
   const goNext = useCallback(() => {

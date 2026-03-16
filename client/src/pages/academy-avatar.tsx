@@ -341,7 +341,7 @@ function CommunityAvatarCard({ avatar }: { avatar: AcademyAvatar }) {
 }
 
 export default function AcademyAvatarPage() {
-  useEffect(() => { document.title = 'Avatar Customizer | AI Mastery Academy'; }, []);
+  useEffect(() => { document.title = 'Avatar Customizer | ThriveUp Academy'; }, []);
   const { toast } = useToast();
   const [form, setForm] = useState<AvatarFormState>(DEFAULT_STATE);
 

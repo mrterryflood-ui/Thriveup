@@ -80,7 +80,7 @@ const INVESTING_WISDOM = [
 ];
 
 export default function AcademyStocksPage() {
-  useEffect(() => { document.title = 'Stock Market | AI Mastery Academy'; }, []);
+  useEffect(() => { document.title = 'Stock Market | ThriveUp Academy'; }, []);
   const { toast } = useToast();
   const [tradingStock, setTradingStock] = useState<Stock | null>(null);
   const [tradeAction, setTradeAction] = useState<"buy" | "sell">("buy");

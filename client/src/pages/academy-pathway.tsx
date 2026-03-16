@@ -696,7 +696,7 @@ function PathwayTimeline({ plan }: { plan: PathwayPlan }) {
 }
 
 export default function AcademyPathwayPage() {
-  useEffect(() => { document.title = 'Career Pathway | AI Mastery Academy'; }, []);
+  useEffect(() => { document.title = 'Career Pathway | ThriveUp Academy'; }, []);
 
   const { data: plan, isLoading: planLoading, error: planError, refetch: refetchPlan } = useQuery<PathwayPlan | null>({
     queryKey: ["/api/pathway-plan"],

@@ -438,7 +438,7 @@ function InstantRewards() {
 }
 
 export default function AcademyHousesPage() {
-  useEffect(() => { document.title = 'Houses | AI Mastery Academy'; }, []);
+  useEffect(() => { document.title = 'Houses | ThriveUp Academy'; }, []);
   const { data: houses, isLoading, error: housesError, refetch: refetchHouses } = useQuery<AcademyHouse[]>({
     queryKey: ["/api/academy/houses"],
   });

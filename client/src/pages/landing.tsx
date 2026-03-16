@@ -113,7 +113,7 @@ function FeatureVideoPlayer() {
   };
 
 
-  useEffect(() => { document.title = "Workforce Development & Community Enablement Platform"; }, []);
+  useEffect(() => { document.title = "ThriveUp Academy — Workforce Development & Community Enablement"; }, []);
   return (
     <Card className="overflow-hidden shadow-xl border-2 border-primary/10" data-testid="card-feature-video">
       <div className="relative group">
@@ -121,7 +121,7 @@ function FeatureVideoPlayer() {
           ref={videoRef}
           src={featureVideoSrc}
           className="w-full aspect-video bg-black"
-          aria-label="AI Mastery Academy platform tour with Arthur Wakanda"
+          aria-label="ThriveUp Academy platform tour with Arthur Wakanda"
           onEnded={() => { setIsPlaying(false); setShowOverlay(true); }}
           onClick={togglePlay}
           playsInline
@@ -189,16 +189,16 @@ export default function LandingPage() {
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSA2MCAwIEwgMCAwIDAgNjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjA1KSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-40" />
         <div className="relative mx-auto max-w-5xl text-center">
           <Badge variant="secondary" className="mb-4 sm:mb-6 bg-white/15 text-white border-white/20 text-xs sm:text-sm">
-            Workforce Development & Community Enablement
+            AI-Powered Workforce Development & Community Enablement
           </Badge>
           <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-4 sm:mb-6 tracking-tight leading-tight" data-testid="text-hero-title">
             Strengthening<br />Communities
           </h1>
           <p className="text-base sm:text-lg md:text-xl text-white/80 max-w-2xl mx-auto mb-3 sm:mb-4 px-2" data-testid="text-hero-subtitle">
-            AI-powered workforce development, grant discovery, reentry support, and community enablement for under-resourced communities
+            AI-powered workforce development, grant discovery, reentry support, and community enablement for all ages
           </p>
           <p className="text-xs sm:text-sm md:text-base text-white/60 max-w-xl mx-auto mb-8 sm:mb-10 px-2">
-            A complete ecosystem connecting grant makers, community organizations, employers, and service providers to reduce recidivism, increase employment, and build stronger communities. Powered by real-time community data and AI.
+            A complete ecosystem serving returning citizens, veterans, single parents, seniors, and learners of all ages. Grant discovery, 50+ career pathways, evidence-based reentry plans, and whole-person support.
           </p>
           <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-4 px-4 sm:px-0">
             <Link href="/grants">
@@ -231,7 +231,7 @@ export default function LandingPage() {
               <Play className="mr-1 h-3 w-3" /> Platform Tour
             </Badge>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4" data-testid="text-video-heading">
-              See the Platform in Action
+              See ThriveUp Academy in Action
             </h2>
             <p className="text-sm sm:text-base text-muted-foreground max-w-lg mx-auto px-2">
               A 7-minute tour of the platform — from community intelligence and grant discovery to workforce pipelines, AI tools, and partner coordination.
@@ -249,7 +249,7 @@ export default function LandingPage() {
               Two Engines, One Mission
             </h2>
             <p className="text-sm sm:text-base text-muted-foreground max-w-lg mx-auto px-2">
-              A Grant Discovery Engine that finds and aligns funding opportunities, paired with a Workforce and Community Platform that delivers measurable outcomes.
+              A Grant Discovery Engine that finds and aligns funding opportunities, paired with a Workforce and Community Platform that delivers measurable outcomes for all ages.
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
@@ -283,7 +283,7 @@ export default function LandingPage() {
               Whole-Person Development
             </h2>
             <p className="text-sm sm:text-base text-muted-foreground max-w-lg mx-auto px-2">
-              Academic foundations, career readiness, and personal wellness — every dimension of growth matters for workforce success.
+              Academic foundations, career readiness, and personal wellness — every dimension of growth matters for workforce success at every stage of life.
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
@@ -317,7 +317,7 @@ export default function LandingPage() {
               From Explorer to Master
             </h2>
             <p className="text-sm sm:text-base text-muted-foreground max-w-lg mx-auto px-2">
-              A five-level AI and digital literacy curriculum for all ages — from foundational skills to professional mastery.
+              A five-level AI and digital literacy curriculum for all ages — from foundational skills to professional mastery, with grade-band modules for school settings.
             </p>
           </div>
           <div className="space-y-3">
@@ -354,9 +354,9 @@ export default function LandingPage() {
           <Card className="p-6 sm:p-8 md:p-12 bg-gradient-to-br from-violet-600 to-indigo-700 border-none text-white">
             <div className="text-center">
               <Sparkles className="h-8 w-8 sm:h-10 sm:w-10 mx-auto mb-4 text-white/80" />
-              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3">Meet Your AI Navigator</h2>
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3">Meet Spark, Your AI Companion</h2>
               <p className="text-white/80 max-w-2xl mx-auto text-sm sm:text-base md:text-lg leading-relaxed mb-6 px-2">
-                An empathetic AI companion that understands your situation, knows your community, and actively connects you to the right resources, services, and opportunities. Whether you are a returning citizen, a parent, a case manager, or a community leader — the navigator meets you where you are.
+                An empathetic AI companion that understands your situation and meets you where you are. Whether you are a returning citizen, a veteran, a parent, a case manager, or a community leader — Spark adapts its tone with professional coaching for adults and encouraging mentorship for younger learners.
               </p>
               <Link href="/ai-companion">
                 <Button size="lg" className="bg-white text-violet-700 border-white/80 min-h-[44px]" data-testid="button-meet-navigator">
@@ -380,7 +380,7 @@ export default function LandingPage() {
               Equity-First, Community-Driven
             </h2>
             <p className="text-sm sm:text-base text-muted-foreground max-w-lg mx-auto px-2">
-              Deploy in any community, anywhere in the nation. Local ambassadors on the ground, powered by a platform that adapts to any population and any funder.
+              Deploy in any community, anywhere in the nation. Local ambassadors on the ground, removing every barrier to workforce development for under-resourced communities of all ages.
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
@@ -843,7 +843,7 @@ export default function LandingPage() {
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <Heart className="h-5 w-5 text-primary" />
-                <span className="font-semibold" data-testid="text-footer-brand">Community Enablement Platform</span>
+                <span className="font-semibold" data-testid="text-footer-brand">ThriveUp Academy</span>
               </div>
               <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed" data-testid="text-footer-tagline">
                 AI-powered workforce development, grant alignment, and community enablement — reducing recidivism, increasing employment, and strengthening communities.

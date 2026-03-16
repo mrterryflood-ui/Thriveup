@@ -239,7 +239,7 @@ function LeaderboardSection({ competitionId }: { competitionId: string }) {
 }
 
 export default function AcademyCompetitionsPage() {
-  useEffect(() => { document.title = 'Competitions | AI Mastery Academy'; }, []);
+  useEffect(() => { document.title = 'Competitions | ThriveUp Academy'; }, []);
   const { toast } = useToast();
   const [typeFilter, setTypeFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");

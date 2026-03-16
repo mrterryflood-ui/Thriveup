@@ -201,7 +201,7 @@ function LoadingSkeleton() {
 }
 
 export default function AcademyVillagePage() {
-  useEffect(() => { document.title = 'Panther Village | AI Mastery Academy'; }, []);
+  useEffect(() => { document.title = 'Panther Village | ThriveUp Academy'; }, []);
   const [showOnboarding, setShowOnboarding] = useState(() => !localStorage.getItem("txea_onboarding_complete"));
 
   const completeOnboarding = () => {

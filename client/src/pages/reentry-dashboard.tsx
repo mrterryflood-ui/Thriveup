@@ -266,7 +266,7 @@ export default function ReentryDashboard() {
                 {planDetail.notes && <p className="text-sm text-muted-foreground">{planDetail.notes}</p>}
                 {planDetail.thriveScore && (
                   <div className="mt-4 p-3 rounded-lg bg-muted">
-                    <p className="text-sm font-medium mb-1">IGN-Thrive Score</p>
+                    <p className="text-sm font-medium mb-1">Thrive Score</p>
                     <p className="text-2xl font-bold text-primary">{planDetail.thriveScore.compositeScore || "N/A"}</p>
                   </div>
                 )}

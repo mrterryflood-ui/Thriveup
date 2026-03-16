@@ -8,7 +8,7 @@ import { useLanguage } from "@/lib/i18n";
 export default function AICompanionPage() {
   const { language } = useLanguage();
 
-  useEffect(() => { document.title = "Spark AI Companion | AI Mastery Academy"; }, []);
+  useEffect(() => { document.title = "Spark AI Companion | ThriveUp Academy"; }, []);
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="mb-6">

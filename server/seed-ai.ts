@@ -513,7 +513,7 @@ export async function seedAILevels(db: any): Promise<void> {
       title: "AI is Everywhere",
       durationMinutes: 20,
       activityType: "exploration",
-      content: `## Welcome to AI Mastery Academy!
+      content: `## Welcome to ThriveUp Academy!
 
 Today we're going to learn about something really exciting - Artificial Intelligence, or AI for short. AI is all around us, and you might not even know it!
 

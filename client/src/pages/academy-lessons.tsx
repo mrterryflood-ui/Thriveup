@@ -78,7 +78,7 @@ function LoadingSkeleton() {
 }
 
 export default function AcademyLessonsPage() {
-  useEffect(() => { document.title = 'Lessons | AI Mastery Academy'; }, []);
+  useEffect(() => { document.title = 'Lessons | ThriveUp Academy'; }, []);
 
   const [activeFilter, setActiveFilter] = useState("all");
 

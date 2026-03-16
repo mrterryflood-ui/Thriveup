@@ -363,7 +363,7 @@ function GrantMetrics({ metrics, students }: { metrics: MetricsData | undefined;
 
   const grantMetrics = [
     {
-      label: "Youth Served",
+      label: "Learners Served",
       value: totalYouthServed,
       target: 500,
       icon: Users,
@@ -580,7 +580,7 @@ function GrantMetrics({ metrics, students }: { metrics: MetricsData | undefined;
 }
 
 export default function AcademyAdminPage() {
-  useEffect(() => { document.title = 'Admin Dashboard | AI Mastery Academy'; }, []);
+  useEffect(() => { document.title = 'Admin Dashboard | ThriveUp Academy'; }, []);
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("overview");
   const [studentSearch, setStudentSearch] = useState("");

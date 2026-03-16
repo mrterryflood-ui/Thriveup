@@ -18,7 +18,7 @@ export default function CertificatesPage() {
     enabled: isAuthenticated,
   });
 
-  useEffect(() => { document.title = "Certificates | AI Mastery Academy"; }, []);
+  useEffect(() => { document.title = "Certificates | ThriveUp Academy"; }, []);
 
   if (authLoading) {
     return (
@@ -142,7 +142,7 @@ export function CertificateViewPage() {
   });
 
   useEffect(() => {
-    document.title = cert ? `${cert.levelTitle} Certificate | AI Mastery Academy` : "Certificate | AI Mastery Academy";
+    document.title = cert ? `${cert.levelTitle} Certificate | ThriveUp Academy` : "Certificate | ThriveUp Academy";
   }, [cert]);
 
   if (isLoading) {
@@ -254,7 +254,7 @@ export function CertificateViewPage() {
               style={{ color: "#b8942e" }}
               data-testid="text-certificate-subtitle"
             >
-              AI Mastery Academy
+              ThriveUp Academy
             </p>
 
             <hr
@@ -282,7 +282,7 @@ export function CertificateViewPage() {
               <span className="font-semibold" data-testid="text-certificate-level">
                 {cert.levelTitle}
               </span>{" "}
-              in the AI Mastery Academy Curriculum.
+              in the ThriveUp Academy Curriculum.
             </p>
 
             <hr
@@ -311,7 +311,7 @@ export function CertificateViewPage() {
                 style={{ borderColor: "#c9a84c" }}
               />
               <p className="text-sm font-medium" style={{ color: "#8b6914" }}>
-                AI Mastery Academy Faculty
+                ThriveUp Academy Faculty
               </p>
             </div>
 

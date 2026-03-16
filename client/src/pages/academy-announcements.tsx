@@ -109,7 +109,7 @@ export default function AcademyAnnouncementsPage() {
     : [];
 
 
-  useEffect(() => { document.title = "Announcements | AI Mastery Academy"; }, []);
+  useEffect(() => { document.title = "Announcements | ThriveUp Academy"; }, []);
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-4xl mx-auto px-4 pt-6">

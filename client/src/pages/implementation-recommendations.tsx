@@ -336,7 +336,7 @@ const INITIAL_CHECKLIST: ChecklistPhase[] = [
       { id: "p3-1", label: "Analyze pilot usage patterns and adjust feature phasing", status: "not_started", owner: "", targetDate: "", notes: "" },
       { id: "p3-2", label: "Teacher professional development (PD) sessions", status: "not_started", owner: "", targetDate: "", notes: "" },
       { id: "p3-3", label: "Technical infrastructure stress testing", status: "not_started", owner: "", targetDate: "", notes: "" },
-      { id: "p3-4", label: "Intervention playbook calibration from IGN-Thrive data", status: "not_started", owner: "", targetDate: "", notes: "" },
+      { id: "p3-4", label: "Intervention playbook calibration from Thrive data", status: "not_started", owner: "", targetDate: "", notes: "" },
       { id: "p3-5", label: "Cross-platform integration testing (ISSS Student Support Portal)", status: "not_started", owner: "", targetDate: "", notes: "" },
     ],
   },
@@ -405,7 +405,7 @@ function RiskBadge({ severity }: { severity: string }) {
 
 function GradeCard({ data, expanded, onToggle }: { data: GradeData; expanded: boolean; onToggle: () => void }) {
 
-  useEffect(() => { document.title = "Implementation Guide | AI Mastery Academy"; }, []);
+  useEffect(() => { document.title = "Implementation Guide | ThriveUp Academy"; }, []);
   return (
     <Card data-testid={`card-grade-${data.grade}`}>
       <CardHeader className="cursor-pointer" onClick={onToggle}>
@@ -989,7 +989,7 @@ export default function ImplementationRecommendationsPage() {
           District Administrator Planning Guide
         </p>
         <p className="text-rose-200 text-sm mt-2 max-w-2xl" data-testid="text-impl-description">
-          Grade-by-grade deployment strategy, pre-rollout checklists, AI framework evaluation, and phased rollout timeline for the AI Mastery Academy platform.
+          Grade-by-grade deployment strategy, pre-rollout checklists, AI framework evaluation, and phased rollout timeline for the ThriveUp Academy platform.
         </p>
       </div>
 
