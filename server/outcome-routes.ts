@@ -3,9 +3,10 @@ import { db, storage } from "./storage";
 import {
   outcomeTracking, reentryPlans, reentryMilestones,
   insertOutcomeTrackingSchema,
+  workforceAssessments, trainingEnrollments, jobPlacements, retentionChecks, employerPartners, trainingPrograms,
 } from "@shared/schema";
 import { z } from "zod";
-import { eq, desc, sql, and } from "drizzle-orm";
+import { eq, desc, sql, and, count } from "drizzle-orm";
 
 function getUserId(req: Request): string | undefined {
   const u = (req as unknown as Record<string, unknown>).user as { claims?: { sub?: string }; id?: string } | undefined;
@@ -106,6 +107,10 @@ export function registerOutcomeRoutes(app: Express) {
       const outcomes = await db.select().from(outcomeTracking);
       const plans = await db.select().from(reentryPlans);
       const milestones = await db.select().from(reentryMilestones);
+      const wfPlacements = await db.select().from(jobPlacements);
+      const wfRetention = await db.select().from(retentionChecks);
+      const wfEnrollments = await db.select().from(trainingEnrollments);
+      const wfAssessments = await db.select().from(workforceAssessments);
 
       const recidivism = outcomes.filter(o => o.category === "recidivism");
       const employment = outcomes.filter(o => o.category === "employment");
@@ -116,12 +121,16 @@ export function registerOutcomeRoutes(app: Express) {
       const twelveMonth = recidivism.filter(o => o.periodMonths === 12);
       const thirtySixMonth = recidivism.filter(o => o.periodMonths === 36);
 
+      const wfRetained = wfRetention.filter(r => r.employmentStatus === "employed");
+      const wfRetention30 = wfRetention.filter(r => r.checkPeriodDays === 30);
+      const wfRetention90 = wfRetention.filter(r => r.checkPeriodDays === 90);
+
       const report = {
         generatedAt: new Date().toISOString(),
         reportType: "OJJDP Grant Performance Report",
         grantProgram: "Second Chance Act Youth Reentry",
         programOverview: {
-          totalParticipantsServed: new Set([...plans.map(p => p.userId), ...outcomes.map(o => o.userId)]).size,
+          totalParticipantsServed: new Set([...plans.map(p => p.userId), ...outcomes.map(o => o.userId), ...wfAssessments.map(a => a.userId)]).size,
           activePlans: plans.filter(p => p.status === "active").length,
           completedPlans: plans.filter(p => p.status === "completed").length,
           programCompletionRate: plans.length > 0 ? Math.round((plans.filter(p => p.status === "completed").length / plans.length) * 100) : 0,
@@ -132,13 +141,20 @@ export function registerOutcomeRoutes(app: Express) {
           thirtySixMonth: { tracked: thirtySixMonth.length, noReoffense: thirtySixMonth.filter(o => o.metricValue === "no_reoffense").length },
         },
         employmentOutcomes: {
-          totalPlaced: employment.filter(o => o.metricName === "job_placement").length,
-          retention30Day: { tracked: employment.filter(o => o.metricName === "retention" && o.periodMonths === 1).length, retained: employment.filter(o => o.metricName === "retention" && o.periodMonths === 1 && o.metricValue === "retained").length },
-          retention90Day: { tracked: employment.filter(o => o.metricName === "retention" && o.periodMonths === 3).length, retained: employment.filter(o => o.metricName === "retention" && o.periodMonths === 3 && o.metricValue === "retained").length },
+          totalPlaced: employment.filter(o => o.metricName === "job_placement").length + wfPlacements.length,
+          activePlacements: wfPlacements.filter(p => p.status === "active").length,
+          retention30Day: {
+            tracked: employment.filter(o => o.metricName === "retention" && o.periodMonths === 1).length + wfRetention30.length,
+            retained: employment.filter(o => o.metricName === "retention" && o.periodMonths === 1 && o.metricValue === "retained").length + wfRetention30.filter(r => r.employmentStatus === "employed").length,
+          },
+          retention90Day: {
+            tracked: employment.filter(o => o.metricName === "retention" && o.periodMonths === 3).length + wfRetention90.length,
+            retained: employment.filter(o => o.metricName === "retention" && o.periodMonths === 3 && o.metricValue === "retained").length + wfRetention90.filter(r => r.employmentStatus === "employed").length,
+          },
         },
         educationOutcomes: {
-          enrolled: education.filter(o => o.metricName === "enrollment").length,
-          credentialsEarned: education.filter(o => o.metricName === "credential_completion").length,
+          enrolled: education.filter(o => o.metricName === "enrollment").length + wfEnrollments.length,
+          credentialsEarned: education.filter(o => o.metricName === "credential_completion").length + wfEnrollments.filter(e => e.status === "completed").length,
         },
         housingOutcomes: {
           tracked: housing.length,
@@ -149,11 +165,78 @@ export function registerOutcomeRoutes(app: Express) {
           completed: milestones.filter(m => m.status === "completed").length,
           completionRate: milestones.length > 0 ? Math.round((milestones.filter(m => m.status === "completed").length / milestones.length) * 100) : 0,
         },
+        workforcePipeline: {
+          totalAssessments: wfAssessments.length,
+          trainingEnrollments: wfEnrollments.length,
+          trainingCompleted: wfEnrollments.filter(e => e.status === "completed").length,
+          jobPlacements: wfPlacements.length,
+          retentionChecks: wfRetention.length,
+          overallRetentionRate: wfRetention.length > 0 ? Math.round((wfRetained.length / wfRetention.length) * 100) : 0,
+        },
       };
       res.json(report);
     } catch (error) {
       console.error("Failed to generate DOJ report:", error);
       res.status(500).json({ error: "Failed to generate DOJ report" });
+    }
+  });
+
+  app.get("/api/outcomes/workforce", requireAuth, requireAdmin, async (_req, res) => {
+    try {
+      const allAssessments = await db.select().from(workforceAssessments);
+      const allEnrollments = await db.select().from(trainingEnrollments);
+      const allPlacements = await db.select().from(jobPlacements);
+      const allRetention = await db.select().from(retentionChecks);
+      const [employerCount] = await db.select({ count: count() }).from(employerPartners);
+      const [programCount] = await db.select({ count: count() }).from(trainingPrograms);
+
+      const completedEnrollments = allEnrollments.filter(e => e.status === "completed");
+      const activePlacements = allPlacements.filter(p => p.status === "active");
+      const retainedChecks = allRetention.filter(r => r.employmentStatus === "employed");
+
+      const retention30 = allRetention.filter(r => r.checkPeriodDays === 30);
+      const retention90 = allRetention.filter(r => r.checkPeriodDays === 90);
+      const retention180 = allRetention.filter(r => r.checkPeriodDays === 180);
+      const retention365 = allRetention.filter(r => r.checkPeriodDays === 365);
+
+      const uniqueParticipants = new Set([
+        ...allAssessments.map(a => a.userId),
+        ...allEnrollments.map(e => e.userId),
+        ...allPlacements.map(p => p.userId),
+      ]);
+
+      res.json({
+        reportType: "WIOA/DOL Workforce Pipeline Outcomes",
+        generatedAt: new Date().toISOString(),
+        participantMetrics: {
+          totalAssessed: allAssessments.length,
+          uniqueParticipants: uniqueParticipants.size,
+          totalEnrolledInTraining: allEnrollments.length,
+          trainingCompleted: completedEnrollments.length,
+          trainingCompletionRate: allEnrollments.length > 0 ? Math.round((completedEnrollments.length / allEnrollments.length) * 100) : 0,
+        },
+        employmentOutcomes: {
+          totalPlaced: allPlacements.length,
+          activePlacements: activePlacements.length,
+          employmentRate: allAssessments.length > 0 ? Math.round((activePlacements.length / allAssessments.length) * 100) : 0,
+        },
+        retentionOutcomes: {
+          totalChecks: allRetention.length,
+          retainedCount: retainedChecks.length,
+          overallRetentionRate: allRetention.length > 0 ? Math.round((retainedChecks.length / allRetention.length) * 100) : 0,
+          thirtyDay: { total: retention30.length, retained: retention30.filter(r => r.employmentStatus === "employed").length },
+          ninetyDay: { total: retention90.length, retained: retention90.filter(r => r.employmentStatus === "employed").length },
+          sixMonth: { total: retention180.length, retained: retention180.filter(r => r.employmentStatus === "employed").length },
+          twelveMonth: { total: retention365.length, retained: retention365.filter(r => r.employmentStatus === "employed").length },
+        },
+        partnerMetrics: {
+          employerPartners: employerCount?.count ?? 0,
+          trainingPrograms: programCount?.count ?? 0,
+        },
+      });
+    } catch (error) {
+      console.error("Failed to fetch workforce outcomes:", error);
+      res.status(500).json({ error: "Failed to fetch workforce outcomes" });
     }
   });
 

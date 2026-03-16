@@ -1603,4 +1603,173 @@ export const insertSupervisionComplianceSchema = createInsertSchema(supervisionC
 export type InsertSupervisionCompliance = z.infer<typeof insertSupervisionComplianceSchema>;
 export type SupervisionCompliance = typeof supervisionCompliance.$inferSelect;
 
+// ==================== WORKFORCE PIPELINE TABLES ====================
+
+export const workforceAssessments = pgTable("workforce_assessments", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  userName: text("user_name").notNull(),
+  skills: jsonb("skills").notNull().default([]),
+  workHistory: jsonb("work_history").notNull().default([]),
+  educationLevel: varchar("education_level", { length: 100 }).notNull().default(""),
+  barriers: jsonb("barriers").notNull().default([]),
+  careerInterests: jsonb("career_interests").notNull().default([]),
+  readinessLevel: varchar("readiness_level", { length: 50 }).notNull().default("exploring"),
+  assessmentData: jsonb("assessment_data").notNull().default({}),
+  personalizedPlan: jsonb("personalized_plan").notNull().default({}),
+  status: varchar("status", { length: 50 }).notNull().default("draft"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertWorkforceAssessmentSchema = createInsertSchema(workforceAssessments).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertWorkforceAssessment = z.infer<typeof insertWorkforceAssessmentSchema>;
+export type WorkforceAssessment = typeof workforceAssessments.$inferSelect;
+
+export const trainingPrograms = pgTable("training_programs", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  provider: text("provider").notNull(),
+  programType: varchar("program_type", { length: 100 }).notNull(),
+  description: text("description").notNull(),
+  credentials: text("credentials").array().notNull().default(sql`'{}'::text[]`),
+  durationWeeks: integer("duration_weeks"),
+  cost: varchar("cost", { length: 100 }),
+  location: text("location"),
+  url: text("url"),
+  eligibility: text("eligibility"),
+  barrierFriendly: boolean("barrier_friendly").notNull().default(false),
+  justiceInvolvedFriendly: boolean("justice_involved_friendly").notNull().default(false),
+  tags: text("tags").array().notNull().default(sql`'{}'::text[]`),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertTrainingProgramSchema = createInsertSchema(trainingPrograms).omit({ id: true, createdAt: true });
+export type InsertTrainingProgram = z.infer<typeof insertTrainingProgramSchema>;
+export type TrainingProgram = typeof trainingPrograms.$inferSelect;
+
+export const trainingEnrollments = pgTable("training_enrollments", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  userName: text("user_name").notNull(),
+  programId: varchar("program_id", { length: 100 }).notNull(),
+  status: varchar("status", { length: 50 }).notNull().default("enrolled"),
+  enrollmentDate: timestamp("enrollment_date").defaultNow(),
+  expectedCompletion: timestamp("expected_completion"),
+  actualCompletion: timestamp("actual_completion"),
+  attendanceRate: integer("attendance_rate"),
+  credentialsEarned: text("credentials_earned").array().notNull().default(sql`'{}'::text[]`),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertTrainingEnrollmentSchema = createInsertSchema(trainingEnrollments).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertTrainingEnrollment = z.infer<typeof insertTrainingEnrollmentSchema>;
+export type TrainingEnrollment = typeof trainingEnrollments.$inferSelect;
+
+export const employerPartners = pgTable("employer_partners", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  companyName: text("company_name").notNull(),
+  industry: varchar("industry", { length: 100 }).notNull(),
+  contactName: text("contact_name"),
+  contactEmail: text("contact_email"),
+  contactPhone: text("contact_phone"),
+  hiringCommitments: text("hiring_commitments"),
+  barrierFriendly: boolean("barrier_friendly").notNull().default(false),
+  banTheBox: boolean("ban_the_box").notNull().default(false),
+  fairChanceHiring: boolean("fair_chance_hiring").notNull().default(false),
+  description: text("description"),
+  location: text("location"),
+  website: text("website"),
+  partnershipStatus: varchar("partnership_status", { length: 50 }).notNull().default("active"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertEmployerPartnerSchema = createInsertSchema(employerPartners).omit({ id: true, createdAt: true });
+export type InsertEmployerPartner = z.infer<typeof insertEmployerPartnerSchema>;
+export type EmployerPartner = typeof employerPartners.$inferSelect;
+
+export const jobPostings = pgTable("job_postings", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  employerId: varchar("employer_id", { length: 100 }).notNull(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  wageRange: varchar("wage_range", { length: 100 }),
+  hoursPerWeek: varchar("hours_per_week", { length: 50 }),
+  benefits: text("benefits"),
+  requirements: text("requirements"),
+  barrierFriendly: boolean("barrier_friendly").notNull().default(false),
+  location: text("location"),
+  status: varchar("status", { length: 50 }).notNull().default("open"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertJobPostingSchema = createInsertSchema(jobPostings).omit({ id: true, createdAt: true });
+export type InsertJobPosting = z.infer<typeof insertJobPostingSchema>;
+export type JobPosting = typeof jobPostings.$inferSelect;
+
+export const jobPlacements = pgTable("job_placements", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  userName: text("user_name").notNull(),
+  employerId: varchar("employer_id", { length: 100 }).notNull(),
+  employerName: text("employer_name").notNull(),
+  jobTitle: text("job_title").notNull(),
+  startDate: timestamp("start_date").notNull(),
+  wage: varchar("wage", { length: 50 }),
+  hoursPerWeek: integer("hours_per_week"),
+  benefits: text("benefits"),
+  placementSource: varchar("placement_source", { length: 100 }),
+  status: varchar("status", { length: 50 }).notNull().default("active"),
+  endDate: timestamp("end_date"),
+  endReason: text("end_reason"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertJobPlacementSchema = createInsertSchema(jobPlacements).omit({ id: true, createdAt: true });
+export type InsertJobPlacement = z.infer<typeof insertJobPlacementSchema>;
+export type JobPlacement = typeof jobPlacements.$inferSelect;
+
+export const retentionChecks = pgTable("retention_checks", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  placementId: varchar("placement_id", { length: 100 }).notNull(),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  checkPeriodDays: integer("check_period_days").notNull(),
+  employmentStatus: varchar("employment_status", { length: 50 }).notNull(),
+  currentWage: varchar("current_wage", { length: 50 }),
+  wageChange: varchar("wage_change", { length: 50 }),
+  promoted: boolean("promoted").notNull().default(false),
+  additionalCredentials: text("additional_credentials").array().notNull().default(sql`'{}'::text[]`),
+  satisfactionRating: integer("satisfaction_rating"),
+  notes: text("notes"),
+  checkDate: timestamp("check_date").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertRetentionCheckSchema = createInsertSchema(retentionChecks).omit({ id: true, createdAt: true });
+export type InsertRetentionCheck = z.infer<typeof insertRetentionCheckSchema>;
+export type RetentionCheck = typeof retentionChecks.$inferSelect;
+
+export const jobReadinessChecklists = pgTable("job_readiness_checklists", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  resumeComplete: boolean("resume_complete").notNull().default(false),
+  interviewSkills: boolean("interview_skills").notNull().default(false),
+  professionalAttire: boolean("professional_attire").notNull().default(false),
+  transportationPlan: boolean("transportation_plan").notNull().default(false),
+  childcarePlan: boolean("childcare_plan").notNull().default(false),
+  backgroundDisclosure: boolean("background_disclosure").notNull().default(false),
+  bankAccount: boolean("bank_account").notNull().default(false),
+  identificationDocs: boolean("identification_docs").notNull().default(false),
+  notes: text("notes"),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertJobReadinessChecklistSchema = createInsertSchema(jobReadinessChecklists).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertJobReadinessChecklist = z.infer<typeof insertJobReadinessChecklistSchema>;
+export type JobReadinessChecklist = typeof jobReadinessChecklists.$inferSelect;
+
 export * from "./models/auth";
