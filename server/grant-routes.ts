@@ -1,10 +1,45 @@
 import type { Express, Request, Response } from "express";
 import { db, storage } from "./storage";
-import { grantOpportunities, insertGrantOpportunitySchema } from "@shared/schema";
+import { grantOpportunities, grantAlerts, platformGaps, insertGrantOpportunitySchema } from "@shared/schema";
 import type { GrantOpportunity } from "@shared/schema";
 import { z } from "zod";
 import { eq, desc, sql, gte, lte, and, or, ilike } from "drizzle-orm";
-import { generateAIJSON } from "./ai-provider";
+import { generateAIResponse } from "./ai-provider";
+import PDFDocument from "pdfkit";
+import type { SQL } from "drizzle-orm";
+
+interface AIAnalysisResult {
+  summary: string;
+  recommendedActions: string[];
+  competitiveAdvantage: string;
+}
+
+interface StrengthItem {
+  area: string;
+  detail: string;
+}
+
+interface GapItem {
+  area: string;
+  detail: string;
+  effort: string;
+}
+
+interface StrengthsGapsResult {
+  strengths: StrengthItem[];
+  gaps: GapItem[];
+}
+
+interface GrantAIResult {
+  aiAnalysis: AIAnalysisResult;
+  strengthsGaps: StrengthsGapsResult;
+  fitScore: number;
+}
+
+function getParamId(req: Request): string {
+  const id = req.params.id;
+  return Array.isArray(id) ? id[0] : String(id);
+}
 
 function getUserId(req: Request): string | undefined {
   const u = (req as unknown as Record<string, unknown>).user as { claims?: { sub?: string }; id?: string } | undefined;
@@ -36,6 +71,26 @@ const PLATFORM_CAPABILITIES = [
   { area: "Financial Literacy", features: ["Financial education courses", "Stock market simulation", "Entrepreneurship training", "College fundraising"], grantKeywords: ["financial", "economic", "entrepreneurship", "sustainability"] },
   { area: "Whole-Child Support", features: ["Six-domain Thrive scoring", "Early warning system", "GIS context engine", "Behavioral health integration"], grantKeywords: ["holistic", "whole-child", "behavioral health", "trauma-informed"] },
 ];
+
+const GRANT_CATEGORIES = ["workforce", "justice", "education", "health", "community"] as const;
+
+function categorizeGrant(grant: { title?: string | null; description?: string | null; focusAreas?: string[] | null }): string {
+  const text = [grant.title, grant.description, ...(grant.focusAreas || [])].join(" ").toLowerCase();
+  const categoryKeywords: Record<string, string[]> = {
+    workforce: ["workforce", "employment", "job", "career", "labor", "apprenticeship", "WIOA"],
+    justice: ["justice", "reentry", "recidivism", "juvenile", "corrections", "second chance", "court"],
+    education: ["education", "school", "STEM", "literacy", "learning", "academic", "curriculum"],
+    health: ["health", "mental", "behavioral", "substance", "wellness", "trauma", "counseling"],
+    community: ["community", "neighborhood", "civic", "wraparound", "family", "housing", "social"],
+  };
+  let best = "community";
+  let bestCount = 0;
+  for (const [cat, keywords] of Object.entries(categoryKeywords)) {
+    const count = keywords.filter(k => text.includes(k.toLowerCase())).length;
+    if (count > bestCount) { best = cat; bestCount = count; }
+  }
+  return best;
+}
 
 interface FitResult {
   score: number;
@@ -72,130 +127,332 @@ function generateReadinessChecklist(matchedAreas: string[]): ReadinessItem[] {
   return checklist;
 }
 
-const SAM_GOV_KEYWORDS = [
-  "workforce development", "reentry", "juvenile justice", "youth employment",
-  "digital literacy", "community services", "recidivism", "mentoring",
-  "second chance", "education technology", "job training", "financial literacy",
-  "behavioral health", "wraparound services", "STEM education"
-];
-
-interface SAMOpportunity {
-  noticeId: string;
-  title: string;
-  department: string;
-  agency: string;
-  postedDate: string;
-  responseDate: string;
-  description: string;
-  award?: { amount?: number };
-  type?: string;
-  solicitationNumber?: string;
-  fullParentPathName?: string;
-  uiLink?: string;
-}
-
-async function searchSAMGov(keywords?: string[]): Promise<SAMOpportunity[]> {
-  const apiKey = process.env.SAM_GOV_API_KEY;
-  const searchTerms = keywords || SAM_GOV_KEYWORDS.slice(0, 5);
-  const allResults: SAMOpportunity[] = [];
-
-  for (const keyword of searchTerms.slice(0, 3)) {
-    try {
-      const params = new URLSearchParams({
-        api_key: apiKey || "DEMO_KEY",
-        postedFrom: getDateNMonthsAgo(6),
-        postedTo: getTodayDate(),
-        ptype: "o",
-        limit: "10",
-        title: keyword,
-      });
-
-      const url = `https://api.sam.gov/opportunities/v2/search?${params.toString()}`;
-      const response = await fetch(url, {
-        headers: { Accept: "application/json" },
-        signal: AbortSignal.timeout(15000),
-      });
-
-      if (!response.ok) {
-        console.warn(`SAM.gov search for "${keyword}" returned ${response.status}`);
-        continue;
-      }
-
-      const data = await response.json() as { opportunitiesData?: SAMOpportunity[] };
-      if (data.opportunitiesData) {
-        for (const opp of data.opportunitiesData) {
-          if (!allResults.find(r => r.noticeId === opp.noticeId)) {
-            allResults.push(opp);
-          }
-        }
-      }
-    } catch (err) {
-      console.warn(`SAM.gov search error for "${keyword}":`, err);
-    }
-  }
-
-  return allResults;
-}
-
-function getDateNMonthsAgo(n: number): string {
-  const d = new Date();
-  d.setMonth(d.getMonth() - n);
-  return `${String(d.getMonth() + 1).padStart(2, "0")}/${String(d.getDate()).padStart(2, "0")}/${d.getFullYear()}`;
-}
-
-function getTodayDate(): string {
-  const d = new Date();
-  return `${String(d.getMonth() + 1).padStart(2, "0")}/${String(d.getDate()).padStart(2, "0")}/${d.getFullYear()}`;
-}
-
-const aiGrantAnalysisSchema = z.object({
-  fitScore: z.number().min(0).max(100).int(),
-  summary: z.string(),
-  strengths: z.array(z.object({ area: z.string(), description: z.string() })),
-  gaps: z.array(z.object({ area: z.string(), description: z.string(), recommendation: z.string() })),
-  overallRecommendation: z.enum(["strong_match", "moderate_match", "weak_match", "not_aligned"]),
-  grantCategory: z.enum(["workforce", "justice", "education", "health", "community", "technology", "financial"]),
-});
-
-type AIGrantAnalysis = z.infer<typeof aiGrantAnalysisSchema>;
-
-async function analyzeGrantWithAI(grantTitle: string, grantDescription: string): Promise<AIGrantAnalysis | null> {
+async function analyzeGrantWithAI(grant: { title?: string | null; description?: string | null; eligibilityCriteria?: string | null; focusAreas?: string[] | null }): Promise<GrantAIResult | null> {
   try {
-    const capabilitiesSummary = PLATFORM_CAPABILITIES
-      .map(c => `- ${c.area}: ${c.features.join(", ")}`)
-      .join("\n");
+    const capabilitiesText = PLATFORM_CAPABILITIES.map(c =>
+      `${c.area}: ${c.features.join(", ")}`
+    ).join("\n");
 
-    const prompt = `Analyze this grant opportunity against our platform capabilities and return a JSON object.
+    const prompt = `Analyze this grant opportunity against our platform capabilities. Return ONLY valid JSON, no markdown.
 
 GRANT:
-Title: ${grantTitle}
-Description: ${grantDescription}
+Title: ${grant.title ?? "N/A"}
+Description: ${grant.description ?? "N/A"}
+Eligibility: ${grant.eligibilityCriteria ?? "N/A"}
+Focus Areas: ${(grant.focusAreas ?? []).join(", ") || "N/A"}
 
 PLATFORM CAPABILITIES:
-${capabilitiesSummary}
+${capabilitiesText}
 
-Return JSON with these fields:
-- fitScore (0-100 integer): how well our platform matches this grant
-- summary (string): 2-sentence assessment
-- strengths (array of {area, description}): platform areas that strongly align
-- gaps (array of {area, description, recommendation}): areas where we need to build or improve
-- overallRecommendation (string): "strong_match" | "moderate_match" | "weak_match" | "not_aligned"
-- grantCategory (string): one of "workforce", "justice", "education", "health", "community", "technology", "financial"`;
+Return JSON with this exact structure:
+{
+  "fitScore": <0-100>,
+  "summary": "<2-3 sentence summary of alignment>",
+  "strengths": [{"area": "<capability area>", "detail": "<how it matches>"}],
+  "gaps": [{"area": "<missing requirement>", "detail": "<what needs to be built>", "effort": "low|medium|high"}],
+  "recommendedActions": ["<action 1>", "<action 2>"],
+  "competitiveAdvantage": "<what makes our platform strong for this grant>"
+}`;
 
-    const systemPrompt = "You are a grant alignment analyst for a community development platform. Return ONLY valid JSON, no markdown.";
-    const raw = await generateAIJSON(prompt, systemPrompt);
-    const parsed = aiGrantAnalysisSchema.safeParse(raw);
-    if (!parsed.success) {
-      console.warn("AI grant analysis validation failed:", parsed.error.flatten());
-      return null;
+    const response = await generateAIResponse([
+      { role: "system", content: "You are a grant analysis expert. Analyze grants against platform capabilities. Return only valid JSON." },
+      { role: "user", content: prompt }
+    ], 1500);
+
+    const jsonStr = response.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+    let parsed: Record<string, unknown>;
+    try {
+      parsed = JSON.parse(jsonStr) as Record<string, unknown>;
+    } catch {
+      const jsonMatch = jsonStr.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        parsed = JSON.parse(jsonMatch[0]) as Record<string, unknown>;
+      } else {
+        console.error("AI response was not valid JSON:", jsonStr.substring(0, 200));
+        return {
+          aiAnalysis: { summary: "AI analysis returned non-structured response. Please try again.", recommendedActions: [], competitiveAdvantage: "" },
+          strengthsGaps: { strengths: [], gaps: [] },
+          fitScore: computeFitScore(grant).score,
+        };
+      }
     }
-    return parsed.data;
-  } catch (err) {
-    console.error("AI grant analysis failed:", err);
+
+    return {
+      aiAnalysis: {
+        summary: typeof parsed.summary === "string" ? parsed.summary : "Analysis complete",
+        recommendedActions: Array.isArray(parsed.recommendedActions) ? parsed.recommendedActions : [],
+        competitiveAdvantage: typeof parsed.competitiveAdvantage === "string" ? parsed.competitiveAdvantage : "",
+      },
+      strengthsGaps: {
+        strengths: Array.isArray(parsed.strengths) ? parsed.strengths : [],
+        gaps: Array.isArray(parsed.gaps) ? parsed.gaps : [],
+      },
+      fitScore: Math.min(100, Math.max(0, typeof parsed.fitScore === "number" ? parsed.fitScore : 0)),
+    };
+  } catch (error) {
+    console.error("AI grant analysis failed:", error);
     return null;
   }
 }
 
+interface SamGovOpportunity {
+  noticeId: string;
+  title: string;
+  description?: string;
+  department?: string;
+  subTier?: string;
+  postedDate?: string;
+  responseDate?: string;
+  archiveDate?: string;
+  awardFloor?: number;
+  awardCeiling?: number;
+  estimatedTotalFunding?: number;
+  expectedNumberOfAwards?: number;
+  cfda?: string;
+  type?: string;
+  uiLink?: string;
+  eligibilityCriteria?: string;
+  applicantTypes?: string[];
+  focusAreas?: string[];
+}
+
+async function fetchSamGovOpportunities(keywords: string[]): Promise<SamGovOpportunity[]> {
+  const apiKey = process.env.SAM_GOV_API_KEY;
+  const results: SamGovOpportunity[] = [];
+
+  for (const keyword of keywords) {
+    try {
+      const params = new URLSearchParams({
+        api_key: apiKey || "DEMO_KEY",
+        keyword: keyword,
+        ptype: "g",
+        limit: "10",
+        postedFrom: getDateMonthsAgo(3),
+        postedTo: getTodayFormatted(),
+      });
+
+      const url = `https://api.sam.gov/opportunities/v2/search?${params.toString()}`;
+      const response = await fetch(url, {
+        headers: { "Accept": "application/json" },
+        signal: AbortSignal.timeout(15000),
+      });
+
+      if (!response.ok) {
+        console.error(`SAM.gov API error for "${keyword}": ${response.status} ${response.statusText}`);
+        continue;
+      }
+
+      const data = await response.json();
+      const opportunities = data.opportunitiesData || [];
+
+      for (const opp of opportunities) {
+        if (results.find(r => r.noticeId === opp.noticeId)) continue;
+
+        const eligibilityParts: string[] = [];
+        if (opp.applicantTypes) {
+          const types = Array.isArray(opp.applicantTypes) ? opp.applicantTypes : [opp.applicantTypes];
+          eligibilityParts.push(`Eligible Applicants: ${types.join(", ")}`);
+        }
+        if (opp.applicantEligibilityDescription) {
+          eligibilityParts.push(String(opp.applicantEligibilityDescription));
+        }
+        if (opp.additionalInformationOnEligibility) {
+          eligibilityParts.push(String(opp.additionalInformationOnEligibility));
+        }
+        if (opp.fundingActivityCategories) {
+          const cats = Array.isArray(opp.fundingActivityCategories) ? opp.fundingActivityCategories : [opp.fundingActivityCategories];
+          eligibilityParts.push(`Funding Categories: ${cats.join(", ")}`);
+        }
+
+        const focusAreas: string[] = [];
+        if (opp.cfdaNumber) focusAreas.push(`CFDA ${opp.cfdaNumber}`);
+        if (opp.fundingActivityCategories) {
+          const cats = Array.isArray(opp.fundingActivityCategories) ? opp.fundingActivityCategories : [opp.fundingActivityCategories];
+          focusAreas.push(...cats.map(String));
+        }
+
+        results.push({
+          noticeId: opp.noticeId || "",
+          title: opp.title || "Untitled",
+          description: opp.description?.substring(0, 5000) || "",
+          department: opp.department || opp.fullParentPathName || "",
+          subTier: opp.subtierAgency || "",
+          postedDate: opp.postedDate,
+          responseDate: opp.responseDate || opp.archiveDate,
+          archiveDate: opp.archiveDate,
+          awardFloor: opp.award?.floor ? parseInt(opp.award.floor) : undefined,
+          awardCeiling: opp.award?.ceiling ? parseInt(opp.award.ceiling) : undefined,
+          estimatedTotalFunding: opp.estimatedTotalFunding ? parseInt(opp.estimatedTotalFunding) : undefined,
+          expectedNumberOfAwards: opp.expectedNumberOfAwards ? parseInt(opp.expectedNumberOfAwards) : undefined,
+          cfda: opp.cfdaNumber || "",
+          type: opp.type || "grant",
+          uiLink: opp.uiLink || `https://sam.gov/opp/${opp.noticeId}/view`,
+          eligibilityCriteria: eligibilityParts.join(". ") || "",
+          applicantTypes: opp.applicantTypes ? (Array.isArray(opp.applicantTypes) ? opp.applicantTypes.map(String) : [String(opp.applicantTypes)]) : [],
+          focusAreas,
+        });
+      }
+    } catch (error) {
+      console.error(`SAM.gov fetch error for "${keyword}":`, error);
+    }
+  }
+  return results;
+}
+
+function getDateMonthsAgo(months: number): string {
+  const d = new Date();
+  d.setMonth(d.getMonth() - months);
+  return `${String(d.getMonth() + 1).padStart(2, "0")}/${String(d.getDate()).padStart(2, "0")}/${d.getFullYear()}`;
+}
+
+function getTodayFormatted(): string {
+  const d = new Date();
+  return `${String(d.getMonth() + 1).padStart(2, "0")}/${String(d.getDate()).padStart(2, "0")}/${d.getFullYear()}`;
+}
+
+function parseSamDate(dateStr?: string): Date | null {
+  if (!dateStr) return null;
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return null;
+    return d;
+  } catch { return null; }
+}
+
+function escapeHtml(str: string): string {
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+}
+
+async function persistGapsFromGrant(grantId: string, gaps: GapItem[]): Promise<void> {
+  for (const gap of gaps) {
+    const existing = await db.select({ id: platformGaps.id })
+      .from(platformGaps)
+      .where(and(eq(platformGaps.grantId, grantId), eq(platformGaps.area, gap.area)))
+      .limit(1);
+    if (existing.length > 0) continue;
+    await db.insert(platformGaps).values({
+      grantId,
+      area: gap.area,
+      detail: gap.detail,
+      effort: gap.effort || "medium",
+      priority: gap.effort === "low" ? "high" : gap.effort === "high" ? "low" : "medium",
+      status: "identified",
+    });
+  }
+}
+
+function sanitizeCsvCell(value: string): string {
+  if (/^[=+\-@\t\r]/.test(value)) return `'${value}`;
+  return value;
+}
+
+interface SamGovOpportunity {
+  noticeId: string;
+  title: string;
+  description?: string;
+  department?: string;
+  subTier?: string;
+  postedDate?: string;
+  responseDate?: string;
+  archiveDate?: string;
+  awardFloor?: number;
+  awardCeiling?: number;
+  estimatedTotalFunding?: number;
+  expectedNumberOfAwards?: number;
+  cfda?: string;
+  type?: string;
+  uiLink?: string;
+}
+
+async function fetchSamGovOpportunities(keywords: string[]): Promise<SamGovOpportunity[]> {
+  const apiKey = process.env.SAM_GOV_API_KEY;
+  const results: SamGovOpportunity[] = [];
+
+  for (const keyword of keywords) {
+    try {
+      const params = new URLSearchParams({
+        api_key: apiKey || "DEMO_KEY",
+        keyword: keyword,
+        ptype: "g",
+        limit: "10",
+        postedFrom: getDateMonthsAgo(3),
+        postedTo: getTodayFormatted(),
+      });
+
+      const url = `https://api.sam.gov/opportunities/v2/search?${params.toString()}`;
+      const response = await fetch(url, {
+        headers: { "Accept": "application/json" },
+        signal: AbortSignal.timeout(15000),
+      });
+
+      if (!response.ok) {
+        console.error(`SAM.gov API error for "${keyword}": ${response.status} ${response.statusText}`);
+        continue;
+      }
+
+      const data = await response.json();
+      const opportunities = data.opportunitiesData || [];
+
+      for (const opp of opportunities) {
+        if (results.find(r => r.noticeId === opp.noticeId)) continue;
+        results.push({
+          noticeId: opp.noticeId || "",
+          title: opp.title || "Untitled",
+          description: opp.description?.substring(0, 5000) || "",
+          department: opp.department || opp.fullParentPathName || "",
+          subTier: opp.subtierAgency || "",
+          postedDate: opp.postedDate,
+          responseDate: opp.responseDate || opp.archiveDate,
+          archiveDate: opp.archiveDate,
+          awardFloor: opp.award?.floor ? parseInt(opp.award.floor) : undefined,
+          awardCeiling: opp.award?.ceiling ? parseInt(opp.award.ceiling) : undefined,
+          estimatedTotalFunding: opp.estimatedTotalFunding ? parseInt(opp.estimatedTotalFunding) : undefined,
+          expectedNumberOfAwards: opp.expectedNumberOfAwards ? parseInt(opp.expectedNumberOfAwards) : undefined,
+          cfda: opp.cfdaNumber || "",
+          type: opp.type || "grant",
+          uiLink: opp.uiLink || `https://sam.gov/opp/${opp.noticeId}/view`,
+        });
+      }
+    } catch (error) {
+      console.error(`SAM.gov fetch error for "${keyword}":`, error);
+    }
+  }
+  return results;
+}
+
+function getDateMonthsAgo(months: number): string {
+  const d = new Date();
+  d.setMonth(d.getMonth() - months);
+  return `${String(d.getMonth() + 1).padStart(2, "0")}/${String(d.getDate()).padStart(2, "0")}/${d.getFullYear()}`;
+}
+
+function getTodayFormatted(): string {
+  const d = new Date();
+  return `${String(d.getMonth() + 1).padStart(2, "0")}/${String(d.getDate()).padStart(2, "0")}/${d.getFullYear()}`;
+}
+
+function parseSamDate(dateStr?: string): Date | null {
+  if (!dateStr) return null;
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return null;
+    return d;
+  } catch { return null; }
+}
+
+function escapeHtml(str: string): string {
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+}
+
+function sanitizeCsvCell(value: string): string {
+  if (/^[=+\-@\t\r]/.test(value)) return `'${value}`;
+  return value;
+}
+
+function formatCurrency(amount?: number): string {
+  if (!amount) return "";
+  return `$${amount.toLocaleString()}`;
+}
 const grantCreateSchema = insertGrantOpportunitySchema.pick({
   title: true, agency: true, fundingAmount: true, description: true,
   eligibilityCriteria: true, focusAreas: true, sourceUrl: true, grantType: true,
@@ -216,69 +473,35 @@ function grantToCSVRow(g: GrantOpportunity): string {
 }
 
 export function registerGrantRoutes(app: Express) {
-  app.get("/api/grants", requireAuth, requireAdmin, async (_req, res) => {
+  app.get("/api/grants", requireAuth, requireAdmin, async (req, res) => {
     try {
-      const grants = await db.select().from(grantOpportunities).orderBy(desc(grantOpportunities.createdAt));
+      const { category, minFit, status, search } = req.query;
+      let query = db.select().from(grantOpportunities);
+      const conditions: SQL[] = [];
+      if (category && typeof category === "string") conditions.push(eq(grantOpportunities.category, category));
+      if (status && typeof status === "string") conditions.push(eq(grantOpportunities.status, status));
+      if (minFit && typeof minFit === "string") conditions.push(gte(grantOpportunities.fitScore, parseInt(minFit)));
+
+      let grants;
+      if (conditions.length > 0) {
+        grants = await db.select().from(grantOpportunities).where(and(...conditions)).orderBy(desc(grantOpportunities.createdAt));
+      } else {
+        grants = await db.select().from(grantOpportunities).orderBy(desc(grantOpportunities.createdAt));
+      }
+
+      if (search && typeof search === "string") {
+        const s = search.toLowerCase();
+        grants = grants.filter(g =>
+          g.title.toLowerCase().includes(s) ||
+          (g.description || "").toLowerCase().includes(s) ||
+          (g.agency || "").toLowerCase().includes(s)
+        );
+      }
+
       res.json(grants);
     } catch (error) {
       console.error("Failed to fetch grants:", error);
       res.status(500).json({ error: "Failed to fetch grants" });
-    }
-  });
-
-  app.get("/api/grants/dashboard", requireAuth, requireAdmin, async (_req, res) => {
-    try {
-      const grants = await db.select().from(grantOpportunities);
-      const now = new Date();
-      const upcoming = grants.filter(g => g.deadline && new Date(g.deadline) > now)
-        .sort((a, b) => new Date(a.deadline!).getTime() - new Date(b.deadline!).getTime());
-
-      const categories: Record<string, number> = {};
-      for (const g of grants) {
-        const cat = g.grantType || "Uncategorized";
-        categories[cat] = (categories[cat] || 0) + 1;
-      }
-
-      const statusCounts: Record<string, number> = {};
-      for (const g of grants) {
-        const s = g.status || "identified";
-        statusCounts[s] = (statusCounts[s] || 0) + 1;
-      }
-
-      const totalFunding = grants.reduce((sum, g) => {
-        if (!g.fundingAmount) return sum;
-        const num = parseFloat(g.fundingAmount.replace(/[^0-9.]/g, ""));
-        return sum + (isNaN(num) ? 0 : num);
-      }, 0);
-
-      const highFit = grants.filter(g => (g.fitScore || 0) >= 70);
-      const newHighFit = highFit.filter(g => {
-        const created = g.createdAt ? new Date(g.createdAt) : null;
-        if (!created) return false;
-        const weekAgo = new Date();
-        weekAgo.setDate(weekAgo.getDate() - 7);
-        return created > weekAgo;
-      });
-
-      res.json({
-        totalGrants: grants.length,
-        highFitGrants: highFit.length,
-        mediumFitGrants: grants.filter(g => (g.fitScore || 0) >= 40 && (g.fitScore || 0) < 70).length,
-        lowFitGrants: grants.filter(g => (g.fitScore || 0) < 40 && (g.fitScore || 0) > 0).length,
-        totalFunding: totalFunding > 0 ? `$${totalFunding.toLocaleString()}` : null,
-        upcomingDeadlines: upcoming.slice(0, 5).map(g => ({
-          id: g.id, title: g.title, deadline: g.deadline, fitScore: g.fitScore,
-        })),
-        categoryCounts: categories,
-        statusCounts,
-        newHighFitAlerts: newHighFit.map(g => ({
-          id: g.id, title: g.title, fitScore: g.fitScore, agency: g.agency,
-        })),
-        capabilities: PLATFORM_CAPABILITIES,
-      });
-    } catch (error) {
-      console.error("Failed to generate dashboard:", error);
-      res.status(500).json({ error: "Failed to generate dashboard" });
     }
   });
 
@@ -287,30 +510,27 @@ export function registerGrantRoutes(app: Express) {
       const parsed = grantCreateSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Invalid grant data", details: parsed.error.flatten().fieldErrors });
       const data = parsed.data;
-      const fitResult = computeFitScore(data);
+      const keywordFit = computeFitScore(data);
+      const category = categorizeGrant(data);
 
-      let aiAnalysis: AIGrantAnalysis | null = null;
-      if (data.description) {
-        aiAnalysis = await analyzeGrantWithAI(data.title, data.description);
-      }
-
-      const finalScore = aiAnalysis ? aiAnalysis.fitScore : fitResult.score;
-      const finalAnalysis = aiAnalysis ? {
-        ...fitResult.analysis,
-        aiSummary: aiAnalysis.summary,
-        aiStrengths: aiAnalysis.strengths,
-        aiGaps: aiAnalysis.gaps,
-        aiRecommendation: aiAnalysis.overallRecommendation,
-        aiCategory: aiAnalysis.grantCategory,
-      } : fitResult.analysis;
+      const aiResult = await analyzeGrantWithAI(data);
+      const fitScore = aiResult ? aiResult.fitScore : keywordFit.score;
 
       const [grant] = await db.insert(grantOpportunities).values({
         ...data,
-        fitScore: finalScore,
-        fitAnalysis: finalAnalysis,
-        readinessChecklist: generateReadinessChecklist(fitResult.matchedAreas),
-        grantType: aiAnalysis?.grantCategory || data.grantType,
+        fitScore,
+        fitAnalysis: keywordFit.analysis,
+        readinessChecklist: generateReadinessChecklist(keywordFit.matchedAreas),
+        category,
+        source: "manual",
+        aiAnalysis: aiResult?.aiAnalysis || null,
+        strengthsGaps: aiResult?.strengthsGaps || null,
       }).returning();
+
+      if (aiResult?.strengthsGaps?.gaps?.length) {
+        await persistGapsFromGrant(grant.id, aiResult.strengthsGaps.gaps);
+      }
+
       res.json(grant);
     } catch (error) {
       console.error("Failed to create grant:", error);
@@ -318,154 +538,148 @@ export function registerGrantRoutes(app: Express) {
     }
   });
 
-  app.get("/api/grants/search/sam", requireAuth, requireAdmin, async (req, res) => {
+  app.get("/api/grants/stats", requireAuth, requireAdmin, async (_req, res) => {
     try {
-      const keywords = req.query.keywords
-        ? (req.query.keywords as string).split(",").map(k => k.trim())
-        : undefined;
-      const results = await searchSAMGov(keywords);
-      const analyzed = results.map(opp => {
-        const grantLike = {
+      const grants = await db.select().from(grantOpportunities);
+      const now = new Date();
+      const thirtyDays = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+
+      const stats = {
+        total: grants.length,
+        highFit: grants.filter(g => (g.fitScore || 0) >= 70).length,
+        mediumFit: grants.filter(g => (g.fitScore || 0) >= 40 && (g.fitScore || 0) < 70).length,
+        lowFit: grants.filter(g => (g.fitScore || 0) < 40).length,
+        upcomingDeadlines: grants.filter(g => g.deadline && g.deadline > now && g.deadline <= thirtyDays).length,
+        byCategory: Object.fromEntries(
+          GRANT_CATEGORIES.map(cat => [cat, grants.filter(g => g.category === cat).length])
+        ),
+        byStatus: {} as Record<string, number>,
+        bySource: { manual: 0, samgov: 0 } as Record<string, number>,
+        totalFunding: grants.reduce((sum, g) => sum + (g.estimatedFunding || 0), 0),
+        averageFit: grants.length > 0 ? Math.round(grants.reduce((sum, g) => sum + (g.fitScore || 0), 0) / grants.length) : 0,
+      };
+
+      for (const g of grants) {
+        const s = g.status || "identified";
+        stats.byStatus[s] = (stats.byStatus[s] || 0) + 1;
+        const src = g.source || "manual";
+        stats.bySource[src] = (stats.bySource[src] || 0) + 1;
+      }
+
+      res.json(stats);
+    } catch (error) {
+      console.error("Failed to get grant stats:", error);
+      res.status(500).json({ error: "Failed to get grant stats" });
+    }
+  });
+
+  app.get("/api/grants/alerts", requireAuth, requireAdmin, async (_req, res) => {
+    try {
+      const alerts = await db.select().from(grantAlerts).orderBy(desc(grantAlerts.createdAt)).limit(50);
+      res.json(alerts);
+    } catch (error) {
+      console.error("Failed to fetch alerts:", error);
+      res.status(500).json({ error: "Failed to fetch alerts" });
+    }
+  });
+
+  app.patch("/api/grants/alerts/:id/read", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const [alert] = await db.update(grantAlerts).set({ isRead: true }).where(eq(grantAlerts.id, getParamId(req))).returning();
+      res.json(alert);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update alert" });
+    }
+  });
+
+  app.post("/api/grants/refresh-samgov", requireAuth, requireAdmin, async (_req, res) => {
+    try {
+      const keywords = ["workforce development youth", "juvenile reentry", "youth education STEM", "community health youth", "mentoring youth"];
+      const opportunities = await fetchSamGovOpportunities(keywords);
+
+      let imported = 0;
+      let skipped = 0;
+      const newHighFit: { title: string; fitScore: number; id: string }[] = [];
+
+      for (const opp of opportunities) {
+        const existing = await db.select({ id: grantOpportunities.id })
+          .from(grantOpportunities)
+          .where(eq(grantOpportunities.samgovNoticeId, opp.noticeId))
+          .limit(1);
+
+        if (existing.length > 0) { skipped++; continue; }
+
+        const grantData = {
           title: opp.title,
-          description: opp.description,
-          focusAreas: null as string[] | null,
-          eligibilityCriteria: null as string | null,
+          description: opp.description || "",
+          agency: [opp.department, opp.subTier].filter(Boolean).join(" - ") || "Federal",
+          fundingAmount: formatCurrency(opp.awardCeiling) || formatCurrency(opp.estimatedTotalFunding) || "",
+          sourceUrl: opp.uiLink || "",
+          grantType: opp.type || "grant",
+          focusAreas: opp.focusAreas || [],
+          eligibilityCriteria: opp.eligibilityCriteria || "",
         };
-        const fit = computeFitScore(grantLike);
-        return {
-          noticeId: opp.noticeId,
-          title: opp.title,
-          agency: opp.agency || opp.fullParentPathName || opp.department,
-          postedDate: opp.postedDate,
-          responseDate: opp.responseDate,
-          description: opp.description?.substring(0, 500),
-          type: opp.type,
-          solicitationNumber: opp.solicitationNumber,
-          uiLink: opp.uiLink || `https://sam.gov/opp/${opp.noticeId}/view`,
-          fitScore: fit.score,
-          matchedAreas: fit.matchedAreas,
-        };
+
+        const keywordFit = computeFitScore(grantData);
+        const category = categorizeGrant(grantData);
+        const deadline = parseSamDate(opp.responseDate);
+        const postedDate = parseSamDate(opp.postedDate);
+
+        const aiResult = await analyzeGrantWithAI(grantData);
+        const fitScore = aiResult ? aiResult.fitScore : keywordFit.score;
+
+        const [grant] = await db.insert(grantOpportunities).values({
+          ...grantData,
+          samgovId: opp.noticeId,
+          samgovNoticeId: opp.noticeId,
+          fitScore,
+          fitAnalysis: keywordFit.analysis,
+          readinessChecklist: generateReadinessChecklist(keywordFit.matchedAreas),
+          category,
+          source: "samgov",
+          deadline,
+          postedDate,
+          responseDate: parseSamDate(opp.responseDate),
+          awardFloor: opp.awardFloor,
+          awardCeiling: opp.awardCeiling,
+          estimatedFunding: opp.estimatedTotalFunding,
+          expectedAwards: opp.expectedNumberOfAwards,
+          cfda: opp.cfda,
+          aiAnalysis: aiResult?.aiAnalysis || null,
+          strengthsGaps: aiResult?.strengthsGaps || null,
+        }).returning();
+
+        imported++;
+
+        if (aiResult?.strengthsGaps?.gaps?.length) {
+          await persistGapsFromGrant(grant.id, aiResult.strengthsGaps.gaps);
+        }
+
+        if (fitScore >= 70) {
+          newHighFit.push({ title: opp.title, fitScore, id: grant.id });
+        }
+      }
+
+      for (const match of newHighFit) {
+        await db.insert(grantAlerts).values({
+          grantId: match.id,
+          alertType: "high_fit_match",
+          title: `High-Fit Grant Found: ${match.title}`,
+          message: `A new grant with ${match.fitScore}% fit score was discovered from SAM.gov`,
+          fitScore: match.fitScore,
+        });
+      }
+
+      res.json({
+        success: true,
+        imported,
+        skipped,
+        total: opportunities.length,
+        newHighFitAlerts: newHighFit.length,
       });
-      analyzed.sort((a, b) => b.fitScore - a.fitScore);
-      res.json({ results: analyzed, total: analyzed.length, searchedKeywords: keywords || SAM_GOV_KEYWORDS.slice(0, 5) });
     } catch (error) {
-      console.error("SAM.gov search failed:", error);
-      res.status(500).json({ error: "Failed to search SAM.gov" });
-    }
-  });
-
-  app.post("/api/grants/import-sam", requireAuth, requireAdmin, async (req, res) => {
-    try {
-      const { noticeId, title, agency, description, responseDate, uiLink } = req.body;
-      if (!title) return res.status(400).json({ error: "Title is required" });
-
-      const fitResult = computeFitScore({ title, description, focusAreas: null, eligibilityCriteria: null });
-      let aiAnalysis: AIGrantAnalysis | null = null;
-      if (description) {
-        aiAnalysis = await analyzeGrantWithAI(title, description);
-      }
-
-      const finalScore = aiAnalysis ? aiAnalysis.fitScore : fitResult.score;
-
-      const [grant] = await db.insert(grantOpportunities).values({
-        title,
-        agency: agency || null,
-        description: description || null,
-        deadline: responseDate ? new Date(responseDate) : null,
-        sourceUrl: uiLink || `https://sam.gov/opp/${noticeId}/view`,
-        fitScore: finalScore,
-        fitAnalysis: aiAnalysis ? {
-          ...fitResult.analysis,
-          samNoticeId: noticeId,
-          aiSummary: aiAnalysis.summary,
-          aiStrengths: aiAnalysis.strengths,
-          aiGaps: aiAnalysis.gaps,
-          aiRecommendation: aiAnalysis.overallRecommendation,
-          aiCategory: aiAnalysis.grantCategory,
-        } : { ...fitResult.analysis, samNoticeId: noticeId },
-        readinessChecklist: generateReadinessChecklist(fitResult.matchedAreas),
-        grantType: aiAnalysis?.grantCategory || "federal",
-        status: "identified",
-      }).returning();
-
-      res.json(grant);
-    } catch (error) {
-      console.error("Failed to import SAM.gov grant:", error);
-      res.status(500).json({ error: "Failed to import grant" });
-    }
-  });
-
-  app.post("/api/grants/:id/ai-analyze", requireAuth, requireAdmin, async (req, res) => {
-    try {
-      const id = req.params.id as string;
-      const [grant] = await db.select().from(grantOpportunities).where(eq(grantOpportunities.id, id));
-      if (!grant) return res.status(404).json({ error: "Grant not found" });
-      if (!grant.description) return res.status(400).json({ error: "Grant needs a description for AI analysis" });
-
-      const aiAnalysis = await analyzeGrantWithAI(grant.title, grant.description);
-      if (!aiAnalysis) return res.status(500).json({ error: "AI analysis failed" });
-
-      const existingAnalysis = (grant.fitAnalysis as Record<string, unknown>) || {};
-      const [updated] = await db.update(grantOpportunities).set({
-        fitScore: aiAnalysis.fitScore,
-        fitAnalysis: {
-          ...existingAnalysis,
-          aiSummary: aiAnalysis.summary,
-          aiStrengths: aiAnalysis.strengths,
-          aiGaps: aiAnalysis.gaps,
-          aiRecommendation: aiAnalysis.overallRecommendation,
-          aiCategory: aiAnalysis.grantCategory,
-        },
-        updatedAt: new Date(),
-      }).where(eq(grantOpportunities.id, id)).returning();
-
-      res.json(updated);
-    } catch (error) {
-      console.error("AI analysis failed:", error);
-      res.status(500).json({ error: "AI analysis failed" });
-    }
-  });
-
-  app.get("/api/grants/:id", requireAuth, requireAdmin, async (req, res) => {
-    try {
-      const id = req.params.id as string;
-      const [grant] = await db.select().from(grantOpportunities).where(eq(grantOpportunities.id, id));
-      if (!grant) return res.status(404).json({ error: "Grant not found" });
-      res.json(grant);
-    } catch (error) {
-      console.error("Failed to fetch grant:", error);
-      res.status(500).json({ error: "Failed to fetch grant" });
-    }
-  });
-
-  app.patch("/api/grants/:id", requireAuth, requireAdmin, async (req, res) => {
-    try {
-      const id = req.params.id as string;
-      const parsed = grantCreateSchema.partial().safeParse(req.body);
-      if (!parsed.success) return res.status(400).json({ error: "Invalid grant data", details: parsed.error.flatten().fieldErrors });
-      const data: Record<string, unknown> = { ...parsed.data, updatedAt: new Date() };
-      if (parsed.data.title || parsed.data.description || parsed.data.focusAreas) {
-        const fitResult = computeFitScore(parsed.data);
-        data.fitScore = fitResult.score;
-        data.fitAnalysis = fitResult.analysis;
-        data.readinessChecklist = generateReadinessChecklist(fitResult.matchedAreas);
-      }
-      const [updated] = await db.update(grantOpportunities).set(data).where(eq(grantOpportunities.id, id)).returning();
-      res.json(updated);
-    } catch (error) {
-      console.error("Failed to update grant:", error);
-      res.status(500).json({ error: "Failed to update grant" });
-    }
-  });
-
-  app.delete("/api/grants/:id", requireAuth, requireAdmin, async (req, res) => {
-    try {
-      const id = req.params.id as string;
-      await db.delete(grantOpportunities).where(eq(grantOpportunities.id, id));
-      res.json({ success: true });
-    } catch (error) {
-      console.error("Failed to delete grant:", error);
-      res.status(500).json({ error: "Failed to delete grant" });
+      console.error("SAM.gov refresh failed:", error);
+      res.status(500).json({ error: "Failed to refresh SAM.gov data", details: String(error) });
     }
   });
 
@@ -475,13 +689,14 @@ export function registerGrantRoutes(app: Express) {
 
   app.post("/api/grants/analyze-fit", requireAuth, requireAdmin, async (req, res) => {
     try {
-      const parsed = z.object({
+      const analyzeFitSchema = z.object({
         title: z.string().optional(),
         description: z.string().optional(),
         focusAreas: z.array(z.string()).optional(),
         eligibilityCriteria: z.string().optional(),
-      }).safeParse(req.body);
-      if (!parsed.success) return res.status(400).json({ error: "Invalid data", details: parsed.error.flatten().fieldErrors });
+      });
+      const parsed = analyzeFitSchema.safeParse(req.body);
+      if (!parsed.success) return res.status(400).json({ error: "Invalid fit analysis data", details: parsed.error.flatten().fieldErrors });
       const fitResult = computeFitScore(parsed.data);
       const checklist = generateReadinessChecklist(fitResult.matchedAreas);
       res.json({ ...fitResult, readinessChecklist: checklist });
@@ -494,17 +709,26 @@ export function registerGrantRoutes(app: Express) {
   app.get("/api/grants/report/alignment", requireAuth, requireAdmin, async (_req, res) => {
     try {
       const grants = await db.select().from(grantOpportunities).orderBy(desc(grantOpportunities.fitScore));
+      const now = new Date();
+      const thirtyDays = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+
       const report = {
         generatedAt: new Date().toISOString(),
-        platform: "ThriveUp Academy",
+        platform: "AI Mastery Academy & School Support Hub",
         totalGrants: grants.length,
         highFitGrants: grants.filter(g => (g.fitScore || 0) >= 70).length,
         mediumFitGrants: grants.filter(g => (g.fitScore || 0) >= 40 && (g.fitScore || 0) < 70).length,
+        upcomingDeadlines: grants.filter(g => g.deadline && g.deadline > now && g.deadline <= thirtyDays).length,
         capabilities: PLATFORM_CAPABILITIES,
         grants: grants.map(g => ({
-          title: g.title, agency: g.agency, fitScore: g.fitScore,
+          id: g.id, title: g.title, agency: g.agency, fitScore: g.fitScore,
           status: g.status, deadline: g.deadline, fundingAmount: g.fundingAmount,
+          category: g.category, source: g.source, aiAnalysis: g.aiAnalysis,
+          strengthsGaps: g.strengthsGaps,
         })),
+        categories: Object.fromEntries(
+          GRANT_CATEGORIES.map(cat => [cat, grants.filter(g => g.category === cat).length])
+        ),
       };
       res.json(report);
     } catch (error) {
@@ -513,70 +737,320 @@ export function registerGrantRoutes(app: Express) {
     }
   });
 
-  app.get("/api/grants/export/csv", requireAuth, requireAdmin, async (_req, res) => {
+  app.get("/api/grants/report/export-csv", requireAuth, requireAdmin, async (_req, res) => {
     try {
       const grants = await db.select().from(grantOpportunities).orderBy(desc(grantOpportunities.fitScore));
-      const header = "Title,Agency,Funding Amount,Fit Score,Status,Deadline,Type,Focus Areas,Source URL";
-      const rows = grants.map(grantToCSVRow);
+      const headers = ["Title", "Agency", "Funding Amount", "Fit Score", "Category", "Status", "Deadline", "Source", "Source URL"];
+      const rows = grants.map(g => [
+        `"${sanitizeCsvCell((g.title || "").replace(/"/g, '""'))}"`,
+        `"${sanitizeCsvCell((g.agency || "").replace(/"/g, '""'))}"`,
+        `"${sanitizeCsvCell(g.fundingAmount || "")}"`,
+        g.fitScore || 0,
+        sanitizeCsvCell(g.category || ""),
+        sanitizeCsvCell(g.status || "identified"),
+        g.deadline ? g.deadline.toISOString().split("T")[0] : "",
+        sanitizeCsvCell(g.source || "manual"),
+        sanitizeCsvCell(g.sourceUrl || ""),
+      ]);
+      const csv = [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
       res.setHeader("Content-Type", "text/csv");
-      res.setHeader("Content-Disposition", `attachment; filename="grant-alignment-report-${new Date().toISOString().split("T")[0]}.csv"`);
-      res.send([header, ...rows].join("\n"));
+      res.setHeader("Content-Disposition", "attachment; filename=grant-alignment-report.csv");
+      res.send(csv);
     } catch (error) {
-      console.error("CSV export failed:", error);
       res.status(500).json({ error: "Failed to export CSV" });
+    }
+  });
+
+  app.get("/api/grants/report/export-pdf", requireAuth, requireAdmin, async (_req, res) => {
+    try {
+      const grants = await db.select().from(grantOpportunities).orderBy(desc(grantOpportunities.fitScore));
+      const now = new Date();
+      const highFit = grants.filter(g => (g.fitScore || 0) >= 70).length;
+      const medFit = grants.filter(g => (g.fitScore || 0) >= 40 && (g.fitScore || 0) < 70).length;
+
+      const doc = new PDFDocument({ size: "A4", margin: 50 });
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader("Content-Disposition", "attachment; filename=grant-alignment-report.pdf");
+      doc.pipe(res);
+
+      doc.fontSize(22).fillColor("#1a56db").text("Grant Alignment Report", { align: "center" });
+      doc.moveDown(0.5);
+      doc.fontSize(10).fillColor("#6b7280").text(`Generated: ${now.toLocaleDateString()} | AI Mastery Academy & School Support Hub`, { align: "center" });
+      doc.moveDown(0.3);
+      doc.moveTo(50, doc.y).lineTo(545, doc.y).strokeColor("#1a56db").lineWidth(2).stroke();
+      doc.moveDown(1);
+
+      doc.fontSize(14).fillColor("#374151").text("Summary");
+      doc.moveDown(0.5);
+      doc.fontSize(11).fillColor("#333");
+      doc.text(`Total Opportunities: ${grants.length}`);
+      doc.text(`High Fit (70%+): ${highFit}`, { continued: false });
+      doc.text(`Medium Fit (40-69%): ${medFit}`);
+      doc.text(`Average Fit Score: ${grants.length > 0 ? Math.round(grants.reduce((s, g) => s + (g.fitScore || 0), 0) / grants.length) : 0}%`);
+      doc.moveDown(1);
+
+      doc.fontSize(14).fillColor("#374151").text("Grant Opportunities");
+      doc.moveDown(0.5);
+
+      const tableTop = doc.y;
+      const colWidths = [160, 100, 70, 50, 60, 60];
+      const headers = ["Title", "Agency", "Funding", "Fit", "Category", "Status"];
+
+      doc.fontSize(8).fillColor("#ffffff");
+      let xPos = 50;
+      doc.rect(50, tableTop, 495, 18).fill("#1a56db");
+      for (let i = 0; i < headers.length; i++) {
+        doc.fillColor("#ffffff").text(headers[i], xPos + 4, tableTop + 4, { width: colWidths[i] - 8, height: 14 });
+        xPos += colWidths[i];
+      }
+
+      let rowY = tableTop + 20;
+      doc.fontSize(7).fillColor("#333");
+      for (const g of grants) {
+        if (rowY > 750) {
+          doc.addPage();
+          rowY = 50;
+        }
+        const rowData = [
+          g.title.substring(0, 40),
+          (g.agency || "-").substring(0, 25),
+          g.fundingAmount || "-",
+          `${g.fitScore || 0}%`,
+          g.category || "-",
+          g.status || "identified",
+        ];
+        xPos = 50;
+        const fitColor = (g.fitScore || 0) >= 70 ? "#059669" : (g.fitScore || 0) >= 40 ? "#d97706" : "#dc2626";
+        for (let i = 0; i < rowData.length; i++) {
+          doc.fillColor(i === 3 ? fitColor : "#333").text(rowData[i], xPos + 4, rowY, { width: colWidths[i] - 8, height: 14 });
+          xPos += colWidths[i];
+        }
+        rowY += 16;
+      }
+
+      if (rowY > 650) { doc.addPage(); rowY = 50; }
+      doc.moveDown(2);
+      doc.fontSize(14).fillColor("#374151").text("Platform Capabilities", 50, rowY + 20);
+      doc.moveDown(0.5);
+      doc.fontSize(9).fillColor("#333");
+      for (const cap of PLATFORM_CAPABILITIES) {
+        doc.font("Helvetica-Bold").text(cap.area, { continued: true }).font("Helvetica").text(`: ${cap.features.join(", ")}`);
+        doc.moveDown(0.3);
+      }
+
+      doc.moveDown(2);
+      doc.fontSize(8).fillColor("#9ca3af").text("AI Mastery Academy - Grant Discovery & Alignment Engine", { align: "center" });
+
+      doc.end();
+    } catch (error) {
+      console.error("PDF export failed:", error);
+      if (!res.headersSent) res.status(500).json({ error: "Failed to export PDF" });
     }
   });
 
   app.get("/api/grants/report/wioa", requireAuth, requireAdmin, async (_req, res) => {
     try {
-      const grants = await db.select().from(grantOpportunities);
-      const wioaGrants = grants.filter(g => {
-        const text = [g.title, g.description, g.grantType, ...(g.focusAreas as string[] || [])].join(" ").toLowerCase();
-        return text.includes("wioa") || text.includes("workforce") || text.includes("employment") || text.includes("job training");
-      });
-
       const report = {
-        reportType: "WIOA/DOL Workforce Pipeline Report",
-        generatedAt: new Date().toISOString(),
-        platform: "ThriveUp Academy",
-        reportingPeriod: {
-          start: getDateNMonthsAgo(12),
-          end: getTodayDate(),
-        },
-        wioaAlignment: {
-          totalWorkforceGrants: wioaGrants.length,
-          highAlignment: wioaGrants.filter(g => (g.fitScore || 0) >= 70).length,
-          coreIndicators: {
-            youthPlacementRate: "Platform tracks employment outcomes via Thrive analytics",
-            credentialAttainment: "AI Digital Literacy curriculum with 5 certification levels",
-            measurableSkillGains: "Skill assessments across 50+ career pathways",
-            effectivenessInServingEmployers: "Employer partnership network with hiring commitments tracking",
+        title: "WIOA/DOL Performance Report",
+        reportingPeriod: { start: getDateMonthsAgo(6), end: getTodayFormatted() },
+        metrics: {
+          workforcePlacement: {
+            label: "Workforce Placement Rate",
+            description: "Percentage of program participants placed in employment",
+            currentValue: null,
+            target: "65%",
+            dataSource: "Outcome tracking system",
           },
-          youthServiceElements: [
-            "Tutoring and study skills (AI-powered curriculum)",
-            "Paid and unpaid work experiences (Career pathway tracking)",
-            "Occupational skills training (50+ career field modules)",
-            "Education offered concurrently with workforce preparation",
-            "Leadership development (Mentorship matching)",
-            "Supportive services (Community partner referrals)",
-            "Adult mentoring (Mentor network)",
-            "Financial literacy education (Financial literacy courses)",
-            "Entrepreneurial skills training (Entrepreneurship modules)",
-            "Labor market information (GIS-powered community intelligence)",
-          ],
+          trainingCompletion: {
+            label: "Training Completion Rate",
+            description: "Percentage of enrolled participants completing training programs",
+            currentValue: null,
+            target: "80%",
+            dataSource: "Course completion records",
+          },
+          credentialAttainment: {
+            label: "Credential Attainment Rate",
+            description: "Percentage of participants earning recognized credentials",
+            currentValue: null,
+            target: "50%",
+            dataSource: "Certificate/badge records",
+          },
+          employerEngagement: {
+            label: "Employer Engagement",
+            description: "Number of employer partners actively engaged in program",
+            currentValue: null,
+            target: "20 partners",
+            dataSource: "Partner network",
+          },
+          medianEarnings: {
+            label: "Median Earnings (Q2 Post-Exit)",
+            description: "Median quarterly earnings of participants in Q2 after program exit",
+            currentValue: null,
+            target: "$5,000",
+            dataSource: "Wage records",
+          },
+          measurableSkillGains: {
+            label: "Measurable Skill Gains",
+            description: "Percentage of participants achieving measurable skill gains",
+            currentValue: null,
+            target: "60%",
+            dataSource: "Thrive scoring system",
+          },
         },
-        platformCapabilities: PLATFORM_CAPABILITIES.filter(c =>
-          c.grantKeywords.some(k => ["workforce", "employment", "job training", "career", "financial"].includes(k))
-        ),
-        grantPipeline: wioaGrants.map(g => ({
-          title: g.title, agency: g.agency, fitScore: g.fitScore,
-          status: g.status, fundingAmount: g.fundingAmount,
-        })),
+        programAreas: [
+          { name: "Youth Workforce Development", wioaAlignment: "Title I - Youth", services: ["Career exploration", "Work experience", "Occupational skills training", "Financial literacy", "Mentoring"] },
+          { name: "Digital Literacy & STEM", wioaAlignment: "Title II - Adult Education", services: ["AI curriculum", "Technology training", "Basic skills education"] },
+          { name: "Reentry Services", wioaAlignment: "Title I - Adult/DW", services: ["Case management", "Job readiness", "Barrier removal", "Follow-up services"] },
+        ],
+        dolComplianceAreas: [
+          { area: "Participant Tracking", status: "active", details: "IGN-Thrive system tracks six-domain outcomes" },
+          { area: "Data Validation", status: "active", details: "Automated data quality checks via early warning system" },
+          { area: "Outcome Reporting", status: "active", details: "Recidivism, employment, and education outcomes tracked" },
+          { area: "Equal Opportunity", status: "compliant", details: "Bilingual support, accessibility features" },
+        ],
+      };
+
+      res.json(report);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to generate WIOA report" });
+    }
+  });
+
+  app.get("/api/grants/report/ojjdp", requireAuth, requireAdmin, async (_req, res) => {
+    try {
+      const report = {
+        title: "OJJDP/DOJ Compliance Report",
+        reportingPeriod: { start: getDateMonthsAgo(6), end: getTodayFormatted() },
+        metrics: {
+          recidivismRate: { label: "Recidivism Rate", description: "Re-offense rate within 12 months", currentValue: null, target: "<15%", dataSource: "Justice referral tracking" },
+          programCompletion: { label: "Program Completion", description: "Percentage completing reentry program", currentValue: null, target: "75%", dataSource: "Phase completion records" },
+          communityReintegration: { label: "Community Reintegration", description: "Successful transitions to community", currentValue: null, target: "80%", dataSource: "Case management system" },
+          familyEngagement: { label: "Family Engagement", description: "Family participation rate", currentValue: null, target: "60%", dataSource: "Session logs" },
+        },
+        evidenceBasedPractices: [
+          "Cognitive behavioral interventions",
+          "Trauma-informed care",
+          "Motivational interviewing",
+          "Restorative justice practices",
+          "Family-centered approach",
+        ],
       };
       res.json(report);
     } catch (error) {
-      console.error("WIOA report failed:", error);
-      res.status(500).json({ error: "Failed to generate WIOA report" });
+      res.status(500).json({ error: "Failed to generate OJJDP report" });
+    }
+  });
+
+  app.post("/api/grants/:id/ai-analyze", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const [grant] = await db.select().from(grantOpportunities).where(eq(grantOpportunities.id, getParamId(req)));
+      if (!grant) return res.status(404).json({ error: "Grant not found" });
+
+      const aiResult = await analyzeGrantWithAI(grant);
+      if (!aiResult) return res.status(500).json({ error: "AI analysis unavailable" });
+
+      const [updated] = await db.update(grantOpportunities).set({
+        aiAnalysis: aiResult.aiAnalysis,
+        strengthsGaps: aiResult.strengthsGaps,
+        fitScore: aiResult.fitScore,
+        updatedAt: new Date(),
+      }).where(eq(grantOpportunities.id, getParamId(req))).returning();
+
+      if (aiResult.strengthsGaps?.gaps?.length) {
+        await persistGapsFromGrant(getParamId(req), aiResult.strengthsGaps.gaps);
+      }
+
+      res.json(updated);
+    } catch (error) {
+      console.error("AI analysis failed:", error);
+      res.status(500).json({ error: "AI analysis failed" });
+    }
+  });
+
+  app.get("/api/grants/:id", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const [grant] = await db.select().from(grantOpportunities).where(eq(grantOpportunities.id, getParamId(req)));
+      if (!grant) return res.status(404).json({ error: "Grant not found" });
+      res.json(grant);
+    } catch (error) {
+      console.error("Failed to fetch grant:", error);
+      res.status(500).json({ error: "Failed to fetch grant" });
+    }
+  });
+
+  app.patch("/api/grants/:id", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const parsed = grantCreateSchema.partial().safeParse(req.body);
+      if (!parsed.success) return res.status(400).json({ error: "Invalid grant data", details: parsed.error.flatten().fieldErrors });
+      const data: Record<string, unknown> = { ...parsed.data, updatedAt: new Date() };
+      if (parsed.data.title || parsed.data.description || parsed.data.focusAreas) {
+        const fitResult = computeFitScore(parsed.data);
+        data.fitScore = fitResult.score;
+        data.fitAnalysis = fitResult.analysis;
+        data.readinessChecklist = generateReadinessChecklist(fitResult.matchedAreas);
+        data.category = categorizeGrant(parsed.data);
+      }
+      const [updated] = await db.update(grantOpportunities).set(data).where(eq(grantOpportunities.id, getParamId(req))).returning();
+      res.json(updated);
+    } catch (error) {
+      console.error("Failed to update grant:", error);
+      res.status(500).json({ error: "Failed to update grant" });
+    }
+  });
+
+  app.delete("/api/grants/:id", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      await db.delete(grantOpportunities).where(eq(grantOpportunities.id, getParamId(req)));
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Failed to delete grant:", error);
+      res.status(500).json({ error: "Failed to delete grant" });
+    }
+  });
+
+  app.get("/api/platform-gaps", requireAuth, requireAdmin, async (_req, res) => {
+    try {
+      const gaps = await db.select().from(platformGaps).orderBy(desc(platformGaps.createdAt));
+      res.json(gaps);
+    } catch (error) {
+      console.error("Failed to fetch platform gaps:", error);
+      res.status(500).json({ error: "Failed to fetch platform gaps" });
+    }
+  });
+
+  app.get("/api/platform-gaps/summary", requireAuth, requireAdmin, async (_req, res) => {
+    try {
+      const allGaps = await db.select().from(platformGaps);
+      const total = allGaps.length;
+      const byStatus = { identified: 0, in_progress: 0, resolved: 0 };
+      const byEffort = { low: 0, medium: 0, high: 0 };
+      for (const g of allGaps) {
+        const s = g.status as keyof typeof byStatus;
+        if (s in byStatus) byStatus[s]++;
+        const e = g.effort as keyof typeof byEffort;
+        if (e in byEffort) byEffort[e]++;
+      }
+      res.json({ total, byStatus, byEffort });
+    } catch (error) {
+      console.error("Failed to fetch gap summary:", error);
+      res.status(500).json({ error: "Failed to fetch gap summary" });
+    }
+  });
+
+  app.patch("/api/platform-gaps/:id", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const { status, resolution, priority } = req.body as { status?: string; resolution?: string; priority?: string };
+      const updateData: Record<string, unknown> = { updatedAt: new Date() };
+      if (status) updateData.status = status;
+      if (resolution) updateData.resolution = resolution;
+      if (priority) updateData.priority = priority;
+      if (status === "resolved") updateData.resolvedAt = new Date();
+      const [updated] = await db.update(platformGaps).set(updateData).where(eq(platformGaps.id, getParamId(req))).returning();
+      if (!updated) return res.status(404).json({ error: "Gap not found" });
+      res.json(updated);
+    } catch (error) {
+      console.error("Failed to update gap:", error);
+      res.status(500).json({ error: "Failed to update gap" });
     }
   });
 }

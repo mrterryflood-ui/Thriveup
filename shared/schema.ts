@@ -1629,6 +1629,19 @@ export const grantOpportunities = pgTable("grant_opportunities", {
   readinessChecklist: jsonb("readiness_checklist"),
   status: varchar("status", { length: 50 }).default("identified"),
   notes: text("notes"),
+  samgovId: varchar("samgov_id", { length: 255 }),
+  samgovNoticeId: varchar("samgov_notice_id", { length: 255 }),
+  category: varchar("category", { length: 100 }),
+  postedDate: timestamp("posted_date"),
+  responseDate: timestamp("response_date"),
+  awardFloor: integer("award_floor"),
+  awardCeiling: integer("award_ceiling"),
+  estimatedFunding: integer("estimated_funding"),
+  expectedAwards: integer("expected_awards"),
+  cfda: varchar("cfda", { length: 50 }),
+  source: varchar("source", { length: 50 }).default("manual"),
+  aiAnalysis: jsonb("ai_analysis"),
+  strengthsGaps: jsonb("strengths_gaps"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -1636,6 +1649,39 @@ export const grantOpportunities = pgTable("grant_opportunities", {
 export const insertGrantOpportunitySchema = createInsertSchema(grantOpportunities).omit({ id: true, createdAt: true, updatedAt: true });
 export type InsertGrantOpportunity = z.infer<typeof insertGrantOpportunitySchema>;
 export type GrantOpportunity = typeof grantOpportunities.$inferSelect;
+
+export const grantAlerts = pgTable("grant_alerts", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  grantId: varchar("grant_id", { length: 100 }).notNull(),
+  alertType: varchar("alert_type", { length: 50 }).notNull(),
+  title: varchar("title", { length: 500 }).notNull(),
+  message: text("message"),
+  fitScore: integer("fit_score"),
+  isRead: boolean("is_read").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertGrantAlertSchema = createInsertSchema(grantAlerts).omit({ id: true, createdAt: true });
+export type InsertGrantAlert = z.infer<typeof insertGrantAlertSchema>;
+export type GrantAlert = typeof grantAlerts.$inferSelect;
+
+export const platformGaps = pgTable("platform_gaps", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  grantId: varchar("grant_id", { length: 100 }),
+  area: varchar("area", { length: 255 }).notNull(),
+  detail: text("detail").notNull(),
+  effort: varchar("effort", { length: 20 }).default("medium"),
+  priority: varchar("priority", { length: 20 }).default("medium"),
+  status: varchar("status", { length: 50 }).default("identified"),
+  resolution: text("resolution"),
+  resolvedAt: timestamp("resolved_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertPlatformGapSchema = createInsertSchema(platformGaps).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertPlatformGap = z.infer<typeof insertPlatformGapSchema>;
+export type PlatformGap = typeof platformGaps.$inferSelect;
 
 export const outcomeTracking = pgTable("outcome_tracking", {
   id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),

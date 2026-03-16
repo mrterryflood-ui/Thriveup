@@ -183,6 +183,19 @@ export async function generateAIJSON<T = unknown>(prompt: string, systemPrompt?:
   throw new Error("All AI providers failed");
 }
 
+export async function generateAIResponse(messages: Array<{ role: string; content: string }>, maxTokens?: number): Promise<string> {
+  return new Promise((resolve, reject) => {
+    let result = "";
+    streamAIResponse({
+      messages,
+      maxTokens: maxTokens || 2000,
+      onChunk: (content: string) => { result += content; },
+      onDone: () => resolve(result),
+      onError: (error: Error) => reject(error),
+    });
+  });
+}
+
 export async function streamAIResponse(params: StreamAIResponseParams): Promise<void> {
   const providers = getAvailableProviders();
   if (providers.length === 0) {
