@@ -249,9 +249,68 @@ export default function ImpactPage() {
       </div>
 
       <div>
+        <h2 className="text-2xl font-bold mb-4" data-testid="heading-reentry-ecosystem">Reentry & Workforce Ecosystem</h2>
+        <p className="text-muted-foreground mb-6">
+          Community-based reentry support with evidence-based programming, DOJ-aligned outcome tracking, and multi-agency coordination.
+        </p>
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <Card data-testid="card-reentry-plans">
+            <CardContent className="pt-4 flex items-start gap-4">
+              <div className="w-10 h-10 rounded-lg bg-violet-50 dark:bg-violet-950/30 flex items-center justify-center shrink-0">
+                <Shield className="h-5 w-5 text-violet-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold">Individualized Reentry Plans</h3>
+                <p className="text-sm text-muted-foreground">Phase-based (Pre-Release to Independence) with milestone tracking and IGN-Thrive scoring</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card data-testid="card-outcome-tracking-impact">
+            <CardContent className="pt-4 flex items-start gap-4">
+              <div className="w-10 h-10 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center shrink-0">
+                <Target className="h-5 w-5 text-emerald-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold">DOJ-Aligned Outcomes</h3>
+                <p className="text-sm text-muted-foreground">Recidivism (6/12/36 month), employment retention, education credentials, housing stability</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card data-testid="card-partner-network-impact">
+            <CardContent className="pt-4 flex items-start gap-4">
+              <div className="w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-950/30 flex items-center justify-center shrink-0">
+                <HandshakeIcon className="h-5 w-5 text-blue-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold">Community Partner Network</h3>
+                <p className="text-sm text-muted-foreground">Coordinated referrals with verified community organizations, MOU tracking, and impact measurement</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+        <div className="mt-4 flex gap-3">
+          <Link href="/reentry">
+            <Button variant="outline" size="sm" data-testid="button-impact-reentry" aria-label="View reentry dashboard">
+              <Shield className="h-4 w-4 mr-1" /> Reentry Dashboard
+            </Button>
+          </Link>
+          <Link href="/outcomes">
+            <Button variant="outline" size="sm" data-testid="button-impact-outcomes" aria-label="View outcome reporting">
+              <Target className="h-4 w-4 mr-1" /> Outcome Reporting
+            </Button>
+          </Link>
+          <Link href="/justice-partners">
+            <Button variant="outline" size="sm" data-testid="button-impact-justice" aria-label="View justice partner integration">
+              <Building2 className="h-4 w-4 mr-1" /> Justice Partners
+            </Button>
+          </Link>
+        </div>
+      </div>
+
+      <div>
         <h2 className="text-2xl font-bold mb-4" data-testid="heading-grant-alignment">Grant Criteria Alignment</h2>
         <p className="text-muted-foreground mb-6">
-          AI Mastery Academy is designed to meet workforce development grant criteria across all key areas.
+          AI Mastery Academy is designed to meet workforce development and reentry grant criteria across all key areas.
           Each criterion below is fully addressed by the platform.
         </p>
         <div className="grid md:grid-cols-2 gap-4">

@@ -27,6 +27,8 @@ Key architectural elements include:
 - **Internationalization (i18n):** Supports English and Spanish.
 - **TX STAAR Test Prep:** Provides grade-level study guides aligned to TEKS, gamified for engagement.
 - **Stakeholder Presentation:** An interactive 21-slide presentation at `/presentation` for showcasing platform features and impact.
+- **Grant & Workforce Ecosystem:** Grant Discovery Hub (`/grants`) with fit scoring and readiness checklists, Reentry Case Management Dashboard (`/reentry`) with phase-based plans (Pre-Release to Independence), Community Partner Network (`/partners`) with referral workflows and MOU tracking, Outcome Reporting (`/outcomes`) with DOJ-aligned metrics (recidivism, employment, education, housing, behavioral health) and CSV export, and Justice Partner Integration (`/justice-partners`) landing page with secure API documentation. Backend routes in `server/grant-routes.ts`, `server/reentry-routes.ts`, `server/partner-routes.ts`, `server/outcome-routes.ts`, and `server/justice-routes.ts`. Database tables: `reentryPlans`, `reentryMilestones`, `reentryIntakeAssessments`, `communityPartners`, `partnerReferrals`, `grantOpportunities`, `outcomeTracking`, `justiceReferrals`, `supervisionCompliance`.
+- **Justice System Integration API:** External-facing API at `/api/external/justice/*` for juvenile justice agencies to submit referrals and retrieve progress reports. Uses `CROSS_PLATFORM_API_KEY` for authentication.
 
 ## External Dependencies
 - **Database:** PostgreSQL (Neon-backed)

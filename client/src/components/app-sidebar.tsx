@@ -29,7 +29,7 @@ import {
   Zap, CalendarCheck, Lightbulb, Gamepad2, Map, Store, Briefcase, Route,
   Activity, ClipboardCheck, Handshake, ChevronRight, DollarSign,
   PenLine, Megaphone, Calendar, HelpCircle, ClipboardList, Printer, Link2,
-  MessageCircle, MapPin, Presentation,
+  MessageCircle, MapPin, Presentation, Scale, FileBarChart,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -98,6 +98,13 @@ const buildCreateItems: NavItem[] = [
   { title: "Print Shop", url: "/academy/merch", icon: ShoppingBag },
 ];
 
+const reentryWorkforceItems: NavItem[] = [
+  { title: "Reentry Dashboard", url: "/reentry", icon: Shield },
+  { title: "Community Partners", url: "/partners", icon: Handshake },
+  { title: "Outcome Reporting", url: "/outcomes", icon: FileBarChart },
+  { title: "For Justice Partners", url: "/justice-partners", icon: Scale },
+];
+
 const teachingPublicItems: NavItem[] = [
   { title: "Parents", url: "/parents", icon: Users },
   { title: "Parent Dashboard", url: "/parents/dashboard", icon: BarChart3 },
@@ -122,6 +129,7 @@ const teachingAdminItems: NavItem[] = [
   { title: "Arthur's Journey", url: "/academy/tutorial", icon: GraduationCap },
   { title: "Longitudinal Dashboard", url: "/academy/longitudinal", icon: BarChart3 },
   { title: "Risk Monitor", url: "/academy/risk-monitor", icon: Shield },
+  { title: "Grant Hub", url: "/grants", icon: Target },
   { title: "API Documentation", url: "/api-docs", icon: Globe },
 ];
 
@@ -277,6 +285,7 @@ export function AppSidebar() {
         <NavSection label="My Student" items={myStudentItems} location={location} />
         <NavSection label="Campus Life" items={campusLifeItems} location={location} />
         <NavSection label="Career & Mentors" items={careerMentorsItems} location={location} />
+        <NavSection label="Reentry & Workforce" items={reentryWorkforceItems} location={location} />
         <NavSection label="Build & Create" items={buildCreateItems} location={location} />
 
         <SidebarGroup>

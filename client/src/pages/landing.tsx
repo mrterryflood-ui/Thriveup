@@ -195,10 +195,10 @@ export default function LandingPage() {
             AI Mastery<br />Academy
           </h1>
           <p className="text-base sm:text-lg md:text-xl text-white/80 max-w-2xl mx-auto mb-3 sm:mb-4 px-2" data-testid="text-hero-subtitle">
-            Empowering under-resourced youth with AI mastery, workforce readiness, and school-to-career pipelines
+            Empowering under-resourced youth with AI mastery, workforce readiness, reentry support, and school-to-career pipelines
           </p>
           <p className="text-xs sm:text-sm md:text-base text-white/60 max-w-xl mx-auto mb-8 sm:mb-10 px-2">
-            Teaching the first generation to guide their smartest classmate. Five-level AI curriculum, 50+ career pathways, professional mentorship, and real workforce development for youth ages 14-24.
+            A community-based ecosystem for education, workforce development, and youth reentry. Five-level AI curriculum, 50+ career pathways, evidence-based reentry plans, and whole-child support for youth ages 14-24.
           </p>
           <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-4 px-4 sm:px-0">
             <Link href="/subjects">
@@ -462,15 +462,15 @@ export default function LandingPage() {
               <ul className="space-y-3 text-sm text-muted-foreground leading-relaxed flex-1">
                 <li className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                  <span>Grant-aligned platform with measurable workforce development outcomes and transparent reporting</span>
+                  <span>Grant-aligned platform meeting OJJDP, workforce development, and CBO grant criteria with transparent reporting</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <BarChart3 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                  <span>Real-time impact metrics tracking student progress, career placement, and community reach</span>
+                  <span>DOJ-aligned outcome tracking: recidivism, employment, education, housing, and behavioral health</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <TrendingUp className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                  <span>Scalable workforce development model designed for Title I communities and under-resourced youth</span>
+                  <span>Scalable community-based reentry and workforce model for Title I communities and under-resourced youth</span>
                 </li>
               </ul>
               <div className="mt-6">

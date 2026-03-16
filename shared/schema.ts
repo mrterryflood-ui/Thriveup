@@ -1406,4 +1406,201 @@ export const insertResourceSearchHistorySchema = createInsertSchema(resourceSear
 export type InsertResourceSearchHistory = z.infer<typeof insertResourceSearchHistorySchema>;
 export type ResourceSearchHistory = typeof resourceSearchHistory.$inferSelect;
 
+export const reentryPlans = pgTable("reentry_plans", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  userName: varchar("user_name", { length: 255 }),
+  caseManagerId: varchar("case_manager_id", { length: 255 }),
+  phase: varchar("phase", { length: 50 }).notNull().default("pre_release"),
+  status: varchar("status", { length: 50 }).notNull().default("active"),
+  releaseDate: timestamp("release_date"),
+  transitionStartDate: timestamp("transition_start_date"),
+  stabilizationStartDate: timestamp("stabilization_start_date"),
+  independenceStartDate: timestamp("independence_start_date"),
+  completionDate: timestamp("completion_date"),
+  riskLevel: varchar("risk_level", { length: 20 }).default("medium"),
+  notes: text("notes"),
+  goals: jsonb("goals"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertReentryPlanSchema = createInsertSchema(reentryPlans).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertReentryPlan = z.infer<typeof insertReentryPlanSchema>;
+export type ReentryPlan = typeof reentryPlans.$inferSelect;
+
+export const reentryMilestones = pgTable("reentry_milestones", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  planId: varchar("plan_id", { length: 100 }).notNull(),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  category: varchar("category", { length: 100 }).notNull(),
+  title: varchar("title", { length: 500 }).notNull(),
+  description: text("description"),
+  targetDate: timestamp("target_date"),
+  completedDate: timestamp("completed_date"),
+  status: varchar("status", { length: 50 }).notNull().default("pending"),
+  phase: varchar("phase", { length: 50 }).notNull(),
+  evidence: jsonb("evidence"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertReentryMilestoneSchema = createInsertSchema(reentryMilestones).omit({ id: true, createdAt: true });
+export type InsertReentryMilestone = z.infer<typeof insertReentryMilestoneSchema>;
+export type ReentryMilestone = typeof reentryMilestones.$inferSelect;
+
+export const reentryIntakeAssessments = pgTable("reentry_intake_assessments", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  planId: varchar("plan_id", { length: 100 }).notNull(),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  assessorId: varchar("assessor_id", { length: 255 }),
+  educationHistory: jsonb("education_history"),
+  employmentHistory: jsonb("employment_history"),
+  housingStability: varchar("housing_stability", { length: 50 }),
+  behavioralHealthNeeds: jsonb("behavioral_health_needs"),
+  familySituation: jsonb("family_situation"),
+  communitySupport: jsonb("community_support"),
+  riskFactors: jsonb("risk_factors"),
+  protectiveFactors: jsonb("protective_factors"),
+  immediateNeeds: text("immediate_needs").array(),
+  overallRiskScore: integer("overall_risk_score"),
+  assessmentDate: timestamp("assessment_date").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertReentryIntakeAssessmentSchema = createInsertSchema(reentryIntakeAssessments).omit({ id: true, createdAt: true });
+export type InsertReentryIntakeAssessment = z.infer<typeof insertReentryIntakeAssessmentSchema>;
+export type ReentryIntakeAssessment = typeof reentryIntakeAssessments.$inferSelect;
+
+export const communityPartners = pgTable("community_partners", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  name: varchar("name", { length: 500 }).notNull(),
+  type: varchar("type", { length: 100 }).notNull(),
+  description: text("description"),
+  contactName: varchar("contact_name", { length: 255 }),
+  contactEmail: varchar("contact_email", { length: 255 }),
+  contactPhone: varchar("contact_phone", { length: 50 }),
+  address: text("address"),
+  city: varchar("city", { length: 100 }),
+  state: varchar("state", { length: 10 }),
+  zipCode: varchar("zip_code", { length: 20 }),
+  serviceCategories: text("service_categories").array(),
+  serviceArea: text("service_area"),
+  website: varchar("website", { length: 500 }),
+  isVerified: boolean("is_verified").default(false),
+  mouStatus: varchar("mou_status", { length: 50 }).default("none"),
+  mouStartDate: timestamp("mou_start_date"),
+  mouEndDate: timestamp("mou_end_date"),
+  capacity: integer("capacity"),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertCommunityPartnerSchema = createInsertSchema(communityPartners).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertCommunityPartner = z.infer<typeof insertCommunityPartnerSchema>;
+export type CommunityPartner = typeof communityPartners.$inferSelect;
+
+export const partnerReferrals = pgTable("partner_referrals", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  partnerId: varchar("partner_id", { length: 100 }).notNull(),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  referredBy: varchar("referred_by", { length: 255 }).notNull(),
+  serviceType: varchar("service_type", { length: 100 }).notNull(),
+  status: varchar("status", { length: 50 }).notNull().default("pending"),
+  notes: text("notes"),
+  partnerNotes: text("partner_notes"),
+  outcomeStatus: varchar("outcome_status", { length: 50 }),
+  completedDate: timestamp("completed_date"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertPartnerReferralSchema = createInsertSchema(partnerReferrals).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertPartnerReferral = z.infer<typeof insertPartnerReferralSchema>;
+export type PartnerReferral = typeof partnerReferrals.$inferSelect;
+
+export const grantOpportunities = pgTable("grant_opportunities", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  title: varchar("title", { length: 1000 }).notNull(),
+  agency: varchar("agency", { length: 500 }),
+  fundingAmount: varchar("funding_amount", { length: 100 }),
+  deadline: timestamp("deadline"),
+  description: text("description"),
+  eligibilityCriteria: text("eligibility_criteria"),
+  focusAreas: text("focus_areas").array(),
+  grantType: varchar("grant_type", { length: 100 }),
+  sourceUrl: varchar("source_url", { length: 1000 }),
+  fitScore: integer("fit_score"),
+  fitAnalysis: jsonb("fit_analysis"),
+  readinessChecklist: jsonb("readiness_checklist"),
+  status: varchar("status", { length: 50 }).default("identified"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertGrantOpportunitySchema = createInsertSchema(grantOpportunities).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertGrantOpportunity = z.infer<typeof insertGrantOpportunitySchema>;
+export type GrantOpportunity = typeof grantOpportunities.$inferSelect;
+
+export const outcomeTracking = pgTable("outcome_tracking", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  planId: varchar("plan_id", { length: 100 }),
+  category: varchar("category", { length: 100 }).notNull(),
+  metricName: varchar("metric_name", { length: 255 }).notNull(),
+  metricValue: text("metric_value"),
+  measurementDate: timestamp("measurement_date").defaultNow(),
+  periodMonths: integer("period_months"),
+  baseline: text("baseline"),
+  target: text("target"),
+  notes: text("notes"),
+  source: varchar("source", { length: 100 }),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertOutcomeTrackingSchema = createInsertSchema(outcomeTracking).omit({ id: true, createdAt: true });
+export type InsertOutcomeTracking = z.infer<typeof insertOutcomeTrackingSchema>;
+export type OutcomeTracking = typeof outcomeTracking.$inferSelect;
+
+export const justiceReferrals = pgTable("justice_referrals", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  externalReferralId: varchar("external_referral_id", { length: 255 }),
+  userId: varchar("user_id", { length: 255 }),
+  agencyName: varchar("agency_name", { length: 500 }).notNull(),
+  agencyType: varchar("agency_type", { length: 100 }),
+  referralDate: timestamp("referral_date").defaultNow(),
+  releaseDate: timestamp("release_date"),
+  supervisionLevel: varchar("supervision_level", { length: 50 }),
+  supervisionRequirements: jsonb("supervision_requirements"),
+  demographicData: jsonb("demographic_data"),
+  offenseCategory: varchar("offense_category", { length: 100 }),
+  status: varchar("status", { length: 50 }).notNull().default("pending"),
+  assignedPlanId: varchar("assigned_plan_id", { length: 100 }),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertJusticeReferralSchema = createInsertSchema(justiceReferrals).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertJusticeReferral = z.infer<typeof insertJusticeReferralSchema>;
+export type JusticeReferral = typeof justiceReferrals.$inferSelect;
+
+export const supervisionCompliance = pgTable("supervision_compliance", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  referralId: varchar("referral_id", { length: 100 }),
+  complianceType: varchar("compliance_type", { length: 100 }).notNull(),
+  scheduledDate: timestamp("scheduled_date"),
+  completedDate: timestamp("completed_date"),
+  status: varchar("status", { length: 50 }).notNull().default("scheduled"),
+  notes: text("notes"),
+  verifiedBy: varchar("verified_by", { length: 255 }),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertSupervisionComplianceSchema = createInsertSchema(supervisionCompliance).omit({ id: true, createdAt: true });
+export type InsertSupervisionCompliance = z.infer<typeof insertSupervisionComplianceSchema>;
+export type SupervisionCompliance = typeof supervisionCompliance.$inferSelect;
+
 export * from "./models/auth";

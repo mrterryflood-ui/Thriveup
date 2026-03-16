@@ -28,6 +28,11 @@ import { db } from "./storage";
 import { streamAIResponse, getProviderInfo } from "./ai-provider";
 import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
 import { registerCrossPlatformRoutes } from "./cross-platform-api";
+import { registerGrantRoutes } from "./grant-routes";
+import { registerReentryRoutes } from "./reentry-routes";
+import { registerPartnerRoutes } from "./partner-routes";
+import { registerOutcomeRoutes } from "./outcome-routes";
+import { registerJusticeRoutes } from "./justice-routes";
 
 const AI_TOOLS = [
   { toolKey: "presentation-builder", name: "Presentation Builder", description: "Create slide-by-slide presentations with AI-generated content, talking points, and visual suggestions", category: "create", iconName: "presentation", gradeBand: "all", requiredModuleKey: "ai-presentations", promptTemplate: "PRESENTATION_BUILDER", outputFormat: "slides", sortOrder: 1 },
@@ -310,6 +315,11 @@ export async function registerRoutes(
 
   registerObjectStorageRoutes(app);
   registerCrossPlatformRoutes(app);
+  registerGrantRoutes(app);
+  registerReentryRoutes(app);
+  registerPartnerRoutes(app);
+  registerOutcomeRoutes(app);
+  registerJusticeRoutes(app);
   await storage.seedData();
 
   app.get("/api/ai-provider", (_req, res) => {

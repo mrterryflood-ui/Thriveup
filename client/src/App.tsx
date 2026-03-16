@@ -84,6 +84,11 @@ const ResourceFinderPage = lazy(() => import("@/pages/resource-finder"));
 const ImpactPage = lazy(() => import("@/pages/impact"));
 const APIDocsPage = lazy(() => import("@/pages/api-docs"));
 const StakeholderPresentationPage = lazy(() => import("@/pages/stakeholder-presentation"));
+const GrantHubPage = lazy(() => import("@/pages/grant-hub"));
+const ReentryDashboardPage = lazy(() => import("@/pages/reentry-dashboard"));
+const CommunityPartnersPage = lazy(() => import("@/pages/community-partners"));
+const OutcomeReportingPage = lazy(() => import("@/pages/outcome-reporting"));
+const JusticePartnersPage = lazy(() => import("@/pages/justice-partners"));
 
 function PageFallback() {
   return (
@@ -186,6 +191,11 @@ function AppRouter() {
       <Route path="/resources" component={ResourceFinderPage} />
       <Route path="/impact" component={ImpactPage} />
       <Route path="/api-docs" component={APIDocsPage} />
+      <Route path="/grants" component={GrantHubPage} />
+      <Route path="/reentry" component={ReentryDashboardPage} />
+      <Route path="/partners" component={CommunityPartnersPage} />
+      <Route path="/outcomes" component={OutcomeReportingPage} />
+      <Route path="/justice-partners" component={JusticePartnersPage} />
       <Route component={NotFound} />
     </Switch>
   );
