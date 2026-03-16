@@ -76,6 +76,7 @@ const aiToolsItems: NavItem[] = [
   { title: "Subjects", url: "/subjects", icon: GraduationCap },
   { title: "Achievements", url: "/achievements", icon: Award },
   { title: "Certificates", url: "/certificates", icon: ScrollText },
+  { title: "Community Map", url: "/community-map", icon: Map },
 ];
 
 const myStudentItems: NavItem[] = [

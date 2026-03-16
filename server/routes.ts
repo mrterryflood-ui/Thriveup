@@ -23,7 +23,7 @@ import { searchResources, getResourceCategories, getStatesList, getStateName, fe
 import { eq, and, desc, sql, count, gte } from "drizzle-orm";
 import { computeFullThriveScore, computeAllStudentScores, getThriveHistory } from "./thrive-engine";
 import { evaluateFlags, getActiveFlags, resolveFlag, runEarlyWarningCheck } from "./early-warning";
-import { runFullIngestion, getContextForGeography } from "./gis-engine";
+import { runFullIngestion, getContextForGeography, searchByState, searchByLocation, generateCommunityNarrative, getStateCoords, getStateName as gisGetStateName } from "./gis-engine";
 import { db } from "./storage";
 import { streamAIResponse, getProviderInfo } from "./ai-provider";
 import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
@@ -3089,6 +3089,120 @@ Write a warm, encouraging welcome message for students joining this classroom. M
     } catch (error) {
       console.error("Error fetching playbook:", error);
       res.status(500).json({ error: "Failed to fetch playbook" });
+    }
+  });
+
+  // ==================== COMMUNITY MAP ROUTES (PUBLIC) ====================
+
+  app.get("/api/community-map/location-search", async (req, res) => {
+    try {
+      const query = req.query.q as string;
+      if (!query || query.trim().length === 0) {
+        return res.status(400).json({ error: "Search query required" });
+      }
+      const result = await searchByLocation(db, query);
+      res.json({
+        locationName: result.locationName,
+        center: result.center,
+        records: result.records,
+        count: result.records.length,
+      });
+    } catch (error) {
+      console.error("Error in location search:", error);
+      res.status(500).json({ error: "Failed to search location" });
+    }
+  });
+
+  app.get("/api/community-map/search/:stateCode", async (req, res) => {
+    try {
+      const stateCode = req.params.stateCode.toUpperCase();
+      if (!stateCode || stateCode.length !== 2) {
+        return res.status(400).json({ error: "Valid 2-letter state code required" });
+      }
+      const records = await searchByState(db, stateCode);
+      const coords = getStateCoords(stateCode);
+      const stateName = gisGetStateName(stateCode);
+      res.json({
+        state: stateCode,
+        stateName,
+        center: coords || { lat: 39.8283, lng: -98.5795 },
+        records,
+        count: records.length,
+      });
+    } catch (error) {
+      console.error("Error searching community map:", error);
+      res.status(500).json({ error: "Failed to search community data" });
+    }
+  });
+
+  app.get("/api/community-map/context/:geographyKey", async (req, res) => {
+    try {
+      const context = await getContextForGeography(db, req.params.geographyKey);
+      if (!context) return res.status(404).json({ error: "Geography not found" });
+      const narrative = generateCommunityNarrative(context);
+      res.json({ ...context, narrative });
+    } catch (error) {
+      console.error("Error fetching community context:", error);
+      res.status(500).json({ error: "Failed to fetch community context" });
+    }
+  });
+
+  app.post("/api/community-map/ingest", requireAuth, async (req, res) => {
+    try {
+      const stateAbbr = req.body.stateAbbr || "TX";
+      const result = await runFullIngestion(db, stateAbbr);
+      res.json({ success: true, ...result });
+    } catch (error) {
+      console.error("Error running community data ingestion:", error);
+      res.status(500).json({ error: "Failed to ingest community data" });
+    }
+  });
+
+  app.get("/api/community-map/resources/:stateCode", async (req, res) => {
+    try {
+      const stateCode = req.params.stateCode.toUpperCase();
+      const resources = searchResources(stateCode, []);
+      const categories = getResourceCategories();
+      res.json({ resources: resources.slice(0, 50), categories });
+    } catch (error) {
+      console.error("Error fetching community resources:", error);
+      res.status(500).json({ error: "Failed to fetch community resources" });
+    }
+  });
+
+  app.get("/api/community-map/compare", async (req, res) => {
+    try {
+      const key1 = req.query.key1 as string;
+      const key2 = req.query.key2 as string;
+      if (!key1 || !key2) {
+        return res.status(400).json({ error: "Two geography keys required" });
+      }
+      const [context1, context2] = await Promise.all([
+        getContextForGeography(db, key1),
+        getContextForGeography(db, key2),
+      ]);
+      if (!context1 || !context2) {
+        return res.status(404).json({ error: "One or both geographies not found" });
+      }
+      const narrative1 = generateCommunityNarrative(context1);
+      const narrative2 = generateCommunityNarrative(context2);
+      res.json({
+        location1: { ...context1, narrative: narrative1 },
+        location2: { ...context2, narrative: narrative2 },
+      });
+    } catch (error) {
+      console.error("Error comparing communities:", error);
+      res.status(500).json({ error: "Failed to compare communities" });
+    }
+  });
+
+  app.get("/api/community-map/heatmap", async (_req, res) => {
+    try {
+      const data = await db.select().from(gisContextData).orderBy(desc(gisContextData.contextLoadIndex));
+      res.json(data);
+    } catch (error) {
+      console.error("Error fetching heatmap data:", error);
+      res.status(500).json({ error: "Failed to fetch heatmap data" });
     }
   });
 
