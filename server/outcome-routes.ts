@@ -159,7 +159,7 @@ export function registerOutcomeRoutes(app: Express) {
   app.get("/api/outcomes/export/csv", requireAuth, requireAdmin, async (_req, res) => {
     try {
       const outcomes = await db.select().from(outcomeTracking).orderBy(desc(outcomeTracking.measurementDate));
-      const headers = ["id", "userId", "planId", "category", "metricName", "metricValue", "periodMonths", "measurementDate", "source", "verifiedBy", "createdAt"];
+      const headers = ["id", "userId", "planId", "category", "metricName", "metricValue", "periodMonths", "measurementDate", "source", "baseline", "target", "createdAt"];
       const csvRows = [headers.join(",")];
       for (const o of outcomes) {
         csvRows.push(headers.map(h => {

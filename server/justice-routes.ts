@@ -39,9 +39,10 @@ async function requireAdmin(req: Request, res: Response, next: Function) {
 
 const externalReferralSchema = insertJusticeReferralSchema.pick({
   externalReferralId: true, agencyName: true, agencyType: true,
-  userId: true, youthName: true, dateOfBirth: true, releaseDate: true,
-  supervisionLevel: true, chargeType: true, specialConditions: true,
-  assignedPlanId: true,
+  userId: true, releaseDate: true,
+  supervisionLevel: true, offenseCategory: true,
+  supervisionRequirements: true, demographicData: true,
+  assignedPlanId: true, notes: true,
 });
 
 const referralUpdateSchema = z.object({

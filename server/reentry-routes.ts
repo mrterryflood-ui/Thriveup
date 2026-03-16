@@ -61,7 +61,7 @@ const DEFAULT_MILESTONES: Record<string, Array<{ category: string; title: string
 
 const planCreateSchema = insertReentryPlanSchema.pick({
   userId: true, userName: true, phase: true, riskLevel: true, notes: true,
-  releaseDate: true, assignedCaseManagerId: true,
+  releaseDate: true, caseManagerId: true,
 });
 
 const planUpdateSchema = z.object({

@@ -41,12 +41,13 @@ const partnerUpdateSchema = partnerCreateSchema.partial().extend({
 
 const referralCreateSchema = insertPartnerReferralSchema.pick({
   partnerId: true, userId: true, serviceType: true, notes: true,
-  referredBy: true, priority: true,
+  referredBy: true,
 });
 
 const referralUpdateSchema = z.object({
   status: z.enum(["pending", "active", "completed", "cancelled"]).optional(),
-  outcomeNotes: z.string().optional(),
+  partnerNotes: z.string().optional(),
+  outcomeStatus: z.string().optional(),
   completedDate: z.string().optional(),
 });
 
