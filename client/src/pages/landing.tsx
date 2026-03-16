@@ -22,11 +22,11 @@ import featureVideoSrc from "@assets/Learning_Academy_1.0_1772131808280.mp4";
 const levelIcons = [Compass, Map, Building2, Lightbulb, Crown];
 
 const levels = [
-  { id: 1, title: "AI Explorer", grades: "3-5", desc: "Discovery & basics" },
-  { id: 2, title: "AI Guide", grades: "3-5", desc: "Prompting & creative applications" },
-  { id: 3, title: "AI Architect", grades: "6-8", desc: "Building & ethics deepening" },
-  { id: 4, title: "AI Innovator", grades: "9-10", desc: "Advanced creation & societal impact" },
-  { id: 5, title: "AI Master", grades: "11-12", desc: "Leadership & teaching others" },
+  { id: 1, title: "AI Explorer", track: "Foundation", desc: "Discovery & basics" },
+  { id: 2, title: "AI Guide", track: "Foundation", desc: "Prompting & creative applications" },
+  { id: 3, title: "AI Architect", track: "Intermediate", desc: "Building & ethics deepening" },
+  { id: 4, title: "AI Innovator", track: "Advanced", desc: "Advanced creation & societal impact" },
+  { id: 5, title: "AI Master", track: "Professional", desc: "Leadership & teaching others" },
 ];
 
 const subjectAreas = [
@@ -40,34 +40,34 @@ const subjectAreas = [
 
 const features = [
   {
-    icon: Brain,
-    title: "AI Mastery Curriculum",
-    desc: "Five-level progression from AI Explorer to AI Master, teaching youth to think critically with artificial intelligence.",
+    icon: Map,
+    title: "Community Intelligence",
+    desc: "GIS-powered maps layering health, crime, poverty, and resource data so you see exactly where gaps exist and what communities need.",
+  },
+  {
+    icon: Target,
+    title: "Grant Discovery Engine",
+    desc: "Find federal, state, and private grants with AI-powered alignment scoring that shows exactly how your capabilities match each opportunity.",
   },
   {
     icon: Briefcase,
-    title: "School-to-Career Pipelines",
-    desc: "50+ career pathways with structured progression from exploration to job readiness, skill training, and career placement.",
-  },
-  {
-    icon: HandshakeIcon,
-    title: "Mentorship Network",
-    desc: "Professional coaching connecting under-resourced youth with industry mentors for career advancement and workforce readiness.",
-  },
-  {
-    icon: Sparkles,
-    title: "AI Creation Studio",
-    desc: "10 professional-grade AI tools students earn through mastery, building real presentations, business plans, and portfolios.",
-  },
-  {
-    icon: TrendingUp,
-    title: "Workforce Development",
-    desc: "Job readiness skills, financial literacy, entrepreneurship training, and real fundraising for college tuition.",
+    title: "Workforce Pipeline",
+    desc: "Complete lifecycle from intake assessment through training, credential attainment, job placement, retention tracking, and career advancement.",
   },
   {
     icon: Shield,
-    title: "Whole-Child Support",
-    desc: "IGN-Thrive analytics tracking six domains of wellbeing with early warning systems so no student falls through the cracks.",
+    title: "Reentry & Case Management",
+    desc: "Evidence-based reentry plans, milestone tracking, service delivery records, and outcome reporting aligned to DOJ and WIOA standards.",
+  },
+  {
+    icon: Sparkles,
+    title: "AI-Powered Tools",
+    desc: "10 professional-grade AI tools for building presentations, resumes, business plans, and portfolios — available to participants at every level.",
+  },
+  {
+    icon: HandshakeIcon,
+    title: "Partner Ecosystem",
+    desc: "Connect churches, employers, law enforcement, schools, and community organizations into a coordinated service delivery network.",
   },
 ];
 
@@ -113,7 +113,7 @@ function FeatureVideoPlayer() {
   };
 
 
-  useEffect(() => { document.title = "AI Mastery Academy - Empowering Youth with AI"; }, []);
+  useEffect(() => { document.title = "Workforce Development & Community Enablement Platform"; }, []);
   return (
     <Card className="overflow-hidden shadow-xl border-2 border-primary/10" data-testid="card-feature-video">
       <div className="relative group">
@@ -189,22 +189,22 @@ export default function LandingPage() {
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSA2MCAwIEwgMCAwIDAgNjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjA1KSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-40" />
         <div className="relative mx-auto max-w-5xl text-center">
           <Badge variant="secondary" className="mb-4 sm:mb-6 bg-white/15 text-white border-white/20 text-xs sm:text-sm">
-            AI Mastery Academy & School Support Hub
+            Workforce Development & Community Enablement
           </Badge>
           <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-4 sm:mb-6 tracking-tight leading-tight" data-testid="text-hero-title">
-            AI Mastery<br />Academy
+            Strengthening<br />Communities
           </h1>
           <p className="text-base sm:text-lg md:text-xl text-white/80 max-w-2xl mx-auto mb-3 sm:mb-4 px-2" data-testid="text-hero-subtitle">
-            Empowering under-resourced youth with AI mastery, workforce readiness, reentry support, and school-to-career pipelines
+            AI-powered workforce development, grant discovery, reentry support, and community enablement for under-resourced communities
           </p>
           <p className="text-xs sm:text-sm md:text-base text-white/60 max-w-xl mx-auto mb-8 sm:mb-10 px-2">
-            A community-based ecosystem for education, workforce development, and youth reentry. Five-level AI curriculum, 50+ career pathways, evidence-based reentry plans, and whole-child support for youth ages 14-24.
+            A complete ecosystem connecting grant makers, community organizations, employers, and service providers to reduce recidivism, increase employment, and build stronger communities. Powered by real-time community data and AI.
           </p>
           <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-4 px-4 sm:px-0">
-            <Link href="/subjects">
-              <Button size="lg" className="bg-white text-violet-700 border-white font-semibold shadow-lg w-full sm:w-auto min-h-[44px]" data-testid="button-explore-subjects">
-                <GraduationCap className="mr-2 h-5 w-5" />
-                Explore Subjects
+            <Link href="/grants">
+              <Button size="lg" className="bg-white text-violet-700 border-white font-semibold shadow-lg w-full sm:w-auto min-h-[44px]" data-testid="button-discover-grants">
+                <Search className="mr-2 h-5 w-5" />
+                Discover Grants
               </Button>
             </Link>
             <Link href="/impact">
@@ -213,9 +213,9 @@ export default function LandingPage() {
                 View Impact Dashboard
               </Button>
             </Link>
-            <Link href="/dashboard">
-              <Button size="lg" variant="outline" className="text-white border-white/30 backdrop-blur-sm bg-white/10 w-full sm:w-auto min-h-[44px]" data-testid="button-start-learning">
-                Start Learning
+            <Link href="/resources">
+              <Button size="lg" variant="outline" className="text-white border-white/30 backdrop-blur-sm bg-white/10 w-full sm:w-auto min-h-[44px]" data-testid="button-find-resources">
+                Find Resources
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
@@ -231,10 +231,10 @@ export default function LandingPage() {
               <Play className="mr-1 h-3 w-3" /> Platform Tour
             </Badge>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4" data-testid="text-video-heading">
-              See AI Mastery Academy in Action
+              See the Platform in Action
             </h2>
             <p className="text-sm sm:text-base text-muted-foreground max-w-lg mx-auto px-2">
-              Join Arthur Wakanda on a 7-minute tour of the platform -- from Youth AI Learning to career pathways, Panther Village, and beyond.
+              A 7-minute tour of the platform — from community intelligence and grant discovery to workforce pipelines, AI tools, and partner coordination.
             </p>
           </div>
           <FeatureVideoPlayer />
@@ -246,10 +246,10 @@ export default function LandingPage() {
         <div className="mx-auto max-w-5xl">
           <div className="text-center mb-10 sm:mb-14">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4" data-testid="text-philosophy-heading">
-              Driving Economic Opportunity for Youth
+              Two Engines, One Mission
             </h2>
             <p className="text-sm sm:text-base text-muted-foreground max-w-lg mx-auto px-2">
-              Building school-to-career pipelines through AI mastery, workforce development, mentorship, and whole-child support for under-resourced communities.
+              A Grant Discovery Engine that finds and aligns funding opportunities, paired with a Workforce and Community Platform that delivers measurable outcomes.
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
@@ -277,13 +277,13 @@ export default function LandingPage() {
         <div className="mx-auto max-w-5xl">
           <div className="text-center mb-10 sm:mb-14">
             <Badge variant="secondary" className="mb-4">
-              <Heart className="mr-1 h-3 w-3" /> 6 Core Subject Areas
+              <Heart className="mr-1 h-3 w-3" /> 6 Core Learning Areas
             </Badge>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4" data-testid="text-subjects-heading">
-              Supporting the Whole Child
+              Whole-Person Development
             </h2>
             <p className="text-sm sm:text-base text-muted-foreground max-w-lg mx-auto px-2">
-              From reading and math to emotional wellness and self-care - every part of your child's growth matters.
+              Academic foundations, career readiness, and personal wellness — every dimension of growth matters for workforce success.
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
@@ -311,13 +311,13 @@ export default function LandingPage() {
         <div className="mx-auto max-w-5xl">
           <div className="text-center mb-10 sm:mb-14">
             <Badge variant="secondary" className="mb-4">
-              <Brain className="mr-1 h-3 w-3" /> AI Mastery Track
+              <Brain className="mr-1 h-3 w-3" /> Digital Literacy & AI Skills
             </Badge>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4" data-testid="text-levels-heading">
               From Explorer to Master
             </h2>
             <p className="text-sm sm:text-base text-muted-foreground max-w-lg mx-auto px-2">
-              A dedicated AI curriculum teaching responsible, ethical use of artificial intelligence across grades 3-12.
+              A five-level AI and digital literacy curriculum for all ages — from foundational skills to professional mastery.
             </p>
           </div>
           <div className="space-y-3">
@@ -334,7 +334,7 @@ export default function LandingPage() {
                       <div className="flex-1 min-w-[150px] sm:min-w-[200px]">
                         <div className="flex items-center gap-2 flex-wrap">
                           <h3 className="font-semibold text-sm sm:text-base">Level {level.id}: {level.title}</h3>
-                          <Badge variant="outline" className="text-xs">{level.grades}</Badge>
+                          <Badge variant="outline" className="text-xs">{level.track}</Badge>
                         </div>
                         <p className="text-sm text-muted-foreground mt-0.5">{level.desc}</p>
                       </div>
@@ -354,14 +354,14 @@ export default function LandingPage() {
           <Card className="p-6 sm:p-8 md:p-12 bg-gradient-to-br from-violet-600 to-indigo-700 border-none text-white">
             <div className="text-center">
               <Sparkles className="h-8 w-8 sm:h-10 sm:w-10 mx-auto mb-4 text-white/80" />
-              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3">Meet Spark, Your Learning Companion</h2>
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3">Meet Your AI Navigator</h2>
               <p className="text-white/80 max-w-2xl mx-auto text-sm sm:text-base md:text-lg leading-relaxed mb-6 px-2">
-                Spark is an AI-powered buddy who helps students learn by asking great questions, giving gentle hints, and celebrating every step forward. Spark never gives answers directly - instead, Spark helps children think for themselves.
+                An empathetic AI companion that understands your situation, knows your community, and actively connects you to the right resources, services, and opportunities. Whether you are a returning citizen, a parent, a case manager, or a community leader — the navigator meets you where you are.
               </p>
               <Link href="/ai-companion">
-                <Button size="lg" className="bg-white text-violet-700 border-white/80 min-h-[44px]" data-testid="button-meet-spark">
+                <Button size="lg" className="bg-white text-violet-700 border-white/80 min-h-[44px]" data-testid="button-meet-navigator">
                   <Sparkles className="mr-2 h-5 w-5" />
-                  Chat with Spark
+                  Talk to the Navigator
                 </Button>
               </Link>
             </div>
@@ -374,22 +374,22 @@ export default function LandingPage() {
         <div className="mx-auto max-w-5xl">
           <div className="text-center mb-10 sm:mb-14">
             <Badge variant="secondary" className="mb-4">
-              <MapPin className="mr-1 h-3 w-3" /> Serving Under-Resourced Communities
+              <MapPin className="mr-1 h-3 w-3" /> Deployable Anywhere
             </Badge>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4" data-testid="text-austin-heading">
               Equity-First, Community-Driven
             </h2>
             <p className="text-sm sm:text-base text-muted-foreground max-w-lg mx-auto px-2">
-              Launching in Austin, TX and scaling nationally. Removing every barrier to workforce development and AI education for under-resourced youth.
+              Deploy in any community, anywhere in the nation. Local ambassadors on the ground, powered by a platform that adapts to any population and any funder.
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
             {[
-              { icon: Heart, title: "Free Access", desc: "Subsidized access for qualifying families, Title I school partnerships, and community center programs" },
-              { icon: Laptop, title: "Device Lending", desc: "Chromebook and tablet lending through community centers for families without devices" },
+              { icon: Heart, title: "Open Access", desc: "Free access for participants referred through community partners, courts, workforce agencies, and faith-based organizations" },
+              { icon: Globe, title: "Any Community", desc: "GIS-powered community profiles auto-populate local data — deploy in any zip code and the platform adapts to that community's needs" },
               { icon: Languages, title: "Bilingual Support", desc: "Full English and Spanish language support with culturally relevant content for diverse communities" },
             ].map((item) => (
-              <Card key={item.title} className="p-5 hover-elevate" data-testid={`card-austin-${item.title.toLowerCase().replace(/\s/g, '-')}`}>
+              <Card key={item.title} className="p-5 hover-elevate" data-testid={`card-community-${item.title.toLowerCase().replace(/\s/g, '-')}`}>
                 <div className="flex items-start gap-4">
                   <div className="rounded-md bg-primary/10 p-2.5 shrink-0">
                     <item.icon className="h-5 w-5 text-primary" />
@@ -403,9 +403,9 @@ export default function LandingPage() {
             ))}
           </div>
           <div className="text-center mt-6 sm:mt-8">
-            <Link href="/community">
-              <Button variant="outline" className="min-h-[44px]" data-testid="button-view-community">
-                View All Community Programs
+            <Link href="/resources">
+              <Button variant="outline" className="min-h-[44px]" data-testid="button-find-community-resources">
+                Find Community Resources
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
@@ -419,9 +419,9 @@ export default function LandingPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 text-center">
             {[
               { value: "50+", label: "Career Pathways" },
-              { value: "14-24", label: "Youth Age Range" },
-              { value: "5", label: "AI Mastery Levels" },
-              { value: "10", label: "AI Creation Tools" },
+              { value: "All Ages", label: "Served" },
+              { value: "50", label: "States Deployable" },
+              { value: "10", label: "AI-Powered Tools" },
             ].map((stat) => (
               <div key={stat.label} className="py-2">
                 <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary" data-testid={`text-stat-${stat.label.toLowerCase().replace(/\s/g, '-')}`}>
@@ -445,98 +445,131 @@ export default function LandingPage() {
               Who We Serve
             </h2>
             <p className="text-sm sm:text-base text-muted-foreground max-w-lg mx-auto px-2">
-              Purpose-built tools and outcomes for funders, schools, and employer partners driving youth workforce development.
+              One platform that speaks every stakeholder's language — funders see outcomes, partners see coordination, participants see opportunity.
             </p>
           </div>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
 
-            <Card className="p-6 flex flex-col" data-testid="card-stakeholder-funders" aria-label="For Funders and Grant Partners">
+            <Card className="p-6 flex flex-col" data-testid="card-stakeholder-funders" aria-label="For Grant Makers and Funders">
               <div className="flex items-start gap-4 mb-4">
                 <div className="rounded-md bg-primary/10 p-2.5 shrink-0">
                   <DollarSign className="h-5 w-5 text-primary" />
                 </div>
                 <h3 className="font-semibold text-lg" data-testid="text-stakeholder-funders-heading">
-                  For Funders & Grant Partners
+                  For Grant Makers & Funders
                 </h3>
               </div>
               <ul className="space-y-3 text-sm text-muted-foreground leading-relaxed flex-1">
                 <li className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                  <span>Grant-aligned platform meeting OJJDP, workforce development, and CBO grant criteria with transparent reporting</span>
+                  <span>Platform aligns to WIOA, DOJ, DOL, OJJDP, HHS, and private foundation grant criteria with transparent reporting</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <BarChart3 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                  <span>DOJ-aligned outcome tracking: recidivism, employment, education, housing, and behavioral health</span>
+                  <span>Outcome tracking across all major categories: recidivism, employment, education, housing, and behavioral health</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <TrendingUp className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                  <span>Scalable community-based reentry and workforce model for Title I communities and under-resourced youth</span>
+                  <span>Scalable delivery model with community-level data proving need and documenting impact</span>
                 </li>
               </ul>
               <div className="mt-6">
-                <Link href="/impact">
-                  <Button variant="outline" className="w-full min-h-[44px]" data-testid="button-stakeholder-funders-cta" aria-label="View impact metrics for funders">
+                <Link href="/outcomes">
+                  <Button variant="outline" className="w-full min-h-[44px]" data-testid="button-stakeholder-funders-cta" aria-label="View outcome reporting for funders">
                     <BarChart3 className="mr-2 h-4 w-4" />
-                    View Impact Metrics
+                    View Outcome Reports
                   </Button>
                 </Link>
               </div>
             </Card>
 
-            <Card className="p-6 flex flex-col" data-testid="card-stakeholder-schools" aria-label="For Schools and Districts">
+            <Card className="p-6 flex flex-col" data-testid="card-stakeholder-community" aria-label="For Community Organizations and Churches">
               <div className="flex items-start gap-4 mb-4">
                 <div className="rounded-md bg-primary/10 p-2.5 shrink-0">
-                  <School className="h-5 w-5 text-primary" />
+                  <Building2 className="h-5 w-5 text-primary" />
                 </div>
-                <h3 className="font-semibold text-lg" data-testid="text-stakeholder-schools-heading">
-                  For Schools & Districts
+                <h3 className="font-semibold text-lg" data-testid="text-stakeholder-community-heading">
+                  For Community & Faith-Based Orgs
                 </h3>
               </div>
               <ul className="space-y-3 text-sm text-muted-foreground leading-relaxed flex-1">
                 <li className="flex items-start gap-2">
-                  <ClipboardList className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                  <span>Easy integration with existing curricula and alignment to state standards including TEKS and STAAR</span>
+                  <HandshakeIcon className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                  <span>Become a local delivery partner — host programs, coordinate volunteers, and track community impact</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <Wrench className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                  <span>Comprehensive teacher tools with dashboards, lesson plans, and real-time student analytics</span>
+                  <MapPin className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                  <span>See your community's data: health indicators, employment gaps, food access, and service availability</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <Users className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                  <span>Dedicated implementation support with onboarding, training, and ongoing technical assistance</span>
+                  <span>Refer participants, track service delivery, and demonstrate collective impact to funders</span>
                 </li>
               </ul>
               <div className="mt-6">
-                <Link href="/academy/integration">
-                  <Button variant="outline" className="w-full min-h-[44px]" data-testid="button-stakeholder-schools-cta" aria-label="Learn about school integration options">
-                    <School className="mr-2 h-4 w-4" />
-                    Explore Integration
+                <Link href="/partners">
+                  <Button variant="outline" className="w-full min-h-[44px]" data-testid="button-stakeholder-community-cta" aria-label="Learn about community partnerships">
+                    <HandshakeIcon className="mr-2 h-4 w-4" />
+                    Become a Partner
                   </Button>
                 </Link>
               </div>
             </Card>
 
-            <Card className="p-6 flex flex-col" data-testid="card-stakeholder-employers" aria-label="For Employers and Partners">
+            <Card className="p-6 flex flex-col" data-testid="card-stakeholder-justice" aria-label="For Justice System and Law Enforcement">
+              <div className="flex items-start gap-4 mb-4">
+                <div className="rounded-md bg-primary/10 p-2.5 shrink-0">
+                  <Shield className="h-5 w-5 text-primary" />
+                </div>
+                <h3 className="font-semibold text-lg" data-testid="text-stakeholder-justice-heading">
+                  For Justice & Law Enforcement
+                </h3>
+              </div>
+              <ul className="space-y-3 text-sm text-muted-foreground leading-relaxed flex-1">
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                  <span>Diversion referrals, reentry case management, and supervision compliance tracking in one system</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <ClipboardList className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                  <span>Evidence-based reentry plans with milestone tracking, risk assessment, and progress reports</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Target className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                  <span>Measurable recidivism reduction through coordinated community services and workforce placement</span>
+                </li>
+              </ul>
+              <div className="mt-6">
+                <Link href="/justice-partners">
+                  <Button variant="outline" className="w-full min-h-[44px]" data-testid="button-stakeholder-justice-cta" aria-label="Learn about justice system integration">
+                    <Shield className="mr-2 h-4 w-4" />
+                    Justice Integration
+                  </Button>
+                </Link>
+              </div>
+            </Card>
+
+            <Card className="p-6 flex flex-col" data-testid="card-stakeholder-employers" aria-label="For Employers and Workforce Partners">
               <div className="flex items-start gap-4 mb-4">
                 <div className="rounded-md bg-primary/10 p-2.5 shrink-0">
                   <Factory className="h-5 w-5 text-primary" />
                 </div>
                 <h3 className="font-semibold text-lg" data-testid="text-stakeholder-employers-heading">
-                  For Employers & Partners
+                  For Employers & Workforce
                 </h3>
               </div>
               <ul className="space-y-3 text-sm text-muted-foreground leading-relaxed flex-1">
                 <li className="flex items-start gap-2">
                   <UserCheck className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                  <span>Access career-ready graduates trained in AI literacy, professional skills, and industry workflows</span>
+                  <span>Access trained, workforce-ready participants with verified credentials and professional skills</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <Link2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                  <span>Industry partnership programs connecting employers directly with emerging youth talent pipelines</span>
+                  <Briefcase className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                  <span>Fair chance hiring support, placement tracking, and retention monitoring at 30/90/180/365 days</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <HandshakeIcon className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                  <span>Mentor matching system pairing professionals with students for career coaching and guidance</span>
+                  <TrendingUp className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                  <span>Employer tax credits, wage subsidies, and workforce development grant eligibility documentation</span>
                 </li>
               </ul>
               <div className="mt-6">
@@ -544,6 +577,72 @@ export default function LandingPage() {
                   <Button variant="outline" className="w-full min-h-[44px]" data-testid="button-stakeholder-employers-cta" aria-label="Explore employer partnership opportunities">
                     <Briefcase className="mr-2 h-4 w-4" />
                     Partner With Us
+                  </Button>
+                </Link>
+              </div>
+            </Card>
+
+            <Card className="p-6 flex flex-col" data-testid="card-stakeholder-schools" aria-label="For Schools and Education Partners">
+              <div className="flex items-start gap-4 mb-4">
+                <div className="rounded-md bg-primary/10 p-2.5 shrink-0">
+                  <School className="h-5 w-5 text-primary" />
+                </div>
+                <h3 className="font-semibold text-lg" data-testid="text-stakeholder-schools-heading">
+                  For Schools & Education
+                </h3>
+              </div>
+              <ul className="space-y-3 text-sm text-muted-foreground leading-relaxed flex-1">
+                <li className="flex items-start gap-2">
+                  <ClipboardList className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                  <span>Digital literacy and AI curriculum aligned to state standards with teacher dashboards and analytics</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Wrench className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                  <span>GED preparation, literacy programs, and workforce readiness pathways for adult learners</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <GraduationCap className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                  <span>School-to-career pipelines connecting classrooms directly to employer hiring commitments</span>
+                </li>
+              </ul>
+              <div className="mt-6">
+                <Link href="/academy/integration">
+                  <Button variant="outline" className="w-full min-h-[44px]" data-testid="button-stakeholder-schools-cta" aria-label="Explore school integration options">
+                    <School className="mr-2 h-4 w-4" />
+                    Explore Integration
+                  </Button>
+                </Link>
+              </div>
+            </Card>
+
+            <Card className="p-6 flex flex-col" data-testid="card-stakeholder-participants" aria-label="For Participants and Families">
+              <div className="flex items-start gap-4 mb-4">
+                <div className="rounded-md bg-primary/10 p-2.5 shrink-0">
+                  <Heart className="h-5 w-5 text-primary" />
+                </div>
+                <h3 className="font-semibold text-lg" data-testid="text-stakeholder-participants-heading">
+                  For Participants & Families
+                </h3>
+              </div>
+              <ul className="space-y-3 text-sm text-muted-foreground leading-relaxed flex-1">
+                <li className="flex items-start gap-2">
+                  <Sparkles className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                  <span>AI navigator that understands your situation and connects you to housing, jobs, training, and support services</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Brain className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                  <span>Free AI and digital literacy training, professional certifications, and workforce development programs</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Heart className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                  <span>Whole-person support: financial coaching, mentorship, wellness resources, and family services</span>
+                </li>
+              </ul>
+              <div className="mt-6">
+                <Link href="/dashboard">
+                  <Button variant="outline" className="w-full min-h-[44px]" data-testid="button-stakeholder-participants-cta" aria-label="Get started as a participant">
+                    <ArrowRight className="mr-2 h-4 w-4" />
+                    Get Started
                   </Button>
                 </Link>
               </div>
@@ -642,14 +741,14 @@ export default function LandingPage() {
               How It Works
             </h2>
             <p className="text-sm sm:text-base text-muted-foreground max-w-lg mx-auto px-2">
-              Three steps from exploration to career launch.
+              Three steps from community insight to measurable impact.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
             {[
-              { step: 1, title: "Explore & Assess", desc: "Take career assessment, explore 50+ pathways, and discover your strengths and interests.", icon: Search },
-              { step: 2, title: "Learn & Build", desc: "Complete AI mastery curriculum, build real projects, and develop workforce-ready skills.", icon: BookOpen },
-              { step: 3, title: "Connect & Launch", desc: "Match with mentors, earn certifications, and launch your career with confidence.", icon: Zap },
+              { step: 1, title: "Understand the Community", desc: "Enter any location and see layered data: health, crime, poverty, resources, employment gaps. Know exactly what your community needs.", icon: Search },
+              { step: 2, title: "Find Aligned Funding", desc: "The Grant Discovery Engine matches your capabilities to federal, state, and private funding opportunities with AI-powered fit scoring.", icon: Target },
+              { step: 3, title: "Deliver & Measure", desc: "Deploy programs through local partners, track service delivery, and generate outcome reports that prove impact to every funder.", icon: Zap },
             ].map((item) => (
               <Card key={item.step} className="p-6 text-center" data-testid={`card-step-${item.step}`}>
                 <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
@@ -669,20 +768,20 @@ export default function LandingPage() {
         <div className="mx-auto max-w-5xl">
           <div className="text-center mb-10 sm:mb-14">
             <Badge variant="secondary" className="mb-4">
-              <Award className="mr-1 h-3 w-3" /> Student Impact
+              <Award className="mr-1 h-3 w-3" /> Community Impact
             </Badge>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4" data-testid="text-success-stories-heading">
               Success Stories
             </h2>
             <p className="text-sm sm:text-base text-muted-foreground max-w-lg mx-auto px-2">
-              Hear from students whose lives have been transformed through the platform.
+              Real people, real outcomes — from returning citizens to young professionals to community leaders.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
             {[
-              { name: "Maria Santos", age: 17, pathway: "Technology", quote: "Before this program, I had never written a line of code. Now I have built three apps and earned my first internship at a local tech company. The AI curriculum taught me how to think through problems, and my mentor helped me believe I belonged in this field." },
-              { name: "James Richardson", age: 19, pathway: "Healthcare", quote: "Growing up, nobody in my family went to college. The career assessment showed me a path into healthcare I never knew existed. The mentorship program connected me with a nurse practitioner who guided me through every step. I start my clinical program this fall." },
-              { name: "Aisha Patel", age: 16, pathway: "Business & Finance", quote: "The financial literacy modules changed how I see money and opportunity. I used the AI tools to build a real business plan for my community tutoring service. Last month I earned my first certification, and I am already saving for college." },
+              { name: "Marcus Williams", role: "Returning Citizen", pathway: "Skilled Trades", quote: "After 8 years inside, I had no idea where to start. The case manager connected me to a welding program through the platform, and the AI navigator helped me find housing and transportation. Six months later, I am employed full-time with benefits. My kids can see a different future now." },
+              { name: "Maria Santos", role: "Career Changer", pathway: "Technology", quote: "I was a single mom working two part-time jobs with no path forward. The workforce assessment showed me I had skills I did not even realize. The AI curriculum taught me to use technology professionally, and the employer partner hired me at a livable wage. Everything changed." },
+              { name: "Pastor David Chen", role: "Community Partner", pathway: "Faith-Based Org", quote: "Our church wanted to do more than food drives. This platform gave us the tools to run a real workforce program — tracking who we serve, what services we provide, and showing the results to funders. We went from helping a few families to transforming our neighborhood." },
             ].map((story, idx) => (
               <Card key={idx} className="p-6 flex flex-col" data-testid={`card-testimonial-${idx}`}>
                 <Quote className="h-6 w-6 text-primary/30 mb-3 shrink-0" />
@@ -692,7 +791,7 @@ export default function LandingPage() {
                 <div className="mt-4 pt-4 border-t">
                   <p className="font-semibold text-sm" data-testid={`text-testimonial-name-${idx}`}>{story.name}</p>
                   <div className="flex items-center gap-2 mt-1 flex-wrap">
-                    <span className="text-xs text-muted-foreground" data-testid={`text-testimonial-age-${idx}`}>Age {story.age}</span>
+                    <span className="text-xs text-muted-foreground" data-testid={`text-testimonial-role-${idx}`}>{story.role}</span>
                     <Badge variant="outline" className="text-xs" data-testid={`badge-testimonial-pathway-${idx}`}>{story.pathway}</Badge>
                   </div>
                 </div>
@@ -718,12 +817,12 @@ export default function LandingPage() {
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
             {[
-              { label: "School-to-Career", icon: School },
-              { label: "Job Readiness", icon: ClipboardList },
-              { label: "Skill Training", icon: Wrench },
+              { label: "Workforce Training", icon: Wrench },
               { label: "Job Placement", icon: Briefcase },
+              { label: "Recidivism Reduction", icon: Shield },
               { label: "Career Advancement", icon: TrendingUp },
-              { label: "Mentorship", icon: HandshakeIcon },
+              { label: "Community Health", icon: Heart },
+              { label: "Service Delivery", icon: HandshakeIcon },
             ].map((criterion) => (
               <Card key={criterion.label} className="p-4 text-center" data-testid={`card-grant-${criterion.label.toLowerCase().replace(/\s+/g, '-')}`}>
                 <div className="flex items-center justify-center gap-1.5 mb-2">
@@ -744,29 +843,30 @@ export default function LandingPage() {
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <Heart className="h-5 w-5 text-primary" />
-                <span className="font-semibold" data-testid="text-footer-brand">AI Mastery Academy</span>
+                <span className="font-semibold" data-testid="text-footer-brand">Community Enablement Platform</span>
               </div>
               <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed" data-testid="text-footer-tagline">
-                Driving economic opportunity for under-resourced youth through AI mastery and workforce development.
+                AI-powered workforce development, grant alignment, and community enablement — reducing recidivism, increasing employment, and strengthening communities.
               </p>
             </div>
 
-            <div data-testid="footer-column-students">
-              <h4 className="font-semibold text-sm mb-3" data-testid="text-footer-students-heading">For Students</h4>
+            <div data-testid="footer-column-platform">
+              <h4 className="font-semibold text-sm mb-3" data-testid="text-footer-platform-heading">Platform</h4>
               <ul className="space-y-2">
-                <li><Link href="/dashboard" className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-dashboard">Dashboard</Link></li>
-                <li><Link href="/curriculum" className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-curriculum">Curriculum</Link></li>
-                <li><Link href="/ai-tools" className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-ai-tools">AI Tools</Link></li>
-                <li><Link href="/academy/careers" className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-careers">Careers</Link></li>
+                <li><Link href="/grants" className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-grants">Grant Discovery</Link></li>
+                <li><Link href="/reentry" className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-reentry">Case Management</Link></li>
+                <li><Link href="/outcomes" className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-outcomes">Outcome Reporting</Link></li>
+                <li><Link href="/resources" className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-resources-link">Resource Finder</Link></li>
               </ul>
             </div>
 
             <div data-testid="footer-column-partners">
               <h4 className="font-semibold text-sm mb-3" data-testid="text-footer-partners-heading">For Partners</h4>
               <ul className="space-y-2">
-                <li><Link href="/impact" className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-impact">Impact Metrics</Link></li>
+                <li><Link href="/partners" className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-community-partners">Community Partners</Link></li>
+                <li><Link href="/justice-partners" className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-justice-partners">Justice Partners</Link></li>
+                <li><Link href="/impact" className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-impact">Impact Dashboard</Link></li>
                 <li><Link href="/api-docs" className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-api-docs">API Documentation</Link></li>
-                <li><Link href="/implementation" className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-implementation">Implementation</Link></li>
               </ul>
             </div>
 

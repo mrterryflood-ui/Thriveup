@@ -46,16 +46,19 @@ interface NavItem {
 
 const platformItems: NavItem[] = [
   { title: "Dashboard", url: "/dashboard", icon: Home },
+  { title: "AI Navigator", url: "/ai-companion", icon: Sparkles },
+  { title: "Resource Finder", url: "/resources", icon: MapPin },
+  { title: "Community", url: "/community", icon: Globe },
+  { title: "Stakeholder Deck", url: "/presentation", icon: Presentation },
+];
+
+const workforceItems: NavItem[] = [
   { title: "AI Curriculum", url: "/curriculum", icon: Brain },
   { title: "AI Creation Studio", url: "/ai-tools", icon: Wand2 },
-  { title: "Spark", url: "/ai-companion", icon: Sparkles },
-  { title: "Sparky (Adults)", url: "/sparky", icon: MessageCircle },
-  { title: "Community", url: "/community", icon: Globe },
+  { title: "Career Explorer", url: "/academy/careers", icon: Briefcase },
   { title: "Subjects", url: "/subjects", icon: GraduationCap },
   { title: "Achievements", url: "/achievements", icon: Award },
   { title: "Certificates", url: "/certificates", icon: ScrollText },
-  { title: "Resource Finder", url: "/resources", icon: MapPin },
-  { title: "Stakeholder Deck", url: "/presentation", icon: Presentation },
 ];
 
 const myStudentItems: NavItem[] = [
@@ -86,7 +89,6 @@ const campusLifeItems: NavItem[] = [
 ];
 
 const careerMentorsItems: NavItem[] = [
-  { title: "Career Explorer", url: "/academy/careers", icon: Briefcase },
   { title: "Mentor Network", url: "/academy/mentors", icon: Users },
   { title: "Find Mentor/Partner", url: "/academy/mentor-finder", icon: Handshake },
   { title: "Dream Design", url: "/academy/dreams", icon: Target },
@@ -98,11 +100,11 @@ const buildCreateItems: NavItem[] = [
   { title: "Print Shop", url: "/academy/merch", icon: ShoppingBag },
 ];
 
-const reentryWorkforceItems: NavItem[] = [
+const caseManagementItems: NavItem[] = [
   { title: "Reentry Dashboard", url: "/reentry", icon: Shield },
   { title: "Community Partners", url: "/partners", icon: Handshake },
   { title: "Outcome Reporting", url: "/outcomes", icon: FileBarChart },
-  { title: "For Justice Partners", url: "/justice-partners", icon: Scale },
+  { title: "Justice Partners", url: "/justice-partners", icon: Scale },
 ];
 
 const teachingPublicItems: NavItem[] = [
@@ -124,12 +126,13 @@ const teachingTeacherItems: NavItem[] = [
 
 const teachingAdminItems: NavItem[] = [
   { title: "Admin Dashboard", url: "/academy/admin", icon: BarChart3 },
+  { title: "Grant Discovery", url: "/grants", icon: Target },
+  { title: "Sparky (Staff)", url: "/sparky", icon: MessageCircle },
   { title: "Admin Guide", url: "/academy/admin-tutorial", icon: BookOpen },
   { title: "Student Wizards", url: "/academy/student-wizard", icon: Wand2 },
   { title: "Arthur's Journey", url: "/academy/tutorial", icon: GraduationCap },
   { title: "Longitudinal Dashboard", url: "/academy/longitudinal", icon: BarChart3 },
   { title: "Risk Monitor", url: "/academy/risk-monitor", icon: Shield },
-  { title: "Grant Hub", url: "/grants", icon: Target },
   { title: "API Documentation", url: "/api-docs", icon: Globe },
 ];
 
@@ -242,14 +245,14 @@ export function AppSidebar() {
   return (
     <Sidebar aria-label="Main navigation">
       <SidebarHeader className="p-4">
-        <Link href="/" aria-label="AI Mastery Academy home">
+        <Link href="/" aria-label="Community Enablement Platform home">
           <div className="flex items-center gap-2.5 cursor-pointer" data-testid="link-home">
-            <div className="rounded-md p-1.5 bg-gradient-to-br from-rose-900 to-red-950">
+            <div className="rounded-md p-1.5 bg-gradient-to-br from-violet-700 to-indigo-800">
               <Heart className="h-5 w-5 text-white" aria-hidden="true" />
             </div>
             <div>
-              <p className="font-bold text-sm leading-tight">AI Mastery Academy</p>
-              <p className="text-xs text-muted-foreground leading-tight">School Support Hub</p>
+              <p className="font-bold text-sm leading-tight">Community Platform</p>
+              <p className="text-xs text-muted-foreground leading-tight">Workforce & Enablement</p>
             </div>
           </div>
         </Link>
@@ -282,10 +285,11 @@ export function AppSidebar() {
         )}
 
         <NavSection label="Platform" items={platformItems} location={location} />
-        <NavSection label="My Student" items={myStudentItems} location={location} />
+        <NavSection label="Workforce & Training" items={workforceItems} location={location} />
+        <NavSection label="Case Management" items={caseManagementItems} location={location} />
+        <NavSection label="Mentors & Career" items={careerMentorsItems} location={location} />
+        <NavSection label="My Progress" items={myStudentItems} location={location} />
         <NavSection label="Campus Life" items={campusLifeItems} location={location} />
-        <NavSection label="Career & Mentors" items={careerMentorsItems} location={location} />
-        <NavSection label="Reentry & Workforce" items={reentryWorkforceItems} location={location} />
         <NavSection label="Build & Create" items={buildCreateItems} location={location} />
 
         <SidebarGroup>
@@ -383,7 +387,7 @@ export function AppSidebar() {
         </Link>
         <div className="flex items-center gap-2 text-xs text-muted-foreground mt-2">
           <Heart className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-          <span>AI Mastery Academy & School Support Hub</span>
+          <span>Workforce Development & Community Enablement</span>
         </div>
       </SidebarFooter>
     </Sidebar>
