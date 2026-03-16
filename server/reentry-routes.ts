@@ -4,9 +4,11 @@ import {
   reentryPlans, reentryMilestones, reentryIntakeAssessments,
   thriveScores, earlyWarningFlags,
   insertReentryPlanSchema, insertReentryMilestoneSchema, insertReentryIntakeAssessmentSchema,
+  participantProfiles, serviceRecords, consentRecords,
+  insertParticipantProfileSchema, insertServiceRecordSchema, insertConsentRecordSchema,
 } from "@shared/schema";
 import { z } from "zod";
-import { eq, desc, sql, and } from "drizzle-orm";
+import { eq, desc, sql, and, inArray } from "drizzle-orm";
 
 function getUserId(req: Request): string | undefined {
   const u = (req as unknown as Record<string, unknown>).user as { claims?: { sub?: string }; id?: string } | undefined;
@@ -274,6 +276,308 @@ export function registerReentryRoutes(app: Express) {
     } catch (error) {
       console.error("Failed to generate report:", error);
       res.status(500).json({ error: "Failed to generate report" });
+    }
+  });
+
+  // ==================== INTAKE & SERVICE DELIVERY ROUTES ====================
+
+  const REQUIRED_SERVICE_CATEGORIES = [
+    "case_management", "workforce_training", "education", "housing_assistance",
+    "mental_health", "substance_abuse", "legal_aid", "mentoring",
+    "financial_coaching", "transportation", "childcare",
+  ];
+
+  app.get("/api/intake/participants", requireAuth, requireAdmin, async (_req, res) => {
+    try {
+      const profiles = await db.select().from(participantProfiles).orderBy(desc(participantProfiles.createdAt));
+      res.json(profiles);
+    } catch (error) {
+      console.error("Failed to fetch participants:", error);
+      res.status(500).json({ error: "Failed to fetch participants" });
+    }
+  });
+
+  app.get("/api/intake/participants/:id", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const [profile] = await db.select().from(participantProfiles).where(eq(participantProfiles.id, req.params.id));
+      if (!profile) return res.status(404).json({ error: "Participant not found" });
+      res.json(profile);
+    } catch (error) {
+      console.error("Failed to fetch participant:", error);
+      res.status(500).json({ error: "Failed to fetch participant" });
+    }
+  });
+
+  app.post("/api/intake/participants", requireAuth, async (req, res) => {
+    try {
+      const parsed = insertParticipantProfileSchema.safeParse(req.body);
+      if (!parsed.success) return res.status(400).json({ error: "Invalid participant data", details: parsed.error.flatten().fieldErrors });
+      const [profile] = await db.insert(participantProfiles).values(parsed.data).returning();
+      res.json(profile);
+    } catch (error) {
+      console.error("Failed to create participant:", error);
+      res.status(500).json({ error: "Failed to create participant" });
+    }
+  });
+
+  app.patch("/api/intake/participants/:id", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const allowed = ["firstName", "lastName", "preferredName", "phone", "email", "address", "city", "state", "zipCode",
+        "housingStatus", "housingDetails", "employmentStatus", "educationLevel", "status", "notes",
+        "assignedCaseManagerId", "assignedFacilitatorId", "immediateNeeds", "shortTermGoals", "longTermGoals"];
+      const filtered: Record<string, unknown> = { updatedAt: new Date() };
+      for (const key of allowed) { if (req.body[key] !== undefined) filtered[key] = req.body[key]; }
+      const [updated] = await db.update(participantProfiles).set(filtered).where(eq(participantProfiles.id, req.params.id)).returning();
+      if (!updated) return res.status(404).json({ error: "Participant not found" });
+      res.json(updated);
+    } catch (error) {
+      console.error("Failed to update participant:", error);
+      res.status(500).json({ error: "Failed to update participant" });
+    }
+  });
+
+  app.delete("/api/intake/participants/:id", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      await db.delete(serviceRecords).where(eq(serviceRecords.participantId, req.params.id));
+      await db.delete(consentRecords).where(eq(consentRecords.participantId, req.params.id));
+      const [deleted] = await db.delete(participantProfiles).where(eq(participantProfiles.id, req.params.id)).returning();
+      if (!deleted) return res.status(404).json({ error: "Participant not found" });
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Failed to delete participant:", error);
+      res.status(500).json({ error: "Failed to delete participant" });
+    }
+  });
+
+  app.get("/api/intake/services/all", requireAuth, requireAdmin, async (_req, res) => {
+    try {
+      const records = await db.select().from(serviceRecords).orderBy(desc(serviceRecords.createdAt));
+      res.json(records);
+    } catch (error) {
+      console.error("Failed to fetch all services:", error);
+      res.status(500).json({ error: "Failed to fetch services" });
+    }
+  });
+
+  app.get("/api/intake/services/:participantId", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const records = await db.select().from(serviceRecords)
+        .where(eq(serviceRecords.participantId, req.params.participantId))
+        .orderBy(desc(serviceRecords.createdAt));
+      res.json(records);
+    } catch (error) {
+      console.error("Failed to fetch service records:", error);
+      res.status(500).json({ error: "Failed to fetch service records" });
+    }
+  });
+
+  app.post("/api/intake/services", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const parsed = insertServiceRecordSchema.safeParse(req.body);
+      if (!parsed.success) return res.status(400).json({ error: "Invalid service data", details: parsed.error.flatten().fieldErrors });
+      const [record] = await db.insert(serviceRecords).values(parsed.data).returning();
+      res.json(record);
+    } catch (error) {
+      console.error("Failed to create service record:", error);
+      res.status(500).json({ error: "Failed to create service record" });
+    }
+  });
+
+  app.patch("/api/intake/services/:id", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const allowedService = ["notes", "outcome", "followUpNeeded", "followUpDate", "followUpNotes", "status"];
+      const filteredService: Record<string, unknown> = {};
+      for (const key of allowedService) { if (req.body[key] !== undefined) filteredService[key] = req.body[key]; }
+      const [updated] = await db.update(serviceRecords).set(filteredService).where(eq(serviceRecords.id, req.params.id)).returning();
+      if (!updated) return res.status(404).json({ error: "Service record not found" });
+      res.json(updated);
+    } catch (error) {
+      console.error("Failed to update service record:", error);
+      res.status(500).json({ error: "Failed to update service record" });
+    }
+  });
+
+  app.delete("/api/intake/services/:id", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const [deleted] = await db.delete(serviceRecords).where(eq(serviceRecords.id, req.params.id)).returning();
+      if (!deleted) return res.status(404).json({ error: "Service record not found" });
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Failed to delete service record:", error);
+      res.status(500).json({ error: "Failed to delete service record" });
+    }
+  });
+
+  app.post("/api/intake/consent", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const parsed = insertConsentRecordSchema.safeParse(req.body);
+      if (!parsed.success) return res.status(400).json({ error: "Invalid consent data", details: parsed.error.flatten().fieldErrors });
+      const [record] = await db.insert(consentRecords).values(parsed.data).returning();
+      res.json(record);
+    } catch (error) {
+      console.error("Failed to create consent record:", error);
+      res.status(500).json({ error: "Failed to create consent record" });
+    }
+  });
+
+  app.get("/api/intake/consent/:participantId", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const records = await db.select().from(consentRecords)
+        .where(eq(consentRecords.participantId, req.params.participantId))
+        .orderBy(desc(consentRecords.createdAt));
+      res.json(records);
+    } catch (error) {
+      console.error("Failed to fetch consent records:", error);
+      res.status(500).json({ error: "Failed to fetch consent records" });
+    }
+  });
+
+  app.patch("/api/intake/consent/:id", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const allowedConsent = ["acknowledged", "revokedAt"];
+      const filteredConsent: Record<string, unknown> = {};
+      for (const key of allowedConsent) { if (req.body[key] !== undefined) filteredConsent[key] = req.body[key]; }
+      const [updated] = await db.update(consentRecords).set(filteredConsent).where(eq(consentRecords.id, req.params.id)).returning();
+      if (!updated) return res.status(404).json({ error: "Consent record not found" });
+      res.json(updated);
+    } catch (error) {
+      console.error("Failed to update consent record:", error);
+      res.status(500).json({ error: "Failed to update consent record" });
+    }
+  });
+
+  app.delete("/api/intake/consent/:id", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const [deleted] = await db.delete(consentRecords).where(eq(consentRecords.id, req.params.id)).returning();
+      if (!deleted) return res.status(404).json({ error: "Consent record not found" });
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Failed to delete consent record:", error);
+      res.status(500).json({ error: "Failed to delete consent record" });
+    }
+  });
+
+  app.get("/api/intake/caseload", requireAuth, requireAdmin, async (_req, res) => {
+    try {
+      const allParticipants = await db.select().from(participantProfiles);
+      const allServiceRecords = await db.select().from(serviceRecords);
+      const activeParticipants = allParticipants.filter(p => p.status === "active").length;
+      const totalMinutes = allServiceRecords.reduce((sum, r) => sum + (r.durationMinutes || 0), 0);
+      const followUpsNeeded = allServiceRecords.filter(r => r.followUpNeeded && r.status !== "follow_up_completed").length;
+      const servicesByCategory: Record<string, number> = {};
+      allServiceRecords.forEach(r => {
+        servicesByCategory[r.serviceCategory] = (servicesByCategory[r.serviceCategory] || 0) + (r.durationMinutes || 0);
+      });
+
+      const facilitatorCaseloads: Record<string, { facilitatorId: string; participantCount: number; participants: string[]; serviceHours: number; followUps: number }> = {};
+      allParticipants.forEach(p => {
+        const fId = p.assignedFacilitatorId || p.assignedCaseManagerId || "unassigned";
+        if (!facilitatorCaseloads[fId]) facilitatorCaseloads[fId] = { facilitatorId: fId, participantCount: 0, participants: [], serviceHours: 0, followUps: 0 };
+        facilitatorCaseloads[fId].participantCount++;
+        facilitatorCaseloads[fId].participants.push(p.id);
+      });
+      allServiceRecords.forEach(r => {
+        const participant = allParticipants.find(p => p.id === r.participantId);
+        const fId = participant?.assignedFacilitatorId || participant?.assignedCaseManagerId || "unassigned";
+        if (facilitatorCaseloads[fId]) {
+          facilitatorCaseloads[fId].serviceHours += (r.durationMinutes || 0) / 60;
+          if (r.followUpNeeded && r.status !== "follow_up_completed") facilitatorCaseloads[fId].followUps++;
+        }
+      });
+
+      const serviceGaps: Array<{ participantId: string; participantName: string; missingCategories: string[]; facilitatorId: string | null }> = [];
+      allParticipants.filter(p => p.status === "active").forEach(p => {
+        const pServices = allServiceRecords.filter(r => r.participantId === p.id);
+        const servedCategories = new Set(pServices.map(r => r.serviceCategory));
+        const needs = p.immediateNeeds || [];
+        const needMap: Record<string, string> = {
+          "Housing assistance": "housing_assistance", "Employment support": "workforce_training",
+          "Education/GED": "education", "Mental health services": "mental_health",
+          "Substance abuse treatment": "substance_abuse", "Legal aid": "legal_aid",
+          "Mentoring": "mentoring", "Financial coaching": "financial_coaching",
+          "Transportation": "transportation", "Childcare": "childcare",
+        };
+        const missing: string[] = [];
+        needs.forEach(n => { const cat = needMap[n]; if (cat && !servedCategories.has(cat)) missing.push(cat); });
+        if (missing.length > 0) {
+          serviceGaps.push({
+            participantId: p.id,
+            participantName: `${p.firstName} ${p.lastName}`,
+            missingCategories: missing,
+            facilitatorId: p.assignedFacilitatorId || p.assignedCaseManagerId || null,
+          });
+        }
+      });
+
+      res.json({
+        totalParticipants: allParticipants.length,
+        activeParticipants,
+        totalServiceHours: totalMinutes / 60,
+        followUpsNeeded,
+        servicesByCategory,
+        recentServices: allServiceRecords.slice(0, 20),
+        facilitatorCaseloads: Object.values(facilitatorCaseloads),
+        serviceGaps,
+      });
+    } catch (error) {
+      console.error("Failed to fetch caseload data:", error);
+      res.status(500).json({ error: "Failed to fetch caseload data" });
+    }
+  });
+
+  app.get("/api/intake/caseload/facilitator/:facilitatorId", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const fId = req.params.facilitatorId;
+      const participants = await db.select().from(participantProfiles)
+        .where(fId === "unassigned"
+          ? and(
+              sql`${participantProfiles.assignedFacilitatorId} IS NULL`,
+              sql`${participantProfiles.assignedCaseManagerId} IS NULL`
+            )
+          : sql`(${participantProfiles.assignedFacilitatorId} = ${fId} OR ${participantProfiles.assignedCaseManagerId} = ${fId})`
+        );
+      const participantIds = participants.map(p => p.id);
+      let services: typeof serviceRecords.$inferSelect[] = [];
+      if (participantIds.length > 0) {
+        services = await db.select().from(serviceRecords)
+          .where(inArray(serviceRecords.participantId, participantIds))
+          .orderBy(desc(serviceRecords.createdAt));
+      }
+      const totalMinutes = services.reduce((sum, r) => sum + (r.durationMinutes || 0), 0);
+      const followUps = services.filter(r => r.followUpNeeded && r.status !== "follow_up_completed");
+      const dosageByParticipant: Record<string, Record<string, number>> = {};
+      services.forEach(r => {
+        if (!dosageByParticipant[r.participantId]) dosageByParticipant[r.participantId] = {};
+        dosageByParticipant[r.participantId][r.serviceCategory] = (dosageByParticipant[r.participantId][r.serviceCategory] || 0) + (r.durationMinutes || 0);
+      });
+      res.json({
+        facilitatorId: fId,
+        participants,
+        totalServiceHours: totalMinutes / 60,
+        followUps,
+        dosageByParticipant,
+        participantCount: participants.length,
+      });
+    } catch (error) {
+      console.error("Failed to fetch facilitator caseload:", error);
+      res.status(500).json({ error: "Failed to fetch facilitator caseload" });
+    }
+  });
+
+  app.get("/api/intake/export", requireAuth, requireAdmin, async (_req, res) => {
+    try {
+      const allParticipants = await db.select().from(participantProfiles);
+      const allServiceRecords = await db.select().from(serviceRecords);
+      const allConsents = await db.select().from(consentRecords);
+      res.json({
+        exportDate: new Date().toISOString(),
+        participants: allParticipants,
+        serviceRecords: allServiceRecords,
+        consentRecords: allConsents,
+      });
+    } catch (error) {
+      console.error("Failed to export data:", error);
+      res.status(500).json({ error: "Failed to export data" });
     }
   });
 }

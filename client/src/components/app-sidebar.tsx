@@ -116,6 +116,16 @@ const buildCreateItems: NavItem[] = [
 ];
 
 const campusExtrasItems: NavItem[] = [
+  { title: "Life Lessons", url: "/academy/lessons", icon: Lightbulb },
+];
+
+const caseManagementItems: NavItem[] = [
+  { title: "Reentry Dashboard", url: "/reentry", icon: Shield },
+  { title: "Intake Wizard", url: "/intake", icon: ClipboardCheck },
+  { title: "Service Delivery", url: "/services", icon: Activity },
+  { title: "Community Partners", url: "/partners", icon: Handshake },
+  { title: "Outcome Reporting", url: "/outcomes", icon: FileBarChart },
+  { title: "Justice Partners", url: "/justice-partners", icon: Scale },
 ];
 
 const teachingPublicItems: NavItem[] = [
@@ -299,8 +309,10 @@ export function AppSidebar() {
         <NavSection label="Workforce Solutions" items={workforceSolutionsItems} location={location} />
         <NavSection label="Grant Engine" items={grantEngineItems} location={location} />
         <NavSection label="AI Tools" items={aiToolsItems} location={location} />
-        <NavSection label="Case Management" items={myStudentItems} location={location} />
+        <NavSection label="Case Management" items={caseManagementItems} location={location} />
+        <NavSection label="Student Portal" items={myStudentItems} location={location} />
         <NavSection label="Campus Life" items={campusLifeItems} location={location} />
+        <NavSection label="Campus Extras" items={campusExtrasItems} location={location} />
         <NavSection label="Build & Create" items={buildCreateItems} location={location} />
 
         <SidebarGroup>

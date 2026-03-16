@@ -1866,4 +1866,104 @@ export const insertJobReadinessChecklistSchema = createInsertSchema(jobReadiness
 export type InsertJobReadinessChecklist = z.infer<typeof insertJobReadinessChecklistSchema>;
 export type JobReadinessChecklist = typeof jobReadinessChecklists.$inferSelect;
 
+// ==================== INTAKE & SERVICE DELIVERY SYSTEM ====================
+
+export const participantProfiles = pgTable("participant_profiles", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id", { length: 255 }),
+  firstName: varchar("first_name", { length: 255 }).notNull(),
+  lastName: varchar("last_name", { length: 255 }).notNull(),
+  preferredName: varchar("preferred_name", { length: 255 }),
+  dateOfBirth: text("date_of_birth"),
+  age: integer("age"),
+  gender: varchar("gender", { length: 50 }),
+  genderOther: varchar("gender_other", { length: 100 }),
+  raceEthnicity: text("race_ethnicity").array(),
+  veteranStatus: boolean("veteran_status").default(false),
+  disabilityStatus: varchar("disability_status", { length: 50 }),
+  disabilityDetails: text("disability_details"),
+  primaryLanguage: varchar("primary_language", { length: 100 }).default("English"),
+  needsInterpreter: boolean("needs_interpreter").default(false),
+  phone: varchar("phone", { length: 50 }),
+  email: varchar("email", { length: 255 }),
+  address: text("address"),
+  city: varchar("city", { length: 100 }),
+  state: varchar("state", { length: 10 }),
+  zipCode: varchar("zip_code", { length: 20 }),
+  housingStatus: varchar("housing_status", { length: 100 }),
+  housingDetails: text("housing_details"),
+  employmentStatus: varchar("employment_status", { length: 100 }),
+  employmentHistory: text("employment_history"),
+  educationLevel: varchar("education_level", { length: 100 }),
+  educationDetails: text("education_details"),
+  justiceInvolved: boolean("justice_involved").default(false),
+  justiceDetails: jsonb("justice_details"),
+  releaseDate: text("release_date"),
+  supervisionStatus: varchar("supervision_status", { length: 100 }),
+  healthNeeds: text("health_needs").array(),
+  mentalHealthNeeds: text("mental_health_needs"),
+  substanceUseHistory: varchar("substance_use_history", { length: 100 }),
+  familySituation: text("family_situation"),
+  dependents: integer("dependents").default(0),
+  immediateNeeds: text("immediate_needs").array(),
+  shortTermGoals: text("short_term_goals").array(),
+  longTermGoals: text("long_term_goals").array(),
+  referralSource: varchar("referral_source", { length: 100 }),
+  referralSourceDetail: text("referral_source_detail"),
+  referredBy: varchar("referred_by", { length: 255 }),
+  assignedCaseManagerId: varchar("assigned_case_manager_id", { length: 255 }),
+  assignedFacilitatorId: varchar("assigned_facilitator_id", { length: 255 }),
+  status: varchar("status", { length: 50 }).notNull().default("active"),
+  intakeCompletedAt: timestamp("intake_completed_at"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertParticipantProfileSchema = createInsertSchema(participantProfiles).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertParticipantProfile = z.infer<typeof insertParticipantProfileSchema>;
+export type ParticipantProfile = typeof participantProfiles.$inferSelect;
+
+export const serviceRecords = pgTable("service_records", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  participantId: varchar("participant_id", { length: 100 }).notNull(),
+  serviceCategory: varchar("service_category", { length: 100 }).notNull(),
+  serviceType: varchar("service_type", { length: 255 }).notNull(),
+  providerId: varchar("provider_id", { length: 255 }),
+  providerName: varchar("provider_name", { length: 255 }),
+  serviceDate: text("service_date").notNull(),
+  durationMinutes: integer("duration_minutes").notNull(),
+  location: varchar("location", { length: 255 }),
+  notes: text("notes"),
+  outcome: varchar("outcome", { length: 100 }),
+  followUpNeeded: boolean("follow_up_needed").default(false),
+  followUpDate: text("follow_up_date"),
+  followUpNotes: text("follow_up_notes"),
+  status: varchar("status", { length: 50 }).notNull().default("completed"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertServiceRecordSchema = createInsertSchema(serviceRecords).omit({ id: true, createdAt: true });
+export type InsertServiceRecord = z.infer<typeof insertServiceRecordSchema>;
+export type ServiceRecord = typeof serviceRecords.$inferSelect;
+
+export const consentRecords = pgTable("consent_records", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  participantId: varchar("participant_id", { length: 100 }).notNull(),
+  consentType: varchar("consent_type", { length: 100 }).notNull(),
+  consentDescription: text("consent_description"),
+  acknowledged: boolean("acknowledged").notNull().default(false),
+  acknowledgedAt: timestamp("acknowledged_at"),
+  acknowledgedBy: varchar("acknowledged_by", { length: 255 }),
+  witnessName: varchar("witness_name", { length: 255 }),
+  digitalSignature: text("digital_signature"),
+  expiresAt: timestamp("expires_at"),
+  revokedAt: timestamp("revoked_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertConsentRecordSchema = createInsertSchema(consentRecords).omit({ id: true, createdAt: true });
+export type InsertConsentRecord = z.infer<typeof insertConsentRecordSchema>;
+export type ConsentRecord = typeof consentRecords.$inferSelect;
+
 export * from "./models/auth";
