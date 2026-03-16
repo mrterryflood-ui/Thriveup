@@ -79,24 +79,24 @@ function TitleSlide({ isFullscreen }: SlideProps) {
           </div>
         </div>
         <h1 className="text-white font-bold tracking-tight leading-[1.05]" style={{ fontSize: "5.5vw" }}>
-          AI Mastery Academy
+          Strengthening Communities
         </h1>
         <p className="text-white/80 mt-[2vh] max-w-[60vw] leading-relaxed" style={{ fontSize: "2vw" }}>
-          School Support Hub for Under-Resourced Youth
+          Workforce Development & Community Enablement Platform
         </p>
         <div className="mt-[5vh] flex items-center gap-[2vw]">
           <div className="px-[2vw] py-[1vh] rounded-full bg-white/15 backdrop-blur-sm text-white/90" style={{ fontSize: "1.4vw" }}>
-            Ages 14-24
+            All Ages
           </div>
           <div className="px-[2vw] py-[1vh] rounded-full bg-white/15 backdrop-blur-sm text-white/90" style={{ fontSize: "1.4vw" }}>
             Workforce Development
           </div>
           <div className="px-[2vw] py-[1vh] rounded-full bg-white/15 backdrop-blur-sm text-white/90" style={{ fontSize: "1.4vw" }}>
-            AI-Powered Learning
+            Community Enablement
           </div>
         </div>
         <p className="text-white/50 mt-[6vh]" style={{ fontSize: "1.3vw" }}>
-          Teaching the first generation to guide their smartest classmate
+          Reducing recidivism, increasing employment, strengthening communities
         </p>
       </div>
     </div>
@@ -114,7 +114,7 @@ function MissionSlide({ isFullscreen }: SlideProps) {
         </div>
         <div className="w-[60%] flex flex-col justify-center px-[4vw]">
           <p className="text-[#3a2020] leading-relaxed mb-[3vh]" style={{ fontSize: "2vw" }}>
-            Empowering under-resourced youth with AI mastery, workforce readiness, and school-to-career pipelines.
+            AI-powered workforce development, reentry support, and community enablement for under-resourced communities.
           </p>
           <div className="space-y-[2vh]">
             {[
@@ -145,7 +145,7 @@ function ProblemSlide({ isFullscreen }: SlideProps) {
       <div className="relative z-10 flex flex-col justify-center h-full px-[8vw]">
         <p className="text-[#6b1c2a] font-semibold uppercase tracking-widest mb-[2vh]" style={{ fontSize: "1.3vw" }}>The Challenge</p>
         <h2 className="text-white font-bold tracking-tight leading-tight mb-[4vh]" style={{ fontSize: "3.8vw" }}>
-          Under-resourced youth face compounding barriers
+          Under-resourced communities face compounding barriers
         </h2>
         <div className="grid grid-cols-3 gap-[2vw]">
           {[
@@ -404,7 +404,7 @@ function PantherVillageSlide({ isFullscreen }: SlideProps) {
 
 function ImpactMetricsSlide({ impactData }: SlideProps) {
   const metrics = [
-    { value: impactData?.youthServed || 14, label: "Youth Served", suffix: "" },
+    { value: impactData?.youthServed || 14, label: "Participants Served", suffix: "" },
     { value: impactData?.careerPathways || 55, label: "Career Pathways", suffix: "" },
     { value: impactData?.mentorsAvailable || 8, label: "Professional Mentors", suffix: "" },
     { value: impactData?.curriculumLevels || 5, label: "Mastery Levels", suffix: "" },
@@ -445,7 +445,7 @@ function GrantAlignmentSlide({ impactData }: SlideProps) {
     { text: "Job placement support", met: impactData?.grantAlignment?.jobPlacement },
     { text: "Career advancement pathways", met: impactData?.grantAlignment?.careerAdvancement },
     { text: "Professional mentorship programs", met: impactData?.grantAlignment?.mentorship },
-    { text: "Community impact for under-resourced youth", met: impactData?.grantAlignment?.communityImpact },
+    { text: "Community impact for under-resourced communities", met: impactData?.grantAlignment?.communityImpact },
   ];
   return (
     <div className="relative w-full h-full overflow-hidden bg-[#1a1215]" data-testid="slide-grant">
@@ -712,9 +712,9 @@ function AudienceSlide({ isFullscreen }: SlideProps) {
         <h2 className="text-white font-bold tracking-tight leading-tight mb-[4vh]" style={{ fontSize: "3.5vw" }}>Multiple stakeholder value</h2>
         <div className="grid grid-cols-3 gap-[2vw]">
           {[
-            { icon: GraduationCap, title: "Students (14-24)", items: ["AI mastery curriculum", "Career exploration tools", "Professional mentorship", "College tuition fundraising"] },
-            { icon: School, title: "Schools & Districts", items: ["LMS course creator", "Classroom management", "Progress tracking", "STAAR test preparation"] },
-            { icon: Briefcase, title: "Funders & Employers", items: ["Grant-aligned metrics", "Impact dashboard", "CSV data export", "API integration"] },
+            { icon: Users, title: "Participants (All Ages)", items: ["AI and digital literacy training", "Career exploration and placement", "Reentry case management", "Workforce development"] },
+            { icon: Building2, title: "Community Partners", items: ["Service delivery tracking", "Referral workflows", "Volunteer coordination", "Collective impact reporting"] },
+            { icon: Briefcase, title: "Funders & Grant Makers", items: ["Grant-aligned outcome reports", "Impact dashboard", "CSV data export", "API integration"] },
           ].map((col, i) => (
             <div key={i} className="bg-white/5 rounded-xl p-[2vw] border border-white/10">
               <col.icon className="text-[#c9a0a0] mb-[1.5vh]" style={{ width: "2.2vw", height: "2.2vw" }} />
@@ -746,7 +746,7 @@ function DifferentiatorsSlide({ isFullscreen }: SlideProps) {
             { icon: Lightbulb, title: "Earn Through Mastery", desc: "AI tools are unlocked by completing curriculum modules, not purchased. Students prove readiness before accessing professional tools." },
             { icon: Shield, title: "Safety-First AI", desc: "Every AI interaction includes age-appropriate guardrails, Socratic questioning, and cultural awareness. Never just a chatbot." },
             { icon: BarChart3, title: "Real Impact Data", desc: "Live metrics dashboard with grant-aligned reporting. Funders see real numbers, not projections." },
-            { icon: Heart, title: "Community-Embedded", desc: "Nationwide resource finder, GIS context engine, and early warning system connecting youth to local support services." },
+            { icon: Heart, title: "Community-Embedded", desc: "Nationwide resource finder, GIS context engine, and early warning system connecting communities to local support services." },
           ].map((item, i) => (
             <div key={i} className="flex gap-[1.5vw] items-start">
               <div className="rounded-xl p-[0.8vw] bg-[#6b1c2a]/10 shrink-0">
@@ -805,8 +805,8 @@ function ClosingSlide({ isFullscreen }: SlideProps) {
 }
 
 const SLIDES = [
-  { component: TitleSlide, title: "AI Mastery Academy", speakerNotes: "Welcome to the AI Mastery Academy stakeholder presentation. This platform is a comprehensive School Support Hub designed for under-resourced youth ages 14-24, focused on AI mastery and workforce development. Our tagline captures our mission: teaching the first generation to guide their smartest classmate." },
-  { component: MissionSlide, title: "Our Mission", speakerNotes: "Our mission is empowering under-resourced youth with AI literacy, workforce readiness, and direct school-to-career pipelines. We focus on three pillars: AI literacy as the new foundation for every career, direct pipelines from classroom to career placement, and whole-child support through mentorship and community resources." },
+  { component: TitleSlide, title: "Strengthening Communities", speakerNotes: "Welcome to our stakeholder presentation. This platform is a comprehensive workforce development and community enablement ecosystem serving under-resourced communities of all ages. Our mission: reducing recidivism, increasing employment, and strengthening communities through AI-powered tools and coordinated service delivery." },
+  { component: MissionSlide, title: "Our Mission", speakerNotes: "Our mission is AI-powered workforce development, reentry support, and community enablement for under-resourced communities. We focus on three pillars: AI literacy as the new foundation for career success, direct pipelines from training to career placement, and whole-person support through mentorship and community resources." },
   { component: ProblemSlide, title: "The Challenge", speakerNotes: "The challenge is significant. 67% of low-income students lack career readiness programs. Without workforce training, they are 3x more likely to face unemployment. And 82% of future jobs will require digital and AI literacy. These compounding barriers create a cycle that our platform is designed to break." },
   { component: SolutionSlide, title: "Our Solution", speakerNotes: "Our solution is a complete ecosystem, not just a course. It includes a 5-level AI curriculum, 55 career pathways across 12 industries, an AI Creation Studio with 10 professional tools, and a growing mentor network. Each component links to the live platform where you can explore it in detail." },
   { component: CurriculumSlide, title: "AI Mastery Curriculum", speakerNotes: "The curriculum progresses through five mastery levels: Explorer, Guide, Architect, Innovator, and Master. Each level has specific competencies, capstone projects, and parent teachback verification. The 31 modules are structured so students build skills progressively, and tool access is gated behind demonstrated mastery." },
@@ -814,18 +814,18 @@ const SLIDES = [
   { component: AIToolsSlide, title: "AI Creation Studio", speakerNotes: "The AI Creation Studio gives students 10 professional-grade tools, from Presentation Builder and Business Plan Generator to Resume Builder and Research Assistant. Students earn access by completing curriculum modules, ensuring they understand responsible AI use before accessing powerful tools. Adults can access all tools through Sparky." },
   { component: SparkCompanionSlide, title: "AI Companions", speakerNotes: "Spark is our AI learning companion for students with grade-band-specific responses, Socratic questioning, emotional intelligence, bilingual support, and comprehensive safety guardrails. Sparky serves parents and teachers with compassionate, evidence-based support without child-safety restrictions. Both are available for live demonstration." },
   { component: PantherVillageSlide, title: "Panther Village", speakerNotes: "Panther Village is our immersive virtual campus featuring interactive buildings, avatar customization, a stock market simulation for financial literacy, and academic competitions with houses, quests, and leaderboards. It creates an engaging environment that makes learning feel like an adventure." },
-  { component: ImpactMetricsSlide, title: "Impact Metrics", speakerNotes: "These are live numbers pulled from our platform right now. We track youth served, career pathways available, professional mentors, mastery levels, learning modules, and career milestones. The full impact dashboard is available at the link shown and can be shared with funders directly." },
+  { component: ImpactMetricsSlide, title: "Impact Metrics", speakerNotes: "These are live numbers pulled from our platform right now. We track participants served, career pathways available, professional mentors, mastery levels, learning modules, and career milestones. The full impact dashboard is available at the link shown and can be shared with funders directly." },
   { component: GrantAlignmentSlide, title: "Grant Alignment", speakerNotes: "Our platform meets every criterion for workforce development grant eligibility. Each green checkmark represents a fully implemented capability, not a planned feature. School-to-career pipelines, workforce development, job readiness, skill training, job placement, career advancement, mentorship, and community impact are all active." },
-  { component: MentorNetworkSlide, title: "Mentor Network", speakerNotes: "Our mentor network connects youth with professional coaches across all 12 career categories. The system includes structured pathway planning with milestone tracking, career readiness assessments, and revision support. The goal is direct pipelines from skill demonstration to workforce entry." },
+  { component: MentorNetworkSlide, title: "Mentor Network", speakerNotes: "Our mentor network connects participants with professional coaches across all 12 career categories. The system includes structured pathway planning with milestone tracking, career readiness assessments, and revision support. The goal is direct pipelines from skill demonstration to workforce entry." },
   { component: WholeChildSlide, title: "Whole-Child Support", speakerNotes: "Beyond academics, we provide whole-child support including the IGN-Thrive six-domain scoring engine with early warning systems, financial literacy through stock market simulation, a nationwide community resource finder covering 55 U.S. jurisdictions, and STAAR test preparation aligned to Texas standards." },
   { component: ResourceFinderSlide, title: "Resource Finder", speakerNotes: "Our Community Resource Finder connects families to local support services including healthcare, food assistance, housing, education, and employment across all 50 states plus DC, Puerto Rico, U.S. Virgin Islands, Guam, and American Samoa. It uses real-time GIS data from CDC, FBI, and ATSDR sources." },
-  { component: AudienceSlide, title: "Who We Serve", speakerNotes: "We serve three primary audiences. Students ages 14-24 get AI mastery, career tools, mentorship, and tuition fundraising. Schools and districts get LMS course creation, classroom management, progress tracking, and STAAR prep. Funders and employers get grant-aligned metrics, impact dashboards, CSV exports, and API integration." },
+  { component: AudienceSlide, title: "Who We Serve", speakerNotes: "We serve multiple stakeholders. Participants of all ages get AI and digital literacy training, career exploration and placement, reentry case management, and workforce development. Community partners get service delivery tracking, referral workflows, volunteer coordination, and collective impact reporting. Funders and grant makers get grant-aligned outcome reports, impact dashboards, CSV exports, and API integration." },
   { component: DifferentiatorsSlide, title: "What Makes Us Different", speakerNotes: "Four things differentiate us. First, tools are earned through mastery, not purchased. Second, our AI has safety-first design with age-appropriate guardrails. Third, we provide real impact data, not projections. Fourth, we are community-embedded with nationwide resource support and early warning systems." },
   { component: AccessibilitySlide, title: "Accessibility", speakerNotes: "Accessibility is not an afterthought. We have over 2,415 test identifiers, 95+ accessibility labels, WCAG 2.1 AA compliance, dyslexia-friendly fonts, large text mode, high contrast, reduced motion support, English and Spanish, low-bandwidth mode, and full mobile responsiveness." },
   { component: ComplianceSlide, title: "Security & Compliance", speakerNotes: "We are COPPA compliant with parental consent and data retention policies, FERPA aligned with student data protection and role-based access control, secure OIDC authentication, and rate-limited AI interactions. All 124 API routes have comprehensive error handling." },
   { component: TechnicalSlide, title: "Technical Architecture", speakerNotes: "The platform runs on a production-ready stack with 70+ pages, 124 API routes with 100% error handling coverage, 60+ code-split components for performance. The frontend uses React, Vite, and TanStack Query. The backend runs Express with PostgreSQL and Drizzle ORM. AI is powered by Gemini with fallback providers." },
   { component: ImplementationSlide, title: "Implementation Plan", speakerNotes: "Our phased rollout starts with foundation deployment and initial school partnerships in months 1-3, moves to growth with mentor expansion and career pipeline activation in months 4-6, and scales to multi-district rollout with employer partnerships and national expansion planning in months 7-12." },
-  { component: ClosingSlide, title: "Let's Connect", speakerNotes: "The students who learn to think with AI today will lead tomorrow. We invite you to explore the live platform, review our impact dashboard, and connect with us to discuss partnership opportunities. Contact us at the email addresses shown. Thank you for your time and interest in AI Mastery Academy." },
+  { component: ClosingSlide, title: "Let's Connect", speakerNotes: "Stronger communities start with coordinated action. We invite you to explore the live platform, review our impact dashboard, and connect with us to discuss partnership opportunities. Contact us at the email addresses shown. Thank you for your time and interest in strengthening communities together." },
 ];
 
 export default function StakeholderPresentation() {
@@ -838,7 +838,7 @@ export default function StakeholderPresentation() {
   });
 
   useEffect(() => {
-    document.title = "Stakeholder Presentation - AI Mastery Academy";
+    document.title = "Stakeholder Presentation - Community Enablement Platform";
   }, []);
 
   const goNext = useCallback(() => {

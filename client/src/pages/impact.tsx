@@ -66,7 +66,7 @@ export default function ImpactPage() {
   const { toast } = useToast();
 
   useEffect(() => {
-    document.title = "Impact Dashboard | AI Mastery Academy";
+    document.title = "Impact Dashboard | Community Enablement Platform";
   }, []);
 
   const { data: impact, isLoading, error, refetch } = useQuery<ImpactData>({
@@ -111,11 +111,11 @@ export default function ImpactPage() {
             Public Impact Dashboard
           </Badge>
           <h1 className="text-3xl md:text-5xl font-bold mb-3" data-testid="heading-impact-title">
-            AI Mastery Academy Impact
+            Community Impact Dashboard
           </h1>
           <p className="text-lg md:text-xl text-white/90 max-w-3xl mb-4">
-            Empowering under-resourced youth ages 14-24 with AI mastery, workforce development,
-            and school-to-career pipelines. Real-time platform metrics for stakeholders, funders, and partners.
+            AI-powered workforce development, reentry support, and community enablement.
+            Real-time platform metrics for stakeholders, funders, and partners.
           </p>
           <div className="flex flex-wrap gap-3">
             <Badge variant="outline" className="text-white border-white/40" data-testid="badge-location">
@@ -128,7 +128,7 @@ export default function ImpactPage() {
             </Badge>
             <Badge variant="outline" className="text-white border-white/40" data-testid="badge-target">
               <Users className="h-3 w-3 mr-1" />
-              {impact?.targetPopulation || "Under-resourced youth ages 14-24"}
+              {impact?.targetPopulation || "Under-resourced communities, all ages"}
             </Badge>
           </div>
         </div>
@@ -153,7 +153,7 @@ export default function ImpactPage() {
           </Button>
           <Button variant="outline" size="sm" onClick={() => {
             const url = encodeURIComponent(window.location.href);
-            const text = encodeURIComponent("Check out the AI Mastery Academy Impact Dashboard");
+            const text = encodeURIComponent("Check out our Community Impact Dashboard");
             window.open(`https://x.com/intent/tweet?url=${url}&text=${text}`, "_blank", "noopener,noreferrer");
           }} data-testid="button-share-x" aria-label="Share on X">
             <SiX className="h-4 w-4 mr-1" />
@@ -167,7 +167,7 @@ export default function ImpactPage() {
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard icon={Users} label="Youth Served" value={impact?.youthServed || 0} color="bg-violet-500" />
+        <StatCard icon={Users} label="Participants Served" value={impact?.youthServed || 0} color="bg-violet-500" />
         <StatCard icon={BookOpen} label="Lessons Completed" value={impact?.lessonsCompleted || 0} color="bg-blue-500" />
         <StatCard icon={Award} label="Badges Earned" value={impact?.badgesEarned || 0} color="bg-amber-500" />
         <StatCard icon={GraduationCap} label="Certificates Issued" value={impact?.certificatesIssued || 0} color="bg-emerald-500" />
@@ -310,8 +310,8 @@ export default function ImpactPage() {
       <div>
         <h2 className="text-2xl font-bold mb-4" data-testid="heading-grant-alignment">Grant Criteria Alignment</h2>
         <p className="text-muted-foreground mb-6">
-          AI Mastery Academy is designed to meet workforce development and reentry grant criteria across all key areas.
-          Each criterion below is fully addressed by the platform.
+          This platform is designed to meet workforce development, reentry, and community enablement grant criteria across all major funding categories.
+          Each criterion below is addressed through real, deliverable programs and measurable outcomes.
         </p>
         <div className="grid md:grid-cols-2 gap-4">
           {GRANT_CRITERIA.map(({ key, label, icon: Icon, description }) => (
@@ -358,8 +358,8 @@ export default function ImpactPage() {
         <Shield className="h-12 w-12 mx-auto text-violet-500" />
         <h2 className="text-2xl font-bold" data-testid="heading-cta-partner">Partner With Us</h2>
         <p className="text-muted-foreground max-w-2xl mx-auto">
-          AI Mastery Academy is grant-aligned and ready for workforce development partnerships.
-          Contact us to learn how your organization can support the next generation of AI-ready professionals.
+          This platform is grant-aligned and ready for workforce development, reentry, and community enablement partnerships.
+          Contact us to learn how your organization can strengthen communities through coordinated service delivery.
         </p>
         <div className="flex flex-wrap justify-center gap-3">
           <Button asChild data-testid="button-contact-partner">
