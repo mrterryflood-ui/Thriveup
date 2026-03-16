@@ -11,7 +11,24 @@ import {
   Handshake, Plus, CheckCircle2, Building2, Phone, Mail,
   Globe, MapPin, Users, BarChart3, Trash2, ArrowRight, FileText
 } from "lucide-react";
-import type { CommunityPartner } from "@shared/schema";
+import type { CommunityPartner, PartnerReferral } from "@shared/schema";
+
+interface PartnerImpact {
+  totalPartners: number;
+  verifiedPartners: number;
+  withMOU: number;
+  totalReferrals: number;
+  completedReferrals: number;
+  partnerStats: Array<{
+    partnerId: string; partnerName: string; type: string;
+    totalReferrals: number; completed: number; pending: number; active: number;
+    completionRate: number; mouStatus: string; isVerified: boolean;
+  }>;
+}
+
+interface PartnerDetail extends CommunityPartner {
+  referrals: PartnerReferral[];
+}
 
 const PARTNER_TYPES = [
   "Mental Health Services", "Substance Abuse Treatment", "Housing Services",
@@ -33,14 +50,14 @@ export default function CommunityPartnersPage() {
   });
 
   const { data: partners = [], isLoading, error: partnersError, refetch: refetchPartners } = useQuery<CommunityPartner[]>({ queryKey: ["/api/partners"] });
-  const { data: impact } = useQuery<any>({ queryKey: ["/api/partners/dashboard/impact"] });
-  const { data: partnerDetail } = useQuery<any>({
+  const { data: impact } = useQuery<PartnerImpact>({ queryKey: ["/api/partners/dashboard/impact"] });
+  const { data: partnerDetail } = useQuery<PartnerDetail>({
     queryKey: ["/api/partners", selectedPartner],
     enabled: !!selectedPartner,
   });
 
   const createMutation = useMutation({
-    mutationFn: async (data: any) => {
+    mutationFn: async (data: Record<string, unknown>) => {
       const res = await apiRequest("POST", "/api/partners", data);
       return res.json();
     },
@@ -53,7 +70,7 @@ export default function CommunityPartnersPage() {
   });
 
   const referralMutation = useMutation({
-    mutationFn: async (data: any) => {
+    mutationFn: async (data: Record<string, unknown>) => {
       const res = await apiRequest("POST", "/api/partner-referrals", data);
       return res.json();
     },
@@ -302,7 +319,7 @@ export default function CommunityPartnersPage() {
                 <Card className="p-5" data-testid="card-referrals-list">
                   <h3 className="font-semibold mb-3">Referral History ({partnerDetail.referrals.length})</h3>
                   <div className="space-y-2">
-                    {partnerDetail.referrals.map((ref: any) => (
+                    {partnerDetail.referrals.map((ref: PartnerReferral) => (
                       <div key={ref.id} className="flex items-center gap-3 p-3 rounded-lg border">
                         <div className="flex-1">
                           <p className="text-sm font-medium">User: {ref.userId}</p>

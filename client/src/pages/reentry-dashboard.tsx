@@ -11,7 +11,22 @@ import {
   Users, Plus, Shield, AlertTriangle, CheckCircle2, Clock,
   ArrowRight, FileText, BarChart3, Target, ChevronRight, ChevronDown
 } from "lucide-react";
-import type { ReentryPlan } from "@shared/schema";
+import type { ReentryPlan, ReentryMilestone } from "@shared/schema";
+
+interface DashboardData {
+  totalPlans: number;
+  activePlans: number;
+  phaseDistribution: Record<string, number>;
+  riskDistribution: Record<string, number>;
+  milestoneCompletion: { completed: number; total: number; rate: number };
+  recentPlans: ReentryPlan[];
+}
+
+interface PlanDetail extends ReentryPlan {
+  milestones: ReentryMilestone[];
+  intake: Record<string, unknown> | null;
+  thriveScore: { compositeScore?: number } | null;
+}
 
 const PHASES = [
   { key: "pre_release", label: "Pre-Release", color: "bg-blue-600" },
@@ -38,16 +53,16 @@ export default function ReentryDashboard() {
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [formData, setFormData] = useState({ userId: "", userName: "", phase: "pre_release", riskLevel: "medium", notes: "" });
 
-  const { data: dashboard } = useQuery<any>({ queryKey: ["/api/reentry/dashboard"] });
+  const { data: dashboard } = useQuery<DashboardData>({ queryKey: ["/api/reentry/dashboard"] });
   const { data: plans = [], isLoading, error: plansError, refetch: refetchPlans } = useQuery<ReentryPlan[]>({ queryKey: ["/api/reentry/plans"] });
 
-  const { data: planDetail } = useQuery<any>({
+  const { data: planDetail } = useQuery<PlanDetail>({
     queryKey: ["/api/reentry/plans", selectedPlan],
     enabled: !!selectedPlan,
   });
 
   const createMutation = useMutation({
-    mutationFn: async (data: any) => {
+    mutationFn: async (data: Record<string, unknown>) => {
       const res = await apiRequest("POST", "/api/reentry/plans", data);
       return res.json();
     },
@@ -78,7 +93,7 @@ export default function ReentryDashboard() {
         stabilization: "stabilizationStartDate",
         independence: "independenceStartDate",
       };
-      const updates: any = { phase };
+      const updates: Record<string, string> = { phase };
       if (phaseStartField[phase]) updates[phaseStartField[phase]] = new Date().toISOString();
       const res = await apiRequest("PATCH", `/api/reentry/plans/${id}`, updates);
       return res.json();
@@ -261,7 +276,7 @@ export default function ReentryDashboard() {
                 <h3 className="font-semibold mb-3">Milestones</h3>
                 {planDetail.milestones?.length > 0 ? (
                   <div className="space-y-2">
-                    {planDetail.milestones.map((m: any) => (
+                    {planDetail.milestones.map((m: ReentryMilestone) => (
                       <div key={m.id} className="flex items-center gap-3 p-3 rounded-lg border">
                         <button
                           className="shrink-0"

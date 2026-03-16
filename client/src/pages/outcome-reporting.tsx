@@ -11,6 +11,31 @@ import {
   Briefcase, GraduationCap, Home, Heart, Shield, TrendingUp, CheckCircle2
 } from "lucide-react";
 
+interface OutcomeDashboard {
+  totalOutcomes: number;
+  uniqueParticipants: number;
+  totalActivePlans: number;
+  milestoneCompletionRate: number;
+  [categoryKey: string]: unknown;
+}
+
+interface DOJReport {
+  generatedAt: string;
+  reportType: string;
+  grantProgram: string;
+  programOverview: { totalParticipantsServed: number; activePlans: number; completedPlans: number; programCompletionRate: number };
+  recidivismOutcomes: { sixMonth: { tracked: number; noReoffense: number }; twelveMonth: { tracked: number; noReoffense: number }; thirtySixMonth: { tracked: number; noReoffense: number } };
+  employmentOutcomes: { totalPlaced: number; retention30Day: { tracked: number; retained: number }; retention90Day: { tracked: number; retained: number } };
+  educationOutcomes: { enrolled: number; credentialsEarned: number };
+  housingOutcomes: { tracked: number; stable: number };
+  milestoneProgress: { total: number; completed: number; completionRate: number };
+}
+
+interface CategoryData {
+  total: number;
+  [metric: string]: number;
+}
+
 const OUTCOME_CATEGORIES = [
   { key: "recidivism", label: "Recidivism", icon: Shield, color: "text-red-600", metrics: ["6mo_status", "12mo_status", "36mo_status"] },
   { key: "employment", label: "Employment", icon: Briefcase, color: "text-blue-600", metrics: ["job_placement", "retention", "wage_progression"] },
@@ -19,7 +44,7 @@ const OUTCOME_CATEGORIES = [
   { key: "behavioral_health", label: "Behavioral Health", icon: Heart, color: "text-pink-600", metrics: ["assessment_score", "treatment_progress"] },
 ];
 
-function OutcomeCard({ category, data }: { category: typeof OUTCOME_CATEGORIES[0]; data: any }) {
+function OutcomeCard({ category, data }: { category: typeof OUTCOME_CATEGORIES[0]; data: CategoryData }) {
   const Icon = category.icon;
   return (
     <Card className="p-5" data-testid={`card-outcome-${category.key}`}>
@@ -33,7 +58,7 @@ function OutcomeCard({ category, data }: { category: typeof OUTCOME_CATEGORIES[0
         </div>
       </div>
       <div className="space-y-2">
-        {Object.entries(data).filter(([k]) => k !== "total").map(([key, value]: [string, any]) => (
+        {Object.entries(data).filter(([k]) => k !== "total").map(([key, value]) => (
           <div key={key} className="flex items-center justify-between p-2 rounded bg-muted">
             <span className="text-sm capitalize">{key.replace(/_/g, " ")}</span>
             <Badge variant="outline">{typeof value === "number" ? value : String(value)}</Badge>
@@ -49,11 +74,11 @@ export default function OutcomeReportingPage() {
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({ userId: "", planId: "", category: "employment", metricName: "", metricValue: "", periodMonths: "", source: "" });
 
-  const { data: dashboard } = useQuery<any>({ queryKey: ["/api/outcomes/dashboard"] });
-  const { data: dojReport } = useQuery<any>({ queryKey: ["/api/outcomes/report/doj"] });
+  const { data: dashboard } = useQuery<OutcomeDashboard>({ queryKey: ["/api/outcomes/dashboard"] });
+  const { data: dojReport } = useQuery<DOJReport>({ queryKey: ["/api/outcomes/report/doj"] });
 
   const createMutation = useMutation({
-    mutationFn: async (data: any) => {
+    mutationFn: async (data: Record<string, unknown>) => {
       const res = await apiRequest("POST", "/api/outcomes", data);
       return res.json();
     },

@@ -20,7 +20,7 @@ async function requireAdmin(req: Request, res: Response, next: Function) {
   if (!userId) return res.status(401).json({ error: "Authentication required" });
   try {
     const user = await storage.getUser(userId);
-    if (user?.role === "admin" || user?.role === "teacher") return next();
+    if (user?.role === "admin" || user?.role === "teacher" || user?.role === "case_manager") return next();
   } catch (e) { console.error("Admin check error:", e); }
   return res.status(403).json({ error: "Admin access required" });
 }

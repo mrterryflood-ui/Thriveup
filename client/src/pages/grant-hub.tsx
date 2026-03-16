@@ -54,7 +54,7 @@ export default function GrantHubPage() {
   const { data: report } = useQuery({ queryKey: ["/api/grants/report/alignment"] });
 
   const createMutation = useMutation({
-    mutationFn: async (data: any) => {
+    mutationFn: async (data: Record<string, unknown>) => {
       const res = await apiRequest("POST", "/api/grants", data);
       return res.json();
     },
