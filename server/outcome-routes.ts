@@ -4,6 +4,8 @@ import {
   outcomeTracking, reentryPlans, reentryMilestones,
   insertOutcomeTrackingSchema,
   workforceAssessments, trainingEnrollments, jobPlacements, retentionChecks, employerPartners, trainingPrograms,
+  communityPartners, partnerReferrals, partnerEngagements,
+  mouDocuments, ambassadorProfiles,
 } from "@shared/schema";
 import { z } from "zod";
 import { eq, desc, sql, and, count } from "drizzle-orm";
@@ -89,12 +91,37 @@ export function registerOutcomeRoutes(app: Express) {
         categoryCounts[o.category][o.metricName] = (categoryCounts[o.category][o.metricName] || 0) + 1;
       }
 
+      const partners = await db.select().from(communityPartners);
+      const referrals = await db.select().from(partnerReferrals);
+      const engagements = await db.select().from(partnerEngagements);
+      const mous = await db.select().from(mouDocuments);
+      const ambassadors = await db.select().from(ambassadorProfiles);
+
       res.json({
         totalOutcomes: outcomes.length,
         uniqueParticipants: uniqueUsers.size,
         totalActivePlans: plans.filter(p => p.status === "active").length,
         milestoneCompletionRate: milestones.length > 0 ? Math.round((completedMilestones / milestones.length) * 100) : 0,
         ...categoryCounts,
+        stakeholderEcosystem: {
+          totalPartners: partners.length,
+          verifiedPartners: partners.filter(p => p.isVerified).length,
+          activeMOUs: mous.filter(m => m.status === "active" || m.status === "signed").length,
+          totalReferrals: referrals.length,
+          completedReferrals: referrals.filter(r => r.status === "completed").length,
+          referralCompletionRate: referrals.length > 0 ? Math.round((referrals.filter(r => r.status === "completed").length / referrals.length) * 100) : 0,
+          totalEngagements: engagements.length,
+          totalVolunteerHours: engagements.reduce((s, e) => s + (e.volunteerHours || 0), 0),
+          totalParticipantsServed: engagements.reduce((s, e) => s + (e.participantsServed || 0), 0),
+          totalResourcesDistributed: engagements.reduce((s, e) => s + (e.resourcesDistributed || 0), 0),
+          activeAmbassadors: ambassadors.filter(a => a.status === "active").length,
+          partnerTypeBreakdown: Object.entries(
+            partners.reduce<Record<string, number>>((acc, p) => { acc[p.type] = (acc[p.type] || 0) + 1; return acc; }, {})
+          ).map(([type, count]) => ({ type, count })),
+          hiringCommitments: partners.reduce((s, p) => s + (p.hiringCommitments || 0), 0),
+          hiringFulfilled: partners.reduce((s, p) => s + (p.hiringFulfilled || 0), 0),
+          diversionReferrals: partners.reduce((s, p) => s + (p.diversionReferrals || 0), 0),
+        },
       });
     } catch (error) {
       console.error("Failed to fetch dashboard:", error);
@@ -124,6 +151,11 @@ export function registerOutcomeRoutes(app: Express) {
       const wfRetained = wfRetention.filter(r => r.employmentStatus === "employed");
       const wfRetention30 = wfRetention.filter(r => r.checkPeriodDays === 30);
       const wfRetention90 = wfRetention.filter(r => r.checkPeriodDays === 90);
+
+      const partners = await db.select().from(communityPartners);
+      const partnerRefs = await db.select().from(partnerReferrals);
+      const engagements = await db.select().from(partnerEngagements);
+      const mous = await db.select().from(mouDocuments);
 
       const report = {
         generatedAt: new Date().toISOString(),
@@ -172,6 +204,23 @@ export function registerOutcomeRoutes(app: Express) {
           jobPlacements: wfPlacements.length,
           retentionChecks: wfRetention.length,
           overallRetentionRate: wfRetention.length > 0 ? Math.round((wfRetained.length / wfRetention.length) * 100) : 0,
+        },
+        communityPartnership: {
+          totalPartners: partners.length,
+          verifiedPartners: partners.filter(p => p.isVerified).length,
+          activeMOUs: mous.filter(m => m.status === "active" || m.status === "signed").length,
+          partnerReferralsMade: partnerRefs.length,
+          partnerReferralsCompleted: partnerRefs.filter(r => r.status === "completed").length,
+          communityEngagementEvents: engagements.length,
+          volunteerHoursLogged: engagements.reduce((s, e) => s + (e.volunteerHours || 0), 0),
+          participantsServedByPartners: engagements.reduce((s, e) => s + (e.participantsServed || 0), 0),
+          resourcesDistributed: engagements.reduce((s, e) => s + (e.resourcesDistributed || 0), 0),
+          employerHiringCommitments: partners.reduce((s, p) => s + (p.hiringCommitments || 0), 0),
+          employerHiringFulfilled: partners.reduce((s, p) => s + (p.hiringFulfilled || 0), 0),
+          diversionReferrals: partners.reduce((s, p) => s + (p.diversionReferrals || 0), 0),
+          educationPartners: partners.filter(p => p.type === "School/Education").length,
+          faithBasedPartners: partners.filter(p => p.type === "Church/Faith-Based").length,
+          lawEnforcementPartners: partners.filter(p => p.type === "Law Enforcement").length,
         },
       };
       res.json(report);

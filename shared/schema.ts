@@ -1507,6 +1507,17 @@ export const communityPartners = pgTable("community_partners", {
   mouEndDate: timestamp("mou_end_date"),
   capacity: integer("capacity"),
   isActive: boolean("is_active").default(true),
+  hiringCommitments: integer("hiring_commitments").default(0),
+  hiringFulfilled: integer("hiring_fulfilled").default(0),
+  diversionReferrals: integer("diversion_referrals").default(0),
+  volunteerCount: integer("volunteer_count").default(0),
+  totalVolunteerHours: real("total_volunteer_hours").default(0),
+  eventsHosted: integer("events_hosted").default(0),
+  participantsServed: integer("participants_served").default(0),
+  resourcesDistributed: integer("resources_distributed").default(0),
+  facilitiesAvailable: text("facilities_available").array(),
+  programsOffered: text("programs_offered").array(),
+  specialCapabilities: jsonb("special_capabilities"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -1533,6 +1544,74 @@ export const partnerReferrals = pgTable("partner_referrals", {
 export const insertPartnerReferralSchema = createInsertSchema(partnerReferrals).omit({ id: true, createdAt: true, updatedAt: true });
 export type InsertPartnerReferral = z.infer<typeof insertPartnerReferralSchema>;
 export type PartnerReferral = typeof partnerReferrals.$inferSelect;
+
+export const partnerEngagements = pgTable("partner_engagements", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  partnerId: varchar("partner_id", { length: 100 }).notNull(),
+  engagementType: varchar("engagement_type", { length: 100 }).notNull(),
+  title: varchar("title", { length: 500 }).notNull(),
+  description: text("description"),
+  eventDate: timestamp("event_date"),
+  volunteerHours: real("volunteer_hours").default(0),
+  participantsServed: integer("participants_served").default(0),
+  resourcesDistributed: integer("resources_distributed").default(0),
+  facilityShared: boolean("facility_shared").default(false),
+  facilityDetails: text("facility_details"),
+  category: varchar("category", { length: 100 }),
+  impactNotes: text("impact_notes"),
+  createdBy: varchar("created_by", { length: 255 }),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertPartnerEngagementSchema = createInsertSchema(partnerEngagements).omit({ id: true, createdAt: true });
+export type InsertPartnerEngagement = z.infer<typeof insertPartnerEngagementSchema>;
+export type PartnerEngagement = typeof partnerEngagements.$inferSelect;
+
+export const mouDocuments = pgTable("mou_documents", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  partnerId: varchar("partner_id", { length: 100 }).notNull(),
+  title: varchar("title", { length: 500 }).notNull(),
+  status: varchar("status", { length: 50 }).notNull().default("draft"),
+  terms: text("terms"),
+  startDate: timestamp("start_date"),
+  endDate: timestamp("end_date"),
+  renewalDate: timestamp("renewal_date"),
+  signatoryName: varchar("signatory_name", { length: 255 }),
+  signatoryTitle: varchar("signatory_title", { length: 255 }),
+  signedDate: timestamp("signed_date"),
+  notes: text("notes"),
+  createdBy: varchar("created_by", { length: 255 }),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertMouDocumentSchema = createInsertSchema(mouDocuments).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertMouDocument = z.infer<typeof insertMouDocumentSchema>;
+export type MouDocument = typeof mouDocuments.$inferSelect;
+
+export const ambassadorProfiles = pgTable("ambassador_profiles", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  name: varchar("name", { length: 255 }).notNull(),
+  email: varchar("email", { length: 255 }),
+  phone: varchar("phone", { length: 50 }),
+  role: varchar("role", { length: 100 }).notNull().default("ambassador"),
+  assignedCommunity: varchar("assigned_community", { length: 255 }),
+  assignedRegion: varchar("assigned_region", { length: 255 }),
+  bio: text("bio"),
+  specializations: text("specializations").array(),
+  partnerIds: text("partner_ids").array(),
+  status: varchar("status", { length: 50 }).notNull().default("invited"),
+  invitedAt: timestamp("invited_at").defaultNow(),
+  onboardedAt: timestamp("onboarded_at"),
+  lastActiveAt: timestamp("last_active_at"),
+  totalEngagements: integer("total_engagements").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertAmbassadorProfileSchema = createInsertSchema(ambassadorProfiles).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertAmbassadorProfile = z.infer<typeof insertAmbassadorProfileSchema>;
+export type AmbassadorProfile = typeof ambassadorProfiles.$inferSelect;
 
 export const grantOpportunities = pgTable("grant_opportunities", {
   id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
