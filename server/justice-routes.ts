@@ -1,6 +1,11 @@
 import type { Express, Request, Response } from "express";
 import { db, storage } from "./storage";
-import { justiceReferrals, supervisionCompliance, reentryPlans, reentryMilestones, outcomeTracking } from "@shared/schema";
+import {
+  justiceReferrals, supervisionCompliance, reentryPlans, reentryMilestones, outcomeTracking,
+  insertJusticeReferralSchema, insertSupervisionComplianceSchema,
+} from "@shared/schema";
+import type { ReentryMilestone, OutcomeTracking, SupervisionCompliance as SupervisionComplianceType } from "@shared/schema";
+import { z } from "zod";
 import { eq, desc, sql } from "drizzle-orm";
 
 const requireApiKey = (req: Request, res: Response, next: Function) => {
@@ -13,7 +18,7 @@ const requireApiKey = (req: Request, res: Response, next: Function) => {
 };
 
 function getUserId(req: Request): string | undefined {
-  const u = (req as any).user;
+  const u = (req as Record<string, unknown>).user as { claims?: { sub?: string }; id?: string } | undefined;
   return u?.claims?.sub || u?.id;
 }
 
@@ -32,12 +37,40 @@ async function requireAdmin(req: Request, res: Response, next: Function) {
   return res.status(403).json({ error: "Admin access required" });
 }
 
+const externalReferralSchema = insertJusticeReferralSchema.pick({
+  externalReferralId: true, agencyName: true, agencyType: true,
+  userId: true, youthName: true, dateOfBirth: true, releaseDate: true,
+  supervisionLevel: true, chargeType: true, specialConditions: true,
+  assignedPlanId: true,
+});
+
+const referralUpdateSchema = z.object({
+  status: z.enum(["received", "assigned", "active", "completed", "declined"]).optional(),
+  assignedPlanId: z.string().optional(),
+  notes: z.string().optional(),
+});
+
+const complianceCreateSchema = insertSupervisionComplianceSchema.pick({
+  userId: true, complianceType: true, scheduledDate: true,
+  completedDate: true, status: true, notes: true, verifiedBy: true,
+});
+
+const complianceUpdateSchema = z.object({
+  status: z.enum(["pending", "completed", "missed", "excused"]).optional(),
+  completedDate: z.string().optional(),
+  notes: z.string().optional(),
+  verifiedBy: z.string().optional(),
+});
+
 export function registerJusticeRoutes(app: Express) {
   app.post("/api/external/justice/referrals", requireApiKey, async (req, res) => {
     try {
-      const [referral] = await db.insert(justiceReferrals).values(req.body).returning();
+      const parsed = externalReferralSchema.safeParse(req.body);
+      if (!parsed.success) return res.status(400).json({ error: "Invalid referral data", details: parsed.error.flatten().fieldErrors });
+      const [referral] = await db.insert(justiceReferrals).values(parsed.data).returning();
       res.json({ received: true, referralId: referral.id, timestamp: new Date().toISOString() });
     } catch (error) {
+      console.error("Failed to create referral:", error);
       res.status(500).json({ error: "Failed to create referral" });
     }
   });
@@ -48,7 +81,7 @@ export function registerJusticeRoutes(app: Express) {
       if (!referral) return res.status(404).json({ error: "Referral not found" });
 
       let planData = null;
-      let milestoneData: any[] = [];
+      let milestoneData: ReentryMilestone[] = [];
       if (referral.assignedPlanId) {
         const [plan] = await db.select().from(reentryPlans).where(eq(reentryPlans.id, referral.assignedPlanId));
         planData = plan || null;
@@ -57,33 +90,24 @@ export function registerJusticeRoutes(app: Express) {
         }
       }
 
-      let compliance: any[] = [];
+      let compliance: SupervisionComplianceType[] = [];
       if (referral.userId) {
         compliance = await db.select().from(supervisionCompliance).where(eq(supervisionCompliance.userId, referral.userId)).orderBy(desc(supervisionCompliance.createdAt));
       }
 
       res.json({
-        referralId: referral.id,
-        status: referral.status,
-        plan: planData ? {
-          phase: planData.phase,
-          status: planData.status,
-          riskLevel: planData.riskLevel,
-        } : null,
+        referralId: referral.id, status: referral.status,
+        plan: planData ? { phase: planData.phase, status: planData.status, riskLevel: planData.riskLevel } : null,
         milestones: {
           total: milestoneData.length,
           completed: milestoneData.filter(m => m.status === "completed").length,
           details: milestoneData.map(m => ({ title: m.title, category: m.category, status: m.status, completedDate: m.completedDate })),
         },
-        compliance: compliance.map(c => ({
-          type: c.complianceType,
-          scheduledDate: c.scheduledDate,
-          completedDate: c.completedDate,
-          status: c.status,
-        })),
+        compliance: compliance.map(c => ({ type: c.complianceType, scheduledDate: c.scheduledDate, completedDate: c.completedDate, status: c.status })),
         timestamp: new Date().toISOString(),
       });
     } catch (error) {
+      console.error("Failed to fetch progress:", error);
       res.status(500).json({ error: "Failed to fetch progress" });
     }
   });
@@ -94,8 +118,8 @@ export function registerJusticeRoutes(app: Express) {
       if (!referral) return res.status(404).json({ error: "Referral not found" });
 
       let planData = null;
-      let milestoneData: any[] = [];
-      let outcomes: any[] = [];
+      let milestoneData: ReentryMilestone[] = [];
+      let outcomes: OutcomeTracking[] = [];
 
       if (referral.assignedPlanId) {
         const [plan] = await db.select().from(reentryPlans).where(eq(reentryPlans.id, referral.assignedPlanId));
@@ -117,11 +141,8 @@ export function registerJusticeRoutes(app: Express) {
         reportType: "Court-Ready Progress Report",
         generatedAt: new Date().toISOString(),
         referral: {
-          id: referral.id,
-          externalReferralId: referral.externalReferralId,
-          agencyName: referral.agencyName,
-          referralDate: referral.referralDate,
-          status: referral.status,
+          id: referral.id, externalReferralId: referral.externalReferralId,
+          agencyName: referral.agencyName, referralDate: referral.referralDate, status: referral.status,
         },
         programParticipation: {
           planPhase: planData?.phase || "not_assigned",
@@ -134,35 +155,21 @@ export function registerJusticeRoutes(app: Express) {
           completed: milestoneData.filter(m => m.status === "completed").length,
           inProgress: milestoneData.filter(m => m.status === "in_progress").length,
           milestones: milestoneData.map(m => ({
-            title: m.title,
-            category: m.category,
-            phase: m.phase,
-            status: m.status,
-            targetDate: m.targetDate,
-            completedDate: m.completedDate,
+            title: m.title, category: m.category, phase: m.phase,
+            status: m.status, targetDate: m.targetDate, completedDate: m.completedDate,
           })),
         },
         supervisionCompliance: {
           totalCheckins: compliance.length,
           completed: compliance.filter(c => c.status === "completed").length,
           complianceRate: compliance.length > 0 ? Math.round((compliance.filter(c => c.status === "completed").length / compliance.length) * 100) : 0,
-          records: compliance.map(c => ({
-            type: c.complianceType,
-            scheduled: c.scheduledDate,
-            completed: c.completedDate,
-            status: c.status,
-          })),
+          records: compliance.map(c => ({ type: c.complianceType, scheduled: c.scheduledDate, completed: c.completedDate, status: c.status })),
         },
-        outcomes: outcomes.map(o => ({
-          category: o.category,
-          metric: o.metricName,
-          value: o.metricValue,
-          date: o.measurementDate,
-        })),
+        outcomes: outcomes.map(o => ({ category: o.category, metric: o.metricName, value: o.metricValue, date: o.measurementDate })),
       };
-
       res.json(report);
     } catch (error) {
+      console.error("Failed to generate report:", error);
       res.status(500).json({ error: "Failed to generate report" });
     }
   });
@@ -172,15 +179,19 @@ export function registerJusticeRoutes(app: Express) {
       const referrals = await db.select().from(justiceReferrals).orderBy(desc(justiceReferrals.createdAt));
       res.json(referrals);
     } catch (error) {
+      console.error("Failed to fetch referrals:", error);
       res.status(500).json({ error: "Failed to fetch referrals" });
     }
   });
 
   app.patch("/api/justice/referrals/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
-      const [updated] = await db.update(justiceReferrals).set({ ...req.body, updatedAt: new Date() }).where(eq(justiceReferrals.id, req.params.id)).returning();
+      const parsed = referralUpdateSchema.safeParse(req.body);
+      if (!parsed.success) return res.status(400).json({ error: "Invalid update data", details: parsed.error.flatten().fieldErrors });
+      const [updated] = await db.update(justiceReferrals).set({ ...parsed.data, updatedAt: new Date() }).where(eq(justiceReferrals.id, req.params.id)).returning();
       res.json(updated);
     } catch (error) {
+      console.error("Failed to update referral:", error);
       res.status(500).json({ error: "Failed to update referral" });
     }
   });
@@ -190,24 +201,31 @@ export function registerJusticeRoutes(app: Express) {
       const records = await db.select().from(supervisionCompliance).orderBy(desc(supervisionCompliance.createdAt));
       res.json(records);
     } catch (error) {
+      console.error("Failed to fetch compliance:", error);
       res.status(500).json({ error: "Failed to fetch compliance" });
     }
   });
 
   app.post("/api/justice/compliance", requireAuth, requireAdmin, async (req, res) => {
     try {
-      const [record] = await db.insert(supervisionCompliance).values(req.body).returning();
+      const parsed = complianceCreateSchema.safeParse(req.body);
+      if (!parsed.success) return res.status(400).json({ error: "Invalid compliance data", details: parsed.error.flatten().fieldErrors });
+      const [record] = await db.insert(supervisionCompliance).values(parsed.data).returning();
       res.json(record);
     } catch (error) {
+      console.error("Failed to create compliance record:", error);
       res.status(500).json({ error: "Failed to create compliance record" });
     }
   });
 
   app.patch("/api/justice/compliance/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
-      const [updated] = await db.update(supervisionCompliance).set(req.body).where(eq(supervisionCompliance.id, req.params.id)).returning();
+      const parsed = complianceUpdateSchema.safeParse(req.body);
+      if (!parsed.success) return res.status(400).json({ error: "Invalid update data", details: parsed.error.flatten().fieldErrors });
+      const [updated] = await db.update(supervisionCompliance).set(parsed.data).where(eq(supervisionCompliance.id, req.params.id)).returning();
       res.json(updated);
     } catch (error) {
+      console.error("Failed to update compliance:", error);
       res.status(500).json({ error: "Failed to update compliance" });
     }
   });

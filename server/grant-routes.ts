@@ -1,10 +1,12 @@
 import type { Express, Request, Response } from "express";
 import { db, storage } from "./storage";
-import { grantOpportunities } from "@shared/schema";
+import { grantOpportunities, insertGrantOpportunitySchema } from "@shared/schema";
+import type { GrantOpportunity } from "@shared/schema";
+import { z } from "zod";
 import { eq, desc, sql } from "drizzle-orm";
 
 function getUserId(req: Request): string | undefined {
-  const u = (req as any).user;
+  const u = (req as Record<string, unknown>).user as { claims?: { sub?: string }; id?: string } | undefined;
   return u?.claims?.sub || u?.id;
 }
 
@@ -29,46 +31,50 @@ const PLATFORM_CAPABILITIES = [
   { area: "Youth Reentry Support", features: ["Reentry case management", "Intake assessments", "Phase-based plans", "Court-ready reporting"], grantKeywords: ["reentry", "juvenile justice", "second chance", "recidivism"] },
   { area: "Mentorship & Coaching", features: ["Mentor matching network", "Industry professional connections", "Career coaching", "Peer mentoring"], grantKeywords: ["mentoring", "coaching", "youth development"] },
   { area: "Community-Based Services", features: ["Community partner network", "Resource finder (50 states)", "Partner referral workflows", "Multi-agency coordination"], grantKeywords: ["community", "wraparound", "services", "partnership"] },
-  { area: "Data & Outcome Tracking", features: ["IGN-Thrive analytics (6 domains)", "Early warning system", "Recidivism tracking", "DOJ-aligned reporting"], grantKeywords: ["data", "outcomes", "evidence-based", "reporting", "measurement"] },
-  { area: "Whole-Child Support", features: ["Behavioral health monitoring", "Housing stability tracking", "Family engagement tools", "Crisis intervention playbooks"], grantKeywords: ["holistic", "behavioral health", "housing", "family"] },
-  { area: "Financial Empowerment", features: ["Financial literacy courses", "Stock market simulation", "Entrepreneurship training", "College fundraising"], grantKeywords: ["financial", "economic", "entrepreneurship"] },
+  { area: "Data & Outcome Tracking", features: ["IGN-Thrive analytics", "Recidivism tracking", "Employment outcomes", "DOJ-aligned reporting"], grantKeywords: ["outcomes", "data", "measurement", "evidence-based"] },
+  { area: "Financial Literacy", features: ["Financial education courses", "Stock market simulation", "Entrepreneurship training", "College fundraising"], grantKeywords: ["financial", "economic", "entrepreneurship", "sustainability"] },
+  { area: "Whole-Child Support", features: ["Six-domain Thrive scoring", "Early warning system", "GIS context engine", "Behavioral health integration"], grantKeywords: ["holistic", "whole-child", "behavioral health", "trauma-informed"] },
 ];
 
-function computeFitScore(grant: { title?: string; description?: string; focusAreas?: string[]; eligibilityCriteria?: string }): { score: number; matchedAreas: string[]; analysis: Record<string, any> } {
-  const searchText = [grant.title, grant.description, ...(grant.focusAreas || []), grant.eligibilityCriteria].filter(Boolean).join(" ").toLowerCase();
-  const matchedAreas: string[] = [];
-  let totalMatches = 0;
-
-  for (const cap of PLATFORM_CAPABILITIES) {
-    const keywordMatches = cap.grantKeywords.filter(k => searchText.includes(k));
-    if (keywordMatches.length > 0) {
-      matchedAreas.push(cap.area);
-      totalMatches += keywordMatches.length;
-    }
-  }
-
-  const score = Math.min(100, Math.round((matchedAreas.length / PLATFORM_CAPABILITIES.length) * 70 + Math.min(totalMatches * 3, 30)));
-  return {
-    score,
-    matchedAreas,
-    analysis: { matchedCapabilities: matchedAreas.length, totalCapabilities: PLATFORM_CAPABILITIES.length, keywordHits: totalMatches },
-  };
+interface FitResult {
+  score: number;
+  analysis: { matchedAreas: string[]; totalAreas: number; keywords: string[] };
+  matchedAreas: string[];
 }
 
-function generateReadinessChecklist(matchedAreas: string[]): Array<{ criterion: string; status: string; feature: string }> {
-  const checklist: Array<{ criterion: string; status: string; feature: string }> = [];
+function computeFitScore(grant: { title?: string; description?: string; focusAreas?: string[]; eligibilityCriteria?: string }): FitResult {
+  const searchText = [grant.title, grant.description, ...(grant.focusAreas || []), grant.eligibilityCriteria].join(" ").toLowerCase();
+  const matchedAreas: string[] = [];
+  const matchedKeywords: string[] = [];
+  for (const cap of PLATFORM_CAPABILITIES) {
+    for (const keyword of cap.grantKeywords) {
+      if (searchText.includes(keyword)) {
+        if (!matchedAreas.includes(cap.area)) matchedAreas.push(cap.area);
+        if (!matchedKeywords.includes(keyword)) matchedKeywords.push(keyword);
+      }
+    }
+  }
+  const score = Math.min(100, Math.round((matchedAreas.length / PLATFORM_CAPABILITIES.length) * 100));
+  return { score, analysis: { matchedAreas, totalAreas: PLATFORM_CAPABILITIES.length, keywords: matchedKeywords }, matchedAreas };
+}
+
+interface ReadinessItem { criterion: string; status: string; feature: string }
+
+function generateReadinessChecklist(matchedAreas: string[]): ReadinessItem[] {
+  const checklist: ReadinessItem[] = [];
   for (const cap of PLATFORM_CAPABILITIES) {
     const isMatched = matchedAreas.includes(cap.area);
     for (const feature of cap.features) {
-      checklist.push({
-        criterion: `${cap.area}: ${feature}`,
-        status: isMatched ? "ready" : "available",
-        feature,
-      });
+      checklist.push({ criterion: `${cap.area}: ${feature}`, status: isMatched ? "ready" : "available", feature });
     }
   }
   return checklist;
 }
+
+const grantCreateSchema = insertGrantOpportunitySchema.pick({
+  title: true, agency: true, fundingAmount: true, description: true,
+  eligibilityCriteria: true, focusAreas: true, sourceUrl: true, grantType: true,
+});
 
 export function registerGrantRoutes(app: Express) {
   app.get("/api/grants", requireAuth, requireAdmin, async (_req, res) => {
@@ -76,13 +82,16 @@ export function registerGrantRoutes(app: Express) {
       const grants = await db.select().from(grantOpportunities).orderBy(desc(grantOpportunities.createdAt));
       res.json(grants);
     } catch (error) {
+      console.error("Failed to fetch grants:", error);
       res.status(500).json({ error: "Failed to fetch grants" });
     }
   });
 
   app.post("/api/grants", requireAuth, requireAdmin, async (req, res) => {
     try {
-      const data = req.body;
+      const parsed = grantCreateSchema.safeParse(req.body);
+      if (!parsed.success) return res.status(400).json({ error: "Invalid grant data", details: parsed.error.flatten().fieldErrors });
+      const data = parsed.data;
       const fitResult = computeFitScore(data);
       const [grant] = await db.insert(grantOpportunities).values({
         ...data,
@@ -92,6 +101,7 @@ export function registerGrantRoutes(app: Express) {
       }).returning();
       res.json(grant);
     } catch (error) {
+      console.error("Failed to create grant:", error);
       res.status(500).json({ error: "Failed to create grant" });
     }
   });
@@ -102,23 +112,26 @@ export function registerGrantRoutes(app: Express) {
       if (!grant) return res.status(404).json({ error: "Grant not found" });
       res.json(grant);
     } catch (error) {
+      console.error("Failed to fetch grant:", error);
       res.status(500).json({ error: "Failed to fetch grant" });
     }
   });
 
   app.patch("/api/grants/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
-      const data = req.body;
-      if (data.title || data.description || data.focusAreas) {
-        const fitResult = computeFitScore({ ...data });
+      const parsed = grantCreateSchema.partial().safeParse(req.body);
+      if (!parsed.success) return res.status(400).json({ error: "Invalid grant data", details: parsed.error.flatten().fieldErrors });
+      const data: Record<string, unknown> = { ...parsed.data, updatedAt: new Date() };
+      if (parsed.data.title || parsed.data.description || parsed.data.focusAreas) {
+        const fitResult = computeFitScore(parsed.data);
         data.fitScore = fitResult.score;
         data.fitAnalysis = fitResult.analysis;
         data.readinessChecklist = generateReadinessChecklist(fitResult.matchedAreas);
       }
-      data.updatedAt = new Date();
       const [updated] = await db.update(grantOpportunities).set(data).where(eq(grantOpportunities.id, req.params.id)).returning();
       res.json(updated);
     } catch (error) {
+      console.error("Failed to update grant:", error);
       res.status(500).json({ error: "Failed to update grant" });
     }
   });
@@ -128,6 +141,7 @@ export function registerGrantRoutes(app: Express) {
       await db.delete(grantOpportunities).where(eq(grantOpportunities.id, req.params.id));
       res.json({ success: true });
     } catch (error) {
+      console.error("Failed to delete grant:", error);
       res.status(500).json({ error: "Failed to delete grant" });
     }
   });
@@ -136,12 +150,22 @@ export function registerGrantRoutes(app: Express) {
     res.json({ capabilities: PLATFORM_CAPABILITIES });
   });
 
+  const analyzeFitSchema = z.object({
+    title: z.string().optional(),
+    description: z.string().optional(),
+    focusAreas: z.array(z.string()).optional(),
+    eligibilityCriteria: z.string().optional(),
+  });
+
   app.post("/api/grants/analyze-fit", requireAuth, requireAdmin, async (req, res) => {
     try {
-      const fitResult = computeFitScore(req.body);
+      const parsed = analyzeFitSchema.safeParse(req.body);
+      if (!parsed.success) return res.status(400).json({ error: "Invalid fit analysis data", details: parsed.error.flatten().fieldErrors });
+      const fitResult = computeFitScore(parsed.data);
       const checklist = generateReadinessChecklist(fitResult.matchedAreas);
       res.json({ ...fitResult, readinessChecklist: checklist });
     } catch (error) {
+      console.error("Failed to analyze grant fit:", error);
       res.status(500).json({ error: "Failed to analyze grant fit" });
     }
   });
@@ -157,16 +181,13 @@ export function registerGrantRoutes(app: Express) {
         mediumFitGrants: grants.filter(g => (g.fitScore || 0) >= 40 && (g.fitScore || 0) < 70).length,
         capabilities: PLATFORM_CAPABILITIES,
         grants: grants.map(g => ({
-          title: g.title,
-          agency: g.agency,
-          fitScore: g.fitScore,
-          status: g.status,
-          deadline: g.deadline,
-          fundingAmount: g.fundingAmount,
+          title: g.title, agency: g.agency, fitScore: g.fitScore,
+          status: g.status, deadline: g.deadline, fundingAmount: g.fundingAmount,
         })),
       };
       res.json(report);
     } catch (error) {
+      console.error("Failed to generate alignment report:", error);
       res.status(500).json({ error: "Failed to generate alignment report" });
     }
   });
