@@ -839,7 +839,7 @@ export default function CommunityPartnersPage() {
                           <div key={ref.id} className="flex items-center gap-3 p-3 rounded-lg border">
                             <div className="flex-1">
                               <p className="text-sm font-medium">User: {ref.userId}</p>
-                              <p className="text-xs text-muted-foreground">{ref.serviceType} - {new Date(ref.createdAt).toLocaleDateString()}</p>
+                              <p className="text-xs text-muted-foreground">{ref.serviceType} - {ref.createdAt ? new Date(String(ref.createdAt)).toLocaleDateString() : "N/A"}</p>
                             </div>
                             <Badge variant={ref.status === "completed" ? "default" : "secondary"}>{ref.status}</Badge>
                           </div>

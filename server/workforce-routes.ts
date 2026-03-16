@@ -14,7 +14,7 @@ import { storage } from "./storage";
 import { z } from "zod";
 
 function getUserId(req: Request): string | undefined {
-  const u = (req as Record<string, unknown>).user as { claims?: { sub?: string }; id?: string } | undefined;
+  const u = (req as unknown as Record<string, unknown>).user as { claims?: { sub?: string }; id?: string } | undefined;
   return u?.claims?.sub || u?.id;
 }
 
@@ -184,11 +184,13 @@ export function registerWorkforceRoutes(app: Express) {
   app.patch("/api/workforce/assessments/:id", requireAuth, async (req, res) => {
     try {
       const userId = getUserId(req)!;
-      const [existing] = await db.select().from(workforceAssessments).where(and(eq(workforceAssessments.id, req.params.id), eq(workforceAssessments.userId, userId)));
+      const assessmentId = req.params.id as string;
+      const [existing] = await db.select().from(workforceAssessments).where(and(eq(workforceAssessments.id, assessmentId), eq(workforceAssessments.userId, userId)));
       if (!existing) return res.status(404).json({ error: "Assessment not found" });
       const parsed = assessmentUpdateSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Invalid data", details: parsed.error.flatten().fieldErrors });
-      const [updated] = await db.update(workforceAssessments).set({ ...parsed.data, updatedAt: new Date() }).where(eq(workforceAssessments.id, req.params.id)).returning();
+      const updatePayload: Record<string, unknown> = { ...parsed.data, updatedAt: new Date() };
+      const [updated] = await db.update(workforceAssessments).set(updatePayload).where(eq(workforceAssessments.id, assessmentId)).returning();
       res.json(updated);
     } catch (error) {
       console.error("Failed to update assessment:", error);
@@ -255,11 +257,13 @@ export function registerWorkforceRoutes(app: Express) {
   app.patch("/api/workforce/enrollments/:id", requireAuth, async (req, res) => {
     try {
       const userId = getUserId(req)!;
-      const [existing] = await db.select().from(trainingEnrollments).where(and(eq(trainingEnrollments.id, req.params.id), eq(trainingEnrollments.userId, userId)));
+      const enrollmentId = req.params.id as string;
+      const [existing] = await db.select().from(trainingEnrollments).where(and(eq(trainingEnrollments.id, enrollmentId), eq(trainingEnrollments.userId, userId)));
       if (!existing) return res.status(404).json({ error: "Enrollment not found" });
       const parsed = enrollmentUpdateSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Invalid data", details: parsed.error.flatten().fieldErrors });
-      const [updated] = await db.update(trainingEnrollments).set({ ...parsed.data, updatedAt: new Date() }).where(eq(trainingEnrollments.id, req.params.id)).returning();
+      const updatePayload: Record<string, unknown> = { ...parsed.data, updatedAt: new Date() };
+      const [updated] = await db.update(trainingEnrollments).set(updatePayload).where(eq(trainingEnrollments.id, enrollmentId)).returning();
       res.json(updated);
     } catch (error) {
       console.error("Failed to update enrollment:", error);

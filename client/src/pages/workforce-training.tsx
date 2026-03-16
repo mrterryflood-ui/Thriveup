@@ -69,7 +69,7 @@ export default function WorkforceTrainingPage() {
   });
 
   const enrollMutation = useMutation({
-    mutationFn: async (data: { userName: string; programId: string }) => {
+    mutationFn: async (data: { userName: string; programId: string; status?: string }) => {
       const res = await apiRequest("POST", "/api/workforce/enrollments", data);
       return res.json();
     },
@@ -84,7 +84,7 @@ export default function WorkforceTrainingPage() {
   });
 
   const updateEnrollmentMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: Partial<Pick<TrainingEnrollment, "status" | "attendanceRate" | "credentialsEarned" | "actualCompletion" | "notes">> }) => {
+    mutationFn: async ({ id, data }: { id: string; data: { status?: string; attendanceRate?: number; credentialsEarned?: string[]; actualCompletion?: string; notes?: string } }) => {
       const res = await apiRequest("PATCH", `/api/workforce/enrollments/${id}`, data);
       return res.json();
     },

@@ -175,7 +175,7 @@ export default function WorkforceAssessmentPage() {
   });
 
   const createMutation = useMutation({
-    mutationFn: async (data: InsertWorkforceAssessment) => {
+    mutationFn: async (data: Omit<InsertWorkforceAssessment, "userId">) => {
       const res = await apiRequest("POST", "/api/workforce/assessments", data);
       return res.json();
     },
@@ -263,7 +263,7 @@ export default function WorkforceAssessmentPage() {
   const hasCompleted = latestAssessment?.status === "completed";
 
   if (hasCompleted && !showExisting && step === 0) {
-    const plan = latestAssessment.personalizedPlan || {};
+    const plan = (latestAssessment.personalizedPlan || {}) as { recommendations?: string[]; programs?: string[]; nextSteps?: string[] };
     return (
       <div className="p-6 max-w-4xl mx-auto" data-testid="section-assessment-results">
         <PageHeader
@@ -280,7 +280,7 @@ export default function WorkforceAssessmentPage() {
             <div>
               <h2 className="font-semibold text-lg" data-testid="text-assessment-status">Assessment Complete</h2>
               <p className="text-sm text-muted-foreground">
-                Completed {new Date(latestAssessment.createdAt).toLocaleDateString()}
+                Completed {latestAssessment.createdAt ? new Date(String(latestAssessment.createdAt)).toLocaleDateString() : "N/A"}
               </p>
             </div>
           </div>
@@ -302,13 +302,13 @@ export default function WorkforceAssessmentPage() {
             </Card>
           </div>
 
-          {plan.recommendations?.length > 0 && (
+          {(plan.recommendations?.length ?? 0) > 0 && (
             <div className="mb-4" data-testid="section-recommendations">
               <h3 className="font-medium text-sm mb-2 flex items-center gap-2">
                 <Lightbulb className="h-4 w-4 text-amber-500" /> Recommendations
               </h3>
               <ul className="space-y-2">
-                {plan.recommendations.map((rec: string, i: number) => (
+                {(plan.recommendations ?? []).map((rec: string, i: number) => (
                   <li key={i} className="text-sm flex items-start gap-2" data-testid={`text-recommendation-${i}`}>
                     <ArrowRight className="h-3 w-3 mt-1 text-muted-foreground shrink-0" />
                     {rec}
@@ -318,26 +318,26 @@ export default function WorkforceAssessmentPage() {
             </div>
           )}
 
-          {plan.programs?.length > 0 && (
+          {(plan.programs?.length ?? 0) > 0 && (
             <div className="mb-4" data-testid="section-suggested-programs">
               <h3 className="font-medium text-sm mb-2 flex items-center gap-2">
                 <GraduationCap className="h-4 w-4 text-blue-500" /> Suggested Programs
               </h3>
               <div className="flex flex-wrap gap-2">
-                {plan.programs.map((prog: string, i: number) => (
+                {(plan.programs ?? []).map((prog: string, i: number) => (
                   <Badge key={i} variant="secondary" data-testid={`badge-program-${i}`}>{prog}</Badge>
                 ))}
               </div>
             </div>
           )}
 
-          {plan.nextSteps?.length > 0 && (
+          {(plan.nextSteps?.length ?? 0) > 0 && (
             <div className="mb-6" data-testid="section-next-steps">
               <h3 className="font-medium text-sm mb-2 flex items-center gap-2">
                 <Target className="h-4 w-4 text-rose-500" /> Next Steps
               </h3>
               <ol className="space-y-2 list-decimal list-inside">
-                {plan.nextSteps.map((step: string, i: number) => (
+                {(plan.nextSteps ?? []).map((step: string, i: number) => (
                   <li key={i} className="text-sm" data-testid={`text-next-step-${i}`}>{step}</li>
                 ))}
               </ol>

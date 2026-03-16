@@ -6,9 +6,10 @@ interface BreadcrumbItem {
   href?: string;
 }
 
-interface PageHeaderProps {
+export interface PageHeaderProps {
   title: string;
   description?: string;
+  icon?: ReactNode;
   breadcrumbs?: BreadcrumbItem[];
   actions?: ReactNode;
 }

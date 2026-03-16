@@ -3163,7 +3163,7 @@ Write a warm, encouraging welcome message for students joining this classroom. M
   app.get("/api/community-map/resources/:stateCode", async (req, res) => {
     try {
       const stateCode = req.params.stateCode.toUpperCase();
-      const resources = searchResources(stateCode, []);
+      const resources = searchResources({ stateCode, categories: [] });
       const categories = getResourceCategories();
       res.json({ resources: resources.slice(0, 50), categories });
     } catch (error) {

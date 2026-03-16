@@ -302,7 +302,8 @@ function GrantDetailDialog({ grant }: { grant: GrantOpportunity }) {
 
 export default function GrantHubPage() {
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState<TabId>("dashboard");
+  type TabId = "grants" | "calendar" | "compare" | "alerts" | "reports";
+  const [activeTab, setActiveTab] = useState<TabId>("grants");
   const [showForm, setShowForm] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
@@ -319,6 +320,7 @@ export default function GrantHubPage() {
       const res = await fetch(`/api/grants?${params.toString()}`, { credentials: "include" });
       if (!res.ok) throw new Error("Failed to fetch grants");
       return res.json();
+    },
   });
 
   const { data: stats } = useQuery<GrantStats>({ queryKey: ["/api/grants/stats"] });

@@ -165,11 +165,11 @@ async function assembleContext(req: Request, userMessage: string): Promise<strin
       financial: "financial", transportation: "transportation", youth: "youth",
       substance: "healthcare",
     };
-    const searchCategories = [...new Set(detectedNeeds.map(n => categoryMap[n]).filter(Boolean))];
+    const searchCategories = Array.from(new Set(detectedNeeds.map(n => categoryMap[n]).filter(Boolean)));
 
     try {
       const resources = searchResources({
-        state: stateCode,
+        stateCode: stateCode,
         categories: searchCategories,
       });
       if (resources.length > 0) {
@@ -334,7 +334,7 @@ export function registerNavigatorRoutes(app: Express) {
 
         const newNeeds = detectNeeds(message);
         if (newNeeds.length > 0) {
-          const allNeeds = [...new Set([...(owned.identifiedNeeds || []), ...newNeeds])];
+          const allNeeds = Array.from(new Set([...(owned.identifiedNeeds || []), ...newNeeds]));
           await db.update(navigatorConversations)
             .set({ identifiedNeeds: allNeeds, lastMessageAt: new Date() })
             .where(eq(navigatorConversations.id, activeConversationId));
@@ -449,7 +449,7 @@ export function registerNavigatorRoutes(app: Express) {
   app.get("/api/navigator/conversations/:id/messages", requireAuth, async (req, res) => {
     try {
       const userId = getUserId(req)!;
-      const conversationId = req.params.id;
+      const conversationId = req.params.id as string;
 
       const [convo] = await db.select().from(navigatorConversations)
         .where(and(
@@ -475,7 +475,7 @@ export function registerNavigatorRoutes(app: Express) {
   app.delete("/api/navigator/conversations/:id", requireAuth, async (req, res) => {
     try {
       const userId = getUserId(req)!;
-      const conversationId = req.params.id;
+      const conversationId = req.params.id as string;
 
       const [convo] = await db.select().from(navigatorConversations)
         .where(and(

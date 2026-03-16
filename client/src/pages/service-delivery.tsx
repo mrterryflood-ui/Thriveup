@@ -311,7 +311,7 @@ export default function ServiceDelivery() {
               <Card className="p-6 text-center text-muted-foreground" data-testid="card-no-participants">
                 <Users className="h-8 w-8 mx-auto mb-2 opacity-40" />
                 <p>No participants found</p>
-                <Button variant="link" size="sm" className="mt-1" onClick={() => window.location.href = "/intake"} data-testid="link-start-intake">Start new intake</Button>
+                <Button variant="ghost" size="sm" className="mt-1" onClick={() => window.location.href = "/intake"} data-testid="link-start-intake">Start new intake</Button>
               </Card>
             ) : (
               filteredParticipants.map(p => (

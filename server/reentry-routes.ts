@@ -299,7 +299,7 @@ export function registerReentryRoutes(app: Express) {
 
   app.get("/api/intake/participants/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
-      const [profile] = await db.select().from(participantProfiles).where(eq(participantProfiles.id, req.params.id));
+      const [profile] = await db.select().from(participantProfiles).where(eq(participantProfiles.id, req.params.id as string));
       if (!profile) return res.status(404).json({ error: "Participant not found" });
       res.json(profile);
     } catch (error) {
@@ -327,7 +327,7 @@ export function registerReentryRoutes(app: Express) {
         "assignedCaseManagerId", "assignedFacilitatorId", "immediateNeeds", "shortTermGoals", "longTermGoals"];
       const filtered: Record<string, unknown> = { updatedAt: new Date() };
       for (const key of allowed) { if (req.body[key] !== undefined) filtered[key] = req.body[key]; }
-      const [updated] = await db.update(participantProfiles).set(filtered).where(eq(participantProfiles.id, req.params.id)).returning();
+      const [updated] = await db.update(participantProfiles).set(filtered).where(eq(participantProfiles.id, req.params.id as string)).returning();
       if (!updated) return res.status(404).json({ error: "Participant not found" });
       res.json(updated);
     } catch (error) {
@@ -338,9 +338,9 @@ export function registerReentryRoutes(app: Express) {
 
   app.delete("/api/intake/participants/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
-      await db.delete(serviceRecords).where(eq(serviceRecords.participantId, req.params.id));
-      await db.delete(consentRecords).where(eq(consentRecords.participantId, req.params.id));
-      const [deleted] = await db.delete(participantProfiles).where(eq(participantProfiles.id, req.params.id)).returning();
+      await db.delete(serviceRecords).where(eq(serviceRecords.participantId, req.params.id as string));
+      await db.delete(consentRecords).where(eq(consentRecords.participantId, req.params.id as string));
+      const [deleted] = await db.delete(participantProfiles).where(eq(participantProfiles.id, req.params.id as string)).returning();
       if (!deleted) return res.status(404).json({ error: "Participant not found" });
       res.json({ success: true });
     } catch (error) {
@@ -362,7 +362,7 @@ export function registerReentryRoutes(app: Express) {
   app.get("/api/intake/services/:participantId", requireAuth, requireAdmin, async (req, res) => {
     try {
       const records = await db.select().from(serviceRecords)
-        .where(eq(serviceRecords.participantId, req.params.participantId))
+        .where(eq(serviceRecords.participantId, req.params.participantId as string))
         .orderBy(desc(serviceRecords.createdAt));
       res.json(records);
     } catch (error) {
@@ -388,7 +388,7 @@ export function registerReentryRoutes(app: Express) {
       const allowedService = ["notes", "outcome", "followUpNeeded", "followUpDate", "followUpNotes", "status"];
       const filteredService: Record<string, unknown> = {};
       for (const key of allowedService) { if (req.body[key] !== undefined) filteredService[key] = req.body[key]; }
-      const [updated] = await db.update(serviceRecords).set(filteredService).where(eq(serviceRecords.id, req.params.id)).returning();
+      const [updated] = await db.update(serviceRecords).set(filteredService).where(eq(serviceRecords.id, req.params.id as string)).returning();
       if (!updated) return res.status(404).json({ error: "Service record not found" });
       res.json(updated);
     } catch (error) {
@@ -399,7 +399,7 @@ export function registerReentryRoutes(app: Express) {
 
   app.delete("/api/intake/services/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
-      const [deleted] = await db.delete(serviceRecords).where(eq(serviceRecords.id, req.params.id)).returning();
+      const [deleted] = await db.delete(serviceRecords).where(eq(serviceRecords.id, req.params.id as string)).returning();
       if (!deleted) return res.status(404).json({ error: "Service record not found" });
       res.json({ success: true });
     } catch (error) {
@@ -423,7 +423,7 @@ export function registerReentryRoutes(app: Express) {
   app.get("/api/intake/consent/:participantId", requireAuth, requireAdmin, async (req, res) => {
     try {
       const records = await db.select().from(consentRecords)
-        .where(eq(consentRecords.participantId, req.params.participantId))
+        .where(eq(consentRecords.participantId, req.params.participantId as string))
         .orderBy(desc(consentRecords.createdAt));
       res.json(records);
     } catch (error) {
@@ -437,7 +437,7 @@ export function registerReentryRoutes(app: Express) {
       const allowedConsent = ["acknowledged", "revokedAt"];
       const filteredConsent: Record<string, unknown> = {};
       for (const key of allowedConsent) { if (req.body[key] !== undefined) filteredConsent[key] = req.body[key]; }
-      const [updated] = await db.update(consentRecords).set(filteredConsent).where(eq(consentRecords.id, req.params.id)).returning();
+      const [updated] = await db.update(consentRecords).set(filteredConsent).where(eq(consentRecords.id, req.params.id as string)).returning();
       if (!updated) return res.status(404).json({ error: "Consent record not found" });
       res.json(updated);
     } catch (error) {
@@ -448,7 +448,7 @@ export function registerReentryRoutes(app: Express) {
 
   app.delete("/api/intake/consent/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
-      const [deleted] = await db.delete(consentRecords).where(eq(consentRecords.id, req.params.id)).returning();
+      const [deleted] = await db.delete(consentRecords).where(eq(consentRecords.id, req.params.id as string)).returning();
       if (!deleted) return res.status(404).json({ error: "Consent record not found" });
       res.json({ success: true });
     } catch (error) {

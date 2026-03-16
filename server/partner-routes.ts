@@ -367,7 +367,7 @@ export function registerPartnerRoutes(app: Express) {
       if (parsed.data.signedDate !== undefined) updateData.signedDate = parsed.data.signedDate ? new Date(parsed.data.signedDate) : undefined;
       if (parsed.data.notes !== undefined) updateData.notes = parsed.data.notes ?? undefined;
       if (parsed.data.createdBy !== undefined) updateData.createdBy = parsed.data.createdBy ?? undefined;
-      const [updated] = await db.update(mouDocuments).set(updateData).where(eq(mouDocuments.id, req.params.id)).returning();
+      const [updated] = await db.update(mouDocuments).set(updateData).where(eq(mouDocuments.id, req.params.id as string)).returning();
       res.json(updated);
     } catch (error) {
       console.error("Failed to update MOU:", error);
@@ -428,7 +428,7 @@ export function registerPartnerRoutes(app: Express) {
           updateData.onboardedAt = new Date();
         }
       }
-      const [updated] = await db.update(ambassadorProfiles).set(updateData).where(eq(ambassadorProfiles.id, req.params.id)).returning();
+      const [updated] = await db.update(ambassadorProfiles).set(updateData).where(eq(ambassadorProfiles.id, req.params.id as string)).returning();
       res.json(updated);
     } catch (error) {
       console.error("Failed to update ambassador:", error);
@@ -438,7 +438,7 @@ export function registerPartnerRoutes(app: Express) {
 
   app.delete("/api/ambassadors/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
-      await db.delete(ambassadorProfiles).where(eq(ambassadorProfiles.id, req.params.id));
+      await db.delete(ambassadorProfiles).where(eq(ambassadorProfiles.id, req.params.id as string));
       res.json({ success: true });
     } catch (error) {
       console.error("Failed to delete ambassador:", error);
