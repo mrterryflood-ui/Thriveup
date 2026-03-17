@@ -12,7 +12,7 @@ import { PageHeader } from "@/components/page-header";
 import {
   Shield, Heart, BookOpen, MessageSquare, ClipboardCheck,
   CheckCircle, ArrowRight, Sparkles, ChevronDown, ChevronUp,
-  ExternalLink, AlertTriangle,
+  ExternalLink, AlertTriangle, Globe,
 } from "lucide-react";
 import { DFCCrossNav } from "@/components/dfc-cross-nav";
 import type { ParentEducationModule, ParentEducationProgress, FamilyAssessment } from "@shared/schema";
@@ -34,7 +34,7 @@ interface QuestionsData {
   protective: Array<{ id: string; domain: string; text: string; options: string[]; scores: number[] }>;
 }
 
-function OverviewTab() {
+function OverviewTab({ lang }: { lang: "en" | "es" }) {
   const { data: dashboard, isLoading } = useQuery<DashboardData>({
     queryKey: ["/api/parent-education/dashboard"],
   });
@@ -71,7 +71,7 @@ function OverviewTab() {
               <BookOpen className="h-5 w-5 text-primary" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm text-muted-foreground">Modules Completed</p>
+              <p className="text-sm text-muted-foreground">{lang === "es" ? "Módulos Completados" : "Modules Completed"}</p>
               <p className="text-2xl font-bold" data-testid="text-completed-count">{completedCount} / {totalModules}</p>
               <Progress value={completionPct} className="mt-2" />
             </div>
@@ -84,7 +84,7 @@ function OverviewTab() {
               <ClipboardCheck className="h-5 w-5 text-primary" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm text-muted-foreground">Family Assessments</p>
+              <p className="text-sm text-muted-foreground">{lang === "es" ? "Evaluaciones Familiares" : "Family Assessments"}</p>
               <p className="text-2xl font-bold" data-testid="text-assessment-count">{assessments?.length || 0}</p>
               {latestAssessment && (
                 <p className="text-xs text-muted-foreground mt-1">
@@ -101,10 +101,12 @@ function OverviewTab() {
               <Heart className="h-5 w-5 text-primary" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm text-muted-foreground">Overall Progress</p>
+              <p className="text-sm text-muted-foreground">{lang === "es" ? "Progreso General" : "Overall Progress"}</p>
               <p className="text-2xl font-bold" data-testid="text-progress-pct">{completionPct}%</p>
               <p className="text-xs text-muted-foreground mt-1">
-                {completionPct >= 80 ? "Outstanding engagement!" : completionPct >= 50 ? "Great progress!" : "Keep going!"}
+                {lang === "es"
+                  ? (completionPct >= 80 ? "¡Participación sobresaliente!" : completionPct >= 50 ? "¡Gran progreso!" : "¡Sigue adelante!")
+                  : (completionPct >= 80 ? "Outstanding engagement!" : completionPct >= 50 ? "Great progress!" : "Keep going!")}
               </p>
             </div>
           </div>
@@ -113,17 +115,17 @@ function OverviewTab() {
 
       {latestAssessment && (
         <Card className="p-6" data-testid="card-latest-assessment">
-          <h3 className="font-semibold mb-3">Latest Family Assessment Results</h3>
+          <h3 className="font-semibold mb-3">{lang === "es" ? "Últimos Resultados de Evaluación Familiar" : "Latest Family Assessment Results"}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <p className="text-sm text-muted-foreground mb-1">Risk Score</p>
+              <p className="text-sm text-muted-foreground mb-1">{lang === "es" ? "Puntaje de Riesgo" : "Risk Score"}</p>
               <div className="flex items-center gap-2">
                 <Progress value={(latestAssessment.riskScore / 18) * 100} className="flex-1" />
                 <span className="text-sm font-medium">{latestAssessment.riskScore}/18</span>
               </div>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground mb-1">Protective Score</p>
+              <p className="text-sm text-muted-foreground mb-1">{lang === "es" ? "Puntaje de Protección" : "Protective Score"}</p>
               <div className="flex items-center gap-2">
                 <Progress value={(latestAssessment.protectiveScore / 18) * 100} className="flex-1" />
                 <span className="text-sm font-medium">{latestAssessment.protectiveScore}/18</span>
@@ -132,7 +134,7 @@ function OverviewTab() {
           </div>
           {Array.isArray(latestAssessment.recommendations) && latestAssessment.recommendations.length > 0 && (
             <div className="mt-4">
-              <p className="text-sm font-medium mb-2">Recommendations</p>
+              <p className="text-sm font-medium mb-2">{lang === "es" ? "Recomendaciones" : "Recommendations"}</p>
               <ul className="space-y-1">
                 {(latestAssessment.recommendations as string[]).map((rec, i) => (
                   <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
@@ -149,7 +151,7 @@ function OverviewTab() {
   );
 }
 
-function ModulesTab() {
+function ModulesTab({ lang }: { lang: "en" | "es" }) {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [expandedModule, setExpandedModule] = useState<string | null>(null);
   const { toast } = useToast();
@@ -212,29 +214,33 @@ function ModulesTab() {
         {filteredModules.map(mod => {
           const status = getModuleStatus(mod.id);
           const isExpanded = expandedModule === mod.id;
-          const sections = Array.isArray(mod.contentSections) ? mod.contentSections as Array<{ title: string; content: string }> : [];
+          const rawSections = Array.isArray(mod.contentSections) ? mod.contentSections as Array<{ _meta?: boolean; titleEs?: string; descriptionEs?: string; title: string; content: string; contentEs?: string }> : [];
+          const metaSection = rawSections.find((s: any) => s._meta);
+          const sections = rawSections.filter((s: any) => !s._meta);
+          const displayTitle = lang === "es" && metaSection?.titleEs ? metaSection.titleEs : mod.title;
+          const displayDesc = lang === "es" && metaSection?.descriptionEs ? metaSection.descriptionEs : mod.description;
 
           return (
             <Card key={mod.id} className="p-6" data-testid={`card-module-${mod.id}`}>
               <div className="flex items-start justify-between gap-2 flex-wrap mb-3">
                 <Badge variant={mod.category === "substance_prevention" ? "default" : "secondary"} data-testid={`badge-category-${mod.id}`}>
                   {mod.category === "substance_prevention" ? (
-                    <><Shield className="h-3 w-3 mr-1" />Prevention</>
+                    <><Shield className="h-3 w-3 mr-1" />{lang === "es" ? "Prevención" : "Prevention"}</>
                   ) : (
-                    <><Heart className="h-3 w-3 mr-1" />Family Strengthening</>
+                    <><Heart className="h-3 w-3 mr-1" />{lang === "es" ? "Fortalecimiento Familiar" : "Family Strengthening"}</>
                   )}
                 </Badge>
                 {status === "completed" && (
                   <Badge variant="outline" className="text-green-600 border-green-600" data-testid={`badge-completed-${mod.id}`}>
-                    <CheckCircle className="h-3 w-3 mr-1" /> Completed
+                    <CheckCircle className="h-3 w-3 mr-1" /> {lang === "es" ? "Completado" : "Completed"}
                   </Badge>
                 )}
               </div>
-              <h3 className="font-semibold mb-1" data-testid={`text-module-title-${mod.id}`}>{mod.title}</h3>
-              <p className="text-sm text-muted-foreground mb-3">{mod.description}</p>
+              <h3 className="font-semibold mb-1" data-testid={`text-module-title-${mod.id}`}>{displayTitle}</h3>
+              <p className="text-sm text-muted-foreground mb-3">{displayDesc}</p>
 
               {mod.targetAudience && (
-                <p className="text-xs text-muted-foreground mb-3">Target: {mod.targetAudience}</p>
+                <p className="text-xs text-muted-foreground mb-3">{lang === "es" ? "Audiencia" : "Target"}: {mod.targetAudience}</p>
               )}
 
               <Button
@@ -244,15 +250,15 @@ function ModulesTab() {
                 data-testid={`button-expand-${mod.id}`}
               >
                 {isExpanded ? <ChevronUp className="h-4 w-4 mr-1" /> : <ChevronDown className="h-4 w-4 mr-1" />}
-                {isExpanded ? "Hide Content" : "View Content"}
+                {isExpanded ? (lang === "es" ? "Ocultar Contenido" : "Hide Content") : (lang === "es" ? "Ver Contenido" : "View Content")}
               </Button>
 
               {isExpanded && sections.length > 0 && (
                 <div className="mt-4 space-y-4 border-t pt-4">
                   {sections.map((section, i) => (
                     <div key={i}>
-                      <h4 className="text-sm font-medium mb-1">{section.title}</h4>
-                      <p className="text-sm text-muted-foreground">{section.content}</p>
+                      <h4 className="text-sm font-medium mb-1">{lang === "es" && section.titleEs ? section.titleEs : section.title}</h4>
+                      <p className="text-sm text-muted-foreground">{lang === "es" && section.contentEs ? section.contentEs : section.content}</p>
                     </div>
                   ))}
                   {status !== "completed" && (
@@ -262,7 +268,7 @@ function ModulesTab() {
                       data-testid={`button-complete-${mod.id}`}
                     >
                       <CheckCircle className="h-4 w-4 mr-2" />
-                      {completeMutation.isPending ? "Saving..." : "Mark as Completed"}
+                      {completeMutation.isPending ? (lang === "es" ? "Guardando..." : "Saving...") : (lang === "es" ? "Marcar como Completado" : "Mark as Completed")}
                     </Button>
                   )}
                 </div>
@@ -281,7 +287,7 @@ function ModulesTab() {
   );
 }
 
-function FamilyAssessmentTab() {
+function FamilyAssessmentTab({ lang }: { lang: "en" | "es" }) {
   const [riskResponses, setRiskResponses] = useState<Record<string, number>>({});
   const [protectiveResponses, setProtectiveResponses] = useState<Record<string, number>>({});
   const [showResults, setShowResults] = useState(false);
@@ -323,10 +329,10 @@ function FamilyAssessmentTab() {
     return (
       <div className="space-y-6">
         <Card className="p-6" data-testid="card-assessment-results">
-          <h3 className="text-lg font-semibold mb-4">Your Family Assessment Results</h3>
+          <h3 className="text-lg font-semibold mb-4">{lang === "es" ? "Resultados de Su Evaluación Familiar" : "Your Family Assessment Results"}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <p className="text-sm font-medium mb-2">Risk Factors Score</p>
+              <p className="text-sm font-medium mb-2">{lang === "es" ? "Puntaje de Factores de Riesgo" : "Risk Factors Score"}</p>
               <div className="flex items-center gap-3 mb-2">
                 <Progress value={(latestAssessment.riskScore / 18) * 100} className="flex-1" />
                 <span className="text-lg font-bold">{latestAssessment.riskScore}/18</span>
@@ -336,7 +342,7 @@ function FamilyAssessmentTab() {
               </p>
             </div>
             <div>
-              <p className="text-sm font-medium mb-2">Protective Factors Score</p>
+              <p className="text-sm font-medium mb-2">{lang === "es" ? "Puntaje de Factores Protectores" : "Protective Factors Score"}</p>
               <div className="flex items-center gap-3 mb-2">
                 <Progress value={(latestAssessment.protectiveScore / 18) * 100} className="flex-1" />
                 <span className="text-lg font-bold">{latestAssessment.protectiveScore}/18</span>
@@ -441,7 +447,7 @@ function FamilyAssessmentTab() {
   );
 }
 
-function ConversationStartersTab() {
+function ConversationStartersTab({ lang }: { lang: "en" | "es" }) {
   const [topic, setTopic] = useState("");
   const [childAge, setChildAge] = useState("");
   const [starters, setStarters] = useState<ConversationStarter[]>([]);
@@ -474,14 +480,16 @@ function ConversationStartersTab() {
   return (
     <div className="space-y-6">
       <Card className="p-6" data-testid="card-conversation-form">
-        <h3 className="font-semibold mb-2">AI Conversation Starter Generator</h3>
+        <h3 className="font-semibold mb-2">{lang === "es" ? "Generador de Iniciadores de Conversación con IA" : "AI Conversation Starter Generator"}</h3>
         <p className="text-sm text-muted-foreground mb-4">
-          Get personalized conversation starters to help you talk to your child about important topics.
+          {lang === "es"
+            ? "Obtenga iniciadores de conversación personalizados para ayudarle a hablar con su hijo sobre temas importantes."
+            : "Get personalized conversation starters to help you talk to your child about important topics."}
         </p>
 
         <div className="space-y-4">
           <div>
-            <label className="text-sm font-medium mb-2 block">What topic do you want to discuss?</label>
+            <label className="text-sm font-medium mb-2 block">{lang === "es" ? "¿Qué tema desea discutir?" : "What topic do you want to discuss?"}</label>
             <div className="flex flex-wrap gap-2 mb-2">
               {topicSuggestions.map(t => (
                 <Button
@@ -506,7 +514,7 @@ function ConversationStartersTab() {
           </div>
 
           <div>
-            <label className="text-sm font-medium mb-2 block">Child's age (optional)</label>
+            <label className="text-sm font-medium mb-2 block">{lang === "es" ? "Edad del niño (opcional)" : "Child's age (optional)"}</label>
             <input
               type="text"
               value={childAge}
@@ -523,14 +531,14 @@ function ConversationStartersTab() {
             data-testid="button-generate-starters"
           >
             <Sparkles className="h-4 w-4 mr-2" />
-            {generateMutation.isPending ? "Generating..." : "Generate Conversation Starters"}
+            {generateMutation.isPending ? (lang === "es" ? "Generando..." : "Generating...") : (lang === "es" ? "Generar Iniciadores de Conversación" : "Generate Conversation Starters")}
           </Button>
         </div>
       </Card>
 
       {starters.length > 0 && (
         <div className="space-y-4">
-          <h3 className="font-semibold">Conversation Starters</h3>
+          <h3 className="font-semibold">{lang === "es" ? "Iniciadores de Conversación" : "Conversation Starters"}</h3>
           {starters.map((starter, i) => (
             <Card key={i} className="p-6" data-testid={`card-starter-${i}`}>
               <div className="space-y-3">
@@ -557,7 +565,7 @@ function ConversationStartersTab() {
   );
 }
 
-function ResourcesTab() {
+function ResourcesTab({ lang }: { lang: "en" | "es" }) {
   const resources = [
     {
       title: "SAMHSA - Talk. They Hear You.",
@@ -600,7 +608,9 @@ function ResourcesTab() {
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        These evidence-based resources provide additional support for families focused on prevention and strengthening.
+        {lang === "es"
+          ? "Estos recursos basados en evidencia brindan apoyo adicional para familias enfocadas en prevención y fortalecimiento."
+          : "These evidence-based resources provide additional support for families focused on prevention and strengthening."}
       </p>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {resources.map((resource, i) => (
@@ -619,7 +629,7 @@ function ResourcesTab() {
                   className="inline-flex items-center gap-1 text-xs text-primary"
                   data-testid={`link-resource-${i}`}
                 >
-                  Visit Resource <ExternalLink className="h-3 w-3" />
+                  {lang === "es" ? "Visitar Recurso" : "Visit Resource"} <ExternalLink className="h-3 w-3" />
                 </a>
               </div>
             </div>
@@ -631,45 +641,60 @@ function ResourcesTab() {
 }
 
 export default function ParentEducationPage() {
+  const [lang, setLang] = useState<"en" | "es">("en");
+
   useEffect(() => {
-    document.title = "Parent Education & Family Strengthening | ThriveUp Academy";
-  }, []);
+    document.title = lang === "es"
+      ? "Educación para Padres y Fortalecimiento Familiar | ThriveUp Academy"
+      : "Parent Education & Family Strengthening | ThriveUp Academy";
+  }, [lang]);
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
-      <PageHeader
-        title="Parent Education & Family Strengthening"
-        description="Substance prevention education and family strengthening resources for parents and guardians"
-        breadcrumbs={[{ label: "Prevention", href: "/prevention" }, { label: "Parent Education" }]}
-      />
+      <div className="flex items-center justify-between flex-wrap gap-2 mb-2">
+        <PageHeader
+          title={lang === "es" ? "Educación para Padres y Fortalecimiento Familiar" : "Parent Education & Family Strengthening"}
+          description={lang === "es" ? "Educación de prevención de sustancias y recursos de fortalecimiento familiar para padres y tutores" : "Substance prevention education and family strengthening resources for parents and guardians"}
+          breadcrumbs={[{ label: lang === "es" ? "Prevención" : "Prevention", href: "/prevention" }, { label: lang === "es" ? "Educación para Padres" : "Parent Education" }]}
+        />
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setLang(lang === "en" ? "es" : "en")}
+          data-testid="button-toggle-language"
+        >
+          <Globe className="h-4 w-4 mr-1" />
+          {lang === "en" ? "Español" : "English"}
+        </Button>
+      </div>
 
       <Tabs defaultValue="overview" className="mt-6">
         <TabsList className="flex flex-wrap gap-1" data-testid="tabs-parent-education">
-          <TabsTrigger value="overview" data-testid="tab-overview">Overview</TabsTrigger>
-          <TabsTrigger value="modules" data-testid="tab-modules">Modules</TabsTrigger>
-          <TabsTrigger value="assessment" data-testid="tab-assessment">Family Assessment</TabsTrigger>
-          <TabsTrigger value="conversation" data-testid="tab-conversation">Conversation Starters</TabsTrigger>
-          <TabsTrigger value="resources" data-testid="tab-resources">Resources</TabsTrigger>
+          <TabsTrigger value="overview" data-testid="tab-overview">{lang === "es" ? "Resumen" : "Overview"}</TabsTrigger>
+          <TabsTrigger value="modules" data-testid="tab-modules">{lang === "es" ? "Módulos" : "Modules"}</TabsTrigger>
+          <TabsTrigger value="assessment" data-testid="tab-assessment">{lang === "es" ? "Evaluación Familiar" : "Family Assessment"}</TabsTrigger>
+          <TabsTrigger value="conversation" data-testid="tab-conversation">{lang === "es" ? "Iniciadores de Conversación" : "Conversation Starters"}</TabsTrigger>
+          <TabsTrigger value="resources" data-testid="tab-resources">{lang === "es" ? "Recursos" : "Resources"}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="mt-4">
-          <OverviewTab />
+          <OverviewTab lang={lang} />
         </TabsContent>
 
         <TabsContent value="modules" className="mt-4">
-          <ModulesTab />
+          <ModulesTab lang={lang} />
         </TabsContent>
 
         <TabsContent value="assessment" className="mt-4">
-          <FamilyAssessmentTab />
+          <FamilyAssessmentTab lang={lang} />
         </TabsContent>
 
         <TabsContent value="conversation" className="mt-4">
-          <ConversationStartersTab />
+          <ConversationStartersTab lang={lang} />
         </TabsContent>
 
         <TabsContent value="resources" className="mt-4">
-          <ResourcesTab />
+          <ResourcesTab lang={lang} />
         </TabsContent>
       </Tabs>
       <DFCCrossNav currentPage="parent-education" />

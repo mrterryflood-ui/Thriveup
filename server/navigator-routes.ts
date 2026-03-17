@@ -212,6 +212,7 @@ async function assembleContext(req: Request, userMessage: string): Promise<strin
     transportation: ["transportation", "bus", "ride", "car", "commute", "transit"],
     youth: ["child", "children", "youth", "teen", "kid", "after-school", "mentoring"],
     substance: ["substance", "addiction", "drug", "alcohol", "rehab", "recovery", "sober", "treatment", "vaping", "vape", "e-cigarette", "fentanyl", "opioid", "cannabis", "marijuana", "prescription misuse", "overdose", "naloxone"],
+    parenting: ["parent", "parenting", "family", "my child", "my kid", "my son", "my daughter", "my teen", "teenager", "adolescent", "co-parent", "custody", "discipline", "monitoring", "curfew", "peer pressure", "talking to my child", "family stress", "family conflict", "reunification", "incarcerated parent"],
     research: ["research", "implementation science", "re-aim", "cfir", "evidence-based", "dissemination", "fidelity", "evaluation framework", "translation", "reaim"],
     chw: ["community health worker", "chw", "home visit", "caseload", "screening referral", "health worker", "frontline"],
   };
@@ -230,7 +231,7 @@ async function assembleContext(req: Request, userMessage: string): Promise<strin
       housing: "housing", food: "food", healthcare: "healthcare",
       workforce: "workforce", education: "education", legal: "legal",
       financial: "financial", transportation: "transportation", youth: "youth",
-      substance: "healthcare", research: "education", chw: "healthcare",
+      substance: "healthcare", parenting: "youth", research: "education", chw: "healthcare",
     };
     const searchCategories = Array.from(new Set(detectedNeeds.map(n => categoryMap[n]).filter(Boolean)));
 
@@ -278,7 +279,12 @@ async function assembleContext(req: Request, userMessage: string): Promise<strin
 
   const substanceKeywords = ["substance", "addiction", "drug", "alcohol", "vaping", "vape", "e-cigarette", "fentanyl", "opioid", "cannabis", "marijuana", "overdose", "naloxone", "prescription misuse"];
   if (substanceKeywords.some(kw => lowerMessage.includes(kw))) {
-    contextParts.push(`[PLATFORM RECOMMENDATION]: Direct user to /prevention (Prevention Hub) for evidence-based prevention programs, risk/protective factor assessments, and youth surveys. Also suggest /research-hub for implementation science tools and /chw-dashboard for community health worker resources.`);
+    contextParts.push(`[PLATFORM RECOMMENDATION]: Direct user to /prevention (Prevention Hub) for evidence-based prevention programs, risk/protective factor assessments, and youth surveys. Also suggest /parent-education for parent-specific substance prevention modules, family assessments, and AI conversation starters. Also suggest /research-hub for implementation science tools and /chw-dashboard for community health worker resources.`);
+  }
+
+  const parentingKeywords = ["parent", "parenting", "family", "my child", "my kid", "my son", "my daughter", "my teen", "teenager", "co-parent", "discipline", "talking to my child", "family stress", "family conflict", "reunification"];
+  if (parentingKeywords.some(kw => lowerMessage.includes(kw))) {
+    contextParts.push(`[PLATFORM RECOMMENDATION]: This person has family/parenting needs. PRIORITIZE directing them to /parent-education — Parent Education & Family Strengthening hub with 13 modules (7 substance prevention + 6 family strengthening), family risk & protective factors assessment, and AI-powered conversation starters. Also consider /parents for general family resources and workforce readiness. If substance prevention is relevant, also suggest /prevention.`);
   }
 
   const grantKeywords = ["grant", "funding", "funder", "proposal", "recidivism", "prevention", "program funding"];

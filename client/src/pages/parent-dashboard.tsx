@@ -393,6 +393,21 @@ export default function ParentDashboardPage() {
             </div>
           </Card>
 
+          <Link href="/parent-education">
+            <Card className="p-6 hover-elevate cursor-pointer border-orange-500/20 bg-gradient-to-r from-orange-500/5 to-red-500/5" data-testid="card-prevention-education-link">
+              <div className="flex items-center gap-3">
+                <div className="rounded-md p-2.5 bg-orange-500/10 shrink-0">
+                  <AlertTriangle className="h-5 w-5 text-orange-600" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold text-sm">Prevention Education & Family Strengthening</h3>
+                  <p className="text-xs text-muted-foreground">Substance prevention modules, family assessments, and conversation starters</p>
+                </div>
+                <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+              </div>
+            </Card>
+          </Link>
+
           <Card className="p-6 bg-gradient-to-br from-primary/5 to-accent/5" data-testid="card-parent-tips">
             <h2 className="font-semibold mb-3 flex items-center gap-2">
               <Trophy className="h-5 w-5 text-amber-500" /> Tips for Parents

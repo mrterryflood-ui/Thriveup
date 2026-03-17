@@ -122,6 +122,33 @@ export function registerParentEducationRoutes(app: Express) {
     }
   });
 
+  app.patch("/api/parent-education/modules/:id", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const parsed = insertParentEducationModuleSchema.partial().safeParse(req.body);
+      if (!parsed.success) return res.status(400).json({ error: "Invalid data", details: parsed.error.flatten().fieldErrors });
+      const [updated] = await db.update(parentEducationModules)
+        .set(parsed.data)
+        .where(eq(parentEducationModules.id, String(req.params.id)))
+        .returning();
+      if (!updated) return res.status(404).json({ error: "Module not found" });
+      res.json(updated);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update module" });
+    }
+  });
+
+  app.delete("/api/parent-education/modules/:id", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const [deleted] = await db.delete(parentEducationModules)
+        .where(eq(parentEducationModules.id, String(req.params.id)))
+        .returning();
+      if (!deleted) return res.status(404).json({ error: "Module not found" });
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete module" });
+    }
+  });
+
   app.get("/api/parent-education/progress", requireAuth, async (req, res) => {
     try {
       const userId = getUserId(req)!;
@@ -265,114 +292,142 @@ export function registerParentEducationRoutes(app: Express) {
   });
 }
 
+async function updateExistingModulesWithBilingualContent(allModules: any[]) {
+  for (const mod of allModules) {
+    const existing = await db.select().from(parentEducationModules).where(eq(parentEducationModules.id, mod.id));
+    if (existing.length > 0) {
+      const currentSections = Array.isArray(existing[0].contentSections) ? existing[0].contentSections as any[] : [];
+      const hasMeta = currentSections.some((s: any) => s._meta);
+      if (!hasMeta) {
+        await db.update(parentEducationModules)
+          .set({ contentSections: mod.contentSections })
+          .where(eq(parentEducationModules.id, mod.id));
+      }
+    }
+  }
+}
+
 export async function seedParentEducationData() {
   const existing = await db.select().from(parentEducationModules);
-  if (existing.length > 0) return;
 
   const preventionModules = [
     {
       id: "pe-prev-1",
       title: "Understanding Youth Substance Use",
+      titleEs: "Entendiendo el Uso de Sustancias en Jovenes",
       description: "Learn the warning signs, risk factors, and how to recognize when your child may be exposed to substances.",
+      descriptionEs: "Aprenda las senales de advertencia, factores de riesgo y como reconocer cuando su hijo puede estar expuesto a sustancias.",
       category: "substance_prevention",
       targetAudience: "Parents of youth ages 10-24",
       orderIndex: 1,
       isActive: true,
       contentSections: [
-        { title: "Why This Matters", content: "Youth substance use is a growing concern. Early education helps parents recognize risk factors before they escalate." },
-        { title: "Warning Signs", content: "Changes in behavior, friend groups, academic performance, sleep patterns, and physical appearance can all indicate substance exposure." },
-        { title: "Risk Factors", content: "Family history, peer pressure, community access, lack of supervision, and mental health challenges increase vulnerability." },
-        { title: "What You Can Do", content: "Open communication, clear expectations, monitoring, and building strong family bonds are your most powerful tools." },
+        { title: "Why This Matters", titleEs: "Por Que Esto Importa", content: "Youth substance use is a growing concern. Early education helps parents recognize risk factors before they escalate.", contentEs: "El uso de sustancias juvenil es una preocupacion creciente. La educacion temprana ayuda a los padres a reconocer factores de riesgo." },
+        { title: "Warning Signs", titleEs: "Senales de Advertencia", content: "Changes in behavior, friend groups, academic performance, sleep patterns, and physical appearance can all indicate substance exposure.", contentEs: "Cambios en el comportamiento, grupos de amigos, rendimiento academico y apariencia fisica pueden indicar exposicion a sustancias." },
+        { title: "Risk Factors", titleEs: "Factores de Riesgo", content: "Family history, peer pressure, community access, lack of supervision, and mental health challenges increase vulnerability.", contentEs: "Historial familiar, presion de companeros, acceso comunitario y desafios de salud mental aumentan la vulnerabilidad." },
+        { title: "What You Can Do", titleEs: "Que Puede Hacer", content: "Open communication, clear expectations, monitoring, and building strong family bonds are your most powerful tools.", contentEs: "Comunicacion abierta, expectativas claras, monitoreo y vinculos familiares fuertes son sus herramientas mas poderosas." },
       ],
     },
     {
       id: "pe-prev-2",
       title: "Talking to Your Child About Alcohol",
+      titleEs: "Hablando con Su Hijo Sobre el Alcohol",
       description: "Age-appropriate strategies for discussing alcohol use, its effects, and setting family expectations.",
+      descriptionEs: "Estrategias apropiadas para la edad para discutir el uso de alcohol y establecer expectativas familiares.",
       category: "substance_prevention",
       targetAudience: "Parents of youth ages 10-18",
       orderIndex: 2,
       isActive: true,
       contentSections: [
-        { title: "Start Early", content: "Children form attitudes about alcohol by age 9-13. Starting conversations early establishes your family's values." },
-        { title: "Facts to Share", content: "Alcohol affects the developing brain, impairs judgment, and is the most commonly used substance among teens." },
-        { title: "Conversation Strategies", content: "Use media moments, ask open-ended questions, share your family values without lecturing, and listen more than you talk." },
-        { title: "Setting Expectations", content: "Clear, consistent rules about alcohol use - with explained reasons - are more effective than fear-based messaging." },
+        { title: "Start Early", titleEs: "Comience Temprano", content: "Children form attitudes about alcohol by age 9-13. Starting conversations early establishes your family's values.", contentEs: "Los ninos forman actitudes sobre el alcohol entre los 9-13 anos. Comenzar conversaciones temprano establece los valores familiares." },
+        { title: "Facts to Share", titleEs: "Datos Para Compartir", content: "Alcohol affects the developing brain, impairs judgment, and is the most commonly used substance among teens.", contentEs: "El alcohol afecta el cerebro en desarrollo, deteriora el juicio y es la sustancia mas comun entre adolescentes." },
+        { title: "Conversation Strategies", titleEs: "Estrategias de Conversacion", content: "Use media moments, ask open-ended questions, share your family values without lecturing, and listen more than you talk.", contentEs: "Use momentos de medios, haga preguntas abiertas, comparta valores familiares sin dar sermones y escuche mas de lo que habla." },
+        { title: "Setting Expectations", titleEs: "Estableciendo Expectativas", content: "Clear, consistent rules about alcohol use - with explained reasons - are more effective than fear-based messaging.", contentEs: "Reglas claras y consistentes sobre el alcohol - con razones explicadas - son mas efectivas que mensajes basados en el miedo." },
       ],
     },
     {
       id: "pe-prev-3",
       title: "Vaping, Cannabis & New Threats",
+      titleEs: "Vapeo, Cannabis y Nuevas Amenazas",
       description: "Stay informed about the latest substances youth are exposed to including vaping, cannabis, and fentanyl.",
+      descriptionEs: "Mantengase informado sobre las sustancias mas recientes a las que los jovenes estan expuestos.",
       category: "substance_prevention",
       targetAudience: "Parents of youth ages 12-24",
       orderIndex: 3,
       isActive: true,
       contentSections: [
-        { title: "The Vaping Crisis", content: "E-cigarettes and vapes are marketed to youth with appealing flavors. Nicotine is highly addictive and damages developing lungs." },
-        { title: "Cannabis Facts", content: "Marijuana potency has increased dramatically. Regular use during adolescence can affect brain development and academic performance." },
-        { title: "The Fentanyl Danger", content: "Fentanyl is now found in counterfeit pills and other substances. Even tiny amounts can be lethal. Awareness saves lives." },
-        { title: "Staying Current", content: "Follow NIDA and CDC resources to stay informed about emerging drug trends affecting youth." },
+        { title: "The Vaping Crisis", titleEs: "La Crisis del Vapeo", content: "E-cigarettes and vapes are marketed to youth with appealing flavors. Nicotine is highly addictive and damages developing lungs.", contentEs: "Los cigarrillos electronicos se comercializan a jovenes con sabores atractivos. La nicotina es altamente adictiva." },
+        { title: "Cannabis Facts", titleEs: "Datos Sobre Cannabis", content: "Marijuana potency has increased dramatically. Regular use during adolescence can affect brain development and academic performance.", contentEs: "La potencia de la marihuana ha aumentado dramaticamente. El uso regular durante la adolescencia afecta el desarrollo cerebral." },
+        { title: "The Fentanyl Danger", titleEs: "El Peligro del Fentanilo", content: "Fentanyl is now found in counterfeit pills and other substances. Even tiny amounts can be lethal. Awareness saves lives.", contentEs: "El fentanilo se encuentra en pastillas falsificadas. Cantidades pequenas pueden ser letales. La conciencia salva vidas." },
+        { title: "Staying Current", titleEs: "Manteniendose Actualizado", content: "Follow NIDA and CDC resources to stay informed about emerging drug trends affecting youth.", contentEs: "Siga los recursos de NIDA y CDC para mantenerse informado sobre tendencias emergentes de drogas." },
       ],
     },
     {
       id: "pe-prev-4",
       title: "Peer Pressure & Social Media Influence",
+      titleEs: "Presion de Companeros e Influencia de Redes Sociales",
       description: "Help your child navigate peer pressure and recognize substance marketing in social media.",
+      descriptionEs: "Ayude a su hijo a navegar la presion de companeros y reconocer el marketing de sustancias en redes sociales.",
       category: "substance_prevention",
       targetAudience: "Parents of youth ages 10-18",
       orderIndex: 4,
       isActive: true,
       contentSections: [
-        { title: "Understanding Peer Pressure", content: "Peer pressure can be direct (offers) or indirect (social norms). Help your child recognize both types." },
-        { title: "Social Media Risks", content: "Substance use is often glamorized on social media. Teach media literacy to help your child critically evaluate content." },
-        { title: "Building Refusal Skills", content: "Practice saying no with your child. Role-play scenarios so they have ready responses when pressured." },
-        { title: "Positive Peer Networks", content: "Encourage friendships with peers who make healthy choices. Organized activities build natural protective networks." },
+        { title: "Understanding Peer Pressure", titleEs: "Entendiendo la Presion de Companeros", content: "Peer pressure can be direct (offers) or indirect (social norms). Help your child recognize both types.", contentEs: "La presion puede ser directa (ofertas) o indirecta (normas sociales). Ayude a su hijo a reconocer ambos tipos." },
+        { title: "Social Media Risks", titleEs: "Riesgos de Redes Sociales", content: "Substance use is often glamorized on social media. Teach media literacy to help your child critically evaluate content.", contentEs: "El uso de sustancias se glamoriza en redes sociales. Ensene alfabetizacion mediatica." },
+        { title: "Building Refusal Skills", titleEs: "Construyendo Habilidades de Rechazo", content: "Practice saying no with your child. Role-play scenarios so they have ready responses when pressured.", contentEs: "Practique decir no con su hijo. Simule escenarios para que tengan respuestas listas." },
+        { title: "Positive Peer Networks", titleEs: "Redes Positivas de Companeros", content: "Encourage friendships with peers who make healthy choices. Organized activities build natural protective networks.", contentEs: "Fomente amistades con companeros que tomen decisiones saludables." },
       ],
     },
     {
       id: "pe-prev-5",
       title: "Prescription Drug Safety at Home",
+      titleEs: "Seguridad de Medicamentos Recetados en el Hogar",
       description: "Secure medications, educate your family, and prevent prescription drug misuse.",
+      descriptionEs: "Asegure medicamentos, eduque a su familia y prevenga el mal uso de medicamentos recetados.",
       category: "substance_prevention",
       targetAudience: "All parents and guardians",
       orderIndex: 5,
       isActive: true,
       contentSections: [
-        { title: "Secure Your Medications", content: "Lock up or safely store all prescription medications. Track pill counts and dispose of unused medications properly." },
-        { title: "Educate Your Family", content: "Explain that prescription drugs are only safe when used as prescribed by a doctor for the person they were prescribed to." },
-        { title: "Disposal Resources", content: "Use DEA Take-Back events or pharmacy disposal programs to safely get rid of unused medications." },
-        { title: "Warning Signs", content: "Missing medications, unusual pill bottles, and changes in behavior may indicate prescription drug misuse." },
+        { title: "Secure Your Medications", titleEs: "Asegure Sus Medicamentos", content: "Lock up or safely store all prescription medications. Track pill counts and dispose of unused medications properly.", contentEs: "Guarde bajo llave todos los medicamentos recetados. Cuente las pastillas y deseche los no utilizados." },
+        { title: "Educate Your Family", titleEs: "Eduque a Su Familia", content: "Explain that prescription drugs are only safe when used as prescribed by a doctor for the person they were prescribed to.", contentEs: "Explique que los medicamentos recetados solo son seguros cuando se usan segun lo prescrito por un medico." },
+        { title: "Disposal Resources", titleEs: "Recursos de Eliminacion", content: "Use DEA Take-Back events or pharmacy disposal programs to safely get rid of unused medications.", contentEs: "Use eventos de devolucion de la DEA o programas de eliminacion en farmacias." },
+        { title: "Warning Signs", titleEs: "Senales de Advertencia", content: "Missing medications, unusual pill bottles, and changes in behavior may indicate prescription drug misuse.", contentEs: "Medicamentos faltantes, frascos inusuales y cambios de comportamiento pueden indicar mal uso." },
       ],
     },
     {
       id: "pe-prev-6",
       title: "Building Healthy Coping Skills as a Family",
+      titleEs: "Construyendo Habilidades de Afrontamiento Saludables en Familia",
       description: "Teach your family positive alternatives to stress and emotional challenges.",
+      descriptionEs: "Ensene a su familia alternativas positivas al estres y desafios emocionales.",
       category: "substance_prevention",
       targetAudience: "All family members",
       orderIndex: 6,
       isActive: true,
       contentSections: [
-        { title: "Why Coping Skills Matter", content: "Youth who lack healthy coping strategies are more likely to turn to substances when stressed or upset." },
-        { title: "Family Coping Activities", content: "Exercise together, practice deep breathing, engage in creative activities, and establish routines that reduce stress." },
-        { title: "Emotional Check-Ins", content: "Create a family habit of checking in about emotions. Normalize talking about feelings without judgment." },
-        { title: "When to Seek Help", content: "If your child shows persistent anxiety, depression, or behavioral changes, connect with a school counselor or mental health professional." },
+        { title: "Why Coping Skills Matter", titleEs: "Por Que Importan las Habilidades de Afrontamiento", content: "Youth who lack healthy coping strategies are more likely to turn to substances when stressed or upset.", contentEs: "Los jovenes sin estrategias saludables de afrontamiento son mas propensos a recurrir a sustancias." },
+        { title: "Family Coping Activities", titleEs: "Actividades Familiares de Afrontamiento", content: "Exercise together, practice deep breathing, engage in creative activities, and establish routines that reduce stress.", contentEs: "Hagan ejercicio juntos, practiquen respiracion profunda y establezcan rutinas que reduzcan el estres." },
+        { title: "Emotional Check-Ins", titleEs: "Chequeos Emocionales", content: "Create a family habit of checking in about emotions. Normalize talking about feelings without judgment.", contentEs: "Creen el habito familiar de hablar sobre emociones. Normalicen hablar de sentimientos sin juicio." },
+        { title: "When to Seek Help", titleEs: "Cuando Buscar Ayuda", content: "If your child shows persistent anxiety, depression, or behavioral changes, connect with a school counselor or mental health professional.", contentEs: "Si su hijo muestra ansiedad persistente, depresion o cambios de comportamiento, conecte con un consejero escolar." },
       ],
     },
     {
       id: "pe-prev-7",
       title: "Creating a Prevention Action Plan",
+      titleEs: "Creando un Plan de Accion de Prevencion",
       description: "Develop a personalized family plan for substance prevention and healthy decision-making.",
+      descriptionEs: "Desarrolle un plan familiar personalizado para la prevencion de sustancias y la toma de decisiones saludables.",
       category: "substance_prevention",
       targetAudience: "All parents and guardians",
       orderIndex: 7,
       isActive: true,
       contentSections: [
-        { title: "Assess Your Family", content: "Use the Family Assessment tool to identify your family's risk and protective factors." },
-        { title: "Set Family Goals", content: "Choose 2-3 specific actions your family will take this month to strengthen prevention efforts." },
-        { title: "Build Your Network", content: "Connect with other parents, school counselors, community resources, and mentorship programs." },
-        { title: "Review and Adjust", content: "Revisit your plan monthly. Celebrate progress and adjust strategies as your child grows and situations change." },
+        { title: "Assess Your Family", titleEs: "Evalue a Su Familia", content: "Use the Family Assessment tool to identify your family's risk and protective factors.", contentEs: "Use la herramienta de Evaluacion Familiar para identificar los factores de riesgo y proteccion de su familia." },
+        { title: "Set Family Goals", titleEs: "Establezca Metas Familiares", content: "Choose 2-3 specific actions your family will take this month to strengthen prevention efforts.", contentEs: "Elija 2-3 acciones especificas que su familia tomara este mes para fortalecer los esfuerzos de prevencion." },
+        { title: "Build Your Network", titleEs: "Construya Su Red", content: "Connect with other parents, school counselors, community resources, and mentorship programs.", contentEs: "Conecte con otros padres, consejeros escolares, recursos comunitarios y programas de mentoria." },
+        { title: "Review and Adjust", titleEs: "Revise y Ajuste", content: "Revisit your plan monthly. Celebrate progress and adjust strategies as your child grows and situations change.", contentEs: "Revise su plan mensualmente. Celebre el progreso y ajuste estrategias." },
       ],
     },
   ];
@@ -381,94 +436,119 @@ export async function seedParentEducationData() {
     {
       id: "pe-fam-1",
       title: "Strengthening Family Communication",
+      titleEs: "Fortaleciendo la Comunicacion Familiar",
       description: "Build deeper, more honest communication patterns that create trust and connection.",
+      descriptionEs: "Construya patrones de comunicacion mas profundos y honestos que creen confianza y conexion.",
       category: "family_strengthening",
       targetAudience: "All families",
       orderIndex: 8,
       isActive: true,
       contentSections: [
-        { title: "Active Listening", content: "Put down devices, make eye contact, and reflect back what you hear. Let your child finish speaking before responding." },
-        { title: "I-Statements", content: "Replace 'You always...' with 'I feel... when...' to reduce defensiveness and open genuine dialogue." },
-        { title: "Family Meetings", content: "Hold regular family meetings to discuss schedules, concerns, and celebrations. Give everyone a voice." },
-        { title: "Digital Communication", content: "Establish healthy texting and social media habits. Be available for digital check-ins throughout the day." },
+        { title: "Active Listening", titleEs: "Escucha Activa", content: "Put down devices, make eye contact, and reflect back what you hear. Let your child finish speaking before responding.", contentEs: "Deje los dispositivos, haga contacto visual y refleje lo que escucha. Deje que su hijo termine de hablar." },
+        { title: "I-Statements", titleEs: "Declaraciones Yo", content: "Replace 'You always...' with 'I feel... when...' to reduce defensiveness and open genuine dialogue.", contentEs: "Reemplace 'Tu siempre...' con 'Yo siento... cuando...' para reducir la defensividad." },
+        { title: "Family Meetings", titleEs: "Reuniones Familiares", content: "Hold regular family meetings to discuss schedules, concerns, and celebrations. Give everyone a voice.", contentEs: "Realice reuniones familiares regulares. Dele voz a todos." },
+        { title: "Digital Communication", titleEs: "Comunicacion Digital", content: "Establish healthy texting and social media habits. Be available for digital check-ins throughout the day.", contentEs: "Establezca habitos saludables de mensajes y redes sociales." },
       ],
     },
     {
       id: "pe-fam-2",
       title: "Positive Discipline & Boundaries",
+      titleEs: "Disciplina Positiva y Limites",
       description: "Set clear, consistent boundaries while maintaining a warm and supportive relationship.",
+      descriptionEs: "Establezca limites claros y consistentes mientras mantiene una relacion calida y de apoyo.",
       category: "family_strengthening",
       targetAudience: "Parents of youth ages 10-18",
       orderIndex: 9,
       isActive: true,
       contentSections: [
-        { title: "Clear Expectations", content: "State rules clearly, explain the reasons behind them, and ensure your child understands the consequences." },
-        { title: "Consistent Follow-Through", content: "Enforce consequences fairly and consistently. Inconsistency undermines trust and authority." },
-        { title: "Natural Consequences", content: "When safe, allow children to experience natural consequences of their choices as learning opportunities." },
-        { title: "Repair After Conflict", content: "After disagreements, reconnect. Acknowledge your own mistakes and model how to repair relationships." },
+        { title: "Clear Expectations", titleEs: "Expectativas Claras", content: "State rules clearly, explain the reasons behind them, and ensure your child understands the consequences.", contentEs: "Establezca reglas claramente, explique las razones y asegurese de que su hijo entienda las consecuencias." },
+        { title: "Consistent Follow-Through", titleEs: "Seguimiento Consistente", content: "Enforce consequences fairly and consistently. Inconsistency undermines trust and authority.", contentEs: "Aplique consecuencias justa y consistentemente. La inconsistencia socava la confianza." },
+        { title: "Natural Consequences", titleEs: "Consecuencias Naturales", content: "When safe, allow children to experience natural consequences of their choices as learning opportunities.", contentEs: "Cuando sea seguro, permita que los ninos experimenten consecuencias naturales como oportunidades de aprendizaje." },
+        { title: "Repair After Conflict", titleEs: "Reparar Despues del Conflicto", content: "After disagreements, reconnect. Acknowledge your own mistakes and model how to repair relationships.", contentEs: "Despues de desacuerdos, reconecte. Reconozca sus errores y modele como reparar relaciones." },
       ],
     },
     {
       id: "pe-fam-3",
       title: "Building Family Resilience",
+      titleEs: "Construyendo Resiliencia Familiar",
       description: "Develop family strengths that help you navigate challenges and bounce back from adversity.",
+      descriptionEs: "Desarrolle fortalezas familiares que les ayuden a navegar desafios y recuperarse de la adversidad.",
       category: "family_strengthening",
       targetAudience: "All families",
       orderIndex: 10,
       isActive: true,
       contentSections: [
-        { title: "Family Identity", content: "Create shared traditions, stories, and values that give your family a sense of purpose and belonging." },
-        { title: "Problem-Solving Together", content: "Face challenges as a team. Involve children in age-appropriate problem-solving to build confidence." },
-        { title: "Support Networks", content: "Maintain connections with extended family, neighbors, faith communities, and parent groups." },
-        { title: "Self-Care for Parents", content: "You cannot pour from an empty cup. Prioritize your own mental health and well-being." },
+        { title: "Family Identity", titleEs: "Identidad Familiar", content: "Create shared traditions, stories, and values that give your family a sense of purpose and belonging.", contentEs: "Cree tradiciones, historias y valores compartidos que den a su familia un sentido de proposito." },
+        { title: "Problem-Solving Together", titleEs: "Resolviendo Problemas Juntos", content: "Face challenges as a team. Involve children in age-appropriate problem-solving to build confidence.", contentEs: "Enfrenten desafios en equipo. Involucre a los ninos en la resolucion de problemas." },
+        { title: "Support Networks", titleEs: "Redes de Apoyo", content: "Maintain connections with extended family, neighbors, faith communities, and parent groups.", contentEs: "Mantenga conexiones con familia extendida, vecinos, comunidades de fe y grupos de padres." },
+        { title: "Self-Care for Parents", titleEs: "Autocuidado para Padres", content: "You cannot pour from an empty cup. Prioritize your own mental health and well-being.", contentEs: "No puede dar de una taza vacia. Priorice su salud mental y bienestar." },
       ],
     },
     {
       id: "pe-fam-4",
       title: "Cultural Strengths & Family Heritage",
+      titleEs: "Fortalezas Culturales y Herencia Familiar",
       description: "Leverage your family's cultural traditions and heritage as protective factors.",
+      descriptionEs: "Aproveche las tradiciones culturales y la herencia de su familia como factores protectores.",
       category: "family_strengthening",
       targetAudience: "All families",
       orderIndex: 11,
       isActive: true,
       contentSections: [
-        { title: "Cultural Identity", content: "A strong cultural identity is a powerful protective factor. Share your family's history, language, and traditions." },
-        { title: "Intergenerational Wisdom", content: "Connect children with elders and extended family to pass down wisdom, values, and coping strategies." },
-        { title: "Community Belonging", content: "Participate in cultural community events and organizations that reinforce positive identity and belonging." },
-        { title: "Navigating Two Worlds", content: "Help children integrate their cultural heritage with their school and peer environments with pride and confidence." },
+        { title: "Cultural Identity", titleEs: "Identidad Cultural", content: "A strong cultural identity is a powerful protective factor. Share your family's history, language, and traditions.", contentEs: "Una identidad cultural fuerte es un poderoso factor protector. Comparta la historia y tradiciones de su familia." },
+        { title: "Intergenerational Wisdom", titleEs: "Sabiduria Intergeneracional", content: "Connect children with elders and extended family to pass down wisdom, values, and coping strategies.", contentEs: "Conecte a los ninos con los mayores para transmitir sabiduria, valores y estrategias de afrontamiento." },
+        { title: "Community Belonging", titleEs: "Pertenencia Comunitaria", content: "Participate in cultural community events and organizations that reinforce positive identity and belonging.", contentEs: "Participe en eventos culturales comunitarios que refuercen la identidad positiva." },
+        { title: "Navigating Two Worlds", titleEs: "Navegando Dos Mundos", content: "Help children integrate their cultural heritage with their school and peer environments with pride and confidence.", contentEs: "Ayude a los ninos a integrar su herencia cultural con su entorno escolar con orgullo y confianza." },
       ],
     },
     {
       id: "pe-fam-5",
       title: "Supporting Your Child's Mental Health",
+      titleEs: "Apoyando la Salud Mental de Su Hijo",
       description: "Recognize mental health needs and create a supportive home environment.",
+      descriptionEs: "Reconozca las necesidades de salud mental y cree un ambiente hogare\u00f1o de apoyo.",
       category: "family_strengthening",
       targetAudience: "All parents and guardians",
       orderIndex: 12,
       isActive: true,
       contentSections: [
-        { title: "Recognizing Signs", content: "Persistent sadness, withdrawal, anger, sleep changes, or academic decline may signal mental health concerns." },
-        { title: "Creating Safety", content: "Make your home a safe space for emotional expression. Validate feelings without minimizing or dismissing them." },
-        { title: "Professional Resources", content: "Know your school counselor, community mental health resources, and crisis hotlines (988 Suicide & Crisis Lifeline)." },
-        { title: "Reducing Stigma", content: "Talk openly about mental health. Seeking help is a sign of strength, not weakness." },
+        { title: "Recognizing Signs", titleEs: "Reconociendo Senales", content: "Persistent sadness, withdrawal, anger, sleep changes, or academic decline may signal mental health concerns.", contentEs: "Tristeza persistente, aislamiento, enojo, cambios de sueno o deterioro academico pueden indicar problemas de salud mental." },
+        { title: "Creating Safety", titleEs: "Creando Seguridad", content: "Make your home a safe space for emotional expression. Validate feelings without minimizing or dismissing them.", contentEs: "Haga de su hogar un espacio seguro para la expresion emocional. Valide los sentimientos sin minimizarlos." },
+        { title: "Professional Resources", titleEs: "Recursos Profesionales", content: "Know your school counselor, community mental health resources, and crisis hotlines (988 Suicide & Crisis Lifeline).", contentEs: "Conozca su consejero escolar, recursos comunitarios de salud mental y lineas de crisis (988)." },
+        { title: "Reducing Stigma", titleEs: "Reduciendo el Estigma", content: "Talk openly about mental health. Seeking help is a sign of strength, not weakness.", contentEs: "Hable abiertamente sobre salud mental. Buscar ayuda es una senal de fortaleza, no de debilidad." },
       ],
     },
     {
       id: "pe-fam-6",
       title: "Parent Self-Care & Wellness",
+      titleEs: "Autocuidado y Bienestar para Padres",
       description: "Prioritize your own well-being to be a stronger, more present parent.",
+      descriptionEs: "Priorice su propio bienestar para ser un padre mas fuerte y presente.",
       category: "family_strengthening",
       targetAudience: "All parents and guardians",
       orderIndex: 13,
       isActive: true,
       contentSections: [
-        { title: "Stress Management", content: "Identify your stress triggers and develop healthy coping strategies like exercise, journaling, or mindfulness." },
-        { title: "Setting Boundaries", content: "It's okay to say no. Protecting your time and energy is essential for effective parenting." },
-        { title: "Building Your Support Network", content: "Connect with other parents, support groups, and community resources. You don't have to do this alone." },
-        { title: "Modeling Wellness", content: "When your child sees you taking care of yourself, they learn that self-care is important and healthy." },
+        { title: "Stress Management", titleEs: "Manejo del Estres", content: "Identify your stress triggers and develop healthy coping strategies like exercise, journaling, or mindfulness.", contentEs: "Identifique sus desencadenantes de estres y desarrolle estrategias saludables de afrontamiento." },
+        { title: "Setting Boundaries", titleEs: "Estableciendo Limites", content: "It's okay to say no. Protecting your time and energy is essential for effective parenting.", contentEs: "Esta bien decir no. Proteger su tiempo y energia es esencial para la crianza efectiva." },
+        { title: "Building Your Support Network", titleEs: "Construyendo Su Red de Apoyo", content: "Connect with other parents, support groups, and community resources. You don't have to do this alone.", contentEs: "Conecte con otros padres, grupos de apoyo y recursos comunitarios. No tiene que hacerlo solo." },
+        { title: "Modeling Wellness", titleEs: "Modelando el Bienestar", content: "When your child sees you taking care of yourself, they learn that self-care is important and healthy.", contentEs: "Cuando su hijo lo ve cuidandose, aprende que el autocuidado es importante y saludable." },
       ],
     },
   ];
 
-  await db.insert(parentEducationModules).values([...preventionModules, ...strengtheningModules]);
+  const allModules = [...preventionModules, ...strengtheningModules].map(m => {
+    const { titleEs, descriptionEs, ...rest } = m as any;
+    const sections = Array.isArray(rest.contentSections) ? [...rest.contentSections] : [];
+    if (titleEs || descriptionEs) {
+      sections.unshift({ _meta: true, titleEs: titleEs || "", descriptionEs: descriptionEs || "" });
+    }
+    return { ...rest, contentSections: sections };
+  });
+
+  if (existing.length > 0) {
+    await updateExistingModulesWithBilingualContent(allModules);
+  } else {
+    await db.insert(parentEducationModules).values(allModules);
+  }
 }
