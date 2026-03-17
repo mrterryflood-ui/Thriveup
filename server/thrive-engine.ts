@@ -15,6 +15,7 @@ import {
   thriveScores,
   thriveHistory,
   academyAvatars,
+  healthScreeningResults,
   type ThriveHistory,
 } from "@shared/schema";
 import { eq, and, gte, desc, sql, count } from "drizzle-orm";
@@ -264,6 +265,29 @@ export async function computeDomainD(
       );
 
     if (assessments.length === 0) {
+      try {
+        const recentScreenings = await db
+          .select()
+          .from(healthScreeningResults)
+          .where(
+            and(
+              eq(healthScreeningResults.userId, userId),
+              gte(healthScreeningResults.completedAt, cutoff)
+            )
+          );
+
+        if (recentScreenings.length > 0) {
+          let totalPct = 0;
+          for (const s of recentScreenings) {
+            totalPct += (s.totalScore / s.maxScore) * 100;
+          }
+          const healthScore = clamp(Math.round(totalPct / recentScreenings.length));
+          return { score: healthScore, active: true };
+        }
+      } catch (error) {
+        console.error("[Thrive Engine] Error fetching health screenings for Domain D (no-assessment path):", error);
+      }
+
       return { score: null, active: false };
     }
 
@@ -286,9 +310,39 @@ export async function computeDomainD(
     const focusScore = focusCount > 0 ? normalize(focusSum / focusCount, 10) : 50;
     const moodScore = moodCount > 0 ? normalize(moodSum / moodCount, 10) : 50;
 
-    const score = clamp(Math.round(
+    let selfAssessmentScore = clamp(Math.round(
       energyScore * 0.25 + stressScore * 0.30 + focusScore * 0.25 + moodScore * 0.20
     ));
+
+    let healthScreeningScore: number | null = null;
+    try {
+      const recentScreenings = await db
+        .select()
+        .from(healthScreeningResults)
+        .where(
+          and(
+            eq(healthScreeningResults.userId, userId),
+            gte(healthScreeningResults.completedAt, cutoff)
+          )
+        );
+
+      if (recentScreenings.length > 0) {
+        let totalPct = 0;
+        for (const s of recentScreenings) {
+          totalPct += (s.totalScore / s.maxScore) * 100;
+        }
+        healthScreeningScore = clamp(Math.round(totalPct / recentScreenings.length));
+      }
+    } catch (error) {
+      console.error("[Thrive Engine] Error fetching health screenings for Domain D blending:", error);
+    }
+
+    let score: number;
+    if (healthScreeningScore != null) {
+      score = clamp(Math.round(selfAssessmentScore * 0.70 + healthScreeningScore * 0.30));
+    } else {
+      score = selfAssessmentScore;
+    }
 
     return { score, active: true };
   } catch (error) {

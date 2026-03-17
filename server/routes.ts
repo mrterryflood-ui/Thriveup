@@ -28,6 +28,22 @@ import { db } from "./storage";
 import { streamAIResponse, getProviderInfo } from "./ai-provider";
 import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
 import { registerCrossPlatformRoutes } from "./cross-platform-api";
+import {
+  SANKOFA_PRODUCT_LINES,
+  getHealthAssessments,
+  getHealthAssessment,
+  submitHealthScreening,
+  getUserScreeningResults,
+  getAllWellnessResources,
+  getWellnessResourcesByProductLine,
+  getHealthResourceRecommendations,
+  getHealthResourceCategoriesList,
+  computeRiskLevel,
+  generateRecommendations,
+  seedHealthData,
+  type AssessmentQuestion,
+  type ScoringRubric,
+} from "./sankofa-gateway";
 import { registerGrantRoutes } from "./grant-routes";
 import { registerReentryRoutes } from "./reentry-routes";
 import { registerPartnerRoutes } from "./partner-routes";
@@ -4412,6 +4428,133 @@ Key guidelines:
     } catch (error) {
       console.error("Error fetching search history:", error);
       res.json([]);
+    }
+  });
+
+  // ==================== SANKOFA HEALTH NETWORK ROUTES ====================
+
+  seedHealthData().catch(err => console.error("[Sankofa Gateway] Error seeding health data:", err));
+
+  app.get("/api/health/product-lines", async (_req, res) => {
+    res.json(SANKOFA_PRODUCT_LINES);
+  });
+
+  app.get("/api/health/assessments", async (_req, res) => {
+    try {
+      const assessments = await getHealthAssessments();
+      res.json(assessments);
+    } catch (error) {
+      console.error("Error fetching health assessments:", error);
+      res.status(500).json({ error: "Failed to fetch assessments" });
+    }
+  });
+
+  app.get("/api/health/assessments/:id", async (req, res) => {
+    try {
+      const assessment = await getHealthAssessment(req.params.id);
+      if (!assessment) return res.status(404).json({ error: "Assessment not found" });
+      res.json(assessment);
+    } catch (error) {
+      console.error("Error fetching health assessment:", error);
+      res.status(500).json({ error: "Failed to fetch assessment" });
+    }
+  });
+
+  app.post("/api/health/screenings", requireAuth, async (req, res) => {
+    try {
+      const userId = getUserId(req)!;
+      const { assessmentId, responses } = req.body;
+
+      if (!assessmentId || !responses || typeof responses !== "object") {
+        return res.status(400).json({ error: "assessmentId and responses are required" });
+      }
+
+      const assessment = await getHealthAssessment(assessmentId);
+      if (!assessment) {
+        return res.status(404).json({ error: "Assessment not found" });
+      }
+
+      const questions = assessment.questions as AssessmentQuestion[];
+      const rubric = assessment.scoringRubric as ScoringRubric | null;
+      const maxScore = rubric?.maxScore ?? questions.reduce((sum, q) => sum + Math.max(...q.scores), 0);
+
+      let totalScore = 0;
+      for (const q of questions) {
+        const answerIndex = responses[q.id];
+        if (typeof answerIndex === "number" && answerIndex >= 0 && answerIndex < q.scores.length) {
+          totalScore += q.scores[answerIndex];
+        }
+      }
+
+      const riskLevel = computeRiskLevel(totalScore, maxScore);
+      const recommendations = generateRecommendations(assessment.assessmentType, riskLevel);
+
+      const result = await submitHealthScreening({
+        userId,
+        assessmentId,
+        assessmentType: assessment.assessmentType,
+        responses,
+        totalScore,
+        maxScore,
+        riskLevel,
+        recommendations,
+      });
+
+      res.json(result);
+    } catch (error) {
+      console.error("Error submitting health screening:", error);
+      res.status(500).json({ error: "Failed to submit screening" });
+    }
+  });
+
+  app.get("/api/health/screenings", requireAuth, async (req, res) => {
+    try {
+      const userId = getUserId(req)!;
+      const results = await getUserScreeningResults(userId);
+      res.json(results);
+    } catch (error) {
+      console.error("Error fetching screening results:", error);
+      res.status(500).json({ error: "Failed to fetch results" });
+    }
+  });
+
+  app.get("/api/health/resources", async (req, res) => {
+    try {
+      const productLine = req.query.productLine as string | undefined;
+      const resources = productLine
+        ? await getWellnessResourcesByProductLine(productLine)
+        : await getAllWellnessResources();
+      res.json(resources);
+    } catch (error) {
+      console.error("Error fetching wellness resources:", error);
+      res.status(500).json({ error: "Failed to fetch resources" });
+    }
+  });
+
+  app.get("/api/health/categories", async (_req, res) => {
+    try {
+      const categories = await getHealthResourceCategoriesList();
+      res.json(categories);
+    } catch (error) {
+      console.error("Error fetching health resource categories:", error);
+      res.status(500).json({ error: "Failed to fetch categories" });
+    }
+  });
+
+  app.get("/api/health/recommendations", requireAuth, async (req, res) => {
+    try {
+      const state = req.query.state as string | undefined;
+      const lat = req.query.lat ? parseFloat(req.query.lat as string) : undefined;
+      const lng = req.query.lng ? parseFloat(req.query.lng as string) : undefined;
+      const recommendations = await getHealthResourceRecommendations({
+        state,
+        lat: lat && !isNaN(lat) ? lat : undefined,
+        lng: lng && !isNaN(lng) ? lng : undefined,
+      });
+      res.json(recommendations);
+    } catch (error) {
+      console.error("Error fetching health recommendations:", error);
+      res.status(500).json({ error: "Failed to fetch health recommendations" });
     }
   });
 

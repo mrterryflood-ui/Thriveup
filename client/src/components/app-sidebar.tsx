@@ -119,6 +119,10 @@ const campusExtrasItems: NavItem[] = [
   { title: "Life Lessons", url: "/academy/lessons", icon: Lightbulb },
 ];
 
+const healthWellnessItems: NavItem[] = [
+  { title: "Health Hub", url: "/health-wellness", icon: Heart },
+];
+
 const caseManagementItems: NavItem[] = [
   { title: "Reentry Dashboard", url: "/reentry", icon: Shield },
   { title: "Intake Wizard", url: "/intake", icon: ClipboardCheck },
@@ -309,6 +313,7 @@ export function AppSidebar() {
         <NavSection label="Workforce Solutions" items={workforceSolutionsItems} location={location} />
         <NavSection label="Grant Engine" items={grantEngineItems} location={location} />
         <NavSection label="AI Tools" items={aiToolsItems} location={location} />
+        <NavSection label="Health & Wellness" items={healthWellnessItems} location={location} />
         <NavSection label="Case Management" items={caseManagementItems} location={location} />
         <NavSection label="Student Portal" items={myStudentItems} location={location} />
         <NavSection label="Campus Life" items={campusLifeItems} location={location} />

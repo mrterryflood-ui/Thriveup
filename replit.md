@@ -30,6 +30,7 @@ Key architectural elements include:
 - **Accessibility & Responsiveness:** Designed for WCAG 2.1 AA compliance, featuring dyslexia-friendly fonts, high contrast, reduced motion, and screen reader optimization, alongside mobile responsiveness.
 - **Design System:** Violet/indigo branding with Plus Jakarta Sans and JetBrains Mono fonts, supporting dark mode.
 - **Financial Literacy & Workforce Development:** Financial literacy courses, stock market simulation, entrepreneurship training, and fundraising.
+- **Sankofa Health Network Integration:** Health & Wellness hub (`/health-wellness`) with behavioral health self-assessments, wellness content library organized by Sankofa product lines (Mental Wellness, HerHealth, HealthyBlackMen, BirthRight, MCE), health resource recommendations integrated with GIS community intelligence, and health engagement data feeding into Thrive scoring (Wellbeing domain). API gateway architecture in `server/sankofa-gateway.ts` designed for future Sankofa API swap. Database tables: `health_assessments`, `health_screening_results`, `wellness_resources`. Routes at `/api/health/*`.
 - **Internationalization (i18n):** Supports English and Spanish.
 - **TX STAAR Test Prep:** Provides grade-level study guides aligned to TEKS, gamified for engagement.
 - **Stakeholder Presentation:** An interactive 21-slide presentation at `/presentation` for showcasing platform features and impact.

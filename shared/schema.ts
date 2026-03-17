@@ -2040,4 +2040,72 @@ export const insertNavigatorMessageSchema = createInsertSchema(navigatorMessages
 export type InsertNavigatorMessage = z.infer<typeof insertNavigatorMessageSchema>;
 export type NavigatorMessage = typeof navigatorMessages.$inferSelect;
 
+// ==================== SANKOFA HEALTH NETWORK TABLES ====================
+
+export const healthAssessments = pgTable("health_assessments", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  assessmentType: varchar("assessment_type", { length: 100 }).notNull(),
+  productLine: varchar("product_line", { length: 100 }).notNull(),
+  questions: jsonb("questions").notNull().default([]),
+  scoringRubric: jsonb("scoring_rubric"),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertHealthAssessmentSchema = createInsertSchema(healthAssessments).omit({ id: true, createdAt: true });
+export type InsertHealthAssessment = z.infer<typeof insertHealthAssessmentSchema>;
+export type HealthAssessment = typeof healthAssessments.$inferSelect;
+
+export const healthScreeningResults = pgTable("health_screening_results", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  assessmentId: varchar("assessment_id", { length: 100 }).notNull(),
+  assessmentType: varchar("assessment_type", { length: 100 }).notNull(),
+  responses: jsonb("responses").notNull().default({}),
+  totalScore: integer("total_score").notNull().default(0),
+  maxScore: integer("max_score").notNull().default(100),
+  riskLevel: varchar("risk_level", { length: 50 }).notNull().default("low"),
+  recommendations: text("recommendations").array(),
+  completedAt: timestamp("completed_at").defaultNow(),
+});
+
+export const insertHealthScreeningResultSchema = createInsertSchema(healthScreeningResults).omit({ id: true, completedAt: true });
+export type InsertHealthScreeningResult = z.infer<typeof insertHealthScreeningResultSchema>;
+export type HealthScreeningResult = typeof healthScreeningResults.$inferSelect;
+
+export const healthResourceCategories = pgTable("health_resource_categories", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  productLine: varchar("product_line", { length: 100 }).notNull(),
+  description: text("description"),
+  sortOrder: integer("sort_order").notNull().default(0),
+  isActive: boolean("is_active").notNull().default(true),
+});
+
+export const insertHealthResourceCategorySchema = createInsertSchema(healthResourceCategories).omit({ id: true });
+export type InsertHealthResourceCategory = z.infer<typeof insertHealthResourceCategorySchema>;
+export type HealthResourceCategory = typeof healthResourceCategories.$inferSelect;
+
+export const wellnessResources = pgTable("wellness_resources", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  content: text("content").notNull(),
+  productLine: varchar("product_line", { length: 100 }).notNull(),
+  category: varchar("category", { length: 100 }).notNull(),
+  categoryId: varchar("category_id", { length: 100 }),
+  resourceType: varchar("resource_type", { length: 100 }).notNull().default("article"),
+  tags: text("tags").array(),
+  iconName: text("icon_name").notNull().default("heart"),
+  isActive: boolean("is_active").notNull().default(true),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertWellnessResourceSchema = createInsertSchema(wellnessResources).omit({ id: true, createdAt: true });
+export type InsertWellnessResource = z.infer<typeof insertWellnessResourceSchema>;
+export type WellnessResource = typeof wellnessResources.$inferSelect;
+
 export * from "./models/auth";

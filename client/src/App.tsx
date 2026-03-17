@@ -96,6 +96,7 @@ const WorkforceDashboardPage = lazy(() => import("@/pages/workforce-dashboard"))
 const CommunityMapPage = lazy(() => import("@/pages/community-map"));
 const IntakeWizardPage = lazy(() => import("@/pages/intake-wizard"));
 const ServiceDeliveryPage = lazy(() => import("@/pages/service-delivery"));
+const HealthWellnessPage = lazy(() => import("@/pages/health-wellness"));
 
 function PageFallback() {
   return (
@@ -211,6 +212,7 @@ function AppRouter() {
       <Route path="/community-map" component={CommunityMapPage} />
       <Route path="/intake" component={IntakeWizardPage} />
       <Route path="/services" component={ServiceDeliveryPage} />
+      <Route path="/health-wellness" component={HealthWellnessPage} />
       <Route component={NotFound} />
     </Switch>
   );
