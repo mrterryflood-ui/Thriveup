@@ -2,7 +2,6 @@ import type { Express, Request, Response } from "express";
 import { db } from "./storage";
 import {
   parentEducationModules, parentEducationProgress, familyAssessments,
-  engagementDosageLogs, cohortEnrollments,
   insertParentEducationModuleSchema, insertParentEducationProgressSchema,
 } from "@shared/schema";
 import { eq, desc, and, count } from "drizzle-orm";
@@ -81,24 +80,6 @@ function generateFamilyRecommendations(riskScore: number, protectiveScore: numbe
   return recs;
 }
 
-async function logDosage(userId: string, toolType: string, toolName: string, minutes: number) {
-  try {
-    const enrollments = await db.select().from(cohortEnrollments)
-      .where(and(eq(cohortEnrollments.userId, userId), eq(cohortEnrollments.status, "active")));
-    const cohortId = enrollments.length > 0 ? enrollments[0].cohortId : null;
-    await db.insert(engagementDosageLogs).values({
-      userId,
-      cohortId,
-      toolType,
-      toolName,
-      durationMinutes: minutes,
-      sessionDate: new Date().toISOString().split("T")[0],
-      metadata: { source: "parent_education" },
-    });
-  } catch (err) {
-    console.error("Failed to log parent education dosage:", err);
-  }
-}
 
 export function registerParentEducationRoutes(app: Express) {
 
@@ -167,16 +148,10 @@ export function registerParentEducationRoutes(app: Express) {
           .set({ status: parsed.data.status, completedAt: parsed.data.status === "completed" ? new Date() : null })
           .where(eq(parentEducationProgress.id, existing[0].id))
           .returning();
-        if (parsed.data.status === "completed") {
-          await logDosage(userId, "parent_education", "Parent Education Module", 15);
-        }
         return res.json(updated);
       }
 
       const [progress] = await db.insert(parentEducationProgress).values(parsed.data).returning();
-      if (parsed.data.status === "completed") {
-        await logDosage(userId, "parent_education", "Parent Education Module", 15);
-      }
       res.json(progress);
     } catch (error) {
       res.status(500).json({ error: "Failed to update progress" });
@@ -233,7 +208,6 @@ export function registerParentEducationRoutes(app: Express) {
         recommendations,
       }).returning();
 
-      await logDosage(userId, "family_assessment", "Family Assessment", 10);
       res.json(assessment);
     } catch (error) {
       console.error("Failed to submit family assessment:", error);
@@ -257,8 +231,6 @@ export function registerParentEducationRoutes(app: Express) {
         "You are a family counselor specializing in youth substance prevention and family strengthening. Generate age-appropriate, culturally sensitive conversation starters that build trust and open dialogue. Keep language simple and warm."
       );
 
-      const userId = getUserId(req)!;
-      await logDosage(userId, "ai_chat", "AI Conversation Starters", 5);
       res.json(result);
     } catch (error) {
       console.error("Failed to generate conversation starters:", error);

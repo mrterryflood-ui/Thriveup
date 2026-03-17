@@ -735,7 +735,7 @@ export async function registerRoutes(
     }
   });
 
-  app.get("/api/parent/support-alerts", requireAuth, async (_req, res) => {
+  app.get("/api/parent/support-alerts", requireAuth, requireAdmin, async (_req, res) => {
     try {
       const alerts = await db
         .select({
