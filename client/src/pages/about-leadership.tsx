@@ -10,6 +10,8 @@ import {
   Target, Sparkles, Microscope, BarChart3,
 } from "lucide-react";
 import { MISSION_STATEMENT, VISION_STATEMENT, VALUES } from "@/lib/mvv-content";
+import terryPhoto from "@assets/Terry2_1773768611245.jpg";
+import terryMilitaryPhoto from "@assets/pic1_1773768611248.jpg";
 
 const education = [
   { degree: "DHA", field: "Doctor of Health Administration", school: "" },
@@ -124,10 +126,25 @@ export default function AboutLeadershipPage() {
 
       <Card className="p-6">
         <div className="flex flex-col md:flex-row gap-6">
-          <div className="flex flex-col items-center gap-3 shrink-0">
-            <Avatar className="h-28 w-28">
-              <AvatarFallback className="text-2xl bg-primary/10 text-primary">TF</AvatarFallback>
-            </Avatar>
+          <div className="flex flex-col items-center gap-4 shrink-0 w-full md:w-auto">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="overflow-hidden rounded-lg shadow-md">
+                <img
+                  src={terryMilitaryPhoto}
+                  alt="Dr. Terry Flood in U.S. Army dress uniform"
+                  className="w-32 h-40 object-cover object-top"
+                  data-testid="img-leader-military"
+                />
+              </div>
+              <div className="overflow-hidden rounded-lg shadow-md">
+                <img
+                  src={terryPhoto}
+                  alt="Dr. Terry Flood"
+                  className="w-32 h-40 object-cover object-top"
+                  data-testid="img-leader-casual"
+                />
+              </div>
+            </div>
             <div className="text-center">
               <p className="font-bold text-lg" data-testid="text-leader-name">Dr. Terry Flood, DHA</p>
               <p className="text-sm text-muted-foreground">Implementation Scientist | Veteran | Platform Architect</p>
