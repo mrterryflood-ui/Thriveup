@@ -1,6 +1,6 @@
 import type { Express, Request, Response } from "express";
 import { db, storage } from "./storage";
-import { grantOpportunities, grantAlerts, platformGaps, insertGrantOpportunitySchema } from "@shared/schema";
+import { grantOpportunities, grantAlerts, platformGaps, insertGrantOpportunitySchema, advisoryBoardMembers, advisoryBoardMeetings, staffingPlanEntries, insertAdvisoryBoardMemberSchema, insertAdvisoryBoardMeetingSchema, insertStaffingPlanEntrySchema, outcomeTracking, participantProfiles, serviceRecords } from "@shared/schema";
 import type { GrantOpportunity } from "@shared/schema";
 import { z } from "zod";
 import { eq, desc, sql, gte, lte, and, or, ilike } from "drizzle-orm";
@@ -948,6 +948,276 @@ export function registerGrantRoutes(app: Express) {
     } catch (error) {
       console.error("Failed to update gap:", error);
       res.status(500).json({ error: "Failed to update gap" });
+    }
+  });
+
+  // ==================== LOGIC MODEL DATA ====================
+
+  app.get("/api/logic-model/data", requireAuth, requireAdmin, async (_req, res) => {
+    try {
+      const [participants] = await db.select({ count: sql<number>`count(*)` }).from(participantProfiles);
+      const [services] = await db.select({ count: sql<number>`count(*)`, totalHours: sql<number>`coalesce(sum(duration_minutes), 0)` }).from(serviceRecords);
+      const [outcomes] = await db.select({ count: sql<number>`count(*)` }).from(outcomeTracking);
+      const [activeParticipants] = await db.select({ count: sql<number>`count(*)` }).from(participantProfiles).where(eq(participantProfiles.status, "active"));
+
+      const outcomesByCategory = await db.select({
+        category: outcomeTracking.category,
+        count: sql<number>`count(*)`,
+      }).from(outcomeTracking).groupBy(outcomeTracking.category);
+
+      const categoryMap: Record<string, number> = {};
+      for (const o of outcomesByCategory) {
+        categoryMap[o.category] = Number(o.count);
+      }
+
+      res.json({
+        totalParticipants: Number(participants.count),
+        activeParticipants: Number(activeParticipants.count),
+        totalServices: Number(services.count),
+        totalServiceHours: Math.round(Number(services.totalHours) / 60),
+        totalOutcomes: Number(outcomes.count),
+        outcomesByCategory: categoryMap,
+      });
+    } catch (error) {
+      console.error("Failed to fetch logic model data:", error);
+      res.json({
+        totalParticipants: 0,
+        activeParticipants: 0,
+        totalServices: 0,
+        totalServiceHours: 0,
+        totalOutcomes: 0,
+        outcomesByCategory: {},
+      });
+    }
+  });
+
+  // ==================== GRANT NARRATIVE BUILDER ====================
+
+  app.post("/api/grant-narrative/generate", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const { grantType, section } = req.body as { grantType: string; section?: string };
+
+      const [participants] = await db.select({ count: sql<number>`count(*)` }).from(participantProfiles);
+      const [services] = await db.select({ count: sql<number>`count(*)`, totalHours: sql<number>`coalesce(sum(duration_minutes), 0)` }).from(serviceRecords);
+      const [outcomes] = await db.select({ count: sql<number>`count(*)` }).from(outcomeTracking);
+      const [boardMembers] = await db.select({ count: sql<number>`count(*)` }).from(advisoryBoardMembers);
+
+      const metrics = {
+        participants: Number(participants.count),
+        services: Number(services.count),
+        serviceHours: Math.round(Number(services.totalHours) / 60),
+        outcomes: Number(outcomes.count),
+        boardMembers: Number(boardMembers.count),
+      };
+
+      const grantTemplates: Record<string, string> = {
+        WIOA: `Generate a WIOA Title I Youth grant narrative section for ThriveUp, a comprehensive youth workforce development platform. The program follows a Three-Pillar framework: Relief (immediate stabilization), Stabilize (skill building), and Contribute (career pathways and community engagement). Focus on workforce development outcomes, career pathways, employer partnerships, and digital literacy training.`,
+        OJJDP: `Generate an OJJDP Second Chance Act grant narrative section for ThriveUp, a technology-enabled reentry support platform. The program follows a Three-Pillar framework: Relief (immediate stabilization), Stabilize (skill building), and Contribute (career pathways and community engagement). Focus on recidivism reduction, reentry case management, evidence-based interventions, and community-based support services.`,
+        SAMHSA: `Generate a SAMHSA Community Mental Health grant narrative section for ThriveUp, a holistic youth development platform with integrated behavioral health support. The program follows a Three-Pillar framework: Relief (immediate stabilization), Stabilize (skill building), and Contribute (career pathways and community engagement). Focus on trauma-informed care, behavioral health screening, mental health integration, and whole-child support.`,
+      };
+
+      const template = grantTemplates[grantType] || grantTemplates.WIOA;
+      const sectionPrompt = section ? `Focus specifically on the "${section}" section of the narrative.` : "Generate a comprehensive program narrative overview.";
+
+      const prompt = `${template}
+
+${sectionPrompt}
+
+Platform metrics to incorporate naturally:
+- ${metrics.participants} participants served
+- ${metrics.services} service encounters delivered
+- ${metrics.serviceHours} service hours provided
+- ${metrics.outcomes} outcome measurements tracked
+- ${metrics.boardMembers} community advisory board members
+- 50+ career pathways available
+- 5-level AI mastery curriculum
+- 6-domain Thrive scoring system
+- Evidence-based intervention framework
+
+Write in formal grant language, approximately 400-500 words. Use specific data points. Emphasize evidence-based practices and measurable outcomes. Do NOT use markdown formatting — write in plain paragraphs.`;
+
+      const response = await generateAIResponse([
+        { role: "system", content: "You are a professional grant writer specializing in federal grants for youth development, workforce development, and social services. Write compelling, data-driven grant narratives." },
+        { role: "user", content: prompt }
+      ], 2000);
+
+      res.json({ narrative: response, grantType, section: section || "overview", metrics });
+    } catch (error) {
+      console.error("Failed to generate narrative:", error);
+      res.status(500).json({ error: "Failed to generate narrative" });
+    }
+  });
+
+  // ==================== ADVISORY BOARD ====================
+
+  app.get("/api/advisory-board/members", requireAuth, requireAdmin, async (_req, res) => {
+    try {
+      const members = await db.select().from(advisoryBoardMembers).orderBy(desc(advisoryBoardMembers.createdAt));
+      res.json(members);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch board members" });
+    }
+  });
+
+  app.post("/api/advisory-board/members", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const parsed = insertAdvisoryBoardMemberSchema.safeParse(req.body);
+      if (!parsed.success) return res.status(400).json({ error: "Invalid data", details: parsed.error.flatten().fieldErrors });
+      const [member] = await db.insert(advisoryBoardMembers).values(parsed.data).returning();
+      res.json(member);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create board member" });
+    }
+  });
+
+  app.patch("/api/advisory-board/members/:id", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const [updated] = await db.update(advisoryBoardMembers).set(req.body).where(eq(advisoryBoardMembers.id, getParamId(req))).returning();
+      if (!updated) return res.status(404).json({ error: "Member not found" });
+      res.json(updated);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update board member" });
+    }
+  });
+
+  app.delete("/api/advisory-board/members/:id", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      await db.delete(advisoryBoardMembers).where(eq(advisoryBoardMembers.id, getParamId(req)));
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete board member" });
+    }
+  });
+
+  app.get("/api/advisory-board/meetings", requireAuth, requireAdmin, async (_req, res) => {
+    try {
+      const meetings = await db.select().from(advisoryBoardMeetings).orderBy(desc(advisoryBoardMeetings.createdAt));
+      res.json(meetings);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch meetings" });
+    }
+  });
+
+  app.post("/api/advisory-board/meetings", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const parsed = insertAdvisoryBoardMeetingSchema.safeParse(req.body);
+      if (!parsed.success) return res.status(400).json({ error: "Invalid data", details: parsed.error.flatten().fieldErrors });
+      const [meeting] = await db.insert(advisoryBoardMeetings).values(parsed.data).returning();
+      res.json(meeting);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create meeting" });
+    }
+  });
+
+  app.delete("/api/advisory-board/meetings/:id", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      await db.delete(advisoryBoardMeetings).where(eq(advisoryBoardMeetings.id, getParamId(req)));
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete meeting" });
+    }
+  });
+
+  // ==================== STAFFING PLAN ====================
+
+  app.get("/api/staffing-plan", requireAuth, requireAdmin, async (_req, res) => {
+    try {
+      const entries = await db.select().from(staffingPlanEntries).orderBy(desc(staffingPlanEntries.createdAt));
+      res.json(entries);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch staffing plan" });
+    }
+  });
+
+  app.post("/api/staffing-plan", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const parsed = insertStaffingPlanEntrySchema.safeParse(req.body);
+      if (!parsed.success) return res.status(400).json({ error: "Invalid data", details: parsed.error.flatten().fieldErrors });
+      const [entry] = await db.insert(staffingPlanEntries).values(parsed.data).returning();
+      res.json(entry);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create staffing plan entry" });
+    }
+  });
+
+  app.patch("/api/staffing-plan/:id", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const [updated] = await db.update(staffingPlanEntries).set(req.body).where(eq(staffingPlanEntries.id, getParamId(req))).returning();
+      if (!updated) return res.status(404).json({ error: "Entry not found" });
+      res.json(updated);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update staffing plan entry" });
+    }
+  });
+
+  app.delete("/api/staffing-plan/:id", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      await db.delete(staffingPlanEntries).where(eq(staffingPlanEntries.id, getParamId(req)));
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete staffing plan entry" });
+    }
+  });
+
+  // ==================== LOGIC MODEL PDF EXPORT ====================
+
+  app.get("/api/logic-model/export-pdf", requireAuth, requireAdmin, async (_req, res) => {
+    try {
+      const [participants] = await db.select({ count: sql<number>`count(*)` }).from(participantProfiles);
+      const [services] = await db.select({ count: sql<number>`count(*)`, totalHours: sql<number>`coalesce(sum(duration_minutes), 0)` }).from(serviceRecords);
+      const [outcomes] = await db.select({ count: sql<number>`count(*)` }).from(outcomeTracking);
+
+      const doc = new PDFDocument({ size: "LETTER", layout: "landscape", margin: 40 });
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader("Content-Disposition", "attachment; filename=ThriveUp_Logic_Model.pdf");
+      doc.pipe(res);
+
+      doc.fontSize(20).font("Helvetica-Bold").text("ThriveUp Logic Model", { align: "center" });
+      doc.fontSize(10).font("Helvetica").text("Theory of Change: Relief > Stabilize > Contribute", { align: "center" });
+      doc.moveDown(1.5);
+
+      const columns = [
+        { title: "INPUTS", items: ["Federal/state grant funding", "ThriveUp technology platform", `${Number(participants.count)} enrolled participants`, "Trained staff & case managers", "Community partner network", "Advisory board (community voice)"] },
+        { title: "ACTIVITIES", items: ["Career pathway exploration", "AI-powered skills training", "Case management & mentoring", "Behavioral health screening", `${Number(services.count)} service encounters`, "Employer partnership development"] },
+        { title: "OUTPUTS", items: [`${Math.round(Number(services.totalHours) / 60)} service hours delivered`, "Career readiness assessments", "Job placements facilitated", "Credentials & certifications", `${Number(outcomes.count)} outcomes tracked`, "DOJ-aligned reports generated"] },
+        { title: "SHORT-TERM\nOUTCOMES", items: ["Increased job readiness", "Improved digital literacy", "Stabilized housing/health", "Reduced recidivism (6-mo)", "Educational enrollment", "Enhanced coping skills"] },
+        { title: "LONG-TERM\nOUTCOMES", items: ["Sustained employment", "Economic self-sufficiency", "Community contribution", "Reduced recidivism (36-mo)", "Career advancement", "Generational impact"] },
+      ];
+
+      const colWidth = 140;
+      const startX = 40;
+      const startY = doc.y;
+      const arrowGap = 10;
+
+      columns.forEach((col, i) => {
+        const x = startX + i * (colWidth + arrowGap);
+        doc.save();
+        doc.roundedRect(x, startY, colWidth, 30, 4).fill(i === 0 ? "#4338CA" : i === 1 ? "#7C3AED" : i === 2 ? "#2563EB" : i === 3 ? "#059669" : "#DC2626");
+        doc.fillColor("white").fontSize(9).font("Helvetica-Bold").text(col.title, x + 4, startY + 6, { width: colWidth - 8, align: "center" });
+        doc.restore();
+
+        col.items.forEach((item, j) => {
+          const itemY = startY + 40 + j * 22;
+          doc.roundedRect(x, itemY, colWidth, 18, 3).fillAndStroke("#F3F4F6", "#D1D5DB");
+          doc.fillColor("#1F2937").fontSize(7).font("Helvetica").text(item, x + 4, itemY + 4, { width: colWidth - 8 });
+        });
+
+        if (i < columns.length - 1) {
+          const arrowX = x + colWidth + 2;
+          const arrowY = startY + 15;
+          doc.save().fillColor("#9CA3AF");
+          doc.moveTo(arrowX, arrowY - 4).lineTo(arrowX + 6, arrowY).lineTo(arrowX, arrowY + 4).fill();
+          doc.restore();
+        }
+      });
+
+      doc.moveDown(12);
+      doc.fontSize(8).font("Helvetica").fillColor("#6B7280").text(`Generated: ${new Date().toLocaleDateString()} | ThriveUp Academy Grant Engine`, { align: "center" });
+
+      doc.end();
+    } catch (error) {
+      console.error("Failed to export logic model PDF:", error);
+      res.status(500).json({ error: "Failed to export PDF" });
     }
   });
 }

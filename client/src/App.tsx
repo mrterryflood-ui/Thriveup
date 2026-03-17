@@ -105,6 +105,10 @@ const ParentEducationPage = lazy(() => import("@/pages/parent-education"));
 const MyJourneyPage = lazy(() => import("@/pages/my-journey"));
 const CohortOnboardingPage = lazy(() => import("@/pages/cohort-onboarding"));
 const MapGapCqiPage = lazy(() => import("@/pages/map-gap-cqi"));
+const LogicModelPage = lazy(() => import("@/pages/logic-model"));
+const GrantNarrativePage = lazy(() => import("@/pages/grant-narrative"));
+const AdvisoryBoardPage = lazy(() => import("@/pages/advisory-board"));
+const StaffingPlanPage = lazy(() => import("@/pages/staffing-plan"));
 
 function PageFallback() {
   return (
@@ -229,6 +233,10 @@ function AppRouter() {
       <Route path="/my-journey" component={MyJourneyPage} />
       <Route path="/cohort-onboarding" component={CohortOnboardingPage} />
       <Route path="/cqi" component={MapGapCqiPage} />
+      <Route path="/logic-model" component={LogicModelPage} />
+      <Route path="/grant-narrative" component={GrantNarrativePage} />
+      <Route path="/advisory-board" component={AdvisoryBoardPage} />
+      <Route path="/staffing-plan" component={StaffingPlanPage} />
       <Route component={NotFound} />
     </Switch>
   );

@@ -2642,4 +2642,59 @@ export const insertCqiCyclePhaseSchema = createInsertSchema(cqiCyclePhases).omit
 export type InsertCqiCyclePhase = z.infer<typeof insertCqiCyclePhaseSchema>;
 export type CqiCyclePhase = typeof cqiCyclePhases.$inferSelect;
 
+// ==================== GRANT NARRATIVE & LOGIC MODEL TABLES ====================
+
+export const advisoryBoardMembers = pgTable("advisory_board_members", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  role: varchar("role", { length: 100 }).notNull(),
+  organization: text("organization"),
+  email: varchar("email", { length: 255 }),
+  phone: varchar("phone", { length: 50 }),
+  livedExperience: text("lived_experience"),
+  bio: text("bio"),
+  startDate: text("start_date"),
+  status: varchar("status", { length: 50 }).notNull().default("active"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertAdvisoryBoardMemberSchema = createInsertSchema(advisoryBoardMembers).omit({ id: true, createdAt: true });
+export type InsertAdvisoryBoardMember = z.infer<typeof insertAdvisoryBoardMemberSchema>;
+export type AdvisoryBoardMember = typeof advisoryBoardMembers.$inferSelect;
+
+export const advisoryBoardMeetings = pgTable("advisory_board_meetings", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  title: text("title").notNull(),
+  meetingDate: text("meeting_date").notNull(),
+  location: text("location"),
+  agenda: text("agenda"),
+  minutes: text("minutes"),
+  attendeeIds: text("attendee_ids").array().notNull().default(sql`'{}'::text[]`),
+  decisions: text("decisions"),
+  actionItems: text("action_items"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertAdvisoryBoardMeetingSchema = createInsertSchema(advisoryBoardMeetings).omit({ id: true, createdAt: true });
+export type InsertAdvisoryBoardMeeting = z.infer<typeof insertAdvisoryBoardMeetingSchema>;
+export type AdvisoryBoardMeeting = typeof advisoryBoardMeetings.$inferSelect;
+
+export const staffingPlanEntries = pgTable("staffing_plan_entries", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  roleTitle: text("role_title").notNull(),
+  grantRole: varchar("grant_role", { length: 255 }).notNull(),
+  department: varchar("department", { length: 100 }),
+  fte: varchar("fte", { length: 20 }).notNull().default("1.0"),
+  qualifications: text("qualifications"),
+  responsibilities: text("responsibilities"),
+  currentStaff: text("current_staff"),
+  status: varchar("status", { length: 50 }).notNull().default("planned"),
+  grantProgram: varchar("grant_program", { length: 100 }),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertStaffingPlanEntrySchema = createInsertSchema(staffingPlanEntries).omit({ id: true, createdAt: true });
+export type InsertStaffingPlanEntry = z.infer<typeof insertStaffingPlanEntrySchema>;
+export type StaffingPlanEntry = typeof staffingPlanEntries.$inferSelect;
+
 export * from "./models/auth";
