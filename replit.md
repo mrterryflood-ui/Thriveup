@@ -76,10 +76,11 @@ Core architectural features include:
 - **Platform:** sisnett.meredith@gmail.com (Meredith Sisnett)
 
 ## Key Routes Added (Latest)
+- `/business-plan` — Comprehensive shareable business plan: ecosystem overview, MVV, cradle-to-contract pipeline, competitive advantages, funding strategy, 12 live platform capability links, leadership, CTA
 - `/program-management` — Post-award grant execution suite (7 tabs)
 - `/facilitator-hub` — Curriculum delivery & facilitator tools (5 tabs)
 - `/platform-metrics` — Cross-platform metrics dashboard (8 categories)
 - `/contact` — Contact form with Resend email integration
-- `/about` — Dr. Flood credentials & leadership page
+- `/about` — Dr. Flood credentials & leadership page (3-entity ecosystem structure: ThriveUp 501(c)(3), MCE SaaS, The Collaborative Advocate VOSB)
 - `/ecosystem-story` — Interactive 10-step ecosystem walkthrough
 - `/ecosystem` — Now includes MCE as Platform 14 (14 total platforms)

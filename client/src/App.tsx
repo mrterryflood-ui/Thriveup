@@ -121,6 +121,7 @@ const AboutLeadershipPage = lazy(() => import("@/pages/about-leadership"));
 const EcosystemStoryPage = lazy(() => import("@/pages/ecosystem-story"));
 const ProgramManagementPage = lazy(() => import("@/pages/program-management"));
 const ContactPage = lazy(() => import("@/pages/contact"));
+const BusinessPlanPage = lazy(() => import("@/pages/business-plan"));
 
 function PageFallback() {
   return (
@@ -261,6 +262,7 @@ function AppRouter() {
       <Route path="/ecosystem-story" component={EcosystemStoryPage} />
       <Route path="/program-management" component={ProgramManagementPage} />
       <Route path="/contact" component={ContactPage} />
+      <Route path="/business-plan" component={BusinessPlanPage} />
       <Route component={NotFound} />
     </Switch>
   );
