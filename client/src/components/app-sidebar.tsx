@@ -62,6 +62,10 @@ const workforceSolutionsItems: NavItem[] = [
   { title: "For Justice Partners", url: "/justice-partners", icon: Scale },
 ];
 
+const coalitionItems: NavItem[] = [
+  { title: "Coalition Dashboard", url: "/coalition", icon: Users },
+];
+
 const grantEngineItems: NavItem[] = [
   { title: "Grant Hub", url: "/grants", icon: Target },
   { title: "Pilot Dashboard", url: "/pilot", icon: Users },
@@ -119,6 +123,11 @@ const buildCreateItems: NavItem[] = [
 
 const campusExtrasItems: NavItem[] = [
   { title: "Life Lessons", url: "/academy/lessons", icon: Lightbulb },
+];
+
+const preventionItems: NavItem[] = [
+  { title: "Prevention Hub", url: "/prevention", icon: Shield },
+  { title: "Parent Education", url: "/parent-education", icon: Heart },
 ];
 
 const healthWellnessItems: NavItem[] = [
@@ -313,8 +322,10 @@ export function AppSidebar() {
 
         <NavSection label="Community Intelligence" items={communityIntelItems} location={location} />
         <NavSection label="Workforce Solutions" items={workforceSolutionsItems} location={location} />
+        <NavSection label="Coalition" items={coalitionItems} location={location} />
         <NavSection label="Grant Engine" items={grantEngineItems} location={location} />
         <NavSection label="AI Tools" items={aiToolsItems} location={location} />
+        <NavSection label="Prevention" items={preventionItems} location={location} />
         <NavSection label="Health & Wellness" items={healthWellnessItems} location={location} />
         <NavSection label="Case Management" items={caseManagementItems} location={location} />
         <NavSection label="Student Portal" items={myStudentItems} location={location} />

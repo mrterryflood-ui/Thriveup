@@ -1270,6 +1270,12 @@ export class DatabaseStorage implements IStorage {
     if (existingMilestones.length === 0) {
       await seedCareerMilestones(db);
     }
+
+    const { seedPreventionData } = await import("./prevention-routes");
+    await seedPreventionData();
+
+    const { seedParentEducationData } = await import("./parent-education-routes");
+    await seedParentEducationData();
   }
 
   async getReflectionsByUser(userId: string): Promise<StudentReflection[]> {

@@ -52,6 +52,9 @@ import { registerJusticeRoutes } from "./justice-routes";
 import { registerWorkforceRoutes } from "./workforce-routes";
 import { registerNavigatorRoutes } from "./navigator-routes";
 import { registerPilotRoutes } from "./pilot-routes";
+import { registerPreventionRoutes } from "./prevention-routes";
+import { registerCoalitionRoutes } from "./coalition-routes";
+import { registerParentEducationRoutes } from "./parent-education-routes";
 import { dosageTrackingMiddleware } from "./dosage-middleware";
 
 const AI_TOOLS = [
@@ -345,6 +348,9 @@ export async function registerRoutes(
   registerWorkforceRoutes(app);
   registerNavigatorRoutes(app);
   registerPilotRoutes(app);
+  registerPreventionRoutes(app);
+  registerCoalitionRoutes(app);
+  registerParentEducationRoutes(app);
   await storage.seedData();
 
   app.get("/api/ai-provider", (_req, res) => {

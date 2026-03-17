@@ -36,6 +36,9 @@ const TRACKED_ROUTES: DosageRouteConfig[] = [
   { pattern: /^\/api\/staar\/assessments/, methods: ["POST"], toolType: "assessment", toolName: "STAAR Test Prep", estimatedMinutes: 15 },
   { pattern: /^\/api\/courses\/.*\/lessons\/.*\/complete/, methods: ["POST", "PATCH"], toolType: "course", toolName: "Course Lesson", estimatedMinutes: 15 },
   { pattern: /^\/api\/workforce\/assessments/, methods: ["POST"], toolType: "assessment", toolName: "Workforce Assessment", estimatedMinutes: 20 },
+  { pattern: /^\/api\/parent-education\/progress/, methods: ["POST"], toolType: "parent_education", toolName: "Parent Education Module", estimatedMinutes: 15 },
+  { pattern: /^\/api\/parent-education\/family-assessments/, methods: ["POST"], toolType: "family_assessment", toolName: "Family Assessment", estimatedMinutes: 10 },
+  { pattern: /^\/api\/parent-education\/conversation-starters/, methods: ["POST"], toolType: "ai_chat", toolName: "AI Conversation Starters", estimatedMinutes: 5 },
 ];
 
 export function dosageTrackingMiddleware(req: Request, res: Response, next: NextFunction): void {

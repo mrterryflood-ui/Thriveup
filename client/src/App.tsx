@@ -99,6 +99,9 @@ const ServiceDeliveryPage = lazy(() => import("@/pages/service-delivery"));
 const HealthWellnessPage = lazy(() => import("@/pages/health-wellness"));
 const PilotDashboardPage = lazy(() => import("@/pages/pilot-dashboard"));
 const DosageReportPage = lazy(() => import("@/pages/dosage-report"));
+const PreventionPage = lazy(() => import("@/pages/prevention"));
+const CoalitionPage = lazy(() => import("@/pages/coalition"));
+const ParentEducationPage = lazy(() => import("@/pages/parent-education"));
 
 function PageFallback() {
   return (
@@ -217,6 +220,9 @@ function AppRouter() {
       <Route path="/health-wellness" component={HealthWellnessPage} />
       <Route path="/pilot" component={PilotDashboardPage} />
       <Route path="/dosage" component={DosageReportPage} />
+      <Route path="/prevention" component={PreventionPage} />
+      <Route path="/coalition" component={CoalitionPage} />
+      <Route path="/parent-education" component={ParentEducationPage} />
       <Route component={NotFound} />
     </Switch>
   );
