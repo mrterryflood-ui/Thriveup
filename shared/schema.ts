@@ -2697,4 +2697,272 @@ export const insertStaffingPlanEntrySchema = createInsertSchema(staffingPlanEntr
 export type InsertStaffingPlanEntry = z.infer<typeof insertStaffingPlanEntrySchema>;
 export type StaffingPlanEntry = typeof staffingPlanEntries.$inferSelect;
 
+// ==================== EVIDENCE-BASED PROGRAMS & ENVIRONMENTAL STRATEGIES ====================
+
+export const evidenceBasedPrograms = pgTable("evidence_based_programs", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  acronym: varchar("acronym", { length: 20 }),
+  description: text("description").notNull(),
+  targetPopulation: text("target_population").notNull(),
+  ageRange: text("age_range").notNull(),
+  evidenceLevel: text("evidence_level").notNull().default("promising"),
+  outcomesDemo: text("outcomes_demo").array().notNull().default(sql`'{}'::text[]`),
+  implementationReqs: text("implementation_reqs"),
+  costEstimate: text("cost_estimate"),
+  culturalAdaptability: text("cultural_adaptability"),
+  fidelityMeasures: text("fidelity_measures"),
+  registrySource: text("registry_source"),
+  websiteUrl: text("website_url"),
+  stakeholderFit: jsonb("stakeholder_fit").default({}),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertEvidenceBasedProgramSchema = createInsertSchema(evidenceBasedPrograms).omit({ id: true, createdAt: true });
+export type InsertEvidenceBasedProgram = z.infer<typeof insertEvidenceBasedProgramSchema>;
+export type EvidenceBasedProgram = typeof evidenceBasedPrograms.$inferSelect;
+
+export const ebpImplementations = pgTable("ebp_implementations", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  programId: varchar("program_id", { length: 100 }).notNull(),
+  coalitionId: varchar("coalition_id", { length: 100 }),
+  status: text("status").notNull().default("exploring"),
+  startDate: text("start_date"),
+  fidelityScore: integer("fidelity_score"),
+  dosageTarget: integer("dosage_target"),
+  dosageActual: integer("dosage_actual"),
+  participantsTarget: integer("participants_target"),
+  participantsActual: integer("participants_actual"),
+  implementationStage: text("implementation_stage").notNull().default("exploration"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertEbpImplementationSchema = createInsertSchema(ebpImplementations).omit({ id: true, createdAt: true });
+export type InsertEbpImplementation = z.infer<typeof insertEbpImplementationSchema>;
+export type EbpImplementation = typeof ebpImplementations.$inferSelect;
+
+export const environmentalStrategies = pgTable("environmental_strategies", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  category: text("category").notNull(),
+  description: text("description").notNull(),
+  responsibleSectors: text("responsible_sectors").array().notNull().default(sql`'{}'::text[]`),
+  targetSubstances: text("target_substances").array().notNull().default(sql`'{}'::text[]`),
+  expectedOutcomes: text("expected_outcomes"),
+  implementationTimeline: text("implementation_timeline"),
+  status: text("status").notNull().default("planned"),
+  implementationStage: text("implementation_stage").notNull().default("exploration"),
+  coalitionId: varchar("coalition_id", { length: 100 }),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertEnvironmentalStrategySchema = createInsertSchema(environmentalStrategies).omit({ id: true, createdAt: true });
+export type InsertEnvironmentalStrategy = z.infer<typeof insertEnvironmentalStrategySchema>;
+export type EnvironmentalStrategy = typeof environmentalStrategies.$inferSelect;
+
+export const strategyMetrics = pgTable("strategy_metrics", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  strategyId: varchar("strategy_id", { length: 100 }).notNull(),
+  metricName: text("metric_name").notNull(),
+  baseline: text("baseline"),
+  target: text("target"),
+  actual: text("actual"),
+  period: text("period"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertStrategyMetricSchema = createInsertSchema(strategyMetrics).omit({ id: true, createdAt: true });
+export type InsertStrategyMetric = z.infer<typeof insertStrategyMetricSchema>;
+export type StrategyMetric = typeof strategyMetrics.$inferSelect;
+
+export const cfirAssessments = pgTable("cfir_assessments", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  programId: varchar("program_id", { length: 100 }),
+  strategyId: varchar("strategy_id", { length: 100 }),
+  interventionCharacteristics: integer("intervention_characteristics").notNull().default(0),
+  outerSetting: integer("outer_setting").notNull().default(0),
+  innerSetting: integer("inner_setting").notNull().default(0),
+  individuals: integer("individuals").notNull().default(0),
+  implementationProcess: integer("implementation_process").notNull().default(0),
+  overallScore: integer("overall_score").notNull().default(0),
+  notes: text("notes"),
+  assessorId: varchar("assessor_id", { length: 255 }),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertCfirAssessmentSchema = createInsertSchema(cfirAssessments).omit({ id: true, createdAt: true });
+export type InsertCfirAssessment = z.infer<typeof insertCfirAssessmentSchema>;
+export type CfirAssessment = typeof cfirAssessments.$inferSelect;
+
+// ==================== DFC REPORTING & COMMUNITY READINESS TABLES ====================
+
+export const dfcCoreMeasures = pgTable("dfc_core_measures", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  surveyPeriod: text("survey_period").notNull(),
+  periodType: text("period_type").notNull().default("baseline"),
+  ageGroup: text("age_group").notNull(),
+  alcoholPast30: real("alcohol_past_30").default(0),
+  marijuanaPast30: real("marijuana_past_30").default(0),
+  tobaccoPast30: real("tobacco_past_30").default(0),
+  prescriptionPast30: real("prescription_past_30").default(0),
+  perceptionOfRiskAlcohol: real("perception_of_risk_alcohol").default(0),
+  perceptionOfRiskMarijuana: real("perception_of_risk_marijuana").default(0),
+  parentalDisapproval: real("parental_disapproval").default(0),
+  peerDisapproval: real("peer_disapproval").default(0),
+  averageAgeFirstUse: real("average_age_first_use"),
+  perceivedAvailability: real("perceived_availability").default(0),
+  sampleSize: integer("sample_size").default(0),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertDfcCoreMeasureSchema = createInsertSchema(dfcCoreMeasures).omit({ id: true, createdAt: true });
+export type InsertDfcCoreMeasure = z.infer<typeof insertDfcCoreMeasureSchema>;
+export type DfcCoreMeasure = typeof dfcCoreMeasures.$inferSelect;
+
+export const dfcStakeholderSurveys = pgTable("dfc_stakeholder_surveys", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  populationType: text("population_type").notNull(),
+  surveyPeriod: text("survey_period").notNull(),
+  respondentCount: integer("respondent_count").default(0),
+  questions: jsonb("questions").notNull().default([]),
+  responses: jsonb("responses").notNull().default([]),
+  summary: jsonb("summary").default({}),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertDfcStakeholderSurveySchema = createInsertSchema(dfcStakeholderSurveys).omit({ id: true, createdAt: true });
+export type InsertDfcStakeholderSurvey = z.infer<typeof insertDfcStakeholderSurveySchema>;
+export type DfcStakeholderSurvey = typeof dfcStakeholderSurveys.$inferSelect;
+
+export const communityReadinessAssessments = pgTable("community_readiness_assessments", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  assessmentDate: text("assessment_date").notNull(),
+  communityEfforts: integer("community_efforts").notNull().default(1),
+  communityKnowledgeOfEfforts: integer("community_knowledge_of_efforts").notNull().default(1),
+  leadership: integer("leadership").notNull().default(1),
+  communityclimate: integer("community_climate").notNull().default(1),
+  communityKnowledgeOfIssue: integer("community_knowledge_of_issue").notNull().default(1),
+  resources: integer("resources").notNull().default(1),
+  overallReadiness: real("overall_readiness").default(0),
+  readinessStage: text("readiness_stage").default("No Awareness"),
+  recommendations: text("recommendations").array().notNull().default(sql`'{}'::text[]`),
+  assessorId: varchar("assessor_id", { length: 255 }),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertCommunityReadinessAssessmentSchema = createInsertSchema(communityReadinessAssessments).omit({ id: true, createdAt: true });
+export type InsertCommunityReadinessAssessment = z.infer<typeof insertCommunityReadinessAssessmentSchema>;
+export type CommunityReadinessAssessment = typeof communityReadinessAssessments.$inferSelect;
+
+export const communityReadinessInterviews = pgTable("community_readiness_interviews", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  assessmentId: varchar("assessment_id", { length: 100 }),
+  intervieweeType: text("interviewee_type").notNull(),
+  intervieweeName: text("interviewee_name"),
+  interviewDate: text("interview_date").notNull(),
+  responses: jsonb("responses").notNull().default({}),
+  dimensionScores: jsonb("dimension_scores").default({}),
+  notes: text("notes"),
+  interviewerId: varchar("interviewer_id", { length: 255 }),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertCommunityReadinessInterviewSchema = createInsertSchema(communityReadinessInterviews).omit({ id: true, createdAt: true });
+export type InsertCommunityReadinessInterview = z.infer<typeof insertCommunityReadinessInterviewSchema>;
+export type CommunityReadinessInterview = typeof communityReadinessInterviews.$inferSelect;
+
+// ==================== DFC READINESS & MEDIA CAMPAIGN TABLES ====================
+
+export const mediaCampaigns = pgTable("media_campaigns", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  title: text("title").notNull(),
+  campaignType: text("campaign_type").notNull(),
+  targetAudience: text("target_audience").notNull(),
+  messagingGuidance: text("messaging_guidance"),
+  status: text("status").notNull().default("planning"),
+  startDate: text("start_date"),
+  endDate: text("end_date"),
+  targetSubstance: text("target_substance"),
+  budget: decimal("budget", { precision: 12, scale: 2 }),
+  objectives: text("objectives"),
+  createdBy: varchar("created_by", { length: 255 }),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertMediaCampaignSchema = createInsertSchema(mediaCampaigns).omit({ id: true, createdAt: true });
+export type InsertMediaCampaign = z.infer<typeof insertMediaCampaignSchema>;
+export type MediaCampaign = typeof mediaCampaigns.$inferSelect;
+
+export const campaignContent = pgTable("campaign_content", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  campaignId: varchar("campaign_id", { length: 100 }).notNull().references(() => mediaCampaigns.id),
+  contentType: text("content_type").notNull(),
+  title: text("title").notNull(),
+  body: text("body"),
+  platform: text("platform"),
+  scheduledDate: text("scheduled_date"),
+  status: text("status").notNull().default("draft"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertCampaignContentSchema = createInsertSchema(campaignContent).omit({ id: true, createdAt: true });
+export type InsertCampaignContent = z.infer<typeof insertCampaignContentSchema>;
+export type CampaignContent = typeof campaignContent.$inferSelect;
+
+export const campaignMetrics = pgTable("campaign_metrics", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  campaignId: varchar("campaign_id", { length: 100 }).notNull().references(() => mediaCampaigns.id),
+  metricDate: text("metric_date").notNull(),
+  impressions: integer("impressions").default(0),
+  interactions: integer("interactions").default(0),
+  eventAttendance: integer("event_attendance").default(0),
+  mediaMentions: integer("media_mentions").default(0),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertCampaignMetricSchema = createInsertSchema(campaignMetrics).omit({ id: true, createdAt: true });
+export type InsertCampaignMetric = z.infer<typeof insertCampaignMetricSchema>;
+export type CampaignMetric = typeof campaignMetrics.$inferSelect;
+
+export const dfcReadinessItems = pgTable("dfc_readiness_items", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  category: text("category").notNull(),
+  title: text("title").notNull(),
+  description: text("description"),
+  status: text("status").notNull().default("not_started"),
+  dueDate: text("due_date"),
+  assignedTo: text("assigned_to"),
+  notes: text("notes"),
+  linkUrl: text("link_url"),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertDfcReadinessItemSchema = createInsertSchema(dfcReadinessItems).omit({ id: true, createdAt: true });
+export type InsertDfcReadinessItem = z.infer<typeof insertDfcReadinessItemSchema>;
+export type DfcReadinessItem = typeof dfcReadinessItems.$inferSelect;
+
+export const stakeholderCommitments = pgTable("stakeholder_commitments", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  sectorName: text("sector_name").notNull(),
+  sectorNumber: integer("sector_number").notNull(),
+  commitmentType: text("commitment_type").notNull(),
+  description: text("description").notNull(),
+  contactName: text("contact_name"),
+  contactEmail: text("contact_email"),
+  status: text("status").notNull().default("pledged"),
+  deliveredDate: text("delivered_date"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertStakeholderCommitmentSchema = createInsertSchema(stakeholderCommitments).omit({ id: true, createdAt: true });
+export type InsertStakeholderCommitment = z.infer<typeof insertStakeholderCommitmentSchema>;
+export type StakeholderCommitment = typeof stakeholderCommitments.$inferSelect;
+
 export * from "./models/auth";

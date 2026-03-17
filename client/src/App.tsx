@@ -110,6 +110,9 @@ const GrantNarrativePage = lazy(() => import("@/pages/grant-narrative"));
 const AdvisoryBoardPage = lazy(() => import("@/pages/advisory-board"));
 const StaffingPlanPage = lazy(() => import("@/pages/staffing-plan"));
 const EcosystemHubPage = lazy(() => import("@/pages/ecosystem-hub"));
+const DfcReportingPage = lazy(() => import("@/pages/dfc-reporting"));
+const DfcReadinessPage = lazy(() => import("@/pages/dfc-readiness"));
+const PreventionStrategiesPage = lazy(() => import("@/pages/prevention-strategies"));
 
 function PageFallback() {
   return (
@@ -239,6 +242,9 @@ function AppRouter() {
       <Route path="/advisory-board" component={AdvisoryBoardPage} />
       <Route path="/staffing-plan" component={StaffingPlanPage} />
       <Route path="/ecosystem" component={EcosystemHubPage} />
+      <Route path="/dfc-reporting" component={DfcReportingPage} />
+      <Route path="/dfc-readiness" component={DfcReadinessPage} />
+      <Route path="/prevention-strategies" component={PreventionStrategiesPage} />
       <Route component={NotFound} />
     </Switch>
   );

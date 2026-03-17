@@ -64,6 +64,8 @@ const workforceSolutionsItems: NavItem[] = [
 
 const coalitionItems: NavItem[] = [
   { title: "Coalition Dashboard", url: "/coalition", icon: Users },
+  { title: "DFC Reporting", url: "/dfc-reporting", icon: FileBarChart },
+  { title: "DFC Readiness", url: "/dfc-readiness", icon: Target },
 ];
 
 const grantEngineItems: NavItem[] = [
@@ -133,6 +135,7 @@ const campusExtrasItems: NavItem[] = [
 
 const preventionItems: NavItem[] = [
   { title: "Prevention Hub", url: "/prevention", icon: Shield },
+  { title: "Prevention Strategies", url: "/prevention-strategies", icon: ShieldCheck },
   { title: "Parent Education", url: "/parent-education", icon: Heart },
 ];
 
