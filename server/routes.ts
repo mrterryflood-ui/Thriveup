@@ -18,6 +18,7 @@ import {
   staarStudyGuides, staarPracticeQuestions, staarStudentAssessments, staarTopicMastery,
   insertStaarStudentAssessmentSchema,
   savedResources, insertSavedResourceSchema, resourceSearchHistory,
+  type CqiFidelityObservation,
 } from "@shared/schema";
 import { searchResources, getResourceCategories, getStatesList, getStateName, fetchBLSWageData } from "./resource-engine";
 import { eq, and, desc, sql, count, gte } from "drizzle-orm";
@@ -4568,6 +4569,285 @@ Key guidelines:
     } catch (error) {
       console.error("Error fetching health recommendations:", error);
       res.status(500).json({ error: "Failed to fetch health recommendations" });
+    }
+  });
+
+  // ==================== CQI ENGINE ROUTES ====================
+
+  app.get("/api/cqi/cycles", requireAuth, async (_req, res) => {
+    try {
+      const cycles = await storage.getCqiCycles();
+      res.json(cycles);
+    } catch (error) {
+      console.error("Error fetching CQI cycles:", error);
+      res.status(500).json({ error: "Failed to fetch cycles" });
+    }
+  });
+
+  app.get("/api/cqi/cycles/:id", requireAuth, async (req, res) => {
+    try {
+      const cycle = await storage.getCqiCycle(req.params.id);
+      if (!cycle) return res.status(404).json({ error: "Cycle not found" });
+      res.json(cycle);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch cycle" });
+    }
+  });
+
+  app.post("/api/cqi/cycles", requireAuth, async (req, res) => {
+    try {
+      const userId = getUserId(req);
+      const userName = getUserName(req) || "";
+      const cycle = await storage.createCqiCycle({ ...req.body, createdBy: userId, createdByName: userName });
+      res.json(cycle);
+    } catch (error) {
+      console.error("Error creating CQI cycle:", error);
+      res.status(500).json({ error: "Failed to create cycle" });
+    }
+  });
+
+  app.patch("/api/cqi/cycles/:id", requireAuth, async (req, res) => {
+    try {
+      const cycle = await storage.updateCqiCycle(req.params.id, req.body);
+      res.json(cycle);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update cycle" });
+    }
+  });
+
+  app.delete("/api/cqi/cycles/:id", requireAuth, async (req, res) => {
+    try {
+      await storage.deleteCqiCycle(req.params.id);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete cycle" });
+    }
+  });
+
+  app.get("/api/cqi/cycles/:cycleId/gaps", requireAuth, async (req, res) => {
+    try {
+      const gaps = await storage.getCqiGaps(req.params.cycleId);
+      res.json(gaps);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch gaps" });
+    }
+  });
+
+  app.post("/api/cqi/gaps", requireAuth, async (req, res) => {
+    try {
+      const gap = await storage.createCqiGap(req.body);
+      res.json(gap);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create gap" });
+    }
+  });
+
+  app.patch("/api/cqi/gaps/:id", requireAuth, async (req, res) => {
+    try {
+      const gap = await storage.updateCqiGap(req.params.id, req.body);
+      res.json(gap);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update gap" });
+    }
+  });
+
+  app.delete("/api/cqi/gaps/:id", requireAuth, async (req, res) => {
+    try {
+      await storage.deleteCqiGap(req.params.id);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete gap" });
+    }
+  });
+
+  app.get("/api/cqi/cycles/:cycleId/interventions", requireAuth, async (req, res) => {
+    try {
+      const interventions = await storage.getCqiInterventions(req.params.cycleId);
+      res.json(interventions);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch interventions" });
+    }
+  });
+
+  app.post("/api/cqi/interventions", requireAuth, async (req, res) => {
+    try {
+      const intervention = await storage.createCqiIntervention(req.body);
+      res.json(intervention);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create intervention" });
+    }
+  });
+
+  app.patch("/api/cqi/interventions/:id", requireAuth, async (req, res) => {
+    try {
+      const intervention = await storage.updateCqiIntervention(req.params.id, req.body);
+      res.json(intervention);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update intervention" });
+    }
+  });
+
+  app.delete("/api/cqi/interventions/:id", requireAuth, async (req, res) => {
+    try {
+      await storage.deleteCqiIntervention(req.params.id);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete intervention" });
+    }
+  });
+
+  app.get("/api/cqi/fidelity-definitions", requireAuth, async (req, res) => {
+    try {
+      const cycleId = req.query.cycleId as string | undefined;
+      const defs = await storage.getCqiFidelityDefinitions(cycleId);
+      res.json(defs);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch fidelity definitions" });
+    }
+  });
+
+  app.post("/api/cqi/fidelity-definitions", requireAuth, async (req, res) => {
+    try {
+      const def = await storage.createCqiFidelityDefinition(req.body);
+      res.json(def);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create fidelity definition" });
+    }
+  });
+
+  app.patch("/api/cqi/fidelity-definitions/:id", requireAuth, async (req, res) => {
+    try {
+      const def = await storage.updateCqiFidelityDefinition(req.params.id, req.body);
+      res.json(def);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update fidelity definition" });
+    }
+  });
+
+  app.delete("/api/cqi/fidelity-definitions/:id", requireAuth, async (req, res) => {
+    try {
+      await storage.deleteCqiFidelityDefinition(req.params.id);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete fidelity definition" });
+    }
+  });
+
+  app.get("/api/cqi/fidelity-observations/:definitionId", requireAuth, async (req, res) => {
+    try {
+      const observations = await storage.getCqiFidelityObservations(req.params.definitionId);
+      res.json(observations);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch fidelity observations" });
+    }
+  });
+
+  app.post("/api/cqi/fidelity-observations", requireAuth, async (req, res) => {
+    try {
+      const obs = await storage.createCqiFidelityObservation(req.body);
+      res.json(obs);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create fidelity observation" });
+    }
+  });
+
+  app.patch("/api/cqi/fidelity-observations/:id", requireAuth, async (req, res) => {
+    try {
+      const obs = await storage.updateCqiFidelityObservation(req.params.id, req.body);
+      res.json(obs);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update fidelity observation" });
+    }
+  });
+
+  app.delete("/api/cqi/fidelity-observations/:id", requireAuth, async (req, res) => {
+    try {
+      await storage.deleteCqiFidelityObservation(req.params.id);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete fidelity observation" });
+    }
+  });
+
+  app.get("/api/cqi/cycles/:cycleId/phases", requireAuth, async (req, res) => {
+    try {
+      const phases = await storage.getCqiCyclePhases(req.params.cycleId);
+      res.json(phases);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch cycle phases" });
+    }
+  });
+
+  app.post("/api/cqi/cycle-phases", requireAuth, async (req, res) => {
+    try {
+      const phase = await storage.createCqiCyclePhase(req.body);
+      res.json(phase);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create cycle phase" });
+    }
+  });
+
+  app.patch("/api/cqi/cycle-phases/:id", requireAuth, async (req, res) => {
+    try {
+      const phase = await storage.updateCqiCyclePhase(req.params.id, req.body);
+      res.json(phase);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update cycle phase" });
+    }
+  });
+
+  app.get("/api/cqi/cycles/:cycleId/outcomes", requireAuth, async (req, res) => {
+    try {
+      const outcomes = await storage.getCqiOutcomes(req.params.cycleId);
+      res.json(outcomes);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch outcomes" });
+    }
+  });
+
+  app.post("/api/cqi/outcomes", requireAuth, async (req, res) => {
+    try {
+      const outcome = await storage.createCqiOutcome(req.body);
+      res.json(outcome);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create outcome" });
+    }
+  });
+
+  app.patch("/api/cqi/outcomes/:id", requireAuth, async (req, res) => {
+    try {
+      const outcome = await storage.updateCqiOutcome(req.params.id, req.body);
+      res.json(outcome);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update outcome" });
+    }
+  });
+
+  app.delete("/api/cqi/outcomes/:id", requireAuth, async (req, res) => {
+    try {
+      await storage.deleteCqiOutcome(req.params.id);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete outcome" });
+    }
+  });
+
+  app.get("/api/cqi/report/:cycleId", requireAuth, async (req, res) => {
+    try {
+      const cycle = await storage.getCqiCycle(req.params.cycleId);
+      if (!cycle) return res.status(404).json({ error: "Cycle not found" });
+      const gaps = await storage.getCqiGaps(req.params.cycleId);
+      const interventions = await storage.getCqiInterventions(req.params.cycleId);
+      const outcomes = await storage.getCqiOutcomes(req.params.cycleId);
+      const fidelityDefs = await storage.getCqiFidelityDefinitions(req.params.cycleId);
+      const fidelityData: Record<string, CqiFidelityObservation[]> = {};
+      for (const def of fidelityDefs) {
+        fidelityData[def.id] = await storage.getCqiFidelityObservations(def.id);
+      }
+      const phaseHistory = await storage.getCqiCyclePhases(req.params.cycleId);
+      res.json({ cycle, gaps, interventions, outcomes, fidelityDefinitions: fidelityDefs, fidelityObservations: fidelityData, phaseHistory });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to generate report" });
     }
   });
 

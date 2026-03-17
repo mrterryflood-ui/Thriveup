@@ -2108,6 +2108,127 @@ export const wellnessResources = pgTable("wellness_resources", {
 export const insertWellnessResourceSchema = createInsertSchema(wellnessResources).omit({ id: true, createdAt: true });
 export type InsertWellnessResource = z.infer<typeof insertWellnessResourceSchema>;
 export type WellnessResource = typeof wellnessResources.$inferSelect;
+// ==================== MAP-GAP CQI ENGINE ====================
+
+export const cqiCycles = pgTable("cqi_cycles", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  title: text("title").notNull(),
+  description: text("description"),
+  programArea: text("program_area").notNull(),
+  phase: text("phase").notNull().default("map"),
+  status: text("status").notNull().default("active"),
+  createdBy: varchar("created_by", { length: 255 }),
+  createdByName: text("created_by_name"),
+  startDate: text("start_date"),
+  targetEndDate: text("target_end_date"),
+  actualEndDate: text("actual_end_date"),
+  baselineMetrics: jsonb("baseline_metrics"),
+  targetMetrics: jsonb("target_metrics"),
+  actualMetrics: jsonb("actual_metrics"),
+  lessonsLearned: text("lessons_learned"),
+  framework: text("framework"),
+  frameworkData: jsonb("framework_data"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertCqiCycleSchema = createInsertSchema(cqiCycles).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertCqiCycle = z.infer<typeof insertCqiCycleSchema>;
+export type CqiCycle = typeof cqiCycles.$inferSelect;
+
+export const cqiGaps = pgTable("cqi_gaps", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  cycleId: varchar("cycle_id", { length: 100 }).notNull(),
+  title: text("title").notNull(),
+  description: text("description"),
+  domain: text("domain").notNull(),
+  severity: text("severity").notNull().default("medium"),
+  currentState: text("current_state"),
+  desiredState: text("desired_state"),
+  rootCause: text("root_cause"),
+  status: text("status").notNull().default("identified"),
+  identifiedBy: varchar("identified_by", { length: 255 }),
+  identifiedByName: text("identified_by_name"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertCqiGapSchema = createInsertSchema(cqiGaps).omit({ id: true, createdAt: true });
+export type InsertCqiGap = z.infer<typeof insertCqiGapSchema>;
+export type CqiGap = typeof cqiGaps.$inferSelect;
+
+export const cqiInterventions = pgTable("cqi_interventions", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  cycleId: varchar("cycle_id", { length: 100 }).notNull(),
+  gapId: varchar("gap_id", { length: 100 }),
+  title: text("title").notNull(),
+  description: text("description"),
+  responsibleStaff: text("responsible_staff"),
+  responsibleStaffId: varchar("responsible_staff_id", { length: 255 }),
+  targetMetric: text("target_metric"),
+  targetValue: text("target_value"),
+  actualValue: text("actual_value"),
+  status: text("status").notNull().default("planned"),
+  startDate: text("start_date"),
+  dueDate: text("due_date"),
+  completedDate: text("completed_date"),
+  notes: text("notes"),
+  framework: text("framework"),
+  frameworkConstruct: text("framework_construct"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertCqiInterventionSchema = createInsertSchema(cqiInterventions).omit({ id: true, createdAt: true });
+export type InsertCqiIntervention = z.infer<typeof insertCqiInterventionSchema>;
+export type CqiIntervention = typeof cqiInterventions.$inferSelect;
+
+export const cqiFidelityDefinitions = pgTable("cqi_fidelity_definitions", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  cycleId: varchar("cycle_id", { length: 100 }),
+  activityName: text("activity_name").notNull(),
+  description: text("description"),
+  expectedFrequency: text("expected_frequency").notNull(),
+  frequencyUnit: text("frequency_unit").notNull().default("weekly"),
+  programArea: text("program_area"),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertCqiFidelityDefinitionSchema = createInsertSchema(cqiFidelityDefinitions).omit({ id: true, createdAt: true });
+export type InsertCqiFidelityDefinition = z.infer<typeof insertCqiFidelityDefinitionSchema>;
+export type CqiFidelityDefinition = typeof cqiFidelityDefinitions.$inferSelect;
+
+export const cqiFidelityObservations = pgTable("cqi_fidelity_observations", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  definitionId: varchar("definition_id", { length: 100 }).notNull(),
+  observedDate: text("observed_date").notNull(),
+  wasCompleted: boolean("was_completed").notNull().default(true),
+  observedBy: varchar("observed_by", { length: 255 }),
+  observedByName: text("observed_by_name"),
+  notes: text("notes"),
+  qualityScore: integer("quality_score"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertCqiFidelityObservationSchema = createInsertSchema(cqiFidelityObservations).omit({ id: true, createdAt: true });
+export type InsertCqiFidelityObservation = z.infer<typeof insertCqiFidelityObservationSchema>;
+export type CqiFidelityObservation = typeof cqiFidelityObservations.$inferSelect;
+
+export const cqiOutcomes = pgTable("cqi_outcomes", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  cycleId: varchar("cycle_id", { length: 100 }).notNull(),
+  outcomeType: text("outcome_type").notNull(),
+  metricName: text("metric_name").notNull(),
+  baselineValue: text("baseline_value"),
+  targetValue: text("target_value"),
+  actualValue: text("actual_value"),
+  measurementDate: text("measurement_date"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertCqiOutcomeSchema = createInsertSchema(cqiOutcomes).omit({ id: true, createdAt: true });
+export type InsertCqiOutcome = z.infer<typeof insertCqiOutcomeSchema>;
+export type CqiOutcome = typeof cqiOutcomes.$inferSelect;
 
 // ==================== PILOT DATA & DOSAGE TRACKING ====================
 
@@ -2506,5 +2627,19 @@ export const onboardingBaselineSnapshots = pgTable("onboarding_baseline_snapshot
 export const insertOnboardingBaselineSnapshotSchema = createInsertSchema(onboardingBaselineSnapshots).omit({ id: true, capturedAt: true });
 export type InsertOnboardingBaselineSnapshot = z.infer<typeof insertOnboardingBaselineSnapshotSchema>;
 export type OnboardingBaselineSnapshot = typeof onboardingBaselineSnapshots.$inferSelect;
+
+export const cqiCyclePhases = pgTable("cqi_cycle_phases", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  cycleId: varchar("cycle_id", { length: 100 }).notNull(),
+  phase: text("phase").notNull(),
+  enteredAt: timestamp("entered_at").defaultNow(),
+  exitedAt: timestamp("exited_at"),
+  notes: text("notes"),
+  enteredBy: text("entered_by"),
+});
+
+export const insertCqiCyclePhaseSchema = createInsertSchema(cqiCyclePhases).omit({ id: true });
+export type InsertCqiCyclePhase = z.infer<typeof insertCqiCyclePhaseSchema>;
+export type CqiCyclePhase = typeof cqiCyclePhases.$inferSelect;
 
 export * from "./models/auth";

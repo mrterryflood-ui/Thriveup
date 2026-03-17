@@ -104,6 +104,7 @@ const CoalitionPage = lazy(() => import("@/pages/coalition"));
 const ParentEducationPage = lazy(() => import("@/pages/parent-education"));
 const MyJourneyPage = lazy(() => import("@/pages/my-journey"));
 const CohortOnboardingPage = lazy(() => import("@/pages/cohort-onboarding"));
+const MapGapCqiPage = lazy(() => import("@/pages/map-gap-cqi"));
 
 function PageFallback() {
   return (
@@ -227,6 +228,7 @@ function AppRouter() {
       <Route path="/parent-education" component={ParentEducationPage} />
       <Route path="/my-journey" component={MyJourneyPage} />
       <Route path="/cohort-onboarding" component={CohortOnboardingPage} />
+      <Route path="/cqi" component={MapGapCqiPage} />
       <Route component={NotFound} />
     </Switch>
   );

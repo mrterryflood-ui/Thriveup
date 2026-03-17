@@ -71,6 +71,16 @@ import {
   type OnboardingJourney, type InsertOnboardingJourney,
   type OnboardingMilestoneCompletion, type InsertOnboardingMilestoneCompletion,
   type OnboardingBaselineSnapshot, type InsertOnboardingBaselineSnapshot,
+  cqiCycles, cqiGaps, cqiInterventions, cqiFidelityDefinitions, cqiFidelityObservations, cqiOutcomes,
+
+  cqiCycles, cqiGaps, cqiInterventions, cqiFidelityDefinitions, cqiFidelityObservations, cqiOutcomes, cqiCyclePhases,
+  type CqiCycle, type InsertCqiCycle,
+  type CqiGap, type InsertCqiGap,
+  type CqiIntervention, type InsertCqiIntervention,
+  type CqiFidelityDefinition, type InsertCqiFidelityDefinition,
+  type CqiFidelityObservation, type InsertCqiFidelityObservation,
+  type CqiOutcome, type InsertCqiOutcome,
+  type CqiCyclePhase, type InsertCqiCyclePhase,
 } from "@shared/schema";
 import { eq, and, desc, sql, inArray, isNull, gte } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
@@ -330,6 +340,41 @@ export interface IStorage {
   createMilestoneCompletion(data: InsertOnboardingMilestoneCompletion): Promise<OnboardingMilestoneCompletion>;
   getBaselineSnapshots(journeyId: string): Promise<OnboardingBaselineSnapshot[]>;
   createBaselineSnapshot(data: InsertOnboardingBaselineSnapshot): Promise<OnboardingBaselineSnapshot>;
+  // CQI Engine
+  getCqiCycles(): Promise<CqiCycle[]>;
+  getCqiCycle(id: string): Promise<CqiCycle | undefined>;
+  createCqiCycle(data: InsertCqiCycle): Promise<CqiCycle>;
+  updateCqiCycle(id: string, data: Partial<InsertCqiCycle>): Promise<CqiCycle>;
+  deleteCqiCycle(id: string): Promise<void>;
+
+  getCqiGaps(cycleId: string): Promise<CqiGap[]>;
+  createCqiGap(data: InsertCqiGap): Promise<CqiGap>;
+  updateCqiGap(id: string, data: Partial<InsertCqiGap>): Promise<CqiGap>;
+  deleteCqiGap(id: string): Promise<void>;
+
+  getCqiInterventions(cycleId: string): Promise<CqiIntervention[]>;
+  createCqiIntervention(data: InsertCqiIntervention): Promise<CqiIntervention>;
+  updateCqiIntervention(id: string, data: Partial<InsertCqiIntervention>): Promise<CqiIntervention>;
+  deleteCqiIntervention(id: string): Promise<void>;
+
+  getCqiFidelityDefinitions(cycleId?: string): Promise<CqiFidelityDefinition[]>;
+  createCqiFidelityDefinition(data: InsertCqiFidelityDefinition): Promise<CqiFidelityDefinition>;
+  updateCqiFidelityDefinition(id: string, data: Partial<InsertCqiFidelityDefinition>): Promise<CqiFidelityDefinition>;
+  deleteCqiFidelityDefinition(id: string): Promise<void>;
+
+  getCqiFidelityObservations(definitionId: string): Promise<CqiFidelityObservation[]>;
+  createCqiFidelityObservation(data: InsertCqiFidelityObservation): Promise<CqiFidelityObservation>;
+  updateCqiFidelityObservation(id: string, data: Partial<InsertCqiFidelityObservation>): Promise<CqiFidelityObservation>;
+  deleteCqiFidelityObservation(id: string): Promise<void>;
+
+  getCqiCyclePhases(cycleId: string): Promise<CqiCyclePhase[]>;
+  createCqiCyclePhase(data: InsertCqiCyclePhase): Promise<CqiCyclePhase>;
+  updateCqiCyclePhase(id: string, data: Partial<InsertCqiCyclePhase>): Promise<CqiCyclePhase>;
+
+  getCqiOutcomes(cycleId: string): Promise<CqiOutcome[]>;
+  createCqiOutcome(data: InsertCqiOutcome): Promise<CqiOutcome>;
+  updateCqiOutcome(id: string, data: Partial<InsertCqiOutcome>): Promise<CqiOutcome>;
+  deleteCqiOutcome(id: string): Promise<void>;
 
   seedData(): Promise<void>;
 }
@@ -1552,6 +1597,144 @@ export class DatabaseStorage implements IStorage {
   async createBaselineSnapshot(data: InsertOnboardingBaselineSnapshot): Promise<OnboardingBaselineSnapshot> {
     const [s] = await db.insert(onboardingBaselineSnapshots).values(data).returning();
     return s;
+  async getCqiCycles(): Promise<CqiCycle[]> {
+    return db.select().from(cqiCycles).orderBy(desc(cqiCycles.createdAt));
+  }
+
+  async getCqiCycle(id: string): Promise<CqiCycle | undefined> {
+    const [cycle] = await db.select().from(cqiCycles).where(eq(cqiCycles.id, id));
+    return cycle;
+  }
+
+  async createCqiCycle(data: InsertCqiCycle): Promise<CqiCycle> {
+    const [cycle] = await db.insert(cqiCycles).values(data).returning();
+    return cycle;
+  }
+
+  async updateCqiCycle(id: string, data: Partial<InsertCqiCycle>): Promise<CqiCycle> {
+    const [cycle] = await db.update(cqiCycles).set({ ...data, updatedAt: new Date() }).where(eq(cqiCycles.id, id)).returning();
+    return cycle;
+  }
+
+  async deleteCqiCycle(id: string): Promise<void> {
+    const defs = await db.select().from(cqiFidelityDefinitions).where(eq(cqiFidelityDefinitions.cycleId, id));
+    for (const def of defs) {
+      await db.delete(cqiFidelityObservations).where(eq(cqiFidelityObservations.definitionId, def.id));
+    }
+    await db.delete(cqiFidelityDefinitions).where(eq(cqiFidelityDefinitions.cycleId, id));
+    await db.delete(cqiOutcomes).where(eq(cqiOutcomes.cycleId, id));
+    await db.delete(cqiInterventions).where(eq(cqiInterventions.cycleId, id));
+    await db.delete(cqiGaps).where(eq(cqiGaps.cycleId, id));
+    await db.delete(cqiCyclePhases).where(eq(cqiCyclePhases.cycleId, id));
+    await db.delete(cqiCycles).where(eq(cqiCycles.id, id));
+  }
+
+  async getCqiGaps(cycleId: string): Promise<CqiGap[]> {
+    return db.select().from(cqiGaps).where(eq(cqiGaps.cycleId, cycleId)).orderBy(desc(cqiGaps.createdAt));
+  }
+
+  async createCqiGap(data: InsertCqiGap): Promise<CqiGap> {
+    const [gap] = await db.insert(cqiGaps).values(data).returning();
+    return gap;
+  }
+
+  async updateCqiGap(id: string, data: Partial<InsertCqiGap>): Promise<CqiGap> {
+    const [gap] = await db.update(cqiGaps).set(data).where(eq(cqiGaps.id, id)).returning();
+    return gap;
+  }
+
+  async deleteCqiGap(id: string): Promise<void> {
+    await db.delete(cqiGaps).where(eq(cqiGaps.id, id));
+  }
+
+  async getCqiInterventions(cycleId: string): Promise<CqiIntervention[]> {
+    return db.select().from(cqiInterventions).where(eq(cqiInterventions.cycleId, cycleId)).orderBy(desc(cqiInterventions.createdAt));
+  }
+
+  async createCqiIntervention(data: InsertCqiIntervention): Promise<CqiIntervention> {
+    const [intervention] = await db.insert(cqiInterventions).values(data).returning();
+    return intervention;
+  }
+
+  async updateCqiIntervention(id: string, data: Partial<InsertCqiIntervention>): Promise<CqiIntervention> {
+    const [intervention] = await db.update(cqiInterventions).set(data).where(eq(cqiInterventions.id, id)).returning();
+    return intervention;
+  }
+
+  async deleteCqiIntervention(id: string): Promise<void> {
+    await db.delete(cqiInterventions).where(eq(cqiInterventions.id, id));
+  }
+
+  async getCqiFidelityDefinitions(cycleId?: string): Promise<CqiFidelityDefinition[]> {
+    if (cycleId) {
+      return db.select().from(cqiFidelityDefinitions).where(eq(cqiFidelityDefinitions.cycleId, cycleId)).orderBy(cqiFidelityDefinitions.activityName);
+    }
+    return db.select().from(cqiFidelityDefinitions).orderBy(cqiFidelityDefinitions.activityName);
+  }
+
+  async createCqiFidelityDefinition(data: InsertCqiFidelityDefinition): Promise<CqiFidelityDefinition> {
+    const [def] = await db.insert(cqiFidelityDefinitions).values(data).returning();
+    return def;
+  }
+
+  async updateCqiFidelityDefinition(id: string, data: Partial<InsertCqiFidelityDefinition>): Promise<CqiFidelityDefinition> {
+    const [def] = await db.update(cqiFidelityDefinitions).set(data).where(eq(cqiFidelityDefinitions.id, id)).returning();
+    return def;
+  }
+
+  async deleteCqiFidelityDefinition(id: string): Promise<void> {
+    await db.delete(cqiFidelityObservations).where(eq(cqiFidelityObservations.definitionId, id));
+    await db.delete(cqiFidelityDefinitions).where(eq(cqiFidelityDefinitions.id, id));
+  }
+
+  async getCqiFidelityObservations(definitionId: string): Promise<CqiFidelityObservation[]> {
+    return db.select().from(cqiFidelityObservations).where(eq(cqiFidelityObservations.definitionId, definitionId)).orderBy(desc(cqiFidelityObservations.observedDate));
+  }
+
+  async createCqiFidelityObservation(data: InsertCqiFidelityObservation): Promise<CqiFidelityObservation> {
+    const [obs] = await db.insert(cqiFidelityObservations).values(data).returning();
+    return obs;
+  }
+
+  async updateCqiFidelityObservation(id: string, data: Partial<InsertCqiFidelityObservation>): Promise<CqiFidelityObservation> {
+    const [obs] = await db.update(cqiFidelityObservations).set(data).where(eq(cqiFidelityObservations.id, id)).returning();
+    return obs;
+  }
+
+  async deleteCqiFidelityObservation(id: string): Promise<void> {
+    await db.delete(cqiFidelityObservations).where(eq(cqiFidelityObservations.id, id));
+  }
+
+  async getCqiCyclePhases(cycleId: string): Promise<CqiCyclePhase[]> {
+    return db.select().from(cqiCyclePhases).where(eq(cqiCyclePhases.cycleId, cycleId)).orderBy(cqiCyclePhases.enteredAt);
+  }
+
+  async createCqiCyclePhase(data: InsertCqiCyclePhase): Promise<CqiCyclePhase> {
+    const [phase] = await db.insert(cqiCyclePhases).values(data).returning();
+    return phase;
+  }
+
+  async updateCqiCyclePhase(id: string, data: Partial<InsertCqiCyclePhase>): Promise<CqiCyclePhase> {
+    const [phase] = await db.update(cqiCyclePhases).set(data).where(eq(cqiCyclePhases.id, id)).returning();
+    return phase;
+  }
+
+  async getCqiOutcomes(cycleId: string): Promise<CqiOutcome[]> {
+    return db.select().from(cqiOutcomes).where(eq(cqiOutcomes.cycleId, cycleId)).orderBy(desc(cqiOutcomes.createdAt));
+  }
+
+  async createCqiOutcome(data: InsertCqiOutcome): Promise<CqiOutcome> {
+    const [outcome] = await db.insert(cqiOutcomes).values(data).returning();
+    return outcome;
+  }
+
+  async updateCqiOutcome(id: string, data: Partial<InsertCqiOutcome>): Promise<CqiOutcome> {
+    const [outcome] = await db.update(cqiOutcomes).set(data).where(eq(cqiOutcomes.id, id)).returning();
+    return outcome;
+  }
+
+  async deleteCqiOutcome(id: string): Promise<void> {
+    await db.delete(cqiOutcomes).where(eq(cqiOutcomes.id, id));
   }
 }
 

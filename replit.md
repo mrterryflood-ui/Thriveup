@@ -33,6 +33,9 @@ Core architectural components and features include:
 - **LMS Course Creator:** An administrative tool for managing courses, modules, and lessons.
 - **Accessibility & Responsiveness:** WCAG 2.1 AA compliance with dyslexia-friendly fonts, high contrast, reduced motion, and screen reader optimization, alongside mobile responsiveness.
 - **Design System:** Violet/indigo branding with Plus Jakarta Sans and JetBrains Mono fonts, supporting dark mode.
+- **Financial Literacy & Workforce Development:** Financial literacy courses, stock market simulation, entrepreneurship training, and fundraising.
+- **Sankofa Health Network Integration:** Health & Wellness hub (`/health-wellness`) with behavioral health self-assessments, wellness content library organized by Sankofa product lines (Mental Wellness, HerHealth, HealthyBlackMen, BirthRight, MCE), health resource recommendations integrated with GIS community intelligence, and health engagement data feeding into Thrive scoring (Wellbeing domain). API gateway architecture in `server/sankofa-gateway.ts` designed for future Sankofa API swap. Database tables: `health_assessments`, `health_screening_results`, `wellness_resources`. Routes at `/api/health/*`.
+- **MAP-GAP CQI Engine:** Continuous Quality Improvement engine at `/cqi` with 5-phase cycle management (Observe → Prioritize → Act → Check → Standardize), gap/intervention/fidelity/outcome CRUD, frequency-aware fidelity adherence scoring (daily/weekly/biweekly/monthly/quarterly), composite system health scoring, trend visualization with phase distribution and program area breakdown, cycle phase transition history tracking, and PDF/CSV/JSON report export. All 28 routes use `requireAuth` with `createdBy` enforcement. Database tables: `cqi_cycles`, `cqi_gaps`, `cqi_interventions`, `cqi_fidelity_definitions`, `cqi_fidelity_observations`, `cqi_outcomes`, `cqi_cycle_phases`. Routes at `/api/cqi/*`.
 - **Internationalization (i18n):** Supports English and Spanish.
 - **TX STAAR Test Prep:** Provides grade-level study guides aligned to TEKS, gamified for engagement.
 - **Stakeholder Presentation:** An interactive 21-slide presentation at `/presentation` for showcasing platform features and impact.
@@ -61,3 +64,16 @@ Core architectural components and features include:
 - **Routing:** wouter.
 - **Icons:** lucide-react.
 - **Cross-Platform Integration:** Student Support Portal (ISSS).
+
+## MAP-GAP CQI Engine
+A continuous quality improvement (CQI) engine at `/cqi` implementing the MAP-GAP methodology: Map current state, Analyze gaps, Plan improvements, Execute interventions, and Reassess outcomes. Features include:
+- **Cycle Management:** Create, track, and close improvement cycles with phase progression tracking
+- **Gap Identification:** Document gaps with severity, domain, current/desired states, and root cause analysis
+- **Intervention Planning:** Plan and track interventions with staff assignments, target metrics, and implementation framework alignment (CFIR, RE-AIM)
+- **Fidelity Monitoring:** Define expected program activities, log observations, and calculate adherence scores
+- **Outcome Tracking:** Record baseline, target, and actual outcome metrics
+- **Report Export:** Export CQI reports as CSV or JSON for grant compliance sections
+- **Sidebar:** Located under "Grant Engine" section
+- Database tables: `cqi_cycles`, `cqi_gaps`, `cqi_interventions`, `cqi_fidelity_definitions`, `cqi_fidelity_observations`, `cqi_outcomes`
+- API routes at `/api/cqi/*` in `server/routes.ts`
+- Frontend page: `client/src/pages/map-gap-cqi.tsx`
