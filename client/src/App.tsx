@@ -122,6 +122,7 @@ const EcosystemStoryPage = lazy(() => import("@/pages/ecosystem-story"));
 const ProgramManagementPage = lazy(() => import("@/pages/program-management"));
 const ContactPage = lazy(() => import("@/pages/contact"));
 const BusinessPlanPage = lazy(() => import("@/pages/business-plan"));
+const ApexAcceleratorsPage = lazy(() => import("@/pages/apex-accelerators"));
 
 function PageFallback() {
   return (
@@ -263,6 +264,7 @@ function AppRouter() {
       <Route path="/program-management" component={ProgramManagementPage} />
       <Route path="/contact" component={ContactPage} />
       <Route path="/business-plan" component={BusinessPlanPage} />
+      <Route path="/apex-accelerators" component={ApexAcceleratorsPage} />
       <Route component={NotFound} />
     </Switch>
   );

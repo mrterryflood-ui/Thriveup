@@ -76,6 +76,7 @@ Core architectural features include:
 - **Platform:** sisnett.meredith@gmail.com (Meredith Sisnett)
 
 ## Key Routes Added (Latest)
+- `/apex-accelerators` — APEX Accelerators (DoD) integration page: center locator, 8 service cards, ecosystem pipeline bridges, 4-step contracting journey, FAQ, cross-links to apexaccelerators.us
 - `/business-plan` — Comprehensive shareable business plan: ecosystem overview, MVV, cradle-to-contract pipeline, competitive advantages, funding strategy, 12 live platform capability links, leadership, CTA
 - `/program-management` — Post-award grant execution suite (7 tabs)
 - `/facilitator-hub` — Curriculum delivery & facilitator tools (5 tabs)

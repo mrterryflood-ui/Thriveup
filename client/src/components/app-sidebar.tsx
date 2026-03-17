@@ -31,7 +31,7 @@ import {
   PenLine, Megaphone, Calendar, HelpCircle, ClipboardList, Printer, Link2,
   MessageCircle, MapPin, Presentation, Scale, FileBarChart, LayoutDashboard,
   Info, BookMarked,
-  Mail,
+  Mail, Landmark,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -87,6 +87,7 @@ const grantEngineItems: NavItem[] = [
   { title: "Outcome Reporting", url: "/outcomes", icon: FileBarChart },
   { title: "Stakeholder Deck", url: "/presentation", icon: Presentation },
   { title: "Platform Metrics", url: "/platform-metrics", icon: BarChart3 },
+  { title: "APEX Accelerators", url: "/apex-accelerators", icon: Landmark },
 ];
 
 const aiToolsItems: NavItem[] = [
