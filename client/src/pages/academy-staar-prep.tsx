@@ -210,29 +210,33 @@ export default function AcademyStaarPrepPage() {
     setCurrentFunFact(getRandomItem(facts));
   }, [selectedSubject, selectedGradeIdx]);
 
-  const { data: guides = [], isLoading: guidesLoading, error: guidesError, refetch: refetchGuides } = useQuery<any[]>({
+  const { data: rawGuides, isLoading: guidesLoading, error: guidesError, refetch: refetchGuides } = useQuery<any[]>({
     queryKey: ["/api/staar/guides", currentGrade, selectedSubject],
     queryFn: () => fetch(`/api/staar/guides?grade=${currentGrade}&subject=${encodeURIComponent(selectedSubject)}`).then(r => r.json()),
   });
+  const guides = rawGuides ?? [];
 
-  const { data: questions = [], isLoading: questionsLoading } = useQuery<any[]>({
+  const { data: rawQuestions, isLoading: questionsLoading } = useQuery<any[]>({
     queryKey: ["/api/staar/questions", currentGrade, selectedSubject],
     queryFn: () => fetch(`/api/staar/questions?grade=${currentGrade}&subject=${encodeURIComponent(selectedSubject)}`).then(r => r.json()),
     enabled: activeTab === "practice",
   });
+  const questions = rawQuestions ?? [];
 
-  const { data: masteryRaw = [] } = useQuery<any[]>({
+  const { data: rawMasteryRaw } = useQuery<any[]>({
     queryKey: ["/api/staar/mastery", currentGrade, selectedSubject],
     queryFn: () => fetch(`/api/staar/mastery?grade=${currentGrade}&subject=${encodeURIComponent(selectedSubject)}`).then(r => r.json()),
     enabled: activeTab === "progress",
   });
+  const masteryRaw = rawMasteryRaw ?? [];
   const mastery = Array.isArray(masteryRaw) ? masteryRaw : [];
 
-  const { data: assessmentHistoryRaw = [] } = useQuery<any[]>({
+  const { data: rawAssessmentHistoryRaw } = useQuery<any[]>({
     queryKey: ["/api/staar/assessments", currentGrade, selectedSubject],
     queryFn: () => fetch(`/api/staar/assessments?grade=${currentGrade}&subject=${encodeURIComponent(selectedSubject)}`).then(r => r.json()),
     enabled: activeTab === "progress",
   });
+  const assessmentHistoryRaw = rawAssessmentHistoryRaw ?? [];
   const assessmentHistory = Array.isArray(assessmentHistoryRaw) ? assessmentHistoryRaw : [];
 
   const submitAssessment = useMutation({

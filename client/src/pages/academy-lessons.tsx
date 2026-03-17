@@ -82,9 +82,10 @@ export default function AcademyLessonsPage() {
 
   const [activeFilter, setActiveFilter] = useState("all");
 
-  const { data: lessons = [], isLoading, error, refetch } = useQuery<LifeLesson[]>({
+  const { data: rawLessons, isLoading, error, refetch } = useQuery<LifeLesson[]>({
     queryKey: ["/api/academy/life-lessons"],
   });
+  const lessons = rawLessons ?? [];
 
   if (isLoading) {
     return <LoadingSkeleton />;

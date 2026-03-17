@@ -65,8 +65,10 @@ export default function AdvisoryBoardPage() {
     title: "", meetingDate: "", location: "", agenda: "", decisions: "", actionItems: "",
   });
 
-  const { data: members = [] } = useQuery<BoardMember[]>({ queryKey: ["/api/advisory-board/members"] });
-  const { data: meetings = [] } = useQuery<BoardMeeting[]>({ queryKey: ["/api/advisory-board/meetings"] });
+  const { data: rawMembers } = useQuery<BoardMember[]>({ queryKey: ["/api/advisory-board/members"] });
+  const members = rawMembers ?? [];
+  const { data: rawMeetings } = useQuery<BoardMeeting[]>({ queryKey: ["/api/advisory-board/meetings"] });
+  const meetings = rawMeetings ?? [];
 
   const createMemberMutation = useMutation({
     mutationFn: async (data: Record<string, unknown>) => {

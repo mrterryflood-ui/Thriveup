@@ -97,9 +97,10 @@ export default function AIToolsWorkspacePage() {
 
   const toolsQueryKey = isAdult ? "/api/ai-tools?mode=adult" : "/api/ai-tools";
 
-  const { data: rawTools = [], error: toolsError, refetch: refetchTools } = useQuery<Tool[]>({
+  const { data: rawToolsData, error: toolsError, refetch: refetchTools } = useQuery<Tool[]>({
     queryKey: [toolsQueryKey],
   });
+  const rawTools = rawToolsData ?? [];
 
   const tools = useMemo(() => {
     if (isAdult) {
@@ -108,9 +109,10 @@ export default function AIToolsWorkspacePage() {
     return rawTools;
   }, [rawTools, isAdult]);
 
-  const { data: projects = [], refetch: refetchProjects } = useQuery<Project[]>({
+  const { data: rawProjects, refetch: refetchProjects } = useQuery<Project[]>({
     queryKey: ["/api/ai-tools/projects"],
   });
+  const projects = rawProjects ?? [];
 
   const currentTool = tools.find((t: Tool) => t.toolKey === toolKey);
   const toolProjects = projects.filter((p: Project) => currentTool && p.toolId === currentTool.id);

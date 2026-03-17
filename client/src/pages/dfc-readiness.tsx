@@ -118,15 +118,18 @@ export default function DfcReadinessPage() {
   const { data: dashboard, isLoading: dashLoading } = useQuery<DashboardData>({
     queryKey: ["/api/dfc-readiness/dashboard"],
   });
-  const { data: readinessItems = [] } = useQuery<DfcReadinessItem[]>({
+  const { data: rawReadinessItems } = useQuery<DfcReadinessItem[]>({
     queryKey: ["/api/dfc-readiness/items"],
   });
-  const { data: campaigns = [] } = useQuery<MediaCampaign[]>({
+  const readinessItems = rawReadinessItems ?? [];
+  const { data: rawCampaigns } = useQuery<MediaCampaign[]>({
     queryKey: ["/api/media-campaigns"],
   });
-  const { data: commitments = [] } = useQuery<StakeholderCommitment[]>({
+  const campaigns = rawCampaigns ?? [];
+  const { data: rawCommitments } = useQuery<StakeholderCommitment[]>({
     queryKey: ["/api/stakeholder-commitments"],
   });
+  const commitments = rawCommitments ?? [];
 
   const invalidateAll = () => {
     queryClient.invalidateQueries({ queryKey: ["/api/dfc-readiness/dashboard"] });

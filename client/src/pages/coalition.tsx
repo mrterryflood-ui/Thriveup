@@ -68,7 +68,8 @@ export default function CoalitionPage() {
   const [costData, setCostData] = useState({ coalitionId: "", contributorName: "", contributionType: "cash", description: "", dollarValue: "", hoursContributed: "", dateRecorded: "" });
   const [assessmentData, setAssessmentData] = useState({ coalitionId: "", organizationalCapacity: 50, leadershipEffectiveness: 50, substanceAbuseKnowledge: 50, communityEngagement: 50 });
 
-  const { data: allCoalitions = [], isLoading: coalitionsLoading } = useQuery<Coalition[]>({ queryKey: ["/api/coalitions"] });
+  const { data: rawAllCoalitions, isLoading: coalitionsLoading } = useQuery<Coalition[]>({ queryKey: ["/api/coalitions"] });
+  const allCoalitions = rawAllCoalitions ?? [];
 
   useEffect(() => {
     if (allCoalitions.length > 0 && !coalitionId) {
@@ -80,34 +81,41 @@ export default function CoalitionPage() {
     queryKey: ["/api/coalitions", coalitionId, "dashboard"],
     enabled: !!coalitionId,
   });
-  const { data: sectors = [] } = useQuery<CoalitionSector[]>({
+  const { data: rawSectors } = useQuery<CoalitionSector[]>({
     queryKey: ["/api/coalitions", coalitionId, "sectors"],
     enabled: !!coalitionId,
   });
-  const { data: members = [] } = useQuery<CoalitionMember[]>({
+  const sectors = rawSectors ?? [];
+  const { data: rawMembers } = useQuery<CoalitionMember[]>({
     queryKey: ["/api/coalitions", coalitionId, "members"],
     enabled: !!coalitionId,
   });
-  const { data: meetings = [] } = useQuery<CoalitionMeeting[]>({
+  const members = rawMembers ?? [];
+  const { data: rawMeetings } = useQuery<CoalitionMeeting[]>({
     queryKey: ["/api/coalitions", coalitionId, "meetings"],
     enabled: !!coalitionId,
   });
-  const { data: actionItems = [] } = useQuery<CoalitionActionItem[]>({
+  const meetings = rawMeetings ?? [];
+  const { data: rawActionItems } = useQuery<CoalitionActionItem[]>({
     queryKey: ["/api/coalitions", coalitionId, "action-items"],
     enabled: !!coalitionId,
   });
-  const { data: assessments = [] } = useQuery<CoalitionCapacityAssessment[]>({
+  const actionItems = rawActionItems ?? [];
+  const { data: rawAssessments } = useQuery<CoalitionCapacityAssessment[]>({
     queryKey: ["/api/coalitions", coalitionId, "capacity-assessments"],
     enabled: !!coalitionId,
   });
-  const { data: plans = [] } = useQuery<CommunityActionPlan[]>({
+  const assessments = rawAssessments ?? [];
+  const { data: rawPlans } = useQuery<CommunityActionPlan[]>({
     queryKey: ["/api/coalitions", coalitionId, "action-plans"],
     enabled: !!coalitionId,
   });
-  const { data: costRecords = [] } = useQuery<CostMatchRecord[]>({
+  const plans = rawPlans ?? [];
+  const { data: rawCostRecords } = useQuery<CostMatchRecord[]>({
     queryKey: ["/api/coalitions", coalitionId, "cost-match"],
     enabled: !!coalitionId,
   });
+  const costRecords = rawCostRecords ?? [];
 
   const invalidateAll = () => {
     if (!coalitionId) return;

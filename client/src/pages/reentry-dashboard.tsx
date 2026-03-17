@@ -54,7 +54,8 @@ export default function ReentryDashboard() {
   const [formData, setFormData] = useState({ userId: "", userName: "", phase: "pre_release", riskLevel: "medium", notes: "" });
 
   const { data: dashboard } = useQuery<DashboardData>({ queryKey: ["/api/reentry/dashboard"] });
-  const { data: plans = [], isLoading, error: plansError, refetch: refetchPlans } = useQuery<ReentryPlan[]>({ queryKey: ["/api/reentry/plans"] });
+  const { data: rawPlans, isLoading, error: plansError, refetch: refetchPlans } = useQuery<ReentryPlan[]>({ queryKey: ["/api/reentry/plans"] });
+  const plans = rawPlans ?? [];
 
   const { data: planDetail } = useQuery<PlanDetail>({
     queryKey: ["/api/reentry/plans", selectedPlan],

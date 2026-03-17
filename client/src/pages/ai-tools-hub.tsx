@@ -125,9 +125,10 @@ export default function AIToolsHubPage() {
 
   const toolsQueryKey = isAdult ? "/api/ai-tools?mode=adult" : "/api/ai-tools";
 
-  const { data: rawTools = [], isLoading: toolsLoading, error: toolsError, refetch: refetchTools } = useQuery<Tool[]>({
+  const { data: rawToolsData, isLoading: toolsLoading, error: toolsError, refetch: refetchTools } = useQuery<Tool[]>({
     queryKey: [toolsQueryKey],
   });
+  const rawTools = rawToolsData ?? [];
 
   const tools = useMemo(() => {
     if (isAdult) {
@@ -136,9 +137,10 @@ export default function AIToolsHubPage() {
     return rawTools;
   }, [rawTools, isAdult]);
 
-  const { data: modules = [], isLoading: modulesLoading } = useQuery<Module[]>({
+  const { data: rawModules, isLoading: modulesLoading } = useQuery<Module[]>({
     queryKey: ["/api/ai-tools/modules"],
   });
+  const modules = rawModules ?? [];
 
   const completeMutation = useMutation({
     mutationFn: async (moduleKey: string) => {

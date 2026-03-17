@@ -126,14 +126,17 @@ export default function CommunityPartnersPage() {
     facilitiesAvailable: "", capacity: "",
   });
 
-  const { data: partners = [], isLoading, error: partnersError, refetch: refetchPartners } = useQuery<CommunityPartner[]>({ queryKey: ["/api/partners"] });
+  const { data: rawPartners, isLoading, error: partnersError, refetch: refetchPartners } = useQuery<CommunityPartner[]>({ queryKey: ["/api/partners"] });
+  const partners = rawPartners ?? [];
   const { data: impact } = useQuery<PartnerImpact>({ queryKey: ["/api/partners/dashboard/impact"] });
   const { data: partnerDetail } = useQuery<PartnerDetail>({
     queryKey: ["/api/partners", selectedPartner],
     enabled: !!selectedPartner,
   });
-  const { data: ambassadors = [] } = useQuery<AmbassadorProfile[]>({ queryKey: ["/api/ambassadors"] });
-  const { data: allMous = [] } = useQuery<MouDocument[]>({ queryKey: ["/api/mou-documents"] });
+  const { data: rawAmbassadors } = useQuery<AmbassadorProfile[]>({ queryKey: ["/api/ambassadors"] });
+  const ambassadors = rawAmbassadors ?? [];
+  const { data: rawAllMous } = useQuery<MouDocument[]>({ queryKey: ["/api/mou-documents"] });
+  const allMous = rawAllMous ?? [];
   const { data: coordination } = useQuery<CoordinationData>({ queryKey: ["/api/partners/dashboard/coordination"] });
   const { data: collectiveImpact } = useQuery<CollectiveImpactReport>({ queryKey: ["/api/partners/dashboard/collective-impact"] });
 

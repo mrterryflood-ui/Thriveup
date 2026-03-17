@@ -97,7 +97,9 @@ export default function PlatformMetricsPage() {
     );
   }
 
-  const m = metrics!;
+  if (!metrics) return <p className="p-6 text-muted-foreground" data-testid="text-no-metrics">No metrics data available. Please sign in to view platform metrics.</p>;
+
+  const m = metrics;
 
   return (
     <div className="p-6 max-w-6xl mx-auto space-y-8">

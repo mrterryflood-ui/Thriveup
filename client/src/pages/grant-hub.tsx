@@ -311,7 +311,7 @@ export default function GrantHubPage() {
   const [formData, setFormData] = useState({ title: "", agency: "", fundingAmount: "", description: "", eligibilityCriteria: "", focusAreas: "", sourceUrl: "", grantType: "" });
   const [compareIds, setCompareIds] = useState<Set<string>>(new Set());
 
-  const { data: grants = [], isLoading, error: grantsError } = useQuery<GrantOpportunity[]>({
+  const { data: rawGrants, isLoading, error: grantsError } = useQuery<GrantOpportunity[]>({
     queryKey: ["/api/grants", { category: categoryFilter !== "all" ? categoryFilter : undefined, status: statusFilter !== "all" ? statusFilter : undefined }],
     queryFn: async () => {
       const params = new URLSearchParams();
@@ -322,9 +322,11 @@ export default function GrantHubPage() {
       return res.json();
     },
   });
+  const grants = rawGrants ?? [];
 
   const { data: stats } = useQuery<GrantStats>({ queryKey: ["/api/grants/stats"] });
-  const { data: alerts = [] } = useQuery<GrantAlert[]>({ queryKey: ["/api/grants/alerts"] });
+  const { data: rawAlerts } = useQuery<GrantAlert[]>({ queryKey: ["/api/grants/alerts"] });
+  const alerts = rawAlerts ?? [];
   const unreadAlerts = alerts.filter(a => !a.isRead).length;
 
   const filteredGrants = searchQuery

@@ -60,7 +60,8 @@ export default function StaffingPlanPage() {
     roleTitle: "", grantRole: "", department: "", fte: "1.0", qualifications: "", responsibilities: "", currentStaff: "", status: "planned", grantProgram: "",
   });
 
-  const { data: entries = [] } = useQuery<StaffingEntry[]>({ queryKey: ["/api/staffing-plan"] });
+  const { data: rawEntries } = useQuery<StaffingEntry[]>({ queryKey: ["/api/staffing-plan"] });
+  const entries = rawEntries ?? [];
 
   const createMutation = useMutation({
     mutationFn: async (data: Record<string, unknown>) => {

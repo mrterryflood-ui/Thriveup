@@ -135,9 +135,10 @@ export default function AcademyCalendarPage() {
   const [category, setCategory] = useState("school");
   const [showForm, setShowForm] = useState(false);
 
-  const { data: events = [], isLoading, error, refetch } = useQuery<AcademyEvent[]>({
+  const { data: rawEvents, isLoading, error, refetch } = useQuery<AcademyEvent[]>({
     queryKey: ["/api/events"],
   });
+  const events = rawEvents ?? [];
 
   const createMutation = useMutation({
     mutationFn: async (data: { title: string; description: string; eventDate: string; eventTime: string; category: string }) => {

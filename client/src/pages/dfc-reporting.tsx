@@ -103,21 +103,25 @@ export default function DfcReportingPage() {
     queryKey: ["/api/dfc/dashboard"],
   });
 
-  const { data: measures = [] } = useQuery<DfcCoreMeasure[]>({
+  const { data: rawMeasures } = useQuery<DfcCoreMeasure[]>({
     queryKey: ["/api/dfc/core-measures"],
   });
+  const measures = rawMeasures ?? [];
 
-  const { data: surveys = [] } = useQuery<DfcStakeholderSurvey[]>({
+  const { data: rawSurveys } = useQuery<DfcStakeholderSurvey[]>({
     queryKey: ["/api/dfc/stakeholder-surveys"],
   });
+  const surveys = rawSurveys ?? [];
 
-  const { data: readinessAssessments = [] } = useQuery<CommunityReadinessAssessment[]>({
+  const { data: rawReadinessAssessments } = useQuery<CommunityReadinessAssessment[]>({
     queryKey: ["/api/dfc/community-readiness"],
   });
+  const readinessAssessments = rawReadinessAssessments ?? [];
 
-  const { data: interviews = [] } = useQuery<CommunityReadinessInterview[]>({
+  const { data: rawInterviews } = useQuery<CommunityReadinessInterview[]>({
     queryKey: ["/api/dfc/readiness-interviews"],
   });
+  const interviews = rawInterviews ?? [];
 
   const invalidateAll = () => {
     queryClient.invalidateQueries({ queryKey: ["/api/dfc/dashboard"] });

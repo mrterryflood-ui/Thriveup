@@ -238,7 +238,8 @@ function GapManager({ cycleId }: { cycleId: string }) {
   const [desiredState, setDesiredState] = useState("");
   const [rootCause, setRootCause] = useState("");
 
-  const { data: gaps = [], isLoading } = useQuery<CqiGap[]>({ queryKey: ["/api/cqi/cycles", cycleId, "gaps"] });
+  const { data: rawGaps, isLoading } = useQuery<CqiGap[]>({ queryKey: ["/api/cqi/cycles", cycleId, "gaps"] });
+  const gaps = rawGaps ?? [];
 
   const createMutation = useMutation({
     mutationFn: async () => {
@@ -382,7 +383,8 @@ function InterventionManager({ cycleId, framework }: { cycleId: string; framewor
   const [dueDate, setDueDate] = useState("");
   const [frameworkConstruct, setFrameworkConstruct] = useState("");
 
-  const { data: interventions = [], isLoading } = useQuery<CqiIntervention[]>({ queryKey: ["/api/cqi/cycles", cycleId, "interventions"] });
+  const { data: rawInterventions, isLoading } = useQuery<CqiIntervention[]>({ queryKey: ["/api/cqi/cycles", cycleId, "interventions"] });
+  const interventions = rawInterventions ?? [];
 
   const createMutation = useMutation({
     mutationFn: async () => {
@@ -536,7 +538,7 @@ function FidelityMonitor({ cycleId }: { cycleId?: string }) {
   const [programArea, setProgramArea] = useState("");
 
   const queryKey = cycleId ? ["/api/cqi/fidelity-definitions", { cycleId }] : ["/api/cqi/fidelity-definitions"];
-  const { data: definitions = [], isLoading } = useQuery<CqiFidelityDefinition[]>({
+  const { data: rawDefinitions, isLoading } = useQuery<CqiFidelityDefinition[]>({
     queryKey,
     queryFn: async () => {
       const url = cycleId ? `/api/cqi/fidelity-definitions?cycleId=${cycleId}` : "/api/cqi/fidelity-definitions";
@@ -545,6 +547,7 @@ function FidelityMonitor({ cycleId }: { cycleId?: string }) {
       return res.json();
     },
   });
+  const definitions = rawDefinitions ?? [];
 
   const createMutation = useMutation({
     mutationFn: async () => {
@@ -640,7 +643,7 @@ function FidelityActivityCard({ definition, onDelete }: { definition: CqiFidelit
   const [wasCompleted, setWasCompleted] = useState(true);
   const [qualityScore, setQualityScore] = useState("5");
 
-  const { data: observations = [] } = useQuery<CqiFidelityObservation[]>({
+  const { data: rawObservations } = useQuery<CqiFidelityObservation[]>({
     queryKey: ["/api/cqi/fidelity-observations", definition.id],
     queryFn: async () => {
       const res = await fetch(`/api/cqi/fidelity-observations/${definition.id}`, { credentials: "include" });
@@ -648,6 +651,7 @@ function FidelityActivityCard({ definition, onDelete }: { definition: CqiFidelit
       return res.json();
     },
   });
+  const observations = rawObservations ?? [];
 
   const logMutation = useMutation({
     mutationFn: async () => {
@@ -763,7 +767,8 @@ function OutcomeTracker({ cycleId }: { cycleId: string }) {
   const [actualValue, setActualValue] = useState("");
   const [notes, setNotes] = useState("");
 
-  const { data: outcomes = [], isLoading } = useQuery<CqiOutcome[]>({ queryKey: ["/api/cqi/cycles", cycleId, "outcomes"] });
+  const { data: rawOutcomes, isLoading } = useQuery<CqiOutcome[]>({ queryKey: ["/api/cqi/cycles", cycleId, "outcomes"] });
+  const outcomes = rawOutcomes ?? [];
 
   const createMutation = useMutation({
     mutationFn: async () => {
@@ -941,7 +946,8 @@ function CycleDetail({ cycleId, onBack }: { cycleId: string; onBack: () => void 
     },
   });
 
-  const { data: phaseHistory = [] } = useQuery<CqiCyclePhase[]>({ queryKey: ["/api/cqi/cycles", cycleId, "phases"] });
+  const { data: rawPhaseHistory } = useQuery<CqiCyclePhase[]>({ queryKey: ["/api/cqi/cycles", cycleId, "phases"] });
+  const phaseHistory = rawPhaseHistory ?? [];
 
   const phaseTransitionMutation = useMutation({
     mutationFn: async (data: { cycleId: string; phase: string; exitPreviousId?: string }) => {
@@ -1534,7 +1540,8 @@ export default function MapGapCqiPage() {
     document.title = "MAP-GAP CQI Engine | ThriveUp Academy";
   }, []);
 
-  const { data: cycles = [], isLoading } = useQuery<CqiCycle[]>({ queryKey: ["/api/cqi/cycles"] });
+  const { data: rawCycles, isLoading } = useQuery<CqiCycle[]>({ queryKey: ["/api/cqi/cycles"] });
+  const cycles = rawCycles ?? [];
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => { await apiRequest("DELETE", `/api/cqi/cycles/${id}`); },

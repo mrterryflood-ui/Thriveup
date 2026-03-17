@@ -83,12 +83,15 @@ export default function ServiceDelivery() {
   const [assigningFacilitator, setAssigningFacilitator] = useState(false);
   const [facilitatorInput, setFacilitatorInput] = useState("");
 
-  const { data: participants = [] } = useQuery<ParticipantProfile[]>({ queryKey: ["/api/intake/participants"] });
-  const { data: serviceRecords = [] } = useQuery<ServiceRecord[]>({
+  const { data: rawParticipants } = useQuery<ParticipantProfile[]>({ queryKey: ["/api/intake/participants"] });
+  const participants = rawParticipants ?? [];
+  const { data: rawServiceRecords } = useQuery<ServiceRecord[]>({
     queryKey: ["/api/intake/services", selectedParticipant],
     enabled: !!selectedParticipant,
   });
-  const { data: allServices = [] } = useQuery<ServiceRecord[]>({ queryKey: ["/api/intake/services/all"] });
+  const serviceRecords = rawServiceRecords ?? [];
+  const { data: rawAllServices } = useQuery<ServiceRecord[]>({ queryKey: ["/api/intake/services/all"] });
+  const allServices = rawAllServices ?? [];
   const { data: caseloadData } = useQuery<{
     totalParticipants: number;
     activeParticipants: number;
