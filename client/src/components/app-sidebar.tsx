@@ -64,6 +64,8 @@ const workforceSolutionsItems: NavItem[] = [
 
 const grantEngineItems: NavItem[] = [
   { title: "Grant Hub", url: "/grants", icon: Target },
+  { title: "Pilot Dashboard", url: "/pilot", icon: Users },
+  { title: "Dosage Report", url: "/dosage", icon: Activity },
   { title: "Outcome Reporting", url: "/outcomes", icon: FileBarChart },
   { title: "Stakeholder Deck", url: "/presentation", icon: Presentation },
 ];

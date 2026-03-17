@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import {
   BarChart3, Plus, Download, FileText, Target, Users,
-  Briefcase, GraduationCap, Home, Heart, Shield, TrendingUp, CheckCircle2
+  Briefcase, GraduationCap, Home, Heart, Shield, TrendingUp, CheckCircle2, Filter,
 } from "lucide-react";
 
 interface OutcomeDashboard {
@@ -69,13 +69,42 @@ function OutcomeCard({ category, data }: { category: typeof OUTCOME_CATEGORIES[0
   );
 }
 
+interface CohortOption {
+  id: string;
+  name: string;
+  status: string;
+}
+
+interface CohortDashboard {
+  cohorts: CohortOption[];
+}
+
+interface CohortOutcome {
+  id: string;
+  userId: string;
+  category: string;
+  metricName: string;
+  metricValue: string;
+  measurementDate: string;
+}
+
 export default function OutcomeReportingPage() {
   const { toast } = useToast();
   const [showForm, setShowForm] = useState(false);
+  const [selectedCohort, setSelectedCohort] = useState("");
   const [formData, setFormData] = useState({ userId: "", planId: "", category: "employment", metricName: "", metricValue: "", periodMonths: "", source: "" });
 
   const { data: dashboard } = useQuery<OutcomeDashboard>({ queryKey: ["/api/outcomes/dashboard"] });
   const { data: dojReport } = useQuery<DOJReport>({ queryKey: ["/api/outcomes/report/doj"] });
+  const { data: cohortDashboard } = useQuery<CohortDashboard>({ queryKey: ["/api/pilot/dashboard"] });
+  const { data: cohortOutcomes } = useQuery<CohortOutcome[]>({
+    queryKey: ["/api/outcomes/by-cohort", selectedCohort],
+    queryFn: async () => {
+      const res = await fetch(`/api/outcomes/by-cohort/${selectedCohort}`, { credentials: "include" });
+      return res.json();
+    },
+    enabled: !!selectedCohort,
+  });
 
   const createMutation = useMutation({
     mutationFn: async (data: Record<string, unknown>) => {
@@ -293,6 +322,68 @@ export default function OutcomeReportingPage() {
             </div>
             <p className="text-xs text-muted-foreground mt-1">{dojReport.milestoneProgress?.completed || 0} of {dojReport.milestoneProgress?.total || 0} milestones completed</p>
           </div>
+        </Card>
+      )}
+
+      {cohortDashboard && cohortDashboard.cohorts && cohortDashboard.cohorts.length > 0 && (
+        <Card className="p-6" data-testid="card-cohort-outcomes">
+          <div className="flex items-center gap-3 mb-4">
+            <Filter className="h-5 w-5 text-primary" />
+            <div>
+              <h2 className="font-semibold text-lg">Cohort-Scoped Outcome Comparison</h2>
+              <p className="text-sm text-muted-foreground">Filter outcomes by pilot cohort for before/after analysis</p>
+            </div>
+          </div>
+          <div className="mb-4">
+            <select
+              className="flex h-10 w-full max-w-md rounded-md border border-input bg-background px-3 py-2 text-sm"
+              value={selectedCohort}
+              onChange={e => setSelectedCohort(e.target.value)}
+              data-testid="select-cohort-outcomes"
+            >
+              <option value="">Select a cohort...</option>
+              {cohortDashboard.cohorts.map(c => (
+                <option key={c.id} value={c.id}>{c.name} ({c.status})</option>
+              ))}
+            </select>
+          </div>
+          {selectedCohort && cohortOutcomes && (
+            <>
+              {cohortOutcomes.length === 0 ? (
+                <p className="text-muted-foreground text-center py-6">No outcomes recorded for this cohort yet</p>
+              ) : (
+                <div className="space-y-3">
+                  <p className="text-sm text-muted-foreground">{cohortOutcomes.length} outcome measurements for this cohort</p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {OUTCOME_CATEGORIES.map(cat => {
+                      const catOutcomes = cohortOutcomes.filter(o => o.category === cat.key);
+                      if (catOutcomes.length === 0) return null;
+                      const Icon = cat.icon;
+                      const metricCounts: Record<string, number> = {};
+                      catOutcomes.forEach(o => {
+                        metricCounts[o.metricName] = (metricCounts[o.metricName] || 0) + 1;
+                      });
+                      return (
+                        <div key={cat.key} className="p-3 rounded border" data-testid={`card-cohort-outcome-${cat.key}`}>
+                          <div className="flex items-center gap-2 mb-2">
+                            <Icon className={`h-4 w-4 ${cat.color}`} />
+                            <span className="font-medium text-sm">{cat.label}</span>
+                            <Badge variant="outline" className="ml-auto">{catOutcomes.length}</Badge>
+                          </div>
+                          {Object.entries(metricCounts).map(([metric, count]) => (
+                            <div key={metric} className="flex justify-between text-xs p-1">
+                              <span className="capitalize text-muted-foreground">{metric.replace(/_/g, " ")}</span>
+                              <span className="font-medium">{count}</span>
+                            </div>
+                          ))}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </>
+          )}
         </Card>
       )}
     </div>

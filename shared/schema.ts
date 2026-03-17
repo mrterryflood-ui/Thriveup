@@ -1687,6 +1687,7 @@ export const outcomeTracking = pgTable("outcome_tracking", {
   id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
   userId: varchar("user_id", { length: 255 }).notNull(),
   planId: varchar("plan_id", { length: 100 }),
+  cohortId: varchar("cohort_id", { length: 100 }),
   category: varchar("category", { length: 100 }).notNull(),
   metricName: varchar("metric_name", { length: 255 }).notNull(),
   metricValue: text("metric_value"),
@@ -2107,5 +2108,56 @@ export const wellnessResources = pgTable("wellness_resources", {
 export const insertWellnessResourceSchema = createInsertSchema(wellnessResources).omit({ id: true, createdAt: true });
 export type InsertWellnessResource = z.infer<typeof insertWellnessResourceSchema>;
 export type WellnessResource = typeof wellnessResources.$inferSelect;
+
+// ==================== PILOT DATA & DOSAGE TRACKING ====================
+
+export const pilotCohorts = pgTable("pilot_cohorts", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  description: text("description"),
+  targetPopulation: text("target_population").notNull(),
+  targetSize: integer("target_size").notNull().default(30),
+  startDate: text("start_date").notNull(),
+  endDate: text("end_date").notNull(),
+  status: varchar("status", { length: 50 }).notNull().default("planning"),
+  createdBy: varchar("created_by", { length: 255 }),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertPilotCohortSchema = createInsertSchema(pilotCohorts).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertPilotCohort = z.infer<typeof insertPilotCohortSchema>;
+export type PilotCohort = typeof pilotCohorts.$inferSelect;
+
+export const cohortEnrollments = pgTable("cohort_enrollments", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  cohortId: varchar("cohort_id", { length: 100 }).notNull().references(() => pilotCohorts.id),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  participantName: text("participant_name").notNull(),
+  enrolledAt: timestamp("enrolled_at").defaultNow(),
+  status: varchar("status", { length: 50 }).notNull().default("active"),
+  completedAt: timestamp("completed_at"),
+  notes: text("notes"),
+});
+
+export const insertCohortEnrollmentSchema = createInsertSchema(cohortEnrollments).omit({ id: true, enrolledAt: true });
+export type InsertCohortEnrollment = z.infer<typeof insertCohortEnrollmentSchema>;
+export type CohortEnrollment = typeof cohortEnrollments.$inferSelect;
+
+export const engagementDosageLogs = pgTable("engagement_dosage_logs", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  cohortId: varchar("cohort_id", { length: 100 }),
+  toolType: varchar("tool_type", { length: 100 }).notNull(),
+  toolName: text("tool_name").notNull(),
+  durationMinutes: real("duration_minutes").notNull(),
+  sessionDate: text("session_date").notNull(),
+  metadata: jsonb("metadata"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertEngagementDosageLogSchema = createInsertSchema(engagementDosageLogs).omit({ id: true, createdAt: true });
+export type InsertEngagementDosageLog = z.infer<typeof insertEngagementDosageLogSchema>;
+export type EngagementDosageLog = typeof engagementDosageLogs.$inferSelect;
 
 export * from "./models/auth";

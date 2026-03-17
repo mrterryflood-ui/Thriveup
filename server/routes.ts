@@ -51,6 +51,8 @@ import { registerOutcomeRoutes } from "./outcome-routes";
 import { registerJusticeRoutes } from "./justice-routes";
 import { registerWorkforceRoutes } from "./workforce-routes";
 import { registerNavigatorRoutes } from "./navigator-routes";
+import { registerPilotRoutes } from "./pilot-routes";
+import { dosageTrackingMiddleware } from "./dosage-middleware";
 
 const AI_TOOLS = [
   { toolKey: "presentation-builder", name: "Presentation Builder", description: "Create slide-by-slide presentations with AI-generated content, talking points, and visual suggestions", category: "create", iconName: "presentation", gradeBand: "all", requiredModuleKey: "ai-presentations", promptTemplate: "PRESENTATION_BUILDER", outputFormat: "slides", sortOrder: 1 },
@@ -331,6 +333,8 @@ export async function registerRoutes(
     next();
   });
 
+  app.use(dosageTrackingMiddleware);
+
   registerObjectStorageRoutes(app);
   registerCrossPlatformRoutes(app);
   registerGrantRoutes(app);
@@ -340,6 +344,7 @@ export async function registerRoutes(
   registerJusticeRoutes(app);
   registerWorkforceRoutes(app);
   registerNavigatorRoutes(app);
+  registerPilotRoutes(app);
   await storage.seedData();
 
   app.get("/api/ai-provider", (_req, res) => {

@@ -31,7 +31,7 @@ async function requireAdmin(req: Request, res: Response, next: Function) {
 }
 
 const outcomeCreateSchema = insertOutcomeTrackingSchema.pick({
-  userId: true, planId: true, category: true, metricName: true,
+  userId: true, planId: true, cohortId: true, category: true, metricName: true,
   metricValue: true, periodMonths: true, source: true,
 });
 
