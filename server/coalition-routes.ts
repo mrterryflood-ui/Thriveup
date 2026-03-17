@@ -3,7 +3,7 @@ import { db } from "./storage";
 import {
   coalitions, coalitionSectors, coalitionMembers, coalitionMeetings,
   coalitionActionItems, coalitionCapacityAssessments, communityActionPlans,
-  costMatchRecords,
+  costMatchRecords, communityPartners,
   insertCoalitionSchema, insertCoalitionSectorSchema, insertCoalitionMemberSchema,
   insertCoalitionMeetingSchema, insertCoalitionActionItemSchema,
   insertCoalitionCapacityAssessmentSchema, insertCommunityActionPlanSchema,
@@ -21,6 +21,21 @@ function requireAuth(req: Request, res: Response, next: Function) {
   if (!getUserId(req)) return res.status(401).json({ error: "Unauthorized" });
   next();
 }
+
+const SECTOR_PARTNER_TYPE_MAP: Record<number, string[]> = {
+  1: ["Youth Development", "Mentoring Program"],
+  2: ["Family Services"],
+  3: ["Employer"],
+  4: ["Community Organization"],
+  5: ["School/Education"],
+  6: ["Youth Development", "Mentoring Program", "Community Organization"],
+  7: ["Law Enforcement", "Community Policing Commission", "Recidivism Prevention Task Force"],
+  8: ["Church/Faith-Based"],
+  9: ["Community Organization"],
+  10: ["Healthcare Provider", "Mental Health Services", "Substance Abuse Treatment"],
+  11: ["Community Organization"],
+  12: ["Substance Abuse Treatment", "Mental Health Services"],
+};
 
 const DFC_SECTORS = [
   { sectorNumber: 1, sectorName: "Youth (Ages 10-18)", description: "Young people between ages 10-18 who are affected by substance abuse in the community" },
@@ -400,6 +415,88 @@ export function registerCoalitionRoutes(app: Express) {
     } catch (error) {
       console.error("Failed to fetch coalition dashboard:", error);
       res.status(500).json({ error: "Failed to fetch dashboard" });
+    }
+  });
+
+  app.get("/api/coalitions/:id/sector-partner-map", async (req, res) => {
+    try {
+      const coalitionId = req.params.id as string;
+      const sectors = await db.select().from(coalitionSectors).where(eq(coalitionSectors.coalitionId, coalitionId));
+      const allPartners = await db.select().from(communityPartners);
+
+      const sectorMap = sectors.map(sector => {
+        const matchedTypes = SECTOR_PARTNER_TYPE_MAP[sector.sectorNumber] || [];
+        const suggestedPartners = allPartners.filter(p => matchedTypes.includes(p.type));
+        return {
+          sectorId: sector.id,
+          sectorNumber: sector.sectorNumber,
+          sectorName: sector.sectorName,
+          isRepresented: sector.isRepresented,
+          mappedPartnerTypes: matchedTypes,
+          suggestedPartners: suggestedPartners.map(p => ({
+            id: p.id, name: p.name, type: p.type, contactName: p.contactName,
+          })),
+          suggestedCount: suggestedPartners.length,
+        };
+      });
+
+      const totalCoverage = sectorMap.filter(s => s.isRepresented || s.suggestedCount > 0).length;
+      res.json({ sectors: sectorMap, totalSectors: sectors.length, potentialCoverage: totalCoverage, partnerTypeMapping: SECTOR_PARTNER_TYPE_MAP });
+    } catch (error) {
+      console.error("Failed to fetch sector-partner map:", error);
+      res.status(500).json({ error: "Failed to fetch sector-partner map" });
+    }
+  });
+
+  app.get("/api/coalitions/:id/cost-match-compliance", requireAuth, async (req, res) => {
+    try {
+      const coalitionId = req.params.id as string;
+      const records = await db.select().from(costMatchRecords).where(eq(costMatchRecords.coalitionId, coalitionId));
+
+      let totalCash = 0;
+      let totalInKind = 0;
+      let totalVolunteerHoursDollars = 0;
+      let totalPartnerContributions = 0;
+      let totalVolunteerHours = 0;
+
+      for (const r of records) {
+        const val = parseFloat(r.dollarValue || "0");
+        const hours = parseFloat(r.hoursContributed || "0");
+        totalVolunteerHours += hours;
+        switch (r.contributionType) {
+          case "cash": totalCash += val; break;
+          case "in_kind": totalInKind += val; break;
+          case "volunteer_hours": totalVolunteerHoursDollars += val; break;
+          case "partner_contribution": totalPartnerContributions += val; break;
+        }
+      }
+
+      const totalMatch = totalCash + totalInKind + totalVolunteerHoursDollars + totalPartnerContributions;
+      const dfcGrantAmount = 125000;
+      const matchRatio = dfcGrantAmount > 0 ? Math.round((totalMatch / dfcGrantAmount) * 100) : 0;
+      const isCompliant = matchRatio >= 100;
+
+      res.json({
+        totalMatch,
+        totalCash,
+        totalInKind,
+        totalVolunteerHoursDollars,
+        totalVolunteerHours,
+        totalPartnerContributions,
+        dfcGrantAmount,
+        matchRatio,
+        isCompliant,
+        recordCount: records.length,
+        breakdown: {
+          cash: { amount: totalCash, pct: totalMatch > 0 ? Math.round((totalCash / totalMatch) * 100) : 0 },
+          inKind: { amount: totalInKind, pct: totalMatch > 0 ? Math.round((totalInKind / totalMatch) * 100) : 0 },
+          volunteerHours: { amount: totalVolunteerHoursDollars, hours: totalVolunteerHours, pct: totalMatch > 0 ? Math.round((totalVolunteerHoursDollars / totalMatch) * 100) : 0 },
+          partnerContributions: { amount: totalPartnerContributions, pct: totalMatch > 0 ? Math.round((totalPartnerContributions / totalMatch) * 100) : 0 },
+        },
+      });
+    } catch (error) {
+      console.error("Failed to fetch cost match compliance:", error);
+      res.status(500).json({ error: "Failed to fetch cost match compliance" });
     }
   });
 

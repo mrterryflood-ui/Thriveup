@@ -2456,6 +2456,7 @@ export const communityActionPlans = pgTable("community_action_plans", {
   goals: jsonb("goals"),
   objectives: jsonb("objectives"),
   strategies: jsonb("strategies"),
+  responsibleParties: jsonb("responsible_parties"),
   timeline: jsonb("timeline"),
   evaluationMetrics: jsonb("evaluation_metrics"),
   status: varchar("status", { length: 50 }).notNull().default("draft"),

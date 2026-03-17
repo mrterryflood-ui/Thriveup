@@ -117,6 +117,32 @@ export default function CoalitionPage() {
   });
   const costRecords = rawCostRecords ?? [];
 
+  interface CostMatchCompliance {
+    totalMatch: number; totalCash: number; totalInKind: number;
+    totalVolunteerHoursDollars: number; totalVolunteerHours: number;
+    totalPartnerContributions: number; dfcGrantAmount: number;
+    matchRatio: number; isCompliant: boolean; recordCount: number;
+    breakdown: Record<string, { amount: number; pct: number; hours?: number }>;
+  }
+  const { data: compliance } = useQuery<CostMatchCompliance>({
+    queryKey: ["/api/coalitions", coalitionId, "cost-match-compliance"],
+    enabled: !!coalitionId,
+  });
+
+  interface SectorPartnerMap {
+    sectors: Array<{
+      sectorId: string; sectorNumber: number; sectorName: string;
+      isRepresented: boolean; mappedPartnerTypes: string[];
+      suggestedPartners: Array<{ id: string; name: string; type: string; contactName: string | null }>;
+      suggestedCount: number;
+    }>;
+    totalSectors: number; potentialCoverage: number;
+  }
+  const { data: sectorPartnerMap } = useQuery<SectorPartnerMap>({
+    queryKey: ["/api/coalitions", coalitionId, "sector-partner-map"],
+    enabled: !!coalitionId,
+  });
+
   const { data: rawPartners } = useQuery<CommunityPartner[]>({ queryKey: ["/api/partners"] });
   const partners = rawPartners ?? [];
 
@@ -131,6 +157,8 @@ export default function CoalitionPage() {
     queryClient.invalidateQueries({ queryKey: ["/api/coalitions", coalitionId, "capacity-assessments"] });
     queryClient.invalidateQueries({ queryKey: ["/api/coalitions", coalitionId, "action-plans"] });
     queryClient.invalidateQueries({ queryKey: ["/api/coalitions", coalitionId, "cost-match"] });
+    queryClient.invalidateQueries({ queryKey: ["/api/coalitions", coalitionId, "cost-match-compliance"] });
+    queryClient.invalidateQueries({ queryKey: ["/api/coalitions", coalitionId, "sector-partner-map"] });
   };
 
   const seedMutation = useMutation({
@@ -483,7 +511,21 @@ export default function CoalitionPage() {
                       <Badge variant="outline" className="text-xs">Gap</Badge>
                     )}
                   </div>
-                  <p className="text-xs text-muted-foreground mb-3">{sector.description}</p>
+                  <p className="text-xs text-muted-foreground mb-2">{sector.description}</p>
+                  {(() => {
+                    const mapping = sectorPartnerMap?.sectors.find(s => s.sectorId === sector.id);
+                    if (mapping && mapping.mappedPartnerTypes.length > 0) {
+                      return (
+                        <div className="mb-2">
+                          <p className="text-xs text-muted-foreground">Mapped partner types: {mapping.mappedPartnerTypes.join(", ")}</p>
+                          {mapping.suggestedCount > 0 && !sector.isRepresented && (
+                            <p className="text-xs text-emerald-600">{mapping.suggestedCount} existing partner{mapping.suggestedCount !== 1 ? "s" : ""} could fill this sector</p>
+                          )}
+                        </div>
+                      );
+                    }
+                    return null;
+                  })()}
                   {sectorMembers.length > 0 ? (
                     <div className="space-y-1.5">
                       {sectorMembers.map(m => (
@@ -820,6 +862,7 @@ export default function CoalitionPage() {
                     goals: toList(planData.goals),
                     objectives: toList(planData.objectives),
                     strategies: toList(planData.strategies),
+                    responsibleParties: toList(planData.responsibleParties),
                     timeline: toList(planData.timeline),
                     evaluationMetrics: toList(planData.evaluationMetrics),
                   });
@@ -849,6 +892,7 @@ export default function CoalitionPage() {
                         const goals = Array.isArray(plan.goals) ? plan.goals as string[] : [];
                         const objectives = Array.isArray(plan.objectives) ? plan.objectives as string[] : [];
                         const strategies = Array.isArray(plan.strategies) ? plan.strategies as string[] : [];
+                        const responsible = Array.isArray(plan.responsibleParties) ? plan.responsibleParties as string[] : [];
                         const timeline = Array.isArray(plan.timeline) ? plan.timeline as string[] : [];
                         const metrics = Array.isArray(plan.evaluationMetrics) ? plan.evaluationMetrics as string[] : [];
                         const hasDetail = goals.length > 0 || objectives.length > 0 || strategies.length > 0;
@@ -876,6 +920,12 @@ export default function CoalitionPage() {
                                   <div>
                                     <p className="text-xs font-semibold text-muted-foreground">Strategies</p>
                                     <ul className="list-disc list-inside text-xs space-y-0.5">{strategies.map((s, i) => <li key={i}>{s}</li>)}</ul>
+                                  </div>
+                                )}
+                                {responsible.length > 0 && (
+                                  <div>
+                                    <p className="text-xs font-semibold text-muted-foreground">Responsible Parties</p>
+                                    <ul className="list-disc list-inside text-xs space-y-0.5">{responsible.map((r, i) => <li key={i}>{r}</li>)}</ul>
                                   </div>
                                 )}
                                 {timeline.length > 0 && (
@@ -953,60 +1003,87 @@ export default function CoalitionPage() {
             </Card>
           )}
 
-          {(() => {
-            const totalValue = costRecords.reduce((sum, r) => sum + parseFloat(r.dollarValue || "0"), 0);
-            const byType: Record<string, number> = {};
-            costRecords.forEach(r => {
-              byType[r.contributionType] = (byType[r.contributionType] || 0) + parseFloat(r.dollarValue || "0");
-            });
-            return (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Card className="p-4" data-testid="card-cost-match-total">
-                  <h3 className="font-semibold mb-3">Match Summary</h3>
-                  <p className="text-3xl font-bold text-primary">${totalValue.toLocaleString()}</p>
-                  <p className="text-sm text-muted-foreground">Total Contributions</p>
-                  <div className="mt-3 space-y-2">
-                    {CONTRIBUTION_TYPES.map(t => (
-                      <div key={t.value} className="flex justify-between text-sm">
-                        <span>{t.label}</span>
-                        <span className="font-semibold">${(byType[t.value] || 0).toLocaleString()}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="mt-3">
-                    <p className="text-xs text-muted-foreground">Match Ratio Visualization</p>
-                    <div className="flex gap-1 mt-1">
-                      {CONTRIBUTION_TYPES.map(t => {
-                        const pct = totalValue > 0 ? ((byType[t.value] || 0) / totalValue) * 100 : 0;
-                        if (pct === 0) return null;
-                        return (
-                          <div key={t.value} className="h-4 rounded-sm bg-primary/70" style={{ width: `${pct}%` }} title={`${t.label}: ${pct.toFixed(0)}%`} />
-                        );
-                      })}
-                    </div>
-                  </div>
-                </Card>
-                <Card className="p-4" data-testid="card-cost-match-records">
-                  <h3 className="font-semibold mb-3">Recent Records</h3>
-                  {costRecords.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">No cost match records yet</p>
-                  ) : (
-                    <div className="space-y-2 max-h-64 overflow-y-auto">
-                      {costRecords.map(record => (
-                        <div key={record.id} className="flex items-center justify-between text-sm border-b pb-2 last:border-0" data-testid={`cost-record-${record.id}`}>
-                          <div>
-                            <p className="font-medium">{record.contributorName}</p>
-                            <p className="text-xs text-muted-foreground">{record.description || record.contributionType}</p>
-                          </div>
-                          <span className="font-semibold">${parseFloat(record.dollarValue || "0").toLocaleString()}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </Card>
+          {compliance && (
+            <Card className="p-4 mb-4" data-testid="card-cost-match-compliance">
+              <h3 className="font-semibold mb-3 flex items-center gap-2">
+                <Shield className="h-4 w-4" />
+                DFC Match Compliance
+                <Badge variant={compliance.isCompliant ? "default" : "secondary"} className="ml-auto">
+                  {compliance.isCompliant ? "Compliant" : `${compliance.matchRatio}% of Required`}
+                </Badge>
+              </h3>
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-3">
+                <div className="text-center">
+                  <p className="text-lg font-bold text-primary">${compliance.totalMatch.toLocaleString()}</p>
+                  <p className="text-xs text-muted-foreground">Total Match</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-lg font-bold">${compliance.totalCash.toLocaleString()}</p>
+                  <p className="text-xs text-muted-foreground">Cash</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-lg font-bold">${compliance.totalInKind.toLocaleString()}</p>
+                  <p className="text-xs text-muted-foreground">In-Kind</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-lg font-bold">{compliance.totalVolunteerHours.toLocaleString()}</p>
+                  <p className="text-xs text-muted-foreground">Volunteer Hours</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-lg font-bold">${compliance.totalPartnerContributions.toLocaleString()}</p>
+                  <p className="text-xs text-muted-foreground">Partner Contributions</p>
+                </div>
               </div>
-            );
-          })()}
+              <Progress value={Math.min(compliance.matchRatio, 100)} className="h-3" />
+              <p className="text-xs text-muted-foreground mt-1">
+                {compliance.matchRatio}% match against ${compliance.dfcGrantAmount.toLocaleString()}/yr DFC grant (100% match required)
+              </p>
+            </Card>
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Card className="p-4" data-testid="card-cost-match-total">
+              <h3 className="font-semibold mb-3">Match Summary</h3>
+              <p className="text-3xl font-bold text-primary">${costRecords.reduce((sum, r) => sum + parseFloat(r.dollarValue || "0"), 0).toLocaleString()}</p>
+              <p className="text-sm text-muted-foreground">Total Contributions</p>
+              <div className="mt-3 space-y-2">
+                {CONTRIBUTION_TYPES.map(t => {
+                  const typeTotal = costRecords.filter(r => r.contributionType === t.value).reduce((sum, r) => sum + parseFloat(r.dollarValue || "0"), 0);
+                  return (
+                    <div key={t.value} className="flex justify-between text-sm">
+                      <span>{t.label}</span>
+                      <span className="font-semibold">${typeTotal.toLocaleString()}</span>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="mt-3 space-y-1">
+                <p className="text-xs font-semibold text-muted-foreground">Total Volunteer Hours</p>
+                <p className="text-lg font-bold">{costRecords.reduce((sum, r) => sum + parseFloat(r.hoursContributed || "0"), 0).toLocaleString()} hrs</p>
+              </div>
+            </Card>
+            <Card className="p-4" data-testid="card-cost-match-records">
+              <h3 className="font-semibold mb-3">Recent Records</h3>
+              {costRecords.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No cost match records yet</p>
+              ) : (
+                <div className="space-y-2 max-h-64 overflow-y-auto">
+                  {costRecords.map(record => (
+                    <div key={record.id} className="flex items-center justify-between text-sm border-b pb-2 last:border-0" data-testid={`cost-record-${record.id}`}>
+                      <div>
+                        <p className="font-medium">{record.contributorName}</p>
+                        <p className="text-xs text-muted-foreground">{record.description || record.contributionType}</p>
+                        {parseFloat(record.hoursContributed || "0") > 0 && (
+                          <p className="text-xs text-muted-foreground">{record.hoursContributed} hrs</p>
+                        )}
+                      </div>
+                      <span className="font-semibold">${parseFloat(record.dollarValue || "0").toLocaleString()}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </Card>
+          </div>
         </div>
       )}
 
