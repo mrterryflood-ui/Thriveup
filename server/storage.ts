@@ -63,6 +63,14 @@ import {
   type CourseModule, type InsertCourseModule,
   type CourseLesson, type InsertCourseLesson,
   type CourseEnrollment, type InsertCourseEnrollment,
+  onboardingJourneyTemplates, onboardingPhases, onboardingMilestones,
+  onboardingJourneys, onboardingMilestoneCompletions, onboardingBaselineSnapshots,
+  type OnboardingJourneyTemplate, type InsertOnboardingJourneyTemplate,
+  type OnboardingPhase, type InsertOnboardingPhase,
+  type OnboardingMilestone, type InsertOnboardingMilestone,
+  type OnboardingJourney, type InsertOnboardingJourney,
+  type OnboardingMilestoneCompletion, type InsertOnboardingMilestoneCompletion,
+  type OnboardingBaselineSnapshot, type InsertOnboardingBaselineSnapshot,
 } from "@shared/schema";
 import { eq, and, desc, sql, inArray, isNull, gte } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
@@ -303,6 +311,25 @@ export interface IStorage {
   createCourseEnrollment(data: InsertCourseEnrollment): Promise<CourseEnrollment>;
   updateCourseEnrollment(id: string, data: Partial<CourseEnrollment>): Promise<CourseEnrollment>;
   getEnrollmentsByUser(userId: string): Promise<CourseEnrollment[]>;
+
+  // Onboarding Journey
+  getOnboardingTemplates(): Promise<OnboardingJourneyTemplate[]>;
+  getOnboardingTemplate(id: string): Promise<OnboardingJourneyTemplate | undefined>;
+  createOnboardingTemplate(data: InsertOnboardingJourneyTemplate): Promise<OnboardingJourneyTemplate>;
+  getOnboardingPhases(templateId: string): Promise<OnboardingPhase[]>;
+  createOnboardingPhase(data: InsertOnboardingPhase): Promise<OnboardingPhase>;
+  getOnboardingMilestones(templateId: string): Promise<OnboardingMilestone[]>;
+  getOnboardingMilestonesByPhase(phaseId: string): Promise<OnboardingMilestone[]>;
+  createOnboardingMilestone(data: InsertOnboardingMilestone): Promise<OnboardingMilestone>;
+  getOnboardingJourney(id: string): Promise<OnboardingJourney | undefined>;
+  getOnboardingJourneyByParticipant(participantId: string): Promise<OnboardingJourney | undefined>;
+  getAllOnboardingJourneys(): Promise<OnboardingJourney[]>;
+  createOnboardingJourney(data: InsertOnboardingJourney): Promise<OnboardingJourney>;
+  updateOnboardingJourney(id: string, data: Partial<OnboardingJourney>): Promise<OnboardingJourney>;
+  getMilestoneCompletions(journeyId: string): Promise<OnboardingMilestoneCompletion[]>;
+  createMilestoneCompletion(data: InsertOnboardingMilestoneCompletion): Promise<OnboardingMilestoneCompletion>;
+  getBaselineSnapshots(journeyId: string): Promise<OnboardingBaselineSnapshot[]>;
+  createBaselineSnapshot(data: InsertOnboardingBaselineSnapshot): Promise<OnboardingBaselineSnapshot>;
 
   seedData(): Promise<void>;
 }
@@ -1447,6 +1474,84 @@ export class DatabaseStorage implements IStorage {
 
   async getEnrollmentsByUser(userId: string): Promise<CourseEnrollment[]> {
     return db.select().from(courseEnrollments).where(eq(courseEnrollments.userId, userId)).orderBy(desc(courseEnrollments.enrolledAt));
+  }
+
+  async getOnboardingTemplates(): Promise<OnboardingJourneyTemplate[]> {
+    return db.select().from(onboardingJourneyTemplates).where(eq(onboardingJourneyTemplates.isActive, true));
+  }
+
+  async getOnboardingTemplate(id: string): Promise<OnboardingJourneyTemplate | undefined> {
+    const [t] = await db.select().from(onboardingJourneyTemplates).where(eq(onboardingJourneyTemplates.id, id));
+    return t;
+  }
+
+  async createOnboardingTemplate(data: InsertOnboardingJourneyTemplate): Promise<OnboardingJourneyTemplate> {
+    const [t] = await db.insert(onboardingJourneyTemplates).values(data).returning();
+    return t;
+  }
+
+  async getOnboardingPhases(templateId: string): Promise<OnboardingPhase[]> {
+    return db.select().from(onboardingPhases).where(eq(onboardingPhases.templateId, templateId)).orderBy(onboardingPhases.sortOrder);
+  }
+
+  async createOnboardingPhase(data: InsertOnboardingPhase): Promise<OnboardingPhase> {
+    const [p] = await db.insert(onboardingPhases).values(data).returning();
+    return p;
+  }
+
+  async getOnboardingMilestones(templateId: string): Promise<OnboardingMilestone[]> {
+    return db.select().from(onboardingMilestones).where(eq(onboardingMilestones.templateId, templateId)).orderBy(onboardingMilestones.sortOrder);
+  }
+
+  async getOnboardingMilestonesByPhase(phaseId: string): Promise<OnboardingMilestone[]> {
+    return db.select().from(onboardingMilestones).where(eq(onboardingMilestones.phaseId, phaseId)).orderBy(onboardingMilestones.sortOrder);
+  }
+
+  async createOnboardingMilestone(data: InsertOnboardingMilestone): Promise<OnboardingMilestone> {
+    const [m] = await db.insert(onboardingMilestones).values(data).returning();
+    return m;
+  }
+
+  async getOnboardingJourney(id: string): Promise<OnboardingJourney | undefined> {
+    const [j] = await db.select().from(onboardingJourneys).where(eq(onboardingJourneys.id, id));
+    return j;
+  }
+
+  async getOnboardingJourneyByParticipant(participantId: string): Promise<OnboardingJourney | undefined> {
+    const [j] = await db.select().from(onboardingJourneys).where(eq(onboardingJourneys.participantId, participantId));
+    return j;
+  }
+
+  async getAllOnboardingJourneys(): Promise<OnboardingJourney[]> {
+    return db.select().from(onboardingJourneys).orderBy(desc(onboardingJourneys.createdAt));
+  }
+
+  async createOnboardingJourney(data: InsertOnboardingJourney): Promise<OnboardingJourney> {
+    const [j] = await db.insert(onboardingJourneys).values(data).returning();
+    return j;
+  }
+
+  async updateOnboardingJourney(id: string, data: Partial<OnboardingJourney>): Promise<OnboardingJourney> {
+    const [j] = await db.update(onboardingJourneys).set({ ...data, updatedAt: new Date() }).where(eq(onboardingJourneys.id, id)).returning();
+    return j;
+  }
+
+  async getMilestoneCompletions(journeyId: string): Promise<OnboardingMilestoneCompletion[]> {
+    return db.select().from(onboardingMilestoneCompletions).where(eq(onboardingMilestoneCompletions.journeyId, journeyId)).orderBy(desc(onboardingMilestoneCompletions.completedAt));
+  }
+
+  async createMilestoneCompletion(data: InsertOnboardingMilestoneCompletion): Promise<OnboardingMilestoneCompletion> {
+    const [c] = await db.insert(onboardingMilestoneCompletions).values(data).returning();
+    return c;
+  }
+
+  async getBaselineSnapshots(journeyId: string): Promise<OnboardingBaselineSnapshot[]> {
+    return db.select().from(onboardingBaselineSnapshots).where(eq(onboardingBaselineSnapshots.journeyId, journeyId)).orderBy(desc(onboardingBaselineSnapshots.capturedAt));
+  }
+
+  async createBaselineSnapshot(data: InsertOnboardingBaselineSnapshot): Promise<OnboardingBaselineSnapshot> {
+    const [s] = await db.insert(onboardingBaselineSnapshots).values(data).returning();
+    return s;
   }
 }
 

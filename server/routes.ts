@@ -56,6 +56,7 @@ import { registerPreventionRoutes } from "./prevention-routes";
 import { registerCoalitionRoutes } from "./coalition-routes";
 import { registerParentEducationRoutes } from "./parent-education-routes";
 import { dosageTrackingMiddleware } from "./dosage-middleware";
+import { registerOnboardingRoutes } from "./onboarding-routes";
 
 const AI_TOOLS = [
   { toolKey: "presentation-builder", name: "Presentation Builder", description: "Create slide-by-slide presentations with AI-generated content, talking points, and visual suggestions", category: "create", iconName: "presentation", gradeBand: "all", requiredModuleKey: "ai-presentations", promptTemplate: "PRESENTATION_BUILDER", outputFormat: "slides", sortOrder: 1 },
@@ -351,6 +352,7 @@ export async function registerRoutes(
   registerPreventionRoutes(app);
   registerCoalitionRoutes(app);
   registerParentEducationRoutes(app);
+  registerOnboardingRoutes(app);
   await storage.seedData();
 
   app.get("/api/ai-provider", (_req, res) => {

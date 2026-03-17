@@ -12,6 +12,7 @@ import {
   ChevronRight, Award, Flame, TrendingUp,
   CheckCircle2, Shield, ShieldCheck, ShieldPlus, Swords, Medal,
   Sparkles, GraduationCap, Briefcase, Users, BarChart3, Circle,
+  Rocket, ArrowRight,
 } from "lucide-react";
 import { ErrorRetry } from "@/components/error-retry";
 import { PageHeader } from "@/components/page-header";
@@ -63,6 +64,11 @@ export default function DashboardPage() {
   const { data, isLoading, error, refetch } = useQuery<DashboardData>({
     queryKey: ["/api/dashboard"],
   });
+
+  const { data: journeys } = useQuery<any[]>({
+    queryKey: ["/api/onboarding/journeys"],
+  });
+  const activeJourney = journeys?.find((j: any) => j.status === "active");
 
   if (isLoading) {
     return (
@@ -131,6 +137,48 @@ export default function DashboardPage() {
                 </div>
               </Link>
             ))}
+          </div>
+        </Card>
+      )}
+
+      {activeJourney && (
+        <Card className="p-4 sm:p-5 mb-6 border-primary/20 bg-gradient-to-r from-primary/5 to-transparent" data-testid="card-journey-nudge">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="rounded-md p-2 bg-primary/10">
+                <Rocket className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-sm">Your 30-Day Journey</h3>
+                <p className="text-xs text-muted-foreground">Week {activeJourney.currentPhaseWeek} of 4 — Keep going!</p>
+              </div>
+            </div>
+            <Link href="/my-journey">
+              <Button size="sm" variant="outline" className="h-8 text-xs" data-testid="button-dashboard-journey">
+                Continue <ArrowRight className="h-3 w-3 ml-1" />
+              </Button>
+            </Link>
+          </div>
+        </Card>
+      )}
+
+      {!activeJourney && journeys && journeys.length === 0 && (
+        <Card className="p-4 sm:p-5 mb-6 border-dashed" data-testid="card-journey-start-nudge">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="rounded-md p-2 bg-muted">
+                <Rocket className="h-5 w-5 text-muted-foreground" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-sm">Start Your 30-Day Journey</h3>
+                <p className="text-xs text-muted-foreground">A guided onboarding experience tailored for you.</p>
+              </div>
+            </div>
+            <Link href="/my-journey">
+              <Button size="sm" variant="default" className="h-8 text-xs" data-testid="button-dashboard-start-journey">
+                Get Started <ArrowRight className="h-3 w-3 ml-1" />
+              </Button>
+            </Link>
           </div>
         </Card>
       )}

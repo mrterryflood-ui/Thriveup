@@ -137,6 +137,8 @@ const healthWellnessItems: NavItem[] = [
 const caseManagementItems: NavItem[] = [
   { title: "Reentry Dashboard", url: "/reentry", icon: Shield },
   { title: "Intake Wizard", url: "/intake", icon: ClipboardCheck },
+  { title: "My Journey", url: "/my-journey", icon: Rocket },
+  { title: "Cohort Onboarding", url: "/cohort-onboarding", icon: Users },
   { title: "Service Delivery", url: "/services", icon: Activity },
   { title: "Community Partners", url: "/partners", icon: Handshake },
   { title: "Outcome Reporting", url: "/outcomes", icon: FileBarChart },

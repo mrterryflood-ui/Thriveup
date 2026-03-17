@@ -2406,4 +2406,105 @@ export const insertFamilyAssessmentSchema = createInsertSchema(familyAssessments
 export type InsertFamilyAssessment = z.infer<typeof insertFamilyAssessmentSchema>;
 export type FamilyAssessment = typeof familyAssessments.$inferSelect;
 
+// ==================== FIRST 30 DAYS ONBOARDING JOURNEY ====================
+
+export const onboardingJourneyTemplates = pgTable("onboarding_journey_templates", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  population: varchar("population", { length: 100 }).notNull(),
+  description: text("description").notNull(),
+  totalDays: integer("total_days").notNull().default(30),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertOnboardingJourneyTemplateSchema = createInsertSchema(onboardingJourneyTemplates).omit({ id: true, createdAt: true });
+export type InsertOnboardingJourneyTemplate = z.infer<typeof insertOnboardingJourneyTemplateSchema>;
+export type OnboardingJourneyTemplate = typeof onboardingJourneyTemplates.$inferSelect;
+
+export const onboardingPhases = pgTable("onboarding_phases", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  templateId: varchar("template_id", { length: 100 }).notNull(),
+  weekNumber: integer("week_number").notNull(),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  sortOrder: integer("sort_order").notNull().default(0),
+});
+
+export const insertOnboardingPhaseSchema = createInsertSchema(onboardingPhases).omit({ id: true });
+export type InsertOnboardingPhase = z.infer<typeof insertOnboardingPhaseSchema>;
+export type OnboardingPhase = typeof onboardingPhases.$inferSelect;
+
+export const onboardingMilestones = pgTable("onboarding_milestones", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  phaseId: varchar("phase_id", { length: 100 }).notNull(),
+  templateId: varchar("template_id", { length: 100 }).notNull(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  milestoneType: varchar("milestone_type", { length: 100 }).notNull(),
+  featureLink: text("feature_link"),
+  serviceCategory: varchar("service_category", { length: 100 }),
+  serviceHoursCredit: real("service_hours_credit").default(0),
+  sortOrder: integer("sort_order").notNull().default(0),
+  isRequired: boolean("is_required").notNull().default(true),
+});
+
+export const insertOnboardingMilestoneSchema = createInsertSchema(onboardingMilestones).omit({ id: true });
+export type InsertOnboardingMilestone = z.infer<typeof insertOnboardingMilestoneSchema>;
+export type OnboardingMilestone = typeof onboardingMilestones.$inferSelect;
+
+export const onboardingJourneys = pgTable("onboarding_journeys", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  participantId: varchar("participant_id", { length: 100 }).notNull(),
+  userId: varchar("user_id", { length: 255 }),
+  templateId: varchar("template_id", { length: 100 }).notNull(),
+  participantName: text("participant_name").notNull(),
+  population: varchar("population", { length: 100 }).notNull(),
+  status: varchar("status", { length: 50 }).notNull().default("active"),
+  currentPhaseWeek: integer("current_phase_week").notNull().default(1),
+  startDate: text("start_date").notNull(),
+  expectedEndDate: text("expected_end_date").notNull(),
+  completedAt: timestamp("completed_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertOnboardingJourneySchema = createInsertSchema(onboardingJourneys).omit({ id: true, createdAt: true, updatedAt: true, completedAt: true });
+export type InsertOnboardingJourney = z.infer<typeof insertOnboardingJourneySchema>;
+export type OnboardingJourney = typeof onboardingJourneys.$inferSelect;
+
+export const onboardingMilestoneCompletions = pgTable("onboarding_milestone_completions", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  journeyId: varchar("journey_id", { length: 100 }).notNull(),
+  milestoneId: varchar("milestone_id", { length: 100 }).notNull(),
+  participantId: varchar("participant_id", { length: 100 }).notNull(),
+  completedBy: varchar("completed_by", { length: 255 }),
+  completedByName: text("completed_by_name"),
+  notes: text("notes"),
+  serviceRecordId: varchar("service_record_id", { length: 100 }),
+  completedAt: timestamp("completed_at").defaultNow(),
+});
+
+export const insertOnboardingMilestoneCompletionSchema = createInsertSchema(onboardingMilestoneCompletions).omit({ id: true, completedAt: true });
+export type InsertOnboardingMilestoneCompletion = z.infer<typeof insertOnboardingMilestoneCompletionSchema>;
+export type OnboardingMilestoneCompletion = typeof onboardingMilestoneCompletions.$inferSelect;
+
+export const onboardingBaselineSnapshots = pgTable("onboarding_baseline_snapshots", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  journeyId: varchar("journey_id", { length: 100 }).notNull(),
+  participantId: varchar("participant_id", { length: 100 }).notNull(),
+  snapshotType: varchar("snapshot_type", { length: 50 }).notNull().default("30_day"),
+  thriveScores: jsonb("thrive_scores"),
+  workforceAssessment: jsonb("workforce_assessment"),
+  selfAssessmentAverages: jsonb("self_assessment_averages"),
+  milestonesSummary: jsonb("milestones_summary"),
+  totalServiceHours: real("total_service_hours").default(0),
+  notes: text("notes"),
+  capturedAt: timestamp("captured_at").defaultNow(),
+});
+
+export const insertOnboardingBaselineSnapshotSchema = createInsertSchema(onboardingBaselineSnapshots).omit({ id: true, capturedAt: true });
+export type InsertOnboardingBaselineSnapshot = z.infer<typeof insertOnboardingBaselineSnapshotSchema>;
+export type OnboardingBaselineSnapshot = typeof onboardingBaselineSnapshots.$inferSelect;
+
 export * from "./models/auth";
