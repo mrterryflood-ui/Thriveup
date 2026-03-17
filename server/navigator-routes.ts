@@ -209,7 +209,7 @@ async function assembleContext(req: Request, userMessage: string): Promise<strin
     financial: ["money", "bills", "debt", "tax", "financial", "bank", "credit", "assistance"],
     transportation: ["transportation", "bus", "ride", "car", "commute", "transit"],
     youth: ["child", "children", "youth", "teen", "kid", "after-school", "mentoring"],
-    substance: ["substance", "addiction", "drug", "alcohol", "rehab", "recovery", "sober", "treatment"],
+    substance: ["substance", "addiction", "drug", "alcohol", "rehab", "recovery", "sober", "treatment", "vaping", "vape", "e-cigarette", "fentanyl", "opioid", "cannabis", "marijuana", "prescription misuse", "overdose", "naloxone"],
     research: ["research", "implementation science", "re-aim", "cfir", "evidence-based", "dissemination", "fidelity", "evaluation framework", "translation", "reaim"],
     chw: ["community health worker", "chw", "home visit", "caseload", "screening referral", "health worker", "frontline"],
   };
@@ -272,6 +272,11 @@ async function assembleContext(req: Request, userMessage: string): Promise<strin
     } catch (err) {
       console.error("[Navigator] Partners query error:", err);
     }
+  }
+
+  const substanceKeywords = ["substance", "addiction", "drug", "alcohol", "vaping", "vape", "e-cigarette", "fentanyl", "opioid", "cannabis", "marijuana", "overdose", "naloxone", "prescription misuse"];
+  if (substanceKeywords.some(kw => lowerMessage.includes(kw))) {
+    contextParts.push(`[PLATFORM RECOMMENDATION]: Direct user to /prevention (Prevention Hub) for evidence-based prevention programs, risk/protective factor assessments, and youth surveys. Also suggest /research-hub for implementation science tools and /chw-dashboard for community health worker resources.`);
   }
 
   const grantKeywords = ["grant", "funding", "funder", "proposal", "recidivism", "prevention", "program funding"];
@@ -340,7 +345,7 @@ function detectNeeds(message: string): string[] {
     "education": ["school", "education", "ged", "college"],
     "legal": ["legal", "lawyer", "court", "expungement", "probation"],
     "financial": ["money", "bills", "debt", "financial"],
-    "substance-abuse": ["substance", "addiction", "drug", "alcohol", "recovery"],
+    "substance-abuse": ["substance", "addiction", "drug", "alcohol", "recovery", "vaping", "vape", "e-cigarette", "fentanyl", "opioid", "cannabis", "marijuana", "prescription misuse", "overdose", "naloxone"],
     "childcare": ["childcare", "daycare", "child care"],
     "transportation": ["transportation", "bus", "ride", "transit"],
     "research": ["research", "implementation science", "re-aim", "cfir", "evidence-based", "dissemination", "fidelity"],
