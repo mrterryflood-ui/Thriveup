@@ -17,6 +17,7 @@ import {
   ExternalLink, Layers, BarChart3, Settings, Activity, Globe,
   Briefcase, Heart, Scale, Zap, Megaphone, Building2,
 } from "lucide-react";
+import { DFCCrossNav } from "@/components/dfc-cross-nav";
 import type { EvidenceBasedProgram, EbpImplementation, EnvironmentalStrategy, CfirAssessment } from "@shared/schema";
 
 interface DashboardData {
@@ -715,6 +716,7 @@ export default function PreventionStrategiesPage() {
           <StakeholderMapTab programs={programs || []} />
         </TabsContent>
       </Tabs>
+      <DFCCrossNav currentPage="prevention-strategies" />
     </div>
   );
 }

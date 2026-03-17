@@ -14,6 +14,7 @@ import {
   CheckCircle, ArrowRight, Sparkles, ChevronDown, ChevronUp,
   ExternalLink, AlertTriangle,
 } from "lucide-react";
+import { DFCCrossNav } from "@/components/dfc-cross-nav";
 import type { ParentEducationModule, ParentEducationProgress, FamilyAssessment } from "@shared/schema";
 
 interface DashboardData {
@@ -671,6 +672,7 @@ export default function ParentEducationPage() {
           <ResourcesTab />
         </TabsContent>
       </Tabs>
+      <DFCCrossNav currentPage="parent-education" />
     </div>
   );
 }

@@ -16,6 +16,7 @@ import {
   ArrowLeft, ClipboardCheck, BarChart3, ExternalLink, FileText,
   Heart, Users, Brain, Activity, Target,
 } from "lucide-react";
+import { DFCCrossNav } from "@/components/dfc-cross-nav";
 import type { PreventionModule, PreventionProgress as PreventionProgressType, RiskAssessment, YouthSurvey } from "@shared/schema";
 
 interface DashboardData {
@@ -858,6 +859,7 @@ export default function PreventionPage() {
           </div>
         </TabsContent>
       </Tabs>
+      <DFCCrossNav currentPage="prevention" />
     </div>
   );
 }

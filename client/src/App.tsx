@@ -113,6 +113,8 @@ const EcosystemHubPage = lazy(() => import("@/pages/ecosystem-hub"));
 const DfcReportingPage = lazy(() => import("@/pages/dfc-reporting"));
 const DfcReadinessPage = lazy(() => import("@/pages/dfc-readiness"));
 const PreventionStrategiesPage = lazy(() => import("@/pages/prevention-strategies"));
+const DfcWizardsPage = lazy(() => import("@/pages/dfc-wizards"));
+const DfcCommandCenterPage = lazy(() => import("@/pages/dfc-command-center"));
 
 function PageFallback() {
   return (
@@ -245,6 +247,8 @@ function AppRouter() {
       <Route path="/dfc-reporting" component={DfcReportingPage} />
       <Route path="/dfc-readiness" component={DfcReadinessPage} />
       <Route path="/prevention-strategies" component={PreventionStrategiesPage} />
+      <Route path="/dfc-command-center" component={DfcCommandCenterPage} />
+      <Route path="/dfc-wizards" component={DfcWizardsPage} />
       <Route component={NotFound} />
     </Switch>
   );

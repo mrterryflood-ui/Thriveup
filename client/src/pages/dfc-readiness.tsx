@@ -14,6 +14,7 @@ import {
   Users, Calendar, Target, FileText, BarChart3, Shield,
   ExternalLink, Trash2, TrendingUp,
 } from "lucide-react";
+import { DFCCrossNav } from "@/components/dfc-cross-nav";
 import type {
   MediaCampaign, CampaignContent, CampaignMetric,
   DfcReadinessItem, StakeholderCommitment,
@@ -697,6 +698,7 @@ export default function DfcReadinessPage() {
           )}
         </div>
       )}
+      <DFCCrossNav currentPage="dfc-readiness" />
     </div>
   );
 }

@@ -29,7 +29,7 @@ import {
   Zap, CalendarCheck, Lightbulb, Gamepad2, Map, Store, Briefcase, Route,
   Activity, ClipboardCheck, Handshake, ChevronRight, DollarSign,
   PenLine, Megaphone, Calendar, HelpCircle, ClipboardList, Printer, Link2,
-  MessageCircle, MapPin, Presentation, Scale, FileBarChart,
+  MessageCircle, MapPin, Presentation, Scale, FileBarChart, LayoutDashboard,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -63,9 +63,11 @@ const workforceSolutionsItems: NavItem[] = [
 ];
 
 const coalitionItems: NavItem[] = [
+  { title: "DFC Command Center", url: "/dfc-command-center", icon: LayoutDashboard },
   { title: "Coalition Dashboard", url: "/coalition", icon: Users },
   { title: "DFC Reporting", url: "/dfc-reporting", icon: FileBarChart },
   { title: "DFC Readiness", url: "/dfc-readiness", icon: Target },
+  { title: "DFC Wizards", url: "/dfc-wizards", icon: Wand2 },
 ];
 
 const grantEngineItems: NavItem[] = [

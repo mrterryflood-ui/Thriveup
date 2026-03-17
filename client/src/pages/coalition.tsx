@@ -14,6 +14,7 @@ import {
   BarChart3, DollarSign, TrendingUp, Shield, ClipboardList,
   Trash2, MapPin, Mail, Phone, UserPlus, Briefcase,
 } from "lucide-react";
+import { DFCCrossNav } from "@/components/dfc-cross-nav";
 import type {
   Coalition, CoalitionSector, CoalitionMember, CoalitionMeeting,
   CoalitionActionItem, CoalitionCapacityAssessment, CommunityActionPlan,
@@ -884,6 +885,7 @@ export default function CoalitionPage() {
           </div>
         </div>
       )}
+      <DFCCrossNav currentPage="coalition" />
     </div>
   );
 }

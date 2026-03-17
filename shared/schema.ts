@@ -2965,4 +2965,18 @@ export const insertStakeholderCommitmentSchema = createInsertSchema(stakeholderC
 export type InsertStakeholderCommitment = z.infer<typeof insertStakeholderCommitmentSchema>;
 export type StakeholderCommitment = typeof stakeholderCommitments.$inferSelect;
 
+export const dfcWizardState = pgTable("dfc_wizard_state", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  visitorId: varchar("visitor_id", { length: 255 }).notNull(),
+  wizardType: text("wizard_type").notNull(),
+  currentStep: integer("current_step").notNull().default(0),
+  completedSteps: jsonb("completed_steps").notNull().default([]),
+  metadata: jsonb("metadata").notNull().default({}),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertDfcWizardStateSchema = createInsertSchema(dfcWizardState).omit({ id: true, updatedAt: true });
+export type InsertDfcWizardState = z.infer<typeof insertDfcWizardStateSchema>;
+export type DfcWizardState = typeof dfcWizardState.$inferSelect;
+
 export * from "./models/auth";

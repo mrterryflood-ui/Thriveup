@@ -14,6 +14,7 @@ import {
   Target, TrendingUp, Shield, ClipboardList, ChevronRight,
   CheckCircle2, AlertTriangle, ArrowUpRight, ArrowDownRight,
 } from "lucide-react";
+import { DFCCrossNav } from "@/components/dfc-cross-nav";
 import type {
   DfcCoreMeasure, DfcStakeholderSurvey,
   CommunityReadinessAssessment, CommunityReadinessInterview,
@@ -886,6 +887,7 @@ export default function DfcReportingPage() {
           </div>
         </div>
       )}
+      <DFCCrossNav currentPage="dfc-reporting" />
     </div>
   );
 }
