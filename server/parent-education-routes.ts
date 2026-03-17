@@ -3,11 +3,17 @@ import { db } from "./storage";
 import {
   parentEducationModules, parentEducationProgress, familyAssessments,
   engagementDosageLogs, cohortEnrollments,
-  insertParentEducationModuleSchema, insertParentEducationProgressSchema, insertFamilyAssessmentSchema,
+  insertParentEducationModuleSchema, insertParentEducationProgressSchema,
 } from "@shared/schema";
 import { eq, desc, and, count } from "drizzle-orm";
+import { z } from "zod";
 import { storage } from "./storage";
 import { generateAIJSON } from "./ai-provider";
+
+const familyAssessmentRequestSchema = z.object({
+  riskResponses: z.record(z.string(), z.number().int().min(0).max(3)),
+  protectiveResponses: z.record(z.string(), z.number().int().min(0).max(3)),
+});
 
 function getUserId(req: Request): string | undefined {
   const u = (req as unknown as Record<string, unknown>).user as { claims?: { sub?: string }; id?: string } | undefined;
@@ -192,10 +198,11 @@ export function registerParentEducationRoutes(app: Express) {
   app.post("/api/parent-education/family-assessments", requireAuth, async (req, res) => {
     try {
       const userId = getUserId(req)!;
-      const { riskResponses, protectiveResponses } = req.body;
-      if (!riskResponses || !protectiveResponses) {
-        return res.status(400).json({ error: "Both riskResponses and protectiveResponses required" });
+      const parsed = familyAssessmentRequestSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid data", details: parsed.error.flatten().fieldErrors });
       }
+      const { riskResponses, protectiveResponses } = parsed.data;
 
       let riskScore = 0;
       for (const q of FAMILY_RISK_QUESTIONS) {
@@ -266,16 +273,19 @@ export function registerParentEducationRoutes(app: Express) {
     }
   });
 
-  app.get("/api/parent-education/dashboard", async (_req, res) => {
+  app.get("/api/parent-education/dashboard", requireAuth, async (req, res) => {
     try {
+      const userId = getUserId(req)!;
       const totalModules = await db.select({ count: count() }).from(parentEducationModules).where(eq(parentEducationModules.isActive, true));
-      const completedProgress = await db.select({ count: count() }).from(parentEducationProgress).where(eq(parentEducationProgress.status, "completed"));
-      const totalAssessments = await db.select({ count: count() }).from(familyAssessments);
+      const userProgress = await db.select({ count: count() }).from(parentEducationProgress)
+        .where(and(eq(parentEducationProgress.visitorId, userId), eq(parentEducationProgress.status, "completed")));
+      const userAssessments = await db.select({ count: count() }).from(familyAssessments)
+        .where(eq(familyAssessments.visitorId, userId));
 
       res.json({
         totalModules: totalModules[0]?.count || 0,
-        completedModules: completedProgress[0]?.count || 0,
-        totalAssessments: totalAssessments[0]?.count || 0,
+        completedModules: userProgress[0]?.count || 0,
+        totalAssessments: userAssessments[0]?.count || 0,
       });
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch dashboard data" });

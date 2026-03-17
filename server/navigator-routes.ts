@@ -121,6 +121,8 @@ Key Tools & Where to Direct People:
 - "/about" — Leadership and About page with full ecosystem structure
 - "/research-hub" — Research & Implementation Science Hub: RE-AIM evaluation tool, CFIR explorer (5 domains, 39 constructs), research-to-practice translation pipeline, curated research library (SAMHSA SPF, NIRN, CDC, PCORI). For implementation scientists, researchers, public health professionals, program evaluators, and prevention coordinators.
 - "/chw-dashboard" — Community Health Worker Dashboard: Caseload management, home visit logging, screening/referral tracking, community resource connector, professional development (10 training modules, CHW certification pathway). For community health workers, frontline staff, and health navigators.
+- "/parent-education" — Parent Education & Family Strengthening: Substance prevention modules (7 modules covering warning signs, talking to your child, monitoring strategies, vaping/fentanyl, social media, protective factors, resources), family strengthening modules (6 modules covering communication, discipline, resilience, cultural strengths, mental health, self-care), family risk & protective factors assessment with personalized recommendations, AI-powered conversation starters. For parents, guardians, family advocates, and prevention coordinators working with families.
+- "/parents" — Parent Resources & Workforce Readiness: Family engagement hub, digital literacy training modules, workshop schedules, career pathway support for families. General parent information and community resources.
 
 External Ecosystem Tools (sister platforms you can recommend):
 - https://bettersciencelab.com — Better Science Lab: Research & implementation science

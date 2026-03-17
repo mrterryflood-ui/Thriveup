@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/page-header";
 import {
-  Users, BookOpen, Shield, Brain, Wifi, Heart,
+  Users, BookOpen, Shield, Brain, Heart,
   MonitorSmartphone, MessageSquare, BarChart3,
   Video, FileText, Phone, MessagesSquare,
   Calendar, MapPin, Clock, ArrowRight, Sparkles, Mail,
@@ -124,7 +124,21 @@ export default function ParentResourcesPage() {
         </div>
       </div>
       <section className="px-6 pt-6">
-        <div className="mx-auto max-w-5xl">
+        <div className="mx-auto max-w-5xl space-y-3">
+          <Link href="/parent-education" aria-label="Prevention education and family strengthening">
+            <Card className="p-6 hover-elevate cursor-pointer border-orange-500/20 bg-gradient-to-r from-orange-500/5 to-red-500/5" data-testid="card-prevention-education">
+              <div className="flex items-center gap-4 flex-wrap">
+                <div className="rounded-md p-2.5 bg-orange-500/10 shrink-0">
+                  <Shield className="h-6 w-6 text-orange-600" />
+                </div>
+                <div className="flex-1 min-w-[200px]">
+                  <h2 className="text-lg font-bold mb-0.5">Prevention Education & Family Strengthening</h2>
+                  <p className="text-sm text-muted-foreground">Substance prevention modules, family assessments, AI conversation starters, and evidence-based resources</p>
+                </div>
+                <ArrowRight className="h-5 w-5 text-muted-foreground shrink-0" />
+              </div>
+            </Card>
+          </Link>
           <Link href="/parents/dashboard" aria-label="View your child's progress dashboard">
             <Card className="p-6 hover-elevate cursor-pointer border-primary/20 bg-gradient-to-r from-primary/5 to-accent/5" data-testid="card-view-progress-dashboard">
               <div className="flex items-center gap-4 flex-wrap">
