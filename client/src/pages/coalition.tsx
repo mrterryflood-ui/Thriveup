@@ -18,7 +18,7 @@ import { DFCCrossNav } from "@/components/dfc-cross-nav";
 import type {
   Coalition, CoalitionSector, CoalitionMember, CoalitionMeeting,
   CoalitionActionItem, CoalitionCapacityAssessment, CommunityActionPlan,
-  CostMatchRecord,
+  CostMatchRecord, CommunityPartner,
 } from "@shared/schema";
 
 type TabId = "overview" | "sectors" | "meetings" | "capacity" | "plans" | "cost-match" | "sustainability";
@@ -62,9 +62,9 @@ export default function CoalitionPage() {
   const [showPlanForm, setShowPlanForm] = useState(false);
   const [showCostForm, setShowCostForm] = useState(false);
   const [showAssessment, setShowAssessment] = useState(false);
-  const [memberData, setMemberData] = useState({ coalitionId: "", sectorId: "", memberName: "", role: "", organization: "", email: "", phone: "" });
-  const [meetingData, setMeetingData] = useState({ coalitionId: "", title: "", scheduledDate: "", location: "", agenda: "", status: "scheduled" });
-  const [planData, setPlanData] = useState({ coalitionId: "", title: "", spfPhase: "assessment", status: "draft" });
+  const [memberData, setMemberData] = useState({ coalitionId: "", sectorId: "", partnerId: "", memberName: "", role: "", organization: "", email: "", phone: "" });
+  const [meetingData, setMeetingData] = useState({ coalitionId: "", title: "", scheduledDate: "", location: "", agenda: "", minutes: "", attendeeIds: [] as string[], status: "scheduled" });
+  const [planData, setPlanData] = useState({ coalitionId: "", title: "", spfPhase: "assessment", status: "draft", goals: "", objectives: "", strategies: "", responsibleParties: "", timeline: "", evaluationMetrics: "" });
   const [costData, setCostData] = useState({ coalitionId: "", contributorName: "", contributionType: "cash", description: "", dollarValue: "", hoursContributed: "", dateRecorded: "" });
   const [assessmentData, setAssessmentData] = useState({ coalitionId: "", organizationalCapacity: 50, leadershipEffectiveness: 50, substanceAbuseKnowledge: 50, communityEngagement: 50 });
 
@@ -117,6 +117,9 @@ export default function CoalitionPage() {
   });
   const costRecords = rawCostRecords ?? [];
 
+  const { data: rawPartners } = useQuery<CommunityPartner[]>({ queryKey: ["/api/partners"] });
+  const partners = rawPartners ?? [];
+
   const invalidateAll = () => {
     if (!coalitionId) return;
     queryClient.invalidateQueries({ queryKey: ["/api/coalitions"] });
@@ -150,7 +153,7 @@ export default function CoalitionPage() {
     onSuccess: () => {
       invalidateAll();
       setShowMemberForm(false);
-      setMemberData({ coalitionId: "", sectorId: "", memberName: "", role: "", organization: "", email: "", phone: "" });
+      setMemberData({ coalitionId: "", sectorId: "", partnerId: "", memberName: "", role: "", organization: "", email: "", phone: "" });
       toast({ title: "Member added to coalition" });
     },
   });
@@ -168,7 +171,7 @@ export default function CoalitionPage() {
     onSuccess: () => {
       invalidateAll();
       setShowMeetingForm(false);
-      setMeetingData({ coalitionId: "", title: "", scheduledDate: "", location: "", agenda: "", status: "scheduled" });
+      setMeetingData({ coalitionId: "", title: "", scheduledDate: "", location: "", agenda: "", minutes: "", attendeeIds: [], status: "scheduled" });
       toast({ title: "Meeting scheduled" });
     },
   });
@@ -218,7 +221,7 @@ export default function CoalitionPage() {
     onSuccess: () => {
       invalidateAll();
       setShowPlanForm(false);
-      setPlanData({ coalitionId: "", title: "", spfPhase: "assessment", status: "draft" });
+      setPlanData({ coalitionId: "", title: "", spfPhase: "assessment", status: "draft", goals: "", objectives: "", strategies: "", responsibleParties: "", timeline: "", evaluationMetrics: "" });
       toast({ title: "Action plan created" });
     },
   });
@@ -279,28 +282,46 @@ export default function CoalitionPage() {
       <div>
         <h1 className="text-2xl sm:text-3xl font-bold" data-testid="text-coalition-title">DFC Coalition Dashboard</h1>
         <p className="text-muted-foreground mt-1">{currentCoalition?.name || "12-Sector Coalition Management"}</p>
+        {currentCoalition?.mission && (
+          <p className="text-sm text-muted-foreground mt-1 max-w-3xl" data-testid="text-coalition-mission">{currentCoalition.mission}</p>
+        )}
+        {currentCoalition?.formationDate && (
+          <p className="text-xs text-muted-foreground mt-0.5" data-testid="text-coalition-formation-date">Formed: {currentCoalition.formationDate}</p>
+        )}
       </div>
 
-      {dashboard && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <Card className="p-3 text-center" data-testid="card-stat-sector-coverage">
-            <p className="text-2xl font-bold text-primary">{dashboard.sectorCoverage}%</p>
-            <p className="text-xs text-muted-foreground">Sector Coverage</p>
-          </Card>
-          <Card className="p-3 text-center" data-testid="card-stat-members">
-            <p className="text-2xl font-bold text-emerald-600">{dashboard.totalMembers}</p>
-            <p className="text-xs text-muted-foreground">Members</p>
-          </Card>
-          <Card className="p-3 text-center" data-testid="card-stat-capacity">
-            <p className="text-2xl font-bold text-blue-600">{dashboard.latestCapacityScore}</p>
-            <p className="text-xs text-muted-foreground">Capacity Score</p>
-          </Card>
-          <Card className="p-3 text-center" data-testid="card-stat-cost-match">
-            <p className="text-2xl font-bold text-amber-600">${dashboard.totalCostMatch.toLocaleString()}</p>
-            <p className="text-xs text-muted-foreground">Cost Match Total</p>
-          </Card>
-        </div>
-      )}
+      {dashboard && (() => {
+        const healthScore = Math.round(
+          (dashboard.sectorCoverage * 0.3) +
+          (dashboard.latestCapacityScore * 0.3) +
+          (dashboard.totalMembers > 0 ? Math.min(dashboard.totalMembers / 24 * 100, 100) : 0) * 0.2 +
+          (dashboard.completedActions > 0 ? Math.min(dashboard.completedActions / Math.max(dashboard.totalActionItems, 1) * 100, 100) : 0) * 0.2
+        );
+        return (
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+            <Card className="p-3 text-center" data-testid="card-stat-health-score">
+              <p className={`text-2xl font-bold ${healthScore >= 60 ? "text-emerald-600" : healthScore >= 30 ? "text-amber-600" : "text-red-600"}`}>{healthScore}</p>
+              <p className="text-xs text-muted-foreground">Health Score</p>
+            </Card>
+            <Card className="p-3 text-center" data-testid="card-stat-sector-coverage">
+              <p className="text-2xl font-bold text-primary">{dashboard.sectorCoverage}%</p>
+              <p className="text-xs text-muted-foreground">{dashboard.representedSectors}/{dashboard.totalSectors} Sectors</p>
+            </Card>
+            <Card className="p-3 text-center" data-testid="card-stat-members">
+              <p className="text-2xl font-bold text-emerald-600">{dashboard.totalMembers}</p>
+              <p className="text-xs text-muted-foreground">Members</p>
+            </Card>
+            <Card className="p-3 text-center" data-testid="card-stat-capacity">
+              <p className="text-2xl font-bold text-blue-600">{dashboard.latestCapacityScore}</p>
+              <p className="text-xs text-muted-foreground">Capacity Score</p>
+            </Card>
+            <Card className="p-3 text-center" data-testid="card-stat-cost-match">
+              <p className="text-2xl font-bold text-amber-600">${dashboard.totalCostMatch.toLocaleString()}</p>
+              <p className="text-xs text-muted-foreground">Cost Match Total</p>
+            </Card>
+          </div>
+        );
+      })()}
 
       <div className="flex gap-1 border-b overflow-x-auto pb-px">
         {tabs.map(tab => (
@@ -401,6 +422,20 @@ export default function CoalitionPage() {
                   </select>
                 </div>
                 <div>
+                  <label className="text-sm font-medium">Link Existing Partner</label>
+                  <select className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm" value={memberData.partnerId} onChange={e => {
+                    const p = partners.find(pp => pp.id === e.target.value);
+                    if (p) {
+                      setMemberData(d => ({ ...d, partnerId: p.id, memberName: p.contactName || p.name, organization: p.name, email: p.contactEmail || "", phone: p.contactPhone || "" }));
+                    } else {
+                      setMemberData(d => ({ ...d, partnerId: "" }));
+                    }
+                  }} data-testid="select-member-partner">
+                    <option value="">Manual entry (no partner link)</option>
+                    {partners.map(p => <option key={p.id} value={p.id}>{p.name} ({p.type})</option>)}
+                  </select>
+                </div>
+                <div>
                   <label className="text-sm font-medium">Name</label>
                   <Input value={memberData.memberName} onChange={e => setMemberData(d => ({ ...d, memberName: e.target.value }))} data-testid="input-member-name" />
                 </div>
@@ -422,7 +457,7 @@ export default function CoalitionPage() {
                 </div>
               </div>
               <div className="flex gap-2">
-                <Button onClick={() => addMemberMutation.mutate({ ...memberData, coalitionId: coalitionId || "" })} disabled={!memberData.memberName || addMemberMutation.isPending} data-testid="button-submit-member">
+                <Button onClick={() => addMemberMutation.mutate({ ...memberData, coalitionId: coalitionId || "", partnerId: memberData.partnerId || undefined })} disabled={!memberData.memberName || addMemberMutation.isPending} data-testid="button-submit-member">
                   {addMemberMutation.isPending ? "Adding..." : "Add Member"}
                 </Button>
                 <Button variant="outline" onClick={() => setShowMemberForm(false)} data-testid="button-cancel-member">Cancel</Button>
@@ -504,8 +539,27 @@ export default function CoalitionPage() {
                 <label className="text-sm font-medium">Agenda</label>
                 <Textarea value={meetingData.agenda} onChange={e => setMeetingData(d => ({ ...d, agenda: e.target.value }))} rows={3} data-testid="input-meeting-agenda" />
               </div>
+              <div>
+                <label className="text-sm font-medium">Sector Attendance</label>
+                <p className="text-xs text-muted-foreground mb-1">Select sectors represented at this meeting</p>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-1.5">
+                  {sectors.map(s => (
+                    <label key={s.id} className="flex items-center gap-1.5 text-xs cursor-pointer">
+                      <input type="checkbox" checked={meetingData.attendeeIds.includes(s.id)} onChange={e => {
+                        setMeetingData(d => ({
+                          ...d,
+                          attendeeIds: e.target.checked
+                            ? [...d.attendeeIds, s.id]
+                            : d.attendeeIds.filter(id => id !== s.id)
+                        }));
+                      }} data-testid={`checkbox-attendance-${s.sectorNumber}`} />
+                      <span>#{s.sectorNumber} {s.sectorName}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
               <div className="flex gap-2">
-                <Button onClick={() => addMeetingMutation.mutate({ ...meetingData, coalitionId: coalitionId || "" })} disabled={!meetingData.title || addMeetingMutation.isPending} data-testid="button-submit-meeting">
+                <Button onClick={() => addMeetingMutation.mutate({ ...meetingData, coalitionId: coalitionId || "", attendeeIds: meetingData.attendeeIds })} disabled={!meetingData.title || addMeetingMutation.isPending} data-testid="button-submit-meeting">
                   {addMeetingMutation.isPending ? "Scheduling..." : "Schedule Meeting"}
                 </Button>
                 <Button variant="outline" onClick={() => setShowMeetingForm(false)} data-testid="button-cancel-meeting">Cancel</Button>
@@ -544,6 +598,35 @@ export default function CoalitionPage() {
                       </div>
                     </div>
                     {meeting.agenda && <p className="text-sm text-muted-foreground mt-2">{meeting.agenda}</p>}
+
+                    {(() => {
+                      const attendees = Array.isArray(meeting.attendeeIds) ? meeting.attendeeIds as string[] : [];
+                      if (attendees.length > 0) {
+                        const attendedSectors = sectors.filter(s => attendees.includes(s.id));
+                        return (
+                          <div className="mt-2">
+                            <p className="text-xs font-semibold text-muted-foreground mb-1">Sector Attendance ({attendedSectors.length}/{sectors.length})</p>
+                            <div className="flex gap-1 flex-wrap">
+                              {attendedSectors.map(s => (
+                                <Badge key={s.id} variant="secondary" className="text-xs">#{s.sectorNumber} {s.sectorName}</Badge>
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()}
+
+                    {meeting.minutes && (
+                      <div className="mt-2 p-2 bg-muted/50 rounded text-sm" data-testid={`meeting-minutes-${meeting.id}`}>
+                        <p className="text-xs font-semibold text-muted-foreground mb-1">Minutes</p>
+                        <p className="whitespace-pre-wrap">{meeting.minutes}</p>
+                      </div>
+                    )}
+
+                    {meeting.status === "completed" && !meeting.minutes && (
+                      <MeetingMinutesInline meetingId={meeting.id} onSave={(minutes) => updateMeetingMutation.mutate({ id: meeting.id, minutes })} isPending={updateMeetingMutation.isPending} />
+                    )}
 
                     {meetingActions.length > 0 && (
                       <div className="mt-3 space-y-1">
@@ -700,8 +783,47 @@ export default function CoalitionPage() {
                   </select>
                 </div>
               </div>
+              <div>
+                <label className="text-sm font-medium">Goals</label>
+                <Textarea value={planData.goals} onChange={e => setPlanData(d => ({ ...d, goals: e.target.value }))} rows={2} placeholder="What are the overall goals? (one per line)" data-testid="input-plan-goals" />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Objectives</label>
+                <Textarea value={planData.objectives} onChange={e => setPlanData(d => ({ ...d, objectives: e.target.value }))} rows={2} placeholder="Specific, measurable objectives (one per line)" data-testid="input-plan-objectives" />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Strategies</label>
+                <Textarea value={planData.strategies} onChange={e => setPlanData(d => ({ ...d, strategies: e.target.value }))} rows={2} placeholder="Evidence-based strategies to achieve objectives (one per line)" data-testid="input-plan-strategies" />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium">Responsible Parties</label>
+                  <Textarea value={planData.responsibleParties} onChange={e => setPlanData(d => ({ ...d, responsibleParties: e.target.value }))} rows={2} placeholder="Who is responsible? (one per line)" data-testid="input-plan-responsible" />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Timeline</label>
+                  <Textarea value={planData.timeline} onChange={e => setPlanData(d => ({ ...d, timeline: e.target.value }))} rows={2} placeholder="Key milestones and deadlines" data-testid="input-plan-timeline" />
+                </div>
+              </div>
+              <div>
+                <label className="text-sm font-medium">Evaluation Metrics</label>
+                <Textarea value={planData.evaluationMetrics} onChange={e => setPlanData(d => ({ ...d, evaluationMetrics: e.target.value }))} rows={2} placeholder="How will success be measured? (one per line)" data-testid="input-plan-metrics" />
+              </div>
               <div className="flex gap-2">
-                <Button onClick={() => addPlanMutation.mutate({ ...planData, coalitionId: coalitionId || "" })} disabled={!planData.title || addPlanMutation.isPending} data-testid="button-submit-plan">
+                <Button onClick={() => {
+                  const toList = (s: string) => s.split("\n").map(l => l.trim()).filter(Boolean);
+                  addPlanMutation.mutate({
+                    coalitionId: coalitionId || "",
+                    title: planData.title,
+                    spfPhase: planData.spfPhase,
+                    status: planData.status,
+                    goals: toList(planData.goals),
+                    objectives: toList(planData.objectives),
+                    strategies: toList(planData.strategies),
+                    timeline: toList(planData.timeline),
+                    evaluationMetrics: toList(planData.evaluationMetrics),
+                  });
+                }} disabled={!planData.title || addPlanMutation.isPending} data-testid="button-submit-plan">
                   {addPlanMutation.isPending ? "Creating..." : "Create Plan"}
                 </Button>
                 <Button variant="outline" onClick={() => setShowPlanForm(false)} data-testid="button-cancel-plan">Cancel</Button>
@@ -722,13 +844,57 @@ export default function CoalitionPage() {
                     <Badge variant="secondary">{phasePlans.length} plan{phasePlans.length !== 1 ? "s" : ""}</Badge>
                   </div>
                   {phasePlans.length > 0 && (
-                    <div className="space-y-1.5 mt-2">
-                      {phasePlans.map(plan => (
-                        <div key={plan.id} className="flex items-center justify-between text-sm" data-testid={`plan-${plan.id}`}>
-                          <span>{plan.title}</span>
-                          <Badge variant={plan.status === "active" ? "default" : "outline"} className="text-xs">{plan.status}</Badge>
-                        </div>
-                      ))}
+                    <div className="space-y-3 mt-2">
+                      {phasePlans.map(plan => {
+                        const goals = Array.isArray(plan.goals) ? plan.goals as string[] : [];
+                        const objectives = Array.isArray(plan.objectives) ? plan.objectives as string[] : [];
+                        const strategies = Array.isArray(plan.strategies) ? plan.strategies as string[] : [];
+                        const timeline = Array.isArray(plan.timeline) ? plan.timeline as string[] : [];
+                        const metrics = Array.isArray(plan.evaluationMetrics) ? plan.evaluationMetrics as string[] : [];
+                        const hasDetail = goals.length > 0 || objectives.length > 0 || strategies.length > 0;
+                        return (
+                          <div key={plan.id} className="border rounded p-3" data-testid={`plan-${plan.id}`}>
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="font-medium text-sm">{plan.title}</span>
+                              <Badge variant={plan.status === "active" ? "default" : "outline"} className="text-xs">{plan.status}</Badge>
+                            </div>
+                            {hasDetail && (
+                              <div className="space-y-2 mt-2">
+                                {goals.length > 0 && (
+                                  <div>
+                                    <p className="text-xs font-semibold text-muted-foreground">Goals</p>
+                                    <ul className="list-disc list-inside text-xs space-y-0.5">{goals.map((g, i) => <li key={i}>{g}</li>)}</ul>
+                                  </div>
+                                )}
+                                {objectives.length > 0 && (
+                                  <div>
+                                    <p className="text-xs font-semibold text-muted-foreground">Objectives</p>
+                                    <ul className="list-disc list-inside text-xs space-y-0.5">{objectives.map((o, i) => <li key={i}>{o}</li>)}</ul>
+                                  </div>
+                                )}
+                                {strategies.length > 0 && (
+                                  <div>
+                                    <p className="text-xs font-semibold text-muted-foreground">Strategies</p>
+                                    <ul className="list-disc list-inside text-xs space-y-0.5">{strategies.map((s, i) => <li key={i}>{s}</li>)}</ul>
+                                  </div>
+                                )}
+                                {timeline.length > 0 && (
+                                  <div>
+                                    <p className="text-xs font-semibold text-muted-foreground">Timeline</p>
+                                    <ul className="list-disc list-inside text-xs space-y-0.5">{timeline.map((t, i) => <li key={i}>{t}</li>)}</ul>
+                                  </div>
+                                )}
+                                {metrics.length > 0 && (
+                                  <div>
+                                    <p className="text-xs font-semibold text-muted-foreground">Evaluation Metrics</p>
+                                    <ul className="list-disc list-inside text-xs space-y-0.5">{metrics.map((m, i) => <li key={i}>{m}</li>)}</ul>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   )}
                 </Card>
@@ -894,6 +1060,27 @@ export default function CoalitionPage() {
         </div>
       )}
       <DFCCrossNav currentPage="coalition" />
+    </div>
+  );
+}
+
+function MeetingMinutesInline({ meetingId, onSave, isPending }: { meetingId: string; onSave: (minutes: string) => void; isPending: boolean }) {
+  const [text, setText] = useState("");
+  const [show, setShow] = useState(false);
+  if (!show) {
+    return (
+      <Button variant="ghost" size="sm" className="mt-2" onClick={() => setShow(true)} data-testid={`button-add-minutes-${meetingId}`}>
+        <Plus className="mr-1 h-3 w-3" /> Add Minutes
+      </Button>
+    );
+  }
+  return (
+    <div className="mt-2 space-y-2">
+      <Textarea placeholder="Record meeting minutes..." value={text} onChange={e => setText(e.target.value)} rows={3} data-testid={`input-minutes-${meetingId}`} />
+      <div className="flex gap-2">
+        <Button size="sm" disabled={!text || isPending} onClick={() => { onSave(text); setText(""); setShow(false); }} data-testid={`button-save-minutes-${meetingId}`}>Save Minutes</Button>
+        <Button variant="ghost" size="sm" onClick={() => setShow(false)}>Cancel</Button>
+      </div>
     </div>
   );
 }

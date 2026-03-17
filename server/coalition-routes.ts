@@ -169,7 +169,14 @@ export function registerCoalitionRoutes(app: Express) {
   app.delete("/api/coalition-members/:id", requireAuth, async (req, res) => {
     try {
       const id = req.params.id as string;
+      const [member] = await db.select().from(coalitionMembers).where(eq(coalitionMembers.id, id));
       await db.delete(coalitionMembers).where(eq(coalitionMembers.id, id));
+      if (member?.sectorId) {
+        const remaining = await db.select().from(coalitionMembers).where(eq(coalitionMembers.sectorId, member.sectorId));
+        if (remaining.length === 0) {
+          await db.update(coalitionSectors).set({ isRepresented: false }).where(eq(coalitionSectors.id, member.sectorId));
+        }
+      }
       res.json({ success: true });
     } catch (error) {
       console.error("Failed to delete member:", error);
