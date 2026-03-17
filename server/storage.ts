@@ -1597,6 +1597,8 @@ export class DatabaseStorage implements IStorage {
   async createBaselineSnapshot(data: InsertOnboardingBaselineSnapshot): Promise<OnboardingBaselineSnapshot> {
     const [s] = await db.insert(onboardingBaselineSnapshots).values(data).returning();
     return s;
+  }
+
   async getCqiCycles(): Promise<CqiCycle[]> {
     return db.select().from(cqiCycles).orderBy(desc(cqiCycles.createdAt));
   }

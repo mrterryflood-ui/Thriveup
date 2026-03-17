@@ -68,6 +68,7 @@ const coalitionItems: NavItem[] = [
 
 const grantEngineItems: NavItem[] = [
   { title: "Grant Hub", url: "/grants", icon: Target },
+  { title: "Ecosystem Hub", url: "/ecosystem", icon: Globe },
   { title: "Logic Model", url: "/logic-model", icon: Route },
   { title: "Narrative Builder", url: "/grant-narrative", icon: FileText },
   { title: "Advisory Board", url: "/advisory-board", icon: Users },
