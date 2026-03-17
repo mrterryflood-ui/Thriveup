@@ -243,6 +243,33 @@ const ECOSYSTEM_APPS: EcosystemApp[] = [
     ],
     dfcSectors: [8, 9, 10, 12],
   },
+  {
+    id: "mce",
+    name: "Minority Center of Excellence",
+    tagline: "Minority Business Lifecycle Ecosystem",
+    url: "",
+    icon: Factory,
+    color: "text-emerald-600 dark:text-emerald-400",
+    bgColor: "bg-emerald-50 dark:bg-emerald-950/30",
+    borderColor: "border-emerald-200 dark:border-emerald-800",
+    status: "integrated",
+    description: "First comprehensive digital ecosystem for minority-owned businesses across the entire business lifecycle. 656,794 curated records, 14 AI tools, dual-AI proposal review, SAM.gov live integration, 50-state + DC coverage.",
+    features: ["6-Stage Business Lifecycle", "656,794 Curated Records", "14 AI Tools (4 Providers)", "Dual-AI Proposal Review", "SAM.gov Live Integration", "Business Health Score", "Certification Wizard (9 Programs)", "Teaming Hub & B2B Networking"],
+    populations: ["Minority-Owned Businesses", "VOSB/SDVOSB Firms", "8(a) Businesses", "HUBZone Businesses", "WOSB Firms", "GovCon Professionals"],
+    thriveUpConnections: [
+      { area: "Workforce Pipeline", description: "Workforce development graduates transition to business formation" },
+      { area: "GovCon Intelligence", description: "Shared federal contract discovery with The Incubator" },
+      { area: "Veteran Entrepreneurs", description: "M2C Transition veterans guided to VOSB certification" },
+      { area: "Community Economic Dev", description: "LifeBridge connects minority businesses to community resources" },
+    ],
+    grantAlignment: [
+      { grant: "SBA SBIR/STTR", relevance: "Small business innovation and technology transfer" },
+      { grant: "DOC/MBDA", relevance: "Minority business development agency programs" },
+      { grant: "SBA 7(j)", relevance: "Management and technical assistance for MBEs" },
+      { grant: "DOT DBE", relevance: "Disadvantaged business enterprise program support" },
+    ],
+    dfcSectors: [3],
+  },
 ];
 
 const DFC_SECTORS = [
@@ -266,6 +293,7 @@ const GRANT_STREAMS = [
   { id: "ojjdp", name: "OJJDP Second Chance", amount: "$750K", deadline: "Varies", color: "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300" },
   { id: "samhsa", name: "SAMHSA Mental Health", amount: "$1M+", deadline: "Varies", color: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300" },
   { id: "hhs", name: "HHS/HRSA", amount: "Varies", deadline: "Varies", color: "bg-rose-100 text-rose-800 dark:bg-rose-900/30 dark:text-rose-300" },
+  { id: "sba", name: "SBA/DOC MBD", amount: "Varies", deadline: "Varies", color: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300" },
 ];
 
 const DOMAIN_ICONS: Record<string, typeof Globe> = {
@@ -905,9 +933,9 @@ function CompetitiveAdvantagesTab() {
         <CardContent>
           <div className="bg-violet-50 dark:bg-violet-950/20 border border-violet-200 dark:border-violet-800 rounded-md p-4">
             <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-              The Collaborative Advocate maintains complete intellectual property ownership of all 13 technology platforms, 
+              The Collaborative Advocate maintains complete intellectual property ownership of all 14 technology platforms, 
               all proprietary methodologies (MAP-GAP, SALP, Three Realities, MG-PATR, ISSS Knowledge Engine), 
-              all data architectures, and all curated datasets. No third-party licenses, no open-source dependencies 
+              all data architectures, and all curated datasets including MCE's 656,794 curated business records. No third-party licenses, no open-source dependencies 
               for core IP, no shared ownership. This provides absolute freedom in deployment, licensing, white-labeling, 
               and contract execution across any funding stream or commercial engagement.
             </p>
@@ -938,15 +966,15 @@ export default function EcosystemHubPage() {
             Ecosystem Integration Hub
           </h1>
           <p className="text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
-            The Collaborative Advocate's 13-platform technology ecosystem — from education and workforce development
-            to health equity, defense, veteran services, compliance, and business intelligence.
+            The Collaborative Advocate's 14-platform technology ecosystem — from education and workforce development
+            to health equity, defense, veteran services, compliance, business intelligence, and minority business development.
           </p>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Card data-testid="stat-total-apps">
             <CardContent className="pt-4 pb-4 text-center">
-              <div className="text-3xl font-bold text-violet-600 dark:text-violet-400">13</div>
+              <div className="text-3xl font-bold text-violet-600 dark:text-violet-400">14</div>
               <div className="text-sm text-gray-500 dark:text-gray-400">Total Platforms</div>
             </CardContent>
           </Card>
@@ -1337,7 +1365,7 @@ export default function EcosystemHubPage() {
                 <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4" data-testid="narrative-coalition-infrastructure">
                   <h4 className="font-semibold text-amber-800 dark:text-amber-300 mb-2">Coalition Infrastructure</h4>
                   <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-                    Our coalition operates through ThriveUp Academy, an AI-powered community enablement platform that serves as the central coordination hub for a network of 13 interconnected service platforms forming The Collaborative Advocate ecosystem. This infrastructure enables real-time cross-sector collaboration, data-driven decision-making, and measurable outcome tracking across all 12 DFC-required community sectors. Our coalition management dashboard tracks sector representation, meeting activity, capacity assessments aligned to SAMHSA's Strategic Prevention Framework, and 100% cost match compliance documentation.
+                    Our coalition operates through ThriveUp Academy, an AI-powered community enablement platform that serves as the central coordination hub for a network of 14 interconnected service platforms forming The Collaborative Advocate ecosystem. This infrastructure enables real-time cross-sector collaboration, data-driven decision-making, and measurable outcome tracking across all 12 DFC-required community sectors. Our coalition management dashboard tracks sector representation, meeting activity, capacity assessments aligned to SAMHSA's Strategic Prevention Framework, and 100% cost match compliance documentation.
                   </p>
                 </div>
 
@@ -1365,7 +1393,7 @@ export default function EcosystemHubPage() {
                 <div className="bg-rose-50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-800 rounded-lg p-4" data-testid="narrative-sustainability">
                   <h4 className="font-semibold text-rose-800 dark:text-rose-300 mb-2">Sustainability & Long-Term Impact</h4>
                   <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-                    Our coalition's sustainability strategy is built on technology infrastructure that reduces per-participant costs over time, a diversified funding approach spanning 12 federal grant streams, in-kind contributions from 13 platform partners, and a community partner network. Our cost match tracking system documents all non-federal contributions, and our logic model builder generates theory-of-change documentation. The Collaborative Advocate's dual-entity structure (Foundation + VOSB LLC) ensures flexible contracting and sustainable revenue streams beyond any single grant.
+                    Our coalition's sustainability strategy is built on technology infrastructure that reduces per-participant costs over time, a diversified funding approach spanning 13 federal grant streams, in-kind contributions from 14 platform partners, and a community partner network. The Minority Center of Excellence (MCE) strengthens economic sustainability by connecting minority-owned businesses to federal contracting opportunities, creating a self-reinforcing economic development pipeline. Our cost match tracking system documents all non-federal contributions, and our logic model builder generates theory-of-change documentation. The Collaborative Advocate's dual-entity structure (Foundation + VOSB LLC) ensures flexible contracting and sustainable revenue streams beyond any single grant.
                   </p>
                 </div>
               </CardContent>

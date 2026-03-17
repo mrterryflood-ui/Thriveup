@@ -30,6 +30,8 @@ import {
   Activity, ClipboardCheck, Handshake, ChevronRight, DollarSign,
   PenLine, Megaphone, Calendar, HelpCircle, ClipboardList, Printer, Link2,
   MessageCircle, MapPin, Presentation, Scale, FileBarChart, LayoutDashboard,
+  Info, BookMarked,
+  Mail,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -72,7 +74,9 @@ const coalitionItems: NavItem[] = [
 
 const grantEngineItems: NavItem[] = [
   { title: "Grant Hub", url: "/grants", icon: Target },
+  { title: "Program Management", url: "/program-management", icon: Briefcase },
   { title: "Ecosystem Hub", url: "/ecosystem", icon: Globe },
+  { title: "Ecosystem Story", url: "/ecosystem-story", icon: BookMarked },
   { title: "Logic Model", url: "/logic-model", icon: Route },
   { title: "Narrative Builder", url: "/grant-narrative", icon: FileText },
   { title: "Advisory Board", url: "/advisory-board", icon: Users },
@@ -82,6 +86,7 @@ const grantEngineItems: NavItem[] = [
   { title: "MAP-GAP CQI", url: "/cqi", icon: Activity },
   { title: "Outcome Reporting", url: "/outcomes", icon: FileBarChart },
   { title: "Stakeholder Deck", url: "/presentation", icon: Presentation },
+  { title: "Platform Metrics", url: "/platform-metrics", icon: BarChart3 },
 ];
 
 const aiToolsItems: NavItem[] = [
@@ -135,10 +140,15 @@ const campusExtrasItems: NavItem[] = [
   { title: "Life Lessons", url: "/academy/lessons", icon: Lightbulb },
 ];
 
+const aboutItems: NavItem[] = [
+  { title: "About / Leadership", url: "/about", icon: Info },
+];
+
 const preventionItems: NavItem[] = [
   { title: "Prevention Hub", url: "/prevention", icon: Shield },
   { title: "Prevention Strategies", url: "/prevention-strategies", icon: ShieldCheck },
   { title: "Parent Education", url: "/parent-education", icon: Heart },
+  { title: "Facilitator Hub", url: "/facilitator-hub", icon: ClipboardCheck },
 ];
 
 const healthWellnessItems: NavItem[] = [
@@ -386,6 +396,8 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
+        <NavSection label="About" items={aboutItems} location={location} />
+
         {rank && (
           <SidebarGroup>
             <SidebarGroupLabel>Your Rank</SidebarGroupLabel>
@@ -434,6 +446,11 @@ export function AppSidebar() {
             </div>
           )
         )}
+        <Link href="/contact" aria-label="Contact Us">
+          <Button variant="ghost" size="sm" className="w-full justify-start" data-testid="link-contact">
+            <Mail className="mr-2 h-4 w-4" aria-hidden="true" /> Contact Us
+          </Button>
+        </Link>
         <Link href="/privacy" aria-label="Privacy Policy">
           <Button variant="ghost" size="sm" className="w-full justify-start" data-testid="link-privacy-policy">
             <Shield className="mr-2 h-4 w-4" aria-hidden="true" /> Privacy Policy

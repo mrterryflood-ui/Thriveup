@@ -196,6 +196,127 @@ export async function generateAIResponse(messages: Array<{ role: string; content
   });
 }
 
+export async function generateMultiAIResponse(
+  prompt: string,
+  options?: { ensemble?: boolean; systemPrompt?: string; maxTokens?: number }
+): Promise<{ primary: string; secondary?: string; consensus?: string }> {
+  const providers = getAvailableProviders();
+  if (providers.length === 0) throw new Error("No AI provider configured");
+
+  const messages: Array<{ role: string; content: string }> = [];
+  if (options?.systemPrompt) messages.push({ role: "system", content: options.systemPrompt });
+  messages.push({ role: "user", content: prompt });
+
+  const primary = await generateAIResponse(messages, options?.maxTokens);
+
+  if (!options?.ensemble || providers.length < 2) {
+    return { primary };
+  }
+
+  try {
+    let secondaryText = "";
+    const secondProvider = providers[1];
+    if (secondProvider === "gemini") {
+      const { GoogleGenerativeAI: GenAI } = await import("@google/generative-ai");
+      const genAI = new GenAI(process.env.GEMINI_API_KEY!);
+      const model = genAI.getGenerativeModel({
+        model: "gemini-2.0-flash",
+        systemInstruction: options?.systemPrompt,
+        generationConfig: { maxOutputTokens: options?.maxTokens || 2000 },
+      });
+      const result = await model.generateContent(prompt);
+      secondaryText = result.response.text();
+    } else {
+      const isReplit = secondProvider === "replit-ai-integrations";
+      const { default: OAI } = await import("openai");
+      const client = new OAI({
+        apiKey: isReplit ? process.env.AI_INTEGRATIONS_OPENAI_API_KEY : process.env.OPENAI_API_KEY,
+        baseURL: isReplit ? process.env.AI_INTEGRATIONS_OPENAI_BASE_URL : undefined,
+      });
+      const msgs: Array<{ role: "system" | "user"; content: string }> = [];
+      if (options?.systemPrompt) msgs.push({ role: "system", content: options.systemPrompt });
+      msgs.push({ role: "user", content: prompt });
+      const resp = await client.chat.completions.create({
+        model: isReplit ? "gpt-5-nano" : "gpt-4o-mini",
+        messages: msgs,
+        max_completion_tokens: options?.maxTokens || 2000,
+      });
+      secondaryText = resp.choices[0]?.message?.content || "";
+    }
+
+    const consensusPrompt = `You received two independent responses to the same prompt. Summarize the consensus and note any differences.\n\nResponse A:\n${primary}\n\nResponse B:\n${secondaryText}`;
+    const consensus = await generateAIResponse([
+      { role: "system", content: "You are an expert synthesizer. Merge two AI responses into a consensus summary." },
+      { role: "user", content: consensusPrompt },
+    ], options?.maxTokens);
+
+    return { primary, secondary: secondaryText, consensus };
+  } catch {
+    return { primary };
+  }
+}
+
+export async function dualAIReview(
+  content: string,
+  reviewPrompt: string
+): Promise<{ reviewA: string; reviewB?: string; differences?: string }> {
+  const providers = getAvailableProviders();
+  if (providers.length === 0) throw new Error("No AI provider configured");
+
+  const messages: Array<{ role: string; content: string }> = [
+    { role: "system", content: reviewPrompt },
+    { role: "user", content: content },
+  ];
+
+  const reviewA = await generateAIResponse(messages);
+
+  if (providers.length < 2) {
+    return { reviewA };
+  }
+
+  try {
+    let reviewB = "";
+    const secondProvider = providers[1];
+    if (secondProvider === "gemini") {
+      const { GoogleGenerativeAI: GenAI } = await import("@google/generative-ai");
+      const genAI = new GenAI(process.env.GEMINI_API_KEY!);
+      const model = genAI.getGenerativeModel({
+        model: "gemini-2.0-flash",
+        systemInstruction: reviewPrompt,
+        generationConfig: { maxOutputTokens: 2000 },
+      });
+      const result = await model.generateContent(content);
+      reviewB = result.response.text();
+    } else {
+      const isReplit = secondProvider === "replit-ai-integrations";
+      const { default: OAI } = await import("openai");
+      const client = new OAI({
+        apiKey: isReplit ? process.env.AI_INTEGRATIONS_OPENAI_API_KEY : process.env.OPENAI_API_KEY,
+        baseURL: isReplit ? process.env.AI_INTEGRATIONS_OPENAI_BASE_URL : undefined,
+      });
+      const resp = await client.chat.completions.create({
+        model: isReplit ? "gpt-5-nano" : "gpt-4o-mini",
+        messages: [
+          { role: "system", content: reviewPrompt },
+          { role: "user", content: content },
+        ],
+        max_completion_tokens: 2000,
+      });
+      reviewB = resp.choices[0]?.message?.content || "";
+    }
+
+    const diffPrompt = `Compare two independent reviews and highlight differences.\n\nReview A:\n${reviewA}\n\nReview B:\n${reviewB}`;
+    const differences = await generateAIResponse([
+      { role: "system", content: "You are an expert reviewer. Identify key differences between two reviews." },
+      { role: "user", content: diffPrompt },
+    ]);
+
+    return { reviewA, reviewB, differences };
+  } catch {
+    return { reviewA };
+  }
+}
+
 export async function streamAIResponse(params: StreamAIResponseParams): Promise<void> {
   const providers = getAvailableProviders();
   if (providers.length === 0) {

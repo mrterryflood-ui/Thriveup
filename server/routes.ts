@@ -63,6 +63,10 @@ import { registerPreventionStrategiesRoutes } from "./prevention-strategies-rout
 import { registerDfcReportingRoutes } from "./dfc-reporting-routes";
 import { registerDfcIntegrationRoutes } from "./dfc-integration-routes";
 import { registerEcosystemCapacityRoutes } from "./ecosystem-capacity-routes";
+import { registerFacilitatorRoutes } from "./facilitator-routes";
+import { registerMetricsRoutes } from "./metrics-routes";
+import { registerProgramManagementRoutes } from "./program-management-routes";
+import { registerContactRoutes } from "./contact-routes";
 
 const AI_TOOLS = [
   { toolKey: "presentation-builder", name: "Presentation Builder", description: "Create slide-by-slide presentations with AI-generated content, talking points, and visual suggestions", category: "create", iconName: "presentation", gradeBand: "all", requiredModuleKey: "ai-presentations", promptTemplate: "PRESENTATION_BUILDER", outputFormat: "slides", sortOrder: 1 },
@@ -364,6 +368,10 @@ export async function registerRoutes(
   registerDfcReportingRoutes(app);
   registerDfcIntegrationRoutes(app);
   registerEcosystemCapacityRoutes(app);
+  registerFacilitatorRoutes(app);
+  registerMetricsRoutes(app);
+  registerProgramManagementRoutes(app);
+  registerContactRoutes(app);
   await storage.seedData();
 
   app.get("/api/ai-provider", (_req, res) => {

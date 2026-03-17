@@ -115,6 +115,12 @@ const DfcReadinessPage = lazy(() => import("@/pages/dfc-readiness"));
 const PreventionStrategiesPage = lazy(() => import("@/pages/prevention-strategies"));
 const DfcWizardsPage = lazy(() => import("@/pages/dfc-wizards"));
 const DfcCommandCenterPage = lazy(() => import("@/pages/dfc-command-center"));
+const FacilitatorHubPage = lazy(() => import("@/pages/facilitator-hub"));
+const PlatformMetricsPage = lazy(() => import("@/pages/platform-metrics"));
+const AboutLeadershipPage = lazy(() => import("@/pages/about-leadership"));
+const EcosystemStoryPage = lazy(() => import("@/pages/ecosystem-story"));
+const ProgramManagementPage = lazy(() => import("@/pages/program-management"));
+const ContactPage = lazy(() => import("@/pages/contact"));
 
 function PageFallback() {
   return (
@@ -249,6 +255,12 @@ function AppRouter() {
       <Route path="/prevention-strategies" component={PreventionStrategiesPage} />
       <Route path="/dfc-command-center" component={DfcCommandCenterPage} />
       <Route path="/dfc-wizards" component={DfcWizardsPage} />
+      <Route path="/facilitator-hub" component={FacilitatorHubPage} />
+      <Route path="/platform-metrics" component={PlatformMetricsPage} />
+      <Route path="/about" component={AboutLeadershipPage} />
+      <Route path="/ecosystem-story" component={EcosystemStoryPage} />
+      <Route path="/program-management" component={ProgramManagementPage} />
+      <Route path="/contact" component={ContactPage} />
       <Route component={NotFound} />
     </Switch>
   );

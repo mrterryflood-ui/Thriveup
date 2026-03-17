@@ -481,6 +481,45 @@ const PLATFORMS: Platform[] = [
     pricingModel: "Direct B2B SaaS, annual contracts, GSA Schedule rates",
     technicalSpecs: { architecture: "React + TypeScript, Express.js, PostgreSQL, PWA", design: "Mobile-first, thumb-zone optimized" },
   },
+  {
+    id: "mce",
+    name: "Minority Center of Excellence",
+    domain: "Business & Economic Development",
+    domainCategory: "community-workforce",
+    description: "First comprehensive digital ecosystem for minority-owned businesses across the entire business lifecycle. Features a 6-stage journey (Form, Certify, Win, Team, Connect, Grow), 656,794 curated records, 14 AI tools across 4 providers, dual-AI proposal review, SAM.gov live integration, 50-state + DC coverage, teaming hub, B2B networking, Business Health Score, and certification eligibility wizard for 9 federal programs.",
+    capabilities: [
+      "6-Stage Business Lifecycle Journey (Form, Certify, Win, Team, Connect, Grow)",
+      "656,794 Curated Business Records",
+      "14 AI Tools Across 4 Providers",
+      "Dual-AI Proposal Review System",
+      "SAM.gov Live Integration",
+      "50-State + DC Coverage",
+      "Teaming Hub & B2B Networking",
+      "Business Health Score Dashboard",
+      "Certification Eligibility Wizard (9 Federal Programs)",
+      "GovCon Opportunity Matching Engine",
+    ],
+    populations: ["Minority-Owned Businesses", "VOSB/SDVOSB Firms", "8(a) Businesses", "HUBZone Businesses", "WOSB Firms", "APEX Accelerator Clients", "GovCon Professionals", "Nonprofit Organizations"],
+    naicsCodes: ["541511", "541519", "541611", "541690"],
+    grantAlignments: [
+      { source: "SBA", program: "SBIR/STTR", role: "Primary" },
+      { source: "DOC/MBDA", program: "Minority Business Development Agency Grants", role: "Primary" },
+      { source: "SBA", program: "7(j) Management and Technical Assistance", role: "Primary" },
+      { source: "SBA", program: "Community Advantage Program", role: "Primary" },
+      { source: "DOT", program: "Disadvantaged Business Enterprise (DBE)", role: "Primary" },
+    ],
+    interdependencies: [
+      { platform: "ThriveUp", capability: "Workforce development to business formation pipeline" },
+      { platform: "The Incubator", capability: "Shared federal contract intelligence and opportunity matching" },
+      { platform: "M2C Transition", capability: "Veteran entrepreneur support and VOSB certification guidance" },
+      { platform: "LifeBridge", capability: "Community economic development and resource navigation" },
+      { platform: "RPLICE", capability: "Minority business program evaluation and outcome measurement" },
+      { platform: "Perfectly Different", capability: "Neurodivergent entrepreneur support and accommodation" },
+    ],
+    floorPrice: "$3,500,000-$5,000,000",
+    pricingModel: "SaaS tiers: Free/$49/$149/$349+/mo",
+    technicalSpecs: { pages: "66", apiEndpoints: "321", databaseTables: "77", linesOfCode: "633,077", dataRecords: "656,794", aiTools: "14", aiProviders: "4" },
+  },
 ];
 
 const FUNDING_STREAMS: FundingStream[] = [
@@ -495,7 +534,8 @@ const FUNDING_STREAMS: FundingStream[] = [
   { id: "nih-ahrq", name: "NIH/AHRQ Research", primaryPlatforms: ["RPLICE", "Sankofa Health"], supportingPlatforms: ["Any platform as research subject"], combinedValue: "IS Engine + Health Data" },
   { id: "dhs-fema", name: "DHS/FEMA Emergency Management", primaryPlatforms: ["SHIELD/ATLAS", "LifeBridge"], supportingPlatforms: ["RPLICE", "Unplanned"], combinedValue: "EM Ops + Crisis Resources" },
   { id: "state-education", name: "State Education Contracts", primaryPlatforms: ["ISSS", "Perfectly Different"], supportingPlatforms: ["SafeReport", "ThriveUp"], combinedValue: "MTSS + IEP + Safety" },
-  { id: "sba-sbir", name: "SBA/SBIR/STTR", primaryPlatforms: ["The Incubator", "SHIELD/ATLAS"], supportingPlatforms: ["RPLICE", "Any platform"], combinedValue: "Innovation + Defense" },
+  { id: "sba-sbir", name: "SBA/SBIR/STTR", primaryPlatforms: ["The Incubator", "SHIELD/ATLAS", "MCE"], supportingPlatforms: ["RPLICE", "Any platform"], combinedValue: "Innovation + Defense + Minority Business" },
+  { id: "sba-doc-mbd", name: "SBA/DOC Minority Business Development", primaryPlatforms: ["MCE"], supportingPlatforms: ["ThriveUp", "The Incubator", "M2C Transition"], combinedValue: "Minority Business Lifecycle + Workforce + GovCon" },
 ];
 
 const POPULATION_SEGMENTS: PopulationSegment[] = [
@@ -511,6 +551,7 @@ const POPULATION_SEGMENTS: PopulationSegment[] = [
   { id: "researchers", name: "Researchers", primaryPlatforms: ["RPLICE", "Sankofa Health"], supportingPlatforms: ["Any platform as implementation subject"] },
   { id: "healthcare-workers", name: "Healthcare Workers", primaryPlatforms: ["Sankofa Health", "MedLog"], supportingPlatforms: ["SafeReport", "CogniCare", "LifeBridge"] },
   { id: "educators", name: "Educators", primaryPlatforms: ["ISSS", "Perfectly Different"], supportingPlatforms: ["ThriveUp", "SafeReport", "RPLICE"] },
+  { id: "minority-business-owners", name: "Minority Business Owners", primaryPlatforms: ["MCE", "ThriveUp", "The Incubator"], supportingPlatforms: ["M2C Transition", "LifeBridge", "RPLICE"] },
 ];
 
 const ENTITY_INFO = {
@@ -527,7 +568,7 @@ const ENTITY_INFO = {
     cageCode: true,
   },
   leadership: [
-    { name: "Dr. Terry Flood, DHA", role: "Co-Founder", bio: "Veteran. Doctor of Health Administration. Implementation scientist. Creator of MAP-GAP methodology. Architect of all 13 platforms." },
+    { name: "Dr. Terry Flood, DHA", role: "Co-Founder", bio: "Veteran. Doctor of Health Administration. Implementation scientist. Creator of MAP-GAP methodology. Architect of all 14 platforms." },
     { name: "Meredith Sisnett", role: "Co-Founder", bio: "Strategic operations leader. Community engagement, organizational development, and program execution." },
   ],
   setAsideEligibility: ["Veteran-Owned Small Business (VOSB)", "Small Business (SB)", "Small Disadvantaged Business (SDB)"],
@@ -569,16 +610,16 @@ const PROPRIETARY_METHODOLOGIES = [
 ];
 
 const PORTFOLIO_STATS = {
-  platforms: 13,
-  platformsWithSub: 18,
-  linesOfCode: "1,000,000+",
-  dataRecords: "700,000+",
-  functionalPages: "500+",
-  apiEndpoints: "1,500+",
-  databaseTables: "300+",
-  stateCoverage: "50-state",
+  platforms: 14,
+  platformsWithSub: 19,
+  linesOfCode: "1,633,000+",
+  dataRecords: "1,356,000+",
+  functionalPages: "566+",
+  apiEndpoints: "1,821+",
+  databaseTables: "377+",
+  stateCoverage: "50-state + DC",
   agesServed: "K-12 through seniors",
-  combinedEcosystemValue: "$25,000,000+",
+  combinedEcosystemValue: "$28,500,000+",
 };
 
 const NAICS_CODES = [
@@ -586,8 +627,8 @@ const NAICS_CODES = [
   { code: "541612", description: "Human Resources Consulting", platforms: ["ThriveUp", "M2C Transition", "Unplanned"] },
   { code: "541690", description: "Other Scientific & Technical Consulting", platforms: ["RPLICE", "ISSS", "Sankofa Health"] },
   { code: "541720", description: "Research & Development", platforms: ["RPLICE", "SHIELD/ATLAS", "Sankofa Health"] },
-  { code: "541511", description: "Custom Computer Programming", platforms: ["All 13 platforms"] },
-  { code: "541519", description: "Other Computer Related Services", platforms: ["All 13 platforms"] },
+  { code: "541511", description: "Custom Computer Programming", platforms: ["All 14 platforms"] },
+  { code: "541519", description: "Other Computer Related Services", platforms: ["All 14 platforms"] },
   { code: "611430", description: "Professional Development Training", platforms: ["ThriveUp", "ISSS", "M2C Transition"] },
 ];
 
@@ -634,6 +675,7 @@ function matchGrantOpportunity(query: string): {
     "cognicare": ["cognitive", "tbi", "dementia", "alzheimer", "brain injury", "caregiver"],
     "medlog": ["medication", "adherence", "pharmacy", "dose", "prescription", "mat "],
     "unplanned": ["operations", "disruption", "facility", "workplace", "team operations"],
+    "mce": ["minority", "mbe", "dbe", "8(a)", "hubzone", "wosb", "minority business", "certification", "small business", "sba", "mbda", "disadvantaged"],
   };
 
   const scoredPlatforms: { platform: Platform; score: number }[] = [];
@@ -698,10 +740,10 @@ function matchGrantOpportunity(query: string): {
     estimatedValueRange,
     competitiveAdvantages: [
       "VOSB Certification — eligible for veteran-owned set-aside contracts",
-      "Complete IP Ownership — all 13 platforms, methodologies, and data architectures",
+      "Complete IP Ownership — all 14 platforms, methodologies, and data architectures",
       `Proprietary Methodologies — MAP-GAP, SALP, Three Realities, MG-PATR, ISSS Knowledge Engine`,
       "Implementation Science Credibility — operationalized CFIR, RE-AIM, EPIS, SPF frameworks",
-      `Portfolio Scale — ${PORTFOLIO_STATS.linesOfCode} LOC, ${PORTFOLIO_STATS.apiEndpoints} API endpoints, ${PORTFOLIO_STATS.databaseTables} database tables`,
+      `Portfolio Scale — ${PORTFOLIO_STATS.linesOfCode} LOC, ${PORTFOLIO_STATS.apiEndpoints} API endpoints, ${PORTFOLIO_STATS.databaseTables} database tables, ${PORTFOLIO_STATS.dataRecords} curated data records`,
       "Dual-Entity Structure — Foundation (grants) + LLC (contracts) for flexible engagement",
     ],
     matchedFundingStream: matchedStream,

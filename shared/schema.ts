@@ -2979,4 +2979,241 @@ export const insertDfcWizardStateSchema = createInsertSchema(dfcWizardState).omi
 export type InsertDfcWizardState = z.infer<typeof insertDfcWizardStateSchema>;
 export type DfcWizardState = typeof dfcWizardState.$inferSelect;
 
+// ==================== CONTACT INQUIRIES ====================
+
+export const contactInquiries = pgTable("contact_inquiries", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  email: text("email").notNull(),
+  message: text("message").notNull(),
+  inquiryType: text("inquiry_type").notNull().default("general"),
+  organizationName: text("organization_name"),
+  status: text("status").notNull().default("new"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertContactInquirySchema = createInsertSchema(contactInquiries).omit({ id: true, createdAt: true });
+export type InsertContactInquiry = z.infer<typeof insertContactInquirySchema>;
+export type ContactInquiry = typeof contactInquiries.$inferSelect;
+
+// ==================== POST-AWARD PROGRAM MANAGEMENT ====================
+
+export const grantProjects = pgTable("grant_projects", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  grantName: text("grant_name").notNull(),
+  fundingSource: text("funding_source").notNull(),
+  awardAmount: decimal("award_amount", { precision: 14, scale: 2 }).notNull(),
+  startDate: text("start_date"),
+  endDate: text("end_date"),
+  status: text("status").notNull().default("pre-award"),
+  projectDirector: text("project_director"),
+  description: text("description"),
+  objectives: jsonb("objectives").default([]),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const staffingPlans = pgTable("staffing_plans", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  grantProjectId: varchar("grant_project_id", { length: 100 }).notNull().references(() => grantProjects.id),
+  positionTitle: text("position_title").notNull(),
+  qualifications: text("qualifications"),
+  fte: decimal("fte", { precision: 4, scale: 2 }).notNull().default("1.00"),
+  salary: decimal("salary", { precision: 12, scale: 2 }),
+  status: text("status").notNull().default("planned"),
+  hiredPersonName: text("hired_person_name"),
+  startDate: text("start_date"),
+});
+
+export const facilityPlans = pgTable("facility_plans", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  grantProjectId: varchar("grant_project_id", { length: 100 }).notNull().references(() => grantProjects.id),
+  facilityType: text("facility_type").notNull(),
+  name: text("name").notNull(),
+  address: text("address"),
+  capacity: integer("capacity"),
+  monthlyRate: decimal("monthly_rate", { precision: 10, scale: 2 }),
+  status: text("status").notNull().default("searching"),
+  inKindContributor: text("in_kind_contributor"),
+  notes: text("notes"),
+});
+
+export const programSchedules = pgTable("program_schedules", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  grantProjectId: varchar("grant_project_id", { length: 100 }).notNull().references(() => grantProjects.id),
+  activityName: text("activity_name").notNull(),
+  activityType: text("activity_type").notNull(),
+  scheduledDate: text("scheduled_date"),
+  recurrence: text("recurrence").notNull().default("one-time"),
+  facilitator: text("facilitator"),
+  location: text("location"),
+  status: text("status").notNull().default("scheduled"),
+  notes: text("notes"),
+  attendeeCount: integer("attendee_count"),
+});
+
+export const inKindContributions = pgTable("in_kind_contributions", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  grantProjectId: varchar("grant_project_id", { length: 100 }).notNull().references(() => grantProjects.id),
+  contributorName: text("contributor_name").notNull(),
+  contributorType: text("contributor_type").notNull(),
+  contributionType: text("contribution_type").notNull(),
+  description: text("description"),
+  estimatedValue: decimal("estimated_value", { precision: 12, scale: 2 }),
+  documentedDate: text("documented_date"),
+  verificationStatus: text("verification_status").notNull().default("pending"),
+  matchCategory: text("match_category"),
+});
+
+export const complianceCalendar = pgTable("compliance_calendar", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  grantProjectId: varchar("grant_project_id", { length: 100 }).notNull().references(() => grantProjects.id),
+  taskName: text("task_name").notNull(),
+  taskType: text("task_type").notNull(),
+  dueDate: text("due_date"),
+  status: text("status").notNull().default("upcoming"),
+  responsiblePerson: text("responsible_person"),
+  notes: text("notes"),
+});
+
+export const sustainabilityPlans = pgTable("sustainability_plans", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  grantProjectId: varchar("grant_project_id", { length: 100 }).notNull().references(() => grantProjects.id),
+  strategy: text("strategy").notNull(),
+  strategyType: text("strategy_type").notNull(),
+  timeline: text("timeline"),
+  status: text("status").notNull().default("exploring"),
+  estimatedRevenue: decimal("estimated_revenue", { precision: 12, scale: 2 }),
+  notes: text("notes"),
+});
+
+export const adjacentAgencies = pgTable("adjacent_agencies", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  grantProjectId: varchar("grant_project_id", { length: 100 }).notNull().references(() => grantProjects.id),
+  agencyName: text("agency_name").notNull(),
+  agencyType: text("agency_type").notNull(),
+  focusArea: text("focus_area"),
+  relationship: text("relationship").notNull().default("potential-partner"),
+  contactName: text("contact_name"),
+  contactEmail: text("contact_email"),
+  notes: text("notes"),
+  status: text("status").notNull().default("identified"),
+});
+
+export const insertGrantProjectSchema = createInsertSchema(grantProjects).omit({ id: true, createdAt: true });
+export const insertStaffingPlanSchema = createInsertSchema(staffingPlans).omit({ id: true });
+export const insertFacilityPlanSchema = createInsertSchema(facilityPlans).omit({ id: true });
+export const insertProgramScheduleSchema = createInsertSchema(programSchedules).omit({ id: true });
+export const insertInKindContributionSchema = createInsertSchema(inKindContributions).omit({ id: true });
+export const insertComplianceCalendarSchema = createInsertSchema(complianceCalendar).omit({ id: true });
+export const insertSustainabilityPlanSchema = createInsertSchema(sustainabilityPlans).omit({ id: true });
+export const insertAdjacentAgencySchema = createInsertSchema(adjacentAgencies).omit({ id: true });
+
+export type GrantProject = typeof grantProjects.$inferSelect;
+export type InsertGrantProject = z.infer<typeof insertGrantProjectSchema>;
+export type StaffingPlan = typeof staffingPlans.$inferSelect;
+export type InsertStaffingPlan = z.infer<typeof insertStaffingPlanSchema>;
+export type FacilityPlan = typeof facilityPlans.$inferSelect;
+export type InsertFacilityPlan = z.infer<typeof insertFacilityPlanSchema>;
+export type ProgramSchedule = typeof programSchedules.$inferSelect;
+export type InsertProgramSchedule = z.infer<typeof insertProgramScheduleSchema>;
+export type InKindContribution = typeof inKindContributions.$inferSelect;
+export type InsertInKindContribution = z.infer<typeof insertInKindContributionSchema>;
+export type ComplianceCalendarItem = typeof complianceCalendar.$inferSelect;
+export type InsertComplianceCalendarItem = z.infer<typeof insertComplianceCalendarSchema>;
+export type SustainabilityPlan = typeof sustainabilityPlans.$inferSelect;
+export type InsertSustainabilityPlan = z.infer<typeof insertSustainabilityPlanSchema>;
+export type AdjacentAgency = typeof adjacentAgencies.$inferSelect;
+export type InsertAdjacentAgency = z.infer<typeof insertAdjacentAgencySchema>;
+
+// ==================== FACILITATOR & CURRICULUM DELIVERY ====================
+
+export const facilitatorProfiles = pgTable("facilitator_profiles", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  visitorId: varchar("visitor_id", { length: 255 }).notNull(),
+  name: text("name").notNull(),
+  certifications: jsonb("certifications").notNull().default([]),
+  specializations: jsonb("specializations").notNull().default([]),
+  clearanceLevel: text("clearance_level"),
+  trainingCompleted: jsonb("training_completed").notNull().default([]),
+  status: text("status").notNull().default("active"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertFacilitatorProfileSchema = createInsertSchema(facilitatorProfiles).omit({ id: true, createdAt: true });
+export type InsertFacilitatorProfile = z.infer<typeof insertFacilitatorProfileSchema>;
+export type FacilitatorProfile = typeof facilitatorProfiles.$inferSelect;
+
+export const sessionPlans = pgTable("session_plans", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  moduleId: varchar("module_id", { length: 100 }),
+  facilitatorId: varchar("facilitator_id", { length: 100 }).references(() => facilitatorProfiles.id),
+  sessionDate: text("session_date").notNull(),
+  duration: integer("duration").notNull(),
+  location: text("location"),
+  targetAudience: text("target_audience"),
+  materialsNeeded: jsonb("materials_needed").notNull().default([]),
+  learningObjectives: jsonb("learning_objectives").notNull().default([]),
+  assessmentMethod: text("assessment_method"),
+  status: text("status").notNull().default("draft"),
+  attendeeCount: integer("attendee_count"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertSessionPlanSchema = createInsertSchema(sessionPlans).omit({ id: true, createdAt: true });
+export type InsertSessionPlan = z.infer<typeof insertSessionPlanSchema>;
+export type SessionPlan = typeof sessionPlans.$inferSelect;
+
+export const curriculumDeliveryLogs = pgTable("curriculum_delivery_logs", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  sessionPlanId: varchar("session_plan_id", { length: 100 }).references(() => sessionPlans.id),
+  facilitatorId: varchar("facilitator_id", { length: 100 }).references(() => facilitatorProfiles.id),
+  actualDate: text("actual_date").notNull(),
+  actualDuration: integer("actual_duration").notNull(),
+  actualAttendeeCount: integer("actual_attendee_count").notNull().default(0),
+  fidelityScore: integer("fidelity_score").notNull().default(3),
+  adaptationsNoted: text("adaptations_noted"),
+  challengesFaced: text("challenges_faced"),
+  participantFeedback: text("participant_feedback"),
+  followUpNeeded: boolean("follow_up_needed").notNull().default(false),
+  dosageMinutes: integer("dosage_minutes").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertCurriculumDeliveryLogSchema = createInsertSchema(curriculumDeliveryLogs).omit({ id: true, createdAt: true });
+export type InsertCurriculumDeliveryLog = z.infer<typeof insertCurriculumDeliveryLogSchema>;
+export type CurriculumDeliveryLog = typeof curriculumDeliveryLogs.$inferSelect;
+
+export const facilitatorCertifications = pgTable("facilitator_certifications", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  facilitatorId: varchar("facilitator_id", { length: 100 }).notNull().references(() => facilitatorProfiles.id),
+  certificationName: text("certification_name").notNull(),
+  certificationBody: text("certification_body"),
+  dateEarned: text("date_earned"),
+  expirationDate: text("expiration_date"),
+  status: text("status").notNull().default("active"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertFacilitatorCertificationSchema = createInsertSchema(facilitatorCertifications).omit({ id: true, createdAt: true });
+export type InsertFacilitatorCertification = z.infer<typeof insertFacilitatorCertificationSchema>;
+export type FacilitatorCertification = typeof facilitatorCertifications.$inferSelect;
+
+export const platformMetrics = pgTable("platform_metrics", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  metricName: text("metric_name").notNull(),
+  metricCategory: text("metric_category").notNull(),
+  currentValue: real("current_value").notNull().default(0),
+  previousValue: real("previous_value").notNull().default(0),
+  targetValue: real("target_value").notNull().default(0),
+  unit: text("unit").notNull().default("count"),
+  calculatedAt: timestamp("calculated_at").defaultNow(),
+  trend: text("trend").notNull().default("stable"),
+});
+
+export const insertPlatformMetricSchema = createInsertSchema(platformMetrics).omit({ id: true, calculatedAt: true });
+export type InsertPlatformMetric = z.infer<typeof insertPlatformMetricSchema>;
+export type PlatformMetric = typeof platformMetrics.$inferSelect;
+
 export * from "./models/auth";
