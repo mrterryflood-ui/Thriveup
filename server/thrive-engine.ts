@@ -16,6 +16,7 @@ import {
   thriveHistory,
   academyAvatars,
   healthScreeningResults,
+  riskAssessments,
   type ThriveHistory,
 } from "@shared/schema";
 import { eq, and, gte, desc, sql, count } from "drizzle-orm";
@@ -265,6 +266,10 @@ export async function computeDomainD(
       );
 
     if (assessments.length === 0) {
+      let fallbackScore: number | null = null;
+      let fallbackComponents = 0;
+      let fallbackTotal = 0;
+
       try {
         const recentScreenings = await db
           .select()
@@ -281,11 +286,47 @@ export async function computeDomainD(
           for (const s of recentScreenings) {
             totalPct += (s.totalScore / s.maxScore) * 100;
           }
-          const healthScore = clamp(Math.round(totalPct / recentScreenings.length));
-          return { score: healthScore, active: true };
+          fallbackTotal += clamp(Math.round(totalPct / recentScreenings.length));
+          fallbackComponents++;
         }
       } catch (error) {
         console.error("[Thrive Engine] Error fetching health screenings for Domain D (no-assessment path):", error);
+      }
+
+      try {
+        const recentPrevention = await db
+          .select()
+          .from(riskAssessments)
+          .where(
+            and(
+              eq(riskAssessments.visitorId, userId),
+              gte(riskAssessments.completedAt, cutoff)
+            )
+          );
+
+        if (recentPrevention.length > 0) {
+          let totalPrev = 0;
+          let prevCount = 0;
+          for (const ra of recentPrevention) {
+            if (ra.assessmentType === "risk" && ra.riskScore != null) {
+              totalPrev += clamp(100 - ((ra.riskScore / 36) * 100));
+              prevCount++;
+            } else if (ra.assessmentType === "protective" && ra.protectiveScore != null) {
+              totalPrev += clamp((ra.protectiveScore / 36) * 100);
+              prevCount++;
+            }
+          }
+          if (prevCount > 0) {
+            fallbackTotal += clamp(Math.round(totalPrev / prevCount));
+            fallbackComponents++;
+          }
+        }
+      } catch (error) {
+        console.error("[Thrive Engine] Error fetching prevention assessments for Domain D (no-assessment path):", error);
+      }
+
+      if (fallbackComponents > 0) {
+        return { score: clamp(Math.round(fallbackTotal / fallbackComponents)), active: true };
       }
 
       return { score: null, active: false };
@@ -337,9 +378,48 @@ export async function computeDomainD(
       console.error("[Thrive Engine] Error fetching health screenings for Domain D blending:", error);
     }
 
+    let preventionScore: number | null = null;
+    try {
+      const recentRiskAssessments = await db
+        .select()
+        .from(riskAssessments)
+        .where(
+          and(
+            eq(riskAssessments.visitorId, userId),
+            gte(riskAssessments.completedAt, cutoff)
+          )
+        );
+
+      if (recentRiskAssessments.length > 0) {
+        let totalPrevention = 0;
+        let prevCount = 0;
+        for (const ra of recentRiskAssessments) {
+          if (ra.assessmentType === "risk" && ra.riskScore != null) {
+            const maxRisk = 36;
+            totalPrevention += clamp(100 - ((ra.riskScore / maxRisk) * 100));
+            prevCount++;
+          } else if (ra.assessmentType === "protective" && ra.protectiveScore != null) {
+            const maxProtective = 36;
+            totalPrevention += clamp((ra.protectiveScore / maxProtective) * 100);
+            prevCount++;
+          }
+        }
+        if (prevCount > 0) {
+          preventionScore = clamp(Math.round(totalPrevention / prevCount));
+        }
+      }
+    } catch (error) {
+      console.error("[Thrive Engine] Error fetching prevention assessments for Domain D:", error);
+    }
+
     let score: number;
-    if (healthScreeningScore != null) {
+
+    if (healthScreeningScore != null && preventionScore != null) {
+      score = clamp(Math.round(selfAssessmentScore * 0.55 + healthScreeningScore * 0.25 + preventionScore * 0.20));
+    } else if (healthScreeningScore != null) {
       score = clamp(Math.round(selfAssessmentScore * 0.70 + healthScreeningScore * 0.30));
+    } else if (preventionScore != null) {
+      score = clamp(Math.round(selfAssessmentScore * 0.75 + preventionScore * 0.25));
     } else {
       score = selfAssessmentScore;
     }

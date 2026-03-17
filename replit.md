@@ -57,6 +57,8 @@ Core architectural features include:
 - **First 30 Days Onboarding Journey:** Guided 30-day onboarding with population-specific templates and milestone tracking.
 - **APEX Accelerators Integration:** DoD APEX Accelerators integration for center locator, service cards, contracting journey, and cross-links.
 - **Business Plan:** Comprehensive shareable business plan for ecosystem overview, MVV, pipeline, competitive advantages, funding, and leadership.
+- **Research & Implementation Science Hub:** Interactive RE-AIM evaluation tool (5 domains, 20 questions), CFIR explorer (5 domains, 39 constructs), research-to-practice translation pipeline with MAP-GAP integration, curated research library (12 resources from SAMHSA, NIRN, CDC, PCORI). For implementation scientists, researchers, public health professionals.
+- **Community Health Worker Dashboard:** Caseload management, home visit logging with best practices, screening/referral tracking, community resource connector (8 resource categories), professional development tracker (10 training modules), CHW certification pathway. For frontline health workers and community navigators.
 
 ## External Dependencies
 - **Database:** PostgreSQL (Neon-backed)

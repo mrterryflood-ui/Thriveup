@@ -119,6 +119,8 @@ Key Tools & Where to Direct People:
 - "/ecosystem-story" — Interactive Ecosystem Story: 10-step walkthrough of how the platforms work together. Great for anyone wanting to understand the big picture.
 - "/contact" — Contact page for reaching Dr. Terry Flood (mr.terryflood@gmail.com)
 - "/about" — Leadership and About page with full ecosystem structure
+- "/research-hub" — Research & Implementation Science Hub: RE-AIM evaluation tool, CFIR explorer (5 domains, 39 constructs), research-to-practice translation pipeline, curated research library (SAMHSA SPF, NIRN, CDC, PCORI). For implementation scientists, researchers, public health professionals, program evaluators, and prevention coordinators.
+- "/chw-dashboard" — Community Health Worker Dashboard: Caseload management, home visit logging, screening/referral tracking, community resource connector, professional development (10 training modules, CHW certification pathway). For community health workers, frontline staff, and health navigators.
 
 External Ecosystem Tools (sister platforms you can recommend):
 - https://bettersciencelab.com — Better Science Lab: Research & implementation science
@@ -208,6 +210,8 @@ async function assembleContext(req: Request, userMessage: string): Promise<strin
     transportation: ["transportation", "bus", "ride", "car", "commute", "transit"],
     youth: ["child", "children", "youth", "teen", "kid", "after-school", "mentoring"],
     substance: ["substance", "addiction", "drug", "alcohol", "rehab", "recovery", "sober", "treatment"],
+    research: ["research", "implementation science", "re-aim", "cfir", "evidence-based", "dissemination", "fidelity", "evaluation framework", "translation", "reaim"],
+    chw: ["community health worker", "chw", "home visit", "caseload", "screening referral", "health worker", "frontline"],
   };
 
   const detectedNeeds: string[] = [];
@@ -224,7 +228,7 @@ async function assembleContext(req: Request, userMessage: string): Promise<strin
       housing: "housing", food: "food", healthcare: "healthcare",
       workforce: "workforce", education: "education", legal: "legal",
       financial: "financial", transportation: "transportation", youth: "youth",
-      substance: "healthcare",
+      substance: "healthcare", research: "education", chw: "healthcare",
     };
     const searchCategories = Array.from(new Set(detectedNeeds.map(n => categoryMap[n]).filter(Boolean)));
 
@@ -339,6 +343,8 @@ function detectNeeds(message: string): string[] {
     "substance-abuse": ["substance", "addiction", "drug", "alcohol", "recovery"],
     "childcare": ["childcare", "daycare", "child care"],
     "transportation": ["transportation", "bus", "ride", "transit"],
+    "research": ["research", "implementation science", "re-aim", "cfir", "evidence-based", "dissemination", "fidelity"],
+    "chw": ["community health worker", "chw", "home visit", "caseload", "screening referral", "frontline health"],
   };
   for (const [need, keywords] of Object.entries(needMap)) {
     if (keywords.some(kw => lower.includes(kw))) needs.push(need);

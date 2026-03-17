@@ -135,6 +135,44 @@ export function registerPreventionRoutes(app: Express) {
     }
   });
 
+  app.patch("/api/prevention/modules/:id", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const id = String(req.params.id);
+      const [existing] = await db.select().from(preventionModules).where(eq(preventionModules.id, id));
+      if (!existing) return res.status(404).json({ error: "Module not found" });
+      const { title, description, substanceTopic, ageGroup, contentSections, learningObjectives, knowledgeCheckQuestions, orderIndex, isActive } = req.body;
+      const updates: Record<string, unknown> = {};
+      if (title !== undefined) updates.title = title;
+      if (description !== undefined) updates.description = description;
+      if (substanceTopic !== undefined) updates.substanceTopic = substanceTopic;
+      if (ageGroup !== undefined) updates.ageGroup = ageGroup;
+      if (contentSections !== undefined) updates.contentSections = contentSections;
+      if (learningObjectives !== undefined) updates.learningObjectives = learningObjectives;
+      if (knowledgeCheckQuestions !== undefined) updates.knowledgeCheckQuestions = knowledgeCheckQuestions;
+      if (orderIndex !== undefined) updates.orderIndex = orderIndex;
+      if (isActive !== undefined) updates.isActive = isActive;
+      if (Object.keys(updates).length === 0) return res.status(400).json({ error: "No fields to update" });
+      const [updated] = await db.update(preventionModules).set(updates).where(eq(preventionModules.id, id)).returning();
+      res.json(updated);
+    } catch (error) {
+      console.error("Failed to update module:", error);
+      res.status(500).json({ error: "Failed to update module" });
+    }
+  });
+
+  app.delete("/api/prevention/modules/:id", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const id = String(req.params.id);
+      const [existing] = await db.select().from(preventionModules).where(eq(preventionModules.id, id));
+      if (!existing) return res.status(404).json({ error: "Module not found" });
+      await db.delete(preventionModules).where(eq(preventionModules.id, id));
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Failed to delete module:", error);
+      res.status(500).json({ error: "Failed to delete module" });
+    }
+  });
+
   app.get("/api/prevention/progress", requireAuth, async (req, res) => {
     try {
       const userId = getUserId(req)!;
@@ -238,6 +276,40 @@ export function registerPreventionRoutes(app: Express) {
       res.json(survey);
     } catch (error) {
       res.status(500).json({ error: "Failed to create survey" });
+    }
+  });
+
+  app.patch("/api/prevention/surveys/:id", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const id = String(req.params.id);
+      const [existing] = await db.select().from(youthSurveys).where(eq(youthSurveys.id, id));
+      if (!existing) return res.status(404).json({ error: "Survey not found" });
+      const { title, description, questions, isAnonymous, isActive } = req.body;
+      const updates: Record<string, unknown> = {};
+      if (title !== undefined) updates.title = title;
+      if (description !== undefined) updates.description = description;
+      if (questions !== undefined) updates.questions = questions;
+      if (isAnonymous !== undefined) updates.isAnonymous = isAnonymous;
+      if (isActive !== undefined) updates.isActive = isActive;
+      if (Object.keys(updates).length === 0) return res.status(400).json({ error: "No fields to update" });
+      const [updated] = await db.update(youthSurveys).set(updates).where(eq(youthSurveys.id, id)).returning();
+      res.json(updated);
+    } catch (error) {
+      console.error("Failed to update survey:", error);
+      res.status(500).json({ error: "Failed to update survey" });
+    }
+  });
+
+  app.delete("/api/prevention/surveys/:id", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const id = String(req.params.id);
+      const [existing] = await db.select().from(youthSurveys).where(eq(youthSurveys.id, id));
+      if (!existing) return res.status(404).json({ error: "Survey not found" });
+      await db.delete(youthSurveys).where(eq(youthSurveys.id, id));
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Failed to delete survey:", error);
+      res.status(500).json({ error: "Failed to delete survey" });
     }
   });
 

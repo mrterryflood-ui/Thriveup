@@ -32,6 +32,7 @@ import {
   MessageCircle, MapPin, Presentation, Scale, FileBarChart, LayoutDashboard,
   Info, BookMarked,
   Mail, Landmark,
+  Microscope, Stethoscope,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -155,6 +156,13 @@ const preventionItems: NavItem[] = [
 
 const healthWellnessItems: NavItem[] = [
   { title: "Health Hub", url: "/health-wellness", icon: Heart },
+  { title: "CHW Dashboard", url: "/chw-dashboard", icon: Stethoscope },
+];
+
+const researchItems: NavItem[] = [
+  { title: "Research Hub", url: "/research-hub", icon: Microscope },
+  { title: "Implementation Plan", url: "/implementation", icon: ClipboardList },
+  { title: "MAP-GAP CQI", url: "/cqi", icon: Target },
 ];
 
 const caseManagementItems: NavItem[] = [
@@ -352,6 +360,7 @@ export function AppSidebar() {
         <NavSection label="AI Tools" items={aiToolsItems} location={location} />
         <NavSection label="Prevention" items={preventionItems} location={location} />
         <NavSection label="Health & Wellness" items={healthWellnessItems} location={location} />
+        <NavSection label="Research & Implementation" items={researchItems} location={location} />
         <NavSection label="Case Management" items={caseManagementItems} location={location} />
         <NavSection label="Student Portal" items={myStudentItems} location={location} />
         <NavSection label="Campus Life" items={campusLifeItems} location={location} />

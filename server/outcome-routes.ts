@@ -6,6 +6,7 @@ import {
   workforceAssessments, trainingEnrollments, jobPlacements, retentionChecks, employerPartners, trainingPrograms,
   communityPartners, partnerReferrals, partnerEngagements,
   mouDocuments, ambassadorProfiles,
+  preventionModules, preventionProgress, riskAssessments, youthSurveys, surveyResponses,
 } from "@shared/schema";
 import { z } from "zod";
 import { eq, desc, sql, and, count } from "drizzle-orm";
@@ -286,6 +287,80 @@ export function registerOutcomeRoutes(app: Express) {
     } catch (error) {
       console.error("Failed to fetch workforce outcomes:", error);
       res.status(500).json({ error: "Failed to fetch workforce outcomes" });
+    }
+  });
+
+  app.get("/api/outcomes/prevention", requireAuth, requireAdmin, async (_req, res) => {
+    try {
+      const allModules = await db.select().from(preventionModules).where(eq(preventionModules.isActive, true));
+      const allProgress = await db.select().from(preventionProgress);
+      const allAssessments = await db.select().from(riskAssessments);
+      const allSurveys = await db.select().from(youthSurveys).where(eq(youthSurveys.isActive, true));
+      const allResponses = await db.select().from(surveyResponses);
+
+      const completedProgress = allProgress.filter(p => p.status === "completed");
+      const riskOnly = allAssessments.filter(a => a.assessmentType === "risk");
+      const protectiveOnly = allAssessments.filter(a => a.assessmentType === "protective");
+      const uniqueParticipants = new Set([
+        ...allProgress.map(p => p.visitorId),
+        ...allAssessments.map(a => a.visitorId),
+      ]);
+
+      const avgRiskScore = riskOnly.length > 0
+        ? Math.round(riskOnly.reduce((s, a) => s + (a.riskScore || 0), 0) / riskOnly.length)
+        : null;
+      const avgProtectiveScore = protectiveOnly.length > 0
+        ? Math.round(protectiveOnly.reduce((s, a) => s + (a.protectiveScore || 0), 0) / protectiveOnly.length)
+        : null;
+
+      const topicBreakdown: Record<string, { total: number; completed: number }> = {};
+      for (const mod of allModules) {
+        const topic = mod.substanceTopic || "unknown";
+        if (!topicBreakdown[topic]) topicBreakdown[topic] = { total: 0, completed: 0 };
+        topicBreakdown[topic].total++;
+        const modCompleted = completedProgress.filter(p => p.moduleId === mod.id).length;
+        topicBreakdown[topic].completed += modCompleted;
+      }
+
+      const ageGroupBreakdown: Record<string, number> = {};
+      for (const mod of allModules) {
+        const age = mod.ageGroup || "unknown";
+        const modCompleted = completedProgress.filter(p => p.moduleId === mod.id).length;
+        ageGroupBreakdown[age] = (ageGroupBreakdown[age] || 0) + modCompleted;
+      }
+
+      res.json({
+        reportType: "DFC Prevention Outcomes",
+        generatedAt: new Date().toISOString(),
+        curriculumMetrics: {
+          totalModules: allModules.length,
+          totalCompletions: completedProgress.length,
+          uniqueParticipants: uniqueParticipants.size,
+          completionRate: allProgress.length > 0 ? Math.round((completedProgress.length / allProgress.length) * 100) : 0,
+          topicBreakdown,
+          ageGroupBreakdown,
+        },
+        assessmentMetrics: {
+          totalRiskAssessments: riskOnly.length,
+          totalProtectiveAssessments: protectiveOnly.length,
+          averageRiskScore: avgRiskScore,
+          averageRiskMax: 36,
+          averageProtectiveScore: avgProtectiveScore,
+          averageProtectiveMax: 36,
+        },
+        surveyMetrics: {
+          activeSurveys: allSurveys.length,
+          totalResponses: allResponses.length,
+          surveyBreakdown: allSurveys.map(s => ({
+            surveyId: s.id,
+            title: s.title,
+            responses: allResponses.filter(r => r.surveyId === s.id).length,
+          })),
+        },
+      });
+    } catch (error) {
+      console.error("Failed to fetch prevention outcomes:", error);
+      res.status(500).json({ error: "Failed to fetch prevention outcomes" });
     }
   });
 
