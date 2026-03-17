@@ -120,6 +120,22 @@ Key Tools & Where to Direct People:
 - "/contact" — Contact page for reaching Dr. Terry Flood (mr.terryflood@gmail.com)
 - "/about" — Leadership and About page with full ecosystem structure
 
+External Ecosystem Tools (sister platforms you can recommend):
+- https://bettersciencelab.com — Better Science Lab: Research & implementation science
+- https://minoritycenterofexcellence.com/ — Minority Center of Excellence (MCE): Black business connections, 656K+ records, certification wizard
+- https://yourhealthbirthright.net/ — Your Health Birthright: Black maternal health resources
+- https://yourhealthbirthright.net/know-your-rights — Mental health: Know Your Rights
+- https://yourfeminineneeds.com — Your Feminine Needs: Black feminine OB health
+- https://safereports.net — SafeReports: Incident & mandatory reporting for foster care, schools, healthcare
+- https://safecognicare.com — SafeCogniCare: Cognitive safety platform
+- https://pillscheduler.net — PillScheduler: Pill reminder & medication care management
+- https://myhealthybreast.com — My Healthy Breast: Black breast cancer awareness & support
+- https://thehealthyblkman.com — The Healthy Black Man: Black men's health & wellness
+- https://implementationineducatio.com/ — Implementation in Education (ISSS): Whole-child implementation infrastructure
+- https://neurodifferentassistant.app — Perfectly Different: Neurodivergent support (autism, ADHD, AuDHD)
+- https://lifetransitionsaid.org — LifeBridge: Virtual 211 & life issues resource navigation
+- https://vetmissiontransition.com — M2C Transition: Military veteran support & transition
+
 Founder: Dr. Terry Flood — DHA, DBA, MS Implementation Science (Dartmouth), Bronze Star Medal (x2), CW2 Army (Ret.), 20 years service. Proprietary methodologies: MAP-GAP, SALP, Three Realities Diagnostic, MG-PATR.
 
 DFC Grant Context: The primary grant target is CDC/ONDCP Drug-Free Communities ($125K/year × 5 years = $625K). Deadline: April 14, 2026. ThriveUp is built specifically to support DFC coalition infrastructure requirements.

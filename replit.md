@@ -84,4 +84,20 @@ Core architectural features include:
 - `/contact` — Contact form with Resend email integration
 - `/about` — Dr. Flood credentials & leadership page (3-entity ecosystem structure: ThriveUp 501(c)(3), MCE SaaS, The Collaborative Advocate VOSB)
 - `/ecosystem-story` — Interactive 10-step ecosystem walkthrough
-- `/ecosystem` — Now includes MCE as Platform 14 (14 total platforms)
+- `/ecosystem` — Now includes MCE as Platform 14 plus 8 additional health/science platforms (22 total)
+
+## External Ecosystem Tool URLs
+1. Research & Implementation Science: https://bettersciencelab.com
+2. Black Business Connections (MCE): https://minoritycenterofexcellence.com/
+3. Black Maternal Health: https://yourhealthbirthright.net/
+4. Mental Health Rights: https://yourhealthbirthright.net/know-your-rights
+5. Black Feminine OB Health: https://yourfeminineneeds.com
+6. Incident & Mandatory Reporting: https://safereports.net
+7. Cognitive Safety: https://safecognicare.com
+8. Pill Reminder & Care: https://pillscheduler.net
+9. Breast Cancer (Black): https://myhealthybreast.com
+10. Black Men's Health: https://thehealthyblkman.com
+11. Implementation in Education: https://implementationineducatio.com/
+12. Neurodivergent Support: https://neurodifferentassistant.app
+13. Life Issues 211: https://lifetransitionsaid.org
+14. Military Veteran Support: https://vetmissiontransition.com

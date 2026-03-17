@@ -410,7 +410,7 @@ function EntityListTab<T extends { id: string }>({
 
 function InKindTab() {
   return (
-    <EntityListTab<InKindContribution>
+    <EntityListTab
       title="In-Kind Match"
       projectIdKey="grantProjectId"
       apiBase="in-kind"
@@ -644,7 +644,7 @@ export default function ProgramManagementPage() {
         <TabsContent value="dashboard"><DashboardTab /></TabsContent>
         <TabsContent value="projects"><ProjectsTab /></TabsContent>
         <TabsContent value="staffing">
-          <EntityListTab<StaffingPlan>
+          <EntityListTab
             title="Staffing Plan"
             projectIdKey="grantProjectId"
             apiBase="staffing"
@@ -664,7 +664,7 @@ export default function ProgramManagementPage() {
           />
         </TabsContent>
         <TabsContent value="facilities">
-          <EntityListTab<FacilityPlan>
+          <EntityListTab
             title="Facility Plans"
             projectIdKey="grantProjectId"
             apiBase="facilities"
@@ -685,7 +685,7 @@ export default function ProgramManagementPage() {
           />
         </TabsContent>
         <TabsContent value="schedule">
-          <EntityListTab<ProgramSchedule>
+          <EntityListTab
             title="Program Schedule"
             projectIdKey="grantProjectId"
             apiBase="schedules"
