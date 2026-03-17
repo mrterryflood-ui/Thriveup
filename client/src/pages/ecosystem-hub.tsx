@@ -1,15 +1,24 @@
 import { useState } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
+import { apiRequest } from "@/lib/queryClient";
 import {
   ExternalLink, Globe, BookOpen, Brain, Shield, Heart,
   Users, GraduationCap, Briefcase, Home, Phone, AlertTriangle,
   ArrowRight, CheckCircle, Link2, Target, FileText, Activity,
-  Sparkles, Scale, Handshake, MapPin, BarChart3, Layers
+  Sparkles, Scale, Handshake, MapPin, BarChart3, Layers,
+  Search, Copy, ChevronDown, ChevronUp, Pill, Cpu, Factory,
+  Award, Zap, Building2, ShieldCheck, Stethoscope, MonitorSmartphone,
+  ClipboardList
 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface EcosystemApp {
   id: string;
@@ -122,7 +131,7 @@ const ECOSYSTEM_APPS: EcosystemApp[] = [
       { area: "Dosage Tracking", description: "Learning engagement hours count toward service delivery metrics" },
     ],
     grantAlignment: [
-      { grant: "CDC/ONDCP DFC", relevance: "School engagement is a primary protective factor — academic support reduces substance use risk" },
+      { grant: "CDC/ONDCP DFC", relevance: "School engagement is a primary protective factor" },
       { grant: "WIOA Title I Youth", relevance: "Educational attainment pathways and GED/diploma support" },
       { grant: "DOE Title I", relevance: "Supplemental education for underserved communities" },
     ],
@@ -138,17 +147,17 @@ const ECOSYSTEM_APPS: EcosystemApp[] = [
     bgColor: "bg-purple-50 dark:bg-purple-950/30",
     borderColor: "border-purple-200 dark:border-purple-800",
     status: "linked",
-    description: "Nonprofit, neurodiversity-affirming support platform for individuals with autism, ADHD, AuDHD, and other neurodivergent conditions. Provides AI-powered guidance, IEP/504 plan assistance, crisis resources, therapy tools, and community support.",
+    description: "Nonprofit, neurodiversity-affirming support platform for individuals with autism, ADHD, AuDHD, and other neurodivergent conditions.",
     features: ["AI-Powered Guidance", "IEP/504 Plan Assistance", "Crisis Resources", "Therapy Tools", "Community Support", "Neurodiversity Advocacy"],
     populations: ["Neurodivergent Individuals", "Youth with IEP/504 Plans", "Parents of Neurodivergent Youth", "Educators"],
     thriveUpConnections: [
       { area: "Health & Wellness", description: "Mental health and neurodevelopmental support enhances wellness hub" },
-      { area: "Risk Assessment", description: "Neurodevelopmental needs are risk factors for substance use — targeted support reduces risk" },
+      { area: "Risk Assessment", description: "Neurodevelopmental needs are risk factors for substance use" },
       { area: "Accessibility", description: "Neurodiversity-informed design patterns improve platform accessibility" },
       { area: "Case Management", description: "IEP/504 data integration for holistic participant profiles" },
     ],
     grantAlignment: [
-      { grant: "CDC/ONDCP DFC", relevance: "Addresses individual risk factors — mental health and neurodevelopmental needs are substance use risk factors" },
+      { grant: "CDC/ONDCP DFC", relevance: "Addresses individual risk factors" },
       { grant: "SAMHSA", relevance: "Mental health support and crisis intervention" },
       { grant: "IDEA/Special Education", relevance: "IEP/504 compliance and advocacy" },
     ],
@@ -164,17 +173,17 @@ const ECOSYSTEM_APPS: EcosystemApp[] = [
     bgColor: "bg-amber-50 dark:bg-amber-950/30",
     borderColor: "border-amber-200 dark:border-amber-800",
     status: "linked",
-    description: "Incident management platform for mandatory reporters in Texas foster care, schools, healthcare, and childcare. Ensures compliance and that no mandatory reports are missed.",
-    features: ["Incident Reporting", "Mandatory Reporter Compliance", "Foster Care Integration", "School Safety", "Healthcare Reporting", "Childcare Oversight"],
+    description: "Incident management platform for mandatory reporters in Texas foster care, schools, healthcare, and childcare. 50-state regulation database, 7-stage incident lifecycle.",
+    features: ["50-State Regulation Database", "7-Stage Incident Lifecycle", "Auto-Generated Deadlines", "Tamper-Evident Audit Trails", "Cross-Agency Referencing", "Court-Admissible Records"],
     populations: ["Mandatory Reporters", "Foster Care Workers", "School Personnel", "Healthcare Workers", "Childcare Providers"],
     thriveUpConnections: [
-      { area: "Case Management", description: "Incident reports feed into participant case files for comprehensive tracking" },
-      { area: "Partner Network", description: "Mandatory reporting infrastructure strengthens community safety sector" },
+      { area: "Case Management", description: "Incident reports feed into participant case files" },
+      { area: "Partner Network", description: "Mandatory reporting infrastructure strengthens community safety" },
       { area: "Early Warning System", description: "Incident patterns trigger Thrive early warning alerts" },
       { area: "Justice Partners", description: "Coordinated reporting between schools, foster care, and justice system" },
     ],
     grantAlignment: [
-      { grant: "CDC/ONDCP DFC", relevance: "Community safety infrastructure — mandatory reporting ensures youth protection" },
+      { grant: "CDC/ONDCP DFC", relevance: "Community safety infrastructure" },
       { grant: "OJJDP", relevance: "Child welfare and juvenile justice coordination" },
       { grant: "HHS/ACF", relevance: "Foster care and child welfare compliance" },
     ],
@@ -190,17 +199,17 @@ const ECOSYSTEM_APPS: EcosystemApp[] = [
     bgColor: "bg-green-50 dark:bg-green-950/30",
     borderColor: "border-green-200 dark:border-green-800",
     status: "linked",
-    description: "Free veteran support platform helping service members, veterans, and military families transition from military to civilian life. Offers curated resources, transition planning tools, and community connections.",
-    features: ["Transition Planning Tools", "Benefits Guidance", "Community Connections", "VA.gov Complement", "Military Family Support", "Resource Curation"],
+    description: "Free veteran support platform helping service members, veterans, and military families transition from military to civilian life.",
+    features: ["Transition Planning Tools", "Benefits Guidance", "Military Skills Translation", "Community Connections", "Military Family Support", "Resource Curation"],
     populations: ["Veterans", "Active Duty Transitioning", "Military Families", "Military Spouses"],
     thriveUpConnections: [
-      { area: "Veteran Onboarding", description: "Veteran-specific First 30 Days journey template with military transition milestones" },
+      { area: "Veteran Onboarding", description: "Veteran-specific First 30 Days journey template" },
       { area: "Workforce Pipeline", description: "Military skills translation to civilian career pathways" },
       { area: "Community Partners", description: "VA and veteran service organizations in partner network" },
       { area: "Case Management", description: "Veteran-specific service delivery tracking and outcomes" },
     ],
     grantAlignment: [
-      { grant: "CDC/ONDCP DFC", relevance: "Veterans are a key community population — substance use prevention for military families" },
+      { grant: "CDC/ONDCP DFC", relevance: "Veterans are a key community population" },
       { grant: "WIOA Title I", relevance: "Veteran workforce transition and employment services" },
       { grant: "DOL VETS", relevance: "Veteran employment and training programs" },
     ],
@@ -216,21 +225,21 @@ const ECOSYSTEM_APPS: EcosystemApp[] = [
     bgColor: "bg-indigo-50 dark:bg-indigo-950/30",
     borderColor: "border-indigo-200 dark:border-indigo-800",
     status: "linked",
-    description: "Free virtual 211 and Community Health Worker (CHW) hub connecting individuals to resources for housing, food, healthcare, mental health, substance abuse, domestic violence, child welfare, and senior services. Available 24/7 with no prerequisites.",
-    features: ["24/7 Resource Navigation", "Housing Assistance", "Food Access", "Healthcare Connections", "Mental Health Resources", "Substance Abuse Support", "Domestic Violence Support", "Child Welfare", "Senior Services", "Crisis Support"],
+    description: "Free virtual 211 and Community Health Worker hub connecting individuals to resources. 24/7 with no prerequisites.",
+    features: ["24/7 Resource Navigation", "Housing Assistance", "Food Access", "Healthcare Connections", "Mental Health Resources", "Substance Abuse Support", "Domestic Violence Support", "Crisis Support"],
     populations: ["All Community Members", "Individuals in Crisis", "Unhoused Individuals", "Substance Use Recovery", "Domestic Violence Survivors"],
     thriveUpConnections: [
       { area: "Resource Finder", description: "Direct resource matching complements GIS community intelligence" },
       { area: "AI Navigator", description: "Crisis detection routes to LifeBridge 24/7 support" },
       { area: "Social Determinants", description: "Housing, food, healthcare data enriches SDOH profiles" },
-      { area: "Community Map", description: "Resource locations feed into community intelligence map layers" },
-      { area: "Prevention", description: "Social service access is a protective factor reducing substance use risk" },
+      { area: "Community Map", description: "Resource locations feed into community intelligence map" },
+      { area: "Prevention", description: "Social service access is a protective factor" },
     ],
     grantAlignment: [
-      { grant: "CDC/ONDCP DFC", relevance: "Community-wide prevention infrastructure — addressing social determinants reduces substance use risk factors" },
-      { grant: "HHS/HRSA", relevance: "Community health worker infrastructure and resource navigation" },
+      { grant: "CDC/ONDCP DFC", relevance: "Community-wide prevention infrastructure" },
+      { grant: "HHS/HRSA", relevance: "Community health worker infrastructure" },
       { grant: "HUD", relevance: "Housing stability and homelessness prevention" },
-      { grant: "SAMHSA", relevance: "Substance abuse resource navigation and crisis support" },
+      { grant: "SAMHSA", relevance: "Substance abuse resource navigation" },
     ],
     dfcSectors: [8, 9, 10, 12],
   },
@@ -259,10 +268,654 @@ const GRANT_STREAMS = [
   { id: "hhs", name: "HHS/HRSA", amount: "Varies", deadline: "Varies", color: "bg-rose-100 text-rose-800 dark:bg-rose-900/30 dark:text-rose-300" },
 ];
 
+const DOMAIN_ICONS: Record<string, typeof Globe> = {
+  "community-workforce": Users,
+  "health-equity": Heart,
+  "education": GraduationCap,
+  "defense-emergency": Shield,
+  "veterans": Award,
+  "compliance": ShieldCheck,
+  "business-intelligence": Building2,
+};
+
+const DOMAIN_COLORS: Record<string, { text: string; bg: string; border: string }> = {
+  "community-workforce": { text: "text-violet-600 dark:text-violet-400", bg: "bg-violet-50 dark:bg-violet-950/30", border: "border-violet-200 dark:border-violet-800" },
+  "health-equity": { text: "text-rose-600 dark:text-rose-400", bg: "bg-rose-50 dark:bg-rose-950/30", border: "border-rose-200 dark:border-rose-800" },
+  "education": { text: "text-teal-600 dark:text-teal-400", bg: "bg-teal-50 dark:bg-teal-950/30", border: "border-teal-200 dark:border-teal-800" },
+  "defense-emergency": { text: "text-slate-600 dark:text-slate-400", bg: "bg-slate-50 dark:bg-slate-950/30", border: "border-slate-200 dark:border-slate-800" },
+  "veterans": { text: "text-green-600 dark:text-green-400", bg: "bg-green-50 dark:bg-green-950/30", border: "border-green-200 dark:border-green-800" },
+  "compliance": { text: "text-amber-600 dark:text-amber-400", bg: "bg-amber-50 dark:bg-amber-950/30", border: "border-amber-200 dark:border-amber-800" },
+  "business-intelligence": { text: "text-blue-600 dark:text-blue-400", bg: "bg-blue-50 dark:bg-blue-950/30", border: "border-blue-200 dark:border-blue-800" },
+};
+
+const DOMAIN_LABELS: Record<string, string> = {
+  "community-workforce": "Community & Workforce",
+  "health-equity": "Health Equity",
+  "education": "Education",
+  "defense-emergency": "Defense & Emergency",
+  "veterans": "Veterans",
+  "compliance": "Compliance",
+  "business-intelligence": "Business Intelligence",
+};
+
 function StatusBadge({ status }: { status: string }) {
   if (status === "integrated") return <Badge data-testid="badge-status-integrated" className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">Fully Integrated</Badge>;
   if (status === "linked") return <Badge data-testid="badge-status-linked" className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">Linked</Badge>;
   return <Badge data-testid="badge-status-planned" variant="outline">Planned</Badge>;
+}
+
+function FullPortfolioTab() {
+  const [expandedPlatform, setExpandedPlatform] = useState<string | null>(null);
+
+  const { data: portfolioData, isLoading } = useQuery<{
+    platforms: any[];
+    entityInfo: any;
+    proprietaryMethodologies: any[];
+    portfolioStats: any;
+    naicsCodes: any[];
+  }>({
+    queryKey: ["/api/ecosystem/portfolio"],
+  });
+
+  if (isLoading) {
+    return (
+      <div className="space-y-4">
+        {[1, 2, 3].map(i => <Skeleton key={i} className="h-48" />)}
+      </div>
+    );
+  }
+
+  if (!portfolioData) return null;
+
+  const { platforms, portfolioStats } = portfolioData;
+
+  const domainGroups: Record<string, any[]> = {};
+  for (const p of platforms) {
+    const cat = p.domainCategory || "other";
+    if (!domainGroups[cat]) domainGroups[cat] = [];
+    domainGroups[cat].push(p);
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
+        <Card data-testid="stat-portfolio-platforms">
+          <CardContent className="pt-3 pb-3 text-center">
+            <div className="text-2xl font-bold text-violet-600 dark:text-violet-400">{portfolioStats.platforms}</div>
+            <div className="text-xs text-gray-500 dark:text-gray-400">Platforms</div>
+          </CardContent>
+        </Card>
+        <Card data-testid="stat-portfolio-loc">
+          <CardContent className="pt-3 pb-3 text-center">
+            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{portfolioStats.linesOfCode}</div>
+            <div className="text-xs text-gray-500 dark:text-gray-400">Lines of Code</div>
+          </CardContent>
+        </Card>
+        <Card data-testid="stat-portfolio-records">
+          <CardContent className="pt-3 pb-3 text-center">
+            <div className="text-2xl font-bold text-green-600 dark:text-green-400">{portfolioStats.dataRecords}</div>
+            <div className="text-xs text-gray-500 dark:text-gray-400">Data Records</div>
+          </CardContent>
+        </Card>
+        <Card data-testid="stat-portfolio-pages">
+          <CardContent className="pt-3 pb-3 text-center">
+            <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">{portfolioStats.functionalPages}</div>
+            <div className="text-xs text-gray-500 dark:text-gray-400">Pages</div>
+          </CardContent>
+        </Card>
+        <Card data-testid="stat-portfolio-apis">
+          <CardContent className="pt-3 pb-3 text-center">
+            <div className="text-2xl font-bold text-rose-600 dark:text-rose-400">{portfolioStats.apiEndpoints}</div>
+            <div className="text-xs text-gray-500 dark:text-gray-400">API Endpoints</div>
+          </CardContent>
+        </Card>
+        <Card data-testid="stat-portfolio-tables">
+          <CardContent className="pt-3 pb-3 text-center">
+            <div className="text-2xl font-bold text-teal-600 dark:text-teal-400">{portfolioStats.databaseTables}</div>
+            <div className="text-xs text-gray-500 dark:text-gray-400">DB Tables</div>
+          </CardContent>
+        </Card>
+        <Card data-testid="stat-portfolio-coverage">
+          <CardContent className="pt-3 pb-3 text-center">
+            <div className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">{portfolioStats.stateCoverage}</div>
+            <div className="text-xs text-gray-500 dark:text-gray-400">Coverage</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {Object.entries(domainGroups).map(([domainKey, domainPlatforms]) => {
+        const colors = DOMAIN_COLORS[domainKey] || DOMAIN_COLORS["community-workforce"];
+        const DomainIcon = DOMAIN_ICONS[domainKey] || Globe;
+        const label = DOMAIN_LABELS[domainKey] || domainKey;
+
+        return (
+          <div key={domainKey} className="space-y-3">
+            <div className="flex items-center gap-2">
+              <div className={`p-1.5 rounded-md ${colors.bg}`}>
+                <DomainIcon className={`h-4 w-4 ${colors.text}`} />
+              </div>
+              <h3 className="font-semibold text-gray-900 dark:text-white">{label}</h3>
+              <Badge variant="outline" className="text-xs">{domainPlatforms.length} platform{domainPlatforms.length > 1 ? "s" : ""}</Badge>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {domainPlatforms.map((platform: any) => {
+                const isExpanded = expandedPlatform === platform.id;
+                return (
+                  <Card
+                    key={platform.id}
+                    className={`cursor-pointer transition-all ${isExpanded ? 'ring-2 ring-violet-500 col-span-full' : ''} ${colors.border}`}
+                    onClick={() => setExpandedPlatform(isExpanded ? null : platform.id)}
+                    data-testid={`card-portfolio-${platform.id}`}
+                  >
+                    <CardHeader className="pb-2">
+                      <div className="flex items-start justify-between gap-2">
+                        <CardTitle className="text-base">{platform.name}</CardTitle>
+                        <div className="flex items-center gap-1.5">
+                          {platform.floorPrice !== "Bundled" && platform.floorPrice !== "Contact for quote" && (
+                            <Badge variant="outline" className="text-xs">{platform.floorPrice}</Badge>
+                          )}
+                          {isExpanded ? <ChevronUp className="h-4 w-4 text-gray-400" /> : <ChevronDown className="h-4 w-4 text-gray-400" />}
+                        </div>
+                      </div>
+                      <CardDescription className="text-xs">{platform.description.substring(0, 120)}...</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      <div className="flex flex-wrap gap-1">
+                        {platform.populations.slice(0, 3).map((pop: string) => (
+                          <Badge key={pop} variant="outline" className="text-xs">{pop}</Badge>
+                        ))}
+                        {platform.populations.length > 3 && (
+                          <Badge variant="outline" className="text-xs">+{platform.populations.length - 3}</Badge>
+                        )}
+                      </div>
+
+                      {platform.subPlatforms && (
+                        <div className="flex flex-wrap gap-1">
+                          {platform.subPlatforms.map((sub: any) => (
+                            <Badge key={sub.name} className="text-xs bg-rose-100 text-rose-800 dark:bg-rose-900/30 dark:text-rose-300">{sub.name}</Badge>
+                          ))}
+                        </div>
+                      )}
+
+                      {isExpanded && (
+                        <div className="mt-3 space-y-4 border-t pt-3 dark:border-gray-700" onClick={(e) => e.stopPropagation()}>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                              <h4 className="font-semibold text-sm text-gray-900 dark:text-white mb-2">Capabilities</h4>
+                              <ul className="space-y-1">
+                                {platform.capabilities.map((cap: string) => (
+                                  <li key={cap} className="flex items-start gap-1.5 text-xs text-gray-600 dark:text-gray-400">
+                                    <CheckCircle className="h-3 w-3 text-green-500 shrink-0 mt-0.5" /> {cap}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                            <div>
+                              <h4 className="font-semibold text-sm text-gray-900 dark:text-white mb-2">Grant Alignments</h4>
+                              <ul className="space-y-1.5">
+                                {platform.grantAlignments.map((ga: any) => (
+                                  <li key={ga.program} className="text-xs">
+                                    <Badge variant="outline" className="text-xs mb-0.5">{ga.role}</Badge>{" "}
+                                    <span className="text-gray-600 dark:text-gray-400">{ga.source} - {ga.program}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                            <div>
+                              <h4 className="font-semibold text-sm text-gray-900 dark:text-white mb-2">Interdependencies</h4>
+                              <ul className="space-y-1.5">
+                                {platform.interdependencies.map((dep: any) => (
+                                  <li key={dep.platform} className="text-xs">
+                                    <span className="font-medium text-violet-600 dark:text-violet-400">{dep.platform}</span>
+                                    <p className="text-gray-500 dark:text-gray-400">{dep.capability}</p>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          </div>
+
+                          <div className="flex flex-wrap gap-3">
+                            <div className="text-xs text-gray-500 dark:text-gray-400">
+                              <span className="font-medium">NAICS:</span> {platform.naicsCodes.join(", ")}
+                            </div>
+                            <div className="text-xs text-gray-500 dark:text-gray-400">
+                              <span className="font-medium">Pricing:</span> {platform.pricingModel}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function GrantMatcherTab() {
+  const [selectedStream, setSelectedStream] = useState<string>("");
+  const [queryText, setQueryText] = useState("");
+  const { toast } = useToast();
+
+  const { data: fundingStreams } = useQuery<any[]>({
+    queryKey: ["/api/ecosystem/funding-streams"],
+  });
+
+  const matchMutation = useMutation({
+    mutationFn: async (body: { query?: string; fundingStreamId?: string }) => {
+      const res = await apiRequest("POST", "/api/ecosystem/grant-match", body);
+      return res.json();
+    },
+  });
+
+  const handleSearch = () => {
+    if (!selectedStream && !queryText.trim()) {
+      toast({ title: "Please select a funding stream or describe an opportunity", variant: "destructive" });
+      return;
+    }
+    matchMutation.mutate({ query: queryText, fundingStreamId: selectedStream || undefined });
+  };
+
+  const copyNarrative = () => {
+    if (matchMutation.data?.narrative) {
+      navigator.clipboard.writeText(matchMutation.data.narrative);
+      toast({ title: "Narrative copied to clipboard" });
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Search className="h-5 w-5 text-violet-600" />
+            Grant Opportunity Matcher
+          </CardTitle>
+          <CardDescription>Select a funding stream or describe an opportunity to find the best platform combination</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-900 dark:text-white">Funding Stream</label>
+              <Select value={selectedStream} onValueChange={setSelectedStream}>
+                <SelectTrigger data-testid="select-funding-stream">
+                  <SelectValue placeholder="Select a funding stream..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {(fundingStreams || []).map((stream: any) => (
+                    <SelectItem key={stream.id} value={stream.id}>{stream.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-900 dark:text-white">Or Describe an Opportunity</label>
+              <Textarea
+                value={queryText}
+                onChange={(e) => setQueryText(e.target.value)}
+                placeholder="e.g., Veteran workforce transition program with mental health support..."
+                className="resize-none"
+                data-testid="input-opportunity-description"
+              />
+            </div>
+          </div>
+          <Button onClick={handleSearch} disabled={matchMutation.isPending} data-testid="button-match-opportunity">
+            <Search className="h-4 w-4 mr-2" />
+            {matchMutation.isPending ? "Matching..." : "Find Best Platform Combination"}
+          </Button>
+        </CardContent>
+      </Card>
+
+      {matchMutation.data && (
+        <div className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Target className="h-5 w-5 text-green-600" />
+                Primary Platforms
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                {matchMutation.data.primaryPlatforms.map((p: any) => (
+                  <Card key={p.id} className="border-green-200 dark:border-green-800" data-testid={`card-primary-${p.id}`}>
+                    <CardContent className="pt-4 pb-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">Primary</Badge>
+                        <span className="font-semibold text-sm">{p.name}</span>
+                      </div>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">{p.description.substring(0, 100)}...</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {matchMutation.data.supportingPlatforms.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Supporting Platforms</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                  {matchMutation.data.supportingPlatforms.map((p: any) => (
+                    <Card key={p.id} className="border-blue-200 dark:border-blue-800" data-testid={`card-supporting-${p.id}`}>
+                      <CardContent className="pt-3 pb-3">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Badge variant="outline" className="text-xs">Supporting</Badge>
+                          <span className="font-medium text-sm">{p.name}</span>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between gap-2">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <FileText className="h-5 w-5 text-amber-600" />
+                  Combined Value Proposition
+                </CardTitle>
+                <Button variant="outline" size="sm" onClick={copyNarrative} data-testid="button-copy-narrative">
+                  <Copy className="h-4 w-4 mr-2" /> Copy to Grant Narrative
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-md p-4">
+                <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed" data-testid="text-match-narrative">
+                  {matchMutation.data.narrative}
+                </p>
+              </div>
+
+              {matchMutation.data.interdependencyStory && (
+                <div>
+                  <h4 className="font-semibold text-sm text-gray-900 dark:text-white mb-2">Interdependency Story</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">{matchMutation.data.interdependencyStory}</p>
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <h4 className="font-semibold text-sm text-gray-900 dark:text-white mb-2">NAICS Codes</h4>
+                  <div className="flex flex-wrap gap-1">
+                    {matchMutation.data.naicsCodes.map((code: string) => (
+                      <Badge key={code} variant="outline" className="text-xs">{code}</Badge>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-sm text-gray-900 dark:text-white mb-2">Set-Aside Eligibility</h4>
+                  <div className="flex flex-wrap gap-1">
+                    {matchMutation.data.setAsideEligibility.map((sa: string) => (
+                      <Badge key={sa} className="text-xs bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">{sa}</Badge>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-sm text-gray-900 dark:text-white mb-2">Estimated Value Range</h4>
+                  <p className="text-lg font-bold text-green-600 dark:text-green-400" data-testid="text-estimated-value">{matchMutation.data.estimatedValueRange}</p>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="font-semibold text-sm text-gray-900 dark:text-white mb-2">Competitive Advantages</h4>
+                <ul className="space-y-1">
+                  {matchMutation.data.competitiveAdvantages.map((adv: string) => (
+                    <li key={adv} className="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-400">
+                      <Zap className="h-3.5 w-3.5 text-amber-500 shrink-0 mt-0.5" /> {adv}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CompetitiveAdvantagesTab() {
+  const { data: portfolioData, isLoading } = useQuery<{
+    platforms: any[];
+    entityInfo: any;
+    proprietaryMethodologies: any[];
+    implementationFrameworks: any[];
+    portfolioStats: any;
+    naicsCodes: any[];
+  }>({
+    queryKey: ["/api/ecosystem/portfolio"],
+  });
+
+  if (isLoading) {
+    return (
+      <div className="space-y-4">
+        {[1, 2, 3].map(i => <Skeleton key={i} className="h-48" />)}
+      </div>
+    );
+  }
+
+  if (!portfolioData) return null;
+
+  const { entityInfo, proprietaryMethodologies, implementationFrameworks, portfolioStats, naicsCodes } = portfolioData;
+
+  return (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Building2 className="h-5 w-5 text-violet-600" />
+            Dual-Entity Structure
+          </CardTitle>
+          <CardDescription>Flexible contracting through nonprofit and for-profit entities</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Card className="border-blue-200 dark:border-blue-800">
+              <CardContent className="pt-4 pb-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Heart className="h-5 w-5 text-blue-600" />
+                  <h4 className="font-semibold">{entityInfo.foundation.name}</h4>
+                </div>
+                <Badge className="text-xs bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 mb-2">{entityInfo.foundation.type}</Badge>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Eligible for grants, donations, and tax-exempt funding. Ideal for community-facing programs, prevention curricula, and direct service delivery.</p>
+              </CardContent>
+            </Card>
+            <Card className="border-green-200 dark:border-green-800">
+              <CardContent className="pt-4 pb-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Briefcase className="h-5 w-5 text-green-600" />
+                  <h4 className="font-semibold">{entityInfo.llc.name}</h4>
+                </div>
+                <div className="flex flex-wrap gap-1 mb-2">
+                  <Badge className="text-xs bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">{entityInfo.llc.type}</Badge>
+                  {entityInfo.llc.vosbCertified && <Badge className="text-xs bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">VOSB Certified</Badge>}
+                  <Badge className="text-xs bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300">SAM.gov Registered</Badge>
+                </div>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Eligible for federal contracts, VOSB set-asides, SB/SDB preferences. CAGE Code registered. Ideal for technology contracts and consulting services.</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="mt-4">
+            <h4 className="font-semibold text-sm text-gray-900 dark:text-white mb-2">Leadership</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {entityInfo.leadership.map((leader: any) => (
+                <div key={leader.name} className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-md">
+                  <Users className="h-5 w-5 text-violet-500 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-semibold text-sm">{leader.name}</p>
+                    <Badge variant="outline" className="text-xs mb-1">{leader.role}</Badge>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{leader.bio}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-4">
+            <h4 className="font-semibold text-sm text-gray-900 dark:text-white mb-2">Set-Aside Eligibility</h4>
+            <div className="flex flex-wrap gap-2">
+              {entityInfo.setAsideEligibility.map((sa: string) => (
+                <Badge key={sa} className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">{sa}</Badge>
+              ))}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Sparkles className="h-5 w-5 text-amber-600" />
+            Proprietary Methodologies
+          </CardTitle>
+          <CardDescription>Original intellectual property providing competitive differentiation</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {proprietaryMethodologies.map((method: any) => (
+            <div key={method.name} className="border rounded-md p-4 dark:border-gray-700">
+              <div className="flex items-start justify-between gap-2 mb-2">
+                <h4 className="font-semibold text-sm text-gray-900 dark:text-white">{method.name}</h4>
+                {method.creator && <Badge variant="outline" className="text-xs shrink-0">{method.creator}</Badge>}
+              </div>
+              {method.fullName && <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">{method.fullName}</p>}
+              {method.description && <p className="text-sm text-gray-600 dark:text-gray-400">{method.description}</p>}
+              {method.modes && (
+                <div className="mt-2 flex flex-wrap gap-1">
+                  {method.modes.map((mode: string) => (
+                    <Badge key={mode} variant="outline" className="text-xs">{mode}</Badge>
+                  ))}
+                </div>
+              )}
+              {method.innovations && (
+                <ul className="mt-2 space-y-1">
+                  {method.innovations.map((inn: string) => (
+                    <li key={inn} className="flex items-start gap-1.5 text-xs text-gray-600 dark:text-gray-400">
+                      <CheckCircle className="h-3 w-3 text-green-500 shrink-0 mt-0.5" /> {inn}
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {method.deployedIn && (
+                <div className="mt-2 flex flex-wrap gap-1">
+                  <span className="text-xs text-gray-500 dark:text-gray-400 mr-1">Deployed in:</span>
+                  {method.deployedIn.map((p: string) => (
+                    <Badge key={p} variant="outline" className="text-xs">{p}</Badge>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Scale className="h-5 w-5 text-teal-600" />
+            Implementation Science Credibility
+          </CardTitle>
+          <CardDescription>Operationalized evidence-based frameworks</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+            {implementationFrameworks.map((fw: any) => (
+              <Card key={fw.name} className="border-teal-200 dark:border-teal-800" data-testid={`card-framework-${fw.name}`}>
+                <CardContent className="pt-3 pb-3">
+                  <h4 className="font-bold text-teal-600 dark:text-teal-400">{fw.name}</h4>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">{fw.fullName}</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">{fw.description}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <BarChart3 className="h-5 w-5 text-blue-600" />
+            Portfolio Statistics
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[
+              { label: "Technology Platforms", value: `${portfolioStats.platforms} (${portfolioStats.platformsWithSub} with sub-platforms)` },
+              { label: "Production Code", value: portfolioStats.linesOfCode },
+              { label: "Curated Data Records", value: portfolioStats.dataRecords },
+              { label: "Functional Pages", value: portfolioStats.functionalPages },
+              { label: "API Endpoints", value: portfolioStats.apiEndpoints },
+              { label: "Database Tables", value: portfolioStats.databaseTables },
+              { label: "Coverage", value: portfolioStats.stateCoverage },
+              { label: "Combined Ecosystem Value", value: portfolioStats.combinedEcosystemValue },
+            ].map((stat) => (
+              <div key={stat.label} className="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-md">
+                <p className="text-xs text-gray-500 dark:text-gray-400">{stat.label}</p>
+                <p className="font-bold text-sm text-gray-900 dark:text-white">{stat.value}</p>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <ClipboardList className="h-5 w-5 text-indigo-600" />
+            NAICS Codes
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            {naicsCodes.map((naics: any) => (
+              <div key={naics.code} className="flex items-start gap-3 p-2 border-b dark:border-gray-700 last:border-b-0">
+                <Badge variant="outline" className="shrink-0 font-mono">{naics.code}</Badge>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium">{naics.description}</p>
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {naics.platforms.map((p: string) => (
+                      <Badge key={p} variant="outline" className="text-xs">{p}</Badge>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>IP Ownership Statement</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="bg-violet-50 dark:bg-violet-950/20 border border-violet-200 dark:border-violet-800 rounded-md p-4">
+            <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+              The Collaborative Advocate maintains complete intellectual property ownership of all 13 technology platforms, 
+              all proprietary methodologies (MAP-GAP, SALP, Three Realities, MG-PATR, ISSS Knowledge Engine), 
+              all data architectures, and all curated datasets. No third-party licenses, no open-source dependencies 
+              for core IP, no shared ownership. This provides absolute freedom in deployment, licensing, white-labeling, 
+              and contract execution across any funding stream or commercial engagement.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
 }
 
 export default function EcosystemHubPage() {
@@ -271,8 +924,8 @@ export default function EcosystemHubPage() {
 
   const integratedCount = ECOSYSTEM_APPS.filter(a => a.status === "integrated").length;
   const linkedCount = ECOSYSTEM_APPS.filter(a => a.status === "linked").length;
-  const totalPopulations = [...new Set(ECOSYSTEM_APPS.flatMap(a => a.populations))].length;
-  const allDfcSectors = [...new Set(ECOSYSTEM_APPS.flatMap(a => a.dfcSectors))];
+  const totalPopulations = Array.from(new Set(ECOSYSTEM_APPS.flatMap(a => a.populations))).length;
+  const allDfcSectors = Array.from(new Set(ECOSYSTEM_APPS.flatMap(a => a.dfcSectors)));
   const dfcCoverage = Math.round((allDfcSectors.length / 12) * 100);
 
   const selectedAppData = ECOSYSTEM_APPS.find(a => a.id === selectedApp);
@@ -285,16 +938,16 @@ export default function EcosystemHubPage() {
             Ecosystem Integration Hub
           </h1>
           <p className="text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
-            A connected network of platforms serving communities holistically — from education and workforce development
-            to health, safety, veteran services, and social determinants of health.
+            The Collaborative Advocate's 13-platform technology ecosystem — from education and workforce development
+            to health equity, defense, veteran services, compliance, and business intelligence.
           </p>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Card data-testid="stat-total-apps">
             <CardContent className="pt-4 pb-4 text-center">
-              <div className="text-3xl font-bold text-violet-600 dark:text-violet-400">{ECOSYSTEM_APPS.length}</div>
-              <div className="text-sm text-gray-500 dark:text-gray-400">Connected Platforms</div>
+              <div className="text-3xl font-bold text-violet-600 dark:text-violet-400">13</div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">Total Platforms</div>
             </CardContent>
           </Card>
           <Card data-testid="stat-integrated">
@@ -318,12 +971,15 @@ export default function EcosystemHubPage() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-4 md:grid-cols-8">
             <TabsTrigger value="overview" data-testid="tab-overview">Ecosystem Map</TabsTrigger>
-            <TabsTrigger value="dfc" data-testid="tab-dfc">DFC Grant Alignment</TabsTrigger>
-            <TabsTrigger value="connections" data-testid="tab-connections">Integration Points</TabsTrigger>
+            <TabsTrigger value="portfolio" data-testid="tab-portfolio">Full Portfolio</TabsTrigger>
+            <TabsTrigger value="matcher" data-testid="tab-matcher">Grant Matcher</TabsTrigger>
+            <TabsTrigger value="advantages" data-testid="tab-advantages">Advantages</TabsTrigger>
+            <TabsTrigger value="dfc" data-testid="tab-dfc">DFC Alignment</TabsTrigger>
+            <TabsTrigger value="connections" data-testid="tab-connections">Integrations</TabsTrigger>
             <TabsTrigger value="grants" data-testid="tab-grants">Grant Matrix</TabsTrigger>
-            <TabsTrigger value="narrative" data-testid="tab-narrative">Grant Narrative</TabsTrigger>
+            <TabsTrigger value="narrative" data-testid="tab-narrative">Narrative</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-4">
@@ -454,6 +1110,18 @@ export default function EcosystemHubPage() {
             )}
           </TabsContent>
 
+          <TabsContent value="portfolio" className="space-y-4">
+            <FullPortfolioTab />
+          </TabsContent>
+
+          <TabsContent value="matcher" className="space-y-4">
+            <GrantMatcherTab />
+          </TabsContent>
+
+          <TabsContent value="advantages" className="space-y-4">
+            <CompetitiveAdvantagesTab />
+          </TabsContent>
+
           <TabsContent value="dfc" className="space-y-6">
             <Card>
               <CardHeader>
@@ -522,16 +1190,16 @@ export default function EcosystemHubPage() {
                   {[
                     { area: "Establishing & Strengthening Community Coalitions", strength: "Coalition Dashboard with 12-sector tracker, meeting management, capacity assessment, and SPF-aligned action plans. Multi-app ecosystem demonstrates genuine cross-sector collaboration.", apps: ["ThriveUp", "ISSS", "LifeBridge"] },
                     { area: "Preventing Youth Substance Use Through Community Strategies", strength: "24-module prevention curriculum across 8 substance topics with 3 age tiers. Evidence-based content aligned to SAMHSA Strategic Prevention Framework.", apps: ["ThriveUp", "WholeMind", "Perfectly Different"] },
-                    { area: "Addressing Risk Factors for Youth Substance Use", strength: "Comprehensive risk factor assessment across family, peer/social, community, and individual domains. Neurodiversity support addresses mental health risk factors. Mandatory reporting ensures child safety.", apps: ["ThriveUp", "Perfectly Different", "SafeReport"] },
-                    { area: "Promoting Protective Factors That Reduce Substance Use Risk", strength: "Protective factor assessment and strengthening. Academic engagement (WholeMind), family bonding (Parent Education), social service access (LifeBridge), and veteran community support (M2C) all build protective factors.", apps: ["ThriveUp", "WholeMind", "LifeBridge", "M2C"] },
-                    { area: "Community-Wide Prevention & Education Initiatives", strength: "Full ecosystem covers all community segments — youth education, parent engagement, healthcare, veteran services, social determinants, school infrastructure, and mandatory reporting. 24/7 crisis support through LifeBridge.", apps: ["All Platforms"] },
-                    { area: "Measurable Prevention Outcomes", strength: "Dosage tracking, outcome reporting, pilot data infrastructure, CQI engine for continuous improvement. Risk/protective factor score tracking over time. Anonymous youth substance use surveys for baseline and outcome measurement.", apps: ["ThriveUp"] },
-                    { area: "100% Cost Match Requirement", strength: "Cost match tracking built into Coalition Dashboard. Partner in-kind contributions, volunteer hours, and facility sharing tracked through Community Partner Network.", apps: ["ThriveUp"] },
+                    { area: "Addressing Risk Factors for Youth Substance Use", strength: "Comprehensive risk factor assessment across family, peer/social, community, and individual domains. Neurodiversity support addresses mental health risk factors.", apps: ["ThriveUp", "Perfectly Different", "SafeReport"] },
+                    { area: "Promoting Protective Factors That Reduce Substance Use Risk", strength: "Protective factor assessment and strengthening. Academic engagement, family bonding, social service access, and veteran community support all build protective factors.", apps: ["ThriveUp", "WholeMind", "LifeBridge", "M2C"] },
+                    { area: "Community-Wide Prevention & Education Initiatives", strength: "Full ecosystem covers all community segments. 24/7 crisis support through LifeBridge.", apps: ["All Platforms"] },
+                    { area: "Measurable Prevention Outcomes", strength: "Dosage tracking, outcome reporting, pilot data infrastructure, CQI engine for continuous improvement.", apps: ["ThriveUp"] },
+                    { area: "100% Cost Match Requirement", strength: "Cost match tracking built into Coalition Dashboard. Partner in-kind contributions, volunteer hours, and facility sharing tracked.", apps: ["ThriveUp"] },
                   ].map((item, i) => (
                     <div key={i} className="border rounded-lg p-4 dark:border-gray-700">
-                      <div className="flex items-start justify-between mb-2">
+                      <div className="flex items-start justify-between gap-2 mb-2">
                         <h4 className="font-semibold text-sm text-gray-900 dark:text-white">{item.area}</h4>
-                        <div className="flex gap-1">
+                        <div className="flex flex-wrap gap-1">
                           {item.apps.map(app => (
                             <Badge key={app} variant="outline" className="text-xs">{app}</Badge>
                           ))}
@@ -669,7 +1337,7 @@ export default function EcosystemHubPage() {
                 <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4" data-testid="narrative-coalition-infrastructure">
                   <h4 className="font-semibold text-amber-800 dark:text-amber-300 mb-2">Coalition Infrastructure</h4>
                   <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-                    Our coalition operates through ThriveUp Academy, an AI-powered community enablement platform that serves as the central coordination hub for a network of {ECOSYSTEM_APPS.length} interconnected service platforms. This infrastructure enables real-time cross-sector collaboration, data-driven decision-making, and measurable outcome tracking across all 12 DFC-required community sectors. Our coalition management dashboard tracks sector representation, meeting activity, capacity assessments aligned to SAMHSA's Strategic Prevention Framework, and 100% cost match compliance documentation.
+                    Our coalition operates through ThriveUp Academy, an AI-powered community enablement platform that serves as the central coordination hub for a network of 13 interconnected service platforms forming The Collaborative Advocate ecosystem. This infrastructure enables real-time cross-sector collaboration, data-driven decision-making, and measurable outcome tracking across all 12 DFC-required community sectors. Our coalition management dashboard tracks sector representation, meeting activity, capacity assessments aligned to SAMHSA's Strategic Prevention Framework, and 100% cost match compliance documentation.
                   </p>
                 </div>
 
@@ -683,21 +1351,21 @@ export default function EcosystemHubPage() {
                 <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-lg p-4" data-testid="narrative-community-reach">
                   <h4 className="font-semibold text-green-800 dark:text-green-300 mb-2">Community-Wide Reach & Impact</h4>
                   <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-                    Our ecosystem serves {totalPopulations}+ distinct population segments including youth, parents, veterans, returning citizens, neurodivergent individuals, and individuals in crisis. LifeBridge provides 24/7 virtual 211 and Community Health Worker services addressing social determinants of health — housing, food, healthcare, mental health, and substance abuse resources. M2C Transition supports military families, a population with elevated substance use risk factors. SafeReport ensures mandatory reporting compliance across schools, healthcare, foster care, and childcare settings. The Integrated Supports for Thriving Youth (ISSS) platform coordinates whole-child student support at the school and district level. Together, these platforms create a community-wide prevention infrastructure that addresses risk factors at every ecological level — individual, family, school, peer group, and community.
+                    Our ecosystem serves {totalPopulations}+ distinct population segments including youth, parents, veterans, returning citizens, neurodivergent individuals, and individuals in crisis. LifeBridge provides 24/7 virtual 211 and Community Health Worker services addressing social determinants of health. M2C Transition supports military families. SafeReport ensures mandatory reporting compliance across schools, healthcare, foster care, and childcare settings. The ISSS platform coordinates whole-child student support at the school and district level. Together, these platforms create a community-wide prevention infrastructure that addresses risk factors at every ecological level.
                   </p>
                 </div>
 
                 <div className="bg-purple-50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4" data-testid="narrative-outcomes">
                   <h4 className="font-semibold text-purple-800 dark:text-purple-300 mb-2">Measurable Outcomes & Continuous Improvement</h4>
                   <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-                    Our platform infrastructure tracks prevention outcomes through multiple mechanisms: anonymous youth substance use surveys for baseline and follow-up measurement, risk and protective factor score tracking over time, prevention curriculum completion and knowledge check performance, dosage tracking for service delivery hours, and a continuous quality improvement (CQI) engine that cycles through Observe-Prioritize-Act-Check-Standardize phases. Our outcome reporting system generates WIOA-compatible, DOJ-aligned, and SAMHSA-formatted reports. The pilot data infrastructure supports cohort-based evaluation with pre/post comparison capability.
+                    Our platform infrastructure tracks prevention outcomes through multiple mechanisms: anonymous youth substance use surveys, risk and protective factor score tracking, prevention curriculum completion and knowledge check performance, dosage tracking for service delivery hours, and a continuous quality improvement (CQI) engine. Our outcome reporting system generates WIOA-compatible, DOJ-aligned, and SAMHSA-formatted reports. The RPLICE platform provides implementation science evaluation via RE-AIM and CFIR frameworks, adding scientific credibility to all measurement.
                   </p>
                 </div>
 
                 <div className="bg-rose-50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-800 rounded-lg p-4" data-testid="narrative-sustainability">
                   <h4 className="font-semibold text-rose-800 dark:text-rose-300 mb-2">Sustainability & Long-Term Impact</h4>
                   <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-                    Our coalition's sustainability strategy is built on technology infrastructure that reduces per-participant costs over time, a diversified funding approach spanning multiple federal grant streams (WIOA, OJJDP, SAMHSA, HHS/HRSA, CDC/ONDCP), in-kind contributions from {ECOSYSTEM_APPS.length} platform partners, and a community partner network of organizations that provide volunteer hours, facilities, and direct services. Our cost match tracking system documents all non-federal contributions for grant compliance, and our logic model builder generates theory-of-change documentation showing how inputs translate to long-term community outcomes.
+                    Our coalition's sustainability strategy is built on technology infrastructure that reduces per-participant costs over time, a diversified funding approach spanning 12 federal grant streams, in-kind contributions from 13 platform partners, and a community partner network. Our cost match tracking system documents all non-federal contributions, and our logic model builder generates theory-of-change documentation. The Collaborative Advocate's dual-entity structure (Foundation + VOSB LLC) ensures flexible contracting and sustainable revenue streams beyond any single grant.
                   </p>
                 </div>
               </CardContent>

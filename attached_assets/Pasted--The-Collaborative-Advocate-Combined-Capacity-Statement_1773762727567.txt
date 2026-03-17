@@ -1,0 +1,1473 @@
+# The Collaborative Advocate — Combined Capacity Statement
+
+**Prepared by:** Dr. Terry Flood, DHA & Meredith Sisnett
+**Entities:** The Collaborative Advocate Foundation (501(c)(3)) | The Collaborative Advocate LLC (VOSB)
+**Date:** March 2026
+**Classification:** Business Sensitive — For Grant/Contract Applications
+**VOSB Certified | SAM.gov Registered | DUNS/UEI: [Your UEI] | CAGE Code: [Your CAGE]**
+
+---
+
+## EXECUTIVE SUMMARY
+
+The Collaborative Advocate operates as a dual-entity ecosystem: a 501(c)(3) nonprofit Foundation and a VOSB-certified for-profit LLC. Together, they field **13 purpose-built technology platforms** spanning health equity, defense operations, implementation science, workforce development, education, neurodiversity, veteran transition, compliance, cognitive support, medication adherence, team operations, community resource navigation, and federal contracting intelligence.
+
+These platforms are not independent products. They form an **interdependent technology ecosystem** where each grant or contract activates a specific combination of platforms working together. This architecture provides:
+
+- **Comprehensive coverage** across 8 federal funding streams (CDC, DOL, DOJ, SAMHSA, DOE, VA/DoD, HHS/HRSA/ACF, DHS/FEMA)
+- **Complete IP ownership** of all platforms, methodologies, and data architectures
+- **Proprietary methodologies** including MAP-GAP Execution Governance, SALP Framework, Three Realities Diagnostic, and MG-PATR Execution Engine
+- **Scientific credibility** through operationalized CFIR, RE-AIM, EPIS, SPF, and WIOA frameworks
+- **Scalable deployment** via SaaS licensing, white-label, API integration, or direct service delivery
+
+**Total Portfolio Statistics:**
+- 13 technology platforms (18 counting Sankofa sub-platforms)
+- 1,000,000+ lines of production code
+- 700,000+ curated data records
+- 500+ functional pages across all platforms
+- 1,500+ API endpoints
+- 300+ database tables
+- 50-state coverage (regulations, resources, directories)
+- All ages served (K-12 through seniors)
+
+---
+
+## KEY NAICS CODES
+
+| NAICS | Description | Applicable Platforms |
+|-------|-------------|---------------------|
+| 541611 | Administrative Management Consulting | RPLICE, The Incubator, ThriveUp |
+| 541612 | Human Resources Consulting | ThriveUp, M2C Transition, Unplanned |
+| 541690 | Other Scientific & Technical Consulting | RPLICE, ISSS, Sankofa Health |
+| 541720 | Research & Development | RPLICE, SHIELD/ATLAS, Sankofa Health |
+| 541511 | Custom Computer Programming | All 13 platforms |
+| 541519 | Other Computer Related Services | All 13 platforms |
+| 561720 | Janitorial Services | Facility operations |
+| 561210 | Facilities Support Services | Facility operations |
+| 611430 | Professional Development Training | ThriveUp, ISSS, M2C Transition |
+
+---
+
+## PLATFORM 01: THRIVEUP ACADEMY
+
+### Overview
+AI-powered workforce development and community enablement platform. The operational backbone for discovering, winning, executing, and sustaining federal grants. Serves as the grant infrastructure engine across the entire ecosystem.
+
+### Technical Specifications
+- **Pages:** 90+ functional pages
+- **Domains:** 11 operational domains
+- **Architecture:** React + TypeScript frontend, Express.js backend, PostgreSQL database
+- **AI Integration:** OpenAI for career counseling, grant discovery, and content generation
+- **Data Sources:** SAM.gov (live), BLS O*NET, community data feeds
+
+### Core Capabilities
+1. **Workforce Development Engine**
+   - 50+ career pathways with AI-powered career counseling
+   - Skills gap analysis and credential mapping
+   - Resume builder with AI optimization
+   - Job matching and employer engagement portal
+   - Apprenticeship program management
+
+2. **Youth Prevention Curriculum**
+   - 24 evidence-based prevention modules
+   - 8 substance topics (alcohol, tobacco, marijuana, opioids, vaping, prescription drugs, inhalants, stimulants)
+   - 3 age tiers (elementary, middle school, high school)
+   - SAMHSA Strategic Prevention Framework (SPF) aligned
+   - Pre/post assessment with outcome tracking
+
+3. **Grant Infrastructure**
+   - SAM.gov grant discovery with AI fit scoring
+   - Grant calendar and deadline management
+   - Budget builder and narrative template generator
+   - Coalition member management and engagement tracking
+   - WIOA compliance tracking (all 14 youth program elements)
+
+4. **Reentry Case Management**
+   - Phase-based reentry plans (pre-release, immediate, stabilization, growth, independence)
+   - Milestone tracking with court-ready reporting
+   - Fair-chance employer pipeline and matching
+   - Family reunification support tools
+   - Risk assessment and needs scoring
+
+5. **Community Capacity Building**
+   - Community needs assessment tools
+   - Asset mapping and resource inventory
+   - Stakeholder engagement and communication
+   - Data dashboards with community health indicators
+   - 8+ federal data source integration (Census, CDC, BLS, SAMHSA NSDUH)
+
+### WIOA Compliance
+Covers all 14 WIOA Title I Youth Program Elements:
+1. Tutoring/study skills training
+2. Alternative secondary school services
+3. Paid and unpaid work experiences
+4. Occupational skills training
+5. Education offered concurrently with workforce preparation
+6. Leadership development opportunities
+7. Supportive services
+8. Adult mentoring
+9. Follow-up services
+10. Comprehensive guidance and counseling
+11. Financial literacy education
+12. Entrepreneurial skills training
+13. Labor market information services
+14. Postsecondary preparation and transition activities
+
+### Populations Served
+- Opportunity Youth (ages 16-24)
+- Returning Citizens
+- Single Parents
+- Veterans (via M2C integration)
+- K-12 Students (prevention curriculum)
+- Community Leaders and Coalition Members
+- Seniors (digital literacy, community access)
+
+### Interdependencies
+| Paired With | Combined Capability |
+|-------------|-------------------|
+| RPLICE | Outcome measurement via RE-AIM/CFIR for all workforce and prevention programs |
+| LifeBridge | Community resource navigation layer for participants in workforce programs |
+| Sankofa Health | Behavioral health screening and intervention for workforce participants |
+| SafeReport | Mandatory reporting compliance for youth-serving programs |
+| M2C Transition | Veteran-specific workforce pathways and employer engagement |
+| Perfectly Different | Neurodivergent workforce pathways and accommodation support |
+| The Incubator | Federal contract/grant opportunity discovery pipeline |
+| ISSS | K-12 prevention curriculum delivery and school partnership management |
+| Unplanned | Team operations training for workforce readiness programs |
+
+### Grant/Contract Alignment
+| Funding Source | Program | Role |
+|---------------|---------|------|
+| CDC/ONDCP | Drug-Free Communities (DFC) | Primary — coalition management, prevention curriculum |
+| DOL/ETA | WIOA Title I Youth | Primary — workforce development, all 14 elements |
+| DOJ/OJJDP | Second Chance Act | Primary — reentry case management |
+| SAMHSA | Community Mental Health | Supporting — prevention curriculum integration |
+| DOE | Title I & IV | Supporting — K-12 prevention, parent engagement |
+| HHS/ACF | Community Services Block Grant | Primary — community capacity building |
+| CNCS/AmeriCorps | National Service Programs | Primary — volunteer and service learning management |
+
+### Pricing Model
+- Grant-funded deployments: Included in grant budget as technology/infrastructure line item
+- Commercial licensing: Contact for quote based on user count and domain activation
+- Floor price: Component of bundled ecosystem — not sold standalone
+
+### Reference URLs
+- Platform: [ThriveUp Academy URL — to be assigned]
+- Perfectly Different: https://perfectlydifferent.app
+- Donations: https://donorbox.org/perfectly-different
+
+---
+
+## PLATFORM 02: SANKOFA HEALTH NETWORK
+
+### Overview
+Five-platform health equity technology ecosystem addressing disparities in maternal care, women's health, men's health, mental wellness, and birth equity. The largest data-integrated health equity platform in the portfolio with 700,000+ curated records across all sub-platforms.
+
+### Sub-Platforms
+
+#### 2A. MCE (Minority Community Empowerment)
+- Minority-owned business directory and economic empowerment
+- Community health indicator dashboards
+- Resource mapping with GIS integration
+- Economic development tracking
+
+#### 2B. HerHealth
+- Women's health education and screening tools
+- Reproductive health resource navigation
+- Maternal health risk assessment
+- Provider directory with culturally competent care indicators
+
+#### 2C. HealthyBlackMen
+- Men's health screening and education
+- Chronic disease prevention (hypertension, diabetes, prostate cancer)
+- Mental health destigmatization tools
+- Community barbershop health initiative integration
+
+#### 2D. Mental Wellness Support
+- Behavioral health screening (PHQ-9, GAD-7, AUDIT, DAST-10)
+- Therapist directory with cultural competency markers
+- Crisis intervention and safety planning
+- Peer support network management
+- Telehealth integration readiness
+
+#### 2E. BirthRight
+- Maternal and birth equity platform
+- Birth plan builder with evidence-based options
+- Doula and midwife directory
+- Maternal mortality risk factor tracking
+- Postpartum support and screening
+
+### Technical Specifications
+- **Pages:** 223+ across all 5 sub-platforms
+- **API Endpoints:** 700+
+- **Data Records:** 700,000+ curated health data records
+- **AI Providers:** 4 (OpenAI, Anthropic, Gemini, custom models)
+- **Payment Rails:** Stripe + PayPal integration
+- **Architecture:** React + TypeScript, Express.js, PostgreSQL, multi-tenant
+
+### Core Capabilities
+1. **Health Disparities Data Engine**
+   - CDC WONDER integration
+   - County Health Rankings data
+   - HRSA Health Professional Shortage Area (HPSA) data
+   - Social Vulnerability Index (SVI) mapping
+   - Behavioral Risk Factor Surveillance System (BRFSS) data
+
+2. **Community Health Worker (CHW) Tools**
+   - Client intake and assessment
+   - Care coordination and referral management
+   - Social determinants of health (SDOH) screening
+   - Follow-up scheduling and tracking
+   - Outcome measurement and reporting
+
+3. **Telehealth Readiness**
+   - Provider scheduling and availability
+   - Patient intake and consent management
+   - Virtual visit preparation tools
+   - Follow-up and continuity tracking
+
+### Populations Served
+- Women of color (maternal health, reproductive health)
+- Black men (chronic disease, mental health)
+- Pregnant and postpartum individuals
+- Communities with health professional shortages
+- Minority-owned businesses (MCE component)
+- Mental health consumers across all demographics
+
+### Interdependencies
+| Paired With | Combined Capability |
+|-------------|-------------------|
+| RPLICE | RE-AIM evaluation of all health equity interventions |
+| LifeBridge | Bilingual community resource navigation for health consumers |
+| MedLog | Medication adherence tracking for chronic disease patients |
+| CogniCare | Cognitive support for patients with brain injury or neurodegenerative conditions |
+| ThriveUp | Parent education and family strengthening for maternal health |
+| Perfectly Different | Neurodivergent health needs and accommodation |
+| SafeReport | Mandatory reporting for child welfare in maternal/family contexts |
+
+### Grant/Contract Alignment
+| Funding Source | Program | Role |
+|---------------|---------|------|
+| SAMHSA | Community Mental Health Services | Primary — behavioral health screening, peer support |
+| HHS/HRSA | Community Health Center Grants | Primary — CHW tools, health disparities data |
+| HHS/HRSA | Maternal, Infant, and Early Childhood | Primary — BirthRight platform |
+| CDC | Racial and Ethnic Approaches to Community Health (REACH) | Primary — all 5 sub-platforms |
+| HHS/ACF | Healthy Marriage/Responsible Fatherhood | Supporting — HealthyBlackMen, family strengthening |
+| HHS/OWH | Office on Women's Health Programs | Primary — HerHealth platform |
+| SAMHSA | Minority Fellowship Program | Supporting — culturally competent care tools |
+
+### Pricing Model
+- Ecosystem floor price: $8,000,000+
+- Sub-platform licensing available for specific use cases
+- SaaS pricing for health systems and community health centers
+- Grant-funded deployments: Technology line item in grant budgets
+
+### Reference URLs
+- Platform: [Sankofa Health Network URL — to be assigned]
+
+---
+
+## PLATFORM 03: RPLICE (Research-to-Practice Learning & Implementation Collaborative Environment)
+
+### Overview
+The implementation science engine behind the entire ecosystem. Operationalizes CFIR, RE-AIM, and EPIS frameworks with AI-assisted project wizards, scholarly research integration from 6 academic databases, and the proprietary MAP-GAP execution governance methodology. This platform provides the scientific credibility and measurement infrastructure for every other platform.
+
+### Technical Specifications
+- **Lines of Code:** 536,000+
+- **Pages:** 147 functional pages
+- **Database Tables:** 167
+- **API Endpoints:** 720+
+- **AI Providers:** 3 (OpenAI, Anthropic, Gemini)
+- **Research Databases:** 6 (PubMed, Semantic Scholar, CrossRef, Europe PMC, medRxiv, bioRxiv)
+- **Architecture:** React 18 + TypeScript, Express.js, PostgreSQL, Drizzle ORM
+
+### Core Capabilities
+1. **Implementation Science Frameworks**
+   - CFIR (Consolidated Framework for Implementation Research) — 5-domain assessment
+   - RE-AIM (Reach, Effectiveness, Adoption, Implementation, Maintenance) — outcome evaluation
+   - EPIS (Exploration, Preparation, Implementation, Sustainment) — lifecycle management
+   - SPF (Strategic Prevention Framework) — prevention planning
+   - Tri-Ethnic Community Readiness Model — 9-stage readiness assessment
+
+2. **MAP-GAP Execution Governance (Proprietary)**
+   - Simple Mode: 9 core governance functions
+   - Full Governance: 16 phases across 7 compartments
+   - Three Realities Diagnostic: Designed Reality vs. Operational Reality vs. Experienced Reality
+   - Behavioral Validation phase
+   - Prioritize → Validate → Recalibrate cycle
+   - REFLECT step: prediction, outcome, incongruity type, lessons learned
+   - SALP (System Anchor Learning Points) framework
+   - MG-PATR (MAP-GAP Phase Aware Tactical Reviewer) execution engine
+
+3. **Scholarly Research Service**
+   - Live integration with 6 academic databases
+   - Anti-hallucination guardrails
+   - APA citation generation
+   - Systematic review support
+   - Research synthesis and gap analysis
+
+4. **Project Wizard (6-Step)**
+   - AI-powered project design
+   - Framework selection and customization
+   - Stakeholder mapping
+   - Implementation timeline generation
+   - Budget estimation
+   - Evaluation plan builder
+
+5. **Validation & Fidelity Hub**
+   - Methodological rigor assessment
+   - Fidelity dimension tracking
+   - Adaptation vs. drift monitoring
+   - Quality improvement cycles (PDSA)
+   - Outcome domain mapping
+
+6. **ISSS Knowledge Engine**
+   - Readiness assessment scoring
+   - Implementation outcome tracking
+   - Fidelity dimension library
+   - Equity indicator monitoring
+   - Stakeholder engagement protocols
+
+### Operational Modes
+- Implementation Science (default)
+- Military Planning
+- Climate & Environment
+
+### Populations Served
+- Implementation researchers and practitioners
+- Program evaluators
+- Grant writers and principal investigators
+- School district administrators (via ISSS integration)
+- Public health departments
+- Federal program managers
+
+### Interdependencies
+| Paired With | Combined Capability |
+|-------------|-------------------|
+| ThriveUp | Outcome measurement for workforce and prevention programs |
+| Sankofa Health | RE-AIM evaluation of health equity interventions |
+| ISSS | Implementation science for K-12 education |
+| SHIELD/ATLAS | Implementation governance for defense operations |
+| The Incubator | Grant readiness infrastructure and evaluation planning |
+| LifeBridge | Community needs assessment and SDOH data integration |
+| SafeReport | Compliance monitoring and fidelity tracking |
+| M2C Transition | Transition program evaluation and outcome measurement |
+
+### Grant/Contract Alignment
+| Funding Source | Program | Role |
+|---------------|---------|------|
+| NIH/NIMH | Implementation Science R01/R21 | Primary — full IS platform |
+| AHRQ | Health Services Research | Primary — evidence translation |
+| CDC | Program Evaluation Contracts | Primary — RE-AIM/CFIR evaluation |
+| PCORI | Patient-Centered Outcomes Research | Primary — research infrastructure |
+| DOE | Institute of Education Sciences (IES) | Supporting — education research |
+| VA/HSR&D | Health Services R&D | Supporting — veteran health research |
+| Any federal agency | Program evaluation components | Supporting — evaluation infrastructure |
+
+### Pricing Model
+- Enterprise licensing: Contact for quote
+- Academic licensing: Reduced rate for university research teams
+- Grant-funded: Technology/infrastructure line item
+- The platform that adds evaluation credibility to every other grant application
+
+### Reference URLs
+- Platform: [RPLICE URL — current Repl environment]
+- MAP-GAP Documentation: [Internal reference]
+
+---
+
+## PLATFORM 04: SHIELD/ATLAS
+
+### Overview
+Defense and emergency management platform with 56 UI panels, ODIN AI decision engine, 5 live federal data feeds, and compliance with CAP, EDXL, and NIEF standards. Built for DoD, DHA, DHS, FEMA, and emergency management agencies.
+
+### Technical Specifications
+- **Lines of Code:** 57,000+
+- **UI Panels:** 56
+- **Automated Tests:** 950-test suite
+- **Live Data Feeds:** 5 federal sources
+- **AI Engine:** ODIN (Operational Decision Intelligence Network)
+- **Architecture:** React + TypeScript, Express.js, PostgreSQL
+
+### Core Capabilities
+1. **Defense Modules**
+   - EMSO (Electromagnetic Spectrum Operations)
+   - C-UAS (Counter-Unmanned Aircraft Systems)
+   - SDA (Space Domain Awareness)
+   - POSEIDON (maritime operations)
+
+2. **Emergency Management**
+   - CAP (Common Alerting Protocol) compliance
+   - EDXL (Emergency Data Exchange Language) compliance
+   - NIEF (National Information Exchange Framework) compliance
+   - Multi-agency coordination
+   - Incident command system integration
+
+3. **ODIN AI Decision Engine**
+   - Real-time threat assessment
+   - Course of action generation
+   - Resource allocation optimization
+   - Pattern recognition across data feeds
+   - Predictive analytics for operational planning
+
+4. **Live Federal Data Integration**
+   - NWS (National Weather Service) alerts
+   - USGS earthquake and geological data
+   - FAA airspace data
+   - DoD SIPR-compatible data architecture
+   - FEMA disaster declaration feeds
+
+### Populations Served
+- Department of Defense (DoD) operators
+- Defense Health Agency (DHA) personnel
+- Department of Homeland Security (DHS) analysts
+- FEMA emergency managers
+- State and local emergency management agencies
+- Military installation commanders
+
+### Interdependencies
+| Paired With | Combined Capability |
+|-------------|-------------------|
+| RPLICE | Implementation governance for defense program deployment |
+| The Incubator | Federal contract discovery for defense opportunities |
+| M2C Transition | Veteran workforce for defense contractor staffing |
+| CogniCare | TBI support for active duty and veterans |
+| Unplanned | Team operations for defense workforce management |
+
+### Grant/Contract Alignment
+| Funding Source | Program | Role |
+|---------------|---------|------|
+| DoD | Defense Health Agency contracts | Primary — health operations technology |
+| DoD | SOCOM/COCOM task orders | Primary — operational decision support |
+| DHS | Cybersecurity & Infrastructure | Primary — critical infrastructure protection |
+| FEMA | Emergency Management Performance Grants | Primary — EM technology |
+| DoD | SBIR/STTR | Primary — defense technology innovation |
+| NGA/NRO | Geospatial intelligence | Supporting — data integration |
+
+### Pricing Model
+- Floor price: $3,500,000+
+- Contract vehicle: IDIQ, BPA, or direct award
+- SBIR/STTR eligible for Phase I ($150K) and Phase II ($1M)
+
+### Reference URLs
+- Platform: [SHIELD/ATLAS URL — to be assigned]
+
+---
+
+## PLATFORM 05: ISSS (Implementation Science Support System)
+
+### Overview
+K-12 implementation science platform with a 5-layer progressive unlock model, 7 role-specific portals, MTSS compliance for 45+ state mandates, and MAP-GAP governance integration. Designed for school districts, state education agencies, and education service centers.
+
+### Technical Specifications
+- **Architecture:** React + TypeScript, Express.js, PostgreSQL
+- **Portals:** 7 role-specific (superintendent, principal, teacher, counselor, parent, student, community)
+- **Unlock Layers:** 5 progressive access levels
+- **Compliance:** 45+ state MTSS mandates mapped
+
+### Core Capabilities
+1. **5-Layer Progressive Unlock Model**
+   - Layer 1: Assessment and readiness
+   - Layer 2: Planning and resource allocation
+   - Layer 3: Implementation with coaching support
+   - Layer 4: Monitoring and adjustment
+   - Layer 5: Sustainment and scale
+
+2. **MTSS (Multi-Tiered System of Supports) Compliance**
+   - Tier 1 universal screening and progress monitoring
+   - Tier 2 targeted intervention tracking
+   - Tier 3 intensive support documentation
+   - State mandate crosswalk for 45+ states
+   - Audit-ready compliance reporting
+
+3. **Role-Specific Portals**
+   - Superintendent dashboard: District-wide implementation health
+   - Principal view: Building-level MTSS compliance
+   - Teacher tools: Classroom intervention tracking
+   - Counselor portal: Student support coordination
+   - Parent access: Progress visibility and communication
+   - Student portal: Self-advocacy and goal tracking
+   - Community partner: Service coordination and referral
+
+4. **ISSS Knowledge Engine**
+   - Readiness assessment with scored dimensions
+   - Implementation outcomes tracking
+   - PDSA (Plan-Do-Study-Act) cycle management
+   - Fidelity dimension library
+   - Equity indicator monitoring
+   - Stakeholder engagement protocols
+
+### Populations Served
+- K-12 school districts (primary)
+- State education agencies (SEAs)
+- Education service centers / BOCES
+- Special education departments
+- School-based mental health programs
+- Title I and Title IV coordinators
+
+### Interdependencies
+| Paired With | Combined Capability |
+|-------------|-------------------|
+| RPLICE | Implementation science methodology and evaluation framework |
+| ThriveUp | K-12 prevention curriculum and family engagement |
+| Perfectly Different | IEP tools, neurodiversity support, special education accommodation |
+| SafeReport | School incident reporting and mandatory reporting compliance |
+| Sankofa Health | Student mental health screening (Mental Wellness sub-platform) |
+| LifeBridge | Community resource navigation for student/family referrals |
+
+### Grant/Contract Alignment
+| Funding Source | Program | Role |
+|---------------|---------|------|
+| DOE | Title I, Part A | Primary — schoolwide improvement |
+| DOE | Title IV, Part A | Primary — safe and healthy students |
+| DOE | IDEA (Individuals with Disabilities Education Act) | Primary — special education MTSS |
+| DOE/OSEP | Office of Special Education Programs | Primary — systemic improvement |
+| DOE/IES | Education Innovation and Research (EIR) | Primary — implementation science in education |
+| State DOEs | State MTSS/PBIS implementation grants | Primary — compliance technology |
+| Private | Gates, Walton, Carnegie foundations | Primary — education innovation |
+
+### Pricing Model
+- Floor price: $10,000,000+ (ecosystem valuation)
+- Per-student SaaS: Tiered pricing based on district enrollment
+- State-level licensing: Enterprise agreement for statewide deployment
+- Pilot programs: Reduced rate for demonstration districts
+
+### Reference URLs
+- Platform: [ISSS URL — to be assigned]
+
+---
+
+## PLATFORM 06: THE INCUBATOR
+
+### Overview
+Federal contracting business intelligence platform with 10 live data sources, 3-AI ensemble (OpenAI + Anthropic + Gemini), autonomous trigger engine, and self-healing system architecture. Built to identify, pursue, and win federal contracts and grants.
+
+### Technical Specifications
+- **Lines of Code:** 39,500+
+- **Database Tables:** 83
+- **API Endpoints:** 253
+- **AI Ensemble:** 3 providers (OpenAI, Anthropic, Gemini)
+- **Live Data Sources:** 10 (SAM.gov, USASpending, Federal Register, FPDS, SBIR.gov, Grants.gov, GovWin, Bloomberg Gov, Federal Procurement Data, agency-specific feeds)
+- **Architecture:** React + TypeScript, Express.js, PostgreSQL, autonomous trigger engine
+
+### Core Capabilities
+1. **Federal Opportunity Intelligence**
+   - Real-time SAM.gov opportunity monitoring
+   - AI-powered opportunity fit scoring
+   - Historical award analysis (USASpending data)
+   - Incumbent contractor identification
+   - Recompete and follow-on tracking
+
+2. **3-AI Ensemble Analysis**
+   - OpenAI: Narrative generation and proposal drafting
+   - Anthropic: Strategic analysis and risk assessment
+   - Gemini: Data pattern recognition and market intelligence
+   - Consensus scoring across all three AI providers
+   - Disagreement flagging for human review
+
+3. **Autonomous Trigger Engine**
+   - Rule-based monitoring of opportunity thresholds
+   - Automatic notification on matching opportunities
+   - Pipeline stage progression tracking
+   - Deadline management and countdown
+   - Team assignment and task distribution
+
+4. **Self-Healing System**
+   - Automatic data feed reconnection
+   - Error detection and retry logic
+   - Data integrity validation
+   - Performance monitoring and alerting
+   - Graceful degradation under load
+
+5. **Proposal Support**
+   - RFP/RFQ/RFI parsing and analysis
+   - Compliance matrix generation
+   - Past performance narrative templates
+   - Technical approach drafting assistance
+   - Price-to-win analysis
+
+### Populations Served
+- Small businesses pursuing federal contracts
+- VOSB/SDVOSB-certified firms
+- Government contracting professionals
+- Business development teams
+- Capture managers and proposal writers
+- Nonprofit organizations pursuing federal grants
+
+### Interdependencies
+| Paired With | Combined Capability |
+|-------------|-------------------|
+| RPLICE | Grant evaluation planning and implementation science proposals |
+| SHIELD/ATLAS | Defense contract opportunity identification |
+| ThriveUp | Community development and workforce grant discovery |
+| M2C Transition | Veteran services contract identification |
+| Sankofa Health | Health equity grant and contract matching |
+| ISSS | Education contract and grant opportunity discovery |
+
+### Grant/Contract Alignment
+| Funding Source | Program | Role |
+|---------------|---------|------|
+| SBA | SBIR/STTR Programs | Primary — opportunity identification and pursuit |
+| GSA | Multiple Award Schedules | Primary — schedule positioning intelligence |
+| DoD | OSBP (Office of Small Business Programs) | Primary — set-aside opportunity tracking |
+| All federal agencies | Grants.gov monitoring | Primary — automated grant discovery |
+| All federal agencies | SAM.gov monitoring | Primary — contract opportunity tracking |
+
+### Pricing Model
+- Floor price: $1,500,000+ (ecosystem valuation)
+- SaaS licensing: Per-seat monthly for GovCon teams
+- Enterprise: Unlimited seats with custom data feeds
+- Revenue share: Performance-based pricing on contracts won
+
+### Reference URLs
+- Platform: [The Incubator URL — to be assigned]
+
+---
+
+## PLATFORM 07: M2C TRANSITION (Military-to-Civilian)
+
+### Overview
+Comprehensive military-to-civilian transition assistant with a 6-step Transition Wizard, 17 expert guides, AI-powered medical records review, employer engagement suite, mentorship network, and crisis infrastructure on every page.
+
+### Technical Specifications
+- **Architecture:** React + TypeScript, Express.js, PostgreSQL, PWA-enabled
+- **Expert Guides:** 17 domain-specific transition guides
+- **AI Integration:** OpenAI for medical records review, career counseling, benefits navigation
+- **Crisis Infrastructure:** National crisis resources accessible from every page
+
+### Core Capabilities
+1. **6-Step Transition Wizard**
+   - Step 1: Service profile and timeline
+   - Step 2: Benefits eligibility assessment
+   - Step 3: Career exploration and skills translation
+   - Step 4: Medical records review and claims preparation
+   - Step 5: Financial readiness assessment
+   - Step 6: Community integration and support network
+
+2. **17 Expert Guides**
+   - VA benefits and claims
+   - GI Bill and education
+   - Career translation (MOS to civilian)
+   - Disability claims and ratings
+   - Healthcare transition (TRICARE to VA/civilian)
+   - Housing and relocation
+   - Financial planning
+   - Family support and resources
+   - Mental health and PTSD
+   - TBI recognition and support
+   - Entrepreneurship and small business
+   - Federal employment (USAJobs)
+   - Legal rights and protections
+   - Community integration
+   - Peer mentorship
+   - Spouse and family employment
+   - Crisis intervention and safety
+
+3. **AI Medical Records Review**
+   - Service treatment record analysis
+   - Disability claim evidence identification
+   - Condition-to-rating correlation
+   - Nexus letter guidance
+   - C&P exam preparation
+
+4. **Employer Engagement Suite**
+   - Veteran hiring program management
+   - Skills-based matching (MOS → civilian roles)
+   - Employer dashboard with candidate pipeline
+   - Retention tracking and support
+   - Tax credit guidance (WOTC)
+
+5. **Mentorship Network**
+   - Veteran-to-veteran peer matching
+   - Topic-specific mentorship (career, benefits, health, family)
+   - Communication tools and scheduling
+   - Progress tracking and milestones
+
+### Populations Served
+- Active duty service members transitioning out
+- Recently separated veterans (0-5 years)
+- Long-term veterans navigating VA benefits
+- Military spouses and families
+- Veteran-friendly employers
+- Veteran service organizations (VSOs)
+
+### Interdependencies
+| Paired With | Combined Capability |
+|-------------|-------------------|
+| CogniCare | TBI and cognitive support for veterans with brain injury |
+| MedLog | Medication tracking for veterans with chronic conditions |
+| ThriveUp | Civilian workforce pathways and career development |
+| LifeBridge | Community resource navigation during transition |
+| SHIELD/ATLAS | Defense domain expertise and contractor workforce pipeline |
+| The Incubator | Veteran-owned business federal contract pursuit |
+| Unplanned | Team operations training for civilian workplace readiness |
+| RPLICE | Transition program evaluation and outcome measurement |
+| Perfectly Different | Neurodivergent veteran support (ADHD, TBI-related) |
+
+### Grant/Contract Alignment
+| Funding Source | Program | Role |
+|---------------|---------|------|
+| VA | Veteran Readiness and Employment (VR&E) | Primary — transition technology |
+| DOL/VETS | Homeless Veterans' Reintegration Program (HVRP) | Primary — reintegration tools |
+| DOL/VETS | Jobs for Veterans State Grants (JVSG) | Supporting — employment tools |
+| DoD | Transition Assistance Program (TAP) supplements | Primary — enhanced transition |
+| VA | Supportive Services for Veteran Families (SSVF) | Supporting — family support tools |
+| HUD-VASH | Housing voucher program support | Supporting — housing navigation |
+| Private | Bob Woodruff Foundation, Gary Sinise Foundation | Primary — veteran technology |
+
+### Pricing Model
+- Free for individual veterans (Foundation-funded)
+- Employer suite: SaaS licensing per employer
+- VSO licensing: Enterprise agreement for organizations
+- Grant-funded: Technology line item for veteran service programs
+
+### Reference URLs
+- Platform: [M2C Transition URL — to be assigned]
+
+---
+
+## PLATFORM 08: LIFEBRIDGE
+
+### Overview
+Virtual 411 and Community Health Worker (CHW) hub with 300+ curated resources across 21 SDOH categories, crisis-first design, bilingual (English/Spanish) support, GIS mapping, community needs assessment, and MAP-GAP framework integration.
+
+### Technical Specifications
+- **Resources:** 300+ curated across 21 categories
+- **Languages:** English and Spanish (full bilingual)
+- **Data Sources:** Census Bureau, CDC, BLS, state-level data
+- **GIS Integration:** Community mapping with resource proximity
+- **Architecture:** React + TypeScript, Express.js, PostgreSQL
+
+### Core Capabilities
+1. **Resource Navigation**
+   - 21 SDOH categories (housing, food, transportation, healthcare, legal aid, childcare, mental health, substance use, education, employment, financial assistance, utilities, clothing, domestic violence, disability, immigration, veteran services, senior services, youth services, faith-based, technology access)
+   - Proximity-based resource matching via GIS
+   - Eligibility pre-screening
+   - Warm handoff and referral tracking
+   - Resource quality ratings and community reviews
+
+2. **Crisis-First Design**
+   - Crisis resources prominently displayed on every page
+   - 988 Suicide & Crisis Lifeline integration
+   - Domestic violence hotline integration
+   - Safety planning tools
+   - One-tap emergency resource access
+
+3. **Community Health Worker Tools**
+   - Client intake and SDOH screening
+   - Care coordination dashboard
+   - Follow-up scheduling and reminders
+   - Outcome tracking and reporting
+   - Caseload management
+
+4. **Community Needs Assessment**
+   - Census data integration (demographics, poverty, education)
+   - CDC community health indicators
+   - BLS employment and wage data
+   - Custom survey deployment
+   - Gap analysis and heat mapping
+
+5. **Bilingual Support**
+   - Complete English/Spanish interface
+   - Bilingual resource descriptions
+   - Spanish-language intake forms
+   - Cultural competency resource tagging
+
+### Populations Served
+- Individuals in crisis (primary)
+- Community health workers
+- Uninsured and underinsured individuals
+- Spanish-speaking communities
+- Homeless and housing-insecure individuals
+- Domestic violence survivors
+- People navigating multiple service systems
+
+### Interdependencies
+| Paired With | Combined Capability |
+|-------------|-------------------|
+| ThriveUp | Employment and workforce resources for underserved populations |
+| Sankofa Health | Health-specific resources with health equity data integration |
+| MedLog | Medication assistance program navigation |
+| SafeReport | Mandatory reporting for identified abuse/neglect |
+| M2C Transition | Veteran-specific community resources |
+| Perfectly Different | Neurodivergent community resources and support services |
+| CogniCare | Cognitive support resources for TBI/dementia populations |
+| RPLICE | Community needs assessment evaluation and outcome measurement |
+
+### Grant/Contract Alignment
+| Funding Source | Program | Role |
+|---------------|---------|------|
+| HHS/HRSA | Community Health Center Program | Primary — CHW technology |
+| HHS/ACF | Community Services Block Grant (CSBG) | Primary — resource navigation |
+| SAMHSA | Community Mental Health Block Grant | Supporting — crisis resources |
+| HUD | Community Development Block Grant (CDBG) | Supporting — housing resources |
+| CDC | Social Determinants of Health initiatives | Primary — SDOH screening |
+| FEMA | Emergency Management Performance Grants | Supporting — disaster resource nav |
+| State/local | 211/Info line modernization | Primary — Virtual 411 replacement |
+
+### Pricing Model
+- Free for end users (Foundation-funded)
+- CHW licensing: Per-seat for health departments and community organizations
+- 211/Info line replacement: Enterprise licensing for regional deployments
+- Grant-funded: Technology line item
+
+### Reference URLs
+- Platform: [LifeBridge URL — to be assigned]
+
+---
+
+## PLATFORM 09: PERFECTLY DIFFERENT
+
+### Overview
+Neurodiversity-affirming digital support platform with Flourishing Guide AI, 50-state resource directory (437+ resources per state), Learning Sprints adaptive games, Feelings Zone for children, K-12 IEP document analyzer, AI letter generator, and employment advocacy tools.
+
+### Technical Specifications
+- **Features:** 15 core features
+- **Resource Directory:** 50-state coverage, 437+ resources per state
+- **AI Integration:** Flourishing Guide AI assistant
+- **Populations:** 4 primary (children, students K-12, adults, parents/caregivers)
+- **Architecture:** React + TypeScript, Express.js, PostgreSQL
+- **Live Domain:** perfectlydifferent.app
+
+### Core Capabilities
+1. **Flourishing Guide AI**
+   - Neurodiversity-affirming AI companion
+   - Strengths-based language and framing
+   - Personalized strategy recommendations
+   - Context-aware support across all platform features
+
+2. **50-State Resource Directory**
+   - 437+ resources per state
+   - Categorized by need type (therapy, education, employment, legal, support groups)
+   - Age-specific filtering
+   - Insurance and payment information
+   - Community ratings and reviews
+
+3. **Learning Sprints (Adaptive Games)**
+   - Gamified learning for executive function skills
+   - Adaptive difficulty based on performance
+   - Progress tracking and celebration
+   - ADHD-friendly design (short bursts, clear feedback)
+   - Covering math, reading, focus, organization
+
+4. **Feelings Zone**
+   - Emotional regulation tools for children
+   - Visual emotion identification
+   - Calming strategies and activities
+   - Mood tracking with patterns
+   - Parent/caregiver visibility
+
+5. **K-12 IEP Support Suite**
+   - IEP document analyzer (upload and AI analysis)
+   - Accommodation generator based on diagnosis and needs
+   - AI letter generator for parent advocacy (meeting requests, concern letters, disagreement responses)
+   - Rights explainer in plain language
+   - Meeting preparation checklist
+
+6. **Employment Advocacy**
+   - Workplace accommodation guide
+   - ADA rights education
+   - Disclosure decision support
+   - Neurodivergent-friendly job board
+   - Interview preparation tools
+
+### Populations Served
+- Neurodivergent children (ages 3-12)
+- Neurodivergent K-12 students
+- Neurodivergent adults
+- Parents and caregivers of neurodivergent individuals
+- Special education teachers and administrators
+- Employers seeking neurodivergent talent
+
+### Diagnoses Supported
+- ADHD
+- Autism Spectrum
+- Dyslexia / Dyscalculia / Dysgraphia
+- Sensory Processing differences
+- Tourette Syndrome
+- Giftedness / Twice-Exceptional (2e)
+
+### Interdependencies
+| Paired With | Combined Capability |
+|-------------|-------------------|
+| ISSS | K-12 MTSS/IEP integration for neurodivergent students |
+| ThriveUp | Neurodivergent workforce pathways and career counseling |
+| Sankofa Health | Mental health support for neurodivergent populations |
+| CogniCare | Cognitive support tools for ADHD, TBI overlap |
+| LifeBridge | Community neurodiversity resources and support groups |
+| SafeReport | Incident reporting for neurodivergent student protection |
+| M2C Transition | Veteran ADHD/TBI neurodivergent support |
+| RPLICE | Neurodiversity program evaluation and outcomes |
+
+### Grant/Contract Alignment
+| Funding Source | Program | Role |
+|---------------|---------|------|
+| DOE/OSEP | State Personnel Development Grants | Primary — neurodiversity technology |
+| DOE | IDEA Part B & C | Primary — IEP tools and family support |
+| DOE | Title IV, Part A (Safe & Healthy) | Supporting — social-emotional learning |
+| HHS/ACF | Developmental Disabilities Council grants | Primary — neurodiversity advocacy tech |
+| DOL | Disability Employment Initiative | Supporting — neurodivergent employment |
+| SAMHSA | Mental Health Programs | Supporting — neurodivergent mental health |
+| Private | Autism Speaks, Simons Foundation, Understood.org | Primary — neurodiversity innovation |
+
+### Pricing Model
+- Free for individuals (Foundation-funded)
+- School district licensing: Per-student for K-12 IEP suite
+- Employer licensing: Per-seat for accommodation tools
+- Donations: https://donorbox.org/perfectly-different
+
+### Reference URLs
+- Live Platform: https://perfectlydifferent.app
+- Donations: https://donorbox.org/perfectly-different
+
+---
+
+## PLATFORM 10: COGNICARE
+
+### Overview
+Cognitive support companion for TBI survivors, dementia/Alzheimer's patients, MS patients, and ADHD individuals. Features Emergency ID Card, I'm Lost GPS alerts, medication tracking, daily routine management, CalmDown Center, and caregiver network coordination.
+
+### Technical Specifications
+- **Screens:** 16 core screens
+- **Architecture:** React + TypeScript, Express.js, PostgreSQL, PWA-enabled
+- **Key Innovation:** "I'm Confused" floating button on every screen
+- **GPS:** I'm Lost alert system with location sharing
+- **Design:** Large touch targets, high contrast, simplified navigation
+
+### Core Capabilities
+1. **Emergency ID Card**
+   - Digital ID with medical conditions, medications, allergies
+   - Emergency contacts with one-tap calling
+   - QR code for first responders
+   - Offline-capable (works without internet)
+   - Printable backup card
+
+2. **I'm Lost GPS Alert System**
+   - One-button location sharing to caregivers
+   - Real-time GPS tracking (caregiver-enabled)
+   - Geofencing with departure alerts
+   - Location history for pattern tracking
+   - Integration with emergency services
+
+3. **"I'm Confused" Floating Button**
+   - Present on every screen in the application
+   - Reorients user to current location and purpose
+   - Provides step-by-step guidance for current task
+   - Connects to caregiver if confusion persists
+   - Adaptive — learns which screens cause most confusion
+
+4. **Daily Routine Management**
+   - Visual schedule with picture cues
+   - Step-by-step task breakdown
+   - Completion tracking with positive reinforcement
+   - Caregiver-configurable routines
+   - Time-of-day awareness
+
+5. **CalmDown Center**
+   - Breathing exercises with visual guides
+   - Grounding techniques (5-4-3-2-1)
+   - Calming sounds and visuals
+   - Agitation tracking and pattern identification
+   - Caregiver notification for prolonged distress
+
+6. **Brain Games**
+   - Cognitive stimulation activities
+   - Memory exercises
+   - Pattern recognition
+   - Word finding and language games
+   - Difficulty auto-adjustment
+
+7. **Caregiver Network**
+   - Multi-caregiver coordination
+   - Care task assignment and tracking
+   - Mood and behavior logging
+   - Medication compliance visibility
+   - Caregiver burnout monitoring
+
+### Conditions Supported
+- Traumatic Brain Injury (TBI)
+- Dementia / Alzheimer's Disease
+- Multiple Sclerosis (MS)
+- ADHD (executive function support)
+- Stroke recovery
+- Post-concussion syndrome
+
+### Populations Served
+- TBI survivors (military and civilian)
+- Dementia and Alzheimer's patients
+- MS patients
+- Caregivers and family members
+- Neurologists and cognitive therapists
+- Assisted living facilities
+
+### Interdependencies
+| Paired With | Combined Capability |
+|-------------|-------------------|
+| M2C Transition | TBI support for transitioning veterans |
+| MedLog | Medication adherence with simplified cognitive-friendly interface |
+| Sankofa Health | Cognitive health within health equity framework |
+| LifeBridge | Community cognitive support resources |
+| Perfectly Different | ADHD executive function overlap |
+| SafeReport | Elder abuse/vulnerable adult reporting |
+| RPLICE | Cognitive support program evaluation |
+
+### Grant/Contract Alignment
+| Funding Source | Program | Role |
+|---------------|---------|------|
+| VA | TBI/Polytrauma Research & Clinical | Primary — veteran TBI technology |
+| NIH/NIA | Alzheimer's and Dementia Research | Primary — cognitive support tech |
+| NIH/NINDS | Neurological Disorders Programs | Primary — TBI, MS support |
+| DoD | Congressionally Directed Medical Research (CDMRP) | Primary — military TBI |
+| HHS/ACL | Administration for Community Living | Primary — elder cognitive support |
+| HRSA | Geriatric Workforce Enhancement Program | Supporting — caregiver tools |
+| Private | Alzheimer's Association, Michael J. Fox Foundation | Primary — cognitive health innovation |
+
+### Pricing Model
+- Free for individual patients (Foundation-funded)
+- Facility licensing: Per-bed for assisted living and memory care
+- VA/DoD: Contract vehicle for veteran TBI programs
+- Caregiver subscription: Premium features for family coordination
+
+### Reference URLs
+- Platform: [CogniCare URL — to be assigned]
+
+---
+
+## PLATFORM 11: MEDLOG
+
+### Overview
+Medication tracking and adherence platform with one-tap dose logging, caregiver SMS alerts (no login required), streak tracking, refill management, and provider dashboard for clinical teams. Addresses the $300B+ annual cost of medication non-adherence.
+
+### Technical Specifications
+- **Architecture:** React + TypeScript, Express.js, PostgreSQL, PWA-enabled
+- **SMS Integration:** Twilio for caregiver alerts
+- **Design Philosophy:** "Soft Pop" — warm, non-clinical aesthetic
+- **Demo Mode:** Available with sample data for evaluation
+
+### Core Capabilities
+1. **One-Tap Dose Logging**
+   - Simplified medication list with one-tap confirmation
+   - Visual medication identification (color, shape, size)
+   - Time-based reminders with escalating alerts
+   - Missed dose tracking and reporting
+
+2. **Caregiver SMS Alerts (No Login Required)**
+   - Automatic SMS to designated caregivers on missed doses
+   - No app download or account required for caregivers
+   - Configurable alert thresholds and timing
+   - Multi-caregiver support
+
+3. **Streak Tracking**
+   - Consecutive day adherence tracking
+   - Visual progress indicators
+   - Milestone celebrations
+   - Motivational messaging
+
+4. **Refill Management**
+   - Refill date tracking and reminders
+   - Pharmacy information storage
+   - Low supply alerts
+   - Prescription history
+
+5. **Provider Dashboard**
+   - Patient adherence overview
+   - Population health adherence metrics
+   - Non-adherence pattern identification
+   - Intervention trigger alerts
+   - Exportable compliance reports
+
+### Populations Served
+- Chronic disease patients (diabetes, hypertension, HIV, heart disease)
+- Mental health medication users
+- Elderly patients on multiple medications
+- Caregivers managing medication for others
+- Clinical teams and pharmacists
+- Health systems tracking population adherence
+
+### Interdependencies
+| Paired With | Combined Capability |
+|-------------|-------------------|
+| Sankofa Health | Medication adherence within health equity programs |
+| CogniCare | Simplified medication interface for cognitive impairment |
+| M2C Transition | VA medication tracking for veterans |
+| LifeBridge | Medication assistance program navigation |
+| Perfectly Different | ADHD medication tracking with executive function support |
+| RPLICE | Medication adherence program evaluation |
+
+### Grant/Contract Alignment
+| Funding Source | Program | Role |
+|---------------|---------|------|
+| SAMHSA | Medication-Assisted Treatment (MAT) | Primary — adherence technology |
+| HRSA | Ryan White HIV/AIDS Program | Supporting — HIV medication adherence |
+| CMS | Innovation Center demonstrations | Primary — medication adherence intervention |
+| NIH/NHLBI | Heart disease medication adherence | Supporting — adherence tracking |
+| CDC | Chronic disease prevention | Supporting — medication management |
+| VA | Pharmacy benefits and medication management | Primary — veteran adherence |
+| Private | Pharma-sponsored adherence programs | Primary — commercial adherence tech |
+
+### Pricing Model
+- Free for individual patients (Foundation-funded)
+- Health system licensing: Per-provider-seat
+- Pharma partnerships: Condition-specific licensing
+- Grant-funded: Technology line item for adherence interventions
+- $5/month subscription for premium caregiver features
+
+### Reference URLs
+- Platform: [MedLog URL — to be assigned]
+
+---
+
+## PLATFORM 12: SAFEREPORT
+
+### Overview
+Mandatory reporting compliance platform with 7-stage incident lifecycle management, 50-state regulation database, auto-generated compliance deadlines, tamper-evident audit trails, and cross-agency referencing for CPS/DFPS/courts.
+
+### Technical Specifications
+- **Regulation Coverage:** 50 states + DC
+- **Incident Lifecycle:** 7 stages
+- **Architecture:** React + TypeScript, Express.js, PostgreSQL
+- **Security:** Tamper-evident audit trails, role-based access control
+- **Compliance:** HIPAA-ready, FERPA-ready architecture
+
+### Core Capabilities
+1. **50-State Regulation Database**
+   - Mandatory reporter definitions by state
+   - Reporting timeframes and deadlines
+   - Required information for each state
+   - Penalties for failure to report
+   - Regular updates as laws change
+
+2. **7-Stage Incident Lifecycle**
+   - Stage 1: Initial observation and documentation
+   - Stage 2: Assessment and determination
+   - Stage 3: Report filing with appropriate agency
+   - Stage 4: Confirmation and case number tracking
+   - Stage 5: Investigation cooperation
+   - Stage 6: Outcome documentation
+   - Stage 7: Follow-up and closure
+
+3. **Auto-Generated Compliance Deadlines**
+   - State-specific reporting timeframes
+   - Countdown timers and escalation alerts
+   - Supervisor notification chains
+   - Missed deadline documentation
+
+4. **Tamper-Evident Audit Trails**
+   - Immutable event logging
+   - Timestamp verification
+   - User action tracking
+   - Document version control
+   - Court-admissible record formatting
+
+5. **Cross-Agency Referencing**
+   - CPS/DFPS report tracking
+   - Law enforcement report correlation
+   - Court case cross-referencing
+   - Multi-incident pattern identification
+   - Inter-agency communication logging
+
+### Report Types Supported
+- Child abuse and neglect
+- Elder abuse and exploitation
+- Domestic violence
+- Sexual assault
+- Vulnerable adult abuse
+- Workplace safety incidents
+- Student safety incidents (schools)
+
+### Populations Served
+- Mandatory reporters (teachers, healthcare workers, social workers, counselors)
+- School districts and administrators
+- Healthcare facilities and hospitals
+- Child welfare agencies
+- Law enforcement
+- Compliance officers
+- HR departments
+
+### Interdependencies
+| Paired With | Combined Capability |
+|-------------|-------------------|
+| ISSS | School incident reporting and student safety compliance |
+| ThriveUp | Youth program mandatory reporting for prevention staff |
+| Sankofa Health | Healthcare mandatory reporting integration |
+| LifeBridge | Domestic violence and abuse resource navigation |
+| CogniCare | Vulnerable adult (elder/cognitive impairment) reporting |
+| Perfectly Different | Neurodivergent student protection reporting |
+| RPLICE | Compliance program evaluation and fidelity tracking |
+
+### Grant/Contract Alignment
+| Funding Source | Program | Role |
+|---------------|---------|------|
+| HHS/ACF | Child Abuse Prevention and Treatment Act (CAPTA) | Primary — compliance technology |
+| DOJ | Office of Juvenile Justice (OJJDP) | Supporting — youth safety compliance |
+| DOE | Title IX compliance | Supporting — incident reporting |
+| HHS/ACL | Elder Justice Act programs | Primary — elder abuse reporting |
+| State | Child welfare modernization contracts | Primary — state CPS technology |
+| State | School safety mandates | Primary — school reporting compliance |
+| Private | Healthcare compliance consulting | Primary — hospital/facility compliance |
+
+### Pricing Model
+- School district licensing: Per-building annual subscription
+- Healthcare facility licensing: Per-facility
+- State contracts: Enterprise licensing for statewide deployment
+- Nonprofit use (Foundation programs): Included in grant budgets
+- Compliance consulting bundle: Platform + training + audit
+
+### Reference URLs
+- Platform: [SafeReport URL — to be assigned]
+
+---
+
+## PLATFORM 13: UNPLANNED
+
+### Overview
+Mobile-first team operations platform for managing workplace disruptions — the unplanned 40% of work that no project management tool addresses. Quick issue capture, AI-suggested priority triage, smart routing, deadline warnings, resolution accountability, and performance analytics.
+
+### Technical Specifications
+- **Architecture:** React + TypeScript, Express.js, PostgreSQL, mobile-first PWA
+- **AI Integration:** Smart routing and priority suggestion
+- **Demo Mode:** Interactive scripted scenarios for evaluation
+- **Design:** Mobile-first, thumb-zone optimized
+
+### Core Capabilities
+1. **Quick Issue Capture**
+   - 3-tap issue creation from mobile
+   - Photo/video attachment
+   - Voice-to-text description
+   - Location tagging
+   - Automatic timestamp and user identification
+
+2. **AI Priority Triage**
+   - AI-suggested priority level (critical, high, medium, low)
+   - Impact assessment based on historical patterns
+   - Cascading impact identification
+   - SLA timer activation
+
+3. **Smart Routing**
+   - AI-recommended team/person assignment
+   - Skills-based routing
+   - Availability-aware assignment
+   - Escalation chain management
+   - Load balancing across team members
+
+4. **Resolution Accountability**
+   - Time-to-resolution tracking
+   - Status update requirements
+   - Escalation at configurable thresholds
+   - Resolution documentation and verification
+   - Post-resolution review and learning
+
+5. **Performance Analytics**
+   - Team disruption patterns
+   - Resolution time trends
+   - Recurring issue identification
+   - Cost-of-disruption estimation
+   - Employee performance metrics
+
+6. **Interactive Demo Mode**
+   - Pre-scripted disruption scenarios
+   - Walkthrough tutorial
+   - No data commitment required
+   - Shareable demo links for prospects
+
+### Disruption Types
+- Equipment failures
+- Personnel no-shows/callouts
+- Customer escalations
+- Safety incidents
+- Supply chain disruptions
+- Regulatory/compliance surprises
+- IT/system outages
+- Weather and facility issues
+
+### Populations Served
+- Frontline managers and supervisors
+- Operations teams
+- Facility managers
+- HR departments
+- Small and mid-size businesses
+- Government facility managers
+- Hospital and healthcare operations
+
+### Interdependencies
+| Paired With | Combined Capability |
+|-------------|-------------------|
+| ThriveUp | Workforce readiness training for operations skills |
+| M2C Transition | Team operations training for transitioning veterans |
+| SHIELD/ATLAS | Military-grade operations for defense workforce |
+| SafeReport | Incident escalation to compliance reporting when required |
+| The Incubator | Federal facility management contract pursuit |
+| RPLICE | Operations improvement evaluation and measurement |
+
+### Grant/Contract Alignment
+| Funding Source | Program | Role |
+|---------------|---------|------|
+| GSA | Facility management contracts | Supporting — operations technology |
+| DoD | Base operations support (BOS) | Supporting — disruption management |
+| DOL | Workplace safety programs | Supporting — incident tracking |
+| Commercial | Direct B2B sales | Primary — SaaS product |
+| Private equity | Growth capital | Primary — commercial scaling |
+
+### Pricing Model
+- $5/month per employee (SMB tier)
+- $8/month per employee (Enterprise with analytics)
+- $12/month per employee (Enterprise + AI routing + API)
+- Annual contracts: 20% discount
+- Government pricing: GSA Schedule rates
+- Free demo: Interactive scripted scenarios
+
+### Reference URLs
+- Platform: [Unplanned URL — to be assigned]
+
+---
+
+## INTERDEPENDENCY MATRIX — COMPLETE
+
+The following matrix shows how every platform connects to every other platform. Use this to identify the optimal platform combination for any grant or contract opportunity.
+
+### By Grant/Contract Type
+
+| Funding Stream | Primary Platforms | Supporting Platforms | Combined Value |
+|---------------|-------------------|---------------------|---------------|
+| **CDC/ONDCP Drug-Free Communities** | ThriveUp, LifeBridge | Sankofa Health, RPLICE, SafeReport | Prevention + CHW + Evaluation |
+| **DOL/WIOA Title I Youth** | ThriveUp, M2C Transition | Perfectly Different, Unplanned, The Incubator | Workforce + Veterans + Neurodiverse |
+| **DOJ Second Chance Act** | ThriveUp, LifeBridge | SafeReport, CogniCare, RPLICE | Reentry + Resources + Compliance |
+| **SAMHSA Community Mental Health** | Sankofa Health, MedLog | CogniCare, Perfectly Different, LifeBridge | Health Equity + Adherence + Support |
+| **DOE Title I/IV/IDEA/OSEP** | ISSS, Perfectly Different | ThriveUp, SafeReport, RPLICE | Education + IEP + Compliance |
+| **VA/DoD Veteran Services** | M2C Transition, SHIELD/ATLAS | CogniCare, MedLog, The Incubator | Transition + Defense + Cognitive |
+| **HHS/HRSA/ACF Community Health** | Sankofa Health, LifeBridge | MedLog, ThriveUp, Perfectly Different | Health + CHW + Family |
+| **DoD Defense Contracts** | SHIELD/ATLAS, The Incubator | RPLICE, M2C, Unplanned | Defense Ops + GovCon + Governance |
+| **NIH/AHRQ Research** | RPLICE, Sankofa Health | Any platform as research subject | IS Engine + Health Data |
+| **DHS/FEMA Emergency Mgmt** | SHIELD/ATLAS, LifeBridge | RPLICE, Unplanned | EM Ops + Crisis Resources |
+| **State Education Contracts** | ISSS, Perfectly Different | SafeReport, ThriveUp | MTSS + IEP + Safety |
+| **SBA/SBIR/STTR** | The Incubator, SHIELD/ATLAS | RPLICE, Any platform | Innovation + Defense |
+
+### By Population
+
+| Population | Primary Platforms | Supporting Platforms |
+|-----------|-------------------|---------------------|
+| **Returning Citizens** | ThriveUp, LifeBridge | SafeReport, CogniCare, RPLICE |
+| **Opportunity Youth (16-24)** | ThriveUp, Perfectly Different | LifeBridge, MedLog, RPLICE |
+| **K-12 Students** | ISSS, Perfectly Different | ThriveUp, SafeReport, Sankofa Health |
+| **Veterans** | M2C Transition, CogniCare | MedLog, ThriveUp, SHIELD/ATLAS, The Incubator |
+| **Neurodivergent Individuals** | Perfectly Different, CogniCare | ISSS, ThriveUp, LifeBridge |
+| **People in Crisis** | LifeBridge, Sankofa Health | SafeReport, MedLog, CogniCare |
+| **Seniors/Caregivers** | CogniCare, MedLog | LifeBridge, SafeReport, Sankofa Health |
+| **Frontline Workers** | Unplanned, ThriveUp | M2C Transition, SafeReport |
+| **GovCon Professionals** | The Incubator, RPLICE | SHIELD/ATLAS, Unplanned |
+| **Researchers** | RPLICE, Sankofa Health | Any platform as implementation subject |
+| **Healthcare Workers** | Sankofa Health, MedLog | SafeReport, CogniCare, LifeBridge |
+| **Educators** | ISSS, Perfectly Different | ThriveUp, SafeReport, RPLICE |
+
+---
+
+## PROPRIETARY METHODOLOGIES & INTELLECTUAL PROPERTY
+
+### MAP-GAP Execution Governance
+- **Creator:** Dr. Terry Flood, DHA
+- **Full name:** Market Analysis & Performance — Gap Analysis Protocol
+- **Modes:** Simple (9 core functions) | Full Governance (16 phases across 7 compartments)
+- **Key innovations:**
+  - Three Realities Diagnostic (Designed vs. Operational vs. Experienced Reality)
+  - Behavioral Validation phase
+  - Prioritize → Validate → Recalibrate cycle
+  - REFLECT step (prediction, outcome, incongruity type, lessons learned)
+  - Cybernetic learning architecture for adaptive navigation
+- **Deployed in:** RPLICE, ISSS, ThriveUp, LifeBridge, SHIELD/ATLAS
+
+### SALP Framework (System Anchor Learning Points)
+- Continuous monitoring and self-assessment
+- Persistent Health Monitor
+- Continuity Review process
+- Anchored in MAP-GAP methodology
+
+### MG-PATR Execution Engine
+- MAP-GAP Phase Aware Tactical Reviewer
+- Cycle-based improvement
+- Bidirectional phase navigation
+- SALP score integration
+- Gap diagnosis and priority portfolio management
+
+### ISSS Knowledge Engine
+- Implementation readiness assessment
+- Outcome domain library
+- PDSA cycle management
+- Fidelity dimension tracking
+- Equity indicator monitoring
+- Stakeholder engagement protocols
+
+### Three Realities Diagnostic
+- **Designed Reality:** What the program/intervention was intended to do
+- **Operational Reality:** What actually happens in practice
+- **Experienced Reality:** What participants actually experience
+- Used to diagnose implementation gaps and drive corrective action
+
+---
+
+## ORGANIZATIONAL CREDENTIALS
+
+### Entity Information
+| Field | Foundation | LLC |
+|-------|-----------|-----|
+| Legal Name | The Collaborative Advocate Foundation | The Collaborative Advocate LLC |
+| Type | 501(c)(3) Nonprofit | For-Profit VOSB |
+| EIN | [Your EIN] | [Your EIN] |
+| UEI | [Your UEI] | [Your UEI] |
+| CAGE Code | — | [Your CAGE] |
+| SAM.gov | Registered | Registered |
+| VOSB | N/A | Certified |
+
+### Leadership
+- **Dr. Terry Flood, DHA** — Co-Founder. Veteran. Doctor of Health Administration. Implementation scientist. Creator of MAP-GAP methodology. Architect of all 13 platforms.
+- **Meredith Sisnett** — Co-Founder. Strategic operations leader. Community engagement, organizational development, and program execution.
+
+### Contact
+- Dr. Terry Flood: mr.terryflood@gmail.com
+- Meredith Sisnett: sisnett.meredith@gmail.com
+
+### Set-Aside Eligibility
+- Veteran-Owned Small Business (VOSB)
+- Small Business (SB)
+- Small Disadvantaged Business (SDB) — if applicable
+
+---
+
+## FLOOR PRICES & ECOSYSTEM VALUATION
+
+| Platform | Floor Price | Pricing Model |
+|----------|------------|---------------|
+| Sankofa Health Network | $8,000,000+ | Ecosystem license |
+| ISSS | $10,000,000+ | Per-student SaaS or enterprise |
+| SHIELD/ATLAS | $3,500,000+ | Contract vehicle |
+| The Incubator | $1,500,000+ | SaaS or enterprise |
+| RPLICE | Contact for quote | Enterprise or academic |
+| ThriveUp Academy | Bundled | Grant infrastructure |
+| M2C Transition | Bundled | Free for vets, employer SaaS |
+| LifeBridge | Bundled | CHW SaaS, 211 replacement |
+| Perfectly Different | Bundled | School district SaaS |
+| CogniCare | Bundled | Facility licensing |
+| MedLog | Bundled | Health system SaaS |
+| SafeReport | Contact for quote | Per-building or statewide |
+| Unplanned | $5-12/employee/month | Direct B2B SaaS |
+
+**Combined Ecosystem Value: $25,000,000+**
+
+---
+
+## HOW TO USE THIS DOCUMENT
+
+1. **For grant applications:** Identify the funding stream in the Grant/Contract Alignment sections. Use the listed platforms as your technology infrastructure in the proposal. Reference interdependencies to show comprehensive capability.
+
+2. **For contract proposals:** Use the NAICS codes, capabilities, and case studies relevant to the solicitation. Reference the interdependency matrix to show how multiple platforms create a solution greater than any single tool.
+
+3. **For partnership discussions:** Share the relevant platform sections plus the interdependency matrix to demonstrate the breadth and depth of the ecosystem.
+
+4. **For The Incubator:** Feed the full document into the opportunity matching engine. Use platform tags and NAICS codes as matching criteria. Use the grant alignment tables to auto-generate capability narratives for matching opportunities.
+
+5. **For investor/funder conversations:** Lead with the ecosystem overview, floor prices, and proprietary IP section. The interdependency architecture is the defensibility story.
+
+---
+
+*This document is a living reference. Update as platforms evolve, new grant streams are identified, and contracts are won.*
+
+*Prepared March 2026 | The Collaborative Advocate Foundation & LLC*
