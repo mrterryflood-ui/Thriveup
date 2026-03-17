@@ -13,7 +13,7 @@ Core architectural features include:
 - **AI Mastery Curriculum:** A five-level educational progression focusing on responsible AI use with module-gated tool access.
 - **AI Companions (Spark & Sparky):** Age-adaptive AI learning companions providing personalized coaching.
 - **AI Creation Studio:** A unified platform offering 10 AI-powered tools with wizard workflows and streaming AI generation.
-- **Grant Discovery Engine:** A Grant Hub with SAM.gov API integration for live opportunity searching, AI-powered semantic analysis, fit scoring, and readiness checklists. Includes MAP-GAP integration for platform development gap tracking.
+- **Grant Discovery Engine:** A Grant Hub with SAM.gov API integration for live opportunity searching, AI-powered semantic analysis, fit scoring, and readiness checklists.
 - **Reentry & Case Management:** Dashboard with phase-based plans, intake assessments, milestone tracking, and service delivery records.
 - **Community Partner Network:** A partner directory supporting referral workflows, MOU tracking, and multi-stakeholder coordination.
 - **Outcome Reporting:** Dashboard aligned with DOJ metrics for tracking various outcomes with CSV export.
@@ -30,21 +30,21 @@ Core architectural features include:
 - **DFC Youth Substance Prevention:** Prevention curriculum with modules across substance topics and age tiers, including risk/protective factor assessments.
 - **DFC Coalition Management Dashboard:** 12-sector coalition tracker aligned to ONDCP requirements with meeting management and action items.
 - **Parent Prevention Education:** Parent-facing prevention modules with family strengthening content and AI-powered conversation starters.
-- **Ecosystem Integration Hub:** Visual ecosystem map (`/ecosystem`) connecting all 14 Collaborative Advocate platforms including MCE (Minority Center of Excellence). Features full portfolio view (14 platforms organized by domain), Grant Opportunity Matcher (13 funding streams with AI-powered platform combination recommendations, NAICS codes, set-aside eligibility, and copyable proposal language), Competitive Advantages dashboard (VOSB, proprietary IP, implementation science credibility, portfolio statistics), DFC 12-sector coverage mapping, grant alignment matrix, integration architecture view, and ready-to-use narrative language. All portfolio endpoints require authentication — this is partner/demo-only intelligence, not public.
-- **MCE (Minority Center of Excellence):** Platform 14 in the ecosystem. First comprehensive digital ecosystem for minority-owned businesses — 656,794 curated records, 14 AI tools across 4 providers (OpenAI, Anthropic, Gemini, OpenRouter), dual-AI proposal review, 6-stage business journey (Form, Certify, Win, Team, Connect, Grow), SAM.gov live integration, certification eligibility wizard for 9 federal programs, B2B networking, Business Health Score, teaming hub. $3.5M-$5M valuation. SaaS tiers: Free/$49/$149/$349+/mo.
-- **Program Management Suite:** Post-award grant execution tools (`/program-management`) with 7 tabs: Dashboard (KPI aggregation), Grant Projects (lifecycle pipeline: pre-award → awarded → active → closeout → completed), Staffing Plans (position planning, qualifications, hiring pipeline), Facility Plans (space identification, in-kind space tracking), Program Schedule (curriculum sessions, coalition meetings, training events, assessments, reporting deadlines), In-Kind Match Tracker (contribution tracking by type/source with running total vs grant match requirement, verification workflow), Sustainability & Partners (Year 6+ planning, adjacent agency finder with AI-powered discovery, partnership status tracker).
-- **Facilitator Hub:** Curriculum delivery and facilitator tools (`/facilitator-hub`) with 5 tabs: Dashboard (sessions, fidelity, dosage KPIs), Session Planning (AI-assisted plan generation, material checklists), Delivery Log (attendance, fidelity scoring 1-5, dosage auto-calculation), Fidelity Monitor (trend tracking by facilitator/module/location), Certifications (facilitator credential tracking with renewal dates).
-- **Platform Metrics Dashboard:** Comprehensive cross-platform metrics (`/platform-metrics`) across 8 categories: Engagement, Prevention, Coalition, Workforce, Grants, Facilitator, Parent Education, Email/Communications. Each with current value, trend, target comparison, and time range selection.
-- **Resend Email Integration:** Transactional email via Resend connector for contact inquiries, partner notifications, grant alerts, and welcome emails. Contact form (`/contact`) routes to mr.terryflood@gmail.com with auto-reply. Admin inquiry management with status tracking.
-- **About / Leadership Page:** Dr. Terry Flood credentials page (`/about`) featuring DHA + DBA + MS Implementation Science (Dartmouth), 5 additional master's degrees, Bronze Star (x2), 20-year Army career (CW2), federal service history (VA VCL, Army CR2I GS-12), certifications (DoD SPARX, Lean Six Sigma, DAU grants/acquisitions), research focus areas, proprietary methodologies (MAP-GAP, SALP, Three Realities, MG-PATR), co-founder bio, and entity overview (Foundation 501(c)(3) + LLC VOSB).
-- **Interactive Ecosystem Story:** Narrative walkthrough (`/ecosystem-story`) showing how the 14-platform ecosystem works through a real scenario: "How ThriveUp Academy wins and executes a $625K DFC Grant" — 10 steps from discovery through sustainability with platform activation visualization and data flow diagrams.
-- **Multi-AI Ensemble:** Dual-AI review and multi-AI response synthesis in `server/ai-provider.ts`. `generateMultiAIResponse()` queries multiple providers with consensus scoring. `dualAIReview()` has two AI models independently evaluate content and highlight differences. Backwards-compatible with existing single-provider functions.
-- **DFC Command Center:** Unified dashboard (`/dfc-command-center`) aggregating live metrics from all DFC subsystems across 4 quadrants: Coalition Health (sectors, members, capacity, cost match), Prevention Impact (youth reached, EBPs, strategies, risk/protective trends), Community Engagement (readiness stage, surveys, core measures, RE-AIM, campaigns), and Grant Readiness (readiness score, commitments, deadline tracking). Features AI-powered "What to Do Next" recommendations and critical gap alerts.
-- **DFC Guided Wizards:** 4 step-by-step wizard flows (`/dfc-wizards`): Coalition Setup (7 steps), Prevention Launch (8 steps), Grant Application (10 steps), and Community Assessment (6 steps). Each wizard saves progress, links to relevant tools at each step, and produces a summary of everything created.
-- **Cross-Page Navigation:** Reusable DFCCrossNav component on all 6 DFC pages showing "Related Tools" cards with live metrics from connected features, ensuring no tool exists in a silo.
-- **DFC Performance Measures & Community Readiness:** DFC-specific reporting (`/dfc-reporting`) with SAMHSA Core Measures tracking, 10-population stakeholder surveys (youth, parents, educators, law enforcement, healthcare, faith-based, business, veterans, returning citizens, seniors), Tri-Ethnic Center Community Readiness Model with 6-dimension scoring and 9 readiness stages, RE-AIM implementation science dashboard, and CSV/PDF export.
-- **Evidence-Based Programs Registry & Environmental Strategies:** Prevention strategies hub (`/prevention-strategies`) with 10 SAMHSA/NIDA-registered programs (LST, CTC, SFP, etc.), implementation fidelity tracking, 7-category environmental strategies tracker, CFIR implementation research framework with 5-domain scoring, and stakeholder fit mapping.
-- **DFC Readiness & Media Campaign Planner:** Application readiness dashboard (`/dfc-readiness`) with SAM.gov/UEI/Grants.gov checklist, coalition eligibility verification, 12-sector stakeholder commitment tracker, media campaign builder with population-specific messaging guidance, campaign calendar, and overall readiness scoring.
+- **Ecosystem Integration Hub:** Visual ecosystem map connecting all 14 Collaborative Advocate platforms including MCE. Features full portfolio view, Grant Opportunity Matcher, Competitive Advantages dashboard, DFC 12-sector coverage mapping, grant alignment matrix, integration architecture view, and ready-to-use narrative language.
+- **MCE (Minority Center of Excellence):** Platform 14 in the ecosystem, a comprehensive digital ecosystem for minority-owned businesses with curated records, AI tools, dual-AI proposal review, 6-stage business journey, SAM.gov live integration, certification eligibility wizard, B2B networking, Business Health Score, and teaming hub.
+- **Program Management Suite:** Post-award grant execution tools with dashboards for KPIs, project lifecycle, staffing, facilities, schedule, in-kind match tracking, and sustainability planning.
+- **Facilitator Hub:** Curriculum delivery and facilitator tools including dashboards, AI-assisted session planning, delivery logs, fidelity monitoring, and certification tracking.
+- **Platform Metrics Dashboard:** Comprehensive cross-platform metrics across 8 categories: Engagement, Prevention, Coalition, Workforce, Grants, Facilitator, Parent Education, Email/Communications.
+- **Resend Email Integration:** Transactional email via Resend connector for contact inquiries, partner notifications, grant alerts, and welcome emails.
+- **About / Leadership Page:** Dr. Terry Flood credentials page featuring academic and professional background, proprietary methodologies, co-founder bio, and entity overview.
+- **Interactive Ecosystem Story:** Narrative walkthrough showing how the 14-platform ecosystem works through a real scenario.
+- **Multi-AI Ensemble:** Dual-AI review and multi-AI response synthesis in `server/ai-provider.ts` for querying multiple providers with consensus scoring and independent evaluation.
+- **DFC Command Center:** Unified dashboard aggregating live metrics from all DFC subsystems across Coalition Health, Prevention Impact, Community Engagement, and Grant Readiness, with AI-powered recommendations.
+- **DFC Guided Wizards:** 4 step-by-step wizard flows for Coalition Setup, Prevention Launch, Grant Application, and Community Assessment.
+- **Cross-Page Navigation:** Reusable DFCCrossNav component on all 6 DFC pages showing "Related Tools" cards with live metrics.
+- **DFC Performance Measures & Community Readiness:** DFC-specific reporting with SAMHSA Core Measures tracking, stakeholder surveys, Tri-Ethnic Center Community Readiness Model, RE-AIM implementation science dashboard, and CSV/PDF export.
+- **Evidence-Based Programs Registry & Environmental Strategies:** Prevention strategies hub with SAMHSA/NIDA-registered programs, implementation fidelity tracking, environmental strategies tracker, CFIR implementation research framework, and stakeholder fit mapping.
+- **DFC Readiness & Media Campaign Planner:** Application readiness dashboard with SAM.gov/UEI/Grants.gov checklist, coalition eligibility verification, stakeholder commitment tracker, media campaign builder, and overall readiness scoring.
 - **LMS Course Creator:** Administrative tool for managing courses, modules, and lessons.
 - **Accessibility & Responsiveness:** WCAG 2.1 AA compliance with dyslexia-friendly fonts, high contrast, reduced motion, screen reader optimization, and mobile responsiveness.
 - **Design System:** Violet/indigo branding with Plus Jakarta Sans and JetBrains Mono fonts, supporting dark mode.
@@ -55,11 +55,13 @@ Core architectural features include:
 - **Stakeholder Presentation:** Interactive presentation for showcasing platform features.
 - **Logic Model & Grant Narrative Builder:** Interactive logic model visualization and AI-assisted draft generation for grant narratives, pulling live platform data.
 - **First 30 Days Onboarding Journey:** Guided 30-day onboarding with population-specific templates and milestone tracking.
+- **APEX Accelerators Integration:** DoD APEX Accelerators integration for center locator, service cards, contracting journey, and cross-links.
+- **Business Plan:** Comprehensive shareable business plan for ecosystem overview, MVV, pipeline, competitive advantages, funding, and leadership.
 
 ## External Dependencies
 - **Database:** PostgreSQL (Neon-backed)
 - **AI Integration:** Google Gemini Flash, OpenAI (gpt-4o-mini), Replit AI Integrations (gpt-5-nano), Multi-AI Ensemble (dual-AI review)
-- **Email:** Resend (via Replit connector integration) — transactional and campaign emails
+- **Email:** Resend (via Replit connector integration)
 - **Authentication:** Replit Auth (OIDC)
 - **GIS Data Sources:** CDC PLACES API, CDC/ATSDR SVI, FBI Crime Data API, Census Bureau ACS, USDA Food Access Atlas, HUD, SAMHSA, BLS
 - **Interactive Maps:** Leaflet + react-leaflet with OpenStreetMap tiles
@@ -70,34 +72,3 @@ Core architectural features include:
 - **Routing:** wouter
 - **Icons:** lucide-react
 - **Cross-Platform Integration:** Student Support Portal (ISSS)
-
-## Contact
-- **Primary:** mr.terryflood@gmail.com (Dr. Terry Flood)
-- **Platform:** sisnett.meredith@gmail.com (Meredith Sisnett)
-
-## Key Routes Added (Latest)
-- `/apex-accelerators` — APEX Accelerators (DoD) integration page: center locator, 8 service cards, ecosystem pipeline bridges, 4-step contracting journey, FAQ, cross-links to apexaccelerators.us
-- `/business-plan` — Comprehensive shareable business plan: ecosystem overview, MVV, cradle-to-contract pipeline, competitive advantages, funding strategy, 12 live platform capability links, leadership, CTA
-- `/program-management` — Post-award grant execution suite (7 tabs)
-- `/facilitator-hub` — Curriculum delivery & facilitator tools (5 tabs)
-- `/platform-metrics` — Cross-platform metrics dashboard (8 categories)
-- `/contact` — Contact form with Resend email integration
-- `/about` — Dr. Flood credentials & leadership page (3-entity ecosystem structure: ThriveUp 501(c)(3), MCE SaaS, The Collaborative Advocate VOSB)
-- `/ecosystem-story` — Interactive 10-step ecosystem walkthrough
-- `/ecosystem` — Now includes MCE as Platform 14 plus 8 additional health/science platforms (22 total)
-
-## External Ecosystem Tool URLs
-1. Research & Implementation Science: https://bettersciencelab.com
-2. Black Business Connections (MCE): https://minoritycenterofexcellence.com/
-3. Black Maternal Health: https://yourhealthbirthright.net/
-4. Mental Health Rights: https://yourhealthbirthright.net/know-your-rights
-5. Black Feminine OB Health: https://yourfeminineneeds.com
-6. Incident & Mandatory Reporting: https://safereports.net
-7. Cognitive Safety: https://safecognicare.com
-8. Pill Reminder & Care: https://pillscheduler.net
-9. Breast Cancer (Black): https://myhealthybreast.com
-10. Black Men's Health: https://thehealthyblkman.com
-11. Implementation in Education: https://implementationineducatio.com/
-12. Neurodivergent Support: https://neurodifferentassistant.app
-13. Life Issues 211: https://lifetransitionsaid.org
-14. Military Veteran Support: https://vetmissiontransition.com
