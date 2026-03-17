@@ -2,7 +2,6 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Link } from "wouter";
 import {
   GraduationCap, Shield, Award, Briefcase, BookOpen, Mail,
@@ -244,57 +243,97 @@ export default function AboutLeadershipPage() {
         </div>
       </Card>
 
-      <Card className="p-6">
-        <div className="flex items-start gap-4">
-          <Avatar className="h-16 w-16 shrink-0">
-            <AvatarFallback className="bg-primary/10 text-primary">MS</AvatarFallback>
-          </Avatar>
-          <div className="space-y-2">
-            <div>
-              <p className="font-bold text-lg" data-testid="text-cofounder-name">Meredith Sisnett</p>
-              <p className="text-sm text-muted-foreground">Co-Founder</p>
+      <Separator />
+
+      <h2 className="text-xl font-bold" data-testid="text-ecosystem-heading">The Ecosystem</h2>
+      <p className="text-muted-foreground text-sm -mt-4">Three platforms forming an integrated cradle-to-contract pipeline.</p>
+
+      <div className="grid md:grid-cols-3 gap-4">
+        <Card className="p-6 border-2 border-primary/20">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="rounded-md p-2 bg-gradient-to-br from-violet-600 to-indigo-700">
+              <GraduationCap className="h-5 w-5 text-white" />
             </div>
-            <p className="text-sm">
-              Co-Founder of the Collaborative Advocate ecosystem, bringing expertise in organizational development,
-              community engagement, and strategic partnerships to complement the technical and research-driven approach.
+            <div>
+              <p className="font-bold text-sm" data-testid="text-entity-thriveup">ThriveUp Academy</p>
+              <Badge variant="secondary" className="text-xs">501(c)(3)</Badge>
+            </div>
+          </div>
+          <p className="text-xs font-medium text-primary mb-1">Education & Workforce</p>
+          <p className="text-sm text-muted-foreground">
+            Develops the people — AI education, workforce training, career pipelines, prevention programming, and community enablement tools for under-resourced communities. Grant-funded nonprofit. This is where the work gets done.
+          </p>
+          <div className="mt-3 pt-3 border-t">
+            <p className="text-xs text-muted-foreground">thrivingcommunitiesforall.com</p>
+          </div>
+        </Card>
+
+        <Card className="p-6">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="rounded-md p-2 bg-gradient-to-br from-emerald-600 to-teal-700">
+              <Building2 className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <p className="font-bold text-sm" data-testid="text-entity-mce">Minority Center of Excellence</p>
+              <Badge variant="secondary" className="text-xs">SaaS</Badge>
+            </div>
+          </div>
+          <p className="text-xs font-medium text-primary mb-1">Business Ecosystem</p>
+          <p className="text-sm text-muted-foreground">
+            Develops the businesses — formation, certification, government contracting, AI tools, B2B networking, and business intelligence. 656,794 curated records. Subscription-funded for-profit SaaS.
+          </p>
+          <div className="mt-3 pt-3 border-t">
+            <p className="text-xs text-muted-foreground">For-Profit SaaS &middot; $3.5M-$5M valuation</p>
+          </div>
+        </Card>
+
+        <Card className="p-6">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="rounded-md p-2 bg-gradient-to-br from-amber-600 to-orange-700">
+              <Globe className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <p className="font-bold text-sm" data-testid="text-entity-ca">The Collaborative Advocate</p>
+              <Badge variant="secondary" className="text-xs">Umbrella</Badge>
+            </div>
+          </div>
+          <p className="text-xs font-medium text-primary mb-1">Advocacy & Coordination</p>
+          <p className="text-sm text-muted-foreground">
+            The web presence connecting it all — advocacy, coordination, community voice, and organizational information. Provides the structure and narrative while ThriveUp and MCE do the work.
+          </p>
+          <div className="mt-3 pt-3 border-t">
+            <p className="text-xs text-muted-foreground">VOSB &middot; Organization</p>
+          </div>
+        </Card>
+      </div>
+
+      <Card className="p-5 bg-muted/30">
+        <div className="flex items-start gap-3">
+          <div className="rounded-md p-2 bg-primary/10 shrink-0 mt-0.5">
+            <Award className="h-4 w-4 text-primary" />
+          </div>
+          <div>
+            <p className="text-sm font-semibold mb-1">The Cradle-to-Contract Pipeline</p>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              ThriveUp trains the person. MCE empowers the business they build. A veteran in ThriveUp's AI training pipeline graduates into MCE's business formation toolkit. A returning citizen in workforce development flows into certification and contracting. No competitor has this integrated ecosystem — from education through career readiness through business formation through government contracting.
             </p>
           </div>
         </div>
       </Card>
 
-      <div className="grid md:grid-cols-2 gap-4">
-        <Card className="p-6">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="rounded-md p-2 bg-primary/10">
-              <Heart className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <p className="font-bold" data-testid="text-entity-foundation">Collaborative Advocate Foundation</p>
-              <Badge variant="secondary">501(c)(3)</Badge>
-            </div>
+      <Card className="p-5 bg-muted/30">
+        <div className="flex items-start gap-3">
+          <div className="rounded-md p-2 bg-primary/10 shrink-0 mt-0.5">
+            <Star className="h-4 w-4 text-primary" />
           </div>
-          <p className="text-sm text-muted-foreground">
-            Nonprofit entity focused on community development, youth empowerment,
-            prevention programming, and evidence-based intervention delivery.
-          </p>
-        </Card>
-
-        <Card className="p-6">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="rounded-md p-2 bg-primary/10">
-              <Building2 className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <p className="font-bold" data-testid="text-entity-llc">Collaborative Advocate LLC</p>
-              <Badge variant="secondary">VOSB</Badge>
-            </div>
+          <div>
+            <p className="text-sm font-semibold mb-1">Advisor</p>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              <span className="font-medium text-foreground">Meredith Sisnett</span> — Strategic advisor to the Collaborative Advocate ecosystem, providing guidance on organizational development, community engagement, and partnership strategy.
+            </p>
           </div>
-          <p className="text-sm text-muted-foreground">
-            Veteran-Owned Small Business providing technology development, consulting,
-            and implementation science services to federal, state, and local partners.
-          </p>
-        </Card>
-      </div>
+        </div>
+      </Card>
 
       <Card className="p-6">
         <div className="flex flex-wrap items-center justify-between gap-4">

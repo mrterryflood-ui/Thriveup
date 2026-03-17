@@ -915,10 +915,10 @@ export default function LandingPage() {
                 <span className="font-semibold" data-testid="text-footer-brand">ThriveUp Academy</span>
               </div>
               <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed mb-2" data-testid="text-footer-tagline">
-                AI-powered workforce development, grant alignment, and community enablement — reducing recidivism, increasing employment, and strengthening communities.
+                The tools that do the work — AI-powered workforce development, grant discovery, prevention programming, and community enablement for under-resourced communities.
               </p>
               <p className="text-xs text-muted-foreground/70" data-testid="text-footer-foundation">
-                A platform of The Collaborative Advocate Foundation 501(c)(3) &middot; VOSB
+                The Collaborative Advocate Foundation 501(c)(3) &middot; VOSB
               </p>
             </div>
 
