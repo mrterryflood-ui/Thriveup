@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { BackToTop } from "@/components/back-to-top";
 import { LEVEL_COLORS } from "@/lib/curriculum-data";
+import { MISSION_STATEMENT, VISION_STATEMENT, VALUES } from "@/lib/mvv-content";
 import featureVideoSrc from "@assets/Learning_Academy_1.0_1772131808280.mp4";
 
 const levelIcons = [Compass, Map, Building2, Lightbulb, Crown];
@@ -223,8 +224,76 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Mission, Vision & Values */}
+      <section className="py-12 px-4 sm:py-20 sm:px-6 bg-card" data-testid="section-mission-vision-values">
+        <div className="mx-auto max-w-5xl">
+          <div className="text-center mb-10 sm:mb-14">
+            <Badge variant="secondary" className="mb-4">
+              <Heart className="mr-1 h-3 w-3" /> The Collaborative Advocate Foundation
+            </Badge>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4" data-testid="text-mvv-heading">
+              Our Mission, Vision & Values
+            </h2>
+            <p className="text-xs sm:text-sm text-muted-foreground">
+              501(c)(3) Nonprofit &middot; Veteran-Owned Small Business (VOSB)
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+            <Card className="p-6 sm:p-8 border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="rounded-md bg-primary/10 p-2.5 shrink-0">
+                  <Target className="h-5 w-5 text-primary" />
+                </div>
+                <h3 className="text-lg font-bold" data-testid="text-mission-label">Our Mission</h3>
+              </div>
+              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed" data-testid="text-mission-statement">
+                {MISSION_STATEMENT}
+              </p>
+            </Card>
+
+            <Card className="p-6 sm:p-8 border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="rounded-md bg-primary/10 p-2.5 shrink-0">
+                  <Sparkles className="h-5 w-5 text-primary" />
+                </div>
+                <h3 className="text-lg font-bold" data-testid="text-vision-label">Our Vision</h3>
+              </div>
+              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed" data-testid="text-vision-statement">
+                {VISION_STATEMENT}
+              </p>
+            </Card>
+          </div>
+
+          <div>
+            <div className="text-center mb-6">
+              <h3 className="text-lg sm:text-xl font-bold" data-testid="text-values-label">Our Values</h3>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+              {VALUES.map((value) => {
+                const iconMap: Record<string, typeof Heart> = { Heart, Microscope, Users, Globe, Shield, BarChart3, BookOpen };
+                const Icon = iconMap[value.iconName] || Heart;
+                return (
+                  <Card key={value.title} className="p-5 hover-elevate" data-testid={`card-value-${value.title.toLowerCase().replace(/\s+/g, '-')}`}>
+                    <div className="flex items-start gap-3">
+                      <div className="rounded-md bg-primary/10 p-2 shrink-0">
+                        <Icon className="h-4 w-4 text-primary" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-sm mb-1">{value.title}</h4>
+                        <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{value.desc}</p>
+                      </div>
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Feature Video Guide */}
-      <section className="py-12 px-4 sm:py-20 sm:px-6 bg-card">
+      <section className="py-12 px-4 sm:py-20 sm:px-6">
         <div className="mx-auto max-w-5xl">
           <div className="text-center mb-8 sm:mb-10">
             <Badge variant="secondary" className="mb-4">
@@ -845,8 +914,11 @@ export default function LandingPage() {
                 <Heart className="h-5 w-5 text-primary" />
                 <span className="font-semibold" data-testid="text-footer-brand">ThriveUp Academy</span>
               </div>
-              <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed" data-testid="text-footer-tagline">
+              <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed mb-2" data-testid="text-footer-tagline">
                 AI-powered workforce development, grant alignment, and community enablement — reducing recidivism, increasing employment, and strengthening communities.
+              </p>
+              <p className="text-xs text-muted-foreground/70" data-testid="text-footer-foundation">
+                A platform of The Collaborative Advocate Foundation 501(c)(3) &middot; VOSB
               </p>
             </div>
 

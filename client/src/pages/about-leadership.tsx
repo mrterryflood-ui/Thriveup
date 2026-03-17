@@ -7,7 +7,9 @@ import { Link } from "wouter";
 import {
   GraduationCap, Shield, Award, Briefcase, BookOpen, Mail,
   Star, Globe, Heart, Users, FlaskConical, Building2, Medal,
+  Target, Sparkles, Microscope, BarChart3,
 } from "lucide-react";
+import { MISSION_STATEMENT, VISION_STATEMENT, VALUES } from "@/lib/mvv-content";
 
 const education = [
   { degree: "DHA", field: "Doctor of Health Administration", school: "" },
@@ -71,6 +73,54 @@ export default function AboutLeadershipPage() {
         <h1 className="text-3xl font-bold" data-testid="text-about-title">About & Leadership</h1>
         <p className="text-muted-foreground">Meet the team behind ThriveUp Academy and the Collaborative Advocate ecosystem.</p>
       </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card className="p-6 border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="rounded-md bg-primary/10 p-2 shrink-0">
+              <Target className="h-5 w-5 text-primary" />
+            </div>
+            <h3 className="font-bold" data-testid="text-about-mission-label">Our Mission</h3>
+          </div>
+          <p className="text-sm text-muted-foreground leading-relaxed" data-testid="text-about-mission">
+            {MISSION_STATEMENT}
+          </p>
+        </Card>
+        <Card className="p-6 border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="rounded-md bg-primary/10 p-2 shrink-0">
+              <Sparkles className="h-5 w-5 text-primary" />
+            </div>
+            <h3 className="font-bold" data-testid="text-about-vision-label">Our Vision</h3>
+          </div>
+          <p className="text-sm text-muted-foreground leading-relaxed" data-testid="text-about-vision">
+            {VISION_STATEMENT}
+          </p>
+        </Card>
+      </div>
+
+      <Card className="p-6">
+        <h3 className="font-bold mb-4" data-testid="text-about-values-label">Our Values</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {VALUES.map((v) => {
+            const iconMap: Record<string, typeof Heart> = { Heart, Microscope, Users, Globe, Shield, BarChart3, BookOpen };
+            const Icon = iconMap[v.iconName] || Heart;
+            return (
+              <div key={v.title} className="flex items-start gap-2.5 p-3 rounded-lg bg-muted/50" data-testid={`about-value-${v.title.toLowerCase().replace(/\s+/g, '-')}`}>
+                <Icon className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                <div>
+                  <p className="text-sm font-semibold">{v.title}</p>
+                  <p className="text-xs text-muted-foreground leading-relaxed">{v.desc}</p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </Card>
+
+      <Separator />
+
+      <h2 className="text-xl font-bold" data-testid="text-leadership-heading">Leadership</h2>
 
       <Card className="p-6">
         <div className="flex flex-col md:flex-row gap-6">

@@ -311,7 +311,7 @@ export function AppSidebar() {
             </div>
             <div>
               <p className="font-bold text-sm leading-tight">ThriveUp Academy</p>
-              <p className="text-xs text-muted-foreground leading-tight">Workforce Development & Community Enablement</p>
+              <p className="text-xs text-muted-foreground leading-tight">The Collaborative Advocate Foundation</p>
             </div>
           </div>
         </Link>
