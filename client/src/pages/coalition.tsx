@@ -212,6 +212,11 @@ export default function CoalitionPage() {
     onSuccess: () => { invalidateAll(); toast({ title: "Meeting updated" }); },
   });
 
+  const deleteMeetingMutation = useMutation({
+    mutationFn: async (id: string) => { await apiRequest("DELETE", `/api/coalition-meetings/${id}`); },
+    onSuccess: () => { invalidateAll(); toast({ title: "Meeting deleted" }); },
+  });
+
   const addActionItemMutation = useMutation({
     mutationFn: async (data: Record<string, unknown>) => {
       const res = await apiRequest("POST", "/api/coalition-action-items", data);
@@ -252,6 +257,26 @@ export default function CoalitionPage() {
       setPlanData({ coalitionId: "", title: "", spfPhase: "assessment", status: "draft", goals: "", objectives: "", strategies: "", responsibleParties: "", timeline: "", evaluationMetrics: "" });
       toast({ title: "Action plan created" });
     },
+  });
+
+  const deleteActionItemMutation = useMutation({
+    mutationFn: async (id: string) => { await apiRequest("DELETE", `/api/coalition-action-items/${id}`); },
+    onSuccess: () => { invalidateAll(); toast({ title: "Action item deleted" }); },
+  });
+
+  const deleteAssessmentMutation = useMutation({
+    mutationFn: async (id: string) => { await apiRequest("DELETE", `/api/coalition-capacity-assessments/${id}`); },
+    onSuccess: () => { invalidateAll(); toast({ title: "Assessment deleted" }); },
+  });
+
+  const deletePlanMutation = useMutation({
+    mutationFn: async (id: string) => { await apiRequest("DELETE", `/api/coalition-action-plans/${id}`); },
+    onSuccess: () => { invalidateAll(); toast({ title: "Action plan deleted" }); },
+  });
+
+  const deleteCostMatchMutation = useMutation({
+    mutationFn: async (id: string) => { await apiRequest("DELETE", `/api/coalition-cost-match/${id}`); },
+    onSuccess: () => { invalidateAll(); toast({ title: "Cost match record deleted" }); },
   });
 
   const addCostMatchMutation = useMutation({
@@ -637,6 +662,9 @@ export default function CoalitionPage() {
                             Mark Complete
                           </Button>
                         )}
+                        <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => deleteMeetingMutation.mutate(meeting.id)} data-testid={`button-delete-meeting-${meeting.id}`}>
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
                       </div>
                     </div>
                     {meeting.agenda && <p className="text-sm text-muted-foreground mt-2">{meeting.agenda}</p>}
@@ -679,11 +707,16 @@ export default function CoalitionPage() {
                               <CheckCircle2 className={`h-3.5 w-3.5 ${item.status === "completed" ? "text-emerald-500" : "text-muted-foreground/40"}`} />
                               <span className={item.status === "completed" ? "line-through text-muted-foreground" : ""}>{item.description}</span>
                             </div>
-                            {item.status !== "completed" && (
-                              <Button variant="ghost" size="sm" onClick={() => updateActionItemMutation.mutate({ id: item.id, status: "completed" })} data-testid={`button-complete-action-${item.id}`}>
-                                Done
+                            <div className="flex items-center gap-1">
+                              {item.status !== "completed" && (
+                                <Button variant="ghost" size="sm" onClick={() => updateActionItemMutation.mutate({ id: item.id, status: "completed" })} data-testid={`button-complete-action-${item.id}`}>
+                                  Done
+                                </Button>
+                              )}
+                              <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive" onClick={() => deleteActionItemMutation.mutate(item.id)} data-testid={`button-delete-action-${item.id}`}>
+                                <Trash2 className="h-3 w-3" />
                               </Button>
-                            )}
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -761,6 +794,9 @@ export default function CoalitionPage() {
                     <div className="flex items-center gap-2">
                       <Badge variant={a.overallScore >= 70 ? "default" : "secondary"}>Score: {a.overallScore}</Badge>
                       {a.assessedAt && <span className="text-xs text-muted-foreground">{new Date(a.assessedAt).toLocaleDateString()}</span>}
+                      <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive" onClick={() => deleteAssessmentMutation.mutate(a.id)} data-testid={`button-delete-assessment-${a.id}`}>
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
                     </div>
                   </div>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -900,7 +936,12 @@ export default function CoalitionPage() {
                           <div key={plan.id} className="border rounded p-3" data-testid={`plan-${plan.id}`}>
                             <div className="flex items-center justify-between mb-1">
                               <span className="font-medium text-sm">{plan.title}</span>
-                              <Badge variant={plan.status === "active" ? "default" : "outline"} className="text-xs">{plan.status}</Badge>
+                              <div className="flex items-center gap-1">
+                                <Badge variant={plan.status === "active" ? "default" : "outline"} className="text-xs">{plan.status}</Badge>
+                                <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive" onClick={() => deletePlanMutation.mutate(plan.id)} data-testid={`button-delete-plan-${plan.id}`}>
+                                  <Trash2 className="h-3 w-3" />
+                                </Button>
+                              </div>
                             </div>
                             {hasDetail && (
                               <div className="space-y-2 mt-2">
@@ -1077,7 +1118,12 @@ export default function CoalitionPage() {
                           <p className="text-xs text-muted-foreground">{record.hoursContributed} hrs</p>
                         )}
                       </div>
-                      <span className="font-semibold">${parseFloat(record.dollarValue || "0").toLocaleString()}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold">${parseFloat(record.dollarValue || "0").toLocaleString()}</span>
+                        <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive" onClick={() => deleteCostMatchMutation.mutate(record.id)} data-testid={`button-delete-cost-${record.id}`}>
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </div>
                     </div>
                   ))}
                 </div>

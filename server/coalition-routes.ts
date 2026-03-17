@@ -235,6 +235,16 @@ export function registerCoalitionRoutes(app: Express) {
     }
   });
 
+  app.delete("/api/coalition-meetings/:id", requireAuth, async (req, res) => {
+    try {
+      await db.delete(coalitionMeetings).where(eq(coalitionMeetings.id, req.params.id as string));
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Failed to delete meeting:", error);
+      res.status(500).json({ error: "Failed to delete meeting" });
+    }
+  });
+
   app.get("/api/coalitions/:id/action-items", requireAuth, async (req, res) => {
     try {
       const coalitionId = req.params.id as string;
@@ -272,6 +282,16 @@ export function registerCoalitionRoutes(app: Express) {
     } catch (error) {
       console.error("Failed to update action item:", error);
       res.status(500).json({ error: "Failed to update action item" });
+    }
+  });
+
+  app.delete("/api/coalition-action-items/:id", requireAuth, async (req, res) => {
+    try {
+      await db.delete(coalitionActionItems).where(eq(coalitionActionItems.id, req.params.id as string));
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Failed to delete action item:", error);
+      res.status(500).json({ error: "Failed to delete action item" });
     }
   });
 
@@ -317,6 +337,16 @@ export function registerCoalitionRoutes(app: Express) {
     }
   });
 
+  app.delete("/api/coalition-capacity-assessments/:id", requireAuth, async (req, res) => {
+    try {
+      await db.delete(coalitionCapacityAssessments).where(eq(coalitionCapacityAssessments.id, req.params.id as string));
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Failed to delete capacity assessment:", error);
+      res.status(500).json({ error: "Failed to delete capacity assessment" });
+    }
+  });
+
   app.get("/api/coalitions/:id/action-plans", requireAuth, async (req, res) => {
     try {
       const coalitionId = req.params.id as string;
@@ -355,6 +385,16 @@ export function registerCoalitionRoutes(app: Express) {
     }
   });
 
+  app.delete("/api/coalition-action-plans/:id", requireAuth, async (req, res) => {
+    try {
+      await db.delete(communityActionPlans).where(eq(communityActionPlans.id, req.params.id as string));
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Failed to delete action plan:", error);
+      res.status(500).json({ error: "Failed to delete action plan" });
+    }
+  });
+
   app.get("/api/coalitions/:id/cost-match", requireAuth, async (req, res) => {
     try {
       const coalitionId = req.params.id as string;
@@ -375,6 +415,16 @@ export function registerCoalitionRoutes(app: Express) {
     } catch (error) {
       console.error("Failed to create cost match record:", error);
       res.status(500).json({ error: "Failed to create cost match record" });
+    }
+  });
+
+  app.delete("/api/coalition-cost-match/:id", requireAuth, async (req, res) => {
+    try {
+      await db.delete(costMatchRecords).where(eq(costMatchRecords.id, req.params.id as string));
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Failed to delete cost match record:", error);
+      res.status(500).json({ error: "Failed to delete cost match record" });
     }
   });
 
@@ -418,7 +468,7 @@ export function registerCoalitionRoutes(app: Express) {
     }
   });
 
-  app.get("/api/coalitions/:id/sector-partner-map", async (req, res) => {
+  app.get("/api/coalitions/:id/sector-partner-map", requireAuth, async (req, res) => {
     try {
       const coalitionId = req.params.id as string;
       const sectors = await db.select().from(coalitionSectors).where(eq(coalitionSectors.coalitionId, coalitionId));
