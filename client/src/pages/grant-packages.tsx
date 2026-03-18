@@ -1531,7 +1531,18 @@ function SectionDrafter({ section, grant, autoTrigger, onAutoTriggered }: { sect
             <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
               <FileText className="h-3 w-3" />
               Draft Content
-              <Badge variant="secondary" className="text-[10px] ml-1">{draftContent.split(/\s+/).filter(Boolean).length} words{section.wordCount ? ` / target: ${section.wordCount}` : ""}</Badge>
+              {(() => {
+                const currentWords = draftContent.split(/\s+/).filter(Boolean).length;
+                const targetMatch = section.wordCount?.match(/(\d[\d,]*)/);
+                const targetMin = targetMatch ? parseInt(targetMatch[1].replace(/,/g, ""), 10) : 0;
+                const isShort = targetMin > 0 && currentWords < targetMin * 0.8;
+                return (
+                  <Badge variant={isShort ? "destructive" : "secondary"} className="text-[10px] ml-1" data-testid={`badge-word-count-${section.id}`}>
+                    {currentWords.toLocaleString()} words{section.wordCount ? ` / target: ${section.wordCount}` : ""}
+                    {isShort ? " ⚠ under target" : ""}
+                  </Badge>
+                );
+              })()}
             </p>
             <div className="flex gap-2">
               <Button size="sm" variant="outline" onClick={copyToClipboard} data-testid={`button-copy-${section.id}`}>

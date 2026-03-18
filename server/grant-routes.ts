@@ -1484,11 +1484,21 @@ Grant Description: ${grantDescription || "N/A"}
 Section: ${sectionName}
 Section Description: ${sectionDescription || "N/A"}
 ${pageLimit ? `Page Limit: ${pageLimit}` : ""}
-${wordCount ? `REQUIRED Word Count: ${wordCount} — YOU MUST write this many words. Do not stop short.` : ""}
+${wordCount ? `MANDATORY MINIMUM Word Count: ${wordCount}. Your output MUST contain AT LEAST this many words. A response under this count is INCOMPLETE and UNACCEPTABLE.` : ""}
 ${existingContent ? `\nExisting content to improve/expand:\n${existingContent}` : ""}
 ${userInstructions ? `\nSpecial instructions from Dr. Flood:\n${userInstructions}` : ""}
 
-Write a complete, professional draft for this section that fills the FULL required word count. Format with clear paragraphs. Include specific details, measurable outcomes, and evidence-based justifications. Make it compelling for grant reviewers. Do not include section headers — just the body content. Write the FULL length — do not summarize or cut short.`;
+STRUCTURE YOUR RESPONSE with these detailed subsections (write substantial content for EACH):
+1. Context and Statement of Need (detailed local/national data, citations, problem scope)
+2. Program Design and Theory of Change (methodology, platforms used, evidence base)
+3. Target Population and Eligibility (demographics, barriers, recruitment strategy)
+4. Service Delivery Model (step-by-step process, intake through exit, each platform's role)
+5. Goals, Objectives, and Measurable Outcomes (SMART goals with specific numbers)
+6. Implementation Timeline (phased rollout, milestones, key activities by quarter)
+7. Organizational Capacity and Staffing (team qualifications, infrastructure, partnerships)
+8. Sustainability and Continuous Improvement (MAP-GAP integration, long-term plan)
+
+Write EVERY subsection with substantial depth. Do not summarize or abbreviate. Include specific data points, platform names, methodology descriptions, and measurable targets throughout. This is a competitive federal/foundation grant — reviewers will reject thin content. Do not include section headers — integrate all content as flowing narrative paragraphs.${wordCount ? ` REMINDER: You MUST write at minimum ${wordCount}.` : ""}`;
 
       let maxTokens = 4000;
       if (wordCount) {
