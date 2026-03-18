@@ -20,6 +20,15 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
+type DisciplineId = "implementation-science" | "criminal-justice" | "hr-management" | "io-psychology";
+
+const DISCIPLINE_BADGES: Record<DisciplineId, { label: string; color: string }> = {
+  "implementation-science": { label: "Impl. Science", color: "bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300" },
+  "criminal-justice": { label: "Criminal Justice", color: "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300" },
+  "hr-management": { label: "HR Mgmt", color: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300" },
+  "io-psychology": { label: "I-O Psych", color: "bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300" },
+};
+
 interface EcosystemApp {
   id: string;
   name: string;
@@ -36,6 +45,7 @@ interface EcosystemApp {
   thriveUpConnections: { area: string; description: string }[];
   grantAlignment: { grant: string; relevance: string }[];
   dfcSectors: number[];
+  disciplines: DisciplineId[];
 }
 
 const ECOSYSTEM_APPS: EcosystemApp[] = [
@@ -60,6 +70,7 @@ const ECOSYSTEM_APPS: EcosystemApp[] = [
       { grant: "SAMHSA Community Mental Health", relevance: "Health & wellness integration" },
     ],
     dfcSectors: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+    disciplines: ["implementation-science", "criminal-justice", "hr-management", "io-psychology"],
   },
   {
     id: "isss",
@@ -85,6 +96,7 @@ const ECOSYSTEM_APPS: EcosystemApp[] = [
       { grant: "OJJDP", relevance: "School-based diversion and early intervention" },
     ],
     dfcSectors: [5, 6, 11],
+    disciplines: ["implementation-science", "io-psychology"],
   },
   {
     id: "sankofa",
@@ -110,6 +122,7 @@ const ECOSYSTEM_APPS: EcosystemApp[] = [
       { grant: "HHS/HRSA", relevance: "Community health worker infrastructure" },
     ],
     dfcSectors: [10, 12],
+    disciplines: ["implementation-science", "io-psychology"],
   },
   {
     id: "wholemind",
@@ -136,6 +149,7 @@ const ECOSYSTEM_APPS: EcosystemApp[] = [
       { grant: "DOE Title I", relevance: "Supplemental education for underserved communities" },
     ],
     dfcSectors: [1, 2, 5],
+    disciplines: ["implementation-science", "io-psychology"],
   },
   {
     id: "perfectly-different",
@@ -162,6 +176,7 @@ const ECOSYSTEM_APPS: EcosystemApp[] = [
       { grant: "IDEA/Special Education", relevance: "IEP/504 compliance and advocacy" },
     ],
     dfcSectors: [6, 10],
+    disciplines: ["implementation-science", "io-psychology"],
   },
   {
     id: "safereport",
@@ -188,6 +203,7 @@ const ECOSYSTEM_APPS: EcosystemApp[] = [
       { grant: "HHS/ACF", relevance: "Foster care and child welfare compliance" },
     ],
     dfcSectors: [5, 7, 10],
+    disciplines: ["implementation-science", "criminal-justice"],
   },
   {
     id: "m2c",
@@ -214,6 +230,7 @@ const ECOSYSTEM_APPS: EcosystemApp[] = [
       { grant: "DOL VETS", relevance: "Veteran employment and training programs" },
     ],
     dfcSectors: [9],
+    disciplines: ["hr-management", "io-psychology"],
   },
   {
     id: "lifebridge",
@@ -242,6 +259,7 @@ const ECOSYSTEM_APPS: EcosystemApp[] = [
       { grant: "SAMHSA", relevance: "Substance abuse resource navigation" },
     ],
     dfcSectors: [8, 9, 10, 12],
+    disciplines: ["implementation-science", "criminal-justice"],
   },
   {
     id: "mce",
@@ -269,6 +287,7 @@ const ECOSYSTEM_APPS: EcosystemApp[] = [
       { grant: "DOT DBE", relevance: "Disadvantaged business enterprise program support" },
     ],
     dfcSectors: [3],
+    disciplines: ["hr-management", "io-psychology"],
   },
   {
     id: "betterscience",
@@ -293,6 +312,7 @@ const ECOSYSTEM_APPS: EcosystemApp[] = [
       { grant: "NIH/NIMH", relevance: "Implementation science research support" },
     ],
     dfcSectors: [5, 6, 10],
+    disciplines: ["implementation-science"],
   },
   {
     id: "birthright",
@@ -316,6 +336,7 @@ const ECOSYSTEM_APPS: EcosystemApp[] = [
       { grant: "SAMHSA", relevance: "Mental health rights and consumer advocacy" },
     ],
     dfcSectors: [10, 12],
+    disciplines: ["implementation-science"],
   },
   {
     id: "feminine-needs",
@@ -337,6 +358,7 @@ const ECOSYSTEM_APPS: EcosystemApp[] = [
       { grant: "HRSA Women's Health", relevance: "Reproductive health equity and access" },
     ],
     dfcSectors: [10],
+    disciplines: ["implementation-science"],
   },
   {
     id: "safecognicare",
@@ -360,6 +382,7 @@ const ECOSYSTEM_APPS: EcosystemApp[] = [
       { grant: "SAMHSA", relevance: "Behavioral health and cognitive safety" },
     ],
     dfcSectors: [10],
+    disciplines: ["implementation-science"],
   },
   {
     id: "pillscheduler",
@@ -383,6 +406,7 @@ const ECOSYSTEM_APPS: EcosystemApp[] = [
       { grant: "CDC/ONDCP DFC", relevance: "Medication compliance as protective factor" },
     ],
     dfcSectors: [10, 12],
+    disciplines: ["implementation-science"],
   },
   {
     id: "healthybreast",
@@ -404,6 +428,7 @@ const ECOSYSTEM_APPS: EcosystemApp[] = [
       { grant: "CDC Cancer Prevention", relevance: "Breast cancer disparity reduction" },
     ],
     dfcSectors: [10],
+    disciplines: ["implementation-science"],
   },
   {
     id: "healthyblkman",
@@ -427,6 +452,7 @@ const ECOSYSTEM_APPS: EcosystemApp[] = [
       { grant: "SAMHSA", relevance: "Men's mental health and substance use prevention" },
     ],
     dfcSectors: [10, 12],
+    disciplines: ["implementation-science"],
   },
 ];
 
@@ -1157,8 +1183,9 @@ export default function EcosystemHubPage() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-4 md:grid-cols-8">
+          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 md:grid-cols-9">
             <TabsTrigger value="overview" data-testid="tab-overview">Ecosystem Map</TabsTrigger>
+            <TabsTrigger value="by-discipline" data-testid="tab-by-discipline">By Discipline</TabsTrigger>
             <TabsTrigger value="portfolio" data-testid="tab-portfolio">Full Portfolio</TabsTrigger>
             <TabsTrigger value="matcher" data-testid="tab-matcher">Grant Matcher</TabsTrigger>
             <TabsTrigger value="advantages" data-testid="tab-advantages">Advantages</TabsTrigger>
@@ -1188,6 +1215,16 @@ export default function EcosystemHubPage() {
                       </div>
                       <CardTitle className="text-lg">{app.name}</CardTitle>
                       <CardDescription>{app.tagline}</CardDescription>
+                      <div className="flex flex-wrap gap-1 mt-2">
+                        {app.disciplines.map((dId) => {
+                          const badge = DISCIPLINE_BADGES[dId];
+                          return (
+                            <span key={dId} className={`inline-flex px-1.5 py-0.5 rounded text-[10px] font-medium ${badge.color}`}>
+                              {badge.label}
+                            </span>
+                          );
+                        })}
+                      </div>
                     </CardHeader>
                     <CardContent className="space-y-3">
                       <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">{app.description}</p>
@@ -1294,6 +1331,61 @@ export default function EcosystemHubPage() {
                 </CardContent>
               </Card>
             )}
+          </TabsContent>
+
+          <TabsContent value="by-discipline" className="space-y-6" data-testid="tab-content-by-discipline">
+            <Card className="p-4 sm:p-6 border-2 border-primary/20 bg-gradient-to-r from-primary/5 to-transparent">
+              <p className="text-sm text-muted-foreground text-center">
+                See which academic disciplines power each platform. Nothing is siloed — disciplines are woven through the entire ecosystem.
+              </p>
+            </Card>
+            {(Object.keys(DISCIPLINE_BADGES) as DisciplineId[]).map((dId) => {
+              const badge = DISCIPLINE_BADGES[dId];
+              const disciplineNames: Record<DisciplineId, string> = {
+                "implementation-science": "Implementation Science",
+                "criminal-justice": "Criminal Justice",
+                "hr-management": "HR Management",
+                "io-psychology": "I-O Psychology",
+              };
+              const disciplineDescs: Record<DisciplineId, string> = {
+                "implementation-science": "Translates evidence-based practices into real-world applications through CFIR, RE-AIM, and EPIS frameworks. Powers fidelity tracking across all platforms.",
+                "criminal-justice": "Designs reentry pathways, diversion programs, and restorative justice systems that address root causes of incarceration.",
+                "hr-management": "Builds competency models, workforce pipelines, and career pathways from intake through placement and retention.",
+                "io-psychology": "Powers engagement design, behavioral nudges, and motivation systems for sustained stakeholder investment.",
+              };
+              const platformsInDiscipline = ECOSYSTEM_APPS.filter(a => a.disciplines.includes(dId));
+              return (
+                <div key={dId}>
+                  <div className="flex items-center gap-3 mb-3">
+                    <span className={`inline-flex px-3 py-1.5 rounded-lg text-sm font-semibold ${badge.color}`}>
+                      {disciplineNames[dId]}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {platformsInDiscipline.length} platforms
+                    </span>
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-3 ml-1">{disciplineDescs[dId]}</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                    {platformsInDiscipline.map((app) => {
+                      const IconComponent = app.icon;
+                      return (
+                        <Card key={app.id} className={`p-3 ${app.borderColor} hover:shadow-md transition-shadow`} data-testid={`card-discipline-app-${dId}-${app.id}`}>
+                          <div className="flex items-center gap-2">
+                            <div className={`p-1.5 rounded ${app.bgColor}`}>
+                              <IconComponent className={`h-4 w-4 ${app.color}`} />
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-xs font-semibold truncate">{app.name}</p>
+                              <p className="text-[10px] text-muted-foreground truncate">{app.tagline}</p>
+                            </div>
+                          </div>
+                        </Card>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
           </TabsContent>
 
           <TabsContent value="portfolio" className="space-y-4">

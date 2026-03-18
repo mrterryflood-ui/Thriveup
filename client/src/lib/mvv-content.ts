@@ -1,15 +1,167 @@
 export const MISSION_STATEMENT =
-  "The Collaborative Advocate Foundation strengthens under-resourced communities through AI-powered workforce development, evidence-based prevention, and coordinated service delivery — connecting people to careers, education, health resources, and opportunity at every stage of life.";
+  "The Collaborative Advocate Foundation transforms communities through four integrated academic disciplines — Implementation Science, Criminal Justice, HR Management, and Industrial-Organizational Psychology — translated into working technology through our proprietary MAP-GAP framework. We plan programs, coordinate stakeholders, build curriculum and interventions, and measure outcomes with fidelity — turning research into sustained community impact.";
 
 export const VISION_STATEMENT =
-  "A nation where every community — regardless of zip code — has the digital infrastructure, trained workforce, and local partnerships to break cycles of poverty, addiction, and incarceration, and build generational prosperity.";
+  "A nation where every community — regardless of zip code — has access to a living, adaptive system that identifies problems, designs evidence-based interventions, coordinates stakeholders transparently, executes with measurable fidelity, and captures lessons that make the next community stronger.";
 
 export const VALUES = [
-  { title: "Equity First", desc: "Every tool, curriculum, and service is designed for communities that need it most.", iconName: "Heart" as const },
-  { title: "Evidence Over Assumption", desc: "Implementation science and rigorous evaluation drive every decision we make.", iconName: "Microscope" as const },
-  { title: "Whole-Person Development", desc: "We serve the complete individual: career, health, education, family, and spirit.", iconName: "Users" as const },
-  { title: "Community Ownership", desc: "Local partners lead; technology enables, never replaces.", iconName: "Globe" as const },
-  { title: "Veteran-Led Innovation", desc: "Military discipline and service ethic applied to civilian community challenges.", iconName: "Shield" as const },
-  { title: "Measurable Impact", desc: "If we can't measure it, we can't improve it.", iconName: "BarChart3" as const },
-  { title: "Research to Practice", desc: "Taking research to the community and implementing with fidelity through collaboration, education, resources, and coordination.", iconName: "BookOpen" as const },
+  { title: "Implementation Over Intention", desc: "We use CFIR, RE-AIM, and EPIS frameworks to ensure programs are implemented as designed — not just proposed. Good intentions without fidelity tracking fail communities.", iconName: "Microscope" as const },
+  { title: "Equity Through Justice Reform", desc: "Criminal justice research drives reentry pathways, diversion programs, and restorative justice — breaking cycles of incarceration through systemic change, not just services.", iconName: "Scale" as const },
+  { title: "Whole-Person Workforce Development", desc: "HR management science builds competency models, workforce pipelines, and career pathways that serve the complete individual — not just job placement numbers.", iconName: "Briefcase" as const },
+  { title: "Behavioral Science That Sustains", desc: "I-O Psychology powers the engagement design, behavioral nudges, and motivation systems that keep participants, staff, and communities invested for the long term.", iconName: "Brain" as const },
+  { title: "Community Ownership", desc: "Local partners lead; technology enables, never replaces. Every program adapts through the Three Realities — what research says, what politics allow, what works on the ground.", iconName: "Globe" as const },
+  { title: "Transparent Measurement", desc: "SALP indicators track fidelity in real time. SMART goals visible to every stakeholder. If we can't measure it transparently, we can't improve it.", iconName: "BarChart3" as const },
+  { title: "Research to Replication", desc: "MG-PATR captures what works, then adapts — not copy-pastes — for the next community. Every deployment makes the ecosystem smarter.", iconName: "BookOpen" as const },
+] as const;
+
+export const DISCIPLINES = [
+  {
+    id: "implementation-science",
+    name: "Implementation Science",
+    shortName: "Impl. Science",
+    color: "bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300",
+    borderColor: "border-blue-300 dark:border-blue-700",
+    icon: "Microscope" as const,
+    desc: "Translates evidence-based practices into real-world community applications through CFIR, RE-AIM, and EPIS frameworks.",
+    mapGapComponent: "Fidelity tracking across all platforms — ensuring programs are implemented as designed, not just deployed.",
+    platforms: ["thriveup", "isss", "betterscience", "safereport", "sankofa", "lifebridge", "wholemind", "perfectly-different"],
+  },
+  {
+    id: "criminal-justice",
+    name: "Criminal Justice",
+    shortName: "Criminal Justice",
+    color: "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300",
+    borderColor: "border-amber-300 dark:border-amber-700",
+    icon: "Scale" as const,
+    desc: "Designs reentry pathways, diversion programs, and restorative justice systems that address root causes of incarceration.",
+    mapGapComponent: "Reentry pathway design — from risk assessment through community reintegration, employment, and sustained stability.",
+    platforms: ["thriveup", "safereport", "lifebridge", "isss"],
+  },
+  {
+    id: "hr-management",
+    name: "HR Management",
+    shortName: "HR Mgmt",
+    color: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300",
+    borderColor: "border-emerald-300 dark:border-emerald-700",
+    icon: "Briefcase" as const,
+    desc: "Builds competency models, workforce pipelines, and career pathways serving individuals from intake to placement to retention.",
+    mapGapComponent: "Competency modeling and workforce pipelines — structured career progression from assessment through credentialing to employment.",
+    platforms: ["thriveup", "mce", "m2c", "isss"],
+  },
+  {
+    id: "io-psychology",
+    name: "I-O Psychology",
+    shortName: "I-O Psych",
+    color: "bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300",
+    borderColor: "border-purple-300 dark:border-purple-700",
+    icon: "Brain" as const,
+    desc: "Powers engagement design, behavioral nudges, and motivation systems that keep stakeholders invested for sustained impact.",
+    mapGapComponent: "Behavioral nudge architecture and engagement design — keeping participants, staff, and communities motivated through the entire program lifecycle.",
+    platforms: ["thriveup", "isss", "mce", "wholemind", "perfectly-different", "sankofa"],
+  },
+] as const;
+
+export const MAPGAP_CYCLE = [
+  {
+    step: 1,
+    title: "Identify the Problem",
+    subtitle: "Research & Data",
+    desc: "Community data reveals the problem — suspension rates, recidivism, ACEs prevalence, unaddressed SDOH. Map it to specific grant opportunities.",
+    disciplines: ["implementation-science"],
+    platforms: ["Community Intelligence Map", "GIS Data", "Grant Discovery Engine"],
+  },
+  {
+    step: 2,
+    title: "Design the Intervention",
+    subtitle: "MAP-GAP + Three Realities",
+    desc: "Use MAP-GAP and Three Realities to design a program tailored to THIS community. What research says, what politics allow, what actually works on the ground.",
+    disciplines: ["implementation-science", "criminal-justice", "hr-management", "io-psychology"],
+    platforms: ["MAP-GAP CQI", "RPLICE", "Better Science Lab"],
+  },
+  {
+    step: 3,
+    title: "Coordinate Stakeholders",
+    subtitle: "Build the Network",
+    desc: "Bring in CHWs, mentors, community police, educators, employers — everyone connected through shared dashboards, shared goals, transparent metrics.",
+    disciplines: ["hr-management", "io-psychology"],
+    platforms: ["Coalition Dashboard", "Partner Network", "DFC Command Center"],
+  },
+  {
+    step: 4,
+    title: "Execute with Fidelity",
+    subtitle: "SALP Indicators",
+    desc: "SALP indicators measure whether the program is implemented as designed. SMART goals visible to ALL stakeholders — real time, not year-end reports.",
+    disciplines: ["implementation-science", "io-psychology"],
+    platforms: ["Dosage Tracking", "Case Management", "Outcome Reporting"],
+  },
+  {
+    step: 5,
+    title: "Measure & Improve",
+    subtitle: "Continuous Quality Improvement",
+    desc: "AI-powered insights show what's working and what's not. Continuous improvement loop — assess, adjust, improve. MAP-GAP brings homeostasis.",
+    disciplines: ["implementation-science", "io-psychology"],
+    platforms: ["MAP-GAP CQI", "Platform Metrics", "AI Insights"],
+  },
+  {
+    step: 6,
+    title: "Capture & Replicate",
+    subtitle: "MG-PATR",
+    desc: "When it works, capture lessons through MG-PATR. Then pilot and adapt for the next community — accounting for new Three Realities. Never copy-paste.",
+    disciplines: ["implementation-science", "criminal-justice", "hr-management", "io-psychology"],
+    platforms: ["Research Hub", "Implementation Plans", "Program Templates"],
+  },
+] as const;
+
+export const PROGRAM_SHOWCASES = [
+  {
+    id: "mbk-chicago",
+    title: "My Brother's Keeper",
+    location: "Chicago, IL",
+    problem: "School-to-Prison Pipeline",
+    problemDesc: "High suspension rates, low graduation rates, ACEs prevalence, unaddressed SDOH driving youth into the justice system.",
+    grants: ["CDC/ONDCP Drug-Free Communities", "DOE Title I/IV", "DOJ Second Chance Act", "SAMHSA"],
+    interventions: [
+      { discipline: "Implementation Science", action: "SEL curriculum through ISSS, MTSS compliance, academic support via WholeMind" },
+      { discipline: "Criminal Justice", action: "Diversion programs through SafeReport, restorative justice, reentry support via ThriveUp" },
+      { discipline: "HR Management", action: "Workforce pathways for older youth through ThriveUp and MCE, career exposure" },
+      { discipline: "I-O Psychology", action: "Behavioral nudges for students, staff motivation systems, mentor engagement design" },
+    ],
+    stakeholders: ["Schools", "Community Mentors", "Law Enforcement", "Employers", "Parents", "CHWs"],
+    platforms: ["ThriveUp Academy", "ISSS", "SafeReport", "LifeBridge", "WholeMind", "Sankofa Health"],
+    outcomes: "Reduced suspensions, increased graduation rates, youth diverted from justice system, families connected to SDOH resources, sustainable community ownership.",
+  },
+  {
+    id: "mbk-dc",
+    title: "My Brother's Keeper",
+    location: "Washington, DC",
+    problem: "Same Framework, Different Community",
+    problemDesc: "Same school-to-prison pipeline challenge, but different Three Realities — different political landscape, different community assets, different ground-level dynamics.",
+    grants: ["CDC/ONDCP Drug-Free Communities", "DOJ OJJDP", "DC Government Grants"],
+    interventions: [
+      { discipline: "Implementation Science", action: "MAP-GAP assessment reveals different implementation barriers — adapted program design" },
+      { discipline: "Criminal Justice", action: "DC-specific diversion pathways, different court systems, adapted reentry supports" },
+      { discipline: "HR Management", action: "Different employer landscape — adapted workforce pipelines to DC economy" },
+      { discipline: "I-O Psychology", action: "Community engagement adapted to DC cultural context — different motivation drivers" },
+    ],
+    stakeholders: ["DC Public Schools", "Community Organizations", "DC Courts", "Federal Employers", "Parents", "Faith-Based Orgs"],
+    platforms: ["ThriveUp Academy", "ISSS", "SafeReport", "LifeBridge", "M2C Transition"],
+    outcomes: "Same framework, adapted execution. Three Realities ensure the program fits DC — not a copy of Chicago. MG-PATR captures both for future deployments.",
+  },
+  {
+    id: "workforce-rural",
+    title: "Rural Workforce Revitalization",
+    location: "Appalachian Region",
+    problem: "Economic Decline & Substance Use Crisis",
+    problemDesc: "Post-industrial economic decline, opioid crisis, limited healthcare access, brain drain of young professionals. Different problem, different setting — same ecosystem.",
+    grants: ["WIOA Title I", "SAMHSA Opioid Response", "EDA Economic Adjustment", "USDA Rural Development"],
+    interventions: [
+      { discipline: "Implementation Science", action: "Community health assessment via Sankofa, substance use prevention through parent education" },
+      { discipline: "Criminal Justice", action: "Drug court diversion, reentry support for substance-related incarceration" },
+      { discipline: "HR Management", action: "New industry workforce pipelines — telehealth, renewable energy, remote tech jobs" },
+      { discipline: "I-O Psychology", action: "Community resilience programming, combating learned helplessness, sustaining engagement" },
+    ],
+    stakeholders: ["Regional Health Systems", "Community Colleges", "Employers", "Recovery Courts", "CHWs", "Faith Communities"],
+    platforms: ["ThriveUp Academy", "Sankofa Health", "LifeBridge", "MCE", "PillScheduler"],
+    outcomes: "Economic diversification, reduced substance use, new career pathways, healthcare access expansion — proving the ecosystem is truly agnostic to setting and problem.",
+  },
 ] as const;

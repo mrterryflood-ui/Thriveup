@@ -13,11 +13,12 @@ import {
   Briefcase, TrendingUp, HandshakeIcon, BarChart3,
   DollarSign, School, Factory, CheckCircle2, ClipboardList,
   Wrench, UserCheck, Link2, Quote, Search,
-  Hammer, Cpu, Stethoscope, HardHat
+  Hammer, Cpu, Stethoscope, HardHat, Scale, CircleDot, RefreshCw, Repeat,
+  Layers, MapPinned
 } from "lucide-react";
 import { BackToTop } from "@/components/back-to-top";
 import { LEVEL_COLORS } from "@/lib/curriculum-data";
-import { MISSION_STATEMENT, VISION_STATEMENT, VALUES } from "@/lib/mvv-content";
+import { MISSION_STATEMENT, VISION_STATEMENT, VALUES, DISCIPLINES, MAPGAP_CYCLE, PROGRAM_SHOWCASES } from "@/lib/mvv-content";
 import featureVideoSrc from "@assets/Learning_Academy_1.0_1772131808280.mp4";
 
 const levelIcons = [Compass, Map, Building2, Lightbulb, Crown];
@@ -168,6 +169,96 @@ function FeatureVideoPlayer() {
   );
 }
 
+function ProgramShowcase() {
+  const [expandedProgram, setExpandedProgram] = useState<string | null>(null);
+
+  return (
+    <section className="py-12 px-4 sm:py-20 sm:px-6" data-testid="section-program-showcase">
+      <div className="mx-auto max-w-5xl">
+        <div className="text-center mb-10 sm:mb-14">
+          <Badge variant="secondary" className="mb-4">
+            <MapPinned className="mr-1 h-3 w-3" /> Programs in Action
+          </Badge>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4" data-testid="text-showcase-heading">
+            Same Ecosystem, Different Communities
+          </h2>
+          <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto px-2">
+            We don't copy-paste programs. MAP-GAP adapts through the Three Realities — what research says, what politics allow, what works on the ground. Here's how it looks in practice.
+          </p>
+        </div>
+        <div className="space-y-4">
+          {PROGRAM_SHOWCASES.map((prog) => {
+            const isExpanded = expandedProgram === prog.id;
+            return (
+              <Card key={prog.id} className="overflow-hidden" data-testid={`card-program-${prog.id}`}>
+                <button
+                  className="w-full p-5 sm:p-6 text-left flex items-start gap-4 hover:bg-muted/50 transition-colors"
+                  onClick={() => setExpandedProgram(isExpanded ? null : prog.id)}
+                  data-testid={`button-toggle-program-${prog.id}`}
+                >
+                  <div className="rounded-md bg-primary/10 p-2.5 shrink-0 mt-0.5">
+                    <MapPinned className="h-5 w-5 text-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap mb-1">
+                      <h3 className="font-bold text-base">{prog.title}</h3>
+                      <Badge variant="outline" className="text-xs">{prog.location}</Badge>
+                    </div>
+                    <p className="text-sm font-medium text-primary">{prog.problem}</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground mt-1 leading-relaxed">{prog.problemDesc}</p>
+                  </div>
+                  <ChevronRight className={`h-5 w-5 text-muted-foreground shrink-0 transition-transform ${isExpanded ? "rotate-90" : ""}`} />
+                </button>
+                {isExpanded && (
+                  <div className="px-5 sm:px-6 pb-5 sm:pb-6 border-t bg-muted/20">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                      <div>
+                        <h4 className="text-xs font-bold text-primary uppercase tracking-wider mb-2">Disciplines Activated</h4>
+                        <div className="space-y-2">
+                          {prog.interventions.map((intv) => (
+                            <div key={intv.discipline} className="text-xs sm:text-sm">
+                              <span className="font-semibold">{intv.discipline}:</span>{" "}
+                              <span className="text-muted-foreground">{intv.action}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-bold text-primary uppercase tracking-wider mb-2">Stakeholders Coordinated</h4>
+                        <div className="flex flex-wrap gap-1.5 mb-4">
+                          {prog.stakeholders.map((s) => (
+                            <Badge key={s} variant="outline" className="text-xs">{s}</Badge>
+                          ))}
+                        </div>
+                        <h4 className="text-xs font-bold text-primary uppercase tracking-wider mb-2">Platforms Activated</h4>
+                        <div className="flex flex-wrap gap-1.5 mb-4">
+                          {prog.platforms.map((p) => (
+                            <Badge key={p} variant="secondary" className="text-xs">{p}</Badge>
+                          ))}
+                        </div>
+                        <h4 className="text-xs font-bold text-primary uppercase tracking-wider mb-2">Grant Alignment</h4>
+                        <div className="flex flex-wrap gap-1.5">
+                          {prog.grants.map((g) => (
+                            <Badge key={g} variant="outline" className="text-xs border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300">{g}</Badge>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="mt-4 p-3 rounded-lg bg-primary/5 border border-primary/10">
+                      <p className="text-xs font-bold text-primary uppercase tracking-wider mb-1">Expected Outcomes</p>
+                      <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{prog.outcomes}</p>
+                    </div>
+                  </div>
+                )}
+              </Card>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 const heroGradientStyle: React.CSSProperties = {
   background: "linear-gradient(135deg, #7c3aed, #9333ea, #6366f1, #7c3aed)",
   backgroundSize: "300% 300%",
@@ -190,34 +281,41 @@ export default function LandingPage() {
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSA2MCAwIEwgMCAwIDAgNjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjA1KSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-40" />
         <div className="relative mx-auto max-w-5xl text-center">
           <Badge variant="secondary" className="mb-4 sm:mb-6 bg-white/15 text-white border-white/20 text-xs sm:text-sm">
-            AI-Powered Workforce Development & Community Enablement
+            4 Disciplines. 14 Platforms. One Living System.
           </Badge>
           <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-4 sm:mb-6 tracking-tight leading-tight" data-testid="text-hero-title">
-            Strengthening<br />Communities
+            We Plan. We Coordinate.<br />We Build. We Measure.
           </h1>
-          <p className="text-base sm:text-lg md:text-xl text-white/80 max-w-2xl mx-auto mb-3 sm:mb-4 px-2" data-testid="text-hero-subtitle">
-            AI-powered workforce development, grant discovery, reentry support, and community enablement for all ages
+          <p className="text-base sm:text-lg md:text-xl text-white/80 max-w-3xl mx-auto mb-3 sm:mb-4 px-2" data-testid="text-hero-subtitle">
+            Powered by implementation science, criminal justice research, HR management, and I-O psychology — our ecosystem transforms how communities address health equity, workforce development, criminal justice, and public safety.
           </p>
-          <p className="text-xs sm:text-sm md:text-base text-white/60 max-w-xl mx-auto mb-8 sm:mb-10 px-2">
-            A complete ecosystem serving returning citizens, veterans, single parents, seniors, and learners of all ages. Grant discovery, 50+ career pathways, evidence-based reentry plans, and whole-person support.
+          <p className="text-xs sm:text-sm md:text-base text-white/60 max-w-2xl mx-auto mb-6 sm:mb-8 px-2">
+            MAP-GAP is the operating system that turns academic research into working technology and sustained community impact. We don't just propose — we execute with fidelity and measure every step.
           </p>
+          <div className="flex flex-wrap justify-center gap-2 sm:gap-3 mb-8 sm:mb-10 px-4">
+            {DISCIPLINES.map((d) => (
+              <span key={d.id} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/15 text-white/90 text-xs sm:text-sm border border-white/20 backdrop-blur-sm">
+                {d.name}
+              </span>
+            ))}
+          </div>
           <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-4 px-4 sm:px-0">
+            <Link href="/ecosystem">
+              <Button size="lg" className="bg-white text-violet-700 border-white font-semibold shadow-lg w-full sm:w-auto min-h-[44px]" data-testid="button-see-ecosystem">
+                <Layers className="mr-2 h-5 w-5" />
+                See the Ecosystem
+              </Button>
+            </Link>
             <Link href="/grants">
-              <Button size="lg" className="bg-white text-violet-700 border-white font-semibold shadow-lg w-full sm:w-auto min-h-[44px]" data-testid="button-discover-grants">
+              <Button size="lg" variant="outline" className="text-white border-white/40 backdrop-blur-sm bg-white/15 w-full sm:w-auto min-h-[44px]" data-testid="button-discover-grants">
                 <Search className="mr-2 h-5 w-5" />
                 Discover Grants
               </Button>
             </Link>
             <Link href="/impact">
-              <Button size="lg" variant="outline" className="text-white border-white/40 backdrop-blur-sm bg-white/15 w-full sm:w-auto min-h-[44px]" data-testid="button-view-impact-dashboard">
+              <Button size="lg" variant="outline" className="text-white border-white/30 backdrop-blur-sm bg-white/10 w-full sm:w-auto min-h-[44px]" data-testid="button-view-impact-dashboard">
                 <BarChart3 className="mr-2 h-5 w-5" />
-                View Impact Dashboard
-              </Button>
-            </Link>
-            <Link href="/resources">
-              <Button size="lg" variant="outline" className="text-white border-white/30 backdrop-blur-sm bg-white/10 w-full sm:w-auto min-h-[44px]" data-testid="button-find-resources">
-                Find Resources
-                <ArrowRight className="ml-2 h-5 w-5" />
+                View Impact
               </Button>
             </Link>
           </div>
@@ -271,7 +369,7 @@ export default function LandingPage() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
               {VALUES.map((value) => {
-                const iconMap: Record<string, typeof Heart> = { Heart, Microscope, Users, Globe, Shield, BarChart3, BookOpen };
+                const iconMap: Record<string, typeof Heart> = { Heart, Microscope, Users, Globe, Shield, BarChart3, BookOpen, Scale, Briefcase, Brain };
                 const Icon = iconMap[value.iconName] || Heart;
                 return (
                   <Card key={value.title} className="p-5 hover-elevate" data-testid={`card-value-${value.title.toLowerCase().replace(/\s+/g, '-')}`}>
@@ -310,15 +408,124 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Features / Philosophy */}
+      {/* MAP-GAP: The Operating System */}
+      <section className="py-12 px-4 sm:py-20 sm:px-6" data-testid="section-mapgap-cycle">
+        <div className="mx-auto max-w-5xl">
+          <div className="text-center mb-10 sm:mb-14">
+            <Badge variant="secondary" className="mb-4">
+              <RefreshCw className="mr-1 h-3 w-3" /> The MAP-GAP Operating System
+            </Badge>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4" data-testid="text-mapgap-heading">
+              How It Works: Ways, Ends, Means
+            </h2>
+            <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto px-2">
+              MAP-GAP is the living, agnostic operating system that brings homeostasis to community transformation. Nothing happens in a black box — every step is transparent, measurable, and adaptive.
+            </p>
+          </div>
+
+          <Card className="p-6 sm:p-8 mb-8 border-2 border-primary/20 bg-gradient-to-r from-primary/5 via-transparent to-primary/5" data-testid="card-mapgap-flow">
+            <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-sm">
+              <span className="px-3 py-2 rounded-lg bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300 font-semibold">Academic Research</span>
+              <ArrowRight className="h-4 w-4 text-muted-foreground hidden sm:block" />
+              <ChevronRight className="h-4 w-4 text-muted-foreground sm:hidden" />
+              <span className="px-3 py-2 rounded-lg bg-violet-100 dark:bg-violet-900/40 text-violet-800 dark:text-violet-300 font-semibold">MAP-GAP Translation</span>
+              <ArrowRight className="h-4 w-4 text-muted-foreground hidden sm:block" />
+              <ChevronRight className="h-4 w-4 text-muted-foreground sm:hidden" />
+              <span className="px-3 py-2 rounded-lg bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-300 font-semibold">Platform Technology</span>
+              <ArrowRight className="h-4 w-4 text-muted-foreground hidden sm:block" />
+              <ChevronRight className="h-4 w-4 text-muted-foreground sm:hidden" />
+              <span className="px-3 py-2 rounded-lg bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 font-semibold">Community Impact</span>
+            </div>
+          </Card>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {MAPGAP_CYCLE.map((step) => {
+              const stepIcons = [Search, Target, Users, CheckCircle2, BarChart3, Repeat];
+              const StepIcon = stepIcons[step.step - 1] || CircleDot;
+              return (
+                <Card key={step.step} className="p-5 hover-elevate" data-testid={`card-mapgap-step-${step.step}`}>
+                  <div className="flex items-start gap-3 mb-3">
+                    <div className="rounded-full bg-primary/10 p-2.5 shrink-0">
+                      <StepIcon className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-primary">Step {step.step}</span>
+                      </div>
+                      <h3 className="font-semibold text-sm">{step.title}</h3>
+                      <p className="text-xs text-muted-foreground">{step.subtitle}</p>
+                    </div>
+                  </div>
+                  <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed mb-3">{step.desc}</p>
+                  <div className="flex flex-wrap gap-1">
+                    {step.disciplines.map((dId) => {
+                      const disc = DISCIPLINES.find(dd => dd.id === dId);
+                      return disc ? (
+                        <span key={dId} className={`inline-flex px-2 py-0.5 rounded text-[10px] font-medium ${disc.color}`}>
+                          {disc.shortName}
+                        </span>
+                      ) : null;
+                    })}
+                  </div>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Four Disciplines → MAP-GAP Components */}
+      <section className="py-12 px-4 sm:py-20 sm:px-6 bg-card" data-testid="section-disciplines-ip">
+        <div className="mx-auto max-w-5xl">
+          <div className="text-center mb-10 sm:mb-14">
+            <Badge variant="secondary" className="mb-4">
+              <Microscope className="mr-1 h-3 w-3" /> Proprietary Intellectual Property
+            </Badge>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4" data-testid="text-disciplines-heading">
+              Four Disciplines, One Ecosystem
+            </h2>
+            <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto px-2">
+              Each academic discipline maps directly to MAP-GAP components — ensuring every platform in the ecosystem is grounded in rigorous research, not guesswork.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+            {DISCIPLINES.map((d) => {
+              const dIconMap: Record<string, typeof Heart> = { Microscope, Scale, Briefcase, Brain };
+              const DIcon = dIconMap[d.icon] || Microscope;
+              return (
+                <Card key={d.id} className={`p-6 border-2 ${d.borderColor}`} data-testid={`card-discipline-${d.id}`}>
+                  <div className="flex items-start gap-4 mb-3">
+                    <div className={`rounded-md p-2.5 shrink-0 ${d.color}`}>
+                      <DIcon className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-base">{d.name}</h3>
+                      <p className="text-sm text-muted-foreground leading-relaxed mt-1">{d.desc}</p>
+                    </div>
+                  </div>
+                  <div className="border-t pt-3 mt-3">
+                    <p className="text-xs font-semibold text-primary mb-1">MAP-GAP Component:</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{d.mapGapComponent}</p>
+                  </div>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Program Showcase — Ways, Ends, Means */}
+      <ProgramShowcase />
+
+      {/* Original Features */}
       <section className="py-12 px-4 sm:py-20 sm:px-6">
         <div className="mx-auto max-w-5xl">
           <div className="text-center mb-10 sm:mb-14">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4" data-testid="text-philosophy-heading">
-              Two Engines, One Mission
+              Platform Capabilities
             </h2>
             <p className="text-sm sm:text-base text-muted-foreground max-w-lg mx-auto px-2">
-              A Grant Discovery Engine that finds and aligns funding opportunities, paired with a Workforce and Community Platform that delivers measurable outcomes for all ages.
+              Grant discovery, workforce development, case management, and community coordination — all powered by the four disciplines through MAP-GAP.
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
