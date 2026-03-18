@@ -539,7 +539,8 @@ function JusticeView({ metrics, outcomes, dosage, impact }: {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="p-4 rounded-lg border">
-              <h4 className="text-sm font-semibold mb-2">Recidivism Tracking</h4>
+              <h4 className="text-sm font-semibold mb-1">Recidivism Tracking</h4>
+              <p className="text-[10px] text-muted-foreground/60 italic mb-2">Proxy: milestone completion as recidivism indicator</p>
               <div className="space-y-2 text-sm text-muted-foreground">
                 <div className="flex justify-between"><span>Participants Monitored</span><Badge variant="outline">{totalParticipants}</Badge></div>
                 <div className="flex justify-between"><span>Active Plans</span><Badge variant="outline">{activePlans}</Badge></div>
