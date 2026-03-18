@@ -248,27 +248,34 @@ export function registerParentEducationRoutes(app: Express) {
 
   app.post("/api/parent-education/conversation-starters", requireAuth, async (req, res) => {
     try {
-      const { topic, childAge } = req.body;
+      const { topic, childAge, ageBand } = req.body;
       if (!topic) return res.status(400).json({ error: "topic is required" });
 
-      const ageContext = childAge ? `The child is ${childAge} years old.` : "The child is a school-age youth.";
+      const band = ageBand || (childAge ? (parseInt(childAge) <= 14 ? "10-14" : "15-18") : "10-14");
+      const bandLabel = band === "10-14" ? "ages 10-14 (pre-teens/early teens)" : "ages 15-18 (older teens)";
+      const ageContext = childAge ? `The child is ${childAge} years old (${bandLabel}).` : `The child is in the ${bandLabel} age group.`;
 
-      const result = await generateAIJSON<{ starters: Array<{ opener: string; explanation: string; followUp: string }> }>(
-        `Generate 4 conversation starters for a parent who wants to talk to their child about "${topic}". ${ageContext} Each starter should have an opener (the exact phrase to say), an explanation of why it works, and a follow-up question. Return JSON: { "starters": [{ "opener": "...", "explanation": "...", "followUp": "..." }] }`,
-        "You are a family counselor specializing in youth substance prevention and family strengthening. Generate age-appropriate, culturally sensitive conversation starters that build trust and open dialogue. Keep language simple and warm."
+      const result = await generateAIJSON<{ starters: Array<{ opener: string; explanation: string; followUp: string; ageBand: string }> }>(
+        `Generate 4 conversation starters for a parent who wants to talk to their child about "${topic}". ${ageContext} Each starter must be specifically tailored for the ${bandLabel} developmental stage. Younger children (10-14) need simpler language, concrete examples, and more reassurance. Older teens (15-18) can handle more direct discussion, autonomy-respecting language, and peer-focused framing. Each starter should have an opener (the exact phrase to say), an explanation of why it works for this age group, a follow-up question, and ageBand ("${band}"). Return JSON: { "starters": [{ "opener": "...", "explanation": "...", "followUp": "...", "ageBand": "${band}" }] }`,
+        "You are a family counselor specializing in youth substance prevention and family strengthening. Generate age-band-appropriate, culturally sensitive conversation starters that build trust and open dialogue. Tailor language complexity and approach to the specific age band."
       );
 
       res.json(result);
     } catch (error) {
       console.error("Failed to generate conversation starters:", error);
-      res.json({
-        starters: [
-          { opener: "I've been learning about how to keep our family safe and healthy. Can we talk about it?", explanation: "Opening with your own learning shows vulnerability and models curiosity.", followUp: "What have you heard about drugs or alcohol at school?" },
-          { opener: "I want you to know you can always come to me, no matter what. What's something on your mind lately?", explanation: "Unconditional support creates a safe space for honest conversation.", followUp: "Is there anything you've been worried about that you haven't told me?" },
-          { opener: "I saw something on the news about vaping. What do your friends think about it?", explanation: "Using current events and asking about peers feels less confrontational.", followUp: "Have you ever been offered anything like that?" },
-          { opener: "Let's make a deal - if you're ever in a situation that feels unsafe, you can call me with no questions asked.", explanation: "A safety agreement builds trust and gives them a practical escape plan.", followUp: "What would make it easier for you to reach out if you needed help?" },
-        ],
-      });
+      const band = req.body?.ageBand || "10-14";
+      const fallbackStarters = band === "15-18" ? [
+        { opener: "I read something about fentanyl in counterfeit pills. I'm not trying to lecture — I just want to make sure you know how to stay safe.", explanation: "Teens respond better when you respect their autonomy while showing genuine concern.", followUp: "Do your friends ever talk about stuff like this? What's the general attitude?", ageBand: "15-18" },
+        { opener: "I know you're getting older and making more of your own choices. I respect that. I just want us to be honest with each other.", explanation: "Acknowledging their growing independence builds trust and keeps the door open.", followUp: "Is there anything you've wanted to ask me but felt weird about?", ageBand: "15-18" },
+        { opener: "What's your take on vaping? I keep hearing different things and I'm curious what you actually think.", explanation: "Asking their opinion first shows respect and gives you insight into their perspective.", followUp: "Have you ever felt pressured to try something you weren't sure about?", ageBand: "15-18" },
+        { opener: "If you or a friend were ever in a bad situation — no judgment, no punishment — I want you to call me. Deal?", explanation: "A safety agreement builds trust and gives them a practical escape plan.", followUp: "What would make it easier for you to reach out if you needed help?", ageBand: "15-18" },
+      ] : [
+        { opener: "I've been learning about how to keep our family safe and healthy. Can we talk about it?", explanation: "Opening with your own learning shows vulnerability and models curiosity for younger children.", followUp: "What have you heard about drugs or alcohol at school?", ageBand: "10-14" },
+        { opener: "I want you to know you can always come to me, no matter what. What's something on your mind lately?", explanation: "Unconditional support creates a safe space — especially important for pre-teens finding their voice.", followUp: "Is there anything you've been worried about that you haven't told me?", ageBand: "10-14" },
+        { opener: "I saw something on TV about vaping. Do you know what that is? What do kids at school say about it?", explanation: "Using media and asking about peers feels less confrontational for younger children.", followUp: "If someone offered you something you weren't sure about, what would you do?", ageBand: "10-14" },
+        { opener: "Let's make a family deal — if you're ever somewhere that feels unsafe, you can call me and I'll come get you, no questions asked.", explanation: "A safety agreement gives younger children a concrete action plan they can rely on.", followUp: "Can you think of a situation where you might need to use our deal?", ageBand: "10-14" },
+      ];
+      res.json({ starters: fallbackStarters });
     }
   });
 
@@ -292,12 +299,34 @@ export function registerParentEducationRoutes(app: Express) {
   });
 }
 
-async function updateExistingModulesWithBilingualContent(allModules: any[]) {
+interface ContentSection {
+  _meta?: boolean;
+  title: string;
+  titleEs?: string;
+  content: string;
+  contentEs?: string;
+  descriptionEs?: string;
+}
+
+interface SeedModule {
+  id: string;
+  title: string;
+  titleEs?: string;
+  description: string;
+  descriptionEs?: string;
+  category: string;
+  targetAudience: string;
+  orderIndex: number;
+  isActive: boolean;
+  contentSections: ContentSection[];
+}
+
+async function updateExistingModulesWithBilingualContent(allModules: Array<{ id: string; contentSections: ContentSection[] }>) {
   for (const mod of allModules) {
     const existing = await db.select().from(parentEducationModules).where(eq(parentEducationModules.id, mod.id));
     if (existing.length > 0) {
-      const currentSections = Array.isArray(existing[0].contentSections) ? existing[0].contentSections as any[] : [];
-      const hasMeta = currentSections.some((s: any) => s._meta);
+      const currentSections = Array.isArray(existing[0].contentSections) ? existing[0].contentSections as ContentSection[] : [];
+      const hasMeta = currentSections.some((s) => s._meta);
       if (!hasMeta) {
         await db.update(parentEducationModules)
           .set({ contentSections: mod.contentSections })
@@ -535,19 +564,75 @@ export async function seedParentEducationData() {
         { title: "Modeling Wellness", titleEs: "Modelando el Bienestar", content: "When your child sees you taking care of yourself, they learn that self-care is important and healthy.", contentEs: "Cuando su hijo lo ve cuidandose, aprende que el autocuidado es importante y saludable." },
       ],
     },
+    {
+      id: "pe-fam-7",
+      title: "Co-Parenting Communication",
+      titleEs: "Comunicación de Co-Crianza",
+      description: "Build healthy communication patterns between co-parents to create stability for your children.",
+      descriptionEs: "Construya patrones de comunicación saludables entre co-padres para crear estabilidad para sus hijos.",
+      category: "family_strengthening",
+      targetAudience: "Co-parents and blended families",
+      orderIndex: 14,
+      isActive: true,
+      contentSections: [
+        { title: "Putting Children First", titleEs: "Poniendo a los Niños Primero", content: "Keep communication focused on your children's needs. Use 'we' language when discussing parenting decisions.", contentEs: "Mantenga la comunicación enfocada en las necesidades de sus hijos. Use lenguaje 'nosotros' al discutir decisiones de crianza." },
+        { title: "Healthy Boundaries", titleEs: "Límites Saludables", content: "Establish clear communication channels. Use text or email for logistics, save emotional discussions for private moments away from children.", contentEs: "Establezca canales de comunicación claros. Use texto o correo para logística, guarde las discusiones emocionales para momentos privados." },
+        { title: "Consistency Across Homes", titleEs: "Consistencia Entre Hogares", content: "Agree on key rules, bedtimes, and expectations. Children thrive when both homes share similar boundaries.", contentEs: "Acuerden reglas clave, horarios y expectativas. Los niños prosperan cuando ambos hogares comparten límites similares." },
+        { title: "Conflict Resolution for Co-Parents", titleEs: "Resolución de Conflictos para Co-Padres", content: "When disagreements arise, use 'I feel' statements, take cooling-off periods, and consider mediation. Never put children in the middle.", contentEs: "Cuando surjan desacuerdos, use declaraciones 'Yo siento', tómese periodos de enfriamiento y considere la mediación." },
+      ],
+    },
+    {
+      id: "pe-fam-8",
+      title: "Rebuilding Family Bonds After Separation",
+      titleEs: "Reconstruyendo Vínculos Familiares Después de la Separación",
+      description: "Strategies for reconnecting with your children after incarceration, deployment, or extended separation.",
+      descriptionEs: "Estrategias para reconectarse con sus hijos después de encarcelamiento, despliegue o separación prolongada.",
+      category: "family_strengthening",
+      targetAudience: "Returning parents and guardians",
+      orderIndex: 15,
+      isActive: true,
+      contentSections: [
+        { title: "Patience and Realistic Expectations", titleEs: "Paciencia y Expectativas Realistas", content: "Reunification takes time. Children may feel confused, angry, or distant. Allow them to set the pace of reconnection.", contentEs: "La reunificación toma tiempo. Los niños pueden sentirse confundidos, enojados o distantes. Permítales establecer el ritmo." },
+        { title: "Rebuilding Trust", titleEs: "Reconstruyendo la Confianza", content: "Show up consistently. Keep promises, even small ones. Trust is rebuilt through repeated reliable actions, not grand gestures.", contentEs: "Preséntese consistentemente. Cumpla promesas, incluso pequeñas. La confianza se reconstruye con acciones confiables repetidas." },
+        { title: "Age-Appropriate Conversations", titleEs: "Conversaciones Apropiadas para la Edad", content: "Be honest about where you've been using age-appropriate language. Children cope better when they understand the situation.", contentEs: "Sea honesto sobre dónde ha estado usando lenguaje apropiado para la edad. Los niños manejan mejor cuando entienden la situación." },
+        { title: "Professional Support", titleEs: "Apoyo Profesional", content: "Family counseling, reentry programs, and support groups can guide the reunification process. You don't have to navigate this alone.", contentEs: "Consejería familiar, programas de reingreso y grupos de apoyo pueden guiar el proceso. No tiene que navegarlo solo." },
+      ],
+    },
+    {
+      id: "pe-fam-9",
+      title: "Family Meetings & Conflict Resolution",
+      titleEs: "Reuniones Familiares y Resolución de Conflictos",
+      description: "Structure productive family meetings and teach conflict resolution skills to the whole family.",
+      descriptionEs: "Estructure reuniones familiares productivas y enseñe habilidades de resolución de conflictos a toda la familia.",
+      category: "family_strengthening",
+      targetAudience: "All families",
+      orderIndex: 16,
+      isActive: true,
+      contentSections: [
+        { title: "Setting Up Family Meetings", titleEs: "Organizando Reuniones Familiares", content: "Choose a regular time. Set ground rules: everyone speaks, no interrupting, decisions by consensus. Keep meetings short (15-30 minutes).", contentEs: "Elija un horario regular. Establezca reglas: todos hablan, sin interrupciones, decisiones por consenso. Mantenga reuniones cortas." },
+        { title: "Agenda and Structure", titleEs: "Agenda y Estructura", content: "Start with appreciations (what went well this week). Discuss old business, raise new concerns, plan activities. End on a positive note.", contentEs: "Comience con agradecimientos (qué salió bien esta semana). Discuta asuntos pendientes, nuevas preocupaciones, y planifique actividades." },
+        { title: "Teaching Conflict Resolution", titleEs: "Enseñando Resolución de Conflictos", content: "Model the process: identify the problem, share feelings, brainstorm solutions, agree on a plan, follow up. Practice with small disagreements first.", contentEs: "Modele el proceso: identifique el problema, comparta sentimientos, genere soluciones, acuerden un plan, y haga seguimiento." },
+        { title: "When Conflict Escalates", titleEs: "Cuando el Conflicto Escala", content: "Use a family signal for 'time out.' Everyone takes a break, calms down, then returns to discuss. Teach that stepping away is strength, not weakness.", contentEs: "Use una señal familiar para 'tiempo fuera.' Todos toman un descanso, se calman y regresan. Enseñe que alejarse es fortaleza." },
+      ],
+    },
   ];
 
-  const allModules = [...preventionModules, ...strengtheningModules].map(m => {
-    const { titleEs, descriptionEs, ...rest } = m as any;
-    const sections = Array.isArray(rest.contentSections) ? [...rest.contentSections] : [];
+  const allModules = ([...preventionModules, ...strengtheningModules] as SeedModule[]).map(m => {
+    const { titleEs, descriptionEs, id, title, description, category, targetAudience, orderIndex, isActive, contentSections } = m;
+    const sections: ContentSection[] = [...contentSections];
     if (titleEs || descriptionEs) {
-      sections.unshift({ _meta: true, titleEs: titleEs || "", descriptionEs: descriptionEs || "" });
+      sections.unshift({ _meta: true, title: "", content: "", titleEs: titleEs || "", descriptionEs: descriptionEs || "" });
     }
-    return { ...rest, contentSections: sections };
+    return { id, title, description, category, targetAudience, orderIndex, isActive, contentSections: sections };
   });
 
   if (existing.length > 0) {
     await updateExistingModulesWithBilingualContent(allModules);
+    const existingIds = new Set(existing.map(e => e.id));
+    const newModules = allModules.filter(m => !existingIds.has(m.id));
+    if (newModules.length > 0) {
+      await db.insert(parentEducationModules).values(newModules);
+    }
   } else {
     await db.insert(parentEducationModules).values(allModules);
   }

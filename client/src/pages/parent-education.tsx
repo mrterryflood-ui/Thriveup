@@ -215,8 +215,8 @@ function ModulesTab({ lang }: { lang: "en" | "es" }) {
           const status = getModuleStatus(mod.id);
           const isExpanded = expandedModule === mod.id;
           const rawSections = Array.isArray(mod.contentSections) ? mod.contentSections as Array<{ _meta?: boolean; titleEs?: string; descriptionEs?: string; title: string; content: string; contentEs?: string }> : [];
-          const metaSection = rawSections.find((s: any) => s._meta);
-          const sections = rawSections.filter((s: any) => !s._meta);
+          const metaSection = rawSections.find((s) => s._meta);
+          const sections = rawSections.filter((s) => !s._meta);
           const displayTitle = lang === "es" && metaSection?.titleEs ? metaSection.titleEs : mod.title;
           const displayDesc = lang === "es" && metaSection?.descriptionEs ? metaSection.descriptionEs : mod.description;
 
@@ -449,20 +449,20 @@ function FamilyAssessmentTab({ lang }: { lang: "en" | "es" }) {
 
 function ConversationStartersTab({ lang }: { lang: "en" | "es" }) {
   const [topic, setTopic] = useState("");
-  const [childAge, setChildAge] = useState("");
+  const [ageBand, setAgeBand] = useState<"10-14" | "15-18">("10-14");
   const [starters, setStarters] = useState<ConversationStarter[]>([]);
   const { toast } = useToast();
 
   const generateMutation = useMutation({
     mutationFn: async () => {
-      const res = await apiRequest("POST", "/api/parent-education/conversation-starters", { topic, childAge });
+      const res = await apiRequest("POST", "/api/parent-education/conversation-starters", { topic, ageBand });
       return res.json();
     },
     onSuccess: (data: { starters: ConversationStarter[] }) => {
       setStarters(data.starters || []);
     },
     onError: () => {
-      toast({ title: "Error", description: "Failed to generate conversation starters. Please try again.", variant: "destructive" });
+      toast({ title: "Error", description: lang === "es" ? "Error al generar iniciadores." : "Failed to generate conversation starters. Please try again.", variant: "destructive" });
     },
   });
 
@@ -507,22 +507,32 @@ function ConversationStartersTab({ lang }: { lang: "en" | "es" }) {
               type="text"
               value={topic}
               onChange={e => setTopic(e.target.value)}
-              placeholder="Or type your own topic..."
+              placeholder={lang === "es" ? "O escriba su propio tema..." : "Or type your own topic..."}
               className="w-full px-3 py-2 rounded-md border bg-background text-sm"
               data-testid="input-topic"
             />
           </div>
 
           <div>
-            <label className="text-sm font-medium mb-2 block">{lang === "es" ? "Edad del niño (opcional)" : "Child's age (optional)"}</label>
-            <input
-              type="text"
-              value={childAge}
-              onChange={e => setChildAge(e.target.value)}
-              placeholder="e.g., 12, 15, 10-14"
-              className="w-full px-3 py-2 rounded-md border bg-background text-sm max-w-[200px]"
-              data-testid="input-child-age"
-            />
+            <label className="text-sm font-medium mb-2 block">{lang === "es" ? "Grupo de edad" : "Age Group"}</label>
+            <div className="flex gap-2">
+              <Button
+                variant={ageBand === "10-14" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setAgeBand("10-14")}
+                data-testid="button-age-band-10-14"
+              >
+                {lang === "es" ? "10-14 años (Pre-adolescentes)" : "Ages 10-14 (Pre-teens)"}
+              </Button>
+              <Button
+                variant={ageBand === "15-18" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setAgeBand("15-18")}
+                data-testid="button-age-band-15-18"
+              >
+                {lang === "es" ? "15-18 años (Adolescentes)" : "Ages 15-18 (Older teens)"}
+              </Button>
+            </div>
           </div>
 
           <Button
