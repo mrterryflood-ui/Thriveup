@@ -1220,4 +1220,117 @@ Write in formal grant language, approximately 400-500 words. Use specific data p
       res.status(500).json({ error: "Failed to export PDF" });
     }
   });
+
+  app.post("/api/grants/scan-opportunity", requireAuth, async (req, res) => {
+    try {
+      const { image, text } = req.body as { image?: string; text?: string };
+
+      if (!image && !text) {
+        return res.status(400).json({ error: "Provide either an image or text to analyze" });
+      }
+
+      const platformCapabilities = [
+        "ThriveUp Academy: AI-powered workforce development, career pathways, financial literacy, prevention curriculum, case management",
+        "MCE (Minority Capital Exchange): Minority business SaaS, SAM.gov integration, APEX Accelerators, certification wizard",
+        "LifeBridge: Benefits navigation, resource finder, 24/7 support, public benefits enrollment",
+        "RPLICE: Implementation fidelity tracking, program evaluation, quality assurance",
+        "Sankofa Health Network: Behavioral health assessments, wellness content, health screenings",
+        "The Incubator: Program R&D, innovation lab, pilot testing",
+        "M2C Transition: Military-to-civilian transition, veteran employment",
+        "SafeReport: Confidential incident reporting, safety monitoring",
+        "Perfectly Different: Neurodiversity support, accommodation planning",
+        "WholeMind Learning: SEL curriculum, mental wellness education",
+        "PillScheduler: Medication adherence, health management",
+        "SafeCogniCare: Cognitive health monitoring, elder care support",
+        "Better Science Lab: Research methodology, evaluation design, data analysis",
+        "ISSS: Student support services, academic case management",
+      ];
+
+      const prompt = `You are a grant opportunity analyst for ThriveUp Academy, a 14-platform workforce development ecosystem. Analyze the following grant opportunity and provide a structured assessment.
+
+Our platform capabilities:
+${platformCapabilities.join("\n")}
+
+Our methodologies: MAP-GAP (continuous improvement), SALP (fidelity tracking), Three Realities (community-informed design), MG-PATR (multi-generational patterns).
+
+Our entity structure: ThriveUp Academy (501(c)(3)), The Collaborative Advocate (VOSB), MCE (minority business SaaS).
+
+${text ? `Grant opportunity text:\n${text}` : "The user uploaded a screenshot of a grant opportunity. Based on any visible text in the image, analyze the opportunity."}
+
+Respond in this exact JSON format (no markdown, just JSON):
+{
+  "grantName": "Name of the grant/funding opportunity",
+  "funder": "Organization offering the funding",
+  "amount": "Funding amount or range",
+  "deadline": "Application deadline or timeline",
+  "description": "Brief description of what the grant funds",
+  "eligibility": ["List of eligibility requirements you can identify"],
+  "fitScore": 0-100,
+  "fitAnalysis": ["Reasons why this is or isn't a good fit"],
+  "platformAlignment": ["Specific platform capabilities that align with this grant"],
+  "gaps": ["Any gaps or requirements we may not fully meet"],
+  "recommendation": "Overall recommendation — pursue aggressively, worth exploring, or pass",
+  "nextSteps": ["Ordered action items to pursue this opportunity"]
+}`;
+
+      let aiResponse: string;
+      if (image) {
+        const base64Data = image.replace(/^data:image\/\w+;base64,/, "");
+        try {
+          const OpenAI = (await import("openai")).default;
+          const apiKey = process.env.OPENAI_API_KEY || process.env.AI_INTEGRATIONS_OPENAI_API_KEY;
+          const baseURL = process.env.AI_INTEGRATIONS_OPENAI_BASE_URL || undefined;
+          if (!apiKey) throw new Error("No vision-capable API key available");
+          const openai = new OpenAI({ apiKey, baseURL });
+          const chatRes = await openai.chat.completions.create({
+            model: baseURL ? "gpt-5-nano" : "gpt-4o-mini",
+            max_tokens: 2000,
+            messages: [{
+              role: "user",
+              content: [
+                { type: "text", text: prompt },
+                { type: "image_url", image_url: { url: `data:image/png;base64,${base64Data}` } },
+              ],
+            }],
+          });
+          aiResponse = chatRes.choices[0]?.message?.content || "";
+        } catch (visionError) {
+          console.error("Vision API failed, attempting text extraction fallback:", visionError);
+          aiResponse = await generateAIResponse([{ role: "user", content: prompt + "\n\nNote: An image was uploaded but could not be processed. Provide a general analysis framework." }]);
+        }
+      } else {
+        aiResponse = await generateAIResponse([{ role: "user", content: prompt }]);
+      }
+
+      let parsed;
+      try {
+        const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          parsed = JSON.parse(jsonMatch[0]);
+        } else {
+          throw new Error("No JSON found in response");
+        }
+      } catch {
+        parsed = {
+          grantName: "Unknown Opportunity",
+          funder: "Unknown",
+          amount: "Not specified",
+          deadline: "Not specified",
+          description: text ? text.substring(0, 200) : "Could not extract details from image",
+          eligibility: [],
+          fitScore: 50,
+          fitAnalysis: ["Unable to fully analyze — try pasting the text for better results"],
+          platformAlignment: ["General workforce development capabilities align"],
+          gaps: ["Need more information to assess gaps"],
+          recommendation: "Worth exploring — paste the full opportunity text for a more detailed analysis",
+          nextSteps: ["Find the full NOFO or opportunity description", "Paste the complete text for detailed analysis", "Check eligibility requirements"],
+        };
+      }
+
+      res.json(parsed);
+    } catch (error) {
+      console.error("Failed to scan opportunity:", error);
+      res.status(500).json({ error: "Failed to analyze opportunity" });
+    }
+  });
 }

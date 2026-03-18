@@ -5,6 +5,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import {
   Shield, Briefcase, Trophy, CheckCircle2, Circle, Clock,
   AlertTriangle, Download, FileText, DollarSign, Users,
@@ -12,7 +15,8 @@ import {
   Lock, Unlock, BarChart3, Calendar, MapPin, BookOpen,
   ClipboardCheck, Layers, Globe, Sparkles, Building2,
   Activity, Lightbulb, Heart, Handshake, Scale,
-  Package, CheckSquare, XCircle,
+  Package, CheckSquare, XCircle, Upload, Camera, Search,
+  Loader2, Leaf,
 } from "lucide-react";
 
 type ApprovalStatus = "not-started" | "draft" | "in-review" | "approved" | "needs-revision";
@@ -466,6 +470,136 @@ const GRANT_PACKAGES: GrantPackage[] = [
       ],
     },
   },
+  {
+    id: "st-davids",
+    name: "St. David's Foundation",
+    fullName: "St. David's Foundation — We All Benefit 2.0: Building Economic Stability",
+    funder: "St. David's Foundation",
+    amount: "Up to $250,000 (individual) / $1,000,000 (collaborative)",
+    deadline: "Application Opens March 30, 2026",
+    deadlineUrgency: "approaching",
+    icon: Leaf,
+    color: "text-teal-600",
+    bgColor: "bg-teal-50 dark:bg-teal-950/30",
+    borderColor: "border-teal-200 dark:border-teal-800",
+    description: "Investments in community-informed organizations providing core economic stability services for historically marginalized communities, with a focus on increasing enrollment in public benefits that foster economic stability.",
+    competitiveEdge: [
+      "Three Realities methodology IS 'community-informed' — exactly what St. David's requires",
+      "LifeBridge platform handles benefits navigation and enrollment — direct alignment",
+      "14-platform ecosystem provides the comprehensive service infrastructure they fund",
+      "MCE provides minority business economic empowerment pipeline",
+      "MAP-GAP continuous improvement aligns with foundation's data-driven approach",
+      "Financial Literacy module directly supports economic stability for participants",
+    ],
+    sections: [
+      { id: "std-loi", name: "Letter of Intent / Application", description: "Organization overview, program description, population served, funding request", icon: FileText, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood + AI" },
+      { id: "std-narrative", name: "Program Narrative", description: "Community-informed program design, economic stability services, public benefits enrollment strategy", icon: BookOpen, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood + AI" },
+      { id: "std-budget", name: "Budget & Justification", description: "Line-item budget with cost allocation for economic stability services", icon: DollarSign, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood" },
+      { id: "std-community", name: "Community Voice Documentation", description: "Evidence of community-informed design — Three Realities analysis, stakeholder input, lived experience", icon: Users, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood" },
+      { id: "std-outcomes", name: "Outcomes & Evaluation Plan", description: "Measurable outcomes: benefits enrollment rates, economic stability indicators, participant economic health", icon: BarChart3, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood + AI" },
+      { id: "std-partnerships", name: "Partnership & Collaboration Letters", description: "Community organizations, benefits agencies, workforce partners in Central Texas", icon: Handshake, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood" },
+      { id: "std-org-capacity", name: "Organizational Capacity", description: "Board composition, leadership bios, financial statements, prior results", icon: Building2, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood" },
+      { id: "std-sustainability", name: "Sustainability Plan", description: "How economic stability services continue beyond St. David's funding", icon: Globe, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood" },
+    ],
+    phases: [
+      {
+        id: "collaborate", name: "1. Collaborate & Research", description: "Understand St. David's priorities and Central Texas landscape", status: "active",
+        tasks: [
+          { id: "stc1", task: "Review full NOFO when application opens March 30", owner: "Dr. Flood + AI", status: "pending", dueDate: "2026-03-30" },
+          { id: "stc2", task: "Research St. David's 2024-2030 strategic plan and priorities", owner: "AI", status: "in-progress", dueDate: "2026-03-25" },
+          { id: "stc3", task: "Map ThriveUp + LifeBridge capabilities to economic stability requirements", owner: "AI + Dr. Flood", status: "pending", dueDate: "2026-04-01" },
+          { id: "stc4", task: "Identify Central Texas community partners for collaborative application", owner: "Dr. Flood + Meredith", status: "pending", dueDate: "2026-04-05" },
+          { id: "stc5", task: "Gather economic stability data for target communities (Bastrop, Caldwell, Hays, Travis, Williamson)", owner: "AI", status: "pending", dueDate: "2026-04-03" },
+          { id: "stc6", task: "Determine individual vs. collaborative application strategy", owner: "Dr. Flood + Meredith", status: "pending", dueDate: "2026-04-05" },
+        ],
+      },
+      {
+        id: "build", name: "2. Build & Draft", description: "Draft application materials after NOFO review", status: "upcoming",
+        tasks: [
+          { id: "stb1", task: "Draft program narrative emphasizing community-informed design", owner: "AI + Dr. Flood Review", status: "pending", dueDate: "TBD (after NOFO)" },
+          { id: "stb2", task: "Develop budget — consider collaborative ($1M) vs individual ($250K)", owner: "Dr. Flood", status: "pending", dueDate: "TBD" },
+          { id: "stb3", task: "Document Three Realities community engagement process", owner: "Dr. Flood", status: "pending", dueDate: "TBD" },
+          { id: "stb4", task: "Design public benefits enrollment strategy using LifeBridge", owner: "AI + Dr. Flood Review", status: "pending", dueDate: "TBD" },
+          { id: "stb5", task: "Build outcomes framework around economic stability metrics", owner: "AI + Dr. Flood Review", status: "pending", dueDate: "TBD" },
+          { id: "stb6", task: "Secure partnership commitment letters from Central Texas orgs", owner: "Dr. Flood + Meredith", status: "pending", dueDate: "TBD" },
+        ],
+      },
+      {
+        id: "review", name: "3. Review & Approve", description: "Dr. Flood final review and approval", status: "upcoming",
+        tasks: [
+          { id: "str1", task: "Review and approve program narrative", owner: "Dr. Flood", status: "pending", dueDate: "TBD" },
+          { id: "str2", task: "Review and approve budget", owner: "Dr. Flood", status: "pending", dueDate: "TBD" },
+          { id: "str3", task: "Verify community voice documentation is authentic and complete", owner: "Dr. Flood", status: "pending", dueDate: "TBD" },
+          { id: "str4", task: "Final alignment check with St. David's priorities", owner: "Dr. Flood + Meredith", status: "pending", dueDate: "TBD" },
+        ],
+      },
+      {
+        id: "submit", name: "4. Package & Submit", description: "Submit through St. David's grants portal", status: "upcoming",
+        tasks: [
+          { id: "sts1", task: "Assemble final package per foundation format", owner: "Dr. Flood + AI", status: "pending", dueDate: "TBD" },
+          { id: "sts2", task: "Submit through St. David's online Grants Portal", owner: "Dr. Flood", status: "pending", dueDate: "TBD" },
+          { id: "sts3", task: "Confirm receipt and follow up timeline", owner: "Dr. Flood", status: "pending", dueDate: "TBD" },
+        ],
+      },
+      {
+        id: "pre-execute", name: "5. Pre-Execution Readiness", description: "Prepare for launch if awarded", status: "upcoming",
+        tasks: [
+          { id: "stp1", task: "Configure LifeBridge for public benefits enrollment tracking", owner: "AI", status: "pending", dueDate: "TBD" },
+          { id: "stp2", task: "Set up economic stability outcome tracking in platform", owner: "AI + Dr. Flood", status: "pending", dueDate: "TBD" },
+          { id: "stp3", task: "Establish Central Texas community partnerships", owner: "Dr. Flood + Meredith", status: "pending", dueDate: "TBD" },
+          { id: "stp4", task: "Design 90-day launch plan for economic stability services", owner: "Dr. Flood + AI", status: "pending", dueDate: "TBD" },
+        ],
+      },
+    ],
+    preExecutionChecklist: [
+      { id: "stpe-1", category: "Eligibility", item: "Organization is a 501(c)(3) or fiscal sponsor identified", status: "pending", notes: "ThriveUp Academy 501(c)(3)" },
+      { id: "stpe-2", category: "Eligibility", item: "Serves historically marginalized communities", status: "verified", notes: "Core mission alignment" },
+      { id: "stpe-3", category: "Eligibility", item: "Focus on economic stability services", status: "verified", notes: "Workforce, financial literacy, benefits enrollment" },
+      { id: "stpe-4", category: "Geography", item: "Operations in Central Texas service area (Bastrop, Caldwell, Hays, Travis, Williamson)", status: "action-needed", notes: "Confirm geographic eligibility or identify Central Texas partner" },
+      { id: "stpe-5", category: "Capacity", item: "Community-informed program design documented", status: "verified", notes: "Three Realities methodology" },
+      { id: "stpe-6", category: "Capacity", item: "Financial statements (last 2 years)", status: "action-needed", notes: "Compile audited financials" },
+      { id: "stpe-7", category: "Capacity", item: "Prior program outcomes documented", status: "pending", notes: "Gather pilot data" },
+      { id: "stpe-8", category: "Partnerships", item: "Central Texas community partners identified", status: "action-needed", notes: "Key for collaborative application ($1M track)" },
+      { id: "stpe-9", category: "Partnerships", item: "Benefits enrollment agency partnerships", status: "pending", notes: "Medicaid, CHIP, ACA enrollment partners" },
+      { id: "stpe-10", category: "Technology", item: "LifeBridge benefits navigation configured", status: "verified", notes: "LifeBridge platform integrated" },
+      { id: "stpe-11", category: "Technology", item: "Financial Literacy module ready", status: "verified", notes: "Full curriculum live in platform" },
+      { id: "stpe-12", category: "Technology", item: "Economic stability outcome tracking configured", status: "verified", notes: "Outcome Reporting + Workforce Dashboard" },
+    ],
+    winStrategy: {
+      differentiators: [
+        "Three Realities methodology IS community-informed design — not a checkbox, a methodology",
+        "LifeBridge platform provides actual benefits navigation infrastructure, not just referrals",
+        "14-platform ecosystem delivers comprehensive economic stability services under one roof",
+        "MCE + Financial Literacy create entrepreneurship-to-wealth pipeline, not just benefits enrollment",
+        "MAP-GAP ensures continuous improvement — foundation sees measurable progress, not static programs",
+        "Collaborative application ($1M track) with Meredith + Central Texas partners maximizes funding",
+      ],
+      reviewerPriorities: [
+        "Community-informed design — evidence that community voice drives the program, not assumptions",
+        "Focus on public benefits enrollment (Medicaid, CHIP, ACA, SNAP, etc.)",
+        "Serving historically marginalized communities with documented need",
+        "Economic stability outcomes beyond just job placement",
+        "Organizational capacity to deliver in Central Texas service area",
+        "Sustainability beyond foundation funding period",
+      ],
+      scoringTips: [
+        "Lead with Three Realities — show community voice is methodological, not performative",
+        "Emphasize LifeBridge benefits navigation as core infrastructure",
+        "If applying as collaborative: show each partner's unique contribution",
+        "Include specific public benefits enrollment targets with baseline data",
+        "Show how technology reduces barriers to benefits access",
+        "Reference St. David's 2024-2030 strategic plan language in your narrative",
+      ],
+      commonPitfalls: [
+        "Applying without operations in Central Texas service area",
+        "Generic 'economic empowerment' language without specific benefits enrollment strategy",
+        "No evidence of community input in program design",
+        "Budget misaligned with economic stability activities",
+        "Individual application when collaborative would be stronger and unlock more funding",
+        "Ignoring the 'public benefits' focus — this isn't general workforce development",
+      ],
+    },
+  },
 ];
 
 function StatusBadge({ status }: { status: ApprovalStatus }) {
@@ -489,6 +623,244 @@ function TaskStatusIcon({ status }: { status: PhaseTask["status"] }) {
   if (status === "done") return <CheckCircle2 className="h-4 w-4 text-emerald-600" />;
   if (status === "in-progress") return <Activity className="h-4 w-4 text-blue-500 animate-pulse" />;
   return <Circle className="h-4 w-4 text-gray-400" />;
+}
+
+interface ScanResult {
+  grantName: string;
+  funder: string;
+  amount: string;
+  deadline: string;
+  description: string;
+  eligibility: string[];
+  fitScore: number;
+  fitAnalysis: string[];
+  platformAlignment: string[];
+  gaps: string[];
+  recommendation: string;
+  nextSteps: string[];
+}
+
+function OpportunityScanner() {
+  const { toast } = useToast();
+  const [scanResult, setScanResult] = useState<ScanResult | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [textInput, setTextInput] = useState("");
+  const [scanMode, setScanMode] = useState<"upload" | "text">("upload");
+
+  const scanMutation = useMutation({
+    mutationFn: async (data: { image?: string; text?: string }) => {
+      const res = await apiRequest("POST", "/api/grants/scan-opportunity", data);
+      return res.json() as Promise<ScanResult>;
+    },
+    onSuccess: (result) => {
+      setScanResult(result);
+      toast({ title: "Opportunity analyzed successfully" });
+    },
+    onError: () => {
+      toast({ title: "Analysis failed — try again or paste text instead", variant: "destructive" });
+    },
+  });
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const base64 = ev.target?.result as string;
+      setPreviewUrl(base64);
+      scanMutation.mutate({ image: base64 });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleTextAnalysis = () => {
+    if (!textInput.trim()) return;
+    scanMutation.mutate({ text: textInput });
+  };
+
+  return (
+    <div className="space-y-4">
+      <Card className="p-4">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="h-10 w-10 rounded-lg bg-violet-100 dark:bg-violet-900/40 flex items-center justify-center">
+            <Camera className="h-5 w-5 text-violet-600" />
+          </div>
+          <div>
+            <h3 className="font-bold text-lg" data-testid="text-scanner-title">Opportunity Scanner</h3>
+            <p className="text-sm text-muted-foreground">Upload a screenshot or paste text from any grant opportunity — get instant fit analysis</p>
+          </div>
+        </div>
+
+        <div className="flex gap-2 mb-4">
+          <Button
+            variant={scanMode === "upload" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setScanMode("upload")}
+            data-testid="button-scan-upload"
+          >
+            <Upload className="h-4 w-4 mr-1.5" />
+            Upload Screenshot
+          </Button>
+          <Button
+            variant={scanMode === "text" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setScanMode("text")}
+            data-testid="button-scan-text"
+          >
+            <FileText className="h-4 w-4 mr-1.5" />
+            Paste Text
+          </Button>
+        </div>
+
+        {scanMode === "upload" ? (
+          <div className="space-y-3">
+            <label
+              htmlFor="grant-upload"
+              className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
+              data-testid="label-upload-area"
+            >
+              {previewUrl ? (
+                <img src={previewUrl} alt="Uploaded grant opportunity" className="h-full object-contain rounded" />
+              ) : (
+                <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                  <Upload className="h-8 w-8" />
+                  <p className="text-sm font-medium">Drop a screenshot here or click to upload</p>
+                  <p className="text-xs">PNG, JPG, or PDF — snap a photo of any grant flyer, email, or posting</p>
+                </div>
+              )}
+              <input id="grant-upload" type="file" className="hidden" accept="image/*,.pdf" onChange={handleFileUpload} data-testid="input-file-upload" />
+            </label>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            <textarea
+              value={textInput}
+              onChange={(e) => setTextInput(e.target.value)}
+              placeholder="Paste the grant opportunity description, email, or any text about the funding opportunity here..."
+              className="w-full h-40 p-3 text-sm border rounded-lg resize-none bg-background focus:outline-none focus:ring-2 focus:ring-primary/20"
+              data-testid="input-text-paste"
+            />
+            <Button
+              onClick={handleTextAnalysis}
+              disabled={!textInput.trim() || scanMutation.isPending}
+              data-testid="button-analyze-text"
+            >
+              {scanMutation.isPending ? (
+                <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Analyzing...</>
+              ) : (
+                <><Search className="h-4 w-4 mr-2" />Analyze Opportunity</>
+              )}
+            </Button>
+          </div>
+        )}
+
+        {scanMutation.isPending && (
+          <div className="mt-4 p-4 rounded-lg bg-muted/50 flex items-center gap-3">
+            <Loader2 className="h-5 w-5 animate-spin text-primary" />
+            <div>
+              <p className="text-sm font-medium">Analyzing opportunity...</p>
+              <p className="text-xs text-muted-foreground">Extracting details, scoring fit, mapping to platform capabilities</p>
+            </div>
+          </div>
+        )}
+      </Card>
+
+      {scanResult && (
+        <Card className="p-4 border-2 border-primary/20">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-bold text-lg">{scanResult.grantName}</h3>
+            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${
+              scanResult.fitScore >= 80 ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300" :
+              scanResult.fitScore >= 60 ? "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300" :
+              "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300"
+            }`}>
+              <Target className="h-4 w-4" />
+              <span className="font-bold text-sm">{scanResult.fitScore}% Fit</span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+            <div className="p-3 rounded-lg bg-muted/50">
+              <p className="text-xs text-muted-foreground">Funder</p>
+              <p className="text-sm font-medium">{scanResult.funder}</p>
+            </div>
+            <div className="p-3 rounded-lg bg-muted/50">
+              <p className="text-xs text-muted-foreground">Amount</p>
+              <p className="text-sm font-medium">{scanResult.amount}</p>
+            </div>
+            <div className="p-3 rounded-lg bg-muted/50">
+              <p className="text-xs text-muted-foreground">Deadline</p>
+              <p className="text-sm font-medium">{scanResult.deadline}</p>
+            </div>
+          </div>
+
+          <p className="text-sm mb-4">{scanResult.description}</p>
+
+          {scanResult.eligibility.length > 0 && (
+            <div className="mb-4">
+              <h4 className="text-sm font-semibold mb-2">Eligibility Requirements</h4>
+              <ul className="space-y-1">
+                {scanResult.eligibility.map((e, i) => (
+                  <li key={i} className="flex items-start gap-2 text-sm">
+                    <ClipboardCheck className="h-4 w-4 text-blue-600 mt-0.5 shrink-0" />
+                    <span>{e}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <h4 className="text-sm font-semibold mb-2 flex items-center gap-1.5">
+                <CheckCircle2 className="h-4 w-4 text-emerald-600" /> Platform Alignment
+              </h4>
+              <ul className="space-y-1">
+                {scanResult.platformAlignment.map((a, i) => (
+                  <li key={i} className="flex items-start gap-2 text-sm">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 mt-0.5 shrink-0" />
+                    <span>{a}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-sm font-semibold mb-2 flex items-center gap-1.5">
+                <AlertTriangle className="h-4 w-4 text-amber-500" /> Gaps to Address
+              </h4>
+              <ul className="space-y-1">
+                {scanResult.gaps.length > 0 ? scanResult.gaps.map((g, i) => (
+                  <li key={i} className="flex items-start gap-2 text-sm">
+                    <AlertTriangle className="h-3.5 w-3.5 text-amber-500 mt-0.5 shrink-0" />
+                    <span>{g}</span>
+                  </li>
+                )) : (
+                  <li className="text-sm text-muted-foreground">No significant gaps identified</li>
+                )}
+              </ul>
+            </div>
+          </div>
+
+          <div className="mb-4 p-3 rounded-lg bg-primary/5 border border-primary/10">
+            <h4 className="text-sm font-semibold mb-1">Recommendation</h4>
+            <p className="text-sm">{scanResult.recommendation}</p>
+          </div>
+
+          <div>
+            <h4 className="text-sm font-semibold mb-2">Next Steps</h4>
+            <ol className="space-y-1">
+              {scanResult.nextSteps.map((s, i) => (
+                <li key={i} className="flex items-start gap-2 text-sm">
+                  <span className="h-5 w-5 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold shrink-0">{i + 1}</span>
+                  <span>{s}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </Card>
+      )}
+    </div>
+  );
 }
 
 export default function GrantPackagesPage() {
@@ -591,7 +963,7 @@ export default function GrantPackagesPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {GRANT_PACKAGES.map((grant) => {
           const grantApproved = grant.sections.filter((s) => getSectionStatus(s.id, s.status) === "approved").length;
           const grantTotal = grant.sections.length;
@@ -684,6 +1056,10 @@ export default function GrantPackagesPage() {
           <TabsTrigger value="win-strategy" data-testid="tab-win-strategy">
             <Lightbulb className="h-4 w-4 mr-1.5" />
             Win Strategy
+          </TabsTrigger>
+          <TabsTrigger value="scanner" data-testid="tab-scanner">
+            <Camera className="h-4 w-4 mr-1.5" />
+            Opportunity Scanner
           </TabsTrigger>
         </TabsList>
 
@@ -1094,6 +1470,10 @@ export default function GrantPackagesPage() {
               </CardContent>
             </Card>
           </div>
+        </TabsContent>
+
+        <TabsContent value="scanner" className="space-y-4 mt-4">
+          <OpportunityScanner />
         </TabsContent>
       </Tabs>
 
