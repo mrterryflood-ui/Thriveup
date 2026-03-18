@@ -126,6 +126,10 @@ const ApexAcceleratorsPage = lazy(() => import("@/pages/apex-accelerators"));
 const ResearchHubPage = lazy(() => import("@/pages/research-hub"));
 const ChwDashboardPage = lazy(() => import("@/pages/chw-dashboard"));
 const MapGapFrameworkPage = lazy(() => import("@/pages/mapgap-framework"));
+const TransparencyDashboardPage = lazy(() => import("@/pages/transparency-dashboard"));
+const CaseStudiesPage = lazy(() => import("@/pages/case-studies"));
+const ProgramDesignerPage = lazy(() => import("@/pages/program-designer"));
+const ProgramLifecyclePage = lazy(() => import("@/pages/program-lifecycle"));
 
 function PageFallback() {
   return (
@@ -271,6 +275,10 @@ function AppRouter() {
       <Route path="/research-hub" component={ResearchHubPage} />
       <Route path="/chw-dashboard" component={ChwDashboardPage} />
       <Route path="/mapgap-framework" component={MapGapFrameworkPage} />
+      <Route path="/transparency" component={TransparencyDashboardPage} />
+      <Route path="/case-studies" component={CaseStudiesPage} />
+      <Route path="/program-designer" component={ProgramDesignerPage} />
+      <Route path="/program-lifecycle" component={ProgramLifecyclePage} />
       <Route component={NotFound} />
     </Switch>
   );

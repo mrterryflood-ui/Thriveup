@@ -287,10 +287,10 @@ export default function LandingPage() {
             We Plan. We Coordinate.<br />We Build. We Measure.
           </h1>
           <p className="text-base sm:text-lg md:text-xl text-white/80 max-w-3xl mx-auto mb-3 sm:mb-4 px-2" data-testid="text-hero-subtitle">
-            Powered by implementation science, criminal justice research, HR management, and I-O psychology — our ecosystem transforms how communities address health equity, workforce development, criminal justice, and public safety.
+            We build with the precision of engineers, the rigor of scientists, the compassion of community health workers, and the coordination of seasoned program managers — with transparency woven into every decision, communication, and evaluation.
           </p>
           <p className="text-xs sm:text-sm md:text-base text-white/60 max-w-2xl mx-auto mb-6 sm:mb-8 px-2">
-            MAP-GAP is the operating system that turns academic research into working technology and sustained community impact. We don't just propose — we execute with fidelity and measure every step.
+            Powered by implementation science, criminal justice research, HR management, and I-O psychology — MAP-GAP turns academic research into working technology and sustained community impact. We don't propose. We execute with fidelity and measure every step.
           </p>
           <div className="flex flex-wrap justify-center gap-2 sm:gap-3 mb-8 sm:mb-10 px-4">
             {DISCIPLINES.map((d) => (

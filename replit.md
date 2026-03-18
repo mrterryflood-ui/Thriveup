@@ -60,6 +60,11 @@ Core architectural features include:
 - **Business Plan:** Comprehensive shareable business plan for ecosystem overview, MVV, pipeline, competitive advantages, funding, and leadership.
 - **Research & Implementation Science Hub:** Interactive RE-AIM evaluation tool (5 domains, 20 questions), CFIR explorer (5 domains, 39 constructs), research-to-practice translation pipeline with MAP-GAP integration, curated research library (12 resources from SAMHSA, NIRN, CDC, PCORI). For implementation scientists, researchers, public health professionals.
 - **Community Health Worker Dashboard:** Caseload management, home visit logging with best practices, screening/referral tracking, community resource connector (8 resource categories), professional development tracker (10 training modules), CHW certification pathway. For frontline health workers and community navigators.
+- **MAP-GAP Living Framework Page:** Interactive 6-step cycle visualization, Three Realities explainer, methodology registry (MAP-GAP, SALP, Three Realities, MG-PATR), MAP-GAP in Action tabbed scenarios. Under Research & Implementation sidebar.
+- **Stakeholder Transparency Dashboard:** 7 role-based views (Funder, Partner, School, Justice, Parent, Staff, Participant) showing the same data presented for each stakeholder's context. SALP fidelity indicators panel, SMART goals tracker. Under Community Intelligence sidebar.
+- **Interactive Program Designer:** MAP-GAP-driven grant capability mapping. 5 grant profiles (DFC, WIOA, Second Chance Act, SAMHSA, Truist Foundation) with requirement mapping, capability inventory, gap analysis matrix, and execution plan builder. Under Grant Engine sidebar.
+- **Program Lifecycle Pipeline:** Visual kanban showing programs through 6 lifecycle stages (Discovery → Assessment → Design → Implementation → Measurement → Improvement). 8 program cards with fidelity scores, risk levels, and task progress. Under Grant Engine sidebar.
+- **Case Study Deep Dives:** 4 comprehensive case studies (Substance Use Prevention, Workforce Reentry, Youth Development, Coalition Building) with Challenge → MAP-GAP Application → Implementation → Measured Outcomes → Lessons Learned structure. Under Research & Implementation sidebar.
 
 ## External Dependencies
 - **Database:** PostgreSQL (Neon-backed)

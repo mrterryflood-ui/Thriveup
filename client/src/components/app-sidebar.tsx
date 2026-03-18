@@ -49,6 +49,7 @@ interface NavItem {
 
 const communityIntelItems: NavItem[] = [
   { title: "Dashboard", url: "/dashboard", icon: Home },
+  { title: "Transparency Dashboard", url: "/transparency", icon: Activity },
   { title: "Community", url: "/community", icon: Globe },
   { title: "Resource Finder", url: "/resources", icon: MapPin },
   { title: "Impact Dashboard", url: "/impact", icon: TrendingUp },
@@ -89,6 +90,8 @@ const grantEngineItems: NavItem[] = [
   { title: "Stakeholder Deck", url: "/presentation", icon: Presentation },
   { title: "Platform Metrics", url: "/platform-metrics", icon: BarChart3 },
   { title: "APEX Accelerators", url: "/apex-accelerators", icon: Landmark },
+  { title: "Program Designer", url: "/program-designer", icon: Target },
+  { title: "Program Lifecycle", url: "/program-lifecycle", icon: RefreshCw },
 ];
 
 const aiToolsItems: NavItem[] = [
@@ -162,6 +165,7 @@ const healthWellnessItems: NavItem[] = [
 const researchItems: NavItem[] = [
   { title: "MAP-GAP Framework", url: "/mapgap-framework", icon: RefreshCw },
   { title: "Research Hub", url: "/research-hub", icon: Microscope },
+  { title: "Case Studies", url: "/case-studies", icon: BookOpen },
   { title: "Implementation Plan", url: "/implementation", icon: ClipboardList },
   { title: "MAP-GAP CQI", url: "/cqi", icon: Target },
 ];
