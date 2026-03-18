@@ -215,12 +215,12 @@ APPLICATION DEADLINE: April 14, 2026. SF-424, SF-424A, Project Narrative, Budget
       {
         id: "build", name: "2. Build & Draft", description: "Write narrative sections, develop budget, compile docs", status: "active",
         tasks: [
-          { id: "b1", task: "Draft Statement of Need with local data", owner: "AI + Dr. Flood Review", status: "in-progress", dueDate: "2026-03-22" },
-          { id: "b2", task: "Draft Program Design section", owner: "AI + Dr. Flood Review", status: "pending", dueDate: "2026-03-25" },
-          { id: "b3", task: "Build line-item budget", owner: "Dr. Flood", status: "pending", dueDate: "2026-03-27" },
-          { id: "b4", task: "Finalize Logic Model with platform data", owner: "AI + Dr. Flood Review", status: "in-progress", dueDate: "2026-03-24" },
-          { id: "b5", task: "Draft evaluation methodology", owner: "Better Science Lab + Dr. Flood", status: "pending", dueDate: "2026-03-28" },
-          { id: "b6", task: "Compile coalition membership documentation", owner: "Dr. Flood", status: "pending", dueDate: "2026-03-26" },
+          { id: "b1", task: "Draft Statement of Need with local data", owner: "AI + Dr. Flood Review", status: "in-progress", dueDate: "2026-03-22", guidance: "Use CDC PLACES, SVI, and YRBS data already collected. Statement of Need should show: (1) prevalence of youth substance use in Austin/Travis County, (2) disparities by race/neighborhood, (3) gap between need and current services, (4) why a coalition approach is necessary. The AI can draft this from your data — go to Sections & Approval tab.", aiCanHelp: true, aiAction: "Draft Statement of Need section" },
+          { id: "b2", task: "Draft Program Design section", owner: "AI + Dr. Flood Review", status: "pending", dueDate: "2026-03-25", guidance: "Program Design should map your 14 platforms to DFC strategies. WAIT until coalition partners are confirmed — you need to name specific coalition activities and partner roles in this section. Partners must be in this document.", aiCanHelp: true, aiAction: "Draft Program Design section" },
+          { id: "b3", task: "Build line-item budget", owner: "Dr. Flood", status: "pending", dueDate: "2026-03-27", guidance: "DFC budget is $125K/year max. Key categories: Personnel (Project Director, Coalition Coordinator), Travel, Supplies, Contractual (evaluator), Other (meeting costs, prevention materials). Remember: dollar-for-dollar match required — document in-kind contributions from coalition partners.", aiCanHelp: true, aiAction: "Generate budget template with line items" },
+          { id: "b4", task: "Finalize Logic Model with platform data", owner: "AI + Dr. Flood Review", status: "in-progress", dueDate: "2026-03-24", guidance: "Logic Model must show: Inputs (coalition, platforms, funding) → Activities (prevention strategies, data collection, coalition meetings) → Outputs (# trained, # events, # data points) → Short-term Outcomes (reduced perception of risk) → Long-term Outcomes (reduced youth substance use). The AI can generate this from your platform capabilities.", aiCanHelp: true, aiAction: "Generate Logic Model framework" },
+          { id: "b5", task: "Draft evaluation methodology", owner: "Better Science Lab + Dr. Flood", status: "pending", dueDate: "2026-03-28", guidance: "DFC requires 4 core measures collected via community surveys. Better Science Lab should design the methodology. Include: survey instruments, sampling strategy, data collection timeline, analysis plan. The evaluator must be independent of program delivery.", aiCanHelp: true, aiAction: "Draft evaluation methodology outline" },
+          { id: "b6", task: "Compile coalition membership documentation", owner: "Dr. Flood", status: "pending", dueDate: "2026-03-26", guidance: "You need: (1) Complete membership roster with all 12 sectors, (2) Signed MOUs from each member, (3) Coalition bylaws, (4) Meeting minutes from at least 2 meetings, (5) Letters of support from each member organization. THIS IS WHERE YOUR PARTNER OUTREACH MATTERS — you can't compile what you don't have yet.", aiCanHelp: true, aiAction: "Generate coalition roster template and MOU template" },
         ],
       },
       {
@@ -253,21 +253,21 @@ APPLICATION DEADLINE: April 14, 2026. SF-424, SF-424A, Project Narrative, Budget
       },
     ],
     preExecutionChecklist: [
-      { id: "pe-1", category: "Registration", item: "SAM.gov registration active and current", status: "verified", notes: "Verify UEI number is valid" },
-      { id: "pe-2", category: "Registration", item: "Grants.gov account active", status: "verified", notes: "AOR credentials confirmed" },
-      { id: "pe-3", category: "Registration", item: "DUNS number on file", status: "verified", notes: "" },
-      { id: "pe-4", category: "Compliance", item: "501(c)(3) determination letter attached", status: "pending", notes: "ThriveUp Academy 501(c)(3)" },
-      { id: "pe-5", category: "Compliance", item: "Audit report (if applicable) included", status: "action-needed", notes: "Check if single audit required" },
-      { id: "pe-6", category: "Compliance", item: "Indirect cost rate agreement", status: "pending", notes: "Negotiate with cognizant agency or use de minimis 10%" },
-      { id: "pe-7", category: "Coalition", item: "All 12 sectors have confirmed representatives", status: "action-needed", notes: "Verify sector coverage completeness" },
-      { id: "pe-8", category: "Coalition", item: "MOUs signed with key partners", status: "pending", notes: "Priority: schools, law enforcement, healthcare" },
-      { id: "pe-9", category: "Data", item: "Baseline data collection instruments ready", status: "verified", notes: "DFC Reporting module has all 4 core measures" },
-      { id: "pe-10", category: "Data", item: "IRB approval or exemption documented", status: "action-needed", notes: "Contact university partner for IRB review" },
-      { id: "pe-11", category: "Technology", item: "Platform configured for DFC program tracking", status: "verified", notes: "Coalition Dashboard, Prevention Hub, DFC Reporting all live" },
-      { id: "pe-12", category: "Technology", item: "Staff accounts and permissions configured", status: "pending", notes: "Set up after award notification" },
-      { id: "pe-13", category: "Staffing", item: "Project Director identified", status: "verified", notes: "Dr. Terry Flood" },
-      { id: "pe-14", category: "Staffing", item: "Evaluator identified or RFP drafted", status: "pending", notes: "Better Science Lab as research partner" },
-      { id: "pe-15", category: "Financial", item: "Fiscal systems ready for federal funds", status: "pending", notes: "Chart of accounts, time tracking, match documentation" },
+      { id: "pe-1", category: "Registration", item: "SAM.gov registration active and current", status: "verified", notes: "Verify UEI number is valid", guidance: "Your SAM.gov registration must be active and current. Verify at sam.gov — search by ThriveUp Academy's UEI. Registration must be renewed annually. Ensure NAICS codes include 624190 (Other Individual and Family Services) and 611710 (Educational Support Services).", resources: [{ label: "SAM.gov", url: "https://sam.gov" }] },
+      { id: "pe-2", category: "Registration", item: "Grants.gov account active", status: "verified", notes: "AOR credentials confirmed", guidance: "Your Authorized Organization Representative (AOR) must have an active Grants.gov account. The AOR is the person who will submit the application. Verify login credentials now — don't discover issues on submission day.", resources: [{ label: "Grants.gov", url: "https://www.grants.gov" }] },
+      { id: "pe-3", category: "Registration", item: "DUNS number on file", status: "verified", notes: "", guidance: "DUNS numbers have been replaced by UEI (Unique Entity Identifier) through SAM.gov. Confirm your UEI is on file and matches across all systems." },
+      { id: "pe-4", category: "Compliance", item: "501(c)(3) determination letter attached", status: "pending", notes: "ThriveUp Academy 501(c)(3)", guidance: "Attach your IRS 501(c)(3) determination letter. If your status is less than 3 years old, include your most recent Form 990 as well. DFC requires the applicant to be a 501(c)(3) or unit of local government." },
+      { id: "pe-5", category: "Compliance", item: "Audit report (if applicable) included", status: "action-needed", notes: "Check if single audit required", guidance: "If ThriveUp Academy spent $750,000+ in federal funds in the most recent fiscal year, a Single Audit (2 CFR 200 Subpart F) is required. If you haven't received federal funds yet, you're exempt — but document that clearly. If you need an audit, engage a CPA firm experienced with federal audits immediately.", resources: [{ label: "2 CFR 200 Audit Requirements", url: "https://www.ecfr.gov/current/title-2/subtitle-A/chapter-II/part-200/subpart-F" }] },
+      { id: "pe-6", category: "Compliance", item: "Indirect cost rate agreement", status: "pending", notes: "Negotiate with cognizant agency or use de minimis 10%", guidance: "You have two options: (1) Negotiate an indirect cost rate with your cognizant federal agency, or (2) Use the de minimis rate of 10% of modified total direct costs. For a first-time federal applicant, the de minimis 10% rate is the fastest path — no negotiation needed, just document it in your budget narrative." },
+      { id: "pe-7", category: "Coalition", item: "All 12 sectors have confirmed representatives", status: "action-needed", notes: "Verify sector coverage completeness", guidance: "This is your MOST CRITICAL action item. DFC requires all 12 sectors:\n1. Youth\n2. Parents\n3. Business community\n4. Media\n5. Schools\n6. Youth-serving organizations\n7. Law enforcement\n8. Religious/fraternal\n9. Civic/volunteer groups\n10. Healthcare professionals\n11. State/local government\n12. Other substance use organizations\n\nMap your current members to sectors. Identify gaps. Use the 'Find Partners' button below to get AI recommendations for Austin-area organizations to fill each gap." },
+      { id: "pe-8", category: "Coalition", item: "MOUs signed with key partners", status: "pending", notes: "Priority: schools, law enforcement, healthcare", guidance: "MOUs should specify: (1) each partner's role in the coalition, (2) specific contributions (staff time, meeting space, data sharing, in-kind), (3) commitment period (5 years to match grant). Priority sectors for MOUs: schools (Austin ISD), law enforcement (APD), healthcare (CommUnityCare or Integral Care). Use 'Outreach Templates' button to generate MOU cover letters." },
+      { id: "pe-9", category: "Data", item: "Baseline data collection instruments ready", status: "verified", notes: "DFC Reporting module has all 4 core measures", guidance: "Your platform tracks all 4 DFC core measures: (1) past 30-day use, (2) perception of risk/harm, (3) perception of disapproval, (4) age of first use. Ensure survey instruments match DFC's required questions exactly." },
+      { id: "pe-10", category: "Data", item: "IRB approval or exemption documented", status: "action-needed", notes: "Contact university partner for IRB review", guidance: "DFC data collection involves surveying youth about substance use, which typically requires IRB review. Contact UT Austin's Office of Research Support (IRB office) or Texas State University for an IRB review. If your data collection uses only anonymous aggregate surveys, you may qualify for IRB exemption — but you still need the exemption letter documented.", resources: [{ label: "UT Austin IRB", url: "https://research.utexas.edu/ors/human-subjects/" }] },
+      { id: "pe-11", category: "Technology", item: "Platform configured for DFC program tracking", status: "verified", notes: "Coalition Dashboard, Prevention Hub, DFC Reporting all live", guidance: "Your Coalition Dashboard, Prevention Hub, and DFC Reporting module are operational. Verify they can export data in formats SAMHSA requires for semi-annual progress reports." },
+      { id: "pe-12", category: "Technology", item: "Staff accounts and permissions configured", status: "pending", notes: "Set up after award notification", guidance: "This can be completed post-award during the 90-day startup period. Plan for: Project Director account, Coalition Coordinator account, Evaluator read-only access, and coalition member portal access." },
+      { id: "pe-13", category: "Staffing", item: "Project Director identified", status: "verified", notes: "Dr. Terry Flood", guidance: "Dr. Terry Flood is confirmed as Project Director. Ensure his bio/CV is updated to reflect relevant coalition leadership and substance use prevention experience. DFC reviewers want to see the PD has community coalition experience." },
+      { id: "pe-14", category: "Staffing", item: "Evaluator identified or RFP drafted", status: "pending", notes: "Better Science Lab as research partner", guidance: "Better Science Lab is your evaluation partner. Confirm their commitment with a letter of support and include their evaluation approach in the application. They should be listed as a subcontractor in the budget. Ensure they have experience with SAMHSA/DFC evaluation requirements and can help with the 4 core measures analysis." },
+      { id: "pe-15", category: "Financial", item: "Fiscal systems ready for federal funds", status: "pending", notes: "Chart of accounts, time tracking, match documentation", guidance: "Federal grants require: (1) A chart of accounts that separates DFC funds from other funding, (2) Time-and-effort tracking for all staff charged to the grant, (3) Match documentation system to track your $125K/year in-kind match, (4) Financial policies manual. If you don't have these, consider hiring a part-time grants accountant or contracting with a fiscal sponsor experienced in federal grants." },
     ],
     winStrategy: {
       differentiators: [
@@ -2774,20 +2774,103 @@ export default function GrantPackagesPage() {
                                   </Badge>
                                 </div>
                               </div>
-                              {taskTyped.guidance && (
-                                <div className="px-3 pb-3 pl-10">
-                                  <div className="p-2.5 rounded-md bg-muted/40 border text-xs">
-                                    <div className="flex items-start gap-1.5">
-                                      <Lightbulb className="h-3.5 w-3.5 text-amber-500 mt-0.5 shrink-0" />
-                                      <p className="whitespace-pre-line">{taskTyped.guidance}</p>
-                                    </div>
-                                    {taskTyped.aiCanHelp && taskTyped.aiAction && (
-                                      <div className="mt-2 pt-2 border-t flex items-center gap-2">
-                                        <Sparkles className="h-3 w-3 text-violet-500" />
-                                        <span className="text-violet-600 dark:text-violet-400 font-medium">AI can help: {taskTyped.aiAction}</span>
+                              {(taskTyped.guidance || taskTyped.aiCanHelp) && (
+                                <div className="px-3 pb-3 pl-10 space-y-2">
+                                  {taskTyped.guidance && (
+                                    <div className="p-2.5 rounded-md bg-muted/40 border text-xs">
+                                      <div className="flex items-start gap-1.5">
+                                        <Lightbulb className="h-3.5 w-3.5 text-amber-500 mt-0.5 shrink-0" />
+                                        <p className="whitespace-pre-line">{taskTyped.guidance}</p>
                                       </div>
-                                    )}
-                                  </div>
+                                    </div>
+                                  )}
+
+                                  {(() => {
+                                    const isPartnerTask = task.task.toLowerCase().includes("partner") || task.task.toLowerCase().includes("coalition") || task.task.toLowerCase().includes("employer") || task.task.toLowerCase().includes("lwdb") || task.task.toLowerCase().includes("stakeholder");
+                                    const pipelineAiResult = checklistAiResults[`pipeline-${task.id}`];
+                                    const pipelineLoading = checklistAiLoading === `pipeline-${task.id}`;
+                                    return (
+                                      <>
+                                        <div className="flex flex-wrap gap-2">
+                                          <Button
+                                            size="sm"
+                                            variant="outline"
+                                            className="text-xs h-7"
+                                            disabled={pipelineLoading}
+                                            onClick={() => handleChecklistAiAssist(`pipeline-${task.id}`, task.task, "action-guide")}
+                                            data-testid={`button-pipeline-guide-${task.id}`}
+                                          >
+                                            {pipelineLoading && checklistAiLoadingType === "action-guide" ? (
+                                              <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                                            ) : (
+                                              <Sparkles className="h-3 w-3 mr-1" />
+                                            )}
+                                            Step-by-Step Guide
+                                          </Button>
+                                          {isPartnerTask && (
+                                            <>
+                                              <Button
+                                                size="sm"
+                                                variant="outline"
+                                                className="text-xs h-7 border-violet-300 text-violet-700 dark:border-violet-700 dark:text-violet-300"
+                                                disabled={pipelineLoading}
+                                                onClick={() => handleChecklistAiAssist(`pipeline-${task.id}`, task.task, "find-partners")}
+                                                data-testid={`button-pipeline-partners-${task.id}`}
+                                              >
+                                                {pipelineLoading && checklistAiLoadingType === "find-partners" ? (
+                                                  <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                                                ) : (
+                                                  <Search className="h-3 w-3 mr-1" />
+                                                )}
+                                                Find Partners
+                                              </Button>
+                                              <Button
+                                                size="sm"
+                                                variant="outline"
+                                                className="text-xs h-7 border-blue-300 text-blue-700 dark:border-blue-700 dark:text-blue-300"
+                                                disabled={pipelineLoading}
+                                                onClick={() => handleChecklistAiAssist(`pipeline-${task.id}`, task.task, "outreach-template")}
+                                                data-testid={`button-pipeline-template-${task.id}`}
+                                              >
+                                                {pipelineLoading && checklistAiLoadingType === "outreach-template" ? (
+                                                  <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                                                ) : (
+                                                  <Pencil className="h-3 w-3 mr-1" />
+                                                )}
+                                                Outreach Templates
+                                              </Button>
+                                            </>
+                                          )}
+                                        </div>
+
+                                        {pipelineAiResult && (
+                                          <div className="p-3 rounded-lg border bg-background">
+                                            <div className="flex items-center justify-between mb-2">
+                                              <p className="text-xs font-semibold flex items-center gap-1.5">
+                                                <Sparkles className="h-3.5 w-3.5 text-violet-500" />
+                                                {pipelineAiResult.type === "find-partners" ? "Partner Recommendations" : pipelineAiResult.type === "outreach-template" ? "Outreach Templates" : "Action Guide"}
+                                              </p>
+                                              <Button
+                                                size="sm"
+                                                variant="ghost"
+                                                className="text-xs h-6 px-2"
+                                                onClick={() => {
+                                                  navigator.clipboard.writeText(pipelineAiResult.content);
+                                                  toast({ title: "Copied to clipboard" });
+                                                }}
+                                                data-testid={`button-copy-pipeline-${task.id}`}
+                                              >
+                                                <Upload className="h-3 w-3 mr-1" /> Copy
+                                              </Button>
+                                            </div>
+                                            <div className="text-sm prose prose-sm dark:prose-invert max-w-none whitespace-pre-line">
+                                              {pipelineAiResult.content}
+                                            </div>
+                                          </div>
+                                        )}
+                                      </>
+                                    );
+                                  })()}
                                 </div>
                               )}
                             </div>
