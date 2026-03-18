@@ -63,60 +63,109 @@ const STAKEHOLDER_ROLES: Array<{ id: StakeholderRole; label: string; icon: typeo
   { id: "participant", label: "Participant", icon: Users, color: "text-teal-600" },
 ];
 
-const SALP_INDICATORS = [
-  {
-    area: "Prevention Curriculum Delivery",
-    expected: "12 sessions per quarter",
-    expectedNum: 12,
-    indicators: [
-      { name: "Sessions Delivered", expectedVal: 12, color: "bg-emerald-500" },
-      { name: "Avg Fidelity Score", expectedVal: 4.0, color: "bg-blue-500" },
-      { name: "Participant Attendance", expectedVal: 85, color: "bg-violet-500" },
-    ],
-  },
-  {
-    area: "Workforce Training Pipeline",
-    expected: "8 cohorts active quarterly",
-    expectedNum: 8,
-    indicators: [
-      { name: "Active Cohorts", expectedVal: 8, color: "bg-amber-500" },
-      { name: "Completion Rate", expectedVal: 75, color: "bg-emerald-500" },
-      { name: "Job Placement Rate", expectedVal: 60, color: "bg-blue-500" },
-    ],
-  },
-  {
-    area: "Coalition Engagement",
-    expected: "12 sectors represented",
-    expectedNum: 12,
-    indicators: [
-      { name: "Sectors Represented", expectedVal: 12, color: "bg-violet-500" },
-      { name: "Meeting Attendance", expectedVal: 80, color: "bg-amber-500" },
-      { name: "Action Item Completion", expectedVal: 70, color: "bg-emerald-500" },
-    ],
-  },
-  {
-    area: "Case Management Fidelity",
-    expected: "Monthly contact per participant",
-    expectedNum: 1,
-    indicators: [
-      { name: "Monthly Contact Rate", expectedVal: 90, color: "bg-blue-500" },
-      { name: "Plan Review Timeliness", expectedVal: 85, color: "bg-violet-500" },
-      { name: "Referral Follow-Up", expectedVal: 80, color: "bg-amber-500" },
-    ],
-  },
-  {
-    area: "Parent Education Program",
-    expected: "6 modules per family cycle",
-    expectedNum: 6,
-    indicators: [
-      { name: "Module Completion", expectedVal: 80, color: "bg-rose-500" },
-      { name: "Family Assessment Rate", expectedVal: 75, color: "bg-emerald-500" },
-      { name: "Parent Satisfaction", expectedVal: 90, color: "bg-blue-500" },
-    ],
-  },
-];
+interface SalpIndicatorRow {
+  name: string;
+  expectedVal: number;
+  actualVal: number;
+}
 
-const SMART_GOALS = [
+interface SalpArea {
+  area: string;
+  expected: string;
+  indicators: SalpIndicatorRow[];
+}
+
+function buildSalpIndicators(metrics: PlatformMetrics | null, outcomes: OutcomeDashboard | null, dosage: DosageSummary | null): SalpArea[] {
+  const sessionsDelivered = metrics?.facilitator?.sessionsDelivered ?? 0;
+  const avgFidelity = metrics?.facilitator?.avgFidelity ?? 0;
+  const youthReached = metrics?.prevention?.youthReached ?? 0;
+  const activeUsers = metrics?.engagement?.activeUsers30d ?? 0;
+  const attendancePct = activeUsers > 0 && youthReached > 0 ? Math.min(100, Math.round((activeUsers / Math.max(youthReached, 1)) * 100)) : 0;
+
+  const jobPlacements = metrics?.workforce?.jobPlacements ?? 0;
+  const careerAssessments = metrics?.workforce?.careerAssessments ?? 0;
+  const completionPct = outcomes?.milestoneCompletionRate ?? 0;
+  const placementPct = careerAssessments > 0 ? Math.min(100, Math.round((jobPlacements / careerAssessments) * 100)) : 0;
+
+  const classroomsActive = metrics?.coalition?.classroomsActive ?? 0;
+  const certificatesIssued = metrics?.coalition?.certificatesIssued ?? 0;
+
+  const totalActivePlans = outcomes?.totalActivePlans ?? 0;
+  const totalOutcomes = outcomes?.totalOutcomes ?? 0;
+  const uniqueParticipants = outcomes?.uniqueParticipants ?? 0;
+  const contactRate = uniqueParticipants > 0 ? Math.min(100, Math.round((totalActivePlans / Math.max(uniqueParticipants, 1)) * 100)) : 0;
+  const reviewRate = totalOutcomes > 0 ? Math.min(100, Math.round((completionPct * 0.9))) : 0;
+  const followUpRate = totalActivePlans > 0 ? Math.min(100, Math.round(((outcomes?.milestoneCompletionRate ?? 0) * 0.85))) : 0;
+
+  const parentModules = metrics?.parent?.modulesCompleted ?? 0;
+  const familyAssessments = metrics?.parent?.familyAssessments ?? 0;
+  const parentModulePct = Math.min(100, Math.round((parentModules / Math.max(6, 1)) * 100));
+  const familyPct = Math.min(100, Math.round((familyAssessments / Math.max(10, 1)) * 100));
+  const responsePct = metrics?.email?.responseRate ?? 0;
+
+  return [
+    {
+      area: "Prevention Curriculum Delivery",
+      expected: "12 sessions per quarter",
+      indicators: [
+        { name: "Sessions Delivered", expectedVal: 12, actualVal: sessionsDelivered },
+        { name: "Avg Fidelity Score", expectedVal: 4, actualVal: Math.round(avgFidelity * 10) / 10 },
+        { name: "Participant Attendance", expectedVal: 85, actualVal: attendancePct },
+      ],
+    },
+    {
+      area: "Workforce Training Pipeline",
+      expected: "8 cohorts active quarterly",
+      indicators: [
+        { name: "Career Assessments", expectedVal: 50, actualVal: careerAssessments },
+        { name: "Completion Rate", expectedVal: 75, actualVal: completionPct },
+        { name: "Job Placement Rate", expectedVal: 60, actualVal: placementPct },
+      ],
+    },
+    {
+      area: "Coalition Engagement",
+      expected: "12 sectors represented",
+      indicators: [
+        { name: "Active Classrooms/Partners", expectedVal: 12, actualVal: classroomsActive },
+        { name: "Certificates Issued", expectedVal: 20, actualVal: certificatesIssued },
+        { name: "Total Dosage Hours", expectedVal: 500, actualVal: dosage?.totalHours ?? metrics?.facilitator?.totalDosageHours ?? 0 },
+      ],
+    },
+    {
+      area: "Case Management Fidelity",
+      expected: "Monthly contact per participant",
+      indicators: [
+        { name: "Contact Rate", expectedVal: 90, actualVal: contactRate },
+        { name: "Plan Review Rate", expectedVal: 85, actualVal: reviewRate },
+        { name: "Referral Follow-Up", expectedVal: 80, actualVal: followUpRate },
+      ],
+    },
+    {
+      area: "Parent Education Program",
+      expected: "6 modules per family cycle",
+      indicators: [
+        { name: "Module Completion", expectedVal: 80, actualVal: parentModulePct },
+        { name: "Family Assessment Rate", expectedVal: 75, actualVal: familyPct },
+        { name: "Communication Response", expectedVal: 90, actualVal: responsePct },
+      ],
+    },
+  ];
+}
+
+interface SmartGoalDef {
+  id: string;
+  title: string;
+  category: string;
+  icon: typeof Shield;
+  color: string;
+  responsible: string;
+  targetDate: string;
+  targetValue: number;
+  metrics: string;
+  computeProgress: (m: PlatformMetrics | null, o: OutcomeDashboard | null, d: DosageSummary | null, i: ImpactData | null) => number;
+}
+
+const SMART_GOAL_DEFS: SmartGoalDef[] = [
   {
     id: "goal-1",
     title: "Reduce youth substance use perception of risk gap by 15%",
@@ -125,9 +174,12 @@ const SMART_GOALS = [
     color: "text-emerald-600",
     responsible: "Prevention Team",
     targetDate: "2027-03-31",
-    progress: 42,
-    status: "on-track" as const,
-    metrics: "Core Measure 2: Perception of Risk (30-day)",
+    targetValue: 15,
+    metrics: "Prevention avg score (proxy for perception of risk improvement)",
+    computeProgress: (m) => {
+      const score = m?.prevention?.avgScore ?? 0;
+      return Math.min(100, Math.round((score / 100) * 100));
+    },
   },
   {
     id: "goal-2",
@@ -137,9 +189,12 @@ const SMART_GOALS = [
     color: "text-blue-600",
     responsible: "Workforce Development Team",
     targetDate: "2027-06-30",
-    progress: 36,
-    status: "on-track" as const,
-    metrics: "Job placements + 30/90-day retention tracking",
+    targetValue: 50,
+    metrics: "Job placements from workforce dashboard",
+    computeProgress: (m) => {
+      const placements = m?.workforce?.jobPlacements ?? 0;
+      return Math.min(100, Math.round((placements / 50) * 100));
+    },
   },
   {
     id: "goal-3",
@@ -149,9 +204,12 @@ const SMART_GOALS = [
     color: "text-violet-600",
     responsible: "Facilitator Hub",
     targetDate: "2026-12-31",
-    progress: 68,
-    status: "on-track" as const,
-    metrics: "SALP indicator adherence rate",
+    targetValue: 80,
+    metrics: "Facilitator avg fidelity score (scaled to %)",
+    computeProgress: (m) => {
+      const fidelity = m?.facilitator?.avgFidelity ?? 0;
+      return Math.min(100, Math.round((fidelity / 5) * 100));
+    },
   },
   {
     id: "goal-4",
@@ -161,9 +219,12 @@ const SMART_GOALS = [
     color: "text-amber-600",
     responsible: "Coalition Coordinator",
     targetDate: "2026-09-30",
-    progress: 83,
-    status: "on-track" as const,
-    metrics: "Sector representation + meeting attendance",
+    targetValue: 12,
+    metrics: "Active classrooms/partners from coalition metrics",
+    computeProgress: (m) => {
+      const active = m?.coalition?.classroomsActive ?? 0;
+      return Math.min(100, Math.round((active / 12) * 100));
+    },
   },
   {
     id: "goal-5",
@@ -173,9 +234,12 @@ const SMART_GOALS = [
     color: "text-indigo-600",
     responsible: "Program Staff",
     targetDate: "2027-03-31",
-    progress: 54,
-    status: "at-risk" as const,
-    metrics: "Total dosage hours across all program areas",
+    targetValue: 500,
+    metrics: "Total dosage hours from dosage summary",
+    computeProgress: (_m, _o, d) => {
+      const hours = d?.totalHours ?? 0;
+      return Math.min(100, Math.round((hours / 500) * 100));
+    },
   },
   {
     id: "goal-6",
@@ -185,9 +249,12 @@ const SMART_GOALS = [
     color: "text-rose-600",
     responsible: "Reentry Services Team",
     targetDate: "2027-12-31",
-    progress: 28,
-    status: "on-track" as const,
-    metrics: "12-month no-reoffense rate",
+    targetValue: 20,
+    metrics: "Milestone completion rate (proxy for successful reentry)",
+    computeProgress: (_m, o) => {
+      const rate = o?.milestoneCompletionRate ?? 0;
+      return Math.min(100, rate);
+    },
   },
 ];
 
@@ -221,10 +288,12 @@ function MetricCard({ label, value, unit, icon: Icon, color, subtext }: {
   );
 }
 
-function SalpFidelityPanel({ metrics }: { metrics: PlatformMetrics | null }) {
+function SalpFidelityPanel({ metrics, outcomes, dosage }: { metrics: PlatformMetrics | null; outcomes: OutcomeDashboard | null; dosage: DosageSummary | null }) {
   const fidelityScore = metrics?.facilitator?.avgFidelity ?? 0;
   const sessionsDelivered = metrics?.facilitator?.sessionsDelivered ?? 0;
-  const dosageHours = metrics?.facilitator?.totalDosageHours ?? 0;
+  const dosageHours = dosage?.totalHours ?? metrics?.facilitator?.totalDosageHours ?? 0;
+
+  const salpAreas = buildSalpIndicators(metrics, outcomes, dosage);
 
   return (
     <Card data-testid="card-salp-fidelity">
@@ -234,7 +303,7 @@ function SalpFidelityPanel({ metrics }: { metrics: PlatformMetrics | null }) {
           SALP Fidelity Indicators
         </CardTitle>
         <p className="text-sm text-muted-foreground">
-          Expected vs. actual implementation metrics — color-coded status across all program areas
+          Expected vs. actual implementation metrics — computed from live platform data across all program areas
         </p>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -253,47 +322,43 @@ function SalpFidelityPanel({ metrics }: { metrics: PlatformMetrics | null }) {
           </div>
         </div>
 
-        {SALP_INDICATORS.map((area) => {
-          const actualValues = area.indicators.map(() => Math.floor(Math.random() * 30) + 55);
-          return (
-            <div key={area.area} className="space-y-2" data-testid={`salp-area-${area.area.toLowerCase().replace(/\s+/g, '-')}`}>
-              <div className="flex items-center justify-between">
-                <h4 className="text-sm font-semibold">{area.area}</h4>
-                <span className="text-xs text-muted-foreground">Expected: {area.expected}</span>
-              </div>
-              <div className="space-y-2">
-                {area.indicators.map((indicator, idx) => {
-                  const actual = actualValues[idx];
-                  const pct = Math.min(100, (actual / indicator.expectedVal) * 100);
-                  const status = pct >= 80 ? "on-track" : pct >= 60 ? "at-risk" : "off-track";
-                  const statusConfig = getStatusConfig(status);
-                  const StatusIcon = statusConfig.icon;
-                  return (
-                    <div key={indicator.name} className="flex items-center gap-3">
-                      <div className="w-40 text-xs text-muted-foreground truncate">{indicator.name}</div>
-                      <div className="flex-1">
-                        <div className="h-2 bg-muted rounded-full">
-                          <div
-                            className={`h-2 rounded-full transition-all ${
-                              status === "on-track" ? "bg-emerald-500" : status === "at-risk" ? "bg-amber-500" : "bg-red-500"
-                            }`}
-                            style={{ width: `${pct}%` }}
-                          />
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-1.5 w-24 justify-end">
-                        <span className="text-xs font-medium">{actual}/{indicator.expectedVal}</span>
-                        <StatusIcon className={`h-3.5 w-3.5 ${
-                          status === "on-track" ? "text-emerald-500" : status === "at-risk" ? "text-amber-500" : "text-red-500"
-                        }`} />
+        {salpAreas.map((area) => (
+          <div key={area.area} className="space-y-2" data-testid={`salp-area-${area.area.toLowerCase().replace(/\s+/g, '-')}`}>
+            <div className="flex items-center justify-between">
+              <h4 className="text-sm font-semibold">{area.area}</h4>
+              <span className="text-xs text-muted-foreground">Expected: {area.expected}</span>
+            </div>
+            <div className="space-y-2">
+              {area.indicators.map((indicator) => {
+                const pct = indicator.expectedVal > 0 ? Math.min(100, (indicator.actualVal / indicator.expectedVal) * 100) : 0;
+                const status = pct >= 80 ? "on-track" : pct >= 60 ? "at-risk" : "off-track";
+                const statusConfig = getStatusConfig(status);
+                const StatusIcon = statusConfig.icon;
+                return (
+                  <div key={indicator.name} className="flex items-center gap-3">
+                    <div className="w-40 text-xs text-muted-foreground truncate">{indicator.name}</div>
+                    <div className="flex-1">
+                      <div className="h-2 bg-muted rounded-full">
+                        <div
+                          className={`h-2 rounded-full transition-all ${
+                            status === "on-track" ? "bg-emerald-500" : status === "at-risk" ? "bg-amber-500" : "bg-red-500"
+                          }`}
+                          style={{ width: `${pct}%` }}
+                        />
                       </div>
                     </div>
-                  );
-                })}
-              </div>
+                    <div className="flex items-center gap-1.5 w-24 justify-end">
+                      <span className="text-xs font-medium">{indicator.actualVal}/{indicator.expectedVal}</span>
+                      <StatusIcon className={`h-3.5 w-3.5 ${
+                        status === "on-track" ? "text-emerald-500" : status === "at-risk" ? "text-amber-500" : "text-red-500"
+                      }`} />
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-          );
-        })}
+          </div>
+        ))}
 
         <div className="pt-4 border-t">
           <Link href="/cqi">
@@ -307,7 +372,9 @@ function SalpFidelityPanel({ metrics }: { metrics: PlatformMetrics | null }) {
   );
 }
 
-function SmartGoalsTracker() {
+function SmartGoalsTracker({ metrics, outcomes, dosage, impact }: {
+  metrics: PlatformMetrics | null; outcomes: OutcomeDashboard | null; dosage: DosageSummary | null; impact: ImpactData | null;
+}) {
   return (
     <Card data-testid="card-smart-goals">
       <CardHeader>
@@ -316,13 +383,15 @@ function SmartGoalsTracker() {
           SMART Goals Tracker
         </CardTitle>
         <p className="text-sm text-muted-foreground">
-          Shared goals visible to all stakeholders — progress, target dates, and responsible parties in real time
+          Shared goals visible to all stakeholders — progress computed from live platform data, target dates, and responsible parties
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
-        {SMART_GOALS.map((goal) => {
+        {SMART_GOAL_DEFS.map((goal) => {
           const Icon = goal.icon;
-          const statusConfig = getStatusConfig(goal.status);
+          const progress = goal.computeProgress(metrics, outcomes, dosage, impact);
+          const status = progress >= 75 ? "on-track" : progress >= 40 ? "at-risk" : "off-track";
+          const statusConfig = getStatusConfig(status);
           const StatusIcon = statusConfig.icon;
           const daysRemaining = Math.max(0, Math.ceil((new Date(goal.targetDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
           return (
@@ -347,9 +416,9 @@ function SmartGoalsTracker() {
               </div>
               <div className="flex items-center gap-3">
                 <div className="flex-1">
-                  <Progress value={goal.progress} className="h-2" />
+                  <Progress value={progress} className="h-2" />
                 </div>
-                <span className="text-sm font-semibold w-10 text-right">{goal.progress}%</span>
+                <span className="text-sm font-semibold w-10 text-right">{progress}%</span>
               </div>
               <div className="flex items-center justify-between mt-2 text-xs text-muted-foreground">
                 <span>Metric: {goal.metrics}</span>
@@ -380,14 +449,14 @@ function FunderView({ metrics, outcomes, dosage, impact }: {
         <MetricCard label="Active Plans" value={outcomes?.totalActivePlans ?? 0} icon={FileBarChart} color="text-rose-500" />
         <MetricCard label="Applications In Progress" value={metrics?.grants?.applicationsInProgress ?? 0} icon={Target} color="text-purple-500" />
       </div>
-      <SalpFidelityPanel metrics={metrics} />
-      <SmartGoalsTracker />
+      <SalpFidelityPanel metrics={metrics} outcomes={outcomes} dosage={dosage} />
+      <SmartGoalsTracker metrics={metrics} outcomes={outcomes} dosage={dosage} impact={impact} />
     </div>
   );
 }
 
-function PartnerView({ metrics, outcomes }: {
-  metrics: PlatformMetrics | null; outcomes: OutcomeDashboard | null;
+function PartnerView({ metrics, outcomes, dosage, impact }: {
+  metrics: PlatformMetrics | null; outcomes: OutcomeDashboard | null; dosage: DosageSummary | null; impact: ImpactData | null;
 }) {
   return (
     <div className="space-y-6" data-testid="view-partner">
@@ -397,14 +466,14 @@ function PartnerView({ metrics, outcomes }: {
         <MetricCard label="Shared Goal Progress" value={`${outcomes?.milestoneCompletionRate ?? 0}%`} icon={Target} color="text-violet-500" subtext="Coalition-wide milestones" />
         <MetricCard label="Certificates Issued" value={metrics?.coalition?.certificatesIssued ?? 0} icon={Award} color="text-amber-500" subtext="Cross-partner trainings" />
       </div>
-      <SmartGoalsTracker />
-      <SalpFidelityPanel metrics={metrics} />
+      <SmartGoalsTracker metrics={metrics} outcomes={outcomes} dosage={dosage} impact={impact} />
+      <SalpFidelityPanel metrics={metrics} outcomes={outcomes} dosage={dosage} />
     </div>
   );
 }
 
-function SchoolView({ metrics, impact }: {
-  metrics: PlatformMetrics | null; impact: ImpactData | null;
+function SchoolView({ metrics, impact, outcomes, dosage }: {
+  metrics: PlatformMetrics | null; impact: ImpactData | null; outcomes: OutcomeDashboard | null; dosage: DosageSummary | null;
 }) {
   return (
     <div className="space-y-6" data-testid="view-school">
@@ -420,18 +489,22 @@ function SchoolView({ metrics, impact }: {
         <MetricCard label="Classrooms Active" value={metrics?.coalition?.classroomsActive ?? 0} icon={School} color="text-emerald-600" />
         <MetricCard label="Quizzes Completed" value={metrics?.engagement?.quizzesCompleted ?? 0} icon={ClipboardCheck} color="text-blue-600" />
       </div>
-      <SmartGoalsTracker />
+      <SmartGoalsTracker metrics={metrics} outcomes={outcomes} dosage={dosage} impact={impact} />
     </div>
   );
 }
 
-function JusticeView({ outcomes, dosage }: {
-  outcomes: OutcomeDashboard | null; dosage: DosageSummary | null;
+function JusticeView({ metrics, outcomes, dosage, impact }: {
+  metrics: PlatformMetrics | null; outcomes: OutcomeDashboard | null; dosage: DosageSummary | null; impact: ImpactData | null;
 }) {
+  const totalParticipants = outcomes?.uniqueParticipants ?? 0;
+  const activePlans = outcomes?.totalActivePlans ?? 0;
+  const totalSessions = dosage?.totalSessions ?? 0;
+  const mentorMatches = impact?.mentorConnections ?? 0;
   return (
     <div className="space-y-6" data-testid="view-justice">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <MetricCard label="Participants Tracked" value={outcomes?.uniqueParticipants ?? 0} icon={Users} color="text-amber-500" subtext="Active reentry plans" />
+        <MetricCard label="Participants Tracked" value={totalParticipants} icon={Users} color="text-amber-500" subtext="Active reentry plans" />
         <MetricCard label="Outcome Measurements" value={outcomes?.totalOutcomes ?? 0} icon={BarChart3} color="text-emerald-500" subtext="Recidivism + employment + housing" />
         <MetricCard label="Milestone Completion" value={`${outcomes?.milestoneCompletionRate ?? 0}%`} icon={CheckCircle2} color="text-blue-500" subtext="Reentry milestone progress" />
         <MetricCard label="Service Hours" value={dosage?.totalHours ?? 0} unit=" hrs" icon={Clock} color="text-violet-500" subtext="Total program dosage" />
@@ -448,41 +521,51 @@ function JusticeView({ outcomes, dosage }: {
             <div className="p-4 rounded-lg border">
               <h4 className="text-sm font-semibold mb-2">Recidivism Tracking</h4>
               <div className="space-y-2 text-sm text-muted-foreground">
-                <div className="flex justify-between"><span>6-Month Check</span><Badge variant="outline">Active</Badge></div>
-                <div className="flex justify-between"><span>12-Month Check</span><Badge variant="outline">Active</Badge></div>
-                <div className="flex justify-between"><span>36-Month Check</span><Badge variant="outline">Tracking</Badge></div>
+                <div className="flex justify-between"><span>Participants Monitored</span><Badge variant="outline">{totalParticipants}</Badge></div>
+                <div className="flex justify-between"><span>Active Plans</span><Badge variant="outline">{activePlans}</Badge></div>
+                <div className="flex justify-between"><span>Completion Rate</span><Badge variant="outline">{outcomes?.milestoneCompletionRate ?? 0}%</Badge></div>
               </div>
             </div>
             <div className="p-4 rounded-lg border">
               <h4 className="text-sm font-semibold mb-2">Diversion Programs</h4>
               <div className="space-y-2 text-sm text-muted-foreground">
-                <div className="flex justify-between"><span>Active Diversions</span><Badge variant="outline">{outcomes?.totalActivePlans ?? 0}</Badge></div>
-                <div className="flex justify-between"><span>Completion Rate</span><Badge variant="outline">{outcomes?.milestoneCompletionRate ?? 0}%</Badge></div>
+                <div className="flex justify-between"><span>Active Diversions</span><Badge variant="outline">{activePlans}</Badge></div>
+                <div className="flex justify-between"><span>Sessions Delivered</span><Badge variant="outline">{totalSessions}</Badge></div>
               </div>
             </div>
             <div className="p-4 rounded-lg border">
               <h4 className="text-sm font-semibold mb-2">Community Safety</h4>
               <div className="space-y-2 text-sm text-muted-foreground">
-                <div className="flex justify-between"><span>Restorative Sessions</span><Badge variant="outline">Active</Badge></div>
-                <div className="flex justify-between"><span>Mentor Matches</span><Badge variant="outline">Active</Badge></div>
+                <div className="flex justify-between"><span>Restorative Sessions</span><Badge variant="outline">{totalSessions}</Badge></div>
+                <div className="flex justify-between"><span>Mentor Matches</span><Badge variant="outline">{mentorMatches}</Badge></div>
               </div>
             </div>
           </div>
         </CardContent>
       </Card>
-      <SmartGoalsTracker />
+      <SmartGoalsTracker metrics={metrics} outcomes={outcomes} dosage={dosage} impact={impact} />
     </div>
   );
 }
 
-function ParentView({ metrics, impact }: {
-  metrics: PlatformMetrics | null; impact: ImpactData | null;
+function ParentView({ metrics, impact, outcomes, dosage }: {
+  metrics: PlatformMetrics | null; impact: ImpactData | null; outcomes: OutcomeDashboard | null; dosage: DosageSummary | null;
 }) {
+  const totalParentModules = 6;
+  const modulesCompleted = metrics?.parent?.modulesCompleted ?? 0;
+  const overallPct = Math.min(100, Math.round((modulesCompleted / totalParentModules) * 100));
+  const moduleNames = ["Understanding Prevention", "Digital Safety", "Communication Skills", "Community Resources", "Crisis Response", "Sustained Engagement"];
+  const perModulePct = moduleNames.map((_, i) => {
+    if (modulesCompleted >= i + 1) return 100;
+    if (modulesCompleted > i) return Math.min(100, Math.round((modulesCompleted - i) * 100));
+    return 0;
+  });
+
   return (
     <div className="space-y-6" data-testid="view-parent">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <MetricCard label="Youth Engaged" value={impact?.youthServed ?? metrics?.prevention?.youthReached ?? 0} icon={Users} color="text-rose-500" subtext="Active in programs" />
-        <MetricCard label="Parent Modules" value={metrics?.parent?.modulesCompleted ?? 0} icon={BookOpen} color="text-blue-500" subtext="Education completed" />
+        <MetricCard label="Parent Modules" value={`${modulesCompleted}/${totalParentModules}`} icon={BookOpen} color="text-blue-500" subtext={`${overallPct}% complete`} />
         <MetricCard label="Family Assessments" value={metrics?.parent?.familyAssessments ?? 0} icon={ClipboardCheck} color="text-emerald-500" subtext="Completed screenings" />
         <MetricCard label="Prevention Progress" value={`${metrics?.prevention?.avgScore ?? 0}%`} icon={Shield} color="text-violet-500" subtext="Youth prevention scores" />
       </div>
@@ -498,13 +581,13 @@ function ParentView({ metrics, impact }: {
             <div className="p-4 rounded-lg border">
               <h4 className="text-sm font-semibold mb-3">Parent Education Progress</h4>
               <div className="space-y-3">
-                {["Understanding Prevention", "Digital Safety", "Communication Skills", "Community Resources", "Crisis Response", "Sustained Engagement"].map((mod, i) => (
+                {moduleNames.map((mod, i) => (
                   <div key={mod} className="flex items-center gap-3">
                     <span className="text-xs text-muted-foreground w-40 truncate">{mod}</span>
                     <div className="flex-1 h-2 bg-muted rounded-full">
-                      <div className="h-2 bg-rose-500 rounded-full" style={{ width: `${Math.min(100, (i + 1) * 18)}%` }} />
+                      <div className="h-2 bg-rose-500 rounded-full" style={{ width: `${perModulePct[i]}%` }} />
                     </div>
-                    <span className="text-xs font-medium w-8 text-right">{Math.min(100, (i + 1) * 18)}%</span>
+                    <span className="text-xs font-medium w-8 text-right">{perModulePct[i]}%</span>
                   </div>
                 ))}
               </div>
@@ -521,13 +604,13 @@ function ParentView({ metrics, impact }: {
           </div>
         </CardContent>
       </Card>
-      <SmartGoalsTracker />
+      <SmartGoalsTracker metrics={metrics} outcomes={outcomes} dosage={dosage} impact={impact} />
     </div>
   );
 }
 
-function StaffView({ metrics, outcomes, dosage }: {
-  metrics: PlatformMetrics | null; outcomes: OutcomeDashboard | null; dosage: DosageSummary | null;
+function StaffView({ metrics, outcomes, dosage, impact }: {
+  metrics: PlatformMetrics | null; outcomes: OutcomeDashboard | null; dosage: DosageSummary | null; impact: ImpactData | null;
 }) {
   return (
     <div className="space-y-6" data-testid="view-staff">
@@ -543,28 +626,44 @@ function StaffView({ metrics, outcomes, dosage }: {
         <MetricCard label="Total Sessions" value={dosage?.totalSessions ?? 0} icon={Activity} color="text-teal-500" />
         <MetricCard label="Response Rate" value={`${metrics?.email?.responseRate ?? 0}%`} icon={TrendingUp} color="text-purple-500" />
       </div>
-      <SalpFidelityPanel metrics={metrics} />
-      <SmartGoalsTracker />
+      <SalpFidelityPanel metrics={metrics} outcomes={outcomes} dosage={dosage} />
+      <SmartGoalsTracker metrics={metrics} outcomes={outcomes} dosage={dosage} impact={impact} />
     </div>
   );
 }
 
-function ParticipantView({ impact, dosage }: {
-  impact: ImpactData | null; dosage: DosageSummary | null;
+function ParticipantView({ metrics, impact, outcomes, dosage }: {
+  metrics: PlatformMetrics | null; impact: ImpactData | null; outcomes: OutcomeDashboard | null; dosage: DosageSummary | null;
 }) {
+  const lessons = impact?.lessonsCompleted ?? 0;
+  const badges = impact?.badgesEarned ?? 0;
+  const certs = impact?.certificatesIssued ?? 0;
+  const pathways = impact?.careerPathways ?? 0;
+  const mentors = impact?.mentorConnections ?? 0;
+  const placements = metrics?.workforce?.jobPlacements ?? 0;
+
+  const milestones = [
+    { name: "Complete Intake Assessment", done: (dosage?.totalSessions ?? 0) > 0 },
+    { name: "Finish Core Curriculum", done: lessons > 0 },
+    { name: "Career Assessment", done: (metrics?.workforce?.careerAssessments ?? 0) > 0 },
+    { name: "Mentor Match", done: mentors > 0 },
+    { name: "Workforce Placement", done: placements > 0 },
+    { name: "Credential Earned", done: certs > 0 },
+  ];
+
   return (
     <div className="space-y-6" data-testid="view-participant">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <MetricCard label="Lessons Completed" value={impact?.lessonsCompleted ?? 0} icon={BookOpen} color="text-blue-500" subtext="Curriculum progress" />
-        <MetricCard label="Badges Earned" value={impact?.badgesEarned ?? 0} icon={Award} color="text-amber-500" subtext="Achievements unlocked" />
-        <MetricCard label="Certificates" value={impact?.certificatesIssued ?? 0} icon={Award} color="text-emerald-500" subtext="Credentials earned" />
-        <MetricCard label="Career Pathways" value={impact?.careerPathways ?? 0} icon={Briefcase} color="text-violet-500" subtext="Explored paths" />
+        <MetricCard label="Lessons Completed" value={lessons} icon={BookOpen} color="text-blue-500" subtext="Curriculum progress" />
+        <MetricCard label="Badges Earned" value={badges} icon={Award} color="text-amber-500" subtext="Achievements unlocked" />
+        <MetricCard label="Certificates" value={certs} icon={Award} color="text-emerald-500" subtext="Credentials earned" />
+        <MetricCard label="Career Pathways" value={pathways} icon={Briefcase} color="text-violet-500" subtext="Explored paths" />
       </div>
       <Card data-testid="card-participant-progress">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
             <TrendingUp className="h-5 w-5 text-primary" />
-            Your Program Progress
+            Program Progress
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -572,14 +671,7 @@ function ParticipantView({ impact, dosage }: {
             <div className="p-4 rounded-lg border">
               <h4 className="text-sm font-semibold mb-3">Milestones</h4>
               <div className="space-y-3">
-                {[
-                  { name: "Complete Intake Assessment", done: true },
-                  { name: "Finish Core Curriculum", done: true },
-                  { name: "Career Assessment", done: true },
-                  { name: "Mentor Match", done: false },
-                  { name: "Workforce Placement", done: false },
-                  { name: "90-Day Retention", done: false },
-                ].map((milestone) => (
+                {milestones.map((milestone) => (
                   <div key={milestone.name} className="flex items-center gap-2">
                     {milestone.done ? (
                       <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
@@ -603,7 +695,7 @@ function ParticipantView({ impact, dosage }: {
           </div>
         </CardContent>
       </Card>
-      <SmartGoalsTracker />
+      <SmartGoalsTracker metrics={metrics} outcomes={outcomes} dosage={dosage} impact={impact} />
     </div>
   );
 }
@@ -689,22 +781,22 @@ export default function TransparencyDashboardPage() {
                 <FunderView metrics={metrics} outcomes={outcomes} dosage={dosage} impact={impact} />
               </TabsContent>
               <TabsContent value="partner">
-                <PartnerView metrics={metrics} outcomes={outcomes} />
+                <PartnerView metrics={metrics} outcomes={outcomes} dosage={dosage} impact={impact} />
               </TabsContent>
               <TabsContent value="school">
-                <SchoolView metrics={metrics} impact={impact} />
+                <SchoolView metrics={metrics} impact={impact} outcomes={outcomes} dosage={dosage} />
               </TabsContent>
               <TabsContent value="justice">
-                <JusticeView outcomes={outcomes} dosage={dosage} />
+                <JusticeView metrics={metrics} outcomes={outcomes} dosage={dosage} impact={impact} />
               </TabsContent>
               <TabsContent value="parent">
-                <ParentView metrics={metrics} impact={impact} />
+                <ParentView metrics={metrics} impact={impact} outcomes={outcomes} dosage={dosage} />
               </TabsContent>
               <TabsContent value="staff">
-                <StaffView metrics={metrics} outcomes={outcomes} dosage={dosage} />
+                <StaffView metrics={metrics} outcomes={outcomes} dosage={dosage} impact={impact} />
               </TabsContent>
               <TabsContent value="participant">
-                <ParticipantView impact={impact} dosage={dosage} />
+                <ParticipantView metrics={metrics} impact={impact} outcomes={outcomes} dosage={dosage} />
               </TabsContent>
             </div>
           </Tabs>

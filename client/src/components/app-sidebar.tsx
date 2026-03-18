@@ -367,50 +367,56 @@ export function AppSidebar() {
         <NavSection label="Health & Wellness" items={healthWellnessItems} location={location} />
         <NavSection label="Research & Implementation" items={researchItems} location={location} />
         <NavSection label="Case Management" items={caseManagementItems} location={location} />
-        <NavSection label="Student Portal" items={myStudentItems} location={location} />
-        <NavSection label="Campus Life" items={campusLifeItems} location={location} />
-        <NavSection label="Campus Extras" items={campusExtrasItems} location={location} />
-        <NavSection label="Build & Create" items={buildCreateItems} location={location} />
+        {isAuthenticated && (
+          <>
+            <NavSection label="Student Portal" items={myStudentItems} location={location} />
+            <NavSection label="Campus Life" items={campusLifeItems} location={location} />
+            <NavSection label="Campus Extras" items={campusExtrasItems} location={location} />
+            <NavSection label="Build & Create" items={buildCreateItems} location={location} />
+          </>
+        )}
 
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <Collapsible open={resolvedTeachingOpen} onOpenChange={setTeachingOpen} className="group/collapsible">
-                <SidebarMenuItem>
-                  <CollapsibleTrigger asChild>
-                    <SidebarMenuButton data-testid="link-sidebar-teaching-&-staff" aria-label="Teaching & Staff section">
-                      <Users className="h-4 w-4" aria-hidden="true" />
-                      <span>Teaching & Staff</span>
-                      <ChevronRight className="ml-auto h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-90" aria-hidden="true" />
-                    </SidebarMenuButton>
-                  </CollapsibleTrigger>
-                  <CollapsibleContent>
-                    <SidebarMenuSub>
-                      {visibleTeachingItems.map((item) => {
-                        const isActive = isItemActive(location, item.url);
-                        return (
-                          <SidebarMenuSubItem key={item.title}>
-                            <SidebarMenuSubButton
-                              asChild
-                              data-active={isActive}
-                              className={isActive ? "bg-sidebar-accent" : ""}
-                              data-testid={`link-sidebar-${item.title.toLowerCase().replace(/\s/g, '-')}`}
-                            >
-                              <Link href={item.url} aria-label={item.title}>
-                                <item.icon className="h-4 w-4" aria-hidden="true" />
-                                <span>{item.title}</span>
-                              </Link>
-                            </SidebarMenuSubButton>
-                          </SidebarMenuSubItem>
-                        );
-                      })}
-                    </SidebarMenuSub>
-                  </CollapsibleContent>
-                </SidebarMenuItem>
-              </Collapsible>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {isAuthenticated && (
+          <SidebarGroup>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <Collapsible open={resolvedTeachingOpen} onOpenChange={setTeachingOpen} className="group/collapsible">
+                  <SidebarMenuItem>
+                    <CollapsibleTrigger asChild>
+                      <SidebarMenuButton data-testid="link-sidebar-teaching-&-staff" aria-label="Teaching & Staff section">
+                        <Users className="h-4 w-4" aria-hidden="true" />
+                        <span>Teaching & Staff</span>
+                        <ChevronRight className="ml-auto h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-90" aria-hidden="true" />
+                      </SidebarMenuButton>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent>
+                      <SidebarMenuSub>
+                        {visibleTeachingItems.map((item) => {
+                          const isActive = isItemActive(location, item.url);
+                          return (
+                            <SidebarMenuSubItem key={item.title}>
+                              <SidebarMenuSubButton
+                                asChild
+                                data-active={isActive}
+                                className={isActive ? "bg-sidebar-accent" : ""}
+                                data-testid={`link-sidebar-${item.title.toLowerCase().replace(/\s/g, '-')}`}
+                              >
+                                <Link href={item.url} aria-label={item.title}>
+                                  <item.icon className="h-4 w-4" aria-hidden="true" />
+                                  <span>{item.title}</span>
+                                </Link>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          );
+                        })}
+                      </SidebarMenuSub>
+                    </CollapsibleContent>
+                  </SidebarMenuItem>
+                </Collapsible>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
 
         <NavSection label="About" items={aboutItems} location={location} />
 

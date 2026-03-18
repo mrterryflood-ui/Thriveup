@@ -92,15 +92,15 @@ interface CareerField {
   sortOrder: number | null;
 }
 
-const GRADE_THEMES: Record<number, string> = {
-  6: "Discover Who I Am",
-  7: "Discover What's Out There",
-  8: "Choose My Direction",
-  9: "Build My Foundation",
-  10: "Deepen My Expertise",
-  11: "Prove My Readiness",
-  12: "Launch My Future",
-  13: "Reach Back & Rise",
+const STAGE_THEMES: Record<number, { label: string; desc: string }> = {
+  1: { label: "Self-Discovery", desc: "Assess strengths, interests, and readiness" },
+  2: { label: "Career Exploration", desc: "Research fields, industries, and pathways" },
+  3: { label: "Direction Setting", desc: "Select focus area and education path" },
+  4: { label: "Foundation Building", desc: "Core training, certifications, and skill development" },
+  5: { label: "Skill Deepening", desc: "Advanced competencies and hands-on experience" },
+  6: { label: "Portfolio & Readiness", desc: "Demonstrate skills, build professional portfolio" },
+  7: { label: "Placement & Launch", desc: "Job placement, entrepreneurship, or advanced education" },
+  8: { label: "Sustain & Advance", desc: "Retention tracking, career growth, and mentoring others" },
 };
 
 const EDUCATION_PATHS = ["College", "Trade/Tech", "Military", "Entrepreneurship"];
@@ -125,7 +125,7 @@ function getPathColor(path: string) {
   }
 }
 
-function getGradeColor(grade: number) {
+function getStageColor(stage: number) {
   const colors = [
     "bg-sky-100 dark:bg-sky-900/30",
     "bg-teal-100 dark:bg-teal-900/30",
@@ -136,7 +136,7 @@ function getGradeColor(grade: number) {
     "bg-violet-100 dark:bg-violet-900/30",
     "bg-indigo-100 dark:bg-indigo-900/30",
   ];
-  return colors[(grade - 6) % colors.length];
+  return colors[(stage - 1) % colors.length];
 }
 
 function LoadingSkeleton() {
@@ -193,7 +193,7 @@ function CreatePathwayWizard({ careers }: { careers: CareerField[] }) {
           <div
             key={s}
             className={`h-1.5 flex-1 rounded-full ${
-              s <= step ? "bg-rose-600 dark:bg-rose-500" : "bg-muted"
+              s <= step ? "bg-primary" : "bg-muted"
             }`}
             data-testid={`progress-step-${s}`}
           />
@@ -272,7 +272,7 @@ function CreatePathwayWizard({ careers }: { careers: CareerField[] }) {
           <div>
             <label className="text-sm text-muted-foreground mb-1 block">Long-term goal</label>
             <Input
-              placeholder="Where do you see yourself after graduation?"
+              placeholder="Where do you see yourself in 3-5 years?"
               value={longTermGoal}
               onChange={(e) => setLongTermGoal(e.target.value)}
               data-testid="input-long-term-goal"
@@ -354,7 +354,8 @@ function PathwayTimeline({ plan }: { plan: PathwayPlan }) {
 
   const completedSet = new Set(plan.completedMilestones ?? []);
   const PathIcon = getPathIcon(plan.educationPathType || "");
-  const grades = [6, 7, 8, 9, 10, 11, 12, 13];
+  const stages = [1, 2, 3, 4, 5, 6, 7, 8];
+  const currentStage = Math.max(1, Math.min(8, plan.currentGrade - 5));
 
   return (
     <div className="space-y-6" data-testid="section-pathway-timeline">
@@ -472,31 +473,30 @@ function PathwayTimeline({ plan }: { plan: PathwayPlan }) {
         )}
       </Card>
 
-      <div className="relative ml-6" data-testid="section-grade-timeline">
+      <div className="relative ml-6" data-testid="section-pathway-stages">
         <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-muted" />
-        {grades.map((grade) => {
-          const theme = GRADE_THEMES[grade];
-          const isCurrent = grade === plan.currentGrade;
-          const isCompleted = grade < plan.currentGrade;
-          const gradeLabel = grade === 13 ? "Post-Grad" : `Grade ${grade}`;
-          const milestoneKey = `grade-${grade}`;
-          const milestoneCompleted = completedSet.has(milestoneKey);
+        {stages.map((stage) => {
+          const theme = STAGE_THEMES[stage];
+          const isCurrent = stage === currentStage;
+          const isCompleted = stage < currentStage;
+          const milestoneKey = `stage-${stage}`;
+          const milestoneCompleted = completedSet.has(milestoneKey) || completedSet.has(`grade-${stage + 5}`);
 
           return (
             <div
-              key={grade}
-              className={`relative pl-10 pb-6 ${isCurrent ? "" : ""}`}
-              data-testid={`timeline-grade-${grade}`}
+              key={stage}
+              className="relative pl-10 pb-6"
+              data-testid={`timeline-stage-${stage}`}
             >
               <div
                 className={`absolute left-0 top-1 w-8 h-8 rounded-full flex items-center justify-center z-10 ${
                   isCurrent
-                    ? "bg-rose-600 text-white ring-4 ring-rose-200 dark:ring-rose-900/30"
+                    ? "bg-primary text-primary-foreground ring-4 ring-primary/20"
                     : isCompleted
                     ? "bg-emerald-600 text-white"
                     : "bg-muted text-muted-foreground"
                 }`}
-                data-testid={`timeline-dot-${grade}`}
+                data-testid={`timeline-dot-${stage}`}
               >
                 {isCompleted ? (
                   <CheckCircle2 className="h-4 w-4" />
@@ -507,21 +507,21 @@ function PathwayTimeline({ plan }: { plan: PathwayPlan }) {
                 )}
               </div>
               <Card
-                className={`p-4 ${isCurrent ? "ring-2 ring-rose-300 dark:ring-rose-800" : ""}`}
-                data-testid={`card-grade-${grade}`}
+                className={`p-4 ${isCurrent ? "ring-2 ring-primary/30" : ""}`}
+                data-testid={`card-stage-${stage}`}
               >
                 <div className="flex items-center justify-between gap-2 mb-1 flex-wrap">
-                  <h3 className="font-semibold text-sm" data-testid={`text-grade-label-${grade}`}>
-                    {gradeLabel}
+                  <h3 className="font-semibold text-sm" data-testid={`text-stage-label-${stage}`}>
+                    Stage {stage}: {theme?.label}
                   </h3>
                   {isCurrent && (
-                    <Badge variant="secondary" className="bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300">
-                      Current
+                    <Badge variant="secondary" className="bg-primary/10 text-primary">
+                      Current Stage
                     </Badge>
                   )}
                 </div>
-                <p className="text-sm text-muted-foreground mb-2" data-testid={`text-grade-theme-${grade}`}>
-                  {theme}
+                <p className="text-sm text-muted-foreground mb-2" data-testid={`text-stage-desc-${stage}`}>
+                  {theme?.desc}
                 </p>
                 <div className="flex items-center gap-1">
                   {milestoneCompleted || isCompleted ? (
@@ -530,7 +530,7 @@ function PathwayTimeline({ plan }: { plan: PathwayPlan }) {
                     <Circle className="h-3.5 w-3.5 text-muted-foreground" />
                   )}
                   <span className="text-xs text-muted-foreground">
-                    {milestoneCompleted || isCompleted ? "Milestones complete" : "In progress"}
+                    {milestoneCompleted || isCompleted ? "Stage complete" : "In progress"}
                   </span>
                 </div>
               </Card>
@@ -551,7 +551,7 @@ function PathwayTimeline({ plan }: { plan: PathwayPlan }) {
             <div
               key={i}
               className={`h-2 flex-1 rounded-full ${
-                i < plan.revisionsThisYear ? "bg-rose-500" : "bg-muted"
+                i < plan.revisionsThisYear ? "bg-primary" : "bg-muted"
               }`}
               data-testid={`revision-indicator-${i}`}
             />
