@@ -1869,4 +1869,134 @@ Do NOT repeat content already written. Do NOT add headers or section labels. Con
       res.status(500).json({ error: "Failed to generate Word document" });
     }
   });
+
+  app.post("/api/grants/checklist-ai-assist", requireAuth, async (req, res) => {
+    try {
+      const { checklistItem, grantName, grantKnowledge, serviceArea, assistType, partnershipTimeline } = req.body;
+      if (!checklistItem || !grantName || !assistType) {
+        return res.status(400).json({ error: "Missing required fields" });
+      }
+
+      const serviceAreaContext = serviceArea ? `
+SERVICE AREA CONTEXT:
+- Region: ${serviceArea.region}, ${serviceArea.state}
+- City: ${serviceArea.city}
+- Counties: ${(serviceArea.counties || []).join(", ")}
+- Key Industries: ${(serviceArea.keyIndustries || []).join(", ")}
+- Target Employers: ${(serviceArea.targetEmployers || []).map((e: { name: string; sector: string; type: string }) => `${e.name} (${e.sector} — ${e.type})`).join("; ")}
+- Labor Market: ${serviceArea.laborMarketNotes || "N/A"}
+- Location Eligibility: ${serviceArea.locationEligibility || "N/A"}
+- Multi-Site: ${serviceArea.multiSiteEligible ? "Yes" : "No"} — ${serviceArea.multiSiteNotes || "N/A"}` : "";
+
+      const partnershipContext = partnershipTimeline ? `
+PARTNERSHIP TIMELINE:
+- Workflow Order: ${partnershipTimeline.workflowOrder}
+- Summary: ${partnershipTimeline.summary}
+- Requirements: ${(partnershipTimeline.requirements || []).map((r: { partnerType: string; requiredInDocs: boolean; timing: string; description: string; evidenceNeeded: string; docSections: string[] }) =>
+  `${r.partnerType}: ${r.requiredInDocs ? "MUST BE IN DOCS" : "Optional"}, Timing: ${r.timing}, Evidence: ${r.evidenceNeeded}`).join("\n  ")}` : "";
+
+      let systemPrompt = "";
+      let userPrompt = "";
+
+      if (assistType === "find-partners") {
+        systemPrompt = `You are an expert grant consultant specializing in workforce development partnerships. You help organizations identify strategic collaboration partners for grant applications.
+
+ORGANIZATION CONTEXT:
+- ThriveUp Academy is a 501(c)(3) workforce development organization in Austin, TX
+- Led by Dr. Terry Flood, focused on AI-powered career exploration and workforce readiness
+- Three-entity ecosystem: ThriveUp Academy (nonprofit), The Collaborative Advocate (VOSB), MCE (Minority Capital Exchange — minority business SaaS)
+- 14-platform integrated technology ecosystem for workforce development
+- Target population: youth and young adults facing employment barriers, with focus on Black youth 16-24
+${serviceAreaContext}
+${partnershipContext}
+
+GRANT: ${grantName}
+${grantKnowledge ? `GRANT DETAILS:\n${grantKnowledge}` : ""}`;
+
+        userPrompt = `For the checklist item "${checklistItem}", generate 8-10 SPECIFIC, REAL organizations in the Austin, TX area that ThriveUp Academy should partner with for the ${grantName} application.
+
+For each partner, provide:
+1. **Organization Name** — the actual organization name
+2. **Why They're a Fit** — 1-2 sentences on alignment
+3. **Contact Approach** — how to reach out (specific department, role to contact)
+4. **Partnership Value** — what they bring AND what ThriveUp offers them
+5. **Urgency** — High/Medium/Low priority for this grant
+
+Focus on organizations that are:
+- Actually operating in the Austin/Central Texas area
+- Aligned with the grant's funding priorities
+- Likely to be receptive to partnership (shared mission, complementary services)
+- Would strengthen the application (community credibility, service coverage, employer connections)
+
+Format as a clear numbered list with each field labeled. Be specific — use real organization names, not generic descriptions.`;
+      } else if (assistType === "outreach-template") {
+        systemPrompt = `You are an expert grant consultant who writes compelling partnership outreach communications. You write professional, warm, and specific emails that get responses.
+
+ORGANIZATION CONTEXT:
+- ThriveUp Academy is a 501(c)(3) workforce development organization in Austin, TX
+- Led by Dr. Terry Flood, focused on AI-powered career exploration and workforce readiness
+- 14-platform integrated technology ecosystem
+- Target population: youth and young adults facing employment barriers
+${serviceAreaContext}
+${partnershipContext}
+
+GRANT: ${grantName}`;
+
+        userPrompt = `Write 3 outreach email templates for the checklist item "${checklistItem}" for the ${grantName} application.
+
+Create templates for different partner types:
+1. **Employer Partner** — for companies who would provide work-based learning, internships, or job placement opportunities
+2. **Community Organization Partner** — for nonprofits, community groups, or service providers who serve similar populations
+3. **Government/Institutional Partner** — for workforce boards, educational institutions, or government agencies
+
+Each template should:
+- Have a compelling subject line
+- Be 200-300 words
+- Reference the specific grant opportunity without revealing internal strategy
+- Clearly state what ThriveUp offers the partner (not just what you need from them)
+- Include a specific call-to-action (meeting request with suggested times)
+- Sound authentic and collaborative, not transactional
+- Include [PLACEHOLDER] tags for customizable parts (partner name, specific role, etc.)
+
+Format each template clearly with Subject, Body, and any notes on customization.`;
+      } else if (assistType === "action-guide") {
+        systemPrompt = `You are an expert grant consultant providing step-by-step actionable guidance for grant pre-execution checklist items. You give specific, practical advice that a busy executive can follow immediately.
+
+ORGANIZATION CONTEXT:
+- ThriveUp Academy is a 501(c)(3) workforce development organization in Austin, TX
+- Led by Dr. Terry Flood
+- Three-entity ecosystem: ThriveUp Academy (nonprofit), The Collaborative Advocate (VOSB), MCE (minority business SaaS)
+${serviceAreaContext}
+${partnershipContext}
+
+GRANT: ${grantName}
+${grantKnowledge ? `GRANT DETAILS:\n${grantKnowledge}` : ""}`;
+
+        userPrompt = `For the checklist item "${checklistItem}" on the ${grantName} application, provide a detailed action guide.
+
+Include:
+1. **What This Is & Why It Matters** — 2-3 sentences on why this checklist item is critical for the grant
+2. **Step-by-Step Actions** — numbered steps Dr. Flood should take THIS WEEK to complete this item. Be extremely specific (include websites, department names, document names, timelines)
+3. **Documents/Evidence Needed** — exactly what documentation to gather or create
+4. **Common Mistakes to Avoid** — 2-3 pitfalls that trip up applicants
+5. **How ThriveUp's Existing Infrastructure Helps** — connect the organization's existing platforms, data, and relationships to this requirement
+6. **Estimated Time to Complete** — realistic timeline
+7. **Status Check** — how to verify this item is truly complete and grant-ready
+
+Be practical and specific. Dr. Flood is a busy executive — tell him exactly what to do, not what to think about.`;
+      } else {
+        return res.status(400).json({ error: "Invalid assistType. Use: find-partners, outreach-template, or action-guide" });
+      }
+
+      const result = await generateAIResponse([
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
+      ], 4000);
+
+      res.json({ content: result, assistType });
+    } catch (error) {
+      console.error("Checklist AI assist error:", error);
+      res.status(500).json({ error: "Failed to generate AI assistance" });
+    }
+  });
 }

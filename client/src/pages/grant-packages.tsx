@@ -36,6 +36,37 @@ interface PackageSection {
   wordCount?: string;
 }
 
+interface ServiceArea {
+  region: string;
+  state: string;
+  counties?: string[];
+  city?: string;
+  lwdbName?: string;
+  lwdbUrl?: string;
+  keyIndustries: string[];
+  targetEmployers: Array<{ name: string; sector: string; type: string }>;
+  laborMarketNotes: string;
+  locationEligibility: "national" | "statewide" | "regional" | "local";
+  locationNotes: string;
+  multiSiteEligible: boolean;
+  multiSiteNotes?: string;
+}
+
+interface PartnerRequirement {
+  partnerType: string;
+  requiredInDocs: boolean;
+  timing: "pre-award" | "post-award" | "both";
+  docSections: string[];
+  description: string;
+  evidenceNeeded: string;
+}
+
+interface PartnershipTimeline {
+  summary: string;
+  workflowOrder: string;
+  requirements: PartnerRequirement[];
+}
+
 interface GrantPackage {
   id: string;
   name: string;
@@ -52,6 +83,8 @@ interface GrantPackage {
   referenceUrl?: string;
   referenceLabel?: string;
   grantKnowledge?: string;
+  serviceArea?: ServiceArea;
+  partnershipTimeline?: PartnershipTimeline;
   competitiveEdge: string[];
   sections: PackageSection[];
   phases: PhaseStatus[];
@@ -73,6 +106,9 @@ interface PhaseTask {
   owner: string;
   status: "done" | "in-progress" | "pending";
   dueDate: string;
+  guidance?: string;
+  aiCanHelp?: boolean;
+  aiAction?: string;
 }
 
 interface ChecklistItem {
@@ -81,6 +117,8 @@ interface ChecklistItem {
   item: string;
   status: "verified" | "pending" | "action-needed";
   notes: string;
+  guidance?: string;
+  resources?: Array<{ label: string; url: string }>;
 }
 
 interface WinStrategy {
@@ -127,6 +165,31 @@ APPLICATION DEADLINE: April 14, 2026. SF-424, SF-424A, Project Narrative, Budget
       "Real-time core measures tracking (not batch reporting)",
       "Three Realities framework ensures community voice is centered, not assumed",
     ],
+    serviceArea: {
+      region: "Central Texas",
+      state: "Texas",
+      counties: ["Travis", "Williamson", "Hays"],
+      city: "Austin",
+      keyIndustries: ["Substance Use Prevention", "Youth Services", "Community Health", "Education"],
+      targetEmployers: [],
+      laborMarketNotes: "DFC does not require employer partnerships — it is a coalition-based prevention grant. Focus is on coalition sector representation, not labor market alignment.",
+      locationEligibility: "national",
+      locationNotes: "DFC is a national grant — you can apply from any community in the United States. Your coalition must represent a defined geographic community (city, county, or region). You are applying for Austin/Travis County as your primary community. You could also apply for a separate coalition in another community if you have the infrastructure.",
+      multiSiteEligible: true,
+      multiSiteNotes: "You can submit separate DFC applications for different communities. Each application requires its own 12-sector coalition specific to that community. Consider: a second application for Williamson County or Hays County if you build separate coalitions. Each coalition can receive up to $125K/year independently.",
+    },
+    partnershipTimeline: {
+      summary: "DFC REQUIRES partners named in your application. Coalition members, their sectors, and their commitments must all be documented BEFORE you draft. Secure partnerships first, then write.",
+      workflowOrder: "Partnerships FIRST → Then Draft Documents",
+      requirements: [
+        { partnerType: "12-Sector Coalition Members", requiredInDocs: true, timing: "pre-award", docSections: ["Coalition Documentation", "Program Narrative", "Letters of Support"], description: "Every coalition member from all 12 sectors must be named, with their organization, sector, and role documented. This is a core scoring criterion — reviewers check for completeness.", evidenceNeeded: "Coalition membership roster, signed MOUs, meeting minutes showing active participation, bylaws listing members" },
+        { partnerType: "Schools / School Districts", requiredInDocs: true, timing: "pre-award", docSections: ["Coalition Documentation", "Program Narrative", "Letters of Support"], description: "At least one school or school district representative must be in your coalition (sector 5). They should commit to data sharing (YRBS data), program access, and prevention activity implementation.", evidenceNeeded: "Letter of support on school letterhead, signed MOU, named contact person" },
+        { partnerType: "Law Enforcement", requiredInDocs: true, timing: "pre-award", docSections: ["Coalition Documentation", "Letters of Support"], description: "At least one law enforcement agency (sector 7). They provide local substance trend data, community presence, and enforcement alignment with prevention.", evidenceNeeded: "Letter of support from chief/commander, MOU, named liaison officer" },
+        { partnerType: "Healthcare Providers", requiredInDocs: true, timing: "pre-award", docSections: ["Coalition Documentation", "Letters of Support"], description: "At least one healthcare organization (sector 10). They can provide screening, referral data, and clinical perspective on youth substance impact.", evidenceNeeded: "Letter of support, MOU, agreement to share de-identified community health data" },
+        { partnerType: "Evaluator / Research Partner", requiredInDocs: true, timing: "pre-award", docSections: ["Evaluation Plan", "Budget & Justification"], description: "DFC requires an evaluation plan. An independent evaluator (like Better Science Lab) should be named in the budget and evaluation section. They must be separate from program delivery staff.", evidenceNeeded: "Evaluator bio/CV, letter of commitment, evaluation methodology overview, budget line item" },
+        { partnerType: "In-Kind Match Contributors", requiredInDocs: true, timing: "pre-award", docSections: ["Budget & Justification"], description: "DFC requires dollar-for-dollar match ($125K/year). Match can be cash or in-kind. Partners providing match (meeting space, staff time, volunteer hours) must be documented with dollar values.", evidenceNeeded: "Match commitment letters with specific dollar amounts, in-kind valuation documentation" },
+      ],
+    },
     sections: [
       { id: "dfc-narrative", name: "Program Narrative", description: "Statement of Need, Program Design, Goals & Objectives, Implementation Plan", icon: FileText, status: "draft", content: "Comprehensive narrative addressing youth substance use prevention through evidence-based coalition strategies.", reviewNotes: "", lastUpdated: "2026-03-15", assignee: "Dr. Flood + AI", pageLimit: "25 pages", wordCount: "7,500–10,000 words" },
       { id: "dfc-budget", name: "Budget & Justification", description: "Line-item budget with narrative justification for all costs", icon: DollarSign, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood", pageLimit: "5 pages", wordCount: "1,500–2,000 words" },
@@ -144,9 +207,9 @@ APPLICATION DEADLINE: April 14, 2026. SF-424, SF-424A, Project Narrative, Budget
         tasks: [
           { id: "c1", task: "Review NOFO and scoring criteria in detail", owner: "Dr. Flood", status: "done", dueDate: "2026-03-10" },
           { id: "c2", task: "Map all 14 platform capabilities to DFC requirements", owner: "AI + Dr. Flood", status: "done", dueDate: "2026-03-12" },
-          { id: "c3", task: "Identify coalition gaps (sectors without confirmed partners)", owner: "Dr. Flood", status: "in-progress", dueDate: "2026-03-20" },
-          { id: "c4", task: "Collect community-level data (CDC PLACES, SVI, YRBS)", owner: "AI", status: "done", dueDate: "2026-03-14" },
-          { id: "c5", task: "Interview 3+ community stakeholders for Three Realities grounding", owner: "Dr. Flood", status: "pending", dueDate: "2026-03-22" },
+          { id: "c3", task: "Identify coalition gaps (sectors without confirmed partners)", owner: "Dr. Flood", status: "in-progress", dueDate: "2026-03-20", guidance: "DFC requires representation from 12 community sectors. Map your current coalition members against: (1) Youth, (2) Parents, (3) Business, (4) Media, (5) Schools, (6) Youth-serving orgs, (7) Law enforcement, (8) Religious, (9) Civic/volunteer, (10) Healthcare, (11) Government, (12) Other orgs. Find gaps and reach out to sector leaders in Austin.", aiCanHelp: true, aiAction: "Identify missing sectors and suggest Austin partners" },
+          { id: "c4", task: "Collect community-level data (CDC PLACES, SVI, YRBS)", owner: "AI", status: "done", dueDate: "2026-03-14", guidance: "Data collected from CDC PLACES, Social Vulnerability Index, and Youth Risk Behavior Survey for Travis County. Key findings: elevated youth substance use rates, high social vulnerability in east Austin zip codes, significant disparities by race/ethnicity." },
+          { id: "c5", task: "Interview 3+ community stakeholders for Three Realities grounding", owner: "Dr. Flood", status: "pending", dueDate: "2026-03-22", guidance: "Three Realities methodology requires capturing: (1) The community's lived reality, (2) The institutional reality, (3) The data/evidence reality. Schedule 30-minute interviews with at least 1 youth/parent, 1 school administrator or counselor, and 1 community health provider. Document quotes for narrative use." },
         ],
       },
       {
@@ -258,7 +321,45 @@ PURPOSE: Provide comprehensive workforce services to eligible youth ages 16–24
 14 REQUIRED YOUTH PROGRAM ELEMENTS: (1) Tutoring/study skills/dropout prevention, (2) Alternative secondary school services, (3) Paid/unpaid work experience, (4) Occupational skills training, (5) Education offered concurrently with workforce preparation, (6) Leadership development, (7) Supportive services, (8) Adult mentoring (12 months minimum), (9) Follow-up services (12 months post-exit), (10) Comprehensive guidance and counseling, (11) Financial literacy education, (12) Entrepreneurial skills training, (13) Services that provide labor market info, (14) Transition to postsecondary activities.
 6 PRIMARY PERFORMANCE INDICATORS: (1) Employment Rate Q2 after exit, (2) Employment Rate Q4 after exit, (3) Median Earnings Q2 after exit, (4) Credential Attainment within 4 quarters, (5) Measurable Skill Gains, (6) Effectiveness in Serving Employers.
 ELIGIBLE YOUTH BARRIERS: School dropout, basic skills deficient, English learner, offender, homeless/runaway/foster, pregnant/parenting, disability, low-income requiring assistance.
-APPLICATION: Submitted to Local Workforce Development Board; requires MOU, program design, budget, performance targets, employer engagement plan.`,
+APPLICATION: Submitted to Local Workforce Development Board; requires MOU, program design, budget, performance targets, employer engagement plan.
+SERVICE AREA: Central Texas (Travis, Williamson, Hays, Bastrop, Caldwell counties). Target LWDB: Workforce Solutions Capital Area (serving Travis County and surrounding region). Key industry sectors: Healthcare, Information Technology, Advanced Manufacturing, Construction, Transportation/Logistics.`,
+    serviceArea: {
+      region: "Central Texas",
+      state: "Texas",
+      counties: ["Travis", "Williamson", "Hays", "Bastrop", "Caldwell"],
+      city: "Austin",
+      lwdbName: "Workforce Solutions Capital Area",
+      lwdbUrl: "https://www.wfsca.org/",
+      keyIndustries: ["Healthcare", "Information Technology", "Advanced Manufacturing", "Construction", "Transportation/Logistics"],
+      targetEmployers: [
+        { name: "Ascension Seton", sector: "Healthcare", type: "Hospital system — CNA, Medical Assistant, Patient Care Tech pathways" },
+        { name: "St. David's HealthCare", sector: "Healthcare", type: "Hospital system — Allied health, nursing pathways" },
+        { name: "CommUnityCare Health Centers", sector: "Healthcare", type: "FQHC — Community health worker, medical assistant roles" },
+        { name: "Dell Technologies", sector: "Information Technology", type: "IT support, help desk, cybersecurity entry-level" },
+        { name: "Indeed", sector: "Information Technology", type: "Customer support, data entry, tech support pathways" },
+        { name: "Samsung Austin Semiconductor", sector: "Advanced Manufacturing", type: "Production technician, quality control, equipment maintenance" },
+        { name: "Tesla Gigafactory Texas", sector: "Advanced Manufacturing", type: "Production associate, logistics, warehouse operations" },
+        { name: "Austin ISD", sector: "Education", type: "Paraprofessional, after-school program staff, custodial" },
+        { name: "H-E-B", sector: "Retail/Logistics", type: "Store operations, warehouse, CDL training partnerships" },
+        { name: "City of Austin", sector: "Government", type: "Parks & rec, public works, administrative assistant pathways" },
+      ],
+      laborMarketNotes: "Austin MSA youth unemployment (16-24) at ~10.2% vs 7.8% statewide. Travis County has ~18,000 OSY ages 16-24. Growth sectors: healthcare (+12% projected 5yr), IT (+15%), construction (+9%). Median entry-level wage $16.50/hr. Major credential gaps in CNA, CompTIA, CDL, welding certifications.",
+      locationEligibility: "statewide",
+      locationNotes: "WIOA Title I Youth is administered through each state's Local Workforce Development Boards (LWDBs). You apply to the LWDB serving your target area. In Texas there are 28 LWDBs — you can apply to one or multiple. Your primary target is Workforce Solutions Capital Area (Austin/Travis County). You could also apply to other Texas LWDBs for additional service areas (e.g., Workforce Solutions Rural Capital Area for Williamson/Hays/Bastrop counties).",
+      multiSiteEligible: true,
+      multiSiteNotes: "You can submit separate applications to different LWDBs in Texas for different service areas. Each LWDB has its own funding allocation and priorities. Consider: Workforce Solutions Capital Area (Travis Co.), Workforce Solutions Rural Capital Area (Williamson, Hays, Bastrop, Caldwell, Blanco, Burnet, Fayette, Lee, Llano counties), or even boards in other Texas metros (Dallas, Houston, San Antonio) if you want to expand.",
+    },
+    partnershipTimeline: {
+      summary: "WIOA employer partners MUST be named in your application — they demonstrate your work-based learning capacity. The LWDB relationship must exist BEFORE you apply. Secure employer commitments and LWDB intro first, then draft.",
+      workflowOrder: "LWDB Relationship → Employer Commitments → Then Draft Documents",
+      requirements: [
+        { partnerType: "Local Workforce Development Board (LWDB)", requiredInDocs: true, timing: "pre-award", docSections: ["Program Narrative", "Partnership Documentation"], description: "The LWDB IS your funder for WIOA. You must have an existing relationship with them before applying. They need to know you, your programs, and your capacity. This is not optional — they select service providers based on relationships, track record, and alignment with their local plan.", evidenceNeeded: "Documentation of meetings with LWDB staff, understanding of their local plan, formal application through their procurement process" },
+        { partnerType: "Employer Partners (Work-Based Learning)", requiredInDocs: true, timing: "pre-award", docSections: ["Program Narrative", "Budget & Justification", "Partnership Documentation"], description: "WIOA requires 20% of funds on work experience. You must name employers who will provide internships, OJT, or pre-apprenticeships. Signed commitment letters dramatically strengthen your application. Reviewers want to see real employer relationships, not aspirational ones.", evidenceNeeded: "Signed letters of commitment on company letterhead specifying: number of positions, types of roles, supervision commitment, timeline. At minimum 3-5 employers across different sectors." },
+        { partnerType: "Educational Partners", requiredInDocs: true, timing: "pre-award", docSections: ["Program Narrative"], description: "Partners who provide credentials, certifications, or educational services. Community colleges, trade schools, certification bodies. Named in the narrative to show your training pipeline.", evidenceNeeded: "Letters of support, articulation agreements, credential program descriptions" },
+        { partnerType: "Referral / Community Partners", requiredInDocs: false, timing: "both", docSections: ["Program Narrative"], description: "Organizations that will refer youth to your program or provide wraparound services (housing, childcare, transportation). Helpful to name but not strictly required. Can be formalized post-award.", evidenceNeeded: "Letters of support are helpful but MOUs can be finalized post-award" },
+        { partnerType: "Case Management / Support Services", requiredInDocs: false, timing: "post-award", docSections: [], description: "Detailed case management partnerships and service agreements can be formalized after award. You should describe your approach in the narrative but formal agreements come later.", evidenceNeeded: "Service agreements, referral protocols — formalized during 90-day startup period after award" },
+      ],
+    },
     competitiveEdge: [
       "50+ career pathways with stackable credentials already built in platform",
       "Integrated case management with Individual Employment Plans (IEPs)",
@@ -279,11 +380,11 @@ APPLICATION: Submitted to Local Workforce Development Board; requires MOU, progr
       {
         id: "collaborate", name: "1. Collaborate & Research", description: "Understand local workforce board priorities and requirements", status: "upcoming",
         tasks: [
-          { id: "wc1", task: "Identify target Local Workforce Development Board (LWDB)", owner: "Dr. Flood", status: "pending", dueDate: "TBD" },
-          { id: "wc2", task: "Review state WIOA plan and local area priorities", owner: "Dr. Flood + AI", status: "pending", dueDate: "TBD" },
-          { id: "wc3", task: "Map platform capabilities to all 14 WIOA youth elements", owner: "AI", status: "pending", dueDate: "TBD" },
-          { id: "wc4", task: "Identify 3-5 employer partners for work-based learning", owner: "Dr. Flood", status: "pending", dueDate: "TBD" },
-          { id: "wc5", task: "Gather local labor market data for target occupations", owner: "AI", status: "pending", dueDate: "TBD" },
+          { id: "wc1", task: "Identify target Local Workforce Development Board (LWDB)", owner: "Dr. Flood", status: "pending", dueDate: "TBD", guidance: "Your primary target is Workforce Solutions Capital Area (wfsca.org) which serves Travis County. You could also apply to Workforce Solutions Rural Capital Area for Williamson, Hays, Bastrop, Caldwell counties. Contact the Youth Program Manager at your target LWDB to discuss funding availability and local priorities before writing." },
+          { id: "wc2", task: "Review state WIOA plan and local area priorities", owner: "Dr. Flood + AI", status: "pending", dueDate: "TBD", guidance: "Texas Workforce Commission publishes the state WIOA plan at twc.texas.gov. Your LWDB also publishes a Local Plan with specific priority sectors, performance targets, and youth service strategies. Align your proposal to BOTH. The AI can analyze these documents if you share them.", aiCanHelp: true, aiAction: "Analyze state/local WIOA plan alignment" },
+          { id: "wc3", task: "Map platform capabilities to all 14 WIOA youth elements", owner: "AI", status: "pending", dueDate: "TBD", guidance: "WIOA requires all 14 youth program elements. ThriveUp's 14 platforms map directly — e.g., ThriveUp Academy = tutoring, WholeMind = comprehensive guidance, SafeReport = safe environment, MCE = entrepreneurial skills. The AI can generate a complete platform-to-element mapping matrix.", aiCanHelp: true, aiAction: "Generate 14-element platform mapping" },
+          { id: "wc4", task: "Identify 3-5 employer partners for work-based learning", owner: "Dr. Flood", status: "pending", dueDate: "TBD", guidance: "WIOA requires 20% of funds on Work Experience. Target Austin-area employers in growth sectors: Healthcare (Ascension Seton, St. David's, CommUnityCare), IT (Dell, Indeed), Manufacturing (Samsung, Tesla Gigafactory), Logistics (H-E-B, Amazon). Reach out to HR/workforce development contacts. You need signed commitment letters." },
+          { id: "wc5", task: "Gather local labor market data for target occupations", owner: "AI", status: "pending", dueDate: "TBD", guidance: "Pull Austin MSA data from BLS, Texas Workforce Commission, and EMSI/Lightcast. Key data points: youth unemployment rate (16-24), in-demand occupations, median wages by sector, credential gaps, OSY population estimates for Travis County (~18,000). The AI can compile this into a data brief.", aiCanHelp: true, aiAction: "Compile Austin labor market data brief" },
         ],
       },
       {
@@ -324,15 +425,15 @@ APPLICATION: Submitted to Local Workforce Development Board; requires MOU, progr
       },
     ],
     preExecutionChecklist: [
-      { id: "wpe-1", category: "Registration", item: "SAM.gov registration active", status: "verified", notes: "" },
-      { id: "wpe-2", category: "Compliance", item: "501(c)(3) status confirmed", status: "pending", notes: "" },
-      { id: "wpe-3", category: "Compliance", item: "WIOA eligible provider status", status: "action-needed", notes: "Apply through state Eligible Training Provider List (ETPL)" },
-      { id: "wpe-4", category: "Partnerships", item: "LWDB relationship established", status: "action-needed", notes: "Contact local board for partnership discussion" },
-      { id: "wpe-5", category: "Partnerships", item: "Minimum 3 employer partners committed", status: "pending", notes: "" },
-      { id: "wpe-6", category: "Data", item: "WIOA performance tracking configured", status: "verified", notes: "Workforce Dashboard tracks all 6 primary indicators" },
-      { id: "wpe-7", category: "Staffing", item: "Case managers identified", status: "pending", notes: "" },
-      { id: "wpe-8", category: "Technology", item: "Career pathway tools configured", status: "verified", notes: "Career Explorer, Pathway Builder, Assessment tools all live" },
-      { id: "wpe-9", category: "Financial", item: "Cost allocation methodology documented", status: "pending", notes: "Required for WIOA cost categories" },
+      { id: "wpe-1", category: "Registration", item: "SAM.gov registration active", status: "verified", notes: "", guidance: "Your SAM.gov registration must be current and active. Verify at sam.gov — search for ThriveUp Academy. Ensure your UEI number matches across all federal systems.", resources: [{ label: "SAM.gov", url: "https://sam.gov" }] },
+      { id: "wpe-2", category: "Compliance", item: "501(c)(3) status confirmed", status: "pending", notes: "", guidance: "Attach your IRS 501(c)(3) determination letter to the application. If your status is less than 5 years old, you may also need to include most recent Form 990. ThriveUp Academy's EIN should be on file." },
+      { id: "wpe-3", category: "Compliance", item: "WIOA eligible provider status", status: "action-needed", notes: "Apply through state Eligible Training Provider List (ETPL)", guidance: "Texas requires training providers to be on the state's Eligible Training Provider List (ETPL). Apply through the Texas Workforce Commission. This process can take 30-90 days — start immediately. Without ETPL status, you cannot receive WIOA training funds.", resources: [{ label: "Texas ETPL Application", url: "https://www.twc.texas.gov/programs/eligible-training-provider-system" }] },
+      { id: "wpe-4", category: "Partnerships", item: "LWDB relationship established", status: "action-needed", notes: "Contact local board for partnership discussion", guidance: "Contact Workforce Solutions Capital Area (WFSCA). Ask for the Youth Program Director. Request a meeting to discuss: (1) current funding availability for WIOA Title I Youth, (2) their local priorities and performance targets, (3) what they look for in service providers, (4) MOU requirements. This is the most critical relationship — they are your funder.", resources: [{ label: "WFSCA Website", url: "https://www.wfsca.org/" }] },
+      { id: "wpe-5", category: "Partnerships", item: "Minimum 3 employer partners committed", status: "pending", notes: "", guidance: "You need signed commitment letters from employers who will provide work-based learning opportunities (internships, OJT, pre-apprenticeships). Target Austin employers in growth sectors:\n• Healthcare: Ascension Seton, St. David's HealthCare, CommUnityCare\n• IT: Dell Technologies, Indeed, National Instruments\n• Manufacturing: Samsung Austin Semiconductor, Tesla Gigafactory\n• Retail/Logistics: H-E-B, Amazon\n• Government: City of Austin, Travis County\nReach out to HR/community relations departments. Offer to provide pre-screened, trained youth." },
+      { id: "wpe-6", category: "Data", item: "WIOA performance tracking configured", status: "verified", notes: "Workforce Dashboard tracks all 6 primary indicators", guidance: "Your platform already tracks the 6 WIOA primary indicators. Ensure data can be exported in formats compatible with the state workforce data system (TWIST in Texas)." },
+      { id: "wpe-7", category: "Staffing", item: "Case managers identified", status: "pending", notes: "", guidance: "WIOA programs require dedicated case managers with reasonable caseloads (typically 1:25-35 ratio). You need case managers experienced with WIOA documentation requirements: eligibility verification, ISS development, service tracking, follow-up contacts. Consider hiring from Workforce Solutions alumni or social work programs at UT Austin or Texas State." },
+      { id: "wpe-8", category: "Technology", item: "Career pathway tools configured", status: "verified", notes: "Career Explorer, Pathway Builder, Assessment tools all live", guidance: "Your platform's career pathway tools are operational. Ensure they are configured with Austin-area labor market data, local employer information, and credential requirements for in-demand occupations." },
+      { id: "wpe-9", category: "Financial", item: "Cost allocation methodology documented", status: "pending", notes: "Required for WIOA cost categories", guidance: "WIOA requires costs categorized as: (1) Youth Program activities (minimum 80%), (2) Administrative costs (maximum 10%), (3) Work Experience (minimum 20% of total). You need a cost allocation methodology if costs are shared across programs. Consider using the de minimis 10% indirect cost rate if you don't have a negotiated rate." },
     ],
     winStrategy: {
       differentiators: [
@@ -395,6 +496,35 @@ ELIGIBILITY: 501(c)(3) organizations or fiscal sponsors; must demonstrate authen
       "Financial literacy module teaches wealth-building, not just budgeting",
       "VOSB designation and minority business infrastructure show authentic community investment",
     ],
+    serviceArea: {
+      region: "Central Texas",
+      state: "Texas",
+      counties: ["Travis", "Williamson", "Hays"],
+      city: "Austin",
+      keyIndustries: ["Healthcare", "Information Technology", "Skilled Trades", "Entrepreneurship", "Logistics"],
+      targetEmployers: [
+        { name: "Ascension Seton / St. David's", sector: "Healthcare", type: "Entry-level CNA, medical assistant, patient care tech roles" },
+        { name: "Dell Technologies / Indeed", sector: "Technology", type: "IT support, help desk, customer success — entry to mid-level" },
+        { name: "Capital Metro", sector: "Transportation", type: "CDL training, operations, maintenance pathways" },
+        { name: "Austin Chamber Black Business", sector: "Entrepreneurship", type: "MCE-aligned small business pipeline, mentorship network" },
+        { name: "Goodwill Central Texas", sector: "Workforce", type: "Career readiness, job coaching, community integration" },
+      ],
+      laborMarketNotes: "Austin MSA Black youth unemployment significantly higher than metro average. Strong demand in healthcare, IT, and skilled trades. MCE can connect to Black-owned businesses for entrepreneurship mentorship pipeline.",
+      locationEligibility: "national",
+      locationNotes: "NBA Foundation accepts applications from anywhere in the United States. There are no geographic restrictions. Your program should serve Black youth ages 16-24 in a defined community — Austin, TX is your primary site. You can propose serving multiple locations if you have the capacity.",
+      multiSiteEligible: true,
+      multiSiteNotes: "You can propose a single-site program (Austin) or a multi-site model. Multi-site is stronger if you can demonstrate capacity in each location. For a first application, single-site (Austin) is recommended to show focused impact. You can expand in subsequent funding years.",
+    },
+    partnershipTimeline: {
+      summary: "NBA Foundation values strong community partnerships but the LOI can be submitted without formal partner agreements. For the full proposal (if invited), employer partners and community organizations should be named. Secure key partnerships between LOI and full proposal.",
+      workflowOrder: "LOI First (name key partners) → Secure Formal Commitments → Full Proposal with Documentation",
+      requirements: [
+        { partnerType: "Employer Partners", requiredInDocs: true, timing: "both", docSections: ["Full Proposal Narrative", "Partnership Documentation"], description: "For the LOI, describe the types of employers you'll partner with — specific names strengthen it but aren't required. For the full proposal, you MUST name specific employers with commitment details. Use the time between LOI submission and full proposal invitation to secure these.", evidenceNeeded: "LOI: employer types and sectors. Full proposal: signed commitment letters, named contacts, specific role descriptions and placement numbers" },
+        { partnerType: "Community Organizations", requiredInDocs: true, timing: "both", docSections: ["Full Proposal Narrative", "Equity & Community Voice", "Partnership Documentation"], description: "Black-led community organizations that validate your community connection. NBA Foundation explicitly looks for community-rooted partnerships, not transactional ones. Start building these now — they strengthen both LOI and full proposal.", evidenceNeeded: "LOI: named organizations and relationship description. Full proposal: letters of support, joint programming descriptions, community voice documentation" },
+        { partnerType: "Educational Institutions", requiredInDocs: false, timing: "both", docSections: ["Full Proposal Narrative"], description: "Schools, community colleges, or certification providers. Helpful but not strictly required. Strengthens the credential pipeline narrative.", evidenceNeeded: "Letters of support, articulation agreements for credential programs" },
+        { partnerType: "Mentorship / MCE Business Partners", requiredInDocs: false, timing: "post-award", docSections: [], description: "MCE (Minority Capital Exchange) business mentors and Black-owned business partners for the entrepreneurship pipeline. Can be formalized post-award as part of program implementation.", evidenceNeeded: "Mentor roster, business partner agreements — can be developed during startup period" },
+      ],
+    },
     sections: [
       { id: "nba-loi", name: "Letter of Inquiry (LOI)", description: "Initial inquiry with program overview, population served, and funding request", icon: FileText, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood + AI", pageLimit: "3 pages", wordCount: "800–1,200 words" },
       { id: "nba-narrative", name: "Full Proposal Narrative", description: "Program design, theory of change, target population, implementation plan", icon: BookOpen, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood + AI", pageLimit: "15 pages", wordCount: "5,000–6,000 words" },
@@ -530,6 +660,36 @@ ELIGIBILITY: 501(c)(3) organizations operating in Central Texas counties. Collab
       "MAP-GAP continuous improvement aligns with foundation's data-driven approach",
       "Financial Literacy module directly supports economic stability for participants",
     ],
+    serviceArea: {
+      region: "Central Texas",
+      state: "Texas",
+      counties: ["Bastrop", "Caldwell", "Hays", "Travis", "Williamson"],
+      city: "Austin",
+      keyIndustries: ["Public Benefits Enrollment", "Financial Coaching", "Workforce Development", "Community Health"],
+      targetEmployers: [
+        { name: "Foundation Communities", sector: "Housing/Benefits", type: "Benefits enrollment partner, shared service delivery" },
+        { name: "Workforce Solutions Capital Area", sector: "Workforce", type: "Co-enrollment for WIOA services, case management" },
+        { name: "CommUnityCare Health Centers", sector: "Healthcare", type: "Community health integration, SNAP/Medicaid enrollment" },
+        { name: "United Way for Greater Austin", sector: "Social Services", type: "2-1-1 referral pipeline, collaborative infrastructure" },
+        { name: "Goodwill Central Texas", sector: "Workforce", type: "Career readiness, community benefits navigation partner" },
+      ],
+      laborMarketNotes: "St. David's focuses on economic stability, not employer partnerships per se. Key metrics: public benefits enrollment rates, financial stability indicators, self-sufficiency outcomes. Central Texas has significant benefits enrollment gaps — ~40% of eligible households don't access SNAP, Medicaid, or housing assistance.",
+      locationEligibility: "regional",
+      locationNotes: "St. David's Foundation is STRICTLY limited to Central Texas — Bastrop, Caldwell, Hays, Travis, and Williamson counties ONLY. You MUST have operations or a strong partner presence in these counties to be eligible. This cannot be applied from other locations. Austin/Travis County is your anchor.",
+      multiSiteEligible: false,
+      multiSiteNotes: "This grant is restricted to the 5-county Central Texas service area. However, the collaborative track ($1M) requires at least 3 organizations with operations across these counties. You could partner with organizations in Bastrop, Caldwell, or Hays counties to strengthen geographic coverage while you focus on Travis/Williamson.",
+    },
+    partnershipTimeline: {
+      summary: "St. David's Foundation REQUIRES community-informed design evidence. Partners must be named in your application, especially for the collaborative track ($1M). For individual track ($250K), strong community partnerships are a key scoring factor. Build relationships BEFORE drafting.",
+      workflowOrder: "Community Relationships → Partner Commitments → Then Draft (Community Voice Must Inform the Writing)",
+      requirements: [
+        { partnerType: "Collaborative Partners (for $1M track)", requiredInDocs: true, timing: "pre-award", docSections: ["Program Narrative", "Partnership Documentation", "Community Voice Documentation"], description: "The collaborative track requires at least 3 organizations with primary operations in the 5-county area. These must be named with specific roles, shared governance structure, and joint budget. This is not optional — it IS the application.", evidenceNeeded: "Collaborative agreement, shared governance structure, joint budget, individual org capacity statements, MOUs between all partners" },
+        { partnerType: "Community Voice Partners", requiredInDocs: true, timing: "pre-award", docSections: ["Community Voice Documentation", "Program Narrative"], description: "St. David's explicitly requires evidence of how community voice shapes your work. You need organizations or community members who can validate that your program design comes FROM the community, not TO the community. Three Realities methodology is your proof.", evidenceNeeded: "Documentation of community input sessions, advisory board minutes with community members, testimonials, focus group summaries, Three Realities analysis documentation" },
+        { partnerType: "Benefits Enrollment Partners", requiredInDocs: true, timing: "pre-award", docSections: ["Program Narrative", "Partnership Documentation"], description: "Since this grant focuses on public benefits enrollment and economic stability, you need partners who handle SNAP, Medicaid, CHIP, housing, childcare subsidy enrollment. Foundation Communities, CommUnityCare, and United Way 2-1-1 are key.", evidenceNeeded: "Letters of support, data sharing agreements, referral protocols, joint service delivery plans" },
+        { partnerType: "Financial Coaching Partners", requiredInDocs: false, timing: "both", docSections: ["Program Narrative"], description: "Partners providing financial coaching, asset building, or credit counseling. Your Financial Literacy module covers some of this, but community-based financial coaching partners add credibility.", evidenceNeeded: "Letters of support, description of coaching model, any certifications (AFC, etc.)" },
+        { partnerType: "Workforce Development Partners", requiredInDocs: false, timing: "post-award", docSections: [], description: "Since economic stability includes workforce pathways, your existing workforce infrastructure is relevant. Formal workforce partnerships can be developed post-award as implementation begins.", evidenceNeeded: "Can reference existing ThriveUp workforce capabilities in narrative without formal new agreements" },
+      ],
+    },
     sections: [
       { id: "std-loi", name: "Letter of Intent / Application", description: "Organization overview, program description, population served, funding request", icon: FileText, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood + AI", pageLimit: "5 pages", wordCount: "1,500–2,000 words" },
       { id: "std-narrative", name: "Program Narrative", description: "Community-informed program design, economic stability services, public benefits enrollment strategy", icon: BookOpen, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood + AI", pageLimit: "15 pages", wordCount: "5,000–6,000 words" },
@@ -1639,6 +1799,10 @@ export default function GrantPackagesPage() {
   const [activeTab, setActiveTab] = useState<string>("overview");
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
   const [expandedPhases, setExpandedPhases] = useState<Set<string>>(new Set(["collaborate", "build"]));
+  const [expandedChecklistItems, setExpandedChecklistItems] = useState<Set<string>>(new Set());
+  const [checklistAiResults, setChecklistAiResults] = useState<Record<string, { content: string; type: string }>>({});
+  const [checklistAiLoading, setChecklistAiLoading] = useState<string | null>(null);
+  const [checklistAiLoadingType, setChecklistAiLoadingType] = useState<string | null>(null);
   const [sectionStatuses, setSectionStatuses] = useState<Record<string, ApprovalStatus>>({});
   const [savedDrafts, setSavedDrafts] = useState<Record<string, string>>({});
   const [workflowMode, setWorkflowMode] = useState<"guided" | "auto">("guided");
@@ -1742,6 +1906,35 @@ export default function GrantPackagesPage() {
   };
 
   const [isExporting, setIsExporting] = useState(false);
+
+  const handleChecklistAiAssist = async (itemId: string, itemText: string, assistType: string) => {
+    setChecklistAiLoading(itemId);
+    setChecklistAiLoadingType(assistType);
+    try {
+      const response = await apiRequest("POST", "/api/grants/checklist-ai-assist", {
+        checklistItem: itemText,
+        grantName: currentGrant.fullName,
+        grantKnowledge: currentGrant.grantKnowledge,
+        serviceArea: currentGrant.serviceArea || null,
+        partnershipTimeline: currentGrant.partnershipTimeline || null,
+        assistType,
+      });
+      const data = await response.json();
+      setChecklistAiResults((prev) => ({
+        ...prev,
+        [itemId]: { content: data.content, type: assistType },
+      }));
+    } catch (error) {
+      toast({
+        title: "AI assist failed",
+        description: "Could not generate AI assistance. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setChecklistAiLoading(null);
+      setChecklistAiLoadingType(null);
+    }
+  };
 
   const handleDownloadPackage = async (includeAll: boolean = false) => {
     const sectionsToInclude = includeAll
@@ -2022,6 +2215,260 @@ export default function GrantPackagesPage() {
             </Card>
           </div>
 
+          {currentGrant.serviceArea && (
+            <Card className="border-blue-200 dark:border-blue-800 bg-blue-50/30 dark:bg-blue-950/20">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <MapPin className="h-5 w-5 text-blue-600" />
+                  Service Area & Location
+                  <Badge variant="outline" className="ml-auto text-[10px]">
+                    {currentGrant.serviceArea.locationEligibility === "national" ? "National — Apply from anywhere" :
+                     currentGrant.serviceArea.locationEligibility === "statewide" ? `Statewide — ${currentGrant.serviceArea.state}` :
+                     currentGrant.serviceArea.locationEligibility === "regional" ? `Regional — ${currentGrant.serviceArea.region}` :
+                     `Local — ${currentGrant.serviceArea.city}`}
+                  </Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm font-semibold mb-1 flex items-center gap-1.5">
+                      <Globe className="h-3.5 w-3.5" /> Primary Location
+                    </p>
+                    <p className="text-sm">{currentGrant.serviceArea.city}, {currentGrant.serviceArea.state}</p>
+                    {currentGrant.serviceArea.counties && (
+                      <p className="text-xs text-muted-foreground mt-0.5">Counties: {currentGrant.serviceArea.counties.join(", ")}</p>
+                    )}
+                    {currentGrant.serviceArea.lwdbName && (
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        LWDB: {currentGrant.serviceArea.lwdbUrl ? (
+                          <a href={currentGrant.serviceArea.lwdbUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">{currentGrant.serviceArea.lwdbName}</a>
+                        ) : currentGrant.serviceArea.lwdbName}
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold mb-1 flex items-center gap-1.5">
+                      <Briefcase className="h-3.5 w-3.5" /> Key Industries
+                    </p>
+                    <div className="flex flex-wrap gap-1">
+                      {currentGrant.serviceArea.keyIndustries.map((ind, i) => (
+                        <Badge key={i} variant="secondary" className="text-[10px]">{ind}</Badge>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-3 rounded-lg bg-background border">
+                  <p className="text-xs font-semibold mb-1">Location Eligibility</p>
+                  <p className="text-sm">{currentGrant.serviceArea.locationNotes}</p>
+                </div>
+
+                {currentGrant.serviceArea.multiSiteEligible && currentGrant.serviceArea.multiSiteNotes && (
+                  <div className="p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800">
+                    <p className="text-xs font-semibold mb-1 flex items-center gap-1.5 text-emerald-700 dark:text-emerald-300">
+                      <CheckCircle2 className="h-3.5 w-3.5" /> Multi-Site Eligible
+                    </p>
+                    <p className="text-sm">{currentGrant.serviceArea.multiSiteNotes}</p>
+                  </div>
+                )}
+
+                {!currentGrant.serviceArea.multiSiteEligible && currentGrant.serviceArea.multiSiteNotes && (
+                  <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800">
+                    <p className="text-xs font-semibold mb-1 flex items-center gap-1.5 text-amber-700 dark:text-amber-300">
+                      <AlertTriangle className="h-3.5 w-3.5" /> Geographic Restriction
+                    </p>
+                    <p className="text-sm">{currentGrant.serviceArea.multiSiteNotes}</p>
+                  </div>
+                )}
+
+                {currentGrant.serviceArea.targetEmployers.length > 0 && (
+                  <div>
+                    <p className="text-sm font-semibold mb-2 flex items-center gap-1.5">
+                      <Building2 className="h-3.5 w-3.5" /> Target Employers & Partners ({currentGrant.serviceArea.region})
+                    </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {currentGrant.serviceArea.targetEmployers.map((emp, i) => (
+                        <div key={i} className="p-2 rounded border bg-background text-sm" data-testid={`employer-card-${i}`}>
+                          <p className="font-medium">{emp.name}</p>
+                          <p className="text-xs text-muted-foreground">{emp.sector} — {emp.type}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {currentGrant.serviceArea.laborMarketNotes && (
+                  <div className="p-3 rounded-lg bg-muted/50 border">
+                    <p className="text-xs font-semibold mb-1 flex items-center gap-1.5">
+                      <BarChart3 className="h-3.5 w-3.5" /> Labor Market Intelligence
+                    </p>
+                    <p className="text-xs">{currentGrant.serviceArea.laborMarketNotes}</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {currentGrant.partnershipTimeline && (
+            <Card className="border-amber-200 dark:border-amber-800 bg-amber-50/30 dark:bg-amber-950/20">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <Handshake className="h-5 w-5 text-amber-600" />
+                  Partnership & Connection Timeline
+                  <Badge variant="outline" className="ml-auto text-[10px] font-semibold text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-700">
+                    {currentGrant.partnershipTimeline.workflowOrder}
+                  </Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="p-3 rounded-lg bg-amber-100/50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800">
+                  <p className="text-sm font-semibold" data-testid="text-partnership-summary">{currentGrant.partnershipTimeline.summary}</p>
+                </div>
+
+                <div className="space-y-3">
+                  {currentGrant.partnershipTimeline.requirements.map((req, i) => (
+                    <div key={i} className={`p-3 rounded-lg border ${
+                      req.requiredInDocs ? "bg-red-50/30 dark:bg-red-950/10 border-red-200/50 dark:border-red-800/50" : "bg-background border-border"
+                    }`} data-testid={`partner-req-${i}`}>
+                      <div className="flex items-start justify-between gap-2 mb-1">
+                        <p className="text-sm font-semibold">{req.partnerType}</p>
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          {req.requiredInDocs && (
+                            <Badge variant="destructive" className="text-[10px]">Must Be in Docs</Badge>
+                          )}
+                          <Badge variant={req.timing === "pre-award" ? "default" : req.timing === "post-award" ? "secondary" : "outline"} className="text-[10px]">
+                            {req.timing === "pre-award" ? "Pre-Award" : req.timing === "post-award" ? "Post-Award" : "Both"}
+                          </Badge>
+                        </div>
+                      </div>
+                      <p className="text-xs mb-2">{req.description}</p>
+                      {req.requiredInDocs && req.docSections.length > 0 && (
+                        <div className="flex items-center gap-1 mb-2">
+                          <span className="text-[10px] text-muted-foreground font-medium">Referenced in:</span>
+                          {req.docSections.map((sec, si) => (
+                            <Badge key={si} variant="secondary" className="text-[9px]">{sec}</Badge>
+                          ))}
+                        </div>
+                      )}
+                      <div className="p-2 rounded bg-muted/50 border">
+                        <p className="text-[10px] font-semibold text-muted-foreground mb-0.5">Evidence Needed</p>
+                        <p className="text-xs">{req.evidenceNeeded}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setActiveTab("checklist")}
+                    data-testid="button-goto-checklist-partners"
+                  >
+                    <Search className="h-3.5 w-3.5 mr-1.5" />
+                    Find Partners with AI
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setActiveTab("checklist")}
+                    data-testid="button-goto-checklist-templates"
+                  >
+                    <Pencil className="h-3.5 w-3.5 mr-1.5" />
+                    Generate Outreach Templates
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {(() => {
+            const allApproved = approvedCount === totalSections;
+            const someDrafted = currentGrant.sections.some((s) => draftContentsRef.current[s.id] || s.content);
+            const needsApproval = currentGrant.sections.some((s) => {
+              const hasDraft = draftContentsRef.current[s.id] || s.content;
+              return hasDraft && getSectionStatus(s.id, s.status) !== "approved";
+            });
+            const noDrafts = !someDrafted;
+            const hasPreAwardPartners = currentGrant.partnershipTimeline?.requirements.some((r) => r.requiredInDocs && r.timing === "pre-award");
+            const partnerChecklistPending = currentGrant.preExecutionChecklist.filter((c) =>
+              (c.category === "Partnerships" || c.category === "Coalition") && c.status !== "verified"
+            ).length;
+
+            let nextStepTitle = "";
+            let nextStepDescription = "";
+            let nextStepAction = "";
+            let nextStepTab = "";
+            let nextStepColor = "border-blue-200 dark:border-blue-800 bg-blue-50/30 dark:bg-blue-950/20";
+
+            if (hasPreAwardPartners && partnerChecklistPending > 0 && noDrafts) {
+              nextStepTitle = "Secure Partnerships First — Before Drafting";
+              nextStepDescription = `This grant requires partners to be named in your documents. You have ${partnerChecklistPending} partnership item${partnerChecklistPending > 1 ? "s" : ""} that need attention. Use the AI to find partners, generate outreach templates, and get commitment letters BEFORE you start drafting sections.`;
+              nextStepAction = "Find Partners & Get Templates →";
+              nextStepTab = "checklist";
+              nextStepColor = "border-red-200 dark:border-red-800 bg-red-50/30 dark:bg-red-950/20";
+            } else if (noDrafts) {
+              nextStepTitle = "Start Drafting Sections";
+              nextStepDescription = "Go to Sections & Approval to generate your first AI draft. The AI knows your grant requirements, service area, and organizational context — it will write a strong first draft for each section.";
+              nextStepAction = "Go to Sections & Approval →";
+              nextStepTab = "sections";
+              nextStepColor = "border-blue-200 dark:border-blue-800 bg-blue-50/30 dark:bg-blue-950/20";
+            } else if (needsApproval) {
+              const unapprovedSections = currentGrant.sections.filter((s) => {
+                const hasDraft = draftContentsRef.current[s.id] || s.content;
+                return hasDraft && getSectionStatus(s.id, s.status) !== "approved";
+              }).map(s => s.name);
+              nextStepTitle = "Review & Approve Drafted Sections";
+              nextStepDescription = `You have ${unapprovedSections.length} drafted section${unapprovedSections.length > 1 ? "s" : ""} waiting for your review: ${unapprovedSections.join(", ")}. Read each draft, use "Refine with AI" for improvements, then approve when ready.`;
+              nextStepAction = "Review Sections →";
+              nextStepTab = "sections";
+              nextStepColor = "border-amber-200 dark:border-amber-800 bg-amber-50/30 dark:bg-amber-950/20";
+            } else if (allApproved) {
+              const checklistActionNeeded = currentGrant.preExecutionChecklist.filter((c) => c.status === "action-needed").length;
+              if (checklistActionNeeded > 0) {
+                nextStepTitle = "Complete Pre-Execution Checklist";
+                nextStepDescription = `All sections approved! Now verify ${checklistActionNeeded} pre-execution item${checklistActionNeeded > 1 ? "s" : ""} that need action before you can submit. These ensure you're ready for Day 1 if awarded.`;
+                nextStepAction = "Go to Pre-Execution →";
+                nextStepTab = "checklist";
+                nextStepColor = "border-amber-200 dark:border-amber-800 bg-amber-50/30 dark:bg-amber-950/20";
+              } else {
+                nextStepTitle = "Ready to Export & Submit!";
+                nextStepDescription = "All sections approved and pre-execution items verified. Export your complete package as a Word document and submit to the funder.";
+                nextStepAction = "Export Package (.docx)";
+                nextStepTab = "";
+                nextStepColor = "border-emerald-200 dark:border-emerald-800 bg-emerald-50/30 dark:bg-emerald-950/20";
+              }
+            }
+
+            return nextStepTitle ? (
+              <Card className={`${nextStepColor}`}>
+                <CardContent className="p-4 flex items-center gap-4">
+                  <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                    <ArrowRight className="h-5 w-5 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-semibold text-sm" data-testid="text-next-step-title">{nextStepTitle}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{nextStepDescription}</p>
+                  </div>
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      if (nextStepTab) {
+                        setActiveTab(nextStepTab);
+                      } else {
+                        handleDownloadPackage(true);
+                      }
+                    }}
+                    data-testid="button-next-step"
+                  >
+                    {nextStepAction}
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : null;
+          })()}
+
           <Card>
             <CardHeader><CardTitle className="flex items-center gap-2 text-base"><Calendar className="h-5 w-5" /> Accountability Timeline</CardTitle></CardHeader>
             <CardContent>
@@ -2301,33 +2748,51 @@ export default function GrantPackagesPage() {
                     </button>
 
                     {isExpanded && (
-                      <div className="border-t">
-                        <table className="w-full">
-                          <thead>
-                            <tr className="bg-muted/30">
-                              <th className="text-left p-3 text-xs font-medium text-muted-foreground w-8"></th>
-                              <th className="text-left p-3 text-xs font-medium text-muted-foreground">Task</th>
-                              <th className="text-left p-3 text-xs font-medium text-muted-foreground hidden sm:table-cell">Owner</th>
-                              <th className="text-left p-3 text-xs font-medium text-muted-foreground hidden md:table-cell">Due</th>
-                              <th className="text-left p-3 text-xs font-medium text-muted-foreground">Status</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {phase.tasks.map((task) => (
-                              <tr key={task.id} className="border-t hover:bg-muted/20">
-                                <td className="p-3"><TaskStatusIcon status={task.status} /></td>
-                                <td className="p-3 text-sm">{task.task}</td>
-                                <td className="p-3 text-sm text-muted-foreground hidden sm:table-cell">{task.owner}</td>
-                                <td className="p-3 text-sm text-muted-foreground hidden md:table-cell">{task.dueDate}</td>
-                                <td className="p-3">
+                      <div className="border-t divide-y">
+                        {phase.tasks.map((task) => {
+                          const taskTyped = task as { id: string; task: string; owner: string; status: string; dueDate: string; guidance?: string; aiCanHelp?: boolean; aiAction?: string };
+                          return (
+                            <div key={task.id} className="hover:bg-muted/20">
+                              <div className="flex items-center gap-3 p-3">
+                                <TaskStatusIcon status={task.status} />
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm font-medium">{task.task}</p>
+                                  <div className="flex items-center gap-2 mt-0.5">
+                                    <span className="text-xs text-muted-foreground">{task.owner}</span>
+                                    <span className="text-xs text-muted-foreground">·</span>
+                                    <span className="text-xs text-muted-foreground">{task.dueDate}</span>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-2 shrink-0">
+                                  {taskTyped.aiCanHelp && (
+                                    <Badge variant="secondary" className="text-[10px] bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300">
+                                      <Sparkles className="h-3 w-3 mr-1" /> AI Assist
+                                    </Badge>
+                                  )}
                                   <Badge variant={task.status === "done" ? "default" : task.status === "in-progress" ? "secondary" : "outline"} className="text-[10px]">
                                     {task.status === "done" ? "Done" : task.status === "in-progress" ? "In Progress" : "Pending"}
                                   </Badge>
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
+                                </div>
+                              </div>
+                              {taskTyped.guidance && (
+                                <div className="px-3 pb-3 pl-10">
+                                  <div className="p-2.5 rounded-md bg-muted/40 border text-xs">
+                                    <div className="flex items-start gap-1.5">
+                                      <Lightbulb className="h-3.5 w-3.5 text-amber-500 mt-0.5 shrink-0" />
+                                      <p className="whitespace-pre-line">{taskTyped.guidance}</p>
+                                    </div>
+                                    {taskTyped.aiCanHelp && taskTyped.aiAction && (
+                                      <div className="mt-2 pt-2 border-t flex items-center gap-2">
+                                        <Sparkles className="h-3 w-3 text-violet-500" />
+                                        <span className="text-violet-600 dark:text-violet-400 font-medium">AI can help: {taskTyped.aiAction}</span>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
                       </div>
                     )}
                   </div>
@@ -2340,7 +2805,7 @@ export default function GrantPackagesPage() {
         <TabsContent value="checklist" className="space-y-4 mt-4">
           <Card className="p-4">
             <h3 className="font-bold text-lg mb-1" data-testid="text-checklist-title">Pre-Execution Readiness Checklist</h3>
-            <p className="text-sm text-muted-foreground mb-4">Everything that must be in place before Day 1 if awarded. Hold yourself accountable.</p>
+            <p className="text-sm text-muted-foreground mb-4">Everything that must be in place before Day 1 if awarded. AI can help you work through each item.</p>
 
             <div className="mb-4 p-3 rounded-lg bg-muted/50 flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -2361,25 +2826,149 @@ export default function GrantPackagesPage() {
             </div>
 
             {Array.from(new Set(currentGrant.preExecutionChecklist.map((c) => c.category))).map((category) => (
-              <div key={category} className="mb-4">
+              <div key={category} className="mb-6">
                 <h4 className="font-semibold text-sm mb-2 text-muted-foreground uppercase tracking-wide">{category}</h4>
-                <div className="space-y-2">
-                  {currentGrant.preExecutionChecklist.filter((c) => c.category === category).map((item) => (
-                    <div key={item.id} className={`flex items-start gap-3 p-3 rounded-lg border ${
-                      item.status === "verified" ? "bg-emerald-50/50 border-emerald-200/50 dark:bg-emerald-950/20 dark:border-emerald-800/50" :
-                      item.status === "action-needed" ? "bg-red-50/50 border-red-200/50 dark:bg-red-950/20 dark:border-red-800/50" :
-                      "bg-muted/30 border-border"
-                    }`}>
-                      <ChecklistStatusIcon status={item.status} />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium">{item.item}</p>
-                        {item.notes && <p className="text-xs text-muted-foreground mt-0.5">{item.notes}</p>}
+                <div className="space-y-3">
+                  {currentGrant.preExecutionChecklist.filter((c) => c.category === category).map((item) => {
+                    const itemTyped = item as typeof item & { guidance?: string; resources?: Array<{ label: string; url: string }> };
+                    const isExpanded = expandedChecklistItems.has(item.id);
+                    const aiResult = checklistAiResults[item.id];
+                    const isLoading = checklistAiLoading === item.id;
+                    const showPartners = item.category === "Partnerships" || item.item.toLowerCase().includes("partner") || item.item.toLowerCase().includes("employer");
+                    return (
+                      <div key={item.id} className={`rounded-lg border overflow-hidden ${
+                        item.status === "verified" ? "bg-emerald-50/50 border-emerald-200/50 dark:bg-emerald-950/20 dark:border-emerald-800/50" :
+                        item.status === "action-needed" ? "bg-red-50/50 border-red-200/50 dark:bg-red-950/20 dark:border-red-800/50" :
+                        "bg-muted/30 border-border"
+                      }`}>
+                        <button
+                          onClick={() => {
+                            setExpandedChecklistItems((prev) => {
+                              const next = new Set(prev);
+                              if (next.has(item.id)) next.delete(item.id);
+                              else next.add(item.id);
+                              return next;
+                            });
+                          }}
+                          className="w-full text-left p-3 flex items-start gap-3"
+                          data-testid={`button-checklist-${item.id}`}
+                        >
+                          <ChecklistStatusIcon status={item.status} />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium">{item.item}</p>
+                            {item.notes && <p className="text-xs text-muted-foreground mt-0.5">{item.notes}</p>}
+                          </div>
+                          <div className="flex items-center gap-2 shrink-0">
+                            <Badge variant={item.status === "verified" ? "default" : item.status === "action-needed" ? "destructive" : "secondary"} className="text-[10px]">
+                              {item.status === "verified" ? "Verified" : item.status === "action-needed" ? "Action Needed" : "Pending"}
+                            </Badge>
+                            {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                          </div>
+                        </button>
+
+                        {isExpanded && (
+                          <div className="border-t px-3 pb-3 pt-2 space-y-3">
+                            {itemTyped.guidance && (
+                              <div className="p-2.5 rounded-md bg-muted/40 border text-xs">
+                                <div className="flex items-start gap-1.5">
+                                  <Lightbulb className="h-3.5 w-3.5 text-amber-500 mt-0.5 shrink-0" />
+                                  <p className="whitespace-pre-line">{itemTyped.guidance}</p>
+                                </div>
+                              </div>
+                            )}
+
+                            {itemTyped.resources && itemTyped.resources.length > 0 && (
+                              <div className="flex flex-wrap gap-2">
+                                {itemTyped.resources.map((r, ri) => (
+                                  <a key={ri} href={r.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-blue-600 hover:underline bg-blue-50 dark:bg-blue-950/30 px-2 py-1 rounded" data-testid={`link-resource-${item.id}-${ri}`}>
+                                    <ExternalLink className="h-3 w-3" /> {r.label}
+                                  </a>
+                                ))}
+                              </div>
+                            )}
+
+                            <div className="flex flex-wrap gap-2 pt-1">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="text-xs h-7"
+                                disabled={isLoading}
+                                onClick={() => handleChecklistAiAssist(item.id, item.item, "action-guide")}
+                                data-testid={`button-ai-guide-${item.id}`}
+                              >
+                                {isLoading && checklistAiLoadingType === "action-guide" ? (
+                                  <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                                ) : (
+                                  <Sparkles className="h-3 w-3 mr-1" />
+                                )}
+                                Step-by-Step Guide
+                              </Button>
+                              {showPartners && (
+                                <>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="text-xs h-7"
+                                    disabled={isLoading}
+                                    onClick={() => handleChecklistAiAssist(item.id, item.item, "find-partners")}
+                                    data-testid={`button-ai-partners-${item.id}`}
+                                  >
+                                    {isLoading && checklistAiLoadingType === "find-partners" ? (
+                                      <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                                    ) : (
+                                      <Search className="h-3 w-3 mr-1" />
+                                    )}
+                                    Find Partners
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="text-xs h-7"
+                                    disabled={isLoading}
+                                    onClick={() => handleChecklistAiAssist(item.id, item.item, "outreach-template")}
+                                    data-testid={`button-ai-template-${item.id}`}
+                                  >
+                                    {isLoading && checklistAiLoadingType === "outreach-template" ? (
+                                      <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                                    ) : (
+                                      <Pencil className="h-3 w-3 mr-1" />
+                                    )}
+                                    Outreach Templates
+                                  </Button>
+                                </>
+                              )}
+                            </div>
+
+                            {aiResult && (
+                              <div className="p-3 rounded-lg border bg-background">
+                                <div className="flex items-center justify-between mb-2">
+                                  <p className="text-xs font-semibold flex items-center gap-1.5">
+                                    <Sparkles className="h-3.5 w-3.5 text-violet-500" />
+                                    AI {aiResult.type === "find-partners" ? "Partner Recommendations" : aiResult.type === "outreach-template" ? "Outreach Templates" : "Action Guide"}
+                                  </p>
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="text-xs h-6 px-2"
+                                    onClick={() => {
+                                      navigator.clipboard.writeText(aiResult.content);
+                                      toast({ title: "Copied to clipboard" });
+                                    }}
+                                    data-testid={`button-copy-ai-${item.id}`}
+                                  >
+                                    <Upload className="h-3 w-3 mr-1" /> Copy
+                                  </Button>
+                                </div>
+                                <div className="text-sm prose prose-sm dark:prose-invert max-w-none whitespace-pre-line">
+                                  {aiResult.content}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
-                      <Badge variant={item.status === "verified" ? "default" : item.status === "action-needed" ? "destructive" : "secondary"} className="text-[10px] shrink-0">
-                        {item.status === "verified" ? "Verified" : item.status === "action-needed" ? "Action Needed" : "Pending"}
-                      </Badge>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             ))}
