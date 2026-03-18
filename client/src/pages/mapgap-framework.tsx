@@ -274,6 +274,11 @@ function CycleStepCard({ step, isExpanded, onToggle }: {
     <Card
       className={`transition-all duration-300 cursor-pointer hover-elevate ${isExpanded ? "ring-2 ring-primary/30" : ""}`}
       onClick={onToggle}
+      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onToggle(); } }}
+      tabIndex={0}
+      role="button"
+      aria-expanded={isExpanded}
+      aria-label={`Step ${step.step}: ${step.title}. Click to ${isExpanded ? "collapse" : "expand"} details.`}
       data-testid={`card-cycle-step-${step.step}`}
     >
       <CardContent className="p-5">
