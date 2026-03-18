@@ -83,6 +83,7 @@ interface SalpArea {
   area: string;
   expected: string;
   indicators: SalpIndicatorRow[];
+  dataSource?: string;
 }
 
 function buildSalpIndicators(metrics: PlatformMetrics | null, outcomes: OutcomeDashboard | null, dosage: DosageSummary | null): SalpArea[] {
@@ -117,6 +118,7 @@ function buildSalpIndicators(metrics: PlatformMetrics | null, outcomes: OutcomeD
     {
       area: "Prevention Curriculum Delivery",
       expected: "12 sessions per quarter",
+      dataSource: "Facilitator metrics, engagement data",
       indicators: [
         { name: "Sessions Delivered", expectedVal: 12, actualVal: sessionsDelivered },
         { name: "Avg Fidelity Score", expectedVal: 4, actualVal: Math.round(avgFidelity * 10) / 10 },
@@ -126,6 +128,7 @@ function buildSalpIndicators(metrics: PlatformMetrics | null, outcomes: OutcomeD
     {
       area: "Workforce Training Pipeline",
       expected: "8 cohorts active quarterly",
+      dataSource: "Workforce metrics, outcome milestones",
       indicators: [
         { name: "Career Assessments", expectedVal: 50, actualVal: careerAssessments },
         { name: "Completion Rate", expectedVal: 75, actualVal: completionPct },
@@ -135,6 +138,7 @@ function buildSalpIndicators(metrics: PlatformMetrics | null, outcomes: OutcomeD
     {
       area: "Coalition Engagement",
       expected: "12 sectors represented",
+      dataSource: "Coalition metrics, dosage tracking",
       indicators: [
         { name: "Active Classrooms/Partners", expectedVal: 12, actualVal: classroomsActive },
         { name: "Certificates Issued", expectedVal: 20, actualVal: certificatesIssued },
@@ -144,6 +148,7 @@ function buildSalpIndicators(metrics: PlatformMetrics | null, outcomes: OutcomeD
     {
       area: "Case Management Fidelity",
       expected: "Monthly contact per participant",
+      dataSource: "Outcome plans, milestone tracking (proxy)",
       indicators: [
         { name: "Contact Rate", expectedVal: 90, actualVal: contactRate },
         { name: "Plan Review Rate", expectedVal: 85, actualVal: reviewRate },
@@ -153,6 +158,7 @@ function buildSalpIndicators(metrics: PlatformMetrics | null, outcomes: OutcomeD
     {
       area: "Parent Education Program",
       expected: "6 modules per family cycle",
+      dataSource: "Parent metrics, email response data",
       indicators: [
         { name: "Module Completion", expectedVal: 80, actualVal: parentModulePct },
         { name: "Family Assessment Rate", expectedVal: 75, actualVal: familyPct },
@@ -334,9 +340,12 @@ function SalpFidelityPanel({ metrics, outcomes, dosage }: { metrics: PlatformMet
 
         {salpAreas.map((area) => (
           <div key={area.area} className="space-y-2" data-testid={`salp-area-${area.area.toLowerCase().replace(/\s+/g, '-')}`}>
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between flex-wrap gap-1">
               <h4 className="text-sm font-semibold">{area.area}</h4>
-              <span className="text-xs text-muted-foreground">Expected: {area.expected}</span>
+              <div className="flex items-center gap-2">
+                {area.dataSource && <span className="text-[10px] text-muted-foreground/60 italic">Source: {area.dataSource}</span>}
+                <span className="text-xs text-muted-foreground">Expected: {area.expected}</span>
+              </div>
             </div>
             <div className="space-y-2">
               {area.indicators.map((indicator) => {
@@ -747,19 +756,21 @@ export default function TransparencyDashboardPage() {
   const { data: rawMetrics, isLoading: metricsLoading } = useQuery<PlatformMetrics>({ queryKey: ["/api/metrics/platform-wide"] });
   const metrics = rawMetrics ?? null;
 
-  const { data: rawOutcomes } = useQuery<OutcomeDashboard>({ queryKey: ["/api/outcomes/dashboard"] });
+  const { data: rawOutcomes, isLoading: outcomesLoading } = useQuery<OutcomeDashboard>({ queryKey: ["/api/outcomes/dashboard"] });
   const outcomes = rawOutcomes ?? null;
 
-  const { data: rawDosage } = useQuery<DosageSummary>({ queryKey: ["/api/dosage/summary"] });
+  const { data: rawDosage, isLoading: dosageLoading } = useQuery<DosageSummary>({ queryKey: ["/api/dosage/summary"] });
   const dosage = rawDosage ?? null;
 
-  const { data: rawImpact } = useQuery<ImpactData>({ queryKey: ["/api/public/impact"] });
+  const { data: rawImpact, isLoading: impactLoading } = useQuery<ImpactData>({ queryKey: ["/api/public/impact"] });
   const impact = rawImpact ?? null;
 
-  const { data: rawProgress } = useQuery<PersonalProgress>({ queryKey: ["/api/progress"] });
+  const { data: rawProgress, isLoading: progressLoading } = useQuery<PersonalProgress>({ queryKey: ["/api/progress"] });
   const progress = rawProgress ?? null;
 
-  if (metricsLoading) {
+  const isLoading = metricsLoading || outcomesLoading || dosageLoading || impactLoading || progressLoading;
+
+  if (isLoading) {
     return (
       <div className="p-6 max-w-6xl mx-auto space-y-4">
         <Skeleton className="h-10 w-64" />
