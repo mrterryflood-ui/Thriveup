@@ -125,6 +125,7 @@ const BusinessPlanPage = lazy(() => import("@/pages/business-plan"));
 const ApexAcceleratorsPage = lazy(() => import("@/pages/apex-accelerators"));
 const ResearchHubPage = lazy(() => import("@/pages/research-hub"));
 const ChwDashboardPage = lazy(() => import("@/pages/chw-dashboard"));
+const MapGapFrameworkPage = lazy(() => import("@/pages/mapgap-framework"));
 
 function PageFallback() {
   return (
@@ -269,6 +270,7 @@ function AppRouter() {
       <Route path="/apex-accelerators" component={ApexAcceleratorsPage} />
       <Route path="/research-hub" component={ResearchHubPage} />
       <Route path="/chw-dashboard" component={ChwDashboardPage} />
+      <Route path="/mapgap-framework" component={MapGapFrameworkPage} />
       <Route component={NotFound} />
     </Switch>
   );

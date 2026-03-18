@@ -31,7 +31,7 @@ import {
   PenLine, Megaphone, Calendar, HelpCircle, ClipboardList, Printer, Link2,
   MessageCircle, MapPin, Presentation, Scale, FileBarChart, LayoutDashboard,
   Info, BookMarked,
-  Mail, Landmark,
+  Mail, Landmark, RefreshCw,
   Microscope, Stethoscope,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -160,6 +160,7 @@ const healthWellnessItems: NavItem[] = [
 ];
 
 const researchItems: NavItem[] = [
+  { title: "MAP-GAP Framework", url: "/mapgap-framework", icon: RefreshCw },
   { title: "Research Hub", url: "/research-hub", icon: Microscope },
   { title: "Implementation Plan", url: "/implementation", icon: ClipboardList },
   { title: "MAP-GAP CQI", url: "/cqi", icon: Target },

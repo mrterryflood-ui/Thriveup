@@ -471,6 +471,16 @@ export default function LandingPage() {
               );
             })}
           </div>
+
+          <div className="text-center mt-8">
+            <Link href="/mapgap-framework">
+              <Button variant="outline" size="lg" data-testid="button-mapgap-deep-dive">
+                <BookOpen className="mr-2 h-4 w-4" />
+                Explore the Full MAP-GAP Framework
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
         </div>
       </section>
 
