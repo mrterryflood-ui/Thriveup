@@ -2014,12 +2014,19 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
 
       const allChildren: any[] = [];
 
+      const isSingleGrant = grants.length === 1;
+      const coverTitle = isSingleGrant ? grants[0].name : "ThriveUp Academy";
+      const coverSubtitle = isSingleGrant ? "Grant Action Report" : "Grant Readiness Action Report";
+      const coverDetail = isSingleGrant
+        ? `${grants[0].funder} · ${grants[0].amount} · Deadline: ${grants[0].deadline}`
+        : `${grants.length} Active Grants · Prepared for Dr. Terry Flood`;
+
       allChildren.push(
         new Paragraph({ spacing: { before: 1200 }, children: [] }),
         new Paragraph({
           alignment: AlignmentType.CENTER,
           spacing: { after: 200 },
-          children: [new TextRun({ text: "ThriveUp Academy", bold: true, size: 52, font: "Georgia", color: "1e293b" })],
+          children: [new TextRun({ text: coverTitle, bold: true, size: 52, font: "Georgia", color: "1e293b" })],
         }),
         new Paragraph({
           alignment: AlignmentType.CENTER,
@@ -2029,17 +2036,17 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
         new Paragraph({
           alignment: AlignmentType.CENTER,
           spacing: { after: 200 },
-          children: [new TextRun({ text: "Grant Readiness Action Report", size: 36, font: "Georgia", color: "475569" })],
+          children: [new TextRun({ text: coverSubtitle, size: 36, font: "Georgia", color: "475569" })],
         }),
         new Paragraph({
           alignment: AlignmentType.CENTER,
           spacing: { after: 100 },
-          children: [new TextRun({ text: `Generated: ${dateStr}`, size: 22, font: "Georgia", color: "94a3b8" })],
+          children: [new TextRun({ text: coverDetail, size: 22, font: "Georgia", color: "94a3b8" })],
         }),
         new Paragraph({
           alignment: AlignmentType.CENTER,
           spacing: { after: 100 },
-          children: [new TextRun({ text: `${grants.length} Active Grant${grants.length > 1 ? "s" : ""} · Prepared for Dr. Terry Flood`, size: 22, font: "Georgia", color: "94a3b8" })],
+          children: [new TextRun({ text: `Generated: ${dateStr} · Prepared for Dr. Terry Flood`, size: 22, font: "Georgia", color: "94a3b8" })],
         }),
         new Paragraph({ spacing: { before: 600 }, children: [] }),
       );
@@ -2318,6 +2325,152 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
           }
         }
 
+        if (grant.locationEligibility || grant.keyIndustries?.length > 0 || grant.laborMarketNotes || grant.lwdbName) {
+          allChildren.push(
+            new Paragraph({
+              heading: HeadingLevel.HEADING_2,
+              spacing: { before: 400, after: 150 },
+              children: [new TextRun({ text: `Service Area — ${grant.serviceAreaRegion || "Target Region"}`, bold: true, size: 26, color: "0891b2" })],
+            }),
+          );
+
+          if (grant.locationEligibility) {
+            allChildren.push(
+              new Paragraph({
+                spacing: { after: 50 },
+                children: [
+                  new TextRun({ text: "Eligibility Scope: ", bold: true, size: 20, color: "475569" }),
+                  new TextRun({ text: grant.locationEligibility.charAt(0).toUpperCase() + grant.locationEligibility.slice(1), size: 20 }),
+                ],
+              }),
+            );
+          }
+
+          if (grant.lwdbName) {
+            allChildren.push(
+              new Paragraph({
+                spacing: { after: 50 },
+                children: [
+                  new TextRun({ text: "Local Workforce Board: ", bold: true, size: 20, color: "475569" }),
+                  new TextRun({ text: grant.lwdbName, size: 20 }),
+                  ...(grant.lwdbUrl ? [new TextRun({ text: ` (${grant.lwdbUrl})`, size: 18, color: "2563eb" })] : []),
+                ],
+              }),
+            );
+          }
+
+          if (grant.keyIndustries && grant.keyIndustries.length > 0) {
+            allChildren.push(
+              new Paragraph({
+                spacing: { after: 50 },
+                children: [
+                  new TextRun({ text: "Key Industries: ", bold: true, size: 20, color: "475569" }),
+                  new TextRun({ text: grant.keyIndustries.join(", "), size: 20 }),
+                ],
+              }),
+            );
+          }
+
+          if (grant.laborMarketNotes) {
+            allChildren.push(
+              new Paragraph({
+                spacing: { after: 100 },
+                children: [
+                  new TextRun({ text: "Labor Market Notes: ", bold: true, size: 20, color: "475569" }),
+                  new TextRun({ text: grant.laborMarketNotes, size: 18, color: "334155" }),
+                ],
+              }),
+            );
+          }
+        }
+
+        if (grant.competitiveEdge && grant.competitiveEdge.length > 0) {
+          allChildren.push(
+            new Paragraph({
+              heading: HeadingLevel.HEADING_2,
+              spacing: { before: 400, after: 150 },
+              children: [new TextRun({ text: "Competitive Edge", bold: true, size: 26, color: "d97706" })],
+            }),
+          );
+          for (let i = 0; i < grant.competitiveEdge.length; i++) {
+            allChildren.push(
+              new Paragraph({
+                spacing: { before: 40, after: 40 },
+                indent: { left: 360 },
+                children: [
+                  new TextRun({ text: `${i + 1}. `, bold: true, size: 20, color: "d97706" }),
+                  new TextRun({ text: grant.competitiveEdge[i], size: 20, color: "334155" }),
+                ],
+              }),
+            );
+          }
+        }
+
+        if (grant.winStrategy) {
+          allChildren.push(
+            new Paragraph({
+              heading: HeadingLevel.HEADING_2,
+              spacing: { before: 400, after: 150 },
+              children: [new TextRun({ text: "Win Strategy", bold: true, size: 26, color: "059669" })],
+            }),
+          );
+
+          if (grant.winStrategy.keyMessage) {
+            allChildren.push(
+              new Paragraph({
+                spacing: { after: 100 },
+                shading: { type: "clear" as any, color: "auto", fill: "ECFDF5" },
+                children: [
+                  new TextRun({ text: "Key Message: ", bold: true, size: 20, color: "065f46" }),
+                  new TextRun({ text: grant.winStrategy.keyMessage, size: 20, color: "064e3b" }),
+                ],
+              }),
+            );
+          }
+
+          if (grant.winStrategy.differentiators && grant.winStrategy.differentiators.length > 0) {
+            allChildren.push(
+              new Paragraph({
+                spacing: { before: 100, after: 50 },
+                children: [new TextRun({ text: "Differentiators:", bold: true, size: 20, color: "059669" })],
+              }),
+            );
+            for (const diff of grant.winStrategy.differentiators) {
+              allChildren.push(
+                new Paragraph({
+                  spacing: { after: 30 },
+                  indent: { left: 360 },
+                  children: [
+                    new TextRun({ text: "• ", size: 20, color: "059669" }),
+                    new TextRun({ text: diff, size: 18, color: "334155" }),
+                  ],
+                }),
+              );
+            }
+          }
+
+          if (grant.winStrategy.reviewerTips && grant.winStrategy.reviewerTips.length > 0) {
+            allChildren.push(
+              new Paragraph({
+                spacing: { before: 100, after: 50 },
+                children: [new TextRun({ text: "Reviewer Tips:", bold: true, size: 20, color: "059669" })],
+              }),
+            );
+            for (const tip of grant.winStrategy.reviewerTips) {
+              allChildren.push(
+                new Paragraph({
+                  spacing: { after: 30 },
+                  indent: { left: 360 },
+                  children: [
+                    new TextRun({ text: "→ ", size: 20, color: "059669" }),
+                    new TextRun({ text: tip, size: 18, color: "334155" }),
+                  ],
+                }),
+              );
+            }
+          }
+        }
+
         if (grant.pipelineTasks && grant.pipelineTasks.length > 0) {
           allChildren.push(
             new Paragraph({
@@ -2385,7 +2538,10 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
       });
 
       const buffer = await Packer.toBuffer(doc);
-      const filename = `ThriveUp_Grant_Action_Report_${new Date().toISOString().split("T")[0]}.docx`;
+      const namePrefix = grants.length === 1
+        ? grants[0].name.replace(/[^a-zA-Z0-9]/g, "_").substring(0, 50)
+        : "ThriveUp_All_Grants";
+      const filename = `${namePrefix}_Action_Report_${new Date().toISOString().split("T")[0]}.docx`;
 
       res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
       res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
