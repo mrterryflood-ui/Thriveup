@@ -31,6 +31,7 @@ const GRANT_OPTIONS = [
   { value: "wioa", label: "WIOA Title I Youth" },
   { value: "nba-foundation", label: "NBA Foundation" },
   { value: "st-davids", label: "St. David's Foundation" },
+  { value: "ssg-fox", label: "SSG Fox Suicide Prevention (VA)" },
 ];
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; icon: typeof CheckCircle2 }> = {
