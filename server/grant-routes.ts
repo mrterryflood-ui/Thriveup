@@ -1999,4 +1999,400 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
       res.status(500).json({ error: "Failed to generate AI assistance" });
     }
   });
+
+  app.post("/api/grants/export-action-report", requireAuth, async (req, res) => {
+    try {
+      const { grants } = req.body;
+      if (!grants || !Array.isArray(grants) || grants.length === 0) {
+        return res.status(400).json({ error: "No grants provided" });
+      }
+
+      const docx = await import("docx");
+      const { Document, Packer, Paragraph, TextRun, AlignmentType, HeadingLevel, BorderStyle, Table, TableRow, TableCell, WidthType } = docx;
+
+      const dateStr = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+
+      const allChildren: any[] = [];
+
+      allChildren.push(
+        new Paragraph({ spacing: { before: 1200 }, children: [] }),
+        new Paragraph({
+          alignment: AlignmentType.CENTER,
+          spacing: { after: 200 },
+          children: [new TextRun({ text: "ThriveUp Academy", bold: true, size: 52, font: "Georgia", color: "1e293b" })],
+        }),
+        new Paragraph({
+          alignment: AlignmentType.CENTER,
+          spacing: { after: 100 },
+          children: [new TextRun({ text: "━━━━━━━━━━━━━━━━━━━━━━━━━━━━", color: "6366f1", size: 24 })],
+        }),
+        new Paragraph({
+          alignment: AlignmentType.CENTER,
+          spacing: { after: 200 },
+          children: [new TextRun({ text: "Grant Readiness Action Report", size: 36, font: "Georgia", color: "475569" })],
+        }),
+        new Paragraph({
+          alignment: AlignmentType.CENTER,
+          spacing: { after: 100 },
+          children: [new TextRun({ text: `Generated: ${dateStr}`, size: 22, font: "Georgia", color: "94a3b8" })],
+        }),
+        new Paragraph({
+          alignment: AlignmentType.CENTER,
+          spacing: { after: 100 },
+          children: [new TextRun({ text: `${grants.length} Active Grant${grants.length > 1 ? "s" : ""} · Prepared for Dr. Terry Flood`, size: 22, font: "Georgia", color: "94a3b8" })],
+        }),
+        new Paragraph({ spacing: { before: 600 }, children: [] }),
+      );
+
+      const summaryItems: any[] = [
+        new Paragraph({
+          heading: HeadingLevel.HEADING_1,
+          spacing: { before: 400, after: 200 },
+          children: [new TextRun({ text: "Executive Summary", bold: true, size: 28, color: "1e293b" })],
+        }),
+      ];
+
+      for (const grant of grants) {
+        const checklistVerified = (grant.checklist || []).filter((c: any) => c.status === "verified").length;
+        const checklistTotal = (grant.checklist || []).length;
+        const actionNeeded = (grant.checklist || []).filter((c: any) => c.status === "action-needed").length;
+        const pending = (grant.checklist || []).filter((c: any) => c.status === "pending").length;
+
+        summaryItems.push(
+          new Paragraph({
+            spacing: { before: 200, after: 50 },
+            children: [
+              new TextRun({ text: `${grant.name}`, bold: true, size: 24, color: "1e293b" }),
+              new TextRun({ text: ` — ${grant.funder}`, size: 22, color: "64748b" }),
+            ],
+          }),
+          new Paragraph({
+            spacing: { after: 50 },
+            indent: { left: 360 },
+            children: [
+              new TextRun({ text: `Amount: `, bold: true, size: 20, color: "475569" }),
+              new TextRun({ text: `${grant.amount}`, size: 20 }),
+              new TextRun({ text: `   |   Deadline: `, bold: true, size: 20, color: "475569" }),
+              new TextRun({ text: `${grant.deadline}`, size: 20 }),
+            ],
+          }),
+          new Paragraph({
+            spacing: { after: 50 },
+            indent: { left: 360 },
+            children: [
+              new TextRun({ text: `Checklist: `, bold: true, size: 20, color: "475569" }),
+              new TextRun({ text: `${checklistVerified}/${checklistTotal} verified`, size: 20, color: checklistVerified === checklistTotal ? "16a34a" : "dc2626" }),
+              new TextRun({ text: `   |   `, size: 20, color: "94a3b8" }),
+              new TextRun({ text: `${actionNeeded} action needed`, size: 20, color: actionNeeded > 0 ? "dc2626" : "16a34a" }),
+              new TextRun({ text: `   |   `, size: 20, color: "94a3b8" }),
+              new TextRun({ text: `${pending} pending`, size: 20, color: "d97706" }),
+            ],
+          }),
+        );
+
+        if (grant.workflowOrder) {
+          summaryItems.push(
+            new Paragraph({
+              spacing: { after: 100 },
+              indent: { left: 360 },
+              children: [
+                new TextRun({ text: `Workflow: `, bold: true, size: 20, color: "475569" }),
+                new TextRun({ text: grant.workflowOrder, size: 20, color: "7c3aed", bold: true }),
+              ],
+            }),
+          );
+        }
+      }
+
+      allChildren.push(...summaryItems);
+
+      for (const grant of grants) {
+        allChildren.push(
+          new Paragraph({ spacing: { before: 200 }, children: [] }),
+          new Paragraph({
+            heading: HeadingLevel.HEADING_1,
+            spacing: { before: 600, after: 100 },
+            border: { bottom: { style: BorderStyle.SINGLE, size: 2, color: "6366f1" } },
+            children: [new TextRun({ text: grant.name, bold: true, size: 32, color: "1e293b" })],
+          }),
+          new Paragraph({
+            spacing: { after: 50 },
+            children: [
+              new TextRun({ text: `Funder: `, bold: true, size: 22, color: "475569" }),
+              new TextRun({ text: grant.funder, size: 22 }),
+              new TextRun({ text: `   |   Amount: `, bold: true, size: 22, color: "475569" }),
+              new TextRun({ text: grant.amount, size: 22 }),
+              new TextRun({ text: `   |   Deadline: `, bold: true, size: 22, color: "475569" }),
+              new TextRun({ text: grant.deadline, size: 22 }),
+            ],
+          }),
+        );
+
+        if (grant.partnershipSummary) {
+          allChildren.push(
+            new Paragraph({
+              spacing: { before: 200, after: 100 },
+              shading: { type: "clear" as any, color: "auto", fill: "FEF3C7" },
+              children: [
+                new TextRun({ text: "⚠ PARTNERSHIP WORKFLOW: ", bold: true, size: 22, color: "92400e" }),
+                new TextRun({ text: grant.partnershipSummary, size: 20, color: "78350f" }),
+              ],
+            }),
+          );
+        }
+
+        if (grant.partnerRequirements && grant.partnerRequirements.length > 0) {
+          allChildren.push(
+            new Paragraph({
+              heading: HeadingLevel.HEADING_2,
+              spacing: { before: 300, after: 150 },
+              children: [new TextRun({ text: "Partnership Requirements — Pre-Award vs Post-Award", bold: true, size: 26, color: "7c3aed" })],
+            }),
+          );
+
+          for (const req of grant.partnerRequirements) {
+            const timingLabel = req.timing === "pre-award" ? "PRE-AWARD (Must secure before submitting)" : req.timing === "post-award" ? "POST-AWARD (Can formalize after funding)" : "BOTH (Start now, formalize later)";
+            const inDocsLabel = req.requiredInDocs ? "YES — Must be named in application documents" : "No — Helpful but not required in docs";
+
+            allChildren.push(
+              new Paragraph({
+                spacing: { before: 200, after: 50 },
+                children: [
+                  new TextRun({ text: `${req.partnerType}`, bold: true, size: 22, color: "1e293b" }),
+                  new TextRun({ text: `  [${req.timing.toUpperCase()}]`, bold: true, size: 18, color: req.timing === "pre-award" ? "dc2626" : req.timing === "post-award" ? "16a34a" : "d97706" }),
+                ],
+              }),
+              new Paragraph({
+                spacing: { after: 30 },
+                indent: { left: 360 },
+                children: [
+                  new TextRun({ text: "Timing: ", bold: true, size: 18, color: "475569" }),
+                  new TextRun({ text: timingLabel, size: 18 }),
+                ],
+              }),
+              new Paragraph({
+                spacing: { after: 30 },
+                indent: { left: 360 },
+                children: [
+                  new TextRun({ text: "In Documents: ", bold: true, size: 18, color: "475569" }),
+                  new TextRun({ text: inDocsLabel, size: 18, color: req.requiredInDocs ? "dc2626" : "16a34a" }),
+                ],
+              }),
+            );
+
+            if (req.docSections && req.docSections.length > 0) {
+              allChildren.push(
+                new Paragraph({
+                  spacing: { after: 30 },
+                  indent: { left: 360 },
+                  children: [
+                    new TextRun({ text: "Referenced in: ", bold: true, size: 18, color: "475569" }),
+                    new TextRun({ text: req.docSections.join(", "), size: 18, italics: true }),
+                  ],
+                }),
+              );
+            }
+
+            allChildren.push(
+              new Paragraph({
+                spacing: { after: 30 },
+                indent: { left: 360 },
+                children: [new TextRun({ text: req.description, size: 18, color: "334155" })],
+              }),
+              new Paragraph({
+                spacing: { after: 100 },
+                indent: { left: 360 },
+                children: [
+                  new TextRun({ text: "Evidence Needed: ", bold: true, size: 18, color: "475569" }),
+                  new TextRun({ text: req.evidenceNeeded, size: 18, color: "334155" }),
+                ],
+              }),
+            );
+          }
+        }
+
+        if (grant.checklist && grant.checklist.length > 0) {
+          allChildren.push(
+            new Paragraph({
+              heading: HeadingLevel.HEADING_2,
+              spacing: { before: 400, after: 150 },
+              children: [new TextRun({ text: "Pre-Execution Checklist", bold: true, size: 26, color: "1e293b" })],
+            }),
+          );
+
+          const categories = Array.from(new Set(grant.checklist.map((c: any) => c.category))) as string[];
+          for (const category of categories) {
+            allChildren.push(
+              new Paragraph({
+                spacing: { before: 200, after: 100 },
+                children: [new TextRun({ text: category.toUpperCase(), bold: true, size: 20, color: "6366f1" })],
+              }),
+            );
+
+            const catItems = grant.checklist.filter((c: any) => c.category === category);
+            for (const item of catItems) {
+              const statusIcon = item.status === "verified" ? "✓" : item.status === "action-needed" ? "⚠" : "○";
+              const statusColor = item.status === "verified" ? "16a34a" : item.status === "action-needed" ? "dc2626" : "d97706";
+              const statusLabel = item.status === "verified" ? "VERIFIED" : item.status === "action-needed" ? "ACTION NEEDED" : "PENDING";
+
+              allChildren.push(
+                new Paragraph({
+                  spacing: { before: 100, after: 30 },
+                  children: [
+                    new TextRun({ text: `${statusIcon} `, size: 22, color: statusColor }),
+                    new TextRun({ text: item.item, bold: true, size: 20, color: "1e293b" }),
+                    new TextRun({ text: `  [${statusLabel}]`, size: 18, color: statusColor, bold: true }),
+                  ],
+                }),
+              );
+
+              if (item.notes) {
+                allChildren.push(
+                  new Paragraph({
+                    spacing: { after: 20 },
+                    indent: { left: 360 },
+                    children: [new TextRun({ text: item.notes, size: 18, color: "64748b", italics: true })],
+                  }),
+                );
+              }
+
+              if (item.guidance) {
+                allChildren.push(
+                  new Paragraph({
+                    spacing: { after: 20 },
+                    indent: { left: 360 },
+                    children: [
+                      new TextRun({ text: "Guidance: ", bold: true, size: 18, color: "b45309" }),
+                      new TextRun({ text: item.guidance, size: 18, color: "334155" }),
+                    ],
+                  }),
+                );
+              }
+
+              if (item.resources && item.resources.length > 0) {
+                allChildren.push(
+                  new Paragraph({
+                    spacing: { after: 20 },
+                    indent: { left: 360 },
+                    children: [
+                      new TextRun({ text: "Resources: ", bold: true, size: 18, color: "475569" }),
+                      new TextRun({ text: item.resources.map((r: any) => `${r.label} (${r.url})`).join(", "), size: 18, color: "2563eb" }),
+                    ],
+                  }),
+                );
+              }
+            }
+          }
+        }
+
+        if (grant.targetEmployers && grant.targetEmployers.length > 0) {
+          allChildren.push(
+            new Paragraph({
+              heading: HeadingLevel.HEADING_2,
+              spacing: { before: 400, after: 150 },
+              children: [new TextRun({ text: `Target Partners & Employers — ${grant.serviceAreaRegion || "Austin, TX"}`, bold: true, size: 26, color: "16a34a" })],
+            }),
+          );
+
+          for (let i = 0; i < grant.targetEmployers.length; i++) {
+            const emp = grant.targetEmployers[i];
+            allChildren.push(
+              new Paragraph({
+                spacing: { before: 80, after: 20 },
+                children: [
+                  new TextRun({ text: `${i + 1}. ${emp.name}`, bold: true, size: 20, color: "1e293b" }),
+                ],
+              }),
+              new Paragraph({
+                spacing: { after: 20 },
+                indent: { left: 360 },
+                children: [
+                  new TextRun({ text: `Sector: `, bold: true, size: 18, color: "475569" }),
+                  new TextRun({ text: emp.sector, size: 18 }),
+                  new TextRun({ text: `   |   `, size: 18, color: "94a3b8" }),
+                  new TextRun({ text: `Role: `, bold: true, size: 18, color: "475569" }),
+                  new TextRun({ text: emp.type, size: 18 }),
+                ],
+              }),
+            );
+          }
+        }
+
+        if (grant.pipelineTasks && grant.pipelineTasks.length > 0) {
+          allChildren.push(
+            new Paragraph({
+              heading: HeadingLevel.HEADING_2,
+              spacing: { before: 400, after: 150 },
+              children: [new TextRun({ text: "Pipeline Tasks", bold: true, size: 26, color: "1e293b" })],
+            }),
+          );
+
+          for (const phase of grant.pipelineTasks) {
+            allChildren.push(
+              new Paragraph({
+                spacing: { before: 200, after: 100 },
+                shading: { type: "clear" as any, color: "auto", fill: "F1F5F9" },
+                children: [new TextRun({ text: phase.name, bold: true, size: 22, color: "334155" })],
+              }),
+            );
+
+            for (const task of phase.tasks) {
+              const tIcon = task.status === "done" ? "✓" : task.status === "in-progress" ? "►" : "○";
+              const tColor = task.status === "done" ? "16a34a" : task.status === "in-progress" ? "2563eb" : "94a3b8";
+
+              allChildren.push(
+                new Paragraph({
+                  spacing: { before: 60, after: 20 },
+                  indent: { left: 360 },
+                  children: [
+                    new TextRun({ text: `${tIcon} `, size: 20, color: tColor }),
+                    new TextRun({ text: task.task, size: 20, color: "1e293b" }),
+                    new TextRun({ text: `  — ${task.owner}`, size: 18, color: "64748b" }),
+                    new TextRun({ text: `  (Due: ${task.dueDate})`, size: 18, color: "94a3b8" }),
+                  ],
+                }),
+              );
+
+              if (task.guidance) {
+                allChildren.push(
+                  new Paragraph({
+                    spacing: { after: 30 },
+                    indent: { left: 720 },
+                    children: [new TextRun({ text: task.guidance, size: 16, color: "64748b", italics: true })],
+                  }),
+                );
+              }
+            }
+          }
+        }
+      }
+
+      allChildren.push(
+        new Paragraph({ spacing: { before: 600 }, children: [] }),
+        new Paragraph({
+          alignment: AlignmentType.CENTER,
+          spacing: { before: 400 },
+          border: { top: { style: BorderStyle.SINGLE, size: 1, color: "e2e8f0" } },
+          children: [new TextRun({ text: `ThriveUp Academy · Grant Readiness Action Report · ${dateStr}`, size: 16, color: "94a3b8", font: "Georgia" })],
+        }),
+      );
+
+      const doc = new Document({
+        sections: [{
+          properties: {},
+          children: allChildren,
+        }],
+      });
+
+      const buffer = await Packer.toBuffer(doc);
+      const filename = `ThriveUp_Grant_Action_Report_${new Date().toISOString().split("T")[0]}.docx`;
+
+      res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+      res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+      res.send(buffer);
+    } catch (error) {
+      console.error("Failed to export action report:", error);
+      res.status(500).json({ error: "Failed to generate action report" });
+    }
+  });
 }
