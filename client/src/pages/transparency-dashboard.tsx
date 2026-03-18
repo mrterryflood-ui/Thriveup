@@ -670,8 +670,8 @@ function ParticipantView({ metrics, impact, outcomes, dosage, progress }: {
   const mentors = impact?.mentorConnections ?? 0;
   const placements = metrics?.workforce?.jobPlacements ?? 0;
 
-  const totalCurriculumLessons = Math.max(1, impact?.lessonsCompleted ?? 20);
-  const completionPct = Math.min(100, Math.round((personalLessons / totalCurriculumLessons) * 100));
+  const curriculumTarget = 20;
+  const completionPct = Math.min(100, Math.round((personalLessons / curriculumTarget) * 100));
 
   const milestones = [
     { name: "Complete Intake Assessment", done: (dosage?.totalSessions ?? 0) > 0 },
@@ -772,6 +772,15 @@ export default function TransparencyDashboardPage() {
 
   const isLoading = metricsLoading || outcomesLoading || dosageLoading || impactLoading || progressLoading;
 
+  const dataSourceStatus = {
+    metrics: rawMetrics != null,
+    outcomes: rawOutcomes != null,
+    dosage: rawDosage != null,
+    impact: rawImpact != null,
+    progress: rawProgress != null,
+  };
+  const allSourcesAvailable = Object.values(dataSourceStatus).every(Boolean);
+
   if (isLoading) {
     return (
       <div className="p-6 max-w-6xl mx-auto space-y-4">
@@ -814,6 +823,15 @@ export default function TransparencyDashboardPage() {
               </div>
             </div>
           </Card>
+
+          {!allSourcesAvailable && (
+            <div className="mb-4 p-3 rounded-lg border border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-900/20 flex items-center gap-2 text-sm" data-testid="banner-partial-data">
+              <AlertTriangle className="h-4 w-4 text-amber-500 shrink-0" />
+              <span className="text-amber-700 dark:text-amber-400">
+                Some data sources are currently unavailable. Displayed values may be incomplete.
+              </span>
+            </div>
+          )}
 
           <Tabs value={activeRole} onValueChange={(v) => setActiveRole(v as StakeholderRole)} className="w-full">
             <TabsList className="w-full flex flex-wrap h-auto gap-1 p-1" data-testid="tabs-stakeholder-roles">
