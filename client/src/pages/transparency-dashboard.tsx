@@ -439,9 +439,9 @@ function SmartGoalsTracker({ metrics, outcomes, dosage, impact }: {
                 </div>
                 <span className="text-sm font-semibold w-10 text-right">{progress}%</span>
               </div>
-              <div className="flex items-center justify-between mt-2 text-xs text-muted-foreground">
+              <div className="flex items-center justify-between mt-2 text-xs text-muted-foreground flex-wrap gap-1">
                 <span>Metric: {goal.metrics}</span>
-                <span>{daysRemaining} days remaining</span>
+                <span>Target: {new Date(goal.targetDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })} ({daysRemaining} days)</span>
               </div>
             </div>
           );
