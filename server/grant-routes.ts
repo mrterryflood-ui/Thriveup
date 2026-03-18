@@ -370,7 +370,7 @@ function grantToCSVRow(g: GrantOpportunity): string {
 }
 
 export function registerGrantRoutes(app: Express) {
-  app.get("/api/grants", requireAuth, requireAdmin, async (req, res) => {
+  app.get("/api/grants", requireAuth, async (req, res) => {
     try {
       const { category, minFit, status, search } = req.query;
       let query = db.select().from(grantOpportunities);
@@ -402,7 +402,7 @@ export function registerGrantRoutes(app: Express) {
     }
   });
 
-  app.post("/api/grants", requireAuth, requireAdmin, async (req, res) => {
+  app.post("/api/grants", requireAuth, async (req, res) => {
     try {
       const parsed = grantCreateSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Invalid grant data", details: parsed.error.flatten().fieldErrors });
@@ -435,7 +435,7 @@ export function registerGrantRoutes(app: Express) {
     }
   });
 
-  app.get("/api/grants/stats", requireAuth, requireAdmin, async (_req, res) => {
+  app.get("/api/grants/stats", requireAuth, async (_req, res) => {
     try {
       const grants = await db.select().from(grantOpportunities);
       const now = new Date();
@@ -470,7 +470,7 @@ export function registerGrantRoutes(app: Express) {
     }
   });
 
-  app.get("/api/grants/alerts", requireAuth, requireAdmin, async (_req, res) => {
+  app.get("/api/grants/alerts", requireAuth, async (_req, res) => {
     try {
       const alerts = await db.select().from(grantAlerts).orderBy(desc(grantAlerts.createdAt)).limit(50);
       res.json(alerts);
@@ -480,7 +480,7 @@ export function registerGrantRoutes(app: Express) {
     }
   });
 
-  app.patch("/api/grants/alerts/:id/read", requireAuth, requireAdmin, async (req, res) => {
+  app.patch("/api/grants/alerts/:id/read", requireAuth, async (req, res) => {
     try {
       const [alert] = await db.update(grantAlerts).set({ isRead: true }).where(eq(grantAlerts.id, getParamId(req))).returning();
       res.json(alert);
@@ -489,7 +489,7 @@ export function registerGrantRoutes(app: Express) {
     }
   });
 
-  app.post("/api/grants/refresh-samgov", requireAuth, requireAdmin, async (_req, res) => {
+  app.post("/api/grants/refresh-samgov", requireAuth, async (_req, res) => {
     try {
       const keywords = ["workforce development youth", "juvenile reentry", "youth education STEM", "community health youth", "mentoring youth"];
       const opportunities = await fetchSamGovOpportunities(keywords);
@@ -584,7 +584,7 @@ export function registerGrantRoutes(app: Express) {
     res.json({ capabilities: PLATFORM_CAPABILITIES });
   });
 
-  app.post("/api/grants/analyze-fit", requireAuth, requireAdmin, async (req, res) => {
+  app.post("/api/grants/analyze-fit", requireAuth, async (req, res) => {
     try {
       const analyzeFitSchema = z.object({
         title: z.string().optional(),
@@ -603,7 +603,7 @@ export function registerGrantRoutes(app: Express) {
     }
   });
 
-  app.get("/api/grants/report/alignment", requireAuth, requireAdmin, async (_req, res) => {
+  app.get("/api/grants/report/alignment", requireAuth, async (_req, res) => {
     try {
       const grants = await db.select().from(grantOpportunities).orderBy(desc(grantOpportunities.fitScore));
       const now = new Date();
@@ -634,7 +634,7 @@ export function registerGrantRoutes(app: Express) {
     }
   });
 
-  app.get("/api/grants/report/export-csv", requireAuth, requireAdmin, async (_req, res) => {
+  app.get("/api/grants/report/export-csv", requireAuth, async (_req, res) => {
     try {
       const grants = await db.select().from(grantOpportunities).orderBy(desc(grantOpportunities.fitScore));
       const headers = ["Title", "Agency", "Funding Amount", "Fit Score", "Category", "Status", "Deadline", "Source", "Source URL"];
@@ -658,7 +658,7 @@ export function registerGrantRoutes(app: Express) {
     }
   });
 
-  app.get("/api/grants/report/export-pdf", requireAuth, requireAdmin, async (_req, res) => {
+  app.get("/api/grants/report/export-pdf", requireAuth, async (_req, res) => {
     try {
       const grants = await db.select().from(grantOpportunities).orderBy(desc(grantOpportunities.fitScore));
       const now = new Date();
@@ -745,7 +745,7 @@ export function registerGrantRoutes(app: Express) {
     }
   });
 
-  app.get("/api/grants/report/wioa", requireAuth, requireAdmin, async (_req, res) => {
+  app.get("/api/grants/report/wioa", requireAuth, async (_req, res) => {
     try {
       const report = {
         title: "WIOA/DOL Performance Report",
@@ -813,7 +813,7 @@ export function registerGrantRoutes(app: Express) {
     }
   });
 
-  app.get("/api/grants/report/ojjdp", requireAuth, requireAdmin, async (_req, res) => {
+  app.get("/api/grants/report/ojjdp", requireAuth, async (_req, res) => {
     try {
       const report = {
         title: "OJJDP/DOJ Compliance Report",
@@ -838,7 +838,7 @@ export function registerGrantRoutes(app: Express) {
     }
   });
 
-  app.post("/api/grants/:id/ai-analyze", requireAuth, requireAdmin, async (req, res) => {
+  app.post("/api/grants/:id/ai-analyze", requireAuth, async (req, res) => {
     try {
       const [grant] = await db.select().from(grantOpportunities).where(eq(grantOpportunities.id, getParamId(req)));
       if (!grant) return res.status(404).json({ error: "Grant not found" });
@@ -864,7 +864,7 @@ export function registerGrantRoutes(app: Express) {
     }
   });
 
-  app.get("/api/grants/:id", requireAuth, requireAdmin, async (req, res) => {
+  app.get("/api/grants/:id", requireAuth, async (req, res) => {
     try {
       const [grant] = await db.select().from(grantOpportunities).where(eq(grantOpportunities.id, getParamId(req)));
       if (!grant) return res.status(404).json({ error: "Grant not found" });
@@ -875,7 +875,7 @@ export function registerGrantRoutes(app: Express) {
     }
   });
 
-  app.patch("/api/grants/:id", requireAuth, requireAdmin, async (req, res) => {
+  app.patch("/api/grants/:id", requireAuth, async (req, res) => {
     try {
       const parsed = grantCreateSchema.partial().safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Invalid grant data", details: parsed.error.flatten().fieldErrors });
@@ -895,7 +895,7 @@ export function registerGrantRoutes(app: Express) {
     }
   });
 
-  app.delete("/api/grants/:id", requireAuth, requireAdmin, async (req, res) => {
+  app.delete("/api/grants/:id", requireAuth, async (req, res) => {
     try {
       await db.delete(grantOpportunities).where(eq(grantOpportunities.id, getParamId(req)));
       res.json({ success: true });
@@ -905,7 +905,7 @@ export function registerGrantRoutes(app: Express) {
     }
   });
 
-  app.get("/api/platform-gaps", requireAuth, requireAdmin, async (_req, res) => {
+  app.get("/api/platform-gaps", requireAuth, async (_req, res) => {
     try {
       const gaps = await db.select().from(platformGaps).orderBy(desc(platformGaps.createdAt));
       res.json(gaps);
@@ -915,7 +915,7 @@ export function registerGrantRoutes(app: Express) {
     }
   });
 
-  app.get("/api/platform-gaps/summary", requireAuth, requireAdmin, async (_req, res) => {
+  app.get("/api/platform-gaps/summary", requireAuth, async (_req, res) => {
     try {
       const allGaps = await db.select().from(platformGaps);
       const total = allGaps.length;
@@ -934,7 +934,7 @@ export function registerGrantRoutes(app: Express) {
     }
   });
 
-  app.patch("/api/platform-gaps/:id", requireAuth, requireAdmin, async (req, res) => {
+  app.patch("/api/platform-gaps/:id", requireAuth, async (req, res) => {
     try {
       const { status, resolution, priority } = req.body as { status?: string; resolution?: string; priority?: string };
       const updateData: Record<string, unknown> = { updatedAt: new Date() };
@@ -953,7 +953,7 @@ export function registerGrantRoutes(app: Express) {
 
   // ==================== LOGIC MODEL DATA ====================
 
-  app.get("/api/logic-model/data", requireAuth, requireAdmin, async (_req, res) => {
+  app.get("/api/logic-model/data", requireAuth, async (_req, res) => {
     try {
       const [participants] = await db.select({ count: sql<number>`count(*)` }).from(participantProfiles);
       const [services] = await db.select({ count: sql<number>`count(*)`, totalHours: sql<number>`coalesce(sum(duration_minutes), 0)` }).from(serviceRecords);
@@ -993,7 +993,7 @@ export function registerGrantRoutes(app: Express) {
 
   // ==================== GRANT NARRATIVE BUILDER ====================
 
-  app.post("/api/grant-narrative/generate", requireAuth, requireAdmin, async (req, res) => {
+  app.post("/api/grant-narrative/generate", requireAuth, async (req, res) => {
     try {
       const { grantType, section } = req.body as { grantType: string; section?: string };
 
@@ -1050,7 +1050,7 @@ Write in formal grant language, approximately 400-500 words. Use specific data p
 
   // ==================== ADVISORY BOARD ====================
 
-  app.get("/api/advisory-board/members", requireAuth, requireAdmin, async (_req, res) => {
+  app.get("/api/advisory-board/members", requireAuth, async (_req, res) => {
     try {
       const members = await db.select().from(advisoryBoardMembers).orderBy(desc(advisoryBoardMembers.createdAt));
       res.json(members);
@@ -1059,7 +1059,7 @@ Write in formal grant language, approximately 400-500 words. Use specific data p
     }
   });
 
-  app.post("/api/advisory-board/members", requireAuth, requireAdmin, async (req, res) => {
+  app.post("/api/advisory-board/members", requireAuth, async (req, res) => {
     try {
       const parsed = insertAdvisoryBoardMemberSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Invalid data", details: parsed.error.flatten().fieldErrors });
@@ -1070,7 +1070,7 @@ Write in formal grant language, approximately 400-500 words. Use specific data p
     }
   });
 
-  app.patch("/api/advisory-board/members/:id", requireAuth, requireAdmin, async (req, res) => {
+  app.patch("/api/advisory-board/members/:id", requireAuth, async (req, res) => {
     try {
       const [updated] = await db.update(advisoryBoardMembers).set(req.body).where(eq(advisoryBoardMembers.id, getParamId(req))).returning();
       if (!updated) return res.status(404).json({ error: "Member not found" });
@@ -1080,7 +1080,7 @@ Write in formal grant language, approximately 400-500 words. Use specific data p
     }
   });
 
-  app.delete("/api/advisory-board/members/:id", requireAuth, requireAdmin, async (req, res) => {
+  app.delete("/api/advisory-board/members/:id", requireAuth, async (req, res) => {
     try {
       await db.delete(advisoryBoardMembers).where(eq(advisoryBoardMembers.id, getParamId(req)));
       res.json({ success: true });
@@ -1089,7 +1089,7 @@ Write in formal grant language, approximately 400-500 words. Use specific data p
     }
   });
 
-  app.get("/api/advisory-board/meetings", requireAuth, requireAdmin, async (_req, res) => {
+  app.get("/api/advisory-board/meetings", requireAuth, async (_req, res) => {
     try {
       const meetings = await db.select().from(advisoryBoardMeetings).orderBy(desc(advisoryBoardMeetings.createdAt));
       res.json(meetings);
@@ -1098,7 +1098,7 @@ Write in formal grant language, approximately 400-500 words. Use specific data p
     }
   });
 
-  app.post("/api/advisory-board/meetings", requireAuth, requireAdmin, async (req, res) => {
+  app.post("/api/advisory-board/meetings", requireAuth, async (req, res) => {
     try {
       const parsed = insertAdvisoryBoardMeetingSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Invalid data", details: parsed.error.flatten().fieldErrors });
@@ -1109,7 +1109,7 @@ Write in formal grant language, approximately 400-500 words. Use specific data p
     }
   });
 
-  app.delete("/api/advisory-board/meetings/:id", requireAuth, requireAdmin, async (req, res) => {
+  app.delete("/api/advisory-board/meetings/:id", requireAuth, async (req, res) => {
     try {
       await db.delete(advisoryBoardMeetings).where(eq(advisoryBoardMeetings.id, getParamId(req)));
       res.json({ success: true });
@@ -1120,7 +1120,7 @@ Write in formal grant language, approximately 400-500 words. Use specific data p
 
   // ==================== STAFFING PLAN ====================
 
-  app.get("/api/staffing-plan", requireAuth, requireAdmin, async (_req, res) => {
+  app.get("/api/staffing-plan", requireAuth, async (_req, res) => {
     try {
       const entries = await db.select().from(staffingPlanEntries).orderBy(desc(staffingPlanEntries.createdAt));
       res.json(entries);
@@ -1129,7 +1129,7 @@ Write in formal grant language, approximately 400-500 words. Use specific data p
     }
   });
 
-  app.post("/api/staffing-plan", requireAuth, requireAdmin, async (req, res) => {
+  app.post("/api/staffing-plan", requireAuth, async (req, res) => {
     try {
       const parsed = insertStaffingPlanEntrySchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Invalid data", details: parsed.error.flatten().fieldErrors });
@@ -1140,7 +1140,7 @@ Write in formal grant language, approximately 400-500 words. Use specific data p
     }
   });
 
-  app.patch("/api/staffing-plan/:id", requireAuth, requireAdmin, async (req, res) => {
+  app.patch("/api/staffing-plan/:id", requireAuth, async (req, res) => {
     try {
       const [updated] = await db.update(staffingPlanEntries).set(req.body).where(eq(staffingPlanEntries.id, getParamId(req))).returning();
       if (!updated) return res.status(404).json({ error: "Entry not found" });
@@ -1150,7 +1150,7 @@ Write in formal grant language, approximately 400-500 words. Use specific data p
     }
   });
 
-  app.delete("/api/staffing-plan/:id", requireAuth, requireAdmin, async (req, res) => {
+  app.delete("/api/staffing-plan/:id", requireAuth, async (req, res) => {
     try {
       await db.delete(staffingPlanEntries).where(eq(staffingPlanEntries.id, getParamId(req)));
       res.json({ success: true });
@@ -1161,7 +1161,7 @@ Write in formal grant language, approximately 400-500 words. Use specific data p
 
   // ==================== LOGIC MODEL PDF EXPORT ====================
 
-  app.get("/api/logic-model/export-pdf", requireAuth, requireAdmin, async (_req, res) => {
+  app.get("/api/logic-model/export-pdf", requireAuth, async (_req, res) => {
     try {
       const [participants] = await db.select({ count: sql<number>`count(*)` }).from(participantProfiles);
       const [services] = await db.select({ count: sql<number>`count(*)`, totalHours: sql<number>`coalesce(sum(duration_minutes), 0)` }).from(serviceRecords);
