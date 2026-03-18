@@ -2098,6 +2098,90 @@ export default function GrantPackagesPage() {
     }
   };
 
+  const handleExportSingleGrantReport = async () => {
+    setIsExportingReport(true);
+    try {
+      const grant = currentGrant;
+      const grantsPayload = [{
+        name: grant.fullName,
+        funder: grant.funder,
+        amount: grant.amount,
+        deadline: grant.deadline,
+        workflowOrder: grant.partnershipTimeline?.workflowOrder || null,
+        partnershipSummary: grant.partnershipTimeline?.summary || null,
+        partnerRequirements: (grant.partnershipTimeline?.requirements || []).map((r) => ({
+          partnerType: r.partnerType,
+          timing: r.timing,
+          requiredInDocs: r.requiredInDocs,
+          docSections: r.docSections,
+          description: r.description,
+          evidenceNeeded: r.evidenceNeeded,
+        })),
+        checklist: grant.preExecutionChecklist.map((c) => ({
+          id: c.id,
+          category: c.category,
+          item: c.item,
+          status: c.status,
+          notes: c.notes,
+          guidance: c.guidance || null,
+          resources: c.resources || null,
+        })),
+        serviceAreaRegion: grant.serviceArea?.region || null,
+        locationEligibility: grant.serviceArea?.locationEligibility || null,
+        keyIndustries: grant.serviceArea?.keyIndustries || [],
+        laborMarketNotes: grant.serviceArea?.laborMarketNotes || null,
+        lwdbName: grant.serviceArea?.lwdbName || null,
+        lwdbUrl: grant.serviceArea?.lwdbUrl || null,
+        targetEmployers: (grant.serviceArea?.targetEmployers || []).map((e) => ({
+          name: e.name,
+          sector: e.sector,
+          type: e.type,
+        })),
+        pipelineTasks: grant.phases.map((phase) => ({
+          name: phase.name,
+          tasks: phase.tasks.map((t) => ({
+            task: t.task,
+            owner: t.owner,
+            status: t.status,
+            dueDate: t.dueDate,
+            guidance: t.guidance || null,
+          })),
+        })),
+        competitiveEdge: grant.competitiveEdge || [],
+        winStrategy: grant.winStrategy ? {
+          keyMessage: grant.winStrategy.keyMessage,
+          differentiators: grant.winStrategy.differentiators,
+          reviewerTips: grant.winStrategy.reviewerTips,
+        } : null,
+      }];
+
+      const response = await fetch("/api/grants/export-action-report", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ grants: grantsPayload }),
+      });
+
+      if (!response.ok) throw new Error("Export failed");
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      const safeName = grant.fullName.replace(/[^a-zA-Z0-9]/g, "_").substring(0, 50);
+      a.download = `${safeName}_Action_Report_${new Date().toISOString().split("T")[0]}.docx`;
+      a.click();
+      URL.revokeObjectURL(url);
+
+      toast({ title: "Action Report downloaded", description: `${grant.name} action report is ready.` });
+    } catch (error) {
+      console.error("Single grant report export failed:", error);
+      toast({ title: "Export failed", description: "Could not generate the action report.", variant: "destructive" });
+    } finally {
+      setIsExportingReport(false);
+    }
+  };
+
   return (
     <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -2183,19 +2267,31 @@ export default function GrantPackagesPage() {
                 )}
               </div>
             </div>
-            <div className="flex gap-4 text-center">
-              <div>
-                <p className="text-2xl font-bold">{approvedCount}/{totalSections}</p>
-                <p className="text-xs text-muted-foreground">Sections Approved</p>
+            <div className="flex items-center gap-4">
+              <div className="flex gap-4 text-center">
+                <div>
+                  <p className="text-2xl font-bold">{approvedCount}/{totalSections}</p>
+                  <p className="text-xs text-muted-foreground">Sections Approved</p>
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{completedTasks}/{totalTasks}</p>
+                  <p className="text-xs text-muted-foreground">Tasks Done</p>
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{verifiedChecklist}/{totalChecklist}</p>
+                  <p className="text-xs text-muted-foreground">Checklist Verified</p>
+                </div>
               </div>
-              <div>
-                <p className="text-2xl font-bold">{completedTasks}/{totalTasks}</p>
-                <p className="text-xs text-muted-foreground">Tasks Done</p>
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{verifiedChecklist}/{totalChecklist}</p>
-                <p className="text-xs text-muted-foreground">Checklist Verified</p>
-              </div>
+              <Button
+                size="sm"
+                onClick={() => handleExportSingleGrantReport()}
+                disabled={isExportingReport}
+                data-testid="button-export-grant-report"
+                className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white whitespace-nowrap"
+              >
+                {isExportingReport ? <Loader2 className="h-4 w-4 mr-1.5 animate-spin" /> : <ClipboardCheck className="h-4 w-4 mr-1.5" />}
+                {isExportingReport ? "Generating..." : "Action Report"}
+              </Button>
             </div>
           </div>
         </CardContent>
