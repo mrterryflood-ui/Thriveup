@@ -1451,26 +1451,31 @@ Respond in this exact JSON format (no markdown, just JSON):
 
   app.post("/api/grants/draft-section", requireAuth, async (req, res) => {
     try {
-      const { grantId, sectionId, sectionName, sectionDescription, grantName, grantDescription, existingContent, userInstructions } = req.body;
+      const { grantId, sectionId, sectionName, sectionDescription, grantName, grantDescription, existingContent, userInstructions, grantKnowledge, pageLimit, wordCount } = req.body;
       if (!grantId || !sectionName || !grantName) {
         return res.status(400).json({ error: "Missing required fields: grantId, sectionName, grantName" });
       }
 
-      const systemPrompt = `You are an expert grant writer for ThriveUp Academy, a 501(c)(3) nonprofit workforce development platform founded by Dr. Terry Flood. You specialize in writing compelling, evidence-based grant proposals.
+      const systemPrompt = `You are an expert grant writer for ThriveUp Academy, a 501(c)(3) nonprofit workforce development platform founded by Dr. Terry Flood. You specialize in writing compelling, evidence-based grant proposals that meet exact page and word count requirements.
 
 Key context about the organization:
 - ThriveUp Academy is part of a 3-entity ecosystem: ThriveUp Academy (501(c)(3)), The Collaborative Advocate (VOSB), and MCE (Minority Center of Excellence - minority business SaaS)
-- Dr. Flood's methodologies: MAP-GAP (continuous improvement), SALP (structured fidelity), Three Realities (Research Reality, Political Reality, Ground-Level Reality), MG-PATR
-- 14-platform technology ecosystem including LifeBridge (community voice), RPLICE (fidelity), Sankofa Health, M2C Transition, SafeReport, etc.
-- Focus areas: youth workforce development, substance use prevention, community coalition building, economic empowerment
+- Dr. Flood's methodologies: MAP-GAP (Monitoring, Assessing, Predicting — Gap analysis, a continuous improvement framework), SALP (structured adherence/fidelity protocol), Three Realities (Research Reality, Political Reality, Ground-Level Reality), MG-PATR
+- 14-platform technology ecosystem: ThriveUp Academy (education), The Incubator (program design), MCE (minority business), LifeBridge (community voice/benefits navigation), RPLICE (fidelity monitoring), Sankofa Health (health equity), M2C Transition (military-to-civilian), SafeReport (safety/anonymous reporting), Perfectly Different (neurodiversity/disability), WholeMind Learning (SEL/mental health), PillScheduler (medication adherence), SafeCogniCare (elder care), Better Science Lab (research/evaluation), ISSS (school safety)
+- Focus areas: youth workforce development, substance use prevention, community coalition building, economic empowerment, reentry services
 
-When drafting, you should:
+${grantKnowledge ? `\nDETAILED GRANT KNOWLEDGE (use this to align every section precisely):\n${grantKnowledge}` : ""}
+
+CRITICAL INSTRUCTIONS:
 1. Write in professional grant language appropriate for federal/foundation reviewers
-2. Include specific, measurable outcomes where possible
-3. Reference evidence-based practices and data
-4. Align with the grant's specific requirements and evaluation criteria
-5. Incorporate the organization's unique differentiators (Three Realities, MAP-GAP, 14-platform ecosystem)
-6. Be specific rather than generic — use real program details`;
+2. ${wordCount ? `YOU MUST write to the FULL required length: ${wordCount}. Do NOT stop short. Fill the entire allocation with substantive, detailed content.` : "Write a comprehensive, detailed section."}
+3. ${pageLimit ? `Target page limit: ${pageLimit}. Write enough content to fill this allocation.` : ""}
+4. Include specific, measurable outcomes with numbers and percentages
+5. Reference evidence-based practices, data sources, and research
+6. Align precisely with the grant's specific requirements and evaluation criteria
+7. Incorporate the organization's unique differentiators (Three Realities, MAP-GAP, 14-platform ecosystem)
+8. Be specific rather than generic — use real program details, platform names, and methodology descriptions
+9. Do NOT stop early. If the word count target is 6,000 words, write 6,000 words of substantive content.`;
 
       const userPrompt = `Draft the "${sectionName}" section for the following grant application:
 
@@ -1478,15 +1483,26 @@ Grant: ${grantName}
 Grant Description: ${grantDescription || "N/A"}
 Section: ${sectionName}
 Section Description: ${sectionDescription || "N/A"}
+${pageLimit ? `Page Limit: ${pageLimit}` : ""}
+${wordCount ? `REQUIRED Word Count: ${wordCount} — YOU MUST write this many words. Do not stop short.` : ""}
 ${existingContent ? `\nExisting content to improve/expand:\n${existingContent}` : ""}
 ${userInstructions ? `\nSpecial instructions from Dr. Flood:\n${userInstructions}` : ""}
 
-Write a complete, professional draft for this section. Format with clear paragraphs. Include specific details, measurable outcomes, and evidence-based justifications. Make it compelling for grant reviewers. Do not include section headers — just the body content.`;
+Write a complete, professional draft for this section that fills the FULL required word count. Format with clear paragraphs. Include specific details, measurable outcomes, and evidence-based justifications. Make it compelling for grant reviewers. Do not include section headers — just the body content. Write the FULL length — do not summarize or cut short.`;
+
+      let maxTokens = 4000;
+      if (wordCount) {
+        const match = wordCount.match(/(\d[\d,]*)/);
+        if (match) {
+          const targetWords = parseInt(match[1].replace(/,/g, ""), 10);
+          maxTokens = Math.max(4000, Math.ceil(targetWords * 1.5));
+        }
+      }
 
       const draft = await generateAIResponse([
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt },
-      ], 4000);
+      ], maxTokens);
 
       res.json({ draft, sectionId, sectionName });
     } catch (error) {
@@ -1497,15 +1513,26 @@ Write a complete, professional draft for this section. Format with clear paragra
 
   app.post("/api/grants/refine-section", requireAuth, async (req, res) => {
     try {
-      const { currentDraft, refinementInstructions, sectionName, grantName } = req.body;
+      const { currentDraft, refinementInstructions, sectionName, grantName, grantKnowledge, wordCount, pageLimit } = req.body;
       if (!currentDraft || !refinementInstructions) {
         return res.status(400).json({ error: "Missing required fields" });
       }
 
+      const systemContent = `You are an expert grant writer for ThriveUp Academy. Refine the given draft based on the user's instructions. Maintain professional grant language. Return only the refined text.${grantKnowledge ? `\n\nGrant Knowledge:\n${grantKnowledge}` : ""}${wordCount ? `\n\nTarget word count: ${wordCount}. Maintain this length during refinement.` : ""}${pageLimit ? `\n\nTarget page limit: ${pageLimit}.` : ""}`;
+
+      let refineMaxTokens = 4000;
+      if (wordCount) {
+        const match = wordCount.match(/(\d[\d,]*)/);
+        if (match) {
+          const targetWords = parseInt(match[1].replace(/,/g, ""), 10);
+          refineMaxTokens = Math.max(4000, Math.ceil(targetWords * 1.5));
+        }
+      }
+
       const refined = await generateAIResponse([
-        { role: "system", content: "You are an expert grant writer. Refine the given draft based on the user's instructions. Maintain professional grant language. Return only the refined text." },
+        { role: "system", content: systemContent },
         { role: "user", content: `Grant: ${grantName}\nSection: ${sectionName}\n\nCurrent draft:\n${currentDraft}\n\nRefinement instructions:\n${refinementInstructions}\n\nReturn the refined version:` },
-      ], 4000);
+      ], refineMaxTokens);
 
       res.json({ draft: refined });
     } catch (error) {

@@ -16,7 +16,7 @@ import {
   ClipboardCheck, Layers, Globe, Sparkles, Building2,
   Activity, Lightbulb, Heart, Handshake, Scale,
   Package, CheckSquare, XCircle, Upload, Camera, Search,
-  Loader2, Leaf, Plus, Trash2, Bell, Pencil,
+  Loader2, Leaf, Plus, Trash2, Bell, Pencil, ExternalLink,
 } from "lucide-react";
 
 type ApprovalStatus = "not-started" | "draft" | "in-review" | "approved" | "needs-revision";
@@ -49,6 +49,9 @@ interface GrantPackage {
   bgColor: string;
   borderColor: string;
   description: string;
+  referenceUrl?: string;
+  referenceLabel?: string;
+  grantKnowledge?: string;
   competitiveEdge: string[];
   sections: PackageSection[];
   phases: PhaseStatus[];
@@ -109,6 +112,14 @@ const GRANT_PACKAGES: GrantPackage[] = [
     bgColor: "bg-emerald-50 dark:bg-emerald-950/30",
     borderColor: "border-emerald-200 dark:border-emerald-800",
     description: "Federal grant supporting community coalitions to prevent youth substance use through evidence-based strategies and 12-sector coalition building.",
+    referenceUrl: "https://www.samhsa.gov/grants/grant-announcements/sp-24-001",
+    referenceLabel: "SAMHSA/ONDCP DFC NOFO",
+    grantKnowledge: `Drug-Free Communities (DFC) Support Program — $125,000/year for 5 years ($625,000 total).
+PURPOSE: Establish and strengthen community coalitions to reduce youth substance use. Requires a community coalition representing 12 sectors: youth, parents, businesses, media, schools, youth-serving orgs, law enforcement, religious orgs, civic/volunteer, healthcare, state/local government, other substance use orgs.
+KEY REQUIREMENTS: (1) Coalition must have been active for at least 6 months. (2) Must address at least 2 substances. (3) Must collect 4 core measures: past 30-day use, perception of risk, perception of disapproval, and age of first use. (4) Must use evidence-based prevention strategies from SAMHSA's registry. (5) Community readiness assessment required. (6) Logic model with theory of change. (7) Sustainability plan. (8) Match requirement: dollar-for-dollar cash/in-kind match.
+SCORING CRITERIA: Statement of Need (20 pts), Proposed Approach/Program Design (30 pts), Organizational Capacity (15 pts), Data Collection & Evaluation (15 pts), Budget (10 pts), Community Readiness (10 pts).
+ELIGIBLE APPLICANTS: 501(c)(3) community-based organizations; coalitions with 12-sector representation.
+APPLICATION DEADLINE: April 14, 2026. SF-424, SF-424A, Project Narrative, Budget, Logic Model, Letters of Support, Coalition membership list required.`,
     competitiveEdge: [
       "14-platform ecosystem provides unprecedented coalition infrastructure",
       "SALP fidelity tracking exceeds typical reporting capabilities",
@@ -240,6 +251,14 @@ const GRANT_PACKAGES: GrantPackage[] = [
     bgColor: "bg-blue-50 dark:bg-blue-950/30",
     borderColor: "border-blue-200 dark:border-blue-800",
     description: "Federal workforce development funding for career pathways, skills training, credential attainment, and employment services for youth and adults facing barriers.",
+    referenceUrl: "https://www.dol.gov/agencies/eta/youth/wioa-formula",
+    referenceLabel: "DOL WIOA Youth Programs",
+    grantKnowledge: `WIOA Title I Youth Programs — $200,000–$500,000/year via Local Workforce Development Board formula allocation.
+PURPOSE: Provide comprehensive workforce services to eligible youth ages 16–24 (In-School Youth and Out-of-School Youth) who face barriers to employment and education. At least 75% of funds must serve Out-of-School Youth (OSY). At least 20% of funds must be spent on Work Experience (paid/unpaid internships, pre-apprenticeship, OJT).
+14 REQUIRED YOUTH PROGRAM ELEMENTS: (1) Tutoring/study skills/dropout prevention, (2) Alternative secondary school services, (3) Paid/unpaid work experience, (4) Occupational skills training, (5) Education offered concurrently with workforce preparation, (6) Leadership development, (7) Supportive services, (8) Adult mentoring (12 months minimum), (9) Follow-up services (12 months post-exit), (10) Comprehensive guidance and counseling, (11) Financial literacy education, (12) Entrepreneurial skills training, (13) Services that provide labor market info, (14) Transition to postsecondary activities.
+6 PRIMARY PERFORMANCE INDICATORS: (1) Employment Rate Q2 after exit, (2) Employment Rate Q4 after exit, (3) Median Earnings Q2 after exit, (4) Credential Attainment within 4 quarters, (5) Measurable Skill Gains, (6) Effectiveness in Serving Employers.
+ELIGIBLE YOUTH BARRIERS: School dropout, basic skills deficient, English learner, offender, homeless/runaway/foster, pregnant/parenting, disability, low-income requiring assistance.
+APPLICATION: Submitted to Local Workforce Development Board; requires MOU, program design, budget, performance targets, employer engagement plan.`,
     competitiveEdge: [
       "50+ career pathways with stackable credentials already built in platform",
       "Integrated case management with Individual Employment Plans (IEPs)",
@@ -248,13 +267,13 @@ const GRANT_PACKAGES: GrantPackage[] = [
       "MCE platform provides minority business support — rare in WIOA applications",
     ],
     sections: [
-      { id: "wioa-narrative", name: "Program Narrative", description: "Service delivery design, career pathways, employer engagement strategy", icon: FileText, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood + AI" },
-      { id: "wioa-budget", name: "Budget & Cost Allocation", description: "Cost categories aligned to WIOA allowable costs", icon: DollarSign, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood" },
-      { id: "wioa-performance", name: "Performance Targets", description: "Proposed targets for all 6 WIOA primary indicators", icon: BarChart3, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood + AI" },
-      { id: "wioa-eligibility", name: "Eligibility & Outreach Plan", description: "Target population, eligibility verification, recruitment strategy", icon: Users, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood" },
-      { id: "wioa-employer", name: "Employer Partnership Letters", description: "Committed employer partners for work-based learning", icon: Building2, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood" },
-      { id: "wioa-14elements", name: "14 Youth Elements Plan", description: "How all 14 required WIOA youth program elements are delivered", icon: ClipboardCheck, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "AI + Dr. Flood Review" },
-      { id: "wioa-mou", name: "MOU with Workforce Board", description: "Memorandum of Understanding with Local Workforce Development Board", icon: Handshake, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood" },
+      { id: "wioa-narrative", name: "Program Narrative", description: "Service delivery design, career pathways, employer engagement strategy", icon: FileText, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood + AI", pageLimit: "20 pages", wordCount: "6,000–8,000 words" },
+      { id: "wioa-budget", name: "Budget & Cost Allocation", description: "Cost categories aligned to WIOA allowable costs", icon: DollarSign, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood", pageLimit: "5 pages", wordCount: "1,500–2,000 words" },
+      { id: "wioa-performance", name: "Performance Targets", description: "Proposed targets for all 6 WIOA primary indicators", icon: BarChart3, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood + AI", pageLimit: "3 pages", wordCount: "1,000–1,500 words" },
+      { id: "wioa-eligibility", name: "Eligibility & Outreach Plan", description: "Target population, eligibility verification, recruitment strategy", icon: Users, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood", pageLimit: "5 pages", wordCount: "1,500–2,000 words" },
+      { id: "wioa-employer", name: "Employer Partnership Letters", description: "Committed employer partners for work-based learning", icon: Building2, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood", pageLimit: "No limit (1 per employer)", wordCount: "300–500 words each" },
+      { id: "wioa-14elements", name: "14 Youth Elements Plan", description: "How all 14 required WIOA youth program elements are delivered", icon: ClipboardCheck, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "AI + Dr. Flood Review", pageLimit: "8 pages", wordCount: "2,500–3,500 words" },
+      { id: "wioa-mou", name: "MOU with Workforce Board", description: "Memorandum of Understanding with Local Workforce Development Board", icon: Handshake, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood", pageLimit: "3 pages", wordCount: "800–1,200 words" },
     ],
     phases: [
       {
@@ -360,6 +379,15 @@ const GRANT_PACKAGES: GrantPackage[] = [
     bgColor: "bg-orange-50 dark:bg-orange-950/30",
     borderColor: "border-orange-200 dark:border-orange-800",
     description: "The NBA Foundation funds programs that drive economic empowerment for Black communities through workforce development, career advancement, and entrepreneurship pathways for youth and young adults ages 16-24.",
+    referenceUrl: "https://nbafoundation.nba.com/apply/",
+    referenceLabel: "NBA Foundation Application",
+    grantKnowledge: `NBA Foundation — Economic Empowerment Grants — $100,000–$500,000.
+PURPOSE: Drive economic empowerment in Black communities, especially for youth and young adults ages 16-24. Focuses on workforce development, career advancement, entrepreneurship, and wealth creation pathways.
+FUNDING PRIORITIES: (1) Employment and career pathways for Black youth, (2) Entrepreneurship and wealth-building programs, (3) Economic mobility through skills training, (4) Community-driven approaches that center Black leadership and voice.
+APPLICATION PROCESS: Two-stage — Letter of Inquiry (LOI) first, then full proposal by invitation. LOI should include: organization overview, program summary, target population, proposed budget, expected outcomes.
+WHAT THEY LOOK FOR: Programs led by or deeply connected to Black communities; measurable economic outcomes (job placement, wage increases, business starts, credential attainment); innovative approaches; strong organizational track record; sustainability beyond grant period; community voice in design.
+GRANT TYPES: General Operating, Program-Specific, and Capacity Building. Multi-year grants available.
+ELIGIBILITY: 501(c)(3) organizations or fiscal sponsors; must demonstrate authentic connection to Black community; preference for organizations with diverse leadership.`,
     competitiveEdge: [
       "ThriveUp serves exactly the target demographic — Black youth 16-24 facing employment barriers",
       "Integrated entrepreneurship pipeline through MCE (Minority Capital Exchange)",
@@ -368,14 +396,14 @@ const GRANT_PACKAGES: GrantPackage[] = [
       "VOSB designation and minority business infrastructure show authentic community investment",
     ],
     sections: [
-      { id: "nba-loi", name: "Letter of Inquiry (LOI)", description: "Initial inquiry with program overview, population served, and funding request", icon: FileText, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood + AI" },
-      { id: "nba-narrative", name: "Full Proposal Narrative", description: "Program design, theory of change, target population, implementation plan", icon: BookOpen, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood + AI" },
-      { id: "nba-budget", name: "Budget & Justification", description: "Detailed budget with cost-per-participant and overhead allocation", icon: DollarSign, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood" },
-      { id: "nba-outcomes", name: "Outcomes Framework", description: "Measurable outcomes: employment, wage gains, credential attainment, business starts", icon: BarChart3, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood + AI" },
-      { id: "nba-org-capacity", name: "Organizational Capacity", description: "Board composition, leadership bios, financial statements, prior program results", icon: Building2, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood" },
-      { id: "nba-equity", name: "Equity & Community Voice", description: "How program design centers Black community voice and lived experience", icon: Heart, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood" },
-      { id: "nba-partnerships", name: "Partnership Documentation", description: "Employer partners, community organizations, educational institutions", icon: Handshake, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood" },
-      { id: "nba-sustainability", name: "Sustainability & Scale Plan", description: "How program continues and grows beyond NBA Foundation funding", icon: Globe, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood" },
+      { id: "nba-loi", name: "Letter of Inquiry (LOI)", description: "Initial inquiry with program overview, population served, and funding request", icon: FileText, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood + AI", pageLimit: "3 pages", wordCount: "800–1,200 words" },
+      { id: "nba-narrative", name: "Full Proposal Narrative", description: "Program design, theory of change, target population, implementation plan", icon: BookOpen, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood + AI", pageLimit: "15 pages", wordCount: "5,000–6,000 words" },
+      { id: "nba-budget", name: "Budget & Justification", description: "Detailed budget with cost-per-participant and overhead allocation", icon: DollarSign, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood", pageLimit: "3 pages", wordCount: "1,000–1,500 words" },
+      { id: "nba-outcomes", name: "Outcomes Framework", description: "Measurable outcomes: employment, wage gains, credential attainment, business starts", icon: BarChart3, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood + AI", pageLimit: "3 pages", wordCount: "1,000–1,500 words" },
+      { id: "nba-org-capacity", name: "Organizational Capacity", description: "Board composition, leadership bios, financial statements, prior program results", icon: Building2, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood", pageLimit: "5 pages", wordCount: "1,500–2,000 words" },
+      { id: "nba-equity", name: "Equity & Community Voice", description: "How program design centers Black community voice and lived experience", icon: Heart, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood", pageLimit: "3 pages", wordCount: "1,000–1,500 words" },
+      { id: "nba-partnerships", name: "Partnership Documentation", description: "Employer partners, community organizations, educational institutions", icon: Handshake, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood", pageLimit: "No limit (1 per partner)", wordCount: "300–500 words each" },
+      { id: "nba-sustainability", name: "Sustainability & Scale Plan", description: "How program continues and grows beyond NBA Foundation funding", icon: Globe, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood", pageLimit: "3 pages", wordCount: "1,000–1,500 words" },
     ],
     phases: [
       {
@@ -485,6 +513,15 @@ const GRANT_PACKAGES: GrantPackage[] = [
     bgColor: "bg-teal-50 dark:bg-teal-950/30",
     borderColor: "border-teal-200 dark:border-teal-800",
     description: "Investments in community-informed organizations providing core economic stability services for historically marginalized communities, with a focus on increasing enrollment in public benefits that foster economic stability.",
+    referenceUrl: "https://stdavidsfoundation.org/grants/we-all-benefit/",
+    referenceLabel: "St. David's Foundation — We All Benefit 2.0",
+    grantKnowledge: `St. David's Foundation — "We All Benefit 2.0: Building Economic Stability" — Up to $250,000 (individual) / $1,000,000 (collaborative).
+PURPOSE: Invest in community-informed organizations that provide core economic stability services to Central Texas communities, with focus on increasing enrollment in public benefits that foster economic stability and build pathways to self-sufficiency.
+GEOGRAPHIC ELIGIBILITY (CRITICAL): Must serve Central Texas — specifically Bastrop, Caldwell, Hays, Travis, or Williamson counties. Collaborative track ($1M) requires at least 3 organizations with primary operations in these counties.
+FUNDING PRIORITIES: (1) Public benefits enrollment (SNAP, Medicaid, CHIP, WIC, housing, childcare subsidies), (2) Financial coaching and asset building, (3) Workforce development as economic stability pathway, (4) Addressing barriers to benefits access, (5) Community-informed program design (organizations must demonstrate how community voice shapes their work).
+WHAT MAKES A STRONG APPLICATION: Community-informed design is paramount — St. David's explicitly looks for how organizations listen to and incorporate the voices of people they serve. Data-driven approaches, cross-sector collaboration, cultural responsiveness, addressing systemic barriers, demonstrating impact on economic stability indicators.
+APPLICATION PROCESS: Application opens March 30, 2026. Letter of Intent may be required. Full application includes: program narrative, budget, community voice evidence, outcomes plan, organizational capacity, partnership documentation.
+ELIGIBILITY: 501(c)(3) organizations operating in Central Texas counties. Collaborative track requires 3+ organizations with combined geographic coverage. St. David's favors organizations with authentic community relationships, not drop-in service models.`,
     competitiveEdge: [
       "Three Realities methodology IS 'community-informed' — exactly what St. David's requires",
       "LifeBridge platform handles benefits navigation and enrollment — direct alignment",
@@ -494,14 +531,14 @@ const GRANT_PACKAGES: GrantPackage[] = [
       "Financial Literacy module directly supports economic stability for participants",
     ],
     sections: [
-      { id: "std-loi", name: "Letter of Intent / Application", description: "Organization overview, program description, population served, funding request", icon: FileText, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood + AI" },
-      { id: "std-narrative", name: "Program Narrative", description: "Community-informed program design, economic stability services, public benefits enrollment strategy", icon: BookOpen, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood + AI" },
-      { id: "std-budget", name: "Budget & Justification", description: "Line-item budget with cost allocation for economic stability services", icon: DollarSign, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood" },
-      { id: "std-community", name: "Community Voice Documentation", description: "Evidence of community-informed design — Three Realities analysis, stakeholder input, lived experience", icon: Users, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood" },
-      { id: "std-outcomes", name: "Outcomes & Evaluation Plan", description: "Measurable outcomes: benefits enrollment rates, economic stability indicators, participant economic health", icon: BarChart3, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood + AI" },
-      { id: "std-partnerships", name: "Partnership & Collaboration Letters", description: "Community organizations, benefits agencies, workforce partners in Central Texas", icon: Handshake, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood" },
-      { id: "std-org-capacity", name: "Organizational Capacity", description: "Board composition, leadership bios, financial statements, prior results", icon: Building2, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood" },
-      { id: "std-sustainability", name: "Sustainability Plan", description: "How economic stability services continue beyond St. David's funding", icon: Globe, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood" },
+      { id: "std-loi", name: "Letter of Intent / Application", description: "Organization overview, program description, population served, funding request", icon: FileText, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood + AI", pageLimit: "5 pages", wordCount: "1,500–2,000 words" },
+      { id: "std-narrative", name: "Program Narrative", description: "Community-informed program design, economic stability services, public benefits enrollment strategy", icon: BookOpen, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood + AI", pageLimit: "15 pages", wordCount: "5,000–6,000 words" },
+      { id: "std-budget", name: "Budget & Justification", description: "Line-item budget with cost allocation for economic stability services", icon: DollarSign, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood", pageLimit: "3 pages", wordCount: "1,000–1,500 words" },
+      { id: "std-community", name: "Community Voice Documentation", description: "Evidence of community-informed design — Three Realities analysis, stakeholder input, lived experience", icon: Users, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood", pageLimit: "5 pages", wordCount: "1,500–2,500 words" },
+      { id: "std-outcomes", name: "Outcomes & Evaluation Plan", description: "Measurable outcomes: benefits enrollment rates, economic stability indicators, participant economic health", icon: BarChart3, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood + AI", pageLimit: "5 pages", wordCount: "1,500–2,000 words" },
+      { id: "std-partnerships", name: "Partnership & Collaboration Letters", description: "Community organizations, benefits agencies, workforce partners in Central Texas", icon: Handshake, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood", pageLimit: "No limit (1 per partner)", wordCount: "300–500 words each" },
+      { id: "std-org-capacity", name: "Organizational Capacity", description: "Board composition, leadership bios, financial statements, prior results", icon: Building2, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood", pageLimit: "5 pages", wordCount: "1,500–2,000 words" },
+      { id: "std-sustainability", name: "Sustainability Plan", description: "How economic stability services continue beyond St. David's funding", icon: Globe, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood", pageLimit: "3 pages", wordCount: "1,000–1,500 words" },
     ],
     phases: [
       {
@@ -1377,6 +1414,9 @@ function SectionDrafter({ section, grant, autoTrigger, onAutoTriggered }: { sect
         grantDescription: grant.description,
         existingContent: draftContent || undefined,
         userInstructions: userInstructions || undefined,
+        grantKnowledge: grant.grantKnowledge || undefined,
+        pageLimit: section.pageLimit || undefined,
+        wordCount: section.wordCount || undefined,
       });
       return resp.json();
     },
@@ -1396,6 +1436,9 @@ function SectionDrafter({ section, grant, autoTrigger, onAutoTriggered }: { sect
         refinementInstructions: refineInstructions,
         sectionName: section.name,
         grantName: `${grant.name} — ${grant.fullName}`,
+        grantKnowledge: grant.grantKnowledge || undefined,
+        wordCount: section.wordCount || undefined,
+        pageLimit: section.pageLimit || undefined,
       });
       return resp.json();
     },
@@ -1488,7 +1531,7 @@ function SectionDrafter({ section, grant, autoTrigger, onAutoTriggered }: { sect
             <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
               <FileText className="h-3 w-3" />
               Draft Content
-              <Badge variant="secondary" className="text-[10px] ml-1">{draftContent.split(/\s+/).length} words</Badge>
+              <Badge variant="secondary" className="text-[10px] ml-1">{draftContent.split(/\s+/).filter(Boolean).length} words{section.wordCount ? ` / target: ${section.wordCount}` : ""}</Badge>
             </p>
             <div className="flex gap-2">
               <Button size="sm" variant="outline" onClick={copyToClipboard} data-testid={`button-copy-${section.id}`}>
@@ -1708,6 +1751,12 @@ export default function GrantPackagesPage() {
               <div>
                 <h2 className="font-bold text-lg">{currentGrant.fullName}</h2>
                 <p className="text-sm text-muted-foreground">{currentGrant.description}</p>
+                {currentGrant.referenceUrl && (
+                  <a href={currentGrant.referenceUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 hover:underline mt-1" data-testid="grant-reference-link">
+                    <ExternalLink className="h-3 w-3" />
+                    {currentGrant.referenceLabel || "View NOFO / Grant Page"}
+                  </a>
+                )}
               </div>
             </div>
             <div className="flex gap-4 text-center">
@@ -1970,6 +2019,20 @@ export default function GrantPackagesPage() {
                           <StatusBadge status={currentStatus} />
                         </div>
                         <p className="text-xs text-muted-foreground mt-0.5">{section.description}</p>
+                        {(section.pageLimit || section.wordCount) && (
+                          <div className="flex items-center gap-3 mt-1">
+                            {section.pageLimit && (
+                              <span className="text-[10px] font-medium bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 px-1.5 py-0.5 rounded" data-testid={`section-page-limit-${section.id}`}>
+                                {section.pageLimit}
+                              </span>
+                            )}
+                            {section.wordCount && (
+                              <span className="text-[10px] font-medium bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 px-1.5 py-0.5 rounded" data-testid={`section-word-count-${section.id}`}>
+                                {section.wordCount}
+                              </span>
+                            )}
+                          </div>
+                        )}
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
                         <span className="text-xs text-muted-foreground hidden sm:block">{section.assignee}</span>
