@@ -2025,6 +2025,79 @@ export default function GrantPackagesPage() {
     }
   };
 
+  const [isExportingReport, setIsExportingReport] = useState(false);
+
+  const handleExportActionReport = async () => {
+    setIsExportingReport(true);
+    try {
+      const grantsPayload = GRANT_PACKAGES.map((grant) => ({
+        name: grant.fullName,
+        funder: grant.funder,
+        amount: grant.amount,
+        deadline: grant.deadline,
+        workflowOrder: grant.partnershipTimeline?.workflowOrder || null,
+        partnershipSummary: grant.partnershipTimeline?.summary || null,
+        partnerRequirements: (grant.partnershipTimeline?.requirements || []).map((r) => ({
+          partnerType: r.partnerType,
+          timing: r.timing,
+          requiredInDocs: r.requiredInDocs,
+          docSections: r.docSections,
+          description: r.description,
+          evidenceNeeded: r.evidenceNeeded,
+        })),
+        checklist: grant.preExecutionChecklist.map((c) => ({
+          id: c.id,
+          category: c.category,
+          item: c.item,
+          status: c.status,
+          notes: c.notes,
+          guidance: c.guidance || null,
+          resources: c.resources || null,
+        })),
+        serviceAreaRegion: grant.serviceArea?.region || null,
+        targetEmployers: (grant.serviceArea?.targetEmployers || []).map((e) => ({
+          name: e.name,
+          sector: e.sector,
+          type: e.type,
+        })),
+        pipelineTasks: grant.phases.map((phase) => ({
+          name: phase.name,
+          tasks: phase.tasks.map((t) => ({
+            task: t.task,
+            owner: t.owner,
+            status: t.status,
+            dueDate: t.dueDate,
+            guidance: t.guidance || null,
+          })),
+        })),
+      }));
+
+      const response = await fetch("/api/grants/export-action-report", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ grants: grantsPayload }),
+      });
+
+      if (!response.ok) throw new Error("Export failed");
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `ThriveUp_Grant_Action_Report_${new Date().toISOString().split("T")[0]}.docx`;
+      a.click();
+      URL.revokeObjectURL(url);
+
+      toast({ title: "Action Report downloaded", description: "Your comprehensive grant readiness report is ready." });
+    } catch (error) {
+      console.error("Action report export failed:", error);
+      toast({ title: "Export failed", description: "Could not generate the action report.", variant: "destructive" });
+    } finally {
+      setIsExportingReport(false);
+    }
+  };
+
   return (
     <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -2032,7 +2105,11 @@ export default function GrantPackagesPage() {
           <h1 className="text-2xl sm:text-3xl font-bold" data-testid="text-grant-packages-title">Grant Submission Packages</h1>
           <p className="text-muted-foreground mt-1">End-to-end pipeline: Collaborate → Build → Review → Submit → Execute</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
+          <Button onClick={handleExportActionReport} disabled={isExportingReport} data-testid="button-export-action-report" className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white">
+            {isExportingReport ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <ClipboardCheck className="h-4 w-4 mr-2" />}
+            {isExportingReport ? "Generating..." : "Download Action Report"}
+          </Button>
           <Button variant="outline" onClick={() => handleDownloadPackage(true)} disabled={isExporting} data-testid="button-export-all">
             {isExporting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Download className="h-4 w-4 mr-2" />}
             {isExporting ? "Exporting..." : "Export Full Package (.docx)"}
