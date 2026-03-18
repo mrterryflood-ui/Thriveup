@@ -67,6 +67,12 @@ interface PartnershipTimeline {
   requirements: PartnerRequirement[];
 }
 
+interface GrantEssential {
+  label: string;
+  detail: string;
+  critical?: boolean;
+}
+
 interface GrantPackage {
   id: string;
   name: string;
@@ -85,6 +91,7 @@ interface GrantPackage {
   grantKnowledge?: string;
   serviceArea?: ServiceArea;
   partnershipTimeline?: PartnershipTimeline;
+  essentials?: GrantEssential[];
   competitiveEdge: string[];
   sections: PackageSection[];
   phases: PhaseStatus[];
@@ -158,6 +165,16 @@ KEY REQUIREMENTS: (1) Coalition must have been active for at least 6 months. (2)
 SCORING CRITERIA: Statement of Need (20 pts), Proposed Approach/Program Design (30 pts), Organizational Capacity (15 pts), Data Collection & Evaluation (15 pts), Budget (10 pts), Community Readiness (10 pts).
 ELIGIBLE APPLICANTS: 501(c)(3) community-based organizations; coalitions with 12-sector representation.
 APPLICATION DEADLINE: April 14, 2026. SF-424, SF-424A, Project Narrative, Budget, Logic Model, Letters of Support, Coalition membership list required.`,
+    essentials: [
+      { label: "Coalition Required", detail: "Must build a 12-sector coalition (youth, parents, schools, law enforcement, healthcare, business, media, religious, civic, government, substance use orgs, youth-serving orgs)", critical: true },
+      { label: "Match Requirement", detail: "Dollar-for-dollar match — $125K/year in cash or in-kind contributions required", critical: true },
+      { label: "Coalition History", detail: "Coalition must have been active for at least 6 months before applying" },
+      { label: "Target Population", detail: "Youth substance use prevention — must address at least 2 substances" },
+      { label: "Data Collection", detail: "Must collect 4 core measures: past 30-day use, perception of risk, perception of disapproval, age of first use" },
+      { label: "Evidence-Based", detail: "Must use SAMHSA-approved evidence-based prevention strategies" },
+      { label: "Eligible Applicants", detail: "501(c)(3) organizations only — or unit of local government" },
+      { label: "Key Deliverables", detail: "Logic model, sustainability plan, community readiness assessment, 12 letters of support (one per sector)" },
+    ],
     competitiveEdge: [
       "14-platform ecosystem provides unprecedented coalition infrastructure",
       "SALP fidelity tracking exceeds typical reporting capabilities",
@@ -360,6 +377,16 @@ SERVICE AREA: Central Texas (Travis, Williamson, Hays, Bastrop, Caldwell countie
         { partnerType: "Case Management / Support Services", requiredInDocs: false, timing: "post-award", docSections: [], description: "Detailed case management partnerships and service agreements can be formalized after award. You should describe your approach in the narrative but formal agreements come later.", evidenceNeeded: "Service agreements, referral protocols — formalized during 90-day startup period after award" },
       ],
     },
+    essentials: [
+      { label: "Employer Partners Required", detail: "Must have committed employer partners for work-based learning placements (internships, apprenticeships, OJT) — letters of commitment needed", critical: true },
+      { label: "75% Out-of-School Youth", detail: "At least 75% of funds must serve Out-of-School Youth (ages 16–24 not enrolled in school)", critical: true },
+      { label: "20% on Work Experience", detail: "At least 20% of budget must be spent on paid/unpaid work experience activities" },
+      { label: "14 Program Elements", detail: "Must deliver all 14 required youth elements: tutoring, work experience, mentoring (12 months), occupational skills, leadership, financial literacy, follow-up services (12 months post-exit), and more" },
+      { label: "6 Performance Indicators", detail: "Tracked on: employment rate Q2 & Q4 after exit, median earnings, credential attainment, measurable skill gains, employer effectiveness" },
+      { label: "MOU with Workforce Board", detail: "Must have Memorandum of Understanding with Local Workforce Development Board (Workforce Solutions Capital Area)" },
+      { label: "Eligible Youth Barriers", detail: "Participants must face barriers: dropout, basic skills deficient, English learner, justice-involved, homeless, foster care, pregnant/parenting, disability, or low-income" },
+      { label: "Rolling Deadline", detail: "Submitted to State Workforce Board — no fixed federal deadline, but LWDB procurement cycles apply" },
+    ],
     competitiveEdge: [
       "50+ career pathways with stackable credentials already built in platform",
       "Integrated case management with Individual Employment Plans (IEPs)",
@@ -525,6 +552,16 @@ ELIGIBILITY: 501(c)(3) organizations or fiscal sponsors; must demonstrate authen
         { partnerType: "Mentorship / MCE Business Partners", requiredInDocs: false, timing: "post-award", docSections: [], description: "MCE (Minority Capital Exchange) business mentors and Black-owned business partners for the entrepreneurship pipeline. Can be formalized post-award as part of program implementation.", evidenceNeeded: "Mentor roster, business partner agreements — can be developed during startup period" },
       ],
     },
+    essentials: [
+      { label: "Black Youth Focus", detail: "Must exclusively serve Black youth and young adults ages 16–24 — program design must center racial equity and economic empowerment", critical: true },
+      { label: "LOI First", detail: "Two-stage process — submit a Letter of Inquiry first (3 pages). Only invited applicants submit a full proposal", critical: true },
+      { label: "Employer Partners Needed", detail: "Must demonstrate employer commitments for job placements, internships, or apprenticeships — named partners required in full proposal" },
+      { label: "Community-Rooted", detail: "NBA Foundation explicitly looks for community-rooted (not transactional) partnerships — Black-led organizations that validate your connection" },
+      { label: "Outcomes Required", detail: "Must track: employment placement, wage gains, credential attainment, and/or business starts" },
+      { label: "Sustainability Plan", detail: "Must show how program continues beyond NBA Foundation funding — diversified revenue, earned income, or other grant strategies" },
+      { label: "Equity & Voice", detail: "Program design must center Black community voice and lived experience — not designed 'for' but 'with' the community" },
+      { label: "No Geographic Restriction", detail: "National program — no location restrictions. Your Austin-based program is eligible." },
+    ],
     sections: [
       { id: "nba-loi", name: "Letter of Inquiry (LOI)", description: "Initial inquiry with program overview, population served, and funding request", icon: FileText, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood + AI", pageLimit: "3 pages", wordCount: "800–1,200 words" },
       { id: "nba-narrative", name: "Full Proposal Narrative", description: "Program design, theory of change, target population, implementation plan", icon: BookOpen, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood + AI", pageLimit: "15 pages", wordCount: "5,000–6,000 words" },
@@ -652,6 +689,16 @@ FUNDING PRIORITIES: (1) Public benefits enrollment (SNAP, Medicaid, CHIP, WIC, h
 WHAT MAKES A STRONG APPLICATION: Community-informed design is paramount — St. David's explicitly looks for how organizations listen to and incorporate the voices of people they serve. Data-driven approaches, cross-sector collaboration, cultural responsiveness, addressing systemic barriers, demonstrating impact on economic stability indicators.
 APPLICATION PROCESS: Application opens March 30, 2026. Letter of Intent may be required. Full application includes: program narrative, budget, community voice evidence, outcomes plan, organizational capacity, partnership documentation.
 ELIGIBILITY: 501(c)(3) organizations operating in Central Texas counties. Collaborative track requires 3+ organizations with combined geographic coverage. St. David's favors organizations with authentic community relationships, not drop-in service models.`,
+    essentials: [
+      { label: "Central Texas Only", detail: "STRICTLY limited to Bastrop, Caldwell, Hays, Travis, and Williamson counties — no exceptions. Must have operations in these counties.", critical: true },
+      { label: "Community Voice Required", detail: "Must demonstrate how community voice shapes your program design — St. David's explicitly scores for authentic community-informed approaches, not top-down models", critical: true },
+      { label: "Collaborative Track ($1M)", detail: "For the larger $1M award, must partner with at least 3 organizations with primary operations across the 5-county area" },
+      { label: "Public Benefits Focus", detail: "Priority: increasing enrollment in public benefits (SNAP, Medicaid, CHIP, WIC, housing, childcare subsidies) as pathway to economic stability" },
+      { label: "501(c)(3) Required", detail: "Must be a 501(c)(3) with authentic community relationships — St. David's favors embedded organizations, not drop-in service models" },
+      { label: "Application Opens March 30", detail: "Application window opens March 30, 2026 — prepare now so you're ready to submit when it opens" },
+      { label: "Financial Stability Outcomes", detail: "Must track economic stability indicators: benefits enrollment rates, financial coaching outcomes, self-sufficiency measures" },
+      { label: "Data-Driven Approach", detail: "Must show data-driven program design with cultural responsiveness and cross-sector collaboration" },
+    ],
     competitiveEdge: [
       "Three Realities methodology IS 'community-informed' — exactly what St. David's requires",
       "LifeBridge platform handles benefits navigation and enrollment — direct alignment",
@@ -2299,6 +2346,42 @@ export default function GrantPackagesPage() {
           </div>
         </CardContent>
       </Card>
+
+      {currentGrant.essentials && currentGrant.essentials.length > 0 && (
+        <Card className="border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/20">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <AlertTriangle className="h-5 w-5 text-amber-600" />
+              <h3 className="font-bold text-sm" data-testid="text-essentials-title">Know Before You Apply — {currentGrant.name}</h3>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              {currentGrant.essentials.map((essential, idx) => (
+                <div
+                  key={idx}
+                  className={`flex items-start gap-2 p-2.5 rounded-lg text-sm ${
+                    essential.critical
+                      ? "bg-red-100/70 dark:bg-red-950/30 border border-red-200 dark:border-red-800"
+                      : "bg-white/60 dark:bg-gray-900/40 border border-border/50"
+                  }`}
+                  data-testid={`essential-item-${idx}`}
+                >
+                  {essential.critical ? (
+                    <AlertTriangle className="h-4 w-4 text-red-500 mt-0.5 shrink-0" />
+                  ) : (
+                    <CheckCircle2 className="h-4 w-4 text-amber-500 mt-0.5 shrink-0" />
+                  )}
+                  <div>
+                    <p className={`font-semibold text-xs ${essential.critical ? "text-red-700 dark:text-red-400" : "text-foreground"}`}>
+                      {essential.label}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{essential.detail}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="flex flex-wrap h-auto gap-1">

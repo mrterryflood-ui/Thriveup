@@ -3270,4 +3270,26 @@ export const insertGrantSectionDraftSchema = createInsertSchema(grantSectionDraf
 export type InsertGrantSectionDraft = z.infer<typeof insertGrantSectionDraftSchema>;
 export type GrantSectionDraft = typeof grantSectionDrafts.$inferSelect;
 
+export const documentSignatures = pgTable("document_signatures", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  documentType: varchar("document_type", { length: 100 }).notNull(),
+  documentTitle: text("document_title").notNull(),
+  documentContext: text("document_context"),
+  recipientName: varchar("recipient_name", { length: 255 }).notNull(),
+  recipientEmail: varchar("recipient_email", { length: 255 }),
+  recipientOrg: varchar("recipient_org", { length: 500 }),
+  status: varchar("status", { length: 50 }).notNull().default("pending"),
+  signatureData: text("signature_data"),
+  signedAt: timestamp("signed_at"),
+  signerIp: varchar("signer_ip", { length: 100 }),
+  expiresAt: timestamp("expires_at"),
+  grantId: varchar("grant_id", { length: 100 }),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertDocumentSignatureSchema = createInsertSchema(documentSignatures).omit({ id: true, createdAt: true });
+export type InsertDocumentSignature = z.infer<typeof insertDocumentSignatureSchema>;
+export type DocumentSignature = typeof documentSignatures.$inferSelect;
+
 export * from "./models/auth";

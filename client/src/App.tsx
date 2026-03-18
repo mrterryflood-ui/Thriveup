@@ -131,6 +131,7 @@ const CaseStudiesPage = lazy(() => import("@/pages/case-studies"));
 const ProgramDesignerPage = lazy(() => import("@/pages/program-designer"));
 const ProgramLifecyclePage = lazy(() => import("@/pages/program-lifecycle"));
 const GrantPackagesPage = lazy(() => import("@/pages/grant-packages"));
+const ESignPage = lazy(() => import("@/pages/esign"));
 
 function PageFallback() {
   return (
@@ -282,6 +283,8 @@ function AppRouter() {
       <Route path="/program-designer" component={ProgramDesignerPage} />
       <Route path="/program-lifecycle" component={ProgramLifecyclePage} />
       <Route path="/grant-packages" component={GrantPackagesPage} />
+      <Route path="/esign" component={ESignPage} />
+      <Route path="/esign/:id" component={ESignPage} />
       <Route component={NotFound} />
     </Switch>
   );

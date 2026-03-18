@@ -31,7 +31,7 @@ import {
   PenLine, Megaphone, Calendar, HelpCircle, ClipboardList, Printer, Link2,
   MessageCircle, MapPin, Presentation, Scale, FileBarChart, LayoutDashboard,
   Info, BookMarked,
-  Mail, Landmark, RefreshCw, Package,
+  Mail, Landmark, RefreshCw, Package, PenTool,
   Microscope, Stethoscope,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -93,6 +93,7 @@ const grantEngineItems: NavItem[] = [
   { title: "Program Designer", url: "/program-designer", icon: Target },
   { title: "Program Lifecycle", url: "/program-lifecycle", icon: RefreshCw },
   { title: "Grant Packages", url: "/grant-packages", icon: Package },
+  { title: "E-Sign Center", url: "/esign", icon: PenTool },
 ];
 
 const aiToolsItems: NavItem[] = [

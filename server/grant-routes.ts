@@ -1,6 +1,6 @@
 import type { Express, Request, Response } from "express";
 import { db, storage } from "./storage";
-import { grantOpportunities, grantAlerts, platformGaps, insertGrantOpportunitySchema, advisoryBoardMembers, advisoryBoardMeetings, staffingPlanEntries, insertAdvisoryBoardMemberSchema, insertAdvisoryBoardMeetingSchema, insertStaffingPlanEntrySchema, outcomeTracking, participantProfiles, serviceRecords, grantReminders, grantChecklistItems, insertGrantReminderSchema, insertGrantChecklistItemSchema, grantSectionDrafts } from "@shared/schema";
+import { grantOpportunities, grantAlerts, platformGaps, insertGrantOpportunitySchema, advisoryBoardMembers, advisoryBoardMeetings, staffingPlanEntries, insertAdvisoryBoardMemberSchema, insertAdvisoryBoardMeetingSchema, insertStaffingPlanEntrySchema, outcomeTracking, participantProfiles, serviceRecords, grantReminders, grantChecklistItems, insertGrantReminderSchema, insertGrantChecklistItemSchema, grantSectionDrafts, documentSignatures, insertDocumentSignatureSchema } from "@shared/schema";
 import type { GrantOpportunity } from "@shared/schema";
 import { z } from "zod";
 import { eq, desc, sql, gte, lte, and, or, ilike } from "drizzle-orm";
@@ -2549,6 +2549,158 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
     } catch (error) {
       console.error("Failed to export action report:", error);
       res.status(500).json({ error: "Failed to generate action report" });
+    }
+  });
+
+  app.get("/api/esign/documents", requireAuth, async (req, res) => {
+    try {
+      const userId = (req as any).user?.id || (req as any).userId;
+      const docs = await db.select().from(documentSignatures).where(eq(documentSignatures.userId, userId)).orderBy(desc(documentSignatures.createdAt));
+      res.json(docs);
+    } catch (error) {
+      console.error("Failed to fetch e-sign documents:", error);
+      res.status(500).json({ error: "Failed to fetch documents" });
+    }
+  });
+
+  app.post("/api/esign/create", requireAuth, async (req, res) => {
+    try {
+      const userId = (req as any).user?.id || (req as any).userId;
+      const { documentType, documentTitle, documentContext, recipientName, recipientEmail, recipientOrg, grantId } = req.body;
+
+      if (!documentType || !documentTitle || !recipientName) {
+        return res.status(400).json({ error: "Missing required fields: documentType, documentTitle, recipientName" });
+      }
+
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + 30);
+
+      const [doc] = await db.insert(documentSignatures).values({
+        userId,
+        documentType,
+        documentTitle,
+        documentContext: documentContext || null,
+        recipientName,
+        recipientEmail: recipientEmail || null,
+        recipientOrg: recipientOrg || null,
+        status: "pending",
+        grantId: grantId || null,
+        expiresAt,
+      }).returning();
+
+      res.json(doc);
+    } catch (error) {
+      console.error("Failed to create e-sign request:", error);
+      res.status(500).json({ error: "Failed to create signature request" });
+    }
+  });
+
+  app.post("/api/esign/sign/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { signatureData, signerName } = req.body;
+
+      if (!signatureData) {
+        return res.status(400).json({ error: "Missing signature data" });
+      }
+
+      const [existing] = await db.select().from(documentSignatures).where(eq(documentSignatures.id, id));
+      if (!existing) {
+        return res.status(404).json({ error: "Document not found" });
+      }
+      if (existing.status === "signed") {
+        return res.status(400).json({ error: "Document already signed" });
+      }
+      if (existing.expiresAt && new Date(existing.expiresAt) < new Date()) {
+        return res.status(400).json({ error: "Signature request has expired" });
+      }
+
+      const signerIp = req.ip || req.socket.remoteAddress || "unknown";
+
+      const [updated] = await db.update(documentSignatures)
+        .set({
+          signatureData,
+          status: "signed",
+          signedAt: new Date(),
+          signerIp,
+        })
+        .where(eq(documentSignatures.id, id))
+        .returning();
+
+      res.json(updated);
+    } catch (error) {
+      console.error("Failed to sign document:", error);
+      res.status(500).json({ error: "Failed to sign document" });
+    }
+  });
+
+  app.post("/api/esign/revoke/:id", requireAuth, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const [updated] = await db.update(documentSignatures)
+        .set({ status: "revoked" })
+        .where(eq(documentSignatures.id, id))
+        .returning();
+
+      if (!updated) {
+        return res.status(404).json({ error: "Document not found" });
+      }
+      res.json(updated);
+    } catch (error) {
+      console.error("Failed to revoke document:", error);
+      res.status(500).json({ error: "Failed to revoke document" });
+    }
+  });
+
+  app.get("/api/esign/verify/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const [doc] = await db.select().from(documentSignatures).where(eq(documentSignatures.id, id));
+      if (!doc) {
+        return res.status(404).json({ error: "Document not found" });
+      }
+      res.json({
+        id: doc.id,
+        documentTitle: doc.documentTitle,
+        documentType: doc.documentType,
+        recipientName: doc.recipientName,
+        recipientOrg: doc.recipientOrg,
+        status: doc.status,
+        signedAt: doc.signedAt,
+        createdAt: doc.createdAt,
+      });
+    } catch (error) {
+      console.error("Failed to verify document:", error);
+      res.status(500).json({ error: "Failed to verify document" });
+    }
+  });
+
+  app.post("/api/esign/generate-template", requireAuth, async (req, res) => {
+    try {
+      const { templateType, grantName, partnerOrg, partnerContact } = req.body;
+      if (!templateType) {
+        return res.status(400).json({ error: "Missing templateType" });
+      }
+
+      const prompts: Record<string, string> = {
+        mou: `Generate a professional Memorandum of Understanding (MOU) between ThriveUp Academy and ${partnerOrg || "[Partner Organization]"} for the ${grantName || "grant program"}. Contact: ${partnerContact || "[Partner Contact]"}. Include: purpose, roles and responsibilities, duration, resources committed, confidentiality, termination clause, and signature blocks for both parties. Keep it 2-3 pages.`,
+        "letter-of-support": `Generate a professional Letter of Support from ${partnerOrg || "[Partner Organization]"} supporting ThriveUp Academy's application for the ${grantName || "grant program"}. Contact: ${partnerContact || "[Partner Contact]"}. Include: organization description, relationship to ThriveUp, specific support commitments, and a signature block. Keep it 1 page.`,
+        "partnership-agreement": `Generate a Partnership Agreement between ThriveUp Academy and ${partnerOrg || "[Partner Organization]"} for the ${grantName || "grant program"}. Contact: ${partnerContact || "[Partner Contact]"}. Include: scope of partnership, responsibilities of each party, timeline, resources, reporting requirements, intellectual property, and signature blocks. Keep it 2-3 pages.`,
+        "data-sharing": `Generate a Data Sharing Agreement between ThriveUp Academy and ${partnerOrg || "[Partner Organization]"} for the ${grantName || "grant program"}. Include: purpose, types of data shared, confidentiality requirements, FERPA/HIPAA compliance (as applicable), security measures, authorized personnel, duration, termination, and signature blocks. Keep it 2 pages.`,
+        "subcontract": `Generate a Subcontractor Agreement between ThriveUp Academy (prime) and ${partnerOrg || "[Partner Organization]"} (subcontractor) for the ${grantName || "grant program"}. Include: scope of work, deliverables, payment terms, timeline, reporting requirements, compliance with federal/state regulations, and signature blocks. Keep it 3 pages.`,
+      };
+
+      const prompt = prompts[templateType] || prompts.mou;
+
+      const content = await generateAIResponse([
+        { role: "system", content: "You are a legal document specialist for nonprofit organizations. Generate professional, ready-to-use documents. Use formal language. Include [FILL IN] placeholders only for specific details like dates, addresses, and dollar amounts. Include clear signature blocks at the end with lines for signature, printed name, title, organization, and date." },
+        { role: "user", content: prompt },
+      ], 4000);
+
+      res.json({ content, templateType });
+    } catch (error) {
+      console.error("Failed to generate template:", error);
+      res.status(500).json({ error: "Failed to generate document template" });
     }
   });
 }
