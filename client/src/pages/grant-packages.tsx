@@ -2267,32 +2267,35 @@ export default function GrantPackagesPage() {
                 )}
               </div>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="flex gap-4 text-center">
-                <div>
-                  <p className="text-2xl font-bold">{approvedCount}/{totalSections}</p>
-                  <p className="text-xs text-muted-foreground">Sections Approved</p>
-                </div>
-                <div>
-                  <p className="text-2xl font-bold">{completedTasks}/{totalTasks}</p>
-                  <p className="text-xs text-muted-foreground">Tasks Done</p>
-                </div>
-                <div>
-                  <p className="text-2xl font-bold">{verifiedChecklist}/{totalChecklist}</p>
-                  <p className="text-xs text-muted-foreground">Checklist Verified</p>
-                </div>
+            <div className="flex gap-4 text-center">
+              <div>
+                <p className="text-2xl font-bold">{approvedCount}/{totalSections}</p>
+                <p className="text-xs text-muted-foreground">Sections Approved</p>
               </div>
-              <Button
-                size="sm"
-                onClick={() => handleExportSingleGrantReport()}
-                disabled={isExportingReport}
-                data-testid="button-export-grant-report"
-                className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white whitespace-nowrap"
-              >
-                {isExportingReport ? <Loader2 className="h-4 w-4 mr-1.5 animate-spin" /> : <ClipboardCheck className="h-4 w-4 mr-1.5" />}
-                {isExportingReport ? "Generating..." : "Action Report"}
-              </Button>
+              <div>
+                <p className="text-2xl font-bold">{completedTasks}/{totalTasks}</p>
+                <p className="text-xs text-muted-foreground">Tasks Done</p>
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{verifiedChecklist}/{totalChecklist}</p>
+                <p className="text-xs text-muted-foreground">Checklist Verified</p>
+              </div>
             </div>
+          </div>
+          <div className="mt-3 pt-3 border-t border-border/50 flex items-center justify-between">
+            <p className="text-sm text-muted-foreground">
+              <Download className="h-4 w-4 inline mr-1.5" />
+              Download a complete action report for this grant — includes checklist, partners, pipeline tasks, win strategy, and guidance.
+            </p>
+            <Button
+              onClick={() => handleExportSingleGrantReport()}
+              disabled={isExportingReport}
+              data-testid="button-export-grant-report"
+              className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white"
+            >
+              {isExportingReport ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Download className="h-4 w-4 mr-2" />}
+              {isExportingReport ? "Generating Report..." : `Download ${currentGrant.name} Action Report`}
+            </Button>
           </div>
         </CardContent>
       </Card>
