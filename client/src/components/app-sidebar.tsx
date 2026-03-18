@@ -31,7 +31,7 @@ import {
   PenLine, Megaphone, Calendar, HelpCircle, ClipboardList, Printer, Link2,
   MessageCircle, MapPin, Presentation, Scale, FileBarChart, LayoutDashboard,
   Info, BookMarked,
-  Mail, Landmark, RefreshCw,
+  Mail, Landmark, RefreshCw, Package,
   Microscope, Stethoscope,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -92,6 +92,7 @@ const grantEngineItems: NavItem[] = [
   { title: "APEX Accelerators", url: "/apex-accelerators", icon: Landmark },
   { title: "Program Designer", url: "/program-designer", icon: Target },
   { title: "Program Lifecycle", url: "/program-lifecycle", icon: RefreshCw },
+  { title: "Grant Packages", url: "/grant-packages", icon: Package },
 ];
 
 const aiToolsItems: NavItem[] = [

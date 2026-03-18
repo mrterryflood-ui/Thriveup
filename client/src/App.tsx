@@ -130,6 +130,7 @@ const TransparencyDashboardPage = lazy(() => import("@/pages/transparency-dashbo
 const CaseStudiesPage = lazy(() => import("@/pages/case-studies"));
 const ProgramDesignerPage = lazy(() => import("@/pages/program-designer"));
 const ProgramLifecyclePage = lazy(() => import("@/pages/program-lifecycle"));
+const GrantPackagesPage = lazy(() => import("@/pages/grant-packages"));
 
 function PageFallback() {
   return (
@@ -280,6 +281,7 @@ function AppRouter() {
       <Route path="/case-studies" component={CaseStudiesPage} />
       <Route path="/program-designer" component={ProgramDesignerPage} />
       <Route path="/program-lifecycle" component={ProgramLifecyclePage} />
+      <Route path="/grant-packages" component={GrantPackagesPage} />
       <Route component={NotFound} />
     </Switch>
   );
