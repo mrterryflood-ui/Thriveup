@@ -1548,14 +1548,16 @@ STRUCTURE YOUR RESPONSE with these detailed subsections (write substantial conte
 7. Organizational Capacity and Staffing (team qualifications, infrastructure, partnerships)
 8. Sustainability and Continuous Improvement (MAP-GAP integration, long-term plan)
 
-Write EVERY subsection with substantial depth. Do not summarize or abbreviate. Include specific data points, platform names, methodology descriptions, and measurable targets throughout. This is a competitive federal/foundation grant — reviewers will reject thin content. Do not include section headers — integrate all content as flowing narrative paragraphs.${wordCount ? ` REMINDER: You MUST write at minimum ${wordCount}.` : ""}`;
+Write EVERY subsection with substantial depth. Do not summarize or abbreviate. Include specific data points, platform names, methodology descriptions, and measurable targets throughout. This is a competitive federal/foundation grant — reviewers will reject thin content. Do not include section headers — integrate all content as flowing narrative paragraphs.${wordCount ? ` REMINDER: You MUST write at minimum ${wordCount}.` : ""}
+
+CRITICAL: You MUST complete every sentence you start. NEVER stop mid-sentence or mid-paragraph. If you are approaching your output limit, write a proper concluding sentence rather than cutting off. An incomplete sentence is unacceptable in a grant submission.`;
 
       let maxTokens = 4000;
       if (wordCount) {
         const match = wordCount.match(/(\d[\d,]*)/);
         if (match) {
           const targetWords = parseInt(match[1].replace(/,/g, ""), 10);
-          maxTokens = Math.max(4000, Math.ceil(targetWords * 1.5));
+          maxTokens = Math.max(4000, Math.ceil(targetWords * 2.0));
         }
       }
 
