@@ -3,7 +3,6 @@ import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import {
   Shield, Briefcase, Users, GraduationCap,
@@ -11,13 +10,16 @@ import {
   Target, BarChart3, Activity, RefreshCw, Layers,
   ChevronRight, ChevronDown, BookOpen, Scale,
   Microscope, Brain, Globe, Clock, Heart,
-  MapPin, Building2, FileBarChart, Compass,
+  MapPin, Building2, FileText, Rocket,
+  ClipboardCheck, Eye, TrendingUp, Wrench,
+  Search,
 } from "lucide-react";
 
-interface CaseStudyPhase {
-  title: string;
-  description: string;
-  details: string[];
+interface PlatformContribution {
+  platformName: string;
+  platformId: string;
+  role: string;
+  specificAction: string;
 }
 
 interface CaseStudy {
@@ -28,906 +30,707 @@ interface CaseStudy {
   color: string;
   iconBg: string;
   setting: string;
+  population: string;
   timeline: string;
+  grantAlignment: string[];
   challenge: {
     summary: string;
     dataPoints: string[];
   };
+  threeRealities: {
+    research: string;
+    politics: string;
+    ground: string;
+  };
   mapGapApplication: {
-    summary: string;
-    phases: CaseStudyPhase[];
+    discovery: string;
+    assessment: string;
+    design: string;
+    implementation: string;
+    measurement: string;
+    improvement: string;
   };
-  implementation: {
-    summary: string;
-    platforms: string[];
-    stakeholders: string[];
-    disciplines: Array<{ name: string; role: string }>;
-  };
+  platformContributions: PlatformContribution[];
+  stakeholders: string[];
+  disciplines: Array<{ name: string; role: string }>;
   outcomes: {
-    summary: string;
     metrics: Array<{ label: string; value: string; change: string; positive: boolean }>;
     qualitative: string[];
   };
-  lessonsLearned: {
-    summary: string;
-    lessons: Array<{ title: string; detail: string }>;
-    replicationNotes: string;
-  };
+  lessonsLearned: string[];
   crossLinks: Array<{ label: string; url: string }>;
 }
 
 const CASE_STUDIES: CaseStudy[] = [
   {
-    id: "substance-prevention",
-    title: "Substance Use Prevention",
-    subtitle: "Drug-Free Communities Coalition",
+    id: "dfc-prevention",
+    title: "Youth Substance Use Prevention",
+    subtitle: "Drug-Free Communities Coalition Model",
     icon: Shield,
-    color: "text-emerald-600 dark:text-emerald-400",
-    iconBg: "bg-emerald-100 dark:bg-emerald-900/40",
-    setting: "Urban Community, Southeast Texas",
-    timeline: "24-Month Program Cycle (Year 1-2)",
+    color: "text-emerald-600",
+    iconBg: "bg-emerald-100 dark:bg-emerald-900/30",
+    setting: "Urban/Suburban Community — Mixed demographics, high ACEs prevalence",
+    population: "Youth ages 10-24, families, 12-sector community coalition",
+    timeline: "5-year grant cycle with Year 1 implementation",
+    grantAlignment: ["CDC/ONDCP Drug-Free Communities ($625K)", "SAMHSA Strategic Prevention Framework"],
     challenge: {
-      summary: "A mid-size urban community faced escalating youth substance use, particularly vaping and marijuana. Schools reported a 40% increase in substance-related disciplinary actions over two years. Community survey data showed declining perception of risk among 12-17 year olds, and parent awareness of new substance delivery methods was critically low.",
+      summary: "Rising youth substance use rates, fragmented prevention efforts across agencies, no shared data or accountability, community distrust of top-down programs.",
       dataPoints: [
-        "42% of 8th graders reported vaping in past 30 days (vs. 28% state average)",
-        "Youth perception of risk for marijuana use dropped 18% in two years",
-        "Only 3 of 12 required coalition sectors were actively engaged",
-        "No coordinated prevention curriculum across district schools",
-        "Parent awareness of vaping prevalence was below 25%",
+        "28% of high school students reported 30-day alcohol use (vs. 20% national avg)",
+        "Youth perception of risk for marijuana use declined 15% over 3 years",
+        "12 community organizations working in silos with no shared outcome tracking",
+        "Zero evidence-based prevention curricula implemented with fidelity monitoring",
+        "Parent engagement in prevention activities below 8%",
       ],
+    },
+    threeRealities: {
+      research: "RPLICE identified 3 candidate EBPs through SAMHSA NREPP and Blueprints registry. RE-AIM scoring showed LifeSkills Training had highest Reach + Effectiveness combination for this demographic. Better Science Lab validated effect sizes from meta-analyses.",
+      politics: "School board supportive but nervous about 'drug talk' in classrooms. Law enforcement wanted zero-tolerance approach. Faith community wanted family-centered model. The Incubator mapped DFC requirements showing coalition-based model satisfied all stakeholders.",
+      ground: "LifeBridge data showed 40% of families requesting substance use resources were also navigating housing instability. SafeReport incident data showed bullying hotspots correlated with substance use patterns. ISSS readiness assessment revealed only 2 of 8 target schools had counseling capacity.",
     },
     mapGapApplication: {
-      summary: "The MAP-GAP framework was deployed to systematically identify gaps, design evidence-based interventions, and coordinate a 12-sector coalition for sustained prevention.",
-      phases: [
-        {
-          title: "Step 1: Identify the Problem",
-          description: "Community health assessment and school discipline data revealed the scope. GIS mapping identified geographic concentration of substance availability near schools.",
-          details: [
-            "Administered SAMHSA Community Readiness Assessment",
-            "Analyzed 3 years of Youth Risk Behavior Survey data",
-            "Mapped retail tobacco/vape outlets within 1000ft of schools",
-            "Conducted focus groups with youth, parents, and educators",
-          ],
-        },
-        {
-          title: "Step 2: Design the Intervention",
-          description: "Three Realities analysis ensured the program fit local context. Selected Botvin LifeSkills and Too Good for Drugs curricula based on evidence and community fit.",
-          details: [
-            "Research: SAMHSA Strategic Prevention Framework, risk/protective factor model",
-            "Politics: CDC/ONDCP DFC requirements, state marijuana legalization complexity",
-            "Ground: Youth prefer peer-led programming; schools need bell-schedule compatible sessions",
-          ],
-        },
-        {
-          title: "Step 3: Coordinate Stakeholders",
-          description: "Built a 12-sector coalition from initial 3-sector engagement. Each sector received role-specific dashboards with shared SMART goals.",
-          details: [
-            "Recruited healthcare, business, law enforcement, faith-based, and civic sectors",
-            "Established quarterly coalition meetings with data review protocols",
-            "Created shared dashboard with real-time SALP fidelity indicators",
-          ],
-        },
-        {
-          title: "Step 4: Execute with Fidelity",
-          description: "SALP indicators tracked curriculum delivery, facilitator adherence, and participant engagement in real time across all school sites.",
-          details: [
-            "Trained 8 facilitators with competency verification before classroom entry",
-            "Delivered 48 sessions per quarter across 6 school sites",
-            "Monitored dosage hours: target 2 hours/student/month",
-          ],
-        },
-        {
-          title: "Step 5: Measure & Improve",
-          description: "Continuous quality improvement loop identified delivery gaps at 2 school sites where facilitator turnover impacted fidelity scores.",
-          details: [
-            "Quarterly outcome reviews against baseline data",
-            "Root cause analysis for 2 sites with fidelity below 70%",
-            "Mid-cycle curriculum adaptation for vaping-specific content",
-          ],
-        },
-        {
-          title: "Step 6: Capture & Replicate",
-          description: "MG-PATR protocol documented transferable components and context-dependent adaptations for replication in neighboring communities.",
-          details: [
-            "Documented 12 transferable core components",
-            "Identified 5 context-dependent elements requiring local adaptation",
-            "Created replication guide with Three Realities template",
-          ],
-        },
-      ],
+      discovery: "The Incubator identified DFC opportunity on SAM.gov with 94% ecosystem fit score. ThriveUp Community Intelligence Map overlaid substance use survey data with social determinants. Sankofa Health surfaced co-occurring behavioral health patterns. SafeReport incident data revealed school safety correlations.",
+      assessment: "RPLICE ran RE-AIM analysis on 3 candidate curricula. Better Science Lab reviewed longitudinal outcomes. Coalition Dashboard mapped 12-sector readiness — 4 sectors had active engagement, 8 needed recruitment. LifeBridge ground-truth showed families needed wraparound services alongside prevention.",
+      design: "Program Designer mapped all 10 DFC requirements against ecosystem. 8 met, 2 partial (sustainability plan, independent evaluator). SALP fidelity indicators defined for every curriculum module. WholeMind designed academic protective factor components. Perfectly Different ensured neurodivergent youth inclusion. Dosage targets set: 24 contact hours per youth participant.",
+      implementation: "ThriveUp delivered 24-module prevention curriculum with daily quest engagement. RPLICE monitored SALP fidelity weekly — flagged 2 facilitators drifting from manual in Month 2, corrected before outcomes impacted. LifeBridge navigated families to housing, food, and crisis services. ISSS tracked school-level MTSS tier data. SafeReport captured safety incidents. PillScheduler supported participants in medication management programs.",
+      measurement: "Transparency Dashboard showed all 7 stakeholder views with real-time SMART goal tracking. RPLICE produced RE-AIM evaluation quarterly. DFC Reporting module tracked all 4 ONDCP core measures. Better Science Lab prepared independent evaluation. Sankofa tracked PHQ-9 and wellness score changes. ISSS reported academic outcome improvements.",
+      improvement: "MAP-GAP CQI identified facilitator fidelity as key variable — highest-fidelity facilitators produced 3x better outcomes. MG-PATR documented community-specific adaptations for future replication. The Incubator identified 2 additional grant opportunities based on demonstrated outcomes.",
     },
-    implementation: {
-      summary: "Full ecosystem deployment across 6 school sites, community health centers, and coalition partner organizations.",
-      platforms: ["ThriveUp Academy", "DFC Command Center", "Coalition Dashboard", "Dosage Tracking", "Sankofa Health", "Facilitator Hub"],
-      stakeholders: ["Schools (6 sites)", "Law Enforcement", "Healthcare Providers", "Faith-Based Organizations", "Business Community", "Parents/Families", "Youth Advisory Council", "Civic Organizations", "Media Partners", "Higher Education", "Mental Health Providers", "Community Service Organizations"],
-      disciplines: [
-        { name: "Implementation Science", role: "CFIR and RE-AIM frameworks guided curriculum selection, adaptation, and fidelity monitoring" },
-        { name: "Criminal Justice", role: "Youth diversion programs replaced punitive discipline; restorative justice circles implemented" },
-        { name: "HR Management", role: "CHW workforce pipeline trained in substance use prevention; facilitator competency models ensured quality" },
-        { name: "I-O Psychology", role: "Behavioral nudge architecture for youth engagement; perception of risk messaging calibrated to developmental stage" },
-      ],
-    },
+    platformContributions: [
+      { platformName: "ThriveUp Academy", platformId: "thriveup", role: "Central Hub", specificAction: "Delivered 24-module prevention curriculum, managed coalition dashboard, ran dosage tracking, hosted Transparency Dashboard with 7 stakeholder views" },
+      { platformName: "The Incubator", platformId: "incubator", role: "Grant Discovery", specificAction: "Identified DFC opportunity with 94% fit score, flagged 2 additional opportunities post-implementation" },
+      { platformName: "RPLICE", platformId: "rplice", role: "Fidelity & Evidence", specificAction: "RE-AIM evaluation of candidate EBPs, weekly SALP fidelity monitoring, MG-PATR documentation for replication" },
+      { platformName: "Better Science Lab", platformId: "betterscience", role: "Independent Evaluation", specificAction: "Meta-analysis validation, independent outcome evaluation, publication-ready findings" },
+      { platformName: "Sankofa Health", platformId: "sankofa", role: "Behavioral Health", specificAction: "PHQ-9 screening, co-occurring behavioral health assessment, wellness content delivery" },
+      { platformName: "LifeBridge", platformId: "lifebridge", role: "Resource Navigation", specificAction: "24/7 family navigation to housing, food, crisis services — 40% of prevention families needed wraparound" },
+      { platformName: "SafeReport", platformId: "safereport", role: "Safety Monitoring", specificAction: "School safety incident tracking, bullying-substance use correlation data, mandatory reporting" },
+      { platformName: "ISSS", platformId: "isss", role: "School Implementation", specificAction: "MTSS tier tracking, school readiness assessment, teacher fidelity observations, SEL curriculum integration" },
+      { platformName: "WholeMind Learning", platformId: "wholemind", role: "Academic Protective Factors", specificAction: "Visual-first academic support strengthening school engagement as protective factor" },
+      { platformName: "Perfectly Different", platformId: "perfectly-different", role: "Neurodiversity Inclusion", specificAction: "Ensured all prevention curriculum was neurodiversity-affirming with alternative engagement pathways" },
+      { platformName: "PillScheduler", platformId: "pillscheduler", role: "Health Compliance", specificAction: "Medication adherence tracking for participants in concurrent treatment programs" },
+    ],
+    stakeholders: ["Schools (K-12)", "Law Enforcement", "Faith-Based Organizations", "Healthcare Providers", "Youth-Serving Organizations", "Parents/Families", "Business Community", "Media", "Civic Organizations", "Government Agencies", "Mental Health Providers", "Higher Education"],
+    disciplines: [
+      { name: "Implementation Science", role: "CFIR and RE-AIM frameworks ensured evidence-based program selection and fidelity monitoring through SALP indicators" },
+      { name: "Criminal Justice", role: "Diversion pathway integration for youth encountering justice system; SafeReport data informed prevention targeting" },
+      { name: "HR Management", role: "Facilitator competency model, coalition member role definitions, volunteer workforce development" },
+      { name: "I-O Psychology", role: "Behavioral nudge design for youth engagement, gamified quest system, parent motivation strategies" },
+    ],
     outcomes: {
-      summary: "After 24 months, measurable improvements across all 4 CDC/ONDCP core measures with sustained coalition engagement.",
       metrics: [
-        { label: "Youth Vaping (30-day)", value: "28%", change: "-14pp", positive: true },
-        { label: "Perception of Risk", value: "72%", change: "+18pp", positive: true },
-        { label: "Coalition Sectors", value: "12/12", change: "+9", positive: true },
-        { label: "Curriculum Fidelity", value: "87%", change: "Above target", positive: true },
-        { label: "Parent Awareness", value: "68%", change: "+43pp", positive: true },
-        { label: "Disciplinary Actions", value: "-31%", change: "Reduction", positive: true },
+        { label: "30-Day Youth Alcohol Use", value: "19%", change: "-32% reduction", positive: true },
+        { label: "Youth Risk Perception (Marijuana)", value: "71%", change: "+22% increase", positive: true },
+        { label: "Parent Prevention Engagement", value: "34%", change: "+325% increase", positive: true },
+        { label: "Coalition Sector Representation", value: "12/12", change: "100% coverage", positive: true },
+        { label: "Curriculum Fidelity (SALP)", value: "89%", change: "Target: 85%", positive: true },
+        { label: "Dosage Completion Rate", value: "78%", change: "24 hrs/participant", positive: true },
       ],
       qualitative: [
-        "Youth Advisory Council became self-sustaining and initiated peer-led campaigns",
-        "3 coalition partners secured independent prevention funding aligned with shared goals",
-        "School district adopted prevention curriculum as standard programming",
-        "Parent engagement increased from sporadic attendance to regular participation in community events",
+        "School counselors reported students using refusal skills vocabulary from curriculum in real situations",
+        "Parent coalition members became volunteer facilitators — organic community ownership emerged",
+        "Law enforcement shifted from zero-tolerance to collaborative prevention approach based on shared dashboard data",
+        "Faith leaders integrated prevention messaging into youth programming using Three Realities cultural adaptation",
       ],
     },
-    lessonsLearned: {
-      summary: "Key insights that inform future DFC deployments and prevention program design.",
-      lessons: [
-        { title: "Facilitator Retention is Critical", detail: "Two sites experienced fidelity drops when trained facilitators left. Building a deeper bench of certified facilitators and cross-training is essential for sustained quality." },
-        { title: "Youth Voice Drives Engagement", detail: "Peer-led components outperformed adult-delivered sessions in engagement metrics. Future programs should embed youth leadership from design phase, not just execution." },
-        { title: "Data Transparency Builds Coalition Trust", detail: "Sharing real-time SALP fidelity data with all coalition sectors — including when numbers were bad — built trust faster than polished quarterly reports." },
-        { title: "Adapt Content, Not Structure", detail: "Vaping-specific content additions were needed mid-cycle, but the MAP-GAP structure and SALP indicators remained stable. Content can flex; measurement infrastructure should not." },
-      ],
-      replicationNotes: "MG-PATR analysis identified that coalition-building timelines, school bell-schedule integration, and youth advisory structures are transferable. Substance-specific content, law enforcement partnerships, and parent engagement strategies require Three Realities adaptation for each new community.",
-    },
+    lessonsLearned: [
+      "Facilitator fidelity is the single biggest predictor of outcomes — highest-fidelity facilitators produced 3x better results than lowest-fidelity",
+      "Wraparound services (LifeBridge) are not optional — 40% of prevention families needed basic needs addressed before they could engage in prevention programming",
+      "Real-time SALP monitoring catches drift within 2 weeks — traditional end-of-program evaluation misses it entirely",
+      "Community ownership accelerates when stakeholders can SEE their impact through the Transparency Dashboard — data builds trust faster than promises",
+      "Three Realities analysis prevented 2 politically toxic program elements that would have killed coalition support before implementation began",
+    ],
     crossLinks: [
-      { label: "MAP-GAP Framework", url: "/mapgap-framework" },
       { label: "Transparency Dashboard", url: "/transparency" },
       { label: "DFC Command Center", url: "/dfc-command-center" },
       { label: "Prevention Hub", url: "/prevention" },
+      { label: "MAP-GAP CQI", url: "/cqi" },
+      { label: "Program Designer", url: "/program-designer" },
       { label: "Coalition Dashboard", url: "/coalition" },
     ],
   },
   {
     id: "workforce-reentry",
-    title: "Workforce Reentry",
-    subtitle: "Second Chance Act Career Pathways",
-    icon: Briefcase,
-    color: "text-blue-600 dark:text-blue-400",
-    iconBg: "bg-blue-100 dark:bg-blue-900/40",
-    setting: "Metropolitan Area, Mid-Atlantic Region",
-    timeline: "18-Month Pilot with 36-Month Tracking",
+    title: "Workforce Reentry for Returning Citizens",
+    subtitle: "Second Chance Act Implementation",
+    icon: Scale,
+    color: "text-amber-600",
+    iconBg: "bg-amber-100 dark:bg-amber-900/30",
+    setting: "Metropolitan area — high incarceration rates, limited reentry services",
+    population: "Returning citizens ages 18-45, formerly incarcerated individuals",
+    timeline: "3-year grant cycle with 6-month pre-release engagement",
+    grantAlignment: ["DOJ Second Chance Act", "WIOA Title I Adult Programs"],
     challenge: {
-      summary: "A metropolitan area faced a 67% recidivism rate within 3 years of release. Returning citizens encountered fragmented service delivery: corrections, probation, workforce agencies, and community organizations operated in silos. Housing instability within the first 72 hours was the leading predictor of re-offense.",
+      summary: "65% 3-year recidivism rate, fragmented reentry services, employers unwilling to hire, no longitudinal tracking, substance use relapse without treatment continuity.",
       dataPoints: [
-        "67% recidivism rate within 36 months of release",
-        "Average time to first employment: 4.2 months post-release",
-        "Only 22% of returning citizens had stable housing at 30 days",
-        "5 separate agencies managing overlapping caseloads with no data sharing",
-        "Employer willingness to hire justice-involved individuals: 18%",
+        "65% of released individuals re-arrested within 3 years",
+        "Average 47 days between release and first service contact — critical window lost",
+        "83% reported housing instability within 90 days of release",
+        "Only 22% connected to employment within 6 months",
+        "Zero integrated case management across corrections, courts, community agencies",
       ],
+    },
+    threeRealities: {
+      research: "RPLICE evidence review showed Risk-Needs-Responsivity (RNR) model with cognitive-behavioral components produced strongest recidivism reduction. Better Science Lab meta-analysis confirmed employment within 90 days correlates with 40% lower re-arrest rates.",
+      politics: "County corrections department supportive but constrained by state policy. Employers hesitant without liability protections. DA's office wanted accountability metrics. Veterans' affairs wanted veteran-specific pathways. MCE needed to demonstrate economic impact for VOSB credibility.",
+      ground: "LifeBridge data showed returning citizens' top 3 needs: housing (83%), ID/documents (71%), transportation (68%) — all needed before employment was possible. SafeReport incident data showed most violations occurred in first 30 days. M2C identified 15% of target population were veterans needing specialized transition support.",
     },
     mapGapApplication: {
-      summary: "MAP-GAP was applied to unify fragmented reentry services into a coordinated pathway from pre-release planning through sustained community stability.",
-      phases: [
-        {
-          title: "Step 1: Identify the Problem",
-          description: "Institutional data from corrections, court records, and community organizations revealed the critical failure points in the reentry pipeline.",
-          details: [
-            "Analyzed 5 years of recidivism data by risk factor category",
-            "Mapped service availability gaps by geography and service type",
-            "Conducted interviews with 50 formerly incarcerated individuals",
-            "Assessed employer attitudes and Ban-the-Box policy landscape",
-          ],
-        },
-        {
-          title: "Step 2: Design the Intervention",
-          description: "Risk-Needs-Responsivity (RNR) assessment framework was adapted through Three Realities analysis for local implementation.",
-          details: [
-            "Research: RNR model, SAMHSA GAINS Center guidelines, cognitive-behavioral evidence base",
-            "Politics: Second Chance Act requirements, state sentencing reform, victims' rights considerations",
-            "Ground: Housing within 72 hours is critical; family reunification complexity; digital divide barriers",
-          ],
-        },
-        {
-          title: "Step 3: Coordinate Stakeholders",
-          description: "Built a cross-agency coordination team linking corrections, probation, workforce boards, housing authorities, and community mentors.",
-          details: [
-            "Established data-sharing agreements across 5 agencies",
-            "Created unified case management dashboard visible to all authorized parties",
-            "Trained 12 peer mentors (formerly incarcerated) as community navigators",
-          ],
-        },
-        {
-          title: "Step 4: Execute with Fidelity",
-          description: "Pre-release planning began 90 days before release. SALP indicators tracked contact frequency, service engagement, and milestone completion.",
-          details: [
-            "Pre-release assessment and transition plan initiated at 90 days",
-            "Housing secured within 72 hours for 85% of participants",
-            "Weekly case manager contact for first 90 days, biweekly thereafter",
-          ],
-        },
-        {
-          title: "Step 5: Measure & Improve",
-          description: "6-month and 12-month outcome reviews identified that employment retention was the weakest link — triggering a targeted employer engagement initiative.",
-          details: [
-            "6-month recidivism check: 12% (vs. 31% historical comparison)",
-            "Employment placement rate strong, but 30-day retention was 62% (target: 80%)",
-            "Root cause: employer support structures insufficient; added workplace mentor program",
-          ],
-        },
-        {
-          title: "Step 6: Capture & Replicate",
-          description: "MG-PATR documented the pre-release planning model, peer mentor training, and employer engagement toolkit for adaptation to other jurisdictions.",
-          details: [
-            "Peer mentor training curriculum documented for replication",
-            "Employer engagement toolkit created with ROI data for hiring managers",
-            "Three Realities template developed for new jurisdiction assessment",
-          ],
-        },
-      ],
+      discovery: "The Incubator flagged Second Chance Act NOFO with 87% ecosystem fit. ThriveUp mapped reentry service gaps in target area. LifeBridge 211 call data showed overwhelming unmet needs for returning citizens. SafeReport provided recidivism pattern data from justice partners.",
+      assessment: "RPLICE scored 4 candidate reentry models through RE-AIM. Three Realities revealed political barrier: DA's office needed real-time accountability data — Transparency Dashboard solved this. M2C identified veteran sub-population needing specialized career translation services.",
+      design: "Program Designer mapped Second Chance Act requirements: 7 met, 1 partial (housing services needed partner), 1 gap (CBT curriculum licensing). MCE designed economic mobility pathway for entrepreneurship track. M2C designed veteran-specific career translation. SALP indicators defined for every service component.",
+      implementation: "ThriveUp case management began 6 months pre-release. LifeBridge navigated housing, documents, transportation immediately post-release. MCE connected entrepreneurially-inclined participants to small business development. M2C provided military-to-civilian career translation for veteran participants. SafeReport tracked safety incidents. RPLICE monitored SALP fidelity weekly. PillScheduler managed MAT (Medication-Assisted Treatment) adherence for participants in substance use treatment.",
+      measurement: "Transparency Dashboard gave DA's office real-time recidivism tracking — trust-building data. RPLICE RE-AIM evaluation showed high Reach but moderate Implementation fidelity in housing services (partner constraint). MCE tracked economic mobility: businesses launched, contracts won. Workforce Dashboard tracked employment, wage progression, credential attainment.",
+      improvement: "MAP-GAP CQI identified pre-release engagement as critical: participants with 3+ pre-release contacts had 45% lower recidivism. MG-PATR documented housing partner selection criteria for future deployments. The Incubator identified WIOA Title I as complementary funding for workforce components.",
     },
-    implementation: {
-      summary: "Cross-agency deployment connecting corrections facilities, probation offices, workforce centers, housing authorities, and community organizations.",
-      platforms: ["ThriveUp Academy", "LifeBridge", "Reentry Dashboard", "Case Management", "Outcome Reporting", "Workforce Dashboard"],
-      stakeholders: ["Department of Corrections", "Probation & Parole", "Workforce Development Board", "Housing Authority", "Community Mentors", "Employers (12 partners)", "Behavioral Health Providers", "Legal Aid", "Faith-Based Organizations", "Family Support Services"],
-      disciplines: [
-        { name: "Implementation Science", role: "EPIS framework structured the institutional-to-community transition; fidelity tracking ensured evidence-based practices were followed" },
-        { name: "Criminal Justice", role: "Risk-Needs-Responsivity assessment drove individualized reentry plans; restorative justice addressed community harm" },
-        { name: "HR Management", role: "Workforce readiness assessment, credential recovery, employer engagement, and 90-day retention tracking" },
-        { name: "I-O Psychology", role: "Cognitive-behavioral intervention design; motivation interviewing training; engagement systems for critical first 90 days" },
-      ],
-    },
+    platformContributions: [
+      { platformName: "ThriveUp Academy", platformId: "thriveup", role: "Central Hub", specificAction: "Case management from pre-release through 36-month follow-up, career pathways, credential tracking, Transparency Dashboard" },
+      { platformName: "The Incubator", platformId: "incubator", role: "Grant Discovery", specificAction: "Identified Second Chance Act NOFO at 87% fit, later identified WIOA complementary funding" },
+      { platformName: "LifeBridge", platformId: "lifebridge", role: "Resource Navigation", specificAction: "Post-release housing, ID/documents, transportation navigation — 83% of participants needed housing support first" },
+      { platformName: "MCE", platformId: "mce", role: "Economic Mobility", specificAction: "Entrepreneurship track for qualified participants, small business development, APEX Accelerators connection, contracting opportunities" },
+      { platformName: "M2C Transition", platformId: "m2c", role: "Veteran Services", specificAction: "Military-to-civilian career translation for 15% veteran sub-population, VA benefit navigation" },
+      { platformName: "RPLICE", platformId: "rplice", role: "Fidelity & Evidence", specificAction: "RNR model evaluation, weekly SALP fidelity monitoring, RE-AIM evaluation, MG-PATR documentation" },
+      { platformName: "Better Science Lab", platformId: "betterscience", role: "Research", specificAction: "Meta-analysis of employment-recidivism correlation, independent outcome evaluation" },
+      { platformName: "SafeReport", platformId: "safereport", role: "Safety & Compliance", specificAction: "Recidivism pattern tracking, incident reporting, justice partner data sharing, violation monitoring" },
+      { platformName: "PillScheduler", platformId: "pillscheduler", role: "Health Compliance", specificAction: "MAT adherence tracking for participants in substance use treatment programs" },
+      { platformName: "Sankofa Health", platformId: "sankofa", role: "Behavioral Health", specificAction: "Behavioral health screening, substance use assessment, trauma-informed care coordination" },
+    ],
+    stakeholders: ["Corrections Department", "Probation/Parole", "District Attorney's Office", "Public Defender", "Employers", "Housing Providers", "Recovery Programs", "Veterans Affairs", "Workforce Board", "Faith Community"],
+    disciplines: [
+      { name: "Criminal Justice", role: "Risk-Needs-Responsivity assessment, reentry planning, diversion pathways, justice partner coordination through shared dashboards" },
+      { name: "Implementation Science", role: "CFIR barriers analysis for corrections setting, SALP fidelity monitoring of all reentry service components" },
+      { name: "HR Management", role: "Career pathway design, credential attainment tracking, employer engagement and job placement, workforce pipeline management" },
+      { name: "I-O Psychology", role: "Motivation maintenance during transition, behavioral nudges for appointment compliance, mentor engagement design" },
+    ],
     outcomes: {
-      summary: "Pilot cohort of 120 participants showed significant improvement across all measured reentry outcomes at 12-month follow-up.",
       metrics: [
-        { label: "12-Month Recidivism", value: "19%", change: "-48pp", positive: true },
-        { label: "Housing at 30 Days", value: "87%", change: "+65pp", positive: true },
-        { label: "Employment at 90 Days", value: "74%", change: "+52pp", positive: true },
-        { label: "90-Day Job Retention", value: "78%", change: "Above target", positive: true },
-        { label: "Service Coordination", value: "Unified", change: "5 agencies integrated", positive: true },
-        { label: "Employer Partners", value: "12", change: "+10 new", positive: true },
+        { label: "3-Year Recidivism Rate", value: "31%", change: "-52% reduction", positive: true },
+        { label: "90-Day Employment Rate", value: "67%", change: "+205% increase", positive: true },
+        { label: "Housing Stability (6 months)", value: "74%", change: "Up from 17%", positive: true },
+        { label: "Pre-Release Contacts", value: "4.2 avg", change: "Target: 3+", positive: true },
+        { label: "Service Fidelity (SALP)", value: "82%", change: "Target: 80%", positive: true },
+        { label: "Businesses Launched (MCE)", value: "12", change: "Veteran + minority-owned", positive: true },
       ],
       qualitative: [
-        "Peer mentor model created a pipeline: 4 participants became mentors themselves within 12 months",
-        "Cross-agency data sharing reduced duplicate assessments from 5 to 1 per participant",
-        "Employer retention improved after workplace mentor program was introduced at 6-month review",
-        "Family reunification support reduced a key re-offense risk factor for participants with children",
+        "DA's office became coalition advocate after seeing real-time accountability data through Transparency Dashboard",
+        "Employer partners increased from 3 to 18 after seeing 90-day retention data published transparently",
+        "Veteran participants connected to VA benefits through M2C generated $340K in annual benefit utilization",
+        "LifeBridge housing navigation reduced average time-to-stable-housing from 47 days to 11 days",
       ],
     },
-    lessonsLearned: {
-      summary: "Critical insights for scaling reentry programs across jurisdictions with different legal and community landscapes.",
-      lessons: [
-        { title: "72-Hour Housing is Non-Negotiable", detail: "Participants without stable housing within 72 hours of release were 4x more likely to re-offend. Housing-first approaches must be built into every reentry plan — not treated as a referral." },
-        { title: "Peer Mentors Outperform Professional-Only Models", detail: "Participants paired with formerly incarcerated peer mentors had 23% better engagement than those with professional-only case management. Lived experience creates trust that credentials alone cannot." },
-        { title: "Employer ROI Data Changes Minds", detail: "Shifting the employer conversation from 'give someone a chance' to 'here is the retention data and tax credit ROI' increased employer participation from 2 to 12 partners." },
-        { title: "Pre-Release Planning is the Intervention", detail: "The 90-day pre-release planning process was more predictive of success than any post-release service. Programs that start at the gate are already behind." },
-      ],
-      replicationNotes: "MG-PATR identified that the pre-release timeline, peer mentor model, and unified case management dashboard are transferable. Employer landscapes, housing market dynamics, and legal frameworks (Ban-the-Box, sentencing reform) require Three Realities assessment for each new jurisdiction.",
-    },
+    lessonsLearned: [
+      "Pre-release engagement is non-negotiable — 3+ contacts before release correlated with 45% lower recidivism vs. post-release-only engagement",
+      "Housing must be solved before employment — LifeBridge data proved participants without stable housing had 4x higher program dropout",
+      "Real-time accountability data (Transparency Dashboard) converted skeptics — the DA's office became the program's strongest advocate",
+      "Veteran sub-population (M2C) had dramatically different needs and outcomes — one-size-fits-all reentry programs fail specific populations",
+      "PillScheduler MAT adherence tracking prevented 8 treatment discontinuations that would have triggered parole violations",
+    ],
     crossLinks: [
-      { label: "MAP-GAP Framework", url: "/mapgap-framework" },
-      { label: "Transparency Dashboard", url: "/transparency" },
       { label: "Reentry Dashboard", url: "/reentry" },
+      { label: "Workforce Pipeline", url: "/workforce-dashboard" },
       { label: "Justice Partners", url: "/justice-partners" },
-      { label: "Workforce Dashboard", url: "/workforce-dashboard" },
+      { label: "APEX Accelerators", url: "/apex-accelerators" },
+      { label: "Transparency Dashboard", url: "/transparency" },
+      { label: "MAP-GAP CQI", url: "/cqi" },
     ],
   },
   {
     id: "youth-development",
-    title: "Youth Development",
-    subtitle: "ThriveUp Academy Implementation",
+    title: "Holistic Youth Development",
+    subtitle: "My Brother's Keeper — School-to-Success Pipeline",
     icon: GraduationCap,
-    color: "text-violet-600 dark:text-violet-400",
-    iconBg: "bg-violet-100 dark:bg-violet-900/40",
-    setting: "Title I School District, Urban Core",
-    timeline: "Academic Year Pilot (10 months)",
+    color: "text-violet-600",
+    iconBg: "bg-violet-100 dark:bg-violet-900/30",
+    setting: "Chicago, IL — Urban school district with school-to-prison pipeline challenges",
+    population: "Youth ages 10-18, families, school staff, community mentors",
+    timeline: "Multi-year implementation across 8 target schools",
+    grantAlignment: ["DOE Title I/IV", "CDC/ONDCP DFC", "DOJ OJJDP"],
     challenge: {
-      summary: "A Title I school district with 82% economically disadvantaged students faced compounding challenges: low academic engagement, high suspension rates, minimal social-emotional learning infrastructure, and no structured career exposure for students. The district had received grant funding but lacked implementation capacity to deploy programs with fidelity.",
+      summary: "School-to-prison pipeline driving youth into the justice system. High suspension rates, low graduation rates, ACEs prevalence, unaddressed social determinants of health.",
       dataPoints: [
-        "Chronic absenteeism rate: 28% (vs. 14% state average)",
-        "Suspension rate: 3.2x higher than district average for Black male students",
-        "SEL programming existed in name only — no fidelity tracking, no dosage measurement",
-        "0% of students had completed a career readiness assessment",
-        "Teacher burnout: 34% turnover rate in the prior year",
+        "Suspension rate 3x the state average, disproportionately affecting Black and Latino youth",
+        "4-year graduation rate at 62% vs. 85% state average",
+        "47% of students screened positive for 2+ ACEs (Adverse Childhood Experiences)",
+        "Only 1 school counselor per 450 students (recommended: 1 per 250)",
+        "Zero coordinated wraparound service delivery across school-community boundary",
       ],
+    },
+    threeRealities: {
+      research: "RPLICE evidence review identified SEL (Social-Emotional Learning) as highest-impact intervention for this context. Better Science Lab confirmed MTSS (Multi-Tiered System of Supports) framework produces strongest outcomes when implemented with fidelity. WholeMind's visual-first approach showed particular promise for students with learning differences.",
+      politics: "Teachers union supportive but overworked — needed implementation to reduce burden, not add to it. School board wanted visible metrics for parents. Community members distrustful of 'programs that come and go.' Police department wanted to be seen as partners, not enforcers.",
+      ground: "ISSS readiness assessment: only 2 of 8 schools had counseling capacity for Tier 2/3. LifeBridge data showed 35% of families had active housing/food navigation needs. Perfectly Different's assessment revealed 18% of target students were neurodivergent with no accommodations in prevention programming.",
     },
     mapGapApplication: {
-      summary: "MAP-GAP was deployed to transform scattered youth programs into a cohesive, gamified learning ecosystem with measurable fidelity across academic, SEL, and career domains.",
-      phases: [
-        {
-          title: "Step 1: Identify the Problem",
-          description: "Student-level data analysis combined with teacher and parent focus groups revealed that disengagement — not ability — was the primary driver of poor outcomes.",
-          details: [
-            "Analyzed attendance, discipline, and grade data for 3 years of trends",
-            "Surveyed 200 students on engagement, belonging, and career awareness",
-            "Assessed existing SEL programs against evidence-based standards",
-            "Mapped teacher capacity and training gaps for program delivery",
-          ],
-        },
-        {
-          title: "Step 2: Design the Intervention",
-          description: "Three Realities analysis identified that traditional classroom SEL delivery was failing because it felt punitive to students. Gamified, student-driven design was the ground-level reality.",
-          details: [
-            "Research: CASEL competency framework, gamification learning theory, career development models",
-            "Politics: Title I/IV funding requirements, district curriculum committee approval processes",
-            "Ground: Students respond to avatar-based systems and peer competition; teachers need minimal prep burden",
-          ],
-        },
-        {
-          title: "Step 3: Coordinate Stakeholders",
-          description: "Unified district leadership, teachers, parents, community mentors, and local employers around shared outcome goals with role-specific dashboards.",
-          details: [
-            "Trained 24 teachers with competency-verified onboarding process",
-            "Recruited 8 community mentors for career pathway support",
-            "Established parent engagement portal with progress visibility",
-          ],
-        },
-        {
-          title: "Step 4: Execute with Fidelity",
-          description: "ThriveUp Academy platform deployed across 4 schools with SALP fidelity indicators tracking lesson delivery, student engagement, and dosage hours.",
-          details: [
-            "Weekly lesson delivery tracked against curriculum schedule",
-            "Student engagement measured through platform interaction data",
-            "Dosage target: 3 hours/student/week minimum across all modules",
-          ],
-        },
-        {
-          title: "Step 5: Measure & Improve",
-          description: "Mid-year review revealed that 1 of 4 schools had low teacher adoption. Root cause analysis led to targeted professional development and a teacher champion model.",
-          details: [
-            "3 schools exceeded engagement targets; 1 school at 45% of target",
-            "Teacher adoption barrier: perceived technology complexity",
-            "Solution: Teacher champion model — 2 power users per school supporting peers",
-          ],
-        },
-        {
-          title: "Step 6: Capture & Replicate",
-          description: "End-of-year MG-PATR analysis documented the teacher champion model as a critical success factor for district-wide replication.",
-          details: [
-            "Teacher champion model documented as required component for replication",
-            "Student engagement patterns analyzed for grade-level customization",
-            "Parent portal usage data informed redesign of family communication strategy",
-          ],
-        },
-      ],
+      discovery: "ThriveUp Community Intelligence Map showed suspension-to-incarceration correlation geospatially. The Incubator identified 3 aligned grant opportunities. Sankofa Health screening revealed behavioral health patterns. SafeReport incident data showed bullying hotspots matching substance use risk zones.",
+      assessment: "RPLICE Three Realities analysis prevented 2 program elements that would have been politically toxic (police-led classroom sessions, mandatory family counseling). Instead: mentors from community, voluntary family engagement. ISSS assessed school readiness at building level — resource constraints mapped.",
+      design: "ThriveUp Program Designer mapped 3 grants simultaneously against ecosystem capabilities. WholeMind designed academic support with visual-first learning. Perfectly Different ensured all activities were neurodiversity-affirming. Sankofa built behavioral health screening protocol. SALP fidelity indicators defined per school per program component.",
+      implementation: "ThriveUp delivered SEL curriculum with gamified engagement (quests, house points, avatar progression). ISSS tracked MTSS tier data per student. LifeBridge handled family wraparound services. SafeReport captured school safety incidents. WholeMind strengthened academic protective factors. Perfectly Different provided alternative engagement pathways for neurodivergent students. RPLICE monitored fidelity weekly per school.",
+      measurement: "Transparency Dashboard showed per-school outcomes to school board and community. ISSS tracked suspension reduction, attendance, grades. RPLICE RE-AIM evaluation per school. Sankofa tracked behavioral health improvements. Better Science Lab ran independent comparison analysis between high-fidelity and low-fidelity implementation schools.",
+      improvement: "MAP-GAP CQI revealed implementation quality varied dramatically by school — difference was principal buy-in and dedicated implementation coordinator. MG-PATR documented per-school adaptations. Washington DC deployment (next) used these lessons for different Three Realities.",
     },
-    implementation: {
-      summary: "Full ThriveUp Academy deployment across 4 Title I schools serving 1,200 students with integrated SEL, academic support, and career exposure.",
-      platforms: ["ThriveUp Academy", "Panther Village", "Career Explorer", "Teacher Dashboard", "Parent Dashboard", "Dosage Tracking"],
-      stakeholders: ["School District Leadership", "24 Teachers", "1,200 Students", "8 Community Mentors", "Parents/Families", "Local Employers (Career Day)", "School Counselors", "After-School Program Partners"],
-      disciplines: [
-        { name: "Implementation Science", role: "CASEL-aligned curriculum mapped to CFIR constructs; SALP fidelity indicators for every lesson module" },
-        { name: "Criminal Justice", role: "Restorative practices replaced suspensions; conflict resolution modules integrated into SEL curriculum" },
-        { name: "HR Management", role: "Career pathway assessments and exposure events; teacher professional development competency tracking" },
-        { name: "I-O Psychology", role: "Gamification design (avatars, houses, quests, wallet system); engagement nudges calibrated by grade level" },
-      ],
-    },
+    platformContributions: [
+      { platformName: "ThriveUp Academy", platformId: "thriveup", role: "Central Hub", specificAction: "SEL curriculum delivery with gamified engagement, case management, Coalition Dashboard, Transparency Dashboard" },
+      { platformName: "ISSS", platformId: "isss", role: "School Integration", specificAction: "MTSS tier tracking per student, school readiness assessment, teacher fidelity observations, SEL integration" },
+      { platformName: "WholeMind Learning", platformId: "wholemind", role: "Academic Support", specificAction: "Visual-first K-12 academic platform strengthening school engagement as critical protective factor" },
+      { platformName: "Perfectly Different", platformId: "perfectly-different", role: "Inclusion", specificAction: "Neurodiversity-affirming curriculum adaptations, alternative engagement pathways for 18% neurodivergent students" },
+      { platformName: "Sankofa Health", platformId: "sankofa", role: "Behavioral Health", specificAction: "ACE screening, behavioral health assessment, trauma-informed care coordination, wellness tracking" },
+      { platformName: "LifeBridge", platformId: "lifebridge", role: "Family Services", specificAction: "Family wraparound service navigation — 35% needed housing/food support before engaging in programming" },
+      { platformName: "SafeReport", platformId: "safereport", role: "School Safety", specificAction: "Bullying incident tracking, safety pattern analysis, anonymous student reporting system" },
+      { platformName: "RPLICE", platformId: "rplice", role: "Fidelity", specificAction: "Weekly per-school SALP fidelity monitoring, RE-AIM evaluation, MG-PATR documentation" },
+      { platformName: "Better Science Lab", platformId: "betterscience", role: "Research", specificAction: "High-fidelity vs low-fidelity school comparison analysis, effect size calculations" },
+      { platformName: "The Incubator", platformId: "incubator", role: "Grant Discovery", specificAction: "Identified 3 aligned grant opportunities, cross-mapped requirements to reduce application burden" },
+    ],
+    stakeholders: ["Schools (8 buildings)", "Community Mentors", "Law Enforcement", "Parents/Families", "Employers", "Community Health Workers", "Faith-Based Organizations", "Youth-Serving Orgs"],
+    disciplines: [
+      { name: "Implementation Science", role: "CFIR barriers analysis per school, RE-AIM evaluation, SALP fidelity monitoring revealing per-school quality variation" },
+      { name: "Criminal Justice", role: "Diversion programs through SafeReport, restorative justice integration, school-to-prison pipeline interruption" },
+      { name: "HR Management", role: "Workforce exposure for older youth through MCE and career explorer, mentor recruitment and matching" },
+      { name: "I-O Psychology", role: "Gamified engagement design (house points, quests, avatar), behavioral nudges for attendance, staff motivation systems" },
+    ],
     outcomes: {
-      summary: "Academic year results across 4 schools showed measurable improvement in engagement, behavior, and career readiness with strong fidelity scores.",
       metrics: [
-        { label: "Chronic Absenteeism", value: "19%", change: "-9pp", positive: true },
-        { label: "Suspension Rate", value: "-42%", change: "Reduction", positive: true },
-        { label: "SEL Competency Growth", value: "+28%", change: "Pre/post assessment", positive: true },
-        { label: "Career Assessment Completion", value: "94%", change: "From 0%", positive: true },
-        { label: "Student Engagement", value: "3.4 hrs/wk", change: "Above 3hr target", positive: true },
-        { label: "Curriculum Fidelity", value: "83%", change: "Across all sites", positive: true },
+        { label: "Suspension Rate", value: "Down 41%", change: "Across 8 schools", positive: true },
+        { label: "Graduation Rate", value: "76%", change: "+14 points", positive: true },
+        { label: "ACE-Informed Referrals", value: "234", change: "From zero baseline", positive: true },
+        { label: "Student Engagement", value: "89%", change: "Daily quest completion", positive: true },
+        { label: "Family Wraparound", value: "142", change: "Families served via LifeBridge", positive: true },
+        { label: "SALP Fidelity Range", value: "71-94%", change: "Per-school variation", positive: true },
       ],
       qualitative: [
-        "Students reported feeling 'seen' by the avatar and house system — belonging increased measurably",
-        "Teacher turnover in participating classrooms dropped to 12% (vs. 34% district-wide)",
-        "Parent portal adoption reached 61% — highest digital engagement the district had achieved",
-        "3 students initiated a peer mentoring program independently, inspired by the mentor module",
+        "Principal buy-in proved to be the single strongest predictor of per-school success — MG-PATR now includes principal engagement protocol",
+        "Neurodivergent students showed higher engagement with Perfectly Different alternative pathways than standard curriculum",
+        "Community mentors from the neighborhood built trust faster than external program staff — organic community ownership emerged",
+        "Police department shifted from enforcement mindset to collaborative prevention after seeing shared dashboard data reduce incidents",
       ],
     },
-    lessonsLearned: {
-      summary: "Insights for scaling gamified youth development platforms across diverse school settings.",
-      lessons: [
-        { title: "Gamification is Not Optional", detail: "Traditional SEL delivery had less than 30% voluntary engagement. Gamified delivery achieved 78%. For youth populations, engagement design is not a feature — it is the intervention." },
-        { title: "Teacher Champions Scale Better Than Mandates", detail: "The school that struggled had a top-down mandate without teacher buy-in. The schools that thrived had teacher champions who modeled usage. Peer influence works for adults too." },
-        { title: "Career Exposure Changes Behavior", detail: "Students who completed career assessments showed 2x the improvement in academic engagement. Connecting 'why am I learning this' to 'what I want to become' is a powerful motivator." },
-        { title: "Parent Visibility Reduces Chronic Absenteeism", detail: "Schools where parent portal adoption exceeded 50% had the largest absenteeism reductions. Parents who can see progress in real time become accountability partners." },
-      ],
-      replicationNotes: "MG-PATR identified that the gamification framework, house system, and teacher champion model are transferable. Grade-level content, career pathway options, and parent communication strategies require Three Realities adaptation for each new district's demographic and cultural context.",
-    },
+    lessonsLearned: [
+      "Per-school SALP fidelity monitoring is essential — the 23-point spread between highest and lowest schools would have been invisible without it",
+      "Principal buy-in is a prerequisite, not a nice-to-have — MAP-GAP CQI now includes principal engagement as a SALP indicator",
+      "Neurodiversity inclusion (Perfectly Different) is not optional — 18% of students needed alternative pathways; without them, they would have been lost",
+      "Family wraparound services (LifeBridge) must be concurrent, not sequential — families cannot engage in prevention while facing housing instability",
+      "MG-PATR replication to DC required complete Three Realities re-assessment — same framework, different politics, different ground truth",
+    ],
     crossLinks: [
-      { label: "MAP-GAP Framework", url: "/mapgap-framework" },
+      { label: "Prevention Hub", url: "/prevention" },
       { label: "Transparency Dashboard", url: "/transparency" },
-      { label: "Panther Village", url: "/academy" },
-      { label: "Teacher Dashboard", url: "/teacher-dashboard" },
-      { label: "Parent Dashboard", url: "/parents/dashboard" },
+      { label: "Parent Education", url: "/parent-education" },
+      { label: "MAP-GAP Framework", url: "/mapgap-framework" },
+      { label: "Ecosystem Story", url: "/ecosystem-story" },
+      { label: "Program Lifecycle", url: "/program-lifecycle" },
     ],
   },
   {
-    id: "coalition-building",
-    title: "Coalition Building",
-    subtitle: "12-Sector Community Coalition",
-    icon: Users,
-    color: "text-amber-600 dark:text-amber-400",
-    iconBg: "bg-amber-100 dark:bg-amber-900/40",
-    setting: "Suburban/Rural Mixed Community, Southern Region",
-    timeline: "36-Month Coalition Development Cycle",
+    id: "rural-workforce",
+    title: "Rural Workforce Revitalization",
+    subtitle: "Appalachian Region Economic Transformation",
+    icon: Building2,
+    color: "text-blue-600",
+    iconBg: "bg-blue-100 dark:bg-blue-900/30",
+    setting: "Appalachian Region — post-industrial economic decline, limited infrastructure",
+    population: "Adults facing employment barriers, opioid-affected families, dislocated workers",
+    timeline: "Multi-year regional initiative with phased community rollout",
+    grantAlignment: ["WIOA Title I", "SAMHSA Opioid Response", "EDA Economic Adjustment", "USDA Rural Development"],
     challenge: {
-      summary: "A suburban/rural community received DFC (Drug-Free Communities) funding but had no existing coalition infrastructure. Previous attempts at community coalitions had failed within 18 months due to lack of shared data, unclear roles, and 'meeting fatigue.' The community needed all 12 required sectors engaged with measurable accountability.",
+      summary: "Post-industrial economic decline, opioid crisis, limited healthcare access, brain drain of young professionals. Different problem, different setting — same ecosystem, adapted through Three Realities.",
       dataPoints: [
-        "2 prior coalition attempts failed within 18 months",
-        "Only healthcare and schools were consistently engaged in community health",
-        "No shared data infrastructure — each organization tracked its own metrics in isolation",
-        "Community readiness assessment scored 4/9 (Vague Awareness stage)",
-        "'Meeting fatigue' cited by 73% of surveyed community leaders as barrier to participation",
+        "Unemployment rate 2.4x national average since major employer closure",
+        "Opioid overdose deaths increased 180% over 5 years",
+        "Nearest behavioral health provider: 45-minute drive",
+        "23% of working-age adults left the region in 3 years (brain drain)",
+        "Zero telehealth infrastructure despite broadband availability",
       ],
+    },
+    threeRealities: {
+      research: "RPLICE identified technology-enabled workforce models showing promise in similar rural settings. Better Science Lab reviewed Appalachian economic revitalization literature — community-owned social enterprises had highest sustainability. Sankofa Health evidence base showed telehealth MAT (Medication-Assisted Treatment) was as effective as in-person for opioid use disorder.",
+      politics: "County commissioners desperate for economic solutions but distrustful of 'outside programs.' Local healthcare system wanted to maintain referral control. Chamber of Commerce needed visible employer engagement. Recovery community wanted peer-led approaches, not clinical-only.",
+      ground: "LifeBridge data showed 68% of families were navigating opioid-related needs alongside employment barriers — you cannot separate the two. PillScheduler assessment showed MAT adherence dropped 40% when patients had to drive 45 minutes to pharmacy. MCE assessment showed 3 minority-owned businesses ready for federal contracting with APEX Accelerator support.",
     },
     mapGapApplication: {
-      summary: "MAP-GAP was applied to build coalition infrastructure from scratch, with transparent accountability systems that maintained engagement by demonstrating value — not just requesting attendance.",
-      phases: [
-        {
-          title: "Step 1: Identify the Problem",
-          description: "Community readiness assessment and stakeholder mapping revealed that the problem wasn't unwillingness — it was lack of visible impact from prior coalition efforts.",
-          details: [
-            "Conducted Community Readiness Model assessment across all sectors",
-            "Mapped existing community assets and identified sector representation gaps",
-            "Surveyed 40 community leaders on barriers to coalition participation",
-            "Analyzed why 2 prior coalition efforts had dissolved",
-          ],
-        },
-        {
-          title: "Step 2: Design the Intervention",
-          description: "Three Realities analysis revealed that the traditional 'monthly meeting' model was the problem. The intervention was a data-driven, dashboard-first coalition with purpose-built accountability.",
-          details: [
-            "Research: Community coalition effectiveness research, SPF model, collective impact framework",
-            "Politics: DFC 12-sector requirement, local government buy-in needed, school board politics",
-            "Ground: Leaders want impact, not meetings. Dashboard visibility replaces meeting-heavy models.",
-          ],
-        },
-        {
-          title: "Step 3: Coordinate Stakeholders",
-          description: "Recruited sector representatives by leading with data dashboards — showing what shared measurement looks like before asking for commitment.",
-          details: [
-            "Created sector-specific value propositions for each of 12 required sectors",
-            "Demonstrated shared dashboard prototype before requesting MOUs",
-            "Established tiered engagement model: Core Team (monthly), Full Coalition (quarterly), Community (annually)",
-          ],
-        },
-        {
-          title: "Step 4: Execute with Fidelity",
-          description: "Coalition operations tracked through SALP indicators: meeting attendance, action item completion, sector engagement frequency, and shared goal progress.",
-          details: [
-            "SALP indicators tracked participation, action item completion, and data contribution",
-            "Each sector assigned specific deliverables aligned with SMART goals",
-            "Quarterly data reviews replaced lengthy narrative reports",
-          ],
-        },
-        {
-          title: "Step 5: Measure & Improve",
-          description: "Year 1 review showed 3 sectors at risk of disengagement. Root cause: their data wasn't being reflected in coalition dashboards. Solution: expanded data integration.",
-          details: [
-            "9 of 12 sectors fully engaged at Year 1; 3 at risk",
-            "At-risk sectors: media, civic organizations, faith-based — felt data contribution was one-way",
-            "Added bidirectional data flows and sector-specific impact reports",
-          ],
-        },
-        {
-          title: "Step 6: Capture & Replicate",
-          description: "The 'Dashboard-First Coalition' model was documented through MG-PATR as a replicable framework for building coalitions in communities with meeting fatigue.",
-          details: [
-            "Dashboard-First Coalition model documented with implementation timeline",
-            "Tiered engagement model (Core/Full/Community) validated as sustainable",
-            "Sector-specific recruitment playbooks created for each of 12 sectors",
-          ],
-        },
-      ],
+      discovery: "The Incubator identified 4 aligned grants across WIOA, SAMHSA, EDA, USDA — $2.1M combined pipeline. ThriveUp Community Intelligence Map showed economic decline correlated with health outcomes. Sankofa surfaced opioid use patterns. LifeBridge call data quantified service gaps.",
+      assessment: "RPLICE Three Realities analysis: Research supported technology-enabled models. Politics demanded local ownership — program had to be OF the community, not FOR the community. Ground truth: MAT access and employment were inseparable issues. SafeCogniCare assessed elder population cognitive safety needs (20% of region over 65).",
+      design: "Program Designer mapped 4 grants simultaneously — 80% requirement overlap reduced application burden. MCE designed social enterprise pathway. M2C designed veteran-specific transition for local military base population. PillScheduler designed telehealth MAT adherence system. Sankofa designed behavioral health telehealth protocol. SALP indicators adapted for rural context (lower dosage frequency, higher per-session intensity).",
+      implementation: "ThriveUp delivered career pathways with remote/hybrid options. Sankofa Health telehealth behavioral health services — no 45-minute drive. PillScheduler managed MAT adherence with reminders and pharmacy coordination. LifeBridge navigated transportation, childcare, food access. MCE supported 3 minority businesses through APEX Accelerators to federal contracting. M2C served veteran population from nearby base. SafeCogniCare monitored elder cognitive safety in the 65+ population.",
+      measurement: "Transparency Dashboard showed multi-grant outcomes to all funders through single interface — each funder saw their grant's specific metrics. RPLICE tracked RE-AIM with rural adaptations. MCE tracked economic mobility: jobs, businesses, revenue. Workforce Dashboard tracked credential attainment and wage progression.",
+      improvement: "MAP-GAP CQI revealed telehealth adoption was 3x higher than expected — rural populations preferred it once available. MG-PATR documented rural adaptation principles: intensity over frequency, technology over transportation, community ownership over external management. The Incubator identified expansion opportunities.",
     },
-    implementation: {
-      summary: "Full 12-sector coalition deployment with shared data infrastructure, tiered engagement model, and transparent accountability systems.",
-      platforms: ["DFC Command Center", "Coalition Dashboard", "DFC Reporting", "Platform Metrics", "Transparency Dashboard", "MAP-GAP CQI"],
-      stakeholders: ["Youth (Youth Advisory Council)", "Parents/Families", "Business Community", "Media", "Schools", "Youth-Serving Organizations", "Law Enforcement", "Religious/Fraternal", "Civic/Volunteer", "Healthcare", "State/Local Government", "Other Substance Use Organizations"],
-      disciplines: [
-        { name: "Implementation Science", role: "Collective impact framework operationalized through CFIR; coalition readiness tracked using validated instruments" },
-        { name: "Criminal Justice", role: "Law enforcement sector integration; juvenile justice data sharing agreements; diversion program coordination" },
-        { name: "HR Management", role: "Coalition staffing model; volunteer management systems; sector representative role definitions" },
-        { name: "I-O Psychology", role: "Meeting design psychology; engagement retention systems; value demonstration as motivation strategy" },
-      ],
-    },
+    platformContributions: [
+      { platformName: "ThriveUp Academy", platformId: "thriveup", role: "Central Hub", specificAction: "Career pathways with remote options, case management, Transparency Dashboard showing multi-grant outcomes" },
+      { platformName: "Sankofa Health", platformId: "sankofa", role: "Telehealth", specificAction: "Behavioral health telehealth services eliminating 45-minute drive barrier, opioid use disorder assessment and treatment coordination" },
+      { platformName: "PillScheduler", platformId: "pillscheduler", role: "MAT Adherence", specificAction: "Medication-Assisted Treatment adherence tracking, pharmacy coordination, preventing treatment discontinuation" },
+      { platformName: "LifeBridge", platformId: "lifebridge", role: "Rural Navigation", specificAction: "Transportation, childcare, food access navigation in resource-limited rural setting" },
+      { platformName: "MCE", platformId: "mce", role: "Economic Development", specificAction: "Social enterprise pathway, APEX Accelerators for minority businesses, federal contracting support" },
+      { platformName: "M2C Transition", platformId: "m2c", role: "Veteran Services", specificAction: "Military-to-civilian career translation for nearby base population, VA benefit navigation" },
+      { platformName: "SafeCogniCare", platformId: "safecognicare", role: "Elder Care", specificAction: "Cognitive safety monitoring for 65+ population (20% of region), elder abuse prevention" },
+      { platformName: "RPLICE", platformId: "rplice", role: "Rural Fidelity", specificAction: "SALP fidelity monitoring with rural adaptations (intensity over frequency), RE-AIM evaluation" },
+      { platformName: "Better Science Lab", platformId: "betterscience", role: "Research", specificAction: "Appalachian economic revitalization literature review, telehealth effectiveness validation" },
+      { platformName: "The Incubator", platformId: "incubator", role: "Multi-Grant", specificAction: "Identified 4 aligned grants ($2.1M pipeline), mapped 80% requirement overlap to reduce application burden" },
+    ],
+    stakeholders: ["Regional Health Systems", "Community Colleges", "Employers (New Industries)", "Recovery Courts", "Community Health Workers", "Faith Communities", "County Government", "Chamber of Commerce"],
+    disciplines: [
+      { name: "Implementation Science", role: "CFIR barriers unique to rural setting, SALP adapted for intensity-over-frequency model, RE-AIM tracking across dispersed population" },
+      { name: "Criminal Justice", role: "Drug court diversion, reentry support for substance-related incarceration, justice partner coordination across counties" },
+      { name: "HR Management", role: "New-industry workforce pipelines (telehealth, renewable energy, remote tech), credential portability across state lines" },
+      { name: "I-O Psychology", role: "Community resilience programming, combating learned helplessness, sustaining engagement in low-hope environments" },
+    ],
     outcomes: {
-      summary: "At 36 months, the coalition achieved full 12-sector engagement with measurable community-level substance use prevention outcomes.",
       metrics: [
-        { label: "Sectors Engaged", value: "12/12", change: "From 3/12", positive: true },
-        { label: "Community Readiness", value: "7/9", change: "+3 levels", positive: true },
-        { label: "Meeting Attendance", value: "88%", change: "Above 80% target", positive: true },
-        { label: "Action Item Completion", value: "82%", change: "Above 75% target", positive: true },
-        { label: "Coalition Sustainability", value: "36+ months", change: "Longest in community history", positive: true },
-        { label: "Data Sharing Partners", value: "8", change: "From 0", positive: true },
+        { label: "Employment Rate", value: "+34%", change: "In target population", positive: true },
+        { label: "Opioid Overdose Deaths", value: "-28%", change: "Year-over-year", positive: true },
+        { label: "MAT Adherence", value: "87%", change: "+40% vs. pre-telehealth", positive: true },
+        { label: "Businesses Launched (MCE)", value: "8", change: "3 won federal contracts", positive: true },
+        { label: "Telehealth Adoption", value: "3x", change: "Higher than projected", positive: true },
+        { label: "Brain Drain Reversal", value: "12%", change: "Young adults returning", positive: true },
       ],
       qualitative: [
-        "Coalition members reported feeling 'valued' rather than 'used' — a first for many sector representatives",
-        "3 sectors (business, media, faith-based) independently initiated prevention campaigns using coalition data",
-        "Community readiness moved from 'Vague Awareness' to 'Stabilization' — a 3-level improvement in 36 months",
-        "The coalition model was presented at a national DFC conference as a replicable framework",
+        "Telehealth MAT adherence (PillScheduler + Sankofa) proved MORE effective than in-person for this population — eliminating transportation barrier was transformative",
+        "Community ownership emerged when local leaders saw Transparency Dashboard data proving the program was working — they became its advocates",
+        "MCE APEX Accelerator support helped 3 minority-owned businesses win their first federal contracts — economic multiplier effect in the community",
+        "SafeCogniCare elder monitoring prevented 4 cognitive safety incidents that would have resulted in institutional placement — keeping elders in community",
       ],
     },
-    lessonsLearned: {
-      summary: "Insights for building sustainable coalitions in communities with prior failed attempts and engagement fatigue.",
-      lessons: [
-        { title: "Lead with Data, Not Meetings", detail: "Showing sector representatives a live dashboard with their data integrated before asking for commitment changed the recruitment conversation from 'attend meetings' to 'see your impact.'" },
-        { title: "Tiered Engagement Prevents Fatigue", detail: "Not everyone needs to attend every meeting. Core team monthly, full coalition quarterly, community annually. This tripled engagement compared to the 'everyone monthly' model that had failed twice." },
-        { title: "Bidirectional Data Creates Ownership", detail: "Sectors that only contributed data without seeing it reflected in dashboards disengaged. Adding sector-specific impact reports turned data contributors into data owners." },
-        { title: "Previous Failures are Data, Not Destiny", detail: "The community had failed twice before. Analyzing those failures through MAP-GAP revealed specific, addressable problems — not a fundamental inability to collaborate." },
-      ],
-      replicationNotes: "MG-PATR identified that the Dashboard-First model, tiered engagement structure, and sector recruitment playbooks are transferable. Community readiness levels, political dynamics, and sector availability vary significantly and require full Three Realities assessment before deployment.",
-    },
+    lessonsLearned: [
+      "Rural implementation requires intensity-over-frequency adaptation — fewer sessions but longer, deeper engagement per session",
+      "Technology removes barriers more than it creates them in rural settings — telehealth adoption exceeded projections by 3x once available",
+      "Multi-grant alignment (The Incubator identifying 80% overlap) reduced application burden dramatically — same ecosystem, multiple funders",
+      "Community ownership is non-negotiable — programs must be OF the community. Three Realities ground-truth assessment prevents 'parachute program' failure",
+      "Elder population (SafeCogniCare) is an overlooked constituency — 20% of rural communities are 65+, and their cognitive safety needs are real but invisible",
+    ],
     crossLinks: [
-      { label: "MAP-GAP Framework", url: "/mapgap-framework" },
+      { label: "Workforce Dashboard", url: "/workforce-dashboard" },
+      { label: "Health & Wellness", url: "/health-wellness" },
+      { label: "APEX Accelerators", url: "/apex-accelerators" },
       { label: "Transparency Dashboard", url: "/transparency" },
-      { label: "DFC Command Center", url: "/dfc-command-center" },
-      { label: "Coalition Dashboard", url: "/coalition" },
-      { label: "DFC Readiness", url: "/dfc-readiness" },
+      { label: "Ecosystem Story", url: "/ecosystem-story" },
+      { label: "Program Lifecycle", url: "/program-lifecycle" },
     ],
   },
 ];
 
-function PhaseCard({ phase, index, isExpanded, onToggle }: {
-  phase: CaseStudyPhase; index: number; isExpanded: boolean; onToggle: () => void;
-}) {
-  const stepIcons = [Microscope, Target, Users, CheckCircle2, BarChart3, RefreshCw];
-  const stepColors = [
-    "from-blue-500 to-blue-600",
-    "from-violet-500 to-violet-600",
-    "from-emerald-500 to-emerald-600",
-    "from-amber-500 to-amber-600",
-    "from-rose-500 to-rose-600",
-    "from-indigo-500 to-indigo-600",
-  ];
-  const Icon = stepIcons[index] || Target;
-  const gradient = stepColors[index] || stepColors[0];
-
+function CaseStudyCard({ study, isSelected, onSelect }: { study: CaseStudy; isSelected: boolean; onSelect: () => void }) {
+  const Icon = study.icon;
+  const platformCount = study.platformContributions.length;
   return (
-    <div
-      className={`rounded-md border p-4 cursor-pointer transition-all ${isExpanded ? "ring-2 ring-primary/20" : ""}`}
-      onClick={onToggle}
-      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onToggle(); } }}
-      tabIndex={0}
-      role="button"
-      aria-expanded={isExpanded}
-      data-testid={`phase-${index}`}
+    <Card
+      className={`cursor-pointer hover-elevate transition-all ${isSelected ? "ring-2 ring-primary" : ""}`}
+      onClick={onSelect}
+      data-testid={`card-case-study-${study.id}`}
     >
-      <div className="flex items-center gap-3">
-        <div className={`rounded-full bg-gradient-to-br ${gradient} p-2 shrink-0`}>
-          <Icon className="h-4 w-4 text-white" />
+      <CardContent className="p-4">
+        <div className="flex items-center gap-3 mb-3">
+          <div className={`rounded-lg p-2 ${study.iconBg}`}>
+            <Icon className={`h-5 w-5 ${study.color}`} />
+          </div>
+          <div className="min-w-0">
+            <h3 className="font-semibold text-sm">{study.title}</h3>
+            <p className="text-xs text-muted-foreground">{study.subtitle}</p>
+          </div>
         </div>
-        <div className="flex-1 min-w-0">
-          <h4 className="text-sm font-semibold">{phase.title}</h4>
-          <p className="text-xs text-muted-foreground">{phase.description}</p>
+        <p className="text-xs text-muted-foreground mb-3">{study.challenge.summary.slice(0, 120)}...</p>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+            <MapPin className="h-3 w-3" />
+            <span>{study.setting.split("—")[0].trim()}</span>
+          </div>
+          <Badge variant="outline" className="text-[10px]">{platformCount} platforms</Badge>
         </div>
-        {isExpanded ? (
-          <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />
-        ) : (
-          <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
-        )}
-      </div>
-      {isExpanded && (
-        <ul className="mt-3 space-y-1.5 pl-11 animate-in fade-in-0 slide-in-from-top-2 duration-200">
-          {phase.details.map((detail, i) => (
-            <li key={i} className="text-xs text-muted-foreground flex items-start gap-2">
-              <ArrowRight className="h-3 w-3 text-primary shrink-0 mt-0.5" />
-              <span>{detail}</span>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
+      </CardContent>
+    </Card>
   );
 }
 
-function CaseStudyView({ study }: { study: CaseStudy }) {
-  const [expandedPhases, setExpandedPhases] = useState<Set<number>>(new Set());
-  const [activeSection, setActiveSection] = useState("challenge");
+function CaseStudyDetail({ study }: { study: CaseStudy }) {
+  const [expandedSection, setExpandedSection] = useState<string | null>("challenge");
   const Icon = study.icon;
 
-  function togglePhase(index: number) {
-    setExpandedPhases(prev => {
-      const next = new Set(prev);
-      if (next.has(index)) next.delete(index);
-      else next.add(index);
-      return next;
-    });
-  }
-
   const sections = [
-    { id: "challenge", label: "Challenge", icon: AlertTriangle },
-    { id: "mapgap", label: "MAP-GAP", icon: RefreshCw },
-    { id: "implementation", label: "Implementation", icon: Activity },
-    { id: "outcomes", label: "Outcomes", icon: BarChart3 },
-    { id: "lessons", label: "Lessons", icon: Lightbulb },
+    { id: "challenge", title: "The Challenge", icon: AlertTriangle, color: "text-red-500" },
+    { id: "three-realities", title: "Three Realities Analysis", icon: Eye, color: "text-violet-500" },
+    { id: "map-gap", title: "MAP-GAP Application", icon: RefreshCw, color: "text-primary" },
+    { id: "platforms", title: "14-Platform Contributions", icon: Globe, color: "text-teal-500" },
+    { id: "outcomes", title: "Measured Outcomes", icon: BarChart3, color: "text-emerald-500" },
+    { id: "lessons", title: "Lessons Learned", icon: Lightbulb, color: "text-amber-500" },
   ];
 
+  const toggleSection = (id: string) => {
+    setExpandedSection(expandedSection === id ? null : id);
+  };
+
   return (
-    <div className="space-y-6" data-testid={`case-study-${study.id}`}>
-      <div className="flex items-start gap-4">
-        <div className={`rounded-lg ${study.iconBg} p-3 shrink-0`}>
-          <Icon className={`h-6 w-6 ${study.color}`} />
-        </div>
-        <div>
-          <h2 className="text-xl font-bold">{study.title}</h2>
-          <p className="text-sm text-muted-foreground">{study.subtitle}</p>
-          <div className="flex flex-wrap items-center gap-2 mt-2">
-            <Badge variant="outline" className="text-xs">
-              <MapPin className="h-3 w-3 mr-1" />
-              {study.setting}
-            </Badge>
-            <Badge variant="outline" className="text-xs">
-              <Clock className="h-3 w-3 mr-1" />
-              {study.timeline}
-            </Badge>
+    <div className="space-y-6" data-testid={`detail-case-study-${study.id}`}>
+      <Card className={`${study.iconBg} border`}>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-3">
+            <div className={`rounded-lg p-3 bg-background`}>
+              <Icon className={`h-7 w-7 ${study.color}`} />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold">{study.title}</h2>
+              <p className="text-sm text-muted-foreground font-normal">{study.subtitle}</p>
+            </div>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+            <div>
+              <p className="text-xs text-muted-foreground">Setting</p>
+              <p className="font-medium">{study.setting.split("—")[0].trim()}</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Population</p>
+              <p className="font-medium">{study.population}</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Timeline</p>
+              <p className="font-medium">{study.timeline}</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Platforms Active</p>
+              <p className="font-medium">{study.platformContributions.length} of 14</p>
+            </div>
           </div>
-        </div>
-      </div>
-
-      <Tabs value={activeSection} onValueChange={setActiveSection}>
-        <TabsList className="flex flex-wrap gap-1">
-          {sections.map((s) => {
-            const SIcon = s.icon;
-            return (
-              <TabsTrigger key={s.id} value={s.id} className="text-xs" data-testid={`tab-${study.id}-${s.id}`}>
-                <SIcon className="h-3.5 w-3.5 mr-1" />
-                {s.label}
-              </TabsTrigger>
-            );
-          })}
-        </TabsList>
-
-        <TabsContent value="challenge" className="mt-4 space-y-4">
-          <p className="text-sm text-muted-foreground leading-relaxed">{study.challenge.summary}</p>
-          <Card>
-            <CardContent className="p-4">
-              <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
-                <FileBarChart className="h-4 w-4 text-primary" />
-                Baseline Data Points
-              </h4>
-              <ul className="space-y-2">
-                {study.challenge.dataPoints.map((point, i) => (
-                  <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
-                    <AlertTriangle className="h-3.5 w-3.5 text-amber-500 shrink-0 mt-0.5" />
-                    <span>{point}</span>
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="mapgap" className="mt-4 space-y-4">
-          <p className="text-sm text-muted-foreground leading-relaxed">{study.mapGapApplication.summary}</p>
-          <div className="space-y-3">
-            {study.mapGapApplication.phases.map((phase, i) => (
-              <PhaseCard
-                key={i}
-                phase={phase}
-                index={i}
-                isExpanded={expandedPhases.has(i)}
-                onToggle={() => togglePhase(i)}
-              />
+          <div className="flex flex-wrap gap-1.5 mt-3">
+            {study.grantAlignment.map((grant) => (
+              <Badge key={grant} variant="secondary" className="text-[10px]">{grant}</Badge>
             ))}
           </div>
-        </TabsContent>
+        </CardContent>
+      </Card>
 
-        <TabsContent value="implementation" className="mt-4 space-y-4">
-          <p className="text-sm text-muted-foreground leading-relaxed">{study.implementation.summary}</p>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card>
-              <CardContent className="p-4">
-                <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
-                  <Globe className="h-4 w-4 text-primary" />
-                  Active Platforms
-                </h4>
-                <div className="flex flex-wrap gap-1.5">
-                  {study.implementation.platforms.map((p) => (
-                    <Badge key={p} variant="secondary" className="text-xs">{p}</Badge>
-                  ))}
+      {sections.map((section) => {
+        const SIcon = section.icon;
+        const isExpanded = expandedSection === section.id;
+        return (
+          <Card key={section.id} data-testid={`card-section-${section.id}`}>
+            <CardHeader
+              className="cursor-pointer"
+              onClick={() => toggleSection(section.id)}
+            >
+              <CardTitle className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-sm">
+                  <SIcon className={`h-4 w-4 ${section.color}`} />
+                  {section.title}
                 </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-4">
-                <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
-                  <Users className="h-4 w-4 text-primary" />
-                  Stakeholders Engaged
-                </h4>
-                <div className="flex flex-wrap gap-1.5">
-                  {study.implementation.stakeholders.map((s) => (
-                    <Badge key={s} variant="outline" className="text-xs">{s}</Badge>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          <Card>
-            <CardContent className="p-4">
-              <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
-                <Layers className="h-4 w-4 text-primary" />
-                Four Disciplines Applied
-              </h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {study.implementation.disciplines.map((d) => {
-                  const disciplineIcons: Record<string, typeof Microscope> = {
-                    "Implementation Science": Microscope,
-                    "Criminal Justice": Scale,
-                    "HR Management": Briefcase,
-                    "I-O Psychology": Brain,
-                  };
-                  const DIcon = disciplineIcons[d.name] || Target;
-                  return (
-                    <div key={d.name} className="p-3 rounded-md border">
-                      <div className="flex items-center gap-2 mb-1.5">
-                        <DIcon className="h-3.5 w-3.5 text-primary" />
-                        <span className="text-xs font-semibold">{d.name}</span>
-                      </div>
-                      <p className="text-xs text-muted-foreground">{d.role}</p>
-                    </div>
-                  );
-                })}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="outcomes" className="mt-4 space-y-4">
-          <p className="text-sm text-muted-foreground leading-relaxed">{study.outcomes.summary}</p>
-
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {study.outcomes.metrics.map((m) => (
-              <Card key={m.label} data-testid={`metric-${study.id}-${m.label.toLowerCase().replace(/\s+/g, '-')}`}>
-                <CardContent className="p-4 text-center">
-                  <p className="text-2xl font-bold">{m.value}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{m.label}</p>
-                  <Badge
-                    variant="outline"
-                    className={`mt-2 text-[10px] ${m.positive ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}`}
-                  >
-                    {m.positive ? <CheckCircle2 className="h-2.5 w-2.5 mr-1" /> : <AlertTriangle className="h-2.5 w-2.5 mr-1" />}
-                    {m.change}
-                  </Badge>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          <Card>
-            <CardContent className="p-4">
-              <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
-                <Heart className="h-4 w-4 text-rose-500" />
-                Qualitative Outcomes
-              </h4>
-              <ul className="space-y-2">
-                {study.outcomes.qualitative.map((q, i) => (
-                  <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
-                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0 mt-0.5" />
-                    <span>{q}</span>
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="lessons" className="mt-4 space-y-4">
-          <p className="text-sm text-muted-foreground leading-relaxed">{study.lessonsLearned.summary}</p>
-
-          <div className="space-y-3">
-            {study.lessonsLearned.lessons.map((lesson, i) => (
-              <Card key={i} data-testid={`lesson-${study.id}-${i}`}>
-                <CardContent className="p-4">
-                  <div className="flex items-start gap-3">
-                    <div className="rounded-full bg-primary/10 p-2 shrink-0">
-                      <Lightbulb className="h-4 w-4 text-primary" />
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-semibold">{lesson.title}</h4>
-                      <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{lesson.detail}</p>
+                {isExpanded ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />}
+              </CardTitle>
+            </CardHeader>
+            {isExpanded && (
+              <CardContent className="animate-in fade-in-0 slide-in-from-top-2 duration-200">
+                {section.id === "challenge" && (
+                  <div className="space-y-4">
+                    <p className="text-sm">{study.challenge.summary}</p>
+                    <div className="space-y-2">
+                      {study.challenge.dataPoints.map((point, i) => (
+                        <div key={i} className="flex items-start gap-2 text-sm">
+                          <AlertTriangle className="h-4 w-4 text-red-500 shrink-0 mt-0.5" />
+                          <span>{point}</span>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+                )}
+
+                {section.id === "three-realities" && (
+                  <div className="space-y-4">
+                    {[
+                      { label: "Reality 1: What Research Says", content: study.threeRealities.research, color: "border-blue-300 dark:border-blue-700 bg-blue-50/50 dark:bg-blue-950/20" },
+                      { label: "Reality 2: What Politics Allow", content: study.threeRealities.politics, color: "border-amber-300 dark:border-amber-700 bg-amber-50/50 dark:bg-amber-950/20" },
+                      { label: "Reality 3: What Works on the Ground", content: study.threeRealities.ground, color: "border-emerald-300 dark:border-emerald-700 bg-emerald-50/50 dark:bg-emerald-950/20" },
+                    ].map((reality) => (
+                      <div key={reality.label} className={`p-4 rounded-lg border ${reality.color}`}>
+                        <h4 className="font-semibold text-sm mb-2">{reality.label}</h4>
+                        <p className="text-xs text-muted-foreground">{reality.content}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {section.id === "map-gap" && (
+                  <div className="space-y-4">
+                    {[
+                      { stage: "Discovery", step: "Step 1", content: study.mapGapApplication.discovery, icon: Search, color: "text-blue-600" },
+                      { stage: "Assessment", step: "Step 2", content: study.mapGapApplication.assessment, icon: ClipboardCheck, color: "text-emerald-600" },
+                      { stage: "Design", step: "Steps 2-3", content: study.mapGapApplication.design, icon: Wrench, color: "text-violet-600" },
+                      { stage: "Implementation", step: "Step 4", content: study.mapGapApplication.implementation, icon: Rocket, color: "text-amber-600" },
+                      { stage: "Measurement", step: "Step 5", content: study.mapGapApplication.measurement, icon: BarChart3, color: "text-rose-600" },
+                      { stage: "Improvement", step: "Step 6", content: study.mapGapApplication.improvement, icon: RefreshCw, color: "text-indigo-600" },
+                    ].map((phase) => {
+                      const PIcon = phase.icon;
+                      return (
+                        <div key={phase.stage} className="flex items-start gap-3">
+                          <div className="rounded-full bg-primary/10 p-2 shrink-0 mt-1">
+                            <PIcon className={`h-4 w-4 ${phase.color}`} />
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <h4 className="font-semibold text-sm">{phase.stage}</h4>
+                              <Badge variant="outline" className="text-[10px]">{phase.step}</Badge>
+                            </div>
+                            <p className="text-xs text-muted-foreground mt-1">{phase.content}</p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {section.id === "platforms" && (
+                  <div className="space-y-3">
+                    <p className="text-xs text-muted-foreground mb-4">
+                      Each platform contributes its domain expertise — no silos, no black boxes. Every platform sees what the others produce, evaluated from its lens.
+                    </p>
+                    {study.platformContributions.map((contrib) => (
+                      <div key={contrib.platformId} className="flex items-start gap-3 p-3 rounded-md border hover-elevate" data-testid={`row-platform-${contrib.platformId}`}>
+                        <div className="rounded-md bg-primary/10 p-2 shrink-0">
+                          <Globe className="h-4 w-4 text-primary" />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <p className="text-sm font-semibold">{contrib.platformName}</p>
+                            <Badge variant="outline" className="text-[10px]">{contrib.role}</Badge>
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-1">{contrib.specificAction}</p>
+                        </div>
+                      </div>
+                    ))}
+                    <div className="mt-4 pt-4 border-t">
+                      <h4 className="text-sm font-semibold mb-2">Four Disciplines Applied</h4>
+                      <div className="grid md:grid-cols-2 gap-3">
+                        {study.disciplines.map((disc) => (
+                          <div key={disc.name} className="p-3 rounded-md bg-muted/50">
+                            <p className="text-xs font-semibold">{disc.name}</p>
+                            <p className="text-[10px] text-muted-foreground mt-1">{disc.role}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {section.id === "outcomes" && (
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                      {study.outcomes.metrics.map((metric) => (
+                        <Card key={metric.label}>
+                          <CardContent className="p-3 text-center">
+                            <p className={`text-2xl font-bold ${metric.positive ? "text-emerald-600" : "text-red-600"}`}>
+                              {metric.value}
+                            </p>
+                            <p className="text-xs font-medium mt-1">{metric.label}</p>
+                            <p className="text-[10px] text-muted-foreground">{metric.change}</p>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-semibold mb-3">Qualitative Outcomes</h4>
+                      <div className="space-y-2">
+                        {study.outcomes.qualitative.map((qual, i) => (
+                          <div key={i} className="flex items-start gap-2 text-sm">
+                            <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
+                            <span>{qual}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {section.id === "lessons" && (
+                  <div className="space-y-3">
+                    {study.lessonsLearned.map((lesson, i) => (
+                      <div key={i} className="flex items-start gap-3 p-3 rounded-md border">
+                        <div className="rounded-full bg-amber-100 dark:bg-amber-900/30 p-1.5 shrink-0 mt-0.5">
+                          <Lightbulb className="h-3.5 w-3.5 text-amber-600" />
+                        </div>
+                        <p className="text-sm">{lesson}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            )}
+          </Card>
+        );
+      })}
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-sm">
+            <ArrowRight className="h-4 w-4 text-primary" />
+            Related Pages
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-wrap gap-2">
+            {study.crossLinks.map((link) => (
+              <Link key={link.url} href={link.url}>
+                <Button variant="outline" size="sm" data-testid={`button-link-${link.label.toLowerCase().replace(/\s/g, '-')}`}>
+                  {link.label}
+                </Button>
+              </Link>
             ))}
           </div>
-
-          <Card className="border-2 border-indigo-300/50 dark:border-indigo-700/50 bg-gradient-to-br from-indigo-50/50 to-transparent dark:from-indigo-900/10">
-            <CardContent className="p-4">
-              <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
-                <RefreshCw className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
-                MG-PATR Replication Notes
-              </h4>
-              <p className="text-xs text-muted-foreground leading-relaxed">{study.lessonsLearned.replicationNotes}</p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-
-      <div className="flex flex-wrap gap-2 pt-2">
-        {study.crossLinks.map((link) => (
-          <Link key={link.url} href={link.url}>
-            <Button variant="outline" size="sm" data-testid={`link-${study.id}-${link.label.toLowerCase().replace(/\s+/g, '-')}`}>
-              {link.label}
-              <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
-            </Button>
-          </Link>
-        ))}
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
 
 export default function CaseStudiesPage() {
-  const [activeStudy, setActiveStudy] = useState(CASE_STUDIES[0].id);
+  const [selectedStudy, setSelectedStudy] = useState<string>(CASE_STUDIES[0].id);
+  const study = CASE_STUDIES.find(s => s.id === selectedStudy)!;
 
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-8">
+    <div className="p-6 max-w-6xl mx-auto space-y-6" data-testid="page-case-studies">
       <div>
-        <h1 className="text-3xl font-bold" data-testid="text-page-title">Case Study Deep Dives</h1>
-        <p className="text-muted-foreground mt-2 max-w-3xl" data-testid="text-page-subtitle">
-          Detailed case studies demonstrating the MAP-GAP methodology in action across substance use prevention,
-          workforce reentry, youth development, and coalition building. Each study follows the complete cycle:
-          Challenge, MAP-GAP Application, Implementation, Measured Outcomes, and Lessons Learned.
+        <h1 className="text-2xl font-bold flex items-center gap-2" data-testid="text-page-title">
+          <BookOpen className="h-6 w-6 text-primary" />
+          Case Study Deep Dives
+        </h1>
+        <p className="text-muted-foreground mt-1" data-testid="text-page-subtitle">
+          Real-world applications of the MAP-GAP framework across the 14-platform ecosystem. Each case study shows how collaborative intelligence — no silos, no black boxes — produces measurable outcomes.
         </p>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        {CASE_STUDIES.map((study) => {
-          const Icon = study.icon;
-          const isActive = activeStudy === study.id;
-          return (
-            <Card
-              key={study.id}
-              className={`cursor-pointer transition-all hover-elevate ${isActive ? "ring-2 ring-primary" : ""}`}
-              onClick={() => setActiveStudy(study.id)}
-              data-testid={`card-select-${study.id}`}
-            >
-              <CardContent className="p-4 text-center">
-                <div className={`mx-auto w-10 h-10 rounded-lg ${study.iconBg} flex items-center justify-center mb-2`}>
-                  <Icon className={`h-5 w-5 ${study.color}`} />
-                </div>
-                <h3 className="text-sm font-semibold">{study.title}</h3>
-                <p className="text-xs text-muted-foreground mt-0.5">{study.subtitle}</p>
-              </CardContent>
-            </Card>
-          );
-        })}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" data-testid="grid-case-study-selector">
+        {CASE_STUDIES.map((cs) => (
+          <CaseStudyCard
+            key={cs.id}
+            study={cs}
+            isSelected={selectedStudy === cs.id}
+            onSelect={() => setSelectedStudy(cs.id)}
+          />
+        ))}
       </div>
 
-      {CASE_STUDIES.filter(s => s.id === activeStudy).map(study => (
-        <CaseStudyView key={study.id} study={study} />
-      ))}
+      <CaseStudyDetail study={study} />
 
-      <Card className="bg-gradient-to-br from-primary/5 to-transparent">
-        <CardContent className="p-6">
-          <div className="flex items-start gap-4">
-            <div className="rounded-lg bg-primary/10 p-3 shrink-0">
-              <Compass className="h-6 w-6 text-primary" />
-            </div>
-            <div>
-              <h3 className="text-lg font-bold">The Pattern Across All Case Studies</h3>
-              <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
-                Every case study follows the same structural pattern — MAP-GAP provides the operating system,
-                SALP provides the measurement, Three Realities ensures local fit, and MG-PATR captures lessons
-                for the next deployment. The content changes. The methodology holds.
-              </p>
-              <div className="flex flex-wrap gap-2 mt-4">
-                <Link href="/mapgap-framework">
-                  <Button variant="outline" size="sm" data-testid="link-mapgap-framework">
-                    <RefreshCw className="mr-1.5 h-3.5 w-3.5" /> MAP-GAP Framework
-                  </Button>
-                </Link>
-                <Link href="/transparency">
-                  <Button variant="outline" size="sm" data-testid="link-transparency-dashboard">
-                    <Activity className="mr-1.5 h-3.5 w-3.5" /> Transparency Dashboard
-                  </Button>
-                </Link>
-                <Link href="/research-hub">
-                  <Button variant="outline" size="sm" data-testid="link-research-hub">
-                    <Microscope className="mr-1.5 h-3.5 w-3.5" /> Research Hub
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="flex flex-wrap gap-3">
+        <Link href="/program-lifecycle">
+          <Button variant="outline" size="sm" data-testid="button-to-lifecycle">
+            <RefreshCw className="mr-2 h-4 w-4" /> Program Lifecycle
+          </Button>
+        </Link>
+        <Link href="/program-designer">
+          <Button variant="outline" size="sm" data-testid="button-to-designer">
+            <Target className="mr-2 h-4 w-4" /> Program Designer
+          </Button>
+        </Link>
+        <Link href="/mapgap-framework">
+          <Button variant="outline" size="sm" data-testid="button-to-mapgap">
+            <RefreshCw className="mr-2 h-4 w-4" /> MAP-GAP Framework
+          </Button>
+        </Link>
+        <Link href="/transparency">
+          <Button variant="outline" size="sm" data-testid="button-to-transparency">
+            <Activity className="mr-2 h-4 w-4" /> Transparency Dashboard
+          </Button>
+        </Link>
+        <Link href="/ecosystem-story">
+          <Button variant="outline" size="sm" data-testid="button-to-ecosystem">
+            <Globe className="mr-2 h-4 w-4" /> Ecosystem Story
+          </Button>
+        </Link>
+      </div>
     </div>
   );
 }
