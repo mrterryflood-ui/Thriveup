@@ -1356,12 +1356,210 @@ function OpportunityScanner() {
   );
 }
 
+function SectionDrafter({ section, grant, autoTrigger, onAutoTriggered }: { section: PackageSection; grant: GrantPackage; autoTrigger?: boolean; onAutoTriggered?: () => void }) {
+  const { toast } = useToast();
+  const [draftContent, setDraftContent] = useState(section.content || "");
+  const [userInstructions, setUserInstructions] = useState("");
+  const [refineInstructions, setRefineInstructions] = useState("");
+  const [showRefine, setShowRefine] = useState(false);
+  const [hasAutoTriggered, setHasAutoTriggered] = useState(false);
+
+  const draftMutation = useMutation({
+    mutationFn: async () => {
+      const resp = await apiRequest("POST", "/api/grants/draft-section", {
+        grantId: grant.id,
+        sectionId: section.id,
+        sectionName: section.name,
+        sectionDescription: section.description,
+        grantName: `${grant.name} — ${grant.fullName}`,
+        grantDescription: grant.description,
+        existingContent: draftContent || undefined,
+        userInstructions: userInstructions || undefined,
+      });
+      return resp.json();
+    },
+    onSuccess: (data: { draft: string }) => {
+      setDraftContent(data.draft);
+      toast({ title: "Draft generated", description: `"${section.name}" has been drafted by AI. Review and edit as needed.` });
+    },
+    onError: () => {
+      toast({ title: "Failed to generate draft", description: "Please try again", variant: "destructive" });
+    },
+  });
+
+  const refineMutation = useMutation({
+    mutationFn: async () => {
+      const resp = await apiRequest("POST", "/api/grants/refine-section", {
+        currentDraft: draftContent,
+        refinementInstructions: refineInstructions,
+        sectionName: section.name,
+        grantName: `${grant.name} — ${grant.fullName}`,
+      });
+      return resp.json();
+    },
+    onSuccess: (data: { draft: string }) => {
+      setDraftContent(data.draft);
+      setRefineInstructions("");
+      setShowRefine(false);
+      toast({ title: "Draft refined", description: "Your instructions have been applied." });
+    },
+    onError: () => {
+      toast({ title: "Failed to refine", description: "Please try again", variant: "destructive" });
+    },
+  });
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(draftContent);
+    toast({ title: "Copied to clipboard" });
+  };
+
+  if (autoTrigger && !hasAutoTriggered && !draftMutation.isPending && !draftContent) {
+    setHasAutoTriggered(true);
+    setTimeout(() => {
+      draftMutation.mutate();
+      if (onAutoTriggered) onAutoTriggered();
+    }, 100);
+  }
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-xs font-medium text-muted-foreground mb-1">Assignee</p>
+          <p className="text-sm">{section.assignee}</p>
+        </div>
+        {section.lastUpdated && (
+          <div className="text-right">
+            <p className="text-xs font-medium text-muted-foreground mb-1">Last Updated</p>
+            <p className="text-sm">{section.lastUpdated}</p>
+          </div>
+        )}
+      </div>
+
+      {draftMutation.isPending && (
+        <div className="flex items-center gap-3 p-4 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800">
+          <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
+          <div>
+            <p className="text-sm font-medium text-blue-900 dark:text-blue-200">AI is drafting "{section.name}"...</p>
+            <p className="text-xs text-blue-700 dark:text-blue-300">This takes 10-30 seconds. The AI knows your grant requirements and organizational context.</p>
+          </div>
+        </div>
+      )}
+
+      {!draftContent && !draftMutation.isPending && (
+        <div className="space-y-3 p-4 bg-muted/30 rounded-lg border border-dashed">
+          <div className="text-center space-y-2">
+            <Sparkles className="h-8 w-8 mx-auto text-primary/60" />
+            <div>
+              <p className="text-sm font-medium">Ready to draft "{section.name}"</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                The AI will write a complete draft based on your grant requirements, organizational strengths, and Dr. Flood's methodologies.
+              </p>
+            </div>
+          </div>
+          <div>
+            <label className="text-xs text-muted-foreground mb-1 block">Special instructions (optional)</label>
+            <textarea
+              className="w-full px-3 py-2 border rounded-md text-sm bg-background min-h-[50px] resize-y"
+              placeholder="e.g., Emphasize coalition diversity, include local drug prevalence data, focus on sustainability..."
+              value={userInstructions}
+              onChange={(e) => setUserInstructions(e.target.value)}
+              data-testid={`input-instructions-${section.id}`}
+            />
+          </div>
+          <Button
+            onClick={() => draftMutation.mutate()}
+            disabled={draftMutation.isPending}
+            className="w-full"
+            size="lg"
+            data-testid={`button-generate-draft-${section.id}`}
+          >
+            <Sparkles className="h-4 w-4 mr-2" />
+            Generate AI Draft
+          </Button>
+        </div>
+      )}
+
+      {draftContent && !draftMutation.isPending && (
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+              <FileText className="h-3 w-3" />
+              Draft Content
+              <Badge variant="secondary" className="text-[10px] ml-1">{draftContent.split(/\s+/).length} words</Badge>
+            </p>
+            <div className="flex gap-2">
+              <Button size="sm" variant="outline" onClick={copyToClipboard} data-testid={`button-copy-${section.id}`}>
+                <Download className="h-3.5 w-3.5 mr-1" />
+                Copy
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => setShowRefine(!showRefine)} data-testid={`button-refine-toggle-${section.id}`}>
+                <Pencil className="h-3.5 w-3.5 mr-1" />
+                Refine with AI
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => draftMutation.mutate()} data-testid={`button-regenerate-${section.id}`}>
+                <Sparkles className="h-3.5 w-3.5 mr-1" />
+                Regenerate
+              </Button>
+            </div>
+          </div>
+
+          <textarea
+            className="w-full px-4 py-3 border rounded-lg text-sm bg-background min-h-[350px] resize-y leading-relaxed"
+            value={draftContent}
+            onChange={(e) => setDraftContent(e.target.value)}
+            data-testid={`textarea-draft-${section.id}`}
+          />
+
+          {showRefine && (
+            <div className="bg-muted/40 p-3 rounded-lg space-y-2 border">
+              <label className="text-xs font-semibold text-muted-foreground block flex items-center gap-1.5">
+                <Pencil className="h-3 w-3" />
+                Tell the AI what to change
+              </label>
+              <textarea
+                className="w-full px-3 py-2 border rounded-md text-sm bg-background min-h-[60px] resize-y"
+                placeholder="e.g., Make the outcomes more specific, add a paragraph about Three Realities, shorten the introduction, add more local data..."
+                value={refineInstructions}
+                onChange={(e) => setRefineInstructions(e.target.value)}
+                data-testid={`input-refine-${section.id}`}
+              />
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  onClick={() => refineMutation.mutate()}
+                  disabled={refineMutation.isPending || !refineInstructions.trim()}
+                  data-testid={`button-apply-refine-${section.id}`}
+                >
+                  {refineMutation.isPending ? (
+                    <><Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />Refining...</>
+                  ) : (
+                    <><Sparkles className="h-3.5 w-3.5 mr-1.5" />Apply Refinement</>
+                  )}
+                </Button>
+                <Button size="sm" variant="ghost" onClick={() => setShowRefine(false)}>Cancel</Button>
+              </div>
+            </div>
+          )}
+
+          <div className="flex items-center gap-2 text-xs text-muted-foreground bg-emerald-50 dark:bg-emerald-950/20 p-2 rounded border border-emerald-200 dark:border-emerald-800">
+            <CheckCircle2 className="h-3 w-3 text-emerald-600" />
+            <span>Edit the text directly above. When satisfied, set your status below to move the workflow forward.</span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function GrantPackagesPage() {
   const [selectedGrant, setSelectedGrant] = useState<string>("dfc");
   const [activeTab, setActiveTab] = useState<string>("overview");
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
   const [expandedPhases, setExpandedPhases] = useState<Set<string>>(new Set(["collaborate", "build"]));
   const [sectionStatuses, setSectionStatuses] = useState<Record<string, ApprovalStatus>>({});
+  const [workflowMode, setWorkflowMode] = useState<"guided" | "auto">("guided");
+  const [autoTriggerDraft, setAutoTriggerDraft] = useState(false);
 
   const currentGrant = GRANT_PACKAGES.find((g) => g.id === selectedGrant);
   if (!currentGrant) return null;
@@ -1685,10 +1883,33 @@ export default function GrantPackagesPage() {
           <Card className="p-4">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="font-bold text-lg" data-testid="text-sections-title">Human-in-the-Loop Approval</h3>
-                <p className="text-sm text-muted-foreground">Review each section. Nothing ships without your sign-off.</p>
+                <h3 className="font-bold text-lg" data-testid="text-sections-title">Workflow & Collaboration</h3>
+                <p className="text-sm text-muted-foreground">AI drafts each section. You review, refine, and approve. Nothing ships without your sign-off.</p>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 bg-muted/50 rounded-lg px-3 py-1.5">
+                  <span className="text-xs text-muted-foreground">Mode:</span>
+                  <Button
+                    size="sm"
+                    variant={workflowMode === "guided" ? "default" : "ghost"}
+                    className="h-7 text-xs px-2"
+                    onClick={() => setWorkflowMode("guided")}
+                    data-testid="button-mode-guided"
+                  >
+                    <Eye className="h-3 w-3 mr-1" />
+                    Human-in-Loop
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={workflowMode === "auto" ? "default" : "ghost"}
+                    className="h-7 text-xs px-2"
+                    onClick={() => setWorkflowMode("auto")}
+                    data-testid="button-mode-auto"
+                  >
+                    <Sparkles className="h-3 w-3 mr-1" />
+                    Auto-Draft All
+                  </Button>
+                </div>
                 {packageProgress === 100 ? (
                   <Badge className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">All Approved</Badge>
                 ) : (
@@ -1696,6 +1917,37 @@ export default function GrantPackagesPage() {
                 )}
               </div>
             </div>
+
+            {workflowMode === "auto" && (
+              <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800">
+                <div className="flex items-start gap-3">
+                  <Sparkles className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-blue-900 dark:text-blue-200">Auto-Draft Mode</p>
+                    <p className="text-xs text-blue-700 dark:text-blue-300 mt-0.5">
+                      Click "Draft All Sections" to have AI generate drafts for every section at once. You can then review and approve each one.
+                    </p>
+                    <Button
+                      size="sm"
+                      className="mt-2"
+                      onClick={() => {
+                        currentGrant.sections.forEach((s) => {
+                          if (getSectionStatus(s.id, s.status) !== "approved") {
+                            expandedSections.add(s.id);
+                          }
+                        });
+                        setExpandedSections(new Set(expandedSections));
+                        setAutoTriggerDraft(true);
+                      }}
+                      data-testid="button-draft-all"
+                    >
+                      <Sparkles className="h-4 w-4 mr-1.5" />
+                      Draft All Sections
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
 
             <div className="space-y-3">
               {currentGrant.sections.map((section) => {
@@ -1725,26 +1977,19 @@ export default function GrantPackagesPage() {
 
                     {isExpanded && (
                       <div className="p-4 pt-0 border-t bg-muted/20">
-                        <div className="space-y-3 mt-3">
-                          <div>
-                            <p className="text-xs font-medium text-muted-foreground mb-1">Assignee</p>
-                            <p className="text-sm">{section.assignee}</p>
-                          </div>
-                          {section.lastUpdated && (
-                            <div>
-                              <p className="text-xs font-medium text-muted-foreground mb-1">Last Updated</p>
-                              <p className="text-sm">{section.lastUpdated}</p>
-                            </div>
-                          )}
-                          {section.content && (
-                            <div>
-                              <p className="text-xs font-medium text-muted-foreground mb-1">Content Preview</p>
-                              <p className="text-sm bg-background p-3 rounded border">{section.content}</p>
-                            </div>
-                          )}
+                        <div className="space-y-4 mt-3">
+                          <SectionDrafter
+                            section={section}
+                            grant={currentGrant}
+                            autoTrigger={autoTriggerDraft && workflowMode === "auto" && currentStatus !== "approved"}
+                            onAutoTriggered={() => setAutoTriggerDraft(false)}
+                          />
 
                           <div className="pt-3 border-t">
-                            <p className="text-xs font-semibold mb-2">Update Status (Your Decision)</p>
+                            <p className="text-xs font-semibold mb-2 flex items-center gap-1.5">
+                              <Shield className="h-3 w-3" />
+                              Your Decision
+                            </p>
                             <div className="flex flex-wrap gap-2">
                               {(["draft", "in-review", "needs-revision", "approved"] as ApprovalStatus[]).map((status) => {
                                 const config = APPROVAL_LABELS[status];
@@ -1755,7 +2000,6 @@ export default function GrantPackagesPage() {
                                     size="sm"
                                     variant={currentStatus === status ? "default" : "outline"}
                                     onClick={() => updateSectionStatus(section.id, status)}
-                                    className={currentStatus === status ? "" : ""}
                                     data-testid={`button-status-${section.id}-${status}`}
                                   >
                                     <Icon className="h-3.5 w-3.5 mr-1.5" />

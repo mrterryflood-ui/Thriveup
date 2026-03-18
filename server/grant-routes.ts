@@ -1448,4 +1448,69 @@ Respond in this exact JSON format (no markdown, just JSON):
       res.status(500).json({ error: "Failed to delete checklist item" });
     }
   });
+
+  app.post("/api/grants/draft-section", requireAuth, async (req, res) => {
+    try {
+      const { grantId, sectionId, sectionName, sectionDescription, grantName, grantDescription, existingContent, userInstructions } = req.body;
+      if (!grantId || !sectionName || !grantName) {
+        return res.status(400).json({ error: "Missing required fields: grantId, sectionName, grantName" });
+      }
+
+      const systemPrompt = `You are an expert grant writer for ThriveUp Academy, a 501(c)(3) nonprofit workforce development platform founded by Dr. Terry Flood. You specialize in writing compelling, evidence-based grant proposals.
+
+Key context about the organization:
+- ThriveUp Academy is part of a 3-entity ecosystem: ThriveUp Academy (501(c)(3)), The Collaborative Advocate (VOSB), and MCE (Minority Center of Excellence - minority business SaaS)
+- Dr. Flood's methodologies: MAP-GAP (continuous improvement), SALP (structured fidelity), Three Realities (Research Reality, Political Reality, Ground-Level Reality), MG-PATR
+- 14-platform technology ecosystem including LifeBridge (community voice), RPLICE (fidelity), Sankofa Health, M2C Transition, SafeReport, etc.
+- Focus areas: youth workforce development, substance use prevention, community coalition building, economic empowerment
+
+When drafting, you should:
+1. Write in professional grant language appropriate for federal/foundation reviewers
+2. Include specific, measurable outcomes where possible
+3. Reference evidence-based practices and data
+4. Align with the grant's specific requirements and evaluation criteria
+5. Incorporate the organization's unique differentiators (Three Realities, MAP-GAP, 14-platform ecosystem)
+6. Be specific rather than generic — use real program details`;
+
+      const userPrompt = `Draft the "${sectionName}" section for the following grant application:
+
+Grant: ${grantName}
+Grant Description: ${grantDescription || "N/A"}
+Section: ${sectionName}
+Section Description: ${sectionDescription || "N/A"}
+${existingContent ? `\nExisting content to improve/expand:\n${existingContent}` : ""}
+${userInstructions ? `\nSpecial instructions from Dr. Flood:\n${userInstructions}` : ""}
+
+Write a complete, professional draft for this section. Format with clear paragraphs. Include specific details, measurable outcomes, and evidence-based justifications. Make it compelling for grant reviewers. Do not include section headers — just the body content.`;
+
+      const draft = await generateAIResponse([
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
+      ], 4000);
+
+      res.json({ draft, sectionId, sectionName });
+    } catch (error) {
+      console.error("Failed to draft section:", error);
+      res.status(500).json({ error: "Failed to generate draft" });
+    }
+  });
+
+  app.post("/api/grants/refine-section", requireAuth, async (req, res) => {
+    try {
+      const { currentDraft, refinementInstructions, sectionName, grantName } = req.body;
+      if (!currentDraft || !refinementInstructions) {
+        return res.status(400).json({ error: "Missing required fields" });
+      }
+
+      const refined = await generateAIResponse([
+        { role: "system", content: "You are an expert grant writer. Refine the given draft based on the user's instructions. Maintain professional grant language. Return only the refined text." },
+        { role: "user", content: `Grant: ${grantName}\nSection: ${sectionName}\n\nCurrent draft:\n${currentDraft}\n\nRefinement instructions:\n${refinementInstructions}\n\nReturn the refined version:` },
+      ], 4000);
+
+      res.json({ draft: refined });
+    } catch (error) {
+      console.error("Failed to refine section:", error);
+      res.status(500).json({ error: "Failed to refine draft" });
+    }
+  });
 }
