@@ -753,19 +753,21 @@ function ParticipantView({ metrics, impact, outcomes, dosage, progress }: {
 export default function TransparencyDashboardPage() {
   const [activeRole, setActiveRole] = useState<StakeholderRole>("funder");
 
-  const { data: rawMetrics, isLoading: metricsLoading } = useQuery<PlatformMetrics>({ queryKey: ["/api/metrics/platform-wide"] });
+  const refetchOpts = { refetchInterval: 60000, staleTime: 30000 };
+
+  const { data: rawMetrics, isLoading: metricsLoading } = useQuery<PlatformMetrics>({ queryKey: ["/api/metrics/platform-wide"], ...refetchOpts });
   const metrics = rawMetrics ?? null;
 
-  const { data: rawOutcomes, isLoading: outcomesLoading } = useQuery<OutcomeDashboard>({ queryKey: ["/api/outcomes/dashboard"] });
+  const { data: rawOutcomes, isLoading: outcomesLoading } = useQuery<OutcomeDashboard>({ queryKey: ["/api/outcomes/dashboard"], ...refetchOpts });
   const outcomes = rawOutcomes ?? null;
 
-  const { data: rawDosage, isLoading: dosageLoading } = useQuery<DosageSummary>({ queryKey: ["/api/dosage/summary"] });
+  const { data: rawDosage, isLoading: dosageLoading } = useQuery<DosageSummary>({ queryKey: ["/api/dosage/summary"], ...refetchOpts });
   const dosage = rawDosage ?? null;
 
-  const { data: rawImpact, isLoading: impactLoading } = useQuery<ImpactData>({ queryKey: ["/api/public/impact"] });
+  const { data: rawImpact, isLoading: impactLoading } = useQuery<ImpactData>({ queryKey: ["/api/public/impact"], ...refetchOpts });
   const impact = rawImpact ?? null;
 
-  const { data: rawProgress, isLoading: progressLoading } = useQuery<PersonalProgress>({ queryKey: ["/api/progress"] });
+  const { data: rawProgress, isLoading: progressLoading } = useQuery<PersonalProgress>({ queryKey: ["/api/progress"], ...refetchOpts });
   const progress = rawProgress ?? null;
 
   const isLoading = metricsLoading || outcomesLoading || dosageLoading || impactLoading || progressLoading;
