@@ -5,8 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { useMutation } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import {
   Shield, Briefcase, Trophy, CheckCircle2, Circle, Clock,
@@ -16,7 +16,7 @@ import {
   ClipboardCheck, Layers, Globe, Sparkles, Building2,
   Activity, Lightbulb, Heart, Handshake, Scale,
   Package, CheckSquare, XCircle, Upload, Camera, Search,
-  Loader2, Leaf,
+  Loader2, Leaf, Plus, Trash2, Bell, Pencil,
 } from "lucide-react";
 
 type ApprovalStatus = "not-started" | "draft" | "in-review" | "approved" | "needs-revision";
@@ -625,6 +625,499 @@ function TaskStatusIcon({ status }: { status: PhaseTask["status"] }) {
   return <Circle className="h-4 w-4 text-gray-400" />;
 }
 
+const EXECUTION_CHECKLIST_TEMPLATES: Record<string, Array<{ category: string; items: string[] }>> = {
+  dfc: [
+    { category: "Coalition Building", items: [
+      "Identify and recruit 12 community sectors for coalition",
+      "Establish coalition governance structure and bylaws",
+      "Schedule monthly coalition meetings for Year 1",
+      "Complete coalition member MOUs/letters of commitment",
+      "Set up coalition communication platform",
+    ]},
+    { category: "Needs Assessment", items: [
+      "Collect community-level drug use prevalence data",
+      "Administer youth risk behavior survey",
+      "Conduct community readiness assessment",
+      "Map existing prevention resources and gaps",
+      "Compile demographic and socioeconomic data",
+    ]},
+    { category: "Program Design", items: [
+      "Select evidence-based prevention programs",
+      "Develop logic model aligned with ONDCP requirements",
+      "Define SMART objectives with measurable outcomes",
+      "Create sustainability plan beyond grant period",
+      "Establish data collection and evaluation protocols",
+    ]},
+    { category: "Budget & Compliance", items: [
+      "Prepare detailed line-item budget with justification",
+      "Verify indirect cost rate agreement",
+      "Confirm match/cost-share requirements (cash + in-kind)",
+      "Set up financial tracking and reporting systems",
+      "Identify and document all subcontractors",
+    ]},
+    { category: "Submission Final Checks", items: [
+      "All narrative sections reviewed by Dr. Flood",
+      "Budget aligns with narrative activities",
+      "Letters of support collected from all partners",
+      "SF-424 and all required federal forms completed",
+      "Package submitted before April 14, 2026 deadline",
+    ]},
+  ],
+  wioa: [
+    { category: "Program Requirements", items: [
+      "Define eligible youth population and outreach plan",
+      "Map 14 WIOA youth program elements to curriculum",
+      "Establish employer partnerships for work experience",
+      "Design follow-up services protocol (12-month minimum)",
+      "Create individual service strategy templates",
+    ]},
+    { category: "Compliance & Reporting", items: [
+      "Set up participant tracking system",
+      "Configure performance outcome measurement",
+      "Prepare quarterly reporting templates",
+      "Document eligibility determination procedures",
+      "Establish data validation protocols",
+    ]},
+  ],
+  "foundation-basketball": [
+    { category: "Program Impact", items: [
+      "Define target communities and participant demographics",
+      "Map Three Realities framework to program design",
+      "Establish baseline economic indicators for participants",
+      "Design workforce pathway with credential milestones",
+      "Create participant success story collection protocol",
+    ]},
+    { category: "Organizational Capacity", items: [
+      "Demonstrate 501(c)(3) operational history",
+      "Prepare organizational budget and financial statements",
+      "Document board diversity and governance",
+      "Map partner network and roles",
+      "Prepare evaluation methodology",
+    ]},
+  ],
+  "st-davids": [
+    { category: "Geographic Eligibility", items: [
+      "Confirm operations in Central Texas service area (Bastrop, Caldwell, Hays, Travis, or Williamson counties)",
+      "Identify local partner organization if not in Central Texas",
+      "Document community presence and partnerships in region",
+      "Map services to county-level impact areas",
+    ]},
+    { category: "Program Alignment", items: [
+      "Align proposal with 'Building Economic Stability' focus",
+      "Map Three Realities framework to community-informed design",
+      "Document how LifeBridge captures ground truth data",
+      "Identify collaborative partners for $1M track eligibility",
+      "Design public benefits integration into workforce programming",
+    ]},
+    { category: "Application Readiness", items: [
+      "Draft Letter of Intent (LOI)",
+      "Prepare community voice documentation",
+      "Complete program narrative aligned with St. David's priorities",
+      "Budget prepared with economic stability outcomes",
+      "Review submission with Meredith Sisnett (advisor)",
+    ]},
+  ],
+};
+
+const DEFAULT_REMINDERS: Array<{ grantId: string; title: string; dueDate: string; priority: string; category: string }> = [
+  { grantId: "dfc", title: "DFC Application Deadline", dueDate: "2026-04-14", priority: "critical", category: "deadline" },
+  { grantId: "dfc", title: "Coalition letters of support collected", dueDate: "2026-03-28", priority: "high", category: "task" },
+  { grantId: "dfc", title: "Final budget review with Dr. Flood", dueDate: "2026-04-01", priority: "high", category: "review" },
+  { grantId: "dfc", title: "Logic model finalized", dueDate: "2026-03-25", priority: "high", category: "task" },
+  { grantId: "dfc", title: "SF-424 forms completed", dueDate: "2026-04-07", priority: "high", category: "task" },
+  { grantId: "st-davids", title: "St. David's Application Opens", dueDate: "2026-03-30", priority: "high", category: "deadline" },
+  { grantId: "st-davids", title: "Confirm Central Texas geographic eligibility", dueDate: "2026-03-22", priority: "critical", category: "task" },
+  { grantId: "st-davids", title: "Draft LOI for Meredith review", dueDate: "2026-04-05", priority: "medium", category: "review" },
+  { grantId: "wioa", title: "WIOA eligible youth criteria finalized", dueDate: "2026-04-15", priority: "medium", category: "task" },
+  { grantId: "foundation-basketball", title: "Economic empowerment impact metrics defined", dueDate: "2026-05-01", priority: "medium", category: "task" },
+];
+
+function GrantRemindersChecklist({ grants }: { grants: typeof GRANT_PACKAGES }) {
+  const { toast } = useToast();
+  const [selectedGrant, setSelectedGrant] = useState<string>("all");
+  const [showAddReminder, setShowAddReminder] = useState(false);
+  const [newReminder, setNewReminder] = useState({ title: "", dueDate: "", priority: "medium", category: "task", grantId: "dfc" });
+  const [localReminders, setLocalReminders] = useState(DEFAULT_REMINDERS.map((r, i) => ({ ...r, id: `default-${i}`, status: "pending" as string, description: null as string | null })));
+  const [localChecklist, setLocalChecklist] = useState<Record<string, Record<string, boolean>>>({});
+
+  const filteredReminders = selectedGrant === "all"
+    ? localReminders
+    : localReminders.filter((r) => r.grantId === selectedGrant);
+
+  const sortedReminders = [...filteredReminders].sort((a, b) => {
+    if (a.status === "completed" && b.status !== "completed") return 1;
+    if (a.status !== "completed" && b.status === "completed") return -1;
+    const priorityOrder: Record<string, number> = { critical: 0, high: 1, medium: 2, low: 3 };
+    const pA = priorityOrder[a.priority] ?? 2;
+    const pB = priorityOrder[b.priority] ?? 2;
+    if (pA !== pB) return pA - pB;
+    return a.dueDate.localeCompare(b.dueDate);
+  });
+
+  const toggleChecklistItem = (grantId: string, itemKey: string) => {
+    setLocalChecklist((prev) => ({
+      ...prev,
+      [grantId]: {
+        ...(prev[grantId] || {}),
+        [itemKey]: !(prev[grantId]?.[itemKey]),
+      },
+    }));
+  };
+
+  const addReminder = () => {
+    if (!newReminder.title || !newReminder.dueDate) {
+      toast({ title: "Missing fields", description: "Title and due date are required", variant: "destructive" });
+      return;
+    }
+    setLocalReminders((prev) => [
+      ...prev,
+      { ...newReminder, id: `custom-${Date.now()}`, status: "pending", description: null },
+    ]);
+    setNewReminder({ title: "", dueDate: "", priority: "medium", category: "task", grantId: "dfc" });
+    setShowAddReminder(false);
+    toast({ title: "Reminder added", description: `"${newReminder.title}" added to your reminders` });
+  };
+
+  const toggleReminderDone = (id: string) => {
+    setLocalReminders((prev) =>
+      prev.map((r) => r.id === id ? { ...r, status: r.status === "completed" ? "pending" : "completed" } : r)
+    );
+  };
+
+  const deleteReminder = (id: string) => {
+    setLocalReminders((prev) => prev.filter((r) => r.id !== id));
+    toast({ title: "Reminder removed" });
+  };
+
+  const getDaysUntil = (dateStr: string) => {
+    const diff = new Date(dateStr).getTime() - new Date().getTime();
+    return Math.ceil(diff / (1000 * 60 * 60 * 24));
+  };
+
+  const getPriorityColor = (priority: string) => {
+    if (priority === "critical") return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300";
+    if (priority === "high") return "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300";
+    if (priority === "medium") return "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300";
+    return "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300";
+  };
+
+  const getCategoryIcon = (cat: string) => {
+    if (cat === "deadline") return <Calendar className="h-3.5 w-3.5" />;
+    if (cat === "review") return <Eye className="h-3.5 w-3.5" />;
+    return <ClipboardCheck className="h-3.5 w-3.5" />;
+  };
+
+  const activeReminders = localReminders.filter((r) => r.status !== "completed");
+  const overdueCount = activeReminders.filter((r) => getDaysUntil(r.dueDate) < 0).length;
+  const upcomingCount = activeReminders.filter((r) => {
+    const d = getDaysUntil(r.dueDate);
+    return d >= 0 && d <= 7;
+  }).length;
+
+  const getGrantLabel = (gId: string) => grants.find((g) => g.id === gId)?.name || gId;
+
+  const checklistGrants = selectedGrant === "all"
+    ? Object.keys(EXECUTION_CHECKLIST_TEMPLATES)
+    : [selectedGrant].filter((k) => k in EXECUTION_CHECKLIST_TEMPLATES);
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card className="border-l-4 border-l-red-500">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 mb-1">
+              <AlertTriangle className="h-4 w-4 text-red-500" />
+              <span className="text-sm font-medium text-muted-foreground">Overdue</span>
+            </div>
+            <p className="text-2xl font-bold text-red-600" data-testid="text-overdue-count">{overdueCount}</p>
+          </CardContent>
+        </Card>
+        <Card className="border-l-4 border-l-amber-500">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 mb-1">
+              <Clock className="h-4 w-4 text-amber-500" />
+              <span className="text-sm font-medium text-muted-foreground">Due This Week</span>
+            </div>
+            <p className="text-2xl font-bold text-amber-600" data-testid="text-upcoming-count">{upcomingCount}</p>
+          </CardContent>
+        </Card>
+        <Card className="border-l-4 border-l-emerald-500">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 mb-1">
+              <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+              <span className="text-sm font-medium text-muted-foreground">Active Reminders</span>
+            </div>
+            <p className="text-2xl font-bold text-emerald-600" data-testid="text-active-count">{activeReminders.length}</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-sm font-medium text-muted-foreground mr-1">Filter:</span>
+        <Button
+          size="sm"
+          variant={selectedGrant === "all" ? "default" : "outline"}
+          onClick={() => setSelectedGrant("all")}
+          data-testid="filter-all-grants"
+        >
+          All Grants
+        </Button>
+        {grants.map((g) => (
+          <Button
+            key={g.id}
+            size="sm"
+            variant={selectedGrant === g.id ? "default" : "outline"}
+            onClick={() => setSelectedGrant(g.id)}
+            data-testid={`filter-grant-${g.id}`}
+          >
+            {g.name}
+          </Button>
+        ))}
+      </div>
+
+      <Card>
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Bell className="h-5 w-5 text-primary" />
+              Reminders & Deadlines
+            </CardTitle>
+            <Button size="sm" onClick={() => setShowAddReminder(!showAddReminder)} data-testid="button-add-reminder">
+              <Plus className="h-4 w-4 mr-1" />
+              Add Reminder
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {showAddReminder && (
+            <Card className="bg-muted/40 p-4 space-y-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-1 block">Title</label>
+                  <input
+                    type="text"
+                    className="w-full px-3 py-2 border rounded-md text-sm bg-background"
+                    placeholder="What needs to happen?"
+                    value={newReminder.title}
+                    onChange={(e) => setNewReminder({ ...newReminder, title: e.target.value })}
+                    data-testid="input-reminder-title"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-1 block">Due Date</label>
+                  <input
+                    type="date"
+                    className="w-full px-3 py-2 border rounded-md text-sm bg-background"
+                    value={newReminder.dueDate}
+                    onChange={(e) => setNewReminder({ ...newReminder, dueDate: e.target.value })}
+                    data-testid="input-reminder-date"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-1 block">Grant</label>
+                  <select
+                    className="w-full px-3 py-2 border rounded-md text-sm bg-background"
+                    value={newReminder.grantId}
+                    onChange={(e) => setNewReminder({ ...newReminder, grantId: e.target.value })}
+                    data-testid="select-reminder-grant"
+                  >
+                    {grants.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
+                  </select>
+                </div>
+                <div className="flex gap-3">
+                  <div className="flex-1">
+                    <label className="text-xs font-medium text-muted-foreground mb-1 block">Priority</label>
+                    <select
+                      className="w-full px-3 py-2 border rounded-md text-sm bg-background"
+                      value={newReminder.priority}
+                      onChange={(e) => setNewReminder({ ...newReminder, priority: e.target.value })}
+                      data-testid="select-reminder-priority"
+                    >
+                      <option value="critical">Critical</option>
+                      <option value="high">High</option>
+                      <option value="medium">Medium</option>
+                      <option value="low">Low</option>
+                    </select>
+                  </div>
+                  <div className="flex-1">
+                    <label className="text-xs font-medium text-muted-foreground mb-1 block">Type</label>
+                    <select
+                      className="w-full px-3 py-2 border rounded-md text-sm bg-background"
+                      value={newReminder.category}
+                      onChange={(e) => setNewReminder({ ...newReminder, category: e.target.value })}
+                      data-testid="select-reminder-category"
+                    >
+                      <option value="task">Task</option>
+                      <option value="deadline">Deadline</option>
+                      <option value="review">Review</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Button size="sm" onClick={addReminder} data-testid="button-save-reminder">Save Reminder</Button>
+                <Button size="sm" variant="ghost" onClick={() => setShowAddReminder(false)}>Cancel</Button>
+              </div>
+            </Card>
+          )}
+
+          {sortedReminders.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center py-6">No reminders for this grant yet. Add one above.</p>
+          ) : (
+            <div className="space-y-2">
+              {sortedReminders.map((r) => {
+                const days = getDaysUntil(r.dueDate);
+                const isOverdue = days < 0 && r.status !== "completed";
+                const isDueSoon = days >= 0 && days <= 3 && r.status !== "completed";
+                return (
+                  <div
+                    key={r.id}
+                    className={`flex items-center gap-3 p-3 rounded-lg border transition-colors ${
+                      r.status === "completed"
+                        ? "bg-muted/30 opacity-60"
+                        : isOverdue
+                        ? "bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800"
+                        : isDueSoon
+                        ? "bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800"
+                        : "bg-background"
+                    }`}
+                    data-testid={`reminder-${r.id}`}
+                  >
+                    <button
+                      onClick={() => toggleReminderDone(r.id)}
+                      className="shrink-0"
+                      data-testid={`button-toggle-reminder-${r.id}`}
+                    >
+                      {r.status === "completed" ? (
+                        <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                      ) : (
+                        <Circle className="h-5 w-5 text-gray-400 hover:text-emerald-500 transition-colors" />
+                      )}
+                    </button>
+
+                    <div className="flex-1 min-w-0">
+                      <p className={`text-sm font-medium ${r.status === "completed" ? "line-through text-muted-foreground" : ""}`}>
+                        {r.title}
+                      </p>
+                      <div className="flex flex-wrap items-center gap-2 mt-1">
+                        <Badge variant="outline" className="text-[10px] gap-1">
+                          {getCategoryIcon(r.category)}
+                          {r.category}
+                        </Badge>
+                        {selectedGrant === "all" && (
+                          <Badge variant="outline" className="text-[10px]">{getGrantLabel(r.grantId)}</Badge>
+                        )}
+                        <span className={`text-[10px] ${isOverdue ? "text-red-600 font-semibold" : isDueSoon ? "text-amber-600 font-semibold" : "text-muted-foreground"}`}>
+                          {r.status === "completed" ? "Done" : isOverdue ? `${Math.abs(days)}d overdue` : days === 0 ? "Due today" : `${days}d left`}
+                        </span>
+                      </div>
+                    </div>
+
+                    <Badge className={`text-[10px] shrink-0 ${getPriorityColor(r.priority)}`}>
+                      {r.priority}
+                    </Badge>
+
+                    <span className="text-xs text-muted-foreground shrink-0 hidden sm:block">
+                      {new Date(r.dueDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                    </span>
+
+                    <button
+                      onClick={() => deleteReminder(r.id)}
+                      className="shrink-0 text-gray-400 hover:text-red-500 transition-colors"
+                      data-testid={`button-delete-reminder-${r.id}`}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg flex items-center gap-2">
+            <ClipboardCheck className="h-5 w-5 text-primary" />
+            Execution Checklist
+          </CardTitle>
+          <p className="text-sm text-muted-foreground">Step-by-step checklist so nothing gets missed. Check off items as you complete them.</p>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {checklistGrants.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center py-6">No execution checklist available for this grant.</p>
+          ) : (
+            checklistGrants.map((gId) => {
+              const template = EXECUTION_CHECKLIST_TEMPLATES[gId];
+              if (!template) return null;
+              const totalItems = template.reduce((sum, cat) => sum + cat.items.length, 0);
+              const checkedItems = template.reduce((sum, cat) =>
+                sum + cat.items.filter((_, idx) => localChecklist[gId]?.[`${cat.category}-${idx}`]).length
+              , 0);
+              const pct = totalItems > 0 ? Math.round((checkedItems / totalItems) * 100) : 0;
+              return (
+                <div key={gId} className="space-y-3">
+                  {selectedGrant === "all" && (
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-semibold text-sm">{getGrantLabel(gId)}</h3>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-muted-foreground">{checkedItems}/{totalItems}</span>
+                        <Progress value={pct} className="w-24 h-2" />
+                        <span className="text-xs font-medium">{pct}%</span>
+                      </div>
+                    </div>
+                  )}
+                  {selectedGrant !== "all" && (
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-sm text-muted-foreground">{checkedItems}/{totalItems} completed</span>
+                      <Progress value={pct} className="w-32 h-2" />
+                      <span className="text-sm font-medium">{pct}%</span>
+                    </div>
+                  )}
+                  {template.map((cat) => (
+                    <div key={cat.category} className="space-y-1.5">
+                      <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                        <Layers className="h-3 w-3" />
+                        {cat.category}
+                      </h4>
+                      <div className="space-y-1 ml-1">
+                        {cat.items.map((item, idx) => {
+                          const key = `${cat.category}-${idx}`;
+                          const checked = !!localChecklist[gId]?.[key];
+                          return (
+                            <label
+                              key={key}
+                              className={`flex items-start gap-2.5 p-2 rounded-md cursor-pointer transition-colors hover:bg-muted/50 ${
+                                checked ? "opacity-60" : ""
+                              }`}
+                              data-testid={`checklist-item-${gId}-${key}`}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={checked}
+                                onChange={() => toggleChecklistItem(gId, key)}
+                                className="mt-0.5 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                                data-testid={`checkbox-${gId}-${key}`}
+                              />
+                              <span className={`text-sm ${checked ? "line-through text-muted-foreground" : ""}`}>{item}</span>
+                            </label>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                  {selectedGrant === "all" && <hr className="my-4" />}
+                </div>
+              );
+            })
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
 interface ScanResult {
   grantName: string;
   funder: string;
@@ -1057,6 +1550,10 @@ export default function GrantPackagesPage() {
             <Lightbulb className="h-4 w-4 mr-1.5" />
             Win Strategy
           </TabsTrigger>
+          <TabsTrigger value="reminders" data-testid="tab-reminders">
+            <Calendar className="h-4 w-4 mr-1.5" />
+            Reminders
+          </TabsTrigger>
           <TabsTrigger value="scanner" data-testid="tab-scanner">
             <Camera className="h-4 w-4 mr-1.5" />
             Opportunity Scanner
@@ -1470,6 +1967,10 @@ export default function GrantPackagesPage() {
               </CardContent>
             </Card>
           </div>
+        </TabsContent>
+
+        <TabsContent value="reminders" className="space-y-4 mt-4">
+          <GrantRemindersChecklist grants={GRANT_PACKAGES} />
         </TabsContent>
 
         <TabsContent value="scanner" className="space-y-4 mt-4">

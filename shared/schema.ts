@@ -3217,4 +3217,41 @@ export const insertPlatformMetricSchema = createInsertSchema(platformMetrics).om
 export type InsertPlatformMetric = z.infer<typeof insertPlatformMetricSchema>;
 export type PlatformMetric = typeof platformMetrics.$inferSelect;
 
+export const grantReminders = pgTable("grant_reminders", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  userId: text("user_id").notNull(),
+  grantId: text("grant_id").notNull(),
+  title: text("title").notNull(),
+  description: text("description"),
+  dueDate: text("due_date").notNull(),
+  category: text("category").notNull().default("task"),
+  priority: text("priority").notNull().default("medium"),
+  status: text("status").notNull().default("pending"),
+  phaseId: text("phase_id"),
+  taskId: text("task_id"),
+  createdAt: timestamp("created_at").defaultNow(),
+  completedAt: timestamp("completed_at"),
+});
+
+export const insertGrantReminderSchema = createInsertSchema(grantReminders).omit({ id: true, createdAt: true, completedAt: true });
+export type InsertGrantReminder = z.infer<typeof insertGrantReminderSchema>;
+export type GrantReminder = typeof grantReminders.$inferSelect;
+
+export const grantChecklistItems = pgTable("grant_checklist_items", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  userId: text("user_id").notNull(),
+  grantId: text("grant_id").notNull(),
+  category: text("category").notNull(),
+  item: text("item").notNull(),
+  status: text("status").notNull().default("pending"),
+  notes: text("notes"),
+  dueDate: text("due_date"),
+  completedAt: timestamp("completed_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertGrantChecklistItemSchema = createInsertSchema(grantChecklistItems).omit({ id: true, createdAt: true, completedAt: true });
+export type InsertGrantChecklistItem = z.infer<typeof insertGrantChecklistItemSchema>;
+export type GrantChecklistItem = typeof grantChecklistItems.$inferSelect;
+
 export * from "./models/auth";

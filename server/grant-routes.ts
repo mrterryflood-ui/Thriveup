@@ -1,6 +1,6 @@
 import type { Express, Request, Response } from "express";
 import { db, storage } from "./storage";
-import { grantOpportunities, grantAlerts, platformGaps, insertGrantOpportunitySchema, advisoryBoardMembers, advisoryBoardMeetings, staffingPlanEntries, insertAdvisoryBoardMemberSchema, insertAdvisoryBoardMeetingSchema, insertStaffingPlanEntrySchema, outcomeTracking, participantProfiles, serviceRecords } from "@shared/schema";
+import { grantOpportunities, grantAlerts, platformGaps, insertGrantOpportunitySchema, advisoryBoardMembers, advisoryBoardMeetings, staffingPlanEntries, insertAdvisoryBoardMemberSchema, insertAdvisoryBoardMeetingSchema, insertStaffingPlanEntrySchema, outcomeTracking, participantProfiles, serviceRecords, grantReminders, grantChecklistItems, insertGrantReminderSchema, insertGrantChecklistItemSchema } from "@shared/schema";
 import type { GrantOpportunity } from "@shared/schema";
 import { z } from "zod";
 import { eq, desc, sql, gte, lte, and, or, ilike } from "drizzle-orm";
@@ -1331,6 +1331,121 @@ Respond in this exact JSON format (no markdown, just JSON):
     } catch (error) {
       console.error("Failed to scan opportunity:", error);
       res.status(500).json({ error: "Failed to analyze opportunity" });
+    }
+  });
+
+  app.get("/api/grant-reminders", requireAuth, async (req, res) => {
+    try {
+      const userId = (req as any).user?.id || (req as any).userId;
+      const grantId = req.query.grantId as string | undefined;
+      const conditions = [eq(grantReminders.userId, userId)];
+      if (grantId) conditions.push(eq(grantReminders.grantId, grantId));
+      const items = await db.select().from(grantReminders).where(and(...conditions)).orderBy(grantReminders.dueDate);
+      res.json(items);
+    } catch (error) {
+      console.error("Failed to fetch reminders:", error);
+      res.status(500).json({ error: "Failed to fetch reminders" });
+    }
+  });
+
+  app.post("/api/grant-reminders", requireAuth, async (req, res) => {
+    try {
+      const userId = (req as any).user?.id || (req as any).userId;
+      const data = insertGrantReminderSchema.parse({ ...req.body, userId });
+      const [item] = await db.insert(grantReminders).values(data).returning();
+      res.json(item);
+    } catch (error) {
+      console.error("Failed to create reminder:", error);
+      res.status(500).json({ error: "Failed to create reminder" });
+    }
+  });
+
+  app.patch("/api/grant-reminders/:id", requireAuth, async (req, res) => {
+    try {
+      const userId = (req as any).user?.id || (req as any).userId;
+      const { id } = req.params;
+      const updates: Record<string, unknown> = {};
+      if (req.body.status != null) updates.status = req.body.status;
+      if (req.body.title != null) updates.title = req.body.title;
+      if (req.body.dueDate != null) updates.dueDate = req.body.dueDate;
+      if (req.body.priority != null) updates.priority = req.body.priority;
+      if (req.body.description != null) updates.description = req.body.description;
+      if (req.body.status === "completed") updates.completedAt = new Date();
+      const [item] = await db.update(grantReminders).set(updates).where(and(eq(grantReminders.id, id), eq(grantReminders.userId, userId))).returning();
+      if (!item) return res.status(404).json({ error: "Reminder not found" });
+      res.json(item);
+    } catch (error) {
+      console.error("Failed to update reminder:", error);
+      res.status(500).json({ error: "Failed to update reminder" });
+    }
+  });
+
+  app.delete("/api/grant-reminders/:id", requireAuth, async (req, res) => {
+    try {
+      const userId = (req as any).user?.id || (req as any).userId;
+      const { id } = req.params;
+      await db.delete(grantReminders).where(and(eq(grantReminders.id, id), eq(grantReminders.userId, userId)));
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Failed to delete reminder:", error);
+      res.status(500).json({ error: "Failed to delete reminder" });
+    }
+  });
+
+  app.get("/api/grant-checklist", requireAuth, async (req, res) => {
+    try {
+      const userId = (req as any).user?.id || (req as any).userId;
+      const grantId = req.query.grantId as string | undefined;
+      const conditions = [eq(grantChecklistItems.userId, userId)];
+      if (grantId) conditions.push(eq(grantChecklistItems.grantId, grantId));
+      const items = await db.select().from(grantChecklistItems).where(and(...conditions)).orderBy(grantChecklistItems.createdAt);
+      res.json(items);
+    } catch (error) {
+      console.error("Failed to fetch checklist:", error);
+      res.status(500).json({ error: "Failed to fetch checklist" });
+    }
+  });
+
+  app.post("/api/grant-checklist", requireAuth, async (req, res) => {
+    try {
+      const userId = (req as any).user?.id || (req as any).userId;
+      const data = insertGrantChecklistItemSchema.parse({ ...req.body, userId });
+      const [item] = await db.insert(grantChecklistItems).values(data).returning();
+      res.json(item);
+    } catch (error) {
+      console.error("Failed to create checklist item:", error);
+      res.status(500).json({ error: "Failed to create checklist item" });
+    }
+  });
+
+  app.patch("/api/grant-checklist/:id", requireAuth, async (req, res) => {
+    try {
+      const userId = (req as any).user?.id || (req as any).userId;
+      const { id } = req.params;
+      const updates: Record<string, unknown> = {};
+      if (req.body.status != null) updates.status = req.body.status;
+      if (req.body.notes != null) updates.notes = req.body.notes;
+      if (req.body.item != null) updates.item = req.body.item;
+      if (req.body.dueDate != null) updates.dueDate = req.body.dueDate;
+      if (req.body.status === "verified") updates.completedAt = new Date();
+      const [item] = await db.update(grantChecklistItems).set(updates).where(and(eq(grantChecklistItems.id, id), eq(grantChecklistItems.userId, userId))).returning();
+      if (!item) return res.status(404).json({ error: "Checklist item not found" });
+      res.json(item);
+    } catch (error) {
+      console.error("Failed to update checklist item:", error);
+      res.status(500).json({ error: "Failed to update checklist item" });
+    }
+  });
+
+  app.delete("/api/grant-checklist/:id", requireAuth, async (req, res) => {
+    try {
+      const userId = (req as any).user?.id || (req as any).userId;
+      const { id } = req.params;
+      await db.delete(grantChecklistItems).where(and(eq(grantChecklistItems.id, id), eq(grantChecklistItems.userId, userId)));
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Failed to delete checklist item:", error);
+      res.status(500).json({ error: "Failed to delete checklist item" });
     }
   });
 }
