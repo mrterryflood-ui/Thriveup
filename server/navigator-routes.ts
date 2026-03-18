@@ -284,7 +284,7 @@ async function assembleContext(req: Request, userMessage: string): Promise<strin
 
   const parentingKeywords = ["parent", "parenting", "family", "my child", "my kid", "my son", "my daughter", "my teen", "teenager", "co-parent", "discipline", "talking to my child", "family stress", "family conflict", "reunification"];
   if (parentingKeywords.some(kw => lowerMessage.includes(kw))) {
-    contextParts.push(`[PLATFORM RECOMMENDATION]: This person has family/parenting needs. PRIORITIZE directing them to /parent-education — Parent Education & Family Strengthening hub with 13 modules (7 substance prevention + 6 family strengthening), family risk & protective factors assessment, and AI-powered conversation starters. Also consider /parents for general family resources and workforce readiness. If substance prevention is relevant, also suggest /prevention.`);
+    contextParts.push(`[PLATFORM RECOMMENDATION]: This person has family/parenting needs. PRIORITIZE directing them to /parent-education — Parent Education & Family Strengthening hub with 16 modules (7 substance prevention + 9 family strengthening including co-parenting, reunification, and conflict resolution), family risk & protective factors assessment, and AI-powered age-banded conversation starters (10-14 and 15-18). Also consider /parents for general family resources and workforce readiness. If substance prevention is relevant, also suggest /prevention.`);
   }
 
   const grantKeywords = ["grant", "funding", "funder", "proposal", "recidivism", "prevention", "program funding"];

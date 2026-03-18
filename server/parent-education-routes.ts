@@ -178,7 +178,8 @@ export function registerParentEducationRoutes(app: Express) {
         return res.json(updated);
       }
 
-      const [progress] = await db.insert(parentEducationProgress).values(parsed.data).returning();
+      const insertData = { ...parsed.data, completedAt: parsed.data.status === "completed" ? new Date() : null };
+      const [progress] = await db.insert(parentEducationProgress).values(insertData).returning();
       res.json(progress);
     } catch (error) {
       res.status(500).json({ error: "Failed to update progress" });
