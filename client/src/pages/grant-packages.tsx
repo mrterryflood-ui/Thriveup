@@ -32,6 +32,8 @@ interface PackageSection {
   reviewNotes: string;
   lastUpdated: string;
   assignee: string;
+  pageLimit?: string;
+  wordCount?: string;
 }
 
 interface GrantPackage {
@@ -115,15 +117,15 @@ const GRANT_PACKAGES: GrantPackage[] = [
       "Three Realities framework ensures community voice is centered, not assumed",
     ],
     sections: [
-      { id: "dfc-narrative", name: "Program Narrative", description: "Statement of Need, Program Design, Goals & Objectives, Implementation Plan", icon: FileText, status: "draft", content: "Comprehensive narrative addressing youth substance use prevention through evidence-based coalition strategies.", reviewNotes: "", lastUpdated: "2026-03-15", assignee: "Dr. Flood + AI" },
-      { id: "dfc-budget", name: "Budget & Justification", description: "Line-item budget with narrative justification for all costs", icon: DollarSign, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood" },
-      { id: "dfc-logic-model", name: "Logic Model", description: "Inputs → Activities → Outputs → Short/Long-term Outcomes", icon: Layers, status: "draft", content: "Theory of change: Relief → Stabilize → Contribute with MAP-GAP cycle integration.", reviewNotes: "", lastUpdated: "2026-03-14", assignee: "Dr. Flood + AI" },
-      { id: "dfc-coalition", name: "Coalition Documentation", description: "12-sector membership roster, MOUs, meeting minutes, bylaws", icon: Users, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood" },
-      { id: "dfc-data-plan", name: "Data Collection Plan", description: "4 core measures methodology, survey instruments, IRB if needed", icon: BarChart3, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood + AI" },
-      { id: "dfc-community", name: "Community Readiness Assessment", description: "Tri-Ethnic Center model assessment results and action plan", icon: MapPin, status: "draft", content: "Community readiness assessment using DFC Readiness tool with gap identification.", reviewNotes: "", lastUpdated: "2026-03-12", assignee: "Dr. Flood" },
-      { id: "dfc-letters", name: "Letters of Support", description: "Coalition member commitments, community partner letters", icon: Handshake, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood" },
-      { id: "dfc-sustainability", name: "Sustainability Plan", description: "Post-grant continuation strategy with revenue diversification", icon: Globe, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood" },
-      { id: "dfc-evaluation", name: "Evaluation Plan", description: "Process and outcome evaluation design with independent evaluator", icon: Sparkles, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood + Better Science Lab" },
+      { id: "dfc-narrative", name: "Program Narrative", description: "Statement of Need, Program Design, Goals & Objectives, Implementation Plan", icon: FileText, status: "draft", content: "Comprehensive narrative addressing youth substance use prevention through evidence-based coalition strategies.", reviewNotes: "", lastUpdated: "2026-03-15", assignee: "Dr. Flood + AI", pageLimit: "25 pages", wordCount: "7,500–10,000 words" },
+      { id: "dfc-budget", name: "Budget & Justification", description: "Line-item budget with narrative justification for all costs", icon: DollarSign, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood", pageLimit: "5 pages", wordCount: "1,500–2,000 words" },
+      { id: "dfc-logic-model", name: "Logic Model", description: "Inputs → Activities → Outputs → Short/Long-term Outcomes", icon: Layers, status: "draft", content: "Theory of change: Relief → Stabilize → Contribute with MAP-GAP cycle integration.", reviewNotes: "", lastUpdated: "2026-03-14", assignee: "Dr. Flood + AI", pageLimit: "2 pages", wordCount: "500–800 words" },
+      { id: "dfc-coalition", name: "Coalition Documentation", description: "12-sector membership roster, MOUs, meeting minutes, bylaws", icon: Users, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood", pageLimit: "10 pages", wordCount: "3,000–4,000 words" },
+      { id: "dfc-data-plan", name: "Data Collection Plan", description: "4 core measures methodology, survey instruments, IRB if needed", icon: BarChart3, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood + AI", pageLimit: "5 pages", wordCount: "1,500–2,000 words" },
+      { id: "dfc-community", name: "Community Readiness Assessment", description: "Tri-Ethnic Center model assessment results and action plan", icon: MapPin, status: "draft", content: "Community readiness assessment using DFC Readiness tool with gap identification.", reviewNotes: "", lastUpdated: "2026-03-12", assignee: "Dr. Flood", pageLimit: "5 pages", wordCount: "1,500–2,000 words" },
+      { id: "dfc-letters", name: "Letters of Support", description: "Coalition member commitments, community partner letters", icon: Handshake, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood", pageLimit: "No limit (1 per partner)", wordCount: "200–400 words each" },
+      { id: "dfc-sustainability", name: "Sustainability Plan", description: "Post-grant continuation strategy with revenue diversification", icon: Globe, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood", pageLimit: "3 pages", wordCount: "1,000–1,500 words" },
+      { id: "dfc-evaluation", name: "Evaluation Plan", description: "Process and outcome evaluation design with independent evaluator", icon: Sparkles, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood + Better Science Lab", pageLimit: "5 pages", wordCount: "1,500–2,000 words" },
     ],
     phases: [
       {
