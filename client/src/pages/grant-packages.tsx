@@ -1741,7 +1741,9 @@ export default function GrantPackagesPage() {
     draftContentsRef.current[sectionId] = content;
   };
 
-  const handleDownloadPackage = (includeAll: boolean = false) => {
+  const [isExporting, setIsExporting] = useState(false);
+
+  const handleDownloadPackage = async (includeAll: boolean = false) => {
     const sectionsToInclude = includeAll
       ? currentGrant.sections.filter((s) => {
           const status = getSectionStatus(s.id, s.status);
@@ -1751,142 +1753,83 @@ export default function GrantPackagesPage() {
       : currentGrant.sections.filter((s) => getSectionStatus(s.id, s.status) === "approved");
 
     if (sectionsToInclude.length === 0) {
-      alert(includeAll
-        ? "No sections have been drafted yet. Generate drafts before exporting."
-        : "No sections have been approved yet. Approve sections or use 'Export All Drafted Sections'.");
+      toast({
+        title: "Nothing to export",
+        description: includeAll
+          ? "No sections have been drafted yet. Generate drafts before exporting."
+          : "No sections have been approved yet. Approve sections or use 'Export All Drafted Sections'.",
+        variant: "destructive",
+      });
       return;
     }
 
-    const dateStr = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
-    const readySections = currentGrant.sections.filter((s) => getSectionStatus(s.id, s.status) === "approved").length;
-    const draftedSections = currentGrant.sections.filter((s) => {
-      const hasDraft = draftContentsRef.current[s.id] || s.content;
-      return hasDraft;
-    }).length;
-    const missingSections = currentGrant.sections.filter((s) => {
-      const hasDraft = draftContentsRef.current[s.id] || s.content;
-      return !hasDraft;
-    });
+    setIsExporting(true);
+    try {
+      const readySections = currentGrant.sections.filter((s) => getSectionStatus(s.id, s.status) === "approved").length;
+      const draftedSections = currentGrant.sections.filter((s) => {
+        const hasDraft = draftContentsRef.current[s.id] || s.content;
+        return hasDraft;
+      }).length;
+      const missingSections = currentGrant.sections.filter((s) => {
+        const hasDraft = draftContentsRef.current[s.id] || s.content;
+        return !hasDraft;
+      });
 
-    const html = `<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>${currentGrant.fullName} — Grant Submission Package</title>
-<style>
-  @page { margin: 1in; size: letter; }
-  @media print { .no-print { display: none !important; } .page-break { page-break-before: always; } }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: 'Georgia', 'Times New Roman', serif; font-size: 12pt; line-height: 1.6; color: #1a1a1a; max-width: 8.5in; margin: 0 auto; padding: 1in; }
-  .cover-page { text-align: center; padding: 2in 0; min-height: 9in; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-  .cover-title { font-size: 24pt; font-weight: bold; margin-bottom: 0.5in; color: #1e293b; line-height: 1.3; }
-  .cover-subtitle { font-size: 14pt; color: #475569; margin-bottom: 0.3in; }
-  .cover-meta { font-size: 11pt; color: #64748b; margin: 0.1in 0; }
-  .cover-line { width: 3in; height: 2px; background: #6366f1; margin: 0.4in auto; }
-  .cover-org { font-size: 13pt; font-weight: bold; color: #1e293b; margin-top: 0.3in; }
-  .cover-org-sub { font-size: 11pt; color: #475569; }
-  .status-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.3in; margin-top: 0.5in; text-align: left; display: inline-block; min-width: 4in; }
-  .status-title { font-size: 11pt; font-weight: bold; color: #334155; margin-bottom: 0.1in; }
-  .status-row { font-size: 10pt; color: #475569; margin: 4px 0; }
-  .status-ready { color: #16a34a; font-weight: bold; }
-  .status-draft { color: #d97706; }
-  .status-missing { color: #dc2626; }
-  .toc { padding: 0.5in 0; }
-  .toc h2 { font-size: 16pt; color: #1e293b; border-bottom: 2px solid #6366f1; padding-bottom: 8px; margin-bottom: 0.3in; }
-  .toc-item { display: flex; justify-content: space-between; align-items: baseline; padding: 6px 0; border-bottom: 1px dotted #cbd5e1; }
-  .toc-name { font-size: 11pt; color: #1e293b; }
-  .toc-status { font-size: 10pt; padding: 2px 8px; border-radius: 4px; }
-  .toc-approved { background: #dcfce7; color: #166534; }
-  .toc-draft { background: #fef3c7; color: #92400e; }
-  .toc-missing { background: #fee2e2; color: #991b1b; }
-  .section { margin-top: 0.5in; }
-  .section-header { font-size: 16pt; font-weight: bold; color: #1e293b; border-bottom: 2px solid #6366f1; padding-bottom: 8px; margin-bottom: 0.2in; }
-  .section-meta { font-size: 9pt; color: #94a3b8; margin-bottom: 0.2in; }
-  .section-meta span { margin-right: 1em; }
-  .section-body { font-size: 12pt; line-height: 1.8; text-align: justify; }
-  .section-body p { margin-bottom: 0.15in; text-indent: 0.3in; }
-  .missing-notice { background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px; padding: 0.2in; margin: 0.3in 0; font-size: 10pt; color: #991b1b; }
-  .footer { margin-top: 1in; padding-top: 0.2in; border-top: 1px solid #e2e8f0; font-size: 9pt; color: #94a3b8; text-align: center; }
-  .print-btn { position: fixed; top: 20px; right: 20px; background: #6366f1; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 14px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.15); z-index: 100; }
-  .print-btn:hover { background: #4f46e5; }
-</style>
-</head>
-<body>
-<button class="print-btn no-print" onclick="window.print()">Print / Save as PDF</button>
+      const allSectionsForToc = currentGrant.sections.map((s) => {
+        const status = getSectionStatus(s.id, s.status);
+        const hasDraft = draftContentsRef.current[s.id] || s.content;
+        return {
+          name: s.name,
+          status: status === "approved" ? "Approved" : hasDraft ? "Draft" : "Not Started",
+        };
+      });
 
-<div class="cover-page">
-  <div class="cover-title">${currentGrant.fullName}</div>
-  <div class="cover-line"></div>
-  <div class="cover-subtitle">Grant Submission Package</div>
-  <div class="cover-meta">Submitted to: ${currentGrant.funder}</div>
-  <div class="cover-meta">Funding Request: ${currentGrant.amount}</div>
-  <div class="cover-meta">Deadline: ${currentGrant.deadline}</div>
-  <div class="cover-meta">Generated: ${dateStr}</div>
-  <div style="margin-top: 0.5in;">
-    <div class="cover-org">ThriveUp Academy</div>
-    <div class="cover-org-sub">A 501(c)(3) Workforce Development Organization</div>
-    <div class="cover-org-sub">Dr. Terry Flood, Founder & Executive Director</div>
-  </div>
-  <div class="status-box">
-    <div class="status-title">Package Readiness</div>
-    <div class="status-row"><span class="status-ready">${readySections} Approved</span> / ${draftedSections} Drafted / ${totalSections} Total Sections</div>
-    ${missingSections.length > 0 ? `<div class="status-row status-missing">Missing: ${missingSections.map(s => s.name).join(", ")}</div>` : `<div class="status-row status-ready">All sections complete</div>`}
-  </div>
-</div>
+      const exportSections = sectionsToInclude.map((section) => ({
+        name: section.name,
+        description: section.description,
+        content: draftContentsRef.current[section.id] || section.content || "",
+        wordCount: section.wordCount || "",
+        pageLimit: section.pageLimit || "",
+        status: getSectionStatus(section.id, section.status),
+      }));
 
-<div class="page-break toc">
-  <h2>Table of Contents</h2>
-  ${currentGrant.sections.map((s, i) => {
-    const status = getSectionStatus(s.id, s.status);
-    const hasDraft = draftContentsRef.current[s.id] || s.content;
-    const statusLabel = status === "approved" ? "Approved" : hasDraft ? "Draft" : "Not Started";
-    const statusClass = status === "approved" ? "toc-approved" : hasDraft ? "toc-draft" : "toc-missing";
-    return `<div class="toc-item"><span class="toc-name">${i + 1}. ${s.name}</span><span class="toc-status ${statusClass}">${statusLabel}</span></div>`;
-  }).join("")}
-</div>
+      const response = await fetch("/api/grants/export-docx", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          grantName: currentGrant.fullName,
+          funder: currentGrant.funder,
+          amount: currentGrant.amount,
+          deadline: currentGrant.deadline,
+          referenceUrl: currentGrant.referenceUrl || "",
+          sections: exportSections,
+          readySections,
+          draftedSections,
+          totalSections,
+          missingSectionNames: missingSections.map((s) => s.name),
+          allSectionsForToc,
+        }),
+      });
 
-${sectionsToInclude.map((section, i) => {
-  const sectionContent = draftContentsRef.current[section.id] || section.content || "";
-  const status = getSectionStatus(section.id, section.status);
-  const wordCount = sectionContent.split(/\s+/).filter(Boolean).length;
-  const paragraphs = sectionContent.split(/\n\n+/).filter(Boolean);
-  return `
-<div class="${i > 0 ? "page-break " : ""}section">
-  <div class="section-header">${section.name}</div>
-  <div class="section-meta">
-    <span>${section.description}</span>
-    <span>|</span>
-    <span>${wordCount.toLocaleString()} words</span>
-    ${section.pageLimit ? `<span>| Limit: ${section.pageLimit}</span>` : ""}
-    <span>| Status: ${status === "approved" ? "APPROVED" : "DRAFT"}</span>
-  </div>
-  <div class="section-body">
-    ${paragraphs.map(p => `<p>${p.replace(/\n/g, " ")}</p>`).join("")}
-  </div>
-</div>`;
-}).join("")}
+      if (!response.ok) throw new Error("Export failed");
 
-${missingSections.length > 0 ? `
-<div class="page-break section">
-  <div class="section-header">Sections Pending Completion</div>
-  ${missingSections.map(s => `<div class="missing-notice"><strong>${s.name}</strong> — ${s.description}${s.wordCount ? ` (Target: ${s.wordCount})` : ""}</div>`).join("")}
-</div>` : ""}
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      const safeGrant = currentGrant.fullName.replace(/[^a-zA-Z0-9]/g, "_").substring(0, 50);
+      a.download = `${safeGrant}_submission_package_${new Date().toISOString().split("T")[0]}.docx`;
+      a.click();
+      URL.revokeObjectURL(url);
 
-<div class="footer">
-  ${currentGrant.fullName} — ThriveUp Academy — Generated ${dateStr}
-  ${currentGrant.referenceUrl ? `<br>Reference: ${currentGrant.referenceUrl}` : ""}
-</div>
-
-</body>
-</html>`;
-
-    const blob = new Blob([html], { type: "text/html" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${currentGrant.id}_submission_package_${new Date().toISOString().split("T")[0]}.html`;
-    a.click();
-    URL.revokeObjectURL(url);
+      toast({ title: "Export complete", description: "Word document downloaded successfully." });
+    } catch (error) {
+      console.error("Export failed:", error);
+      toast({ title: "Export failed", description: "Could not generate the Word document.", variant: "destructive" });
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   return (
@@ -1897,9 +1840,9 @@ ${missingSections.length > 0 ? `
           <p className="text-muted-foreground mt-1">End-to-end pipeline: Collaborate → Build → Review → Submit → Execute</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => handleDownloadPackage(true)} data-testid="button-export-all">
-            <Download className="h-4 w-4 mr-2" />
-            Export Full Package
+          <Button variant="outline" onClick={() => handleDownloadPackage(true)} disabled={isExporting} data-testid="button-export-all">
+            {isExporting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Download className="h-4 w-4 mr-2" />}
+            {isExporting ? "Exporting..." : "Export Full Package (.docx)"}
           </Button>
           <Link href="/grants">
             <Button variant="outline" data-testid="link-grant-hub">
@@ -2177,10 +2120,11 @@ ${missingSections.length > 0 ? `
                   variant="outline"
                   className="h-7 text-xs"
                   onClick={() => handleDownloadPackage(true)}
+                  disabled={isExporting}
                   data-testid="button-export-sections"
                 >
-                  <Download className="h-3 w-3 mr-1" />
-                  Export Package
+                  {isExporting ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <Download className="h-3 w-3 mr-1" />}
+                  {isExporting ? "Exporting..." : "Export Package (.docx)"}
                 </Button>
                 {packageProgress === 100 ? (
                   <Badge className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">All Approved</Badge>

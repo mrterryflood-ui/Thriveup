@@ -1665,4 +1665,208 @@ Do NOT repeat content already written. Do NOT add headers or section labels. Con
       res.status(500).json({ error: "Failed to refine draft" });
     }
   });
+
+  app.post("/api/grants/export-docx", requireAuth, async (req, res) => {
+    try {
+      const { grantName, funder, amount, deadline, referenceUrl, sections, readySections, draftedSections, totalSections, missingSectionNames } = req.body;
+      if (!grantName || !sections) {
+        return res.status(400).json({ error: "Missing required fields" });
+      }
+
+      const docx = await import("docx");
+      const { Document, Packer, Paragraph, TextRun, AlignmentType, HeadingLevel, BorderStyle, TabStopPosition, TabStopType, PageBreak } = docx;
+
+      const dateStr = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+
+      const coverChildren: any[] = [
+        new Paragraph({ spacing: { before: 2400 }, children: [] }),
+        new Paragraph({
+          alignment: AlignmentType.CENTER,
+          spacing: { after: 200 },
+          children: [new TextRun({ text: grantName, bold: true, size: 48, font: "Georgia", color: "1e293b" })],
+        }),
+        new Paragraph({
+          alignment: AlignmentType.CENTER,
+          spacing: { after: 100 },
+          children: [new TextRun({ text: "━━━━━━━━━━━━━━━━━━━━", color: "6366f1", size: 24 })],
+        }),
+        new Paragraph({
+          alignment: AlignmentType.CENTER,
+          spacing: { after: 400 },
+          children: [new TextRun({ text: "Grant Submission Package", size: 28, font: "Georgia", color: "475569" })],
+        }),
+        new Paragraph({
+          alignment: AlignmentType.CENTER,
+          spacing: { after: 80 },
+          children: [new TextRun({ text: `Submitted to: ${funder || "N/A"}`, size: 22, font: "Georgia", color: "64748b" })],
+        }),
+        new Paragraph({
+          alignment: AlignmentType.CENTER,
+          spacing: { after: 80 },
+          children: [new TextRun({ text: `Funding Request: ${amount || "N/A"}`, size: 22, font: "Georgia", color: "64748b" })],
+        }),
+        new Paragraph({
+          alignment: AlignmentType.CENTER,
+          spacing: { after: 80 },
+          children: [new TextRun({ text: `Deadline: ${deadline || "N/A"}`, size: 22, font: "Georgia", color: "64748b" })],
+        }),
+        new Paragraph({
+          alignment: AlignmentType.CENTER,
+          spacing: { after: 80 },
+          children: [new TextRun({ text: `Generated: ${dateStr}`, size: 22, font: "Georgia", color: "64748b" })],
+        }),
+        new Paragraph({ spacing: { before: 600 }, children: [] }),
+        new Paragraph({
+          alignment: AlignmentType.CENTER,
+          spacing: { after: 40 },
+          children: [new TextRun({ text: "ThriveUp Academy", bold: true, size: 26, font: "Georgia", color: "1e293b" })],
+        }),
+        new Paragraph({
+          alignment: AlignmentType.CENTER,
+          spacing: { after: 40 },
+          children: [new TextRun({ text: "A 501(c)(3) Workforce Development Organization", size: 22, font: "Georgia", color: "475569" })],
+        }),
+        new Paragraph({
+          alignment: AlignmentType.CENTER,
+          spacing: { after: 200 },
+          children: [new TextRun({ text: "Dr. Terry Flood, Founder & Executive Director", size: 22, font: "Georgia", color: "475569" })],
+        }),
+        new Paragraph({ spacing: { before: 400 }, children: [] }),
+        new Paragraph({
+          alignment: AlignmentType.CENTER,
+          spacing: { after: 80 },
+          children: [new TextRun({ text: "Package Readiness", bold: true, size: 22, font: "Georgia", color: "334155" })],
+        }),
+        new Paragraph({
+          alignment: AlignmentType.CENTER,
+          spacing: { after: 40 },
+          children: [new TextRun({ text: `${readySections || 0} Approved / ${draftedSections || 0} Drafted / ${totalSections || 0} Total Sections`, size: 20, font: "Georgia", color: "475569" })],
+        }),
+        new Paragraph({
+          alignment: AlignmentType.CENTER,
+          children: [new TextRun({
+            text: missingSectionNames && missingSectionNames.length > 0
+              ? `Missing: ${missingSectionNames.join(", ")}`
+              : "All sections complete",
+            size: 20, font: "Georgia",
+            color: missingSectionNames && missingSectionNames.length > 0 ? "dc2626" : "16a34a",
+            bold: true,
+          })],
+        }),
+      ];
+
+      const tocChildren: any[] = [
+        new Paragraph({
+          children: [new TextRun({ text: "", break: 1 }), new PageBreak()],
+        }),
+        new Paragraph({
+          heading: HeadingLevel.HEADING_1,
+          spacing: { after: 300 },
+          children: [new TextRun({ text: "Table of Contents", bold: true, size: 32, font: "Georgia", color: "1e293b" })],
+          border: { bottom: { style: BorderStyle.SINGLE, size: 3, color: "6366f1" } },
+        }),
+      ];
+
+      const allSectionsForToc: Array<{ name: string; status: string }> = req.body.allSectionsForToc || [];
+      allSectionsForToc.forEach((s: { name: string; status: string }, i: number) => {
+        tocChildren.push(new Paragraph({
+          spacing: { after: 80 },
+          children: [
+            new TextRun({ text: `${i + 1}. ${s.name}`, size: 22, font: "Georgia", color: "1e293b" }),
+            new TextRun({ text: `\t${s.status}`, size: 20, font: "Georgia", color: s.status === "Approved" ? "166534" : s.status === "Draft" ? "92400e" : "991b1b" }),
+          ],
+          tabStops: [{ type: TabStopType.RIGHT, position: TabStopPosition.MAX }],
+        }));
+      });
+
+      const sectionChildren: any[] = [];
+      (sections as Array<{ name: string; description: string; content: string; wordCount: string; pageLimit: string; status: string }>).forEach((section) => {
+        const words = section.content ? section.content.trim().split(/\s+/).filter(Boolean).length : 0;
+
+        sectionChildren.push(new Paragraph({ children: [new PageBreak()] }));
+        sectionChildren.push(new Paragraph({
+          heading: HeadingLevel.HEADING_1,
+          spacing: { after: 100 },
+          children: [new TextRun({ text: section.name, bold: true, size: 32, font: "Georgia", color: "1e293b" })],
+          border: { bottom: { style: BorderStyle.SINGLE, size: 3, color: "6366f1" } },
+        }));
+        sectionChildren.push(new Paragraph({
+          spacing: { after: 200 },
+          children: [
+            new TextRun({ text: `${section.description}  |  ${words.toLocaleString()} words`, size: 18, font: "Georgia", color: "94a3b8", italics: true }),
+            ...(section.pageLimit ? [new TextRun({ text: `  |  Limit: ${section.pageLimit}`, size: 18, font: "Georgia", color: "94a3b8", italics: true })] : []),
+            new TextRun({ text: `  |  Status: ${section.status === "approved" ? "APPROVED" : "DRAFT"}`, size: 18, font: "Georgia", color: "94a3b8", italics: true }),
+          ],
+        }));
+
+        const paragraphs = section.content ? section.content.split(/\n\n+/).filter(Boolean) : ["[No content drafted]"];
+        paragraphs.forEach((p: string) => {
+          sectionChildren.push(new Paragraph({
+            spacing: { after: 160 },
+            alignment: AlignmentType.JUSTIFIED,
+            indent: { firstLine: 360 },
+            children: [new TextRun({ text: p.replace(/\n/g, " ").trim(), size: 24, font: "Georgia", color: "1a1a1a" })],
+          }));
+        });
+      });
+
+      if (missingSectionNames && missingSectionNames.length > 0) {
+        sectionChildren.push(new Paragraph({ children: [new PageBreak()] }));
+        sectionChildren.push(new Paragraph({
+          heading: HeadingLevel.HEADING_1,
+          spacing: { after: 200 },
+          children: [new TextRun({ text: "Sections Pending Completion", bold: true, size: 32, font: "Georgia", color: "1e293b" })],
+          border: { bottom: { style: BorderStyle.SINGLE, size: 3, color: "6366f1" } },
+        }));
+        missingSectionNames.forEach((name: string) => {
+          sectionChildren.push(new Paragraph({
+            spacing: { after: 120 },
+            children: [new TextRun({ text: `• ${name} — Not yet drafted`, size: 22, font: "Georgia", color: "991b1b" })],
+          }));
+        });
+      }
+
+      sectionChildren.push(new Paragraph({ spacing: { before: 600 }, children: [] }));
+      sectionChildren.push(new Paragraph({
+        alignment: AlignmentType.CENTER,
+        border: { top: { style: BorderStyle.SINGLE, size: 1, color: "e2e8f0" } },
+        spacing: { before: 200 },
+        children: [
+          new TextRun({ text: `${grantName} — ThriveUp Academy — Generated ${dateStr}`, size: 18, font: "Georgia", color: "94a3b8" }),
+          ...(referenceUrl ? [new TextRun({ text: `\nReference: ${referenceUrl}`, size: 18, font: "Georgia", color: "94a3b8", break: 1 })] : []),
+        ],
+      }));
+
+      const doc = new Document({
+        styles: {
+          default: {
+            document: {
+              run: { font: "Georgia", size: 24 },
+            },
+          },
+        },
+        sections: [{
+          properties: {
+            page: {
+              margin: { top: 1440, right: 1440, bottom: 1440, left: 1440 },
+              size: { width: 12240, height: 15840 },
+            },
+          },
+          children: [...coverChildren, ...tocChildren, ...sectionChildren],
+        }],
+      });
+
+      const buffer = await Packer.toBuffer(doc);
+
+      const safeGrant = grantName.replace(/[^a-zA-Z0-9]/g, "_").substring(0, 50);
+      const filename = `${safeGrant}_submission_package_${new Date().toISOString().split("T")[0]}.docx`;
+
+      res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+      res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+      res.send(buffer);
+    } catch (error) {
+      console.error("Failed to export DOCX:", error);
+      res.status(500).json({ error: "Failed to generate Word document" });
+    }
+  });
 }
