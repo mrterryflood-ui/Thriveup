@@ -51,6 +51,16 @@ interface ImpactData {
   averageScore: number;
 }
 
+interface PersonalProgress {
+  currentLevel: number;
+  totalPoints: number;
+  lessonsCompleted: number;
+  quizzesCompleted: number;
+  averageScore: number;
+  streakDays: number;
+  longestStreak: number;
+}
+
 type StakeholderRole = "funder" | "partner" | "school" | "justice" | "parent" | "staff" | "participant";
 
 const STAKEHOLDER_ROLES: Array<{ id: StakeholderRole; label: string; icon: typeof Users; color: string }> = [
@@ -489,6 +499,7 @@ function SchoolView({ metrics, impact, outcomes, dosage }: {
         <MetricCard label="Classrooms Active" value={metrics?.coalition?.classroomsActive ?? 0} icon={School} color="text-emerald-600" />
         <MetricCard label="Quizzes Completed" value={metrics?.engagement?.quizzesCompleted ?? 0} icon={ClipboardCheck} color="text-blue-600" />
       </div>
+      <SalpFidelityPanel metrics={metrics} outcomes={outcomes} dosage={dosage} />
       <SmartGoalsTracker metrics={metrics} outcomes={outcomes} dosage={dosage} impact={impact} />
     </div>
   );
@@ -543,6 +554,7 @@ function JusticeView({ metrics, outcomes, dosage, impact }: {
           </div>
         </CardContent>
       </Card>
+      <SalpFidelityPanel metrics={metrics} outcomes={outcomes} dosage={dosage} />
       <SmartGoalsTracker metrics={metrics} outcomes={outcomes} dosage={dosage} impact={impact} />
     </div>
   );
@@ -604,6 +616,7 @@ function ParentView({ metrics, impact, outcomes, dosage }: {
           </div>
         </CardContent>
       </Card>
+      <SalpFidelityPanel metrics={metrics} outcomes={outcomes} dosage={dosage} />
       <SmartGoalsTracker metrics={metrics} outcomes={outcomes} dosage={dosage} impact={impact} />
     </div>
   );
@@ -632,44 +645,63 @@ function StaffView({ metrics, outcomes, dosage, impact }: {
   );
 }
 
-function ParticipantView({ metrics, impact, outcomes, dosage }: {
-  metrics: PlatformMetrics | null; impact: ImpactData | null; outcomes: OutcomeDashboard | null; dosage: DosageSummary | null;
+function ParticipantView({ metrics, impact, outcomes, dosage, progress }: {
+  metrics: PlatformMetrics | null; impact: ImpactData | null; outcomes: OutcomeDashboard | null; dosage: DosageSummary | null; progress: PersonalProgress | null;
 }) {
-  const lessons = impact?.lessonsCompleted ?? 0;
+  const personalLessons = progress?.lessonsCompleted ?? 0;
+  const personalQuizzes = progress?.quizzesCompleted ?? 0;
+  const personalScore = progress?.averageScore ?? 0;
+  const personalLevel = progress?.currentLevel ?? 1;
+  const personalStreak = progress?.streakDays ?? 0;
+  const personalPoints = progress?.totalPoints ?? 0;
+
   const badges = impact?.badgesEarned ?? 0;
   const certs = impact?.certificatesIssued ?? 0;
   const pathways = impact?.careerPathways ?? 0;
   const mentors = impact?.mentorConnections ?? 0;
   const placements = metrics?.workforce?.jobPlacements ?? 0;
 
+  const totalCurriculumLessons = Math.max(1, impact?.lessonsCompleted ?? 20);
+  const completionPct = Math.min(100, Math.round((personalLessons / totalCurriculumLessons) * 100));
+
   const milestones = [
     { name: "Complete Intake Assessment", done: (dosage?.totalSessions ?? 0) > 0 },
-    { name: "Finish Core Curriculum", done: lessons > 0 },
+    { name: "Finish Core Curriculum", done: personalLessons > 0 },
     { name: "Career Assessment", done: (metrics?.workforce?.careerAssessments ?? 0) > 0 },
     { name: "Mentor Match", done: mentors > 0 },
     { name: "Workforce Placement", done: placements > 0 },
     { name: "Credential Earned", done: certs > 0 },
   ];
 
+  const completedCount = milestones.filter((m) => m.done).length;
+  const nextStep = milestones.find((m) => !m.done);
+
   return (
     <div className="space-y-6" data-testid="view-participant">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <MetricCard label="Lessons Completed" value={lessons} icon={BookOpen} color="text-blue-500" subtext="Curriculum progress" />
-        <MetricCard label="Badges Earned" value={badges} icon={Award} color="text-amber-500" subtext="Achievements unlocked" />
-        <MetricCard label="Certificates" value={certs} icon={Award} color="text-emerald-500" subtext="Credentials earned" />
-        <MetricCard label="Career Pathways" value={pathways} icon={Briefcase} color="text-violet-500" subtext="Explored paths" />
+        <MetricCard label="My Level" value={personalLevel} icon={TrendingUp} color="text-blue-500" subtext={`${personalPoints} points earned`} />
+        <MetricCard label="Lessons Completed" value={personalLessons} icon={BookOpen} color="text-emerald-500" subtext={`${completionPct}% of curriculum`} />
+        <MetricCard label="Quiz Score" value={`${personalScore}%`} icon={ClipboardCheck} color="text-violet-500" subtext={`${personalQuizzes} quizzes taken`} />
+        <MetricCard label="Current Streak" value={`${personalStreak} days`} icon={Activity} color="text-amber-500" subtext={`Longest: ${progress?.longestStreak ?? 0} days`} />
       </div>
       <Card data-testid="card-participant-progress">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
             <TrendingUp className="h-5 w-5 text-primary" />
-            Program Progress
+            Personal Progress
           </CardTitle>
         </CardHeader>
         <CardContent>
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium">Program Completion</span>
+              <span className="text-sm font-bold text-primary">{completionPct}%</span>
+            </div>
+            <Progress value={completionPct} className="h-3" data-testid="progress-completion" />
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="p-4 rounded-lg border">
-              <h4 className="text-sm font-semibold mb-3">Milestones</h4>
+              <h4 className="text-sm font-semibold mb-3">Milestones ({completedCount}/{milestones.length})</h4>
               <div className="space-y-3">
                 {milestones.map((milestone) => (
                   <div key={milestone.name} className="flex items-center gap-2">
@@ -678,23 +710,32 @@ function ParticipantView({ metrics, impact, outcomes, dosage }: {
                     ) : (
                       <div className="h-4 w-4 rounded-full border-2 border-muted-foreground/30 shrink-0" />
                     )}
-                    <span className={`text-sm ${milestone.done ? "line-through text-muted-foreground" : ""}`}>{milestone.name}</span>
+                    <span className={`text-sm ${milestone.done ? "text-muted-foreground" : ""}`}>{milestone.name}</span>
                   </div>
                 ))}
               </div>
+              {nextStep && (
+                <div className="mt-4 p-3 rounded-md bg-primary/5 border border-primary/20" data-testid="card-next-step">
+                  <p className="text-xs font-semibold text-primary mb-1">Next Step</p>
+                  <p className="text-sm">{nextStep.name}</p>
+                </div>
+              )}
             </div>
             <div className="p-4 rounded-lg border">
-              <h4 className="text-sm font-semibold mb-3">Engagement Summary</h4>
+              <h4 className="text-sm font-semibold mb-3">Achievements & Engagement</h4>
               <div className="space-y-2 text-sm">
+                <div className="flex justify-between p-2 bg-muted rounded"><span className="text-muted-foreground">Badges Earned</span><span className="font-semibold">{badges}</span></div>
+                <div className="flex justify-between p-2 bg-muted rounded"><span className="text-muted-foreground">Certificates</span><span className="font-semibold">{certs}</span></div>
+                <div className="flex justify-between p-2 bg-muted rounded"><span className="text-muted-foreground">Career Pathways Explored</span><span className="font-semibold">{pathways}</span></div>
+                <div className="flex justify-between p-2 bg-muted rounded"><span className="text-muted-foreground">Mentor Connections</span><span className="font-semibold">{mentors}</span></div>
                 <div className="flex justify-between p-2 bg-muted rounded"><span className="text-muted-foreground">Total Sessions</span><span className="font-semibold">{dosage?.totalSessions ?? 0}</span></div>
                 <div className="flex justify-between p-2 bg-muted rounded"><span className="text-muted-foreground">Total Hours</span><span className="font-semibold">{dosage?.totalHours ?? 0}</span></div>
-                <div className="flex justify-between p-2 bg-muted rounded"><span className="text-muted-foreground">Pathway Plans Created</span><span className="font-semibold">{impact?.pathwayPlansCreated ?? 0}</span></div>
-                <div className="flex justify-between p-2 bg-muted rounded"><span className="text-muted-foreground">Avg Assessment Score</span><span className="font-semibold">{impact?.averageScore ?? 0}%</span></div>
               </div>
             </div>
           </div>
         </CardContent>
       </Card>
+      <SalpFidelityPanel metrics={metrics} outcomes={outcomes} dosage={dosage} />
       <SmartGoalsTracker metrics={metrics} outcomes={outcomes} dosage={dosage} impact={impact} />
     </div>
   );
@@ -714,6 +755,9 @@ export default function TransparencyDashboardPage() {
 
   const { data: rawImpact } = useQuery<ImpactData>({ queryKey: ["/api/public/impact"] });
   const impact = rawImpact ?? null;
+
+  const { data: rawProgress } = useQuery<PersonalProgress>({ queryKey: ["/api/progress"] });
+  const progress = rawProgress ?? null;
 
   if (metricsLoading) {
     return (
@@ -796,7 +840,7 @@ export default function TransparencyDashboardPage() {
                 <StaffView metrics={metrics} outcomes={outcomes} dosage={dosage} impact={impact} />
               </TabsContent>
               <TabsContent value="participant">
-                <ParticipantView metrics={metrics} impact={impact} outcomes={outcomes} dosage={dosage} />
+                <ParticipantView metrics={metrics} impact={impact} outcomes={outcomes} dosage={dosage} progress={progress} />
               </TabsContent>
             </div>
           </Tabs>
