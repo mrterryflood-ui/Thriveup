@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -1395,13 +1395,27 @@ function OpportunityScanner() {
   );
 }
 
-function SectionDrafter({ section, grant, autoTrigger, onAutoTriggered, onDraftUpdate }: { section: PackageSection; grant: GrantPackage; autoTrigger?: boolean; onAutoTriggered?: () => void; onDraftUpdate?: (sectionId: string, content: string) => void }) {
+function SectionDrafter({ section, grant, autoTrigger, onAutoTriggered, onDraftUpdate, savedDraft, onSaveDraft }: { section: PackageSection; grant: GrantPackage; autoTrigger?: boolean; onAutoTriggered?: () => void; onDraftUpdate?: (sectionId: string, content: string) => void; savedDraft?: string; onSaveDraft?: (sectionId: string, content: string) => void }) {
   const { toast } = useToast();
-  const [draftContent, setDraftContent] = useState(section.content || "");
+  const [draftContent, setDraftContent] = useState(savedDraft || section.content || "");
   const [userInstructions, setUserInstructions] = useState("");
   const [refineInstructions, setRefineInstructions] = useState("");
   const [showRefine, setShowRefine] = useState(false);
   const [hasAutoTriggered, setHasAutoTriggered] = useState(false);
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (savedDraft !== undefined && savedDraft !== draftContent && savedDraft !== "") {
+      setDraftContent(savedDraft);
+    }
+  }, [savedDraft]);
+
+  const debouncedSave = useCallback((content: string) => {
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    saveTimerRef.current = setTimeout(() => {
+      if (onSaveDraft) onSaveDraft(section.id, content);
+    }, 1500);
+  }, [section.id, onSaveDraft]);
 
   const draftMutation = useMutation({
     mutationFn: async () => {
@@ -1423,7 +1437,8 @@ function SectionDrafter({ section, grant, autoTrigger, onAutoTriggered, onDraftU
     onSuccess: (data: { draft: string }) => {
       setDraftContent(data.draft);
       if (onDraftUpdate) onDraftUpdate(section.id, data.draft);
-      toast({ title: "Draft generated", description: `"${section.name}" has been drafted by AI. Review and edit as needed.` });
+      if (onSaveDraft) onSaveDraft(section.id, data.draft);
+      toast({ title: "Draft generated & saved", description: `"${section.name}" has been drafted by AI. Review and edit as needed.` });
     },
     onError: () => {
       toast({ title: "Failed to generate draft", description: "Please try again", variant: "destructive" });
@@ -1446,9 +1461,10 @@ function SectionDrafter({ section, grant, autoTrigger, onAutoTriggered, onDraftU
     onSuccess: (data: { draft: string }) => {
       setDraftContent(data.draft);
       if (onDraftUpdate) onDraftUpdate(section.id, data.draft);
+      if (onSaveDraft) onSaveDraft(section.id, data.draft);
       setRefineInstructions("");
       setShowRefine(false);
-      toast({ title: "Draft refined", description: "Your instructions have been applied." });
+      toast({ title: "Draft refined & saved", description: "Your instructions have been applied." });
     },
     onError: () => {
       toast({ title: "Failed to refine", description: "Please try again", variant: "destructive" });
@@ -1475,12 +1491,20 @@ function SectionDrafter({ section, grant, autoTrigger, onAutoTriggered, onDraftU
           <p className="text-xs font-medium text-muted-foreground mb-1">Assignee</p>
           <p className="text-sm">{section.assignee}</p>
         </div>
-        {section.lastUpdated && (
-          <div className="text-right">
-            <p className="text-xs font-medium text-muted-foreground mb-1">Last Updated</p>
-            <p className="text-sm">{section.lastUpdated}</p>
-          </div>
-        )}
+        <div className="flex items-center gap-3">
+          {draftContent && (
+            <span className="text-[10px] text-emerald-600 dark:text-emerald-400 flex items-center gap-1" data-testid={`auto-save-indicator-${section.id}`}>
+              <CheckCircle2 className="h-3 w-3" />
+              Auto-saved
+            </span>
+          )}
+          {section.lastUpdated && (
+            <div className="text-right">
+              <p className="text-xs font-medium text-muted-foreground mb-1">Last Updated</p>
+              <p className="text-sm">{section.lastUpdated}</p>
+            </div>
+          )}
+        </div>
       </div>
 
       {draftMutation.isPending && (
@@ -1565,7 +1589,7 @@ function SectionDrafter({ section, grant, autoTrigger, onAutoTriggered, onDraftU
           <textarea
             className="w-full px-4 py-3 border rounded-lg text-sm bg-background min-h-[350px] resize-y leading-relaxed"
             value={draftContent}
-            onChange={(e) => { setDraftContent(e.target.value); if (onDraftUpdate) onDraftUpdate(section.id, e.target.value); }}
+            onChange={(e) => { setDraftContent(e.target.value); if (onDraftUpdate) onDraftUpdate(section.id, e.target.value); debouncedSave(e.target.value); }}
             data-testid={`textarea-draft-${section.id}`}
           />
 
@@ -1616,8 +1640,55 @@ export default function GrantPackagesPage() {
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
   const [expandedPhases, setExpandedPhases] = useState<Set<string>>(new Set(["collaborate", "build"]));
   const [sectionStatuses, setSectionStatuses] = useState<Record<string, ApprovalStatus>>({});
+  const [savedDrafts, setSavedDrafts] = useState<Record<string, string>>({});
   const [workflowMode, setWorkflowMode] = useState<"guided" | "auto">("guided");
   const [autoTriggerDraft, setAutoTriggerDraft] = useState(false);
+  const { toast } = useToast();
+
+  const { data: rawSavedDraftsData } = useQuery({
+    queryKey: ["/api/grants/section-drafts", selectedGrant],
+    enabled: !!selectedGrant,
+  });
+  const savedDraftsData = rawSavedDraftsData ?? null;
+
+  useEffect(() => {
+    if (savedDraftsData && Array.isArray(savedDraftsData)) {
+      const draftsMap: Record<string, string> = {};
+      const statusMap: Record<string, ApprovalStatus> = {};
+      for (const d of savedDraftsData as Array<{ sectionId: string; draftContent: string; approvalStatus: string }>) {
+        if (d.draftContent) draftsMap[d.sectionId] = d.draftContent;
+        if (d.approvalStatus && d.approvalStatus !== "not-started") statusMap[d.sectionId] = d.approvalStatus as ApprovalStatus;
+      }
+      setSavedDrafts(draftsMap);
+      setSectionStatuses((prev) => ({ ...prev, ...statusMap }));
+    }
+  }, [savedDraftsData]);
+
+  const saveDraftMutation = useMutation({
+    mutationFn: async (params: { grantId: string; sectionId: string; draftContent: string; approvalStatus?: string }) => {
+      await apiRequest("POST", "/api/grants/section-drafts/save", params);
+    },
+  });
+
+  const handleSaveDraft = useCallback((sectionId: string, content: string) => {
+    setSavedDrafts((prev) => ({ ...prev, [sectionId]: content }));
+    saveDraftMutation.mutate({
+      grantId: selectedGrant,
+      sectionId,
+      draftContent: content,
+      approvalStatus: sectionStatuses[sectionId] || "draft",
+    });
+  }, [selectedGrant, sectionStatuses, saveDraftMutation]);
+
+  const handleSaveStatus = useCallback((sectionId: string, status: ApprovalStatus) => {
+    setSectionStatuses((prev) => ({ ...prev, [sectionId]: status }));
+    saveDraftMutation.mutate({
+      grantId: selectedGrant,
+      sectionId,
+      draftContent: savedDrafts[sectionId] || "",
+      approvalStatus: status,
+    });
+  }, [selectedGrant, savedDrafts, saveDraftMutation]);
 
   const currentGrant = GRANT_PACKAGES.find((g) => g.id === selectedGrant);
   if (!currentGrant) return null;
@@ -1645,7 +1716,7 @@ export default function GrantPackagesPage() {
   };
 
   const updateSectionStatus = (sectionId: string, status: ApprovalStatus) => {
-    setSectionStatuses((prev) => ({ ...prev, [sectionId]: status }));
+    handleSaveStatus(sectionId, status);
   };
 
   const approvedCount = currentGrant.sections.filter((s) => getSectionStatus(s.id, s.status) === "approved").length;
@@ -1659,6 +1730,12 @@ export default function GrantPackagesPage() {
   const totalChecklist = currentGrant.preExecutionChecklist.length;
 
   const draftContentsRef = useRef<Record<string, string>>({});
+
+  useEffect(() => {
+    if (Object.keys(savedDrafts).length > 0) {
+      draftContentsRef.current = { ...draftContentsRef.current, ...savedDrafts };
+    }
+  }, [savedDrafts]);
 
   const updateDraftContent = (sectionId: string, content: string) => {
     draftContentsRef.current[sectionId] = content;
@@ -2193,6 +2270,8 @@ ${missingSections.length > 0 ? `
                             autoTrigger={autoTriggerDraft && workflowMode === "auto" && currentStatus !== "approved"}
                             onAutoTriggered={() => setAutoTriggerDraft(false)}
                             onDraftUpdate={updateDraftContent}
+                            savedDraft={savedDrafts[section.id]}
+                            onSaveDraft={handleSaveDraft}
                           />
 
                           <div className="pt-3 border-t">

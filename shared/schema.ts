@@ -3254,4 +3254,20 @@ export const insertGrantChecklistItemSchema = createInsertSchema(grantChecklistI
 export type InsertGrantChecklistItem = z.infer<typeof insertGrantChecklistItemSchema>;
 export type GrantChecklistItem = typeof grantChecklistItems.$inferSelect;
 
+export const grantSectionDrafts = pgTable("grant_section_drafts", {
+  id: varchar("id", { length: 200 }).primaryKey(),
+  userId: text("user_id").notNull(),
+  grantId: text("grant_id").notNull(),
+  sectionId: text("section_id").notNull(),
+  draftContent: text("draft_content").notNull().default(""),
+  approvalStatus: text("approval_status").notNull().default("not-started"),
+  reviewNotes: text("review_notes"),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertGrantSectionDraftSchema = createInsertSchema(grantSectionDrafts).omit({ createdAt: true, updatedAt: true });
+export type InsertGrantSectionDraft = z.infer<typeof insertGrantSectionDraftSchema>;
+export type GrantSectionDraft = typeof grantSectionDrafts.$inferSelect;
+
 export * from "./models/auth";

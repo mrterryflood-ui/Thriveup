@@ -1,6 +1,6 @@
 import type { Express, Request, Response } from "express";
 import { db, storage } from "./storage";
-import { grantOpportunities, grantAlerts, platformGaps, insertGrantOpportunitySchema, advisoryBoardMembers, advisoryBoardMeetings, staffingPlanEntries, insertAdvisoryBoardMemberSchema, insertAdvisoryBoardMeetingSchema, insertStaffingPlanEntrySchema, outcomeTracking, participantProfiles, serviceRecords, grantReminders, grantChecklistItems, insertGrantReminderSchema, insertGrantChecklistItemSchema } from "@shared/schema";
+import { grantOpportunities, grantAlerts, platformGaps, insertGrantOpportunitySchema, advisoryBoardMembers, advisoryBoardMeetings, staffingPlanEntries, insertAdvisoryBoardMemberSchema, insertAdvisoryBoardMeetingSchema, insertStaffingPlanEntrySchema, outcomeTracking, participantProfiles, serviceRecords, grantReminders, grantChecklistItems, insertGrantReminderSchema, insertGrantChecklistItemSchema, grantSectionDrafts } from "@shared/schema";
 import type { GrantOpportunity } from "@shared/schema";
 import { z } from "zod";
 import { eq, desc, sql, gte, lte, and, or, ilike } from "drizzle-orm";
@@ -1446,6 +1446,56 @@ Respond in this exact JSON format (no markdown, just JSON):
     } catch (error) {
       console.error("Failed to delete checklist item:", error);
       res.status(500).json({ error: "Failed to delete checklist item" });
+    }
+  });
+
+  app.get("/api/grants/section-drafts/:grantId", requireAuth, async (req, res) => {
+    try {
+      const userId = (req as any).user?.id;
+      const { grantId } = req.params;
+      const drafts = await db
+        .select()
+        .from(grantSectionDrafts)
+        .where(and(eq(grantSectionDrafts.userId, userId), eq(grantSectionDrafts.grantId, grantId)));
+      res.json(drafts);
+    } catch (error) {
+      console.error("Failed to fetch section drafts:", error);
+      res.status(500).json({ error: "Failed to fetch section drafts" });
+    }
+  });
+
+  app.post("/api/grants/section-drafts/save", requireAuth, async (req, res) => {
+    try {
+      const userId = (req as any).user?.id;
+      const { grantId, sectionId, draftContent, approvalStatus, reviewNotes } = req.body;
+      if (!grantId || !sectionId) {
+        return res.status(400).json({ error: "Missing grantId or sectionId" });
+      }
+      const id = `${userId}_${grantId}_${sectionId}`;
+      await db
+        .insert(grantSectionDrafts)
+        .values({
+          id,
+          userId,
+          grantId,
+          sectionId,
+          draftContent: draftContent || "",
+          approvalStatus: approvalStatus || "not-started",
+          reviewNotes: reviewNotes || null,
+        })
+        .onConflictDoUpdate({
+          target: grantSectionDrafts.id,
+          set: {
+            draftContent: draftContent || "",
+            approvalStatus: approvalStatus || "not-started",
+            reviewNotes: reviewNotes || null,
+            updatedAt: new Date(),
+          },
+        });
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Failed to save section draft:", error);
+      res.status(500).json({ error: "Failed to save section draft" });
     }
   });
 
