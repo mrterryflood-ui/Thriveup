@@ -1525,7 +1525,8 @@ CRITICAL INSTRUCTIONS:
 6. Align precisely with the grant's specific requirements and evaluation criteria
 7. Incorporate the organization's unique differentiators (Three Realities, MAP-GAP, 14-platform ecosystem)
 8. Be specific rather than generic — use real program details, platform names, and methodology descriptions
-9. Do NOT stop early. If the word count target is 6,000 words, write 6,000 words of substantive content.`;
+9. Do NOT stop early. If the word count target is 6,000 words, write 6,000 words of substantive content.
+10. ALWAYS complete every sentence. Never stop mid-sentence or mid-paragraph. End with a proper concluding sentence.`;
 
       const userPrompt = `Draft the "${sectionName}" section for the following grant application:
 
@@ -1548,23 +1549,63 @@ STRUCTURE YOUR RESPONSE with these detailed subsections (write substantial conte
 7. Organizational Capacity and Staffing (team qualifications, infrastructure, partnerships)
 8. Sustainability and Continuous Improvement (MAP-GAP integration, long-term plan)
 
-Write EVERY subsection with substantial depth. Do not summarize or abbreviate. Include specific data points, platform names, methodology descriptions, and measurable targets throughout. This is a competitive federal/foundation grant — reviewers will reject thin content. Do not include section headers — integrate all content as flowing narrative paragraphs.${wordCount ? ` REMINDER: You MUST write at minimum ${wordCount}.` : ""}
+Write EVERY subsection with substantial depth. Do not summarize or abbreviate. Include specific data points, platform names, methodology descriptions, and measurable targets throughout. This is a competitive federal/foundation grant — reviewers will reject thin content. Do not include section headers — integrate all content as flowing narrative paragraphs.${wordCount ? ` REMINDER: You MUST write at minimum ${wordCount}.` : ""}`;
 
-CRITICAL: You MUST complete every sentence you start. NEVER stop mid-sentence or mid-paragraph. If you are approaching your output limit, write a proper concluding sentence rather than cutting off. An incomplete sentence is unacceptable in a grant submission.`;
-
-      let maxTokens = 4000;
+      let targetWords = 0;
       if (wordCount) {
         const match = wordCount.match(/(\d[\d,]*)/);
         if (match) {
-          const targetWords = parseInt(match[1].replace(/,/g, ""), 10);
-          maxTokens = Math.max(4000, Math.ceil(targetWords * 2.0));
+          targetWords = parseInt(match[1].replace(/,/g, ""), 10);
         }
       }
+      let maxTokens = Math.max(4000, Math.ceil(targetWords * 2.0));
 
-      const draft = await generateAIResponse([
+      let draft = await generateAIResponse([
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt },
       ], maxTokens);
+
+      if (targetWords > 0) {
+        let currentWords = draft.trim().split(/\s+/).length;
+        let continuationAttempts = 0;
+        const maxContinuations = 3;
+
+        while (currentWords < targetWords * 0.9 && continuationAttempts < maxContinuations) {
+          continuationAttempts++;
+          const remaining = targetWords - currentWords;
+          console.log(`[grant-draft] Section "${sectionName}": ${currentWords} words written, target ${targetWords}, continuing (attempt ${continuationAttempts})...`);
+
+          const continuationPrompt = `You are continuing a grant section draft. The current draft is ${currentWords} words but the REQUIRED minimum is ${targetWords} words. You need to write approximately ${remaining} more words of substantive content.
+
+Here is what you have written so far (DO NOT repeat this — continue seamlessly from where it ends):
+
+---
+${draft.slice(-2000)}
+---
+
+Continue writing the "${sectionName}" section for the ${grantName} grant. Pick up EXACTLY where the text above left off. Write ${remaining} more words of new, substantive content. Add deeper detail on:
+- Additional evidence and data points supporting the program model
+- More specific implementation details, workflows, and platform integration
+- Expanded descriptions of partnerships, staffing roles, and organizational capacity
+- Deeper exploration of sustainability, continuous improvement via MAP-GAP, and long-term impact
+- Additional measurable outcomes, SMART goals, and evaluation methods
+- More detail on the Three Realities framework application and SALP fidelity monitoring
+
+Do NOT repeat content already written. Do NOT add headers or section labels. Continue as flowing narrative paragraphs. Complete every sentence — never stop mid-sentence.`;
+
+          const continuation = await generateAIResponse([
+            { role: "system", content: systemPrompt },
+            { role: "user", content: continuationPrompt },
+          ], Math.max(4000, Math.ceil(remaining * 2.0)));
+
+          draft = draft.trimEnd() + " " + continuation.trimStart();
+          currentWords = draft.trim().split(/\s+/).length;
+        }
+
+        if (continuationAttempts > 0) {
+          console.log(`[grant-draft] Section "${sectionName}": final word count ${currentWords} after ${continuationAttempts} continuation(s)`);
+        }
+      }
 
       res.json({ draft, sectionId, sectionName });
     } catch (error) {
@@ -1580,21 +1621,43 @@ CRITICAL: You MUST complete every sentence you start. NEVER stop mid-sentence or
         return res.status(400).json({ error: "Missing required fields" });
       }
 
-      const systemContent = `You are an expert grant writer for ThriveUp Academy. Refine the given draft based on the user's instructions. Maintain professional grant language. Return only the refined text.${grantKnowledge ? `\n\nGrant Knowledge:\n${grantKnowledge}` : ""}${wordCount ? `\n\nTarget word count: ${wordCount}. Maintain this length during refinement.` : ""}${pageLimit ? `\n\nTarget page limit: ${pageLimit}.` : ""}`;
+      const systemContent = `You are an expert grant writer for ThriveUp Academy. Refine the given draft based on the user's instructions. Maintain professional grant language. Return the COMPLETE refined text — every paragraph from beginning to end. Do NOT truncate, summarize, or shorten the draft. The refined output must be at least as long as the original draft. Always complete every sentence.${grantKnowledge ? `\n\nGrant Knowledge:\n${grantKnowledge}` : ""}${wordCount ? `\n\nTarget word count: ${wordCount}. The refined version MUST meet or exceed this word count.` : ""}${pageLimit ? `\n\nTarget page limit: ${pageLimit}.` : ""}`;
 
-      let refineMaxTokens = 4000;
+      const inputWords = currentDraft.trim().split(/\s+/).length;
+      let refineTargetWords = 0;
       if (wordCount) {
         const match = wordCount.match(/(\d[\d,]*)/);
         if (match) {
-          const targetWords = parseInt(match[1].replace(/,/g, ""), 10);
-          refineMaxTokens = Math.max(4000, Math.ceil(targetWords * 1.5));
+          refineTargetWords = parseInt(match[1].replace(/,/g, ""), 10);
         }
       }
+      const refineMinWords = Math.max(inputWords, refineTargetWords);
+      let refineMaxTokens = Math.max(4000, Math.ceil(refineMinWords * 2.0));
 
-      const refined = await generateAIResponse([
+      let refined = await generateAIResponse([
         { role: "system", content: systemContent },
-        { role: "user", content: `Grant: ${grantName}\nSection: ${sectionName}\n\nCurrent draft:\n${currentDraft}\n\nRefinement instructions:\n${refinementInstructions}\n\nReturn the refined version:` },
+        { role: "user", content: `Grant: ${grantName}\nSection: ${sectionName}\n\nCurrent draft (${inputWords} words — your refined version must be AT LEAST this long):\n${currentDraft}\n\nRefinement instructions:\n${refinementInstructions}\n\nReturn the COMPLETE refined version from beginning to end. Do not skip or summarize any part of the original:` },
       ], refineMaxTokens);
+
+      if (refineMinWords > 0) {
+        let currentWords = refined.trim().split(/\s+/).length;
+        let continuationAttempts = 0;
+        const maxContinuations = 3;
+
+        while (currentWords < refineMinWords * 0.9 && continuationAttempts < maxContinuations) {
+          continuationAttempts++;
+          const remaining = refineMinWords - currentWords;
+          console.log(`[grant-refine] Section "${sectionName}": ${currentWords} words refined, target ${refineMinWords}, continuing (attempt ${continuationAttempts})...`);
+
+          const continuation = await generateAIResponse([
+            { role: "system", content: systemContent },
+            { role: "user", content: `You are continuing a refined grant section. Current output is ${currentWords} words but must be at least ${refineMinWords} words. Write ${remaining} more words continuing seamlessly from where this ends:\n\n---\n${refined.slice(-2000)}\n---\n\nContinue as flowing narrative paragraphs. Do NOT repeat content. Complete every sentence.` },
+          ], Math.max(4000, Math.ceil(remaining * 2.0)));
+
+          refined = refined.trimEnd() + " " + continuation.trimStart();
+          currentWords = refined.trim().split(/\s+/).length;
+        }
+      }
 
       res.json({ draft: refined });
     } catch (error) {
