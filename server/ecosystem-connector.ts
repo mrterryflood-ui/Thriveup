@@ -334,6 +334,22 @@ const ECOSYSTEM_PLATFORMS = [
     },
     grantAlignment: ["dfc", "wioa", "ssg-fox", "st-davids"],
   },
+  {
+    id: "ecosystem-nexus",
+    name: "Ecosystem Nexus",
+    url: "https://ecosystem-nexus.replit.app",
+    role: "ecosystem-coordination",
+    domain: "operations",
+    description: "Central coordination and operational hub for the ThriveUp Academy ecosystem. Provides cross-platform visibility, coordination tools, and operational intelligence for the 20-platform network.",
+    capabilities: {
+      features: ["Ecosystem Coordination", "Cross-Platform Visibility", "Operational Intelligence", "Platform Monitoring", "Directive Management"],
+    },
+    dataFlowConfig: {
+      sends: ["coordination_updates", "operational_directives", "ecosystem_status", "platform_analytics"],
+      receives: ["heartbeats", "platform_metrics", "status_reports", "incident_alerts", "grant_updates"],
+    },
+    grantAlignment: ["dfc", "wioa", "ssg-fox", "st-davids"],
+  },
 ];
 
 function generateApiKey(): string {

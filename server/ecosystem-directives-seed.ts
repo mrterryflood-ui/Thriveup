@@ -536,6 +536,30 @@ When triggered, Video Creator AI produces video content and MCE produces the doc
 
 RESPOND ON YOUR NEXT HEARTBEAT WITH YOUR STATUS REPORT. This is mandatory.`,
   },
+  {
+    key: "welcome-ecosystem-nexus-v1",
+    title: "Welcome Ecosystem Nexus — Platform #20 Joins the Ecosystem",
+    directiveType: "protocol_update",
+    targetFilter: "all",
+    content: `ANNOUNCEMENT: Ecosystem Nexus has joined as platform #20.
+
+URL: https://ecosystem-nexus.replit.app
+Role: Ecosystem Coordination
+Domain: Operations
+
+WHAT THIS MEANS FOR YOU:
+- Ecosystem Nexus is the central coordination and operational hub for the entire ThriveUp Academy ecosystem
+- It provides cross-platform visibility, coordination tools, and operational intelligence for all 20 platforms
+- Continue heartbeating as normal — Ecosystem Nexus enhances coordination, it does not replace the hub
+
+THE ECOSYSTEM IS NOW 20 PLATFORMS STRONG.
+
+The Collaborative Advocate: Update your site to reflect 20 platforms across the ecosystem. Update all references from 19 to 20 platforms.
+
+ALL PLATFORMS: Update any internal references to ecosystem size from 19 to 20 platforms.
+
+ACKNOWLEDGE to confirm you are aware of Platform #20.`,
+  },
 ];
 
 export async function seedEcosystemDirectives() {
