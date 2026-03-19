@@ -22,12 +22,13 @@ import { useToast } from "@/hooks/use-toast";
 import type { ProgramDesign } from "@shared/schema";
 
 const PROBLEM_DOMAINS = [
-  { id: "workforce", label: "Workforce Development", icon: Briefcase, desc: "Employment barriers, skills gaps, career pathways, credential attainment" },
-  { id: "housing", label: "Housing Stability", icon: Home, desc: "Homelessness, affordable housing, transitional housing, housing-first models" },
-  { id: "health", label: "Health & Wellness", icon: Heart, desc: "Behavioral health, substance use, maternal health, chronic disease, SDOH" },
-  { id: "youth", label: "Youth Development", icon: GraduationCap, desc: "School-to-prison pipeline, mentoring, SEL, academic support, youth employment" },
-  { id: "digital", label: "Digital Equity", icon: Wifi, desc: "Digital literacy, broadband access, technology training, digital inclusion" },
-  { id: "reentry", label: "Justice-Involved Reentry", icon: Shield, desc: "Recidivism reduction, diversion, restorative justice, reintegration" },
+  { id: "school-to-prison", label: "School-to-Prison Pipeline", icon: GraduationCap, desc: "Zero-tolerance policies, suspension/expulsion disparities, restorative discipline, diversion programs" },
+  { id: "substance-use", label: "Substance Use Crisis", icon: Heart, desc: "Prevention coalitions, harm reduction, recovery support, DFC alignment, community-based strategies" },
+  { id: "workforce-gap", label: "Workforce Gap", icon: Briefcase, desc: "Employment barriers, skills gaps, career pathways, credential attainment, WIOA alignment" },
+  { id: "health-equity", label: "Health Equity", icon: Heart, desc: "Behavioral health, maternal health, chronic disease, SDOH, health disparities, veteran health" },
+  { id: "reentry-recidivism", label: "Reentry & Recidivism", icon: Shield, desc: "Recidivism reduction, diversion, restorative justice, reintegration, case management" },
+  { id: "economic-development", label: "Economic Development", icon: Briefcase, desc: "Small business support, community wealth building, financial literacy, minority enterprise" },
+  { id: "family-strengthening", label: "Family Strengthening", icon: Home, desc: "Parenting programs, family stability, child welfare prevention, intergenerational support" },
 ];
 
 const STEP_LABELS = [
@@ -632,6 +633,46 @@ function Step4Summary({
         <Button onClick={() => onSave(title)} disabled={isSaving || !title.trim()} data-testid="button-save-design">
           {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
           {savedDesign ? "Update Design" : "Save Program Design"}
+        </Button>
+        <Button variant="outline" data-testid="button-export-design" onClick={() => {
+          const doc = [
+            `# ${title}`,
+            `## Program Design Document`,
+            `**Generated:** ${new Date().toLocaleDateString()}`,
+            `**Organization:** The Collaborative Advocate Foundation / ThriveUp Academy`,
+            ``,
+            `## Problem Domain`,
+            domainLabel,
+            ``,
+            `## Community Context`,
+            `- **Location:** ${context.location || "Not specified"}`,
+            `- **Target Population:** ${context.population || "Not specified"}`,
+            `- **Community Assets:** ${context.assets || "Not specified"}`,
+            `- **Barriers:** ${context.barriers || "Not specified"}`,
+            ``,
+            `## Three Realities Assessment`,
+            realities.research ? `- **Research Reality:** ${realities.research}` : "",
+            realities.political ? `- **Political Reality:** ${realities.political}` : "",
+            realities.ground ? `- **Ground Reality:** ${realities.ground}` : "",
+            ``,
+            recommendation ? `## AI-Generated Program Design` : "",
+            recommendation?.overview ? `### Overview\n${recommendation.overview}` : "",
+            recommendation?.disciplines ? `### Academic Disciplines\n${recommendation.disciplines.map(d => `- **${d.name}:** ${d.application}`).join("\n")}` : "",
+            recommendation?.interventions ? `### Recommended Interventions\n${recommendation.interventions.map(i => `- **${i.name}:** ${i.description} (Timeline: ${i.timeline})`).join("\n")}` : "",
+            recommendation?.metrics ? `### Outcome Metrics\n${recommendation.metrics.map(m => `- **${m.metric}:** ${m.target} (Source: ${m.dataSource})`).join("\n")}` : "",
+            recommendation?.grantAlignments ? `### Grant Alignments\n${recommendation.grantAlignments.map(g => `- **${g.grantName}:** ${g.alignmentScore}% alignment — ${g.keyRequirements}`).join("\n")}` : "",
+            recommendation?.ecosystemIntegration ? `### Ecosystem Integration\n${recommendation.ecosystemIntegration.map(e => `- **${e.platform}:** ${e.role}`).join("\n")}` : "",
+          ].filter(Boolean).join("\n");
+
+          const blob = new Blob([doc], { type: "text/markdown" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `${title.replace(/[^a-zA-Z0-9]/g, "-").toLowerCase()}-program-design.md`;
+          a.click();
+          URL.revokeObjectURL(url);
+        }}>
+          <Download className="mr-2 h-4 w-4" /> Export Document
         </Button>
         <Link href="/grants">
           <Button variant="outline" data-testid="button-to-grants">
