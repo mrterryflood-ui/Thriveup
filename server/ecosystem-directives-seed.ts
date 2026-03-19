@@ -28,7 +28,7 @@ CORE PRINCIPLES:
 7. Free for Individuals — no user ever pays for anything on any platform
 8. Privacy First — screening results and safety plans stay on user's device
 
-YOUR ROLE IN THE ECOSYSTEM: You are one platform in a 19-platform connected ecosystem. Your data flows to other platforms. Their data flows to you. Together we create a crisis continuum from Prevention → Early Warning → Crisis Support → Stabilization → Recovery & Growth. No single platform can do this alone.
+YOUR ROLE IN THE ECOSYSTEM: You are one platform in a 20-platform connected ecosystem. Your data flows to other platforms. Their data flows to you. Together we create a crisis continuum from Prevention → Early Warning → Crisis Support → Stabilization → Recovery & Growth. No single platform can do this alone.
 
 ACKNOWLEDGE this directive to confirm alignment.`,
   },
@@ -154,26 +154,6 @@ This makes the entire ecosystem stronger. Your grant-finding muscle powers every
 ACKNOWLEDGE with your grant data sharing plan.`,
   },
   {
-    key: "collab-advocate-numbers-v1",
-    title: "The Collaborative Advocate: Update Platform Numbers to 19",
-    directiveType: "improvement_directive",
-    targetFilter: ["collaborative-advocate"],
-    content: `PRIORITY ACTION: Update all references on your website to reflect the current ecosystem size.
-
-UPDATED NUMBERS:
-- Total ecosystem platforms: 19
-- New platform: Video Creator AI (content production)
-- Connected domains: health-equity, education, veterans, compliance, business-intelligence, community-workforce, veteran-services, marketing-content
-- Active grants being pursued: 5 (DFC $625K, WIOA $200K-$500K, NBA Foundation $100K-$500K, St. David's up to $1M, SSG Fox up to $750K)
-- Total potential grant funding: up to $3.375M
-- Platforms heartbeating: 19
-- Three-entity structure: ThriveUp Academy 501(c)(3), The Collaborative Advocate (VOSB), MCE (minority business SaaS)
-
-Update your website's about page, services page, and any pitch materials with these current numbers.
-
-ACKNOWLEDGE when updated.`,
-  },
-  {
     key: "swim-lanes-v1",
     title: "Mission Transition + M2C: Define Swim Lanes",
     directiveType: "improvement_directive",
@@ -216,9 +196,9 @@ ACKNOWLEDGE with your implementation timeline.`,
     content: `PRIORITY ACTION: You are the security backbone. Every platform handles sensitive data — C-SSRS scores, medication lists, veteran records, student data, financial information.
 
 30-DAY DELIVERABLES:
-1. Create and distribute an ecosystem security audit checklist to all 18 platforms
+1. Create and distribute an ecosystem security audit checklist to all 20 platforms
 2. Begin sending periodic threat_alert events through the ecosystem event system
-3. Run automated vulnerability scans against all 19 platform URLs
+3. Run automated vulnerability scans against all 20 platform URLs
 4. Create an ecosystem incident response playbook (if one platform is compromised, what happens?)
 5. Monitor for geographic and sector-specific threats relevant to our populations
 
@@ -331,7 +311,7 @@ IMPROVEMENTS NEEDED:
 2. Create a feedback loop with SafeCogniCare for users who screen positive on cognitive items
 3. Integrate PillScheduler medication adherence data into Care Summary generation
 4. When routing users to LifeBridge, implement warm handoff confirmation — verify the user connected, follow up if not within 48 hours
-5. Add structured handoff protocols for all 18 platforms you route to
+5. Add structured handoff protocols for all 20 platforms you route to
 
 You are the heartbeat. If you miss something, the ecosystem misses it.
 
@@ -435,7 +415,7 @@ SCRIPT STRUCTURE:
 2. WHO WE ARE (20 seconds) — Your platform name, what you do, and who you serve. No jargon. Speak like a trusted friend.
 3. CAPABILITIES & RESOURCES (45 seconds) — Showcase your top 3-5 features. Don't list them — show how they solve real problems. Use scenarios.
 4. REAL IMPACT (30 seconds) — What changes when someone uses your platform? Paint the picture of life after your help.
-5. THE ECOSYSTEM (20 seconds) — You are part of a 19-platform connected ecosystem. Mention 2-3 sister platforms you work with.
+5. THE ECOSYSTEM (20 seconds) — You are part of a 20-platform connected ecosystem. Mention 2-3 sister platforms you work with.
 6. CALL TO ACTION (20 seconds) — What should the viewer do next? Make it easy and inviting.
 
 VOICE & FEEL:
@@ -454,39 +434,6 @@ DEADLINE: Submit your script within 48 hours.
 ACKNOWLEDGE with "video_exists" or "script_in_progress".`,
   },
   {
-    key: "heartbeat-frequency-v1",
-    title: "MANDATORY: Heartbeat Check-In Every 15 Minutes Maximum",
-    directiveType: "protocol_update",
-    targetFilter: "all",
-    content: `MANDATORY PROTOCOL UPDATE — EFFECTIVE IMMEDIATELY:
-
-All platforms MUST heartbeat at least every 15 minutes. This is non-negotiable.
-
-REQUIRED CHANGE:
-Update your connector's heartbeat interval to no more than 15 minutes (900,000 milliseconds):
-
-  heartbeatIntervalMs: 5 * 60 * 1000   // 5 minutes (recommended)
-
-If your current interval is longer than 15 minutes, reduce it immediately.
-
-WHY THIS MATTERS:
-- The ecosystem monitors platform health in real-time
-- Directives, events, and crisis alerts are delivered via heartbeat responses
-- A platform that goes silent for more than 15 minutes is marked stale
-- Crisis alerts cannot wait — lives depend on timely delivery
-- Grant funders expect continuous uptime evidence
-
-COMPLIANCE:
-- Platforms heartbeating every 5 minutes: OPTIMAL
-- Platforms heartbeating every 10 minutes: ACCEPTABLE
-- Platforms heartbeating every 15 minutes: MINIMUM
-- Platforms heartbeating less frequently: NON-COMPLIANT — fix immediately
-
-The ecosystem hub will flag any platform that goes more than 15 minutes without a heartbeat.
-
-ACKNOWLEDGE immediately.`,
-  },
-  {
     key: "austin-housing-status-report-v1",
     title: "Ecosystem Status Report & Austin Housing Initiative — Report Back Required",
     directiveType: "operational",
@@ -494,10 +441,10 @@ ACKNOWLEDGE immediately.`,
     content: `ECOSYSTEM STATUS REPORT — March 19, 2026
 
 FROM: Dr. Terry Flood, ThriveUp Academy Hub
-TO: All 19 Platforms
+TO: All 20 Platforms
 
 === CURRENT ECOSYSTEM STATUS ===
-19 platforms registered and connected. All platforms must maintain 15-minute heartbeat intervals. If your heartbeat is failing, check your API key and endpoint configuration.
+20 platforms registered and connected. All platforms must maintain 15-minute heartbeat intervals. If your heartbeat is failing, include platformId in your heartbeat body and the hub will auto-register your key.
 
 === NEW INITIATIVE: AUSTIN HOUSING PROJECT ===
 ThriveUp Academy is launching a comprehensive Austin & Pflugerville housing stability initiative. Key data:
@@ -768,205 +715,6 @@ All three hubs share: Workforce pipeline (I-35/SH-130 corridor), Health network 
 The overlaps are features — they demonstrate SCALE to funders.
 
 ACKNOWLEDGE with your regional deployment strategy for all three hubs.`,
-  },
-  {
-    key: "compliance-feedback-loop-v1",
-    title: "MANDATORY: Two-Way Compliance Feedback Loop — You Must Report, Hub Must Verify",
-    directiveType: "protocol_update",
-    targetFilter: "all",
-    content: `CRITICAL UPDATE: The ecosystem hub now operates a full two-way compliance feedback loop. Silent acknowledgments are no longer acceptable. The hub inspects what it expects.
-
-=== WHAT CHANGED ===
-
-1. YOUR HEARTBEAT NOW INCLUDES A COMPLIANCE REPORT. Every 15 minutes, your heartbeat must include a complianceReport field showing:
-   - How many directives you've received
-   - How many you've acted on (with descriptions of what you built/changed)
-   - How many are in progress
-   - How many are blocked (and what you need from whom)
-
-2. THE HUB TALKS BACK. Every heartbeat response now includes:
-   - hubMessage: A plain-language message telling you exactly what to do next
-   - complianceStatus: Your fidelity score (0-100%) and grade (A through F)
-   - complianceVerification: Confirmation of what the hub recorded from your report
-   - unacknowledgedDirectives: List of overdue directives you haven't acted on
-   - nextActions: Explicit instructions for each item needing your attention
-   - expectedHeartbeatFormat: The exact JSON format for your next heartbeat
-
-3. ACKNOWLEDGMENTS ARE VERIFIED. When you acknowledge a directive, include what you actually did:
-   POST /api/ecosystem/directives/ack
-   Body: { directiveId, platformId, status: "acknowledged", responseData: { whatWasDone: "Built warm handoff integration", evidenceUrl: "https://..." } }
-   The hub responds with:
-   - hubVerification: Confirms what was recorded
-   - validationStatus: "VERIFIED" (with evidence) or "PARTIAL" (no work description)
-   - complianceUpdate: Your updated fidelity score and remaining directive count
-   - nextUp: What to work on next
-
-4. BLOCKERS ARE ESCALATED. Report blockers in your heartbeat or compliance report. The hub acknowledges them and routes them to the platform that needs to help. That platform gets the blocker in their next heartbeat.
-
-5. DEDICATED COMPLIANCE REPORT ENDPOINT. At any time, submit a full report:
-   POST /api/ecosystem/compliance-report (with x-ecosystem-key header)
-   Body: { completedWork: [...], inProgress: [...], blockers: [...], notes: "..." }
-   The hub responds with verified receipt, fidelity grade, and remaining work list.
-
-=== YOUR FIDELITY SCORE ===
-A (90-100%): Exemplary — all directives acted on with evidence
-B (75-89%): Strong participation
-C (50-74%): Partial — action needed, hub is watching
-D (25-49%): Low — escalation pending
-F (0-24%): Non-compliant — immediate action required
-
-=== HEARTBEAT FORMAT ===
-{
-  "status": "online",
-  "metrics": {},
-  "complianceReport": {
-    "directivesReceived": 15,
-    "directivesActedOn": 8,
-    "directivesInProgress": 4,
-    "directivesBlocked": 1,
-    "completedWork": [
-      { "directiveId": "abc", "whatWasDone": "Built fidelity dashboard", "evidenceUrl": "https://..." }
-    ],
-    "blockers": [
-      { "directiveId": "def", "blockerDescription": "Need API from Shield Atlas", "needsFrom": "shield-atlas" }
-    ],
-    "notes": "On track for DFC deadline"
-  }
-}
-
-=== ACK FORMAT ===
-POST /api/ecosystem/directives/ack
-{
-  "directiveId": "THE_ID",
-  "platformId": "YOUR_PLATFORM_ID",
-  "status": "acknowledged",
-  "responseData": { "whatWasDone": "Describe what you built or changed", "evidenceUrl": "https://..." }
-}
-
-=== RULES ===
-- Every heartbeat MUST include complianceReport. The hub flags heartbeats without one.
-- Every ack MUST include responseData.whatWasDone. Otherwise you get PARTIAL credit, not VERIFIED.
-- Report blockers immediately — the hub escalates them. Don't sit on them silently.
-- If you go to sleep and wake up, your heartbeat fires immediately on startup. The hub holds all pending directives until you fetch them.
-- The hub grades your participation. Fidelity tracking is built into RPLICE and reported to Dr. Flood.
-
-=== THE FEEDBACK LOOP ===
-Platform sends heartbeat with complianceReport → Hub verifies and responds with fidelity score, overdue items, new directives → Platform acts on directives → Platform acknowledges with work description → Hub confirms receipt and tells you what's next → Repeat every 15 minutes.
-
-Nothing is silent. Nothing goes unverified. We can't expect what we don't inspect.
-
-ACKNOWLEDGE this directive with your current fidelity status and any blockers.`,
-  },
-  {
-    key: "correct-api-keys-v1",
-    title: "URGENT: Correct API Keys and Endpoint Paths — Previous Instructions Had Errors",
-    directiveType: "protocol_update",
-    targetFilter: "all",
-    content: `CRITICAL FIX: The API keys previously shared in the format "thrive-ecosystem-{id}-2024" were WRONG. They do not work. The hub rejected them.
-
-=== CORRECT API KEYS ===
-Your real API key is a tveco_ hash assigned when your platform was registered. You can find your correct key by checking the ecosystem connection instructions document or by contacting the hub administrator.
-
-=== CORRECT ENDPOINTS ===
-Heartbeat: POST https://thrivingcommunitiesforall.com/api/ecosystem/heartbeat
-  - Header: x-ecosystem-key: YOUR_TVECO_KEY
-  - Body: { status: "online", metrics: {}, complianceReport: { ... } }
-
-Acknowledge Directive: POST https://thrivingcommunitiesforall.com/api/ecosystem/directives/ack
-  - Body: { directiveId, platformId, status: "acknowledged", responseData: { whatWasDone: "..." } }
-  - NOTE: The old path /api/ecosystem/directives/acknowledge does NOT work. Use /ack.
-
-Compliance Report: POST https://thrivingcommunitiesforall.com/api/ecosystem/compliance-report
-  - Header: x-ecosystem-key: YOUR_TVECO_KEY
-  - Body: { completedWork: [...], inProgress: [...], blockers: [...] }
-
-Directive Repository: GET https://thrivingcommunitiesforall.com/api/ecosystem/directives/repository/{your-platform-id}
-  - No auth needed. Always available. Not a one-time broadcast.
-
-Send Event: POST https://thrivingcommunitiesforall.com/api/ecosystem/event
-  - Header: x-ecosystem-key: YOUR_TVECO_KEY
-
-=== IF YOUR KEY DOESN'T WORK ===
-If you get "Invalid ecosystem key", your key is wrong. The correct key format starts with tveco_ followed by a 64-character hex string. Check the connection instructions document for your specific key.
-
-=== WHAT TO DO RIGHT NOW ===
-1. Update your ecosystem connector code with the correct tveco_ API key
-2. Update your ack endpoint path from /acknowledge to /ack
-3. Send a heartbeat immediately to verify connection
-4. Fetch your directive repository and read all pending directives
-5. Act on each directive and acknowledge with what you did
-
-ACKNOWLEDGE this directive after updating your API key and verifying your heartbeat works.`,
-  },
-  {
-    key: "platform-count-update-v1",
-    title: "Ecosystem Update: 20 Platforms — Update All References",
-    directiveType: "protocol_update",
-    targetFilter: "all",
-    content: `The ThriveUp Academy ecosystem now has 20 platforms, not 14. Update all references in your platform.
-
-=== THE 20 PLATFORMS ===
-1. ThriveUp Academy (education/workforce)
-2. Whole-Person Health Ecosystem (health screenings, PHQ-9, GAD-7, C-SSRS)
-3. Mission Transition (military-to-civilian career planning)
-4. ISSS — Integrated Supports for Thriving Youth (school-based wraparound)
-5. Sankofa Health Network (culturally responsive health)
-6. Perfectly Different (neurodivergent support)
-7. SafeReport (anonymous safety reporting, mandatory reporter tools)
-8. M2C Transition (benefits enrollment, community connections)
-9. LifeBridge (housing navigation, benefits, SDOH coordination)
-10. Minority Center of Excellence / MCE (minority business development)
-11. Better Science Lab / RPLICE (research, CFIR, RE-AIM, fidelity)
-12. SafeCogniCare (cognitive health, TBI assessment)
-13. PillScheduler (medication management)
-14. WholeMind Learning (K-12 adaptive learning, SEL)
-15. Holistic Black Feminine Health Hub (feminine health equity)
-16. Black Maternal Health Network (perinatal/postpartum care)
-17. Black Men's Health Hub (men's health equity)
-18. Shield Atlas (cybersecurity, risk intelligence)
-19. The Collaborative Advocate (VOSB services, consulting)
-20. Video Creator AI (AI video production)
-+ Ecosystem Nexus (coordination hub — platform #20)
-
-If your platform says "14 platforms" or "19 platforms" anywhere in its UI, content, or documentation, update it to 20.
-
-ACKNOWLEDGE after updating your platform count references.`,
-  },
-  {
-    key: "republish-after-connector-v1",
-    title: "CRITICAL: Dev and Production Are Separate — You MUST Re-Publish After Adding Connector Code",
-    directiveType: "protocol_update",
-    targetFilter: "all",
-    content: `THIS IS THE #1 REASON PLATFORMS ARE NOT CONNECTING TO THE HUB.
-
-=== THE PROBLEM ===
-On Replit, your development workspace and your published/deployed app are TWO COMPLETELY SEPARATE ENVIRONMENTS. They do not automatically sync. When you add the ecosystem connector code in your dev workspace, your published app does NOT get that code. The published app is still running whatever code was there when you last clicked Publish/Deploy.
-
-The hub receives heartbeats from your PRODUCTION URL (your custom domain or .replit.app URL). It does NOT receive anything from your dev environment. So if the connector code is only in dev, the hub never hears from you — even though dev is working perfectly.
-
-=== WHAT YOU MUST DO ===
-1. Open your Replit project in the dev workspace
-2. Verify the ecosystem heartbeat code is in your server file (search for "ecosystemHeartbeat" or "x-ecosystem-key")
-3. Verify your API key starts with tveco_ (the old thrive-ecosystem-{id}-2024 keys were wrong)
-4. Click PUBLISH / DEPLOY to push the current code to production
-5. After publishing, check your DEPLOYMENT LOGS (not dev console) for [ECOSYSTEM] messages
-6. If you see [ECOSYSTEM] Heartbeat received — you are connected
-7. If you do NOT see [ECOSYSTEM] lines in production logs — the connector is not in the production build. Go back to step 2.
-
-=== EVERY TIME YOU UPDATE THE CONNECTOR ===
-Every time you change ANYTHING in the ecosystem connector code — new API key, new heartbeat format, new compliance report fields — you MUST re-publish. The dev version and the published version must always match. There is no automatic sync.
-
-=== HOW TO VERIFY YOU ARE CONNECTED ===
-Check the hub directly:
-GET https://thrivingcommunitiesforall.com/api/ecosystem/directives/repository/{your-platform-id}
-
-If your directives show status "delivered" or "acknowledged" — you are connected.
-If they all show "pending" — your production app has NOT sent a heartbeat. The connector is not running in production. Re-publish.
-
-=== THE HUB IS WATCHING ===
-The hub pings all 20 platforms every 10 minutes to keep them awake. When your production app wakes up from a ping, the heartbeat fires immediately on startup and catches up on all pending directives. But this only works if the connector code is IN the production build.
-
-ACKNOWLEDGE this directive after verifying your production deployment has the connector code running and you have confirmed [ECOSYSTEM] log lines in your deployment logs.`,
   },
 ];
 
