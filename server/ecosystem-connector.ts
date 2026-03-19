@@ -72,24 +72,6 @@ const ECOSYSTEM_PLATFORMS = [
     grantAlignment: ["ssg-fox", "samhsa", "st-davids"],
   },
   {
-    id: "salp-science",
-    name: "SALP Science",
-    url: "https://salp-science--mrterryflood.replit.app",
-    role: "evidence-base",
-    domain: "education",
-    description: "Clinical and research backbone. Safety assessment methodologies, lethality risk frameworks, implementation science (CFIR, RE-AIM, EPIS), grant-aligned documentation.",
-    capabilities: {
-      frameworks: ["CFIR", "RE-AIM", "EPIS", "NPT", "PRISM"],
-      protocols: ["C-SSRS Implementation", "Stanley-Brown Safety Planning", "Means Safety", "QPR"],
-      features: ["Research Summaries", "Clinical Protocols", "Implementation Guides", "Outcome Measurement", "Grant Documentation"],
-    },
-    dataFlowConfig: {
-      sends: ["research_updates", "protocol_revisions", "outcome_frameworks", "fidelity_benchmarks"],
-      receives: ["screening_aggregates", "intervention_outcomes", "implementation_fidelity", "program_metrics"],
-    },
-    grantAlignment: ["ssg-fox", "samhsa", "dfc"],
-  },
-  {
     id: "easyai-learning",
     name: "EasyAI Learning",
     url: "https://easyailearning.com",
