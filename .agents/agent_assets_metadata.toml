@@ -42,3 +42,9 @@ id = "z-8ol6QjEqNeY4X4EX8ac"
 uri = "file://austin-pflugerville-opportunity-pipeline.md"
 type = "text"
 title = "Austin & Pflugerville Daily Opportunity Pipeline — 30+ Grants/Contracts"
+
+[[outputs]]
+id = "lnQZnaheObUl3feEbkond"
+uri = "file://austin-grant-presentation.md"
+type = "text"
+title = "ThriveUp Academy — Built for Austin — Grant Presentation Package"
