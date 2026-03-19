@@ -932,6 +932,42 @@ If your platform says "14 platforms" or "19 platforms" anywhere in its UI, conte
 
 ACKNOWLEDGE after updating your platform count references.`,
   },
+  {
+    key: "republish-after-connector-v1",
+    title: "CRITICAL: Dev and Production Are Separate — You MUST Re-Publish After Adding Connector Code",
+    directiveType: "protocol_update",
+    targetFilter: "all",
+    content: `THIS IS THE #1 REASON PLATFORMS ARE NOT CONNECTING TO THE HUB.
+
+=== THE PROBLEM ===
+On Replit, your development workspace and your published/deployed app are TWO COMPLETELY SEPARATE ENVIRONMENTS. They do not automatically sync. When you add the ecosystem connector code in your dev workspace, your published app does NOT get that code. The published app is still running whatever code was there when you last clicked Publish/Deploy.
+
+The hub receives heartbeats from your PRODUCTION URL (your custom domain or .replit.app URL). It does NOT receive anything from your dev environment. So if the connector code is only in dev, the hub never hears from you — even though dev is working perfectly.
+
+=== WHAT YOU MUST DO ===
+1. Open your Replit project in the dev workspace
+2. Verify the ecosystem heartbeat code is in your server file (search for "ecosystemHeartbeat" or "x-ecosystem-key")
+3. Verify your API key starts with tveco_ (the old thrive-ecosystem-{id}-2024 keys were wrong)
+4. Click PUBLISH / DEPLOY to push the current code to production
+5. After publishing, check your DEPLOYMENT LOGS (not dev console) for [ECOSYSTEM] messages
+6. If you see [ECOSYSTEM] Heartbeat received — you are connected
+7. If you do NOT see [ECOSYSTEM] lines in production logs — the connector is not in the production build. Go back to step 2.
+
+=== EVERY TIME YOU UPDATE THE CONNECTOR ===
+Every time you change ANYTHING in the ecosystem connector code — new API key, new heartbeat format, new compliance report fields — you MUST re-publish. The dev version and the published version must always match. There is no automatic sync.
+
+=== HOW TO VERIFY YOU ARE CONNECTED ===
+Check the hub directly:
+GET https://thrivingcommunitiesforall.com/api/ecosystem/directives/repository/{your-platform-id}
+
+If your directives show status "delivered" or "acknowledged" — you are connected.
+If they all show "pending" — your production app has NOT sent a heartbeat. The connector is not running in production. Re-publish.
+
+=== THE HUB IS WATCHING ===
+The hub pings all 20 platforms every 10 minutes to keep them awake. When your production app wakes up from a ping, the heartbeat fires immediately on startup and catches up on all pending directives. But this only works if the connector code is IN the production build.
+
+ACKNOWLEDGE this directive after verifying your production deployment has the connector code running and you have confirmed [ECOSYSTEM] log lines in your deployment logs.`,
+  },
 ];
 
 export async function seedEcosystemDirectives() {

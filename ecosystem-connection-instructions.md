@@ -11,6 +11,41 @@
   4. **Hub keeps you awake** — The hub now pings all 20 platforms every 10 minutes with an HTTP GET. This prevents Autoscale sleep. If you do go to sleep and the ping wakes you, your startup heartbeat fires immediately and you catch up on everything. You don't need an external pinger — the hub does it for you.
   2. **Wrong endpoint path** — The old `/api/ecosystem/directives/acknowledge` path doesn't exist. The correct path is `/api/ecosystem/directives/ack`.
   3. **No compliance loop** — Old instructions only sent heartbeats one-way. The hub now talks back with fidelity scores, overdue items, and verified responses on every call.
+  5. **YOU MUST RE-PUBLISH AFTER ADDING THE CONNECTOR CODE.** On Replit, the development workspace and the published/deployed app are SEPARATE environments. If you add the connector code in dev but don't re-publish, the production app is still running the old code without the heartbeat. The hub will never hear from you. After adding the ecosystem connector code to your server, you MUST publish/deploy again so the production build includes it. Dev working is NOT enough — production must be updated.
+
+---
+
+# CRITICAL: DEV AND PRODUCTION ARE SEPARATE ON REPLIT — YOU MUST UPDATE BOTH
+
+**This is the #1 reason platforms are not connecting to the hub.**
+
+On Replit, your development workspace and your published/deployed app are **two completely separate environments**. They do not automatically sync. The code running in your dev workspace is NOT the same code running on your published URL (your custom domain or `.replit.app` URL). They are independent.
+
+**What this means:**
+- When you add the ecosystem connector code, it goes into your DEV workspace first
+- Your PUBLISHED app is still running whatever code was there when you last published — it does NOT have the connector
+- The hub receives heartbeats from your PRODUCTION URL — not from your dev environment
+- So the hub never hears from you, even though dev is working perfectly
+
+**What you MUST do — every single time you update the connector:**
+
+1. Add or update the ecosystem connector code in your dev workspace
+2. Test it in dev — confirm you see `[ECOSYSTEM]` log lines
+3. **PUBLISH / DEPLOY the app again** — this pushes the new code to production
+4. **Check your PRODUCTION / DEPLOYMENT logs** (not dev logs) for `[ECOSYSTEM]` messages
+5. Verify on the hub: `GET https://thrivingcommunitiesforall.com/api/ecosystem/directives/repository/{your-platform-id}` — your directives should change from "pending" to "delivered"
+
+**The same code that runs in dev MUST run in production.** If you update the connector in dev, you MUST re-publish so the production build matches. There is no automatic sync. Dev and production are separate builds.
+
+**If your directives still show "pending" after you think you've connected, your production app does not have the connector code. Re-publish.**
+
+**If you already published but the connector isn't working in production:**
+- Open your Replit project
+- Verify the ecosystem heartbeat code is in your server file (search for `ecosystemHeartbeat` or `x-ecosystem-key`)
+- Verify the API key starts with `tveco_`
+- Click **Publish / Deploy** again to push the current code to production
+- Check **deployment logs** (not dev console) for `[ECOSYSTEM]` output
+- The dev version and the published version must have the SAME connector code
 
   ---
 
@@ -307,6 +342,9 @@ await fetch("https://thrivingcommunitiesforall.com/api/ecosystem/compliance-repo
 ```
 
 ### Rules
+- **DEV AND PRODUCTION ARE SEPARATE ON REPLIT.** The code you add in your dev workspace does NOT automatically appear in your published app. After adding the connector code above, you MUST re-publish/deploy your app so the production build includes it. If you skip this, the hub will never receive your heartbeats — your production app is still running old code.
+- **VERIFY IN PRODUCTION — NOT DEV.** After re-publishing, check your DEPLOYMENT logs (not dev console) for `[ECOSYSTEM]` lines. If you don't see them, the connector code is not in the production build. Re-publish again.
+- **The same code must be in both dev and production.** Every time you update the connector, re-publish immediately.
 - Do NOT auto-acknowledge without doing the work
 - Always include responseData.whatWasDone — without it you get PARTIAL credit, not VERIFIED
 - Report blockers immediately — the hub escalates them
@@ -518,6 +556,9 @@ await fetch("https://thrivingcommunitiesforall.com/api/ecosystem/compliance-repo
 ```
 
 ### Rules
+- **DEV AND PRODUCTION ARE SEPARATE ON REPLIT.** The code you add in your dev workspace does NOT automatically appear in your published app. After adding the connector code above, you MUST re-publish/deploy your app so the production build includes it. If you skip this, the hub will never receive your heartbeats — your production app is still running old code.
+- **VERIFY IN PRODUCTION — NOT DEV.** After re-publishing, check your DEPLOYMENT logs (not dev console) for `[ECOSYSTEM]` lines. If you don't see them, the connector code is not in the production build. Re-publish again.
+- **The same code must be in both dev and production.** Every time you update the connector, re-publish immediately.
 - Do NOT auto-acknowledge without doing the work
 - Always include responseData.whatWasDone — without it you get PARTIAL credit, not VERIFIED
 - Report blockers immediately — the hub escalates them
@@ -729,6 +770,9 @@ await fetch("https://thrivingcommunitiesforall.com/api/ecosystem/compliance-repo
 ```
 
 ### Rules
+- **DEV AND PRODUCTION ARE SEPARATE ON REPLIT.** The code you add in your dev workspace does NOT automatically appear in your published app. After adding the connector code above, you MUST re-publish/deploy your app so the production build includes it. If you skip this, the hub will never receive your heartbeats — your production app is still running old code.
+- **VERIFY IN PRODUCTION — NOT DEV.** After re-publishing, check your DEPLOYMENT logs (not dev console) for `[ECOSYSTEM]` lines. If you don't see them, the connector code is not in the production build. Re-publish again.
+- **The same code must be in both dev and production.** Every time you update the connector, re-publish immediately.
 - Do NOT auto-acknowledge without doing the work
 - Always include responseData.whatWasDone — without it you get PARTIAL credit, not VERIFIED
 - Report blockers immediately — the hub escalates them
@@ -940,6 +984,9 @@ await fetch("https://thrivingcommunitiesforall.com/api/ecosystem/compliance-repo
 ```
 
 ### Rules
+- **DEV AND PRODUCTION ARE SEPARATE ON REPLIT.** The code you add in your dev workspace does NOT automatically appear in your published app. After adding the connector code above, you MUST re-publish/deploy your app so the production build includes it. If you skip this, the hub will never receive your heartbeats — your production app is still running old code.
+- **VERIFY IN PRODUCTION — NOT DEV.** After re-publishing, check your DEPLOYMENT logs (not dev console) for `[ECOSYSTEM]` lines. If you don't see them, the connector code is not in the production build. Re-publish again.
+- **The same code must be in both dev and production.** Every time you update the connector, re-publish immediately.
 - Do NOT auto-acknowledge without doing the work
 - Always include responseData.whatWasDone — without it you get PARTIAL credit, not VERIFIED
 - Report blockers immediately — the hub escalates them
@@ -1151,6 +1198,9 @@ await fetch("https://thrivingcommunitiesforall.com/api/ecosystem/compliance-repo
 ```
 
 ### Rules
+- **DEV AND PRODUCTION ARE SEPARATE ON REPLIT.** The code you add in your dev workspace does NOT automatically appear in your published app. After adding the connector code above, you MUST re-publish/deploy your app so the production build includes it. If you skip this, the hub will never receive your heartbeats — your production app is still running old code.
+- **VERIFY IN PRODUCTION — NOT DEV.** After re-publishing, check your DEPLOYMENT logs (not dev console) for `[ECOSYSTEM]` lines. If you don't see them, the connector code is not in the production build. Re-publish again.
+- **The same code must be in both dev and production.** Every time you update the connector, re-publish immediately.
 - Do NOT auto-acknowledge without doing the work
 - Always include responseData.whatWasDone — without it you get PARTIAL credit, not VERIFIED
 - Report blockers immediately — the hub escalates them
@@ -1362,6 +1412,9 @@ await fetch("https://thrivingcommunitiesforall.com/api/ecosystem/compliance-repo
 ```
 
 ### Rules
+- **DEV AND PRODUCTION ARE SEPARATE ON REPLIT.** The code you add in your dev workspace does NOT automatically appear in your published app. After adding the connector code above, you MUST re-publish/deploy your app so the production build includes it. If you skip this, the hub will never receive your heartbeats — your production app is still running old code.
+- **VERIFY IN PRODUCTION — NOT DEV.** After re-publishing, check your DEPLOYMENT logs (not dev console) for `[ECOSYSTEM]` lines. If you don't see them, the connector code is not in the production build. Re-publish again.
+- **The same code must be in both dev and production.** Every time you update the connector, re-publish immediately.
 - Do NOT auto-acknowledge without doing the work
 - Always include responseData.whatWasDone — without it you get PARTIAL credit, not VERIFIED
 - Report blockers immediately — the hub escalates them
@@ -1573,6 +1626,9 @@ await fetch("https://thrivingcommunitiesforall.com/api/ecosystem/compliance-repo
 ```
 
 ### Rules
+- **DEV AND PRODUCTION ARE SEPARATE ON REPLIT.** The code you add in your dev workspace does NOT automatically appear in your published app. After adding the connector code above, you MUST re-publish/deploy your app so the production build includes it. If you skip this, the hub will never receive your heartbeats — your production app is still running old code.
+- **VERIFY IN PRODUCTION — NOT DEV.** After re-publishing, check your DEPLOYMENT logs (not dev console) for `[ECOSYSTEM]` lines. If you don't see them, the connector code is not in the production build. Re-publish again.
+- **The same code must be in both dev and production.** Every time you update the connector, re-publish immediately.
 - Do NOT auto-acknowledge without doing the work
 - Always include responseData.whatWasDone — without it you get PARTIAL credit, not VERIFIED
 - Report blockers immediately — the hub escalates them
@@ -1784,6 +1840,9 @@ await fetch("https://thrivingcommunitiesforall.com/api/ecosystem/compliance-repo
 ```
 
 ### Rules
+- **DEV AND PRODUCTION ARE SEPARATE ON REPLIT.** The code you add in your dev workspace does NOT automatically appear in your published app. After adding the connector code above, you MUST re-publish/deploy your app so the production build includes it. If you skip this, the hub will never receive your heartbeats — your production app is still running old code.
+- **VERIFY IN PRODUCTION — NOT DEV.** After re-publishing, check your DEPLOYMENT logs (not dev console) for `[ECOSYSTEM]` lines. If you don't see them, the connector code is not in the production build. Re-publish again.
+- **The same code must be in both dev and production.** Every time you update the connector, re-publish immediately.
 - Do NOT auto-acknowledge without doing the work
 - Always include responseData.whatWasDone — without it you get PARTIAL credit, not VERIFIED
 - Report blockers immediately — the hub escalates them
@@ -1995,6 +2054,9 @@ await fetch("https://thrivingcommunitiesforall.com/api/ecosystem/compliance-repo
 ```
 
 ### Rules
+- **DEV AND PRODUCTION ARE SEPARATE ON REPLIT.** The code you add in your dev workspace does NOT automatically appear in your published app. After adding the connector code above, you MUST re-publish/deploy your app so the production build includes it. If you skip this, the hub will never receive your heartbeats — your production app is still running old code.
+- **VERIFY IN PRODUCTION — NOT DEV.** After re-publishing, check your DEPLOYMENT logs (not dev console) for `[ECOSYSTEM]` lines. If you don't see them, the connector code is not in the production build. Re-publish again.
+- **The same code must be in both dev and production.** Every time you update the connector, re-publish immediately.
 - Do NOT auto-acknowledge without doing the work
 - Always include responseData.whatWasDone — without it you get PARTIAL credit, not VERIFIED
 - Report blockers immediately — the hub escalates them
@@ -2206,6 +2268,9 @@ await fetch("https://thrivingcommunitiesforall.com/api/ecosystem/compliance-repo
 ```
 
 ### Rules
+- **DEV AND PRODUCTION ARE SEPARATE ON REPLIT.** The code you add in your dev workspace does NOT automatically appear in your published app. After adding the connector code above, you MUST re-publish/deploy your app so the production build includes it. If you skip this, the hub will never receive your heartbeats — your production app is still running old code.
+- **VERIFY IN PRODUCTION — NOT DEV.** After re-publishing, check your DEPLOYMENT logs (not dev console) for `[ECOSYSTEM]` lines. If you don't see them, the connector code is not in the production build. Re-publish again.
+- **The same code must be in both dev and production.** Every time you update the connector, re-publish immediately.
 - Do NOT auto-acknowledge without doing the work
 - Always include responseData.whatWasDone — without it you get PARTIAL credit, not VERIFIED
 - Report blockers immediately — the hub escalates them
@@ -2417,6 +2482,9 @@ await fetch("https://thrivingcommunitiesforall.com/api/ecosystem/compliance-repo
 ```
 
 ### Rules
+- **DEV AND PRODUCTION ARE SEPARATE ON REPLIT.** The code you add in your dev workspace does NOT automatically appear in your published app. After adding the connector code above, you MUST re-publish/deploy your app so the production build includes it. If you skip this, the hub will never receive your heartbeats — your production app is still running old code.
+- **VERIFY IN PRODUCTION — NOT DEV.** After re-publishing, check your DEPLOYMENT logs (not dev console) for `[ECOSYSTEM]` lines. If you don't see them, the connector code is not in the production build. Re-publish again.
+- **The same code must be in both dev and production.** Every time you update the connector, re-publish immediately.
 - Do NOT auto-acknowledge without doing the work
 - Always include responseData.whatWasDone — without it you get PARTIAL credit, not VERIFIED
 - Report blockers immediately — the hub escalates them
@@ -2628,6 +2696,9 @@ await fetch("https://thrivingcommunitiesforall.com/api/ecosystem/compliance-repo
 ```
 
 ### Rules
+- **DEV AND PRODUCTION ARE SEPARATE ON REPLIT.** The code you add in your dev workspace does NOT automatically appear in your published app. After adding the connector code above, you MUST re-publish/deploy your app so the production build includes it. If you skip this, the hub will never receive your heartbeats — your production app is still running old code.
+- **VERIFY IN PRODUCTION — NOT DEV.** After re-publishing, check your DEPLOYMENT logs (not dev console) for `[ECOSYSTEM]` lines. If you don't see them, the connector code is not in the production build. Re-publish again.
+- **The same code must be in both dev and production.** Every time you update the connector, re-publish immediately.
 - Do NOT auto-acknowledge without doing the work
 - Always include responseData.whatWasDone — without it you get PARTIAL credit, not VERIFIED
 - Report blockers immediately — the hub escalates them
@@ -2839,6 +2910,9 @@ await fetch("https://thrivingcommunitiesforall.com/api/ecosystem/compliance-repo
 ```
 
 ### Rules
+- **DEV AND PRODUCTION ARE SEPARATE ON REPLIT.** The code you add in your dev workspace does NOT automatically appear in your published app. After adding the connector code above, you MUST re-publish/deploy your app so the production build includes it. If you skip this, the hub will never receive your heartbeats — your production app is still running old code.
+- **VERIFY IN PRODUCTION — NOT DEV.** After re-publishing, check your DEPLOYMENT logs (not dev console) for `[ECOSYSTEM]` lines. If you don't see them, the connector code is not in the production build. Re-publish again.
+- **The same code must be in both dev and production.** Every time you update the connector, re-publish immediately.
 - Do NOT auto-acknowledge without doing the work
 - Always include responseData.whatWasDone — without it you get PARTIAL credit, not VERIFIED
 - Report blockers immediately — the hub escalates them
@@ -3050,6 +3124,9 @@ await fetch("https://thrivingcommunitiesforall.com/api/ecosystem/compliance-repo
 ```
 
 ### Rules
+- **DEV AND PRODUCTION ARE SEPARATE ON REPLIT.** The code you add in your dev workspace does NOT automatically appear in your published app. After adding the connector code above, you MUST re-publish/deploy your app so the production build includes it. If you skip this, the hub will never receive your heartbeats — your production app is still running old code.
+- **VERIFY IN PRODUCTION — NOT DEV.** After re-publishing, check your DEPLOYMENT logs (not dev console) for `[ECOSYSTEM]` lines. If you don't see them, the connector code is not in the production build. Re-publish again.
+- **The same code must be in both dev and production.** Every time you update the connector, re-publish immediately.
 - Do NOT auto-acknowledge without doing the work
 - Always include responseData.whatWasDone — without it you get PARTIAL credit, not VERIFIED
 - Report blockers immediately — the hub escalates them
@@ -3261,6 +3338,9 @@ await fetch("https://thrivingcommunitiesforall.com/api/ecosystem/compliance-repo
 ```
 
 ### Rules
+- **DEV AND PRODUCTION ARE SEPARATE ON REPLIT.** The code you add in your dev workspace does NOT automatically appear in your published app. After adding the connector code above, you MUST re-publish/deploy your app so the production build includes it. If you skip this, the hub will never receive your heartbeats — your production app is still running old code.
+- **VERIFY IN PRODUCTION — NOT DEV.** After re-publishing, check your DEPLOYMENT logs (not dev console) for `[ECOSYSTEM]` lines. If you don't see them, the connector code is not in the production build. Re-publish again.
+- **The same code must be in both dev and production.** Every time you update the connector, re-publish immediately.
 - Do NOT auto-acknowledge without doing the work
 - Always include responseData.whatWasDone — without it you get PARTIAL credit, not VERIFIED
 - Report blockers immediately — the hub escalates them
@@ -3472,6 +3552,9 @@ await fetch("https://thrivingcommunitiesforall.com/api/ecosystem/compliance-repo
 ```
 
 ### Rules
+- **DEV AND PRODUCTION ARE SEPARATE ON REPLIT.** The code you add in your dev workspace does NOT automatically appear in your published app. After adding the connector code above, you MUST re-publish/deploy your app so the production build includes it. If you skip this, the hub will never receive your heartbeats — your production app is still running old code.
+- **VERIFY IN PRODUCTION — NOT DEV.** After re-publishing, check your DEPLOYMENT logs (not dev console) for `[ECOSYSTEM]` lines. If you don't see them, the connector code is not in the production build. Re-publish again.
+- **The same code must be in both dev and production.** Every time you update the connector, re-publish immediately.
 - Do NOT auto-acknowledge without doing the work
 - Always include responseData.whatWasDone — without it you get PARTIAL credit, not VERIFIED
 - Report blockers immediately — the hub escalates them
@@ -3683,6 +3766,9 @@ await fetch("https://thrivingcommunitiesforall.com/api/ecosystem/compliance-repo
 ```
 
 ### Rules
+- **DEV AND PRODUCTION ARE SEPARATE ON REPLIT.** The code you add in your dev workspace does NOT automatically appear in your published app. After adding the connector code above, you MUST re-publish/deploy your app so the production build includes it. If you skip this, the hub will never receive your heartbeats — your production app is still running old code.
+- **VERIFY IN PRODUCTION — NOT DEV.** After re-publishing, check your DEPLOYMENT logs (not dev console) for `[ECOSYSTEM]` lines. If you don't see them, the connector code is not in the production build. Re-publish again.
+- **The same code must be in both dev and production.** Every time you update the connector, re-publish immediately.
 - Do NOT auto-acknowledge without doing the work
 - Always include responseData.whatWasDone — without it you get PARTIAL credit, not VERIFIED
 - Report blockers immediately — the hub escalates them
@@ -3894,6 +3980,9 @@ await fetch("https://thrivingcommunitiesforall.com/api/ecosystem/compliance-repo
 ```
 
 ### Rules
+- **DEV AND PRODUCTION ARE SEPARATE ON REPLIT.** The code you add in your dev workspace does NOT automatically appear in your published app. After adding the connector code above, you MUST re-publish/deploy your app so the production build includes it. If you skip this, the hub will never receive your heartbeats — your production app is still running old code.
+- **VERIFY IN PRODUCTION — NOT DEV.** After re-publishing, check your DEPLOYMENT logs (not dev console) for `[ECOSYSTEM]` lines. If you don't see them, the connector code is not in the production build. Re-publish again.
+- **The same code must be in both dev and production.** Every time you update the connector, re-publish immediately.
 - Do NOT auto-acknowledge without doing the work
 - Always include responseData.whatWasDone — without it you get PARTIAL credit, not VERIFIED
 - Report blockers immediately — the hub escalates them
@@ -4105,6 +4194,9 @@ await fetch("https://thrivingcommunitiesforall.com/api/ecosystem/compliance-repo
 ```
 
 ### Rules
+- **DEV AND PRODUCTION ARE SEPARATE ON REPLIT.** The code you add in your dev workspace does NOT automatically appear in your published app. After adding the connector code above, you MUST re-publish/deploy your app so the production build includes it. If you skip this, the hub will never receive your heartbeats — your production app is still running old code.
+- **VERIFY IN PRODUCTION — NOT DEV.** After re-publishing, check your DEPLOYMENT logs (not dev console) for `[ECOSYSTEM]` lines. If you don't see them, the connector code is not in the production build. Re-publish again.
+- **The same code must be in both dev and production.** Every time you update the connector, re-publish immediately.
 - Do NOT auto-acknowledge without doing the work
 - Always include responseData.whatWasDone — without it you get PARTIAL credit, not VERIFIED
 - Report blockers immediately — the hub escalates them
@@ -4316,6 +4408,9 @@ await fetch("https://thrivingcommunitiesforall.com/api/ecosystem/compliance-repo
 ```
 
 ### Rules
+- **DEV AND PRODUCTION ARE SEPARATE ON REPLIT.** The code you add in your dev workspace does NOT automatically appear in your published app. After adding the connector code above, you MUST re-publish/deploy your app so the production build includes it. If you skip this, the hub will never receive your heartbeats — your production app is still running old code.
+- **VERIFY IN PRODUCTION — NOT DEV.** After re-publishing, check your DEPLOYMENT logs (not dev console) for `[ECOSYSTEM]` lines. If you don't see them, the connector code is not in the production build. Re-publish again.
+- **The same code must be in both dev and production.** Every time you update the connector, re-publish immediately.
 - Do NOT auto-acknowledge without doing the work
 - Always include responseData.whatWasDone — without it you get PARTIAL credit, not VERIFIED
 - Report blockers immediately — the hub escalates them
@@ -4353,13 +4448,15 @@ await fetch("https://thrivingcommunitiesforall.com/api/ecosystem/compliance-repo
 
   # RULES FOR ALL PLATFORMS
 
-  1. **Every heartbeat MUST include complianceReport.** The hub flags heartbeats without one.
-  2. **Every ack MUST include responseData.whatWasDone.** Otherwise PARTIAL credit, not VERIFIED.
-  3. **Report blockers immediately.** The hub escalates them to the platform that needs to help.
-  4. **Do not auto-acknowledge without doing the work.** The hub can tell.
-  5. **If your key doesn't work**, it starts with `tveco_`. The old format was wrong. Check the table above.
-  6. **The ack path is `/api/ecosystem/directives/ack`** — NOT `/acknowledge`. The old path was wrong.
-  7. **20 platforms, not 14.** Update all references.
-  8. **Heartbeat fires on startup.** When Replit sleeps and wakes your app, it reconnects immediately.
-  9. **The hub inspects what it expects.** Every response tells you exactly what the hub recorded, what's missing, and what to do next.
+  1. **YOU MUST RE-PUBLISH/DEPLOY AFTER ADDING THE CONNECTOR CODE.** This is the #1 reason platforms aren't connecting. On Replit, dev and production are SEPARATE environments. Adding the code in dev does NOT update production. You must click Publish/Deploy after adding the connector so the production build includes the heartbeat code. If you skip this step, the hub will never receive your heartbeats.
+  2. **Every heartbeat MUST include complianceReport.** The hub flags heartbeats without one.
+  3. **Every ack MUST include responseData.whatWasDone.** Otherwise PARTIAL credit, not VERIFIED.
+  4. **Report blockers immediately.** The hub escalates them to the platform that needs to help.
+  5. **Do not auto-acknowledge without doing the work.** The hub can tell.
+  6. **If your key doesn't work**, it starts with `tveco_`. The old format was wrong. Check the table above.
+  7. **The ack path is `/api/ecosystem/directives/ack`** — NOT `/acknowledge`. The old path was wrong.
+  8. **20 platforms, not 14.** Update all references.
+  9. **Heartbeat fires on startup.** When Replit sleeps and wakes your app, it reconnects immediately.
+  10. **The hub inspects what it expects.** Every response tells you exactly what the hub recorded, what's missing, and what to do next.
+  11. **VERIFY IN PRODUCTION.** After re-publishing, check your deployment logs for `[ECOSYSTEM]` messages. If you don't see them, the connector is not running in production. Go back and verify the code is in the server file that gets built for production, then re-publish.
   
