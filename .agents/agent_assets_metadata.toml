@@ -24,3 +24,9 @@ id = "iwDZ3nELzKNvYC--4ajmN"
 uri = "file://ecosystem-evaluation-report.md"
 type = "text"
 title = "ThriveUp Ecosystem Cross-Platform Evaluation Report"
+
+[[outputs]]
+id = "pOEd5SDELaBoH00vYNHw5"
+uri = "file://ecosystem-thematic-gap-assessment.md"
+type = "text"
+title = "ThriveUp Ecosystem — Thematic & Gap Assessment"
