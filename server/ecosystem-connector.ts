@@ -738,6 +738,102 @@ export function registerEcosystemConnectorRoutes(app: Express) {
     }
   });
 
+  app.get("/api/ecosystem/live-status", async (_req, res) => {
+    try {
+      const platforms = await db.select().from(ecosystemPlatforms);
+      const results = [];
+
+      for (const platform of platforms) {
+        const startTime = Date.now();
+        let status = "offline";
+        let statusCode = 0;
+        let errorMessage: string | null = null;
+        let responseTimeMs = 0;
+
+        try {
+          const controller = new AbortController();
+          const timeout = setTimeout(() => controller.abort(), 8000);
+          const response = await fetch(platform.url, {
+            method: "HEAD",
+            signal: controller.signal,
+            redirect: "follow",
+          });
+          clearTimeout(timeout);
+          responseTimeMs = Date.now() - startTime;
+          statusCode = response.status;
+          status = response.ok ? "online" : "degraded";
+        } catch (err: any) {
+          responseTimeMs = Date.now() - startTime;
+          errorMessage = err.name === "AbortError" ? "Timeout (8s)" : (err.message || "Connection failed");
+          status = "offline";
+        }
+
+        await db.insert(ecosystemHealthLogs).values({
+          platformId: platform.id,
+          status,
+          responseTimeMs,
+          statusCode,
+          errorMessage,
+        });
+
+        await db.update(ecosystemPlatforms)
+          .set({ healthStatus: status, lastHealthCheck: new Date() })
+          .where(eq(ecosystemPlatforms.id, platform.id));
+
+        const platformDef = ECOSYSTEM_PLATFORMS.find(p => p.id === platform.id);
+
+        results.push({
+          id: platform.id,
+          name: platform.name,
+          url: platform.url,
+          role: platform.role,
+          domain: platform.domain,
+          status,
+          responseTimeMs,
+          statusCode,
+          errorMessage,
+          lastHeartbeat: platform.lastHeartbeat,
+          grantAlignment: platform.grantAlignment,
+          description: platformDef?.description || platform.description,
+        });
+      }
+
+      const onlineCount = results.filter(r => r.status === "online").length;
+      const degradedCount = results.filter(r => r.status === "degraded").length;
+      const offlineCount = results.filter(r => r.status === "offline").length;
+
+      const directives = await db.select().from(ecosystemDirectives).where(eq(ecosystemDirectives.status, "active"));
+      const acks = await db.select().from(ecosystemDirectiveAcks);
+      const acksByStatus = {
+        pending: acks.filter(a => a.status === "pending").length,
+        delivered: acks.filter(a => a.status === "delivered").length,
+        acknowledged: acks.filter(a => a.status === "acknowledged").length,
+      };
+
+      res.json({
+        checkedAt: new Date().toISOString(),
+        summary: {
+          total: results.length,
+          online: onlineCount,
+          degraded: degradedCount,
+          offline: offlineCount,
+          healthScore: Math.round(((onlineCount + degradedCount * 0.5) / results.length) * 100),
+        },
+        directives: {
+          total: directives.length,
+          acknowledgments: acksByStatus,
+        },
+        platforms: results.sort((a, b) => {
+          const order: Record<string, number> = { online: 0, degraded: 1, offline: 2 };
+          return (order[a.status] || 2) - (order[b.status] || 2);
+        }),
+      });
+    } catch (error) {
+      console.error("Live status check failed:", error);
+      res.status(500).json({ error: "Live status check failed" });
+    }
+  });
+
   app.get("/api/ecosystem/directives/repository", async (req, res) => {
     try {
       const directives = await db.select().from(ecosystemDirectives)
