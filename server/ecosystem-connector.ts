@@ -317,6 +317,22 @@ const ECOSYSTEM_PLATFORMS = [
     },
     grantAlignment: ["ssg-fox", "wioa", "dfc", "st-davids"],
   },
+  {
+    id: "video-creator-ai",
+    name: "Video Creator AI",
+    url: "https://video-creator-ai-mrterryflood.replit.app",
+    role: "content-production",
+    domain: "marketing-content",
+    description: "AI-powered video creation and editing platform — produces promotional videos, business presentations, training content, and marketing materials for every platform in the ecosystem. The content production engine that gives every platform a public face.",
+    capabilities: {
+      features: ["AI Video Generation", "Business Presentations", "Training Content", "Marketing Videos", "Platform Showcase Videos", "Holistic Support Overview"],
+    },
+    dataFlowConfig: {
+      sends: ["video_assets", "presentation_decks", "marketing_content", "training_materials"],
+      receives: ["platform_descriptions", "grant_narratives", "outcome_data", "brand_guidelines", "service_descriptions"],
+    },
+    grantAlignment: ["dfc", "wioa", "ssg-fox", "st-davids"],
+  },
 ];
 
 function generateApiKey(): string {
