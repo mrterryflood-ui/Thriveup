@@ -110,9 +110,28 @@ function ResponseTimeBadge({ ms }: { ms: number }) {
   return <span className={`text-xs font-mono ${color}`}>{ms}ms</span>;
 }
 
+interface WakeResult {
+  id: string;
+  name: string;
+  url: string;
+  status: string;
+  responseTimeMs: number;
+  statusCode: number;
+  errorMessage: string | null;
+  wakeAttempts: number;
+}
+
+interface WakeResponse {
+  wokenAt: string;
+  summary: { targeted: number; awake: number; responded: number; failed: number };
+  platforms: WakeResult[];
+}
+
 export default function EcosystemOpsCenterPage() {
   const [activeTab, setActiveTab] = useState("live");
   const [autoRefresh, setAutoRefresh] = useState(false);
+  const [wakeResults, setWakeResults] = useState<WakeResponse | null>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     document.title = "Ecosystem Operations Center | ThriveUp Academy";
@@ -122,6 +141,24 @@ export default function EcosystemOpsCenterPage() {
     queryKey: ["/api/ecosystem/live-status"],
     refetchInterval: autoRefresh ? 60000 : false,
     staleTime: 30000,
+  });
+
+  const wakeUpMutation = useMutation({
+    mutationFn: async (platformIds?: string[]) => {
+      const res = await apiRequest("POST", "/api/ecosystem/wake-up", platformIds ? { platformIds } : {});
+      return res.json() as Promise<WakeResponse>;
+    },
+    onSuccess: (data) => {
+      setWakeResults(data);
+      toast({
+        title: `Wake-Up Complete`,
+        description: `${data.summary.awake} awake, ${data.summary.responded} responded, ${data.summary.failed} unreachable`,
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/ecosystem/live-status"] });
+    },
+    onError: () => {
+      toast({ title: "Wake-up failed", description: "Could not reach platforms", variant: "destructive" });
+    },
   });
 
   useEffect(() => {
@@ -150,7 +187,33 @@ export default function EcosystemOpsCenterPage() {
         title="Ecosystem Operations Center"
         description="Real-time monitoring of all 20 platforms — who's online, who's responding, who needs attention."
         actions={
-          <div className="flex gap-2 items-center">
+          <div className="flex gap-2 items-center flex-wrap">
+            <Button
+              size="sm"
+              onClick={() => wakeUpMutation.mutate(undefined)}
+              disabled={wakeUpMutation.isPending}
+              className="bg-amber-600 hover:bg-amber-700 text-white"
+              data-testid="button-wake-all"
+            >
+              <Power className={`h-4 w-4 mr-1 ${wakeUpMutation.isPending ? "animate-spin" : ""}`} />
+              {wakeUpMutation.isPending ? "Waking All..." : "Wake All Platforms"}
+            </Button>
+            {(degradedPlatforms.length > 0 || offlinePlatforms.length > 0) && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  const sleepers = [...degradedPlatforms, ...offlinePlatforms].map(p => p.id);
+                  wakeUpMutation.mutate(sleepers);
+                }}
+                disabled={wakeUpMutation.isPending}
+                className="border-red-300 text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950/30"
+                data-testid="button-wake-sleepers"
+              >
+                <BellRing className="h-4 w-4 mr-1" />
+                Wake {degradedPlatforms.length + offlinePlatforms.length} Sleepers
+              </Button>
+            )}
             <Button
               variant={autoRefresh ? "default" : "outline"}
               size="sm"
@@ -170,9 +233,6 @@ export default function EcosystemOpsCenterPage() {
               <RefreshCw className={`h-4 w-4 mr-1 ${isFetching ? "animate-spin" : ""}`} />
               {isFetching ? "Scanning..." : "Scan Now"}
             </Button>
-            <Button variant="outline" size="sm" onClick={() => window.print()} data-testid="button-print-ops">
-              <Printer className="h-4 w-4 mr-1" /> Print
-            </Button>
           </div>
         }
       />
@@ -186,6 +246,78 @@ export default function EcosystemOpsCenterPage() {
         </div>
       ) : liveStatus ? (
         <>
+          {wakeUpMutation.isPending && (
+            <Card className="border-amber-300 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/20" data-testid="card-wake-progress">
+              <CardContent className="pt-5 pb-4">
+                <div className="flex items-center gap-3 mb-3">
+                  <Power className="h-5 w-5 text-amber-600 animate-spin" />
+                  <span className="font-semibold text-amber-700 dark:text-amber-400">Waking up platforms...</span>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Sending GET requests to force sleeping platforms to spin up. This may take 15-30 seconds — Replit apps need time to cold-start.
+                </p>
+                <Progress className="mt-3" value={undefined} />
+              </CardContent>
+            </Card>
+          )}
+
+          {wakeResults && !wakeUpMutation.isPending && (
+            <Card className="border-emerald-300 dark:border-emerald-800 bg-emerald-50/30 dark:bg-emerald-950/10" data-testid="card-wake-results">
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Volume2 className="h-4 w-4 text-emerald-600" />
+                    Wake-Up Results — {new Date(wakeResults.wokenAt).toLocaleTimeString()}
+                  </CardTitle>
+                  <Button variant="ghost" size="sm" onClick={() => setWakeResults(null)} data-testid="button-dismiss-wake">
+                    Dismiss
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-3 gap-4 mb-4">
+                  <div className="text-center p-3 rounded-lg bg-emerald-100/50 dark:bg-emerald-900/20">
+                    <div className="text-2xl font-bold text-emerald-600">{wakeResults.summary.awake}</div>
+                    <div className="text-xs text-muted-foreground">Awake</div>
+                  </div>
+                  <div className="text-center p-3 rounded-lg bg-amber-100/50 dark:bg-amber-900/20">
+                    <div className="text-2xl font-bold text-amber-600">{wakeResults.summary.responded}</div>
+                    <div className="text-xs text-muted-foreground">Responded (non-200)</div>
+                  </div>
+                  <div className="text-center p-3 rounded-lg bg-red-100/50 dark:bg-red-900/20">
+                    <div className="text-2xl font-bold text-red-600">{wakeResults.summary.failed}</div>
+                    <div className="text-xs text-muted-foreground">Unreachable</div>
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  {wakeResults.platforms.map(p => (
+                    <div key={p.id} className="flex items-center justify-between text-sm p-2 rounded bg-muted/30">
+                      <div className="flex items-center gap-2">
+                        {p.status === "awake" ? (
+                          <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                        ) : p.status === "responded" ? (
+                          <AlertTriangle className="h-4 w-4 text-amber-500" />
+                        ) : (
+                          <XCircle className="h-4 w-4 text-red-500" />
+                        )}
+                        <span className="font-medium">{p.name}</span>
+                        {p.wakeAttempts > 1 && (
+                          <Badge variant="outline" className="text-xs">{p.wakeAttempts} attempts</Badge>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <ResponseTimeBadge ms={p.responseTimeMs} />
+                        {p.errorMessage && (
+                          <span className="text-xs text-red-500">{p.errorMessage}</span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             <Card className="text-center" data-testid="stat-health-score">
               <CardContent className="pt-5 pb-4">
@@ -364,6 +496,36 @@ export default function EcosystemOpsCenterPage() {
                 Platforms Needing Attention ({degradedPlatforms.length + offlinePlatforms.length})
               </h2>
 
+              {(offlinePlatforms.length > 0 || degradedPlatforms.length > 0) && (
+                <Card className="bg-amber-50/50 dark:bg-amber-950/10 border-amber-200 dark:border-amber-800 mb-4" data-testid="card-wake-sleepers-action">
+                  <CardContent className="pt-5 pb-4">
+                    <div className="flex items-center justify-between flex-wrap gap-3">
+                      <div>
+                        <h3 className="font-semibold text-sm flex items-center gap-2">
+                          <Power className="h-4 w-4 text-amber-600" />
+                          Force Wake-Up
+                        </h3>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Most platforms sleep after inactivity. A wake-up sends full page requests to force them back online (up to 2 retries, 15s timeout per attempt).
+                        </p>
+                      </div>
+                      <Button
+                        onClick={() => {
+                          const ids = [...offlinePlatforms, ...degradedPlatforms].map(p => p.id);
+                          wakeUpMutation.mutate(ids);
+                        }}
+                        disabled={wakeUpMutation.isPending}
+                        className="bg-amber-600 hover:bg-amber-700 text-white"
+                        data-testid="button-wake-issues"
+                      >
+                        <Power className={`h-4 w-4 mr-1 ${wakeUpMutation.isPending ? "animate-spin" : ""}`} />
+                        {wakeUpMutation.isPending ? "Waking..." : `Wake ${offlinePlatforms.length + degradedPlatforms.length} Platforms`}
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
               {offlinePlatforms.length > 0 && (
                 <div className="space-y-3">
                   <h3 className="text-sm font-semibold text-red-600 dark:text-red-400 flex items-center gap-1">
@@ -381,6 +543,16 @@ export default function EcosystemOpsCenterPage() {
                             )}
                           </div>
                           <div className="flex items-center gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => wakeUpMutation.mutate([p.id])}
+                              disabled={wakeUpMutation.isPending}
+                              className="border-amber-300 text-amber-700"
+                              data-testid={`button-wake-${p.id}`}
+                            >
+                              <Power className="h-3.5 w-3.5 mr-1" /> Wake
+                            </Button>
                             <Badge variant="outline" className="text-xs">{p.responseTimeMs}ms</Badge>
                             <a href={p.url} target="_blank" rel="noopener noreferrer">
                               <Button variant="outline" size="sm">
@@ -409,6 +581,16 @@ export default function EcosystemOpsCenterPage() {
                             <p className="text-xs text-muted-foreground">HTTP {p.statusCode} — {p.url}</p>
                           </div>
                           <div className="flex items-center gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => wakeUpMutation.mutate([p.id])}
+                              disabled={wakeUpMutation.isPending}
+                              className="border-amber-300 text-amber-700"
+                              data-testid={`button-wake-degraded-${p.id}`}
+                            >
+                              <Power className="h-3.5 w-3.5 mr-1" /> Wake
+                            </Button>
                             <Badge variant="outline" className="text-xs">{p.responseTimeMs}ms</Badge>
                             <a href={p.url} target="_blank" rel="noopener noreferrer">
                               <Button variant="outline" size="sm">
