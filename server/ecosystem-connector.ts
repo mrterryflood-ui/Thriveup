@@ -592,13 +592,15 @@ export function registerEcosystemConnectorRoutes(app: Express) {
     try {
       const platforms = await db.select().from(ecosystemPlatforms);
       const now = Date.now();
-      const STALE_THRESHOLD_MS = 10 * 60 * 1000;
+      const STALE_THRESHOLD_MS = 15 * 60 * 1000;
 
       const enrichedPlatforms = platforms.map((p) => {
         let liveHealth = "unknown";
-        if (p.lastHeartbeat) {
+        if (p.status === "active" && p.lastHeartbeat) {
           const heartbeatAge = now - new Date(p.lastHeartbeat).getTime();
           liveHealth = heartbeatAge <= STALE_THRESHOLD_MS ? "online" : "offline";
+        } else if (p.status === "active") {
+          liveHealth = "online";
         }
         return {
           id: p.id,
