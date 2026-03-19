@@ -449,6 +449,8 @@ export function registerEcosystemConnectorRoutes(app: Express) {
 
     // Start the outbound platform pinger after a short delay
     setTimeout(() => startPlatformPinger(), 10000);
+    // Start periodic deliverable verification after 2 minutes
+    setTimeout(() => startVerificationTimer(), 120000);
   })();
 
   // ===================================================================
@@ -590,6 +592,34 @@ export function registerEcosystemConnectorRoutes(app: Express) {
       purpose: "Keeps all 20 Autoscale-deployed platforms awake by sending HTTP GET requests every 10 minutes. When a sleeping platform wakes from a ping, its startup heartbeat fires and catches up on all pending directives.",
     });
   });
+
+  // ===================================================================
+  // DELIVERABLE VERIFICATION TIMER — Periodic evidence URL checking
+  // Runs every 30 minutes. Pings all evidence URLs from acknowledged
+  // directives and marks them LIVE or FAILED.
+  // ===================================================================
+
+  let verificationInterval: ReturnType<typeof setInterval> | null = null;
+  let lastVerificationCycle: { startedAt: string; completedAt: string; checked: number; live: number; failed: number } | null = null;
+
+  function startVerificationTimer() {
+    if (verificationInterval) return;
+    console.log("[Verifier] Starting deliverable verification timer — 30 minute cycle");
+    const runCycle = async () => {
+      const cycleStart = new Date().toISOString();
+      try {
+        const results = await runDeliverableVerification();
+        const live = results.filter(r => r.verified).length;
+        const failed = results.filter(r => !r.verified).length;
+        lastVerificationCycle = { startedAt: cycleStart, completedAt: new Date().toISOString(), checked: results.length, live, failed };
+        console.log(`[Verifier] Cycle complete: ${results.length} checked, ${live} live, ${failed} failed`);
+      } catch (err) {
+        console.error("[Verifier] Cycle failed:", err);
+      }
+    };
+    runCycle();
+    verificationInterval = setInterval(runCycle, 30 * 60 * 1000);
+  }
 
   // ===================================================================
   // KEY RE-REGISTRATION — Platforms can register their actual working key
@@ -1973,7 +2003,7 @@ if (typeof module !== "undefined") {
           "ssg-fox": { name: "SSG Fox VA Suicide Prevention", amount: "Up to $750K", deadline: "June 12-18, 2026", platforms: ["whole-person-health", "m2c", "lifebridge", "sankofa", "safecognicare", "pillscheduler", "betterscience"] },
           "dfc": { name: "Drug-Free Communities (DFC)", amount: "$625K", deadline: "April 14, 2026", platforms: ["whole-person-health", "isss", "sankofa", "wholemind", "safereport", "lifebridge", "pillscheduler", "betterscience"] },
           "wioa": { name: "WIOA Title I Youth", amount: "$200K-$500K", deadline: "Rolling", platforms: ["isss", "wholemind", "m2c", "mce", "whole-person-health"] },
-          "nba-foundation": { name: "NBA Foundation", amount: "$100K-$500K", deadline: "Rolling LOI", platforms: ["isss", "wholemind"] },
+          "nba-foundation": { name: "Foundation Grant", amount: "$100K-$500K", deadline: "Rolling LOI", platforms: ["isss", "wholemind"] },
           "st-davids": { name: "St. David's Foundation", amount: "Up to $1M", deadline: "Opens March 30, 2026", platforms: ["whole-person-health", "sankofa", "perfectly-different", "safecognicare", "lifebridge"] },
           "samhsa": { name: "SAMHSA Community Mental Health", amount: "Varies", deadline: "Varies", platforms: ["whole-person-health", "sankofa", "perfectly-different", "safecognicare", "pillscheduler", "betterscience", "lifebridge"] },
         },
@@ -2221,7 +2251,17 @@ if (typeof module !== "undefined") {
       const parsed = new URL(urlStr);
       if (!["http:", "https:"].includes(parsed.protocol)) return false;
       const host = parsed.hostname.toLowerCase();
-      if (host === "localhost" || host === "127.0.0.1" || host === "0.0.0.0" || host.startsWith("10.") || host.startsWith("192.168.") || host.startsWith("172.") || host === "[::1]" || host.endsWith(".internal") || host.endsWith(".local")) return false;
+      const blocked = [
+        "localhost", "127.0.0.1", "0.0.0.0", "[::1]", "[::0]",
+        "metadata.google.internal", "metadata", "169.254.169.254",
+      ];
+      if (blocked.includes(host)) return false;
+      if (host.startsWith("10.") || host.startsWith("192.168.") || host.startsWith("172.16.") || host.startsWith("172.17.") || host.startsWith("172.18.") || host.startsWith("172.19.") || host.startsWith("172.2") || host.startsWith("172.30.") || host.startsWith("172.31.")) return false;
+      if (host.startsWith("169.254.")) return false;
+      if (host.startsWith("100.64.") || host.startsWith("100.65.") || host.startsWith("100.66.") || host.startsWith("100.127.")) return false;
+      if (host.endsWith(".internal") || host.endsWith(".local") || host.endsWith(".localhost")) return false;
+      if (host.startsWith("fc") || host.startsWith("fd") || host.startsWith("fe80")) return false;
+      if (host.includes("[") && (host.includes("::1") || host.includes("fe80") || host.includes("fc") || host.includes("fd"))) return false;
       return true;
     } catch { return false; }
   }
@@ -2234,9 +2274,19 @@ if (typeof module !== "undefined") {
     try {
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 8000);
-      const response = await fetch(url, { method: "HEAD", signal: controller.signal, redirect: "follow" });
+      const headResponse = await fetch(url, { method: "HEAD", signal: controller.signal, redirect: "follow" });
       clearTimeout(timeout);
-      return { verified: response.ok, statusCode: response.status, responseMs: Date.now() - start };
+      if (headResponse.ok) {
+        return { verified: true, statusCode: headResponse.status, responseMs: Date.now() - start };
+      }
+      if ([405, 403, 501].includes(headResponse.status)) {
+        const controller2 = new AbortController();
+        const timeout2 = setTimeout(() => controller2.abort(), 8000);
+        const getResponse = await fetch(url, { method: "GET", signal: controller2.signal, redirect: "follow", headers: { "Range": "bytes=0-1024" } });
+        clearTimeout(timeout2);
+        return { verified: getResponse.ok, statusCode: getResponse.status, responseMs: Date.now() - start };
+      }
+      return { verified: false, statusCode: headResponse.status, responseMs: Date.now() - start };
     } catch (err: any) {
       return { verified: false, statusCode: 0, responseMs: Date.now() - start, error: err.message };
     }
@@ -2382,6 +2432,54 @@ if (typeof module !== "undefined") {
       const complianceEvents = recentEvents.filter(e => e.eventType === "compliance_report");
       const chainedEvents = recentEvents.filter(e => (e.eventData as any)?.chainedFrom);
 
+      const workChainActivity = chainedEvents.slice(0, 20).map(e => {
+        const data = e.eventData as Record<string, unknown>;
+        const sourcePlatform = platforms.find(p => p.id === e.sourcePlatformId);
+        const targetPlatform = platforms.find(p => p.id === e.targetPlatformId);
+        return {
+          from: sourcePlatform?.name || e.sourcePlatformId,
+          to: targetPlatform?.name || e.targetPlatformId,
+          eventType: e.eventType,
+          chainedFrom: data?.chainedFrom || null,
+          description: data?.chainDescription || null,
+          timestamp: e.createdAt,
+          status: e.status,
+        };
+      });
+
+      const verificationSummary = {
+        lastRun: lastVerificationCycle?.completedAt || null,
+        totalWithEvidence: allAcks.filter(a => {
+          const rd = a.responseData as Record<string, unknown> | null;
+          return rd?.evidenceUrl && (rd.evidenceUrl as string).startsWith("http");
+        }).length,
+        live: allAcks.filter(a => {
+          const rd = a.responseData as Record<string, unknown> | null;
+          return rd?._verificationStatus === "LIVE";
+        }).length,
+        failed: allAcks.filter(a => {
+          const rd = a.responseData as Record<string, unknown> | null;
+          return rd?._verificationStatus === "FAILED";
+        }).length,
+        unchecked: allAcks.filter(a => {
+          const rd = a.responseData as Record<string, unknown> | null;
+          return rd?.evidenceUrl && (rd.evidenceUrl as string).startsWith("http") && !rd?._verificationStatus;
+        }).length,
+        failedDeliverables: allAcks.filter(a => {
+          const rd = a.responseData as Record<string, unknown> | null;
+          return rd?._verificationStatus === "FAILED";
+        }).map(a => {
+          const rd = a.responseData as Record<string, unknown>;
+          const dir = allDirectives.find(d => d.id === a.directiveId);
+          const plat = platforms.find(p => p.id === a.platformId);
+          return { platform: plat?.name || a.platformId, directive: dir?.title || a.directiveId, evidenceUrl: rd?.evidenceUrl, lastChecked: rd?._lastVerified };
+        }),
+      };
+
+      const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+      const completedThisWeek = allAcks.filter(a => a.status === "acknowledged" && a.acknowledgedAt && new Date(a.acknowledgedAt) > oneWeekAgo).length;
+      const newPlatformsThisWeek = platforms.filter(p => p.lastHeartbeat && new Date(p.lastHeartbeat) > oneWeekAgo).length;
+
       const regionalProductSummary = {
         austin: {
           platformsWithProduct: platformIntel.filter(p => p.regionalProducts.austin).length,
@@ -2456,8 +2554,12 @@ if (typeof module !== "undefined") {
           complianceReportsThisWeek: complianceEvents.length,
           workChainsTriggered: chainedEvents.length,
           ackQuality: ackQualitySummary,
+          completedThisWeek,
+          newPlatformsThisWeek,
         },
         regionalProducts: regionalProductSummary,
+        workChainActivity,
+        verificationSummary,
         dueOut,
         needsAttention,
         grantReadiness,
@@ -2522,7 +2624,7 @@ if (typeof module !== "undefined") {
           "ssg-fox": { name: "SSG Fox VA Suicide Prevention", platformCount: allPlatforms.filter(p => ((p.grantAlignment as string[]) || []).includes("ssg-fox")).length },
           "dfc": { name: "Drug-Free Communities (DFC)", platformCount: allPlatforms.filter(p => ((p.grantAlignment as string[]) || []).includes("dfc")).length },
           "wioa": { name: "WIOA Title I Youth", platformCount: allPlatforms.filter(p => ((p.grantAlignment as string[]) || []).includes("wioa")).length },
-          "nba-foundation": { name: "NBA Foundation", platformCount: allPlatforms.filter(p => ((p.grantAlignment as string[]) || []).includes("nba-foundation")).length },
+          "nba-foundation": { name: "Foundation Grant", platformCount: allPlatforms.filter(p => ((p.grantAlignment as string[]) || []).includes("nba-foundation")).length },
           "st-davids": { name: "St. David's Foundation", platformCount: allPlatforms.filter(p => ((p.grantAlignment as string[]) || []).includes("st-davids")).length },
           "samhsa": { name: "SAMHSA Community Mental Health", platformCount: allPlatforms.filter(p => ((p.grantAlignment as string[]) || []).includes("samhsa")).length },
         },

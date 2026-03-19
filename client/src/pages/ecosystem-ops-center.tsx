@@ -92,6 +92,25 @@ interface GrantReadiness {
   platformDetails: { id: string; name: string; connected: boolean; fidelity: number; grade: string; workDone: number; overdue: number }[];
 }
 
+interface WorkChainEvent {
+  from: string;
+  to: string;
+  eventType: string;
+  chainedFrom: string | null;
+  description: string | null;
+  timestamp: string;
+  status: string;
+}
+
+interface VerificationSummary {
+  lastRun: string | null;
+  totalWithEvidence: number;
+  live: number;
+  failed: number;
+  unchecked: number;
+  failedDeliverables: { platform: string; directive: string; evidenceUrl: string; lastChecked: string }[];
+}
+
 interface IntelReport {
   generatedAt: string;
   ecosystemSummary: {
@@ -105,12 +124,16 @@ interface IntelReport {
     complianceReportsThisWeek: number;
     workChainsTriggered: number;
     ackQuality?: { verified: number; substantive: number; weak: number; legacy: number };
+    completedThisWeek?: number;
+    newPlatformsThisWeek?: number;
   };
   regionalProducts?: {
     austin: RegionalProductSummary;
     manor: RegionalProductSummary;
     pflugerville: RegionalProductSummary;
   };
+  workChainActivity?: WorkChainEvent[];
+  verificationSummary?: VerificationSummary;
   dueOut: { title: string; daysLeft: number; acked: number; total: number; urgent: boolean }[];
   needsAttention: { id: string; name: string; reason: string; overdue: { directive: string }[]; fidelity: number }[];
   grantReadiness: GrantReadiness[];
@@ -230,6 +253,25 @@ export default function EcosystemOpsCenterPage() {
     },
   });
 
+  const verifyMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest("POST", "/api/ecosystem/verify-deliverables");
+      return res.json();
+    },
+    onSuccess: (data: { results: { verified: boolean }[] }) => {
+      const live = data.results?.filter((r: { verified: boolean }) => r.verified).length || 0;
+      const failed = data.results?.filter((r: { verified: boolean }) => !r.verified).length || 0;
+      toast({
+        title: "Verification Complete",
+        description: `${data.results?.length || 0} checked: ${live} live, ${failed} failed`,
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/ecosystem/intelligence-report"] });
+    },
+    onError: () => {
+      toast({ title: "Verification failed", variant: "destructive" });
+    },
+  });
+
   useEffect(() => {
     if (autoRefresh) {
       const interval = setInterval(() => {
@@ -254,7 +296,7 @@ export default function EcosystemOpsCenterPage() {
     <div className="max-w-7xl mx-auto p-6 space-y-8" data-testid="ecosystem-ops-center-page">
       <PageHeader
         title="Ecosystem Operations Center"
-        description="Real-time monitoring of all 20 platforms — who's online, who's responding, who needs attention."
+        description={`Real-time monitoring of all ${liveStatus?.summary.total || ""} platforms — who's online, who's responding, who needs attention.`}
         actions={
           <div className="flex gap-2 items-center flex-wrap">
             <Button
@@ -535,6 +577,121 @@ export default function EcosystemOpsCenterPage() {
                       </CardContent>
                     </Card>
                   </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {intelReport.ecosystemSummary.completedThisWeek !== undefined && (
+                      <Card data-testid="intel-weekly-summary">
+                        <CardHeader className="pb-2">
+                          <CardTitle className="text-base flex items-center gap-2">
+                            <BarChart3 className="h-5 w-5 text-blue-500" />
+                            This Week
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="grid grid-cols-2 gap-3">
+                            <div className="p-3 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 text-center">
+                              <div className="text-xl font-bold text-emerald-600" data-testid="stat-completed-week">{intelReport.ecosystemSummary.completedThisWeek}</div>
+                              <div className="text-xs text-muted-foreground">Directives Completed</div>
+                            </div>
+                            <div className="p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-center">
+                              <div className="text-xl font-bold text-blue-600" data-testid="stat-active-week">{intelReport.ecosystemSummary.newPlatformsThisWeek || 0}</div>
+                              <div className="text-xs text-muted-foreground">Active Platforms</div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {intelReport.verificationSummary && (
+                      <Card data-testid="intel-verification-summary">
+                        <CardHeader className="pb-2">
+                          <div className="flex items-center justify-between">
+                            <CardTitle className="text-base flex items-center gap-2">
+                              <FileCheck className="h-5 w-5 text-emerald-500" />
+                              Deliverable Verification
+                            </CardTitle>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => verifyMutation.mutate()}
+                              disabled={verifyMutation.isPending}
+                              data-testid="button-verify-now"
+                            >
+                              <RefreshCw className={`h-3 w-3 mr-1 ${verifyMutation.isPending ? "animate-spin" : ""}`} />
+                              {verifyMutation.isPending ? "Verifying..." : "Verify Now"}
+                            </Button>
+                          </div>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="grid grid-cols-4 gap-2 mb-3">
+                            <div className="text-center p-2 rounded bg-emerald-50 dark:bg-emerald-900/20">
+                              <div className="text-lg font-bold text-emerald-600" data-testid="verify-live">{intelReport.verificationSummary.live}</div>
+                              <div className="text-[10px] text-muted-foreground">Live</div>
+                            </div>
+                            <div className="text-center p-2 rounded bg-red-50 dark:bg-red-900/20">
+                              <div className="text-lg font-bold text-red-600" data-testid="verify-failed">{intelReport.verificationSummary.failed}</div>
+                              <div className="text-[10px] text-muted-foreground">Failed</div>
+                            </div>
+                            <div className="text-center p-2 rounded bg-gray-50 dark:bg-gray-900/20">
+                              <div className="text-lg font-bold text-gray-600" data-testid="verify-unchecked">{intelReport.verificationSummary.unchecked}</div>
+                              <div className="text-[10px] text-muted-foreground">Unchecked</div>
+                            </div>
+                            <div className="text-center p-2 rounded bg-blue-50 dark:bg-blue-900/20">
+                              <div className="text-lg font-bold text-blue-600" data-testid="verify-total">{intelReport.verificationSummary.totalWithEvidence}</div>
+                              <div className="text-[10px] text-muted-foreground">With Evidence</div>
+                            </div>
+                          </div>
+                          {intelReport.verificationSummary.lastRun && (
+                            <p className="text-xs text-muted-foreground">
+                              Last auto-check: {new Date(intelReport.verificationSummary.lastRun).toLocaleString()}
+                            </p>
+                          )}
+                          {intelReport.verificationSummary.failedDeliverables.length > 0 && (
+                            <div className="mt-2 space-y-1">
+                              <p className="text-xs font-semibold text-red-600">Failed Deliverables:</p>
+                              {intelReport.verificationSummary.failedDeliverables.map((fd, i) => (
+                                <div key={i} className="flex items-center justify-between p-2 rounded bg-red-50 dark:bg-red-950/20 text-xs">
+                                  <span className="font-medium">{fd.platform} — {fd.directive}</span>
+                                  <a href={fd.evidenceUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700">
+                                    <ExternalLink className="h-3 w-3" />
+                                  </a>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    )}
+                  </div>
+
+                  {intelReport.workChainActivity && intelReport.workChainActivity.length > 0 && (
+                    <Card data-testid="intel-work-chain-activity">
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-base flex items-center gap-2">
+                          <Link2 className="h-5 w-5 text-amber-500" />
+                          Work Chain Activity ({intelReport.workChainActivity.length})
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-1.5">
+                          {intelReport.workChainActivity.map((chain, i) => (
+                            <div key={i} className="flex items-center justify-between p-2.5 rounded-lg bg-muted/30 text-sm" data-testid={`chain-event-${i}`}>
+                              <div className="flex items-center gap-2 flex-1 min-w-0">
+                                <ArrowRight className="h-3.5 w-3.5 text-amber-500 flex-shrink-0" />
+                                <span className="font-medium truncate">{chain.from}</span>
+                                <ChevronRight className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                                <span className="font-medium truncate">{chain.to}</span>
+                              </div>
+                              <div className="flex items-center gap-2 shrink-0">
+                                <Badge variant="outline" className="text-xs">{chain.eventType}</Badge>
+                                <span className="text-xs text-muted-foreground">{new Date(chain.timestamp).toLocaleDateString()}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
 
                   {intelReport.needsAttention.length > 0 && (
                     <Card className="border-red-200 dark:border-red-800 bg-red-50/30 dark:bg-red-950/10" data-testid="intel-needs-attention">
@@ -1109,7 +1266,7 @@ export default function EcosystemOpsCenterPage() {
                   <CardContent>
                     <CheckCircle2 className="h-12 w-12 mx-auto text-emerald-500 mb-4" />
                     <h3 className="text-lg font-semibold">All Systems Operational</h3>
-                    <p className="text-muted-foreground">All 20 platforms are online and responding normally.</p>
+                    <p className="text-muted-foreground">All {liveStatus?.summary.total || ""} platforms are online and responding normally.</p>
                   </CardContent>
                 </Card>
               )}
@@ -1118,7 +1275,7 @@ export default function EcosystemOpsCenterPage() {
             <TabsContent value="regional" className="mt-6 space-y-6" data-testid="content-regional">
               <h2 className="text-lg font-bold">Regional Hub Status</h2>
               <p className="text-muted-foreground">
-                Three regional hubs powered by the same 20-platform ecosystem.
+                Three regional hubs powered by the same {liveStatus?.summary.total || ""}-platform ecosystem.
                 Platform health affects all regions simultaneously.
               </p>
 
@@ -1138,7 +1295,7 @@ export default function EcosystemOpsCenterPage() {
                       <p className="text-sm text-muted-foreground mb-2">{hub.focus}</p>
                       <div className="flex items-center gap-2">
                         <Badge variant="outline" className="text-xs"><Users className="h-3 w-3 mr-1" /> {hub.pop}</Badge>
-                        <Badge variant="outline" className="text-xs"><Globe className="h-3 w-3 mr-1" /> 20 Platforms</Badge>
+                        <Badge variant="outline" className="text-xs"><Globe className="h-3 w-3 mr-1" /> {liveStatus?.summary.total || ""} Platforms</Badge>
                       </div>
                       <div className="mt-3 text-xs text-muted-foreground flex items-center gap-1">
                         View Hub <ArrowRight className="h-3 w-3" />
