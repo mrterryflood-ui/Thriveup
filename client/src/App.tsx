@@ -138,6 +138,7 @@ const RokuAdsPage = lazy(() => import("@/pages/roku-ads"));
 const VoicesOfAustinPage = lazy(() => import("@/pages/voices-of-austin"));
 const ManorCommunityHubPage = lazy(() => import("@/pages/manor-community-hub"));
 const PflugervilleCommunityHubPage = lazy(() => import("@/pages/pflugerville-community-hub"));
+const EcosystemOpsCenterPage = lazy(() => import("@/pages/ecosystem-ops-center"));
 
 function PageFallback() {
   return (
@@ -297,6 +298,7 @@ function AppRouter() {
       <Route path="/voices-of-austin" component={VoicesOfAustinPage} />
       <Route path="/manor" component={ManorCommunityHubPage} />
       <Route path="/pflugerville" component={PflugervilleCommunityHubPage} />
+      <Route path="/ops-center" component={EcosystemOpsCenterPage} />
       <Route component={NotFound} />
     </Switch>
   );

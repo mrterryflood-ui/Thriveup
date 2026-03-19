@@ -98,6 +98,7 @@ const grantEngineItems: NavItem[] = [
   { title: "Manor Hub", url: "/manor", icon: MapPin },
   { title: "Pflugerville Hub", url: "/pflugerville", icon: MapPin },
   { title: "Voices of Austin", url: "/voices-of-austin", icon: Megaphone },
+  { title: "Ops Center", url: "/ops-center", icon: Activity },
 ];
 
 const aiToolsItems: NavItem[] = [
