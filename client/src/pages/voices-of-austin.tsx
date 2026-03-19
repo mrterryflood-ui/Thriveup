@@ -14,13 +14,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { PageHeader } from "@/components/page-header";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
 import {
   Mic, Users, Home, Briefcase, Heart, MapPin, Globe,
   Send, Loader2, CheckCircle2, ArrowRight, Star, Shield,
   GraduationCap, DollarSign, BookOpen, MessageCircle,
   ThumbsUp, Clock, ChevronRight, Sparkles, Radio, Play,
   Building2, Baby, Brain, Stethoscope, AlertTriangle,
-  ExternalLink, Printer, Share2,
+  ExternalLink, Printer, Share2, ShieldCheck, XCircle,
 } from "lucide-react";
 import { BackToTop } from "@/components/back-to-top";
 import type { CommunityStory } from "@shared/schema";
@@ -212,8 +213,11 @@ function StoryCard({ story }: { story: CommunityStory }) {
 
 export default function VoicesOfAustinPage() {
   const { toast } = useToast();
+  const { user, isAuthenticated } = useAuth();
+  const isAdmin = !!(isAuthenticated && user);
   const [activeTab, setActiveTab] = useState("stories");
   const [showSubmit, setShowSubmit] = useState(false);
+  const [moderationFilter, setModerationFilter] = useState<string>("pending");
   const [formData, setFormData] = useState({
     authorName: "",
     authorNeighborhood: "",
@@ -230,6 +234,34 @@ export default function VoicesOfAustinPage() {
 
   const { data: stories, isLoading: storiesLoading } = useQuery<CommunityStory[]>({
     queryKey: ["/api/community-stories"],
+  });
+
+  const { data: moderationStories, isLoading: moderationLoading } = useQuery<CommunityStory[]>({
+    queryKey: ["/api/community-stories", "moderation", moderationFilter],
+    queryFn: async () => {
+      const res = await fetch(`/api/community-stories?status=${moderationFilter}`);
+      if (!res.ok) throw new Error("Failed to fetch");
+      return res.json();
+    },
+    enabled: activeTab === "moderation" && isAdmin === true,
+  });
+
+  const moderateMutation = useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: string }) => {
+      return apiRequest("PATCH", `/api/community-stories/${id}`, { status });
+    },
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/community-stories"] });
+      toast({
+        title: variables.status === "approved" ? "Story approved" : "Story rejected",
+        description: variables.status === "approved"
+          ? "The story is now visible to the public."
+          : "The story has been rejected and will not be shown.",
+      });
+    },
+    onError: () => {
+      toast({ title: "Action failed", description: "Could not update story status.", variant: "destructive" });
+    },
   });
 
   const submitMutation = useMutation({
@@ -264,7 +296,7 @@ export default function VoicesOfAustinPage() {
       queryClient.invalidateQueries({ queryKey: ["/api/community-stories"] });
       setShowSubmit(false);
       setFormData({ authorName: "", authorNeighborhood: "", storyType: "", title: "", content: "", isAnonymous: false });
-      toast({ title: "Story shared", description: "Thank you for sharing your voice. You've been connected to resources." });
+      toast({ title: "Story submitted", description: "Thank you for sharing your voice. Your story is pending review and you'll be connected to resources once approved." });
     },
     onError: () => {
       toast({ title: "Submission failed", description: "Please try again.", variant: "destructive" });
@@ -341,7 +373,7 @@ export default function VoicesOfAustinPage() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} data-testid="tabs-voices">
-        <TabsList className="grid w-full grid-cols-3 md:grid-cols-5 gap-1 h-auto p-1">
+        <TabsList className={`grid w-full gap-1 h-auto p-1 ${isAdmin ? 'grid-cols-3 md:grid-cols-6' : 'grid-cols-3 md:grid-cols-5'}`}>
           <TabsTrigger value="stories" className="text-xs md:text-sm" data-testid="tab-stories">
             <MessageCircle className="h-3.5 w-3.5 mr-1" /> Stories
           </TabsTrigger>
@@ -357,6 +389,11 @@ export default function VoicesOfAustinPage() {
           <TabsTrigger value="impact" className="text-xs md:text-sm" data-testid="tab-impact">
             <Play className="h-3.5 w-3.5 mr-1" /> Media
           </TabsTrigger>
+          {isAdmin && (
+            <TabsTrigger value="moderation" className="text-xs md:text-sm" data-testid="tab-moderation">
+              <ShieldCheck className="h-3.5 w-3.5 mr-1" /> Moderation
+            </TabsTrigger>
+          )}
         </TabsList>
 
         <TabsContent value="stories" className="mt-6 space-y-6" data-testid="content-stories">
@@ -781,6 +818,122 @@ export default function VoicesOfAustinPage() {
             </CardContent>
           </Card>
         </TabsContent>
+
+        {isAdmin && (
+          <TabsContent value="moderation" className="mt-6 space-y-6" data-testid="content-moderation">
+            <div className="flex items-center justify-between flex-wrap gap-3">
+              <div>
+                <h2 className="text-2xl font-bold" data-testid="text-moderation-title">Story Moderation</h2>
+                <p className="text-muted-foreground">Review and moderate community story submissions.</p>
+              </div>
+              <Select value={moderationFilter} onValueChange={setModerationFilter}>
+                <SelectTrigger className="w-40" data-testid="select-moderation-filter">
+                  <SelectValue placeholder="Filter by status..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="approved">Approved</SelectItem>
+                  <SelectItem value="rejected">Rejected</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {moderationLoading ? (
+              <div className="space-y-4">
+                {[1, 2, 3].map((i) => <Skeleton key={i} className="h-32" />)}
+              </div>
+            ) : moderationStories && moderationStories.length > 0 ? (
+              <div className="space-y-4">
+                {moderationStories.map((story: CommunityStory) => {
+                  const storyType = STORY_TYPES.find(t => t.id === story.storyType);
+                  const Icon = storyType?.icon || MessageCircle;
+                  return (
+                    <Card key={story.id} data-testid={`card-moderate-${story.id}`}>
+                      <CardContent className="pt-5 pb-4">
+                        <div className="flex items-start gap-3">
+                          <div className={`w-10 h-10 rounded-full ${storyType?.color || 'bg-gray-500'} flex items-center justify-center flex-shrink-0`}>
+                            <Icon className="h-5 w-5 text-white" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between gap-2 mb-1 flex-wrap">
+                              <h4 className="font-semibold text-sm" data-testid={`text-moderate-title-${story.id}`}>{story.title}</h4>
+                              <div className="flex items-center gap-2 flex-shrink-0">
+                                <Badge
+                                  variant={story.status === "approved" ? "default" : story.status === "rejected" ? "destructive" : "secondary"}
+                                  data-testid={`badge-status-${story.id}`}
+                                >
+                                  {story.status}
+                                </Badge>
+                                <Badge variant="outline" className="text-xs">{storyType?.label || story.storyType}</Badge>
+                              </div>
+                            </div>
+                            <p className="text-sm text-muted-foreground mb-2">{story.content}</p>
+                            <div className="flex items-center gap-3 text-xs text-muted-foreground mb-3 flex-wrap">
+                              {!story.isAnonymous && <span className="font-medium">{story.authorName}</span>}
+                              {story.isAnonymous && <span className="italic">Anonymous</span>}
+                              {story.authorNeighborhood && (
+                                <span className="flex items-center gap-1">
+                                  <MapPin className="h-3 w-3" /> {story.authorNeighborhood}
+                                </span>
+                              )}
+                              <span className="flex items-center gap-1">
+                                <Clock className="h-3 w-3" />
+                                {story.createdAt ? new Date(story.createdAt).toLocaleDateString() : "Recently"}
+                              </span>
+                            </div>
+                            {story.status === "pending" && (
+                              <div className="flex items-center gap-2">
+                                <Button
+                                  size="sm"
+                                  onClick={() => moderateMutation.mutate({ id: story.id, status: "approved" })}
+                                  disabled={moderateMutation.isPending}
+                                  data-testid={`button-approve-${story.id}`}
+                                >
+                                  {moderateMutation.isPending ? (
+                                    <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" />
+                                  ) : (
+                                    <CheckCircle2 className="h-3.5 w-3.5 mr-1" />
+                                  )}
+                                  Approve
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  onClick={() => moderateMutation.mutate({ id: story.id, status: "rejected" })}
+                                  disabled={moderateMutation.isPending}
+                                  data-testid={`button-reject-${story.id}`}
+                                >
+                                  {moderateMutation.isPending ? (
+                                    <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" />
+                                  ) : (
+                                    <XCircle className="h-3.5 w-3.5 mr-1" />
+                                  )}
+                                  Reject
+                                </Button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            ) : (
+              <Card className="text-center py-12" data-testid="card-empty-moderation">
+                <CardContent>
+                  <ShieldCheck className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">No {moderationFilter} stories</h3>
+                  <p className="text-muted-foreground">
+                    {moderationFilter === "pending"
+                      ? "All stories have been reviewed. Check back later for new submissions."
+                      : `No stories with status "${moderationFilter}" found.`}
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+        )}
       </Tabs>
 
       <Dialog open={showSubmit} onOpenChange={setShowSubmit}>

@@ -1016,6 +1016,33 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Program Designer CTA */}
+      <section className="py-12 px-4 sm:py-20 sm:px-6" data-testid="section-program-designer-cta">
+        <div className="mx-auto max-w-5xl">
+          <Card className="p-6 sm:p-10 border-2 border-primary/20 bg-gradient-to-br from-primary/5 via-transparent to-primary/5">
+            <div className="flex flex-col md:flex-row items-center gap-6">
+              <div className="rounded-md bg-primary/10 p-4 shrink-0">
+                <Lightbulb className="h-10 w-10 text-primary" />
+              </div>
+              <div className="flex-1 text-center md:text-left">
+                <h3 className="text-xl sm:text-2xl font-bold mb-2" data-testid="text-designer-cta-heading">
+                  Design Your Next Community Program
+                </h3>
+                <p className="text-sm sm:text-base text-muted-foreground max-w-xl">
+                  Use the MAP-GAP Program Designer wizard to identify a problem, analyze community context through the Three Realities, and generate AI-powered intervention designs with grant alignment scoring.
+                </p>
+              </div>
+              <Link href="/program-designer">
+                <Button size="lg" className="shrink-0 min-h-[44px]" data-testid="button-launch-program-designer">
+                  <Lightbulb className="mr-2 h-5 w-5" />
+                  Launch Designer
+                </Button>
+              </Link>
+            </div>
+          </Card>
+        </div>
+      </section>
+
       {/* How It Works */}
       <section className="py-12 px-4 sm:py-20 sm:px-6" data-testid="section-how-it-works">
         <div className="mx-auto max-w-5xl">

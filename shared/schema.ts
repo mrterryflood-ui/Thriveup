@@ -3391,4 +3391,22 @@ export const insertCommunityStorySchema = createInsertSchema(communityStories).o
 export type InsertCommunityStory = z.infer<typeof insertCommunityStorySchema>;
 export type CommunityStory = typeof communityStories.$inferSelect;
 
+export const programDesigns = pgTable("program_designs", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id", { length: 255 }),
+  title: text("title").notNull(),
+  problemDomain: text("problem_domain").notNull(),
+  threeRealities: jsonb("three_realities").notNull().default({}),
+  communityContext: jsonb("community_context").notNull().default({}),
+  recommendations: jsonb("recommendations"),
+  grantAlignments: jsonb("grant_alignments"),
+  status: varchar("status", { length: 30 }).notNull().default("draft"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertProgramDesignSchema = createInsertSchema(programDesigns).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertProgramDesign = z.infer<typeof insertProgramDesignSchema>;
+export type ProgramDesign = typeof programDesigns.$inferSelect;
+
 export * from "./models/auth";

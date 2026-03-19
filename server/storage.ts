@@ -71,6 +71,8 @@ import {
   type OnboardingJourney, type InsertOnboardingJourney,
   type OnboardingMilestoneCompletion, type InsertOnboardingMilestoneCompletion,
   type OnboardingBaselineSnapshot, type InsertOnboardingBaselineSnapshot,
+  programDesigns,
+  type ProgramDesign, type InsertProgramDesign,
   cqiCycles, cqiGaps, cqiInterventions, cqiFidelityDefinitions, cqiFidelityObservations, cqiOutcomes,
 
   cqiCycles, cqiGaps, cqiInterventions, cqiFidelityDefinitions, cqiFidelityObservations, cqiOutcomes, cqiCyclePhases,
@@ -375,6 +377,12 @@ export interface IStorage {
   createCqiOutcome(data: InsertCqiOutcome): Promise<CqiOutcome>;
   updateCqiOutcome(id: string, data: Partial<InsertCqiOutcome>): Promise<CqiOutcome>;
   deleteCqiOutcome(id: string): Promise<void>;
+
+  getProgramDesigns(userId?: string): Promise<ProgramDesign[]>;
+  getProgramDesign(id: string): Promise<ProgramDesign | undefined>;
+  createProgramDesign(data: InsertProgramDesign): Promise<ProgramDesign>;
+  updateProgramDesign(id: string, data: Partial<InsertProgramDesign>): Promise<ProgramDesign>;
+  deleteProgramDesign(id: string): Promise<void>;
 
   seedData(): Promise<void>;
 }
@@ -1737,6 +1745,32 @@ export class DatabaseStorage implements IStorage {
 
   async deleteCqiOutcome(id: string): Promise<void> {
     await db.delete(cqiOutcomes).where(eq(cqiOutcomes.id, id));
+  }
+
+  async getProgramDesigns(userId?: string): Promise<ProgramDesign[]> {
+    if (userId) {
+      return db.select().from(programDesigns).where(eq(programDesigns.userId, userId)).orderBy(desc(programDesigns.createdAt));
+    }
+    return db.select().from(programDesigns).orderBy(desc(programDesigns.createdAt));
+  }
+
+  async getProgramDesign(id: string): Promise<ProgramDesign | undefined> {
+    const [design] = await db.select().from(programDesigns).where(eq(programDesigns.id, id));
+    return design;
+  }
+
+  async createProgramDesign(data: InsertProgramDesign): Promise<ProgramDesign> {
+    const [design] = await db.insert(programDesigns).values(data).returning();
+    return design;
+  }
+
+  async updateProgramDesign(id: string, data: Partial<InsertProgramDesign>): Promise<ProgramDesign> {
+    const [design] = await db.update(programDesigns).set({ ...data, updatedAt: new Date() }).where(eq(programDesigns.id, id)).returning();
+    return design;
+  }
+
+  async deleteProgramDesign(id: string): Promise<void> {
+    await db.delete(programDesigns).where(eq(programDesigns.id, id));
   }
 }
 

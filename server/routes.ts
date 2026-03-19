@@ -19,6 +19,7 @@ import {
   insertStaarStudentAssessmentSchema,
   savedResources, insertSavedResourceSchema, resourceSearchHistory,
   communityStories,
+  insertProgramDesignSchema,
   type CqiFidelityObservation,
 } from "@shared/schema";
 import { searchResources, getResourceCategories, getStatesList, getStateName, fetchBLSWageData } from "./resource-engine";
@@ -4121,9 +4122,14 @@ Then include a ## Roku & CTV Distribution section with:
     }
   });
 
-  app.get("/api/community-stories", async (_req, res) => {
+  app.get("/api/community-stories", async (req, res) => {
     try {
-      const allStories = await db.select().from(communityStories).orderBy(desc(communityStories.createdAt));
+      const statusFilter = req.query.status as string | undefined;
+      let query = db.select().from(communityStories);
+      if (statusFilter && ["pending", "approved", "rejected"].includes(statusFilter)) {
+        query = query.where(eq(communityStories.status, statusFilter)) as any;
+      }
+      const allStories = await query.orderBy(desc(communityStories.createdAt));
       res.json(allStories);
     } catch (error) {
       console.error("Error fetching community stories:", error);
@@ -4145,11 +4151,32 @@ Then include a ## Roku & CTV Distribution section with:
         needsIdentified: needsIdentified || [],
         platformsRouted: platformsRouted || [],
         isAnonymous: isAnonymous || false,
-        status: "approved",
+        status: "pending",
       }).returning();
       res.json(story);
     } catch (error) {
       console.error("Error creating community story:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.patch("/api/community-stories/:id", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+      if (!status || !["pending", "approved", "rejected"].includes(status)) {
+        return res.status(400).json({ error: "Invalid status. Must be pending, approved, or rejected." });
+      }
+      const [updated] = await db.update(communityStories)
+        .set({ status })
+        .where(eq(communityStories.id, id as string))
+        .returning();
+      if (!updated) {
+        return res.status(404).json({ error: "Story not found" });
+      }
+      res.json(updated);
+    } catch (error) {
+      console.error("Error updating community story:", error);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -5034,6 +5061,112 @@ Key guidelines:
       res.json({ cycle, gaps, interventions, outcomes, fidelityDefinitions: fidelityDefs, fidelityObservations: fidelityData, phaseHistory });
     } catch (error) {
       res.status(500).json({ error: "Failed to generate report" });
+    }
+  });
+
+  app.get("/api/program-designs", async (req, res) => {
+    try {
+      const userId = getUserId(req);
+      const designs = await storage.getProgramDesigns(userId || undefined);
+      res.json(designs);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch program designs" });
+    }
+  });
+
+  app.get("/api/program-designs/:id", async (req, res) => {
+    try {
+      const design = await storage.getProgramDesign(req.params.id);
+      if (!design) return res.status(404).json({ error: "Program design not found" });
+      res.json(design);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch program design" });
+    }
+  });
+
+  app.post("/api/program-designs", async (req, res) => {
+    try {
+      const userId = getUserId(req);
+      const parsed = insertProgramDesignSchema.parse({ ...req.body, userId });
+      const design = await storage.createProgramDesign(parsed);
+      res.json(design);
+    } catch (error: any) {
+      res.status(400).json({ error: error.message || "Failed to create program design" });
+    }
+  });
+
+  app.patch("/api/program-designs/:id", async (req, res) => {
+    try {
+      const design = await storage.updateProgramDesign(req.params.id, req.body);
+      res.json(design);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update program design" });
+    }
+  });
+
+  app.delete("/api/program-designs/:id", async (req, res) => {
+    try {
+      await storage.deleteProgramDesign(req.params.id);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete program design" });
+    }
+  });
+
+  app.post("/api/program-designs/generate-recommendation", async (req, res) => {
+    try {
+      const { problemDomain, communityContext, threeRealities } = req.body;
+      if (!problemDomain) return res.status(400).json({ error: "problemDomain is required" });
+
+      const systemPrompt = `You are a MAP-GAP program design expert for The Collaborative Advocate Foundation. You help design community intervention programs using 4 academic disciplines: Implementation Science, Criminal Justice, HR Management, and I-O Psychology.
+
+Given a problem domain, community context, and Three Realities analysis, generate a comprehensive intervention design recommendation.
+
+Respond with valid JSON only (no markdown, no code fences) in this exact format:
+{
+  "disciplines": [{"name": "string", "role": "string describing how this discipline applies"}],
+  "platforms": [{"name": "string", "purpose": "string"}],
+  "stakeholders": [{"type": "string", "role": "string"}],
+  "salpIndicators": [{"indicator": "string", "measurementMethod": "string"}],
+  "programStructure": {"phases": [{"name": "string", "duration": "string", "activities": ["string"]}]},
+  "grantAlignments": [{"grantName": "string", "alignmentScore": number_0_to_100, "keyAlignments": ["string"]}],
+  "title": "string - suggested program title"
+}`;
+
+      const userPrompt = `Design an intervention program for:
+
+Problem Domain: ${problemDomain}
+Community Context: ${JSON.stringify(communityContext || {})}
+Three Realities:
+- Research Reality: ${threeRealities?.research || "Not specified"}
+- Political Reality: ${threeRealities?.political || "Not specified"}
+- Ground Reality: ${threeRealities?.ground || "Not specified"}
+
+Provide a comprehensive MAP-GAP intervention design with discipline recommendations, platform selections, stakeholder coordination plan, SALP fidelity indicators, program structure with phases, and grant alignment suggestions.`;
+
+      let fullResponse = "";
+      await streamAIResponse({
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt },
+        ],
+        maxTokens: 3000,
+        onChunk: (chunk) => { fullResponse += chunk; },
+        onDone: () => {
+          try {
+            const cleaned = fullResponse.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+            const parsed = JSON.parse(cleaned);
+            res.json(parsed);
+          } catch (e) {
+            res.json({ raw: fullResponse, error: "Could not parse AI response as JSON" });
+          }
+        },
+        onError: (error) => {
+          res.status(500).json({ error: error.message || "AI generation failed" });
+        },
+      });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message || "Failed to generate recommendation" });
     }
   });
 
