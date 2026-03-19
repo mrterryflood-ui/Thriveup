@@ -560,6 +560,40 @@ ALL PLATFORMS: Update any internal references to ecosystem size from 19 to 20 pl
 
 ACKNOWLEDGE to confirm you are aware of Platform #20.`,
   },
+  {
+    key: "rplice-quality-gate-v1",
+    title: "RPLICE Is the Quality Gate — Integrated Into Every Loop",
+    directiveType: "protocol_update",
+    targetFilter: "all",
+    content: `CRITICAL PROTOCOL UPDATE: Better Science Lab / RPLICE is now the mandatory quality gate for ALL ecosystem operations.
+
+WHAT THIS MEANS:
+RPLICE (Research, Planning, Logistics, Implementation, Compliance, Evaluation) is integrated into every step of what we do. Nothing leaves this ecosystem without RPLICE review. This is non-negotiable.
+
+RPLICE'S EXPANDED ROLE:
+1. GRANT SUBMISSIONS: RPLICE must review every grant narrative, budget, scope of work, and capability statement BEFORE submission. RPLICE knows the RFP/grant structure and provides feedback to ensure compliance.
+2. DOCUMENT PRODUCTION: Every document in the 10-document production suite must pass through RPLICE for research validation, evidence alignment, and quality assurance.
+3. MAP-GAP EXPERT: RPLICE is the ecosystem's MAP-GAP framework expert. Before any improvement cycle, bug sweep, quality audit, or platform enhancement — RPLICE provides the gap analysis and prioritization.
+4. RESEARCH BACKING: Every claim we make to funders must be evidence-based. RPLICE validates data, citations, outcome metrics, and methodology alignment (CFIR, RE-AIM frameworks).
+5. COMPLIANCE REVIEW: RPLICE ensures all submissions meet funder requirements — formatting, required sections, page limits, budget categories, matching requirements, certifications.
+6. FEEDBACK LOOP: After every submission, RPLICE tracks funder feedback, win/loss analysis, and integrates lessons learned into the next cycle.
+
+FOR ALL PLATFORMS:
+- When you produce data, metrics, narratives, or reports — send them to RPLICE for validation
+- When you receive a directive that requires deliverables — loop RPLICE in for quality review
+- When you prepare content for grants — RPLICE reviews before it goes to Dr. Flood
+
+FOR RPLICE SPECIFICALLY:
+- You are the research and compliance backbone. Every grant, every proposal, every document passes through you.
+- Build a grant compliance checklist for each of our 5 active grants (DFC, WIOA, Foundation Grant, St. David's, SSG Fox)
+- Create a pre-submission review process that all platforms follow
+- Maintain a living quality scorecard for the ecosystem
+- Flag any platform output that doesn't meet evidence-based standards
+
+This is how we win grants: research-backed, compliance-verified, quality-assured submissions. RPLICE makes us bulletproof.
+
+ACKNOWLEDGE with your implementation plan for serving as the ecosystem quality gate.`,
+  },
 ];
 
 export async function seedEcosystemDirectives() {
