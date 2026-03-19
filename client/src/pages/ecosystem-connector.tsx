@@ -16,7 +16,7 @@ import {
   Code, Copy, ExternalLink, Radio, ArrowLeftRight,
   Rocket, Server, Users, BookOpen, GraduationCap,
   Brain, Phone, Factory, Stethoscope, Pill, Cpu,
-  Send, FileCheck,
+  Send, FileCheck, Power, BellRing, Volume2,
   FileText, ClipboardList, Briefcase, Filter, Eye,
 } from "lucide-react";
 import type { EcosystemPlatform, EcosystemEvent } from "@shared/schema";
@@ -185,6 +185,39 @@ export default function EcosystemConnectorPage() {
     onError: () => toast({ title: "Health check failed", variant: "destructive" }),
   });
 
+  const [wakeResults, setWakeResults] = useState<{ wokenAt: string; summary: { targeted: number; awake: number; responded: number; failed: number }; platforms: Array<{ id: string; name: string; url: string; status: string; responseTimeMs: number; statusCode: number; errorMessage: string | null; wakeAttempts: number }> } | null>(null);
+  const [wakingPlatformIds, setWakingPlatformIds] = useState<string[]>([]);
+
+  const wakeUpMutation = useMutation({
+    mutationFn: async (platformIds?: string[]) => {
+      const res = await apiRequest("POST", "/api/ecosystem/wake-up", platformIds ? { platformIds } : {});
+      return res.json();
+    },
+    onMutate: (platformIds?: string[]) => {
+      if (platformIds) {
+        setWakingPlatformIds(platformIds);
+      } else {
+        setWakingPlatformIds(displayPlatforms.map((p: any) => p.id));
+      }
+    },
+    onSuccess: (data) => {
+      setWakeResults(data);
+      setWakingPlatformIds([]);
+      queryClient.invalidateQueries({ queryKey: ["/api/ecosystem/platforms"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/ecosystem/status"] });
+      const awake = data.summary?.awake || 0;
+      const failed = data.summary?.failed || 0;
+      toast({
+        title: "Wake-Up Complete",
+        description: `${awake} awake, ${data.summary?.responded || 0} responded, ${failed} unreachable`,
+      });
+    },
+    onError: () => {
+      setWakingPlatformIds([]);
+      toast({ title: "Wake-up failed", description: "Could not reach platforms", variant: "destructive" });
+    },
+  });
+
   const snippetMutation = useMutation({
     mutationFn: async (platformId: string) => {
       const res = await apiRequest("GET", `/api/ecosystem/integration-snippet/${platformId}`, undefined);
@@ -222,10 +255,20 @@ export default function EcosystemConnectorPage() {
             </Button>
           )}
           {platforms.length > 0 && (
-            <Button onClick={() => healthCheckMutation.mutate()} disabled={healthCheckMutation.isPending} variant="outline" data-testid="button-health-check">
-              {healthCheckMutation.isPending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Activity className="h-4 w-4 mr-2" />}
-              Run Health Check
-            </Button>
+            <>
+              <Button
+                onClick={() => wakeUpMutation.mutate(undefined)}
+                disabled={wakeUpMutation.isPending}
+                data-testid="button-wake-all"
+              >
+                <Power className={`h-4 w-4 mr-2 ${wakeUpMutation.isPending ? "animate-spin" : ""}`} />
+                {wakeUpMutation.isPending ? "Waking..." : "Wake All Platforms"}
+              </Button>
+              <Button onClick={() => healthCheckMutation.mutate()} disabled={healthCheckMutation.isPending} variant="outline" data-testid="button-health-check">
+                {healthCheckMutation.isPending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Activity className="h-4 w-4 mr-2" />}
+                Run Health Check
+              </Button>
+            </>
           )}
         </div>
       </div>
@@ -261,6 +304,73 @@ export default function EcosystemConnectorPage() {
               {grantLens === "all" && (
                 <Badge variant="outline" className="text-xs">{totalCount} platforms registered</Badge>
               )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {wakeUpMutation.isPending && (
+        <Card className="border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/20" data-testid="card-wake-progress">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <Power className="h-5 w-5 text-amber-600 animate-spin" />
+              <div>
+                <span className="font-semibold text-amber-700 dark:text-amber-400">Waking up platforms...</span>
+                <p className="text-xs text-muted-foreground mt-0.5">Sending requests to force sleeping platforms to spin up. This may take 15-30 seconds.</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {wakeResults && !wakeUpMutation.isPending && (
+        <Card className="border-emerald-200 dark:border-emerald-800 bg-emerald-50/30 dark:bg-emerald-950/10" data-testid="card-wake-results">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Volume2 className="h-4 w-4 text-emerald-600" />
+                <span className="font-semibold text-sm">Wake-Up Results — {new Date(wakeResults.wokenAt).toLocaleTimeString()}</span>
+              </div>
+              <Button variant="ghost" size="sm" onClick={() => setWakeResults(null)} data-testid="button-dismiss-wake">
+                Dismiss
+              </Button>
+            </div>
+            <div className="grid grid-cols-3 gap-3 mb-3">
+              <div className="text-center p-2 rounded-lg bg-emerald-100/50 dark:bg-emerald-900/20">
+                <div className="text-xl font-bold text-emerald-600">{wakeResults.summary.awake}</div>
+                <div className="text-xs text-muted-foreground">Awake</div>
+              </div>
+              <div className="text-center p-2 rounded-lg bg-amber-100/50 dark:bg-amber-900/20">
+                <div className="text-xl font-bold text-amber-600">{wakeResults.summary.responded}</div>
+                <div className="text-xs text-muted-foreground">Responded</div>
+              </div>
+              <div className="text-center p-2 rounded-lg bg-red-100/50 dark:bg-red-900/20">
+                <div className="text-xl font-bold text-red-600">{wakeResults.summary.failed}</div>
+                <div className="text-xs text-muted-foreground">Unreachable</div>
+              </div>
+            </div>
+            <div className="space-y-1">
+              {wakeResults.platforms.map((p) => (
+                <div key={p.id} className="flex items-center justify-between text-sm p-1.5 rounded bg-muted/30">
+                  <div className="flex items-center gap-2">
+                    {p.status === "awake" ? (
+                      <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
+                    ) : p.status === "responded" ? (
+                      <AlertTriangle className="h-3.5 w-3.5 text-amber-500" />
+                    ) : (
+                      <WifiOff className="h-3.5 w-3.5 text-red-500" />
+                    )}
+                    <span className="text-xs font-medium">{p.name}</span>
+                    {p.wakeAttempts > 1 && (
+                      <Badge variant="outline" className="text-[10px]">{p.wakeAttempts} attempts</Badge>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className={`text-xs font-mono ${p.responseTimeMs < 1000 ? "text-emerald-600" : p.responseTimeMs < 3000 ? "text-amber-600" : "text-red-600"}`}>{p.responseTimeMs}ms</span>
+                    {p.errorMessage && <span className="text-[10px] text-red-500">{p.errorMessage}</span>}
+                  </div>
+                </div>
+              ))}
             </div>
           </CardContent>
         </Card>
@@ -330,9 +440,26 @@ export default function EcosystemConnectorPage() {
                     )}
                   </div>
                   <div>
-                    <div className="flex items-center gap-2 mb-2">
-                      <WifiOff className="h-3.5 w-3.5 text-red-500" />
-                      <span className="text-xs font-semibold text-red-600 dark:text-red-400">Offline / Not Connected ({offlinePlatforms.length})</span>
+                    <div className="flex items-center justify-between gap-2 mb-2 flex-wrap">
+                      <div className="flex items-center gap-2">
+                        <WifiOff className="h-3.5 w-3.5 text-red-500" />
+                        <span className="text-xs font-semibold text-red-600 dark:text-red-400">Offline / Not Connected ({offlinePlatforms.length})</span>
+                      </div>
+                      {offlinePlatforms.length > 0 && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            const sleepers = offlinePlatforms.map((p: any) => p.id);
+                            wakeUpMutation.mutate(sleepers);
+                          }}
+                          disabled={wakeUpMutation.isPending}
+                          data-testid="button-wake-sleepers"
+                        >
+                          <BellRing className={`h-3 w-3 mr-1 ${wakeUpMutation.isPending ? "animate-spin" : ""}`} />
+                          <span className="text-xs">Wake {offlinePlatforms.length} Sleepers</span>
+                        </Button>
+                      )}
                     </div>
                     {offlinePlatforms.length === 0 ? (
                       <p className="text-xs text-emerald-600 font-medium">All platforms online</p>
@@ -341,14 +468,31 @@ export default function EcosystemConnectorPage() {
                         {offlinePlatforms.map((p: any) => {
                           const Icon = PLATFORM_ICONS[p.id] || Globe;
                           const colors = PLATFORM_COLORS[p.id] || DEFAULT_COLORS;
+                          const isWaking = wakingPlatformIds.includes(p.id);
                           return (
-                            <a key={p.id} href={p.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 py-1 px-2 rounded bg-red-50/50 dark:bg-red-950/20 hover:bg-red-100 dark:hover:bg-red-900/40 cursor-pointer transition-colors" data-testid={`status-offline-${p.id}`}>
-                              <div className="w-2 h-2 rounded-full bg-red-400 flex-shrink-0" />
+                            <div key={p.id} className="flex items-center gap-2 py-1 px-2 rounded bg-red-50/50 dark:bg-red-950/20" data-testid={`status-offline-${p.id}`}>
+                              <div className={`w-2 h-2 rounded-full flex-shrink-0 ${isWaking ? "bg-amber-400 animate-pulse" : "bg-red-400"}`} />
                               <Icon className={`h-3.5 w-3.5 flex-shrink-0 ${colors.text}`} />
                               <span className="text-xs font-medium truncate">{p.name}</span>
-                              <span className="text-[10px] text-muted-foreground ml-auto flex-shrink-0">{p.status === "registered" ? "Sleeping" : "Connection lost"}</span>
-                              <ExternalLink className="h-3 w-3 text-muted-foreground flex-shrink-0" />
-                            </a>
+                              <span className="text-[10px] text-muted-foreground ml-auto flex-shrink-0">
+                                {isWaking ? "Waking..." : p.status === "registered" ? "Sleeping" : "Connection lost"}
+                              </span>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  wakeUpMutation.mutate([p.id]);
+                                }}
+                                disabled={wakeUpMutation.isPending}
+                                data-testid={`button-wake-${p.id}`}
+                              >
+                                <Power className={`h-3 w-3 ${isWaking ? "animate-spin text-amber-500" : "text-red-500"}`} />
+                              </Button>
+                              <a href={p.url} target="_blank" rel="noopener noreferrer" className="flex-shrink-0">
+                                <ExternalLink className="h-3 w-3 text-muted-foreground" />
+                              </a>
+                            </div>
                           );
                         })}
                       </div>

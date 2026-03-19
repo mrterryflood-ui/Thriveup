@@ -139,6 +139,8 @@ const VoicesOfAustinPage = lazy(() => import("@/pages/voices-of-austin"));
 const ManorCommunityHubPage = lazy(() => import("@/pages/manor-community-hub"));
 const PflugervilleCommunityHubPage = lazy(() => import("@/pages/pflugerville-community-hub"));
 const EcosystemOpsCenterPage = lazy(() => import("@/pages/ecosystem-ops-center"));
+const EcosystemEmbedPage = lazy(() => import("@/pages/ecosystem-embed"));
+const LifeBridgeEmbedPage = lazy(() => import("@/pages/ecosystem-embed").then(m => ({ default: m.LifeBridgeEmbedPage })));
 
 function PageFallback() {
   return (
@@ -356,6 +358,16 @@ function PresentationLayout() {
   );
 }
 
+function EmbedLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="min-h-screen bg-background text-foreground">
+      <Suspense fallback={<PageFallback />}>
+        {children}
+      </Suspense>
+    </div>
+  );
+}
+
 function App() {
   return (
     <ThemeProvider>
@@ -367,6 +379,12 @@ function App() {
                 <Switch>
                   <Route path="/presentation">
                     <PresentationLayout />
+                  </Route>
+                  <Route path="/ecosystem/embed">
+                    <EmbedLayout><EcosystemEmbedPage /></EmbedLayout>
+                  </Route>
+                  <Route path="/ecosystem/lifebridge">
+                    <EmbedLayout><LifeBridgeEmbedPage /></EmbedLayout>
                   </Route>
                   <Route>
                     <AppLayout />

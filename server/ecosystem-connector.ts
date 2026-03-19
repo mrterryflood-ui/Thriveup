@@ -1318,6 +1318,123 @@ if (typeof module !== "undefined") {
     }
   });
 
+  app.get("/api/ecosystem/public/status", async (_req, res) => {
+    try {
+      const platforms = await db.select().from(ecosystemPlatforms).orderBy(ecosystemPlatforms.name);
+      const sanitized = platforms.map(({ apiKey, ...rest }) => ({
+        id: rest.id,
+        name: rest.name,
+        url: rest.url,
+        role: rest.role,
+        domain: rest.domain,
+        description: rest.description,
+        status: rest.status,
+        healthStatus: rest.healthStatus,
+        lastHeartbeat: rest.lastHeartbeat,
+        grantAlignment: rest.grantAlignment,
+      }));
+
+      const directives = await db.select().from(ecosystemDirectives)
+        .where(eq(ecosystemDirectives.status, "active"))
+        .orderBy(desc(ecosystemDirectives.createdAt));
+
+      const directiveSummaries = await Promise.all(directives.map(async (d) => {
+        const acks = await db.select().from(ecosystemDirectiveAcks).where(eq(ecosystemDirectiveAcks.directiveId, d.id));
+        return {
+          id: d.id,
+          title: d.title,
+          directiveType: d.directiveType,
+          grantId: d.grantId,
+          status: d.status,
+          createdAt: d.createdAt,
+          expiresAt: d.expiresAt,
+          targetPlatformCount: (d.targetPlatformIds as string[] || []).length,
+          stats: {
+            total: acks.length,
+            pending: acks.filter((a) => a.status === "pending").length,
+            delivered: acks.filter((a) => a.status === "delivered").length,
+            acknowledged: acks.filter((a) => a.status === "acknowledged").length,
+          },
+        };
+      }));
+
+      const online = sanitized.filter(p => p.healthStatus === "online").length;
+      const degraded = sanitized.filter(p => p.healthStatus === "degraded").length;
+      const offline = sanitized.filter(p => p.healthStatus === "offline").length;
+
+      res.json({
+        ecosystem: {
+          name: "ThriveUp Academy Ecosystem",
+          totalPlatforms: sanitized.length,
+          health: { online, degraded, offline, unknown: sanitized.length - online - degraded - offline },
+        },
+        platforms: sanitized,
+        directives: directiveSummaries,
+      });
+    } catch (error) {
+      console.error("Failed to fetch public ecosystem status:", error);
+      res.status(500).json({ error: "Failed to fetch ecosystem status" });
+    }
+  });
+
+  app.get("/api/ecosystem/platform-directives/:platformId", async (req, res) => {
+    try {
+      const { platformId } = req.params;
+      const [platform] = await db.select().from(ecosystemPlatforms).where(eq(ecosystemPlatforms.id, platformId));
+      if (!platform) {
+        return res.status(404).json({ error: "Platform not found" });
+      }
+
+      const acks = await db.select().from(ecosystemDirectiveAcks)
+        .where(eq(ecosystemDirectiveAcks.platformId, platformId));
+
+      const directiveDetails = await Promise.all(acks.map(async (a) => {
+        const [d] = await db.select().from(ecosystemDirectives).where(eq(ecosystemDirectives.id, a.directiveId));
+        if (!d) return null;
+        const roles = (d.platformRoles as Record<string, string>) || {};
+        return {
+          directiveId: d.id,
+          title: d.title,
+          type: d.directiveType,
+          content: d.content,
+          grantId: d.grantId,
+          yourRole: roles[platformId] || null,
+          trackingRequirements: d.trackingRequirements,
+          deliveryStatus: a.status,
+          issuedAt: d.createdAt,
+          acknowledgedAt: a.status === "acknowledged" ? a.acknowledgedAt : null,
+        };
+      }));
+
+      const filtered = directiveDetails.filter(Boolean);
+      const dataFlows = platform.dataFlowConfig as { sends?: string[]; receives?: string[] } | null;
+
+      res.json({
+        platform: {
+          id: platform.id,
+          name: platform.name,
+          url: platform.url,
+          role: platform.role,
+          domain: platform.domain,
+          description: platform.description,
+          healthStatus: platform.healthStatus,
+          lastHeartbeat: platform.lastHeartbeat,
+          grantAlignment: platform.grantAlignment,
+          sends: dataFlows?.sends || [],
+          receives: dataFlows?.receives || [],
+        },
+        totalDirectives: filtered.length,
+        pending: filtered.filter((d: any) => d.deliveryStatus === "pending").length,
+        delivered: filtered.filter((d: any) => d.deliveryStatus === "delivered").length,
+        acknowledged: filtered.filter((d: any) => d.deliveryStatus === "acknowledged").length,
+        directives: filtered,
+      });
+    } catch (error) {
+      console.error("Failed to fetch platform directives:", error);
+      res.status(500).json({ error: "Failed to fetch platform directives" });
+    }
+  });
+
   app.get("/api/ecosystem/integration-doc-public", requireAdminAuth, async (_req, res) => {
     try {
       const allPlatforms = await db.select().from(ecosystemPlatforms);
