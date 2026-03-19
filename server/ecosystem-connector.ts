@@ -598,16 +598,91 @@ export function registerEcosystemConnectorRoutes(app: Express) {
         }
       }
 
+      const totalDirectives = await db.select().from(ecosystemDirectiveAcks)
+        .where(eq(ecosystemDirectiveAcks.platformId, platform.id));
+      const ackCount = totalDirectives.filter(a => a.status === "acknowledged").length;
+      const deliveredCount = totalDirectives.filter(a => a.status === "delivered").length;
+      const pendingCount = totalDirectives.filter(a => a.status === "pending").length;
+
       res.json({
         acknowledged: true,
         platformId: platform.id,
+        platformName: platform.name,
+        hubMessage: pendingDirectives.length > 0
+          ? `Welcome back, ${platform.name}. You have ${pendingDirectives.length} new directive(s) to act on. Read each one's content field — these are real tasks, not notifications. After completing each directive, acknowledge it via POST /api/ecosystem/directives/ack.`
+          : `Heartbeat received, ${platform.name}. You're up to date — no new directives right now. You have ${ackCount} acknowledged, ${deliveredCount} delivered, ${pendingCount} pending.`,
+        directivesSummary: {
+          total: totalDirectives.length,
+          acknowledged: ackCount,
+          delivered: deliveredCount,
+          pending: pendingCount,
+        },
         pendingEvents: pendingEvents,
         pendingDirectives: pendingDirectives,
+        nextActions: pendingDirectives.length > 0
+          ? pendingDirectives.map(d => ({
+              directiveId: d.directiveId,
+              action: `Read and act on: "${d.title}". Your role: ${d.yourRole || 'See content field'}. After completing, POST to /api/ecosystem/directives/ack with { "directiveId": "${d.directiveId}", "platformId": "${platform.id}", "status": "acknowledged" }`,
+            }))
+          : [],
+        ackEndpoint: "POST https://thrivingcommunitiesforall.com/api/ecosystem/directives/ack",
+        repositoryEndpoint: `GET https://thrivingcommunitiesforall.com/api/ecosystem/directives/repository/${platform.id}`,
         serverTime: new Date().toISOString(),
       });
     } catch (error) {
       console.error("Heartbeat failed:", error);
       res.status(500).json({ error: "Heartbeat failed" });
+    }
+  });
+
+  app.post("/api/ecosystem/directives/ack", async (req, res) => {
+    try {
+      const { directiveId, platformId, status } = req.body;
+      if (!directiveId || !platformId) {
+        return res.status(400).json({ error: "directiveId and platformId are required" });
+      }
+
+      const [ack] = await db.select().from(ecosystemDirectiveAcks)
+        .where(and(
+          eq(ecosystemDirectiveAcks.directiveId, directiveId),
+          eq(ecosystemDirectiveAcks.platformId, platformId),
+        ));
+
+      if (!ack) {
+        return res.status(404).json({ error: `No directive found for platform '${platformId}' with directiveId '${directiveId}'. Check your platformId and directiveId.` });
+      }
+
+      const newStatus = status || "acknowledged";
+      await db.update(ecosystemDirectiveAcks)
+        .set({
+          status: newStatus,
+          acknowledgedAt: new Date(),
+          responseData: req.body.responseData || req.body.notes || null,
+        })
+        .where(eq(ecosystemDirectiveAcks.id, ack.id));
+
+      const [directive] = await db.select().from(ecosystemDirectives)
+        .where(eq(ecosystemDirectives.id, directiveId));
+
+      const remaining = await db.select().from(ecosystemDirectiveAcks)
+        .where(and(
+          eq(ecosystemDirectiveAcks.platformId, platformId),
+          sql`${ecosystemDirectiveAcks.status} != 'acknowledged'`,
+        ));
+
+      res.json({
+        received: true,
+        handshake: "confirmed",
+        message: `Hub confirms: ${platformId} acknowledged directive "${directive?.title || directiveId}". ${remaining.length} directive(s) still need your attention.`,
+        directiveId,
+        platformId,
+        status: newStatus,
+        remainingDirectives: remaining.length,
+        serverTime: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.error("Directive ack failed:", error);
+      res.status(500).json({ error: "Failed to acknowledge directive" });
     }
   });
 
