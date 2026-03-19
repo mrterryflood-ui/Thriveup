@@ -1036,6 +1036,40 @@ export function registerEcosystemConnectorRoutes(app: Express) {
     }
   });
 
+  function isGenericAck(whatWasDone: string, directiveTitle: string): boolean {
+    if (!whatWasDone || whatWasDone.length < 20) return true;
+    const normalized = whatWasDone.toLowerCase().trim();
+    const titleNorm = directiveTitle.toLowerCase().trim();
+    if (normalized === titleNorm) return true;
+    if (normalized === `implemented: ${titleNorm}`) return true;
+    if (normalized === `acknowledged: ${titleNorm}`) return true;
+    if (normalized.startsWith("implemented: ") && normalized.length < 60) return true;
+    if (normalized.startsWith("acknowledged: ") && normalized.length < 60) return true;
+    if (normalized === "done" || normalized === "completed" || normalized === "acknowledged") return true;
+    const genericPhrases = [
+      "directive received, read, and actioned",
+      "guidance incorporated into platform operations",
+      "content incorporated into",
+    ];
+    for (const phrase of genericPhrases) {
+      if (normalized.includes(phrase) && normalized.length < 100) return true;
+    }
+    return false;
+  }
+
+  function getAckQuality(whatWasDone: string, evidenceUrl: string | null, directiveTitle: string): { quality: "VERIFIED" | "SUBSTANTIVE" | "WEAK" | "REJECTED"; reason: string } {
+    if (isGenericAck(whatWasDone, directiveTitle)) {
+      return { quality: "REJECTED", reason: "Generic acknowledgment detected. Describe SPECIFIC work you did — features built, endpoints created, pages deployed. Parroting the directive title does not count." };
+    }
+    if (evidenceUrl && evidenceUrl.startsWith("https://")) {
+      return { quality: "VERIFIED", reason: "Substantive work description with evidence URL. This counts toward full fidelity." };
+    }
+    if (whatWasDone.length >= 80) {
+      return { quality: "SUBSTANTIVE", reason: "Detailed work description accepted. Add an evidenceUrl for VERIFIED status." };
+    }
+    return { quality: "WEAK", reason: "Work description accepted but lacks detail. Provide more specifics about what you built and include an evidenceUrl." };
+  }
+
   app.post("/api/ecosystem/directives/ack", async (req, res) => {
     try {
       const { directiveId, platformId, status } = req.body;
@@ -1053,23 +1087,43 @@ export function registerEcosystemConnectorRoutes(app: Express) {
         return res.status(404).json({ error: `No directive found for platform '${platformId}' with directiveId '${directiveId}'. Check your platformId and directiveId.` });
       }
 
+      const [directive] = await db.select().from(ecosystemDirectives)
+        .where(eq(ecosystemDirectives.id, directiveId));
+      const directiveTitle = directive?.title || directiveId;
+
+      const responseData = req.body.responseData || req.body.notes || null;
+      const whatWasDone = responseData?.whatWasDone || (typeof responseData === "string" ? responseData : "");
+      const evidenceUrl = responseData?.evidenceUrl || null;
+
+      const ackQuality = getAckQuality(whatWasDone, evidenceUrl, directiveTitle);
+
+      if (ackQuality.quality === "REJECTED") {
+        return res.status(422).json({
+          received: false,
+          rejected: true,
+          reason: ackQuality.reason,
+          directiveId,
+          platformId,
+          directiveTitle,
+          whatYouSent: whatWasDone,
+          whatWeExpect: "A SPECIFIC description of what you built or changed (minimum 20 characters, not a copy of the directive title). Example: 'Built /api/warm-handoff endpoint that accepts referrals from any ecosystem platform and confirms receipt within 200ms. Added referral tracking dashboard at /referrals showing source platform, timestamp, and follow-up status.'",
+          evidenceUrlRequired: "Include responseData.evidenceUrl with a live HTTPS URL where the work can be seen or tested.",
+          serverTime: new Date().toISOString(),
+        });
+      }
+
       const newStatus = status || "acknowledged";
       await db.update(ecosystemDirectiveAcks)
         .set({
           status: newStatus,
           acknowledgedAt: new Date(),
-          responseData: req.body.responseData || req.body.notes || null,
+          responseData: {
+            ...(typeof responseData === "object" && responseData ? responseData : { whatWasDone }),
+            _ackQuality: ackQuality.quality,
+            _qualityNote: ackQuality.reason,
+          },
         })
         .where(eq(ecosystemDirectiveAcks.id, ack.id));
-
-      const [directive] = await db.select().from(ecosystemDirectives)
-        .where(eq(ecosystemDirectives.id, directiveId));
-
-      const remaining = await db.select().from(ecosystemDirectiveAcks)
-        .where(and(
-          eq(ecosystemDirectiveAcks.platformId, platformId),
-          sql`${ecosystemDirectiveAcks.status} != 'acknowledged'`,
-        ));
 
       const allAcks = await db.select().from(ecosystemDirectiveAcks)
         .where(eq(ecosystemDirectiveAcks.platformId, platformId));
@@ -1084,21 +1138,33 @@ export function registerEcosystemConnectorRoutes(app: Express) {
         if (d) pendingTitles.push(d.title);
       }
 
+      if (ackQuality.quality === "VERIFIED" && evidenceUrl) {
+        const platform = ECOSYSTEM_PLATFORMS.find(p => p.id === platformId);
+        if (platform) {
+          const eventType = directiveTitle.toLowerCase().includes("warm handoff") ? "warm_handoff_ready"
+            : directiveTitle.toLowerCase().includes("video") ? "video_script_ready"
+            : directiveTitle.toLowerCase().includes("security") ? "security_audit_complete"
+            : directiveTitle.toLowerCase().includes("grant") ? "grant_narrative_ready"
+            : "work_completed";
+          processWorkChains(platformId, eventType, { whatWasDone, evidenceUrl, directiveTitle }).catch(() => {});
+        }
+      }
+
       res.json({
         received: true,
         handshake: "confirmed",
+        ackQuality: ackQuality.quality,
         hubVerification: {
-          message: `Hub confirms: ${platformId} acknowledged directive "${directive?.title || directiveId}".`,
+          message: `Hub confirms: ${platformId} acknowledged directive "${directiveTitle}".`,
+          qualityGrade: ackQuality.quality,
+          qualityFeedback: ackQuality.reason,
           whatHubRecorded: {
-            directiveTitle: directive?.title || directiveId,
+            directiveTitle,
             platformId,
             status: newStatus,
-            responseData: req.body.responseData || req.body.notes || null,
+            responseData: responseData || null,
             recordedAt: new Date().toISOString(),
           },
-          validationStatus: (req.body.responseData || req.body.notes)
-            ? "VERIFIED — Hub recorded your work description. This counts toward fidelity."
-            : "PARTIAL — Acknowledged but no work description provided. Include responseData: { whatWasDone: '...' } for full fidelity credit.",
         },
         complianceUpdate: {
           fidelityScore,
@@ -2095,6 +2161,57 @@ if (typeof module !== "undefined") {
       { nextPlatform: "whole-person-health", eventType: "crisis_escalation", description: "Crisis alert escalation" },
       { nextPlatform: "lifebridge", eventType: "crisis_resource_needed", description: "Crisis — resource navigation needed" },
     ],
+    "warm_handoff_ready": [
+      { nextPlatform: "betterscience", eventType: "verify_warm_handoff", description: "Warm handoff endpoint built — RPLICE verify quality" },
+      ...ECOSYSTEM_PLATFORMS.filter(p => !["betterscience"].includes(p.id)).map(p => ({ nextPlatform: p.id, eventType: "warm_handoff_available", description: "New warm handoff endpoint available for cross-platform referrals" })),
+    ],
+    "work_completed": [
+      { nextPlatform: "betterscience", eventType: "quality_review_needed", description: "Work completed — RPLICE quality gate review" },
+    ],
+    "screening_built": [
+      { nextPlatform: "whole-person-health", eventType: "register_screening", description: "New screening tool available — register in health ecosystem" },
+      { nextPlatform: "betterscience", eventType: "validate_screening", description: "New screening tool — validate evidence base" },
+    ],
+    "intake_endpoint_built": [
+      { nextPlatform: "betterscience", eventType: "verify_intake", description: "Intake endpoint built — verify and register" },
+      ...ECOSYSTEM_PLATFORMS.filter(p => !["betterscience"].includes(p.id)).map(p => ({ nextPlatform: p.id, eventType: "intake_available", description: "New intake endpoint available for referrals" })),
+    ],
+    "housing_resource_added": [
+      { nextPlatform: "lifebridge", eventType: "housing_resource_update", description: "New housing resource — add to LifeBridge directory" },
+      { nextPlatform: "whole-person-health", eventType: "resource_update", description: "New housing resource for Whole-Person Health directory" },
+    ],
+    "workforce_pathway_created": [
+      { nextPlatform: "m2c", eventType: "workforce_pathway_available", description: "New workforce pathway — M2C Transition integration" },
+      { nextPlatform: "mission-transition", eventType: "career_pathway_update", description: "New workforce pathway for veteran career translation" },
+      { nextPlatform: "isss", eventType: "youth_pathway_available", description: "New workforce pathway — ISSS youth pipeline" },
+    ],
+    "youth_referral": [
+      { nextPlatform: "isss", eventType: "youth_intake", description: "Youth referral — ISSS intake and wraparound" },
+      { nextPlatform: "wholemind", eventType: "youth_learning_referral", description: "Youth referral — WholeMind learning assessment" },
+    ],
+    "veteran_referral": [
+      { nextPlatform: "mission-transition", eventType: "veteran_intake", description: "Veteran referral — Mission Transition onboarding" },
+      { nextPlatform: "whole-person-health", eventType: "veteran_health_intake", description: "Veteran referral — health screening" },
+    ],
+    "maternal_health_referral": [
+      { nextPlatform: "sankofa-maternal-health", eventType: "maternal_intake", description: "Maternal health referral — BirthRight intake" },
+      { nextPlatform: "sankofa", eventType: "health_network_referral", description: "Maternal health referral — Sankofa network" },
+    ],
+    "content_ready_for_distribution": [
+      { nextPlatform: "video-creator-ai", eventType: "create_content_video", description: "Content ready — create video for distribution" },
+      ...ECOSYSTEM_PLATFORMS.map(p => ({ nextPlatform: p.id, eventType: "content_available", description: "New ecosystem content available for your platform" })),
+    ],
+    "product_launched": [
+      { nextPlatform: "betterscience", eventType: "evaluate_product", description: "New product launched — RPLICE evaluate with RE-AIM" },
+      { nextPlatform: "shield-atlas", eventType: "security_scan_needed", description: "New product launched — Shield Atlas security scan" },
+      { nextPlatform: "video-creator-ai", eventType: "product_demo_video", description: "New product launched — create demo video" },
+    ],
+    "map_gap_finding": [
+      { nextPlatform: "betterscience", eventType: "gap_analysis_received", description: "MAP-GAP finding — RPLICE analyze and recommend" },
+    ],
+    "platform_needs_help": [
+      { nextPlatform: "betterscience", eventType: "collaboration_request", description: "Platform requesting collaboration support" },
+    ],
   };
 
   async function processWorkChains(sourcePlatformId: string, eventType: string, eventData: Record<string, unknown>) {
@@ -2179,6 +2296,8 @@ if (typeof module !== "undefined") {
         .where(gte(ecosystemEvents.createdAt, new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)))
         .orderBy(desc(ecosystemEvents.createdAt));
 
+      const REGIONAL_DIRECTIVE_KEYS = ["regional-products-austin-v1", "regional-products-manor-v1", "regional-products-pflugerville-v1"];
+
       const platformIntel = platforms.map(p => {
         const platformAcks = allAcks.filter(a => a.platformId === p.id);
         const total = platformAcks.length;
@@ -2197,9 +2316,23 @@ if (typeof module !== "undefined") {
               whatWasDone: rd?.whatWasDone || "No description",
               evidenceUrl: rd?.evidenceUrl || null,
               verificationStatus: rd?._verificationStatus || "UNVERIFIED",
+              ackQuality: rd?._ackQuality || "LEGACY",
               acknowledgedAt: a.acknowledgedAt,
             };
           });
+
+        const qualityCounts = {
+          verified: completedWork.filter(w => w.ackQuality === "VERIFIED").length,
+          substantive: completedWork.filter(w => w.ackQuality === "SUBSTANTIVE").length,
+          weak: completedWork.filter(w => w.ackQuality === "WEAK").length,
+          legacy: completedWork.filter(w => w.ackQuality === "LEGACY").length,
+        };
+
+        const regionalProducts = {
+          austin: completedWork.find(w => w.directive.toLowerCase().includes("austin regional")),
+          manor: completedWork.find(w => w.directive.toLowerCase().includes("manor regional")),
+          pflugerville: completedWork.find(w => w.directive.toLowerCase().includes("pflugerville regional")),
+        };
 
         const overdue = platformAcks
           .filter(a => a.status === "delivered")
@@ -2221,6 +2354,8 @@ if (typeof module !== "undefined") {
           lastHeartbeat: p.lastHeartbeat,
           heartbeatAgeMinutes: heartbeatAge,
           fidelity: { score: fidelity, grade: fidelity >= 90 ? "A" : fidelity >= 75 ? "B" : fidelity >= 50 ? "C" : fidelity >= 25 ? "D" : "F", total, acknowledged, delivered, pending },
+          ackQuality: qualityCounts,
+          regionalProducts,
           completedWork,
           overdue,
           grantAlignment: p.grantAlignment,
@@ -2263,6 +2398,46 @@ if (typeof module !== "undefined") {
       const complianceEvents = recentEvents.filter(e => e.eventType === "compliance_report");
       const chainedEvents = recentEvents.filter(e => (e.eventData as any)?.chainedFrom);
 
+      const regionalProductSummary = {
+        austin: {
+          platformsWithProduct: platformIntel.filter(p => p.regionalProducts.austin).length,
+          totalPlatforms: platformIntel.length,
+          products: platformIntel.filter(p => p.regionalProducts.austin).map(p => ({
+            platform: p.name,
+            whatWasDone: p.regionalProducts.austin?.whatWasDone,
+            evidenceUrl: p.regionalProducts.austin?.evidenceUrl,
+            verified: p.regionalProducts.austin?.verificationStatus === "LIVE",
+          })),
+        },
+        manor: {
+          platformsWithProduct: platformIntel.filter(p => p.regionalProducts.manor).length,
+          totalPlatforms: platformIntel.length,
+          products: platformIntel.filter(p => p.regionalProducts.manor).map(p => ({
+            platform: p.name,
+            whatWasDone: p.regionalProducts.manor?.whatWasDone,
+            evidenceUrl: p.regionalProducts.manor?.evidenceUrl,
+            verified: p.regionalProducts.manor?.verificationStatus === "LIVE",
+          })),
+        },
+        pflugerville: {
+          platformsWithProduct: platformIntel.filter(p => p.regionalProducts.pflugerville).length,
+          totalPlatforms: platformIntel.length,
+          products: platformIntel.filter(p => p.regionalProducts.pflugerville).map(p => ({
+            platform: p.name,
+            whatWasDone: p.regionalProducts.pflugerville?.whatWasDone,
+            evidenceUrl: p.regionalProducts.pflugerville?.evidenceUrl,
+            verified: p.regionalProducts.pflugerville?.verificationStatus === "LIVE",
+          })),
+        },
+      };
+
+      const ackQualitySummary = {
+        verified: platformIntel.reduce((s, p) => s + p.ackQuality.verified, 0),
+        substantive: platformIntel.reduce((s, p) => s + p.ackQuality.substantive, 0),
+        weak: platformIntel.reduce((s, p) => s + p.ackQuality.weak, 0),
+        legacy: platformIntel.reduce((s, p) => s + p.ackQuality.legacy, 0),
+      };
+
       const dueOut = allDirectives
         .filter(d => d.expiresAt && new Date(d.expiresAt) > new Date())
         .map(d => {
@@ -2296,7 +2471,9 @@ if (typeof module !== "undefined") {
           eventsThisWeek: recentEvents.length,
           complianceReportsThisWeek: complianceEvents.length,
           workChainsTriggered: chainedEvents.length,
+          ackQuality: ackQualitySummary,
         },
+        regionalProducts: regionalProductSummary,
         dueOut,
         needsAttention,
         grantReadiness,

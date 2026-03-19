@@ -64,9 +64,21 @@ interface IntelPlatform {
   lastHeartbeat: string | null;
   heartbeatAgeMinutes: number | null;
   fidelity: { score: number; grade: string; total: number; acknowledged: number; delivered: number; pending: number };
-  completedWork: { directive: string; whatWasDone: string; evidenceUrl: string | null; verificationStatus: string; acknowledgedAt: string | null }[];
+  ackQuality: { verified: number; substantive: number; weak: number; legacy: number };
+  regionalProducts: {
+    austin: { whatWasDone: string; evidenceUrl: string | null; verificationStatus: string } | null;
+    manor: { whatWasDone: string; evidenceUrl: string | null; verificationStatus: string } | null;
+    pflugerville: { whatWasDone: string; evidenceUrl: string | null; verificationStatus: string } | null;
+  };
+  completedWork: { directive: string; whatWasDone: string; evidenceUrl: string | null; verificationStatus: string; ackQuality: string; acknowledgedAt: string | null }[];
   overdue: { directive: string; directiveId: string }[];
   grantAlignment: string[];
+}
+
+interface RegionalProductSummary {
+  platformsWithProduct: number;
+  totalPlatforms: number;
+  products: { platform: string; whatWasDone: string; evidenceUrl: string | null; verified: boolean }[];
 }
 
 interface GrantReadiness {
@@ -92,6 +104,12 @@ interface IntelReport {
     eventsThisWeek: number;
     complianceReportsThisWeek: number;
     workChainsTriggered: number;
+    ackQuality?: { verified: number; substantive: number; weak: number; legacy: number };
+  };
+  regionalProducts?: {
+    austin: RegionalProductSummary;
+    manor: RegionalProductSummary;
+    pflugerville: RegionalProductSummary;
   };
   dueOut: { title: string; daysLeft: number; acked: number; total: number; urgent: boolean }[];
   needsAttention: { id: string; name: string; reason: string; overdue: { directive: string }[]; fidelity: number }[];
@@ -191,7 +209,7 @@ export default function EcosystemOpsCenterPage() {
   const { data: intelReport, isLoading: intelLoading, refetch: refetchIntel } = useQuery<IntelReport>({
     queryKey: ["/api/ecosystem/intelligence-report"],
     staleTime: 60000,
-    enabled: activeTab === "intelligence" || activeTab === "grants",
+    enabled: activeTab === "intelligence" || activeTab === "grants" || activeTab === "products",
   });
 
   const wakeUpMutation = useMutation({
@@ -432,9 +450,12 @@ export default function EcosystemOpsCenterPage() {
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} data-testid="tabs-ops">
-            <TabsList className="grid w-full grid-cols-3 md:grid-cols-6 gap-1 h-auto p-1">
+            <TabsList className="grid w-full grid-cols-4 md:grid-cols-7 gap-1 h-auto p-1">
               <TabsTrigger value="intelligence" className="text-xs md:text-sm" data-testid="tab-intelligence">
                 <TrendingUp className="h-3.5 w-3.5 mr-1" /> Intelligence
+              </TabsTrigger>
+              <TabsTrigger value="products" className="text-xs md:text-sm" data-testid="tab-products">
+                <Briefcase className="h-3.5 w-3.5 mr-1" /> Products
               </TabsTrigger>
               <TabsTrigger value="grants" className="text-xs md:text-sm" data-testid="tab-grants">
                 <Target className="h-3.5 w-3.5 mr-1" /> Grant Readiness
@@ -638,6 +659,140 @@ export default function EcosystemOpsCenterPage() {
                   </CardContent>
                 </Card>
               )}
+            </TabsContent>
+
+            <TabsContent value="products" className="mt-6 space-y-6" data-testid="content-products">
+              {intelLoading ? (
+                <div className="space-y-4">
+                  {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-40" />)}
+                </div>
+              ) : intelReport ? (
+                <>
+                  {intelReport.ecosystemSummary.ackQuality && (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-base flex items-center gap-2">
+                          <FileCheck className="h-5 w-5 text-blue-500" /> Acknowledgment Quality
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                          <div className="text-center p-3 rounded-lg bg-emerald-50 dark:bg-emerald-900/20">
+                            <div className="text-2xl font-bold text-emerald-600" data-testid="quality-verified">{intelReport.ecosystemSummary.ackQuality.verified}</div>
+                            <div className="text-xs text-muted-foreground">Verified (with evidence)</div>
+                          </div>
+                          <div className="text-center p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20">
+                            <div className="text-2xl font-bold text-blue-600" data-testid="quality-substantive">{intelReport.ecosystemSummary.ackQuality.substantive}</div>
+                            <div className="text-xs text-muted-foreground">Substantive</div>
+                          </div>
+                          <div className="text-center p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20">
+                            <div className="text-2xl font-bold text-amber-600" data-testid="quality-weak">{intelReport.ecosystemSummary.ackQuality.weak}</div>
+                            <div className="text-xs text-muted-foreground">Weak</div>
+                          </div>
+                          <div className="text-center p-3 rounded-lg bg-gray-50 dark:bg-gray-900/20">
+                            <div className="text-2xl font-bold text-gray-600" data-testid="quality-legacy">{intelReport.ecosystemSummary.ackQuality.legacy}</div>
+                            <div className="text-xs text-muted-foreground">Legacy (pre-quality gate)</div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {["austin", "manor", "pflugerville"].map(region => {
+                    const regionData = intelReport.regionalProducts?.[region as keyof typeof intelReport.regionalProducts];
+                    const regionNames: Record<string, string> = { austin: "Austin", manor: "Manor", pflugerville: "Pflugerville" };
+                    const regionFocus: Record<string, string> = {
+                      austin: "Housing & Equity Crisis — $435K median home, 48K+ unit gap",
+                      manor: "Growth Without Gaps — 89% growth, 78% commute out, no hospital",
+                      pflugerville: "Infrastructure Before Growth — Branchview 2027, Samsung/Tesla corridor",
+                    };
+                    return (
+                      <Card key={region}>
+                        <CardHeader>
+                          <CardTitle className="text-base flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <MapPin className="h-5 w-5 text-violet-500" />
+                              {regionNames[region]} Products
+                            </div>
+                            <Badge variant={regionData && regionData.platformsWithProduct > 0 ? "default" : "destructive"} data-testid={`badge-${region}-count`}>
+                              {regionData?.platformsWithProduct || 0}/{regionData?.totalPlatforms || 20} platforms
+                            </Badge>
+                          </CardTitle>
+                          <p className="text-sm text-muted-foreground">{regionFocus[region]}</p>
+                        </CardHeader>
+                        <CardContent>
+                          {regionData && regionData.products.length > 0 ? (
+                            <div className="space-y-3">
+                              {regionData.products.map((prod, idx) => (
+                                <div key={idx} className="flex items-start justify-between p-3 rounded-lg bg-muted/50 border" data-testid={`product-${region}-${idx}`}>
+                                  <div className="flex-1 min-w-0">
+                                    <div className="font-medium text-sm">{prod.platform}</div>
+                                    <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{prod.whatWasDone}</p>
+                                  </div>
+                                  <div className="flex items-center gap-2 ml-3 shrink-0">
+                                    {prod.verified && <Badge variant="default" className="bg-emerald-500 text-xs">Verified</Badge>}
+                                    {prod.evidenceUrl && (
+                                      <a href={prod.evidenceUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700">
+                                        <ExternalLink className="h-4 w-4" />
+                                      </a>
+                                    )}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="text-center py-8 text-muted-foreground">
+                              <AlertTriangle className="h-8 w-8 mx-auto mb-2 text-amber-500" />
+                              <p className="text-sm font-medium">No {regionNames[region]} products reported yet</p>
+                              <p className="text-xs mt-1">Platforms have been directed to build {regionNames[region]}-specific products. Waiting for acknowledgments with evidence.</p>
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-base flex items-center gap-2">
+                        <Award className="h-5 w-5 text-amber-500" /> Platform Product Scoreboard
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        {intelReport.platformIntelligence.map(p => {
+                          const hasAustin = !!p.regionalProducts?.austin;
+                          const hasManor = !!p.regionalProducts?.manor;
+                          const hasPflugerville = !!p.regionalProducts?.pflugerville;
+                          const productCount = [hasAustin, hasManor, hasPflugerville].filter(Boolean).length;
+                          const qualityTotal = (p.ackQuality?.verified || 0) + (p.ackQuality?.substantive || 0);
+                          return (
+                            <div key={p.id} className="flex items-center justify-between py-2 px-3 rounded border" data-testid={`scoreboard-${p.id}`}>
+                              <div className="flex items-center gap-3 min-w-0">
+                                <StatusIndicator status={p.status} />
+                                <span className="text-sm font-medium truncate">{p.name}</span>
+                              </div>
+                              <div className="flex items-center gap-3 shrink-0">
+                                <div className="flex gap-1">
+                                  <Badge variant={hasAustin ? "default" : "outline"} className={`text-[10px] px-1.5 ${hasAustin ? "bg-blue-500" : ""}`}>ATX</Badge>
+                                  <Badge variant={hasManor ? "default" : "outline"} className={`text-[10px] px-1.5 ${hasManor ? "bg-violet-500" : ""}`}>MNR</Badge>
+                                  <Badge variant={hasPflugerville ? "default" : "outline"} className={`text-[10px] px-1.5 ${hasPflugerville ? "bg-teal-500" : ""}`}>PFV</Badge>
+                                </div>
+                                <Badge variant={qualityTotal > 0 ? "default" : "secondary"} className="text-xs">
+                                  {qualityTotal} verified
+                                </Badge>
+                                <Badge variant={p.fidelity.grade === "A" ? "default" : p.fidelity.grade === "F" ? "destructive" : "secondary"} className="text-xs">
+                                  {p.fidelity.grade} ({p.fidelity.score}%)
+                                </Badge>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </>
+              ) : null}
             </TabsContent>
 
             <TabsContent value="grants" className="mt-6 space-y-6" data-testid="content-grants">

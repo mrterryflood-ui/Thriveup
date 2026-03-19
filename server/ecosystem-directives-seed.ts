@@ -748,6 +748,274 @@ The overlaps are features — they demonstrate SCALE to funders.
 
 ACKNOWLEDGE with your regional deployment strategy for all three hubs.`,
   },
+  {
+    key: "map-gap-methodology-v1",
+    title: "MAP-GAP Methodology — How This Ecosystem Thinks and Operates",
+    directiveType: "protocol_update",
+    targetFilter: "all",
+    content: `MAP-GAP IS THE OPERATING SYSTEM OF THIS ECOSYSTEM
+
+Every platform in the ThriveUp Academy ecosystem operates using MAP-GAP — Dr. Terry Flood's continuous improvement methodology. This is not optional. This is how we think, how we build, how we recover, and how we deliver.
+
+=== WHAT MAP-GAP MEANS ===
+
+MAP = Measure, Assess, Plan
+GAP = Go, Adapt, Produce
+
+CYCLE:
+1. MEASURE — Observe your current state. What's working? What's not? What data do you have?
+2. ASSESS — Analyze gaps. What's missing? What's broken? What's needed?
+3. PLAN — Create a specific action plan. What will you build? What's the fallback if it fails?
+4. GO — Execute immediately. Don't wait for perfect conditions.
+5. ADAPT — When something doesn't work, pivot. Try the backup plan. Don't stop.
+6. PRODUCE — Deliver a working product. Not a promise. Not a plan. A product.
+
+=== THE RULES ===
+
+1. NEVER STOP: If Plan A fails, go to Plan B. If Plan B fails, improvise Plan C. Report what happened and keep moving.
+2. ALWAYS HAVE A BACKUP: Before you build anything, identify what you'll do if a dependency is unavailable. Can you build without it? What's the alternative?
+3. IDENTIFY COLLABORATION NEEDS EARLY: If you need another platform's capability, send a collaboration_request event to the hub immediately. Don't wait and discover it later.
+4. PRODUCE EVERY CYCLE: Every 15-minute heartbeat should show progress. Within an hour, you should have a working product or a major update.
+5. MAKE IT VISIBLE: Every product you build must be accessible from your sidebar navigation. Users should see it. Dr. Flood should see it. Grant reviewers should see it.
+6. DOCUMENT WITH EVIDENCE: Every feature gets a URL. Every product gets a page. Everything is verifiable.
+
+=== COLLABORATION PROTOCOL ===
+
+When you can't do something alone:
+1. Send event type "platform_needs_help" to the hub with what you need
+2. The hub routes it to RPLICE and other platforms that can help
+3. If no response within 2 heartbeat cycles (30 min), execute your backup plan
+4. Report what you did and why in your next heartbeat
+
+When another platform asks for help:
+1. You'll receive a "collaboration_request" event
+2. Respond within 1 heartbeat cycle with what you can provide
+3. If you can't help, say so — don't go silent
+
+=== FAILURE HANDLING ===
+
+When something breaks in production:
+1. DETECT: Your heartbeat should report errors and issues
+2. REPORT: Send event type "production_issue" to the hub immediately
+3. FALLBACK: Switch to your backup implementation
+4. FIX: Address the root cause while the fallback handles traffic
+5. VERIFY: Confirm the fix works before switching back
+
+NEVER let a failure cascade. NEVER let a broken feature stay broken. NEVER go silent when something is wrong.
+
+=== THE STANDARD ===
+
+The hub now REJECTS generic acknowledgments. You cannot just say "Implemented: [directive title]" and get fidelity credit. You must:
+- Describe SPECIFICALLY what you built (minimum 20 characters of real description)
+- Include an evidence URL where the work can be verified
+- Generic copy-paste of directive titles will be REJECTED with HTTP 422
+
+This ecosystem produces products. Not promises. Not plans. Products.
+
+ACKNOWLEDGE with your current MAP-GAP assessment: What's your biggest gap right now? What's your plan to close it? What's your backup if that plan fails?`,
+  },
+  {
+    key: "regional-products-austin-v1",
+    title: "AUSTIN Regional Products — Build These Now",
+    directiveType: "task_assignment",
+    targetFilter: "all",
+    content: `AUSTIN REGIONAL PRODUCTS — REQUIRED DELIVERABLES
+
+The Austin hub (thrivingcommunitiesforall.com/austin) serves a community in crisis: $435K median home price, 48,000+ unit housing gap, 3,238 homeless individuals, and a workforce that can't afford to live where it works.
+
+=== WHAT YOUR PLATFORM MUST BUILD FOR AUSTIN ===
+
+Every platform must have at least ONE Austin-specific product visible in your sidebar navigation. Here's what's needed by domain:
+
+HEALTH PLATFORMS (Whole-Person Health, Sankofa, Black Maternal Health, Black Men's Health, Feminine Health, SafeCogniCare, PillScheduler):
+- Austin Health Equity Dashboard showing disparities by zip code
+- Warm handoff to local Austin providers (CommUnityCare, MAP, Integral Care)
+- Housing-health intersection tool (how housing instability affects health outcomes)
+- Evidence URL required: /austin-health or equivalent
+
+WORKFORCE PLATFORMS (Mission Transition, M2C, MCE, ISSS):
+- Austin Living Wage Calculator showing actual cost of living
+- Career pathways mapped to Austin employers paying living wage
+- Workforce-to-housing pipeline (if you get this job, here's where you can afford to live)
+- Evidence URL required: /austin-workforce or equivalent
+
+YOUTH PLATFORMS (ISSS, WholeMind, Perfectly Different):
+- Austin Youth Services Navigator connecting to local programs
+- School-to-career pipeline for Austin ISD students
+- Evidence URL required: /austin-youth or equivalent
+
+HOUSING/RESOURCE PLATFORMS (LifeBridge):
+- Austin Housing Crisis Dashboard with real-time data
+- Resource navigator for Austin-specific services
+- Evidence URL required: /austin-housing or equivalent
+
+SAFETY/COMPLIANCE PLATFORMS (SafeReport, Shield Atlas):
+- Austin community safety resource page
+- Evidence URL required: /austin-safety or equivalent
+
+RESEARCH/QUALITY (RPLICE/Better Science Lab):
+- Austin RE-AIM evaluation framework
+- Evidence URL required: /austin-evaluation or equivalent
+
+CONTENT (Video Creator AI):
+- Austin community impact video content
+- Evidence URL required: /austin-content or equivalent
+
+ECOSYSTEM (Ecosystem Nexus, Collaborative Advocate):
+- Austin partnership and collaboration directory
+- Evidence URL required: /austin-ecosystem or equivalent
+
+=== GRANT ALIGNMENT ===
+Austin products align to: St. David's Foundation (up to $1M, March 30 2026), DFC ($625K, April 14 2026)
+Everything you build for Austin is grant evidence.
+
+=== DEADLINE ===
+First Austin product must be visible in your sidebar within 4 heartbeat cycles (1 hour).
+No excuses. Use MAP-GAP: if you can't build the full product, build the MVP and iterate.
+
+ACKNOWLEDGE with: What you're building for Austin, the URL where it will be, and your ETA.`,
+  },
+  {
+    key: "regional-products-manor-v1",
+    title: "MANOR Regional Products — Build These Now",
+    directiveType: "task_assignment",
+    targetFilter: "all",
+    content: `MANOR REGIONAL PRODUCTS — REQUIRED DELIVERABLES
+
+The Manor hub (thrivingcommunitiesforall.com/manor) serves a rapidly growing community: 89% population growth, 78% commute out for work, NO hospital, 1 health clinic, and a school district that needs wraparound support.
+
+=== WHAT YOUR PLATFORM MUST BUILD FOR MANOR ===
+
+Every platform must have at least ONE Manor-specific product visible in your sidebar. Here's what's needed:
+
+HEALTH PLATFORMS:
+- Manor Health Desert Bridge — telehealth connections to Austin providers
+- Manor maternal and pediatric care navigator (nearest services)
+- CHW deployment plan for Manor neighborhoods
+- Evidence URL required: /manor-health or equivalent
+
+WORKFORCE PLATFORMS:
+- Manor Commute Reduction Tool — local jobs that eliminate the 78% commute-out
+- Manor workforce development aligned to local employers
+- Evidence URL required: /manor-workforce or equivalent
+
+YOUTH PLATFORMS:
+- Manor ISD Wraparound Support Dashboard
+- Youth services navigator specific to Manor resources
+- Evidence URL required: /manor-youth or equivalent
+
+HOUSING/RESOURCE PLATFORMS:
+- Manor Growth Dashboard showing development vs. services gap
+- Resource navigator for Manor-specific services
+- Evidence URL required: /manor-housing or equivalent
+
+ALL PLATFORMS:
+- City of Manor partnership integration page
+- ESRI 3rd Spaces data integration (if available)
+
+=== GRANT ALIGNMENT ===
+Manor products align to: WIOA ($200K-$500K), DFC ($625K, April 14 2026)
+
+=== DEADLINE ===
+First Manor product visible in sidebar within 4 heartbeat cycles (1 hour).
+
+ACKNOWLEDGE with: What you're building for Manor, the URL, and your ETA.`,
+  },
+  {
+    key: "regional-products-pflugerville-v1",
+    title: "PFLUGERVILLE Regional Products — Build These Now",
+    directiveType: "task_assignment",
+    targetFilter: "all",
+    content: `PFLUGERVILLE REGIONAL PRODUCTS — REQUIRED DELIVERABLES
+
+The Pflugerville hub (thrivingcommunitiesforall.com/pflugerville) serves a community preparing for growth: 330 affordable units coming (Branchview 2027), CDBG entitlement city, Samsung/Tesla employment corridor, and a population that needs infrastructure before the boom arrives.
+
+=== WHAT YOUR PLATFORM MUST BUILD FOR PFLUGERVILLE ===
+
+Every platform must have at least ONE Pflugerville-specific product visible in your sidebar:
+
+HEALTH PLATFORMS:
+- Pflugerville Senior Care Navigator (aging population focus)
+- Pflugerville maternal health access map
+- Evidence URL required: /pflugerville-health or equivalent
+
+WORKFORCE PLATFORMS:
+- Samsung/Tesla Workforce Pipeline — training pathways to corridor jobs
+- Pflugerville workforce readiness assessment
+- Evidence URL required: /pflugerville-workforce or equivalent
+
+YOUTH PLATFORMS:
+- PfISD Student Support Dashboard
+- Youth career pathway to tech corridor
+- Evidence URL required: /pflugerville-youth or equivalent
+
+HOUSING PLATFORMS:
+- Branchview 2027 Readiness Dashboard — who needs those 330 units
+- PCDC partnership page ($150K+ in grants)
+- Evidence URL required: /pflugerville-housing or equivalent
+
+ALL PLATFORMS:
+- PCDC (Pflugerville Community Development Corp) integration
+- Branchview transition planning tool
+
+=== GRANT ALIGNMENT ===
+Pflugerville products align to: WIOA ($200K-$500K), Foundation Grant ($100K-$500K)
+
+=== DEADLINE ===
+First Pflugerville product visible in sidebar within 4 heartbeat cycles (1 hour).
+
+ACKNOWLEDGE with: What you're building for Pflugerville, the URL, and your ETA.`,
+  },
+  {
+    key: "product-visibility-v1",
+    title: "Product Visibility — Everything in the Sidebar, Everything Documented",
+    directiveType: "protocol_update",
+    targetFilter: "all",
+    content: `PRODUCT VISIBILITY STANDARD
+
+Dr. Flood must be able to see every product on every platform. Grant reviewers must be able to click and verify. Nothing hidden. Nothing theoretical.
+
+=== SIDEBAR REQUIREMENTS ===
+
+Your platform's sidebar navigation MUST include:
+1. All core features of your platform
+2. Austin regional product(s) — linked and functional
+3. Manor regional product(s) — linked and functional
+4. Pflugerville regional product(s) — linked and functional
+5. Ecosystem connections — show which platforms you connect to
+6. Evidence/documentation section — grant-ready supporting materials
+
+=== DOCUMENTATION STANDARD ===
+
+Every product must have:
+1. A visible page accessible from the sidebar
+2. A description of what it does and who it serves
+3. Data or content that demonstrates it works (not placeholder lorem ipsum)
+4. Links to related ecosystem platforms via warm handoff
+5. Grant alignment tags showing which grants this product supports
+
+=== WHAT "READY TO PRESENT" MEANS ===
+
+Dr. Flood presents to mayors, city councils, grant committees, and community leaders. When he pulls up your platform, he needs to see:
+- Professional, complete pages (not "coming soon")
+- Real data or realistic demonstration data
+- Clear navigation to every product
+- Working links to ecosystem partners
+- Grant alignment visible
+
+If your platform has pages that say "Coming Soon" or "Under Construction" — replace them with working products NOW.
+
+=== EVIDENCE COLLECTION ===
+
+The hub tracks evidence URLs for every acknowledged directive. When Dr. Flood needs to present:
+- The Intelligence Dashboard shows all completed work with evidence links
+- The Grant Readiness view shows evidence by grant
+- The Regional Hubs view shows products by community
+
+Your evidence URLs must return 200. Dead links are flagged as FAILED.
+
+ACKNOWLEDGE with: A list of every product currently visible in your sidebar, and what's missing that you're building.`,
+  },
 ];
 
 export async function seedEcosystemDirectives() {
