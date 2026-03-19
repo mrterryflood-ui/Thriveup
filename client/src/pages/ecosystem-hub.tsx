@@ -1150,7 +1150,7 @@ export default function EcosystemHubPage() {
             Ecosystem Integration Hub
           </h1>
           <p className="text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
-            The Collaborative Advocate's 14-platform technology ecosystem — from education and workforce development
+            The Collaborative Advocate's 20-platform technology ecosystem — from education and workforce development
             to health equity, defense, veteran services, compliance, business intelligence, and minority business development.
           </p>
         </div>

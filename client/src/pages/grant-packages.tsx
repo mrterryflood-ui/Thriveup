@@ -176,7 +176,7 @@ APPLICATION DEADLINE: April 14, 2026. SF-424, SF-424A, Project Narrative, Budget
       { label: "Key Deliverables", detail: "Logic model, sustainability plan, community readiness assessment, 12 letters of support (one per sector)" },
     ],
     competitiveEdge: [
-      "14-platform ecosystem provides unprecedented coalition infrastructure",
+      "20-platform ecosystem provides unprecedented coalition infrastructure",
       "SALP fidelity tracking exceeds typical reporting capabilities",
       "MAP-GAP methodology aligns directly with ONDCP's continuous improvement requirements",
       "Real-time core measures tracking (not batch reporting)",
@@ -233,7 +233,7 @@ APPLICATION DEADLINE: April 14, 2026. SF-424, SF-424A, Project Narrative, Budget
         id: "build", name: "2. Build & Draft", description: "Write narrative sections, develop budget, compile docs", status: "active",
         tasks: [
           { id: "b1", task: "Draft Statement of Need with local data", owner: "AI + Dr. Flood Review", status: "in-progress", dueDate: "2026-03-22", guidance: "Use CDC PLACES, SVI, and YRBS data already collected. Statement of Need should show: (1) prevalence of youth substance use in Austin/Travis County, (2) disparities by race/neighborhood, (3) gap between need and current services, (4) why a coalition approach is necessary. The AI can draft this from your data — go to Sections & Approval tab.", aiCanHelp: true, aiAction: "Draft Statement of Need section" },
-          { id: "b2", task: "Draft Program Design section", owner: "AI + Dr. Flood Review", status: "pending", dueDate: "2026-03-25", guidance: "Program Design should map your 14 platforms to DFC strategies. WAIT until coalition partners are confirmed — you need to name specific coalition activities and partner roles in this section. Partners must be in this document.", aiCanHelp: true, aiAction: "Draft Program Design section" },
+          { id: "b2", task: "Draft Program Design section", owner: "AI + Dr. Flood Review", status: "pending", dueDate: "2026-03-25", guidance: "Program Design should map your 20 platforms to DFC strategies. WAIT until coalition partners are confirmed — you need to name specific coalition activities and partner roles in this section. Partners must be in this document.", aiCanHelp: true, aiAction: "Draft Program Design section" },
           { id: "b3", task: "Build line-item budget", owner: "Dr. Flood", status: "pending", dueDate: "2026-03-27", guidance: "DFC budget is $125K/year max. Key categories: Personnel (Project Director, Coalition Coordinator), Travel, Supplies, Contractual (evaluator), Other (meeting costs, prevention materials). Remember: dollar-for-dollar match required — document in-kind contributions from coalition partners.", aiCanHelp: true, aiAction: "Generate budget template with line items" },
           { id: "b4", task: "Finalize Logic Model with platform data", owner: "AI + Dr. Flood Review", status: "in-progress", dueDate: "2026-03-24", guidance: "Logic Model must show: Inputs (coalition, platforms, funding) → Activities (prevention strategies, data collection, coalition meetings) → Outputs (# trained, # events, # data points) → Short-term Outcomes (reduced perception of risk) → Long-term Outcomes (reduced youth substance use). The AI can generate this from your platform capabilities.", aiCanHelp: true, aiAction: "Generate Logic Model framework" },
           { id: "b5", task: "Draft evaluation methodology", owner: "Better Science Lab + Dr. Flood", status: "pending", dueDate: "2026-03-28", guidance: "DFC requires 4 core measures collected via community surveys. Better Science Lab should design the methodology. Include: survey instruments, sampling strategy, data collection timeline, analysis plan. The evaluator must be independent of program delivery.", aiCanHelp: true, aiAction: "Draft evaluation methodology outline" },
@@ -288,7 +288,7 @@ APPLICATION DEADLINE: April 14, 2026. SF-424, SF-424A, Project Narrative, Budget
     ],
     winStrategy: {
       differentiators: [
-        "Only applicant with a 14-platform integrated ecosystem — not a single tool, but an entire infrastructure",
+        "Only applicant with a 20-platform integrated ecosystem — not a single tool, but an entire infrastructure",
         "MAP-GAP methodology provides structured continuous improvement that ONDCP reviewers prioritize",
         "SALP fidelity tracking gives real-time curriculum adherence data (most programs report quarterly)",
         "Three Realities framework proves community grounding isn't performative — it's methodological",
@@ -409,7 +409,7 @@ SERVICE AREA: Central Texas (Travis, Williamson, Hays, Bastrop, Caldwell countie
         tasks: [
           { id: "wc1", task: "Identify target Local Workforce Development Board (LWDB)", owner: "Dr. Flood", status: "pending", dueDate: "TBD", guidance: "Your primary target is Workforce Solutions Capital Area (wfsca.org) which serves Travis County. You could also apply to Workforce Solutions Rural Capital Area for Williamson, Hays, Bastrop, Caldwell counties. Contact the Youth Program Manager at your target LWDB to discuss funding availability and local priorities before writing." },
           { id: "wc2", task: "Review state WIOA plan and local area priorities", owner: "Dr. Flood + AI", status: "pending", dueDate: "TBD", guidance: "Texas Workforce Commission publishes the state WIOA plan at twc.texas.gov. Your LWDB also publishes a Local Plan with specific priority sectors, performance targets, and youth service strategies. Align your proposal to BOTH. The AI can analyze these documents if you share them.", aiCanHelp: true, aiAction: "Analyze state/local WIOA plan alignment" },
-          { id: "wc3", task: "Map platform capabilities to all 14 WIOA youth elements", owner: "AI", status: "pending", dueDate: "TBD", guidance: "WIOA requires all 14 youth program elements. ThriveUp's 14 platforms map directly — e.g., ThriveUp Academy = tutoring, WholeMind = comprehensive guidance, SafeReport = safe environment, MCE = entrepreneurial skills. The AI can generate a complete platform-to-element mapping matrix.", aiCanHelp: true, aiAction: "Generate 14-element platform mapping" },
+          { id: "wc3", task: "Map platform capabilities to all 14 WIOA youth elements", owner: "AI", status: "pending", dueDate: "TBD", guidance: "WIOA requires all 14 youth program elements. ThriveUp's 20 platforms map directly — e.g., ThriveUp Academy = tutoring, WholeMind = comprehensive guidance, SafeReport = safe environment, MCE = entrepreneurial skills. The AI can generate a complete platform-to-element mapping matrix.", aiCanHelp: true, aiAction: "Generate 14-element platform mapping" },
           { id: "wc4", task: "Identify 3-5 employer partners for work-based learning", owner: "Dr. Flood", status: "pending", dueDate: "TBD", guidance: "WIOA requires 20% of funds on Work Experience. Target Austin-area employers in growth sectors: Healthcare (Ascension Seton, St. David's, CommUnityCare), IT (Dell, Indeed), Manufacturing (Samsung, Tesla Gigafactory), Logistics (H-E-B, Amazon). Reach out to HR/workforce development contacts. You need signed commitment letters." },
           { id: "wc5", task: "Gather local labor market data for target occupations", owner: "AI", status: "pending", dueDate: "TBD", guidance: "Pull Austin MSA data from BLS, Texas Workforce Commission, and EMSI/Lightcast. Key data points: youth unemployment rate (16-24), in-demand occupations, median wages by sector, credential gaps, OSY population estimates for Travis County (~18,000). The AI can compile this into a data brief.", aiCanHelp: true, aiAction: "Compile Austin labor market data brief" },
         ],
@@ -656,7 +656,7 @@ ELIGIBILITY: 501(c)(3) organizations or fiscal sponsors; must demonstrate authen
         "Emphasize the entrepreneurship pathway (MCE) — most applicants only offer job placement",
         "Show AI tools as equity multipliers, not replacement for human connection",
         "Include participant voice and stories (anonymized) in the narrative",
-        "Demonstrate how the 14-platform ecosystem creates a safety net, not just a program",
+        "Demonstrate how the 20-platform ecosystem creates a safety net, not just a program",
       ],
       commonPitfalls: [
         "Treating workforce development as only 'get a job' — NBA Foundation wants economic empowerment",
@@ -702,7 +702,7 @@ ELIGIBILITY: 501(c)(3) organizations operating in Central Texas counties. Collab
     competitiveEdge: [
       "Three Realities methodology IS 'community-informed' — exactly what St. David's requires",
       "LifeBridge platform handles benefits navigation and enrollment — direct alignment",
-      "14-platform ecosystem provides the comprehensive service infrastructure they fund",
+      "20-platform ecosystem provides the comprehensive service infrastructure they fund",
       "MCE provides minority business economic empowerment pipeline",
       "MAP-GAP continuous improvement aligns with foundation's data-driven approach",
       "Financial Literacy module directly supports economic stability for participants",
@@ -815,7 +815,7 @@ ELIGIBILITY: 501(c)(3) organizations operating in Central Texas counties. Collab
       differentiators: [
         "Three Realities methodology IS community-informed design — not a checkbox, a methodology",
         "LifeBridge platform provides actual benefits navigation infrastructure, not just referrals",
-        "14-platform ecosystem delivers comprehensive economic stability services under one roof",
+        "20-platform ecosystem delivers comprehensive economic stability services under one roof",
         "MCE + Financial Literacy create entrepreneurship-to-wealth pipeline, not just benefits enrollment",
         "MAP-GAP ensures continuous improvement — foundation sees measurable progress, not static programs",
         "Collaborative application ($1M track) with Meredith + Central Texas partners maximizes funding",

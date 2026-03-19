@@ -68,7 +68,7 @@ const ecosystemPlatforms = [
       "Organizational web presence",
       "Advocacy & community voice",
       "Strategic coordination hub",
-      "14-platform ecosystem narrative",
+      "20-platform ecosystem narrative",
       "Partnership development",
       "Grant alignment & compliance story",
     ],

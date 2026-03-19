@@ -3,7 +3,7 @@ import { useRoute } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Activity, CheckCircle, AlertTriangle, XCircle, Globe, FileText, ArrowRight, Shield, Heart, BookOpen, Briefcase, Network } from "lucide-react";
+import { Activity, CheckCircle, AlertTriangle, XCircle, Globe, FileText, ArrowRight, Shield, Heart, BookOpen, Briefcase, Network, Home, Users, Target, TrendingUp, MapPin, Brain, Zap } from "lucide-react";
 
 function HealthDot({ status }: { status: string }) {
   const color = status === "online" ? "bg-emerald-500" : status === "degraded" ? "bg-amber-500" : status === "offline" ? "bg-red-500" : "bg-gray-400";
@@ -363,6 +363,103 @@ export function LifeBridgeEmbedPage() {
           </CardContent>
         </Card>
       )}
+
+      <Card className="border-l-4 border-l-blue-600" data-testid="card-rplice-austin-climate">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-medium flex items-center gap-2">
+            <Brain className="w-4 h-4 text-blue-600" /> RPLICE Austin Climate Initiative
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            Evidence-based response to Austin's housing, workforce, and health equity crisis — validated through CFIR/RE-AIM implementation science and Dr. Flood's Three Realities methodology.
+          </p>
+
+          <div className="grid grid-cols-2 gap-2">
+            {[
+              { label: "Median Home Price", value: "$435K", icon: Home, detail: "2 of 75 zip codes affordable" },
+              { label: "Homeless (PIT 2025)", value: "3,238", icon: Users, detail: "Up 36% from 2023" },
+              { label: "Youth Homeless", value: "934", icon: AlertTriangle, detail: "Quadrupled since 2020" },
+              { label: "Cost-Burdened Renters", value: "85%+", icon: TrendingUp, detail: "ELI paying >50% income" },
+            ].map((stat) => (
+              <div key={stat.label} className="p-2 rounded-md bg-muted/50 text-center" data-testid={`stat-climate-${stat.label.toLowerCase().replace(/\s+/g, '-')}`}>
+                <stat.icon className="w-3.5 h-3.5 mx-auto mb-1 text-blue-600" />
+                <p className="text-lg font-bold">{stat.value}</p>
+                <p className="text-xs font-medium">{stat.label}</p>
+                <p className="text-xs text-muted-foreground">{stat.detail}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="space-y-2">
+            <p className="text-xs font-semibold flex items-center gap-1">
+              <Target className="w-3.5 h-3.5" /> LifeBridge's Role in the Initiative
+            </p>
+            <div className="space-y-1.5">
+              {[
+                { action: "Housing Navigation", detail: "Front door for crisis — SDOH screening, resource matching, warm handoffs to 19 partner platforms" },
+                { action: "Benefits Enrollment", detail: "Connects individuals to SNAP, Medicaid, CHIP, housing vouchers, utility assistance programs" },
+                { action: "Community Voice", detail: "Three Realities ground-truth — captures lived experience data for RPLICE fidelity tracking" },
+                { action: "Veteran Services Bridge", detail: "Coordinates with M2C Transition and Mission Transition for the 13% veteran homeless population" },
+              ].map((item) => (
+                <div key={item.action} className="flex gap-2 items-start p-2 rounded bg-blue-50 dark:bg-blue-950/30" data-testid={`climate-role-${item.action.toLowerCase().replace(/\s+/g, '-')}`}>
+                  <Zap className="w-3 h-3 text-blue-600 mt-0.5 shrink-0" />
+                  <div>
+                    <p className="text-xs font-medium">{item.action}</p>
+                    <p className="text-xs text-muted-foreground">{item.detail}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <p className="text-xs font-semibold flex items-center gap-1">
+              <MapPin className="w-3.5 h-3.5" /> Three Regional Hubs
+            </p>
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { hub: "Austin", focus: "Housing crisis epicenter, veteran services, youth homelessness" },
+                { hub: "Manor", focus: "Rural-suburban bridge, ESRI 3rd Spaces, agricultural workforce" },
+                { hub: "Pflugerville", focus: "Fastest-growing city, PCDC partnership, workforce pipeline" },
+              ].map((h) => (
+                <div key={h.hub} className="p-2 rounded bg-muted/50 text-center" data-testid={`hub-${h.hub.toLowerCase()}`}>
+                  <p className="text-xs font-bold">{h.hub}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{h.focus}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <p className="text-xs font-semibold flex items-center gap-1">
+              <Shield className="w-3.5 h-3.5" /> Active Grant Pipeline
+            </p>
+            <div className="space-y-1">
+              {[
+                { grant: "DFC Grant", amount: "$625K", deadline: "April 14, 2026" },
+                { grant: "St. David's Foundation", amount: "Up to $1M", deadline: "Opens March 30, 2026" },
+                { grant: "WIOA Workforce", amount: "$200K–$500K", deadline: "Rolling" },
+                { grant: "SSG Fox VA", amount: "Up to $750K", deadline: "June 12–18, 2026" },
+                { grant: "Foundation Grants", amount: "$100K–$500K", deadline: "Rolling LOI" },
+              ].map((g) => (
+                <div key={g.grant} className="flex items-center justify-between text-xs p-1.5 rounded bg-muted/30" data-testid={`grant-${g.grant.toLowerCase().replace(/\s+/g, '-')}`}>
+                  <span className="font-medium">{g.grant}</span>
+                  <div className="flex gap-2">
+                    <Badge variant="outline" className="text-xs py-0">{g.amount}</Badge>
+                    <span className="text-muted-foreground">{g.deadline}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-md bg-gradient-to-r from-blue-600 to-indigo-700 p-3 text-white text-center" data-testid="climate-cta">
+            <p className="text-xs font-semibold mb-1">20 Platforms. 3 Hubs. 1 Mission.</p>
+            <p className="text-xs opacity-80">RPLICE-validated, CFIR/RE-AIM aligned, Three Realities grounded</p>
+          </div>
+        </CardContent>
+      </Card>
 
       {connectedPlatforms.length > 0 && (
         <Card data-testid="card-lb-connected">

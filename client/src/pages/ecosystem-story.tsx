@@ -173,7 +173,7 @@ const storySteps: StoryStep[] = [
     id: 10,
     phase: "Always",
     title: "The Ecosystem Effect",
-    description: "Data flows between ALL 14 platforms throughout this journey, creating a living intelligence network.",
+    description: "Data flows between ALL 20 platforms throughout this journey, creating a living intelligence network.",
     icon: Globe,
     activePlatforms: [
       "ThriveUp Academy", "The Incubator", "MCE", "LifeBridge", "RPLICE",

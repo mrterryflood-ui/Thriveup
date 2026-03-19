@@ -761,7 +761,7 @@ export default function ProgramLifecyclePage() {
           Program Lifecycle Pipeline
         </h1>
         <p className="text-muted-foreground mt-1" data-testid="text-page-subtitle">
-          MAP-GAP-driven lifecycle management across the 14-platform ecosystem. Every stage shows which platforms contribute what — no silos, no black boxes.
+          MAP-GAP-driven lifecycle management across the 20-platform ecosystem. Every stage shows which platforms contribute what — no silos, no black boxes.
         </p>
       </div>
 

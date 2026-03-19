@@ -687,7 +687,7 @@ export default function CaseStudiesPage() {
           Case Study Deep Dives
         </h1>
         <p className="text-muted-foreground mt-1" data-testid="text-page-subtitle">
-          Real-world applications of the MAP-GAP framework across the 14-platform ecosystem. Each case study shows how collaborative intelligence — no silos, no black boxes — produces measurable outcomes.
+          Real-world applications of the MAP-GAP framework across the 20-platform ecosystem. Each case study shows how collaborative intelligence — no silos, no black boxes — produces measurable outcomes.
         </p>
       </div>
 
