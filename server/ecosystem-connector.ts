@@ -738,7 +738,7 @@ export function registerEcosystemConnectorRoutes(app: Express) {
     }
   });
 
-  app.post("/api/ecosystem/wake-up", async (req, res) => {
+  app.post("/api/ecosystem/wake-up", requireAdminAuth, async (req, res) => {
     try {
       const { platformIds } = req.body || {};
       const platforms = await db.select().from(ecosystemPlatforms);
