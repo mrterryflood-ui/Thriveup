@@ -30,3 +30,9 @@ id = "pOEd5SDELaBoH00vYNHw5"
 uri = "file://ecosystem-thematic-gap-assessment.md"
 type = "text"
 title = "ThriveUp Ecosystem — Thematic & Gap Assessment"
+
+[[outputs]]
+id = "kJHy7oWoqmrAmrgg-1wCu"
+uri = "file://austin-housing-gap-assessment.md"
+type = "text"
+title = "Austin & Pflugerville Housing Gap Assessment — Presentation Ready"
