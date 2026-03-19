@@ -22,7 +22,7 @@
 // ============================================================
 
 const THRIVE_ECOSYSTEM_CONFIG = {
-  hubUrl: "https://55376bb2-2aea-463e-b6a9-2c1d5c123d53-00-5trt8miml0vw.janeway.replit.dev",
+  hubUrl: "https://thrivingcommunitiesforall.com",
   platformId: "lifebridge",
   apiKey: "tveco_b7eebd7c0dcb542edcbc960b1b50fe7fc43317b0bc1df6b52021fd1224138590",
   heartbeatIntervalMs: 5 * 60 * 1000,

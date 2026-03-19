@@ -24,7 +24,7 @@
 // ============================================================
 
 const THRIVE_ECOSYSTEM_CONFIG = {
-  hubUrl: "https://55376bb2-2aea-463e-b6a9-2c1d5c123d53-00-5trt8miml0vw.janeway.replit.dev",
+  hubUrl: "https://thrivingcommunitiesforall.com",
   platformId: "life-transitions-aid",
   apiKey: "tveco_d3f71ad082796c04775ab39f52f42f79a7e90562f53357c2942217fc1f191981",
   heartbeatIntervalMs: 5 * 60 * 1000,

@@ -24,7 +24,7 @@
 // ============================================================
 
 const THRIVE_ECOSYSTEM_CONFIG = {
-  hubUrl: "https://55376bb2-2aea-463e-b6a9-2c1d5c123d53-00-5trt8miml0vw.janeway.replit.dev",
+  hubUrl: "https://thrivingcommunitiesforall.com",
   platformId: "salp-science",
   apiKey: "tveco_167d95e425f68ac4372a2f00fd488ce540ea90493472dd064b165db03a5b66bd",
   heartbeatIntervalMs: 5 * 60 * 1000,
