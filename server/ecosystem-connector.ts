@@ -1225,7 +1225,17 @@ export function registerEcosystemConnectorRoutes(app: Express) {
         status: "pending",
       }).returning();
 
-      res.json({ eventId: event.id, status: "queued" });
+      const chainResults = await processWorkChains(platform.id, eventType, (eventData || {}) as Record<string, unknown>);
+
+      res.json({
+        eventId: event.id,
+        status: "queued",
+        workChains: chainResults.length > 0 ? {
+          triggered: chainResults.length,
+          routed: chainResults,
+          message: `This event triggered ${chainResults.length} downstream action(s). They will be delivered to the target platform(s) on their next heartbeat.`,
+        } : undefined,
+      });
     } catch (error) {
       console.error("Event submission failed:", error);
       res.status(500).json({ error: "Failed to submit event" });
@@ -2024,6 +2034,276 @@ if (typeof module !== "undefined") {
     } catch (error) {
       console.error("Failed to fetch platform directives:", error);
       res.status(500).json({ error: "Failed to fetch platform directives" });
+    }
+  });
+
+  // ===================================================================
+  // INTELLIGENCE ENGINE — Work Chaining, Verification, Grant Readiness
+  // Turns heartbeat data into actionable intelligence
+  // ===================================================================
+
+  const WORK_CHAINS: Record<string, { nextPlatform: string; eventType: string; description: string }[]> = {
+    "video_script_ready": [{ nextPlatform: "video-creator-ai", eventType: "produce_video", description: "Video script submitted — produce video" }],
+    "security_audit_complete": ECOSYSTEM_PLATFORMS.filter(p => p.id !== "shield-atlas").map(p => ({ nextPlatform: p.id, eventType: "security_findings", description: "Security audit results for your platform" })),
+    "grant_narrative_ready": [{ nextPlatform: "betterscience", eventType: "review_narrative", description: "Grant narrative ready for RPLICE quality review" }],
+    "voices_story_submitted": [
+      { nextPlatform: "lifebridge", eventType: "voices_housing_referral", description: "Community story with housing needs" },
+      { nextPlatform: "whole-person-health", eventType: "voices_health_referral", description: "Community story with health needs" },
+    ],
+    "research_update": ECOSYSTEM_PLATFORMS.map(p => ({ nextPlatform: p.id, eventType: "research_findings", description: "New research findings from RPLICE" })),
+    "crisis_alert": [
+      { nextPlatform: "whole-person-health", eventType: "crisis_escalation", description: "Crisis alert escalation" },
+      { nextPlatform: "lifebridge", eventType: "crisis_resource_needed", description: "Crisis — resource navigation needed" },
+    ],
+  };
+
+  async function processWorkChains(sourcePlatformId: string, eventType: string, eventData: Record<string, unknown>) {
+    const chains = WORK_CHAINS[eventType];
+    if (!chains) return [];
+    const routed: { target: string; eventType: string; description: string }[] = [];
+    for (const chain of chains) {
+      if (chain.nextPlatform === sourcePlatformId) continue;
+      await db.insert(ecosystemEvents).values({
+        sourcePlatformId,
+        targetPlatformId: chain.nextPlatform,
+        eventType: chain.eventType,
+        eventData: { ...eventData, chainedFrom: eventType, chainDescription: chain.description },
+        status: "pending",
+      });
+      routed.push({ target: chain.nextPlatform, eventType: chain.eventType, description: chain.description });
+    }
+    return routed;
+  }
+
+  function isSafeUrl(urlStr: string): boolean {
+    try {
+      const parsed = new URL(urlStr);
+      if (!["http:", "https:"].includes(parsed.protocol)) return false;
+      const host = parsed.hostname.toLowerCase();
+      if (host === "localhost" || host === "127.0.0.1" || host === "0.0.0.0" || host.startsWith("10.") || host.startsWith("192.168.") || host.startsWith("172.") || host === "[::1]" || host.endsWith(".internal") || host.endsWith(".local")) return false;
+      return true;
+    } catch { return false; }
+  }
+
+  async function verifyDeliverable(url: string): Promise<{ verified: boolean; statusCode: number; responseMs: number; error?: string }> {
+    const start = Date.now();
+    if (!isSafeUrl(url)) {
+      return { verified: false, statusCode: 0, responseMs: 0, error: "URL blocked: private/internal address" };
+    }
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 8000);
+      const response = await fetch(url, { method: "HEAD", signal: controller.signal, redirect: "follow" });
+      clearTimeout(timeout);
+      return { verified: response.ok, statusCode: response.status, responseMs: Date.now() - start };
+    } catch (err: any) {
+      return { verified: false, statusCode: 0, responseMs: Date.now() - start, error: err.message };
+    }
+  }
+
+  async function runDeliverableVerification() {
+    const acks = await db.select().from(ecosystemDirectiveAcks)
+      .where(eq(ecosystemDirectiveAcks.status, "acknowledged"));
+    const results: { platformId: string; directiveId: string; evidenceUrl: string; verified: boolean; statusCode: number; error?: string }[] = [];
+
+    for (const ack of acks) {
+      const responseData = ack.responseData as Record<string, unknown> | null;
+      const evidenceUrl = responseData?.evidenceUrl as string;
+      if (!evidenceUrl || !evidenceUrl.startsWith("http")) continue;
+      if ((responseData as any)?._lastVerified) {
+        const lastCheck = new Date((responseData as any)._lastVerified).getTime();
+        if (Date.now() - lastCheck < 60 * 60 * 1000) continue;
+      }
+      const result = await verifyDeliverable(evidenceUrl);
+      results.push({ platformId: ack.platformId, directiveId: ack.directiveId, evidenceUrl, verified: result.verified, statusCode: result.statusCode, error: result.error });
+      await db.update(ecosystemDirectiveAcks)
+        .set({
+          responseData: {
+            ...(responseData || {}),
+            _verificationStatus: result.verified ? "LIVE" : "FAILED",
+            _lastVerified: new Date().toISOString(),
+            _verificationCode: result.statusCode,
+          },
+        })
+        .where(eq(ecosystemDirectiveAcks.id, ack.id));
+    }
+    return results;
+  }
+
+  app.get("/api/ecosystem/intelligence-report", async (_req, res) => {
+    try {
+      const platforms = await db.select().from(ecosystemPlatforms);
+      const allDirectives = await db.select().from(ecosystemDirectives).where(eq(ecosystemDirectives.status, "active"));
+      const allAcks = await db.select().from(ecosystemDirectiveAcks);
+      const recentEvents = await db.select().from(ecosystemEvents)
+        .where(gte(ecosystemEvents.createdAt, new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)))
+        .orderBy(desc(ecosystemEvents.createdAt));
+
+      const platformIntel = platforms.map(p => {
+        const platformAcks = allAcks.filter(a => a.platformId === p.id);
+        const total = platformAcks.length;
+        const acknowledged = platformAcks.filter(a => a.status === "acknowledged").length;
+        const delivered = platformAcks.filter(a => a.status === "delivered").length;
+        const pending = platformAcks.filter(a => a.status === "pending").length;
+        const fidelity = total > 0 ? Math.round((acknowledged / total) * 100) : 0;
+
+        const completedWork = platformAcks
+          .filter(a => a.status === "acknowledged" && a.responseData)
+          .map(a => {
+            const rd = a.responseData as Record<string, unknown>;
+            const dir = allDirectives.find(d => d.id === a.directiveId);
+            return {
+              directive: dir?.title || a.directiveId,
+              whatWasDone: rd?.whatWasDone || "No description",
+              evidenceUrl: rd?.evidenceUrl || null,
+              verificationStatus: rd?._verificationStatus || "UNVERIFIED",
+              acknowledgedAt: a.acknowledgedAt,
+            };
+          });
+
+        const overdue = platformAcks
+          .filter(a => a.status === "delivered")
+          .map(a => {
+            const dir = allDirectives.find(d => d.id === a.directiveId);
+            return { directive: dir?.title || a.directiveId, directiveId: a.directiveId };
+          });
+
+        const HEARTBEAT_FRESHNESS_MS = 30 * 60 * 1000;
+        const heartbeatAge = p.lastHeartbeat ? Math.round((Date.now() - new Date(p.lastHeartbeat).getTime()) / 60000) : null;
+        const isFresh = p.lastHeartbeat !== null && (Date.now() - new Date(p.lastHeartbeat).getTime()) < HEARTBEAT_FRESHNESS_MS;
+
+        return {
+          id: p.id,
+          name: p.name,
+          domain: p.domain,
+          status: p.healthStatus || "unknown",
+          connected: isFresh,
+          lastHeartbeat: p.lastHeartbeat,
+          heartbeatAgeMinutes: heartbeatAge,
+          fidelity: { score: fidelity, grade: fidelity >= 90 ? "A" : fidelity >= 75 ? "B" : fidelity >= 50 ? "C" : fidelity >= 25 ? "D" : "F", total, acknowledged, delivered, pending },
+          completedWork,
+          overdue,
+          grantAlignment: p.grantAlignment,
+        };
+      });
+
+      const GRANT_MAP: Record<string, { name: string; amount: string; deadline: string }> = {
+        "dfc": { name: "Drug-Free Communities (DFC)", amount: "$625K", deadline: "April 14, 2026" },
+        "wioa": { name: "WIOA Title I Youth", amount: "$200K-$500K", deadline: "Rolling" },
+        "nba-foundation": { name: "Foundation Grant", amount: "$100K-$500K", deadline: "Rolling LOI" },
+        "st-davids": { name: "St. David's Foundation", amount: "Up to $1M", deadline: "March 30, 2026" },
+        "ssg-fox": { name: "SSG Fox VA Suicide Prevention", amount: "Up to $750K", deadline: "June 12-18, 2026" },
+        "samhsa": { name: "SAMHSA Community Mental Health", amount: "Varies", deadline: "Varies" },
+      };
+
+      const grantReadiness = Object.entries(GRANT_MAP).map(([grantId, grant]) => {
+        const alignedPlatforms = platformIntel.filter(p => ((p.grantAlignment as string[]) || []).includes(grantId));
+        const connected = alignedPlatforms.filter(p => p.connected).length;
+        const totalWork = alignedPlatforms.reduce((sum, p) => sum + p.completedWork.length, 0);
+        const totalOverdue = alignedPlatforms.reduce((sum, p) => sum + p.overdue.length, 0);
+        const avgFidelity = alignedPlatforms.length > 0 ? Math.round(alignedPlatforms.reduce((s, p) => s + p.fidelity.score, 0) / alignedPlatforms.length) : 0;
+        const verified = alignedPlatforms.reduce((sum, p) => sum + p.completedWork.filter(w => w.verificationStatus === "LIVE").length, 0);
+
+        return {
+          grantId,
+          ...grant,
+          platforms: { total: alignedPlatforms.length, connected, disconnected: alignedPlatforms.length - connected },
+          compliance: { avgFidelity, totalWorkCompleted: totalWork, totalOverdue, evidenceVerified: verified },
+          readinessScore: alignedPlatforms.length > 0 ? Math.round(((connected / alignedPlatforms.length) * 40) + (avgFidelity * 0.4) + (verified > 0 ? 20 : 0)) : 0,
+          platformDetails: alignedPlatforms.map(p => ({ id: p.id, name: p.name, connected: p.connected, fidelity: p.fidelity.score, grade: p.fidelity.grade, workDone: p.completedWork.length, overdue: p.overdue.length })),
+        };
+      });
+
+      const connectedCount = platformIntel.filter(p => p.connected).length;
+      const totalAcked = allAcks.filter(a => a.status === "acknowledged").length;
+      const totalDelivered = allAcks.filter(a => a.status === "delivered").length;
+      const totalPending = allAcks.filter(a => a.status === "pending").length;
+      const ecosystemFidelity = allAcks.length > 0 ? Math.round((totalAcked / allAcks.length) * 100) : 0;
+
+      const complianceEvents = recentEvents.filter(e => e.eventType === "compliance_report");
+      const chainedEvents = recentEvents.filter(e => (e.eventData as any)?.chainedFrom);
+
+      const dueOut = allDirectives
+        .filter(d => d.expiresAt && new Date(d.expiresAt) > new Date())
+        .map(d => {
+          const daysLeft = Math.ceil((new Date(d.expiresAt!).getTime() - Date.now()) / (24 * 60 * 60 * 1000));
+          const dAcks = allAcks.filter(a => a.directiveId === d.id);
+          const acked = dAcks.filter(a => a.status === "acknowledged").length;
+          return { title: d.title, daysLeft, acked, total: dAcks.length, urgent: daysLeft <= 7 };
+        })
+        .sort((a, b) => a.daysLeft - b.daysLeft);
+
+      const needsAttention = platformIntel
+        .filter(p => p.overdue.length > 0 || !p.connected)
+        .map(p => ({
+          id: p.id,
+          name: p.name,
+          reason: !p.connected ? "NOT CONNECTED — no heartbeat from production" : `${p.overdue.length} overdue directive(s)`,
+          overdue: p.overdue,
+          fidelity: p.fidelity.score,
+        }));
+
+      res.json({
+        generatedAt: new Date().toISOString(),
+        period: "Last 7 days",
+        ecosystemSummary: {
+          totalPlatforms: platforms.length,
+          connected: connectedCount,
+          disconnected: platforms.length - connectedCount,
+          ecosystemFidelity,
+          ecosystemGrade: ecosystemFidelity >= 90 ? "A" : ecosystemFidelity >= 75 ? "B" : ecosystemFidelity >= 50 ? "C" : ecosystemFidelity >= 25 ? "D" : "F",
+          directives: { total: allDirectives.length, acknowledged: totalAcked, delivered: totalDelivered, pending: totalPending },
+          eventsThisWeek: recentEvents.length,
+          complianceReportsThisWeek: complianceEvents.length,
+          workChainsTriggered: chainedEvents.length,
+        },
+        dueOut,
+        needsAttention,
+        grantReadiness,
+        platformIntelligence: platformIntel.sort((a, b) => b.fidelity.score - a.fidelity.score),
+      });
+    } catch (error) {
+      console.error("Intelligence report failed:", error);
+      res.status(500).json({ error: "Failed to generate intelligence report" });
+    }
+  });
+
+  app.get("/api/ecosystem/grant-readiness", async (_req, res) => {
+    try {
+      const platforms = await db.select().from(ecosystemPlatforms);
+      const allAcks = await db.select().from(ecosystemDirectiveAcks);
+      const HEARTBEAT_FRESHNESS_MS = 30 * 60 * 1000;
+
+      const GRANT_MAP: Record<string, { name: string; amount: string; deadline: string }> = {
+        "dfc": { name: "Drug-Free Communities (DFC)", amount: "$625K", deadline: "April 14, 2026" },
+        "wioa": { name: "WIOA Title I Youth", amount: "$200K-$500K", deadline: "Rolling" },
+        "nba-foundation": { name: "Foundation Grant", amount: "$100K-$500K", deadline: "Rolling LOI" },
+        "st-davids": { name: "St. David's Foundation", amount: "Up to $1M", deadline: "March 30, 2026" },
+        "ssg-fox": { name: "SSG Fox VA Suicide Prevention", amount: "Up to $750K", deadline: "June 12-18, 2026" },
+        "samhsa": { name: "SAMHSA Community Mental Health", amount: "Varies", deadline: "Varies" },
+      };
+
+      const grantReadiness = Object.entries(GRANT_MAP).map(([grantId, grant]) => {
+        const alignedPlatforms = platforms.filter(p => ((p.grantAlignment as string[]) || []).includes(grantId));
+        const connected = alignedPlatforms.filter(p => p.lastHeartbeat && (Date.now() - new Date(p.lastHeartbeat).getTime()) < HEARTBEAT_FRESHNESS_MS).length;
+        const pAcks = allAcks.filter(a => alignedPlatforms.some(p => p.id === a.platformId));
+        const totalWork = pAcks.filter(a => a.status === "acknowledged").length;
+        const totalOverdue = pAcks.filter(a => a.status === "delivered").length;
+        const avgFidelity = pAcks.length > 0 ? Math.round((totalWork / pAcks.length) * 100) : 0;
+        return { grantId, ...grant, platforms: { total: alignedPlatforms.length, connected, disconnected: alignedPlatforms.length - connected }, compliance: { avgFidelity, totalWorkCompleted: totalWork, totalOverdue, evidenceVerified: 0 }, readinessScore: alignedPlatforms.length > 0 ? Math.round(((connected / alignedPlatforms.length) * 40) + (avgFidelity * 0.4) + 0) : 0 };
+      });
+      res.json({ generatedAt: new Date().toISOString(), grantReadiness });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch grant readiness" });
+    }
+  });
+
+  app.post("/api/ecosystem/verify-deliverables", requireAdminAuth, async (_req, res) => {
+    try {
+      const results = await runDeliverableVerification();
+      res.json({ verifiedAt: new Date().toISOString(), checked: results.length, results });
+    } catch (error) {
+      res.status(500).json({ error: "Verification failed" });
     }
   });
 

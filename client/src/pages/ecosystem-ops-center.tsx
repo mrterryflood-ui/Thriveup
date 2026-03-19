@@ -13,7 +13,8 @@ import {
   Zap, Shield, Heart, Briefcase, GraduationCap, Brain,
   MapPin, BarChart3, Send, Users, Building2, Printer,
   Stethoscope, Play, Mic, ChevronRight, Radio, Power,
-  BellRing, Volume2,
+  BellRing, Volume2, TrendingUp, FileCheck, Target,
+  CircleDot, Link2, AlertOctagon, Award,
 } from "lucide-react";
 import { BackToTop } from "@/components/back-to-top";
 import { queryClient, apiRequest } from "@/lib/queryClient";
@@ -52,6 +53,50 @@ interface LiveStatus {
     };
   };
   platforms: PlatformStatus[];
+}
+
+interface IntelPlatform {
+  id: string;
+  name: string;
+  domain: string;
+  status: string;
+  connected: boolean;
+  lastHeartbeat: string | null;
+  heartbeatAgeMinutes: number | null;
+  fidelity: { score: number; grade: string; total: number; acknowledged: number; delivered: number; pending: number };
+  completedWork: { directive: string; whatWasDone: string; evidenceUrl: string | null; verificationStatus: string; acknowledgedAt: string | null }[];
+  overdue: { directive: string; directiveId: string }[];
+  grantAlignment: string[];
+}
+
+interface GrantReadiness {
+  grantId: string;
+  name: string;
+  amount: string;
+  deadline: string;
+  platforms: { total: number; connected: number; disconnected: number };
+  compliance: { avgFidelity: number; totalWorkCompleted: number; totalOverdue: number; evidenceVerified: number };
+  readinessScore: number;
+  platformDetails: { id: string; name: string; connected: boolean; fidelity: number; grade: string; workDone: number; overdue: number }[];
+}
+
+interface IntelReport {
+  generatedAt: string;
+  ecosystemSummary: {
+    totalPlatforms: number;
+    connected: number;
+    disconnected: number;
+    ecosystemFidelity: number;
+    ecosystemGrade: string;
+    directives: { total: number; acknowledged: number; delivered: number; pending: number };
+    eventsThisWeek: number;
+    complianceReportsThisWeek: number;
+    workChainsTriggered: number;
+  };
+  dueOut: { title: string; daysLeft: number; acked: number; total: number; urgent: boolean }[];
+  needsAttention: { id: string; name: string; reason: string; overdue: { directive: string }[]; fidelity: number }[];
+  grantReadiness: GrantReadiness[];
+  platformIntelligence: IntelPlatform[];
 }
 
 const DOMAIN_ICONS: Record<string, typeof Globe> = {
@@ -128,7 +173,7 @@ interface WakeResponse {
 }
 
 export default function EcosystemOpsCenterPage() {
-  const [activeTab, setActiveTab] = useState("live");
+  const [activeTab, setActiveTab] = useState("intelligence");
   const [autoRefresh, setAutoRefresh] = useState(false);
   const [wakeResults, setWakeResults] = useState<WakeResponse | null>(null);
   const { toast } = useToast();
@@ -141,6 +186,12 @@ export default function EcosystemOpsCenterPage() {
     queryKey: ["/api/ecosystem/live-status"],
     refetchInterval: autoRefresh ? 60000 : false,
     staleTime: 30000,
+  });
+
+  const { data: intelReport, isLoading: intelLoading, refetch: refetchIntel } = useQuery<IntelReport>({
+    queryKey: ["/api/ecosystem/intelligence-report"],
+    staleTime: 60000,
+    enabled: activeTab === "intelligence" || activeTab === "grants",
   });
 
   const wakeUpMutation = useMutation({
@@ -381,7 +432,13 @@ export default function EcosystemOpsCenterPage() {
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} data-testid="tabs-ops">
-            <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 gap-1 h-auto p-1">
+            <TabsList className="grid w-full grid-cols-3 md:grid-cols-6 gap-1 h-auto p-1">
+              <TabsTrigger value="intelligence" className="text-xs md:text-sm" data-testid="tab-intelligence">
+                <TrendingUp className="h-3.5 w-3.5 mr-1" /> Intelligence
+              </TabsTrigger>
+              <TabsTrigger value="grants" className="text-xs md:text-sm" data-testid="tab-grants">
+                <Target className="h-3.5 w-3.5 mr-1" /> Grant Readiness
+              </TabsTrigger>
               <TabsTrigger value="live" className="text-xs md:text-sm" data-testid="tab-live">
                 <Activity className="h-3.5 w-3.5 mr-1" /> Live Status
               </TabsTrigger>
@@ -395,6 +452,293 @@ export default function EcosystemOpsCenterPage() {
                 <MapPin className="h-3.5 w-3.5 mr-1" /> Regional Hubs
               </TabsTrigger>
             </TabsList>
+
+            <TabsContent value="intelligence" className="mt-6 space-y-6" data-testid="content-intelligence">
+              {intelLoading ? (
+                <div className="space-y-4">
+                  {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-32" />)}
+                </div>
+              ) : intelReport ? (
+                <>
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-lg font-bold flex items-center gap-2">
+                      <TrendingUp className="h-5 w-5 text-blue-600" />
+                      Ecosystem Intelligence — Weekly Roll-Up
+                    </h2>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-muted-foreground">
+                        Generated: {new Date(intelReport.generatedAt).toLocaleString()}
+                      </span>
+                      <Button variant="outline" size="sm" onClick={() => refetchIntel()} data-testid="button-refresh-intel">
+                        <RefreshCw className="h-3.5 w-3.5 mr-1" /> Refresh
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                    <Card className="text-center" data-testid="intel-connected">
+                      <CardContent className="pt-4 pb-3">
+                        <div className="text-2xl font-bold text-emerald-600">{intelReport.ecosystemSummary.connected}</div>
+                        <div className="text-xs text-muted-foreground">Connected</div>
+                        <div className="text-xs text-red-500">{intelReport.ecosystemSummary.disconnected} disconnected</div>
+                      </CardContent>
+                    </Card>
+                    <Card className="text-center" data-testid="intel-fidelity">
+                      <CardContent className="pt-4 pb-3">
+                        <div className={`text-2xl font-bold ${intelReport.ecosystemSummary.ecosystemFidelity >= 75 ? "text-emerald-600" : intelReport.ecosystemSummary.ecosystemFidelity >= 50 ? "text-amber-600" : "text-red-600"}`}>
+                          {intelReport.ecosystemSummary.ecosystemFidelity}%
+                        </div>
+                        <div className="text-xs text-muted-foreground">Ecosystem Fidelity</div>
+                        <div className="text-xs font-semibold">Grade {intelReport.ecosystemSummary.ecosystemGrade}</div>
+                      </CardContent>
+                    </Card>
+                    <Card className="text-center" data-testid="intel-directives">
+                      <CardContent className="pt-4 pb-3">
+                        <div className="text-2xl font-bold text-blue-600">{intelReport.ecosystemSummary.directives.acknowledged}</div>
+                        <div className="text-xs text-muted-foreground">Acknowledged</div>
+                        <div className="text-xs">{intelReport.ecosystemSummary.directives.delivered} delivered, {intelReport.ecosystemSummary.directives.pending} pending</div>
+                      </CardContent>
+                    </Card>
+                    <Card className="text-center" data-testid="intel-events">
+                      <CardContent className="pt-4 pb-3">
+                        <div className="text-2xl font-bold text-violet-600">{intelReport.ecosystemSummary.eventsThisWeek}</div>
+                        <div className="text-xs text-muted-foreground">Events This Week</div>
+                        <div className="text-xs">{intelReport.ecosystemSummary.complianceReportsThisWeek} compliance reports</div>
+                      </CardContent>
+                    </Card>
+                    <Card className="text-center" data-testid="intel-chains">
+                      <CardContent className="pt-4 pb-3">
+                        <div className="text-2xl font-bold text-amber-600">{intelReport.ecosystemSummary.workChainsTriggered}</div>
+                        <div className="text-xs text-muted-foreground">Work Chains</div>
+                        <div className="text-xs">Auto-routed tasks</div>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  {intelReport.needsAttention.length > 0 && (
+                    <Card className="border-red-200 dark:border-red-800 bg-red-50/30 dark:bg-red-950/10" data-testid="intel-needs-attention">
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-base flex items-center gap-2 text-red-700 dark:text-red-400">
+                          <AlertOctagon className="h-5 w-5" />
+                          Needs Your Attention ({intelReport.needsAttention.length})
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-2">
+                          {intelReport.needsAttention.map(item => (
+                            <div key={item.id} className="flex items-start justify-between p-3 rounded-lg bg-white dark:bg-gray-900 border">
+                              <div>
+                                <span className="font-semibold text-sm">{item.name}</span>
+                                <p className="text-xs text-red-600 dark:text-red-400 mt-0.5">{item.reason}</p>
+                                {item.overdue.length > 0 && (
+                                  <div className="mt-1 space-y-0.5">
+                                    {item.overdue.map((o, i) => (
+                                      <p key={i} className="text-xs text-muted-foreground flex items-center gap-1">
+                                        <Clock className="h-3 w-3" /> {o.directive}
+                                      </p>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                              <Badge variant="outline" className={`text-xs ${item.fidelity >= 75 ? "text-emerald-600" : item.fidelity >= 50 ? "text-amber-600" : "text-red-600"}`}>
+                                {item.fidelity}%
+                              </Badge>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {intelReport.dueOut.length > 0 && (
+                    <Card data-testid="intel-due-out">
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-base flex items-center gap-2">
+                          <Clock className="h-5 w-5 text-amber-600" />
+                          Due Out
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-2">
+                          {intelReport.dueOut.map((item, i) => (
+                            <div key={i} className={`flex items-center justify-between p-3 rounded-lg ${item.urgent ? "bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800 border" : "bg-muted/30"}`}>
+                              <div className="flex items-center gap-2">
+                                {item.urgent && <AlertTriangle className="h-4 w-4 text-red-500" />}
+                                <span className="text-sm font-medium">{item.title}</span>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <span className="text-xs text-muted-foreground">{item.acked}/{item.total} platforms</span>
+                                <Badge variant={item.urgent ? "destructive" : "outline"} className="text-xs">
+                                  {item.daysLeft}d left
+                                </Badge>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  <Card data-testid="intel-platform-scoreboard">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-base flex items-center gap-2">
+                        <Award className="h-5 w-5 text-emerald-600" />
+                        Platform Scoreboard
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-1.5">
+                        {intelReport.platformIntelligence.map(p => (
+                          <div key={p.id} className="flex items-center justify-between p-2.5 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors" data-testid={`intel-platform-${p.id}`}>
+                            <div className="flex items-center gap-3 flex-1 min-w-0">
+                              {p.connected ? (
+                                <CircleDot className="h-4 w-4 text-emerald-500 flex-shrink-0" />
+                              ) : (
+                                <XCircle className="h-4 w-4 text-red-400 flex-shrink-0" />
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <span className="text-sm font-medium">{p.name}</span>
+                                {p.completedWork.length > 0 && (
+                                  <p className="text-xs text-muted-foreground truncate">
+                                    Latest: {p.completedWork[0].whatWasDone}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              {p.completedWork.filter(w => w.verificationStatus === "LIVE").length > 0 && (
+                                <Badge variant="outline" className="text-xs text-emerald-600 border-emerald-300">
+                                  <FileCheck className="h-3 w-3 mr-0.5" />
+                                  {p.completedWork.filter(w => w.verificationStatus === "LIVE").length} verified
+                                </Badge>
+                              )}
+                              {p.overdue.length > 0 && (
+                                <Badge variant="outline" className="text-xs text-red-600 border-red-300">
+                                  {p.overdue.length} overdue
+                                </Badge>
+                              )}
+                              <div className="w-16 text-right">
+                                <span className={`text-sm font-bold ${p.fidelity.score >= 90 ? "text-emerald-600" : p.fidelity.score >= 75 ? "text-blue-600" : p.fidelity.score >= 50 ? "text-amber-600" : "text-red-600"}`}>
+                                  {p.fidelity.grade}
+                                </span>
+                                <span className="text-xs text-muted-foreground ml-1">{p.fidelity.score}%</span>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </>
+              ) : (
+                <Card className="text-center py-12">
+                  <CardContent>
+                    <TrendingUp className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                    <h3 className="text-lg font-semibold">Loading Intelligence Report...</h3>
+                  </CardContent>
+                </Card>
+              )}
+            </TabsContent>
+
+            <TabsContent value="grants" className="mt-6 space-y-6" data-testid="content-grants">
+              {intelLoading ? (
+                <div className="space-y-4">
+                  {Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-40" />)}
+                </div>
+              ) : intelReport ? (
+                <>
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-lg font-bold flex items-center gap-2">
+                      <Target className="h-5 w-5 text-violet-600" />
+                      Grant Readiness Dashboard
+                    </h2>
+                    <Button variant="outline" size="sm" onClick={() => refetchIntel()} data-testid="button-refresh-grants">
+                      <RefreshCw className="h-3.5 w-3.5 mr-1" /> Refresh
+                    </Button>
+                  </div>
+
+                  <div className="space-y-4">
+                    {[...intelReport.grantReadiness].sort((a, b) => b.readinessScore - a.readinessScore).map(grant => (
+                      <Card key={grant.grantId} className="overflow-hidden" data-testid={`grant-${grant.grantId}`}>
+                        <div className={`h-1.5 ${grant.readinessScore >= 70 ? "bg-emerald-500" : grant.readinessScore >= 40 ? "bg-amber-500" : "bg-red-500"}`} />
+                        <CardHeader className="pb-2">
+                          <div className="flex items-center justify-between flex-wrap gap-2">
+                            <div>
+                              <CardTitle className="text-base">{grant.name}</CardTitle>
+                              <p className="text-sm text-muted-foreground">{grant.amount} | Deadline: {grant.deadline}</p>
+                            </div>
+                            <div className="text-right">
+                              <div className={`text-2xl font-bold ${grant.readinessScore >= 70 ? "text-emerald-600" : grant.readinessScore >= 40 ? "text-amber-600" : "text-red-600"}`}>
+                                {grant.readinessScore}%
+                              </div>
+                              <div className="text-xs text-muted-foreground">Readiness</div>
+                            </div>
+                          </div>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                            <div className="p-2 rounded bg-muted/30 text-center">
+                              <div className="text-lg font-bold">{grant.platforms.connected}/{grant.platforms.total}</div>
+                              <div className="text-xs text-muted-foreground">Platforms Connected</div>
+                            </div>
+                            <div className="p-2 rounded bg-muted/30 text-center">
+                              <div className="text-lg font-bold">{grant.compliance.avgFidelity}%</div>
+                              <div className="text-xs text-muted-foreground">Avg Fidelity</div>
+                            </div>
+                            <div className="p-2 rounded bg-muted/30 text-center">
+                              <div className="text-lg font-bold text-emerald-600">{grant.compliance.totalWorkCompleted}</div>
+                              <div className="text-xs text-muted-foreground">Work Items Done</div>
+                            </div>
+                            <div className="p-2 rounded bg-muted/30 text-center">
+                              <div className="text-lg font-bold text-violet-600">{grant.compliance.evidenceVerified}</div>
+                              <div className="text-xs text-muted-foreground">Evidence Verified</div>
+                            </div>
+                          </div>
+
+                          {grant.compliance.totalOverdue > 0 && (
+                            <div className="p-2 rounded bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 mb-3">
+                              <p className="text-xs text-red-600 dark:text-red-400 font-semibold">
+                                <AlertTriangle className="h-3 w-3 inline mr-1" />
+                                {grant.compliance.totalOverdue} overdue directive(s) across aligned platforms
+                              </p>
+                            </div>
+                          )}
+
+                          <div className="space-y-1">
+                            {grant.platformDetails.map(pd => (
+                              <div key={pd.id} className="flex items-center justify-between p-2 rounded bg-muted/20 text-sm">
+                                <div className="flex items-center gap-2">
+                                  {pd.connected ? (
+                                    <CircleDot className="h-3.5 w-3.5 text-emerald-500" />
+                                  ) : (
+                                    <XCircle className="h-3.5 w-3.5 text-red-400" />
+                                  )}
+                                  <span className="font-medium">{pd.name}</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  {pd.workDone > 0 && <span className="text-xs text-emerald-600">{pd.workDone} done</span>}
+                                  {pd.overdue > 0 && <span className="text-xs text-red-500">{pd.overdue} overdue</span>}
+                                  <Badge variant="outline" className={`text-xs ${pd.fidelity >= 75 ? "text-emerald-600" : pd.fidelity >= 50 ? "text-amber-600" : "text-red-600"}`}>
+                                    {pd.grade} ({pd.fidelity}%)
+                                  </Badge>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <Card className="text-center py-12">
+                  <CardContent>
+                    <Target className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                    <h3 className="text-lg font-semibold">Loading Grant Data...</h3>
+                  </CardContent>
+                </Card>
+              )}
+            </TabsContent>
 
             <TabsContent value="live" className="mt-6 space-y-3" data-testid="content-live">
               <div className="flex items-center justify-between">
