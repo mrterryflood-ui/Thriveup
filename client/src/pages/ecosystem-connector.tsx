@@ -25,6 +25,10 @@ const PLATFORM_ICONS: Record<string, typeof Heart> = {
   "easyai-learning": GraduationCap,
   "isss": GraduationCap,
   "sankofa": Heart,
+  "sankofa-feminine-health": Stethoscope,
+  "sankofa-maternal-health": Heart,
+  "sankofa-mens-health": Shield,
+  "shield-atlas": Shield,
   "wholemind": BookOpen,
   "perfectly-different": Brain,
   "safereport": Shield,
@@ -53,6 +57,10 @@ const PLATFORM_COLORS: Record<string, { bg: string; border: string; text: string
   "betterscience": { bg: "bg-cyan-50 dark:bg-cyan-950/30", border: "border-cyan-200 dark:border-cyan-800", text: "text-cyan-600" },
   "safecognicare": { bg: "bg-slate-50 dark:bg-slate-950/30", border: "border-slate-200 dark:border-slate-800", text: "text-slate-600" },
   "pillscheduler": { bg: "bg-sky-50 dark:bg-sky-950/30", border: "border-sky-200 dark:border-sky-800", text: "text-sky-600" },
+  "sankofa-feminine-health": { bg: "bg-pink-50 dark:bg-pink-950/30", border: "border-pink-200 dark:border-pink-800", text: "text-pink-600" },
+  "sankofa-maternal-health": { bg: "bg-rose-50 dark:bg-rose-950/30", border: "border-rose-200 dark:border-rose-800", text: "text-rose-600" },
+  "sankofa-mens-health": { bg: "bg-blue-50 dark:bg-blue-950/30", border: "border-blue-200 dark:border-blue-800", text: "text-blue-600" },
+  "shield-atlas": { bg: "bg-orange-50 dark:bg-orange-950/30", border: "border-orange-200 dark:border-orange-800", text: "text-orange-600" },
 };
 
 const ROLE_LABELS: Record<string, string> = {
@@ -72,10 +80,14 @@ const ROLE_LABELS: Record<string, string> = {
   research: "Research & Implementation Science",
   "cognitive-health": "Cognitive Health",
   "medication-management": "Medication Management",
+  "feminine-health": "Feminine Health",
+  "maternal-health": "Maternal Health",
+  "mens-health": "Men's Health",
+  "risk-intelligence": "Risk Intelligence",
 };
 
 const GRANT_LENSES = [
-  { id: "all", label: "All Platforms", color: "bg-gray-100 text-gray-700", description: "All 16 ecosystem platforms" },
+  { id: "all", label: "All Platforms", color: "bg-gray-100 text-gray-700", description: "All ecosystem platforms" },
   { id: "ssg-fox", label: "SSG Fox VA Suicide Prevention", color: "bg-red-100 text-red-700", description: "Up to $750K — June 12-18, 2026" },
   { id: "dfc", label: "Drug-Free Communities (DFC)", color: "bg-blue-100 text-blue-700", description: "$625K — April 14, 2026" },
   { id: "wioa", label: "WIOA Title I Youth", color: "bg-green-100 text-green-700", description: "$200K-$500K — Rolling" },
@@ -173,13 +185,13 @@ export default function EcosystemConnectorPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold" data-testid="text-ecosystem-title">Ecosystem Command Center</h1>
-          <p className="text-muted-foreground mt-1">16-platform ecosystem — a la carte views by grant, real-time connectivity, no dead ends</p>
+          <p className="text-muted-foreground mt-1">{totalCount}-platform ecosystem — a la carte views by grant, real-time connectivity, no dead ends</p>
         </div>
         <div className="flex gap-2">
           {platforms.length === 0 && (
             <Button onClick={() => initMutation.mutate()} disabled={initMutation.isPending} className="bg-gradient-to-r from-red-600 to-purple-600 hover:from-red-700 hover:to-purple-700 text-white" data-testid="button-initialize">
               {initMutation.isPending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Rocket className="h-4 w-4 mr-2" />}
-              Initialize All 16 Platforms
+              Initialize All Platforms
             </Button>
           )}
           {platforms.length > 0 && (
@@ -227,32 +239,98 @@ export default function EcosystemConnectorPage() {
         </Card>
       )}
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-indigo-100 dark:bg-indigo-900/40"><Server className="h-5 w-5 text-indigo-600" /></div>
-            <div><p className="text-2xl font-bold" data-testid="text-total-platforms">{grantLens === "all" ? totalCount : filteredPlatforms.length}</p><p className="text-xs text-muted-foreground">{grantLens === "all" ? "Total" : "In Lens"}</p></div>
-          </CardContent>
-        </Card>
-        <Card className={onlineCount === totalCount && totalCount > 0 ? "border-emerald-200 dark:border-emerald-800" : ""}>
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-emerald-100 dark:bg-emerald-900/40"><Wifi className="h-5 w-5 text-emerald-600" /></div>
-            <div><p className="text-2xl font-bold" data-testid="text-online-count">{onlineCount}</p><p className="text-xs text-muted-foreground">Online</p></div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900/40"><ArrowLeftRight className="h-5 w-5 text-purple-600" /></div>
-            <div><p className="text-2xl font-bold" data-testid="text-total-events">{statusData?.totalEvents || 0}</p><p className="text-xs text-muted-foreground">Total Events</p></div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-amber-100 dark:bg-amber-900/40"><Zap className="h-5 w-5 text-amber-600" /></div>
-            <div><p className="text-2xl font-bold" data-testid="text-events-24h">{statusData?.eventsLast24h || 0}</p><p className="text-xs text-muted-foreground">Events (24h)</p></div>
-          </CardContent>
-        </Card>
-      </div>
+      {filteredPlatforms.length > 0 && (() => {
+        const onlinePlatforms = filteredPlatforms.filter((p: any) => p.healthStatus === "online");
+        const offlinePlatforms = filteredPlatforms.filter((p: any) => p.healthStatus !== "online");
+        return (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <Card>
+                <CardContent className="p-4 flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-indigo-100 dark:bg-indigo-900/40"><Server className="h-5 w-5 text-indigo-600" /></div>
+                  <div><p className="text-2xl font-bold" data-testid="text-total-platforms">{filteredPlatforms.length}</p><p className="text-xs text-muted-foreground">{grantLens === "all" ? "Total" : "In Lens"}</p></div>
+                </CardContent>
+              </Card>
+              <Card className={onlinePlatforms.length === filteredPlatforms.length ? "border-emerald-200 dark:border-emerald-800" : ""}>
+                <CardContent className="p-4 flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-emerald-100 dark:bg-emerald-900/40"><Wifi className="h-5 w-5 text-emerald-600" /></div>
+                  <div><p className="text-2xl font-bold" data-testid="text-online-count">{onlinePlatforms.length}</p><p className="text-xs text-muted-foreground">Online</p></div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-4 flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900/40"><ArrowLeftRight className="h-5 w-5 text-purple-600" /></div>
+                  <div><p className="text-2xl font-bold" data-testid="text-total-events">{statusData?.totalEvents || 0}</p><p className="text-xs text-muted-foreground">Total Events</p></div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-4 flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-amber-100 dark:bg-amber-900/40"><Zap className="h-5 w-5 text-amber-600" /></div>
+                  <div><p className="text-2xl font-bold" data-testid="text-events-24h">{statusData?.eventsLast24h || 0}</p><p className="text-xs text-muted-foreground">Events (24h)</p></div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <Card data-testid="situational-awareness-panel">
+              <CardContent className="p-4">
+                <h3 className="font-semibold text-sm mb-3 flex items-center gap-2"><Activity className="h-4 w-4 text-indigo-600" />Situational Awareness</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <Wifi className="h-3.5 w-3.5 text-emerald-600" />
+                      <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400">Online ({onlinePlatforms.length})</span>
+                    </div>
+                    {onlinePlatforms.length === 0 ? (
+                      <p className="text-xs text-muted-foreground italic">No platforms online</p>
+                    ) : (
+                      <div className="space-y-1">
+                        {onlinePlatforms.map((p: any) => {
+                          const Icon = PLATFORM_ICONS[p.id] || Globe;
+                          const colors = PLATFORM_COLORS[p.id] || DEFAULT_COLORS;
+                          return (
+                            <div key={p.id} className="flex items-center gap-2 py-1 px-2 rounded bg-emerald-50/50 dark:bg-emerald-950/20" data-testid={`status-online-${p.id}`}>
+                              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse flex-shrink-0" />
+                              <Icon className={`h-3.5 w-3.5 flex-shrink-0 ${colors.text}`} />
+                              <span className="text-xs font-medium truncate">{p.name}</span>
+                              {p.lastHeartbeat && (
+                                <span className="text-[10px] text-muted-foreground ml-auto flex-shrink-0">{new Date(p.lastHeartbeat).toLocaleTimeString()}</span>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <WifiOff className="h-3.5 w-3.5 text-red-500" />
+                      <span className="text-xs font-semibold text-red-600 dark:text-red-400">Offline / Not Connected ({offlinePlatforms.length})</span>
+                    </div>
+                    {offlinePlatforms.length === 0 ? (
+                      <p className="text-xs text-emerald-600 font-medium">All platforms online</p>
+                    ) : (
+                      <div className="space-y-1">
+                        {offlinePlatforms.map((p: any) => {
+                          const Icon = PLATFORM_ICONS[p.id] || Globe;
+                          const colors = PLATFORM_COLORS[p.id] || DEFAULT_COLORS;
+                          return (
+                            <div key={p.id} className="flex items-center gap-2 py-1 px-2 rounded bg-red-50/50 dark:bg-red-950/20" data-testid={`status-offline-${p.id}`}>
+                              <div className="w-2 h-2 rounded-full bg-red-400 flex-shrink-0" />
+                              <Icon className={`h-3.5 w-3.5 flex-shrink-0 ${colors.text}`} />
+                              <span className="text-xs font-medium truncate">{p.name}</span>
+                              <span className="text-[10px] text-muted-foreground ml-auto flex-shrink-0">{p.status === "registered" ? "No connector deployed" : "Connection lost"}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        );
+      })()}
 
       {platforms.length === 0 && !platformsLoading && (
         <Card className="border-dashed border-2">
@@ -260,7 +338,7 @@ export default function EcosystemConnectorPage() {
             <Radio className="h-12 w-12 mx-auto text-muted-foreground/50 mb-3" />
             <h3 className="font-bold text-lg">Ecosystem Not Initialized</h3>
             <p className="text-muted-foreground mt-2 max-w-lg mx-auto">
-              Click "Initialize All 16 Platforms" to register the entire Collaborative Advocate ecosystem. This creates API keys and connection profiles for every platform — from Whole-Person Health to PillScheduler. You can then filter by grant to see only the platforms relevant to each application.
+              Click "Initialize All Platforms" to register the entire Collaborative Advocate ecosystem. This creates API keys and connection profiles for every platform. You can then filter by grant to see only the platforms relevant to each application.
             </p>
           </CardContent>
         </Card>
