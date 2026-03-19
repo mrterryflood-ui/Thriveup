@@ -99,6 +99,9 @@ const grantEngineItems: NavItem[] = [
   { title: "Pflugerville Hub", url: "/pflugerville", icon: MapPin },
   { title: "Voices of Austin", url: "/voices-of-austin", icon: Megaphone },
   { title: "Ops Center", url: "/ops-center", icon: Activity },
+  { title: "Presentations Hub", url: "/presentations", icon: Presentation },
+  { title: "Texas Assessment", url: "/texas-assessment", icon: Map },
+  { title: "Third Spaces", url: "/third-spaces", icon: Building2 },
 ];
 
 const aiToolsItems: NavItem[] = [

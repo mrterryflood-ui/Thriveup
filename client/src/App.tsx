@@ -139,8 +139,11 @@ const VoicesOfAustinPage = lazy(() => import("@/pages/voices-of-austin"));
 const ManorCommunityHubPage = lazy(() => import("@/pages/manor-community-hub"));
 const PflugervilleCommunityHubPage = lazy(() => import("@/pages/pflugerville-community-hub"));
 const EcosystemOpsCenterPage = lazy(() => import("@/pages/ecosystem-ops-center"));
+const PresentationsHubPage = lazy(() => import("@/pages/presentations"));
 const EcosystemEmbedPage = lazy(() => import("@/pages/ecosystem-embed"));
 const LifeBridgeEmbedPage = lazy(() => import("@/pages/ecosystem-embed").then(m => ({ default: m.LifeBridgeEmbedPage })));
+const TexasAssessmentPage = lazy(() => import("@/pages/texas-assessment"));
+const ThirdSpacesPage = lazy(() => import("@/pages/third-spaces"));
 
 function PageFallback() {
   return (
@@ -301,6 +304,9 @@ function AppRouter() {
       <Route path="/manor" component={ManorCommunityHubPage} />
       <Route path="/pflugerville" component={PflugervilleCommunityHubPage} />
       <Route path="/ops-center" component={EcosystemOpsCenterPage} />
+      <Route path="/presentations" component={PresentationsHubPage} />
+      <Route path="/texas-assessment" component={TexasAssessmentPage} />
+      <Route path="/third-spaces" component={ThirdSpacesPage} />
       <Route component={NotFound} />
     </Switch>
   );
