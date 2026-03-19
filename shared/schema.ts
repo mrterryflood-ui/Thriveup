@@ -3305,6 +3305,8 @@ export const ecosystemPlatforms = pgTable("ecosystem_platforms", {
   healthStatus: varchar("health_status", { length: 50 }).default("unknown"),
   capabilities: jsonb("capabilities"),
   dataFlowConfig: jsonb("data_flow_config"),
+  grantAlignment: jsonb("grant_alignment"),
+  domain: varchar("domain", { length: 100 }),
   registeredAt: timestamp("registered_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
