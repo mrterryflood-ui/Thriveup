@@ -20,7 +20,6 @@ import type { EcosystemPlatform, EcosystemEvent } from "@shared/schema";
 const PLATFORM_ICONS: Record<string, typeof Heart> = {
   "whole-person-health": Heart,
   "mission-transition": Shield,
-  "life-transitions-aid": Globe,
   "isss": GraduationCap,
   "sankofa": Heart,
   "sankofa-feminine-health": Stethoscope,
@@ -41,7 +40,6 @@ const PLATFORM_ICONS: Record<string, typeof Heart> = {
 const PLATFORM_COLORS: Record<string, { bg: string; border: string; text: string }> = {
   "whole-person-health": { bg: "bg-red-50 dark:bg-red-950/30", border: "border-red-200 dark:border-red-800", text: "text-red-600" },
   "mission-transition": { bg: "bg-blue-50 dark:bg-blue-950/30", border: "border-blue-200 dark:border-blue-800", text: "text-blue-600" },
-  "life-transitions-aid": { bg: "bg-emerald-50 dark:bg-emerald-950/30", border: "border-emerald-200 dark:border-emerald-800", text: "text-emerald-600" },
   "isss": { bg: "bg-teal-50 dark:bg-teal-950/30", border: "border-teal-200 dark:border-teal-800", text: "text-teal-600" },
   "sankofa": { bg: "bg-rose-50 dark:bg-rose-950/30", border: "border-rose-200 dark:border-rose-800", text: "text-rose-600" },
   "wholemind": { bg: "bg-blue-50 dark:bg-blue-950/30", border: "border-blue-200 dark:border-blue-800", text: "text-blue-600" },
@@ -62,7 +60,6 @@ const PLATFORM_COLORS: Record<string, { bg: string; border: string; text: string
 const ROLE_LABELS: Record<string, string> = {
   hub: "Hub Platform (Prime)",
   transition: "Military Transition",
-  "life-support": "Life Event Support",
   "student-support": "Student Support",
   "health-gateway": "Health Equity Gateway",
   "k12-education": "K-12 Education",
@@ -510,7 +507,7 @@ function IntegrationPlaybook() {
     {
       name: "Phase 2: Early Warning",
       color: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300",
-      platforms: ["whole-person-health", "life-transitions-aid", "sankofa", "perfectly-different", "safecognicare"],
+      platforms: ["whole-person-health", "lifebridge", "sankofa", "perfectly-different", "safecognicare"],
       description: "C-SSRS, PHQ-9, GAD-7, PCL-5 screenings; life event self-assessment; MAP-GAP 7-domain assessment; cognitive and neurodevelopmental monitoring.",
     },
     {
@@ -528,7 +525,7 @@ function IntegrationPlaybook() {
     {
       name: "Phase 5: Recovery & Growth",
       color: "bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300",
-      platforms: ["whole-person-health", "life-transitions-aid", "mission-transition", "mce", "betterscience"],
+      platforms: ["whole-person-health", "lifebridge", "mission-transition", "mce", "betterscience"],
       description: "Community groups (2,091+); peer stories; condition guides; ongoing life navigation; career pathways; business formation; outcome measurement.",
     },
   ];
