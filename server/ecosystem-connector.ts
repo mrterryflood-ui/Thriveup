@@ -4,6 +4,7 @@ import { ecosystemPlatforms, ecosystemEvents, ecosystemHealthLogs, ecosystemDire
 import { eq, desc, and, gte, sql, inArray } from "drizzle-orm";
 import crypto from "crypto";
 import { z } from "zod";
+import { seedEcosystemDirectives } from "./ecosystem-directives-seed";
 
 const heartbeatSchema = z.object({
   platformId: z.string().max(100).optional(),
@@ -379,6 +380,7 @@ export function registerEcosystemConnectorRoutes(app: Express) {
           console.log(`[Ecosystem] Removed stale platform: ${dbPlatform.name} (${dbPlatform.id})`);
         }
       }
+      await seedEcosystemDirectives();
     } catch (err) {
       console.error("[Ecosystem] Auto-sync failed:", err);
     }
