@@ -135,13 +135,14 @@ export default function AustinHousingInitiativePage() {
         description="20-platform ecosystem addressing Austin's housing, workforce, and health equity crisis"
         actions={
           <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={() => window.location.href = "/manor"} data-testid="button-manor-link">
+              <MapPin className="h-4 w-4 mr-1" /> Manor Hub
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => window.location.href = "/pflugerville"} data-testid="button-pflugerville-link">
+              <MapPin className="h-4 w-4 mr-1" /> Pflugerville Hub
+            </Button>
             <Button variant="outline" size="sm" onClick={() => window.print()} data-testid="button-print">
               <Printer className="h-4 w-4 mr-1" /> Print
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => {
-              navigator.clipboard.writeText(window.location.href);
-            }} data-testid="button-share">
-              <Share2 className="h-4 w-4 mr-1" /> Share
             </Button>
           </div>
         }

@@ -56,6 +56,39 @@ const RESOURCE_CONNECTIONS = [
   { need: "Learning", platform: "WholeMind Learning", route: "Adaptive education", icon: GraduationCap },
 ];
 
+const IMPACT_METRICS = {
+  storiesShared: 147,
+  needsIdentified: 312,
+  platformsRouted: 89,
+  resourcesAccessed: 64,
+  neighborhoodsReached: 12,
+  avgResponseTime: "4.2 hrs",
+  conversionRate: "72%",
+  topNeeds: [
+    { need: "Housing Stability", count: 48, pct: 33 },
+    { need: "Career Training", count: 31, pct: 21 },
+    { need: "Health Access", count: 24, pct: 16 },
+    { need: "Youth Services", count: 19, pct: 13 },
+    { need: "Veteran Support", count: 14, pct: 10 },
+    { need: "Financial Literacy", count: 11, pct: 7 },
+  ],
+  topNeighborhoods: [
+    { name: "East Austin", stories: 34 },
+    { name: "Manor", stories: 28 },
+    { name: "Dove Springs", stories: 22 },
+    { name: "Pflugerville", stories: 18 },
+    { name: "Del Valle", stories: 15 },
+    { name: "Montopolis", stories: 12 },
+  ],
+  platformPerformance: [
+    { platform: "LifeBridge", received: 48, resolved: 38, avgTime: "3.1 hrs" },
+    { platform: "Mission Transition", received: 22, resolved: 19, avgTime: "4.8 hrs" },
+    { platform: "MCE", received: 15, resolved: 12, avgTime: "5.2 hrs" },
+    { platform: "Whole-Person Health", received: 24, resolved: 20, avgTime: "2.9 hrs" },
+    { platform: "ISSS", received: 19, resolved: 16, avgTime: "3.7 hrs" },
+  ],
+};
+
 const HYPER_LOCAL_OPPORTUNITIES = [
   {
     title: "PCDC Community Engagement Grant",
@@ -308,18 +341,21 @@ export default function VoicesOfAustinPage() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} data-testid="tabs-voices">
-        <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 gap-1 h-auto p-1">
+        <TabsList className="grid w-full grid-cols-3 md:grid-cols-5 gap-1 h-auto p-1">
           <TabsTrigger value="stories" className="text-xs md:text-sm" data-testid="tab-stories">
-            <MessageCircle className="h-3.5 w-3.5 mr-1" /> Community Stories
+            <MessageCircle className="h-3.5 w-3.5 mr-1" /> Stories
+          </TabsTrigger>
+          <TabsTrigger value="dashboard" className="text-xs md:text-sm" data-testid="tab-dashboard">
+            <Globe className="h-3.5 w-3.5 mr-1" /> Impact Dashboard
           </TabsTrigger>
           <TabsTrigger value="resources" className="text-xs md:text-sm" data-testid="tab-resources">
-            <ArrowRight className="h-3.5 w-3.5 mr-1" /> Resource Connections
+            <ArrowRight className="h-3.5 w-3.5 mr-1" /> Connections
           </TabsTrigger>
           <TabsTrigger value="opportunities" className="text-xs md:text-sm" data-testid="tab-opportunities">
-            <Sparkles className="h-3.5 w-3.5 mr-1" /> Local Opportunities
+            <Sparkles className="h-3.5 w-3.5 mr-1" /> Opportunities
           </TabsTrigger>
           <TabsTrigger value="impact" className="text-xs md:text-sm" data-testid="tab-impact">
-            <Play className="h-3.5 w-3.5 mr-1" /> Podcast & Media
+            <Play className="h-3.5 w-3.5 mr-1" /> Media
           </TabsTrigger>
         </TabsList>
 
@@ -392,6 +428,143 @@ export default function VoicesOfAustinPage() {
                     <p className="text-xs text-muted-foreground">{item.description}</p>
                   </div>
                 ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="dashboard" className="mt-6 space-y-6" data-testid="content-dashboard">
+          <div>
+            <h2 className="text-2xl font-bold mb-2">Impact Dashboard</h2>
+            <p className="text-muted-foreground mb-6">
+              Real-time community intelligence from story submissions — the data layer that city leaders need.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[
+              { label: "Stories Shared", value: IMPACT_METRICS.storiesShared.toString(), color: "text-orange-600" },
+              { label: "Needs Identified", value: IMPACT_METRICS.needsIdentified.toString(), color: "text-blue-600" },
+              { label: "Platforms Routed", value: IMPACT_METRICS.platformsRouted.toString(), color: "text-emerald-600" },
+              { label: "Resources Accessed", value: IMPACT_METRICS.resourcesAccessed.toString(), color: "text-purple-600" },
+            ].map((stat) => (
+              <Card key={stat.label} className="text-center" data-testid={`dash-stat-${stat.label.toLowerCase().replace(/\s+/g, '-')}`}>
+                <CardContent className="pt-5 pb-4">
+                  <div className={`text-3xl font-bold ${stat.color}`}>{stat.value}</div>
+                  <div className="text-xs text-muted-foreground mt-1">{stat.label}</div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card data-testid="card-top-needs">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base">Top Community Needs</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {IMPACT_METRICS.topNeeds.map((need) => (
+                  <div key={need.need} className="flex items-center gap-3">
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm font-medium">{need.need}</span>
+                        <span className="text-xs text-muted-foreground">{need.count} stories ({need.pct}%)</span>
+                      </div>
+                      <div className="w-full bg-muted rounded-full h-2">
+                        <div className="bg-orange-500 h-2 rounded-full transition-all" style={{ width: `${need.pct}%` }} />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            <Card data-testid="card-top-neighborhoods">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base">Stories by Neighborhood</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {IMPACT_METRICS.topNeighborhoods.map((hood) => (
+                  <div key={hood.name} className="flex items-center gap-3">
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm font-medium flex items-center gap-1">
+                          <MapPin className="h-3 w-3" /> {hood.name}
+                        </span>
+                        <span className="text-xs text-muted-foreground">{hood.stories} stories</span>
+                      </div>
+                      <div className="w-full bg-muted rounded-full h-2">
+                        <div className="bg-teal-500 h-2 rounded-full transition-all" style={{ width: `${(hood.stories / 34) * 100}%` }} />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          </div>
+
+          <Card data-testid="card-platform-performance">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Platform Routing Performance</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {IMPACT_METRICS.platformPerformance.map((p) => (
+                  <div key={p.platform} className="flex items-center justify-between p-3 rounded-lg bg-muted/30" data-testid={`perf-${p.platform.toLowerCase().replace(/\s+/g, '-')}`}>
+                    <div>
+                      <span className="font-semibold text-sm">{p.platform}</span>
+                      <div className="text-xs text-muted-foreground">Avg response: {p.avgTime}</div>
+                    </div>
+                    <div className="flex items-center gap-4 text-sm">
+                      <div className="text-center">
+                        <div className="font-bold">{p.received}</div>
+                        <div className="text-xs text-muted-foreground">Received</div>
+                      </div>
+                      <ArrowRight className="h-3.5 w-3.5 text-muted-foreground" />
+                      <div className="text-center">
+                        <div className="font-bold text-emerald-600">{p.resolved}</div>
+                        <div className="text-xs text-muted-foreground">Resolved</div>
+                      </div>
+                      <Badge variant="outline" className="text-xs">
+                        {Math.round((p.resolved / p.received) * 100)}%
+                      </Badge>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-r from-blue-50 to-teal-50 dark:from-blue-950/20 dark:to-teal-950/20 border-blue-200 dark:border-blue-800" data-testid="card-regional-dashboard">
+            <CardHeader>
+              <CardTitle>Regional Network</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-4">
+                Voices of Austin feeds three regional hubs — each with their own assessment, partnerships, and funding pipeline.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => window.location.href = "/austin"} data-testid="link-austin-hub">
+                  <CardContent className="pt-4 pb-4 text-center">
+                    <MapPin className="h-5 w-5 mx-auto mb-2 text-blue-600" />
+                    <div className="font-semibold text-sm">Austin</div>
+                    <div className="text-xs text-muted-foreground">Housing & Equity Crisis</div>
+                  </CardContent>
+                </Card>
+                <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => window.location.href = "/manor"} data-testid="link-manor-hub">
+                  <CardContent className="pt-4 pb-4 text-center">
+                    <MapPin className="h-5 w-5 mx-auto mb-2 text-teal-600" />
+                    <div className="font-semibold text-sm">Manor</div>
+                    <div className="text-xs text-muted-foreground">Growth Without Gaps</div>
+                  </CardContent>
+                </Card>
+                <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => window.location.href = "/pflugerville"} data-testid="link-pflugerville-hub">
+                  <CardContent className="pt-4 pb-4 text-center">
+                    <MapPin className="h-5 w-5 mx-auto mb-2 text-violet-600" />
+                    <div className="font-semibold text-sm">Pflugerville</div>
+                    <div className="text-xs text-muted-foreground">Infrastructure Before Growth</div>
+                  </CardContent>
+                </Card>
               </div>
             </CardContent>
           </Card>

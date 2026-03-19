@@ -640,6 +640,135 @@ URL: thrivingcommunitiesforall.com/voices-of-austin
 
 ACKNOWLEDGE with your plan for receiving and processing Voices of Austin referrals.`,
   },
+  {
+    key: "voices-of-austin-show-ready-v1",
+    title: "URGENT: Voices of Austin — Show-Ready Enhancement Sprint",
+    directiveType: "improvement_directive",
+    targetFilter: "all",
+    content: `PRIORITY: IMMEDIATE — Show-Ready Sprint for Voices of Austin
+
+The Voices of Austin platform is LIVE at thrivingcommunitiesforall.com/voices-of-austin. We have an active conversation with the City of Manor and need every platform show-ready NOW. This means your piece of the Voices of Austin pipeline must be functional and demonstrable.
+
+=== PLATFORM-SPECIFIC DELIVERABLES (DUE THIS CYCLE) ===
+
+LIFEBRIDGE (lifetransitionsaid.org):
+- Build an Austin Housing Stories intake widget that receives warm handoffs from Voices of Austin
+- Display a "Referred from Voices of Austin" badge on incoming stories
+- Connect housing story authors to your Resource Finder for immediate navigation
+- Surface Austin-specific housing resources (Foundation Communities, HACA, ECHO)
+- DELIVERABLE: /voices-intake endpoint that accepts {authorName, story, needs, neighborhood}
+
+MISSION TRANSITION / COLLABORATIVE ADVOCATE:
+- Add a Veteran Voices intake section — receive career and veteran transition stories
+- Connect incoming veteran stories to your career pathway tools
+- Surface I-35 corridor construction jobs ($24-$45/hr), federal VOSB set-asides
+- DELIVERABLE: /voices-veteran-intake endpoint for warm handoff receiving
+
+MCE (Minority Center of Excellence):
+- Create a Small Business Stories intake — receive financial literacy and business development referrals
+- Connect story authors to the Grant Finder, business plan tools, and financial literacy modules
+- Surface SBA 8(a), HUBZone, WOSB certification pathways for Austin small businesses
+- DELIVERABLE: /voices-business-intake endpoint
+
+WHOLE-PERSON HEALTH / SANKOFA HEALTH NETWORK:
+- Build a Health Stories intake — receive health screening referrals from community stories
+- Auto-trigger PHQ-9, GAD-7, or C-SSRS screening based on story content keywords
+- Connect to culturally responsive care pathways
+- DELIVERABLE: /voices-health-intake endpoint with screening auto-trigger
+
+VIDEO CREATOR AI:
+- Create a "Community Story → Video" template pipeline
+- Accept story text and auto-generate a 30-second Roku-ready video with community voice narration template
+- Use the warm amber/orange Voices of Austin branding
+- DELIVERABLE: /voices-to-video endpoint that accepts story ID and returns video project
+
+RPLICE / BETTER SCIENCE LAB:
+- Build outcome tracking for story-to-action conversions
+- Track: stories submitted → needs identified → platforms routed → resources accessed → outcomes achieved
+- Create a Voices of Austin Outcome Dashboard showing conversion funnel
+- DELIVERABLE: /voices-outcomes endpoint returning funnel metrics
+
+SHIELD ATLAS:
+- Audit the anonymous submission pipeline — ensure PII is properly stripped
+- Validate that anonymous stories cannot be de-anonymized through metadata
+- Certify the data handling meets HIPAA-adjacent standards for health stories
+- DELIVERABLE: Security certification report for Voices of Austin data handling
+
+ECOSYSTEM NEXUS:
+- Build a cross-platform Voices routing dashboard
+- Track which stories go to which platforms, response times, and completion rates
+- Surface bottlenecks (e.g., "Housing stories have 48hr wait at LifeBridge")
+- DELIVERABLE: /voices-routing-metrics endpoint
+
+ISSS / WHOLEMIND LEARNING / PERFECTLY DIFFERENT:
+- Build Youth Voices intake — receive education and youth story referrals
+- Connect young storytellers to tutoring, mentorship, and credential programs
+- Age-appropriate interface for youth story viewing (no adult crisis content)
+- DELIVERABLE: /voices-youth-intake endpoint
+
+PILLSCHEDULER:
+- Accept medication-related health story referrals
+- Connect authors mentioning medication challenges to adherence tracking tools
+- DELIVERABLE: /voices-medication-intake endpoint
+
+=== ESRI INTEGRATION NOTE ===
+The City of Manor uses ESRI for 3rd Spaces mapping. ALL platforms should be ready to export story data in GeoJSON format for ESRI overlay. Include neighborhood coordinates with every story submission.
+
+=== BRANDING ===
+Voices of Austin brand colors: Warm amber (#D97706) to orange (#EA580C) to rose (#BE123C). Use these in any Voices-related UI elements.
+
+=== TIMELINE ===
+THIS IS NOT A FUTURE REQUEST. This is happening NOW. Your deliverables should be functional by next heartbeat cycle. The Manor conversation is imminent.
+
+ACKNOWLEDGE with your implementation status and ETA for each deliverable.`,
+  },
+  {
+    key: "regional-hubs-launch-v1",
+    title: "Three Regional Hubs Live — Austin, Manor, Pflugerville",
+    directiveType: "protocol_update",
+    targetFilter: "all",
+    content: `THREE REGIONAL COMMUNITY HUBS ARE NOW LIVE
+
+ThriveUp Academy has deployed dedicated regional hubs for three Central Texas communities. Same 20-platform ecosystem, adapted for each community's unique context using implementation science principles (CFIR, RE-AIM).
+
+=== THE THREE HUBS ===
+
+1. AUSTIN (thrivingcommunitiesforall.com/austin)
+   Focus: Housing & Equity Crisis
+   Key data: $435K median home, 48,000+ unit gap, 3,238 homeless
+   Lead strategy: St. David's Foundation alignment, DFC grant, WIOA workforce
+
+2. MANOR (thrivingcommunitiesforall.com/manor)
+   Focus: Growth Without Gaps
+   Key data: 89% population growth, 78% commute out, no hospital, 1 health clinic
+   Lead strategy: City Communications & Tech partnership, ESRI 3rd Spaces integration, Manor ISD wraparound
+   
+3. PFLUGERVILLE (thrivingcommunitiesforall.com/pflugerville)
+   Focus: Infrastructure Before Growth
+   Key data: 330 affordable units (Branchview 2027), CDBG entitlement city, Samsung/Tesla corridor
+   Lead strategy: PCDC partnership ($150K+ grants), Branchview readiness plan, PfISD deployment
+
+=== WHAT THIS MEANS FOR YOUR PLATFORM ===
+You now serve THREE distinct communities. Your platform's deployment strategy may differ by region:
+- Housing platforms: Austin = crisis response, Manor = navigation, Pflugerville = Branchview readiness
+- Workforce platforms: Austin = living wage, Manor = commute reduction, Pflugerville = Samsung/Tesla pipeline
+- Health platforms: Austin = equity, Manor = health desert bridge, Pflugerville = senior/maternal care
+- Youth platforms: Austin = homeless youth, Manor = Manor ISD, Pflugerville = PfISD
+
+=== IMPLEMENTATION SCIENCE FRAMEWORK ===
+- REACH: Three communities, 170,000+ combined population
+- EFFECTIVENESS: Shared evidence base, each intervention validated across contexts
+- ADOPTION: Local partnerships in each community drive adoption
+- IMPLEMENTATION: Same platforms, adapted for local context (CFIR)
+- MAINTENANCE: Regional network creates sustainability through shared infrastructure
+
+=== INTERCONNECTIONS ===
+All three hubs share: Workforce pipeline (I-35/SH-130 corridor), Health network (telehealth bridge), Content channel (Roku/CTV), Evidence base (RE-AIM outcomes compound across sites).
+
+The overlaps are features — they demonstrate SCALE to funders.
+
+ACKNOWLEDGE with your regional deployment strategy for all three hubs.`,
+  },
 ];
 
 export async function seedEcosystemDirectives() {
