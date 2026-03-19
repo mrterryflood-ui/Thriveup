@@ -377,6 +377,25 @@ function requireAdminAuth(req: Request, res: Response, next: Function) {
 }
 
 export function registerEcosystemConnectorRoutes(app: Express) {
+  (async () => {
+    try {
+      for (const platform of ECOSYSTEM_PLATFORMS) {
+        const existing = await db.select().from(ecosystemPlatforms).where(eq(ecosystemPlatforms.id, platform.id));
+        if (existing.length === 0) {
+          const apiKey = generateApiKey();
+          await db.insert(ecosystemPlatforms).values({
+            id: platform.id, name: platform.name, url: platform.url, apiKey, role: platform.role, domain: platform.domain,
+            description: platform.description, status: "registered", healthStatus: "unknown",
+            capabilities: platform.capabilities, dataFlowConfig: platform.dataFlowConfig, grantAlignment: platform.grantAlignment,
+          });
+          console.log(`[Ecosystem] Auto-registered new platform: ${platform.name}`);
+        }
+      }
+    } catch (err) {
+      console.error("[Ecosystem] Auto-sync failed:", err);
+    }
+  })();
+
   app.get("/api/ecosystem/platforms", requireAdminAuth, async (_req, res) => {
     try {
       const platforms = await db.select().from(ecosystemPlatforms).orderBy(ecosystemPlatforms.name);
@@ -600,28 +619,40 @@ export function registerEcosystemConnectorRoutes(app: Express) {
   app.get("/api/ecosystem/status", requireAdminAuth, async (_req, res) => {
     try {
       const platforms = await db.select().from(ecosystemPlatforms);
-      const onlineCount = platforms.filter((p) => p.healthStatus === "online").length;
-      const totalEvents = await db.select({ count: sql`count(*)` }).from(ecosystemEvents);
-      const recentEvents = await db.select({ count: sql`count(*)` }).from(ecosystemEvents)
-        .where(gte(ecosystemEvents.createdAt, new Date(Date.now() - 24 * 60 * 60 * 1000)));
+      const now = Date.now();
+      const STALE_THRESHOLD_MS = 10 * 60 * 1000;
 
-      res.json({
-        totalPlatforms: platforms.length,
-        onlinePlatforms: onlineCount,
-        totalEvents: Number(totalEvents[0]?.count || 0),
-        eventsLast24h: Number(recentEvents[0]?.count || 0),
-        platforms: platforms.map((p) => ({
+      const enrichedPlatforms = platforms.map((p) => {
+        let liveHealth = "unknown";
+        if (p.lastHeartbeat) {
+          const heartbeatAge = now - new Date(p.lastHeartbeat).getTime();
+          liveHealth = heartbeatAge <= STALE_THRESHOLD_MS ? "online" : "offline";
+        }
+        return {
           id: p.id,
           name: p.name,
           url: p.url,
           role: p.role,
           domain: p.domain,
           status: p.status,
-          healthStatus: p.healthStatus,
+          healthStatus: liveHealth,
           lastHeartbeat: p.lastHeartbeat,
           lastHealthCheck: p.lastHealthCheck,
           grantAlignment: p.grantAlignment,
-        })),
+        };
+      });
+
+      const onlineCount = enrichedPlatforms.filter((p) => p.healthStatus === "online").length;
+      const totalEvents = await db.select({ count: sql`count(*)` }).from(ecosystemEvents);
+      const recentEvents = await db.select({ count: sql`count(*)` }).from(ecosystemEvents)
+        .where(gte(ecosystemEvents.createdAt, new Date(Date.now() - 24 * 60 * 60 * 1000)));
+
+      res.json({
+        totalPlatforms: enrichedPlatforms.length,
+        onlinePlatforms: onlineCount,
+        totalEvents: Number(totalEvents[0]?.count || 0),
+        eventsLast24h: Number(recentEvents[0]?.count || 0),
+        platforms: enrichedPlatforms,
       });
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch ecosystem status" });
