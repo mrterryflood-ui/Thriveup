@@ -524,6 +524,124 @@ export default function EcosystemConnectorPage() {
               );
             })}
           </TabsContent>
+
+          <TabsContent value="directives" className="space-y-4 mt-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2"><Send className="h-5 w-5" /> Broadcast Directive</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Directive Title</label>
+                    <Input value={directiveTitle} onChange={(e) => setDirectiveTitle(e.target.value)} placeholder="e.g., MAP-GAP Q2 Protocol Update" data-testid="input-directive-title" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Type</label>
+                    <Select value={directiveType} onValueChange={setDirectiveType}>
+                      <SelectTrigger data-testid="select-directive-type"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="protocol_update">Protocol Update</SelectItem>
+                        <SelectItem value="grant_alignment">Grant Alignment</SelectItem>
+                        <SelectItem value="tracking_requirement">Tracking Requirement</SelectItem>
+                        <SelectItem value="improvement_directive">Improvement Directive</SelectItem>
+                        <SelectItem value="evaluation_request">Evaluation Request</SelectItem>
+                        <SelectItem value="role_assignment">Role Assignment</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Grant Context</label>
+                  <Select value={directiveGrant} onValueChange={(val) => {
+                    setDirectiveGrant(val);
+                    if (val !== "all") {
+                      const grant = GRANT_LENSES.find((g) => g.id === val);
+                      if (grant) {
+                        const grantPlatformIds = statusData?.platforms?.filter((p: any) => {
+                          const alignment = (p.grantAlignment as string[]) || [];
+                          return alignment.includes(val);
+                        }).map((p: any) => p.id) || [];
+                        setSelectedTargets(grantPlatformIds);
+                      }
+                    }
+                  }}>
+                    <SelectTrigger data-testid="select-directive-grant"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Platforms (No Grant Filter)</SelectItem>
+                      {GRANT_LENSES.map((g) => <SelectItem key={g.id} value={g.id}>{g.label}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Content / Instructions</label>
+                  <Textarea value={directiveContent} onChange={(e) => setDirectiveContent(e.target.value)} placeholder="Paste your MAP-GAP instructions, protocol updates, or grant requirements here..." rows={6} data-testid="input-directive-content" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Target Platforms ({selectedTargets.length} selected)</label>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-48 overflow-y-auto border rounded-lg p-3">
+                    <div className="col-span-full mb-1">
+                      <Button variant="outline" size="sm" onClick={() => setSelectedTargets(statusData?.platforms?.map((p: any) => p.id) || [])} data-testid="button-select-all">Select All</Button>
+                      <Button variant="outline" size="sm" className="ml-2" onClick={() => setSelectedTargets([])} data-testid="button-deselect-all">Deselect All</Button>
+                    </div>
+                    {(statusData?.platforms || []).map((p: any) => (
+                      <label key={p.id} className="flex items-center gap-2 text-sm cursor-pointer py-1">
+                        <Checkbox checked={selectedTargets.includes(p.id)} onCheckedChange={(checked) => {
+                          setSelectedTargets(checked ? [...selectedTargets, p.id] : selectedTargets.filter((t) => t !== p.id));
+                        }} data-testid={`checkbox-target-${p.id}`} />
+                        <span className={p.healthStatus === "online" ? "" : "text-muted-foreground"}>{p.name}</span>
+                        {p.healthStatus === "online" && <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                <Button onClick={() => broadcastMutation.mutate({ title: directiveTitle, directiveType, content: directiveContent, grantId: directiveGrant === "all" ? null : directiveGrant, targetPlatformIds: selectedTargets })} disabled={!directiveTitle || !directiveContent || selectedTargets.length === 0 || broadcastMutation.isPending} className="w-full" data-testid="button-broadcast-directive">
+                  {broadcastMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Send className="h-4 w-4 mr-2" />}
+                  Broadcast to {selectedTargets.length} Platform{selectedTargets.length !== 1 ? "s" : ""}
+                </Button>
+              </CardContent>
+            </Card>
+
+            {directives.length > 0 && (
+              <div className="space-y-3">
+                <h3 className="font-semibold text-lg flex items-center gap-2"><FileCheck className="h-5 w-5" /> Directive History & Acknowledgments</h3>
+                {directives.map((d: any) => (
+                  <Card key={d.id} data-testid={`directive-${d.id}`}>
+                    <CardContent className="pt-4">
+                      <div className="flex items-start justify-between mb-3">
+                        <div>
+                          <h4 className="font-semibold">{d.title}</h4>
+                          <div className="flex gap-2 mt-1">
+                            <Badge variant="outline">{d.directiveType?.replace(/_/g, " ")}</Badge>
+                            {d.grantId && <Badge className="bg-blue-100 text-blue-700">{d.grantId}</Badge>}
+                            <Badge className={d.status === "active" ? "bg-emerald-100 text-emerald-700" : "bg-gray-100 text-gray-600"}>{d.status}</Badge>
+                          </div>
+                        </div>
+                        <span className="text-xs text-muted-foreground">{d.createdAt ? new Date(d.createdAt).toLocaleString() : ""}</span>
+                      </div>
+                      <div className="bg-muted/50 rounded-lg p-3 mb-3 text-sm whitespace-pre-wrap max-h-32 overflow-y-auto">{d.content}</div>
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-3 text-sm">
+                          <span className="font-medium">Acknowledgment Status:</span>
+                          <Badge className="bg-emerald-100 text-emerald-700">{d.stats?.acknowledged || 0} confirmed</Badge>
+                          <Badge className="bg-blue-100 text-blue-700">{d.stats?.delivered || 0} delivered</Badge>
+                          <Badge className="bg-amber-100 text-amber-700">{d.stats?.pending || 0} pending</Badge>
+                        </div>
+                        <div className="flex flex-wrap gap-1.5 mt-2">
+                          {(d.acknowledgments || []).map((a: any) => (
+                            <Badge key={a.id} variant="outline" className={a.status === "acknowledged" ? "border-emerald-300 bg-emerald-50 text-emerald-700" : a.status === "delivered" ? "border-blue-300 bg-blue-50 text-blue-700" : "border-amber-300 bg-amber-50 text-amber-700"} data-testid={`ack-${a.platformId}`}>
+                              {a.status === "acknowledged" ? <CheckCircle2 className="h-3 w-3 mr-1" /> : a.status === "delivered" ? <Send className="h-3 w-3 mr-1" /> : <Clock className="h-3 w-3 mr-1" />}
+                              {a.platformName}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
         </Tabs>
       )}
     </div>

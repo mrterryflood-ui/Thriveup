@@ -18,3 +18,9 @@ id = "TXqZDmJxZj2wWctY_8fD7"
 uri = "file://ThriveUp_Academy_Executive_Summary.md"
 type = "text"
 title = "The Collaborative Advocate — Full Ecosystem Executive Summary"
+
+[[outputs]]
+id = "iwDZ3nELzKNvYC--4ajmN"
+uri = "file://ecosystem-evaluation-report.md"
+type = "text"
+title = "ThriveUp Ecosystem Cross-Platform Evaluation Report"
