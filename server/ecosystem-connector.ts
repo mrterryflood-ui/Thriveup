@@ -191,6 +191,22 @@ const ECOSYSTEM_PLATFORMS = [
     grantAlignment: ["samhsa", "st-davids", "ssg-fox"],
   },
   {
+    id: "shield-atlas",
+    name: "Shield Atlas",
+    url: "https://shield-atlas.replit.app",
+    role: "risk-intelligence",
+    domain: "compliance",
+    description: "Risk intelligence and threat assessment platform — geographic risk mapping, safety analytics, protective factor identification, and community resilience scoring.",
+    capabilities: {
+      features: ["Risk Mapping", "Threat Assessment", "Safety Analytics", "Protective Factor Analysis", "Community Resilience Scoring"],
+    },
+    dataFlowConfig: {
+      sends: ["risk_assessments", "safety_analytics", "resilience_scores", "threat_alerts"],
+      receives: ["community_health_data", "crisis_alerts", "incident_reports", "screening_data"],
+    },
+    grantAlignment: ["ssg-fox", "dfc", "samhsa"],
+  },
+  {
     id: "wholemind",
     name: "WholeMind Learning",
     url: "https://life-pals-standalone.replit.app",
