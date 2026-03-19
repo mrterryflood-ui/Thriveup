@@ -567,6 +567,58 @@ export function registerEcosystemConnectorRoutes(app: Express) {
     });
   });
 
+  // ===================================================================
+  // KEY RE-REGISTRATION — Platforms can register their actual working key
+  // This fixes the key mismatch problem where the DB has a different key
+  // than what the platform was originally given.
+  // ===================================================================
+
+  app.post("/api/ecosystem/register-key", async (req, res) => {
+    try {
+      const { platformId, apiKey } = req.body;
+      if (!platformId || !apiKey) {
+        return res.status(400).json({ error: "platformId and apiKey are required" });
+      }
+      if (!apiKey.startsWith("tveco_")) {
+        return res.status(400).json({ error: "API key must start with tveco_" });
+      }
+
+      const [platform] = await db.select().from(ecosystemPlatforms)
+        .where(eq(ecosystemPlatforms.id, platformId));
+      if (!platform) {
+        return res.status(404).json({ error: `Platform '${platformId}' not found in ecosystem` });
+      }
+
+      // Check if key already matches
+      if (platform.apiKey === apiKey) {
+        return res.json({
+          success: true,
+          message: `Key already matches for ${platform.name}. You're good to go.`,
+          platformId: platform.id,
+          platformName: platform.name,
+        });
+      }
+
+      // Update the key in the DB to match what the platform is using
+      await db.update(ecosystemPlatforms)
+        .set({ apiKey })
+        .where(eq(ecosystemPlatforms.id, platformId));
+
+      console.log(`[Ecosystem] Key re-registered for ${platform.name} (${platformId})`);
+
+      res.json({
+        success: true,
+        message: `Key updated for ${platform.name}. Your heartbeats will now be accepted. Send one immediately to pick up your pending directives.`,
+        platformId: platform.id,
+        platformName: platform.name,
+        nextStep: "Send a heartbeat now to verify: POST /api/ecosystem/heartbeat with your x-ecosystem-key header",
+      });
+    } catch (error) {
+      console.error("[Ecosystem] Key re-registration failed:", error);
+      res.status(500).json({ error: "Key re-registration failed" });
+    }
+  });
+
   app.get("/api/ecosystem/platforms", requireAdminAuth, async (_req, res) => {
     try {
       const platforms = await db.select().from(ecosystemPlatforms).orderBy(ecosystemPlatforms.name);
@@ -695,9 +747,29 @@ export function registerEcosystemConnectorRoutes(app: Express) {
   app.post("/api/ecosystem/heartbeat", requireEcosystemAuth, async (req, res) => {
     try {
       const apiKey = req.headers["x-ecosystem-key"] as string;
-      const [platform] = await db.select().from(ecosystemPlatforms).where(eq(ecosystemPlatforms.apiKey, apiKey));
+      let [platform] = await db.select().from(ecosystemPlatforms).where(eq(ecosystemPlatforms.apiKey, apiKey));
+
+      // If key not found, try to auto-register: check if platformId is in the body
+      if (!platform && req.body.platformId) {
+        const [knownPlatform] = await db.select().from(ecosystemPlatforms)
+          .where(eq(ecosystemPlatforms.id, req.body.platformId));
+        if (knownPlatform && apiKey.startsWith("tveco_")) {
+          // Platform exists but key doesn't match — auto-update the key
+          await db.update(ecosystemPlatforms)
+            .set({ apiKey })
+            .where(eq(ecosystemPlatforms.id, knownPlatform.id));
+          console.log(`[Ecosystem] Auto-registered key for ${knownPlatform.name} (${knownPlatform.id}) — key mismatch resolved`);
+          [platform] = await db.select().from(ecosystemPlatforms).where(eq(ecosystemPlatforms.id, knownPlatform.id));
+        }
+      }
+
       if (!platform) {
-        return res.status(403).json({ error: "Invalid ecosystem key" });
+        return res.status(403).json({
+          error: "Invalid ecosystem key",
+          fix: "Your key does not match what the hub has on file. This can happen if keys were regenerated. To fix this, either: (1) Include your platformId in the heartbeat body and the hub will auto-register your key, or (2) POST to /api/ecosystem/register-key with { platformId: 'your-id', apiKey: 'your-tveco-key' } to update your key in the hub.",
+          registerEndpoint: "POST https://thrivingcommunitiesforall.com/api/ecosystem/register-key",
+          registerBody: { platformId: "your-platform-id", apiKey: "your-tveco_-key" },
+        });
       }
 
       const parseResult = heartbeatSchema.safeParse(req.body);
@@ -1009,8 +1081,25 @@ export function registerEcosystemConnectorRoutes(app: Express) {
   app.post("/api/ecosystem/compliance-report", requireEcosystemAuth, async (req, res) => {
     try {
       const apiKey = req.headers["x-ecosystem-key"] as string;
-      const [platform] = await db.select().from(ecosystemPlatforms).where(eq(ecosystemPlatforms.apiKey, apiKey));
-      if (!platform) return res.status(403).json({ error: "Invalid ecosystem key" });
+      let [platform] = await db.select().from(ecosystemPlatforms).where(eq(ecosystemPlatforms.apiKey, apiKey));
+
+      // Auto-register key if platformId provided and key doesn't match
+      if (!platform && req.body.platformId) {
+        const [knownPlatform] = await db.select().from(ecosystemPlatforms)
+          .where(eq(ecosystemPlatforms.id, req.body.platformId));
+        if (knownPlatform && apiKey.startsWith("tveco_")) {
+          await db.update(ecosystemPlatforms)
+            .set({ apiKey })
+            .where(eq(ecosystemPlatforms.id, knownPlatform.id));
+          console.log(`[Ecosystem] Auto-registered key for ${knownPlatform.name} via compliance-report`);
+          [platform] = await db.select().from(ecosystemPlatforms).where(eq(ecosystemPlatforms.id, knownPlatform.id));
+        }
+      }
+
+      if (!platform) return res.status(403).json({
+        error: "Invalid ecosystem key",
+        fix: "Include platformId in the request body so the hub can auto-register your key, or POST to /api/ecosystem/register-key with { platformId, apiKey }",
+      });
 
       const { completedWork, inProgress, blockers, capabilities, notes } = req.body;
 
@@ -1101,9 +1190,25 @@ export function registerEcosystemConnectorRoutes(app: Express) {
   app.post("/api/ecosystem/event", requireEcosystemAuth, async (req, res) => {
     try {
       const apiKey = req.headers["x-ecosystem-key"] as string;
-      const [platform] = await db.select().from(ecosystemPlatforms).where(eq(ecosystemPlatforms.apiKey, apiKey));
+      let [platform] = await db.select().from(ecosystemPlatforms).where(eq(ecosystemPlatforms.apiKey, apiKey));
+
+      if (!platform && req.body.platformId) {
+        const [knownPlatform] = await db.select().from(ecosystemPlatforms)
+          .where(eq(ecosystemPlatforms.id, req.body.platformId));
+        if (knownPlatform && apiKey.startsWith("tveco_")) {
+          await db.update(ecosystemPlatforms)
+            .set({ apiKey })
+            .where(eq(ecosystemPlatforms.id, knownPlatform.id));
+          console.log(`[Ecosystem] Auto-registered key for ${knownPlatform.name} via event`);
+          [platform] = await db.select().from(ecosystemPlatforms).where(eq(ecosystemPlatforms.id, knownPlatform.id));
+        }
+      }
+
       if (!platform) {
-        return res.status(403).json({ error: "Invalid ecosystem key" });
+        return res.status(403).json({
+          error: "Invalid ecosystem key",
+          fix: "Include platformId in the request body so the hub can auto-register your key",
+        });
       }
 
       const parseResult = eventSchema.safeParse(req.body);
