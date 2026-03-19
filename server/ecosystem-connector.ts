@@ -72,23 +72,6 @@ const ECOSYSTEM_PLATFORMS = [
     grantAlignment: ["ssg-fox", "samhsa", "st-davids"],
   },
   {
-    id: "easyai-learning",
-    name: "EasyAI Learning",
-    url: "https://easyailearning.com",
-    role: "prevention",
-    domain: "education",
-    description: "Upstream prevention through purpose, education, and workforce development for youth 14-24. AI literacy, career pathways, mentorship. Protective factor: a future worth living for.",
-    capabilities: {
-      features: ["AI Literacy Education", "Workforce Pathways", "Mentorship Matching", "Project-Based Learning", "Career Exploration"],
-      targetPopulation: "Under-resourced youth 14-24, children of veterans, transitioning service members under 25",
-    },
-    dataFlowConfig: {
-      sends: ["enrollment_status", "progress_milestones", "mentor_connections", "career_pathway_updates"],
-      receives: ["veteran_family_referrals", "transition_youth_referrals", "crisis_alerts", "screening_flags"],
-    },
-    grantAlignment: ["ssg-fox", "wioa", "nba-foundation", "st-davids", "dfc"],
-  },
-  {
     id: "isss",
     name: "ISSS — Integrated Supports for Thriving Youth",
     url: "https://implementationineducatio.com",
@@ -361,6 +344,7 @@ function requireAdminAuth(req: Request, res: Response, next: Function) {
 export function registerEcosystemConnectorRoutes(app: Express) {
   (async () => {
     try {
+      const validIds = ECOSYSTEM_PLATFORMS.map((p) => p.id);
       for (const platform of ECOSYSTEM_PLATFORMS) {
         const existing = await db.select().from(ecosystemPlatforms).where(eq(ecosystemPlatforms.id, platform.id));
         if (existing.length === 0) {
@@ -371,6 +355,13 @@ export function registerEcosystemConnectorRoutes(app: Express) {
             capabilities: platform.capabilities, dataFlowConfig: platform.dataFlowConfig, grantAlignment: platform.grantAlignment,
           });
           console.log(`[Ecosystem] Auto-registered new platform: ${platform.name}`);
+        }
+      }
+      const allInDb = await db.select().from(ecosystemPlatforms);
+      for (const dbPlatform of allInDb) {
+        if (!validIds.includes(dbPlatform.id)) {
+          await db.delete(ecosystemPlatforms).where(eq(ecosystemPlatforms.id, dbPlatform.id));
+          console.log(`[Ecosystem] Removed stale platform: ${dbPlatform.name} (${dbPlatform.id})`);
         }
       }
     } catch (err) {
@@ -786,19 +777,19 @@ if (typeof module !== "undefined") {
           saas: "Minority Center of Excellence (MCE) — Minority business SaaS",
         },
         grantLenses: {
-          "ssg-fox": { name: "SSG Fox VA Suicide Prevention", amount: "Up to $750K", deadline: "June 12-18, 2026", platforms: ["whole-person-health", "mission-transition", "life-transitions-aid", "salp-science", "easyai-learning", "m2c", "lifebridge", "sankofa", "safecognicare", "pillscheduler", "betterscience"] },
-          "dfc": { name: "Drug-Free Communities (DFC)", amount: "$625K", deadline: "April 14, 2026", platforms: ["whole-person-health", "isss", "sankofa", "wholemind", "salp-science", "easyai-learning", "safereport", "lifebridge", "pillscheduler", "betterscience"] },
-          "wioa": { name: "WIOA Title I Youth", amount: "$200K-$500K", deadline: "Rolling", platforms: ["easyai-learning", "isss", "wholemind", "mission-transition", "m2c", "mce", "whole-person-health"] },
-          "nba-foundation": { name: "NBA Foundation", amount: "$100K-$500K", deadline: "Rolling LOI", platforms: ["easyai-learning", "isss", "wholemind"] },
-          "st-davids": { name: "St. David's Foundation", amount: "Up to $1M", deadline: "Opens March 30, 2026", platforms: ["whole-person-health", "life-transitions-aid", "sankofa", "easyai-learning", "perfectly-different", "safecognicare", "lifebridge"] },
-          "samhsa": { name: "SAMHSA Community Mental Health", amount: "Varies", deadline: "Varies", platforms: ["whole-person-health", "sankofa", "life-transitions-aid", "salp-science", "perfectly-different", "safecognicare", "pillscheduler", "betterscience", "lifebridge"] },
+          "ssg-fox": { name: "SSG Fox VA Suicide Prevention", amount: "Up to $750K", deadline: "June 12-18, 2026", platforms: ["whole-person-health", "mission-transition", "life-transitions-aid", "m2c", "lifebridge", "sankofa", "safecognicare", "pillscheduler", "betterscience"] },
+          "dfc": { name: "Drug-Free Communities (DFC)", amount: "$625K", deadline: "April 14, 2026", platforms: ["whole-person-health", "isss", "sankofa", "wholemind", "safereport", "lifebridge", "pillscheduler", "betterscience"] },
+          "wioa": { name: "WIOA Title I Youth", amount: "$200K-$500K", deadline: "Rolling", platforms: ["isss", "wholemind", "mission-transition", "m2c", "mce", "whole-person-health"] },
+          "nba-foundation": { name: "NBA Foundation", amount: "$100K-$500K", deadline: "Rolling LOI", platforms: ["isss", "wholemind"] },
+          "st-davids": { name: "St. David's Foundation", amount: "Up to $1M", deadline: "Opens March 30, 2026", platforms: ["whole-person-health", "life-transitions-aid", "sankofa", "perfectly-different", "safecognicare", "lifebridge"] },
+          "samhsa": { name: "SAMHSA Community Mental Health", amount: "Varies", deadline: "Varies", platforms: ["whole-person-health", "sankofa", "life-transitions-aid", "perfectly-different", "safecognicare", "pillscheduler", "betterscience", "lifebridge"] },
         },
         crisisContinuum: {
-          phase1_prevention: { name: "Prevention & Preparedness", platforms: ["easyai-learning", "mission-transition", "whole-person-health", "salp-science", "wholemind", "isss"], description: "Purpose, skills, pathways for youth; pre-separation planning; preparedness plans; evidence base for prevention strategies" },
+          phase1_prevention: { name: "Prevention & Preparedness", platforms: ["mission-transition", "whole-person-health", "wholemind", "isss", "betterscience"], description: "Purpose, skills, pathways for youth; pre-separation planning; preparedness plans; evidence base for prevention strategies" },
           phase2_earlyWarning: { name: "Early Warning", platforms: ["whole-person-health", "life-transitions-aid", "sankofa", "perfectly-different", "safecognicare"], description: "C-SSRS, PHQ-9, GAD-7, PCL-5 screenings; life event self-assessment; MAP-GAP 7-domain assessment; cognitive and neurodevelopmental monitoring" },
           phase3_crisisSupport: { name: "Crisis Support", platforms: ["whole-person-health", "lifebridge", "safereport"], description: "988 Veterans Crisis Line; Crisis Text Line; Reach a Vet peer support; Safety Plan Builder; Quick Exit; 24/7 resource navigation; mandatory reporting" },
           phase4_stabilization: { name: "Stabilization", platforms: ["whole-person-health", "lifebridge", "pillscheduler", "sankofa"], description: "Care Summary Generator; Find Help (20,670+ resources); Refer-a-Patient; medication management; VA facility connections" },
-          phase5_recovery: { name: "Recovery & Growth", platforms: ["whole-person-health", "life-transitions-aid", "mission-transition", "easyai-learning", "mce", "salp-science"], description: "Community groups (2,091+); peer stories; condition guides; ongoing life navigation; career pathways; business formation; outcome measurement" },
+          phase5_recovery: { name: "Recovery & Growth", platforms: ["whole-person-health", "life-transitions-aid", "mission-transition", "mce", "betterscience"], description: "Community groups (2,091+); peer stories; condition guides; ongoing life navigation; career pathways; business formation; outcome measurement" },
         },
         sharedDesignPrinciples: [
           "No Dead Ends — every page has at least one forward path to another ecosystem resource",
