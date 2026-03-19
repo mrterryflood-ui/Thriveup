@@ -36,3 +36,9 @@ id = "kJHy7oWoqmrAmrgg-1wCu"
 uri = "file://austin-housing-gap-assessment.md"
 type = "text"
 title = "Austin & Pflugerville Housing Gap Assessment — Presentation Ready"
+
+[[outputs]]
+id = "z-8ol6QjEqNeY4X4EX8ac"
+uri = "file://austin-pflugerville-opportunity-pipeline.md"
+type = "text"
+title = "Austin & Pflugerville Daily Opportunity Pipeline — 30+ Grants/Contracts"
