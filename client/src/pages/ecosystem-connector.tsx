@@ -315,14 +315,15 @@ export default function EcosystemConnectorPage() {
                           const Icon = PLATFORM_ICONS[p.id] || Globe;
                           const colors = PLATFORM_COLORS[p.id] || DEFAULT_COLORS;
                           return (
-                            <div key={p.id} className="flex items-center gap-2 py-1 px-2 rounded bg-emerald-50/50 dark:bg-emerald-950/20" data-testid={`status-online-${p.id}`}>
+                            <a key={p.id} href={p.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 py-1 px-2 rounded bg-emerald-50/50 dark:bg-emerald-950/20 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 cursor-pointer transition-colors" data-testid={`status-online-${p.id}`}>
                               <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse flex-shrink-0" />
                               <Icon className={`h-3.5 w-3.5 flex-shrink-0 ${colors.text}`} />
                               <span className="text-xs font-medium truncate">{p.name}</span>
                               {p.lastHeartbeat && (
                                 <span className="text-[10px] text-muted-foreground ml-auto flex-shrink-0">{new Date(p.lastHeartbeat).toLocaleTimeString()}</span>
                               )}
-                            </div>
+                              <ExternalLink className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                            </a>
                           );
                         })}
                       </div>
@@ -341,12 +342,13 @@ export default function EcosystemConnectorPage() {
                           const Icon = PLATFORM_ICONS[p.id] || Globe;
                           const colors = PLATFORM_COLORS[p.id] || DEFAULT_COLORS;
                           return (
-                            <div key={p.id} className="flex items-center gap-2 py-1 px-2 rounded bg-red-50/50 dark:bg-red-950/20" data-testid={`status-offline-${p.id}`}>
+                            <a key={p.id} href={p.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 py-1 px-2 rounded bg-red-50/50 dark:bg-red-950/20 hover:bg-red-100 dark:hover:bg-red-900/40 cursor-pointer transition-colors" data-testid={`status-offline-${p.id}`}>
                               <div className="w-2 h-2 rounded-full bg-red-400 flex-shrink-0" />
                               <Icon className={`h-3.5 w-3.5 flex-shrink-0 ${colors.text}`} />
                               <span className="text-xs font-medium truncate">{p.name}</span>
-                              <span className="text-[10px] text-muted-foreground ml-auto flex-shrink-0">{p.status === "registered" ? "No connector deployed" : "Connection lost"}</span>
-                            </div>
+                              <span className="text-[10px] text-muted-foreground ml-auto flex-shrink-0">{p.status === "registered" ? "Sleeping" : "Connection lost"}</span>
+                              <ExternalLink className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                            </a>
                           );
                         })}
                       </div>

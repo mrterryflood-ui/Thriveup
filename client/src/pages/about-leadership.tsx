@@ -38,7 +38,7 @@ const military = {
 
 const federalService = [
   { title: "VA VCL Social Science Program Specialist", note: "Current" },
-  { title: "Army CR2I GS-12 at III Corps", note: "" },
+  { title: "Army CR2I at III Corps", note: "" },
   { title: "VA Legal Admin Specialist", note: "" },
   { title: "VA VSR", note: "" },
 ];
