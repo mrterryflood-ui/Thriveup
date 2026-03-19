@@ -95,6 +95,7 @@ const grantEngineItems: NavItem[] = [
   { title: "Grant Packages", url: "/grant-packages", icon: Package },
   { title: "E-Sign Center", url: "/esign", icon: PenTool },
   { title: "Austin Initiative", url: "/austin", icon: MapPin },
+  { title: "Voices of Austin", url: "/voices-of-austin", icon: Megaphone },
 ];
 
 const aiToolsItems: NavItem[] = [

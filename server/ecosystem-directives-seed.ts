@@ -594,6 +594,52 @@ This is how we win grants: research-backed, compliance-verified, quality-assured
 
 ACKNOWLEDGE with your implementation plan for serving as the ecosystem quality gate.`,
   },
+  {
+    key: "voices-of-austin-launch-v1",
+    title: "Voices of Austin — Community Storytelling Platform Launch",
+    directiveType: "protocol_update",
+    targetFilter: "all",
+    content: `NEW PLATFORM FEATURE: Voices of Austin — Community Storytelling Platform
+
+WHAT IS VOICES OF AUSTIN?
+A mobile-friendly storytelling platform where Austin residents can share their stories, access resources, and engage with hyper-local opportunities. Every story connects to action through ThriveUp's 20-platform ecosystem.
+
+THE MODEL: Story → Connection → Action → Impact
+1. Residents share stories (housing, jobs, health, veteran transition, education, youth)
+2. AI identifies needs and routes to the right ecosystem platform
+3. Warm handoff connects them to real resources — housing, training, healthcare, financial tools
+4. Stories become content for Roku channel and podcast — revenue funds services
+5. Aggregate story data informs funders and policymakers on community needs
+
+YOUR ROLE IN VOICES OF AUSTIN:
+- LifeBridge: Receive housing story warm handoffs, provide immediate resource navigation
+- Mission Transition / Collaborative Advocate: Receive veteran and career story referrals
+- MCE: Receive business development and financial literacy referrals
+- Whole-Person Health / Sankofa: Receive health story referrals, connect to screenings
+- ISSS / WholeMind / Perfectly Different: Receive youth and education referrals
+- Video Creator AI: Transform community stories into Roku/CTV content
+- RPLICE: Validate outcome data from story-to-action conversions
+- Shield Atlas: Ensure story data privacy and anonymous submission security
+- Ecosystem Nexus: Track cross-platform story routing metrics
+
+PILOT STRATEGY:
+- Phase 1: Manor + East Austin communities (highest need, most untapped potential)
+- Phase 2: Pflugerville (330 affordable units coming — zero social infrastructure)
+- Phase 3: All 5 Central Texas counties (Bastrop, Caldwell, Hays, Travis, Williamson)
+
+FRAMING: Bridging the gap between information and access.
+
+PARTNERSHIP TARGETS:
+- City of Austin Smart City / Innovation Office
+- Manor ISD Family Resource Center
+- East Austin community organizations
+- Roku (CTV distribution) + Tech partners
+- St. David's Foundation (Community-Driven Change — $9.1M pool)
+
+URL: thrivingcommunitiesforall.com/voices-of-austin
+
+ACKNOWLEDGE with your plan for receiving and processing Voices of Austin referrals.`,
+  },
 ];
 
 export async function seedEcosystemDirectives() {

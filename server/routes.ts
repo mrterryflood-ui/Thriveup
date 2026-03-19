@@ -18,6 +18,7 @@ import {
   staarStudyGuides, staarPracticeQuestions, staarStudentAssessments, staarTopicMastery,
   insertStaarStudentAssessmentSchema,
   savedResources, insertSavedResourceSchema, resourceSearchHistory,
+  communityStories,
   type CqiFidelityObservation,
 } from "@shared/schema";
 import { searchResources, getResourceCategories, getStatesList, getStateName, fetchBLSWageData } from "./resource-engine";
@@ -4117,6 +4118,39 @@ Then include a ## Roku & CTV Distribution section with:
     } catch (error) {
       console.error("Error generating Roku script:", error);
       res.status(500).json({ error: "Failed to generate Roku script" });
+    }
+  });
+
+  app.get("/api/community-stories", async (_req, res) => {
+    try {
+      const allStories = await db.select().from(communityStories).orderBy(desc(communityStories.createdAt));
+      res.json(allStories);
+    } catch (error) {
+      console.error("Error fetching community stories:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.post("/api/community-stories", async (req, res) => {
+    try {
+      const { authorName, authorNeighborhood, storyType, title, content, needsIdentified, platformsRouted, isAnonymous } = req.body;
+      if (!storyType || !title || !content) return res.status(400).json({ error: "Missing required fields" });
+      if (!isAnonymous && !authorName) return res.status(400).json({ error: "Name required when not anonymous" });
+      const [story] = await db.insert(communityStories).values({
+        authorName: isAnonymous ? "Anonymous" : authorName,
+        authorNeighborhood: authorNeighborhood || null,
+        storyType,
+        title,
+        content,
+        needsIdentified: needsIdentified || [],
+        platformsRouted: platformsRouted || [],
+        isAnonymous: isAnonymous || false,
+        status: "approved",
+      }).returning();
+      res.json(story);
+    } catch (error) {
+      console.error("Error creating community story:", error);
+      res.status(500).json({ error: "Internal server error" });
     }
   });
 

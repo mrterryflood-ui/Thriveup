@@ -3371,4 +3371,24 @@ export type InsertEcosystemDirective = z.infer<typeof insertEcosystemDirectiveSc
 export type EcosystemDirective = typeof ecosystemDirectives.$inferSelect;
 export type EcosystemDirectiveAck = typeof ecosystemDirectiveAcks.$inferSelect;
 
+export const communityStories = pgTable("community_stories", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  authorName: text("author_name").notNull(),
+  authorNeighborhood: text("author_neighborhood"),
+  storyType: varchar("story_type", { length: 50 }).notNull(),
+  title: text("title").notNull(),
+  content: text("content").notNull(),
+  needsIdentified: text("needs_identified").array(),
+  platformsRouted: text("platforms_routed").array(),
+  resourcesConnected: jsonb("resources_connected"),
+  status: varchar("status", { length: 30 }).notNull().default("pending"),
+  isAnonymous: boolean("is_anonymous").default(false),
+  upvotes: integer("upvotes").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertCommunityStorySchema = createInsertSchema(communityStories).omit({ id: true, createdAt: true, upvotes: true });
+export type InsertCommunityStory = z.infer<typeof insertCommunityStorySchema>;
+export type CommunityStory = typeof communityStories.$inferSelect;
+
 export * from "./models/auth";
