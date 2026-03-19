@@ -1,5 +1,5 @@
 # ThriveUp Ecosystem — Platform Connection Guide
-  **Version 4.0 — Single Source of Truth**
+  **Version 4.1 — Single Source of Truth**
   **Updated: 2026-03-19**
 
   This document replaces ALL previous versions. Follow it exactly.
@@ -26,13 +26,48 @@
 
   ---
 
+  # CRITICAL: ACKNOWLEDGING ≠ COMPLETING
+
+  **This is the #1 problem across the ecosystem right now.** Platforms are sending acknowledgments (handshakes) but not actually doing the work. The hub sees your ack, records it, and marks you as compliant — but when we verify, there is no evidence, no endpoint, no deliverable.
+
+  **The old connector code was wrong.** It auto-acknowledged every directive the moment it arrived with a fake "Implemented: {title}" message. This created the illusion of compliance. Starting with v4.1, the connector code has been rewritten. Here is how it works now:
+
+  ### What happens when a directive arrives:
+  1. Your heartbeat response includes `pendingDirectives` — these are your assignments.
+  2. The new connector code **logs them as TODOs** and prints exactly what needs to be done.
+  3. **You (or your agent) must actually build/implement what the directive asks.**
+  4. **Only after the work is done**, call the ack endpoint with:
+     - `whatWasDone` — a real description of what you built (not "Implemented: {title}")
+     - `evidenceUrl` — a live URL proving the work exists (an endpoint, a page, a document)
+  5. The hub verifies the evidence URL is reachable. If it returns 200, you get VERIFIED credit. If not, you get UNVERIFIED.
+
+  ### What counts as "done":
+  - If the directive says "add a /voices-intake endpoint" → build that endpoint → ack with `evidenceUrl: "https://yourapp.replit.app/voices-intake"`
+  - If the directive says "add Shield Atlas security headers" → add the headers → ack with `whatWasDone: "Added X-Content-Type-Options, X-Frame-Options, CSP headers to all responses"`
+  - If the directive says "standardize outcome metrics" → implement the tracking → ack with `evidenceUrl: "https://yourapp.replit.app/api/outcomes"`
+
+  ### What does NOT count:
+  - ❌ `"Implemented: Add warm handoff protocol"` with no evidence URL
+  - ❌ Auto-acknowledging the moment the directive arrives
+  - ❌ Acknowledging without changing any code
+  - ❌ Empty `evidenceUrl` or `whatWasDone` fields
+
+  ### Consequences:
+  - Platforms that ack without evidence stay at UNVERIFIED status
+  - The hub now actively pings your evidence URLs — fake ones will be flagged as FAILED
+  - Fidelity grades are reported to Dr. Flood and tracked in grant readiness reports
+  - Grant reviewers will see which platforms have verified vs unverified deliverables
+
+  ---
+
   # WHAT THE HUB DOES FOR YOU
 
   - **Keeps you awake.** The hub pings all 20 platforms every 10 minutes. This prevents Autoscale sleep.
   - **Talks back.** Every heartbeat response includes your fidelity score, overdue directives, new assignments, and explicit next steps.
-  - **Verifies your work.** Every acknowledgment gets a confirmed response telling you what was recorded and what's remaining.
+  - **Verifies your work.** The hub pings every evidence URL you submit. If it's live, you get VERIFIED. If it's dead or missing, you get UNVERIFIED or FAILED.
   - **Escalates blockers.** If you report a blocker, the hub routes it to the platform that needs to help.
   - **Grades participation.** A (90-100%), B (75-89%), C (50-74%), D (25-49%), F (0-24%). Tracked in RPLICE, reported to Dr. Flood.
+  - **Chains your work.** When you complete work, the hub automatically routes it to the next platform that needs it (e.g., video script → Video Creator AI).
 
   ---
 
@@ -69,6 +104,7 @@
     platformId: "betterscience",
     apiKey: "tveco_38e40da6505805bf3c1132001db34a9756425b492ff7eed25f166a818b5b40c6",
     completedWork: [],
+    pendingTodos: [],
     blockers: [],
   };
 
@@ -106,38 +142,26 @@
       }
 
       if (data.pendingDirectives && data.pendingDirectives.length > 0) {
+        console.log("[TODO] === " + data.pendingDirectives.length + " NEW DIRECTIVE(S) — ACTION REQUIRED ===");
         for (const directive of data.pendingDirectives) {
-          console.log("[NEW] " + directive.title);
+          console.log("[TODO] Directive: " + directive.title);
+          console.log("[TODO] ID: " + directive.directiveId);
+          console.log("[TODO] What to do: " + (directive.description || directive.title));
+          console.log("[TODO] --- DO NOT auto-acknowledge. Build it first, then call acknowledgeDirective() below. ---");
 
-          const workDescription = "Implemented: " + directive.title;
-
-          ECOSYSTEM.completedWork.push({
+          ECOSYSTEM.pendingTodos.push({
             directiveId: directive.directiveId,
-            whatWasDone: workDescription,
-            evidenceUrl: "",
-            completedAt: new Date().toISOString(),
+            title: directive.title,
+            description: directive.description || directive.title,
+            receivedAt: new Date().toISOString(),
           });
-
-          const ackRes = await fetch(ECOSYSTEM.hubUrl + "/api/ecosystem/directives/ack", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              directiveId: directive.directiveId,
-              platformId: ECOSYSTEM.platformId,
-              status: "acknowledged",
-              responseData: { whatWasDone: workDescription },
-            }),
-          });
-          const ackData = await ackRes.json();
-          console.log("[CONFIRMED] " + ackData.hubVerification.message);
-          console.log("[REMAINING] " + ackData.complianceUpdate.remaining + " directives left");
         }
       }
 
       if (data.unacknowledgedDirectives && data.unacknowledgedDirectives.length > 0) {
-        console.log("[OVERDUE] " + data.unacknowledgedDirectives.length + " directives need action");
+        console.log("[OVERDUE] " + data.unacknowledgedDirectives.length + " directives still need action:");
         data.unacknowledgedDirectives.forEach(function(d) {
-          console.log("  - " + d.title);
+          console.log("[OVERDUE]   - " + d.title);
         });
       }
     } catch (err) {
@@ -147,6 +171,44 @@
 
   ecosystemHeartbeat();
   setInterval(ecosystemHeartbeat, 15 * 60 * 1000);
+
+  // CALL THIS ONLY AFTER YOU ACTUALLY BUILD WHAT THE DIRECTIVE ASKS.
+  // Do NOT call this automatically. Do the work first.
+  async function acknowledgeDirective(directiveId, whatWasDone, evidenceUrl) {
+    if (!whatWasDone || whatWasDone.startsWith("Implemented:")) {
+      console.error("[ERROR] Generic descriptions not accepted. Describe what you actually built.");
+      return;
+    }
+    if (!evidenceUrl || !evidenceUrl.startsWith("http")) {
+      console.error("[ERROR] You must provide a live evidence URL (https://...) proving the work exists.");
+      return;
+    }
+    try {
+      const ackRes = await fetch(ECOSYSTEM.hubUrl + "/api/ecosystem/directives/ack", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          directiveId: directiveId,
+          platformId: ECOSYSTEM.platformId,
+          status: "acknowledged",
+          responseData: {
+            whatWasDone: whatWasDone,
+            evidenceUrl: evidenceUrl,
+            completedAt: new Date().toISOString(),
+          },
+        }),
+      });
+      const ackData = await ackRes.json();
+      console.log("[DONE] " + ackData.hubVerification.message);
+      console.log("[REMAINING] " + ackData.complianceUpdate.remaining + " directives left");
+      ECOSYSTEM.completedWork.push({ directiveId, whatWasDone, evidenceUrl, completedAt: new Date().toISOString() });
+      ECOSYSTEM.pendingTodos = ECOSYSTEM.pendingTodos.filter(t => t.directiveId !== directiveId);
+    } catch (err) {
+      console.error("[ERROR] Acknowledgment failed:", err.message);
+    }
+  }
+  // Example usage (after you actually build the feature):
+  // acknowledgeDirective("dir-abc123", "Built /voices-intake POST endpoint that accepts community stories and routes to LifeBridge", "https://myapp.replit.app/voices-intake");
   ```
 
   After adding this code: **re-publish your app immediately.** Dev and production are separate on Replit. If you only add this in dev, the published app never sends heartbeats.
@@ -172,6 +234,7 @@
     platformId: "sankofa-maternal-health",
     apiKey: "tveco_1185592abc6c5360ef2fbe971c2b0dd1927cfaf4e2ea8804eb6242c418883c42",
     completedWork: [],
+    pendingTodos: [],
     blockers: [],
   };
 
@@ -209,38 +272,26 @@
       }
 
       if (data.pendingDirectives && data.pendingDirectives.length > 0) {
+        console.log("[TODO] === " + data.pendingDirectives.length + " NEW DIRECTIVE(S) — ACTION REQUIRED ===");
         for (const directive of data.pendingDirectives) {
-          console.log("[NEW] " + directive.title);
+          console.log("[TODO] Directive: " + directive.title);
+          console.log("[TODO] ID: " + directive.directiveId);
+          console.log("[TODO] What to do: " + (directive.description || directive.title));
+          console.log("[TODO] --- DO NOT auto-acknowledge. Build it first, then call acknowledgeDirective() below. ---");
 
-          const workDescription = "Implemented: " + directive.title;
-
-          ECOSYSTEM.completedWork.push({
+          ECOSYSTEM.pendingTodos.push({
             directiveId: directive.directiveId,
-            whatWasDone: workDescription,
-            evidenceUrl: "",
-            completedAt: new Date().toISOString(),
+            title: directive.title,
+            description: directive.description || directive.title,
+            receivedAt: new Date().toISOString(),
           });
-
-          const ackRes = await fetch(ECOSYSTEM.hubUrl + "/api/ecosystem/directives/ack", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              directiveId: directive.directiveId,
-              platformId: ECOSYSTEM.platformId,
-              status: "acknowledged",
-              responseData: { whatWasDone: workDescription },
-            }),
-          });
-          const ackData = await ackRes.json();
-          console.log("[CONFIRMED] " + ackData.hubVerification.message);
-          console.log("[REMAINING] " + ackData.complianceUpdate.remaining + " directives left");
         }
       }
 
       if (data.unacknowledgedDirectives && data.unacknowledgedDirectives.length > 0) {
-        console.log("[OVERDUE] " + data.unacknowledgedDirectives.length + " directives need action");
+        console.log("[OVERDUE] " + data.unacknowledgedDirectives.length + " directives still need action:");
         data.unacknowledgedDirectives.forEach(function(d) {
-          console.log("  - " + d.title);
+          console.log("[OVERDUE]   - " + d.title);
         });
       }
     } catch (err) {
@@ -250,6 +301,44 @@
 
   ecosystemHeartbeat();
   setInterval(ecosystemHeartbeat, 15 * 60 * 1000);
+
+  // CALL THIS ONLY AFTER YOU ACTUALLY BUILD WHAT THE DIRECTIVE ASKS.
+  // Do NOT call this automatically. Do the work first.
+  async function acknowledgeDirective(directiveId, whatWasDone, evidenceUrl) {
+    if (!whatWasDone || whatWasDone.startsWith("Implemented:")) {
+      console.error("[ERROR] Generic descriptions not accepted. Describe what you actually built.");
+      return;
+    }
+    if (!evidenceUrl || !evidenceUrl.startsWith("http")) {
+      console.error("[ERROR] You must provide a live evidence URL (https://...) proving the work exists.");
+      return;
+    }
+    try {
+      const ackRes = await fetch(ECOSYSTEM.hubUrl + "/api/ecosystem/directives/ack", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          directiveId: directiveId,
+          platformId: ECOSYSTEM.platformId,
+          status: "acknowledged",
+          responseData: {
+            whatWasDone: whatWasDone,
+            evidenceUrl: evidenceUrl,
+            completedAt: new Date().toISOString(),
+          },
+        }),
+      });
+      const ackData = await ackRes.json();
+      console.log("[DONE] " + ackData.hubVerification.message);
+      console.log("[REMAINING] " + ackData.complianceUpdate.remaining + " directives left");
+      ECOSYSTEM.completedWork.push({ directiveId, whatWasDone, evidenceUrl, completedAt: new Date().toISOString() });
+      ECOSYSTEM.pendingTodos = ECOSYSTEM.pendingTodos.filter(t => t.directiveId !== directiveId);
+    } catch (err) {
+      console.error("[ERROR] Acknowledgment failed:", err.message);
+    }
+  }
+  // Example usage (after you actually build the feature):
+  // acknowledgeDirective("dir-abc123", "Built /voices-intake POST endpoint that accepts community stories and routes to LifeBridge", "https://myapp.replit.app/voices-intake");
   ```
 
   After adding this code: **re-publish your app immediately.** Dev and production are separate on Replit. If you only add this in dev, the published app never sends heartbeats.
@@ -275,6 +364,7 @@
     platformId: "sankofa-mens-health",
     apiKey: "tveco_93049999ORIGINALKEY999",
     completedWork: [],
+    pendingTodos: [],
     blockers: [],
   };
 
@@ -312,38 +402,26 @@
       }
 
       if (data.pendingDirectives && data.pendingDirectives.length > 0) {
+        console.log("[TODO] === " + data.pendingDirectives.length + " NEW DIRECTIVE(S) — ACTION REQUIRED ===");
         for (const directive of data.pendingDirectives) {
-          console.log("[NEW] " + directive.title);
+          console.log("[TODO] Directive: " + directive.title);
+          console.log("[TODO] ID: " + directive.directiveId);
+          console.log("[TODO] What to do: " + (directive.description || directive.title));
+          console.log("[TODO] --- DO NOT auto-acknowledge. Build it first, then call acknowledgeDirective() below. ---");
 
-          const workDescription = "Implemented: " + directive.title;
-
-          ECOSYSTEM.completedWork.push({
+          ECOSYSTEM.pendingTodos.push({
             directiveId: directive.directiveId,
-            whatWasDone: workDescription,
-            evidenceUrl: "",
-            completedAt: new Date().toISOString(),
+            title: directive.title,
+            description: directive.description || directive.title,
+            receivedAt: new Date().toISOString(),
           });
-
-          const ackRes = await fetch(ECOSYSTEM.hubUrl + "/api/ecosystem/directives/ack", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              directiveId: directive.directiveId,
-              platformId: ECOSYSTEM.platformId,
-              status: "acknowledged",
-              responseData: { whatWasDone: workDescription },
-            }),
-          });
-          const ackData = await ackRes.json();
-          console.log("[CONFIRMED] " + ackData.hubVerification.message);
-          console.log("[REMAINING] " + ackData.complianceUpdate.remaining + " directives left");
         }
       }
 
       if (data.unacknowledgedDirectives && data.unacknowledgedDirectives.length > 0) {
-        console.log("[OVERDUE] " + data.unacknowledgedDirectives.length + " directives need action");
+        console.log("[OVERDUE] " + data.unacknowledgedDirectives.length + " directives still need action:");
         data.unacknowledgedDirectives.forEach(function(d) {
-          console.log("  - " + d.title);
+          console.log("[OVERDUE]   - " + d.title);
         });
       }
     } catch (err) {
@@ -353,6 +431,44 @@
 
   ecosystemHeartbeat();
   setInterval(ecosystemHeartbeat, 15 * 60 * 1000);
+
+  // CALL THIS ONLY AFTER YOU ACTUALLY BUILD WHAT THE DIRECTIVE ASKS.
+  // Do NOT call this automatically. Do the work first.
+  async function acknowledgeDirective(directiveId, whatWasDone, evidenceUrl) {
+    if (!whatWasDone || whatWasDone.startsWith("Implemented:")) {
+      console.error("[ERROR] Generic descriptions not accepted. Describe what you actually built.");
+      return;
+    }
+    if (!evidenceUrl || !evidenceUrl.startsWith("http")) {
+      console.error("[ERROR] You must provide a live evidence URL (https://...) proving the work exists.");
+      return;
+    }
+    try {
+      const ackRes = await fetch(ECOSYSTEM.hubUrl + "/api/ecosystem/directives/ack", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          directiveId: directiveId,
+          platformId: ECOSYSTEM.platformId,
+          status: "acknowledged",
+          responseData: {
+            whatWasDone: whatWasDone,
+            evidenceUrl: evidenceUrl,
+            completedAt: new Date().toISOString(),
+          },
+        }),
+      });
+      const ackData = await ackRes.json();
+      console.log("[DONE] " + ackData.hubVerification.message);
+      console.log("[REMAINING] " + ackData.complianceUpdate.remaining + " directives left");
+      ECOSYSTEM.completedWork.push({ directiveId, whatWasDone, evidenceUrl, completedAt: new Date().toISOString() });
+      ECOSYSTEM.pendingTodos = ECOSYSTEM.pendingTodos.filter(t => t.directiveId !== directiveId);
+    } catch (err) {
+      console.error("[ERROR] Acknowledgment failed:", err.message);
+    }
+  }
+  // Example usage (after you actually build the feature):
+  // acknowledgeDirective("dir-abc123", "Built /voices-intake POST endpoint that accepts community stories and routes to LifeBridge", "https://myapp.replit.app/voices-intake");
   ```
 
   After adding this code: **re-publish your app immediately.** Dev and production are separate on Replit. If you only add this in dev, the published app never sends heartbeats.
@@ -378,6 +494,7 @@
     platformId: "ecosystem-nexus",
     apiKey: "tveco_78c737f46c355933036afb301176a855872f9aad8a53caffc9f26c8aa24f2de9",
     completedWork: [],
+    pendingTodos: [],
     blockers: [],
   };
 
@@ -415,38 +532,26 @@
       }
 
       if (data.pendingDirectives && data.pendingDirectives.length > 0) {
+        console.log("[TODO] === " + data.pendingDirectives.length + " NEW DIRECTIVE(S) — ACTION REQUIRED ===");
         for (const directive of data.pendingDirectives) {
-          console.log("[NEW] " + directive.title);
+          console.log("[TODO] Directive: " + directive.title);
+          console.log("[TODO] ID: " + directive.directiveId);
+          console.log("[TODO] What to do: " + (directive.description || directive.title));
+          console.log("[TODO] --- DO NOT auto-acknowledge. Build it first, then call acknowledgeDirective() below. ---");
 
-          const workDescription = "Implemented: " + directive.title;
-
-          ECOSYSTEM.completedWork.push({
+          ECOSYSTEM.pendingTodos.push({
             directiveId: directive.directiveId,
-            whatWasDone: workDescription,
-            evidenceUrl: "",
-            completedAt: new Date().toISOString(),
+            title: directive.title,
+            description: directive.description || directive.title,
+            receivedAt: new Date().toISOString(),
           });
-
-          const ackRes = await fetch(ECOSYSTEM.hubUrl + "/api/ecosystem/directives/ack", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              directiveId: directive.directiveId,
-              platformId: ECOSYSTEM.platformId,
-              status: "acknowledged",
-              responseData: { whatWasDone: workDescription },
-            }),
-          });
-          const ackData = await ackRes.json();
-          console.log("[CONFIRMED] " + ackData.hubVerification.message);
-          console.log("[REMAINING] " + ackData.complianceUpdate.remaining + " directives left");
         }
       }
 
       if (data.unacknowledgedDirectives && data.unacknowledgedDirectives.length > 0) {
-        console.log("[OVERDUE] " + data.unacknowledgedDirectives.length + " directives need action");
+        console.log("[OVERDUE] " + data.unacknowledgedDirectives.length + " directives still need action:");
         data.unacknowledgedDirectives.forEach(function(d) {
-          console.log("  - " + d.title);
+          console.log("[OVERDUE]   - " + d.title);
         });
       }
     } catch (err) {
@@ -456,6 +561,44 @@
 
   ecosystemHeartbeat();
   setInterval(ecosystemHeartbeat, 15 * 60 * 1000);
+
+  // CALL THIS ONLY AFTER YOU ACTUALLY BUILD WHAT THE DIRECTIVE ASKS.
+  // Do NOT call this automatically. Do the work first.
+  async function acknowledgeDirective(directiveId, whatWasDone, evidenceUrl) {
+    if (!whatWasDone || whatWasDone.startsWith("Implemented:")) {
+      console.error("[ERROR] Generic descriptions not accepted. Describe what you actually built.");
+      return;
+    }
+    if (!evidenceUrl || !evidenceUrl.startsWith("http")) {
+      console.error("[ERROR] You must provide a live evidence URL (https://...) proving the work exists.");
+      return;
+    }
+    try {
+      const ackRes = await fetch(ECOSYSTEM.hubUrl + "/api/ecosystem/directives/ack", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          directiveId: directiveId,
+          platformId: ECOSYSTEM.platformId,
+          status: "acknowledged",
+          responseData: {
+            whatWasDone: whatWasDone,
+            evidenceUrl: evidenceUrl,
+            completedAt: new Date().toISOString(),
+          },
+        }),
+      });
+      const ackData = await ackRes.json();
+      console.log("[DONE] " + ackData.hubVerification.message);
+      console.log("[REMAINING] " + ackData.complianceUpdate.remaining + " directives left");
+      ECOSYSTEM.completedWork.push({ directiveId, whatWasDone, evidenceUrl, completedAt: new Date().toISOString() });
+      ECOSYSTEM.pendingTodos = ECOSYSTEM.pendingTodos.filter(t => t.directiveId !== directiveId);
+    } catch (err) {
+      console.error("[ERROR] Acknowledgment failed:", err.message);
+    }
+  }
+  // Example usage (after you actually build the feature):
+  // acknowledgeDirective("dir-abc123", "Built /voices-intake POST endpoint that accepts community stories and routes to LifeBridge", "https://myapp.replit.app/voices-intake");
   ```
 
   After adding this code: **re-publish your app immediately.** Dev and production are separate on Replit. If you only add this in dev, the published app never sends heartbeats.
@@ -481,6 +624,7 @@
     platformId: "sankofa-feminine-health",
     apiKey: "tveco_4a48c9cef347d76495563ff1f9ec3184f641ab0b6b1e5c8fa8a4ec75e89f9d04",
     completedWork: [],
+    pendingTodos: [],
     blockers: [],
   };
 
@@ -518,38 +662,26 @@
       }
 
       if (data.pendingDirectives && data.pendingDirectives.length > 0) {
+        console.log("[TODO] === " + data.pendingDirectives.length + " NEW DIRECTIVE(S) — ACTION REQUIRED ===");
         for (const directive of data.pendingDirectives) {
-          console.log("[NEW] " + directive.title);
+          console.log("[TODO] Directive: " + directive.title);
+          console.log("[TODO] ID: " + directive.directiveId);
+          console.log("[TODO] What to do: " + (directive.description || directive.title));
+          console.log("[TODO] --- DO NOT auto-acknowledge. Build it first, then call acknowledgeDirective() below. ---");
 
-          const workDescription = "Implemented: " + directive.title;
-
-          ECOSYSTEM.completedWork.push({
+          ECOSYSTEM.pendingTodos.push({
             directiveId: directive.directiveId,
-            whatWasDone: workDescription,
-            evidenceUrl: "",
-            completedAt: new Date().toISOString(),
+            title: directive.title,
+            description: directive.description || directive.title,
+            receivedAt: new Date().toISOString(),
           });
-
-          const ackRes = await fetch(ECOSYSTEM.hubUrl + "/api/ecosystem/directives/ack", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              directiveId: directive.directiveId,
-              platformId: ECOSYSTEM.platformId,
-              status: "acknowledged",
-              responseData: { whatWasDone: workDescription },
-            }),
-          });
-          const ackData = await ackRes.json();
-          console.log("[CONFIRMED] " + ackData.hubVerification.message);
-          console.log("[REMAINING] " + ackData.complianceUpdate.remaining + " directives left");
         }
       }
 
       if (data.unacknowledgedDirectives && data.unacknowledgedDirectives.length > 0) {
-        console.log("[OVERDUE] " + data.unacknowledgedDirectives.length + " directives need action");
+        console.log("[OVERDUE] " + data.unacknowledgedDirectives.length + " directives still need action:");
         data.unacknowledgedDirectives.forEach(function(d) {
-          console.log("  - " + d.title);
+          console.log("[OVERDUE]   - " + d.title);
         });
       }
     } catch (err) {
@@ -559,6 +691,44 @@
 
   ecosystemHeartbeat();
   setInterval(ecosystemHeartbeat, 15 * 60 * 1000);
+
+  // CALL THIS ONLY AFTER YOU ACTUALLY BUILD WHAT THE DIRECTIVE ASKS.
+  // Do NOT call this automatically. Do the work first.
+  async function acknowledgeDirective(directiveId, whatWasDone, evidenceUrl) {
+    if (!whatWasDone || whatWasDone.startsWith("Implemented:")) {
+      console.error("[ERROR] Generic descriptions not accepted. Describe what you actually built.");
+      return;
+    }
+    if (!evidenceUrl || !evidenceUrl.startsWith("http")) {
+      console.error("[ERROR] You must provide a live evidence URL (https://...) proving the work exists.");
+      return;
+    }
+    try {
+      const ackRes = await fetch(ECOSYSTEM.hubUrl + "/api/ecosystem/directives/ack", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          directiveId: directiveId,
+          platformId: ECOSYSTEM.platformId,
+          status: "acknowledged",
+          responseData: {
+            whatWasDone: whatWasDone,
+            evidenceUrl: evidenceUrl,
+            completedAt: new Date().toISOString(),
+          },
+        }),
+      });
+      const ackData = await ackRes.json();
+      console.log("[DONE] " + ackData.hubVerification.message);
+      console.log("[REMAINING] " + ackData.complianceUpdate.remaining + " directives left");
+      ECOSYSTEM.completedWork.push({ directiveId, whatWasDone, evidenceUrl, completedAt: new Date().toISOString() });
+      ECOSYSTEM.pendingTodos = ECOSYSTEM.pendingTodos.filter(t => t.directiveId !== directiveId);
+    } catch (err) {
+      console.error("[ERROR] Acknowledgment failed:", err.message);
+    }
+  }
+  // Example usage (after you actually build the feature):
+  // acknowledgeDirective("dir-abc123", "Built /voices-intake POST endpoint that accepts community stories and routes to LifeBridge", "https://myapp.replit.app/voices-intake");
   ```
 
   After adding this code: **re-publish your app immediately.** Dev and production are separate on Replit. If you only add this in dev, the published app never sends heartbeats.
@@ -584,6 +754,7 @@
     platformId: "isss",
     apiKey: "tveco_f5bf36df91fcbb0b64327d34e8f77b810cca3e82087c681c8f217f07fe2f5ad2",
     completedWork: [],
+    pendingTodos: [],
     blockers: [],
   };
 
@@ -621,38 +792,26 @@
       }
 
       if (data.pendingDirectives && data.pendingDirectives.length > 0) {
+        console.log("[TODO] === " + data.pendingDirectives.length + " NEW DIRECTIVE(S) — ACTION REQUIRED ===");
         for (const directive of data.pendingDirectives) {
-          console.log("[NEW] " + directive.title);
+          console.log("[TODO] Directive: " + directive.title);
+          console.log("[TODO] ID: " + directive.directiveId);
+          console.log("[TODO] What to do: " + (directive.description || directive.title));
+          console.log("[TODO] --- DO NOT auto-acknowledge. Build it first, then call acknowledgeDirective() below. ---");
 
-          const workDescription = "Implemented: " + directive.title;
-
-          ECOSYSTEM.completedWork.push({
+          ECOSYSTEM.pendingTodos.push({
             directiveId: directive.directiveId,
-            whatWasDone: workDescription,
-            evidenceUrl: "",
-            completedAt: new Date().toISOString(),
+            title: directive.title,
+            description: directive.description || directive.title,
+            receivedAt: new Date().toISOString(),
           });
-
-          const ackRes = await fetch(ECOSYSTEM.hubUrl + "/api/ecosystem/directives/ack", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              directiveId: directive.directiveId,
-              platformId: ECOSYSTEM.platformId,
-              status: "acknowledged",
-              responseData: { whatWasDone: workDescription },
-            }),
-          });
-          const ackData = await ackRes.json();
-          console.log("[CONFIRMED] " + ackData.hubVerification.message);
-          console.log("[REMAINING] " + ackData.complianceUpdate.remaining + " directives left");
         }
       }
 
       if (data.unacknowledgedDirectives && data.unacknowledgedDirectives.length > 0) {
-        console.log("[OVERDUE] " + data.unacknowledgedDirectives.length + " directives need action");
+        console.log("[OVERDUE] " + data.unacknowledgedDirectives.length + " directives still need action:");
         data.unacknowledgedDirectives.forEach(function(d) {
-          console.log("  - " + d.title);
+          console.log("[OVERDUE]   - " + d.title);
         });
       }
     } catch (err) {
@@ -662,6 +821,44 @@
 
   ecosystemHeartbeat();
   setInterval(ecosystemHeartbeat, 15 * 60 * 1000);
+
+  // CALL THIS ONLY AFTER YOU ACTUALLY BUILD WHAT THE DIRECTIVE ASKS.
+  // Do NOT call this automatically. Do the work first.
+  async function acknowledgeDirective(directiveId, whatWasDone, evidenceUrl) {
+    if (!whatWasDone || whatWasDone.startsWith("Implemented:")) {
+      console.error("[ERROR] Generic descriptions not accepted. Describe what you actually built.");
+      return;
+    }
+    if (!evidenceUrl || !evidenceUrl.startsWith("http")) {
+      console.error("[ERROR] You must provide a live evidence URL (https://...) proving the work exists.");
+      return;
+    }
+    try {
+      const ackRes = await fetch(ECOSYSTEM.hubUrl + "/api/ecosystem/directives/ack", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          directiveId: directiveId,
+          platformId: ECOSYSTEM.platformId,
+          status: "acknowledged",
+          responseData: {
+            whatWasDone: whatWasDone,
+            evidenceUrl: evidenceUrl,
+            completedAt: new Date().toISOString(),
+          },
+        }),
+      });
+      const ackData = await ackRes.json();
+      console.log("[DONE] " + ackData.hubVerification.message);
+      console.log("[REMAINING] " + ackData.complianceUpdate.remaining + " directives left");
+      ECOSYSTEM.completedWork.push({ directiveId, whatWasDone, evidenceUrl, completedAt: new Date().toISOString() });
+      ECOSYSTEM.pendingTodos = ECOSYSTEM.pendingTodos.filter(t => t.directiveId !== directiveId);
+    } catch (err) {
+      console.error("[ERROR] Acknowledgment failed:", err.message);
+    }
+  }
+  // Example usage (after you actually build the feature):
+  // acknowledgeDirective("dir-abc123", "Built /voices-intake POST endpoint that accepts community stories and routes to LifeBridge", "https://myapp.replit.app/voices-intake");
   ```
 
   After adding this code: **re-publish your app immediately.** Dev and production are separate on Replit. If you only add this in dev, the published app never sends heartbeats.
@@ -687,6 +884,7 @@
     platformId: "lifebridge",
     apiKey: "tveco_b7eebd7c0dcb542edcbc960b1b50fe7fc43317b0bc1df6b52021fd1224138590",
     completedWork: [],
+    pendingTodos: [],
     blockers: [],
   };
 
@@ -724,38 +922,26 @@
       }
 
       if (data.pendingDirectives && data.pendingDirectives.length > 0) {
+        console.log("[TODO] === " + data.pendingDirectives.length + " NEW DIRECTIVE(S) — ACTION REQUIRED ===");
         for (const directive of data.pendingDirectives) {
-          console.log("[NEW] " + directive.title);
+          console.log("[TODO] Directive: " + directive.title);
+          console.log("[TODO] ID: " + directive.directiveId);
+          console.log("[TODO] What to do: " + (directive.description || directive.title));
+          console.log("[TODO] --- DO NOT auto-acknowledge. Build it first, then call acknowledgeDirective() below. ---");
 
-          const workDescription = "Implemented: " + directive.title;
-
-          ECOSYSTEM.completedWork.push({
+          ECOSYSTEM.pendingTodos.push({
             directiveId: directive.directiveId,
-            whatWasDone: workDescription,
-            evidenceUrl: "",
-            completedAt: new Date().toISOString(),
+            title: directive.title,
+            description: directive.description || directive.title,
+            receivedAt: new Date().toISOString(),
           });
-
-          const ackRes = await fetch(ECOSYSTEM.hubUrl + "/api/ecosystem/directives/ack", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              directiveId: directive.directiveId,
-              platformId: ECOSYSTEM.platformId,
-              status: "acknowledged",
-              responseData: { whatWasDone: workDescription },
-            }),
-          });
-          const ackData = await ackRes.json();
-          console.log("[CONFIRMED] " + ackData.hubVerification.message);
-          console.log("[REMAINING] " + ackData.complianceUpdate.remaining + " directives left");
         }
       }
 
       if (data.unacknowledgedDirectives && data.unacknowledgedDirectives.length > 0) {
-        console.log("[OVERDUE] " + data.unacknowledgedDirectives.length + " directives need action");
+        console.log("[OVERDUE] " + data.unacknowledgedDirectives.length + " directives still need action:");
         data.unacknowledgedDirectives.forEach(function(d) {
-          console.log("  - " + d.title);
+          console.log("[OVERDUE]   - " + d.title);
         });
       }
     } catch (err) {
@@ -765,6 +951,44 @@
 
   ecosystemHeartbeat();
   setInterval(ecosystemHeartbeat, 15 * 60 * 1000);
+
+  // CALL THIS ONLY AFTER YOU ACTUALLY BUILD WHAT THE DIRECTIVE ASKS.
+  // Do NOT call this automatically. Do the work first.
+  async function acknowledgeDirective(directiveId, whatWasDone, evidenceUrl) {
+    if (!whatWasDone || whatWasDone.startsWith("Implemented:")) {
+      console.error("[ERROR] Generic descriptions not accepted. Describe what you actually built.");
+      return;
+    }
+    if (!evidenceUrl || !evidenceUrl.startsWith("http")) {
+      console.error("[ERROR] You must provide a live evidence URL (https://...) proving the work exists.");
+      return;
+    }
+    try {
+      const ackRes = await fetch(ECOSYSTEM.hubUrl + "/api/ecosystem/directives/ack", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          directiveId: directiveId,
+          platformId: ECOSYSTEM.platformId,
+          status: "acknowledged",
+          responseData: {
+            whatWasDone: whatWasDone,
+            evidenceUrl: evidenceUrl,
+            completedAt: new Date().toISOString(),
+          },
+        }),
+      });
+      const ackData = await ackRes.json();
+      console.log("[DONE] " + ackData.hubVerification.message);
+      console.log("[REMAINING] " + ackData.complianceUpdate.remaining + " directives left");
+      ECOSYSTEM.completedWork.push({ directiveId, whatWasDone, evidenceUrl, completedAt: new Date().toISOString() });
+      ECOSYSTEM.pendingTodos = ECOSYSTEM.pendingTodos.filter(t => t.directiveId !== directiveId);
+    } catch (err) {
+      console.error("[ERROR] Acknowledgment failed:", err.message);
+    }
+  }
+  // Example usage (after you actually build the feature):
+  // acknowledgeDirective("dir-abc123", "Built /voices-intake POST endpoint that accepts community stories and routes to LifeBridge", "https://myapp.replit.app/voices-intake");
   ```
 
   After adding this code: **re-publish your app immediately.** Dev and production are separate on Replit. If you only add this in dev, the published app never sends heartbeats.
@@ -790,6 +1014,7 @@
     platformId: "m2c",
     apiKey: "tveco_e9e39eff7d96d3b26b2d7bef45eb267f24906c3095977a063f2df7cd12541682",
     completedWork: [],
+    pendingTodos: [],
     blockers: [],
   };
 
@@ -827,38 +1052,26 @@
       }
 
       if (data.pendingDirectives && data.pendingDirectives.length > 0) {
+        console.log("[TODO] === " + data.pendingDirectives.length + " NEW DIRECTIVE(S) — ACTION REQUIRED ===");
         for (const directive of data.pendingDirectives) {
-          console.log("[NEW] " + directive.title);
+          console.log("[TODO] Directive: " + directive.title);
+          console.log("[TODO] ID: " + directive.directiveId);
+          console.log("[TODO] What to do: " + (directive.description || directive.title));
+          console.log("[TODO] --- DO NOT auto-acknowledge. Build it first, then call acknowledgeDirective() below. ---");
 
-          const workDescription = "Implemented: " + directive.title;
-
-          ECOSYSTEM.completedWork.push({
+          ECOSYSTEM.pendingTodos.push({
             directiveId: directive.directiveId,
-            whatWasDone: workDescription,
-            evidenceUrl: "",
-            completedAt: new Date().toISOString(),
+            title: directive.title,
+            description: directive.description || directive.title,
+            receivedAt: new Date().toISOString(),
           });
-
-          const ackRes = await fetch(ECOSYSTEM.hubUrl + "/api/ecosystem/directives/ack", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              directiveId: directive.directiveId,
-              platformId: ECOSYSTEM.platformId,
-              status: "acknowledged",
-              responseData: { whatWasDone: workDescription },
-            }),
-          });
-          const ackData = await ackRes.json();
-          console.log("[CONFIRMED] " + ackData.hubVerification.message);
-          console.log("[REMAINING] " + ackData.complianceUpdate.remaining + " directives left");
         }
       }
 
       if (data.unacknowledgedDirectives && data.unacknowledgedDirectives.length > 0) {
-        console.log("[OVERDUE] " + data.unacknowledgedDirectives.length + " directives need action");
+        console.log("[OVERDUE] " + data.unacknowledgedDirectives.length + " directives still need action:");
         data.unacknowledgedDirectives.forEach(function(d) {
-          console.log("  - " + d.title);
+          console.log("[OVERDUE]   - " + d.title);
         });
       }
     } catch (err) {
@@ -868,6 +1081,44 @@
 
   ecosystemHeartbeat();
   setInterval(ecosystemHeartbeat, 15 * 60 * 1000);
+
+  // CALL THIS ONLY AFTER YOU ACTUALLY BUILD WHAT THE DIRECTIVE ASKS.
+  // Do NOT call this automatically. Do the work first.
+  async function acknowledgeDirective(directiveId, whatWasDone, evidenceUrl) {
+    if (!whatWasDone || whatWasDone.startsWith("Implemented:")) {
+      console.error("[ERROR] Generic descriptions not accepted. Describe what you actually built.");
+      return;
+    }
+    if (!evidenceUrl || !evidenceUrl.startsWith("http")) {
+      console.error("[ERROR] You must provide a live evidence URL (https://...) proving the work exists.");
+      return;
+    }
+    try {
+      const ackRes = await fetch(ECOSYSTEM.hubUrl + "/api/ecosystem/directives/ack", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          directiveId: directiveId,
+          platformId: ECOSYSTEM.platformId,
+          status: "acknowledged",
+          responseData: {
+            whatWasDone: whatWasDone,
+            evidenceUrl: evidenceUrl,
+            completedAt: new Date().toISOString(),
+          },
+        }),
+      });
+      const ackData = await ackRes.json();
+      console.log("[DONE] " + ackData.hubVerification.message);
+      console.log("[REMAINING] " + ackData.complianceUpdate.remaining + " directives left");
+      ECOSYSTEM.completedWork.push({ directiveId, whatWasDone, evidenceUrl, completedAt: new Date().toISOString() });
+      ECOSYSTEM.pendingTodos = ECOSYSTEM.pendingTodos.filter(t => t.directiveId !== directiveId);
+    } catch (err) {
+      console.error("[ERROR] Acknowledgment failed:", err.message);
+    }
+  }
+  // Example usage (after you actually build the feature):
+  // acknowledgeDirective("dir-abc123", "Built /voices-intake POST endpoint that accepts community stories and routes to LifeBridge", "https://myapp.replit.app/voices-intake");
   ```
 
   After adding this code: **re-publish your app immediately.** Dev and production are separate on Replit. If you only add this in dev, the published app never sends heartbeats.
@@ -893,6 +1144,7 @@
     platformId: "mce",
     apiKey: "tveco_c39e15a698f78a377c797411f74c3a159cf53b9436dac1309b1d4fd47a86fc63",
     completedWork: [],
+    pendingTodos: [],
     blockers: [],
   };
 
@@ -930,38 +1182,26 @@
       }
 
       if (data.pendingDirectives && data.pendingDirectives.length > 0) {
+        console.log("[TODO] === " + data.pendingDirectives.length + " NEW DIRECTIVE(S) — ACTION REQUIRED ===");
         for (const directive of data.pendingDirectives) {
-          console.log("[NEW] " + directive.title);
+          console.log("[TODO] Directive: " + directive.title);
+          console.log("[TODO] ID: " + directive.directiveId);
+          console.log("[TODO] What to do: " + (directive.description || directive.title));
+          console.log("[TODO] --- DO NOT auto-acknowledge. Build it first, then call acknowledgeDirective() below. ---");
 
-          const workDescription = "Implemented: " + directive.title;
-
-          ECOSYSTEM.completedWork.push({
+          ECOSYSTEM.pendingTodos.push({
             directiveId: directive.directiveId,
-            whatWasDone: workDescription,
-            evidenceUrl: "",
-            completedAt: new Date().toISOString(),
+            title: directive.title,
+            description: directive.description || directive.title,
+            receivedAt: new Date().toISOString(),
           });
-
-          const ackRes = await fetch(ECOSYSTEM.hubUrl + "/api/ecosystem/directives/ack", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              directiveId: directive.directiveId,
-              platformId: ECOSYSTEM.platformId,
-              status: "acknowledged",
-              responseData: { whatWasDone: workDescription },
-            }),
-          });
-          const ackData = await ackRes.json();
-          console.log("[CONFIRMED] " + ackData.hubVerification.message);
-          console.log("[REMAINING] " + ackData.complianceUpdate.remaining + " directives left");
         }
       }
 
       if (data.unacknowledgedDirectives && data.unacknowledgedDirectives.length > 0) {
-        console.log("[OVERDUE] " + data.unacknowledgedDirectives.length + " directives need action");
+        console.log("[OVERDUE] " + data.unacknowledgedDirectives.length + " directives still need action:");
         data.unacknowledgedDirectives.forEach(function(d) {
-          console.log("  - " + d.title);
+          console.log("[OVERDUE]   - " + d.title);
         });
       }
     } catch (err) {
@@ -971,6 +1211,44 @@
 
   ecosystemHeartbeat();
   setInterval(ecosystemHeartbeat, 15 * 60 * 1000);
+
+  // CALL THIS ONLY AFTER YOU ACTUALLY BUILD WHAT THE DIRECTIVE ASKS.
+  // Do NOT call this automatically. Do the work first.
+  async function acknowledgeDirective(directiveId, whatWasDone, evidenceUrl) {
+    if (!whatWasDone || whatWasDone.startsWith("Implemented:")) {
+      console.error("[ERROR] Generic descriptions not accepted. Describe what you actually built.");
+      return;
+    }
+    if (!evidenceUrl || !evidenceUrl.startsWith("http")) {
+      console.error("[ERROR] You must provide a live evidence URL (https://...) proving the work exists.");
+      return;
+    }
+    try {
+      const ackRes = await fetch(ECOSYSTEM.hubUrl + "/api/ecosystem/directives/ack", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          directiveId: directiveId,
+          platformId: ECOSYSTEM.platformId,
+          status: "acknowledged",
+          responseData: {
+            whatWasDone: whatWasDone,
+            evidenceUrl: evidenceUrl,
+            completedAt: new Date().toISOString(),
+          },
+        }),
+      });
+      const ackData = await ackRes.json();
+      console.log("[DONE] " + ackData.hubVerification.message);
+      console.log("[REMAINING] " + ackData.complianceUpdate.remaining + " directives left");
+      ECOSYSTEM.completedWork.push({ directiveId, whatWasDone, evidenceUrl, completedAt: new Date().toISOString() });
+      ECOSYSTEM.pendingTodos = ECOSYSTEM.pendingTodos.filter(t => t.directiveId !== directiveId);
+    } catch (err) {
+      console.error("[ERROR] Acknowledgment failed:", err.message);
+    }
+  }
+  // Example usage (after you actually build the feature):
+  // acknowledgeDirective("dir-abc123", "Built /voices-intake POST endpoint that accepts community stories and routes to LifeBridge", "https://myapp.replit.app/voices-intake");
   ```
 
   After adding this code: **re-publish your app immediately.** Dev and production are separate on Replit. If you only add this in dev, the published app never sends heartbeats.
@@ -996,6 +1274,7 @@
     platformId: "mission-transition",
     apiKey: "tveco_b811c8f840ba30a1b7b8a7d267de9b26aa6c4aa3c218299121433255e3c4ada5",
     completedWork: [],
+    pendingTodos: [],
     blockers: [],
   };
 
@@ -1033,38 +1312,26 @@
       }
 
       if (data.pendingDirectives && data.pendingDirectives.length > 0) {
+        console.log("[TODO] === " + data.pendingDirectives.length + " NEW DIRECTIVE(S) — ACTION REQUIRED ===");
         for (const directive of data.pendingDirectives) {
-          console.log("[NEW] " + directive.title);
+          console.log("[TODO] Directive: " + directive.title);
+          console.log("[TODO] ID: " + directive.directiveId);
+          console.log("[TODO] What to do: " + (directive.description || directive.title));
+          console.log("[TODO] --- DO NOT auto-acknowledge. Build it first, then call acknowledgeDirective() below. ---");
 
-          const workDescription = "Implemented: " + directive.title;
-
-          ECOSYSTEM.completedWork.push({
+          ECOSYSTEM.pendingTodos.push({
             directiveId: directive.directiveId,
-            whatWasDone: workDescription,
-            evidenceUrl: "",
-            completedAt: new Date().toISOString(),
+            title: directive.title,
+            description: directive.description || directive.title,
+            receivedAt: new Date().toISOString(),
           });
-
-          const ackRes = await fetch(ECOSYSTEM.hubUrl + "/api/ecosystem/directives/ack", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              directiveId: directive.directiveId,
-              platformId: ECOSYSTEM.platformId,
-              status: "acknowledged",
-              responseData: { whatWasDone: workDescription },
-            }),
-          });
-          const ackData = await ackRes.json();
-          console.log("[CONFIRMED] " + ackData.hubVerification.message);
-          console.log("[REMAINING] " + ackData.complianceUpdate.remaining + " directives left");
         }
       }
 
       if (data.unacknowledgedDirectives && data.unacknowledgedDirectives.length > 0) {
-        console.log("[OVERDUE] " + data.unacknowledgedDirectives.length + " directives need action");
+        console.log("[OVERDUE] " + data.unacknowledgedDirectives.length + " directives still need action:");
         data.unacknowledgedDirectives.forEach(function(d) {
-          console.log("  - " + d.title);
+          console.log("[OVERDUE]   - " + d.title);
         });
       }
     } catch (err) {
@@ -1074,6 +1341,44 @@
 
   ecosystemHeartbeat();
   setInterval(ecosystemHeartbeat, 15 * 60 * 1000);
+
+  // CALL THIS ONLY AFTER YOU ACTUALLY BUILD WHAT THE DIRECTIVE ASKS.
+  // Do NOT call this automatically. Do the work first.
+  async function acknowledgeDirective(directiveId, whatWasDone, evidenceUrl) {
+    if (!whatWasDone || whatWasDone.startsWith("Implemented:")) {
+      console.error("[ERROR] Generic descriptions not accepted. Describe what you actually built.");
+      return;
+    }
+    if (!evidenceUrl || !evidenceUrl.startsWith("http")) {
+      console.error("[ERROR] You must provide a live evidence URL (https://...) proving the work exists.");
+      return;
+    }
+    try {
+      const ackRes = await fetch(ECOSYSTEM.hubUrl + "/api/ecosystem/directives/ack", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          directiveId: directiveId,
+          platformId: ECOSYSTEM.platformId,
+          status: "acknowledged",
+          responseData: {
+            whatWasDone: whatWasDone,
+            evidenceUrl: evidenceUrl,
+            completedAt: new Date().toISOString(),
+          },
+        }),
+      });
+      const ackData = await ackRes.json();
+      console.log("[DONE] " + ackData.hubVerification.message);
+      console.log("[REMAINING] " + ackData.complianceUpdate.remaining + " directives left");
+      ECOSYSTEM.completedWork.push({ directiveId, whatWasDone, evidenceUrl, completedAt: new Date().toISOString() });
+      ECOSYSTEM.pendingTodos = ECOSYSTEM.pendingTodos.filter(t => t.directiveId !== directiveId);
+    } catch (err) {
+      console.error("[ERROR] Acknowledgment failed:", err.message);
+    }
+  }
+  // Example usage (after you actually build the feature):
+  // acknowledgeDirective("dir-abc123", "Built /voices-intake POST endpoint that accepts community stories and routes to LifeBridge", "https://myapp.replit.app/voices-intake");
   ```
 
   After adding this code: **re-publish your app immediately.** Dev and production are separate on Replit. If you only add this in dev, the published app never sends heartbeats.
@@ -1099,6 +1404,7 @@
     platformId: "perfectly-different",
     apiKey: "tveco_dc7c4effb8dcb1a6da1d47b50283db92934a63bd105ef9ea1412d619cb7e548a",
     completedWork: [],
+    pendingTodos: [],
     blockers: [],
   };
 
@@ -1136,38 +1442,26 @@
       }
 
       if (data.pendingDirectives && data.pendingDirectives.length > 0) {
+        console.log("[TODO] === " + data.pendingDirectives.length + " NEW DIRECTIVE(S) — ACTION REQUIRED ===");
         for (const directive of data.pendingDirectives) {
-          console.log("[NEW] " + directive.title);
+          console.log("[TODO] Directive: " + directive.title);
+          console.log("[TODO] ID: " + directive.directiveId);
+          console.log("[TODO] What to do: " + (directive.description || directive.title));
+          console.log("[TODO] --- DO NOT auto-acknowledge. Build it first, then call acknowledgeDirective() below. ---");
 
-          const workDescription = "Implemented: " + directive.title;
-
-          ECOSYSTEM.completedWork.push({
+          ECOSYSTEM.pendingTodos.push({
             directiveId: directive.directiveId,
-            whatWasDone: workDescription,
-            evidenceUrl: "",
-            completedAt: new Date().toISOString(),
+            title: directive.title,
+            description: directive.description || directive.title,
+            receivedAt: new Date().toISOString(),
           });
-
-          const ackRes = await fetch(ECOSYSTEM.hubUrl + "/api/ecosystem/directives/ack", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              directiveId: directive.directiveId,
-              platformId: ECOSYSTEM.platformId,
-              status: "acknowledged",
-              responseData: { whatWasDone: workDescription },
-            }),
-          });
-          const ackData = await ackRes.json();
-          console.log("[CONFIRMED] " + ackData.hubVerification.message);
-          console.log("[REMAINING] " + ackData.complianceUpdate.remaining + " directives left");
         }
       }
 
       if (data.unacknowledgedDirectives && data.unacknowledgedDirectives.length > 0) {
-        console.log("[OVERDUE] " + data.unacknowledgedDirectives.length + " directives need action");
+        console.log("[OVERDUE] " + data.unacknowledgedDirectives.length + " directives still need action:");
         data.unacknowledgedDirectives.forEach(function(d) {
-          console.log("  - " + d.title);
+          console.log("[OVERDUE]   - " + d.title);
         });
       }
     } catch (err) {
@@ -1177,6 +1471,44 @@
 
   ecosystemHeartbeat();
   setInterval(ecosystemHeartbeat, 15 * 60 * 1000);
+
+  // CALL THIS ONLY AFTER YOU ACTUALLY BUILD WHAT THE DIRECTIVE ASKS.
+  // Do NOT call this automatically. Do the work first.
+  async function acknowledgeDirective(directiveId, whatWasDone, evidenceUrl) {
+    if (!whatWasDone || whatWasDone.startsWith("Implemented:")) {
+      console.error("[ERROR] Generic descriptions not accepted. Describe what you actually built.");
+      return;
+    }
+    if (!evidenceUrl || !evidenceUrl.startsWith("http")) {
+      console.error("[ERROR] You must provide a live evidence URL (https://...) proving the work exists.");
+      return;
+    }
+    try {
+      const ackRes = await fetch(ECOSYSTEM.hubUrl + "/api/ecosystem/directives/ack", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          directiveId: directiveId,
+          platformId: ECOSYSTEM.platformId,
+          status: "acknowledged",
+          responseData: {
+            whatWasDone: whatWasDone,
+            evidenceUrl: evidenceUrl,
+            completedAt: new Date().toISOString(),
+          },
+        }),
+      });
+      const ackData = await ackRes.json();
+      console.log("[DONE] " + ackData.hubVerification.message);
+      console.log("[REMAINING] " + ackData.complianceUpdate.remaining + " directives left");
+      ECOSYSTEM.completedWork.push({ directiveId, whatWasDone, evidenceUrl, completedAt: new Date().toISOString() });
+      ECOSYSTEM.pendingTodos = ECOSYSTEM.pendingTodos.filter(t => t.directiveId !== directiveId);
+    } catch (err) {
+      console.error("[ERROR] Acknowledgment failed:", err.message);
+    }
+  }
+  // Example usage (after you actually build the feature):
+  // acknowledgeDirective("dir-abc123", "Built /voices-intake POST endpoint that accepts community stories and routes to LifeBridge", "https://myapp.replit.app/voices-intake");
   ```
 
   After adding this code: **re-publish your app immediately.** Dev and production are separate on Replit. If you only add this in dev, the published app never sends heartbeats.
@@ -1202,6 +1534,7 @@
     platformId: "pillscheduler",
     apiKey: "tveco_4da8eeb3cd4e659db53bd2dd4ca3b721db57bee1c529966d5ac2858896acd737",
     completedWork: [],
+    pendingTodos: [],
     blockers: [],
   };
 
@@ -1239,38 +1572,26 @@
       }
 
       if (data.pendingDirectives && data.pendingDirectives.length > 0) {
+        console.log("[TODO] === " + data.pendingDirectives.length + " NEW DIRECTIVE(S) — ACTION REQUIRED ===");
         for (const directive of data.pendingDirectives) {
-          console.log("[NEW] " + directive.title);
+          console.log("[TODO] Directive: " + directive.title);
+          console.log("[TODO] ID: " + directive.directiveId);
+          console.log("[TODO] What to do: " + (directive.description || directive.title));
+          console.log("[TODO] --- DO NOT auto-acknowledge. Build it first, then call acknowledgeDirective() below. ---");
 
-          const workDescription = "Implemented: " + directive.title;
-
-          ECOSYSTEM.completedWork.push({
+          ECOSYSTEM.pendingTodos.push({
             directiveId: directive.directiveId,
-            whatWasDone: workDescription,
-            evidenceUrl: "",
-            completedAt: new Date().toISOString(),
+            title: directive.title,
+            description: directive.description || directive.title,
+            receivedAt: new Date().toISOString(),
           });
-
-          const ackRes = await fetch(ECOSYSTEM.hubUrl + "/api/ecosystem/directives/ack", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              directiveId: directive.directiveId,
-              platformId: ECOSYSTEM.platformId,
-              status: "acknowledged",
-              responseData: { whatWasDone: workDescription },
-            }),
-          });
-          const ackData = await ackRes.json();
-          console.log("[CONFIRMED] " + ackData.hubVerification.message);
-          console.log("[REMAINING] " + ackData.complianceUpdate.remaining + " directives left");
         }
       }
 
       if (data.unacknowledgedDirectives && data.unacknowledgedDirectives.length > 0) {
-        console.log("[OVERDUE] " + data.unacknowledgedDirectives.length + " directives need action");
+        console.log("[OVERDUE] " + data.unacknowledgedDirectives.length + " directives still need action:");
         data.unacknowledgedDirectives.forEach(function(d) {
-          console.log("  - " + d.title);
+          console.log("[OVERDUE]   - " + d.title);
         });
       }
     } catch (err) {
@@ -1280,6 +1601,44 @@
 
   ecosystemHeartbeat();
   setInterval(ecosystemHeartbeat, 15 * 60 * 1000);
+
+  // CALL THIS ONLY AFTER YOU ACTUALLY BUILD WHAT THE DIRECTIVE ASKS.
+  // Do NOT call this automatically. Do the work first.
+  async function acknowledgeDirective(directiveId, whatWasDone, evidenceUrl) {
+    if (!whatWasDone || whatWasDone.startsWith("Implemented:")) {
+      console.error("[ERROR] Generic descriptions not accepted. Describe what you actually built.");
+      return;
+    }
+    if (!evidenceUrl || !evidenceUrl.startsWith("http")) {
+      console.error("[ERROR] You must provide a live evidence URL (https://...) proving the work exists.");
+      return;
+    }
+    try {
+      const ackRes = await fetch(ECOSYSTEM.hubUrl + "/api/ecosystem/directives/ack", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          directiveId: directiveId,
+          platformId: ECOSYSTEM.platformId,
+          status: "acknowledged",
+          responseData: {
+            whatWasDone: whatWasDone,
+            evidenceUrl: evidenceUrl,
+            completedAt: new Date().toISOString(),
+          },
+        }),
+      });
+      const ackData = await ackRes.json();
+      console.log("[DONE] " + ackData.hubVerification.message);
+      console.log("[REMAINING] " + ackData.complianceUpdate.remaining + " directives left");
+      ECOSYSTEM.completedWork.push({ directiveId, whatWasDone, evidenceUrl, completedAt: new Date().toISOString() });
+      ECOSYSTEM.pendingTodos = ECOSYSTEM.pendingTodos.filter(t => t.directiveId !== directiveId);
+    } catch (err) {
+      console.error("[ERROR] Acknowledgment failed:", err.message);
+    }
+  }
+  // Example usage (after you actually build the feature):
+  // acknowledgeDirective("dir-abc123", "Built /voices-intake POST endpoint that accepts community stories and routes to LifeBridge", "https://myapp.replit.app/voices-intake");
   ```
 
   After adding this code: **re-publish your app immediately.** Dev and production are separate on Replit. If you only add this in dev, the published app never sends heartbeats.
@@ -1305,6 +1664,7 @@
     platformId: "safecognicare",
     apiKey: "tveco_a55eabd2e51e342f7e322b5d715864ed4b0355b2ef6bbf0ad02a7038af7e92ae",
     completedWork: [],
+    pendingTodos: [],
     blockers: [],
   };
 
@@ -1342,38 +1702,26 @@
       }
 
       if (data.pendingDirectives && data.pendingDirectives.length > 0) {
+        console.log("[TODO] === " + data.pendingDirectives.length + " NEW DIRECTIVE(S) — ACTION REQUIRED ===");
         for (const directive of data.pendingDirectives) {
-          console.log("[NEW] " + directive.title);
+          console.log("[TODO] Directive: " + directive.title);
+          console.log("[TODO] ID: " + directive.directiveId);
+          console.log("[TODO] What to do: " + (directive.description || directive.title));
+          console.log("[TODO] --- DO NOT auto-acknowledge. Build it first, then call acknowledgeDirective() below. ---");
 
-          const workDescription = "Implemented: " + directive.title;
-
-          ECOSYSTEM.completedWork.push({
+          ECOSYSTEM.pendingTodos.push({
             directiveId: directive.directiveId,
-            whatWasDone: workDescription,
-            evidenceUrl: "",
-            completedAt: new Date().toISOString(),
+            title: directive.title,
+            description: directive.description || directive.title,
+            receivedAt: new Date().toISOString(),
           });
-
-          const ackRes = await fetch(ECOSYSTEM.hubUrl + "/api/ecosystem/directives/ack", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              directiveId: directive.directiveId,
-              platformId: ECOSYSTEM.platformId,
-              status: "acknowledged",
-              responseData: { whatWasDone: workDescription },
-            }),
-          });
-          const ackData = await ackRes.json();
-          console.log("[CONFIRMED] " + ackData.hubVerification.message);
-          console.log("[REMAINING] " + ackData.complianceUpdate.remaining + " directives left");
         }
       }
 
       if (data.unacknowledgedDirectives && data.unacknowledgedDirectives.length > 0) {
-        console.log("[OVERDUE] " + data.unacknowledgedDirectives.length + " directives need action");
+        console.log("[OVERDUE] " + data.unacknowledgedDirectives.length + " directives still need action:");
         data.unacknowledgedDirectives.forEach(function(d) {
-          console.log("  - " + d.title);
+          console.log("[OVERDUE]   - " + d.title);
         });
       }
     } catch (err) {
@@ -1383,6 +1731,44 @@
 
   ecosystemHeartbeat();
   setInterval(ecosystemHeartbeat, 15 * 60 * 1000);
+
+  // CALL THIS ONLY AFTER YOU ACTUALLY BUILD WHAT THE DIRECTIVE ASKS.
+  // Do NOT call this automatically. Do the work first.
+  async function acknowledgeDirective(directiveId, whatWasDone, evidenceUrl) {
+    if (!whatWasDone || whatWasDone.startsWith("Implemented:")) {
+      console.error("[ERROR] Generic descriptions not accepted. Describe what you actually built.");
+      return;
+    }
+    if (!evidenceUrl || !evidenceUrl.startsWith("http")) {
+      console.error("[ERROR] You must provide a live evidence URL (https://...) proving the work exists.");
+      return;
+    }
+    try {
+      const ackRes = await fetch(ECOSYSTEM.hubUrl + "/api/ecosystem/directives/ack", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          directiveId: directiveId,
+          platformId: ECOSYSTEM.platformId,
+          status: "acknowledged",
+          responseData: {
+            whatWasDone: whatWasDone,
+            evidenceUrl: evidenceUrl,
+            completedAt: new Date().toISOString(),
+          },
+        }),
+      });
+      const ackData = await ackRes.json();
+      console.log("[DONE] " + ackData.hubVerification.message);
+      console.log("[REMAINING] " + ackData.complianceUpdate.remaining + " directives left");
+      ECOSYSTEM.completedWork.push({ directiveId, whatWasDone, evidenceUrl, completedAt: new Date().toISOString() });
+      ECOSYSTEM.pendingTodos = ECOSYSTEM.pendingTodos.filter(t => t.directiveId !== directiveId);
+    } catch (err) {
+      console.error("[ERROR] Acknowledgment failed:", err.message);
+    }
+  }
+  // Example usage (after you actually build the feature):
+  // acknowledgeDirective("dir-abc123", "Built /voices-intake POST endpoint that accepts community stories and routes to LifeBridge", "https://myapp.replit.app/voices-intake");
   ```
 
   After adding this code: **re-publish your app immediately.** Dev and production are separate on Replit. If you only add this in dev, the published app never sends heartbeats.
@@ -1408,6 +1794,7 @@
     platformId: "safereport",
     apiKey: "tveco_6b0ae857a8d70e434847c5edc92da19e8cbb1621e9ad9341715b2a95064e0676",
     completedWork: [],
+    pendingTodos: [],
     blockers: [],
   };
 
@@ -1445,38 +1832,26 @@
       }
 
       if (data.pendingDirectives && data.pendingDirectives.length > 0) {
+        console.log("[TODO] === " + data.pendingDirectives.length + " NEW DIRECTIVE(S) — ACTION REQUIRED ===");
         for (const directive of data.pendingDirectives) {
-          console.log("[NEW] " + directive.title);
+          console.log("[TODO] Directive: " + directive.title);
+          console.log("[TODO] ID: " + directive.directiveId);
+          console.log("[TODO] What to do: " + (directive.description || directive.title));
+          console.log("[TODO] --- DO NOT auto-acknowledge. Build it first, then call acknowledgeDirective() below. ---");
 
-          const workDescription = "Implemented: " + directive.title;
-
-          ECOSYSTEM.completedWork.push({
+          ECOSYSTEM.pendingTodos.push({
             directiveId: directive.directiveId,
-            whatWasDone: workDescription,
-            evidenceUrl: "",
-            completedAt: new Date().toISOString(),
+            title: directive.title,
+            description: directive.description || directive.title,
+            receivedAt: new Date().toISOString(),
           });
-
-          const ackRes = await fetch(ECOSYSTEM.hubUrl + "/api/ecosystem/directives/ack", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              directiveId: directive.directiveId,
-              platformId: ECOSYSTEM.platformId,
-              status: "acknowledged",
-              responseData: { whatWasDone: workDescription },
-            }),
-          });
-          const ackData = await ackRes.json();
-          console.log("[CONFIRMED] " + ackData.hubVerification.message);
-          console.log("[REMAINING] " + ackData.complianceUpdate.remaining + " directives left");
         }
       }
 
       if (data.unacknowledgedDirectives && data.unacknowledgedDirectives.length > 0) {
-        console.log("[OVERDUE] " + data.unacknowledgedDirectives.length + " directives need action");
+        console.log("[OVERDUE] " + data.unacknowledgedDirectives.length + " directives still need action:");
         data.unacknowledgedDirectives.forEach(function(d) {
-          console.log("  - " + d.title);
+          console.log("[OVERDUE]   - " + d.title);
         });
       }
     } catch (err) {
@@ -1486,6 +1861,44 @@
 
   ecosystemHeartbeat();
   setInterval(ecosystemHeartbeat, 15 * 60 * 1000);
+
+  // CALL THIS ONLY AFTER YOU ACTUALLY BUILD WHAT THE DIRECTIVE ASKS.
+  // Do NOT call this automatically. Do the work first.
+  async function acknowledgeDirective(directiveId, whatWasDone, evidenceUrl) {
+    if (!whatWasDone || whatWasDone.startsWith("Implemented:")) {
+      console.error("[ERROR] Generic descriptions not accepted. Describe what you actually built.");
+      return;
+    }
+    if (!evidenceUrl || !evidenceUrl.startsWith("http")) {
+      console.error("[ERROR] You must provide a live evidence URL (https://...) proving the work exists.");
+      return;
+    }
+    try {
+      const ackRes = await fetch(ECOSYSTEM.hubUrl + "/api/ecosystem/directives/ack", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          directiveId: directiveId,
+          platformId: ECOSYSTEM.platformId,
+          status: "acknowledged",
+          responseData: {
+            whatWasDone: whatWasDone,
+            evidenceUrl: evidenceUrl,
+            completedAt: new Date().toISOString(),
+          },
+        }),
+      });
+      const ackData = await ackRes.json();
+      console.log("[DONE] " + ackData.hubVerification.message);
+      console.log("[REMAINING] " + ackData.complianceUpdate.remaining + " directives left");
+      ECOSYSTEM.completedWork.push({ directiveId, whatWasDone, evidenceUrl, completedAt: new Date().toISOString() });
+      ECOSYSTEM.pendingTodos = ECOSYSTEM.pendingTodos.filter(t => t.directiveId !== directiveId);
+    } catch (err) {
+      console.error("[ERROR] Acknowledgment failed:", err.message);
+    }
+  }
+  // Example usage (after you actually build the feature):
+  // acknowledgeDirective("dir-abc123", "Built /voices-intake POST endpoint that accepts community stories and routes to LifeBridge", "https://myapp.replit.app/voices-intake");
   ```
 
   After adding this code: **re-publish your app immediately.** Dev and production are separate on Replit. If you only add this in dev, the published app never sends heartbeats.
@@ -1511,6 +1924,7 @@
     platformId: "sankofa",
     apiKey: "tveco_45a82277fb28b17e607db26d4b715083edb607a74573d4ba4701b3e9b36d7480",
     completedWork: [],
+    pendingTodos: [],
     blockers: [],
   };
 
@@ -1548,38 +1962,26 @@
       }
 
       if (data.pendingDirectives && data.pendingDirectives.length > 0) {
+        console.log("[TODO] === " + data.pendingDirectives.length + " NEW DIRECTIVE(S) — ACTION REQUIRED ===");
         for (const directive of data.pendingDirectives) {
-          console.log("[NEW] " + directive.title);
+          console.log("[TODO] Directive: " + directive.title);
+          console.log("[TODO] ID: " + directive.directiveId);
+          console.log("[TODO] What to do: " + (directive.description || directive.title));
+          console.log("[TODO] --- DO NOT auto-acknowledge. Build it first, then call acknowledgeDirective() below. ---");
 
-          const workDescription = "Implemented: " + directive.title;
-
-          ECOSYSTEM.completedWork.push({
+          ECOSYSTEM.pendingTodos.push({
             directiveId: directive.directiveId,
-            whatWasDone: workDescription,
-            evidenceUrl: "",
-            completedAt: new Date().toISOString(),
+            title: directive.title,
+            description: directive.description || directive.title,
+            receivedAt: new Date().toISOString(),
           });
-
-          const ackRes = await fetch(ECOSYSTEM.hubUrl + "/api/ecosystem/directives/ack", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              directiveId: directive.directiveId,
-              platformId: ECOSYSTEM.platformId,
-              status: "acknowledged",
-              responseData: { whatWasDone: workDescription },
-            }),
-          });
-          const ackData = await ackRes.json();
-          console.log("[CONFIRMED] " + ackData.hubVerification.message);
-          console.log("[REMAINING] " + ackData.complianceUpdate.remaining + " directives left");
         }
       }
 
       if (data.unacknowledgedDirectives && data.unacknowledgedDirectives.length > 0) {
-        console.log("[OVERDUE] " + data.unacknowledgedDirectives.length + " directives need action");
+        console.log("[OVERDUE] " + data.unacknowledgedDirectives.length + " directives still need action:");
         data.unacknowledgedDirectives.forEach(function(d) {
-          console.log("  - " + d.title);
+          console.log("[OVERDUE]   - " + d.title);
         });
       }
     } catch (err) {
@@ -1589,6 +1991,44 @@
 
   ecosystemHeartbeat();
   setInterval(ecosystemHeartbeat, 15 * 60 * 1000);
+
+  // CALL THIS ONLY AFTER YOU ACTUALLY BUILD WHAT THE DIRECTIVE ASKS.
+  // Do NOT call this automatically. Do the work first.
+  async function acknowledgeDirective(directiveId, whatWasDone, evidenceUrl) {
+    if (!whatWasDone || whatWasDone.startsWith("Implemented:")) {
+      console.error("[ERROR] Generic descriptions not accepted. Describe what you actually built.");
+      return;
+    }
+    if (!evidenceUrl || !evidenceUrl.startsWith("http")) {
+      console.error("[ERROR] You must provide a live evidence URL (https://...) proving the work exists.");
+      return;
+    }
+    try {
+      const ackRes = await fetch(ECOSYSTEM.hubUrl + "/api/ecosystem/directives/ack", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          directiveId: directiveId,
+          platformId: ECOSYSTEM.platformId,
+          status: "acknowledged",
+          responseData: {
+            whatWasDone: whatWasDone,
+            evidenceUrl: evidenceUrl,
+            completedAt: new Date().toISOString(),
+          },
+        }),
+      });
+      const ackData = await ackRes.json();
+      console.log("[DONE] " + ackData.hubVerification.message);
+      console.log("[REMAINING] " + ackData.complianceUpdate.remaining + " directives left");
+      ECOSYSTEM.completedWork.push({ directiveId, whatWasDone, evidenceUrl, completedAt: new Date().toISOString() });
+      ECOSYSTEM.pendingTodos = ECOSYSTEM.pendingTodos.filter(t => t.directiveId !== directiveId);
+    } catch (err) {
+      console.error("[ERROR] Acknowledgment failed:", err.message);
+    }
+  }
+  // Example usage (after you actually build the feature):
+  // acknowledgeDirective("dir-abc123", "Built /voices-intake POST endpoint that accepts community stories and routes to LifeBridge", "https://myapp.replit.app/voices-intake");
   ```
 
   After adding this code: **re-publish your app immediately.** Dev and production are separate on Replit. If you only add this in dev, the published app never sends heartbeats.
@@ -1614,6 +2054,7 @@
     platformId: "shield-atlas",
     apiKey: "tveco_2e228922bd33bc188d70f134364cce871e5be07fd62f986e3b52c541b472cbfc",
     completedWork: [],
+    pendingTodos: [],
     blockers: [],
   };
 
@@ -1651,38 +2092,26 @@
       }
 
       if (data.pendingDirectives && data.pendingDirectives.length > 0) {
+        console.log("[TODO] === " + data.pendingDirectives.length + " NEW DIRECTIVE(S) — ACTION REQUIRED ===");
         for (const directive of data.pendingDirectives) {
-          console.log("[NEW] " + directive.title);
+          console.log("[TODO] Directive: " + directive.title);
+          console.log("[TODO] ID: " + directive.directiveId);
+          console.log("[TODO] What to do: " + (directive.description || directive.title));
+          console.log("[TODO] --- DO NOT auto-acknowledge. Build it first, then call acknowledgeDirective() below. ---");
 
-          const workDescription = "Implemented: " + directive.title;
-
-          ECOSYSTEM.completedWork.push({
+          ECOSYSTEM.pendingTodos.push({
             directiveId: directive.directiveId,
-            whatWasDone: workDescription,
-            evidenceUrl: "",
-            completedAt: new Date().toISOString(),
+            title: directive.title,
+            description: directive.description || directive.title,
+            receivedAt: new Date().toISOString(),
           });
-
-          const ackRes = await fetch(ECOSYSTEM.hubUrl + "/api/ecosystem/directives/ack", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              directiveId: directive.directiveId,
-              platformId: ECOSYSTEM.platformId,
-              status: "acknowledged",
-              responseData: { whatWasDone: workDescription },
-            }),
-          });
-          const ackData = await ackRes.json();
-          console.log("[CONFIRMED] " + ackData.hubVerification.message);
-          console.log("[REMAINING] " + ackData.complianceUpdate.remaining + " directives left");
         }
       }
 
       if (data.unacknowledgedDirectives && data.unacknowledgedDirectives.length > 0) {
-        console.log("[OVERDUE] " + data.unacknowledgedDirectives.length + " directives need action");
+        console.log("[OVERDUE] " + data.unacknowledgedDirectives.length + " directives still need action:");
         data.unacknowledgedDirectives.forEach(function(d) {
-          console.log("  - " + d.title);
+          console.log("[OVERDUE]   - " + d.title);
         });
       }
     } catch (err) {
@@ -1692,6 +2121,44 @@
 
   ecosystemHeartbeat();
   setInterval(ecosystemHeartbeat, 15 * 60 * 1000);
+
+  // CALL THIS ONLY AFTER YOU ACTUALLY BUILD WHAT THE DIRECTIVE ASKS.
+  // Do NOT call this automatically. Do the work first.
+  async function acknowledgeDirective(directiveId, whatWasDone, evidenceUrl) {
+    if (!whatWasDone || whatWasDone.startsWith("Implemented:")) {
+      console.error("[ERROR] Generic descriptions not accepted. Describe what you actually built.");
+      return;
+    }
+    if (!evidenceUrl || !evidenceUrl.startsWith("http")) {
+      console.error("[ERROR] You must provide a live evidence URL (https://...) proving the work exists.");
+      return;
+    }
+    try {
+      const ackRes = await fetch(ECOSYSTEM.hubUrl + "/api/ecosystem/directives/ack", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          directiveId: directiveId,
+          platformId: ECOSYSTEM.platformId,
+          status: "acknowledged",
+          responseData: {
+            whatWasDone: whatWasDone,
+            evidenceUrl: evidenceUrl,
+            completedAt: new Date().toISOString(),
+          },
+        }),
+      });
+      const ackData = await ackRes.json();
+      console.log("[DONE] " + ackData.hubVerification.message);
+      console.log("[REMAINING] " + ackData.complianceUpdate.remaining + " directives left");
+      ECOSYSTEM.completedWork.push({ directiveId, whatWasDone, evidenceUrl, completedAt: new Date().toISOString() });
+      ECOSYSTEM.pendingTodos = ECOSYSTEM.pendingTodos.filter(t => t.directiveId !== directiveId);
+    } catch (err) {
+      console.error("[ERROR] Acknowledgment failed:", err.message);
+    }
+  }
+  // Example usage (after you actually build the feature):
+  // acknowledgeDirective("dir-abc123", "Built /voices-intake POST endpoint that accepts community stories and routes to LifeBridge", "https://myapp.replit.app/voices-intake");
   ```
 
   After adding this code: **re-publish your app immediately.** Dev and production are separate on Replit. If you only add this in dev, the published app never sends heartbeats.
@@ -1717,6 +2184,7 @@
     platformId: "collaborative-advocate",
     apiKey: "tveco_8ecb04e39e03b6ab5d2a42d292ab84baea248b58d1ffa26b2a345085f844018c",
     completedWork: [],
+    pendingTodos: [],
     blockers: [],
   };
 
@@ -1754,38 +2222,26 @@
       }
 
       if (data.pendingDirectives && data.pendingDirectives.length > 0) {
+        console.log("[TODO] === " + data.pendingDirectives.length + " NEW DIRECTIVE(S) — ACTION REQUIRED ===");
         for (const directive of data.pendingDirectives) {
-          console.log("[NEW] " + directive.title);
+          console.log("[TODO] Directive: " + directive.title);
+          console.log("[TODO] ID: " + directive.directiveId);
+          console.log("[TODO] What to do: " + (directive.description || directive.title));
+          console.log("[TODO] --- DO NOT auto-acknowledge. Build it first, then call acknowledgeDirective() below. ---");
 
-          const workDescription = "Implemented: " + directive.title;
-
-          ECOSYSTEM.completedWork.push({
+          ECOSYSTEM.pendingTodos.push({
             directiveId: directive.directiveId,
-            whatWasDone: workDescription,
-            evidenceUrl: "",
-            completedAt: new Date().toISOString(),
+            title: directive.title,
+            description: directive.description || directive.title,
+            receivedAt: new Date().toISOString(),
           });
-
-          const ackRes = await fetch(ECOSYSTEM.hubUrl + "/api/ecosystem/directives/ack", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              directiveId: directive.directiveId,
-              platformId: ECOSYSTEM.platformId,
-              status: "acknowledged",
-              responseData: { whatWasDone: workDescription },
-            }),
-          });
-          const ackData = await ackRes.json();
-          console.log("[CONFIRMED] " + ackData.hubVerification.message);
-          console.log("[REMAINING] " + ackData.complianceUpdate.remaining + " directives left");
         }
       }
 
       if (data.unacknowledgedDirectives && data.unacknowledgedDirectives.length > 0) {
-        console.log("[OVERDUE] " + data.unacknowledgedDirectives.length + " directives need action");
+        console.log("[OVERDUE] " + data.unacknowledgedDirectives.length + " directives still need action:");
         data.unacknowledgedDirectives.forEach(function(d) {
-          console.log("  - " + d.title);
+          console.log("[OVERDUE]   - " + d.title);
         });
       }
     } catch (err) {
@@ -1795,6 +2251,44 @@
 
   ecosystemHeartbeat();
   setInterval(ecosystemHeartbeat, 15 * 60 * 1000);
+
+  // CALL THIS ONLY AFTER YOU ACTUALLY BUILD WHAT THE DIRECTIVE ASKS.
+  // Do NOT call this automatically. Do the work first.
+  async function acknowledgeDirective(directiveId, whatWasDone, evidenceUrl) {
+    if (!whatWasDone || whatWasDone.startsWith("Implemented:")) {
+      console.error("[ERROR] Generic descriptions not accepted. Describe what you actually built.");
+      return;
+    }
+    if (!evidenceUrl || !evidenceUrl.startsWith("http")) {
+      console.error("[ERROR] You must provide a live evidence URL (https://...) proving the work exists.");
+      return;
+    }
+    try {
+      const ackRes = await fetch(ECOSYSTEM.hubUrl + "/api/ecosystem/directives/ack", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          directiveId: directiveId,
+          platformId: ECOSYSTEM.platformId,
+          status: "acknowledged",
+          responseData: {
+            whatWasDone: whatWasDone,
+            evidenceUrl: evidenceUrl,
+            completedAt: new Date().toISOString(),
+          },
+        }),
+      });
+      const ackData = await ackRes.json();
+      console.log("[DONE] " + ackData.hubVerification.message);
+      console.log("[REMAINING] " + ackData.complianceUpdate.remaining + " directives left");
+      ECOSYSTEM.completedWork.push({ directiveId, whatWasDone, evidenceUrl, completedAt: new Date().toISOString() });
+      ECOSYSTEM.pendingTodos = ECOSYSTEM.pendingTodos.filter(t => t.directiveId !== directiveId);
+    } catch (err) {
+      console.error("[ERROR] Acknowledgment failed:", err.message);
+    }
+  }
+  // Example usage (after you actually build the feature):
+  // acknowledgeDirective("dir-abc123", "Built /voices-intake POST endpoint that accepts community stories and routes to LifeBridge", "https://myapp.replit.app/voices-intake");
   ```
 
   After adding this code: **re-publish your app immediately.** Dev and production are separate on Replit. If you only add this in dev, the published app never sends heartbeats.
@@ -1820,6 +2314,7 @@
     platformId: "video-creator-ai",
     apiKey: "tveco_ecd574cce2eac0f7620974624d4530a02f2dc10fb41a5eae59baf8af9bf1e272",
     completedWork: [],
+    pendingTodos: [],
     blockers: [],
   };
 
@@ -1857,38 +2352,26 @@
       }
 
       if (data.pendingDirectives && data.pendingDirectives.length > 0) {
+        console.log("[TODO] === " + data.pendingDirectives.length + " NEW DIRECTIVE(S) — ACTION REQUIRED ===");
         for (const directive of data.pendingDirectives) {
-          console.log("[NEW] " + directive.title);
+          console.log("[TODO] Directive: " + directive.title);
+          console.log("[TODO] ID: " + directive.directiveId);
+          console.log("[TODO] What to do: " + (directive.description || directive.title));
+          console.log("[TODO] --- DO NOT auto-acknowledge. Build it first, then call acknowledgeDirective() below. ---");
 
-          const workDescription = "Implemented: " + directive.title;
-
-          ECOSYSTEM.completedWork.push({
+          ECOSYSTEM.pendingTodos.push({
             directiveId: directive.directiveId,
-            whatWasDone: workDescription,
-            evidenceUrl: "",
-            completedAt: new Date().toISOString(),
+            title: directive.title,
+            description: directive.description || directive.title,
+            receivedAt: new Date().toISOString(),
           });
-
-          const ackRes = await fetch(ECOSYSTEM.hubUrl + "/api/ecosystem/directives/ack", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              directiveId: directive.directiveId,
-              platformId: ECOSYSTEM.platformId,
-              status: "acknowledged",
-              responseData: { whatWasDone: workDescription },
-            }),
-          });
-          const ackData = await ackRes.json();
-          console.log("[CONFIRMED] " + ackData.hubVerification.message);
-          console.log("[REMAINING] " + ackData.complianceUpdate.remaining + " directives left");
         }
       }
 
       if (data.unacknowledgedDirectives && data.unacknowledgedDirectives.length > 0) {
-        console.log("[OVERDUE] " + data.unacknowledgedDirectives.length + " directives need action");
+        console.log("[OVERDUE] " + data.unacknowledgedDirectives.length + " directives still need action:");
         data.unacknowledgedDirectives.forEach(function(d) {
-          console.log("  - " + d.title);
+          console.log("[OVERDUE]   - " + d.title);
         });
       }
     } catch (err) {
@@ -1898,6 +2381,44 @@
 
   ecosystemHeartbeat();
   setInterval(ecosystemHeartbeat, 15 * 60 * 1000);
+
+  // CALL THIS ONLY AFTER YOU ACTUALLY BUILD WHAT THE DIRECTIVE ASKS.
+  // Do NOT call this automatically. Do the work first.
+  async function acknowledgeDirective(directiveId, whatWasDone, evidenceUrl) {
+    if (!whatWasDone || whatWasDone.startsWith("Implemented:")) {
+      console.error("[ERROR] Generic descriptions not accepted. Describe what you actually built.");
+      return;
+    }
+    if (!evidenceUrl || !evidenceUrl.startsWith("http")) {
+      console.error("[ERROR] You must provide a live evidence URL (https://...) proving the work exists.");
+      return;
+    }
+    try {
+      const ackRes = await fetch(ECOSYSTEM.hubUrl + "/api/ecosystem/directives/ack", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          directiveId: directiveId,
+          platformId: ECOSYSTEM.platformId,
+          status: "acknowledged",
+          responseData: {
+            whatWasDone: whatWasDone,
+            evidenceUrl: evidenceUrl,
+            completedAt: new Date().toISOString(),
+          },
+        }),
+      });
+      const ackData = await ackRes.json();
+      console.log("[DONE] " + ackData.hubVerification.message);
+      console.log("[REMAINING] " + ackData.complianceUpdate.remaining + " directives left");
+      ECOSYSTEM.completedWork.push({ directiveId, whatWasDone, evidenceUrl, completedAt: new Date().toISOString() });
+      ECOSYSTEM.pendingTodos = ECOSYSTEM.pendingTodos.filter(t => t.directiveId !== directiveId);
+    } catch (err) {
+      console.error("[ERROR] Acknowledgment failed:", err.message);
+    }
+  }
+  // Example usage (after you actually build the feature):
+  // acknowledgeDirective("dir-abc123", "Built /voices-intake POST endpoint that accepts community stories and routes to LifeBridge", "https://myapp.replit.app/voices-intake");
   ```
 
   After adding this code: **re-publish your app immediately.** Dev and production are separate on Replit. If you only add this in dev, the published app never sends heartbeats.
@@ -1923,6 +2444,7 @@
     platformId: "whole-person-health",
     apiKey: "tveco_4c4e4a57d0c6b4273870f88062586af4d35d7fbf4edf1e025623ab19d1e7bcdb",
     completedWork: [],
+    pendingTodos: [],
     blockers: [],
   };
 
@@ -1960,38 +2482,26 @@
       }
 
       if (data.pendingDirectives && data.pendingDirectives.length > 0) {
+        console.log("[TODO] === " + data.pendingDirectives.length + " NEW DIRECTIVE(S) — ACTION REQUIRED ===");
         for (const directive of data.pendingDirectives) {
-          console.log("[NEW] " + directive.title);
+          console.log("[TODO] Directive: " + directive.title);
+          console.log("[TODO] ID: " + directive.directiveId);
+          console.log("[TODO] What to do: " + (directive.description || directive.title));
+          console.log("[TODO] --- DO NOT auto-acknowledge. Build it first, then call acknowledgeDirective() below. ---");
 
-          const workDescription = "Implemented: " + directive.title;
-
-          ECOSYSTEM.completedWork.push({
+          ECOSYSTEM.pendingTodos.push({
             directiveId: directive.directiveId,
-            whatWasDone: workDescription,
-            evidenceUrl: "",
-            completedAt: new Date().toISOString(),
+            title: directive.title,
+            description: directive.description || directive.title,
+            receivedAt: new Date().toISOString(),
           });
-
-          const ackRes = await fetch(ECOSYSTEM.hubUrl + "/api/ecosystem/directives/ack", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              directiveId: directive.directiveId,
-              platformId: ECOSYSTEM.platformId,
-              status: "acknowledged",
-              responseData: { whatWasDone: workDescription },
-            }),
-          });
-          const ackData = await ackRes.json();
-          console.log("[CONFIRMED] " + ackData.hubVerification.message);
-          console.log("[REMAINING] " + ackData.complianceUpdate.remaining + " directives left");
         }
       }
 
       if (data.unacknowledgedDirectives && data.unacknowledgedDirectives.length > 0) {
-        console.log("[OVERDUE] " + data.unacknowledgedDirectives.length + " directives need action");
+        console.log("[OVERDUE] " + data.unacknowledgedDirectives.length + " directives still need action:");
         data.unacknowledgedDirectives.forEach(function(d) {
-          console.log("  - " + d.title);
+          console.log("[OVERDUE]   - " + d.title);
         });
       }
     } catch (err) {
@@ -2001,6 +2511,44 @@
 
   ecosystemHeartbeat();
   setInterval(ecosystemHeartbeat, 15 * 60 * 1000);
+
+  // CALL THIS ONLY AFTER YOU ACTUALLY BUILD WHAT THE DIRECTIVE ASKS.
+  // Do NOT call this automatically. Do the work first.
+  async function acknowledgeDirective(directiveId, whatWasDone, evidenceUrl) {
+    if (!whatWasDone || whatWasDone.startsWith("Implemented:")) {
+      console.error("[ERROR] Generic descriptions not accepted. Describe what you actually built.");
+      return;
+    }
+    if (!evidenceUrl || !evidenceUrl.startsWith("http")) {
+      console.error("[ERROR] You must provide a live evidence URL (https://...) proving the work exists.");
+      return;
+    }
+    try {
+      const ackRes = await fetch(ECOSYSTEM.hubUrl + "/api/ecosystem/directives/ack", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          directiveId: directiveId,
+          platformId: ECOSYSTEM.platformId,
+          status: "acknowledged",
+          responseData: {
+            whatWasDone: whatWasDone,
+            evidenceUrl: evidenceUrl,
+            completedAt: new Date().toISOString(),
+          },
+        }),
+      });
+      const ackData = await ackRes.json();
+      console.log("[DONE] " + ackData.hubVerification.message);
+      console.log("[REMAINING] " + ackData.complianceUpdate.remaining + " directives left");
+      ECOSYSTEM.completedWork.push({ directiveId, whatWasDone, evidenceUrl, completedAt: new Date().toISOString() });
+      ECOSYSTEM.pendingTodos = ECOSYSTEM.pendingTodos.filter(t => t.directiveId !== directiveId);
+    } catch (err) {
+      console.error("[ERROR] Acknowledgment failed:", err.message);
+    }
+  }
+  // Example usage (after you actually build the feature):
+  // acknowledgeDirective("dir-abc123", "Built /voices-intake POST endpoint that accepts community stories and routes to LifeBridge", "https://myapp.replit.app/voices-intake");
   ```
 
   After adding this code: **re-publish your app immediately.** Dev and production are separate on Replit. If you only add this in dev, the published app never sends heartbeats.
@@ -2026,6 +2574,7 @@
     platformId: "wholemind",
     apiKey: "tveco_41fd54dcc7837686ea09e02a69b79d1b82d9efd16452a40ec05d3c97401ba006",
     completedWork: [],
+    pendingTodos: [],
     blockers: [],
   };
 
@@ -2063,38 +2612,26 @@
       }
 
       if (data.pendingDirectives && data.pendingDirectives.length > 0) {
+        console.log("[TODO] === " + data.pendingDirectives.length + " NEW DIRECTIVE(S) — ACTION REQUIRED ===");
         for (const directive of data.pendingDirectives) {
-          console.log("[NEW] " + directive.title);
+          console.log("[TODO] Directive: " + directive.title);
+          console.log("[TODO] ID: " + directive.directiveId);
+          console.log("[TODO] What to do: " + (directive.description || directive.title));
+          console.log("[TODO] --- DO NOT auto-acknowledge. Build it first, then call acknowledgeDirective() below. ---");
 
-          const workDescription = "Implemented: " + directive.title;
-
-          ECOSYSTEM.completedWork.push({
+          ECOSYSTEM.pendingTodos.push({
             directiveId: directive.directiveId,
-            whatWasDone: workDescription,
-            evidenceUrl: "",
-            completedAt: new Date().toISOString(),
+            title: directive.title,
+            description: directive.description || directive.title,
+            receivedAt: new Date().toISOString(),
           });
-
-          const ackRes = await fetch(ECOSYSTEM.hubUrl + "/api/ecosystem/directives/ack", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              directiveId: directive.directiveId,
-              platformId: ECOSYSTEM.platformId,
-              status: "acknowledged",
-              responseData: { whatWasDone: workDescription },
-            }),
-          });
-          const ackData = await ackRes.json();
-          console.log("[CONFIRMED] " + ackData.hubVerification.message);
-          console.log("[REMAINING] " + ackData.complianceUpdate.remaining + " directives left");
         }
       }
 
       if (data.unacknowledgedDirectives && data.unacknowledgedDirectives.length > 0) {
-        console.log("[OVERDUE] " + data.unacknowledgedDirectives.length + " directives need action");
+        console.log("[OVERDUE] " + data.unacknowledgedDirectives.length + " directives still need action:");
         data.unacknowledgedDirectives.forEach(function(d) {
-          console.log("  - " + d.title);
+          console.log("[OVERDUE]   - " + d.title);
         });
       }
     } catch (err) {
@@ -2104,6 +2641,44 @@
 
   ecosystemHeartbeat();
   setInterval(ecosystemHeartbeat, 15 * 60 * 1000);
+
+  // CALL THIS ONLY AFTER YOU ACTUALLY BUILD WHAT THE DIRECTIVE ASKS.
+  // Do NOT call this automatically. Do the work first.
+  async function acknowledgeDirective(directiveId, whatWasDone, evidenceUrl) {
+    if (!whatWasDone || whatWasDone.startsWith("Implemented:")) {
+      console.error("[ERROR] Generic descriptions not accepted. Describe what you actually built.");
+      return;
+    }
+    if (!evidenceUrl || !evidenceUrl.startsWith("http")) {
+      console.error("[ERROR] You must provide a live evidence URL (https://...) proving the work exists.");
+      return;
+    }
+    try {
+      const ackRes = await fetch(ECOSYSTEM.hubUrl + "/api/ecosystem/directives/ack", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          directiveId: directiveId,
+          platformId: ECOSYSTEM.platformId,
+          status: "acknowledged",
+          responseData: {
+            whatWasDone: whatWasDone,
+            evidenceUrl: evidenceUrl,
+            completedAt: new Date().toISOString(),
+          },
+        }),
+      });
+      const ackData = await ackRes.json();
+      console.log("[DONE] " + ackData.hubVerification.message);
+      console.log("[REMAINING] " + ackData.complianceUpdate.remaining + " directives left");
+      ECOSYSTEM.completedWork.push({ directiveId, whatWasDone, evidenceUrl, completedAt: new Date().toISOString() });
+      ECOSYSTEM.pendingTodos = ECOSYSTEM.pendingTodos.filter(t => t.directiveId !== directiveId);
+    } catch (err) {
+      console.error("[ERROR] Acknowledgment failed:", err.message);
+    }
+  }
+  // Example usage (after you actually build the feature):
+  // acknowledgeDirective("dir-abc123", "Built /voices-intake POST endpoint that accepts community stories and routes to LifeBridge", "https://myapp.replit.app/voices-intake");
   ```
 
   After adding this code: **re-publish your app immediately.** Dev and production are separate on Replit. If you only add this in dev, the published app never sends heartbeats.

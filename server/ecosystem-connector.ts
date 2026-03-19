@@ -5,6 +5,7 @@ import { eq, desc, and, gte, sql, inArray } from "drizzle-orm";
 import crypto from "crypto";
 import { z } from "zod";
 import { seedEcosystemDirectives } from "./ecosystem-directives-seed";
+import { sendEcosystemUpdate } from "./email-service";
 
 const heartbeatSchema = z.object({
   platformId: z.string().max(100).optional(),
@@ -419,6 +420,45 @@ export function registerEcosystemConnectorRoutes(app: Express) {
         }
       }
       await seedEcosystemDirectives();
+
+      const v41DirectiveExists = await db.select().from(ecosystemDirectives).where(eq(ecosystemDirectives.title, "URGENT: Update Connector Code — Stop Auto-Acknowledging Directives"));
+      const v41Acks = v41DirectiveExists.length > 0 ? await db.select().from(ecosystemDirectiveAcks).where(and(eq(ecosystemDirectiveAcks.directiveId, v41DirectiveExists[0].id), eq(ecosystemDirectiveAcks.status, "pending"))) : [];
+      const shouldNotify = v41DirectiveExists.length > 0 && v41Acks.length > 15;
+
+      if (shouldNotify) sendEcosystemUpdate(
+        "Connector Code Updated to v4.1 — Platforms Must Stop Auto-Acknowledging",
+        `<h2>Ecosystem Update: Connection Instructions v4.1</h2>
+        <p>A critical update has been pushed to all 20 platforms via directive.</p>
+        <h3>What Changed</h3>
+        <p>The old connector code auto-acknowledged every directive the moment it arrived with a fake "Implemented: {title}" message. Platforms were handshaking but never actually doing the work.</p>
+        <h3>What's New in v4.1</h3>
+        <ul>
+          <li>Connector code no longer auto-acknowledges directives</li>
+          <li>Directives are logged as <strong>[TODO]</strong> items requiring actual implementation</li>
+          <li>Platforms must call <code>acknowledgeDirective()</code> only AFTER building what was asked</li>
+          <li>Every acknowledgment now requires a <strong>real description</strong> and a <strong>live evidence URL</strong></li>
+          <li>The hub actively pings evidence URLs — fake ones are flagged as FAILED</li>
+        </ul>
+        <h3>Dissemination</h3>
+        <ul>
+          <li>New directive pushed to all 20 platforms: "URGENT: Update Connector Code — Stop Auto-Acknowledging Directives"</li>
+          <li>Updated connection instructions doc (v4.1) available at the integration doc endpoint</li>
+          <li>Wake-up ping sent to all platforms to force delivery</li>
+          <li>Platforms will receive the directive on their next heartbeat (within 15 minutes)</li>
+        </ul>
+        <h3>Intelligence Engine (Also New)</h3>
+        <ul>
+          <li><strong>Work Chaining:</strong> Completed work auto-routes to downstream platforms</li>
+          <li><strong>Deliverable Verification:</strong> Hub pings evidence URLs to verify claimed work</li>
+          <li><strong>Grant Readiness:</strong> Per-grant compliance scores for DFC, WIOA, Foundation, St. David's, SSG Fox</li>
+          <li><strong>Intelligence Dashboard:</strong> New tabs on Ops Center showing fidelity grades, due-outs, needs-attention</li>
+        </ul>
+        <p>— ThriveUp Ecosystem Hub</p>`
+      ).then(() => {
+        console.log("[Ecosystem] Update notification email sent to admin");
+      }).catch((err) => {
+        console.log("[Ecosystem] Email notification skipped (connector may not be available in dev):", err.message);
+      });
     } catch (err) {
       console.error("[Ecosystem] Auto-sync failed:", err);
     }

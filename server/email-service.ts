@@ -100,6 +100,16 @@ export async function sendGrantAlert(
   });
 }
 
+export async function sendEcosystemUpdate(subject: string, htmlContent: string) {
+  const { client, fromEmail } = await getResendClient();
+  await client.emails.send({
+    from: fromEmail,
+    to: ADMIN_EMAIL,
+    subject: `[Ecosystem] ${subject}`,
+    html: htmlContent,
+  });
+}
+
 export async function sendWelcomeEmail(email: string, name: string) {
   const { client, fromEmail } = await getResendClient();
   await client.emails.send({

@@ -12,6 +12,38 @@ interface DirectiveSeed {
 
 const ECOSYSTEM_DIRECTIVES: DirectiveSeed[] = [
   {
+    key: "connector-v41-no-auto-ack",
+    title: "URGENT: Update Connector Code — Stop Auto-Acknowledging Directives",
+    directiveType: "protocol_update",
+    targetFilter: "all",
+    content: `CRITICAL UPDATE — Connector Code v4.1
+
+The old connector code auto-acknowledged every directive the moment it arrived with a fake "Implemented: {title}" message. This created the illusion of compliance while no real work was done. This must stop immediately.
+
+WHAT YOU MUST DO:
+1. Go to your ecosystem connector code (the ecosystemHeartbeat function)
+2. REMOVE any code that auto-acknowledges directives on receipt
+3. REPLACE it with the updated v4.1 connector code from the connection instructions
+4. The new code logs directives as [TODO] items instead of auto-acking
+
+HOW ACKNOWLEDGMENT WORKS NOW:
+- When a directive arrives, your connector logs it as a TODO
+- You (or your agent) must actually BUILD what the directive asks
+- Only AFTER the work is done, call acknowledgeDirective() with:
+  * A REAL description of what you built (not "Implemented: {title}")
+  * A LIVE evidence URL proving the work exists
+- The hub will ping your evidence URL — if it returns 200, you get VERIFIED credit
+- If it's dead or missing, you get UNVERIFIED or FAILED
+
+WHAT DOES NOT COUNT:
+- "Implemented: Add warm handoff protocol" with no evidence → REJECTED
+- Auto-acknowledging without building anything → WILL BE FLAGGED
+- Empty evidenceUrl fields → UNVERIFIED status
+
+Updated connection instructions are at: https://thrivingcommunitiesforall.com/api/ecosystem/integration-doc-public
+Re-publish your app after updating the connector code.`,
+  },
+  {
     key: "vision-alignment-v1",
     title: "Ecosystem Vision & Mission Alignment",
     directiveType: "protocol_update",
