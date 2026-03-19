@@ -1,20 +1,23 @@
 import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Progress } from "@/components/ui/progress";
 import { PageHeader } from "@/components/page-header";
 import {
   Globe, Activity, CheckCircle2, XCircle, AlertTriangle,
   Clock, ArrowRight, ExternalLink, RefreshCw, Wifi, WifiOff,
   Zap, Shield, Heart, Briefcase, GraduationCap, Brain,
   MapPin, BarChart3, Send, Users, Building2, Printer,
-  Stethoscope, Play, Mic, ChevronRight, Radio,
+  Stethoscope, Play, Mic, ChevronRight, Radio, Power,
+  BellRing, Volume2,
 } from "lucide-react";
 import { BackToTop } from "@/components/back-to-top";
-import { queryClient } from "@/lib/queryClient";
+import { queryClient, apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 interface PlatformStatus {
   id: string;

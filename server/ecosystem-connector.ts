@@ -738,6 +738,112 @@ export function registerEcosystemConnectorRoutes(app: Express) {
     }
   });
 
+  app.post("/api/ecosystem/wake-up", async (req, res) => {
+    try {
+      const { platformIds } = req.body || {};
+      const platforms = await db.select().from(ecosystemPlatforms);
+      const targets = platformIds && Array.isArray(platformIds) && platformIds.length > 0
+        ? platforms.filter(p => platformIds.includes(p.id))
+        : platforms;
+
+      const results = [];
+
+      const wakePromises = targets.map(async (platform) => {
+        const startTime = Date.now();
+        let status = "failed";
+        let statusCode = 0;
+        let errorMessage: string | null = null;
+        let responseTimeMs = 0;
+        let wakeAttempts = 0;
+
+        for (let attempt = 1; attempt <= 2; attempt++) {
+          wakeAttempts = attempt;
+          try {
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 15000);
+            const response = await fetch(platform.url, {
+              method: "GET",
+              signal: controller.signal,
+              redirect: "follow",
+              headers: {
+                "User-Agent": "ThriveUp-Ecosystem-WakeUp/1.0",
+                "Accept": "text/html,application/json",
+              },
+            });
+            clearTimeout(timeout);
+            responseTimeMs = Date.now() - startTime;
+            statusCode = response.status;
+
+            if (response.ok) {
+              status = "awake";
+              break;
+            } else {
+              status = "responded";
+              if (attempt < 2) {
+                await new Promise(r => setTimeout(r, 2000));
+              }
+            }
+          } catch (err: any) {
+            responseTimeMs = Date.now() - startTime;
+            errorMessage = err.name === "AbortError" ? "Timeout (15s)" : (err.message || "Connection failed");
+            status = "failed";
+            if (attempt < 2) {
+              await new Promise(r => setTimeout(r, 3000));
+            }
+          }
+        }
+
+        if (status === "awake" || status === "responded") {
+          await db.update(ecosystemPlatforms)
+            .set({ healthStatus: status === "awake" ? "online" : "degraded", lastHealthCheck: new Date() })
+            .where(eq(ecosystemPlatforms.id, platform.id));
+
+          await db.insert(ecosystemHealthLogs).values({
+            platformId: platform.id,
+            status: status === "awake" ? "online" : "degraded",
+            responseTimeMs,
+            statusCode,
+            errorMessage: null,
+          });
+        }
+
+        return {
+          id: platform.id,
+          name: platform.name,
+          url: platform.url,
+          status,
+          responseTimeMs,
+          statusCode,
+          errorMessage,
+          wakeAttempts,
+        };
+      });
+
+      const wakeResults = await Promise.allSettled(wakePromises);
+      for (const result of wakeResults) {
+        if (result.status === "fulfilled") {
+          results.push(result.value);
+        }
+      }
+
+      const awake = results.filter(r => r.status === "awake").length;
+      const responded = results.filter(r => r.status === "responded").length;
+      const failed = results.filter(r => r.status === "failed").length;
+
+      res.json({
+        wokenAt: new Date().toISOString(),
+        summary: { targeted: results.length, awake, responded, failed },
+        platforms: results.sort((a, b) => {
+          const order: Record<string, number> = { awake: 0, responded: 1, failed: 2 };
+          return (order[a.status] || 2) - (order[b.status] || 2);
+        }),
+      });
+    } catch (error) {
+      console.error("Wake-up failed:", error);
+      res.status(500).json({ error: "Wake-up failed" });
+    }
+  });
+
   app.get("/api/ecosystem/live-status", async (_req, res) => {
     try {
       const platforms = await db.select().from(ecosystemPlatforms);
