@@ -61,24 +61,6 @@ const ECOSYSTEM_PLATFORMS = [
     grantAlignment: ["ssg-fox", "samhsa", "st-davids", "dfc", "wioa"],
   },
   {
-    id: "mission-transition",
-    name: "Mission Transition",
-    url: "https://mission-transition--mrterryflood.replit.app",
-    role: "transition",
-    domain: "veterans",
-    description: "Covers the highest-risk period — military-to-civilian transition. Career translation, benefits navigation, housing/financial planning, identity transition support.",
-    capabilities: {
-      features: ["Transition Timeline", "MOS/AFSC Translation", "Benefits Navigation", "Housing Planning", "Community Connection", "Identity Support"],
-      targetPopulation: "Active duty approaching separation, recently separated (0-24 months), Guard/Reserve, military spouses",
-      riskWindow: "First 12 months post-separation — highest suicide risk period",
-    },
-    dataFlowConfig: {
-      sends: ["transition_milestones", "separation_timeline", "benefits_enrollment", "career_matches"],
-      receives: ["screening_results", "crisis_alerts", "workforce_pathways", "life_event_triggers"],
-    },
-    grantAlignment: ["ssg-fox", "wioa"],
-  },
-  {
     id: "isss",
     name: "ISSS — Integrated Supports for Thriving Youth",
     url: "https://implementationineducatio.com",
@@ -229,17 +211,19 @@ const ECOSYSTEM_PLATFORMS = [
   },
   {
     id: "m2c",
-    name: "M2C Transition",
+    name: "Mission Transition (M2C)",
     url: "https://vetmissiontransition.com",
     role: "veteran-transition",
     domain: "veterans",
-    description: "Free veteran support platform for military-to-civilian transition. Transition planning, benefits guidance, military skills translation, community connections, family support.",
+    description: "Covers the full military-to-civilian transition. Career translation, benefits navigation, housing/financial planning, identity transition support, skills assessment, community connections, family support.",
     capabilities: {
-      features: ["Transition Planning Tools", "Benefits Guidance", "Military Skills Translation", "Community Connections", "Military Family Support", "Resource Curation"],
+      features: ["Transition Timeline", "MOS/AFSC Translation", "Benefits Navigation", "Housing Planning", "Community Connection", "Identity Support", "Transition Planning Tools", "Military Skills Translation", "Military Family Support"],
+      targetPopulation: "Active duty approaching separation, recently separated (0-24 months), Guard/Reserve, military spouses",
+      riskWindow: "First 12 months post-separation — highest suicide risk period",
     },
     dataFlowConfig: {
-      sends: ["transition_plans", "skills_assessments", "benefits_status", "community_referrals"],
-      receives: ["workforce_pathways", "health_screenings", "crisis_alerts", "family_support_data"],
+      sends: ["transition_plans", "skills_assessments", "benefits_status", "community_referrals", "transition_milestones", "separation_timeline", "benefits_enrollment", "career_matches"],
+      receives: ["workforce_pathways", "health_screenings", "crisis_alerts", "family_support_data", "screening_results", "life_event_triggers"],
     },
     grantAlignment: ["ssg-fox", "wioa"],
   },
@@ -1986,19 +1970,19 @@ if (typeof module !== "undefined") {
           saas: "Minority Center of Excellence (MCE) — Minority business SaaS",
         },
         grantLenses: {
-          "ssg-fox": { name: "SSG Fox VA Suicide Prevention", amount: "Up to $750K", deadline: "June 12-18, 2026", platforms: ["whole-person-health", "mission-transition", "m2c", "lifebridge", "sankofa", "safecognicare", "pillscheduler", "betterscience"] },
+          "ssg-fox": { name: "SSG Fox VA Suicide Prevention", amount: "Up to $750K", deadline: "June 12-18, 2026", platforms: ["whole-person-health", "m2c", "lifebridge", "sankofa", "safecognicare", "pillscheduler", "betterscience"] },
           "dfc": { name: "Drug-Free Communities (DFC)", amount: "$625K", deadline: "April 14, 2026", platforms: ["whole-person-health", "isss", "sankofa", "wholemind", "safereport", "lifebridge", "pillscheduler", "betterscience"] },
-          "wioa": { name: "WIOA Title I Youth", amount: "$200K-$500K", deadline: "Rolling", platforms: ["isss", "wholemind", "mission-transition", "m2c", "mce", "whole-person-health"] },
+          "wioa": { name: "WIOA Title I Youth", amount: "$200K-$500K", deadline: "Rolling", platforms: ["isss", "wholemind", "m2c", "mce", "whole-person-health"] },
           "nba-foundation": { name: "NBA Foundation", amount: "$100K-$500K", deadline: "Rolling LOI", platforms: ["isss", "wholemind"] },
           "st-davids": { name: "St. David's Foundation", amount: "Up to $1M", deadline: "Opens March 30, 2026", platforms: ["whole-person-health", "sankofa", "perfectly-different", "safecognicare", "lifebridge"] },
           "samhsa": { name: "SAMHSA Community Mental Health", amount: "Varies", deadline: "Varies", platforms: ["whole-person-health", "sankofa", "perfectly-different", "safecognicare", "pillscheduler", "betterscience", "lifebridge"] },
         },
         crisisContinuum: {
-          phase1_prevention: { name: "Prevention & Preparedness", platforms: ["mission-transition", "whole-person-health", "wholemind", "isss", "betterscience"], description: "Purpose, skills, pathways for youth; pre-separation planning; preparedness plans; evidence base for prevention strategies" },
+          phase1_prevention: { name: "Prevention & Preparedness", platforms: ["m2c", "whole-person-health", "wholemind", "isss", "betterscience"], description: "Purpose, skills, pathways for youth; pre-separation planning; preparedness plans; evidence base for prevention strategies" },
           phase2_earlyWarning: { name: "Early Warning", platforms: ["whole-person-health", "lifebridge", "sankofa", "perfectly-different", "safecognicare"], description: "C-SSRS, PHQ-9, GAD-7, PCL-5 screenings; life event self-assessment; MAP-GAP 7-domain assessment; cognitive and neurodevelopmental monitoring" },
           phase3_crisisSupport: { name: "Crisis Support", platforms: ["whole-person-health", "lifebridge", "safereport"], description: "988 Veterans Crisis Line; Crisis Text Line; Reach a Vet peer support; Safety Plan Builder; Quick Exit; 24/7 resource navigation; mandatory reporting" },
           phase4_stabilization: { name: "Stabilization", platforms: ["whole-person-health", "lifebridge", "pillscheduler", "sankofa"], description: "Care Summary Generator; Find Help (20,670+ resources); Refer-a-Patient; medication management; VA facility connections" },
-          phase5_recovery: { name: "Recovery & Growth", platforms: ["whole-person-health", "lifebridge", "mission-transition", "mce", "betterscience"], description: "Community groups (2,091+); peer stories; condition guides; ongoing life navigation; career pathways; business formation; outcome measurement" },
+          phase5_recovery: { name: "Recovery & Growth", platforms: ["whole-person-health", "lifebridge", "m2c", "mce", "betterscience"], description: "Community groups (2,091+); peer stories; condition guides; ongoing life navigation; career pathways; business formation; outcome measurement" },
         },
         sharedDesignPrinciples: [
           "No Dead Ends — every page has at least one forward path to another ecosystem resource",
@@ -2182,7 +2166,7 @@ if (typeof module !== "undefined") {
     ],
     "workforce_pathway_created": [
       { nextPlatform: "m2c", eventType: "workforce_pathway_available", description: "New workforce pathway — M2C Transition integration" },
-      { nextPlatform: "mission-transition", eventType: "career_pathway_update", description: "New workforce pathway for veteran career translation" },
+      { nextPlatform: "m2c", eventType: "career_pathway_update", description: "New workforce pathway for veteran career translation" },
       { nextPlatform: "isss", eventType: "youth_pathway_available", description: "New workforce pathway — ISSS youth pipeline" },
     ],
     "youth_referral": [
@@ -2190,7 +2174,7 @@ if (typeof module !== "undefined") {
       { nextPlatform: "wholemind", eventType: "youth_learning_referral", description: "Youth referral — WholeMind learning assessment" },
     ],
     "veteran_referral": [
-      { nextPlatform: "mission-transition", eventType: "veteran_intake", description: "Veteran referral — Mission Transition onboarding" },
+      { nextPlatform: "m2c", eventType: "veteran_intake", description: "Veteran referral — Mission Transition onboarding" },
       { nextPlatform: "whole-person-health", eventType: "veteran_health_intake", description: "Veteran referral — health screening" },
     ],
     "maternal_health_referral": [

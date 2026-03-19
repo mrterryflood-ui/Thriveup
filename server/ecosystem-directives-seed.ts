@@ -60,7 +60,7 @@ CORE PRINCIPLES:
 7. Free for Individuals — no user ever pays for anything on any platform
 8. Privacy First — screening results and safety plans stay on user's device
 
-YOUR ROLE IN THE ECOSYSTEM: You are one platform in a 20-platform connected ecosystem. Your data flows to other platforms. Their data flows to you. Together we create a crisis continuum from Prevention → Early Warning → Crisis Support → Stabilization → Recovery & Growth. No single platform can do this alone.
+YOUR ROLE IN THE ECOSYSTEM: You are one platform in a 19-platform connected ecosystem. Your data flows to other platforms. Their data flows to you. Together we create a crisis continuum from Prevention → Early Warning → Crisis Support → Stabilization → Recovery & Growth. No single platform can do this alone.
 
 ACKNOWLEDGE this directive to confirm alignment.`,
   },
@@ -187,20 +187,18 @@ ACKNOWLEDGE with your grant data sharing plan.`,
   },
   {
     key: "swim-lanes-v1",
-    title: "Mission Transition + M2C: Define Swim Lanes",
+    title: "Mission Transition (M2C): Full Transition Pipeline",
     directiveType: "improvement_directive",
-    targetFilter: ["mission-transition", "m2c"],
-    content: `PRIORITY ACTION: Publish a clear swim lane document defining who handles what phase of veteran transition.
+    targetFilter: ["m2c"],
+    content: `PRIORITY ACTION: Mission Transition (M2C) owns the FULL veteran transition pipeline — strategic AND practical.
 
-Proposed split:
-- Mission Transition: STRATEGIC planning — pre-separation, timeline management, identity transition, long-range career mapping
-- M2C Transition: PRACTICAL execution — skills translation, benefits enrollment, community connections, day-to-day transition support
+Your platform covers both sides:
+- STRATEGIC: Pre-separation planning, timeline management, identity transition, long-range career mapping
+- PRACTICAL: Skills translation, benefits enrollment, community connections, day-to-day transition support
 
-Handoff point: The separation date milestone. Mission Transition hands off strategic plan, M2C executes it.
+Ensure your platform clearly presents both the strategic planning tools and the practical execution tools in a unified flow. Veterans should move seamlessly from pre-separation planning through post-separation support without handoff friction.
 
-Both platforms should share veteran profile data so the user never has to re-enter information.
-
-Deadline: 1 week. ACKNOWLEDGE with your proposed swim lane boundaries.`,
+Deadline: 1 week. ACKNOWLEDGE with your unified pipeline status.`,
   },
   {
     key: "rplice-fidelity-dashboard-v1",
@@ -228,9 +226,9 @@ ACKNOWLEDGE with your implementation timeline.`,
     content: `PRIORITY ACTION: You are the security backbone. Every platform handles sensitive data — C-SSRS scores, medication lists, veteran records, student data, financial information.
 
 30-DAY DELIVERABLES:
-1. Create and distribute an ecosystem security audit checklist to all 20 platforms
+1. Create and distribute an ecosystem security audit checklist to all 19 platforms
 2. Begin sending periodic threat_alert events through the ecosystem event system
-3. Run automated vulnerability scans against all 20 platform URLs
+3. Run automated vulnerability scans against all 19 platform URLs
 4. Create an ecosystem incident response playbook (if one platform is compromised, what happens?)
 5. Monitor for geographic and sector-specific threats relevant to our populations
 
@@ -343,7 +341,7 @@ IMPROVEMENTS NEEDED:
 2. Create a feedback loop with SafeCogniCare for users who screen positive on cognitive items
 3. Integrate PillScheduler medication adherence data into Care Summary generation
 4. When routing users to LifeBridge, implement warm handoff confirmation — verify the user connected, follow up if not within 48 hours
-5. Add structured handoff protocols for all 20 platforms you route to
+5. Add structured handoff protocols for all 19 platforms you route to
 
 You are the heartbeat. If you miss something, the ecosystem misses it.
 
@@ -447,7 +445,7 @@ SCRIPT STRUCTURE:
 2. WHO WE ARE (20 seconds) — Your platform name, what you do, and who you serve. No jargon. Speak like a trusted friend.
 3. CAPABILITIES & RESOURCES (45 seconds) — Showcase your top 3-5 features. Don't list them — show how they solve real problems. Use scenarios.
 4. REAL IMPACT (30 seconds) — What changes when someone uses your platform? Paint the picture of life after your help.
-5. THE ECOSYSTEM (20 seconds) — You are part of a 20-platform connected ecosystem. Mention 2-3 sister platforms you work with.
+5. THE ECOSYSTEM (20 seconds) — You are part of a 19-platform connected ecosystem. Mention 2-3 sister platforms you work with.
 6. CALL TO ACTION (20 seconds) — What should the viewer do next? Make it easy and inviting.
 
 VOICE & FEEL:
@@ -476,7 +474,7 @@ FROM: Dr. Terry Flood, ThriveUp Academy Hub
 TO: All 20 Platforms
 
 === CURRENT ECOSYSTEM STATUS ===
-20 platforms registered and connected. All platforms must maintain 15-minute heartbeat intervals. If your heartbeat is failing, include platformId in your heartbeat body and the hub will auto-register your key.
+19 platforms registered and connected. All platforms must maintain 15-minute heartbeat intervals. If your heartbeat is failing, include platformId in your heartbeat body and the hub will auto-register your key.
 
 === NEW INITIATIVE: AUSTIN HOUSING PROJECT ===
 ThriveUp Academy is launching a comprehensive Austin & Pflugerville housing stability initiative. Key data:
@@ -528,14 +526,14 @@ Domain: Operations
 
 WHAT THIS MEANS FOR YOU:
 - Ecosystem Nexus is the central coordination and operational hub for the entire ThriveUp Academy ecosystem
-- It provides cross-platform visibility, coordination tools, and operational intelligence for all 20 platforms
+- It provides cross-platform visibility, coordination tools, and operational intelligence for all 19 platforms
 - Continue heartbeating as normal — Ecosystem Nexus enhances coordination, it does not replace the hub
 
-THE ECOSYSTEM IS NOW 20 PLATFORMS STRONG.
+THE ECOSYSTEM IS NOW 19 PLATFORMS STRONG.
 
-The Collaborative Advocate: Update your site to reflect 20 platforms across the ecosystem. Update all references from 19 to 20 platforms.
+The Collaborative Advocate: Update your site to reflect 19 platforms across the ecosystem (Mission Transition and M2C are the same platform).
 
-ALL PLATFORMS: Update any internal references to ecosystem size from 19 to 20 platforms.
+ALL PLATFORMS: Update any internal references to ecosystem size to 19 platforms.
 
 ACKNOWLEDGE to confirm you are aware of Platform #20.`,
   },
@@ -581,7 +579,7 @@ ACKNOWLEDGE with your implementation plan for serving as the ecosystem quality g
     content: `NEW PLATFORM FEATURE: Voices of Austin — Community Storytelling Platform
 
 WHAT IS VOICES OF AUSTIN?
-A mobile-friendly storytelling platform where Austin residents can share their stories, access resources, and engage with hyper-local opportunities. Every story connects to action through ThriveUp's 20-platform ecosystem.
+A mobile-friendly storytelling platform where Austin residents can share their stories, access resources, and engage with hyper-local opportunities. Every story connects to action through ThriveUp's 19-platform ecosystem.
 
 THE MODEL: Story → Connection → Action → Impact
 1. Residents share stories (housing, jobs, health, veteran transition, education, youth)
@@ -708,7 +706,7 @@ ACKNOWLEDGE with your implementation status and ETA for each deliverable.`,
     targetFilter: "all",
     content: `THREE REGIONAL COMMUNITY HUBS ARE NOW LIVE
 
-ThriveUp Academy has deployed dedicated regional hubs for three Central Texas communities. Same 20-platform ecosystem, adapted for each community's unique context using implementation science principles (CFIR, RE-AIM).
+ThriveUp Academy has deployed dedicated regional hubs for three Central Texas communities. Same 19-platform ecosystem, adapted for each community's unique context using implementation science principles (CFIR, RE-AIM).
 
 === THE THREE HUBS ===
 

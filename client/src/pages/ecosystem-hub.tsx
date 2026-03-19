@@ -207,7 +207,7 @@ const ECOSYSTEM_APPS: EcosystemApp[] = [
   },
   {
     id: "m2c",
-    name: "M2C Transition",
+    name: "Mission Transition (M2C)",
     tagline: "Military-to-Civilian Veteran Support",
     url: "https://vetmissiontransition.com",
     icon: Briefcase,
