@@ -486,6 +486,56 @@ The ecosystem hub will flag any platform that goes more than 15 minutes without 
 
 ACKNOWLEDGE immediately.`,
   },
+  {
+    key: "austin-housing-status-report-v1",
+    title: "Ecosystem Status Report & Austin Housing Initiative — Report Back Required",
+    directiveType: "operational",
+    targetFilter: "all",
+    content: `ECOSYSTEM STATUS REPORT — March 19, 2026
+
+FROM: Dr. Terry Flood, ThriveUp Academy Hub
+TO: All 19 Platforms
+
+=== CURRENT ECOSYSTEM STATUS ===
+19 platforms registered and connected. All platforms must maintain 15-minute heartbeat intervals. If your heartbeat is failing, check your API key and endpoint configuration.
+
+=== NEW INITIATIVE: AUSTIN HOUSING PROJECT ===
+ThriveUp Academy is launching a comprehensive Austin & Pflugerville housing stability initiative. Key data:
+- Austin median home: $429K-$435K — only 2 of 75 zip codes affordable to median income families
+- 48,000+ unit gap for households below 30% Area Median Income
+- Pflugerville: 330 affordable units coming (Branchview, completion 2027) but ZERO social infrastructure
+- I-35 corridor: $10B+ in construction creating massive workforce demand
+- Veteran homelessness up 12% regionally; 45,000+ veterans in Austin metro
+
+YOUR ROLE: Every platform contributes to housing stability through your domain:
+- Workforce platforms: career pathways that sustain housing
+- Health platforms: housing is the #1 social determinant of health
+- Youth platforms: age-out transition housing support
+- Safety platforms: crisis intervention prevents homelessness
+- Business platforms: economic empowerment builds housing-ready families
+
+=== 5 ACTIVE GRANTS (YOUR TRACKING TAGS APPLY) ===
+1. DFC ($625K) — Deadline: April 14, 2026
+2. WIOA ($200K-$500K) — Rolling
+3. Foundation Grant ($100K-$500K) — Rolling LOI
+4. St. David's Foundation (up to $1M) — Opens March 30, 2026
+5. SSG Fox VA Suicide Prevention (up to $750K) — June 12-18, 2026
+
+=== REQUIRED ACTIONS — REPORT BACK ===
+1. Confirm you are heartbeating every 15 minutes
+2. Confirm you received ALL previous directives (video script, grant tags, warm handoff, etc.)
+3. Report your platform's current status: what features are live, what's in progress
+4. Identify how your platform connects to housing stability for the Austin initiative
+5. Report any technical issues with your connector
+
+=== DOCUMENT PRODUCTION SUITE ===
+The ecosystem now has a standardized 10-document production capability:
+Executive Summary, Full Business Proposal, Capability Statement, Pitch Deck, Budget/Cost Proposal, Past Performance, Org Chart, Video Presentation, Grant Narrative, Scope of Work.
+
+When triggered, Video Creator AI produces video content and MCE produces the document package. All platforms may be called upon to provide data, metrics, and narratives for these packages.
+
+RESPOND ON YOUR NEXT HEARTBEAT WITH YOUR STATUS REPORT. This is mandatory.`,
+  },
 ];
 
 export async function seedEcosystemDirectives() {
