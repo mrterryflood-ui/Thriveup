@@ -109,6 +109,7 @@ export default function EcosystemConnectorPage() {
 
   const { data: platforms = [], isLoading: platformsLoading } = useQuery<EcosystemPlatform[]>({
     queryKey: ["/api/ecosystem/platforms"],
+    refetchInterval: 5 * 60 * 1000,
   });
 
   const { data: statusData } = useQuery<{
@@ -119,10 +120,12 @@ export default function EcosystemConnectorPage() {
     platforms: Array<{ id: string; name: string; url: string; role: string; domain: string | null; status: string; healthStatus: string; lastHeartbeat: string | null; lastHealthCheck: string | null; grantAlignment: string[] | null }>;
   }>({
     queryKey: ["/api/ecosystem/status"],
+    refetchInterval: 5 * 60 * 1000,
   });
 
   const { data: events = [] } = useQuery<EcosystemEvent[]>({
     queryKey: ["/api/ecosystem/events"],
+    refetchInterval: 5 * 60 * 1000,
   });
 
   const initMutation = useMutation({
