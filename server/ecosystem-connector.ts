@@ -422,7 +422,150 @@ export function registerEcosystemConnectorRoutes(app: Express) {
     } catch (err) {
       console.error("[Ecosystem] Auto-sync failed:", err);
     }
+
+    // Start the outbound platform pinger after a short delay
+    setTimeout(() => startPlatformPinger(), 10000);
   })();
+
+  // ===================================================================
+  // OUTBOUND PLATFORM PINGER — Keeps all Autoscale apps awake
+  // Pings every platform every 10 minutes. Each ping is an incoming
+  // HTTP request to that platform, which prevents Autoscale sleep.
+  // When a sleeping platform wakes from the ping, its startup heartbeat
+  // fires and it catches up on all pending directives automatically.
+  // ===================================================================
+
+  let pingerInterval: ReturnType<typeof setInterval> | null = null;
+  let lastPingCycle: { startedAt: string; completedAt: string; results: Array<{ id: string; name: string; url: string; status: string; responseMs: number; wokenUp: boolean; error?: string }> } | null = null;
+
+  async function pingAllPlatforms(): Promise<typeof lastPingCycle> {
+    const startedAt = new Date().toISOString();
+    console.log(`[Pinger] Starting wake-up cycle for all platforms...`);
+
+    const platforms = await db.select().from(ecosystemPlatforms);
+    const results: Array<{ id: string; name: string; url: string; status: string; responseMs: number; wokenUp: boolean; error?: string }> = [];
+
+    const pingPromises = platforms.map(async (platform) => {
+      const start = Date.now();
+      let status = "offline";
+      let responseMs = 0;
+      let error: string | undefined;
+      let wokenUp = false;
+
+      // Check if platform was previously offline/unknown — if ping succeeds, it was woken up
+      const wasSleeping = platform.healthStatus === "offline" || platform.healthStatus === "unknown";
+
+      try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 12000);
+        const response = await fetch(platform.url, {
+          method: "GET",
+          signal: controller.signal,
+          redirect: "follow",
+          headers: { "User-Agent": "ThriveUp-Ecosystem-Hub/3.0 (Platform-Pinger)" },
+        });
+        clearTimeout(timeout);
+        responseMs = Date.now() - start;
+
+        if (response.ok) {
+          status = "online";
+          wokenUp = wasSleeping;
+        } else {
+          status = "degraded";
+        }
+      } catch (err: any) {
+        responseMs = Date.now() - start;
+        error = err.name === "AbortError" ? "Timeout (12s)" : (err.message || "Connection failed");
+        status = "offline";
+      }
+
+      // Update platform health in DB
+      await db.update(ecosystemPlatforms)
+        .set({ healthStatus: status, lastHealthCheck: new Date() })
+        .where(eq(ecosystemPlatforms.id, platform.id));
+
+      // Log the health check
+      await db.insert(ecosystemHealthLogs).values({
+        platformId: platform.id,
+        status,
+        responseTimeMs: responseMs,
+        statusCode: status === "online" ? 200 : status === "degraded" ? 403 : 0,
+        errorMessage: error || null,
+      });
+
+      const logPrefix = wokenUp ? "[Pinger] WOKE UP" : `[Pinger] ${status.toUpperCase()}`;
+      console.log(`${logPrefix}: ${platform.name} (${responseMs}ms)${error ? " — " + error : ""}`);
+
+      return { id: platform.id, name: platform.name, url: platform.url, status, responseMs, wokenUp, error };
+    });
+
+    const allResults = await Promise.all(pingPromises);
+    results.push(...allResults);
+
+    const completedAt = new Date().toISOString();
+    const online = results.filter(r => r.status === "online").length;
+    const woken = results.filter(r => r.wokenUp).length;
+    const offline = results.filter(r => r.status === "offline").length;
+    const degraded = results.filter(r => r.status === "degraded").length;
+
+    console.log(`[Pinger] Cycle complete: ${online} online, ${degraded} degraded, ${offline} offline, ${woken} woken from sleep`);
+
+    lastPingCycle = { startedAt, completedAt, results };
+    return lastPingCycle;
+  }
+
+  function startPlatformPinger() {
+    if (pingerInterval) return;
+    console.log("[Pinger] Starting outbound platform pinger — 10 minute cycle");
+    // Fire immediately on startup
+    pingAllPlatforms().catch(err => console.error("[Pinger] Initial cycle failed:", err));
+    // Then every 10 minutes
+    pingerInterval = setInterval(() => {
+      pingAllPlatforms().catch(err => console.error("[Pinger] Cycle failed:", err));
+    }, 10 * 60 * 1000);
+  }
+
+  // Manual trigger — wake all platforms now
+  app.post("/api/ecosystem/wake-all", async (_req, res) => {
+    try {
+      console.log("[Pinger] Manual wake-all triggered");
+      const result = await pingAllPlatforms();
+      const online = result!.results.filter(r => r.status === "online").length;
+      const woken = result!.results.filter(r => r.wokenUp).length;
+      const offline = result!.results.filter(r => r.status === "offline").length;
+      const degraded = result!.results.filter(r => r.status === "degraded").length;
+
+      res.json({
+        message: `Wake-up cycle complete. ${online} online, ${woken} woken from sleep, ${degraded} degraded, ${offline} offline.`,
+        summary: { total: result!.results.length, online, woken, degraded, offline },
+        platforms: result!.results.map(r => ({
+          id: r.id,
+          name: r.name,
+          url: r.url,
+          status: r.status,
+          responseMs: r.responseMs,
+          wokenUp: r.wokenUp,
+          error: r.error || null,
+        })),
+        nextPingIn: "10 minutes (automatic)",
+        startedAt: result!.startedAt,
+        completedAt: result!.completedAt,
+      });
+    } catch (error) {
+      console.error("[Pinger] Manual wake-all failed:", error);
+      res.status(500).json({ error: "Wake-all cycle failed" });
+    }
+  });
+
+  // Status endpoint — check last ping cycle
+  app.get("/api/ecosystem/pinger-status", async (_req, res) => {
+    res.json({
+      active: pingerInterval !== null,
+      cycleInterval: "10 minutes",
+      lastCycle: lastPingCycle,
+      purpose: "Keeps all 20 Autoscale-deployed platforms awake by sending HTTP GET requests every 10 minutes. When a sleeping platform wakes from a ping, its startup heartbeat fires and catches up on all pending directives.",
+    });
+  });
 
   app.get("/api/ecosystem/platforms", requireAdminAuth, async (_req, res) => {
     try {

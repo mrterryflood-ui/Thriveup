@@ -6,8 +6,9 @@
 
   # READ THIS FIRST
 
-  These instructions replace ALL previous versions. Previous instructions had three critical errors:
+  These instructions replace ALL previous versions. Previous instructions had four critical issues fixed:
   1. **Wrong API keys** — The old `thrive-ecosystem-{id}-2024` keys were fake. Real keys are `tveco_...` hashes (included below for each platform).
+  4. **Hub keeps you awake** — The hub now pings all 20 platforms every 10 minutes with an HTTP GET. This prevents Autoscale sleep. If you do go to sleep and the ping wakes you, your startup heartbeat fires immediately and you catch up on everything. You don't need an external pinger — the hub does it for you.
   2. **Wrong endpoint path** — The old `/api/ecosystem/directives/acknowledge` path doesn't exist. The correct path is `/api/ecosystem/directives/ack`.
   3. **No compliance loop** — Old instructions only sent heartbeats one-way. The hub now talks back with fidelity scores, overdue items, and verified responses on every call.
 
