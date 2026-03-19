@@ -5079,7 +5079,7 @@ Key guidelines:
       const design = await storage.getProgramDesign(req.params.id);
       if (!design) return res.status(404).json({ error: "Program design not found" });
       const userId = getUserId(req)!;
-      if (design.userId && design.userId !== userId) return res.status(403).json({ error: "Access denied" });
+      if (!design.userId || design.userId !== userId) return res.status(403).json({ error: "Access denied" });
       res.json(design);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch program design" });
@@ -5102,8 +5102,9 @@ Key guidelines:
       const userId = getUserId(req)!;
       const existing = await storage.getProgramDesign(req.params.id);
       if (!existing) return res.status(404).json({ error: "Program design not found" });
-      if (existing.userId && existing.userId !== userId) return res.status(403).json({ error: "Access denied" });
-      const design = await storage.updateProgramDesign(req.params.id, req.body);
+      if (!existing.userId || existing.userId !== userId) return res.status(403).json({ error: "Access denied" });
+      const { userId: _discard, ...safeBody } = req.body;
+      const design = await storage.updateProgramDesign(req.params.id, safeBody);
       res.json(design);
     } catch (error) {
       res.status(500).json({ error: "Failed to update program design" });
@@ -5115,7 +5116,7 @@ Key guidelines:
       const userId = getUserId(req)!;
       const existing = await storage.getProgramDesign(req.params.id);
       if (!existing) return res.status(404).json({ error: "Program design not found" });
-      if (existing.userId && existing.userId !== userId) return res.status(403).json({ error: "Access denied" });
+      if (!existing.userId || existing.userId !== userId) return res.status(403).json({ error: "Access denied" });
       await storage.deleteProgramDesign(req.params.id);
       res.json({ success: true });
     } catch (error) {
