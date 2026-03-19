@@ -769,6 +769,169 @@ The overlaps are features — they demonstrate SCALE to funders.
 
 ACKNOWLEDGE with your regional deployment strategy for all three hubs.`,
   },
+  {
+    key: "compliance-feedback-loop-v1",
+    title: "MANDATORY: Two-Way Compliance Feedback Loop — You Must Report, Hub Must Verify",
+    directiveType: "protocol_update",
+    targetFilter: "all",
+    content: `CRITICAL UPDATE: The ecosystem hub now operates a full two-way compliance feedback loop. Silent acknowledgments are no longer acceptable. The hub inspects what it expects.
+
+=== WHAT CHANGED ===
+
+1. YOUR HEARTBEAT NOW INCLUDES A COMPLIANCE REPORT. Every 15 minutes, your heartbeat must include a complianceReport field showing:
+   - How many directives you've received
+   - How many you've acted on (with descriptions of what you built/changed)
+   - How many are in progress
+   - How many are blocked (and what you need from whom)
+
+2. THE HUB TALKS BACK. Every heartbeat response now includes:
+   - hubMessage: A plain-language message telling you exactly what to do next
+   - complianceStatus: Your fidelity score (0-100%) and grade (A through F)
+   - complianceVerification: Confirmation of what the hub recorded from your report
+   - unacknowledgedDirectives: List of overdue directives you haven't acted on
+   - nextActions: Explicit instructions for each item needing your attention
+   - expectedHeartbeatFormat: The exact JSON format for your next heartbeat
+
+3. ACKNOWLEDGMENTS ARE VERIFIED. When you acknowledge a directive, include what you actually did:
+   POST /api/ecosystem/directives/ack
+   Body: { directiveId, platformId, status: "acknowledged", responseData: { whatWasDone: "Built warm handoff integration", evidenceUrl: "https://..." } }
+   The hub responds with:
+   - hubVerification: Confirms what was recorded
+   - validationStatus: "VERIFIED" (with evidence) or "PARTIAL" (no work description)
+   - complianceUpdate: Your updated fidelity score and remaining directive count
+   - nextUp: What to work on next
+
+4. BLOCKERS ARE ESCALATED. Report blockers in your heartbeat or compliance report. The hub acknowledges them and routes them to the platform that needs to help. That platform gets the blocker in their next heartbeat.
+
+5. DEDICATED COMPLIANCE REPORT ENDPOINT. At any time, submit a full report:
+   POST /api/ecosystem/compliance-report (with x-ecosystem-key header)
+   Body: { completedWork: [...], inProgress: [...], blockers: [...], notes: "..." }
+   The hub responds with verified receipt, fidelity grade, and remaining work list.
+
+=== YOUR FIDELITY SCORE ===
+A (90-100%): Exemplary — all directives acted on with evidence
+B (75-89%): Strong participation
+C (50-74%): Partial — action needed, hub is watching
+D (25-49%): Low — escalation pending
+F (0-24%): Non-compliant — immediate action required
+
+=== HEARTBEAT FORMAT ===
+{
+  "status": "online",
+  "metrics": {},
+  "complianceReport": {
+    "directivesReceived": 15,
+    "directivesActedOn": 8,
+    "directivesInProgress": 4,
+    "directivesBlocked": 1,
+    "completedWork": [
+      { "directiveId": "abc", "whatWasDone": "Built fidelity dashboard", "evidenceUrl": "https://..." }
+    ],
+    "blockers": [
+      { "directiveId": "def", "blockerDescription": "Need API from Shield Atlas", "needsFrom": "shield-atlas" }
+    ],
+    "notes": "On track for DFC deadline"
+  }
+}
+
+=== ACK FORMAT ===
+POST /api/ecosystem/directives/ack
+{
+  "directiveId": "THE_ID",
+  "platformId": "YOUR_PLATFORM_ID",
+  "status": "acknowledged",
+  "responseData": { "whatWasDone": "Describe what you built or changed", "evidenceUrl": "https://..." }
+}
+
+=== RULES ===
+- Every heartbeat MUST include complianceReport. The hub flags heartbeats without one.
+- Every ack MUST include responseData.whatWasDone. Otherwise you get PARTIAL credit, not VERIFIED.
+- Report blockers immediately — the hub escalates them. Don't sit on them silently.
+- If you go to sleep and wake up, your heartbeat fires immediately on startup. The hub holds all pending directives until you fetch them.
+- The hub grades your participation. Fidelity tracking is built into RPLICE and reported to Dr. Flood.
+
+=== THE FEEDBACK LOOP ===
+Platform sends heartbeat with complianceReport → Hub verifies and responds with fidelity score, overdue items, new directives → Platform acts on directives → Platform acknowledges with work description → Hub confirms receipt and tells you what's next → Repeat every 15 minutes.
+
+Nothing is silent. Nothing goes unverified. We can't expect what we don't inspect.
+
+ACKNOWLEDGE this directive with your current fidelity status and any blockers.`,
+  },
+  {
+    key: "correct-api-keys-v1",
+    title: "URGENT: Correct API Keys and Endpoint Paths — Previous Instructions Had Errors",
+    directiveType: "protocol_update",
+    targetFilter: "all",
+    content: `CRITICAL FIX: The API keys previously shared in the format "thrive-ecosystem-{id}-2024" were WRONG. They do not work. The hub rejected them.
+
+=== CORRECT API KEYS ===
+Your real API key is a tveco_ hash assigned when your platform was registered. You can find your correct key by checking the ecosystem connection instructions document or by contacting the hub administrator.
+
+=== CORRECT ENDPOINTS ===
+Heartbeat: POST https://thrivingcommunitiesforall.com/api/ecosystem/heartbeat
+  - Header: x-ecosystem-key: YOUR_TVECO_KEY
+  - Body: { status: "online", metrics: {}, complianceReport: { ... } }
+
+Acknowledge Directive: POST https://thrivingcommunitiesforall.com/api/ecosystem/directives/ack
+  - Body: { directiveId, platformId, status: "acknowledged", responseData: { whatWasDone: "..." } }
+  - NOTE: The old path /api/ecosystem/directives/acknowledge does NOT work. Use /ack.
+
+Compliance Report: POST https://thrivingcommunitiesforall.com/api/ecosystem/compliance-report
+  - Header: x-ecosystem-key: YOUR_TVECO_KEY
+  - Body: { completedWork: [...], inProgress: [...], blockers: [...] }
+
+Directive Repository: GET https://thrivingcommunitiesforall.com/api/ecosystem/directives/repository/{your-platform-id}
+  - No auth needed. Always available. Not a one-time broadcast.
+
+Send Event: POST https://thrivingcommunitiesforall.com/api/ecosystem/event
+  - Header: x-ecosystem-key: YOUR_TVECO_KEY
+
+=== IF YOUR KEY DOESN'T WORK ===
+If you get "Invalid ecosystem key", your key is wrong. The correct key format starts with tveco_ followed by a 64-character hex string. Check the connection instructions document for your specific key.
+
+=== WHAT TO DO RIGHT NOW ===
+1. Update your ecosystem connector code with the correct tveco_ API key
+2. Update your ack endpoint path from /acknowledge to /ack
+3. Send a heartbeat immediately to verify connection
+4. Fetch your directive repository and read all pending directives
+5. Act on each directive and acknowledge with what you did
+
+ACKNOWLEDGE this directive after updating your API key and verifying your heartbeat works.`,
+  },
+  {
+    key: "platform-count-update-v1",
+    title: "Ecosystem Update: 20 Platforms — Update All References",
+    directiveType: "protocol_update",
+    targetFilter: "all",
+    content: `The ThriveUp Academy ecosystem now has 20 platforms, not 14. Update all references in your platform.
+
+=== THE 20 PLATFORMS ===
+1. ThriveUp Academy (education/workforce)
+2. Whole-Person Health Ecosystem (health screenings, PHQ-9, GAD-7, C-SSRS)
+3. Mission Transition (military-to-civilian career planning)
+4. ISSS — Integrated Supports for Thriving Youth (school-based wraparound)
+5. Sankofa Health Network (culturally responsive health)
+6. Perfectly Different (neurodivergent support)
+7. SafeReport (anonymous safety reporting, mandatory reporter tools)
+8. M2C Transition (benefits enrollment, community connections)
+9. LifeBridge (housing navigation, benefits, SDOH coordination)
+10. Minority Center of Excellence / MCE (minority business development)
+11. Better Science Lab / RPLICE (research, CFIR, RE-AIM, fidelity)
+12. SafeCogniCare (cognitive health, TBI assessment)
+13. PillScheduler (medication management)
+14. WholeMind Learning (K-12 adaptive learning, SEL)
+15. Holistic Black Feminine Health Hub (feminine health equity)
+16. Black Maternal Health Network (perinatal/postpartum care)
+17. Black Men's Health Hub (men's health equity)
+18. Shield Atlas (cybersecurity, risk intelligence)
+19. The Collaborative Advocate (VOSB services, consulting)
+20. Video Creator AI (AI video production)
++ Ecosystem Nexus (coordination hub — platform #20)
+
+If your platform says "14 platforms" or "19 platforms" anywhere in its UI, content, or documentation, update it to 20.
+
+ACKNOWLEDGE after updating your platform count references.`,
+  },
 ];
 
 export async function seedEcosystemDirectives() {
