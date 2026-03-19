@@ -3,7 +3,7 @@ import { useRoute } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Activity, CheckCircle, AlertTriangle, XCircle, Globe, FileText, ArrowRight, Shield, Heart, BookOpen, Briefcase, Network, Home, Users, Target, TrendingUp, MapPin, Brain, Zap } from "lucide-react";
+import { Activity, CheckCircle, AlertTriangle, XCircle, Globe, FileText, ArrowRight, Shield, Heart, BookOpen, Briefcase, Network, Home, Users, Target, TrendingUp, MapPin, Brain, Zap, Baby, GraduationCap, Smile, ShieldCheck } from "lucide-react";
 
 function HealthDot({ status }: { status: string }) {
   const color = status === "online" ? "bg-emerald-500" : status === "degraded" ? "bg-amber-500" : status === "offline" ? "bg-red-500" : "bg-gray-400";
@@ -457,6 +457,96 @@ export function LifeBridgeEmbedPage() {
           <div className="rounded-md bg-gradient-to-r from-blue-600 to-indigo-700 p-3 text-white text-center" data-testid="climate-cta">
             <p className="text-xs font-semibold mb-1">20 Platforms. 3 Hubs. 1 Mission.</p>
             <p className="text-xs opacity-80">RPLICE-validated, CFIR/RE-AIM aligned, Three Realities grounded</p>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="border-l-4 border-l-emerald-600" data-testid="card-healthy-happy-safe-kids">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-medium flex items-center gap-2">
+            <Smile className="w-4 h-4 text-emerald-600" /> Healthy Kids, Happy Kids, Safe Kids in Austin
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            A connected initiative addressing the full spectrum of child and youth wellbeing in Austin — directly linked to the housing and homelessness crisis. When families lose housing, children lose everything: health, safety, education, and hope.
+          </p>
+
+          <div className="rounded-md bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 p-3" data-testid="kids-homelessness-link">
+            <p className="text-xs font-semibold flex items-center gap-1 text-amber-800 dark:text-amber-300 mb-1">
+              <AlertTriangle className="w-3.5 h-3.5" /> The Connection: Youth Homelessness × Child Wellbeing
+            </p>
+            <p className="text-xs text-amber-700 dark:text-amber-400">
+              934 youth are homeless in Austin (quadrupled since 2020). Children in unstable housing are 2x more likely to face hunger, 3x more likely to have behavioral health issues, and 4x more likely to experience developmental delays. These initiatives are inseparable.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-3 gap-2">
+            {[
+              { title: "Healthy Kids", icon: Heart, color: "text-rose-600", bg: "bg-rose-50 dark:bg-rose-950/30", stats: ["2,000+ health screenings", "Maternal health support", "Nutrition & food access", "Telehealth for families"] },
+              { title: "Happy Kids", icon: Smile, color: "text-amber-600", bg: "bg-amber-50 dark:bg-amber-950/30", stats: ["SEL curriculum (WholeMind)", "Neurodivergent support", "Family stability services", "Community belonging"] },
+              { title: "Safe Kids", icon: ShieldCheck, color: "text-emerald-600", bg: "bg-emerald-50 dark:bg-emerald-950/30", stats: ["SafeReport protection", "Mandatory reporter tools", "School safety (ISSS)", "Cybersecurity (Shield Atlas)"] },
+            ].map((pillar) => (
+              <div key={pillar.title} className={`p-2 rounded-md ${pillar.bg}`} data-testid={`pillar-${pillar.title.toLowerCase().replace(/\s+/g, '-')}`}>
+                <pillar.icon className={`w-4 h-4 mx-auto mb-1 ${pillar.color}`} />
+                <p className={`text-xs font-bold text-center mb-1 ${pillar.color}`}>{pillar.title}</p>
+                {pillar.stats.map((s) => (
+                  <p key={s} className="text-xs text-muted-foreground leading-relaxed">• {s}</p>
+                ))}
+              </div>
+            ))}
+          </div>
+
+          <div className="space-y-2">
+            <p className="text-xs font-semibold flex items-center gap-1">
+              <Network className="w-3.5 h-3.5" /> Ecosystem Platforms Activated
+            </p>
+            <div className="grid grid-cols-2 gap-1.5">
+              {[
+                { platform: "ISSS", role: "School-based wraparound — identifies at-risk youth, coordinates services" },
+                { platform: "WholeMind Learning", role: "SEL development, adaptive learning, career pathways for youth" },
+                { platform: "Perfectly Different", role: "Neurodivergent support — 1 in 5 children need accommodation" },
+                { platform: "SafeReport", role: "Anonymous safety reporting, mandatory reporter workflow" },
+                { platform: "Whole-Person Health", role: "PHQ-9, GAD-7 screenings — catches what ER visits miss" },
+                { platform: "Black Maternal Health", role: "Perinatal care, postpartum support — 3x mortality crisis" },
+                { platform: "Sankofa Health Network", role: "Culturally responsive health content for families" },
+                { platform: "LifeBridge", role: "Housing navigation, benefits enrollment, family stabilization" },
+                { platform: "PillScheduler", role: "Medication management for children with chronic conditions" },
+                { platform: "Shield Atlas", role: "Online safety, cyberbullying protection, data security" },
+              ].map((p) => (
+                <div key={p.platform} className="p-1.5 rounded bg-muted/50" data-testid={`kids-platform-${p.platform.toLowerCase().replace(/\s+/g, '-')}`}>
+                  <p className="text-xs font-medium">{p.platform}</p>
+                  <p className="text-xs text-muted-foreground">{p.role}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <p className="text-xs font-semibold flex items-center gap-1">
+              <Target className="w-3.5 h-3.5" /> Outcome Targets
+            </p>
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                { metric: "Youth Served", value: "2,500+", icon: Users },
+                { metric: "School Partnerships", value: "15+", icon: GraduationCap },
+                { metric: "Family Stabilizations", value: "300+", icon: Home },
+                { metric: "Crisis Interventions", value: "500+", icon: ShieldCheck },
+              ].map((o) => (
+                <div key={o.metric} className="flex items-center gap-2 p-2 rounded bg-emerald-50 dark:bg-emerald-950/30" data-testid={`kids-outcome-${o.metric.toLowerCase().replace(/\s+/g, '-')}`}>
+                  <o.icon className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                  <div>
+                    <p className="text-sm font-bold text-emerald-700 dark:text-emerald-400">{o.value}</p>
+                    <p className="text-xs text-muted-foreground">{o.metric}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-md bg-gradient-to-r from-emerald-600 to-teal-700 p-3 text-white text-center" data-testid="kids-cta">
+            <p className="text-xs font-semibold mb-1">Healthy Kids + Happy Kids + Safe Kids = Thriving Austin</p>
+            <p className="text-xs opacity-80">Connected to Austin Climate Initiative — housing stability is child stability</p>
           </div>
         </CardContent>
       </Card>
