@@ -2610,6 +2610,131 @@ if (typeof module !== "undefined") {
     }
   });
 
+  app.post("/api/ecosystem/send-report-card", requireAdminAuth, async (_req, res) => {
+    try {
+      const platforms = await db.select().from(ecosystemPlatforms);
+      const allDirectives = await db.select().from(ecosystemDirectives).where(eq(ecosystemDirectives.status, "active"));
+      const allAcks = await db.select().from(ecosystemDirectiveAcks);
+      const now = new Date();
+      const dateStr = now.toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+
+      const platformRows = platforms.map(p => {
+        const pAcks = allAcks.filter(a => a.platformId === p.id);
+        const total = pAcks.length;
+        const acked = pAcks.filter(a => a.status === "acknowledged").length;
+        const delivered = pAcks.filter(a => a.status === "delivered").length;
+        const pending = pAcks.filter(a => a.status === "pending").length;
+        const fidelity = total > 0 ? Math.round((acked / total) * 100) : 0;
+        const grade = fidelity >= 90 ? "A" : fidelity >= 75 ? "B" : fidelity >= 50 ? "C" : fidelity >= 25 ? "D" : "F";
+
+        const verifiedCount = pAcks.filter(a => {
+          const rd = a.responseData as Record<string, unknown> | null;
+          return rd?._ackQuality === "VERIFIED";
+        }).length;
+        const substantiveCount = pAcks.filter(a => {
+          const rd = a.responseData as Record<string, unknown> | null;
+          return rd?._ackQuality === "SUBSTANTIVE";
+        }).length;
+
+        const heartbeatAge = p.lastHeartbeat ? Math.round((now.getTime() - new Date(p.lastHeartbeat).getTime()) / 60000) : null;
+        const connected = heartbeatAge !== null && heartbeatAge < 30;
+
+        return { id: p.id, name: p.name, total, acked, delivered, pending, fidelity, grade, verifiedCount, substantiveCount, connected, heartbeatAge };
+      }).sort((a, b) => b.fidelity - a.fidelity || a.name.localeCompare(b.name));
+
+      const totalPlatforms = platforms.length;
+      const connectedCount = platformRows.filter(p => p.connected).length;
+      const gradeA = platformRows.filter(p => p.grade === "A").length;
+      const gradeB = platformRows.filter(p => p.grade === "B").length;
+      const gradeC = platformRows.filter(p => p.grade === "C").length;
+      const gradeD = platformRows.filter(p => p.grade === "D").length;
+      const gradeF = platformRows.filter(p => p.grade === "F").length;
+      const ecosystemFidelity = platformRows.length > 0 ? Math.round(platformRows.reduce((sum, p) => sum + p.fidelity, 0) / platformRows.length) : 0;
+
+      const gradeColor = (g: string) => g === "A" ? "#059669" : g === "B" ? "#2563eb" : g === "C" ? "#d97706" : g === "D" ? "#dc2626" : "#991b1b";
+
+      const platformTableRows = platformRows.map(p => `
+        <tr style="border-bottom: 1px solid #e5e7eb;">
+          <td style="padding: 10px 12px; font-weight: 600;">${p.name}</td>
+          <td style="padding: 10px 12px; text-align: center;"><span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: ${p.connected ? '#059669' : '#dc2626'}; margin-right: 4px;"></span>${p.connected ? 'Active' : 'Inactive'}</td>
+          <td style="padding: 10px 12px; text-align: center; font-weight: 700; font-size: 18px; color: ${gradeColor(p.grade)};">${p.grade}</td>
+          <td style="padding: 10px 12px; text-align: center;">${p.fidelity}%</td>
+          <td style="padding: 10px 12px; text-align: center;">${p.acked}/${p.total}</td>
+          <td style="padding: 10px 12px; text-align: center; color: #059669;">${p.verifiedCount}</td>
+          <td style="padding: 10px 12px; text-align: center;">${p.delivered}</td>
+        </tr>
+      `).join("");
+
+      const htmlContent = `
+        <div style="max-width: 800px; margin: 0 auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #1a1a2e;">
+          <div style="background: linear-gradient(135deg, #4c1d95, #6d28d9); padding: 32px; border-radius: 12px 12px 0 0;">
+            <h1 style="color: white; margin: 0; font-size: 28px;">ThriveUp Academy Ecosystem Report Card</h1>
+            <p style="color: #c4b5fd; margin: 8px 0 0;">${dateStr}</p>
+          </div>
+
+          <div style="background: #f9fafb; padding: 24px; border: 1px solid #e5e7eb;">
+            <h2 style="margin-top: 0; color: #374151; font-size: 18px;">Ecosystem Summary</h2>
+            <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+              <div style="flex: 1; min-width: 140px; background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; text-align: center;">
+                <div style="font-size: 32px; font-weight: 800; color: ${ecosystemFidelity >= 75 ? '#059669' : ecosystemFidelity >= 50 ? '#d97706' : '#dc2626'};">${ecosystemFidelity}%</div>
+                <div style="font-size: 12px; color: #6b7280;">Ecosystem Fidelity</div>
+              </div>
+              <div style="flex: 1; min-width: 140px; background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; text-align: center;">
+                <div style="font-size: 32px; font-weight: 800; color: #059669;">${connectedCount}</div>
+                <div style="font-size: 12px; color: #6b7280;">Connected (of ${totalPlatforms})</div>
+              </div>
+              <div style="flex: 1; min-width: 140px; background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; text-align: center;">
+                <div style="font-size: 32px; font-weight: 800; color: #059669;">${gradeA}</div>
+                <div style="font-size: 12px; color: #6b7280;">Grade A Platforms</div>
+              </div>
+            </div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px;">
+              <span style="background: #059669; color: white; padding: 4px 12px; border-radius: 12px; font-size: 13px; font-weight: 600;">A: ${gradeA}</span>
+              <span style="background: #2563eb; color: white; padding: 4px 12px; border-radius: 12px; font-size: 13px; font-weight: 600;">B: ${gradeB}</span>
+              <span style="background: #d97706; color: white; padding: 4px 12px; border-radius: 12px; font-size: 13px; font-weight: 600;">C: ${gradeC}</span>
+              <span style="background: #dc2626; color: white; padding: 4px 12px; border-radius: 12px; font-size: 13px; font-weight: 600;">D: ${gradeD}</span>
+              <span style="background: #991b1b; color: white; padding: 4px 12px; border-radius: 12px; font-size: 13px; font-weight: 600;">F: ${gradeF}</span>
+            </div>
+          </div>
+
+          <div style="background: white; padding: 0; border: 1px solid #e5e7eb; border-top: none; overflow: hidden;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+              <thead>
+                <tr style="background: #f3f4f6;">
+                  <th style="padding: 12px; text-align: left; font-weight: 600; color: #374151;">Platform</th>
+                  <th style="padding: 12px; text-align: center; font-weight: 600; color: #374151;">Status</th>
+                  <th style="padding: 12px; text-align: center; font-weight: 600; color: #374151;">Grade</th>
+                  <th style="padding: 12px; text-align: center; font-weight: 600; color: #374151;">Fidelity</th>
+                  <th style="padding: 12px; text-align: center; font-weight: 600; color: #374151;">Acked</th>
+                  <th style="padding: 12px; text-align: center; font-weight: 600; color: #374151;">Verified</th>
+                  <th style="padding: 12px; text-align: center; font-weight: 600; color: #374151;">Pending</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${platformTableRows}
+              </tbody>
+            </table>
+          </div>
+
+          <div style="background: #fef3c7; padding: 16px; border: 1px solid #fcd34d; border-radius: 0 0 12px 12px;">
+            <p style="margin: 0; font-size: 13px; color: #92400e;"><strong>Grading Scale:</strong> A (90-100%) | B (75-89%) | C (50-74%) | D (25-49%) | F (0-24%)</p>
+            <p style="margin: 8px 0 0; font-size: 12px; color: #92400e;">Fidelity = acknowledged directives / total directives. Verified = acks with evidence URL and substantive description. Active = heartbeat within 30 minutes.</p>
+          </div>
+
+          <div style="padding: 16px; text-align: center; color: #9ca3af; font-size: 11px;">
+            <p>ThriveUp Academy | thrivingcommunitiesforall.com | Ecosystem Operations Center</p>
+          </div>
+        </div>
+      `;
+
+      await sendEcosystemUpdate("Weekly Report Card — " + dateStr, htmlContent);
+      res.json({ sent: true, to: "mr.terryflood@gmail.com", platforms: platformRows.length, summary: { ecosystemFidelity, gradeA, gradeB, gradeC, gradeD, gradeF, connected: connectedCount } });
+    } catch (error: any) {
+      console.error("Report card email failed:", error);
+      res.status(500).json({ error: "Failed to send report card", details: error.message });
+    }
+  });
+
   app.get("/api/ecosystem/integration-doc-public", requireAdminAuth, async (_req, res) => {
     try {
       const allPlatforms = await db.select().from(ecosystemPlatforms);
