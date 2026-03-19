@@ -99,6 +99,7 @@ export default function EcosystemConnectorPage() {
   const [snippetContent, setSnippetContent] = useState<string>("");
   const [snippetInstructions, setSnippetInstructions] = useState<string[]>([]);
   const [grantLens, setGrantLens] = useState<string>("all");
+  const [activeTab, setActiveTab] = useState<string>("platforms");
 
   const { data: platforms = [], isLoading: platformsLoading } = useQuery<EcosystemPlatform[]>({
     queryKey: ["/api/ecosystem/platforms"],
@@ -154,6 +155,7 @@ export default function EcosystemConnectorPage() {
       setSnippetContent(data.snippet);
       setSnippetInstructions(data.instructions);
       setSelectedPlatform(data.platformId);
+      setActiveTab("integration");
     },
   });
 
@@ -265,7 +267,7 @@ export default function EcosystemConnectorPage() {
       )}
 
       {platforms.length > 0 && (
-        <Tabs defaultValue="platforms">
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="flex-wrap h-auto gap-1">
             <TabsTrigger value="platforms" data-testid="tab-platforms"><Server className="h-4 w-4 mr-1.5" />Platforms ({filteredPlatforms.length})</TabsTrigger>
             <TabsTrigger value="integration" data-testid="tab-integration"><Code className="h-4 w-4 mr-1.5" />Integration Code</TabsTrigger>
