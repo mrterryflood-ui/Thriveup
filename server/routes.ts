@@ -5064,29 +5064,31 @@ Key guidelines:
     }
   });
 
-  app.get("/api/program-designs", async (req, res) => {
+  app.get("/api/program-designs", requireAuth, async (req, res) => {
     try {
-      const userId = getUserId(req);
-      const designs = await storage.getProgramDesigns(userId || undefined);
+      const userId = getUserId(req)!;
+      const designs = await storage.getProgramDesigns(userId);
       res.json(designs);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch program designs" });
     }
   });
 
-  app.get("/api/program-designs/:id", async (req, res) => {
+  app.get("/api/program-designs/:id", requireAuth, async (req, res) => {
     try {
       const design = await storage.getProgramDesign(req.params.id);
       if (!design) return res.status(404).json({ error: "Program design not found" });
+      const userId = getUserId(req)!;
+      if (design.userId && design.userId !== userId) return res.status(403).json({ error: "Access denied" });
       res.json(design);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch program design" });
     }
   });
 
-  app.post("/api/program-designs", async (req, res) => {
+  app.post("/api/program-designs", requireAuth, async (req, res) => {
     try {
-      const userId = getUserId(req);
+      const userId = getUserId(req)!;
       const parsed = insertProgramDesignSchema.parse({ ...req.body, userId });
       const design = await storage.createProgramDesign(parsed);
       res.json(design);
@@ -5095,8 +5097,12 @@ Key guidelines:
     }
   });
 
-  app.patch("/api/program-designs/:id", async (req, res) => {
+  app.patch("/api/program-designs/:id", requireAuth, async (req, res) => {
     try {
+      const userId = getUserId(req)!;
+      const existing = await storage.getProgramDesign(req.params.id);
+      if (!existing) return res.status(404).json({ error: "Program design not found" });
+      if (existing.userId && existing.userId !== userId) return res.status(403).json({ error: "Access denied" });
       const design = await storage.updateProgramDesign(req.params.id, req.body);
       res.json(design);
     } catch (error) {
@@ -5104,8 +5110,12 @@ Key guidelines:
     }
   });
 
-  app.delete("/api/program-designs/:id", async (req, res) => {
+  app.delete("/api/program-designs/:id", requireAuth, async (req, res) => {
     try {
+      const userId = getUserId(req)!;
+      const existing = await storage.getProgramDesign(req.params.id);
+      if (!existing) return res.status(404).json({ error: "Program design not found" });
+      if (existing.userId && existing.userId !== userId) return res.status(403).json({ error: "Access denied" });
       await storage.deleteProgramDesign(req.params.id);
       res.json({ success: true });
     } catch (error) {

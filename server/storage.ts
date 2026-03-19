@@ -73,8 +73,6 @@ import {
   type OnboardingBaselineSnapshot, type InsertOnboardingBaselineSnapshot,
   programDesigns,
   type ProgramDesign, type InsertProgramDesign,
-  cqiCycles, cqiGaps, cqiInterventions, cqiFidelityDefinitions, cqiFidelityObservations, cqiOutcomes,
-
   cqiCycles, cqiGaps, cqiInterventions, cqiFidelityDefinitions, cqiFidelityObservations, cqiOutcomes, cqiCyclePhases,
   type CqiCycle, type InsertCqiCycle,
   type CqiGap, type InsertCqiGap,
