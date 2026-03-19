@@ -301,6 +301,22 @@ const ECOSYSTEM_PLATFORMS = [
     },
     grantAlignment: ["samhsa", "dfc", "ssg-fox"],
   },
+  {
+    id: "collaborative-advocate",
+    name: "The Collaborative Advocate",
+    url: "https://the-colaberitive-advocate--mrterryflood.replit.app",
+    role: "vosb-services",
+    domain: "veteran-services",
+    description: "Veteran-Owned Small Business (VOSB) — service delivery arm of the ThriveUp ecosystem. Veteran advocacy, peer support coordination, workforce development consulting, and grant execution partner.",
+    capabilities: {
+      features: ["Veteran Advocacy", "Peer Support Coordination", "Workforce Development", "Grant Execution", "Community Partnerships", "Service Delivery"],
+    },
+    dataFlowConfig: {
+      sends: ["veteran_referrals", "service_delivery_metrics", "workforce_outcomes", "advocacy_cases"],
+      receives: ["crisis_alerts", "screening_results", "case_management_data", "provider_referrals", "grant_milestones"],
+    },
+    grantAlignment: ["ssg-fox", "wioa", "dfc", "st-davids"],
+  },
 ];
 
 function generateApiKey(): string {
