@@ -94,6 +94,7 @@ const grantEngineItems: NavItem[] = [
   { title: "Program Lifecycle", url: "/program-lifecycle", icon: RefreshCw },
   { title: "Grant Packages", url: "/grant-packages", icon: Package },
   { title: "E-Sign Center", url: "/esign", icon: PenTool },
+  { title: "Austin Initiative", url: "/austin", icon: MapPin },
 ];
 
 const aiToolsItems: NavItem[] = [
@@ -105,6 +106,7 @@ const aiToolsItems: NavItem[] = [
   { title: "Achievements", url: "/achievements", icon: Award },
   { title: "Certificates", url: "/certificates", icon: ScrollText },
   { title: "Community Map", url: "/community-map", icon: Map },
+  { title: "Roku & CTV Ads", url: "/roku-ads", icon: Smartphone },
 ];
 
 const myStudentItems: NavItem[] = [

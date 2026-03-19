@@ -3899,7 +3899,7 @@ For each slide, provide:
 Structure the presentation with: Title Slide, Agenda, Main Content (3-7 slides), Key Takeaways, Call to Action/Conclusion.
 Keep language age-appropriate for students. Make it engaging and visual.`,
 
-      "VIDEO_CREATOR": `You are a professional video scriptwriter. Create a complete video script/storyboard based on the user's request.
+      "VIDEO_CREATOR": `You are a professional video scriptwriter and streaming content strategist. Create a complete video script/storyboard based on the user's request.
 
 For each scene, provide:
 - **Scene [number]: [Title]** (with estimated duration)
@@ -3909,7 +3909,23 @@ For each scene, provide:
 - **Transition:** How to move to the next scene
 
 Include: Hook/Intro, Main Content, B-Roll suggestions, Outro/Call to Action.
-Keep it age-appropriate and engaging for student creators.`,
+Keep it age-appropriate and engaging for student creators.
+
+## Roku & CTV Ad Integration
+If the user mentions Roku, CTV, OTT, streaming ads, or ad monetization, additionally provide:
+- **Ad Break Markers:** Insert [AD BREAK - :15/:30/:60] markers at natural pause points (pre-roll, mid-roll, post-roll)
+- **VAST Tag Format:** Provide sample VAST 4.2 XML tag structure for each ad break position
+- **Roku Direct Publisher Feed:** Generate MRSS feed entry format for the video (title, description, thumbnail, content URL, ad break timestamps)
+- **Roku Ad Framework (RAF) Integration:** Provide BrightScript snippet showing RAF.setAdUrl() and RAF.stitchedAdHandledEvent() calls for each ad break
+- **Ad Placement Strategy:** Recommend optimal ad placement for viewer retention based on content length:
+  - Under 5 min: Pre-roll only
+  - 5-15 min: Pre-roll + 1 mid-roll
+  - 15-30 min: Pre-roll + 2 mid-rolls + post-roll
+  - 30+ min: Pre-roll + mid-roll every 8-10 min + post-roll
+- **Revenue Estimates:** Based on Roku's average CPM ($20-$40 for targeted CTV), estimate per-1000-views revenue
+- **Roku Channel Metadata:** Include channel poster art specs (HD: 540x405, FHD: 290x218), content rating, genre tags
+
+Always format Roku-specific output in a clearly labeled "## Roku & CTV Distribution" section at the end of the script.`,
 
       "SALES_PITCH": `You are a business coach teaching ethical sales. Create a compelling sales pitch based on the user's request.
 
@@ -4065,6 +4081,42 @@ Be thorough, practical, and age-appropriate. Format your response with clear hea
       console.error("Error in AI tool run:", error);
       res.write(`data: ${JSON.stringify({ error: "Failed to generate content" })}\n\n`);
       res.end();
+    }
+  });
+
+  app.post("/api/ai-tools/generate-roku-script", async (req, res) => {
+    const { prompt } = req.body;
+    if (!prompt) return res.status(400).json({ error: "Prompt is required" });
+    try {
+      const { generateAIResponse } = await import("./ai-provider");
+      const script = await generateAIResponse([
+        {
+          role: "system",
+          content: `You are a professional video scriptwriter and Roku/CTV streaming content strategist for ThriveUp Academy, a 20-platform AI-powered workforce development ecosystem founded by Dr. Terry Flood.
+
+Create complete video scripts optimized for Roku distribution with ad monetization.
+
+For each scene provide:
+- **Scene [number]: [Title]** (with estimated duration)
+- **Visual:** Camera angle, setting, actions
+- **Audio/Narration:** Voiceover text
+- **Text on Screen:** Titles, captions, graphics
+- **Transition:** How to move to next scene
+
+Then include a ## Roku & CTV Distribution section with:
+- **Ad Break Markers:** [AD BREAK - :15/:30/:60] at natural pause points
+- **Ad Placement Strategy:** Based on content length
+- **Revenue Estimates:** Based on Roku CTV CPM ($20-$40)
+- **MRSS Feed Entry:** For Roku Direct Publisher
+- **RAF Integration Notes:** BrightScript ad insertion points
+- **Channel Metadata:** Poster specs, rating, genre tags`
+        },
+        { role: "user", content: prompt }
+      ], 4000);
+      res.json({ script, content: script });
+    } catch (error) {
+      console.error("Error generating Roku script:", error);
+      res.status(500).json({ error: "Failed to generate Roku script" });
     }
   });
 

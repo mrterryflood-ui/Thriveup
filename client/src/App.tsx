@@ -133,6 +133,8 @@ const ProgramLifecyclePage = lazy(() => import("@/pages/program-lifecycle"));
 const GrantPackagesPage = lazy(() => import("@/pages/grant-packages"));
 const ESignPage = lazy(() => import("@/pages/esign"));
 const EcosystemConnectorPage = lazy(() => import("@/pages/ecosystem-connector"));
+const AustinHousingInitiativePage = lazy(() => import("@/pages/austin-housing-initiative"));
+const RokuAdsPage = lazy(() => import("@/pages/roku-ads"));
 
 function PageFallback() {
   return (
@@ -287,6 +289,8 @@ function AppRouter() {
       <Route path="/grant-packages" component={GrantPackagesPage} />
       <Route path="/esign" component={ESignPage} />
       <Route path="/esign/:id" component={ESignPage} />
+      <Route path="/austin" component={AustinHousingInitiativePage} />
+      <Route path="/roku-ads" component={RokuAdsPage} />
       <Route component={NotFound} />
     </Switch>
   );
