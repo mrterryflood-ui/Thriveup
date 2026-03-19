@@ -5123,7 +5123,7 @@ Key guidelines:
     }
   });
 
-  app.post("/api/program-designs/generate-recommendation", async (req, res) => {
+  app.post("/api/program-designs/generate-recommendation", requireAuth, async (req, res) => {
     try {
       const { problemDomain, communityContext, threeRealities } = req.body;
       if (!problemDomain) return res.status(400).json({ error: "problemDomain is required" });

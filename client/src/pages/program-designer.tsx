@@ -656,12 +656,12 @@ function Step4Summary({
             realities.ground ? `- **Ground Reality:** ${realities.ground}` : "",
             ``,
             recommendation ? `## AI-Generated Program Design` : "",
-            recommendation?.overview ? `### Overview\n${recommendation.overview}` : "",
-            recommendation?.disciplines ? `### Academic Disciplines\n${recommendation.disciplines.map(d => `- **${d.name}:** ${d.application}`).join("\n")}` : "",
-            recommendation?.interventions ? `### Recommended Interventions\n${recommendation.interventions.map(i => `- **${i.name}:** ${i.description} (Timeline: ${i.timeline})`).join("\n")}` : "",
-            recommendation?.metrics ? `### Outcome Metrics\n${recommendation.metrics.map(m => `- **${m.metric}:** ${m.target} (Source: ${m.dataSource})`).join("\n")}` : "",
-            recommendation?.grantAlignments ? `### Grant Alignments\n${recommendation.grantAlignments.map(g => `- **${g.grantName}:** ${g.alignmentScore}% alignment — ${g.keyRequirements}`).join("\n")}` : "",
-            recommendation?.ecosystemIntegration ? `### Ecosystem Integration\n${recommendation.ecosystemIntegration.map(e => `- **${e.platform}:** ${e.role}`).join("\n")}` : "",
+            recommendation?.disciplines ? `### Academic Disciplines\n${recommendation.disciplines.map(d => `- **${d.name}:** ${d.role}`).join("\n")}` : "",
+            recommendation?.programStructure?.phases ? `### Program Structure\n${recommendation.programStructure.phases.map(p => `#### ${p.name} (${p.duration})\n${p.activities.map(a => `- ${a}`).join("\n")}`).join("\n\n")}` : "",
+            recommendation?.stakeholders ? `### Key Stakeholders\n${recommendation.stakeholders.map(s => `- **${s.type}:** ${s.role}`).join("\n")}` : "",
+            recommendation?.salpIndicators ? `### SALP Indicators\n${recommendation.salpIndicators.map(s => `- **${s.indicator}:** ${s.measurementMethod}`).join("\n")}` : "",
+            recommendation?.grantAlignments ? `### Grant Alignments\n${recommendation.grantAlignments.map(g => `- **${g.grantName}:** ${g.alignmentScore}% alignment\n  Key alignments: ${(g.keyAlignments || []).join(", ")}`).join("\n")}` : "",
+            recommendation?.platforms ? `### Ecosystem Platform Integration\n${recommendation.platforms.map(p => `- **${p.name}:** ${p.purpose}`).join("\n")}` : "",
           ].filter(Boolean).join("\n");
 
           const blob = new Blob([doc], { type: "text/markdown" });
