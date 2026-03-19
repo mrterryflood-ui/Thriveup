@@ -1,0 +1,83 @@
+// ============================================================
+// ThriveUp Ecosystem Connector — Holistic Black Feminine Health Hub
+// Generated: 2026-03-19T03:23:57.707Z
+// Platform ID: sankofa-feminine-health
+// Role: feminine-health
+// Parent Network: Sankofa Health Network
+// Grant Alignment: samhsa, st-davids
+// ============================================================
+// DROP THIS FILE INTO YOUR PROJECT as ecosystem-connector.js
+// It does three things:
+//   1. Heartbeat — tells ThriveUp you are alive (every 5 min)
+//   2. Send Events — notify the ecosystem when things happen
+//   3. Receive Events — get events from other platforms
+//
+// Data this platform SENDS:
+//   - "health_screening_data"
+//   - "resource_recommendations"
+//   - "wellness_metrics"
+// Data this platform RECEIVES:
+//   - "crisis_alerts"
+//   - "community_health_data"
+//   - "maternal_health_referrals"
+// ============================================================
+
+const THRIVE_ECOSYSTEM_CONFIG = {
+  hubUrl: "https://thrivingcommunitiesforall.com",
+  platformId: "sankofa-feminine-health",
+  apiKey: "tveco_4a48c9cef347d76495563ff1f9ec3184f641ab0b6b1e5c8fa8a4ec75e89f9d04",
+  heartbeatIntervalMs: 5 * 60 * 1000,
+};
+
+async function sendHeartbeat(metrics = {}) {
+  try {
+    const response = await fetch(`${THRIVE_ECOSYSTEM_CONFIG.hubUrl}/api/ecosystem/heartbeat`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-ecosystem-key": THRIVE_ECOSYSTEM_CONFIG.apiKey },
+      body: JSON.stringify({ platformId: THRIVE_ECOSYSTEM_CONFIG.platformId, metrics, timestamp: new Date().toISOString() }),
+    });
+    const data = await response.json();
+    if (data.pendingEvents?.length > 0) {
+      for (const event of data.pendingEvents) { await handleIncomingEvent(event); }
+    }
+    return data;
+  } catch (error) {
+    console.error("[ThriveUp Ecosystem] Heartbeat failed:", error.message);
+  }
+}
+
+async function sendEcosystemEvent(eventType, eventData, targetPlatformId = null) {
+  try {
+    const response = await fetch(`${THRIVE_ECOSYSTEM_CONFIG.hubUrl}/api/ecosystem/event`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-ecosystem-key": THRIVE_ECOSYSTEM_CONFIG.apiKey },
+      body: JSON.stringify({ eventType, eventData, targetPlatformId }),
+    });
+    return await response.json();
+  } catch (error) {
+    console.error("[ThriveUp Ecosystem] Event send failed:", error.message);
+  }
+}
+
+async function handleIncomingEvent(event) {
+  console.log(`[ThriveUp Ecosystem] Received: ${event.eventType} from ${event.sourcePlatformId}`);
+}
+
+async function getIntegrationDoc() {
+  try {
+    const response = await fetch(`${THRIVE_ECOSYSTEM_CONFIG.hubUrl}/api/ecosystem/integration-doc`, {
+      headers: { "x-ecosystem-key": THRIVE_ECOSYSTEM_CONFIG.apiKey },
+    });
+    return await response.json();
+  } catch (error) {
+    console.error("[ThriveUp Ecosystem] Failed to fetch integration doc:", error.message);
+  }
+}
+
+setInterval(() => sendHeartbeat(), THRIVE_ECOSYSTEM_CONFIG.heartbeatIntervalMs);
+sendHeartbeat();
+console.log("[ThriveUp Ecosystem] Holistic Black Feminine Health Hub connector initialized — ID: sankofa-feminine-health");
+
+if (typeof module !== "undefined") {
+  module.exports = { sendHeartbeat, sendEcosystemEvent, getIntegrationDoc, THRIVE_ECOSYSTEM_CONFIG };
+}

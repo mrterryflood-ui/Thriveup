@@ -140,6 +140,57 @@ const ECOSYSTEM_PLATFORMS = [
     grantAlignment: ["samhsa", "st-davids", "dfc", "ssg-fox"],
   },
   {
+    id: "sankofa-feminine-health",
+    name: "Holistic Black Feminine Health Hub",
+    url: "https://holistic-black-feminine-health-hub.replit.app",
+    role: "feminine-health",
+    domain: "health-equity",
+    description: "Holistic OB/GYN health hub for Black women — reproductive health, hormonal wellness, preventive screenings, community support, and culturally responsive care navigation.",
+    capabilities: {
+      features: ["Reproductive Health Guides", "Preventive Screening Tools", "Hormonal Wellness", "Community Support", "Culturally Responsive Care"],
+      parentNetwork: "sankofa",
+    },
+    dataFlowConfig: {
+      sends: ["health_screening_data", "resource_recommendations", "wellness_metrics"],
+      receives: ["crisis_alerts", "community_health_data", "maternal_health_referrals"],
+    },
+    grantAlignment: ["samhsa", "st-davids"],
+  },
+  {
+    id: "sankofa-maternal-health",
+    name: "Black Maternal Health Network",
+    url: "https://black-maternal-health-network.replit.app",
+    role: "maternal-health",
+    domain: "health-equity",
+    description: "Addressing the Black maternal mortality crisis — prenatal/postnatal care navigation, doula matching, risk assessment, community health worker coordination, and maternal mental health support.",
+    capabilities: {
+      features: ["Maternal Risk Assessment", "Doula Matching", "Prenatal/Postnatal Care", "Maternal Mental Health", "Community Health Workers"],
+      parentNetwork: "sankofa",
+    },
+    dataFlowConfig: {
+      sends: ["maternal_health_data", "risk_assessments", "doula_referrals", "wellness_metrics"],
+      receives: ["crisis_alerts", "community_health_data", "feminine_health_referrals"],
+    },
+    grantAlignment: ["samhsa", "st-davids"],
+  },
+  {
+    id: "sankofa-mens-health",
+    name: "Black Men's Health Hub",
+    url: "https://black-men-health.replit.app",
+    role: "mens-health",
+    domain: "health-equity",
+    description: "Comprehensive health platform for Black men — prostate health, cardiovascular risk, mental health stigma reduction, preventive care, and peer support networks.",
+    capabilities: {
+      features: ["Prostate Health Screening", "Cardiovascular Risk Assessment", "Mental Health Support", "Preventive Care Guides", "Peer Support Network"],
+      parentNetwork: "sankofa",
+    },
+    dataFlowConfig: {
+      sends: ["health_screening_data", "resource_recommendations", "wellness_metrics"],
+      receives: ["crisis_alerts", "community_health_data", "veteran_health_referrals"],
+    },
+    grantAlignment: ["samhsa", "st-davids", "ssg-fox"],
+  },
+  {
     id: "wholemind",
     name: "WholeMind Learning",
     url: "https://life-pals-standalone.replit.app",
