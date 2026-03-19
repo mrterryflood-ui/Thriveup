@@ -722,6 +722,97 @@ export function registerEcosystemConnectorRoutes(app: Express) {
     }
   });
 
+  app.get("/api/ecosystem/directives/repository", async (req, res) => {
+    try {
+      const directives = await db.select().from(ecosystemDirectives)
+        .where(eq(ecosystemDirectives.status, "active"))
+        .orderBy(desc(ecosystemDirectives.createdAt));
+
+      const platforms = await db.select({ id: ecosystemPlatforms.id, name: ecosystemPlatforms.name }).from(ecosystemPlatforms);
+      const platformMap = Object.fromEntries(platforms.map((p) => [p.id, p.name]));
+
+      const requestingPlatformId = req.query.platformId as string | undefined;
+
+      const repository = directives.map((d) => {
+        const entry: any = {
+          directiveId: d.id,
+          title: d.title,
+          type: d.directiveType,
+          content: d.content,
+          grantId: d.grantId,
+          issuedAt: d.createdAt,
+          expiresAt: d.expiresAt,
+          targetPlatforms: (d.targetPlatformIds as string[] || []).map((id: string) => ({ id, name: platformMap[id] || id })),
+        };
+        if (d.platformRoles && typeof d.platformRoles === "object") {
+          const roles = d.platformRoles as Record<string, string>;
+          if (requestingPlatformId && roles[requestingPlatformId]) {
+            entry.yourRole = roles[requestingPlatformId];
+          }
+        }
+        if (d.trackingRequirements) {
+          entry.trackingRequirements = d.trackingRequirements;
+        }
+        return entry;
+      });
+
+      res.json({
+        totalDirectives: repository.length,
+        lastUpdated: new Date().toISOString(),
+        requestingPlatform: requestingPlatformId || null,
+        directives: repository,
+      });
+    } catch (error) {
+      console.error("Failed to fetch directives repository:", error);
+      res.status(500).json({ error: "Failed to fetch directives repository" });
+    }
+  });
+
+  app.get("/api/ecosystem/directives/repository/:platformId", async (req, res) => {
+    try {
+      const { platformId } = req.params;
+      const [platform] = await db.select().from(ecosystemPlatforms).where(eq(ecosystemPlatforms.id, platformId));
+      if (!platform) {
+        return res.status(404).json({ error: "Platform not found" });
+      }
+
+      const acks = await db.select().from(ecosystemDirectiveAcks)
+        .where(eq(ecosystemDirectiveAcks.platformId, platformId));
+
+      const directiveDetails = await Promise.all(acks.map(async (a) => {
+        const [d] = await db.select().from(ecosystemDirectives).where(eq(ecosystemDirectives.id, a.directiveId));
+        if (!d) return null;
+        const roles = (d.platformRoles as Record<string, string>) || {};
+        return {
+          directiveId: d.id,
+          title: d.title,
+          type: d.directiveType,
+          content: d.content,
+          grantId: d.grantId,
+          yourRole: roles[platformId] || null,
+          trackingRequirements: d.trackingRequirements,
+          deliveryStatus: a.status,
+          issuedAt: d.createdAt,
+          deliveredAt: a.status === "delivered" ? a.acknowledgedAt : null,
+          acknowledgedAt: a.status === "acknowledged" ? a.acknowledgedAt : null,
+        };
+      }));
+
+      const filtered = directiveDetails.filter(Boolean);
+      res.json({
+        platform: { id: platform.id, name: platform.name },
+        totalDirectives: filtered.length,
+        pending: filtered.filter((d: any) => d.deliveryStatus === "pending").length,
+        delivered: filtered.filter((d: any) => d.deliveryStatus === "delivered").length,
+        acknowledged: filtered.filter((d: any) => d.deliveryStatus === "acknowledged").length,
+        directives: filtered,
+      });
+    } catch (error) {
+      console.error("Failed to fetch platform directives:", error);
+      res.status(500).json({ error: "Failed to fetch platform directives" });
+    }
+  });
+
   app.get("/api/ecosystem/directives", requireAdminAuth, async (_req, res) => {
     try {
       const directives = await db.select().from(ecosystemDirectives).orderBy(desc(ecosystemDirectives.createdAt));
