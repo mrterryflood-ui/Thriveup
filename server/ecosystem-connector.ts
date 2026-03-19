@@ -1,7 +1,7 @@
 import type { Express, Request, Response } from "express";
 import { db } from "./storage";
-import { ecosystemPlatforms, ecosystemEvents, ecosystemHealthLogs } from "@shared/schema";
-import { eq, desc, and, gte, sql } from "drizzle-orm";
+import { ecosystemPlatforms, ecosystemEvents, ecosystemHealthLogs, ecosystemDirectives, ecosystemDirectiveAcks } from "@shared/schema";
+import { eq, desc, and, gte, sql, inArray } from "drizzle-orm";
 import crypto from "crypto";
 import { z } from "zod";
 
@@ -535,10 +535,40 @@ export function registerEcosystemConnectorRoutes(app: Express) {
         }
       }
 
+      const pendingDirectiveAcks = await db.select().from(ecosystemDirectiveAcks)
+        .where(and(
+          eq(ecosystemDirectiveAcks.platformId, platform.id),
+          eq(ecosystemDirectiveAcks.status, "pending"),
+        ));
+
+      const pendingDirectives = [];
+      for (const ack of pendingDirectiveAcks) {
+        const [directive] = await db.select().from(ecosystemDirectives)
+          .where(eq(ecosystemDirectives.id, ack.directiveId));
+        if (directive && directive.status === "active") {
+          const platformRoles = (directive.platformRoles as Record<string, string>) || {};
+          pendingDirectives.push({
+            directiveId: directive.id,
+            title: directive.title,
+            type: directive.directiveType,
+            content: directive.content,
+            grantId: directive.grantId,
+            yourRole: platformRoles[platform.id] || null,
+            trackingRequirements: directive.trackingRequirements,
+            issuedAt: directive.createdAt,
+            expiresAt: directive.expiresAt,
+          });
+          await db.update(ecosystemDirectiveAcks)
+            .set({ status: "delivered" })
+            .where(eq(ecosystemDirectiveAcks.id, ack.id));
+        }
+      }
+
       res.json({
         acknowledged: true,
         platformId: platform.id,
         pendingEvents: pendingEvents,
+        pendingDirectives: pendingDirectives,
         serverTime: new Date().toISOString(),
       });
     } catch (error) {
@@ -630,6 +660,149 @@ export function registerEcosystemConnectorRoutes(app: Express) {
       });
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch ecosystem status" });
+    }
+  });
+
+  app.post("/api/ecosystem/directives", requireAdminAuth, async (req, res) => {
+    try {
+      const { title, directiveType, content, grantId, targetPlatformIds, platformRoles, trackingRequirements, expiresAt } = req.body;
+
+      if (!title || !directiveType || !content || !targetPlatformIds || !Array.isArray(targetPlatformIds) || targetPlatformIds.length === 0) {
+        return res.status(400).json({ error: "title, directiveType, content, and targetPlatformIds (array) are required" });
+      }
+
+      const [directive] = await db.insert(ecosystemDirectives).values({
+        title,
+        directiveType,
+        content,
+        grantId: grantId || null,
+        targetPlatformIds,
+        platformRoles: platformRoles || {},
+        trackingRequirements: trackingRequirements || null,
+        status: "active",
+        expiresAt: expiresAt ? new Date(expiresAt) : null,
+      }).returning();
+
+      const ackResults = [];
+      for (const platformId of targetPlatformIds) {
+        const [ack] = await db.insert(ecosystemDirectiveAcks).values({
+          directiveId: directive.id,
+          platformId,
+          status: "pending",
+        }).returning();
+        ackResults.push(ack);
+      }
+
+      res.json({
+        directive,
+        acknowledgments: ackResults,
+        message: `Directive broadcast to ${targetPlatformIds.length} platforms. They will receive it on next heartbeat (within 5 minutes).`,
+      });
+    } catch (error) {
+      console.error("Failed to create directive:", error);
+      res.status(500).json({ error: "Failed to create directive" });
+    }
+  });
+
+  app.get("/api/ecosystem/directives", requireAdminAuth, async (_req, res) => {
+    try {
+      const directives = await db.select().from(ecosystemDirectives).orderBy(desc(ecosystemDirectives.createdAt));
+
+      const directivesWithAcks = await Promise.all(directives.map(async (d) => {
+        const acks = await db.select().from(ecosystemDirectiveAcks).where(eq(ecosystemDirectiveAcks.directiveId, d.id));
+        const platforms = await db.select().from(ecosystemPlatforms);
+        const platformMap = Object.fromEntries(platforms.map((p) => [p.id, p.name]));
+
+        return {
+          ...d,
+          acknowledgments: acks.map((a) => ({
+            ...a,
+            platformName: platformMap[a.platformId] || a.platformId,
+          })),
+          stats: {
+            total: acks.length,
+            pending: acks.filter((a) => a.status === "pending").length,
+            delivered: acks.filter((a) => a.status === "delivered").length,
+            acknowledged: acks.filter((a) => a.status === "acknowledged").length,
+          },
+        };
+      }));
+
+      res.json(directivesWithAcks);
+    } catch (error) {
+      console.error("Failed to fetch directives:", error);
+      res.status(500).json({ error: "Failed to fetch directives" });
+    }
+  });
+
+  app.get("/api/ecosystem/directives/:directiveId", requireAdminAuth, async (req, res) => {
+    try {
+      const { directiveId } = req.params;
+      const [directive] = await db.select().from(ecosystemDirectives).where(eq(ecosystemDirectives.id, directiveId));
+      if (!directive) return res.status(404).json({ error: "Directive not found" });
+
+      const acks = await db.select().from(ecosystemDirectiveAcks).where(eq(ecosystemDirectiveAcks.directiveId, directiveId));
+      const platforms = await db.select().from(ecosystemPlatforms);
+      const platformMap = Object.fromEntries(platforms.map((p) => [p.id, p.name]));
+
+      res.json({
+        ...directive,
+        acknowledgments: acks.map((a) => ({
+          ...a,
+          platformName: platformMap[a.platformId] || a.platformId,
+        })),
+        stats: {
+          total: acks.length,
+          pending: acks.filter((a) => a.status === "pending").length,
+          delivered: acks.filter((a) => a.status === "delivered").length,
+          acknowledged: acks.filter((a) => a.status === "acknowledged").length,
+        },
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch directive" });
+    }
+  });
+
+  app.post("/api/ecosystem/directives/:directiveId/acknowledge", requireEcosystemAuth, async (req, res) => {
+    try {
+      const { directiveId } = req.params;
+      const apiKey = req.headers["x-ecosystem-key"] as string;
+      const [platform] = await db.select().from(ecosystemPlatforms).where(eq(ecosystemPlatforms.apiKey, apiKey));
+      if (!platform) return res.status(403).json({ error: "Invalid ecosystem key" });
+
+      const [ack] = await db.select().from(ecosystemDirectiveAcks)
+        .where(and(
+          eq(ecosystemDirectiveAcks.directiveId, directiveId),
+          eq(ecosystemDirectiveAcks.platformId, platform.id),
+        ));
+
+      if (!ack) return res.status(404).json({ error: "No directive acknowledgment found for this platform" });
+
+      await db.update(ecosystemDirectiveAcks)
+        .set({
+          status: "acknowledged",
+          acknowledgedAt: new Date(),
+          responseData: req.body.responseData || null,
+        })
+        .where(eq(ecosystemDirectiveAcks.id, ack.id));
+
+      res.json({ acknowledged: true, directiveId, platformId: platform.id });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to acknowledge directive" });
+    }
+  });
+
+  app.patch("/api/ecosystem/directives/:directiveId", requireAdminAuth, async (req, res) => {
+    try {
+      const { directiveId } = req.params;
+      const { status } = req.body;
+      if (!["active", "expired", "revoked"].includes(status)) {
+        return res.status(400).json({ error: "Status must be active, expired, or revoked" });
+      }
+      await db.update(ecosystemDirectives).set({ status }).where(eq(ecosystemDirectives.id, directiveId));
+      res.json({ updated: true, directiveId, status });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update directive" });
     }
   });
 

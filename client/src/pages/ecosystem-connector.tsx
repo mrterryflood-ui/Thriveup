@@ -7,12 +7,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Wifi, WifiOff, Activity, Heart, Shield, Globe, Zap,
   CheckCircle2, Clock, AlertTriangle, Loader2,
   Code, Copy, ExternalLink, Radio, ArrowLeftRight,
   Rocket, Server, Users, BookOpen, GraduationCap,
   Brain, Phone, Factory, Stethoscope, Pill, Cpu,
+  Send, FileCheck,
   FileText, ClipboardList, Briefcase, Filter, Eye,
 } from "lucide-react";
 import type { EcosystemPlatform, EcosystemEvent } from "@shared/schema";
@@ -106,6 +110,11 @@ export default function EcosystemConnectorPage() {
   const [snippetInstructions, setSnippetInstructions] = useState<string[]>([]);
   const [grantLens, setGrantLens] = useState<string>("all");
   const [activeTab, setActiveTab] = useState<string>("platforms");
+  const [directiveTitle, setDirectiveTitle] = useState("");
+  const [directiveType, setDirectiveType] = useState("protocol_update");
+  const [directiveContent, setDirectiveContent] = useState("");
+  const [directiveGrant, setDirectiveGrant] = useState("all");
+  const [selectedTargets, setSelectedTargets] = useState<string[]>([]);
 
   const { data: platforms = [], isLoading: platformsLoading } = useQuery<EcosystemPlatform[]>({
     queryKey: ["/api/ecosystem/platforms"],
@@ -126,6 +135,27 @@ export default function EcosystemConnectorPage() {
   const { data: events = [] } = useQuery<EcosystemEvent[]>({
     queryKey: ["/api/ecosystem/events"],
     refetchInterval: 5 * 60 * 1000,
+  });
+
+  const { data: directives = [] } = useQuery<any[]>({
+    queryKey: ["/api/ecosystem/directives"],
+    refetchInterval: 5 * 60 * 1000,
+  });
+
+  const broadcastMutation = useMutation({
+    mutationFn: async (payload: any) => {
+      const res = await apiRequest("POST", "/api/ecosystem/directives", payload);
+      return res.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/ecosystem/directives"] });
+      setDirectiveTitle("");
+      setDirectiveContent("");
+      setSelectedTargets([]);
+      setDirectiveGrant("all");
+      toast({ title: "Directive broadcast", description: data.message });
+    },
+    onError: () => toast({ title: "Failed to broadcast directive", variant: "destructive" }),
   });
 
   const initMutation = useMutation({
@@ -348,6 +378,7 @@ export default function EcosystemConnectorPage() {
             <TabsTrigger value="integration" data-testid="tab-integration"><Code className="h-4 w-4 mr-1.5" />Integration Code</TabsTrigger>
             <TabsTrigger value="playbook" data-testid="tab-playbook"><FileText className="h-4 w-4 mr-1.5" />Integration Playbook</TabsTrigger>
             <TabsTrigger value="events" data-testid="tab-events"><ArrowLeftRight className="h-4 w-4 mr-1.5" />Event Log ({events.length})</TabsTrigger>
+            <TabsTrigger value="directives" data-testid="tab-directives"><Send className="h-4 w-4 mr-1.5" />Directives ({directives.length})</TabsTrigger>
           </TabsList>
 
           <TabsContent value="platforms" className="space-y-3 mt-4">

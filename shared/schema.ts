@@ -3342,4 +3342,33 @@ export type EcosystemEvent = typeof ecosystemEvents.$inferSelect;
 
 export type EcosystemHealthLog = typeof ecosystemHealthLogs.$inferSelect;
 
+export const ecosystemDirectives = pgTable("ecosystem_directives", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  title: text("title").notNull(),
+  directiveType: varchar("directive_type", { length: 100 }).notNull(),
+  content: text("content").notNull(),
+  grantId: varchar("grant_id", { length: 100 }),
+  targetPlatformIds: jsonb("target_platform_ids").notNull(),
+  platformRoles: jsonb("platform_roles"),
+  trackingRequirements: jsonb("tracking_requirements"),
+  status: varchar("status", { length: 50 }).notNull().default("active"),
+  createdAt: timestamp("created_at").defaultNow(),
+  expiresAt: timestamp("expires_at"),
+});
+
+export const ecosystemDirectiveAcks = pgTable("ecosystem_directive_acks", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  directiveId: varchar("directive_id", { length: 100 }).notNull(),
+  platformId: varchar("platform_id", { length: 100 }).notNull(),
+  status: varchar("status", { length: 50 }).notNull().default("pending"),
+  acknowledgedAt: timestamp("acknowledged_at"),
+  responseData: jsonb("response_data"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertEcosystemDirectiveSchema = createInsertSchema(ecosystemDirectives).omit({ id: true, createdAt: true });
+export type InsertEcosystemDirective = z.infer<typeof insertEcosystemDirectiveSchema>;
+export type EcosystemDirective = typeof ecosystemDirectives.$inferSelect;
+export type EcosystemDirectiveAck = typeof ecosystemDirectiveAcks.$inferSelect;
+
 export * from "./models/auth";
