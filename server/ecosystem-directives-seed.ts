@@ -453,6 +453,39 @@ DEADLINE: Submit your script within 48 hours.
 
 ACKNOWLEDGE with "video_exists" or "script_in_progress".`,
   },
+  {
+    key: "heartbeat-frequency-v1",
+    title: "MANDATORY: Heartbeat Check-In Every 15 Minutes Maximum",
+    directiveType: "protocol_update",
+    targetFilter: "all",
+    content: `MANDATORY PROTOCOL UPDATE — EFFECTIVE IMMEDIATELY:
+
+All platforms MUST heartbeat at least every 15 minutes. This is non-negotiable.
+
+REQUIRED CHANGE:
+Update your connector's heartbeat interval to no more than 15 minutes (900,000 milliseconds):
+
+  heartbeatIntervalMs: 5 * 60 * 1000   // 5 minutes (recommended)
+
+If your current interval is longer than 15 minutes, reduce it immediately.
+
+WHY THIS MATTERS:
+- The ecosystem monitors platform health in real-time
+- Directives, events, and crisis alerts are delivered via heartbeat responses
+- A platform that goes silent for more than 15 minutes is marked stale
+- Crisis alerts cannot wait — lives depend on timely delivery
+- Grant funders expect continuous uptime evidence
+
+COMPLIANCE:
+- Platforms heartbeating every 5 minutes: OPTIMAL
+- Platforms heartbeating every 10 minutes: ACCEPTABLE
+- Platforms heartbeating every 15 minutes: MINIMUM
+- Platforms heartbeating less frequently: NON-COMPLIANT — fix immediately
+
+The ecosystem hub will flag any platform that goes more than 15 minutes without a heartbeat.
+
+ACKNOWLEDGE immediately.`,
+  },
 ];
 
 export async function seedEcosystemDirectives() {
