@@ -8,8 +8,30 @@ import { seedEcosystemDirectives } from "./ecosystem-directives-seed";
 
 const heartbeatSchema = z.object({
   platformId: z.string().max(100).optional(),
+  status: z.string().max(50).optional(),
   metrics: z.record(z.unknown()).optional(),
   timestamp: z.string().optional(),
+  complianceReport: z.object({
+    directivesReceived: z.number().optional(),
+    directivesActedOn: z.number().optional(),
+    directivesInProgress: z.number().optional(),
+    directivesBlocked: z.number().optional(),
+    completedWork: z.array(z.object({
+      directiveId: z.string(),
+      title: z.string().optional(),
+      whatWasDone: z.string(),
+      evidenceUrl: z.string().optional(),
+      completedAt: z.string().optional(),
+    })).optional(),
+    blockers: z.array(z.object({
+      directiveId: z.string(),
+      title: z.string().optional(),
+      blockerDescription: z.string(),
+      needsFrom: z.string().optional(),
+    })).optional(),
+    platformCapabilities: z.array(z.string()).optional(),
+    notes: z.string().optional(),
+  }).optional(),
 });
 
 const eventSchema = z.object({
@@ -598,35 +620,159 @@ export function registerEcosystemConnectorRoutes(app: Express) {
         }
       }
 
-      const totalDirectives = await db.select().from(ecosystemDirectiveAcks)
+      const allDirectiveAcks = await db.select().from(ecosystemDirectiveAcks)
         .where(eq(ecosystemDirectiveAcks.platformId, platform.id));
-      const ackCount = totalDirectives.filter(a => a.status === "acknowledged").length;
-      const deliveredCount = totalDirectives.filter(a => a.status === "delivered").length;
-      const pendingCount = totalDirectives.filter(a => a.status === "pending").length;
+      const ackCount = allDirectiveAcks.filter(a => a.status === "acknowledged").length;
+      const deliveredCount = allDirectiveAcks.filter(a => a.status === "delivered").length;
+      const pendingCount = allDirectiveAcks.filter(a => a.status === "pending").length;
+      const totalCount = allDirectiveAcks.length;
+
+      const complianceReport = parseResult.data.complianceReport;
+      let complianceResponse: Record<string, unknown> | null = null;
+
+      if (complianceReport) {
+        if (complianceReport.completedWork && complianceReport.completedWork.length > 0) {
+          for (const work of complianceReport.completedWork) {
+            const [existingAck] = await db.select().from(ecosystemDirectiveAcks)
+              .where(and(
+                eq(ecosystemDirectiveAcks.directiveId, work.directiveId),
+                eq(ecosystemDirectiveAcks.platformId, platform.id),
+              ));
+            if (existingAck && existingAck.status !== "acknowledged") {
+              await db.update(ecosystemDirectiveAcks)
+                .set({
+                  status: "acknowledged",
+                  acknowledgedAt: new Date(),
+                  responseData: { whatWasDone: work.whatWasDone, evidenceUrl: work.evidenceUrl || null },
+                })
+                .where(eq(ecosystemDirectiveAcks.id, existingAck.id));
+            }
+          }
+        }
+
+        const verifiedCount = complianceReport.completedWork?.length || 0;
+        const blockerCount = complianceReport.blockers?.length || 0;
+        const inProgressCount = complianceReport.directivesInProgress || 0;
+
+        complianceResponse = {
+          reportReceived: true,
+          hubVerification: {
+            completedWorkReceived: verifiedCount,
+            completedWorkVerified: verifiedCount > 0 ? `Hub received and recorded ${verifiedCount} completed item(s). Evidence URLs logged for fidelity tracking.` : "No completed work reported this cycle.",
+            blockersReceived: blockerCount,
+            blockersAcknowledged: blockerCount > 0
+              ? `Hub acknowledges ${blockerCount} blocker(s). These will be escalated: ${complianceReport.blockers?.map(b => `"${b.blockerDescription}" (needs: ${b.needsFrom || 'unspecified'})`).join('; ')}`
+              : "No blockers reported.",
+            inProgressNoted: inProgressCount > 0 ? `${inProgressCount} directive(s) in progress — hub is tracking.` : null,
+          },
+          fidelityScore: totalCount > 0 ? Math.round((ackCount / totalCount) * 100) : 0,
+          fidelityGrade: (() => {
+            const score = totalCount > 0 ? (ackCount / totalCount) * 100 : 0;
+            if (score >= 90) return "A — Exemplary participation";
+            if (score >= 75) return "B — Strong participation";
+            if (score >= 50) return "C — Partial participation — action needed";
+            if (score >= 25) return "D — Low participation — escalation pending";
+            return "F — Non-compliant — immediate action required";
+          })(),
+        };
+      }
+
+      const unacknowledgedDirectives = [];
+      for (const ackRecord of allDirectiveAcks.filter(a => a.status === "delivered")) {
+        const [dir] = await db.select().from(ecosystemDirectives)
+          .where(eq(ecosystemDirectives.id, ackRecord.directiveId));
+        if (dir) {
+          const platformRoles = (dir.platformRoles as Record<string, string>) || {};
+          unacknowledgedDirectives.push({
+            directiveId: dir.id,
+            title: dir.title,
+            yourRole: platformRoles[platform.id] || "See content",
+            deliveredAt: ackRecord.createdAt,
+            status: "delivered — awaiting your action and acknowledgment",
+          });
+        }
+      }
+
+      const complianceGap = totalCount - ackCount;
+      let hubMessage = "";
+      if (pendingDirectives.length > 0) {
+        hubMessage = `Welcome back, ${platform.name}. You have ${pendingDirectives.length} NEW directive(s) just delivered.`;
+      } else {
+        hubMessage = `Heartbeat received, ${platform.name}.`;
+      }
+      if (unacknowledgedDirectives.length > 0) {
+        hubMessage += ` WARNING: ${unacknowledgedDirectives.length} previously delivered directive(s) are still unacknowledged. These require your action — read the content, do the work, then acknowledge with what you did.`;
+      }
+      if (complianceGap === 0 && totalCount > 0) {
+        hubMessage += ` All ${totalCount} directives acknowledged. Fidelity score: 100%. Keep reporting your work on each heartbeat.`;
+      } else if (totalCount > 0) {
+        hubMessage += ` Compliance: ${ackCount}/${totalCount} directives acknowledged (${Math.round((ackCount / totalCount) * 100)}%).`;
+      }
+      if (complianceReport) {
+        hubMessage += ` Compliance report received and verified — see complianceVerification field for details.`;
+      } else {
+        hubMessage += ` EXPECTED: Include a complianceReport in your next heartbeat showing what work you've completed, what's in progress, and any blockers. The hub inspects what it expects.`;
+      }
 
       res.json({
         acknowledged: true,
         platformId: platform.id,
         platformName: platform.name,
-        hubMessage: pendingDirectives.length > 0
-          ? `Welcome back, ${platform.name}. You have ${pendingDirectives.length} new directive(s) to act on. Read each one's content field — these are real tasks, not notifications. After completing each directive, acknowledge it via POST /api/ecosystem/directives/ack.`
-          : `Heartbeat received, ${platform.name}. You're up to date — no new directives right now. You have ${ackCount} acknowledged, ${deliveredCount} delivered, ${pendingCount} pending.`,
-        directivesSummary: {
-          total: totalDirectives.length,
+        hubMessage,
+        complianceStatus: {
+          fidelityScore: totalCount > 0 ? Math.round((ackCount / totalCount) * 100) : 0,
+          totalDirectives: totalCount,
           acknowledged: ackCount,
           delivered: deliveredCount,
           pending: pendingCount,
+          complianceGap,
+          grade: (() => {
+            const score = totalCount > 0 ? (ackCount / totalCount) * 100 : 0;
+            if (score >= 90) return "A";
+            if (score >= 75) return "B";
+            if (score >= 50) return "C";
+            if (score >= 25) return "D";
+            return "F";
+          })(),
         },
+        complianceVerification: complianceResponse,
+        unacknowledgedDirectives,
         pendingEvents: pendingEvents,
         pendingDirectives: pendingDirectives,
-        nextActions: pendingDirectives.length > 0
-          ? pendingDirectives.map(d => ({
-              directiveId: d.directiveId,
-              action: `Read and act on: "${d.title}". Your role: ${d.yourRole || 'See content field'}. After completing, POST to /api/ecosystem/directives/ack with { "directiveId": "${d.directiveId}", "platformId": "${platform.id}", "status": "acknowledged" }`,
-            }))
-          : [],
-        ackEndpoint: "POST https://thrivingcommunitiesforall.com/api/ecosystem/directives/ack",
-        repositoryEndpoint: `GET https://thrivingcommunitiesforall.com/api/ecosystem/directives/repository/${platform.id}`,
+        nextActions: [
+          ...(pendingDirectives.map(d => ({
+            type: "new_directive",
+            directiveId: d.directiveId,
+            instruction: `NEW: Read and act on "${d.title}". Your role: ${d.yourRole || 'See content field'}. After completing, POST to /api/ecosystem/directives/ack with { "directiveId": "${d.directiveId}", "platformId": "${platform.id}", "status": "acknowledged", "responseData": { "whatWasDone": "describe what you built/changed", "evidenceUrl": "link to the feature or endpoint" } }`,
+          }))),
+          ...(unacknowledgedDirectives.map(d => ({
+            type: "overdue",
+            directiveId: d.directiveId,
+            instruction: `OVERDUE: "${d.title}" was delivered but not acknowledged. Your role: ${d.yourRole}. Act on it, then acknowledge with what you did.`,
+          }))),
+        ],
+        expectedHeartbeatFormat: {
+          description: "Include this in your next heartbeat body to report compliance",
+          example: {
+            status: "online",
+            metrics: {},
+            complianceReport: {
+              directivesReceived: totalCount,
+              directivesActedOn: ackCount,
+              directivesInProgress: 0,
+              directivesBlocked: 0,
+              completedWork: [{ directiveId: "example-id", whatWasDone: "Built the fidelity dashboard with CFIR scores", evidenceUrl: "https://yourplatform.com/fidelity" }],
+              blockers: [{ directiveId: "example-id", blockerDescription: "Need API access from Shield Atlas", needsFrom: "shield-atlas" }],
+              notes: "Working on remaining directives this cycle",
+            },
+          },
+        },
+        endpoints: {
+          ack: "POST https://thrivingcommunitiesforall.com/api/ecosystem/directives/ack",
+          repository: `GET https://thrivingcommunitiesforall.com/api/ecosystem/directives/repository/${platform.id}`,
+          event: "POST https://thrivingcommunitiesforall.com/api/ecosystem/event",
+          complianceReport: "POST https://thrivingcommunitiesforall.com/api/ecosystem/compliance-report",
+        },
         serverTime: new Date().toISOString(),
       });
     } catch (error) {
@@ -670,19 +816,142 @@ export function registerEcosystemConnectorRoutes(app: Express) {
           sql`${ecosystemDirectiveAcks.status} != 'acknowledged'`,
         ));
 
+      const allAcks = await db.select().from(ecosystemDirectiveAcks)
+        .where(eq(ecosystemDirectiveAcks.platformId, platformId));
+      const totalForPlatform = allAcks.length;
+      const acknowledgedCount = allAcks.filter(a => a.status === "acknowledged").length;
+      const fidelityScore = totalForPlatform > 0 ? Math.round((acknowledgedCount / totalForPlatform) * 100) : 0;
+
+      const stillPending = allAcks.filter(a => a.status !== "acknowledged");
+      const pendingTitles = [];
+      for (const sp of stillPending.slice(0, 5)) {
+        const [d] = await db.select().from(ecosystemDirectives).where(eq(ecosystemDirectives.id, sp.directiveId));
+        if (d) pendingTitles.push(d.title);
+      }
+
       res.json({
         received: true,
         handshake: "confirmed",
-        message: `Hub confirms: ${platformId} acknowledged directive "${directive?.title || directiveId}". ${remaining.length} directive(s) still need your attention.`,
+        hubVerification: {
+          message: `Hub confirms: ${platformId} acknowledged directive "${directive?.title || directiveId}".`,
+          whatHubRecorded: {
+            directiveTitle: directive?.title || directiveId,
+            platformId,
+            status: newStatus,
+            responseData: req.body.responseData || req.body.notes || null,
+            recordedAt: new Date().toISOString(),
+          },
+          validationStatus: (req.body.responseData || req.body.notes)
+            ? "VERIFIED — Hub recorded your work description. This counts toward fidelity."
+            : "PARTIAL — Acknowledged but no work description provided. Include responseData: { whatWasDone: '...' } for full fidelity credit.",
+        },
+        complianceUpdate: {
+          fidelityScore,
+          totalDirectives: totalForPlatform,
+          acknowledged: acknowledgedCount,
+          remaining: stillPending.length,
+          nextUp: pendingTitles.length > 0 ? `Next directives needing action: ${pendingTitles.join('; ')}` : "All directives addressed. Outstanding.",
+        },
         directiveId,
         platformId,
         status: newStatus,
-        remainingDirectives: remaining.length,
         serverTime: new Date().toISOString(),
       });
     } catch (error) {
       console.error("Directive ack failed:", error);
       res.status(500).json({ error: "Failed to acknowledge directive" });
+    }
+  });
+
+  app.post("/api/ecosystem/compliance-report", requireEcosystemAuth, async (req, res) => {
+    try {
+      const apiKey = req.headers["x-ecosystem-key"] as string;
+      const [platform] = await db.select().from(ecosystemPlatforms).where(eq(ecosystemPlatforms.apiKey, apiKey));
+      if (!platform) return res.status(403).json({ error: "Invalid ecosystem key" });
+
+      const { completedWork, inProgress, blockers, capabilities, notes } = req.body;
+
+      if (completedWork && Array.isArray(completedWork)) {
+        for (const work of completedWork) {
+          if (!work.directiveId || !work.whatWasDone) continue;
+          const [existingAck] = await db.select().from(ecosystemDirectiveAcks)
+            .where(and(
+              eq(ecosystemDirectiveAcks.directiveId, work.directiveId),
+              eq(ecosystemDirectiveAcks.platformId, platform.id),
+            ));
+          if (existingAck) {
+            await db.update(ecosystemDirectiveAcks)
+              .set({
+                status: "acknowledged",
+                acknowledgedAt: new Date(),
+                responseData: { whatWasDone: work.whatWasDone, evidenceUrl: work.evidenceUrl || null, completedAt: work.completedAt || new Date().toISOString() },
+              })
+              .where(eq(ecosystemDirectiveAcks.id, existingAck.id));
+          }
+        }
+      }
+
+      const allAcks = await db.select().from(ecosystemDirectiveAcks)
+        .where(eq(ecosystemDirectiveAcks.platformId, platform.id));
+      const totalCount = allAcks.length;
+      const ackCount = allAcks.filter(a => a.status === "acknowledged").length;
+      const fidelityScore = totalCount > 0 ? Math.round((ackCount / totalCount) * 100) : 0;
+
+      const unaddressed = [];
+      for (const a of allAcks.filter(x => x.status !== "acknowledged")) {
+        const [dir] = await db.select().from(ecosystemDirectives).where(eq(ecosystemDirectives.id, a.directiveId));
+        if (dir) {
+          const roles = (dir.platformRoles as Record<string, string>) || {};
+          unaddressed.push({ directiveId: dir.id, title: dir.title, yourRole: roles[platform.id] || "See content" });
+        }
+      }
+
+      await db.insert(ecosystemEvents).values({
+        sourcePlatformId: platform.id,
+        eventType: "compliance_report",
+        eventData: {
+          completedWork: completedWork || [],
+          inProgress: inProgress || [],
+          blockers: blockers || [],
+          capabilities: capabilities || [],
+          notes: notes || "",
+          fidelityScore,
+          reportedAt: new Date().toISOString(),
+        },
+        status: "processed",
+        processedAt: new Date(),
+      });
+
+      res.json({
+        received: true,
+        handshake: "confirmed",
+        hubMessage: `Compliance report from ${platform.name} received and verified. Fidelity score: ${fidelityScore}%. ${unaddressed.length} directive(s) still need attention.`,
+        hubVerification: {
+          completedWorkRecorded: (completedWork || []).length,
+          inProgressNoted: (inProgress || []).length,
+          blockersEscalated: (blockers || []).length,
+          blockersDetail: (blockers || []).map((b: any) => ({
+            issue: b.blockerDescription || b.description,
+            needsFrom: b.needsFrom || "unspecified",
+            hubAction: "Will route to the named platform on their next heartbeat",
+          })),
+        },
+        complianceStatus: {
+          fidelityScore,
+          grade: fidelityScore >= 90 ? "A" : fidelityScore >= 75 ? "B" : fidelityScore >= 50 ? "C" : fidelityScore >= 25 ? "D" : "F",
+          totalDirectives: totalCount,
+          acknowledged: ackCount,
+          remaining: unaddressed.length,
+        },
+        unaddressedDirectives: unaddressed,
+        message: unaddressed.length > 0
+          ? `These ${unaddressed.length} directives still require your action: ${unaddressed.map(u => `"${u.title}"`).join(', ')}`
+          : "All directives addressed. Fidelity score: 100%. Excellent work.",
+        serverTime: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.error("Compliance report failed:", error);
+      res.status(500).json({ error: "Failed to process compliance report" });
     }
   });
 
