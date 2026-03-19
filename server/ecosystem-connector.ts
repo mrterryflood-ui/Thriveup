@@ -569,8 +569,7 @@ export function registerEcosystemConnectorRoutes(app: Express) {
         return res.status(404).json({ error: "Platform not found" });
       }
 
-      const thriveDomain = process.env.REPLIT_DOMAINS?.split(",")[0] || "thrivingcommunitiesforall.com";
-      const baseUrl = `https://${thriveDomain}`;
+      const baseUrl = "https://thrivingcommunitiesforall.com";
 
       const dataFlows = platform.dataFlowConfig as { sends?: string[]; receives?: string[] } | null;
       const sendsList = (dataFlows?.sends || []).map((s: string) => `//   - "${s}"`).join("\n");
