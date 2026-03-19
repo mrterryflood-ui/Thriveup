@@ -63,6 +63,7 @@ import { registerPreventionStrategiesRoutes } from "./prevention-strategies-rout
 import { registerDfcReportingRoutes } from "./dfc-reporting-routes";
 import { registerDfcIntegrationRoutes } from "./dfc-integration-routes";
 import { registerEcosystemCapacityRoutes } from "./ecosystem-capacity-routes";
+import { registerEcosystemConnectorRoutes } from "./ecosystem-connector";
 import { registerFacilitatorRoutes } from "./facilitator-routes";
 import { registerMetricsRoutes } from "./metrics-routes";
 import { registerProgramManagementRoutes } from "./program-management-routes";
@@ -368,6 +369,7 @@ export async function registerRoutes(
   registerDfcReportingRoutes(app);
   registerDfcIntegrationRoutes(app);
   registerEcosystemCapacityRoutes(app);
+  registerEcosystemConnectorRoutes(app);
   registerFacilitatorRoutes(app);
   registerMetricsRoutes(app);
   registerProgramManagementRoutes(app);

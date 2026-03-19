@@ -3292,4 +3292,52 @@ export const insertDocumentSignatureSchema = createInsertSchema(documentSignatur
 export type InsertDocumentSignature = z.infer<typeof insertDocumentSignatureSchema>;
 export type DocumentSignature = typeof documentSignatures.$inferSelect;
 
+export const ecosystemPlatforms = pgTable("ecosystem_platforms", {
+  id: varchar("id", { length: 100 }).primaryKey(),
+  name: text("name").notNull(),
+  url: text("url").notNull(),
+  apiKey: varchar("api_key", { length: 255 }).notNull(),
+  role: varchar("role", { length: 100 }).notNull(),
+  description: text("description"),
+  status: varchar("status", { length: 50 }).notNull().default("registered"),
+  lastHeartbeat: timestamp("last_heartbeat"),
+  lastHealthCheck: timestamp("last_health_check"),
+  healthStatus: varchar("health_status", { length: 50 }).default("unknown"),
+  capabilities: jsonb("capabilities"),
+  dataFlowConfig: jsonb("data_flow_config"),
+  registeredAt: timestamp("registered_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const ecosystemEvents = pgTable("ecosystem_events", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  sourcePlatformId: varchar("source_platform_id", { length: 100 }).notNull(),
+  targetPlatformId: varchar("target_platform_id", { length: 100 }),
+  eventType: varchar("event_type", { length: 100 }).notNull(),
+  eventData: jsonb("event_data"),
+  status: varchar("status", { length: 50 }).notNull().default("pending"),
+  processedAt: timestamp("processed_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const ecosystemHealthLogs = pgTable("ecosystem_health_logs", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  platformId: varchar("platform_id", { length: 100 }).notNull(),
+  status: varchar("status", { length: 50 }).notNull(),
+  responseTimeMs: integer("response_time_ms"),
+  statusCode: integer("status_code"),
+  errorMessage: text("error_message"),
+  checkedAt: timestamp("checked_at").defaultNow(),
+});
+
+export const insertEcosystemPlatformSchema = createInsertSchema(ecosystemPlatforms).omit({ registeredAt: true, updatedAt: true });
+export type InsertEcosystemPlatform = z.infer<typeof insertEcosystemPlatformSchema>;
+export type EcosystemPlatform = typeof ecosystemPlatforms.$inferSelect;
+
+export const insertEcosystemEventSchema = createInsertSchema(ecosystemEvents).omit({ id: true, createdAt: true });
+export type InsertEcosystemEvent = z.infer<typeof insertEcosystemEventSchema>;
+export type EcosystemEvent = typeof ecosystemEvents.$inferSelect;
+
+export type EcosystemHealthLog = typeof ecosystemHealthLogs.$inferSelect;
+
 export * from "./models/auth";

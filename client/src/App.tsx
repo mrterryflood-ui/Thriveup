@@ -132,6 +132,7 @@ const ProgramDesignerPage = lazy(() => import("@/pages/program-designer"));
 const ProgramLifecyclePage = lazy(() => import("@/pages/program-lifecycle"));
 const GrantPackagesPage = lazy(() => import("@/pages/grant-packages"));
 const ESignPage = lazy(() => import("@/pages/esign"));
+const EcosystemConnectorPage = lazy(() => import("@/pages/ecosystem-connector"));
 
 function PageFallback() {
   return (
@@ -261,7 +262,8 @@ function AppRouter() {
       <Route path="/grant-narrative" component={GrantNarrativePage} />
       <Route path="/advisory-board" component={AdvisoryBoardPage} />
       <Route path="/staffing-plan" component={StaffingPlanPage} />
-      <Route path="/ecosystem" component={EcosystemHubPage} />
+      <Route path="/ecosystem" component={EcosystemConnectorPage} />
+      <Route path="/ecosystem-hub-legacy" component={EcosystemHubPage} />
       <Route path="/dfc-reporting" component={DfcReportingPage} />
       <Route path="/dfc-readiness" component={DfcReadinessPage} />
       <Route path="/prevention-strategies" component={PreventionStrategiesPage} />
