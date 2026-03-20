@@ -32,7 +32,7 @@ import {
   MessageCircle, MapPin, Presentation, Scale, FileBarChart, LayoutDashboard,
   Info, BookMarked,
   Mail, Landmark, RefreshCw, Package, PenTool,
-  Microscope, Stethoscope,
+  Microscope, Stethoscope, Film,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -76,6 +76,7 @@ const programMgmtItems: NavItem[] = [
   { title: "Program Management", url: "/program-management", icon: Briefcase },
   { title: "Program Lifecycle", url: "/program-lifecycle", icon: RefreshCw },
   { title: "Program Designer", url: "/program-designer", icon: Target },
+  { title: "MCE Contracts", url: "/mce-contracts", icon: Building2 },
 ];
 
 const grantEngineItems: NavItem[] = [
@@ -117,6 +118,7 @@ const aiToolsItems: NavItem[] = [
   { title: "Certificates", url: "/certificates", icon: ScrollText },
   { title: "Community Map", url: "/community-map", icon: Map },
   { title: "Roku & CTV Ads", url: "/roku-ads", icon: Smartphone },
+  { title: "Video Pipeline", url: "/video-pipeline", icon: Film },
 ];
 
 const myStudentItems: NavItem[] = [
@@ -180,6 +182,7 @@ const healthWellnessItems: NavItem[] = [
 const researchItems: NavItem[] = [
   { title: "Healthcare Grants", url: "/healthcare-grants", icon: Heart },
   { title: "MAP-GAP Framework", url: "/mapgap-framework", icon: RefreshCw },
+  { title: "RPLICE Toolkit", url: "/rplice-tools", icon: Microscope },
   { title: "Research Hub", url: "/research-hub", icon: Microscope },
   { title: "Case Studies", url: "/case-studies", icon: BookOpen },
   { title: "Implementation Plan", url: "/implementation", icon: ClipboardList },

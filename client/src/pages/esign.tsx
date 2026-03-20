@@ -27,9 +27,8 @@ const DOC_TYPES = [
 ];
 
 const GRANT_OPTIONS = [
-  { value: "dfc", label: "Drug-Free Communities (DFC)" },
   { value: "wioa", label: "WIOA Title I Youth" },
-  { value: "nba-foundation", label: "NBA Foundation" },
+  { value: "foundation", label: "Foundation Grant" },
   { value: "st-davids", label: "St. David's Foundation" },
   { value: "ssg-fox", label: "SSG Fox Suicide Prevention (VA)" },
 ];

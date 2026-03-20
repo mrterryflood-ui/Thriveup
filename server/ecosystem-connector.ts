@@ -2258,6 +2258,10 @@ if (typeof module !== "undefined") {
       { nextPlatform: "ad-targeting", eventType: "content_for_targeting", description: "Content ready — build targeted ad campaign" },
       ...ECOSYSTEM_PLATFORMS.map(p => ({ nextPlatform: p.id, eventType: "content_available", description: "New ecosystem content available for your platform" })),
     ],
+    "video_rendered": [
+      { nextPlatform: "ad-targeting", eventType: "video_for_ad_campaign", description: "Video rendered — create targeted ad campaign" },
+      ...ECOSYSTEM_PLATFORMS.map(p => ({ nextPlatform: p.id, eventType: "video_available", description: "New video rendered — available for your platform" })),
+    ],
     "video_produced": [
       { nextPlatform: "ad-targeting", eventType: "video_for_ad_campaign", description: "Video produced — create targeted ad campaign" },
     ],

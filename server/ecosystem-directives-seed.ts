@@ -135,9 +135,8 @@ ACKNOWLEDGE with your current security posture and any gaps you need help addres
     content: `DIRECTIVE: All ecosystem events must include grant alignment tags.
 
 When sending events to the ecosystem, include a 'grantTags' array in your eventData indicating which grants the activity supports:
-- 'dfc' — Drug-Free Communities
 - 'wioa' — WIOA Title I Youth
-- 'nba-foundation' — NBA Foundation
+- 'foundation' — Foundation Grant
 - 'st-davids' — St. David's Foundation
 - 'ssg-fox' — SSG Fox VA Suicide Prevention
 
@@ -210,7 +209,7 @@ Deadline: 1 week. ACKNOWLEDGE with your unified pipeline status.`,
 60-DAY DELIVERABLE: Build a real-time fidelity dashboard that:
 1. Consumes standardized outcome metrics from all 18 other platforms
 2. Maps outcomes to CFIR and RE-AIM frameworks
-3. Slices data by grant (DFC, WIOA, NBA Foundation, St. David's, SSG Fox)
+3. Slices data by grant (WIOA, Foundation Grant, St. David's, SSG Fox)
 4. Shows fidelity trends over time
 5. Alerts when any platform's outcomes deviate from evidence-based benchmarks
 

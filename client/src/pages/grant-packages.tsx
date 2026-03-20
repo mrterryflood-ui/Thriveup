@@ -321,10 +321,10 @@ SERVICE AREA: Central Texas (Travis, Williamson, Hays, Bastrop, Caldwell countie
     },
   },
   {
-    id: "nba-foundation",
-    name: "NBA Foundation",
-    fullName: "NBA Foundation — Economic Empowerment & Workforce Development",
-    funder: "NBA Foundation",
+    id: "foundation",
+    name: "Foundation Grant",
+    fullName: "Foundation Grant — Economic Empowerment & Workforce Development",
+    funder: "Foundation Grant",
     amount: "$100,000 - $500,000",
     deadline: "Rolling (LOI Required)",
     deadlineUrgency: "on-track",
@@ -332,10 +332,10 @@ SERVICE AREA: Central Texas (Travis, Williamson, Hays, Bastrop, Caldwell countie
     color: "text-orange-600",
     bgColor: "bg-orange-50 dark:bg-orange-950/30",
     borderColor: "border-orange-200 dark:border-orange-800",
-    description: "The NBA Foundation funds programs that drive economic empowerment for Black communities through workforce development, career advancement, and entrepreneurship pathways for youth and young adults ages 16-24.",
-    referenceUrl: "https://nbafoundation.nba.com/apply/",
-    referenceLabel: "NBA Foundation Application",
-    grantKnowledge: `NBA Foundation — Economic Empowerment Grants — $100,000–$500,000.
+    description: "Foundation grants fund programs that drive economic empowerment for Black communities through workforce development, career advancement, and entrepreneurship pathways for youth and young adults ages 16-24.",
+    referenceUrl: "https://foundation.example.com/apply/",
+    referenceLabel: "Foundation Grant Application",
+    grantKnowledge: `Foundation Grant — Economic Empowerment Grants — $100,000–$500,000.
 PURPOSE: Drive economic empowerment in Black communities, especially for youth and young adults ages 16-24. Focuses on workforce development, career advancement, entrepreneurship, and wealth creation pathways.
 FUNDING PRIORITIES: (1) Employment and career pathways for Black youth, (2) Entrepreneurship and wealth-building programs, (3) Economic mobility through skills training, (4) Community-driven approaches that center Black leadership and voice.
 APPLICATION PROCESS: Two-stage — Letter of Inquiry (LOI) first, then full proposal by invitation. LOI should include: organization overview, program summary, target population, proposed budget, expected outcomes.
@@ -364,16 +364,16 @@ ELIGIBILITY: 501(c)(3) organizations or fiscal sponsors; must demonstrate authen
       ],
       laborMarketNotes: "Austin MSA Black youth unemployment significantly higher than metro average. Strong demand in healthcare, IT, and skilled trades. MCE can connect to Black-owned businesses for entrepreneurship mentorship pipeline.",
       locationEligibility: "national",
-      locationNotes: "NBA Foundation accepts applications from anywhere in the United States. There are no geographic restrictions. Your program should serve Black youth ages 16-24 in a defined community — Austin, TX is your primary site. You can propose serving multiple locations if you have the capacity.",
+      locationNotes: "Foundation Grant accepts applications from anywhere in the United States. There are no geographic restrictions. Your program should serve Black youth ages 16-24 in a defined community — Austin, TX is your primary site. You can propose serving multiple locations if you have the capacity.",
       multiSiteEligible: true,
       multiSiteNotes: "You can propose a single-site program (Austin) or a multi-site model. Multi-site is stronger if you can demonstrate capacity in each location. For a first application, single-site (Austin) is recommended to show focused impact. You can expand in subsequent funding years.",
     },
     partnershipTimeline: {
-      summary: "NBA Foundation values strong community partnerships but the LOI can be submitted without formal partner agreements. For the full proposal (if invited), employer partners and community organizations should be named. Secure key partnerships between LOI and full proposal.",
+      summary: "Foundation Grant values strong community partnerships but the LOI can be submitted without formal partner agreements. For the full proposal (if invited), employer partners and community organizations should be named. Secure key partnerships between LOI and full proposal.",
       workflowOrder: "LOI First (name key partners) → Secure Formal Commitments → Full Proposal with Documentation",
       requirements: [
         { partnerType: "Employer Partners", requiredInDocs: true, timing: "both", docSections: ["Full Proposal Narrative", "Partnership Documentation"], description: "For the LOI, describe the types of employers you'll partner with — specific names strengthen it but aren't required. For the full proposal, you MUST name specific employers with commitment details. Use the time between LOI submission and full proposal invitation to secure these.", evidenceNeeded: "LOI: employer types and sectors. Full proposal: signed commitment letters, named contacts, specific role descriptions and placement numbers" },
-        { partnerType: "Community Organizations", requiredInDocs: true, timing: "both", docSections: ["Full Proposal Narrative", "Equity & Community Voice", "Partnership Documentation"], description: "Black-led community organizations that validate your community connection. NBA Foundation explicitly looks for community-rooted partnerships, not transactional ones. Start building these now — they strengthen both LOI and full proposal.", evidenceNeeded: "LOI: named organizations and relationship description. Full proposal: letters of support, joint programming descriptions, community voice documentation" },
+        { partnerType: "Community Organizations", requiredInDocs: true, timing: "both", docSections: ["Full Proposal Narrative", "Equity & Community Voice", "Partnership Documentation"], description: "Black-led community organizations that validate your community connection. Foundation Grant explicitly looks for community-rooted partnerships, not transactional ones. Start building these now — they strengthen both LOI and full proposal.", evidenceNeeded: "LOI: named organizations and relationship description. Full proposal: letters of support, joint programming descriptions, community voice documentation" },
         { partnerType: "Educational Institutions", requiredInDocs: false, timing: "both", docSections: ["Full Proposal Narrative"], description: "Schools, community colleges, or certification providers. Helpful but not strictly required. Strengthens the credential pipeline narrative.", evidenceNeeded: "Letters of support, articulation agreements for credential programs" },
         { partnerType: "Mentorship / MCE Business Partners", requiredInDocs: false, timing: "post-award", docSections: [], description: "MCE (Minority Capital Exchange) business mentors and Black-owned business partners for the entrepreneurship pipeline. Can be formalized post-award as part of program implementation.", evidenceNeeded: "Mentor roster, business partner agreements — can be developed during startup period" },
       ],
@@ -382,9 +382,9 @@ ELIGIBILITY: 501(c)(3) organizations or fiscal sponsors; must demonstrate authen
       { label: "Black Youth Focus", detail: "Must exclusively serve Black youth and young adults ages 16–24 — program design must center racial equity and economic empowerment", critical: true },
       { label: "LOI First", detail: "Two-stage process — submit a Letter of Inquiry first (3 pages). Only invited applicants submit a full proposal", critical: true },
       { label: "Employer Partners Needed", detail: "Must demonstrate employer commitments for job placements, internships, or apprenticeships — named partners required in full proposal" },
-      { label: "Community-Rooted", detail: "NBA Foundation explicitly looks for community-rooted (not transactional) partnerships — Black-led organizations that validate your connection" },
+      { label: "Community-Rooted", detail: "Foundation Grant explicitly looks for community-rooted (not transactional) partnerships — Black-led organizations that validate your connection" },
       { label: "Outcomes Required", detail: "Must track: employment placement, wage gains, credential attainment, and/or business starts" },
-      { label: "Sustainability Plan", detail: "Must show how program continues beyond NBA Foundation funding — diversified revenue, earned income, or other grant strategies" },
+      { label: "Sustainability Plan", detail: "Must show how program continues beyond Foundation Grant funding — diversified revenue, earned income, or other grant strategies" },
       { label: "Equity & Voice", detail: "Program design must center Black community voice and lived experience — not designed 'for' but 'with' the community" },
       { label: "No Geographic Restriction", detail: "National program — no location restrictions. Your Austin-based program is eligible." },
     ],
@@ -396,15 +396,15 @@ ELIGIBILITY: 501(c)(3) organizations or fiscal sponsors; must demonstrate authen
       { id: "nba-org-capacity", name: "Organizational Capacity", description: "Board composition, leadership bios, financial statements, prior program results", icon: Building2, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood", pageLimit: "5 pages", wordCount: "1,500–2,000 words" },
       { id: "nba-equity", name: "Equity & Community Voice", description: "How program design centers Black community voice and lived experience", icon: Heart, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood", pageLimit: "3 pages", wordCount: "1,000–1,500 words" },
       { id: "nba-partnerships", name: "Partnership Documentation", description: "Employer partners, community organizations, educational institutions", icon: Handshake, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood", pageLimit: "No limit (1 per partner)", wordCount: "300–500 words each" },
-      { id: "nba-sustainability", name: "Sustainability & Scale Plan", description: "How program continues and grows beyond NBA Foundation funding", icon: Globe, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood", pageLimit: "3 pages", wordCount: "1,000–1,500 words" },
+      { id: "nba-sustainability", name: "Sustainability & Scale Plan", description: "How program continues and grows beyond Foundation Grant funding", icon: Globe, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood", pageLimit: "3 pages", wordCount: "1,000–1,500 words" },
     ],
     phases: [
       {
-        id: "collaborate", name: "1. Collaborate & Research", description: "Understand NBA Foundation priorities and align program", status: "upcoming",
+        id: "collaborate", name: "1. Collaborate & Research", description: "Understand Foundation Grant priorities and align program", status: "upcoming",
         tasks: [
-          { id: "nc1", task: "Review NBA Foundation guidelines and past grantees", owner: "Dr. Flood + AI", status: "pending", dueDate: "TBD" },
+          { id: "nc1", task: "Review Foundation Grant guidelines and past grantees", owner: "Dr. Flood + AI", status: "pending", dueDate: "TBD" },
           { id: "nc2", task: "Identify local economic empowerment data for Black youth 16-24", owner: "AI", status: "pending", dueDate: "TBD" },
-          { id: "nc3", task: "Map ThriveUp + MCE capabilities to NBA Foundation priorities", owner: "AI + Dr. Flood", status: "pending", dueDate: "TBD" },
+          { id: "nc3", task: "Map ThriveUp + MCE capabilities to Foundation Grant priorities", owner: "AI + Dr. Flood", status: "pending", dueDate: "TBD" },
           { id: "nc4", task: "Identify 3+ Black-owned business partners for mentorship pipeline", owner: "Dr. Flood", status: "pending", dueDate: "TBD" },
           { id: "nc5", task: "Gather testimonials from current program participants", owner: "Dr. Flood", status: "pending", dueDate: "TBD" },
         ],
@@ -427,13 +427,13 @@ ELIGIBILITY: 501(c)(3) organizations or fiscal sponsors; must demonstrate authen
           { id: "nr2", task: "Review and approve full narrative", owner: "Dr. Flood", status: "pending", dueDate: "TBD" },
           { id: "nr3", task: "Review and approve budget", owner: "Dr. Flood", status: "pending", dueDate: "TBD" },
           { id: "nr4", task: "Verify outcomes framework is achievable", owner: "Dr. Flood", status: "pending", dueDate: "TBD" },
-          { id: "nr5", task: "Final alignment check with NBA Foundation priorities", owner: "Dr. Flood + AI", status: "pending", dueDate: "TBD" },
+          { id: "nr5", task: "Final alignment check with Foundation Grant priorities", owner: "Dr. Flood + AI", status: "pending", dueDate: "TBD" },
         ],
       },
       {
         id: "submit", name: "4. Package & Submit", description: "Bundle and submit LOI, then full proposal if invited", status: "upcoming",
         tasks: [
-          { id: "ns1", task: "Submit LOI through NBA Foundation portal", owner: "Dr. Flood", status: "pending", dueDate: "TBD" },
+          { id: "ns1", task: "Submit LOI through Foundation Grant portal", owner: "Dr. Flood", status: "pending", dueDate: "TBD" },
           { id: "ns2", task: "If invited: assemble full proposal package", owner: "Dr. Flood + AI", status: "pending", dueDate: "TBD" },
           { id: "ns3", task: "Submit full proposal per foundation guidelines", owner: "Dr. Flood", status: "pending", dueDate: "TBD" },
           { id: "ns4", task: "Confirm receipt and follow up timeline", owner: "Dr. Flood", status: "pending", dueDate: "TBD" },
@@ -485,7 +485,7 @@ ELIGIBILITY: 501(c)(3) organizations or fiscal sponsors; must demonstrate authen
         "Demonstrate how the 20-platform ecosystem creates a safety net, not just a program",
       ],
       commonPitfalls: [
-        "Treating workforce development as only 'get a job' — NBA Foundation wants economic empowerment",
+        "Treating workforce development as only 'get a job' — Foundation Grant wants economic empowerment",
         "Not centering Black community voice in program design",
         "Outcomes focused only on employment — include wealth-building metrics",
         "No clear theory of change connecting activities to long-term economic mobility",

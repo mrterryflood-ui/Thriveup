@@ -146,6 +146,9 @@ const HealthcareGrantsPage = lazy(() => import("@/pages/healthcare-grants"));
 const AIWorkforcePage = lazy(() => import("@/pages/ai-workforce"));
 const PMAcademyPage = lazy(() => import("@/pages/pm-academy"));
 const DirectiveCompliancePage = lazy(() => import("@/pages/directive-compliance"));
+const RpliceToolsPage = lazy(() => import("@/pages/rplice-tools"));
+const MceContractsPage = lazy(() => import("@/pages/mce-contracts"));
+const VideoPipelinePage = lazy(() => import("@/pages/video-pipeline"));
 
 function PageFallback() {
   return (
@@ -311,6 +314,9 @@ function AppRouter() {
       <Route path="/ai-workforce" component={AIWorkforcePage} />
       <Route path="/pm-academy" component={PMAcademyPage} />
       <Route path="/directive-compliance" component={DirectiveCompliancePage} />
+      <Route path="/rplice-tools" component={RpliceToolsPage} />
+      <Route path="/video-pipeline" component={VideoPipelinePage} />
+      <Route path="/mce-contracts" component={MceContractsPage} />
       <Route component={NotFound} />
     </Switch>
   );

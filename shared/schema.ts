@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, integer, boolean, timestamp, jsonb, decimal, real } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, integer, boolean, timestamp, jsonb, decimal, real, serial, numeric } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -3422,5 +3422,99 @@ export const ecosystemKnowledgeChunks = pgTable("ecosystem_knowledge_chunks", {
 });
 
 export type EcosystemKnowledgeChunk = typeof ecosystemKnowledgeChunks.$inferSelect;
+
+export const videoRenderJobs = pgTable("video_render_jobs", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  scriptContent: text("script_content").notNull(),
+  sourceEventId: integer("source_event_id"),
+  sourcePlatformId: varchar("source_platform_id", { length: 100 }),
+  status: varchar("status", { length: 30 }).notNull().default("queued"),
+  renderUrl: text("render_url"),
+  thumbnailUrl: text("thumbnail_url"),
+  duration: integer("duration"),
+  targetPlatforms: text("target_platforms").array().notNull().default(sql`'{}'::text[]`),
+  distributionStatus: jsonb("distribution_status").default({}),
+  mrssEntry: text("mrss_entry"),
+  vastTag: text("vast_tag"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertVideoRenderJobSchema = createInsertSchema(videoRenderJobs).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertVideoRenderJob = z.infer<typeof insertVideoRenderJobSchema>;
+export type VideoRenderJob = typeof videoRenderJobs.$inferSelect;
+
+export const rpliceAssessments = pgTable("rplice_assessments", {
+  id: serial("id").primaryKey(),
+  assessmentType: varchar("assessment_type", { length: 30 }).notNull(),
+  programName: text("program_name").notNull(),
+  data: jsonb("data").notNull().default({}),
+  score: numeric("score"),
+  status: varchar("status", { length: 20 }).notNull().default("draft"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertRpliceAssessmentSchema = createInsertSchema(rpliceAssessments).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertRpliceAssessment = z.infer<typeof insertRpliceAssessmentSchema>;
+export type RpliceAssessment = typeof rpliceAssessments.$inferSelect;
+
+export const mceContracts = pgTable("mce_contracts", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  agency: text("agency").notNull(),
+  value: numeric("value").default("0"),
+  contractType: varchar("contract_type", { length: 30 }).notNull().default("prime"),
+  stage: varchar("stage", { length: 30 }).notNull().default("opportunity"),
+  certificationsRequired: text("certifications_required").array().notNull().default(sql`'{}'::text[]`),
+  startDate: timestamp("start_date"),
+  endDate: timestamp("end_date"),
+  keyDates: jsonb("key_dates").default({}),
+  obligatedAmount: numeric("obligated_amount").default("0"),
+  expendedAmount: numeric("expended_amount").default("0"),
+  inKindMatch: numeric("in_kind_match").default("0"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertMceContractSchema = createInsertSchema(mceContracts).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertMceContract = z.infer<typeof insertMceContractSchema>;
+export type MceContract = typeof mceContracts.$inferSelect;
+
+export const mceContractDeliverables = pgTable("mce_contract_deliverables", {
+  id: serial("id").primaryKey(),
+  contractId: integer("contract_id").notNull(),
+  title: text("title").notNull(),
+  dueDate: timestamp("due_date"),
+  status: varchar("status", { length: 30 }).notNull().default("not_started"),
+  evidenceUrl: text("evidence_url"),
+  rpliceReviewStatus: varchar("rplice_review_status", { length: 30 }),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertMceContractDeliverableSchema = createInsertSchema(mceContractDeliverables).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertMceContractDeliverable = z.infer<typeof insertMceContractDeliverableSchema>;
+export type MceContractDeliverable = typeof mceContractDeliverables.$inferSelect;
+
+export const mceVendors = pgTable("mce_vendors", {
+  id: serial("id").primaryKey(),
+  companyName: text("company_name").notNull(),
+  contactName: text("contact_name"),
+  contactEmail: text("contact_email"),
+  phone: text("phone"),
+  certifications: text("certifications").array().notNull().default(sql`'{}'::text[]`),
+  capabilityStatementUrl: text("capability_statement_url"),
+  pastPerformance: jsonb("past_performance").default({}),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertMceVendorSchema = createInsertSchema(mceVendors).omit({ id: true, createdAt: true });
+export type InsertMceVendor = z.infer<typeof insertMceVendorSchema>;
+export type MceVendor = typeof mceVendors.$inferSelect;
 
 export * from "./models/auth";
