@@ -281,6 +281,53 @@ LONG-TERM VISION (12-24 months):
     keywords: ["interoperability", "fhir", "ehr", "integration", "hhsc", "tea", "va", "211", "api", "systems", "external", "connect", "roadmap", "scale"],
   },
   {
+    source: "strategic-framework", category: "strategy", title: "Core Operating Model — AI Coordinates, Systems Execute, Humans Decide",
+    content: `ThriveUp operates on the principle: AI coordinates, Systems execute, Humans decide. This is the same balance used in advanced military operations, air traffic control, and high-reliability healthcare systems — translated into community infrastructure.
+The architecture has five layers:
+1. Central Orchestrator (The Brain): Coordinates all platforms, pushes and receives information, assigns roles dynamically, maintains system awareness.
+2. Specialized Platforms (The Capabilities): Step forward based on context, domain, and timing. Self-report strengths and limitations. Execute within defined roles.
+3. Execution Discipline Layer: Standardized execution checklist (doctrine/SOP) known across all platforms. Ensures consistency of action. Creates structured flexibility.
+4. Learning + Feedback Loop: MAP-GAP continuous system reflection plus cross-platform shared learning.
+5. Human Judgment Layer (RPLICE): Final decision authority, evidence-based validation, ethical and contextual override.
+This is human-in-the-loop adaptive governance at scale. It avoids the two traps: over-automation (AI decides, humans sidelined, risk increases) and over-reliance on humans (everything manual, doesn't scale, inconsistency). ThriveUp is the third model — and it's extremely hard to replicate.`,
+    keywords: ["operating model", "how it works", "ai coordinates", "humans decide", "architecture", "layers", "orchestrator", "brain", "balance", "military", "air traffic"],
+  },
+  {
+    source: "strategic-framework", category: "strategy", title: "MAP-GAP + RPLICE Governance Loop",
+    content: `MAP-GAP and RPLICE form a governance loop that is the core differentiator:
+MAP-GAP asks the questions: What happened? What worked? What didn't? Where are the gaps?
+RPLICE answers them — with accountability: Reviews evidence, applies judgment, makes the final call.
+This is not purely data-driven and not purely opinion-driven. It is evidence-informed, human-decided.
+In a complex life event: The system detects context → assigns lead platform → activates support platforms → generates execution checklist. Platforms execute tasks and report back with evidence. MAP-GAP evaluates effectiveness and breakdowns. RPLICE reviews evidence, context, and risk, then makes final decisions and adjustments. Video AI documents what happened, what was learned, and what will change.
+That's continuous system improvement in real time — not a post-mortem, but a living governance cycle.`,
+    keywords: ["map-gap rplice", "governance loop", "evidence informed", "human decided", "improvement", "learning", "cycle"],
+  },
+  {
+    source: "strategic-framework", category: "strategy", title: "Video Creator AI — The Narrative Engine",
+    content: `Video Creator AI is not just a support tool — it's the narrative and alignment engine for the entire ecosystem. It removes the bottleneck between doing the work and explaining the work. Most organizations struggle exactly there.
+Video AI converts system activity into understandable content, standardizes communication across platforms, and produces: training materials, grant narratives, stakeholder briefings, promotional videos, business presentations. Content flows through work chains: a platform completes work → Video Creator produces content → Advertising Targeting distributes it. This automated content pipeline means the ecosystem can explain what it does as fast as it does it.`,
+    keywords: ["video", "narrative", "content", "communication", "explain", "bottleneck", "alignment engine"],
+  },
+  {
+    source: "strategic-framework", category: "strategy", title: "Execution Checklist — The Ecosystem Doctrine",
+    content: `The execution checklist is deceptively simple but powerful. In military terms, it's Standard Operating Procedure (SOP). In implementation science terms, it's a fidelity mechanism. It creates: shared expectations, consistent behavior, cross-platform alignment. Without this, the system would drift. With it, ThriveUp achieves structured flexibility — platforms can adapt to local context while maintaining system-wide standards. The directive system enforces the checklist: directives are issued, acknowledgments with evidence are required, weak responses are rejected, and fidelity is graded. This is doctrine for community services.`,
+    keywords: ["checklist", "doctrine", "sop", "fidelity mechanism", "consistency", "standards", "structured flexibility"],
+  },
+  {
+    source: "strategic-framework", category: "strategy", title: "Decision Quality Over Time — The Quiet Power Move",
+    content: `Most people try to build smart platforms, better data, or faster workflows. ThriveUp focused on something different: decision quality over time. Systems don't fail from lack of tools — they fail from poor decisions under complexity. ThriveUp addressed that directly. The system knows, the platforms act, the human decides, the system learns — and then it does it again, better. Every cycle through MAP-GAP + RPLICE improves decision quality. This compounds over time into an organization that gets measurably better at everything it does.`,
+    keywords: ["decision quality", "power", "compound", "improve", "better", "learn", "complexity", "fail"],
+  },
+  {
+    source: "governance", category: "governance", title: "Next-Level Refinements — Decision Audit, Pattern Recognition, Role Clarity",
+    content: `Four refinements that lock in ThriveUp's competitive advantage:
+1. DECISION AUDIT TRAIL: Every RPLICE decision logged with inputs, rationale, and outcome. This becomes legal protection, a research dataset, and a training engine for the system itself.
+2. PATTERN RECOGNITION LAYER: Over time, the system sees patterns like "this combination of factors → this sequence works best." Eventually it recommends strategies before humans even ask. The RAG AI is the beginning of this — grounded in live data, it already surfaces insights from ecosystem-wide patterns.
+3. ROLE CLARITY UNDER STRESS: When multiple platforms could lead, formalized lead selection rules and tie-breaking logic determine who takes point. Based on domain expertise, fidelity grade, and context match.
+4. ETHICAL GUARDRAILS: Clear boundaries for AI recommendations, explicit human-only decision zones, escalation triggers. AI never recommends clinical treatment, never overrides human judgment on safety, and always routes to 988 for crisis situations.`,
+    keywords: ["audit trail", "pattern recognition", "role clarity", "ethical guardrails", "refinement", "next level", "advanced", "future"],
+  },
+  {
     source: "governance", category: "governance", title: "Evidence Strategy — Proving Impact to Skeptics",
     content: `ThriveUp's evidence strategy operates at four levels to satisfy any reviewer:
 LEVEL 1 — REAL-TIME OPERATIONAL EVIDENCE (Available Now):

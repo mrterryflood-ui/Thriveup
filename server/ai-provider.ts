@@ -176,7 +176,10 @@ export async function generateAIJSON<T = unknown>(prompt: string, systemPrompt?:
       const cleaned = text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
       return JSON.parse(cleaned) as T;
     } catch (error) {
-      if (isRateLimitError(error) && i < providers.length - 1) continue;
+      if ((isRateLimitError(error) || isTransientError(error)) && i < providers.length - 1) {
+        console.error(`[AI Provider] ${provider} failed for JSON, falling back to ${providers[i + 1]}`);
+        continue;
+      }
       throw error;
     }
   }
@@ -327,16 +330,16 @@ export async function streamAIResponse(params: StreamAIResponseParams): Promise<
   for (let i = 0; i < providers.length; i++) {
     const provider = providers[i];
     try {
+      const collectedChunks: string[] = [];
+
       const wrappedParams: StreamAIResponseParams = {
         ...params,
+        onChunk: (content: string) => {
+          collectedChunks.push(content);
+          params.onChunk(content);
+        },
         onDone: () => {},
         onError: () => {},
-      };
-
-      let chunks: string[] = [];
-      wrappedParams.onChunk = (content: string) => {
-        chunks.push(content);
-        params.onChunk(content);
       };
 
       if (provider === "gemini") {
@@ -345,18 +348,24 @@ export async function streamAIResponse(params: StreamAIResponseParams): Promise<
         await streamOpenAI(wrappedParams, provider);
       }
 
+      const totalContent = collectedChunks.join("");
+      if (totalContent.trim().length === 0) {
+        const isLast = i === providers.length - 1;
+        if (!isLast) {
+          const next = providers[i + 1];
+          console.error(`[AI Provider] ${provider} returned empty response, falling back to ${next}`);
+          continue;
+        }
+      }
+
       params.onDone();
       return;
     } catch (error) {
       const isLast = i === providers.length - 1;
 
-      if (isRateLimitError(error) && !isLast) {
+      if (!isLast && (isRateLimitError(error) || isTransientError(error))) {
         const next = providers[i + 1];
-        console.error(`[AI Provider] ${provider} rate limited, falling back to ${next}`);
-        continue;
-      }
-
-      if (!isLast && isRateLimitError(error)) {
+        console.error(`[AI Provider] ${provider} failed (${isRateLimitError(error) ? "rate limit" : "transient error"}), falling back to ${next}`);
         continue;
       }
 
@@ -364,4 +373,15 @@ export async function streamAIResponse(params: StreamAIResponseParams): Promise<
       return;
     }
   }
+}
+
+function isTransientError(error: unknown): boolean {
+  if (error && typeof error === "object") {
+    const e = error as any;
+    if (e.status >= 500 || e.statusCode >= 500) return true;
+    if (e.code === "ECONNRESET" || e.code === "ETIMEDOUT" || e.code === "ENOTFOUND") return true;
+    const msg = (e.message || "").toLowerCase();
+    if (msg.includes("timeout") || msg.includes("network") || msg.includes("503") || msg.includes("502")) return true;
+  }
+  return false;
 }
