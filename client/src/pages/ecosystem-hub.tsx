@@ -44,7 +44,6 @@ interface EcosystemApp {
   populations: string[];
   thriveUpConnections: { area: string; description: string }[];
   grantAlignment: { grant: string; relevance: string }[];
-  dfcSectors: number[];
   disciplines: DisciplineId[];
 }
 
@@ -66,10 +65,9 @@ const ECOSYSTEM_APPS: EcosystemApp[] = [
     grantAlignment: [
       { grant: "WIOA Title I Youth", relevance: "Core workforce development platform" },
       { grant: "OJJDP Second Chance Act", relevance: "Reentry case management and reporting" },
-      { grant: "CDC/ONDCP DFC", relevance: "Prevention curriculum, coalition management, parent education" },
+
       { grant: "SAMHSA Community Mental Health", relevance: "Health & wellness integration" },
     ],
-    dfcSectors: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
     disciplines: ["implementation-science", "criminal-justice", "hr-management", "io-psychology"],
   },
   {
@@ -91,11 +89,9 @@ const ECOSYSTEM_APPS: EcosystemApp[] = [
       { area: "Thrive Scoring", description: "Student wellbeing data feeds into Thrive domains" },
     ],
     grantAlignment: [
-      { grant: "CDC/ONDCP DFC", relevance: "School-based prevention infrastructure and student support coordination" },
       { grant: "WIOA Title I Youth", relevance: "Youth workforce readiness data and school-to-career pipelines" },
       { grant: "OJJDP", relevance: "School-based diversion and early intervention" },
     ],
-    dfcSectors: [5, 6, 11],
     disciplines: ["implementation-science", "io-psychology"],
   },
   {
@@ -118,10 +114,8 @@ const ECOSYSTEM_APPS: EcosystemApp[] = [
     ],
     grantAlignment: [
       { grant: "SAMHSA Community Mental Health", relevance: "Behavioral health assessment and resource matching" },
-      { grant: "CDC/ONDCP DFC", relevance: "Substance use screening and health protective factors" },
       { grant: "HHS/HRSA", relevance: "Community health worker infrastructure" },
     ],
-    dfcSectors: [10, 12],
     disciplines: ["implementation-science", "io-psychology"],
   },
   {
@@ -144,11 +138,9 @@ const ECOSYSTEM_APPS: EcosystemApp[] = [
       { area: "Dosage Tracking", description: "Learning engagement hours count toward service delivery metrics" },
     ],
     grantAlignment: [
-      { grant: "CDC/ONDCP DFC", relevance: "School engagement is a primary protective factor" },
       { grant: "WIOA Title I Youth", relevance: "Educational attainment pathways and GED/diploma support" },
       { grant: "DOE Title I", relevance: "Supplemental education for underserved communities" },
     ],
-    dfcSectors: [1, 2, 5],
     disciplines: ["implementation-science", "io-psychology"],
   },
   {
@@ -171,11 +163,9 @@ const ECOSYSTEM_APPS: EcosystemApp[] = [
       { area: "Case Management", description: "IEP/504 data integration for holistic participant profiles" },
     ],
     grantAlignment: [
-      { grant: "CDC/ONDCP DFC", relevance: "Addresses individual risk factors" },
       { grant: "SAMHSA", relevance: "Mental health support and crisis intervention" },
       { grant: "IDEA/Special Education", relevance: "IEP/504 compliance and advocacy" },
     ],
-    dfcSectors: [6, 10],
     disciplines: ["implementation-science", "io-psychology"],
   },
   {
@@ -198,11 +188,9 @@ const ECOSYSTEM_APPS: EcosystemApp[] = [
       { area: "Justice Partners", description: "Coordinated reporting between schools, foster care, and justice system" },
     ],
     grantAlignment: [
-      { grant: "CDC/ONDCP DFC", relevance: "Community safety infrastructure" },
       { grant: "OJJDP", relevance: "Child welfare and juvenile justice coordination" },
       { grant: "HHS/ACF", relevance: "Foster care and child welfare compliance" },
     ],
-    dfcSectors: [5, 7, 10],
     disciplines: ["implementation-science", "criminal-justice"],
   },
   {
@@ -225,11 +213,9 @@ const ECOSYSTEM_APPS: EcosystemApp[] = [
       { area: "Case Management", description: "Veteran-specific service delivery tracking and outcomes" },
     ],
     grantAlignment: [
-      { grant: "CDC/ONDCP DFC", relevance: "Veterans are a key community population" },
       { grant: "WIOA Title I", relevance: "Veteran workforce transition and employment services" },
       { grant: "DOL VETS", relevance: "Veteran employment and training programs" },
     ],
-    dfcSectors: [9],
     disciplines: ["hr-management", "io-psychology"],
   },
   {
@@ -253,12 +239,10 @@ const ECOSYSTEM_APPS: EcosystemApp[] = [
       { area: "Prevention", description: "Social service access is a protective factor" },
     ],
     grantAlignment: [
-      { grant: "CDC/ONDCP DFC", relevance: "Community-wide prevention infrastructure" },
       { grant: "HHS/HRSA", relevance: "Community health worker infrastructure" },
       { grant: "HUD", relevance: "Housing stability and homelessness prevention" },
       { grant: "SAMHSA", relevance: "Substance abuse resource navigation" },
     ],
-    dfcSectors: [8, 9, 10, 12],
     disciplines: ["implementation-science", "criminal-justice"],
   },
   {
@@ -286,7 +270,6 @@ const ECOSYSTEM_APPS: EcosystemApp[] = [
       { grant: "SBA 7(j)", relevance: "Management and technical assistance for MBEs" },
       { grant: "DOT DBE", relevance: "Disadvantaged business enterprise program support" },
     ],
-    dfcSectors: [3],
     disciplines: ["hr-management", "io-psychology"],
   },
   {
@@ -308,10 +291,8 @@ const ECOSYSTEM_APPS: EcosystemApp[] = [
       { area: "Grant Narratives", description: "Research citations and evidence base for grant applications" },
     ],
     grantAlignment: [
-      { grant: "CDC/ONDCP DFC", relevance: "Evidence-based prevention implementation" },
       { grant: "NIH/NIMH", relevance: "Implementation science research support" },
     ],
-    dfcSectors: [5, 6, 10],
     disciplines: ["implementation-science"],
   },
   {
@@ -335,7 +316,6 @@ const ECOSYSTEM_APPS: EcosystemApp[] = [
       { grant: "HRSA Maternal Health", relevance: "Black maternal health disparity reduction" },
       { grant: "SAMHSA", relevance: "Mental health rights and consumer advocacy" },
     ],
-    dfcSectors: [10, 12],
     disciplines: ["implementation-science"],
   },
   {
@@ -357,7 +337,6 @@ const ECOSYSTEM_APPS: EcosystemApp[] = [
     grantAlignment: [
       { grant: "HRSA Women's Health", relevance: "Reproductive health equity and access" },
     ],
-    dfcSectors: [10],
     disciplines: ["implementation-science"],
   },
   {
@@ -381,7 +360,6 @@ const ECOSYSTEM_APPS: EcosystemApp[] = [
       { grant: "ACL/AoA", relevance: "Aging and cognitive health services" },
       { grant: "SAMHSA", relevance: "Behavioral health and cognitive safety" },
     ],
-    dfcSectors: [10],
     disciplines: ["implementation-science"],
   },
   {
@@ -403,9 +381,7 @@ const ECOSYSTEM_APPS: EcosystemApp[] = [
     ],
     grantAlignment: [
       { grant: "SAMHSA", relevance: "Substance use recovery medication management" },
-      { grant: "CDC/ONDCP DFC", relevance: "Medication compliance as protective factor" },
     ],
-    dfcSectors: [10, 12],
     disciplines: ["implementation-science"],
   },
   {
@@ -427,7 +403,6 @@ const ECOSYSTEM_APPS: EcosystemApp[] = [
     grantAlignment: [
       { grant: "CDC Cancer Prevention", relevance: "Breast cancer disparity reduction" },
     ],
-    dfcSectors: [10],
     disciplines: ["implementation-science"],
   },
   {
@@ -451,28 +426,11 @@ const ECOSYSTEM_APPS: EcosystemApp[] = [
       { grant: "CDC Health Disparities", relevance: "Black men's health equity" },
       { grant: "SAMHSA", relevance: "Men's mental health and substance use prevention" },
     ],
-    dfcSectors: [10, 12],
     disciplines: ["implementation-science"],
   },
 ];
 
-const DFC_SECTORS = [
-  { number: 1, name: "Youth (10-18)", icon: Users },
-  { number: 2, name: "Parents", icon: Home },
-  { number: 3, name: "Business", icon: Briefcase },
-  { number: 4, name: "Media", icon: Globe },
-  { number: 5, name: "Schools", icon: GraduationCap },
-  { number: 6, name: "Youth-Serving Orgs", icon: Heart },
-  { number: 7, name: "Law Enforcement", icon: Shield },
-  { number: 8, name: "Religious/Fraternal", icon: Handshake },
-  { number: 9, name: "Civic/Volunteer", icon: Users },
-  { number: 10, name: "Healthcare", icon: Activity },
-  { number: 11, name: "Government", icon: Scale },
-  { number: 12, name: "Substance Abuse Orgs", icon: AlertTriangle },
-];
-
 const GRANT_STREAMS = [
-  { id: "dfc", name: "CDC/ONDCP DFC", amount: "$125K/yr x 5yr", deadline: "April 14, 2026", color: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300" },
   { id: "wioa", name: "WIOA Title I Youth", amount: "Varies", deadline: "Ongoing", color: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300" },
   { id: "ojjdp", name: "OJJDP Second Chance", amount: "$750K", deadline: "Varies", color: "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300" },
   { id: "samhsa", name: "SAMHSA Mental Health", amount: "$1M+", deadline: "Varies", color: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300" },
@@ -1137,8 +1095,7 @@ export default function EcosystemHubPage() {
   const integratedCount = ECOSYSTEM_APPS.filter(a => a.status === "integrated").length;
   const linkedCount = ECOSYSTEM_APPS.filter(a => a.status === "linked").length;
   const totalPopulations = Array.from(new Set(ECOSYSTEM_APPS.flatMap(a => a.populations))).length;
-  const allDfcSectors = Array.from(new Set(ECOSYSTEM_APPS.flatMap(a => a.dfcSectors)));
-  const dfcCoverage = Math.round((allDfcSectors.length / 12) * 100);
+  const grantStreamCount = GRANT_STREAMS.length;
 
   const selectedAppData = ECOSYSTEM_APPS.find(a => a.id === selectedApp);
 
@@ -1158,7 +1115,7 @@ export default function EcosystemHubPage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Card data-testid="stat-total-apps">
             <CardContent className="pt-4 pb-4 text-center">
-              <div className="text-3xl font-bold text-violet-600 dark:text-violet-400">14</div>
+              <div className="text-3xl font-bold text-violet-600 dark:text-violet-400">20</div>
               <div className="text-sm text-gray-500 dark:text-gray-400">Total Platforms</div>
             </CardContent>
           </Card>
@@ -1174,22 +1131,21 @@ export default function EcosystemHubPage() {
               <div className="text-sm text-gray-500 dark:text-gray-400">Populations Served</div>
             </CardContent>
           </Card>
-          <Card data-testid="stat-dfc-coverage">
+          <Card data-testid="stat-grant-streams">
             <CardContent className="pt-4 pb-4 text-center">
-              <div className="text-3xl font-bold text-amber-600 dark:text-amber-400">{dfcCoverage}%</div>
-              <div className="text-sm text-gray-500 dark:text-gray-400">DFC Sector Coverage</div>
+              <div className="text-3xl font-bold text-amber-600 dark:text-amber-400">{grantStreamCount}</div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">Grant Streams</div>
             </CardContent>
           </Card>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 md:grid-cols-9">
+          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-4 md:grid-cols-8">
             <TabsTrigger value="overview" data-testid="tab-overview">Ecosystem Map</TabsTrigger>
             <TabsTrigger value="by-discipline" data-testid="tab-by-discipline">By Discipline</TabsTrigger>
             <TabsTrigger value="portfolio" data-testid="tab-portfolio">Full Portfolio</TabsTrigger>
             <TabsTrigger value="matcher" data-testid="tab-matcher">Grant Matcher</TabsTrigger>
             <TabsTrigger value="advantages" data-testid="tab-advantages">Advantages</TabsTrigger>
-            <TabsTrigger value="dfc" data-testid="tab-dfc">DFC Alignment</TabsTrigger>
             <TabsTrigger value="connections" data-testid="tab-connections">Integrations</TabsTrigger>
             <TabsTrigger value="grants" data-testid="tab-grants">Grant Matrix</TabsTrigger>
             <TabsTrigger value="narrative" data-testid="tab-narrative">Narrative</TabsTrigger>
@@ -1309,25 +1265,6 @@ export default function EcosystemHubPage() {
                     </div>
                   </div>
 
-                  <div>
-                    <h4 className="font-semibold text-sm text-gray-900 dark:text-white mb-2">DFC Sectors Served</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {DFC_SECTORS.map((sector) => {
-                        const isServed = selectedAppData.dfcSectors.includes(sector.number);
-                        return (
-                          <Badge
-                            key={sector.number}
-                            className={isServed
-                              ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
-                              : "bg-gray-100 text-gray-400 dark:bg-gray-800 dark:text-gray-500"
-                            }
-                          >
-                            {sector.number}. {sector.name}
-                          </Badge>
-                        );
-                      })}
-                    </div>
-                  </div>
                 </CardContent>
               </Card>
             )}
@@ -1398,97 +1335,6 @@ export default function EcosystemHubPage() {
 
           <TabsContent value="advantages" className="space-y-4">
             <CompetitiveAdvantagesTab />
-          </TabsContent>
-
-          <TabsContent value="dfc" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Target className="h-5 w-5 text-blue-600" />
-                  CDC/ONDCP Drug-Free Communities (DFC) Sector Coverage
-                </CardTitle>
-                <CardDescription>
-                  DFC grants require coalitions with representation from 12 community sectors.
-                  Our ecosystem covers {allDfcSectors.length} of 12 sectors.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="mb-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium">Sector Coverage</span>
-                    <span className="text-sm font-bold text-green-600">{dfcCoverage}%</span>
-                  </div>
-                  <Progress value={dfcCoverage} className="h-3" data-testid="progress-dfc-coverage" />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {DFC_SECTORS.map((sector) => {
-                    const servingApps = ECOSYSTEM_APPS.filter(a => a.dfcSectors.includes(sector.number));
-                    const isCovered = servingApps.length > 0;
-                    const SectorIcon = sector.icon;
-                    return (
-                      <Card key={sector.number} className={`${isCovered ? 'border-green-200 dark:border-green-800' : 'border-red-200 dark:border-red-800 opacity-60'}`} data-testid={`card-dfc-sector-${sector.number}`}>
-                        <CardContent className="pt-4 pb-4">
-                          <div className="flex items-center gap-3">
-                            <div className={`p-2 rounded-lg ${isCovered ? 'bg-green-50 dark:bg-green-950/30' : 'bg-red-50 dark:bg-red-950/30'}`}>
-                              <SectorIcon className={`h-5 w-5 ${isCovered ? 'text-green-600 dark:text-green-400' : 'text-red-400'}`} />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2">
-                                <span className="text-sm font-medium">{sector.number}. {sector.name}</span>
-                                {isCovered ? (
-                                  <CheckCircle className="h-4 w-4 text-green-500 shrink-0" />
-                                ) : (
-                                  <AlertTriangle className="h-4 w-4 text-red-400 shrink-0" />
-                                )}
-                              </div>
-                              <div className="flex flex-wrap gap-1 mt-1">
-                                {servingApps.map(app => (
-                                  <Badge key={app.id} variant="outline" className="text-xs">{app.name.split(' ')[0]}</Badge>
-                                ))}
-                                {!isCovered && <span className="text-xs text-red-400">Gap — needs coalition partner</span>}
-                              </div>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    );
-                  })}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>DFC Application Strengths</CardTitle>
-                <CardDescription>How our ecosystem addresses each DFC focus area</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {[
-                    { area: "Establishing & Strengthening Community Coalitions", strength: "Coalition Dashboard with 12-sector tracker, meeting management, capacity assessment, and SPF-aligned action plans. Multi-app ecosystem demonstrates genuine cross-sector collaboration.", apps: ["ThriveUp", "ISSS", "LifeBridge"] },
-                    { area: "Preventing Youth Substance Use Through Community Strategies", strength: "24-module prevention curriculum across 8 substance topics with 3 age tiers. Evidence-based content aligned to SAMHSA Strategic Prevention Framework.", apps: ["ThriveUp", "WholeMind", "Perfectly Different"] },
-                    { area: "Addressing Risk Factors for Youth Substance Use", strength: "Comprehensive risk factor assessment across family, peer/social, community, and individual domains. Neurodiversity support addresses mental health risk factors.", apps: ["ThriveUp", "Perfectly Different", "SafeReport"] },
-                    { area: "Promoting Protective Factors That Reduce Substance Use Risk", strength: "Protective factor assessment and strengthening. Academic engagement, family bonding, social service access, and veteran community support all build protective factors.", apps: ["ThriveUp", "WholeMind", "LifeBridge", "M2C"] },
-                    { area: "Community-Wide Prevention & Education Initiatives", strength: "Full ecosystem covers all community segments. 24/7 crisis support through LifeBridge.", apps: ["All Platforms"] },
-                    { area: "Measurable Prevention Outcomes", strength: "Dosage tracking, outcome reporting, pilot data infrastructure, CQI engine for continuous improvement.", apps: ["ThriveUp"] },
-                    { area: "100% Cost Match Requirement", strength: "Cost match tracking built into Coalition Dashboard. Partner in-kind contributions, volunteer hours, and facility sharing tracked.", apps: ["ThriveUp"] },
-                  ].map((item, i) => (
-                    <div key={i} className="border rounded-lg p-4 dark:border-gray-700">
-                      <div className="flex items-start justify-between gap-2 mb-2">
-                        <h4 className="font-semibold text-sm text-gray-900 dark:text-white">{item.area}</h4>
-                        <div className="flex flex-wrap gap-1">
-                          {item.apps.map(app => (
-                            <Badge key={app} variant="outline" className="text-xs">{app}</Badge>
-                          ))}
-                        </div>
-                      </div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">{item.strength}</p>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
           </TabsContent>
 
           <TabsContent value="connections" className="space-y-4">
@@ -1576,7 +1422,7 @@ export default function EcosystemHubPage() {
                           </td>
                           {GRANT_STREAMS.map(grant => {
                             const alignment = app.grantAlignment.find(a =>
-                              a.grant.toLowerCase().includes(grant.id === "dfc" ? "dfc" : grant.id)
+                              a.grant.toLowerCase().includes(grant.id)
                             );
                             return (
                               <td key={grant.id} className="text-center py-3 px-2">
@@ -1607,15 +1453,15 @@ export default function EcosystemHubPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <FileText className="h-5 w-5 text-amber-600" />
-                  DFC Grant Narrative — Ecosystem Strength Statement
+                  Grant Narrative — Ecosystem Strength Statement
                 </CardTitle>
-                <CardDescription>Ready-to-use language for your DFC application describing the ecosystem</CardDescription>
+                <CardDescription>Ready-to-use language for grant applications describing the ecosystem</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4" data-testid="narrative-coalition-infrastructure">
                   <h4 className="font-semibold text-amber-800 dark:text-amber-300 mb-2">Coalition Infrastructure</h4>
                   <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-                    Our coalition operates through ThriveUp Academy, an AI-powered community enablement platform that serves as the central coordination hub for a network of 14 interconnected service platforms forming The Collaborative Advocate ecosystem. This infrastructure enables real-time cross-sector collaboration, data-driven decision-making, and measurable outcome tracking across all 12 DFC-required community sectors. Our coalition management dashboard tracks sector representation, meeting activity, capacity assessments aligned to SAMHSA's Strategic Prevention Framework, and 100% cost match compliance documentation.
+                    Our coalition operates through ThriveUp Academy, an AI-powered community enablement platform that serves as the central coordination hub for a network of 20 interconnected service platforms forming The Collaborative Advocate ecosystem. This infrastructure enables real-time cross-sector collaboration, data-driven decision-making, and measurable outcome tracking across community sectors spanning health equity, workforce development, education, and veteran services. Our coalition management dashboard tracks sector representation, meeting activity, and capacity assessments aligned to evidence-based frameworks.
                   </p>
                 </div>
 
@@ -1643,7 +1489,7 @@ export default function EcosystemHubPage() {
                 <div className="bg-rose-50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-800 rounded-lg p-4" data-testid="narrative-sustainability">
                   <h4 className="font-semibold text-rose-800 dark:text-rose-300 mb-2">Sustainability & Long-Term Impact</h4>
                   <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-                    Our coalition's sustainability strategy is built on technology infrastructure that reduces per-participant costs over time, a diversified funding approach spanning 13 federal grant streams, in-kind contributions from 14 platform partners, and a community partner network. The Minority Center of Excellence (MCE) strengthens economic sustainability by connecting minority-owned businesses to federal contracting opportunities, creating a self-reinforcing economic development pipeline. Our cost match tracking system documents all non-federal contributions, and our logic model builder generates theory-of-change documentation. The Collaborative Advocate's dual-entity structure (Foundation + VOSB LLC) ensures flexible contracting and sustainable revenue streams beyond any single grant.
+                    Our coalition's sustainability strategy is built on technology infrastructure that reduces per-participant costs over time, a diversified funding approach spanning 13 federal grant streams, in-kind contributions from 20 platform partners, and a community partner network. The Minority Center of Excellence (MCE) strengthens economic sustainability by connecting minority-owned businesses to federal contracting opportunities, creating a self-reinforcing economic development pipeline. Our cost match tracking system documents all non-federal contributions, and our logic model builder generates theory-of-change documentation. The Collaborative Advocate's dual-entity structure (Foundation + VOSB LLC) ensures flexible contracting and sustainable revenue streams beyond any single grant.
                   </p>
                 </div>
               </CardContent>

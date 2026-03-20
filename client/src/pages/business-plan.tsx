@@ -26,14 +26,14 @@ const ecosystemPlatforms = [
       "AI curriculum (Grades 3-12 + Adult)",
       "50+ career pipelines across 4+ industries",
       "Grant Discovery Engine with AI scoring",
-      "DFC coalition management & prevention",
+      "Coalition management & prevention",
       "Case management & reentry support",
       "Community intelligence mapping (GIS)",
       "Facilitator hub & curriculum delivery",
       "Post-award program management",
       "Bilingual (EN/ES) with crisis support",
     ],
-    revenue: "Grant-funded (DFC, DOL, DOE, SBA, DOJ)",
+    revenue: "Grant-funded (DOL, DOE, SBA, DOJ, SAMHSA, HRSA)",
   },
   {
     name: "Minority Center of Excellence",
@@ -79,7 +79,6 @@ const ecosystemPlatforms = [
 ];
 
 const fundingStreams = [
-  { source: "CDC/ONDCP Drug-Free Communities", amount: "$625K over 5 years", status: "Primary Target", deadline: "April 14, 2026", platforms: ["ThriveUp Academy"] },
   { source: "DOL Workforce Innovation (WIOA)", amount: "Varies", status: "Aligned", deadline: "Ongoing", platforms: ["ThriveUp Academy"] },
   { source: "DOE Education Grants", amount: "Varies", status: "Aligned", deadline: "Ongoing", platforms: ["ThriveUp Academy"] },
   { source: "SBA SBIR/STTR", amount: "Up to $2M", status: "Eligible", deadline: "Rolling", platforms: ["ThriveUp Academy", "MCE"] },
@@ -95,7 +94,7 @@ const keyNumbers = [
   { label: "MCE Records", value: "656,794", detail: "Curated business data" },
   { label: "AI Tools", value: "24+", detail: "Across all platforms" },
   { label: "Career Pathways", value: "50+", detail: "4+ industries" },
-  { label: "DFC Grant Target", value: "$625K", detail: "5-year award" },
+  { label: "Active Grants", value: "4", detail: "Healthcare + workforce" },
   { label: "MCE Valuation", value: "$3.5-5M", detail: "SaaS platform" },
   { label: "States Deployable", value: "50", detail: "+ DC coverage" },
   { label: "Languages", value: "2", detail: "English & Spanish" },
@@ -355,9 +354,8 @@ export default function BusinessPlanPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {[
               { title: "Grant Discovery Engine", desc: "AI-powered SAM.gov integration with alignment scoring, narrative builder, and logic model generator", link: "/grants", icon: Target },
-              { title: "DFC Command Center", desc: "Unified dashboard aggregating coalition, prevention, community engagement, and grant readiness across 20+ data sources", link: "/dfc-command-center", icon: BarChart3 },
-              { title: "DFC Guided Wizards", desc: "4 step-by-step wizards: Coalition Setup (7 steps), Prevention Launch (8), Grant Application (10), Community Assessment (6)", link: "/dfc-wizards", icon: Sparkles },
-              { title: "Coalition Management", desc: "12-sector ONDCP-aligned coalition tracking with meeting management, action items, and DFCCrossNav linking all DFC tools", link: "/coalition", icon: Users },
+              { title: "Healthcare Grant Research", desc: "AI-powered healthcare equity grant discovery — SAMHSA, HRSA, CDC, NIH and foundation funding streams with alignment scoring", link: "/healthcare-grants", icon: Heart },
+              { title: "Coalition Management", desc: "Community coalition tracking with meeting management, action items, and cross-platform navigation", link: "/coalition", icon: Users },
               { title: "Prevention & Curriculum", desc: "Evidence-based prevention programs with SAMHSA/NIDA registry, fidelity tracking, environmental strategies, and parent education", link: "/prevention", icon: Shield },
               { title: "Facilitator Hub", desc: "AI-assisted session planning, delivery logging with fidelity scoring, dosage tracking, and certification management", link: "/facilitator-hub", icon: BookOpen },
               { title: "Community Intelligence", desc: "GIS-powered maps layering CDC, Census, SAMHSA, FBI, USDA data — community profiles for any zip code in the nation", link: "/community-map", icon: MapPin },

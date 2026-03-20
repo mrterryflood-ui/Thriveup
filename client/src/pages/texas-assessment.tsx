@@ -52,7 +52,7 @@ const HUB_LOCATIONS = [
     population: "1,000,000+",
     keyStats: ["Median home $435K", "3,238 homeless (PIT 2025)", "85%+ ELI renters cost-burdened", "48,000+ units needed"],
     platforms: ["LifeBridge", "Mission Transition", "Whole-Person Health", "ISSS", "Sankofa Health"],
-    grants: ["St. David's up to $1M", "DFC $625K", "WIOA $200-500K"],
+    grants: ["St. David's up to $1M", "WIOA $200-500K", "SAMHSA Mental Health"],
   },
   {
     name: "Manor Hub",
@@ -74,7 +74,7 @@ const HUB_LOCATIONS = [
     population: "76,500+",
     keyStats: ["330 affordable units coming (Branchview 2027)", "CDBG entitlement city", "Zero social infrastructure", "Samsung/Tesla corridor"],
     platforms: ["LifeBridge", "Collaborative Advocate", "Perfectly Different", "MCE", "ISSS"],
-    grants: ["HUD CDBG $500K-2M", "PCDC $150K+", "DFC $625K", "SSG Fox up to $750K"],
+    grants: ["HUD CDBG $500K-2M", "PCDC $150K+", "SSG Fox up to $750K", "HRSA Community Health"],
   },
 ];
 
@@ -313,21 +313,6 @@ const FIVE_DOMAINS = [
 ];
 
 const GRANT_ALIGNMENT = [
-  {
-    grant: "Drug-Free Communities (DFC)",
-    amount: "$625,000",
-    source: "CDC/ONDCP",
-    deadline: "April 14, 2026",
-    status: "preparing",
-    needsAddressed: [
-      "Youth substance use prevention across Austin/Manor/Pflugerville triangle",
-      "12-sector coalition requirement met through existing partner network",
-      "Community readiness assessment completed via MAP-GAP methodology",
-    ],
-    platforms: ["ThriveUp Academy", "DFC Command Center", "Coalition Dashboard", "SafeReport"],
-    cfirAlignment: "Strong — evidence-based curricula, SALP fidelity tracking, coalition infrastructure",
-    reamScore: 91,
-  },
   {
     grant: "WIOA Title I Youth",
     amount: "$200K–$500K",
@@ -1076,10 +1061,10 @@ export default function TexasAssessmentPage() {
 
         <TabsContent value="grants" className="mt-6 space-y-6" data-testid="content-grants">
           <div>
-            <h2 className="text-2xl font-bold mb-2">Grant Alignment — 5 Active Pipelines</h2>
+            <h2 className="text-2xl font-bold mb-2">Grant Alignment — 4 Active Pipelines</h2>
             <p className="text-muted-foreground mb-6">
-              How the Texas needs assessment maps to all 5 active grants — DFC $625K, WIOA $200-500K,
-              Foundation $100-500K, St. David's up to $1M, and SSG Fox up to $750K.
+              How the Texas needs assessment maps to active grants — WIOA, Foundation,
+              St. David's, and SSG Fox.
             </p>
           </div>
 

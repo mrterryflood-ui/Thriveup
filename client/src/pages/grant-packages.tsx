@@ -145,180 +145,6 @@ const APPROVAL_LABELS: Record<ApprovalStatus, { label: string; color: string; ic
 
 const GRANT_PACKAGES: GrantPackage[] = [
   {
-    id: "dfc",
-    name: "Drug-Free Communities",
-    fullName: "CDC/ONDCP Drug-Free Communities Support Program",
-    funder: "CDC / ONDCP",
-    amount: "$125,000/year (5 years = $625,000)",
-    deadline: "April 14, 2026",
-    deadlineUrgency: "approaching",
-    icon: Shield,
-    color: "text-emerald-600",
-    bgColor: "bg-emerald-50 dark:bg-emerald-950/30",
-    borderColor: "border-emerald-200 dark:border-emerald-800",
-    description: "Federal grant supporting community coalitions to prevent youth substance use through evidence-based strategies and 12-sector coalition building.",
-    referenceUrl: "https://www.samhsa.gov/grants/grant-announcements/sp-24-001",
-    referenceLabel: "SAMHSA/ONDCP DFC NOFO",
-    grantKnowledge: `Drug-Free Communities (DFC) Support Program — $125,000/year for 5 years ($625,000 total).
-PURPOSE: Establish and strengthen community coalitions to reduce youth substance use. Requires a community coalition representing 12 sectors: youth, parents, businesses, media, schools, youth-serving orgs, law enforcement, religious orgs, civic/volunteer, healthcare, state/local government, other substance use orgs.
-KEY REQUIREMENTS: (1) Coalition must have been active for at least 6 months. (2) Must address at least 2 substances. (3) Must collect 4 core measures: past 30-day use, perception of risk, perception of disapproval, and age of first use. (4) Must use evidence-based prevention strategies from SAMHSA's registry. (5) Community readiness assessment required. (6) Logic model with theory of change. (7) Sustainability plan. (8) Match requirement: dollar-for-dollar cash/in-kind match.
-SCORING CRITERIA: Statement of Need (20 pts), Proposed Approach/Program Design (30 pts), Organizational Capacity (15 pts), Data Collection & Evaluation (15 pts), Budget (10 pts), Community Readiness (10 pts).
-ELIGIBLE APPLICANTS: 501(c)(3) community-based organizations; coalitions with 12-sector representation.
-APPLICATION DEADLINE: April 14, 2026. SF-424, SF-424A, Project Narrative, Budget, Logic Model, Letters of Support, Coalition membership list required.`,
-    essentials: [
-      { label: "Coalition Required", detail: "Must build a 12-sector coalition (youth, parents, schools, law enforcement, healthcare, business, media, religious, civic, government, substance use orgs, youth-serving orgs)", critical: true },
-      { label: "Match Requirement", detail: "Dollar-for-dollar match — $125K/year in cash or in-kind contributions required", critical: true },
-      { label: "Coalition History", detail: "Coalition must have been active for at least 6 months before applying" },
-      { label: "Target Population", detail: "Youth substance use prevention — must address at least 2 substances" },
-      { label: "Data Collection", detail: "Must collect 4 core measures: past 30-day use, perception of risk, perception of disapproval, age of first use" },
-      { label: "Evidence-Based", detail: "Must use SAMHSA-approved evidence-based prevention strategies" },
-      { label: "Eligible Applicants", detail: "501(c)(3) organizations only — or unit of local government" },
-      { label: "Key Deliverables", detail: "Logic model, sustainability plan, community readiness assessment, 12 letters of support (one per sector)" },
-    ],
-    competitiveEdge: [
-      "20-platform ecosystem provides unprecedented coalition infrastructure",
-      "SALP fidelity tracking exceeds typical reporting capabilities",
-      "MAP-GAP methodology aligns directly with ONDCP's continuous improvement requirements",
-      "Real-time core measures tracking (not batch reporting)",
-      "Three Realities framework ensures community voice is centered, not assumed",
-    ],
-    serviceArea: {
-      region: "Central Texas",
-      state: "Texas",
-      counties: ["Travis", "Williamson", "Hays"],
-      city: "Austin",
-      keyIndustries: ["Substance Use Prevention", "Youth Services", "Community Health", "Education"],
-      targetEmployers: [],
-      laborMarketNotes: "DFC does not require employer partnerships — it is a coalition-based prevention grant. Focus is on coalition sector representation, not labor market alignment.",
-      locationEligibility: "national",
-      locationNotes: "DFC is a national grant — you can apply from any community in the United States. Your coalition must represent a defined geographic community (city, county, or region). You are applying for Austin/Travis County as your primary community. You could also apply for a separate coalition in another community if you have the infrastructure.",
-      multiSiteEligible: true,
-      multiSiteNotes: "You can submit separate DFC applications for different communities. Each application requires its own 12-sector coalition specific to that community. Consider: a second application for Williamson County or Hays County if you build separate coalitions. Each coalition can receive up to $125K/year independently.",
-    },
-    partnershipTimeline: {
-      summary: "DFC REQUIRES partners named in your application. Coalition members, their sectors, and their commitments must all be documented BEFORE you draft. Secure partnerships first, then write.",
-      workflowOrder: "Partnerships FIRST → Then Draft Documents",
-      requirements: [
-        { partnerType: "12-Sector Coalition Members", requiredInDocs: true, timing: "pre-award", docSections: ["Coalition Documentation", "Program Narrative", "Letters of Support"], description: "Every coalition member from all 12 sectors must be named, with their organization, sector, and role documented. This is a core scoring criterion — reviewers check for completeness.", evidenceNeeded: "Coalition membership roster, signed MOUs, meeting minutes showing active participation, bylaws listing members" },
-        { partnerType: "Schools / School Districts", requiredInDocs: true, timing: "pre-award", docSections: ["Coalition Documentation", "Program Narrative", "Letters of Support"], description: "At least one school or school district representative must be in your coalition (sector 5). They should commit to data sharing (YRBS data), program access, and prevention activity implementation.", evidenceNeeded: "Letter of support on school letterhead, signed MOU, named contact person" },
-        { partnerType: "Law Enforcement", requiredInDocs: true, timing: "pre-award", docSections: ["Coalition Documentation", "Letters of Support"], description: "At least one law enforcement agency (sector 7). They provide local substance trend data, community presence, and enforcement alignment with prevention.", evidenceNeeded: "Letter of support from chief/commander, MOU, named liaison officer" },
-        { partnerType: "Healthcare Providers", requiredInDocs: true, timing: "pre-award", docSections: ["Coalition Documentation", "Letters of Support"], description: "At least one healthcare organization (sector 10). They can provide screening, referral data, and clinical perspective on youth substance impact.", evidenceNeeded: "Letter of support, MOU, agreement to share de-identified community health data" },
-        { partnerType: "Evaluator / Research Partner", requiredInDocs: true, timing: "pre-award", docSections: ["Evaluation Plan", "Budget & Justification"], description: "DFC requires an evaluation plan. An independent evaluator (like Better Science Lab) should be named in the budget and evaluation section. They must be separate from program delivery staff.", evidenceNeeded: "Evaluator bio/CV, letter of commitment, evaluation methodology overview, budget line item" },
-        { partnerType: "In-Kind Match Contributors", requiredInDocs: true, timing: "pre-award", docSections: ["Budget & Justification"], description: "DFC requires dollar-for-dollar match ($125K/year). Match can be cash or in-kind. Partners providing match (meeting space, staff time, volunteer hours) must be documented with dollar values.", evidenceNeeded: "Match commitment letters with specific dollar amounts, in-kind valuation documentation" },
-      ],
-    },
-    sections: [
-      { id: "dfc-narrative", name: "Program Narrative", description: "Statement of Need, Program Design, Goals & Objectives, Implementation Plan", icon: FileText, status: "draft", content: "Comprehensive narrative addressing youth substance use prevention through evidence-based coalition strategies.", reviewNotes: "", lastUpdated: "2026-03-15", assignee: "Dr. Flood + AI", pageLimit: "25 pages", wordCount: "7,500–10,000 words" },
-      { id: "dfc-budget", name: "Budget & Justification", description: "Line-item budget with narrative justification for all costs", icon: DollarSign, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood", pageLimit: "5 pages", wordCount: "1,500–2,000 words" },
-      { id: "dfc-logic-model", name: "Logic Model", description: "Inputs → Activities → Outputs → Short/Long-term Outcomes", icon: Layers, status: "draft", content: "Theory of change: Relief → Stabilize → Contribute with MAP-GAP cycle integration.", reviewNotes: "", lastUpdated: "2026-03-14", assignee: "Dr. Flood + AI", pageLimit: "2 pages", wordCount: "500–800 words" },
-      { id: "dfc-coalition", name: "Coalition Documentation", description: "12-sector membership roster, MOUs, meeting minutes, bylaws", icon: Users, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood", pageLimit: "10 pages", wordCount: "3,000–4,000 words" },
-      { id: "dfc-data-plan", name: "Data Collection Plan", description: "4 core measures methodology, survey instruments, IRB if needed", icon: BarChart3, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood + AI", pageLimit: "5 pages", wordCount: "1,500–2,000 words" },
-      { id: "dfc-community", name: "Community Readiness Assessment", description: "Tri-Ethnic Center model assessment results and action plan", icon: MapPin, status: "draft", content: "Community readiness assessment using DFC Readiness tool with gap identification.", reviewNotes: "", lastUpdated: "2026-03-12", assignee: "Dr. Flood", pageLimit: "5 pages", wordCount: "1,500–2,000 words" },
-      { id: "dfc-letters", name: "Letters of Support", description: "Coalition member commitments, community partner letters", icon: Handshake, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood", pageLimit: "No limit (1 per partner)", wordCount: "200–400 words each" },
-      { id: "dfc-sustainability", name: "Sustainability Plan", description: "Post-grant continuation strategy with revenue diversification", icon: Globe, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood", pageLimit: "3 pages", wordCount: "1,000–1,500 words" },
-      { id: "dfc-evaluation", name: "Evaluation Plan", description: "Process and outcome evaluation design with independent evaluator", icon: Sparkles, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood + Better Science Lab", pageLimit: "5 pages", wordCount: "1,500–2,000 words" },
-    ],
-    phases: [
-      {
-        id: "collaborate", name: "1. Collaborate & Research", description: "Gather data, align team, understand requirements", status: "active",
-        tasks: [
-          { id: "c1", task: "Review NOFO and scoring criteria in detail", owner: "Dr. Flood", status: "done", dueDate: "2026-03-10" },
-          { id: "c2", task: "Map all 14 platform capabilities to DFC requirements", owner: "AI + Dr. Flood", status: "done", dueDate: "2026-03-12" },
-          { id: "c3", task: "Identify coalition gaps (sectors without confirmed partners)", owner: "Dr. Flood", status: "in-progress", dueDate: "2026-03-20", guidance: "DFC requires representation from 12 community sectors. Map your current coalition members against: (1) Youth, (2) Parents, (3) Business, (4) Media, (5) Schools, (6) Youth-serving orgs, (7) Law enforcement, (8) Religious, (9) Civic/volunteer, (10) Healthcare, (11) Government, (12) Other orgs. Find gaps and reach out to sector leaders in Austin.", aiCanHelp: true, aiAction: "Identify missing sectors and suggest Austin partners" },
-          { id: "c4", task: "Collect community-level data (CDC PLACES, SVI, YRBS)", owner: "AI", status: "done", dueDate: "2026-03-14", guidance: "Data collected from CDC PLACES, Social Vulnerability Index, and Youth Risk Behavior Survey for Travis County. Key findings: elevated youth substance use rates, high social vulnerability in east Austin zip codes, significant disparities by race/ethnicity." },
-          { id: "c5", task: "Interview 3+ community stakeholders for Three Realities grounding", owner: "Dr. Flood", status: "pending", dueDate: "2026-03-22", guidance: "Three Realities methodology requires capturing: (1) The community's lived reality, (2) The institutional reality, (3) The data/evidence reality. Schedule 30-minute interviews with at least 1 youth/parent, 1 school administrator or counselor, and 1 community health provider. Document quotes for narrative use." },
-        ],
-      },
-      {
-        id: "build", name: "2. Build & Draft", description: "Write narrative sections, develop budget, compile docs", status: "active",
-        tasks: [
-          { id: "b1", task: "Draft Statement of Need with local data", owner: "AI + Dr. Flood Review", status: "in-progress", dueDate: "2026-03-22", guidance: "Use CDC PLACES, SVI, and YRBS data already collected. Statement of Need should show: (1) prevalence of youth substance use in Austin/Travis County, (2) disparities by race/neighborhood, (3) gap between need and current services, (4) why a coalition approach is necessary. The AI can draft this from your data — go to Sections & Approval tab.", aiCanHelp: true, aiAction: "Draft Statement of Need section" },
-          { id: "b2", task: "Draft Program Design section", owner: "AI + Dr. Flood Review", status: "pending", dueDate: "2026-03-25", guidance: "Program Design should map your 20 platforms to DFC strategies. WAIT until coalition partners are confirmed — you need to name specific coalition activities and partner roles in this section. Partners must be in this document.", aiCanHelp: true, aiAction: "Draft Program Design section" },
-          { id: "b3", task: "Build line-item budget", owner: "Dr. Flood", status: "pending", dueDate: "2026-03-27", guidance: "DFC budget is $125K/year max. Key categories: Personnel (Project Director, Coalition Coordinator), Travel, Supplies, Contractual (evaluator), Other (meeting costs, prevention materials). Remember: dollar-for-dollar match required — document in-kind contributions from coalition partners.", aiCanHelp: true, aiAction: "Generate budget template with line items" },
-          { id: "b4", task: "Finalize Logic Model with platform data", owner: "AI + Dr. Flood Review", status: "in-progress", dueDate: "2026-03-24", guidance: "Logic Model must show: Inputs (coalition, platforms, funding) → Activities (prevention strategies, data collection, coalition meetings) → Outputs (# trained, # events, # data points) → Short-term Outcomes (reduced perception of risk) → Long-term Outcomes (reduced youth substance use). The AI can generate this from your platform capabilities.", aiCanHelp: true, aiAction: "Generate Logic Model framework" },
-          { id: "b5", task: "Draft evaluation methodology", owner: "Better Science Lab + Dr. Flood", status: "pending", dueDate: "2026-03-28", guidance: "DFC requires 4 core measures collected via community surveys. Better Science Lab should design the methodology. Include: survey instruments, sampling strategy, data collection timeline, analysis plan. The evaluator must be independent of program delivery.", aiCanHelp: true, aiAction: "Draft evaluation methodology outline" },
-          { id: "b6", task: "Compile coalition membership documentation", owner: "Dr. Flood", status: "pending", dueDate: "2026-03-26", guidance: "You need: (1) Complete membership roster with all 12 sectors, (2) Signed MOUs from each member, (3) Coalition bylaws, (4) Meeting minutes from at least 2 meetings, (5) Letters of support from each member organization. THIS IS WHERE YOUR PARTNER OUTREACH MATTERS — you can't compile what you don't have yet.", aiCanHelp: true, aiAction: "Generate coalition roster template and MOU template" },
-        ],
-      },
-      {
-        id: "review", name: "3. Review & Approve", description: "Dr. Flood reviews every section, signs off before submission", status: "upcoming",
-        tasks: [
-          { id: "r1", task: "Review and approve Program Narrative", owner: "Dr. Flood", status: "pending", dueDate: "2026-04-01" },
-          { id: "r2", task: "Review and approve Budget & Justification", owner: "Dr. Flood", status: "pending", dueDate: "2026-04-02" },
-          { id: "r3", task: "Review and approve Logic Model", owner: "Dr. Flood", status: "pending", dueDate: "2026-04-02" },
-          { id: "r4", task: "Final compliance check against NOFO requirements", owner: "Dr. Flood + AI", status: "pending", dueDate: "2026-04-05" },
-          { id: "r5", task: "External review by advisory board member", owner: "Advisory Board", status: "pending", dueDate: "2026-04-07" },
-        ],
-      },
-      {
-        id: "submit", name: "4. Package & Submit", description: "Bundle all approved docs, upload to Grants.gov", status: "upcoming",
-        tasks: [
-          { id: "s1", task: "Assemble final package (all sections approved)", owner: "Dr. Flood + AI", status: "pending", dueDate: "2026-04-09" },
-          { id: "s2", task: "Format per Grants.gov requirements", owner: "AI", status: "pending", dueDate: "2026-04-10" },
-          { id: "s3", task: "Upload to Grants.gov (allow 48hr buffer)", owner: "Dr. Flood", status: "pending", dueDate: "2026-04-12" },
-          { id: "s4", task: "Confirm submission receipt and tracking number", owner: "Dr. Flood", status: "pending", dueDate: "2026-04-12" },
-        ],
-      },
-      {
-        id: "pre-execute", name: "5. Pre-Execution Readiness", description: "Prepare for Day 1 if awarded", status: "upcoming",
-        tasks: [
-          { id: "p1", task: "Draft 90-day implementation timeline", owner: "Dr. Flood + AI", status: "pending", dueDate: "2026-04-20" },
-          { id: "p2", task: "Identify and pre-recruit key staff positions", owner: "Dr. Flood", status: "pending", dueDate: "2026-04-25" },
-          { id: "p3", task: "Set up data collection instruments in platform", owner: "AI", status: "pending", dueDate: "2026-04-22" },
-          { id: "p4", task: "Schedule coalition kickoff meeting", owner: "Dr. Flood", status: "pending", dueDate: "2026-04-28" },
-        ],
-      },
-    ],
-    preExecutionChecklist: [
-      { id: "pe-1", category: "Registration", item: "SAM.gov registration active and current", status: "verified", notes: "Verify UEI number is valid", guidance: "Your SAM.gov registration must be active and current. Verify at sam.gov — search by ThriveUp Academy's UEI. Registration must be renewed annually. Ensure NAICS codes include 624190 (Other Individual and Family Services) and 611710 (Educational Support Services).", resources: [{ label: "SAM.gov", url: "https://sam.gov" }] },
-      { id: "pe-2", category: "Registration", item: "Grants.gov account active", status: "verified", notes: "AOR credentials confirmed", guidance: "Your Authorized Organization Representative (AOR) must have an active Grants.gov account. The AOR is the person who will submit the application. Verify login credentials now — don't discover issues on submission day.", resources: [{ label: "Grants.gov", url: "https://www.grants.gov" }] },
-      { id: "pe-3", category: "Registration", item: "DUNS number on file", status: "verified", notes: "", guidance: "DUNS numbers have been replaced by UEI (Unique Entity Identifier) through SAM.gov. Confirm your UEI is on file and matches across all systems." },
-      { id: "pe-4", category: "Compliance", item: "501(c)(3) determination letter attached", status: "pending", notes: "ThriveUp Academy 501(c)(3)", guidance: "Attach your IRS 501(c)(3) determination letter. If your status is less than 3 years old, include your most recent Form 990 as well. DFC requires the applicant to be a 501(c)(3) or unit of local government." },
-      { id: "pe-5", category: "Compliance", item: "Audit report (if applicable) included", status: "action-needed", notes: "Check if single audit required", guidance: "If ThriveUp Academy spent $750,000+ in federal funds in the most recent fiscal year, a Single Audit (2 CFR 200 Subpart F) is required. If you haven't received federal funds yet, you're exempt — but document that clearly. If you need an audit, engage a CPA firm experienced with federal audits immediately.", resources: [{ label: "2 CFR 200 Audit Requirements", url: "https://www.ecfr.gov/current/title-2/subtitle-A/chapter-II/part-200/subpart-F" }] },
-      { id: "pe-6", category: "Compliance", item: "Indirect cost rate agreement", status: "pending", notes: "Negotiate with cognizant agency or use de minimis 10%", guidance: "You have two options: (1) Negotiate an indirect cost rate with your cognizant federal agency, or (2) Use the de minimis rate of 10% of modified total direct costs. For a first-time federal applicant, the de minimis 10% rate is the fastest path — no negotiation needed, just document it in your budget narrative." },
-      { id: "pe-7", category: "Coalition", item: "All 12 sectors have confirmed representatives", status: "action-needed", notes: "Verify sector coverage completeness", guidance: "This is your MOST CRITICAL action item. DFC requires all 12 sectors:\n1. Youth\n2. Parents\n3. Business community\n4. Media\n5. Schools\n6. Youth-serving organizations\n7. Law enforcement\n8. Religious/fraternal\n9. Civic/volunteer groups\n10. Healthcare professionals\n11. State/local government\n12. Other substance use organizations\n\nMap your current members to sectors. Identify gaps. Use the 'Find Partners' button below to get AI recommendations for Austin-area organizations to fill each gap." },
-      { id: "pe-8", category: "Coalition", item: "MOUs signed with key partners", status: "pending", notes: "Priority: schools, law enforcement, healthcare", guidance: "MOUs should specify: (1) each partner's role in the coalition, (2) specific contributions (staff time, meeting space, data sharing, in-kind), (3) commitment period (5 years to match grant). Priority sectors for MOUs: schools (Austin ISD), law enforcement (APD), healthcare (CommUnityCare or Integral Care). Use 'Outreach Templates' button to generate MOU cover letters." },
-      { id: "pe-9", category: "Data", item: "Baseline data collection instruments ready", status: "verified", notes: "DFC Reporting module has all 4 core measures", guidance: "Your platform tracks all 4 DFC core measures: (1) past 30-day use, (2) perception of risk/harm, (3) perception of disapproval, (4) age of first use. Ensure survey instruments match DFC's required questions exactly." },
-      { id: "pe-10", category: "Data", item: "IRB approval or exemption documented", status: "action-needed", notes: "Contact university partner for IRB review", guidance: "DFC data collection involves surveying youth about substance use, which typically requires IRB review. Contact UT Austin's Office of Research Support (IRB office) or Texas State University for an IRB review. If your data collection uses only anonymous aggregate surveys, you may qualify for IRB exemption — but you still need the exemption letter documented.", resources: [{ label: "UT Austin IRB", url: "https://research.utexas.edu/ors/human-subjects/" }] },
-      { id: "pe-11", category: "Technology", item: "Platform configured for DFC program tracking", status: "verified", notes: "Coalition Dashboard, Prevention Hub, DFC Reporting all live", guidance: "Your Coalition Dashboard, Prevention Hub, and DFC Reporting module are operational. Verify they can export data in formats SAMHSA requires for semi-annual progress reports." },
-      { id: "pe-12", category: "Technology", item: "Staff accounts and permissions configured", status: "pending", notes: "Set up after award notification", guidance: "This can be completed post-award during the 90-day startup period. Plan for: Project Director account, Coalition Coordinator account, Evaluator read-only access, and coalition member portal access." },
-      { id: "pe-13", category: "Staffing", item: "Project Director identified", status: "verified", notes: "Dr. Terry Flood", guidance: "Dr. Terry Flood is confirmed as Project Director. Ensure his bio/CV is updated to reflect relevant coalition leadership and substance use prevention experience. DFC reviewers want to see the PD has community coalition experience." },
-      { id: "pe-14", category: "Staffing", item: "Evaluator identified or RFP drafted", status: "pending", notes: "Better Science Lab as research partner", guidance: "Better Science Lab is your evaluation partner. Confirm their commitment with a letter of support and include their evaluation approach in the application. They should be listed as a subcontractor in the budget. Ensure they have experience with SAMHSA/DFC evaluation requirements and can help with the 4 core measures analysis." },
-      { id: "pe-15", category: "Financial", item: "Fiscal systems ready for federal funds", status: "pending", notes: "Chart of accounts, time tracking, match documentation", guidance: "Federal grants require: (1) A chart of accounts that separates DFC funds from other funding, (2) Time-and-effort tracking for all staff charged to the grant, (3) Match documentation system to track your $125K/year in-kind match, (4) Financial policies manual. If you don't have these, consider hiring a part-time grants accountant or contracting with a fiscal sponsor experienced in federal grants." },
-    ],
-    winStrategy: {
-      differentiators: [
-        "Only applicant with a 20-platform integrated ecosystem — not a single tool, but an entire infrastructure",
-        "MAP-GAP methodology provides structured continuous improvement that ONDCP reviewers prioritize",
-        "SALP fidelity tracking gives real-time curriculum adherence data (most programs report quarterly)",
-        "Three Realities framework proves community grounding isn't performative — it's methodological",
-        "Dr. Flood's proprietary methodologies (MAP-GAP, SALP, Three Realities, MG-PATR) are academic-grade, not consultant-grade",
-      ],
-      reviewerPriorities: [
-        "Strong coalition with documented 12-sector membership",
-        "Evidence-based prevention strategies with fidelity measures",
-        "Clear data collection plan for the 4 core measures",
-        "Community readiness and needs assessment completeness",
-        "Sustainability beyond the grant period",
-        "Youth involvement in prevention activities",
-      ],
-      scoringTips: [
-        "Lead with data — local prevalence rates, community needs, existing gaps",
-        "Show the coalition is real and active, not aspirational",
-        "Connect every platform capability to a specific ONDCP requirement",
-        "Demonstrate existing infrastructure — reviewers fund what's ready, not what's planned",
-        "Include specific metrics and targets, not vague promises",
-      ],
-      commonPitfalls: [
-        "Coalition exists on paper but has no documented activity",
-        "Prevention strategies not from SAMHSA's NREPP or similar registries",
-        "Budget doesn't align with narrative activities",
-        "No independent evaluator identified",
-        "Sustainability plan is vague ('we'll seek other funding')",
-      ],
-    },
-  },
-  {
     id: "wioa",
     name: "WIOA Title I Youth",
     fullName: "Workforce Innovation and Opportunity Act — Title I Youth Programs",
@@ -1004,7 +830,7 @@ APPLICATION WINDOW: June 12–18, 2026 (confirm exact date at Grants.gov). Award
       { id: "fxpe-12", category: "Technology", item: "RPLICE configured for implementation fidelity tracking", status: "verified", notes: "CFIR/RE-AIM/EPIS frameworks operational", guidance: "RPLICE's implementation science frameworks are your secret weapon. Configure for: (1) Intervention fidelity monitoring, (2) Outcome tracking dashboards, (3) Continuous quality improvement cycles, (4) Semi-annual reporting to VA program office." },
       { id: "fxpe-13", category: "Staffing", item: "Project Director identified", status: "verified", notes: "Dr. Terry Flood", guidance: "Dr. Flood as Project Director. Ensure his bio emphasizes: (1) Community-based program leadership, (2) Implementation science expertise (RPLICE/MAP-GAP), (3) Any veteran community engagement experience, (4) Academic credentials that demonstrate rigor." },
       { id: "fxpe-14", category: "Staffing", item: "Peer Support Specialist recruitment plan", status: "pending", notes: "Must be certified veteran peer specialists", guidance: "Texas Health and Human Services Commission (HHSC) certifies Veteran Peer Specialists. Plan to recruit 2-3 certified veteran peer specialists. They must be veterans themselves. Budget for certification costs if hiring pre-certification candidates." },
-      { id: "fxpe-15", category: "Financial", item: "Fiscal systems ready for federal funds management", status: "pending", notes: "Chart of accounts, time tracking, reporting", guidance: "Same federal financial requirements as DFC: separate chart of accounts, time-and-effort tracking, financial policies manual. If you've set this up for DFC, the same systems work for SSG Fox." },
+      { id: "fxpe-15", category: "Financial", item: "Fiscal systems ready for federal funds management", status: "pending", notes: "Chart of accounts, time tracking, reporting", guidance: "Federal financial requirements: separate chart of accounts, time-and-effort tracking, financial policies manual." },
     ],
     winStrategy: {
       differentiators: [
@@ -1074,43 +900,6 @@ function TaskStatusIcon({ status }: { status: PhaseTask["status"] }) {
 }
 
 const EXECUTION_CHECKLIST_TEMPLATES: Record<string, Array<{ category: string; items: string[] }>> = {
-  dfc: [
-    { category: "Coalition Building", items: [
-      "Identify and recruit 12 community sectors for coalition",
-      "Establish coalition governance structure and bylaws",
-      "Schedule monthly coalition meetings for Year 1",
-      "Complete coalition member MOUs/letters of commitment",
-      "Set up coalition communication platform",
-    ]},
-    { category: "Needs Assessment", items: [
-      "Collect community-level drug use prevalence data",
-      "Administer youth risk behavior survey",
-      "Conduct community readiness assessment",
-      "Map existing prevention resources and gaps",
-      "Compile demographic and socioeconomic data",
-    ]},
-    { category: "Program Design", items: [
-      "Select evidence-based prevention programs",
-      "Develop logic model aligned with ONDCP requirements",
-      "Define SMART objectives with measurable outcomes",
-      "Create sustainability plan beyond grant period",
-      "Establish data collection and evaluation protocols",
-    ]},
-    { category: "Budget & Compliance", items: [
-      "Prepare detailed line-item budget with justification",
-      "Verify indirect cost rate agreement",
-      "Confirm match/cost-share requirements (cash + in-kind)",
-      "Set up financial tracking and reporting systems",
-      "Identify and document all subcontractors",
-    ]},
-    { category: "Submission Final Checks", items: [
-      "All narrative sections reviewed by Dr. Flood",
-      "Budget aligns with narrative activities",
-      "Letters of support collected from all partners",
-      "SF-424 and all required federal forms completed",
-      "Package submitted before April 14, 2026 deadline",
-    ]},
-  ],
   wioa: [
     { category: "Program Requirements", items: [
       "Define eligible youth population and outreach plan",
@@ -1205,11 +994,6 @@ const EXECUTION_CHECKLIST_TEMPLATES: Record<string, Array<{ category: string; it
 };
 
 const DEFAULT_REMINDERS: Array<{ grantId: string; title: string; dueDate: string; priority: string; category: string }> = [
-  { grantId: "dfc", title: "DFC Application Deadline", dueDate: "2026-04-14", priority: "critical", category: "deadline" },
-  { grantId: "dfc", title: "Coalition letters of support collected", dueDate: "2026-03-28", priority: "high", category: "task" },
-  { grantId: "dfc", title: "Final budget review with Dr. Flood", dueDate: "2026-04-01", priority: "high", category: "review" },
-  { grantId: "dfc", title: "Logic model finalized", dueDate: "2026-03-25", priority: "high", category: "task" },
-  { grantId: "dfc", title: "SF-424 forms completed", dueDate: "2026-04-07", priority: "high", category: "task" },
   { grantId: "st-davids", title: "St. David's Application Opens", dueDate: "2026-03-30", priority: "high", category: "deadline" },
   { grantId: "st-davids", title: "Confirm Central Texas geographic eligibility", dueDate: "2026-03-22", priority: "critical", category: "task" },
   { grantId: "st-davids", title: "Draft LOI for Meredith review", dueDate: "2026-04-05", priority: "medium", category: "review" },
@@ -1233,7 +1017,7 @@ function GrantRemindersChecklist({ grants }: { grants: typeof GRANT_PACKAGES }) 
   const { toast } = useToast();
   const [selectedGrant, setSelectedGrant] = useState<string>("all");
   const [showAddReminder, setShowAddReminder] = useState(false);
-  const [newReminder, setNewReminder] = useState({ title: "", dueDate: "", priority: "medium", category: "task", grantId: "dfc" });
+  const [newReminder, setNewReminder] = useState({ title: "", dueDate: "", priority: "medium", category: "task", grantId: "wioa" });
   const [localReminders, setLocalReminders] = useState(DEFAULT_REMINDERS.map((r, i) => ({ ...r, id: `default-${i}`, status: "pending" as string, description: null as string | null })));
   const [localChecklist, setLocalChecklist] = useState<Record<string, Record<string, boolean>>>({});
 
@@ -1270,7 +1054,7 @@ function GrantRemindersChecklist({ grants }: { grants: typeof GRANT_PACKAGES }) 
       ...prev,
       { ...newReminder, id: `custom-${Date.now()}`, status: "pending", description: null },
     ]);
-    setNewReminder({ title: "", dueDate: "", priority: "medium", category: "task", grantId: "dfc" });
+    setNewReminder({ title: "", dueDate: "", priority: "medium", category: "task", grantId: "wioa" });
     setShowAddReminder(false);
     toast({ title: "Reminder added", description: `"${newReminder.title}" added to your reminders` });
   };
@@ -2093,7 +1877,7 @@ function SectionDrafter({ section, grant, autoTrigger, onAutoTriggered, onDraftU
 }
 
 export default function GrantPackagesPage() {
-  const [selectedGrant, setSelectedGrant] = useState<string>("dfc");
+  const [selectedGrant, setSelectedGrant] = useState<string>("wioa");
   const [activeTab, setActiveTab] = useState<string>("overview");
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
   const [expandedPhases, setExpandedPhases] = useState<Set<string>>(new Set(["collaborate", "build"]));

@@ -110,11 +110,7 @@ const GrantNarrativePage = lazy(() => import("@/pages/grant-narrative"));
 const AdvisoryBoardPage = lazy(() => import("@/pages/advisory-board"));
 const StaffingPlanPage = lazy(() => import("@/pages/staffing-plan"));
 const EcosystemHubPage = lazy(() => import("@/pages/ecosystem-hub"));
-const DfcReportingPage = lazy(() => import("@/pages/dfc-reporting"));
-const DfcReadinessPage = lazy(() => import("@/pages/dfc-readiness"));
 const PreventionStrategiesPage = lazy(() => import("@/pages/prevention-strategies"));
-const DfcWizardsPage = lazy(() => import("@/pages/dfc-wizards"));
-const DfcCommandCenterPage = lazy(() => import("@/pages/dfc-command-center"));
 const FacilitatorHubPage = lazy(() => import("@/pages/facilitator-hub"));
 const PlatformMetricsPage = lazy(() => import("@/pages/platform-metrics"));
 const AboutLeadershipPage = lazy(() => import("@/pages/about-leadership"));
@@ -146,6 +142,7 @@ const TexasAssessmentPage = lazy(() => import("@/pages/texas-assessment"));
 const ThirdSpacesPage = lazy(() => import("@/pages/third-spaces"));
 const EcosystemAIPage = lazy(() => import("@/pages/ecosystem-ai"));
 const AIConsultingPage = lazy(() => import("@/pages/ai-consulting"));
+const HealthcareGrantsPage = lazy(() => import("@/pages/healthcare-grants"));
 
 function PageFallback() {
   return (
@@ -277,11 +274,7 @@ function AppRouter() {
       <Route path="/staffing-plan" component={StaffingPlanPage} />
       <Route path="/ecosystem" component={EcosystemConnectorPage} />
       <Route path="/ecosystem-hub-legacy" component={EcosystemHubPage} />
-      <Route path="/dfc-reporting" component={DfcReportingPage} />
-      <Route path="/dfc-readiness" component={DfcReadinessPage} />
       <Route path="/prevention-strategies" component={PreventionStrategiesPage} />
-      <Route path="/dfc-command-center" component={DfcCommandCenterPage} />
-      <Route path="/dfc-wizards" component={DfcWizardsPage} />
       <Route path="/facilitator-hub" component={FacilitatorHubPage} />
       <Route path="/platform-metrics" component={PlatformMetricsPage} />
       <Route path="/about" component={AboutLeadershipPage} />
@@ -311,6 +304,7 @@ function AppRouter() {
       <Route path="/third-spaces" component={ThirdSpacesPage} />
       <Route path="/ecosystem-ai" component={EcosystemAIPage} />
       <Route path="/ai-consulting" component={AIConsultingPage} />
+      <Route path="/healthcare-grants" component={HealthcareGrantsPage} />
       <Route component={NotFound} />
     </Switch>
   );

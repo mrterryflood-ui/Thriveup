@@ -67,11 +67,7 @@ const workforceSolutionsItems: NavItem[] = [
 ];
 
 const coalitionItems: NavItem[] = [
-  { title: "DFC Command Center", url: "/dfc-command-center", icon: LayoutDashboard },
   { title: "Coalition Dashboard", url: "/coalition", icon: Users },
-  { title: "DFC Reporting", url: "/dfc-reporting", icon: FileBarChart },
-  { title: "DFC Readiness", url: "/dfc-readiness", icon: Target },
-  { title: "DFC Wizards", url: "/dfc-wizards", icon: Wand2 },
 ];
 
 const grantEngineItems: NavItem[] = [
@@ -176,6 +172,7 @@ const healthWellnessItems: NavItem[] = [
 ];
 
 const researchItems: NavItem[] = [
+  { title: "Healthcare Grants", url: "/healthcare-grants", icon: Heart },
   { title: "MAP-GAP Framework", url: "/mapgap-framework", icon: RefreshCw },
   { title: "Research Hub", url: "/research-hub", icon: Microscope },
   { title: "Case Studies", url: "/case-studies", icon: BookOpen },

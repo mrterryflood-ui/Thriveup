@@ -85,7 +85,6 @@ const ROLE_LABELS: Record<string, string> = {
 const GRANT_LENSES = [
   { id: "all", label: "All Platforms", color: "bg-gray-100 text-gray-700", description: "All ecosystem platforms" },
   { id: "ssg-fox", label: "SSG Fox VA Suicide Prevention", color: "bg-red-100 text-red-700", description: "Up to $750K — June 12-18, 2026" },
-  { id: "dfc", label: "Drug-Free Communities (DFC)", color: "bg-blue-100 text-blue-700", description: "$625K — April 14, 2026" },
   { id: "wioa", label: "WIOA Title I Youth", color: "bg-green-100 text-green-700", description: "$200K-$500K — Rolling" },
   { id: "nba-foundation", label: "NBA Foundation", color: "bg-orange-100 text-orange-700", description: "$100K-$500K — Rolling LOI" },
   { id: "st-davids", label: "St. David's Foundation", color: "bg-purple-100 text-purple-700", description: "Up to $1M — Opens March 30, 2026" },
