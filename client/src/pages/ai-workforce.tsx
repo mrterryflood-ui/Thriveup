@@ -11,8 +11,9 @@ import {
   Layers, ChevronRight, GraduationCap, ArrowRight, Star,
   Cpu, Database, Bot, LineChart, Briefcase, TrendingUp,
   Lock, Eye, MessageSquare, Wrench, FileText, Monitor,
-  Lightbulb, Play, Settings, Share2, Workflow,
+  Lightbulb, Play, Settings, Share2, Workflow, Presentation,
 } from "lucide-react";
+import { ModulePresenter, PresentButton } from "@/components/module-presenter";
 
 type Difficulty = "beginner" | "intermediate" | "advanced" | "expert";
 
@@ -496,12 +497,34 @@ function TrackCard({ track, onSelect }: { track: Track; onSelect: () => void }) 
 function TrackDetail({ track, onBack }: { track: Track; onBack: () => void }) {
   const Icon = track.icon;
   const diff = DIFFICULTY_CONFIG[track.difficulty];
+  const [presentingModule, setPresentingModule] = useState<number | null>(null);
+  const [presentingAll, setPresentingAll] = useState(false);
+
+  const presenterConfig = {
+    trackTitle: track.title,
+    trackSubtitle: track.subtitle,
+    gradient: track.gradient,
+    modules: track.modules,
+    certification: track.certification,
+  };
 
   return (
     <div className="space-y-6" data-testid={`detail-track-${track.id}`}>
-      <Button variant="ghost" onClick={onBack} className="mb-2" data-testid="button-back-tracks">
-        <ArrowRight className="h-4 w-4 mr-2 rotate-180" /> All Tracks
-      </Button>
+      {(presentingAll || presentingModule !== null) && (
+        <ModulePresenter
+          config={presenterConfig}
+          moduleIndex={presentingModule !== null ? presentingModule : undefined}
+          onClose={() => { setPresentingAll(false); setPresentingModule(null); }}
+        />
+      )}
+      <div className="flex items-center justify-between">
+        <Button variant="ghost" onClick={onBack} className="mb-2" data-testid="button-back-tracks">
+          <ArrowRight className="h-4 w-4 mr-2 rotate-180" /> All Tracks
+        </Button>
+        <Button onClick={() => setPresentingAll(true)} className="gap-2" data-testid="button-present-all">
+          <Presentation className="h-4 w-4" /> Present Full Track
+        </Button>
+      </div>
 
       <div className={`rounded-2xl bg-gradient-to-r ${track.gradient} p-8 text-white`}>
         <div className="flex items-start gap-5">
@@ -561,7 +584,10 @@ function TrackDetail({ track, onBack }: { track: Track; onBack: () => void }) {
                 <div className="flex-1 p-5">
                   <div className="flex items-center justify-between mb-2">
                     <h4 className="font-bold">{mod.title}</h4>
-                    <Badge variant="outline" className="text-xs"><Clock className="h-3 w-3 mr-1" /> {mod.duration}</Badge>
+                    <div className="flex items-center gap-2">
+                      <PresentButton onClick={() => setPresentingModule(i)} label="Present" />
+                      <Badge variant="outline" className="text-xs"><Clock className="h-3 w-3 mr-1" /> {mod.duration}</Badge>
+                    </div>
                   </div>
                   <ul className="grid sm:grid-cols-2 gap-1.5 mb-3">
                     {mod.topics.map((topic, j) => (

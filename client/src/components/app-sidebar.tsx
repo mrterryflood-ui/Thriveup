@@ -49,6 +49,7 @@ interface NavItem {
 
 const communityIntelItems: NavItem[] = [
   { title: "Dashboard", url: "/dashboard", icon: Home },
+  { title: "Directive Compliance", url: "/directive-compliance", icon: ClipboardCheck },
   { title: "Transparency Dashboard", url: "/transparency", icon: Activity },
   { title: "Community", url: "/community", icon: Globe },
   { title: "Resource Finder", url: "/resources", icon: MapPin },

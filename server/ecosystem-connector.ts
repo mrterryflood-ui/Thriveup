@@ -1440,6 +1440,27 @@ export function registerEcosystemConnectorRoutes(app: Express) {
     }
   });
 
+  app.post("/api/ecosystem/resend-directives", async (req, res) => {
+    try {
+      const { platformId } = req.body;
+      if (!platformId) {
+        return res.status(400).json({ error: "platformId is required" });
+      }
+      const pendingAcks = await db.select().from(ecosystemDirectiveAcks)
+        .where(sql`${ecosystemDirectiveAcks.platformId} = ${platformId} AND ${ecosystemDirectiveAcks.status} != 'acknowledged'`);
+      
+      for (const ack of pendingAcks) {
+        await db.update(ecosystemDirectiveAcks)
+          .set({ status: "pending" })
+          .where(eq(ecosystemDirectiveAcks.id, ack.id));
+      }
+      
+      res.json({ resent: pendingAcks.length, platformId });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to resend directives" });
+    }
+  });
+
   app.post("/api/ecosystem/directives", requireAdminAuth, async (req, res) => {
     try {
       const { title, directiveType, content, grantId, targetPlatformIds, platformRoles, trackingRequirements, expiresAt } = req.body;

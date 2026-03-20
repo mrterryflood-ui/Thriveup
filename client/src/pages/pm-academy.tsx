@@ -14,7 +14,9 @@ import {
   Activity, Scale, Wrench, MessageSquare, Eye, Lock,
   ChevronDown, ChevronUp, AlertTriangle, HeartHandshake,
   Network, Puzzle, FlaskConical, Microscope, Building2,
+  Presentation,
 } from "lucide-react";
+import { ModulePresenter, PresentButton } from "@/components/module-presenter";
 
 type Difficulty = "beginner" | "intermediate" | "advanced" | "expert";
 
@@ -569,12 +571,34 @@ function TrackDetail({ track, onBack }: { track: Track; onBack: () => void }) {
   const Icon = track.icon;
   const diff = DIFFICULTY_CONFIG[track.difficulty];
   const [expandedModule, setExpandedModule] = useState<number | null>(0);
+  const [presentingModule, setPresentingModule] = useState<number | null>(null);
+  const [presentingAll, setPresentingAll] = useState(false);
+
+  const presenterConfig = {
+    trackTitle: track.title,
+    trackSubtitle: track.subtitle,
+    gradient: track.gradient,
+    modules: track.modules,
+    certification: track.certification,
+  };
 
   return (
     <div className="space-y-6" data-testid={`track-detail-${track.id}`}>
-      <Button variant="ghost" onClick={onBack} className="mb-2" data-testid="back-to-tracks">
-        <ArrowRight className="h-4 w-4 mr-2 rotate-180" /> Back to All Tracks
-      </Button>
+      {(presentingAll || presentingModule !== null) && (
+        <ModulePresenter
+          config={presenterConfig}
+          moduleIndex={presentingModule !== null ? presentingModule : undefined}
+          onClose={() => { setPresentingAll(false); setPresentingModule(null); }}
+        />
+      )}
+      <div className="flex items-center justify-between">
+        <Button variant="ghost" onClick={onBack} className="mb-2" data-testid="back-to-tracks">
+          <ArrowRight className="h-4 w-4 mr-2 rotate-180" /> Back to All Tracks
+        </Button>
+        <Button onClick={() => setPresentingAll(true)} className="gap-2" data-testid="button-present-all-pm">
+          <Presentation className="h-4 w-4" /> Present Full Track
+        </Button>
+      </div>
 
       <div className={`bg-gradient-to-r ${track.gradient} rounded-2xl p-6 md:p-8 text-white`}>
         <div className="flex items-start gap-4">
@@ -646,12 +670,12 @@ function TrackDetail({ track, onBack }: { track: Track; onBack: () => void }) {
         <CardContent className="space-y-3">
           {track.modules.map((mod, i) => (
             <div key={i} className="border rounded-lg overflow-hidden">
-              <button
-                className="w-full p-4 flex items-center justify-between text-left hover:bg-muted/50 transition-colors"
-                onClick={() => setExpandedModule(expandedModule === i ? null : i)}
-                data-testid={`module-toggle-${track.id}-${i}`}
-              >
-                <div className="flex items-center gap-3">
+              <div className="flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
+                <button
+                  className="flex-1 flex items-center gap-3 text-left"
+                  onClick={() => setExpandedModule(expandedModule === i ? null : i)}
+                  data-testid={`module-toggle-${track.id}-${i}`}
+                >
                   <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center text-sm font-bold">
                     {i + 1}
                   </div>
@@ -661,9 +685,12 @@ function TrackDetail({ track, onBack }: { track: Track; onBack: () => void }) {
                       <Clock className="h-3 w-3" /> {mod.duration}
                     </div>
                   </div>
+                </button>
+                <div className="flex items-center gap-2">
+                  <PresentButton onClick={() => setPresentingModule(i)} />
+                  {expandedModule === i ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                 </div>
-                {expandedModule === i ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-              </button>
+              </div>
               {expandedModule === i && (
                 <div className="p-4 pt-0 space-y-4">
                   <div>

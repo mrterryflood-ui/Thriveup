@@ -83,6 +83,42 @@ MAP-GAP is used for: platform audits, grant readiness assessments, compliance sw
     keywords: ["ai", "technology", "spark", "sparky", "rag", "dual ai", "multi ai", "collaborative", "claude", "gemini", "openai", "video", "tools", "implementation science", "providers", "fallback"],
   },
   {
+    source: "ecosystem-overview", category: "training", title: "Program Management Academy — PM Training",
+    content: `The Program Management Academy (/pm-academy) is ThriveUp's standalone PM training program with 5 tracks:
+1. PM Essentials (2 weeks, beginner) — 5 process groups, triple constraint, stakeholders, RACI
+2. PM Professional (4 weeks, intermediate) — 10 PMBOK knowledge areas, Agile/Waterfall/Hybrid, RAID logs, EVM, CAPM prep
+3. Implementation Science PM (4 weeks, advanced) — CFIR, RE-AIM, SALP fidelity, MAP-GAP cycles, Three Realities diagnostic
+4. PM Leadership & Certification (4 weeks, expert) — PMP exam prep, Lean Six Sigma DMAIC, portfolio management, capstone
+5. Contract & Grant PM (3 weeks, intermediate) — grant lifecycle, compliance, MCE contract management
+Three-layer architecture: Learn It (Academy) → Apply It (RPLICE/MCE/Ecosystem) → Connect It (bidirectional links). Memory aids: I.P.E.M.C., ScoSBu, RACI, RAID, SMART, DMAIC, RE-AIM, CFIR, MAP-GAP, FAIR Close. Instructor presentations built in with fullscreen slideshow mode.`,
+    keywords: ["pm", "project management", "program management", "capm", "pmp", "certification", "training", "academy", "agile", "waterfall", "pmbok", "lean six sigma"],
+  },
+  {
+    source: "ecosystem-overview", category: "training", title: "AI Workforce Academy — Adult Professional Training",
+    content: `The AI Workforce Academy (/ai-workforce) is ThriveUp's adult professional AI training with 7 tracks:
+1. AI 101 (1 week) — parents and newcomers, jargon-free AI intro, 5 daily lessons
+2. AI Foundations (4 weeks) — prompt engineering, AI tools, ethics
+3. Data & Analytics (6 weeks) — SQL, visualization, dashboards
+4. Python & Coding (8 weeks) — automation, Foundation First principle
+5. Generative AI & LLMs (8 weeks) — LangChain, CrewAI, RAG systems
+6. AI for Business Leaders (4 weeks) — strategy, ROI, adoption
+7. AI Consulting & Freelancing (6 weeks) — packaging services, client management
+5 learning paths: Parent & Community (1 week), Career Starter (19 weeks), AI Builder (12 weeks), Business Leader (5 weeks), AI Entrepreneur (18 weeks). WIOA-aligned. Instructor presentations built in with fullscreen slideshow mode.`,
+    keywords: ["ai workforce", "ai training", "ai 101", "professional development", "workforce", "python", "data analytics", "generative ai", "consulting"],
+  },
+  {
+    source: "ecosystem-overview", category: "compliance", title: "Directive Compliance Center",
+    content: `The Directive Compliance Center (/directive-compliance) provides real-time tracking of all ecosystem directives with:
+- At-a-glance stats: average fidelity, overdue tasks, pending responses, non-compliant platforms, offline count
+- Failures & Action tab: lists all non-compliant platforms sorted by priority, shows specific overdue directives with reasons for non-compliance
+- All Platforms tab: every platform's fidelity grade, completion ratio, and expandable details
+- Grant Readiness tab: compliance scores per grant (WIOA, St. David's, SSG Fox, Foundation)
+- Evidence verification summary: verified, unverified, failed, no URL
+- One-click Resend button to re-deliver pending directives to any platform
+- Non-compliance reasons auto-detected: offline, not connected, awaiting response, pending delivery`,
+    keywords: ["directive", "compliance", "fidelity", "overdue", "tracking", "dashboard", "resend", "evidence", "verification"],
+  },
+  {
     source: "ecosystem-overview", category: "leadership", title: "Dr. Terry Flood — Founder & CEO",
     content: `Dr. Terry Flood, DHA (Doctor of Healthcare Administration) is the founder and CEO of ThriveUp Academy and The Collaborative Advocate (VOSB). A veteran and healthcare executive, Dr. Flood built the 20-platform ecosystem to address systemic gaps in community services. Based in Central Texas, serving Austin, Manor, and Pflugerville communities. Vision: "No single platform can solve everything. Together, 20 platforms create a crisis continuum from Prevention → Early Warning → Crisis Support → Stabilization → Recovery & Growth." Email: mr.terryflood@gmail.com.`,
     keywords: ["terry flood", "founder", "ceo", "leadership", "veteran", "dha", "healthcare", "who"],
