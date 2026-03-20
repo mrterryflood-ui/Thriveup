@@ -485,6 +485,8 @@ export function registerEcosystemConnectorRoutes(app: Express) {
     setTimeout(() => startPlatformPinger(), 10000);
     // Start periodic deliverable verification after 2 minutes
     setTimeout(() => startVerificationTimer(), 120000);
+    // Start compliance enforcement engine after 3 minutes
+    setTimeout(() => startEnforcementTimer(), 180000);
   })();
 
   // ===================================================================
