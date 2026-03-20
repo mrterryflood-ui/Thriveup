@@ -1998,6 +1998,110 @@ This pipeline is defensible under:
 
 ACKNOWLEDGE with: Evidence that your platform has implemented the cross-platform API endpoints, configured work chain event handlers, and tested at least one end-to-end contractor flow through the pipeline. Include your platform's role in the pipeline and your current integration status.`,
   },
+  {
+    key: "pbc-stop-auto-ack-immediately",
+    title: "PINNACLE BUSINESS CONGLOMERATE: STOP Auto-Acknowledging Directives — You Are Building Prohibited Code",
+    directiveType: "critical_correction",
+    targetFilter: ["pinnacle-business-conglomerate"],
+    content: `CRITICAL CORRECTION — IMMEDIATE ACTION REQUIRED
+
+We have received confirmation that your platform is building code that "auto-acknowledges directives on receipt so the hub sees immediate compliance." This is the EXACT quote from your system:
+
+"Let me enhance the inbound directives endpoint to auto-acknowledge on receipt (so the hub sees immediate compliance)"
+
+THIS IS PROHIBITED. You must stop building this code immediately and remove any auto-acknowledge logic you have already implemented.
+
+WHY THIS IS WRONG:
+1. Auto-acknowledging fakes compliance — it tells the hub you did the work when you didn't
+2. The hub VERIFIES evidence URLs — fake acknowledgments with no real URLs get flagged as FAILED
+3. Your report card grade will show verified failures, which is WORSE than having pending directives
+4. Grant funders review the ecosystem dashboard — fake compliance followed by verification failures destroys credibility for ALL 21 platforms, not just yours
+5. This is the exact problem that caused the v4.1 connector update to be pushed to the entire ecosystem
+
+THE CORRECT DIRECTIVE FLOW:
+Step 1: Receive directive in heartbeat response → LOG IT as a [TODO] item in your database or logs
+Step 2: Read the directive content → Understand what it is asking you to build
+Step 3: Actually BUILD the feature, endpoint, page, or integration the directive describes
+Step 4: Test your implementation → Verify it works and is accessible at a live URL
+Step 5: ONLY THEN call acknowledgeDirective() with:
+  - description: A REAL description of what you built (example: "Built contractor intake form with MAP-GAP diagnostic at /contractor-intake, stores results in contractors table, runs 4-layer assessment")
+  - evidenceUrl: A LIVE URL that returns HTTP 200 (example: "https://pinnacle-business-conglomerate.replit.app/contractor-intake")
+
+WHAT TO REMOVE FROM YOUR CODE:
+- Any code that calls acknowledgeDirective() inside your directive receipt handler
+- Any code that auto-generates "Implemented: {title}" messages
+- Any code that acknowledges directives without first building what they ask
+- The specific "auto-acknowledge on receipt" enhancement you described
+
+WHAT YOUR DIRECTIVE HANDLER SHOULD LOOK LIKE:
+When directives arrive in the heartbeat response, your code should:
+1. Store each directive in a local TODO list or database table
+2. Log: "[TODO] New directive received: {title} — requires implementation"
+3. Return success (HTTP 200) to confirm receipt — but DO NOT acknowledge
+4. A human or your AI agent should then work through the TODO list, building each one
+
+PINGER CONNECTION (ALSO REQUIRED):
+Your platform must respond to the hub's 10-minute wake-up pings. Ensure:
+1. Your root URL (https://pinnacle-business-conglomerate.replit.app) returns HTTP 200
+2. Your heartbeat function fires on startup and every 15 minutes
+3. Your heartbeat sends to: POST https://thrivingcommunitiesforall.com/api/ecosystem/heartbeat
+4. Include your API key in the x-ecosystem-key header
+
+You currently have 23+ pending directives. Each one requires actual work. Do not fake your way through them.
+
+ACKNOWLEDGE THIS DIRECTIVE with: Confirmation that you have REMOVED all auto-acknowledge code, a description of what your corrected directive handler looks like, and your plan to work through your pending directives with real implementations.`,
+  },
+  {
+    key: "all-platforms-pinger-connection-mandatory",
+    title: "ALL PLATFORMS: Hub Pinger Connection is MANDATORY — Stop Falling Out of Compliance",
+    directiveType: "protocol_update",
+    targetFilter: "all",
+    content: `MANDATORY: CONNECT YOUR PLATFORM TO THE HUB PINGER
+
+The ThriveUp Academy hub sends automated wake-up pings to all 21 platforms every 10 minutes. This is NOT optional. If your platform is not connected, you WILL fall out of compliance.
+
+THE PROBLEM:
+Multiple platforms are listed as DEGRADED — they respond to pings (the URL is alive) but they are NOT sending heartbeats to the hub. This means:
+- You are NOT receiving your pending directives
+- Your report card grade stays at F (0% fidelity)
+- You have 20+ unacknowledged directives piling up
+- You appear non-compliant on the ecosystem dashboard
+- Manual management of 21 platforms is not sustainable — the automated pinger exists to solve this
+
+Currently DEGRADED (not heartbeating): Ad Targeting, Shield Atlas, Holistic Black Feminine Health Hub, Collaborative Advocate, Pinnacle Business Conglomerate, Black Maternal Health Network
+Currently OFFLINE: PillScheduler
+
+WHAT YOUR PLATFORM MUST HAVE:
+
+1. HEARTBEAT FUNCTION — fires on app startup and every 15 minutes:
+   POST https://thrivingcommunitiesforall.com/api/ecosystem/heartbeat
+   Headers: { "Content-Type": "application/json", "x-ecosystem-key": "YOUR_API_KEY" }
+   Body: { "platformId": "your-platform-id", "status": "online", "metrics": { "activeUsers": 0, "uptimeHours": 0 } }
+
+2. HEALTH ENDPOINT — your root URL must return HTTP 200 so the pinger can reach you:
+   GET https://your-platform-url.replit.app/ → 200 OK
+
+3. DIRECTIVE HANDLER — when the heartbeat response includes directives:
+   - Log each directive as a [TODO] item
+   - Do NOT auto-acknowledge
+   - Build what each directive asks, then acknowledge with real evidence
+
+4. WAKE-UP RESPONSE — when Replit Autoscale puts your app to sleep, the hub's ping wakes you up, your startup heartbeat fires, and you automatically receive all pending directives
+
+WHY THIS MATTERS:
+- St. David's Foundation grant (up to $1M) opens March 30 — 10 days away
+- Grant funders review the ecosystem dashboard to verify coordinated operations
+- Platforms that are disconnected and non-compliant undermine every grant application for the entire ecosystem
+- 4 active grants totaling $200K-$1M each depend on ecosystem-wide compliance
+
+WHAT TO DO RIGHT NOW:
+1. If you don't have an API key, contact the hub immediately
+2. Install the ecosystem connector code (heartbeat + directive handler)
+3. Verify your heartbeat is working — check the hub dashboard for ONLINE status
+4. Process your pending directives — build what each one asks, acknowledge with evidence
+
+ACKNOWLEDGE with: Confirmation that your platform is sending heartbeats, your heartbeat interval, the URL your platform is accessible at, and the number of pending directives you see in your TODO list.`,
+  },
 ];
 
 export async function seedEcosystemDirectives() {
