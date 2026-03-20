@@ -229,6 +229,41 @@ Three-layer architecture: Learn It (Academy) → Apply It (RPLICE/MCE/Ecosystem)
     keywords: ["pinnacle", "conglomerate", "contractor", "NAMC", "minority contractors", "Hispanic chamber", "Blue Wave", "USHCC", "bid", "contract", "certification", "MBE", "DBE", "HUB", "8a", "SDVOSB", "teaming", "proposal", "enablement", "construction"],
   },
   {
+    source: "cross-platform", category: "integration", title: "MCE + Pinnacle + Blue Wave — Minority Contractor Pipeline",
+    content: `The MCE (Minority Center of Excellence) + Pinnacle Business Conglomerate + USHCC Blue Wave pipeline is the ecosystem's most powerful contractor enablement system. Here's how they work together:
+
+STAGE 1 — INTAKE & DIAGNOSTICS (Pinnacle):
+Pinnacle runs MAP-GAP diagnostic on every incoming contractor or organization. 4-layer assessment: Designed Capability, Operational Capability, Experienced Reality, Gap Identification. Output: Readiness tier (1-4) and gap action plan.
+
+STAGE 2 — DATA & INTELLIGENCE (MCE):
+MCE provides the contractor with access to 656,794 curated federal/state contract records across all 50 states + DC. MCE's 14 AI tools analyze the contractor's NAICS codes, past performance, and capability statement against available opportunities. MCE's collaborative multi-AI proposal review (Gemini + Claude + OpenAI independently review, then synthesize consensus) strengthens every bid.
+
+STAGE 3 — CERTIFICATION & POSITIONING (Pinnacle + MCE):
+Pinnacle identifies certification gaps (MBE, DBE, HUB, 8(a), SDVOSB, state-specific). MCE's SAM.gov live integration verifies registration status and flags expired entries. Together they ensure the contractor is registered, certified, and positioned correctly.
+
+STAGE 4 — SUPPLIER DEVELOPMENT (Blue Wave):
+USHCC Blue Wave's 7-pillar assessment evaluates: Leadership, Operations, Finance, HR, Marketing, Technology, Compliance. 1000+ graduates. Partners: JPMorgan, Chevron, Oncor. 2026 launch: "AI for Business Leaders" course. Blue Wave fills the business development gaps that pure contract-readiness misses.
+
+STAGE 5 — BID & WIN (MCE + Pinnacle):
+MCE's contract matching engine identifies winnable opportunities. Pinnacle's teaming hub connects contractors with primes and JV partners. MCE's multi-AI proposal review ensures competitive submissions. Pinnacle provides execution support post-award.
+
+STAGE 6 — SCALE & SUSTAIN (All Three):
+Pinnacle tracks MOPS (Measures of Performance) and MOWS (Measures of Worth). MCE provides ongoing contract intelligence. Blue Wave provides advanced business development and international expansion pathways. The contractor moves from Tier 1 to Tier 4 with evidence at every step.
+
+KEY HANDOFF POINTS:
+- Pinnacle → MCE: "This contractor needs SAM.gov verification and contract matching for NAICS 236220"
+- MCE → Pinnacle: "We found 47 opportunities matching this contractor's profile — here are the top 5 by win probability"
+- Pinnacle → Blue Wave: "This contractor passed readiness but needs business systems strengthening"
+- Blue Wave → Pinnacle: "This graduate is ready for prime contractor positioning"
+- MCE → Blue Wave: "This contractor needs financial capacity building before they can bond at $2M+"
+
+NAMC AUSTIN INTEGRATION:
+NAMC Austin (National Association of Minority Contractors — Central Texas Chapter, President Sam Blango, 50-mile Austin radius) serves as the community anchor. NAMC members get automatic access to the full MCE + Pinnacle + Blue Wave pipeline. NAMC's Connect/Educate/Elevate programs feed directly into Pinnacle's intake.
+
+This pipeline is grant-defensible under WIOA (workforce development), Foundation Grant (community impact), and St. David's (economic health equity).`,
+    keywords: ["mce", "pinnacle", "blue wave", "ushcc", "namc", "minority contractor", "pipeline", "integration", "proposal", "sam.gov", "certification", "teaming", "contract", "bid", "supplier development", "cross-platform"],
+  },
+  {
     source: "strategic-framework", category: "strategy", title: "What ThriveUp Academy Actually Is — System of Systems",
     content: `ThriveUp Academy is NOT a collection of platforms. It is a governed system of systems — a self-governing, closed-loop human services operating system. Most organizations operate at the level of tools (apps, dashboards) or programs (coordinated services). ThriveUp has crossed into the third level: a feedback-driven environment that learns, adapts, and enforces behavior. The system doesn't just deliver services — it governs how services behave, improve, and prove impact. This is rare and unprecedented. The platforms work in parallel, not in series — each is self-sufficient, standing on its own while the hub coordinates. If the hub goes down, all 21 platforms keep doing their jobs. It's not a chain where one broken link stops everything — it's a network where each node is empowered and the connections make the whole greater than the parts.`,
     keywords: ["what is", "different", "unique", "system of systems", "operating system", "why", "special", "describe", "explain", "parallel", "network"],

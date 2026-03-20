@@ -65,4 +65,10 @@ title = "Pinnacle Business Conglomerate — Complete Build Script"
 id = "Ir2ZsTOsI6wn8z6sJN1D5"
 uri = "file://PBC_Ecosystem_Integration_Instructions.md"
 type = "text"
-title = "Pinnacle Business Conglomerate — Complete Integration Instructions (Updated with Program Engine)"
+title = "Pinnacle Business Conglomerate — Complete Integration Instructions"
+
+[[outputs]]
+id = "TP4_nprHxgeO00TLPVukp"
+uri = "file://PBC_MCE_BlueWave_Pipeline_Instructions.md"
+type = "text"
+title = "MCE + Pinnacle + Blue Wave — Minority Contractor Pipeline Integration"

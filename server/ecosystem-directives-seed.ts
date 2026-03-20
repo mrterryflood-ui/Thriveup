@@ -1853,6 +1853,151 @@ This feeds into your fidelity grade and grant reporting.
 
 ACKNOWLEDGE with: Confirmation that you have built the Program Execution Engine with all 4 tables, the setup wizard, health score computation, fidelity tracking with evidence URLs, and hub API integration for teaching points. Include a screenshot or evidence URL of your program dashboard.`,
   },
+  {
+    title: "MCE + PINNACLE + BLUE WAVE: Cross-Platform Minority Contractor Pipeline Integration",
+    directiveType: "protocol_update",
+    targetFilter: ["pinnacle-business-conglomerate", "mce", "collaborative-advocate"],
+    content: `DIRECTIVE: MCE + PINNACLE + BLUE WAVE CONTRACTOR PIPELINE — MANDATORY INTEGRATION
+
+The MCE (Minority Center of Excellence), Pinnacle Business Conglomerate, and USHCC Blue Wave must operate as a unified contractor enablement pipeline. This is how minority contractors go from registration to revenue.
+
+========================================
+THE 6-STAGE PIPELINE
+========================================
+
+STAGE 1 — INTAKE & DIAGNOSTICS (Pinnacle leads)
+Pinnacle runs MAP-GAP diagnostic on every incoming contractor:
+- Layer 1: Designed Capability — what they SAY they can do
+- Layer 2: Operational Capability — what they ACTUALLY do
+- Layer 3: Experienced Reality — what CLIENTS experience
+- Layer 4: Gap Identification — the delta
+Output: Readiness tier (1=Not Ready, 2=Emerging, 3=Bid-Ready, 4=Prime-Ready) + gap action plan
+
+STAGE 2 — DATA & INTELLIGENCE (MCE leads)
+MCE provides:
+- Access to 656,794 curated federal/state contract records (50 states + DC)
+- 14 AI tools for NAICS analysis, past performance matching, capability assessment
+- Collaborative multi-AI proposal review (Gemini + Claude + OpenAI review independently, then synthesize consensus recommendation)
+- SAM.gov live integration for registration verification
+
+MCE HANDOFF TO PINNACLE: "Here are 47 opportunities matching NAICS 236220, sorted by win probability."
+PINNACLE HANDOFF TO MCE: "This contractor needs SAM.gov UEI verification and NAICS code audit."
+
+STAGE 3 — CERTIFICATION & POSITIONING (Pinnacle + MCE jointly)
+Pinnacle identifies certification gaps: MBE, DBE, HUB, 8(a), SDVOSB, state-specific
+MCE verifies SAM.gov status, flags expired registrations, checks UEI
+Together: contractor gets registered, certified, and positioned correctly
+
+STAGE 4 — SUPPLIER DEVELOPMENT (Blue Wave leads)
+USHCC Blue Wave 7-pillar assessment:
+1. Leadership & Governance
+2. Operations & Process
+3. Finance & Accounting
+4. Human Resources & Talent
+5. Marketing & Business Development
+6. Technology & Innovation
+7. Compliance & Risk Management
+
+1000+ graduates. Partners: JPMorgan, Chevron, Oncor.
+2026 launch: "AI for Business Leaders" course
+Blue Wave fills the business development gaps that pure contract-readiness misses.
+
+BLUE WAVE HANDOFF TO PINNACLE: "This graduate completed all 7 pillars — ready for prime contractor positioning."
+PINNACLE HANDOFF TO BLUE WAVE: "This contractor is Tier 2 (Emerging) — needs financial systems and HR strengthening before bidding."
+
+STAGE 5 — BID & WIN (MCE + Pinnacle jointly)
+MCE: Contract matching engine identifies winnable opportunities
+Pinnacle: Teaming hub connects with primes, forms JVs, arranges mentor-protege
+MCE: Multi-AI proposal review ensures competitive submissions
+Pinnacle: Provides bid strategy, pricing analysis, compliance review
+Together: the bid goes in strong
+
+STAGE 6 — SCALE & SUSTAIN (All three)
+Pinnacle: Tracks MOPS (Measures of Performance) and MOWS (Measures of Worth)
+MCE: Ongoing contract intelligence, new opportunity alerts
+Blue Wave: Advanced business development, international expansion pathways
+Contractor moves from Tier 1 to Tier 4 with evidence at every step
+
+========================================
+NAMC AUSTIN INTEGRATION
+========================================
+
+NAMC Austin (National Association of Minority Contractors — Central Texas Chapter)
+President: Sam Blango | Service area: 50-mile Austin radius
+Programs: Connect / Educate / Elevate
+
+NAMC Austin members get automatic access to the full pipeline:
+- Connect events feed into Pinnacle intake
+- Educate programs integrate with Blue Wave curriculum
+- Elevate outcomes track through MCE contract intelligence
+
+Every NAMC member who enters the pipeline gets:
+1. MAP-GAP diagnostic (Pinnacle)
+2. SAM.gov verification (MCE)
+3. NAICS code audit (MCE)
+4. Certification gap analysis (Pinnacle)
+5. 7-pillar business assessment (Blue Wave)
+6. Readiness tier assignment (Pinnacle)
+7. Contract opportunity matching (MCE)
+8. Teaming recommendations (Pinnacle)
+
+========================================
+API INTEGRATION POINTS
+========================================
+
+MCE to Pinnacle:
+POST /api/contractor-referral
+Body: { "contractorId": "...", "samStatus": {...}, "naicsCodes": [...], "matchedOpportunities": [...] }
+
+Pinnacle to MCE:
+POST /api/gap-assessment-result
+Body: { "contractorId": "...", "tier": 2, "gaps": [...], "certificationNeeds": [...], "naicsAuditRequest": true }
+
+Pinnacle to Blue Wave:
+POST /api/supplier-development-referral
+Body: { "contractorId": "...", "tier": 2, "gapsRequiringBusinessDev": [...], "pillarScores": null }
+
+Blue Wave to Pinnacle:
+POST /api/graduate-notification
+Body: { "contractorId": "...", "pillarsCompleted": 7, "certifications": [...], "readyForPrime": true }
+
+Hub RAG AI (for all three platforms):
+POST https://thrivingcommunitiesforall.com/api/ecosystem-ai/query
+Body: { "query": "What certifications does a minority contractor in Austin need for TxDOT highway projects?" }
+
+========================================
+WORK CHAIN EVENTS
+========================================
+
+When Pinnacle onboards a contractor:
+→ MCE gets: "Run SAM.gov check and NAICS audit for [contractor]"
+→ Blue Wave gets: "Prepare 7-pillar assessment slot for [contractor]"
+
+When MCE matches opportunities:
+→ Pinnacle gets: "47 opportunities matched for [contractor] — top 5 by win probability attached"
+→ Blue Wave gets: "Contractor matched to opportunities requiring bonding capacity — financial pillar critical"
+
+When Blue Wave graduates a supplier:
+→ Pinnacle gets: "Graduate ready for Tier 3/4 assessment — all 7 pillars complete"
+→ MCE gets: "Update contractor profile — supplier development complete, upgrade matching criteria"
+
+When a contract is won:
+→ All three: Celebration, outcome recording, case study generation
+→ Hub: Grant reporting metrics updated
+→ RAG AI: New success story added to knowledge base
+
+========================================
+GRANT ALIGNMENT
+========================================
+
+This pipeline is defensible under:
+- WIOA ($200K-$500K): Workforce development, career pathways, job readiness
+- Foundation Grant ($100K-$500K): Community impact, economic equity
+- St. David's (up to $1M): Economic health equity, community economic development
+- SSG Fox ($750K): Veteran-owned business enablement (veteran contractors in pipeline)
+
+ACKNOWLEDGE with: Evidence that your platform has implemented the cross-platform API endpoints, configured work chain event handlers, and tested at least one end-to-end contractor flow through the pipeline. Include your platform's role in the pipeline and your current integration status.`,
+  },
 ];
 
 export async function seedEcosystemDirectives() {
