@@ -72,6 +72,7 @@ const coalitionItems: NavItem[] = [
 ];
 
 const programMgmtItems: NavItem[] = [
+  { title: "Program Engine", url: "/program-engine", icon: Zap },
   { title: "PM Academy", url: "/pm-academy", icon: GraduationCap },
   { title: "Program Management", url: "/program-management", icon: Briefcase },
   { title: "Program Lifecycle", url: "/program-lifecycle", icon: RefreshCw },

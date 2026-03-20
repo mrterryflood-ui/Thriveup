@@ -3517,4 +3517,80 @@ export const insertMceVendorSchema = createInsertSchema(mceVendors).omit({ id: t
 export type InsertMceVendor = z.infer<typeof insertMceVendorSchema>;
 export type MceVendor = typeof mceVendors.$inferSelect;
 
+export const programs = pgTable("programs", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  objectives: text("objectives").array().default([]),
+  stakeholders: jsonb("stakeholders").default([]),
+  timeline: jsonb("timeline").default({}),
+  successCriteria: text("success_criteria").array().default([]),
+  methodology: varchar("methodology", { length: 50 }).notNull().default("hybrid"),
+  status: varchar("status", { length: 30 }).notNull().default("setup"),
+  setupData: jsonb("setup_data").default({}),
+  platformIds: text("platform_ids").array().default([]),
+  grantIds: text("grant_ids").array().default([]),
+  targetPopulation: text("target_population"),
+  geographicFocus: text("geographic_focus"),
+  createdBy: text("created_by"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertProgramSchema = createInsertSchema(programs).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertProgram = z.infer<typeof insertProgramSchema>;
+export type Program = typeof programs.$inferSelect;
+
+export const programMilestones = pgTable("program_milestones", {
+  id: serial("id").primaryKey(),
+  programId: integer("program_id").notNull(),
+  title: text("title").notNull(),
+  description: text("description"),
+  phase: varchar("phase", { length: 100 }),
+  dueDate: timestamp("due_date"),
+  completedDate: timestamp("completed_date"),
+  status: varchar("status", { length: 30 }).notNull().default("not_started"),
+  assignee: text("assignee"),
+  evidenceUrl: text("evidence_url"),
+  deliverables: text("deliverables").array().default([]),
+  dependencies: integer("dependencies").array().default([]),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertProgramMilestoneSchema = createInsertSchema(programMilestones).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertProgramMilestone = z.infer<typeof insertProgramMilestoneSchema>;
+export type ProgramMilestone = typeof programMilestones.$inferSelect;
+
+export const programRisks = pgTable("program_risks", {
+  id: serial("id").primaryKey(),
+  programId: integer("program_id").notNull(),
+  title: text("title").notNull(),
+  description: text("description"),
+  likelihood: varchar("likelihood", { length: 20 }).notNull().default("medium"),
+  impact: varchar("impact", { length: 20 }).notNull().default("medium"),
+  mitigation: text("mitigation"),
+  owner: text("owner"),
+  status: varchar("status", { length: 30 }).notNull().default("identified"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertProgramRiskSchema = createInsertSchema(programRisks).omit({ id: true, createdAt: true });
+export type InsertProgramRisk = z.infer<typeof insertProgramRiskSchema>;
+export type ProgramRisk = typeof programRisks.$inferSelect;
+
+export const programUpdates = pgTable("program_updates", {
+  id: serial("id").primaryKey(),
+  programId: integer("program_id").notNull(),
+  authorName: text("author_name").notNull(),
+  updateType: varchar("update_type", { length: 30 }).notNull().default("status"),
+  content: text("content").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertProgramUpdateSchema = createInsertSchema(programUpdates).omit({ id: true, createdAt: true });
+export type InsertProgramUpdate = z.infer<typeof insertProgramUpdateSchema>;
+export type ProgramUpdate = typeof programUpdates.$inferSelect;
+
 export * from "./models/auth";

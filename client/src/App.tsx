@@ -149,6 +149,7 @@ const DirectiveCompliancePage = lazy(() => import("@/pages/directive-compliance"
 const RpliceToolsPage = lazy(() => import("@/pages/rplice-tools"));
 const MceContractsPage = lazy(() => import("@/pages/mce-contracts"));
 const VideoPipelinePage = lazy(() => import("@/pages/video-pipeline"));
+const ProgramEnginePage = lazy(() => import("@/pages/program-engine"));
 
 function PageFallback() {
   return (
@@ -317,6 +318,7 @@ function AppRouter() {
       <Route path="/rplice-tools" component={RpliceToolsPage} />
       <Route path="/video-pipeline" component={VideoPipelinePage} />
       <Route path="/mce-contracts" component={MceContractsPage} />
+      <Route path="/program-engine" component={ProgramEnginePage} />
       <Route component={NotFound} />
     </Switch>
   );
