@@ -15,7 +15,7 @@ interface KnowledgeChunk {
 const ECOSYSTEM_KNOWLEDGE: KnowledgeChunk[] = [
   {
     source: "ecosystem-overview", category: "overview", title: "ThriveUp Academy Ecosystem Overview",
-    content: `ThriveUp Academy is a 20-platform AI-powered workforce development and community enablement ecosystem operated by Dr. Terry Flood, DHA. It serves under-resourced communities in Central Texas (Austin, Manor, Pflugerville) with three regional hubs. The ecosystem addresses the full human lifecycle: education (Pre-K through adult), workforce development, health equity, veteran services, housing stability, and crisis prevention. Every platform is free for individuals. The hub at thrivingcommunitiesforall.com coordinates all 20 platforms through a heartbeat-based compliance system with directive tracking, fidelity grading (A through F), and automated work chaining. The crisis continuum: Prevention → Early Warning → Crisis Support → Stabilization → Recovery & Growth.`,
+    content: `ThriveUp Academy is a 21-platform AI-powered workforce development and community enablement ecosystem operated by Dr. Terry Flood, DHA. It serves under-resourced communities in Central Texas (Austin, Manor, Pflugerville) with three regional hubs. The ecosystem addresses the full human lifecycle: education (Pre-K through adult), workforce development, health equity, veteran services, housing stability, crisis prevention, and contractor/business enablement. Every platform is free for individuals. The hub at thrivingcommunitiesforall.com coordinates all 21 platforms through a heartbeat-based compliance system with directive tracking, fidelity grading (A through F), and automated work chaining. The crisis continuum: Prevention → Early Warning → Crisis Support → Stabilization → Recovery & Growth. Platform #21 (Pinnacle Business Conglomerate) extends the ecosystem into minority contractor enablement and organizational consulting.`,
     keywords: ["thriveup", "ecosystem", "overview", "platforms", "terry flood", "austin", "manor", "pflugerville", "how many", "what is"],
   },
   {
@@ -220,8 +220,13 @@ Three-layer architecture: Learn It (Academy) → Apply It (RPLICE/MCE/Ecosystem)
   },
   {
     source: "platform", category: "platform", title: "Ecosystem Nexus — Coordination Hub",
-    content: `Central coordination and operational hub. Cross-platform visibility, coordination tools, operational intelligence for all 20 platforms. URL: ecosystem-nexus.replit.app. Grants: DFC, WIOA, SSG Fox, St. David's.`,
+    content: `Central coordination and operational hub. Cross-platform visibility, coordination tools, operational intelligence for all 21 platforms. URL: ecosystem-nexus.replit.app. Grants: DFC, WIOA, SSG Fox, St. David's.`,
     keywords: ["ecosystem nexus", "coordination", "operations", "visibility", "hub"],
+  },
+  {
+    source: "platform", category: "platform", title: "Pinnacle Business Conglomerate — Contractor Enablement",
+    content: `Platform #21. Consulting conglomerate providing cradle-to-grave contractor enablement for minority-owned businesses and organizations. Services: Business gap analysis (MAP-GAP diagnostics), certification alignment (MBE, DBE, HUB, 8(a), SDVOSB), NAICS code analysis, SAM.gov registration support, contract intelligence and bid matching, teaming hub and JV formation, proposal development, execution support, grant readiness, workforce development, international expansion. Primary clients: NAMC Austin (National Association of Minority Contractors — Central Texas Chapter) and USHCC Blue Wave Initiative (United States Hispanic Chamber of Commerce supplier development program). Partners include security training (including tactical/LE shoot house), HR services, workforce development, and more. Uses RPLICE decision framework and MAP-GAP gates at every stage: Onboard → Diagnose → Certify → Position → Win → Execute → Scale. Contractor readiness tiers: Tier 1 (Not Ready), Tier 2 (Emerging), Tier 3 (Bid-Ready), Tier 4 (Prime-Ready). Tracks MOPS (Measures of Performance) and MOWS (Measures of Worth). Grants: WIOA, St. David's, SSG Fox, Foundation Grant.`,
+    keywords: ["pinnacle", "conglomerate", "contractor", "NAMC", "minority contractors", "Hispanic chamber", "Blue Wave", "USHCC", "bid", "contract", "certification", "MBE", "DBE", "HUB", "8a", "SDVOSB", "teaming", "proposal", "enablement", "construction"],
   },
   {
     source: "strategic-framework", category: "strategy", title: "What ThriveUp Academy Actually Is — System of Systems",

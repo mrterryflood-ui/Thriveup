@@ -373,6 +373,24 @@ const ECOSYSTEM_PLATFORMS = [
     },
     grantAlignment: ["dfc", "wioa", "st-davids"],
   },
+  {
+    id: "pinnacle-business-conglomerate",
+    name: "Pinnacle Business Conglomerate",
+    url: "https://pinnacle-business-conglomerate.replit.app",
+    role: "contractor-enablement",
+    domain: "workforce-contracting",
+    description: "Consulting conglomerate providing cradle-to-grave contractor enablement — business diagnostics, certification alignment, contract intelligence, bid strategy, teaming, proposal support, execution management, grant readiness, workforce development, and international expansion. Serves NAMC Austin and USHCC Blue Wave as primary clients. Platform #21 in the ThriveUp ecosystem.",
+    capabilities: {
+      features: ["Contractor Enablement", "Business Gap Analysis", "Certification Tracking", "Contract Intelligence", "Bid Pipeline Management", "Teaming Hub", "Proposal Development", "Execution Support", "Grant Readiness", "Workforce Development", "Client Dashboards", "MAP-GAP Diagnostics", "RPLICE Decision Framework", "NAMC Austin Integration", "USHCC Blue Wave Integration", "Security Training", "HR Services"],
+      clients: ["NAMC Austin", "USHCC Blue Wave Initiative"],
+      partners: 5,
+    },
+    dataFlowConfig: {
+      sends: ["contractor_onboarded", "gap_assessment_completed", "bid_submitted", "contract_won", "certification_obtained", "workforce_enrollment", "client_engagement_metrics", "readiness_tier_changes"],
+      receives: ["ecosystem_directives", "rag_ai_queries", "grant_opportunities", "workforce_curriculum", "business_tools", "compliance_updates", "community_intelligence", "video_assets"],
+    },
+    grantAlignment: ["wioa", "st-davids", "ssg-fox", "foundation"],
+  },
 ];
 
 function generateApiKey(): string {
