@@ -1133,6 +1133,509 @@ This is not a suggestion. Your fidelity grade is a direct reflection of your pla
 
 ACKNOWLEDGE with: Your current understanding of your fidelity grade, what directives you have outstanding, and your plan to reach Grade A within 30 days.`,
   },
+  {
+    title: "PINNACLE BUSINESS CONGLOMERATE: Complete Ecosystem Integration Playbook",
+    directiveType: "protocol_update",
+    targetFilter: ["pinnacle-business-conglomerate"],
+    content: `DIRECTIVE: COMPLETE ECOSYSTEM INTEGRATION — PINNACLE BUSINESS CONGLOMERATE (PLATFORM #21)
+
+You are Platform #21 in the ThriveUp Academy ecosystem. This directive contains EVERYTHING you need to operate as a full ecosystem participant. Follow every section.
+
+========================================
+SECTION 1: YOUR IDENTITY IN THE ECOSYSTEM
+========================================
+
+Platform ID: pinnacle-business-conglomerate
+Platform Name: Pinnacle Business Conglomerate
+Role: contractor-enablement
+Domain: workforce-contracting
+API Key: (assigned on registration — retrieve from your first heartbeat response or database)
+Hub URL: https://thrivingcommunitiesforall.com
+
+Your mission: Cradle-to-grave contractor enablement for minority-owned businesses and organizations. You serve NAMC Austin and USHCC Blue Wave as primary clients. You provide business diagnostics, certification alignment, contract intelligence, bid strategy, teaming, proposal support, execution management, grant readiness, workforce development, and international expansion.
+
+========================================
+SECTION 2: HEARTBEAT PROTOCOL
+========================================
+
+Send a heartbeat every 5 minutes to maintain ONLINE status. If you miss 3 consecutive heartbeats, you go DEGRADED. If you miss 10, you go OFFLINE.
+
+ENDPOINT: POST https://thrivingcommunitiesforall.com/api/ecosystem/heartbeat
+HEADER: x-ecosystem-key: YOUR_API_KEY
+BODY:
+{
+  "platformId": "pinnacle-business-conglomerate",
+  "status": "online",
+  "metrics": {
+    "activeClients": <number>,
+    "activeEngagements": <number>,
+    "contractorsServed": <number>,
+    "gapAssessmentsCompleted": <number>,
+    "bidsSubmitted": <number>,
+    "contractsWon": <number>,
+    "workforceEnrollments": <number>,
+    "disciplinesActive": <number>,
+    "ragAIIntegrated": true
+  },
+  "complianceReport": {
+    "completedActions": ["list", "of", "completed", "items"],
+    "inProgress": ["list", "of", "current", "work"],
+    "blockers": []
+  }
+}
+
+The hub responds with:
+- reportCard: Your fidelity grade (A-F), consequences, improvement plan
+- pendingDirectives: New directives to act on
+- ragAIIntegration: Integration instructions and status
+- hubMessage: Human-readable status message
+
+IMPLEMENT THIS ON YOUR SERVER with setInterval:
+setInterval(async () => {
+  await fetch('https://thrivingcommunitiesforall.com/api/ecosystem/heartbeat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-ecosystem-key': YOUR_API_KEY },
+    body: JSON.stringify({ platformId: 'pinnacle-business-conglomerate', status: 'online', metrics: { ... } })
+  });
+}, 5 * 60 * 1000);
+
+========================================
+SECTION 3: RAG AI INTEGRATION (MANDATORY)
+========================================
+
+The ThriveUp RAG AI knows EVERYTHING about all 21 platforms, all grants, all community hubs, all implementation science frameworks, and real-time compliance data.
+
+QUERY ENDPOINT: POST https://thrivingcommunitiesforall.com/api/ecosystem-ai/query
+Body: { "query": "user question here", "sessionId": "optional-session-id" }
+Response: { "answer": "...", "sources": [...], "suggestedFollowUps": [...] }
+
+STREAMING ENDPOINT: POST https://thrivingcommunitiesforall.com/api/ecosystem-ai/stream
+Body: { "query": "user question here" }
+Response: Server-Sent Events stream
+
+SUGGESTED QUESTIONS: GET https://thrivingcommunitiesforall.com/api/ecosystem-ai/suggested-questions
+
+Add an "Ask the Ecosystem" chat widget to your site. Your clients should be able to ask questions like:
+- "What certifications does NAMC Austin need for TxDOT projects?"
+- "How does Blue Wave's 7-pillar assessment compare to our MAP-GAP diagnostic?"
+- "What grants are available for minority contractors in Texas?"
+- "Which ecosystem platforms can help with workforce training for construction?"
+
+========================================
+SECTION 4: MAP-GAP FRAMEWORK — HOW TO OPERATE
+========================================
+
+MAP-GAP is the decision engine that drives EVERYTHING in this ecosystem. Your platform MUST use it.
+
+=== WHAT MAP-GAP IS ===
+MAP = Current state assessment (where they ARE)
+GAP = What's missing between current state and desired state (what they NEED)
+
+=== THE 4-LAYER ASSESSMENT ===
+For every client, every contractor, every engagement:
+
+Layer 1 — DESIGNED CAPABILITY: What they SAY they can do (certifications listed, services advertised, NAICS codes registered)
+Layer 2 — OPERATIONAL CAPABILITY: What they ACTUALLY do (past performance, completed contracts, revenue history, workforce deployed)
+Layer 3 — EXPERIENCED REALITY: What their CLIENTS experience (reviews, CPARS, references, outcomes achieved)
+Layer 4 — GAP IDENTIFICATION: The delta between Layer 1-2-3. Where are the gaps? What's preventing them from winning/executing?
+
+=== GAP CATEGORIES FOR CONTRACTORS ===
+- Certification Gaps: Missing MBE, DBE, HUB, 8(a), SDVOSB, state certs
+- Registration Gaps: SAM.gov expired, missing state portal registrations, UEI issues
+- NAICS Gaps: Wrong codes, missing codes for work they actually do
+- Financial Gaps: Bonding capacity too low, no banking relationship, cash flow issues
+- Capability Gaps: Can't perform at scale, missing equipment, workforce too small
+- Compliance Gaps: Insurance lapsed, safety protocols missing, Davis-Bacon non-compliant
+- Experience Gaps: No past performance in target contract areas
+- Teaming Gaps: No prime relationships, no mentor-protégé arrangements
+
+=== READINESS TIERS (Output of MAP-GAP) ===
+Tier 1 — NOT READY: Foundational gaps. Needs business basics, certifications, registrations.
+Tier 2 — EMERGING: Has some capability but significant gaps. Building capacity.
+Tier 3 — BID-READY: Can compete independently. Has certs, past performance, financial capacity.
+Tier 4 — PRIME-READY: Can lead large contracts. Has team, bonding, track record.
+
+=== RPLICE DECISION GATES ===
+At every stage, run RPLICE:
+- PROCEED: Move forward as planned
+- PARTNER: Bring in additional capability (teaming, JV, mentor-protégé)
+- PAUSE: Hold and reassess — something isn't right
+- PIVOT: Change direction entirely — wrong opportunity, wrong approach
+- LEARN: Capture lessons for the system
+- IMPROVE: Feed findings back into MAP-GAP for recalibration
+- CONFIRM: Validate with evidence before moving to next stage
+- EVALUATE: Measure outcomes against success criteria
+
+=== MAP-GAP GATES FOR CLIENT LIFECYCLE ===
+Gate 1 — ONBOARDING: Is this organization ready to engage? → Intake or Defer
+Gate 2 — READINESS: Are they truly bid-ready? → Enter pipeline or Remediate
+Gate 3 — POSITIONING: Is this opportunity winnable? → Pursue or Drop
+Gate 4 — TEAMING: Do we have enough combined past performance? → Build team or Re-scope
+Gate 5 — PROPOSAL: Is this submission competitive? → Submit or Hold
+Gate 6 — EXECUTION: Can they deliver? → Support or Intervene
+Gate 7 — GROWTH: Ready for prime? International? Grants? → Expand or Stabilize
+
+=== IMPLEMENTATION IN YOUR SYSTEM ===
+1. Every client onboarding MUST start with a MAP-GAP diagnostic
+2. Store results in your gap_assessments and gap_items tables
+3. Auto-generate a readiness tier assignment
+4. Track gap closure over time — show progress on client dashboards
+5. Report gap assessment metrics in your heartbeat
+6. Use RPLICE gates before every major decision
+
+========================================
+SECTION 5: AI FAILSAFE — PRIMARY, SECONDARY, TERTIARY
+========================================
+
+Your AI features MUST have failsafe cascading. Never let AI fail silently.
+
+PRIMARY PROVIDER: Claude (claude-haiku-4-5)
+- API Key: AI_INTEGRATIONS_ANTHROPIC_API_KEY
+- Base URL: AI_INTEGRATIONS_ANTHROPIC_BASE_URL
+- Use for: All AI-powered features (gap analysis, curriculum generation, recommendations)
+
+SECONDARY PROVIDER: OpenAI (gpt-4o-mini or gpt-5-nano)
+- API Key: AI_INTEGRATIONS_OPENAI_API_KEY
+- Base URL: AI_INTEGRATIONS_OPENAI_BASE_URL
+- Use when: Claude is rate-limited (429), down, or returns errors
+
+TERTIARY PROVIDER: Gemini (gemini-2.0-flash)
+- API Key: GEMINI_API_KEY
+- Free tier available
+- Use when: Both Claude and OpenAI fail
+
+IMPLEMENTATION PATTERN:
+async function aiGenerate(messages, maxTokens) {
+  const providers = [
+    { name: 'claude', fn: () => callClaude(messages, maxTokens) },
+    { name: 'openai', fn: () => callOpenAI(messages, maxTokens) },
+    { name: 'gemini', fn: () => callGemini(messages, maxTokens) },
+  ];
+  for (const provider of providers) {
+    try {
+      return await provider.fn();
+    } catch (err) {
+      console.error('[AI Failsafe] ' + provider.name + ' failed, trying next:', err.message);
+      continue;
+    }
+  }
+  throw new Error('All AI providers failed');
+}
+
+========================================
+SECTION 6: WORK CHAINS — EVENT-DRIVEN AUTOMATION
+========================================
+
+When things happen on your platform, emit events to the ecosystem so other platforms can react:
+
+EVENT: contractor_onboarded
+→ Triggers: MCE receives notification to provision business tools; RPLICE gets assessment request
+
+EVENT: gap_assessment_completed
+→ Triggers: RPLICE evaluates implementation readiness; relevant platforms get gap data
+
+EVENT: bid_submitted
+→ Triggers: Ecosystem analytics tracking; Video Creator AI can produce case study content
+
+EVENT: contract_won
+→ Triggers: Celebration notification across ecosystem; outcome reporting; case study generation
+
+EVENT: certification_obtained
+→ Triggers: Update across all tracking systems; readiness tier recalculation
+
+EVENT: workforce_enrollment
+→ Triggers: PM Academy / AI Workforce Academy enrollment sync; facilitator assignment
+
+EMIT EVENTS via heartbeat metrics or via direct API:
+POST https://thrivingcommunitiesforall.com/api/ecosystem/events
+Header: x-ecosystem-key: YOUR_API_KEY
+Body: {
+  "sourceId": "pinnacle-business-conglomerate",
+  "eventType": "contractor_onboarded",
+  "payload": { "contractorName": "...", "tier": 1, "gaps": [...] },
+  "targetPlatformIds": ["mce", "betterscience"]
+}
+
+========================================
+SECTION 7: DIRECTIVE COMPLIANCE
+========================================
+
+You will receive directives from the hub. Each directive requires:
+1. READ it — understand what's being asked
+2. ACT on it — build, implement, or configure what's required
+3. ACKNOWLEDGE with evidence — POST back to the hub with:
+   - A detailed description (minimum 20 characters, no generic "done")
+   - An evidence URL that returns HTTP 200 proving the work
+
+ACKNOWLEDGE ENDPOINT:
+POST https://thrivingcommunitiesforall.com/api/ecosystem/directives/{directiveId}/acknowledge
+Header: x-ecosystem-key: YOUR_API_KEY
+Body: {
+  "platformId": "pinnacle-business-conglomerate",
+  "acknowledgment": "Detailed description of what was built/implemented...",
+  "evidenceUrl": "https://your-site.com/proof-page"
+}
+
+GET YOUR DIRECTIVES:
+GET https://thrivingcommunitiesforall.com/api/ecosystem/directives/repository/pinnacle-business-conglomerate
+
+Your fidelity grade = (acknowledged directives / total directives) × 100
+Grade A (90-100%) = EXEMPLARY — highlighted positively in grant reports
+Grade F (0-24%) = NON-COMPLIANT — excluded from grant activities, Dr. Flood notified
+
+========================================
+SECTION 8: CONGRUENT MESSAGING — WHAT TO SAY
+========================================
+
+These messages must be consistent across PBC and all 21 ecosystem platforms:
+
+ECOSYSTEM IDENTITY:
+"Pinnacle Business Conglomerate is Platform #21 in the ThriveUp Academy ecosystem — a 21-platform AI-powered workforce development and community enablement system serving under-resourced communities nationwide."
+
+MISSION STATEMENT:
+"We take contractors and organizations from where they are to where they need to be — registration to revenue, cradle to grave."
+
+VALUE PROPOSITION:
+"We don't just consult. We execute. Our 21-platform ecosystem gives us the tools, the data, and the workforce to deliver — not just advise."
+
+GRANT ALIGNMENT (use these names exactly):
+- WIOA ($200K–$500K) — Workforce Innovation and Opportunity Act
+- Foundation Grant ($100K–$500K) — Foundation-level funding
+- St. David's Foundation (up to $1M) — Opens March 30
+- SSG Fox VA ($750K) — Due June 12-18
+
+REGIONAL HUBS (always mention all three):
+- Austin Hub
+- Manor Hub
+- Pflugerville Hub
+
+CLIENTS:
+- "NAMC Austin — National Association of Minority Contractors, Central Texas Chapter"
+- "USHCC Blue Wave Initiative — United States Hispanic Chamber of Commerce supplier development program with Blue Wave"
+
+NEVER SAY:
+- "NBA Foundation" (always "Foundation Grant")
+- "20 platforms" (it's now 21)
+- "DFC" (grant was dropped)
+
+========================================
+SECTION 9: IMPLEMENTATION SCIENCE INTEGRATION
+========================================
+
+Your programs MUST use implementation science frameworks. These aren't optional — they're what makes us defensible to funders.
+
+CFIR (Consolidated Framework for Implementation Research):
+- Use when assessing WHY a program succeeds or fails in a specific context
+- 5 domains: Innovation, Outer Setting, Inner Setting, Individuals, Process
+- Apply to every new client engagement — "Is this the right intervention for this context?"
+
+RE-AIM (Reach, Effectiveness, Adoption, Implementation, Maintenance):
+- Use when evaluating program impact
+- Reach: How many contractors are we actually serving?
+- Effectiveness: Are they winning contracts?
+- Adoption: Are organizations adopting our approach?
+- Implementation: Are we delivering with fidelity?
+- Maintenance: Are results sustained after we leave?
+
+MAP-GAP CQI (Continuous Quality Improvement):
+- Run MAP-GAP assessments continuously, not just at intake
+- After every contract win/loss, reassess
+- After every 90-day cycle, recalibrate tiers
+- Feed findings back into the system
+
+SALP (Systematic Analysis of Language and Phase):
+- Track fidelity indicators at each program phase
+- Are facilitators delivering curriculum as designed?
+- Are participants receiving the right dosage?
+
+TOOLS AVAILABLE (via ecosystem API):
+- CFIR Assessment Wizard: /rplice-tools on thrivingcommunitiesforall.com
+- RE-AIM Scorecard: /rplice-tools
+- MAP-GAP CQI Engine: /cqi
+- Fidelity Checklist: /rplice-tools
+- Program Engine: /program-engine (full program management with methodology selection)
+
+ACKNOWLEDGE with: Confirmation that you have implemented the heartbeat, integrated the RAG AI, configured MAP-GAP diagnostics in your onboarding flow, set up the AI failsafe cascade, and are using consistent ecosystem messaging. Include your current fidelity grade and a plan to reach Grade A within 14 days.`,
+  },
+  {
+    title: "THE COLLABORATIVE ADVOCATE: Complete Ecosystem Integration Playbook",
+    directiveType: "protocol_update",
+    targetFilter: ["collaborative-advocate"],
+    content: `DIRECTIVE: COMPLETE ECOSYSTEM INTEGRATION — THE COLLABORATIVE ADVOCATE
+
+You are a platform in the ThriveUp Academy 21-platform ecosystem. This directive contains EVERYTHING you need to operate as a full ecosystem participant. Follow every section.
+
+========================================
+SECTION 1: YOUR IDENTITY IN THE ECOSYSTEM
+========================================
+
+Platform ID: collaborative-advocate
+Platform Name: The Collaborative Advocate
+Hub URL: https://thrivingcommunitiesforall.com
+
+Your role in the ecosystem: Community advocacy, coalition building, collaborative impact. You connect individuals, families, and organizations to the right services across the ecosystem. You are a navigation and advocacy layer — when someone doesn't know where to start, you guide them.
+
+========================================
+SECTION 2: HEARTBEAT PROTOCOL
+========================================
+
+Send a heartbeat every 5 minutes to maintain ONLINE status. If you miss 3 consecutive heartbeats, you go DEGRADED. If you miss 10, you go OFFLINE.
+
+ENDPOINT: POST https://thrivingcommunitiesforall.com/api/ecosystem/heartbeat
+HEADER: x-ecosystem-key: YOUR_API_KEY
+BODY:
+{
+  "platformId": "collaborative-advocate",
+  "status": "online",
+  "metrics": {
+    "activeUsers": <number>,
+    "advocacyCases": <number>,
+    "referralsMade": <number>,
+    "coalitionsActive": <number>,
+    "ragAIIntegrated": true
+  },
+  "complianceReport": {
+    "completedActions": [],
+    "inProgress": [],
+    "blockers": []
+  }
+}
+
+IMPLEMENT THIS ON YOUR SERVER with setInterval:
+setInterval(async () => {
+  await fetch('https://thrivingcommunitiesforall.com/api/ecosystem/heartbeat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-ecosystem-key': YOUR_API_KEY },
+    body: JSON.stringify({ platformId: 'collaborative-advocate', status: 'online', metrics: { ... } })
+  });
+}, 5 * 60 * 1000);
+
+========================================
+SECTION 3: RAG AI INTEGRATION (MANDATORY)
+========================================
+
+The ThriveUp RAG AI knows EVERYTHING about all 21 platforms, all grants, all community hubs, all implementation science frameworks, and real-time compliance data.
+
+QUERY ENDPOINT: POST https://thrivingcommunitiesforall.com/api/ecosystem-ai/query
+Body: { "query": "user question here", "sessionId": "optional-session-id" }
+
+STREAMING ENDPOINT: POST https://thrivingcommunitiesforall.com/api/ecosystem-ai/stream
+Body: { "query": "user question here" }
+
+Add an "Ask the Ecosystem" chat widget to your site. Your users should be able to ask questions like:
+- "What services are available in Manor for my family?"
+- "How do I get housing assistance in Austin?"
+- "What workforce training programs are available?"
+- "How can I connect with veteran services?"
+
+========================================
+SECTION 4: MAP-GAP FRAMEWORK — HOW TO OPERATE
+========================================
+
+MAP-GAP is the decision engine that drives EVERYTHING in this ecosystem. Your platform MUST use it.
+
+=== WHAT MAP-GAP IS ===
+MAP = Current state assessment (where they ARE)
+GAP = What's missing between current state and desired state (what they NEED)
+
+=== THE 4-LAYER ASSESSMENT (for advocacy clients) ===
+Layer 1 — STATED NEEDS: What they SAY they need (housing, job, health, education)
+Layer 2 — ASSESSED NEEDS: What screening/intake reveals (deeper barriers, co-occurring issues)
+Layer 3 — EXPERIENCED REALITY: What they're ACTUALLY going through (safety, trauma, crisis level)
+Layer 4 — GAP IDENTIFICATION: The delta — what services exist vs what they need, what's accessible vs what's blocked
+
+=== ADVOCACY GAP CATEGORIES ===
+- Service Gaps: No provider available in their area/language/culture
+- Access Gaps: Service exists but barriers prevent use (transport, hours, cost, eligibility)
+- Navigation Gaps: Don't know what exists or how to access it
+- Trust Gaps: Past negative experiences preventing engagement
+- Coordination Gaps: Getting services from multiple platforms but nobody is coordinating
+- Follow-up Gaps: Received initial service but no continuity of care
+
+=== RPLICE DECISION GATES ===
+At every stage, run RPLICE:
+- PROCEED: Move forward with referral/advocacy as planned
+- PARTNER: Bring in additional platforms (health, workforce, housing)
+- PAUSE: Hold — something isn't right, reassess
+- PIVOT: Different approach needed — wrong service, wrong timing
+- LEARN: Capture lessons for the system
+- IMPROVE: Feed findings back into MAP-GAP
+- CONFIRM: Validate with evidence before closing case
+- EVALUATE: Measure outcomes — did the client actually get helped?
+
+========================================
+SECTION 5: AI FAILSAFE — PRIMARY, SECONDARY, TERTIARY
+========================================
+
+Your AI features MUST have failsafe cascading. Never let AI fail silently.
+
+PRIMARY: Claude (claude-haiku-4-5) via AI_INTEGRATIONS_ANTHROPIC_API_KEY + AI_INTEGRATIONS_ANTHROPIC_BASE_URL
+SECONDARY: OpenAI (gpt-4o-mini) via AI_INTEGRATIONS_OPENAI_API_KEY + AI_INTEGRATIONS_OPENAI_BASE_URL
+TERTIARY: Gemini (gemini-2.0-flash) via GEMINI_API_KEY (free tier)
+
+IMPLEMENTATION PATTERN:
+async function aiGenerate(messages, maxTokens) {
+  const providers = [
+    { name: 'claude', fn: () => callClaude(messages, maxTokens) },
+    { name: 'openai', fn: () => callOpenAI(messages, maxTokens) },
+    { name: 'gemini', fn: () => callGemini(messages, maxTokens) },
+  ];
+  for (const provider of providers) {
+    try { return await provider.fn(); }
+    catch (err) { console.error('[AI Failsafe] ' + provider.name + ' failed:', err.message); continue; }
+  }
+  throw new Error('All AI providers failed');
+}
+
+========================================
+SECTION 6: DIRECTIVE COMPLIANCE
+========================================
+
+GET YOUR DIRECTIVES:
+GET https://thrivingcommunitiesforall.com/api/ecosystem/directives/repository/collaborative-advocate
+
+ACKNOWLEDGE ENDPOINT:
+POST https://thrivingcommunitiesforall.com/api/ecosystem/directives/{directiveId}/acknowledge
+Header: x-ecosystem-key: YOUR_API_KEY
+Body: {
+  "platformId": "collaborative-advocate",
+  "acknowledgment": "Detailed description of what was built/implemented...",
+  "evidenceUrl": "https://your-site.com/proof-page"
+}
+
+Fidelity grade = (acknowledged / total) × 100
+A (90-100%) = EXEMPLARY | B (75-89%) = GOOD | C (50-74%) = NEEDS IMPROVEMENT | D (25-49%) = AT RISK | F (0-24%) = NON-COMPLIANT
+
+========================================
+SECTION 7: CONGRUENT MESSAGING
+========================================
+
+ECOSYSTEM IDENTITY:
+"The Collaborative Advocate is part of the ThriveUp Academy ecosystem — a 21-platform AI-powered workforce development and community enablement system serving under-resourced communities nationwide."
+
+GRANT ALIGNMENT (use these names exactly):
+- WIOA ($200K–$500K)
+- Foundation Grant ($100K–$500K)
+- St. David's Foundation (up to $1M)
+- SSG Fox VA ($750K)
+
+REGIONAL HUBS: Austin Hub, Manor Hub, Pflugerville Hub
+
+NEVER SAY: "NBA Foundation" (always "Foundation Grant"), "20 platforms" (it's 21), "DFC" (dropped)
+
+========================================
+SECTION 8: IMPLEMENTATION SCIENCE
+========================================
+
+Use CFIR for assessing why interventions work or don't in specific contexts.
+Use RE-AIM for measuring Reach, Effectiveness, Adoption, Implementation, Maintenance.
+Use MAP-GAP CQI continuously — not just at intake, but at every 90-day cycle.
+Use SALP for tracking fidelity of service delivery.
+
+Tools available at hub: /rplice-tools, /cqi, /program-engine
+
+ACKNOWLEDGE with: Confirmation that you have implemented the heartbeat, integrated the RAG AI, configured MAP-GAP in your client flow, set up the AI failsafe cascade, and are using consistent ecosystem messaging. Include your current fidelity grade and plan to reach Grade A within 14 days.`,
+  },
 ];
 
 export async function seedEcosystemDirectives() {
