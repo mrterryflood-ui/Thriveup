@@ -601,12 +601,17 @@ export function registerEcosystemConnectorRoutes(app: Express) {
 
   // Status endpoint — check last ping cycle
   app.get("/api/ecosystem/pinger-status", async (_req, res) => {
-    res.json({
-      active: pingerInterval !== null,
-      cycleInterval: "10 minutes",
-      lastCycle: lastPingCycle,
-      purpose: "Keeps all 20 Autoscale-deployed platforms awake by sending HTTP GET requests every 10 minutes. When a sleeping platform wakes from a ping, its startup heartbeat fires and catches up on all pending directives.",
-    });
+    try {
+      res.json({
+        active: pingerInterval !== null,
+        cycleInterval: "10 minutes",
+        lastCycle: lastPingCycle,
+        purpose: "Keeps all 20 Autoscale-deployed platforms awake by sending HTTP GET requests every 10 minutes. When a sleeping platform wakes from a ping, its startup heartbeat fires and catches up on all pending directives.",
+      });
+    } catch (error) {
+      console.error("Error in GET /api/ecosystem/pinger-status", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   // ===================================================================
@@ -2631,19 +2636,19 @@ if (typeof module !== "undefined") {
   });
 
   app.post("/api/ecosystem/send-report-card", async (req, res) => {
-    const authKey = req.headers["x-ecosystem-key"] as string;
-    const session = (req as any).session;
-    const userId = session?.passport?.user || (req as any).user?.id;
-    if (!userId && !authKey) {
-      return res.status(401).json({ error: "Authentication required" });
-    }
-    if (!userId && authKey) {
-      const validPlatform = await db.select().from(ecosystemPlatforms).where(eq(ecosystemPlatforms.apiKey, authKey));
-      if (validPlatform.length === 0) {
-        return res.status(401).json({ error: "Invalid ecosystem key" });
-      }
-    }
     try {
+      const authKey = req.headers["x-ecosystem-key"] as string;
+      const session = (req as any).session;
+      const userId = session?.passport?.user || (req as any).user?.id;
+      if (!userId && !authKey) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+      if (!userId && authKey) {
+        const validPlatform = await db.select().from(ecosystemPlatforms).where(eq(ecosystemPlatforms.apiKey, authKey));
+        if (validPlatform.length === 0) {
+          return res.status(401).json({ error: "Invalid ecosystem key" });
+        }
+      }
       const platforms = await db.select().from(ecosystemPlatforms);
       const allDirectives = await db.select().from(ecosystemDirectives).where(eq(ecosystemDirectives.status, "active"));
       const allAcks = await db.select().from(ecosystemDirectiveAcks);

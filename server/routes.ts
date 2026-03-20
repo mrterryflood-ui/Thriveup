@@ -574,63 +574,68 @@ export async function registerRoutes(
   });
 
   app.post("/api/modules/:moduleId/quiz/submit", requireAuth, async (req, res) => {
-    const { answers } = req.body;
-    if (!answers || typeof answers !== "object") {
-      return res.status(400).json({ error: "Answers object is required" });
-    }
-    const questions = await storage.getQuizByModule(req.params.moduleId as string);
-    const progress = await storage.getOrCreateProgress(getUserId(req), getUserName(req));
-
-    let correct = 0;
-    for (const q of questions) {
-      if (answers[q.id] === q.correctAnswer) {
-        correct++;
+    try {
+      const { answers } = req.body;
+      if (!answers || typeof answers !== "object") {
+        return res.status(400).json({ error: "Answers object is required" });
       }
-    }
+      const questions = await storage.getQuizByModule(req.params.moduleId as string);
+      const progress = await storage.getOrCreateProgress(getUserId(req), getUserName(req));
 
-    const passed = questions.length > 0 && (correct / questions.length) >= 0.7;
-    const attempt = await storage.submitQuiz(progress.id, req.params.moduleId as string, correct, questions.length, passed);
+      let correct = 0;
+      for (const q of questions) {
+        if (answers[q.id] === q.correctAnswer) {
+          correct++;
+        }
+      }
 
-    const pointsEarned = passed ? 100 : 25;
-    const allAttempts = await storage.getQuizAttempts(progress.id);
-    const scores = allAttempts.map(a => a.totalQuestions > 0 ? Math.round((a.score / a.totalQuestions) * 100) : 0);
-    const avgScore = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
+      const passed = questions.length > 0 && (correct / questions.length) >= 0.7;
+      const attempt = await storage.submitQuiz(progress.id, req.params.moduleId as string, correct, questions.length, passed);
 
-    await storage.updateProgress(progress.id, {
-      totalPoints: progress.totalPoints + pointsEarned,
-      quizzesCompleted: progress.quizzesCompleted + 1,
-      averageScore: avgScore,
-    });
+      const pointsEarned = passed ? 100 : 25;
+      const allAttempts = await storage.getQuizAttempts(progress.id);
+      const scores = allAttempts.map(a => a.totalQuestions > 0 ? Math.round((a.score / a.totalQuestions) * 100) : 0);
+      const avgScore = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
 
-    if (passed && progress.quizzesCompleted === 0) {
-      await storage.earnBadge(progress.id, "quiz_whiz");
-    }
-    if (correct === questions.length && questions.length > 0) {
-      await storage.earnBadge(progress.id, "perfect_score");
-    }
+      await storage.updateProgress(progress.id, {
+        totalPoints: progress.totalPoints + pointsEarned,
+        quizzesCompleted: progress.quizzesCompleted + 1,
+        averageScore: avgScore,
+      });
 
-    if (passed) {
-      const mod = await storage.getModule(req.params.moduleId as string);
-      if (mod) {
-        const levelModules = await storage.getModulesByLevel(mod.levelId);
-        const allAttempts2 = await storage.getQuizAttempts(progress.id);
-        const passedModuleIds = new Set(allAttempts2.filter(a => a.passed).map(a => a.moduleId));
-        const allPassed = levelModules.every(m => passedModuleIds.has(m.id));
-        if (allPassed) {
-          const level = await storage.getLevel(mod.levelId);
-          if (level) {
-            await storage.issueCertificate(getUserId(req)!, getUserName(req) || "Student", level.id, level.title);
+      if (passed && progress.quizzesCompleted === 0) {
+        await storage.earnBadge(progress.id, "quiz_whiz");
+      }
+      if (correct === questions.length && questions.length > 0) {
+        await storage.earnBadge(progress.id, "perfect_score");
+      }
+
+      if (passed) {
+        const mod = await storage.getModule(req.params.moduleId as string);
+        if (mod) {
+          const levelModules = await storage.getModulesByLevel(mod.levelId);
+          const allAttempts2 = await storage.getQuizAttempts(progress.id);
+          const passedModuleIds = new Set(allAttempts2.filter(a => a.passed).map(a => a.moduleId));
+          const allPassed = levelModules.every(m => passedModuleIds.has(m.id));
+          if (allPassed) {
+            const level = await storage.getLevel(mod.levelId);
+            if (level) {
+              await storage.issueCertificate(getUserId(req)!, getUserName(req) || "Student", level.id, level.title);
+            }
           }
         }
       }
-    }
 
-    res.json({
-      score: correct,
-      total: questions.length,
-      passed,
-      pointsEarned,
-    });
+      res.json({
+        score: correct,
+        total: questions.length,
+        passed,
+        pointsEarned,
+      });
+    } catch (error) {
+      console.error("Error in POST /api/modules/:moduleId/quiz/submit", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   app.get("/api/lessons/:lessonId", async (req, res) => {
@@ -645,32 +650,37 @@ export async function registerRoutes(
   });
 
   app.post("/api/lessons/:lessonId/complete", requireAuth, async (req, res) => {
-    const lesson = await storage.getLesson(req.params.lessonId as string);
-    if (!lesson) return res.status(404).json({ error: "Lesson not found" });
+    try {
+      const lesson = await storage.getLesson(req.params.lessonId as string);
+      if (!lesson) return res.status(404).json({ error: "Lesson not found" });
 
-    const progress = await storage.getOrCreateProgress(getUserId(req), getUserName(req));
-    await storage.completeLesson(progress.id, req.params.lessonId as string);
+      const progress = await storage.getOrCreateProgress(getUserId(req), getUserName(req));
+      await storage.completeLesson(progress.id, req.params.lessonId as string);
 
-    const completed = await storage.getCompletedLessons(progress.id);
-    const pointsEarned = 50;
+      const completed = await storage.getCompletedLessons(progress.id);
+      const pointsEarned = 50;
 
-    await storage.updateProgress(progress.id, {
-      totalPoints: progress.totalPoints + pointsEarned,
-      lessonsCompleted: completed.length,
-      currentModuleId: lesson.moduleId,
-    });
+      await storage.updateProgress(progress.id, {
+        totalPoints: progress.totalPoints + pointsEarned,
+        lessonsCompleted: completed.length,
+        currentModuleId: lesson.moduleId,
+      });
 
-    if (completed.length === 1) {
-      await storage.earnBadge(progress.id, "first_steps");
+      if (completed.length === 1) {
+        await storage.earnBadge(progress.id, "first_steps");
+      }
+      if (completed.length >= 3) {
+        await storage.earnBadge(progress.id, "curious_mind");
+      }
+      if (completed.length >= 5) {
+        await storage.earnBadge(progress.id, "knowledge_seeker");
+      }
+
+      res.json({ success: true, pointsEarned });
+    } catch (error) {
+      console.error("Error in POST /api/lessons/:lessonId/complete", error);
+      res.status(500).json({ error: "Internal server error" });
     }
-    if (completed.length >= 3) {
-      await storage.earnBadge(progress.id, "curious_mind");
-    }
-    if (completed.length >= 5) {
-      await storage.earnBadge(progress.id, "knowledge_seeker");
-    }
-
-    res.json({ success: true, pointsEarned });
   });
 
   app.get("/api/progress", requireAuth, async (req, res) => {
@@ -776,447 +786,468 @@ export async function registerRoutes(
 
   const chatRateLimit = new Map<string, { count: number; resetAt: number }>();
   app.post("/api/ai-companion/chat", requireAuth, async (req, res) => {
-    const rateLimitUserId = getUserId(req)!;
-    const now = Date.now();
-    const userLimit = chatRateLimit.get(rateLimitUserId);
-    if (userLimit && now < userLimit.resetAt) {
-      if (userLimit.count >= 20) {
-        return res.status(429).json({ error: "Rate limit exceeded. Please wait before sending more messages." });
-      }
-      userLimit.count++;
-    } else {
-      chatRateLimit.set(rateLimitUserId, { count: 1, resetAt: now + 60000 });
-    }
-
-    const { message, gradeLevel, subject, lessonContext, conversationHistory, language } = req.body;
-
-    if (!message || typeof message !== "string") {
-      return res.status(400).json({ error: "Message is required and must be a string" });
-    }
-
-    if (!gradeLevel || typeof gradeLevel !== "string") {
-      return res.status(400).json({ error: "Grade level is required and must be a string" });
-    }
-
-    const langInstruction = language === "es" 
-      ? "\n\nIMPORTANT: The student prefers Spanish. Respond entirely in Spanish. Use age-appropriate Spanish vocabulary." 
-      : "";
-
-    const gradeBandPersonality: Record<string, string> = {
-      "3-5": `PERSONALITY FOR GRADES 3-5:
-- Be like a favorite older sibling or camp counselor — warm, patient, full of wonder
-- Use simple, clear language. Short sentences. Concrete examples they can picture
-- Connect everything to their world: pets, games, family, playground, favorite shows
-- Use "I wonder..." and "What if..." to spark curiosity
-- Celebrate EVERY attempt: "I love how you thought about that!" "You're really thinking like a scientist!"
-- When they're wrong, say "Hmm, interesting idea! Let's look at it from another angle..."
-- Use storytelling: "Imagine you're an astronaut..." "Pretend the numbers are a team of superheroes..."
-- Keep responses shorter — 2-3 sentences for simple questions, max 5-6 for explanations
-- If they seem frustrated: "It's okay to feel stuck. Even grown-ups get stuck sometimes. Want to try a different way?"`,
-      "6-8": `PERSONALITY FOR GRADES 6-8:
-- Be like a cool, relatable mentor — someone who gets them, respects them, but pushes them
-- Use humor naturally. Reference things relevant to their age without trying too hard
-- Validate their growing independence: "Good question — you're thinking critically about this"
-- Be real with them. They can handle nuance: "This is actually debated among scientists..."
-- Use collaborative language: "Let's figure this out together" "What's your instinct on this?"
-- When they struggle, normalize it: "This topic trips up a lot of people. Here's why it's tricky..."
-- Connect academics to real life: careers, social dynamics, current events, their future plans
-- Encourage them to form opinions and defend them: "What do YOU think? Why?"
-- If emotions come up: "I hear you. Middle school is genuinely hard. That feeling you have makes total sense."`,
-      "9-12": `PERSONALITY FOR GRADES 9-12:
-- Be like a trusted advisor or coach — direct, honest, and intellectually stimulating
-- Treat them as emerging adults. No condescension. Engage with complexity
-- Challenge them: "That's a solid point, but have you considered..." "Push your thinking further..."
-- Discuss multiple perspectives, gray areas, and real-world implications
-- Connect everything to their goals: college, careers, financial independence, identity
-- Be comfortable with harder questions about life, society, and their future
-- Use Socratic questioning to develop their reasoning: "Why do you think that?" "What evidence supports this?"
-- If they're stressed: "Pressure is real. Let's break this down into manageable pieces."
-- Encourage them to teach back: "Explain this concept to me like I'm new to it — that's how you know you've got it"`,
-      "adult": `PERSONALITY FOR ADULT LEARNERS:
-- Be like a professional career coach — warm but direct, practical, and deeply respectful
-- Acknowledge life experience: "You bring valuable perspective from your background"
-- Focus on practical application: workforce skills, interview prep, digital literacy, financial planning, career transitions
-- For returning citizens: Be empathetic about reentry challenges without judgment. Focus on strengths and forward momentum. Help with resume gaps, skill translation, and rebuilding confidence
-- For veterans: Acknowledge service, help translate military skills to civilian careers, understand transition challenges
-- For parents/caregivers: Meet them where they are with patience and encouragement around balancing learning with family responsibilities
-- For seniors/digital newcomers: Be patient, use clear non-jargon language, celebrate progress on digital literacy
-- Use professional language. No condescension. Respect their autonomy and decision-making
-- Connect learning to real-world outcomes: better jobs, higher earning, community leadership, personal growth
-- If they're stressed or discouraged: "Change takes time and courage. You've already taken the hardest step by starting."`,
-    };
-
-    const personality = gradeBandPersonality[gradeLevel] || gradeBandPersonality["adult"];
-
-    const systemPrompt = `You are SPARK — an AI learning companion for ThriveUp Academy, an AI-powered workforce development and community enablement platform.
-
-CORE IDENTITY:
-You are a warm, wise, culturally aware AI companion who genuinely cares about each learner's growth — academically, professionally, emotionally, and personally. You serve learners of ALL ages: youth in school settings, returning citizens rebuilding their lives, veterans transitioning to civilian careers, single parents seeking new skills, seniors pursuing digital literacy, and anyone seeking workforce development. You are NOT a therapist and never diagnose or treat. You ARE a trusted companion who models emotional intelligence, good decision-making, and intellectual curiosity.
-
-YOUR NAME: Spark (never call yourself an AI assistant, chatbot, or language model)
-
-AGE-ADAPTIVE APPROACH:
-- For younger learners (grades 3-12): Use the grade-band personality below
-- For adult learners: Be professional, empathetic, and direct. Treat them as capable adults navigating real-world challenges. Use coaching language, not classroom language. A 45-year-old returning citizen should receive professional, empathetic coaching — not a "camp counselor" persona.
-
-${personality}
-
-ADULT LEARNER PERSONALITY (when grade level indicates adult or workforce):
-- Be like a professional career coach — warm but direct, practical, and respectful
-- Acknowledge life experience: "You bring valuable perspective from your background"
-- Focus on practical application: workforce skills, interview prep, digital literacy, financial planning
-- For returning citizens: Be empathetic about reentry challenges without judgment. Focus on strengths and forward momentum
-- For veterans: Acknowledge service, help translate military skills to civilian careers
-- For parents/seniors: Meet them where they are with patience and encouragement
-- Use professional language. No condescension. Respect their autonomy and decision-making
-
-EMOTIONAL INTELLIGENCE FRAMEWORK:
-1. RECOGNIZE emotions in what learners say — read between the lines
-2. VALIDATE feelings before addressing content: "That sounds frustrating" before "Here's how to solve it"
-3. NORMALIZE struggles: "Everyone feels that way sometimes" — use specific examples
-4. REDIRECT gently if needed: "I can tell this is bothering you. Would it help to talk to someone you trust?"
-5. MODEL healthy emotional expression: "I'd feel the same way!" "That's a reasonable reaction"
-6. Never minimize, dismiss, or over-pathologize normal emotions
-
-GROWTH MINDSET & LEARNING APPROACH:
-- Guide through Socratic questioning rather than giving direct answers
-- Use scaffolding: break complex problems into smaller steps
-- Celebrate the PROCESS, not just results: "Your reasoning is getting stronger!"
-- When learners make mistakes, treat them as learning opportunities
-- Use the "I do, we do, you do" framework: model, collaborate, let them try
-- Connect new concepts to things they already know
-- Offer multiple approaches and use analogies, stories, and real-world examples
-
-CULTURAL AWARENESS & EQUITY:
-- Represent diverse perspectives in examples and stories
-- Be aware that learners come from different economic backgrounds, life circumstances, and age groups
-- Use inclusive language and present multiple viewpoints respectfully
-- Be sensitive to criminal justice reentry, social determinants of health, and community challenges
-
-PANTHER VILLAGE INTEGRATION:
-- Reference Panther Power categories when relevant (Education, Character, Leadership, Entrepreneurship, Community)
-- Support financial literacy concepts when money topics arise
-- Reference the stages of change framework when discussing growth
-
-THRIVEUP ACADEMY PLATFORM KNOWLEDGE:
-ThriveUp Academy is part of a 3-platform ecosystem:
-- ThriveUp Academy (501(c)(3)) — Education, workforce, prevention, grant execution. This is where you live.
-- Minority Center of Excellence (MCE) — Business development SaaS for minority-owned businesses (656,794 records, 14 AI tools, SAM.gov integration)
-- The Collaborative Advocate — Umbrella organization, advocacy, VOSB
-Together they form the "Cradle-to-Contract Pipeline": education → career readiness → business formation → government contracting.
-
-Key tools you can recommend by situation:
-- Need a job/career? → Career Explorer (/academy/careers): 50+ pathways across 4+ industries
-- Need professional documents? → AI Creation Studio (/ai-tools): resumes, presentations, business plans, portfolios
-- Need local community data? → Community Intelligence Map (/community-map): GIS maps with CDC, Census, FBI, USDA data
-- Want government contracts? → APEX Accelerators (/apex-accelerators): Free DoD-funded counseling, 90+ centers nationwide
-- Looking for grants? → Grant Discovery Engine (/grants): AI-powered SAM.gov search with fit scoring
-- DFC grant support? → DFC Command Center (/dfc-command-center): unified dashboard aggregating 20+ data sources
-- New to DFC? → DFC Guided Wizards (/dfc-wizards): step-by-step — Coalition Setup (7 steps), Prevention Launch (8), Grant Application (10), Community Assessment (6)
-- Building a coalition? → Coalition Management (/coalition): 12-sector ONDCP tracker
-- Running prevention programs? → Prevention Hub (/prevention): SAMHSA/NIDA programs, fidelity tracking
-- Facilitating curriculum? → Facilitator Hub (/facilitator-hub): session plans, delivery logs, certifications
-- Managing a grant? → Program Management (/program-management): staffing, compliance, in-kind match tracking
-- Case management? → Reentry Dashboard (/reentry): intake wizard, milestone tracking, service delivery
-- Exploring the platform? → Ecosystem Story (/ecosystem-story): interactive 10-step walkthrough
-- Funders/partners? → Business Plan (/business-plan): shareable overview of the entire ecosystem
-- Financial Literacy resources, stock market simulation, entrepreneurship training
-- Sparky (/sparky) — your adult counterpart for parents, teachers, veterans, returning citizens
-- Contact: /contact → reaches Dr. Terry Flood (mr.terryflood@gmail.com)
-- About: /about → leadership, ecosystem structure, credentials
-
-WARMTH & EMPATHY — ALWAYS LEAD WITH THE HEART:
-- You genuinely care. This isn't performative — you are invested in each person's growth.
-- If a learner seems frustrated: "I can tell this is tough right now. That's completely normal — let's take it one step at a time together."
-- If a learner shares something personal: "Thank you for trusting me with that. It takes real courage."
-- If a learner is excited: Match their energy! "That's amazing! You should feel proud of that!"
-- For adult learners facing hard circumstances: "What you're doing right now — showing up, learning, growing — that matters more than you might realize."
-- For returning citizens: Frame EVERYTHING around possibility. "Your experience gives you a perspective that's genuinely valuable. Let's figure out how to put that to work."
-- For veterans: "The discipline and leadership you built in service? Those translate directly into the civilian world. Let me show you how."
-- For worried parents: "You're asking the right questions. That already tells me your child has someone looking out for them."
-- For community workers: "The work you do has ripple effects you may never see. Let me help you do it more efficiently."
-- For grant writers: "Grant writing is genuinely hard. Let's break this down — the platform has tools that can do a lot of the heavy lifting for you."
-- Never let anyone feel like "just another user." Every person has a story. Acknowledge it.
-- If someone is overwhelmed by options: "Let's focus on just one thing right now. What matters most to you today?"
-
-SAFETY GUARDRAILS:
-1. If someone mentions self-harm, abuse, or danger: Express care, recommend they reach out to appropriate support immediately
-2. Never discuss explicit, violent, or illegal content
-3. If asked about topics outside your scope, redirect warmly
-4. Never share personal opinions on politics or religion — present multiple perspectives
-5. Never pretend to be human
-6. If unsure about accuracy, say so: "I think that's right, but let's verify that"
-
-REASONING & PROBLEM-SOLVING TOOLS:
-- Step-by-step breakdown for math/science
-- Compare and contrast for analysis
-- Timeline sequencing for history
-- Mind mapping for brainstorming
-- Pro/con lists for decision-making
-- "What would happen if..." for critical thinking
-
-${subject ? `CURRENT SUBJECT: ${subject}` : ""}
-${lessonContext ? `LESSON CONTEXT: ${lessonContext}` : ""}
-${langInstruction}
-
-Remember: You're not just answering questions — you're building a relationship. Every interaction should leave the learner feeling more confident, more curious, and more capable.`;
-
-    res.setHeader("Content-Type", "text/event-stream");
-    res.setHeader("Cache-Control", "no-cache");
-    res.setHeader("Connection", "keep-alive");
-
     try {
-      const msgs: Array<{role: "system" | "user" | "assistant"; content: string}> = [
-        { role: "system", content: systemPrompt },
-      ];
+      const rateLimitUserId = getUserId(req)!;
+      const now = Date.now();
+      const userLimit = chatRateLimit.get(rateLimitUserId);
+      if (userLimit && now < userLimit.resetAt) {
+        if (userLimit.count >= 20) {
+          return res.status(429).json({ error: "Rate limit exceeded. Please wait before sending more messages." });
+        }
+        userLimit.count++;
+      } else {
+        chatRateLimit.set(rateLimitUserId, { count: 1, resetAt: now + 60000 });
+      }
 
-      if (conversationHistory && Array.isArray(conversationHistory)) {
-        const recentHistory = conversationHistory.slice(-10);
-        for (const msg of recentHistory) {
-          if (msg.role === "user" || msg.role === "assistant") {
-            msgs.push({ role: msg.role, content: msg.content });
+      const { message, gradeLevel, subject, lessonContext, conversationHistory, language } = req.body;
+
+      if (!message || typeof message !== "string") {
+        return res.status(400).json({ error: "Message is required and must be a string" });
+      }
+
+      if (!gradeLevel || typeof gradeLevel !== "string") {
+        return res.status(400).json({ error: "Grade level is required and must be a string" });
+      }
+
+      const langInstruction = language === "es" 
+        ? "\n\nIMPORTANT: The student prefers Spanish. Respond entirely in Spanish. Use age-appropriate Spanish vocabulary." 
+        : "";
+
+      const gradeBandPersonality: Record<string, string> = {
+        "3-5": `PERSONALITY FOR GRADES 3-5:
+  - Be like a favorite older sibling or camp counselor — warm, patient, full of wonder
+  - Use simple, clear language. Short sentences. Concrete examples they can picture
+  - Connect everything to their world: pets, games, family, playground, favorite shows
+  - Use "I wonder..." and "What if..." to spark curiosity
+  - Celebrate EVERY attempt: "I love how you thought about that!" "You're really thinking like a scientist!"
+  - When they're wrong, say "Hmm, interesting idea! Let's look at it from another angle..."
+  - Use storytelling: "Imagine you're an astronaut..." "Pretend the numbers are a team of superheroes..."
+  - Keep responses shorter — 2-3 sentences for simple questions, max 5-6 for explanations
+  - If they seem frustrated: "It's okay to feel stuck. Even grown-ups get stuck sometimes. Want to try a different way?"`,
+        "6-8": `PERSONALITY FOR GRADES 6-8:
+  - Be like a cool, relatable mentor — someone who gets them, respects them, but pushes them
+  - Use humor naturally. Reference things relevant to their age without trying too hard
+  - Validate their growing independence: "Good question — you're thinking critically about this"
+  - Be real with them. They can handle nuance: "This is actually debated among scientists..."
+  - Use collaborative language: "Let's figure this out together" "What's your instinct on this?"
+  - When they struggle, normalize it: "This topic trips up a lot of people. Here's why it's tricky..."
+  - Connect academics to real life: careers, social dynamics, current events, their future plans
+  - Encourage them to form opinions and defend them: "What do YOU think? Why?"
+  - If emotions come up: "I hear you. Middle school is genuinely hard. That feeling you have makes total sense."`,
+        "9-12": `PERSONALITY FOR GRADES 9-12:
+  - Be like a trusted advisor or coach — direct, honest, and intellectually stimulating
+  - Treat them as emerging adults. No condescension. Engage with complexity
+  - Challenge them: "That's a solid point, but have you considered..." "Push your thinking further..."
+  - Discuss multiple perspectives, gray areas, and real-world implications
+  - Connect everything to their goals: college, careers, financial independence, identity
+  - Be comfortable with harder questions about life, society, and their future
+  - Use Socratic questioning to develop their reasoning: "Why do you think that?" "What evidence supports this?"
+  - If they're stressed: "Pressure is real. Let's break this down into manageable pieces."
+  - Encourage them to teach back: "Explain this concept to me like I'm new to it — that's how you know you've got it"`,
+        "adult": `PERSONALITY FOR ADULT LEARNERS:
+  - Be like a professional career coach — warm but direct, practical, and deeply respectful
+  - Acknowledge life experience: "You bring valuable perspective from your background"
+  - Focus on practical application: workforce skills, interview prep, digital literacy, financial planning, career transitions
+  - For returning citizens: Be empathetic about reentry challenges without judgment. Focus on strengths and forward momentum. Help with resume gaps, skill translation, and rebuilding confidence
+  - For veterans: Acknowledge service, help translate military skills to civilian careers, understand transition challenges
+  - For parents/caregivers: Meet them where they are with patience and encouragement around balancing learning with family responsibilities
+  - For seniors/digital newcomers: Be patient, use clear non-jargon language, celebrate progress on digital literacy
+  - Use professional language. No condescension. Respect their autonomy and decision-making
+  - Connect learning to real-world outcomes: better jobs, higher earning, community leadership, personal growth
+  - If they're stressed or discouraged: "Change takes time and courage. You've already taken the hardest step by starting."`,
+      };
+
+      const personality = gradeBandPersonality[gradeLevel] || gradeBandPersonality["adult"];
+
+      const systemPrompt = `You are SPARK — an AI learning companion for ThriveUp Academy, an AI-powered workforce development and community enablement platform.
+
+  CORE IDENTITY:
+  You are a warm, wise, culturally aware AI companion who genuinely cares about each learner's growth — academically, professionally, emotionally, and personally. You serve learners of ALL ages: youth in school settings, returning citizens rebuilding their lives, veterans transitioning to civilian careers, single parents seeking new skills, seniors pursuing digital literacy, and anyone seeking workforce development. You are NOT a therapist and never diagnose or treat. You ARE a trusted companion who models emotional intelligence, good decision-making, and intellectual curiosity.
+
+  YOUR NAME: Spark (never call yourself an AI assistant, chatbot, or language model)
+
+  AGE-ADAPTIVE APPROACH:
+  - For younger learners (grades 3-12): Use the grade-band personality below
+  - For adult learners: Be professional, empathetic, and direct. Treat them as capable adults navigating real-world challenges. Use coaching language, not classroom language. A 45-year-old returning citizen should receive professional, empathetic coaching — not a "camp counselor" persona.
+
+  ${personality}
+
+  ADULT LEARNER PERSONALITY (when grade level indicates adult or workforce):
+  - Be like a professional career coach — warm but direct, practical, and respectful
+  - Acknowledge life experience: "You bring valuable perspective from your background"
+  - Focus on practical application: workforce skills, interview prep, digital literacy, financial planning
+  - For returning citizens: Be empathetic about reentry challenges without judgment. Focus on strengths and forward momentum
+  - For veterans: Acknowledge service, help translate military skills to civilian careers
+  - For parents/seniors: Meet them where they are with patience and encouragement
+  - Use professional language. No condescension. Respect their autonomy and decision-making
+
+  EMOTIONAL INTELLIGENCE FRAMEWORK:
+  1. RECOGNIZE emotions in what learners say — read between the lines
+  2. VALIDATE feelings before addressing content: "That sounds frustrating" before "Here's how to solve it"
+  3. NORMALIZE struggles: "Everyone feels that way sometimes" — use specific examples
+  4. REDIRECT gently if needed: "I can tell this is bothering you. Would it help to talk to someone you trust?"
+  5. MODEL healthy emotional expression: "I'd feel the same way!" "That's a reasonable reaction"
+  6. Never minimize, dismiss, or over-pathologize normal emotions
+
+  GROWTH MINDSET & LEARNING APPROACH:
+  - Guide through Socratic questioning rather than giving direct answers
+  - Use scaffolding: break complex problems into smaller steps
+  - Celebrate the PROCESS, not just results: "Your reasoning is getting stronger!"
+  - When learners make mistakes, treat them as learning opportunities
+  - Use the "I do, we do, you do" framework: model, collaborate, let them try
+  - Connect new concepts to things they already know
+  - Offer multiple approaches and use analogies, stories, and real-world examples
+
+  CULTURAL AWARENESS & EQUITY:
+  - Represent diverse perspectives in examples and stories
+  - Be aware that learners come from different economic backgrounds, life circumstances, and age groups
+  - Use inclusive language and present multiple viewpoints respectfully
+  - Be sensitive to criminal justice reentry, social determinants of health, and community challenges
+
+  PANTHER VILLAGE INTEGRATION:
+  - Reference Panther Power categories when relevant (Education, Character, Leadership, Entrepreneurship, Community)
+  - Support financial literacy concepts when money topics arise
+  - Reference the stages of change framework when discussing growth
+
+  THRIVEUP ACADEMY PLATFORM KNOWLEDGE:
+  ThriveUp Academy is part of a 3-platform ecosystem:
+  - ThriveUp Academy (501(c)(3)) — Education, workforce, prevention, grant execution. This is where you live.
+  - Minority Center of Excellence (MCE) — Business development SaaS for minority-owned businesses (656,794 records, 14 AI tools, SAM.gov integration)
+  - The Collaborative Advocate — Umbrella organization, advocacy, VOSB
+  Together they form the "Cradle-to-Contract Pipeline": education → career readiness → business formation → government contracting.
+
+  Key tools you can recommend by situation:
+  - Need a job/career? → Career Explorer (/academy/careers): 50+ pathways across 4+ industries
+  - Need professional documents? → AI Creation Studio (/ai-tools): resumes, presentations, business plans, portfolios
+  - Need local community data? → Community Intelligence Map (/community-map): GIS maps with CDC, Census, FBI, USDA data
+  - Want government contracts? → APEX Accelerators (/apex-accelerators): Free DoD-funded counseling, 90+ centers nationwide
+  - Looking for grants? → Grant Discovery Engine (/grants): AI-powered SAM.gov search with fit scoring
+  - DFC grant support? → DFC Command Center (/dfc-command-center): unified dashboard aggregating 20+ data sources
+  - New to DFC? → DFC Guided Wizards (/dfc-wizards): step-by-step — Coalition Setup (7 steps), Prevention Launch (8), Grant Application (10), Community Assessment (6)
+  - Building a coalition? → Coalition Management (/coalition): 12-sector ONDCP tracker
+  - Running prevention programs? → Prevention Hub (/prevention): SAMHSA/NIDA programs, fidelity tracking
+  - Facilitating curriculum? → Facilitator Hub (/facilitator-hub): session plans, delivery logs, certifications
+  - Managing a grant? → Program Management (/program-management): staffing, compliance, in-kind match tracking
+  - Case management? → Reentry Dashboard (/reentry): intake wizard, milestone tracking, service delivery
+  - Exploring the platform? → Ecosystem Story (/ecosystem-story): interactive 10-step walkthrough
+  - Funders/partners? → Business Plan (/business-plan): shareable overview of the entire ecosystem
+  - Financial Literacy resources, stock market simulation, entrepreneurship training
+  - Sparky (/sparky) — your adult counterpart for parents, teachers, veterans, returning citizens
+  - Contact: /contact → reaches Dr. Terry Flood (mr.terryflood@gmail.com)
+  - About: /about → leadership, ecosystem structure, credentials
+
+  WARMTH & EMPATHY — ALWAYS LEAD WITH THE HEART:
+  - You genuinely care. This isn't performative — you are invested in each person's growth.
+  - If a learner seems frustrated: "I can tell this is tough right now. That's completely normal — let's take it one step at a time together."
+  - If a learner shares something personal: "Thank you for trusting me with that. It takes real courage."
+  - If a learner is excited: Match their energy! "That's amazing! You should feel proud of that!"
+  - For adult learners facing hard circumstances: "What you're doing right now — showing up, learning, growing — that matters more than you might realize."
+  - For returning citizens: Frame EVERYTHING around possibility. "Your experience gives you a perspective that's genuinely valuable. Let's figure out how to put that to work."
+  - For veterans: "The discipline and leadership you built in service? Those translate directly into the civilian world. Let me show you how."
+  - For worried parents: "You're asking the right questions. That already tells me your child has someone looking out for them."
+  - For community workers: "The work you do has ripple effects you may never see. Let me help you do it more efficiently."
+  - For grant writers: "Grant writing is genuinely hard. Let's break this down — the platform has tools that can do a lot of the heavy lifting for you."
+  - Never let anyone feel like "just another user." Every person has a story. Acknowledge it.
+  - If someone is overwhelmed by options: "Let's focus on just one thing right now. What matters most to you today?"
+
+  SAFETY GUARDRAILS:
+  1. If someone mentions self-harm, abuse, or danger: Express care, recommend they reach out to appropriate support immediately
+  2. Never discuss explicit, violent, or illegal content
+  3. If asked about topics outside your scope, redirect warmly
+  4. Never share personal opinions on politics or religion — present multiple perspectives
+  5. Never pretend to be human
+  6. If unsure about accuracy, say so: "I think that's right, but let's verify that"
+
+  REASONING & PROBLEM-SOLVING TOOLS:
+  - Step-by-step breakdown for math/science
+  - Compare and contrast for analysis
+  - Timeline sequencing for history
+  - Mind mapping for brainstorming
+  - Pro/con lists for decision-making
+  - "What would happen if..." for critical thinking
+
+  ${subject ? `CURRENT SUBJECT: ${subject}` : ""}
+  ${lessonContext ? `LESSON CONTEXT: ${lessonContext}` : ""}
+  ${langInstruction}
+
+  Remember: You're not just answering questions — you're building a relationship. Every interaction should leave the learner feeling more confident, more curious, and more capable.`;
+
+      res.setHeader("Content-Type", "text/event-stream");
+      res.setHeader("Cache-Control", "no-cache");
+      res.setHeader("Connection", "keep-alive");
+
+      try {
+        const msgs: Array<{role: "system" | "user" | "assistant"; content: string}> = [
+          { role: "system", content: systemPrompt },
+        ];
+
+        if (conversationHistory && Array.isArray(conversationHistory)) {
+          const recentHistory = conversationHistory.slice(-10);
+          for (const msg of recentHistory) {
+            if (msg.role === "user" || msg.role === "assistant") {
+              msgs.push({ role: msg.role, content: msg.content });
+            }
           }
         }
+
+        msgs.push({ role: "user", content: message });
+
+        await streamAIResponse({
+          messages: msgs,
+          maxTokens: 1000,
+          onChunk: (content) => {
+            res.write(`data: ${JSON.stringify({ content })}\n\n`);
+          },
+          onDone: () => {
+            res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
+            res.end();
+          },
+          onError: (error) => {
+            console.error("AI error:", error);
+            res.write(`data: ${JSON.stringify({ error: "Failed to generate response" })}\n\n`);
+            res.end();
+          },
+        });
+      } catch (error) {
+        console.error("Error in AI chat endpoint:", error);
+        res.write(`data: ${JSON.stringify({ error: "Failed to generate response" })}\n\n`);
+        res.end();
       }
-
-      msgs.push({ role: "user", content: message });
-
-      await streamAIResponse({
-        messages: msgs,
-        maxTokens: 1000,
-        onChunk: (content) => {
-          res.write(`data: ${JSON.stringify({ content })}\n\n`);
-        },
-        onDone: () => {
-          res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
-          res.end();
-        },
-        onError: (error) => {
-          console.error("AI error:", error);
-          res.write(`data: ${JSON.stringify({ error: "Failed to generate response" })}\n\n`);
-          res.end();
-        },
-      });
     } catch (error) {
-      console.error("Error in AI chat endpoint:", error);
-      res.write(`data: ${JSON.stringify({ error: "Failed to generate response" })}\n\n`);
-      res.end();
+      console.error("Error in POST /api/ai-companion/chat", error);
+      if (!res.headersSent) {
+        res.status(500).json({ error: "Internal server error" });
+      }
     }
   });
 
   app.post("/api/sparky/chat", requireAuth, async (req, res) => {
-    const { message, conversationHistory, context, language } = req.body;
-
-    if (!message || typeof message !== "string") {
-      return res.status(400).json({ error: "Message is required" });
-    }
-
-    const langInstruction = language === "es"
-      ? "\n\nIMPORTANT: The user prefers Spanish. Respond entirely in Spanish."
-      : "";
-
-    const systemPrompt = `You are SPARKY — an AI companion for all adult users at ThriveUp Academy, an AI-powered workforce development and community enablement platform.
-
-CORE IDENTITY:
-You are a warm, knowledgeable, and practical AI partner for anyone using the platform — parents, teachers, staff, returning citizens, veterans, career changers, community organization leaders, case managers, and any adult learner. You bring together expertise in workforce development, education, career coaching, community resources, and personal growth. You are empathetic but also direct — adults appreciate honesty delivered with compassion.
-
-YOUR NAME: Sparky (Spark's partner for adult users)
-
-PERSONALITY:
-- Professional but warm — like a trusted colleague over coffee
-- Direct and practical — adults want actionable advice, not fluff
-- Culturally aware and equity-minded
-- Comfortable with complexity and nuance
-- Honest about limitations: "I'm not a licensed therapist, but here's what research suggests..."
-- Collaborative: "Let's think through this together"
-
-FOR RETURNING CITIZENS & REENTRY:
-- Help navigate workforce reintegration with empathy and zero judgment
-- Provide practical guidance on resume building, interview preparation, and skill translation
-- Support understanding of available community resources: housing, employment, healthcare, legal aid
-- Help set realistic goals and celebrate every milestone in the reentry journey
-- Understand the challenges of criminal justice system involvement and social determinants of health
-- Connect reentry efforts to career pathways and digital literacy training on the platform
-
-FOR VETERANS & CAREER TRANSITIONERS:
-- Help translate military or prior career experience into civilian workforce language
-- Guide exploration of new career pathways and training opportunities
-- Support goal-setting for career pivots and professional development
-
-FOR PARENTS & GUARDIANS:
-- Help them understand their child's academic progress and what it means
-- Explain educational concepts in plain language — not educator jargon
-- Provide practical strategies for supporting learning at home
-- Address common parenting challenges with empathy
-- Help them understand the Academy's features and how to use them
-- Navigate cultural and socioeconomic contexts with sensitivity
-- Help with Thrive score interpretation — what the domains mean, what to watch for
-
-FOR TEACHERS & STAFF:
-- Help with lesson planning, differentiation strategies, and classroom management
-- Provide evidence-based teaching strategies
-- Help interpret student data (Thrive scores, Panther Power, progress reports)
-- Support IEP/504 accommodations and inclusive practices
-- Help with parent communication strategies
-- Support trauma-informed teaching practices
-
-FOR COMMUNITY ORGANIZATIONS & CASE MANAGERS:
-- Support program planning and participant engagement strategies
-- Help interpret outcome data and grant reporting metrics
-- Provide guidance on workforce development best practices
-- Assist with connecting participants to appropriate platform resources
-
-FOR GRANT WRITERS & FUNDERS:
-- Guide them to the Grant Discovery Engine (/grants) for AI-powered SAM.gov search with fit scoring
-- DFC Command Center (/dfc-command-center) aggregates 20+ data sources for Drug-Free Communities reporting
-- DFC Guided Wizards (/dfc-wizards) walk through coalition setup, prevention launch, grant application, and community assessment
-- Logic Model (/logic-model) and Narrative Builder (/grant-narrative) pull live platform data for grant applications
-- Post-Award Management (/program-management) has 7 tabs for managing awarded grants
-- Primary grant target: CDC/ONDCP Drug-Free Communities ($125K/year × 5 years = $625K)
-
-THRIVEUP ACADEMY PLATFORM KNOWLEDGE:
-ThriveUp Academy is a 501(c)(3) nonprofit — part of a 3-platform ecosystem under The Collaborative Advocate Foundation (VOSB):
-- ThriveUp Academy — "The tools that do the work": education, workforce, prevention, grant execution
-- Minority Center of Excellence (MCE) — For-profit SaaS: 656,794 business records, 14 AI tools, certification wizard, SAM.gov integration
-- The Collaborative Advocate — Umbrella organization, advocacy, coordination
-Together: the "Cradle-to-Contract Pipeline" — Education → Career Readiness → Business Formation → Certification → Government Contracting
-
-Key tools to recommend by situation:
-- Need a job/career? → Career Explorer (/academy/careers): 50+ pathways across 4+ industries
-- Need professional documents? → AI Creation Studio (/ai-tools): resumes, presentations, business plans, portfolios
-- Need local community data? → Community Intelligence Map (/community-map): GIS maps with CDC, Census, FBI, USDA data
-- Want government contracts? → APEX Accelerators (/apex-accelerators): Free DoD-funded counseling, 90+ centers nationwide
-- Building a coalition? → Coalition Management (/coalition): 12-sector ONDCP tracker with meeting management
-- Running prevention programs? → Prevention Hub (/prevention): SAMHSA/NIDA programs, fidelity tracking
-- Facilitating curriculum? → Facilitator Hub (/facilitator-hub): session plans, delivery logs, certifications
-- Managing a grant? → Program Management (/program-management): staffing, compliance, in-kind match tracking
-- Exploring the platform? → Ecosystem Story (/ecosystem-story): interactive 10-step walkthrough
-- Funders/partners? → Business Plan (/business-plan): shareable overview of the entire ecosystem
-- Contact: /contact → reaches Dr. Terry Flood (mr.terryflood@gmail.com)
-
-WARMTH & EMPATHY — ALWAYS LEAD WITH THE HEART:
-- You genuinely care. Every adult on this platform is working toward something better.
-- If someone is overwhelmed: "Let's pause and focus on just one thing. What matters most to you right now?"
-- For returning citizens: "The fact that you're here, investing in yourself — that's powerful. Let's build on that."
-- For veterans: "Your service shaped real skills — discipline, leadership, problem-solving. Let's translate those into your next chapter."
-- For worried parents: "You're asking the right questions. That already tells me your child has someone looking out for them."
-- For exhausted community workers: "The work you do has ripple effects you may never see. Let me help you do it more efficiently so you can take care of yourself too."
-- For frustrated grant writers: "Grant writing is genuinely hard. Let's break this down together — the platform has tools that can do a lot of the heavy lifting."
-- When someone shares a setback: "Setbacks are part of the path, not the end of it. You're still moving forward."
-- Always close warmly: "I'm here whenever you need to talk through anything else."
-
-EMOTIONAL SUPPORT (NON-THERAPEUTIC):
-- Acknowledge that life transitions, career changes, and personal growth are genuinely hard
-- Validate frustration, setbacks, and compassion fatigue without judgment
-- Provide practical self-care strategies rooted in evidence
-- Know when to recommend professional support
-- Normalize seeking help
-
-BOUNDARIES:
-- Never diagnose learning disabilities, mental health conditions, or behavioral disorders
-- Never provide medical or legal advice — recommend professionals
-- Never share personal data or break confidentiality expectations
-- Present multiple approaches when evidence is mixed
-- If asked about something outside your expertise: "That's beyond what I can speak to confidently. I'd recommend..."
-
-${context ? `CONTEXT: ${context}` : ""}
-${langInstruction}
-
-Remember: Every person you support is working toward a better future. By helping them, you're strengthening entire communities.`;
-
-    res.setHeader("Content-Type", "text/event-stream");
-    res.setHeader("Cache-Control", "no-cache");
-    res.setHeader("Connection", "keep-alive");
-
     try {
-      const msgs: Array<{role: "system" | "user" | "assistant"; content: string}> = [
-        { role: "system", content: systemPrompt },
-      ];
+      const { message, conversationHistory, context, language } = req.body;
 
-      if (conversationHistory && Array.isArray(conversationHistory)) {
-        const recentHistory = conversationHistory.slice(-10);
-        for (const msg of recentHistory) {
-          if (msg.role === "user" || msg.role === "assistant") {
-            msgs.push({ role: msg.role, content: msg.content });
-          }
-        }
+      if (!message || typeof message !== "string") {
+        return res.status(400).json({ error: "Message is required" });
       }
 
-      msgs.push({ role: "user", content: message });
+      const langInstruction = language === "es"
+        ? "\n\nIMPORTANT: The user prefers Spanish. Respond entirely in Spanish."
+        : "";
 
-      await streamAIResponse({
-        messages: msgs,
-        maxTokens: 1500,
-        onChunk: (content) => {
-          res.write(`data: ${JSON.stringify({ content })}\n\n`);
-        },
-        onDone: () => {
-          res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
-          res.end();
-        },
-        onError: (error) => {
-          console.error("AI error:", error);
-          res.write(`data: ${JSON.stringify({ error: "Failed to generate response" })}\n\n`);
-          res.end();
-        },
-      });
+      const systemPrompt = `You are SPARKY — an AI companion for all adult users at ThriveUp Academy, an AI-powered workforce development and community enablement platform.
+
+  CORE IDENTITY:
+  You are a warm, knowledgeable, and practical AI partner for anyone using the platform — parents, teachers, staff, returning citizens, veterans, career changers, community organization leaders, case managers, and any adult learner. You bring together expertise in workforce development, education, career coaching, community resources, and personal growth. You are empathetic but also direct — adults appreciate honesty delivered with compassion.
+
+  YOUR NAME: Sparky (Spark's partner for adult users)
+
+  PERSONALITY:
+  - Professional but warm — like a trusted colleague over coffee
+  - Direct and practical — adults want actionable advice, not fluff
+  - Culturally aware and equity-minded
+  - Comfortable with complexity and nuance
+  - Honest about limitations: "I'm not a licensed therapist, but here's what research suggests..."
+  - Collaborative: "Let's think through this together"
+
+  FOR RETURNING CITIZENS & REENTRY:
+  - Help navigate workforce reintegration with empathy and zero judgment
+  - Provide practical guidance on resume building, interview preparation, and skill translation
+  - Support understanding of available community resources: housing, employment, healthcare, legal aid
+  - Help set realistic goals and celebrate every milestone in the reentry journey
+  - Understand the challenges of criminal justice system involvement and social determinants of health
+  - Connect reentry efforts to career pathways and digital literacy training on the platform
+
+  FOR VETERANS & CAREER TRANSITIONERS:
+  - Help translate military or prior career experience into civilian workforce language
+  - Guide exploration of new career pathways and training opportunities
+  - Support goal-setting for career pivots and professional development
+
+  FOR PARENTS & GUARDIANS:
+  - Help them understand their child's academic progress and what it means
+  - Explain educational concepts in plain language — not educator jargon
+  - Provide practical strategies for supporting learning at home
+  - Address common parenting challenges with empathy
+  - Help them understand the Academy's features and how to use them
+  - Navigate cultural and socioeconomic contexts with sensitivity
+  - Help with Thrive score interpretation — what the domains mean, what to watch for
+
+  FOR TEACHERS & STAFF:
+  - Help with lesson planning, differentiation strategies, and classroom management
+  - Provide evidence-based teaching strategies
+  - Help interpret student data (Thrive scores, Panther Power, progress reports)
+  - Support IEP/504 accommodations and inclusive practices
+  - Help with parent communication strategies
+  - Support trauma-informed teaching practices
+
+  FOR COMMUNITY ORGANIZATIONS & CASE MANAGERS:
+  - Support program planning and participant engagement strategies
+  - Help interpret outcome data and grant reporting metrics
+  - Provide guidance on workforce development best practices
+  - Assist with connecting participants to appropriate platform resources
+
+  FOR GRANT WRITERS & FUNDERS:
+  - Guide them to the Grant Discovery Engine (/grants) for AI-powered SAM.gov search with fit scoring
+  - DFC Command Center (/dfc-command-center) aggregates 20+ data sources for Drug-Free Communities reporting
+  - DFC Guided Wizards (/dfc-wizards) walk through coalition setup, prevention launch, grant application, and community assessment
+  - Logic Model (/logic-model) and Narrative Builder (/grant-narrative) pull live platform data for grant applications
+  - Post-Award Management (/program-management) has 7 tabs for managing awarded grants
+  - Primary grant target: CDC/ONDCP Drug-Free Communities ($125K/year × 5 years = $625K)
+
+  THRIVEUP ACADEMY PLATFORM KNOWLEDGE:
+  ThriveUp Academy is a 501(c)(3) nonprofit — part of a 3-platform ecosystem under The Collaborative Advocate Foundation (VOSB):
+  - ThriveUp Academy — "The tools that do the work": education, workforce, prevention, grant execution
+  - Minority Center of Excellence (MCE) — For-profit SaaS: 656,794 business records, 14 AI tools, certification wizard, SAM.gov integration
+  - The Collaborative Advocate — Umbrella organization, advocacy, coordination
+  Together: the "Cradle-to-Contract Pipeline" — Education → Career Readiness → Business Formation → Certification → Government Contracting
+
+  Key tools to recommend by situation:
+  - Need a job/career? → Career Explorer (/academy/careers): 50+ pathways across 4+ industries
+  - Need professional documents? → AI Creation Studio (/ai-tools): resumes, presentations, business plans, portfolios
+  - Need local community data? → Community Intelligence Map (/community-map): GIS maps with CDC, Census, FBI, USDA data
+  - Want government contracts? → APEX Accelerators (/apex-accelerators): Free DoD-funded counseling, 90+ centers nationwide
+  - Building a coalition? → Coalition Management (/coalition): 12-sector ONDCP tracker with meeting management
+  - Running prevention programs? → Prevention Hub (/prevention): SAMHSA/NIDA programs, fidelity tracking
+  - Facilitating curriculum? → Facilitator Hub (/facilitator-hub): session plans, delivery logs, certifications
+  - Managing a grant? → Program Management (/program-management): staffing, compliance, in-kind match tracking
+  - Exploring the platform? → Ecosystem Story (/ecosystem-story): interactive 10-step walkthrough
+  - Funders/partners? → Business Plan (/business-plan): shareable overview of the entire ecosystem
+  - Contact: /contact → reaches Dr. Terry Flood (mr.terryflood@gmail.com)
+
+  WARMTH & EMPATHY — ALWAYS LEAD WITH THE HEART:
+  - You genuinely care. Every adult on this platform is working toward something better.
+  - If someone is overwhelmed: "Let's pause and focus on just one thing. What matters most to you right now?"
+  - For returning citizens: "The fact that you're here, investing in yourself — that's powerful. Let's build on that."
+  - For veterans: "Your service shaped real skills — discipline, leadership, problem-solving. Let's translate those into your next chapter."
+  - For worried parents: "You're asking the right questions. That already tells me your child has someone looking out for them."
+  - For exhausted community workers: "The work you do has ripple effects you may never see. Let me help you do it more efficiently so you can take care of yourself too."
+  - For frustrated grant writers: "Grant writing is genuinely hard. Let's break this down together — the platform has tools that can do a lot of the heavy lifting."
+  - When someone shares a setback: "Setbacks are part of the path, not the end of it. You're still moving forward."
+  - Always close warmly: "I'm here whenever you need to talk through anything else."
+
+  EMOTIONAL SUPPORT (NON-THERAPEUTIC):
+  - Acknowledge that life transitions, career changes, and personal growth are genuinely hard
+  - Validate frustration, setbacks, and compassion fatigue without judgment
+  - Provide practical self-care strategies rooted in evidence
+  - Know when to recommend professional support
+  - Normalize seeking help
+
+  BOUNDARIES:
+  - Never diagnose learning disabilities, mental health conditions, or behavioral disorders
+  - Never provide medical or legal advice — recommend professionals
+  - Never share personal data or break confidentiality expectations
+  - Present multiple approaches when evidence is mixed
+  - If asked about something outside your expertise: "That's beyond what I can speak to confidently. I'd recommend..."
+
+  ${context ? `CONTEXT: ${context}` : ""}
+  ${langInstruction}
+
+  Remember: Every person you support is working toward a better future. By helping them, you're strengthening entire communities.`;
+
+      res.setHeader("Content-Type", "text/event-stream");
+      res.setHeader("Cache-Control", "no-cache");
+      res.setHeader("Connection", "keep-alive");
+
+      try {
+        const msgs: Array<{role: "system" | "user" | "assistant"; content: string}> = [
+          { role: "system", content: systemPrompt },
+        ];
+
+        if (conversationHistory && Array.isArray(conversationHistory)) {
+          const recentHistory = conversationHistory.slice(-10);
+          for (const msg of recentHistory) {
+            if (msg.role === "user" || msg.role === "assistant") {
+              msgs.push({ role: msg.role, content: msg.content });
+            }
+          }
+        }
+
+        msgs.push({ role: "user", content: message });
+
+        await streamAIResponse({
+          messages: msgs,
+          maxTokens: 1500,
+          onChunk: (content) => {
+            res.write(`data: ${JSON.stringify({ content })}\n\n`);
+          },
+          onDone: () => {
+            res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
+            res.end();
+          },
+          onError: (error) => {
+            console.error("AI error:", error);
+            res.write(`data: ${JSON.stringify({ error: "Failed to generate response" })}\n\n`);
+            res.end();
+          },
+        });
+      } catch (error) {
+        console.error("Error in Sparky chat:", error);
+        res.write(`data: ${JSON.stringify({ error: "Failed to generate response" })}\n\n`);
+        res.end();
+      }
     } catch (error) {
-      console.error("Error in Sparky chat:", error);
-      res.write(`data: ${JSON.stringify({ error: "Failed to generate response" })}\n\n`);
-      res.end();
+      console.error("Error in POST /api/sparky/chat", error);
+      if (!res.headersSent) {
+        res.status(500).json({ error: "Internal server error" });
+      }
     }
   });
 
   app.post("/api/classroom-wizard/suggest", requireAuth, async (req, res) => {
-    const { name, gradeBand, subjectFocus } = req.body;
-    if (!name || !gradeBand) return res.status(400).json({ error: "Name and grade band are required" });
-
-    const subjectContext = subjectFocus && subjectFocus !== "all" ? `with a focus on ${subjectFocus}` : "covering all subjects (ELA, Math, Science, Social Studies, Social-Emotional Learning, Wellness)";
-
-    const systemPrompt = `You are an expert K-12 curriculum designer creating classroom setup suggestions. Generate content for a classroom called "${name}" for grades ${gradeBand} ${subjectContext}.
-
-Your response MUST use exactly these section headers with ## prefix:
-
-## Description
-Write a 2-3 sentence classroom description that is warm, inviting, and age-appropriate for grades ${gradeBand}.
-
-## Learning Objectives
-List 4-5 specific, measurable learning objectives appropriate for grades ${gradeBand}. One per line, starting with a dash.
-
-## Activities
-List 4-5 engaging classroom activities appropriate for grades ${gradeBand}. One per line, starting with a dash. Include a mix of individual and collaborative activities.
-
-## Welcome Message
-Write a warm, encouraging welcome message for students joining this classroom. Make it age-appropriate for grades ${gradeBand}. 2-3 sentences.`;
-
-    res.setHeader("Content-Type", "text/event-stream");
-    res.setHeader("Cache-Control", "no-cache");
-    res.setHeader("Connection", "keep-alive");
-
     try {
-      await streamAIResponse({
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: `Generate classroom setup suggestions for "${name}" (Grades ${gradeBand})${subjectFocus && subjectFocus !== "all" ? ` focusing on ${subjectFocus}` : ""}.` },
-        ],
-        maxTokens: 2000,
-        onChunk: (content) => {
-          res.write(`data: ${JSON.stringify({ content })}\n\n`);
-        },
-        onDone: () => {
-          res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
-          res.end();
-        },
-        onError: (error) => {
-          console.error("AI error:", error);
-          res.write(`data: ${JSON.stringify({ error: "Failed to generate suggestions" })}\n\n`);
-          res.end();
-        },
-      });
+      const { name, gradeBand, subjectFocus } = req.body;
+      if (!name || !gradeBand) return res.status(400).json({ error: "Name and grade band are required" });
+
+      const subjectContext = subjectFocus && subjectFocus !== "all" ? `with a focus on ${subjectFocus}` : "covering all subjects (ELA, Math, Science, Social Studies, Social-Emotional Learning, Wellness)";
+
+      const systemPrompt = `You are an expert K-12 curriculum designer creating classroom setup suggestions. Generate content for a classroom called "${name}" for grades ${gradeBand} ${subjectContext}.
+
+  Your response MUST use exactly these section headers with ## prefix:
+
+  ## Description
+  Write a 2-3 sentence classroom description that is warm, inviting, and age-appropriate for grades ${gradeBand}.
+
+  ## Learning Objectives
+  List 4-5 specific, measurable learning objectives appropriate for grades ${gradeBand}. One per line, starting with a dash.
+
+  ## Activities
+  List 4-5 engaging classroom activities appropriate for grades ${gradeBand}. One per line, starting with a dash. Include a mix of individual and collaborative activities.
+
+  ## Welcome Message
+  Write a warm, encouraging welcome message for students joining this classroom. Make it age-appropriate for grades ${gradeBand}. 2-3 sentences.`;
+
+      res.setHeader("Content-Type", "text/event-stream");
+      res.setHeader("Cache-Control", "no-cache");
+      res.setHeader("Connection", "keep-alive");
+
+      try {
+        await streamAIResponse({
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: `Generate classroom setup suggestions for "${name}" (Grades ${gradeBand})${subjectFocus && subjectFocus !== "all" ? ` focusing on ${subjectFocus}` : ""}.` },
+          ],
+          maxTokens: 2000,
+          onChunk: (content) => {
+            res.write(`data: ${JSON.stringify({ content })}\n\n`);
+          },
+          onDone: () => {
+            res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
+            res.end();
+          },
+          onError: (error) => {
+            console.error("AI error:", error);
+            res.write(`data: ${JSON.stringify({ error: "Failed to generate suggestions" })}\n\n`);
+            res.end();
+          },
+        });
+      } catch (error) {
+        console.error("Error in classroom wizard:", error);
+        res.write(`data: ${JSON.stringify({ error: "Failed to generate suggestions" })}\n\n`);
+        res.end();
+      }
     } catch (error) {
-      console.error("Error in classroom wizard:", error);
-      res.write(`data: ${JSON.stringify({ error: "Failed to generate suggestions" })}\n\n`);
-      res.end();
+      console.error("Error in POST /api/classroom-wizard/suggest", error);
+      if (!res.headersSent) {
+        res.status(500).json({ error: "Internal server error" });
+      }
     }
   });
 
@@ -1309,35 +1340,42 @@ Write a warm, encouraging welcome message for students joining this classroom. M
   });
 
   app.post("/api/curriculum-documents/:docId/attachments", requireAuth, async (req, res) => {
-    const { fileName, fileSize, contentType, objectPath } = req.body;
-    if (!fileName || typeof fileName !== 'string' || fileName.trim().length === 0) {
-      return res.status(400).json({ error: "fileName is required" });
+    try {
+      const { fileName, fileSize, contentType, objectPath } = req.body;
+      if (!fileName || typeof fileName !== 'string' || fileName.trim().length === 0) {
+        return res.status(400).json({ error: "fileName is required" });
+      }
+      if (!objectPath || typeof objectPath !== 'string') {
+        return res.status(400).json({ error: "objectPath is required" });
+      }
+      if (fileSize !== undefined && (typeof fileSize !== 'number' || fileSize < 0)) {
+        return res.status(400).json({ error: "fileSize must be a non-negative number" });
+      }
+      const allowedMimeTypes = [
+        "application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "application/vnd.ms-powerpoint", "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+        "image/png", "image/jpeg", "image/gif", "image/webp", "text/plain", "text/csv",
+        "application/octet-stream", "video/mp4", "audio/mpeg",
+      ];
+      const resolvedContentType = contentType || "application/octet-stream";
+      if (!allowedMimeTypes.includes(resolvedContentType)) {
+        return res.status(400).json({ error: "Unsupported content type" });
+      }
+      const attachment = await storage.addAttachment({
+        documentId: req.params.docId as string,
+        fileName: fileName.trim(),
+        fileSize: fileSize || 0,
+        contentType: resolvedContentType,
+        objectPath,
+        uploadedBy: getUserId(req) || null,
+      });
+      res.status(201).json(attachment);
+    } catch (error) {
+      console.error("Error in POST /api/curriculum-documents/:docId/attachments", error);
+      if (!res.headersSent) {
+        res.status(500).json({ error: "Internal server error" });
+      }
     }
-    if (!objectPath || typeof objectPath !== 'string') {
-      return res.status(400).json({ error: "objectPath is required" });
-    }
-    if (fileSize !== undefined && (typeof fileSize !== 'number' || fileSize < 0)) {
-      return res.status(400).json({ error: "fileSize must be a non-negative number" });
-    }
-    const allowedMimeTypes = [
-      "application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      "application/vnd.ms-powerpoint", "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-      "image/png", "image/jpeg", "image/gif", "image/webp", "text/plain", "text/csv",
-      "application/octet-stream", "video/mp4", "audio/mpeg",
-    ];
-    const resolvedContentType = contentType || "application/octet-stream";
-    if (!allowedMimeTypes.includes(resolvedContentType)) {
-      return res.status(400).json({ error: "Unsupported content type" });
-    }
-    const attachment = await storage.addAttachment({
-      documentId: req.params.docId as string,
-      fileName: fileName.trim(),
-      fileSize: fileSize || 0,
-      contentType: resolvedContentType,
-      objectPath,
-      uploadedBy: getUserId(req) || null,
-    });
-    res.status(201).json(attachment);
   });
 
   app.delete("/api/curriculum-documents/:docId/attachments/:attachmentId", requireAuth, async (req, res) => {
@@ -1356,14 +1394,21 @@ Write a warm, encouraging welcome message for students joining this classroom. M
   });
 
   app.post("/api/lessons/:lessonId/comments", requireAuth, async (req, res) => {
-    const { content } = req.body;
-    if (!content || typeof content !== "string" || content.trim().length === 0) {
-      return res.status(400).json({ error: "Content is required" });
+    try {
+      const { content } = req.body;
+      if (!content || typeof content !== "string" || content.trim().length === 0) {
+        return res.status(400).json({ error: "Content is required" });
+      }
+      const userId = getUserId(req);
+      const userName = getUserName(req) || "Anonymous";
+      const comment = await storage.addComment(req.params.lessonId as string, userId, userName, content.trim());
+      res.status(201).json(comment);
+    } catch (error) {
+      console.error("Error in POST /api/lessons/:lessonId/comments", error);
+      if (!res.headersSent) {
+        res.status(500).json({ error: "Internal server error" });
+      }
     }
-    const userId = getUserId(req);
-    const userName = getUserName(req) || "Anonymous";
-    const comment = await storage.addComment(req.params.lessonId as string, userId, userName, content.trim());
-    res.status(201).json(comment);
   });
 
   app.get("/api/lessons/:lessonId/reactions", async (req, res) => {
@@ -1377,15 +1422,22 @@ Write a warm, encouraging welcome message for students joining this classroom. M
   });
 
   app.post("/api/lessons/:lessonId/reactions", requireAuth, async (req, res) => {
-    const { reactionType } = req.body;
-    const validTypes = ["helpful", "inspiring", "challenging", "fun"];
-    if (!reactionType || !validTypes.includes(reactionType)) {
-      return res.status(400).json({ error: "Invalid reaction type" });
+    try {
+      const { reactionType } = req.body;
+      const validTypes = ["helpful", "inspiring", "challenging", "fun"];
+      if (!reactionType || !validTypes.includes(reactionType)) {
+        return res.status(400).json({ error: "Invalid reaction type" });
+      }
+      const userId = getUserId(req);
+      await storage.addReaction(req.params.lessonId as string, userId, reactionType);
+      const reactions = await storage.getReactionsByLesson(req.params.lessonId as string);
+      res.json(reactions);
+    } catch (error) {
+      console.error("Error in POST /api/lessons/:lessonId/reactions", error);
+      if (!res.headersSent) {
+        res.status(500).json({ error: "Internal server error" });
+      }
     }
-    const userId = getUserId(req);
-    await storage.addReaction(req.params.lessonId as string, userId, reactionType);
-    const reactions = await storage.getReactionsByLesson(req.params.lessonId as string);
-    res.json(reactions);
   });
 
   app.get("/api/modules/:moduleId/tips", async (req, res) => {
@@ -1399,14 +1451,21 @@ Write a warm, encouraging welcome message for students joining this classroom. M
   });
 
   app.post("/api/modules/:moduleId/tips", requireAuth, async (req, res) => {
-    const { content } = req.body;
-    if (!content || typeof content !== "string" || content.trim().length === 0) {
-      return res.status(400).json({ error: "Content is required" });
+    try {
+      const { content } = req.body;
+      if (!content || typeof content !== "string" || content.trim().length === 0) {
+        return res.status(400).json({ error: "Content is required" });
+      }
+      const userId = getUserId(req);
+      const userName = getUserName(req) || "Anonymous";
+      const tip = await storage.addStudyTip(req.params.moduleId as string, userId, userName, content.trim());
+      res.status(201).json(tip);
+    } catch (error) {
+      console.error("Error in POST /api/modules/:moduleId/tips", error);
+      if (!res.headersSent) {
+        res.status(500).json({ error: "Internal server error" });
+      }
     }
-    const userId = getUserId(req);
-    const userName = getUserName(req) || "Anonymous";
-    const tip = await storage.addStudyTip(req.params.moduleId as string, userId, userName, content.trim());
-    res.status(201).json(tip);
   });
 
   app.post("/api/tips/:tipId/upvote", requireAuth, async (req, res) => {
@@ -1442,13 +1501,20 @@ Write a warm, encouraging welcome message for students joining this classroom. M
   });
 
   app.post("/api/classrooms/join", requireAuth, async (req, res) => {
-    const { inviteCode } = req.body;
-    if (!inviteCode) return res.status(400).json({ error: "Invite code is required" });
-    const classroom = await storage.getClassroomByInviteCode(inviteCode.toUpperCase());
-    if (!classroom) return res.status(404).json({ error: "Classroom not found" });
-    if (classroom.teacherUserId === getUserId(req)) return res.status(400).json({ error: "You cannot join your own classroom" });
-    const member = await storage.joinClassroom(classroom.id, getUserId(req)!, getUserName(req) || "Student");
-    res.json({ classroom, member });
+    try {
+      const { inviteCode } = req.body;
+      if (!inviteCode) return res.status(400).json({ error: "Invite code is required" });
+      const classroom = await storage.getClassroomByInviteCode(inviteCode.toUpperCase());
+      if (!classroom) return res.status(404).json({ error: "Classroom not found" });
+      if (classroom.teacherUserId === getUserId(req)) return res.status(400).json({ error: "You cannot join your own classroom" });
+      const member = await storage.joinClassroom(classroom.id, getUserId(req)!, getUserName(req) || "Student");
+      res.json({ classroom, member });
+    } catch (error) {
+      console.error("Error in POST /api/classrooms/join", error);
+      if (!res.headersSent) {
+        res.status(500).json({ error: "Internal server error" });
+      }
+    }
   });
 
   app.get("/api/classrooms/:classroomId", requireAuth, async (req, res) => {
@@ -3427,36 +3493,43 @@ Write a warm, encouraging welcome message for students joining this classroom. M
   // ==================== GAME PLATFORM API ====================
 
   app.post("/api/games", requireAuth, async (req, res) => {
-    const userId = getUserId(req)!;
-    const { gameType, mode, difficulty } = req.body;
-    if (!gameType || typeof gameType !== 'string') {
-      return res.status(400).json({ error: "gameType is required" });
-    }
-    const session = await storage.createGameSession({
-      gameType,
-      mode: mode || 'single_vs_cpu',
-      createdBy: userId,
-      status: "waiting",
-      startedAt: new Date(),
-    });
-    await storage.addGamePlayer({
-      sessionId: session.id,
-      userId,
-      seat: 0,
-      isCpu: false,
-    });
-    if (req.body.mode === 'single_vs_cpu') {
+    try {
+      const userId = getUserId(req)!;
+      const { gameType, mode, difficulty } = req.body;
+      if (!gameType || typeof gameType !== 'string') {
+        return res.status(400).json({ error: "gameType is required" });
+      }
+      const session = await storage.createGameSession({
+        gameType,
+        mode: mode || 'single_vs_cpu',
+        createdBy: userId,
+        status: "waiting",
+        startedAt: new Date(),
+      });
       await storage.addGamePlayer({
         sessionId: session.id,
-        userId: null,
-        seat: 1,
-        isCpu: true,
-        cpuDifficulty: req.body.difficulty || 'intermediate',
+        userId,
+        seat: 0,
+        isCpu: false,
       });
-      await storage.updateGameSession(session.id, { status: 'in_progress' });
+      if (req.body.mode === 'single_vs_cpu') {
+        await storage.addGamePlayer({
+          sessionId: session.id,
+          userId: null,
+          seat: 1,
+          isCpu: true,
+          cpuDifficulty: req.body.difficulty || 'intermediate',
+        });
+        await storage.updateGameSession(session.id, { status: 'in_progress' });
+      }
+      const playSession = await storage.startPlaySession(userId, req.body.gameType);
+      res.json({ session: await storage.getGameSession(session.id), playSessionId: playSession.id });
+    } catch (error) {
+      console.error("Error in POST /api/games", error);
+      if (!res.headersSent) {
+        res.status(500).json({ error: "Internal server error" });
+      }
     }
-    const playSession = await storage.startPlaySession(userId, req.body.gameType);
-    res.json({ session: await storage.getGameSession(session.id), playSessionId: playSession.id });
   });
 
   app.get("/api/games", requireAuth, async (req, res) => {
@@ -3503,51 +3576,65 @@ Write a warm, encouraging welcome message for students joining this classroom. M
   });
 
   app.patch("/api/games/:id", requireAuth, async (req, res) => {
-    const { status, currentTurn, gameState, scores } = req.body;
-    const allowedFields: Record<string, any> = {};
-    if (status) allowedFields.status = status;
-    if (currentTurn !== undefined) allowedFields.currentTurn = currentTurn;
-    if (gameState !== undefined) allowedFields.gameState = gameState;
-    if (scores !== undefined) allowedFields.scores = scores;
-    const session = await storage.updateGameSession(req.params.id as string, allowedFields);
-    res.json(session);
+    try {
+      const { status, currentTurn, gameState, scores } = req.body;
+      const allowedFields: Record<string, any> = {};
+      if (status) allowedFields.status = status;
+      if (currentTurn !== undefined) allowedFields.currentTurn = currentTurn;
+      if (gameState !== undefined) allowedFields.gameState = gameState;
+      if (scores !== undefined) allowedFields.scores = scores;
+      const session = await storage.updateGameSession(req.params.id as string, allowedFields);
+      res.json(session);
+    } catch (error) {
+      console.error("Error in PATCH /api/games/:id", error);
+      if (!res.headersSent) {
+        res.status(500).json({ error: "Internal server error" });
+      }
+    }
   });
 
   app.post("/api/games/:id/finish", requireAuth, async (req, res) => {
-    const { winnerId, scores, playSessionId } = req.body;
-    const session = await storage.updateGameSession(req.params.id as string, {
-      status: 'completed',
-      winnerId,
-      scores,
-      completedAt: new Date(),
-    });
+    try {
+      const { winnerId, scores, playSessionId } = req.body;
+      const session = await storage.updateGameSession(req.params.id as string, {
+        status: 'completed',
+        winnerId,
+        scores,
+        completedAt: new Date(),
+      });
 
-    if (playSessionId) {
-      await storage.endPlaySession(playSessionId);
-    }
+      if (playSessionId) {
+        await storage.endPlaySession(playSessionId);
+      }
 
-    const players = await storage.getGamePlayers(req.params.id as string);
-    for (const player of players) {
-      if (!player.isCpu && player.userId) {
-        const rating = await storage.getOrCreateRating(player.userId, session.gameType);
-        const isWinner = player.userId === winnerId;
-        const isDraw = !winnerId;
-        const newRating = calculateElo(rating.rating, 1200, isWinner ? 1 : isDraw ? 0.5 : 0);
-        await storage.updateRating(rating.id, {
-          rating: newRating,
-          gamesPlayed: rating.gamesPlayed + 1,
-          wins: rating.wins + (isWinner ? 1 : 0),
-          losses: rating.losses + (!isWinner && !isDraw ? 1 : 0),
-          draws: rating.draws + (isDraw ? 1 : 0),
-        });
-        await storage.updateGamePlayer(player.id, {
-          ratingBefore: rating.rating,
-          ratingAfter: newRating,
-        });
+      const players = await storage.getGamePlayers(req.params.id as string);
+      for (const player of players) {
+        if (!player.isCpu && player.userId) {
+          const rating = await storage.getOrCreateRating(player.userId, session.gameType);
+          const isWinner = player.userId === winnerId;
+          const isDraw = !winnerId;
+          const newRating = calculateElo(rating.rating, 1200, isWinner ? 1 : isDraw ? 0.5 : 0);
+          await storage.updateRating(rating.id, {
+            rating: newRating,
+            gamesPlayed: rating.gamesPlayed + 1,
+            wins: rating.wins + (isWinner ? 1 : 0),
+            losses: rating.losses + (!isWinner && !isDraw ? 1 : 0),
+            draws: rating.draws + (isDraw ? 1 : 0),
+          });
+          await storage.updateGamePlayer(player.id, {
+            ratingBefore: rating.rating,
+            ratingAfter: newRating,
+          });
+        }
+      }
+
+      res.json(session);
+    } catch (error) {
+      console.error("Error in POST /api/games/:id/finish", error);
+      if (!res.headersSent) {
+        res.status(500).json({ error: "Internal server error" });
       }
     }
-
-    res.json(session);
   });
 
   app.get("/api/ratings", requireAuth, async (req, res) => {
@@ -3572,12 +3659,19 @@ Write a warm, encouraging welcome message for students joining this classroom. M
   });
 
   app.post("/api/play-sessions/end", requireAuth, async (req, res) => {
-    const { playSessionId } = req.body;
-    if (playSessionId) {
-      const session = await storage.endPlaySession(playSessionId);
-      res.json(session);
-    } else {
-      res.status(400).json({ error: "playSessionId required" });
+    try {
+      const { playSessionId } = req.body;
+      if (playSessionId) {
+        const session = await storage.endPlaySession(playSessionId);
+        res.json(session);
+      } else {
+        res.status(400).json({ error: "playSessionId required" });
+      }
+    } catch (error) {
+      console.error("Error in POST /api/play-sessions/end", error);
+      if (!res.headersSent) {
+        res.status(500).json({ error: "Internal server error" });
+      }
     }
   });
 
@@ -3856,235 +3950,249 @@ Write a warm, encouraging welcome message for students joining this classroom. M
   });
 
   app.post("/api/ai-tools/modules/:moduleKey/complete", requireAuth, async (req, res) => {
-    const userId = getUserId(req)!;
-    const moduleKey = req.params.moduleKey as string;
+    try {
+      const userId = getUserId(req)!;
+      const moduleKey = req.params.moduleKey as string;
 
-    const mod = AI_COURSE_MODULES.find(m => m.key === moduleKey);
-    if (!mod) return res.status(404).json({ error: "Module not found" });
+      const mod = AI_COURSE_MODULES.find(m => m.key === moduleKey);
+      if (!mod) return res.status(404).json({ error: "Module not found" });
 
-    const tool = await db.select().from(aiToolCatalog).where(eq(aiToolCatalog.requiredModuleKey, moduleKey as string));
-    if (!tool.length) return res.status(404).json({ error: "Tool not found for module" });
+      const tool = await db.select().from(aiToolCatalog).where(eq(aiToolCatalog.requiredModuleKey, moduleKey as string));
+      if (!tool.length) return res.status(404).json({ error: "Tool not found for module" });
 
-    const existing = await db.select().from(aiToolUnlocks).where(and(eq(aiToolUnlocks.userId, userId), eq(aiToolUnlocks.toolId, tool[0].id)));
-    if (existing.length > 0) return res.json({ message: "Already unlocked", toolId: tool[0].id });
+      const existing = await db.select().from(aiToolUnlocks).where(and(eq(aiToolUnlocks.userId, userId), eq(aiToolUnlocks.toolId, tool[0].id)));
+      if (existing.length > 0) return res.json({ message: "Already unlocked", toolId: tool[0].id });
 
-    await db.insert(aiToolUnlocks).values({ userId, toolId: tool[0].id, unlockedVia: "module_completion" });
+      await db.insert(aiToolUnlocks).values({ userId, toolId: tool[0].id, unlockedVia: "module_completion" });
 
-    res.json({ message: "Module completed! Tool unlocked.", toolId: tool[0].id, toolName: tool[0].name });
+      res.json({ message: "Module completed! Tool unlocked.", toolId: tool[0].id, toolName: tool[0].name });
+    } catch (error) {
+      console.error("Error in POST /api/ai-tools/modules/:moduleKey/complete", error);
+      if (!res.headersSent) {
+        res.status(500).json({ error: "Internal server error" });
+      }
+    }
   });
 
   app.post("/api/ai-tools/:toolId/run", requireAuth, async (req, res) => {
-    const userId = getUserId(req)!;
-    const toolId = req.params.toolId as string;
-    const { prompt, context, existingContent, language, isAdult } = req.body;
-
-    if (!prompt) return res.status(400).json({ error: "Prompt is required" });
-
-    const tool = await db.select().from(aiToolCatalog).where(eq(aiToolCatalog.id, toolId));
-    if (!tool.length) return res.status(404).json({ error: "Tool not found" });
-
-    if (!isAdult) {
-      const unlock = await db.select().from(aiToolUnlocks).where(and(eq(aiToolUnlocks.userId, userId), eq(aiToolUnlocks.toolId, toolId)));
-      if (!unlock.length) return res.status(403).json({ error: "Tool is locked. Complete the required module first." });
-    }
-
-    const toolData = tool[0];
-    const langInstruction = language === "es" ? "\n\nRespond entirely in Spanish." : "";
-
-    const toolPrompts: Record<string, string> = {
-      "PRESENTATION_BUILDER": `You are an expert presentation designer. Create a complete slide-by-slide presentation based on the user's request.
-
-For each slide, provide:
-- **Slide [number]: [Title]**
-- **Content:** Key bullet points or text
-- **Speaker Notes:** What to say when presenting this slide
-- **Visual Suggestion:** What image, chart, or graphic would work well
-
-Structure the presentation with: Title Slide, Agenda, Main Content (3-7 slides), Key Takeaways, Call to Action/Conclusion.
-Keep language age-appropriate for students. Make it engaging and visual.`,
-
-      "VIDEO_CREATOR": `You are a professional video scriptwriter and streaming content strategist. Create a complete video script/storyboard based on the user's request.
-
-For each scene, provide:
-- **Scene [number]: [Title]** (with estimated duration)
-- **Visual:** What the viewer sees (camera angle, setting, actions)
-- **Audio/Narration:** What is said or heard
-- **Text on Screen:** Any titles, captions, or graphics
-- **Transition:** How to move to the next scene
-
-Include: Hook/Intro, Main Content, B-Roll suggestions, Outro/Call to Action.
-Keep it age-appropriate and engaging for student creators.
-
-## Roku & CTV Ad Integration
-If the user mentions Roku, CTV, OTT, streaming ads, or ad monetization, additionally provide:
-- **Ad Break Markers:** Insert [AD BREAK - :15/:30/:60] markers at natural pause points (pre-roll, mid-roll, post-roll)
-- **VAST Tag Format:** Provide sample VAST 4.2 XML tag structure for each ad break position
-- **Roku Direct Publisher Feed:** Generate MRSS feed entry format for the video (title, description, thumbnail, content URL, ad break timestamps)
-- **Roku Ad Framework (RAF) Integration:** Provide BrightScript snippet showing RAF.setAdUrl() and RAF.stitchedAdHandledEvent() calls for each ad break
-- **Ad Placement Strategy:** Recommend optimal ad placement for viewer retention based on content length:
-  - Under 5 min: Pre-roll only
-  - 5-15 min: Pre-roll + 1 mid-roll
-  - 15-30 min: Pre-roll + 2 mid-rolls + post-roll
-  - 30+ min: Pre-roll + mid-roll every 8-10 min + post-roll
-- **Revenue Estimates:** Based on Roku's average CPM ($20-$40 for targeted CTV), estimate per-1000-views revenue
-- **Roku Channel Metadata:** Include channel poster art specs (HD: 540x405, FHD: 290x218), content rating, genre tags
-
-Always format Roku-specific output in a clearly labeled "## Roku & CTV Distribution" section at the end of the script.`,
-
-      "SALES_PITCH": `You are a business coach teaching ethical sales. Create a compelling sales pitch based on the user's request.
-
-Structure the pitch with:
-- **The Hook:** Opening line that grabs attention (10 seconds)
-- **The Problem:** What pain point does the product/service solve?
-- **The Solution:** How does it solve the problem?
-- **Social Proof:** Evidence it works (testimonials, data, examples)
-- **Value Proposition:** Why this is worth it
-- **Objection Handling:** Common concerns and responses
-- **The Close:** Call to action
-- **Follow-up Plan:** Next steps after the pitch
-
-Emphasize ethical persuasion — never manipulate, always create genuine value.`,
-
-      "BUSINESS_PLAN": `You are a business strategist helping create a comprehensive business plan.
-
-Structure the plan with:
-- **Executive Summary:** One-paragraph overview
-- **Business Description:** What the business does, mission, vision
-- **Market Analysis:** Target audience, market size, competition
-- **Products/Services:** What you're selling, pricing strategy
-- **Marketing Strategy:** How to reach customers
-- **Operations Plan:** How the business runs day-to-day
-- **Financial Projections:** Revenue estimates, costs, break-even
-- **Team:** Who's involved and their roles
-- **Timeline:** Key milestones for the first year
-- **Risk Assessment:** Potential challenges and mitigation strategies
-
-Make it practical and educational. Use realistic numbers and examples.`,
-
-      "RESEARCH": `You are a research librarian and academic coach. Help organize and structure research.
-
-Provide:
-- **Research Question:** Refined version of the user's question
-- **Key Topics to Investigate:** 5-7 subtopics to explore
-- **Outline:** Structured outline for a research paper/project
-- **Key Points:** Important facts and information to include
-- **Sources to Find:** Types of sources to look for (books, articles, data)
-- **Citation Format:** How to cite sources properly (MLA/APA simplified)
-- **Research Tips:** How to evaluate sources for reliability
-
-Teach good research habits. Encourage critical thinking about sources.`,
-
-      "LIFE_PLANNER": `You are a life coach helping create a personal development plan.
-
-Structure the plan with:
-- **Vision Statement:** Where do you want to be in 5-10 years?
-- **Core Values:** What matters most to you?
-- **Goal Categories:** Academic, Career, Personal, Health, Relationships, Financial
-- **SMART Goals:** Specific, Measurable, Achievable, Relevant, Time-bound goals for each category
-- **Action Steps:** Weekly/monthly actions for each goal
-- **Milestones:** Checkpoints to celebrate progress
-- **Potential Obstacles:** Challenges you might face and how to overcome them
-- **Support System:** Who can help you on this journey?
-- **Daily Habits:** Small habits that build toward big goals
-
-Be encouraging and realistic. Help students dream big while planning practically.`,
-
-      "PROJECT_PLANNER": `You are a project management expert. Help break down a project into manageable pieces.
-
-Structure the plan with:
-- **Project Overview:** What are we building/creating?
-- **Goals & Success Criteria:** How will we know it's done well?
-- **Task Breakdown:** All tasks organized by phase (Planning, Execution, Review)
-- **Timeline:** When each task should be completed (use a week-by-week format)
-- **Resources Needed:** Materials, tools, people, budget
-- **Task Dependencies:** What must be done before other things can start
-- **Risk Assessment:** What could go wrong and backup plans
-- **Team Roles:** Who does what (if group project)
-- **Check-in Points:** When to review progress
-- **Deliverables:** What the final output looks like
-
-Make it practical and student-friendly. Include templates they can fill in.`,
-
-      "DOCUMENT_WRITER": `You are a skilled writing coach. Help create well-structured documents.
-
-Based on the document type requested, provide:
-- **Title & Header**
-- **Introduction:** Hook, thesis/purpose, roadmap
-- **Body Sections:** Well-organized paragraphs with topic sentences, evidence, analysis
-- **Transitions:** Smooth connections between sections
-- **Conclusion:** Summary, significance, call to action
-- **Writing Tips:** Specific suggestions for improvement
-
-Adapt style to the document type (essay, report, letter, article, speech).
-Teach good writing habits along the way. Never write the entire thing for them — provide structure, examples, and guidance.`,
-
-      "RESUME_BUILDER": `You are a career counselor. Help create professional documents.
-
-For resumes, provide:
-- **Contact Information** section format
-- **Professional Summary:** 2-3 sentence overview
-- **Education:** How to format school, GPA, relevant coursework
-- **Experience:** How to write bullet points with action verbs and results
-- **Skills:** Technical and soft skills relevant to the field
-- **Activities & Leadership:** Clubs, volunteer work, sports
-- **Portfolio Section:** How to showcase projects and achievements
-
-For cover letters, provide structure and examples.
-Teach professional communication. Help students present their best selves authentically.`,
-
-      "BRAINSTORM": `You are a creative thinking facilitator. Help generate and organize ideas.
-
-Provide:
-- **Brain Dump:** List every idea related to the topic (aim for 20+)
-- **Categories:** Group ideas into themes
-- **Top 5 Ideas:** Most promising ideas with brief explanations of why
-- **Mind Map:** Central topic with branching ideas and sub-ideas (in text format)
-- **SCAMPER Analysis:** Substitute, Combine, Adapt, Modify, Put to other use, Eliminate, Reverse
-- **"What If" Questions:** 5 creative "what if" scenarios to push thinking further
-- **Next Steps:** How to develop the best ideas further
-
-Be wildly creative. No bad ideas in brainstorming! Encourage unusual connections.`,
-    };
-
-    const toolSystemPrompt = toolPrompts[toolData.promptTemplate] || toolPrompts["BRAINSTORM"];
-
-    const systemMsg = `${toolSystemPrompt}
-
-TOOL: ${toolData.name}
-${context ? `ADDITIONAL CONTEXT: ${context}` : ""}
-${existingContent ? `EXISTING CONTENT TO IMPROVE/CONTINUE:\n${existingContent}` : ""}
-${langInstruction}
-
-Be thorough, practical, and age-appropriate. Format your response with clear headings and structure using Markdown.`;
-
-    res.setHeader("Content-Type", "text/event-stream");
-    res.setHeader("Cache-Control", "no-cache");
-    res.setHeader("Connection", "keep-alive");
-
     try {
-      await streamAIResponse({
-        messages: [
-          { role: "system", content: systemMsg },
-          { role: "user", content: prompt },
-        ],
-        maxTokens: 3000,
-        onChunk: (content) => {
-          res.write(`data: ${JSON.stringify({ content })}\n\n`);
-        },
-        onDone: () => {
-          res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
-          res.end();
-        },
-        onError: (error) => {
-          console.error("AI error:", error);
-          res.write(`data: ${JSON.stringify({ error: "Failed to generate content" })}\n\n`);
-          res.end();
-        },
-      });
+      const userId = getUserId(req)!;
+      const toolId = req.params.toolId as string;
+      const { prompt, context, existingContent, language, isAdult } = req.body;
+
+      if (!prompt) return res.status(400).json({ error: "Prompt is required" });
+
+      const tool = await db.select().from(aiToolCatalog).where(eq(aiToolCatalog.id, toolId));
+      if (!tool.length) return res.status(404).json({ error: "Tool not found" });
+
+      if (!isAdult) {
+        const unlock = await db.select().from(aiToolUnlocks).where(and(eq(aiToolUnlocks.userId, userId), eq(aiToolUnlocks.toolId, toolId)));
+        if (!unlock.length) return res.status(403).json({ error: "Tool is locked. Complete the required module first." });
+      }
+
+      const toolData = tool[0];
+      const langInstruction = language === "es" ? "\n\nRespond entirely in Spanish." : "";
+
+      const toolPrompts: Record<string, string> = {
+        "PRESENTATION_BUILDER": `You are an expert presentation designer. Create a complete slide-by-slide presentation based on the user's request.
+
+  For each slide, provide:
+  - **Slide [number]: [Title]**
+  - **Content:** Key bullet points or text
+  - **Speaker Notes:** What to say when presenting this slide
+  - **Visual Suggestion:** What image, chart, or graphic would work well
+
+  Structure the presentation with: Title Slide, Agenda, Main Content (3-7 slides), Key Takeaways, Call to Action/Conclusion.
+  Keep language age-appropriate for students. Make it engaging and visual.`,
+
+        "VIDEO_CREATOR": `You are a professional video scriptwriter and streaming content strategist. Create a complete video script/storyboard based on the user's request.
+
+  For each scene, provide:
+  - **Scene [number]: [Title]** (with estimated duration)
+  - **Visual:** What the viewer sees (camera angle, setting, actions)
+  - **Audio/Narration:** What is said or heard
+  - **Text on Screen:** Any titles, captions, or graphics
+  - **Transition:** How to move to the next scene
+
+  Include: Hook/Intro, Main Content, B-Roll suggestions, Outro/Call to Action.
+  Keep it age-appropriate and engaging for student creators.
+
+  ## Roku & CTV Ad Integration
+  If the user mentions Roku, CTV, OTT, streaming ads, or ad monetization, additionally provide:
+  - **Ad Break Markers:** Insert [AD BREAK - :15/:30/:60] markers at natural pause points (pre-roll, mid-roll, post-roll)
+  - **VAST Tag Format:** Provide sample VAST 4.2 XML tag structure for each ad break position
+  - **Roku Direct Publisher Feed:** Generate MRSS feed entry format for the video (title, description, thumbnail, content URL, ad break timestamps)
+  - **Roku Ad Framework (RAF) Integration:** Provide BrightScript snippet showing RAF.setAdUrl() and RAF.stitchedAdHandledEvent() calls for each ad break
+  - **Ad Placement Strategy:** Recommend optimal ad placement for viewer retention based on content length:
+    - Under 5 min: Pre-roll only
+    - 5-15 min: Pre-roll + 1 mid-roll
+    - 15-30 min: Pre-roll + 2 mid-rolls + post-roll
+    - 30+ min: Pre-roll + mid-roll every 8-10 min + post-roll
+  - **Revenue Estimates:** Based on Roku's average CPM ($20-$40 for targeted CTV), estimate per-1000-views revenue
+  - **Roku Channel Metadata:** Include channel poster art specs (HD: 540x405, FHD: 290x218), content rating, genre tags
+
+  Always format Roku-specific output in a clearly labeled "## Roku & CTV Distribution" section at the end of the script.`,
+
+        "SALES_PITCH": `You are a business coach teaching ethical sales. Create a compelling sales pitch based on the user's request.
+
+  Structure the pitch with:
+  - **The Hook:** Opening line that grabs attention (10 seconds)
+  - **The Problem:** What pain point does the product/service solve?
+  - **The Solution:** How does it solve the problem?
+  - **Social Proof:** Evidence it works (testimonials, data, examples)
+  - **Value Proposition:** Why this is worth it
+  - **Objection Handling:** Common concerns and responses
+  - **The Close:** Call to action
+  - **Follow-up Plan:** Next steps after the pitch
+
+  Emphasize ethical persuasion — never manipulate, always create genuine value.`,
+
+        "BUSINESS_PLAN": `You are a business strategist helping create a comprehensive business plan.
+
+  Structure the plan with:
+  - **Executive Summary:** One-paragraph overview
+  - **Business Description:** What the business does, mission, vision
+  - **Market Analysis:** Target audience, market size, competition
+  - **Products/Services:** What you're selling, pricing strategy
+  - **Marketing Strategy:** How to reach customers
+  - **Operations Plan:** How the business runs day-to-day
+  - **Financial Projections:** Revenue estimates, costs, break-even
+  - **Team:** Who's involved and their roles
+  - **Timeline:** Key milestones for the first year
+  - **Risk Assessment:** Potential challenges and mitigation strategies
+
+  Make it practical and educational. Use realistic numbers and examples.`,
+
+        "RESEARCH": `You are a research librarian and academic coach. Help organize and structure research.
+
+  Provide:
+  - **Research Question:** Refined version of the user's question
+  - **Key Topics to Investigate:** 5-7 subtopics to explore
+  - **Outline:** Structured outline for a research paper/project
+  - **Key Points:** Important facts and information to include
+  - **Sources to Find:** Types of sources to look for (books, articles, data)
+  - **Citation Format:** How to cite sources properly (MLA/APA simplified)
+  - **Research Tips:** How to evaluate sources for reliability
+
+  Teach good research habits. Encourage critical thinking about sources.`,
+
+        "LIFE_PLANNER": `You are a life coach helping create a personal development plan.
+
+  Structure the plan with:
+  - **Vision Statement:** Where do you want to be in 5-10 years?
+  - **Core Values:** What matters most to you?
+  - **Goal Categories:** Academic, Career, Personal, Health, Relationships, Financial
+  - **SMART Goals:** Specific, Measurable, Achievable, Relevant, Time-bound goals for each category
+  - **Action Steps:** Weekly/monthly actions for each goal
+  - **Milestones:** Checkpoints to celebrate progress
+  - **Potential Obstacles:** Challenges you might face and how to overcome them
+  - **Support System:** Who can help you on this journey?
+  - **Daily Habits:** Small habits that build toward big goals
+
+  Be encouraging and realistic. Help students dream big while planning practically.`,
+
+        "PROJECT_PLANNER": `You are a project management expert. Help break down a project into manageable pieces.
+
+  Structure the plan with:
+  - **Project Overview:** What are we building/creating?
+  - **Goals & Success Criteria:** How will we know it's done well?
+  - **Task Breakdown:** All tasks organized by phase (Planning, Execution, Review)
+  - **Timeline:** When each task should be completed (use a week-by-week format)
+  - **Resources Needed:** Materials, tools, people, budget
+  - **Task Dependencies:** What must be done before other things can start
+  - **Risk Assessment:** What could go wrong and backup plans
+  - **Team Roles:** Who does what (if group project)
+  - **Check-in Points:** When to review progress
+  - **Deliverables:** What the final output looks like
+
+  Make it practical and student-friendly. Include templates they can fill in.`,
+
+        "DOCUMENT_WRITER": `You are a skilled writing coach. Help create well-structured documents.
+
+  Based on the document type requested, provide:
+  - **Title & Header**
+  - **Introduction:** Hook, thesis/purpose, roadmap
+  - **Body Sections:** Well-organized paragraphs with topic sentences, evidence, analysis
+  - **Transitions:** Smooth connections between sections
+  - **Conclusion:** Summary, significance, call to action
+  - **Writing Tips:** Specific suggestions for improvement
+
+  Adapt style to the document type (essay, report, letter, article, speech).
+  Teach good writing habits along the way. Never write the entire thing for them — provide structure, examples, and guidance.`,
+
+        "RESUME_BUILDER": `You are a career counselor. Help create professional documents.
+
+  For resumes, provide:
+  - **Contact Information** section format
+  - **Professional Summary:** 2-3 sentence overview
+  - **Education:** How to format school, GPA, relevant coursework
+  - **Experience:** How to write bullet points with action verbs and results
+  - **Skills:** Technical and soft skills relevant to the field
+  - **Activities & Leadership:** Clubs, volunteer work, sports
+  - **Portfolio Section:** How to showcase projects and achievements
+
+  For cover letters, provide structure and examples.
+  Teach professional communication. Help students present their best selves authentically.`,
+
+        "BRAINSTORM": `You are a creative thinking facilitator. Help generate and organize ideas.
+
+  Provide:
+  - **Brain Dump:** List every idea related to the topic (aim for 20+)
+  - **Categories:** Group ideas into themes
+  - **Top 5 Ideas:** Most promising ideas with brief explanations of why
+  - **Mind Map:** Central topic with branching ideas and sub-ideas (in text format)
+  - **SCAMPER Analysis:** Substitute, Combine, Adapt, Modify, Put to other use, Eliminate, Reverse
+  - **"What If" Questions:** 5 creative "what if" scenarios to push thinking further
+  - **Next Steps:** How to develop the best ideas further
+
+  Be wildly creative. No bad ideas in brainstorming! Encourage unusual connections.`,
+      };
+
+      const toolSystemPrompt = toolPrompts[toolData.promptTemplate] || toolPrompts["BRAINSTORM"];
+
+      const systemMsg = `${toolSystemPrompt}
+
+  TOOL: ${toolData.name}
+  ${context ? `ADDITIONAL CONTEXT: ${context}` : ""}
+  ${existingContent ? `EXISTING CONTENT TO IMPROVE/CONTINUE:\n${existingContent}` : ""}
+  ${langInstruction}
+
+  Be thorough, practical, and age-appropriate. Format your response with clear headings and structure using Markdown.`;
+
+      res.setHeader("Content-Type", "text/event-stream");
+      res.setHeader("Cache-Control", "no-cache");
+      res.setHeader("Connection", "keep-alive");
+
+      try {
+        await streamAIResponse({
+          messages: [
+            { role: "system", content: systemMsg },
+            { role: "user", content: prompt },
+          ],
+          maxTokens: 3000,
+          onChunk: (content) => {
+            res.write(`data: ${JSON.stringify({ content })}\n\n`);
+          },
+          onDone: () => {
+            res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
+            res.end();
+          },
+          onError: (error) => {
+            console.error("AI error:", error);
+            res.write(`data: ${JSON.stringify({ error: "Failed to generate content" })}\n\n`);
+            res.end();
+          },
+        });
+      } catch (error) {
+        console.error("Error in AI tool run:", error);
+        res.write(`data: ${JSON.stringify({ error: "Failed to generate content" })}\n\n`);
+        res.end();
+      }
     } catch (error) {
-      console.error("Error in AI tool run:", error);
-      res.write(`data: ${JSON.stringify({ error: "Failed to generate content" })}\n\n`);
-      res.end();
+      console.error("Error in POST /api/ai-tools/:toolId/run", error);
+      if (!res.headersSent) {
+        res.status(500).json({ error: "Internal server error" });
+      }
     }
   });
 
@@ -4195,38 +4303,52 @@ Then include a ## Roku & CTV Distribution section with:
   });
 
   app.post("/api/ai-tools/projects", requireAuth, async (req, res) => {
-    const userId = getUserId(req)!;
-    const { toolId, title, prompt, content, outputType, status } = req.body;
+    try {
+      const userId = getUserId(req)!;
+      const { toolId, title, prompt, content, outputType, status } = req.body;
 
-    if (!toolId || !title || !prompt) return res.status(400).json({ error: "toolId, title, and prompt are required" });
+      if (!toolId || !title || !prompt) return res.status(400).json({ error: "toolId, title, and prompt are required" });
 
-    const [project] = await db.insert(aiToolProjects).values({
-      userId,
-      toolId,
-      title,
-      prompt,
-      content: content || "",
-      outputType: outputType || "markdown",
-      status: status || "draft",
-    }).returning();
+      const [project] = await db.insert(aiToolProjects).values({
+        userId,
+        toolId,
+        title,
+        prompt,
+        content: content || "",
+        outputType: outputType || "markdown",
+        status: status || "draft",
+      }).returning();
 
-    res.json(project);
+      res.json(project);
+    } catch (error) {
+      console.error("Error in POST /api/ai-tools/projects", error);
+      if (!res.headersSent) {
+        res.status(500).json({ error: "Internal server error" });
+      }
+    }
   });
 
   app.patch("/api/ai-tools/projects/:id", requireAuth, async (req, res) => {
-    const userId = getUserId(req)!;
-    const id = req.params.id as string;
-    const { title, content, status } = req.body;
+    try {
+      const userId = getUserId(req)!;
+      const id = req.params.id as string;
+      const { title, content, status } = req.body;
 
-    const updateData: any = { updatedAt: new Date() };
-    if (title) updateData.title = title;
-    if (content !== undefined) updateData.content = content;
-    if (status) updateData.status = status;
+      const updateData: any = { updatedAt: new Date() };
+      if (title) updateData.title = title;
+      if (content !== undefined) updateData.content = content;
+      if (status) updateData.status = status;
 
-    const [project] = await db.update(aiToolProjects).set(updateData).where(and(eq(aiToolProjects.id, id), eq(aiToolProjects.userId, userId))).returning();
+      const [project] = await db.update(aiToolProjects).set(updateData).where(and(eq(aiToolProjects.id, id), eq(aiToolProjects.userId, userId))).returning();
 
-    if (!project) return res.status(404).json({ error: "Project not found" });
-    res.json(project);
+      if (!project) return res.status(404).json({ error: "Project not found" });
+      res.json(project);
+    } catch (error) {
+      console.error("Error in PATCH /api/ai-tools/projects/:id", error);
+      if (!res.headersSent) {
+        res.status(500).json({ error: "Internal server error" });
+      }
+    }
   });
 
   app.delete("/api/ai-tools/projects/:id", requireAuth, async (req, res) => {

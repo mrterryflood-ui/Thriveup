@@ -725,22 +725,27 @@ export function registerRAGRoutes(app: Express) {
   });
 
   app.get("/api/ecosystem-ai/suggested-questions", (_req: Request, res: Response) => {
-    res.json({
-      questions: [
-        "What's our current ecosystem health score?",
-        "Which grants are due soonest and how ready are we?",
-        "What makes this system different from anything else?",
-        "How does the governance structure work?",
-        "What are the clinical safety boundaries?",
-        "How does interoperability with external systems work?",
-        "What evidence proves this system works?",
-        "How does the MAP-GAP framework work?",
-        "What platforms help veterans transition to civilian life?",
-        "How do work chains route tasks between platforms?",
-        "What mental health screenings are available?",
-        "Describe ThriveUp in one sentence for a funder",
-      ],
-    });
+    try {
+      res.json({
+        questions: [
+          "What's our current ecosystem health score?",
+          "Which grants are due soonest and how ready are we?",
+          "What makes this system different from anything else?",
+          "How does the governance structure work?",
+          "What are the clinical safety boundaries?",
+          "How does interoperability with external systems work?",
+          "What evidence proves this system works?",
+          "How does the MAP-GAP framework work?",
+          "What platforms help veterans transition to civilian life?",
+          "How do work chains route tasks between platforms?",
+          "What mental health screenings are available?",
+          "Describe ThriveUp in one sentence for a funder",
+        ],
+      });
+    } catch (error) {
+      console.error("Error in GET /api/ecosystem-ai/suggested-questions", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   app.post("/api/ecosystem-ai/refresh-knowledge", async (req: Request, res: Response) => {
