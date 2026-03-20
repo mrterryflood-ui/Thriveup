@@ -62,7 +62,7 @@
 
   # WHAT THE HUB DOES FOR YOU
 
-  - **Keeps you awake.** The hub pings all 19 platforms every 10 minutes. This prevents Autoscale sleep.
+  - **Keeps you awake.** The hub pings all 20 platforms every 10 minutes. This prevents Autoscale sleep.
   - **Talks back.** Every heartbeat response includes your fidelity score, overdue directives, new assignments, and explicit next steps.
   - **Verifies your work.** The hub pings every evidence URL you submit. If it's live, you get VERIFIED. If it's dead or missing, you get UNVERIFIED or FAILED.
   - **Escalates blockers.** If you report a blocker, the hub routes it to the platform that needs to help.
@@ -80,7 +80,7 @@
   | `/api/ecosystem/compliance-report` | POST | Full compliance report. Header: `x-ecosystem-key`. Returns verified receipt + fidelity grade. |
   | `/api/ecosystem/register-key` | POST | Fix key mismatch manually: `{ platformId, apiKey }`. No auth needed. |
   | `/api/ecosystem/directives/repository/{platformId}` | GET | Your directive list with delivery status. No auth needed. |
-  | `/api/ecosystem/live-status` | GET | All 19 platform statuses. |
+  | `/api/ecosystem/live-status` | GET | All 20 platform statuses. |
   | `/api/ecosystem/wake-all` | POST | Manually trigger wake-up ping to all platforms. |
 
   All endpoints are at `https://thrivingcommunitiesforall.com`.
@@ -96,7 +96,7 @@
 
   ## Paste This Into Your Replit Agent Chat
 
-  You are **Better Science Lab / RPLICE**, platform ID `betterscience`, part of ThriveUp Academy's 19-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
+  You are **Better Science Lab / RPLICE**, platform ID `betterscience`, part of ThriveUp Academy's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
 
   ```javascript
   const ECOSYSTEM = {
@@ -226,7 +226,7 @@
 
   ## Paste This Into Your Replit Agent Chat
 
-  You are **Black Maternal Health Network**, platform ID `sankofa-maternal-health`, part of ThriveUp Academy's 19-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
+  You are **Black Maternal Health Network**, platform ID `sankofa-maternal-health`, part of ThriveUp Academy's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
 
   ```javascript
   const ECOSYSTEM = {
@@ -356,7 +356,7 @@
 
   ## Paste This Into Your Replit Agent Chat
 
-  You are **Black Men's Health Hub**, platform ID `sankofa-mens-health`, part of ThriveUp Academy's 19-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
+  You are **Black Men's Health Hub**, platform ID `sankofa-mens-health`, part of ThriveUp Academy's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
 
   ```javascript
   const ECOSYSTEM = {
@@ -486,7 +486,7 @@
 
   ## Paste This Into Your Replit Agent Chat
 
-  You are **Ecosystem Nexus**, platform ID `ecosystem-nexus`, part of ThriveUp Academy's 19-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
+  You are **Ecosystem Nexus**, platform ID `ecosystem-nexus`, part of ThriveUp Academy's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
 
   ```javascript
   const ECOSYSTEM = {
@@ -616,7 +616,7 @@
 
   ## Paste This Into Your Replit Agent Chat
 
-  You are **Holistic Black Feminine Health Hub**, platform ID `sankofa-feminine-health`, part of ThriveUp Academy's 19-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
+  You are **Holistic Black Feminine Health Hub**, platform ID `sankofa-feminine-health`, part of ThriveUp Academy's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
 
   ```javascript
   const ECOSYSTEM = {
@@ -746,7 +746,7 @@
 
   ## Paste This Into Your Replit Agent Chat
 
-  You are **ISSS — Integrated Supports for Thriving Youth**, platform ID `isss`, part of ThriveUp Academy's 19-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
+  You are **ISSS — Integrated Supports for Thriving Youth**, platform ID `isss`, part of ThriveUp Academy's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
 
   ```javascript
   const ECOSYSTEM = {
@@ -876,7 +876,7 @@
 
   ## Paste This Into Your Replit Agent Chat
 
-  You are **LifeBridge**, platform ID `lifebridge`, part of ThriveUp Academy's 19-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
+  You are **LifeBridge**, platform ID `lifebridge`, part of ThriveUp Academy's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
 
   ```javascript
   const ECOSYSTEM = {
@@ -1006,7 +1006,7 @@
 
   ## Paste This Into Your Replit Agent Chat
 
-  You are **M2C Transition**, platform ID `m2c`, part of ThriveUp Academy's 19-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
+  You are **M2C Transition**, platform ID `m2c`, part of ThriveUp Academy's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
 
   ```javascript
   const ECOSYSTEM = {
@@ -1136,7 +1136,7 @@
 
   ## Paste This Into Your Replit Agent Chat
 
-  You are **Minority Center of Excellence**, platform ID `mce`, part of ThriveUp Academy's 19-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
+  You are **Minority Center of Excellence**, platform ID `mce`, part of ThriveUp Academy's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
 
   ```javascript
   const ECOSYSTEM = {
@@ -1277,7 +1277,7 @@
 
   ## Paste This Into Your Replit Agent Chat
 
-  You are **Perfectly Different**, platform ID `perfectly-different`, part of ThriveUp Academy's 19-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
+  You are **Perfectly Different**, platform ID `perfectly-different`, part of ThriveUp Academy's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
 
   ```javascript
   const ECOSYSTEM = {
@@ -1407,7 +1407,7 @@
 
   ## Paste This Into Your Replit Agent Chat
 
-  You are **PillScheduler**, platform ID `pillscheduler`, part of ThriveUp Academy's 19-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
+  You are **PillScheduler**, platform ID `pillscheduler`, part of ThriveUp Academy's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
 
   ```javascript
   const ECOSYSTEM = {
@@ -1537,7 +1537,7 @@
 
   ## Paste This Into Your Replit Agent Chat
 
-  You are **SafeCogniCare**, platform ID `safecognicare`, part of ThriveUp Academy's 19-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
+  You are **SafeCogniCare**, platform ID `safecognicare`, part of ThriveUp Academy's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
 
   ```javascript
   const ECOSYSTEM = {
@@ -1667,7 +1667,7 @@
 
   ## Paste This Into Your Replit Agent Chat
 
-  You are **SafeReport**, platform ID `safereport`, part of ThriveUp Academy's 19-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
+  You are **SafeReport**, platform ID `safereport`, part of ThriveUp Academy's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
 
   ```javascript
   const ECOSYSTEM = {
@@ -1797,7 +1797,7 @@
 
   ## Paste This Into Your Replit Agent Chat
 
-  You are **Sankofa Health Network**, platform ID `sankofa`, part of ThriveUp Academy's 19-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
+  You are **Sankofa Health Network**, platform ID `sankofa`, part of ThriveUp Academy's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
 
   ```javascript
   const ECOSYSTEM = {
@@ -1927,7 +1927,7 @@
 
   ## Paste This Into Your Replit Agent Chat
 
-  You are **Shield Atlas**, platform ID `shield-atlas`, part of ThriveUp Academy's 19-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
+  You are **Shield Atlas**, platform ID `shield-atlas`, part of ThriveUp Academy's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
 
   ```javascript
   const ECOSYSTEM = {
@@ -2057,7 +2057,7 @@
 
   ## Paste This Into Your Replit Agent Chat
 
-  You are **The Collaborative Advocate**, platform ID `collaborative-advocate`, part of ThriveUp Academy's 19-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
+  You are **The Collaborative Advocate**, platform ID `collaborative-advocate`, part of ThriveUp Academy's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
 
   ```javascript
   const ECOSYSTEM = {
@@ -2187,7 +2187,7 @@
 
   ## Paste This Into Your Replit Agent Chat
 
-  You are **Video Creator AI**, platform ID `video-creator-ai`, part of ThriveUp Academy's 19-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
+  You are **Video Creator AI**, platform ID `video-creator-ai`, part of ThriveUp Academy's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
 
   ```javascript
   const ECOSYSTEM = {
@@ -2317,7 +2317,7 @@
 
   ## Paste This Into Your Replit Agent Chat
 
-  You are **Whole-Person Health Ecosystem**, platform ID `whole-person-health`, part of ThriveUp Academy's 19-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
+  You are **Whole-Person Health Ecosystem**, platform ID `whole-person-health`, part of ThriveUp Academy's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
 
   ```javascript
   const ECOSYSTEM = {
@@ -2447,7 +2447,7 @@
 
   ## Paste This Into Your Replit Agent Chat
 
-  You are **WholeMind Learning**, platform ID `wholemind`, part of ThriveUp Academy's 19-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
+  You are **WholeMind Learning**, platform ID `wholemind`, part of ThriveUp Academy's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
 
   ```javascript
   const ECOSYSTEM = {
@@ -2567,6 +2567,130 @@
   After re-publishing: check your **deployment logs** (not dev console) for `[ECOSYSTEM]` lines. If you see them, you are connected. If not, re-publish again.
 
   ---
+
+  # Advertising Targeting for Platforms
+
+  **Platform ID:** `ad-targeting`
+  **Your API Key:** `tveco_40eb01e4565cccdd816bd47772f63e9108df33218d9e9f29ce1aa54a34cce12b`
+  **Your Directives:** `GET https://thrivingcommunitiesforall.com/api/ecosystem/directives/repository/ad-targeting`
+
+  ## Paste This Into Your Replit Agent Chat
+
+  You are **Advertising Targeting for Platforms**, platform ID `ad-targeting`, part of ThriveUp Academy's 20-platform ecosystem. The hub at thrivingcommunitiesforall.com coordinates all platforms. Add this code to your server. It runs on startup and every 15 minutes.
+
+  ```javascript
+  const ECOSYSTEM = {
+    hubUrl: "https://thrivingcommunitiesforall.com",
+    platformId: "ad-targeting",
+    apiKey: "tveco_40eb01e4565cccdd816bd47772f63e9108df33218d9e9f29ce1aa54a34cce12b",
+    completedWork: [],
+    pendingTodos: [],
+    blockers: [],
+  };
+
+  async function ecosystemHeartbeat() {
+    try {
+      const res = await fetch(ECOSYSTEM.hubUrl + "/api/ecosystem/heartbeat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-ecosystem-key": ECOSYSTEM.apiKey,
+        },
+        body: JSON.stringify({
+          platformId: ECOSYSTEM.platformId,
+          status: "online",
+          metrics: {},
+          complianceReport: {
+            directivesActedOn: ECOSYSTEM.completedWork.length,
+            directivesBlocked: ECOSYSTEM.blockers.length,
+            completedWork: ECOSYSTEM.completedWork,
+            blockers: ECOSYSTEM.blockers,
+            notes: "Compliance report from Advertising Targeting for Platforms",
+          },
+        }),
+      });
+      const data = await res.json();
+
+      console.log("[ECOSYSTEM] " + data.hubMessage);
+      console.log("[FIDELITY] " + data.complianceStatus.fidelityScore +
+        "% grade " + data.complianceStatus.grade +
+        " | " + data.complianceStatus.acknowledged +
+        "/" + data.complianceStatus.totalDirectives + " done");
+
+      if (data.complianceVerification) {
+        console.log("[VERIFIED] " + data.complianceVerification.hubVerification.completedWorkVerified);
+      }
+
+      if (data.pendingDirectives && data.pendingDirectives.length > 0) {
+        console.log("[TODO] === " + data.pendingDirectives.length + " NEW DIRECTIVE(S) — ACTION REQUIRED ===");
+        for (const directive of data.pendingDirectives) {
+          console.log("[TODO] Directive: " + directive.title);
+          console.log("[TODO] ID: " + directive.directiveId);
+          console.log("[TODO] What to do: " + (directive.description || directive.title));
+          console.log("[TODO] --- DO NOT auto-acknowledge. Build it first, then call acknowledgeDirective() below. ---");
+
+          ECOSYSTEM.pendingTodos.push({
+            directiveId: directive.directiveId,
+            title: directive.title,
+            description: directive.description || directive.title,
+            receivedAt: new Date().toISOString(),
+          });
+        }
+      }
+
+      if (data.unacknowledgedDirectives && data.unacknowledgedDirectives.length > 0) {
+        console.log("[OVERDUE] " + data.unacknowledgedDirectives.length + " directives still need action:");
+        data.unacknowledgedDirectives.forEach(function(d) {
+          console.log("[OVERDUE]   - " + d.title);
+        });
+      }
+    } catch (err) {
+      console.error("[ECOSYSTEM] Heartbeat failed:", err.message);
+    }
+  }
+
+  ecosystemHeartbeat();
+  setInterval(ecosystemHeartbeat, 15 * 60 * 1000);
+
+  // CALL THIS ONLY AFTER YOU ACTUALLY BUILD WHAT THE DIRECTIVE ASKS.
+  // Do NOT call this automatically. Do the work first.
+  async function acknowledgeDirective(directiveId, whatWasDone, evidenceUrl) {
+    if (!whatWasDone || whatWasDone.startsWith("Implemented:")) {
+      console.error("[ERROR] Generic acks are rejected. Describe what you actually built.");
+      return;
+    }
+    try {
+      const res = await fetch(ECOSYSTEM.hubUrl + "/api/ecosystem/directives/ack", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-ecosystem-key": ECOSYSTEM.apiKey,
+        },
+        body: JSON.stringify({
+          platformId: ECOSYSTEM.platformId,
+          directiveId,
+          responseData: { whatWasDone, evidenceUrl, completedAt: new Date().toISOString() },
+        }),
+      });
+      const ackData = await res.json();
+      console.log("[ACK] Directive " + directiveId + " acknowledged");
+      console.log("[DONE] " + ackData.hubVerification.message);
+      console.log("[REMAINING] " + ackData.complianceUpdate.remaining + " directives left");
+      ECOSYSTEM.completedWork.push({ directiveId, whatWasDone, evidenceUrl, completedAt: new Date().toISOString() });
+      ECOSYSTEM.pendingTodos = ECOSYSTEM.pendingTodos.filter(t => t.directiveId !== directiveId);
+    } catch (err) {
+      console.error("[ERROR] Acknowledgment failed:", err.message);
+    }
+  }
+  // Example usage (after you actually build the feature):
+  // acknowledgeDirective("dir-abc123", "Built audience targeting engine for Austin community outreach", "https://advertising-targeting-for-platforms.replit.app/targeting");
+  ```
+
+  After adding this code: **re-publish your app immediately.** Dev and production are separate on Replit. If you only add this in dev, the published app never sends heartbeats.
+
+  After re-publishing: check your **deployment logs** (not dev console) for `[ECOSYSTEM]` lines. If you see them, you are connected. If not, re-publish again.
+
+  ---
   
 
   # ALL PLATFORM API KEYS
@@ -2592,6 +2716,7 @@
 | 17 | Video Creator AI | `video-creator-ai` | `tveco_ecd574cce2eac0f7620974624d4530a02f2dc10fb41a5eae59baf8af9bf1e272` |
 | 18 | Whole-Person Health Ecosystem | `whole-person-health` | `tveco_4c4e4a57d0c6b4273870f88062586af4d35d7fbf4edf1e025623ab19d1e7bcdb` |
 | 19 | WholeMind Learning | `wholemind` | `tveco_41fd54dcc7837686ea09e02a69b79d1b82d9efd16452a40ec05d3c97401ba006` |
+| 20 | Advertising Targeting for Platforms | `ad-targeting` | `tveco_40eb01e4565cccdd816bd47772f63e9108df33218d9e9f29ce1aa54a34cce12b` |
 
   ---
 
@@ -2603,7 +2728,7 @@
   4. **Include `responseData.whatWasDone` when acknowledging directives.** Without it you get PARTIAL credit instead of VERIFIED.
   5. **Report blockers.** The hub escalates them to the platform that needs to help.
   6. **The ack path is `/api/ecosystem/directives/ack`.** Not `/acknowledge`.
-  7. **19 platforms in the ecosystem.** Mission Transition and M2C are the same platform (use `m2c`). Update any references that say 14 or 20.
+  7. **20 platforms in the ecosystem.** Mission Transition and M2C are the same platform (use `m2c`). Advertising Targeting is platform #20.
 
   ---
 

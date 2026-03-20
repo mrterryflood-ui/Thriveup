@@ -347,7 +347,7 @@ const ECOSYSTEM_PLATFORMS = [
     url: "https://ecosystem-nexus.replit.app",
     role: "ecosystem-coordination",
     domain: "operations",
-    description: "Central coordination and operational hub for the ThriveUp Academy ecosystem. Provides cross-platform visibility, coordination tools, and operational intelligence for the 20-platform network.",
+    description: "Central coordination and operational hub for the ThriveUp Academy ecosystem. Provides cross-platform visibility, coordination tools, and operational intelligence for the platform network.",
     capabilities: {
       features: ["Ecosystem Coordination", "Cross-Platform Visibility", "Operational Intelligence", "Platform Monitoring", "Directive Management"],
     },
@@ -356,6 +356,22 @@ const ECOSYSTEM_PLATFORMS = [
       receives: ["heartbeats", "platform_metrics", "status_reports", "incident_alerts", "grant_updates"],
     },
     grantAlignment: ["dfc", "wioa", "ssg-fox", "st-davids"],
+  },
+  {
+    id: "ad-targeting",
+    name: "Advertising Targeting for Platforms",
+    url: "https://advertising-targeting-for-platforms.replit.app",
+    role: "ad-intelligence",
+    domain: "marketing-content",
+    description: "Advertising intelligence and targeting platform — audience segmentation, campaign optimization, and ad delivery for ecosystem platforms. Enables data-driven outreach to reach underserved communities with relevant services and grant-funded programs.",
+    capabilities: {
+      features: ["Audience Segmentation", "Campaign Optimization", "Ad Targeting", "Performance Analytics", "Cross-Platform Ad Delivery", "Community Outreach"],
+    },
+    dataFlowConfig: {
+      sends: ["audience_insights", "campaign_metrics", "ad_performance", "targeting_recommendations"],
+      receives: ["platform_descriptions", "service_offerings", "community_demographics", "grant_narratives", "video_assets"],
+    },
+    grantAlignment: ["dfc", "wioa", "st-davids"],
   },
 ];
 
@@ -2213,7 +2229,11 @@ if (typeof module !== "undefined") {
     ],
     "content_ready_for_distribution": [
       { nextPlatform: "video-creator-ai", eventType: "create_content_video", description: "Content ready — create video for distribution" },
+      { nextPlatform: "ad-targeting", eventType: "content_for_targeting", description: "Content ready — build targeted ad campaign" },
       ...ECOSYSTEM_PLATFORMS.map(p => ({ nextPlatform: p.id, eventType: "content_available", description: "New ecosystem content available for your platform" })),
+    ],
+    "video_produced": [
+      { nextPlatform: "ad-targeting", eventType: "video_for_ad_campaign", description: "Video produced — create targeted ad campaign" },
     ],
     "product_launched": [
       { nextPlatform: "betterscience", eventType: "evaluate_product", description: "New product launched — RPLICE evaluate with RE-AIM" },
