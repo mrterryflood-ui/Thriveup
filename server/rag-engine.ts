@@ -68,20 +68,21 @@ MAP-GAP is used for: platform audits, grant readiness assessments, compliance sw
     keywords: ["compliance", "fidelity", "heartbeat", "directives", "grading", "verification", "ack", "intelligence", "work chain"],
   },
   {
-    source: "ecosystem-overview", category: "technology", title: "AI & Technology Stack",
+    source: "ecosystem-overview", category: "technology", title: "AI & Technology Stack — 4-Provider Collaborative Intelligence",
     content: `ThriveUp Academy technology:
 - AI Companions: Spark (youth-facing, age-adaptive K-12) and Sparky (adult-facing for parents, veterans, returning citizens)
-- Multi-provider AI: OpenAI GPT-4o-mini, GPT-5-nano, Gemini 2.0 Flash with automatic fallback
-- Dual-AI Review: Two independent AI models review content for quality assurance
-- RAG Intelligence: Retrieval Augmented Generation — AI answers grounded in real ecosystem data
+- 4-Provider Collaborative AI (ordered fallback chain): 1) Google Gemini 2.0 Flash (primary, free tier), 2) Anthropic Claude Haiku 4.5 (secondary, collaborative perspective), 3) OpenAI GPT-4o-mini (tertiary), 4) Replit AI Integrations GPT-5-nano (quaternary)
+- Collaborative Multi-AI Review: Multiple AI models independently analyze the same problem, then a synthesis AI merges their perspectives into consensus. This is NOT adversarial — it's collaborative intelligence bringing different viewpoints so nothing is missed. Used by RPLICE and MCE for quality assurance.
+- RAG Intelligence: Retrieval Augmented Generation — AI answers grounded in real ecosystem data from 66+ knowledge chunks
 - Video Creator AI: AI-powered video production for every platform
 - Advertising Targeting: Data-driven ad campaigns for community outreach
 - 14 AI Tools: Presentation builder, video script creator, business plan generator, research assistant, and more
 - Implementation Science: CFIR and RE-AIM frameworks
 - 988 Veterans Crisis Line: Accessible from every page on every platform
 - Privacy First: Screening results and safety plans stay on user's device
-- Work Chain Engine: Automated task routing between platforms`,
-    keywords: ["ai", "technology", "spark", "sparky", "rag", "dual ai", "video", "tools", "implementation science"],
+- Work Chain Engine: Automated task routing between platforms
+- Automatic Failover: If any AI provider fails (rate limit, error, empty response), the system automatically falls back to the next provider — zero downtime for users`,
+    keywords: ["ai", "technology", "spark", "sparky", "rag", "dual ai", "multi ai", "collaborative", "claude", "gemini", "openai", "video", "tools", "implementation science", "providers", "fallback"],
   },
   {
     source: "ecosystem-overview", category: "leadership", title: "Dr. Terry Flood — Founder & CEO",
@@ -90,8 +91,8 @@ MAP-GAP is used for: platform audits, grant readiness assessments, compliance sw
   },
   {
     source: "platform", category: "platform", title: "Better Science Lab / RPLICE",
-    content: `RPLICE is the research and implementation science engine. Uses CFIR and RE-AIM frameworks. Evidence-based practice registry, fidelity measurement, research translation, community application guides. Quality gate — all platform work verified through RPLICE. URL: bettersciencelab.com. Grants: DFC, SSG Fox, SAMHSA.`,
-    keywords: ["betterscience", "rplice", "research", "cfir", "re-aim", "implementation science", "evidence", "fidelity", "quality"],
+    content: `RPLICE is the research and implementation science engine. Uses CFIR and RE-AIM frameworks. Evidence-based practice registry, fidelity measurement, research translation, community application guides. Quality gate — all platform work verified through RPLICE. RPLICE uses collaborative multi-AI review: multiple AI models (Gemini, Claude, OpenAI) independently analyze the same document, then a synthesis step builds consensus — bringing different perspectives together so nothing is missed. URL: bettersciencelab.com. Grants: DFC, SSG Fox, SAMHSA.`,
+    keywords: ["betterscience", "rplice", "research", "cfir", "re-aim", "implementation science", "evidence", "fidelity", "quality", "collaborative ai", "multi ai"],
   },
   {
     source: "platform", category: "platform", title: "LifeBridge — Resource Navigation",
@@ -135,8 +136,8 @@ MAP-GAP is used for: platform audits, grant readiness assessments, compliance sw
   },
   {
     source: "platform", category: "platform", title: "Minority Center of Excellence",
-    content: `First comprehensive digital ecosystem for minority-owned businesses. 656,794 curated records, 14 AI tools, dual-AI proposal review, SAM.gov live integration, 50-state + DC coverage. URL: minoritycenterofexcellence.com. Grants: WIOA.`,
-    keywords: ["mce", "minority business", "contracts", "sam.gov", "proposals", "small business", "8a", "minority"],
+    content: `First comprehensive digital ecosystem for minority-owned businesses. 656,794 curated records, 14 AI tools, collaborative multi-AI proposal review (Gemini + Claude + OpenAI independently review, then synthesize consensus), SAM.gov live integration, 50-state + DC coverage. URL: minoritycenterofexcellence.com. Grants: WIOA.`,
+    keywords: ["mce", "minority business", "contracts", "sam.gov", "proposals", "small business", "8a", "minority", "collaborative ai", "multi ai"],
   },
   {
     source: "platform", category: "platform", title: "Video Creator AI",
@@ -190,8 +191,8 @@ MAP-GAP is used for: platform audits, grant readiness assessments, compliance sw
   },
   {
     source: "strategic-framework", category: "strategy", title: "What ThriveUp Academy Actually Is — System of Systems",
-    content: `ThriveUp Academy is NOT a collection of platforms. It is a governed system of systems — a self-governing, closed-loop human services operating system. Most organizations operate at the level of tools (apps, dashboards) or programs (coordinated services). ThriveUp has crossed into the third level: a feedback-driven environment that learns, adapts, and enforces behavior. The system doesn't just deliver services — it governs how services behave, improve, and prove impact. This is rare and unprecedented.`,
-    keywords: ["what is", "different", "unique", "system of systems", "operating system", "why", "special", "describe", "explain"],
+    content: `ThriveUp Academy is NOT a collection of platforms. It is a governed system of systems — a self-governing, closed-loop human services operating system. Most organizations operate at the level of tools (apps, dashboards) or programs (coordinated services). ThriveUp has crossed into the third level: a feedback-driven environment that learns, adapts, and enforces behavior. The system doesn't just deliver services — it governs how services behave, improve, and prove impact. This is rare and unprecedented. The platforms work in parallel, not in series — each is self-sufficient, standing on its own while the hub coordinates. If the hub goes down, all 20 platforms keep doing their jobs. It's not a chain where one broken link stops everything — it's a network where each node is empowered and the connections make the whole greater than the parts.`,
+    keywords: ["what is", "different", "unique", "system of systems", "operating system", "why", "special", "describe", "explain", "parallel", "network"],
   },
   {
     source: "strategic-framework", category: "strategy", title: "Closed-Loop Operating System Architecture",
@@ -243,7 +244,7 @@ FEEDBACK LOOP: Heartbeats → status awareness, Fidelity grades → performance 
 STRATEGIC GOVERNANCE (Board Level): Dr. Terry Flood, DHA serves as founder/CEO with executive authority over ecosystem direction, grant strategy, and platform standards. The Collaborative Advocate (VOSB) provides organizational anchoring. An Advisory Board of community leaders, subject matter experts, and institutional partners provides oversight.
 OPERATIONAL GOVERNANCE (System Level): The ecosystem hub at thrivingcommunitiesforall.com serves as the central governing authority. It issues directives, grades compliance, verifies deliverables, and enforces quality standards across all 20 platforms. RPLICE (Better Science Lab) serves as the mandatory quality gate — all grants, documents, and submissions require RPLICE review before release.
 PLATFORM GOVERNANCE (Platform Level): Each platform maintains operational autonomy within ecosystem standards. Platforms must: send heartbeats every 15 minutes, respond to directives with substantive evidence, maintain minimum fidelity grade of C to remain in good standing, and participate in MAP-GAP continuous improvement cycles.
-ETHICAL AI GOVERNANCE: Dual-AI review ensures no single AI model controls content quality. AI companions (Spark for youth, Sparky for adults) operate within age-appropriate guardrails. All AI outputs are grounded in verified data through RAG — no hallucinated recommendations. Privacy-first: screening results and safety plans stay on the user's device, never stored server-side. FERPA, COPPA, and CIPA compliance for youth-facing platforms.
+ETHICAL AI GOVERNANCE: Collaborative multi-AI review ensures no single AI model controls content quality — Gemini, Claude, and OpenAI independently analyze the same problem, then a synthesis step builds consensus. This collaborative intelligence model (not adversarial) is used by RPLICE and MCE. AI companions (Spark for youth, Sparky for adults) operate within age-appropriate guardrails. All AI outputs are grounded in verified data through RAG — no hallucinated recommendations. Privacy-first: screening results and safety plans stay on the user's device, never stored server-side. FERPA, COPPA, and CIPA compliance for youth-facing platforms.
 ACCOUNTABILITY CHAIN: Platform → Hub → RPLICE → Dr. Flood → Advisory Board. Every level has defined escalation paths and override authority.`,
     keywords: ["governance", "who governs", "oversight", "board", "authority", "accountability", "ethical", "ethics", "who runs", "who controls", "structure", "leadership"],
   },
@@ -354,6 +355,40 @@ LEVEL 4 — PUBLISHED EVIDENCE (Planned):
 - Program Evaluation Briefs: Funder-ready 2-4 page summaries with key metrics, narratives, and outcome data for each grant cycle
 EVIDENCE DIFFERENTIATION: Unlike most organizations that report what they did, ThriveUp can show the system doing it in real time. A funder can ask "show me your compliance data" and see live grades. They can ask "prove your platforms are connected" and see heartbeats. They can ask "how do you ensure quality?" and see the RPLICE quality gate in action. This is evidence by architecture, not evidence by narrative.`,
     keywords: ["evidence", "prove", "outcomes", "evaluation", "skeptic", "reviewer", "data", "metrics", "re-aim", "cfir", "results", "impact", "pilot", "publish", "measurement"],
+  },
+  {
+    source: "strategic-framework", category: "strategy", title: "Parallel by Design — Resilient Ecosystem Architecture",
+    content: `ThriveUp's 20 platforms are empowered to work in parallel, not in series. This is resilience by design:
+SELF-SUFFICIENT NODES: Each platform has its own server, its own data, and its own heartbeat cycle. MCE doesn't need the Maternal Health Hub to be online to serve 115,000+ businesses. Shield Atlas doesn't need MCE to run risk assessments. They share data when they can, but stand on their own when they have to.
+HUB AS COORDINATOR, NOT DEPENDENCY: The hub at thrivingcommunitiesforall.com distributes directives, tracks compliance, and routes warm handoffs. But if it's offline for an hour, all 20 platforms keep doing their jobs. The heartbeat just retries on the next interval and picks up where it left off.
+GRACEFUL DEGRADATION: Platforms cache their last directives and continue functioning independently if the hub is unavailable. No single broken link stops everything — this is a network where each node is self-sufficient and the connections make the whole greater than the parts.
+NOT A CHAIN — A NETWORK: Most systems are chains where one broken link stops everything. ThriveUp is a network of self-sufficient platforms. The hub makes them more effective together, but each one stands on its own.
+EVIDENCE VERIFICATION (NOT JUST ACKNOWLEDGMENT): Acknowledgment alone means "I saw it." ThriveUp goes further — deliverable verification pings evidence URLs (HEAD→GET fallback, SSRF protection) every 30 minutes to confirm real execution happened. Fidelity scores reflect actual work, not just receipt. This closes the accountability gap that most coordination systems leave open.
+WARM HANDOFFS CLOSE THE CRACKS: Cold referrals are where people fall through cracks. The ecosystem has confirmation loops: "I sent this person to you" → "they arrived." This matters most for veterans, families, and maternal health patients in underserved communities.`,
+    keywords: ["parallel", "resilient", "self-sufficient", "graceful degradation", "hub down", "independent", "network", "chain", "failure", "cache", "evidence", "warm handoff", "cold referral", "cracks", "empowered"],
+  },
+  {
+    source: "strategic-framework", category: "strategy", title: "Collaborative Multi-AI Intelligence — How ThriveUp Uses Multiple AIs",
+    content: `ThriveUp uses collaborative multi-AI intelligence — not adversarial, but collaborative. Multiple AI providers look at the same problem from different perspectives so nothing is missed. This is exactly how RPLICE and MCE already operate.
+THE APPROACH: When a critical decision, review, or analysis is needed, ThriveUp sends the same prompt to two or more independent AI models (Gemini, Claude, OpenAI). Each model analyzes independently. A synthesis step merges their perspectives into consensus, noting where they agree and where they differ.
+WHY IT MATTERS: Different AI models have different training data, different reasoning patterns, and different blind spots. Google Gemini excels at speed and breadth. Anthropic Claude excels at careful reasoning and nuance. OpenAI GPT models excel at structured output and instruction following. Together, they catch what any single AI would miss.
+HOW IT WORKS IN PRACTICE:
+- Dual-AI Review (dualAIReview): Two AI models independently review the same content (grant proposals, compliance documents, platform outputs). A third synthesis call identifies differences. Used by RPLICE for quality gates and MCE for proposal review.
+- Ensemble Response (generateMultiAIResponse): Two AIs generate independent responses to the same question. A consensus AI synthesizes the best of both. Used for strategic recommendations and complex planning.
+- Streaming Fallback Chain: Gemini (primary) → Claude (secondary) → OpenAI (tertiary) → Replit AI (quaternary). If any provider fails, the next picks up automatically — zero disruption.
+THE PHILOSOPHY: AI coordinates, Systems execute, Humans decide. Multiple AI perspectives improve the quality of coordination. The human (Dr. Flood, RPLICE reviewers) still makes the final decision — but with richer, more diverse AI input. This mirrors how high-reliability organizations use multiple independent checks for safety-critical decisions.`,
+    keywords: ["multi ai", "collaborative", "dual ai", "ensemble", "multiple perspectives", "consensus", "claude", "gemini", "openai", "rplice review", "mce review", "quality", "intelligence", "collaborative intelligence", "adversarial", "viewpoints"],
+  },
+  {
+    source: "strategic-framework", category: "strategy", title: "AI Provider Architecture — 4-Layer Resilient Intelligence",
+    content: `ThriveUp's AI provider architecture ensures zero-downtime intelligent services through a 4-layer resilient design:
+LAYER 1 — Google Gemini 2.0 Flash (Primary): Free tier, extremely fast, broad knowledge. Used for real-time streaming in Ecosystem AI chatbot, daily operations, and high-volume queries.
+LAYER 2 — Anthropic Claude Haiku 4.5 (Secondary): Careful reasoning, strong on nuance and ethics. Used for collaborative review alongside Gemini, adds a different analytical perspective. Integrated via Replit AI Integrations (auto-configured environment variables, billed to Replit credits).
+LAYER 3 — OpenAI GPT-4o-mini (Tertiary): Strong structured output, instruction following, JSON generation. Fallback for when Gemini and Claude are unavailable.
+LAYER 4 — Replit AI Integrations GPT-5-nano (Quaternary): Final fallback, always available through Replit's infrastructure.
+AUTOMATIC FAILOVER: The system detects rate limits (429), transient errors (5xx, timeouts), and empty responses. On any failure, it automatically falls back to the next provider in the chain. Users never see an error — they just get a response from whichever AI is available.
+COLLABORATIVE MODE: For critical decisions (dual-AI review, ensemble response), the system calls two providers sequentially, collects their independent analyses, then runs a synthesis step to merge perspectives into consensus. This is the collaborative intelligence pattern used by RPLICE and MCE.`,
+    keywords: ["provider", "gemini", "claude", "openai", "gpt", "fallback", "resilient", "architecture", "layer", "failover", "rate limit", "zero downtime"],
   },
 ];
 

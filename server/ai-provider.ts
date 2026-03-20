@@ -1,7 +1,8 @@
 import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from "@google/generative-ai";
 import OpenAI from "openai";
+import Anthropic from "@anthropic-ai/sdk";
 
-type Provider = "gemini" | "openai" | "replit-ai-integrations";
+type Provider = "gemini" | "claude" | "openai" | "replit-ai-integrations";
 
 interface StreamAIResponseParams {
   messages: Array<{ role: string; content: string }>;
@@ -14,6 +15,7 @@ interface StreamAIResponseParams {
 function getAvailableProviders(): Provider[] {
   const providers: Provider[] = [];
   if (process.env.GEMINI_API_KEY) providers.push("gemini");
+  if (process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY && process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL) providers.push("claude");
   if (process.env.OPENAI_API_KEY) providers.push("openai");
   if (process.env.AI_INTEGRATIONS_OPENAI_API_KEY && process.env.AI_INTEGRATIONS_OPENAI_BASE_URL) providers.push("replit-ai-integrations");
   return providers;
@@ -31,6 +33,7 @@ function detectProvider(): Provider {
 
 const PROVIDER_CONFIG: Record<Provider, { model: string; isFree: boolean }> = {
   gemini: { model: "gemini-2.0-flash", isFree: true },
+  claude: { model: "claude-haiku-4-5", isFree: false },
   openai: { model: "gpt-4o-mini", isFree: false },
   "replit-ai-integrations": { model: "gpt-5-nano", isFree: false },
 };
@@ -99,6 +102,52 @@ async function streamGemini(params: StreamAIResponseParams): Promise<void> {
   params.onDone();
 }
 
+async function streamClaude(params: StreamAIResponseParams): Promise<void> {
+  const client = new Anthropic({
+    apiKey: process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY,
+    baseURL: process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL,
+  });
+
+  let systemPrompt: string | undefined;
+  const chatMessages: Array<{ role: "user" | "assistant"; content: string }> = [];
+
+  for (const msg of params.messages) {
+    if (msg.role === "system") {
+      systemPrompt = msg.content;
+    } else {
+      chatMessages.push({
+        role: msg.role === "assistant" ? "assistant" : "user",
+        content: msg.content,
+      });
+    }
+  }
+
+  if (chatMessages.length === 0) {
+    throw new Error("No user messages provided for Claude streaming");
+  }
+  if (chatMessages[0].role !== "user") {
+    chatMessages.unshift({ role: "user", content: chatMessages.length > 0 ? "Continue the conversation." : "Hello" });
+  }
+
+  const stream = client.messages.stream({
+    model: "claude-haiku-4-5",
+    max_tokens: params.maxTokens || 8192,
+    ...(systemPrompt ? { system: systemPrompt } : {}),
+    messages: chatMessages,
+  });
+
+  for await (const event of stream) {
+    if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
+      const text = event.delta.text;
+      if (text) {
+        params.onChunk(text);
+      }
+    }
+  }
+
+  params.onDone();
+}
+
 async function streamOpenAI(params: StreamAIResponseParams, provider: "openai" | "replit-ai-integrations"): Promise<void> {
   let client: OpenAI;
   let model: string;
@@ -134,6 +183,8 @@ async function streamOpenAI(params: StreamAIResponseParams, provider: "openai" |
 async function tryProvider(provider: Provider, params: StreamAIResponseParams): Promise<void> {
   if (provider === "gemini") {
     await streamGemini(params);
+  } else if (provider === "claude") {
+    await streamClaude(params);
   } else {
     await streamOpenAI(params, provider);
   }
@@ -156,6 +207,21 @@ export async function generateAIJSON<T = unknown>(prompt: string, systemPrompt?:
         });
         const result = await model.generateContent(prompt);
         text = result.response.text();
+      } else if (provider === "claude") {
+        const client = new Anthropic({
+          apiKey: process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY,
+          baseURL: process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL,
+        });
+        const chatMsgs: Array<{ role: "user" | "assistant"; content: string }> = [];
+        chatMsgs.push({ role: "user", content: `${prompt}\n\nRespond with valid JSON only, no markdown.` });
+        const resp = await client.messages.create({
+          model: "claude-haiku-4-5",
+          max_tokens: 8192,
+          ...(systemPrompt ? { system: systemPrompt } : {}),
+          messages: chatMsgs,
+        });
+        const block = resp.content[0];
+        text = block.type === "text" ? block.text : "{}";
       } else {
         const isReplit = provider === "replit-ai-integrations";
         const client = new OpenAI({
@@ -174,10 +240,17 @@ export async function generateAIJSON<T = unknown>(prompt: string, systemPrompt?:
         text = resp.choices[0]?.message?.content || "{}";
       }
       const cleaned = text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+      if (!cleaned || cleaned.length === 0) {
+        if (i < providers.length - 1) {
+          console.error(`[AI Provider] ${provider} returned empty JSON response, falling back to ${providers[i + 1]}`);
+          continue;
+        }
+      }
       return JSON.parse(cleaned) as T;
     } catch (error) {
-      if ((isRateLimitError(error) || isTransientError(error)) && i < providers.length - 1) {
-        console.error(`[AI Provider] ${provider} failed for JSON, falling back to ${providers[i + 1]}`);
+      if (i < providers.length - 1) {
+        const reason = isRateLimitError(error) ? "rate limit" : isTransientError(error) ? "transient error" : (error instanceof SyntaxError ? "JSON parse failure" : "error");
+        console.error(`[AI Provider] ${provider} failed for JSON (${reason}), falling back to ${providers[i + 1]}`);
         continue;
       }
       throw error;
@@ -199,6 +272,49 @@ export async function generateAIResponse(messages: Array<{ role: string; content
   });
 }
 
+async function callProviderDirect(provider: Provider, prompt: string, systemPrompt?: string, maxTokens?: number): Promise<string> {
+  if (provider === "gemini") {
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.0-flash",
+      systemInstruction: systemPrompt,
+      generationConfig: { maxOutputTokens: maxTokens || 2000 },
+    });
+    const result = await model.generateContent(prompt);
+    return result.response.text();
+  } else if (provider === "claude") {
+    const client = new Anthropic({
+      apiKey: process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY,
+      baseURL: process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL,
+    });
+    const chatMsgs: Array<{ role: "user" | "assistant"; content: string }> = [];
+    chatMsgs.push({ role: "user", content: prompt });
+    const resp = await client.messages.create({
+      model: "claude-haiku-4-5",
+      max_tokens: maxTokens || 8192,
+      ...(systemPrompt ? { system: systemPrompt } : {}),
+      messages: chatMsgs,
+    });
+    const block = resp.content[0];
+    return block.type === "text" ? block.text : "";
+  } else {
+    const isReplit = provider === "replit-ai-integrations";
+    const client = new OpenAI({
+      apiKey: isReplit ? process.env.AI_INTEGRATIONS_OPENAI_API_KEY : process.env.OPENAI_API_KEY,
+      baseURL: isReplit ? process.env.AI_INTEGRATIONS_OPENAI_BASE_URL : undefined,
+    });
+    const msgs: Array<{ role: "system" | "user"; content: string }> = [];
+    if (systemPrompt) msgs.push({ role: "system", content: systemPrompt });
+    msgs.push({ role: "user", content: prompt });
+    const resp = await client.chat.completions.create({
+      model: isReplit ? "gpt-5-nano" : "gpt-4o-mini",
+      messages: msgs,
+      max_completion_tokens: maxTokens || 2000,
+    });
+    return resp.choices[0]?.message?.content || "";
+  }
+}
+
 export async function generateMultiAIResponse(
   prompt: string,
   options?: { ensemble?: boolean; systemPrompt?: string; maxTokens?: number }
@@ -217,35 +333,7 @@ export async function generateMultiAIResponse(
   }
 
   try {
-    let secondaryText = "";
-    const secondProvider = providers[1];
-    if (secondProvider === "gemini") {
-      const { GoogleGenerativeAI: GenAI } = await import("@google/generative-ai");
-      const genAI = new GenAI(process.env.GEMINI_API_KEY!);
-      const model = genAI.getGenerativeModel({
-        model: "gemini-2.0-flash",
-        systemInstruction: options?.systemPrompt,
-        generationConfig: { maxOutputTokens: options?.maxTokens || 2000 },
-      });
-      const result = await model.generateContent(prompt);
-      secondaryText = result.response.text();
-    } else {
-      const isReplit = secondProvider === "replit-ai-integrations";
-      const { default: OAI } = await import("openai");
-      const client = new OAI({
-        apiKey: isReplit ? process.env.AI_INTEGRATIONS_OPENAI_API_KEY : process.env.OPENAI_API_KEY,
-        baseURL: isReplit ? process.env.AI_INTEGRATIONS_OPENAI_BASE_URL : undefined,
-      });
-      const msgs: Array<{ role: "system" | "user"; content: string }> = [];
-      if (options?.systemPrompt) msgs.push({ role: "system", content: options.systemPrompt });
-      msgs.push({ role: "user", content: prompt });
-      const resp = await client.chat.completions.create({
-        model: isReplit ? "gpt-5-nano" : "gpt-4o-mini",
-        messages: msgs,
-        max_completion_tokens: options?.maxTokens || 2000,
-      });
-      secondaryText = resp.choices[0]?.message?.content || "";
-    }
+    const secondaryText = await callProviderDirect(providers[1], prompt, options?.systemPrompt, options?.maxTokens);
 
     const consensusPrompt = `You received two independent responses to the same prompt. Summarize the consensus and note any differences.\n\nResponse A:\n${primary}\n\nResponse B:\n${secondaryText}`;
     const consensus = await generateAIResponse([
@@ -278,35 +366,7 @@ export async function dualAIReview(
   }
 
   try {
-    let reviewB = "";
-    const secondProvider = providers[1];
-    if (secondProvider === "gemini") {
-      const { GoogleGenerativeAI: GenAI } = await import("@google/generative-ai");
-      const genAI = new GenAI(process.env.GEMINI_API_KEY!);
-      const model = genAI.getGenerativeModel({
-        model: "gemini-2.0-flash",
-        systemInstruction: reviewPrompt,
-        generationConfig: { maxOutputTokens: 2000 },
-      });
-      const result = await model.generateContent(content);
-      reviewB = result.response.text();
-    } else {
-      const isReplit = secondProvider === "replit-ai-integrations";
-      const { default: OAI } = await import("openai");
-      const client = new OAI({
-        apiKey: isReplit ? process.env.AI_INTEGRATIONS_OPENAI_API_KEY : process.env.OPENAI_API_KEY,
-        baseURL: isReplit ? process.env.AI_INTEGRATIONS_OPENAI_BASE_URL : undefined,
-      });
-      const resp = await client.chat.completions.create({
-        model: isReplit ? "gpt-5-nano" : "gpt-4o-mini",
-        messages: [
-          { role: "system", content: reviewPrompt },
-          { role: "user", content: content },
-        ],
-        max_completion_tokens: 2000,
-      });
-      reviewB = resp.choices[0]?.message?.content || "";
-    }
+    const reviewB = await callProviderDirect(providers[1], content, reviewPrompt);
 
     const diffPrompt = `Compare two independent reviews and highlight differences.\n\nReview A:\n${reviewA}\n\nReview B:\n${reviewB}`;
     const differences = await generateAIResponse([
@@ -344,6 +404,8 @@ export async function streamAIResponse(params: StreamAIResponseParams): Promise<
 
       if (provider === "gemini") {
         await streamGemini(wrappedParams);
+      } else if (provider === "claude") {
+        await streamClaude(wrappedParams);
       } else {
         await streamOpenAI(wrappedParams, provider);
       }
@@ -363,9 +425,10 @@ export async function streamAIResponse(params: StreamAIResponseParams): Promise<
     } catch (error) {
       const isLast = i === providers.length - 1;
 
-      if (!isLast && (isRateLimitError(error) || isTransientError(error))) {
+      if (!isLast) {
+        const reason = isRateLimitError(error) ? "rate limit" : isTransientError(error) ? "transient error" : "provider error";
         const next = providers[i + 1];
-        console.error(`[AI Provider] ${provider} failed (${isRateLimitError(error) ? "rate limit" : "transient error"}), falling back to ${next}`);
+        console.error(`[AI Provider] ${provider} failed (${reason}), falling back to ${next}`);
         continue;
       }
 

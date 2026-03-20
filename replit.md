@@ -29,11 +29,11 @@ Core architectural features include:
 - **Accessibility & Design:** WCAG 2.1 AA compliance, dyslexia-friendly fonts, high contrast, reduced motion, screen reader optimization, mobile responsiveness, and a violet/indigo branding design system with dark mode support.
 - **Internationalization:** Supports English and Spanish.
 - **Stakeholder Management:** Stakeholder Transparency Dashboard with 7 role-based views and a First 30 Days Onboarding Journey.
-- **Multi-AI Ensemble:** Dual-AI review and multi-AI response synthesis for enhanced AI capabilities.
+- **Collaborative Multi-AI Intelligence:** 4-provider architecture (Gemini → Claude → OpenAI → Replit AI). Dual-AI review sends same content to two independent AI models for collaborative perspective synthesis. generateMultiAIResponse for ensemble consensus. dualAIReview for quality gate reviews. Automatic fallback on rate limits, errors, or empty responses. RPLICE and MCE use this for quality assurance. Not adversarial — collaborative, bringing different viewpoints so nothing is missed.
 
 ## External Dependencies
 - **Database:** PostgreSQL (Neon-backed)
-- **AI Integration:** Google Gemini Flash, OpenAI (gpt-4o-mini), Replit AI Integrations (gpt-5-nano), Multi-AI Ensemble
+- **AI Integration:** 4-provider collaborative intelligence chain: Google Gemini 2.0 Flash (primary), Anthropic Claude Haiku 4.5 (secondary, via Replit AI Integrations), OpenAI GPT-4o-mini (tertiary), Replit AI Integrations GPT-5-nano (quaternary). Collaborative multi-AI review: multiple AIs independently analyze same problem, synthesis builds consensus. Used by RPLICE and MCE.
 - **Email:** Resend (via Replit connector integration)
 - **Authentication:** Replit Auth (OIDC)
 - **GIS Data Sources:** CDC PLACES API, CDC/ATSDR SVI, FBI Crime Data API, Census Bureau ACS, USDA Food Access Atlas, HUD, SAMHSA, BLS
