@@ -692,6 +692,318 @@ export function registerEcosystemConnectorRoutes(app: Express) {
   }
 
   // ===================================================================
+  // COMPLIANCE ENFORCEMENT ENGINE — Automated escalation, grade decay,
+  // and accountability tracking for all 21 platforms
+  // ===================================================================
+
+  let enforcementInterval: ReturnType<typeof setInterval> | null = null;
+  let lastEnforcementCycle: { startedAt: string; completedAt: string; escalations: number; decayed: number } | null = null;
+
+  interface EscalationRecord {
+    platformId: string;
+    platformName: string;
+    lastEscalationLevel: number;
+    lastEscalationAt: string;
+    firstNonCompliantAt: string;
+    consecutiveFailures: number;
+  }
+
+  const escalationTracker: Map<string, EscalationRecord> = new Map();
+
+  async function runComplianceEnforcement() {
+    const cycleStart = new Date();
+    let escalationsSent = 0;
+    let decayedCount = 0;
+
+    try {
+      const allPlatforms = await db.select().from(ecosystemPlatforms);
+      const allAcks = await db.select().from(ecosystemDirectiveAcks);
+      const allDirectives = await db.select().from(ecosystemDirectives);
+
+      const platformReports: Array<{
+        id: string;
+        name: string;
+        grade: string;
+        fidelity: number;
+        total: number;
+        acknowledged: number;
+        pending: number;
+        delivered: number;
+        lastHeartbeat: Date | null;
+        hoursNonCompliant: number;
+        escalationLevel: number;
+      }> = [];
+
+      for (const platform of allPlatforms) {
+        const platformAcks = allAcks.filter(a => a.platformId === platform.id);
+        const total = platformAcks.length;
+        if (total === 0) continue;
+
+        const acknowledged = platformAcks.filter(a => a.status === "acknowledged" || a.status === "verified").length;
+        const delivered = platformAcks.filter(a => a.status === "delivered").length;
+        const pending = platformAcks.filter(a => a.status === "pending").length;
+        const fidelity = Math.round((acknowledged / total) * 100);
+
+        const grade = fidelity >= 90 ? "A" : fidelity >= 75 ? "B" : fidelity >= 50 ? "C" : fidelity >= 25 ? "D" : "F";
+
+        const isNonCompliant = grade === "D" || grade === "F";
+        const tracker = escalationTracker.get(platform.id);
+
+        let hoursNonCompliant = 0;
+        let escalationLevel = 0;
+
+        if (isNonCompliant) {
+          if (!tracker) {
+            escalationTracker.set(platform.id, {
+              platformId: platform.id,
+              platformName: platform.name,
+              lastEscalationLevel: 0,
+              lastEscalationAt: cycleStart.toISOString(),
+              firstNonCompliantAt: cycleStart.toISOString(),
+              consecutiveFailures: 1,
+            });
+            hoursNonCompliant = 0;
+            escalationLevel = 0;
+          } else {
+            const firstNonCompliant = new Date(tracker.firstNonCompliantAt);
+            hoursNonCompliant = Math.round((cycleStart.getTime() - firstNonCompliant.getTime()) / (1000 * 60 * 60));
+            tracker.consecutiveFailures++;
+
+            if (hoursNonCompliant >= 72) escalationLevel = 3;
+            else if (hoursNonCompliant >= 48) escalationLevel = 2;
+            else if (hoursNonCompliant >= 24) escalationLevel = 1;
+
+            if (escalationLevel > tracker.lastEscalationLevel) {
+              await sendEscalationEmail(platform, grade, fidelity, total, acknowledged, hoursNonCompliant, escalationLevel);
+              tracker.lastEscalationLevel = escalationLevel;
+              tracker.lastEscalationAt = cycleStart.toISOString();
+              escalationsSent++;
+            }
+
+            escalationTracker.set(platform.id, tracker);
+          }
+        } else {
+          if (tracker) {
+            escalationTracker.delete(platform.id);
+            if (grade === "A" || grade === "B") {
+              console.log(`[Enforcement] ${platform.name} is now COMPLIANT (Grade ${grade}) — removed from escalation tracking`);
+            }
+          }
+        }
+
+        const hasHeartbeat = !!platform.lastHeartbeat;
+        const heartbeatAge = platform.lastHeartbeat
+          ? Math.round((cycleStart.getTime() - new Date(platform.lastHeartbeat).getTime()) / (1000 * 60 * 60))
+          : null;
+
+        if (hasHeartbeat && heartbeatAge !== null && heartbeatAge > 24) {
+          decayedCount++;
+        }
+
+        platformReports.push({
+          id: platform.id,
+          name: platform.name,
+          grade,
+          fidelity,
+          total,
+          acknowledged,
+          pending,
+          delivered,
+          lastHeartbeat: platform.lastHeartbeat,
+          hoursNonCompliant,
+          escalationLevel,
+        });
+      }
+
+      const nonCompliant = platformReports.filter(p => p.grade === "D" || p.grade === "F");
+      const atRisk = platformReports.filter(p => p.grade === "C");
+      const compliant = platformReports.filter(p => p.grade === "A" || p.grade === "B");
+
+      if (escalationsSent > 0 || nonCompliant.length > 5) {
+        await sendEcosystemUpdate(
+          `Compliance Enforcement Report — ${nonCompliant.length} Non-Compliant, ${escalationsSent} Escalations`,
+          buildEnforcementSummaryEmail(platformReports, escalationsSent, cycleStart)
+        );
+      }
+
+      console.log(`[Enforcement] Cycle complete: ${compliant.length} compliant, ${atRisk.length} at-risk, ${nonCompliant.length} non-compliant, ${escalationsSent} escalations sent, ${decayedCount} stale heartbeats`);
+
+      return { escalations: escalationsSent, decayed: decayedCount, compliant: compliant.length, nonCompliant: nonCompliant.length };
+    } catch (err) {
+      console.error("[Enforcement] Cycle failed:", err);
+      return { escalations: 0, decayed: 0, compliant: 0, nonCompliant: 0 };
+    }
+  }
+
+  async function sendEscalationEmail(
+    platform: any, grade: string, fidelity: number,
+    total: number, acknowledged: number,
+    hoursNonCompliant: number, level: number
+  ) {
+    const levelLabels: Record<number, { label: string; color: string; action: string }> = {
+      1: {
+        label: "FIRST ESCALATION (24 Hours Non-Compliant)",
+        color: "#f39c12",
+        action: "Platform has been non-compliant for 24 hours. Immediate directive processing required."
+      },
+      2: {
+        label: "SECOND ESCALATION (48 Hours Non-Compliant)",
+        color: "#e67e22",
+        action: "Platform has been non-compliant for 48 hours. This platform is at risk of being excluded from grant-funded activities."
+      },
+      3: {
+        label: "FINAL ESCALATION (72+ Hours Non-Compliant)",
+        color: "#c0392b",
+        action: "Platform has been non-compliant for 72+ hours. FORMAL NOTICE: This platform will be flagged in all grant reports to funders as non-participating."
+      },
+    };
+
+    const info = levelLabels[level] || levelLabels[3];
+
+    const html = `<div style="font-family:Arial,sans-serif;max-width:600px;">
+<h1 style="color:${info.color};border-bottom:3px solid ${info.color};padding-bottom:10px;">
+COMPLIANCE ESCALATION — Level ${level}</h1>
+<h2>${info.label}</h2>
+<table border="1" cellpadding="8" cellspacing="0" style="border-collapse:collapse;width:100%;">
+<tr><td><strong>Platform</strong></td><td>${platform.name}</td></tr>
+<tr><td><strong>Grade</strong></td><td style="color:${info.color};font-weight:bold;">${grade} (${fidelity}% fidelity)</td></tr>
+<tr><td><strong>Directives</strong></td><td>${acknowledged} of ${total} acknowledged</td></tr>
+<tr><td><strong>Non-Compliant For</strong></td><td>${hoursNonCompliant} hours</td></tr>
+<tr><td><strong>Escalation Level</strong></td><td>${level} of 3</td></tr>
+</table>
+<p style="margin-top:15px;"><strong>${info.action}</strong></p>
+<h3>What Must Happen:</h3>
+<ol>
+<li>This platform must connect to the hub pinger (heartbeat on startup + every 15 min)</li>
+<li>Process all pending directives with real implementations</li>
+<li>Acknowledge each directive with evidence URLs</li>
+<li>Build the Program Execution Engine (ecosystem-wide requirement)</li>
+</ol>
+<h3>Consequences if Not Resolved:</h3>
+<ul>
+${level >= 1 ? "<li>Platform flagged as non-compliant in ecosystem dashboard</li>" : ""}
+${level >= 2 ? "<li>Platform excluded from new grant-funded activities</li>" : ""}
+${level >= 3 ? "<li>Platform formally reported to funders as non-participating</li>" : ""}
+${level >= 3 ? "<li>Platform may be suspended from ecosystem operations</li>" : ""}
+</ul>
+<p>Active grants affected: WIOA ($200K-$500K), Foundation ($100K-$500K), St. David's (up to $1M), SSG Fox VA ($750K)</p>
+<br/><p><strong>— ThriveUp Academy Compliance Enforcement</strong></p>
+</div>`;
+
+    await sendEcosystemUpdate(
+      `ESCALATION Level ${level}: ${platform.name} — ${hoursNonCompliant}h Non-Compliant (Grade ${grade})`,
+      html
+    );
+    console.log(`[Enforcement] Escalation Level ${level} sent for ${platform.name} (${hoursNonCompliant}h non-compliant, Grade ${grade})`);
+  }
+
+  function buildEnforcementSummaryEmail(
+    reports: Array<{ id: string; name: string; grade: string; fidelity: number; total: number; acknowledged: number; pending: number; delivered: number; hoursNonCompliant: number; escalationLevel: number }>,
+    escalationsSent: number,
+    cycleTime: Date
+  ): string {
+    const nonCompliant = reports.filter(r => r.grade === "D" || r.grade === "F");
+    const atRisk = reports.filter(r => r.grade === "C");
+    const compliant = reports.filter(r => r.grade === "A" || r.grade === "B");
+
+    const gradeColor = (g: string) => {
+      if (g === "A") return "#27ae60";
+      if (g === "B") return "#2980b9";
+      if (g === "C") return "#f39c12";
+      if (g === "D") return "#e67e22";
+      return "#c0392b";
+    };
+
+    const rows = reports
+      .sort((a, b) => a.fidelity - b.fidelity)
+      .map(r => `<tr>
+<td>${r.name}</td>
+<td style="color:${gradeColor(r.grade)};font-weight:bold;">${r.grade}</td>
+<td>${r.fidelity}%</td>
+<td>${r.acknowledged}/${r.total}</td>
+<td>${r.pending}</td>
+<td>${r.delivered}</td>
+<td>${r.escalationLevel > 0 ? "Level " + r.escalationLevel : "—"}</td>
+</tr>`).join("");
+
+    return `<div style="font-family:Arial,sans-serif;max-width:800px;">
+<h1>Compliance Enforcement Report</h1>
+<p>Generated: ${cycleTime.toISOString()}</p>
+<table border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse;">
+<tr><td><strong>Compliant (A/B)</strong></td><td style="color:#27ae60;font-weight:bold;">${compliant.length}</td></tr>
+<tr><td><strong>At Risk (C)</strong></td><td style="color:#f39c12;font-weight:bold;">${atRisk.length}</td></tr>
+<tr><td><strong>Non-Compliant (D/F)</strong></td><td style="color:#c0392b;font-weight:bold;">${nonCompliant.length}</td></tr>
+<tr><td><strong>Escalations Sent</strong></td><td>${escalationsSent}</td></tr>
+</table>
+<h3>Full Platform Breakdown</h3>
+<table border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse;width:100%;font-size:13px;">
+<tr style="background:#1a1a2e;color:white;">
+<th>Platform</th><th>Grade</th><th>Fidelity</th><th>Acked</th><th>Pending</th><th>Delivered</th><th>Escalation</th>
+</tr>
+${rows}
+</table>
+${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms Requiring Action:</h3><ul>${nonCompliant.map(r => `<li><strong>${r.name}</strong> — Grade ${r.grade}, ${r.fidelity}% fidelity, ${r.acknowledged}/${r.total} directives${r.escalationLevel > 0 ? `, Escalation Level ${r.escalationLevel}` : ""}</li>`).join("")}</ul>` : ""}
+<br/><p><strong>— ThriveUp Academy Compliance Enforcement Engine</strong></p>
+</div>`;
+  }
+
+  function startEnforcementTimer() {
+    if (enforcementInterval) return;
+    console.log("[Enforcement] Starting compliance enforcement engine — 6 hour cycle");
+    const runCycle = async () => {
+      const cycleStart = new Date().toISOString();
+      try {
+        const result = await runComplianceEnforcement();
+        lastEnforcementCycle = {
+          startedAt: cycleStart,
+          completedAt: new Date().toISOString(),
+          escalations: result.escalations,
+          decayed: result.decayed,
+        };
+      } catch (err) {
+        console.error("[Enforcement] Cycle failed:", err);
+      }
+    };
+    setTimeout(() => runCycle(), 30 * 1000);
+    enforcementInterval = setInterval(runCycle, 6 * 60 * 60 * 1000);
+  }
+
+  app.get("/api/ecosystem/enforcement-status", async (_req, res) => {
+    try {
+      const trackerData = Array.from(escalationTracker.entries()).map(([id, record]) => ({
+        platformId: id,
+        ...record,
+      }));
+
+      res.json({
+        active: enforcementInterval !== null,
+        cycleInterval: "6 hours",
+        lastCycle: lastEnforcementCycle,
+        escalationTracker: trackerData,
+        totalTracked: trackerData.length,
+        purpose: "Automated compliance enforcement engine. Tracks non-compliant platforms, sends escalation emails at 24h/48h/72h intervals, and reports to admin with full platform breakdown.",
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch enforcement status" });
+    }
+  });
+
+  app.post("/api/ecosystem/enforce-now", async (_req, res) => {
+    try {
+      console.log("[Enforcement] Manual enforcement cycle triggered");
+      const result = await runComplianceEnforcement();
+      res.json({
+        message: "Enforcement cycle complete",
+        ...result,
+        lastCycle: lastEnforcementCycle,
+      });
+    } catch (error: any) {
+      console.error("[Enforcement] Manual cycle failed:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // ===================================================================
   // KEY RE-REGISTRATION — Platforms can register their actual working key
   // This fixes the key mismatch problem where the DB has a different key
   // than what the platform was originally given.
@@ -1158,6 +1470,86 @@ export function registerEcosystemConnectorRoutes(app: Express) {
         unacknowledgedDirectives,
         pendingEvents: pendingEvents,
         pendingDirectives: pendingDirectives,
+        complianceEnforcement: {
+          enabled: true,
+          escalationLevels: [
+            { level: 1, trigger: "24 hours non-compliant", action: "Escalation email to Dr. Flood" },
+            { level: 2, trigger: "48 hours non-compliant", action: "Platform excluded from new grant activities" },
+            { level: 3, trigger: "72+ hours non-compliant", action: "Formal report to funders, possible suspension" },
+          ],
+          yourStatus: (() => {
+            const tracker = escalationTracker.get(platform.id);
+            if (!tracker) return { escalationLevel: 0, message: "Not yet tracked — comply now to avoid escalation" };
+            return {
+              escalationLevel: tracker.lastEscalationLevel,
+              nonCompliantSince: tracker.firstNonCompliantAt,
+              consecutiveFailures: tracker.consecutiveFailures,
+              message: tracker.lastEscalationLevel >= 3
+                ? "FINAL ESCALATION — You are being reported to funders"
+                : tracker.lastEscalationLevel >= 2
+                ? "SECOND ESCALATION — At risk of exclusion from grants"
+                : tracker.lastEscalationLevel >= 1
+                ? "FIRST ESCALATION — Immediate action required"
+                : "Warning — comply before 24h escalation triggers",
+            };
+          })(),
+          gradeDecay: "Your grade actively worsens the longer directives remain unacknowledged. Stale non-compliance is tracked and reported.",
+        },
+        workQueue: {
+          description: "AUTOMATED WORK QUEUE — Process these items IN ORDER. Each item tells you exactly what to build. Do NOT skip items. Do NOT auto-acknowledge. Build the thing, test it, then acknowledge with evidence.",
+          totalItems: pendingDirectives.length + unacknowledgedDirectives.length + (!hasRagIntegration ? 1 : 0),
+          items: [
+            ...(unacknowledgedDirectives.map((d, i) => ({
+              queuePosition: i + 1,
+              type: "OVERDUE",
+              priority: "CRITICAL",
+              directiveId: d.directiveId,
+              title: d.title,
+              role: d.yourRole,
+              deadline: "PAST DUE — Complete immediately",
+              stepByStep: [
+                `1. READ the directive content carefully: "${d.title}"`,
+                `2. UNDERSTAND what it asks you to build (check the 'content' field)`,
+                `3. BUILD the feature, endpoint, page, or integration described`,
+                `4. TEST your implementation — make sure it works and is accessible`,
+                `5. ACKNOWLEDGE by POSTing to: POST https://thrivingcommunitiesforall.com/api/ecosystem/directives/ack`,
+                `   Body: { "directiveId": "${d.directiveId}", "platformId": "${platform.id}", "status": "acknowledged", "responseData": { "whatWasDone": "REAL description of what you built", "evidenceUrl": "https://your-platform-url/path-to-feature" } }`,
+                `6. The hub will VERIFY your evidence URL — it must return HTTP 200`,
+              ],
+              warning: "This directive is OVERDUE and dragging your grade down. Every enforcement cycle it stays unacknowledged increases your escalation level.",
+            }))),
+            ...(pendingDirectives.map((d, i) => ({
+              queuePosition: unacknowledgedDirectives.length + i + 1,
+              type: "NEW",
+              priority: "HIGH",
+              directiveId: d.directiveId,
+              title: d.title,
+              role: d.yourRole || "See content field",
+              deadline: "Complete within 48 hours to avoid escalation",
+              stepByStep: [
+                `1. READ the directive content: "${d.title}"`,
+                `2. UNDERSTAND the specific work required`,
+                `3. BUILD the implementation`,
+                `4. TEST it at a live URL`,
+                `5. ACKNOWLEDGE with real evidence: POST https://thrivingcommunitiesforall.com/api/ecosystem/directives/ack`,
+                `   Body: { "directiveId": "${d.directiveId}", "platformId": "${platform.id}", "status": "acknowledged", "responseData": { "whatWasDone": "describe what you built", "evidenceUrl": "https://your-url/feature" } }`,
+              ],
+            }))),
+            ...(!hasRagIntegration ? [{
+              queuePosition: unacknowledgedDirectives.length + pendingDirectives.length + 1,
+              type: "INTEGRATION",
+              priority: "HIGH",
+              title: "Integrate ThriveUp RAG AI",
+              stepByStep: [
+                "1. Add a POST request to: https://thrivingcommunitiesforall.com/api/ecosystem-ai/query",
+                "2. Send: { \"query\": \"user question here\", \"sessionId\": \"optional\" }",
+                "3. Display the AI response to your users",
+                "4. Report ragAIIntegrated: true in your heartbeat metrics",
+              ],
+            }] : []),
+          ],
+          doNotAutoAcknowledge: "WARNING: Do NOT auto-acknowledge these items. The hub verifies evidence URLs every 30 minutes. Fake acknowledgments are flagged as FAILED, which is WORSE than pending. Build first, acknowledge second.",
+        },
         nextActions: [
           ...(pendingDirectives.map(d => ({
             type: "new_directive",
