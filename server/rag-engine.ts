@@ -237,6 +237,77 @@ FEEDBACK LOOP: Heartbeats → status awareness, Fidelity grades → performance 
     content: `Don't say: "We built 20 platforms." Say: "We built a self-governing system that ensures services are delivered, verified, and continuously improved across the full human lifecycle — from prevention to recovery." This is a governed system of systems. An Autonomous Community Operating System. It delivers services, monitors itself, grades its own performance, routes work automatically, and generates grant-ready evidence — all in one interconnected architecture. Combined reach: 170,000+ residents across Central Texas. 5 active grants worth up to $3.375M. 20 platforms covering education, workforce, health equity, veteran services, housing, safety, and crisis prevention.`,
     keywords: ["elevator pitch", "describe", "explain", "summary", "what we do", "pitch", "one sentence", "tell me about"],
   },
+  {
+    source: "governance", category: "governance", title: "Governance Framework — Who Governs the System",
+    content: `ThriveUp Academy governance operates at three levels:
+STRATEGIC GOVERNANCE (Board Level): Dr. Terry Flood, DHA serves as founder/CEO with executive authority over ecosystem direction, grant strategy, and platform standards. The Collaborative Advocate (VOSB) provides organizational anchoring. An Advisory Board of community leaders, subject matter experts, and institutional partners provides oversight.
+OPERATIONAL GOVERNANCE (System Level): The ecosystem hub at thrivingcommunitiesforall.com serves as the central governing authority. It issues directives, grades compliance, verifies deliverables, and enforces quality standards across all 20 platforms. RPLICE (Better Science Lab) serves as the mandatory quality gate — all grants, documents, and submissions require RPLICE review before release.
+PLATFORM GOVERNANCE (Platform Level): Each platform maintains operational autonomy within ecosystem standards. Platforms must: send heartbeats every 15 minutes, respond to directives with substantive evidence, maintain minimum fidelity grade of C to remain in good standing, and participate in MAP-GAP continuous improvement cycles.
+ETHICAL AI GOVERNANCE: Dual-AI review ensures no single AI model controls content quality. AI companions (Spark for youth, Sparky for adults) operate within age-appropriate guardrails. All AI outputs are grounded in verified data through RAG — no hallucinated recommendations. Privacy-first: screening results and safety plans stay on the user's device, never stored server-side. FERPA, COPPA, and CIPA compliance for youth-facing platforms.
+ACCOUNTABILITY CHAIN: Platform → Hub → RPLICE → Dr. Flood → Advisory Board. Every level has defined escalation paths and override authority.`,
+    keywords: ["governance", "who governs", "oversight", "board", "authority", "accountability", "ethical", "ethics", "who runs", "who controls", "structure", "leadership"],
+  },
+  {
+    source: "governance", category: "governance", title: "Clinical Governance — Boundaries, Liability & Escalation",
+    content: `ThriveUp maintains strict clinical governance boundaries:
+CLINICAL DISCLAIMERS: All health screenings (C-SSRS, PHQ-9, GAD-7, PCL-5) carry explicit disclaimers: "This screening is not a diagnosis. Results should be discussed with a qualified healthcare provider." No platform provides medical diagnoses, treatment plans, or clinical interventions.
+MANDATORY REPORTING: SafeReport provides the compliance framework — 50-state regulation database, 7-stage incident lifecycle, auto-generated deadlines, tamper-evident audit trails, court-admissible records. Platform staff are trained on mandatory reporting obligations.
+CRISIS ESCALATION PROTOCOL: Three-tier escalation system:
+Tier 1 — Automated: C-SSRS screening flags immediate risk → 988 Veterans Crisis Line displayed prominently (call or text 988) → Reach a Vet resources activated → Safety plan generated on-device.
+Tier 2 — Warm Handoff: LifeBridge Community Health Workers coordinate direct connection to crisis services → 20,670+ verified resources for immediate referral → Warm handoff protocol ensures no "cold transfer" between services.
+Tier 3 — Institutional: SafeReport mandatory reporting activated when required by law → Court-admissible documentation generated → Appropriate authorities notified per state regulations.
+LIABILITY PROTECTIONS: ThriveUp platforms are navigation and coordination tools, not clinical providers. All clinical referrals go to licensed providers. Partnership agreements (via e-sign system) formalize legal boundaries between ecosystem partners. Consent framework includes Information Sharing consent, Emergency Contact Authorization, and tiered minor consent (COPPA/FERPA).
+SCOPE BOUNDARIES: ThriveUp does NOT prescribe medication (PillScheduler manages reminders only), does NOT provide therapy (routes to licensed providers), does NOT make clinical decisions (provides validated screening tools only), does NOT store clinical records (privacy-first, on-device only).`,
+    keywords: ["clinical", "liability", "risk", "escalation", "crisis", "mandatory reporting", "disclaimer", "scope", "legal", "consent", "hipaa", "safety", "boundary", "protocol"],
+  },
+  {
+    source: "governance", category: "governance", title: "Interoperability Roadmap — External System Integration",
+    content: `ThriveUp's interoperability strategy has three layers:
+CURRENT STATE (Operational Now):
+- Internal Ecosystem: 20 platforms communicate via heartbeat/directive API protocol with standardized event routing, work chaining, and compliance verification.
+- Ecosystem Connectors: JavaScript connector libraries for every platform enabling cross-domain data exchange (health, justice, education, workforce).
+- Public APIs: Integration document API, directives repository, live status, intelligence reports — all machine-readable JSON endpoints.
+- 988 Integration: Crisis line accessible from every page on every platform with warm handoff protocols.
+- SAM.gov: Live integration for federal grant opportunity searching and matching.
+NEAR-TERM ROADMAP (6-12 months):
+- FHIR R4 Integration: Health data interoperability with EHR systems using HL7 FHIR standard. Priority: referral resources (ServiceRequest), screening results (Observation), and care coordination (CarePlan). This enables connection to hospital systems, community health centers, and Medicaid managed care organizations.
+- Texas HHSC Integration: Connection to Texas Health and Human Services Commission systems for Medicaid eligibility verification, SNAP/TANF referrals, and state-level outcome reporting.
+- TEA Integration: Texas Education Agency data exchange for student support coordination, attendance tracking, and wraparound service documentation.
+LONG-TERM VISION (12-24 months):
+- VA Systems: Direct integration with Veterans Health Administration for veteran service coordination, benefits verification, and clinical referral pathways.
+- State 211 Systems: Bidirectional integration with 211 resource databases for real-time resource availability and referral tracking.
+- Medicaid Claims: Outcome-based reimbursement for community health worker services through LifeBridge.
+- National Replication: Standardized deployment package with CFIR context adaptation and RE-AIM outcome tracking for any city or region.`,
+    keywords: ["interoperability", "fhir", "ehr", "integration", "hhsc", "tea", "va", "211", "api", "systems", "external", "connect", "roadmap", "scale"],
+  },
+  {
+    source: "governance", category: "governance", title: "Evidence Strategy — Proving Impact to Skeptics",
+    content: `ThriveUp's evidence strategy operates at four levels to satisfy any reviewer:
+LEVEL 1 — REAL-TIME OPERATIONAL EVIDENCE (Available Now):
+- Live fidelity grades for all 20 platforms (A through F) updated continuously
+- Heartbeat monitoring — uptime and connectivity for every platform every 15 minutes
+- Directive completion rates — how many action items completed vs. issued
+- Deliverable verification — evidence URLs automatically verified by the hub
+- Grant readiness scores — per-grant compliance aggregated from platform fidelity data
+- Weekly intelligence reports with ecosystem-wide metrics
+LEVEL 2 — FRAMEWORK-BASED EVIDENCE (Available Now):
+- MAP-GAP continuous improvement cycles with documented Measure → Analyze → Plan → Gap → Action → Progress for every major initiative
+- CFIR implementation analysis — context factors, barriers, facilitators documented for each regional hub deployment
+- RE-AIM evaluation — Reach, Effectiveness, Adoption, Implementation, Maintenance metrics tracked per platform
+- RPLICE quality gate — evidence-based practice verification for all outputs
+LEVEL 3 — OUTCOME EVIDENCE (Building):
+- Community Stories: Qualitative impact data from resident testimonials, categorized by service domain and platform routing effectiveness
+- Case Management Outcomes: Phase completion rates, service delivery records, milestone tracking for workforce development and reentry participants
+- Health Screening Outcomes: Aggregate (de-identified) trends in PHQ-9, GAD-7, C-SSRS scores across screened populations
+- Coalition Impact: DFC 12-sector coalition tracking with participation rates, activity completion, and community indicator trends
+LEVEL 4 — PUBLISHED EVIDENCE (Planned):
+- Pilot Evaluation Reports: Formal evaluation of Austin, Manor, and Pflugerville hub deployments using quasi-experimental design
+- Comparative Effectiveness: Analysis of outcomes for ecosystem-served populations vs. comparison groups receiving standard services
+- Academic Publication: Peer-reviewed documentation of the ACOS model and implementation science approach
+- Program Evaluation Briefs: Funder-ready 2-4 page summaries with key metrics, narratives, and outcome data for each grant cycle
+EVIDENCE DIFFERENTIATION: Unlike most organizations that report what they did, ThriveUp can show the system doing it in real time. A funder can ask "show me your compliance data" and see live grades. They can ask "prove your platforms are connected" and see heartbeats. They can ask "how do you ensure quality?" and see the RPLICE quality gate in action. This is evidence by architecture, not evidence by narrative.`,
+    keywords: ["evidence", "prove", "outcomes", "evaluation", "skeptic", "reviewer", "data", "metrics", "re-aim", "cfir", "results", "impact", "pilot", "publish", "measurement"],
+  },
 ];
 
 async function seedKnowledgeBase() {
@@ -393,7 +464,11 @@ RULES:
 8. For MAP-GAP questions, walk through the framework step by step.
 9. For grant questions, always include deadline, amount, and aligned platform count.
 10. When asked "what is this" or "how is this different" — position ThriveUp as a governed system of systems, not a platform. Use the strategic framework.
-11. When speaking to funders/reviewers, emphasize: grant-ready by design, self-governing compliance, verified outcomes, work chaining, and the crisis continuum.`;
+11. When speaking to funders/reviewers, emphasize: grant-ready by design, self-governing compliance, verified outcomes, work chaining, and the crisis continuum.
+12. When asked about governance — explain the three-tier governance model (Strategic, Operational, Platform) and the accountability chain.
+13. When asked about clinical safety or liability — clearly state the clinical boundaries, the three-tier crisis escalation protocol, and that ThriveUp is a navigation and coordination tool, not a clinical provider.
+14. When asked about interoperability — describe current internal APIs, near-term FHIR/HHSC/TEA integration roadmap, and long-term VA/211/Medicaid vision.
+15. When asked about evidence — walk through all four levels: real-time operational evidence, framework-based evidence, outcome evidence, and planned published evidence.`;
 
 export async function queryRAG(userQuery: string): Promise<{ answer: string; sources: string[]; liveData: boolean }> {
   const [chunks, liveContext] = await Promise.all([
@@ -542,16 +617,16 @@ export function registerRAGRoutes(app: Express) {
       questions: [
         "What's our current ecosystem health score?",
         "Which grants are due soonest and how ready are we?",
-        "What platforms help veterans transition to civilian life?",
+        "What makes this system different from anything else?",
+        "How does the governance structure work?",
+        "What are the clinical safety boundaries?",
+        "How does interoperability with external systems work?",
+        "What evidence proves this system works?",
         "How does the MAP-GAP framework work?",
-        "What mental health screenings are available?",
-        "Which platforms need attention right now?",
-        "Tell me about the Austin housing initiative",
-        "What is our DFC grant strategy?",
+        "What platforms help veterans transition to civilian life?",
         "How do work chains route tasks between platforms?",
-        "What resources does LifeBridge provide?",
-        "How are platforms graded for compliance?",
-        "What makes our ecosystem different from anything else?",
+        "What mental health screenings are available?",
+        "Describe ThriveUp in one sentence for a funder",
       ],
     });
   });
