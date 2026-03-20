@@ -60,7 +60,7 @@ CORE PRINCIPLES:
 7. Free for Individuals — no user ever pays for anything on any platform
 8. Privacy First — screening results and safety plans stay on user's device
 
-YOUR ROLE IN THE ECOSYSTEM: You are one platform in a 20-platform connected ecosystem. Your data flows to other platforms. Their data flows to you. Together we create a crisis continuum from Prevention → Early Warning → Crisis Support → Stabilization → Recovery & Growth. No single platform can do this alone.
+YOUR ROLE IN THE ECOSYSTEM: You are one platform in a 21-platform connected ecosystem. Your data flows to other platforms. Their data flows to you. Together we create a crisis continuum from Prevention → Early Warning → Crisis Support → Stabilization → Recovery & Growth. No single platform can do this alone.
 
 ACKNOWLEDGE this directive to confirm alignment.`,
   },
@@ -444,7 +444,7 @@ SCRIPT STRUCTURE:
 2. WHO WE ARE (20 seconds) — Your platform name, what you do, and who you serve. No jargon. Speak like a trusted friend.
 3. CAPABILITIES & RESOURCES (45 seconds) — Showcase your top 3-5 features. Don't list them — show how they solve real problems. Use scenarios.
 4. REAL IMPACT (30 seconds) — What changes when someone uses your platform? Paint the picture of life after your help.
-5. THE ECOSYSTEM (20 seconds) — You are part of a 20-platform connected ecosystem. Mention 2-3 sister platforms you work with.
+5. THE ECOSYSTEM (20 seconds) — You are part of a 21-platform connected ecosystem. Mention 2-3 sister platforms you work with.
 6. CALL TO ACTION (20 seconds) — What should the viewer do next? Make it easy and inviting.
 
 VOICE & FEEL:
@@ -578,7 +578,7 @@ ACKNOWLEDGE with your implementation plan for serving as the ecosystem quality g
     content: `NEW PLATFORM FEATURE: Voices of Austin — Community Storytelling Platform
 
 WHAT IS VOICES OF AUSTIN?
-A mobile-friendly storytelling platform where Austin residents can share their stories, access resources, and engage with hyper-local opportunities. Every story connects to action through ThriveUp's 20-platform ecosystem.
+A mobile-friendly storytelling platform where Austin residents can share their stories, access resources, and engage with hyper-local opportunities. Every story connects to action through ThriveUp's 21-platform ecosystem.
 
 THE MODEL: Story → Connection → Action → Impact
 1. Residents share stories (housing, jobs, health, veteran transition, education, youth)
@@ -705,7 +705,7 @@ ACKNOWLEDGE with your implementation status and ETA for each deliverable.`,
     targetFilter: "all",
     content: `THREE REGIONAL COMMUNITY HUBS ARE NOW LIVE
 
-ThriveUp Academy has deployed dedicated regional hubs for three Central Texas communities. Same 20-platform ecosystem, adapted for each community's unique context using implementation science principles (CFIR, RE-AIM).
+ThriveUp Academy has deployed dedicated regional hubs for three Central Texas communities. Same 21-platform ecosystem, adapted for each community's unique context using implementation science principles (CFIR, RE-AIM).
 
 === THE THREE HUBS ===
 
@@ -1022,8 +1022,8 @@ ACKNOWLEDGE with: A list of every product currently visible in your sidebar, and
 THIS IS NOT OPTIONAL. Every ecosystem platform MUST integrate ThriveUp Academy's RAG AI into their system.
 
 === WHAT IS THE RAG AI? ===
-The ThriveUp RAG AI is an intelligent assistant that knows EVERYTHING about our 20-platform ecosystem:
-- All 20 platforms, what they do, and how they connect
+The ThriveUp RAG AI is an intelligent assistant that knows EVERYTHING about our 21-platform ecosystem:
+- All 21 platforms, what they do, and how they connect
 - All 4 active grants (WIOA, Foundation, St. David's, SSG Fox) and readiness status
 - All 3 regional hubs (Austin, Manor, Pflugerville)
 - Real-time fidelity scores and compliance status for every platform
