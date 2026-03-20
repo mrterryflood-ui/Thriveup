@@ -43,6 +43,65 @@ interface Track {
 
 const TRACKS: Track[] = [
   {
+    id: "ai-101",
+    title: "AI 101",
+    subtitle: "Your First Week With AI",
+    icon: Lightbulb,
+    color: "text-sky-600 dark:text-sky-400",
+    gradient: "from-sky-400 to-cyan-500",
+    difficulty: "beginner",
+    duration: "1 week",
+    description: "A friendly, jargon-free introduction to AI for parents, grandparents, and anyone curious. Five days, five simple lessons. By Friday you'll be using AI confidently — and helping your kids use it safely.",
+    whoIsItFor: [
+      "Parents who want to understand what their kids are using",
+      "People who've never used ChatGPT or any AI tool",
+      "Grandparents and older adults curious about AI",
+      "Community members who keep hearing about AI but aren't sure where to start",
+    ],
+    outcomes: [
+      "Know what AI is — and what it is NOT — in plain English",
+      "Have a real conversation with an AI assistant",
+      "Spot when AI gives wrong or made-up information",
+      "Use AI to help with everyday tasks (recipes, letters, planning)",
+      "Set healthy AI boundaries for your family",
+    ],
+    modules: [
+      {
+        title: "Day 1: What Is AI, Really?",
+        topics: ["AI explained like you're talking to a friend", "Where AI already shows up in your life (phone, TV, shopping)", "The difference between AI and a regular app", "Why everyone is talking about it right now"],
+        duration: "1 day",
+        project: "Find 3 things in your home that use AI — you'll be surprised",
+      },
+      {
+        title: "Day 2: Talking to AI",
+        topics: ["Your first conversation with ChatGPT or Claude", "How to ask AI a question and get a good answer", "The magic trick: be specific and it works better", "Trying it together — live practice in class"],
+        duration: "1 day",
+        project: "Ask AI to help you write a thank-you note or plan a meal",
+      },
+      {
+        title: "Day 3: Can You Trust It?",
+        topics: ["Why AI sometimes makes things up (hallucinations)", "How to check if AI gave you the right answer", "The 'Would I trust a stranger's answer?' test", "What AI is great at vs. what it's bad at"],
+        duration: "1 day",
+        project: "Give AI a question you know the answer to — see if it gets it right",
+      },
+      {
+        title: "Day 4: AI for Your Daily Life",
+        topics: ["Getting AI to help with emails, lists, and letters", "Using AI to explain confusing bills, forms, or documents", "AI for meal planning, budgeting, and organizing", "Fun stuff: AI for travel ideas, gift suggestions, creative projects"],
+        duration: "1 day",
+        project: "Pick one real task from your life and let AI help you do it",
+      },
+      {
+        title: "Day 5: AI, Your Kids & Staying Safe",
+        topics: ["What your kids are already doing with AI at school", "Setting healthy rules for AI use at home", "Privacy — what NOT to share with AI", "Having 'the AI talk' with your family"],
+        duration: "1 day",
+        project: "Create your family's AI guidelines together",
+      },
+    ],
+    tools: ["ChatGPT (free version)", "Google Gemini", "Siri / Google Assistant"],
+    certification: "ThriveUp AI 101 Completion Badge",
+    careerPaths: ["Confident AI User", "Family AI Guide", "Ready for AI Foundations Track"],
+  },
+  {
     id: "ai-foundations",
     title: "AI Foundations",
     subtitle: "Your First Step Into AI",
@@ -366,10 +425,17 @@ const DIFFICULTY_CONFIG: Record<Difficulty, { label: string; color: string; bg: 
 
 const LEARNING_PATHS = [
   {
+    name: "Parent & Community",
+    description: "Just want to understand AI? Start and finish in one week.",
+    tracks: ["ai-101"],
+    duration: "1 week",
+    icon: Users,
+  },
+  {
     name: "Career Starter",
     description: "New to tech? Start here. Go from zero to employable.",
-    tracks: ["ai-foundations", "data-analytics", "python-coding"],
-    duration: "18 weeks",
+    tracks: ["ai-101", "ai-foundations", "data-analytics", "python-coding"],
+    duration: "19 weeks",
     icon: GraduationCap,
   },
   {
@@ -382,8 +448,8 @@ const LEARNING_PATHS = [
   {
     name: "Business Leader",
     description: "Lead AI adoption in your organization.",
-    tracks: ["ai-foundations", "ai-business-leaders"],
-    duration: "8 weeks",
+    tracks: ["ai-101", "ai-business-leaders"],
+    duration: "5 weeks",
     icon: Briefcase,
   },
   {
