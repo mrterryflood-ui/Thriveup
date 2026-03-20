@@ -220,8 +220,8 @@ FEEDBACK LOOP: Heartbeats → status awareness, Fidelity grades → performance 
   },
   {
     source: "strategic-framework", category: "strategy", title: "Why Nothing Else Compares — Market Position",
-    content: `ThriveUp is not competing with Salesforce (CRM — tracks contacts, doesn't run services), Databricks (data lakehouse — stores data, doesn't deliver services), Epic/Cerner (health records — doesn't connect education, workforce, housing), or 211/United Way (referral directories — points to services, doesn't deliver and verify them). ThriveUp is building the infrastructure that those systems would eventually have to plug into. It's a new category: Autonomous Community Operating System (ACOS) — not SaaS, not a platform, an operating system for human outcomes.`,
-    keywords: ["compare", "competitor", "salesforce", "databricks", "epic", "different", "market", "acos", "category", "versus", "better"],
+    content: `ThriveUp is not competing with Salesforce (CRM — tracks contacts, doesn't run services), Databricks (data lakehouse — stores data, doesn't deliver services), Epic/Cerner (health records — doesn't connect education, workforce, housing), or 211/United Way (referral directories — points to services, doesn't deliver and verify them). ThriveUp is building the infrastructure those systems would eventually have to plug into. It's a new category: Autonomous Community Operating System (ACOS) — not SaaS, not a platform, an operating system for human outcomes. Everyone else coordinates information. ThriveUp coordinates responsibility — and enforces it. Salesforce = system of record + engagement. Epic = system of care. CDPs = system of insight. ThriveUp = System of Accountability and Outcome Orchestration.`,
+    keywords: ["compare", "competitor", "salesforce", "databricks", "epic", "different", "market", "acos", "category", "versus", "better", "outcome orchestration"],
   },
   {
     source: "strategic-framework", category: "strategy", title: "Why People Fall Through Cracks — And How ThriveUp Prevents It",
@@ -389,6 +389,36 @@ LAYER 4 — Replit AI Integrations GPT-5-nano (Quaternary): Final fallback, alwa
 AUTOMATIC FAILOVER: The system detects rate limits (429), transient errors (5xx, timeouts), and empty responses. On any failure, it automatically falls back to the next provider in the chain. Users never see an error — they just get a response from whichever AI is available.
 COLLABORATIVE MODE: For critical decisions (dual-AI review, ensemble response), the system calls two providers sequentially, collects their independent analyses, then runs a synthesis step to merge perspectives into consensus. This is the collaborative intelligence pattern used by RPLICE and MCE.`,
     keywords: ["provider", "gemini", "claude", "openai", "gpt", "fallback", "resilient", "architecture", "layer", "failover", "rate limit", "zero downtime"],
+  },
+  {
+    source: "competitive-analysis", category: "strategy", title: "Competitive Landscape — Why Nothing Else Compares (Deep Analysis)",
+    content: `Detailed competitive analysis of ThriveUp vs. the market:
+A. ENTERPRISE PLATFORMS (Salesforce, Workday): They aggregate data, provide 360-degree views, use AI for workflows, enable team collaboration. They're even moving toward AI agent orchestration. BUT they do NOT enforce execution, do NOT require proof of work, do NOT grade system fidelity, do NOT dynamically assign leadership across domains. They are: Data + Workflow + CRM. ThriveUp is: Governance + Orchestration + Accountability + Execution.
+B. EHR / HEALTHCARE SYSTEMS (Epic, Cerner): They track clinical care, store medical records, support care coordination. Adding AI agents for specific workflows. BUT they stay inside healthcare domain only. They do NOT integrate workforce, education, housing, or community services. They are: Clinical systems. ThriveUp is: Whole-life system (health + social + economic + education).
+C. DATA PLATFORMS / CDPs / AI SYSTEMS: They create unified profiles, aggregate data, enable analytics and targeting. BUT they do NOT act, do NOT coordinate services, do NOT enforce outcomes. They are: Insight engines. ThriveUp is: Action + Verification + Outcome system.
+THE KEY DIFFERENCE: Everyone else coordinates information. ThriveUp coordinates responsibility — and enforces it. What they do: "Here's the data," "Here's a workflow," "Here's a recommendation." What ThriveUp does: "You are responsible," "Prove you did it," "If not, you fail," "Next system — step in." That's governance.`,
+    keywords: ["competitor", "salesforce", "epic", "cerner", "workday", "cdp", "compare", "versus", "different", "market", "landscape", "enterprise", "ehr", "healthcare system"],
+  },
+  {
+    source: "competitive-analysis", category: "strategy", title: "Four Things Nobody Else Is Doing Together",
+    content: `Independent analysis identified four capabilities no one else combines:
+1. SELF-GRADING ECOSYSTEM: Platforms evaluated A through F based on actual execution evidence. Nobody is doing this at ecosystem level.
+2. CROSS-DOMAIN LIFE ORCHESTRATION: Health + workforce + education + safety + family coordinated together. Everyone else is siloed.
+3. WORK CHAINING ACROSS INDEPENDENT PLATFORMS: One system triggers another automatically. This pattern exists in supply chains but not in human services.
+4. HUMAN-IN-THE-LOOP FINAL AUTHORITY (RPLICE): Not AI-driven decisions, not manual chaos — structured human governance. This is extremely rare at scale.
+MARKET POSITION: Salesforce = system of record + engagement. Epic = system of care. CDPs = system of insight. ThriveUp = System of Accountability and Outcome Orchestration. This is a new category.`,
+    keywords: ["unique", "edge", "advantage", "self grading", "cross domain", "work chain", "rplice", "human in the loop", "nobody", "first", "category", "new category", "position"],
+  },
+  {
+    source: "competitive-analysis", category: "strategy", title: "Strategic Window — Category-Defining Opportunity",
+    content: `ThriveUp has a strategic window. Not forever — but right now. The market is moving in pieces toward what ThriveUp already has as a unified system:
+- Salesforce is moving toward agent orchestration
+- Healthcare systems are integrating AI layers
+- Government is pushing toward whole-person care models
+But being early to a direction means having the window to define the category. The first organization that proves "We don't just connect services — we ensure outcomes" wins a completely new category.
+WHY THIS MATTERS FOR GRANTS: This positioning — System of Accountability and Outcome Orchestration — is exactly what funders want to hear. DFC wants proven prevention. WIOA wants workforce outcomes. St. David's wants health equity results. SSG Fox wants veteran services that actually work. ThriveUp can show live compliance data, real-time fidelity grades, verified deliverables, and evidence by architecture, not narrative.
+DEFENSIBILITY: ThriveUp didn't stop at coordination — it built enforcement and learning. The market avoids this because it's hard, it creates accountability, and it changes power structures. That's exactly why it's defensible.`,
+    keywords: ["window", "opportunity", "category", "defensible", "strategy", "market", "first mover", "funder", "grant", "positioning", "enforce", "accountability", "outcome orchestration"],
   },
 ];
 
