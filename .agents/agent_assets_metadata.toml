@@ -54,3 +54,9 @@ id = "Lz7e9iNPTUJp24i_crF5h"
 uri = "file://ecosystem-connection-instructions.md"
 type = "text"
 title = "v4.0 — Clean Single Guide — All 20 Platforms"
+
+[[outputs]]
+id = "l4lcxCUAsC4ai3HqlQ93t"
+uri = "file://.local/pinnacle-build-script.md"
+type = "text"
+title = "Pinnacle Business Conglomerate — Complete Build Script"
