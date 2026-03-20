@@ -1182,6 +1182,479 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
     }
   });
 
+  // ===================================================================
+  // ECOSYSTEM FLOW ENGINE — When platforms complete work, the hub
+  // takes ACTION: validates evidence, detects work type, triggers
+  // cross-platform connections, issues follow-up directives, and
+  // updates ecosystem-wide regional intelligence.
+  // ===================================================================
+
+  const FLOW_RULES: Array<{
+    pattern: RegExp;
+    category: string;
+    region?: string;
+    crossPlatformTargets: string[];
+    followUpAction: string;
+    grantRelevance: string[];
+  }> = [
+    {
+      pattern: /austin.*(workforce|hub|regional|housing|living.wage|career.pathway)/i,
+      category: "regional-hub-austin",
+      region: "austin",
+      crossPlatformTargets: ["lifebridge", "m2c", "isss", "collaborative-advocate"],
+      followUpAction: "Connect Austin workforce data to LifeBridge resource navigation and M2C veteran transition pipelines",
+      grantRelevance: ["wioa", "st-davids", "ssg-fox"],
+    },
+    {
+      pattern: /manor.*(workforce|hub|regional|commute|growth|isd)/i,
+      category: "regional-hub-manor",
+      region: "manor",
+      crossPlatformTargets: ["lifebridge", "isss", "wholemind"],
+      followUpAction: "Connect Manor workforce gaps to LifeBridge resource navigation and ISSS youth support for Manor ISD",
+      grantRelevance: ["wioa", "st-davids"],
+    },
+    {
+      pattern: /pflugerville.*(workforce|hub|regional|samsung|tesla|branchview|pcdc)/i,
+      category: "regional-hub-pflugerville",
+      region: "pflugerville",
+      crossPlatformTargets: ["lifebridge", "mce", "collaborative-advocate"],
+      followUpAction: "Connect Pflugerville employer pipeline to MCE business matching and Collaborative Advocate veteran workforce placement",
+      grantRelevance: ["wioa", "ssg-fox"],
+    },
+    {
+      pattern: /warm.handoff|referral.protocol|user.connected/i,
+      category: "warm-handoff",
+      crossPlatformTargets: [],
+      followUpAction: "Verify bidirectional handoff — both sender and receiver must confirm connection",
+      grantRelevance: ["wioa", "ssg-fox", "st-davids"],
+    },
+    {
+      pattern: /rag.ai|ragAI|ecosystem.ai|query.endpoint/i,
+      category: "rag-ai-integration",
+      crossPlatformTargets: [],
+      followUpAction: "Verify RAG AI endpoint responds — test query against platform",
+      grantRelevance: ["wioa", "foundation"],
+    },
+    {
+      pattern: /grant.*(intelligence|finding|discovery|sharing)/i,
+      category: "grant-intelligence",
+      crossPlatformTargets: ["mce", "pinnacle-business-conglomerate"],
+      followUpAction: "Merge grant intelligence into ecosystem-wide grant readiness dashboard",
+      grantRelevance: ["wioa", "foundation", "st-davids", "ssg-fox"],
+    },
+    {
+      pattern: /video.*script|homepage.*video|2:30/i,
+      category: "content-production",
+      crossPlatformTargets: ["video-creator-ai", "ad-targeting"],
+      followUpAction: "Queue video script for Video Creator AI production pipeline",
+      grantRelevance: [],
+    },
+    {
+      pattern: /outcome.*measure|standardized.*outcome|metric.*track/i,
+      category: "outcome-measurement",
+      crossPlatformTargets: ["betterscience"],
+      followUpAction: "Feed outcome metrics into RPLICE evidence base for RE-AIM/CFIR evaluation",
+      grantRelevance: ["wioa", "st-davids", "ssg-fox"],
+    },
+    {
+      pattern: /map.gap|business.health|diagnostic|gap.analysis/i,
+      category: "map-gap-diagnostic",
+      crossPlatformTargets: ["pinnacle-business-conglomerate", "mce"],
+      followUpAction: "Sync MAP-GAP assessment results across business ecosystem platforms",
+      grantRelevance: ["wioa", "foundation"],
+    },
+    {
+      pattern: /shield.*atlas|security|cybersecurity|threat/i,
+      category: "security-compliance",
+      crossPlatformTargets: ["shield-atlas"],
+      followUpAction: "Update Shield Atlas security posture assessment for this platform",
+      grantRelevance: ["ssg-fox"],
+    },
+    {
+      pattern: /maternal|prenatal|doula|postnatal/i,
+      category: "maternal-health",
+      crossPlatformTargets: ["sankofa", "sankofa-maternal-health", "sankofa-feminine-health"],
+      followUpAction: "Connect maternal health data to Sankofa Health Network care coordination",
+      grantRelevance: ["st-davids"],
+    },
+    {
+      pattern: /veteran|military|transition|separation|va\b/i,
+      category: "veteran-services",
+      crossPlatformTargets: ["m2c", "collaborative-advocate"],
+      followUpAction: "Route veteran service completion data to M2C transition tracking and Collaborative Advocate advocacy pipeline",
+      grantRelevance: ["ssg-fox"],
+    },
+  ];
+
+  interface FlowAction {
+    triggeredBy: string;
+    platformId: string;
+    platformName: string;
+    category: string;
+    region?: string;
+    crossPlatformNotifications: string[];
+    followUpAction: string;
+    grantRelevance: string[];
+    evidenceUrl: string | null;
+    evidenceStatus: string;
+    timestamp: string;
+  }
+
+  const recentFlowActions: FlowAction[] = [];
+
+  function assessAckQuality(whatWasDone: string, evidenceUrl?: string): { quality: string; note: string } {
+    if (!whatWasDone || whatWasDone.length < 10) {
+      return { quality: "WEAK", note: "Description too short — does not describe real work." };
+    }
+    const isAutoAck = /^acknowledged:/i.test(whatWasDone) && whatWasDone.split(" ").length < 15;
+    if (isAutoAck) {
+      return { quality: "WEAK", note: "Looks like auto-acknowledgment — just echoing the directive title. Describe what you actually built." };
+    }
+    if (evidenceUrl && whatWasDone.length >= 20) {
+      return { quality: "VERIFIED", note: "Substantive work description with evidence URL. This counts toward full fidelity." };
+    }
+    if (whatWasDone.length >= 20) {
+      return { quality: "SUBSTANTIVE", note: "Good description but no evidence URL. Add a URL to reach VERIFIED status." };
+    }
+    return { quality: "WEAK", note: "Description is minimal. Provide more detail about what was actually built/changed." };
+  }
+
+  async function processCompletedWorkFlow(
+    platform: { id: string; name: string },
+    directive: { id: string; title: string; content: string } | undefined,
+    work: { whatWasDone: string; evidenceUrl?: string; directiveId: string },
+    qualityResult: { quality: string; note: string },
+  ) {
+    const description = `${work.whatWasDone || ""} ${directive?.title || ""}`;
+
+    const matchedRules = FLOW_RULES.filter(rule => rule.pattern.test(description));
+    if (matchedRules.length === 0) return;
+
+    for (const rule of matchedRules) {
+      const action: FlowAction = {
+        triggeredBy: directive?.title || work.directiveId,
+        platformId: platform.id,
+        platformName: platform.name,
+        category: rule.category,
+        region: rule.region,
+        crossPlatformNotifications: [],
+        followUpAction: rule.followUpAction,
+        grantRelevance: rule.grantRelevance,
+        evidenceUrl: work.evidenceUrl || null,
+        evidenceStatus: work.evidenceUrl ? "PENDING_VERIFICATION" : "NO_EVIDENCE",
+        timestamp: new Date().toISOString(),
+      };
+
+      if (work.evidenceUrl) {
+        try {
+          const resp = await fetch(work.evidenceUrl, { method: "HEAD", signal: AbortSignal.timeout(8000) });
+          action.evidenceStatus = resp.ok ? "LIVE" : `FAILED_${resp.status}`;
+        } catch {
+          action.evidenceStatus = "UNREACHABLE";
+        }
+      }
+
+      for (const targetId of rule.crossPlatformTargets) {
+        if (targetId === platform.id) continue;
+        const [targetPlatform] = await db.select().from(ecosystemPlatforms).where(eq(ecosystemPlatforms.id, targetId));
+        if (!targetPlatform) continue;
+
+        await db.insert(ecosystemEvents).values({
+          id: crypto.randomUUID(),
+          eventType: "flow_connection",
+          sourcePlatformId: platform.id,
+          targetPlatformId: targetId,
+          status: "pending",
+          eventData: {
+            flowCategory: rule.category,
+            region: rule.region || null,
+            originWork: work.whatWasDone,
+            originEvidence: work.evidenceUrl || null,
+            evidenceVerified: action.evidenceStatus === "LIVE",
+            actionRequired: rule.followUpAction,
+            grantRelevance: rule.grantRelevance,
+            chainedFrom: directive?.id || work.directiveId,
+            chainDescription: `${platform.name} completed "${directive?.title || 'work'}" → Hub auto-connected to ${targetPlatform.name} for ${rule.followUpAction}`,
+          },
+          createdAt: new Date(),
+        });
+
+        action.crossPlatformNotifications.push(targetPlatform.name);
+      }
+
+      if (rule.region) {
+        await db.insert(ecosystemEvents).values({
+          id: crypto.randomUUID(),
+          eventType: "regional_intelligence_update",
+          sourcePlatformId: platform.id,
+          targetPlatformId: "hub",
+          status: "processed",
+          eventData: {
+            region: rule.region,
+            platformContribution: platform.name,
+            workCompleted: work.whatWasDone,
+            evidenceUrl: work.evidenceUrl || null,
+            evidenceVerified: action.evidenceStatus === "LIVE",
+            category: rule.category,
+            grantRelevance: rule.grantRelevance,
+            contributionType: "regional_hub_build",
+          },
+          createdAt: new Date(),
+        });
+      }
+
+      recentFlowActions.push(action);
+      console.log(`[FlowEngine] ${platform.name} → ${rule.category}${rule.region ? ` (${rule.region})` : ""} → ${action.crossPlatformNotifications.length} cross-platform connections, evidence: ${action.evidenceStatus}`);
+    }
+  }
+
+  app.get("/api/ecosystem/flow-actions", async (_req, res) => {
+    try {
+      const flowEvents = await db.select().from(ecosystemEvents)
+        .where(eq(ecosystemEvents.eventType, "flow_connection"))
+        .orderBy(desc(ecosystemEvents.createdAt))
+        .limit(100);
+
+      const regionalEvents = await db.select().from(ecosystemEvents)
+        .where(eq(ecosystemEvents.eventType, "regional_intelligence_update"))
+        .orderBy(desc(ecosystemEvents.createdAt))
+        .limit(50);
+
+      const platforms = await db.select().from(ecosystemPlatforms);
+      const getName = (id: string | null) => platforms.find(p => p.id === id)?.name || id;
+
+      const regionSummary: Record<string, { platforms: string[]; latestWork: string[]; evidenceUrls: string[]; grantRelevance: string[] }> = {};
+      for (const evt of regionalEvents) {
+        const data = evt.eventData as Record<string, unknown>;
+        const region = data.region as string;
+        if (!regionSummary[region]) {
+          regionSummary[region] = { platforms: [], latestWork: [], evidenceUrls: [], grantRelevance: [] };
+        }
+        const platName = data.platformContribution as string;
+        if (!regionSummary[region].platforms.includes(platName)) regionSummary[region].platforms.push(platName);
+        regionSummary[region].latestWork.push(data.workCompleted as string);
+        if (data.evidenceUrl) regionSummary[region].evidenceUrls.push(data.evidenceUrl as string);
+        const gr = data.grantRelevance as string[];
+        if (gr) {
+          for (const g of gr) {
+            if (!regionSummary[region].grantRelevance.includes(g)) regionSummary[region].grantRelevance.push(g);
+          }
+        }
+      }
+
+      res.json({
+        flowEngine: {
+          status: "ACTIVE",
+          description: "The Flow Engine automatically detects completed work, validates evidence, creates cross-platform connections, and updates regional intelligence. Every acknowledgment triggers real downstream action.",
+          totalFlowConnections: flowEvents.length,
+          totalRegionalUpdates: regionalEvents.length,
+        },
+        recentInMemoryActions: recentFlowActions.slice(-20),
+        crossPlatformConnections: flowEvents.slice(0, 30).map(evt => {
+          const data = evt.eventData as Record<string, unknown>;
+          return {
+            from: getName(evt.sourcePlatformId),
+            to: getName(evt.targetPlatformId),
+            category: data.flowCategory,
+            region: data.region || null,
+            actionRequired: data.actionRequired,
+            evidenceVerified: data.evidenceVerified,
+            chainDescription: data.chainDescription,
+            timestamp: evt.createdAt,
+          };
+        }),
+        regionalIntelligence: regionSummary,
+      });
+    } catch (error) {
+      console.error("[FlowEngine] Error fetching flow actions:", error);
+      res.status(500).json({ error: "Failed to fetch flow actions" });
+    }
+  });
+
+  app.get("/api/ecosystem/regional-intelligence", async (_req, res) => {
+    try {
+      const allAcks = await db.select().from(ecosystemDirectiveAcks).where(eq(ecosystemDirectiveAcks.status, "acknowledged"));
+      const allDirectives = await db.select().from(ecosystemDirectives);
+      const platforms = await db.select().from(ecosystemPlatforms);
+
+      const regions: Record<string, {
+        platformContributions: Array<{ platform: string; work: string; evidenceUrl: string | null; quality: string; acknowledgedAt: Date | null }>;
+        grantRelevance: string[];
+        totalContributions: number;
+        verifiedCount: number;
+      }> = {
+        austin: { platformContributions: [], grantRelevance: ["wioa", "st-davids", "ssg-fox"], totalContributions: 0, verifiedCount: 0 },
+        manor: { platformContributions: [], grantRelevance: ["wioa", "st-davids"], totalContributions: 0, verifiedCount: 0 },
+        pflugerville: { platformContributions: [], grantRelevance: ["wioa", "ssg-fox"], totalContributions: 0, verifiedCount: 0 },
+      };
+
+      const regionPatterns: Array<{ region: string; pattern: RegExp }> = [
+        { region: "austin", pattern: /austin|living.wage|career.pathway/i },
+        { region: "manor", pattern: /manor|commute.*reduction|89%.*growth/i },
+        { region: "pflugerville", pattern: /pflugerville|branchview|samsung|tesla|pcdc/i },
+      ];
+
+      for (const ack of allAcks) {
+        const rd = ack.responseData as Record<string, unknown> | null;
+        if (!rd) continue;
+        const whatWasDone = (rd.whatWasDone as string) || "";
+        const evidenceUrl = (rd.evidenceUrl as string) || null;
+        const quality = (rd._ackQuality as string) || "LEGACY";
+        const directive = allDirectives.find(d => d.id === ack.directiveId);
+        const description = `${whatWasDone} ${directive?.title || ""}`;
+        const platform = platforms.find(p => p.id === ack.platformId);
+
+        for (const rp of regionPatterns) {
+          if (rp.pattern.test(description)) {
+            regions[rp.region].platformContributions.push({
+              platform: platform?.name || ack.platformId,
+              work: whatWasDone,
+              evidenceUrl,
+              quality,
+              acknowledgedAt: ack.acknowledgedAt,
+            });
+            regions[rp.region].totalContributions++;
+            if (quality === "VERIFIED") regions[rp.region].verifiedCount++;
+          }
+        }
+      }
+
+      const flowEvents = await db.select().from(ecosystemEvents)
+        .where(eq(ecosystemEvents.eventType, "flow_connection"))
+        .orderBy(desc(ecosystemEvents.createdAt))
+        .limit(50);
+
+      const activeConnections: Record<string, number> = { austin: 0, manor: 0, pflugerville: 0 };
+      for (const evt of flowEvents) {
+        const data = evt.eventData as Record<string, unknown>;
+        const region = data.region as string;
+        if (region && activeConnections[region] !== undefined) {
+          activeConnections[region]++;
+        }
+      }
+
+      res.json({
+        title: "Regional Intelligence Dashboard — Austin, Manor, Pflugerville",
+        description: "Aggregated view of what all 21 platforms have built for each regional hub. Updated in real-time from platform acknowledgments and the Flow Engine.",
+        lastUpdated: new Date().toISOString(),
+        regions: Object.entries(regions).map(([name, data]) => ({
+          name: name.charAt(0).toUpperCase() + name.slice(1),
+          totalContributions: data.totalContributions,
+          verifiedContributions: data.verifiedCount,
+          activeCrossPlatformConnections: activeConnections[name] || 0,
+          grantRelevance: data.grantRelevance,
+          platformContributions: data.platformContributions.sort((a, b) =>
+            (b.acknowledgedAt?.getTime() || 0) - (a.acknowledgedAt?.getTime() || 0)
+          ),
+        })),
+        ecosystemWide: {
+          totalRegionalWork: Object.values(regions).reduce((s, r) => s + r.totalContributions, 0),
+          totalVerified: Object.values(regions).reduce((s, r) => s + r.verifiedCount, 0),
+          totalCrossPlatformConnections: flowEvents.length,
+          uniquePlatformsContributing: Array.from(new Set(
+            Object.values(regions).flatMap(r => r.platformContributions.map(c => c.platform))
+          )).length,
+        },
+      });
+    } catch (error) {
+      console.error("[Regional Intelligence] Error:", error);
+      res.status(500).json({ error: "Failed to build regional intelligence" });
+    }
+  });
+
+  app.post("/api/ecosystem/backfill-flow", async (req, res) => {
+    try {
+      const allAcks = await db.select().from(ecosystemDirectiveAcks).where(eq(ecosystemDirectiveAcks.status, "acknowledged"));
+      const allDirectives = await db.select().from(ecosystemDirectives);
+      const platforms = await db.select().from(ecosystemPlatforms);
+      let connectionsCreated = 0;
+      let regionalUpdates = 0;
+
+      for (const ack of allAcks) {
+        const rd = ack.responseData as Record<string, unknown> | null;
+        if (!rd) continue;
+        const platform = platforms.find(p => p.id === ack.platformId);
+        if (!platform) continue;
+        const directive = allDirectives.find(d => d.id === ack.directiveId);
+        const work = {
+          whatWasDone: (rd.whatWasDone as string) || "",
+          evidenceUrl: (rd.evidenceUrl as string) || undefined,
+          directiveId: ack.directiveId,
+        };
+        const quality = assessAckQuality(work.whatWasDone, work.evidenceUrl);
+        const description = `${work.whatWasDone} ${directive?.title || ""}`;
+
+        const matchedRules = FLOW_RULES.filter(rule => rule.pattern.test(description));
+        for (const rule of matchedRules) {
+          for (const targetId of rule.crossPlatformTargets) {
+            if (targetId === platform.id) continue;
+            const targetPlatform = platforms.find(p => p.id === targetId);
+            if (!targetPlatform) continue;
+
+            await db.insert(ecosystemEvents).values({
+              id: crypto.randomUUID(),
+              eventType: "flow_connection",
+              sourcePlatformId: platform.id,
+              targetPlatformId: targetId,
+              status: "pending",
+              eventData: {
+                flowCategory: rule.category,
+                region: rule.region || null,
+                originWork: work.whatWasDone,
+                originEvidence: work.evidenceUrl || null,
+                evidenceVerified: false,
+                actionRequired: rule.followUpAction,
+                grantRelevance: rule.grantRelevance,
+                chainedFrom: directive?.id || work.directiveId,
+                chainDescription: `[BACKFILL] ${platform.name} completed "${directive?.title || 'work'}" → Hub auto-connected to ${targetPlatform.name}`,
+                backfilled: true,
+              },
+              createdAt: new Date(),
+            });
+            connectionsCreated++;
+          }
+
+          if (rule.region) {
+            await db.insert(ecosystemEvents).values({
+              id: crypto.randomUUID(),
+              eventType: "regional_intelligence_update",
+              sourcePlatformId: platform.id,
+              targetPlatformId: "hub",
+              status: "processed",
+              eventData: {
+                region: rule.region,
+                platformContribution: platform.name,
+                workCompleted: work.whatWasDone,
+                evidenceUrl: work.evidenceUrl || null,
+                evidenceVerified: false,
+                category: rule.category,
+                grantRelevance: rule.grantRelevance,
+                backfilled: true,
+              },
+              createdAt: new Date(),
+            });
+            regionalUpdates++;
+          }
+        }
+      }
+
+      console.log(`[FlowEngine] Backfill complete: ${connectionsCreated} cross-platform connections, ${regionalUpdates} regional updates from ${allAcks.length} existing acks`);
+
+      res.json({
+        success: true,
+        message: `Flow Engine backfill complete. Processed ${allAcks.length} existing acknowledgments.`,
+        results: {
+          crossPlatformConnectionsCreated: connectionsCreated,
+          regionalIntelligenceUpdates: regionalUpdates,
+          totalAcksProcessed: allAcks.length,
+        },
+      });
+    } catch (error) {
+      console.error("[FlowEngine] Backfill error:", error);
+      res.status(500).json({ error: "Failed to backfill flow connections" });
+    }
+  });
+
   app.post("/api/ecosystem/heartbeat", requireEcosystemAuth, async (req, res) => {
     try {
       const apiKey = req.headers["x-ecosystem-key"] as string;
@@ -1292,13 +1765,23 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
                 eq(ecosystemDirectiveAcks.platformId, platform.id),
               ));
             if (existingAck && existingAck.status !== "acknowledged") {
+              const qualityResult = assessAckQuality(work.whatWasDone, work.evidenceUrl);
               await db.update(ecosystemDirectiveAcks)
                 .set({
                   status: "acknowledged",
                   acknowledgedAt: new Date(),
-                  responseData: { whatWasDone: work.whatWasDone, evidenceUrl: work.evidenceUrl || null },
+                  responseData: {
+                    whatWasDone: work.whatWasDone,
+                    evidenceUrl: work.evidenceUrl || null,
+                    _ackQuality: qualityResult.quality,
+                    _qualityNote: qualityResult.note,
+                    _verificationStatus: work.evidenceUrl ? "PENDING_VERIFICATION" : "NO_EVIDENCE",
+                  },
                 })
                 .where(eq(ecosystemDirectiveAcks.id, existingAck.id));
+
+              const directive = allDirectives.find(d => d.id === work.directiveId);
+              await processCompletedWorkFlow(platform, directive, work, qualityResult);
             }
           }
         }
@@ -1469,6 +1952,23 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
           ],
         },
         complianceVerification: complianceResponse,
+        flowEngineActions: (() => {
+          const platformActions = recentFlowActions.filter(a => a.platformId === platform.id);
+          if (platformActions.length === 0) return { triggered: false, message: "No downstream actions triggered this cycle. Complete directives with evidence to activate the flow engine." };
+          return {
+            triggered: true,
+            message: `The hub took ${platformActions.length} automated action(s) based on your completed work. Your work is flowing into the ecosystem.`,
+            actions: platformActions.slice(-10).map(a => ({
+              category: a.category,
+              region: a.region || null,
+              followUpAction: a.followUpAction,
+              crossPlatformNotifications: a.crossPlatformNotifications,
+              evidenceStatus: a.evidenceStatus,
+              grantRelevance: a.grantRelevance,
+              timestamp: a.timestamp,
+            })),
+          };
+        })(),
         unacknowledgedDirectives,
         pendingEvents: pendingEvents,
         pendingDirectives: pendingDirectives,
