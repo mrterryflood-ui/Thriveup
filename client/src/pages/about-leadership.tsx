@@ -283,7 +283,7 @@ export default function AboutLeadershipPage() {
             Develops the businesses — formation, certification, government contracting, AI tools, B2B networking, and business intelligence. 656,794 curated records. Subscription-funded for-profit SaaS.
           </p>
           <div className="mt-3 pt-3 border-t">
-            <p className="text-xs text-muted-foreground">For-Profit SaaS &middot; $3.5M-$5M valuation</p>
+            <p className="text-xs text-muted-foreground">For-Profit SaaS &middot; Subscription-Funded</p>
           </div>
         </Card>
 
