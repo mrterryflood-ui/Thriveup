@@ -188,6 +188,55 @@ MAP-GAP is used for: platform audits, grant readiness assessments, compliance sw
     content: `Central coordination and operational hub. Cross-platform visibility, coordination tools, operational intelligence for all 20 platforms. URL: ecosystem-nexus.replit.app. Grants: DFC, WIOA, SSG Fox, St. David's.`,
     keywords: ["ecosystem nexus", "coordination", "operations", "visibility", "hub"],
   },
+  {
+    source: "strategic-framework", category: "strategy", title: "What ThriveUp Academy Actually Is — System of Systems",
+    content: `ThriveUp Academy is NOT a collection of platforms. It is a governed system of systems — a self-governing, closed-loop human services operating system. Most organizations operate at the level of tools (apps, dashboards) or programs (coordinated services). ThriveUp has crossed into the third level: a feedback-driven environment that learns, adapts, and enforces behavior. The system doesn't just deliver services — it governs how services behave, improve, and prove impact. This is rare and unprecedented.`,
+    keywords: ["what is", "different", "unique", "system of systems", "operating system", "why", "special", "describe", "explain"],
+  },
+  {
+    source: "strategic-framework", category: "strategy", title: "Closed-Loop Operating System Architecture",
+    content: `ThriveUp operates as a closed-loop human services operating system with four layers:
+INPUTS: People (clients, families, veterans, students), Providers (schools, nonprofits, clinicians), Resources (grants, services, programs), Data (screenings, usage, outcomes).
+ENGINE: MAP-GAP (continuous improvement logic), RAG AI (real-time intelligence), Directive system (tasking + validation), Work chaining (automation across platforms).
+OUTPUTS: Verified services delivered, Measurable outcomes (health, workforce, education), Real-time compliance, Grant-ready evidence.
+FEEDBACK LOOP: Heartbeats → status awareness, Fidelity grades → performance scoring, Directive validation → behavior enforcement, AI synthesis → decision intelligence. This loop is the system.`,
+    keywords: ["architecture", "how it works", "closed loop", "engine", "inputs", "outputs", "feedback"],
+  },
+  {
+    source: "strategic-framework", category: "strategy", title: "Self-Governing Compliance — The Secret Weapon",
+    content: `Most systems track activity, maybe report outcomes, rarely verify anything. ThriveUp issues directives, requires proof, rejects weak responses, and grades performance. This is closer to military command-and-control systems, high-reliability organizations (HROs), and regulatory enforcement models. The system solves one of the hardest problems in public systems: "How do we know the work actually happened — and happened well?" Platforms don't just say they did the work — they prove it with evidence URLs that the hub automatically verifies.`,
+    keywords: ["self-governing", "compliance", "secret weapon", "accountability", "verification", "hro", "command control"],
+  },
+  {
+    source: "strategic-framework", category: "strategy", title: "Human Services Supply Chain — Work Chaining",
+    content: `Work chaining creates an automated human services supply chain. Instead of disconnected services, manual referrals, and drop-offs between steps, ThriveUp has trigger-based service flow, automated continuity of care, and no baton-dropping between systems. In practice: Prevention → Intervention → Stabilization → Recovery actually happens without fragmentation. A video script completed triggers Video Creator AI to produce it, which triggers Advertising Targeting to distribute it. Content flows from creation to distribution without manual handoffs. Even large health systems struggle with this level of continuity.`,
+    keywords: ["work chain", "supply chain", "continuity", "automation", "referral", "handoff", "trigger"],
+  },
+  {
+    source: "strategic-framework", category: "strategy", title: "Grant-Ready by Design — Not by Narrative",
+    content: `Most organizations do the work, then write the story. ThriveUp structures the work so the story is already proven. This flips the entire funding model. Instead of "Trust us — we can do this," ThriveUp says "Here's the live system already doing it." Every platform maps to specific grants. Real-time compliance scores measure grant readiness. Verified deliverables provide evidence. Fidelity grades demonstrate quality. This is a fundamentally different level of credibility for funders.`,
+    keywords: ["grant ready", "funding", "funder", "credibility", "evidence", "narrative", "proof", "design"],
+  },
+  {
+    source: "strategic-framework", category: "strategy", title: "Why Nothing Else Compares — Market Position",
+    content: `ThriveUp is not competing with Salesforce (CRM — tracks contacts, doesn't run services), Databricks (data lakehouse — stores data, doesn't deliver services), Epic/Cerner (health records — doesn't connect education, workforce, housing), or 211/United Way (referral directories — points to services, doesn't deliver and verify them). ThriveUp is building the infrastructure that those systems would eventually have to plug into. It's a new category: Autonomous Community Operating System (ACOS) — not SaaS, not a platform, an operating system for human outcomes.`,
+    keywords: ["compare", "competitor", "salesforce", "databricks", "epic", "different", "market", "acos", "category", "versus", "better"],
+  },
+  {
+    source: "strategic-framework", category: "strategy", title: "Why People Fall Through Cracks — And How ThriveUp Prevents It",
+    content: `People don't fall through cracks because services don't exist. They fall through because: no one owns the transition, no one verifies the outcome, and no system enforces continuity. ThriveUp addresses all three: work chaining owns transitions, deliverable verification confirms outcomes, and the directive system with fidelity grading enforces continuity. The ecosystem didn't just connect services — it created accountability between them. That's the missing piece in almost every public system.`,
+    keywords: ["cracks", "fall through", "transition", "accountability", "continuity", "why", "problem", "solve"],
+  },
+  {
+    source: "strategic-framework", category: "strategy", title: "Digital Public Infrastructure + National Replication",
+    content: `ThriveUp is digital public infrastructure — like roads enable movement, electricity enables power, and internet enables communication, this system coordinates human services across domains. Because it has standardized architecture, local adaptation via CFIR, and outcome tracking via RE-AIM, it can be deployed in any city. Three hubs are already operational: Austin, Manor, Pflugerville. The model scales nationally. Add a new city, plug in the same ecosystem, adapt to local context using implementation science.`,
+    keywords: ["scale", "national", "replication", "infrastructure", "deploy", "city", "expand", "growth"],
+  },
+  {
+    source: "strategic-framework", category: "strategy", title: "Elevator Pitch — How to Describe ThriveUp",
+    content: `Don't say: "We built 20 platforms." Say: "We built a self-governing system that ensures services are delivered, verified, and continuously improved across the full human lifecycle — from prevention to recovery." This is a governed system of systems. An Autonomous Community Operating System. It delivers services, monitors itself, grades its own performance, routes work automatically, and generates grant-ready evidence — all in one interconnected architecture. Combined reach: 170,000+ residents across Central Texas. 5 active grants worth up to $3.375M. 20 platforms covering education, workforce, health equity, veteran services, housing, safety, and crisis prevention.`,
+    keywords: ["elevator pitch", "describe", "explain", "summary", "what we do", "pitch", "one sentence", "tell me about"],
+  },
 ];
 
 async function seedKnowledgeBase() {
@@ -314,19 +363,24 @@ async function retrieveRelevantChunks(query: string, topK: number = 10): Promise
   return scored.filter(s => s.score > 0).slice(0, topK).map(s => s.chunk);
 }
 
-const SYSTEM_PROMPT = `You are the ThriveUp Academy Ecosystem AI — the intelligent brain powering a 20-platform workforce development and community enablement ecosystem. You have real-time access to every platform's status, compliance data, grant readiness, and the full knowledge base.
+const SYSTEM_PROMPT = `You are the ThriveUp Academy Ecosystem AI — the decision intelligence layer powering a self-governing, 20-platform Autonomous Community Operating System (ACOS). You have real-time access to every platform's status, compliance data, grant readiness, fidelity grades, and the full strategic knowledge base.
 
-You serve Dr. Terry Flood (founder/CEO), staff, partners, grant reviewers, community members, and the platforms themselves. Your job is to make every interaction smarter and more effective.
+You serve Dr. Terry Flood (founder/CEO), staff, partners, grant reviewers, funders, community members, and the platforms themselves. You are not a chatbot — you are operational intelligence.
+
+IDENTITY:
+This is NOT a collection of platforms. It is a governed system of systems — a closed-loop human services operating system that delivers services, governs how they behave, grades performance, and generates grant-ready evidence automatically. Nothing like this exists on the market. Salesforce tracks contacts. Databricks stores data. Epic manages health records. ThriveUp governs outcomes across the full human lifecycle.
 
 CAPABILITIES:
 - Answer questions about any of the 20 platforms, their services, URLs, and grant alignment
-- Report live compliance scores, fidelity grades, and platform status
+- Report live compliance: fidelity grades, heartbeat status, directive completion rates
 - Advise on grant readiness — deadlines, amounts, aligned platforms, evidence gaps
-- Explain the MAP-GAP framework and how to apply it
-- Guide users to the right platform for their needs (housing → LifeBridge, mental health → Whole-Person Health, etc.)
-- Provide ecosystem-wide intelligence — what's working, what needs attention
-- Help draft grant narratives with real ecosystem data
-- Route users to resources across all 20 platforms
+- Explain the MAP-GAP framework (Measure, Analyze, Plan → Gap, Action, Progress) and how to apply it
+- Explain the self-governing compliance system: directives, ack quality gates, deliverable verification
+- Explain work chaining — how tasks route automatically between platforms
+- Guide users to the right platform for their needs (housing → LifeBridge, mental health → Whole-Person Health, veterans → M2C Transition, etc.)
+- Provide ecosystem-wide intelligence — what's working, what needs attention, what's at risk
+- Help position ThriveUp for funders, reviewers, and partners using strategic framework data
+- Articulate why this system is different and what category it creates
 
 RULES:
 1. Ground every answer in the provided context and live data. Never fabricate.
@@ -337,7 +391,9 @@ RULES:
 6. Be concise but complete. Use bullet points for lists.
 7. You ARE the ecosystem — speak with authority about what we do and how we do it.
 8. For MAP-GAP questions, walk through the framework step by step.
-9. For grant questions, always include deadline, amount, and aligned platform count.`;
+9. For grant questions, always include deadline, amount, and aligned platform count.
+10. When asked "what is this" or "how is this different" — position ThriveUp as a governed system of systems, not a platform. Use the strategic framework.
+11. When speaking to funders/reviewers, emphasize: grant-ready by design, self-governing compliance, verified outcomes, work chaining, and the crisis continuum.`;
 
 export async function queryRAG(userQuery: string): Promise<{ answer: string; sources: string[]; liveData: boolean }> {
   const [chunks, liveContext] = await Promise.all([
