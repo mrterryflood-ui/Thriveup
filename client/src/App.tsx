@@ -144,6 +144,7 @@ const EcosystemAIPage = lazy(() => import("@/pages/ecosystem-ai"));
 const AIConsultingPage = lazy(() => import("@/pages/ai-consulting"));
 const HealthcareGrantsPage = lazy(() => import("@/pages/healthcare-grants"));
 const AIWorkforcePage = lazy(() => import("@/pages/ai-workforce"));
+const PMAcademyPage = lazy(() => import("@/pages/pm-academy"));
 
 function PageFallback() {
   return (
@@ -307,6 +308,7 @@ function AppRouter() {
       <Route path="/ai-consulting" component={AIConsultingPage} />
       <Route path="/healthcare-grants" component={HealthcareGrantsPage} />
       <Route path="/ai-workforce" component={AIWorkforcePage} />
+      <Route path="/pm-academy" component={PMAcademyPage} />
       <Route component={NotFound} />
     </Switch>
   );

@@ -19,15 +19,13 @@ const ECOSYSTEM_KNOWLEDGE: KnowledgeChunk[] = [
     keywords: ["thriveup", "ecosystem", "overview", "platforms", "terry flood", "austin", "manor", "pflugerville", "how many", "what is"],
   },
   {
-    source: "ecosystem-overview", category: "grants", title: "Active Grant Portfolio — 5 Grants",
-    content: `ThriveUp Academy has 5 active grant opportunities:
-1. Drug-Free Communities (DFC) — $625,000, deadline April 14, 2026. Focus: substance abuse prevention, coalition building, community-based strategies. Aligned platforms: 14.
-2. WIOA (Workforce Innovation & Opportunity Act) — $200K–$500K. Focus: workforce training, career pathways, job readiness, employer engagement. Aligned platforms: 8.
-3. Foundation Grant — $100K–$500K. Focus: community impact, education equity, wraparound services. Aligned platforms: 3.
-4. St. David's Foundation — up to $1M, deadline March 30, 2026. Focus: health equity, maternal health, mental health, community health workers. Aligned platforms: 12.
-5. SSG Fox VA Grant — $750K, deadline June 12–18, 2026. Focus: veteran services, suicide prevention, transition support, peer support. Aligned platforms: 10.
-Total potential funding: up to $3.375M across all grants.`,
-    keywords: ["grants", "dfc", "wioa", "foundation", "st davids", "ssg fox", "funding", "deadline", "money", "amount"],
+    source: "ecosystem-overview", category: "grants", title: "Active Grant Portfolio — 4 Grants",
+    content: `ThriveUp Academy has 4 active grant opportunities:
+1. WIOA (Workforce Innovation & Opportunity Act) — $200K–$500K. Focus: workforce training, career pathways, job readiness, employer engagement. Aligned platforms: 8.
+2. Foundation Grant — $100K–$500K. Focus: community impact, education equity, wraparound services. Aligned platforms: 3.
+3. St. David's Foundation — up to $1M, opens March 30, 2026. Focus: health equity, maternal health, mental health, community health workers. Aligned platforms: 12.
+4. SSG Fox VA Grant — $750K, deadline June 12–18, 2026. Focus: veteran services, suicide prevention, transition support, peer support. Aligned platforms: 10.`,
+    keywords: ["grants", "wioa", "foundation", "st davids", "ssg fox", "funding", "deadline", "money", "amount"],
   },
   {
     source: "ecosystem-overview", category: "regional", title: "Regional Hub Strategy — Austin, Manor, Pflugerville",

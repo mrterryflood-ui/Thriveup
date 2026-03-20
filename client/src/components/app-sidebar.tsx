@@ -70,9 +70,15 @@ const coalitionItems: NavItem[] = [
   { title: "Coalition Dashboard", url: "/coalition", icon: Users },
 ];
 
+const programMgmtItems: NavItem[] = [
+  { title: "PM Academy", url: "/pm-academy", icon: GraduationCap },
+  { title: "Program Management", url: "/program-management", icon: Briefcase },
+  { title: "Program Lifecycle", url: "/program-lifecycle", icon: RefreshCw },
+  { title: "Program Designer", url: "/program-designer", icon: Target },
+];
+
 const grantEngineItems: NavItem[] = [
   { title: "Grant Hub", url: "/grants", icon: Target },
-  { title: "Program Management", url: "/program-management", icon: Briefcase },
   { title: "Ecosystem Hub", url: "/ecosystem", icon: Globe },
   { title: "Ecosystem Story", url: "/ecosystem-story", icon: BookMarked },
   { title: "Logic Model", url: "/logic-model", icon: Route },
@@ -86,8 +92,6 @@ const grantEngineItems: NavItem[] = [
   { title: "Stakeholder Deck", url: "/presentation", icon: Presentation },
   { title: "Platform Metrics", url: "/platform-metrics", icon: BarChart3 },
   { title: "APEX Accelerators", url: "/apex-accelerators", icon: Landmark },
-  { title: "Program Designer", url: "/program-designer", icon: Target },
-  { title: "Program Lifecycle", url: "/program-lifecycle", icon: RefreshCw },
   { title: "Grant Packages", url: "/grant-packages", icon: Package },
   { title: "E-Sign Center", url: "/esign", icon: PenTool },
   { title: "Austin Initiative", url: "/austin", icon: MapPin },
@@ -372,6 +376,7 @@ export function AppSidebar() {
         <NavSection label="Community Intelligence" items={communityIntelItems} location={location} />
         <NavSection label="Workforce Solutions" items={workforceSolutionsItems} location={location} />
         <NavSection label="Coalition" items={coalitionItems} location={location} />
+        <NavSection label="Program Management" items={programMgmtItems} location={location} />
         <NavSection label="Grant Engine" items={grantEngineItems} location={location} />
         <NavSection label="AI Tools" items={aiToolsItems} location={location} />
         <NavSection label="Prevention" items={preventionItems} location={location} />
