@@ -58,7 +58,7 @@ const ECOSYSTEM_PLATFORMS = [
       sends: ["screening_results", "safety_plan_status", "resource_referrals", "crisis_events", "care_summaries"],
       receives: ["veteran_profiles", "transition_status", "life_event_assessments", "research_updates", "youth_referrals"],
     },
-    grantAlignment: ["ssg-fox", "samhsa", "st-davids", "dfc", "wioa"],
+    grantAlignment: ["ssg-fox", "st-davids", "wioa"],
   },
   {
     id: "isss",
@@ -74,7 +74,7 @@ const ECOSYSTEM_PLATFORMS = [
       sends: ["student_support_data", "early_warning_flags", "thrive_scores", "district_analytics"],
       receives: ["workforce_pathways", "health_screenings", "prevention_curriculum", "family_referrals"],
     },
-    grantAlignment: ["dfc", "wioa", "nba-foundation"],
+    grantAlignment: ["wioa", "foundation"],
   },
   {
     id: "sankofa",
@@ -91,7 +91,7 @@ const ECOSYSTEM_PLATFORMS = [
       sends: ["health_screening_data", "resource_recommendations", "wellness_metrics", "behavioral_assessments"],
       receives: ["student_referrals", "crisis_alerts", "community_health_data", "case_management_updates"],
     },
-    grantAlignment: ["samhsa", "st-davids", "dfc", "ssg-fox"],
+    grantAlignment: ["st-davids", "ssg-fox"],
   },
   {
     id: "sankofa-feminine-health",
@@ -108,7 +108,7 @@ const ECOSYSTEM_PLATFORMS = [
       sends: ["health_screening_data", "resource_recommendations", "wellness_metrics"],
       receives: ["crisis_alerts", "community_health_data", "maternal_health_referrals"],
     },
-    grantAlignment: ["samhsa", "st-davids"],
+    grantAlignment: ["st-davids"],
   },
   {
     id: "sankofa-maternal-health",
@@ -125,7 +125,7 @@ const ECOSYSTEM_PLATFORMS = [
       sends: ["maternal_health_data", "risk_assessments", "doula_referrals", "wellness_metrics"],
       receives: ["crisis_alerts", "community_health_data", "feminine_health_referrals"],
     },
-    grantAlignment: ["samhsa", "st-davids"],
+    grantAlignment: ["st-davids"],
   },
   {
     id: "sankofa-mens-health",
@@ -142,7 +142,7 @@ const ECOSYSTEM_PLATFORMS = [
       sends: ["health_screening_data", "resource_recommendations", "wellness_metrics"],
       receives: ["crisis_alerts", "community_health_data", "veteran_health_referrals"],
     },
-    grantAlignment: ["samhsa", "st-davids", "ssg-fox"],
+    grantAlignment: ["st-davids", "ssg-fox"],
   },
   {
     id: "shield-atlas",
@@ -158,7 +158,7 @@ const ECOSYSTEM_PLATFORMS = [
       sends: ["risk_assessments", "safety_analytics", "resilience_scores", "threat_alerts"],
       receives: ["community_health_data", "crisis_alerts", "incident_reports", "screening_data"],
     },
-    grantAlignment: ["ssg-fox", "dfc", "samhsa"],
+    grantAlignment: ["ssg-fox"],
   },
   {
     id: "wholemind",
@@ -175,7 +175,7 @@ const ECOSYSTEM_PLATFORMS = [
       sends: ["learning_progress", "engagement_metrics", "parent_reports", "academic_assessments"],
       receives: ["student_profiles", "iep_accommodations", "prevention_content", "family_referrals"],
     },
-    grantAlignment: ["dfc", "wioa", "nba-foundation"],
+    grantAlignment: ["wioa", "foundation"],
   },
   {
     id: "perfectly-different",
@@ -191,7 +191,7 @@ const ECOSYSTEM_PLATFORMS = [
       sends: ["neurodevelopmental_assessments", "iep_data", "crisis_flags", "accommodation_needs"],
       receives: ["student_profiles", "health_screenings", "community_resources", "prevention_content"],
     },
-    grantAlignment: ["samhsa", "dfc", "st-davids"],
+    grantAlignment: ["st-davids"],
   },
   {
     id: "safereport",
@@ -207,7 +207,7 @@ const ECOSYSTEM_PLATFORMS = [
       sends: ["incident_reports", "compliance_alerts", "audit_trails", "cross_agency_referrals"],
       receives: ["case_management_data", "early_warning_flags", "student_safety_alerts", "provider_referrals"],
     },
-    grantAlignment: ["dfc"],
+    grantAlignment: ["ssg-fox"],
   },
   {
     id: "m2c",
@@ -241,7 +241,7 @@ const ECOSYSTEM_PLATFORMS = [
       sends: ["resource_referrals", "crisis_interventions", "social_determinant_data", "community_needs", "life_event_assessments", "risk_indicators"],
       receives: ["case_management_data", "health_screenings", "early_warning_flags", "prevention_alerts", "screening_results", "crisis_alerts"],
     },
-    grantAlignment: ["dfc", "samhsa", "st-davids", "ssg-fox"],
+    grantAlignment: ["st-davids", "ssg-fox"],
   },
   {
     id: "mce",
@@ -275,7 +275,7 @@ const ECOSYSTEM_PLATFORMS = [
       sends: ["research_findings", "fidelity_reports", "evidence_summaries", "implementation_guides"],
       receives: ["program_metrics", "outcome_data", "implementation_fidelity", "screening_aggregates"],
     },
-    grantAlignment: ["dfc", "ssg-fox", "samhsa"],
+    grantAlignment: ["ssg-fox"],
   },
   {
     id: "safecognicare",
@@ -291,7 +291,7 @@ const ECOSYSTEM_PLATFORMS = [
       sends: ["cognitive_assessments", "safety_alerts", "care_plans", "family_notifications"],
       receives: ["health_screenings", "veteran_profiles", "provider_referrals", "medication_data"],
     },
-    grantAlignment: ["samhsa", "ssg-fox", "st-davids"],
+    grantAlignment: ["ssg-fox", "st-davids"],
   },
   {
     id: "pillscheduler",
@@ -307,7 +307,7 @@ const ECOSYSTEM_PLATFORMS = [
       sends: ["medication_adherence", "interaction_alerts", "refill_status", "compliance_reports"],
       receives: ["prescriptions", "health_screenings", "cognitive_assessments", "provider_updates"],
     },
-    grantAlignment: ["samhsa", "dfc", "ssg-fox"],
+    grantAlignment: ["ssg-fox"],
   },
   {
     id: "collaborative-advocate",
@@ -323,7 +323,7 @@ const ECOSYSTEM_PLATFORMS = [
       sends: ["veteran_referrals", "service_delivery_metrics", "workforce_outcomes", "advocacy_cases"],
       receives: ["crisis_alerts", "screening_results", "case_management_data", "provider_referrals", "grant_milestones"],
     },
-    grantAlignment: ["ssg-fox", "wioa", "dfc", "st-davids"],
+    grantAlignment: ["ssg-fox", "wioa", "st-davids"],
   },
   {
     id: "video-creator-ai",
@@ -339,7 +339,7 @@ const ECOSYSTEM_PLATFORMS = [
       sends: ["video_assets", "presentation_decks", "marketing_content", "training_materials"],
       receives: ["platform_descriptions", "grant_narratives", "outcome_data", "brand_guidelines", "service_descriptions"],
     },
-    grantAlignment: ["dfc", "wioa", "ssg-fox", "st-davids"],
+    grantAlignment: ["wioa", "ssg-fox", "st-davids"],
   },
   {
     id: "ecosystem-nexus",
@@ -355,7 +355,7 @@ const ECOSYSTEM_PLATFORMS = [
       sends: ["coordination_updates", "operational_directives", "ecosystem_status", "platform_analytics"],
       receives: ["heartbeats", "platform_metrics", "status_reports", "incident_alerts", "grant_updates"],
     },
-    grantAlignment: ["dfc", "wioa", "ssg-fox", "st-davids"],
+    grantAlignment: ["wioa", "ssg-fox", "st-davids"],
   },
   {
     id: "ad-targeting",
@@ -371,7 +371,7 @@ const ECOSYSTEM_PLATFORMS = [
       sends: ["audience_insights", "campaign_metrics", "ad_performance", "targeting_recommendations"],
       receives: ["platform_descriptions", "service_offerings", "community_demographics", "grant_narratives", "video_assets"],
     },
-    grantAlignment: ["dfc", "wioa", "st-davids"],
+    grantAlignment: ["wioa", "st-davids"],
   },
   {
     id: "pinnacle-business-conglomerate",
@@ -2576,11 +2576,9 @@ if (typeof module !== "undefined") {
         },
         grantLenses: {
           "ssg-fox": { name: "SSG Fox VA Suicide Prevention", amount: "Up to $750K", deadline: "June 12-18, 2026", platforms: ["whole-person-health", "m2c", "lifebridge", "sankofa", "safecognicare", "pillscheduler", "betterscience"] },
-          "dfc": { name: "Drug-Free Communities (DFC)", amount: "$625K", deadline: "April 14, 2026", platforms: ["whole-person-health", "isss", "sankofa", "wholemind", "safereport", "lifebridge", "pillscheduler", "betterscience"] },
           "wioa": { name: "WIOA Title I Youth", amount: "$200K-$500K", deadline: "Rolling", platforms: ["isss", "wholemind", "m2c", "mce", "whole-person-health"] },
-          "nba-foundation": { name: "Foundation Grant", amount: "$100K-$500K", deadline: "Rolling LOI", platforms: ["isss", "wholemind"] },
+          "foundation": { name: "Foundation Grant", amount: "$100K-$500K", deadline: "Rolling LOI", platforms: ["isss", "wholemind"] },
           "st-davids": { name: "St. David's Foundation", amount: "Up to $1M", deadline: "Opens March 30, 2026", platforms: ["whole-person-health", "sankofa", "perfectly-different", "safecognicare", "lifebridge"] },
-          "samhsa": { name: "SAMHSA Community Mental Health", amount: "Varies", deadline: "Varies", platforms: ["whole-person-health", "sankofa", "perfectly-different", "safecognicare", "pillscheduler", "betterscience", "lifebridge"] },
         },
         crisisContinuum: {
           phase1_prevention: { name: "Prevention & Preparedness", platforms: ["m2c", "whole-person-health", "wholemind", "isss", "betterscience"], description: "Purpose, skills, pathways for youth; pre-separation planning; preparedness plans; evidence base for prevention strategies" },
@@ -2984,12 +2982,10 @@ if (typeof module !== "undefined") {
       });
 
       const GRANT_MAP: Record<string, { name: string; amount: string; deadline: string }> = {
-        "dfc": { name: "Drug-Free Communities (DFC)", amount: "$625K", deadline: "April 14, 2026" },
         "wioa": { name: "WIOA Title I Youth", amount: "$200K-$500K", deadline: "Rolling" },
-        "nba-foundation": { name: "Foundation Grant", amount: "$100K-$500K", deadline: "Rolling LOI" },
+        "foundation": { name: "Foundation Grant", amount: "$100K-$500K", deadline: "Rolling LOI" },
         "st-davids": { name: "St. David's Foundation", amount: "Up to $1M", deadline: "March 30, 2026" },
         "ssg-fox": { name: "SSG Fox VA Suicide Prevention", amount: "Up to $750K", deadline: "June 12-18, 2026" },
-        "samhsa": { name: "SAMHSA Community Mental Health", amount: "Varies", deadline: "Varies" },
       };
 
       const grantReadiness = Object.entries(GRANT_MAP).map(([grantId, grant]) => {
@@ -3165,12 +3161,10 @@ if (typeof module !== "undefined") {
       const HEARTBEAT_FRESHNESS_MS = 30 * 60 * 1000;
 
       const GRANT_MAP: Record<string, { name: string; amount: string; deadline: string }> = {
-        "dfc": { name: "Drug-Free Communities (DFC)", amount: "$625K", deadline: "April 14, 2026" },
         "wioa": { name: "WIOA Title I Youth", amount: "$200K-$500K", deadline: "Rolling" },
-        "nba-foundation": { name: "Foundation Grant", amount: "$100K-$500K", deadline: "Rolling LOI" },
+        "foundation": { name: "Foundation Grant", amount: "$100K-$500K", deadline: "Rolling LOI" },
         "st-davids": { name: "St. David's Foundation", amount: "Up to $1M", deadline: "March 30, 2026" },
         "ssg-fox": { name: "SSG Fox VA Suicide Prevention", amount: "Up to $750K", deadline: "June 12-18, 2026" },
-        "samhsa": { name: "SAMHSA Community Mental Health", amount: "Varies", deadline: "Varies" },
       };
 
       const grantReadiness = Object.entries(GRANT_MAP).map(([grantId, grant]) => {
@@ -3356,11 +3350,9 @@ if (typeof module !== "undefined") {
         totalPlatforms: allPlatforms.length,
         grantLenses: {
           "ssg-fox": { name: "SSG Fox VA Suicide Prevention", platformCount: allPlatforms.filter(p => ((p.grantAlignment as string[]) || []).includes("ssg-fox")).length },
-          "dfc": { name: "Drug-Free Communities (DFC)", platformCount: allPlatforms.filter(p => ((p.grantAlignment as string[]) || []).includes("dfc")).length },
           "wioa": { name: "WIOA Title I Youth", platformCount: allPlatforms.filter(p => ((p.grantAlignment as string[]) || []).includes("wioa")).length },
-          "nba-foundation": { name: "Foundation Grant", platformCount: allPlatforms.filter(p => ((p.grantAlignment as string[]) || []).includes("nba-foundation")).length },
+          "foundation": { name: "Foundation Grant", platformCount: allPlatforms.filter(p => ((p.grantAlignment as string[]) || []).includes("foundation")).length },
           "st-davids": { name: "St. David's Foundation", platformCount: allPlatforms.filter(p => ((p.grantAlignment as string[]) || []).includes("st-davids")).length },
-          "samhsa": { name: "SAMHSA Community Mental Health", platformCount: allPlatforms.filter(p => ((p.grantAlignment as string[]) || []).includes("samhsa")).length },
         },
         platforms: sanitizedPlatforms,
       });
