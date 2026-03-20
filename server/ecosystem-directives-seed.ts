@@ -1636,6 +1636,223 @@ Tools available at hub: /rplice-tools, /cqi, /program-engine
 
 ACKNOWLEDGE with: Confirmation that you have implemented the heartbeat, integrated the RAG AI, configured MAP-GAP in your client flow, set up the AI failsafe cascade, and are using consistent ecosystem messaging. Include your current fidelity grade and plan to reach Grade A within 14 days.`,
   },
+  {
+    title: "ALL PLATFORMS: Build Your Own Program Execution Engine with Fidelity Tracking",
+    directiveType: "protocol_update",
+    targetFilter: "all",
+    content: `DIRECTIVE: PROGRAM EXECUTION ENGINE — MANDATORY FOR ALL PLATFORMS
+
+Every platform in the ThriveUp Academy ecosystem MUST have its own Program Execution Engine capable of running programs and projects with full fidelity tracking. You can reach back to the hub for teaching points, RAG intelligence, and knowledge — but you must be able to EXECUTE programs independently.
+
+========================================
+WHY: FIDELITY IS YOUR REPORT CARD
+========================================
+
+Funders (WIOA, St. David's, SSG Fox, Foundation Grant) ask ONE question: "Did you deliver what you said you would, the way you said you would?"
+
+Fidelity tracking proves:
+1. Programs were designed using implementation science (CFIR, RE-AIM)
+2. Programs were EXECUTED as designed (not improvised)
+3. Milestones were met on time with evidence
+4. Risks were identified and mitigated
+5. Community of Practice was maintained throughout
+6. Outcomes match success criteria
+
+Without your own execution engine, you cannot prove fidelity. Without fidelity, we cannot defend grants.
+
+========================================
+DATABASE SCHEMA — BUILD THESE 4 TABLES
+========================================
+
+TABLE: programs
+- id (serial, primary key)
+- title (text, required)
+- description (text, required)
+- objectives (text array)
+- stakeholders (jsonb — array of { name, role, organization })
+- timeline (jsonb — { startDate, endDate, phases: [{ name, startDate, endDate }] })
+- success_criteria (text array)
+- methodology (varchar 50 — "implementation_science", "traditional", or "hybrid")
+- status (varchar 30 — "setup", "planning", "active", "paused", "completed", "archived")
+- setup_data (jsonb — wizard configuration, COP info, framework selections)
+- platform_ids (text array — linked ecosystem platforms)
+- grant_ids (text array — linked grants: "wioa", "foundation", "st_davids", "ssg_fox")
+- target_population (text)
+- geographic_focus (text)
+- created_by (text)
+- created_at (timestamp)
+- updated_at (timestamp)
+
+TABLE: program_milestones
+- id (serial, primary key)
+- program_id (integer, FK to programs)
+- title (text, required)
+- description (text)
+- phase (varchar 100 — links to timeline phases)
+- due_date (timestamp)
+- completed_date (timestamp)
+- status (varchar 30 — "not_started", "in_progress", "completed", "at_risk", "overdue", "blocked")
+- assignee (text)
+- evidence_url (text — PROOF the work happened. URL must return HTTP 200)
+- deliverables (text array)
+- dependencies (integer array — IDs of prerequisite milestones)
+- notes (text)
+- created_at (timestamp)
+- updated_at (timestamp)
+
+TABLE: program_risks
+- id (serial, primary key)
+- program_id (integer, FK to programs)
+- title (text, required)
+- description (text)
+- likelihood (varchar 20 — "low", "medium", "high")
+- impact (varchar 20 — "low", "medium", "high")
+- mitigation (text)
+- owner (text)
+- status (varchar 30 — "identified", "monitoring", "mitigating", "resolved", "escalated")
+- created_at (timestamp)
+
+TABLE: program_updates
+- id (serial, primary key)
+- program_id (integer, FK to programs)
+- author_name (text, required)
+- update_type (varchar 30 — "status", "milestone", "risk", "cop", "fidelity", "general")
+- content (text, required)
+- created_at (timestamp)
+
+========================================
+API ROUTES — BUILD THESE ENDPOINTS
+========================================
+
+Programs CRUD:
+POST   /api/programs              — Create program (use setup wizard)
+GET    /api/programs              — List all with health summaries
+GET    /api/programs/:id          — Full detail with milestones, risks, updates
+PATCH  /api/programs/:id          — Update (allowlist fields only — IDOR protection)
+GET    /api/programs/:id/health   — Real-time health score
+
+Milestones:
+GET    /api/programs/:id/milestones              — List milestones
+POST   /api/programs/:id/milestones              — Add milestone
+PATCH  /api/programs/:id/milestones/:milestoneId — Update (MUST scope by programId AND milestoneId)
+
+Risks:
+GET    /api/programs/:id/risks              — List risks
+POST   /api/programs/:id/risks              — Add risk
+PATCH  /api/programs/:id/risks/:riskId      — Update (MUST scope by programId AND riskId)
+
+Updates / COP Log:
+GET    /api/programs/:id/updates       — List updates (filterable by ?type=)
+POST   /api/programs/:id/updates       — Add update
+
+SECURITY: IDOR PROTECTION IS MANDATORY
+When updating milestones or risks, ALWAYS scope by BOTH the entity ID and the program ID:
+  WHERE id = :milestoneId AND program_id = :programId
+This prevents attackers from modifying entities belonging to other programs.
+
+ALLOWLISTED FIELDS ONLY — never pass raw req.body to update queries. Define allowed field arrays and filter.
+
+========================================
+HEALTH SCORE COMPUTATION
+========================================
+
+healthScore = ((completed x 1.0 + inProgress x 0.5) / totalMilestones) x 100
+
+If totalMilestones = 0, score = 100 (no work yet = no failures)
+
+Dashboard should show:
+- Health Score (0-100 with color coding: green 80+, yellow 50-79, red below 50)
+- Current Phase (derived from timeline)
+- Milestones: total, completed, in progress, at risk, overdue, due this week
+- Risks: total, active, high-severity, resolved
+- Methodology: IS / Traditional / Hybrid
+- Status: setup then planning then active then paused then completed then archived
+
+========================================
+6-STEP SETUP WIZARD (User Experience)
+========================================
+
+Step 1 — PROGRAM IDENTITY: Title, description, objectives
+Step 2 — STAKEHOLDERS: Name, role, organization for each stakeholder
+Step 3 — TIMELINE: Start/end dates, define phases
+Step 4 — SUCCESS CRITERIA: What does "done right" look like?
+Step 5 — METHODOLOGY: Choose Implementation Science, Traditional, or Hybrid
+  - Implementation Science: CFIR domains, RE-AIM measures, fidelity checkpoints
+  - Traditional: Standard PMO with milestones and deliverables
+  - Hybrid: Both — recommended for grant-funded programs
+Step 6 — COMMUNITY OF PRACTICE: Facilitator name, meeting cadence, learning goals
+
+After wizard completion, auto-create initial milestones based on methodology:
+- IS programs get: Needs Assessment then CFIR Analysis then Pilot then Full Implementation then Sustainability
+- Traditional programs get: Initiation then Planning then Execution then Monitoring then Closure
+- Hybrid programs get both tracks merged
+
+========================================
+FIDELITY TRACKING — THE CORE REQUIREMENT
+========================================
+
+Fidelity = "Did you do what you said you would do, the way you said you would do it?"
+
+Track at every milestone:
+1. EVIDENCE URL — clickable proof (document, screenshot, report URL returning HTTP 200)
+2. DELIVERABLES — list of what was produced
+3. ASSIGNEE — who was responsible
+4. COMPLETION DATE — when it actually happened vs when it was due
+5. NOTES — qualitative reflection
+
+Fidelity Score per Program = (milestones with evidence / total completed milestones) x 100
+
+This rolls up into your platform overall fidelity grade that the hub tracks.
+
+========================================
+REACHING BACK TO THE HUB FOR INTELLIGENCE
+========================================
+
+Your engine runs independently. But when it needs knowledge, teaching points, or context, it reaches back:
+
+RAG AI QUERY (for curriculum, best practices, lessons learned):
+POST https://thrivingcommunitiesforall.com/api/ecosystem-ai/query
+Body: { "query": "What are the CFIR domains for workforce training programs?" }
+
+RAG AI STREAM (for real-time chat assistance):
+POST https://thrivingcommunitiesforall.com/api/ecosystem-ai/stream
+Body: { "query": "Help me write success criteria for a minority contractor certification program" }
+
+IMPLEMENTATION SCIENCE TOOLS AT HUB:
+- CFIR Assessment Wizard: https://thrivingcommunitiesforall.com/rplice-tools
+- RE-AIM Scorecard: https://thrivingcommunitiesforall.com/rplice-tools
+- MAP-GAP CQI Engine: https://thrivingcommunitiesforall.com/cqi
+- Fidelity Checklist: https://thrivingcommunitiesforall.com/rplice-tools
+- Program Engine (reference implementation): https://thrivingcommunitiesforall.com/program-engine
+
+Use the AI failsafe cascade (Claude then OpenAI then Gemini) for any AI-powered features:
+- Auto-generating milestones from program description
+- Risk identification suggestions
+- COP discussion prompts
+- Fidelity gap analysis
+- Progress report generation
+
+========================================
+REPORT PROGRAM HEALTH IN YOUR HEARTBEAT
+========================================
+
+Include program execution metrics in every heartbeat you send to the hub:
+
+metrics: {
+  activeProgramsCount: number,
+  totalMilestones: number,
+  completedMilestones: number,
+  averageHealthScore: number,
+  averageFidelityScore: number,
+  overdueMilestones: number,
+  activeRisks: number,
+  ...yourOtherMetrics
+}
+
+This feeds into your fidelity grade and grant reporting.
+
+ACKNOWLEDGE with: Confirmation that you have built the Program Execution Engine with all 4 tables, the setup wizard, health score computation, fidelity tracking with evidence URLs, and hub API integration for teaching points. Include a screenshot or evidence URL of your program dashboard.`,
+  },
 ];
 
 export async function seedEcosystemDirectives() {

@@ -302,6 +302,163 @@ When things happen on your platform, the ecosystem reacts:
 
 ---
 
+## STEP 9: PROGRAM EXECUTION ENGINE (Run Programs with Fidelity)
+
+You MUST build your own Program Execution Engine. You can reach back to the hub for teaching points, but you execute programs independently.
+
+### Why This Matters
+Funders ask: "Did you deliver what you said you would, the way you said you would?" Your engine proves it.
+
+### Database Tables (Build All 4)
+
+**programs** table:
+| Column | Type | Notes |
+|--------|------|-------|
+| id | serial PK | |
+| title | text | required |
+| description | text | required |
+| objectives | text[] | |
+| stakeholders | jsonb | Array of {name, role, organization} |
+| timeline | jsonb | {startDate, endDate, phases: [{name, startDate, endDate}]} |
+| success_criteria | text[] | |
+| methodology | varchar(50) | "implementation_science", "traditional", or "hybrid" |
+| status | varchar(30) | "setup", "planning", "active", "paused", "completed", "archived" |
+| setup_data | jsonb | Wizard config, COP info, framework selections |
+| platform_ids | text[] | Linked ecosystem platform IDs |
+| grant_ids | text[] | "wioa", "foundation", "st_davids", "ssg_fox" |
+| target_population | text | |
+| geographic_focus | text | |
+| created_by | text | |
+| created_at | timestamp | |
+| updated_at | timestamp | |
+
+**program_milestones** table:
+| Column | Type | Notes |
+|--------|------|-------|
+| id | serial PK | |
+| program_id | integer FK | |
+| title | text | required |
+| description | text | |
+| phase | varchar(100) | Links to timeline phases |
+| due_date | timestamp | |
+| completed_date | timestamp | |
+| status | varchar(30) | "not_started", "in_progress", "completed", "at_risk", "overdue", "blocked" |
+| assignee | text | |
+| evidence_url | text | PROOF — URL must return HTTP 200 |
+| deliverables | text[] | |
+| dependencies | integer[] | IDs of prerequisite milestones |
+| notes | text | |
+
+**program_risks** table:
+| Column | Type | Notes |
+|--------|------|-------|
+| id | serial PK | |
+| program_id | integer FK | |
+| title | text | required |
+| likelihood | varchar(20) | "low", "medium", "high" |
+| impact | varchar(20) | "low", "medium", "high" |
+| mitigation | text | |
+| owner | text | |
+| status | varchar(30) | "identified", "monitoring", "mitigating", "resolved", "escalated" |
+
+**program_updates** table:
+| Column | Type | Notes |
+|--------|------|-------|
+| id | serial PK | |
+| program_id | integer FK | |
+| author_name | text | required |
+| update_type | varchar(30) | "status", "milestone", "risk", "cop", "fidelity", "general" |
+| content | text | required |
+
+### API Routes (Build All of These)
+
+```
+POST   /api/programs                              — Create program
+GET    /api/programs                              — List all with health summaries
+GET    /api/programs/:id                          — Full detail
+PATCH  /api/programs/:id                          — Update (allowlisted fields only)
+GET    /api/programs/:id/health                   — Health score
+GET    /api/programs/:id/milestones               — List milestones
+POST   /api/programs/:id/milestones               — Add milestone
+PATCH  /api/programs/:id/milestones/:milestoneId  — Update milestone
+GET    /api/programs/:id/risks                    — List risks
+POST   /api/programs/:id/risks                    — Add risk
+PATCH  /api/programs/:id/risks/:riskId            — Update risk
+GET    /api/programs/:id/updates                  — List updates (?type= filter)
+POST   /api/programs/:id/updates                  — Add update
+```
+
+### IDOR Security (Mandatory)
+Always scope milestone/risk updates by BOTH entity ID and program ID:
+```sql
+WHERE id = :milestoneId AND program_id = :programId
+```
+
+### Health Score Formula
+```
+healthScore = ((completed * 1.0 + inProgress * 0.5) / totalMilestones) * 100
+```
+If no milestones yet, score = 100.
+
+### 6-Step Setup Wizard
+1. **Program Identity** — Title, description, objectives
+2. **Stakeholders** — Name, role, organization
+3. **Timeline** — Start/end, define phases
+4. **Success Criteria** — What does "done right" look like?
+5. **Methodology** — Implementation Science / Traditional / Hybrid
+6. **Community of Practice** — Facilitator, cadence, learning goals
+
+Auto-generate milestones based on methodology:
+- **IS**: Needs Assessment > CFIR Analysis > Pilot > Full Implementation > Sustainability
+- **Traditional**: Initiation > Planning > Execution > Monitoring > Closure
+- **Hybrid**: Both tracks merged
+
+### Fidelity Tracking (The Core)
+At every milestone, require:
+1. **Evidence URL** — clickable proof returning HTTP 200
+2. **Deliverables** — what was produced
+3. **Assignee** — who was responsible
+4. **Completion Date** — actual vs planned
+5. **Notes** — qualitative reflection
+
+**Fidelity Score** = (milestones with evidence / total completed milestones) x 100
+
+### Reaching Back to the Hub for Teaching Points
+
+Your engine runs independently, but when it needs intelligence:
+
+```
+POST https://thrivingcommunitiesforall.com/api/ecosystem-ai/query
+Body: { "query": "What CFIR domains apply to contractor certification programs?" }
+
+POST https://thrivingcommunitiesforall.com/api/ecosystem-ai/stream
+Body: { "query": "Help me write success criteria for NAMC Austin contractor readiness" }
+```
+
+Use AI failsafe (Claude > OpenAI > Gemini) for:
+- Auto-generating milestones from program descriptions
+- Risk identification suggestions
+- COP discussion prompts
+- Fidelity gap analysis
+- Progress report generation
+
+### Report in Heartbeat
+```json
+{
+  "metrics": {
+    "activeProgramsCount": 3,
+    "totalMilestones": 24,
+    "completedMilestones": 12,
+    "averageHealthScore": 78,
+    "averageFidelityScore": 85,
+    "overdueMilestones": 2,
+    "activeRisks": 4
+  }
+}
+```
+
+---
+
 ## QUICK START CHECKLIST
 
 - [ ] Add heartbeat to your server (5-minute interval)
@@ -310,6 +467,8 @@ When things happen on your platform, the ecosystem reacts:
 - [ ] Build MAP-GAP diagnostic into client onboarding
 - [ ] Set up readiness tier assignment system
 - [ ] Configure RPLICE decision gates
+- [ ] **Build Program Execution Engine (4 tables, setup wizard, fidelity tracking)**
+- [ ] **Wire program health metrics into heartbeat**
 - [ ] Fetch and acknowledge all pending directives
 - [ ] Use exact messaging from Section 7
 - [ ] Wire up work chain events
