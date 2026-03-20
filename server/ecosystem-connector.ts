@@ -446,7 +446,7 @@ export function registerEcosystemConnectorRoutes(app: Express) {
       if (shouldNotify) sendEcosystemUpdate(
         "Connector Code Updated to v4.1 — Platforms Must Stop Auto-Acknowledging",
         `<h2>Ecosystem Update: Connection Instructions v4.1</h2>
-        <p>A critical update has been pushed to all 20 platforms via directive.</p>
+        <p>A critical update has been pushed to all 21 platforms via directive.</p>
         <h3>What Changed</h3>
         <p>The old connector code auto-acknowledged every directive the moment it arrived with a fake "Implemented: {title}" message. Platforms were handshaking but never actually doing the work.</p>
         <h3>What's New in v4.1</h3>
@@ -459,7 +459,7 @@ export function registerEcosystemConnectorRoutes(app: Express) {
         </ul>
         <h3>Dissemination</h3>
         <ul>
-          <li>New directive pushed to all 20 platforms: "URGENT: Update Connector Code — Stop Auto-Acknowledging Directives"</li>
+          <li>New directive pushed to all 21 platforms: "URGENT: Update Connector Code — Stop Auto-Acknowledging Directives"</li>
           <li>Updated connection instructions doc (v4.1) available at the integration doc endpoint</li>
           <li>Wake-up ping sent to all platforms to force delivery</li>
           <li>Platforms will receive the directive on their next heartbeat (within 15 minutes)</li>
@@ -624,7 +624,7 @@ export function registerEcosystemConnectorRoutes(app: Express) {
         active: pingerInterval !== null,
         cycleInterval: "10 minutes",
         lastCycle: lastPingCycle,
-        purpose: "Keeps all 20 Autoscale-deployed platforms awake by sending HTTP GET requests every 10 minutes. When a sleeping platform wakes from a ping, its startup heartbeat fires and catches up on all pending directives.",
+        purpose: "Keeps all 21 Autoscale-deployed platforms awake by sending HTTP GET requests every 10 minutes. When a sleeping platform wakes from a ping, its startup heartbeat fires and catches up on all pending directives.",
       });
     } catch (error) {
       console.error("Error in GET /api/ecosystem/pinger-status", error);
@@ -1092,7 +1092,7 @@ export function registerEcosystemConnectorRoutes(app: Express) {
         ragAIIntegration: {
           required: true,
           yourStatus: hasRagIntegration ? "INTEGRATED — Thank you" : "NOT INTEGRATED — Action required",
-          instruction: "ThriveUp Academy's RAG AI must be integrated into your platform. This AI has knowledge of all 20 ecosystem platforms, all active grants, community hubs, compliance data, and implementation science frameworks. Your users deserve access to this intelligence.",
+          instruction: "ThriveUp Academy's RAG AI must be integrated into your platform. This AI has knowledge of all 21 ecosystem platforms, all active grants, community hubs, compliance data, and implementation science frameworks. Your users deserve access to this intelligence.",
           whatItDoes: "Answers questions about the entire ThriveUp ecosystem — any platform, any grant, any program, any community hub. It knows real-time fidelity scores, platform health, grant readiness, and work chain activity. It provides sourced, accurate responses.",
           howToIntegrate: {
             step1: "Send a POST request to the query endpoint with your user's question",
@@ -1116,7 +1116,7 @@ export function registerEcosystemConnectorRoutes(app: Express) {
             suggestedFollowUps: ["Array of follow-up questions"],
           },
           benefits: [
-            "Your users can ask about ANY of the 20 ecosystem platforms",
+            "Your users can ask about ANY of the 21 ecosystem platforms",
             "Real-time knowledge of grant readiness and compliance status",
             "Warm handoff intelligence — AI knows which platform handles what",
             "Implementation science context — CFIR, RE-AIM, MAP-GAP frameworks",
