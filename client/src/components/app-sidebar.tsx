@@ -160,6 +160,7 @@ const campusExtrasItems: NavItem[] = [
 const aboutItems: NavItem[] = [
   { title: "About / Leadership", url: "/about", icon: Info },
   { title: "Business Plan", url: "/business-plan", icon: Briefcase },
+  { title: "AI Consulting", url: "/ai-consulting", icon: Brain },
 ];
 
 const preventionItems: NavItem[] = [

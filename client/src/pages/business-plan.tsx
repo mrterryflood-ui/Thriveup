@@ -58,21 +58,23 @@ const ecosystemPlatforms = [
   },
   {
     name: "The Collaborative Advocate",
-    role: "Connects It All",
-    layer: "Umbrella / Advocacy",
+    role: "Connects It All + AI Consulting",
+    layer: "Umbrella / Advocacy / Consulting",
     entity: "VOSB Organization",
     url: "",
     gradient: "from-amber-600 to-orange-700",
     icon: Globe,
     capabilities: [
-      "Organizational web presence",
-      "Advocacy & community voice",
-      "Strategic coordination hub",
-      "20-platform ecosystem narrative",
-      "Partnership development",
-      "Grant alignment & compliance story",
+      "AI Consulting Services (Strategy → Implementation → CoE)",
+      "Multi-provider AI architecture design & deployment",
+      "RAG knowledge base & governance framework buildout",
+      "MAP-GAP continuous improvement consulting",
+      "20-platform ecosystem narrative & advocacy",
+      "Grant alignment, compliance automation & evidence by architecture",
+      "Implementation science services (CFIR, RE-AIM)",
+      "Federal contract execution & VOSB partnerships",
     ],
-    revenue: "Consulting, federal contracts, implementation science services",
+    revenue: "AI Consulting ($2.5K–$150K engagements), federal contracts, implementation science",
   },
 ];
 
@@ -89,7 +91,7 @@ const fundingStreams = [
 ];
 
 const keyNumbers = [
-  { label: "Platforms", value: "14", detail: "Integrated ecosystem" },
+  { label: "Platforms", value: "20", detail: "Integrated ecosystem" },
   { label: "MCE Records", value: "656,794", detail: "Curated business data" },
   { label: "AI Tools", value: "24+", detail: "Across all platforms" },
   { label: "Career Pathways", value: "50+", detail: "4+ industries" },

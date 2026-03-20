@@ -2768,7 +2768,7 @@ if (typeof module !== "undefined") {
       res.json({ sent: true, to: "mr.terryflood@gmail.com", platforms: platformRows.length, summary: { ecosystemFidelity, gradeA, gradeB, gradeC, gradeD, gradeF, connected: connectedCount } });
     } catch (error: any) {
       console.error("Report card email failed:", error);
-      res.status(500).json({ error: "Failed to send report card", details: error.message });
+      res.status(500).json({ error: "Failed to send report card" });
     }
   });
 

@@ -145,6 +145,7 @@ const LifeBridgeEmbedPage = lazy(() => import("@/pages/ecosystem-embed").then(m 
 const TexasAssessmentPage = lazy(() => import("@/pages/texas-assessment"));
 const ThirdSpacesPage = lazy(() => import("@/pages/third-spaces"));
 const EcosystemAIPage = lazy(() => import("@/pages/ecosystem-ai"));
+const AIConsultingPage = lazy(() => import("@/pages/ai-consulting"));
 
 function PageFallback() {
   return (
@@ -309,6 +310,7 @@ function AppRouter() {
       <Route path="/texas-assessment" component={TexasAssessmentPage} />
       <Route path="/third-spaces" component={ThirdSpacesPage} />
       <Route path="/ecosystem-ai" component={EcosystemAIPage} />
+      <Route path="/ai-consulting" component={AIConsultingPage} />
       <Route component={NotFound} />
     </Switch>
   );
