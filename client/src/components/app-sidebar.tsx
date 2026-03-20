@@ -102,10 +102,11 @@ const grantEngineItems: NavItem[] = [
 ];
 
 const aiToolsItems: NavItem[] = [
+  { title: "AI Workforce Academy", url: "/ai-workforce", icon: GraduationCap },
   { title: "AI Creation Studio", url: "/ai-tools", icon: Wand2 },
   { title: "Spark", url: "/ai-companion", icon: Sparkles },
   { title: "Sparky", url: "/sparky", icon: MessageCircle },
-  { title: "AI Curriculum", url: "/curriculum", icon: Brain },
+  { title: "AI Curriculum (Youth)", url: "/curriculum", icon: Brain },
   { title: "Subjects", url: "/subjects", icon: GraduationCap },
   { title: "Achievements", url: "/achievements", icon: Award },
   { title: "Certificates", url: "/certificates", icon: ScrollText },
