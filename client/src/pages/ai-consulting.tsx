@@ -14,7 +14,6 @@ const servicePackages = [
   {
     name: "AI Strategy Assessment",
     tier: "Foundation",
-    price: "$5,000 – $15,000",
     duration: "2–4 weeks",
     gradient: "from-blue-600 to-indigo-700",
     icon: Target,
@@ -32,7 +31,6 @@ const servicePackages = [
   {
     name: "AI Implementation Sprint",
     tier: "Growth",
-    price: "$15,000 – $50,000",
     duration: "6–12 weeks",
     gradient: "from-emerald-600 to-teal-700",
     icon: Rocket,
@@ -50,7 +48,6 @@ const servicePackages = [
   {
     name: "AI Center of Excellence",
     tier: "Enterprise",
-    price: "$50,000 – $150,000",
     duration: "3–6 months",
     gradient: "from-violet-600 to-purple-700",
     icon: Award,
@@ -70,13 +67,12 @@ const servicePackages = [
   {
     name: "Community & Nonprofit AI Accelerator",
     tier: "Mission-Driven",
-    price: "$2,500 – $10,000",
     duration: "4–8 weeks",
     gradient: "from-amber-600 to-orange-700",
     icon: Heart,
-    description: "Affordable AI implementation designed specifically for nonprofits, community organizations, and government agencies. Grant-aligned with built-in compliance reporting.",
+    description: "AI implementation designed specifically for nonprofits, community organizations, and government agencies — with built-in compliance reporting and outcome measurement.",
     deliverables: [
-      "Grant-ready AI implementation plan",
+      "Tailored AI implementation plan",
       "Outcome measurement automation",
       "Compliance reporting dashboard",
       "Community-facing AI tools",
@@ -106,7 +102,7 @@ const whyUs = [
   {
     icon: BarChart3,
     title: "Evidence by Architecture",
-    description: "Every AI system we build generates compliance evidence automatically. Grant-ready reporting, outcome measurement, and audit trails built into the foundation.",
+    description: "Every AI system we build generates compliance evidence automatically. Outcome measurement, reporting dashboards, and audit trails built into the foundation.",
   },
   {
     icon: Users,
@@ -140,11 +136,6 @@ const caseStudyHighlights = [
     metric: "4",
     label: "AI Providers",
     detail: "Zero-downtime collaborative architecture",
-  },
-  {
-    metric: "$3.4M+",
-    label: "Grant Pipeline",
-    detail: "5 active grants with AI-powered compliance",
   },
   {
     metric: "170K+",
@@ -211,7 +202,7 @@ export default function AIConsultingPage() {
         <section data-testid="section-proof-points">
           <h2 className="text-2xl font-bold text-center mb-2">Our Track Record Speaks</h2>
           <p className="text-center text-muted-foreground mb-8">Not projections. Not proposals. Live production numbers from systems we built and operate.</p>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
             {caseStudyHighlights.map((item, i) => (
               <Card key={i} className="p-4 text-center hover:shadow-lg transition-shadow" data-testid={`card-metric-${i}`}>
                 <div className="text-3xl font-bold text-primary">{item.metric}</div>
@@ -256,9 +247,7 @@ export default function AIConsultingPage() {
                     <pkg.icon className="h-8 w-8 opacity-80" />
                   </div>
                   <h3 className="text-xl font-bold">{pkg.name}</h3>
-                  <div className="flex items-center gap-4 mt-2">
-                    <span className="text-lg font-semibold">{pkg.price}</span>
-                    <span className="text-sm opacity-80">|</span>
+                  <div className="mt-2">
                     <span className="text-sm opacity-80">{pkg.duration}</span>
                   </div>
                 </div>
