@@ -2630,7 +2630,19 @@ if (typeof module !== "undefined") {
     }
   });
 
-  app.post("/api/ecosystem/send-report-card", requireAdminAuth, async (_req, res) => {
+  app.post("/api/ecosystem/send-report-card", async (req, res) => {
+    const authKey = req.headers["x-ecosystem-key"] as string;
+    const session = (req as any).session;
+    const userId = session?.passport?.user || (req as any).user?.id;
+    if (!userId && !authKey) {
+      return res.status(401).json({ error: "Authentication required" });
+    }
+    if (!userId && authKey) {
+      const validPlatform = await db.select().from(ecosystemPlatforms).where(eq(ecosystemPlatforms.apiKey, authKey));
+      if (validPlatform.length === 0) {
+        return res.status(401).json({ error: "Invalid ecosystem key" });
+      }
+    }
     try {
       const platforms = await db.select().from(ecosystemPlatforms);
       const allDirectives = await db.select().from(ecosystemDirectives).where(eq(ecosystemDirectives.status, "active"));
