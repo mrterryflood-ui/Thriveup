@@ -66,6 +66,7 @@ import { registerDfcReportingRoutes } from "./dfc-reporting-routes";
 import { registerDfcIntegrationRoutes } from "./dfc-integration-routes";
 import { registerEcosystemCapacityRoutes } from "./ecosystem-capacity-routes";
 import { registerEcosystemConnectorRoutes } from "./ecosystem-connector";
+import { registerRAGRoutes } from "./rag-engine";
 import { registerFacilitatorRoutes } from "./facilitator-routes";
 import { registerMetricsRoutes } from "./metrics-routes";
 import { registerProgramManagementRoutes } from "./program-management-routes";
@@ -372,6 +373,7 @@ export async function registerRoutes(
   registerDfcIntegrationRoutes(app);
   registerEcosystemCapacityRoutes(app);
   registerEcosystemConnectorRoutes(app);
+  registerRAGRoutes(app);
   registerFacilitatorRoutes(app);
   registerMetricsRoutes(app);
   registerProgramManagementRoutes(app);

@@ -3409,4 +3409,18 @@ export const insertProgramDesignSchema = createInsertSchema(programDesigns).omit
 export type InsertProgramDesign = z.infer<typeof insertProgramDesignSchema>;
 export type ProgramDesign = typeof programDesigns.$inferSelect;
 
+export const ecosystemKnowledgeChunks = pgTable("ecosystem_knowledge_chunks", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  source: varchar("source", { length: 100 }).notNull(),
+  category: varchar("category", { length: 50 }).notNull(),
+  title: text("title").notNull(),
+  content: text("content").notNull(),
+  keywords: text("keywords").array().notNull().default(sql`'{}'::text[]`),
+  metadata: jsonb("metadata").default({}),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export type EcosystemKnowledgeChunk = typeof ecosystemKnowledgeChunks.$inferSelect;
+
 export * from "./models/auth";

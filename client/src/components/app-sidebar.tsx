@@ -102,6 +102,7 @@ const grantEngineItems: NavItem[] = [
   { title: "Presentations Hub", url: "/presentations", icon: Presentation },
   { title: "Texas Assessment", url: "/texas-assessment", icon: Map },
   { title: "Third Spaces", url: "/third-spaces", icon: Building2 },
+  { title: "Ecosystem AI", url: "/ecosystem-ai", icon: Brain },
 ];
 
 const aiToolsItems: NavItem[] = [
