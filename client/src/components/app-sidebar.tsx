@@ -89,22 +89,23 @@ const grantEngineItems: NavItem[] = [
   { title: "Staffing Plan", url: "/staffing-plan", icon: Briefcase },
   { title: "Pilot Dashboard", url: "/pilot", icon: Users },
   { title: "Dosage Report", url: "/dosage", icon: Activity },
-  { title: "MAP-GAP CQI", url: "/cqi", icon: Activity },
   { title: "Outcome Reporting", url: "/outcomes", icon: FileBarChart },
-  { title: "Stakeholder Deck", url: "/presentation", icon: Presentation },
+  { title: "Stakeholder Deck", url: "/presentations", icon: Presentation },
   { title: "Platform Metrics", url: "/platform-metrics", icon: BarChart3 },
   { title: "APEX Accelerators", url: "/apex-accelerators", icon: Landmark },
   { title: "Grant Packages", url: "/grant-packages", icon: Package },
   { title: "E-Sign Center", url: "/esign", icon: PenTool },
+  { title: "Ops Center", url: "/ops-center", icon: Activity },
+  { title: "Ecosystem AI", url: "/ecosystem-ai", icon: Brain },
+];
+
+const regionalHubItems: NavItem[] = [
   { title: "Austin Initiative", url: "/austin", icon: MapPin },
   { title: "Manor Hub", url: "/manor", icon: MapPin },
   { title: "Pflugerville Hub", url: "/pflugerville", icon: MapPin },
   { title: "Voices of Austin", url: "/voices-of-austin", icon: Megaphone },
-  { title: "Ops Center", url: "/ops-center", icon: Activity },
-  { title: "Presentations Hub", url: "/presentations", icon: Presentation },
   { title: "Texas Assessment", url: "/texas-assessment", icon: Map },
   { title: "Third Spaces", url: "/third-spaces", icon: Building2 },
-  { title: "Ecosystem AI", url: "/ecosystem-ai", icon: Brain },
 ];
 
 const aiToolsItems: NavItem[] = [
@@ -157,9 +158,6 @@ const buildCreateItems: NavItem[] = [
   { title: "Print Shop", url: "/academy/merch", icon: ShoppingBag },
 ];
 
-const campusExtrasItems: NavItem[] = [
-  { title: "Life Lessons", url: "/academy/lessons", icon: Lightbulb },
-];
 
 const aboutItems: NavItem[] = [
   { title: "About / Leadership", url: "/about", icon: Info },
@@ -182,22 +180,18 @@ const healthWellnessItems: NavItem[] = [
 const researchItems: NavItem[] = [
   { title: "Healthcare Grants", url: "/healthcare-grants", icon: Heart },
   { title: "MAP-GAP Framework", url: "/mapgap-framework", icon: RefreshCw },
+  { title: "MAP-GAP CQI", url: "/cqi", icon: Target },
   { title: "RPLICE Toolkit", url: "/rplice-tools", icon: Microscope },
   { title: "Research Hub", url: "/research-hub", icon: Microscope },
   { title: "Case Studies", url: "/case-studies", icon: BookOpen },
   { title: "Implementation Plan", url: "/implementation", icon: ClipboardList },
-  { title: "MAP-GAP CQI", url: "/cqi", icon: Target },
 ];
 
 const caseManagementItems: NavItem[] = [
-  { title: "Reentry Dashboard", url: "/reentry", icon: Shield },
   { title: "Intake Wizard", url: "/intake", icon: ClipboardCheck },
   { title: "My Journey", url: "/my-journey", icon: Rocket },
   { title: "Cohort Onboarding", url: "/cohort-onboarding", icon: Users },
   { title: "Service Delivery", url: "/services", icon: Activity },
-  { title: "Community Partners", url: "/partners", icon: Handshake },
-  { title: "Outcome Reporting", url: "/outcomes", icon: FileBarChart },
-  { title: "Justice Partners", url: "/justice-partners", icon: Scale },
 ];
 
 const teachingPublicItems: NavItem[] = [
@@ -382,6 +376,7 @@ export function AppSidebar() {
         <NavSection label="Coalition" items={coalitionItems} location={location} />
         <NavSection label="Program Management" items={programMgmtItems} location={location} />
         <NavSection label="Grant Engine" items={grantEngineItems} location={location} />
+        <NavSection label="Regional Hubs" items={regionalHubItems} location={location} />
         <NavSection label="AI Tools" items={aiToolsItems} location={location} />
         <NavSection label="Prevention" items={preventionItems} location={location} />
         <NavSection label="Health & Wellness" items={healthWellnessItems} location={location} />
@@ -391,7 +386,6 @@ export function AppSidebar() {
           <>
             <NavSection label="Student Portal" items={myStudentItems} location={location} />
             <NavSection label="Campus Life" items={campusLifeItems} location={location} />
-            <NavSection label="Campus Extras" items={campusExtrasItems} location={location} />
             <NavSection label="Build & Create" items={buildCreateItems} location={location} />
           </>
         )}

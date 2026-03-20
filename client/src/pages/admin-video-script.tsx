@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -6,7 +8,7 @@ import {
   Play, Clock, Film, Copy, Check,
   Shield, Users, BookOpen, BarChart3, Brain,
   Gamepad2, AlertTriangle, GraduationCap, Calendar,
-  Megaphone, ClipboardList, Globe, Sparkles
+  Megaphone, ClipboardList, Globe, Sparkles, Send, Loader2
 } from "lucide-react";
 import { useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
@@ -153,6 +155,28 @@ export default function AdminVideoScriptPage() {
   };
 
 
+  const sendToPipelineMutation = useMutation({
+    mutationFn: async () => {
+      const fullScript = VIDEO_SCRIPT.sections
+        .map(s => `[${s.timestamp}] ${s.label}\n\nDIRECTION: ${s.direction}\n\nVOICEOVER:\n"${s.voiceover}"\n\nVISUAL NOTES: ${s.visualNotes}`)
+        .join("\n\n---\n\n");
+      const res = await apiRequest("POST", "/api/video-pipeline/render", {
+        title: VIDEO_SCRIPT.title,
+        scriptContent: fullScript,
+        sourcePlatformId: "thrive-academy",
+        duration: 180,
+        targetPlatforms: [],
+      });
+      return res.json();
+    },
+    onSuccess: () => {
+      toast({ title: "Sent to Pipeline", description: "Video script has been submitted to the render pipeline." });
+    },
+    onError: () => {
+      toast({ title: "Pipeline Error", description: "Failed to submit script to the video pipeline.", variant: "destructive" });
+    },
+  });
+
   useEffect(() => { document.title = "Video Script | ThriveUp Academy"; }, []);
   return (
     <div className="min-h-screen bg-background">
@@ -174,6 +198,17 @@ export default function AdminVideoScriptPage() {
               <Button onClick={copyFullScript} data-testid="button-copy-full-script">
                 <Copy className="w-4 h-4 mr-2" />
                 Copy Full Script
+              </Button>
+              <Button
+                onClick={() => sendToPipelineMutation.mutate()}
+                disabled={sendToPipelineMutation.isPending}
+                data-testid="button-send-to-pipeline"
+              >
+                {sendToPipelineMutation.isPending ? (
+                  <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Sending...</>
+                ) : (
+                  <><Send className="w-4 h-4 mr-2" /> Send to Pipeline</>
+                )}
               </Button>
             </div>
           }

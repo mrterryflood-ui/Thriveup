@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -9,11 +9,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PageHeader } from "@/components/page-header";
 import { useToast } from "@/hooks/use-toast";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Tv, Play, DollarSign, BarChart3, Zap, Clock,
   Copy, Check, Download, Loader2, Wand2,
   Monitor, Smartphone, Globe, Target, TrendingUp,
-  FileText, Code, Film, Radio, Megaphone, ArrowRight,
+  FileText, Code, Film, Radio, Megaphone, ArrowRight, CheckCircle2,
 } from "lucide-react";
 import { BackToTop } from "@/components/back-to-top";
 
@@ -134,6 +135,10 @@ export default function RokuAdsPage() {
   const [contentDuration, setContentDuration] = useState("5-15");
   const [generatedScript, setGeneratedScript] = useState("");
   const [copiedField, setCopiedField] = useState<string | null>(null);
+
+  const completedJobsQuery = useQuery<any[]>({
+    queryKey: ["/api/video-pipeline/jobs"],
+  });
 
   useEffect(() => {
     document.title = "Roku & CTV Ad Studio | Video Creator AI | ThriveUp Academy";
@@ -531,6 +536,83 @@ Audience: Central Texas community, veterans, families, funders, policymakers`,
           </Card>
         </TabsContent>
       </Tabs>
+
+      <Card data-testid="card-pipeline-ready-videos">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+            Pipeline-Ready Videos for Roku Distribution
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {completedJobsQuery.isLoading ? (
+            <div className="space-y-3">
+              <Skeleton className="h-16 w-full" />
+              <Skeleton className="h-16 w-full" />
+              <Skeleton className="h-16 w-full" />
+            </div>
+          ) : (() => {
+            const completedJobs = (completedJobsQuery.data || []).filter(
+              (j: any) => j.status === "complete" || j.status === "distributed"
+            );
+            return completedJobs.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <Film className="h-10 w-10 mx-auto mb-3 opacity-40" />
+                <p className="text-sm">No completed videos in the pipeline yet.</p>
+                <p className="text-xs mt-1">Submit scripts from the Video Script Generator or AI Script Generator to get started.</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {completedJobs.map((job: any) => (
+                  <div
+                    key={job.id}
+                    className="flex items-center justify-between gap-4 p-4 rounded-md bg-muted/50"
+                    data-testid={`pipeline-video-${job.id}`}
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-10 h-10 rounded-md bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center shrink-0">
+                        <Film className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-medium text-sm truncate">{job.title}</p>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5 flex-wrap">
+                          {job.duration && (
+                            <span className="flex items-center gap-1">
+                              <Clock className="h-3 w-3" />
+                              {Math.floor(job.duration / 60)}:{String(job.duration % 60).padStart(2, "0")}
+                            </span>
+                          )}
+                          <Badge variant="outline" className="text-xs">
+                            {job.status === "distributed" ? "Distributed" : "Ready"}
+                          </Badge>
+                          {job.createdAt && (
+                            <span>{new Date(job.createdAt).toLocaleDateString()}</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      {job.renderUrl && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleCopy(job.renderUrl, `video-${job.id}`)}
+                          data-testid={`button-copy-video-url-${job.id}`}
+                        >
+                          {copiedField === `video-${job.id}` ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+                <p className="text-xs text-muted-foreground text-center pt-2">
+                  {completedJobs.length} video{completedJobs.length !== 1 ? "s" : ""} ready for Roku channel distribution via MRSS feed.
+                </p>
+              </div>
+            );
+          })()}
+        </CardContent>
+      </Card>
 
       <BackToTop />
     </div>

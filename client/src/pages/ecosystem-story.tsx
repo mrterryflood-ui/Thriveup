@@ -307,9 +307,9 @@ export default function EcosystemStoryPage() {
 
         {currentStep === storySteps.length - 1 ? (
           <div className="flex flex-wrap gap-2">
-            <Link href="/dfc-wizards">
+            <Link href="/coalition">
               <Button data-testid="button-start-journey">
-                <Rocket className="mr-2 h-4 w-4" /> Start Your DFC Journey
+                <Rocket className="mr-2 h-4 w-4" /> Start Your Coalition Journey
               </Button>
             </Link>
             <Link href="/contact">

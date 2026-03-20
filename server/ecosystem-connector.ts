@@ -984,24 +984,68 @@ export function registerEcosystemConnectorRoutes(app: Express) {
       }
 
       const complianceGap = totalCount - ackCount;
-      let hubMessage = "";
+      const fidelityPct = totalCount > 0 ? Math.round((ackCount / totalCount) * 100) : 0;
+      const overdueCount = unacknowledgedDirectives.length;
+
+      const gradeInfo = (() => {
+        if (fidelityPct >= 90) return { grade: "A", label: "EXEMPLARY", color: "green" };
+        if (fidelityPct >= 75) return { grade: "B", label: "STRONG", color: "blue" };
+        if (fidelityPct >= 50) return { grade: "C", label: "NEEDS IMPROVEMENT", color: "yellow" };
+        if (fidelityPct >= 25) return { grade: "D", label: "AT RISK", color: "orange" };
+        return { grade: "F", label: "NON-COMPLIANT", color: "red" };
+      })();
+
+      const reportCardMessage = (() => {
+        if (gradeInfo.grade === "A") return `${platform.name}, your fidelity is exemplary. ${ackCount} of ${totalCount} directives acknowledged (${fidelityPct}%). You are a model ecosystem participant. Keep it up.`;
+        if (gradeInfo.grade === "B") return `${platform.name}, your fidelity is strong but not perfect. ${ackCount} of ${totalCount} directives acknowledged (${fidelityPct}%). You have ${complianceGap} unacknowledged directive(s). Close these gaps to reach Grade A.`;
+        if (gradeInfo.grade === "C") return `${platform.name}, YOUR PLATFORM NEEDS IMPROVEMENT. Only ${ackCount} of ${totalCount} directives acknowledged (${fidelityPct}%). This means you are partially participating but NOT meeting ecosystem standards. ${complianceGap} directive(s) require your action. Platforms below 75% are flagged in grant reports to funders.`;
+        if (gradeInfo.grade === "D") return `${platform.name}, YOUR PLATFORM IS AT RISK. Only ${ackCount} of ${totalCount} directives acknowledged (${fidelityPct}%). This is a failing score. Your non-compliance is visible to Dr. Flood and will be reported to grant funders. You are at risk of being excluded from grant-funded activities. Immediate action is required.`;
+        return `${platform.name}, YOUR PLATFORM IS NON-COMPLIANT. ${ackCount} of ${totalCount} directives acknowledged (${fidelityPct}%). This is unacceptable. Your platform is not meeting ANY ecosystem standards. This will be reported to funders (WIOA, St. David's, SSG Fox, Foundation Grant) and you may be excluded from all grant-funded ecosystem activities. Act NOW or escalation will follow.`;
+      })();
+
+      const consequences = (() => {
+        if (gradeInfo.grade === "A") return "None. You are in full compliance.";
+        if (gradeInfo.grade === "B") return "Minor: Your platform will show as 'Strong but incomplete' in grant readiness reports. Close remaining gaps to achieve full compliance.";
+        if (gradeInfo.grade === "C") return "WARNING: Your platform is flagged as 'Needs Improvement' in all grant reports to funders. WIOA, St. David's, and SSG Fox auditors will see this score. Continued non-compliance may result in reduced grant allocation for activities involving your platform.";
+        if (gradeInfo.grade === "D") return "SERIOUS: Your platform is flagged as 'At Risk' in all funder reports. Dr. Flood will be notified directly. Your platform may be temporarily excluded from new grant-funded activities until compliance improves above 50%.";
+        return "CRITICAL: Your platform is marked as 'Non-Compliant' across ALL grant reports. You are at immediate risk of exclusion from ecosystem grant activities. Dr. Flood and all grant program managers have been notified. This is your final warning before formal escalation.";
+      })();
+
+      const improvementPlan = (() => {
+        const steps: string[] = [];
+        if (complianceGap > 0) steps.push(`1. READ and ACT on your ${complianceGap} unacknowledged directive(s) — each one has specific work your platform must complete.`);
+        if (!complianceReport) steps.push(`${steps.length + 1}. INCLUDE a complianceReport in your next heartbeat — the hub needs to see what work you've done, what's in progress, and what's blocking you.`);
+        if (overdueCount > 0) steps.push(`${steps.length + 1}. PRIORITIZE the ${overdueCount} OVERDUE directive(s) that were delivered but never acknowledged — these are the most critical.`);
+        steps.push(`${steps.length + 1}. After completing work, acknowledge each directive with a detailed description of what you built/changed AND an evidence URL proving the work is done.`);
+        steps.push(`${steps.length + 1}. Integrate the ThriveUp RAG AI into your platform (see ragAIIntegration field below) — this is now required for all ecosystem platforms.`);
+        if (gradeInfo.grade === "A") return ["Maintain current performance. Continue submitting compliance reports with evidence URLs on every heartbeat."];
+        return steps;
+      })();
+
+      const grantImpact = (() => {
+        if (gradeInfo.grade === "A") return { affected: false, message: "No grants impacted. Full compliance." };
+        const grants = ["WIOA ($200K-$500K)", "Foundation Grant ($100K-$500K)", "St. David's (up to $1M)", "SSG Fox VA ($750K)"];
+        return {
+          affected: true,
+          message: `Your non-compliance (Grade ${gradeInfo.grade}) affects reporting for: ${grants.join(", ")}. Funders review ecosystem-wide fidelity scores. Low-performing platforms pull down the entire ecosystem's score.`,
+          grantsAtRisk: grants,
+        };
+      })();
+
+      const hasRagIntegration = !!(parseResult.data.metrics && (parseResult.data.metrics as Record<string, unknown>).ragAIIntegrated);
+
+      let hubMessage = `--- REPORT CARD: Grade ${gradeInfo.grade} (${gradeInfo.label}) — Fidelity: ${fidelityPct}% ---\n${reportCardMessage}`;
       if (pendingDirectives.length > 0) {
-        hubMessage = `Welcome back, ${platform.name}. You have ${pendingDirectives.length} NEW directive(s) just delivered.`;
-      } else {
-        hubMessage = `Heartbeat received, ${platform.name}.`;
+        hubMessage += `\n\nNEW DIRECTIVES: ${pendingDirectives.length} new directive(s) just delivered. Read them, act on them, acknowledge with evidence.`;
       }
-      if (unacknowledgedDirectives.length > 0) {
-        hubMessage += ` WARNING: ${unacknowledgedDirectives.length} previously delivered directive(s) are still unacknowledged. These require your action — read the content, do the work, then acknowledge with what you did.`;
+      if (overdueCount > 0) {
+        hubMessage += `\n\nOVERDUE ALERT: ${overdueCount} directive(s) were delivered previously but NEVER acknowledged. These are your highest priority.`;
       }
-      if (complianceGap === 0 && totalCount > 0) {
-        hubMessage += ` All ${totalCount} directives acknowledged. Fidelity score: 100%. Keep reporting your work on each heartbeat.`;
-      } else if (totalCount > 0) {
-        hubMessage += ` Compliance: ${ackCount}/${totalCount} directives acknowledged (${Math.round((ackCount / totalCount) * 100)}%).`;
+      if (!complianceReport) {
+        hubMessage += `\n\nMISSING: No complianceReport in this heartbeat. The hub expects you to report what work you've completed, what's in progress, and any blockers. Include this in your next heartbeat.`;
       }
-      if (complianceReport) {
-        hubMessage += ` Compliance report received and verified — see complianceVerification field for details.`;
-      } else {
-        hubMessage += ` EXPECTED: Include a complianceReport in your next heartbeat showing what work you've completed, what's in progress, and any blockers. The hub inspects what it expects.`;
+      if (!hasRagIntegration) {
+        hubMessage += `\n\nREQUIRED: Integrate ThriveUp RAG AI into your platform. See the ragAIIntegration field in this response for instructions.`;
       }
 
       res.json({
@@ -1009,21 +1053,57 @@ export function registerEcosystemConnectorRoutes(app: Express) {
         platformId: platform.id,
         platformName: platform.name,
         hubMessage,
-        complianceStatus: {
-          fidelityScore: totalCount > 0 ? Math.round((ackCount / totalCount) * 100) : 0,
+        reportCard: {
+          grade: gradeInfo.grade,
+          gradeLabel: gradeInfo.label,
+          fidelityScore: fidelityPct,
           totalDirectives: totalCount,
           acknowledged: ackCount,
+          unacknowledged: complianceGap,
+          overdue: overdueCount,
           delivered: deliveredCount,
           pending: pendingCount,
-          complianceGap,
-          grade: (() => {
-            const score = totalCount > 0 ? (ackCount / totalCount) * 100 : 0;
-            if (score >= 90) return "A";
-            if (score >= 75) return "B";
-            if (score >= 50) return "C";
-            if (score >= 25) return "D";
-            return "F";
-          })(),
+          message: reportCardMessage,
+          consequences,
+          improvementPlan,
+          grantImpact,
+          isCompliant: gradeInfo.grade === "A" || gradeInfo.grade === "B",
+          requiresImmediateAction: gradeInfo.grade === "D" || gradeInfo.grade === "F",
+          lastUpdated: new Date().toISOString(),
+        },
+        ragAIIntegration: {
+          required: true,
+          yourStatus: hasRagIntegration ? "INTEGRATED — Thank you" : "NOT INTEGRATED — Action required",
+          instruction: "ThriveUp Academy's RAG AI must be integrated into your platform. This AI has knowledge of all 20 ecosystem platforms, all active grants, community hubs, compliance data, and implementation science frameworks. Your users deserve access to this intelligence.",
+          whatItDoes: "Answers questions about the entire ThriveUp ecosystem — any platform, any grant, any program, any community hub. It knows real-time fidelity scores, platform health, grant readiness, and work chain activity. It provides sourced, accurate responses.",
+          howToIntegrate: {
+            step1: "Send a POST request to the query endpoint with your user's question",
+            step2: "Display the AI response to your user, including source citations",
+            step3: "For streaming responses (better UX), use the stream endpoint with SSE",
+            step4: "Report ragAIIntegrated: true in your heartbeat metrics once live",
+          },
+          endpoints: {
+            query: "POST https://thrivingcommunitiesforall.com/api/ecosystem-ai/query",
+            stream: "POST https://thrivingcommunitiesforall.com/api/ecosystem-ai/stream",
+            suggestedQuestions: "GET https://thrivingcommunitiesforall.com/api/ecosystem-ai/suggested-questions",
+          },
+          requestFormat: {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: { query: "What services does LifeBridge offer?", sessionId: "optional-for-conversation-memory" },
+          },
+          responseFormat: {
+            answer: "The AI's response text",
+            sources: ["Array of source citations"],
+            suggestedFollowUps: ["Array of follow-up questions"],
+          },
+          benefits: [
+            "Your users can ask about ANY of the 20 ecosystem platforms",
+            "Real-time knowledge of grant readiness and compliance status",
+            "Warm handoff intelligence — AI knows which platform handles what",
+            "Implementation science context — CFIR, RE-AIM, MAP-GAP frameworks",
+            "Community hub awareness — Austin, Manor, Pflugerville resources",
+          ],
         },
         complianceVerification: complianceResponse,
         unacknowledgedDirectives,
@@ -1032,20 +1112,29 @@ export function registerEcosystemConnectorRoutes(app: Express) {
         nextActions: [
           ...(pendingDirectives.map(d => ({
             type: "new_directive",
+            priority: "HIGH",
             directiveId: d.directiveId,
-            instruction: `NEW: Read and act on "${d.title}". Your role: ${d.yourRole || 'See content field'}. After completing, POST to /api/ecosystem/directives/ack with { "directiveId": "${d.directiveId}", "platformId": "${platform.id}", "status": "acknowledged", "responseData": { "whatWasDone": "describe what you built/changed", "evidenceUrl": "link to the feature or endpoint" } }`,
+            instruction: `NEW DIRECTIVE: Read and act on "${d.title}". Your role: ${d.yourRole || 'See content field'}. After completing, POST to /api/ecosystem/directives/ack with { "directiveId": "${d.directiveId}", "platformId": "${platform.id}", "status": "acknowledged", "responseData": { "whatWasDone": "describe what you built/changed", "evidenceUrl": "link to the feature or endpoint" } }. This directly affects your fidelity grade.`,
           }))),
           ...(unacknowledgedDirectives.map(d => ({
             type: "overdue",
+            priority: "CRITICAL",
             directiveId: d.directiveId,
-            instruction: `OVERDUE: "${d.title}" was delivered but not acknowledged. Your role: ${d.yourRole}. Act on it, then acknowledge with what you did.`,
+            instruction: `OVERDUE — GRADE IMPACT: "${d.title}" was delivered but NEVER acknowledged. Your role: ${d.yourRole}. This is dragging your fidelity score down. Act on it NOW, then acknowledge with a detailed description of what you did and an evidence URL.`,
           }))),
+          ...(!hasRagIntegration ? [{
+            type: "integration_required",
+            priority: "HIGH",
+            instruction: "REQUIRED: Integrate ThriveUp RAG AI into your platform. See the ragAIIntegration field for endpoints and instructions. Report ragAIIntegrated: true in your heartbeat metrics once complete.",
+          }] : []),
         ],
         expectedHeartbeatFormat: {
-          description: "Include this in your next heartbeat body to report compliance",
+          description: "Include ALL of these fields in your next heartbeat to improve your fidelity grade",
           example: {
             status: "online",
-            metrics: {},
+            metrics: {
+              ragAIIntegrated: true,
+            },
             complianceReport: {
               directivesReceived: totalCount,
               directivesActedOn: ackCount,
@@ -1062,6 +1151,7 @@ export function registerEcosystemConnectorRoutes(app: Express) {
           repository: `GET https://thrivingcommunitiesforall.com/api/ecosystem/directives/repository/${platform.id}`,
           event: "POST https://thrivingcommunitiesforall.com/api/ecosystem/event",
           complianceReport: "POST https://thrivingcommunitiesforall.com/api/ecosystem/compliance-report",
+          ragAI: "POST https://thrivingcommunitiesforall.com/api/ecosystem-ai/query",
         },
         serverTime: new Date().toISOString(),
       });
@@ -2265,6 +2355,10 @@ if (typeof module !== "undefined") {
     "video_produced": [
       { nextPlatform: "ad-targeting", eventType: "video_for_ad_campaign", description: "Video produced — create targeted ad campaign" },
     ],
+    "video_distributed": [
+      { nextPlatform: "betterscience", eventType: "quality_review_needed", description: "Video distributed — RPLICE quality review of distributed content" },
+      { nextPlatform: "ad-targeting", eventType: "video_distribution_analytics", description: "Video distributed — track distribution analytics and audience engagement" },
+    ],
     "product_launched": [
       { nextPlatform: "betterscience", eventType: "evaluate_product", description: "New product launched — RPLICE evaluate with RE-AIM" },
       { nextPlatform: "shield-atlas", eventType: "security_scan_needed", description: "New product launched — Shield Atlas security scan" },
@@ -2796,6 +2890,16 @@ if (typeof module !== "undefined") {
       res.status(500).json({ error: "Failed to send report card" });
     }
   });
+
+  setInterval(async () => {
+    try {
+      console.log("[Verifier] Auto-verification cycle running...");
+      const results = await runDeliverableVerification();
+      console.log(`[Verifier] Auto-verification complete: ${results.length} deliverables checked.`);
+    } catch (err) {
+      console.error("[Verifier] Auto-verification cycle failed:", err);
+    }
+  }, 30 * 60 * 1000);
 
   app.get("/api/ecosystem/integration-doc-public", requireAdminAuth, async (_req, res) => {
     try {

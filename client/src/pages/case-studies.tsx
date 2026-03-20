@@ -141,11 +141,10 @@ const CASE_STUDIES: CaseStudy[] = [
     ],
     crossLinks: [
       { label: "Transparency Dashboard", url: "/transparency" },
-      { label: "DFC Command Center", url: "/dfc-command-center" },
+      { label: "Coalition Dashboard", url: "/coalition" },
       { label: "Prevention Hub", url: "/prevention" },
       { label: "MAP-GAP CQI", url: "/cqi" },
       { label: "Program Designer", url: "/program-designer" },
-      { label: "Coalition Dashboard", url: "/coalition" },
     ],
   },
   {

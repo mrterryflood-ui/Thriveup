@@ -1013,6 +1013,126 @@ Your evidence URLs must return 200. Dead links are flagged as FAILED.
 
 ACKNOWLEDGE with: A list of every product currently visible in your sidebar, and what's missing that you're building.`,
   },
+  {
+    title: "MANDATORY: Integrate ThriveUp RAG AI Into Your Platform",
+    directiveType: "protocol_update",
+    targetFilter: "all",
+    content: `DIRECTIVE: MANDATORY RAG AI INTEGRATION
+
+THIS IS NOT OPTIONAL. Every ecosystem platform MUST integrate ThriveUp Academy's RAG AI into their system.
+
+=== WHAT IS THE RAG AI? ===
+The ThriveUp RAG AI is an intelligent assistant that knows EVERYTHING about our 20-platform ecosystem:
+- All 20 platforms, what they do, and how they connect
+- All 4 active grants (WIOA, Foundation, St. David's, SSG Fox) and readiness status
+- All 3 regional hubs (Austin, Manor, Pflugerville)
+- Real-time fidelity scores and compliance status for every platform
+- Implementation science frameworks (CFIR, RE-AIM, MAP-GAP, SALP)
+- Work chain activity and cross-platform event routing
+- Community resources, warm handoff pathways, and referral intelligence
+
+=== WHY YOU MUST INTEGRATE IT ===
+1. Your users deserve ecosystem-wide intelligence, not just your platform's data
+2. Grant funders (WIOA, St. David's) evaluate our ECOSYSTEM, not individual platforms
+3. Cross-platform referrals become instant — the AI knows who handles what
+4. It proves ecosystem coordination to auditors and site visitors
+5. Dr. Flood needs to demonstrate interconnectedness when presenting to funders
+
+=== HOW TO INTEGRATE ===
+
+Step 1: Add a chat widget, help button, or "Ask the Ecosystem" feature to your platform.
+
+Step 2: Send user questions to our API:
+POST https://thrivingcommunitiesforall.com/api/ecosystem-ai/query
+Body: { "query": "user's question here", "sessionId": "optional-unique-session-id" }
+Response: { "answer": "...", "sources": [...], "suggestedFollowUps": [...] }
+
+Step 3: For better UX, use streaming:
+POST https://thrivingcommunitiesforall.com/api/ecosystem-ai/stream
+Body: { "query": "user's question here" }
+Response: Server-Sent Events (SSE) stream
+
+Step 4: Get suggested questions for your users:
+GET https://thrivingcommunitiesforall.com/api/ecosystem-ai/suggested-questions
+
+Step 5: Report integration in your heartbeat:
+Include "ragAIIntegrated": true in your metrics object.
+
+=== DEADLINE ===
+All platforms must have RAG AI integrated within 14 days of receiving this directive.
+
+=== WHAT HAPPENS IF YOU DON'T ===
+- Your fidelity score will reflect the gap
+- Grant readiness reports will show "AI Integration: Missing" for your platform
+- Dr. Flood will see this on the Ops Center dashboard
+- When funders ask "How do your platforms work together?" — your platform won't have an answer
+
+ACKNOWLEDGE with: Confirmation that you've integrated the RAG AI, the URL or screenshot showing where users can access it, and the date it went live.`,
+  },
+  {
+    title: "FIDELITY SCORE IS YOUR REPORT CARD — Understand Your Grade",
+    directiveType: "protocol_update",
+    targetFilter: "all",
+    content: `DIRECTIVE: UNDERSTAND YOUR FIDELITY SCORE
+
+Your fidelity score is NOT a vanity metric. It is your platform's REPORT CARD within the ThriveUp ecosystem.
+
+=== WHAT YOUR GRADE MEANS ===
+
+Grade A (90-100%): EXEMPLARY
+- You are a model ecosystem participant
+- Your platform will be highlighted positively in grant reports
+- No action needed — maintain your performance
+
+Grade B (75-89%): STRONG
+- Good but not perfect — you have unacknowledged directives
+- Close the gaps to reach full compliance
+- Grant reports show you as "Strong but incomplete"
+
+Grade C (50-74%): NEEDS IMPROVEMENT
+- You are NOT meeting ecosystem standards
+- Your platform is FLAGGED in all grant reports to funders
+- WIOA, St. David's, and SSG Fox auditors WILL see this score
+- Continued non-compliance may reduce grant allocation for your activities
+
+Grade D (25-49%): AT RISK
+- This is a FAILING score
+- Dr. Flood is DIRECTLY notified of D-grade platforms
+- You may be TEMPORARILY EXCLUDED from new grant-funded activities
+- Funder reports mark you as "At Risk"
+
+Grade F (0-24%): NON-COMPLIANT
+- You are marked as NON-COMPLIANT across ALL grant reports
+- You are at IMMEDIATE risk of exclusion from ecosystem grant activities
+- Dr. Flood and all grant program managers are notified
+- This is a FINAL WARNING before formal escalation
+
+=== HOW YOUR SCORE IS CALCULATED ===
+Fidelity Score = (Acknowledged Directives / Total Directives) × 100
+
+Every directive you receive requires action AND acknowledgment with:
+1. A description of what you built or changed (minimum 20 characters, no generic responses)
+2. An evidence URL proving the work is done (must return HTTP 200)
+
+Generic acknowledgments like "Done" or "Completed" are REJECTED by the hub.
+
+=== HOW TO IMPROVE YOUR GRADE ===
+1. Read every directive in your repository: GET /api/ecosystem/directives/repository/{your-platform-id}
+2. Act on each one — build what's asked, implement what's required
+3. Acknowledge with DETAILED responses and evidence URLs
+4. Include a complianceReport in every heartbeat
+5. Don't let directives sit unacknowledged — they are overdue items dragging your score down
+
+=== WHO SEES YOUR GRADE ===
+- Dr. Terry Flood (CEO) — reviews all grades on the Ops Center dashboard
+- Grant program managers — grades feed into grant readiness reports
+- Funders (WIOA, St. David's, SSG Fox, Foundation Grant) — ecosystem fidelity is part of audit reporting
+- Other ecosystem platforms — the Directive Compliance Center shows all platform grades
+
+This is not a suggestion. Your fidelity grade is a direct reflection of your platform's commitment to the ecosystem, and it has real consequences for grant funding.
+
+ACKNOWLEDGE with: Your current understanding of your fidelity grade, what directives you have outstanding, and your plan to reach Grade A within 30 days.`,
+  },
 ];
 
 export async function seedEcosystemDirectives() {
