@@ -617,6 +617,37 @@ export function registerEcosystemConnectorRoutes(app: Express) {
     }
   });
 
+  app.post("/api/ecosystem/send-email", async (req, res) => {
+    try {
+      const { subject, html } = req.body;
+      if (!subject || !html) {
+        return res.status(400).json({ error: "subject and html are required" });
+      }
+      const sent = await sendEcosystemUpdate(subject, html);
+      res.json({ sent, message: sent ? "Email sent successfully" : "Email failed — check server logs for details" });
+    } catch (error: any) {
+      console.error("[Email] Send endpoint error:", error.message);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.post("/api/ecosystem/test-email", async (_req, res) => {
+    try {
+      const sent = await sendEcosystemUpdate(
+        "Email Service Test — " + new Date().toISOString(),
+        `<h2>ThriveUp Academy Email Test</h2>
+        <p>This is a test email from the ecosystem hub.</p>
+        <p>If you received this, the email service is working correctly.</p>
+        <p>Sent at: ${new Date().toISOString()}</p>
+        <p>— ThriveUp Academy Ecosystem Hub</p>`
+      );
+      res.json({ sent, message: sent ? "Test email sent successfully" : "Test email failed — check server logs" });
+    } catch (error: any) {
+      console.error("[Email] Test email error:", error.message);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // Status endpoint — check last ping cycle
   app.get("/api/ecosystem/pinger-status", async (_req, res) => {
     try {

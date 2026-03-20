@@ -23,13 +23,42 @@ async function getResendClient() {
     throw new Error("Resend not connected");
   }
 
+  const configuredFrom = connectionSettings.settings.from_email || "";
+  const isGmail = configuredFrom.toLowerCase().includes("gmail.com");
+  const isYahoo = configuredFrom.toLowerCase().includes("yahoo.com");
+  const isHotmail = configuredFrom.toLowerCase().includes("hotmail.com") || configuredFrom.toLowerCase().includes("outlook.com");
+  const useFreeProvider = isGmail || isYahoo || isHotmail || !configuredFrom;
+
+  const fromEmail = useFreeProvider
+    ? "ThriveUp Academy <onboarding@resend.dev>"
+    : configuredFrom;
+
+  if (useFreeProvider && configuredFrom) {
+    console.log(`[Email] Overriding from_email: "${configuredFrom}" is not a verified domain. Using Resend default sender. To fix permanently, verify your custom domain (e.g. thrivingcommunitiesforall.com) at https://resend.com/domains`);
+  }
+
   return {
     client: new Resend(connectionSettings.settings.api_key),
-    fromEmail: connectionSettings.settings.from_email || "onboarding@resend.dev",
+    fromEmail,
   };
 }
 
 const ADMIN_EMAIL = "mr.terryflood@gmail.com";
+
+async function safeSend(sendFn: () => Promise<any>, context: string): Promise<boolean> {
+  try {
+    const result = await sendFn();
+    if (result?.error) {
+      console.error(`[Email] FAILED (${context}):`, JSON.stringify(result.error));
+      return false;
+    }
+    console.log(`[Email] SENT (${context}): id=${result?.data?.id || "unknown"}`);
+    return true;
+  } catch (err: any) {
+    console.error(`[Email] ERROR (${context}):`, err.message || err);
+    return false;
+  }
+}
 
 export async function sendContactInquiry(
   name: string,
@@ -39,7 +68,7 @@ export async function sendContactInquiry(
 ) {
   const { client, fromEmail } = await getResendClient();
 
-  await client.emails.send({
+  await safeSend(() => client.emails.send({
     from: fromEmail,
     to: ADMIN_EMAIL,
     subject: `[ThriveUp] New ${inquiryType} inquiry from ${name}`,
@@ -51,9 +80,9 @@ export async function sendContactInquiry(
       <hr/>
       <p>${message.replace(/\n/g, "<br/>")}</p>
     `,
-  });
+  }), `contact-inquiry-admin from ${name}`);
 
-  await client.emails.send({
+  await safeSend(() => client.emails.send({
     from: fromEmail,
     to: email,
     subject: "Thank you for contacting ThriveUp Academy",
@@ -62,7 +91,7 @@ export async function sendContactInquiry(
       <p>We received your ${inquiryType} inquiry and will respond within 24 hours.</p>
       <p>Best regards,<br/>Dr. Terry Flood, DHA<br/>ThriveUp Academy</p>
     `,
-  });
+  }), `contact-inquiry-confirmation to ${email}`);
 }
 
 export async function sendPartnerNotification(
@@ -71,12 +100,12 @@ export async function sendPartnerNotification(
   content: string
 ) {
   const { client, fromEmail } = await getResendClient();
-  await client.emails.send({
+  await safeSend(() => client.emails.send({
     from: fromEmail,
     to: partnerEmail,
     subject,
     html: content,
-  });
+  }), `partner-notification to ${partnerEmail}`);
 }
 
 export async function sendGrantAlert(
@@ -84,7 +113,7 @@ export async function sendGrantAlert(
   grantDetails: { title: string; agency: string; deadline: string; matchScore: number }
 ) {
   const { client, fromEmail } = await getResendClient();
-  await client.emails.send({
+  await safeSend(() => client.emails.send({
     from: fromEmail,
     to: recipientEmail,
     subject: `[ThriveUp] Grant Opportunity: ${grantDetails.title}`,
@@ -97,22 +126,22 @@ export async function sendGrantAlert(
       <hr/>
       <p>Log in to ThriveUp Academy to view full details and start your application.</p>
     `,
-  });
+  }), `grant-alert to ${recipientEmail}`);
 }
 
 export async function sendEcosystemUpdate(subject: string, htmlContent: string) {
   const { client, fromEmail } = await getResendClient();
-  await client.emails.send({
+  return await safeSend(() => client.emails.send({
     from: fromEmail,
     to: ADMIN_EMAIL,
     subject: `[Ecosystem] ${subject}`,
     html: htmlContent,
-  });
+  }), `ecosystem-update: ${subject}`);
 }
 
 export async function sendWelcomeEmail(email: string, name: string) {
   const { client, fromEmail } = await getResendClient();
-  await client.emails.send({
+  await safeSend(() => client.emails.send({
     from: fromEmail,
     to: email,
     subject: "Welcome to ThriveUp Academy!",
@@ -123,5 +152,5 @@ export async function sendWelcomeEmail(email: string, name: string) {
       <p>Get started by exploring your dashboard and setting up your profile.</p>
       <p>Best regards,<br/>The ThriveUp Academy Team</p>
     `,
-  });
+  }), `welcome-email to ${email}`);
 }
