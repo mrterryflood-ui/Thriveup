@@ -150,6 +150,7 @@ const RpliceToolsPage = lazy(() => import("@/pages/rplice-tools"));
 const MceContractsPage = lazy(() => import("@/pages/mce-contracts"));
 const VideoPipelinePage = lazy(() => import("@/pages/video-pipeline"));
 const ProgramEnginePage = lazy(() => import("@/pages/program-engine"));
+const PricingPage = lazy(() => import("@/pages/pricing"));
 
 function PageFallback() {
   return (
@@ -319,6 +320,7 @@ function AppRouter() {
       <Route path="/video-pipeline" component={VideoPipelinePage} />
       <Route path="/mce-contracts" component={MceContractsPage} />
       <Route path="/program-engine" component={ProgramEnginePage} />
+      <Route path="/pricing" component={PricingPage} />
       <Route component={NotFound} />
     </Switch>
   );

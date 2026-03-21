@@ -3593,4 +3593,40 @@ export const insertProgramUpdateSchema = createInsertSchema(programUpdates).omit
 export type InsertProgramUpdate = z.infer<typeof insertProgramUpdateSchema>;
 export type ProgramUpdate = typeof programUpdates.$inferSelect;
 
+export const serviceOrders = pgTable("service_orders", {
+  id: serial("id").primaryKey(),
+  tierSlug: varchar("tier_slug", { length: 50 }).notNull(),
+  tierName: text("tier_name").notNull(),
+  companyName: text("company_name").notNull(),
+  contactName: text("contact_name").notNull(),
+  contactEmail: text("contact_email").notNull(),
+  contactPhone: text("contact_phone"),
+  memberCount: integer("member_count"),
+  amount: integer("amount_cents").notNull(),
+  paymentMethod: varchar("payment_method", { length: 30 }),
+  paymentStatus: varchar("payment_status", { length: 30 }).notNull().default("pending"),
+  paymentReference: text("payment_reference"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertServiceOrderSchema = createInsertSchema(serviceOrders).omit({ id: true, createdAt: true });
+export type InsertServiceOrder = z.infer<typeof insertServiceOrderSchema>;
+export type ServiceOrder = typeof serviceOrders.$inferSelect;
+
+export const consultationRequests = pgTable("consultation_requests", {
+  id: serial("id").primaryKey(),
+  companyName: text("company_name").notNull(),
+  contactName: text("contact_name").notNull(),
+  contactEmail: text("contact_email").notNull(),
+  contactPhone: text("contact_phone"),
+  message: text("message"),
+  status: varchar("status", { length: 30 }).notNull().default("new"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertConsultationRequestSchema = createInsertSchema(consultationRequests).omit({ id: true, createdAt: true });
+export type InsertConsultationRequest = z.infer<typeof insertConsultationRequestSchema>;
+export type ConsultationRequest = typeof consultationRequests.$inferSelect;
+
 export * from "./models/auth";

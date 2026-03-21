@@ -72,6 +72,7 @@ import { registerRpliceToolsRoutes } from "./rplice-tools";
 import { registerMceContractRoutes } from "./mce-contracts";
 import { registerVideoPipelineRoutes } from "./video-pipeline";
 import { registerProgramEngineRoutes } from "./program-engine";
+import { registerPricingRoutes } from "./pricing-routes";
 
 const AI_TOOLS = [
   { toolKey: "presentation-builder", name: "Presentation Builder", description: "Create slide-by-slide presentations with AI-generated content, talking points, and visual suggestions", category: "create", iconName: "presentation", gradeBand: "all", requiredModuleKey: "ai-presentations", promptTemplate: "PRESENTATION_BUILDER", outputFormat: "slides", sortOrder: 1 },
@@ -380,6 +381,7 @@ export async function registerRoutes(
   registerMceContractRoutes(app);
   registerVideoPipelineRoutes(app);
   registerProgramEngineRoutes(app);
+  registerPricingRoutes(app);
   await storage.seedData();
 
   app.get("/api/ai-provider", (_req, res) => {
