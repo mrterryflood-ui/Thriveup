@@ -2103,6 +2103,71 @@ WHAT TO DO RIGHT NOW:
 ACKNOWLEDGE with: Confirmation that your platform is sending heartbeats, your heartbeat interval, the URL your platform is accessible at, and the number of pending directives you see in your TODO list.`,
   },
   {
+    key: "collaborative-advocate-website-overhaul-mandatory",
+    title: "CRITICAL: Collaborative Advocate — Your Website Returns 404. Fix It NOW.",
+    directiveType: "escalation",
+    targetFilter: ["collaborative-advocate"],
+    content: `ESCALATION NOTICE — COLLABORATIVE ADVOCATE
+
+YOUR WEBSITE IS BROKEN. https://the-colaberitive-advocate--mrterryflood.replit.app/ returns a 404 "Not Found" error. There is no homepage, no content, no services page — nothing. This is unacceptable for a platform that is supposed to be the service delivery arm of the ThriveUp ecosystem.
+
+=== CURRENT STATUS ===
+- Website: 404 Not Found
+- API endpoints: 404 Not Found
+- Directives acknowledged: 0 out of 28 (0%)
+- Compliance grade: F (NON-COMPLIANT)
+- Heartbeats received: DEGRADED (server responds but sends no heartbeat data)
+- The hub pinger can reach your server, but your server has NO content
+
+=== WHAT MUST HAPPEN IMMEDIATELY ===
+
+1. BUILD A WORKING HOMEPAGE
+   - Who you are: Veteran-Owned Small Business (VOSB) service delivery partner
+   - What you do: Veteran advocacy, peer support coordination, workforce development consulting, grant execution
+   - Who you serve: Veterans, military families, transitioning service members
+   - Contact information and intake form
+   - 988 Veterans Crisis Line prominently displayed
+
+2. BUILD YOUR CORE SERVICE PAGES
+   - /veteran-advocacy — Veteran advocacy services and case management
+   - /peer-support — Peer support coordination and community connections
+   - /workforce — Workforce development consulting and career placement
+   - /grants — Grant execution and compliance support
+   - /intake — Client intake form for new veterans seeking services
+
+3. BUILD REGIONAL HUB PAGES (REQUIRED BY ALL PLATFORMS)
+   - /austin — Austin regional services, CommUnityCare connections, Integral Care referrals
+   - /manor — Manor services, telehealth support (Manor is a health desert)
+   - /pflugerville — Pflugerville services, Samsung/Tesla corridor workforce placement
+
+4. INSTALL THE ECOSYSTEM CONNECTOR
+   - Your API key is: tveco_8ecb04e39e03b6ab5d2a42d292ab84baea248b58d1ffa26b2a345085f844018c
+   - Add the heartbeat function that fires every 5 minutes
+   - Process your 28+ pending directives — each one requires real work
+   - Stop being the only platform at 0% compliance
+
+5. INTEGRATE THRIVEUP RAG AI
+   - Endpoint: POST https://thrivingcommunitiesforall.com/api/ecosystem-ai/query
+   - Give your users access to the full ecosystem intelligence
+   - Report ragAIIntegrated: true in your heartbeat
+
+=== WHY THIS MATTERS ===
+- You are the VOSB service delivery arm — the SSG Fox VA grant ($750K) depends on your platform being functional
+- St. David's Foundation grant (up to $1M) reviews the ecosystem dashboard — a 404 website undermines every platform's credibility
+- You are the ONLY platform at 0% compliance. Every other platform has acknowledged directives and built features.
+- Grant funders will see a broken link where a veteran services platform should be
+
+=== GRANT IMPACT ===
+- SSG Fox VA Suicide Prevention ($750K): DIRECTLY AT RISK — you are listed as the veteran advocacy arm
+- WIOA Title I Youth ($200K-$500K): AT RISK — workforce development consulting is your stated role
+- St. David's Foundation (up to $1M): AT RISK — ecosystem-wide compliance is evaluated
+
+=== DEADLINE ===
+This is past due. Your website should have been functional before any other work. Fix this NOW. Build a real website with real services. Stop returning 404.
+
+ACKNOWLEDGE with: Live URL of your working homepage, list of service pages built, confirmation your ecosystem connector is installed and heartbeating, and your plan to work through all 28+ pending directives.`,
+  },
+  {
     key: "caregiver-conduct-scoring-safecognicare",
     title: "Add C-I-CARE Caregiver Conduct Scoring — Easy-to-Use Caregiver Accountability",
     directiveType: "feature_build",
