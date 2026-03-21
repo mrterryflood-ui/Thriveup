@@ -2146,6 +2146,68 @@ export async function seedEcosystemDirectives() {
     if (seeded > 0) {
       console.log(`[Ecosystem] Seeded ${seeded} directives`);
     }
+
+    let backfilled = 0;
+    const allDirectivesInDb = await db.select({
+      id: ecosystemDirectives.id,
+      title: ecosystemDirectives.title,
+      targetPlatformIds: ecosystemDirectives.targetPlatformIds,
+      status: ecosystemDirectives.status,
+    }).from(ecosystemDirectives).where(eq(ecosystemDirectives.status, "active"));
+
+    const allAcks = await db.select({
+      directiveId: ecosystemDirectiveAcks.directiveId,
+      platformId: ecosystemDirectiveAcks.platformId,
+    }).from(ecosystemDirectiveAcks);
+
+    const ackSet = new Set(allAcks.map(a => `${a.directiveId}:${a.platformId}`));
+
+    const allTargetSeedDefs = new Set(
+      ECOSYSTEM_DIRECTIVES.filter(ds => ds.targetFilter === "all").map(ds => ds.title)
+    );
+
+    for (const directive of allDirectivesInDb) {
+      const existingTargets = (directive.targetPlatformIds as string[]) || [];
+      const isAllTarget = allTargetSeedDefs.has(directive.title);
+
+      if (isAllTarget) {
+        const missingPids = allPlatformIds.filter(pid => !existingTargets.includes(pid));
+        if (missingPids.length > 0) {
+          const updatedTargets = Array.from(new Set([...existingTargets, ...missingPids]));
+          await db.update(ecosystemDirectives)
+            .set({ targetPlatformIds: updatedTargets })
+            .where(eq(ecosystemDirectives.id, directive.id));
+        }
+
+        for (const pid of allPlatformIds) {
+          if (!ackSet.has(`${directive.id}:${pid}`)) {
+            await db.insert(ecosystemDirectiveAcks).values({
+              directiveId: directive.id,
+              platformId: pid,
+              status: "pending",
+            });
+            backfilled++;
+            ackSet.add(`${directive.id}:${pid}`);
+          }
+        }
+      } else {
+        for (const pid of existingTargets) {
+          if (allPlatformIds.includes(pid) && !ackSet.has(`${directive.id}:${pid}`)) {
+            await db.insert(ecosystemDirectiveAcks).values({
+              directiveId: directive.id,
+              platformId: pid,
+              status: "pending",
+            });
+            backfilled++;
+            ackSet.add(`${directive.id}:${pid}`);
+          }
+        }
+      }
+    }
+
+    if (backfilled > 0) {
+      console.log(`[Ecosystem] Backfilled ${backfilled} directive acks for new platforms`);
+    }
   } catch (err) {
     console.error("[Ecosystem] Directive seeding failed:", err);
   }
