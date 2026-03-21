@@ -11,7 +11,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import {
   Check, ArrowRight, DollarSign, Users, Briefcase, Rocket,
   CreditCard, Phone, MessageCircle, Star, Shield, FileText,
-  Search, Building2, Handshake, X, Mail
+  Search, Building2, Handshake, X, Mail, GraduationCap, BookOpen, Church
 } from "lucide-react";
 import { BackToTop } from "@/components/back-to-top";
 
@@ -39,8 +39,24 @@ interface Tier {
   highlight: boolean;
 }
 
+interface TrainingOption {
+  name: string;
+  price: number;
+  unit: string;
+  description: string;
+}
+
+interface TrainingTier {
+  slug: string;
+  name: string;
+  tagline: string;
+  options: TrainingOption[];
+}
+
 interface PricingData {
   tiers: Tier[];
+  trainingTiers: TrainingTier[];
+  trainingCourses: string[];
   customOption: { tagline: string; cta: string };
   allTiersInclude: string[];
 }
@@ -478,9 +494,75 @@ export default function PricingPage() {
         </div>
       )}
 
+      {pricingData?.trainingTiers && (
+        <div className="space-y-6" id="training">
+          <div className="text-center space-y-3">
+            <Badge variant="outline" className="text-sm px-4 py-1" data-testid="badge-training-header">
+              <GraduationCap className="w-3 h-3 mr-1" /> Workforce Training & Education
+            </Badge>
+            <h2 className="text-2xl md:text-3xl font-extrabold" data-testid="text-training-title">
+              Training That Transforms Your Team
+            </h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              AI workforce skills, project management, financial literacy, career readiness, and more —
+              delivered live or self-paced, for any size organization.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {pricingData.trainingTiers.map(tt => {
+              const isComm = tt.slug === "community-training";
+              return (
+                <Card key={tt.slug} className={`p-0 overflow-hidden ${isComm ? "border-green-200 dark:border-green-800" : "border-blue-200 dark:border-blue-800"}`} data-testid={`card-training-${tt.slug}`}>
+                  <div className={`p-5 text-white ${isComm ? "bg-gradient-to-r from-green-600 to-emerald-600" : "bg-gradient-to-r from-blue-600 to-indigo-600"}`}>
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-9 h-9 rounded-lg bg-white/20 flex items-center justify-center">
+                        {isComm ? <Church className="w-5 h-5" /> : <Briefcase className="w-5 h-5" />}
+                      </div>
+                      <h3 className="text-lg font-bold">{tt.name}</h3>
+                    </div>
+                    <p className="text-white/80 text-sm">{tt.tagline}</p>
+                  </div>
+                  <div className="p-5 space-y-3">
+                    {tt.options.map((opt, i) => (
+                      <div key={i} className="flex items-start justify-between gap-3 py-2 border-b border-border last:border-0">
+                        <div className="flex-1">
+                          <p className="text-sm font-medium">{opt.name}</p>
+                          <p className="text-xs text-muted-foreground">{opt.description}</p>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <p className="text-sm font-bold">${opt.price.toLocaleString()}</p>
+                          <p className="text-xs text-muted-foreground">{opt.unit}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              );
+            })}
+          </div>
+
+          {pricingData.trainingCourses && (
+            <div className="bg-muted/30 rounded-xl p-6">
+              <h3 className="text-lg font-bold mb-3 flex items-center gap-2" data-testid="text-available-courses">
+                <BookOpen className="w-5 h-5 text-primary" /> Available Courses
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {pricingData.trainingCourses.map((course, i) => (
+                  <div key={i} className="flex items-center gap-2 bg-background rounded-lg p-3 border border-border">
+                    <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+                    <span className="text-sm">{course}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 bg-muted/30 rounded-xl p-6">
         <div className="sm:col-span-2 lg:col-span-3 mb-2">
-          <h3 className="text-lg font-bold" data-testid="text-all-tiers-include">All Tiers Include</h3>
+          <h3 className="text-lg font-bold" data-testid="text-all-tiers-include">All Contract Tiers Include</h3>
         </div>
         {pricingData?.allTiersInclude.map((item, i) => {
           const icons = [MessageCircle, FileText, Search, Shield, Building2, Star];

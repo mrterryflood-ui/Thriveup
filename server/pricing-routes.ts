@@ -109,6 +109,41 @@ export function registerPricingRoutes(app: Express) {
           highlight: false,
         },
       ],
+      trainingTiers: [
+        {
+          slug: "community-training",
+          name: "Community",
+          tagline: "For churches, nonprofits, and community organizations",
+          options: [
+            { name: "Individual Course (Self-Paced)", price: 100, unit: "per person", description: "Online access to a single training course with materials" },
+            { name: "Live Instructor-Led Session", price: 150, unit: "per person", description: "Virtual or in-person training with a live instructor" },
+            { name: "Group Training (up to 15)", price: 1500, unit: "per session", description: "Bring your team — one instructor, one session, full curriculum" },
+            { name: "Full Training Program (4 weeks)", price: 3500, unit: "per cohort", description: "Multi-session program for your organization" },
+          ],
+        },
+        {
+          slug: "corporate-training",
+          name: "Corporate & Government",
+          tagline: "For businesses, agencies, and workforce boards",
+          options: [
+            { name: "Individual Course (Self-Paced)", price: 150, unit: "per person", description: "Online access with certification" },
+            { name: "Live Instructor-Led Session", price: 250, unit: "per person", description: "Virtual or in-person with hands-on exercises" },
+            { name: "Group Training (up to 40)", price: 3000, unit: "per session", description: "Large group delivery with customized content" },
+            { name: "Full Training Program (4 weeks)", price: 5000, unit: "per cohort", description: "Multi-session program with progress tracking and reporting" },
+            { name: "WIOA-Aligned Workforce Training", price: 200, unit: "per participant", description: "Designed for workforce boards — measurable outcomes, compliance-ready" },
+            { name: "Train-the-Trainer Certification", price: 2500, unit: "per person", description: "Learn to deliver our curriculum independently at your organization" },
+            { name: "Custom Curriculum Development", price: 7500, unit: "starting at", description: "We build a training program tailored to your specific needs" },
+          ],
+        },
+      ],
+      trainingCourses: [
+        "AI Workforce Academy (7 tracks, WIOA-aligned)",
+        "Project Management Academy (5 tracks, certification prep)",
+        "Financial Literacy & Entrepreneurship",
+        "Career Pathways & Workforce Readiness",
+        "Community Health Worker Training",
+        "Custom courses available on request",
+      ],
       customOption: {
         tagline: "Every organization is different. Let's talk and build a plan that works for you.",
         cta: "Schedule a Consultation",
