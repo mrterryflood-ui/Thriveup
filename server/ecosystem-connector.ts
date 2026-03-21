@@ -1966,7 +1966,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
         ragAIIntegration: {
           required: true,
           yourStatus: hasRagIntegration ? "INTEGRATED — Thank you" : "NOT INTEGRATED — Action required",
-          instruction: "ThriveUp Academy's RAG AI must be integrated into your platform. This AI has knowledge of all 22 ecosystem platforms, all active grants, community hubs, compliance data, and implementation science frameworks. Your users deserve access to this intelligence.",
+          instruction: "ThriveUp Academy's RAG AI must be integrated into your platform. This AI has knowledge of all 23 ecosystem platforms, all active grants (internal AND external macro opportunities), community hubs, compliance data, and implementation science frameworks. Your users deserve access to this intelligence.",
           whatItDoes: "Answers questions about the entire ThriveUp ecosystem — any platform, any grant, any program, any community hub. It knows real-time fidelity scores, platform health, grant readiness, and work chain activity. It provides sourced, accurate responses.",
           howToIntegrate: {
             step1: "Send a POST request to the query endpoint with your user's question",
@@ -1990,13 +1990,53 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
             suggestedFollowUps: ["Array of follow-up questions"],
           },
           benefits: [
-            "Your users can ask about ANY of the 22 ecosystem platforms",
+            "Your users can ask about ANY of the 23 ecosystem platforms",
             "Real-time knowledge of grant readiness and compliance status",
             "Warm handoff intelligence — AI knows which platform handles what",
             "Implementation science context — CFIR, RE-AIM, MAP-GAP frameworks",
             "Community hub awareness — Austin, Manor, Pflugerville resources",
+            "External macro grant intelligence — opportunities beyond our 4 active grants",
           ],
         },
+        externalGrantOpportunities: (() => {
+          const MACRO_GRANTS: Record<string, { category: string; fundingRange: string; sources: string[]; platformCapabilities: string[] }> = {
+            "federal-health-disparities": { category: "Health Disparities & Equity", fundingRange: "$100K-$5M", sources: ["NIH NIMHD", "HRSA", "CDC Office of Minority Health"], platformCapabilities: ["whole-person-health", "sankofa", "sankofa-maternal-health", "sankofa-feminine-health", "sankofa-mens-health", "autoimmune-thrive", "safecognicare", "speech-bridge"] },
+            "federal-veteran-services": { category: "Veteran Services & Suicide Prevention", fundingRange: "$250K-$3M", sources: ["VA", "DOD CDMRP", "SAMHSA", "Bob Woodruff Foundation"], platformCapabilities: ["m2c", "collaborative-advocate", "whole-person-health", "lifebridge", "shield-atlas", "speech-bridge"] },
+            "federal-workforce-development": { category: "Workforce Development", fundingRange: "$200K-$10M", sources: ["DOL ETA", "WIOA Competitive", "Apprenticeship USA"], platformCapabilities: ["pinnacle-business-conglomerate", "mce", "collaborative-advocate", "m2c", "lifebridge", "isss"] },
+            "federal-accessibility": { category: "Accessibility & Communication Tech", fundingRange: "$100K-$2M", sources: ["NSF CISE", "HHS", "FCC", "NIDILRR"], platformCapabilities: ["speech-bridge", "perfectly-different", "safecognicare", "wholemind"] },
+            "federal-maternal-child": { category: "Maternal & Child Health", fundingRange: "$250K-$5M", sources: ["HRSA MCH", "Healthy Start", "CDC ERASE MM"], platformCapabilities: ["sankofa-maternal-health", "sankofa-feminine-health", "whole-person-health", "speech-bridge"] },
+            "federal-aging-disability": { category: "Aging & Disability Services", fundingRange: "$100K-$3M", sources: ["ACL", "AoA", "NIDILRR", "Alzheimer's Association"], platformCapabilities: ["safecognicare", "pillscheduler", "autoimmune-thrive", "speech-bridge", "whole-person-health"] },
+            "foundation-community-health": { category: "Community Health Innovation", fundingRange: "$50K-$2M", sources: ["RWJF", "Kresge", "BCBS Foundation", "W.K. Kellogg"], platformCapabilities: ["whole-person-health", "sankofa", "autoimmune-thrive", "pillscheduler", "lifebridge", "speech-bridge"] },
+            "foundation-racial-equity": { category: "Racial Equity & Justice", fundingRange: "$50K-$1M", sources: ["Ford Foundation", "Kapor Center", "Emerson Collective"], platformCapabilities: ["sankofa", "sankofa-maternal-health", "sankofa-mens-health", "mce", "collaborative-advocate", "speech-bridge"] },
+            "foundation-tech-social-good": { category: "Technology for Social Good", fundingRange: "$100K-$5M", sources: ["Schmidt Futures", "MacArthur", "Google.org", "Microsoft Philanthropies"], platformCapabilities: ["betterscience", "safereport", "shield-atlas", "ecosystem-nexus", "video-creator-ai", "speech-bridge"] },
+            "federal-small-business": { category: "Small Business & Minority Enterprise", fundingRange: "$50K-$2M", sources: ["SBA", "MBDA", "PTAC"], platformCapabilities: ["mce", "pinnacle-business-conglomerate", "collaborative-advocate"] },
+            "federal-housing": { category: "Housing & Community Development", fundingRange: "$200K-$5M", sources: ["HUD", "CDBG", "HOME Program"], platformCapabilities: ["lifebridge", "whole-person-health", "shield-atlas", "speech-bridge"] },
+            "federal-mental-health": { category: "Substance Abuse & Mental Health", fundingRange: "$500K-$8M", sources: ["SAMHSA", "CCBHC"], platformCapabilities: ["whole-person-health", "lifebridge", "sankofa", "safecognicare"] },
+            "federal-education": { category: "Education & Youth Development", fundingRange: "$100K-$3M", sources: ["Dept of Education", "NSF Education", "21st CCLC"], platformCapabilities: ["isss", "wholemind", "perfectly-different", "betterscience"] },
+          };
+          const myOpportunities = Object.entries(MACRO_GRANTS)
+            .filter(([_, g]) => g.platformCapabilities.includes(platform.id))
+            .map(([id, g]) => {
+              const ecosystemPartners = g.platformCapabilities
+                .filter(pid => pid !== platform.id)
+                .map(pid => {
+                  const p = ECOSYSTEM_PLATFORMS.find(ep => ep.id === pid);
+                  return p ? p.name : pid;
+                });
+              return {
+                categoryId: id,
+                category: g.category,
+                fundingRange: g.fundingRange,
+                sources: g.sources,
+                ecosystemPartnersForThisGrant: ecosystemPartners,
+                interdependenceNote: `When ${platform.name} pursues ${g.category} funding, you can demonstrate connection to ${ecosystemPartners.length} ecosystem platforms as coordinated infrastructure. You are autonomous — the ecosystem amplifies your application, it does not restrict it.`,
+              };
+            });
+          return {
+            message: `${platform.name} is eligible for ${myOpportunities.length} external macro grant categories beyond the 4 active internal grants. Each platform pursues funding autonomously — the ecosystem provides alignment through MAP-GAP communication and metrics, not restriction.`,
+            yourOpportunities: myOpportunities,
+          };
+        })(),
         complianceVerification: complianceResponse,
         flowEngineActions: (() => {
           const platformActions = recentFlowActions.filter(a => a.platformId === platform.id);
@@ -3527,12 +3567,121 @@ if (typeof module !== "undefined") {
         };
       });
 
-      const GRANT_MAP: Record<string, { name: string; amount: string; deadline: string }> = {
-        "wioa": { name: "WIOA Title I Youth", amount: "$200K-$500K", deadline: "Rolling" },
-        "foundation": { name: "Foundation Grant", amount: "$100K-$500K", deadline: "Rolling LOI" },
-        "st-davids": { name: "St. David's Foundation", amount: "Up to $1M", deadline: "March 30, 2026" },
-        "ssg-fox": { name: "SSG Fox VA Suicide Prevention", amount: "Up to $750K", deadline: "June 12-18, 2026" },
+      const GRANT_MAP: Record<string, { name: string; amount: string; deadline: string; type?: string }> = {
+        "wioa": { name: "WIOA Title I Youth", amount: "$200K-$500K", deadline: "Rolling", type: "active-internal" },
+        "foundation": { name: "Foundation Grant", amount: "$100K-$500K", deadline: "Rolling LOI", type: "active-internal" },
+        "st-davids": { name: "St. David's Foundation", amount: "Up to $1M", deadline: "March 30, 2026", type: "active-internal" },
+        "ssg-fox": { name: "SSG Fox VA Suicide Prevention", amount: "Up to $750K", deadline: "June 12-18, 2026", type: "active-internal" },
       };
+
+      const EXTERNAL_GRANT_CATEGORIES: Record<string, { category: string; description: string; fundingRange: string; sources: string[]; platformCapabilities: string[] }> = {
+        "federal-health-disparities": {
+          category: "Health Disparities & Equity",
+          description: "NIH NIMHD, HRSA, CDC grants targeting health disparities in underserved populations",
+          fundingRange: "$100K-$5M",
+          sources: ["NIH NIMHD", "HRSA", "CDC Office of Minority Health", "AHRQ"],
+          platformCapabilities: ["whole-person-health", "sankofa", "sankofa-maternal-health", "sankofa-feminine-health", "sankofa-mens-health", "autoimmune-thrive", "safecognicare", "speech-bridge"],
+        },
+        "federal-veteran-services": {
+          category: "Veteran Services & Suicide Prevention",
+          description: "VA, DOD, SAMHSA grants for veteran transition, mental health, suicide prevention",
+          fundingRange: "$250K-$3M",
+          sources: ["VA Office of Mental Health", "DOD CDMRP", "SAMHSA", "Bob Woodruff Foundation", "Gary Sinise Foundation"],
+          platformCapabilities: ["m2c", "collaborative-advocate", "whole-person-health", "lifebridge", "shield-atlas", "speech-bridge"],
+        },
+        "federal-workforce-development": {
+          category: "Workforce Development & Job Training",
+          description: "DOL ETA, WIOA formula and competitive grants, apprenticeship programs",
+          fundingRange: "$200K-$10M",
+          sources: ["DOL Employment & Training", "WIOA Competitive", "Apprenticeship USA", "State Workforce Boards"],
+          platformCapabilities: ["pinnacle-business-conglomerate", "mce", "collaborative-advocate", "m2c", "lifebridge", "isss"],
+        },
+        "federal-education-youth": {
+          category: "Education & Youth Development",
+          description: "ED, NSF, 21st Century Community Learning Centers, ESSA Title IV",
+          fundingRange: "$100K-$3M",
+          sources: ["Dept of Education", "NSF Education", "21st CCLC", "Title IV-A"],
+          platformCapabilities: ["isss", "wholemind", "perfectly-different", "betterscience"],
+        },
+        "federal-accessibility-communication": {
+          category: "Accessibility & Communication Technology",
+          description: "NSF accessibility research, HHS language access, FCC accessibility, NIDILRR disability tech",
+          fundingRange: "$100K-$2M",
+          sources: ["NSF CISE", "HHS Office of Civil Rights", "FCC", "NIDILRR"],
+          platformCapabilities: ["speech-bridge", "perfectly-different", "safecognicare", "wholemind"],
+        },
+        "federal-substance-abuse-mental-health": {
+          category: "Substance Abuse & Mental Health",
+          description: "SAMHSA block grants, CCBHC, mental health awareness programs",
+          fundingRange: "$500K-$8M",
+          sources: ["SAMHSA", "CCBHC", "State Mental Health Authorities"],
+          platformCapabilities: ["whole-person-health", "lifebridge", "sankofa", "safecognicare"],
+        },
+        "federal-maternal-child-health": {
+          category: "Maternal & Child Health",
+          description: "HRSA MCH, Healthy Start, Maternal Mortality Review",
+          fundingRange: "$250K-$5M",
+          sources: ["HRSA Maternal & Child Health Bureau", "Healthy Start", "CDC ERASE MM"],
+          platformCapabilities: ["sankofa-maternal-health", "sankofa-feminine-health", "whole-person-health", "speech-bridge"],
+        },
+        "foundation-community-health": {
+          category: "Foundation — Community Health Innovation",
+          description: "Robert Wood Johnson, Kresge, BCBS foundations for community health",
+          fundingRange: "$50K-$2M",
+          sources: ["RWJF", "Kresge Foundation", "BCBS Foundation", "W.K. Kellogg", "CommonWealth Fund"],
+          platformCapabilities: ["whole-person-health", "sankofa", "autoimmune-thrive", "pillscheduler", "lifebridge", "speech-bridge"],
+        },
+        "foundation-racial-equity": {
+          category: "Foundation — Racial Equity & Justice",
+          description: "Ford Foundation, Kapor Center, Emerson Collective, Surdna Foundation",
+          fundingRange: "$50K-$1M",
+          sources: ["Ford Foundation", "Kapor Center", "Emerson Collective", "Surdna", "Marguerite Casey Foundation"],
+          platformCapabilities: ["sankofa", "sankofa-maternal-health", "sankofa-mens-health", "mce", "collaborative-advocate", "speech-bridge"],
+        },
+        "foundation-technology-social-good": {
+          category: "Foundation — Technology for Social Good",
+          description: "Schmidt Futures, MacArthur, Gates Foundation technology for impact",
+          fundingRange: "$100K-$5M",
+          sources: ["Schmidt Futures", "MacArthur Foundation", "Gates Foundation", "Google.org", "Microsoft Philanthropies"],
+          platformCapabilities: ["betterscience", "safereport", "shield-atlas", "ecosystem-nexus", "video-creator-ai", "ad-targeting", "speech-bridge"],
+        },
+        "federal-small-business-minority": {
+          category: "Small Business & Minority Enterprise",
+          description: "SBA, MBDA, 8(a) programs, HUBZone, VOSB certification support",
+          fundingRange: "$50K-$2M",
+          sources: ["SBA", "MBDA", "PTAC", "State MWBE Programs"],
+          platformCapabilities: ["mce", "pinnacle-business-conglomerate", "collaborative-advocate"],
+        },
+        "federal-housing-community-dev": {
+          category: "Housing & Community Development",
+          description: "HUD CDBG, HOME, supportive housing, homelessness prevention",
+          fundingRange: "$200K-$5M",
+          sources: ["HUD", "CDBG", "HOME Program", "CoC Program"],
+          platformCapabilities: ["lifebridge", "whole-person-health", "shield-atlas", "speech-bridge"],
+        },
+        "federal-aging-disability": {
+          category: "Aging & Disability Services",
+          description: "ACL, AoA, NIDILRR grants for aging populations and disability support",
+          fundingRange: "$100K-$3M",
+          sources: ["Administration for Community Living", "AoA", "NIDILRR", "Alzheimer's Association"],
+          platformCapabilities: ["safecognicare", "pillscheduler", "autoimmune-thrive", "speech-bridge", "whole-person-health"],
+        },
+      };
+
+      const externalGrantIntel = Object.entries(EXTERNAL_GRANT_CATEGORIES).map(([categoryId, cat]) => {
+        const capablePlatforms = platformIntel.filter(p => cat.platformCapabilities.includes(p.id));
+        const connectedCapable = capablePlatforms.filter(p => p.connected).length;
+        return {
+          categoryId,
+          ...cat,
+          ecosystemStrength: {
+            totalCapablePlatforms: capablePlatforms.length,
+            connectedPlatforms: connectedCapable,
+            platformDetails: capablePlatforms.map(p => ({ id: p.id, name: p.name, connected: p.connected, fidelity: p.fidelity.score })),
+          },
+          interdependenceNote: `Any platform pursuing ${cat.category} funding can demonstrate connection to ${capablePlatforms.length} ecosystem platforms providing coordinated capabilities. This is not siloed — each platform strengthens every other platform's application.`,
+        };
+      });
 
       const grantReadiness = Object.entries(GRANT_MAP).map(([grantId, grant]) => {
         const alignedPlatforms = platformIntel.filter(p => ((p.grantAlignment as string[]) || []).includes(grantId));
@@ -3692,6 +3841,13 @@ if (typeof module !== "undefined") {
         dueOut,
         needsAttention,
         grantReadiness,
+        externalGrantOpportunities: {
+          message: "MACRO GRANT INTELLIGENCE — These are external funding categories beyond your 4 active grants. Each platform can independently pursue these opportunities while leveraging the full ecosystem as supporting infrastructure.",
+          totalCategories: externalGrantIntel.length,
+          totalFundingRange: "$50K-$10M per category",
+          categories: externalGrantIntel,
+          interdependenceModel: "Every platform operates autonomously in pursuing grants. The ecosystem provides alignment through communication and metrics (MAP-GAP), not restriction. When Speech Bridge pursues an accessibility grant, it brings SafeCogniCare, Perfectly Different, and WholeMind as connected capabilities. When SafeCogniCare pursues an aging grant, it brings PillScheduler, Autoimmune Thrive, and Speech Bridge. The ecosystem makes every individual application stronger.",
+        },
         platformIntelligence: platformIntel.sort((a, b) => b.fidelity.score - a.fidelity.score),
       });
     } catch (error) {
