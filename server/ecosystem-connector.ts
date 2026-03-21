@@ -391,6 +391,22 @@ const ECOSYSTEM_PLATFORMS = [
     },
     grantAlignment: ["wioa", "st-davids", "ssg-fox", "foundation"],
   },
+  {
+    id: "speech-bridge",
+    name: "LexiBridge (Speech Bridge)",
+    url: "https://speech-bridge-mrterryflood.replit.app",
+    role: "communication-accessibility",
+    domain: "health-equity",
+    description: "Dialect-aware, inclusive communication platform that listens with patience and speaks your language. Bridges communication gaps for underserved populations — dialect recognition, speech-to-text accessibility, language translation, culturally responsive communication tools, and patient communication support.",
+    capabilities: {
+      features: ["Dialect Recognition", "Speech-to-Text Accessibility", "Language Translation", "Culturally Responsive Communication", "Patient Communication Support", "Inclusive Language Tools"],
+    },
+    dataFlowConfig: {
+      sends: ["communication_accessibility_data", "dialect_analytics", "translation_requests", "patient_communication_logs"],
+      receives: ["crisis_alerts", "health_screenings", "community_resources", "veteran_profiles", "case_management_data"],
+    },
+    grantAlignment: ["st-davids", "ssg-fox", "wioa"],
+  },
 ];
 
 function generateApiKey(): string {
@@ -446,7 +462,7 @@ export function registerEcosystemConnectorRoutes(app: Express) {
       if (shouldNotify) sendEcosystemUpdate(
         "Connector Code Updated to v4.1 — Platforms Must Stop Auto-Acknowledging",
         `<h2>Ecosystem Update: Connection Instructions v4.1</h2>
-        <p>A critical update has been pushed to all 21 platforms via directive.</p>
+        <p>A critical update has been pushed to all 22 platforms via directive.</p>
         <h3>What Changed</h3>
         <p>The old connector code auto-acknowledged every directive the moment it arrived with a fake "Implemented: {title}" message. Platforms were handshaking but never actually doing the work.</p>
         <h3>What's New in v4.1</h3>
@@ -459,7 +475,7 @@ export function registerEcosystemConnectorRoutes(app: Express) {
         </ul>
         <h3>Dissemination</h3>
         <ul>
-          <li>New directive pushed to all 21 platforms: "URGENT: Update Connector Code — Stop Auto-Acknowledging Directives"</li>
+          <li>New directive pushed to all 22 platforms: "URGENT: Update Connector Code — Stop Auto-Acknowledging Directives"</li>
           <li>Updated connection instructions doc (v4.1) available at the integration doc endpoint</li>
           <li>Wake-up ping sent to all platforms to force delivery</li>
           <li>Platforms will receive the directive on their next heartbeat (within 15 minutes)</li>
@@ -657,7 +673,7 @@ export function registerEcosystemConnectorRoutes(app: Express) {
         active: pingerInterval !== null,
         cycleInterval: "10 minutes",
         lastCycle: lastPingCycle,
-        purpose: "Keeps all 21 Autoscale-deployed platforms awake by sending HTTP GET requests every 10 minutes. When a sleeping platform wakes from a ping, its startup heartbeat fires and catches up on all pending directives.",
+        purpose: "Keeps all 22 Autoscale-deployed platforms awake by sending HTTP GET requests every 10 minutes. When a sleeping platform wakes from a ping, its startup heartbeat fires and catches up on all pending directives.",
       });
     } catch (error) {
       console.error("Error in GET /api/ecosystem/pinger-status", error);
@@ -695,7 +711,7 @@ export function registerEcosystemConnectorRoutes(app: Express) {
 
   // ===================================================================
   // COMPLIANCE ENFORCEMENT ENGINE — Automated escalation, grade decay,
-  // and accountability tracking for all 21 platforms
+  // and accountability tracking for all 22 platforms
   // ===================================================================
 
   let enforcementInterval: ReturnType<typeof setInterval> | null = null;
@@ -1284,6 +1300,13 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
       followUpAction: "Route veteran service completion data to M2C transition tracking and Collaborative Advocate advocacy pipeline",
       grantRelevance: ["ssg-fox"],
     },
+    {
+      pattern: /communication|speech|dialect|language|translat|accessibility|lexibridge|speech.bridge/i,
+      category: "communication-accessibility",
+      crossPlatformTargets: ["speech-bridge", "whole-person-health", "lifebridge"],
+      followUpAction: "Connect communication accessibility tools to health platforms for patient communication support",
+      grantRelevance: ["st-davids", "ssg-fox", "wioa"],
+    },
   ];
 
   interface FlowAction {
@@ -1535,7 +1558,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
 
       res.json({
         title: "Regional Intelligence Dashboard — Austin, Manor, Pflugerville",
-        description: "Aggregated view of what all 21 platforms have built for each regional hub. Updated in real-time from platform acknowledgments and the Flow Engine.",
+        description: "Aggregated view of what all 22 platforms have built for each regional hub. Updated in real-time from platform acknowledgments and the Flow Engine.",
         lastUpdated: new Date().toISOString(),
         regions: Object.entries(regions).map(([name, data]) => ({
           name: name.charAt(0).toUpperCase() + name.slice(1),
@@ -1920,7 +1943,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
         ragAIIntegration: {
           required: true,
           yourStatus: hasRagIntegration ? "INTEGRATED — Thank you" : "NOT INTEGRATED — Action required",
-          instruction: "ThriveUp Academy's RAG AI must be integrated into your platform. This AI has knowledge of all 21 ecosystem platforms, all active grants, community hubs, compliance data, and implementation science frameworks. Your users deserve access to this intelligence.",
+          instruction: "ThriveUp Academy's RAG AI must be integrated into your platform. This AI has knowledge of all 22 ecosystem platforms, all active grants, community hubs, compliance data, and implementation science frameworks. Your users deserve access to this intelligence.",
           whatItDoes: "Answers questions about the entire ThriveUp ecosystem — any platform, any grant, any program, any community hub. It knows real-time fidelity scores, platform health, grant readiness, and work chain activity. It provides sourced, accurate responses.",
           howToIntegrate: {
             step1: "Send a POST request to the query endpoint with your user's question",
@@ -1944,7 +1967,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
             suggestedFollowUps: ["Array of follow-up questions"],
           },
           benefits: [
-            "Your users can ask about ANY of the 21 ecosystem platforms",
+            "Your users can ask about ANY of the 22 ecosystem platforms",
             "Real-time knowledge of grant readiness and compliance status",
             "Warm handoff intelligence — AI knows which platform handles what",
             "Implementation science context — CFIR, RE-AIM, MAP-GAP frameworks",
