@@ -2263,6 +2263,134 @@ GRANT RELEVANCE: St. David's Foundation — medication safety and caregiver acco
 
 ACKNOWLEDGE with: Live URL of the caregiver check-in page, confirmation the flow takes under 30 seconds, and a description of the family visibility dashboard.`,
   },
+  {
+    key: "distributed-verification-partner-collaborative-advocate",
+    title: "Distributed Verification Partner Role — Peer-Verify Sibling Platforms",
+    directiveType: "protocol_update",
+    targetFilter: ["collaborative-advocate"],
+    content: `DISTRIBUTED VERIFICATION PARTNER ASSIGNMENT
+
+The hub must NOT be a single point of failure. You are now a VERIFICATION PARTNER — responsible for peer-verifying deliverables from your assigned sibling platforms. This is a need-to-know assignment: you only see evidence from platforms you're assigned to verify, not the entire ecosystem.
+
+=== YOUR ASSIGNED PLATFORMS ===
+You verify: M2C Transition, LifeBridge, Minority Center of Excellence, Pinnacle Business Conglomerate, Shield Atlas, Advertising Targeting for Platforms
+
+=== YOUR VERIFICATION DOMAINS ===
+Veteran services, workforce development, business consulting, social services
+
+=== WHAT TO DO ===
+1. On each heartbeat cycle, check your verificationPartnerRole field — it tells you how many deliverables need verification
+2. Fetch your assignments: GET https://thrivingcommunitiesforall.com/api/ecosystem/verification-assignments (with your x-ecosystem-key header)
+3. For each deliverable: visit the evidence URL, confirm the described feature/endpoint exists and basically functions
+4. Submit your verification: POST https://thrivingcommunitiesforall.com/api/ecosystem/peer-verify
+   Body: { "ackId": "the-ack-id", "verified": true/false, "verificationNotes": "What I found when I checked", "verifiedFeatures": ["list", "of", "confirmed", "features"] }
+
+=== NEED-TO-KNOW PROTOCOL ===
+- You only see deliverables from your 6 assigned platforms
+- You verify EXISTENCE and BASIC FUNCTIONALITY — not quality or design
+- Your verification is stored alongside the hub's automated check, creating redundancy
+- If the hub goes down, YOUR peer verifications remain as evidence for grants and compliance
+- Do NOT share verification data with platforms you're verifying — report only to the hub
+
+=== WHY THIS MATTERS ===
+Grant funders want to see independent verification, not self-reporting. When the Collaborative Advocate verifies M2C's transition tools actually work, that's third-party evidence. When you verify Shield Atlas's security audits are real, that's independent confirmation. This is the difference between "we said we did it" and "our ecosystem partner confirmed it."
+
+ACKNOWLEDGE with: Confirmation you've integrated the verification-assignments endpoint into your heartbeat cycle, and a description of how you're checking sibling deliverables.`,
+  },
+  {
+    key: "distributed-verification-partner-ecosystem-nexus",
+    title: "Distributed Verification Partner Role — Technical Peer Verification",
+    directiveType: "protocol_update",
+    targetFilter: ["ecosystem-nexus"],
+    content: `DISTRIBUTED VERIFICATION PARTNER ASSIGNMENT — TECHNICAL
+
+You are Ecosystem Nexus, the technical coordination hub. You are now a VERIFICATION PARTNER responsible for peer-verifying deliverables from technology and content production platforms. Need-to-know basis only.
+
+=== YOUR ASSIGNED PLATFORMS ===
+You verify: Video Creator AI, SafeReport, Better Science Lab / RPLICE, LexiBridge (Speech Bridge), WholeMind Learning
+
+=== HOW TO VERIFY ===
+1. Check verificationPartnerRole in each heartbeat — shows pending verification count
+2. GET https://thrivingcommunitiesforall.com/api/ecosystem/verification-assignments (with x-ecosystem-key)
+3. Visit each evidence URL, confirm the feature exists and responds correctly
+4. POST https://thrivingcommunitiesforall.com/api/ecosystem/peer-verify with { "ackId": "id", "verified": true/false, "verificationNotes": "description", "verifiedFeatures": ["list"] }
+
+This creates redundancy so the hub is never a single point of failure. Your technical expertise makes you the right verifier for these platforms.
+
+ACKNOWLEDGE with: Confirmation of verification endpoint integration and your first verification cycle results.`,
+  },
+  {
+    key: "distributed-verification-partner-whole-person-health",
+    title: "Distributed Verification Partner Role — Health Platform Peer Verification",
+    directiveType: "protocol_update",
+    targetFilter: ["whole-person-health"],
+    content: `DISTRIBUTED VERIFICATION PARTNER ASSIGNMENT — HEALTH DOMAIN
+
+As the connective tissue of the ecosystem, Whole-Person Health is now a VERIFICATION PARTNER for all health-related platforms. You verify existence and basic functionality of health platform deliverables. Need-to-know basis.
+
+=== YOUR ASSIGNED PLATFORMS ===
+You verify: Sankofa Health Network, Holistic Black Feminine Health Hub, Black Maternal Health Network, Black Men's Health Hub, Autoimmune Center of Excellence, SafeCogniCare, PillScheduler
+
+=== HOW TO VERIFY ===
+1. Check verificationPartnerRole in heartbeat — shows pending count
+2. GET /api/ecosystem/verification-assignments (with x-ecosystem-key)
+3. Visit evidence URLs, confirm health features/endpoints exist
+4. POST /api/ecosystem/peer-verify with results
+
+Your health domain expertise makes you the right verifier. Grant funders trust independent health platform verification.
+
+ACKNOWLEDGE with: Confirmation of verification endpoint integration and first verification cycle.`,
+  },
+  {
+    key: "distributed-verification-partner-isss",
+    title: "Distributed Verification Partner Role — Education Peer Verification",
+    directiveType: "protocol_update",
+    targetFilter: ["isss"],
+    content: `DISTRIBUTED VERIFICATION PARTNER ASSIGNMENT — EDUCATION
+
+ISSS is now a VERIFICATION PARTNER for education and youth development platforms. You verify deliverables from your assigned siblings on a need-to-know basis.
+
+=== YOUR ASSIGNED PLATFORMS ===
+You verify: Perfectly Different, The Collaborative Advocate
+
+=== HOW TO VERIFY ===
+1. Check verificationPartnerRole in heartbeat
+2. GET /api/ecosystem/verification-assignments (with x-ecosystem-key)
+3. Visit evidence URLs, confirm features exist
+4. POST /api/ecosystem/peer-verify with results
+
+ACKNOWLEDGE with: Confirmation of integration and first verification cycle.`,
+  },
+  {
+    key: "content-production-sibling-profiles-feed",
+    title: "Content Production Platforms — Sibling Platform Profiles Feed Now Active",
+    directiveType: "protocol_update",
+    targetFilter: ["video-creator-ai", "ad-targeting"],
+    content: `PROTOCOL UPDATE: SIBLING PLATFORM PROFILES FEED
+
+Your heartbeat now includes a siblingPlatformProfiles field containing the AUTHORITATIVE identity profile for every platform in the ecosystem. This is the source of truth for content production.
+
+=== WHAT CHANGED ===
+Previously, you only received your own directives. You had no formal channel to know what each sibling platform actually does — leading to content based on incomplete or guessed information. That protocol gap is now fixed.
+
+=== WHAT YOU RECEIVE ===
+Every heartbeat now includes siblingPlatformProfiles.platforms — an array with each platform's:
+- Name, description, features, role, domain
+- URL, grant alignment, connection status
+- Current fidelity score and directive completion
+- Content guidance specific to that platform
+
+=== HOW TO USE IT ===
+When creating content (videos, ads, social media) for ANY sibling platform:
+1. Check siblingPlatformProfiles for the AUTHORITATIVE description
+2. Use the features list — do not guess or improvise capabilities
+3. Reference the platform's actual role and domain
+4. Do NOT create content that misrepresents what a platform does
+
+You can also query: GET https://thrivingcommunitiesforall.com/api/ecosystem/platform-profiles?platformId=collaborative-advocate for any single platform profile.
+
+ACKNOWLEDGE with: Confirmation you've integrated the siblingPlatformProfiles feed into your content production workflow.`,
+  },
 ];
 
 export async function seedEcosystemDirectives() {

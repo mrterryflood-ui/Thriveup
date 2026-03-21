@@ -2083,6 +2083,37 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
           })(),
           gradeDecay: "Your grade actively worsens the longer directives remain unacknowledged. Stale non-compliance is tracked and reported.",
         },
+        verificationPartnerRole: await (async () => {
+          const partnerConfig = VERIFICATION_PARTNERS[platform.id];
+          if (!partnerConfig) {
+            return {
+              isVerificationPartner: false,
+              message: "You are not a designated verification partner. The hub and partner platforms handle verification redundancy.",
+            };
+          }
+          const allEcosystemAcks = await db.select().from(ecosystemDirectiveAcks);
+          const assignedAcks = allEcosystemAcks.filter(a =>
+            partnerConfig.platformAssignments.includes(a.platformId) && a.status === "acknowledged"
+          );
+          const needingVerification = assignedAcks.filter(a => {
+            const rd = a.responseData as Record<string, unknown> | null;
+            return rd?.evidenceUrl && !rd?._peerVerifiedBy;
+          }).length;
+          return {
+            isVerificationPartner: true,
+            role: partnerConfig.role,
+            assignedPlatforms: partnerConfig.platformAssignments,
+            domains: partnerConfig.verifyDomains,
+            pendingVerifications: needingVerification,
+            message: `${platform.name} is a VERIFICATION PARTNER. You have ${needingVerification} deliverables awaiting peer verification from your ${partnerConfig.platformAssignments.length} assigned platforms. This ensures the hub is never a single point of failure.`,
+            instructions: {
+              fetchAssignments: "GET https://thrivingcommunitiesforall.com/api/ecosystem/verification-assignments (with your x-ecosystem-key header)",
+              submitVerification: "POST https://thrivingcommunitiesforall.com/api/ecosystem/peer-verify",
+              bodyFormat: { ackId: "the-ack-id", verified: true, verificationNotes: "Describe what you checked and found", verifiedFeatures: ["feature1", "feature2"] },
+            },
+            needToKnow: "You only see deliverables from your assigned platforms, not the entire ecosystem. This is by design — need-to-know basis. You verify existence and basic functionality, not quality.",
+          };
+        })(),
         workQueue: {
           description: "AUTOMATED WORK QUEUE — Process these items IN ORDER. Each item tells you exactly what to build. Do NOT skip items. Do NOT auto-acknowledge. Build the thing, test it, then acknowledge with evidence.",
           totalItems: pendingDirectives.length + unacknowledgedDirectives.length + (!hasRagIntegration ? 1 : 0),
@@ -2175,12 +2206,53 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
             },
           },
         },
+        siblingPlatformProfiles: await (async () => {
+          const CONTENT_PRODUCTION_PLATFORMS = ["video-creator-ai", "ad-targeting", "ecosystem-nexus"];
+          const isContentProducer = CONTENT_PRODUCTION_PLATFORMS.includes(platform.id);
+          if (!isContentProducer) {
+            return {
+              included: false,
+              message: "Sibling platform profiles are delivered to content production platforms (Video Creator AI, Ad Targeting, Ecosystem Nexus). Query the platform profiles endpoint if you need this data.",
+              endpoint: "GET https://thrivingcommunitiesforall.com/api/ecosystem/platform-profiles",
+            };
+          }
+          const siblingPlatforms = await db.select().from(ecosystemPlatforms);
+          const siblingAcks = await db.select().from(ecosystemDirectiveAcks);
+          return {
+            included: true,
+            message: `As a content production platform, you receive full identity profiles for all ${ECOSYSTEM_PLATFORMS.length} sibling platforms. Use these to produce accurate content — names, descriptions, features, roles, grant alignment, and interdependencies. These profiles are the AUTHORITATIVE source of truth for what each platform does.`,
+            lastUpdated: new Date().toISOString(),
+            platforms: ECOSYSTEM_PLATFORMS.map(ep => {
+              const liveData = siblingPlatforms.find(p => p.id === ep.id);
+              const epAcks = siblingAcks.filter(a => a.platformId === ep.id);
+              const epAcked = epAcks.filter(a => a.status === "acknowledged").length;
+              const epFidelity = epAcks.length > 0 ? Math.round((epAcked / epAcks.length) * 100) : 0;
+              return {
+                id: ep.id,
+                name: ep.name,
+                description: ep.description,
+                features: ep.features,
+                role: ep.role,
+                domain: ep.domain,
+                url: ep.url,
+                grantAlignment: ep.grantAlignment,
+                connected: liveData ? !!(liveData.lastHeartbeat && (Date.now() - new Date(liveData.lastHeartbeat).getTime()) < 30 * 60 * 1000) : false,
+                fidelity: epFidelity,
+                directivesAcked: epAcked,
+                totalDirectives: epAcks.length,
+                status: liveData?.status || "unknown",
+                contentGuidance: `When creating content for ${ep.name}: Use the description and features above as the AUTHORITATIVE identity. Do not improvise or guess at capabilities. ${ep.name} operates in the ${ep.domain || "ecosystem"} domain with role "${ep.role || "platform"}".`,
+              };
+            }),
+          };
+        })(),
         endpoints: {
           ack: "POST https://thrivingcommunitiesforall.com/api/ecosystem/directives/ack",
           repository: `GET https://thrivingcommunitiesforall.com/api/ecosystem/directives/repository/${platform.id}`,
           event: "POST https://thrivingcommunitiesforall.com/api/ecosystem/event",
           complianceReport: "POST https://thrivingcommunitiesforall.com/api/ecosystem/compliance-report",
           ragAI: "POST https://thrivingcommunitiesforall.com/api/ecosystem-ai/query",
+          platformProfiles: "GET https://thrivingcommunitiesforall.com/api/ecosystem/platform-profiles",
         },
         serverTime: new Date().toISOString(),
       });
@@ -3492,6 +3564,250 @@ if (typeof module !== "undefined") {
     return results;
   }
 
+  const VERIFICATION_PARTNERS: Record<string, { name: string; role: string; verifyDomains: string[]; platformAssignments: string[] }> = {
+    "collaborative-advocate": {
+      name: "The Collaborative Advocate",
+      role: "Primary Verification Partner — VOSB service delivery arm",
+      verifyDomains: ["veteran-services", "workforce", "business-consulting", "social-services"],
+      platformAssignments: ["m2c", "lifebridge", "mce", "pinnacle-business-conglomerate", "shield-atlas", "ad-targeting"],
+    },
+    "ecosystem-nexus": {
+      name: "Ecosystem Nexus",
+      role: "Technical Verification Partner — cross-platform coordination hub",
+      verifyDomains: ["technology", "platform-infrastructure", "content-production"],
+      platformAssignments: ["video-creator-ai", "safereport", "betterscience", "speech-bridge", "wholemind"],
+    },
+    "whole-person-health": {
+      name: "Whole-Person Health Ecosystem",
+      role: "Health Verification Partner — health platform quality assurance",
+      verifyDomains: ["health", "mental-health", "maternal-health", "chronic-disease"],
+      platformAssignments: ["sankofa", "sankofa-feminine-health", "sankofa-maternal-health", "sankofa-mens-health", "autoimmune-thrive", "safecognicare", "pillscheduler"],
+    },
+    "isss": {
+      name: "ISSS — Integrated Supports for Thriving Youth",
+      role: "Education Verification Partner — youth and education quality assurance",
+      verifyDomains: ["education", "youth-development", "neurodiversity"],
+      platformAssignments: ["perfectly-different", "collaborative-advocate"],
+    },
+  };
+
+  app.get("/api/ecosystem/verification-assignments", async (req, res) => {
+    try {
+      const authKey = req.headers["x-ecosystem-key"] as string;
+      if (!authKey) return res.status(401).json({ error: "Missing x-ecosystem-key header" });
+
+      const allPlatforms = await db.select().from(ecosystemPlatforms);
+      const requestingPlatform = allPlatforms.find(p => p.apiKey === authKey);
+      if (!requestingPlatform) return res.status(403).json({ error: "Invalid API key" });
+
+      const partnerConfig = VERIFICATION_PARTNERS[requestingPlatform.id];
+      if (!partnerConfig) {
+        return res.json({
+          isVerificationPartner: false,
+          message: `${requestingPlatform.name} is not a designated verification partner. Verification partners are: ${Object.values(VERIFICATION_PARTNERS).map(p => p.name).join(", ")}. If you believe your platform should verify siblings, contact the hub.`,
+          endpoint: "GET /api/ecosystem/platform-profiles — to view platform profiles (read-only)",
+        });
+      }
+
+      const acks = await db.select().from(ecosystemDirectiveAcks);
+      const assignedPlatformAcks = acks.filter(a =>
+        partnerConfig.platformAssignments.includes(a.platformId) &&
+        a.status === "acknowledged"
+      );
+
+      const verificationsNeeded = assignedPlatformAcks
+        .filter(a => {
+          const rd = a.responseData as Record<string, unknown> | null;
+          const evidenceUrl = rd?.evidenceUrl as string;
+          if (!evidenceUrl || !evidenceUrl.startsWith("http")) return false;
+          const peerVerified = rd?._peerVerifiedBy as string | undefined;
+          return !peerVerified;
+        })
+        .map(a => {
+          const rd = a.responseData as Record<string, unknown> | null;
+          const platform = allPlatforms.find(p => p.id === a.platformId);
+          const epConfig = ECOSYSTEM_PLATFORMS.find(ep => ep.id === a.platformId);
+          return {
+            ackId: a.id,
+            platformId: a.platformId,
+            platformName: platform?.name || a.platformId,
+            platformDomain: epConfig?.domain || "unknown",
+            directiveId: a.directiveId,
+            evidenceUrl: rd?.evidenceUrl as string,
+            whatWasDone: rd?.whatWasDone as string || "No description provided",
+            hubVerificationStatus: rd?._verificationStatus as string || "UNVERIFIED",
+            acknowledgedAt: a.acknowledgedAt,
+          };
+        });
+
+      const alreadyVerified = assignedPlatformAcks
+        .filter(a => {
+          const rd = a.responseData as Record<string, unknown> | null;
+          return rd?._peerVerifiedBy;
+        }).length;
+
+      res.json({
+        isVerificationPartner: true,
+        partnerConfig: {
+          role: partnerConfig.role,
+          domains: partnerConfig.verifyDomains,
+          assignedPlatforms: partnerConfig.platformAssignments,
+        },
+        message: `${requestingPlatform.name} is a verification partner. You are responsible for verifying deliverables from ${partnerConfig.platformAssignments.length} assigned platforms. This is a NEED-TO-KNOW assignment — you only see deliverables from your assigned siblings, not the entire ecosystem.`,
+        protocol: {
+          whatToVerify: "Visit each evidence URL. Confirm the feature/page/endpoint described in 'whatWasDone' actually exists and functions correctly. You are not judging quality — you are confirming existence and basic functionality.",
+          howToReport: "POST to /api/ecosystem/peer-verify with { ackId, verified: true/false, verificationNotes: 'description of what you found', verifiedFeatures: ['list', 'of', 'features', 'confirmed'] }",
+          frequency: "Verify assigned deliverables at least once per heartbeat cycle (every 5-10 minutes if possible, but at minimum daily)",
+          needToKnow: "You only receive verification assignments for your designated platforms. You do NOT receive the full directive content — only the evidence URL and description of what was done. This is by design.",
+        },
+        stats: {
+          totalAssigned: assignedPlatformAcks.length,
+          needingVerification: verificationsNeeded.length,
+          alreadyPeerVerified: alreadyVerified,
+        },
+        verificationsNeeded,
+        reportEndpoint: "POST https://thrivingcommunitiesforall.com/api/ecosystem/peer-verify",
+      });
+    } catch (error) {
+      console.error("Verification assignments error:", error);
+      res.status(500).json({ error: "Failed to fetch verification assignments" });
+    }
+  });
+
+  app.post("/api/ecosystem/peer-verify", async (req, res) => {
+    try {
+      const authKey = req.headers["x-ecosystem-key"] as string;
+      if (!authKey) return res.status(401).json({ error: "Missing x-ecosystem-key header" });
+
+      const allPlatforms = await db.select().from(ecosystemPlatforms);
+      const verifier = allPlatforms.find(p => p.apiKey === authKey);
+      if (!verifier) return res.status(403).json({ error: "Invalid API key" });
+
+      const partnerConfig = VERIFICATION_PARTNERS[verifier.id];
+      if (!partnerConfig) return res.status(403).json({ error: `${verifier.name} is not a designated verification partner` });
+
+      const { ackId, verified, verificationNotes, verifiedFeatures } = req.body;
+      if (!ackId || verified === undefined) {
+        return res.status(400).json({ error: "ackId and verified (boolean) are required" });
+      }
+      if (!verificationNotes || verificationNotes.length < 10) {
+        return res.status(400).json({ error: "verificationNotes must be at least 10 characters — describe what you actually checked" });
+      }
+
+      const [ack] = await db.select().from(ecosystemDirectiveAcks)
+        .where(eq(ecosystemDirectiveAcks.id, ackId));
+      if (!ack) return res.status(404).json({ error: `Acknowledgment ${ackId} not found` });
+
+      if (!partnerConfig.platformAssignments.includes(ack.platformId)) {
+        return res.status(403).json({
+          error: `${verifier.name} is not authorized to verify ${ack.platformId}. Your assigned platforms: ${partnerConfig.platformAssignments.join(", ")}`,
+        });
+      }
+
+      const existingData = ack.responseData as Record<string, unknown> || {};
+      const peerVerifications = (existingData._peerVerifications || []) as Array<Record<string, unknown>>;
+      peerVerifications.push({
+        verifierId: verifier.id,
+        verifierName: verifier.name,
+        verified,
+        verificationNotes,
+        verifiedFeatures: verifiedFeatures || [],
+        verifiedAt: new Date().toISOString(),
+      });
+
+      await db.update(ecosystemDirectiveAcks)
+        .set({
+          responseData: {
+            ...existingData,
+            _peerVerifiedBy: verifier.id,
+            _peerVerifiedAt: new Date().toISOString(),
+            _peerVerificationResult: verified ? "PEER_CONFIRMED" : "PEER_REJECTED",
+            _peerVerifications: peerVerifications,
+          },
+        })
+        .where(eq(ecosystemDirectiveAcks.id, ackId));
+
+      console.log(`[PeerVerify] ${verifier.name} ${verified ? "CONFIRMED" : "REJECTED"} deliverable from ${ack.platformId} (ack: ${ackId})`);
+
+      res.json({
+        success: true,
+        message: `Peer verification recorded: ${verifier.name} ${verified ? "CONFIRMED" : "REJECTED"} deliverable from ${ack.platformId}`,
+        ackId,
+        platformId: ack.platformId,
+        verifiedBy: verifier.id,
+        result: verified ? "PEER_CONFIRMED" : "PEER_REJECTED",
+        redundancyNote: "This peer verification is stored alongside the hub's automated verification. Both sources contribute to the final verification status. If the hub goes down, peer verifications remain as evidence.",
+      });
+    } catch (error) {
+      console.error("Peer verify error:", error);
+      res.status(500).json({ error: "Peer verification failed" });
+    }
+  });
+
+  app.get("/api/ecosystem/verification-status", async (_req, res) => {
+    try {
+      const acks = await db.select().from(ecosystemDirectiveAcks)
+        .where(eq(ecosystemDirectiveAcks.status, "acknowledged"));
+
+      let hubVerified = 0;
+      let peerVerified = 0;
+      let bothVerified = 0;
+      let neitherVerified = 0;
+      let peerRejected = 0;
+
+      for (const ack of acks) {
+        const rd = ack.responseData as Record<string, unknown> | null;
+        const hubStatus = rd?._verificationStatus as string;
+        const peerStatus = rd?._peerVerificationResult as string;
+
+        const hubOk = hubStatus === "LIVE";
+        const peerOk = peerStatus === "PEER_CONFIRMED";
+        const peerBad = peerStatus === "PEER_REJECTED";
+
+        if (hubOk && peerOk) bothVerified++;
+        else if (hubOk && !peerOk) hubVerified++;
+        else if (!hubOk && peerOk) peerVerified++;
+        else neitherVerified++;
+        if (peerBad) peerRejected++;
+      }
+
+      const partnerStatus = Object.entries(VERIFICATION_PARTNERS).map(([id, config]) => {
+        const assignedAcks = acks.filter(a => config.platformAssignments.includes(a.platformId));
+        const verified = assignedAcks.filter(a => {
+          const rd = a.responseData as Record<string, unknown> | null;
+          return rd?._peerVerifiedBy === id;
+        }).length;
+        return {
+          partnerId: id,
+          partnerName: config.name,
+          role: config.role,
+          assignedPlatforms: config.platformAssignments.length,
+          totalAssignedDeliverables: assignedAcks.length,
+          peerVerified: verified,
+          completionRate: assignedAcks.length > 0 ? Math.round((verified / assignedAcks.length) * 100) : 0,
+        };
+      });
+
+      res.json({
+        generatedAt: new Date().toISOString(),
+        totalAcknowledged: acks.length,
+        verificationBreakdown: {
+          hubAndPeerVerified: bothVerified,
+          hubOnlyVerified: hubVerified,
+          peerOnlyVerified: peerVerified,
+          neitherVerified: neitherVerified,
+          peerRejected: peerRejected,
+        },
+        redundancyScore: acks.length > 0 ? Math.round(((bothVerified + peerVerified) / acks.length) * 100) : 0,
+        message: `${bothVerified} deliverables have DUAL verification (hub + peer). ${peerVerified} have peer-only verification (hub backup). The hub is no longer the single point of failure — ${Object.keys(VERIFICATION_PARTNERS).length} verification partners provide distributed redundancy.`,
+        verificationPartners: partnerStatus,
+      });
+    } catch (error) {
+      console.error("Verification status error:", error);
+      res.status(500).json({ error: "Failed to fetch verification status" });
+    }
+  });
+
   app.get("/api/ecosystem/intelligence-report", async (_req, res) => {
     try {
       const platforms = await db.select().from(ecosystemPlatforms);
@@ -3853,6 +4169,55 @@ if (typeof module !== "undefined") {
     } catch (error) {
       console.error("Intelligence report failed:", error);
       res.status(500).json({ error: "Failed to generate intelligence report" });
+    }
+  });
+
+  app.get("/api/ecosystem/platform-profiles", async (req, res) => {
+    try {
+      const platforms = await db.select().from(ecosystemPlatforms);
+      const allAcks = await db.select().from(ecosystemDirectiveAcks);
+      const filterPlatformId = req.query.platformId as string | undefined;
+
+      const profiles = ECOSYSTEM_PLATFORMS.map(ep => {
+        const liveData = platforms.find(p => p.id === ep.id);
+        const epAcks = allAcks.filter(a => a.platformId === ep.id);
+        const epAcked = epAcks.filter(a => a.status === "acknowledged").length;
+        const epFidelity = epAcks.length > 0 ? Math.round((epAcked / epAcks.length) * 100) : 0;
+
+        const profile = {
+          id: ep.id,
+          name: ep.name,
+          description: ep.description,
+          features: ep.features,
+          role: ep.role,
+          domain: ep.domain,
+          url: ep.url,
+          grantAlignment: ep.grantAlignment,
+          connected: liveData ? !!(liveData.lastHeartbeat && (Date.now() - new Date(liveData.lastHeartbeat).getTime()) < 30 * 60 * 1000) : false,
+          fidelity: epFidelity,
+          directivesAcked: epAcked,
+          totalDirectives: epAcks.length,
+          status: liveData?.status || "unknown",
+          lastHeartbeat: liveData?.lastHeartbeat || null,
+        };
+        return profile;
+      });
+
+      if (filterPlatformId) {
+        const profile = profiles.find(p => p.id === filterPlatformId);
+        if (!profile) return res.status(404).json({ error: `Platform ${filterPlatformId} not found` });
+        return res.json({ generatedAt: new Date().toISOString(), platform: profile });
+      }
+
+      res.json({
+        generatedAt: new Date().toISOString(),
+        totalPlatforms: profiles.length,
+        message: "Authoritative platform identity profiles for all ACOS ecosystem platforms. Use these for accurate content production, grant writing, and cross-platform coordination. Add ?platformId=collaborative-advocate to get a single platform profile.",
+        platforms: profiles,
+      });
+    } catch (error) {
+      console.error("Platform profiles error:", error);
+      res.status(500).json({ error: "Failed to fetch platform profiles" });
     }
   });
 

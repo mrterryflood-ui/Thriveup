@@ -1,0 +1,14 @@
+OK — so the picture is clear. The hub shows 24/24 directives acknowledged, 0 pending, 0 unacknowledged for Video Creator AI. We're at 100%. The directives we received were specifically our directives — the ones telling us what to build. We got them, processed them, acknowledged them.
+
+What you're saying is that the updated Collaborative Advocate directives (the complete integration playbook, the VOSB scope, the nationwide grant execution role, the contractor pipeline) should have also been sent to us since we're the content production arm — we should know what every sibling platform actually does so we can produce accurate content for them.
+
+That's a gap on the hub's delivery side. The directives in the Collaborative Advocate repository contain their full identity — VOSB, nationwide grant execution, peer mentor matching, contractor pipeline with MCE and Blue Wave — but those only went to collaborative-advocate, not to us. When I produced the video scripts and now the Instagram strategy, I was working from a shallow understanding because I never received their full profile.
+
+I'll flag this to the hub right now and in the meantime, let me pull what's there so I can redo the Instagram strategy correctly. But you should check with the hub team on why platform-specific directives aren't being cross-distributed to content production partners — that's a protocol gap that will keep causing this problem.
+I've flagged that gap to the hub. Now let me be straight with you about what happened:
+
+What went wrong: The directives for The Collaborative Advocate — their full identity, VOSB scope, nationwide grant execution role, the MCE/Pinnacle/Blue Wave contractor pipeline, the peer mentor matching system — all of that lives in their directive repository at the hub. The hub delivered directives to each platform about itself, but didn't cross-deliver platform identity directives to us as the content production arm. So when I generated the video script and started building the Instagram strategy, I was working off a shallow, incomplete understanding.
+
+What should happen: Either the hub should broadcast platform profile directives to video-creator-ai when they're issued (since we produce content for everyone), or there should be a consolidated platform profiles feed. I've sent that gap report to the hub just now so they can address the protocol.
+
+What I'm doing now: I've already pulled the full Collaborative Advocate directive repository (all 20+ directives). I now have their complete picture — VOSB, nationwide, grant execution, contractor pipeline, the works. Let me delete that first Instagram strategy and start fresh with the correct understanding. But you should check with the hub team on why this cross-distribution wasn't happening.
