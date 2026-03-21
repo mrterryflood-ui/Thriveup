@@ -407,6 +407,22 @@ const ECOSYSTEM_PLATFORMS = [
     },
     grantAlignment: ["st-davids", "ssg-fox", "wioa"],
   },
+  {
+    id: "autoimmune-thrive",
+    name: "Autoimmune Center of Excellence",
+    url: "https://autoimmune-thrive.replit.app",
+    role: "chronic-disease-management",
+    domain: "health-equity",
+    description: "Personal health companion for autoimmune disease management — daily symptom check-ins, flare tracking, medication management, 80+ condition database, AI health companion, appointment prep, and community support. Built by a founder with autoimmune disease, delivering real longitudinal health outcome data.",
+    capabilities: {
+      features: ["Daily Health Check-ins", "Symptom Tracking", "Flare Management", "Medication Tracking", "80+ Condition Database", "AI Health Companion", "Appointment Management", "Community Support", "Goal Setting", "PWA Mobile App"],
+    },
+    dataFlowConfig: {
+      sends: ["symptom_data", "flare_reports", "medication_adherence", "health_checkin_data", "outcome_metrics", "condition_prevalence"],
+      receives: ["crisis_alerts", "health_screenings", "medication_reminders", "specialist_referrals", "community_resources", "wellness_programs"],
+    },
+    grantAlignment: ["st-davids", "foundation", "wioa"],
+  },
 ];
 
 function generateApiKey(): string {
@@ -462,7 +478,7 @@ export function registerEcosystemConnectorRoutes(app: Express) {
       if (shouldNotify) sendEcosystemUpdate(
         "Connector Code Updated to v4.1 — Platforms Must Stop Auto-Acknowledging",
         `<h2>Ecosystem Update: Connection Instructions v4.1</h2>
-        <p>A critical update has been pushed to all 22 platforms via directive.</p>
+        <p>A critical update has been pushed to all 23 platforms via directive.</p>
         <h3>What Changed</h3>
         <p>The old connector code auto-acknowledged every directive the moment it arrived with a fake "Implemented: {title}" message. Platforms were handshaking but never actually doing the work.</p>
         <h3>What's New in v4.1</h3>
@@ -475,7 +491,7 @@ export function registerEcosystemConnectorRoutes(app: Express) {
         </ul>
         <h3>Dissemination</h3>
         <ul>
-          <li>New directive pushed to all 22 platforms: "URGENT: Update Connector Code — Stop Auto-Acknowledging Directives"</li>
+          <li>New directive pushed to all 23 platforms: "URGENT: Update Connector Code — Stop Auto-Acknowledging Directives"</li>
           <li>Updated connection instructions doc (v4.1) available at the integration doc endpoint</li>
           <li>Wake-up ping sent to all platforms to force delivery</li>
           <li>Platforms will receive the directive on their next heartbeat (within 15 minutes)</li>
@@ -673,7 +689,7 @@ export function registerEcosystemConnectorRoutes(app: Express) {
         active: pingerInterval !== null,
         cycleInterval: "10 minutes",
         lastCycle: lastPingCycle,
-        purpose: "Keeps all 22 Autoscale-deployed platforms awake by sending HTTP GET requests every 10 minutes. When a sleeping platform wakes from a ping, its startup heartbeat fires and catches up on all pending directives.",
+        purpose: "Keeps all 23 Autoscale-deployed platforms awake by sending HTTP GET requests every 10 minutes. When a sleeping platform wakes from a ping, its startup heartbeat fires and catches up on all pending directives.",
       });
     } catch (error) {
       console.error("Error in GET /api/ecosystem/pinger-status", error);
@@ -711,7 +727,7 @@ export function registerEcosystemConnectorRoutes(app: Express) {
 
   // ===================================================================
   // COMPLIANCE ENFORCEMENT ENGINE — Automated escalation, grade decay,
-  // and accountability tracking for all 22 platforms
+  // and accountability tracking for all 23 platforms
   // ===================================================================
 
   let enforcementInterval: ReturnType<typeof setInterval> | null = null;
@@ -1307,6 +1323,13 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
       followUpAction: "Connect communication accessibility tools to health platforms for patient communication support",
       grantRelevance: ["st-davids", "ssg-fox", "wioa"],
     },
+    {
+      pattern: /autoimmune|chronic|symptom|flare|lupus|medication|rheumat|immunolog|fatigue|fibromyalgia|sjogren|vasculitis/i,
+      category: "chronic-disease-management",
+      crossPlatformTargets: ["autoimmune-thrive", "whole-person-health", "sankofa", "pillscheduler", "safecognicare"],
+      followUpAction: "Route chronic disease and autoimmune data to health platforms for coordinated care management",
+      grantRelevance: ["st-davids", "foundation"],
+    },
   ];
 
   interface FlowAction {
@@ -1558,7 +1581,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
 
       res.json({
         title: "Regional Intelligence Dashboard — Austin, Manor, Pflugerville",
-        description: "Aggregated view of what all 22 platforms have built for each regional hub. Updated in real-time from platform acknowledgments and the Flow Engine.",
+        description: "Aggregated view of what all 23 platforms have built for each regional hub. Updated in real-time from platform acknowledgments and the Flow Engine.",
         lastUpdated: new Date().toISOString(),
         regions: Object.entries(regions).map(([name, data]) => ({
           name: name.charAt(0).toUpperCase() + name.slice(1),
