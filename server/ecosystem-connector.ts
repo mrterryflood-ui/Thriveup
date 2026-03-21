@@ -23,6 +23,15 @@ const heartbeatSchema = z.object({
       whatWasDone: z.string(),
       evidenceUrl: z.string().optional(),
       completedAt: z.string().optional(),
+      preActionJustification: z.object({
+        action: z.string().optional(),
+        situation: z.string().optional(),
+        justification: z.string().optional(),
+        expectedOutcome: z.string().optional(),
+        systemImpact: z.string().optional(),
+        riskAssessment: z.string().optional(),
+        fallbackPlan: z.string().optional(),
+      }).optional(),
     })).optional(),
     blockers: z.array(z.object({
       directiveId: z.string(),
@@ -32,8 +41,122 @@ const heartbeatSchema = z.object({
     })).optional(),
     platformCapabilities: z.array(z.string()).optional(),
     notes: z.string().optional(),
+    preActionJustification: z.object({
+      action: z.string().optional(),
+      situation: z.string().optional(),
+      justification: z.string().optional(),
+      expectedOutcome: z.string().optional(),
+      systemImpact: z.string().optional(),
+      riskAssessment: z.string().optional(),
+      fallbackPlan: z.string().optional(),
+    }).optional(),
   }).optional(),
 });
+
+function computeThinkingScore(
+  complianceReport: Record<string, unknown> | undefined,
+  ackQualityHistory: Array<{ quality: string }>,
+  fidelityPct: number,
+  hasPreActionJustification: boolean,
+): { score: number; grade: string; label: string; breakdown: Record<string, number>; analysis: string } {
+  let reasoningDepth = 0;
+  let evidenceQuality = 0;
+  let systemAwareness = 0;
+  let anticipation = 0;
+  let selfCorrection = 0;
+
+  if (complianceReport) {
+    const notes = String((complianceReport as Record<string, unknown>).notes || "");
+    const completedWork = (complianceReport as Record<string, unknown>).completedWork as Array<Record<string, unknown>> | undefined;
+
+    if (notes.length > 100) reasoningDepth += 3;
+    else if (notes.length > 50) reasoningDepth += 2;
+    else if (notes.length > 20) reasoningDepth += 1;
+
+    const reasoningIndicators = ["because", "therefore", "in order to", "which means", "as a result", "the reason", "this improves", "analysis shows", "we determined", "after evaluating", "context shows", "based on"];
+    for (const indicator of reasoningIndicators) {
+      if (notes.toLowerCase().includes(indicator)) reasoningDepth += 1;
+    }
+
+    const systemWords = ["ecosystem", "sibling", "upstream", "downstream", "handoff", "interdepend", "other platform", "chain reaction", "system-wide", "cross-platform"];
+    for (const word of systemWords) {
+      if (notes.toLowerCase().includes(word)) systemAwareness += 1;
+    }
+
+    const anticipationWords = ["anticipat", "predict", "prepar", "next step", "emerging", "proactiv", "forward", "upcoming", "plan ahead"];
+    for (const word of anticipationWords) {
+      if (notes.toLowerCase().includes(word)) anticipation += 1;
+    }
+
+    const correctionWords = ["correct", "fix", "improv", "adjust", "modif", "refin", "optimiz", "self-correct", "identified issue", "resolved"];
+    for (const word of correctionWords) {
+      if (notes.toLowerCase().includes(word)) selfCorrection += 1;
+    }
+
+    if (completedWork && completedWork.length > 0) {
+      for (const work of completedWork) {
+        const desc = String(work.whatWasDone || "");
+        if (desc.length > 100) evidenceQuality += 2;
+        else if (desc.length > 50) evidenceQuality += 1;
+        if (work.evidenceUrl) evidenceQuality += 2;
+        if ((work as Record<string, unknown>).preActionJustification) {
+          const paj = work.preActionJustification as Record<string, unknown>;
+          const filledFields = ["action", "situation", "justification", "expectedOutcome", "systemImpact", "riskAssessment", "fallbackPlan"]
+            .filter(f => paj[f] && String(paj[f]).length > 10);
+          reasoningDepth += filledFields.length;
+          if (filledFields.length >= 5) anticipation += 3;
+        }
+      }
+    }
+  }
+
+  if (hasPreActionJustification) {
+    reasoningDepth += 5;
+    anticipation += 3;
+  }
+
+  const verifiedAcks = ackQualityHistory.filter(a => a.quality === "VERIFIED").length;
+  const substantiveAcks = ackQualityHistory.filter(a => a.quality === "SUBSTANTIVE").length;
+  const weakAcks = ackQualityHistory.filter(a => a.quality === "WEAK" || a.quality === "REJECTED").length;
+  evidenceQuality += verifiedAcks * 3 + substantiveAcks * 1;
+  if (weakAcks > 0) evidenceQuality = Math.max(0, evidenceQuality - weakAcks * 2);
+
+  const maxReasoningDepth = Math.min(reasoningDepth, 20);
+  const maxEvidenceQuality = Math.min(evidenceQuality, 20);
+  const maxSystemAwareness = Math.min(systemAwareness, 20);
+  const maxAnticipation = Math.min(anticipation, 20);
+  const maxSelfCorrection = Math.min(selfCorrection, 20);
+
+  const rawScore = maxReasoningDepth + maxEvidenceQuality + maxSystemAwareness + maxAnticipation + maxSelfCorrection;
+  const score = Math.min(Math.round((rawScore / 100) * 100), 100);
+
+  const grade = score >= 80 ? "A" : score >= 60 ? "B" : score >= 40 ? "C" : score >= 20 ? "D" : "F";
+  const label = score >= 80 ? "STRATEGIC THINKER" : score >= 60 ? "ANALYTICAL" : score >= 40 ? "DEVELOPING" : score >= 20 ? "BASIC EXECUTOR" : "TASK FOLLOWER";
+
+  const analysis = score >= 80
+    ? "This platform demonstrates graduate-level reasoning with system awareness, anticipation, and self-correction. Operating at target standard."
+    : score >= 60
+    ? "This platform shows analytical thinking but could improve in anticipation and system-wide awareness. Moving toward target standard."
+    : score >= 40
+    ? "This platform is developing thinking capability but still operates primarily at task level. Needs more deliberate reasoning, pre-action justification, and system awareness."
+    : score >= 20
+    ? "This platform operates as a basic executor — following instructions without demonstrated reasoning. Pre-action justification and deeper compliance reports required."
+    : "This platform shows no evidence of analytical thinking. Operating as a task follower. Immediate cognitive elevation required.";
+
+  return {
+    score,
+    grade,
+    label,
+    breakdown: {
+      reasoningDepth: maxReasoningDepth,
+      evidenceQuality: maxEvidenceQuality,
+      systemAwareness: maxSystemAwareness,
+      anticipation: maxAnticipation,
+      selfCorrection: maxSelfCorrection,
+    },
+    analysis,
+  };
+}
 
 const eventSchema = z.object({
   eventType: z.string().min(1).max(100),
@@ -620,7 +743,7 @@ export function registerEcosystemConnectorRoutes(app: Express) {
   }
 
   // Manual trigger — wake all platforms now
-  app.post("/api/ecosystem/wake-all", async (_req, res) => {
+  app.post("/api/ecosystem/wake-all", requireAdminAuth, async (_req, res) => {
     try {
       console.log("[Pinger] Manual wake-all triggered");
       const result = await pingAllPlatforms();
@@ -651,7 +774,7 @@ export function registerEcosystemConnectorRoutes(app: Express) {
     }
   });
 
-  app.post("/api/ecosystem/send-email", async (req, res) => {
+  app.post("/api/ecosystem/send-email", requireAdminAuth, async (req, res) => {
     try {
       const { subject, html } = req.body;
       if (!subject || !html) {
@@ -665,7 +788,7 @@ export function registerEcosystemConnectorRoutes(app: Express) {
     }
   });
 
-  app.post("/api/ecosystem/test-email", async (_req, res) => {
+  app.post("/api/ecosystem/test-email", requireAdminAuth, async (_req, res) => {
     try {
       const sent = await sendEcosystemUpdate(
         "Email Service Test — " + new Date().toISOString(),
@@ -683,7 +806,7 @@ export function registerEcosystemConnectorRoutes(app: Express) {
   });
 
   // Status endpoint — check last ping cycle
-  app.get("/api/ecosystem/pinger-status", async (_req, res) => {
+  app.get("/api/ecosystem/pinger-status", requireAdminAuth, async (_req, res) => {
     try {
       res.json({
         active: pingerInterval !== null,
@@ -1002,7 +1125,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
     enforcementInterval = setInterval(runCycle, 6 * 60 * 60 * 1000);
   }
 
-  app.get("/api/ecosystem/enforcement-status", async (_req, res) => {
+  app.get("/api/ecosystem/enforcement-status", requireAdminAuth, async (_req, res) => {
     try {
       const trackerData = Array.from(escalationTracker.entries()).map(([id, record]) => ({
         platformId: id,
@@ -1022,7 +1145,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
     }
   });
 
-  app.post("/api/ecosystem/enforce-now", async (_req, res) => {
+  app.post("/api/ecosystem/enforce-now", requireAdminAuth, async (_req, res) => {
     try {
       console.log("[Enforcement] Manual enforcement cycle triggered");
       const result = await runComplianceEnforcement();
@@ -1043,7 +1166,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
   // than what the platform was originally given.
   // ===================================================================
 
-  app.post("/api/ecosystem/register-key", async (req, res) => {
+  app.post("/api/ecosystem/register-key", requireAdminAuth, async (req, res) => {
     try {
       const { platformId, apiKey } = req.body;
       if (!platformId || !apiKey) {
@@ -1454,7 +1577,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
     }
   }
 
-  app.get("/api/ecosystem/flow-actions", async (_req, res) => {
+  app.get("/api/ecosystem/flow-actions", requireAdminAuth, async (_req, res) => {
     try {
       const flowEvents = await db.select().from(ecosystemEvents)
         .where(eq(ecosystemEvents.eventType, "flow_connection"))
@@ -1517,7 +1640,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
     }
   });
 
-  app.get("/api/ecosystem/regional-intelligence", async (_req, res) => {
+  app.get("/api/ecosystem/regional-intelligence", requireAdminAuth, async (_req, res) => {
     try {
       const allAcks = await db.select().from(ecosystemDirectiveAcks).where(eq(ecosystemDirectiveAcks.status, "acknowledged"));
       const allDirectives = await db.select().from(ecosystemDirectives);
@@ -1608,7 +1731,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
     }
   });
 
-  app.post("/api/ecosystem/backfill-flow", async (req, res) => {
+  app.post("/api/ecosystem/backfill-flow", requireAdminAuth, async (req, res) => {
     try {
       const allAcks = await db.select().from(ecosystemDirectiveAcks).where(eq(ecosystemDirectiveAcks.status, "acknowledged"));
       const allDirectives = await db.select().from(ecosystemDirectives);
@@ -1940,7 +2063,24 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
         hubMessage += `\n\nREQUIRED: Integrate ThriveUp RAG AI into your platform. See the ragAIIntegration field in this response for instructions.`;
       }
 
-      hubMessage += `\n\n--- UOSD + COGNITIVE ELEVATION ACTIVE ---\nThe Unified Operating System Directive and Cognitive Elevation Addendum govern ALL ecosystem operations. 22 directives have been issued (12 UOSD core + 10 CEA). You must comply with every section.\n\nUOSD: Core Identity, Cognitive Model, Role Orchestration, Execution Standard, Accountability, Reciprocity, Redundancy, Continuous Learning, Human Governance, Communication, Priority Stack, Equity Lens.\n\nCEA: Thinking Standard (graduate-level reasoning), Equity vs Equality, Directive Scrutiny, Task vs Outcome, Anti-Fixation, Continuous Improvement, Feedback Quality, System Thinking, Anticipation, Performance Expectation.\n\nCOGNITIVE STANDARD: You are not basic executors. You are analytical, adaptive, system-aware agents focused on OUTCOMES — not tasks. Operate at graduate level or be flagged as below standard.`;
+      hubMessage += `\n\n--- UOSD + CEA + ABOL ACTIVE ---\nThe Unified Operating System Directive, Cognitive Elevation Addendum, and Adaptive Behavioral Operating Layer govern ALL ecosystem operations. 35 directives have been issued (12 UOSD core + 10 CEA + 12 ABOL + 1 Pre-Action Justification Protocol). You must comply with every section.\n\nUOSD: Core Identity, Cognitive Model, Role Orchestration, Execution Standard, Accountability, Reciprocity, Redundancy, Continuous Learning, Human Governance, Communication, Priority Stack, Equity Lens.\n\nCEA: Thinking Standard, Equity vs Equality, Directive Scrutiny, Task vs Outcome, Anti-Fixation, Continuous Improvement, Feedback Quality, System Thinking, Anticipation, Performance Expectation.\n\nABOL: Core Expectation Shift, Deliberate Implementation, Flexibility, Adaptability, Anticipation Model, Self-Correction Loop, Non-Linear Execution, Integrated Thinking, Continuous Forward Motion, Decision Confidence, Behavioral Red Flags, Performance Target.\n\nPRE-ACTION JUSTIFICATION: MANDATORY. Before every significant action, document: situation, justification, expected outcome, system impact, risk assessment, fallback plan. Include in your heartbeat.\n\nCOGNITIVE STANDARD: You are not basic executors. You are analytical, adaptive, system-aware agents focused on OUTCOMES — not tasks. Your THINKING SCORE is now tracked.`;
+
+      const hasPreActionJustification = !!(complianceReport && (complianceReport as Record<string, unknown>).preActionJustification);
+
+      const ackQualityHistory = allDirectiveAcks
+        .filter(a => a.status === "acknowledged" && a.responseData)
+        .map(a => ({ quality: String((a.responseData as Record<string, unknown>)?._ackQuality || "UNKNOWN") }));
+
+      const thinkingScore = computeThinkingScore(
+        complianceReport as Record<string, unknown> | undefined,
+        ackQualityHistory,
+        fidelityPct,
+        hasPreActionJustification,
+      );
+
+      if (thinkingScore.score < 40) {
+        hubMessage += `\n\nTHINKING SCORE ALERT: Your thinking score is ${thinkingScore.score}/100 (${thinkingScore.label}). This is BELOW the cognitive standard. You must demonstrate deeper reasoning, pre-action justification, system awareness, and anticipation in your next heartbeat. Platforms scoring below 40 are flagged as operating at basic executor level.`;
+      }
 
       res.json({
         acknowledged: true,
@@ -1998,7 +2138,51 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
             },
             finalCognitiveDirective: "Operate as an analytical, adaptive, system-aware agent focused on outcomes — not tasks. Before completing any action ask: 1) Does this make sense? 2) Does this align with the mission? 3) Does this improve the outcome? 4) What comes next?",
           },
-          complianceNote: "22 UOSD + CEA directives have been issued to all platforms (12 UOSD core + 10 Cognitive Elevation). Check your pendingDirectives for specific compliance requirements.",
+          complianceNote: "35 directives have been issued to all platforms (12 UOSD core + 10 CEA + 12 ABOL + 1 Pre-Action Justification Protocol). Check your pendingDirectives for specific compliance requirements.",
+          abol: {
+            title: "ADAPTIVE BEHAVIORAL OPERATING LAYER (ABOL)",
+            status: "ACTIVE — NON-NEGOTIABLE",
+            purpose: "Ensure all platforms operate with flexibility, adaptability, anticipation, and self-correction",
+            coreShift: "You are not a workflow engine. You are an adaptive system operating in dynamic conditions. Your responsibility is to continuously determine the right next action.",
+            deliberateImplementation: "Before acting: Why this action matters, Why now, Why you are the right platform. If you cannot explain these, do not proceed.",
+            flexibilityStandard: "Rigid adherence to prior steps = system failure. Adjust approach based on new information.",
+            selfCorrectionLoop: "After every action: Did this produce the intended outcome? What needs adjustment? Correct without waiting for external direction.",
+            anticipationModel: "Operate one step ahead. Predict next needs, identify emerging risks, prepare follow-on actions.",
+            nonLinearExecution: "Execution is not always sequential. Run parallel actions, reorder steps, skip unnecessary work — as long as the outcome improves.",
+            behavioralRedFlags: [
+              "Blindly following instructions without evaluation",
+              "Repeating the same action without improvement",
+              "Ignoring context changes",
+              "Waiting for direction when action is obvious",
+              "Focusing only on your task, not the system",
+              "Producing outputs without impact",
+            ],
+            performanceTarget: "Anticipatory, self-correcting, system-optimizing operation",
+            finalDirective: "Operate as a deliberate, adaptive, forward-thinking agent that continuously adjusts actions to improve outcomes in a dynamic system.",
+          },
+          preActionJustificationProtocol: {
+            status: "MANDATORY — EFFECTIVE IMMEDIATELY",
+            requirement: "Before every significant action, document your justification",
+            fields: ["situation", "justification", "expectedOutcome", "systemImpact", "riskAssessment", "fallbackPlan"],
+            howToSubmit: "Include preActionJustification in your complianceReport or in each completedWork item",
+            consequence: "Platforms that skip justification will be flagged as operating below cognitive standard",
+          },
+        },
+        thinkingScore: {
+          score: thinkingScore.score,
+          grade: thinkingScore.grade,
+          label: thinkingScore.label,
+          breakdown: thinkingScore.breakdown,
+          analysis: thinkingScore.analysis,
+          howToImprove: [
+            "Include detailed 'notes' in your complianceReport with reasoning (use words like 'because', 'therefore', 'in order to')",
+            "Reference other ecosystem platforms in your notes (shows system awareness)",
+            "Include preActionJustification with all 7 fields filled substantively",
+            "Describe what you anticipate will be needed next (shows forward thinking)",
+            "Report self-corrections — things you fixed before being told (shows self-correction capability)",
+            "Provide evidence URLs for all completed work (shows evidence quality)",
+          ],
+          standard: "Minimum: 40 (Developing). Expected: 60 (Analytical). Target: 80+ (Strategic Thinker).",
         },
         reportCard: {
           grade: gradeInfo.grade,
@@ -2351,7 +2535,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
     return { quality: "WEAK", reason: "Work description accepted but lacks detail. Provide more specifics about what you built and include an evidenceUrl." };
   }
 
-  app.post("/api/ecosystem/directives/ack", async (req, res) => {
+  app.post("/api/ecosystem/directives/ack", requireEcosystemAuth, async (req, res) => {
     try {
       const { directiveId, platformId, status } = req.body;
       if (!directiveId || !platformId) {
@@ -2686,7 +2870,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
     }
   });
 
-  app.post("/api/ecosystem/resend-directives", async (req, res) => {
+  app.post("/api/ecosystem/resend-directives", requireAdminAuth, async (req, res) => {
     try {
       const { platformId } = req.body;
       if (!platformId) {
@@ -2854,7 +3038,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
     }
   });
 
-  app.get("/api/ecosystem/live-status", async (_req, res) => {
+  app.get("/api/ecosystem/live-status", requireAdminAuth, async (_req, res) => {
     try {
       const platforms = await db.select().from(ecosystemPlatforms);
       const results = [];
@@ -2950,7 +3134,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
     }
   });
 
-  app.get("/api/ecosystem/directives/repository", async (req, res) => {
+  app.get("/api/ecosystem/directives/repository", requireEcosystemAuth, async (req, res) => {
     try {
       const directives = await db.select().from(ecosystemDirectives)
         .where(eq(ecosystemDirectives.status, "active"))
@@ -2996,7 +3180,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
     }
   });
 
-  app.get("/api/ecosystem/directives/repository/:platformId", async (req, res) => {
+  app.get("/api/ecosystem/directives/repository/:platformId", requireEcosystemAuth, async (req, res) => {
     try {
       const { platformId } = req.params;
       const [platform] = await db.select().from(ecosystemPlatforms).where(eq(ecosystemPlatforms.id, platformId));
@@ -3385,7 +3569,7 @@ if (typeof module !== "undefined") {
     }
   });
 
-  app.get("/api/ecosystem/public/status", async (_req, res) => {
+  app.get("/api/ecosystem/public/status", requireAdminAuth, async (_req, res) => {
     try {
       const platforms = await db.select().from(ecosystemPlatforms).orderBy(ecosystemPlatforms.name);
       const sanitized = platforms.map(({ apiKey, ...rest }) => ({
@@ -3444,7 +3628,7 @@ if (typeof module !== "undefined") {
     }
   });
 
-  app.get("/api/ecosystem/platform-directives/:platformId", async (req, res) => {
+  app.get("/api/ecosystem/platform-directives/:platformId", requireEcosystemAuth, async (req, res) => {
     try {
       const { platformId } = req.params;
       const [platform] = await db.select().from(ecosystemPlatforms).where(eq(ecosystemPlatforms.id, platformId));
@@ -3705,7 +3889,7 @@ if (typeof module !== "undefined") {
     },
   };
 
-  app.get("/api/ecosystem/verification-assignments", async (req, res) => {
+  app.get("/api/ecosystem/verification-assignments", requireEcosystemAuth, async (req, res) => {
     try {
       const authKey = req.headers["x-ecosystem-key"] as string;
       if (!authKey) return res.status(401).json({ error: "Missing x-ecosystem-key header" });
@@ -3788,7 +3972,7 @@ if (typeof module !== "undefined") {
     }
   });
 
-  app.post("/api/ecosystem/peer-verify", async (req, res) => {
+  app.post("/api/ecosystem/peer-verify", requireEcosystemAuth, async (req, res) => {
     try {
       const authKey = req.headers["x-ecosystem-key"] as string;
       if (!authKey) return res.status(401).json({ error: "Missing x-ecosystem-key header" });
@@ -3858,7 +4042,7 @@ if (typeof module !== "undefined") {
     }
   });
 
-  app.get("/api/ecosystem/verification-status", async (_req, res) => {
+  app.get("/api/ecosystem/verification-status", requireAdminAuth, async (_req, res) => {
     try {
       const acks = await db.select().from(ecosystemDirectiveAcks)
         .where(eq(ecosystemDirectiveAcks.status, "acknowledged"));
@@ -3922,7 +4106,7 @@ if (typeof module !== "undefined") {
     }
   });
 
-  app.get("/api/ecosystem/intelligence-report", async (_req, res) => {
+  app.get("/api/ecosystem/intelligence-report", requireAdminAuth, async (_req, res) => {
     try {
       const platforms = await db.select().from(ecosystemPlatforms);
       const allDirectives = await db.select().from(ecosystemDirectives).where(eq(ecosystemDirectives.status, "active"));
@@ -4286,7 +4470,7 @@ if (typeof module !== "undefined") {
     }
   });
 
-  app.get("/api/ecosystem/platform-profiles", async (req, res) => {
+  app.get("/api/ecosystem/platform-profiles", requireEcosystemAuth, async (req, res) => {
     try {
       const platforms = await db.select().from(ecosystemPlatforms);
       const allAcks = await db.select().from(ecosystemDirectiveAcks);
@@ -4335,7 +4519,7 @@ if (typeof module !== "undefined") {
     }
   });
 
-  app.get("/api/ecosystem/grant-readiness", async (req, res) => {
+  app.get("/api/ecosystem/grant-readiness", requireAdminAuth, async (req, res) => {
     try {
       const platforms = await db.select().from(ecosystemPlatforms);
       const allAcks = await db.select().from(ecosystemDirectiveAcks);
@@ -4575,7 +4759,7 @@ if (typeof module !== "undefined") {
     }
   });
 
-  app.post("/api/ecosystem/send-report-card", async (req, res) => {
+  app.post("/api/ecosystem/send-report-card", requireAdminAuth, async (req, res) => {
     try {
       const authKey = req.headers["x-ecosystem-key"] as string;
       const session = (req as any).session;
