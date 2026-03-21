@@ -3856,20 +3856,115 @@ if (typeof module !== "undefined") {
     }
   });
 
-  app.get("/api/ecosystem/grant-readiness", async (_req, res) => {
+  app.get("/api/ecosystem/grant-readiness", async (req, res) => {
     try {
       const platforms = await db.select().from(ecosystemPlatforms);
       const allAcks = await db.select().from(ecosystemDirectiveAcks);
       const HEARTBEAT_FRESHNESS_MS = 30 * 60 * 1000;
+      const filterPlatformId = req.query.platformId as string | undefined;
 
-      const GRANT_MAP: Record<string, { name: string; amount: string; deadline: string }> = {
-        "wioa": { name: "WIOA Title I Youth", amount: "$200K-$500K", deadline: "Rolling" },
-        "foundation": { name: "Foundation Grant", amount: "$100K-$500K", deadline: "Rolling LOI" },
-        "st-davids": { name: "St. David's Foundation", amount: "Up to $1M", deadline: "March 30, 2026" },
-        "ssg-fox": { name: "SSG Fox VA Suicide Prevention", amount: "Up to $750K", deadline: "June 12-18, 2026" },
+      const ACTIVE_GRANTS: Record<string, { name: string; amount: string; deadline: string; type: string }> = {
+        "wioa": { name: "WIOA Title I Youth", amount: "$200K-$500K", deadline: "Rolling", type: "active-internal" },
+        "foundation": { name: "Foundation Grant", amount: "$100K-$500K", deadline: "Rolling LOI", type: "active-internal" },
+        "st-davids": { name: "St. David's Foundation", amount: "Up to $1M", deadline: "March 30, 2026", type: "active-internal" },
+        "ssg-fox": { name: "SSG Fox VA Suicide Prevention", amount: "Up to $750K", deadline: "June 12-18, 2026", type: "active-internal" },
       };
 
-      const grantReadiness = Object.entries(GRANT_MAP).map(([grantId, grant]) => {
+      const EXTERNAL_GRANTS: Record<string, { category: string; fundingRange: string; type: string; sources: string[]; platformCapabilities: string[]; soloEligible: string[]; description: string }> = {
+        "federal-health-disparities": {
+          category: "Health Disparities & Equity", fundingRange: "$100K-$5M", type: "external-federal",
+          description: "NIH NIMHD, HRSA, CDC grants targeting health disparities in underserved populations",
+          sources: ["NIH NIMHD", "HRSA", "CDC Office of Minority Health", "AHRQ"],
+          platformCapabilities: ["whole-person-health", "sankofa", "sankofa-maternal-health", "sankofa-feminine-health", "sankofa-mens-health", "autoimmune-thrive", "safecognicare", "speech-bridge"],
+          soloEligible: ["whole-person-health", "sankofa", "autoimmune-thrive", "speech-bridge"],
+        },
+        "federal-veteran-services": {
+          category: "Veteran Services & Suicide Prevention", fundingRange: "$250K-$3M", type: "external-federal",
+          description: "VA, DOD, SAMHSA grants for veteran transition, mental health, suicide prevention",
+          sources: ["VA Office of Mental Health", "DOD CDMRP", "SAMHSA", "Bob Woodruff Foundation", "Gary Sinise Foundation"],
+          platformCapabilities: ["m2c", "collaborative-advocate", "whole-person-health", "lifebridge", "shield-atlas", "speech-bridge"],
+          soloEligible: ["m2c", "collaborative-advocate", "lifebridge"],
+        },
+        "federal-workforce-development": {
+          category: "Workforce Development & Job Training", fundingRange: "$200K-$10M", type: "external-federal",
+          description: "DOL ETA, WIOA formula and competitive grants, apprenticeship programs",
+          sources: ["DOL Employment & Training", "WIOA Competitive", "Apprenticeship USA", "State Workforce Boards"],
+          platformCapabilities: ["pinnacle-business-conglomerate", "mce", "collaborative-advocate", "m2c", "lifebridge", "isss"],
+          soloEligible: ["pinnacle-business-conglomerate", "mce", "collaborative-advocate", "m2c"],
+        },
+        "federal-education-youth": {
+          category: "Education & Youth Development", fundingRange: "$100K-$3M", type: "external-federal",
+          description: "ED, NSF, 21st Century Community Learning Centers, ESSA Title IV",
+          sources: ["Dept of Education", "NSF Education", "21st CCLC", "Title IV-A"],
+          platformCapabilities: ["isss", "wholemind", "perfectly-different", "betterscience"],
+          soloEligible: ["isss", "wholemind", "perfectly-different"],
+        },
+        "federal-accessibility-communication": {
+          category: "Accessibility & Communication Technology", fundingRange: "$100K-$2M", type: "external-federal",
+          description: "NSF accessibility research, HHS language access, FCC accessibility, NIDILRR disability tech",
+          sources: ["NSF CISE", "HHS Office of Civil Rights", "FCC", "NIDILRR"],
+          platformCapabilities: ["speech-bridge", "perfectly-different", "safecognicare", "wholemind"],
+          soloEligible: ["speech-bridge", "perfectly-different"],
+        },
+        "federal-substance-abuse-mental-health": {
+          category: "Substance Abuse & Mental Health", fundingRange: "$500K-$8M", type: "external-federal",
+          description: "SAMHSA block grants, CCBHC, mental health awareness programs",
+          sources: ["SAMHSA", "CCBHC", "State Mental Health Authorities"],
+          platformCapabilities: ["whole-person-health", "lifebridge", "sankofa", "safecognicare"],
+          soloEligible: ["whole-person-health", "lifebridge"],
+        },
+        "federal-maternal-child-health": {
+          category: "Maternal & Child Health", fundingRange: "$250K-$5M", type: "external-federal",
+          description: "HRSA MCH, Healthy Start, Maternal Mortality Review",
+          sources: ["HRSA Maternal & Child Health Bureau", "Healthy Start", "CDC ERASE MM"],
+          platformCapabilities: ["sankofa-maternal-health", "sankofa-feminine-health", "whole-person-health", "speech-bridge"],
+          soloEligible: ["sankofa-maternal-health", "sankofa-feminine-health"],
+        },
+        "foundation-community-health": {
+          category: "Foundation — Community Health Innovation", fundingRange: "$50K-$2M", type: "external-foundation",
+          description: "Robert Wood Johnson, Kresge, BCBS foundations for community health",
+          sources: ["RWJF", "Kresge Foundation", "BCBS Foundation", "W.K. Kellogg", "CommonWealth Fund"],
+          platformCapabilities: ["whole-person-health", "sankofa", "autoimmune-thrive", "pillscheduler", "lifebridge", "speech-bridge"],
+          soloEligible: ["whole-person-health", "sankofa", "lifebridge"],
+        },
+        "foundation-racial-equity": {
+          category: "Foundation — Racial Equity & Justice", fundingRange: "$50K-$1M", type: "external-foundation",
+          description: "Ford Foundation, Kapor Center, Emerson Collective, Surdna Foundation",
+          sources: ["Ford Foundation", "Kapor Center", "Emerson Collective", "Surdna", "Marguerite Casey Foundation"],
+          platformCapabilities: ["sankofa", "sankofa-maternal-health", "sankofa-mens-health", "mce", "collaborative-advocate", "speech-bridge"],
+          soloEligible: ["sankofa", "mce", "collaborative-advocate"],
+        },
+        "foundation-technology-social-good": {
+          category: "Foundation — Technology for Social Good", fundingRange: "$100K-$5M", type: "external-foundation",
+          description: "Schmidt Futures, MacArthur, Gates Foundation technology for impact",
+          sources: ["Schmidt Futures", "MacArthur Foundation", "Gates Foundation", "Google.org", "Microsoft Philanthropies"],
+          platformCapabilities: ["betterscience", "safereport", "shield-atlas", "ecosystem-nexus", "video-creator-ai", "ad-targeting", "speech-bridge"],
+          soloEligible: ["betterscience", "speech-bridge", "ecosystem-nexus"],
+        },
+        "federal-small-business-minority": {
+          category: "Small Business & Minority Enterprise", fundingRange: "$50K-$2M", type: "external-federal",
+          description: "SBA, MBDA, 8(a) programs, HUBZone, VOSB certification support",
+          sources: ["SBA", "MBDA", "PTAC", "State MWBE Programs"],
+          platformCapabilities: ["mce", "pinnacle-business-conglomerate", "collaborative-advocate"],
+          soloEligible: ["mce", "pinnacle-business-conglomerate", "collaborative-advocate"],
+        },
+        "federal-housing-community-dev": {
+          category: "Housing & Community Development", fundingRange: "$200K-$5M", type: "external-federal",
+          description: "HUD CDBG, HOME, supportive housing, homelessness prevention",
+          sources: ["HUD", "CDBG", "HOME Program", "CoC Program"],
+          platformCapabilities: ["lifebridge", "whole-person-health", "shield-atlas", "speech-bridge"],
+          soloEligible: ["lifebridge"],
+        },
+        "federal-aging-disability": {
+          category: "Aging & Disability Services", fundingRange: "$100K-$3M", type: "external-federal",
+          description: "ACL, AoA, NIDILRR grants for aging populations and disability support",
+          sources: ["Administration for Community Living", "AoA", "NIDILRR", "Alzheimer's Association"],
+          platformCapabilities: ["safecognicare", "pillscheduler", "autoimmune-thrive", "speech-bridge", "whole-person-health"],
+          soloEligible: ["safecognicare", "pillscheduler", "autoimmune-thrive"],
+        },
+      };
+
+      const activeGrantReadiness = Object.entries(ACTIVE_GRANTS).map(([grantId, grant]) => {
         const alignedPlatforms = platforms.filter(p => ((p.grantAlignment as string[]) || []).includes(grantId));
         const connected = alignedPlatforms.filter(p => p.lastHeartbeat && (Date.now() - new Date(p.lastHeartbeat).getTime()) < HEARTBEAT_FRESHNESS_MS).length;
         const pAcks = allAcks.filter(a => alignedPlatforms.some(p => p.id === a.platformId));
@@ -3878,8 +3973,116 @@ if (typeof module !== "undefined") {
         const avgFidelity = pAcks.length > 0 ? Math.round((totalWork / pAcks.length) * 100) : 0;
         return { grantId, ...grant, platforms: { total: alignedPlatforms.length, connected, disconnected: alignedPlatforms.length - connected }, compliance: { avgFidelity, totalWorkCompleted: totalWork, totalOverdue, evidenceVerified: 0 }, readinessScore: alignedPlatforms.length > 0 ? Math.round(((connected / alignedPlatforms.length) * 40) + (avgFidelity * 0.4) + 0) : 0 };
       });
-      res.json({ generatedAt: new Date().toISOString(), grantReadiness });
+
+      const externalGrantReadiness = Object.entries(EXTERNAL_GRANTS).map(([categoryId, grant]) => {
+        const capablePlatforms = platforms.filter(p => grant.platformCapabilities.includes(p.id));
+        const connected = capablePlatforms.filter(p => p.lastHeartbeat && (Date.now() - new Date(p.lastHeartbeat).getTime()) < HEARTBEAT_FRESHNESS_MS).length;
+        const capAcks = allAcks.filter(a => capablePlatforms.some(p => p.id === a.platformId));
+        const acked = capAcks.filter(a => a.status === "acknowledged").length;
+        const avgFidelity = capAcks.length > 0 ? Math.round((acked / capAcks.length) * 100) : 0;
+
+        return {
+          categoryId,
+          category: grant.category,
+          type: grant.type,
+          fundingRange: grant.fundingRange,
+          description: grant.description,
+          sources: grant.sources,
+          ecosystemStrength: {
+            totalCapablePlatforms: capablePlatforms.length,
+            connectedPlatforms: connected,
+            avgFidelity,
+            platformDetails: capablePlatforms.map(p => {
+              const pAcks = allAcks.filter(a => a.platformId === p.id);
+              const pAcked = pAcks.filter(a => a.status === "acknowledged").length;
+              const fidelity = pAcks.length > 0 ? Math.round((pAcked / pAcks.length) * 100) : 0;
+              const canSolo = grant.soloEligible.includes(p.id);
+              return {
+                id: p.id,
+                name: p.name,
+                connected: !!(p.lastHeartbeat && (Date.now() - new Date(p.lastHeartbeat).getTime()) < HEARTBEAT_FRESHNESS_MS),
+                fidelity,
+                canPursueSolo: canSolo,
+                role: canSolo ? "Lead applicant — can pursue independently" : "Supporting partner — strengthens applications",
+              };
+            }),
+          },
+          soloApplicants: grant.soloEligible.map(pid => {
+            const p = platforms.find(pl => pl.id === pid);
+            return p ? p.name : pid;
+          }),
+          partnerPlatforms: grant.platformCapabilities.filter(pid => !grant.soloEligible.includes(pid)).map(pid => {
+            const p = platforms.find(pl => pl.id === pid);
+            return p ? p.name : pid;
+          }),
+        };
+      });
+
+      if (filterPlatformId) {
+        const platform = platforms.find(p => p.id === filterPlatformId);
+        if (!platform) return res.status(404).json({ error: `Platform ${filterPlatformId} not found` });
+
+        const pAcks = allAcks.filter(a => a.platformId === filterPlatformId);
+        const pAcked = pAcks.filter(a => a.status === "acknowledged").length;
+        const platformFidelity = pAcks.length > 0 ? Math.round((pAcked / pAcks.length) * 100) : 0;
+
+        const soloGrants = externalGrantReadiness.filter(g => g.soloApplicants.some(name => {
+          const p = platforms.find(pl => pl.name === name);
+          return p && p.id === filterPlatformId;
+        }));
+
+        const partnerGrants = externalGrantReadiness.filter(g => {
+          const isCapable = g.ecosystemStrength.platformDetails.some(pd => pd.id === filterPlatformId);
+          const isSolo = g.soloApplicants.some(name => {
+            const p = platforms.find(pl => pl.name === name);
+            return p && p.id === filterPlatformId;
+          });
+          return isCapable && !isSolo;
+        });
+
+        const internalGrants = activeGrantReadiness.filter(g => {
+          return ((platform.grantAlignment as string[]) || []).includes(g.grantId);
+        });
+
+        return res.json({
+          generatedAt: new Date().toISOString(),
+          platform: {
+            id: platform.id,
+            name: platform.name,
+            fidelity: platformFidelity,
+            directivesAcked: pAcked,
+            totalDirectives: pAcks.length,
+            connected: !!(platform.lastHeartbeat && (Date.now() - new Date(platform.lastHeartbeat).getTime()) < HEARTBEAT_FRESHNESS_MS),
+          },
+          grantLandscape: {
+            message: `${platform.name} has access to ${internalGrants.length} active internal grants, ${soloGrants.length} external categories where it can lead independently, and ${partnerGrants.length} categories where it strengthens partner applications. Macro to micro: pursue autonomously, leverage ecosystem as evidence.`,
+            activeInternalGrants: internalGrants,
+            soloExternalOpportunities: soloGrants.map(g => ({
+              ...g,
+              pursuitStrategy: `${platform.name} can independently apply for ${g.category} funding (${g.fundingRange}). Sources: ${g.sources.join(", ")}. The application is strengthened by demonstrating connection to ${g.ecosystemStrength.totalCapablePlatforms - 1} partner platforms in the ACOS ecosystem.`,
+            })),
+            partnerOpportunities: partnerGrants.map(g => ({
+              ...g,
+              partnerStrategy: `${platform.name} provides supporting capability for ${g.category} grants. Lead applicants (${g.soloApplicants.join(", ")}) can include ${platform.name} as ecosystem infrastructure evidence.`,
+            })),
+            totalFundingAccess: {
+              internal: internalGrants.map(g => g.amount).join(", "),
+              soloExternal: soloGrants.map(g => g.fundingRange).join(", "),
+              partnerExternal: partnerGrants.map(g => g.fundingRange).join(", "),
+            },
+          },
+        });
+      }
+
+      res.json({
+        generatedAt: new Date().toISOString(),
+        message: "Full grant readiness — 4 active internal grants + 13 external macro categories. Add ?platformId=speech-bridge to see a specific platform's full grant landscape (solo + partner opportunities).",
+        activeInternalGrants: activeGrantReadiness,
+        externalGrantCategories: externalGrantReadiness,
+        interdependenceModel: "Every platform operates autonomously in pursuing grants. The ecosystem provides alignment through MAP-GAP communication and metrics, not restriction. Solo-eligible platforms can lead applications independently; partner platforms strengthen every application they're connected to.",
+      });
     } catch (error) {
+      console.error("Grant readiness error:", error);
       res.status(500).json({ error: "Failed to fetch grant readiness" });
     }
   });
