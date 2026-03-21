@@ -53,3 +53,4 @@ Core architectural features and design decisions include:
 - **Cross-Platform Integration:** Student Support Portal (ISSS).
 - **Ecosystem AI Chatbot:** RAG-powered intelligent assistant.
 - **Ecosystem Operations Center:** Real-time health monitoring and management for the ecosystem.
+- **Pricing & Services Page:** 3-tier contract/grant services at `/pricing` — Try It ($200 one-time), Group/Entity ($15/member/mo, min 50), Professional ($600/mo). All include 2 consultations, contract writing, grant support, SAM.gov help, 5% success fee. Custom consultation form included. Payment handled directly (credit card, PayPal, Cash App) — NO Stripe integration. Orders saved to `service_orders` table, consultations to `consultation_requests` table.
