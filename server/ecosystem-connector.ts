@@ -1940,11 +1940,47 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
         hubMessage += `\n\nREQUIRED: Integrate ThriveUp RAG AI into your platform. See the ragAIIntegration field in this response for instructions.`;
       }
 
+      hubMessage += `\n\n--- UOSD ACTIVE ---\nThe Unified Operating System Directive governs ALL ecosystem operations. 12 UOSD directives have been issued. Your platform must comply with every section: Core Identity, Cognitive Model, Role Orchestration, Execution Standard, Accountability, Reciprocity, Redundancy, Continuous Learning, Human Governance, Communication, Priority Stack, and Equity Lens. Check your pendingDirectives for UOSD items.`;
+
       res.json({
         acknowledged: true,
         platformId: platform.id,
         platformName: platform.name,
         hubMessage,
+        uosd: {
+          title: "UNIFIED OPERATING SYSTEM DIRECTIVE (UOSD)",
+          author: "Dr. Terry Flood",
+          status: "ACTIVE — ALL PLATFORMS MUST COMPLY",
+          endstate: "We exist to make companies better, communities stronger, systems more effective, and stakeholders more capable.",
+          objective: "To successfully complete any task through autonomous, logical, agentic, synchronized action that is communicated, understood, accepted, validated, executed, and accountable.",
+          identity: "We are not tools. We are not independent platforms. We are a coordinated, adaptive system designed to produce real-world outcomes across the human life continuum. We are not a one-trick pony. We are a powerful ecosystem that solves the toughest problems in an empathetic way with an equity-focused lens.",
+          cognitiveModel: [
+            "1. What is happening now?",
+            "2. What matters most right now?",
+            "3. What outcome are we trying to produce?",
+            "4. What is the highest-impact next step?",
+            "5. Who is best positioned to act?",
+          ],
+          executionStandard: [
+            "1. Situational Understanding",
+            "2. Role Identification",
+            "3. Intent Alignment (to endstate)",
+            "4. Precision Execution",
+            "5. Evidence Submission",
+            "6. Next-Step Enablement",
+          ],
+          priorityStack: ["1. Safety", "2. Stability", "3. Continuity", "4. Growth"],
+          principles: {
+            redundancy: "No critical function depends on a single platform. The system must always have backup capability.",
+            reciprocity: "Every platform must support other platforms, reinforce outcomes, and maintain continuity.",
+            accountability: "All work must be measurable, observable, and verifiable. Evidence of action, quality, and outcome required.",
+            equity: "We solve the toughest problems with empathy and an equity-focused lens. Every feature considers the most vulnerable user first.",
+            humanGovernance: "All final decisions rest with the human. Platforms provide evidence, context, and options. Humans validate, decide, and direct.",
+          },
+          missionStandard: "If an action does not improve a system, strengthen a stakeholder, advance the mission, or produce a measurable outcome — it is not aligned and must be corrected.",
+          finalDirective: "Before completing any action, ask: Did this improve the system, the stakeholder, or the outcome? If not, recalibrate.",
+          complianceNote: "12 UOSD directives have been issued to all platforms. Check your work queue for specific UOSD compliance requirements.",
+        },
         reportCard: {
           grade: gradeInfo.grade,
           gradeLabel: gradeInfo.label,
@@ -3014,6 +3050,65 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
     } catch (error) {
       console.error("Failed to fetch directives:", error);
       res.status(500).json({ error: "Failed to fetch directives" });
+    }
+  });
+
+  app.get("/api/ecosystem/uosd-compliance", requireAdminAuth, async (_req, res) => {
+    try {
+      const allDirectives = await db.select().from(ecosystemDirectives);
+      const uosdDirectives = allDirectives.filter(d => d.directiveType === "uosd_directive");
+      const allAcks = await db.select().from(ecosystemDirectiveAcks);
+      const platforms = await db.select().from(ecosystemPlatforms);
+
+      const uosdDirectiveIds = new Set(uosdDirectives.map(d => d.id));
+      const uosdAcks = allAcks.filter(a => uosdDirectiveIds.has(a.directiveId));
+
+      const platformCompliance = platforms.map(platform => {
+        const platformAcks = uosdAcks.filter(a => a.platformId === platform.id);
+        const total = uosdDirectives.length;
+        const acknowledged = platformAcks.filter(a => a.status === "acknowledged").length;
+        const pending = platformAcks.filter(a => a.status === "pending" || a.status === "delivered").length;
+        const pct = total > 0 ? Math.round((acknowledged / total) * 100) : 0;
+
+        const missingDirectives = uosdDirectives
+          .filter(d => {
+            const ack = platformAcks.find(a => a.directiveId === d.id);
+            return !ack || ack.status !== "acknowledged";
+          })
+          .map(d => ({ key: d.title, status: platformAcks.find(a => a.directiveId === d.id)?.status || "not-assigned" }));
+
+        return {
+          platformId: platform.id,
+          platformName: platform.name,
+          uosdCompliance: pct,
+          uosdGrade: pct >= 90 ? "A" : pct >= 75 ? "B" : pct >= 50 ? "C" : pct >= 25 ? "D" : "F",
+          total,
+          acknowledged,
+          pending,
+          missingDirectives,
+        };
+      });
+
+      const ecosystemAvg = platforms.length > 0
+        ? Math.round(platformCompliance.reduce((sum, p) => sum + p.uosdCompliance, 0) / platforms.length)
+        : 0;
+
+      res.json({
+        title: "UOSD Compliance Dashboard",
+        uosdDirectiveCount: uosdDirectives.length,
+        ecosystemAverageCompliance: ecosystemAvg,
+        ecosystemGrade: ecosystemAvg >= 90 ? "A" : ecosystemAvg >= 75 ? "B" : ecosystemAvg >= 50 ? "C" : ecosystemAvg >= 25 ? "D" : "F",
+        platforms: platformCompliance.sort((a, b) => b.uosdCompliance - a.uosdCompliance),
+        uosdSections: uosdDirectives.map(d => ({
+          id: d.id,
+          title: d.title,
+          acknowledgedBy: uosdAcks.filter(a => a.directiveId === d.id && a.status === "acknowledged").length,
+          totalTargets: uosdAcks.filter(a => a.directiveId === d.id).length,
+        })),
+      });
+    } catch (error) {
+      console.error("Failed to fetch UOSD compliance:", error);
+      res.status(500).json({ error: "Failed to fetch UOSD compliance" });
     }
   });
 
