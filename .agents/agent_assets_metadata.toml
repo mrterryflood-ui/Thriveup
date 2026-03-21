@@ -72,3 +72,9 @@ id = "TP4_nprHxgeO00TLPVukp"
 uri = "file://PBC_MCE_BlueWave_Pipeline_Instructions.md"
 type = "text"
 title = "MCE + Pinnacle + Blue Wave — Minority Contractor Pipeline Integration"
+
+[[outputs]]
+id = "rgyC2GYuGBIhq19Tu3Pcp"
+uri = "file://ACOS_NAICS_PSC_Codes_Master_Reference.md"
+type = "text"
+title = "ACOS Ecosystem — Master NAICS & PSC Code Reference (SAM.gov)"
