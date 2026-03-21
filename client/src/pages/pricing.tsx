@@ -11,7 +11,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import {
   Check, ArrowRight, DollarSign, Users, Briefcase, Rocket,
   CreditCard, Phone, MessageCircle, Star, Shield, FileText,
-  Search, Building2, Handshake, X
+  Search, Building2, Handshake, X, Mail
 } from "lucide-react";
 import { BackToTop } from "@/components/back-to-top";
 
@@ -122,6 +122,8 @@ function TierCard({ tier, onSelect }: { tier: Tier; onSelect: (tier: Tier) => vo
 
 function OrderModal({ tier, onClose }: { tier: Tier; onClose: () => void }) {
   const { toast } = useToast();
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [orderAmount, setOrderAmount] = useState(0);
   const [formData, setFormData] = useState({
     companyName: "",
     contactName: "",
@@ -138,6 +140,7 @@ function OrderModal({ tier, onClose }: { tier: Tier; onClose: () => void }) {
       if (tier.billingType === "per-member-monthly") {
         amountCents = data.memberCount * tier.price * 100;
       }
+      setOrderAmount(amountCents / 100);
       const res = await apiRequest("POST", "/api/pricing/order", {
         tierSlug: tier.slug,
         tierName: tier.name,
@@ -154,9 +157,8 @@ function OrderModal({ tier, onClose }: { tier: Tier; onClose: () => void }) {
       return res.json();
     },
     onSuccess: () => {
-      toast({ title: "Order Submitted!", description: "We'll reach out within 24 hours to finalize your setup and payment." });
       queryClient.invalidateQueries({ queryKey: ["/api/pricing/orders"] });
-      onClose();
+      setShowConfirmation(true);
     },
     onError: (err: any) => {
       toast({ title: "Error", description: err.message || "Failed to submit order", variant: "destructive" });
@@ -182,87 +184,162 @@ function OrderModal({ tier, onClose }: { tier: Tier; onClose: () => void }) {
         <button onClick={onClose} className="absolute top-4 right-4 text-muted-foreground hover:text-foreground" data-testid="button-close-order">
           <X className="w-5 h-5" />
         </button>
-        <h2 className="text-xl font-bold mb-1" data-testid="text-modal-tier-name">{tier.name} Tier</h2>
-        <p className="text-sm text-muted-foreground mb-4">{tier.tagline}</p>
 
-        <div className="bg-muted/50 rounded-lg p-3 mb-4">
-          <p className="text-lg font-bold" data-testid="text-modal-price">${computedPrice}{tier.billingType === "one-time" ? " one-time" : "/month"}</p>
-          {tier.billingType === "per-member-monthly" && (
-            <p className="text-xs text-muted-foreground">{formData.memberCount} members × ${tier.price}/member</p>
-          )}
-          <p className="text-xs text-muted-foreground mt-1">+ 5% success fee on contract wins</p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-3">
-          <div>
-            <Label htmlFor="companyName">Company / Organization Name *</Label>
-            <Input id="companyName" value={formData.companyName} onChange={e => setFormData(d => ({ ...d, companyName: e.target.value }))} required data-testid="input-company-name" />
-          </div>
-          <div>
-            <Label htmlFor="contactName">Your Name *</Label>
-            <Input id="contactName" value={formData.contactName} onChange={e => setFormData(d => ({ ...d, contactName: e.target.value }))} required data-testid="input-contact-name" />
-          </div>
-          <div>
-            <Label htmlFor="contactEmail">Email *</Label>
-            <Input id="contactEmail" type="email" value={formData.contactEmail} onChange={e => setFormData(d => ({ ...d, contactEmail: e.target.value }))} required data-testid="input-contact-email" />
-          </div>
-          <div>
-            <Label htmlFor="contactPhone">Phone (optional)</Label>
-            <Input id="contactPhone" type="tel" value={formData.contactPhone} onChange={e => setFormData(d => ({ ...d, contactPhone: e.target.value }))} data-testid="input-contact-phone" />
-          </div>
-
-          {tier.billingType === "per-member-monthly" && (
+        {showConfirmation ? (
+          <div className="space-y-5 text-center" data-testid="section-order-confirmation">
+            <div className="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mx-auto">
+              <Check className="w-8 h-8 text-emerald-600" />
+            </div>
             <div>
-              <Label htmlFor="memberCount">Number of Members (min {tier.minimumMembers})</Label>
-              <Input
-                id="memberCount"
-                type="number"
-                min={tier.minimumMembers}
-                value={formData.memberCount}
-                onChange={e => setFormData(d => ({ ...d, memberCount: Math.max(tier.minimumMembers || 50, parseInt(e.target.value) || 50) }))}
-                data-testid="input-member-count"
-              />
+              <h2 className="text-xl font-bold" data-testid="text-confirmation-title">Order Received!</h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                {tier.name} Tier — ${orderAmount}{tier.billingType === "one-time" ? " one-time" : "/month"}
+              </p>
             </div>
-          )}
 
-          <div>
-            <Label>Preferred Payment Method</Label>
-            <div className="grid grid-cols-3 gap-2 mt-1">
-              {[
-                { value: "credit-card", label: "Credit Card", icon: CreditCard },
-                { value: "paypal", label: "PayPal", icon: DollarSign },
-                { value: "cashapp", label: "Cash App", icon: Phone },
-              ].map(pm => (
-                <button
-                  key={pm.value}
-                  type="button"
-                  onClick={() => setFormData(d => ({ ...d, paymentMethod: pm.value }))}
-                  className={`flex flex-col items-center gap-1 p-3 rounded-lg border text-xs transition-colors ${
-                    formData.paymentMethod === pm.value
-                      ? "border-primary bg-primary/10 text-primary"
-                      : "border-border text-muted-foreground hover:border-primary/50"
-                  }`}
-                  data-testid={`button-payment-${pm.value}`}
-                >
-                  <pm.icon className="w-5 h-5" />
-                  {pm.label}
-                </button>
-              ))}
+            <div className="text-left space-y-3">
+              <p className="text-sm font-semibold">Pay now using any of these methods:</p>
+
+              <a
+                href="https://cash.app/$MRTDFLOOD"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 p-3 rounded-lg border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/40 transition-colors"
+                data-testid="link-cashapp-pay"
+              >
+                <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center shrink-0">
+                  <DollarSign className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <p className="font-semibold text-sm">Cash App</p>
+                  <p className="text-xs text-muted-foreground">$MRTDFLOOD</p>
+                </div>
+                <ArrowRight className="w-4 h-4 ml-auto text-muted-foreground" />
+              </a>
+
+              <a
+                href="https://paypal.me/TERRYFLOODCEO"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 p-3 rounded-lg border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors"
+                data-testid="link-paypal-pay"
+              >
+                <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center shrink-0">
+                  <CreditCard className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <p className="font-semibold text-sm">PayPal</p>
+                  <p className="text-xs text-muted-foreground">@TERRYFLOODCEO</p>
+                </div>
+                <ArrowRight className="w-4 h-4 ml-auto text-muted-foreground" />
+              </a>
+
+              <p className="text-xs text-muted-foreground text-center">
+                PayPal also accepts credit and debit cards — no PayPal account needed.
+              </p>
             </div>
-          </div>
 
-          <div>
-            <Label htmlFor="notes">Additional Notes (optional)</Label>
-            <Textarea id="notes" value={formData.notes} onChange={e => setFormData(d => ({ ...d, notes: e.target.value }))} rows={2} data-testid="input-order-notes" />
-          </div>
+            <div className="border-t border-border pt-4">
+              <div className="flex items-center gap-2 justify-center">
+                <Mail className="w-4 h-4 text-primary" />
+                <p className="text-sm">
+                  Questions? Contact us at{" "}
+                  <a href="mailto:mr.terryflood@gmail.com" className="text-primary font-semibold hover:underline" data-testid="link-contact-email">
+                    mr.terryflood@gmail.com
+                  </a>
+                </p>
+              </div>
+            </div>
 
-          <Button type="submit" className="w-full" disabled={orderMutation.isPending} data-testid="button-submit-order">
-            {orderMutation.isPending ? "Submitting..." : "Submit Order Request"}
-          </Button>
-          <p className="text-xs text-center text-muted-foreground">
-            We'll contact you within 24 hours to finalize setup and arrange payment.
-          </p>
-        </form>
+            <Button onClick={onClose} variant="outline" className="w-full" data-testid="button-close-confirmation">
+              Done
+            </Button>
+          </div>
+        ) : (
+          <>
+            <h2 className="text-xl font-bold mb-1" data-testid="text-modal-tier-name">{tier.name} Tier</h2>
+            <p className="text-sm text-muted-foreground mb-4">{tier.tagline}</p>
+
+            <div className="bg-muted/50 rounded-lg p-3 mb-4">
+              <p className="text-lg font-bold" data-testid="text-modal-price">${computedPrice}{tier.billingType === "one-time" ? " one-time" : "/month"}</p>
+              {tier.billingType === "per-member-monthly" && (
+                <p className="text-xs text-muted-foreground">{formData.memberCount} members × ${tier.price}/member</p>
+              )}
+              <p className="text-xs text-muted-foreground mt-1">+ 5% success fee on contract wins</p>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-3">
+              <div>
+                <Label htmlFor="companyName">Company / Organization Name *</Label>
+                <Input id="companyName" value={formData.companyName} onChange={e => setFormData(d => ({ ...d, companyName: e.target.value }))} required data-testid="input-company-name" />
+              </div>
+              <div>
+                <Label htmlFor="contactName">Your Name *</Label>
+                <Input id="contactName" value={formData.contactName} onChange={e => setFormData(d => ({ ...d, contactName: e.target.value }))} required data-testid="input-contact-name" />
+              </div>
+              <div>
+                <Label htmlFor="contactEmail">Email *</Label>
+                <Input id="contactEmail" type="email" value={formData.contactEmail} onChange={e => setFormData(d => ({ ...d, contactEmail: e.target.value }))} required data-testid="input-contact-email" />
+              </div>
+              <div>
+                <Label htmlFor="contactPhone">Phone (optional)</Label>
+                <Input id="contactPhone" type="tel" value={formData.contactPhone} onChange={e => setFormData(d => ({ ...d, contactPhone: e.target.value }))} data-testid="input-contact-phone" />
+              </div>
+
+              {tier.billingType === "per-member-monthly" && (
+                <div>
+                  <Label htmlFor="memberCount">Number of Members (min {tier.minimumMembers})</Label>
+                  <Input
+                    id="memberCount"
+                    type="number"
+                    min={tier.minimumMembers}
+                    value={formData.memberCount}
+                    onChange={e => setFormData(d => ({ ...d, memberCount: Math.max(tier.minimumMembers || 50, parseInt(e.target.value) || 50) }))}
+                    data-testid="input-member-count"
+                  />
+                </div>
+              )}
+
+              <div>
+                <Label>Preferred Payment Method</Label>
+                <div className="grid grid-cols-3 gap-2 mt-1">
+                  {[
+                    { value: "credit-card", label: "Credit Card", icon: CreditCard },
+                    { value: "paypal", label: "PayPal", icon: DollarSign },
+                    { value: "cashapp", label: "Cash App", icon: Phone },
+                  ].map(pm => (
+                    <button
+                      key={pm.value}
+                      type="button"
+                      onClick={() => setFormData(d => ({ ...d, paymentMethod: pm.value }))}
+                      className={`flex flex-col items-center gap-1 p-3 rounded-lg border text-xs transition-colors ${
+                        formData.paymentMethod === pm.value
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border text-muted-foreground hover:border-primary/50"
+                      }`}
+                      data-testid={`button-payment-${pm.value}`}
+                    >
+                      <pm.icon className="w-5 h-5" />
+                      {pm.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="notes">Additional Notes (optional)</Label>
+                <Textarea id="notes" value={formData.notes} onChange={e => setFormData(d => ({ ...d, notes: e.target.value }))} rows={2} data-testid="input-order-notes" />
+              </div>
+
+              <Button type="submit" className="w-full" disabled={orderMutation.isPending} data-testid="button-submit-order">
+                {orderMutation.isPending ? "Submitting..." : "Submit Order Request"}
+              </Button>
+              <p className="text-xs text-center text-muted-foreground">
+                After submitting, you'll see payment options to pay immediately.
+              </p>
+            </form>
+          </>
+        )}
       </Card>
     </div>
   );
@@ -393,23 +470,34 @@ export default function PricingPage() {
         <h3 className="text-xl font-bold" data-testid="text-payment-methods-heading">Flexible Payment Options</h3>
         <p className="text-muted-foreground text-sm">We accept multiple payment methods to make it easy for you.</p>
         <div className="flex justify-center gap-6 mt-4">
-          <div className="flex flex-col items-center gap-2">
+          <a href="https://cash.app/$MRTDFLOOD" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-2 hover:opacity-80 transition-opacity" data-testid="link-cashapp-main">
+            <div className="w-12 h-12 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+              <DollarSign className="w-6 h-6 text-green-600" />
+            </div>
+            <span className="text-xs font-medium">Cash App</span>
+            <span className="text-xs text-muted-foreground">$MRTDFLOOD</span>
+          </a>
+          <a href="https://paypal.me/TERRYFLOODCEO" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-2 hover:opacity-80 transition-opacity" data-testid="link-paypal-main">
             <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
               <CreditCard className="w-6 h-6 text-blue-600" />
             </div>
-            <span className="text-xs font-medium">Credit Card</span>
-          </div>
+            <span className="text-xs font-medium">PayPal</span>
+            <span className="text-xs text-muted-foreground">@TERRYFLOODCEO</span>
+          </a>
           <div className="flex flex-col items-center gap-2">
             <div className="w-12 h-12 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
-              <DollarSign className="w-6 h-6 text-indigo-600" />
+              <CreditCard className="w-6 h-6 text-indigo-600" />
             </div>
-            <span className="text-xs font-medium">PayPal</span>
+            <span className="text-xs font-medium">Credit Card</span>
+            <span className="text-xs text-muted-foreground">via PayPal</span>
           </div>
-          <div className="flex flex-col items-center gap-2">
-            <div className="w-12 h-12 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-              <Phone className="w-6 h-6 text-green-600" />
-            </div>
-            <span className="text-xs font-medium">Cash App</span>
+        </div>
+        <div className="mt-4 pt-4 border-t border-primary/10">
+          <div className="flex items-center justify-center gap-2">
+            <Mail className="w-4 h-4 text-primary" />
+            <p className="text-sm">
+              Contact us: <a href="mailto:mr.terryflood@gmail.com" className="text-primary font-semibold hover:underline" data-testid="link-contact-email-main">mr.terryflood@gmail.com</a>
+            </p>
           </div>
         </div>
       </div>
