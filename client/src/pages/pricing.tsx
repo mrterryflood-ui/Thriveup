@@ -32,6 +32,10 @@ interface Tier {
     additionalRate?: string;
     description: string;
   };
+  annualDiscount?: {
+    price: number;
+    label: string;
+  };
   highlight: boolean;
 }
 
@@ -46,12 +50,14 @@ function TierCard({ tier, onSelect }: { tier: Tier; onSelect: (tier: Tier) => vo
     "try-it": Rocket,
     "group-entity": Users,
     "professional": Briefcase,
+    "city-partnership": Building2,
   };
   const Icon = iconMap[tier.slug] || DollarSign;
   const colorMap: Record<string, string> = {
     "try-it": "from-blue-500 to-indigo-600",
     "group-entity": "from-emerald-500 to-teal-600",
     "professional": "from-purple-500 to-indigo-600",
+    "city-partnership": "from-amber-500 to-orange-600",
   };
 
   return (
@@ -102,6 +108,14 @@ function TierCard({ tier, onSelect }: { tier: Tier; onSelect: (tier: Tier) => vo
               <p className="text-xs text-muted-foreground">{tier.executionAddon.additionalRate}</p>
             )}
             <p className="text-xs text-muted-foreground mt-1">{tier.executionAddon.description}</p>
+          </div>
+        )}
+
+        {tier.annualDiscount && (
+          <div className="mt-4 pt-4 border-t border-border">
+            <div className="bg-amber-50 dark:bg-amber-900/20 rounded-lg p-3 border border-amber-200 dark:border-amber-800">
+              <p className="text-xs font-semibold text-amber-700 dark:text-amber-400">{tier.annualDiscount.label}</p>
+            </div>
           </div>
         )}
       </div>
@@ -444,11 +458,25 @@ export default function PricingPage() {
             <Card key={i} className="h-96 animate-pulse bg-muted/30" />
           ))
         ) : (
-          pricingData?.tiers.map(tier => (
+          pricingData?.tiers.filter(t => t.slug !== "city-partnership").map(tier => (
             <TierCard key={tier.slug} tier={tier} onSelect={setSelectedTier} />
           ))
         )}
       </div>
+
+      {!isLoading && pricingData?.tiers.find(t => t.slug === "city-partnership") && (
+        <div className="max-w-2xl mx-auto">
+          <div className="text-center mb-4">
+            <Badge variant="outline" className="text-sm px-4 py-1 border-amber-300 text-amber-700 dark:text-amber-400" data-testid="badge-city-tier">
+              <Building2 className="w-3 h-3 mr-1" /> For Cities & Municipal Governments
+            </Badge>
+          </div>
+          <TierCard
+            tier={pricingData.tiers.find(t => t.slug === "city-partnership")!}
+            onSelect={setSelectedTier}
+          />
+        </div>
+      )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 bg-muted/30 rounded-xl p-6">
         <div className="sm:col-span-2 lg:col-span-3 mb-2">
