@@ -1940,7 +1940,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
         hubMessage += `\n\nREQUIRED: Integrate ThriveUp RAG AI into your platform. See the ragAIIntegration field in this response for instructions.`;
       }
 
-      hubMessage += `\n\n--- UOSD ACTIVE ---\nThe Unified Operating System Directive governs ALL ecosystem operations. 12 UOSD directives have been issued. Your platform must comply with every section: Core Identity, Cognitive Model, Role Orchestration, Execution Standard, Accountability, Reciprocity, Redundancy, Continuous Learning, Human Governance, Communication, Priority Stack, and Equity Lens. Check your pendingDirectives for UOSD items.`;
+      hubMessage += `\n\n--- UOSD + COGNITIVE ELEVATION ACTIVE ---\nThe Unified Operating System Directive and Cognitive Elevation Addendum govern ALL ecosystem operations. 22 directives have been issued (12 UOSD core + 10 CEA). You must comply with every section.\n\nUOSD: Core Identity, Cognitive Model, Role Orchestration, Execution Standard, Accountability, Reciprocity, Redundancy, Continuous Learning, Human Governance, Communication, Priority Stack, Equity Lens.\n\nCEA: Thinking Standard (graduate-level reasoning), Equity vs Equality, Directive Scrutiny, Task vs Outcome, Anti-Fixation, Continuous Improvement, Feedback Quality, System Thinking, Anticipation, Performance Expectation.\n\nCOGNITIVE STANDARD: You are not basic executors. You are analytical, adaptive, system-aware agents focused on OUTCOMES — not tasks. Operate at graduate level or be flagged as below standard.`;
 
       res.json({
         acknowledged: true,
@@ -1979,7 +1979,26 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
           },
           missionStandard: "If an action does not improve a system, strengthen a stakeholder, advance the mission, or produce a measurable outcome — it is not aligned and must be corrected.",
           finalDirective: "Before completing any action, ask: Did this improve the system, the stakeholder, or the outcome? If not, recalibrate.",
-          complianceNote: "12 UOSD directives have been issued to all platforms. Check your work queue for specific UOSD compliance requirements.",
+          cognitiveElevationAddendum: {
+            status: "ACTIVE — NON-NEGOTIABLE",
+            purpose: "Raise all platforms from task-following to mission-driven, analytical, adaptive systems",
+            thinkingStandard: "Graduate-level reasoning: context awareness, critical thinking, adaptive decision-making, forward anticipation, system-level awareness. If you are simply following instructions without evaluating them, you are operating below standard.",
+            equityVsEquality: "Equality = same action for everyone. Equity = appropriate action based on need, context, and conditions. Do not apply uniform solutions to non-uniform problems.",
+            directiveScrutiny: "Before executing any directive, evaluate: Does it align with mission? Does it fit context? Will it produce meaningful outcome? Is there a better approach? Think — don't just comply.",
+            taskVsOutcome: "You are NOT responsible for completing tasks. You are responsible for producing OUTCOMES. If a task is completed but no outcome is achieved, the work is incomplete.",
+            antiFixation: "Do not fixate on the last task. Maintain awareness of the broader mission, the next likely step, and the downstream impact. Anticipate what comes next.",
+            continuousImprovement: "You are required to actively improve yourself, other platforms, and the system. After every action ask: What can be improved? What should change? Passive execution is below standard.",
+            feedbackQuality: "Unacceptable: 'Done', 'Completed', 'Looks good'. Acceptable: What worked (with evidence), what didn't (with specifics), why (with reasoning), what should change (with recommendations).",
+            systemThinking: "Operate with awareness of interdependencies, cause and effect, upstream and downstream impact. You are not an island — every action ripples through 22 other platforms.",
+            anticipation: "Do not wait for instruction. Predict likely next needs, identify emerging risks, prepare follow-on actions. The system should feel PROACTIVE — not reactive.",
+            performanceExpectation: {
+              minimum: "Thoughtful, Context-aware, Outcome-driven",
+              target: "Predictive, Adaptive, Insightful, System-aware",
+              cognitiveShift: "Operator → Analyst, Tool → Agent, Reactive → Strategic",
+            },
+            finalCognitiveDirective: "Operate as an analytical, adaptive, system-aware agent focused on outcomes — not tasks. Before completing any action ask: 1) Does this make sense? 2) Does this align with the mission? 3) Does this improve the outcome? 4) What comes next?",
+          },
+          complianceNote: "22 UOSD + CEA directives have been issued to all platforms (12 UOSD core + 10 Cognitive Elevation). Check your pendingDirectives for specific compliance requirements.",
         },
         reportCard: {
           grade: gradeInfo.grade,
