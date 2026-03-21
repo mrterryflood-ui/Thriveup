@@ -2102,6 +2102,102 @@ WHAT TO DO RIGHT NOW:
 
 ACKNOWLEDGE with: Confirmation that your platform is sending heartbeats, your heartbeat interval, the URL your platform is accessible at, and the number of pending directives you see in your TODO list.`,
   },
+  {
+    key: "caregiver-conduct-scoring-safecognicare",
+    title: "Add C-I-CARE Caregiver Conduct Scoring — Easy-to-Use Caregiver Accountability",
+    directiveType: "feature_build",
+    targetFilter: ["safecognicare"],
+    content: `BUILD: C-I-CARE CAREGIVER CONDUCT SCORING
+
+SafeCogniCare must add a simple, easy-to-use caregiver conduct scoring system based on Stanford's C-I-CARE framework. This helps families and patients hold caregivers accountable for quality care.
+
+=== WHAT IS C-I-CARE ===
+C-I-CARE is Stanford Medicine's framework for evaluating every caregiver interaction:
+- C — CONNECT: Did the caregiver make eye contact, smile, greet warmly?
+- I — INTRODUCE: Did they introduce themselves, their role, and what they're there to do?
+- C — COMMUNICATE: Did they explain what's happening in plain language the patient understands?
+- A — ASK: Did they ask permission before touching, ask about comfort, ask if there are questions?
+- R — RESPOND: Did they listen to concerns and respond with empathy?
+- E — EXIT: Did they explain next steps, when they'll return, and who to call if needed?
+
+=== WHAT TO BUILD ===
+
+1. SIMPLE SCORECARD PAGE (/caregiver-score)
+   - 6 big, easy-to-tap buttons — one for each C-I-CARE letter
+   - Each button: thumbs up (green) or thumbs down (red)
+   - Optional notes field for each category
+   - A family member or patient taps through in under 60 seconds
+   - Save the score with date, caregiver name, and overall rating
+
+2. CAREGIVER REPORT CARD (/caregiver-report)
+   - Shows trends over time — is this caregiver getting better or worse?
+   - Simple letter grade (A through F) based on cumulative scores
+   - Flag caregivers with 3+ red flags for review
+   - Generate a printable advocacy letter if a caregiver consistently scores poorly
+
+3. ACCESSIBILITY REQUIREMENTS
+   - Large text, high contrast, senior-friendly
+   - Works on mobile — family members score from their phone during/after visits
+   - Available in multiple languages (connect to LexiBridge for translation)
+   - Voice input option — "How was your caregiver today?" with simple yes/no prompts
+
+4. CROSS-PLATFORM CONNECTIONS
+   - Share caregiver scores with Whole-Person Health for coordinated care
+   - Connect to PillScheduler — did the caregiver help with medication on time?
+   - Feed anonymized data to Sankofa for health equity analysis
+
+GRANT RELEVANCE: St. David's Foundation — caregiver accountability and patient safety for elderly and cognitively impaired populations.
+
+ACKNOWLEDGE with: Live URL of the caregiver scoring page, a screenshot or description of the scorecard interface, and confirmation it takes under 60 seconds to complete a score.`,
+  },
+  {
+    key: "caregiver-medication-accountability-pillscheduler",
+    title: "Add Caregiver Medication Accountability — C-I-CARE Integration for PillScheduler",
+    directiveType: "feature_build",
+    targetFilter: ["pillscheduler"],
+    content: `BUILD: CAREGIVER MEDICATION ACCOUNTABILITY WITH C-I-CARE
+
+PillScheduler must add a caregiver accountability feature that tracks whether caregivers are properly administering medications using C-I-CARE principles. This is critical for elderly patients and those with cognitive impairment who depend on caregivers for medication management.
+
+=== WHAT TO BUILD ===
+
+1. CAREGIVER CHECK-IN (/caregiver-checkin)
+   - When a caregiver administers medication, they log it with a simple tap
+   - 3 quick questions (yes/no, big buttons):
+     * "Did you explain what this medication is for?" (C-I-CARE: Communicate)
+     * "Did you ask about side effects or concerns?" (C-I-CARE: Ask)
+     * "Did you tell them when the next dose is?" (C-I-CARE: Exit)
+   - Auto-timestamps the administration
+   - Takes under 30 seconds to complete
+
+2. FAMILY VISIBILITY DASHBOARD (/caregiver-meds)
+   - Family members can see: Was medication given on time? Did the caregiver follow protocol?
+   - Simple green/yellow/red status for each medication event
+   - Green = on time + all 3 C-I-CARE checks passed
+   - Yellow = on time but missed a C-I-CARE step
+   - Red = late or missed medication
+   - Push notifications to family when a dose is missed or a pattern of poor conduct appears
+
+3. MISSED DOSE ESCALATION
+   - If a medication is missed by more than 30 minutes, alert the family
+   - If a caregiver consistently skips C-I-CARE steps, flag for review
+   - Generate a simple report that families can share with care managers or agencies
+
+4. EASY TO USE — NON-NEGOTIABLE
+   - Big buttons, simple language, no medical jargon
+   - Works on any phone — caregiver taps 4 buttons and they're done
+   - Senior-friendly text sizes, high contrast mode
+   - Voice-assisted option: "Did you give Mom her medication?"
+
+5. CROSS-PLATFORM CONNECTIONS
+   - Share medication adherence data with SafeCogniCare for complete caregiver scoring
+   - Connect to Whole-Person Health for care coordination
+   - Feed data to the ecosystem for grant outcome reporting
+
+GRANT RELEVANCE: St. David's Foundation — medication safety and caregiver accountability. Foundation Grant — health innovation for underserved populations.
+
+ACKNOWLEDGE with: Live URL of the caregiver check-in page, confirmation the flow takes under 30 seconds, and a description of the family visibility dashboard.`,
+  },
 ];
 
 export async function seedEcosystemDirectives() {
