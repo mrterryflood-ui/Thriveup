@@ -1270,6 +1270,35 @@ if (typeof module !== "undefined") {
 **Result:** Triad health degraded, enforcement engine flagged the whole team.
 **Fix:** `runTriadHealthCheck()` wakes partners and relays missed directives.
 
+### Mistake 9 (CRITICAL): Frontend / Backend / Public / Developer Incongruence
+
+**This is the single most dangerous failure mode in the ecosystem. It has already happened and caused silent breakage.**
+
+**What happened:** A platform's backend API had one data structure, the frontend expected a different structure, the public-facing page displayed yet another version, and the developer/admin panel showed something else entirely. Nothing threw an error. Nothing crashed. Features just quietly didn't work — buttons that did nothing, data that didn't save, pages that looked fine but were completely disconnected from the actual system.
+
+**Why it's so dangerous:**
+- There is NO error message. No crash. No red text. The platform looks like it's working.
+- Users see a page that appears functional but silently drops their data.
+- Admin thinks features are deployed because the admin panel shows them, but users never see them.
+- The hub's pinger says the platform is "online" because the URL responds 200 — but the actual functionality is broken.
+- You can pass every automated check while being fundamentally broken.
+
+**The 4 layers that MUST stay congruent:**
+
+1. **Database schema** — The source of truth. Every field, every type, every relationship.
+2. **Backend API** — Must read/write exactly what the schema defines. Validation must match. Responses must match what the frontend expects.
+3. **Frontend** — Must send exactly what the API expects. Must display exactly what the API returns. Every form field must map to a real database column. Every button must call a real endpoint.
+4. **Public-facing pages** — Must reflect what actually exists in the system. If the backend doesn't support a feature, the public page cannot advertise it. If pricing changed in the database, the public page must show the new pricing.
+
+**How to prevent it:**
+- **Start from the schema.** Define your data model first (`shared/schema.ts` or equivalent). Every other layer derives from this.
+- **Use shared types.** The same TypeScript types should be used in the backend routes AND the frontend components. If you change a field name in one place, the compiler catches it everywhere else.
+- **Test the full flow, not just individual pieces.** Don't just test "does the API return 200?" — test "does the user see the correct data after submitting the form?"
+- **After ANY change to any layer, verify all 4 layers still agree.** Changed a database column? Check the API. Check the frontend form. Check the public page.
+- **Never trust "it looks right."** Click the button. Submit the form. Check the database. Verify the public page shows what the database contains.
+
+**The rule:** If you touch one layer, you audit all four. No exceptions. Silent failures are worse than crashes because crashes get fixed — silent failures persist indefinitely.
+
 ---
 
 ## 16. HOW THE SCORE CLIMBED (Video Creator AI Case Study)

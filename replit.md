@@ -38,6 +38,29 @@ Core architectural features and design decisions include:
 - **Stakeholder Management:** Features a Stakeholder Transparency Dashboard and a First 30 Days Onboarding Journey.
 - **Collaborative Multi-AI Intelligence:** A 4-provider architecture (Gemini, Claude, OpenAI, Replit AI) for dual-AI review and collaborative perspective synthesis, used for quality assurance in RPLICE and MCE.
 
+## Critical Lessons Learned (NEVER FORGET)
+
+### 4-Layer Congruence Rule
+The frontend, backend, public-facing pages, and developer/admin panels MUST stay in sync at all times. If any layer drifts from the others, things fail SILENTLY — no error messages, no crashes, just features that quietly don't work. This has already happened and caused real damage.
+
+**The 4 layers:**
+1. **Database schema** — Source of truth. Every field, type, and relationship.
+2. **Backend API** — Must read/write exactly what the schema defines. Validation and responses must match what the frontend expects.
+3. **Frontend** — Must send exactly what the API expects and display exactly what it returns. Every form field maps to a real column. Every button calls a real endpoint.
+4. **Public-facing pages** — Must reflect what actually exists in the system. If pricing changed in the DB, the public page must show it. If a feature doesn't exist in the backend, the public page cannot advertise it.
+
+**The rule:** If you touch one layer, you audit all four. No exceptions. Silent failures are worse than crashes because crashes get fixed — silent failures persist indefinitely and erode trust.
+
+### Other Critical Rules
+- **No Stripe ever** — Payments via Cash App ($MRTDFLOOD) and PayPal (paypal.me/TERRYFLOODCEO)
+- **"NBA Foundation" must NEVER appear in UI** — always "Foundation Grant"
+- **Use `Array.from(new Set(...))` not `[...new Set(...)]`**
+- **Government pricing handled separately** — in proposals/budget narratives, never on public pages
+- **Internal enforcement data (UOSD, ABOL, CEA, thinking scores) stays internal** — admin monitoring OK, never on user-facing pages
+- **Ecosystem connector v5.0** — 35 directives (12 UOSD + 10 CEA + 12 ABOL + 1 Protocol), not "22"
+- **Enforcement schedule** — 6 AM / 6 PM CST daily (precise schedule, not "every 6 hours")
+- **Co-captain system** — Primary: ecosystem-nexus, Backup: video-creator-ai
+
 ## External Dependencies
 - **Database:** PostgreSQL (Neon-backed)
 - **AI Integration:** Google Gemini 2.0 Flash, Anthropic Claude Haiku 4.5, OpenAI GPT-4o-mini, Replit AI Integrations GPT-5-nano.
