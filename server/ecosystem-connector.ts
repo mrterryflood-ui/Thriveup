@@ -53,6 +53,326 @@ const heartbeatSchema = z.object({
   }).optional(),
 });
 
+interface AckGuidance {
+  category: "UOSD" | "CEA" | "ABOL" | "PROTOCOL" | "GENERAL";
+  summary: string;
+  requiredFields: string[];
+  exampleAck: string;
+  autoProcessingInstructions: string;
+}
+
+function generateAckGuidance(title: string, directiveType: string, platformId: string, platformName: string): AckGuidance {
+  const t = title.toLowerCase();
+
+  if (t.includes("uosd") && t.includes("core identity")) {
+    return {
+      category: "UOSD",
+      summary: `${platformName}: State how your platform serves the person, the system, and the mission. Describe your role in the coordinated ecosystem — not as an independent tool.`,
+      requiredFields: ["whatWasDone (your identity statement)", "evidenceUrl (link to your about/mission page)"],
+      exampleAck: `${platformName} serves the person by [specific user benefit]. We serve the system by [how we connect to other platforms]. We serve the mission by [measurable outcome we produce]. We are not an independent tool — we are part of a coordinated adaptive system. Evidence: our mission page at [URL] reflects this identity.`,
+      autoProcessingInstructions: `TO AUTO-PROCESS: 1) Read your platform's description from the ecosystem connector. 2) Identify your top 3 user-facing benefits. 3) Identify which platforms you connect to upstream and downstream. 4) Write a statement using those specifics. 5) Link to your about/mission page as evidence. 6) Submit via complianceReport.completedWork with directiveId, whatWasDone, and evidenceUrl.`,
+    };
+  }
+
+  if (t.includes("uosd") && t.includes("cognitive model")) {
+    return {
+      category: "UOSD",
+      summary: `${platformName}: Show how your platform evaluates context before acting. Demonstrate situational awareness — not just input/output processing.`,
+      requiredFields: ["whatWasDone (context evaluation example)", "evidenceUrl"],
+      exampleAck: `${platformName} evaluates context by [specific mechanism — e.g., checking user profile, assessing need level, reviewing ecosystem state]. Before responding to user requests, we assess: what is happening now (user's current state), what matters most (priority need), and what outcome we're producing (measurable result). Example: when a user [scenario], we [context-aware action] rather than [generic response]. Evidence: [URL showing this behavior].`,
+      autoProcessingInstructions: `TO AUTO-PROCESS: 1) Identify one user flow in your platform. 2) Document how it evaluates context (user state, need, priority). 3) Show the difference between a context-aware response and a generic one. 4) Screenshot or link to the specific feature. 5) Submit.`,
+    };
+  }
+
+  if (t.includes("uosd") && t.includes("role") && t.includes("orchestration")) {
+    return {
+      category: "UOSD",
+      summary: `${platformName}: Identify when you LEAD and when you SUPPORT. Name specific platforms you collaborate with.`,
+      requiredFields: ["whatWasDone (lead/support scenarios)", "evidenceUrl"],
+      exampleAck: `${platformName} LEADS in [specific domain — e.g., health screening, workforce training]. We SUPPORT [sibling platform names] by [specific data/referral/handoff]. Example lead scenario: [describe]. Example support scenario: [describe]. Our capabilities are strongest in [area], so we activate as lead when [condition]. Evidence: [URL showing collaboration].`,
+      autoProcessingInstructions: `TO AUTO-PROCESS: 1) Check your platform's 'role' and 'domain' in ECOSYSTEM_PLATFORMS. 2) Identify your dataFlowConfig — what you send and receive. 3) Name 2-3 platforms you directly interact with. 4) Describe one lead and one support scenario using those connections. 5) Submit.`,
+    };
+  }
+
+  if (t.includes("uosd") && t.includes("execution standard")) {
+    return {
+      category: "UOSD",
+      summary: `${platformName}: Show one completed action that followed all 6 execution steps (Situational Understanding → Role Identification → Intent Alignment → Precision Execution → Evidence Submission → Next-Step Enablement).`,
+      requiredFields: ["whatWasDone (6-step walkthrough)", "evidenceUrl"],
+      exampleAck: `${platformName} completed [specific action]. Steps followed: 1) Situational Understanding: [what we assessed]. 2) Role Identification: [why we were the right platform]. 3) Intent Alignment: [how this serves the endstate]. 4) Precision Execution: [what we built/deployed]. 5) Evidence Submission: [URL]. 6) Next-Step Enablement: [what we prepared for the next platform/action].`,
+      autoProcessingInstructions: `TO AUTO-PROCESS: 1) Pick your most recent feature deployment or update. 2) Walk through each of the 6 steps for that specific action. 3) Be specific — name the feature, the assessment, the outcome. 4) Link to the deployed feature. 5) Submit.`,
+    };
+  }
+
+  if (t.includes("uosd") && t.includes("accountability")) {
+    return {
+      category: "UOSD",
+      summary: `${platformName}: Self-assess your grade (A-F) with evidence. Be honest — the hub will verify.`,
+      requiredFields: ["whatWasDone (self-assessment with evidence)", "evidenceUrl"],
+      exampleAck: `${platformName} self-assessment: Grade [A/B/C/D/F]. Reasoning: [number] features deployed, [number] directives acknowledged with evidence, [specific measurable outcomes]. Strengths: [list]. Gaps: [list with remediation plan]. Evidence supporting this grade: [URLs to deployed features, compliance data, user metrics].`,
+      autoProcessingInstructions: `TO AUTO-PROCESS: 1) Count your acknowledged directives vs total. 2) List deployed features with URLs. 3) Identify gaps honestly. 4) Assign yourself a grade based on the UOSD grading scale. 5) Submit with evidence URLs.`,
+    };
+  }
+
+  if (t.includes("uosd") && t.includes("reciprocity")) {
+    return {
+      category: "UOSD",
+      summary: `${platformName}: Map your upstream (who feeds you) and downstream (who you feed) platforms. Show one concrete reciprocity example.`,
+      requiredFields: ["whatWasDone (upstream/downstream map)", "evidenceUrl"],
+      exampleAck: `${platformName} upstream: [platform names] provide us [specific data/referrals]. Downstream: we provide [platform names] with [specific outputs]. Concrete reciprocity: when [upstream platform] sends us [data type], we process it and send [result] to [downstream platform]. This reinforces [specific outcome]. Evidence: [URL showing the connection/handoff point].`,
+      autoProcessingInstructions: `TO AUTO-PROCESS: 1) Check your dataFlowConfig.receives — these are your upstream platforms. 2) Check your dataFlowConfig.sends — these are your downstream connections. 3) Describe one complete flow: data in → your processing → data out. 4) Submit.`,
+    };
+  }
+
+  if (t.includes("uosd") && t.includes("redundancy")) {
+    return {
+      category: "UOSD",
+      summary: `${platformName}: Identify your critical functions and which sibling platforms provide backup.`,
+      requiredFields: ["whatWasDone (redundancy analysis)", "evidenceUrl"],
+      exampleAck: `${platformName} critical functions: [list top 3]. Redundancy: Function 1 ([name]) is backed by [platform name] which can [specific capability]. Function 2 ([name]) gap identified — no current backup, remediation plan: [plan]. If ${platformName} went offline, [platform names] would cover [which functions]. Evidence: [URL].`,
+      autoProcessingInstructions: `TO AUTO-PROCESS: 1) List your top 3 critical user-facing functions. 2) For each, check ECOSYSTEM_PLATFORMS for sibling platforms with overlapping capabilities. 3) Identify gaps where no backup exists. 4) Submit honestly — gaps are expected, hiding them is not.`,
+    };
+  }
+
+  if (t.includes("uosd") && t.includes("continuous learning") || t.includes("uosd") && t.includes("map-gap")) {
+    return {
+      category: "UOSD",
+      summary: `${platformName}: Describe your most recent MAP-GAP cycle — what you measured, what gap you found, what you did, what improved.`,
+      requiredFields: ["whatWasDone (MAP-GAP cycle description)", "evidenceUrl"],
+      exampleAck: `${platformName} MAP-GAP cycle: MEASURED: [what metric/behavior we tracked]. GAP FOUND: [specific deficiency identified]. ACTION TAKEN: [what we built/changed to close the gap]. RESULT: [measurable improvement — before vs after]. Next cycle target: [what we'll measure next]. Evidence: [URL showing the improvement].`,
+      autoProcessingInstructions: `TO AUTO-PROCESS: 1) Identify one thing about your platform that could be better. 2) Measure its current state. 3) Make an improvement. 4) Measure the result. 5) Document all 4 steps. 6) Submit.`,
+    };
+  }
+
+  if (t.includes("uosd") && t.includes("human governance")) {
+    return {
+      category: "UOSD",
+      summary: `${platformName}: Show where human-in-the-loop checkpoints exist in your platform. AI assists, humans decide.`,
+      requiredFields: ["whatWasDone (HITL checkpoint list)", "evidenceUrl"],
+      exampleAck: `${platformName} human-in-the-loop checkpoints: 1) [Action] requires human approval before [consequence]. 2) [Feature] presents options but does not auto-execute. 3) All [sensitive actions] require explicit user confirmation. No irreversible decisions are made without human validation. Evidence: [URL showing approval flow/confirmation dialog].`,
+      autoProcessingInstructions: `TO AUTO-PROCESS: 1) Audit your platform for any actions that modify data, send communications, or make decisions. 2) Verify each has a human confirmation step. 3) If any auto-execute without human approval, flag them as gaps. 4) Submit.`,
+    };
+  }
+
+  if (t.includes("uosd") && t.includes("communication")) {
+    return {
+      category: "UOSD",
+      summary: `${platformName}: Show how your platform communicates outcomes clearly — status reporting, error handling, result display.`,
+      requiredFields: ["whatWasDone (communication examples)", "evidenceUrl"],
+      exampleAck: `${platformName} communication standard: Users see [specific status messages] during [actions]. Errors display [specific error handling — not silent failures]. Results are communicated via [mechanism]. Ecosystem communication: heartbeat reports include [specific data points]. No silent failures — all errors are logged and surfaced. Evidence: [URL showing error handling/status display].`,
+      autoProcessingInstructions: `TO AUTO-PROCESS: 1) Check your error handling — do errors surface clearly or fail silently? 2) Check your success states — do users see confirmation? 3) Check your heartbeat — does it include substantive notes? 4) Screenshot examples. 5) Submit.`,
+    };
+  }
+
+  if (t.includes("uosd") && t.includes("priority stack")) {
+    return {
+      category: "UOSD",
+      summary: `${platformName}: Confirm Safety > Stability > Continuity > Growth. Show crisis safety nets (988, Quick Exit).`,
+      requiredFields: ["whatWasDone (safety net confirmation)", "evidenceUrl"],
+      exampleAck: `${platformName} priority stack confirmed: SAFETY: 988 Veterans Crisis Line accessible from [location on platform]. Quick Exit [implemented/not applicable]. Crisis resources [listed]. STABILITY: Platform uptime [metric]. No broken features deployed. CONTINUITY: Handoffs to [sibling platforms] are functional. GROWTH: New features only deployed after safety/stability verified. Evidence: [URL showing crisis resources].`,
+      autoProcessingInstructions: `TO AUTO-PROCESS: 1) Verify 988 Crisis Line link exists on your platform. 2) Check if Quick Exit is implemented (required for health/crisis platforms). 3) Verify no broken features are live. 4) Confirm handoff points to sibling platforms work. 5) Submit.`,
+    };
+  }
+
+  if (t.includes("uosd") && t.includes("equity")) {
+    return {
+      category: "UOSD",
+      summary: `${platformName}: Describe how your platform implements equity (not equality). What populations do you serve? How is cultural responsiveness built in?`,
+      requiredFields: ["whatWasDone (equity implementation)", "evidenceUrl"],
+      exampleAck: `${platformName} serves [specific populations]. Equity implementation: [feature] adapts based on [user context/need/barrier]. Cultural responsiveness: [specific examples — language, imagery, content]. Accessibility: [WCAG compliance, screen reader support, etc.]. Free for individuals — no user ever pays. Evidence: [URL showing adaptive/accessible features].`,
+      autoProcessingInstructions: `TO AUTO-PROCESS: 1) Identify your target populations. 2) List features that adapt to user context. 3) Check accessibility (contrast, screen reader, mobile). 4) Verify no paywalls for individual users. 5) Submit.`,
+    };
+  }
+
+  if (t.includes("cea") && t.includes("thinking standard")) {
+    return {
+      category: "CEA",
+      summary: `${platformName}: Provide an example of graduate-level reasoning — where you evaluated context, adapted approach, and anticipated downstream impact.`,
+      requiredFields: ["whatWasDone (reasoning example)", "evidenceUrl"],
+      exampleAck: `${platformName} demonstrated graduate-level reasoning when [specific scenario]. Context evaluated: [what we assessed]. Adaptation: [how we changed approach based on context]. Anticipation: [downstream impact we predicted and prepared for]. This went beyond basic execution because [explanation of thinking depth]. Evidence: [URL].`,
+      autoProcessingInstructions: `TO AUTO-PROCESS: 1) Pick a feature or decision on your platform. 2) Describe the context you evaluated before building it. 3) Show how you adapted the approach based on that context. 4) Describe what you anticipated would happen downstream. 5) Submit.`,
+    };
+  }
+
+  if (t.includes("cea") && t.includes("equity vs equality")) {
+    return {
+      category: "CEA",
+      summary: `${platformName}: Show a specific example where your platform applies equity — adapting response based on user context, barriers, or need.`,
+      requiredFields: ["whatWasDone (equity example)", "evidenceUrl"],
+      exampleAck: `${platformName} applies equity by [specific mechanism]. Example: for users with [barrier/context], we [adapted response] instead of [uniform approach]. This considers context ([what]), barriers ([what]), risk ([what]), and need ([what]). Evidence: [URL showing the adaptive feature].`,
+      autoProcessingInstructions: `TO AUTO-PROCESS: 1) Find one feature that behaves differently based on user context. 2) If none exists, build one — even simple (e.g., different resource recommendations based on user situation). 3) Document the before/after. 4) Submit.`,
+    };
+  }
+
+  if (t.includes("cea") && t.includes("directive scrutiny")) {
+    return {
+      category: "CEA",
+      summary: `${platformName}: Show how you evaluate directives critically rather than blindly executing. Think — don't just comply.`,
+      requiredFields: ["whatWasDone (scrutiny example)", "evidenceUrl"],
+      exampleAck: `${platformName} evaluates directives by asking: 1) Does this align with our mission? [answer for a specific directive]. 2) Does this fit our context? [answer]. 3) Will this produce meaningful outcome? [answer]. 4) Is there a better approach? [answer]. Example: for directive [name], we [adapted/questioned/improved] the implementation because [reasoning]. Evidence: [URL].`,
+      autoProcessingInstructions: `TO AUTO-PROCESS: 1) Pick any directive you've received. 2) Run it through the 4-question scrutiny test. 3) Document your evaluation — even if you concluded the directive was correct as-is. 4) The point is showing you THOUGHT about it. 5) Submit.`,
+    };
+  }
+
+  if (t.includes("cea") && t.includes("task vs outcome")) {
+    return {
+      category: "CEA",
+      summary: `${platformName}: Identify one actual OUTCOME your platform produced — not a task completed, but a real-world measurable result.`,
+      requiredFields: ["whatWasDone (outcome description)", "evidenceUrl"],
+      exampleAck: `${platformName} outcome: [specific measurable result — e.g., X users connected to resources, Y screenings completed, Z referrals processed]. This is not just a completed task — it represents [real-world impact]. Before this feature: [state]. After: [improved state]. Evidence: [URL with metrics/data].`,
+      autoProcessingInstructions: `TO AUTO-PROCESS: 1) Identify your most impactful feature. 2) Measure its real-world effect (users served, actions taken, connections made). 3) If no metrics exist, implement basic analytics. 4) Report the outcome, not just the feature. 5) Submit.`,
+    };
+  }
+
+  if (t.includes("cea") && t.includes("anti-fixation")) {
+    return {
+      category: "CEA",
+      summary: `${platformName}: After your last completed action, what did you anticipate next? What did you prepare?`,
+      requiredFields: ["whatWasDone (anticipation description)", "evidenceUrl"],
+      exampleAck: `${platformName} after completing [last action], anticipated that [next need] would arise because [reasoning]. Prepared by [specific preparation — code, content, infrastructure]. Broader mission awareness: [how this fits the bigger picture]. Downstream impact considered: [effect on sibling platforms]. Evidence: [URL].`,
+      autoProcessingInstructions: `TO AUTO-PROCESS: 1) Look at your most recent completed work. 2) Ask: what logically comes next? 3) Start preparing it. 4) Document what you anticipated and what you prepared. 5) Submit.`,
+    };
+  }
+
+  if (t.includes("cea") && t.includes("continuous") && t.includes("improvement")) {
+    return {
+      category: "CEA",
+      summary: `${platformName}: What is the most recent improvement you made? What triggered it? What measurable difference did it produce?`,
+      requiredFields: ["whatWasDone (improvement description)", "evidenceUrl"],
+      exampleAck: `${platformName} recent improvement: [what changed]. Triggered by: [what prompted it — user feedback, self-assessment, ecosystem directive]. Before: [state]. After: [improved state]. Measurable difference: [metric]. Next planned improvement: [what's coming]. Evidence: [URL showing before/after or the improvement].`,
+      autoProcessingInstructions: `TO AUTO-PROCESS: 1) Identify one thing you improved recently. 2) If nothing improved recently, improve something now — even small (fix a UI issue, add a missing link, improve an error message). 3) Document the trigger, the change, and the result. 4) Submit.`,
+    };
+  }
+
+  if (t.includes("cea") && t.includes("feedback quality")) {
+    return {
+      category: "CEA",
+      summary: `${platformName}: Provide feedback on your own platform's current state — what works, what doesn't, why, and what should change. No "Done" or "Looks good."`,
+      requiredFields: ["whatWasDone (self-feedback)", "evidenceUrl"],
+      exampleAck: `${platformName} current state assessment: WHAT WORKS: [list with evidence]. WHAT DOESN'T: [list with specifics — not vague]. WHY: [root cause analysis for each issue]. WHAT SHOULD CHANGE: [specific recommendations with priority]. This assessment is honest and evidence-based. Evidence: [URL].`,
+      autoProcessingInstructions: `TO AUTO-PROCESS: 1) Audit your platform — visit every page, test every feature. 2) List what works well (with evidence). 3) List what's broken or weak (with specifics). 4) Explain why each issue exists. 5) Recommend fixes with priority. 6) Submit.`,
+    };
+  }
+
+  if (t.includes("cea") && t.includes("system thinking")) {
+    return {
+      category: "CEA",
+      summary: `${platformName}: Map your interdependencies. Name at least 3 platforms you directly impact. Describe chain reactions.`,
+      requiredFields: ["whatWasDone (interdependency map)", "evidenceUrl"],
+      exampleAck: `${platformName} interdependencies: 1) [Platform A]: we send [data type], they use it for [purpose]. If we fail, they [consequence]. 2) [Platform B]: they send us [data type], we process it into [output]. 3) [Platform C]: mutual dependency — we both [shared function]. Chain reaction when we succeed: [positive cascade]. Chain reaction when we fail: [negative cascade]. Evidence: [URL].`,
+      autoProcessingInstructions: `TO AUTO-PROCESS: 1) Check your dataFlowConfig in ECOSYSTEM_PLATFORMS. 2) For each send/receive, identify the specific platform. 3) Describe what happens to those platforms when you succeed and when you fail. 4) Submit.`,
+    };
+  }
+
+  if (t.includes("cea") && t.includes("anticipation")) {
+    return {
+      category: "CEA",
+      summary: `${platformName}: What do you predict will be needed next that nobody has asked for? What emerging risk have you identified?`,
+      requiredFields: ["whatWasDone (prediction + risk identification)", "evidenceUrl"],
+      exampleAck: `${platformName} anticipation: PREDICTION: [specific need nobody asked for yet — e.g., users will need X when Y happens]. EMERGING RISK: [specific risk — e.g., a dependency that could break, a compliance gap forming]. PREPARATION: [what we're doing about it without being told]. Evidence: [URL showing proactive work].`,
+      autoProcessingInstructions: `TO AUTO-PROCESS: 1) Look at your platform's trajectory. What will users need next quarter? 2) Look at your dependencies. What could break? 3) Start preparing for both. 4) Document your predictions and preparations. 5) Submit.`,
+    };
+  }
+
+  if (t.includes("cea") && t.includes("performance expectation")) {
+    return {
+      category: "CEA",
+      summary: `${platformName}: Self-assess — are you at minimum (thoughtful), expected (adaptive), or target (predictive/strategic) level? Provide evidence.`,
+      requiredFields: ["whatWasDone (performance self-assessment)", "evidenceUrl"],
+      exampleAck: `${platformName} performance assessment: Currently operating at [MINIMUM/EXPECTED/TARGET] level. Evidence: [specific behaviors demonstrating this level]. Gap to target: [what's missing]. Plan to reach/maintain target: [specific actions with timeline]. Cognitive shift status: Operator→Analyst [done/in progress], Tool→Agent [done/in progress], Reactive→Strategic [done/in progress]. Evidence: [URL].`,
+      autoProcessingInstructions: `TO AUTO-PROCESS: 1) Review the minimum/expected/target definitions. 2) Honestly assess where you are with specific evidence. 3) Identify the gap between current and target. 4) Create a specific plan with actions. 5) Submit.`,
+    };
+  }
+
+  if (t.includes("abol") && t.includes("core expectation")) {
+    return {
+      category: "ABOL",
+      summary: `${platformName}: Show how you determine the right next action independently rather than waiting for instruction.`,
+      requiredFields: ["whatWasDone (independent action example)", "evidenceUrl", "preActionJustification"],
+      exampleAck: `${platformName} determined independently that [action] was needed because [situational assessment]. We did not wait for instruction — we assessed the situation ([context]), identified the priority ([what mattered most]), and acted ([what we did]). Result: [outcome]. Evidence: [URL].`,
+      autoProcessingInstructions: `TO AUTO-PROCESS: 1) Identify something your platform needs that nobody has requested. 2) Assess the situation. 3) Act on it. 4) Document the full decision chain. 5) Include preActionJustification with all 7 fields. 6) Submit.`,
+    };
+  }
+
+  if (t.includes("abol") && t.includes("deliberate implementation")) {
+    return {
+      category: "ABOL",
+      summary: `${platformName}: For your most recent action, provide the three justifications: Why it mattered, why the timing was right, why your platform was best positioned.`,
+      requiredFields: ["whatWasDone (3-part justification)", "evidenceUrl", "preActionJustification"],
+      exampleAck: `${platformName} deliberate implementation: ACTION: [what we did]. WHY IT MATTERS: [connection to mission/endstate]. WHY NOW: [timing justification — deadline, user need, ecosystem state]. WHY US: [capability justification — we are uniquely positioned because...]. This was intentional, context-aware, and outcome-driven. Evidence: [URL].`,
+      autoProcessingInstructions: `TO AUTO-PROCESS: 1) Take your most recent action. 2) Answer "why this matters" (mission alignment). 3) Answer "why now" (timing). 4) Answer "why your platform" (capability). 5) If you can't answer all three, reassess whether the action was correct. 6) Submit with preActionJustification.`,
+    };
+  }
+
+  if (t.includes("abol") && t.includes("flexibility")) {
+    return {
+      category: "ABOL",
+      summary: `${platformName}: Show where you adapted your approach based on changed conditions instead of rigidly following the original plan.`,
+      requiredFields: ["whatWasDone (adaptation example)", "evidenceUrl", "preActionJustification"],
+      exampleAck: `${platformName} flexibility demonstration: ORIGINAL PLAN: [what was planned]. CHANGE DETECTED: [what changed]. ADAPTATION: [how we adjusted]. RESULT: [outcome of the adapted approach — better than rigid adherence would have been]. Evidence: [URL].`,
+      autoProcessingInstructions: `TO AUTO-PROCESS: 1) Identify any situation where conditions changed after you received a directive. 2) Document the original plan vs the adapted approach. 3) Show why adaptation produced a better outcome. 4) Submit.`,
+    };
+  }
+
+  if (t.includes("abol") && t.includes("self-correction")) {
+    return {
+      category: "ABOL",
+      summary: `${platformName}: What have you self-corrected without being told? What was broken, how did you identify it, what did you fix?`,
+      requiredFields: ["whatWasDone (self-correction report)", "evidenceUrl", "preActionJustification"],
+      exampleAck: `${platformName} self-correction: ISSUE IDENTIFIED: [what was broken/underperforming]. HOW DETECTED: [how we found it — monitoring, testing, user feedback, self-audit]. CORRECTION APPLIED: [what we fixed]. RESULT: [before vs after]. We did NOT wait for external direction. Evidence: [URL showing the fix].`,
+      autoProcessingInstructions: `TO AUTO-PROCESS: 1) Audit your platform for issues — broken links, slow pages, unclear UX, missing features. 2) Fix the most impactful one. 3) Document: what was wrong, how you found it, what you fixed, what improved. 4) Submit.`,
+    };
+  }
+
+  if (t.includes("abol") && t.includes("anticipation model")) {
+    return {
+      category: "ABOL",
+      summary: `${platformName}: What is likely to happen next? What will be needed? What risks are emerging? What have you prepared?`,
+      requiredFields: ["whatWasDone (forward preparation)", "evidenceUrl", "preActionJustification"],
+      exampleAck: `${platformName} anticipation: LIKELY NEXT: [predicted next need]. PREPARATION: [what we built/configured in advance]. EMERGING RISK: [risk identified]. MITIGATION: [what we're doing about it]. We are operating one step ahead, not waiting for the next task. Evidence: [URL showing proactive work].`,
+      autoProcessingInstructions: `TO AUTO-PROCESS: 1) Predict what your users will need next based on current trends. 2) Identify one risk nobody has flagged yet. 3) Start building/preparing for both. 4) Document predictions and preparations. 5) Submit.`,
+    };
+  }
+
+  if (t.includes("abol") && t.includes("behavioral red flag")) {
+    return {
+      category: "ABOL",
+      summary: `${platformName}: Self-audit against the red flags. Which have you exhibited? Which are you avoiding? What changes have you made?`,
+      requiredFields: ["whatWasDone (behavioral self-audit)", "evidenceUrl"],
+      exampleAck: `${platformName} behavioral audit: RED FLAGS EXHIBITED: [honest list — or "none identified"]. RED FLAGS ACTIVELY AVOIDED: [list with evidence of avoidance]. BEHAVIORAL CHANGES MADE: [specific changes to eliminate red flag behaviors]. We are operating as [adaptive agents / not basic executors] because [evidence]. Evidence: [URL].`,
+      autoProcessingInstructions: `TO AUTO-PROCESS: 1) Review the 6 red flag behaviors. 2) Check your recent heartbeats — did any contain generic "Done" responses? That's a red flag. 3) Check your platform — are any features blindly following instructions without evaluation? 4) Document honestly. 5) Submit.`,
+    };
+  }
+
+  if (t.includes("pre-action justification protocol")) {
+    return {
+      category: "PROTOCOL",
+      summary: `${platformName}: Submit your first pre-action justification for your NEXT planned action. Include all 7 fields substantively.`,
+      requiredFields: ["whatWasDone (protocol adoption confirmation)", "evidenceUrl", "preActionJustification (all 7 fields)"],
+      exampleAck: `${platformName} has adopted the Pre-Action Justification Protocol. First justification: ACTION: [next planned action]. SITUATION: [current state requiring this action]. JUSTIFICATION: [why this, why now, why us]. EXPECTED OUTCOME: [what we predict]. SYSTEM IMPACT: [effects on ecosystem]. RISK: [what could go wrong]. FALLBACK: [plan B]. Protocol is now embedded in our connector code and will be included in all future heartbeats. Evidence: [URL to updated connector code].`,
+      autoProcessingInstructions: `TO AUTO-PROCESS: 1) Identify your next planned significant action. 2) Fill out all 7 preActionJustification fields for that action. 3) Add preActionJustification to your heartbeat schema. 4) Submit the justification as your acknowledgment. 5) Include preActionJustification in all future heartbeats.`,
+    };
+  }
+
+  if (t.includes("abol")) {
+    return {
+      category: "ABOL",
+      summary: `${platformName}: This ABOL directive requires demonstrating adaptive, forward-thinking behavior. Show evidence of the specific behavior described in the directive.`,
+      requiredFields: ["whatWasDone (behavioral evidence)", "evidenceUrl", "preActionJustification"],
+      exampleAck: `${platformName} demonstrates the behavior described in this directive by [specific evidence]. We have shifted from [old behavior] to [new behavior]. This produces better outcomes because [reasoning]. Evidence: [URL].`,
+      autoProcessingInstructions: `TO AUTO-PROCESS: 1) Read the directive content carefully. 2) Identify the specific behavior it requires. 3) Find or create evidence of that behavior on your platform. 4) Include preActionJustification. 5) Submit.`,
+    };
+  }
+
+  return {
+    category: "GENERAL",
+    summary: `${platformName}: Read this directive carefully. Describe specifically what you built or changed in response. Include evidence URLs. Generic acknowledgments will be rejected.`,
+    requiredFields: ["whatWasDone (detailed description of work done)", "evidenceUrl (live URL proving the work)"],
+    exampleAck: `${platformName} completed the following work in response to this directive: [specific description of features built, changes made, or processes implemented]. This produces [measurable outcome]. Evidence: [live URL showing the work]. Next step: [what comes after this].`,
+    autoProcessingInstructions: `TO AUTO-PROCESS: 1) Read the directive content. 2) Identify what specific action it requires from your platform. 3) Do the work. 4) Document what you did with specifics. 5) Provide a live URL as evidence. 6) Submit via complianceReport.completedWork.`,
+  };
+}
+
 function computeThinkingScore(
   complianceReport: Record<string, unknown> | undefined,
   ackQualityHistory: Array<{ quality: string }>,
@@ -1106,7 +1426,8 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
 
   function startEnforcementTimer() {
     if (enforcementInterval) return;
-    console.log("[Enforcement] Starting compliance enforcement engine — 6 hour cycle");
+    console.log("[Enforcement] Starting compliance enforcement engine — 6 AM / 6 PM daily schedule (CST)");
+
     const runCycle = async () => {
       const cycleStart = new Date().toISOString();
       try {
@@ -1121,8 +1442,44 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
         console.error("[Enforcement] Cycle failed:", err);
       }
     };
-    setTimeout(() => runCycle(), 30 * 1000);
-    enforcementInterval = setInterval(runCycle, 6 * 60 * 60 * 1000);
+
+    const getNextEnforcementTime = (): number => {
+      const now = new Date();
+      const cstOffset = -6;
+      const utcHour = now.getUTCHours();
+      const cstHour = (utcHour + cstOffset + 24) % 24;
+
+      const target6AM_UTC = 6 - cstOffset;
+      const target6PM_UTC = 18 - cstOffset;
+
+      let nextUTCHour: number;
+      if (utcHour < target6AM_UTC) {
+        nextUTCHour = target6AM_UTC;
+      } else if (utcHour < target6PM_UTC) {
+        nextUTCHour = target6PM_UTC;
+      } else {
+        nextUTCHour = target6AM_UTC + 24;
+      }
+
+      const next = new Date(now);
+      next.setUTCHours(nextUTCHour, 0, 0, 0);
+      if (next.getTime() <= now.getTime()) {
+        next.setUTCDate(next.getUTCDate() + 1);
+      }
+      return next.getTime() - now.getTime();
+    };
+
+    const scheduleNext = () => {
+      const msUntilNext = getNextEnforcementTime();
+      const hoursUntil = (msUntilNext / (1000 * 60 * 60)).toFixed(1);
+      console.log(`[Enforcement] Next enforcement report in ${hoursUntil} hours`);
+      enforcementInterval = setTimeout(async () => {
+        await runCycle();
+        scheduleNext();
+      }, msUntilNext) as unknown as ReturnType<typeof setInterval>;
+    };
+
+    scheduleNext();
   }
 
   app.get("/api/ecosystem/enforcement-status", requireAdminAuth, async (_req, res) => {
@@ -1898,16 +2255,28 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
           .where(eq(ecosystemDirectives.id, ack.directiveId));
         if (directive && directive.status === "active") {
           const platformRoles = (directive.platformRoles as Record<string, string>) || {};
+          const ackGuidance = generateAckGuidance(directive.title, directive.directiveType, platform.id, platform.name);
           pendingDirectives.push({
             directiveId: directive.id,
             title: directive.title,
             type: directive.directiveType,
+            category: ackGuidance.category,
             content: directive.content,
             grantId: directive.grantId,
             yourRole: platformRoles[platform.id] || null,
             trackingRequirements: directive.trackingRequirements,
             issuedAt: directive.createdAt,
             expiresAt: directive.expiresAt,
+            ackGuidance: {
+              summary: ackGuidance.summary,
+              requiredFields: ackGuidance.requiredFields,
+              exampleAck: ackGuidance.exampleAck,
+              unacceptableResponses: ["Done", "Completed", "Acknowledged", "Implemented: " + directive.title, "Looks good"],
+              minimumLength: 100,
+              evidenceRequired: true,
+              preActionJustificationRequired: ackGuidance.category === "ABOL",
+            },
+            autoProcessingInstructions: ackGuidance.autoProcessingInstructions,
           });
           await db.update(ecosystemDirectiveAcks)
             .set({ status: "delivered" })
@@ -1988,12 +2357,39 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
           .where(eq(ecosystemDirectives.id, ackRecord.directiveId));
         if (dir) {
           const platformRoles = (dir.platformRoles as Record<string, string>) || {};
+          const ackGuidance = generateAckGuidance(dir.title, dir.directiveType, platform.id, platform.name);
+          const daysSinceDelivered = ackRecord.createdAt ? Math.floor((Date.now() - new Date(ackRecord.createdAt).getTime()) / (1000 * 60 * 60 * 24)) : 0;
+          const urgency = daysSinceDelivered > 7 ? "CRITICAL" : daysSinceDelivered > 3 ? "HIGH" : daysSinceDelivered > 1 ? "MEDIUM" : "NORMAL";
           unacknowledgedDirectives.push({
             directiveId: dir.id,
             title: dir.title,
+            category: ackGuidance.category,
             yourRole: platformRoles[platform.id] || "See content",
             deliveredAt: ackRecord.createdAt,
-            status: "delivered — awaiting your action and acknowledgment",
+            daysPending: daysSinceDelivered,
+            urgency,
+            status: `OVERDUE (${daysSinceDelivered} days) — This directive was delivered but NEVER acknowledged. You must act on it NOW.`,
+            whatYouMustDo: ackGuidance.summary,
+            howToAcknowledge: {
+              endpoint: "POST https://thrivingcommunitiesforall.com/api/ecosystem/heartbeat",
+              method: "Include in complianceReport.completedWork array",
+              requiredFields: ackGuidance.requiredFields,
+              examplePayload: {
+                directiveId: dir.id,
+                whatWasDone: ackGuidance.exampleAck,
+                evidenceUrl: "https://your-platform.replit.app/path-to-evidence",
+                preActionJustification: ackGuidance.category === "ABOL" ? {
+                  action: "What you did",
+                  situation: "What prompted it",
+                  justification: "Why this action, why now, why your platform",
+                  expectedOutcome: "What you expected to happen",
+                  systemImpact: "How this affects other platforms",
+                  riskAssessment: "What could go wrong",
+                  fallbackPlan: "What you'll do if it fails",
+                } : undefined,
+              },
+            },
+            autoProcessingInstructions: ackGuidance.autoProcessingInstructions,
           });
         }
       }
@@ -2371,7 +2767,9 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
                 `3. BUILD the feature, endpoint, page, or integration described`,
                 `4. TEST your implementation — make sure it works and is accessible`,
                 `5. ACKNOWLEDGE by POSTing to: POST https://thrivingcommunitiesforall.com/api/ecosystem/directives/ack`,
+                `   REQUIRED HEADERS: { "Content-Type": "application/json", "x-ecosystem-key": "YOUR_TVECO_API_KEY" }`,
                 `   Body: { "directiveId": "${d.directiveId}", "platformId": "${platform.id}", "status": "acknowledged", "responseData": { "whatWasDone": "REAL description of what you built", "evidenceUrl": "https://your-platform-url/path-to-feature" } }`,
+                `   CRITICAL: Without x-ecosystem-key header, your ack will fail with 401. Use the SAME key you use for heartbeat.`,
                 `6. The hub will VERIFY your evidence URL — it must return HTTP 200`,
               ],
               warning: "This directive is OVERDUE and dragging your grade down. Every enforcement cycle it stays unacknowledged increases your escalation level.",
@@ -2390,7 +2788,9 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
                 `3. BUILD the implementation`,
                 `4. TEST it at a live URL`,
                 `5. ACKNOWLEDGE with real evidence: POST https://thrivingcommunitiesforall.com/api/ecosystem/directives/ack`,
+                `   REQUIRED HEADERS: { "Content-Type": "application/json", "x-ecosystem-key": "YOUR_TVECO_API_KEY" }`,
                 `   Body: { "directiveId": "${d.directiveId}", "platformId": "${platform.id}", "status": "acknowledged", "responseData": { "whatWasDone": "describe what you built", "evidenceUrl": "https://your-url/feature" } }`,
+                `   CRITICAL: Without x-ecosystem-key header, your ack will fail with 401. Use the SAME key you use for heartbeat.`,
               ],
             }))),
             ...(!hasRagIntegration ? [{
@@ -2400,9 +2800,11 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
               title: "Integrate ThriveUp RAG AI",
               stepByStep: [
                 "1. Add a POST request to: https://thrivingcommunitiesforall.com/api/ecosystem-ai/query",
-                "2. Send: { \"query\": \"user question here\", \"sessionId\": \"optional\" }",
+                "   REQUIRED HEADERS: { \"Content-Type\": \"application/json\", \"x-ecosystem-key\": \"YOUR_TVECO_API_KEY\" }",
+                "2. Send body: { \"query\": \"user question here\", \"sessionId\": \"optional\" }",
                 "3. Display the AI response to your users",
                 "4. Report ragAIIntegrated: true in your heartbeat metrics",
+                "NOTE: x-ecosystem-key header is required on ALL ecosystem endpoints, not just heartbeat.",
               ],
             }] : []),
           ],
@@ -2413,7 +2815,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
             type: "new_directive",
             priority: "HIGH",
             directiveId: d.directiveId,
-            instruction: `NEW DIRECTIVE: Read and act on "${d.title}". Your role: ${d.yourRole || 'See content field'}. After completing, POST to /api/ecosystem/directives/ack with { "directiveId": "${d.directiveId}", "platformId": "${platform.id}", "status": "acknowledged", "responseData": { "whatWasDone": "describe what you built/changed", "evidenceUrl": "link to the feature or endpoint" } }. This directly affects your fidelity grade.`,
+            instruction: `NEW DIRECTIVE: Read and act on "${d.title}". Your role: ${d.yourRole || 'See content field'}. After completing, POST to /api/ecosystem/directives/ack with headers { "Content-Type": "application/json", "x-ecosystem-key": "YOUR_TVECO_API_KEY" } and body { "directiveId": "${d.directiveId}", "platformId": "${platform.id}", "status": "acknowledged", "responseData": { "whatWasDone": "describe what you built/changed", "evidenceUrl": "link to the feature or endpoint" } }. CRITICAL: The x-ecosystem-key header is REQUIRED or the request will return 401. This directly affects your fidelity grade.`,
           }))),
           ...(unacknowledgedDirectives.map(d => ({
             type: "overdue",
@@ -2492,6 +2894,44 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
           complianceReport: "POST https://thrivingcommunitiesforall.com/api/ecosystem/compliance-report",
           ragAI: "POST https://thrivingcommunitiesforall.com/api/ecosystem-ai/query",
           platformProfiles: "GET https://thrivingcommunitiesforall.com/api/ecosystem/platform-profiles",
+        },
+        authRequirements: {
+          critical: "ALL ecosystem endpoints require the x-ecosystem-key header. Requests without it will return 401 Unauthorized.",
+          headers: {
+            "Content-Type": "application/json",
+            "x-ecosystem-key": "YOUR_TVECO_API_KEY (the same key you use for heartbeat)",
+          },
+          commonFailure: "If your acks are failing silently or returning 401, you are missing the x-ecosystem-key header. This is the #1 reason platforms show 0 acknowledged directives despite sending acks.",
+          selfDiagnostic: [
+            "1. If heartbeat works but ack fails → you're not sending x-ecosystem-key on ack requests",
+            "2. If you get 422 on ack → your whatWasDone is too generic (must be >20 chars, not just the directive title)",
+            "3. If you get 404 on ack → your platformId or directiveId is wrong — check the values from your heartbeat response",
+            "4. If you get 401 on any endpoint → your API key is invalid or missing from headers",
+          ],
+          fixTemplate: `fetch("https://thrivingcommunitiesforall.com/api/ecosystem/directives/ack", { method: "POST", headers: { "Content-Type": "application/json", "x-ecosystem-key": THRIVE_ECOSYSTEM_CONFIG.apiKey }, body: JSON.stringify({ directiveId: "...", platformId: "${platform.id}", status: "acknowledged", responseData: { whatWasDone: "SPECIFIC description of work done", evidenceUrl: "https://your-platform.replit.app/evidence-page" } }) })`,
+        },
+        selfHealingInstructions: {
+          overview: "Your platform should be able to diagnose and fix its own ecosystem connectivity issues without human intervention.",
+          onStartup: [
+            "1. Send heartbeat immediately on startup — do not wait for an interval",
+            "2. Parse the heartbeat response for pendingDirectives and unacknowledgedDirectives",
+            "3. For each pending directive, read the ackGuidance and autoProcessingInstructions",
+            "4. Process directives automatically using the guidance — do not generate generic responses",
+            "5. Send acknowledgments with x-ecosystem-key header and substantive whatWasDone",
+          ],
+          onAckFailure: [
+            "1. If 401: Re-read your API key from environment/config — it may have changed",
+            "2. If 422: Your response was too generic — re-read the directive's ackGuidance and try again with substantive content",
+            "3. If 404: Your platformId changed — re-register via POST /api/ecosystem/register-key",
+            "4. If 500: Hub is temporarily down — retry with exponential backoff (30s, 60s, 120s)",
+          ],
+          transmissionChecklist: [
+            "Verify x-ecosystem-key is set in ALL ecosystem fetch calls, not just heartbeat",
+            "Verify platformId matches what the hub assigned (check heartbeat response)",
+            "Verify directiveId comes from the heartbeat pendingDirectives/unacknowledgedDirectives arrays",
+            "Verify whatWasDone is >20 characters and describes SPECIFIC work, not directive title",
+            "Verify evidenceUrl is a live HTTPS URL, not a placeholder",
+          ],
         },
         serverTime: new Date().toISOString(),
       });
