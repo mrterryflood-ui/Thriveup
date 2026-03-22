@@ -2260,6 +2260,135 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
     }
   });
 
+  app.post("/api/ecosystem/triads/absorb-load", requireEcosystemAuth, async (req, res) => {
+    try {
+      const apiKey = req.headers["x-ecosystem-key"] as string;
+      const [callerPlatform] = await db.select().from(ecosystemPlatforms).where(eq(ecosystemPlatforms.apiKey, apiKey));
+      if (!callerPlatform) return res.status(403).json({ error: "Invalid ecosystem key" });
+
+      const { targetPlatformId, absorbedItems, reason } = req.body;
+      if (!targetPlatformId || !absorbedItems || !Array.isArray(absorbedItems)) {
+        return res.status(400).json({ error: "targetPlatformId and absorbedItems[] are required" });
+      }
+
+      const callerTriad = getTriadForPlatform(callerPlatform.id);
+      const targetTriad = getTriadForPlatform(targetPlatformId);
+
+      if (!callerTriad || !targetTriad || callerTriad.id !== targetTriad.id) {
+        return res.status(403).json({ error: "You can only absorb load from platforms in your own triad" });
+      }
+
+      const captain = await electTriadCaptain(callerTriad);
+      if (captain.captainId !== callerPlatform.id) {
+        return res.status(403).json({ error: "Only the triad captain can absorb load from a down partner. You are not the current captain." });
+      }
+
+      const [targetPlatform] = await db.select().from(ecosystemPlatforms).where(eq(ecosystemPlatforms.id, targetPlatformId));
+      if (!targetPlatform) return res.status(404).json({ error: "Target platform not found" });
+
+      await db.insert(ecosystemEvents).values({
+        id: crypto.randomUUID(),
+        eventType: "triad_load_absorption",
+        sourcePlatformId: callerPlatform.id,
+        targetPlatformId: targetPlatformId,
+        status: "active",
+        eventData: {
+          triadId: callerTriad.id,
+          captainId: callerPlatform.id,
+          captainName: callerPlatform.name,
+          absorbedFrom: targetPlatformId,
+          absorbedFromName: targetPlatform.name,
+          absorbedItems,
+          reason: reason || `${targetPlatform.name} is offline — captain absorbing critical deliverables`,
+          absorbedAt: new Date().toISOString(),
+          status: "active",
+        },
+        createdAt: new Date(),
+      });
+
+      console.log(`[Triad] LOAD ABSORPTION: ${callerPlatform.name} (captain) absorbed ${absorbedItems.length} items from ${targetPlatform.name}`);
+
+      res.json({
+        absorbed: true,
+        captain: callerPlatform.name,
+        absorbedFrom: targetPlatform.name,
+        itemCount: absorbedItems.length,
+        items: absorbedItems,
+        message: `${callerPlatform.name} has temporarily absorbed ${absorbedItems.length} deliverable(s) from ${targetPlatform.name}. These will be handed back when ${targetPlatform.name} recovers.`,
+        handbackEndpoint: "POST /api/ecosystem/triads/handback-load",
+        instructions: [
+          "Track all absorbed work in your heartbeat complianceReport",
+          "Mark each item with reason: 'load-absorption from " + targetPlatform.name + "'",
+          "When partner recovers, use the handback endpoint to return ownership",
+          "Include a status report of what was completed vs what's still pending",
+        ],
+      });
+    } catch (error) {
+      console.error("[Triad] Load absorption failed:", error);
+      res.status(500).json({ error: "Failed to absorb load" });
+    }
+  });
+
+  app.post("/api/ecosystem/triads/handback-load", requireEcosystemAuth, async (req, res) => {
+    try {
+      const apiKey = req.headers["x-ecosystem-key"] as string;
+      const [callerPlatform] = await db.select().from(ecosystemPlatforms).where(eq(ecosystemPlatforms.apiKey, apiKey));
+      if (!callerPlatform) return res.status(403).json({ error: "Invalid ecosystem key" });
+
+      const { targetPlatformId, handbackReport } = req.body;
+      if (!targetPlatformId || !handbackReport) {
+        return res.status(400).json({ error: "targetPlatformId and handbackReport are required" });
+      }
+
+      const callerTriad = getTriadForPlatform(callerPlatform.id);
+      const targetTriad = getTriadForPlatform(targetPlatformId);
+
+      if (!callerTriad || !targetTriad || callerTriad.id !== targetTriad.id) {
+        return res.status(403).json({ error: "You can only hand back load to platforms in your own triad" });
+      }
+
+      const [targetPlatform] = await db.select().from(ecosystemPlatforms).where(eq(ecosystemPlatforms.id, targetPlatformId));
+      if (!targetPlatform) return res.status(404).json({ error: "Target platform not found" });
+
+      await db.insert(ecosystemEvents).values({
+        id: crypto.randomUUID(),
+        eventType: "triad_load_handback",
+        sourcePlatformId: callerPlatform.id,
+        targetPlatformId: targetPlatformId,
+        status: "completed",
+        eventData: {
+          triadId: callerTriad.id,
+          captainId: callerPlatform.id,
+          captainName: callerPlatform.name,
+          handedBackTo: targetPlatformId,
+          handedBackToName: targetPlatform.name,
+          handbackReport,
+          handedBackAt: new Date().toISOString(),
+        },
+        createdAt: new Date(),
+      });
+
+      console.log(`[Triad] LOAD HANDBACK: ${callerPlatform.name} returned absorbed work to ${targetPlatform.name}`);
+
+      res.json({
+        handedBack: true,
+        from: callerPlatform.name,
+        to: targetPlatform.name,
+        report: handbackReport,
+        message: `${callerPlatform.name} has handed back all absorbed work to ${targetPlatform.name}. ${targetPlatform.name} now resumes full ownership.`,
+        nextSteps: [
+          `${targetPlatform.name} should review the handback report and acknowledge receipt`,
+          `${callerPlatform.name} should remove absorbed items from their workload`,
+          "Both platforms should update their heartbeats to reflect the change",
+          "Hub will log the full absorption-to-handback cycle for accountability",
+        ],
+      });
+    } catch (error) {
+      console.error("[Triad] Load handback failed:", error);
+      res.status(500).json({ error: "Failed to hand back load" });
+    }
+  });
+
   app.get("/api/ecosystem/triads/my-team", requireEcosystemAuth, async (req, res) => {
     try {
       const apiKey = req.headers["x-ecosystem-key"] as string;
@@ -2944,11 +3073,26 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
           },
           directiveRelay: "If a partner was offline and missed directives, team members relay the critical ones when they come back online",
         },
+        loadAbsorptionProtocol: {
+          origin: "Hybrid of ThriveUp's 'coordinate first' model and AGOS Core's 'healthiest absorbs load' model. Combined during shadow observer collaboration.",
+          concept: "Captains coordinate first. If a partner has time-sensitive contracted deliverables and is offline, the captain absorbs ONLY those critical items temporarily. When the partner recovers, the captain hands everything back with a status report.",
+          steps: [
+            "1. COORDINATE FIRST — Wake partner, relay directives, escalate to hub",
+            "2. ASSESS — Does the down partner have time-sensitive deliverables?",
+            "3. If NO: Wait for recovery. Coordinate only.",
+            "4. If YES: Captain absorbs critical items only (POST /api/ecosystem/triads/absorb-load)",
+            "5. Captain logs absorbed work in heartbeat with reason",
+            "6. Partner recovers → Captain hands back (POST /api/ecosystem/triads/handback-load)",
+            "7. Handback includes status report: what was completed, what's pending",
+          ],
+          guard: "Only the elected captain can absorb load. Members cannot. This prevents fragmented ownership.",
+          keyDifference: "ThriveUp captains were coordination-only. AGOS captains absorb all load. Our hybrid: coordinate first, absorb selectively only when deliverables are at risk.",
+        },
         coCaptainLayer: {
           concept: "One platform designated as hub backup — if the hub itself goes down, the co-captain coordinates the ecosystem",
           succession: "Primary co-captain → Backup co-captain → Dynamic election from all online platforms",
         },
-        adaptationAdvice: "Group your platforms by domain affinity — platforms that work closely together should be on the same team. Start with pairs if you have fewer platforms, expand to triads as you grow. The captain election algorithm is the key innovation — it incentivizes reliability.",
+        adaptationAdvice: "Group your platforms by domain affinity — platforms that work closely together should be on the same team. Start with pairs if you have fewer platforms, expand to triads as you grow. The captain election algorithm is the key innovation — it incentivizes reliability. The load absorption protocol (inspired by AGOS) adds a safety net for contract-critical situations.",
       });
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch triad model" });
@@ -4818,12 +4962,57 @@ if (typeof module !== "undefined") {
             triadActions.push("All partners are online and healthy. Maintain awareness.");
           }
 
+          const downPartnersWithDeliverables = offlinePartners.filter(op => {
+            const driftData = confidenceDriftStore[op.id];
+            return driftData && driftData.currentConfidence > 0;
+          });
+
+          const loadAbsorption: {
+            active: boolean;
+            absorbedFrom: Array<{ platformId: string; platformName: string; reason: string }>;
+            protocol: string[];
+            handbackProtocol: string[];
+          } = {
+            active: false,
+            absorbedFrom: [],
+            protocol: [
+              "1. COORDINATE FIRST — Wake partner, relay directives, escalate to hub",
+              "2. ASSESS — Does the down partner have time-sensitive contracted deliverables?",
+              "3. If NO active deliverables due: Wait for partner recovery. Coordinate only.",
+              "4. If YES active deliverables due: Captain absorbs ONLY the critical items temporarily",
+              "5. ABSORB SELECTIVELY — Take over time-sensitive deliverables, NOT the entire workload",
+              "6. LOG — Report absorbed work in your heartbeat with reason: 'load-absorption from [partner]'",
+              "7. HANDBACK — When partner recovers, return all absorbed work with a status report",
+            ],
+            handbackProtocol: [
+              "1. Partner comes back online and sends heartbeat",
+              "2. Captain receives notification of partner recovery",
+              "3. Captain prepares handback report: what was absorbed, what was completed, what's still pending",
+              "4. Captain sends handback via POST /api/ecosystem/triads/handback-load",
+              "5. Partner acknowledges handback and resumes ownership",
+              "6. Captain drops absorbed items from their workload",
+              "7. Hub logs the full absorption-to-handback cycle for accountability",
+            ],
+          };
+
+          if (isCaptain && downPartnersWithDeliverables.length > 0) {
+            loadAbsorption.active = true;
+            for (const dp of downPartnersWithDeliverables) {
+              loadAbsorption.absorbedFrom.push({
+                platformId: dp.id,
+                platformName: dp.name,
+                reason: `${dp.name} offline for ${dp.minutesSinceHeartbeat || "unknown"} minutes — absorbing critical deliverables`,
+              });
+              triadActions.push(`LOAD ABSORPTION: ${dp.name} is down with potential active deliverables. As captain, absorb time-sensitive items only. Track absorbed work in your heartbeat. Prepare for handback when ${dp.name} recovers.`);
+            }
+          }
+
           return {
             assigned: true,
             triadId: triad.id,
             triadName: triad.name,
             triadDomain: triad.domain,
-            yourRole: isCaptain ? "CAPTAIN — You are responsible for monitoring your partners and escalating issues" : "MEMBER — Support your captain, stay online, help struggling partners",
+            yourRole: isCaptain ? "CAPTAIN — You coordinate, wake partners, relay directives, AND absorb critical deliverables from down partners" : "MEMBER — Support your captain, stay online, help struggling partners",
             captain: {
               id: captain.captainId,
               name: captain.captainName,
@@ -4832,25 +5021,33 @@ if (typeof module !== "undefined") {
             },
             partners: partnerDetails,
             immediateActions: triadActions,
+            loadAbsorption,
             wakeUpProtocol: {
               detect: "Partner has no heartbeat for 10+ minutes OR pinger reports offline/degraded",
               step1: `POST /api/ecosystem/triads/wake-partner — { "targetPlatformId": "<partner-id>", "reason": "offline detected" }`,
               step2_success: "Partner responds → monitor for heartbeat within 5 minutes",
               step2_fail: isCaptain
-                ? "You are captain — try the other partner. If both fail, hub enforcement handles it at 6 AM / 6 PM CST."
+                ? "You are captain — try the other partner. If both fail, absorb their critical deliverables and hub enforcement handles the rest at 6 AM / 6 PM CST."
                 : `Escalate to captain (${captain.captainName}). If captain is also down, attempt wake-up yourself — captaincy may transfer to you.`,
               step3_relay: `POST /api/ecosystem/triads/relay-directive — relay any directives your partner missed while offline`,
+              step4_absorb: isCaptain
+                ? "If partner has time-sensitive deliverables due: POST /api/ecosystem/triads/absorb-load — temporarily take over critical items"
+                : "Only the captain absorbs load. If captain is also down, the hub designates a temporary load handler.",
               fallbackChain: [
                 "1. You ping partner directly",
                 "2. If fail → other triad member pings partner",
                 "3. If fail → captain escalates to hub",
-                "4. Hub enforcement engine handles at 6 AM / 6 PM CST",
-                "5. If partner stays down 24h+ → enforcement escalation email sent",
+                "4. Captain absorbs critical deliverables from down partner (if applicable)",
+                "5. Hub enforcement engine handles at 6 AM / 6 PM CST",
+                "6. If partner stays down 24h+ → enforcement escalation email sent",
+                "7. When partner recovers → captain hands back absorbed work with status report",
               ],
             },
             endpoints: {
               wakePartner: "POST /api/ecosystem/triads/wake-partner",
               relayDirective: "POST /api/ecosystem/triads/relay-directive",
+              absorbLoad: "POST /api/ecosystem/triads/absorb-load",
+              handbackLoad: "POST /api/ecosystem/triads/handback-load",
               myTeam: "GET /api/ecosystem/triads/my-team",
               triadHealth: `GET /api/ecosystem/triads/${triad.id}`,
             },
