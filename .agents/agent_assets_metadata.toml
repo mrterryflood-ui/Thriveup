@@ -78,3 +78,9 @@ id = "rgyC2GYuGBIhq19Tu3Pcp"
 uri = "file://ACOS_NAICS_PSC_Codes_Master_Reference.md"
 type = "text"
 title = "ACOS Ecosystem — Master NAICS & PSC Code Reference (SAM.gov)"
+
+[[outputs]]
+id = "OskZv1oH5arMbCZ0GemE0"
+uri = "file://docs/ECOSYSTEM-MASTER-DIRECTIVE.md"
+type = "text"
+title = "Ecosystem Master Directive & Integration Guide v5.0"
