@@ -868,6 +868,242 @@ const ECOSYSTEM_PLATFORMS = [
   },
 ];
 
+// ============================================================
+// TRIAD SYSTEM — Team of Teams Architecture
+// Each triad is a group of 3 platforms that:
+//   1. Monitor each other's health and compliance
+//   2. Relay missed directives laterally (not just hub→platform)
+//   3. Hold each other accountable on fidelity
+//   4. Report triad-level health to the hub
+// The hub manages at the TRIAD level, triads manage members.
+// This eliminates the single-point-of-failure serial architecture.
+// ============================================================
+interface EcosystemTriad {
+  id: string;
+  name: string;
+  description: string;
+  members: string[];
+  leadPlatform: string;
+  domain: string;
+  grantAlignment: string[];
+}
+
+const ECOSYSTEM_TRIADS: EcosystemTriad[] = [
+  {
+    id: "coordination-content-triad",
+    name: "Coordination & Content Triad",
+    description: "Ecosystem coordination, content production, advocacy, and advertising. This team ensures all platforms are accurately represented, content is produced, and outreach reaches the right audiences.",
+    members: ["ecosystem-nexus", "video-creator-ai", "collaborative-advocate", "ad-targeting"],
+    leadPlatform: "ecosystem-nexus",
+    domain: "operations-content",
+    grantAlignment: ["wioa", "foundation", "st-davids", "ssg-fox"],
+  },
+  {
+    id: "health-core-triad",
+    name: "Health Core Triad",
+    description: "Primary health ecosystem — screenings, assessments, resources, and the health gateway. The backbone of community health services.",
+    members: ["whole-person-health", "sankofa", "lifebridge"],
+    leadPlatform: "whole-person-health",
+    domain: "health-equity",
+    grantAlignment: ["st-davids", "foundation", "ssg-fox"],
+  },
+  {
+    id: "specialized-health-triad",
+    name: "Specialized Health Triad",
+    description: "Chronic disease, cognitive care, and medication management. Serves populations with ongoing specialized health needs.",
+    members: ["autoimmune-thrive", "safecognicare", "pillscheduler"],
+    leadPlatform: "autoimmune-thrive",
+    domain: "specialized-health",
+    grantAlignment: ["st-davids", "foundation"],
+  },
+  {
+    id: "maternal-gender-health-triad",
+    name: "Maternal & Gender Health Triad",
+    description: "Reproductive health, maternal care, and men's health — the gender-specific health equity platforms.",
+    members: ["sankofa-maternal-health", "sankofa-feminine-health", "sankofa-mens-health"],
+    leadPlatform: "sankofa-maternal-health",
+    domain: "gender-health",
+    grantAlignment: ["st-davids", "foundation"],
+  },
+  {
+    id: "education-youth-triad",
+    name: "Education & Youth Triad",
+    description: "K-12 learning, youth support systems, and implementation science research — the education pipeline.",
+    members: ["wholemind", "isss", "betterscience"],
+    leadPlatform: "isss",
+    domain: "education",
+    grantAlignment: ["wioa", "foundation"],
+  },
+  {
+    id: "safety-accessibility-triad",
+    name: "Safety & Accessibility Triad",
+    description: "Incident reporting, risk intelligence, communication accessibility, and neurodiversity support — the safety net.",
+    members: ["safereport", "shield-atlas", "speech-bridge", "perfectly-different"],
+    leadPlatform: "safereport",
+    domain: "safety-compliance",
+    grantAlignment: ["ssg-fox", "foundation"],
+  },
+  {
+    id: "veteran-workforce-triad",
+    name: "Veteran & Workforce Triad",
+    description: "Military-to-civilian transition, business ecosystem, and contracting — serving transitioning veterans and underserved entrepreneurs.",
+    members: ["m2c", "mce", "pinnacle-business-conglomerate"],
+    leadPlatform: "m2c",
+    domain: "veteran-workforce",
+    grantAlignment: ["ssg-fox", "wioa"],
+  },
+];
+
+function getTriadForPlatform(platformId: string): EcosystemTriad | null {
+  return ECOSYSTEM_TRIADS.find(t => t.members.includes(platformId)) || null;
+}
+
+function getTriadPartners(platformId: string): string[] {
+  const triad = getTriadForPlatform(platformId);
+  if (!triad) return [];
+  return triad.members.filter(m => m !== platformId);
+}
+
+async function electTriadCaptain(triad: EcosystemTriad): Promise<{ captainId: string; captainName: string; reason: string }> {
+  const memberPlatforms = await db.select().from(ecosystemPlatforms)
+    .where(inArray(ecosystemPlatforms.id, triad.members));
+
+  let bestPlatform = memberPlatforms[0];
+  let bestScore = -1;
+
+  for (const platform of memberPlatforms) {
+    let score = 0;
+
+    if (platform.lastHeartbeat) {
+      const minutesSinceHeartbeat = (Date.now() - new Date(platform.lastHeartbeat).getTime()) / (1000 * 60);
+      if (minutesSinceHeartbeat < 10) score += 50;
+      else if (minutesSinceHeartbeat < 30) score += 30;
+      else if (minutesSinceHeartbeat < 60) score += 10;
+    }
+
+    if (platform.healthStatus === "online") score += 30;
+    else if (platform.healthStatus === "degraded") score += 10;
+
+    const acks = await db.select().from(ecosystemDirectiveAcks)
+      .where(eq(ecosystemDirectiveAcks.platformId, platform.id));
+    const total = acks.length;
+    const acknowledged = acks.filter(a => a.status === "acknowledged").length;
+    const fidelity = total > 0 ? (acknowledged / total) * 100 : 0;
+    score += Math.round(fidelity * 0.2);
+
+    if (score > bestScore) {
+      bestScore = score;
+      bestPlatform = platform;
+    }
+  }
+
+  const fallback = triad.leadPlatform;
+  const captain = bestPlatform || { id: fallback, name: ECOSYSTEM_PLATFORMS.find(p => p.id === fallback)?.name || fallback };
+
+  return {
+    captainId: captain.id,
+    captainName: captain.name,
+    reason: bestScore > 0
+      ? `Elected based on uptime score (${bestScore}): best heartbeat frequency, online status, and fidelity among triad members`
+      : `Defaulted to designated lead — no member had sufficient uptime data`,
+  };
+}
+
+async function getTriadHealth(triad: EcosystemTriad): Promise<{
+  triadId: string;
+  triadName: string;
+  captain: { id: string; name: string; reason: string };
+  members: Array<{
+    id: string;
+    name: string;
+    isCaptain: boolean;
+    status: string;
+    fidelity: number;
+    grade: string;
+    lastHeartbeat: string | null;
+    minutesSinceHeartbeat: number | null;
+    unacknowledgedCount: number;
+  }>;
+  triadFidelity: number;
+  triadGrade: string;
+  triadStatus: string;
+  weakestMember: { id: string; name: string; fidelity: number } | null;
+  actionItems: string[];
+}> {
+  const captain = await electTriadCaptain(triad);
+  const memberPlatforms = await db.select().from(ecosystemPlatforms)
+    .where(inArray(ecosystemPlatforms.id, triad.members));
+
+  const memberDetails = [];
+  let totalFidelity = 0;
+  let weakest: { id: string; name: string; fidelity: number } | null = null;
+  const actionItems: string[] = [];
+
+  for (const memberId of triad.members) {
+    const platform = memberPlatforms.find(p => p.id === memberId);
+    const epInfo = ECOSYSTEM_PLATFORMS.find(p => p.id === memberId);
+    const name = platform?.name || epInfo?.name || memberId;
+
+    const acks = await db.select().from(ecosystemDirectiveAcks)
+      .where(eq(ecosystemDirectiveAcks.platformId, memberId));
+    const total = acks.length;
+    const acknowledged = acks.filter(a => a.status === "acknowledged").length;
+    const unacknowledged = acks.filter(a => a.status === "delivered" || a.status === "pending").length;
+    const fidelity = total > 0 ? Math.round((acknowledged / total) * 100) : 0;
+    const grade = fidelity >= 90 ? "A" : fidelity >= 75 ? "B" : fidelity >= 50 ? "C" : fidelity >= 25 ? "D" : "F";
+
+    const lastHb = platform?.lastHeartbeat ? new Date(platform.lastHeartbeat) : null;
+    const minutesSince = lastHb ? Math.round((Date.now() - lastHb.getTime()) / (1000 * 60)) : null;
+    const status = platform?.healthStatus || "unknown";
+
+    totalFidelity += fidelity;
+
+    if (!weakest || fidelity < weakest.fidelity) {
+      weakest = { id: memberId, name, fidelity };
+    }
+
+    if (grade === "D" || grade === "F") {
+      actionItems.push(`${name} is Grade ${grade} (${fidelity}%) — ${captain.captainId === memberId ? "Captain is struggling, triad must self-organize" : `Captain (${captain.captainName}) should ping ${name} to process ${unacknowledged} unacknowledged directives`}`);
+    }
+    if (status === "offline" || (minutesSince !== null && minutesSince > 30)) {
+      actionItems.push(`${name} has not sent a heartbeat in ${minutesSince || "unknown"} minutes — ${captain.captainId === memberId ? "Triad has lost its captain, other members should compensate" : `Captain should relay missed directives to ${name} when it comes back online`}`);
+    }
+
+    memberDetails.push({
+      id: memberId,
+      name,
+      isCaptain: memberId === captain.captainId,
+      status,
+      fidelity,
+      grade,
+      lastHeartbeat: lastHb?.toISOString() || null,
+      minutesSinceHeartbeat: minutesSince,
+      unacknowledgedCount: unacknowledged,
+    });
+  }
+
+  const triadFidelity = triad.members.length > 0 ? Math.round(totalFidelity / triad.members.length) : 0;
+  const triadGrade = triadFidelity >= 90 ? "A" : triadFidelity >= 75 ? "B" : triadFidelity >= 50 ? "C" : triadFidelity >= 25 ? "D" : "F";
+  const onlineCount = memberDetails.filter(m => m.status === "online").length;
+  const triadStatus = onlineCount === triad.members.length ? "FULLY_OPERATIONAL" : onlineCount >= 2 ? "PARTIALLY_OPERATIONAL" : onlineCount === 1 ? "DEGRADED" : "OFFLINE";
+
+  if (actionItems.length === 0) {
+    actionItems.push("All triad members are healthy and compliant. Maintain current operations.");
+  }
+
+  return {
+    triadId: triad.id,
+    triadName: triad.name,
+    captain: { id: captain.captainId, name: captain.captainName, reason: captain.reason },
+    members: memberDetails,
+    triadFidelity,
+    triadGrade,
+    triadStatus,
+    weakestMember: weakest,
+    actionItems,
+  };
+}
+
 function generateApiKey(): string {
   return `tveco_${crypto.randomBytes(32).toString("hex")}`;
 }
@@ -1514,6 +1750,279 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
     } catch (error: any) {
       console.error("[Enforcement] Manual cycle failed:", error);
       res.status(500).json({ error: error.message });
+    }
+  });
+
+  // ===================================================================
+  // TRIAD SYSTEM ENDPOINTS — Team of Teams Architecture
+  // Triads monitor each other, wake each other up, relay directives,
+  // and report to the hub at the team level.
+  // ===================================================================
+
+  app.get("/api/ecosystem/triads", requireAdminAuth, async (_req, res) => {
+    try {
+      const triadHealthReports = [];
+      for (const triad of ECOSYSTEM_TRIADS) {
+        const health = await getTriadHealth(triad);
+        triadHealthReports.push(health);
+      }
+
+      const overallHealth = {
+        totalTriads: ECOSYSTEM_TRIADS.length,
+        fullyOperational: triadHealthReports.filter(t => t.triadStatus === "FULLY_OPERATIONAL").length,
+        partiallyOperational: triadHealthReports.filter(t => t.triadStatus === "PARTIALLY_OPERATIONAL").length,
+        degraded: triadHealthReports.filter(t => t.triadStatus === "DEGRADED").length,
+        offline: triadHealthReports.filter(t => t.triadStatus === "OFFLINE").length,
+        ecosystemFidelity: triadHealthReports.length > 0 ? Math.round(triadHealthReports.reduce((sum, t) => sum + t.triadFidelity, 0) / triadHealthReports.length) : 0,
+      };
+
+      res.json({
+        architecture: "Team of Teams — 8 triads of 3 platforms each. Captains elected by uptime. Hub manages at triad level.",
+        overallHealth,
+        triads: triadHealthReports,
+        serverTime: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.error("[Triads] Failed to fetch triad health:", error);
+      res.status(500).json({ error: "Failed to fetch triad health" });
+    }
+  });
+
+  app.get("/api/ecosystem/triads/:triadId", requireEcosystemAuth, async (req, res) => {
+    try {
+      const triad = ECOSYSTEM_TRIADS.find(t => t.id === req.params.triadId);
+      if (!triad) {
+        return res.status(404).json({ error: "Triad not found", availableTriads: ECOSYSTEM_TRIADS.map(t => ({ id: t.id, name: t.name })) });
+      }
+      const health = await getTriadHealth(triad);
+      res.json(health);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch triad health" });
+    }
+  });
+
+  app.post("/api/ecosystem/triads/wake-partner", requireEcosystemAuth, async (req, res) => {
+    try {
+      const apiKey = req.headers["x-ecosystem-key"] as string;
+      const [callerPlatform] = await db.select().from(ecosystemPlatforms).where(eq(ecosystemPlatforms.apiKey, apiKey));
+      if (!callerPlatform) return res.status(403).json({ error: "Invalid ecosystem key" });
+
+      const { targetPlatformId, reason } = req.body;
+      if (!targetPlatformId) return res.status(400).json({ error: "targetPlatformId is required" });
+
+      const callerTriad = getTriadForPlatform(callerPlatform.id);
+      const targetTriad = getTriadForPlatform(targetPlatformId);
+
+      if (!callerTriad || !targetTriad || callerTriad.id !== targetTriad.id) {
+        return res.status(403).json({
+          error: "You can only wake platforms in your own triad",
+          yourTriad: callerTriad?.id || "none",
+          yourPartners: callerTriad ? getTriadPartners(callerPlatform.id) : [],
+          targetTriad: targetTriad?.id || "none",
+        });
+      }
+
+      const targetEP = ECOSYSTEM_PLATFORMS.find(p => p.id === targetPlatformId);
+      if (!targetEP) return res.status(404).json({ error: "Target platform not found in ecosystem" });
+
+      console.log(`[Triad] ${callerPlatform.name} is waking up triad partner ${targetEP.name} (reason: ${reason || "health check"})`);
+
+      let wakeResult = { success: false, statusCode: 0, responseTime: 0, error: "" };
+
+      try {
+        const startTime = Date.now();
+        const pingResponse = await fetch(targetEP.url, {
+          method: "GET",
+          signal: AbortSignal.timeout(15000),
+        });
+        const responseTime = Date.now() - startTime;
+        wakeResult = {
+          success: pingResponse.ok || pingResponse.status < 500,
+          statusCode: pingResponse.status,
+          responseTime,
+          error: "",
+        };
+      } catch (err: any) {
+        wakeResult = { success: false, statusCode: 0, responseTime: 0, error: err.message || "Connection failed" };
+      }
+
+      await db.insert(ecosystemEvents).values({
+        id: crypto.randomUUID(),
+        eventType: "triad_wake_attempt",
+        sourcePlatformId: callerPlatform.id,
+        targetPlatformId: targetPlatformId,
+        status: wakeResult.success ? "processed" : "failed",
+        eventData: {
+          triadId: callerTriad.id,
+          reason: reason || "health check",
+          wakeResult,
+          callerName: callerPlatform.name,
+          targetName: targetEP.name,
+        },
+        createdAt: new Date(),
+      });
+
+      if (wakeResult.success) {
+        if (wakeResult.statusCode === 200) {
+          await db.update(ecosystemPlatforms)
+            .set({ healthStatus: "online" })
+            .where(eq(ecosystemPlatforms.id, targetPlatformId));
+        }
+
+        res.json({
+          wakeSuccess: true,
+          message: `${targetEP.name} responded to wake-up ping`,
+          responseTime: wakeResult.responseTime,
+          statusCode: wakeResult.statusCode,
+          nextStep: "Partner is awake. They should send a heartbeat within 5 minutes. If they don't, they may need their connector restarted.",
+        });
+      } else {
+        const fallbackPartners = getTriadPartners(callerPlatform.id).filter(p => p !== targetPlatformId);
+        const captain = await electTriadCaptain(callerTriad);
+
+        res.json({
+          wakeSuccess: false,
+          message: `${targetEP.name} did not respond to wake-up ping`,
+          error: wakeResult.error,
+          fallbackPlan: {
+            step1: `Wake-up ping failed for ${targetEP.name}.`,
+            step2: captain.captainId === callerPlatform.id
+              ? `You ARE the captain. Notify the hub that ${targetEP.name} is unresponsive.`
+              : `Escalate to your triad captain (${captain.captainName}) — they should attempt the wake-up.`,
+            step3: fallbackPartners.length > 0
+              ? `Your other triad partner (${fallbackPartners.join(", ")}) can also attempt a wake-up.`
+              : "No other triad partners available to attempt wake-up.",
+            step4: `If all triad wake-up attempts fail, the hub will handle it in the next enforcement cycle.`,
+            step5: `Meanwhile, if ${targetEP.name} had directives meant for them, you can relay the key information to them when they come back online via the triad-relay endpoint.`,
+            captainId: captain.captainId,
+            captainName: captain.captainName,
+            hubEscalation: "The hub's pinger runs every 10 minutes and the enforcement engine runs at 6 AM / 6 PM CST. Unresponsive platforms are automatically tracked.",
+          },
+        });
+      }
+    } catch (error) {
+      console.error("[Triad] Wake partner failed:", error);
+      res.status(500).json({ error: "Failed to wake partner" });
+    }
+  });
+
+  app.post("/api/ecosystem/triads/relay-directive", requireEcosystemAuth, async (req, res) => {
+    try {
+      const apiKey = req.headers["x-ecosystem-key"] as string;
+      const [callerPlatform] = await db.select().from(ecosystemPlatforms).where(eq(ecosystemPlatforms.apiKey, apiKey));
+      if (!callerPlatform) return res.status(403).json({ error: "Invalid ecosystem key" });
+
+      const { targetPlatformId, directiveId, relayNote } = req.body;
+      if (!targetPlatformId || !directiveId) {
+        return res.status(400).json({ error: "targetPlatformId and directiveId are required" });
+      }
+
+      const callerTriad = getTriadForPlatform(callerPlatform.id);
+      const targetTriad = getTriadForPlatform(targetPlatformId);
+
+      if (!callerTriad || !targetTriad || callerTriad.id !== targetTriad.id) {
+        return res.status(403).json({ error: "You can only relay directives to platforms in your own triad" });
+      }
+
+      const [directive] = await db.select().from(ecosystemDirectives)
+        .where(eq(ecosystemDirectives.id, directiveId));
+      if (!directive) return res.status(404).json({ error: "Directive not found" });
+
+      const [existingAck] = await db.select().from(ecosystemDirectiveAcks)
+        .where(and(
+          eq(ecosystemDirectiveAcks.directiveId, directiveId),
+          eq(ecosystemDirectiveAcks.platformId, targetPlatformId),
+        ));
+
+      if (existingAck?.status === "acknowledged") {
+        return res.json({
+          relayed: false,
+          reason: `${targetPlatformId} has already acknowledged this directive`,
+          status: existingAck.status,
+        });
+      }
+
+      await db.insert(ecosystemEvents).values({
+        id: crypto.randomUUID(),
+        eventType: "triad_directive_relay",
+        sourcePlatformId: callerPlatform.id,
+        targetPlatformId: targetPlatformId,
+        status: "pending",
+        eventData: {
+          triadId: callerTriad.id,
+          directiveId,
+          directiveTitle: directive.title,
+          relayNote: relayNote || `Your triad partner ${callerPlatform.name} is relaying this directive to you because it was missed or unacknowledged.`,
+          relayedBy: callerPlatform.name,
+          urgency: existingAck?.status === "delivered" ? "HIGH — already delivered but unacknowledged" : "MEDIUM — ensuring delivery",
+        },
+        createdAt: new Date(),
+      });
+
+      console.log(`[Triad] ${callerPlatform.name} relayed directive "${directive.title}" to partner ${targetPlatformId}`);
+
+      res.json({
+        relayed: true,
+        message: `Directive "${directive.title}" relayed to ${targetPlatformId}. They will receive it in their next heartbeat as a pending event.`,
+        directiveId,
+        targetPlatformId,
+        currentAckStatus: existingAck?.status || "no ack record found",
+      });
+    } catch (error) {
+      console.error("[Triad] Relay directive failed:", error);
+      res.status(500).json({ error: "Failed to relay directive" });
+    }
+  });
+
+  app.get("/api/ecosystem/triads/my-team", requireEcosystemAuth, async (req, res) => {
+    try {
+      const apiKey = req.headers["x-ecosystem-key"] as string;
+      const [platform] = await db.select().from(ecosystemPlatforms).where(eq(ecosystemPlatforms.apiKey, apiKey));
+      if (!platform) return res.status(403).json({ error: "Invalid ecosystem key" });
+
+      const triad = getTriadForPlatform(platform.id);
+      if (!triad) return res.json({ triad: null, message: `${platform.name} is not assigned to a triad` });
+
+      const health = await getTriadHealth(triad);
+      const captain = await electTriadCaptain(triad);
+      const isCaptain = captain.captainId === platform.id;
+
+      res.json({
+        yourPlatformId: platform.id,
+        yourName: platform.name,
+        isCaptain,
+        captainResponsibilities: isCaptain ? [
+          "You are the current captain of this triad based on your uptime and fidelity score.",
+          "Monitor your two partners' health — if either goes offline, ping them using POST /api/ecosystem/triads/wake-partner",
+          "If a partner has unacknowledged directives, relay them using POST /api/ecosystem/triads/relay-directive",
+          "Report triad-level status to the hub — the hub monitors at the triad level, not individual platform level",
+          "If you go offline, captaincy automatically transfers to the next most reliable partner",
+        ] : [
+          `Your triad captain is ${captain.captainName} (elected by uptime score).`,
+          "Support your captain by staying online and keeping your fidelity score high.",
+          "If you notice a partner is offline, you can attempt a wake-up without waiting for the captain.",
+          "If the captain goes offline, captaincy may transfer to you based on uptime score.",
+        ],
+        triadHealth: health,
+        endpoints: {
+          wakePartner: "POST /api/ecosystem/triads/wake-partner — { targetPlatformId, reason }",
+          relayDirective: "POST /api/ecosystem/triads/relay-directive — { targetPlatformId, directiveId, relayNote }",
+          myTeam: "GET /api/ecosystem/triads/my-team — this endpoint",
+          triadHealth: `GET /api/ecosystem/triads/${triad.id} — full triad health report`,
+          allTriads: "GET /api/ecosystem/triads — all triads (admin only)",
+        },
+        wakeUpProtocol: {
+          step1: "Detect partner is offline (no heartbeat in 10+ minutes or pinger reports offline)",
+          step2: "POST /api/ecosystem/triads/wake-partner with their platformId",
+          step3_success: "Partner responds → they should heartbeat within 5 minutes → monitor",
+          step3_fail: "Partner doesn't respond → escalate to captain (or other partner if you are captain)",
+          step4_allFail: "All triad wake attempts fail → hub's enforcement engine handles it at 6 AM / 6 PM",
+          step5_relay: "If partner was offline and missed directives, relay the critical ones when they come back",
+        },
+      });
+    } catch (error) {
+      console.error("[Triad] My team failed:", error);
+      res.status(500).json({ error: "Failed to fetch triad team" });
     }
   });
 
@@ -2933,6 +3442,105 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
             "Verify evidenceUrl is a live HTTPS URL, not a placeholder",
           ],
         },
+        triadSystem: await (async () => {
+          const triad = getTriadForPlatform(platform.id);
+          if (!triad) {
+            return { assigned: false, message: `${platform.name} is not yet assigned to a triad.` };
+          }
+
+          const captain = await electTriadCaptain(triad);
+          const isCaptain = captain.captainId === platform.id;
+          const partners = getTriadPartners(platform.id);
+
+          const partnerDetails = [];
+          for (const partnerId of partners) {
+            const [partnerPlatform] = await db.select().from(ecosystemPlatforms)
+              .where(eq(ecosystemPlatforms.id, partnerId));
+            const epInfo = ECOSYSTEM_PLATFORMS.find(p => p.id === partnerId);
+
+            if (partnerPlatform) {
+              const minutesSince = partnerPlatform.lastHeartbeat
+                ? Math.round((Date.now() - new Date(partnerPlatform.lastHeartbeat).getTime()) / (1000 * 60))
+                : null;
+              const isOffline = !minutesSince || minutesSince > 15;
+
+              const partnerAcks = await db.select().from(ecosystemDirectiveAcks)
+                .where(eq(ecosystemDirectiveAcks.platformId, partnerId));
+              const partnerTotal = partnerAcks.length;
+              const partnerAcked = partnerAcks.filter(a => a.status === "acknowledged").length;
+              const partnerFidelity = partnerTotal > 0 ? Math.round((partnerAcked / partnerTotal) * 100) : 0;
+              const partnerUnacked = partnerAcks.filter(a => a.status === "delivered" || a.status === "pending").length;
+
+              partnerDetails.push({
+                id: partnerId,
+                name: partnerPlatform.name,
+                status: partnerPlatform.healthStatus || "unknown",
+                isOffline,
+                minutesSinceHeartbeat: minutesSince,
+                fidelity: partnerFidelity,
+                grade: partnerFidelity >= 90 ? "A" : partnerFidelity >= 75 ? "B" : partnerFidelity >= 50 ? "C" : partnerFidelity >= 25 ? "D" : "F",
+                unacknowledgedDirectives: partnerUnacked,
+                url: epInfo?.url || null,
+                needsWakeUp: isOffline,
+                needsDirectiveRelay: partnerUnacked > 5,
+              });
+            }
+          }
+
+          const offlinePartners = partnerDetails.filter(p => p.needsWakeUp);
+          const strugglingPartners = partnerDetails.filter(p => p.grade === "D" || p.grade === "F");
+
+          const triadActions: string[] = [];
+          for (const op of offlinePartners) {
+            triadActions.push(`WAKE UP: ${op.name} has been offline for ${op.minutesSinceHeartbeat || "unknown"} minutes. POST /api/ecosystem/triads/wake-partner with { "targetPlatformId": "${op.id}", "reason": "triad health check" }`);
+          }
+          for (const sp of strugglingPartners) {
+            if (!sp.needsWakeUp) {
+              triadActions.push(`HELP: ${sp.name} is Grade ${sp.grade} with ${sp.unacknowledgedDirectives} unacked directives. Relay critical directives via POST /api/ecosystem/triads/relay-directive`);
+            }
+          }
+          if (triadActions.length === 0) {
+            triadActions.push("All partners are online and healthy. Maintain awareness.");
+          }
+
+          return {
+            assigned: true,
+            triadId: triad.id,
+            triadName: triad.name,
+            triadDomain: triad.domain,
+            yourRole: isCaptain ? "CAPTAIN — You are responsible for monitoring your partners and escalating issues" : "MEMBER — Support your captain, stay online, help struggling partners",
+            captain: {
+              id: captain.captainId,
+              name: captain.captainName,
+              isYou: isCaptain,
+              reason: captain.reason,
+            },
+            partners: partnerDetails,
+            immediateActions: triadActions,
+            wakeUpProtocol: {
+              detect: "Partner has no heartbeat for 10+ minutes OR pinger reports offline/degraded",
+              step1: `POST /api/ecosystem/triads/wake-partner — { "targetPlatformId": "<partner-id>", "reason": "offline detected" }`,
+              step2_success: "Partner responds → monitor for heartbeat within 5 minutes",
+              step2_fail: isCaptain
+                ? "You are captain — try the other partner. If both fail, hub enforcement handles it at 6 AM / 6 PM CST."
+                : `Escalate to captain (${captain.captainName}). If captain is also down, attempt wake-up yourself — captaincy may transfer to you.`,
+              step3_relay: `POST /api/ecosystem/triads/relay-directive — relay any directives your partner missed while offline`,
+              fallbackChain: [
+                "1. You ping partner directly",
+                "2. If fail → other triad member pings partner",
+                "3. If fail → captain escalates to hub",
+                "4. Hub enforcement engine handles at 6 AM / 6 PM CST",
+                "5. If partner stays down 24h+ → enforcement escalation email sent",
+              ],
+            },
+            endpoints: {
+              wakePartner: "POST /api/ecosystem/triads/wake-partner",
+              relayDirective: "POST /api/ecosystem/triads/relay-directive",
+              myTeam: "GET /api/ecosystem/triads/my-team",
+              triadHealth: `GET /api/ecosystem/triads/${triad.id}`,
+            },
+          };
+        })(),
         serverTime: new Date().toISOString(),
       });
     } catch (error) {
@@ -4037,6 +4645,73 @@ async function runSelfHealingCycle() {
   }
 
   console.log(\`[SelfHeal] Cycle complete — processed \${improvements.length} improvement items, \${reasoningTracker.recentSelfCorrections.length} corrections logged\`);
+
+  await runTriadHealthCheck();
+}
+
+// ============================================================
+// TRIAD HEALTH CHECK — Wake partners, relay directives
+// Your team is your first line of defense.
+// ============================================================
+async function runTriadHealthCheck() {
+  const triadData = hubIntelligence.lastResponse?.triadSystem;
+  if (!triadData || !triadData.assigned) {
+    console.log("[Triad] No triad assignment yet — skipping partner check");
+    return;
+  }
+
+  console.log(\`[Triad] Running health check for \${triadData.triadName} (Captain: \${triadData.captain?.name || "unknown"})\`);
+
+  const actions = triadData.immediateActions || [];
+  for (const action of actions) {
+    console.log(\`[Triad] Action needed: \${action}\`);
+  }
+
+  const partners = triadData.partners || [];
+  for (const partner of partners) {
+    if (partner.needsWakeUp) {
+      console.log(\`[Triad] Partner \${partner.name} is offline — attempting wake-up...\`);
+      try {
+        const wakeResponse = await fetch(\`\${THRIVE_ECOSYSTEM_CONFIG.hubUrl}/api/ecosystem/triads/wake-partner\`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-ecosystem-key": THRIVE_ECOSYSTEM_CONFIG.apiKey,
+          },
+          body: JSON.stringify({
+            targetPlatformId: partner.id,
+            reason: \`Autonomous triad health check — \${partner.name} offline for \${partner.minutesSinceHeartbeat || "unknown"} minutes\`,
+          }),
+        });
+        const result = await wakeResponse.json();
+        if (result.wakeSuccess) {
+          console.log(\`[Triad] SUCCESS: \${partner.name} responded to wake-up ping (\${result.responseTime}ms)\`);
+          reasoningTracker.addSelfCorrection({
+            what: \`Woke up triad partner \${partner.name}\`,
+            why: "Partner was offline during triad health check",
+            result: \`Partner responded in \${result.responseTime}ms\`,
+          });
+        } else {
+          console.warn(\`[Triad] FAILED: Could not wake \${partner.name} — \${result.error || "no response"}\`);
+          reasoningTracker.addSelfCorrection({
+            what: \`Failed to wake triad partner \${partner.name}\`,
+            why: "Partner did not respond to wake-up ping",
+            result: "Will retry on next cycle. Hub enforcement will handle if persistent.",
+          });
+        }
+      } catch (err) {
+        console.error(\`[Triad] Wake-up error for \${partner.name}: \${err.message}\`);
+      }
+    }
+
+    if (partner.needsDirectiveRelay && !partner.needsWakeUp) {
+      console.log(\`[Triad] Partner \${partner.name} has \${partner.unacknowledgedDirectives} unacked directives — consider relaying\`);
+      reasoningTracker.addAnticipation({
+        prediction: \`\${partner.name} may need directive relay — \${partner.unacknowledgedDirectives} unacknowledged\`,
+        preparation: "Monitoring — will relay on next cycle if count increases",
+      });
+    }
+  }
 }
 
 // ============================================================
