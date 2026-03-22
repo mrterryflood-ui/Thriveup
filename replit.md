@@ -66,6 +66,19 @@ The frontend, backend, public-facing pages, and developer/admin panels MUST stay
 - **Multi-Ecosystem Firewall** — Platforms can connect to multiple ecosystems simultaneously with strict data isolation. Internal data (UOSD/CEA/ABOL compliance, thinking scores, triads, enforcement) NEVER flows to external connections. Only contracted KPIs/deliverables pass through. Blueprint endpoint: GET /api/ecosystem/multi-ecosystem/blueprint
 - **Master Directive** — docs/ECOSYSTEM-MASTER-DIRECTIVE.md now has 21 sections (was 19). Sections 19-20 cover Shadow Mode and Multi-Ecosystem Firewall.
 
+## Standing Directive: MAP-GAP Before Every Project
+**Before starting ANY new project or major task, run MAP-GAP:**
+1. Pull live health from `/api/ecosystem/shadow/observe`
+2. Check platform online/degraded/offline counts
+3. Check fidelity scores and pending acknowledgments
+4. Review capability alignment — do we have what this project needs?
+5. Identify gaps that could block the project
+6. Address critical gaps before starting
+7. Document what we learned
+
+Full assessment template: `docs/MAP-GAP-SYSTEM-ASSESSMENT.md`
+This ensures we always know what we possess internally and externally before committing resources.
+
 ## External Dependencies
 - **Database:** PostgreSQL (Neon-backed)
 - **AI Integration:** Google Gemini 2.0 Flash, Anthropic Claude Haiku 4.5, OpenAI GPT-4o-mini, Replit AI Integrations GPT-5-nano.
