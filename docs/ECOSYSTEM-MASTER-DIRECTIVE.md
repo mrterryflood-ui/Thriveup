@@ -1384,7 +1384,7 @@ A new app or external ecosystem can register as a **shadow observer** to watch h
 | `/api/ecosystem/shadow/register` | POST | Register as shadow observer (admin auth, returns shadowKey) |
 | `/api/ecosystem/shadow/observe` | GET | Live operational snapshot (health, scores, triads, enforcement) |
 | `/api/ecosystem/shadow/directive-templates` | GET | All directive categories (UOSD, CEA, ABOL) with guidance patterns |
-| `/api/ecosystem/shadow/scoring-model` | GET | Thinking score algorithm, grading scale, reasoning indicators |
+| `/api/ecosystem/shadow/scoring-model` | GET | Thinking score + Confidence Drift combined model, 4-quadrant autonomy assessment |
 | `/api/ecosystem/shadow/triad-model` | GET | Triad organization, captain election, wake-up protocol |
 | `/api/ecosystem/shadow/enforcement-model` | GET | Enforcement schedule, self-healing loop, defense strategies |
 | `/api/ecosystem/shadow/operational-flow` | GET | Full startup → heartbeat → self-healing → enforcement → failover flow |

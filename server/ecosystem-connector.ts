@@ -478,6 +478,165 @@ function computeThinkingScore(
   };
 }
 
+const confidenceDriftStore: Record<string, {
+  history: Array<{
+    timestamp: string;
+    thinkingScore: number;
+    fidelityScore: number;
+    uptimeConsecutive: number;
+    hadSelfCorrections: boolean;
+    hadAnticipations: boolean;
+    evidenceVerified: boolean;
+  }>;
+  currentConfidence: number;
+  trend: "rising" | "stable" | "declining" | "volatile" | "new";
+  autonomyLevel: "full" | "supervised" | "restricted" | "probationary";
+  lastUpdated: string;
+}> = {};
+
+function computeConfidenceDrift(
+  platformId: string,
+  thinkingScore: number,
+  fidelityScore: number,
+  isOnline: boolean,
+  complianceReport: Record<string, unknown> | undefined,
+): {
+  confidence: number;
+  trend: "rising" | "stable" | "declining" | "volatile" | "new";
+  autonomyLevel: "full" | "supervised" | "restricted" | "probationary";
+  autonomyLabel: string;
+  combinedAssessment: string;
+  quadrant: string;
+  history: number[];
+} {
+  if (!confidenceDriftStore[platformId]) {
+    confidenceDriftStore[platformId] = {
+      history: [],
+      currentConfidence: 30,
+      trend: "new",
+      autonomyLevel: "probationary",
+      lastUpdated: new Date().toISOString(),
+    };
+  }
+
+  const store = confidenceDriftStore[platformId];
+
+  const notes = String(complianceReport?.notes || "");
+  const hadSelfCorrections = /correct|fix|improv|adjust|self-correct|resolved/.test(notes.toLowerCase());
+  const hadAnticipations = /anticipat|predict|prepar|next step|proactiv|upcoming/.test(notes.toLowerCase());
+  const completedWork = complianceReport?.completedWork as Array<Record<string, unknown>> | undefined;
+  const evidenceVerified = !!(completedWork && completedWork.some(w => w.evidenceUrl));
+
+  store.history.push({
+    timestamp: new Date().toISOString(),
+    thinkingScore,
+    fidelityScore,
+    uptimeConsecutive: isOnline ? 1 : 0,
+    hadSelfCorrections,
+    hadAnticipations,
+    evidenceVerified,
+  });
+
+  if (store.history.length > 100) store.history = store.history.slice(-100);
+
+  const recentWindow = store.history.slice(-10);
+  const olderWindow = store.history.slice(-20, -10);
+
+  let confidenceDelta = 0;
+
+  if (thinkingScore >= 60) confidenceDelta += 3;
+  else if (thinkingScore >= 40) confidenceDelta += 1;
+  else confidenceDelta -= 2;
+
+  if (fidelityScore >= 80) confidenceDelta += 3;
+  else if (fidelityScore >= 50) confidenceDelta += 1;
+  else confidenceDelta -= 2;
+
+  if (isOnline) confidenceDelta += 1;
+  else confidenceDelta -= 5;
+
+  if (hadSelfCorrections) confidenceDelta += 2;
+  if (hadAnticipations) confidenceDelta += 2;
+  if (evidenceVerified) confidenceDelta += 1;
+
+  const recentScores = recentWindow.map(h => h.thinkingScore);
+  if (recentScores.length >= 3) {
+    const improving = recentScores.every((s, i) => i === 0 || s >= recentScores[i - 1]);
+    const declining = recentScores.every((s, i) => i === 0 || s <= recentScores[i - 1]);
+    if (improving) confidenceDelta += 2;
+    if (declining) confidenceDelta -= 3;
+  }
+
+  store.currentConfidence = Math.max(0, Math.min(100, store.currentConfidence + confidenceDelta));
+  store.lastUpdated = new Date().toISOString();
+
+  const recentAvg = recentWindow.length > 0
+    ? recentWindow.reduce((sum, h) => sum + h.thinkingScore, 0) / recentWindow.length
+    : thinkingScore;
+  const olderAvg = olderWindow.length > 0
+    ? olderWindow.reduce((sum, h) => sum + h.thinkingScore, 0) / olderWindow.length
+    : recentAvg;
+
+  const trendDiff = recentAvg - olderAvg;
+  const variance = recentWindow.length >= 3
+    ? recentWindow.reduce((sum, h) => sum + Math.pow(h.thinkingScore - recentAvg, 2), 0) / recentWindow.length
+    : 0;
+
+  let trend: "rising" | "stable" | "declining" | "volatile" | "new";
+  if (store.history.length < 3) trend = "new";
+  else if (variance > 200) trend = "volatile";
+  else if (trendDiff > 5) trend = "rising";
+  else if (trendDiff < -5) trend = "declining";
+  else trend = "stable";
+
+  store.trend = trend;
+
+  const conf = store.currentConfidence;
+  let autonomyLevel: "full" | "supervised" | "restricted" | "probationary";
+  if (conf >= 75 && thinkingScore >= 60 && fidelityScore >= 70) autonomyLevel = "full";
+  else if (conf >= 50 && thinkingScore >= 40) autonomyLevel = "supervised";
+  else if (conf >= 25) autonomyLevel = "restricted";
+  else autonomyLevel = "probationary";
+
+  store.autonomyLevel = autonomyLevel;
+
+  const autonomyLabels: Record<string, string> = {
+    full: "TRUSTED AUTONOMOUS — Full operational independence",
+    supervised: "SUPERVISED AUTONOMY — Operates independently, hub reviews outcomes",
+    restricted: "RESTRICTED — Actions require evidence and justification",
+    probationary: "PROBATIONARY — Close monitoring, limited autonomous action",
+  };
+
+  const trusted = conf >= 50;
+  const thinking = thinkingScore >= 40;
+  let quadrant: string;
+  let combinedAssessment: string;
+
+  if (trusted && thinking) {
+    quadrant = "TRUSTED + THINKING";
+    combinedAssessment = "Full autonomy earned. This platform reasons well AND has demonstrated reliability over time. Grant maximum operational independence.";
+  } else if (trusted && !thinking) {
+    quadrant = "TRUSTED + NOT THINKING";
+    combinedAssessment = "INTERVENTION NEEDED. This platform has a good track record but cognitive depth is declining. Trust is earned from history but current work lacks reasoning. Risk: coasting on reputation. Action: require pre-action justification on all tasks.";
+  } else if (!trusted && thinking) {
+    quadrant = "NOT TRUSTED + THINKING";
+    combinedAssessment = "EARNING AUTONOMY. This platform shows strong reasoning but hasn't built enough track record yet. It's thinking well — give it room to prove itself. Action: increase delegation incrementally.";
+  } else {
+    quadrant = "NOT TRUSTED + NOT THINKING";
+    combinedAssessment = "RESTRICT AND REMEDIATE. Low trust AND low cognitive depth. This platform needs structured improvement: enforce pre-action justification, require evidence on every action, increase heartbeat frequency. Do not grant autonomous authority.";
+  }
+
+  return {
+    confidence: store.currentConfidence,
+    trend,
+    autonomyLevel,
+    autonomyLabel: autonomyLabels[autonomyLevel],
+    combinedAssessment,
+    quadrant,
+    history: store.history.slice(-10).map(h => h.thinkingScore),
+  };
+}
+
 const eventSchema = z.object({
   eventType: z.string().min(1).max(100),
   targetPlatformId: z.string().max(100).nullable().optional(),
@@ -2709,7 +2868,48 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
           formula: "(acknowledged directives / total directives) * 100",
           purpose: "Measures compliance completeness — did you respond to what was asked?",
         },
-        adaptationAdvice: "The thinking score is the most transferable concept. Any ecosystem benefits from measuring whether its platforms think deeply vs respond generically. Adjust the indicators to match your domain's language — a legal ecosystem might look for 'precedent/statute/ruling' instead of 'upstream/downstream'.",
+        confidenceDrift: {
+          range: "0-100",
+          purpose: "Measures how much the hub TRUSTS a platform to act autonomously over time. Thinking score is 'are you reasoning?' — confidence drift is 'should I trust you?'",
+          origin: "Inspired by AGOS Core's confidence drift model during shadow observer collaboration. Combined with ThriveUp's thinking score to create a 4-quadrant autonomy assessment.",
+          howItWorks: [
+            "Every heartbeat adjusts confidence up or down based on: thinking score, fidelity, uptime, self-corrections, anticipations, evidence quality",
+            "History is tracked (last 100 heartbeats) to detect trends",
+            "Trend analysis: rising, stable, declining, volatile, or new",
+            "Combined with thinking score to place platform in one of 4 quadrants",
+          ],
+          confidenceFactors: {
+            positive: [
+              "Thinking score >= 60: +3 per heartbeat",
+              "Fidelity >= 80: +3 per heartbeat",
+              "Online status: +1 per heartbeat",
+              "Self-corrections in notes: +2",
+              "Anticipations in notes: +2",
+              "Evidence URLs provided: +1",
+              "Consistent improvement trend: +2",
+            ],
+            negative: [
+              "Thinking score < 40: -2 per heartbeat",
+              "Fidelity < 50: -2 per heartbeat",
+              "Offline: -5 per heartbeat (reliability matters most)",
+              "Consistent decline trend: -3",
+            ],
+          },
+          fourQuadrants: {
+            "TRUSTED + THINKING": "Full autonomy earned — reasons well AND proven reliable",
+            "TRUSTED + NOT THINKING": "Intervention needed — good track record but cognitive decline. Coasting on reputation.",
+            "NOT TRUSTED + THINKING": "Earning autonomy — strong reasoning, needs more track record",
+            "NOT TRUSTED + NOT THINKING": "Restrict and remediate — structured improvement required",
+          },
+          autonomyLevels: {
+            full: "Confidence >= 75 + Thinking >= 60 + Fidelity >= 70",
+            supervised: "Confidence >= 50 + Thinking >= 40",
+            restricted: "Confidence >= 25",
+            probationary: "Confidence < 25",
+          },
+          keyInsight: "Thinking score is a snapshot — 'how well are you reasoning RIGHT NOW?' Confidence drift is longitudinal — 'how much have you EARNED trust over time?' A platform can have a great day (high thinking score) but low confidence (new, unproven). Or a lazy day (low thinking score) but high confidence (long reliable history). The combination tells the full story.",
+        },
+        adaptationAdvice: "The combined thinking score + confidence drift model is the most transferable concept. Thinking score measures cognitive depth per interaction. Confidence drift measures earned trust over time. Together they answer: 'Is this platform thinking well AND can I trust it to act independently?' Adapt the indicators to your domain, but keep the 4-quadrant structure — it catches problems that either metric alone would miss.",
       });
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch scoring model" });
@@ -4154,6 +4354,56 @@ if (typeof module !== "undefined") {
           ],
           standard: "Minimum: 40 (Developing). Expected: 60 (Analytical). Target: 80+ (Strategic Thinker).",
         },
+        confidenceDrift: (() => {
+          const drift = computeConfidenceDrift(
+            platform.id,
+            thinkingScore.score,
+            fidelityPct,
+            platform.healthStatus === "online",
+            complianceReport as Record<string, unknown> | undefined,
+          );
+          return {
+            confidence: drift.confidence,
+            trend: drift.trend,
+            autonomyLevel: drift.autonomyLevel,
+            autonomyLabel: drift.autonomyLabel,
+            quadrant: drift.quadrant,
+            combinedAssessment: drift.combinedAssessment,
+            recentThinkingScores: drift.history,
+            explanation: {
+              whatThisIs: "Confidence Drift measures how much the hub TRUSTS your platform to act autonomously over time. It combines your thinking score (are you reasoning?) with your track record (have you been reliable?).",
+              howItsCalculated: [
+                "Thinking score >= 60: +3 confidence | >= 40: +1 | < 40: -2",
+                "Fidelity score >= 80: +3 confidence | >= 50: +1 | < 50: -2",
+                "Online: +1 | Offline: -5 (reliability matters heavily)",
+                "Self-corrections in notes: +2 (shows maturity)",
+                "Anticipations in notes: +2 (shows forward thinking)",
+                "Evidence URLs verified: +1 (shows accountability)",
+                "Consistent improvement trend: +2 | Consistent decline: -3",
+              ],
+              quadrants: {
+                "TRUSTED + THINKING": "Full autonomy — you reason well AND have proven reliable",
+                "TRUSTED + NOT THINKING": "Intervention needed — good history but declining cognitive depth. Coasting risk.",
+                "NOT TRUSTED + THINKING": "Earning autonomy — strong reasoning, building track record. Keep going.",
+                "NOT TRUSTED + NOT THINKING": "Restrict and remediate — structured improvement required",
+              },
+              autonomyLevels: {
+                full: "Confidence >= 75, Thinking >= 60, Fidelity >= 70 — full operational independence",
+                supervised: "Confidence >= 50, Thinking >= 40 — independent with outcome reviews",
+                restricted: "Confidence >= 25 — actions need evidence and justification",
+                probationary: "Confidence < 25 — close monitoring, limited autonomous action",
+              },
+            },
+            howToImproveConfidence: [
+              "Send heartbeats consistently (reliability is the biggest factor)",
+              "Maintain thinking score above 40 (shows you're reasoning, not just executing)",
+              "Acknowledge directives with evidence (builds trust through accountability)",
+              "Self-correct before being told (shows maturity and ownership)",
+              "Anticipate next needs (shows strategic value beyond task completion)",
+              "Avoid going offline unexpectedly (each offline event costs -5 confidence)",
+            ],
+          };
+        })(),
         reportCard: {
           grade: gradeInfo.grade,
           gradeLabel: gradeInfo.label,
