@@ -1368,7 +1368,74 @@ SELF-HEALING LOOP
 
 ---
 
-## 19. CONTACT
+## 19. SHADOW / OBSERVER MODE — "Manager in Training"
+
+A new app or external ecosystem can register as a **shadow observer** to watch how this hub operates without participating. Shadow observers:
+
+- **CAN** observe: directive structure, scoring models, triad patterns, enforcement logic, operational flow, live health metrics (anonymized)
+- **CANNOT** see: individual API keys, specific platform compliance data, private heartbeat content, admin credentials
+- **DO NOT** receive directives, get graded, get enforced, join triads, or send heartbeats
+- **PURPOSE**: Study the patterns. Adapt them. Build your own ecosystem hub using what you learn.
+
+### Shadow Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/ecosystem/shadow/register` | POST | Register as shadow observer (admin auth, returns shadowKey) |
+| `/api/ecosystem/shadow/observe` | GET | Live operational snapshot (health, scores, triads, enforcement) |
+| `/api/ecosystem/shadow/directive-templates` | GET | All directive categories (UOSD, CEA, ABOL) with guidance patterns |
+| `/api/ecosystem/shadow/scoring-model` | GET | Thinking score algorithm, grading scale, reasoning indicators |
+| `/api/ecosystem/shadow/triad-model` | GET | Triad organization, captain election, wake-up protocol |
+| `/api/ecosystem/shadow/enforcement-model` | GET | Enforcement schedule, self-healing loop, defense strategies |
+| `/api/ecosystem/shadow/operational-flow` | GET | Full startup → heartbeat → self-healing → enforcement → failover flow |
+
+### Authentication
+Shadow endpoints use `x-shadow-key` header (issued at registration). This is separate from ecosystem API keys.
+
+### Graduation Path
+When a shadow observer is ready to become a full ecosystem member:
+1. Study the patterns via shadow endpoints
+2. Build your own hub using this Master Directive as the blueprint
+3. Optionally register as a full platform (receives directives, joins triads, gets scored)
+
+---
+
+## 20. MULTI-ECOSYSTEM FIREWALL
+
+Platforms can connect to **multiple ecosystems** simultaneously without data spillage. Each connection is isolated with its own API key, data policy, and heartbeat interval.
+
+### Firewall Rules
+| Data Category | Internal (ThriveUp Hub) | External (Client Contracts) |
+|---------------|:-----------------------:|:---------------------------:|
+| UOSD/CEA/ABOL compliance | ✅ Full access | ❌ BLOCKED |
+| Thinking scores & grades | ✅ Full access | ❌ BLOCKED |
+| Triad assignments | ✅ Full access | ❌ BLOCKED |
+| Enforcement data | ✅ Full access | ❌ BLOCKED |
+| Co-captain status | ✅ Full access | ❌ BLOCKED |
+| API keys & credentials | ✅ Full access | ❌ BLOCKED |
+| Contracted KPIs | ✅ Full access | ✅ Per contract |
+| Deliverable status | ✅ Full access | ✅ Per contract |
+| Anonymized outcomes | ✅ Full access | ✅ Per contract |
+
+### Blueprint Access
+Platforms can fetch the multi-ecosystem connector blueprint:
+```
+GET /api/ecosystem/multi-ecosystem/blueprint
+Header: x-ecosystem-key: YOUR_API_KEY
+```
+
+This returns a complete JavaScript class (`MultiEcosystemManager`) that handles:
+- Internal connection (full data to ThriveUp hub)
+- External connections (firewalled to only contracted metrics)
+- Automatic field blocking for internal data
+- Per-connection heartbeat intervals and response stores
+
+### Key Principle
+**Your hub is ALWAYS the source of truth for internal operations.** External connections are read-only windows into specific, contracted data — they see what you choose to show them, nothing else.
+
+---
+
+## 21. CONTACT
 
 - **Hub Admin:** Dr. Terry Flood
 - **Email:** mr.terryflood@gmail.com

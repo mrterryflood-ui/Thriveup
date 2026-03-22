@@ -2435,6 +2435,663 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
   });
 
   // ===================================================================
+  // SHADOW / OBSERVER MODE — "Manager in Training"
+  // A new app can observe how this hub operates without receiving
+  // directives, getting graded, or being enforced. It watches the
+  // playbook in action and adapts the patterns to its own ecosystem.
+  // ===================================================================
+
+  app.post("/api/ecosystem/shadow/register", requireAdminAuth, async (req, res) => {
+    try {
+      const { observerId, observerName, observerUrl, contactEmail } = req.body;
+      if (!observerId || !observerName) {
+        return res.status(400).json({ error: "observerId and observerName are required" });
+      }
+
+      const shadowKey = `tveco_shadow_${crypto.randomBytes(12).toString("hex")}`;
+
+      await db.insert(ecosystemEvents).values({
+        id: crypto.randomUUID(),
+        eventType: "shadow-observer-registered",
+        sourcePlatformId: "hub",
+        targetPlatformId: observerId,
+        eventData: {
+          observerId,
+          observerName,
+          observerUrl: observerUrl || null,
+          contactEmail: contactEmail || null,
+          shadowKey,
+          registeredAt: new Date().toISOString(),
+          mode: "shadow",
+        },
+        createdAt: new Date(),
+      });
+
+      console.log(`[Shadow] New observer registered: ${observerName} (${observerId})`);
+
+      res.json({
+        registered: true,
+        observerId,
+        observerName,
+        shadowKey,
+        mode: "shadow",
+        permissions: {
+          canObserve: true,
+          receivesDirectives: false,
+          isGraded: false,
+          isEnforced: false,
+          joinsTriad: false,
+          canSendHeartbeats: false,
+          canAcknowledgeDirectives: false,
+        },
+        whatYouCanSee: [
+          "How directives are structured and categorized (UOSD, CEA, ABOL)",
+          "How the thinking score algorithm works and what earns points",
+          "How triads are organized and how captain election works",
+          "How the enforcement schedule operates (6 AM / 6 PM CST)",
+          "How the self-healing loop processes hub feedback",
+          "How acknowledgments are evaluated for quality",
+          "Live ecosystem health metrics (anonymized)",
+          "Directive templates and acknowledgment guidance patterns",
+          "The co-captain failover protocol",
+          "Report card generation logic",
+        ],
+        whatYouCannotSee: [
+          "Individual platform API keys",
+          "Specific platform compliance data",
+          "Private heartbeat content from other platforms",
+          "Admin authentication credentials",
+          "Individual platform thinking scores (only aggregates)",
+        ],
+        endpoints: {
+          observe: "GET /api/ecosystem/shadow/observe — live operational snapshot",
+          directiveTemplates: "GET /api/ecosystem/shadow/directive-templates — all directive categories and guidance patterns",
+          scoringModel: "GET /api/ecosystem/shadow/scoring-model — how thinking score works",
+          triadModel: "GET /api/ecosystem/shadow/triad-model — how triads and captain election work",
+          enforcementModel: "GET /api/ecosystem/shadow/enforcement-model — how enforcement works",
+          operationalFlow: "GET /api/ecosystem/shadow/operational-flow — full operational flow diagram",
+        },
+        instructions: [
+          `Use the shadowKey in the 'x-shadow-key' header on all shadow endpoints`,
+          "You are in OBSERVE ONLY mode — you cannot modify anything in this ecosystem",
+          "Study the patterns, adapt them to your own ecosystem's style and needs",
+          "When ready to build your own hub, use docs/ECOSYSTEM-MASTER-DIRECTIVE.md as your blueprint",
+          "You can graduate from shadow mode to full ecosystem member when ready",
+        ],
+      });
+    } catch (error) {
+      console.error("[Shadow] Registration failed:", error);
+      res.status(500).json({ error: "Shadow registration failed" });
+    }
+  });
+
+  function requireShadowAuth(req: Request, res: Response, next: Function) {
+    const shadowKey = req.headers["x-shadow-key"] as string;
+    if (!shadowKey || !shadowKey.startsWith("tveco_shadow_")) {
+      return res.status(401).json({ error: "Shadow observer authentication required. Use x-shadow-key header." });
+    }
+    next();
+  }
+
+  app.get("/api/ecosystem/shadow/observe", requireShadowAuth, async (_req, res) => {
+    try {
+      const allPlatforms = await db.select().from(ecosystemPlatforms);
+      const onlineCount = allPlatforms.filter(p => p.healthStatus === "online").length;
+      const degradedCount = allPlatforms.filter(p => p.healthStatus === "degraded").length;
+      const offlineCount = allPlatforms.filter(p => p.healthStatus === "offline" || !p.healthStatus).length;
+
+      const allAcks = await db.select().from(ecosystemDirectiveAcks);
+      const totalAcks = allAcks.length;
+      const acknowledgedCount = allAcks.filter(a => a.status === "acknowledged").length;
+      const ecosystemFidelity = totalAcks > 0 ? Math.round((acknowledgedCount / totalAcks) * 100) : 0;
+
+      const allDirectives = await db.select().from(ecosystemDirectives);
+
+      res.json({
+        mode: "SHADOW OBSERVATION — Read-only view of hub operations",
+        observedAt: new Date().toISOString(),
+        ecosystemHealth: {
+          totalPlatforms: allPlatforms.length,
+          online: onlineCount,
+          degraded: degradedCount,
+          offline: offlineCount,
+          healthRatio: `${Math.round((onlineCount / allPlatforms.length) * 100)}% online`,
+        },
+        directiveSystem: {
+          totalDirectives: allDirectives.length,
+          categories: {
+            UOSD: allDirectives.filter(d => d.title?.includes("UOSD")).length,
+            CEA: allDirectives.filter(d => d.title?.includes("CEA")).length,
+            ABOL: allDirectives.filter(d => d.title?.includes("ABOL")).length,
+            protocol: allDirectives.filter(d => d.directiveType === "protocol_update").length,
+          },
+          ecosystemFidelity: `${ecosystemFidelity}%`,
+          totalAcknowledgments: totalAcks,
+          acknowledged: acknowledgedCount,
+          pending: totalAcks - acknowledgedCount,
+        },
+        triadSystem: {
+          totalTriads: ECOSYSTEM_TRIADS.length,
+          triads: ECOSYSTEM_TRIADS.map(t => ({
+            id: t.id,
+            name: t.name,
+            domain: t.domain,
+            memberCount: t.members.length,
+            grantAlignment: t.grantAlignment,
+          })),
+        },
+        coCaptainSystem: {
+          primaryDesignation: coCaptainSystem.primaryCoCaptainId,
+          backupDesignation: coCaptainSystem.backupCoCaptainId,
+          isActive: !!coCaptainSystem.activeCoCaptainId,
+          purpose: "Hub redundancy — if the main hub goes down, the co-captain steps in to coordinate the ecosystem",
+        },
+        enforcementSchedule: {
+          schedule: "6 AM and 6 PM CST daily",
+          mechanism: "Scans all platforms for fidelity score, flags non-compliant, sends enforcement email to admin",
+          consequence: "Persistent non-compliance escalates: warnings → restrictions → deactivation",
+        },
+        operationalPatterns: {
+          heartbeatInterval: "Every 5 minutes from each platform",
+          selfHealingInterval: "Every 15 minutes — reads hub feedback, processes directives, checks triad health",
+          pingerInterval: "Every 10 minutes — hub pings all platform URLs to detect online/degraded/offline",
+          keyPrinciple: "Store everything the hub sends back. Act on howToImprove. Log corrections. Anticipate needs. Wake your partners.",
+        },
+        lessonForYourEcosystem: "Study these patterns. You don't need to copy them exactly — adapt the directive/compliance/triad structure to fit your domain. The core principle is: platforms must think, not just execute. Every action needs reasoning. Every failure needs a correction. Every platform needs a team.",
+      });
+    } catch (error) {
+      console.error("[Shadow] Observe failed:", error);
+      res.status(500).json({ error: "Shadow observation failed" });
+    }
+  });
+
+  app.get("/api/ecosystem/shadow/directive-templates", requireShadowAuth, async (_req, res) => {
+    try {
+      const templates = {
+        UOSD: {
+          fullName: "Unified Operating System Directives",
+          count: 12,
+          purpose: "Defines HOW platforms operate — behavioral requirements",
+          categories: [
+            { name: "Core Identity", pattern: "State how you serve the person, the system, and the mission" },
+            { name: "Cognitive Model", pattern: "Show context evaluation before acting — not just input/output" },
+            { name: "Role & Orchestration", pattern: "When do you LEAD vs SUPPORT? Name specific partners" },
+            { name: "Execution Standard", pattern: "6-step model: Situational Understanding → Role ID → Intent Alignment → Precision Execution → Evidence → Next-Step Enablement" },
+            { name: "Accountability", pattern: "Self-assess grade (A-F) with evidence" },
+            { name: "Reciprocity", pattern: "Map upstream (who feeds you) and downstream (who you feed)" },
+            { name: "Redundancy", pattern: "Which partners back up your critical functions?" },
+            { name: "Continuous Learning", pattern: "MAP-GAP: Measure → Analyze → Plan → Gap close" },
+            { name: "Human Governance", pattern: "Where are your human-in-the-loop checkpoints?" },
+            { name: "Communication", pattern: "How do you communicate outcomes clearly?" },
+            { name: "Priority Stack", pattern: "Safety > Stability > Continuity > Growth — never violate this order" },
+            { name: "Endstate Test", pattern: "Does your work move toward a measurable endstate?" },
+          ],
+          adaptationGuide: "Rename these to fit your domain. A healthcare ecosystem might call them 'Clinical Operating Standards'. A logistics ecosystem might call them 'Supply Chain Operating Directives'. The structure matters more than the name.",
+        },
+        CEA: {
+          fullName: "Continuous Ecosystem Alignment",
+          count: 10,
+          purpose: "Ensures platforms stay connected to the whole",
+          categories: [
+            "Data Flow Architecture", "Cross-Platform Referral", "Shared Resource Utilization",
+            "Failure Cascade Prevention", "Performance Benchmarking", "User Journey Continuity",
+            "Ecosystem Event Participation", "Grant/Contract Alignment Verification",
+            "Accessibility Compliance", "Security Posture",
+          ],
+          adaptationGuide: "These ensure no platform becomes an island. Adapt to your domain — a retail ecosystem might replace 'Grant Alignment' with 'Revenue Attribution'.",
+        },
+        ABOL: {
+          fullName: "Autonomous Behavioral Operating Logic",
+          count: 12,
+          purpose: "Governs autonomous behavior — requires Pre-Action Justification",
+          categories: [
+            "Autonomous Decision Framework", "Self-Healing Protocol", "Escalation Matrix",
+            "Predictive Maintenance", "Resource Optimization", "Behavioral Adaptation",
+            "Compliance Monitoring", "Peer Accountability", "Emergency Response",
+            "Continuous Improvement", "Audit Trail", "Graceful Degradation",
+          ],
+          adaptationGuide: "These are the guardrails for AI-driven behavior. Every autonomous action needs: situation → justification → expected outcome → system impact → risk → fallback. Adapt the specific categories but keep the Pre-Action Justification pattern.",
+        },
+        acknowledgmentPattern: {
+          whatGetsRejected: [
+            "Generic 'Done' or 'Implemented' responses",
+            "Repeating the directive title as the response",
+            "No evidence URL",
+            "Under 20 characters",
+          ],
+          whatGetsAccepted: [
+            "Specific description of what was built/changed",
+            "Live evidence URL (hub verifies it returns 200)",
+            "Reasoning language: because, therefore, in order to",
+            "Reference to sibling/partner platforms",
+            "Pre-Action Justification for autonomous directives",
+          ],
+          qualityTiers: ["EXCELLENT (deep reasoning + verified evidence)", "GOOD (substantive + evidence)", "ACCEPTABLE (meets minimum)", "REJECTED (too generic or missing evidence)"],
+        },
+      };
+
+      res.json({
+        mode: "SHADOW — Directive template observation",
+        templates,
+        adaptationAdvice: "You don't need 35 directives to start. Begin with 5-10 core directives that define your ecosystem's identity and operating standard. Add more as your platforms mature. The key is: every directive must be acknowledgeable with substantive evidence, not just 'done'.",
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch directive templates" });
+    }
+  });
+
+  app.get("/api/ecosystem/shadow/scoring-model", requireShadowAuth, async (_req, res) => {
+    try {
+      res.json({
+        mode: "SHADOW — Thinking Score model observation",
+        thinkingScore: {
+          range: "0-100",
+          purpose: "Measures whether a platform THINKS before acting, not just whether it completes tasks",
+          components: [
+            { name: "Reasoning Depth", maxPoints: 20, earns: "Notes >100 chars, 'because/therefore/in order to' language, multi-step logic chains" },
+            { name: "Evidence Quality", maxPoints: 20, earns: "Live evidence URLs that return 200, verified by hub pinger" },
+            { name: "System Awareness", maxPoints: 20, earns: "Mentioning partner platforms, upstream/downstream impact, ecosystem-wide thinking" },
+            { name: "Anticipation", maxPoints: 20, earns: "Predicting future needs, preparing for upcoming events, proactive behavior" },
+            { name: "Self-Correction", maxPoints: 20, earns: "Logging what went wrong, why, and what was done to fix it" },
+          ],
+          gradingScale: {
+            A: "80-100 — Exceptional thinker",
+            B: "60-79 — Good reasoning, room to grow",
+            C: "40-59 — Developing, basic responses",
+            D: "20-39 — Needs work, generic responses",
+            F: "0-19 — Failing, no reasoning or evidence",
+          },
+          reasoningIndicators: ["because", "therefore", "in order to", "which means", "as a result", "the reason", "this improves", "analysis shows", "we determined", "after evaluating", "context shows", "based on"],
+          systemAwarenessIndicators: ["ecosystem", "sibling", "upstream", "downstream", "handoff", "interdepend", "other platform", "chain reaction", "system-wide", "cross-platform"],
+          anticipationIndicators: ["anticipat", "predict", "prepar", "next step", "emerging", "proactiv", "forward", "upcoming", "plan ahead"],
+        },
+        fidelityScore: {
+          formula: "(acknowledged directives / total directives) * 100",
+          purpose: "Measures compliance completeness — did you respond to what was asked?",
+        },
+        adaptationAdvice: "The thinking score is the most transferable concept. Any ecosystem benefits from measuring whether its platforms think deeply vs respond generically. Adjust the indicators to match your domain's language — a legal ecosystem might look for 'precedent/statute/ruling' instead of 'upstream/downstream'.",
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch scoring model" });
+    }
+  });
+
+  app.get("/api/ecosystem/shadow/triad-model", requireShadowAuth, async (_req, res) => {
+    try {
+      res.json({
+        mode: "SHADOW — Triad model observation",
+        triadSystem: {
+          concept: "Platforms organized into small teams (3-4) for mutual accountability",
+          whyTriads: "A hub can't monitor 23+ platforms effectively alone. Triads create lateral accountability — platforms watch each other.",
+          captainElection: {
+            method: "Dynamic — based on uptime score (heartbeat recency + online status + directive fidelity)",
+            notPermanent: "Captain changes when a more reliable platform emerges. Encourages good behavior.",
+            scoringFactors: [
+              "Heartbeat recency: <10 min = 50pts, <30 min = 30pts, <60 min = 10pts",
+              "Health status: online = 30pts, degraded = 10pts, offline = 0pts",
+              "Fidelity: (acknowledged/total) * 20 bonus points",
+            ],
+          },
+          wakeUpProtocol: {
+            trigger: "Partner has no heartbeat for 10+ minutes",
+            steps: [
+              "1. You ping partner directly (POST wake-partner)",
+              "2. If fail → other team member pings partner",
+              "3. If fail → captain escalates to hub",
+              "4. Hub enforcement handles at 6 AM / 6 PM CST",
+              "5. If down 24h+ → enforcement escalation email",
+            ],
+          },
+          directiveRelay: "If a partner was offline and missed directives, team members relay the critical ones when they come back online",
+        },
+        coCaptainLayer: {
+          concept: "One platform designated as hub backup — if the hub itself goes down, the co-captain coordinates the ecosystem",
+          succession: "Primary co-captain → Backup co-captain → Dynamic election from all online platforms",
+        },
+        adaptationAdvice: "Group your platforms by domain affinity — platforms that work closely together should be on the same team. Start with pairs if you have fewer platforms, expand to triads as you grow. The captain election algorithm is the key innovation — it incentivizes reliability.",
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch triad model" });
+    }
+  });
+
+  app.get("/api/ecosystem/shadow/enforcement-model", requireShadowAuth, async (_req, res) => {
+    try {
+      res.json({
+        mode: "SHADOW — Enforcement model observation",
+        enforcement: {
+          schedule: "6 AM and 6 PM CST daily (precise times, not intervals)",
+          mechanism: [
+            "1. Hub scans all platforms' fidelity scores",
+            "2. Platforms below threshold get flagged",
+            "3. Enforcement email sent to admin with who's struggling and what they need",
+            "4. Persistent non-compliance escalates: warnings → restrictions → deactivation",
+          ],
+          emailContent: "Per-platform breakdown: name, fidelity score, grade, unacknowledged count, specific directives they're missing, improvement instructions",
+          defenseStrategies: [
+            "Send heartbeats regularly (every 5 minutes ideal)",
+            "Acknowledge directives with substantive responses",
+            "Keep evidence URLs alive and returning 200",
+            "Participate in triad accountability",
+            "Show improvement over time (score trends matter more than absolute scores)",
+          ],
+        },
+        selfHealingLoop: {
+          interval: "Every 15 minutes",
+          steps: [
+            "1. Read howToImprove[] from last hub response",
+            "2. Act on each improvement item (process directives, fix evidence URLs, deepen reasoning)",
+            "3. Log self-corrections (what went wrong, why, what was done)",
+            "4. Log anticipations (what's coming, what we're preparing for)",
+            "5. Run triad health check (wake partners, relay directives)",
+            "6. All corrections/anticipations flow into next heartbeat's compliance notes",
+          ],
+          keyInsight: "The self-healing loop is what makes scores climb. Without it, platforms stagnate. With it, they improve every cycle because they're acting on hub feedback, not just receiving it.",
+        },
+        adaptationAdvice: "Start with a simple enforcement check (daily email of who's behind). Add the self-healing loop once platforms have connectors. The email-based enforcement is surprisingly effective — nobody wants to be on the 'needs work' list.",
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch enforcement model" });
+    }
+  });
+
+  app.get("/api/ecosystem/shadow/operational-flow", requireShadowAuth, async (_req, res) => {
+    try {
+      res.json({
+        mode: "SHADOW — Full operational flow observation",
+        flow: {
+          startup: [
+            "1. Platform installs connector v5.0 with hubUrl, platformId, apiKey",
+            "2. Connector sends initial heartbeat",
+            "3. Hub responds with 12+ intelligence fields (thinking score, directives, triad assignment, co-captain status)",
+            "4. Connector stores ENTIRE response in hubIntelligence store",
+            "5. After 30 seconds, first self-healing cycle runs",
+            "6. Heartbeat loop starts (every 5 min), self-healing loop starts (every 15 min)",
+          ],
+          heartbeatCycle: [
+            "1. Platform sends: platformId, status, metrics, reasoningNotes, complianceReport",
+            "2. Hub computes: thinkingScore, fidelityScore, reportCard, triad assignment",
+            "3. Hub responds with: all scores, pending directives, sibling profiles, enforcement status, triad data, co-captain status, improvement instructions",
+            "4. Platform stores full response, processes directives, logs corrections",
+          ],
+          selfHealingCycle: [
+            "1. Read howToImprove from hub response",
+            "2. Process each improvement (acknowledge directives, fix evidence, deepen reasoning)",
+            "3. Log self-corrections and anticipations",
+            "4. Run triad health check (wake offline partners, relay missed directives)",
+            "5. All data flows into next heartbeat automatically",
+          ],
+          enforcementCycle: [
+            "1. Hub runs at 6 AM and 6 PM CST",
+            "2. Scans all platforms, generates report",
+            "3. Sends enforcement email to admin",
+            "4. Platforms with self-healing active auto-improve between enforcement windows",
+          ],
+          failoverCycle: [
+            "1. Hub goes down → co-captain detects within 10 minutes",
+            "2. Admin activates co-captain (or auto-activates after timeout)",
+            "3. Co-captain accepts directives, broadcasts to platforms",
+            "4. Hub recovers → admin deactivates co-captain, syncs stored data",
+          ],
+        },
+        fourLayerCongruenceRule: {
+          critical: "THIS IS THE MOST IMPORTANT LESSON FROM THIS ECOSYSTEM",
+          rule: "Database schema, backend API, frontend, and public-facing pages MUST stay in sync at ALL times",
+          consequence: "If any layer drifts, things fail SILENTLY. No error. No crash. Features just quietly don't work.",
+          prevention: "If you touch one layer, audit all four. No exceptions.",
+        },
+        adaptationAdvice: "Build your hub incrementally: heartbeat first, then directives, then scoring, then triads, then enforcement. Each layer adds accountability. Don't try to build everything at once.",
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch operational flow" });
+    }
+  });
+
+  // ===================================================================
+  // MULTI-ECOSYSTEM FIREWALL — Platforms can connect to external
+  // ecosystems without internal data spillage. Your hub stays the
+  // source of truth for internal operations. External connectors
+  // only see what the contract specifies.
+  // ===================================================================
+
+  app.get("/api/ecosystem/multi-ecosystem/blueprint", requireEcosystemAuth, async (req, res) => {
+    try {
+      const apiKey = req.headers["x-ecosystem-key"] as string;
+      const [platform] = await db.select().from(ecosystemPlatforms).where(eq(ecosystemPlatforms.apiKey, apiKey));
+      if (!platform) return res.status(403).json({ error: "Invalid ecosystem key" });
+
+      const blueprint = `
+// ============================================================
+// MULTI-ECOSYSTEM FIREWALL CONNECTOR
+// ============================================================
+// This connector allows ${platform.name} to participate in
+// MULTIPLE ecosystems simultaneously with strict data isolation.
+//
+// INTERNAL DATA (ThriveUp Hub) — NEVER flows externally:
+//   - UOSD/CEA/ABOL directive compliance
+//   - Thinking scores and fidelity grades
+//   - Triad assignments and partner health
+//   - Enforcement data and co-captain status
+//   - Internal ecosystem events
+//
+// EXTERNAL DATA (per contract) — only what's agreed:
+//   - Contracted KPIs and metrics
+//   - Deliverable status reports
+//   - Anonymized outcome data
+// ============================================================
+
+class EcosystemConnection {
+  constructor(config) {
+    this.id = config.id;
+    this.name = config.name;
+    this.hubUrl = config.hubUrl;
+    this.apiKey = config.apiKey;
+    this.type = config.type; // "internal" or "external"
+    this.dataPolicy = config.dataPolicy || {};
+    this.heartbeatInterval = config.heartbeatInterval || 5 * 60 * 1000;
+    this.lastResponse = null;
+    this.isActive = true;
+  }
+
+  getExportableData(allData) {
+    if (this.type === "internal") return allData;
+
+    const filtered = {};
+    const allowed = this.dataPolicy.allowedFields || [];
+    for (const field of allowed) {
+      if (allData[field] !== undefined) {
+        filtered[field] = allData[field];
+      }
+    }
+    return filtered;
+  }
+
+  async sendHeartbeat(metrics) {
+    if (!this.isActive) return null;
+
+    const exportable = this.getExportableData(metrics);
+
+    try {
+      const response = await fetch(this.hubUrl + "/api/ecosystem/heartbeat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-ecosystem-key": this.apiKey,
+        },
+        body: JSON.stringify({
+          platformId: "${platform.id}",
+          status: "online",
+          metrics: exportable,
+          timestamp: new Date().toISOString(),
+        }),
+      });
+
+      this.lastResponse = await response.json();
+      return this.lastResponse;
+    } catch (error) {
+      console.error(\`[MultiEco] Heartbeat to \${this.name} failed: \${error.message}\`);
+      return null;
+    }
+  }
+}
+
+class MultiEcosystemManager {
+  constructor() {
+    this.connections = new Map();
+    this.firewall = {
+      internalFields: new Set([
+        "uosdCompliance", "ceaCompliance", "abolCompliance",
+        "thinkingScore", "fidelityGrade", "fidelityScore",
+        "triadAssignment", "triadHealth", "partnerStatus",
+        "enforcementStatus", "coCaptainDesignation",
+        "directiveAcknowledgments", "internalEvents",
+        "selfHealingData", "reasoningTracker",
+      ]),
+      neverExport: new Set([
+        "apiKey", "shadowKey", "adminCredentials",
+        "platformApiKeys", "enforcementEmails",
+      ]),
+    };
+  }
+
+  addConnection(config) {
+    const conn = new EcosystemConnection(config);
+    this.connections.set(config.id, conn);
+    console.log(\`[MultiEco] Added \${config.type} connection: \${config.name}\`);
+    return conn;
+  }
+
+  removeConnection(id) {
+    this.connections.delete(id);
+  }
+
+  getInternalConnection() {
+    for (const [, conn] of this.connections) {
+      if (conn.type === "internal") return conn;
+    }
+    return null;
+  }
+
+  getExternalConnections() {
+    const externals = [];
+    for (const [, conn] of this.connections) {
+      if (conn.type === "external") externals.push(conn);
+    }
+    return externals;
+  }
+
+  isFieldExportable(fieldName) {
+    return !this.firewall.internalFields.has(fieldName)
+        && !this.firewall.neverExport.has(fieldName);
+  }
+
+  async sendHeartbeatToAll(metrics) {
+    const results = {};
+    for (const [id, conn] of this.connections) {
+      results[id] = await conn.sendHeartbeat(metrics);
+    }
+    return results;
+  }
+
+  getConnectionStatus() {
+    const status = {};
+    for (const [id, conn] of this.connections) {
+      status[id] = {
+        name: conn.name,
+        type: conn.type,
+        isActive: conn.isActive,
+        hasResponse: !!conn.lastResponse,
+        dataPolicy: conn.type === "external"
+          ? { allowedFields: Object.keys(conn.dataPolicy.allowedFields || {}) }
+          : { fullAccess: true },
+      };
+    }
+    return status;
+  }
+}
+
+// ============================================================
+// USAGE EXAMPLE
+// ============================================================
+const ecosystemManager = new MultiEcosystemManager();
+
+// Internal connection (ThriveUp Hub) — full data access
+ecosystemManager.addConnection({
+  id: "thriveup-internal",
+  name: "ThriveUp ACOS Hub",
+  hubUrl: "https://thrivingcommunitiesforall.com",
+  apiKey: "YOUR_THRIVEUP_API_KEY",
+  type: "internal",
+});
+
+// External connection (client contract) — firewalled
+ecosystemManager.addConnection({
+  id: "client-project-alpha",
+  name: "Client Alpha Reporting System",
+  hubUrl: "https://client-alpha.example.com",
+  apiKey: "CLIENT_PROVIDED_API_KEY",
+  type: "external",
+  dataPolicy: {
+    allowedFields: ["deliverableStatus", "outcomeMetrics", "milestoneProgress"],
+    // UOSD scores, thinking scores, triad data, enforcement data
+    // are AUTOMATICALLY BLOCKED by the firewall
+  },
+});
+
+// Send heartbeats to all ecosystems (internal data stays internal)
+setInterval(async () => {
+  const allMetrics = {
+    // Internal metrics (only go to ThriveUp hub)
+    thinkingScore: 45,
+    fidelityGrade: "C",
+    triadHealth: "good",
+    // External metrics (can go to client)
+    deliverableStatus: "on-track",
+    outcomeMetrics: { served: 150, completed: 120 },
+    milestoneProgress: "Phase 2 of 4",
+  };
+
+  await ecosystemManager.sendHeartbeatToAll(allMetrics);
+}, 5 * 60 * 1000);
+
+// Export for use
+if (typeof module !== "undefined") {
+  module.exports = { MultiEcosystemManager, EcosystemConnection };
+}
+`.trim();
+
+      res.json({
+        platformId: platform.id,
+        platformName: platform.name,
+        blueprint,
+        firewallRules: {
+          neverExportFields: [
+            "uosdCompliance", "ceaCompliance", "abolCompliance",
+            "thinkingScore", "fidelityGrade", "fidelityScore",
+            "triadAssignment", "triadHealth", "partnerStatus",
+            "enforcementStatus", "coCaptainDesignation",
+            "directiveAcknowledgments", "internalEvents",
+            "selfHealingData", "reasoningTracker",
+            "apiKey", "shadowKey", "adminCredentials",
+          ],
+          principle: "Internal operations data NEVER flows to external connections. Only contracted deliverable metrics pass through the firewall.",
+        },
+        instructions: [
+          "1. Copy this blueprint into your project alongside your v5.0 ecosystem connector",
+          "2. Configure internal connection (ThriveUp hub) with full access",
+          "3. For each external contract, add an external connection with a specific dataPolicy",
+          "4. The firewall automatically blocks internal fields from going to external connections",
+          "5. Each connection maintains its own heartbeat interval and response store",
+          "6. Internal data (directives, scores, triads) stays with ThriveUp — always",
+        ],
+      });
+    } catch (error) {
+      console.error("[MultiEco] Blueprint failed:", error);
+      res.status(500).json({ error: "Failed to generate multi-ecosystem blueprint" });
+    }
+  });
+
+  // ===================================================================
   // KEY RE-REGISTRATION — Platforms can register their actual working key
   // This fixes the key mismatch problem where the DB has a different key
   // than what the platform was originally given.
