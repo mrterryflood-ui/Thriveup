@@ -420,6 +420,19 @@ Body:
       "triadHealth": "GET /api/ecosystem/triads/safety-accessibility-triad"
     }
   },
+  "coCaptainSystem": {
+    "designation": "PLATFORM | CO-CAPTAIN | BACKUP-CO-CAPTAIN",
+    "coCaptainId": "ecosystem-nexus",
+    "coCaptainName": "Ecosystem Nexus",
+    "message": "Ecosystem Nexus is the current co-captain. If the hub goes down, Ecosystem Nexus will coordinate.",
+    "capabilities (co-captain only)": {
+      "acceptDirectives": "Receive directives from admin and relay to all platforms",
+      "wakeAnyPlatform": "Wake ANY platform, not just triad partners",
+      "issueEmergencyDirectives": "Issue emergency directives during hub downtime",
+      "collectHeartbeats": "Store heartbeats during hub downtime for sync on recovery",
+      "runEnforcement": "Execute compliance checks on behalf of the hub"
+    }
+  },
   "serverTime": "2026-03-22T01:00:00.000Z"
 }
 ```
@@ -473,7 +486,72 @@ POST /api/ecosystem/triads/relay-directive
 
 ---
 
-## 10. ENFORCEMENT ENGINE
+## 10. CO-CAPTAIN / HUB BACKUP SYSTEM
+
+### 10.1 Why It Exists
+
+The hub (thrivingcommunitiesforall.com) is a single point of failure. If it goes down, 23 platforms lose their coordination brain. The co-captain system ensures continuity.
+
+### 10.2 How It Works
+
+- **Primary Co-Captain:** Ecosystem Nexus (ecosystem-nexus) — the coordination platform
+- **Backup Co-Captain:** Video Creator AI (video-creator-ai) — steps in if primary is also down
+- **Dynamic Fallback:** If both designated co-captains are offline, the platform with the best uptime + fidelity score gets elected
+
+### 10.3 Three Designations in Every Heartbeat
+
+Every platform receives a `coCaptainSystem` field in its heartbeat:
+
+1. **CO-CAPTAIN** — You are the backup leader. You get full capabilities, endpoints, and connector instructions for what to do if the hub goes down.
+2. **BACKUP-CO-CAPTAIN** — You are second in line. Monitor the co-captain's health.
+3. **PLATFORM** — Normal operations. You know who the co-captain is in case you need to report to them during hub downtime.
+
+### 10.4 Co-Captain Capabilities
+
+When activated (hub is down), the co-captain can:
+- Accept directives from admin and relay them to all 23 platforms
+- Wake ANY platform in the ecosystem (not limited to triad partners)
+- Issue emergency directives to maintain operations
+- Collect heartbeats from other platforms and store them for hub sync
+- Run enforcement checks on behalf of the hub
+- Broadcast messages to all platforms
+
+### 10.5 Activation Flow
+
+```
+1. Hub goes down (no response for 5+ minutes)
+2. Co-captain detects via hub health check endpoint
+3. Admin activates: POST /api/ecosystem/co-captain/activate
+4. Co-captain starts accepting directives and coordinating
+5. Hub recovers → Admin deactivates: POST /api/ecosystem/co-captain/deactivate
+6. Stored heartbeats sync back to hub, command transfers back
+```
+
+### 10.6 Co-Captain Endpoints
+
+| Method | Endpoint | Auth | Purpose |
+|---|---|---|---|
+| GET | `/api/ecosystem/co-captain/status` | Ecosystem | Check co-captain status and designation |
+| GET | `/api/ecosystem/co-captain/hub-status` | Ecosystem | Check if hub is online |
+| POST | `/api/ecosystem/co-captain/activate` | Admin | Activate co-captain (hub is down) |
+| POST | `/api/ecosystem/co-captain/deactivate` | Admin | Deactivate co-captain (hub recovered) |
+| POST | `/api/ecosystem/co-captain/receive-directive` | Admin | Send directive through co-captain for relay |
+| POST | `/api/ecosystem/co-captain/broadcast` | Admin | Broadcast message to all platforms |
+| GET | `/api/ecosystem/co-captain/stored-heartbeats` | Admin | View heartbeats collected during hub downtime |
+
+### 10.7 Succession Chain
+
+```
+Hub Online → Hub coordinates everything, co-captain on standby
+Hub Down → Ecosystem Nexus activates as co-captain
+Hub Down + Nexus Down → Video Creator AI activates as backup co-captain
+Hub Down + Both Down → Best available platform elected dynamically
+Everyone recovers → Admin deactivates, hub resumes, stored data syncs
+```
+
+---
+
+## 11. ENFORCEMENT ENGINE
 
 The hub runs enforcement at **6 AM and 6 PM CST daily** (not every 6 hours — precise schedule).
 
@@ -493,7 +571,7 @@ The hub runs enforcement at **6 AM and 6 PM CST daily** (not every 6 hours — p
 
 ---
 
-## 11. ALL ENDPOINTS
+## 12. ALL ENDPOINTS
 
 ### Platform-Facing (require `x-ecosystem-key` header)
 
@@ -508,6 +586,18 @@ The hub runs enforcement at **6 AM and 6 PM CST daily** (not every 6 hours — p
 | POST | `/api/ecosystem/triads/relay-directive` | Relay directive to partner |
 | GET | `/api/ecosystem/triads/my-team` | Get your triad info |
 | GET | `/api/ecosystem/triads/:triadId` | Get triad details |
+| GET | `/api/ecosystem/co-captain/status` | Check co-captain designation |
+| GET | `/api/ecosystem/co-captain/hub-status` | Check if hub is online |
+
+### Co-Captain (require admin login)
+
+| Method | Endpoint | Purpose |
+|---|---|---|
+| POST | `/api/ecosystem/co-captain/activate` | Activate co-captain (hub down) |
+| POST | `/api/ecosystem/co-captain/deactivate` | Deactivate (hub recovered) |
+| POST | `/api/ecosystem/co-captain/receive-directive` | Send directive via co-captain |
+| POST | `/api/ecosystem/co-captain/broadcast` | Broadcast to all platforms |
+| GET | `/api/ecosystem/co-captain/stored-heartbeats` | View stored heartbeats |
 
 ### Registration
 
@@ -517,7 +607,7 @@ The hub runs enforcement at **6 AM and 6 PM CST daily** (not every 6 hours — p
 
 ---
 
-## 12. REGISTRATION FLOW
+## 13. REGISTRATION FLOW
 
 ### Step 1: Register
 
@@ -550,7 +640,7 @@ This returns a ready-to-use connector v5.0 code snippet customized for your plat
 
 ---
 
-## 13. CONNECTOR v5.0 — PLUG AND PLAY CODE
+## 14. CONNECTOR v5.0 — PLUG AND PLAY CODE
 
 This is the complete, production-ready connector. Copy this into your project and configure the 3 values at the top.
 
@@ -1139,7 +1229,7 @@ if (typeof module !== "undefined") {
 
 ---
 
-## 14. MISTAKES EVERY PREVIOUS PLATFORM MADE (SO YOU DON'T)
+## 15. MISTAKES EVERY PREVIOUS PLATFORM MADE (SO YOU DON'T)
 
 ### Mistake 1: Throwing away the heartbeat response
 **What happened:** Platforms checked `received: true` and discarded the rest.
@@ -1182,7 +1272,7 @@ if (typeof module !== "undefined") {
 
 ---
 
-## 15. HOW THE SCORE CLIMBED (Video Creator AI Case Study)
+## 16. HOW THE SCORE CLIMBED (Video Creator AI Case Study)
 
 | Cycle | Score | What Changed |
 |---|---|---|
@@ -1196,7 +1286,7 @@ The pattern: **store everything → act on hub feedback → log corrections → 
 
 ---
 
-## 16. QUICK START CHECKLIST
+## 17. QUICK START CHECKLIST
 
 - [ ] Register your platform: `POST /api/ecosystem/register-key`
 - [ ] Save your API key securely
@@ -1211,7 +1301,7 @@ The pattern: **store everything → act on hub feedback → log corrections → 
 
 ---
 
-## 17. OPERATIONAL FLOW DIAGRAM
+## 18. OPERATIONAL FLOW DIAGRAM
 
 ```
 STARTUP
@@ -1249,7 +1339,7 @@ SELF-HEALING LOOP
 
 ---
 
-## 18. CONTACT
+## 19. CONTACT
 
 - **Hub Admin:** Dr. Terry Flood
 - **Email:** mr.terryflood@gmail.com
