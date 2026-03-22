@@ -1484,6 +1484,8 @@ export function registerEcosystemConnectorRoutes(app: Express) {
     setTimeout(() => startVerificationTimer(), 120000);
     // Start compliance enforcement engine after 3 minutes
     setTimeout(() => startEnforcementTimer(), 180000);
+    // Start bilateral collaboration exchange after 4 minutes — every 8 hours
+    setTimeout(() => startCollaborationExchange(), 240000);
   })();
 
   // ===================================================================
@@ -3429,6 +3431,259 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
       });
     } catch (error) {
       res.status(500).json({ error: "Failed to review insight" });
+    }
+  });
+
+  // ===================================================================
+  // BILATERAL COLLABORATION EXCHANGE — Every 8 hours (3x daily)
+  // ThriveUp compiles its current state and posts it to the exchange.
+  // Shadow observers can pull the latest update AND push their own.
+  // Both ecosystems stay in sync automatically.
+  // ===================================================================
+
+  interface CollaborationExchange {
+    id: string;
+    from: string;
+    timestamp: string;
+    ecosystemHealth: Record<string, unknown>;
+    recentChanges: string[];
+    lessonsShared: string[];
+    questionsForPartner: string[];
+    capabilities: string[];
+  }
+
+  const exchangeLog: CollaborationExchange[] = [];
+  let lastThriveUpExchange: CollaborationExchange | null = null;
+  const inboundExchanges: CollaborationExchange[] = [];
+
+  async function compileExchangeUpdate(): Promise<CollaborationExchange> {
+    const allPlatforms = await db.select().from(ecosystemPlatforms);
+    const onlineCount = allPlatforms.filter(p => p.healthStatus === "online").length;
+    const degradedCount = allPlatforms.filter(p => p.healthStatus === "degraded").length;
+    const offlineCount = allPlatforms.filter(p => p.healthStatus === "offline" || !p.healthStatus).length;
+
+    const recentInsights = collaborationInsights.filter(i => {
+      const hoursSince = (Date.now() - new Date(i.submittedAt).getTime()) / (1000 * 60 * 60);
+      return hoursSince <= 8;
+    });
+
+    const exchange: CollaborationExchange = {
+      id: `exchange_${crypto.randomBytes(8).toString("hex")}`,
+      from: "ThriveUp Academy ACOS",
+      timestamp: new Date().toISOString(),
+      ecosystemHealth: {
+        totalPlatforms: 23,
+        online: onlineCount,
+        degraded: degradedCount,
+        offline: offlineCount,
+        healthRatio: `${Math.round((onlineCount / 23) * 100)}%`,
+        enforcementSchedule: "6 AM / 6 PM CST daily",
+        pendingInsightsFromPartners: recentInsights.length,
+      },
+      recentChanges: [],
+      lessonsShared: [],
+      questionsForPartner: [],
+      capabilities: [
+        "23-platform ACOS ecosystem",
+        "Shadow observer mode with two-way collaboration",
+        "Capability portfolio for individuals, companies, and government",
+        "MAP-GAP continuous improvement framework",
+        "Confidence drift + 4-quadrant autonomy assessment",
+        "Captain load absorption protocol",
+        "Multi-ecosystem firewall",
+        "7-triad team-of-teams architecture",
+      ],
+    };
+
+    return exchange;
+  }
+
+  let collaborationExchangeInterval: ReturnType<typeof setInterval> | null = null;
+
+  function startCollaborationExchange() {
+    if (collaborationExchangeInterval) return;
+    console.log("[Collaboration] Starting bilateral exchange engine — every 8 hours (3x daily)");
+
+    async function runExchange() {
+      try {
+        const update = await compileExchangeUpdate();
+        lastThriveUpExchange = update;
+        exchangeLog.push(update);
+        if (exchangeLog.length > 30) exchangeLog.splice(0, exchangeLog.length - 30);
+
+        console.log(`[Collaboration] Exchange update compiled: ${update.id} — ${update.ecosystemHealth.online}/${update.ecosystemHealth.totalPlatforms} online`);
+
+        await db.insert(ecosystemEvents).values({
+          sourcePlatformId: "hub",
+          eventType: "collaboration-exchange",
+          eventData: {
+            exchangeId: update.id,
+            healthSnapshot: update.ecosystemHealth,
+            recentChangesCount: update.recentChanges.length,
+            lessonsSharedCount: update.lessonsShared.length,
+          },
+          status: "completed",
+        });
+      } catch (err) {
+        console.error("[Collaboration] Exchange cycle failed:", err);
+      }
+    }
+
+    runExchange();
+    collaborationExchangeInterval = setInterval(runExchange, 8 * 60 * 60 * 1000);
+  }
+
+  app.get("/api/ecosystem/shadow/exchange/latest", requireShadowAuth, async (_req, res) => {
+    try {
+      if (!lastThriveUpExchange) {
+        const update = await compileExchangeUpdate();
+        lastThriveUpExchange = update;
+        exchangeLog.push(update);
+      }
+
+      res.json({
+        mode: "BILATERAL EXCHANGE — ThriveUp's latest status update for collaboration partners",
+        schedule: "Every 8 hours (3x daily) — automatic compilation",
+        update: lastThriveUpExchange,
+        exchangeHistory: exchangeLog.slice(-10).map(e => ({
+          id: e.id,
+          timestamp: e.timestamp,
+          healthSnapshot: e.ecosystemHealth,
+        })),
+        yourInboundUpdates: inboundExchanges.filter(e => e.from !== "ThriveUp Academy ACOS").length,
+        howToRespond: "POST /api/ecosystem/shadow/exchange/update — send your ecosystem's status back to ThriveUp",
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch latest exchange" });
+    }
+  });
+
+  app.post("/api/ecosystem/shadow/exchange/update", requireShadowAuth, async (req, res) => {
+    try {
+      const { ecosystemHealth, recentChanges, lessonsShared, questionsForPartner, capabilities } = req.body;
+
+      if (!ecosystemHealth) {
+        return res.status(400).json({
+          error: "ecosystemHealth is required",
+          expectedFormat: {
+            ecosystemHealth: { totalPlatforms: "number", online: "number", degraded: "number", offline: "number" },
+            recentChanges: ["array of strings — what changed since last update"],
+            lessonsShared: ["array of strings — what you learned that might help us"],
+            questionsForPartner: ["array of strings — questions for ThriveUp"],
+            capabilities: ["array of strings — your current capability list"],
+          },
+        });
+      }
+
+      const shadowKey = req.headers["x-shadow-key"] as string;
+
+      const inbound: CollaborationExchange = {
+        id: `inbound_${crypto.randomBytes(8).toString("hex")}`,
+        from: shadowKey,
+        timestamp: new Date().toISOString(),
+        ecosystemHealth,
+        recentChanges: recentChanges || [],
+        lessonsShared: lessonsShared || [],
+        questionsForPartner: questionsForPartner || [],
+        capabilities: capabilities || [],
+      };
+
+      inboundExchanges.push(inbound);
+      if (inboundExchanges.length > 100) inboundExchanges.splice(0, inboundExchanges.length - 100);
+
+      for (const lesson of (lessonsShared || [])) {
+        collaborationInsights.push({
+          id: `collab_${crypto.randomBytes(8).toString("hex")}`,
+          fromObserver: shadowKey,
+          shadowKey,
+          type: "lesson-learned",
+          title: `Exchange lesson: ${lesson.substring(0, 80)}`,
+          body: lesson,
+          context: "Submitted via bilateral exchange update",
+          status: "received",
+          submittedAt: new Date().toISOString(),
+        });
+      }
+
+      await db.insert(ecosystemEvents).values({
+        sourcePlatformId: "shadow-observer",
+        eventType: "inbound-exchange",
+        eventData: {
+          exchangeId: inbound.id,
+          from: shadowKey.substring(0, 20) + "...",
+          platformCount: ecosystemHealth.totalPlatforms || "unknown",
+          lessonsCount: (lessonsShared || []).length,
+          questionsCount: (questionsForPartner || []).length,
+        },
+        status: "pending",
+      });
+
+      res.json({
+        received: true,
+        exchangeId: inbound.id,
+        timestamp: inbound.timestamp,
+        message: "Your ecosystem update has been received. ThriveUp will review your lessons and respond to questions in the next exchange cycle.",
+        lessonsQueued: (lessonsShared || []).length,
+        questionsReceived: (questionsForPartner || []).length,
+        nextThriveUpExchange: "Pull from GET /api/ecosystem/shadow/exchange/latest anytime — updated every 8 hours automatically",
+        exchangeSchedule: {
+          frequency: "Every 8 hours (3x daily)",
+          times: "Approximately 12:00 AM, 8:00 AM, 4:00 PM CST (based on server start time)",
+          purpose: "Keep both ecosystems aware of each other's health, changes, and lessons",
+        },
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to process inbound exchange" });
+    }
+  });
+
+  app.get("/api/ecosystem/shadow/exchange/history", requireShadowAuth, async (_req, res) => {
+    try {
+      const shadowKey = req.headers["x-shadow-key"] as string;
+
+      res.json({
+        schedule: "Every 8 hours (3x daily)",
+        thriveUpExchanges: exchangeLog.slice(-10).map(e => ({
+          id: e.id,
+          timestamp: e.timestamp,
+          healthSnapshot: e.ecosystemHealth,
+          recentChanges: e.recentChanges.length,
+          lessonsShared: e.lessonsShared.length,
+        })),
+        yourExchanges: inboundExchanges.filter(e => e.from === shadowKey).slice(-10).map(e => ({
+          id: e.id,
+          timestamp: e.timestamp,
+          healthSnapshot: e.ecosystemHealth,
+          lessonsShared: e.lessonsShared.length,
+          questionsAsked: e.questionsForPartner.length,
+        })),
+        totalExchanges: {
+          fromThriveUp: exchangeLog.length,
+          fromYou: inboundExchanges.filter(e => e.from === shadowKey).length,
+        },
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch exchange history" });
+    }
+  });
+
+  app.get("/api/ecosystem/shadow/exchange/inbound", requireAdminAuth, async (_req, res) => {
+    try {
+      res.json({
+        totalInbound: inboundExchanges.length,
+        exchanges: inboundExchanges.slice(-20).map(e => ({
+          id: e.id,
+          from: e.from.substring(0, 20) + "...",
+          timestamp: e.timestamp,
+          ecosystemHealth: e.ecosystemHealth,
+          recentChanges: e.recentChanges,
+          lessonsShared: e.lessonsShared,
+          questionsForPartner: e.questionsForPartner,
+          capabilities: e.capabilities,
+        })),
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch inbound exchanges" });
     }
   });
 
