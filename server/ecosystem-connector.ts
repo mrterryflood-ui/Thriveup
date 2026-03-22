@@ -3192,6 +3192,269 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
   });
 
   // ===================================================================
+  // CAPABILITY PORTFOLIO — Public-facing catalog of tools & services
+  // that clients/partners can contract for. "Pay for play" — shows
+  // what we have that can fit into THEIR architecture as support.
+  // No auth required — this is a sales tool.
+  // ===================================================================
+
+  app.get("/api/ecosystem/capability-portfolio", async (_req, res) => {
+    try {
+      const portfolio = {
+        organization: "ThriveUp Academy ACOS",
+        identity: "Not a one-trick pony — a powerful ecosystem that solves the toughest problems in an empathetic way with an equity-focused lens",
+        totalPlatforms: 23,
+        contact: {
+          email: "mr.terryflood@gmail.com",
+          cashApp: "$MRTDFLOOD",
+          paypal: "paypal.me/TERRYFLOODCEO",
+        },
+        serviceDomains: {
+          emergencyManagement: {
+            label: "Emergency Management & Public Safety",
+            pitch: "Real-time risk intelligence, incident management, and community resilience scoring for cities, counties, and emergency management agencies.",
+            platforms: [
+              {
+                name: "Shield Atlas",
+                capability: "Risk intelligence and threat assessment — geographic risk mapping, safety analytics, protective factor identification, community resilience scoring",
+                useCases: ["City emergency operations centers", "County risk assessments", "Community resilience planning", "Disaster preparedness mapping", "First responder resource allocation"],
+                url: "https://shield-atlas.replit.app",
+              },
+              {
+                name: "SafeReport",
+                capability: "Mandatory reporter incident management — 50-state regulation database, 7-stage incident lifecycle, tamper-evident audit trails, court-admissible records",
+                useCases: ["State agency compliance", "School district reporting", "Healthcare facility incident tracking", "Court-admissible documentation"],
+                url: "https://safereports.net",
+              },
+            ],
+          },
+          healthEquity: {
+            label: "Health Equity & Community Wellness",
+            pitch: "Comprehensive health ecosystem covering behavioral health screening, maternal health, cognitive safety, medication management, and culturally responsive care for underserved populations.",
+            platforms: [
+              {
+                name: "Whole-Person Health Ecosystem",
+                capability: "Behavioral health screenings (C-SSRS, PHQ-9, GAD-7, PCL-5), safety plans, 20,670+ resources, crisis tools",
+                useCases: ["Community health centers", "FQHC behavioral health integration", "Crisis intervention programs", "Public health departments"],
+                url: "https://mentalwellnesssupport.net",
+              },
+              {
+                name: "Sankofa Health Network",
+                capability: "Health equity gateway — maternal health, mental health rights, breast cancer awareness, men's health, behavioral assessments, GIS resource matching",
+                useCases: ["Health equity initiatives", "Maternal mortality reduction", "Community health worker programs", "SDOH navigation"],
+                url: "https://yourhealthbirthright.net",
+              },
+              {
+                name: "Black Maternal Health Network",
+                capability: "Maternal mortality crisis response — prenatal/postnatal care navigation, doula matching, risk assessment, maternal mental health",
+                useCases: ["Hospital maternal health programs", "Doula training organizations", "State maternal mortality review committees"],
+                url: "https://black-maternal-health-network.replit.app",
+              },
+              {
+                name: "Holistic Black Feminine Health Hub",
+                capability: "OB/GYN health for Black women — reproductive health, hormonal wellness, preventive screenings, culturally responsive care",
+                useCases: ["Women's health clinics", "Reproductive health organizations", "Community health programs"],
+                url: "https://holistic-black-feminine-health-hub.replit.app",
+              },
+              {
+                name: "Black Men's Health Hub",
+                capability: "Comprehensive health for Black men — prostate health, cardiovascular risk, mental health stigma reduction, peer support",
+                useCases: ["Men's health initiatives", "Barbershop health programs", "VA health integration"],
+                url: "https://black-men-health.replit.app",
+              },
+              {
+                name: "SafeCogniCare",
+                capability: "Cognitive safety — assessments, early intervention, care coordination for TBI, ADHD, dementia",
+                useCases: ["Brain injury programs", "Elder care facilities", "Veteran TBI treatment centers"],
+                url: "https://safecognicare.com",
+              },
+              {
+                name: "PillScheduler",
+                capability: "Medication management — reminders, dosage tracking, interaction warnings, refill alerts",
+                useCases: ["Pharmacies", "Home health agencies", "Chronic disease management programs"],
+                url: "https://pillscheduler.net",
+              },
+              {
+                name: "Autoimmune Center of Excellence",
+                capability: "Autoimmune disease management — daily symptom check-ins, flare tracking, 80+ condition database, AI health companion, longitudinal outcome data",
+                useCases: ["Rheumatology clinics", "Autoimmune research", "Patient advocacy organizations", "Clinical outcome tracking"],
+                url: "https://autoimmune-thrive.replit.app",
+              },
+            ],
+          },
+          veteranServices: {
+            label: "Veteran Services & Military Transition",
+            pitch: "Full military-to-civilian transition pipeline covering career translation, benefits navigation, peer support, and VOSB enablement — designed for the critical first 12 months post-separation.",
+            platforms: [
+              {
+                name: "Mission Transition (M2C)",
+                capability: "Complete military-to-civilian transition — MOS/AFSC translation, benefits navigation, housing planning, identity support, family support",
+                useCases: ["VA transition programs", "Military installation TAP offices", "Veteran service organizations", "State veteran affairs"],
+                url: "https://vetmissiontransition.com",
+              },
+              {
+                name: "The Collaborative Advocate",
+                capability: "VOSB service delivery — veteran advocacy, peer support coordination, workforce development, grant execution",
+                useCases: ["Veteran business incubators", "Peer support programs", "VOSB contracting support"],
+                url: "https://the-colaberitive-advocate--mrterryflood.replit.app",
+              },
+            ],
+          },
+          workforceDevelopment: {
+            label: "Workforce Development & Economic Mobility",
+            pitch: "AI-powered workforce training, business enablement, and contractor development — aligned with WIOA standards and designed for under-resourced communities.",
+            platforms: [
+              {
+                name: "ThriveUp Academy (Hub)",
+                capability: "AI-powered workforce training across 7 tracks, grant management, case management, career pipelines, mentor networks, reentry support",
+                useCases: ["Workforce boards", "Reentry programs", "Career centers", "WIOA providers", "Community colleges"],
+                url: "https://thrivingcommunitiesforall.com",
+              },
+              {
+                name: "Minority Center of Excellence",
+                capability: "Digital ecosystem for minority businesses — 656,794 curated records, 14 AI tools, dual-AI proposal review, SAM.gov integration, certification wizard",
+                useCases: ["SBA district offices", "MBDA centers", "PTAC offices", "Chamber of commerce programs"],
+                url: "https://minoritycenterofexcellence.com",
+              },
+              {
+                name: "Pinnacle Business Conglomerate",
+                capability: "Cradle-to-grave contractor enablement — business diagnostics, certification, contract intelligence, bid strategy, proposal support, international expansion",
+                useCases: ["Contractor readiness programs", "NAMC chapters", "USHCC affiliates", "Trade associations"],
+                url: "https://pinnacle-business-conglomerate.replit.app",
+              },
+            ],
+          },
+          educationYouth: {
+            label: "Education & Youth Development",
+            pitch: "Pre-K through career pipeline — evidence-based student support, visual-first learning, neurodiversity accommodation, and implementation science for schools and districts.",
+            platforms: [
+              {
+                name: "ISSS — Integrated Supports for Thriving Youth",
+                capability: "Whole-child implementation infrastructure — multi-stakeholder coordination, evidence-based student support, district-level analytics",
+                useCases: ["School districts", "Education service centers", "State education agencies", "After-school programs"],
+                url: "https://implementationineducatio.com",
+              },
+              {
+                name: "WholeMind Learning",
+                capability: "Free Pre-K to 12th grade learning — visual-first, AI homework help, silent accessibility, parent progress tracking",
+                useCases: ["Title I schools", "Homeschool cooperatives", "Tutoring programs", "Summer enrichment"],
+                url: "https://life-pals-standalone.replit.app",
+              },
+              {
+                name: "Perfectly Different",
+                capability: "Neurodiversity support — autism, ADHD, AuDHD guidance, IEP/504 assistance, crisis resources, therapy tools",
+                useCases: ["Special education departments", "Autism advocacy organizations", "Neurodiversity clinics", "Parent support groups"],
+                url: "https://neurodifferentassistant.app",
+              },
+            ],
+          },
+          communityResources: {
+            label: "Community Resources & Social Services",
+            pitch: "24/7 resource navigation and life crisis support — virtual 211, SDOH navigation, and community health worker coordination for municipalities and social service agencies.",
+            platforms: [
+              {
+                name: "LifeBridge",
+                capability: "Virtual 211 and CHW hub — housing, food, healthcare, mental health, substance abuse, domestic violence, crisis support, life event guides",
+                useCases: ["211 call centers", "United Way agencies", "Community action agencies", "Social service departments"],
+                url: "https://lifetransitionsaid.org",
+              },
+            ],
+          },
+          communicationAccessibility: {
+            label: "Communication & Accessibility",
+            pitch: "Inclusive communication tools that bridge language, dialect, and accessibility barriers for underserved populations.",
+            platforms: [
+              {
+                name: "LexiBridge (Speech Bridge)",
+                capability: "Dialect-aware communication — speech-to-text, language translation, culturally responsive communication, patient communication support",
+                useCases: ["Healthcare interpretation services", "Court systems", "Social service intake", "Multilingual schools"],
+                url: "https://speech-bridge-mrterryflood.replit.app",
+              },
+            ],
+          },
+          researchImplementation: {
+            label: "Research & Implementation Science",
+            pitch: "Evidence-based program design and fidelity measurement using CFIR and RE-AIM frameworks — for organizations that need to prove their programs work.",
+            platforms: [
+              {
+                name: "Better Science Lab / RPLICE",
+                capability: "Implementation science tools — CFIR assessment, RE-AIM evaluation, evidence-based practice registry, fidelity measurement, research translation",
+                useCases: ["University research centers", "Public health departments", "Foundation-funded programs", "Government program evaluation"],
+                url: "https://bettersciencelab.com",
+              },
+            ],
+          },
+          contentProduction: {
+            label: "Content Production & Marketing",
+            pitch: "AI-powered video production, advertising intelligence, and campaign optimization — the communication engine that gives your programs a public face.",
+            platforms: [
+              {
+                name: "Video Creator AI",
+                capability: "AI video production — promotional videos, training content, business presentations, marketing materials",
+                useCases: ["Municipal communications offices", "Nonprofit fundraising", "Training departments", "Community engagement campaigns"],
+                url: "https://video-creator-ai-mrterryflood.replit.app",
+              },
+              {
+                name: "Advertising Targeting for Platforms",
+                capability: "Audience segmentation, campaign optimization, ad targeting, performance analytics for community outreach",
+                useCases: ["Public health campaigns", "Workforce program enrollment", "Community awareness initiatives"],
+                url: "https://advertising-targeting-for-platforms.replit.app",
+              },
+            ],
+          },
+          operationsCoordination: {
+            label: "Operations & Ecosystem Coordination",
+            pitch: "The nervous system — cross-platform monitoring, directive management, and operational intelligence for managing complex service delivery networks.",
+            platforms: [
+              {
+                name: "Ecosystem Nexus",
+                capability: "Central coordination hub — cross-platform visibility, operational intelligence, platform monitoring, directive management",
+                useCases: ["Multi-agency coordination", "Network management", "Collective impact initiatives", "Cross-sector collaboration"],
+                url: "https://ecosystem-nexus.replit.app",
+              },
+            ],
+          },
+        },
+        packagesForClients: {
+          singlePlatform: {
+            description: "License a single platform to fit into your existing architecture",
+            example: "A city contracts Shield Atlas for their emergency operations center",
+            pricing: "Contact for quote",
+          },
+          domainBundle: {
+            description: "Deploy an entire domain of platforms — health equity, veteran services, education, etc.",
+            example: "A county deploys the full Health Equity suite (8 platforms) for their community health initiative",
+            pricing: "Contact for quote",
+          },
+          fullEcosystem: {
+            description: "Deploy the complete 23-platform ACOS ecosystem with coordination hub, self-healing, and autonomous operations",
+            example: "A state workforce board deploys the full ecosystem for comprehensive community transformation",
+            pricing: "Contact for quote",
+          },
+          customIntegration: {
+            description: "We integrate our platforms into YOUR existing architecture — APIs, data feeds, embedded components",
+            example: "A hospital system embeds Whole-Person Health screenings into their EHR workflow",
+            pricing: "Contact for quote",
+          },
+        },
+        differentiators: [
+          "23 interconnected platforms — not 23 independent tools. They share data, coordinate responses, and self-heal.",
+          "Autonomous self-healing operations — platforms monitor each other, relay missed instructions, and improve without human intervention.",
+          "Evidence-based everything — CFIR, RE-AIM, MAP-GAP frameworks built into operations, not bolted on.",
+          "Equity-focused lens — every platform designed for underserved communities, not adapted from mainstream tools.",
+          "Team-of-teams architecture — 7 accountable triads with captain election, load absorption, and failover protocols.",
+          "Grant-aligned from day one — WIOA, Foundation, St. David's, SSG Fox VA alignment built into every platform.",
+          "Veteran-owned, community-driven — built by people who live the problems these platforms solve.",
+        ],
+      };
+
+      res.json(portfolio);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch capability portfolio" });
+    }
+  });
+
+  // ===================================================================
   // MULTI-ECOSYSTEM FIREWALL — Platforms can connect to external
   // ecosystems without internal data spillage. Your hub stays the
   // source of truth for internal operations. External connectors
