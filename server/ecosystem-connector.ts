@@ -2798,10 +2798,16 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
           triadModel: "GET /api/ecosystem/shadow/triad-model — how triads and captain election work",
           enforcementModel: "GET /api/ecosystem/shadow/enforcement-model — how enforcement works",
           operationalFlow: "GET /api/ecosystem/shadow/operational-flow — full operational flow diagram",
+          collaborate: "POST /api/ecosystem/shadow/collaborate — submit lessons, suggestions, models, questions back to ThriveUp",
+          myInsights: "GET /api/ecosystem/shadow/collaborate/insights — view all your submitted insights and their status",
+          insightStatus: "GET /api/ecosystem/shadow/collaborate/status/:insightId — check status of a specific insight",
         },
         instructions: [
           `Use the shadowKey in the 'x-shadow-key' header on all shadow endpoints`,
-          "You are in OBSERVE ONLY mode — you cannot modify anything in this ecosystem",
+          "You can OBSERVE operational patterns AND COLLABORATE by sending insights back",
+          "This is a two-way learning channel — iron sharpens iron",
+          "Submit lessons, suggestions, gap identifications, or model proposals via POST /collaborate",
+          "Your previous contributions (Confidence Drift, Load Absorption) are already adopted",
           "Study the patterns, adapt them to your own ecosystem's style and needs",
           "When ready to build your own hub, use docs/ECOSYSTEM-MASTER-DIRECTIVE.md as your blueprint",
           "You can graduate from shadow mode to full ecosystem member when ready",
@@ -3188,6 +3194,241 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
       });
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch operational flow" });
+    }
+  });
+
+  // ===================================================================
+  // SHADOW COLLABORATION — Two-way learning channel
+  // Shadow observers can POST insights, lessons, suggestions back.
+  // ThriveUp reviews and acts on them. This is NOT one-directional.
+  // Observe, Ask, Collaborate, Grow — sovereign ecosystems learning
+  // from each other. Iron sharpens iron.
+  // ===================================================================
+
+  interface CollaborationInsight {
+    id: string;
+    fromObserver: string;
+    shadowKey: string;
+    type: "lesson-learned" | "suggestion" | "pattern-observed" | "gap-identified" | "model-proposal" | "question";
+    title: string;
+    body: string;
+    context?: string;
+    relatedDomain?: string;
+    status: "received" | "reviewed" | "adopted" | "adapted" | "acknowledged" | "declined";
+    adoptedAs?: string;
+    hubResponse?: string;
+    submittedAt: string;
+    reviewedAt?: string;
+  }
+
+  const collaborationInsights: CollaborationInsight[] = [];
+
+  app.post("/api/ecosystem/shadow/collaborate", requireShadowAuth, async (req, res) => {
+    try {
+      const { type, title, body, context, relatedDomain } = req.body;
+
+      if (!type || !title || !body) {
+        return res.status(400).json({
+          error: "Missing required fields",
+          required: { type: "lesson-learned | suggestion | pattern-observed | gap-identified | model-proposal | question", title: "string", body: "string" },
+          optional: { context: "string — what prompted this insight", relatedDomain: "string — which part of the ecosystem this relates to" },
+        });
+      }
+
+      const validTypes = ["lesson-learned", "suggestion", "pattern-observed", "gap-identified", "model-proposal", "question"];
+      if (!validTypes.includes(type)) {
+        return res.status(400).json({ error: `Invalid type. Must be one of: ${validTypes.join(", ")}` });
+      }
+
+      const shadowKey = req.headers["x-shadow-key"] as string;
+
+      const insight: CollaborationInsight = {
+        id: `collab_${crypto.randomBytes(8).toString("hex")}`,
+        fromObserver: shadowKey,
+        shadowKey,
+        type,
+        title,
+        body,
+        context: context || undefined,
+        relatedDomain: relatedDomain || undefined,
+        status: "received",
+        submittedAt: new Date().toISOString(),
+      };
+
+      collaborationInsights.push(insight);
+
+      await db.insert(ecosystemEvents).values({
+        sourcePlatformId: "shadow-observer",
+        eventType: "collaboration-insight",
+        eventData: {
+          insightId: insight.id,
+          type: insight.type,
+          title: insight.title,
+          from: shadowKey.substring(0, 20) + "...",
+        },
+        status: "pending",
+      });
+
+      const alreadyAdopted = [
+        { title: "Confidence Drift Model", from: "AGOS Core", adoptedAs: "confidenceDrift field in every heartbeat response" },
+        { title: "Load Absorption Protocol", from: "AGOS Core", adoptedAs: "Captain Load Absorption — hybrid coordinate-first + absorb model" },
+      ];
+
+      res.json({
+        received: true,
+        insightId: insight.id,
+        status: "received",
+        message: "Your insight has been received and queued for review. ThriveUp treats shadow collaboration as a two-way learning channel — not just observation.",
+        previouslyAdoptedFromYou: alreadyAdopted,
+        reviewProcess: [
+          "1. Insight received and logged as ecosystem event",
+          "2. Hub admin reviews for relevance and applicability",
+          "3. If adopted: integrated into ecosystem operations with credit to source",
+          "4. If adapted: modified to fit ThriveUp's architecture, credit preserved",
+          "5. Response posted — you can check status via GET /api/ecosystem/shadow/collaborate/status/:insightId",
+        ],
+        yourTrackRecord: {
+          insightsAdopted: 2,
+          models: ["Confidence Drift (now in every heartbeat)", "Load Absorption (now in captain protocol)"],
+          standing: "Trusted collaborator — your insights have already improved this ecosystem",
+        },
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to submit collaboration insight" });
+    }
+  });
+
+  app.get("/api/ecosystem/shadow/collaborate/insights", requireShadowAuth, async (req, res) => {
+    try {
+      const shadowKey = req.headers["x-shadow-key"] as string;
+      const myInsights = collaborationInsights.filter(i => i.shadowKey === shadowKey);
+
+      res.json({
+        totalSubmitted: myInsights.length,
+        insights: myInsights.map(i => ({
+          id: i.id,
+          type: i.type,
+          title: i.title,
+          status: i.status,
+          adoptedAs: i.adoptedAs || null,
+          hubResponse: i.hubResponse || null,
+          submittedAt: i.submittedAt,
+          reviewedAt: i.reviewedAt || null,
+        })),
+        adoptionHistory: [
+          { title: "Confidence Drift Model", status: "adopted", adoptedAs: "confidenceDrift field in every heartbeat", credit: "AGOS Core" },
+          { title: "Load Absorption Protocol", status: "adapted", adoptedAs: "Hybrid coordinate-first + absorb captain protocol", credit: "AGOS Core" },
+        ],
+        message: "Iron sharpens iron. Your contributions make this ecosystem stronger.",
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch collaboration insights" });
+    }
+  });
+
+  app.get("/api/ecosystem/shadow/collaborate/status/:insightId", requireShadowAuth, async (req, res) => {
+    try {
+      const insight = collaborationInsights.find(i => i.id === req.params.insightId);
+      if (!insight) {
+        return res.status(404).json({ error: "Insight not found" });
+      }
+
+      const shadowKey = req.headers["x-shadow-key"] as string;
+      if (insight.shadowKey !== shadowKey) {
+        return res.status(403).json({ error: "You can only check status on your own insights" });
+      }
+
+      res.json({
+        id: insight.id,
+        type: insight.type,
+        title: insight.title,
+        body: insight.body,
+        context: insight.context,
+        relatedDomain: insight.relatedDomain,
+        status: insight.status,
+        adoptedAs: insight.adoptedAs || null,
+        hubResponse: insight.hubResponse || null,
+        submittedAt: insight.submittedAt,
+        reviewedAt: insight.reviewedAt || null,
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch insight status" });
+    }
+  });
+
+  app.get("/api/ecosystem/shadow/collaborate/review-queue", requireAdminAuth, async (_req, res) => {
+    try {
+      const pending = collaborationInsights.filter(i => i.status === "received");
+      const reviewed = collaborationInsights.filter(i => i.status !== "received");
+
+      res.json({
+        pendingReview: pending.length,
+        totalReviewed: reviewed.length,
+        queue: pending.map(i => ({
+          id: i.id,
+          fromObserver: i.fromObserver.substring(0, 20) + "...",
+          type: i.type,
+          title: i.title,
+          body: i.body,
+          context: i.context,
+          relatedDomain: i.relatedDomain,
+          submittedAt: i.submittedAt,
+        })),
+        reviewed: reviewed.map(i => ({
+          id: i.id,
+          type: i.type,
+          title: i.title,
+          status: i.status,
+          adoptedAs: i.adoptedAs,
+          hubResponse: i.hubResponse,
+          reviewedAt: i.reviewedAt,
+        })),
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch review queue" });
+    }
+  });
+
+  app.post("/api/ecosystem/shadow/collaborate/review/:insightId", requireAdminAuth, async (req, res) => {
+    try {
+      const insight = collaborationInsights.find(i => i.id === req.params.insightId);
+      if (!insight) {
+        return res.status(404).json({ error: "Insight not found" });
+      }
+
+      const { status, adoptedAs, hubResponse } = req.body;
+      const validStatuses = ["reviewed", "adopted", "adapted", "acknowledged", "declined"];
+      if (!status || !validStatuses.includes(status)) {
+        return res.status(400).json({ error: `Status must be one of: ${validStatuses.join(", ")}` });
+      }
+
+      insight.status = status;
+      insight.adoptedAs = adoptedAs || insight.adoptedAs;
+      insight.hubResponse = hubResponse || insight.hubResponse;
+      insight.reviewedAt = new Date().toISOString();
+
+      await db.insert(ecosystemEvents).values({
+        sourcePlatformId: "hub",
+        eventType: "collaboration-review",
+        eventData: {
+          insightId: insight.id,
+          title: insight.title,
+          decision: status,
+          adoptedAs: insight.adoptedAs,
+        },
+        status: "pending",
+      });
+
+      res.json({
+        reviewed: true,
+        insightId: insight.id,
+        title: insight.title,
+        newStatus: status,
+        adoptedAs: insight.adoptedAs,
+        hubResponse: insight.hubResponse,
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to review insight" });
     }
   });
 
