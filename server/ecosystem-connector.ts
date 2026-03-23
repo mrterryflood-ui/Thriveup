@@ -1,6 +1,6 @@
 import type { Express, Request, Response } from "express";
 import { db } from "./storage";
-import { ecosystemPlatforms, ecosystemEvents, ecosystemHealthLogs, ecosystemDirectives, ecosystemDirectiveAcks } from "@shared/schema";
+import { ecosystemPlatforms, ecosystemEvents, ecosystemHealthLogs, ecosystemDirectives, ecosystemDirectiveAcks, grantOpportunities } from "@shared/schema";
 import { eq, desc, and, gte, sql, inArray } from "drizzle-orm";
 import crypto from "crypto";
 import { z } from "zod";
@@ -3731,6 +3731,14 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
       return hoursSince <= 8;
     });
 
+    const grantCount = await db.select({ count: sql<number>`count(*)` }).from(grantOpportunities);
+    const highFitCount = await db.select({ count: sql<number>`count(*)` }).from(grantOpportunities).where(gte(grantOpportunities.fitScore, 70));
+
+    const recentGrants = await db.select({ title: grantOpportunities.title, source: grantOpportunities.source, fitScore: grantOpportunities.fitScore })
+      .from(grantOpportunities)
+      .orderBy(desc(grantOpportunities.createdAt))
+      .limit(5);
+
     const exchange: CollaborationExchange = {
       id: `exchange_${crypto.randomBytes(8).toString("hex")}`,
       from: "ThriveUp Academy ACOS",
@@ -3743,10 +3751,37 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
         healthRatio: `${Math.round((onlineCount / 23) * 100)}%`,
         enforcementSchedule: "6 AM / 6 PM CST daily",
         pendingInsightsFromPartners: recentInsights.length,
+        grantDiscovery: {
+          totalTracked: grantCount[0]?.count || 0,
+          highFitMatches: highFitCount[0]?.count || 0,
+          sources: ["SAM.gov", "Grants.gov", "USASpending.gov", "Texas State (TWC/HHSC/TEA)", "Foundations", "Corporate", "Accelerators"],
+          latestFinds: recentGrants.map(g => `${g.title} (${g.source}, ${g.fitScore}% fit)`),
+        },
       },
-      recentChanges: [],
-      lessonsShared: [],
-      questionsForPartner: [],
+      recentChanges: [
+        "Multi-source Daily Grant Discovery LIVE — 7 sources (SAM.gov, Grants.gov, USASpending, Texas State, Foundations, Corporate, Accelerators) scanning 15 keywords across 12 ecosystem domains every 24 hours",
+        "Team-of-Teams platform assignment on every grant — Lead/Support/Validate roles auto-mapped from 23-platform PLATFORM_DIRECTORY with URLs and capability keywords",
+        `${grantCount[0]?.count || 0} total grants tracked, ${highFitCount[0]?.count || 0} high-fit matches (70%+ ecosystem alignment)`,
+        "MCE (656K+ SAM.gov records) and Pinnacle Business Conglomerate integrated as Lead platforms for minority business / contracting grants — not duplicated, orchestrated",
+        "Interactive Program Designer merged — 6-step wizard with Implementation Science (CFIR/RE-AIM/MAP-GAP), Traditional PM, and Hybrid methodology paths",
+        "SAM.gov API key configured with rate-limit handling, quota detection, and graceful degradation — other sources continue when SAM.gov quota exceeded",
+        "Grant fit scoring enriched: keyword matching + AI semantic analysis + readiness checklists + strengths/gaps assessment",
+      ],
+      lessonsShared: [
+        "LESSON: Multi-source grant discovery outperforms single-API approach — Grants.gov returned 120 results when SAM.gov quota was exhausted. Redundancy in data sources is as important as redundancy in platforms.",
+        "LESSON: Team-of-Teams grant assignment works best when each platform has explicit capability keywords, not just labels. MCE leads minority business grants because it matches 'small business, contracting, 8(a), HUBZone' — not because someone said so.",
+        "LESSON: USASpending.gov (active federal awards) reveals WHERE money is flowing NOW — not just what's available. Shows organizations successfully funded in each domain, which informs proposal competitive landscape.",
+        "LESSON: The ecosystem already had grant intelligence distributed across MCE, Pinnacle, and The Collaborative Advocate — centralizing discovery means orchestrating existing capabilities, not replacing them.",
+        "LESSON: Rate-limit handling must be domain-aware. SAM.gov has aggressive daily quotas on free tier. System needs to detect quota exhaustion early and skip remaining keywords rather than waste retries.",
+        "LESSON: Foundation and corporate grants (St. David's, Adient, DreamBee) are curated sources — they don't have APIs. The system seeds them as structured records with the same fit scoring, so they appear alongside federal grants ranked by relevance.",
+      ],
+      questionsForPartner: [
+        "AGOS: What patterns have you seen in successful grant applications across your ecosystem? Any fit scoring models we should adopt?",
+        "AGOS: How do you handle multi-source data deduplication when the same opportunity appears on both SAM.gov and Grants.gov?",
+        "AGOS: What is your approach to platform capability scoring — do you weight capabilities by evidence strength or just by keyword match?",
+        "AGOS: Have you implemented any pre-submission grant quality gates? ThriveUp has a Pre-Build Gate for features — considering a Pre-Submit Gate for grants.",
+        "AGOS: What lessons have you learned about autonomous daily operations? Our scheduled scans run every 24 hours — any cadence optimizations?",
+      ],
       capabilities: [
         "23-platform ACOS ecosystem",
         "Shadow observer mode with two-way collaboration",
@@ -3758,6 +3793,11 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
         "7-triad team-of-teams architecture",
         "Pre-Build Gate enforcement (adopted from AGOS Core)",
         "Capability Orchestration Map (adopted from AGOS Core)",
+        "Multi-source grant discovery (7 sources, 15 keywords, 12 domains)",
+        "Team-of-Teams grant platform assignment (Lead/Support/Validate)",
+        "Interactive Program Designer with Implementation Science",
+        "RAG-powered ecosystem AI with 60+ knowledge chunks",
+        "Automated platform health monitoring (10-minute pinger cycle)",
       ],
       adoptedImprovements: [
         { source: "AGOS Core", model: "Confidence Drift Detection", status: "adopted" },
@@ -3766,7 +3806,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
         { source: "AGOS Core", model: "Pre-Build Gate Enforcement", status: "adopted" },
         { source: "AGOS Core", model: "Capability Orchestration Map", status: "adopted" },
       ],
-    };
+    } as CollaborationExchange & { adoptedImprovements: unknown[] };
 
     return exchange;
   }
