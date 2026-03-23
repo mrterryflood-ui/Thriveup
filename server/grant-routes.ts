@@ -118,6 +118,67 @@ function computeFitScore(grant: { title?: string | null; description?: string | 
   return { score, analysis: { matchedAreas, totalAreas: PLATFORM_CAPABILITIES.length, keywords: matchedKeywords }, matchedAreas };
 }
 
+interface PlatformAssignment {
+  role: "Lead" | "Support" | "Validate";
+  platform: string;
+  url: string;
+  reason: string;
+}
+
+const PLATFORM_DIRECTORY: Record<string, { url: string; capabilities: string[] }> = {
+  "ThriveUp Academy": { url: "https://thrivingcommunitiesforall.com", capabilities: ["workforce", "training", "career", "WIOA", "apprenticeship", "job training", "employment", "curriculum"] },
+  "M2C Transition": { url: "https://vetmissiontransition.com", capabilities: ["veteran", "military", "transition", "VA", "service member", "MOS"] },
+  "Whole-Person Health": { url: "https://mentalwellnesssupport.net", capabilities: ["mental health", "behavioral health", "suicide prevention", "crisis", "PTSD", "depression", "screening", "trauma", "substance"] },
+  "ISSS": { url: "https://implementationineducatio.com", capabilities: ["child welfare", "child abuse", "family", "prevention", "ACEs", "youth", "school"] },
+  "SafeReport": { url: "https://safereports.net", capabilities: ["mandatory reporting", "child abuse", "neglect", "compliance", "incident"] },
+  "Shield Atlas": { url: "https://shield-atlas.replit.app", capabilities: ["emergency", "disaster", "resilience", "safety", "hazard", "crisis", "preparedness"] },
+  "MCE": { url: "https://minoritycenterofexcellence.com", capabilities: ["minority business", "small business", "contracting", "SAM.gov", "8(a)", "HUBZone", "MWBE", "economic development"] },
+  "Pinnacle Business": { url: "https://pinnacle-business-conglomerate.replit.app", capabilities: ["contractor", "business development", "certification", "teaming", "proposal", "disadvantaged"] },
+  "Sankofa Health": { url: "https://yourhealthbirthright.net", capabilities: ["health equity", "maternal", "disparities", "culturally responsive"] },
+  "Sankofa Feminine Health": { url: "https://holistic-black-feminine-health-hub.replit.app", capabilities: ["feminine health", "reproductive", "hormonal", "OB/GYN"] },
+  "Sankofa Maternal Health": { url: "https://black-maternal-health-network.replit.app", capabilities: ["maternal health", "prenatal", "postnatal", "doula", "mortality"] },
+  "Black Men's Health": { url: "https://black-men-health.replit.app", capabilities: ["men's health", "prostate", "cardiovascular", "mental health"] },
+  "Autoimmune Thrive": { url: "https://autoimmune-thrive.replit.app", capabilities: ["chronic disease", "autoimmune", "medication", "flare"] },
+  "PillScheduler": { url: "https://pillscheduler.net", capabilities: ["medication", "adherence", "prescription", "interaction"] },
+  "SafeCogniCare": { url: "https://safecognicare.com", capabilities: ["cognitive", "TBI", "dementia", "ADHD", "brain"] },
+  "LifeBridge": { url: "https://lifetransitionsaid.org", capabilities: ["housing", "food", "community", "211", "social services", "homelessness", "resource", "wraparound"] },
+  "WholeMind Learning": { url: "https://life-pals-standalone.replit.app", capabilities: ["K-12", "education", "STEM", "digital literacy", "learning"] },
+  "Perfectly Different": { url: "https://neurodifferentassistant.app", capabilities: ["neurodiversity", "disability", "autism", "ADHD", "IEP", "504", "special education"] },
+  "Speech Bridge": { url: "https://speech-bridge.replit.app", capabilities: ["language", "translation", "accessibility", "communication", "LEP", "bilingual"] },
+  "Better Science Lab": { url: "https://bettersciencelab.com", capabilities: ["evidence-based", "implementation science", "outcomes", "fidelity", "evaluation", "CFIR", "RE-AIM"] },
+  "Video Creator AI": { url: "https://video-creator-ai-mrterryflood.replit.app", capabilities: ["content", "video", "training materials", "marketing", "outreach"] },
+  "Ecosystem Nexus": { url: "https://ecosystem-nexus.replit.app", capabilities: ["coordination", "collaboration", "integration", "ecosystem", "systems"] },
+  "Ad Targeting": { url: "https://advertising-targeting-for-platforms.replit.app", capabilities: ["outreach", "audience", "campaign", "engagement", "underserved"] },
+};
+
+function assignTeamOfTeams(grant: { title?: string | null; description?: string | null; focusAreas?: string[] | null; eligibilityCriteria?: string | null }): PlatformAssignment[] {
+  const searchText = [grant.title, grant.description, ...(grant.focusAreas || []), grant.eligibilityCriteria].join(" ").toLowerCase();
+  const scored: { name: string; url: string; score: number; matchedCaps: string[] }[] = [];
+
+  for (const [name, info] of Object.entries(PLATFORM_DIRECTORY)) {
+    const matchedCaps = info.capabilities.filter(c => searchText.includes(c));
+    if (matchedCaps.length > 0) {
+      scored.push({ name, url: info.url, score: matchedCaps.length, matchedCaps });
+    }
+  }
+
+  scored.sort((a, b) => b.score - a.score);
+  const assignments: PlatformAssignment[] = [];
+
+  if (scored.length >= 1) {
+    assignments.push({ role: "Lead", platform: scored[0].name, url: scored[0].url, reason: `Strongest match: ${scored[0].matchedCaps.slice(0, 3).join(", ")}` });
+  }
+  for (let i = 1; i < Math.min(4, scored.length); i++) {
+    assignments.push({ role: "Support", platform: scored[i].name, url: scored[i].url, reason: `Matched: ${scored[i].matchedCaps.slice(0, 2).join(", ")}` });
+  }
+  assignments.push({ role: "Validate", platform: "Better Science Lab", url: "https://bettersciencelab.com", reason: "Evidence validation via CFIR/RE-AIM" });
+  if (!assignments.find(a => a.platform === "Ecosystem Nexus")) {
+    assignments.push({ role: "Validate", platform: "Ecosystem Nexus", url: "https://ecosystem-nexus.replit.app", reason: "Cross-platform coordination and monitoring" });
+  }
+
+  return assignments;
+}
+
 interface ReadinessItem { criterion: string; status: string; feature: string }
 
 function generateReadinessChecklist(matchedAreas: string[]): ReadinessItem[] {
@@ -424,7 +485,12 @@ export function registerGrantRoutes(app: Express) {
         );
       }
 
-      res.json(grants);
+      const enrichedGrants = grants.map(g => ({
+        ...g,
+        teamOfTeams: assignTeamOfTeams(g),
+      }));
+
+      res.json(enrichedGrants);
     } catch (error) {
       console.error("Failed to fetch grants:", error);
       res.status(500).json({ error: "Failed to fetch grants" });
@@ -2757,12 +2823,17 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
 
   async function runDailyGrantDiscovery() {
     console.log("[GrantDiscovery] Starting daily automated grant scan...");
+    let imported = 0;
+    let skipped = 0;
+
+    // === SOURCE 1: SAM.gov (Federal — requires API key) ===
     const apiKey = process.env.SAM_GOV_API_KEY;
-    if (!apiKey || apiKey === "DEMO_KEY") {
-      console.log("[GrantDiscovery] No SAM.gov API key configured — skipping automated scan");
-      return { imported: 0, skipped: 0, total: 0 };
+    const samgovEnabled = apiKey && apiKey !== "DEMO_KEY";
+    if (!samgovEnabled) {
+      console.log("[GrantDiscovery] No SAM.gov API key — skipping SAM.gov (other sources will still run)");
     }
 
+    if (samgovEnabled) {
     const keywords = [
       "workforce development",
       "veteran transition services",
@@ -2783,8 +2854,6 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
 
     try {
       const opportunities = await fetchSamGovOpportunities(keywords);
-      let imported = 0;
-      let skipped = 0;
 
       for (const opp of opportunities) {
         const existing = await db.select({ id: grantOpportunities.id })
@@ -2857,12 +2926,255 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
         }
       }
 
-      console.log(`[GrantDiscovery] Complete — ${imported} new grants imported, ${skipped} duplicates skipped, ${opportunities.length} total found`);
-      return { imported, skipped, total: opportunities.length };
+      console.log(`[GrantDiscovery] SAM.gov — ${imported} new grants imported, ${skipped} duplicates skipped, ${opportunities.length} total found`);
     } catch (error) {
-      console.error("[GrantDiscovery] Daily scan failed:", error);
-      return { imported: 0, skipped: 0, total: 0, error: String(error) };
+      console.error("[GrantDiscovery] SAM.gov scan failed:", error);
     }
+    } // end SAM.gov else block
+
+    // === SOURCE 2: Grants.gov (Federal — no API key needed) ===
+    try {
+      console.log("[GrantDiscovery] Scanning Grants.gov...");
+      const grantsGovKeywords = [
+        "workforce development", "veteran services", "behavioral health",
+        "child abuse prevention", "community health", "minority business",
+        "youth mentoring", "juvenile justice", "housing assistance",
+        "maternal health", "disability services", "digital literacy",
+      ];
+
+      for (let gi = 0; gi < grantsGovKeywords.length; gi++) {
+        const kw = grantsGovKeywords[gi];
+        if (gi > 0) await new Promise(resolve => setTimeout(resolve, 3000));
+        try {
+          const ggRes = await fetch("https://apply07.grants.gov/grantsws/rest/opportunities/search", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "Accept": "application/json" },
+            body: JSON.stringify({ keyword: kw, oppStatuses: "posted", rows: 10 }),
+            signal: AbortSignal.timeout(20000),
+          });
+          if (!ggRes.ok) { console.log(`[GrantDiscovery] Grants.gov error for "${kw}": ${ggRes.status}`); continue; }
+          const ggData = await ggRes.json();
+          const ggHits = ggData.oppHits || [];
+          if (ggHits.length > 0) console.log(`[GrantDiscovery] Grants.gov found ${ggHits.length} results for "${kw}"`);
+
+          for (const hit of ggHits) {
+            const ggNoticeId = `GG-${hit.id || hit.number}`;
+            const existingGG = await db.select({ id: grantOpportunities.id })
+              .from(grantOpportunities)
+              .where(eq(grantOpportunities.samgovNoticeId, ggNoticeId))
+              .limit(1);
+            if (existingGG.length > 0) { skipped++; continue; }
+
+            const ggGrantData = {
+              title: hit.title || "Untitled",
+              description: hit.synopsis || hit.title || "",
+              agency: hit.agency || "Federal",
+              fundingAmount: "",
+              sourceUrl: `https://www.grants.gov/search-results-detail/${hit.id}`,
+              grantType: hit.docType || "grant",
+              focusAreas: hit.cfdaList ? hit.cfdaList.map((c: string) => `CFDA ${c}`) : [],
+              eligibilityCriteria: "",
+            };
+
+            const ggFit = computeFitScore(ggGrantData);
+            const ggCategory = categorizeGrant(ggGrantData);
+            const ggDeadline = hit.closeDate ? parseSamDate(hit.closeDate) : null;
+            const ggPosted = hit.openDate ? parseSamDate(hit.openDate) : null;
+
+            const [ggGrant] = await db.insert(grantOpportunities).values({
+              ...ggGrantData,
+              samgovId: ggNoticeId,
+              samgovNoticeId: ggNoticeId,
+              fitScore: ggFit.score,
+              fitAnalysis: ggFit.analysis,
+              readinessChecklist: generateReadinessChecklist(ggFit.matchedAreas),
+              category: ggCategory,
+              source: "grants.gov",
+              deadline: ggDeadline,
+              postedDate: ggPosted,
+            }).returning();
+
+            imported++;
+
+            if (ggFit.score >= 70) {
+              await db.insert(grantAlerts).values({
+                grantId: ggGrant.id,
+                alertType: "high_fit_match",
+                title: `High-Fit Grant (Grants.gov): ${hit.title}`,
+                message: `Daily scan discovered a Grants.gov opportunity with ${ggFit.score}% fit score`,
+                fitScore: ggFit.score,
+              });
+            }
+          }
+        } catch (ggErr) {
+          console.error(`[GrantDiscovery] Grants.gov error for "${kw}":`, ggErr);
+        }
+      }
+      console.log(`[GrantDiscovery] Grants.gov scan complete`);
+    } catch (error) {
+      console.error("[GrantDiscovery] Grants.gov scan failed:", error);
+    }
+
+    // === SOURCE 3: USASpending.gov (Federal Awards — see what's being funded NOW) ===
+    try {
+      console.log("[GrantDiscovery] Scanning USASpending.gov for active federal awards...");
+      const spendingKeywords = [
+        "workforce development", "veteran transition", "behavioral health",
+        "child welfare", "community health worker", "minority business",
+        "youth mentoring", "reentry services", "housing assistance",
+        "maternal health", "disability employment",
+      ];
+
+      for (let si = 0; si < spendingKeywords.length; si++) {
+        const skw = spendingKeywords[si];
+        if (si > 0) await new Promise(resolve => setTimeout(resolve, 2000));
+        try {
+          const spRes = await fetch("https://api.usaspending.gov/api/v2/search/spending_by_award/", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              filters: {
+                keywords: [skw],
+                award_type_codes: ["02", "03", "04", "05"],
+                time_period: [{ start_date: new Date(Date.now() - 180 * 24 * 60 * 60 * 1000).toISOString().split("T")[0], end_date: new Date().toISOString().split("T")[0] }],
+              },
+              fields: ["Award ID", "Recipient Name", "Award Amount", "Description", "Start Date", "End Date", "Awarding Agency", "Awarding Sub Agency", "generated_internal_id"],
+              limit: 8,
+              page: 1,
+              sort: "Award Amount",
+              order: "desc",
+            }),
+            signal: AbortSignal.timeout(20000),
+          });
+
+          if (!spRes.ok) { console.log(`[GrantDiscovery] USASpending error for "${skw}": ${spRes.status}`); continue; }
+          const spData = await spRes.json();
+          const spResults = spData.results || [];
+          if (spResults.length > 0) console.log(`[GrantDiscovery] USASpending found ${spResults.length} awards for "${skw}"`);
+
+          for (const award of spResults) {
+            const spNoticeId = `USAS-${award["Award ID"] || award.generated_internal_id}`;
+            const existingSP = await db.select({ id: grantOpportunities.id })
+              .from(grantOpportunities)
+              .where(eq(grantOpportunities.samgovNoticeId, spNoticeId))
+              .limit(1);
+            if (existingSP.length > 0) { skipped++; continue; }
+
+            const amount = award["Award Amount"] || 0;
+            const spGrantData = {
+              title: `${award["Awarding Sub Agency"] || award["Awarding Agency"] || "Federal"}: ${skw} (${award["Recipient Name"] || "Awardee"})`,
+              description: award["Description"] || `Federal award for ${skw}. Awarded to ${award["Recipient Name"] || "Unknown"}. This indicates active federal funding in this domain — similar opportunities may be available.`,
+              agency: [award["Awarding Agency"], award["Awarding Sub Agency"]].filter(Boolean).join(" - ") || "Federal",
+              fundingAmount: amount > 0 ? `$${Number(amount).toLocaleString()}` : "",
+              sourceUrl: `https://www.usaspending.gov/award/${award.generated_internal_id}`,
+              grantType: "federal_award",
+              focusAreas: [skw],
+              eligibilityCriteria: "Based on active federal award data — indicates agencies actively funding in this domain",
+            };
+
+            const spFit = computeFitScore(spGrantData);
+            const spCategory = categorizeGrant(spGrantData);
+
+            const [spGrant] = await db.insert(grantOpportunities).values({
+              ...spGrantData,
+              samgovId: spNoticeId,
+              samgovNoticeId: spNoticeId,
+              fitScore: spFit.score,
+              fitAnalysis: spFit.analysis,
+              readinessChecklist: generateReadinessChecklist(spFit.matchedAreas),
+              category: spCategory,
+              source: "usaspending",
+              deadline: null,
+              postedDate: award["Start Date"] ? parseSamDate(award["Start Date"]) : null,
+              awardCeiling: amount > 0 ? Math.round(amount) : undefined,
+            }).returning();
+
+            imported++;
+
+            if (spFit.score >= 70) {
+              await db.insert(grantAlerts).values({
+                grantId: spGrant.id,
+                alertType: "high_fit_match",
+                title: `Active Federal Funding: ${skw}`,
+                message: `USASpending shows $${Number(amount).toLocaleString()} actively funded in this domain. ${spFit.score}% fit to ecosystem.`,
+                fitScore: spFit.score,
+              });
+            }
+          }
+        } catch (spErr) {
+          console.error(`[GrantDiscovery] USASpending error for "${skw}":`, spErr);
+        }
+      }
+      console.log("[GrantDiscovery] USASpending scan complete");
+    } catch (error) {
+      console.error("[GrantDiscovery] USASpending scan failed:", error);
+    }
+
+    // === SOURCE 4: Foundation & Corporate Opportunities (Curated High-Impact) ===
+    try {
+      console.log("[GrantDiscovery] Adding curated foundation/corporate opportunities...");
+      const curatedOpportunities = [
+        { title: "St. David's Foundation Community Health Grants", agency: "St. David's Foundation (Austin, TX)", description: "Funds community health improvement, behavioral health, maternal health, and health equity initiatives in the Austin/Travis County area. Historically funds up to $1M for comprehensive community health programs.", fundingAmount: "Up to $1,000,000", sourceUrl: "https://stdavidsfoundation.org/grants/", grantType: "foundation", focusAreas: ["health equity", "behavioral health", "maternal health", "community health"], eligibilityCriteria: "501(c)(3) organizations serving Central Texas communities", source: "foundation", category: "health" },
+        { title: "Texas Workforce Commission WIOA Grants", agency: "Texas Workforce Commission (State of Texas)", description: "WIOA Title I Adult, Dislocated Worker, and Youth formula grants administered through local workforce boards. Covers workforce training, career services, youth development, and reentry support.", fundingAmount: "$200,000 - $500,000", sourceUrl: "https://www.twc.texas.gov/programs/workforce-innovation-opportunity-act", grantType: "state_grant", focusAreas: ["workforce development", "youth employment", "career training", "reentry services"], eligibilityCriteria: "Workforce development organizations and training providers in Texas", source: "state_texas", category: "workforce" },
+        { title: "SSG Fox Suicide Prevention Grant (VA)", agency: "U.S. Department of Veterans Affairs", description: "Community-based suicide prevention grants for veteran-serving organizations. Funds crisis intervention, peer support, case management, and outreach targeting veterans at risk of suicide.", fundingAmount: "Up to $750,000", sourceUrl: "https://www.va.gov/homeless/ssgfox.asp", grantType: "federal", focusAreas: ["veteran services", "suicide prevention", "behavioral health", "crisis intervention"], eligibilityCriteria: "Community organizations providing veteran suicide prevention services", source: "federal_va", category: "health" },
+        { title: "OJJDP Juvenile Justice Programs", agency: "Office of Juvenile Justice and Delinquency Prevention (DOJ)", description: "Funding for juvenile justice programs including mentoring, reentry, diversion, and youth development. Supports evidence-based practices for youth involved in or at risk of involvement in the justice system.", fundingAmount: "$100,000 - $500,000", sourceUrl: "https://ojjdp.ojp.gov/funding", grantType: "federal", focusAreas: ["juvenile justice", "youth mentoring", "reentry", "diversion"], eligibilityCriteria: "Nonprofits serving justice-involved youth", source: "federal_doj", category: "justice" },
+        { title: "SAMHSA Community Mental Health Grants", agency: "Substance Abuse and Mental Health Services Administration", description: "Grants for community behavioral health, substance abuse prevention, and mental health services. Supports trauma-informed care, peer support, and integrated health approaches.", fundingAmount: "$100,000 - $1,000,000", sourceUrl: "https://www.samhsa.gov/grants", grantType: "federal", focusAreas: ["behavioral health", "substance abuse", "mental health", "trauma-informed care"], eligibilityCriteria: "Community-based organizations and nonprofits", source: "federal_samhsa", category: "health" },
+        { title: "Adient Foundation Community Grants", agency: "Adient Foundation (Corporate)", description: "Corporate foundation supporting education, health, and civic engagement in communities where Adient operates, including Austin/San Antonio corridor. General operating support available.", fundingAmount: "$15,000 - $20,000", sourceUrl: "https://www.adient.com/sustainability/community", grantType: "corporate", focusAreas: ["education", "health", "civic engagement"], eligibilityCriteria: "501(c)(3) nonprofits in Adient operating communities", source: "corporate", category: "community" },
+        { title: "DreamBee Foundation Child Abuse Prevention", agency: "DreamBee Foundation", description: "Foundation focused on child abuse prevention, intervention, and family strengthening programs. Supports evidence-based prevention programs and community-level approaches.", fundingAmount: "$25,000 - $100,000", sourceUrl: "https://dreambeefoundation.org/", grantType: "foundation", focusAreas: ["child abuse prevention", "family strengthening", "youth safety"], eligibilityCriteria: "Organizations serving children and families", source: "foundation", category: "community" },
+        { title: "Texas Health and Human Services Commission Grants", agency: "Texas HHSC (State of Texas)", description: "State grants for community health, mental health, disability services, and social services programs. Includes behavioral health, substance abuse, and maternal health funding.", fundingAmount: "$50,000 - $500,000", sourceUrl: "https://www.hhs.texas.gov/about/funding-grant-opportunities", grantType: "state_grant", focusAreas: ["behavioral health", "disability services", "community health", "social services"], eligibilityCriteria: "Texas-based nonprofit and community organizations", source: "state_texas", category: "health" },
+        { title: "Grand Founders Network-to-Capital Program", agency: "Grand Founders", description: "Accelerator program connecting diverse founders with capital, mentorship, and networks. Focus on Black-led, veteran-founded, and community-impact organizations. Cohort-based with pitch events.", fundingAmount: "Investment + Network Access", sourceUrl: "https://grandfounders.org/initiatives-network-to-capital", grantType: "accelerator", focusAreas: ["social enterprise", "workforce innovation", "community impact", "diverse founders"], eligibilityCriteria: "Diverse-led organizations with community impact models", source: "accelerator", category: "community" },
+        { title: "Texas Education Agency Community Partnership Grants", agency: "Texas Education Agency (State of Texas)", description: "Grants for after-school programs, youth development, STEM education, digital literacy, and community education partnerships. Supports out-of-school time programming and community schools.", fundingAmount: "$50,000 - $250,000", sourceUrl: "https://tea.texas.gov/about-tea/funding", grantType: "state_grant", focusAreas: ["education", "youth development", "STEM", "digital literacy", "after-school"], eligibilityCriteria: "Texas educational organizations and nonprofits", source: "state_texas", category: "education" },
+        { title: "SBA Minority Business Development Grants", agency: "U.S. Small Business Administration", description: "Federal funding for minority business development centers, entrepreneurship training, and small business technical assistance. Supports capacity building for minority-owned enterprises.", fundingAmount: "$100,000 - $300,000", sourceUrl: "https://www.sba.gov/funding-programs/grants", grantType: "federal", focusAreas: ["minority business", "entrepreneurship", "small business", "technical assistance"], eligibilityCriteria: "Organizations serving minority and disadvantaged business owners", source: "federal_sba", category: "workforce" },
+        { title: "FEMA Emergency Preparedness Grants", agency: "Federal Emergency Management Agency", description: "Grants for community emergency preparedness, disaster response planning, and resilience building. Includes programs for underserved communities and whole-community approaches.", fundingAmount: "$50,000 - $500,000", sourceUrl: "https://www.fema.gov/grants", grantType: "federal", focusAreas: ["emergency preparedness", "disaster response", "community resilience"], eligibilityCriteria: "State, local, tribal, and nonprofit organizations", source: "federal_fema", category: "community" },
+      ];
+
+      for (const co of curatedOpportunities) {
+        const coNoticeId = `CURATED-${co.title.replace(/[^a-zA-Z0-9]/g, "-").substring(0, 60)}`;
+        const existingCO = await db.select({ id: grantOpportunities.id })
+          .from(grantOpportunities)
+          .where(eq(grantOpportunities.samgovNoticeId, coNoticeId))
+          .limit(1);
+        if (existingCO.length > 0) { skipped++; continue; }
+
+        const coFit = computeFitScore(co);
+
+        const [coGrant] = await db.insert(grantOpportunities).values({
+          title: co.title,
+          description: co.description,
+          agency: co.agency,
+          fundingAmount: co.fundingAmount,
+          sourceUrl: co.sourceUrl,
+          grantType: co.grantType,
+          focusAreas: co.focusAreas,
+          eligibilityCriteria: co.eligibilityCriteria,
+          samgovId: coNoticeId,
+          samgovNoticeId: coNoticeId,
+          fitScore: coFit.score,
+          fitAnalysis: coFit.analysis,
+          readinessChecklist: generateReadinessChecklist(coFit.matchedAreas),
+          category: co.category,
+          source: co.source,
+        }).returning();
+
+        imported++;
+
+        if (coFit.score >= 50) {
+          await db.insert(grantAlerts).values({
+            grantId: coGrant.id,
+            alertType: "high_fit_match",
+            title: `${co.source === "foundation" || co.source === "corporate" ? "Foundation/Corporate" : co.source.includes("state") ? "Texas State" : "Federal"}: ${co.title}`,
+            message: `${co.agency} opportunity with ${coFit.score}% ecosystem fit. ${co.fundingAmount}`,
+            fitScore: coFit.score,
+          });
+        }
+      }
+      console.log("[GrantDiscovery] Curated foundation/state/corporate opportunities loaded");
+    } catch (error) {
+      console.error("[GrantDiscovery] Curated opportunities failed:", error);
+    }
+
+    console.log(`[GrantDiscovery] ALL SOURCES COMPLETE — ${imported} new grants imported, ${skipped} duplicates skipped`);
+    return { imported, skipped, total: imported + skipped };
   }
 
   app.get("/api/grants/discovery/status", requireAuth, async (_req, res) => {
@@ -2894,7 +3206,7 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
       ],
       totalGrantsTracked: totalGrants[0]?.count || 0,
       highFitGrants: highFitGrants[0]?.count || 0,
-      sources: ["SAM.gov (Federal)"],
+      sources: ["SAM.gov (Federal)", "Grants.gov (Federal)", "USASpending.gov (Active Awards)", "Texas State (TWC, HHSC, TEA)", "Foundations (St. David's, DreamBee)", "Corporate (Adient)", "Accelerators (Grand Founders)"],
     });
   });
 

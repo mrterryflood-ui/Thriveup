@@ -461,7 +461,7 @@ export default function GrantHubPage() {
               <div>
                 <p className="font-semibold text-sm">Daily Automated Grant Discovery</p>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Scanning {discoveryStatus.searchDomains.length} domains across {discoveryStatus.sources.join(", ")} every 24 hours.
+                  Scanning {discoveryStatus.searchDomains.length} domains across {discoveryStatus.sources.length} sources every 24 hours.
                   {discoveryStatus.lastRun !== "Not yet run" && (
                     <> Last scan: {new Date(discoveryStatus.lastRun).toLocaleString()}.</>
                   )}
@@ -470,11 +470,16 @@ export default function GrantHubPage() {
                   )}
                 </p>
                 <div className="flex flex-wrap gap-1 mt-1.5">
-                  {discoveryStatus.searchDomains.slice(0, 6).map(d => (
+                  {discoveryStatus.sources.map(s => (
+                    <span key={s} className="text-[10px] px-1.5 py-0.5 rounded bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 font-medium">{s}</span>
+                  ))}
+                </div>
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {discoveryStatus.searchDomains.slice(0, 8).map(d => (
                     <span key={d} className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300">{d}</span>
                   ))}
-                  {discoveryStatus.searchDomains.length > 6 && (
-                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">+{discoveryStatus.searchDomains.length - 6} more</span>
+                  {discoveryStatus.searchDomains.length > 8 && (
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">+{discoveryStatus.searchDomains.length - 8} more</span>
                   )}
                 </div>
               </div>
@@ -687,7 +692,23 @@ export default function GrantHubPage() {
                         <FitScoreBadge score={grant.fitScore} />
                         <StatusBadge status={grant.status} />
                         <CategoryBadge category={grant.category} />
-                        {grant.source === "samgov" && <Badge variant="outline" className="text-xs">SAM.gov</Badge>}
+                        {grant.source && (
+                          <Badge variant="outline" className="text-xs" data-testid={`badge-source-${grant.id}`}>
+                            {grant.source === "samgov" ? "SAM.gov" :
+                             grant.source === "grants.gov" ? "Grants.gov" :
+                             grant.source === "usaspending" ? "USASpending" :
+                             grant.source === "state_texas" ? "Texas State" :
+                             grant.source === "foundation" ? "Foundation" :
+                             grant.source === "corporate" ? "Corporate" :
+                             grant.source === "accelerator" ? "Accelerator" :
+                             grant.source === "federal_va" ? "VA Federal" :
+                             grant.source === "federal_doj" ? "DOJ Federal" :
+                             grant.source === "federal_samhsa" ? "SAMHSA" :
+                             grant.source === "federal_sba" ? "SBA" :
+                             grant.source === "federal_fema" ? "FEMA" :
+                             grant.source}
+                          </Badge>
+                        )}
                       </div>
                       {grant.agency && <p className="text-sm text-muted-foreground">{grant.agency}</p>}
                       <div className="flex flex-wrap items-center gap-3 mt-1">
@@ -725,6 +746,33 @@ export default function GrantHubPage() {
                           </div>
                         ) : null;
                       })()}
+                      {(grant as Record<string, unknown>).teamOfTeams && Array.isArray((grant as Record<string, unknown>).teamOfTeams) && (
+                        <div className="mt-3 border-t pt-2" data-testid={`team-of-teams-${grant.id}`}>
+                          <p className="text-xs font-semibold text-muted-foreground mb-1.5 flex items-center gap-1">
+                            <Users className="h-3 w-3" /> Ecosystem Team-of-Teams
+                          </p>
+                          <div className="flex flex-wrap gap-1.5">
+                            {((grant as Record<string, unknown>).teamOfTeams as Array<{role: string; platform: string; url: string; reason: string}>).map((assignment, idx) => (
+                              <a
+                                key={idx}
+                                href={assignment.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={`text-[10px] px-2 py-0.5 rounded-full font-medium inline-flex items-center gap-1 hover:opacity-80 transition-opacity ${
+                                  assignment.role === "Lead" ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 ring-1 ring-blue-300" :
+                                  assignment.role === "Support" ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300" :
+                                  "bg-amber-50 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300"
+                                }`}
+                                title={assignment.reason}
+                                data-testid={`team-assignment-${grant.id}-${idx}`}
+                              >
+                                <span className="font-bold">{assignment.role}:</span> {assignment.platform}
+                                <ExternalLink className="h-2.5 w-2.5" />
+                              </a>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
                       <label className="flex items-center gap-1 text-xs text-muted-foreground cursor-pointer" data-testid={`label-compare-${grant.id}`}>
