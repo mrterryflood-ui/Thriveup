@@ -329,6 +329,36 @@ export default function GrantHubPage() {
   const alerts = rawAlerts ?? [];
   const unreadAlerts = alerts.filter(a => !a.isRead).length;
 
+  interface DiscoveryStatus {
+    automated: boolean;
+    frequency: string;
+    lastRun: string;
+    nextRun: string;
+    apiKeyConfigured: boolean;
+    searchDomains: string[];
+    totalGrantsTracked: number;
+    highFitGrants: number;
+    sources: string[];
+  }
+  const { data: discoveryStatus } = useQuery<DiscoveryStatus>({ queryKey: ["/api/grants/discovery/status"] });
+
+  const scanNowMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest("POST", "/api/grants/discovery/run-now");
+      return res.json();
+    },
+    onSuccess: (data: { imported: number; skipped: number; total: number }) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/grants"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/grants/stats"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/grants/alerts"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/grants/discovery/status"] });
+      toast({ title: "Discovery Scan Complete", description: `Found ${data.total} opportunities. ${data.imported} new grants imported, ${data.skipped} already tracked.` });
+    },
+    onError: () => {
+      toast({ title: "Discovery scan failed", description: "Will retry automatically on next scheduled run", variant: "destructive" });
+    },
+  });
+
   const filteredGrants = searchQuery
     ? grants.filter(g =>
         g.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -420,6 +450,48 @@ export default function GrantHubPage() {
           </Button>
         </div>
       </div>
+
+      {discoveryStatus && (
+        <Card className="p-4 border-l-4 border-l-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/20" data-testid="card-discovery-status">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div className="flex items-start gap-3">
+              <div className="mt-0.5 h-8 w-8 rounded-full bg-emerald-100 dark:bg-emerald-900 flex items-center justify-center">
+                <Zap className="h-4 w-4 text-emerald-600" />
+              </div>
+              <div>
+                <p className="font-semibold text-sm">Daily Automated Grant Discovery</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Scanning {discoveryStatus.searchDomains.length} domains across {discoveryStatus.sources.join(", ")} every 24 hours.
+                  {discoveryStatus.lastRun !== "Not yet run" && (
+                    <> Last scan: {new Date(discoveryStatus.lastRun).toLocaleString()}.</>
+                  )}
+                  {discoveryStatus.highFitGrants > 0 && (
+                    <span className="text-emerald-600 font-medium"> {discoveryStatus.highFitGrants} high-fit matches found.</span>
+                  )}
+                </p>
+                <div className="flex flex-wrap gap-1 mt-1.5">
+                  {discoveryStatus.searchDomains.slice(0, 6).map(d => (
+                    <span key={d} className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300">{d}</span>
+                  ))}
+                  {discoveryStatus.searchDomains.length > 6 && (
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">+{discoveryStatus.searchDomains.length - 6} more</span>
+                  )}
+                </div>
+              </div>
+            </div>
+            <Button
+              size="sm"
+              onClick={() => scanNowMutation.mutate()}
+              disabled={scanNowMutation.isPending}
+              className="shrink-0"
+              data-testid="button-scan-now"
+            >
+              <RefreshCw className={`mr-2 h-3 w-3 ${scanNowMutation.isPending ? "animate-spin" : ""}`} />
+              {scanNowMutation.isPending ? "Scanning All Sources..." : "Scan Now"}
+            </Button>
+          </div>
+        </Card>
+      )}
 
       {stats && (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">

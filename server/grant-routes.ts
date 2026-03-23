@@ -224,7 +224,11 @@ async function fetchSamGovOpportunities(keywords: string[]): Promise<SamGovOppor
   const apiKey = process.env.SAM_GOV_API_KEY;
   const results: SamGovOpportunity[] = [];
 
-  for (const keyword of keywords) {
+  for (let i = 0; i < keywords.length; i++) {
+    const keyword = keywords[i];
+    if (i > 0) {
+      await new Promise(resolve => setTimeout(resolve, 5000));
+    }
     try {
       const params = new URLSearchParams({
         api_key: apiKey || "DEMO_KEY",
@@ -241,13 +245,34 @@ async function fetchSamGovOpportunities(keywords: string[]): Promise<SamGovOppor
         signal: AbortSignal.timeout(15000),
       });
 
-      if (!response.ok) {
-        console.error(`SAM.gov API error for "${keyword}": ${response.status} ${response.statusText}`);
-        continue;
+      let activeResponse = response;
+      if (!activeResponse.ok) {
+        if (activeResponse.status === 429) {
+          const body = await activeResponse.text();
+          if (body.includes("exceeded your quota")) {
+            console.log(`[GrantDiscovery] SAM.gov daily quota exceeded — will resume tomorrow. Processed ${i}/${keywords.length} keywords so far.`);
+            break;
+          }
+          console.log(`SAM.gov rate limited on "${keyword}" — waiting 15s before retry...`);
+          await new Promise(resolve => setTimeout(resolve, 15000));
+          activeResponse = await fetch(url, {
+            headers: { "Accept": "application/json" },
+            signal: AbortSignal.timeout(15000),
+          });
+          if (!activeResponse.ok) {
+            console.error(`SAM.gov retry failed for "${keyword}": ${activeResponse.status}`);
+            continue;
+          }
+          console.log(`SAM.gov retry success for "${keyword}"`);
+        } else {
+          console.error(`SAM.gov API error for "${keyword}": ${activeResponse.status} ${activeResponse.statusText}`);
+          continue;
+        }
       }
 
-      const data = await response.json();
+      const data = await activeResponse.json();
       const opportunities = data.opportunitiesData || [];
+      if (opportunities.length > 0) console.log(`SAM.gov found ${opportunities.length} results for "${keyword}"`);
 
       for (const opp of opportunities) {
         if (results.find(r => r.noticeId === opp.noticeId)) continue;
@@ -385,9 +410,9 @@ export function registerGrantRoutes(app: Express) {
 
       let grants;
       if (conditions.length > 0) {
-        grants = await db.select().from(grantOpportunities).where(and(...conditions)).orderBy(desc(grantOpportunities.createdAt));
+        grants = await db.select().from(grantOpportunities).where(and(...conditions)).orderBy(desc(grantOpportunities.fitScore), desc(grantOpportunities.createdAt));
       } else {
-        grants = await db.select().from(grantOpportunities).orderBy(desc(grantOpportunities.createdAt));
+        grants = await db.select().from(grantOpportunities).orderBy(desc(grantOpportunities.fitScore), desc(grantOpportunities.createdAt));
       }
 
       if (search && typeof search === "string") {
@@ -2723,4 +2748,178 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
       res.status(500).json({ error: "Failed to generate document template" });
     }
   });
+
+  // ===================================================================
+  // DAILY AUTOMATED GRANT DISCOVERY — Runs on startup + every 24 hours
+  // Searches SAM.gov and Grants.gov across all ecosystem domains.
+  // Results sorted by fit score — most relevant first.
+  // ===================================================================
+
+  async function runDailyGrantDiscovery() {
+    console.log("[GrantDiscovery] Starting daily automated grant scan...");
+    const apiKey = process.env.SAM_GOV_API_KEY;
+    if (!apiKey || apiKey === "DEMO_KEY") {
+      console.log("[GrantDiscovery] No SAM.gov API key configured — skipping automated scan");
+      return { imported: 0, skipped: 0, total: 0 };
+    }
+
+    const keywords = [
+      "workforce development",
+      "veteran transition services",
+      "behavioral health equity",
+      "child abuse prevention",
+      "emergency preparedness community",
+      "minority business enterprise",
+      "community health workers",
+      "youth mentoring education",
+      "juvenile reentry",
+      "housing assistance social services",
+      "disability support services",
+      "maternal health equity",
+      "workforce innovation opportunity act",
+      "community resilience",
+      "digital literacy education",
+    ];
+
+    try {
+      const opportunities = await fetchSamGovOpportunities(keywords);
+      let imported = 0;
+      let skipped = 0;
+
+      for (const opp of opportunities) {
+        const existing = await db.select({ id: grantOpportunities.id })
+          .from(grantOpportunities)
+          .where(eq(grantOpportunities.samgovNoticeId, opp.noticeId))
+          .limit(1);
+
+        if (existing.length > 0) { skipped++; continue; }
+
+        const grantData = {
+          title: opp.title,
+          description: opp.description || "",
+          agency: [opp.department, opp.subTier].filter(Boolean).join(" - ") || "Federal",
+          fundingAmount: formatCurrency(opp.awardCeiling) || formatCurrency(opp.estimatedTotalFunding) || "",
+          sourceUrl: opp.uiLink || "",
+          grantType: opp.type || "grant",
+          focusAreas: opp.focusAreas || [],
+          eligibilityCriteria: opp.eligibilityCriteria || "",
+        };
+
+        const keywordFit = computeFitScore(grantData);
+        const category = categorizeGrant(grantData);
+        const deadline = parseSamDate(opp.responseDate);
+        const postedDate = parseSamDate(opp.postedDate);
+
+        let aiResult: GrantAIResult | null = null;
+        try {
+          aiResult = await analyzeGrantWithAI(grantData);
+        } catch (e) {
+          console.log(`[GrantDiscovery] AI analysis skipped for "${opp.title}": ${e}`);
+        }
+
+        const fitScore = aiResult ? aiResult.fitScore : keywordFit.score;
+
+        const [grant] = await db.insert(grantOpportunities).values({
+          ...grantData,
+          samgovId: opp.noticeId,
+          samgovNoticeId: opp.noticeId,
+          fitScore,
+          fitAnalysis: keywordFit.analysis,
+          readinessChecklist: generateReadinessChecklist(keywordFit.matchedAreas),
+          category,
+          source: "samgov",
+          deadline,
+          postedDate,
+          responseDate: parseSamDate(opp.responseDate),
+          awardFloor: opp.awardFloor,
+          awardCeiling: opp.awardCeiling,
+          estimatedFunding: opp.estimatedTotalFunding,
+          expectedAwards: opp.expectedNumberOfAwards,
+          cfda: opp.cfda,
+          aiAnalysis: aiResult?.aiAnalysis || null,
+          strengthsGaps: aiResult?.strengthsGaps || null,
+        }).returning();
+
+        imported++;
+
+        if (aiResult?.strengthsGaps?.gaps?.length) {
+          await persistGapsFromGrant(grant.id, aiResult.strengthsGaps.gaps);
+        }
+
+        if (fitScore >= 70) {
+          await db.insert(grantAlerts).values({
+            grantId: grant.id,
+            alertType: "high_fit_match",
+            title: `High-Fit Grant Found: ${opp.title}`,
+            message: `Daily scan discovered a grant with ${fitScore}% fit score`,
+            fitScore,
+          });
+        }
+      }
+
+      console.log(`[GrantDiscovery] Complete — ${imported} new grants imported, ${skipped} duplicates skipped, ${opportunities.length} total found`);
+      return { imported, skipped, total: opportunities.length };
+    } catch (error) {
+      console.error("[GrantDiscovery] Daily scan failed:", error);
+      return { imported: 0, skipped: 0, total: 0, error: String(error) };
+    }
+  }
+
+  app.get("/api/grants/discovery/status", requireAuth, async (_req, res) => {
+    const lastRun = lastDailyDiscoveryRun;
+    const nextRun = lastRun ? new Date(lastRun.getTime() + 24 * 60 * 60 * 1000) : null;
+    const hasApiKey = !!process.env.SAM_GOV_API_KEY && process.env.SAM_GOV_API_KEY !== "DEMO_KEY";
+
+    const totalGrants = await db.select({ count: sql<number>`count(*)` }).from(grantOpportunities);
+    const highFitGrants = await db.select({ count: sql<number>`count(*)` }).from(grantOpportunities).where(gte(grantOpportunities.fitScore, 70));
+
+    const today6am = new Date();
+    today6am.setUTCHours(0, 0, 0, 0);
+    const todayGrants = await db.select({ count: sql<number>`count(*)` }).from(grantOpportunities).where(gte(grantOpportunities.createdAt, today6am));
+
+    res.json({
+      automated: true,
+      frequency: "Every 24 hours",
+      lastRun: lastRun?.toISOString() || "Not yet run",
+      nextRun: nextRun?.toISOString() || "Pending first run",
+      apiKeyConfigured: hasApiKey,
+      lastResult: lastDiscoveryResult,
+      todayNewGrants: todayGrants[0]?.count || 0,
+      searchDomains: [
+        "Workforce Development", "Veteran Transition", "Behavioral Health",
+        "Child Abuse Prevention", "Emergency Preparedness", "Minority Business",
+        "Community Health", "Youth Education", "Juvenile Justice",
+        "Housing & Social Services", "Disability Support", "Maternal Health",
+        "WIOA Programs", "Community Resilience", "Digital Literacy",
+      ],
+      totalGrantsTracked: totalGrants[0]?.count || 0,
+      highFitGrants: highFitGrants[0]?.count || 0,
+      sources: ["SAM.gov (Federal)"],
+    });
+  });
+
+  app.post("/api/grants/discovery/run-now", requireAuth, async (_req, res) => {
+    try {
+      const result = await runDailyGrantDiscovery();
+      lastDailyDiscoveryRun = new Date();
+      res.json({ success: true, ...result, ranAt: lastDailyDiscoveryRun.toISOString() });
+    } catch (error) {
+      res.status(500).json({ error: "Manual discovery run failed", details: String(error) });
+    }
+  });
+
+  let lastDailyDiscoveryRun: Date | null = null;
+  let lastDiscoveryResult: { imported: number; skipped: number; total: number; error?: string } | null = null;
+
+  setTimeout(async () => {
+    console.log("[GrantDiscovery] Running initial grant scan on startup...");
+    lastDiscoveryResult = await runDailyGrantDiscovery();
+    lastDailyDiscoveryRun = new Date();
+  }, 30000);
+
+  setInterval(async () => {
+    console.log("[GrantDiscovery] Running scheduled daily grant scan...");
+    lastDiscoveryResult = await runDailyGrantDiscovery();
+    lastDailyDiscoveryRun = new Date();
+  }, 24 * 60 * 60 * 1000);
 }
