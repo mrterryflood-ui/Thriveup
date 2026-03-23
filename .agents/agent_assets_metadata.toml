@@ -90,3 +90,9 @@ id = "RbuyestFlUL2TOga_hbib"
 uri = "file://attached_assets/ThriveUp_ACOS_PitchDeck_GrandFounders.pptx"
 type = "slides"
 title = "The Collaborative Advocate — Pitch Deck (Grand Founders Network-to-Capital)"
+
+[[outputs]]
+id = "rW1GPMlhxM1M4MroFFUg2"
+uri = "file://CollaborativeAdvocate_PitchDeck.pptx"
+type = "slides"
+title = "The Collaborative Advocate — Grand Founders Pitch Deck (5 Slides + Speaker Notes)"
