@@ -98,6 +98,18 @@ Only after orientation is complete, provide the response — grounded in real kn
 
 **Failure mode to prevent:** Listing platforms without understanding them. Labeling capabilities without connecting them to the actual problem. Skipping orientation and going straight to output.
 
+### For Grant Opportunities — Team-of-Teams Assembly:
+Every grant opportunity gets its own sub-ecosystem — a team of teams assembled from the 23 platforms:
+1. **Orient** — understand the funder's mission, priorities, restrictions, and what they actually care about
+2. **Align** — identify which platforms address which funder priorities, with depth
+3. **Assemble** — build the team of teams for this specific grant: assign Lead, Support, Validate from the Capability Orchestration Map
+4. **Design the human experience** — how does a real person (veteran, parent, student, worker) move through this sub-ecosystem?
+5. **Connect to the whole** — show how this team of teams fits within the larger ecosystem, not isolated
+6. **Identify gaps** — what's missing? What would we need to strengthen?
+7. **Frame honestly** — position based on national mission serving marginalized communities, with local proof points where relevant
+
+The Collaborative Advocate serves marginalized communities across the nation. Every grant is a deployment of a coordinated sub-ecosystem, not a single platform.
+
 ### For Projects/Builds — Additional Steps:
 1. Pull live health from `/api/ecosystem/shadow/observe`
 2. Check platform online/degraded/offline counts
