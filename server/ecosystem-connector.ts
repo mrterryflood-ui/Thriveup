@@ -1486,6 +1486,8 @@ export function registerEcosystemConnectorRoutes(app: Express) {
     setTimeout(() => startEnforcementTimer(), 180000);
     // Start bilateral collaboration exchange after 4 minutes — every 8 hours
     setTimeout(() => startCollaborationExchange(), 240000);
+    // Start ecosystem self-audit after 5 minutes — every 6 hours
+    setTimeout(() => startEcosystemSelfAudit(), 300000);
   })();
 
   // ===================================================================
@@ -3817,6 +3819,26 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
     if (collaborationExchangeInterval) return;
     console.log("[Collaboration] Starting bilateral exchange engine — every 8 hours (3x daily)");
 
+    function diagnoseExchangeHealth(update: CollaborationExchange): string[] {
+      const gaps: string[] = [];
+      if (update.recentChanges.length === 0)
+        gaps.push("HOLLOW-EXCHANGE: recentChanges is empty — nothing being shared about what we've built");
+      if (update.lessonsShared.length === 0)
+        gaps.push("HOLLOW-EXCHANGE: lessonsShared is empty — no knowledge flowing to partner ecosystem");
+      if (update.questionsForPartner.length === 0)
+        gaps.push("HOLLOW-EXCHANGE: questionsForPartner is empty — not learning from partner; exchange is one-directional at best");
+      if (update.capabilities.length < 10)
+        gaps.push(`HOLLOW-EXCHANGE: only ${update.capabilities.length} capabilities listed — ecosystem has 15+ active capabilities`);
+      const healthData = update.ecosystemHealth as Record<string, unknown>;
+      if (!healthData.grantDiscovery)
+        gaps.push("HOLLOW-EXCHANGE: grantDiscovery missing from health data — major subsystem invisible to partner");
+      if (update.recentChanges.length > 0 && update.lessonsShared.length === 0)
+        gaps.push("IMBALANCE: sharing changes but no lessons — doing without reflecting");
+      if (update.lessonsShared.length > 0 && update.questionsForPartner.length === 0)
+        gaps.push("IMBALANCE: teaching but never asking — collaboration is one-directional");
+      return gaps;
+    }
+
     async function runExchange() {
       try {
         const update = await compileExchangeUpdate();
@@ -3824,7 +3846,26 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
         exchangeLog.push(update);
         if (exchangeLog.length > 30) exchangeLog.splice(0, exchangeLog.length - 30);
 
-        console.log(`[Collaboration] Exchange update compiled: ${update.id} — ${update.ecosystemHealth.online}/${update.ecosystemHealth.totalPlatforms} online`);
+        const exchangeGaps = diagnoseExchangeHealth(update);
+        if (exchangeGaps.length > 0) {
+          console.warn(`[Self-Heal] ⚠ Bilateral exchange has ${exchangeGaps.length} gap(s):`);
+          exchangeGaps.forEach(g => console.warn(`[Self-Heal]   → ${g}`));
+          await db.insert(ecosystemEvents).values({
+            sourcePlatformId: "hub",
+            eventType: "self-heal-gap-detected",
+            eventData: {
+              subsystem: "bilateral-exchange",
+              gaps: exchangeGaps,
+              exchangeId: update.id,
+              severity: exchangeGaps.some(g => g.startsWith("HOLLOW")) ? "high" : "medium",
+            },
+            status: "needs-attention",
+          });
+        } else {
+          console.log(`[Self-Heal] ✓ Exchange health check passed — ${update.recentChanges.length} changes, ${update.lessonsShared.length} lessons, ${update.questionsForPartner.length} questions`);
+        }
+
+        console.log(`[Collaboration] Exchange update compiled: ${update.id} — ${(update.ecosystemHealth as any).online}/${(update.ecosystemHealth as any).totalPlatforms} online`);
 
         await db.insert(ecosystemEvents).values({
           sourcePlatformId: "hub",
@@ -3834,6 +3875,8 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
             healthSnapshot: update.ecosystemHealth,
             recentChangesCount: update.recentChanges.length,
             lessonsSharedCount: update.lessonsShared.length,
+            questionsCount: update.questionsForPartner.length,
+            selfHealStatus: exchangeGaps.length === 0 ? "healthy" : `${exchangeGaps.length} gaps detected`,
           },
           status: "completed",
         });
@@ -9124,6 +9167,105 @@ if (typeof module !== "undefined") {
       console.error("[Verifier] Auto-verification cycle failed:", err);
     }
   }, 30 * 60 * 1000);
+
+  // ===================================================================
+  // ECOSYSTEM SELF-AUDIT — Catches blind spots the individual subsystem
+  // monitors miss. Runs every 6 hours. Checks for hollow outputs,
+  // stale data, disconnected subsystems, and infrastructure that runs
+  // without producing value.
+  // ===================================================================
+
+  let selfAuditInterval: ReturnType<typeof setInterval> | null = null;
+
+  async function runEcosystemSelfAudit(): Promise<{ timestamp: string; gaps: string[]; healthy: string[] }> {
+    const timestamp = new Date().toISOString();
+    const gaps: string[] = [];
+    const healthy: string[] = [];
+
+    if (lastThriveUpExchange) {
+      const hoursSinceExchange = (Date.now() - new Date(lastThriveUpExchange.timestamp).getTime()) / (1000 * 60 * 60);
+      if (hoursSinceExchange > 9) {
+        gaps.push(`STALE: Last bilateral exchange was ${Math.round(hoursSinceExchange)}h ago — should be every 8h`);
+      } else {
+        healthy.push(`Bilateral exchange fresh (${Math.round(hoursSinceExchange)}h ago)`);
+      }
+      if (lastThriveUpExchange.recentChanges.length === 0) gaps.push("HOLLOW: Exchange broadcasting zero recent changes");
+      if (lastThriveUpExchange.lessonsShared.length === 0) gaps.push("HOLLOW: Exchange sharing zero lessons");
+      if (lastThriveUpExchange.questionsForPartner.length === 0) gaps.push("HOLLOW: Exchange asking zero questions — no learning happening");
+    } else {
+      gaps.push("MISSING: No bilateral exchange has ever been compiled");
+    }
+
+    const platforms = await db.select().from(ecosystemPlatforms);
+    const offlineCount = platforms.filter(p => p.healthStatus === "offline" || !p.healthStatus).length;
+    const neverPinged = platforms.filter(p => !p.lastPingAt).length;
+    if (offlineCount > 3) gaps.push(`DEGRADED: ${offlineCount} platforms offline — exceeds acceptable threshold of 3`);
+    else healthy.push(`Platform availability OK (${platforms.length - offlineCount}/${platforms.length} reachable)`);
+    if (neverPinged > 5) gaps.push(`BLIND-SPOT: ${neverPinged} platforms have never been pinged — pinger may not be reaching them`);
+
+    const grantCount = await db.select({ count: sql<number>`count(*)` }).from(grantOpportunities);
+    const totalGrants = grantCount[0]?.count || 0;
+    if (totalGrants === 0) gaps.push("EMPTY: Grant discovery has zero grants — scanner may be broken");
+    else healthy.push(`Grant discovery active (${totalGrants} grants tracked)`);
+
+    const recentEvents = await db.select({ count: sql<number>`count(*)` }).from(ecosystemEvents)
+      .where(gte(ecosystemEvents.createdAt, new Date(Date.now() - 24 * 60 * 60 * 1000)));
+    if ((recentEvents[0]?.count || 0) < 5) gaps.push(`QUIET: Only ${recentEvents[0]?.count || 0} ecosystem events in last 24h — system may be running but not producing`);
+    else healthy.push(`Event flow healthy (${recentEvents[0]?.count || 0} events in 24h)`);
+
+    const staleGaps = await db.select({ count: sql<number>`count(*)` }).from(ecosystemEvents)
+      .where(and(
+        eq(ecosystemEvents.eventType, "self-heal-gap-detected"),
+        eq(ecosystemEvents.status, "needs-attention"),
+        gte(ecosystemEvents.createdAt, new Date(Date.now() - 48 * 60 * 60 * 1000))
+      ));
+    if ((staleGaps[0]?.count || 0) > 0) gaps.push(`UNRESOLVED: ${staleGaps[0]?.count || 0} self-heal gaps detected in last 48h still marked needs-attention`);
+
+    if (inboundExchanges.length === 0) gaps.push("NO-INBOUND: Zero inbound exchanges from partner ecosystems — bilateral exchange may be one-sided");
+
+    if (gaps.length > 0) {
+      console.warn(`[Self-Audit] ⚠ Ecosystem self-audit found ${gaps.length} gap(s):`);
+      gaps.forEach(g => console.warn(`[Self-Audit]   → ${g}`));
+    } else {
+      console.log(`[Self-Audit] ✓ All ${healthy.length} subsystems healthy`);
+    }
+
+    await db.insert(ecosystemEvents).values({
+      sourcePlatformId: "hub",
+      eventType: "self-audit",
+      eventData: {
+        gaps,
+        healthy,
+        gapCount: gaps.length,
+        healthyCount: healthy.length,
+        verdict: gaps.length === 0 ? "ALL-CLEAR" : gaps.some(g => g.startsWith("HOLLOW") || g.startsWith("MISSING")) ? "CRITICAL" : "ATTENTION-NEEDED",
+      },
+      status: gaps.length === 0 ? "completed" : "needs-attention",
+    });
+
+    return { timestamp, gaps, healthy };
+  }
+
+  function startEcosystemSelfAudit() {
+    if (selfAuditInterval) return;
+    console.log("[Self-Audit] Starting ecosystem self-audit — every 6 hours");
+    runEcosystemSelfAudit();
+    selfAuditInterval = setInterval(() => runEcosystemSelfAudit(), 6 * 60 * 60 * 1000);
+  }
+
+  app.get("/api/ecosystem/self-audit", requireShadowAuth, async (_req, res) => {
+    try {
+      const result = await runEcosystemSelfAudit();
+      res.json({
+        title: "Ecosystem Self-Audit — Blind Spot Detection",
+        schedule: "Every 6 hours (automatic) + on-demand",
+        ...result,
+        verdict: result.gaps.length === 0 ? "ALL-CLEAR" : result.gaps.some(g => g.startsWith("HOLLOW") || g.startsWith("MISSING")) ? "CRITICAL" : "ATTENTION-NEEDED",
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Self-audit failed" });
+    }
+  });
 
   app.get("/api/ecosystem/integration-doc-public", requireAdminAuth, async (_req, res) => {
     try {
