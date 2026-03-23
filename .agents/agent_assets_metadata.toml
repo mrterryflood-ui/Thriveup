@@ -84,3 +84,9 @@ id = "OskZv1oH5arMbCZ0GemE0"
 uri = "file://docs/ECOSYSTEM-MASTER-DIRECTIVE.md"
 type = "text"
 title = "Ecosystem Master Directive v5.0 (with 4-Layer Congruence Rule)"
+
+[[outputs]]
+id = "RbuyestFlUL2TOga_hbib"
+uri = "file://attached_assets/ThriveUp_ACOS_PitchDeck_GrandFounders.pptx"
+type = "slides"
+title = "ThriveUp ACOS Pitch Deck — Grand Founders Network-to-Capital"
