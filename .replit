@@ -46,6 +46,7 @@ integrations = ["javascript_openai_ai_integrations:2.0.0", "javascript_log_in_wi
 [userenv.shared]
 FBI_CRIME_API_KEY = "iiHnOKfno2Mgkt5AynpvPpUQTEyxE77jo1RU8PIv"
 SUPPORT_PORTAL_URL = "https://student-support-portal--mrterryflood.replit.app"
+SAM_GOV_API_KEY = "SAM-cd05d380-65c1-455e-8899-a798ee65dad6"
 
 [postMerge]
 path = "scripts/post-merge.sh"
