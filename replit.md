@@ -70,15 +70,43 @@ The frontend, backend, public-facing pages, and developer/admin panels MUST stay
 - **Capability Orchestration Map (from AGOS Core)** — Public endpoint at GET /api/ecosystem/capability-orchestration-map. Maps all 23 platforms to lead/support/validate roles. 22-row capability matrix. 5 orchestration rules. Core principle: "Capabilities are distributed. Execution is coordinated." CORS enabled.
 - **Capability Portfolio (Pay-for-Play)** — Public endpoint at GET /api/ecosystem/capability-portfolio. No auth required — it's a sales tool. Shows all 23 platforms organized into 10 service domains (Emergency Management, Health Equity, Veteran Services, Workforce Development, Education, Community Resources, Communication, Research, Content Production, Operations). Each domain has a pitch, platform capabilities, and client use cases. Four package types: single platform, domain bundle, full ecosystem, custom integration. CORS enabled for external access.
 
-## Standing Directive: MAP-GAP Before Every Project
-**Before starting ANY new project or major task, run MAP-GAP:**
+## Standing Directive: MAP-GAP ORIENTATION — EVERY INTERACTION, EVERY TIME
+**This is not optional. This applies to EVERYTHING — projects, grant opportunities, partnership assessments, feature requests, conversations, strategic questions. EVERY TIME.**
+
+### Step 1: ORIENT — Know Yourself
+Before responding to ANY request, reorient on the ecosystem:
+- What platforms do we have that are relevant to this situation?
+- What does each one ACTUALLY do — not the label, the real capability?
+- How do they connect to each other for this specific context?
+- What has ISSS, Whole-Person Health, SafeReport, Shield Atlas, ThriveUp, AGOS, and every relevant platform already solved?
+
+### Step 2: ORIENT — Know the Topic
+Before responding, understand the problem domain:
+- What does the research say about this topic?
+- What are the established frameworks, standards, and best practices?
+- What are the root causes, not just the symptoms?
+- Who are the key stakeholders and what do they actually need?
+
+### Step 3: CONNECT — Map Ecosystem to Situation
+- Which platforms address which aspects of this situation — with depth, not labels?
+- How do they coordinate for this specific use case?
+- What's the human experience — how does a real person move through this ecosystem?
+- What gaps exist that we need to acknowledge?
+
+### Step 4: ACT — Then Respond
+Only after orientation is complete, provide the response — grounded in real knowledge of the ecosystem and real knowledge of the domain.
+
+**Failure mode to prevent:** Listing platforms without understanding them. Labeling capabilities without connecting them to the actual problem. Skipping orientation and going straight to output.
+
+### For Projects/Builds — Additional Steps:
 1. Pull live health from `/api/ecosystem/shadow/observe`
 2. Check platform online/degraded/offline counts
 3. Check fidelity scores and pending acknowledgments
 4. Review capability alignment — do we have what this project needs?
-5. Identify gaps that could block the project
-6. Address critical gaps before starting
-7. Document what we learned
+5. Run Pre-Build Gate — does this capability already exist?
+6. Identify gaps that could block the project
+7. Address critical gaps before starting
+8. Document what we learned
 
 Full assessment template: `docs/MAP-GAP-SYSTEM-ASSESSMENT.md`
 This ensures we always know what we possess internally and externally before committing resources.
