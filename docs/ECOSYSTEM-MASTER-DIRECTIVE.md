@@ -1435,7 +1435,132 @@ This returns a complete JavaScript class (`MultiEcosystemManager`) that handles:
 
 ---
 
-## 21. CONTACT
+## 22. PRE-BUILD GATE (Enforcement Layer — from AGOS Core Collaboration)
+
+**Credit:** This enforcement model was built by AGOS Core and adopted by ThriveUp via bilateral collaboration exchange. Iron sharpens iron.
+
+### Core Rule
+
+**No capability can be built until the ecosystem has proven it does not already exist.**
+
+### Pre-Build Gate Logic
+
+```
+WHEN a new requirement, feature, or capability is identified:
+
+STEP 1 — CAPABILITY INTENT
+  - What problem are we solving?
+  - What outcome is required?
+  - What domain(s) are involved?
+
+STEP 2 — INTERNAL CAPABILITY SCAN
+  - Query ALL 23 platforms
+  - Does this capability exist in full or partial form?
+  - Where is it strongest? Where is it weakest?
+  - IF capability exists → DO NOT BUILD → MOVE TO ORCHESTRATION
+
+STEP 3 — EXTERNAL CAPABILITY SCAN
+  - Check: open source tools, partner systems, government APIs, industry tools
+  - IF capability exists externally → INTEGRATE → DO NOT BUILD
+
+STEP 4 — ORCHESTRATION DESIGN
+  - Who leads? Who supports? Who validates?
+  - What referrals are required?
+
+STEP 5 — COVERAGE CHECK
+  - Does this work for: city, state, federal, private, nonprofit?
+  - IF NOT → redesign for universal applicability
+
+STEP 6 — DECISION
+  - IF no internal + no external + orchestration insufficient → APPROVE BUILD
+  - ELSE → REJECT BUILD → IMPLEMENT ORCHESTRATION
+```
+
+### Failure Conditions
+- "We need to build..." without scan → FAIL
+- Single-platform solution → FAIL
+- No external awareness → FAIL
+- No orchestration plan → FAIL
+- Not scalable across domains → FAIL
+
+### Enforcement Endpoint
+```
+POST /api/ecosystem/pre-build-gate
+Header: admin auth required
+Body: { "problem": "...", "requiredOutcome": "...", "domains": ["..."] }
+```
+
+### Enforcement Statement
+**Before proposing any new capability, you must:**
+1. Identify where this capability already exists in the ecosystem
+2. Determine how to integrate or orchestrate it
+3. Evaluate external tools and open-source options
+4. Confirm cross-domain applicability (city, state, federal, private)
+
+**You are not allowed to propose building something that already exists. If you fail to perform this check, your recommendation is invalid.**
+
+---
+
+## 23. CAPABILITY ORCHESTRATION MAP (from AGOS Core Collaboration)
+
+**Credit:** This orchestration model was built by AGOS Core and adopted by ThriveUp via bilateral collaboration exchange.
+
+### Core Principle
+
+**Capabilities are distributed. Execution is coordinated.**
+
+**You are not a builder of isolated features. You are an orchestrator of capabilities across an ecosystem.**
+
+### Platform Roles
+
+| Platform | Primary Role | Leads In |
+|----------|-------------|----------|
+| Ecosystem Nexus | Orchestration + Intelligence Backbone | System orchestration, grants, integration, budget modeling |
+| Shield Atlas | Safety + Continuity + Emergency | Crisis scenarios, emergency planning, risk detection |
+| Better Science Lab / RPLICE | Governance + Architecture + Decision Integrity | Architecture, governance, validation, implementation science |
+| ISSS | People + Community + Execution Layer | Human-centered implementation, stakeholder engagement |
+| ThriveUp Academy | Workforce + Learning + Grants Support | Workforce training, grant readiness, skill alignment |
+| Whole-Person Health | Health Screening + Crisis Tools | Behavioral health, safety plans, resource navigation |
+| M2C | Veteran Transition | Military-to-civilian pipeline, benefits navigation |
+| MCE | Minority Business | Contractor enablement, SAM.gov, certifications |
+| LifeBridge | Community Resources | Virtual 211, SDOH navigation, crisis support |
+| Video Creator AI | Content Production | AI video, training content, marketing |
+
+### Capability Matrix
+
+| Capability | Lead | Support | Validate |
+|-----------|------|---------|----------|
+| Budgets & Financial | Nexus | RPLICE | ISSS |
+| Grants & Funding | Nexus / ThriveUp | ISSS | RPLICE |
+| Decision Modeling | Nexus | Shield Atlas | RPLICE |
+| Emergency Scenarios | Shield Atlas | Nexus | RPLICE |
+| Collaboration | ISSS | Nexus | RPLICE |
+| Governance | RPLICE | Nexus | ISSS |
+| Workforce | ThriveUp | ISSS | Nexus |
+| System Integration | Nexus | RPLICE | All |
+| Risk Detection | Shield Atlas | Nexus | RPLICE |
+| Health Screening | Whole-Person Health | Sankofa | RPLICE |
+| Veteran Services | M2C | Collaborative Advocate | Nexus |
+| Business Enablement | MCE | Pinnacle | RPLICE |
+| Content Production | Video Creator AI | Ad Targeting | Nexus |
+| Community Resources | LifeBridge | Whole-Person Health | ISSS |
+
+### Orchestration Rules
+1. **Always Assign Roles** — Every use case must define Lead, Support, Validate
+2. **Best System Leads** — Strongest capability + highest readiness
+3. **No Single-System Execution** — At least 2 systems, preferably 3+
+4. **Referral Required** — If capability spans systems, referral must be created
+5. **Cross-Domain Validation** — Validate across operations, finance, people, risk
+
+### Public Endpoint
+```
+GET /api/ecosystem/capability-orchestration-map
+```
+Returns the full orchestration map, matrix, rules, and engine logic. CORS enabled — any partner can see how we coordinate.
+
+---
+
+## 24. CONTACT
 
 - **Hub Admin:** Dr. Terry Flood
 - **Email:** mr.terryflood@gmail.com

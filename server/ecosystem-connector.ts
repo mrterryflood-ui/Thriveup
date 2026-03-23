@@ -3435,6 +3435,270 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
   });
 
   // ===================================================================
+  // PRE-BUILD GATE — Enforcement layer from AGOS Core collaboration
+  // No capability can be built until the ecosystem has proven it does
+  // not already exist. Forces: search → integrate → orchestrate →
+  // collaborate. Prevents silos, duplication, and isolated thinking.
+  // Credit: AGOS Core — adopted via bilateral collaboration exchange.
+  // ===================================================================
+
+  const CAPABILITY_ORCHESTRATION_MAP: Record<string, { lead: string; support: string[]; validate: string[]; capabilities: string[] }> = {
+    "ecosystem-nexus": {
+      lead: "Orchestration + Intelligence Backbone",
+      support: ["shield-atlas", "betterscience", "isss"],
+      validate: ["betterscience"],
+      capabilities: ["system orchestration", "data integration", "grant intelligence", "cross-platform coordination", "contract intelligence", "budget modeling"],
+    },
+    "shield-atlas": {
+      lead: "Safety + Continuity + Emergency",
+      support: ["ecosystem-nexus", "safereport"],
+      validate: ["betterscience", "ecosystem-nexus"],
+      capabilities: ["emergency response", "risk detection", "crisis coordination", "continuity planning", "geographic risk mapping", "community resilience scoring"],
+    },
+    "betterscience": {
+      lead: "Governance + Architecture + Decision Integrity",
+      support: ["ecosystem-nexus", "isss"],
+      validate: ["ecosystem-nexus", "isss"],
+      capabilities: ["system design", "validation", "governance", "decision integrity", "implementation science", "CFIR", "RE-AIM", "fidelity measurement"],
+    },
+    "isss": {
+      lead: "People + Community + Execution Layer",
+      support: ["ecosystem-nexus", "wholemind"],
+      validate: ["betterscience"],
+      capabilities: ["stakeholder engagement", "workforce systems", "community impact", "program execution", "student support", "multi-stakeholder coordination"],
+    },
+    "whole-person-health": {
+      lead: "Health Screening + Crisis Tools",
+      support: ["sankofa", "safecognicare", "pillscheduler"],
+      validate: ["betterscience"],
+      capabilities: ["behavioral health screening", "safety plans", "crisis tools", "resource navigation", "C-SSRS", "PHQ-9", "GAD-7", "PCL-5"],
+    },
+    "m2c": {
+      lead: "Veteran Transition + Military Services",
+      support: ["collaborative-advocate", "lifebridge"],
+      validate: ["ecosystem-nexus"],
+      capabilities: ["MOS translation", "benefits navigation", "housing planning", "identity transition", "military family support"],
+    },
+    "mce": {
+      lead: "Minority Business + Contractor Enablement",
+      support: ["pinnacle-business-conglomerate", "ecosystem-nexus"],
+      validate: ["betterscience"],
+      capabilities: ["business lifecycle", "SAM.gov integration", "certification wizard", "proposal review", "teaming hub", "656K+ records"],
+    },
+    "video-creator-ai": {
+      lead: "Content Production + Marketing",
+      support: ["ad-targeting"],
+      validate: ["ecosystem-nexus"],
+      capabilities: ["AI video generation", "training content", "marketing videos", "presentations", "platform showcase"],
+    },
+    "lifebridge": {
+      lead: "Community Resources + Social Services",
+      support: ["whole-person-health", "isss"],
+      validate: ["ecosystem-nexus"],
+      capabilities: ["virtual 211", "housing", "food access", "crisis support", "life event guides", "SDOH navigation"],
+    },
+    "speech-bridge": {
+      lead: "Communication + Accessibility",
+      support: ["whole-person-health", "isss"],
+      validate: ["betterscience"],
+      capabilities: ["dialect recognition", "speech-to-text", "language translation", "culturally responsive communication"],
+    },
+  };
+
+  const CAPABILITY_MATRIX: Array<{ capability: string; lead: string; support: string; validate: string }> = [
+    { capability: "Budgets & Financial Modeling", lead: "ecosystem-nexus", support: "betterscience", validate: "isss" },
+    { capability: "Grants & Funding", lead: "ecosystem-nexus / ThriveUp", support: "isss", validate: "betterscience" },
+    { capability: "Decision Modeling", lead: "ecosystem-nexus", support: "shield-atlas", validate: "betterscience" },
+    { capability: "Emergency Scenarios", lead: "shield-atlas", support: "ecosystem-nexus", validate: "betterscience" },
+    { capability: "Collaboration & Partnerships", lead: "isss", support: "ecosystem-nexus", validate: "betterscience" },
+    { capability: "Governance & Compliance", lead: "betterscience", support: "ecosystem-nexus", validate: "isss" },
+    { capability: "Workforce Development", lead: "ThriveUp", support: "isss", validate: "ecosystem-nexus" },
+    { capability: "System Integration", lead: "ecosystem-nexus", support: "betterscience", validate: "all platforms" },
+    { capability: "Risk Detection & Safety", lead: "shield-atlas", support: "ecosystem-nexus", validate: "betterscience" },
+    { capability: "Health Screening", lead: "whole-person-health", support: "sankofa", validate: "betterscience" },
+    { capability: "Veteran Services", lead: "m2c", support: "collaborative-advocate", validate: "ecosystem-nexus" },
+    { capability: "Business Enablement", lead: "mce", support: "pinnacle-business-conglomerate", validate: "betterscience" },
+    { capability: "Content Production", lead: "video-creator-ai", support: "ad-targeting", validate: "ecosystem-nexus" },
+    { capability: "Community Resources", lead: "lifebridge", support: "whole-person-health", validate: "isss" },
+    { capability: "Communication & Accessibility", lead: "speech-bridge", support: "whole-person-health", validate: "betterscience" },
+    { capability: "Education K-12", lead: "wholemind", support: "isss", validate: "betterscience" },
+    { capability: "Neurodiversity Support", lead: "perfectly-different", support: "safecognicare", validate: "betterscience" },
+    { capability: "Medication Management", lead: "pillscheduler", support: "whole-person-health", validate: "safecognicare" },
+    { capability: "Cognitive Safety", lead: "safecognicare", support: "whole-person-health", validate: "betterscience" },
+    { capability: "Maternal Health", lead: "sankofa-maternal-health", support: "sankofa-feminine-health", validate: "whole-person-health" },
+    { capability: "Autoimmune Disease", lead: "autoimmune-thrive", support: "pillscheduler", validate: "whole-person-health" },
+    { capability: "Incident Reporting", lead: "safereport", support: "shield-atlas", validate: "betterscience" },
+  ];
+
+  app.post("/api/ecosystem/pre-build-gate", requireAdminAuth, async (req, res) => {
+    try {
+      const { problem, requiredOutcome, domains } = req.body;
+
+      if (!problem || !requiredOutcome) {
+        return res.status(400).json({
+          error: "Pre-Build Gate requires: problem (what are we solving?), requiredOutcome (what result is needed?)",
+          optional: "domains (array of involved domains)",
+          enforcement: "No capability can be built until the ecosystem has proven it does not already exist.",
+        });
+      }
+
+      const problemLower = problem.toLowerCase();
+      const outcomeLower = requiredOutcome.toLowerCase();
+      const searchTerms = `${problemLower} ${outcomeLower}`;
+
+      const internalMatches: Array<{ platform: string; role: string; matchedCapabilities: string[]; strength: string }> = [];
+
+      for (const [platformId, config] of Object.entries(CAPABILITY_ORCHESTRATION_MAP)) {
+        const matched = config.capabilities.filter(cap =>
+          searchTerms.includes(cap.toLowerCase()) || cap.toLowerCase().split(" ").some(word => word.length > 3 && searchTerms.includes(word))
+        );
+        if (matched.length > 0) {
+          internalMatches.push({
+            platform: platformId,
+            role: config.lead,
+            matchedCapabilities: matched,
+            strength: matched.length >= 3 ? "STRONG" : matched.length >= 2 ? "MODERATE" : "PARTIAL",
+          });
+        }
+      }
+
+      const matrixMatches = CAPABILITY_MATRIX.filter(row => {
+        const capLower = row.capability.toLowerCase();
+        return searchTerms.split(" ").some(term => term.length > 3 && capLower.includes(term));
+      });
+
+      const capabilityExists = internalMatches.length > 0;
+      const orchestrationAvailable = matrixMatches.length > 0;
+
+      let decision: "REJECT_BUILD" | "APPROVE_BUILD" | "ORCHESTRATE";
+      let reasoning: string;
+
+      if (capabilityExists && orchestrationAvailable) {
+        decision = "REJECT_BUILD";
+        reasoning = "Capability already exists in the ecosystem. Use orchestration instead of building.";
+      } else if (capabilityExists) {
+        decision = "ORCHESTRATE";
+        reasoning = "Partial capability exists. Orchestrate existing platforms and fill gaps — do not rebuild from scratch.";
+      } else {
+        decision = "APPROVE_BUILD";
+        reasoning = "No internal capability found. External scan recommended before building. If external tools exist, integrate — do not build.";
+      }
+
+      const crossDomainCheck = {
+        city: true,
+        state: true,
+        federal: true,
+        private: true,
+        nonprofit: true,
+      };
+
+      const gate = {
+        step1_capabilityIntent: {
+          problem,
+          requiredOutcome,
+          domains: domains || ["general"],
+        },
+        step2_internalScan: {
+          platformsScanned: Object.keys(CAPABILITY_ORCHESTRATION_MAP).length,
+          matchesFound: internalMatches.length,
+          matches: internalMatches,
+        },
+        step3_externalScan: {
+          recommendation: decision === "APPROVE_BUILD"
+            ? "REQUIRED — search open source tools, government APIs, partner systems, industry tools before building"
+            : "Optional — internal capability exists",
+          sources: ["Open source tools", "Government APIs (SAM.gov, CDC PLACES, Census, SAMHSA)", "Partner ecosystems (AGOS Core)", "SaaS integrations", "Academic models", "Industry best practices"],
+        },
+        step4_orchestration: {
+          available: orchestrationAvailable,
+          assignments: matrixMatches.map(row => ({
+            capability: row.capability,
+            lead: row.lead,
+            support: row.support,
+            validate: row.validate,
+          })),
+          rules: [
+            "Every use case must define: Lead, Support, Validate",
+            "Best system leads — strongest capability + highest readiness",
+            "No single-system execution — at least 2 systems, preferably 3+",
+            "If capability spans systems, referral must be created",
+            "Validate across: operations, finance, people, risk",
+          ],
+        },
+        step5_coverageCheck: crossDomainCheck,
+        step6_decision: {
+          decision,
+          reasoning,
+          failureConditions: [
+            capabilityExists ? null : "No internal capability found — external scan required",
+            !orchestrationAvailable ? "No orchestration matrix match — manual assignment needed" : null,
+          ].filter(Boolean),
+        },
+        enforcement: {
+          rule: "You are not a builder of isolated features. You are an orchestrator of capabilities across an ecosystem.",
+          creditTo: "AGOS Core — Pre-Build Gate and Capability Orchestration Map adopted via bilateral collaboration exchange",
+        },
+      };
+
+      await db.insert(ecosystemEvents).values({
+        sourcePlatformId: "hub",
+        eventType: "pre-build-gate",
+        eventData: {
+          problem,
+          requiredOutcome,
+          decision,
+          internalMatches: internalMatches.length,
+          orchestrationMatches: matrixMatches.length,
+        },
+        status: "completed",
+      });
+
+      res.json(gate);
+    } catch (error) {
+      res.status(500).json({ error: "Pre-Build Gate evaluation failed" });
+    }
+  });
+
+  app.get("/api/ecosystem/capability-orchestration-map", async (_req, res) => {
+    try {
+      res.json({
+        title: "Capability Orchestration Map",
+        creditTo: "AGOS Core — adopted via bilateral collaboration exchange",
+        corePrinciple: "Capabilities are distributed. Execution is coordinated.",
+        enforcement: "You are not a builder of isolated features. You are an orchestrator of capabilities across an ecosystem.",
+        platformCapabilities: CAPABILITY_ORCHESTRATION_MAP,
+        capabilityMatrix: CAPABILITY_MATRIX,
+        orchestrationRules: [
+          { rule: "Always Assign Roles", detail: "Every use case must define: Lead, Support, Validate" },
+          { rule: "Best System Leads", detail: "best_system = system with strongest capability + highest readiness" },
+          { rule: "No Single-System Execution", detail: "Every use case must involve at least 2 systems, preferably 3+" },
+          { rule: "Referral Required", detail: "If capability spans systems, referral must be created with ownership transfer or sharing" },
+          { rule: "Cross-Domain Validation", detail: "Before completion, validate across: operations, finance, people, risk" },
+        ],
+        orchestrationEngine: [
+          "1. Identify required capabilities",
+          "2. Map capabilities to systems",
+          "3. Assign: lead, support, validate",
+          "4. Check for external tools",
+          "5. Create referrals",
+          "6. Execute collaboratively",
+          "7. Validate outcome",
+        ],
+        preBuildGate: "POST /api/ecosystem/pre-build-gate — enforced check before any new build",
+        failureConditions: [
+          "'We need to build...' without scan → FAIL",
+          "Single-platform solution → FAIL",
+          "No external awareness → FAIL",
+          "No orchestration plan → FAIL",
+          "Not scalable across domains → FAIL",
+        ],
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch capability orchestration map" });
+    }
+  });
+
+  // ===================================================================
   // BILATERAL COLLABORATION EXCHANGE — Every 8 hours (3x daily)
   // ThriveUp compiles its current state and posts it to the exchange.
   // Shadow observers can pull the latest update AND push their own.
@@ -3492,6 +3756,15 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
         "Captain load absorption protocol",
         "Multi-ecosystem firewall",
         "7-triad team-of-teams architecture",
+        "Pre-Build Gate enforcement (adopted from AGOS Core)",
+        "Capability Orchestration Map (adopted from AGOS Core)",
+      ],
+      adoptedImprovements: [
+        { source: "AGOS Core", model: "Confidence Drift Detection", status: "adopted" },
+        { source: "AGOS Core", model: "Load Absorption Protocol", status: "adopted" },
+        { source: "AGOS Core", model: "Bilateral Exchange Direction", status: "adopted" },
+        { source: "AGOS Core", model: "Pre-Build Gate Enforcement", status: "adopted" },
+        { source: "AGOS Core", model: "Capability Orchestration Map", status: "adopted" },
       ],
     };
 
