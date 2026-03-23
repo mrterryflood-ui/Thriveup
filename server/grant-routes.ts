@@ -62,14 +62,18 @@ async function requireAdmin(req: Request, res: Response, next: Function) {
 }
 
 const PLATFORM_CAPABILITIES = [
-  { area: "Youth Workforce Development", features: ["50+ career pathways", "School-to-career pipelines", "Job readiness curriculum", "Employer partnerships"], grantKeywords: ["workforce", "employment", "job training", "career"] },
-  { area: "AI & Digital Literacy Education", features: ["5-level AI mastery curriculum", "10 AI creation tools", "STAAR test prep", "Bilingual support"], grantKeywords: ["education", "digital literacy", "technology", "STEM"] },
-  { area: "Youth Reentry Support", features: ["Reentry case management", "Intake assessments", "Phase-based plans", "Court-ready reporting"], grantKeywords: ["reentry", "juvenile justice", "second chance", "recidivism"] },
-  { area: "Mentorship & Coaching", features: ["Mentor matching network", "Industry professional connections", "Career coaching", "Peer mentoring"], grantKeywords: ["mentoring", "coaching", "youth development"] },
-  { area: "Community-Based Services", features: ["Community partner network", "Resource finder (50 states)", "Partner referral workflows", "Multi-agency coordination"], grantKeywords: ["community", "wraparound", "services", "partnership"] },
-  { area: "Data & Outcome Tracking", features: ["Thrive analytics", "Recidivism tracking", "Employment outcomes", "DOJ-aligned reporting"], grantKeywords: ["outcomes", "data", "measurement", "evidence-based"] },
-  { area: "Financial Literacy", features: ["Financial education courses", "Stock market simulation", "Entrepreneurship training", "College fundraising"], grantKeywords: ["financial", "economic", "entrepreneurship", "sustainability"] },
-  { area: "Whole-Child Support", features: ["Six-domain Thrive scoring", "Early warning system", "GIS context engine", "Behavioral health integration"], grantKeywords: ["holistic", "whole-child", "behavioral health", "trauma-informed"] },
+  { area: "Workforce Development", features: ["ThriveUp Academy training pipelines", "Skill alignment and career pathways", "WIOA-aligned program design", "Employer partnership coordination", "Manager in Training leadership pipeline"], grantKeywords: ["workforce", "employment", "job training", "career", "WIOA", "apprenticeship", "labor"] },
+  { area: "Veteran Transition Services", features: ["M2C military-to-civilian pipeline", "MOS translation engine", "Benefits navigation", "Housing planning", "Identity transition support", "Military family support"], grantKeywords: ["veteran", "military", "transition", "VA", "service member", "armed forces"] },
+  { area: "Behavioral Health & Mental Health", features: ["Whole-Person Health platform", "PHQ-9 depression screening", "GAD-7 anxiety screening", "C-SSRS suicide risk assessment", "PCL-5 PTSD screening", "Safety plan builder", "Crisis tools", "988 integration"], grantKeywords: ["behavioral health", "mental health", "substance", "crisis", "suicide prevention", "trauma", "PTSD", "depression"] },
+  { area: "Child & Family Safety", features: ["SafeReport mandatory reporting", "ISSS integrated family support for children AND parents", "Early warning systems", "Coordinated family case management", "Cross-agency referral workflows"], grantKeywords: ["child abuse", "neglect", "child welfare", "family", "prevention", "protective factors", "ACEs", "mandatory reporting"] },
+  { area: "Emergency Management & Community Safety", features: ["Shield Atlas emergency response", "Geographic risk mapping", "Crisis coordination", "Continuity planning", "Community resilience scoring", "All-hazard preparedness"], grantKeywords: ["emergency", "disaster", "resilience", "preparedness", "FEMA", "crisis", "safety", "hazard"] },
+  { area: "Minority Business & Economic Development", features: ["MCE with 656K+ SAM.gov records", "Certification wizard", "Proposal review", "Teaming hub", "APEX Accelerator integration", "Pinnacle Business Conglomerate"], grantKeywords: ["minority business", "small business", "economic development", "contracting", "8(a)", "HUBZone", "MWBE", "disadvantaged"] },
+  { area: "Health Equity", features: ["Sankofa maternal health", "Sankofa feminine health", "Black men's health", "Autoimmune Thrive", "PillScheduler medication management", "SafeCogniCare cognitive safety", "SDOH navigation"], grantKeywords: ["health equity", "disparities", "maternal", "chronic disease", "medication", "cognitive", "social determinants"] },
+  { area: "Education & Youth Development", features: ["WholeMind K-12 education platform", "Life Pals student support", "Perfectly Different neurodiversity support", "Digital literacy curriculum", "Mentoring and peer support"], grantKeywords: ["education", "youth", "K-12", "STEM", "digital literacy", "mentoring", "neurodiversity", "disability", "special education"] },
+  { area: "Community Resources & Social Services", features: ["LifeBridge Virtual 211", "Housing navigation", "Food access", "Utilities assistance", "Crisis support", "Life event guides", "SDOH resource mapping"], grantKeywords: ["community", "housing", "food", "wraparound", "social services", "homelessness", "resource", "211"] },
+  { area: "Communication & Accessibility", features: ["Speech Bridge dialect recognition", "Language translation", "Culturally responsive communication", "Accessibility tools"], grantKeywords: ["language", "translation", "accessibility", "communication", "culturally responsive", "LEP", "bilingual"] },
+  { area: "Data, Outcomes & Governance", features: ["Better Science Lab implementation science", "CFIR and RE-AIM frameworks", "Fidelity measurement", "Outcome tracking", "Cross-platform analytics", "Evidence-based practice validation"], grantKeywords: ["outcomes", "data", "measurement", "evidence-based", "fidelity", "implementation science", "evaluation"] },
+  { area: "Ecosystem Coordination", features: ["23-platform ACOS architecture", "Pre-Build Gate enforcement", "Capability Orchestration Map", "7-triad team-of-teams", "Bilateral collaboration exchange", "Multi-agency coordination"], grantKeywords: ["coordination", "collaboration", "partnership", "multi-agency", "ecosystem", "systems", "integration"] },
 ];
 
 const GRANT_CATEGORIES = ["workforce", "justice", "education", "health", "community"] as const;
@@ -491,7 +495,23 @@ export function registerGrantRoutes(app: Express) {
 
   app.post("/api/grants/refresh-samgov", requireAuth, async (_req, res) => {
     try {
-      const keywords = ["workforce development youth", "juvenile reentry", "youth education STEM", "community health youth", "mentoring youth"];
+      const keywords = [
+        "workforce development",
+        "veteran transition services",
+        "behavioral health equity",
+        "child abuse prevention",
+        "emergency preparedness community",
+        "minority business enterprise",
+        "community health workers",
+        "youth mentoring education",
+        "juvenile reentry",
+        "housing assistance social services",
+        "disability support services",
+        "maternal health equity",
+        "workforce innovation opportunity act",
+        "community resilience",
+        "digital literacy education",
+      ];
       const opportunities = await fetchSamGovOpportunities(keywords);
 
       let imported = 0;
