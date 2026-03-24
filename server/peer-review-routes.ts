@@ -161,13 +161,14 @@ export function registerPeerReviewRoutes(app: Express) {
 
     const prompt = `You are ${profile.name}, a platform in the ThriveUp Academy ACOS ecosystem (23 interconnected platforms serving workforce development, health equity, veteran transition, and community resilience under The Collaborative Advocate, a 501(c)(3) founded by Dr. Terry Flood).
 
-Write YOUR executive summary — first person, honest, no fluff. You are assessing yourself.
+Write YOUR executive summary — first person, BRUTALLY honest, no fluff. You are assessing yourself for Dr. Terry Flood's weekly review. He has zero tolerance for inflation.
 
 Your data:
 - Role: ${profile.role}
 - Domain: ${profile.domain}
 - Description: ${profile.description}
 - Features: ${features.join(", ")}
+- Outcome metrics: ${((profile.capabilities as any)?.outcomeMetrics || []).join(", ") || "NONE DOCUMENTED — this is a problem"}
 - Data you SEND: ${sends.join(", ")}
 - Data you RECEIVE: ${receives.join(", ")}
 - Grant alignment: ${profile.grantAlignment.join(", ")}
@@ -176,14 +177,24 @@ Your data:
 - Uptime (7 days): ${healthStats.uptimePercent}% across ${healthStats.checkCount} checks
 - Avg response: ${healthStats.avgResponseMs}ms
 
+READINESS LEVEL RULES — you MUST follow these strictly:
+- "battle-ready": ONLY if you have 95%+ uptime, documented outcome data with real numbers, 3+ ACTIVE bidirectional data exchanges (not just defined — actually flowing), AND a funder could audit your metrics today and be satisfied. Most platforms are NOT here.
+- "operational": You work, you're online, you have clear capabilities, integrations are defined and partially active, but you lack independently verifiable outcome data or some integrations exist only on paper.
+- "developing": You exist, some features work, but significant gaps in integration, outcome measurement, or reliability.
+- "nascent": Early stage, minimal functionality, not contributing to ecosystem yet.
+
+If your uptime is below 80%, you CANNOT claim "operational" — you are "developing" at best.
+If you have no documented outcome metrics, you CANNOT claim "battle-ready" — you are "operational" at best.
+
 Respond in this exact JSON format (no markdown, no code fences):
 {
   "mission": "one sentence — what you exist to do",
-  "keyStrengths": ["3-4 specific strengths based on real capabilities"],
-  "currentCapabilities": ["list your actual deployed features"],
+  "keyStrengths": ["3-4 specific strengths based on DEMONSTRATED capabilities, not aspirations"],
+  "currentCapabilities": ["list ONLY features that are actually deployed and working right now"],
   "ecosystemContribution": "one sentence — what you give to the ecosystem that no other platform does",
-  "gapsSelfIdentified": ["2-3 honest gaps or weaknesses you see in yourself"],
-  "readinessLevel": "one of: battle-ready, operational, developing, nascent"
+  "gapsSelfIdentified": ["3-4 REAL gaps — not soft gaps like 'could improve' but hard gaps like 'we cannot produce X data that funders need' or 'our integration with Y is defined but not active'"],
+  "outcomeEvidence": "one sentence — what measurable outcome data can you produce TODAY if a funder asks? If none, say 'No independently verifiable outcome data available'",
+  "readinessLevel": "one of: battle-ready, operational, developing, nascent — apply the rules above strictly"
 }`;
 
     try {
@@ -217,6 +228,8 @@ Respond in this exact JSON format (no markdown, no code fences):
     const targetSends = ((target.dataFlowConfig as any)?.sends || []).join(", ");
     const targetReceives = ((target.dataFlowConfig as any)?.receives || []).join(", ");
 
+    const targetOutcomeMetrics = ((target.capabilities as any)?.outcomeMetrics || []).join(", ");
+
     const prompt = `You are ${evaluator.name} (${evaluator.role}, features: ${evalFeatures}).
 
 Evaluate your peer platform ${target.name} for the ThriveUp ACOS ecosystem cross-evaluation.
@@ -225,23 +238,32 @@ ${target.name}'s profile:
 - Role: ${target.role}, Domain: ${target.domain}
 - Description: ${target.description}
 - Features: ${targetFeatures}
+- OUTCOME METRICS (this is what matters most): ${targetOutcomeMetrics || "NONE DOCUMENTED — score execution capability accordingly"}
 - Sends: ${targetSends}
 - Receives: ${targetReceives}
 - Grant alignment: ${target.grantAlignment.join(", ")}
 - Health: ${target.healthStatus}, Fidelity: ${targetDirectiveStats.fidelity}%
 - Uptime: ${targetHealthStats.uptimePercent}%, Response: ${targetHealthStats.avgResponseMs}ms
 - Self-identified gaps: ${targetSummary.selfAssessment.gapsSelfIdentified.join("; ")}
+- Self-claimed readiness: ${targetSummary.selfAssessment.readinessLevel}
+- Outcome evidence: ${(targetSummary.selfAssessment as any).outcomeEvidence || "Not provided"}
 
 Score 1-10 on each dimension using the Ecosystem Operating Standard (EOS).
 
-SCORING CALIBRATION — you MUST differentiate:
-- 9-10: Battle-ready. ONLY if: deep domain expertise with proven outcome data (real clinical/legal/educational metrics cited), 3+ active bidirectional data flows with evidence of real data exchange, grant narrative that cites specific funding amounts and deliverables, reliable uptime, AND the platform could survive independent scrutiny from a funder. This is RARE — most platforms should NOT score here unless they demonstrably deliver measurable outcomes.
-- 7-8: Operational. Solid capabilities deployed and functional, good integration architecture (data flows defined even if not all active), clear grant alignment with specific grants named, consistent execution. The platform works and contributes meaningfully.
-- 5-6: Developing. Capabilities exist on paper but integration is shallow (few real data exchanges), limited grant contribution (mentioned in narratives but not driving them), execution gaps visible in health/uptime data.
-- 3-4: Nascent. Minimal working capability, poor or no integration, not grant-ready.
-- 1-2: Non-functional or harmful to ecosystem.
+SCORING CALIBRATION — you MUST differentiate rigorously:
+- 9-10: Battle-ready. REQUIRES ALL OF: (a) documented outcome metrics with real numbers, (b) 3+ active bidirectional data flows with evidence of volume, (c) grant narrative citing specific funding amounts and deliverables, (d) 95%+ uptime, (e) could survive a funder site visit TODAY. Score 9 only if outcome data exists. Score 10 only if outcomes show measurable improvement trends.
+- 7-8: Operational. Platform is live and functional. Has defined integrations (some active, some on paper). Clear grant alignment. Outcome metrics exist but may lack independent verification. The platform contributes meaningfully but couldn't fully survive funder scrutiny alone.
+- 5-6: Developing. Features exist but integration is shallow. Limited or no outcome data. Health/uptime issues. Would not strengthen a grant application in its current state.
+- 3-4: Nascent. Minimal capability, poor integration, not grant-ready, execution failures.
+- 1-2: Non-functional or harmful.
 
-IMPORTANT: Do NOT give 7+ just because a platform "sounds important" or has a long feature list. Score based on EVIDENCE of delivery: Is the platform online? Does it actually exchange data? Can it produce outcome metrics a grant funder would accept? A platform with 14 listed features but no proven outcomes is a 6, not an 8. Differentiate between capability claims and demonstrated capability.
+SCORING RULES:
+1. If a platform has ZERO documented outcome metrics, its ceiling is 7 regardless of feature count.
+2. If uptime is below 80%, subtract 2 points from execution capability.
+3. If a platform claims battle-ready but lacks outcome data, score execution capability at 5 maximum — claiming readiness without evidence IS an execution failure.
+4. Count REAL data flows, not defined ones. If a platform lists 6 data types it "sends" but has no evidence of actual exchange volume, score integration at 5.
+5. A platform with 14 features and no proven outcomes should score LOWER than one with 6 features and documented results.
+6. Outcome metrics (e.g., "567 screenings completed", "71% placement rate") are worth more than feature lists. If the platform profile includes outcomeMetrics, use them to justify higher scores. If it doesn't, that absence IS the gap.
 
 Return ONLY valid JSON:
 {
@@ -304,7 +326,7 @@ Return ONLY valid JSON:
     directiveStatsMap: Record<string, any>,
     healthStatsMap: Record<string, any>,
   ): CrossEvaluationReport["gapAudit"] {
-    const readinessToScore: Record<string, number> = { "battle-ready": 8, "operational": 6, "developing": 4, "nascent": 2 };
+    const readinessToScore: Record<string, number> = { "battle-ready": 9, "operational": 7, "developing": 5, "nascent": 3 };
 
     const peerData: Record<string, { scores: number[]; gaps: string[]; strengths: string[] }> = {};
     evaluations.forEach(e => {
