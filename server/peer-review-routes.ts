@@ -561,14 +561,17 @@ Give exactly 3 strategic recommendations in a JSON array of strings. No markdown
     }
   }
 
+  const ORGANIZATIONAL_ONLY_PLATFORMS = ["collaborative-advocate"];
+
   async function runFullCrossEvaluation(): Promise<CrossEvaluationReport> {
     evaluationInProgress = true;
     const startTime = Date.now();
     console.log("[Peer Review] Starting full ecosystem cross-evaluation...");
 
     try {
-      const profiles = await buildPlatformProfiles();
-      console.log(`[Peer Review] Loaded ${profiles.length} platform profiles`);
+      const allProfiles = await buildPlatformProfiles();
+      const profiles = allProfiles.filter(p => !ORGANIZATIONAL_ONLY_PLATFORMS.includes(p.id));
+      console.log(`[Peer Review] Loaded ${allProfiles.length} platform profiles (${profiles.length} scorable, ${ORGANIZATIONAL_ONLY_PLATFORMS.length} organizational-only excluded)`);
 
       const directiveStatsMap: Record<string, any> = {};
       const healthStatsMap: Record<string, any> = {};
