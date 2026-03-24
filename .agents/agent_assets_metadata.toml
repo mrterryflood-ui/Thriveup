@@ -96,3 +96,9 @@ id = "rW1GPMlhxM1M4MroFFUg2"
 uri = "file://CollaborativeAdvocate_PitchDeck.pptx"
 type = "slides"
 title = "The Collaborative Advocate — Grand Founders Pitch Deck (5 Slides + Speaker Notes)"
+
+[[outputs]]
+id = "UnJ3p4um53x89Ac5axalm"
+uri = "file://docs/ecosystem-cross-evaluation-2026-03-24.md"
+type = "text"
+title = "Ecosystem Cross-Evaluation Report — March 24, 2026"

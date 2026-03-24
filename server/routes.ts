@@ -72,6 +72,7 @@ import { registerRpliceToolsRoutes } from "./rplice-tools";
 import { registerMceContractRoutes } from "./mce-contracts";
 import { registerVideoPipelineRoutes } from "./video-pipeline";
 import { registerProgramEngineRoutes } from "./program-engine";
+import { registerPeerReviewRoutes } from "./peer-review-routes";
 import { registerPricingRoutes } from "./pricing-routes";
 
 const AI_TOOLS = [
@@ -381,6 +382,7 @@ export async function registerRoutes(
   registerMceContractRoutes(app);
   registerVideoPipelineRoutes(app);
   registerProgramEngineRoutes(app);
+  registerPeerReviewRoutes(app);
   registerPricingRoutes(app);
   await storage.seedData();
 
