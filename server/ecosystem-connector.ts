@@ -929,7 +929,7 @@ const ECOSYSTEM_PLATFORMS = [
   {
     id: "pillscheduler",
     name: "PillScheduler",
-    url: "https://pillscheduler.net",
+    url: "https://pillscheduler--mrterryflood.replit.app",
     role: "medication-management",
     domain: "health-equity",
     description: "Comprehensive medication management platform for individuals managing complex multi-drug regimens — intelligent pill reminders with adaptive scheduling, dosage tracking with missed-dose protocols, FDA drug interaction database with real-time warnings, care team coordination for medication changes, automated refill alerts with pharmacy integration, medication adherence scoring with intervention triggers, and cognitive-capacity-aware interface that adapts complexity based on SafeCogniCare assessment data. Critical for chronic disease populations (autoimmune, cardiovascular, mental health), elderly patients, and veterans on VA prescriptions. Integrates with Autoimmune Center of Excellence for disease-specific medication protocols, SafeCogniCare for cognitive capacity matching, and Whole-Person Health for crisis routing on dangerous interactions.",
@@ -1608,7 +1608,7 @@ export function registerEcosystemConnectorRoutes(app: Express) {
         clearTimeout(timeout);
         responseMs = Date.now() - start;
 
-        if (response.ok) {
+        if (response.status < 500) {
           status = "online";
           wokenUp = wasSleeping;
         } else {
@@ -1630,7 +1630,7 @@ export function registerEcosystemConnectorRoutes(app: Express) {
         platformId: platform.id,
         status,
         responseTimeMs: responseMs,
-        statusCode: status === "online" ? 200 : status === "degraded" ? 403 : 0,
+        statusCode: status === "online" ? 200 : status === "degraded" ? 500 : 0,
         errorMessage: error || null,
       });
 

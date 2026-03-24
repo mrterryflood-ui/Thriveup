@@ -232,14 +232,16 @@ ${target.name}'s profile:
 - Uptime: ${targetHealthStats.uptimePercent}%, Response: ${targetHealthStats.avgResponseMs}ms
 - Self-identified gaps: ${targetSummary.selfAssessment.gapsSelfIdentified.join("; ")}
 
-Score 1-10 on each dimension using the Ecosystem Operating Standard (EOS):
-- 9-10: Battle-ready. Deep domain expertise, rich ecosystem integration (3+ bidirectional data flows), strong grant narrative contribution, proven outcome data, high fidelity, reliable uptime.
-- 7-8: Operational. Solid capabilities, good integration, clear grant alignment, consistent execution.
-- 5-6: Developing. Basic capabilities present but shallow integration, limited grant contribution, execution gaps.
-- 3-4: Nascent. Minimal capability, poor integration, not grant-ready.
+Score 1-10 on each dimension using the Ecosystem Operating Standard (EOS).
+
+SCORING CALIBRATION — you MUST differentiate:
+- 9-10: Battle-ready. ONLY if: deep domain expertise with proven outcome data (real clinical/legal/educational metrics cited), 3+ active bidirectional data flows with evidence of real data exchange, grant narrative that cites specific funding amounts and deliverables, reliable uptime, AND the platform could survive independent scrutiny from a funder. This is RARE — most platforms should NOT score here unless they demonstrably deliver measurable outcomes.
+- 7-8: Operational. Solid capabilities deployed and functional, good integration architecture (data flows defined even if not all active), clear grant alignment with specific grants named, consistent execution. The platform works and contributes meaningfully.
+- 5-6: Developing. Capabilities exist on paper but integration is shallow (few real data exchanges), limited grant contribution (mentioned in narratives but not driving them), execution gaps visible in health/uptime data.
+- 3-4: Nascent. Minimal working capability, poor or no integration, not grant-ready.
 - 1-2: Non-functional or harmful to ecosystem.
 
-Score based on the FULL profile — consider depth of features, breadth of data flows, integration with sibling platforms, grant alignment, and operational metrics. If a platform has deep capabilities, rich integration, and strong grant narrative, score accordingly.
+IMPORTANT: Do NOT give 7+ just because a platform "sounds important" or has a long feature list. Score based on EVIDENCE of delivery: Is the platform online? Does it actually exchange data? Can it produce outcome metrics a grant funder would accept? A platform with 14 listed features but no proven outcomes is a 6, not an 8. Differentiate between capability claims and demonstrated capability.
 
 Return ONLY valid JSON:
 {
@@ -592,16 +594,23 @@ Give exactly 3 strategic recommendations in a JSON array of strings. No markdown
         console.log(`[Peer Review] Summaries: ${summaries.length}/${profiles.length} complete`);
       }
 
-      console.log("[Peer Review] Phase 2: Generating peer evaluations...");
+      console.log("[Peer Review] Phase 2: Generating peer evaluations (full coverage)...");
       const evaluations: PeerEvaluation[] = [];
 
-      const evaluatorSample = profiles.length > 8
-        ? profiles.sort(() => Math.random() - 0.5).slice(0, 8)
-        : profiles;
+      const targetCoverage: Record<string, number> = {};
+      profiles.forEach(p => { targetCoverage[p.id] = 0; });
 
-      for (const evaluator of evaluatorSample) {
+      const evaluatorPool = [...profiles].sort(() => Math.random() - 0.5);
+      const minEvalsPerTarget = 3;
+
+      for (const evaluator of evaluatorPool) {
         const targets = profiles.filter(p => p.id !== evaluator.id);
-        const targetSample = targets.sort(() => Math.random() - 0.5).slice(0, 6);
+        const uncovered = targets.filter(t => targetCoverage[t.id] < minEvalsPerTarget);
+        const covered = targets.filter(t => targetCoverage[t.id] >= minEvalsPerTarget);
+        const targetSample = [
+          ...uncovered.sort(() => Math.random() - 0.5),
+          ...covered.sort(() => Math.random() - 0.5),
+        ].slice(0, Math.min(8, targets.length));
 
         const batchEvals = await Promise.all(
           targetSample.map(target => {
@@ -610,7 +619,11 @@ Give exactly 3 strategic recommendations in a JSON array of strings. No markdown
           })
         );
         evaluations.push(...batchEvals);
+        batchEvals.forEach(e => { targetCoverage[e.targetId] = (targetCoverage[e.targetId] || 0) + 1; });
         console.log(`[Peer Review] Evaluations: ${evaluations.length} complete (${evaluator.name} evaluated ${batchEvals.length} peers)`);
+
+        const uncoveredRemaining = Object.values(targetCoverage).filter(c => c < minEvalsPerTarget).length;
+        if (uncoveredRemaining === 0 && evaluations.length >= profiles.length * 3) break;
       }
 
       console.log("[Peer Review] Phase 3: Computing say-vs-do gap audit...");
