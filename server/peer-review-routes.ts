@@ -2,7 +2,8 @@ import type { Express, Request, Response } from "express";
 import { db } from "./storage";
 import { ecosystemPlatforms, ecosystemEvents, ecosystemHealthLogs, ecosystemDirectives, ecosystemDirectiveAcks } from "@shared/schema";
 import { eq, desc, and, gte, sql, count } from "drizzle-orm";
-import { generateAIResponse } from "./ai-provider";
+import { generateAIResponse, generateMultiAIResponse } from "./ai-provider";
+import Anthropic from "@anthropic-ai/sdk";
 
 interface PlatformProfile {
   id: string;
@@ -50,6 +51,24 @@ interface PeerEvaluation {
   recommendation: string;
 }
 
+interface GapAuditEntry {
+  platformId: string;
+  platformName: string;
+  claimedReadiness: string;
+  expectedScore: number;
+  peerAvgScore: number;
+  gap: number;
+  verdict: "OUTPERFORMING" | "ALIGNED" | "OVERRATING" | "CRITICAL-DISCONNECT";
+  selfClaimedStrengths: string[];
+  selfIdentifiedGaps: string[];
+  peerIdentifiedGaps: string[];
+  peerIdentifiedStrengths: string[];
+  blindSpots: string[];
+  directiveFidelity: number;
+  healthStatus: string;
+  uptimePercent: number;
+}
+
 interface CrossEvaluationReport {
   id: string;
   timestamp: string;
@@ -64,6 +83,15 @@ interface CrossEvaluationReport {
     criticalGaps: string[];
     strategicRecommendations: string[];
   };
+  gapAudit: {
+    entries: GapAuditEntry[];
+    overraters: GapAuditEntry[];
+    aligned: GapAuditEntry[];
+    outperformers: GapAuditEntry[];
+    blindSpotSummary: string[];
+    systemicGaps: string[];
+  };
+  claudeVerification: string;
   generatedAt: string;
 }
 
@@ -260,7 +288,174 @@ Return ONLY valid JSON:
     }
   }
 
-  async function generateBLUF(summaries: ExecutiveSummary[], evaluations: PeerEvaluation[], platforms: PlatformProfile[]): Promise<{ bluf: string; verdict: CrossEvaluationReport["ecosystemVerdict"] }> {
+  function computeGapAudit(
+    summaries: ExecutiveSummary[],
+    evaluations: PeerEvaluation[],
+    profiles: PlatformProfile[],
+    directiveStatsMap: Record<string, any>,
+    healthStatsMap: Record<string, any>,
+  ): CrossEvaluationReport["gapAudit"] {
+    const readinessToScore: Record<string, number> = { "battle-ready": 8, "operational": 6, "developing": 4, "nascent": 2 };
+
+    const peerData: Record<string, { scores: number[]; gaps: string[]; strengths: string[] }> = {};
+    evaluations.forEach(e => {
+      if (!peerData[e.targetId]) peerData[e.targetId] = { scores: [], gaps: [], strengths: [] };
+      peerData[e.targetId].scores.push(e.overallScore);
+      peerData[e.targetId].gaps.push(...e.gaps);
+      peerData[e.targetId].strengths.push(...e.strengths);
+    });
+
+    const entries: GapAuditEntry[] = summaries.map(s => {
+      const peer = peerData[s.platformId];
+      const profile = profiles.find(p => p.id === s.platformId);
+      const dStats = directiveStatsMap[s.platformId] || { fidelity: 0 };
+      const hStats = healthStatsMap[s.platformId] || { uptimePercent: 0 };
+      const peerAvg = peer ? Math.round(peer.scores.reduce((a, b) => a + b, 0) / peer.scores.length * 10) / 10 : 0;
+      const expected = readinessToScore[s.selfAssessment.readinessLevel] || 5;
+      const gap = Math.round((peerAvg - expected) * 10) / 10;
+
+      const selfGapSet = new Set(s.selfAssessment.gapsSelfIdentified.map(g => g.toLowerCase()));
+      const peerGaps = peer ? Array.from(new Set(peer.gaps)) : [];
+      const peerStrengths = peer ? Array.from(new Set(peer.strengths)) : [];
+      const blindSpots = peerGaps.filter(pg => {
+        const pgLower = pg.toLowerCase();
+        return !Array.from(selfGapSet).some(sg => pgLower.includes(sg) || sg.includes(pgLower.slice(0, 20)));
+      });
+
+      let verdict: GapAuditEntry["verdict"];
+      if (gap >= 1) verdict = "OUTPERFORMING";
+      else if (gap >= -0.5) verdict = "ALIGNED";
+      else if (gap >= -2) verdict = "OVERRATING";
+      else verdict = "CRITICAL-DISCONNECT";
+
+      return {
+        platformId: s.platformId,
+        platformName: s.platformName,
+        claimedReadiness: s.selfAssessment.readinessLevel,
+        expectedScore: expected,
+        peerAvgScore: peerAvg,
+        gap,
+        verdict,
+        selfClaimedStrengths: s.selfAssessment.keyStrengths,
+        selfIdentifiedGaps: s.selfAssessment.gapsSelfIdentified,
+        peerIdentifiedGaps: peerGaps.slice(0, 5),
+        peerIdentifiedStrengths: peerStrengths.slice(0, 5),
+        blindSpots: blindSpots.slice(0, 3),
+        directiveFidelity: dStats.fidelity,
+        healthStatus: profile?.healthStatus || "unknown",
+        uptimePercent: hStats.uptimePercent,
+      };
+    });
+
+    const overraters = entries.filter(e => e.verdict === "OVERRATING" || e.verdict === "CRITICAL-DISCONNECT").sort((a, b) => a.gap - b.gap);
+    const aligned = entries.filter(e => e.verdict === "ALIGNED");
+    const outperformers = entries.filter(e => e.verdict === "OUTPERFORMING").sort((a, b) => b.gap - a.gap);
+
+    const allBlindSpots = entries.flatMap(e => e.blindSpots);
+    const bsFreq: Record<string, number> = {};
+    allBlindSpots.forEach(bs => { bsFreq[bs] = (bsFreq[bs] || 0) + 1; });
+    const blindSpotSummary = Object.entries(bsFreq).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([bs, count]) => `[${count}x] ${bs}`);
+
+    const systemicGaps: string[] = [];
+    const avgFidelity = entries.reduce((s, e) => s + e.directiveFidelity, 0) / entries.length;
+    if (avgFidelity < 80) systemicGaps.push(`Ecosystem-wide directive fidelity at ${Math.round(avgFidelity)}% — ${entries.filter(e => e.directiveFidelity < 70).length} platforms below 70%`);
+    const offlineOrDegraded = entries.filter(e => e.healthStatus === "offline" || e.healthStatus === "degraded");
+    if (offlineOrDegraded.length > 3) systemicGaps.push(`${offlineOrDegraded.length} platforms offline or degraded — infrastructure reliability gap`);
+    if (overraters.length > 3) systemicGaps.push(`${overraters.length} platforms overrating themselves — self-awareness gap across ecosystem`);
+    const lowGrant = entries.filter(e => e.peerAvgScore > 0 && e.peerAvgScore < 5);
+    if (lowGrant.length > 2) systemicGaps.push(`${lowGrant.length} platforms scored below 5/10 by peers — execution capability gap`);
+    const highBlindSpot = entries.filter(e => e.blindSpots.length >= 2);
+    if (highBlindSpot.length > 3) systemicGaps.push(`${highBlindSpot.length} platforms have 2+ blind spots — gaps they don't see in themselves that peers do`);
+
+    return { entries, overraters, aligned, outperformers, blindSpotSummary, systemicGaps };
+  }
+
+  async function callClaudeDirectly(prompt: string, systemPrompt: string, maxTokens: number = 2000): Promise<string> {
+    const apiKey = process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY;
+    const baseURL = process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL;
+    if (!apiKey || !baseURL) {
+      console.warn("[Peer Review] Claude not available for independent verification — falling back to primary AI");
+      return generateAIResponse([{ role: "system", content: systemPrompt }, { role: "user", content: prompt }], maxTokens);
+    }
+    const client = new Anthropic({ apiKey, baseURL });
+    const resp = await client.messages.create({
+      model: "claude-haiku-4-5",
+      max_tokens: maxTokens,
+      system: systemPrompt,
+      messages: [{ role: "user", content: prompt }],
+    });
+    const block = resp.content[0];
+    return block.type === "text" ? block.text : "";
+  }
+
+  async function claudeIndependentVerification(
+    summaries: ExecutiveSummary[],
+    evaluations: PeerEvaluation[],
+    gapAudit: CrossEvaluationReport["gapAudit"],
+    profiles: PlatformProfile[],
+  ): Promise<string> {
+    const overraterNames = gapAudit.overraters.map(o => `${o.platformName} (claims ${o.claimedReadiness}, peers scored ${o.peerAvgScore}/10, gap ${o.gap})`).join("; ");
+    const outperformerNames = gapAudit.outperformers.map(o => `${o.platformName} (claims ${o.claimedReadiness}, peers scored ${o.peerAvgScore}/10, gap +${o.gap})`).join("; ");
+    const blindSpotStr = gapAudit.blindSpotSummary.join("; ");
+    const systemicStr = gapAudit.systemicGaps.join("; ");
+
+    const topSummaries = summaries.slice(0, 5).map(s =>
+      `${s.platformName}: claims "${s.selfAssessment.readinessLevel}", mission: "${s.selfAssessment.mission}", self-gaps: "${s.selfAssessment.gapsSelfIdentified.join("; ")}"`
+    ).join("\n");
+
+    const platformScoresSummary = gapAudit.entries.map(e =>
+      `${e.platformName}: claimed=${e.claimedReadiness}, peer=${e.peerAvgScore}/10, fidelity=${e.directiveFidelity}%, health=${e.healthStatus}, blind_spots=${e.blindSpots.length}`
+    ).join("\n");
+
+    const prompt = `You are Claude, serving as the INDEPENDENT VERIFIER for the ThriveUp Academy ecosystem cross-evaluation. Your job is to audit the evaluation itself for bias, blind spots, and honesty.
+
+This is a 23-platform ecosystem under The Collaborative Advocate (501(c)(3), veteran-founded, Black-led). Dr. Terry Flood is the founder. The primary AI generated executive summaries and peer evaluations. Now you verify.
+
+EVALUATION DATA:
+- ${summaries.length} platforms produced self-assessments
+- ${evaluations.length} peer evaluations completed
+- Overraters (say > do): ${overraterNames || "None identified"}
+- Outperformers (do > say): ${outperformerNames || "None identified"}
+- Systemic gaps: ${systemicStr || "None flagged"}
+- Blind spots (peers see but platform doesn't): ${blindSpotStr || "None"}
+
+PLATFORM SCORES:
+${platformScoresSummary}
+
+SAMPLE SELF-ASSESSMENTS:
+${topSummaries}
+
+YOUR VERIFICATION TASK — answer each section honestly:
+
+1. BIAS CHECK: Are the peer evaluations inflated, deflated, or fair? Are platforms being too generous with each other (grade inflation)? Is any platform getting unfairly harsh treatment?
+
+2. SELF-AWARENESS AUDIT: Which platforms show genuine self-awareness (honest about gaps) vs. which are performing self-assessment theater (listing superficial gaps while ignoring structural problems)?
+
+3. CAPABILITY vs. REALITY: Based on the data (fidelity %, health status, uptime), which platforms claim capabilities they cannot actually deliver right now? Call them out specifically.
+
+4. BLIND SPOT VERIFICATION: The gap audit identified these blind spots — ${blindSpotStr}. Are these real blind spots or artifacts of the evaluation method? What blind spots did the evaluation itself miss?
+
+5. ECOSYSTEM STRUCTURAL FINDING: What is the single most important thing Dr. Flood needs to know that the self-assessments and peer evaluations are both avoiding or downplaying?
+
+6. VERDICT: In one sentence, is this ecosystem being honest with itself or not?
+
+Be brutally honest. No diplomatic hedging. This verification exists specifically to prevent the ecosystem from lying to itself.`;
+
+    try {
+      const verification = await callClaudeDirectly(
+        prompt,
+        "You are an independent AI verifier auditing an ecosystem evaluation. Be direct, specific, and unflinching. No flattery, no hedging. Your job is to catch what the evaluation missed or sugar-coated.",
+        2000,
+      );
+      console.log("[Peer Review] Claude independent verification complete");
+      return verification;
+    } catch (err) {
+      console.error("[Peer Review] Claude verification failed:", err);
+      return "VERIFICATION UNAVAILABLE: Claude independent verification could not be completed. Treat evaluation results with additional scrutiny — no independent bias check was performed.";
+    }
+  }
+
+  async function generateBLUF(summaries: ExecutiveSummary[], evaluations: PeerEvaluation[], platforms: PlatformProfile[], gapAudit?: CrossEvaluationReport["gapAudit"]): Promise<{ bluf: string; verdict: CrossEvaluationReport["ecosystemVerdict"] }> {
     const platformScores: Record<string, { total: number; count: number; gaps: string[] }> = {};
     for (const ev of evaluations) {
       if (!platformScores[ev.targetId]) platformScores[ev.targetId] = { total: 0, count: 0, gaps: [] };
@@ -287,9 +482,16 @@ Return ONLY valid JSON:
     const topStr = topPerformers.map(t => `${t.name} (${t.score})`).join(", ");
     const attentionStr = needsAttention.length > 0 ? needsAttention.map(n => `${n.name} (${n.score})`).join(", ") : "None";
 
-    const blufPrompt = `Write a 4-paragraph BLUF (Bottom Line Up Front) for Dr. Terry Flood, founder of The Collaborative Advocate ecosystem (23 platforms, ACOS architecture).
+    const gapAuditStr = gapAudit ? `
+GAP AUDIT (Say vs. Do Analysis):
+- Overraters (claim more than they deliver): ${gapAudit.overraters.map(o => `${o.platformName} (claims ${o.claimedReadiness}, peers say ${o.peerAvgScore}/10, gap ${o.gap})`).join("; ") || "None"}
+- Outperformers (deliver more than they claim): ${gapAudit.outperformers.map(o => `${o.platformName} (claims ${o.claimedReadiness}, peers say ${o.peerAvgScore}/10, gap +${o.gap})`).join("; ") || "None"}
+- Blind spots (gaps peers see but platform doesn't): ${gapAudit.blindSpotSummary.join("; ") || "None"}
+- Systemic gaps: ${gapAudit.systemicGaps.join("; ") || "None"}` : "";
 
-This is the weekly MAP-GAP peer cross-evaluation where every platform evaluated every other platform on: depth, breadth, execution capability, ecosystem integration, and grant readiness.
+    const blufPrompt = `Write a 5-paragraph BLUF (Bottom Line Up Front) for Dr. Terry Flood, founder of The Collaborative Advocate ecosystem (23 platforms, ACOS architecture).
+
+This is the weekly MAP-GAP peer cross-evaluation where every platform evaluated every other platform on: depth, breadth, execution capability, ecosystem integration, and grant readiness. Includes a say-vs-do gap audit comparing what platforms claim about themselves vs what their peers actually scored.
 
 Data:
 - Total platforms evaluated: ${platforms.length}
@@ -298,11 +500,13 @@ Data:
 - Needs attention: ${attentionStr}
 - Most common gaps across ecosystem: ${criticalGaps.join("; ")}
 - Platform scores: ${summaryText}
+${gapAuditStr}
 
 Paragraph 1: THE BOTTOM LINE — one-sentence verdict on ecosystem health.
 Paragraph 2: WHAT'S WORKING — top performers and why.
-Paragraph 3: WHAT NEEDS ATTENTION — weakest links and what they're missing.
-Paragraph 4: STRATEGIC RECOMMENDATION — what Dr. Flood should act on this week.
+Paragraph 3: SAY vs. DO — which platforms are overrating themselves, which are outperforming their claims, and what blind spots exist. Be specific.
+Paragraph 4: WHAT NEEDS ATTENTION — weakest links, systemic gaps, and what they're missing.
+Paragraph 5: STRATEGIC RECOMMENDATION — what Dr. Flood should act on this week based on the gap audit findings.
 
 Be direct, specific, no flattery. This is for a veteran founder who needs the truth.`;
 
@@ -399,8 +603,15 @@ Give exactly 3 strategic recommendations in a JSON array of strings. No markdown
         console.log(`[Peer Review] Evaluations: ${evaluations.length} complete (${evaluator.name} evaluated ${batchEvals.length} peers)`);
       }
 
-      console.log("[Peer Review] Phase 3: Generating BLUF and ecosystem verdict...");
-      const { bluf, verdict } = await generateBLUF(summaries, evaluations, profiles);
+      console.log("[Peer Review] Phase 3: Computing say-vs-do gap audit...");
+      const gapAudit = computeGapAudit(summaries, evaluations, profiles, directiveStatsMap, healthStatsMap);
+      console.log(`[Peer Review] Gap audit: ${gapAudit.overraters.length} overraters, ${gapAudit.outperformers.length} outperformers, ${gapAudit.blindSpotSummary.length} blind spots, ${gapAudit.systemicGaps.length} systemic gaps`);
+
+      console.log("[Peer Review] Phase 4: Generating BLUF and ecosystem verdict...");
+      const { bluf, verdict } = await generateBLUF(summaries, evaluations, profiles, gapAudit);
+
+      console.log("[Peer Review] Phase 5: Claude independent verification...");
+      const claudeVerification = await claudeIndependentVerification(summaries, evaluations, gapAudit, profiles);
 
       const report: CrossEvaluationReport = {
         id: `crosseval_${Date.now()}`,
@@ -410,6 +621,8 @@ Give exactly 3 strategic recommendations in a JSON array of strings. No markdown
         peerEvaluations: evaluations,
         bluf,
         ecosystemVerdict: verdict,
+        gapAudit,
+        claudeVerification,
         generatedAt: new Date().toISOString(),
       };
 
@@ -483,6 +696,8 @@ Give exactly 3 strategic recommendations in a JSON array of strings. No markdown
     res.json({
       bluf: lastCrossEvaluation.bluf,
       verdict: lastCrossEvaluation.ecosystemVerdict,
+      gapAudit: lastCrossEvaluation.gapAudit,
+      claudeVerification: lastCrossEvaluation.claudeVerification,
       generatedAt: lastCrossEvaluation.generatedAt,
       totalPlatforms: lastCrossEvaluation.totalPlatforms,
       totalEvaluations: lastCrossEvaluation.peerEvaluations.length,
@@ -559,6 +774,44 @@ Give exactly 3 strategic recommendations in a JSON array of strings. No markdown
       doc += `**Ecosystem Contribution:** ${s.selfAssessment.ecosystemContribution}\n`;
       doc += `**Self-Identified Gaps:** ${s.selfAssessment.gapsSelfIdentified.join(", ")}\n\n`;
     });
+
+    doc += `\n---\n\n## GAP AUDIT (Say vs. Do)\n\n`;
+    if (r.gapAudit) {
+      doc += `### Overraters (Claiming More Than They Deliver)\n`;
+      if (r.gapAudit.overraters.length === 0) doc += `- None identified\n`;
+      else r.gapAudit.overraters.forEach(o => {
+        doc += `- **${o.platformName}**: Claims "${o.claimedReadiness}" (expected ${o.expectedScore}/10), peers scored ${o.peerAvgScore}/10 — **${o.verdict}** (gap: ${o.gap})\n`;
+        if (o.blindSpots.length > 0) doc += `  - Blind spots: ${o.blindSpots.join("; ")}\n`;
+      });
+      doc += `\n### Outperformers (Delivering More Than They Claim)\n`;
+      if (r.gapAudit.outperformers.length === 0) doc += `- None identified\n`;
+      else r.gapAudit.outperformers.forEach(o => {
+        doc += `- **${o.platformName}**: Claims "${o.claimedReadiness}" (expected ${o.expectedScore}/10), peers scored ${o.peerAvgScore}/10 — **${o.verdict}** (gap: +${o.gap})\n`;
+      });
+      doc += `\n### Aligned (Say ≈ Do)\n`;
+      if (r.gapAudit.aligned.length === 0) doc += `- None identified\n`;
+      else r.gapAudit.aligned.forEach(a => {
+        doc += `- **${a.platformName}**: ${a.peerAvgScore}/10 (gap: ${a.gap})\n`;
+      });
+      doc += `\n### Ecosystem Blind Spots\n`;
+      r.gapAudit.blindSpotSummary.forEach(bs => { doc += `- ${bs}\n`; });
+      doc += `\n### Systemic Gaps\n`;
+      if (r.gapAudit.systemicGaps.length === 0) doc += `- No systemic gaps identified\n`;
+      else r.gapAudit.systemicGaps.forEach(sg => { doc += `- ${sg}\n`; });
+      doc += `\n### Full Platform Gap Matrix\n\n`;
+      doc += `| Platform | Claimed | Expected | Peer Avg | Gap | Verdict | Fidelity | Blind Spots |\n`;
+      doc += `|----------|---------|----------|----------|-----|---------|----------|-------------|\n`;
+      r.gapAudit.entries.forEach(e => {
+        doc += `| ${e.platformName} | ${e.claimedReadiness} | ${e.expectedScore} | ${e.peerAvgScore} | ${e.gap} | ${e.verdict} | ${e.directiveFidelity}% | ${e.blindSpots.length} |\n`;
+      });
+    } else {
+      doc += `Gap audit data not available for this report.\n`;
+    }
+
+    doc += `\n---\n\n## CLAUDE INDEPENDENT VERIFICATION\n\n`;
+    doc += `*This section was generated by Claude (Anthropic) as an independent verifier — separate from the AI that generated the evaluations. Its purpose is to check the evaluation for bias, blind spots, and honesty.*\n\n`;
+    doc += r.claudeVerification || "Verification not available for this report.";
+    doc += `\n\n`;
 
     doc += `---\n\n## PEER EVALUATIONS (Detail)\n\n`;
 
