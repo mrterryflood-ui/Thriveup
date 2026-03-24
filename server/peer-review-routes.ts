@@ -232,7 +232,14 @@ ${target.name}'s profile:
 - Uptime: ${targetHealthStats.uptimePercent}%, Response: ${targetHealthStats.avgResponseMs}ms
 - Self-identified gaps: ${targetSummary.selfAssessment.gapsSelfIdentified.join("; ")}
 
-Score 1-10 on each dimension. Be honest — this is MAP-GAP peer review, not praise.
+Score 1-10 on each dimension using the Ecosystem Operating Standard (EOS):
+- 9-10: Battle-ready. Deep domain expertise, rich ecosystem integration (3+ bidirectional data flows), strong grant narrative contribution, proven outcome data, high fidelity, reliable uptime.
+- 7-8: Operational. Solid capabilities, good integration, clear grant alignment, consistent execution.
+- 5-6: Developing. Basic capabilities present but shallow integration, limited grant contribution, execution gaps.
+- 3-4: Nascent. Minimal capability, poor integration, not grant-ready.
+- 1-2: Non-functional or harmful to ecosystem.
+
+Score based on the FULL profile — consider depth of features, breadth of data flows, integration with sibling platforms, grant alignment, and operational metrics. If a platform has deep capabilities, rich integration, and strong grant narrative, score accordingly.
 
 Return ONLY valid JSON:
 {
