@@ -384,7 +384,7 @@ export async function registerRoutes(
   registerProgramEngineRoutes(app);
   registerPeerReviewRoutes(app);
   registerPricingRoutes(app);
-  await storage.seedData();
+  storage.seedData().catch(err => console.error("[Seed] Data seeding failed:", err));
 
   app.get("/api/ai-provider", (_req, res) => {
     try {
