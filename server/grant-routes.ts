@@ -3222,6 +3222,63 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
     }
   });
 
+  app.get("/api/teks-alignment", async (_req: Request, res: Response) => {
+    try {
+      const alignment = {
+        standard: "19 TAC §127.15 — CTE Employability Skills",
+        adopted: "2025",
+        applicant: "The Collaborative Advocate (501(c)(3))",
+        platform: "ThriveUp Academy",
+        lastUpdated: new Date().toISOString(),
+        credential: {
+          name: "ThriveUp Workforce Readiness Certificate",
+          description: "Earned after completing all 5 TEKS §127.15-aligned workforce readiness modules plus career readiness assessment",
+          verifiable: true,
+          digitalBadge: true,
+        },
+        levels12: [
+          { code: "A", title: "Professional Conduct", status: "ALIGNED", module: "wr_professional_presence", coverage: "Dress codes, professional communication, interview skills, workplace conduct" },
+          { code: "B", title: "Teamwork", status: "ALIGNED", module: "wr_career_foundations_teamwork", coverage: "Group dynamics, conflict resolution, cooperative problem-solving, diverse perspectives" },
+          { code: "C", title: "Communication", status: "ALIGNED", module: "wr_professional_presence", coverage: "Written/oral communication, AI prompt engineering, technical writing, presentation skills" },
+          { code: "D", title: "Time Management", status: "ALIGNED", module: "wr_time_management", coverage: "Prioritization frameworks, calendar skills, deadline management, group coordination" },
+          { code: "E", title: "Work Ethic", status: "ALIGNED", module: "wr_work_ethic_leadership", coverage: "Punctuality, dependability, reliability, responsibility, accountability tracking" },
+          { code: "F", title: "Respect for Differences", status: "ALIGNED", module: "PLATFORM_CORE", coverage: "Equity-focused lens, culturally responsive communication, multilingual support, diverse community service" },
+          { code: "G", title: "Meritocracy & Equal Opportunity", status: "ALIGNED", module: "wr_work_ethic_leadership", coverage: "Merit-based advancement, EEO basics, career progression through demonstrated skill" },
+          { code: "H", title: "Discrimination & Harassment", status: "ALIGNED", module: "wr_workplace_rights", coverage: "Title VII basics, harassment types, reporting procedures, bystander responsibilities, consequences" },
+          { code: "I", title: "Workplace Safety", status: "ALIGNED", module: "wr_workplace_safety", coverage: "OSHA basics, hazard identification, PPE, emergency procedures, safety plans" },
+          { code: "J", title: "Roles of Managers", status: "ALIGNED", module: "wr_work_ethic_leadership", coverage: "Organizational structures, manager roles, supervisor relationships, management expectations" },
+        ],
+        levels34: [
+          { code: "A", title: "Professional Conduct (Demonstrate)", status: "ALIGNED", module: "wr_professional_presence", coverage: "Simulated demonstrations with assessment rubrics" },
+          { code: "B", title: "Teamwork (Analyze)", status: "ALIGNED", module: "wr_career_foundations_teamwork", coverage: "Team effectiveness analysis, cooperative outcome measurement" },
+          { code: "C", title: "Communication (Design Process)", status: "ALIGNED", module: "wr_professional_presence", coverage: "Decision justification, design process communication" },
+          { code: "D", title: "Time Management (Apply)", status: "ALIGNED", module: "wr_time_management", coverage: "Independent and group time management practice" },
+          { code: "E", title: "Work Ethic (Demonstrate)", status: "ALIGNED", module: "wr_work_ethic_leadership", coverage: "Self-assessment tied to attendance tracking data" },
+          { code: "F", title: "Respect for Differences", status: "ALIGNED", module: "PLATFORM_CORE", coverage: "Same as Level 1-2" },
+          { code: "G", title: "Meritocracy & Equal Opportunity", status: "ALIGNED", module: "wr_work_ethic_leadership", coverage: "Same as Level 1-2" },
+          { code: "H", title: "Discrimination & Harassment", status: "ALIGNED", module: "wr_workplace_rights", coverage: "Same as Level 1-2" },
+          { code: "I", title: "Safety Plans", status: "ALIGNED", module: "wr_workplace_safety", coverage: "Safety plan components, risk assessment, incident response" },
+          { code: "J", title: "Managers vs. Leaders", status: "ALIGNED", module: "wr_work_ethic_leadership", coverage: "Leadership styles comparison, situational leadership" },
+        ],
+        totalStandards: 20,
+        alignedStandards: 20,
+        alignmentPercentage: 100,
+        modules: [
+          { id: "wr_professional_presence", title: "Professional Presence", weeks: 3, teksAligned: ["A"] },
+          { id: "wr_workplace_rights", title: "Workplace Rights & Responsibilities", weeks: 3, teksAligned: ["H"] },
+          { id: "wr_workplace_safety", title: "Workplace Safety Essentials", weeks: 3, teksAligned: ["I"] },
+          { id: "wr_time_management", title: "Time & Priority Management", weeks: 3, teksAligned: ["D"] },
+          { id: "wr_work_ethic_leadership", title: "Work Ethic & Career Leadership", weeks: 3, teksAligned: ["E", "G", "J"] },
+          { id: "wr_career_foundations_teamwork", title: "Teamwork & Communication", weeks: 3, teksAligned: ["B", "C"] },
+          { id: "wr_career_foundations_professionalism", title: "Introduction to Professionalism", weeks: 3, teksAligned: ["A", "E", "F", "J"] },
+        ],
+      };
+      res.json(alignment);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   let lastDailyDiscoveryRun: Date | null = null;
   let lastDiscoveryResult: { imported: number; skipped: number; total: number; error?: string } | null = null;
 

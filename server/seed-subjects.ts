@@ -373,6 +373,168 @@ If you take nothing else from this lesson, take this: You matter. Your feelings 
   // ============================================================
   // NEW SUBJECT BADGES
   // ============================================================
+  // TEKS §127.15 CTE EMPLOYABILITY SKILLS — WORKFORCE READINESS
+  // Aligned to 19 TAC §127.15 (Adopted 2025)
+  // ============================================================
+  await db.insert(subjects).values([
+    { id: "wr_9_12", name: "Workforce Readiness", description: "TEKS §127.15-aligned employability skills: professional conduct, communication, teamwork, workplace safety, rights, and career leadership", gradeBand: "9-12", theme: "The Career Launchpad", color: "violet", iconName: "Briefcase", sortOrder: 19 },
+    { id: "wr_6_8", name: "Career Foundations", description: "Introduction to workplace readiness skills: professionalism, teamwork, time management, and career exploration aligned to TEKS CTE standards", gradeBand: "6-8", theme: "The Career Explorer", color: "violet", iconName: "Briefcase", sortOrder: 20 },
+  ]);
+
+  await db.insert(modules).values([
+    {
+      id: "wr_professional_presence", levelId: 4, subjectId: "wr_9_12", moduleNumber: 1,
+      title: "Professional Presence", description: "Workplace conduct, dress codes by industry, interview presentation, email and phone professionalism, and first impressions that open doors.",
+      durationWeeks: 3,
+      storyArcTitle: "Your Professional Brand",
+      storyArcNarrative: "Before anyone hears your ideas, they see how you carry yourself. Professional presence is your personal brand — the way you dress, speak, and conduct yourself tells employers who you are before you say a word. In this module, you'll build a professional presence that opens doors in any industry.",
+      learningObjectives: [
+        "Identify appropriate professional dress codes across industries (office, trades, healthcare, tech)",
+        "Demonstrate professional communication in email, phone, and face-to-face interactions",
+        "Practice interview presentation skills including body language, eye contact, and tone",
+        "Explain workplace behavioral expectations including punctuality, phone use, and social media boundaries",
+        "Create a personal professional brand statement",
+      ],
+      activities: [
+        "Industry dress code comparison activity — research 4 industries and present appropriate attire",
+        "Professional email writing workshop — draft, peer-review, and revise workplace emails",
+        "Mock interview practice with AI-powered feedback on tone, clarity, and professionalism",
+        "Workplace scenario role-plays — handle difficult professional situations appropriately",
+        "Personal brand builder — create a 30-second professional elevator pitch",
+      ],
+    },
+    {
+      id: "wr_workplace_rights", levelId: 4, subjectId: "wr_9_12", moduleNumber: 2,
+      title: "Workplace Rights & Responsibilities", description: "Discrimination and harassment awareness, Title VII basics, reporting procedures, bystander responsibilities, and employee rights under federal and Texas law.",
+      durationWeeks: 3,
+      storyArcTitle: "Know Your Rights, Own Your Career",
+      storyArcNarrative: "Every worker has legal protections. Understanding your rights — and your responsibilities — is not optional. This module prepares you to recognize discrimination and harassment, know how to report it, and understand the consequences. You'll also learn what employers owe you and what you owe them.",
+      learningObjectives: [
+        "Define workplace discrimination and identify its forms (race, gender, age, disability, religion, national origin)",
+        "Define workplace harassment including sexual harassment and hostile work environment",
+        "Explain employee rights under Title VII, ADA, and ADEA at an introductory level",
+        "Describe reporting procedures for discrimination and harassment incidents",
+        "Identify bystander responsibilities and intervention strategies",
+        "Explain consequences of discrimination and harassment for perpetrators, organizations, and victims",
+      ],
+      activities: [
+        "Case study analysis — read real EEOC cases (anonymized) and identify violations",
+        "Scenario identification — is this harassment, discrimination, or neither?",
+        "Reporting procedure walkthrough — practice documenting and reporting an incident",
+        "Bystander intervention strategies — practice 5 intervention techniques",
+        "Know Your Rights quiz — identify protections under federal employment law",
+      ],
+    },
+    {
+      id: "wr_workplace_safety", levelId: 4, subjectId: "wr_9_12", moduleNumber: 3,
+      title: "Workplace Safety Essentials", description: "OSHA basics, hazard identification, PPE requirements, emergency procedures, safety plans, and the right to a safe work environment.",
+      durationWeeks: 3,
+      storyArcTitle: "Safety First — Always",
+      storyArcNarrative: "No job is worth your health or your life. Workplace safety is not just a rule — it's a right. Whether you work in an office, a warehouse, a restaurant, or a construction site, you need to know how to stay safe, how to identify hazards, and what to do in an emergency. This module gives you that foundation.",
+      learningObjectives: [
+        "Explain OSHA's role and workers' right to a safe workplace",
+        "Identify common workplace hazards across industries (physical, chemical, biological, ergonomic)",
+        "Describe PPE requirements and proper use for different work environments",
+        "Outline emergency procedures including evacuation, fire safety, and first aid basics",
+        "Identify the components of a workplace safety plan",
+        "Explain the right to refuse unsafe work and how to report safety violations",
+      ],
+      activities: [
+        "Hazard hunt — identify safety risks in photos of real workplaces across 5 industries",
+        "PPE matching game — match correct protective equipment to workplace scenarios",
+        "Emergency procedure walkthrough — practice evacuation and emergency response steps",
+        "Build a basic safety plan — create a safety checklist for a chosen workplace type",
+        "OSHA rights quiz — know your rights as an employee in Texas",
+        "Safety incident report — practice documenting a workplace safety concern",
+      ],
+    },
+    {
+      id: "wr_time_management", levelId: 4, subjectId: "wr_9_12", moduleNumber: 4,
+      title: "Time & Priority Management", description: "Personal productivity systems, calendar skills, deadline management, prioritization frameworks, and group time coordination for the workplace.",
+      durationWeeks: 3,
+      storyArcTitle: "Master Your Time, Master Your Career",
+      storyArcNarrative: "Time is the one resource you can never get back. The difference between people who succeed and people who struggle often comes down to how they manage their time. This module teaches you practical systems for prioritizing tasks, meeting deadlines, and coordinating with teams — skills every employer wants.",
+      learningObjectives: [
+        "Apply the Eisenhower Matrix (urgent/important) to prioritize tasks",
+        "Create and maintain a weekly schedule using digital calendar tools",
+        "Set SMART goals and break them into actionable daily tasks",
+        "Identify and eliminate common time-wasting behaviors",
+        "Coordinate group schedules and manage shared deadlines",
+        "Explain how time management connects to work ethic and professional reputation",
+      ],
+      activities: [
+        "Eisenhower Matrix workshop — categorize 20 real workplace tasks by urgency and importance",
+        "Weekly planner challenge — build a realistic weekly schedule balancing school, work, and personal time",
+        "SMART goal setter — write 3 career-related SMART goals with weekly milestones",
+        "Time audit — track time use for 3 days and identify improvement areas",
+        "Group project coordination — plan and schedule a team project with shared deadlines",
+        "Deadline simulation — manage competing priorities under time pressure",
+      ],
+    },
+    {
+      id: "wr_work_ethic_leadership", levelId: 4, subjectId: "wr_9_12", moduleNumber: 5,
+      title: "Work Ethic & Career Leadership", description: "Work ethic foundations, punctuality and dependability, meritocracy and equal opportunity, organizational structures, manager vs. leader roles, and building a career through character.",
+      durationWeeks: 3,
+      storyArcTitle: "Character Builds Careers",
+      storyArcNarrative: "Skills get you hired. Character keeps you employed — and gets you promoted. Work ethic is not just about showing up. It's about being dependable, taking initiative, earning trust, and understanding how organizations work. This module teaches the character traits that employers value most and how leadership differs from management.",
+      learningObjectives: [
+        "Define work ethic and identify its core characteristics: punctuality, dependability, reliability, responsibility",
+        "Explain the concepts of meritocracy and equal opportunity in the workplace",
+        "Describe organizational structures and how different roles contribute to team success",
+        "Compare and contrast the skills and characteristics of managers vs. leaders",
+        "Identify how work ethic connects to career advancement and professional reputation",
+        "Demonstrate accountability through self-assessment and reflection",
+      ],
+      activities: [
+        "Work ethic self-assessment — rate yourself on 10 key workplace character traits",
+        "Dependability tracker — use the attendance system to measure and improve punctuality over 2 weeks",
+        "Organizational chart builder — map the structure of a real or simulated company",
+        "Manager vs. Leader comparison — analyze case studies of both styles",
+        "Meritocracy discussion — examine how effort and results connect to advancement",
+        "Career character pledge — write a personal commitment to workplace excellence",
+      ],
+    },
+    {
+      id: "wr_career_foundations_teamwork", levelId: 3, subjectId: "wr_6_8", moduleNumber: 1,
+      title: "Teamwork & Communication", description: "Group dynamics, conflict resolution, active listening, clear communication, and how teams produce better outcomes than individuals working alone.",
+      durationWeeks: 3,
+      storyArcTitle: "Better Together",
+      storyArcNarrative: "No one succeeds alone. Every career — from healthcare to technology to the trades — depends on people working together. This module teaches you how to be the kind of team member everyone wants on their side.",
+      learningObjectives: [
+        "Describe the characteristics of effective teams and group dynamics",
+        "Practice active listening and clear verbal and written communication",
+        "Identify common sources of conflict in teams and apply resolution strategies",
+        "Explain how diverse perspectives strengthen team outcomes",
+      ],
+      activities: [
+        "Team challenge — solve a problem in small groups and reflect on group dynamics",
+        "Active listening exercise — practice and evaluate listening skills with a partner",
+        "Conflict resolution scenarios — role-play workplace disagreements and find solutions",
+        "Communication clarity test — give instructions and evaluate how well they were understood",
+      ],
+    },
+    {
+      id: "wr_career_foundations_professionalism", levelId: 3, subjectId: "wr_6_8", moduleNumber: 2,
+      title: "Introduction to Professionalism", description: "What it means to be professional, basic workplace expectations, respect in diverse environments, and understanding what managers do.",
+      durationWeeks: 3,
+      storyArcTitle: "Your Future Starts Now",
+      storyArcNarrative: "Professionalism is not just for adults in offices. It starts with how you treat people, how you show up, and how you handle responsibility right now. This module introduces the standards that every workplace expects.",
+      learningObjectives: [
+        "Explain what professionalism means and why it matters in every career",
+        "Identify basic workplace expectations including punctuality and responsibility",
+        "Demonstrate respect for differences in diverse environments",
+        "Describe what managers do and how they support teams",
+      ],
+      activities: [
+        "Professional vs. unprofessional — sort workplace behaviors into categories",
+        "Punctuality challenge — track on-time arrivals for one week and reflect",
+        "Diversity appreciation activity — interview someone from a different background about their career",
+        "Manager shadow report — describe what a manager does in a workplace you've observed",
+      ],
+    },
+  ]);
+
+  // ============================================================
   await db.insert(badges).values([
     { id: "letter_learner", name: "Letter Learner", description: "Complete your first phonics lesson", category: "skill", levelRequirement: 1, rarity: "common" },
     { id: "reading_rocket", name: "Reading Rocket", description: "Complete 3 ELA/Reading lessons", category: "skill", levelRequirement: 1, rarity: "uncommon" },
@@ -390,5 +552,11 @@ If you take nothing else from this lesson, take this: You matter. Your feelings 
     { id: "super_scholar", name: "Super Scholar", description: "Complete 20 lessons across all subjects", category: "milestone", levelRequirement: 1, rarity: "rare" },
     { id: "empathy_expert", name: "Empathy Expert", description: "Complete all SEL modules in your grade band", category: "character", levelRequirement: 2, rarity: "rare" },
     { id: "self_care_star", name: "Self-Care Star", description: "Complete all wellness modules in your grade band", category: "milestone", levelRequirement: 2, rarity: "rare" },
+    { id: "workforce_ready", name: "Workforce Ready", description: "Complete all 5 TEKS §127.15 Workforce Readiness modules", category: "milestone", levelRequirement: 4, rarity: "legendary" },
+    { id: "safety_certified", name: "Safety Certified", description: "Complete the Workplace Safety Essentials module", category: "skill", levelRequirement: 4, rarity: "uncommon" },
+    { id: "rights_advocate", name: "Rights Advocate", description: "Complete the Workplace Rights & Responsibilities module", category: "character", levelRequirement: 4, rarity: "uncommon" },
+    { id: "time_master", name: "Time Master", description: "Complete the Time & Priority Management module", category: "skill", levelRequirement: 4, rarity: "uncommon" },
+    { id: "career_leader", name: "Career Leader", description: "Complete the Work Ethic & Career Leadership module", category: "character", levelRequirement: 4, rarity: "rare" },
+    { id: "professional_presence", name: "Professional Presence", description: "Complete the Professional Presence module", category: "skill", levelRequirement: 4, rarity: "uncommon" },
   ]);
 }

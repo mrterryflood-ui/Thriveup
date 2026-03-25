@@ -126,6 +126,15 @@ The Collaborative Advocate serves marginalized communities across the nation. Ev
 Full assessment template: `docs/MAP-GAP-SYSTEM-ASSESSMENT.md`
 This ensures we always know what we possess internally and externally before committing resources.
 
+## TEKS §127.15 CTE Employability Skills Alignment
+- **Full alignment map:** `docs/TEKS-127-15-alignment-map.md`
+- **API endpoint:** `GET /api/teks-alignment` — returns structured JSON alignment data for grant applications
+- **Subjects:** `wr_9_12` (Workforce Readiness, grades 9-12), `wr_6_8` (Career Foundations, grades 6-8)
+- **7 modules built:** Professional Presence, Workplace Rights & Responsibilities, Workplace Safety Essentials, Time & Priority Management, Work Ethic & Career Leadership, Teamwork & Communication, Introduction to Professionalism
+- **Credential:** ThriveUp Workforce Readiness Certificate (digital, verifiable, maps to all 20 TEKS standards)
+- **100% alignment** across both Level 1-2 and Level 3-4 standards (10 standards each)
+- **6 badges:** workforce_ready (legendary), safety_certified, rights_advocate, time_master, career_leader, professional_presence
+
 ## External Dependencies
 - **Database:** PostgreSQL (Neon-backed)
 - **AI Integration:** Google Gemini 2.0 Flash, Anthropic Claude Haiku 4.5, OpenAI GPT-4o-mini, Replit AI Integrations GPT-5-nano.
