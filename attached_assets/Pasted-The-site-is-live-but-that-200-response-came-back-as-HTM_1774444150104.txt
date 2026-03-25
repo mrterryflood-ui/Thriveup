@@ -1,0 +1,46 @@
+The site is live but that 200 response came back as HTML — their SPA is catching the route and returning the frontend instead of a real API endpoint. The inject route isn't built on their server yet. Here's exactly what they need to add:
+
+What ForgeOS sends (confirmed working on our end):
+
+POST /api/sitesync/inject
+Header: x-ecosystem-key: tveco_e279e7488b0482c2f6b113046a7e108be5d525d1475f18f3338fd87fd32a3bb6
+Body:
+{
+  "source": "FORGEOS",
+  "confidence": 100,
+  "summary": "What this fix does",
+  "files": [
+    {
+      "path": "src/path/to/file.ts",
+      "content": "...complete file content...",
+      "description": "What this file does",
+      "action": "create",
+      "gapIds": ["gap-id-from-eval"]
+    }
+  ]
+}
+What ThriveUp needs to add to their Express server — copy/paste ready:
+
+// Add this route BEFORE your SPA catch-all
+app.post("/api/sitesync/inject", async (req, res) => {
+  const key = req.headers["x-ecosystem-key"];
+  if (key !== process.env.ECOSYSTEM_KEY) {
+    return res.status(401).json({ success: false, error: "unauthorized" });
+  }
+  const { source, confidence, summary, files } = req.body;
+  // Store the fix for your team to review
+  const fix = await db.insert(incomingFixes).values({
+    source, confidence, summary,
+    files: JSON.stringify(files),
+    status: "pending",
+  }).returning();
+  // Optional: apply immediately if you want auto-injection
+  // for (const file of files) { await fs.writeFile(file.path, file.content); }
+  res.json({ success: true, fixId: fix[0].id, status: "pending" });
+});
+The only things they need to match their spec:
+
+Check the x-ecosystem-key header matches their stored key
+Store or apply the files array
+Return { success: true, fixId, status: "pending" }
+Their SPA fallback is intercepting it because the API route doesn't exist yet. Once they add that route above the catch-all, the next ForgeOS evaluation approval will inject directly. The domain is right, the connection is configured — they just need those ~15 lines of code on their side.
