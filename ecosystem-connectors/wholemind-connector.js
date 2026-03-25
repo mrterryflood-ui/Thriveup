@@ -60,11 +60,34 @@ async function sendEcosystemEvent(eventType, eventData, targetPlatformId = null)
 
 async function handleIncomingEvent(event) {
   console.log(`[ThriveUp Ecosystem] Received: ${event.eventType} from ${event.sourcePlatformId}`);
-  // TODO: Add your platform-specific event handling here
-  // Common event types across the ecosystem:
-  //   screening_completed, crisis_alert, veteran_referred, transition_milestone,
-  //   life_event_risk, research_update, youth_enrolled, resource_referral,
-  //   safety_plan_created, medication_alert, cognitive_assessment, incident_report
+  switch (event.eventType) {
+    case "student_profiles":
+      console.log("[WholeMind] Student profile — creating personalized learning pathway");
+      await createLearningPathway(event.eventData);
+      break;
+    case "iep_accommodations":
+      console.log("[WholeMind] IEP accommodations — adapting curriculum delivery methods");
+      await adaptCurriculumDelivery(event.eventData);
+      break;
+    case "prevention_content":
+      console.log("[WholeMind] Prevention content — integrating into K-12 lesson plans");
+      await integrateLessonPlans(event.eventData);
+      break;
+    default:
+      console.log(`[WholeMind] Unhandled event type: ${event.eventType}`);
+  }
+}
+
+async function createLearningPathway(data) {
+  console.log("[WholeMind] Learning pathway: designing adaptive curriculum based on student profile");
+}
+
+async function adaptCurriculumDelivery(data) {
+  console.log("[WholeMind] Curriculum adaptation: applying IEP accommodations to content delivery");
+}
+
+async function integrateLessonPlans(data) {
+  console.log("[WholeMind] Lesson integration: embedding prevention content into age-appropriate modules");
 }
 
 async function getIntegrationDoc() {

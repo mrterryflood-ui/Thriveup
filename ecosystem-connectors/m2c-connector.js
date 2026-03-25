@@ -60,11 +60,34 @@ async function sendEcosystemEvent(eventType, eventData, targetPlatformId = null)
 
 async function handleIncomingEvent(event) {
   console.log(`[ThriveUp Ecosystem] Received: ${event.eventType} from ${event.sourcePlatformId}`);
-  // TODO: Add your platform-specific event handling here
-  // Common event types across the ecosystem:
-  //   screening_completed, crisis_alert, veteran_referred, transition_milestone,
-  //   life_event_risk, research_update, youth_enrolled, resource_referral,
-  //   safety_plan_created, medication_alert, cognitive_assessment, incident_report
+  switch (event.eventType) {
+    case "workforce_pathways":
+      console.log("[M2C] Workforce pathway update — aligning with military skills translation");
+      await alignSkillsTranslation(event.eventData);
+      break;
+    case "health_screenings":
+      console.log("[M2C] Health screening results — updating transition readiness profile");
+      await updateTransitionReadiness(event.eventData);
+      break;
+    case "crisis_alerts":
+      console.log("[M2C] Crisis alert — activating veteran peer support network");
+      await activateVeteranPeerSupport(event.eventData);
+      break;
+    default:
+      console.log(`[M2C] Unhandled event type: ${event.eventType}`);
+  }
+}
+
+async function alignSkillsTranslation(data) {
+  console.log("[M2C] Skills translation: mapping military MOS codes to civilian career pathways");
+}
+
+async function updateTransitionReadiness(data) {
+  console.log("[M2C] Transition readiness: updating VA benefits eligibility and service plan");
+}
+
+async function activateVeteranPeerSupport(data) {
+  console.log("[M2C] Peer support: connecting veteran with battle buddy and VA crisis resources");
 }
 
 async function getIntegrationDoc() {

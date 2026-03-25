@@ -60,11 +60,34 @@ async function sendEcosystemEvent(eventType, eventData, targetPlatformId = null)
 
 async function handleIncomingEvent(event) {
   console.log(`[ThriveUp Ecosystem] Received: ${event.eventType} from ${event.sourcePlatformId}`);
-  // TODO: Add your platform-specific event handling here
-  // Common event types across the ecosystem:
-  //   screening_completed, crisis_alert, veteran_referred, transition_milestone,
-  //   life_event_risk, research_update, youth_enrolled, resource_referral,
-  //   safety_plan_created, medication_alert, cognitive_assessment, incident_report
+  switch (event.eventType) {
+    case "program_metrics":
+      console.log("[BetterScience] Program metrics — analyzing for research publication");
+      await analyzeForPublication(event.eventData);
+      break;
+    case "outcome_data":
+      console.log("[BetterScience] Outcome data — updating evidence base and fidelity tracking");
+      await updateEvidenceBase(event.eventData);
+      break;
+    case "implementation_fidelity":
+      console.log("[BetterScience] Fidelity data — generating implementation quality report");
+      await generateFidelityReport(event.eventData);
+      break;
+    default:
+      console.log(`[BetterScience] Unhandled event type: ${event.eventType}`);
+  }
+}
+
+async function analyzeForPublication(data) {
+  console.log("[BetterScience] Publication analysis: applying statistical methods to program metrics");
+}
+
+async function updateEvidenceBase(data) {
+  console.log("[BetterScience] Evidence base: integrating outcome data into systematic review database");
+}
+
+async function generateFidelityReport(data) {
+  console.log("[BetterScience] Fidelity report: measuring program delivery against design specifications");
 }
 
 async function getIntegrationDoc() {

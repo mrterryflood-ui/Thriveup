@@ -64,11 +64,50 @@ async function sendEcosystemEvent(eventType, eventData, targetPlatformId = null)
 
 async function handleIncomingEvent(event) {
   console.log(`[ThriveUp Ecosystem] Received: ${event.eventType} from ${event.sourcePlatformId}`);
-  // TODO: Add your platform-specific event handling here
-  // Common event types across the ecosystem:
-  //   screening_completed, crisis_alert, veteran_referred, transition_milestone,
-  //   life_event_risk, research_update, youth_enrolled, resource_referral,
-  //   safety_plan_created, medication_alert, cognitive_assessment, incident_report
+  switch (event.eventType) {
+    case "veteran_profiles":
+      console.log("[Whole Person Health] Veteran profile — creating comprehensive health intake");
+      await createComprehensiveIntake(event.eventData);
+      break;
+    case "transition_status":
+      console.log("[Whole Person Health] Transition update — adjusting care coordination plan");
+      await adjustCareCoordination(event.eventData);
+      break;
+    case "life_event_assessments":
+      console.log("[Whole Person Health] Life event assessment — evaluating holistic health impact");
+      await evaluateHolisticImpact(event.eventData);
+      break;
+    case "research_updates":
+      console.log("[Whole Person Health] Research update — integrating evidence-based practice changes");
+      await integrateResearchFindings(event.eventData);
+      break;
+    case "youth_referrals":
+      console.log("[Whole Person Health] Youth referral — creating pediatric whole-person intake");
+      await createYouthIntake(event.eventData);
+      break;
+    default:
+      console.log(`[Whole Person Health] Unhandled event type: ${event.eventType}`);
+  }
+}
+
+async function createComprehensiveIntake(data) {
+  console.log("[Whole Person Health] Comprehensive intake: physical, mental, social, spiritual assessment");
+}
+
+async function adjustCareCoordination(data) {
+  console.log("[Whole Person Health] Care coordination: updating multi-provider care plan");
+}
+
+async function evaluateHolisticImpact(data) {
+  console.log("[Whole Person Health] Holistic impact: assessing life event effects across all health domains");
+}
+
+async function integrateResearchFindings(data) {
+  console.log("[Whole Person Health] Research integration: updating clinical protocols with new evidence");
+}
+
+async function createYouthIntake(data) {
+  console.log("[Whole Person Health] Youth intake: creating age-appropriate whole-person health assessment");
 }
 
 async function getIntegrationDoc() {

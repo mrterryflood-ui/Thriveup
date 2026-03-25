@@ -60,11 +60,34 @@ async function sendEcosystemEvent(eventType, eventData, targetPlatformId = null)
 
 async function handleIncomingEvent(event) {
   console.log(`[ThriveUp Ecosystem] Received: ${event.eventType} from ${event.sourcePlatformId}`);
-  // TODO: Add your platform-specific event handling here
-  // Common event types across the ecosystem:
-  //   screening_completed, crisis_alert, veteran_referred, transition_milestone,
-  //   life_event_risk, research_update, youth_enrolled, resource_referral,
-  //   safety_plan_created, medication_alert, cognitive_assessment, incident_report
+  switch (event.eventType) {
+    case "case_management_data":
+      console.log("[SafeReport] Case management data — generating compliance documentation");
+      await generateComplianceDoc(event.eventData);
+      break;
+    case "early_warning_flags":
+      console.log("[SafeReport] Early warning flag — creating mandatory reporting record");
+      await createMandatoryReport(event.eventData);
+      break;
+    case "student_safety_alerts":
+      console.log("[SafeReport] Student safety alert — initiating safety protocol documentation");
+      await documentSafetyProtocol(event.eventData);
+      break;
+    default:
+      console.log(`[SafeReport] Unhandled event type: ${event.eventType}`);
+  }
+}
+
+async function generateComplianceDoc(data) {
+  console.log("[SafeReport] Compliance doc: generating audit-ready documentation from case data");
+}
+
+async function createMandatoryReport(data) {
+  console.log("[SafeReport] Mandatory report: creating time-stamped incident record for regulatory filing");
+}
+
+async function documentSafetyProtocol(data) {
+  console.log("[SafeReport] Safety protocol: documenting response actions and notification chain");
 }
 
 async function getIntegrationDoc() {

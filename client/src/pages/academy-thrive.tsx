@@ -167,7 +167,11 @@ function CompositeScoreCircle({ score, trend, flagLevel }: { score: number; tren
 }
 
 function HistoryChart({ history }: { history: ThriveHistoryEntry[] }) {
-  if (!history || history.length === 0) return null;
+  if (!history || history.length === 0) return (
+    <Card className="p-5 text-center" data-testid="card-history-empty">
+      <p className="text-muted-foreground text-sm">No history data yet. Complete activities to see your progress over time.</p>
+    </Card>
+  );
 
   const sorted = [...history].sort((a, b) => new Date(a.recordedAt).getTime() - new Date(b.recordedAt).getTime());
   const maxBars = 30;
@@ -441,9 +445,9 @@ export default function AcademyThrivePage() {
         })}
       </div>
 
-      {!historyLoading && history && history.length > 0 && (
+      {!historyLoading && (
         <div className="mb-8">
-          <HistoryChart history={history} />
+          <HistoryChart history={history ?? []} />
         </div>
       )}
       {historyLoading && (

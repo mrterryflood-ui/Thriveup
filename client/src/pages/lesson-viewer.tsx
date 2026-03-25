@@ -98,7 +98,13 @@ export default function LessonViewerPage() {
 
   if (error) return <div className="p-6"><ErrorRetry message="Failed to load lesson. Please try again." onRetry={refetch} /></div>;
 
-  if (!lesson) return null;
+  if (!lesson) return (
+    <div className="p-6 max-w-4xl mx-auto text-center">
+      <h2 className="text-xl font-semibold mb-2" data-testid="text-lesson-not-found">Lesson Not Found</h2>
+      <p className="text-muted-foreground mb-4">This lesson may have been moved or doesn't exist.</p>
+      <Button variant="outline" onClick={() => setLocation("/subjects")} data-testid="button-back-subjects">Back to Subjects</Button>
+    </div>
+  );
 
   const paragraphs = lesson.content.split("\n\n").filter(Boolean);
   const hasActivity = !!lesson.activityType && !!lesson.activityData;

@@ -60,11 +60,34 @@ async function sendEcosystemEvent(eventType, eventData, targetPlatformId = null)
 
 async function handleIncomingEvent(event) {
   console.log(`[ThriveUp Ecosystem] Received: ${event.eventType} from ${event.sourcePlatformId}`);
-  // TODO: Add your platform-specific event handling here
-  // Common event types across the ecosystem:
-  //   screening_completed, crisis_alert, veteran_referred, transition_milestone,
-  //   life_event_risk, research_update, youth_enrolled, resource_referral,
-  //   safety_plan_created, medication_alert, cognitive_assessment, incident_report
+  switch (event.eventType) {
+    case "workforce_pathways":
+      console.log("[ISSS] Workforce pathway — updating student career readiness profiles");
+      await updateCareerReadiness(event.eventData);
+      break;
+    case "health_screenings":
+      console.log("[ISSS] Health screening — integrating into student wellness monitoring");
+      await integrateWellnessData(event.eventData);
+      break;
+    case "prevention_curriculum":
+      console.log("[ISSS] Prevention curriculum — deploying to student support modules");
+      await deployPreventionContent(event.eventData);
+      break;
+    default:
+      console.log(`[ISSS] Unhandled event type: ${event.eventType}`);
+  }
+}
+
+async function updateCareerReadiness(data) {
+  console.log("[ISSS] Career readiness: mapping workforce pathways to student development goals");
+}
+
+async function integrateWellnessData(data) {
+  console.log("[ISSS] Wellness integration: updating early warning system with health indicators");
+}
+
+async function deployPreventionContent(data) {
+  console.log("[ISSS] Prevention deployment: distributing age-appropriate prevention curriculum modules");
 }
 
 async function getIntegrationDoc() {

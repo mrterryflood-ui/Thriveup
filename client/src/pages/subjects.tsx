@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  BookOpen, Calculator, Microscope, Globe, Heart, Salad,
+  BookOpen, Calculator, Microscope, Globe, Heart, Salad, Briefcase,
   ChevronRight, Sparkles, GraduationCap, Clock, Target
 } from "lucide-react";
 import { ErrorRetry } from "@/components/error-retry";
@@ -27,7 +27,7 @@ const GRADE_BAND_DESCRIPTIONS: Record<string, string> = {
 };
 
 const SUBJECT_ICONS: Record<string, typeof BookOpen> = {
-  BookOpen, Calculator, Microscope, Globe, Heart, Salad,
+  BookOpen, Calculator, Microscope, Globe, Heart, Salad, Briefcase,
 };
 
 const SUBJECT_COLORS: Record<string, { bg: string; gradient: string }> = {
@@ -37,6 +37,8 @@ const SUBJECT_COLORS: Record<string, { bg: string; gradient: string }> = {
   amber: { bg: "bg-amber-100 dark:bg-amber-900/30", gradient: "from-amber-500 to-orange-600" },
   pink: { bg: "bg-pink-100 dark:bg-pink-900/30", gradient: "from-pink-500 to-rose-600" },
   teal: { bg: "bg-teal-100 dark:bg-teal-900/30", gradient: "from-teal-500 to-cyan-600" },
+  violet: { bg: "bg-violet-100 dark:bg-violet-900/30", gradient: "from-violet-500 to-purple-600" },
+  slate: { bg: "bg-slate-100 dark:bg-slate-900/30", gradient: "from-slate-500 to-gray-600" },
 };
 
 export default function SubjectsPage() {
@@ -166,7 +168,14 @@ export function SubjectDetailPage() {
     );
   }
 
-  if (!subject) return null;
+  if (!subject) return (
+    <div className="p-6 max-w-5xl mx-auto text-center">
+      <BookOpen className="h-16 w-16 mx-auto mb-4 text-muted-foreground/50" />
+      <h2 className="text-xl font-semibold mb-2" data-testid="text-subject-not-found">Subject Not Found</h2>
+      <p className="text-muted-foreground mb-4">This subject may have been moved or doesn't exist.</p>
+      <Link href="/subjects"><Button variant="outline" data-testid="button-back-all-subjects">Back to All Subjects</Button></Link>
+    </div>
+  );
 
   const Icon = SUBJECT_ICONS[subject.iconName] || BookOpen;
   const colors = SUBJECT_COLORS[subject.color] || SUBJECT_COLORS.rose;

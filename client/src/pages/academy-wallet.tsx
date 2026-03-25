@@ -143,7 +143,13 @@ export default function AcademyWalletPage() {
     return <div className="p-6"><ErrorRetry message="Failed to load wallet data. Please try again." onRetry={refetchWallet} /></div>;
   }
 
-  if (!wallet) return null;
+  if (!wallet) return (
+    <div className="p-6 max-w-5xl mx-auto text-center">
+      <DollarSign className="h-16 w-16 mx-auto mb-4 text-muted-foreground/50" />
+      <h2 className="text-xl font-semibold mb-2" data-testid="text-empty-wallet">Wallet Not Set Up</h2>
+      <p className="text-muted-foreground">Complete your first lesson to activate your Panther Economy wallet!</p>
+    </div>
+  );
 
   const sortedTransactions = transactions
     ? [...transactions].sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime())

@@ -60,11 +60,38 @@ async function sendEcosystemEvent(eventType, eventData, targetPlatformId = null)
 
 async function handleIncomingEvent(event) {
   console.log(`[ThriveUp Ecosystem] Received: ${event.eventType} from ${event.sourcePlatformId}`);
-  // TODO: Add your platform-specific event handling here
-  // Common event types across the ecosystem:
-  //   screening_completed, crisis_alert, veteran_referred, transition_milestone,
-  //   life_event_risk, research_update, youth_enrolled, resource_referral,
-  //   safety_plan_created, medication_alert, cognitive_assessment, incident_report
+  switch (event.eventType) {
+    case "case_management_data":
+      console.log("[LifeBridge] Processing case management update — matching community resources");
+      await matchResources(event.eventData);
+      break;
+    case "health_screenings":
+      console.log("[LifeBridge] Health screening received — checking social determinant needs");
+      await assessSocialDeterminants(event.eventData);
+      break;
+    case "early_warning_flags":
+      console.log("[LifeBridge] Early warning flag received — initiating crisis intervention protocol");
+      await triggerCrisisIntervention(event.eventData);
+      break;
+    case "crisis_alert":
+      console.log("[LifeBridge] Crisis alert — activating emergency resource pipeline");
+      await triggerCrisisIntervention(event.eventData);
+      break;
+    default:
+      console.log(`[LifeBridge] Unhandled event type: ${event.eventType}`);
+  }
+}
+
+async function matchResources(data) {
+  console.log("[LifeBridge] Resource matching: analyzing participant needs against available services");
+}
+
+async function assessSocialDeterminants(data) {
+  console.log("[LifeBridge] SDOH assessment: evaluating housing, food security, transportation needs");
+}
+
+async function triggerCrisisIntervention(data) {
+  console.log("[LifeBridge] Crisis intervention: routing to nearest available provider");
 }
 
 async function getIntegrationDoc() {

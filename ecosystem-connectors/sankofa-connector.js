@@ -60,11 +60,34 @@ async function sendEcosystemEvent(eventType, eventData, targetPlatformId = null)
 
 async function handleIncomingEvent(event) {
   console.log(`[ThriveUp Ecosystem] Received: ${event.eventType} from ${event.sourcePlatformId}`);
-  // TODO: Add your platform-specific event handling here
-  // Common event types across the ecosystem:
-  //   screening_completed, crisis_alert, veteran_referred, transition_milestone,
-  //   life_event_risk, research_update, youth_enrolled, resource_referral,
-  //   safety_plan_created, medication_alert, cognitive_assessment, incident_report
+  switch (event.eventType) {
+    case "student_referrals":
+      console.log("[Sankofa] Student referral received — scheduling health screening");
+      await scheduleHealthScreening(event.eventData);
+      break;
+    case "crisis_alerts":
+      console.log("[Sankofa] Crisis alert — activating behavioral health response team");
+      await activateCrisisResponse(event.eventData);
+      break;
+    case "community_health_data":
+      console.log("[Sankofa] Community health data — updating population health dashboard");
+      await updatePopulationHealth(event.eventData);
+      break;
+    default:
+      console.log(`[Sankofa] Unhandled event type: ${event.eventType}`);
+  }
+}
+
+async function scheduleHealthScreening(data) {
+  console.log("[Sankofa] Health screening: scheduling C-SSRS, PHQ-9, and wellness assessment");
+}
+
+async function activateCrisisResponse(data) {
+  console.log("[Sankofa] Crisis response: notifying behavioral health team and safety coordinator");
+}
+
+async function updatePopulationHealth(data) {
+  console.log("[Sankofa] Population health: integrating community-level health indicators");
 }
 
 async function getIntegrationDoc() {

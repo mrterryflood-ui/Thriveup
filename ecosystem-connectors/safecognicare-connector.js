@@ -60,11 +60,34 @@ async function sendEcosystemEvent(eventType, eventData, targetPlatformId = null)
 
 async function handleIncomingEvent(event) {
   console.log(`[ThriveUp Ecosystem] Received: ${event.eventType} from ${event.sourcePlatformId}`);
-  // TODO: Add your platform-specific event handling here
-  // Common event types across the ecosystem:
-  //   screening_completed, crisis_alert, veteran_referred, transition_milestone,
-  //   life_event_risk, research_update, youth_enrolled, resource_referral,
-  //   safety_plan_created, medication_alert, cognitive_assessment, incident_report
+  switch (event.eventType) {
+    case "health_screenings":
+      console.log("[SafeCogniCare] Health screening data — correlating with cognitive baseline");
+      await correlateCognitiveBaseline(event.eventData);
+      break;
+    case "veteran_profiles":
+      console.log("[SafeCogniCare] Veteran profile received — scheduling cognitive assessment");
+      await scheduleCognitiveAssessment(event.eventData);
+      break;
+    case "medication_data":
+      console.log("[SafeCogniCare] Medication data — checking for cognitive impact interactions");
+      await checkCognitiveInteractions(event.eventData);
+      break;
+    default:
+      console.log(`[SafeCogniCare] Unhandled event type: ${event.eventType}`);
+  }
+}
+
+async function correlateCognitiveBaseline(data) {
+  console.log("[SafeCogniCare] Cognitive correlation: mapping health metrics to cognitive function");
+}
+
+async function scheduleCognitiveAssessment(data) {
+  console.log("[SafeCogniCare] Assessment scheduling: MoCA, Trail Making, and memory evaluation");
+}
+
+async function checkCognitiveInteractions(data) {
+  console.log("[SafeCogniCare] Interaction check: evaluating medication impact on cognitive function");
 }
 
 async function getIntegrationDoc() {

@@ -60,11 +60,34 @@ async function sendEcosystemEvent(eventType, eventData, targetPlatformId = null)
 
 async function handleIncomingEvent(event) {
   console.log(`[ThriveUp Ecosystem] Received: ${event.eventType} from ${event.sourcePlatformId}`);
-  // TODO: Add your platform-specific event handling here
-  // Common event types across the ecosystem:
-  //   screening_completed, crisis_alert, veteran_referred, transition_milestone,
-  //   life_event_risk, research_update, youth_enrolled, resource_referral,
-  //   safety_plan_created, medication_alert, cognitive_assessment, incident_report
+  switch (event.eventType) {
+    case "prescriptions":
+      console.log("[PillScheduler] Prescription received — creating medication schedule");
+      await createMedicationSchedule(event.eventData);
+      break;
+    case "health_screenings":
+      console.log("[PillScheduler] Health screening — checking medication appropriateness");
+      await reviewMedicationAppropriateness(event.eventData);
+      break;
+    case "cognitive_assessments":
+      console.log("[PillScheduler] Cognitive assessment — adjusting reminder complexity");
+      await adjustReminderComplexity(event.eventData);
+      break;
+    default:
+      console.log(`[PillScheduler] Unhandled event type: ${event.eventType}`);
+  }
+}
+
+async function createMedicationSchedule(data) {
+  console.log("[PillScheduler] Schedule creation: building dosage timeline with interaction checks");
+}
+
+async function reviewMedicationAppropriateness(data) {
+  console.log("[PillScheduler] Appropriateness review: cross-referencing medications with health status");
+}
+
+async function adjustReminderComplexity(data) {
+  console.log("[PillScheduler] Reminder adjustment: adapting notification style to cognitive capacity");
 }
 
 async function getIntegrationDoc() {

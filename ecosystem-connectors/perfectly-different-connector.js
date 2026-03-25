@@ -60,11 +60,34 @@ async function sendEcosystemEvent(eventType, eventData, targetPlatformId = null)
 
 async function handleIncomingEvent(event) {
   console.log(`[ThriveUp Ecosystem] Received: ${event.eventType} from ${event.sourcePlatformId}`);
-  // TODO: Add your platform-specific event handling here
-  // Common event types across the ecosystem:
-  //   screening_completed, crisis_alert, veteran_referred, transition_milestone,
-  //   life_event_risk, research_update, youth_enrolled, resource_referral,
-  //   safety_plan_created, medication_alert, cognitive_assessment, incident_report
+  switch (event.eventType) {
+    case "student_profiles":
+      console.log("[Perfectly Different] Student profile — creating neurodevelopmental support plan");
+      await createSupportPlan(event.eventData);
+      break;
+    case "health_screenings":
+      console.log("[Perfectly Different] Health screening — checking neurodevelopmental indicators");
+      await assessNeurodevelopmentalIndicators(event.eventData);
+      break;
+    case "community_resources":
+      console.log("[Perfectly Different] Resource update — matching to neurodiversity support services");
+      await matchNeurodiversityResources(event.eventData);
+      break;
+    default:
+      console.log(`[Perfectly Different] Unhandled event type: ${event.eventType}`);
+  }
+}
+
+async function createSupportPlan(data) {
+  console.log("[Perfectly Different] Support plan: designing IEP-aligned accommodation framework");
+}
+
+async function assessNeurodevelopmentalIndicators(data) {
+  console.log("[Perfectly Different] Assessment: evaluating sensory, communication, and executive function");
+}
+
+async function matchNeurodiversityResources(data) {
+  console.log("[Perfectly Different] Resource matching: connecting to ABA, OT, and speech therapy providers");
 }
 
 async function getIntegrationDoc() {

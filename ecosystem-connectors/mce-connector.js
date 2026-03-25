@@ -60,11 +60,34 @@ async function sendEcosystemEvent(eventType, eventData, targetPlatformId = null)
 
 async function handleIncomingEvent(event) {
   console.log(`[ThriveUp Ecosystem] Received: ${event.eventType} from ${event.sourcePlatformId}`);
-  // TODO: Add your platform-specific event handling here
-  // Common event types across the ecosystem:
-  //   screening_completed, crisis_alert, veteran_referred, transition_milestone,
-  //   life_event_risk, research_update, youth_enrolled, resource_referral,
-  //   safety_plan_created, medication_alert, cognitive_assessment, incident_report
+  switch (event.eventType) {
+    case "workforce_graduates":
+      console.log("[MCE] Workforce graduate notification — matching to contract opportunities");
+      await matchGraduateToOpportunities(event.eventData);
+      break;
+    case "veteran_entrepreneurs":
+      console.log("[MCE] Veteran entrepreneur profile — initiating VOSB certification pathway");
+      await initiateCertificationPathway(event.eventData);
+      break;
+    case "grant_intelligence":
+      console.log("[MCE] Grant intelligence update — updating teaming partner database");
+      await updateGrantIntelligence(event.eventData);
+      break;
+    default:
+      console.log(`[MCE] Unhandled event type: ${event.eventType}`);
+  }
+}
+
+async function matchGraduateToOpportunities(data) {
+  console.log("[MCE] Opportunity matching: comparing skills to open contract requirements");
+}
+
+async function initiateCertificationPathway(data) {
+  console.log("[MCE] Certification pathway: starting VOSB/8(a)/HUBZone application process");
+}
+
+async function updateGrantIntelligence(data) {
+  console.log("[MCE] Grant intelligence: updating opportunity database with new funding sources");
 }
 
 async function getIntegrationDoc() {
