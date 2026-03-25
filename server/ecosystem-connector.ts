@@ -1094,6 +1094,25 @@ const ECOSYSTEM_PLATFORMS = [
     },
     grantAlignment: ["st-davids", "foundation", "wioa", "ssg-fox"],
   },
+  {
+    id: "code-canvas",
+    name: "Code Canvas — System Evaluator & Optimizer",
+    url: "https://code-canvas-mrterryflood.replit.app",
+    role: "evaluator",
+    domain: "system-optimization",
+    description: "Independent evaluation and optimization engine for ecosystems and platforms. Performs autonomous code audits, architecture analysis, performance profiling, and delivers actionable fixes and recommendations. Evaluates each platform against best practices, identifies gaps, and upon approval implements improvements to make all systems work better together. Designed as the quality assurance backbone for interconnected platform ecosystems. Also available as a System-as-a-Service (SaaS) subscription for external organizations to audit and optimize their own technology ecosystems.",
+    capabilities: {
+      features: ["Independent Platform Evaluation", "Architecture Analysis", "Performance Profiling", "Code Audit & Review", "Automated Fix Recommendations", "Cross-Platform Optimization", "Ecosystem Coherence Scoring", "Best Practice Enforcement", "SaaS Subscription Model", "White-Label Evaluator", "Continuous Improvement Engine", "Integration Health Checks"],
+      integrationDepth: "Connects to all ecosystem platforms for independent evaluation — reads platform health, code quality, architecture patterns, and cross-platform data flows to generate optimization recommendations",
+      outcomeMetrics: ["Platform evaluations completed", "Optimization recommendations delivered", "Fixes implemented after approval", "Cross-platform coherence score improvements", "Performance gains measured post-optimization"],
+      grantNarrative: "Provides independent quality assurance and continuous improvement infrastructure — demonstrates to funders that the ecosystem has built-in evaluation and optimization capabilities ensuring sustained platform quality and operational excellence",
+    },
+    dataFlowConfig: {
+      sends: ["evaluation_reports", "optimization_recommendations", "fix_implementations", "coherence_scores", "performance_metrics", "architecture_analysis"],
+      receives: ["platform_health_data", "code_snapshots", "architecture_configs", "performance_baselines", "ecosystem_event_logs", "cross_platform_data_flows"],
+    },
+    grantAlignment: ["wioa", "foundation", "st-davids", "ssg-fox"],
+  },
 ];
 
 // ============================================================
@@ -6747,6 +6766,74 @@ if (typeof module !== "undefined") {
       });
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch ecosystem status" });
+    }
+  });
+
+  app.get("/api/ecosystem/evaluation-feed", async (req, res) => {
+    try {
+      const apiKey = req.headers["x-ecosystem-key"] || req.query.key;
+      if (!apiKey) {
+        return res.status(401).json({ error: "API key required. Pass via x-ecosystem-key header or ?key= query param." });
+      }
+      const callingPlatform = await db.select().from(ecosystemPlatforms).where(eq(ecosystemPlatforms.apiKey, apiKey as string)).limit(1);
+      if (callingPlatform.length === 0) {
+        return res.status(403).json({ error: "Invalid API key" });
+      }
+
+      const platforms = await db.select().from(ecosystemPlatforms);
+      const now = Date.now();
+      const STALE_MS = 15 * 60 * 1000;
+
+      const platformData = platforms.map((p) => {
+        const def = ECOSYSTEM_PLATFORMS.find(ep => ep.id === p.id);
+        let liveHealth = "unknown";
+        if (p.status === "active" && p.lastHeartbeat) {
+          liveHealth = (now - new Date(p.lastHeartbeat).getTime() <= STALE_MS) ? "online" : "offline";
+        } else if (p.status === "active") {
+          liveHealth = "online";
+        }
+        return {
+          id: p.id,
+          name: p.name,
+          url: p.url,
+          role: p.role,
+          domain: p.domain,
+          status: p.status,
+          healthStatus: liveHealth,
+          lastHeartbeat: p.lastHeartbeat,
+          description: def?.description || p.description,
+          capabilities: def?.capabilities || p.capabilities,
+          dataFlowConfig: def?.dataFlowConfig || p.dataFlowConfig,
+          grantAlignment: p.grantAlignment,
+        };
+      });
+
+      const directives = await db.select().from(ecosystemDirectives);
+      const directiveAcks = await db.select().from(ecosystemDirectiveAcks);
+      const recentEvents = await db.select().from(ecosystemEvents)
+        .where(gte(ecosystemEvents.createdAt, new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)))
+        .orderBy(desc(ecosystemEvents.createdAt))
+        .limit(100);
+
+      res.json({
+        evaluationFeed: true,
+        generatedAt: new Date().toISOString(),
+        calledBy: callingPlatform[0].name,
+        ecosystem: {
+          totalPlatforms: platformData.length,
+          onlinePlatforms: platformData.filter(p => p.healthStatus === "online").length,
+          platforms: platformData,
+        },
+        directives: {
+          total: directives.length,
+          items: directives.map(d => ({ id: d.id, title: d.title, priority: d.priority, status: d.status, createdAt: d.createdAt })),
+          acknowledgments: directiveAcks.map(a => ({ directiveId: a.directiveId, platformId: a.platformId, status: a.status, acknowledgedAt: a.acknowledgedAt })),
+        },
+        recentEvents: recentEvents.map(e => ({ id: e.id, sourcePlatformId: e.sourcePlatformId, eventData: e.eventData, status: e.status, createdAt: e.createdAt })),
+      });
+    } catch (error) {
+      console.error("Evaluation feed error:", error);
+      res.status(500).json({ error: "Failed to generate evaluation feed" });
     }
   });
 
