@@ -1503,10 +1503,15 @@ export function registerEcosystemConnectorRoutes(app: Express) {
   (async () => {
     try {
       const validIds = ECOSYSTEM_PLATFORMS.map((p) => p.id);
+      const PINNED_API_KEYS: Record<string, string> = {
+        "code-canvas": "tveco_78d94a8e622ef2f7dbb12e91de04797259f80733546f76313ff5623b04644600",
+      };
+
       for (const platform of ECOSYSTEM_PLATFORMS) {
         const existing = await db.select().from(ecosystemPlatforms).where(eq(ecosystemPlatforms.id, platform.id));
+        const pinnedKey = PINNED_API_KEYS[platform.id];
         if (existing.length === 0) {
-          const apiKey = generateApiKey();
+          const apiKey = pinnedKey || generateApiKey();
           await db.insert(ecosystemPlatforms).values({
             id: platform.id, name: platform.name, url: platform.url, apiKey, role: platform.role, domain: platform.domain,
             description: platform.description, status: "registered", healthStatus: "unknown",
@@ -1514,11 +1519,16 @@ export function registerEcosystemConnectorRoutes(app: Express) {
           });
           console.log(`[Ecosystem] Auto-registered new platform: ${platform.name}`);
         } else {
-          await db.update(ecosystemPlatforms).set({
+          const updateFields: any = {
             name: platform.name, url: platform.url, role: platform.role, domain: platform.domain,
             description: platform.description, capabilities: platform.capabilities,
             dataFlowConfig: platform.dataFlowConfig, grantAlignment: platform.grantAlignment,
-          }).where(eq(ecosystemPlatforms.id, platform.id));
+          };
+          if (pinnedKey && existing[0].apiKey !== pinnedKey) {
+            updateFields.apiKey = pinnedKey;
+            console.log(`[Ecosystem] Synced pinned API key for ${platform.name}`);
+          }
+          await db.update(ecosystemPlatforms).set(updateFields).where(eq(ecosystemPlatforms.id, platform.id));
         }
       }
       console.log(`[Ecosystem] Synced ${ECOSYSTEM_PLATFORMS.length} platform definitions to DB`);
