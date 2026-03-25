@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { Link } from "wouter";
+import { Link, useSearch } from "wouter";
+import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -266,6 +267,22 @@ const heroGradientStyle: React.CSSProperties = {
 };
 
 export default function LandingPage() {
+  const { toast } = useToast();
+  const searchString = useSearch();
+
+  useEffect(() => {
+    const params = new URLSearchParams(searchString);
+    const authError = params.get("auth_error");
+    if (authError) {
+      toast({
+        title: "Login Issue",
+        description: "There was a problem signing in. Please try again. If the issue persists, try clearing your browser cookies or using the Replit dev URL.",
+        variant: "destructive",
+      });
+      window.history.replaceState({}, "", "/");
+    }
+  }, [searchString, toast]);
+
   return (
     <div className="min-h-screen">
       <style>{`

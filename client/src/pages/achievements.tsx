@@ -82,7 +82,13 @@ export default function AchievementsPage() {
 
   if (error) return <div className="p-6"><ErrorRetry message="Failed to load achievements. Please try again." onRetry={refetch} /></div>;
 
-  if (!data) return null;
+  if (!data) return (
+    <div className="p-6 text-center">
+      <Shield className="h-16 w-16 mx-auto mb-4 text-muted-foreground/50" />
+      <h2 className="text-xl font-semibold mb-2" data-testid="text-no-achievements">No Achievements Yet</h2>
+      <p className="text-muted-foreground">Start completing lessons and quizzes to earn badges and achievements!</p>
+    </div>
+  );
 
   const { allBadges, earnedBadges, totalPoints, currentLevel } = data;
   const earnedIds = new Set(earnedBadges.map((eb) => eb.badgeId));

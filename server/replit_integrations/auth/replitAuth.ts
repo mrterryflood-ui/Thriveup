@@ -112,9 +112,18 @@ export async function setupAuth(app: Express) {
 
   app.get("/api/callback", (req, res, next) => {
     ensureStrategy(req.hostname);
-    passport.authenticate(`replitauth:${req.hostname}`, {
-      successReturnToOrRedirect: "/",
-      failureRedirect: "/api/login",
+    passport.authenticate(`replitauth:${req.hostname}`, (err: any, user: any, info: any) => {
+      if (err || !user) {
+        console.error("[Auth] Callback error:", err?.message || info?.message || "Unknown auth error");
+        return res.redirect("/?auth_error=login_failed");
+      }
+      req.logIn(user, (loginErr) => {
+        if (loginErr) {
+          console.error("[Auth] Login session error:", loginErr.message);
+          return res.redirect("/?auth_error=session_failed");
+        }
+        return res.redirect("/");
+      });
     })(req, res, next);
   });
 
