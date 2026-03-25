@@ -20,6 +20,7 @@ import {
   FileText, ClipboardList, Briefcase, Filter, Eye,
 } from "lucide-react";
 import type { EcosystemPlatform, EcosystemEvent } from "@shared/schema";
+import { TrainingGuideButton } from "@/components/training-guide";
 
 const PLATFORM_ICONS: Record<string, typeof Heart> = {
   "whole-person-health": Heart,
@@ -245,6 +246,7 @@ export default function EcosystemConnectorPage() {
           <p className="text-muted-foreground mt-1">{totalCount}-platform ecosystem — a la carte views by grant, real-time connectivity, no dead ends</p>
         </div>
         <div className="flex gap-2">
+          <TrainingGuideButton moduleId="ecosystem-connector" />
           {platforms.length === 0 && (
             <Button onClick={() => initMutation.mutate()} disabled={initMutation.isPending} className="bg-gradient-to-r from-red-600 to-purple-600 hover:from-red-700 hover:to-purple-700 text-white" data-testid="button-initialize">
               {initMutation.isPending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Rocket className="h-4 w-4 mr-2" />}

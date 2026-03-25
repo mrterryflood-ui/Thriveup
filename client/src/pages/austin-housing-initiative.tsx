@@ -14,6 +14,7 @@ import {
   BarChart3, Landmark, DollarSign, Clock, Zap,
 } from "lucide-react";
 import { BackToTop } from "@/components/back-to-top";
+import { TrainingGuideButton } from "@/components/training-guide";
 
 const AUSTIN_STATS = [
   { icon: Home, label: "Median Home Price", value: "$435,000", color: "bg-red-500", detail: "Only 2 of 75 zip codes affordable" },
@@ -134,7 +135,8 @@ export default function AustinHousingInitiativePage() {
         title="Built for Austin"
         description="20-platform ecosystem addressing Austin's housing, workforce, and health equity crisis"
         actions={
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
+            <TrainingGuideButton moduleId="austin-housing-initiative" />
             <Button variant="outline" size="sm" onClick={() => window.location.href = "/manor"} data-testid="button-manor-link">
               <MapPin className="h-4 w-4 mr-1" /> Manor Hub
             </Button>

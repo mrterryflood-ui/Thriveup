@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PageHeader } from "@/components/page-header";
+import { TrainingGuideButton } from "@/components/training-guide";
 import {
   Heart, Brain, Shield, Users, Baby, Globe, Activity,
   ClipboardCheck, BookOpen, ChevronRight, CheckCircle2,
@@ -536,6 +537,7 @@ export default function HealthWellnessPage() {
           <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white" data-testid="text-page-title">
             Sankofa Health Network
           </h1>
+          <TrainingGuideButton moduleId="health-wellness" />
         </div>
         <p className="text-indigo-100 text-base sm:text-lg" data-testid="text-page-subtitle">
           Integrated behavioral health and wellness resources — culturally responsive care for your whole self

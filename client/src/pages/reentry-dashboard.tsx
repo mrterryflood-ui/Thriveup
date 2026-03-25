@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { TrainingGuideButton } from "@/components/training-guide";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { Card } from "@/components/ui/card";
@@ -119,9 +120,12 @@ export default function ReentryDashboard() {
           <h1 className="text-2xl sm:text-3xl font-bold" data-testid="text-reentry-title">Reentry Case Management</h1>
           <p className="text-muted-foreground mt-1">Individualized reentry plans with phase-based milestones and progress tracking</p>
         </div>
-        <Button onClick={() => setShowForm(!showForm)} data-testid="button-create-plan" aria-label="Create reentry plan">
-          <Plus className="mr-2 h-4 w-4" /> New Reentry Plan
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <TrainingGuideButton moduleId="reentry-dashboard" />
+          <Button onClick={() => setShowForm(!showForm)} data-testid="button-create-plan" aria-label="Create reentry plan">
+            <Plus className="mr-2 h-4 w-4" /> New Reentry Plan
+          </Button>
+        </div>
       </div>
 
       {dashboard && (

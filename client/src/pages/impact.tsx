@@ -16,6 +16,7 @@ import { SiLinkedin, SiX } from "react-icons/si";
 import { BackToTop } from "@/components/back-to-top";
 import { ErrorRetry } from "@/components/error-retry";
 import { PageHeader } from "@/components/page-header";
+import { TrainingGuideButton } from "@/components/training-guide";
 
 interface ImpactData {
   youthServed: number;
@@ -93,6 +94,7 @@ export default function ImpactPage() {
       <PageHeader
         title="Impact Dashboard"
         description="Live platform metrics for stakeholders and grant reporting"
+        actions={<TrainingGuideButton moduleId="impact" />}
       />
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700 text-white p-8 md:p-12">
         <div className="absolute inset-0 opacity-10">

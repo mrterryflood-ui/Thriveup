@@ -17,6 +17,7 @@ import {
   Construction, HardHat, Wrench,
 } from "lucide-react";
 import { BackToTop } from "@/components/back-to-top";
+import { TrainingGuideButton } from "@/components/training-guide";
 
 const PFLUGERVILLE_STATS = [
   { icon: Users, label: "Population", value: "76,500+", color: "bg-violet-500", detail: "4th largest city in Travis County" },
@@ -201,7 +202,8 @@ export default function PflugervilleCommunityHubPage() {
         title="Built for Pflugerville"
         description="Right tools. Right community. Right time. Social infrastructure before the 330 units fill."
         actions={
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
+            <TrainingGuideButton moduleId="pflugerville-community-hub" />
             <Button variant="outline" size="sm" onClick={() => window.location.href = "/austin"} data-testid="button-austin-link">
               <MapPin className="h-4 w-4 mr-1" /> Austin Hub
             </Button>

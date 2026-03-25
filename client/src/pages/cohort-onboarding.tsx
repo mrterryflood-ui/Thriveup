@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { PageHeader } from "@/components/page-header";
+import { TrainingGuideButton } from "@/components/training-guide";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -113,6 +114,7 @@ export default function CohortOnboardingPage() {
         title="Cohort Onboarding Progress"
         description="Track all participant journeys through the 30-day onboarding program"
         icon={<Users className="h-7 w-7" />}
+        actions={<TrainingGuideButton moduleId="cohort-onboarding" />}
       />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">

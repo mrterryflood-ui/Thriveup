@@ -15,6 +15,7 @@ import {
   Trash2, MapPin, Mail, Phone, UserPlus, Briefcase,
 } from "lucide-react";
 import { DFCCrossNav } from "@/components/dfc-cross-nav";
+import { TrainingGuideButton } from "@/components/training-guide";
 import type {
   Coalition, CoalitionSector, CoalitionMember, CoalitionMeeting,
   CoalitionActionItem, CoalitionCapacityAssessment, CommunityActionPlan,
@@ -333,7 +334,10 @@ export default function CoalitionPage() {
   return (
     <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl sm:text-3xl font-bold" data-testid="text-coalition-title">DFC Coalition Dashboard</h1>
+        <div className="flex items-center gap-3 flex-wrap">
+          <h1 className="text-2xl sm:text-3xl font-bold" data-testid="text-coalition-title">DFC Coalition Dashboard</h1>
+          <TrainingGuideButton moduleId="coalition" />
+        </div>
         <p className="text-muted-foreground mt-1">{currentCoalition?.name || "12-Sector Coalition Management"}</p>
         {currentCoalition?.mission && (
           <p className="text-sm text-muted-foreground mt-1 max-w-3xl" data-testid="text-coalition-mission">{currentCoalition.mission}</p>

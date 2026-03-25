@@ -64,6 +64,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { ErrorRetry } from "@/components/error-retry";
 import { PageHeader } from "@/components/page-header";
+import { TrainingGuideButton } from "@/components/training-guide";
 
 interface MetricsData {
   totalStudents: number;
@@ -696,6 +697,7 @@ export default function AcademyAdminPage() {
           { label: "Academy", href: "/academy" },
           { label: "Administration" },
         ]}
+        actions={<TrainingGuideButton moduleId="academy-admin" />}
       />
       <div
         className="rounded-md bg-gradient-to-r from-rose-900 to-red-950 dark:from-rose-950 dark:to-background p-8 mb-8"

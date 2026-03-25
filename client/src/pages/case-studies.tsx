@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { TrainingGuideButton } from "@/components/training-guide";
 import {
   Shield, Briefcase, Users, GraduationCap,
   ArrowRight, CheckCircle2, AlertTriangle, Lightbulb,
@@ -681,10 +682,13 @@ export default function CaseStudiesPage() {
   return (
     <div className="p-6 max-w-6xl mx-auto space-y-6" data-testid="page-case-studies">
       <div>
-        <h1 className="text-2xl font-bold flex items-center gap-2" data-testid="text-page-title">
-          <BookOpen className="h-6 w-6 text-primary" />
-          Case Study Deep Dives
-        </h1>
+        <div className="flex items-center gap-2 flex-wrap">
+          <h1 className="text-2xl font-bold flex items-center gap-2" data-testid="text-page-title">
+            <BookOpen className="h-6 w-6 text-primary" />
+            Case Study Deep Dives
+          </h1>
+          <TrainingGuideButton moduleId="case-studies" />
+        </div>
         <p className="text-muted-foreground mt-1" data-testid="text-page-subtitle">
           Real-world applications of the MAP-GAP framework across the 20-platform ecosystem. Each case study shows how collaborative intelligence — no silos, no black boxes — produces measurable outcomes.
         </p>

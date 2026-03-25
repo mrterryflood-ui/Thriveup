@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { TrainingGuideButton } from "@/components/training-guide";
 import {
   BarChart3, Plus, Download, FileText, Target, Users,
   Briefcase, GraduationCap, Home, Heart, Shield, TrendingUp, CheckCircle2, Filter,
@@ -141,7 +142,10 @@ export default function OutcomeReportingPage() {
     <div className="p-4 sm:p-6 max-w-6xl mx-auto space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold" data-testid="text-outcomes-title">Outcome Measurement & Reporting</h1>
+          <div className="flex items-center gap-3 flex-wrap">
+            <h1 className="text-2xl sm:text-3xl font-bold" data-testid="text-outcomes-title">Outcome Measurement & Reporting</h1>
+            <TrainingGuideButton moduleId="outcome-reporting" />
+          </div>
           <p className="text-muted-foreground mt-1">Track recidivism, employment, education, housing, and behavioral health outcomes</p>
         </div>
         <div className="flex gap-2">

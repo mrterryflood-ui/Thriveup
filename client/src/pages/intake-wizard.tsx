@@ -12,6 +12,7 @@ import {
   Users, Target, FileCheck, CheckCircle2, ChevronLeft, ChevronRight,
   ClipboardList, Shield
 } from "lucide-react";
+import { TrainingGuideButton } from "@/components/training-guide";
 
 const STEPS = [
   { key: "welcome", label: "Welcome", icon: ClipboardList },
@@ -265,7 +266,10 @@ export default function IntakeWizard() {
   return (
     <div className="p-4 sm:p-6 max-w-3xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl sm:text-3xl font-bold" data-testid="text-intake-title">Intake Assessment</h1>
+        <div className="flex items-center gap-3 flex-wrap">
+          <h1 className="text-2xl sm:text-3xl font-bold" data-testid="text-intake-title">Intake Assessment</h1>
+          <TrainingGuideButton moduleId="intake-wizard" />
+        </div>
         <p className="text-muted-foreground mt-1">Let's get to know you so we can connect you with the right support.</p>
       </div>
 

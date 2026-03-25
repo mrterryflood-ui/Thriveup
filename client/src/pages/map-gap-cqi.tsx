@@ -18,6 +18,7 @@ import {
   ClipboardCheck, FileText, Download, Trash2, Edit, BarChart3, Activity,
   RefreshCw, Eye, ChevronRight, MapPin, Search, Layers, Shield,
 } from "lucide-react";
+import { TrainingGuideButton } from "@/components/training-guide";
 import type { CqiCycle, CqiGap, CqiIntervention, CqiFidelityDefinition, CqiFidelityObservation, CqiOutcome, CqiCyclePhase } from "@shared/schema";
 
 interface CqiReport {
@@ -1568,7 +1569,10 @@ export default function MapGapCqiPage() {
           </h1>
           <p className="text-muted-foreground mt-1">Continuous Quality Improvement — Map, Analyze, Plan, Execute, Reassess</p>
         </div>
-        <CreateCycleDialog onCreated={() => {}} />
+        <div className="flex items-center gap-2">
+          <TrainingGuideButton moduleId="map-gap-cqi" />
+          <CreateCycleDialog onCreated={() => {}} />
+        </div>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

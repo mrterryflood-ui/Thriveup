@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { TrainingGuideButton } from "@/components/training-guide";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -624,9 +625,12 @@ export default function ProgramManagementPage() {
   return (
     <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-bold flex items-center gap-2" data-testid="text-page-title">
-          <Briefcase className="h-6 w-6" /> Program Management
-        </h1>
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          <h1 className="text-2xl font-bold flex items-center gap-2" data-testid="text-page-title">
+            <Briefcase className="h-6 w-6" /> Program Management
+          </h1>
+          <TrainingGuideButton moduleId="program-management" />
+        </div>
         <p className="text-muted-foreground mt-1" data-testid="text-page-subtitle">Post-award grant project management, staffing, facilities, compliance, and sustainability planning</p>
       </div>
 

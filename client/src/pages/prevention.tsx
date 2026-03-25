@@ -17,6 +17,7 @@ import {
   Heart, Users, Brain, Activity, Target,
 } from "lucide-react";
 import { DFCCrossNav } from "@/components/dfc-cross-nav";
+import { TrainingGuideButton } from "@/components/training-guide";
 import type { PreventionModule, PreventionProgress as PreventionProgressType, RiskAssessment, YouthSurvey } from "@shared/schema";
 
 interface DashboardData {
@@ -573,6 +574,7 @@ export default function PreventionPage() {
           <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white" data-testid="text-page-title">
             Youth Substance Prevention
           </h1>
+          <TrainingGuideButton moduleId="prevention" />
         </div>
         <p className="text-emerald-100 text-base sm:text-lg" data-testid="text-page-subtitle">
           Evidence-based prevention curriculum, risk assessments, and community surveys aligned with DFC grant requirements

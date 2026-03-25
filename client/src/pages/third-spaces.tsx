@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PageHeader } from "@/components/page-header";
+import { TrainingGuideButton } from "@/components/training-guide";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -448,6 +449,7 @@ export default function ThirdSpacesPage() {
         description="Identify, activate, and manage community third spaces across all of Texas — where services meet people where they are."
         actions={
           <div className="flex gap-2 flex-wrap">
+            <TrainingGuideButton moduleId="third-spaces" />
             <Button variant="outline" size="sm" onClick={() => window.location.href = "/austin"} data-testid="button-austin-link">
               <MapPin className="h-4 w-4 mr-1" /> Austin
             </Button>

@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { PageHeader } from "@/components/page-header";
+import { TrainingGuideButton } from "@/components/training-guide";
 import {
   BookOpen, FlaskConical, Target, BarChart3, Users, Globe,
   CheckCircle2, ChevronRight, ExternalLink, Lightbulb, Brain,
@@ -443,7 +444,7 @@ export default function ResearchHubPage() {
 
   return (
     <div className="p-4 sm:p-6 max-w-5xl mx-auto" data-testid="research-hub-page">
-      <PageHeader title="Research & Implementation Science" breadcrumbs={[{ label: "Research Hub" }]} />
+      <PageHeader title="Research & Implementation Science" breadcrumbs={[{ label: "Research Hub" }]} actions={<TrainingGuideButton moduleId="research-hub" />} />
 
       <div className="rounded-md bg-gradient-to-r from-indigo-900 to-violet-700 p-4 sm:p-6 lg:p-8 mb-8" data-testid="section-hero">
         <div className="flex items-center gap-3 mb-3 flex-wrap">

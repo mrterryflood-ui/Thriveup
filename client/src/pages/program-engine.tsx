@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { TrainingGuideButton } from "@/components/training-guide";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { queryClient, apiRequest } from "@/lib/queryClient";
@@ -1160,9 +1161,12 @@ function ProgramList({ onSelect, onNew }: { onSelect: (id: number) => void; onNe
           <h1 className="text-2xl font-bold" data-testid="text-page-title">Program Execution Engine</h1>
           <p className="text-muted-foreground">Launch, manage, and monitor programs with real-time common operating picture</p>
         </div>
-        <Button onClick={onNew} data-testid="button-new-program">
-          <Plus className="h-4 w-4 mr-1" /> Start New Program
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <TrainingGuideButton moduleId="program-engine" />
+          <Button onClick={onNew} data-testid="button-new-program">
+            <Plus className="h-4 w-4 mr-1" /> Start New Program
+          </Button>
+        </div>
       </div>
 
       {(!programs || programs.length === 0) && (

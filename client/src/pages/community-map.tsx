@@ -23,6 +23,7 @@ import type { GisContextData } from "@shared/schema";
 import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import jsPDF from "jspdf";
+import { TrainingGuideButton } from "@/components/training-guide";
 
 const US_STATES = [
   { code: "AL", name: "Alabama" }, { code: "AK", name: "Alaska" }, { code: "AZ", name: "Arizona" },
@@ -509,10 +510,13 @@ export default function CommunityMapPage() {
       <div className="border-b p-4 bg-background">
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
-            <h1 className="text-2xl font-bold flex items-center gap-2" data-testid="text-page-title">
-              <Globe className="h-6 w-6 text-primary" />
-              Community Intelligence Map
-            </h1>
+            <div className="flex items-center gap-3 flex-wrap">
+              <h1 className="text-2xl font-bold flex items-center gap-2" data-testid="text-page-title">
+                <Globe className="h-6 w-6 text-primary" />
+                Community Intelligence Map
+              </h1>
+              <TrainingGuideButton moduleId="community-map" />
+            </div>
             <p className="text-sm text-muted-foreground mt-1">
               Explore social determinants of health, resources, and community data across the US
             </p>

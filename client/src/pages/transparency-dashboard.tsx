@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
+import { TrainingGuideButton } from "@/components/training-guide";
 import {
   Eye, Users, GraduationCap, Shield, Briefcase, Heart, Target,
   TrendingUp, CheckCircle2, AlertTriangle, Clock, Activity,
@@ -804,9 +805,12 @@ export default function TransparencyDashboardPage() {
               <Eye className="h-6 w-6 text-primary" />
             </div>
             <div>
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold" data-testid="text-transparency-heading">
-                Stakeholder Transparency Dashboard
-              </h1>
+              <div className="flex items-center gap-3 flex-wrap">
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold" data-testid="text-transparency-heading">
+                  Stakeholder Transparency Dashboard
+                </h1>
+                <TrainingGuideButton moduleId="transparency-dashboard" />
+              </div>
               <p className="text-sm sm:text-base text-muted-foreground mt-1 max-w-2xl">
                 Nothing in a black box. Every stakeholder sees the same data — presented for their context. SALP fidelity indicators, SMART goals, and program outcomes measured in real time.
               </p>

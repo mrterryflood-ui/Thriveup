@@ -18,6 +18,7 @@ import {
   Star, Filter, X, RefreshCw, MessageCircle, Loader2, CheckCircle2,
 } from "lucide-react";
 import { ErrorRetry } from "@/components/error-retry";
+import { TrainingGuideButton } from "@/components/training-guide";
 import type { SavedResource } from "@shared/schema";
 
 interface StateOption {
@@ -235,6 +236,7 @@ export default function ResourceFinderPage() {
         title="Community Resource Finder"
         description="Find real government and community resources across all 50 states, DC, and U.S. territories"
         breadcrumbs={[{label:"Resource Finder"}]}
+        actions={<TrainingGuideButton moduleId="resource-finder" />}
       />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} data-testid="resource-tabs">

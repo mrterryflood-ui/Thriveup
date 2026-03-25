@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { PageHeader } from "@/components/page-header";
+import { TrainingGuideButton } from "@/components/training-guide";
 import { BackToTop } from "@/components/back-to-top";
 import { ErrorRetry } from "@/components/error-retry";
 import { Card } from "@/components/ui/card";
@@ -594,6 +595,7 @@ export default function AcademyCareersPage() {
         title="Career Explorer"
         description="Explore industry-aligned career pathways and discover your workforce development journey."
         breadcrumbs={[{label:"Academy",href:"/academy"},{label:"Career Explorer"}]}
+        actions={<TrainingGuideButton moduleId="academy-careers" />}
       />
       <div
         className="rounded-md bg-gradient-to-r from-rose-900 to-red-700 p-4 sm:p-6 lg:p-8 mb-8"

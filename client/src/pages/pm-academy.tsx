@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { TrainingGuideButton } from "@/components/training-guide";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -780,6 +781,9 @@ export default function PMAcademyPage() {
           </div>
         </div>
         <h1 className="text-3xl md:text-4xl font-bold" data-testid="page-title">Program Management Academy</h1>
+        <div className="flex justify-center mt-2">
+          <TrainingGuideButton moduleId="pm-academy" />
+        </div>
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
           Learn it here. Apply it in RPLICE. Execute it in MCE. Manage it across the ecosystem.
         </p>

@@ -19,6 +19,7 @@ import {
   ClipboardList
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { TrainingGuideButton } from "@/components/training-guide";
 
 type DisciplineId = "implementation-science" | "criminal-justice" | "hr-management" | "io-psychology";
 
@@ -1103,9 +1104,12 @@ export default function EcosystemHubPage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-violet-50/30 dark:from-gray-950 dark:to-violet-950/10 p-6" data-testid="page-ecosystem-hub">
       <div className="max-w-7xl mx-auto space-y-6">
         <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white" data-testid="heading-ecosystem">
-            Ecosystem Integration Hub
-          </h1>
+          <div className="flex items-center justify-center gap-3">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white" data-testid="heading-ecosystem">
+              Ecosystem Integration Hub
+            </h1>
+            <TrainingGuideButton moduleId="ecosystem-hub" />
+          </div>
           <p className="text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
             The Collaborative Advocate's 20-platform technology ecosystem — from education and workforce development
             to health equity, defense, veteran services, compliance, business intelligence, and minority business development.

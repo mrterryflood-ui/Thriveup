@@ -14,6 +14,7 @@ import {
   ChevronDown, ChevronUp, FileText, Zap, Star, Eye
 } from "lucide-react";
 import { Link } from "wouter";
+import { TrainingGuideButton } from "@/components/training-guide";
 
 interface PeerScore {
   depth: number;
@@ -207,6 +208,7 @@ export default function PeerReviewPage() {
             <p className="text-muted-foreground">MAP-GAP peer review at scale — every platform evaluates every peer</p>
           </div>
           <div className="flex items-center gap-3">
+            <TrainingGuideButton moduleId="peer-review" />
             <Link href="/ops-center">
               <Button variant="outline" data-testid="link-ops-center">
                 <ArrowRight className="w-4 h-4 mr-2" />

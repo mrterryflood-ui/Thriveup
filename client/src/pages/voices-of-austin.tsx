@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { PageHeader } from "@/components/page-header";
+import { TrainingGuideButton } from "@/components/training-guide";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import {
@@ -316,6 +317,7 @@ export default function VoicesOfAustinPage() {
         description="Share your story. Access resources. Connect with opportunities. Your voice drives change."
         actions={
           <div className="flex gap-2">
+            <TrainingGuideButton moduleId="voices-of-austin" />
             <Button onClick={() => setShowSubmit(true)} data-testid="button-share-story">
               <Mic className="h-4 w-4 mr-2" /> Share Your Story
             </Button>

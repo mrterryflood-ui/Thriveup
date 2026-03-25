@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { TrainingGuideButton } from "@/components/training-guide";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -293,11 +294,14 @@ export default function WorkforceDashboardPage() {
 
   return (
     <div className="p-6 max-w-6xl mx-auto" data-testid="section-workforce-dashboard">
-      <PageHeader
-        title="Workforce Pipeline Dashboard"
-        description="Track workforce development outcomes across assessment, training, placement, and retention"
-        icon={<BarChart3 className="h-7 w-7" />}
-      />
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <PageHeader
+          title="Workforce Pipeline Dashboard"
+          description="Track workforce development outcomes across assessment, training, placement, and retention"
+          icon={<BarChart3 className="h-7 w-7" />}
+        />
+        <TrainingGuideButton moduleId="workforce-dashboard" />
+      </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6" data-testid="section-dashboard-stats">
         <StatCard label="Assessments" value={d.totalAssessments || 0} icon={ClipboardCheck} color="bg-gradient-to-br from-blue-500 to-blue-600" testId="card-stat-assessments" />

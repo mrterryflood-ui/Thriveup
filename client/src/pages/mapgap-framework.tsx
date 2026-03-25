@@ -11,6 +11,7 @@ import {
   Eye, Zap, Globe, Compass, FlaskConical,
   Building2,
 } from "lucide-react";
+import { TrainingGuideButton } from "@/components/training-guide";
 import { DISCIPLINES } from "@/lib/mvv-content";
 
 const METHODOLOGY_REGISTRY = [
@@ -452,9 +453,12 @@ export default function MapGapFrameworkPage() {
           <Badge variant="secondary" className="mb-4">
             <RefreshCw className="mr-1 h-3 w-3" /> Proprietary Methodology
           </Badge>
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4" data-testid="text-framework-heading">
-            MAP-GAP: The Living Operating System
-          </h1>
+          <div className="flex items-center justify-center gap-3 flex-wrap">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold" data-testid="text-framework-heading">
+              MAP-GAP: The Living Operating System
+            </h1>
+            <TrainingGuideButton moduleId="mapgap-framework" />
+          </div>
           <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed mb-6">
             MAP-GAP is the proprietary framework that brings homeostasis to community programs. Domain-agnostic, research-grounded, and built to adapt — it transforms any community challenge into a measurable, replicable intervention through four integrated academic disciplines.
           </p>

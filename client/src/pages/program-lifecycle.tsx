@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { TrainingGuideButton } from "@/components/training-guide";
 import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -756,10 +757,13 @@ export default function ProgramLifecyclePage() {
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6" data-testid="page-program-lifecycle">
       <div>
-        <h1 className="text-2xl font-bold flex items-center gap-2" data-testid="text-page-title">
-          <RefreshCw className="h-6 w-6 text-primary" />
-          Program Lifecycle Pipeline
-        </h1>
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          <h1 className="text-2xl font-bold flex items-center gap-2" data-testid="text-page-title">
+            <RefreshCw className="h-6 w-6 text-primary" />
+            Program Lifecycle Pipeline
+          </h1>
+          <TrainingGuideButton moduleId="program-lifecycle" />
+        </div>
         <p className="text-muted-foreground mt-1" data-testid="text-page-subtitle">
           MAP-GAP-driven lifecycle management across the 20-platform ecosystem. Every stage shows which platforms contribute what — no silos, no black boxes.
         </p>

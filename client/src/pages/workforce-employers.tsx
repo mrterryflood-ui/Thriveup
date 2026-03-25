@@ -13,6 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { TrainingGuideButton } from "@/components/training-guide";
 import {
   Building2,
   Search,
@@ -73,6 +74,7 @@ export default function WorkforceEmployersPage() {
         title="Employer Partners & Job Board"
         description="Connect with barrier-friendly employers and find job opportunities"
         icon={<Building2 className="h-7 w-7" />}
+        actions={<TrainingGuideButton moduleId="workforce-employers" />}
       />
 
       <div className="flex flex-col sm:flex-row gap-3 mb-6">

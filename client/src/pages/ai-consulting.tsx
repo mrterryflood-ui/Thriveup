@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Link } from "wouter";
+import { TrainingGuideButton } from "@/components/training-guide";
 import {
   Brain, Sparkles, Target, CheckCircle2, ArrowRight, Users,
   BarChart3, Shield, Zap, Building2, Globe, Layers, Rocket,
@@ -172,9 +173,12 @@ export default function AIConsultingPage() {
             <Sparkles className="h-3 w-3 mr-1" />
             The Collaborative Advocate — AI Consulting Division
           </Badge>
-          <h1 className="text-4xl md:text-5xl font-bold mb-4" data-testid="text-consulting-title">
-            AI Consulting Services
-          </h1>
+          <div className="flex items-center gap-3 flex-wrap">
+            <h1 className="text-4xl md:text-5xl font-bold" data-testid="text-consulting-title">
+              AI Consulting Services
+            </h1>
+            <TrainingGuideButton moduleId="ai-consulting" />
+          </div>
           <p className="text-xl text-indigo-200 max-w-3xl mb-3">
             Organizations are investing heavily in AI. But they struggle with strategy, implementation, and transformation.
           </p>

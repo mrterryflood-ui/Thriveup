@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { TrainingGuideButton } from "@/components/training-guide";
 
 interface IntelPlatform {
   id: string;
@@ -147,9 +148,12 @@ export default function DirectiveCompliancePage() {
             Tasks requested, due dates, completion status, and non-compliance reasons — all in one view
           </p>
         </div>
-        <Button variant="outline" onClick={() => refetch()} className="gap-2" data-testid="button-refresh-compliance">
-          <RefreshCw className="h-4 w-4" /> Refresh
-        </Button>
+        <div className="flex items-center gap-2">
+          <TrainingGuideButton moduleId="directive-compliance" />
+          <Button variant="outline" onClick={() => refetch()} className="gap-2" data-testid="button-refresh-compliance">
+            <RefreshCw className="h-4 w-4" /> Refresh
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3">

@@ -33,6 +33,7 @@ import {
   Star,
 } from "lucide-react";
 import { Link } from "wouter";
+import { TrainingGuideButton } from "@/components/training-guide";
 
 const PROGRAM_TYPES = [
   "All", "certification", "apprenticeship", "online-certification",
@@ -125,6 +126,7 @@ export default function WorkforceTrainingPage() {
         title="Training Programs & Credentials"
         description="Browse training programs, track enrollments, and earn industry-recognized credentials"
         icon={<GraduationCap className="h-7 w-7" />}
+        actions={<TrainingGuideButton moduleId="workforce-training" />}
       />
 
       {(enrollments || []).length > 0 && (

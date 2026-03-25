@@ -14,6 +14,7 @@ import {
   Lightbulb, Play, Settings, Share2, Workflow, Presentation,
 } from "lucide-react";
 import { ModulePresenter, PresentButton } from "@/components/module-presenter";
+import { TrainingGuideButton } from "@/components/training-guide";
 
 type Difficulty = "beginner" | "intermediate" | "advanced" | "expert";
 
@@ -661,9 +662,12 @@ export default function AIWorkforcePage() {
             <GraduationCap className="h-3 w-3 mr-1" />
             Adult Professional Track &middot; Workforce Development
           </Badge>
-          <h1 className="text-4xl md:text-5xl font-bold mb-4" data-testid="text-workforce-title">
-            AI Workforce Academy
-          </h1>
+          <div className="flex items-center gap-3 flex-wrap">
+            <h1 className="text-4xl md:text-5xl font-bold" data-testid="text-workforce-title">
+              AI Workforce Academy
+            </h1>
+            <TrainingGuideButton moduleId="ai-workforce" />
+          </div>
           <p className="text-xl text-indigo-200 max-w-3xl mb-2">
             Easy to start. Deep to master. Built for the real world.
           </p>

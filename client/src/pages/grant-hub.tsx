@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { TrainingGuideButton } from "@/components/training-guide";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { Card } from "@/components/ui/card";
@@ -436,6 +437,7 @@ export default function GrantHubPage() {
           <p className="text-muted-foreground mt-1">Discover, analyze, and track grant opportunities with AI-powered alignment scoring</p>
         </div>
         <div className="flex flex-wrap gap-2">
+          <TrainingGuideButton moduleId="grant-hub" />
           <Button
             variant="outline"
             onClick={() => refreshMutation.mutate()}

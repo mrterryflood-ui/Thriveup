@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/collapsible";
 import { ErrorRetry } from "@/components/error-retry";
 import { PageHeader } from "@/components/page-header";
+import { TrainingGuideButton } from "@/components/training-guide";
 import {
   Target,
   ChevronRight,
@@ -723,6 +724,7 @@ export default function AcademyPathwayPage() {
           { label: "Academy", href: "/academy" },
           { label: "My Pathway" },
         ]}
+        actions={<TrainingGuideButton moduleId="academy-pathway" />}
       />
       <div
         className="rounded-md bg-gradient-to-r from-rose-900 to-red-700 p-8 mb-8"

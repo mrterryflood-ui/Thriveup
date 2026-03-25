@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PageHeader } from "@/components/page-header";
+import { TrainingGuideButton } from "@/components/training-guide";
 import {
   Heart, Users, Shield, ClipboardCheck, MapPin, Phone,
   Calendar, Activity, ChevronRight, CheckCircle2, AlertTriangle,
@@ -152,6 +153,7 @@ export default function ChwDashboardPage() {
           <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white" data-testid="text-page-title">
             Community Health Worker Dashboard
           </h1>
+          <TrainingGuideButton moduleId="chw-dashboard" />
         </div>
         <p className="text-teal-100 text-base sm:text-lg" data-testid="text-page-subtitle">
           Manage caseloads, track screenings, log home visits, connect to community resources, and build professional skills

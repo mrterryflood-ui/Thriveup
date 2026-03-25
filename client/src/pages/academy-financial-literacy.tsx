@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { PageHeader } from "@/components/page-header";
+import { TrainingGuideButton } from "@/components/training-guide";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -809,6 +810,7 @@ export default function AcademyFinancialLiteracyPage() {
         title="Financial Literacy"
         description="Real-world money skills for future leaders."
         breadcrumbs={[{label:"Academy",href:"/academy"},{label:"Financial Literacy"}]}
+        actions={<TrainingGuideButton moduleId="academy-financial-literacy" />}
       />
       <div
         className="rounded-md bg-gradient-to-r from-rose-900 to-red-950 p-6 sm:p-8 mb-8"

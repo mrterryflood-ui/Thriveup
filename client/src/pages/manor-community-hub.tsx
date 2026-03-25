@@ -16,6 +16,7 @@ import {
   TreePine, Hammer, Truck, ShieldCheck, HandHeart,
 } from "lucide-react";
 import { BackToTop } from "@/components/back-to-top";
+import { TrainingGuideButton } from "@/components/training-guide";
 
 const MANOR_STATS = [
   { icon: Users, label: "Population", value: "16,300+", color: "bg-teal-500", detail: "Fastest-growing corridor in TX" },
@@ -178,7 +179,8 @@ export default function ManorCommunityHubPage() {
         title="Built for Manor"
         description="Right tools. Right community. Right time. 20 platforms adapted for Manor's unique context."
         actions={
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
+            <TrainingGuideButton moduleId="manor-community-hub" />
             <Button variant="outline" size="sm" onClick={() => window.location.href = "/austin"} data-testid="button-austin-link">
               <MapPin className="h-4 w-4 mr-1" /> Austin Hub
             </Button>

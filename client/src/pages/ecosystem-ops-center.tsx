@@ -17,6 +17,7 @@ import {
   CircleDot, Link2, AlertOctagon, Award,
 } from "lucide-react";
 import { BackToTop } from "@/components/back-to-top";
+import { TrainingGuideButton } from "@/components/training-guide";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
@@ -299,6 +300,7 @@ export default function EcosystemOpsCenterPage() {
         description={`Real-time monitoring of all ${liveStatus?.summary.total || ""} platforms — who's online, who's responding, who needs attention.`}
         actions={
           <div className="flex gap-2 items-center flex-wrap">
+            <TrainingGuideButton moduleId="ecosystem-ops-center" />
             <Button
               size="sm"
               onClick={() => wakeUpMutation.mutate(undefined)}

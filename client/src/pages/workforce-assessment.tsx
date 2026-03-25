@@ -38,6 +38,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { Link } from "wouter";
+import { TrainingGuideButton } from "@/components/training-guide";
 
 const WIZARD_STEPS = [
   { key: "skills", label: "Skills Inventory", icon: Star },
@@ -270,6 +271,7 @@ export default function WorkforceAssessmentPage() {
           title="Workforce Assessment"
           description="Your personalized workforce development plan"
           icon={<ClipboardCheck className="h-7 w-7" />}
+          actions={<TrainingGuideButton moduleId="workforce-assessment" />}
         />
 
         <Card className="p-6 mb-6 border-emerald-200 dark:border-emerald-800/50" data-testid="card-completed-assessment">
@@ -373,6 +375,7 @@ export default function WorkforceAssessmentPage() {
         title="Workforce Assessment"
         description="Evaluate your skills, identify barriers, and create a personalized workforce development plan"
         icon={<ClipboardCheck className="h-7 w-7" />}
+        actions={<TrainingGuideButton moduleId="workforce-assessment" />}
       />
 
       <Card className="p-6 mb-6" data-testid="card-assessment-wizard">

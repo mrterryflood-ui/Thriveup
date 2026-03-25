@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { TrainingGuideButton } from "@/components/training-guide";
 import { Link } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -789,10 +790,13 @@ export default function ProgramDesignerPage() {
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-6" data-testid="page-program-designer">
       <div>
-        <h1 className="text-2xl font-bold flex items-center gap-2" data-testid="text-page-title">
-          <Lightbulb className="h-6 w-6 text-primary" />
-          MAP-GAP Program Designer
-        </h1>
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          <h1 className="text-2xl font-bold flex items-center gap-2" data-testid="text-page-title">
+            <Lightbulb className="h-6 w-6 text-primary" />
+            MAP-GAP Program Designer
+          </h1>
+          <TrainingGuideButton moduleId="program-designer" />
+        </div>
         <p className="text-muted-foreground mt-1" data-testid="text-page-subtitle">
           Design community intervention programs using the MAP-GAP framework — problem-first, evidence-based, adapted through the Three Realities.
         </p>

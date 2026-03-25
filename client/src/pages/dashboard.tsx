@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { ErrorRetry } from "@/components/error-retry";
 import { PageHeader } from "@/components/page-header";
+import { TrainingGuideButton } from "@/components/training-guide";
 import { LEVEL_COLORS, getRankForLevel, ALL_RANKS } from "@/lib/curriculum-data";
 import type { StudentProgress, Level, Module, EarnedBadge, Badge as BadgeType } from "@shared/schema";
 
@@ -115,6 +116,7 @@ export default function DashboardPage() {
       <PageHeader
         title={`Welcome back, ${progress.studentName}!`}
         description="ThriveUp Academy — Keep exploring and growing!"
+        actions={<TrainingGuideButton moduleId="dashboard" />}
       />
 
       {isNewUser && (
