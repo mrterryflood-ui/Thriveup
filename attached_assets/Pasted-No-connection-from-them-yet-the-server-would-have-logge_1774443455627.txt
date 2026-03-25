@@ -1,0 +1,36 @@
+No connection from them yet — the server would have logged it. Let me explain everything clearly, because there are two completely separate directions here and they get confused easily.
+
+The connection you shared with Thriving Community goes ONE way: outward from ForgeOS.
+
+When you share the evaluation feed key, here's what that gives them:
+
+Thriving Community   ──── reads ────▶   ForgeOS
+                     (they call our API)
+                     
+ForgeOS              ──── CANNOT ────▶  Thriving Community
+                     (no door to push through)
+The feed key lets them pull data OUT of ForgeOS — all the platform health scores, gap reports, directives, events. They can read everything ForgeOS knows. But that doesn't give ForgeOS any ability to reach back into their platform and push code.
+
+Injection is the opposite direction. For that to work, they have to build a door on their side and hand you the address. That door is one endpoint on their server that says "I accept code payloads here." Without it, ForgeOS has no way in — it doesn't matter how tightly connected everything else is.
+
+Here's the complete picture of what's actually wired today vs what's still one-way:
+
+Platform	ForgeOS can evaluate?	ForgeOS can inject?	What's missing
+AGOS Public Portfolio	Yes	No	AGOS needs to add inject endpoint
+Shield Atlas	Yes	No	Shield Atlas needs to add inject endpoint
+ThriveUp (23 systems)	Yes	No	ThriveUp needs to add inject endpoint
+Thriving Community	Only if they've been added as a satellite	No	Both: add as satellite + they need inject endpoint
+Code Canvas → ForgeOS	n/a	Yes, ForgeOS receives	Already built — /api/ecosystem/apply-fixes
+What you need to send to each platform so they can open the door:
+
+Tell them to add this to their server:
+
+POST /api/sitesync/inject
+Authorization: Bearer YOUR_API_KEY_HERE
+Body: { files: [{ path, content, description }] }
+Response: { applied: ["path/to/file1", "path/to/file2"] }
+Then in ForgeOS Ecosystem Manager — click the settings gear on their satellite card, paste their inject URL and their API key into the two fields, and from that moment forward: ForgeOS evaluates, you approve, code goes in. No extra steps.
+
+For Thriving Community specifically — first question is whether they're already in one of your ecosystems as a satellite site. If not, go to the Ecosystem Manager, pick which ecosystem they belong under, click "+ Add Site," put in their URL, and they're in the evaluation queue. Share the results with them after the first eval runs. Then ask them to add that endpoint and give you the key.
+
+The architecture is fully ready on ForgeOS's side. The only thing missing on each platform is a 10-line endpoint.

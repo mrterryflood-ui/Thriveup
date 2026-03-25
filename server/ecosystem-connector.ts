@@ -1,6 +1,6 @@
 import type { Express, Request, Response } from "express";
 import { db } from "./storage";
-import { ecosystemPlatforms, ecosystemEvents, ecosystemHealthLogs, ecosystemDirectives, ecosystemDirectiveAcks, grantOpportunities } from "@shared/schema";
+import { ecosystemPlatforms, ecosystemEvents, ecosystemHealthLogs, ecosystemDirectives, ecosystemDirectiveAcks, grantOpportunities, inboundFixes } from "@shared/schema";
 import { eq, desc, and, gte, sql, inArray } from "drizzle-orm";
 import crypto from "crypto";
 import { z } from "zod";
@@ -6834,6 +6834,115 @@ if (typeof module !== "undefined") {
     } catch (error) {
       console.error("Evaluation feed error:", error);
       res.status(500).json({ error: "Failed to generate evaluation feed" });
+    }
+  });
+
+  app.post("/api/sitesync/inject", async (req, res) => {
+    try {
+      const apiKey = req.headers["x-ecosystem-key"] || req.query.key;
+      if (!apiKey) {
+        return res.status(401).json({ error: "API key required via x-ecosystem-key header" });
+      }
+      const callingPlatform = await db.select().from(ecosystemPlatforms).where(eq(ecosystemPlatforms.apiKey, apiKey as string)).limit(1);
+      if (callingPlatform.length === 0) {
+        return res.status(403).json({ error: "Invalid API key" });
+      }
+
+      const { source, confidence, summary, files, targetPlatformId } = req.body;
+
+      if (!summary || !files || !Array.isArray(files) || files.length === 0) {
+        return res.status(400).json({ error: "Required: summary (string), files (array of {path, content, action})" });
+      }
+
+      const [fix] = await db.insert(inboundFixes).values({
+        source: source || callingPlatform[0].name,
+        sourcePlatformId: callingPlatform[0].id,
+        targetPlatformId: targetPlatformId || "thriveup-academy",
+        confidence: confidence || 0,
+        summary,
+        files,
+        status: "pending",
+      }).returning();
+
+      console.log(`[SiteSync] Inbound fix received from ${callingPlatform[0].name}: "${summary}" (${files.length} files, ${confidence}% confidence)`);
+
+      await db.insert(ecosystemEvents).values({
+        sourcePlatformId: callingPlatform[0].id,
+        eventType: "inbound_fix",
+        eventData: {
+          fixId: fix.id,
+          summary,
+          fileCount: files.length,
+          confidence,
+        },
+        status: "received",
+      });
+
+      res.json({
+        success: true,
+        fixId: fix.id,
+        message: `Fix queued for review: ${files.length} file(s), ${confidence}% confidence`,
+        status: "pending",
+      });
+    } catch (error) {
+      console.error("[SiteSync] Inject error:", error);
+      res.status(500).json({ error: "Failed to process inbound fix" });
+    }
+  });
+
+  app.get("/api/sitesync/fixes", requireAdminAuth, async (_req, res) => {
+    try {
+      const fixes = await db.select().from(inboundFixes).orderBy(desc(inboundFixes.createdAt));
+      res.json(fixes);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch fixes" });
+    }
+  });
+
+  app.post("/api/sitesync/fixes/:id/approve", requireAdminAuth, async (req, res) => {
+    try {
+      const fixId = parseInt(req.params.id);
+      const userId = (req as any).session?.passport?.user || (req as any).user?.id;
+
+      const [fix] = await db.select().from(inboundFixes).where(eq(inboundFixes.id, fixId));
+      if (!fix) {
+        return res.status(404).json({ error: "Fix not found" });
+      }
+      if (fix.status !== "pending") {
+        return res.status(400).json({ error: `Fix already ${fix.status}` });
+      }
+
+      const [updated] = await db.update(inboundFixes)
+        .set({ status: "approved", reviewedBy: userId?.toString() || "admin", reviewedAt: new Date() })
+        .where(eq(inboundFixes.id, fixId))
+        .returning();
+
+      console.log(`[SiteSync] Fix #${fixId} APPROVED by ${userId || "admin"}: "${fix.summary}"`);
+
+      res.json({ success: true, fix: updated });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to approve fix" });
+    }
+  });
+
+  app.post("/api/sitesync/fixes/:id/reject", requireAdminAuth, async (req, res) => {
+    try {
+      const fixId = parseInt(req.params.id);
+      const userId = (req as any).session?.passport?.user || (req as any).user?.id;
+
+      const [updated] = await db.update(inboundFixes)
+        .set({ status: "rejected", reviewedBy: userId?.toString() || "admin", reviewedAt: new Date() })
+        .where(eq(inboundFixes.id, fixId))
+        .returning();
+
+      if (!updated) {
+        return res.status(404).json({ error: "Fix not found" });
+      }
+
+      console.log(`[SiteSync] Fix #${fixId} REJECTED by ${userId || "admin"}`);
+      res.json({ success: true, fix: updated });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to reject fix" });
     }
   });
 

@@ -3342,6 +3342,25 @@ export type EcosystemEvent = typeof ecosystemEvents.$inferSelect;
 
 export type EcosystemHealthLog = typeof ecosystemHealthLogs.$inferSelect;
 
+export const inboundFixes = pgTable("inbound_fixes", {
+  id: serial("id").primaryKey(),
+  source: text("source").notNull(),
+  sourcePlatformId: text("source_platform_id").notNull(),
+  targetPlatformId: text("target_platform_id").notNull().default("thriveup-academy"),
+  confidence: integer("confidence").notNull().default(0),
+  summary: text("summary").notNull(),
+  files: jsonb("files").notNull().default([]),
+  status: text("status").notNull().default("pending"),
+  reviewedBy: text("reviewed_by"),
+  reviewedAt: timestamp("reviewed_at"),
+  appliedAt: timestamp("applied_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const insertInboundFixSchema = createInsertSchema(inboundFixes).omit({ id: true, createdAt: true, reviewedAt: true, appliedAt: true });
+export type InsertInboundFix = z.infer<typeof insertInboundFixSchema>;
+export type InboundFix = typeof inboundFixes.$inferSelect;
+
 export const ecosystemDirectives = pgTable("ecosystem_directives", {
   id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
   title: text("title").notNull(),
