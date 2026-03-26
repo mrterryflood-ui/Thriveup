@@ -1094,6 +1094,7 @@ export default function LandingPage() {
               <h4 className="font-semibold text-sm mb-3" data-testid="text-footer-resources-heading">Resources</h4>
               <ul className="space-y-2">
                 <li><Link href="/resources" className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-resources">Resource Finder</Link></li>
+                <li><Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-contact">Contact Us</Link></li>
                 <li><Link href="/privacy" className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-privacy">Privacy Policy</Link></li>
                 <li>
                   <a href="mailto:sisnett.meredith@gmail.com" className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5" data-testid="link-footer-email-1">

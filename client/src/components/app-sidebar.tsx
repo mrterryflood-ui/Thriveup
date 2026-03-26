@@ -169,6 +169,8 @@ const aboutItems: NavItem[] = [
   { title: "Business Plan", url: "/business-plan", icon: Briefcase },
   { title: "Pricing & Services", url: "/pricing", icon: DollarSign },
   { title: "AI Consulting", url: "/ai-consulting", icon: Brain },
+  { title: "Contact Us", url: "/contact", icon: Mail },
+  { title: "Privacy Policy", url: "/privacy", icon: Shield },
 ];
 
 const preventionItems: NavItem[] = [
@@ -190,6 +192,7 @@ const researchItems: NavItem[] = [
   { title: "RPLICE Toolkit", url: "/rplice-tools", icon: Microscope },
   { title: "Research Hub", url: "/research-hub", icon: Microscope },
   { title: "Case Studies", url: "/case-studies", icon: BookOpen },
+  { title: "Peer Review", url: "/peer-review", icon: Users },
   { title: "Implementation Plan", url: "/implementation", icon: ClipboardList },
 ];
 

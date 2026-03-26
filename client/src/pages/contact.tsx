@@ -18,7 +18,7 @@ import {
   Mail, Phone, MapPin, GraduationCap, Shield, Award, BookOpen,
   CheckCircle2, Clock, Send, Building2, Users,
 } from "lucide-react";
-import type { ContactInquiry } from "@shared/schema";
+import type { ContactInquiry, AcademyAvatar } from "@shared/schema";
 
 const contactFormSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -333,6 +333,12 @@ function AdminInquiriesPanel() {
 
 export default function ContactPage() {
   const { isAuthenticated } = useAuth();
+  const { data: avatarData } = useQuery<AcademyAvatar>({
+    queryKey: ["/api/academy/avatar"],
+    enabled: isAuthenticated,
+  });
+  const userRole = avatarData?.role || "student";
+  const isAdmin = userRole === "admin" || userRole === "teacher" || userRole === "case_manager";
 
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-6">
@@ -373,7 +379,7 @@ export default function ContactPage() {
         </div>
       </div>
 
-      {isAuthenticated && <AdminInquiriesPanel />}
+      {isAuthenticated && isAdmin && <AdminInquiriesPanel />}
     </div>
   );
 }
