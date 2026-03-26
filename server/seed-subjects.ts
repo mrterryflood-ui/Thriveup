@@ -1258,3 +1258,30 @@ AI capabilities are advancing rapidly. Models in 2026 are significantly more cap
     { id: "professional_presence", name: "Professional Presence", description: "Complete the Professional Presence module", category: "skill", levelRequirement: 4, rarity: "uncommon" },
   ]);
 }
+
+export async function seedSubjects(db: any): Promise<void> {
+  await db.insert(subjects).values([
+    { id: "ela_3_5", name: "ELA & Writing", description: "Reading comprehension strategies, paragraph writing, and vocabulary adventures", gradeBand: "3-5", theme: "The Writer's Workshop", color: "rose", iconName: "BookOpen", sortOrder: 1 },
+    { id: "ela_6_8", name: "ELA & Literature", description: "Literary analysis, essay writing, persuasive communication, and public speaking", gradeBand: "6-8", theme: "The Literary Guild", color: "rose", iconName: "BookOpen", sortOrder: 2 },
+    { id: "ela_9_12", name: "ELA & Rhetoric", description: "Critical analysis, research writing, rhetoric, and advanced literary interpretation", gradeBand: "9-12", theme: "The Scholar's Forum", color: "rose", iconName: "BookOpen", sortOrder: 3 },
+    { id: "math_3_5", name: "Math Adventurers", description: "Multiplication, division, fractions, and geometry through problem-solving quests", gradeBand: "3-5", theme: "The Problem-Solving Quest", color: "blue", iconName: "Calculator", sortOrder: 4 },
+    { id: "math_6_8", name: "Math Pathfinders", description: "Pre-algebra, ratios, statistics, and mathematical reasoning", gradeBand: "6-8", theme: "The Logic Lab", color: "blue", iconName: "Calculator", sortOrder: 5 },
+    { id: "math_9_12", name: "Math Mastery", description: "Algebra, geometry proofs, statistics, and real-world mathematical modeling", gradeBand: "9-12", theme: "The Analytics Studio", color: "blue", iconName: "Calculator", sortOrder: 6 },
+    { id: "science_3_5", name: "Science Investigators", description: "Ecosystems, matter and energy, earth science, and the scientific method", gradeBand: "3-5", theme: "The Investigation Station", color: "emerald", iconName: "Microscope", sortOrder: 7 },
+    { id: "science_6_8", name: "Science Scholars", description: "Biology, chemistry basics, physics concepts, and experimental design", gradeBand: "6-8", theme: "The Research Center", color: "emerald", iconName: "Microscope", sortOrder: 8 },
+    { id: "science_9_12", name: "Science Innovators", description: "Advanced biology, chemistry, physics, and scientific research methodology", gradeBand: "9-12", theme: "The Innovation Lab", color: "emerald", iconName: "Microscope", sortOrder: 9 },
+    { id: "social_3_5", name: "History & Geography", description: "American history, world cultures, geography, and civic responsibility", gradeBand: "3-5", theme: "The Time Travelers", color: "amber", iconName: "Globe", sortOrder: 10 },
+    { id: "social_6_8", name: "Civics & Culture", description: "Government, economics, world history, and understanding diverse perspectives", gradeBand: "6-8", theme: "The Global Forum", color: "amber", iconName: "Globe", sortOrder: 11 },
+    { id: "social_9_12", name: "Society & Government", description: "Political science, economics, sociology, and civic engagement", gradeBand: "9-12", theme: "The Leadership Council", color: "amber", iconName: "Globe", sortOrder: 12 },
+    { id: "sel_3_5", name: "Social Skills Builder", description: "Emotional intelligence, conflict resolution, teamwork, and growth mindset", gradeBand: "3-5", theme: "The Teamwork Tower", color: "pink", iconName: "Heart", sortOrder: 13 },
+    { id: "sel_6_8", name: "Emotional Intelligence", description: "Self-awareness, stress management, healthy relationships, and identity exploration", gradeBand: "6-8", theme: "The Inner Compass", color: "pink", iconName: "Heart", sortOrder: 14 },
+    { id: "sel_9_12", name: "Life Skills & Leadership", description: "Mental health awareness, communication, leadership, and planning for the future", gradeBand: "9-12", theme: "The Leadership Journey", color: "pink", iconName: "Heart", sortOrder: 15 },
+    { id: "wellness_3_5", name: "Wellness Warriors", description: "Nutrition science, fitness goals, sleep hygiene, and stress management", gradeBand: "3-5", theme: "The Wellness Quest", color: "teal", iconName: "Salad", sortOrder: 16 },
+    { id: "wellness_6_8", name: "Health & Wellness", description: "Adolescent health, mental wellness, digital wellness, and healthy habits", gradeBand: "6-8", theme: "The Wellness Lab", color: "teal", iconName: "Salad", sortOrder: 17 },
+    { id: "wellness_9_12", name: "Holistic Health", description: "Comprehensive wellness planning, mental health, nutrition, and lifelong fitness", gradeBand: "9-12", theme: "The Wellness Blueprint", color: "teal", iconName: "Salad", sortOrder: 18 },
+    { id: "ai_6_8", name: "AI Foundations", description: "Understanding AI concepts, exploring AI tools, learning to prompt effectively, evaluating AI outputs, and using AI responsibly", gradeBand: "6-8", theme: "The AI Navigator", color: "violet", iconName: "Cpu", sortOrder: 21 },
+    { id: "ai_9_12", name: "AI Mastery", description: "Advanced AI principles, real-world AI applications, prompt engineering, critical evaluation of AI outputs, and responsible AI leadership", gradeBand: "9-12", theme: "The AI Command Center", color: "violet", iconName: "Cpu", sortOrder: 22 },
+  ]);
+
+  await seedModulesAndLessons(db);
+}
