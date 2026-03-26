@@ -708,7 +708,7 @@ const ECOSYSTEM_PLATFORMS = [
   {
     id: "sankofa-feminine-health",
     name: "Holistic Black Feminine Health Hub",
-    url: "https://holistic-black-feminine-health-hub.replit.app",
+    url: "https://yourfeminineneeds.com",
     role: "feminine-health",
     domain: "health-equity",
     description: "Comprehensive OB/GYN health platform for Black women — reproductive health education, hormonal wellness tracking, preventive screening scheduling, cervical/breast cancer awareness, menopause management, community support groups, and culturally responsive provider matching. Integrates with Black Maternal Health Network for pregnancy pathways, SafeCogniCare for peripartum cognitive assessment, and Whole-Person Health for crisis escalation. Produces population-specific health outcome data addressing the 3x maternal mortality gap in Black communities.",
@@ -728,7 +728,7 @@ const ECOSYSTEM_PLATFORMS = [
   {
     id: "sankofa-maternal-health",
     name: "Black Maternal Health Network",
-    url: "https://black-maternal-health-network.replit.app",
+    url: "https://yourhealthbirthright.net",
     role: "maternal-health",
     domain: "health-equity",
     description: "Directly addressing the Black maternal mortality crisis with evidence-based interventions — comprehensive prenatal/postnatal care navigation, certified doula matching and coordination, maternal risk assessment using validated instruments, community health worker dispatch, maternal mental health screening (EPDS, PHQ-9 peripartum), breastfeeding support, and postpartum recovery planning. Integrates with Whole-Person Health for crisis escalation, Feminine Health Hub for reproductive pathways, SafeCogniCare for peripartum cognitive changes, and LifeBridge for social determinant interventions (housing, food, transportation) that drive maternal outcomes.",
@@ -748,7 +748,7 @@ const ECOSYSTEM_PLATFORMS = [
   {
     id: "sankofa-mens-health",
     name: "Black Men's Health Hub",
-    url: "https://black-men-health.replit.app",
+    url: "https://thehealthyblkman.com",
     role: "mens-health",
     domain: "health-equity",
     description: "Comprehensive health platform for Black men addressing chronic disease disparities and mental health stigma — prostate cancer screening navigation, cardiovascular risk assessment (Framingham-adapted), diabetes prevention, mental health stigma reduction campaigns, substance use screening (AUDIT-C, DAST-10), peer mentor matching, and preventive care scheduling. Integrates with M2C Transition for veteran men's health pathways, Whole-Person Health for crisis routing, and LifeBridge for social determinant interventions. Targets the 5-year life expectancy gap for Black men through culturally responsive engagement.",
@@ -768,7 +768,7 @@ const ECOSYSTEM_PLATFORMS = [
   {
     id: "shield-atlas",
     name: "Shield Atlas",
-    url: "https://shield-atlas.replit.app",
+    url: "https://shieldatlas.net",
     role: "risk-intelligence",
     domain: "compliance",
     description: "Risk intelligence and threat assessment platform providing geographic risk mapping, multi-factor safety analytics, protective factor identification, and community resilience scoring. Ingests incident data from SafeReport, crisis events from Whole-Person Health, and community health data from LifeBridge to produce real-time risk heat maps and predictive safety models. Generates risk scores that inform resource deployment, crisis response routing, and grant compliance reporting for safety-focused programs. API-accessible risk assessments enable all 22 sibling platforms to make location-aware safety decisions.",
@@ -787,7 +787,7 @@ const ECOSYSTEM_PLATFORMS = [
   {
     id: "wholemind",
     name: "WholeMind Learning",
-    url: "https://life-pals-standalone.replit.app",
+    url: "https://wholemindlearning.com",
     role: "k12-education",
     domain: "education",
     description: "Free, visual-first Pre-K to 12th grade learning platform covering Math, Reading, Science, English, and Social Studies with adaptive difficulty levels. Silent accessibility mode for students with sensory needs, AI-powered homework help with step-by-step explanations, parent-friendly progress tracking dashboard, and gamified engagement system. Integrates with ISSS for student support coordination, Perfectly Different for neurodiversity accommodations, and Better Science Lab for evidence-based pedagogy. Produces learning outcome data (grade progression, skill mastery, engagement rates) for WIOA youth workforce readiness and foundation education grants.",
@@ -944,7 +944,7 @@ const ECOSYSTEM_PLATFORMS = [
   {
     id: "pillscheduler",
     name: "PillScheduler",
-    url: "https://pillscheduler--mrterryflood.replit.app",
+    url: "https://pillscheduler.net",
     role: "medication-management",
     domain: "health-equity",
     description: "Comprehensive medication management platform for individuals managing complex multi-drug regimens — intelligent pill reminders with adaptive scheduling, dosage tracking with missed-dose protocols, FDA drug interaction database with real-time warnings, care team coordination for medication changes, automated refill alerts with pharmacy integration, medication adherence scoring with intervention triggers, and cognitive-capacity-aware interface that adapts complexity based on SafeCogniCare assessment data. Critical for chronic disease populations (autoimmune, cardiovascular, mental health), elderly patients, and veterans on VA prescriptions. Integrates with Autoimmune Center of Excellence for disease-specific medication protocols, SafeCogniCare for cognitive capacity matching, and Whole-Person Health for crisis routing on dangerous interactions.",
@@ -963,7 +963,7 @@ const ECOSYSTEM_PLATFORMS = [
   {
     id: "collaborative-advocate",
     name: "The Collaborative Advocate",
-    url: "https://the-colaberitive-advocate--mrterryflood.replit.app",
+    url: "https://thrivingcommunitiesforall.com",
     role: "vosb-services",
     domain: "veteran-services",
     description: "The organizational entity — 501(c)(3) nonprofit, veteran-founded, Black-led Veteran-Owned Small Business (VOSB) serving as the service delivery arm and grant execution partner for the entire ThriveUp ecosystem. Founded by Dr. Terry Flood. Provides veteran advocacy with lived-experience credibility, peer support coordination matching veterans to trained peers, workforce development consulting for employers hiring veterans, and direct grant execution management for WIOA ($200K-$500K), SSG Fox VA ($750K), St. David's (up to $1M), and Foundation ($100K-$500K) grants. The organizational backbone that gives the ecosystem its 501(c)(3) fiscal sponsorship, DUNS/SAM.gov registration, and grant eligibility.",
@@ -981,7 +981,7 @@ const ECOSYSTEM_PLATFORMS = [
   {
     id: "video-creator-ai",
     name: "Video Creator AI",
-    url: "https://video-creator-ai-mrterryflood.replit.app",
+    url: "https://videocreatorai.com",
     role: "content-production",
     domain: "marketing-content",
     description: "AI-powered content production engine serving the entire 23-platform ecosystem — produces promotional videos, grant presentation decks, training content, marketing materials, platform showcase videos, and holistic ecosystem overview content. Receives authoritative platform identity profiles to ensure accurate representation. Generates content for grant applications (SSG Fox, WIOA, St. David's), conference presentations, stakeholder briefings, and community outreach. Each platform gets a professional public face through consistent branding and messaging. Integrates with Ad Targeting for campaign-ready assets and all platforms for content source material.",
@@ -1000,7 +1000,7 @@ const ECOSYSTEM_PLATFORMS = [
   {
     id: "ecosystem-nexus",
     name: "Ecosystem Nexus",
-    url: "https://ecosystem-nexus.replit.app",
+    url: "https://ecosystemnexus.net",
     role: "ecosystem-coordination",
     domain: "operations",
     description: "Central coordination and operational intelligence hub for the entire ThriveUp Academy ecosystem — primary co-captain platform providing cross-platform visibility, real-time health monitoring, directive management and enforcement, platform analytics dashboard, and ecosystem-wide operational intelligence. Manages the triad system (team-of-teams architecture), coordinates bilateral exchange protocols, runs self-diagnostic health checks, and provides the operational backbone for the ACOS architecture. If the Whole-Person Health hub goes down, Ecosystem Nexus assumes command authority. Produces operational efficiency data for grant compliance and organizational governance reporting.",
@@ -1019,7 +1019,7 @@ const ECOSYSTEM_PLATFORMS = [
   {
     id: "ad-targeting",
     name: "Advertising Targeting for Platforms",
-    url: "https://advertising-targeting-for-platforms.replit.app",
+    url: "https://adtargetingplatforms.com",
     role: "ad-intelligence",
     domain: "marketing-content",
     description: "Advertising intelligence and community outreach platform enabling data-driven targeting to reach underserved populations with relevant services and grant-funded programs. Advanced audience segmentation based on demographic, geographic, and needs-based data; campaign optimization with A/B testing; performance analytics with conversion tracking; and cross-platform ad delivery coordinating outreach across all 22 sibling platforms. Ensures grant-funded programs reach their intended beneficiaries — veteran families, Black maternal health populations, minority business owners, neurodivergent individuals, and youth at risk. Integrates with Video Creator AI for campaign-ready assets and all platforms for service offering data.",
@@ -1038,7 +1038,7 @@ const ECOSYSTEM_PLATFORMS = [
   {
     id: "pinnacle-business-conglomerate",
     name: "Pinnacle Business Conglomerate",
-    url: "https://pinnacle-business-conglomerate.replit.app",
+    url: "https://pinnaclebusinessconglomerate.com",
     role: "contractor-enablement",
     domain: "workforce-contracting",
     description: "Full-service consulting conglomerate providing cradle-to-grave contractor enablement for minority and veteran-owned businesses. Business diagnostics with MAP-GAP methodology, certification alignment for 8(a)/HUBZone/SDVOSB/WOSB, contract intelligence from SAM.gov pipeline, bid strategy development, teaming partner matching, dual-AI proposal development, execution management with milestone tracking, grant readiness assessment, workforce development pipeline, and international expansion guidance. Serves NAMC Austin and USHCC Blue Wave Initiative as primary institutional clients. Implements the RPLICE Decision Framework for all client engagements. Integrates with MCE for business data, M2C for veteran entrepreneurs, and Better Science Lab for evidence-based business methodology.",
@@ -1059,7 +1059,7 @@ const ECOSYSTEM_PLATFORMS = [
   {
     id: "speech-bridge",
     name: "LexiBridge (Speech Bridge)",
-    url: "https://speech-bridge-mrterryflood.replit.app",
+    url: "https://lexibridge.net",
     role: "communication-accessibility",
     domain: "health-equity",
     description: "Dialect-aware, inclusive communication platform that bridges language and communication gaps for underserved populations. Advanced dialect recognition covering AAVE, Spanglish, Cajun, Appalachian, and 12+ regional dialects; real-time speech-to-text with accessibility features for hearing impairment; multi-language translation (English/Spanish/Vietnamese/Mandarin/Arabic); culturally responsive communication training for providers; patient communication support ensuring health literacy; and inclusive language tools that adapt clinical terminology to community-accessible language. Critical accessibility layer ensuring every platform in the ecosystem can serve populations regardless of language or communication barriers. Integrates with all health platforms for clinical communication, ISSS for school communication, and M2C for veteran communication support.",
@@ -1078,7 +1078,7 @@ const ECOSYSTEM_PLATFORMS = [
   {
     id: "autoimmune-thrive",
     name: "Autoimmune Center of Excellence",
-    url: "https://autoimmune-thrive.replit.app",
+    url: "https://autoimmunethrive.com",
     role: "chronic-disease-management",
     domain: "health-equity",
     description: "Personal health companion for autoimmune disease management built by a founder with autoimmune disease — delivering authentic, lived-experience-informed longitudinal health outcome data. Daily symptom check-ins with trend analysis, flare tracking with trigger identification, medication management with PillScheduler integration, 80+ autoimmune condition database with evidence-based guides, AI health companion providing personalized coaching, appointment prep with provider communication templates, community support with peer matching, and goal setting with progress visualization. PWA mobile app ensures daily engagement. Produces real longitudinal health outcome data (symptom trends, flare frequency, medication adherence, quality of life scores) that no other platform in the ecosystem can generate — this is the chronic disease data engine.",
@@ -1097,7 +1097,7 @@ const ECOSYSTEM_PLATFORMS = [
   {
     id: "code-canvas",
     name: "Code Canvas — System Evaluator & Optimizer",
-    url: "https://code-canvas-mrterryflood.replit.app",
+    url: "https://codecanvaseval.com",
     role: "evaluator",
     domain: "system-optimization",
     description: "Independent evaluation and optimization engine for ecosystems and platforms. Performs autonomous code audits, architecture analysis, performance profiling, and delivers actionable fixes and recommendations. Evaluates each platform against best practices, identifies gaps, and upon approval implements improvements to make all systems work better together. Designed as the quality assurance backbone for interconnected platform ecosystems. Also available as a System-as-a-Service (SaaS) subscription for external organizations to audit and optimize their own technology ecosystems.",
@@ -4170,7 +4170,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
                 forIndividuals: ["Personal safety awareness by location", "Community risk visibility", "Emergency preparedness planning"],
                 forCompanies: ["Corporate safety assessments", "Site risk analysis", "Employee safety planning", "Insurance risk documentation"],
                 forGovernment: ["City emergency operations centers", "County risk assessments", "Community resilience planning", "Disaster preparedness mapping", "First responder resource allocation"],
-                url: "https://shield-atlas.replit.app",
+                url: "https://shieldatlas.net",
               },
               {
                 name: "SafeReport",
@@ -4208,7 +4208,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
                 forIndividuals: ["Find a doula", "Prenatal/postnatal care navigation", "Maternal mental health support", "Birth plan development"],
                 forCompanies: ["Corporate maternal health benefits", "Doula benefit programs", "Maternal health training for staff"],
                 forGovernment: ["Hospital maternal health programs", "Doula training organizations", "State maternal mortality review committees"],
-                url: "https://black-maternal-health-network.replit.app",
+                url: "https://yourhealthbirthright.net",
               },
               {
                 name: "Holistic Black Feminine Health Hub",
@@ -4216,7 +4216,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
                 forIndividuals: ["Reproductive health education", "Hormonal wellness tracking", "Preventive screening guidance"],
                 forCompanies: ["Women's health benefits consulting", "Culturally responsive health program design"],
                 forGovernment: ["Women's health clinics", "Reproductive health organizations", "Community health programs"],
-                url: "https://holistic-black-feminine-health-hub.replit.app",
+                url: "https://yourfeminineneeds.com",
               },
               {
                 name: "Black Men's Health Hub",
@@ -4224,7 +4224,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
                 forIndividuals: ["Personal health risk assessments", "Peer support community", "Mental health stigma-free resources"],
                 forCompanies: ["Men's health workplace programs", "Peer support network development"],
                 forGovernment: ["Men's health initiatives", "Barbershop health programs", "VA health integration"],
-                url: "https://black-men-health.replit.app",
+                url: "https://thehealthyblkman.com",
               },
               {
                 name: "SafeCogniCare",
@@ -4248,7 +4248,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
                 forIndividuals: ["Daily symptom tracking", "Flare prediction and management", "AI health companion for 80+ conditions", "Appointment prep tools"],
                 forCompanies: ["Chronic disease management benefits", "Employee health outcome tracking", "Workplace accommodation guidance"],
                 forGovernment: ["Rheumatology clinics", "Autoimmune research", "Patient advocacy organizations", "Clinical outcome tracking"],
-                url: "https://autoimmune-thrive.replit.app",
+                url: "https://autoimmunethrive.com",
               },
             ],
           },
@@ -4270,7 +4270,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
                 forIndividuals: ["Veteran peer mentorship", "Benefits advocacy", "Career coaching"],
                 forCompanies: ["VOSB partnership programs", "Veteran employee resource groups", "Peer support program development"],
                 forGovernment: ["Veteran business incubators", "Peer support programs", "VOSB contracting support"],
-                url: "https://the-colaberitive-advocate--mrterryflood.replit.app",
+                url: "https://thrivingcommunitiesforall.com",
               },
             ],
           },
@@ -4300,7 +4300,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
                 forIndividuals: ["Solo contractor readiness", "Business gap analysis", "Certification guidance", "First bid support"],
                 forCompanies: ["Corporate contractor development", "Supply chain diversity programs", "Vendor readiness assessments", "Teaming strategy"],
                 forGovernment: ["Contractor readiness programs", "NAMC chapters", "USHCC affiliates", "Trade associations"],
-                url: "https://pinnacle-business-conglomerate.replit.app",
+                url: "https://pinnaclebusinessconglomerate.com",
               },
             ],
           },
@@ -4322,7 +4322,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
                 forIndividuals: ["Free K-12 learning for your kids", "AI homework help", "Parent progress dashboard", "Homeschool curriculum support"],
                 forCompanies: ["Employee family education benefits", "Corporate education sponsorship", "After-school program content"],
                 forGovernment: ["Title I schools", "Homeschool cooperatives", "Tutoring programs", "Summer enrichment"],
-                url: "https://life-pals-standalone.replit.app",
+                url: "https://wholemindlearning.com",
               },
               {
                 name: "Perfectly Different",
@@ -4358,7 +4358,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
                 forIndividuals: ["Communication support across dialects", "Language translation", "Patient advocacy communication"],
                 forCompanies: ["Multilingual customer service", "Diverse workforce communication", "Culturally responsive client interaction"],
                 forGovernment: ["Healthcare interpretation services", "Court systems", "Social service intake", "Multilingual schools"],
-                url: "https://speech-bridge-mrterryflood.replit.app",
+                url: "https://lexibridge.net",
               },
             ],
           },
@@ -4386,7 +4386,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
                 forIndividuals: ["Personal brand videos", "Resume video creation", "Social media content", "Portfolio presentations"],
                 forCompanies: ["Corporate video production", "Training content at scale", "Marketing campaigns", "Investor presentations"],
                 forGovernment: ["Municipal communications offices", "Nonprofit fundraising", "Training departments", "Community engagement campaigns"],
-                url: "https://video-creator-ai-mrterryflood.replit.app",
+                url: "https://videocreatorai.com",
               },
               {
                 name: "Advertising Targeting for Platforms",
@@ -4394,7 +4394,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
                 forIndividuals: ["Personal brand amplification", "Small business ad support"],
                 forCompanies: ["B2B/B2C ad campaign management", "Market segmentation", "Performance-driven advertising"],
                 forGovernment: ["Public health campaigns", "Workforce program enrollment", "Community awareness initiatives"],
-                url: "https://advertising-targeting-for-platforms.replit.app",
+                url: "https://adtargetingplatforms.com",
               },
             ],
           },
@@ -4408,7 +4408,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
                 forIndividuals: ["Track your engagement across multiple services"],
                 forCompanies: ["Multi-location service monitoring", "Franchise operations visibility", "Supply chain coordination"],
                 forGovernment: ["Multi-agency coordination", "Network management", "Collective impact initiatives", "Cross-sector collaboration"],
-                url: "https://ecosystem-nexus.replit.app",
+                url: "https://ecosystemnexus.net",
               },
             ],
           },

@@ -123,7 +123,7 @@ const ECOSYSTEM_APPS: EcosystemApp[] = [
     id: "wholemind",
     name: "WholeMind Learning",
     tagline: "Visual-First Pre-K to 12th Grade Education",
-    url: "https://life-pals-standalone.replit.app",
+    url: "https://wholemindlearning.com",
     icon: BookOpen,
     color: "text-blue-600 dark:text-blue-400",
     bgColor: "bg-blue-50 dark:bg-blue-950/30",

@@ -17,7 +17,7 @@ import {
   GraduationCap,
 } from "lucide-react";
 
-const SUPPORT_PORTAL_URL = "https://student-support-portal--mrterryflood.replit.app";
+const SUPPORT_PORTAL_URL = "https://thrivingcommunitiesforall.com/support";
 
 const apiEndpoints = [
   { method: "GET", path: "/api/external/health", description: "Health check & endpoint listing" },
