@@ -880,6 +880,34 @@ export default function AIWorkforcePage() {
                 <div className="text-xs text-muted-foreground">In-Person + Online</div>
               </Card>
             </div>
+
+            <Card className="p-6 mt-6 border-primary/20" data-testid="grant-alignment-section">
+              <div className="flex items-center gap-2 mb-4">
+                <FileText className="h-5 w-5 text-primary" />
+                <h3 className="font-bold text-lg">Grant & Standards Alignment</h3>
+              </div>
+              <p className="text-sm text-muted-foreground mb-4">
+                All AI workforce training tracks are designed to align with active grant requirements and state educational standards. Program outcomes map directly to funder evaluation criteria.
+              </p>
+              <div className="grid sm:grid-cols-2 gap-4">
+                {[
+                  { funder: "TWC Skills Development Fund", alignment: "Employer-driven AI upskilling for incumbent workers and job seekers, measurable credential attainment, industry-recognized certifications", standard: "RFA 32026-00162" },
+                  { funder: "WIOA Title I Youth & Adult", alignment: "AI literacy as workforce preparation, occupational skills training in high-demand technology sector, work-based learning components", standard: "29 USC §3164" },
+                  { funder: "St. David's Foundation", alignment: "Community health worker AI tools training, health equity data analysis, technology access for underserved populations in Central Texas", standard: "Health Equity Priority" },
+                  { funder: "SSG Fox VA Grant", alignment: "Veteran transition to technology careers, AI skills for military-to-civilian workforce pipeline, employer partnership placement", standard: "VA Employment" },
+                  { funder: "TEKS CTE Standards", alignment: "AI Literacy content areas (Understand, Explore, Direct, Evaluate, Responsible Use) mapped to §127.15 employability skills and CTE Strands 1-7", standard: "19 TAC §127.15" },
+                  { funder: "Rare Impact Fund", alignment: "Youth AI education addressing digital divide, culturally responsive technology instruction, community-centered innovation for underrepresented populations", standard: "LOI Stage" },
+                ].map((item, i) => (
+                  <div key={i} className="border rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-semibold text-sm">{item.funder}</h4>
+                      <Badge variant="outline" className="text-xs">{item.standard}</Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground">{item.alignment}</p>
+                  </div>
+                ))}
+              </div>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>

@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  BookOpen, Calculator, Microscope, Globe, Heart, Salad, Briefcase,
+  BookOpen, Calculator, Microscope, Globe, Heart, Salad, Briefcase, Cpu,
   ChevronRight, Sparkles, GraduationCap, Clock, Target
 } from "lucide-react";
 import { ErrorRetry } from "@/components/error-retry";
@@ -27,7 +27,7 @@ const GRADE_BAND_DESCRIPTIONS: Record<string, string> = {
 };
 
 const SUBJECT_ICONS: Record<string, typeof BookOpen> = {
-  BookOpen, Calculator, Microscope, Globe, Heart, Salad, Briefcase,
+  BookOpen, Calculator, Microscope, Globe, Heart, Salad, Briefcase, Cpu,
 };
 
 const SUBJECT_COLORS: Record<string, { bg: string; gradient: string }> = {

@@ -1261,6 +1261,22 @@ export class DatabaseStorage implements IStorage {
     const existingSubjects = await db.select().from(subjects).limit(1);
     if (existingSubjects.length === 0) {
       await seedSubjects(db);
+    } else {
+      const aiSubjects = await db.select().from(subjects).where(eq(subjects.id, "ai_6_8")).limit(1);
+      if (aiSubjects.length === 0) {
+        const { seedAILiteracyContent } = await import("./seed-ai-literacy");
+        await seedAILiteracyContent(db);
+      }
+      const aiLessonCount = await db.select().from(lessons).where(eq(lessons.moduleId, "ai_68_understand"));
+      if (aiLessonCount.length < 3) {
+        const { seedAILiteracyFullLessons } = await import("./seed-ai-lessons-full");
+        await seedAILiteracyFullLessons(db);
+      }
+      const wrLessonCount = await db.select().from(lessons).where(eq(lessons.moduleId, "wr_professional_presence"));
+      if (wrLessonCount.length < 1) {
+        const { seedWorkforceLessons } = await import("./seed-workforce-lessons");
+        await seedWorkforceLessons(db);
+      }
     }
 
     const existingLessons = await db.select().from(lessons);

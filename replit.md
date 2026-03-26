@@ -50,6 +50,8 @@ Core architectural features and design decisions include:
 - **Capability Orchestration Map:** Maps all 23 platforms to lead/support/validate roles for coordinated execution.
 - **Capability Portfolio (Pay-for-Play):** Public endpoint for sales, showcasing platforms organized into 10 service domains with package types.
 - **TEKS §127.15 CTE Employability Skills Alignment:** Full alignment map and API endpoint for structured JSON alignment data, offering a verifiable Workforce Readiness Certificate.
+- **Full Curriculum Library:** 60 deep, real lessons across all subjects — AI Literacy (30 lessons across 10 modules in grades 6-8 and 9-12), Workforce Readiness (21 lessons across 7 modules in grades 6-8 and 9-12), and Social-Emotional Learning (9 lessons across 3 modules in grades 3-5, 6-8, and 9-12). Each lesson includes multi-thousand-word instruction, interactive activities, and grant-aligned content. No placeholders.
+- **Conditional Seed Architecture:** Storage.ts uses targeted conditional seeds (seed-ai-literacy.ts, seed-ai-lessons-full.ts, seed-workforce-lessons.ts) that only run when content is absent, preventing duplicate data while ensuring all content is present.
 
 ## External Dependencies
 - **Database:** PostgreSQL (Neon-backed)
