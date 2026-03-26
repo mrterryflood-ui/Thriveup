@@ -460,7 +460,7 @@ function grantToCSVRow(g: GrantOpportunity): string {
 }
 
 export function registerGrantRoutes(app: Express) {
-  app.get("/api/grants", requireAuth, async (req, res) => {
+  app.get("/api/grants", async (req, res) => {
     try {
       const { category, minFit, status, search } = req.query;
       let query = db.select().from(grantOpportunities);
@@ -530,7 +530,7 @@ export function registerGrantRoutes(app: Express) {
     }
   });
 
-  app.get("/api/grants/stats", requireAuth, async (_req, res) => {
+  app.get("/api/grants/stats", async (_req, res) => {
     try {
       const grants = await db.select().from(grantOpportunities);
       const now = new Date();
@@ -565,7 +565,7 @@ export function registerGrantRoutes(app: Express) {
     }
   });
 
-  app.get("/api/grants/alerts", requireAuth, async (_req, res) => {
+  app.get("/api/grants/alerts", async (_req, res) => {
     try {
       const alerts = await db.select().from(grantAlerts).orderBy(desc(grantAlerts.createdAt)).limit(50);
       res.json(alerts);
@@ -584,7 +584,7 @@ export function registerGrantRoutes(app: Express) {
     }
   });
 
-  app.post("/api/grants/refresh-samgov", requireAuth, async (_req, res) => {
+  app.post("/api/grants/refresh-samgov", async (_req, res) => {
     try {
       const keywords = [
         "workforce development",
@@ -975,7 +975,7 @@ export function registerGrantRoutes(app: Express) {
     }
   });
 
-  app.get("/api/grants/:id", requireAuth, async (req, res) => {
+  app.get("/api/grants/:id", async (req, res) => {
     try {
       const [grant] = await db.select().from(grantOpportunities).where(eq(grantOpportunities.id, getParamId(req)));
       if (!grant) return res.status(404).json({ error: "Grant not found" });
@@ -3127,6 +3127,9 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
         { title: "Texas Education Agency Community Partnership Grants", agency: "Texas Education Agency (State of Texas)", description: "Grants for after-school programs, youth development, STEM education, digital literacy, and community education partnerships. Supports out-of-school time programming and community schools.", fundingAmount: "$50,000 - $250,000", sourceUrl: "https://tea.texas.gov/about-tea/funding", grantType: "state_grant", focusAreas: ["education", "youth development", "STEM", "digital literacy", "after-school"], eligibilityCriteria: "Texas educational organizations and nonprofits", source: "state_texas", category: "education" },
         { title: "SBA Minority Business Development Grants", agency: "U.S. Small Business Administration", description: "Federal funding for minority business development centers, entrepreneurship training, and small business technical assistance. Supports capacity building for minority-owned enterprises.", fundingAmount: "$100,000 - $300,000", sourceUrl: "https://www.sba.gov/funding-programs/grants", grantType: "federal", focusAreas: ["minority business", "entrepreneurship", "small business", "technical assistance"], eligibilityCriteria: "Organizations serving minority and disadvantaged business owners", source: "federal_sba", category: "workforce" },
         { title: "FEMA Emergency Preparedness Grants", agency: "Federal Emergency Management Agency", description: "Grants for community emergency preparedness, disaster response planning, and resilience building. Includes programs for underserved communities and whole-community approaches.", fundingAmount: "$50,000 - $500,000", sourceUrl: "https://www.fema.gov/grants", grantType: "federal", focusAreas: ["emergency preparedness", "disaster response", "community resilience"], eligibilityCriteria: "State, local, tribal, and nonprofit organizations", source: "federal_fema", category: "community" },
+        { title: "⭐ PRIORITY: TWC RFA 32026-00162 — Skills Development Fund", agency: "Texas Workforce Commission (State of Texas)", description: "Texas Workforce Commission Skills Development Fund grant for employer-driven workforce training. Requires industry partners committing to hire program completers. Funds credential-based training programs, apprenticeships, and upskilling. Aligned with TWC Chapter 803 rules. REQUIRES EMPLOYER PARTNERS. Contact: Cassandra Johnson, RFAgrants@twc.texas.gov. DEADLINE: April 10, 2026 at 10AM CDT.", fundingAmount: "Up to $2,000,000", sourceUrl: "https://www.twc.texas.gov/programs/skills-development-fund", grantType: "state_grant", focusAreas: ["workforce development", "skills training", "industry credentials", "employer partnerships", "apprenticeship", "wage outcomes", "career pathways"], eligibilityCriteria: "Texas workforce training providers with employer partnership commitments", source: "state_texas", category: "workforce", deadline: new Date("2026-04-10T15:00:00Z") },
+        { title: "⭐ PRIORITY: U.S. Space Force SkillBridge & DoD Workforce Transition", agency: "U.S. Space Force / Department of Defense", description: "DoD SkillBridge program and Space Force workforce transition initiatives supporting military-to-civilian career pipelines. Funds training providers offering space, cyber, AI/ML, and defense technology credential programs for transitioning service members. Includes Guardian workforce development, Space Operations career pathways, and cybersecurity training. Rolling BAA cycles and annual solicitations.", fundingAmount: "$500,000 - $1,500,000", sourceUrl: "https://skillbridge.osd.mil/", grantType: "federal", focusAreas: ["veteran transition", "military to civilian", "SkillBridge", "space operations", "cybersecurity", "AI/ML workforce", "defense technology", "credential translation", "career pathways"], eligibilityCriteria: "DoD SkillBridge-approved or pending training providers supporting military transition", source: "federal_dod", category: "workforce" },
+        { title: "DoD Cyber Workforce Development Grants", agency: "Department of Defense / Cyber Command", description: "Federal funding for cybersecurity workforce development, training pipeline creation, and credential programs. Supports programs producing CompTIA Security+, CISSP, and cyber operations certifications for transitioning military and underserved populations.", fundingAmount: "$250,000 - $1,000,000", sourceUrl: "https://www.cybercom.mil/", grantType: "federal", focusAreas: ["cybersecurity", "workforce development", "military transition", "credential programs", "STEM"], eligibilityCriteria: "Training providers with cybersecurity credential programs", source: "federal_dod", category: "workforce" },
       ];
 
       for (const co of curatedOpportunities) {
@@ -3179,7 +3182,7 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
     return { imported, skipped, total: imported + skipped };
   }
 
-  app.get("/api/grants/discovery/status", requireAuth, async (_req, res) => {
+  app.get("/api/grants/discovery/status", async (_req, res) => {
     const lastRun = lastDailyDiscoveryRun;
     const nextRun = lastRun ? new Date(lastRun.getTime() + 24 * 60 * 60 * 1000) : null;
     const hasApiKey = !!process.env.SAM_GOV_API_KEY && process.env.SAM_GOV_API_KEY !== "DEMO_KEY";

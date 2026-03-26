@@ -35,16 +35,44 @@ const ACTIVE_GRANTS = [
   },
   {
     id: "stdavids",
-    name: "St. David's Foundation",
+    name: "St. David's Foundation — Community Health & Equity",
     funder: "St. David's Foundation (Austin, TX)",
     amount: "Up to $1M",
     status: "active",
-    deadline: "Annual cycle",
+    deadline: "Annual cycle — Letter of Intent required",
     category: "health",
-    alignment: ["Whole-Person Health", "Community Health Workers", "Maternal Health", "Social Determinants"],
-    txStandards: ["DSHS Community Health Worker Standards", "TX HHSC Social Determinants Framework", "Maternal Mortality Task Force Recommendations"],
-    keyMetrics: ["CHW-to-participant ratio 1:30", "Health screening completion ≥80%", "SDOH referral follow-through ≥70%", "Maternal health visit adherence ≥75%"],
-    platforms: ["Sankofa Health", "Whole-Person Health Ecosystem", "Black Maternal Health Network"],
+    alignment: ["Whole-Person Health", "Community Health Workers", "Maternal Health", "Social Determinants", "Health Equity", "Behavioral Health Integration"],
+    txStandards: ["DSHS Community Health Worker Standards", "TX HHSC Social Determinants Framework", "Maternal Mortality Task Force Recommendations", "SAMHSA Behavioral Health Guidelines"],
+    keyMetrics: ["CHW-to-participant ratio 1:30", "Health screening completion ≥80%", "SDOH referral follow-through ≥70%", "Maternal health visit adherence ≥75%", "Behavioral health screening ≥60%", "Community partner retention ≥85%"],
+    platforms: ["Sankofa Health", "Whole-Person Health Ecosystem", "Black Maternal Health Network", "ThriveUp Academy", "SafeCogniCare"],
+    requiresPartners: false,
+    partnerNote: "Direct 501(c)(3) application to St. David's Foundation. Strong preference for Travis County / Central Texas organizations with demonstrated community impact.",
+    curriculumAlignment: [
+      { module: "Holistic Wellness Planning (9-12)", credential: "Community Health Worker Prep", status: "aligned" },
+      { module: "Digital Wellness & Adolescent Health (6-8)", credential: "Youth Health Navigator", status: "aligned" },
+      { module: "Nutrition Science (3-5)", credential: "Healthy Living Foundations", status: "aligned" },
+      { module: "Life Skills & Leadership (9-12)", credential: "Peer Health Educator", status: "aligned" },
+      { module: "Emotional Intelligence (6-8)", credential: "Mental Health First Aid — Youth", status: "aligned" },
+      { module: "Growth Mindset & Resilience (3-5)", credential: "Trauma-Informed Care Awareness", status: "planned" },
+    ],
+    deliverables: [
+      "Letter of Intent submitted to St. David's Foundation",
+      "Community health needs assessment for Austin/Travis County",
+      "CHW training pipeline aligned with DSHS certification standards",
+      "Maternal health screening and referral protocol",
+      "SDOH navigation system integrated with LifeBridge resources",
+      "Annual outcome report: health screenings, referrals, follow-through rates",
+    ],
+    requiredDocuments: [
+      { name: "501(c)(3) Determination Letter", status: "uploaded" },
+      { name: "Board of Directors List", status: "uploaded" },
+      { name: "Most Recent Audit / Financial Statements", status: "needed" },
+      { name: "Organizational Budget (Current Year)", status: "needed" },
+      { name: "Program Budget Narrative", status: "needed" },
+      { name: "Letters of Community Support", status: "needed" },
+      { name: "Logic Model / Theory of Change", status: "uploaded" },
+      { name: "Staff Qualifications / Key Personnel CVs", status: "needed" },
+    ],
   },
   {
     id: "ssgfox",
@@ -85,19 +113,133 @@ const ACTIVE_GRANTS = [
     keyMetrics: ["Training completion ≥80%", "Industry credential attainment ≥70%", "Employer satisfaction ≥90%", "Wage increase ≥15%"],
     platforms: ["ThriveUp Academy", "AI Workforce Academy", "Minority Center of Excellence"],
     contact: "Cassandra Johnson, RFAgrants@twc.texas.gov",
+    requiresPartners: true,
+    partnerRequirements: [
+      "Employer partners committing to hire program completers",
+      "Industry advisory board with credential-aligned employers",
+      "Community college / THECB-approved training provider",
+      "Local workforce board engagement (Capital Area or Rural Capital)",
+      "Registered Apprenticeship sponsors (DOL-approved)",
+    ],
+    curriculumAlignment: [
+      { module: "Professional Presence", credential: "TWC Workplace Readiness Certificate", status: "aligned" },
+      { module: "Workplace Rights & Responsibilities", credential: "OSHA 10-Hour General Industry", status: "aligned" },
+      { module: "Workplace Safety Essentials", credential: "OSHA 10-Hour / OSHA 30-Hour", status: "aligned" },
+      { module: "Time & Priority Management", credential: "Project Management Fundamentals", status: "aligned" },
+      { module: "Work Ethic & Career Leadership", credential: "National Career Readiness Certificate (NCRC)", status: "aligned" },
+      { module: "AI Literacy (6-8 & 9-12)", credential: "AI Foundations Micro-Credential", status: "aligned" },
+      { module: "Industry Credential Pathways", credential: "CompTIA IT Fundamentals+ / A+", status: "planned" },
+      { module: "Employer-Driven Training", credential: "Customized per employer partner", status: "planned" },
+    ],
+    deliverables: [
+      "Skills Development Fund application with employer commitment letters",
+      "Training plan with measurable skill gains tied to industry credentials",
+      "Employer satisfaction survey framework (pre/post hiring)",
+      "Wage outcome tracking system (baseline → Q2 → Q4)",
+      "Credential attainment reporting dashboard",
+    ],
+    requiredDocuments: [
+      { name: "501(c)(3) Determination Letter", status: "uploaded" },
+      { name: "SAM.gov Registration (UEI)", status: "uploaded" },
+      { name: "Employer Commitment Letters (3+ required)", status: "needed" },
+      { name: "Training Curriculum & Credential Mapping", status: "uploaded" },
+      { name: "TWC Chapter 803 Compliance Checklist", status: "needed" },
+      { name: "Organizational Budget & Cost Allocation Plan", status: "needed" },
+      { name: "Board Resolution Authorizing Application", status: "needed" },
+      { name: "Prior Grant Performance Reports", status: "needed" },
+      { name: "Employer Partnership MOUs", status: "needed" },
+      { name: "Wage & Outcome Tracking Plan", status: "uploaded" },
+    ],
   },
   {
     id: "rareimpact",
-    name: "Rare Impact Fund",
-    funder: "Rare Impact Fund",
-    amount: "TBD",
+    name: "Rare Impact Fund — Nonclinical Youth Mental Health Workforce",
+    funder: "Rare Impact Fund (Selena Gomez, $100M Initiative)",
+    amount: "$250K–$500K",
     status: "loi-submitted",
     deadline: "LOI April 10, 2026",
     category: "community",
-    alignment: ["Community Impact", "Youth Empowerment", "Education Equity", "Workforce Readiness"],
-    txStandards: ["TEA Equity Standards", "Community Impact Measurement Standards"],
-    keyMetrics: ["Youth served annually", "Program reach in underserved ZIP codes", "Community partnership count", "Participant satisfaction ≥85%"],
-    platforms: ["ThriveUp Academy", "ISSS", "WholeMind Learning"],
+    alignment: ["Nonclinical Workforce Pipeline", "Youth Mental Health", "Peer Mentor Pathways", "Culturally Responsive Care", "Health Equity"],
+    txStandards: ["TEA Equity Standards", "DSHS Community Health Worker Standards", "SAMHSA Youth Mental Health First Aid"],
+    keyMetrics: ["Youth served annually ≥500", "Nonclinical provider pipeline ≥50 trainees/year", "Program reach in underserved ZIP codes ≥5", "Culturally responsive training completion ≥80%", "Participant satisfaction ≥85%"],
+    platforms: ["ThriveUp Academy", "ISSS", "WholeMind Learning", "Sankofa Health Network"],
+    requiresPartners: false,
+    partnerNote: "No formal partner requirements — direct 501(c)(3) application. 2-year grant cycle.",
+    curriculumAlignment: [
+      { module: "Social Skills Builder (3-5)", credential: "Youth Peer Support Foundations", status: "aligned" },
+      { module: "Emotional Intelligence (6-8)", credential: "Youth Mental Health First Aid", status: "aligned" },
+      { module: "Life Skills & Leadership (9-12)", credential: "Peer Mentor Certification", status: "aligned" },
+      { module: "AI Literacy — Responsible Use", credential: "Digital Wellness Micro-Credential", status: "aligned" },
+      { module: "Holistic Wellness Planning (9-12)", credential: "Community Health Worker Prep", status: "aligned" },
+      { module: "Growth Mindset & Resilience (3-5)", credential: "SEL Foundations Badge", status: "aligned" },
+    ],
+    deliverables: [
+      "LOI submitted by April 10, 2026 (DONE)",
+      "Full proposal upon invitation (est. May–June 2026)",
+      "Nonclinical workforce training curriculum with career pathways",
+      "Youth voice integration strategy and peer mentor pipeline",
+      "Culturally responsive care framework for Austin communities",
+      "2-year outcome measurement plan (trainee retention, placement, satisfaction)",
+    ],
+    requiredDocuments: [
+      { name: "501(c)(3) Determination Letter", status: "uploaded" },
+      { name: "Letter of Intent (LOI)", status: "uploaded" },
+      { name: "Organizational Overview & Mission Statement", status: "uploaded" },
+      { name: "Program Design Narrative", status: "needed" },
+      { name: "Youth Voice Integration Plan", status: "needed" },
+      { name: "Culturally Responsive Framework Documentation", status: "needed" },
+      { name: "Budget Narrative (2-Year)", status: "needed" },
+      { name: "Outcome Measurement Plan", status: "needed" },
+      { name: "Staff/Trainer Qualifications", status: "needed" },
+    ],
+  },
+  {
+    id: "spaceforce",
+    name: "U.S. Space Force SkillBridge / DoD Transition",
+    funder: "U.S. Space Force / Department of Defense",
+    amount: "$500K–$1.5M",
+    status: "identified",
+    deadline: "Rolling / Annual BAA cycles",
+    category: "veterans",
+    alignment: ["Military-to-Civilian Transition", "SkillBridge Internships", "Space & Cyber Workforce", "AI/ML Training Pipelines", "Credential Translation"],
+    txStandards: ["VA Community Care Standards", "TX Veterans Commission Standards", "DoD SkillBridge Program Requirements", "CompTIA Security+ / Space Operations Standards"],
+    keyMetrics: ["SkillBridge participant placement ≥85%", "Credential attainment within 90 days ≥75%", "Employer match satisfaction ≥90%", "Retention at 12 months ≥70%"],
+    platforms: ["Mission Transition", "Shield Atlas", "ThriveUp Academy", "Minority Center of Excellence"],
+    requiresPartners: true,
+    partnerRequirements: [
+      "DoD SkillBridge-approved training provider (or pending application)",
+      "Employer partners in space, cyber, defense, or tech sectors",
+      "Austin-area defense/aerospace contractors (e.g., L3Harris, BAE Systems, Raytheon)",
+      "Texas Veterans Commission partnership for state-level coordination",
+      "Community college or THECB provider for stackable credentials",
+    ],
+    curriculumAlignment: [
+      { module: "AI Mastery (9-12)", credential: "AI/ML Foundations for Defense", status: "aligned" },
+      { module: "Workforce Readiness — Professional Presence", credential: "Military-to-Civilian Communication", status: "aligned" },
+      { module: "Work Ethic & Career Leadership", credential: "Leadership in Civilian Orgs", status: "aligned" },
+      { module: "AI Literacy — Evaluate & Direct", credential: "CompTIA Security+ Prep", status: "planned" },
+      { module: "Career Foundations — Teamwork", credential: "Cross-Functional Team Leadership", status: "aligned" },
+      { module: "Time & Priority Management", credential: "PMP / CAPM Fundamentals", status: "planned" },
+    ],
+    deliverables: [
+      "SkillBridge provider application to DoD (pending)",
+      "Space/cyber workforce training curriculum with AI integration",
+      "Military credential translation matrix (MOS → civilian certs)",
+      "Employer partnership pipeline for defense/tech sector",
+      "Veteran transition tracking dashboard (separation → training → placement)",
+      "Alignment with USSF Guardian Ideal competency framework",
+    ],
+    requiredDocuments: [
+      { name: "501(c)(3) Determination Letter", status: "uploaded" },
+      { name: "SAM.gov Registration (UEI)", status: "uploaded" },
+      { name: "SkillBridge Provider Application (DD Form)", status: "needed" },
+      { name: "DoD-Aligned Training Curriculum", status: "needed" },
+      { name: "Military Credential Translation Matrix", status: "needed" },
+      { name: "Employer Partner Letters (Defense/Tech)", status: "needed" },
+      { name: "Veteran Outcome Tracking Plan", status: "needed" },
+      { name: "Cybersecurity Training Accreditation", status: "needed" },
+      { name: "TX Veterans Commission Partnership Letter", status: "needed" },
+    ],
   },
 ];
 
@@ -261,9 +403,9 @@ export default function DirectiveCompliancePage() {
     },
   });
 
-  const totalGrantValue = "$3.05M–$4.75M+";
+  const totalGrantValue = "$3.55M–$6.25M+";
   const activeCount = ACTIVE_GRANTS.filter(g => g.status === "active").length;
-  const submittedCount = ACTIVE_GRANTS.filter(g => g.status === "submitted" || g.status === "loi-submitted").length;
+  const submittedCount = ACTIVE_GRANTS.filter(g => g.status === "submitted" || g.status === "loi-submitted" || g.status === "identified").length;
   const totalStandards = TX_STANDARDS_ALIGNMENT.reduce((acc, cat) => acc + cat.standards.length, 0);
   const alignedStandards = TX_STANDARDS_ALIGNMENT.reduce((acc, cat) => acc + cat.standards.filter(s => s.aligned).length, 0);
 
@@ -427,6 +569,97 @@ export default function DirectiveCompliancePage() {
                           ))}
                         </div>
                       </div>
+
+                      {"requiresPartners" in grant && (
+                        <div className="p-3 rounded-lg border-2 border-dashed border-primary/30 bg-primary/5">
+                          <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
+                            <Users className="h-4 w-4 text-primary" />
+                            {(grant as any).requiresPartners ? "Partner Requirements (REQUIRED)" : "No Formal Partners Required"}
+                          </h4>
+                          {(grant as any).requiresPartners && (grant as any).partnerRequirements ? (
+                            <div className="space-y-1.5">
+                              {((grant as any).partnerRequirements as string[]).map((p: string) => (
+                                <div key={p} className="flex items-start gap-2 text-sm">
+                                  <AlertTriangle className="h-3.5 w-3.5 text-amber-500 shrink-0 mt-0.5" />
+                                  <span>{p}</span>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="text-sm text-muted-foreground">{(grant as any).partnerNote || "Direct 501(c)(3) application — no partner letters required."}</p>
+                          )}
+                        </div>
+                      )}
+
+                      {"curriculumAlignment" in grant && (
+                        <div>
+                          <h4 className="text-sm font-semibold mb-2 flex items-center gap-1">
+                            <GraduationCap className="h-3.5 w-3.5" /> Curriculum-to-Credential Alignment
+                          </h4>
+                          <div className="space-y-1.5">
+                            {((grant as any).curriculumAlignment as { module: string; credential: string; status: string }[]).map((ca: any) => (
+                              <div key={ca.module} className="flex items-center gap-2 text-sm p-2 bg-muted/30 rounded border">
+                                {ca.status === "aligned" ? (
+                                  <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                                ) : (
+                                  <Clock className="h-4 w-4 text-amber-500 shrink-0" />
+                                )}
+                                <span className="font-medium min-w-0 flex-1">{ca.module}</span>
+                                <ArrowRight className="h-3 w-3 text-muted-foreground shrink-0" />
+                                <span className="text-muted-foreground">{ca.credential}</span>
+                                <Badge variant={ca.status === "aligned" ? "default" : "secondary"} className="text-xs shrink-0">
+                                  {ca.status === "aligned" ? "Aligned" : "Planned"}
+                                </Badge>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {"deliverables" in grant && (
+                        <div>
+                          <h4 className="text-sm font-semibold mb-2 flex items-center gap-1">
+                            <FileCheck className="h-3.5 w-3.5" /> Grant Deliverables
+                          </h4>
+                          <div className="space-y-1">
+                            {((grant as any).deliverables as string[]).map((d: string) => (
+                              <div key={d} className="flex items-center gap-2 text-sm">
+                                <CheckCircle2 className="h-3.5 w-3.5 text-blue-500 shrink-0" />
+                                <span>{d}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {"requiredDocuments" in grant && (() => {
+                        const docs = (grant as any).requiredDocuments as { name: string; status: string }[];
+                        const uploaded = docs.filter(d => d.status === "uploaded").length;
+                        const needed = docs.filter(d => d.status === "needed").length;
+                        const pct = Math.round((uploaded / docs.length) * 100);
+                        return (
+                          <div className={`p-3 rounded-lg border-2 ${needed > 0 ? "border-red-300 bg-red-50 dark:border-red-800 dark:bg-red-950/30" : "border-emerald-300 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-950/30"}`}>
+                            <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
+                              <AlertTriangle className={`h-4 w-4 ${needed > 0 ? "text-red-500" : "text-emerald-500"}`} />
+                              Required Documents — {uploaded}/{docs.length} uploaded ({pct}%)
+                              {needed > 0 && <Badge variant="destructive" className="text-xs">{needed} MISSING</Badge>}
+                            </h4>
+                            <Progress value={pct} className="mb-3 h-2" />
+                            <div className="grid md:grid-cols-2 gap-1.5">
+                              {docs.map((doc) => (
+                                <div key={doc.name} className="flex items-center gap-2 text-sm">
+                                  {doc.status === "uploaded" ? (
+                                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                                  ) : (
+                                    <XCircle className="h-3.5 w-3.5 text-red-500 shrink-0" />
+                                  )}
+                                  <span className={doc.status === "needed" ? "font-medium text-red-700 dark:text-red-300" : "text-muted-foreground"}>{doc.name}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      })()}
                     </div>
                   )}
                 </CardContent>
