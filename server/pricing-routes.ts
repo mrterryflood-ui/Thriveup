@@ -87,7 +87,7 @@ export function registerPricingRoutes(app: Express) {
           billingLabel: "per month ($42K/year)",
           features: [
             "Unlimited contracts & grant applications",
-            "Full 23-platform ecosystem access",
+            "Full 24-platform ecosystem access",
             "Dedicated account management",
             "Quarterly strategy reviews & priority response",
             "Multi-department onboarding (up to 5 departments)",
@@ -154,7 +154,7 @@ export function registerPricingRoutes(app: Express) {
         "Assistance with contract searching",
         "SAM.gov registration support",
         "Statewide registration assistance",
-        "Access to the full 23-platform ecosystem",
+        "Access to the full 24-platform ecosystem",
       ],
     });
   });

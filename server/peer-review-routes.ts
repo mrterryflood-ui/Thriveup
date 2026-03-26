@@ -440,7 +440,7 @@ Return ONLY valid JSON:
 
     const prompt = `You are Claude, serving as the INDEPENDENT VERIFIER for the ThriveUp Academy ecosystem cross-evaluation. Your job is to audit the evaluation itself for bias, blind spots, and honesty.
 
-This is a 23-platform ecosystem under The Collaborative Advocate (501(c)(3), veteran-founded, Black-led). Dr. Terry Flood is the founder. The primary AI generated executive summaries and peer evaluations. Now you verify.
+This is a 24-platform ecosystem under The Collaborative Advocate (501(c)(3), veteran-founded, Black-led). Dr. Terry Flood is the founder. The primary AI generated executive summaries and peer evaluations. Now you verify.
 
 EVALUATION DATA:
 - ${summaries.length} platforms produced self-assessments
@@ -520,7 +520,7 @@ GAP AUDIT (Say vs. Do Analysis):
 - Blind spots (gaps peers see but platform doesn't): ${gapAudit.blindSpotSummary.join("; ") || "None"}
 - Systemic gaps: ${gapAudit.systemicGaps.join("; ") || "None"}` : "";
 
-    const blufPrompt = `Write a 5-paragraph BLUF (Bottom Line Up Front) for Dr. Terry Flood, founder of The Collaborative Advocate ecosystem (23 platforms, ACOS architecture).
+    const blufPrompt = `Write a 5-paragraph BLUF (Bottom Line Up Front) for Dr. Terry Flood, founder of The Collaborative Advocate ecosystem (24 platforms, ACOS architecture).
 
 This is the weekly MAP-GAP peer cross-evaluation where every platform evaluated every other platform on: depth, breadth, execution capability, ecosystem integration, and grant readiness. Includes a say-vs-do gap audit comparing what platforms claim about themselves vs what their peers actually scored.
 

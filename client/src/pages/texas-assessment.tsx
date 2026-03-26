@@ -97,7 +97,7 @@ const CFIR_DOMAINS = [
     score: 92,
     color: "bg-blue-500",
     findings: [
-      "20-platform ecosystem provides comprehensive intervention coverage across all SDOH domains",
+      "24-platform ecosystem provides comprehensive intervention coverage across all SDOH domains",
       "Evidence-based frameworks (CFIR, RE-AIM, EPIS) embedded in platform architecture",
       "MAP-GAP provides continuous quality improvement cycle — preventing implementation drift",
       "Three Realities adaptation engine ensures interventions fit local context, not copy-paste",
@@ -165,7 +165,7 @@ const REAIM_SCORES = [
     score: 88,
     color: "from-blue-500 to-blue-600",
     description: "How many of the target population will the intervention reach?",
-    austin: { score: 90, detail: "1M+ population, 5,000+ individuals Year 1 target, 20-platform entry points" },
+    austin: { score: 90, detail: "1M+ population, 5,000+ individuals Year 1 target, 24-platform entry points" },
     manor: { score: 85, detail: "16,300+ residents, bilingual outreach, school-based deployment via Manor ISD" },
     pflugerville: { score: 88, detail: "76,500+ residents, Branchview 330-unit pipeline, PfISD 28,000 students" },
   },
@@ -357,7 +357,7 @@ const GRANT_ALIGNMENT = [
       "Culturally responsive mental health — $4.2M pool, maternal health $7.3M pool",
       "Community-driven change — $9.1M pool for community decision-making initiatives",
     ],
-    platforms: ["All 20 platforms", "Mission Transition", "Sankofa Health", "Black Maternal Health"],
+    platforms: ["All 24 platforms", "Mission Transition", "Sankofa Health", "Black Maternal Health"],
     cfirAlignment: "Perfect — every St. David's priority maps to at least 3 ecosystem platforms",
     reamScore: 94,
   },
@@ -599,7 +599,7 @@ export default function TexasAssessmentPage() {
             Rural health deserts. A housing emergency. The data demands action — and the right tools.
           </p>
           <p className="text-lg text-red-200 mb-6">
-            Three regional hubs. Twenty platforms. Five grants. One ecosystem. RPLICE validated.
+            Three regional hubs. Twenty-four platforms. Five grants. One ecosystem. RPLICE validated.
           </p>
           <div className="flex flex-wrap gap-3">
             <Badge variant="secondary" className="text-sm px-3 py-1"><Users className="h-3.5 w-3.5 mr-1" /> 30M+ Population</Badge>

@@ -341,7 +341,7 @@ export default function VoicesOfAustinPage() {
             Every Story Connects to Action
           </h1>
           <p className="text-xl text-orange-100 mb-3">
-            Share your housing journey, career story, health experience, or community voice — and get connected to real resources through ThriveUp's 20-platform ecosystem.
+            Share your housing journey, career story, health experience, or community voice — and get connected to real resources through ThriveUp's 24-platform ecosystem.
           </p>
           <p className="text-lg text-orange-200 mb-6">
             Bridging the gap between information and access.
@@ -350,7 +350,7 @@ export default function VoicesOfAustinPage() {
             <Badge variant="secondary" className="text-sm px-3 py-1"><Mic className="h-3.5 w-3.5 mr-1" /> Share Stories</Badge>
             <Badge variant="secondary" className="text-sm px-3 py-1"><MapPin className="h-3.5 w-3.5 mr-1" /> Hyper-Local</Badge>
             <Badge variant="secondary" className="text-sm px-3 py-1"><ArrowRight className="h-3.5 w-3.5 mr-1" /> Story → Resources</Badge>
-            <Badge variant="secondary" className="text-sm px-3 py-1"><Globe className="h-3.5 w-3.5 mr-1" /> 20 Platforms</Badge>
+            <Badge variant="secondary" className="text-sm px-3 py-1"><Globe className="h-3.5 w-3.5 mr-1" /> 24 Platforms</Badge>
           </div>
         </div>
       </div>
@@ -613,7 +613,7 @@ export default function VoicesOfAustinPage() {
           <div>
             <h2 className="text-2xl font-bold mb-2">Story → Resource Connections</h2>
             <p className="text-muted-foreground mb-6">
-              Every story type automatically connects you to the right platform in our 20-platform ecosystem.
+              Every story type automatically connects you to the right platform in our 24-platform ecosystem.
               No cold referrals — warm handoffs with confirmation tracking.
             </p>
           </div>

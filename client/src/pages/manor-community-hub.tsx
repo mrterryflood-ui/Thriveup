@@ -177,7 +177,7 @@ export default function ManorCommunityHubPage() {
     <div className="max-w-7xl mx-auto p-6 space-y-10" data-testid="manor-community-hub-page">
       <PageHeader
         title="Built for Manor"
-        description="Right tools. Right community. Right time. 20 platforms adapted for Manor's unique context."
+        description="Right tools. Right community. Right time. 24 platforms adapted for Manor's unique context."
         actions={
           <div className="flex gap-2 flex-wrap">
             <TrainingGuideButton moduleId="manor-community-hub" />
@@ -215,7 +215,7 @@ export default function ManorCommunityHubPage() {
           </p>
           <div className="flex flex-wrap gap-3">
             <Badge variant="secondary" className="text-sm px-3 py-1"><Users className="h-3.5 w-3.5 mr-1" /> 16,300+ Residents</Badge>
-            <Badge variant="secondary" className="text-sm px-3 py-1"><Globe className="h-3.5 w-3.5 mr-1" /> 20 Platforms</Badge>
+            <Badge variant="secondary" className="text-sm px-3 py-1"><Globe className="h-3.5 w-3.5 mr-1" /> 24 Platforms</Badge>
             <Badge variant="secondary" className="text-sm px-3 py-1"><Wifi className="h-3.5 w-3.5 mr-1" /> ESRI Compatible</Badge>
             <Badge variant="secondary" className="text-sm px-3 py-1"><HandHeart className="h-3.5 w-3.5 mr-1" /> Community-Driven</Badge>
           </div>
@@ -334,7 +334,7 @@ export default function ManorCommunityHubPage() {
           <div>
             <h2 className="text-2xl font-bold mb-2">Ecosystem Adapted for Manor</h2>
             <p className="text-muted-foreground mb-6">
-              Same 20-platform infrastructure — customized for Manor's demographics, geography, and needs.
+              Same 24-platform infrastructure — customized for Manor's demographics, geography, and needs.
               Every platform has a Manor-specific deployment strategy.
             </p>
           </div>
@@ -457,7 +457,7 @@ export default function ManorCommunityHubPage() {
           <div>
             <h2 className="text-2xl font-bold mb-2">Regional Network</h2>
             <p className="text-muted-foreground mb-6">
-              Manor doesn't operate in isolation. Three regional hubs share the same 20-platform ecosystem —
+              Manor doesn't operate in isolation. Three regional hubs share the same 24-platform ecosystem —
               what strengthens one community strengthens all three.
             </p>
           </div>
@@ -524,7 +524,7 @@ export default function ManorCommunityHubPage() {
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground mb-4">
-                All three regions share the same 20-platform ecosystem. This isn't redundancy — it's scale.
+                All three regions share the same 24-platform ecosystem. This isn't redundancy — it's scale.
                 A workforce training program that works in Manor also works in Pflugerville. Health screenings
                 validated in Austin deploy identically in Manor. The evidence base grows with every region.
               </p>

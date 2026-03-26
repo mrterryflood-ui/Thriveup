@@ -455,7 +455,7 @@ export function LifeBridgeEmbedPage() {
           </div>
 
           <div className="rounded-md bg-gradient-to-r from-blue-600 to-indigo-700 p-3 text-white text-center" data-testid="climate-cta">
-            <p className="text-xs font-semibold mb-1">20 Platforms. 3 Hubs. 1 Mission.</p>
+            <p className="text-xs font-semibold mb-1">24 Platforms. 3 Hubs. 1 Mission.</p>
             <p className="text-xs opacity-80">RPLICE-validated, CFIR/RE-AIM aligned, Three Realities grounded</p>
           </div>
         </CardContent>

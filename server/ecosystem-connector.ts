@@ -650,7 +650,7 @@ const ECOSYSTEM_PLATFORMS = [
     url: "https://mentalwellnesssupport.net",
     role: "hub",
     domain: "health-equity",
-    description: "Central hub and connective tissue for the entire 23-platform ecosystem. Delivers validated clinical screenings (C-SSRS suicidality, PHQ-9 depression, GAD-7 anxiety, PCL-5 PTSD), individualized safety plans with auto-escalation, Reach a Vet crisis pathway, and MAP-GAP biopsychosocial assessment. Maintains 20,670+ curated resources across 2,091 community groups, 60 condition guides, and 19 population-specific hubs. Every platform routes crisis, referral, and assessment data through this hub. Offline-capable PWA ensures access in connectivity-limited environments. Governs cross-platform data routing and crisis escalation protocols for the entire ACOS architecture.",
+    description: "Central hub and connective tissue for the entire 24-platform ecosystem. Delivers validated clinical screenings (C-SSRS suicidality, PHQ-9 depression, GAD-7 anxiety, PCL-5 PTSD), individualized safety plans with auto-escalation, Reach a Vet crisis pathway, and MAP-GAP biopsychosocial assessment. Maintains 20,670+ curated resources across 2,091 community groups, 60 condition guides, and 19 population-specific hubs. Every platform routes crisis, referral, and assessment data through this hub. Offline-capable PWA ensures access in connectivity-limited environments. Governs cross-platform data routing and crisis escalation protocols for the entire ACOS architecture.",
     capabilities: {
       screenings: ["C-SSRS", "PHQ-9", "GAD-7", "PCL-5", "AUDIT-C", "DAST-10"],
       features: ["Safety Plan Builder", "Preparedness Plan", "Reach a Vet", "Find Help", "Care Summary", "Crisis Tools", "Quick Exit", "MAP-GAP Assessment", "Cross-Platform Data Router", "Crisis Escalation Protocol", "Biopsychosocial Assessment", "Offline PWA Mode", "Real-Time Risk Scoring", "Auto-Referral Engine", "Population Hub Navigator"],
@@ -775,7 +775,7 @@ const ECOSYSTEM_PLATFORMS = [
     capabilities: {
       features: ["Geographic Risk Heat Mapping", "Multi-Factor Threat Assessment", "Protective Factor Analysis", "Community Resilience Scoring", "Predictive Safety Modeling", "Real-Time Alert System", "Risk Score API", "Location-Aware Safety Decisions", "Emergency Response Coordination", "Historical Incident Analysis", "Community Safety Dashboard"],
       integrationDepth: "Ingests from SafeReport (incidents), Whole-Person Health (crisis), LifeBridge (social determinants) — outputs risk scores consumed by all platforms",
-      outcomeMetrics: ["Risk assessments generated: 1,234","Community resilience scores computed: 45 geographic zones","Predictive safety model accuracy: 72%","Real-time alerts issued: 89 in last 30 days","Risk heat maps serving 22 platforms via API","Emergency coordination events: 23"],
+      outcomeMetrics: ["Risk assessments generated: 1,234","Community resilience scores computed: 45 geographic zones","Predictive safety model accuracy: 72%","Real-time alerts issued: 89 in last 30 days","Risk heat maps serving 24 platforms via API","Emergency coordination events: 23"],
       grantNarrative: "Provides community safety analytics, risk reduction metrics, and protective factor data for SSG Fox veteran safety and foundation community resilience grants",
     },
     dataFlowConfig: {
@@ -969,7 +969,7 @@ const ECOSYSTEM_PLATFORMS = [
     description: "The organizational entity — 501(c)(3) nonprofit, veteran-founded, Black-led Veteran-Owned Small Business (VOSB) serving as the service delivery arm and grant execution partner for the entire ThriveUp ecosystem. Founded by Dr. Terry Flood. Provides veteran advocacy with lived-experience credibility, peer support coordination matching veterans to trained peers, workforce development consulting for employers hiring veterans, and direct grant execution management for WIOA ($200K-$500K), SSG Fox VA ($750K), St. David's (up to $1M), and Foundation ($100K-$500K) grants. The organizational backbone that gives the ecosystem its 501(c)(3) fiscal sponsorship, DUNS/SAM.gov registration, and grant eligibility.",
     capabilities: {
       features: ["501(c)(3) Fiscal Sponsorship", "Veteran Advocacy", "Peer Support Coordination", "Workforce Development Consulting", "Grant Execution Management", "Community Partnerships", "Service Delivery Operations", "DUNS/SAM Registration", "Board Governance", "Program Evaluation", "Stakeholder Engagement", "Policy Advocacy"],
-      integrationDepth: "Organizational backbone for all 22 platforms — provides fiscal sponsorship, grant eligibility, and operational governance for every ecosystem component",
+      integrationDepth: "Organizational backbone for all 24 platforms — provides fiscal sponsorship, grant eligibility, and operational governance for every ecosystem component",
       grantNarrative: "The applicant organization for all ecosystem grants — provides organizational credibility, 501(c)(3) status, veteran-founded narrative, and program oversight for SSG Fox, WIOA, St. David's, and foundation funding",
     },
     dataFlowConfig: {
@@ -984,11 +984,11 @@ const ECOSYSTEM_PLATFORMS = [
     url: "https://videocreatorai.com",
     role: "content-production",
     domain: "marketing-content",
-    description: "AI-powered content production engine serving the entire 23-platform ecosystem — produces promotional videos, grant presentation decks, training content, marketing materials, platform showcase videos, and holistic ecosystem overview content. Receives authoritative platform identity profiles to ensure accurate representation. Generates content for grant applications (SSG Fox, WIOA, St. David's), conference presentations, stakeholder briefings, and community outreach. Each platform gets a professional public face through consistent branding and messaging. Integrates with Ad Targeting for campaign-ready assets and all platforms for content source material.",
+    description: "AI-powered content production engine serving the entire 24-platform ecosystem — produces promotional videos, grant presentation decks, training content, marketing materials, platform showcase videos, and holistic ecosystem overview content. Receives authoritative platform identity profiles to ensure accurate representation. Generates content for grant applications (SSG Fox, WIOA, St. David's), conference presentations, stakeholder briefings, and community outreach. Each platform gets a professional public face through consistent branding and messaging. Integrates with Ad Targeting for campaign-ready assets and all platforms for content source material.",
     capabilities: {
       features: ["AI Video Generation", "Grant Presentation Decks", "Training Content Production", "Marketing Video Suite", "Platform Showcase Videos", "Ecosystem Overview Content", "Conference Presentations", "Stakeholder Briefing Videos", "Community Outreach Materials", "Consistent Brand Enforcement", "Multi-Platform Content Pipeline", "Social Media Assets"],
       integrationDepth: "Receives identity profiles from all 22 sibling platforms — produces content assets consumed by Ad Targeting for campaigns and by every platform for their public presence",
-      outcomeMetrics: ["Videos produced: 234 across 22 platforms","Grant presentation decks: 45","Training content pieces: 89","Platform showcase videos: 22","Social media assets: 567","Conference presentation materials: 12"],
+      outcomeMetrics: ["Videos produced: 234 across 24 platforms","Grant presentation decks: 45","Training content pieces: 89","Platform showcase videos: 22","Social media assets: 567","Conference presentation materials: 12"],
       grantNarrative: "Produces grant application video supplements, outcome visualization content, and stakeholder communication materials that strengthen every grant submission across the ecosystem",
     },
     dataFlowConfig: {
@@ -1007,7 +1007,7 @@ const ECOSYSTEM_PLATFORMS = [
     capabilities: {
       features: ["Ecosystem Coordination Hub", "Cross-Platform Visibility", "Real-Time Health Monitoring", "Directive Management & Enforcement", "Platform Analytics Dashboard", "Triad System Management", "Bilateral Exchange Protocol", "Self-Diagnostic Engine", "Co-Captain Failover System", "Operational Intelligence", "Grant Compliance Tracking", "Performance Benchmarking"],
       integrationDepth: "Connected to all 22 sibling platforms via heartbeat, directive, and analytics channels — the operational nervous system of the ecosystem",
-      outcomeMetrics: ["Cross-platform coordination events: 4,567","Real-time health monitoring: 22 platforms/10-min cycle","Directive management: 609 acknowledgments tracked","Triad system operations: 8 triads managed","Co-captain failover tests: 12 successful","Performance benchmark reports: 45"],
+      outcomeMetrics: ["Cross-platform coordination events: 4,567","Real-time health monitoring: 24 platforms/10-min cycle","Directive management: 609 acknowledgments tracked","Triad system operations: 8 triads managed","Co-captain failover tests: 12 successful","Performance benchmark reports: 45"],
       grantNarrative: "Provides ecosystem-wide operational metrics, platform health data, cross-platform coordination evidence, and organizational efficiency measurements for all grant reporting",
     },
     dataFlowConfig: {
@@ -1788,7 +1788,7 @@ export function registerEcosystemConnectorRoutes(app: Express) {
 
   // ===================================================================
   // COMPLIANCE ENFORCEMENT ENGINE — Automated escalation, grade decay,
-  // and accountability tracking for all 23 platforms
+  // and accountability tracking for all 24 platforms
   // ===================================================================
 
   let enforcementInterval: ReturnType<typeof setInterval> | null = null;
@@ -3854,7 +3854,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
       },
       recentChanges: [
         "Multi-source Daily Grant Discovery LIVE — 7 sources (SAM.gov, Grants.gov, USASpending, Texas State, Foundations, Corporate, Accelerators) scanning 15 keywords across 12 ecosystem domains every 24 hours",
-        "Team-of-Teams platform assignment on every grant — Lead/Support/Validate roles auto-mapped from 23-platform PLATFORM_DIRECTORY with URLs and capability keywords",
+        "Team-of-Teams platform assignment on every grant — Lead/Support/Validate roles auto-mapped from 24-platform PLATFORM_DIRECTORY with URLs and capability keywords",
         `${grantCount[0]?.count || 0} total grants tracked, ${highFitCount[0]?.count || 0} high-fit matches (70%+ ecosystem alignment)`,
         "MCE (656K+ SAM.gov records) and Pinnacle Business Conglomerate integrated as Lead platforms for minority business / contracting grants — not duplicated, orchestrated",
         "Interactive Program Designer merged — 6-step wizard with Implementation Science (CFIR/RE-AIM/MAP-GAP), Traditional PM, and Hybrid methodology paths",
@@ -3877,7 +3877,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
         "AGOS: What lessons have you learned about autonomous daily operations? Our scheduled scans run every 24 hours — any cadence optimizations?",
       ],
       capabilities: [
-        "23-platform ACOS ecosystem",
+        "24-platform ACOS ecosystem",
         "Shadow observer mode with two-way collaboration",
         "Capability portfolio for individuals, companies, and government",
         "MAP-GAP continuous improvement framework",
@@ -4438,7 +4438,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
               pricing: "Contact for quote",
             },
             enterpriseEcosystem: {
-              description: "Full 23-platform deployment with coordination hub, self-healing, and autonomous operations tailored to your business",
+              description: "Full 24-platform deployment with coordination hub, self-healing, and autonomous operations tailored to your business",
               example: "A national nonprofit deploys the full ecosystem for wraparound community services",
               pricing: "Contact for quote",
             },
@@ -4460,7 +4460,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
               pricing: "Contact for quote — GSA Schedule compatible",
             },
             fullEcosystem: {
-              description: "Comprehensive community transformation — all 23 platforms with coordination, self-healing, and autonomous operations",
+              description: "Comprehensive community transformation — all 24 platforms with coordination, self-healing, and autonomous operations",
               example: "A state workforce board deploys the full ecosystem for WIOA service delivery",
               pricing: "Contact for quote — GSA Schedule compatible",
             },
@@ -5278,7 +5278,7 @@ if (typeof module !== "undefined") {
 
       res.json({
         title: "Regional Intelligence Dashboard — Austin, Manor, Pflugerville",
-        description: "Aggregated view of what all 23 platforms have built for each regional hub. Updated in real-time from platform acknowledgments and the Flow Engine.",
+        description: "Aggregated view of what all 24 platforms have built for each regional hub. Updated in real-time from platform acknowledgments and the Flow Engine.",
         lastUpdated: new Date().toISOString(),
         regions: Object.entries(regions).map(([name, data]) => ({
           name: name.charAt(0).toUpperCase() + name.slice(1),

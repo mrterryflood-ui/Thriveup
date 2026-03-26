@@ -464,7 +464,7 @@ export default function PricingPage() {
         </h1>
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
           From SAM.gov registration to contract execution — we help your business compete and win
-          in the government contracting and grant space. Backed by a 23-platform AI-powered ecosystem.
+          in the government contracting and grant space. Backed by a 24-platform AI-powered ecosystem.
         </p>
       </div>
 

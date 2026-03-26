@@ -189,7 +189,7 @@ const CFIR_DOMAINS = [
     maxScore: 5,
     items: [
       "Evidence strength: 4 doctoral disciplines provide rigorous theoretical foundation",
-      "Relative advantage: 20-platform ecosystem vs. siloed single-program approaches",
+      "Relative advantage: 24-platform ecosystem vs. siloed single-program approaches",
       "Adaptability: Three Realities framework ensures community-specific customization",
       "Complexity: MAP-GAP CQI reduces implementation complexity through structured cycles",
     ],
@@ -210,7 +210,7 @@ const CFIR_DOMAINS = [
     score: 3.8,
     maxScore: 5,
     items: [
-      "Structural characteristics: Technology infrastructure supports all 20 platforms",
+      "Structural characteristics: Technology infrastructure supports all 24 platforms",
       "Networks & communications: Ecosystem Nexus provides cross-platform data sharing",
       "Culture: Veteran-founded, minority-led, community-ownership philosophy",
       "Implementation climate: Strong leadership commitment, dedicated staffing plan",
@@ -243,7 +243,7 @@ const CFIR_DOMAINS = [
 const REAIM_SCORES = [
   { dimension: "Reach", score: 85, description: "3 regional hubs covering Austin/Manor/Pflugerville triangle, 30M+ Texas population potential" },
   { dimension: "Effectiveness", score: 78, description: "SALP fidelity indicators, SMART goals, real-time outcome dashboards across all platforms" },
-  { dimension: "Adoption", score: 82, description: "20 platforms operational, coalition partnerships across 12 sectors, employer engagement" },
+  { dimension: "Adoption", score: 82, description: "24 platforms operational, coalition partnerships across 12 sectors, employer engagement" },
   { dimension: "Implementation", score: 88, description: "MAP-GAP CQI cycle, CFIR-guided deployment, Three Realities adaptation framework" },
   { dimension: "Maintenance", score: 75, description: "MG-PATR replication protocol, continuous quality improvement, community ownership model" },
 ];
@@ -516,7 +516,7 @@ export default function PresentationsPage() {
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         <SectionCard
           title="Executive Summary"
-          description="One-page overview: 3 entities, 20 platforms, 3 hubs, 5 grants, Dr. Flood's methodologies"
+          description="One-page overview: 3 entities, 24 platforms, 3 hubs, 5 grants, Dr. Flood's methodologies"
           icon={FileText}
           section="executive"
           color="bg-violet-600"
@@ -537,7 +537,7 @@ export default function PresentationsPage() {
         />
         <SectionCard
           title="Ecosystem Overview"
-          description="All 20 platforms, their domains, and interconnections"
+          description="All 24 platforms, their domains, and interconnections"
           icon={Globe}
           section="ecosystem"
           color="bg-blue-600"
@@ -599,7 +599,7 @@ export default function PresentationsPage() {
             <div className="relative z-10 max-w-4xl">
               <h1 className="text-3xl md:text-4xl font-bold mb-4">ThriveUp Academy</h1>
               <p className="text-lg text-blue-100 mb-4">
-                A veteran-founded, minority-led 20-platform AI ecosystem addressing community challenges
+                A veteran-founded, minority-led 24-platform AI ecosystem addressing community challenges
                 across housing, workforce, health equity, youth development, and public safety — validated
                 through proprietary implementation science methodologies.
               </p>
@@ -891,7 +891,7 @@ export default function PresentationsPage() {
                   <ul className="space-y-2">
                     <li className="text-xs text-muted-foreground flex items-start gap-2">
                       <ArrowRight className="h-3 w-3 text-primary mt-0.5 shrink-0" />
-                      <span>Single entry point across all 20 platforms — data follows the person</span>
+                      <span>Single entry point across all 24 platforms — data follows the person</span>
                     </li>
                     <li className="text-xs text-muted-foreground flex items-start gap-2">
                       <ArrowRight className="h-3 w-3 text-primary mt-0.5 shrink-0" />

@@ -175,7 +175,7 @@ export default function EcosystemAIPage() {
           <div className="grid grid-cols-3 gap-4 mb-8 w-full max-w-md">
             <div className="flex flex-col items-center p-3 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
               <Database className="w-5 h-5 text-violet-500 mb-1" />
-              <span className="text-xs font-semibold text-gray-900 dark:text-white">20 Platforms</span>
+              <span className="text-xs font-semibold text-gray-900 dark:text-white">24 Platforms</span>
               <span className="text-[10px] text-gray-400">Connected</span>
             </div>
             <div className="flex flex-col items-center p-3 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">

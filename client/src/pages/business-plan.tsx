@@ -69,7 +69,7 @@ const ecosystemPlatforms = [
       "Multi-provider AI architecture design & deployment",
       "RAG knowledge base & governance framework buildout",
       "MAP-GAP continuous improvement consulting",
-      "20-platform ecosystem narrative & advocacy",
+      "24-platform ecosystem narrative & advocacy",
       "Grant alignment, compliance automation & evidence by architecture",
       "Implementation science services (CFIR, RE-AIM)",
       "Federal contract execution & VOSB partnerships",

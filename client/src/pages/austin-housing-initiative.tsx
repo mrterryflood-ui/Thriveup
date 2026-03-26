@@ -81,7 +81,7 @@ const ST_DAVIDS_ALIGNMENT = [
   { priority: "Pathways to Economic Stability for Healthcare Workforce", pool: "$10.1M", platforms: "Mission Transition + MCE + Collaborative Advocate", icon: Briefcase },
   { priority: "Culturally Responsive Mental Health", pool: "$4.2M", platforms: "Sankofa Network + Whole-Person Health", icon: Heart },
   { priority: "Healthy Births, Healthy Communities", pool: "$7.3M", platforms: "Black Maternal Health Network + Sankofa Feminine Health", icon: Baby },
-  { priority: "Community-Driven Change", pool: "$9.1M", platforms: "All 20 platforms engage communities in decision-making", icon: Users },
+  { priority: "Community-Driven Change", pool: "$9.1M", platforms: "All 24 platforms engage communities in decision-making", icon: Users },
   { priority: "Housing + Health", pool: "$10M+", platforms: "LifeBridge + M2C + Workforce platforms", icon: Home },
   { priority: "Safety Net Clinics", pool: "Core", platforms: "Whole-Person Health screenings for uninsured", icon: Stethoscope },
 ];
@@ -133,7 +133,7 @@ export default function AustinHousingInitiativePage() {
     <div className="max-w-7xl mx-auto p-6 space-y-10" data-testid="austin-housing-initiative-page">
       <PageHeader
         title="Built for Austin"
-        description="20-platform ecosystem addressing Austin's housing, workforce, and health equity crisis"
+        description="24-platform ecosystem addressing Austin's housing, workforce, and health equity crisis"
         actions={
           <div className="flex gap-2 flex-wrap">
             <TrainingGuideButton moduleId="austin-housing-initiative" />
@@ -194,7 +194,7 @@ export default function AustinHousingInitiativePage() {
             <AlertTriangle className="h-3.5 w-3.5 mr-1" /> The Crisis
           </TabsTrigger>
           <TabsTrigger value="ecosystem" className="text-xs md:text-sm" data-testid="tab-ecosystem">
-            <Globe className="h-3.5 w-3.5 mr-1" /> 20 Platforms
+            <Globe className="h-3.5 w-3.5 mr-1" /> 24 Platforms
           </TabsTrigger>
           <TabsTrigger value="alignment" className="text-xs md:text-sm" data-testid="tab-alignment">
             <Target className="h-3.5 w-3.5 mr-1" /> Funder Fit
@@ -352,7 +352,7 @@ export default function AustinHousingInitiativePage() {
                     <CheckCircle2 className="h-4 w-4" /> ThriveUp's Answer
                   </h3>
                   <ul className="space-y-2 text-sm text-muted-foreground">
-                    <li className="flex items-start gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 mt-0.5 flex-shrink-0" /> 20 platforms sharing real-time data</li>
+                    <li className="flex items-start gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 mt-0.5 flex-shrink-0" /> 24 platforms sharing real-time data</li>
                     <li className="flex items-start gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 mt-0.5 flex-shrink-0" /> One entry point, data follows the person</li>
                     <li className="flex items-start gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 mt-0.5 flex-shrink-0" /> Warm handoff with confirmation tracking</li>
                     <li className="flex items-start gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 mt-0.5 flex-shrink-0" /> AI-powered real-time fidelity dashboard</li>
@@ -462,12 +462,12 @@ export default function AustinHousingInitiativePage() {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {[
-                  { num: "1", text: "20 platforms for the price of one grant — no other applicant brings this breadth" },
+                  { num: "1", text: "24 platforms for the price of one grant — no other applicant brings this breadth" },
                   { num: "2", text: "AI-powered — we scale without proportional cost increase" },
                   { num: "3", text: "Real-time data — funders see outcomes as they happen, not in annual reports" },
                   { num: "4", text: "RPLICE quality gate — every claim is evidence-based, every metric validated" },
                   { num: "5", text: "Veteran-founded, minority-led — we ARE the population we serve" },
-                  { num: "6", text: "Already built. Already running. 20 platforms heartbeating right now." },
+                  { num: "6", text: "Already built. Already running. 24 platforms heartbeating right now." },
                 ].map((item) => (
                   <div key={item.num} className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
                     <div className="w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold flex-shrink-0">
@@ -578,7 +578,7 @@ export default function AustinHousingInitiativePage() {
                     <span className="font-bold text-lg">$500K</span>
                   </div>
                   <ul className="space-y-2 text-sm text-muted-foreground">
-                    <li className="flex items-start gap-2"><ChevronRight className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" /> Deploy all 20 platforms across Central Texas</li>
+                    <li className="flex items-start gap-2"><ChevronRight className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" /> Deploy all 24 platforms across Central Texas</li>
                     <li className="flex items-start gap-2"><ChevronRight className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" /> Establish healthcare workforce pathways</li>
                     <li className="flex items-start gap-2"><ChevronRight className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" /> Launch Pflugerville pilot program</li>
                     <li className="flex items-start gap-2"><ChevronRight className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" /> Integrate with existing safety net providers</li>
@@ -633,7 +633,7 @@ export default function AustinHousingInitiativePage() {
 
           <div className="text-center p-8 rounded-2xl bg-gradient-to-r from-blue-900 to-purple-900 text-white" data-testid="closing-statement">
             <h3 className="text-2xl font-bold mb-2">This isn't a proposal to build something.</h3>
-            <p className="text-xl text-blue-200 mb-4">It's built. It's running. 20 platforms heartbeating right now.</p>
+            <p className="text-xl text-blue-200 mb-4">It's built. It's running. 24 platforms heartbeating right now.</p>
             <div className="flex justify-center gap-3 flex-wrap">
               <Badge className="bg-white/20 border-white/30 text-white">ThriveUp Academy | 501(c)(3)</Badge>
               <Badge className="bg-white/20 border-white/30 text-white">Dr. Terry Flood, Founder & CEO</Badge>

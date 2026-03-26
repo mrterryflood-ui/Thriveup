@@ -1111,7 +1111,7 @@ export default function EcosystemHubPage() {
             <TrainingGuideButton moduleId="ecosystem-hub" />
           </div>
           <p className="text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
-            The Collaborative Advocate's 20-platform technology ecosystem — from education and workforce development
+            The Collaborative Advocate's 24-platform technology ecosystem — from education and workforce development
             to health equity, defense, veteran services, compliance, business intelligence, and minority business development.
           </p>
         </div>
@@ -1493,7 +1493,7 @@ export default function EcosystemHubPage() {
                 <div className="bg-rose-50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-800 rounded-lg p-4" data-testid="narrative-sustainability">
                   <h4 className="font-semibold text-rose-800 dark:text-rose-300 mb-2">Sustainability & Long-Term Impact</h4>
                   <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-                    Our coalition's sustainability strategy is built on technology infrastructure that reduces per-participant costs over time, a diversified funding approach spanning 13 federal grant streams, in-kind contributions from 20 platform partners, and a community partner network. The Minority Center of Excellence (MCE) strengthens economic sustainability by connecting minority-owned businesses to federal contracting opportunities, creating a self-reinforcing economic development pipeline. Our cost match tracking system documents all non-federal contributions, and our logic model builder generates theory-of-change documentation. The Collaborative Advocate's dual-entity structure (Foundation + VOSB LLC) ensures flexible contracting and sustainable revenue streams beyond any single grant.
+                    Our coalition's sustainability strategy is built on technology infrastructure that reduces per-participant costs over time, a diversified funding approach spanning 13 federal grant streams, in-kind contributions from 24 platform partners, and a community partner network. The Minority Center of Excellence (MCE) strengthens economic sustainability by connecting minority-owned businesses to federal contracting opportunities, creating a self-reinforcing economic development pipeline. Our cost match tracking system documents all non-federal contributions, and our logic model builder generates theory-of-change documentation. The Collaborative Advocate's dual-entity structure (Foundation + VOSB LLC) ensures flexible contracting and sustainable revenue streams beyond any single grant.
                   </p>
                 </div>
               </CardContent>

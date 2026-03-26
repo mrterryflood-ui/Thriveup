@@ -239,7 +239,7 @@ export default function PflugervilleCommunityHubPage() {
           <div className="flex flex-wrap gap-3">
             <Badge variant="secondary" className="text-sm px-3 py-1"><Users className="h-3.5 w-3.5 mr-1" /> 76,500+ Residents</Badge>
             <Badge variant="secondary" className="text-sm px-3 py-1"><Landmark className="h-3.5 w-3.5 mr-1" /> CDBG Entitlement City</Badge>
-            <Badge variant="secondary" className="text-sm px-3 py-1"><Globe className="h-3.5 w-3.5 mr-1" /> 20 Platforms</Badge>
+            <Badge variant="secondary" className="text-sm px-3 py-1"><Globe className="h-3.5 w-3.5 mr-1" /> 24 Platforms</Badge>
             <Badge variant="secondary" className="text-sm px-3 py-1"><Construction className="h-3.5 w-3.5 mr-1" /> Samsung + Tesla Corridor</Badge>
           </div>
         </div>
@@ -426,7 +426,7 @@ export default function PflugervilleCommunityHubPage() {
           <div>
             <h2 className="text-2xl font-bold mb-2">Ecosystem Adapted for Pflugerville</h2>
             <p className="text-muted-foreground mb-6">
-              Same 20-platform infrastructure — customized for Pflugerville's unique position as a CDBG entitlement city
+              Same 24-platform infrastructure — customized for Pflugerville's unique position as a CDBG entitlement city
               with major development catalysts (Samsung, Tesla, Branchview).
             </p>
           </div>

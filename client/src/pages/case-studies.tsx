@@ -690,7 +690,7 @@ export default function CaseStudiesPage() {
           <TrainingGuideButton moduleId="case-studies" />
         </div>
         <p className="text-muted-foreground mt-1" data-testid="text-page-subtitle">
-          Real-world applications of the MAP-GAP framework across the 20-platform ecosystem. Each case study shows how collaborative intelligence — no silos, no black boxes — produces measurable outcomes.
+          Real-world applications of the MAP-GAP framework across the 24-platform ecosystem. Each case study shows how collaborative intelligence — no silos, no black boxes — produces measurable outcomes.
         </p>
       </div>
 

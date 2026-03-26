@@ -127,7 +127,7 @@ export default function VideoPipelinePage() {
     <div className="max-w-7xl mx-auto p-6 space-y-8" data-testid="video-pipeline-page">
       <PageHeader
         title="Video Production Pipeline"
-        description="Auto-render and auto-distribute video content across the 20-platform ecosystem"
+        description="Auto-render and auto-distribute video content across the 24-platform ecosystem"
         breadcrumbs={[
           { label: "AI Tools", href: "/ai-tools" },
           { label: "Video Pipeline" },
@@ -315,7 +315,7 @@ export default function VideoPipelinePage() {
         <TabsContent value="distribution" className="mt-6 space-y-4" data-testid="content-distribution">
           <h2 className="text-xl font-bold">Distribution Manager</h2>
           <p className="text-muted-foreground text-sm">
-            Completed videos are auto-distributed to all 20 platforms via ecosystem work chain events.
+            Completed videos are auto-distributed to all 24 platforms via ecosystem work chain events.
           </p>
 
           {completedJobs.length > 0 && (

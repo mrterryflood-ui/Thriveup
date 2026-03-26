@@ -568,7 +568,7 @@ const ENTITY_INFO = {
     cageCode: true,
   },
   leadership: [
-    { name: "Dr. Terry Flood, DHA", role: "Co-Founder", bio: "Veteran. Doctor of Health Administration. Implementation scientist. Creator of MAP-GAP methodology. Architect of all 20 platforms." },
+    { name: "Dr. Terry Flood, DHA", role: "Co-Founder", bio: "Veteran. Doctor of Health Administration. Implementation scientist. Creator of MAP-GAP methodology. Architect of all 24 platforms." },
     { name: "Meredith Sisnett", role: "Co-Founder", bio: "Strategic operations leader. Community engagement, organizational development, and program execution." },
   ],
   setAsideEligibility: ["Veteran-Owned Small Business (VOSB)", "Small Business (SB)", "Small Disadvantaged Business (SDB)"],
@@ -627,8 +627,8 @@ const NAICS_CODES = [
   { code: "541612", description: "Human Resources Consulting", platforms: ["ThriveUp", "M2C Transition", "Unplanned"] },
   { code: "541690", description: "Other Scientific & Technical Consulting", platforms: ["RPLICE", "ISSS", "Sankofa Health"] },
   { code: "541720", description: "Research & Development", platforms: ["RPLICE", "SHIELD/ATLAS", "Sankofa Health"] },
-  { code: "541511", description: "Custom Computer Programming", platforms: ["All 20 platforms"] },
-  { code: "541519", description: "Other Computer Related Services", platforms: ["All 20 platforms"] },
+  { code: "541511", description: "Custom Computer Programming", platforms: ["All 24 platforms"] },
+  { code: "541519", description: "Other Computer Related Services", platforms: ["All 24 platforms"] },
   { code: "611430", description: "Professional Development Training", platforms: ["ThriveUp", "ISSS", "M2C Transition"] },
 ];
 
@@ -740,7 +740,7 @@ function matchGrantOpportunity(query: string): {
     estimatedValueRange,
     competitiveAdvantages: [
       "VOSB Certification — eligible for veteran-owned set-aside contracts",
-      "Complete IP Ownership — all 20 platforms, methodologies, and data architectures",
+      "Complete IP Ownership — all 24 platforms, methodologies, and data architectures",
       `Proprietary Methodologies — MAP-GAP, SALP, Three Realities, MG-PATR, ISSS Knowledge Engine`,
       "Implementation Science Credibility — operationalized CFIR, RE-AIM, EPIS, SPF frameworks",
       `Portfolio Scale — ${PORTFOLIO_STATS.linesOfCode} LOC, ${PORTFOLIO_STATS.apiEndpoints} API endpoints, ${PORTFOLIO_STATS.databaseTables} database tables, ${PORTFOLIO_STATS.dataRecords} curated data records`,

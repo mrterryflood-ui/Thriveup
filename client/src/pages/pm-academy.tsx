@@ -373,7 +373,7 @@ const TRACKS: Track[] = [
           "Strategic alignment: does this project support our mission?",
           "Resource allocation across multiple projects",
           "Benefits realization: measuring whether we achieved the strategic goal",
-          "The ThriveUp ecosystem as a portfolio: 20 platforms, one mission",
+          "The ThriveUp ecosystem as a portfolio: 24 platforms, one mission",
         ],
         duration: "7 days",
         project: "Create a portfolio view of ThriveUp's ecosystem platforms, prioritize 5 for strategic investment, and defend your rationale",
@@ -397,7 +397,7 @@ const TRACKS: Track[] = [
     careerPaths: ["Senior Project Manager", "Program Director", "Portfolio Manager", "PM Consultant", "Chief Operations Officer"],
     platformConnections: [
       "Capstone in: RPLICE + MCE — manage a full program cycle with real stakeholders",
-      "Portfolio view: Ecosystem Hub — see all 20 platforms as a managed portfolio",
+      "Portfolio view: Ecosystem Hub — see all 24 platforms as a managed portfolio",
       "Process improvement: Apply DMAIC to any platform's operational workflow",
       "Leadership: Coach a peer through the PM Essentials track as part of your capstone",
     ],

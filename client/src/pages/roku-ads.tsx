@@ -184,7 +184,7 @@ Target duration: ${durationGuide}
 Include VAST ad tag positions, RAF integration notes, MRSS feed entry, and revenue estimates.
 This is for the ThriveUp Academy channel on Roku — content focuses on workforce development, housing stability, health equity, veteran services, and community impact in Austin, Texas.
 Channel: ThriveUp Academy (501(c)(3))
-Brand: Dr. Terry Flood's 20-platform AI ecosystem
+Brand: Dr. Terry Flood's 24-platform AI ecosystem
 Audience: Central Texas community, veterans, families, funders, policymakers`,
     });
   };
@@ -213,7 +213,7 @@ Audience: Central Texas community, veterans, families, funders, policymakers`,
           <div className="flex-1">
             <h1 className="text-3xl md:text-4xl font-bold mb-2">Stream Your Impact</h1>
             <p className="text-lg text-purple-200 mb-4">
-              Turn ThriveUp's 20-platform ecosystem content into Roku channels with monetized ad breaks.
+              Turn ThriveUp's 24-platform ecosystem content into Roku channels with monetized ad breaks.
               Reach millions on connected TVs while generating revenue to fund community services.
             </p>
             <div className="flex flex-wrap gap-2">

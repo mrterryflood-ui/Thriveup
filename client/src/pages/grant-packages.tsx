@@ -235,7 +235,7 @@ SERVICE AREA: Central Texas (Travis, Williamson, Hays, Bastrop, Caldwell countie
         tasks: [
           { id: "wc1", task: "Identify target Local Workforce Development Board (LWDB)", owner: "Dr. Flood", status: "pending", dueDate: "TBD", guidance: "Your primary target is Workforce Solutions Capital Area (wfsca.org) which serves Travis County. You could also apply to Workforce Solutions Rural Capital Area for Williamson, Hays, Bastrop, Caldwell counties. Contact the Youth Program Manager at your target LWDB to discuss funding availability and local priorities before writing." },
           { id: "wc2", task: "Review state WIOA plan and local area priorities", owner: "Dr. Flood + AI", status: "pending", dueDate: "TBD", guidance: "Texas Workforce Commission publishes the state WIOA plan at twc.texas.gov. Your LWDB also publishes a Local Plan with specific priority sectors, performance targets, and youth service strategies. Align your proposal to BOTH. The AI can analyze these documents if you share them.", aiCanHelp: true, aiAction: "Analyze state/local WIOA plan alignment" },
-          { id: "wc3", task: "Map platform capabilities to all 14 WIOA youth elements", owner: "AI", status: "pending", dueDate: "TBD", guidance: "WIOA requires all 14 youth program elements. ThriveUp's 20 platforms map directly — e.g., ThriveUp Academy = tutoring, WholeMind = comprehensive guidance, SafeReport = safe environment, MCE = entrepreneurial skills. The AI can generate a complete platform-to-element mapping matrix.", aiCanHelp: true, aiAction: "Generate 14-element platform mapping" },
+          { id: "wc3", task: "Map platform capabilities to all 14 WIOA youth elements", owner: "AI", status: "pending", dueDate: "TBD", guidance: "WIOA requires all 14 youth program elements. ThriveUp's 24 platforms map directly — e.g., ThriveUp Academy = tutoring, WholeMind = comprehensive guidance, SafeReport = safe environment, MCE = entrepreneurial skills. The AI can generate a complete platform-to-element mapping matrix.", aiCanHelp: true, aiAction: "Generate 14-element platform mapping" },
           { id: "wc4", task: "Identify 3-5 employer partners for work-based learning", owner: "Dr. Flood", status: "pending", dueDate: "TBD", guidance: "WIOA requires 20% of funds on Work Experience. Target Austin-area employers in growth sectors: Healthcare (Ascension Seton, St. David's, CommUnityCare), IT (Dell, Indeed), Manufacturing (Samsung, Tesla Gigafactory), Logistics (H-E-B, Amazon). Reach out to HR/workforce development contacts. You need signed commitment letters." },
           { id: "wc5", task: "Gather local labor market data for target occupations", owner: "AI", status: "pending", dueDate: "TBD", guidance: "Pull Austin MSA data from BLS, Texas Workforce Commission, and EMSI/Lightcast. Key data points: youth unemployment rate (16-24), in-demand occupations, median wages by sector, credential gaps, OSY population estimates for Travis County (~18,000). The AI can compile this into a data brief.", aiCanHelp: true, aiAction: "Compile Austin labor market data brief" },
         ],
@@ -482,7 +482,7 @@ ELIGIBILITY: 501(c)(3) organizations or fiscal sponsors; must demonstrate authen
         "Emphasize the entrepreneurship pathway (MCE) — most applicants only offer job placement",
         "Show AI tools as equity multipliers, not replacement for human connection",
         "Include participant voice and stories (anonymized) in the narrative",
-        "Demonstrate how the 20-platform ecosystem creates a safety net, not just a program",
+        "Demonstrate how the 24-platform ecosystem creates a safety net, not just a program",
       ],
       commonPitfalls: [
         "Treating workforce development as only 'get a job' — Foundation Grant wants economic empowerment",
@@ -528,7 +528,7 @@ ELIGIBILITY: 501(c)(3) organizations operating in Central Texas counties. Collab
     competitiveEdge: [
       "Three Realities methodology IS 'community-informed' — exactly what St. David's requires",
       "LifeBridge platform handles benefits navigation and enrollment — direct alignment",
-      "20-platform ecosystem provides the comprehensive service infrastructure they fund",
+      "24-platform ecosystem provides the comprehensive service infrastructure they fund",
       "MCE provides minority business economic empowerment pipeline",
       "MAP-GAP continuous improvement aligns with foundation's data-driven approach",
       "Financial Literacy module directly supports economic stability for participants",
@@ -641,7 +641,7 @@ ELIGIBILITY: 501(c)(3) organizations operating in Central Texas counties. Collab
       differentiators: [
         "Three Realities methodology IS community-informed design — not a checkbox, a methodology",
         "LifeBridge platform provides actual benefits navigation infrastructure, not just referrals",
-        "20-platform ecosystem delivers comprehensive economic stability services under one roof",
+        "24-platform ecosystem delivers comprehensive economic stability services under one roof",
         "MCE + Financial Literacy create entrepreneurship-to-wealth pipeline, not just benefits enrollment",
         "MAP-GAP ensures continuous improvement — foundation sees measurable progress, not static programs",
         "Collaborative application ($1M track) with Meredith + Central Texas partners maximizes funding",
