@@ -1,5 +1,5 @@
 export const MISSION_STATEMENT =
-  "The Collaborative Advocate Foundation transforms communities through four integrated academic disciplines — Implementation Science, Criminal Justice, HR Management, and Industrial-Organizational Psychology — translated into working technology through our proprietary MAP-GAP framework. We plan programs, coordinate stakeholders, build curriculum and interventions, and measure outcomes with fidelity — turning research into sustained community impact.";
+  "The Collaborative Advocate Foundation transforms communities through six interdisciplinary academic disciplines — Implementation Science, Criminal Justice, HR Management, Industrial-Organizational Psychology, Education, and Social Science — translated into working technology through our proprietary MAP-GAP framework. We plan programs, coordinate stakeholders, build curriculum and interventions, and measure outcomes with fidelity — turning research into sustained community impact.";
 
 export const VISION_STATEMENT =
   "A nation where every community — regardless of zip code — has access to a living, adaptive system that identifies problems, designs evidence-based interventions, coordinates stakeholders transparently, executes with measurable fidelity, and captures lessons that make the next community stronger.";
@@ -9,6 +9,8 @@ export const VALUES = [
   { title: "Equity Through Justice Reform", desc: "Criminal justice research drives reentry pathways, diversion programs, and restorative justice — breaking cycles of incarceration through systemic change, not just services.", iconName: "Scale" as const },
   { title: "Whole-Person Workforce Development", desc: "HR management science builds competency models, workforce pipelines, and career pathways that serve the complete individual — not just job placement numbers.", iconName: "Briefcase" as const },
   { title: "Behavioral Science That Sustains", desc: "I-O Psychology powers the engagement design, behavioral nudges, and motivation systems that keep participants, staff, and communities invested for the long term.", iconName: "Brain" as const },
+  { title: "Education That Reflects Identity", desc: "Learners see themselves in the curriculum — culturally responsive content, age-adaptive pathways, and real-world skills that connect classroom learning to career readiness and community impact.", iconName: "GraduationCap" as const },
+  { title: "Community-Driven Social Science", desc: "Communities deserve to see their own data. SDOH analysis, participatory research, and culturally responsive evaluation ensure programs reflect the people they serve — not just the funders.", iconName: "Users" as const },
   { title: "Community Ownership", desc: "Local partners lead; technology enables, never replaces. Every program adapts through the Three Realities — what research says, what politics allow, what works on the ground.", iconName: "Globe" as const },
   { title: "Transparent Measurement", desc: "SALP indicators track fidelity in real time. SMART goals visible to every stakeholder. If we can't measure it transparently, we can't improve it.", iconName: "BarChart3" as const },
   { title: "Research to Replication", desc: "MG-PATR captures what works, then adapts — not copy-pastes — for the next community. Every deployment makes the ecosystem smarter.", iconName: "BookOpen" as const },
@@ -59,6 +61,28 @@ export const DISCIPLINES = [
     mapGapComponent: "Behavioral nudge architecture and engagement design — keeping participants, staff, and communities motivated through the entire program lifecycle.",
     platforms: ["thriveup", "isss", "mce", "wholemind", "perfectly-different", "sankofa"],
   },
+  {
+    id: "education",
+    name: "Education",
+    shortName: "Education",
+    color: "bg-rose-100 text-rose-800 dark:bg-rose-900/40 dark:text-rose-300",
+    borderColor: "border-rose-300 dark:border-rose-700",
+    icon: "GraduationCap" as const,
+    desc: "Builds age-adaptive curricula, AI literacy pathways, and workforce readiness programs aligned with TEKS standards — ensuring learners see themselves in the content and develop real-world skills from K-12 through adult education.",
+    mapGapComponent: "Curriculum design and learning outcome measurement — 60+ deep lessons across AI literacy, workforce readiness, and social-emotional learning with interactive activities and measurable competency tracking.",
+    platforms: ["thriveup", "isss", "betterscience", "mce", "m2c"],
+  },
+  {
+    id: "social-science",
+    name: "Social Science",
+    shortName: "Social Science",
+    color: "bg-teal-100 text-teal-800 dark:bg-teal-900/40 dark:text-teal-300",
+    borderColor: "border-teal-300 dark:border-teal-700",
+    icon: "Users" as const,
+    desc: "Applies community-based participatory research, social determinants of health analysis, and culturally responsive evaluation to help communities see themselves in data — and use that data to drive their own transformation.",
+    mapGapComponent: "Community intelligence mapping and SDOH analysis — GIS-powered data integration from 8 federal sources enabling communities to identify gaps, measure progress, and advocate with evidence.",
+    platforms: ["thriveup", "isss", "sankofa", "lifebridge", "wholemind", "perfectly-different", "safereport"],
+  },
 ] as const;
 
 export const MAPGAP_CYCLE = [
@@ -67,7 +91,7 @@ export const MAPGAP_CYCLE = [
     title: "Identify the Problem",
     subtitle: "Research & Data",
     desc: "Community data reveals the problem — suspension rates, recidivism, ACEs prevalence, unaddressed SDOH. Map it to specific grant opportunities.",
-    disciplines: ["implementation-science"],
+    disciplines: ["implementation-science", "social-science"],
     platforms: ["Community Intelligence Map", "GIS Data", "Grant Discovery Engine"],
   },
   {
@@ -75,7 +99,7 @@ export const MAPGAP_CYCLE = [
     title: "Design the Intervention",
     subtitle: "MAP-GAP + Three Realities",
     desc: "Use MAP-GAP and Three Realities to design a program tailored to THIS community. What research says, what politics allow, what actually works on the ground.",
-    disciplines: ["implementation-science", "criminal-justice", "hr-management", "io-psychology"],
+    disciplines: ["implementation-science", "criminal-justice", "hr-management", "io-psychology", "education", "social-science"],
     platforms: ["MAP-GAP CQI", "RPLICE", "Better Science Lab"],
   },
   {
@@ -83,7 +107,7 @@ export const MAPGAP_CYCLE = [
     title: "Coordinate Stakeholders",
     subtitle: "Build the Network",
     desc: "Bring in CHWs, mentors, community police, educators, employers — everyone connected through shared dashboards, shared goals, transparent metrics.",
-    disciplines: ["hr-management", "io-psychology"],
+    disciplines: ["hr-management", "io-psychology", "social-science"],
     platforms: ["Coalition Dashboard", "Partner Network", "DFC Command Center"],
   },
   {
@@ -91,7 +115,7 @@ export const MAPGAP_CYCLE = [
     title: "Execute with Fidelity",
     subtitle: "SALP Indicators",
     desc: "SALP indicators measure whether the program is implemented as designed. SMART goals visible to ALL stakeholders — real time, not year-end reports.",
-    disciplines: ["implementation-science", "io-psychology"],
+    disciplines: ["implementation-science", "io-psychology", "education"],
     platforms: ["Dosage Tracking", "Case Management", "Outcome Reporting"],
   },
   {

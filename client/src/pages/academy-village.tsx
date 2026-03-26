@@ -210,7 +210,7 @@ export default function AcademyVillagePage() {
   };
 
   const { data: myAvatar, isLoading: avatarLoading } = useQuery<AcademyAvatar | null>({
-    queryKey: ["/api/academy/avatars/me"],
+    queryKey: ["/api/academy/avatar"],
     retry: false,
   });
 

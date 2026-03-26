@@ -82,11 +82,38 @@ export default function AchievementsPage() {
 
   if (error) return <div className="p-6"><ErrorRetry message="Failed to load achievements. Please try again." onRetry={refetch} /></div>;
 
-  if (!data) return (
-    <div className="p-6 text-center">
-      <Shield className="h-16 w-16 mx-auto mb-4 text-muted-foreground/50" />
-      <h2 className="text-xl font-semibold mb-2" data-testid="text-no-achievements">No Achievements Yet</h2>
-      <p className="text-muted-foreground">Start completing lessons and quizzes to earn badges and achievements!</p>
+  if (!data || (data.allBadges.length === 0 && data.earnedBadges.length === 0)) return (
+    <div className="p-6 max-w-3xl mx-auto">
+      <PageHeader title="Achievements" subtitle="Your badges, credentials, and milestones" />
+      <Card className="p-8 text-center mt-6" data-testid="card-empty-achievements">
+        <div className="mx-auto mb-6 h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center">
+          <Shield className="h-10 w-10 text-primary" />
+        </div>
+        <h2 className="text-xl font-semibold mb-2" data-testid="text-no-achievements">Your Achievement Journey Starts Here</h2>
+        <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+          Complete lessons, quizzes, and activities to earn badges and credentials. Every achievement is verifiable and aligned to workforce readiness standards.
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+          <div className="p-4 rounded-lg bg-muted/50 border border-border">
+            <Zap className="h-6 w-6 text-amber-500 mx-auto mb-2" />
+            <p className="text-sm font-medium">Skill Badges</p>
+            <p className="text-xs text-muted-foreground">Earn by completing modules</p>
+          </div>
+          <div className="p-4 rounded-lg bg-muted/50 border border-border">
+            <Heart className="h-6 w-6 text-pink-500 mx-auto mb-2" />
+            <p className="text-sm font-medium">Character Badges</p>
+            <p className="text-xs text-muted-foreground">Demonstrate leadership & growth</p>
+          </div>
+          <div className="p-4 rounded-lg bg-muted/50 border border-border">
+            <Crown className="h-6 w-6 text-violet-500 mx-auto mb-2" />
+            <p className="text-sm font-medium">Milestone Badges</p>
+            <p className="text-xs text-muted-foreground">Hit major career milestones</p>
+          </div>
+        </div>
+        <a href="/subjects" data-testid="link-start-learning" className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors text-sm font-medium">
+          <Star className="h-4 w-4" /> Start Learning to Earn Badges
+        </a>
+      </Card>
     </div>
   );
 

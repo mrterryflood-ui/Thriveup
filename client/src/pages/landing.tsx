@@ -501,7 +501,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Four Disciplines → MAP-GAP Components */}
+      {/* Six Interdisciplinary Disciplines → MAP-GAP Components */}
       <section className="py-12 px-4 sm:py-20 sm:px-6 bg-card" data-testid="section-disciplines-ip">
         <div className="mx-auto max-w-5xl">
           <div className="text-center mb-10 sm:mb-14">
@@ -509,15 +509,15 @@ export default function LandingPage() {
               <Microscope className="mr-1 h-3 w-3" /> Proprietary Intellectual Property
             </Badge>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4" data-testid="text-disciplines-heading">
-              Four Disciplines, One Ecosystem
+              Interdisciplinary Foundation, One Ecosystem
             </h2>
             <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto px-2">
-              Each academic discipline maps directly to MAP-GAP components — ensuring every platform in the ecosystem is grounded in rigorous research, not guesswork.
+              Six academic disciplines map directly to MAP-GAP components — ensuring every platform in the ecosystem is grounded in rigorous research, not guesswork. Communities see themselves in the data and drive their own transformation.
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {DISCIPLINES.map((d) => {
-              const dIconMap: Record<string, typeof Heart> = { Microscope, Scale, Briefcase, Brain };
+              const dIconMap: Record<string, typeof Heart> = { Microscope, Scale, Briefcase, Brain, GraduationCap, Users };
               const DIcon = dIconMap[d.icon] || Microscope;
               return (
                 <Card key={d.id} className={`p-6 border-2 ${d.borderColor}`} data-testid={`card-discipline-${d.id}`}>
@@ -552,7 +552,7 @@ export default function LandingPage() {
               Platform Capabilities
             </h2>
             <p className="text-sm sm:text-base text-muted-foreground max-w-lg mx-auto px-2">
-              Grant discovery, workforce development, case management, and community coordination — all powered by the four disciplines through MAP-GAP.
+              Grant discovery, workforce development, case management, and community coordination — all powered by six interdisciplinary disciplines through MAP-GAP.
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">

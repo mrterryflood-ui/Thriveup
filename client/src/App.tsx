@@ -10,6 +10,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Skeleton } from "@/components/ui/skeleton";
 import NotFound from "@/pages/not-found";
+import { ContextualHelpButton } from "@/components/contextual-help";
 import LandingPage from "@/pages/landing";
 import CurriculumPage, { LevelDetailPage } from "@/pages/curriculum";
 import SubjectsPage, { SubjectDetailPage } from "@/pages/subjects";
@@ -368,6 +369,7 @@ function AppLayout() {
       </div>
       <CommandPalette />
       <AINavigator />
+      <ContextualHelpButton />
     </SidebarProvider>
   );
 }

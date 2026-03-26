@@ -55,6 +55,7 @@ import {
   type Announcement, type InsertAnnouncement,
   type AcademyEvent, type InsertAcademyEvent,
   type AttendanceLog, type InsertAttendanceLog,
+  outcomeTracking,
   riskDecisions, riskNotificationSettings,
   type InsertRiskDecision, type RiskDecision,
   type InsertRiskNotificationSettings, type RiskNotificationSettings,
@@ -1287,6 +1288,12 @@ export class DatabaseStorage implements IStorage {
     const existingDocs = await db.select().from(curriculumDocuments).limit(1);
     if (existingDocs.length < 50) {
       await seedCurriculumDocuments(db);
+    }
+
+    const existingOutcomes = await db.select().from(outcomeTracking).limit(1);
+    if (existingOutcomes.length === 0) {
+      const { seedOutcomeData } = await import("./seed-outcomes");
+      await seedOutcomeData(db);
     }
 
     const existingHouses = await db.select().from(academyHouses).limit(1);

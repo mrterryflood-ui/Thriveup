@@ -159,24 +159,86 @@ export default function OutcomeReportingPage() {
       </div>
 
       {dashboard && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Card className="p-4 text-center" data-testid="card-stat-participants">
-            <p className="text-2xl font-bold text-primary">{dashboard.uniqueParticipants}</p>
-            <p className="text-sm text-muted-foreground">Participants Tracked</p>
+        <>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <Card className="p-4" data-testid="card-stat-participants">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <Users className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-primary">{dashboard.uniqueParticipants}</p>
+                  <p className="text-xs text-muted-foreground">Participants Tracked</p>
+                </div>
+              </div>
+            </Card>
+            <Card className="p-4" data-testid="card-stat-outcomes">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                  <BarChart3 className="h-5 w-5 text-emerald-600" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-emerald-600">{dashboard.totalOutcomes}</p>
+                  <p className="text-xs text-muted-foreground">Total Measurements</p>
+                </div>
+              </div>
+            </Card>
+            <Card className="p-4" data-testid="card-stat-active-plans">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                  <Target className="h-5 w-5 text-blue-600" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-blue-600">{dashboard.totalActivePlans}</p>
+                  <p className="text-xs text-muted-foreground">Active Reentry Plans</p>
+                </div>
+              </div>
+            </Card>
+            <Card className="p-4" data-testid="card-stat-milestone-completion">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-lg bg-violet-500/10 flex items-center justify-center">
+                  <CheckCircle2 className="h-5 w-5 text-violet-600" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-violet-600">{dashboard.milestoneCompletionRate}%</p>
+                  <p className="text-xs text-muted-foreground">Milestone Completion</p>
+                </div>
+              </div>
+              <div className="mt-2 bg-muted rounded-full h-2">
+                <div className="bg-violet-600 h-2 rounded-full transition-all" style={{ width: `${dashboard.milestoneCompletionRate}%` }} />
+              </div>
+            </Card>
+          </div>
+
+          <Card className="p-4 bg-primary/5 border-primary/20" data-testid="card-grant-alignment">
+            <div className="flex items-center gap-3 mb-3">
+              <FileText className="h-5 w-5 text-primary" />
+              <h3 className="font-semibold text-sm">Grant-Aligned Metrics</h3>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+              <div className="p-2.5 rounded bg-background border">
+                <p className="text-xs text-muted-foreground mb-1">WIOA Credential Rate</p>
+                <p className="font-bold text-lg text-emerald-600">{dashboard.totalOutcomes > 0 ? Math.round(((dashboard.education as CategoryData)?.credential_completion || 0) / dashboard.uniqueParticipants * 100) : 0}%</p>
+                <p className="text-[10px] text-muted-foreground">Target: 60%</p>
+              </div>
+              <div className="p-2.5 rounded bg-background border">
+                <p className="text-xs text-muted-foreground mb-1">Job Placement Rate</p>
+                <p className="font-bold text-lg text-blue-600">{dashboard.totalOutcomes > 0 ? Math.round(((dashboard.employment as CategoryData)?.job_placement || 0) / dashboard.uniqueParticipants * 100) : 0}%</p>
+                <p className="text-[10px] text-muted-foreground">Target: 50%</p>
+              </div>
+              <div className="p-2.5 rounded bg-background border">
+                <p className="text-xs text-muted-foreground mb-1">90-Day Retention</p>
+                <p className="font-bold text-lg text-amber-600">{(dashboard.employment as CategoryData)?.retention || 0}</p>
+                <p className="text-[10px] text-muted-foreground">Tracked retentions</p>
+              </div>
+              <div className="p-2.5 rounded bg-background border">
+                <p className="text-xs text-muted-foreground mb-1">Recidivism Prevention</p>
+                <p className="font-bold text-lg text-red-600">{((dashboard.recidivism as CategoryData)?.total || 0)}</p>
+                <p className="text-[10px] text-muted-foreground">No-reoffense records</p>
+              </div>
+            </div>
           </Card>
-          <Card className="p-4 text-center" data-testid="card-stat-outcomes">
-            <p className="text-2xl font-bold text-emerald-600">{dashboard.totalOutcomes}</p>
-            <p className="text-sm text-muted-foreground">Total Measurements</p>
-          </Card>
-          <Card className="p-4 text-center" data-testid="card-stat-active-plans">
-            <p className="text-2xl font-bold text-blue-600">{dashboard.totalActivePlans}</p>
-            <p className="text-sm text-muted-foreground">Active Plans</p>
-          </Card>
-          <Card className="p-4 text-center" data-testid="card-stat-milestone-completion">
-            <p className="text-2xl font-bold text-violet-600">{dashboard.milestoneCompletionRate}%</p>
-            <p className="text-sm text-muted-foreground">Milestone Rate</p>
-          </Card>
-        </div>
+        </>
       )}
 
       {showForm && (
