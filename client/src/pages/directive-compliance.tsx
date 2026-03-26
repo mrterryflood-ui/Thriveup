@@ -233,6 +233,54 @@ const ACTIVE_GRANTS = [
       { name: "In-Person Presentation Deck (Augusta, GA — April 28-29)", status: "needed" },
     ],
   },
+  {
+    id: "spaceforce-skillbridge",
+    name: "U.S. Space Force SkillBridge / DoD Transition",
+    funder: "U.S. Space Force / Department of Defense",
+    amount: "$500K–$1.5M",
+    status: "identified",
+    deadline: "Rolling / Annual BAA cycles",
+    category: "veterans",
+    alignment: ["Military-to-Civilian Transition", "SkillBridge Internships", "Space & Cyber Workforce", "AI/ML Training Pipelines", "Credential Translation"],
+    txStandards: ["VA Community Care Standards", "TX Veterans Commission Standards", "DoD SkillBridge Program Requirements", "CompTIA Security+ / Space Operations Standards"],
+    keyMetrics: ["SkillBridge participant placement ≥85%", "Credential attainment within 90 days ≥75%", "Employer match satisfaction ≥90%", "Retention at 12 months ≥70%"],
+    platforms: ["Mission Transition", "Shield Atlas", "ThriveUp Academy", "Minority Center of Excellence"],
+    requiresPartners: true,
+    partnerRequirements: [
+      "DoD SkillBridge-approved training provider (or pending application)",
+      "Employer partners in space, cyber, defense, or tech sectors",
+      "Austin-area defense/aerospace contractors (e.g., L3Harris, BAE Systems, Raytheon)",
+      "Texas Veterans Commission partnership for state-level coordination",
+      "Community college or THECB provider for stackable credentials",
+    ],
+    curriculumAlignment: [
+      { module: "AI Mastery (9-12)", credential: "AI/ML Foundations for Defense", status: "aligned" },
+      { module: "Workforce Readiness — Professional Presence", credential: "Military-to-Civilian Communication", status: "aligned" },
+      { module: "Work Ethic & Career Leadership", credential: "Leadership in Civilian Orgs", status: "aligned" },
+      { module: "AI Literacy — Evaluate & Direct", credential: "CompTIA Security+ Prep", status: "planned" },
+      { module: "Career Foundations — Teamwork", credential: "Cross-Functional Team Leadership", status: "aligned" },
+      { module: "Time & Priority Management", credential: "PMP / CAPM Fundamentals", status: "planned" },
+    ],
+    deliverables: [
+      "SkillBridge provider application to DoD (pending)",
+      "Space/cyber workforce training curriculum with AI integration",
+      "Military credential translation matrix (MOS → civilian certs)",
+      "Employer partnership pipeline for defense/tech sector",
+      "Veteran transition tracking dashboard (separation → training → placement)",
+      "Alignment with USSF Guardian Ideal competency framework",
+    ],
+    requiredDocuments: [
+      { name: "501(c)(3) Determination Letter", status: "uploaded" },
+      { name: "SAM.gov Registration (UEI)", status: "uploaded" },
+      { name: "SkillBridge Provider Application (DD Form)", status: "needed" },
+      { name: "DoD-Aligned Training Curriculum", status: "needed" },
+      { name: "Military Credential Translation Matrix", status: "needed" },
+      { name: "Employer Partner Letters (Defense/Tech)", status: "needed" },
+      { name: "Veteran Outcome Tracking Plan", status: "needed" },
+      { name: "Cybersecurity Training Accreditation", status: "needed" },
+      { name: "TX Veterans Commission Partnership Letter", status: "needed" },
+    ],
+  },
 ];
 
 const TX_STANDARDS_ALIGNMENT = [
@@ -396,7 +444,7 @@ export default function DirectiveCompliancePage() {
     },
   });
 
-  const totalGrantValue = "$3.05M–$4.75M+ (plus C2 Transport contract)";
+  const totalGrantValue = "$3.55M–$6.25M+ (plus C2 Transport contract)";
   const activeCount = ACTIVE_GRANTS.filter(g => g.status === "active").length;
   const submittedCount = ACTIVE_GRANTS.filter(g => g.status === "submitted" || g.status === "loi-submitted" || g.status === "identified" || g.status === "in_progress").length;
   const totalStandards = TX_STANDARDS_ALIGNMENT.reduce((acc, cat) => acc + cat.standards.length, 0);
