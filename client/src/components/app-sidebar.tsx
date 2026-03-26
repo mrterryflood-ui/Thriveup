@@ -57,6 +57,10 @@ const communityIntelItems: NavItem[] = [
 ];
 
 const workforceSolutionsItems: NavItem[] = [
+  { title: "Workforce Dashboard", url: "/workforce-dashboard", icon: BarChart3 },
+  { title: "Workforce Training", url: "/workforce-training", icon: GraduationCap },
+  { title: "Workforce Assessment", url: "/workforce-assessment", icon: ClipboardCheck },
+  { title: "Employer Connections", url: "/workforce-employers", icon: Building2 },
   { title: "Career Explorer", url: "/academy/careers", icon: Briefcase },
   { title: "Mentor Network", url: "/academy/mentors", icon: Users },
   { title: "Find Mentor/Partner", url: "/academy/mentor-finder", icon: Handshake },
