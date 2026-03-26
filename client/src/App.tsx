@@ -153,6 +153,7 @@ const MceContractsPage = lazy(() => import("@/pages/mce-contracts"));
 const VideoPipelinePage = lazy(() => import("@/pages/video-pipeline"));
 const ProgramEnginePage = lazy(() => import("@/pages/program-engine"));
 const PricingPage = lazy(() => import("@/pages/pricing"));
+const BusinessDocumentsPage = lazy(() => import("@/pages/business-documents"));
 
 function PageFallback() {
   return (
@@ -291,6 +292,7 @@ function AppRouter() {
       <Route path="/program-management" component={ProgramManagementPage} />
       <Route path="/contact" component={ContactPage} />
       <Route path="/business-plan" component={BusinessPlanPage} />
+      <Route path="/business-documents" component={BusinessDocumentsPage} />
       <Route path="/apex-accelerators" component={ApexAcceleratorsPage} />
       <Route path="/research-hub" component={ResearchHubPage} />
       <Route path="/chw-dashboard" component={ChwDashboardPage} />
