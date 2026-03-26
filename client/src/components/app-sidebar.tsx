@@ -197,8 +197,7 @@ const caseManagementItems: NavItem[] = [
 ];
 
 const teachingPublicItems: NavItem[] = [
-  { title: "Parents", url: "/parents", icon: Users },
-  { title: "Parent Dashboard", url: "/parents/dashboard", icon: BarChart3 },
+  { title: "Parent Dashboard", url: "/parents", icon: Users },
   { title: "Curriculum Docs", url: "/curriculum-documents", icon: FileText },
   { title: "Social Media Literacy", url: "/social-media-literacy", icon: Smartphone },
   { title: "Implementation Plan", url: "/implementation", icon: ClipboardList },
