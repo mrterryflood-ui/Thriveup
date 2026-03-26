@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,9 @@ import {
   Home, Wifi, Layers, Activity,
   Microscope, RefreshCw, BookOpen, Scale,
   Star, Eye, Compass,
+  Play, Pause, Volume2, VolumeX, Maximize,
 } from "lucide-react";
+import featureVideoSrc from "@assets/Learning_Academy_1.0_1772131808280.mp4";
 import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -453,6 +455,100 @@ function MapLegend() {
   );
 }
 
+function PlatformTourVideo() {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const [showOverlay, setShowOverlay] = useState(true);
+
+  const togglePlay = () => {
+    if (!videoRef.current) return;
+    if (videoRef.current.paused) {
+      videoRef.current.play();
+      setIsPlaying(true);
+      setShowOverlay(false);
+    } else {
+      videoRef.current.pause();
+      setIsPlaying(false);
+      setShowOverlay(true);
+    }
+  };
+
+  const toggleMute = () => {
+    if (!videoRef.current) return;
+    videoRef.current.muted = !videoRef.current.muted;
+    setIsMuted(!isMuted);
+  };
+
+  const toggleFullscreen = () => {
+    if (!videoRef.current) return;
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    } else {
+      videoRef.current.requestFullscreen();
+    }
+  };
+
+  const handleOverlayKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      togglePlay();
+    }
+  };
+
+  return (
+    <Card className="overflow-hidden shadow-xl border-2 border-primary/10" data-testid="card-feature-video">
+      <div className="relative group">
+        <video
+          ref={videoRef}
+          src={featureVideoSrc}
+          className="w-full aspect-video bg-black"
+          aria-label="ThriveUp Academy platform tour with Arthur Wakanda"
+          onEnded={() => { setIsPlaying(false); setShowOverlay(true); }}
+          onClick={togglePlay}
+          playsInline
+          data-testid="video-feature-guide"
+        />
+
+        {showOverlay && !isPlaying && (
+          <div
+            className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20 flex flex-col items-center justify-center cursor-pointer"
+            onClick={togglePlay}
+            onKeyDown={handleOverlayKeyDown}
+            role="button"
+            tabIndex={0}
+            aria-label="Play platform tour video"
+            data-testid="overlay-video-play"
+          >
+            <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-white/90 flex items-center justify-center shadow-2xl mb-4 transition-transform hover:scale-110">
+              <Play className="h-10 w-10 md:h-12 md:w-12 text-violet-700 ml-1" />
+            </div>
+            <p className="text-white text-lg md:text-xl font-semibold" data-testid="text-video-title">Watch the Platform Tour</p>
+            <p className="text-white/70 text-sm mt-1" data-testid="text-video-subtitle">7 minutes with Arthur Wakanda</p>
+          </div>
+        )}
+
+        <div className={`absolute bottom-0 left-0 right-0 p-2 sm:p-3 bg-gradient-to-t from-black/60 to-transparent flex items-center justify-between gap-2 transition-opacity ${isPlaying ? 'opacity-0 group-hover:opacity-100' : 'opacity-100'}`}>
+          <Button variant="ghost" size="icon" className="text-white hover:text-white hover:bg-white/20 min-h-[44px] min-w-[44px]" onClick={togglePlay} aria-label={isPlaying ? "Pause video" : "Play video"} data-testid="button-video-playpause">
+            {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+          </Button>
+          <div className="flex items-center gap-1">
+            <span className="text-white/70 text-xs px-2 py-1 rounded bg-white/10 hidden sm:inline-flex items-center gap-1" data-testid="text-video-cc-indicator" aria-label="Closed captions available">
+              CC
+            </span>
+            <Button variant="ghost" size="icon" className="text-white hover:text-white hover:bg-white/20 min-h-[44px] min-w-[44px]" onClick={toggleMute} aria-label={isMuted ? "Unmute video" : "Mute video"} data-testid="button-video-mute">
+              {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+            </Button>
+            <Button variant="ghost" size="icon" className="text-white hover:text-white hover:bg-white/20 min-h-[44px] min-w-[44px]" onClick={toggleFullscreen} aria-label="Toggle fullscreen" data-testid="button-video-fullscreen">
+              <Maximize className="h-5 w-5" />
+            </Button>
+          </div>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
 export default function TexasAssessmentPage() {
   const [activeTab, setActiveTab] = useState("overview");
   const [selectedHub, setSelectedHub] = useState<string | null>(null);
@@ -514,6 +610,19 @@ export default function TexasAssessmentPage() {
           </div>
         </div>
       </div>
+
+      <div className="text-center mb-6">
+        <Badge variant="secondary" className="mb-4">
+          <Play className="mr-1 h-3 w-3" /> Platform Tour
+        </Badge>
+        <h2 className="text-2xl sm:text-3xl font-bold mb-2" data-testid="text-video-heading">
+          See ThriveUp Academy in Action
+        </h2>
+        <p className="text-sm text-muted-foreground max-w-lg mx-auto">
+          A 7-minute tour of the platform — from community intelligence and grant discovery to workforce pipelines, AI tools, and partner coordination.
+        </p>
+      </div>
+      <PlatformTourVideo />
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {TEXAS_STATS.map((stat) => (
