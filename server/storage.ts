@@ -1263,6 +1263,12 @@ export class DatabaseStorage implements IStorage {
     if (existingSubjects.length === 0) {
       await seedSubjects(db);
     } else {
+      const existingModules = await db.select().from(modules).limit(1);
+      if (existingModules.length === 0) {
+        console.log("[Seed] Subjects exist but modules missing — seeding modules and lessons...");
+        const { seedModulesAndLessons } = await import("./seed-subjects");
+        await seedModulesAndLessons(db);
+      }
       const aiSubjects = await db.select().from(subjects).where(eq(subjects.id, "ai_6_8")).limit(1);
       if (aiSubjects.length === 0) {
         const { seedAILiteracyContent } = await import("./seed-ai-literacy");
