@@ -194,51 +194,43 @@ const ACTIVE_GRANTS = [
     ],
   },
   {
-    id: "spaceforce",
-    name: "U.S. Space Force SkillBridge / DoD Transition",
-    funder: "U.S. Space Force / Department of Defense",
-    amount: "$500K–$1.5M",
-    status: "identified",
-    deadline: "Rolling / Annual BAA cycles",
-    category: "veterans",
-    alignment: ["Military-to-Civilian Transition", "SkillBridge Internships", "Space & Cyber Workforce", "AI/ML Training Pipelines", "Credential Translation"],
-    txStandards: ["VA Community Care Standards", "TX Veterans Commission Standards", "DoD SkillBridge Program Requirements", "CompTIA Security+ / Space Operations Standards"],
-    keyMetrics: ["SkillBridge participant placement ≥85%", "Credential attainment within 90 days ≥75%", "Employer match satisfaction ≥90%", "Retention at 12 months ≥70%"],
-    platforms: ["Mission Transition", "Shield Atlas", "ThriveUp Academy", "Minority Center of Excellence"],
-    requiresPartners: true,
-    partnerRequirements: [
-      "DoD SkillBridge-approved training provider (or pending application)",
-      "Employer partners in space, cyber, defense, or tech sectors",
-      "Austin-area defense/aerospace contractors (e.g., L3Harris, BAE Systems, Raytheon)",
-      "Texas Veterans Commission partnership for state-level coordination",
-      "Community college or THECB provider for stackable credentials",
-    ],
+    id: "pm-c2-transport",
+    name: "PM C2 Transport — Capability Statement Solicitation",
+    funder: "U.S. Army / PEO C3T (Program Executive Office Command, Control & Communications-Tactical)",
+    amount: "Contract Vehicle (TBD upon award)",
+    status: "in_progress",
+    deadline: "April 3, 2026 (1300 EST email submission)",
+    category: "defense",
+    alignment: ["Command & Control Transport", "COMSEC Tier Alignment", "Emergency Communications", "All-Hazard Preparedness", "Geographic Risk Mapping", "Crisis Coordination"],
+    txStandards: ["DoD C2 Transport Standards", "COMSEC Compliance (all tiers)", "Army PEO C3T Program Assessment Elements (PAEs)", "NIST Cybersecurity Framework"],
+    keyMetrics: ["All 6 PAEs mapped via Shield Atlas", "COMSEC tier coverage 100%", "C2 transport alignment table complete", "Capability statement submitted by deadline"],
+    platforms: ["Shield Atlas", "Ecosystem Nexus", "Mission Transition", "Minority Center of Excellence"],
+    requiresPartners: false,
+    partnerRequirements: [],
     curriculumAlignment: [
-      { module: "AI Mastery (9-12)", credential: "AI/ML Foundations for Defense", status: "aligned" },
-      { module: "Workforce Readiness — Professional Presence", credential: "Military-to-Civilian Communication", status: "aligned" },
-      { module: "Work Ethic & Career Leadership", credential: "Leadership in Civilian Orgs", status: "aligned" },
-      { module: "AI Literacy — Evaluate & Direct", credential: "CompTIA Security+ Prep", status: "planned" },
-      { module: "Career Foundations — Teamwork", credential: "Cross-Functional Team Leadership", status: "aligned" },
-      { module: "Time & Priority Management", credential: "PMP / CAPM Fundamentals", status: "planned" },
+      { module: "Shield Atlas — PAE 1: Transport Network Ops", credential: "C2 Transport Operations", status: "aligned" },
+      { module: "Shield Atlas — PAE 2: Network Security", credential: "COMSEC Tier Compliance", status: "aligned" },
+      { module: "Shield Atlas — PAE 3: Spectrum Management", credential: "Electromagnetic Spectrum Ops", status: "aligned" },
+      { module: "Shield Atlas — PAE 4: Satellite Communications", credential: "SATCOM Systems", status: "aligned" },
+      { module: "Shield Atlas — PAE 5: Tactical Radio Systems", credential: "Tactical Communications", status: "aligned" },
+      { module: "Shield Atlas — PAE 6: Network Modernization", credential: "C2 Modernization & Integration", status: "aligned" },
     ],
     deliverables: [
-      "SkillBridge provider application to DoD (pending)",
-      "Space/cyber workforce training curriculum with AI integration",
-      "Military credential translation matrix (MOS → civilian certs)",
-      "Employer partnership pipeline for defense/tech sector",
-      "Veteran transition tracking dashboard (separation → training → placement)",
-      "Alignment with USSF Guardian Ideal competency framework",
+      "Capability Statement (built and live at /capability-statement)",
+      "Full C2 transport alignment table mapping all 6 PAEs",
+      "COMSEC tier coverage documentation",
+      "Email submission to Army PM C2 Transport by April 3, 2026 at 1300 EST",
+      "In-person event preparation for April 28-29, 2026 — Augusta, GA (if selected)",
+      "Shield Atlas platform demonstration materials",
     ],
     requiredDocuments: [
+      { name: "Capability Statement", status: "uploaded" },
       { name: "501(c)(3) Determination Letter", status: "uploaded" },
       { name: "SAM.gov Registration (UEI)", status: "uploaded" },
-      { name: "SkillBridge Provider Application (DD Form)", status: "needed" },
-      { name: "DoD-Aligned Training Curriculum", status: "needed" },
-      { name: "Military Credential Translation Matrix", status: "needed" },
-      { name: "Employer Partner Letters (Defense/Tech)", status: "needed" },
-      { name: "Veteran Outcome Tracking Plan", status: "needed" },
-      { name: "Cybersecurity Training Accreditation", status: "needed" },
-      { name: "TX Veterans Commission Partnership Letter", status: "needed" },
+      { name: "C2 Transport Alignment Table (6 PAEs)", status: "uploaded" },
+      { name: "COMSEC Tier Mapping Documentation", status: "uploaded" },
+      { name: "Email Submission Confirmation (due April 3)", status: "needed" },
+      { name: "In-Person Presentation Deck (Augusta, GA — April 28-29)", status: "needed" },
     ],
   },
 ];
@@ -315,6 +307,7 @@ const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   "loi-submitted": { label: "LOI Submitted", color: "bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300" },
   preparing: { label: "Preparing", color: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300" },
   identified: { label: "Identified", color: "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300" },
+  in_progress: { label: "In Progress", color: "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300" },
 };
 
 interface IntelPlatform {
@@ -403,9 +396,9 @@ export default function DirectiveCompliancePage() {
     },
   });
 
-  const totalGrantValue = "$3.55M–$6.25M+";
+  const totalGrantValue = "$3.05M–$4.75M+ (plus C2 Transport contract)";
   const activeCount = ACTIVE_GRANTS.filter(g => g.status === "active").length;
-  const submittedCount = ACTIVE_GRANTS.filter(g => g.status === "submitted" || g.status === "loi-submitted" || g.status === "identified").length;
+  const submittedCount = ACTIVE_GRANTS.filter(g => g.status === "submitted" || g.status === "loi-submitted" || g.status === "identified" || g.status === "in_progress").length;
   const totalStandards = TX_STANDARDS_ALIGNMENT.reduce((acc, cat) => acc + cat.standards.length, 0);
   const alignedStandards = TX_STANDARDS_ALIGNMENT.reduce((acc, cat) => acc + cat.standards.filter(s => s.aligned).length, 0);
 
