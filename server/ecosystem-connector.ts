@@ -9595,4 +9595,111 @@ if (typeof module !== "undefined") {
       res.status(500).json({ error: "Failed to serve integration document" });
     }
   });
+
+  app.get("/api/ecosystem/roster", async (_req, res) => {
+    try {
+      const allPlatforms = await db.select().from(ecosystemPlatforms);
+      const now = Date.now();
+      const STALE_MS = 15 * 60 * 1000;
+
+      const roster = allPlatforms.map((p) => {
+        let liveHealth = "unknown";
+        if (p.status === "active" && p.lastHeartbeat) {
+          liveHealth = (now - new Date(p.lastHeartbeat).getTime() <= STALE_MS) ? "online" : "stale";
+        } else if (p.status === "active") {
+          liveHealth = "online";
+        } else if (p.status === "registered") {
+          liveHealth = "registered";
+        }
+        return {
+          id: p.id,
+          name: p.name,
+          url: p.url,
+          role: p.role,
+          domain: p.domain,
+          status: p.status,
+          healthStatus: liveHealth,
+          lastHeartbeat: p.lastHeartbeat,
+          capabilities: p.capabilities,
+          grantAlignment: p.grantAlignment,
+          description: p.description,
+        };
+      });
+
+      const onlineCount = roster.filter(p => p.healthStatus === "online").length;
+      const staleCount = roster.filter(p => p.healthStatus === "stale").length;
+      const registeredCount = roster.filter(p => p.healthStatus === "registered").length;
+
+      res.json({
+        ecosystem: "ThriveUp Academy — Collaborative Advocate Ecosystem",
+        parent: "The Collaborative Advocate Foundation (501(c)(3))",
+        founder: "Dr. Terry Flood",
+        ein: "41-3618003",
+        hub: "https://thrivingcommunitiesforall.com",
+        version: "3.0",
+        lastUpdated: new Date().toISOString(),
+        totalPlatforms: allPlatforms.length,
+        summary: {
+          online: onlineCount,
+          stale: staleCount,
+          registered: registeredCount,
+          total: allPlatforms.length,
+        },
+        endpoints: {
+          heartbeat: "POST /api/ecosystem/heartbeat",
+          directives: "GET /api/ecosystem/directives/repository/{platformId}",
+          acknowledge: "POST /api/ecosystem/directives/{directiveId}/acknowledge",
+          events: "POST /api/ecosystem/events",
+          aiQuery: "POST /api/ecosystem-ai/query",
+          aiStream: "POST /api/ecosystem-ai/stream",
+          evaluationFeed: "GET /api/ecosystem/evaluation-feed?key={apiKey}",
+          roster: "GET /api/ecosystem/roster",
+        },
+        platforms: roster,
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch ecosystem roster" });
+    }
+  });
+
+  app.get("/api/ecosystem/health", async (_req, res) => {
+    try {
+      const allPlatforms = await db.select().from(ecosystemPlatforms);
+      const now = Date.now();
+      const STALE_MS = 15 * 60 * 1000;
+
+      const online = allPlatforms.filter(p => {
+        if (p.status !== "active") return false;
+        if (!p.lastHeartbeat) return true;
+        return (now - new Date(p.lastHeartbeat).getTime()) <= STALE_MS;
+      }).length;
+
+      const totalDirectives = await db.select({ count: sql`count(*)` }).from(ecosystemDirectives);
+      const totalAcks = await db.select({ count: sql`count(*)` }).from(ecosystemDirectiveAcks);
+      const completedAcks = await db.select({ count: sql`count(*)` }).from(ecosystemDirectiveAcks)
+        .where(sql`status IN ('completed', 'verified', 'acknowledged')`);
+
+      const totalD = Number(totalDirectives[0]?.count || 0);
+      const totalA = Number(totalAcks[0]?.count || 0);
+      const completedA = Number(completedAcks[0]?.count || 0);
+
+      res.json({
+        status: "operational",
+        ecosystem: "ThriveUp Academy",
+        totalPlatforms: allPlatforms.length,
+        onlinePlatforms: online,
+        offlinePlatforms: allPlatforms.length - online,
+        directives: {
+          total: totalD,
+          totalAcknowledgments: totalA,
+          compliant: completedA,
+          complianceRate: totalA > 0 ? `${Math.round((completedA / totalA) * 100)}%` : "N/A",
+        },
+        uptime: process.uptime(),
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Health check failed" });
+    }
+  });
 }
