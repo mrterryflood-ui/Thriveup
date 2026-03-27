@@ -1357,7 +1357,7 @@ Write in formal grant language, approximately 400-500 words. Use specific data p
         "ISSS: Student support services, academic case management",
       ];
 
-      const prompt = `You are a grant opportunity analyst for ThriveUp Academy, a 21-platform workforce development ecosystem. Analyze the following grant opportunity and provide a structured assessment.
+      const prompt = `You are a grant opportunity analyst for ThriveUp Academy, a 24-platform workforce development ecosystem. Analyze the following grant opportunity and provide a structured assessment.
 
 Our platform capabilities:
 ${platformCapabilities.join("\n")}
@@ -1622,7 +1622,7 @@ Respond in this exact JSON format (no markdown, just JSON):
 Key context about the organization:
 - ThriveUp Academy is part of a 3-entity ecosystem: ThriveUp Academy (501(c)(3)), The Collaborative Advocate (VOSB), and MCE (Minority Center of Excellence - minority business SaaS)
 - Dr. Flood's methodologies: MAP-GAP (Monitoring, Assessing, Predicting — Gap analysis, a continuous improvement framework), SALP (structured adherence/fidelity protocol), Three Realities (Research Reality, Political Reality, Ground-Level Reality), MG-PATR
-- 21-platform technology ecosystem: ThriveUp Academy (education), MCE (minority business), LifeBridge (community voice/benefits navigation), RPLICE/Better Science Lab (fidelity monitoring/research), Sankofa Health Network (health equity), Holistic Black Feminine Health Hub, Black Maternal Health Network, Black Men's Health Hub, M2C Transition (military-to-civilian), Mission Transition (separation support), SafeReport (safety/mandatory reporting), Perfectly Different (neurodiversity), WholeMind Learning (K-12 education), PillScheduler (medication adherence), SafeCogniCare (cognitive health), Shield Atlas (risk intelligence), The Collaborative Advocate (VOSB services), Video Creator AI (content production), Ecosystem Nexus (coordination), ISSS (student support), Pinnacle Business Conglomerate (contractor enablement)
+- 24-platform technology ecosystem: ThriveUp Academy (education), MCE (minority business), LifeBridge (community voice/benefits navigation), RPLICE/Better Science Lab (fidelity monitoring/research), Sankofa Health Network (health equity), Holistic Black Feminine Health Hub, Black Maternal Health Network, Black Men's Health Hub, M2C Transition (military-to-civilian), Mission Transition (separation support), SafeReport (safety/mandatory reporting), Perfectly Different (neurodiversity), WholeMind Learning (K-12 education), PillScheduler (medication adherence), SafeCogniCare (cognitive health), Shield Atlas (risk intelligence), The Collaborative Advocate (VOSB services), Video Creator AI (content production), Ecosystem Nexus (coordination), ISSS (student support), Pinnacle Business Conglomerate (contractor enablement)
 - Focus areas: youth workforce development, substance use prevention, community coalition building, economic empowerment, reentry services
 
 ${grantKnowledge ? `\nDETAILED GRANT KNOWLEDGE (use this to align every section precisely):\n${grantKnowledge}` : ""}
@@ -1634,7 +1634,7 @@ CRITICAL INSTRUCTIONS:
 4. Include specific, measurable outcomes with numbers and percentages
 5. Reference evidence-based practices, data sources, and research
 6. Align precisely with the grant's specific requirements and evaluation criteria
-7. Incorporate the organization's unique differentiators (Three Realities, MAP-GAP, 21-platform ecosystem)
+7. Incorporate the organization's unique differentiators (Three Realities, MAP-GAP, 24-platform ecosystem)
 8. Be specific rather than generic — use real program details, platform names, and methodology descriptions
 9. Do NOT stop early. If the word count target is 6,000 words, write 6,000 words of substantive content.
 10. ALWAYS complete every sentence. Never stop mid-sentence or mid-paragraph. End with a proper concluding sentence.`;
@@ -2016,7 +2016,7 @@ ORGANIZATION CONTEXT:
 - ThriveUp Academy is a 501(c)(3) workforce development organization in Austin, TX
 - Led by Dr. Terry Flood, focused on AI-powered career exploration and workforce readiness
 - Three-entity ecosystem: ThriveUp Academy (nonprofit), The Collaborative Advocate (VOSB), MCE (Minority Capital Exchange — minority business SaaS)
-- 21-platform integrated technology ecosystem for workforce development
+- 24-platform integrated technology ecosystem for workforce development
 - Target population: youth and young adults facing employment barriers, with focus on Black youth 16-24
 ${serviceAreaContext}
 ${partnershipContext}
@@ -2046,7 +2046,7 @@ Format as a clear numbered list with each field labeled. Be specific — use rea
 ORGANIZATION CONTEXT:
 - ThriveUp Academy is a 501(c)(3) workforce development organization in Austin, TX
 - Led by Dr. Terry Flood, focused on AI-powered career exploration and workforce readiness
-- 21-platform integrated technology ecosystem
+- 24-platform integrated technology ecosystem
 - Target population: youth and young adults facing employment barriers
 ${serviceAreaContext}
 ${partnershipContext}

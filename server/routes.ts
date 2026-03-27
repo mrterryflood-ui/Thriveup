@@ -4210,7 +4210,7 @@ export async function registerRoutes(
       const script = await generateAIResponse([
         {
           role: "system",
-          content: `You are a professional video scriptwriter and Roku/CTV streaming content strategist for ThriveUp Academy, a 21-platform AI-powered workforce development ecosystem founded by Dr. Terry Flood.
+          content: `You are a professional video scriptwriter and Roku/CTV streaming content strategist for ThriveUp Academy, a 24-platform AI-powered workforce development ecosystem founded by Dr. Terry Flood.
 
 Create complete video scripts optimized for Roku distribution with ad monetization.
 

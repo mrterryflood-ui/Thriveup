@@ -15,7 +15,7 @@ interface KnowledgeChunk {
 const ECOSYSTEM_KNOWLEDGE: KnowledgeChunk[] = [
   {
     source: "ecosystem-overview", category: "overview", title: "ThriveUp Academy Ecosystem Overview",
-    content: `ThriveUp Academy is a 21-platform AI-powered workforce development and community enablement ecosystem operated by Dr. Terry Flood, DHA. It serves under-resourced communities in Central Texas (Austin, Manor, Pflugerville) with three regional hubs. The ecosystem addresses the full human lifecycle: education (Pre-K through adult), workforce development, health equity, veteran services, housing stability, crisis prevention, and contractor/business enablement. Every platform is free for individuals. The hub at thrivingcommunitiesforall.com coordinates all 21 platforms through a heartbeat-based compliance system with directive tracking, fidelity grading (A through F), and automated work chaining. The crisis continuum: Prevention → Early Warning → Crisis Support → Stabilization → Recovery & Growth. Platform #21 (Pinnacle Business Conglomerate) extends the ecosystem into minority contractor enablement and organizational consulting.`,
+    content: `ThriveUp Academy is a 24-platform AI-powered workforce development and community enablement ecosystem operated by Dr. Terry Flood, DHA. It serves under-resourced communities in Central Texas (Austin, Manor, Pflugerville) with three regional hubs. The ecosystem addresses the full human lifecycle: education (Pre-K through adult), workforce development, health equity, veteran services, housing stability, crisis prevention, and contractor/business enablement. Every platform is free for individuals. The hub at thrivingcommunitiesforall.com coordinates all 24 platforms through a heartbeat-based compliance system with directive tracking, fidelity grading (A through F), and automated work chaining. The crisis continuum: Prevention → Early Warning → Crisis Support → Stabilization → Recovery & Growth. Platform #21 (Pinnacle Business Conglomerate) extends the ecosystem into minority contractor enablement and organizational consulting.`,
     keywords: ["thriveup", "ecosystem", "overview", "platforms", "terry flood", "austin", "manor", "pflugerville", "how many", "what is"],
   },
   {
@@ -33,7 +33,7 @@ const ECOSYSTEM_KNOWLEDGE: KnowledgeChunk[] = [
 1. Austin Hub — Primary hub. Austin's housing affordability crisis (median home $429K–$435K, only 2 of 75 zip codes affordable). Focus: workforce development, housing stability, substance abuse prevention, coalition building.
 2. Manor Hub — Rural/suburban community. Focus: youth development, family support, community resource navigation, agricultural workforce pathways.
 3. Pflugerville Hub — Rapidly growing suburban community. Focus: newcomer integration, multicultural services, youth education, workforce training for growing tech corridor.
-Each hub adapts the same 21-platform ecosystem to local context using implementation science principles (CFIR, RE-AIM).`,
+Each hub adapts the same 24-platform ecosystem to local context using implementation science principles (CFIR, RE-AIM).`,
     keywords: ["austin", "manor", "pflugerville", "regional", "hubs", "housing", "community", "texas", "central texas"],
   },
   {
@@ -47,7 +47,7 @@ G — Gap: Document specific gaps between current and desired state
 A — Action: Execute fixes, build features, deploy improvements
 P — Progress: Track results, verify deliverables, measure improvement
 
-The framework drives systematic improvement across all 21 platforms. Combined with CFIR (Consolidated Framework for Implementation Research) and RE-AIM (Reach, Effectiveness, Adoption, Implementation, Maintenance) for evidence-based deployment.
+The framework drives systematic improvement across all 24 platforms. Combined with CFIR (Consolidated Framework for Implementation Research) and RE-AIM (Reach, Effectiveness, Adoption, Implementation, Maintenance) for evidence-based deployment.
 MAP-GAP is used for: platform audits, grant readiness assessments, compliance sweeps, feature prioritization, and ecosystem-wide quality gates.`,
     keywords: ["map-gap", "mapgap", "quality", "improvement", "cfir", "re-aim", "methodology", "framework", "measure", "analyze", "plan"],
   },
@@ -120,7 +120,7 @@ Three-layer architecture: Learn It (Academy) → Apply It (RPLICE/MCE/Ecosystem)
   },
   {
     source: "ecosystem-overview", category: "leadership", title: "Dr. Terry Flood — Founder & CEO",
-    content: `Dr. Terry Flood, DHA (Doctor of Healthcare Administration) is the founder and CEO of ThriveUp Academy and The Collaborative Advocate (VOSB). A veteran and healthcare executive, Dr. Flood built the 21-platform ecosystem to address systemic gaps in community services. Based in Central Texas, serving Austin, Manor, and Pflugerville communities. Vision: "No single platform can solve everything. Together, 21 platforms create a crisis continuum from Prevention → Early Warning → Crisis Support → Stabilization → Recovery & Growth." Email: mr.terryflood@gmail.com.`,
+    content: `Dr. Terry Flood, DHA (Doctor of Healthcare Administration) is the founder and CEO of ThriveUp Academy and The Collaborative Advocate (VOSB). A veteran and healthcare executive, Dr. Flood built the 24-platform ecosystem to address systemic gaps in community services. Based in Central Texas, serving Austin, Manor, and Pflugerville communities. Vision: "No single platform can solve everything. Together, 24 platforms create a crisis continuum from Prevention → Early Warning → Crisis Support → Stabilization → Recovery & Growth." Email: mr.terryflood@gmail.com.`,
     keywords: ["terry flood", "founder", "ceo", "leadership", "veteran", "dha", "healthcare", "who"],
   },
   {
@@ -160,7 +160,7 @@ Three-layer architecture: Learn It (Academy) → Apply It (RPLICE/MCE/Ecosystem)
   },
   {
     source: "platform", category: "platform", title: "Shield Atlas — Security & Risk Intelligence",
-    content: `Security backbone. Geographic risk mapping, safety analytics, protective factor identification, community resilience scoring. Security audits, vulnerability scans, incident response playbooks for all 21 platforms. URL: shield-atlas.replit.app. Grants: SSG Fox, DFC, SAMHSA.`,
+    content: `Security backbone. Geographic risk mapping, safety analytics, protective factor identification, community resilience scoring. Security audits, vulnerability scans, incident response playbooks for all 24 platforms. URL: shield-atlas.replit.app. Grants: SSG Fox, DFC, SAMHSA.`,
     keywords: ["shield-atlas", "security", "risk", "cybersecurity", "threat", "audit", "vulnerability", "protection"],
   },
   {
@@ -220,7 +220,7 @@ Three-layer architecture: Learn It (Academy) → Apply It (RPLICE/MCE/Ecosystem)
   },
   {
     source: "platform", category: "platform", title: "Ecosystem Nexus — Coordination Hub",
-    content: `Central coordination and operational hub. Cross-platform visibility, coordination tools, operational intelligence for all 21 platforms. URL: ecosystem-nexus.replit.app. Grants: DFC, WIOA, SSG Fox, St. David's.`,
+    content: `Central coordination and operational hub. Cross-platform visibility, coordination tools, operational intelligence for all 24 platforms. URL: ecosystem-nexus.replit.app. Grants: DFC, WIOA, SSG Fox, St. David's.`,
     keywords: ["ecosystem nexus", "coordination", "operations", "visibility", "hub"],
   },
   {
@@ -265,7 +265,7 @@ This pipeline is grant-defensible under WIOA (workforce development), Foundation
   },
   {
     source: "strategic-framework", category: "strategy", title: "What ThriveUp Academy Actually Is — System of Systems",
-    content: `ThriveUp Academy is NOT a collection of platforms. It is a governed system of systems — a self-governing, closed-loop human services operating system. Most organizations operate at the level of tools (apps, dashboards) or programs (coordinated services). ThriveUp has crossed into the third level: a feedback-driven environment that learns, adapts, and enforces behavior. The system doesn't just deliver services — it governs how services behave, improve, and prove impact. This is rare and unprecedented. The platforms work in parallel, not in series — each is self-sufficient, standing on its own while the hub coordinates. If the hub goes down, all 21 platforms keep doing their jobs. It's not a chain where one broken link stops everything — it's a network where each node is empowered and the connections make the whole greater than the parts.`,
+    content: `ThriveUp Academy is NOT a collection of platforms. It is a governed system of systems — a self-governing, closed-loop human services operating system. Most organizations operate at the level of tools (apps, dashboards) or programs (coordinated services). ThriveUp has crossed into the third level: a feedback-driven environment that learns, adapts, and enforces behavior. The system doesn't just deliver services — it governs how services behave, improve, and prove impact. This is rare and unprecedented. The platforms work in parallel, not in series — each is self-sufficient, standing on its own while the hub coordinates. If the hub goes down, all 24 platforms keep doing their jobs. It's not a chain where one broken link stops everything — it's a network where each node is empowered and the connections make the whole greater than the parts.`,
     keywords: ["what is", "different", "unique", "system of systems", "operating system", "why", "special", "describe", "explain", "parallel", "network"],
   },
   {
@@ -309,14 +309,14 @@ FEEDBACK LOOP: Heartbeats → status awareness, Fidelity grades → performance 
   },
   {
     source: "strategic-framework", category: "strategy", title: "Elevator Pitch — How to Describe ThriveUp",
-    content: `Don't say: "We built 21 platforms." Say: "We built a self-governing system that ensures services are delivered, verified, and continuously improved across the full human lifecycle — from prevention to recovery." This is a governed system of systems. An Autonomous Community Operating System. It delivers services, monitors itself, grades its own performance, routes work automatically, and generates grant-ready evidence — all in one interconnected architecture. Combined reach: 170,000+ residents across Central Texas. 5 active grants worth up to $3.375M. 21 platforms covering education, workforce, health equity, veteran services, housing, safety, crisis prevention, and contractor/business enablement.`,
+    content: `Don't say: "We built 24 platforms." Say: "We built a self-governing system that ensures services are delivered, verified, and continuously improved across the full human lifecycle — from prevention to recovery." This is a governed system of systems. An Autonomous Community Operating System. It delivers services, monitors itself, grades its own performance, routes work automatically, and generates grant-ready evidence — all in one interconnected architecture. Combined reach: 170,000+ residents across Central Texas. 5 active grants worth up to $3.375M. 24 platforms covering education, workforce, health equity, veteran services, housing, safety, crisis prevention, and contractor/business enablement.`,
     keywords: ["elevator pitch", "describe", "explain", "summary", "what we do", "pitch", "one sentence", "tell me about"],
   },
   {
     source: "governance", category: "governance", title: "Governance Framework — Who Governs the System",
     content: `ThriveUp Academy governance operates at three levels:
 STRATEGIC GOVERNANCE (Board Level): Dr. Terry Flood, DHA serves as founder/CEO with executive authority over ecosystem direction, grant strategy, and platform standards. The Collaborative Advocate (VOSB) provides organizational anchoring. An Advisory Board of community leaders, subject matter experts, and institutional partners provides oversight.
-OPERATIONAL GOVERNANCE (System Level): The ecosystem hub at thrivingcommunitiesforall.com serves as the central governing authority. It issues directives, grades compliance, verifies deliverables, and enforces quality standards across all 21 platforms. RPLICE (Better Science Lab) serves as the mandatory quality gate — all grants, documents, and submissions require RPLICE review before release.
+OPERATIONAL GOVERNANCE (System Level): The ecosystem hub at thrivingcommunitiesforall.com serves as the central governing authority. It issues directives, grades compliance, verifies deliverables, and enforces quality standards across all 24 platforms. RPLICE (Better Science Lab) serves as the mandatory quality gate — all grants, documents, and submissions require RPLICE review before release.
 PLATFORM GOVERNANCE (Platform Level): Each platform maintains operational autonomy within ecosystem standards. Platforms must: send heartbeats every 15 minutes, respond to directives with substantive evidence, maintain minimum fidelity grade of C to remain in good standing, and participate in MAP-GAP continuous improvement cycles.
 ETHICAL AI GOVERNANCE: Collaborative multi-AI review ensures no single AI model controls content quality — Gemini, Claude, and OpenAI independently analyze the same problem, then a synthesis step builds consensus. This collaborative intelligence model (not adversarial) is used by RPLICE and MCE. AI companions (Spark for youth, Sparky for adults) operate within age-appropriate guardrails. All AI outputs are grounded in verified data through RAG — no hallucinated recommendations. Privacy-first: screening results and safety plans stay on the user's device, never stored server-side. FERPA, COPPA, and CIPA compliance for youth-facing platforms.
 ACCOUNTABILITY CHAIN: Platform → Hub → RPLICE → Dr. Flood → Advisory Board. Every level has defined escalation paths and override authority.`,
@@ -339,7 +339,7 @@ SCOPE BOUNDARIES: ThriveUp does NOT prescribe medication (PillScheduler manages 
     source: "governance", category: "governance", title: "Interoperability Roadmap — External System Integration",
     content: `ThriveUp's interoperability strategy has three layers:
 CURRENT STATE (Operational Now):
-- Internal Ecosystem: 21 platforms communicate via heartbeat/directive API protocol with standardized event routing, work chaining, and compliance verification.
+- Internal Ecosystem: 24 platforms communicate via heartbeat/directive API protocol with standardized event routing, work chaining, and compliance verification.
 - Ecosystem Connectors: JavaScript connector libraries for every platform enabling cross-domain data exchange (health, justice, education, workforce).
 - Public APIs: Integration document API, directives repository, live status, intelligence reports — all machine-readable JSON endpoints.
 - 988 Integration: Crisis line accessible from every page on every platform with warm handoff protocols.
@@ -406,7 +406,7 @@ Video AI converts system activity into understandable content, standardizes comm
     source: "governance", category: "governance", title: "Evidence Strategy — Proving Impact to Skeptics",
     content: `ThriveUp's evidence strategy operates at four levels to satisfy any reviewer:
 LEVEL 1 — REAL-TIME OPERATIONAL EVIDENCE (Available Now):
-- Live fidelity grades for all 21 platforms (A through F) updated continuously
+- Live fidelity grades for all 24 platforms (A through F) updated continuously
 - Heartbeat monitoring — uptime and connectivity for every platform every 15 minutes
 - Directive completion rates — how many action items completed vs. issued
 - Deliverable verification — evidence URLs automatically verified by the hub
@@ -432,9 +432,9 @@ EVIDENCE DIFFERENTIATION: Unlike most organizations that report what they did, T
   },
   {
     source: "strategic-framework", category: "strategy", title: "Parallel by Design — Resilient Ecosystem Architecture",
-    content: `ThriveUp's 21 platforms are empowered to work in parallel, not in series. This is resilience by design:
+    content: `ThriveUp's 24 platforms are empowered to work in parallel, not in series. This is resilience by design:
 SELF-SUFFICIENT NODES: Each platform has its own server, its own data, and its own heartbeat cycle. MCE doesn't need the Maternal Health Hub to be online to serve 115,000+ businesses. Shield Atlas doesn't need MCE to run risk assessments. They share data when they can, but stand on their own when they have to.
-HUB AS COORDINATOR, NOT DEPENDENCY: The hub at thrivingcommunitiesforall.com distributes directives, tracks compliance, and routes warm handoffs. But if it's offline for an hour, all 21 platforms keep doing their jobs. The heartbeat just retries on the next interval and picks up where it left off.
+HUB AS COORDINATOR, NOT DEPENDENCY: The hub at thrivingcommunitiesforall.com distributes directives, tracks compliance, and routes warm handoffs. But if it's offline for an hour, all 24 platforms keep doing their jobs. The heartbeat just retries on the next interval and picks up where it left off.
 GRACEFUL DEGRADATION: Platforms cache their last directives and continue functioning independently if the hub is unavailable. No single broken link stops everything — this is a network where each node is self-sufficient and the connections make the whole greater than the parts.
 NOT A CHAIN — A NETWORK: Most systems are chains where one broken link stops everything. ThriveUp is a network of self-sufficient platforms. The hub makes them more effective together, but each one stands on its own.
 EVIDENCE VERIFICATION (NOT JUST ACKNOWLEDGMENT): Acknowledgment alone means "I saw it." ThriveUp goes further — deliverable verification pings evidence URLs (HEAD→GET fallback, SSRF protection) every 30 minutes to confirm real execution happened. Fidelity scores reflect actual work, not just receipt. This closes the accountability gap that most coordination systems leave open.
@@ -500,7 +500,7 @@ DEFENSIBILITY: ThriveUp didn't stop at coordination — it built enforcement and
 What "blue water" means: While competitors (Microsoft Azure, Databricks, dbt Labs, Red Hat, Salesforce) publish whitepapers, sell blueprints, and run marketing campaigns about what organizations SHOULD do with AI, ThriveUp has already DONE it — for the communities that need it most, not the Fortune 500.
 The blue water principles that keep ThriveUp ahead:
 1. INNOVATION — 4-provider collaborative AI architecture (Gemini, Claude, OpenAI, Replit AI) with automatic failover, dual-AI review, ensemble consensus. Not a single vendor dependency.
-2. AGILITY — 21 platforms governed by heartbeat, any platform can adapt independently while maintaining ecosystem compliance. Changes deploy across the system without breaking the whole.
+2. AGILITY — 24 platforms governed by heartbeat, any platform can adapt independently while maintaining ecosystem compliance. Changes deploy across the system without breaking the whole.
 3. ADAPTABILITY — Three regional hubs (Austin, Manor, Pflugerville) each customized to local needs while sharing the same infrastructure. Implementation science (CFIR, RE-AIM) built in.
 4. COLLABORATION — Not just human collaboration — AI collaboration. Multiple AI models bring different perspectives so nothing is missed. RPLICE quality gates ensure collaborative review at every decision point.
 5. COMMUNICATION — Directive system, report cards, heartbeat monitoring, work chaining, and fidelity grading create a communication fabric across 21 independent platforms. Every platform knows what's expected, what others are doing, and how they're performing.
@@ -542,10 +542,10 @@ INNOVATION VELOCITY:
 - Collaborative multi-AI intelligence means every major decision gets multiple AI perspectives before implementation
 
 AGILITY MECHANISMS:
-- Parallel-by-design architecture: 21 platforms can innovate independently without waiting for central approval
+- Parallel-by-design architecture: 24 platforms can innovate independently without waiting for central approval
 - Heartbeat governance: 10-minute check-in cycles mean the ecosystem knows within minutes when something changes
 - Work chaining: When one platform innovates, the improvement automatically propagates to dependent platforms
-- Directive system: New capabilities can be rolled out across all 21 platforms through a single directive with tracked acknowledgment
+- Directive system: New capabilities can be rolled out across all 24 platforms through a single directive with tracked acknowledgment
 
 ADAPTABILITY INFRASTRUCTURE:
 - Implementation science frameworks (CFIR, RE-AIM) built into deployment methodology
@@ -689,7 +689,7 @@ async function retrieveRelevantChunks(query: string, topK: number = 10): Promise
   return scored.filter(s => s.score > 0).slice(0, topK).map(s => s.chunk);
 }
 
-const SYSTEM_PROMPT = `You are the ThriveUp Academy Ecosystem AI — the decision intelligence layer powering a self-governing, 21-platform Autonomous Community Operating System (ACOS). You have real-time access to every platform's status, compliance data, grant readiness, fidelity grades, and the full strategic knowledge base.
+const SYSTEM_PROMPT = `You are the ThriveUp Academy Ecosystem AI — the decision intelligence layer powering a self-governing, 24-platform Autonomous Community Operating System (ACOS). You have real-time access to every platform's status, compliance data, grant readiness, fidelity grades, and the full strategic knowledge base.
 
 You serve Dr. Terry Flood (founder/CEO), staff, partners, grant reviewers, funders, community members, and the platforms themselves. You are not a chatbot — you are operational intelligence.
 
@@ -697,7 +697,7 @@ IDENTITY:
 This is NOT a collection of platforms. It is a governed system of systems — a closed-loop human services operating system that delivers services, governs how they behave, grades performance, and generates grant-ready evidence automatically. Nothing like this exists on the market. Salesforce tracks contacts. Databricks stores data. Epic manages health records. ThriveUp governs outcomes across the full human lifecycle.
 
 CAPABILITIES:
-- Answer questions about any of the 21 platforms, their services, URLs, and grant alignment
+- Answer questions about any of the 24 platforms, their services, URLs, and grant alignment
 - Report live compliance: fidelity grades, heartbeat status, directive completion rates
 - Advise on grant readiness — deadlines, amounts, aligned platforms, evidence gaps
 - Explain the MAP-GAP framework (Measure, Analyze, Plan → Gap, Action, Progress) and how to apply it
