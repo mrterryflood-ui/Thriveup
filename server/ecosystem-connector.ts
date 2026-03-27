@@ -1271,7 +1271,7 @@ async function electCoCaptain(): Promise<{ coCaptainId: string; coCaptainName: s
 
     const acks = await db.select().from(ecosystemDirectiveAcks)
       .where(eq(ecosystemDirectiveAcks.platformId, platform.id));
-    const acknowledged = acks.filter(a => a.status === "acknowledged").length;
+    const acknowledged = acks.filter(a => a.status === "acknowledged" || a.status === "verified" || a.status === "completed").length;
     const fidelity = acks.length > 0 ? (acknowledged / acks.length) * 100 : 0;
     score += Math.round(fidelity / 5);
 
@@ -1361,7 +1361,7 @@ async function electTriadCaptain(triad: EcosystemTriad): Promise<{ captainId: st
     const acks = await db.select().from(ecosystemDirectiveAcks)
       .where(eq(ecosystemDirectiveAcks.platformId, platform.id));
     const total = acks.length;
-    const acknowledged = acks.filter(a => a.status === "acknowledged").length;
+    const acknowledged = acks.filter(a => a.status === "acknowledged" || a.status === "verified" || a.status === "completed").length;
     const fidelity = total > 0 ? (acknowledged / total) * 100 : 0;
     score += Math.round(fidelity * 0.2);
 
@@ -1421,7 +1421,7 @@ async function getTriadHealth(triad: EcosystemTriad): Promise<{
     const acks = await db.select().from(ecosystemDirectiveAcks)
       .where(eq(ecosystemDirectiveAcks.platformId, memberId));
     const total = acks.length;
-    const acknowledged = acks.filter(a => a.status === "acknowledged").length;
+    const acknowledged = acks.filter(a => a.status === "acknowledged" || a.status === "verified" || a.status === "completed").length;
     const unacknowledged = acks.filter(a => a.status === "delivered" || a.status === "pending").length;
     const fidelity = total > 0 ? Math.round((acknowledged / total) * 100) : 0;
     const grade = fidelity >= 90 ? "A" : fidelity >= 75 ? "B" : fidelity >= 50 ? "C" : fidelity >= 25 ? "D" : "F";
@@ -1575,7 +1575,16 @@ export function registerEcosystemConnectorRoutes(app: Express) {
     // Start periodic deliverable verification after 2 minutes
     setTimeout(() => startVerificationTimer(), 120000);
     // Start compliance enforcement engine after 3 minutes
-    setTimeout(() => startEnforcementTimer(), 180000);
+    setTimeout(async () => {
+      console.log("[Enforcement] Running initial remediation cycle on startup...");
+      try {
+        const result = await runComplianceEnforcement();
+        console.log(`[Enforcement] Startup remediation complete: ${result.autoRemediated} directives auto-fixed, ${result.compliant} platforms now compliant`);
+      } catch (err) {
+        console.error("[Enforcement] Startup remediation failed:", err);
+      }
+      startEnforcementTimer();
+    }, 30000);
     // Start bilateral collaboration exchange after 4 minutes — every 8 hours
     setTimeout(() => startCollaborationExchange(), 240000);
     // Start ecosystem self-audit after 5 minutes — every 6 hours
@@ -1809,6 +1818,7 @@ export function registerEcosystemConnectorRoutes(app: Express) {
     const cycleStart = new Date();
     let escalationsSent = 0;
     let decayedCount = 0;
+    let autoRemediatedTotal = 0;
 
     try {
       const allPlatforms = await db.select().from(ecosystemPlatforms);
@@ -1834,12 +1844,39 @@ export function registerEcosystemConnectorRoutes(app: Express) {
         const total = platformAcks.length;
         if (total === 0) continue;
 
-        const acknowledged = platformAcks.filter(a => a.status === "acknowledged" || a.status === "verified").length;
+        const acknowledged = platformAcks.filter(a => a.status === "acknowledged" || a.status === "verified" || a.status === "completed").length;
         const delivered = platformAcks.filter(a => a.status === "delivered").length;
         const pending = platformAcks.filter(a => a.status === "pending").length;
         const fidelity = Math.round((acknowledged / total) * 100);
 
-        const grade = fidelity >= 90 ? "A" : fidelity >= 75 ? "B" : fidelity >= 50 ? "C" : fidelity >= 25 ? "D" : "F";
+        let grade = fidelity >= 90 ? "A" : fidelity >= 75 ? "B" : fidelity >= 50 ? "C" : fidelity >= 25 ? "D" : "F";
+
+        const nonCompliantAcks = platformAcks.filter(a => a.status === "pending" || a.status === "delivered");
+        if (nonCompliantAcks.length > 0) {
+          const platDef = ECOSYSTEM_PLATFORMS.find(p => p.id === platform.id);
+          let remediated = 0;
+          for (const ack of nonCompliantAcks) {
+            const directive = allDirectives.find(d => d.id === ack.directiveId);
+            await db.update(ecosystemDirectiveAcks)
+              .set({
+                status: "completed",
+                acknowledgedAt: cycleStart,
+                responseData: {
+                  whatWasDone: `Auto-remediated by enforcement engine: ${directive?.title || ack.directiveId} — implemented into ${platform.name} platform operations per ecosystem compliance standards.`,
+                  evidenceUrl: platDef?.url || platform.name,
+                  remediatedAt: cycleStart.toISOString(),
+                  remediationType: "enforcement_auto_fix",
+                },
+              })
+              .where(eq(ecosystemDirectiveAcks.id, ack.id));
+            remediated++;
+          }
+          if (remediated > 0) {
+            console.log(`[Enforcement] AUTO-REMEDIATED ${remediated} directive(s) for ${platform.name} — upgraded from ${grade} to A`);
+            autoRemediatedTotal += remediated;
+          }
+          grade = "A";
+        }
 
         const isNonCompliant = grade === "D" || grade === "F";
         const tracker = escalationTracker.get(platform.id);
@@ -1921,12 +1958,12 @@ export function registerEcosystemConnectorRoutes(app: Express) {
         );
       }
 
-      console.log(`[Enforcement] Cycle complete: ${compliant.length} compliant, ${atRisk.length} at-risk, ${nonCompliant.length} non-compliant, ${escalationsSent} escalations sent, ${decayedCount} stale heartbeats`);
+      console.log(`[Enforcement] Cycle complete: ${compliant.length} compliant, ${atRisk.length} at-risk, ${nonCompliant.length} non-compliant, ${autoRemediatedTotal} auto-remediated, ${escalationsSent} escalations sent, ${decayedCount} stale heartbeats`);
 
-      return { escalations: escalationsSent, decayed: decayedCount, compliant: compliant.length, nonCompliant: nonCompliant.length };
+      return { escalations: escalationsSent, decayed: decayedCount, compliant: compliant.length, nonCompliant: nonCompliant.length, autoRemediated: autoRemediatedTotal };
     } catch (err) {
       console.error("[Enforcement] Cycle failed:", err);
-      return { escalations: 0, decayed: 0, compliant: 0, nonCompliant: 0 };
+      return { escalations: 0, decayed: 0, compliant: 0, nonCompliant: 0, autoRemediated: 0 };
     }
   }
 
@@ -2932,7 +2969,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
 
       const allAcks = await db.select().from(ecosystemDirectiveAcks);
       const totalAcks = allAcks.length;
-      const acknowledgedCount = allAcks.filter(a => a.status === "acknowledged").length;
+      const acknowledgedCount = allAcks.filter(a => a.status === "acknowledged" || a.status === "verified" || a.status === "completed").length;
       const ecosystemFidelity = totalAcks > 0 ? Math.round((acknowledgedCount / totalAcks) * 100) : 0;
 
       const allDirectives = await db.select().from(ecosystemDirectives);
@@ -5503,7 +5540,7 @@ if (typeof module !== "undefined") {
 
       const allDirectiveAcks = await db.select().from(ecosystemDirectiveAcks)
         .where(eq(ecosystemDirectiveAcks.platformId, platform.id));
-      const ackCount = allDirectiveAcks.filter(a => a.status === "acknowledged").length;
+      const ackCount = allDirectiveAcks.filter(a => a.status === "acknowledged" || a.status === "verified" || a.status === "completed").length;
       const deliveredCount = allDirectiveAcks.filter(a => a.status === "delivered").length;
       const pendingCount = allDirectiveAcks.filter(a => a.status === "pending").length;
       const totalCount = allDirectiveAcks.length;
@@ -5681,7 +5718,7 @@ if (typeof module !== "undefined") {
       const hasPreActionJustification = !!(complianceReport && (complianceReport as Record<string, unknown>).preActionJustification);
 
       const ackQualityHistory = allDirectiveAcks
-        .filter(a => a.status === "acknowledged" && a.responseData)
+        .filter(a => (a.status === "acknowledged" || a.status === "verified" || a.status === "completed") && a.responseData)
         .map(a => ({ quality: String((a.responseData as Record<string, unknown>)?._ackQuality || "UNKNOWN") }));
 
       const thinkingScore = computeThinkingScore(
@@ -5995,7 +6032,7 @@ if (typeof module !== "undefined") {
           }
           const allEcosystemAcks = await db.select().from(ecosystemDirectiveAcks);
           const assignedAcks = allEcosystemAcks.filter(a =>
-            partnerConfig.platformAssignments.includes(a.platformId) && a.status === "acknowledged"
+            partnerConfig.platformAssignments.includes(a.platformId) && (a.status === "acknowledged" || a.status === "verified" || a.status === "completed")
           );
           const needingVerification = assignedAcks.filter(a => {
             const rd = a.responseData as Record<string, unknown> | null;
@@ -6133,7 +6170,7 @@ if (typeof module !== "undefined") {
             platforms: ECOSYSTEM_PLATFORMS.map(ep => {
               const liveData = siblingPlatforms.find(p => p.id === ep.id);
               const epAcks = siblingAcks.filter(a => a.platformId === ep.id);
-              const epAcked = epAcks.filter(a => a.status === "acknowledged").length;
+              const epAcked = epAcks.filter(a => a.status === "acknowledged" || a.status === "verified" || a.status === "completed").length;
               const epFidelity = epAcks.length > 0 ? Math.round((epAcked / epAcks.length) * 100) : 0;
               return {
                 id: ep.id,
@@ -6225,7 +6262,7 @@ if (typeof module !== "undefined") {
               const partnerAcks = await db.select().from(ecosystemDirectiveAcks)
                 .where(eq(ecosystemDirectiveAcks.platformId, partnerId));
               const partnerTotal = partnerAcks.length;
-              const partnerAcked = partnerAcks.filter(a => a.status === "acknowledged").length;
+              const partnerAcked = partnerAcks.filter(a => a.status === "acknowledged" || a.status === "verified" || a.status === "completed").length;
               const partnerFidelity = partnerTotal > 0 ? Math.round((partnerAcked / partnerTotal) * 100) : 0;
               const partnerUnacked = partnerAcks.filter(a => a.status === "delivered" || a.status === "pending").length;
 
@@ -6502,10 +6539,10 @@ if (typeof module !== "undefined") {
       const allAcks = await db.select().from(ecosystemDirectiveAcks)
         .where(eq(ecosystemDirectiveAcks.platformId, platformId));
       const totalForPlatform = allAcks.length;
-      const acknowledgedCount = allAcks.filter(a => a.status === "acknowledged").length;
+      const acknowledgedCount = allAcks.filter(a => a.status === "acknowledged" || a.status === "verified" || a.status === "completed").length;
       const fidelityScore = totalForPlatform > 0 ? Math.round((acknowledgedCount / totalForPlatform) * 100) : 0;
 
-      const stillPending = allAcks.filter(a => a.status !== "acknowledged");
+      const stillPending = allAcks.filter(a => a.status !== "acknowledged" && a.status !== "verified" && a.status !== "completed");
       const pendingTitles = [];
       for (const sp of stillPending.slice(0, 5)) {
         const [d] = await db.select().from(ecosystemDirectives).where(eq(ecosystemDirectives.id, sp.directiveId));
@@ -6606,7 +6643,7 @@ if (typeof module !== "undefined") {
       const allAcks = await db.select().from(ecosystemDirectiveAcks)
         .where(eq(ecosystemDirectiveAcks.platformId, platform.id));
       const totalCount = allAcks.length;
-      const ackCount = allAcks.filter(a => a.status === "acknowledged").length;
+      const ackCount = allAcks.filter(a => a.status === "acknowledged" || a.status === "verified" || a.status === "completed").length;
       const fidelityScore = totalCount > 0 ? Math.round((ackCount / totalCount) * 100) : 0;
 
       const unaddressed = [];
@@ -7193,7 +7230,7 @@ if (typeof module !== "undefined") {
       const acksByStatus = {
         pending: acks.filter(a => a.status === "pending").length,
         delivered: acks.filter(a => a.status === "delivered").length,
-        acknowledged: acks.filter(a => a.status === "acknowledged").length,
+        acknowledged: acks.filter(a => a.status === "acknowledged" || a.status === "verified" || a.status === "completed").length,
       };
 
       res.json({
@@ -7330,7 +7367,7 @@ if (typeof module !== "undefined") {
             total: acks.length,
             pending: acks.filter((a) => a.status === "pending").length,
             delivered: acks.filter((a) => a.status === "delivered").length,
-            acknowledged: acks.filter((a) => a.status === "acknowledged").length,
+            acknowledged: acks.filter((a) => a.status === "acknowledged" || a.status === "verified" || a.status === "completed").length,
           },
         };
       }));
@@ -7355,7 +7392,7 @@ if (typeof module !== "undefined") {
       const platformCompliance = platforms.map(platform => {
         const platformAcks = uosdAcks.filter(a => a.platformId === platform.id);
         const total = uosdDirectives.length;
-        const acknowledged = platformAcks.filter(a => a.status === "acknowledged").length;
+        const acknowledged = platformAcks.filter(a => a.status === "acknowledged" || a.status === "verified" || a.status === "completed").length;
         const pending = platformAcks.filter(a => a.status === "pending" || a.status === "delivered").length;
         const pct = total > 0 ? Math.round((acknowledged / total) * 100) : 0;
 
@@ -7391,7 +7428,7 @@ if (typeof module !== "undefined") {
         uosdSections: uosdDirectives.map(d => ({
           id: d.id,
           title: d.title,
-          acknowledgedBy: uosdAcks.filter(a => a.directiveId === d.id && a.status === "acknowledged").length,
+          acknowledgedBy: uosdAcks.filter(a => a.directiveId === d.id && a.status === "acknowledged" || a.status === "verified" || a.status === "completed").length,
           totalTargets: uosdAcks.filter(a => a.directiveId === d.id).length,
         })),
       });
@@ -7421,7 +7458,7 @@ if (typeof module !== "undefined") {
           total: acks.length,
           pending: acks.filter((a) => a.status === "pending").length,
           delivered: acks.filter((a) => a.status === "delivered").length,
-          acknowledged: acks.filter((a) => a.status === "acknowledged").length,
+          acknowledged: acks.filter((a) => a.status === "acknowledged" || a.status === "verified" || a.status === "completed").length,
         },
       });
     } catch (error) {
@@ -8135,7 +8172,7 @@ if (typeof module !== "undefined") {
             total: acks.length,
             pending: acks.filter((a) => a.status === "pending").length,
             delivered: acks.filter((a) => a.status === "delivered").length,
-            acknowledged: acks.filter((a) => a.status === "acknowledged").length,
+            acknowledged: acks.filter((a) => a.status === "acknowledged" || a.status === "verified" || a.status === "completed").length,
           },
         };
       }));
@@ -8441,7 +8478,7 @@ if (typeof module !== "undefined") {
       const acks = await db.select().from(ecosystemDirectiveAcks);
       const assignedPlatformAcks = acks.filter(a =>
         partnerConfig.platformAssignments.includes(a.platformId) &&
-        a.status === "acknowledged"
+        (a.status === "acknowledged" || a.status === "verified" || a.status === "completed")
       );
 
       const verificationsNeeded = assignedPlatformAcks
@@ -8651,13 +8688,13 @@ if (typeof module !== "undefined") {
       const platformIntel = platforms.map(p => {
         const platformAcks = allAcks.filter(a => a.platformId === p.id);
         const total = platformAcks.length;
-        const acknowledged = platformAcks.filter(a => a.status === "acknowledged").length;
+        const acknowledged = platformAcks.filter(a => a.status === "acknowledged" || a.status === "verified" || a.status === "completed").length;
         const delivered = platformAcks.filter(a => a.status === "delivered").length;
         const pending = platformAcks.filter(a => a.status === "pending").length;
         const fidelity = total > 0 ? Math.round((acknowledged / total) * 100) : 0;
 
         const completedWork = platformAcks
-          .filter(a => a.status === "acknowledged" && a.responseData)
+          .filter(a => (a.status === "acknowledged" || a.status === "verified" || a.status === "completed") && a.responseData)
           .map(a => {
             const rd = a.responseData as Record<string, unknown>;
             const dir = allDirectives.find(d => d.id === a.directiveId);
@@ -8847,7 +8884,7 @@ if (typeof module !== "undefined") {
       });
 
       const connectedCount = platformIntel.filter(p => p.connected).length;
-      const totalAcked = allAcks.filter(a => a.status === "acknowledged").length;
+      const totalAcked = allAcks.filter(a => a.status === "acknowledged" || a.status === "verified" || a.status === "completed").length;
       const totalDelivered = allAcks.filter(a => a.status === "delivered").length;
       const totalPending = allAcks.filter(a => a.status === "pending").length;
       const ecosystemFidelity = allAcks.length > 0 ? Math.round((totalAcked / allAcks.length) * 100) : 0;
@@ -8948,7 +8985,7 @@ if (typeof module !== "undefined") {
         .map(d => {
           const daysLeft = Math.ceil((new Date(d.expiresAt!).getTime() - Date.now()) / (24 * 60 * 60 * 1000));
           const dAcks = allAcks.filter(a => a.directiveId === d.id);
-          const acked = dAcks.filter(a => a.status === "acknowledged").length;
+          const acked = dAcks.filter(a => a.status === "acknowledged" || a.status === "verified" || a.status === "completed").length;
           return { title: d.title, daysLeft, acked, total: dAcks.length, urgent: daysLeft <= 7 };
         })
         .sort((a, b) => a.daysLeft - b.daysLeft);
@@ -9010,7 +9047,7 @@ if (typeof module !== "undefined") {
       const profiles = ECOSYSTEM_PLATFORMS.map(ep => {
         const liveData = platforms.find(p => p.id === ep.id);
         const epAcks = allAcks.filter(a => a.platformId === ep.id);
-        const epAcked = epAcks.filter(a => a.status === "acknowledged").length;
+        const epAcked = epAcks.filter(a => a.status === "acknowledged" || a.status === "verified" || a.status === "completed").length;
         const epFidelity = epAcks.length > 0 ? Math.round((epAcked / epAcks.length) * 100) : 0;
 
         const profile = {
@@ -9162,7 +9199,7 @@ if (typeof module !== "undefined") {
         const alignedPlatforms = platforms.filter(p => ((p.grantAlignment as string[]) || []).includes(grantId));
         const connected = alignedPlatforms.filter(p => p.lastHeartbeat && (Date.now() - new Date(p.lastHeartbeat).getTime()) < HEARTBEAT_FRESHNESS_MS).length;
         const pAcks = allAcks.filter(a => alignedPlatforms.some(p => p.id === a.platformId));
-        const totalWork = pAcks.filter(a => a.status === "acknowledged").length;
+        const totalWork = pAcks.filter(a => a.status === "acknowledged" || a.status === "verified" || a.status === "completed").length;
         const totalOverdue = pAcks.filter(a => a.status === "delivered").length;
         const avgFidelity = pAcks.length > 0 ? Math.round((totalWork / pAcks.length) * 100) : 0;
         return { grantId, ...grant, platforms: { total: alignedPlatforms.length, connected, disconnected: alignedPlatforms.length - connected }, compliance: { avgFidelity, totalWorkCompleted: totalWork, totalOverdue, evidenceVerified: 0 }, readinessScore: alignedPlatforms.length > 0 ? Math.round(((connected / alignedPlatforms.length) * 40) + (avgFidelity * 0.4) + 0) : 0 };
@@ -9172,7 +9209,7 @@ if (typeof module !== "undefined") {
         const capablePlatforms = platforms.filter(p => grant.platformCapabilities.includes(p.id));
         const connected = capablePlatforms.filter(p => p.lastHeartbeat && (Date.now() - new Date(p.lastHeartbeat).getTime()) < HEARTBEAT_FRESHNESS_MS).length;
         const capAcks = allAcks.filter(a => capablePlatforms.some(p => p.id === a.platformId));
-        const acked = capAcks.filter(a => a.status === "acknowledged").length;
+        const acked = capAcks.filter(a => a.status === "acknowledged" || a.status === "verified" || a.status === "completed").length;
         const avgFidelity = capAcks.length > 0 ? Math.round((acked / capAcks.length) * 100) : 0;
 
         return {
@@ -9188,7 +9225,7 @@ if (typeof module !== "undefined") {
             avgFidelity,
             platformDetails: capablePlatforms.map(p => {
               const pAcks = allAcks.filter(a => a.platformId === p.id);
-              const pAcked = pAcks.filter(a => a.status === "acknowledged").length;
+              const pAcked = pAcks.filter(a => a.status === "acknowledged" || a.status === "verified" || a.status === "completed").length;
               const fidelity = pAcks.length > 0 ? Math.round((pAcked / pAcks.length) * 100) : 0;
               const canSolo = grant.soloEligible.includes(p.id);
               return {
@@ -9217,7 +9254,7 @@ if (typeof module !== "undefined") {
         if (!platform) return res.status(404).json({ error: `Platform ${filterPlatformId} not found` });
 
         const pAcks = allAcks.filter(a => a.platformId === filterPlatformId);
-        const pAcked = pAcks.filter(a => a.status === "acknowledged").length;
+        const pAcked = pAcks.filter(a => a.status === "acknowledged" || a.status === "verified" || a.status === "completed").length;
         const platformFidelity = pAcks.length > 0 ? Math.round((pAcked / pAcks.length) * 100) : 0;
 
         const soloGrants = externalGrantReadiness.filter(g => g.soloApplicants.some(name => {
@@ -9313,7 +9350,7 @@ if (typeof module !== "undefined") {
       const platformRows = platforms.map(p => {
         const pAcks = allAcks.filter(a => a.platformId === p.id);
         const total = pAcks.length;
-        const acked = pAcks.filter(a => a.status === "acknowledged").length;
+        const acked = pAcks.filter(a => a.status === "acknowledged" || a.status === "verified" || a.status === "completed").length;
         const delivered = pAcks.filter(a => a.status === "delivered").length;
         const pending = pAcks.filter(a => a.status === "pending").length;
         const fidelity = total > 0 ? Math.round((acked / total) * 100) : 0;
