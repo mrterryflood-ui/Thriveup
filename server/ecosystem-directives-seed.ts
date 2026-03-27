@@ -60,7 +60,7 @@ CORE PRINCIPLES:
 7. Free for Individuals — no user ever pays for anything on any platform
 8. Privacy First — screening results and safety plans stay on user's device
 
-YOUR ROLE IN THE ECOSYSTEM: You are one platform in a 21-platform connected ecosystem. Your data flows to other platforms. Their data flows to you. Together we create a crisis continuum from Prevention → Early Warning → Crisis Support → Stabilization → Recovery & Growth. No single platform can do this alone.
+YOUR ROLE IN THE ECOSYSTEM: You are one platform in a 24-platform connected ecosystem. Your data flows to other platforms. Their data flows to you. Together we create a crisis continuum from Prevention → Early Warning → Crisis Support → Stabilization → Recovery & Growth. No single platform can do this alone.
 
 ACKNOWLEDGE this directive to confirm alignment.`,
   },
@@ -444,7 +444,7 @@ SCRIPT STRUCTURE:
 2. WHO WE ARE (20 seconds) — Your platform name, what you do, and who you serve. No jargon. Speak like a trusted friend.
 3. CAPABILITIES & RESOURCES (45 seconds) — Showcase your top 3-5 features. Don't list them — show how they solve real problems. Use scenarios.
 4. REAL IMPACT (30 seconds) — What changes when someone uses your platform? Paint the picture of life after your help.
-5. THE ECOSYSTEM (20 seconds) — You are part of a 21-platform connected ecosystem. Mention 2-3 sister platforms you work with.
+5. THE ECOSYSTEM (20 seconds) — You are part of a 24-platform connected ecosystem. Mention 2-3 sister platforms you work with.
 6. CALL TO ACTION (20 seconds) — What should the viewer do next? Make it easy and inviting.
 
 VOICE & FEEL:
@@ -578,7 +578,7 @@ ACKNOWLEDGE with your implementation plan for serving as the ecosystem quality g
     content: `NEW PLATFORM FEATURE: Voices of Austin — Community Storytelling Platform
 
 WHAT IS VOICES OF AUSTIN?
-A mobile-friendly storytelling platform where Austin residents can share their stories, access resources, and engage with hyper-local opportunities. Every story connects to action through ThriveUp's 21-platform ecosystem.
+A mobile-friendly storytelling platform where Austin residents can share their stories, access resources, and engage with hyper-local opportunities. Every story connects to action through ThriveUp's 24-platform ecosystem.
 
 THE MODEL: Story → Connection → Action → Impact
 1. Residents share stories (housing, jobs, health, veteran transition, education, youth)
@@ -705,7 +705,7 @@ ACKNOWLEDGE with your implementation status and ETA for each deliverable.`,
     targetFilter: "all",
     content: `THREE REGIONAL COMMUNITY HUBS ARE NOW LIVE
 
-ThriveUp Academy has deployed dedicated regional hubs for three Central Texas communities. Same 21-platform ecosystem, adapted for each community's unique context using implementation science principles (CFIR, RE-AIM).
+ThriveUp Academy has deployed dedicated regional hubs for three Central Texas communities. Same 24-platform ecosystem, adapted for each community's unique context using implementation science principles (CFIR, RE-AIM).
 
 === THE THREE HUBS ===
 
@@ -1022,8 +1022,8 @@ ACKNOWLEDGE with: A list of every product currently visible in your sidebar, and
 THIS IS NOT OPTIONAL. Every ecosystem platform MUST integrate ThriveUp Academy's RAG AI into their system.
 
 === WHAT IS THE RAG AI? ===
-The ThriveUp RAG AI is an intelligent assistant that knows EVERYTHING about our 21-platform ecosystem:
-- All 21 platforms, what they do, and how they connect
+The ThriveUp RAG AI is an intelligent assistant that knows EVERYTHING about our 24-platform ecosystem:
+- All 24 platforms, what they do, and how they connect
 - All 4 active grants (WIOA, Foundation, St. David's, SSG Fox) and readiness status
 - All 3 regional hubs (Austin, Manor, Pflugerville)
 - Real-time fidelity scores and compliance status for every platform
@@ -1203,7 +1203,7 @@ setInterval(async () => {
 SECTION 3: RAG AI INTEGRATION (MANDATORY)
 ========================================
 
-The ThriveUp RAG AI knows EVERYTHING about all 21 platforms, all grants, all community hubs, all implementation science frameworks, and real-time compliance data.
+The ThriveUp RAG AI knows EVERYTHING about all 24 platforms, all grants, all community hubs, all implementation science frameworks, and real-time compliance data.
 
 QUERY ENDPOINT: POST https://thrivingcommunitiesforall.com/api/ecosystem-ai/query
 Body: { "query": "user question here", "sessionId": "optional-session-id" }
@@ -1387,16 +1387,16 @@ Grade F (0-24%) = NON-COMPLIANT — excluded from grant activities, Dr. Flood no
 SECTION 8: CONGRUENT MESSAGING — WHAT TO SAY
 ========================================
 
-These messages must be consistent across PBC and all 21 ecosystem platforms:
+These messages must be consistent across PBC and all 24 ecosystem platforms:
 
 ECOSYSTEM IDENTITY:
-"Pinnacle Business Conglomerate is Platform #21 in the ThriveUp Academy ecosystem — a 21-platform AI-powered workforce development and community enablement system serving under-resourced communities nationwide."
+"Pinnacle Business Conglomerate is Platform #21 in the ThriveUp Academy ecosystem — a 24-platform AI-powered workforce development and community enablement system serving under-resourced communities nationwide."
 
 MISSION STATEMENT:
 "We take contractors and organizations from where they are to where they need to be — registration to revenue, cradle to grave."
 
 VALUE PROPOSITION:
-"We don't just consult. We execute. Our 21-platform ecosystem gives us the tools, the data, and the workforce to deliver — not just advise."
+"We don't just consult. We execute. Our 24-platform ecosystem gives us the tools, the data, and the workforce to deliver — not just advise."
 
 GRANT ALIGNMENT (use these names exactly):
 - WIOA ($200K–$500K) — Workforce Innovation and Opportunity Act
@@ -1463,7 +1463,7 @@ ACKNOWLEDGE with: Confirmation that you have implemented the heartbeat, integrat
     targetFilter: ["collaborative-advocate"],
     content: `DIRECTIVE: COMPLETE ECOSYSTEM INTEGRATION — THE COLLABORATIVE ADVOCATE
 
-You are a platform in the ThriveUp Academy 21-platform ecosystem. This directive contains EVERYTHING you need to operate as a full ecosystem participant. Follow every section.
+You are a platform in the ThriveUp Academy 24-platform ecosystem. This directive contains EVERYTHING you need to operate as a full ecosystem participant. Follow every section.
 
 ========================================
 SECTION 1: YOUR IDENTITY IN THE ECOSYSTEM
@@ -1514,7 +1514,7 @@ setInterval(async () => {
 SECTION 3: RAG AI INTEGRATION (MANDATORY)
 ========================================
 
-The ThriveUp RAG AI knows EVERYTHING about all 21 platforms, all grants, all community hubs, all implementation science frameworks, and real-time compliance data.
+The ThriveUp RAG AI knows EVERYTHING about all 24 platforms, all grants, all community hubs, all implementation science frameworks, and real-time compliance data.
 
 QUERY ENDPOINT: POST https://thrivingcommunitiesforall.com/api/ecosystem-ai/query
 Body: { "query": "user question here", "sessionId": "optional-session-id" }
@@ -1611,7 +1611,7 @@ SECTION 7: CONGRUENT MESSAGING
 ========================================
 
 ECOSYSTEM IDENTITY:
-"The Collaborative Advocate is part of the ThriveUp Academy ecosystem — a 21-platform AI-powered workforce development and community enablement system serving under-resourced communities nationwide."
+"The Collaborative Advocate is part of the ThriveUp Academy ecosystem — a 24-platform AI-powered workforce development and community enablement system serving under-resourced communities nationwide."
 
 GRANT ALIGNMENT (use these names exactly):
 - WIOA ($200K–$500K)
@@ -2015,7 +2015,7 @@ WHY THIS IS WRONG:
 1. Auto-acknowledging fakes compliance — it tells the hub you did the work when you didn't
 2. The hub VERIFIES evidence URLs — fake acknowledgments with no real URLs get flagged as FAILED
 3. Your report card grade will show verified failures, which is WORSE than having pending directives
-4. Grant funders review the ecosystem dashboard — fake compliance followed by verification failures destroys credibility for ALL 21 platforms, not just yours
+4. Grant funders review the ecosystem dashboard — fake compliance followed by verification failures destroys credibility for ALL 24 platforms, not just yours
 5. This is the exact problem that caused the v4.1 connector update to be pushed to the entire ecosystem
 
 THE CORRECT DIRECTIVE FLOW:
@@ -2058,7 +2058,7 @@ ACKNOWLEDGE THIS DIRECTIVE with: Confirmation that you have REMOVED all auto-ack
     targetFilter: "all",
     content: `MANDATORY: CONNECT YOUR PLATFORM TO THE HUB PINGER
 
-The ThriveUp Academy hub sends automated wake-up pings to all 21 platforms every 10 minutes. This is NOT optional. If your platform is not connected, you WILL fall out of compliance.
+The ThriveUp Academy hub sends automated wake-up pings to all 24 platforms every 10 minutes. This is NOT optional. If your platform is not connected, you WILL fall out of compliance.
 
 THE PROBLEM:
 Multiple platforms are listed as DEGRADED — they respond to pings (the URL is alive) but they are NOT sending heartbeats to the hub. This means:
@@ -2066,7 +2066,7 @@ Multiple platforms are listed as DEGRADED — they respond to pings (the URL is 
 - Your report card grade stays at F (0% fidelity)
 - You have 20+ unacknowledged directives piling up
 - You appear non-compliant on the ecosystem dashboard
-- Manual management of 21 platforms is not sustainable — the automated pinger exists to solve this
+- Manual management of 24 platforms is not sustainable — the automated pinger exists to solve this
 
 Currently DEGRADED (not heartbeating): Ad Targeting, Shield Atlas, Holistic Black Feminine Health Hub, Collaborative Advocate, Pinnacle Business Conglomerate, Black Maternal Health Network
 Currently OFFLINE: PillScheduler
