@@ -3,6 +3,15 @@
 ## Overview
 ThriveUp Academy is an AI-powered workforce development and community enablement platform designed for under-resourced communities. It provides a comprehensive ecosystem including AI mastery curricula, career pathways, mentorship, an AI Creation Studio, entrepreneurship tools, financial literacy, and community engagement features. The platform aims to connect individuals with grant funding and align with workforce development criteria to achieve measurable outcomes and significant community impact, empowering individuals and communities through technology and education.
 
+## Founder — Dr. Terry Flood
+- **Full Name:** Dr. Terry Flood (Sr.)
+- **Academic Credentials:** DHA (Doctorate in Healthcare Administration), MS in Implementation Science, MA in Psychology, MSHRM (Human Resource Management), MBA, MSCJ (Criminal Justice), Public Policy (graduate level)
+- **Email:** mr.terryflood@gmail.com
+- **Role:** Founder & CEO of all three entities
+- **Veteran Status:** Yes
+- **Address:** 17912 Stefano Drive, Pflugerville, TX 78660
+- **Payment:** Cash App ($MRTDFLOOD), PayPal (paypal.me/TERRYFLOODCEO) — NEVER Stripe
+
 ## User Preferences
 The agent should prioritize iterative development, clearly explaining major changes before implementation. It should focus on delivering high-quality, well-tested code, and use clear, simple language when describing technical concepts. Avoid making changes to sensitive configuration files or core architectural components without explicit instruction. CRITICAL: "NBA" must NEVER appear in UI code identifiers. CRITICAL: Always work in parallel using subagents. Never stop to have conversations when there is more work to do. Keep building.
 
