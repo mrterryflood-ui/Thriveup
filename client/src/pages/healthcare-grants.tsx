@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "wouter";
 import {
   Heart, Brain, Shield, Search, ExternalLink, CheckCircle2,
@@ -310,12 +312,44 @@ function getScoreBg(score: number): string {
 }
 
 export default function HealthcareGrantsPage() {
+  useEffect(() => { document.title = "Healthcare Grant Research Hub | ThriveUp Academy"; }, []);
+
   const [activeCategory, setActiveCategory] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [showEquityOnly, setShowEquityOnly] = useState(false);
   const [showImplSciOnly, setShowImplSciOnly] = useState(false);
 
-  const filteredGrants = GRANT_OPPORTUNITIES
+  const { data: apiGrants, isLoading: grantsLoading } = useQuery<Array<{ id: string; title: string; funder: string; category: string; amount: string; deadline: string; description: string; status: string; fitScore: number }>>({
+    queryKey: ["/api/grants"],
+  });
+
+  const { data: grantStats } = useQuery<{ totalGrants: number; openGrants: number; totalPipeline: string; avgFitScore: number }>({
+    queryKey: ["/api/grants/stats"],
+  });
+
+  const allGrants: GrantOpportunity[] = [
+    ...GRANT_OPPORTUNITIES,
+    ...(apiGrants || [])
+      .filter(g => !GRANT_OPPORTUNITIES.some(og => og.name.toLowerCase().includes(g.title?.toLowerCase().slice(0, 20) || "")))
+      .map(g => ({
+        id: g.id,
+        name: g.title || "Untitled Grant",
+        funder: g.funder || "Unknown",
+        category: g.category === "healthcare" ? "community-health" : g.category === "workforce" ? "community-health" : g.category || "community-health",
+        amount: g.amount || "Varies",
+        deadline: g.deadline || "Check funder website",
+        description: g.description || "",
+        url: "",
+        focus: [],
+        platformAlignment: [],
+        alignmentScore: g.fitScore || 70,
+        implementationScience: false,
+        equityFocus: true,
+        status: (g.status === "open" ? "open" : g.status === "upcoming" ? "upcoming" : "rolling") as "open" | "upcoming" | "rolling",
+      })),
+  ];
+
+  const filteredGrants = allGrants
     .filter(g => activeCategory === "all" || g.category === activeCategory)
     .filter(g => !showEquityOnly || g.equityFocus)
     .filter(g => !showImplSciOnly || g.implementationScience)
@@ -330,12 +364,12 @@ export default function HealthcareGrantsPage() {
     })
     .sort((a, b) => b.alignmentScore - a.alignmentScore);
 
-  const topAligned = GRANT_OPPORTUNITIES.slice().sort((a, b) => b.alignmentScore - a.alignmentScore).slice(0, 5);
+  const topAligned = allGrants.slice().sort((a, b) => b.alignmentScore - a.alignmentScore).slice(0, 5);
 
   const categoryStats = CATEGORIES.filter(c => c.id !== "all").map(c => ({
     ...c,
-    count: GRANT_OPPORTUNITIES.filter(g => g.category === c.id).length,
-    avgScore: Math.round(GRANT_OPPORTUNITIES.filter(g => g.category === c.id).reduce((s, g) => s + g.alignmentScore, 0) / Math.max(1, GRANT_OPPORTUNITIES.filter(g => g.category === c.id).length)),
+    count: allGrants.filter(g => g.category === c.id).length,
+    avgScore: Math.round(allGrants.filter(g => g.category === c.id).reduce((s, g) => s + g.alignmentScore, 0) / Math.max(1, allGrants.filter(g => g.category === c.id).length)),
   }));
 
   return (
@@ -356,6 +390,26 @@ export default function HealthcareGrantsPage() {
           <p className="text-lg text-rose-300 max-w-3xl">
             Every opportunity scored against our 10 health-focused platforms. Your infrastructure is already built — these grants fund the mission.
           </p>
+          {grantStats && (
+            <div className="flex flex-wrap gap-4 mt-6" data-testid="section-grant-stats">
+              <div className="bg-white/10 rounded-md px-4 py-2">
+                <p className="text-2xl font-bold text-white">{allGrants.length}</p>
+                <p className="text-xs text-rose-200">Total Opportunities</p>
+              </div>
+              <div className="bg-white/10 rounded-md px-4 py-2">
+                <p className="text-2xl font-bold text-white">{grantStats.openGrants || allGrants.filter(g => g.status === "open" || g.status === "rolling").length}</p>
+                <p className="text-xs text-rose-200">Open / Rolling</p>
+              </div>
+              <div className="bg-white/10 rounded-md px-4 py-2">
+                <p className="text-2xl font-bold text-white">{grantStats.totalPipeline || "$15M+"}</p>
+                <p className="text-xs text-rose-200">Pipeline Value</p>
+              </div>
+              <div className="bg-white/10 rounded-md px-4 py-2">
+                <p className="text-2xl font-bold text-white">{grantStats.avgFitScore || Math.round(allGrants.reduce((s, g) => s + g.alignmentScore, 0) / allGrants.length)}%</p>
+                <p className="text-xs text-rose-200">Avg Alignment</p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -510,7 +564,7 @@ export default function HealthcareGrantsPage() {
             </div>
             <div className="grid md:grid-cols-2 gap-4">
               {PLATFORM_STRENGTHS.map((p, i) => {
-                const grantCount = GRANT_OPPORTUNITIES.filter(g => g.platformAlignment.includes(p.platform)).length;
+                const grantCount = allGrants.filter(g => g.platformAlignment.includes(p.platform)).length;
                 return (
                   <Card key={i} className="p-5 hover:shadow-lg transition-shadow" data-testid={`card-platform-${i}`}>
                     <div className="flex items-center gap-3 mb-3">

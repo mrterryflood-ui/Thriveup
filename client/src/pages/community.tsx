@@ -1,14 +1,32 @@
 import { useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/page-header";
 import {
   DollarSign, Building2, Laptop, WifiOff, Languages, GraduationCap,
   ArrowRight, MapPin, Globe, Heart, CheckCircle2, Mail, Briefcase,
   Users, TrendingUp, Target, Award, BarChart3
 } from "lucide-react";
+import type { CommunityPartner } from "@shared/schema";
+
+interface PartnerImpact {
+  totalPartners: number;
+  verifiedPartners: number;
+  withMOU: number;
+  totalReferrals: number;
+  completedReferrals: number;
+  totalEngagements: number;
+  totalVolunteerHours: number;
+  totalParticipantsServed: number;
+  totalResourcesDistributed: number;
+  activeMOUs: number;
+  activeAmbassadors: number;
+  totalAmbassadors: number;
+}
 
 const programs = [
   {
@@ -91,49 +109,71 @@ const programs = [
   },
 ];
 
-const impactMetrics = [
-  {
-    value: "2,500+",
-    label: "Learners Served",
-    description: "Under-resourced community members actively engaged",
-    icon: Users,
-  },
-  {
-    value: "85%",
-    label: "Career Placement Rate",
-    description: "Youth placed in jobs, internships, or advanced training",
-    icon: Briefcase,
-  },
-  {
-    value: "500+",
-    label: "Mentorship Connections",
-    description: "Active mentor-youth partnerships in workforce development",
-    icon: Heart,
-  },
-  {
-    value: "40+",
-    label: "Employer Partners",
-    description: "Industry partners providing career pathways and job opportunities",
-    icon: Building2,
-  },
-  {
-    value: "12",
-    label: "AI Skill Certifications",
-    description: "Industry-recognized credentials earned by program participants",
-    icon: Award,
-  },
-  {
-    value: "92%",
-    label: "Program Retention",
-    description: "Youth completing full career pipeline program cycle",
-    icon: TrendingUp,
-  },
-];
-
 export default function CommunityPage() {
   useEffect(() => {
     document.title = "Community Access & Career Pipeline | ThriveUp Academy";
   }, []);
+
+  const { data: rawPartners, isLoading: partnersLoading } = useQuery<CommunityPartner[]>({
+    queryKey: ["/api/partners"],
+  });
+  const partners = rawPartners ?? [];
+
+  const { data: impact, isLoading: impactLoading } = useQuery<PartnerImpact>({
+    queryKey: ["/api/partners/dashboard/impact"],
+  });
+
+  const liveMetrics = [
+    {
+      value: impact ? impact.totalParticipantsServed.toLocaleString() : "---",
+      label: "Participants Served",
+      description: "Under-resourced community members actively engaged",
+      icon: Users,
+      loading: impactLoading,
+    },
+    {
+      value: impact ? `${impact.totalPartners}` : "---",
+      label: "Community Partners",
+      description: "Organizations in the stakeholder ecosystem",
+      icon: Building2,
+      loading: impactLoading,
+    },
+    {
+      value: impact ? `${impact.totalReferrals}` : "---",
+      label: "Referrals Processed",
+      description: "Service referrals routed through partner network",
+      icon: ArrowRight,
+      loading: impactLoading,
+    },
+    {
+      value: impact ? `${impact.activeAmbassadors}` : "---",
+      label: "Active Ambassadors",
+      description: "Community ambassadors connecting families to services",
+      icon: Heart,
+      loading: impactLoading,
+    },
+    {
+      value: impact ? `${impact.activeMOUs}` : "---",
+      label: "Active MOUs",
+      description: "Formal partnership agreements currently in effect",
+      icon: Award,
+      loading: impactLoading,
+    },
+    {
+      value: impact ? `${impact.totalVolunteerHours.toLocaleString()}` : "---",
+      label: "Volunteer Hours",
+      description: "Hours contributed by community partners and ambassadors",
+      icon: TrendingUp,
+      loading: impactLoading,
+    },
+  ];
+
+  const verifiedPartnersByType: Record<string, number> = {};
+  partners.forEach(p => {
+    if (p.isVerified) {
+      verifiedPartnersByType[p.type] = (verifiedPartnersByType[p.type] || 0) + 1;
+    }
+  });
 
   return (
     <div className="min-h-screen">
@@ -163,11 +203,13 @@ export default function CommunityPage() {
             Six dedicated programs removing barriers to workforce development — from free access and mentorship to career placement and bilingual support.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
-            <Button size="lg" className="bg-white text-violet-700 border-white/80" data-testid="button-hero-apply">
-              <DollarSign className="mr-2 h-5 w-5" />
-              Apply for Free Access
-            </Button>
-            <Link href="/">
+            <Link href="/contact">
+              <Button size="lg" className="bg-white text-violet-700 border-white/80" data-testid="button-hero-apply">
+                <DollarSign className="mr-2 h-5 w-5" />
+                Apply for Free Access
+              </Button>
+            </Link>
+            <Link href="/academy">
               <Button size="lg" variant="outline" className="text-white border-white/30 backdrop-blur-sm bg-white/10" data-testid="button-hero-learn-more">
                 Explore Career Pathways
                 <ArrowRight className="ml-2 h-5 w-5" />
@@ -222,22 +264,26 @@ export default function CommunityPage() {
         <div className="mx-auto max-w-5xl">
           <div className="text-center mb-12">
             <Badge variant="secondary" className="mb-4">
-              <BarChart3 className="mr-1 h-3 w-3" /> Measurable Impact
+              <BarChart3 className="mr-1 h-3 w-3" /> Live Impact Data
             </Badge>
             <h2 className="text-3xl md:text-4xl font-bold mb-4" data-testid="text-impact-heading">
               Workforce Development Impact
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Our programs deliver measurable outcomes aligned with workforce development goals — tracking youth engagement, career placements, mentorship connections, and employer partnerships to demonstrate real impact in under-resourced communities.
+              Real-time data from our partner ecosystem — tracking participants served, referrals processed, volunteer engagement, and partnership agreements to demonstrate measurable impact.
             </p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-6 mt-12">
-            {impactMetrics.map((metric) => (
+            {liveMetrics.map((metric) => (
               <Card key={metric.label} className="p-6 text-center" data-testid={`card-metric-${metric.label.toLowerCase().replace(/\s/g, '-')}`}>
                 <metric.icon className="h-6 w-6 mx-auto mb-3 text-primary" />
-                <p className="text-3xl md:text-4xl font-bold text-primary">
-                  {metric.value}
-                </p>
+                {metric.loading ? (
+                  <Skeleton className="h-10 w-20 mx-auto mb-1" />
+                ) : (
+                  <p className="text-3xl md:text-4xl font-bold text-primary" data-testid={`text-metric-value-${metric.label.toLowerCase().replace(/\s/g, '-')}`}>
+                    {metric.value}
+                  </p>
+                )}
                 <p className="text-sm font-medium mt-1">{metric.label}</p>
                 <p className="text-xs text-muted-foreground mt-1">{metric.description}</p>
               </Card>
@@ -245,6 +291,60 @@ export default function CommunityPage() {
           </div>
         </div>
       </section>
+
+      {partners.length > 0 && (
+        <section className="py-20 px-6">
+          <div className="mx-auto max-w-5xl">
+            <div className="text-center mb-12">
+              <Badge variant="secondary" className="mb-4">
+                <Building2 className="mr-1 h-3 w-3" /> Partner Network
+              </Badge>
+              <h2 className="text-3xl md:text-4xl font-bold mb-4" data-testid="text-partners-heading">
+                Our Community Partners
+              </h2>
+              <p className="text-muted-foreground max-w-2xl mx-auto">
+                A growing network of organizations collaborating to deliver equitable access to workforce development, mentorship, and career placement services.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {partners.slice(0, 9).map((partner) => (
+                <Card key={partner.id} className="p-4" data-testid={`card-partner-preview-${partner.id}`}>
+                  <div className="flex items-start gap-3">
+                    <div className="rounded-md bg-primary/10 p-2 shrink-0">
+                      <Building2 className="h-4 w-4 text-primary" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-semibold text-sm truncate">{partner.name}</p>
+                      <div className="flex items-center gap-2 flex-wrap mt-1">
+                        <Badge variant="secondary" className="text-xs">{partner.type}</Badge>
+                        {partner.isVerified && (
+                          <Badge variant="outline" className="text-xs">
+                            <CheckCircle2 className="h-3 w-3 mr-1 text-emerald-500" /> Verified
+                          </Badge>
+                        )}
+                      </div>
+                      {partner.city && (
+                        <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                          <MapPin className="h-3 w-3" /> {partner.city}{partner.state ? `, ${partner.state}` : ""}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+            {partners.length > 9 && (
+              <div className="text-center mt-6">
+                <Link href="/partners">
+                  <Button variant="outline" data-testid="button-view-all-partners">
+                    View All {partners.length} Partners <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </Link>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
 
       <section className="py-20 px-6">
         <div className="mx-auto max-w-5xl">
@@ -289,14 +389,18 @@ export default function CommunityPage() {
                 Whether you're a young person seeking AI skills and career readiness training, a parent supporting your child's workforce development, or a school administrator looking to bring career pipeline programs to your campus — we're here to help.
               </p>
               <div className="flex flex-wrap justify-center gap-4">
-                <Button size="lg" className="bg-white text-violet-700 border-white/80" data-testid="button-apply-free-access">
-                  <DollarSign className="mr-2 h-5 w-5" />
-                  Apply for Free Access
-                </Button>
-                <Button size="lg" variant="outline" className="text-white border-white/30 backdrop-blur-sm bg-white/10" data-testid="button-school-admin-info">
-                  <Building2 className="mr-2 h-5 w-5" />
-                  Partner With Us
-                </Button>
+                <Link href="/contact">
+                  <Button size="lg" className="bg-white text-violet-700 border-white/80" data-testid="button-apply-free-access">
+                    <DollarSign className="mr-2 h-5 w-5" />
+                    Apply for Free Access
+                  </Button>
+                </Link>
+                <Link href="/partners">
+                  <Button size="lg" variant="outline" className="text-white border-white/30 backdrop-blur-sm bg-white/10" data-testid="button-school-admin-info">
+                    <Building2 className="mr-2 h-5 w-5" />
+                    Partner With Us
+                  </Button>
+                </Link>
               </div>
             </div>
           </Card>

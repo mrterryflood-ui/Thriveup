@@ -3184,6 +3184,7 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
   }
 
   app.get("/api/grants/discovery/status", async (_req, res) => {
+    try {
     const lastRun = lastDailyDiscoveryRun;
     const nextRun = lastRun ? new Date(lastRun.getTime() + 24 * 60 * 60 * 1000) : null;
     const hasApiKey = !!process.env.SAM_GOV_API_KEY && process.env.SAM_GOV_API_KEY !== "DEMO_KEY";
@@ -3214,6 +3215,10 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
       highFitGrants: highFitGrants[0]?.count || 0,
       sources: ["SAM.gov (Federal)", "Grants.gov (Federal)", "USASpending.gov (Active Awards)", "Texas State (TWC, HHSC, TEA)", "Foundations (St. David's, DreamBee)", "Corporate (Adient)", "Accelerators (Grand Founders)"],
     });
+    } catch (error) {
+      console.error("Error in GET /api/grants/discovery/status", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   app.post("/api/grants/discovery/run-now", requireAuth, async (_req, res) => {

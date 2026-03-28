@@ -1329,10 +1329,15 @@ export async function registerRoutes(
   });
 
   app.delete("/api/curriculum-documents/:id", requireAuth, async (req, res) => {
-    const existing = await storage.getCurriculumDocument(req.params.id as string);
-    if (!existing) return res.status(404).json({ error: "Document not found" });
-    await storage.deleteCurriculumDocument(req.params.id as string);
-    res.json({ success: true });
+    try {
+      const existing = await storage.getCurriculumDocument(req.params.id as string);
+      if (!existing) return res.status(404).json({ error: "Document not found" });
+      await storage.deleteCurriculumDocument(req.params.id as string);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error in DELETE /api/curriculum-documents/:id", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   app.get("/api/curriculum-documents/:docId/attachments", async (req, res) => {
@@ -1484,10 +1489,15 @@ export async function registerRoutes(
   });
 
   app.post("/api/classrooms", requireAuth, async (req, res) => {
-    const { name, gradeBand } = req.body;
-    if (!name || !gradeBand) return res.status(400).json({ error: "Name and grade band are required" });
-    const classroom = await storage.createClassroom(getUserId(req)!, getUserName(req) || "Teacher", name, gradeBand);
-    res.status(201).json(classroom);
+    try {
+      const { name, gradeBand } = req.body;
+      if (!name || !gradeBand) return res.status(400).json({ error: "Name and grade band are required" });
+      const classroom = await storage.createClassroom(getUserId(req)!, getUserName(req) || "Teacher", name, gradeBand);
+      res.status(201).json(classroom);
+    } catch (error) {
+      console.error("Error in POST /api/classrooms", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   app.get("/api/classrooms", requireAuth, async (req, res) => {
@@ -4358,9 +4368,14 @@ Then include a ## Roku & CTV Distribution section with:
   });
 
   app.delete("/api/ai-tools/projects/:id", requireAuth, async (req, res) => {
-    const userId = getUserId(req)!;
-    await db.delete(aiToolProjects).where(and(eq(aiToolProjects.id, req.params.id as string), eq(aiToolProjects.userId, userId)));
-    res.json({ success: true });
+    try {
+      const userId = getUserId(req)!;
+      await db.delete(aiToolProjects).where(and(eq(aiToolProjects.id, req.params.id as string), eq(aiToolProjects.userId, userId)));
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error in DELETE /api/ai-tools/projects/:id", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   // ==================== ADMIN COURSE CREATOR (LMS) ROUTES ====================
