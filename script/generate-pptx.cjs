@@ -129,8 +129,7 @@ addSlide({
     ];
     stats.forEach((s, i) => {
       const x = 0.5 + i * 3.15;
-      slide.addShape(pptx.ShapeType.roundRect, { x, y: 2.8, w: 2.9, h: 3.2, fill: { color: "2A2025" }, rectRadius: 0.15, line: { color: "3A3035", width: 1 } });
-      slide.addShape(pptx.ShapeType.rect, { x, y: 2.8, w: 2.9, h: 0.06, fill: { color: s.color } });
+      slide.addShape(pptx.ShapeType.roundRect, { x, y: 2.8, w: 2.9, h: 3.2, fill: { color: "2A2025" }, rectRadius: 0.15, line: { color: s.color, width: 2 } });
       slide.addText(s.stat, { x, y: 3.1, w: 2.9, h: 1.2, fontSize: 42, fontFace: "Arial", color: s.color, bold: true, align: "center" });
       slide.addText(s.label, { x: x + 0.2, y: 4.3, w: 2.5, h: 1.2, fontSize: 12, fontFace: "Arial", color: "D0D0D0", align: "center" });
     });
@@ -180,8 +179,7 @@ addSlide({
       const row = Math.floor(i / 6);
       const x = 0.5 + col * 2.1;
       const y = 1.6 + row * 1.4;
-      slide.addShape(pptx.ShapeType.roundRect, { x, y, w: 1.95, h: 1.15, fill: { color: WHITE }, rectRadius: 0.08, line: { color: "E0D8D0", width: 1 } });
-      slide.addShape(pptx.ShapeType.rect, { x, y, w: 1.95, h: 0.05, fill: { color: colors[i] } });
+      slide.addShape(pptx.ShapeType.roundRect, { x, y, w: 1.95, h: 1.15, fill: { color: WHITE }, rectRadius: 0.08, line: { color: colors[i], width: 2 } });
       slide.addText(p.name, { x: x + 0.08, y: y + 0.12, w: 1.8, h: 0.45, fontSize: 9, fontFace: "Arial", color: DARK_TEXT, bold: true });
       slide.addText(p.domain, { x: x + 0.08, y: y + 0.6, w: 1.8, h: 0.35, fontSize: 8, fontFace: "Arial", color: BODY_TEXT });
     });
@@ -210,11 +208,10 @@ addSlide({
       const row = Math.floor(i / 2);
       const x = 0.5 + col * 6.2;
       const y = 2.0 + row * 2.6;
-      slide.addShape(pptx.ShapeType.roundRect, { x, y, w: 5.8, h: 2.3, fill: { color: "2A2025" }, rectRadius: 0.12, line: { color: "3A3035", width: 1 } });
-      slide.addShape(pptx.ShapeType.rect, { x, y, w: 0.06, h: 2.3, fill: { color: s.color } });
-      slide.addText(s.title, { x: x + 0.25, y: y + 0.1, w: 5.3, h: 0.45, fontSize: 15, fontFace: "Arial", color: WHITE, bold: true });
+      slide.addShape(pptx.ShapeType.roundRect, { x, y, w: 5.8, h: 2.3, fill: { color: "2A2025" }, rectRadius: 0.12, line: { color: s.color, width: 2 } });
+      slide.addText(s.title, { x: x + 0.2, y: y + 0.1, w: 5.4, h: 0.45, fontSize: 15, fontFace: "Arial", color: WHITE, bold: true });
       s.items.forEach((item, j) => {
-        slide.addText(`\u2022  ${item}`, { x: x + 0.25, y: y + 0.6 + j * 0.38, w: 5.3, h: 0.35, fontSize: 11, fontFace: "Arial", color: "D0D0D0" });
+        slide.addText(`\u2022  ${item}`, { x: x + 0.2, y: y + 0.6 + j * 0.38, w: 5.4, h: 0.35, fontSize: 11, fontFace: "Arial", color: "D0D0D0" });
       });
     });
     addFooter(slide, 5, TOTAL_SLIDES);
@@ -249,8 +246,7 @@ addSlide({
       const row = Math.floor(i / 3);
       const x = 0.5 + col * 2.0;
       const y = 3.4 + row * 1.0;
-      slide.addShape(pptx.ShapeType.roundRect, { x, y, w: 1.8, h: 0.75, fill: { color: WHITE }, rectRadius: 0.08, line: { color: "E0D8D0", width: 1 } });
-      slide.addShape(pptx.ShapeType.rect, { x, y, w: 1.8, h: 0.04, fill: { color: domColors[i] } });
+      slide.addShape(pptx.ShapeType.roundRect, { x, y, w: 1.8, h: 0.75, fill: { color: WHITE }, rectRadius: 0.08, line: { color: domColors[i], width: 2 } });
       slide.addText(d, { x, y, w: 1.8, h: 0.75, fontSize: 12, fontFace: "Arial", color: DARK_TEXT, bold: true, align: "center", valign: "middle" });
     });
 
@@ -369,8 +365,7 @@ addSlide({
     ];
     endpoints.forEach((ep, i) => {
       const y = 1.5 + i * 0.78;
-      slide.addShape(pptx.ShapeType.roundRect, { x: 0.5, y, w: 12.1, h: 0.65, fill: { color: WHITE }, rectRadius: 0.06, line: { color: "E0D8D0", width: 1 } });
-      slide.addShape(pptx.ShapeType.rect, { x: 0.5, y, w: 0.05, h: 0.65, fill: { color: ep.color } });
+      slide.addShape(pptx.ShapeType.roundRect, { x: 0.5, y, w: 12.1, h: 0.65, fill: { color: WHITE }, rectRadius: 0.06, line: { color: ep.color, width: 1.5 } });
       slide.addShape(pptx.ShapeType.roundRect, { x: 0.7, y: y + 0.12, w: 0.7, h: 0.4, fill: { color: ep.method === "POST" ? MAROON : "475569" }, rectRadius: 0.05 });
       slide.addText(ep.method, { x: 0.7, y: y + 0.12, w: 0.7, h: 0.4, fontSize: 8, fontFace: "Arial", color: WHITE, bold: true, align: "center", valign: "middle" });
       slide.addText(ep.path, { x: 1.55, y: y + 0.05, w: 4.2, h: 0.28, fontSize: 10, fontFace: "Courier New", color: DARK_TEXT });
@@ -401,8 +396,7 @@ addSlide({
       const row = Math.floor(i / 2);
       const x = 0.5 + col * 6.3;
       const y = 2.0 + row * 2.6;
-      slide.addShape(pptx.ShapeType.roundRect, { x, y, w: 5.9, h: 2.3, fill: { color: "2A2025" }, rectRadius: 0.12, line: { color: "3A3035", width: 1 } });
-      slide.addShape(pptx.ShapeType.rect, { x, y, w: 5.9, h: 0.05, fill: { color: t.color } });
+      slide.addShape(pptx.ShapeType.roundRect, { x, y, w: 5.9, h: 2.3, fill: { color: "2A2025" }, rectRadius: 0.12, line: { color: t.color, width: 2 } });
       slide.addText(t.title, { x: x + 0.2, y: y + 0.15, w: 5.5, h: 0.45, fontSize: 15, fontFace: "Arial", color: WHITE, bold: true });
       slide.addText(t.desc, { x: x + 0.2, y: y + 0.6, w: 5.5, h: 0.9, fontSize: 11, fontFace: "Arial", color: "D0D0D0" });
       slide.addText(t.badges.join("  |  "), { x: x + 0.2, y: y + 1.6, w: 5.5, h: 0.4, fontSize: 9, fontFace: "Arial", color: t.color });
@@ -429,8 +423,7 @@ addSlide({
     ];
     items.forEach((item, i) => {
       const x = 0.5 + i * 3.15;
-      slide.addShape(pptx.ShapeType.roundRect, { x, y: 1.7, w: 2.9, h: 3.0, fill: { color: WHITE }, rectRadius: 0.12, line: { color: "E0D8D0", width: 1 } });
-      slide.addShape(pptx.ShapeType.rect, { x, y: 1.7, w: 2.9, h: 0.05, fill: { color: item.color } });
+      slide.addShape(pptx.ShapeType.roundRect, { x, y: 1.7, w: 2.9, h: 3.0, fill: { color: WHITE }, rectRadius: 0.12, line: { color: item.color, width: 2 } });
       slide.addText(item.title, { x: x + 0.15, y: 1.9, w: 2.6, h: 0.5, fontSize: 13, fontFace: "Arial", color: DARK_TEXT, bold: true });
       slide.addText(item.desc, { x: x + 0.15, y: 2.5, w: 2.6, h: 1.8, fontSize: 11, fontFace: "Arial", color: BODY_TEXT });
     });
@@ -463,8 +456,7 @@ addSlide({
     ];
     providers.forEach((p, i) => {
       const x = 0.3 + i * 2.55;
-      slide.addShape(pptx.ShapeType.roundRect, { x, y: 2.2, w: 2.3, h: 3.0, fill: { color: "2A2025" }, rectRadius: 0.12, line: { color: "3A3035", width: 1 } });
-      slide.addShape(pptx.ShapeType.rect, { x, y: 2.2, w: 2.3, h: 0.05, fill: { color: p.color } });
+      slide.addShape(pptx.ShapeType.roundRect, { x, y: 2.2, w: 2.3, h: 3.0, fill: { color: "2A2025" }, rectRadius: 0.12, line: { color: p.color, width: 2 } });
       slide.addText(p.name, { x: x + 0.1, y: 2.5, w: 2.1, h: 0.5, fontSize: 13, fontFace: "Arial", color: WHITE, bold: true, align: "center" });
       slide.addText(p.role, { x: x + 0.1, y: 3.0, w: 2.1, h: 0.4, fontSize: 11, fontFace: "Arial", color: p.color, align: "center" });
       slide.addText(p.desc, { x: x + 0.1, y: 3.5, w: 2.1, h: 1.2, fontSize: 10, fontFace: "Arial", color: "D0D0D0", align: "center" });
@@ -496,8 +488,7 @@ addSlide({
     ];
     levels.forEach((l, i) => {
       const x = 0.3 + i * 2.55;
-      slide.addShape(pptx.ShapeType.roundRect, { x, y: 1.6, w: 2.3, h: 1.5, fill: { color: WHITE }, rectRadius: 0.1, line: { color: "E0D8D0", width: 1 } });
-      slide.addShape(pptx.ShapeType.rect, { x, y: 1.6, w: 2.3, h: 0.05, fill: { color: l.color } });
+      slide.addShape(pptx.ShapeType.roundRect, { x, y: 1.6, w: 2.3, h: 1.5, fill: { color: WHITE }, rectRadius: 0.1, line: { color: l.color, width: 2 } });
       slide.addText(`Level ${i + 1}: ${l.name}`, { x: x + 0.1, y: 1.8, w: 2.1, h: 0.5, fontSize: 12, fontFace: "Arial", color: DARK_TEXT, bold: true, align: "center" });
       slide.addText(l.desc, { x: x + 0.1, y: 2.3, w: 2.1, h: 0.5, fontSize: 11, fontFace: "Arial", color: BODY_TEXT, align: "center" });
     });
@@ -649,8 +640,7 @@ addSlide({
       const w = i < 4 ? 2.9 : 3.9;
       const x = i < 4 ? (0.5 + col * 3.15) : (0.5 + col * 4.15);
       const y = 1.8 + row * 2.2;
-      slide.addShape(pptx.ShapeType.roundRect, { x, y, w, h: 1.8, fill: { color: "2A2025" }, rectRadius: 0.1, line: { color: "3A3035", width: 1 } });
-      slide.addShape(pptx.ShapeType.rect, { x, y, w, h: 0.05, fill: { color: p.color } });
+      slide.addShape(pptx.ShapeType.roundRect, { x, y, w, h: 1.8, fill: { color: "2A2025" }, rectRadius: 0.1, line: { color: p.color, width: 2 } });
       slide.addText(p.name, { x: x + 0.15, y: y + 0.2, w: w - 0.3, h: 0.5, fontSize: 13, fontFace: "Arial", color: WHITE, bold: true });
       slide.addText(p.focus, { x: x + 0.15, y: y + 0.8, w: w - 0.3, h: 0.6, fontSize: 11, fontFace: "Arial", color: "D0D0D0" });
     });
@@ -679,8 +669,7 @@ addSlide({
     ];
     hubs.forEach((h, i) => {
       const x = 0.5 + i * 4.15;
-      slide.addShape(pptx.ShapeType.roundRect, { x, y: 1.6, w: 3.85, h: 4.8, fill: { color: WHITE }, rectRadius: 0.12, line: { color: "E0D8D0", width: 1 } });
-      slide.addShape(pptx.ShapeType.rect, { x, y: 1.6, w: 3.85, h: 0.06, fill: { color: h.color } });
+      slide.addShape(pptx.ShapeType.roundRect, { x, y: 1.6, w: 3.85, h: 4.8, fill: { color: WHITE }, rectRadius: 0.12, line: { color: h.color, width: 2 } });
       slide.addText(h.name, { x: x + 0.2, y: 1.8, w: 3.45, h: 0.5, fontSize: 18, fontFace: "Arial", color: DARK_TEXT, bold: true });
       slide.addText(h.focus, { x: x + 0.2, y: 2.3, w: 3.45, h: 0.35, fontSize: 13, fontFace: "Arial", color: h.color, bold: true });
       h.stats.forEach((s, j) => {
@@ -828,10 +817,9 @@ addSlide({
       const row = Math.floor(i / 2);
       const x = 0.5 + col * 6.3;
       const y = 1.6 + row * 1.8;
-      slide.addShape(pptx.ShapeType.roundRect, { x, y, w: 5.9, h: 1.5, fill: { color: WHITE }, rectRadius: 0.1, line: { color: "E0D8D0", width: 1 } });
-      slide.addShape(pptx.ShapeType.rect, { x, y, w: 0.05, h: 1.5, fill: { color: f.color } });
-      slide.addText(f.title, { x: x + 0.25, y: y + 0.1, w: 5.4, h: 0.45, fontSize: 15, fontFace: "Arial", color: DARK_TEXT, bold: true });
-      slide.addText(f.desc, { x: x + 0.25, y: y + 0.6, w: 5.4, h: 0.6, fontSize: 12, fontFace: "Arial", color: BODY_TEXT });
+      slide.addShape(pptx.ShapeType.roundRect, { x, y, w: 5.9, h: 1.5, fill: { color: WHITE }, rectRadius: 0.1, line: { color: f.color, width: 2 } });
+      slide.addText(f.title, { x: x + 0.2, y: y + 0.1, w: 5.5, h: 0.45, fontSize: 15, fontFace: "Arial", color: DARK_TEXT, bold: true });
+      slide.addText(f.desc, { x: x + 0.2, y: y + 0.6, w: 5.5, h: 0.6, fontSize: 12, fontFace: "Arial", color: BODY_TEXT });
     });
 
     slide.addText("DATA SOURCES", { x: 0.8, y: 5.5, w: 11, h: 0.35, fontSize: 11, fontFace: "Arial", color: MAROON, bold: true, charSpacing: 2 });
@@ -892,8 +880,7 @@ addSlide({
     ];
     cols.forEach((col, i) => {
       const x = 0.5 + i * 3.15;
-      slide.addShape(pptx.ShapeType.roundRect, { x, y: 1.6, w: 2.9, h: 4.5, fill: { color: WHITE }, rectRadius: 0.12, line: { color: "E0D8D0", width: 1 } });
-      slide.addShape(pptx.ShapeType.rect, { x, y: 1.6, w: 2.9, h: 0.05, fill: { color: col.color } });
+      slide.addShape(pptx.ShapeType.roundRect, { x, y: 1.6, w: 2.9, h: 4.5, fill: { color: WHITE }, rectRadius: 0.12, line: { color: col.color, width: 2 } });
       slide.addText(col.title, { x: x + 0.15, y: 1.8, w: 2.6, h: 0.5, fontSize: 15, fontFace: "Arial", color: DARK_TEXT, bold: true });
       col.items.forEach((item, j) => {
         slide.addText(`\u2713  ${item}`, { x: x + 0.15, y: 2.5 + j * 0.55, w: 2.6, h: 0.45, fontSize: 12, fontFace: "Arial", color: BODY_TEXT });
@@ -966,9 +953,8 @@ addSlide({
       const row = Math.floor(i / 2);
       const x = 0.5 + col * 6.3;
       const y = 1.6 + row * 2.8;
-      slide.addShape(pptx.ShapeType.roundRect, { x, y, w: 5.9, h: 2.5, fill: { color: WHITE }, rectRadius: 0.12, line: { color: "E0D8D0", width: 1 } });
-      slide.addShape(pptx.ShapeType.rect, { x, y, w: 0.06, h: 2.5, fill: { color: item.color } });
-      slide.addText(item.title, { x: x + 0.25, y: y + 0.1, w: 5.4, h: 0.45, fontSize: 16, fontFace: "Arial", color: DARK_TEXT, bold: true });
+      slide.addShape(pptx.ShapeType.roundRect, { x, y, w: 5.9, h: 2.5, fill: { color: WHITE }, rectRadius: 0.12, line: { color: item.color, width: 2 } });
+      slide.addText(item.title, { x: x + 0.2, y: y + 0.1, w: 5.5, h: 0.45, fontSize: 16, fontFace: "Arial", color: DARK_TEXT, bold: true });
       item.items.forEach((it, j) => {
         slide.addText(`\u2713  ${it}`, { x: x + 0.25, y: y + 0.6 + j * 0.4, w: 5.4, h: 0.35, fontSize: 12, fontFace: "Arial", color: BODY_TEXT });
       });
@@ -996,8 +982,7 @@ addSlide({
     ];
     groups.forEach((g, i) => {
       const x = 0.3 + i * 2.55;
-      slide.addShape(pptx.ShapeType.roundRect, { x, y: 1.8, w: 2.3, h: 4.5, fill: { color: "2A2025" }, rectRadius: 0.12, line: { color: "3A3035", width: 1 } });
-      slide.addShape(pptx.ShapeType.rect, { x, y: 1.8, w: 2.3, h: 0.05, fill: { color: g.color } });
+      slide.addShape(pptx.ShapeType.roundRect, { x, y: 1.8, w: 2.3, h: 4.5, fill: { color: "2A2025" }, rectRadius: 0.12, line: { color: g.color, width: 2 } });
       slide.addText(g.title, { x: x + 0.1, y: 2.0, w: 2.1, h: 0.5, fontSize: 13, fontFace: "Arial", color: WHITE, bold: true, align: "center" });
       g.items.forEach((item, j) => {
         slide.addText(`\u2022  ${item}`, { x: x + 0.1, y: 2.7 + j * 0.55, w: 2.1, h: 0.45, fontSize: 10, fontFace: "Arial", color: "D0D0D0" });
@@ -1028,8 +1013,7 @@ addSlide({
       const row = Math.floor(i / 2);
       const x = 0.5 + col * 6.3;
       const y = 1.6 + row * 2.6;
-      slide.addShape(pptx.ShapeType.roundRect, { x, y, w: 5.9, h: 2.3, fill: { color: WHITE }, rectRadius: 0.12, line: { color: "E0D8D0", width: 1 } });
-      slide.addShape(pptx.ShapeType.rect, { x, y, w: 5.9, h: 0.05, fill: { color: d.color } });
+      slide.addShape(pptx.ShapeType.roundRect, { x, y, w: 5.9, h: 2.3, fill: { color: WHITE }, rectRadius: 0.12, line: { color: d.color, width: 2 } });
       slide.addText(d.title, { x: x + 0.2, y: y + 0.15, w: 5.5, h: 0.5, fontSize: 16, fontFace: "Arial", color: DARK_TEXT, bold: true });
       slide.addText(d.desc, { x: x + 0.2, y: y + 0.7, w: 5.5, h: 1.3, fontSize: 12, fontFace: "Arial", color: BODY_TEXT });
     });
@@ -1054,8 +1038,7 @@ addSlide({
     ];
     phases.forEach((p, i) => {
       const x = 0.5 + i * 4.15;
-      slide.addShape(pptx.ShapeType.roundRect, { x, y: 1.8, w: 3.85, h: 4.8, fill: { color: "2A2025" }, rectRadius: 0.12, line: { color: "3A3035", width: 1 } });
-      slide.addShape(pptx.ShapeType.rect, { x, y: 1.8, w: 3.85, h: 0.06, fill: { color: p.color } });
+      slide.addShape(pptx.ShapeType.roundRect, { x, y: 1.8, w: 3.85, h: 4.8, fill: { color: "2A2025" }, rectRadius: 0.12, line: { color: p.color, width: 2 } });
       slide.addShape(pptx.ShapeType.ellipse, { x: x + 0.2, y: 2.1, w: 0.5, h: 0.5, fill: { color: p.color } });
       slide.addText(p.phase, { x: x + 0.2, y: 2.1, w: 0.5, h: 0.5, fontSize: 16, fontFace: "Arial", color: WHITE, bold: true, align: "center", valign: "middle" });
       slide.addText(p.title, { x: x + 0.85, y: 2.1, w: 2.7, h: 0.5, fontSize: 18, fontFace: "Arial", color: WHITE, bold: true });
