@@ -1,6 +1,6 @@
 import type { Express, Response } from "express";
 import { db } from "./storage";
-import { rpliceAssessments } from "@shared/schema";
+import { rpliceAssessments, rpliceActionPlans, outcomeBaselines, ecosystemPlatforms } from "@shared/schema";
 import { eq, desc } from "drizzle-orm";
 import { generateAIJSON, streamAIResponse, generateMultiAIResponse, getProviderInfo } from "./ai-provider";
 
@@ -264,6 +264,239 @@ export function registerRpliceToolsRoutes(app: Express) {
     }
   });
 
+  const GRANT_PROFILES: Record<string, { name: string; funder: string; voice: string; focusAreas: string[] }> = {
+    "bb-collective": {
+      name: "BB Collective Research Grant",
+      funder: "BB Collective",
+      voice: "Academic research methodology — emphasize study design, evidence base, peer-reviewed literature, replicability, and methodological rigor. Use formal academic tone with citations and theoretical frameworks.",
+      focusAreas: ["research methodology", "implementation science", "evidence-based practice", "community-based participatory research"],
+    },
+    "rare-impact": {
+      name: "Rare Impact Fund",
+      funder: "Rare Beauty / Rare Impact Fund",
+      voice: "Community impact and mental health focus — emphasize lived experience, community voice, mental wellness, youth empowerment, and systemic change. Use accessible, empathetic language that centers the community.",
+      focusAreas: ["mental health", "youth development", "community empowerment", "stigma reduction"],
+    },
+    "st-davids": {
+      name: "St. David's Foundation Health Equity Grant",
+      funder: "St. David's Foundation",
+      voice: "Health equity and social determinants — emphasize health disparities, SDOH, access barriers, community health workers, clinical-community linkages. Use public health language with epidemiological data.",
+      focusAreas: ["health equity", "social determinants of health", "community health", "healthcare access"],
+    },
+    "austin-fc": {
+      name: "Austin FC Community Fund",
+      funder: "Austin FC Foundation",
+      voice: "Youth development and community building — emphasize sports as a vehicle for social change, after-school programming, character development, mentorship, and physical wellness. Use energetic, community-first language.",
+      focusAreas: ["youth development", "after-school programs", "physical wellness", "mentorship"],
+    },
+    "ssg-fox": {
+      name: "SSG Fox Veteran Services Fund",
+      funder: "SSG Fox Foundation",
+      voice: "Veteran services and military transition — emphasize military-to-civilian transition, veteran mental health, post-service employment, family reintegration, and service-connected challenges. Honor military service while addressing systemic gaps.",
+      focusAreas: ["veteran services", "military transition", "PTSD treatment", "veteran employment"],
+    },
+    "doj-bja": {
+      name: "DOJ/BJA Violence Prevention Grant",
+      funder: "Department of Justice / Bureau of Justice Assistance",
+      voice: "Evidence-based violence prevention and community safety — emphasize data-driven approaches, risk/protective factors, recidivism reduction, and community-led safety strategies. Use federal grant language with outcome metrics.",
+      focusAreas: ["violence prevention", "community safety", "reentry support", "juvenile justice"],
+    },
+    "samhsa": {
+      name: "SAMHSA Community Grant",
+      funder: "Substance Abuse and Mental Health Services Administration",
+      voice: "Behavioral health and substance use prevention — emphasize trauma-informed care, recovery support, community-based treatment, and integrated behavioral health services. Use clinical and public health terminology.",
+      focusAreas: ["substance abuse prevention", "mental health services", "trauma-informed care", "behavioral health"],
+    },
+    "wioa-title-i": {
+      name: "WIOA Title I Youth Program",
+      funder: "Department of Labor / Texas Workforce Commission",
+      voice: "Workforce development and youth employment — emphasize 14 youth elements, career pathways, work-based learning, credential attainment, and measurable employment outcomes. Use DOL performance metrics language.",
+      focusAreas: ["workforce development", "youth employment", "career pathways", "credential attainment"],
+    },
+  };
+
+  app.post("/api/rplice/grant-narrative", async (req, res) => {
+    const { stateFips, countyFips, cityName, grantName } = req.body;
+    if (!stateFips || !countyFips || !grantName) {
+      return res.status(400).json({ error: "stateFips, countyFips, and grantName required" });
+    }
+
+    const grantProfile = GRANT_PROFILES[grantName];
+    if (!grantProfile) {
+      return res.status(400).json({ error: "Unknown grant: " + grantName });
+    }
+
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+
+    const send = (type: string, data: any) => {
+      res.write(`data: ${JSON.stringify({ type, ...data })}\n\n`);
+    };
+
+    try {
+      send("status", { message: `Preparing ${grantProfile.name} narrative for ${cityName || countyFips}...` });
+
+      const savedAnalyses = await db.select().from(rpliceAssessments)
+        .where(eq(rpliceAssessments.assessmentType, "community_analysis"))
+        .orderBy(desc(rpliceAssessments.createdAt));
+
+      const matchingAnalysis = savedAnalyses.find((a: any) =>
+        a.data?.stateFips === stateFips && a.data?.countyFips === countyFips
+      );
+
+      send("status", { message: matchingAnalysis ? "Found saved RPLICE analysis — pulling data..." : "No saved analysis found — gathering fresh Census data..." });
+
+      const [regionData, rpliceResearch] = await Promise.all([
+        gatherRegionData(stateFips, countyFips),
+        fetchRplice(`/api/research/search?q=${encodeURIComponent(grantProfile.focusAreas.join(" "))}`),
+      ]);
+
+      send("status", { message: `Census data loaded — ${regionData.stats.totalTracts} tracts analyzed` });
+
+      send("data", {
+        section: "census",
+        county: regionData.targetCounty,
+        stats: regionData.stats,
+        incomeGap: regionData.incomeGap,
+        gentrification: regionData.gentrificationIndicators,
+        grantProfile: { name: grantProfile.name, funder: grantProfile.funder },
+      });
+
+      const topHighRisk = regionData.highRiskTracts.slice(0, 6);
+
+      const systemPrompt = `You are a senior grant writer working for Dr. Terry Flood's RPLICE (Research, Planning, Learning & Implementation Center of Excellence). You specialize in writing compelling, data-driven grant narratives.
+
+VOICE AND TONE FOR THIS GRANT:
+Funder: ${grantProfile.funder}
+Grant: ${grantProfile.name}
+Writing Style: ${grantProfile.voice}
+
+Your analysis frameworks: CFIR 2.0, RE-AIM, Three Realities, SALP Indicators, MAP-GAP.
+
+Key principles:
+1. "1 year of college = primary protective factor" — education is THE intervention
+2. "Crime doesn't disappear, it migrates" — gentrification displaces poverty
+3. Every claim must be backed by specific Census data (cite tract numbers)
+4. Use the funder's language and priorities throughout`;
+
+      const dataPackage = {
+        targetCounty: regionData.targetCounty,
+        highRiskTracts: topHighRisk,
+        incomeGap: regionData.incomeGap + "x",
+        stats: regionData.stats,
+        gentrification: regionData.gentrificationIndicators,
+        timeline: regionData.timeline,
+        savedAnalysis: matchingAnalysis ? {
+          programName: matchingAnalysis.programName,
+          savedStats: (matchingAnalysis.data as any)?.stats,
+          savedGentrification: (matchingAnalysis.data as any)?.gentrification,
+        } : null,
+        relevantResearch: (rpliceResearch || []).slice(0, 5).map((r: any) => r.title),
+      };
+
+      const userPrompt = `Generate a complete grant narrative for the ${grantProfile.name} using this community data:
+
+${JSON.stringify(dataPackage, null, 2)}
+
+Write a COMPLETE 5-SECTION GRANT NARRATIVE with these EXACT sections:
+
+## 1. NEED STATEMENT
+- Open with a compelling statement about the community's challenges
+- Cite specific tract-level data: poverty rates, unemployment, income gaps
+- Reference ${regionData.stats.tractsOver30Poverty} tracts with 30%+ poverty
+- Mention the ${regionData.incomeGap}x income gap between richest and poorest neighborhoods
+- Include gentrification displacement data: ${regionData.gentrificationIndicators.join("; ")}
+- Connect to ${grantProfile.funder}'s mission and focus areas: ${grantProfile.focusAreas.join(", ")}
+- Every statistic must cite the specific Census table or tract number
+
+## 2. TARGET POPULATION
+- Define the primary population to be served with demographic detail
+- Population size: ${regionData.targetCounty?.population || "N/A"}
+- Poverty rate: ${regionData.targetCounty?.povertyRate || "N/A"}%
+- College attainment: ${regionData.targetCounty?.collegePct || "N/A"}%
+- Describe risk factors specific to the highest-risk tracts
+- Include ACEs (Adverse Childhood Experiences) connection
+- Explain the neighborhood→school→outcomes pipeline
+- Detail eligibility criteria and recruitment strategy
+
+## 3. PROGRAM DESIGN
+- Evidence-based interventions aligned with ${grantProfile.focusAreas.join(", ")}
+- Connect to RPLICE frameworks (CFIR 2.0, RE-AIM)
+- Describe specific program components and activities
+- Include dosage (frequency, duration, intensity)
+- Address the specific needs identified in the data
+- Reference Dr. Flood's "1 year of college = primary protective factor"
+- Include staffing plan (roles, qualifications, cultural competency)
+
+## 4. EVALUATION PLAN
+- Baseline metrics from the Census data (current state)
+- SALP indicators: Specific, Actionable, Linked, Predictive
+- RE-AIM evaluation dimensions with specific measures
+- Data collection methods and timeline
+- Process and outcome measures
+- How results will be reported to ${grantProfile.funder}
+- Continuous quality improvement using MAP-GAP framework
+
+## 5. BUDGET JUSTIFICATION
+- Cost per participant projections
+- ROI analysis based on intervention outcomes
+- Personnel costs breakdown
+- Program supplies and materials
+- Technology and data systems
+- Indirect costs and administrative overhead
+- Sustainability plan beyond grant period
+- Cost-effectiveness compared to status quo (cost of inaction)
+
+Write in the voice specified for this funder. Be specific. Every claim must reference actual data. This is for a real grant submission — quality must be publication-ready.`;
+
+      send("status", { message: `AI generating ${grantProfile.name} narrative — streaming...` });
+
+      await new Promise<void>((resolve, reject) => {
+        streamAIResponse({
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userPrompt },
+          ],
+          maxTokens: 8000,
+          onChunk: (content: string) => {
+            send("chunk", { content });
+          },
+          onDone: async () => {
+            try {
+              await db.insert(rpliceAssessments).values({
+                assessmentType: "grant_narrative",
+                programName: `${grantProfile.name} — ${cityName || regionData.targetCounty?.name}`,
+                data: {
+                  stateFips, countyFips, cityName, grantName,
+                  grantFunder: grantProfile.funder,
+                  stats: regionData.stats,
+                  incomeGap: regionData.incomeGap,
+                  gentrification: regionData.gentrificationIndicators,
+                  aiProvider: getProviderInfo().name,
+                  timestamp: new Date().toISOString(),
+                },
+                score: null,
+                status: "complete",
+              });
+            } catch (e) {
+              console.error("[RPLICE] Failed to save grant narrative:", e);
+            }
+            send("done", { message: "Grant narrative complete", provider: getProviderInfo().name, grantName: grantProfile.name });
+            resolve();
+          },
+          onError: (error: Error) => {
+            send("error", { message: error.message });
+            reject(error);
+          },
+        });
+      });
+    } catch (error: any) {
+      send("error", { message: error.message || "Narrative generation failed" });
+    }
+    res.end();
+  });
+
   const RPLICE_BASE = "https://salp-science--mrterryflood.replit.app";
 
   async function fetchRplice(path: string): Promise<any> {
@@ -477,6 +710,114 @@ Be specific. Use actual numbers from the data. Reference specific tracts. This i
     res.end();
   });
 
+  app.post("/api/rplice/match-platforms", async (req, res) => {
+    try {
+      const { analysisId, riskFactors } = req.body;
+
+      const PLATFORM_INTERVENTIONS: Record<string, { platforms: { id: string; name: string; domain: string; url: string; interventions: string[] }[] }> = {
+        "education": {
+          platforms: [
+            { id: "isss", name: "ISSS — Integrated Supports for Thriving Youth", domain: "education", url: "https://implementationineducatio.com", interventions: ["MTSS implementation", "Student support coordination", "Early warning system", "Implementation fidelity tracking"] },
+            { id: "wholemind", name: "WholeMind Learning", domain: "education", url: "https://wholemindlearning.com", interventions: ["Pre-K to 12th grade curriculum", "AI homework help", "Adaptive learning", "Skill mastery tracking"] },
+            { id: "betterscience", name: "Better Science Lab / RPLICE", domain: "education", url: "https://bettersciencelab.com", interventions: ["Evidence-based practice registry", "CFIR/RE-AIM evaluation", "Research translation", "Fidelity measurement"] },
+          ],
+        },
+        "health-equity": {
+          platforms: [
+            { id: "whole-person-health", name: "Whole-Person Health Ecosystem", domain: "health-equity", url: "https://mentalwellnesssupport.net", interventions: ["Clinical screenings (C-SSRS, PHQ-9, GAD-7)", "Safety plan builder", "Crisis routing", "MAP-GAP assessment"] },
+            { id: "sankofa", name: "Sankofa Health Network", domain: "health-equity", url: "https://yourhealthbirthright.net", interventions: ["Health equity gateway", "Culturally responsive care", "GIS resource matching", "Population-specific health navigation"] },
+            { id: "sankofa-maternal-health", name: "Black Maternal Health Network", domain: "health-equity", url: "https://yourhealthbirthright.net", interventions: ["Maternal risk assessment", "Doula matching", "Prenatal care navigation", "Postpartum recovery"] },
+            { id: "safecognicare", name: "SafeCogniCare", domain: "health-equity", url: "https://safecognicare.com", interventions: ["Cognitive health assessments (MoCA/MMSE)", "TBI screening", "Cognitive decline monitoring", "Care coordination"] },
+          ],
+        },
+        "workforce": {
+          platforms: [
+            { id: "mce", name: "Minority Center of Excellence", domain: "business-intelligence", url: "https://minoritycenterofexcellence.com", interventions: ["Business lifecycle tools", "SAM.gov integration", "Certification wizard", "Dual-AI proposal review"] },
+            { id: "pinnacle-business-conglomerate", name: "Pinnacle Business Conglomerate", domain: "workforce-contracting", url: "https://pinnaclebusinessconglomerate.com", interventions: ["Contractor enablement", "MAP-GAP diagnostics", "Bid strategy", "Workforce pipeline"] },
+            { id: "collaborative-advocate", name: "The Collaborative Advocate", domain: "veteran-services", url: "https://thrivingcommunitiesforall.com", interventions: ["Workforce development consulting", "Grant execution management", "Service delivery operations"] },
+          ],
+        },
+        "housing": {
+          platforms: [
+            { id: "lifebridge", name: "LifeBridge", domain: "community-workforce", url: "https://lifetransitionsaid.org", interventions: ["Housing assistance", "24/7 resource navigation", "Social determinant scoring", "Community health worker dispatch"] },
+          ],
+        },
+        "safety": {
+          platforms: [
+            { id: "safereport", name: "SafeReport", domain: "compliance", url: "https://safereports.net", interventions: ["Incident management", "50-state regulation database", "Compliance tracking", "Court-admissible records"] },
+            { id: "shield-atlas", name: "Shield Atlas", domain: "compliance", url: "https://shieldatlas.net", interventions: ["Geographic risk mapping", "Community resilience scoring", "Predictive safety modeling", "Emergency coordination"] },
+          ],
+        },
+        "mental-health": {
+          platforms: [
+            { id: "perfectly-different", name: "Perfectly Different", domain: "health-equity", url: "https://neurodifferentassistant.app", interventions: ["Neurodiversity support", "IEP/504 plan assistance", "Executive function coaching", "Sensory management"] },
+            { id: "safecognicare", name: "SafeCogniCare", domain: "health-equity", url: "https://safecognicare.com", interventions: ["Cognitive health assessments", "TBI screening", "Early intervention alerts", "Caregiver support"] },
+            { id: "whole-person-health", name: "Whole-Person Health Ecosystem", domain: "health-equity", url: "https://mentalwellnesssupport.net", interventions: ["PHQ-9 depression screening", "GAD-7 anxiety screening", "C-SSRS suicidality screening", "Safety plan builder"] },
+          ],
+        },
+        "veterans": {
+          platforms: [
+            { id: "m2c", name: "Mission Transition (M2C)", domain: "veterans", url: "https://vetmissiontransition.com", interventions: ["MOS/AFSC career translation", "Benefits navigation", "Identity transition support", "Proactive outreach"] },
+            { id: "collaborative-advocate", name: "The Collaborative Advocate", domain: "veteran-services", url: "https://thrivingcommunitiesforall.com", interventions: ["Veteran advocacy", "Peer support coordination", "SSG Fox grant execution"] },
+            { id: "sankofa-mens-health", name: "Black Men's Health Hub", domain: "health-equity", url: "https://thehealthyblkman.com", interventions: ["Veteran health pathways", "Mental health stigma reduction", "Peer mentor matching"] },
+          ],
+        },
+        "research": {
+          platforms: [
+            { id: "betterscience", name: "Better Science Lab / RPLICE", domain: "education", url: "https://bettersciencelab.com", interventions: ["CFIR implementation framework", "RE-AIM evaluation", "Evidence-based practice registry", "Fidelity measurement"] },
+          ],
+        },
+      };
+
+      const factors = riskFactors || [
+        "education", "health-equity", "workforce", "housing", "safety", "mental-health", "veterans", "research",
+      ];
+
+      const platformStatuses: Record<string, string> = {};
+      try {
+        const dbPlatforms = await db.select({
+          id: ecosystemPlatforms.id,
+          healthStatus: ecosystemPlatforms.healthStatus,
+        }).from(ecosystemPlatforms);
+        for (const p of dbPlatforms) {
+          platformStatuses[p.id] = p.healthStatus || "unknown";
+        }
+      } catch {
+      }
+
+      const matches: { riskFactor: string; label: string; platforms: { id: string; name: string; domain: string; url: string; interventions: string[]; status: string }[] }[] = [];
+
+      const RISK_LABELS: Record<string, string> = {
+        "education": "Education Gaps",
+        "health-equity": "Health Equity",
+        "workforce": "Workforce Development",
+        "housing": "Housing & Displacement",
+        "safety": "Community Safety",
+        "mental-health": "Mental Health",
+        "veterans": "Veteran Services",
+        "research": "Research & Evidence",
+      };
+
+      for (const factor of factors) {
+        const mapping = PLATFORM_INTERVENTIONS[factor];
+        if (!mapping) continue;
+
+        matches.push({
+          riskFactor: factor,
+          label: RISK_LABELS[factor] || factor,
+          platforms: mapping.platforms.map((p) => ({
+            ...p,
+            status: platformStatuses[p.id] || "unknown",
+          })),
+        });
+      }
+
+      res.json({ matches, totalPlatforms: new Set(matches.flatMap(m => m.platforms.map(p => p.id))).size });
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
   app.post("/api/rplice/multi-ai-analysis", async (req, res) => {
     const { stateFips, countyFips, cityName, question } = req.body;
     if (!stateFips || !countyFips) return res.status(400).json({ error: "stateFips and countyFips required" });
@@ -538,6 +879,184 @@ Be specific. Use the actual data. Apply Dr. Flood's principle: education is the 
           rpliceStudies: rpliceResearch?.length || 0,
         },
       });
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  app.post("/api/rplice/baseline", async (req, res) => {
+    try {
+      const { regionName, stateFips, countyFips, metrics, targets, timelineMonths } = req.body;
+      if (!regionName || !stateFips || !countyFips || !metrics) {
+        return res.status(400).json({ error: "regionName, stateFips, countyFips, and metrics are required" });
+      }
+      const [row] = await db.insert(outcomeBaselines).values({
+        regionName,
+        stateFips,
+        countyFips,
+        metrics,
+        targets: targets || {},
+        timelineMonths: timelineMonths || 12,
+        status: "active",
+      }).returning();
+      res.json(row);
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  app.get("/api/rplice/baselines", async (_req, res) => {
+    try {
+      const rows = await db.select().from(outcomeBaselines).orderBy(desc(outcomeBaselines.createdAt));
+      res.json(rows);
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  app.patch("/api/rplice/baseline/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { targets, timelineMonths, status } = req.body;
+      const updates: any = { updatedAt: new Date() };
+      if (targets !== undefined) updates.targets = targets;
+      if (timelineMonths !== undefined) updates.timelineMonths = timelineMonths;
+      if (status !== undefined) updates.status = status;
+      const [row] = await db.update(outcomeBaselines)
+        .set(updates)
+        .where(eq(outcomeBaselines.id, id))
+        .returning();
+      if (!row) return res.status(404).json({ error: "Baseline not found" });
+      res.json(row);
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  app.post("/api/rplice/action-plan", async (req, res) => {
+    try {
+      const { regionName, stateFips, countyFips, analysisData } = req.body;
+      if (!regionName || !stateFips || !countyFips) {
+        return res.status(400).json({ error: "regionName, stateFips, and countyFips are required" });
+      }
+
+      const summaryData = analysisData || {};
+      const prompt = `Based on this RPLICE community analysis data, generate a 90-day action plan with 3 phases. Each phase has specific milestones.
+
+Region: ${regionName}
+Analysis Summary: ${JSON.stringify(summaryData).slice(0, 3000)}
+
+Return a JSON object with this EXACT structure (no markdown, just JSON):
+{
+  "phases": [
+    {
+      "name": "Phase 1: Assessment & Coalition Building",
+      "days": "Days 1-30",
+      "milestones": [
+        {
+          "title": "milestone title",
+          "description": "what needs to happen",
+          "owner": "suggested role/person",
+          "deadline": "Day X",
+          "status": "pending",
+          "linkedPlatform": "relevant ecosystem platform or empty string"
+        }
+      ]
+    },
+    {
+      "name": "Phase 2: Program Launch & Data Collection",
+      "days": "Days 31-60",
+      "milestones": [...]
+    },
+    {
+      "name": "Phase 3: Evaluation & Course Correction",
+      "days": "Days 61-90",
+      "milestones": [...]
+    }
+  ]
+}
+
+Generate 4-6 milestones per phase. Make them specific to the region's data. Use RPLICE frameworks (CFIR, RE-AIM, SALP). Reference specific risk factors from the data. Milestones should be actionable and measurable.`;
+
+      let phases: any[];
+      try {
+        const aiResult = await generateAIJSON<{ phases: any[] }>(prompt, "You are an implementation scientist generating action plans using the RPLICE framework. Return ONLY valid JSON.");
+        phases = aiResult.phases || [];
+      } catch {
+        phases = [
+          {
+            name: "Phase 1: Assessment & Coalition Building",
+            days: "Days 1-30",
+            milestones: [
+              { title: "Complete community needs assessment", description: "Gather baseline data from Census tracts and local stakeholders", owner: "Project Lead", deadline: "Day 7", status: "pending", linkedPlatform: "RPLICE" },
+              { title: "Identify key stakeholders and partners", description: "Map organizations, agencies, and community leaders for coalition", owner: "Community Liaison", deadline: "Day 10", status: "pending", linkedPlatform: "" },
+              { title: "Establish data collection protocols", description: "Set up SALP indicators and tracking dashboards", owner: "Data Analyst", deadline: "Day 15", status: "pending", linkedPlatform: "RPLICE" },
+              { title: "Hold coalition kickoff meeting", description: "Present analysis findings and align on priorities", owner: "Project Lead", deadline: "Day 20", status: "pending", linkedPlatform: "" },
+              { title: "Submit initial grant applications", description: "Target aligned federal and foundation opportunities", owner: "Grant Writer", deadline: "Day 30", status: "pending", linkedPlatform: "" },
+            ],
+          },
+          {
+            name: "Phase 2: Program Launch & Data Collection",
+            days: "Days 31-60",
+            milestones: [
+              { title: "Launch pilot intervention programs", description: "Begin evidence-based programs in highest-risk tracts", owner: "Program Manager", deadline: "Day 35", status: "pending", linkedPlatform: "ThriveUp Academy" },
+              { title: "Begin participant enrollment", description: "Recruit and screen participants using eligibility criteria", owner: "Intake Coordinator", deadline: "Day 40", status: "pending", linkedPlatform: "" },
+              { title: "Implement fidelity monitoring", description: "Use RPLICE fidelity checklists for all program activities", owner: "Quality Manager", deadline: "Day 45", status: "pending", linkedPlatform: "RPLICE" },
+              { title: "Collect baseline outcome data", description: "Record initial metrics for all enrolled participants", owner: "Data Analyst", deadline: "Day 50", status: "pending", linkedPlatform: "" },
+              { title: "Monthly coalition progress report", description: "Share early data and adjust approach as needed", owner: "Project Lead", deadline: "Day 60", status: "pending", linkedPlatform: "" },
+            ],
+          },
+          {
+            name: "Phase 3: Evaluation & Course Correction",
+            days: "Days 61-90",
+            milestones: [
+              { title: "Conduct RE-AIM evaluation", description: "Score all five dimensions for each active program", owner: "Evaluator", deadline: "Day 65", status: "pending", linkedPlatform: "RPLICE" },
+              { title: "Analyze preliminary outcomes", description: "Compare participant outcomes to baseline data", owner: "Data Analyst", deadline: "Day 70", status: "pending", linkedPlatform: "" },
+              { title: "Identify and implement course corrections", description: "Address gaps found in fidelity and outcome data", owner: "Program Manager", deadline: "Day 75", status: "pending", linkedPlatform: "" },
+              { title: "Prepare sustainability plan", description: "Outline funding, staffing, and partnership strategies beyond 90 days", owner: "Project Lead", deadline: "Day 85", status: "pending", linkedPlatform: "" },
+              { title: "Submit 90-day impact report", description: "Comprehensive report with data, outcomes, and next steps", owner: "Project Lead", deadline: "Day 90", status: "pending", linkedPlatform: "" },
+            ],
+          },
+        ];
+      }
+
+      const [row] = await db.insert(rpliceActionPlans).values({
+        regionName,
+        stateFips,
+        countyFips,
+        analysisData: summaryData,
+        phases,
+        status: "active",
+      }).returning();
+
+      res.json(row);
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  app.get("/api/rplice/action-plans", async (_req, res) => {
+    try {
+      const rows = await db.select().from(rpliceActionPlans).orderBy(desc(rpliceActionPlans.createdAt));
+      res.json(rows);
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  app.patch("/api/rplice/action-plan/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { phases, status } = req.body;
+      const updates: any = { updatedAt: new Date() };
+      if (phases !== undefined) updates.phases = phases;
+      if (status !== undefined) updates.status = status;
+      const [row] = await db.update(rpliceActionPlans)
+        .set(updates)
+        .where(eq(rpliceActionPlans.id, id))
+        .returning();
+      if (!row) return res.status(404).json({ error: "Action plan not found" });
+      res.json(row);
     } catch (e: any) {
       res.status(500).json({ error: e.message });
     }

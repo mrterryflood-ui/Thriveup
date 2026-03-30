@@ -1112,6 +1112,174 @@ const PRESET_REGIONS = [
   { label: "New Orleans LA (Orleans)", stateFips: "22", countyFips: "071", cityName: "New Orleans LA (Orleans Parish)" },
 ];
 
+function PlatformMatcher() {
+  const { toast } = useToast();
+  const [selectedFactors, setSelectedFactors] = useState<string[]>([
+    "education", "health-equity", "workforce", "housing", "safety", "mental-health", "veterans", "research",
+  ]);
+  const [results, setResults] = useState<any>(null);
+
+  const matchMutation = useMutation({
+    mutationFn: async () => {
+      const resp = await apiRequest("POST", "/api/rplice/match-platforms", {
+        riskFactors: selectedFactors,
+      });
+      return resp.json();
+    },
+    onSuccess: (data) => {
+      setResults(data);
+    },
+    onError: () => toast({ title: "Error", description: "Failed to match platforms.", variant: "destructive" }),
+  });
+
+  const RISK_FACTOR_OPTIONS = [
+    { value: "education", label: "Education Gaps", icon: Brain },
+    { value: "health-equity", label: "Health Equity", icon: Activity },
+    { value: "workforce", label: "Workforce Development", icon: Briefcase },
+    { value: "housing", label: "Housing & Displacement", icon: MapPin },
+    { value: "safety", label: "Community Safety", icon: Shield },
+    { value: "mental-health", label: "Mental Health", icon: Brain },
+    { value: "veterans", label: "Veteran Services", icon: Target },
+    { value: "research", label: "Research & Evidence", icon: Microscope },
+  ];
+
+  function toggleFactor(factor: string) {
+    setSelectedFactors((prev) =>
+      prev.includes(factor) ? prev.filter((f) => f !== factor) : [...prev, factor]
+    );
+  }
+
+  function getStatusBadge(status: string) {
+    if (status === "online") return <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">Online</Badge>;
+    if (status === "degraded") return <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">Degraded</Badge>;
+    if (status === "offline") return <Badge variant="destructive">Offline</Badge>;
+    return <Badge variant="secondary">Unknown</Badge>;
+  }
+
+  return (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2" data-testid="text-platform-matcher-title">
+            <Globe className="h-5 w-5 text-violet-500" />
+            Platform-to-Intervention Matcher
+          </CardTitle>
+          <CardDescription>
+            Select risk factors identified in your RPLICE analysis to see which ecosystem platforms address each area, their live status, and what interventions they deliver.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <Label className="mb-2 block">Select Risk Factors to Match</Label>
+            <div className="flex flex-wrap gap-2">
+              {RISK_FACTOR_OPTIONS.map((opt) => {
+                const selected = selectedFactors.includes(opt.value);
+                const Icon = opt.icon;
+                return (
+                  <Button
+                    key={opt.value}
+                    variant={selected ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => toggleFactor(opt.value)}
+                    className="toggle-elevate"
+                    data-testid={`button-factor-${opt.value}`}
+                  >
+                    <Icon className="h-3.5 w-3.5 mr-1.5" />
+                    {opt.label}
+                  </Button>
+                );
+              })}
+            </div>
+          </div>
+
+          <Button
+            onClick={() => matchMutation.mutate()}
+            disabled={selectedFactors.length === 0 || matchMutation.isPending}
+            className="w-full"
+            data-testid="button-match-platforms"
+          >
+            {matchMutation.isPending ? (
+              <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Matching platforms...</>
+            ) : (
+              <><Globe className="h-4 w-4 mr-2" /> Match {selectedFactors.length} Risk Factor{selectedFactors.length !== 1 ? "s" : ""} to Platforms</>
+            )}
+          </Button>
+        </CardContent>
+      </Card>
+
+      {results && (
+        <>
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div>
+              <h3 className="text-lg font-bold" data-testid="text-match-results-title">Platform Matches</h3>
+              <p className="text-sm text-muted-foreground">
+                {results.totalPlatforms} unique platforms across {results.matches.length} risk areas
+              </p>
+            </div>
+            <Badge variant="outline" data-testid="text-total-platforms">{results.totalPlatforms} Platforms Matched</Badge>
+          </div>
+
+          <div className="space-y-4">
+            {results.matches.map((match: any) => (
+              <Card key={match.riskFactor}>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-base flex items-center gap-2" data-testid={`text-risk-factor-${match.riskFactor}`}>
+                    {match.riskFactor === "education" && <Brain className="h-4 w-4 text-blue-500" />}
+                    {match.riskFactor === "health-equity" && <Activity className="h-4 w-4 text-red-500" />}
+                    {match.riskFactor === "workforce" && <Briefcase className="h-4 w-4 text-amber-500" />}
+                    {match.riskFactor === "housing" && <MapPin className="h-4 w-4 text-green-500" />}
+                    {match.riskFactor === "safety" && <Shield className="h-4 w-4 text-orange-500" />}
+                    {match.riskFactor === "mental-health" && <Brain className="h-4 w-4 text-purple-500" />}
+                    {match.riskFactor === "veterans" && <Target className="h-4 w-4 text-teal-500" />}
+                    {match.riskFactor === "research" && <Microscope className="h-4 w-4 text-violet-500" />}
+                    {match.label}
+                    <Badge variant="secondary" className="text-xs">{match.platforms.length} platform{match.platforms.length !== 1 ? "s" : ""}</Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {match.platforms.map((platform: any) => (
+                      <div
+                        key={platform.id}
+                        className="border rounded-md p-3 space-y-2"
+                        data-testid={`card-platform-${platform.id}-${match.riskFactor}`}
+                      >
+                        <div className="flex items-center justify-between flex-wrap gap-2">
+                          <div className="flex-1 min-w-0">
+                            <p className="font-semibold text-sm truncate">{platform.name}</p>
+                            <p className="text-xs text-muted-foreground">{platform.domain}</p>
+                          </div>
+                          {getStatusBadge(platform.status)}
+                        </div>
+                        <div className="flex flex-wrap gap-1">
+                          {platform.interventions.map((intervention: string, idx: number) => (
+                            <Badge key={idx} variant="outline" className="text-xs">
+                              {intervention}
+                            </Badge>
+                          ))}
+                        </div>
+                        <a
+                          href={platform.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+                          data-testid={`link-platform-${platform.id}`}
+                        >
+                          <Globe className="h-3 w-3" /> Visit Platform <ChevronRight className="h-3 w-3" />
+                        </a>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 function AICommunityAnalysis() {
   const { toast } = useToast();
   const [selectedRegion, setSelectedRegion] = useState("");
@@ -1577,6 +1745,609 @@ function AICommunityAnalysis() {
   );
 }
 
+const GRANT_OPTIONS = [
+  { value: "bb-collective", label: "BB Collective Research Grant", funder: "BB Collective" },
+  { value: "rare-impact", label: "Rare Impact Fund", funder: "Rare Beauty" },
+  { value: "st-davids", label: "St. David's Foundation Health Equity Grant", funder: "St. David's Foundation" },
+  { value: "austin-fc", label: "Austin FC Community Fund", funder: "Austin FC Foundation" },
+  { value: "ssg-fox", label: "SSG Fox Veteran Services Fund", funder: "SSG Fox Foundation" },
+  { value: "doj-bja", label: "DOJ/BJA Violence Prevention Grant", funder: "DOJ/BJA" },
+  { value: "samhsa", label: "SAMHSA Community Grant", funder: "SAMHSA" },
+  { value: "wioa-title-i", label: "WIOA Title I Youth Program", funder: "DOL/TWC" },
+];
+
+function GrantNarrativeGenerator() {
+  const { toast } = useToast();
+  const [selectedGrant, setSelectedGrant] = useState("");
+  const [selectedRegion, setSelectedRegion] = useState("");
+  const [customState, setCustomState] = useState("");
+  const [customCounty, setCustomCounty] = useState("");
+  const [customCity, setCustomCity] = useState("");
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [statusMessages, setStatusMessages] = useState<string[]>([]);
+  const [censusData, setCensusData] = useState<any>(null);
+  const [narrativeText, setNarrativeText] = useState("");
+  const [narrativeComplete, setNarrativeComplete] = useState(false);
+
+  const runNarrative = async () => {
+    if (!selectedGrant) {
+      toast({ title: "Select a grant program", variant: "destructive" });
+      return;
+    }
+
+    const preset = PRESET_REGIONS.find(r => r.label === selectedRegion);
+    const stateFips = preset?.stateFips || customState;
+    const countyFips = preset?.countyFips || customCounty;
+    const cityName = preset?.cityName || customCity || "Custom Region";
+
+    if (!stateFips || !countyFips) {
+      toast({ title: "Select a region or enter state/county FIPS codes", variant: "destructive" });
+      return;
+    }
+
+    setIsStreaming(true);
+    setStatusMessages([]);
+    setCensusData(null);
+    setNarrativeText("");
+    setNarrativeComplete(false);
+
+    try {
+      const resp = await fetch("/api/rplice/grant-narrative", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ stateFips, countyFips, cityName, grantName: selectedGrant }),
+      });
+
+      const reader = resp.body?.getReader();
+      if (!reader) throw new Error("No response stream");
+
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue;
+          try {
+            const evt = JSON.parse(line.slice(6));
+            if (evt.type === "status") setStatusMessages(prev => [...prev, evt.message]);
+            else if (evt.type === "data" && evt.section === "census") setCensusData(evt);
+            else if (evt.type === "chunk") setNarrativeText(prev => prev + evt.content);
+            else if (evt.type === "done") setNarrativeComplete(true);
+            else if (evt.type === "error") {
+              toast({ title: "Narrative Error", description: evt.message, variant: "destructive" });
+            }
+          } catch {}
+        }
+      }
+    } catch (e: any) {
+      toast({ title: "Narrative generation failed", description: e.message, variant: "destructive" });
+    } finally {
+      setIsStreaming(false);
+    }
+  };
+
+  const downloadNarrative = () => {
+    const grantLabel = GRANT_OPTIONS.find(g => g.value === selectedGrant)?.label || selectedGrant;
+    const regionLabel = selectedRegion || customCity || "custom";
+    const blob = new Blob([narrativeText], { type: "text/markdown" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `grant-narrative-${grantLabel.replace(/\s+/g, "-").toLowerCase()}-${regionLabel.replace(/\s+/g, "-").toLowerCase()}-${new Date().toISOString().slice(0, 10)}.md`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const grantInfo = GRANT_OPTIONS.find(g => g.value === selectedGrant);
+
+  return (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <FileText className="h-5 w-5 text-emerald-500" />
+            Grant Narrative Generator
+          </CardTitle>
+          <CardDescription>
+            Select a grant program and region to generate a funder-specific, data-driven narrative with 5 sections: Need Statement, Target Population, Program Design, Evaluation Plan, and Budget Justification.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Grant Program</Label>
+              <Select value={selectedGrant} onValueChange={setSelectedGrant}>
+                <SelectTrigger data-testid="select-grant-program">
+                  <SelectValue placeholder="Choose a grant program..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {GRANT_OPTIONS.map(g => (
+                    <SelectItem key={g.value} value={g.value}>
+                      <span className="flex items-center gap-2">
+                        <Briefcase className="h-3 w-3" /> {g.label}
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Select Community</Label>
+              <Select value={selectedRegion} onValueChange={setSelectedRegion}>
+                <SelectTrigger data-testid="select-grant-region">
+                  <SelectValue placeholder="Choose a region..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {PRESET_REGIONS.map(r => (
+                    <SelectItem key={r.label} value={r.label}>
+                      <span className="flex items-center gap-2">
+                        <MapPin className="h-3 w-3" /> {r.label}
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {grantInfo && (
+            <div className="bg-muted/50 rounded-md p-3">
+              <p className="text-sm font-medium" data-testid="text-grant-funder">Funder: {grantInfo.funder}</p>
+              <p className="text-xs text-muted-foreground">{grantInfo.label}</p>
+            </div>
+          )}
+
+          {!selectedRegion && (
+            <div className="grid grid-cols-3 gap-3">
+              <div className="space-y-1">
+                <Label className="text-xs">State FIPS</Label>
+                <Input value={customState} onChange={e => setCustomState(e.target.value)} placeholder="e.g. 36" data-testid="input-grant-state-fips" />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">County FIPS</Label>
+                <Input value={customCounty} onChange={e => setCustomCounty(e.target.value)} placeholder="e.g. 029" data-testid="input-grant-county-fips" />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">City Name</Label>
+                <Input value={customCity} onChange={e => setCustomCity(e.target.value)} placeholder="e.g. Buffalo NY" data-testid="input-grant-city-name" />
+              </div>
+            </div>
+          )}
+
+          <Button
+            onClick={runNarrative}
+            disabled={isStreaming || !selectedGrant}
+            className="w-full"
+            size="lg"
+            data-testid="button-generate-narrative"
+          >
+            {isStreaming ? (
+              <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Generating narrative...</>
+            ) : (
+              <><FileText className="h-4 w-4 mr-2" /> Generate Grant Narrative</>
+            )}
+          </Button>
+        </CardContent>
+      </Card>
+
+      {statusMessages.length > 0 && (
+        <Card>
+          <CardContent className="pt-4">
+            <div className="space-y-1">
+              {statusMessages.map((msg, i) => (
+                <div key={i} className="flex items-center gap-2 text-sm">
+                  {i === statusMessages.length - 1 && isStreaming ? (
+                    <Loader2 className="h-3 w-3 animate-spin text-blue-500 shrink-0" />
+                  ) : (
+                    <CheckCircle2 className="h-3 w-3 text-green-500 shrink-0" />
+                  )}
+                  <span data-testid={`text-grant-status-${i}`}>{msg}</span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {censusData && (
+        <Card>
+          <CardContent className="pt-4">
+            <div className="flex items-center justify-between flex-wrap gap-2 mb-3">
+              <p className="font-semibold text-sm flex items-center gap-2">
+                <MapPin className="h-4 w-4 text-blue-500" />
+                Data Source: {censusData.county?.name}
+              </p>
+              {censusData.grantProfile && (
+                <Badge variant="secondary" data-testid="badge-grant-funder">
+                  {censusData.grantProfile.funder}
+                </Badge>
+              )}
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="bg-muted/50 rounded-md p-2 text-center">
+                <p className="text-xs text-muted-foreground">Population</p>
+                <p className="text-lg font-bold" data-testid="text-grant-pop">{censusData.county?.population?.toLocaleString() || "—"}</p>
+              </div>
+              <div className="bg-muted/50 rounded-md p-2 text-center">
+                <p className="text-xs text-muted-foreground">Poverty Rate</p>
+                <p className="text-lg font-bold" data-testid="text-grant-poverty">{censusData.county?.povertyRate || "—"}%</p>
+              </div>
+              <div className="bg-muted/50 rounded-md p-2 text-center">
+                <p className="text-xs text-muted-foreground">Income Gap</p>
+                <p className="text-lg font-bold" data-testid="text-grant-gap">{censusData.incomeGap}x</p>
+              </div>
+              <div className="bg-muted/50 rounded-md p-2 text-center">
+                <p className="text-xs text-muted-foreground">High-Risk Tracts</p>
+                <p className="text-lg font-bold" data-testid="text-grant-risk">{censusData.stats?.tractsOver30Poverty || "—"}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {narrativeText && (
+        <Card>
+          <CardHeader className="pb-2">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <CardTitle className="text-base flex items-center gap-2">
+                <FileText className="h-4 w-4 text-emerald-500" />
+                {grantInfo?.label || "Grant Narrative"}
+                {!narrativeComplete && <Loader2 className="h-3 w-3 animate-spin" />}
+              </CardTitle>
+              <div className="flex items-center gap-2">
+                {narrativeComplete && (
+                  <Badge variant="default" data-testid="badge-narrative-complete">Complete</Badge>
+                )}
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={downloadNarrative}
+                  disabled={!narrativeComplete}
+                  data-testid="button-download-narrative"
+                >
+                  <Download className="h-4 w-4 mr-1" /> Download
+                </Button>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div
+              className="prose prose-sm dark:prose-invert max-w-none text-sm leading-relaxed"
+              dangerouslySetInnerHTML={{ __html: renderMarkdown(narrativeText) }}
+              data-testid="text-narrative-output"
+            />
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+}
+
+interface ActionPlanPhase {
+  name: string;
+  days: string;
+  milestones: {
+    title: string;
+    description: string;
+    owner: string;
+    deadline: string;
+    status: string;
+    linkedPlatform: string;
+  }[];
+}
+
+interface ActionPlan {
+  id: number;
+  regionName: string;
+  stateFips: string;
+  countyFips: string;
+  analysisData: any;
+  phases: ActionPlanPhase[];
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+function ActionPlanner() {
+  const { toast } = useToast();
+  const [selectedRegion, setSelectedRegion] = useState("");
+  const [viewingPlan, setViewingPlan] = useState<ActionPlan | null>(null);
+
+  const plansQuery = useQuery<ActionPlan[]>({
+    queryKey: ["/api/rplice/action-plans"],
+  });
+
+  const analysesQuery = useQuery<RpliceAssessment[]>({
+    queryKey: ["/api/rplice/assessments"],
+  });
+
+  const createMutation = useMutation({
+    mutationFn: async (region: { label: string; stateFips: string; countyFips: string }) => {
+      const analysis = (analysesQuery.data || []).find(
+        (a) => a.assessmentType === "community_analysis" && (a.data as any)?.stateFips === region.stateFips && (a.data as any)?.countyFips === region.countyFips
+      );
+      const resp = await apiRequest("POST", "/api/rplice/action-plan", {
+        regionName: region.label,
+        stateFips: region.stateFips,
+        countyFips: region.countyFips,
+        analysisData: analysis?.data || {},
+      });
+      return resp.json();
+    },
+    onSuccess: (data: ActionPlan) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/rplice/action-plans"] });
+      toast({ title: "Action Plan Created", description: `90-day plan generated for ${data.regionName}` });
+      setViewingPlan(data);
+    },
+    onError: () => toast({ title: "Error", description: "Failed to create action plan.", variant: "destructive" }),
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, phases }: { id: number; phases: ActionPlanPhase[] }) => {
+      const resp = await apiRequest("PATCH", `/api/rplice/action-plan/${id}`, { phases });
+      return resp.json();
+    },
+    onSuccess: (data: ActionPlan) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/rplice/action-plans"] });
+      setViewingPlan(data);
+      toast({ title: "Plan Updated" });
+    },
+    onError: () => toast({ title: "Error", description: "Failed to update plan.", variant: "destructive" }),
+  });
+
+  function toggleMilestoneStatus(phaseIdx: number, milestoneIdx: number) {
+    if (!viewingPlan) return;
+    const phases = JSON.parse(JSON.stringify(viewingPlan.phases)) as ActionPlanPhase[];
+    const ms = phases[phaseIdx].milestones[milestoneIdx];
+    if (ms.status === "pending") ms.status = "in-progress";
+    else if (ms.status === "in-progress") ms.status = "complete";
+    else ms.status = "pending";
+    updateMutation.mutate({ id: viewingPlan.id, phases });
+  }
+
+  function getPhaseProgress(phase: ActionPlanPhase) {
+    if (!phase.milestones || phase.milestones.length === 0) return 0;
+    const completed = phase.milestones.filter((m) => m.status === "complete").length;
+    return Math.round((completed / phase.milestones.length) * 100);
+  }
+
+  function getStatusBadgeVariant(status: string): "default" | "secondary" | "destructive" {
+    if (status === "complete") return "default";
+    if (status === "in-progress") return "secondary";
+    return "destructive";
+  }
+
+  const completedAnalysisRegions = (analysesQuery.data || [])
+    .filter((a) => a.assessmentType === "community_analysis")
+    .map((a) => {
+      const d = a.data as any;
+      return {
+        label: a.programName || d?.cityName || "Unknown",
+        stateFips: d?.stateFips || "",
+        countyFips: d?.countyFips || "",
+      };
+    })
+    .filter((r) => r.stateFips && r.countyFips);
+
+  const availableRegions = completedAnalysisRegions.length > 0
+    ? completedAnalysisRegions
+    : PRESET_REGIONS.map((r) => ({ label: r.label, stateFips: r.stateFips, countyFips: r.countyFips }));
+
+  if (viewingPlan) {
+    const phases = (viewingPlan.phases || []) as ActionPlanPhase[];
+    const totalMilestones = phases.reduce((acc, p) => acc + (p.milestones?.length || 0), 0);
+    const completedMilestones = phases.reduce((acc, p) => acc + (p.milestones?.filter((m) => m.status === "complete").length || 0), 0);
+    const overallProgress = totalMilestones > 0 ? Math.round((completedMilestones / totalMilestones) * 100) : 0;
+
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div>
+            <h3 className="text-lg font-bold" data-testid="text-action-plan-title">{viewingPlan.regionName}</h3>
+            <p className="text-sm text-muted-foreground">
+              90-Day Implementation Roadmap
+            </p>
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <Badge variant="secondary" data-testid="text-action-plan-status">{viewingPlan.status}</Badge>
+            <Button variant="outline" onClick={() => setViewingPlan(null)} data-testid="button-back-to-plans">
+              <ChevronLeft className="h-4 w-4 mr-1" /> All Plans
+            </Button>
+          </div>
+        </div>
+
+        <Card>
+          <CardContent className="pt-4">
+            <div className="flex items-center justify-between gap-4 mb-2">
+              <p className="font-semibold">Overall Progress</p>
+              <span className="text-2xl font-bold" data-testid="text-overall-progress">{overallProgress}%</span>
+            </div>
+            <Progress value={overallProgress} className="h-2" data-testid="progress-overall" />
+            <p className="text-xs text-muted-foreground mt-1">{completedMilestones} of {totalMilestones} milestones complete</p>
+          </CardContent>
+        </Card>
+
+        {phases.map((phase, phaseIdx) => {
+          const phaseProgress = getPhaseProgress(phase);
+          return (
+            <Card key={phaseIdx}>
+              <CardHeader className="pb-2">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <div>
+                    <CardTitle className="text-base" data-testid={`text-phase-name-${phaseIdx}`}>{phase.name}</CardTitle>
+                    <CardDescription>{phase.days}</CardDescription>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium" data-testid={`text-phase-progress-${phaseIdx}`}>{phaseProgress}%</span>
+                    <Progress value={phaseProgress} className="h-2 w-24" />
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {(phase.milestones || []).map((milestone, msIdx) => (
+                  <div
+                    key={msIdx}
+                    className="flex items-start gap-3 p-3 rounded-md bg-muted/30 border"
+                    data-testid={`card-milestone-${phaseIdx}-${msIdx}`}
+                  >
+                    <Checkbox
+                      checked={milestone.status === "complete"}
+                      onCheckedChange={() => toggleMilestoneStatus(phaseIdx, msIdx)}
+                      data-testid={`checkbox-milestone-${phaseIdx}-${msIdx}`}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className={`font-medium text-sm ${milestone.status === "complete" ? "line-through text-muted-foreground" : ""}`}>
+                          {milestone.title}
+                        </span>
+                        <Badge variant={getStatusBadgeVariant(milestone.status)} className="text-xs" data-testid={`badge-milestone-status-${phaseIdx}-${msIdx}`}>
+                          {milestone.status}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-0.5">{milestone.description}</p>
+                      <div className="flex items-center gap-3 mt-1 flex-wrap">
+                        <span className="text-xs text-muted-foreground flex items-center gap-1">
+                          <Briefcase className="h-3 w-3" /> {milestone.owner}
+                        </span>
+                        <span className="text-xs text-muted-foreground flex items-center gap-1">
+                          <Clock className="h-3 w-3" /> {milestone.deadline}
+                        </span>
+                        {milestone.linkedPlatform && (
+                          <Badge variant="secondary" className="text-xs">
+                            {milestone.linkedPlatform}
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={() => toggleMilestoneStatus(phaseIdx, msIdx)}
+                      data-testid={`button-toggle-milestone-${phaseIdx}-${msIdx}`}
+                    >
+                      {milestone.status === "pending" && <Clock className="h-4 w-4 text-muted-foreground" />}
+                      {milestone.status === "in-progress" && <Activity className="h-4 w-4 text-blue-500" />}
+                      {milestone.status === "complete" && <CheckCircle2 className="h-4 w-4 text-green-500" />}
+                    </Button>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h3 className="text-lg font-bold" data-testid="text-action-planner-title">Community Action Planner</h3>
+        <p className="text-sm text-muted-foreground">Generate 90-day implementation roadmaps from RPLICE community analyses</p>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Create New Action Plan</CardTitle>
+          <CardDescription>Select a region to generate an AI-powered 90-day implementation roadmap</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label>Select Region</Label>
+            <Select value={selectedRegion} onValueChange={setSelectedRegion}>
+              <SelectTrigger data-testid="select-action-plan-region">
+                <SelectValue placeholder="Choose a region..." />
+              </SelectTrigger>
+              <SelectContent>
+                {availableRegions.map((r) => (
+                  <SelectItem key={r.label} value={r.label}>
+                    <span className="flex items-center gap-2">
+                      <MapPin className="h-3 w-3" /> {r.label}
+                    </span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <Button
+            onClick={() => {
+              const region = availableRegions.find((r) => r.label === selectedRegion);
+              if (region) createMutation.mutate(region);
+            }}
+            disabled={!selectedRegion || createMutation.isPending}
+            className="w-full"
+            data-testid="button-create-action-plan"
+          >
+            {createMutation.isPending ? (
+              <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Generating Plan...</>
+            ) : (
+              <><Plus className="h-4 w-4 mr-2" /> Create 90-Day Action Plan</>
+            )}
+          </Button>
+        </CardContent>
+      </Card>
+
+      <div>
+        <h4 className="font-semibold mb-3">Existing Action Plans</h4>
+        {plansQuery.isLoading ? (
+          <div className="space-y-3">
+            <Skeleton className="h-20 w-full" />
+            <Skeleton className="h-20 w-full" />
+          </div>
+        ) : (plansQuery.data || []).length === 0 ? (
+          <Card>
+            <CardContent className="pt-4 text-center text-muted-foreground">
+              <p>No action plans yet. Create one from a community analysis above.</p>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="space-y-3">
+            {(plansQuery.data || []).map((plan) => {
+              const phases = (plan.phases || []) as ActionPlanPhase[];
+              const totalMs = phases.reduce((acc, p) => acc + (p.milestones?.length || 0), 0);
+              const doneMs = phases.reduce((acc, p) => acc + (p.milestones?.filter((m) => m.status === "complete").length || 0), 0);
+              const progress = totalMs > 0 ? Math.round((doneMs / totalMs) * 100) : 0;
+              return (
+                <Card
+                  key={plan.id}
+                  className="hover-elevate cursor-pointer"
+                  onClick={() => setViewingPlan(plan)}
+                  data-testid={`card-action-plan-${plan.id}`}
+                >
+                  <CardContent className="pt-4">
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                      <div>
+                        <p className="font-semibold">{plan.regionName}</p>
+                        <p className="text-xs text-muted-foreground">
+                          Created {new Date(plan.createdAt).toLocaleDateString()} | {doneMs}/{totalMs} milestones
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="text-right">
+                          <span className="text-lg font-bold" data-testid={`text-plan-progress-${plan.id}`}>{progress}%</span>
+                        </div>
+                        <Progress value={progress} className="h-2 w-20" />
+                        <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function renderMarkdown(text: string): string {
   return text
     .replace(/^### (.+)$/gm, '<h3 class="text-base font-bold mt-4 mb-2">$1</h3>')
@@ -1596,6 +2367,319 @@ function renderMarkdown(text: string): string {
     .replace(/^(\d+)\. (.+)$/gm, '<li class="ml-4 list-decimal">$2</li>')
     .replace(/\n{2,}/g, '<br/><br/>')
     .replace(/\n/g, '<br/>');
+}
+
+const BASELINE_METRIC_DEFS = [
+  { key: "povertyRate", label: "Poverty Rate", unit: "%", direction: "lower-better" as const },
+  { key: "collegePct", label: "College Attainment", unit: "%", direction: "higher-better" as const },
+  { key: "unemploymentRate", label: "Unemployment Rate", unit: "%", direction: "lower-better" as const },
+  { key: "medianIncome", label: "Median Income", unit: "$", direction: "higher-better" as const },
+  { key: "incomeGap", label: "Income Gap", unit: "x", direction: "lower-better" as const },
+  { key: "marriagePct", label: "Marriage Rate", unit: "%", direction: "higher-better" as const },
+  { key: "highRiskTracts", label: "High Risk Tracts (30%+ Poverty)", unit: "", direction: "lower-better" as const },
+  { key: "riskScore100Count", label: "Risk Score 100 Tracts", unit: "", direction: "lower-better" as const },
+];
+
+const TIMELINE_OPTIONS = [
+  { label: "6 Months", value: 6 },
+  { label: "1 Year", value: 12 },
+  { label: "2 Years", value: 24 },
+  { label: "3 Years", value: 36 },
+];
+
+function OutcomeBaselineDashboard() {
+  const { toast } = useToast();
+  const [showCreate, setShowCreate] = useState(false);
+  const [selectedAnalysis, setSelectedAnalysis] = useState("");
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editTargets, setEditTargets] = useState<Record<string, string>>({});
+  const [editTimeline, setEditTimeline] = useState(12);
+
+  const { data: baselines = [], isLoading: baselinesLoading } = useQuery<any[]>({
+    queryKey: ["/api/rplice/baselines"],
+  });
+
+  const { data: analyses = [] } = useQuery<any[]>({
+    queryKey: ["/api/rplice/assessments"],
+  });
+
+  const communityAnalyses = (analyses || []).filter(
+    (a: any) => a.assessmentType === "community_analysis" && a.status === "complete"
+  );
+
+  const createMutation = useMutation({
+    mutationFn: async (analysis: any) => {
+      const d = analysis.data || {};
+      const metrics: Record<string, number> = {
+        povertyRate: d.stats?.tractsOver30Poverty != null ? parseFloat(String(d.stats.tractsOver30Poverty)) : 0,
+        collegePct: 0,
+        unemploymentRate: 0,
+        medianIncome: 0,
+        incomeGap: d.incomeGap != null ? parseFloat(String(d.incomeGap)) : 0,
+        marriagePct: 0,
+        highRiskTracts: d.stats?.tractsOver30Poverty || 0,
+        riskScore100Count: d.stats?.tractsRisk100 || 0,
+      };
+      await apiRequest("POST", "/api/rplice/baseline", {
+        regionName: analysis.programName || "Unknown Region",
+        stateFips: d.stateFips || "",
+        countyFips: d.countyFips || "",
+        metrics,
+        targets: {},
+        timelineMonths: 12,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/rplice/baselines"] });
+      toast({ title: "Baseline Locked", description: "Outcome baseline has been saved." });
+      setShowCreate(false);
+      setSelectedAnalysis("");
+    },
+    onError: () => toast({ title: "Error", description: "Failed to create baseline.", variant: "destructive" }),
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, targets, timelineMonths }: { id: number; targets: Record<string, number>; timelineMonths: number }) => {
+      await apiRequest("PATCH", `/api/rplice/baseline/${id}`, { targets, timelineMonths });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/rplice/baselines"] });
+      toast({ title: "Targets Updated" });
+      setEditingId(null);
+    },
+    onError: () => toast({ title: "Error", description: "Failed to update targets.", variant: "destructive" }),
+  });
+
+  function startEditing(baseline: any) {
+    setEditingId(baseline.id);
+    const t = baseline.targets || {};
+    const mapped: Record<string, string> = {};
+    BASELINE_METRIC_DEFS.forEach(m => {
+      mapped[m.key] = t[m.key] != null ? String(t[m.key]) : "";
+    });
+    setEditTargets(mapped);
+    setEditTimeline(baseline.timelineMonths || 12);
+  }
+
+  function saveTargets(id: number) {
+    const parsed: Record<string, number> = {};
+    Object.entries(editTargets).forEach(([k, v]) => {
+      if (v !== "") parsed[k] = parseFloat(v);
+    });
+    updateMutation.mutate({ id, targets: parsed, timelineMonths: editTimeline });
+  }
+
+  function formatVal(val: number | undefined, unit: string) {
+    if (val == null || isNaN(val)) return "—";
+    if (unit === "$") return "$" + val.toLocaleString();
+    return val + unit;
+  }
+
+  function calcGap(baseline: number, target: number, direction: string) {
+    const diff = target - baseline;
+    if (direction === "lower-better") {
+      return diff < 0 ? { label: formatVal(Math.abs(diff), ""), good: true } : { label: "+" + formatVal(diff, ""), good: false };
+    }
+    return diff > 0 ? { label: "+" + formatVal(diff, ""), good: true } : { label: formatVal(diff, ""), good: false };
+  }
+
+  function downloadReport(baseline: any) {
+    const metrics = baseline.metrics || {};
+    const targets = baseline.targets || {};
+    let md = `# Outcome Baseline Report\n\n`;
+    md += `**Region:** ${baseline.regionName}\n`;
+    md += `**State FIPS:** ${baseline.stateFips} | **County FIPS:** ${baseline.countyFips}\n`;
+    md += `**Locked:** ${new Date(baseline.createdAt).toLocaleDateString()}\n`;
+    md += `**Timeline:** ${baseline.timelineMonths} months\n\n`;
+    md += `## Metrics\n\n`;
+    md += `| Metric | Baseline | Target | Gap |\n`;
+    md += `|--------|----------|--------|-----|\n`;
+    BASELINE_METRIC_DEFS.forEach(m => {
+      const bVal = metrics[m.key];
+      const tVal = targets[m.key];
+      const gap = tVal != null && bVal != null ? calcGap(bVal, tVal, m.direction) : null;
+      md += `| ${m.label} | ${formatVal(bVal, m.unit)} | ${tVal != null ? formatVal(tVal, m.unit) : "Not set"} | ${gap ? gap.label : "—"} |\n`;
+    });
+    md += `\n---\n*Generated by RPLICE Implementation Science Toolkit*\n`;
+    const blob = new Blob([md], { type: "text/markdown" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `baseline-${baseline.regionName.replace(/\s+/g, "-")}-${new Date().toISOString().slice(0, 10)}.md`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <div>
+          <h3 className="text-lg font-bold" data-testid="text-baselines-title">Outcome Baselines</h3>
+          <p className="text-sm text-muted-foreground">Lock Census metrics as baselines, set targets, and track progress for grant submissions</p>
+        </div>
+        <Button onClick={() => setShowCreate(!showCreate)} data-testid="button-create-baseline">
+          <Plus className="h-4 w-4 mr-1" /> Lock New Baseline
+        </Button>
+      </div>
+
+      {showCreate && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Lock Baseline from Completed Analysis</CardTitle>
+            <CardDescription>Select a completed RPLICE community analysis to lock its metrics as a baseline</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {communityAnalyses.length === 0 ? (
+              <p className="text-sm text-muted-foreground" data-testid="text-no-analyses">No completed community analyses found. Run an AI Community Analysis first.</p>
+            ) : (
+              <>
+                <Select value={selectedAnalysis} onValueChange={setSelectedAnalysis}>
+                  <SelectTrigger data-testid="select-analysis-for-baseline">
+                    <SelectValue placeholder="Select a completed analysis..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {communityAnalyses.map((a: any) => (
+                      <SelectItem key={a.id} value={String(a.id)}>
+                        {a.programName} — {new Date(a.createdAt).toLocaleDateString()}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button
+                  onClick={() => {
+                    const analysis = communityAnalyses.find((a: any) => String(a.id) === selectedAnalysis);
+                    if (analysis) createMutation.mutate(analysis);
+                  }}
+                  disabled={!selectedAnalysis || createMutation.isPending}
+                  data-testid="button-lock-baseline"
+                >
+                  {createMutation.isPending ? <><Loader2 className="h-4 w-4 mr-1 animate-spin" /> Locking...</> : "Lock Baseline"}
+                </Button>
+              </>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {baselinesLoading ? (
+        <div className="space-y-4">
+          <Skeleton className="h-40 w-full" />
+          <Skeleton className="h-40 w-full" />
+        </div>
+      ) : baselines.length === 0 ? (
+        <Card>
+          <CardContent className="pt-6 text-center">
+            <Target className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
+            <p className="text-muted-foreground" data-testid="text-no-baselines">No baselines locked yet. Create one from a completed community analysis.</p>
+          </CardContent>
+        </Card>
+      ) : (
+        baselines.map((bl: any) => {
+          const metrics = bl.metrics || {};
+          const targets = bl.targets || {};
+          const isEditing = editingId === bl.id;
+          return (
+            <Card key={bl.id}>
+              <CardHeader className="pb-2">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <div>
+                    <CardTitle className="text-base flex items-center gap-2" data-testid={`text-baseline-name-${bl.id}`}>
+                      <Target className="h-4 w-4 text-blue-500" />
+                      {bl.regionName}
+                    </CardTitle>
+                    <CardDescription>
+                      Locked {new Date(bl.createdAt).toLocaleDateString()} | Timeline: {bl.timelineMonths} months
+                    </CardDescription>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button size="sm" variant="outline" onClick={() => downloadReport(bl)} data-testid={`button-download-baseline-${bl.id}`}>
+                      <Download className="h-4 w-4 mr-1" /> Download
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => window.print()} data-testid={`button-print-baseline-${bl.id}`}>
+                      <Printer className="h-4 w-4 mr-1" /> Print
+                    </Button>
+                    {isEditing ? (
+                      <Button size="sm" onClick={() => saveTargets(bl.id)} disabled={updateMutation.isPending} data-testid={`button-save-targets-${bl.id}`}>
+                        {updateMutation.isPending ? "Saving..." : "Save Targets"}
+                      </Button>
+                    ) : (
+                      <Button size="sm" variant="outline" onClick={() => startEditing(bl)} data-testid={`button-edit-targets-${bl.id}`}>
+                        Set Targets
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {isEditing && (
+                  <div className="mb-4 space-y-2">
+                    <Label className="text-sm">Timeline</Label>
+                    <Select value={String(editTimeline)} onValueChange={(v) => setEditTimeline(parseInt(v))}>
+                      <SelectTrigger className="w-[200px]" data-testid={`select-timeline-${bl.id}`}>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {TIMELINE_OPTIONS.map(t => (
+                          <SelectItem key={t.value} value={String(t.value)}>{t.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                  {BASELINE_METRIC_DEFS.map((m) => {
+                    const bVal = metrics[m.key];
+                    const tVal = targets[m.key];
+                    const gap = tVal != null && bVal != null ? calcGap(bVal, tVal, m.direction) : null;
+                    return (
+                      <div key={m.key} className="bg-muted/50 rounded-lg p-3 space-y-1">
+                        <p className="text-xs text-muted-foreground">{m.label}</p>
+                        <p className="text-lg font-bold" data-testid={`text-baseline-${m.key}-${bl.id}`}>{formatVal(bVal, m.unit)}</p>
+                        {isEditing ? (
+                          <div className="space-y-1">
+                            <Label className="text-xs">Target</Label>
+                            <Input
+                              value={editTargets[m.key] || ""}
+                              onChange={(e) => setEditTargets({ ...editTargets, [m.key]: e.target.value })}
+                              placeholder="Set target..."
+                              className="text-sm"
+                              data-testid={`input-target-${m.key}-${bl.id}`}
+                            />
+                          </div>
+                        ) : tVal != null ? (
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs text-muted-foreground">Target: {formatVal(tVal, m.unit)}</span>
+                            {gap && (
+                              <Badge variant={gap.good ? "default" : "destructive"} className="text-xs" data-testid={`badge-gap-${m.key}-${bl.id}`}>
+                                {gap.label}
+                              </Badge>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">No target set</span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+                {bl.metrics?.gentrification && (bl.metrics.gentrification as string[]).length > 0 && (
+                  <div className="mt-3 space-y-1">
+                    <p className="text-xs font-semibold text-muted-foreground">Gentrification Indicators</p>
+                    {(bl.metrics.gentrification as string[]).map((g: string, i: number) => (
+                      <div key={i} className="flex items-center gap-2 text-xs">
+                        <AlertTriangle className="h-3 w-3 text-amber-500 shrink-0" />
+                        <span>{g}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          );
+        })
+      )}
+    </div>
+  );
 }
 
 export default function RpliceToolsPage() {
@@ -1628,6 +2712,18 @@ export default function RpliceToolsPage() {
           <TabsTrigger value="quality" data-testid="tab-quality">
             <Shield className="h-4 w-4 mr-1.5" /> Quality Gate
           </TabsTrigger>
+          <TabsTrigger value="platform-matcher" data-testid="tab-platform-matcher">
+            <Globe className="h-4 w-4 mr-1.5" /> Platform Matcher
+          </TabsTrigger>
+          <TabsTrigger value="baselines" data-testid="tab-baselines">
+            <Target className="h-4 w-4 mr-1.5" /> Outcome Baselines
+          </TabsTrigger>
+          <TabsTrigger value="grant-narrative" data-testid="tab-grant-narrative">
+            <FileText className="h-4 w-4 mr-1.5" /> Grant Narrative
+          </TabsTrigger>
+          <TabsTrigger value="action-planner" data-testid="tab-action-planner">
+            <TrendingUp className="h-4 w-4 mr-1.5" /> Action Planner
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="ai-analysis"><AICommunityAnalysis /></TabsContent>
@@ -1636,6 +2732,10 @@ export default function RpliceToolsPage() {
         <TabsContent value="fidelity"><FidelityChecklist /></TabsContent>
         <TabsContent value="three-realities"><ThreeRealitiesDiagnostic /></TabsContent>
         <TabsContent value="quality"><QualityGateDashboard /></TabsContent>
+        <TabsContent value="platform-matcher"><PlatformMatcher /></TabsContent>
+        <TabsContent value="baselines"><OutcomeBaselineDashboard /></TabsContent>
+        <TabsContent value="grant-narrative"><GrantNarrativeGenerator /></TabsContent>
+        <TabsContent value="action-planner"><ActionPlanner /></TabsContent>
       </Tabs>
     </div>
   );

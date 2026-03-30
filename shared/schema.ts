@@ -3729,6 +3729,39 @@ export const insertRpliceAssessmentSchema = createInsertSchema(rpliceAssessments
 export type InsertRpliceAssessment = z.infer<typeof insertRpliceAssessmentSchema>;
 export type RpliceAssessment = typeof rpliceAssessments.$inferSelect;
 
+export const rpliceActionPlans = pgTable("rplice_action_plans", {
+  id: serial("id").primaryKey(),
+  regionName: text("region_name").notNull(),
+  stateFips: varchar("state_fips", { length: 10 }).notNull(),
+  countyFips: varchar("county_fips", { length: 10 }).notNull(),
+  analysisData: jsonb("analysis_data"),
+  phases: jsonb("phases"),
+  status: varchar("status", { length: 50 }).notNull().default("active"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertRpliceActionPlanSchema = createInsertSchema(rpliceActionPlans).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertRpliceActionPlan = z.infer<typeof insertRpliceActionPlanSchema>;
+export type RpliceActionPlan = typeof rpliceActionPlans.$inferSelect;
+
+export const outcomeBaselines = pgTable("outcome_baselines", {
+  id: serial("id").primaryKey(),
+  regionName: text("region_name").notNull(),
+  stateFips: varchar("state_fips", { length: 10 }).notNull(),
+  countyFips: varchar("county_fips", { length: 10 }).notNull(),
+  metrics: jsonb("metrics").notNull(),
+  targets: jsonb("targets"),
+  timelineMonths: integer("timeline_months").default(12),
+  status: varchar("status", { length: 50 }).notNull().default("active"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertOutcomeBaselineSchema = createInsertSchema(outcomeBaselines).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertOutcomeBaseline = z.infer<typeof insertOutcomeBaselineSchema>;
+export type OutcomeBaseline = typeof outcomeBaselines.$inferSelect;
+
 export const mceContracts = pgTable("mce_contracts", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
