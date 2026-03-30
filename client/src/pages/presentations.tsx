@@ -11,15 +11,15 @@ import {
   Star, MapPin, DollarSign, TrendingUp, CheckCircle2,
   BarChart3, Microscope, Layers, Activity, RefreshCw,
   Zap, Home, GraduationCap, Baby, Stethoscope,
-  ArrowRight, Clock, BookOpen, Lightbulb, Eye,
+  ArrowRight, Clock, BookOpen, Lightbulb, Eye, Handshake,
 } from "lucide-react";
 import { BackToTop } from "@/components/back-to-top";
 import jsPDF from "jspdf";
 
 const ENTITIES = [
-  { name: "The Collaborative Advocate Foundation", role: "Fiscal Agent & Research Engine", type: "501(c)(3) Nonprofit", icon: Building2 },
-  { name: "The Collaborative Advocate LLC", role: "Technology & Consulting", type: "Veteran-Owned Small Business", icon: Briefcase },
-  { name: "ThriveUp Academy", role: "Direct Service Delivery", type: "DBA / Program Brand", icon: GraduationCap },
+  { name: "The Collaborative Advocate Foundation", role: "Fiscal Agent & Research Engine", type: "501(c)(3) Nonprofit", ein: "41-3618003", icon: Building2 },
+  { name: "Collaboration & Implementation Professionals LLC", role: "Technology & Consulting", type: "Veteran-Owned Small Business", ein: "41-4996540", icon: Briefcase },
+  { name: "M&T Consulting Solutions LLC", role: "Strategic Advisory & Program Design", type: "Consulting Entity", ein: "41-4952178", icon: GraduationCap },
 ];
 
 const PLATFORMS = [
@@ -43,6 +43,10 @@ const PLATFORMS = [
   { name: "Shield Atlas", domain: "Cybersecurity", color: "bg-gray-500" },
   { name: "RPLICE / Better Science", domain: "Research Validation", color: "bg-blue-600" },
   { name: "Video Creator AI", domain: "Content Production", color: "bg-violet-600" },
+  { name: "Pinnacle Business", domain: "Business Development", color: "bg-orange-600" },
+  { name: "LexiBridge", domain: "Legal Navigation", color: "bg-slate-600" },
+  { name: "Code Canvas", domain: "Digital Skills Training", color: "bg-indigo-600" },
+  { name: "Ecosystem Nexus", domain: "Cross-Platform Integration", color: "bg-teal-600" },
 ];
 
 const REGIONAL_HUBS = [
@@ -92,6 +96,56 @@ const REGIONAL_HUBS = [
 
 const GRANTS = [
   {
+    name: "Rare Impact Fund",
+    amount: "$250K-$500K",
+    timeline: "1-2 years",
+    deadline: "April 10, 2026",
+    entity: "Collaborative Advocate Foundation",
+    evidence: "Implementation science frameworks, SDOH impact data, culturally responsive program models",
+    alignment: "Community health equity, youth mental health, workforce inclusion, underserved population access",
+    status: "priority",
+  },
+  {
+    name: "BB Collective Research Grant",
+    amount: "$50,000",
+    timeline: "1 year",
+    deadline: "April 13, 2026",
+    entity: "Collaborative Advocate Foundation",
+    evidence: "MAP-GAP CQI methodology, RPLICE validation framework, CARE Model integration, CFIR/RE-AIM scoring",
+    alignment: "Black-led research, implementation science, community-driven outcomes measurement, collaborative impact",
+    status: "priority",
+  },
+  {
+    name: "St. David's Foundation",
+    amount: "Up to $1M",
+    timeline: "2-3 years",
+    deadline: "Opens March 30, 2026",
+    entity: "Collaborative Advocate Foundation",
+    evidence: "SDOH framework, health equity data, maternal mortality research, community health assessments",
+    alignment: "Economic stability pathways, culturally responsive mental health, healthy births, community-driven change",
+    status: "priority",
+  },
+  {
+    name: "SSG Fox VA Suicide Prevention",
+    amount: "Up to $750K",
+    timeline: "3 years",
+    deadline: "June 12-18, 2026",
+    entity: "ThriveUp Academy",
+    evidence: "VA suicide prevention protocols, Risk-Needs-Responsivity model, veteran-specific care pathways",
+    alignment: "Veteran suicide prevention, whole-person health, transition support, community integration",
+    status: "upcoming",
+  },
+  {
+    name: "Centene Foundation Behavioral Health",
+    amount: "Up to $500K",
+    timeline: "2 years",
+    deadline: "May 31, 2026",
+    entity: "Collaborative Advocate Foundation",
+    evidence: "Behavioral health integration models, SDOH screening protocols, culturally responsive care frameworks",
+    alignment: "Behavioral health access, integrated care, community health workers, health equity",
+    status: "upcoming",
+  },
+  {
     name: "DFC Grant",
     amount: "$625,000",
     timeline: "5 years",
@@ -110,36 +164,6 @@ const GRANTS = [
     evidence: "WIOA performance accountability, competency-based education, sectoral employment strategies",
     alignment: "Workforce development, career pathways, credential attainment, employer partnerships",
     status: "active",
-  },
-  {
-    name: "Foundation Grants",
-    amount: "$100K-$500K",
-    timeline: "1-3 years",
-    deadline: "Rolling LOI",
-    entity: "Collaborative Advocate Foundation",
-    evidence: "Implementation science frameworks (CFIR, RE-AIM), MAP-GAP CQI, SALP fidelity indicators",
-    alignment: "Community health, education equity, youth development, digital inclusion",
-    status: "active",
-  },
-  {
-    name: "St. David's Foundation",
-    amount: "Up to $1M",
-    timeline: "2-3 years",
-    deadline: "Opens March 30, 2026",
-    entity: "ThriveUp Academy",
-    evidence: "SDOH framework, health equity data, maternal mortality research, community health assessments",
-    alignment: "Economic stability pathways, culturally responsive mental health, healthy births, community-driven change",
-    status: "priority",
-  },
-  {
-    name: "SSG Fox VA Suicide Prevention",
-    amount: "Up to $750K",
-    timeline: "3 years",
-    deadline: "June 12-18, 2026",
-    entity: "ThriveUp Academy",
-    evidence: "VA suicide prevention protocols, Risk-Needs-Responsivity model, veteran-specific care pathways",
-    alignment: "Veteran suicide prevention, whole-person health, transition support, community integration",
-    status: "upcoming",
   },
 ];
 
@@ -165,7 +189,7 @@ const IMPACT_PROJECTIONS = [
       { metric: "Workforce Placements", value: "500+" },
       { metric: "Housing Stabilizations", value: "300 families" },
       { metric: "Youth in Programs", value: "1,200+" },
-      { metric: "Platforms Active", value: "20/20" },
+      { metric: "Platforms Active", value: "24/24" },
     ],
   },
   {
@@ -248,6 +272,31 @@ const REAIM_SCORES = [
   { dimension: "Maintenance", score: 75, description: "MG-PATR replication protocol, continuous quality improvement, community ownership model" },
 ];
 
+const PARTNERSHIP_VALUE = {
+  whatWeOffer: [
+    { tool: "MAP-GAP Framework", benefit: "Any partner can run structured improvement cycles on their own programs — no license, no fee, just better outcomes", icon: RefreshCw },
+    { tool: "RPLICE Validation Tools", benefit: "CFIR assessments, RE-AIM scoring, Fidelity Checklists, and Three Realities diagnostics available to partners for self-evaluation", icon: Microscope },
+    { tool: "CARE Model Integration", benefit: "Connect your community assessments directly to evidence-based response pathways across 24 platforms", icon: Heart },
+    { tool: "Warm Handoff Network", benefit: "Bi-directional referral system with confirmation tracking — your clients get connected, not lost", icon: Handshake },
+    { tool: "Shared Outcomes Dashboard", benefit: "Joint metric tracking so partners can show collective impact to funders, not just individual outputs", icon: BarChart3 },
+    { tool: "Technology Infrastructure", benefit: "24 platforms covering health, housing, workforce, education, and safety — available as a backbone for partner programs", icon: Globe },
+  ],
+  whatWeLookFor: [
+    "Community trust and established relationships we haven't built yet",
+    "Domain expertise that deepens our evidence base (health equity, education research, policy analysis)",
+    "Geographic reach beyond Austin/Manor/Pflugerville to scale validated models",
+    "Complementary data that strengthens grant applications for both organizations",
+    "Co-investigators and co-PIs for research-backed funding opportunities",
+    "Honest feedback — our tools get better when partners tell us what doesn't work",
+  ],
+  jointOpportunities: [
+    { opportunity: "BB Collective Research Grant (April 13)", description: "Joint proposal combining partner's community data with our RPLICE validation framework — stronger together than either alone", amount: "$50K" },
+    { opportunity: "St. David's Foundation (March 30)", description: "Multi-organization application showing coordinated health equity impact across Central Texas", amount: "Up to $1M" },
+    { opportunity: "Shared CFIR/RE-AIM Assessments", description: "Partners can use our tools to validate their own programs, producing publishable implementation science data", amount: "Research value" },
+    { opportunity: "Joint Community Health Assessments", description: "Combined screening data from multiple orgs creates a more complete picture for funders and policymakers", amount: "Leverage" },
+  ],
+};
+
 function generatePDF(section: string) {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
@@ -269,7 +318,7 @@ function generatePDF(section: string) {
       y += 12;
       doc.setFontSize(11);
       doc.setTextColor(100, 100, 100);
-      const intro = "ThriveUp Academy is the direct-service brand of The Collaborative Advocate Foundation, a veteran-founded, minority-led 501(c)(3) nonprofit. The ecosystem comprises 3 legal entities, 20 integrated technology platforms, 3 regional hubs (Austin, Manor, Pflugerville), and 5 active grant pipelines — all validated through Dr. Terry Flood's proprietary implementation science methodologies: MAP-GAP, SALP, Three Realities, and MG-PATR.";
+      const intro = "ThriveUp Academy is the direct-service brand of The Collaborative Advocate Foundation, a veteran-founded, minority-led 501(c)(3) nonprofit. The ecosystem comprises 3 legal entities, 24 integrated technology platforms, 3 regional hubs (Austin, Manor, Pflugerville), and 7 active grant pipelines — all validated through Dr. Terry Flood's proprietary implementation science methodologies: MAP-GAP, SALP, Three Realities, and MG-PATR. Our tools don't just serve our mission — they're built to make every partner organization more effective.";
       const lines = doc.splitTextToSize(intro, maxWidth);
       doc.text(lines, margin, y);
       y += lines.length * 6 + 10;
@@ -295,11 +344,12 @@ function generatePDF(section: string) {
       y += 8;
       doc.setFontSize(10);
       const stats = [
-        "20 integrated technology platforms",
+        "24 integrated technology platforms",
         "3 regional hubs: Austin, Manor, Pflugerville",
-        "5 active grant pipelines totaling $2.7M+",
-        "4 doctoral disciplines: Implementation Science, Criminal Justice, HR Management, I-O Psychology",
+        "7 active grant pipelines totaling $3.6M+",
+        "4 doctoral disciplines: Implementation Science, Psychology, HR Management, Criminal Justice",
         "Proprietary methodologies: MAP-GAP, SALP, Three Realities, MG-PATR",
+        "Tools built to strengthen every partner — not just our own programs",
         "Target: 10,000+ individuals served by Year 3",
       ];
       stats.forEach((s) => {
@@ -379,7 +429,7 @@ function generatePDF(section: string) {
     }
     case "ecosystem": {
       doc.setFontSize(22);
-      doc.text("20-Platform Ecosystem Overview", margin, y);
+      doc.text("24-Platform Ecosystem Overview", margin, y);
       y += 14;
       doc.setFontSize(10);
       PLATFORMS.forEach((p, i) => {
@@ -410,6 +460,66 @@ function generatePDF(section: string) {
           y += 6;
         });
         y += 8;
+      });
+      break;
+    }
+    case "partnership": {
+      doc.setFontSize(22);
+      doc.text("Partnership Value — Better Together", margin, y);
+      y += 12;
+      doc.setFontSize(11);
+      doc.setTextColor(100, 100, 100);
+      const partnerIntro = "We don't just build tools for ourselves. Every methodology, framework, and platform in the ThriveUp ecosystem is designed to make our partners more effective. This is what we bring to the table — and what we're looking for in return.";
+      const pLines = doc.splitTextToSize(partnerIntro, maxWidth);
+      doc.text(pLines, margin, y);
+      y += pLines.length * 6 + 10;
+
+      doc.setFontSize(14);
+      doc.setTextColor(0, 0, 0);
+      doc.text("What We Offer Partners", margin, y);
+      y += 8;
+      doc.setFontSize(10);
+      PARTNERSHIP_VALUE.whatWeOffer.forEach((item) => {
+        if (y > 250) { doc.addPage(); y = 20; }
+        doc.setTextColor(0, 0, 0);
+        doc.text(`${item.tool}`, margin + 4, y);
+        y += 5;
+        doc.setTextColor(100, 100, 100);
+        const bLines = doc.splitTextToSize(item.benefit, maxWidth - 12);
+        doc.text(bLines, margin + 8, y);
+        y += bLines.length * 5 + 4;
+      });
+
+      y += 6;
+      if (y > 200) { doc.addPage(); y = 20; }
+      doc.setFontSize(14);
+      doc.setTextColor(0, 0, 0);
+      doc.text("What We Look For in Partners", margin, y);
+      y += 8;
+      doc.setFontSize(10);
+      doc.setTextColor(100, 100, 100);
+      PARTNERSHIP_VALUE.whatWeLookFor.forEach((item) => {
+        if (y > 265) { doc.addPage(); y = 20; }
+        doc.text(`  \u2022 ${item}`, margin + 4, y);
+        y += 6;
+      });
+
+      y += 6;
+      if (y > 200) { doc.addPage(); y = 20; }
+      doc.setFontSize(14);
+      doc.setTextColor(0, 0, 0);
+      doc.text("Joint Opportunities", margin, y);
+      y += 8;
+      doc.setFontSize(10);
+      PARTNERSHIP_VALUE.jointOpportunities.forEach((item) => {
+        if (y > 240) { doc.addPage(); y = 20; }
+        doc.setTextColor(0, 0, 0);
+        doc.text(`${item.opportunity} (${item.amount})`, margin + 4, y);
+        y += 5;
+        doc.setTextColor(100, 100, 100);
+        const oLines = doc.splitTextToSize(item.description, maxWidth - 12);
+        doc.text(oLines, margin + 8, y);
+        y += oLines.length * 5 + 6;
       });
       break;
     }
@@ -516,7 +626,7 @@ export default function PresentationsPage() {
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         <SectionCard
           title="Executive Summary"
-          description="One-page overview: 3 entities, 24 platforms, 3 hubs, 5 grants, Dr. Flood's methodologies"
+          description="One-page overview: 3 entities, 24 platforms, 3 hubs, 7 grants, Dr. Flood's methodologies"
           icon={FileText}
           section="executive"
           color="bg-violet-600"
@@ -550,6 +660,13 @@ export default function PresentationsPage() {
           color="bg-rose-600"
         />
         <SectionCard
+          title="Partnership Value"
+          description="What we offer partners, what we look for, and how working together creates shared impact"
+          icon={Handshake}
+          section="partnership"
+          color="bg-emerald-600"
+        />
+        <SectionCard
           title="RPLICE Evidence Brief"
           description="CFIR/RE-AIM scoring, Three Realities application, implementation science validation"
           icon={Microscope}
@@ -559,9 +676,12 @@ export default function PresentationsPage() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} data-testid="tabs-presentations">
-        <TabsList className="grid w-full grid-cols-2 md:grid-cols-6 gap-1 h-auto p-1">
+        <TabsList className="grid w-full grid-cols-2 md:grid-cols-7 gap-1 h-auto p-1">
           <TabsTrigger value="executive" className="text-xs" data-testid="tab-executive">
             <FileText className="h-3.5 w-3.5 mr-1" /> Executive
+          </TabsTrigger>
+          <TabsTrigger value="partnership" className="text-xs" data-testid="tab-partnership">
+            <Handshake className="h-3.5 w-3.5 mr-1" /> Partnership
           </TabsTrigger>
           <TabsTrigger value="hubs" className="text-xs" data-testid="tab-hubs">
             <MapPin className="h-3.5 w-3.5 mr-1" /> Hubs
@@ -599,9 +719,9 @@ export default function PresentationsPage() {
             <div className="relative z-10 max-w-4xl">
               <h1 className="text-3xl md:text-4xl font-bold mb-4">ThriveUp Academy</h1>
               <p className="text-lg text-blue-100 mb-4">
-                A veteran-founded, minority-led 24-platform AI ecosystem addressing community challenges
-                across housing, workforce, health equity, youth development, and public safety — validated
-                through proprietary implementation science methodologies.
+                A veteran-founded, minority-led 24-platform ecosystem built to make communities stronger — not just our programs, 
+                but every partner we work with. Our tools, methodologies, and frameworks are designed to be shared, adapted, and 
+                deployed by coalitions who believe we're always better together.
               </p>
               <div className="flex flex-wrap gap-2 mb-6">
                 <Badge variant="secondary" className="text-xs px-2 py-1">
@@ -619,7 +739,7 @@ export default function PresentationsPage() {
               </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="text-center p-3 rounded-md bg-white/10">
-                  <div className="text-2xl font-bold">20</div>
+                  <div className="text-2xl font-bold">24</div>
                   <div className="text-xs text-blue-200">Platforms</div>
                 </div>
                 <div className="text-center p-3 rounded-md bg-white/10">
@@ -627,11 +747,11 @@ export default function PresentationsPage() {
                   <div className="text-xs text-blue-200">Regional Hubs</div>
                 </div>
                 <div className="text-center p-3 rounded-md bg-white/10">
-                  <div className="text-2xl font-bold">5</div>
+                  <div className="text-2xl font-bold">7</div>
                   <div className="text-xs text-blue-200">Grant Pipelines</div>
                 </div>
                 <div className="text-center p-3 rounded-md bg-white/10">
-                  <div className="text-2xl font-bold">$2.7M+</div>
+                  <div className="text-2xl font-bold">$3.6M+</div>
                   <div className="text-xs text-blue-200">Pipeline Value</div>
                 </div>
               </div>
@@ -700,6 +820,135 @@ export default function PresentationsPage() {
                       <p className="text-xs text-muted-foreground">MAP-GAP Pilot, Adapt, Transfer, Replicate. Scaling without losing effectiveness.</p>
                     </div>
                   </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="partnership" className="mt-6 space-y-8" data-testid="content-partnership">
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div>
+              <h2 className="text-2xl font-bold mb-1">Better Together</h2>
+              <p className="text-muted-foreground">We're good as a standalone — but we're always better together</p>
+            </div>
+            <Button variant="outline" size="sm" onClick={() => generatePDF("partnership")} data-testid="button-download-partnership-inline">
+              <Download className="h-4 w-4 mr-1" /> Download PDF
+            </Button>
+          </div>
+
+          <div className="relative overflow-hidden rounded-md bg-gradient-to-br from-emerald-900 via-teal-800 to-cyan-900 text-white p-8 md:p-10" data-testid="hero-partnership">
+            <div className="absolute inset-0 opacity-10">
+              <div className="absolute top-10 left-10 w-72 h-72 rounded-full bg-emerald-400 blur-3xl" />
+              <div className="absolute bottom-10 right-10 w-96 h-96 rounded-full bg-cyan-400 blur-3xl" />
+            </div>
+            <div className="relative z-10 max-w-4xl">
+              <h1 className="text-3xl md:text-4xl font-bold mb-4">It's Not About Us. It's About All of Us.</h1>
+              <p className="text-lg text-emerald-100 mb-4">
+                Our tools, frameworks, and methodologies exist to make communities stronger. We don't hold them back
+                behind licenses or fees. When a partner organization uses MAP-GAP to improve their own programs, that's
+                a win for everyone those programs serve. Collaboration isn't a strategy — it's who we are.
+              </p>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-6">
+                <div className="text-center p-3 rounded-md bg-white/10">
+                  <div className="text-2xl font-bold">6</div>
+                  <div className="text-xs text-emerald-200">Open Frameworks</div>
+                </div>
+                <div className="text-center p-3 rounded-md bg-white/10">
+                  <div className="text-2xl font-bold">24</div>
+                  <div className="text-xs text-emerald-200">Platforms Available</div>
+                </div>
+                <div className="text-center p-3 rounded-md bg-white/10">
+                  <div className="text-2xl font-bold">$0</div>
+                  <div className="text-xs text-emerald-200">Cost to Partners</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+              <Zap className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+              What We Bring to the Table
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {PARTNERSHIP_VALUE.whatWeOffer.map((item) => (
+                <Card key={item.tool} data-testid={`card-offer-${item.tool.toLowerCase().replace(/\s+/g, '-').substring(0, 20)}`}>
+                  <CardContent className="pt-5 pb-4">
+                    <div className="flex items-start gap-3">
+                      <div className="rounded-md p-2 bg-emerald-500/10 shrink-0">
+                        <item.icon className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-sm mb-1">{item.tool}</h4>
+                        <p className="text-xs text-muted-foreground leading-relaxed">{item.benefit}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+
+          <Card data-testid="card-what-we-look-for">
+            <CardHeader>
+              <CardTitle className="text-base flex items-center gap-2">
+                <Users className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                What We Look For in Partners
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-4">
+                We're not looking for organizations to "help us." We're looking for partners whose strengths complement ours —
+                so that together, we serve communities neither of us could reach alone.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {PARTNERSHIP_VALUE.whatWeLookFor.map((item, i) => (
+                  <div key={i} className="flex items-start gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-blue-500 mt-0.5 shrink-0" />
+                    <p className="text-sm text-muted-foreground">{item}</p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          <div>
+            <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+              <Target className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+              Joint Opportunities — Stronger Together
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {PARTNERSHIP_VALUE.jointOpportunities.map((item) => (
+                <Card key={item.opportunity} data-testid={`card-joint-${item.opportunity.toLowerCase().replace(/\s+/g, '-').substring(0, 25)}`}>
+                  <CardContent className="pt-5 pb-4">
+                    <div className="flex items-start justify-between gap-3 mb-2">
+                      <h4 className="font-semibold text-sm">{item.opportunity}</h4>
+                      <Badge variant="outline" className="text-xs shrink-0">{item.amount}</Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground leading-relaxed">{item.description}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+
+          <Card className="border-emerald-200 dark:border-emerald-800" data-testid="card-collaboration-philosophy">
+            <CardContent className="pt-6 pb-5">
+              <div className="text-center max-w-2xl mx-auto">
+                <Handshake className="h-10 w-10 text-emerald-600 dark:text-emerald-400 mx-auto mb-4" />
+                <h3 className="text-lg font-bold mb-2">Our Collaboration Philosophy</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                  Every tool we build, every framework we develop, every methodology we validate — it's designed to be
+                  shared. When our partners succeed, the communities we all serve succeed. That's not a tagline.
+                  That's how Dr. Terry Flood built this from day one: veteran-founded, community-owned, coalition-driven.
+                </p>
+                <div className="flex flex-wrap justify-center gap-2">
+                  <Badge className="bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300 text-xs">Open Frameworks</Badge>
+                  <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300 text-xs">Shared Data</Badge>
+                  <Badge className="bg-violet-100 text-violet-800 dark:bg-violet-900/40 dark:text-violet-300 text-xs">Joint Proposals</Badge>
+                  <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 text-xs">Coalition-Driven</Badge>
+                  <Badge className="bg-rose-100 text-rose-800 dark:bg-rose-900/40 dark:text-rose-300 text-xs">Community-Owned</Badge>
                 </div>
               </div>
             </CardContent>
@@ -855,8 +1104,8 @@ export default function PresentationsPage() {
         <TabsContent value="ecosystem" className="mt-6 space-y-8" data-testid="content-ecosystem">
           <div className="flex items-center justify-between gap-4 flex-wrap">
             <div>
-              <h2 className="text-2xl font-bold mb-1">20-Platform Ecosystem</h2>
-              <p className="text-muted-foreground">Visual summary of all platforms, domains, and interconnections</p>
+              <h2 className="text-2xl font-bold mb-1">24-Platform Ecosystem</h2>
+              <p className="text-muted-foreground">Every tool is built to strengthen partners, not just serve our own programs</p>
             </div>
             <Button variant="outline" size="sm" onClick={() => generatePDF("ecosystem")} data-testid="button-download-ecosystem-inline">
               <Download className="h-4 w-4 mr-1" /> Download PDF
@@ -911,11 +1160,11 @@ export default function PresentationsPage() {
                   <h4 className="text-sm font-semibold mb-3">Domain Coverage</h4>
                   <div className="space-y-2">
                     {[
-                      { label: "Youth & Education", count: 4, total: 20 },
-                      { label: "Housing & Transitions", count: 3, total: 20 },
-                      { label: "Health & Wellness", count: 6, total: 20 },
-                      { label: "Workforce & Business", count: 3, total: 20 },
-                      { label: "Safety & Infrastructure", count: 4, total: 20 },
+                      { label: "Youth & Education", count: 5, total: 24 },
+                      { label: "Housing & Transitions", count: 3, total: 24 },
+                      { label: "Health & Wellness", count: 6, total: 24 },
+                      { label: "Workforce & Business", count: 5, total: 24 },
+                      { label: "Safety & Infrastructure", count: 5, total: 24 },
                     ].map((d) => (
                       <div key={d.label}>
                         <div className="flex justify-between text-xs mb-1">
