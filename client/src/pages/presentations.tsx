@@ -12,6 +12,7 @@ import {
   BarChart3, Microscope, Layers, Activity, RefreshCw,
   Zap, Home, GraduationCap, Baby, Stethoscope,
   ArrowRight, Clock, BookOpen, Lightbulb, Eye, Handshake,
+  Database, AlertTriangle, Map, Search as SearchIcon,
 } from "lucide-react";
 import { BackToTop } from "@/components/back-to-top";
 import jsPDF from "jspdf";
@@ -271,6 +272,37 @@ const REAIM_SCORES = [
   { dimension: "Implementation", score: 88, description: "MAP-GAP CQI cycle, CFIR-guided deployment, Three Realities adaptation framework" },
   { dimension: "Maintenance", score: 75, description: "MG-PATR replication protocol, continuous quality improvement, community ownership model" },
 ];
+
+const AI_COMMUNITY_ANALYSIS = {
+  overview: "The RPLICE AI Community Analysis engine uses Census tract-level data to reveal disparities that county-level averages hide. By analyzing 252+ tracts per region across 12 preset areas, it exposes the Three Realities — what research says, what politics allow, and what works on the ground — with real data.",
+  threeRealitiesExamples: [
+    { location: "Buffalo, NY", finding: "Census tract 28.02 has poverty 16x the county average", detail: "County reports 13% poverty; one tract shows 68.2%. Standard reporting hides 5,200+ residents in extreme need.", icon: AlertTriangle },
+    { location: "Wilmington, DE", finding: "Gentrification displaces rather than improves", detail: "Income rose 40% in target tracts while surrounding tracts saw poverty increase — displacement, not progress.", icon: Map },
+    { location: "Austin, TX", finding: "54x disparity in single-parent household rates", detail: "Travis County average is 5.8%; Census tract 24.22 shows 54.1%. Workforce programs designed for county averages miss the need.", icon: SearchIcon },
+  ],
+  keyFindings: [
+    { title: "Education = #1 Protective Factor", description: "Across all 12 analyzed regions, higher education attainment is the strongest single predictor of reduced poverty, better health outcomes, and economic mobility." },
+    { title: "Gentrification = Displacement, Not Improvement", description: "Rising incomes in gentrifying tracts correlate with increased poverty in adjacent tracts. People move — problems don't disappear." },
+    { title: "County Averages Hide Everything", description: "In every region analyzed, tract-level data reveals 10-50x disparities invisible at the county level. Policy built on averages misses the people who need it most." },
+    { title: "Single-Parent Households = Strongest Risk Indicator", description: "Tracts with >30% single-parent households consistently show 3-5x higher poverty rates, lower educational attainment, and reduced workforce participation." },
+  ],
+  liveCapabilities: [
+    { metric: "Preset Regions", value: "12", description: "Buffalo, Wilmington, Austin, Houston, Dallas, San Antonio, Phoenix, Atlanta, Detroit, Chicago, Baltimore, Memphis" },
+    { metric: "Custom FIPS Support", value: "Any US county", description: "Enter any county FIPS code for instant Census tract analysis" },
+    { metric: "Tracts Per Analysis", value: "252+", description: "Full tract-level breakdown with poverty, education, employment, and housing data" },
+    { metric: "Research Library", value: "49 studies", description: "Connected to RPLICE research library with RE-AIM + CFIR implementation science frameworks" },
+    { metric: "Data Points Per Tract", value: "15+", description: "Demographics, income, education, employment, housing, disability, insurance, family structure" },
+    { metric: "Analysis Speed", value: "< 30 seconds", description: "Real-time Census API integration with AI-powered disparity detection" },
+  ],
+  grantAlignment: [
+    { grant: "BB Collective Research Grant", amount: "$50K", connection: "Tract-level disparity data validates community-driven research methodology. AI analysis produces publishable implementation science evidence." },
+    { grant: "Rare Impact Fund", amount: "$250K-$500K", connection: "Three Realities framework with real Census data demonstrates community health equity approach beyond standard needs assessments." },
+    { grant: "Austin FC Dream Starter", amount: "$25K-$100K", connection: "Austin tract-level data shows exactly where youth programs are needed most — precision targeting for maximum impact." },
+    { grant: "St. David's Foundation", amount: "Up to $1M", connection: "5-county health equity analysis reveals SDOH hotspots invisible to county-level reporting. Data powers evidence-based program placement." },
+    { grant: "DFC Grant", amount: "$625K", connection: "Census tract analysis identifies substance use risk factors at neighborhood level, strengthening community readiness assessment." },
+    { grant: "SSG Fox VA Suicide Prevention", amount: "$750K", connection: "Veteran population density mapping by tract reveals underserved areas for targeted prevention program deployment." },
+  ],
+};
 
 const PARTNERSHIP_VALUE = {
   whatWeOffer: [
@@ -564,6 +596,86 @@ function generatePDF(section: string) {
       });
       break;
     }
+    case "ai-analysis": {
+      doc.setFontSize(22);
+      doc.text("AI Community Analysis", margin, y);
+      y += 12;
+      doc.setFontSize(11);
+      doc.setTextColor(100, 100, 100);
+      const aiIntro = doc.splitTextToSize(AI_COMMUNITY_ANALYSIS.overview, maxWidth);
+      doc.text(aiIntro, margin, y);
+      y += aiIntro.length * 6 + 10;
+
+      doc.setFontSize(14);
+      doc.setTextColor(0, 0, 0);
+      doc.text("Three Realities — Real Data Examples", margin, y);
+      y += 8;
+      doc.setFontSize(10);
+      AI_COMMUNITY_ANALYSIS.threeRealitiesExamples.forEach((ex) => {
+        if (y > 240) { doc.addPage(); y = 20; }
+        doc.setTextColor(0, 0, 0);
+        doc.text(`${ex.location}: ${ex.finding}`, margin + 4, y);
+        y += 5;
+        doc.setTextColor(100, 100, 100);
+        const exLines = doc.splitTextToSize(ex.detail, maxWidth - 12);
+        doc.text(exLines, margin + 8, y);
+        y += exLines.length * 5 + 6;
+      });
+
+      y += 4;
+      if (y > 200) { doc.addPage(); y = 20; }
+      doc.setFontSize(14);
+      doc.setTextColor(0, 0, 0);
+      doc.text("Key Findings", margin, y);
+      y += 8;
+      doc.setFontSize(10);
+      AI_COMMUNITY_ANALYSIS.keyFindings.forEach((f) => {
+        if (y > 250) { doc.addPage(); y = 20; }
+        doc.setTextColor(0, 0, 0);
+        doc.text(f.title, margin + 4, y);
+        y += 5;
+        doc.setTextColor(100, 100, 100);
+        const fLines = doc.splitTextToSize(f.description, maxWidth - 12);
+        doc.text(fLines, margin + 8, y);
+        y += fLines.length * 5 + 6;
+      });
+
+      y += 4;
+      if (y > 200) { doc.addPage(); y = 20; }
+      doc.setFontSize(14);
+      doc.setTextColor(0, 0, 0);
+      doc.text("Live Data Capabilities", margin, y);
+      y += 8;
+      doc.setFontSize(10);
+      AI_COMMUNITY_ANALYSIS.liveCapabilities.forEach((c) => {
+        if (y > 260) { doc.addPage(); y = 20; }
+        doc.setTextColor(0, 0, 0);
+        doc.text(`${c.metric}: ${c.value}`, margin + 4, y);
+        y += 5;
+        doc.setTextColor(100, 100, 100);
+        doc.text(c.description, margin + 8, y);
+        y += 7;
+      });
+
+      y += 4;
+      if (y > 180) { doc.addPage(); y = 20; }
+      doc.setFontSize(14);
+      doc.setTextColor(0, 0, 0);
+      doc.text("Grant Alignment", margin, y);
+      y += 8;
+      doc.setFontSize(10);
+      AI_COMMUNITY_ANALYSIS.grantAlignment.forEach((g) => {
+        if (y > 240) { doc.addPage(); y = 20; }
+        doc.setTextColor(0, 0, 0);
+        doc.text(`${g.grant} (${g.amount})`, margin + 4, y);
+        y += 5;
+        doc.setTextColor(100, 100, 100);
+        const gLines = doc.splitTextToSize(g.connection, maxWidth - 12);
+        doc.text(gLines, margin + 8, y);
+        y += gLines.length * 5 + 6;
+      });
+      break;
+    }
   }
 
   doc.setFontSize(8);
@@ -673,10 +785,17 @@ export default function PresentationsPage() {
           section="rplice"
           color="bg-indigo-600"
         />
+        <SectionCard
+          title="AI Community Analysis"
+          description="Census tract-level disparity engine: Three Realities with real data, 12 regions, 252+ tracts"
+          icon={Database}
+          section="ai-analysis"
+          color="bg-cyan-600"
+        />
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} data-testid="tabs-presentations">
-        <TabsList className="grid w-full grid-cols-2 md:grid-cols-7 gap-1 h-auto p-1">
+        <TabsList className="grid w-full grid-cols-2 md:grid-cols-8 gap-1 h-auto p-1">
           <TabsTrigger value="executive" className="text-xs" data-testid="tab-executive">
             <FileText className="h-3.5 w-3.5 mr-1" /> Executive
           </TabsTrigger>
@@ -697,6 +816,9 @@ export default function PresentationsPage() {
           </TabsTrigger>
           <TabsTrigger value="rplice" className="text-xs" data-testid="tab-rplice">
             <Microscope className="h-3.5 w-3.5 mr-1" /> RPLICE
+          </TabsTrigger>
+          <TabsTrigger value="ai-analysis" className="text-xs" data-testid="tab-ai-analysis">
+            <Database className="h-3.5 w-3.5 mr-1" /> AI Analysis
           </TabsTrigger>
         </TabsList>
 
@@ -1373,6 +1495,173 @@ export default function PresentationsPage() {
                       "Community health workers provide trusted entry points for underserved populations",
                     ].map((item, i) => (
                       <li key={i} className="text-xs text-muted-foreground flex items-start gap-1.5">
+                        <ArrowRight className="h-3 w-3 text-emerald-500 mt-0.5 shrink-0" /> {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="ai-analysis" className="mt-6 space-y-8" data-testid="content-ai-analysis">
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div>
+              <h2 className="text-2xl font-bold mb-1">AI Community Analysis</h2>
+              <p className="text-muted-foreground">Census tract-level disparity engine powered by RPLICE and Three Realities framework</p>
+            </div>
+            <Button variant="outline" size="sm" onClick={() => generatePDF("ai-analysis")} data-testid="button-download-ai-analysis-inline">
+              <Download className="h-4 w-4 mr-1" /> Download PDF
+            </Button>
+          </div>
+
+          <Card data-testid="card-ai-analysis-overview">
+            <CardContent className="pt-0 pb-6">
+              <div className="-mx-6 -mt-0 mb-6 px-6 py-4 rounded-t-md bg-gradient-to-r from-cyan-700 via-blue-800 to-indigo-900 text-white">
+                <div className="flex items-center gap-2 mb-2">
+                  <Database className="h-5 w-5" />
+                  <h3 className="font-bold text-lg">What the Engine Does</h3>
+                </div>
+                <p className="text-sm text-cyan-100 leading-relaxed">{AI_COMMUNITY_ANALYSIS.overview}</p>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                {AI_COMMUNITY_ANALYSIS.liveCapabilities.map((cap) => (
+                  <div key={cap.metric} className="text-center" data-testid={`stat-capability-${cap.metric.toLowerCase().replace(/\s+/g, '-')}`}>
+                    <div className="text-2xl font-bold text-primary mb-1">{cap.value}</div>
+                    <div className="text-xs font-semibold mb-1">{cap.metric}</div>
+                    <p className="text-[10px] text-muted-foreground leading-relaxed">{cap.description}</p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          <div>
+            <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+              <Layers className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+              Three Realities — Real Data Examples
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {AI_COMMUNITY_ANALYSIS.threeRealitiesExamples.map((example) => (
+                <Card key={example.location} data-testid={`card-reality-${example.location.toLowerCase().replace(/[,\s]+/g, '-')}`}>
+                  <CardContent className="pt-5 pb-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="rounded-md p-2 bg-amber-100 dark:bg-amber-900/40 shrink-0">
+                        <example.icon className="h-4 w-4 text-amber-700 dark:text-amber-300" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-sm">{example.location}</h4>
+                      </div>
+                    </div>
+                    <p className="text-sm font-medium mb-2">{example.finding}</p>
+                    <p className="text-xs text-muted-foreground leading-relaxed">{example.detail}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+              <Lightbulb className="h-5 w-5 text-primary" />
+              Key Findings
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {AI_COMMUNITY_ANALYSIS.keyFindings.map((finding) => (
+                <Card key={finding.title} data-testid={`card-finding-${finding.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}>
+                  <CardContent className="pt-5 pb-4">
+                    <div className="flex items-start gap-3">
+                      <CheckCircle2 className="h-5 w-5 text-emerald-500 mt-0.5 shrink-0" />
+                      <div>
+                        <h4 className="font-semibold text-sm mb-1">{finding.title}</h4>
+                        <p className="text-xs text-muted-foreground leading-relaxed">{finding.description}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+              <Target className="h-5 w-5 text-primary" />
+              Grant Alignment — How This Data Powers Applications
+            </h3>
+            <div className="grid grid-cols-1 gap-3">
+              {AI_COMMUNITY_ANALYSIS.grantAlignment.map((grant) => (
+                <Card key={grant.grant} data-testid={`card-grant-align-${grant.grant.toLowerCase().replace(/\s+/g, '-')}`}>
+                  <CardContent className="pt-4 pb-3">
+                    <div className="flex items-start justify-between gap-4 flex-wrap">
+                      <div className="flex items-start gap-3 flex-1 min-w-0">
+                        <div className="rounded-md p-2 bg-primary/10 shrink-0">
+                          <DollarSign className="h-4 w-4 text-primary" />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <h4 className="font-semibold text-sm">{grant.grant}</h4>
+                            <Badge variant="outline" className="text-xs">{grant.amount}</Badge>
+                          </div>
+                          <p className="text-xs text-muted-foreground leading-relaxed mt-1">{grant.connection}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+
+          <Card data-testid="card-research-library-connection">
+            <CardHeader>
+              <CardTitle className="text-base flex items-center gap-2">
+                <BookOpen className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                Connected to RPLICE Research Library
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                  <h4 className="text-sm font-semibold mb-3">Research Foundation</h4>
+                  <ul className="space-y-2">
+                    {[
+                      "49 peer-reviewed studies in the RPLICE library",
+                      "RE-AIM framework validates reach and effectiveness",
+                      "CFIR domains guide implementation quality",
+                      "Three Realities ensures community context alignment",
+                    ].map((item, i) => (
+                      <li key={i} className="text-xs text-muted-foreground flex items-start gap-2">
+                        <ArrowRight className="h-3 w-3 text-indigo-500 mt-0.5 shrink-0" /> {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="text-sm font-semibold mb-3">Data Integration</h4>
+                  <ul className="space-y-2">
+                    {[
+                      "Real-time Census API for tract-level demographics",
+                      "AI-powered disparity detection and pattern analysis",
+                      "Automated Three Realities scoring per community",
+                      "Export-ready data for grant narratives and reports",
+                    ].map((item, i) => (
+                      <li key={i} className="text-xs text-muted-foreground flex items-start gap-2">
+                        <ArrowRight className="h-3 w-3 text-blue-500 mt-0.5 shrink-0" /> {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="text-sm font-semibold mb-3">Ecosystem Connection</h4>
+                  <ul className="space-y-2">
+                    {[
+                      "Analysis feeds directly into workforce program targeting",
+                      "Health screening priorities driven by tract-level SDOH data",
+                      "Housing stabilization resources matched to displacement patterns",
+                      "Justice prevention strategies informed by community risk factors",
+                    ].map((item, i) => (
+                      <li key={i} className="text-xs text-muted-foreground flex items-start gap-2">
                         <ArrowRight className="h-3 w-3 text-emerald-500 mt-0.5 shrink-0" /> {item}
                       </li>
                     ))}

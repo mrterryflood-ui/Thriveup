@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -18,7 +19,8 @@ import {
   Microscope, ClipboardCheck, Target, Layers, Shield,
   ChevronRight, ChevronLeft, CheckCircle2, AlertTriangle,
   BarChart3, FileText, Plus, Clock, TrendingUp, Activity,
-  Brain, MapPin, Loader2, Download, Globe,
+  Brain, MapPin, Loader2, Download, Globe, Info, X,
+  ArrowUp, ArrowDown, Minus, Printer, Briefcase, Scale,
 } from "lucide-react";
 import type { RpliceAssessment } from "@shared/schema";
 
@@ -919,6 +921,182 @@ function QualityGateDashboard() {
   );
 }
 
+function InfoBubble({ title, children }: { title: string; children: React.ReactNode }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <span className="relative inline-flex">
+      <button
+        onClick={(e) => { e.stopPropagation(); setOpen(!open); }}
+        className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-violet-100 dark:bg-violet-900 text-violet-600 dark:text-violet-300 hover:bg-violet-200 dark:hover:bg-violet-800 transition-colors ml-1 shrink-0 print:hidden"
+        aria-label={`More info about ${title}`}
+        data-testid={`info-bubble-${title.toLowerCase().replace(/[^a-z0-9]/g, "-")}`}
+      >
+        <Info className="w-2.5 h-2.5" />
+      </button>
+      {open && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+          <div className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 w-72 sm:w-80 bg-white dark:bg-zinc-900 border border-border rounded-lg shadow-xl p-3 text-left print:hidden">
+            <div className="flex items-start justify-between gap-2 mb-1.5">
+              <h4 className="text-xs font-bold text-violet-700 dark:text-violet-300">{title}</h4>
+              <button onClick={() => setOpen(false)} className="text-muted-foreground hover:text-foreground">
+                <X className="w-3 h-3" />
+              </button>
+            </div>
+            <div className="text-xs text-muted-foreground leading-relaxed space-y-1.5">{children}</div>
+          </div>
+        </>
+      )}
+    </span>
+  );
+}
+
+function MetricDirection({ direction, label }: { direction: "higher-bad" | "lower-bad" | "higher-good" | "lower-good" | "neutral" | "context"; label?: string }) {
+  const configs = {
+    "higher-bad": { icon: ArrowUp, color: "text-red-500", text: label || "Higher = worse" },
+    "lower-bad": { icon: ArrowDown, color: "text-red-500", text: label || "Lower = worse" },
+    "higher-good": { icon: ArrowUp, color: "text-green-500", text: label || "Higher = better" },
+    "lower-good": { icon: ArrowDown, color: "text-green-500", text: label || "Lower = better" },
+    "neutral": { icon: Minus, color: "text-blue-500", text: label || "Context-dependent" },
+    "context": { icon: Info, color: "text-amber-500", text: label || "Requires context" },
+  };
+  const cfg = configs[direction];
+  const Icon = cfg.icon;
+  return (
+    <span className={`inline-flex items-center gap-1 text-[10px] font-medium ${cfg.color}`}>
+      <Icon className="w-2.5 h-2.5" /> {cfg.text}
+    </span>
+  );
+}
+
+type MetricDef = {
+  label: string;
+  getValue: (d: any) => string;
+  direction: "higher-bad" | "lower-bad" | "higher-good" | "lower-good" | "neutral" | "context";
+  directionLabel?: string;
+  source: string;
+  derivation: string;
+  whatItMeans: string;
+  whyItMatters: string;
+  benchmark?: string;
+};
+
+const CENSUS_METRICS: MetricDef[] = [
+  {
+    label: "Population",
+    getValue: (d) => d.county?.population?.toLocaleString() || "—",
+    direction: "neutral",
+    directionLabel: "Size indicator",
+    source: "U.S. Census Bureau, American Community Survey (ACS) 5-Year Estimates, Table B01003",
+    derivation: "Total population count for the county. This is the number of people the Census Bureau estimates live in this county based on surveys of approximately 3.5 million households annually.",
+    whatItMeans: "This is how many people live in the entire county. It sets the scale for everything else — a county with 100,000 people and a county with 1 million people may have the same poverty rate, but the number of people affected is vastly different.",
+    whyItMatters: "Grant applications need to demonstrate the size of the population being served. Larger populations mean more potential program participants, but also more competition for resources.",
+    benchmark: "Average US county: ~105,000. Urban counties: 500K–10M.",
+  },
+  {
+    label: "Median Income",
+    getValue: (d) => "$" + (d.county?.medianIncome?.toLocaleString() || "—"),
+    direction: "lower-bad",
+    source: "Census ACS 5-Year, Table B19013 — Median Household Income in the Past 12 Months",
+    derivation: "The middle income — half of households earn more, half earn less. Adjusted for inflation to current dollars. This is the COUNTY average, which can mask massive neighborhood-level variation.",
+    whatItMeans: "If the median income is $68,000, a typical household earns about $5,667/month before taxes. After taxes, health insurance, and deductions, take-home is roughly $4,200/month. From that, a family pays rent, food, transportation, childcare, and utilities.",
+    whyItMatters: "The county median often looks 'OK' while hiding extreme disparities. A $68K county median can include neighborhoods at $11K and $178K. The income gap ratio (shown separately) reveals this hidden story. HUD and federal agencies use median income to set poverty thresholds and program eligibility.",
+    benchmark: "National median: ~$75,000. Below $50K = low-income county. Below $30K = severe poverty area.",
+  },
+  {
+    label: "Poverty Rate",
+    getValue: (d) => d.county?.povertyRate + "%" || "—",
+    direction: "higher-bad",
+    source: "Census ACS 5-Year, Table B17001 — Poverty Status in the Past 12 Months",
+    derivation: "Percentage of individuals with income below the Federal Poverty Level (FPL). In 2024, FPL = $15,060/year for a single person, $31,200 for a family of 4. Calculated as: (people below FPL ÷ total people for whom poverty is determined) × 100.",
+    whatItMeans: "If the poverty rate is 14%, that means 14 out of every 100 residents are surviving on less than $15,060/year (single) or $31,200/year (family of 4). That's $1,255/month for one person — before rent, food, or healthcare. In reality, many more people are 'near poor' (100-200% FPL) and face similar hardships.",
+    whyItMatters: "Poverty is the root risk factor that amplifies every other negative outcome: lower educational attainment, higher ACEs (Adverse Childhood Experiences), higher crime exposure, worse health outcomes, shorter life expectancy. Dr. Flood's research shows poverty concentration at the NEIGHBORHOOD level is what determines life trajectory — county averages hide the crisis.",
+    benchmark: "National average: ~12.4%. Above 15% = high poverty. Above 20% = concentrated poverty. Above 30% = extreme — these neighborhoods require intensive intervention.",
+  },
+  {
+    label: "College Attainment",
+    getValue: (d) => d.county?.collegePct + "%" || "—",
+    direction: "lower-bad",
+    directionLabel: "Lower = higher risk",
+    source: "Census ACS 5-Year, Table B15003 — Educational Attainment for the Population 25+",
+    derivation: "Percentage of adults 25+ who hold a Bachelor's degree or higher. Calculated by adding Bachelor's (B15003_022E), Master's (B15003_023E), Professional (B15003_024E), and Doctorate (B15003_025E), then dividing by total population 25+ (B15003_001E).",
+    whatItMeans: "If college attainment is 36%, about 1 in 3 adults completed a 4-year degree. The remaining 64% have high school diplomas, some college, associate degrees, or less. In the highest-risk tracts, this number drops below 2% — meaning fewer than 2 in 100 adults have a bachelor's degree.",
+    whyItMatters: "Dr. Flood's research identifies this as the #1 protective factor: '1 year of college = primary protective factor.' Communities with college attainment below 20% consistently show moderate-to-high risk across all other metrics. Education is THE intervention — it's the single strongest predictor of income, health, family stability, and reduced justice involvement.",
+    benchmark: "National average: ~33%. Below 20% = educational desert. Below 10% = critical — these are the neighborhoods where the pipeline from school to poverty is nearly guaranteed.",
+  },
+  {
+    label: "Unemployment",
+    getValue: (d) => d.county?.unemploymentRate + "%" || "—",
+    direction: "higher-bad",
+    source: "Census ACS 5-Year, Table B23025 — Employment Status for the Population 16+",
+    derivation: "Percentage of the civilian labor force that is unemployed. Calculated as: (unemployed civilians ÷ civilian labor force) × 100. NOTE: This only counts people ACTIVELY LOOKING for work. People who have given up looking (discouraged workers) are NOT counted — real joblessness in high-risk tracts is often 2-3x the official rate.",
+    whatItMeans: "If unemployment is 5%, about 1 in 20 working-age adults who want jobs can't find them. But in the highest-risk tracts, this reaches 30-45%, meaning nearly half of working-age adults are jobless. When you add discouraged workers who stopped looking, real unemployment in these neighborhoods can exceed 50%.",
+    whyItMatters: "Unemployment drives poverty, which drives ACEs, which drives the neighborhood→school→outcomes pipeline. Long-term unemployment (6+ months) causes skill atrophy, mental health decline, and family instability. Workforce development programs (like ThriveUp Academy) directly target this metric.",
+    benchmark: "National average: ~3.5-4.5%. Above 7% = elevated. Above 15% = crisis. Above 25% = structural economic failure.",
+  },
+  {
+    label: "Tracts Analyzed",
+    getValue: (d) => d.stats?.totalTracts?.toString() || "—",
+    direction: "neutral",
+    directionLabel: "Granularity indicator",
+    source: "U.S. Census Bureau — Census Tract Geography",
+    derivation: "Total number of census tracts in this county with valid income data. A census tract is a small, relatively permanent geographic area that typically contains 1,200 to 8,000 people (average ~4,000). Tracts are designed to be homogeneous with respect to population characteristics, economic status, and living conditions.",
+    whatItMeans: "This is how many distinct neighborhoods we analyzed. More tracts = more granular picture of the county. Each tract is like a neighborhood — they reveal the story that county averages hide. A county with 250 tracts means we're looking at 250 separate neighborhoods, each with their own poverty rate, income level, and educational attainment.",
+    whyItMatters: "Tract-level analysis is what makes this different from typical county-level reports. Politicians and media use county averages because they look better. Tract-level data reveals the actual crisis. This is Dr. Flood's 'Three Realities' framework: the Research Reality (tract data), the Political Reality (county averages), and the Ground Truth (lived experience).",
+  },
+  {
+    label: "Income Gap",
+    getValue: (d) => d.incomeGap + "x" || "—",
+    direction: "higher-bad",
+    directionLabel: "Larger gap = more inequality",
+    source: "Derived from Census ACS Tract-Level Data, Table B19013",
+    derivation: "Ratio of the highest tract median income to the lowest tract median income in the county. Example: if the richest tract earns $178,000 and the poorest earns $11,000, the gap is 16x. This means a family in the richest neighborhood earns 16 times more than a family in the poorest neighborhood — in the SAME county.",
+    whatItMeans: "An income gap of 16x means two families living 15 minutes apart live in completely different economic realities. One family earns $178K/year ($14,800/month). The other earns $11K/year ($917/month). They share the same county government, the same local news coverage, the same political representation — but their lives have almost nothing in common.",
+    whyItMatters: "This is the single most powerful number in the analysis. It exposes the lie of county averages. A 5x gap is significant. A 10x gap is severe. A 16x+ gap indicates two separate economies operating in the same geography. Austin TX shows a 54x gap — the most extreme in our analysis. Funders and policymakers need to see this number.",
+    benchmark: "Typical healthy county: 3-5x. Significant inequality: 8-12x. Severe: 15x+. Extreme (Austin): 50x+.",
+  },
+  {
+    label: "High Risk Tracts",
+    getValue: (d) => d.stats?.tractsOver30Poverty?.toString() || "—",
+    direction: "higher-bad",
+    directionLabel: "More = wider crisis",
+    source: "Derived from Census ACS Tract-Level Data, Table B17001",
+    derivation: "Number of census tracts where more than 30% of residents live below the Federal Poverty Level. The 30% threshold is significant because it represents 'concentrated poverty' — the point at which poverty becomes self-reinforcing. Research shows that once a neighborhood exceeds 30% poverty, outcomes deteriorate rapidly across ALL dimensions: education, health, safety, family stability.",
+    whatItMeans: "If 42 tracts have 30%+ poverty, that means 42 distinct neighborhoods in this county have reached the concentrated poverty threshold. In each of these neighborhoods, nearly 1 in 3 residents (or more) cannot afford basic needs. Children in these tracts face dramatically worse life outcomes simply because of where they live.",
+    whyItMatters: "Concentrated poverty is the mechanism by which disadvantage reproduces itself across generations. Wilson (1987) showed that when poverty exceeds 30% in a neighborhood, social institutions collapse: schools lose funding, businesses leave, healthcare access disappears, and crime increases. This is the 'neighborhood effect' — your zip code predicts your life trajectory more than your individual choices.",
+    benchmark: "Healthy county: 0-5 tracts above 30%. Moderate concern: 10-20. Severe: 30+. Critical: 40+ (this means dozens of neighborhoods in crisis).",
+  },
+  {
+    label: "Risk Score 100 Tracts",
+    getValue: (d) => d.stats?.tractsRisk100?.toString() || "—",
+    direction: "higher-bad",
+    directionLabel: "More = deeper crisis",
+    source: "RPLICE Composite Risk Index — derived from Census ACS data",
+    derivation: "Number of census tracts scoring 100 (maximum) on the RPLICE Composite Risk Index. The risk score combines three factors: POVERTY (0-40 points: >30% poverty = 40pts, >20% = 25pts, >15% = 10pts), UNEMPLOYMENT (0-30 points: >15% = 30pts, >10% = 20pts, >7% = 10pts), and LOW INCOME (0-30 points: median income <$25K = 30pts, <$40K = 15pts). Maximum possible = 100. A tract scores 100 when it has severe poverty (30%+), high unemployment (15%+), AND very low income (<$25K).",
+    whatItMeans: "These are the most distressed neighborhoods in the county. A Risk Score of 100 means ALL three risk factors are at their worst simultaneously. These are neighborhoods where more than 30% of people live in poverty, more than 15% are unemployed, and the typical household earns less than $25,000/year. Life in these tracts is survival-mode — every day is a struggle to afford food, housing, and transportation.",
+    whyItMatters: "Risk Score 100 tracts are where interventions are most urgently needed AND where they can have the most impact per dollar invested. These neighborhoods represent the intersection of every risk factor — poverty, joblessness, and economic deprivation all at once. Grant applications should target these specific tracts by name and number.",
+    benchmark: "Ideal: 0 tracts at Risk 100. Common in distressed cities: 3-8. Severe: 10+. Each tract represents ~4,000 people living in maximum deprivation.",
+  },
+  {
+    label: "Marriage Rate",
+    getValue: (d) => d.county?.marriagePct + "%" || "—",
+    direction: "context",
+    directionLabel: "Correlates with stability",
+    source: "Census ACS 5-Year, Tables B12001 (Marital Status), B11001 (Household Type), B09002 (Children by Family Type)",
+    derivation: "Percentage of adults 15+ who are currently married (both males and females married ÷ total marital status universe). Related metric: 'Children in 2-parent homes' measures the percentage of children under 18 living with two married parents.",
+    whatItMeans: "If the marriage rate is 41%, fewer than half of adults are married. This correlates with — but does not cause — other risk factors. Areas with lower marriage rates tend to have higher rates of child poverty, because single-parent households have one income instead of two. A single parent earning $25K/year is below poverty for a family of 3; two parents earning $25K each are above it.",
+    whyItMatters: "Dr. Flood's research shows that 2-parent household rates below 60% correlate with poverty rates above 17% in every observed case. This is not a moral judgment — it's an economic reality. Two incomes provide a buffer against poverty. Family structure amplifies all other protective factors (education, employment, housing stability). Programs that strengthen families and provide support to single parents address this risk factor.",
+    benchmark: "National average: ~48%. Below 40% = low, correlates with elevated child poverty. Context matters — college-educated areas may have lower marriage rates but higher cohabitation with similar economic outcomes.",
+  },
+];
+
+const GENTRIFICATION_INFO = {
+  source: "Derived from Census ACS 5-Year Timeline Data (2015, 2017, 2019, 2022)",
+  derivation: "Gentrification indicators track changes over time. RENT SURGE: Percentage increase in county median gross rent. HOME VALUE JUMP: Percentage increase in median home value. POPULATION DISPLACEMENT: Change in Black and Hispanic population percentages. These are calculated by comparing the earliest available year to the most recent year.",
+  whatItMeans: "When rent increases 30%+ but income in the poorest neighborhoods only increases 3-5%, existing residents get priced out. They don't get richer — they get displaced. 'Revitalization' is often code for gentrification: wealthier people move in, property values rise, and existing residents are pushed to other neighborhoods or into homelessness.",
+  whyItMatters: "Dr. Flood's principle: 'Crime doesn't disappear, it migrates.' When gentrification displaces low-income residents, the problems (poverty, unemployment, crime exposure) move with them to surrounding areas. The county-level statistics 'improve' because the demographics changed — not because anyone's life got better. This is the Political Reality vs. Ground Truth distinction in the Three Realities framework.",
+};
+
 const PRESET_REGIONS = [
   { label: "Buffalo NY (Erie County)", stateFips: "36", countyFips: "029", cityName: "Buffalo NY (Erie County)" },
   { label: "Wilmington NC (New Hanover)", stateFips: "37", countyFips: "129", cityName: "Wilmington NC (New Hanover County)" },
@@ -1117,61 +1295,174 @@ function AICommunityAnalysis() {
       )}
 
       {censusData && (
-        <Card>
+        <Card className="print:break-inside-avoid">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base flex items-center gap-2">
-              <MapPin className="h-4 w-4 text-blue-500" />
-              Census Data: {censusData.county?.name}
-            </CardTitle>
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <CardTitle className="text-base flex items-center gap-2">
+                <MapPin className="h-4 w-4 text-blue-500" />
+                Census Data: {censusData.county?.name}
+                <InfoBubble title="About Census Data">
+                  <p>All data comes from the <strong>U.S. Census Bureau American Community Survey (ACS) 5-Year Estimates</strong> — the gold standard for community-level demographic data. The ACS surveys ~3.5 million households annually and produces estimates for every county and census tract in America.</p>
+                  <p>Click the <span className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-violet-100 text-violet-600 text-[8px]"><Info className="w-2 h-2" /></span> icon on any metric for a detailed explanation of what it measures, where it comes from, and what it means for this community.</p>
+                </InfoBubble>
+              </CardTitle>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => window.print()}
+                className="print:hidden"
+                data-testid="button-print-census"
+              >
+                <Printer className="h-4 w-4 mr-1" /> Print
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
-              {[
-                { label: "Population", value: censusData.county?.population?.toLocaleString() },
-                { label: "Median Income", value: "$" + censusData.county?.medianIncome?.toLocaleString() },
-                { label: "Poverty Rate", value: censusData.county?.povertyRate + "%" },
-                { label: "College %", value: censusData.county?.collegePct + "%" },
-                { label: "Unemployment", value: censusData.county?.unemploymentRate + "%" },
-                { label: "Tracts Analyzed", value: censusData.stats?.totalTracts },
-                { label: "Income Gap", value: censusData.incomeGap + "x" },
-                { label: "High Risk (30%+ Poverty)", value: censusData.stats?.tractsOver30Poverty },
-                { label: "Risk Score 100 Tracts", value: censusData.stats?.tractsRisk100 },
-                { label: "Marriage Rate", value: censusData.county?.marriagePct + "%" },
-              ].map((item, i) => (
-                <div key={i} className="bg-muted/50 rounded-lg p-2 text-center">
-                  <div className="text-xs text-muted-foreground">{item.label}</div>
-                  <div className="text-sm font-bold" data-testid={`text-census-${i}`}>{item.value}</div>
+              {CENSUS_METRICS.map((metric, i) => (
+                <div key={i} className="bg-muted/50 rounded-lg p-2.5 text-center relative group">
+                  <div className="text-xs text-muted-foreground flex items-center justify-center gap-0.5">
+                    {metric.label}
+                    <InfoBubble title={metric.label}>
+                      <div className="space-y-2">
+                        <div>
+                          <MetricDirection direction={metric.direction} label={metric.directionLabel} />
+                        </div>
+                        <div>
+                          <p className="font-semibold text-foreground text-[11px] mb-0.5">What is this number?</p>
+                          <p>{metric.whatItMeans}</p>
+                        </div>
+                        <div>
+                          <p className="font-semibold text-foreground text-[11px] mb-0.5">Why does it matter?</p>
+                          <p>{metric.whyItMatters}</p>
+                        </div>
+                        <div>
+                          <p className="font-semibold text-foreground text-[11px] mb-0.5">How is it calculated?</p>
+                          <p>{metric.derivation}</p>
+                        </div>
+                        <div>
+                          <p className="font-semibold text-foreground text-[11px] mb-0.5">Data Source</p>
+                          <p className="italic">{metric.source}</p>
+                        </div>
+                        {metric.benchmark && (
+                          <div>
+                            <p className="font-semibold text-foreground text-[11px] mb-0.5">Benchmarks</p>
+                            <p>{metric.benchmark}</p>
+                          </div>
+                        )}
+                      </div>
+                    </InfoBubble>
+                  </div>
+                  <div className="text-sm font-bold" data-testid={`text-census-${i}`}>{metric.getValue(censusData)}</div>
                 </div>
               ))}
             </div>
+
             {censusData.gentrification?.length > 0 && (
-              <div className="mt-3 flex flex-wrap gap-2">
-                {censusData.gentrification.map((g: string, i: number) => (
-                  <Badge key={i} variant="destructive" className="text-xs">{g}</Badge>
-                ))}
+              <div className="mt-4 p-3 bg-red-50 dark:bg-red-950/30 rounded-lg border border-red-200 dark:border-red-900">
+                <div className="flex items-center gap-2 mb-2">
+                  <AlertTriangle className="h-4 w-4 text-red-500" />
+                  <span className="text-sm font-semibold text-red-700 dark:text-red-400">Gentrification & Displacement Indicators</span>
+                  <InfoBubble title="Gentrification & Displacement">
+                    <div className="space-y-2">
+                      <div>
+                        <MetricDirection direction="higher-bad" label="These trends indicate displacement" />
+                      </div>
+                      <p>{GENTRIFICATION_INFO.whatItMeans}</p>
+                      <div>
+                        <p className="font-semibold text-foreground text-[11px] mb-0.5">Why does it matter?</p>
+                        <p>{GENTRIFICATION_INFO.whyItMatters}</p>
+                      </div>
+                      <div>
+                        <p className="font-semibold text-foreground text-[11px] mb-0.5">How is it calculated?</p>
+                        <p>{GENTRIFICATION_INFO.derivation}</p>
+                      </div>
+                      <div>
+                        <p className="font-semibold text-foreground text-[11px] mb-0.5">Data Source</p>
+                        <p className="italic">{GENTRIFICATION_INFO.source}</p>
+                      </div>
+                    </div>
+                  </InfoBubble>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {censusData.gentrification.map((g: string, i: number) => (
+                    <Badge key={i} variant="destructive" className="text-xs">{g}</Badge>
+                  ))}
+                </div>
+                <p className="text-xs text-red-600 dark:text-red-400 mt-2 italic">
+                  "Crime doesn't disappear, it migrates." — When rents rise and populations shift, poverty moves to surrounding areas. County averages improve, but no one's life got better.
+                </p>
               </div>
             )}
+
+            <div className="mt-4 p-3 bg-violet-50 dark:bg-violet-950/30 rounded-lg border border-violet-200 dark:border-violet-900 print:break-inside-avoid">
+              <div className="flex items-center gap-2 mb-2">
+                <Brain className="h-4 w-4 text-violet-500" />
+                <span className="text-sm font-semibold text-violet-700 dark:text-violet-400">How to Read This Data</span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-muted-foreground">
+                <div className="flex items-start gap-2">
+                  <ArrowUp className="h-3 w-3 text-red-500 mt-0.5 shrink-0" />
+                  <span><strong className="text-red-500">Red arrows</strong> mean higher values indicate worse conditions (poverty, unemployment)</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <ArrowDown className="h-3 w-3 text-red-500 mt-0.5 shrink-0" />
+                  <span><strong className="text-red-500">Red down arrows</strong> mean lower values indicate worse conditions (income, education)</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <ArrowUp className="h-3 w-3 text-green-500 mt-0.5 shrink-0" />
+                  <span><strong className="text-green-500">Green arrows</strong> mean the value is a positive indicator</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="inline-flex items-center justify-center w-3 h-3 rounded-full bg-violet-100 text-violet-600 text-[8px] mt-0.5 shrink-0"><Info className="w-2 h-2" /></span>
+                  <span>Click any <strong>info icon</strong> for a detailed explanation written for any audience — from community members to federal grant reviewers</span>
+                </div>
+              </div>
+              <p className="text-xs text-violet-600 dark:text-violet-400 mt-2">
+                <strong>Key insight:</strong> County averages often look acceptable while hiding extreme neighborhood-level disparities. The Income Gap and Risk Score 100 metrics reveal what county averages mask. Every metric can be traced to its Census Bureau source table for verification.
+              </p>
+            </div>
           </CardContent>
         </Card>
       )}
 
       {rpliceData && (
-        <Card>
+        <Card className="print:break-inside-avoid">
           <CardHeader className="pb-2">
             <CardTitle className="text-base flex items-center gap-2">
               <Globe className="h-4 w-4 text-violet-500" />
               RPLICE Research Library
+              <InfoBubble title="RPLICE Research Library">
+                <div className="space-y-2">
+                  <p><strong>RPLICE</strong> = Research, Planning, Learning & Implementation Center of Excellence. This is Dr. Flood's external research platform at salp-science--mrterryflood.replit.app.</p>
+                  <p>It contains a curated library of peer-reviewed implementation science research, organized by frameworks like CFIR (Consolidated Framework for Implementation Research) and RE-AIM (Reach, Effectiveness, Adoption, Implementation, Maintenance).</p>
+                  <p>When you run an analysis, we query this library for studies relevant to your focus areas and feed them into the AI alongside the Census data — so the analysis is grounded in both real community data AND the scientific evidence base.</p>
+                </div>
+              </InfoBubble>
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-4 mb-3 flex-wrap">
-              <Badge variant="outline">{rpliceData.researchCount} studies matched</Badge>
+              <Badge variant="outline">{rpliceData.researchCount} studies matched
+                <InfoBubble title="Studies Matched">
+                  <p>Number of peer-reviewed research articles from the RPLICE library that matched your focus areas. These studies inform the AI analysis with evidence-based findings about effective interventions, implementation strategies, and community health outcomes.</p>
+                </InfoBubble>
+              </Badge>
               {rpliceData.frameworks?.map((f: any) => (
-                <Badge key={f.id} className="bg-violet-100 text-violet-800 dark:bg-violet-900 dark:text-violet-200">{f.name}</Badge>
+                <Badge key={f.id} className="bg-violet-100 text-violet-800 dark:bg-violet-900 dark:text-violet-200">
+                  {f.name}
+                  <InfoBubble title={f.name}>
+                    <p>{f.fullName || f.name} — {f.description || "An implementation science framework used to structure the analysis and ensure evidence-based recommendations."}</p>
+                  </InfoBubble>
+                </Badge>
               ))}
               {rpliceData.ecosystemStatus?.connected && (
                 <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
                   <CheckCircle2 className="h-3 w-3 mr-1" /> Ecosystem Connected
+                  <InfoBubble title="Ecosystem Connection">
+                    <p>RPLICE / Better Science Lab is connected to the ThriveUp Academy ecosystem as the <strong>Research Quality Gate</strong>. This means RPLICE validates the scientific rigor of all analyses and interventions across the 24-platform ecosystem.</p>
+                    <p>Status: <strong className="text-green-600">Connected and Active</strong></p>
+                  </InfoBubble>
                 </Badge>
               )}
             </div>
@@ -1190,7 +1481,7 @@ function AICommunityAnalysis() {
       )}
 
       {analysisText && (
-        <Card>
+        <Card className="print:break-inside-avoid">
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between flex-wrap gap-2">
               <CardTitle className="text-base flex items-center gap-2">
@@ -1198,17 +1489,84 @@ function AICommunityAnalysis() {
                 RPLICE Analysis Report
                 {analysisComplete && <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">Complete</Badge>}
                 {isStreaming && <Loader2 className="h-4 w-4 animate-spin text-blue-500" />}
+                <InfoBubble title="About This Report">
+                  <div className="space-y-2">
+                    <p>This report was generated by AI using <strong>live Census tract data</strong> and the <strong>RPLICE research library</strong>. It applies Dr. Flood's implementation science frameworks to produce grant-ready analysis.</p>
+                    <p className="font-semibold text-foreground">The 9 sections are:</p>
+                    <ol className="list-decimal ml-3 space-y-0.5">
+                      <li><strong>Research Reality</strong> — What the data actually says at the tract level</li>
+                      <li><strong>Political Reality</strong> — How county averages mask the crisis</li>
+                      <li><strong>Ground Truth</strong> — What residents actually experience day-to-day</li>
+                      <li><strong>CFIR 2.0 Assessment</strong> — Implementation readiness across 5 domains</li>
+                      <li><strong>RE-AIM Scorecard</strong> — Reach, Effectiveness, Adoption, Implementation, Maintenance</li>
+                      <li><strong>SALP Intervention Plan</strong> — Specific, Actionable, Linked, Predictive targets</li>
+                      <li><strong>Risk & Protective Factor Matrix</strong> — Current state → Target → Intervention → Timeline</li>
+                      <li><strong>Grant Alignment</strong> — Which federal/foundation grants match this data</li>
+                      <li><strong>90-Day Roadmap</strong> — Phase 1 Assessment → Phase 2 Launch → Phase 3 Evaluation</li>
+                    </ol>
+                    <p>Every claim is backed by Census data. Download as Markdown for direct use in grant narratives.</p>
+                  </div>
+                </InfoBubble>
               </CardTitle>
-              {analysisComplete && (
-                <Button size="sm" variant="outline" onClick={downloadAnalysis} data-testid="button-download-analysis">
-                  <Download className="h-4 w-4 mr-1" /> Download Markdown
-                </Button>
-              )}
+              <div className="flex gap-2 print:hidden">
+                {analysisComplete && (
+                  <>
+                    <Button size="sm" variant="outline" onClick={() => window.print()} data-testid="button-print-report">
+                      <Printer className="h-4 w-4 mr-1" /> Print
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={downloadAnalysis} data-testid="button-download-analysis">
+                      <Download className="h-4 w-4 mr-1" /> Download Markdown
+                    </Button>
+                  </>
+                )}
+              </div>
             </div>
           </CardHeader>
           <CardContent>
+            {analysisComplete && (
+              <>
+                <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-900 print:break-inside-avoid">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Info className="h-4 w-4 text-blue-500" />
+                    <span className="text-sm font-semibold text-blue-700 dark:text-blue-400">Reading This Report</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    This analysis uses Dr. Flood's <strong>Three Realities</strong> framework: what the data says (Research Reality), what officials claim (Political Reality), and what people actually experience (Ground Truth). It then applies CFIR 2.0 and RE-AIM implementation science frameworks to assess readiness, followed by a SALP intervention plan with specific, measurable targets. Every number references live Census tract data. Sections 8-9 align findings to specific grant programs with a concrete 90-day action plan. This report is designed to be used directly in grant applications — print or download it.
+                  </p>
+                </div>
+                <div className="mb-4 print:hidden">
+                  <p className="text-sm font-semibold mb-2 text-muted-foreground">Use this analysis across the ThriveUp ecosystem:</p>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                    <Link href="/grant-packages">
+                      <Button variant="outline" className="w-full justify-start" data-testid="link-use-in-grants">
+                        <FileText className="h-4 w-4 mr-2 shrink-0" />
+                        Use in Grant Application
+                      </Button>
+                    </Link>
+                    <Link href="/workforce-dashboard">
+                      <Button variant="outline" className="w-full justify-start" data-testid="link-view-workforce">
+                        <Briefcase className="h-4 w-4 mr-2 shrink-0" />
+                        View Workforce Programs
+                      </Button>
+                    </Link>
+                    <Link href="/ecosystem">
+                      <Button variant="outline" className="w-full justify-start" data-testid="link-see-ecosystem">
+                        <Globe className="h-4 w-4 mr-2 shrink-0" />
+                        See Ecosystem
+                      </Button>
+                    </Link>
+                    <Link href="/justice-command-center">
+                      <Button variant="outline" className="w-full justify-start" data-testid="link-justice-center">
+                        <Scale className="h-4 w-4 mr-2 shrink-0" />
+                        Justice Command Center
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              </>
+            )}
             <div
-              className="prose prose-sm dark:prose-invert max-w-none [&_table]:w-full [&_table]:text-xs [&_th]:p-1.5 [&_td]:p-1.5 [&_th]:bg-muted/50 [&_table]:border [&_th]:border [&_td]:border"
+              className="prose prose-sm dark:prose-invert max-w-none [&_table]:w-full [&_table]:text-xs [&_th]:p-1.5 [&_td]:p-1.5 [&_th]:bg-muted/50 [&_table]:border [&_th]:border [&_td]:border print:text-black"
               data-testid="text-analysis-report"
               dangerouslySetInnerHTML={{ __html: renderMarkdown(analysisText) }}
             />
