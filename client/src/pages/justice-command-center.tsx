@@ -1230,6 +1230,650 @@ function RPLICEFidelity() {
   );
 }
 
+const FINANCIAL_LITERACY_MODULES = [
+  { module: "Banking & Credit Fundamentals", topics: ["Opening checking/savings accounts", "Understanding credit scores (FICO 300-850)", "Building credit from zero", "Secured credit cards", "Credit repair strategies", "Avoiding predatory lending", "Understanding APR and interest"], targetPopulation: "Justice-involved adults, at-risk youth 16+", duration: "4 weeks", icon: Building2, color: "text-blue-400" },
+  { module: "Budgeting & Money Management", topics: ["50/30/20 rule", "Zero-based budgeting", "Tracking expenses", "Emergency fund building ($500 starter → 3-6 months)", "Avoiding payday loans", "Bill prioritization", "Free financial tools (Mint, YNAB)"], targetPopulation: "All populations", duration: "3 weeks", icon: BarChart, color: "text-green-400" },
+  { module: "Employment & Income Building", topics: ["Resume building for justice-involved individuals", "Interview skills with disclosure strategies", "Negotiating wages", "Understanding W-2 vs 1099", "EITC (Earned Income Tax Credit) eligibility", "WOTC employer incentives", "Gig economy navigation", "Side income strategies"], targetPopulation: "Reentry population, unemployed youth", duration: "4 weeks", icon: Briefcase, color: "text-amber-400" },
+  { module: "Housing & Asset Building", topics: ["Renting with a record", "Fair housing rights", "Section 8/HCV programs", "Homeownership pathways", "Down payment assistance programs", "Understanding leases", "Tenant rights", "IDA (Individual Development Accounts)"], targetPopulation: "Reentry population, families", duration: "4 weeks", icon: Home, color: "text-purple-400" },
+  { module: "Debt Management & Legal Rights", topics: ["Understanding court fines/fees", "Payment plan negotiation", "Debt collection rights (FDCPA)", "Bankruptcy basics (Chapter 7 vs 13)", "Student loan options", "Child support management", "Restitution payment strategies", "Expungement cost planning"], targetPopulation: "Justice-involved adults", duration: "3 weeks", icon: Scale, color: "text-red-400" },
+  { module: "Entrepreneurship & Self-Employment", topics: ["Business plan basics", "Microenterprise programs", "SBA resources for justice-involved", "EIN and business registration", "Accepting payments", "Bookkeeping fundamentals", "Marketing on zero budget", "Social enterprise models"], targetPopulation: "Motivated reentry individuals, community leaders", duration: "6 weeks", icon: Star, color: "text-orange-400" },
+  { module: "Benefits Navigation & Government Programs", topics: ["SNAP/food assistance", "Medicaid/ACA enrollment", "SSI/SSDI for disabilities", "Veterans benefits (VA)", "Workforce Innovation grants", "Pell Grants (restored for incarcerated)", "TANF", "Childcare subsidies", "Utility assistance (LIHEAP)"], targetPopulation: "All justice-involved and at-risk populations", duration: "2 weeks", icon: FileText, color: "text-cyan-400" },
+  { module: "Generational Wealth & Investment", topics: ["Compound interest explained", "401(k) and employer match", "Roth IRA basics", "Index fund investing", "Life insurance fundamentals", "Estate planning basics", "Teaching children about money", "Breaking the poverty cycle through financial education"], targetPopulation: "Stable reentry individuals, families, youth", duration: "4 weeks", icon: TrendingUp, color: "text-emerald-400" },
+  { module: "Tax Literacy & Compliance", topics: ["Filing taxes with W-2 and 1099", "Free tax preparation (VITA/TCE)", "EITC and Child Tax Credit", "State tax obligations", "Self-employment taxes", "Avoiding tax scams", "IRS payment plans", "Tax implications of side income"], targetPopulation: "All adults", duration: "2 weeks", icon: FileText, color: "text-indigo-400" },
+  { module: "Digital Financial Safety", topics: ["Online banking security", "Recognizing phishing/scams", "Identity theft protection", "Protecting personal information", "Safe money transfer apps", "Avoiding cryptocurrency scams", "Digital wallet basics", "Mobile payment safety"], targetPopulation: "All populations, especially seniors and youth", duration: "2 weeks", icon: Lock, color: "text-pink-400" },
+];
+
+const WORKFORCE_PATHWAYS = [
+  { sector: "Healthcare", roles: ["Community Health Worker ($35K-$50K)", "Medical Assistant ($32K-$45K)", "Phlebotomist ($35K-$40K)", "EMT/Paramedic ($35K-$55K)", "Behavioral Health Technician ($30K-$42K)", "Peer Support Specialist ($32K-$45K)"], certifications: ["CPR/BLS", "CNA", "CHW", "CPSS", "EMT-B"], timeToEmploy: "3-12 months", banTheBoxFriendly: true },
+  { sector: "Construction & Trades", roles: ["Electrician Apprentice ($35K-$55K)", "Plumber Apprentice ($33K-$50K)", "HVAC Technician ($38K-$55K)", "Welding ($35K-$50K)", "Carpentry ($32K-$48K)", "Solar Installation ($35K-$52K)"], certifications: ["OSHA 10/30", "EPA 608", "AWS Welding", "NCCER"], timeToEmploy: "2-6 months", banTheBoxFriendly: true },
+  { sector: "Technology", roles: ["Help Desk Support ($35K-$48K)", "Data Entry/Processing ($28K-$38K)", "Web Development ($45K-$75K)", "Cybersecurity Analyst ($55K-$85K)", "IT Support Technician ($35K-$50K)"], certifications: ["CompTIA A+", "CompTIA Security+", "Google IT Certificate", "AWS Cloud Practitioner"], timeToEmploy: "3-12 months", banTheBoxFriendly: true },
+  { sector: "Logistics & Transportation", roles: ["CDL Driver ($45K-$65K)", "Warehouse Operations ($30K-$42K)", "Forklift Operator ($32K-$40K)", "Supply Chain Coordinator ($38K-$52K)", "Delivery Driver ($30K-$45K)"], certifications: ["CDL-A/B", "Forklift Certification", "HAZMAT"], timeToEmploy: "1-4 months", banTheBoxFriendly: true },
+  { sector: "Culinary & Food Service", roles: ["Line Cook ($28K-$38K)", "Sous Chef ($35K-$50K)", "Food Service Manager ($35K-$52K)", "Baker ($28K-$40K)", "Catering Coordinator ($32K-$45K)"], certifications: ["ServSafe", "Food Handler's Permit", "Culinary Arts Certificate"], timeToEmploy: "1-6 months", banTheBoxFriendly: true },
+  { sector: "Social Services & Nonprofits", roles: ["Case Manager ($35K-$48K)", "Youth Mentor ($30K-$42K)", "Reentry Navigator ($33K-$45K)", "Community Organizer ($32K-$48K)", "Prevention Specialist ($35K-$50K)", "Credible Messenger ($35K-$50K)"], certifications: ["Peer Specialist", "Motivational Interviewing", "Trauma-Informed Care", "Community Health Worker"], timeToEmploy: "1-6 months", banTheBoxFriendly: true },
+];
+
+const GOVERNMENT_LEVELS = [
+  {
+    level: "Federal", icon: Building2, color: "bg-blue-600",
+    bodies: [
+      { name: "U.S. Congress — Senate", count: 100, role: "Federal legislation, confirmation of judges, treaties", dataSource: "congress.gov API", apiUrl: "https://api.congress.gov" },
+      { name: "U.S. Congress — House", count: 435, role: "Federal legislation, spending bills, impeachment", dataSource: "congress.gov API", apiUrl: "https://api.congress.gov" },
+      { name: "Executive Branch", count: 15, role: "Cabinet departments, federal agencies, executive orders", dataSource: "WhiteHouse.gov", apiUrl: "https://www.whitehouse.gov" },
+      { name: "Federal Judiciary", count: 870, role: "Constitutional interpretation, federal case law, sentencing guidelines", dataSource: "PACER/CourtListener", apiUrl: "https://www.courtlistener.com/api/" },
+      { name: "U.S. Sentencing Commission", count: 7, role: "Federal sentencing guidelines, disparity research, policy recommendations", dataSource: "ussc.gov", apiUrl: "https://www.ussc.gov/research/datafiles" },
+    ]
+  },
+  {
+    level: "State", icon: Flag, color: "bg-amber-600",
+    bodies: [
+      { name: "State Legislatures", count: 7383, role: "State criminal codes, sentencing laws, juvenile justice reform, education policy", dataSource: "OpenStates API", apiUrl: "https://v3.openstates.org" },
+      { name: "Governors' Offices", count: 50, role: "Executive orders, clemency/pardons, budget priorities, emergency declarations", dataSource: "NGA", apiUrl: "https://www.nga.org" },
+      { name: "State Courts", count: 50, role: "State criminal proceedings, juvenile courts, family courts, appeals", dataSource: "State court systems", apiUrl: "" },
+      { name: "State Attorneys General", count: 50, role: "Criminal prosecution policy, civil rights enforcement, consumer protection", dataSource: "NAAG", apiUrl: "https://www.naag.org" },
+      { name: "Departments of Corrections", count: 50, role: "Prison operations, reentry programs, parole supervision", dataSource: "State DOC websites", apiUrl: "" },
+      { name: "Juvenile Justice Agencies", count: 50, role: "Youth detention, diversion programs, rehabilitation services", dataSource: "OJJDP", apiUrl: "https://www.ojjdp.gov" },
+    ]
+  },
+  {
+    level: "County", icon: MapPin, color: "bg-green-600",
+    bodies: [
+      { name: "County Commissions/Boards", count: 3143, role: "Local ordinances, county budgets, jail operations, public safety funding", dataSource: "NACo", apiUrl: "https://www.naco.org" },
+      { name: "District/County Attorneys", count: 2400, role: "Prosecution decisions, diversion program referrals, charging policies", dataSource: "NDAA", apiUrl: "" },
+      { name: "County Sheriffs", count: 3080, role: "County law enforcement, jail operations, civil process, court security", dataSource: "NSA", apiUrl: "" },
+      { name: "County Courts", count: 3143, role: "Criminal cases, civil cases, juvenile proceedings, probate", dataSource: "Court records", apiUrl: "" },
+      { name: "Public Defender Offices", count: 957, role: "Indigent defense, case advocacy, systemic reform litigation", dataSource: "NLADA", apiUrl: "" },
+    ]
+  },
+  {
+    level: "City/Municipal", icon: Building2, color: "bg-purple-600",
+    bodies: [
+      { name: "City Councils", count: 19502, role: "Local ordinances, policing policy, community investment, zoning", dataSource: "NLC", apiUrl: "https://www.nlc.org" },
+      { name: "Mayors' Offices", count: 19502, role: "Executive leadership, police oversight, community programs, emergency response", dataSource: "USCM", apiUrl: "https://www.usmayors.org" },
+      { name: "Police Departments", count: 18000, role: "Law enforcement, community policing, diversion, school resource officers", dataSource: "FBI UCR/NIBRS", apiUrl: "https://crime-data-explorer.fr.cloud.gov/pages/docApi" },
+      { name: "Municipal Courts", count: 7000, role: "Misdemeanor cases, traffic violations, code enforcement, fines/fees", dataSource: "Court records", apiUrl: "" },
+      { name: "School Boards", count: 13000, role: "School discipline policy, SRO agreements, suspension/expulsion policy, SEL adoption", dataSource: "NCES", apiUrl: "https://nces.ed.gov" },
+    ]
+  },
+];
+
+const POLICY_IMPACT_AREAS = [
+  { policy: "Ban the Box / Fair Chance Hiring", status: "37 states + 150 cities", impact: "Removes criminal history checkbox from job applications, reducing employment discrimination by 30%+", affectedPopulation: "78M+ Americans with criminal records", actionSteps: ["Check your state/city laws", "Know your rights in interviews", "File complaints for violations", "Advocate for local adoption"], category: "Employment" },
+  { policy: "Pell Grant Restoration (FAFSA Simplification Act)", status: "Federal — Effective 2023", impact: "Restores federal financial aid for incarcerated students, enabling college education during incarceration", affectedPopulation: "1.2M+ incarcerated individuals", actionSteps: ["Apply through FAFSA", "Contact prison education coordinator", "Research approved programs", "Plan post-release continuation"], category: "Education" },
+  { policy: "First Step Act", status: "Federal — Enacted 2018", impact: "Reduces mandatory minimums, expands good-time credits, allows compassionate release, funds reentry programs", affectedPopulation: "Federal prisoners (150K+)", actionSteps: ["Check eligibility for sentence reduction", "Apply for earned time credits", "Request compassionate release if eligible", "Access reentry programming"], category: "Sentencing Reform" },
+  { policy: "Clean Slate / Automatic Expungement Laws", status: "12 states enacted", impact: "Automatically seals eligible criminal records after waiting period, improving employment and housing access", affectedPopulation: "Millions with old, minor convictions", actionSteps: ["Check your state's Clean Slate law", "Verify eligibility criteria", "Monitor automatic processing", "Advocate in non-Clean Slate states"], category: "Record Relief" },
+  { policy: "Raise the Age Laws", status: "46 states — under 18 in adult system", impact: "Prevents children from being tried as adults, keeping them in juvenile rehabilitation system", affectedPopulation: "200K+ youth arrested annually", actionSteps: ["Know your state's age threshold", "Advocate for remaining 4 states", "Support juvenile rehabilitation funding", "Monitor implementation fidelity"], category: "Juvenile Justice" },
+  { policy: "Medicaid Reentry Coverage (Section 1115 Waivers)", status: "19 states approved, more pending", impact: "Allows Medicaid coverage 90 days before release for behavioral health, substance abuse treatment continuity", affectedPopulation: "600K+ released annually", actionSteps: ["Check if your state has a waiver", "Apply 90 days before release", "Coordinate with reentry case manager", "Ensure continuity of prescriptions"], category: "Healthcare" },
+  { policy: "Juvenile Justice Reform (JJDPA Reauthorization)", status: "Federal — Reauthorized 2018", impact: "Reduces youth incarceration, requires racial disparity data, promotes community-based alternatives", affectedPopulation: "All youth in juvenile justice system", actionSteps: ["Review state compliance plans", "Monitor racial disparity reports", "Advocate for community alternatives", "Support evidence-based programs"], category: "Juvenile Justice" },
+  { policy: "Voting Rights Restoration", status: "Varies by state — 21 states auto-restore", impact: "Restores voting rights after incarceration (some after probation/parole), enabling civic participation", affectedPopulation: "4.6M disenfranchised citizens", actionSteps: ["Check your state's restoration law", "Register to vote when eligible", "Help others check eligibility", "Advocate for automatic restoration"], category: "Civic Rights" },
+  { policy: "Housing: HUD Fair Chance Rule", status: "Federal — Proposed 2024", impact: "Limits criminal background screening in federally assisted housing, reducing homelessness post-release", affectedPopulation: "2.3M+ in public/assisted housing", actionSteps: ["Know your fair housing rights", "Challenge blanket bans", "Work with housing navigators", "Document discrimination"], category: "Housing" },
+  { policy: "Community Violence Intervention (CVI) Funding", status: "Federal — $5B allocated", impact: "Federal funding for evidence-based violence prevention: CURE Violence, hospital-based intervention, community coalitions", affectedPopulation: "High-violence communities nationwide", actionSteps: ["Identify local CVI programs", "Apply for federal CVI grants", "Partner with credible messengers", "Implement with fidelity monitoring"], category: "Community Safety" },
+];
+
+const RESTORATIVE_JUSTICE_PRACTICES = [
+  { practice: "Victim-Offender Mediation", description: "Facilitated face-to-face dialogue between victim and offender to address harm, express impact, and agree on restitution. 85% victim satisfaction rate.", process: ["Referral from court/agency", "Individual preparation meetings", "Facilitated dialogue session", "Written agreement", "Follow-up monitoring"], evidenceLevel: "Strong", settings: ["Courts", "Schools", "Community organizations", "Juvenile justice"] },
+  { practice: "Community Conferencing", description: "Brings together the offender, victim(s), family members, and community stakeholders to collectively address the harm and develop a repair plan.", process: ["Community coordinator assigned", "Stakeholder outreach", "Pre-conference preparation", "Full community conference", "Action plan development", "Completion monitoring"], evidenceLevel: "Promising", settings: ["Neighborhoods", "Schools", "Police diversion", "Courts"] },
+  { practice: "Circle Sentencing / Peacemaking Circles", description: "Seated circle process with talking piece, involving all affected parties including community elders. Rooted in Indigenous justice traditions.", process: ["Application and screening", "Circle keeper preparation", "Opening ceremony", "Storytelling rounds", "Consensus building", "Sentencing/healing plan", "Follow-up circles"], evidenceLevel: "Promising", settings: ["Tribal courts", "Community centers", "Schools", "Reentry programs"] },
+  { practice: "Restorative Conferences in Schools", description: "Replaces suspension/expulsion with facilitated conversations about harm, accountability, and repair. Reduces suspension rates by 50%+.", process: ["Incident report", "Teacher/admin referral", "Individual preparation", "Restorative conference", "Reintegration plan", "Follow-up check-in"], evidenceLevel: "Strong", settings: ["K-12 schools", "Alternative education", "Special education"] },
+  { practice: "Youth/Teen Courts", description: "Peer-led courts where trained youth serve as judges, attorneys, and jurors for real juvenile cases. Builds civic engagement.", process: ["Case referral", "Youth attorney preparation", "Peer court hearing", "Constructive sentencing", "Completion tracking", "Volunteer recruitment"], evidenceLevel: "Promising", settings: ["Schools", "Community centers", "Courthouses", "After-school programs"] },
+  { practice: "Reentry Circles", description: "Community support circles for individuals returning from incarceration. Connects them with mentors, services, and accountability.", process: ["Pre-release identification", "Community volunteer recruitment", "Welcome home circle", "Monthly support circles", "Milestone celebrations", "Ongoing accountability"], evidenceLevel: "Emerging", settings: ["Faith communities", "Reentry organizations", "Community coalitions"] },
+];
+
+const COMMUNITY_RESOURCES = [
+  { category: "Crisis & Emergency", resources: ["988 Suicide & Crisis Lifeline (call/text 988)", "National Domestic Violence Hotline: 1-800-799-7233", "Crisis Text Line: Text HOME to 741741", "SAMHSA Helpline: 1-800-662-4357", "Veterans Crisis Line: 988 (press 1)", "National Child Abuse Hotline: 1-800-422-4453", "National Runaway Safeline: 1-800-786-2929", "National Sexual Assault Hotline: 1-800-656-4673"], icon: Phone, color: "text-red-400" },
+  { category: "Legal Aid & Rights", resources: ["Legal Aid Society (find local: lsc.gov)", "ACLU — Know Your Rights", "Innocence Project", "National Reentry Resource Center", "Clean Slate Initiative", "Expungement/record sealing clinics", "Public Defender referral", "Prison Policy Initiative"], icon: Scale, color: "text-amber-400" },
+  { category: "Housing Assistance", resources: ["HUD Housing Counseling: 1-800-569-4287", "National Alliance to End Homelessness", "Reentry housing programs (local)", "Section 8/Housing Choice Vouchers", "Habitat for Humanity", "Transitional housing programs", "Oxford Houses (recovery housing)", "Fair housing complaint filing"], icon: Home, color: "text-purple-400" },
+  { category: "Employment & Training", resources: ["American Job Centers (CareerOneStop.org)", "Goodwill Industries career services", "Safer Foundation", "Center for Employment Opportunities", "Dave's Killer Bread Foundation (Second Chance employers)", "HIRE Network", "Federal Bonding Program", "Workforce Innovation (WIOA) programs"], icon: Briefcase, color: "text-green-400" },
+  { category: "Education & Literacy", resources: ["Adult Basic Education (ABE) programs", "GED preparation (free at ged.com)", "Pell Grant application (FAFSA)", "Prison education programs directory", "Khan Academy (free online learning)", "Coursera/edX (free courses)", "Public library programs", "ESL classes (findlocal)"], icon: GraduationCap, color: "text-blue-400" },
+  { category: "Substance Abuse & Recovery", resources: ["SAMHSA Treatment Locator: findtreatment.gov", "Narcotics Anonymous: na.org", "Alcoholics Anonymous: aa.org", "SMART Recovery", "State-funded treatment programs", "Medication-Assisted Treatment (MAT) providers", "Recovery community organizations", "Sober living/Oxford Houses"], icon: Heart, color: "text-pink-400" },
+  { category: "Mental Health Services", resources: ["NAMI Helpline: 1-800-950-6264", "Psychology Today therapist finder", "Community mental health centers", "Trauma-informed care providers", "Veteran-specific: VA mental health", "Telehealth/online therapy options", "Support groups (local)", "Peer support specialists"], icon: Brain, color: "text-cyan-400" },
+  { category: "Family & Children", resources: ["Head Start programs", "WIC (Women, Infants, Children)", "Child care subsidies (CCDF)", "Family reunification services", "Parenting classes (evidence-based)", "Big Brothers Big Sisters", "Boys & Girls Clubs", "Family Resource Centers"], icon: Baby, color: "text-orange-400" },
+  { category: "Civic Engagement", resources: ["Vote.org — Register to vote", "Can I Vote? (NASS tool)", "Ballotpedia — Know your representatives", "OpenSecrets — Campaign finance data", "Town hall meeting finder", "How to contact your elected officials", "Jury duty information", "Census participation"], icon: Flag, color: "text-indigo-400" },
+  { category: "Faith & Spiritual Support", resources: ["Prison Fellowship", "Kairos Prison Ministry", "The Salvation Army", "Catholic Charities", "Jewish Family Services", "Islamic Society of North America (ISNA)", "Faith-based reentry coalitions", "Local church/mosque/temple outreach"], icon: Church, color: "text-violet-400" },
+];
+
+function WorkforceAndFinancial() {
+  const [selectedSector, setSelectedSector] = useState<number | null>(null);
+  const [selectedModule, setSelectedModule] = useState<number | null>(null);
+
+  return (
+    <div className="space-y-6">
+      <Card className="p-6 bg-gradient-to-br from-emerald-900/30 to-slate-800/60 border-emerald-700/50">
+        <h3 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
+          <Briefcase className="w-6 h-6 text-emerald-400" />
+          Workforce Development, Career Pathways & Financial Literacy
+        </h3>
+        <p className="text-sm text-slate-300">
+          Breaking the poverty-to-prison pipeline requires economic empowerment. Every career pathway, financial skill, and benefit navigation tool needed to build sustainable independence. No one stays free without income, and no one builds wealth without knowledge.
+        </p>
+      </Card>
+
+      <h3 className="text-lg font-semibold text-white flex items-center gap-2"><TrendingUp className="w-5 h-5 text-green-400" /> Financial Literacy — {FINANCIAL_LITERACY_MODULES.length} Complete Modules</h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {FINANCIAL_LITERACY_MODULES.map((mod, i) => (
+          <Card key={i} className={`p-4 bg-slate-800/60 border-slate-700 cursor-pointer transition-all hover:border-slate-500 ${selectedModule === i ? "ring-2 ring-emerald-500" : ""}`} onClick={() => setSelectedModule(selectedModule === i ? null : i)} data-testid={`fin-module-${i}`}>
+            <div className="flex items-center gap-3 mb-2">
+              <mod.icon className={`w-5 h-5 ${mod.color}`} />
+              <h4 className="text-sm font-semibold text-white">{mod.module}</h4>
+            </div>
+            <div className="flex items-center gap-2 mb-2">
+              <Badge variant="outline" className="text-xs">{mod.duration}</Badge>
+              <Badge variant="outline" className="text-xs text-slate-400">{mod.targetPopulation}</Badge>
+            </div>
+            {selectedModule === i && (
+              <div className="mt-3 pt-3 border-t border-slate-600 space-y-1">
+                {mod.topics.map((topic, j) => (
+                  <div key={j} className="flex items-start gap-2">
+                    <CheckCircle2 className="w-3 h-3 text-green-400 mt-0.5 shrink-0" />
+                    <span className="text-xs text-slate-300">{topic}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </Card>
+        ))}
+      </div>
+
+      <h3 className="text-lg font-semibold text-white flex items-center gap-2 mt-8"><Briefcase className="w-5 h-5 text-amber-400" /> Career Pathways — Ban-the-Box Friendly Sectors</h3>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {WORKFORCE_PATHWAYS.map((path, i) => (
+          <Card key={i} className={`p-5 bg-slate-800/60 border-slate-700 cursor-pointer transition-all hover:border-slate-500 ${selectedSector === i ? "ring-2 ring-amber-500" : ""}`} onClick={() => setSelectedSector(selectedSector === i ? null : i)} data-testid={`career-path-${i}`}>
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="text-sm font-semibold text-white">{path.sector}</h4>
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" className="text-xs text-cyan-400 border-cyan-400/30">{path.timeToEmploy}</Badge>
+                {path.banTheBoxFriendly && <Badge variant="outline" className="text-xs text-green-400 border-green-400/30">Fair Chance</Badge>}
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div>
+                <span className="text-xs text-slate-500">Roles & Salary Ranges:</span>
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {path.roles.map((role, j) => (
+                    <Badge key={j} variant="outline" className="text-xs">{role}</Badge>
+                  ))}
+                </div>
+              </div>
+              {selectedSector === i && (
+                <div className="mt-3 pt-3 border-t border-slate-600">
+                  <span className="text-xs text-slate-500">Required Certifications:</span>
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {path.certifications.map((cert, j) => (
+                      <Badge key={j} className="text-xs bg-amber-600/20 text-amber-300">{cert}</Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function GovernmentAndPolicy() {
+  const [expandedLevel, setExpandedLevel] = useState<number | null>(0);
+  const [expandedPolicy, setExpandedPolicy] = useState<number | null>(null);
+
+  return (
+    <div className="space-y-6">
+      <Card className="p-6 bg-gradient-to-br from-blue-900/30 to-slate-800/60 border-blue-700/50">
+        <h3 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
+          <Building2 className="w-6 h-6 text-blue-400" />
+          Government Representation & Policy Impact
+        </h3>
+        <p className="text-sm text-slate-300">
+          Every level of government from your city council to the U.S. Senate — who they are, what they control, how their policies affect your community, and how to make your voice heard. Democracy only works when people participate.
+        </p>
+      </Card>
+
+      <h3 className="text-lg font-semibold text-white flex items-center gap-2"><Flag className="w-5 h-5 text-blue-400" /> All Levels of Government — Federal to Local</h3>
+      {GOVERNMENT_LEVELS.map((level, i) => (
+        <Card key={i} className="bg-slate-800/60 border-slate-700 overflow-hidden" data-testid={`gov-level-${i}`}>
+          <button onClick={() => setExpandedLevel(expandedLevel === i ? null : i)} className="w-full p-4 flex items-center justify-between text-left hover:bg-slate-700/30 transition-all">
+            <div className="flex items-center gap-3">
+              <div className={`p-2 rounded-lg ${level.color}/20`}>
+                <level.icon className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h4 className="text-sm font-semibold text-white">{level.level} Government</h4>
+                <p className="text-xs text-slate-400">{level.bodies.length} governing bodies tracked</p>
+              </div>
+            </div>
+            <ChevronRight className={`w-5 h-5 text-slate-400 transition-transform ${expandedLevel === i ? "rotate-90" : ""}`} />
+          </button>
+          {expandedLevel === i && (
+            <div className="px-4 pb-4 space-y-2">
+              {level.bodies.map((body, j) => (
+                <div key={j} className="p-3 bg-slate-700/50 rounded-lg border border-slate-600">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-sm font-medium text-white">{body.name}</span>
+                    <Badge variant="outline" className="text-xs">{body.count.toLocaleString()} seats</Badge>
+                  </div>
+                  <p className="text-xs text-slate-400">{body.role}</p>
+                  <div className="flex items-center gap-2 mt-2">
+                    <span className="text-xs text-slate-500">Data: {body.dataSource}</span>
+                    {body.apiUrl && <a href={body.apiUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-400 hover:underline flex items-center gap-1"><Globe className="w-3 h-3" /> API</a>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </Card>
+      ))}
+
+      <h3 className="text-lg font-semibold text-white flex items-center gap-2 mt-8"><Scale className="w-5 h-5 text-amber-400" /> Policies That Affect You — Know Your Rights, Take Action</h3>
+      <div className="space-y-3">
+        {POLICY_IMPACT_AREAS.map((policy, i) => (
+          <Card key={i} className="bg-slate-800/60 border-slate-700 overflow-hidden" data-testid={`policy-${i}`}>
+            <button onClick={() => setExpandedPolicy(expandedPolicy === i ? null : i)} className="w-full p-4 flex items-start justify-between text-left hover:bg-slate-700/30 transition-all">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <h4 className="text-sm font-semibold text-white">{policy.policy}</h4>
+                  <Badge variant="outline" className="text-xs">{policy.category}</Badge>
+                </div>
+                <p className="text-xs text-slate-400">{policy.status}</p>
+                <p className="text-xs text-green-400 mt-1">{policy.impact}</p>
+              </div>
+              <ChevronRight className={`w-5 h-5 text-slate-400 transition-transform shrink-0 ml-2 ${expandedPolicy === i ? "rotate-90" : ""}`} />
+            </button>
+            {expandedPolicy === i && (
+              <div className="px-4 pb-4 space-y-3">
+                <div className="p-3 bg-slate-700/50 rounded-lg">
+                  <span className="text-xs text-slate-500">Affected Population:</span>
+                  <p className="text-sm text-white font-medium">{policy.affectedPopulation}</p>
+                </div>
+                <div>
+                  <span className="text-xs font-semibold text-amber-400">Action Steps You Can Take:</span>
+                  <div className="mt-2 space-y-1">
+                    {policy.actionSteps.map((step, j) => (
+                      <div key={j} className="flex items-start gap-2">
+                        <ArrowRight className="w-3 h-3 text-green-400 mt-0.5 shrink-0" />
+                        <span className="text-xs text-slate-300">{step}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function CommunityMobilization() {
+  const [expandedResource, setExpandedResource] = useState<number | null>(null);
+  const [expandedRJ, setExpandedRJ] = useState<number | null>(null);
+
+  return (
+    <div className="space-y-6">
+      <Card className="p-6 bg-gradient-to-br from-orange-900/30 to-slate-800/60 border-orange-700/50">
+        <h3 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
+          <Megaphone className="w-6 h-6 text-orange-400" />
+          Community Mobilization, Restorative Justice & Civic Action
+        </h3>
+        <p className="text-sm text-slate-300">
+          Communities don't change from the outside — they change when people organize, mobilize, and act together. Voter registration, community watch, restorative justice, crisis resources, and every tool needed to take your neighborhood back.
+        </p>
+      </Card>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          { title: "Register to Vote", description: "Check registration status, register online, find polling locations, request absentee ballots", url: "https://vote.org", icon: Flag, color: "bg-blue-600" },
+          { title: "Find Your Representatives", description: "Federal, state, and local elected officials — contact information, voting records, upcoming elections", url: "https://www.usa.gov/elected-officials", icon: Users, color: "bg-green-600" },
+          { title: "Community Watch Toolkit", description: "Start a neighborhood watch: organize meetings, establish communication chains, partner with local police", url: "#", icon: Eye, color: "bg-amber-600" },
+          { title: "Town Hall Finder", description: "Find upcoming public meetings, city council sessions, school board meetings, community forums", url: "https://townhallproject.com", icon: Building2, color: "bg-purple-600" },
+        ].map((action, i) => (
+          <Card key={i} className="p-4 bg-slate-800/60 border-slate-700 hover:border-slate-500 transition-all" data-testid={`civic-action-${i}`}>
+            <div className={`p-3 rounded-lg ${action.color}/20 w-fit mb-3`}>
+              <action.icon className="w-6 h-6 text-white" />
+            </div>
+            <h4 className="text-sm font-semibold text-white mb-1">{action.title}</h4>
+            <p className="text-xs text-slate-400 mb-3">{action.description}</p>
+            <Button size="sm" variant="outline" className="w-full text-xs" asChild>
+              <a href={action.url} target="_blank" rel="noopener noreferrer">Take Action <ArrowRight className="w-3 h-3 ml-1" /></a>
+            </Button>
+          </Card>
+        ))}
+      </div>
+
+      <h3 className="text-lg font-semibold text-white flex items-center gap-2"><Heart className="w-5 h-5 text-pink-400" /> Restorative Justice Practices</h3>
+      <div className="space-y-3">
+        {RESTORATIVE_JUSTICE_PRACTICES.map((rj, i) => (
+          <Card key={i} className="bg-slate-800/60 border-slate-700 overflow-hidden" data-testid={`rj-practice-${i}`}>
+            <button onClick={() => setExpandedRJ(expandedRJ === i ? null : i)} className="w-full p-4 flex items-start justify-between text-left hover:bg-slate-700/30 transition-all">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <h4 className="text-sm font-semibold text-white">{rj.practice}</h4>
+                  <Badge variant="outline" className={rj.evidenceLevel === "Strong" ? "text-green-400 border-green-400/30 text-xs" : rj.evidenceLevel === "Promising" ? "text-amber-400 border-amber-400/30 text-xs" : "text-blue-400 border-blue-400/30 text-xs"}>{rj.evidenceLevel}</Badge>
+                </div>
+                <p className="text-xs text-slate-400">{rj.description}</p>
+              </div>
+              <ChevronRight className={`w-5 h-5 text-slate-400 transition-transform shrink-0 ml-2 ${expandedRJ === i ? "rotate-90" : ""}`} />
+            </button>
+            {expandedRJ === i && (
+              <div className="px-4 pb-4 space-y-3">
+                <div>
+                  <span className="text-xs font-semibold text-cyan-400">Process Steps:</span>
+                  <div className="mt-2 space-y-1">
+                    {rj.process.map((step, j) => (
+                      <div key={j} className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-slate-500 w-5">{j + 1}.</span>
+                        <span className="text-xs text-slate-300">{step}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <span className="text-xs text-slate-500">Settings:</span>
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {rj.settings.map((s, j) => <Badge key={j} variant="outline" className="text-xs">{s}</Badge>)}
+                  </div>
+                </div>
+              </div>
+            )}
+          </Card>
+        ))}
+      </div>
+
+      <h3 className="text-lg font-semibold text-white flex items-center gap-2 mt-8"><Phone className="w-5 h-5 text-red-400" /> Community Resources — Every Service You Need</h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {COMMUNITY_RESOURCES.map((cat, i) => (
+          <Card key={i} className="bg-slate-800/60 border-slate-700 overflow-hidden" data-testid={`resource-cat-${i}`}>
+            <button onClick={() => setExpandedResource(expandedResource === i ? null : i)} className="w-full p-4 flex items-center justify-between text-left hover:bg-slate-700/30 transition-all">
+              <div className="flex items-center gap-3">
+                <cat.icon className={`w-5 h-5 ${cat.color}`} />
+                <div>
+                  <h4 className="text-sm font-semibold text-white">{cat.category}</h4>
+                  <p className="text-xs text-slate-400">{cat.resources.length} resources</p>
+                </div>
+              </div>
+              <ChevronRight className={`w-5 h-5 text-slate-400 transition-transform ${expandedResource === i ? "rotate-90" : ""}`} />
+            </button>
+            {expandedResource === i && (
+              <div className="px-4 pb-4 space-y-1">
+                {cat.resources.map((r, j) => (
+                  <div key={j} className="flex items-start gap-2 p-2 rounded bg-slate-700/30">
+                    <CheckCircle2 className="w-3 h-3 text-green-400 mt-0.5 shrink-0" />
+                    <span className="text-xs text-slate-300">{r}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function EcosystemBuilder() {
+  const [projectInput, setProjectInput] = useState("");
+  const [aiResponse, setAiResponse] = useState<any>(null);
+
+  const buildProject = useMutation({
+    mutationFn: async (data: any) => {
+      const res = await apiRequest("POST", "/api/justice/ai/cycle-breaking-wizard", {
+        step: 1,
+        sessionData: { type: "ecosystem_builder", projectDescription: data.description },
+        userInput: `I want to build a community safety ecosystem: ${data.description}. Help me design the complete plan including: what programs to implement, what stakeholders to engage, what data to track, what funding to pursue, how to ensure implementation fidelity, and how to measure success. Include a timeline, budget estimate, and sustainability plan.`,
+      });
+      return res.json();
+    },
+    onSuccess: (data) => setAiResponse(data.response),
+  });
+
+  const ecosystemTemplates = [
+    { name: "Neighborhood Violence Prevention Coalition", description: "Community-based violence prevention for a high-crime neighborhood: credible messengers, community policing, youth programs, faith partner network, economic investment", stakeholders: "Churches, police, schools, fathers/mentors, businesses, healthcare, community orgs", funding: "CVI federal funds, DOJ BJA, state grants, philanthropy", timeline: "18 months to baseline, 3 years to measurable impact" },
+    { name: "School-to-Success Pipeline (Reversing School-to-Prison)", description: "Transform school discipline from punitive to restorative, add SEL, mentoring, family engagement, mental health services, and career pathways — all with fidelity monitoring", stakeholders: "School board, teachers, parents, counselors, community mentors, employers", funding: "Title I, IDEA, state education, philanthropy, WIOA youth", timeline: "1 school year pilot, 3 years full implementation" },
+    { name: "Reentry & Second Chance Ecosystem", description: "Comprehensive reentry support: pre-release planning, housing, employment, behavioral health, family reunification, faith community, financial literacy, civic re-engagement", stakeholders: "DOC, parole, employers, housing providers, churches, families, peer specialists", funding: "Second Chance Act, RSAT, state reentry, philanthropy, WOTC", timeline: "Start at 90 days pre-release, 3-year post-release support" },
+    { name: "Youth Diversion & Prevention Ecosystem", description: "Divert youth from formal justice processing into community-based alternatives: restorative justice, mentoring, SEL, family therapy, workforce readiness", stakeholders: "Police, DA, courts, schools, families, mentors, community organizations, employers", funding: "OJJDP, state juvenile justice, JJDPA, philanthropy", timeline: "6 months to launch, 2 years for full impact measurement" },
+    { name: "Community Economic Empowerment Hub", description: "Break the poverty-to-prison pipeline through financial literacy, entrepreneurship, workforce development, second-chance hiring, and asset building", stakeholders: "Employers, banks/CDFIs, workforce boards, SBA, mentors, educational institutions", funding: "WIOA, SBA, CDFI Fund, state economic development, philanthropy", timeline: "3 months for core programs, 2 years for wealth-building outcomes" },
+    { name: "Intergenerational Healing & Restoration Project", description: "Address generational trauma through community healing circles, cultural programs, father engagement, elder mentoring, and truth-telling processes", stakeholders: "Elders, fathers, youth, faith leaders, cultural organizations, mental health providers", funding: "SAMHSA, state behavioral health, philanthropy, faith organizations", timeline: "Ongoing — quarterly community gatherings, continuous programming" },
+  ];
+
+  return (
+    <div className="space-y-6">
+      <Card className="p-6 bg-gradient-to-br from-teal-900/30 to-slate-800/60 border-teal-700/50">
+        <h3 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
+          <Layers className="w-6 h-6 text-teal-400" />
+          Community Ecosystem Builder
+        </h3>
+        <p className="text-sm text-slate-300">
+          Design your own community safety and justice ecosystem. Pick a template or describe your vision, and the AI will help you build a complete, fundable, implementation-ready plan — with every stakeholder, program, funding source, timeline, and fidelity checkpoint mapped out.
+        </p>
+      </Card>
+
+      <h3 className="text-lg font-semibold text-white flex items-center gap-2"><Sparkles className="w-5 h-5 text-teal-400" /> Ready-Made Ecosystem Templates</h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {ecosystemTemplates.map((tmpl, i) => (
+          <Card key={i} className="p-5 bg-slate-800/60 border-slate-700 hover:border-teal-500/50 transition-all cursor-pointer" onClick={() => setProjectInput(tmpl.description)} data-testid={`ecosystem-template-${i}`}>
+            <h4 className="text-sm font-semibold text-white mb-2">{tmpl.name}</h4>
+            <p className="text-xs text-slate-400 mb-3">{tmpl.description}</p>
+            <div className="space-y-2 text-xs">
+              <div><span className="text-slate-500">Stakeholders:</span> <span className="text-slate-300">{tmpl.stakeholders}</span></div>
+              <div><span className="text-slate-500">Funding:</span> <span className="text-green-400">{tmpl.funding}</span></div>
+              <div><span className="text-slate-500">Timeline:</span> <span className="text-cyan-400">{tmpl.timeline}</span></div>
+            </div>
+            <Button size="sm" variant="outline" className="w-full mt-3 text-xs border-teal-500/30 text-teal-400" onClick={(e) => { e.stopPropagation(); setProjectInput(tmpl.description); }}>
+              Use This Template <ArrowRight className="w-3 h-3 ml-1" />
+            </Button>
+          </Card>
+        ))}
+      </div>
+
+      <Card className="p-6 bg-slate-800/60 border-slate-700">
+        <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+          <Brain className="w-5 h-5 text-teal-400" />
+          Build Your Custom Ecosystem
+        </h3>
+        <Textarea
+          placeholder="Describe your community safety project vision. What problem are you solving? What neighborhood or population? What resources do you already have? The AI will design a complete, fundable, implementation-ready ecosystem plan..."
+          value={projectInput}
+          onChange={(e) => setProjectInput(e.target.value)}
+          className="bg-slate-700 border-slate-600 text-white min-h-[150px] mb-4"
+          data-testid="ecosystem-builder-input"
+        />
+        <Button
+          onClick={() => buildProject.mutate({ description: projectInput })}
+          disabled={!projectInput.trim() || buildProject.isPending}
+          className="bg-teal-600 hover:bg-teal-700"
+          data-testid="btn-build-ecosystem"
+        >
+          {buildProject.isPending ? <><Activity className="w-4 h-4 mr-2 animate-spin" /> Building Your Ecosystem...</> : <><Sparkles className="w-4 h-4 mr-2" /> Build Ecosystem Plan</>}
+        </Button>
+
+        {aiResponse && (
+          <div className="mt-4 p-4 bg-slate-700/50 rounded-lg border border-teal-500/30" data-testid="ecosystem-builder-result">
+            <h4 className="text-sm font-semibold text-teal-400 mb-2 flex items-center gap-2"><Sparkles className="w-4 h-4" /> Your Ecosystem Plan</h4>
+            <pre className="text-xs text-slate-300 whitespace-pre-wrap overflow-auto max-h-[600px]">
+              {typeof aiResponse === "string" ? aiResponse : typeof aiResponse?.guidance === "string" ? aiResponse.guidance : JSON.stringify(aiResponse, null, 2)}
+            </pre>
+          </div>
+        )}
+      </Card>
+
+      <Card className="p-6 bg-slate-800/60 border-slate-700">
+        <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+          <Handshake className="w-5 h-5 text-purple-400" />
+          Collaboration Features
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[
+            { title: "Invite Collaborators", desc: "Share your ecosystem plan with stakeholders. Each member can view, contribute ideas, and track their assigned responsibilities.", icon: Users, color: "text-blue-400" },
+            { title: "Sandbox Testing", desc: "Test your ecosystem design before launch. Simulate program delivery, stakeholder coordination, and outcome tracking in a safe environment.", icon: Layers, color: "text-amber-400" },
+            { title: "Fidelity Tracking", desc: "Once launched, the platform monitors implementation fidelity using RPLICE. Every program, every stakeholder, every outcome — tracked and improved.", icon: Crosshair, color: "text-green-400" },
+          ].map((feature, i) => (
+            <div key={i} className="p-4 bg-slate-700/50 rounded-lg border border-slate-600">
+              <feature.icon className={`w-6 h-6 ${feature.color} mb-2`} />
+              <h4 className="text-sm font-semibold text-white mb-1">{feature.title}</h4>
+              <p className="text-xs text-slate-400">{feature.desc}</p>
+            </div>
+          ))}
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+function GenerationalAI() {
+  const [chatInput, setChatInput] = useState("");
+  const [chatHistory, setChatHistory] = useState<Array<{ role: string; content: string }>>([]);
+
+  const sendMessage = useMutation({
+    mutationFn: async (message: string) => {
+      const res = await apiRequest("POST", "/api/justice/ai/cycle-breaking-wizard", {
+        step: 1,
+        sessionData: { type: "generational_ai", conversationHistory: chatHistory },
+        userInput: message,
+      });
+      return res.json();
+    },
+    onSuccess: (data) => {
+      const responseText = typeof data.response === "string" ? data.response : data.response?.guidance || JSON.stringify(data.response, null, 2);
+      setChatHistory(prev => [...prev, { role: "assistant", content: responseText }]);
+    },
+  });
+
+  const handleSend = () => {
+    if (!chatInput.trim()) return;
+    setChatHistory(prev => [...prev, { role: "user", content: chatInput }]);
+    sendMessage.mutate(chatInput);
+    setChatInput("");
+  };
+
+  const HISTORICAL_TIMELINE = [
+    { year: "1865", event: "13th Amendment — Abolition of slavery (with exception for criminal punishment)", impact: "Created the convict leasing system. The 'except as punishment for crime' clause became the foundation for mass incarceration of Black Americans.", era: "Reconstruction" },
+    { year: "1877", event: "End of Reconstruction — Federal troops withdraw from South", impact: "Rise of Black Codes, vagrancy laws used to re-enslave Black people through the criminal justice system. Beginning of Jim Crow.", era: "Jim Crow" },
+    { year: "1896", event: "Plessy v. Ferguson — 'Separate but equal' upheld", impact: "Legalized segregation including in education, housing, employment — creating the structural conditions that persist today.", era: "Jim Crow" },
+    { year: "1935", event: "Social Security Act — excludes domestic/agricultural workers", impact: "Deliberately excluded occupations dominated by Black workers, creating generational wealth gap that correlates with criminal justice involvement.", era: "New Deal" },
+    { year: "1944", event: "GI Bill — discriminatory implementation", impact: "Black veterans systematically denied benefits that built white middle class wealth. Housing, education, and employment gaps persist.", era: "Post-War" },
+    { year: "1954", event: "Brown v. Board of Education — desegregation ordered", impact: "Ended legal school segregation but triggered massive resistance. Many districts remain effectively segregated today.", era: "Civil Rights" },
+    { year: "1964-1968", event: "Civil Rights Act, Voting Rights Act, Fair Housing Act", impact: "Legal framework for equality established, but implementation gaps and backlash created new forms of structural inequality.", era: "Civil Rights" },
+    { year: "1971", event: "Nixon declares 'War on Drugs'", impact: "John Ehrlichman later admitted it targeted Black communities and anti-war activists. Beginning of modern mass incarceration.", era: "War on Drugs" },
+    { year: "1986", event: "Anti-Drug Abuse Act — crack/powder cocaine disparity 100:1", impact: "5 grams of crack (predominantly Black communities) = 500 grams of powder cocaine (predominantly white). Devastated Black communities.", era: "War on Drugs" },
+    { year: "1994", event: "Violent Crime Control Act — 'Three Strikes' and mandatory minimums", impact: "Largest crime bill in history. Prison population doubled. Federal incentives for states to build prisons and impose harsh sentences.", era: "Mass Incarceration" },
+    { year: "1996", event: "Welfare Reform Act (PRWORA)", impact: "Lifetime ban on SNAP/TANF for drug felonies. Barred public housing for criminal records. Created permanent underclass.", era: "Mass Incarceration" },
+    { year: "2010", event: "Fair Sentencing Act — reduces crack disparity to 18:1", impact: "Reduced but did not eliminate the racial disparity in drug sentencing. Tens of thousands still serving under old guidelines.", era: "Reform" },
+    { year: "2018", event: "First Step Act — federal sentencing reform", impact: "Reduced some mandatory minimums, expanded good-time credits, funded reentry programs. Limited to federal system (only 10% of prisoners).", era: "Reform" },
+    { year: "2020", event: "George Floyd / national reckoning on policing", impact: "Unprecedented public awareness of police violence and systemic racism. Some policy changes but limited structural reform.", era: "Reform" },
+    { year: "2023", event: "Pell Grants restored for incarcerated students", impact: "After 29-year ban, federal financial aid available in prison. Education is the strongest predictor of successful reentry.", era: "Reform" },
+    { year: "2026-2050", event: "PROJECTED: Demographic shift — majority-minority nation", impact: "Systems designed for racial exclusion will either be reformed or continue to produce disparate outcomes at even larger scale.", era: "Future" },
+    { year: "2050-2100", event: "PROJECTED: The generation born today reaches middle age", impact: "Every intervention or failure TODAY determines whether this generation breaks or continues the cycle. This is why we build.", era: "Future" },
+  ];
+
+  return (
+    <div className="space-y-6">
+      <Card className="p-6 bg-gradient-to-br from-indigo-900/30 to-slate-800/60 border-indigo-700/50">
+        <h3 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
+          <Compass className="w-6 h-6 text-indigo-400" />
+          Generational AI — 150 Years Back, 75 Years Forward
+        </h3>
+        <p className="text-sm text-slate-300">
+          Nothing happens in a vacuum. Every disparity today has roots in policies from generations ago. This AI understands the full historical context — from the 13th Amendment's exception clause to today's school-to-prison pipeline — and projects forward to show what happens if we act vs. if we don't. Ethical AI for generational change.
+        </p>
+      </Card>
+
+      <Card className="p-6 bg-slate-800/60 border-slate-700">
+        <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+          <Clock className="w-5 h-5 text-indigo-400" />
+          Historical Timeline — How We Got Here (1865 → Present → 2100)
+        </h3>
+        <div className="relative">
+          <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-gradient-to-b from-slate-600 via-red-500 via-amber-500 via-blue-500 to-green-500" />
+          {HISTORICAL_TIMELINE.map((entry, i) => {
+            const isHistorical = parseInt(entry.year) <= 2025;
+            const isFuture = parseInt(entry.year) > 2025;
+            return (
+              <div key={i} className="relative pl-14 pb-5" data-testid={`timeline-${i}`}>
+                <div className={`absolute left-4 w-5 h-5 rounded-full border-2 border-slate-800 ${
+                  isFuture ? "bg-green-500" : entry.era === "Reform" ? "bg-blue-500" : entry.era === "Mass Incarceration" || entry.era === "War on Drugs" ? "bg-red-500" : entry.era === "Civil Rights" ? "bg-amber-500" : "bg-slate-500"
+                }`} />
+                <div className="flex items-center gap-2 mb-1">
+                  <span className={`text-sm font-bold ${isFuture ? "text-green-400" : "text-white"}`}>{entry.year}</span>
+                  <Badge variant="outline" className={`text-xs ${
+                    entry.era === "Reform" ? "text-blue-400 border-blue-400/30" :
+                    entry.era === "Future" ? "text-green-400 border-green-400/30" :
+                    entry.era === "Mass Incarceration" || entry.era === "War on Drugs" ? "text-red-400 border-red-400/30" :
+                    "text-slate-400 border-slate-400/30"
+                  }`}>{entry.era}</Badge>
+                </div>
+                <h4 className="text-xs font-semibold text-white">{entry.event}</h4>
+                <p className="text-xs text-slate-400 mt-1">{entry.impact}</p>
+              </div>
+            );
+          })}
+        </div>
+      </Card>
+
+      <Card className="p-6 bg-slate-800/60 border-slate-700">
+        <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+          <Brain className="w-5 h-5 text-indigo-400" />
+          Ethical AI Assistant — Ask Anything About Justice, History & Change
+        </h3>
+        <p className="text-xs text-slate-400 mb-4">
+          This AI understands criminal justice history, policy, community organizing, evidence-based programs, implementation science, and generational impact. Ask it to help you understand a problem, design a solution, or plan a community project.
+        </p>
+
+        <div className="bg-slate-900 rounded-lg border border-slate-600 p-4 min-h-[300px] max-h-[500px] overflow-y-auto mb-4 space-y-3" data-testid="ai-chat-history">
+          {chatHistory.length === 0 && (
+            <div className="text-center py-8 text-slate-500">
+              <Brain className="w-12 h-12 mx-auto mb-3 opacity-30" />
+              <p className="text-sm">Start a conversation. Ask about policy impact, community strategies, historical context, or building your own project.</p>
+              <div className="flex flex-wrap gap-2 justify-center mt-4">
+                {[
+                  "How did the War on Drugs create mass incarceration?",
+                  "What programs actually reduce youth violence?",
+                  "How do I start a community watch in my neighborhood?",
+                  "What does the school-to-prison pipeline look like in Texas?",
+                  "Help me design a reentry program for my church",
+                  "How can I build generational wealth after incarceration?",
+                ].map((q, i) => (
+                  <button key={i} onClick={() => { setChatInput(q); }} className="text-xs px-3 py-1.5 rounded-full bg-slate-700 text-slate-300 hover:bg-slate-600 transition-all" data-testid={`suggested-question-${i}`}>
+                    {q}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          {chatHistory.map((msg, i) => (
+            <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+              <div className={`max-w-[80%] p-3 rounded-lg text-xs ${
+                msg.role === "user" ? "bg-indigo-600 text-white" : "bg-slate-700 text-slate-300"
+              }`}>
+                <pre className="whitespace-pre-wrap font-sans">{msg.content}</pre>
+              </div>
+            </div>
+          ))}
+          {sendMessage.isPending && (
+            <div className="flex justify-start">
+              <div className="bg-slate-700 p-3 rounded-lg text-xs text-slate-400 flex items-center gap-2">
+                <Activity className="w-4 h-4 animate-spin" /> Thinking...
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="flex gap-2">
+          <Input
+            placeholder="Ask anything about justice, history, community building, or your specific project..."
+            value={chatInput}
+            onChange={(e) => setChatInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSend()}
+            className="bg-slate-700 border-slate-600 text-white flex-1"
+            data-testid="ai-chat-input"
+          />
+          <Button onClick={handleSend} disabled={!chatInput.trim() || sendMessage.isPending} className="bg-indigo-600 hover:bg-indigo-700" data-testid="btn-ai-chat-send">
+            <ArrowRight className="w-4 h-4" />
+          </Button>
+        </div>
+      </Card>
+    </div>
+  );
+}
+
 export default function JusticeCommandCenter() {
   const [activeTab, setActiveTab] = useState<TabId>("command");
 
@@ -1244,6 +1888,11 @@ export default function JusticeCommandCenter() {
     { id: "wizard", label: "Cycle-Breaking Wizard", icon: Wand2, color: "text-violet-400" },
     { id: "programs", label: "Program Library", icon: BookOpen, color: "text-emerald-400" },
     { id: "rplice", label: "RPLICE Fidelity", icon: Crosshair, color: "text-blue-400" },
+    { id: "workforce", label: "Workforce & Financial", icon: Briefcase, color: "text-emerald-400" },
+    { id: "government", label: "Government & Policy", icon: Building2, color: "text-blue-400" },
+    { id: "community", label: "Community Action", icon: Megaphone, color: "text-orange-400" },
+    { id: "ecosystem-builder", label: "Ecosystem Builder", icon: Layers, color: "text-teal-400" },
+    { id: "generational", label: "Generational AI", icon: Compass, color: "text-indigo-400" },
   ];
 
   return (
@@ -1263,11 +1912,13 @@ export default function JusticeCommandCenter() {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-4 mt-3 text-xs text-slate-400">
-            <span className="flex items-center gap-1"><Globe className="w-3 h-3" /> Nationwide Coverage — All 50 States + DC</span>
-            <span className="flex items-center gap-1"><Layers className="w-3 h-3" /> {PUBLIC_DATA_APIS.length} Public Data Sources Connected</span>
+          <div className="flex flex-wrap items-center gap-4 mt-3 text-xs text-slate-400">
+            <span className="flex items-center gap-1"><Globe className="w-3 h-3" /> All 50 States + DC</span>
+            <span className="flex items-center gap-1"><Layers className="w-3 h-3" /> {PUBLIC_DATA_APIS.length} Public Data Sources</span>
             <span className="flex items-center gap-1"><BookOpen className="w-3 h-3" /> {EVIDENCE_BASED_PROGRAMS.length} Evidence-Based Programs</span>
-            <span className="flex items-center gap-1"><Target className="w-3 h-3" /> ACOS Platform — The Collaborative Advocate Foundation</span>
+            <span className="flex items-center gap-1"><Briefcase className="w-3 h-3" /> {WORKFORCE_PATHWAYS.length} Career Sectors</span>
+            <span className="flex items-center gap-1"><Scale className="w-3 h-3" /> {POLICY_IMPACT_AREAS.length} Active Policies Tracked</span>
+            <span className="flex items-center gap-1"><Target className="w-3 h-3" /> ACOS — The Collaborative Advocate Foundation</span>
           </div>
         </div>
       </div>
@@ -1301,6 +1952,11 @@ export default function JusticeCommandCenter() {
         {activeTab === "wizard" && <CycleBreakingWizard />}
         {activeTab === "programs" && <ProgramLibrary />}
         {activeTab === "rplice" && <RPLICEFidelity />}
+        {activeTab === "workforce" && <WorkforceAndFinancial />}
+        {activeTab === "government" && <GovernmentAndPolicy />}
+        {activeTab === "community" && <CommunityMobilization />}
+        {activeTab === "ecosystem-builder" && <EcosystemBuilder />}
+        {activeTab === "generational" && <GenerationalAI />}
       </div>
     </div>
   );
