@@ -1895,19 +1895,20 @@ export default function PresentationsPage() {
             <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30">
               <CardTitle className="flex items-center gap-2">
                 <Award className="h-5 w-5 text-blue-600" />
-                Grant Impact — What This Means for Funders
+                What Funders & Collaborators Get
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div>
-                  <h4 className="text-sm font-semibold mb-3">Measurable Outcomes</h4>
+                  <h4 className="text-sm font-semibold mb-1">For Funders</h4>
+                  <p className="text-[10px] text-emerald-600 dark:text-emerald-400 mb-3">Measurable ROI</p>
                   <ul className="space-y-2">
                     {[
                       "Locked Census baselines with verifiable improvement targets",
-                      "Real-time gap tracking — funders see progress, not just promises",
-                      "Platform health monitoring proves capacity for sustained impact",
-                      "Outcome reporting feeds directly from intervention data",
+                      "Real-time gap tracking dashboards — see progress, not just promises",
+                      "Automated outcome reporting from live intervention data",
+                      "Grant-specific narratives & logic models",
                     ].map((item, i) => (
                       <li key={i} className="text-xs text-muted-foreground flex items-start gap-2">
                         <ArrowRight className="h-3 w-3 text-emerald-500 mt-0.5 shrink-0" /> {item}
@@ -1916,13 +1917,14 @@ export default function PresentationsPage() {
                   </ul>
                 </div>
                 <div>
-                  <h4 className="text-sm font-semibold mb-3">Coordinated Intervention</h4>
+                  <h4 className="text-sm font-semibold mb-1">For Collaborators</h4>
+                  <p className="text-[10px] text-violet-600 dark:text-violet-400 mb-3">Shared Infrastructure</p>
                   <ul className="space-y-2">
                     {[
-                      "24 platforms working as autonomous agents — not siloed tools",
-                      "Risk factors automatically route to the right platform capabilities",
-                      "Domain alignment prevents wasted resources on mismatched interventions",
-                      "90-day action plans with clear platform accountability",
+                      "Tract-level community data access (not county averages)",
+                      "8 federal data sources already integrated & actionable",
+                      "GIS mapping & visualization tools — plug in, don't rebuild",
+                      "API access to co-build solutions on our infrastructure",
                     ].map((item, i) => (
                       <li key={i} className="text-xs text-muted-foreground flex items-start gap-2">
                         <ArrowRight className="h-3 w-3 text-violet-500 mt-0.5 shrink-0" /> {item}
@@ -1931,16 +1933,33 @@ export default function PresentationsPage() {
                   </ul>
                 </div>
                 <div>
-                  <h4 className="text-sm font-semibold mb-3">Transparent & Defensible</h4>
+                  <h4 className="text-sm font-semibold mb-1">For Both</h4>
+                  <p className="text-[10px] text-blue-600 dark:text-blue-400 mb-3">Coordinated Impact</p>
                   <ul className="space-y-2">
                     {[
-                      "Every inter-platform exchange has documented reasoning",
-                      "AI decisions are auditable — no black-box interventions",
-                      "Funder-specific narratives generated from real community data",
-                      "Implementation science frameworks (CFIR, RE-AIM) validate approach",
+                      "24 autonomous platforms — not siloed tools",
+                      "Risk-to-platform routing prevents wasted resources",
+                      "Documented reasoning on every exchange — auditable AI",
+                      "CFIR & RE-AIM validated frameworks",
                     ].map((item, i) => (
                       <li key={i} className="text-xs text-muted-foreground flex items-start gap-2">
                         <ArrowRight className="h-3 w-3 text-blue-500 mt-0.5 shrink-0" /> {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="text-sm font-semibold mb-1">For Both</h4>
+                  <p className="text-[10px] text-amber-600 dark:text-amber-400 mb-3">Ready-Made Deliverables</p>
+                  <ul className="space-y-2">
+                    {[
+                      "Community data packages for any Census tract",
+                      "Impact dashboards & CSV export",
+                      "Evidence packages & budget templates",
+                      "90-day action plans with platform accountability",
+                    ].map((item, i) => (
+                      <li key={i} className="text-xs text-muted-foreground flex items-start gap-2">
+                        <ArrowRight className="h-3 w-3 text-amber-500 mt-0.5 shrink-0" /> {item}
                       </li>
                     ))}
                   </ul>

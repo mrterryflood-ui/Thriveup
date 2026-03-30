@@ -76,6 +76,35 @@ const PLATFORM_CAPABILITIES = [
   { area: "Ecosystem Coordination", features: ["24-platform ACOS architecture", "Pre-Build Gate enforcement", "Capability Orchestration Map", "7-triad team-of-teams", "Bilateral collaboration exchange", "Multi-agency coordination"], grantKeywords: ["coordination", "collaboration", "partnership", "multi-agency", "ecosystem", "systems", "integration"] },
 ];
 
+const COLLABORATOR_VALUE_PROPOSITIONS: Record<string, { theyGet: string[]; weGet: string[] }> = {
+  "Data & Measurement": {
+    theyGet: ["Tract-level community data access (not county averages)", "8 federal data sources already integrated (CDC PLACES, SVI, FBI, Census ACS, USDA, HUD, SAMHSA, BLS)", "GIS mapping & visualization infrastructure", "Automated community data packages"],
+    weGet: ["Measurement credibility & co-validation", "Shared methodology alignment", "Joint data storytelling"],
+  },
+  "Workforce & Career": {
+    theyGet: ["55 career pathways across 12 industries", "AI Workforce Academy training infrastructure", "WIOA-aligned curriculum & TEKS §127.15 CTE alignment", "Employer partnership network"],
+    weGet: ["Expanded employer pipeline", "Career placement channels", "Industry-validated credentials"],
+  },
+  "Health & Human Services": {
+    theyGet: ["7 coordinated health platforms (not siloed tools)", "SDOH navigation with automated risk routing", "Culturally responsive health assessments", "Agent-to-agent referral automation"],
+    weGet: ["Clinical referral partnerships", "Health outcome validation", "Population health data"],
+  },
+  "Education & Youth": {
+    theyGet: ["5-level AI mastery curriculum (K-12 and adult)", "Gamified virtual campus (Panther Village)", "Mastery-gated AI Creation Studio (10 tools)", "Grade-band adaptive AI tutoring (Spark & Sparky)"],
+    weGet: ["School district partnerships", "Student enrollment pipelines", "Academic outcome benchmarks"],
+  },
+  "Justice & Reentry": {
+    theyGet: ["5-phase reentry case management pipeline", "Thrive Score system with court-ready reports", "Risk-to-platform automated routing", "Justice Command Center analytics"],
+    weGet: ["Justice system referrals", "Recidivism data partnerships", "Court system validation"],
+  },
+  "Community & Civic": {
+    theyGet: ["LifeBridge Virtual 211 resource navigation", "Community mapping with real-time indicators", "Regional hub deployment infrastructure", "Ecosystem coordination across 24 platforms"],
+    weGet: ["Community trust & grassroots credibility", "Local network access", "Co-branded community impact"],
+  },
+};
+
+const RELATIONSHIP_TYPES = ["funder", "collaborator", "strategic_partner", "data_partner", "implementation_partner"] as const;
+
 const GRANT_CATEGORIES = ["workforce", "justice", "education", "health", "community"] as const;
 
 function categorizeGrant(grant: { title?: string | null; description?: string | null; focusAreas?: string[] | null }): string {
@@ -1125,6 +1154,8 @@ export function registerGrantRoutes(app: Express) {
         WIOA: `Generate a WIOA Title I Youth grant narrative section for ThriveUp, a comprehensive youth workforce development platform. The program follows a Three-Pillar framework: Relief (immediate stabilization), Stabilize (skill building), and Contribute (career pathways and community engagement). Focus on workforce development outcomes, career pathways, employer partnerships, and digital literacy training.`,
         OJJDP: `Generate an OJJDP Second Chance Act grant narrative section for ThriveUp, a technology-enabled reentry support platform. The program follows a Three-Pillar framework: Relief (immediate stabilization), Stabilize (skill building), and Contribute (career pathways and community engagement). Focus on recidivism reduction, reentry case management, evidence-based interventions, and community-based support services.`,
         SAMHSA: `Generate a SAMHSA Community Mental Health grant narrative section for ThriveUp, a holistic youth development platform with integrated behavioral health support. The program follows a Three-Pillar framework: Relief (immediate stabilization), Stabilize (skill building), and Contribute (career pathways and community engagement). Focus on trauma-informed care, behavioral health screening, mental health integration, and whole-child support.`,
+        COLLABORATION: `Generate a collaboration proposal narrative for ThriveUp Academy ACOS (Autonomous Collaborative Operating System), a 24-platform AI-powered ecosystem under The Collaborative Advocate Foundation (501(c)(3), EIN 41-3618003). This is NOT a grant request — it is a partnership proposal showing mutual value. ThriveUp offers collaborators: tract-level community data (not county averages), 8 integrated federal data sources (CDC PLACES, SVI, FBI Crime, Census ACS, USDA Food Atlas, HUD, SAMHSA, BLS), GIS mapping infrastructure, autonomous agent coordination across 24 platforms, and implementation science validation (CFIR, RE-AIM). In return, collaborators bring credibility, network access, co-validation, and shared impact measurement. Frame this as infrastructure the collaborator doesn't have to build themselves — they plug into what already exists. Emphasize mutual accountability, shared data, and joint community impact.`,
+        DATA_PARTNERSHIP: `Generate a data partnership proposal for ThriveUp Academy's community measurement infrastructure. ThriveUp has built tract-level data analysis across 8 federal sources — CDC PLACES API, CDC/ATSDR SVI, FBI Crime Data Explorer, Census ACS, USDA Food Atlas, HUD, SAMHSA, and BLS. The platform exposes the neighborhoods where poverty exceeds 40% and unemployment tops 20% that county averages hide. For data-focused organizations like Measure Austin, United Way, and community foundations, this is shared infrastructure: API access, community data packages, GIS visualization, and automated reporting. Frame this as a two-way data relationship — not a one-sided ask.`,
       };
 
       const template = grantTemplates[grantType] || grantTemplates.WIOA;
@@ -1156,6 +1187,96 @@ Write in formal grant language, approximately 400-500 words. Use specific data p
     } catch (error) {
       console.error("Failed to generate narrative:", error);
       res.status(500).json({ error: "Failed to generate narrative" });
+    }
+  });
+
+  // ==================== COLLABORATION PROPOSAL GENERATOR ====================
+
+  app.post("/api/grant-narrative/collaboration-proposal", requireAuth, async (req, res) => {
+    try {
+      const { organizationName, relationshipType, focusDomains, customContext } = req.body as {
+        organizationName: string;
+        relationshipType?: string;
+        focusDomains?: string[];
+        customContext?: string;
+      };
+
+      if (!organizationName) {
+        return res.status(400).json({ error: "Organization name is required" });
+      }
+
+      const relType = relationshipType || "collaborator";
+      const domains = focusDomains || Object.keys(COLLABORATOR_VALUE_PROPOSITIONS);
+
+      const valueProps = domains
+        .filter(d => COLLABORATOR_VALUE_PROPOSITIONS[d])
+        .map(d => {
+          const vp = COLLABORATOR_VALUE_PROPOSITIONS[d];
+          return `${d}:\n  They get: ${vp.theyGet.join("; ")}\n  We get: ${vp.weGet.join("; ")}`;
+        })
+        .join("\n\n");
+
+      const [participants] = await db.select({ count: sql<number>`count(*)` }).from(participantProfiles);
+      const [outcomes] = await db.select({ count: sql<number>`count(*)` }).from(outcomeTracking);
+
+      const prompt = `Generate a collaboration proposal for ThriveUp Academy ACOS to present to ${organizationName}.
+
+RELATIONSHIP TYPE: ${relType}
+This is NOT a grant request. This is a mutual-value partnership proposal.
+
+ABOUT THRIVEUP:
+- The Collaborative Advocate Foundation, 501(c)(3), EIN 41-3618003
+- Veteran-founded, Black-led, Dr. Terry Flood, Founder & CEO
+- 24-platform Autonomous Collaborative Operating System (ACOS)
+- ${Number(participants.count)} participants served, ${Number(outcomes.count)} outcomes tracked
+- Tract-level data methodology across 8 federal sources
+- Live production system at thrivingcommunitiesforall.com
+
+VALUE EXCHANGE BY DOMAIN:
+${valueProps}
+
+${customContext ? `ADDITIONAL CONTEXT:\n${customContext}` : ""}
+
+Generate a professional collaboration proposal with these sections:
+1. EXECUTIVE SUMMARY (2-3 paragraphs — who we are, what we're proposing, why it's mutual)
+2. WHAT ${organizationName.toUpperCase()} GETS (specific infrastructure, data, tools they can access)
+3. WHAT THRIVEUP GETS (honest about our needs — credibility, network, validation)
+4. SHARED IMPACT FRAMEWORK (how we measure success together — joint metrics, shared dashboards, co-branded reporting)
+5. PROPOSED ENGAGEMENT MODEL (phases: explore → pilot → integrate → co-own)
+6. NEXT STEPS (concrete actions within 30 days)
+
+Write in professional but warm language. This should read as peers building together, not a supplicant asking for help. Approximately 600-800 words. Do NOT use markdown formatting — write in plain paragraphs with clear section headers.`;
+
+      const response = await generateAIResponse([
+        { role: "system", content: "You are a strategic partnership consultant specializing in nonprofit collaborations and community ecosystem development. You write proposals that emphasize mutual value, shared infrastructure, and co-ownership of impact." },
+        { role: "user", content: prompt }
+      ], 3000);
+
+      res.json({
+        proposal: response,
+        organizationName,
+        relationshipType: relType,
+        focusDomains: domains,
+        valuePropositions: domains
+          .filter(d => COLLABORATOR_VALUE_PROPOSITIONS[d])
+          .map(d => ({ domain: d, ...COLLABORATOR_VALUE_PROPOSITIONS[d] })),
+      });
+    } catch (error) {
+      console.error("Failed to generate collaboration proposal:", error);
+      res.status(500).json({ error: "Failed to generate collaboration proposal" });
+    }
+  });
+
+  app.get("/api/grants/collaborator-value-map", requireAuth, async (_req, res) => {
+    try {
+      res.json({
+        domains: COLLABORATOR_VALUE_PROPOSITIONS,
+        relationshipTypes: RELATIONSHIP_TYPES,
+        platformCount: 24,
+        dataSources: ["CDC PLACES API", "CDC/ATSDR SVI", "FBI Crime Data Explorer", "Census ACS", "USDA Food Atlas", "HUD", "SAMHSA", "BLS"],
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch collaborator value map" });
     }
   });
 
@@ -2018,6 +2139,11 @@ ORGANIZATION CONTEXT:
 - Three-entity ecosystem: ThriveUp Academy (nonprofit), The Collaborative Advocate (VOSB), MCE (Minority Capital Exchange — minority business SaaS)
 - 24-platform integrated technology ecosystem for workforce development
 - Target population: youth and young adults facing employment barriers, with focus on Black youth 16-24
+
+IMPORTANT — DISTINGUISH PARTNER TYPES:
+- FUNDERS: Organizations providing financial support (grants, donations). ThriveUp shows measurable ROI, locked baselines, grant-ready deliverables.
+- COLLABORATORS: Peer organizations who co-build, share data, validate methodology. ThriveUp offers them shared infrastructure (tract-level data, 8 federal sources, GIS mapping, API access). They offer credibility, network access, co-validation.
+- For each partner, indicate whether they are a FUNDER, COLLABORATOR, or BOTH, and frame the "Partnership Value" accordingly — collaborators get infrastructure they don't have to build themselves.
 ${serviceAreaContext}
 ${partnershipContext}
 
@@ -2028,10 +2154,11 @@ ${grantKnowledge ? `GRANT DETAILS:\n${grantKnowledge}` : ""}`;
 
 For each partner, provide:
 1. **Organization Name** — the actual organization name
-2. **Why They're a Fit** — 1-2 sentences on alignment
-3. **Contact Approach** — how to reach out (specific department, role to contact)
-4. **Partnership Value** — what they bring AND what ThriveUp offers them
-5. **Urgency** — High/Medium/Low priority for this grant
+2. **Relationship Type** — FUNDER, COLLABORATOR, or BOTH
+3. **Why They're a Fit** — 1-2 sentences on alignment
+4. **Contact Approach** — how to reach out (specific department, role to contact)
+5. **Partnership Value** — what they bring AND what ThriveUp offers them (for COLLABORATORS, emphasize shared infrastructure they get: tract-level data, GIS mapping, 8 federal data sources, API access — infrastructure they don't have to build themselves)
+6. **Urgency** — High/Medium/Low priority for this grant
 
 Focus on organizations that are:
 - Actually operating in the Austin/Central Texas area
@@ -2057,7 +2184,7 @@ GRANT: ${grantName}`;
 
 Create templates for different partner types:
 1. **Employer Partner** — for companies who would provide work-based learning, internships, or job placement opportunities
-2. **Community Organization Partner** — for nonprofits, community groups, or service providers who serve similar populations
+2. **Community Organization / Collaborator** — for nonprofits, data organizations, and community groups who serve similar populations and want to co-build (frame as mutual infrastructure sharing, not just a grant letter of support — show what ThriveUp's 24-platform ecosystem and tract-level data bring to THEM)
 3. **Government/Institutional Partner** — for workforce boards, educational institutions, or government agencies
 
 Each template should:
