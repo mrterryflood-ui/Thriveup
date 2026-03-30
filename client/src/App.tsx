@@ -127,6 +127,7 @@ const TransparencyDashboardPage = lazy(() => import("@/pages/transparency-dashbo
 const CaseStudiesPage = lazy(() => import("@/pages/case-studies"));
 const ProgramDesignerPage = lazy(() => import("@/pages/program-designer"));
 const PeerReviewPage = lazy(() => import("@/pages/peer-review"));
+const CollaborationHubPage = lazy(() => import("@/pages/collaboration-hub"));
 const ProgramLifecyclePage = lazy(() => import("@/pages/program-lifecycle"));
 const GrantPackagesPage = lazy(() => import("@/pages/grant-packages"));
 const ESignPage = lazy(() => import("@/pages/esign"));
@@ -301,6 +302,7 @@ function AppRouter() {
       <Route path="/case-studies" component={CaseStudiesPage} />
       <Route path="/program-designer" component={ProgramDesignerPage} />
       <Route path="/peer-review" component={PeerReviewPage} />
+      <Route path="/collaboration-hub" component={CollaborationHubPage} />
       <Route path="/program-lifecycle" component={ProgramLifecyclePage} />
       <Route path="/grant-packages" component={GrantPackagesPage} />
       <Route path="/esign" component={ESignPage} />

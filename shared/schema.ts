@@ -3648,4 +3648,88 @@ export const insertConsultationRequestSchema = createInsertSchema(consultationRe
 export type InsertConsultationRequest = z.infer<typeof insertConsultationRequestSchema>;
 export type ConsultationRequest = typeof consultationRequests.$inferSelect;
 
+export const partnershipRequests = pgTable("partnership_requests", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  organizationName: varchar("organization_name", { length: 500 }).notNull(),
+  organizationType: varchar("organization_type", { length: 100 }).notNull(),
+  ein: varchar("ein", { length: 20 }),
+  website: varchar("website", { length: 500 }),
+  contactName: varchar("contact_name", { length: 255 }).notNull(),
+  contactTitle: varchar("contact_title", { length: 255 }),
+  contactEmail: varchar("contact_email", { length: 255 }).notNull(),
+  contactPhone: varchar("contact_phone", { length: 50 }),
+  mission: text("mission"),
+  focusAreas: text("focus_areas").array(),
+  geographicArea: varchar("geographic_area", { length: 255 }),
+  populationsServed: text("populations_served").array(),
+  collaborationInterests: text("collaboration_interests").array(),
+  proposedActivities: text("proposed_activities"),
+  annualBudget: varchar("annual_budget", { length: 100 }),
+  staffSize: integer("staff_size"),
+  yearsOperating: integer("years_operating"),
+  existingPartnerships: text("existing_partnerships"),
+  howHeardAboutUs: varchar("how_heard_about_us", { length: 255 }),
+  status: varchar("status", { length: 50 }).notNull().default("pending"),
+  reviewNotes: text("review_notes"),
+  reviewedBy: varchar("reviewed_by", { length: 255 }),
+  reviewedAt: timestamp("reviewed_at"),
+  convertedPartnerId: varchar("converted_partner_id", { length: 100 }),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertPartnershipRequestSchema = createInsertSchema(partnershipRequests).omit({ id: true, createdAt: true, reviewedAt: true, reviewedBy: true, convertedPartnerId: true });
+export type InsertPartnershipRequest = z.infer<typeof insertPartnershipRequestSchema>;
+export type PartnershipRequest = typeof partnershipRequests.$inferSelect;
+
+export const sharedOutcomes = pgTable("shared_outcomes", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  partnerId: varchar("partner_id", { length: 100 }).notNull(),
+  outcomeName: varchar("outcome_name", { length: 500 }).notNull(),
+  outcomeCategory: varchar("outcome_category", { length: 100 }).notNull(),
+  metricType: varchar("metric_type", { length: 50 }).notNull(),
+  targetValue: real("target_value"),
+  currentValue: real("current_value").default(0),
+  unit: varchar("unit", { length: 50 }),
+  reportingPeriod: varchar("reporting_period", { length: 50 }),
+  partnerContribution: text("partner_contribution"),
+  thriveUpContribution: text("thriveup_contribution"),
+  dataSource: varchar("data_source", { length: 255 }),
+  verificationMethod: varchar("verification_method", { length: 255 }),
+  notes: text("notes"),
+  status: varchar("status", { length: 50 }).notNull().default("active"),
+  lastReportedAt: timestamp("last_reported_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertSharedOutcomeSchema = createInsertSchema(sharedOutcomes).omit({ id: true, createdAt: true });
+export type InsertSharedOutcome = z.infer<typeof insertSharedOutcomeSchema>;
+export type SharedOutcome = typeof sharedOutcomes.$inferSelect;
+
+export const externalWarmHandoffs = pgTable("external_warm_handoffs", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  partnerId: varchar("partner_id", { length: 100 }).notNull(),
+  direction: varchar("direction", { length: 20 }).notNull(),
+  participantName: varchar("participant_name", { length: 255 }),
+  participantId: varchar("participant_id", { length: 255 }),
+  serviceNeeded: varchar("service_needed", { length: 255 }).notNull(),
+  urgency: varchar("urgency", { length: 20 }).notNull().default("standard"),
+  referralReason: text("referral_reason"),
+  currentServices: text("current_services"),
+  specialConsiderations: text("special_considerations"),
+  contactMethod: varchar("contact_method", { length: 100 }),
+  partnerContactName: varchar("partner_contact_name", { length: 255 }),
+  partnerContactEmail: varchar("partner_contact_email", { length: 255 }),
+  status: varchar("status", { length: 50 }).notNull().default("initiated"),
+  acceptedAt: timestamp("accepted_at"),
+  completedAt: timestamp("completed_at"),
+  outcomeNotes: text("outcome_notes"),
+  followUpDate: timestamp("follow_up_date"),
+  createdBy: varchar("created_by", { length: 255 }),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertExternalWarmHandoffSchema = createInsertSchema(externalWarmHandoffs).omit({ id: true, createdAt: true });
+export type InsertExternalWarmHandoff = z.infer<typeof insertExternalWarmHandoffSchema>;
+export type ExternalWarmHandoff = typeof externalWarmHandoffs.$inferSelect;
+
 export * from "./models/auth";
