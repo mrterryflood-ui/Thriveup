@@ -67,6 +67,8 @@ Core architectural features and design decisions include:
 - **AI Integration:** Google Gemini 2.0 Flash, Anthropic Claude Haiku 4.5, OpenAI GPT-4o-mini, Replit AI Integrations GPT-5-nano.
 - **Email:** Resend (via Replit connector integration)
 - **Authentication:** Replit Auth (OIDC)
+- **Gun Violence Registry Integration:** Live API connection to Dr. Flood's National Gun Violence Tracker (gun-violence-registry.replit.app), providing real-time incident data with city/state filtering, multi-city comparison, monthly trends, and incident type breakdowns. Combined with Gun Violence Archive national data.
+- **Data Storyteller Tab:** Justice Command Center tab #16 — neighborhood → school → outcomes pipeline with unlimited city comparison dashboards, Census demographics, gun violence data, and AI-powered data narratives. Pre-loaded with Wilmington NC (Creekwood) and Austin TX examples plus 18 other high-impact cities.
 - **GIS Data Sources:** CDC PLACES API, CDC/ATSDR SVI, FBI Crime Data API, Census Bureau ACS, USDA Food Access Atlas, HUD, SAMHSA, BLS.
 - **Interactive Maps:** Leaflet + react-leaflet with OpenStreetMap tiles.
 - **Federal Grants:** SAM.gov API (api.sam.gov).

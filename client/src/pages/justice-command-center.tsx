@@ -18,10 +18,11 @@ import {
   UserCheck, Church, Baby, GraduationCap, Gavel, Handshake, Home,
   Briefcase, Phone, ShieldAlert, Radio, Flame, Lock, Unlock,
   BarChart, PieChart, LineChart, ArrowUpRight, ArrowDownRight, Minus,
-  Sparkles, Wand2, CircleDot, Network, Megaphone, Flag, Star
+  Sparkles, Wand2, CircleDot, Network, Megaphone, Flag, Star,
+  Siren, BookOpenCheck, ScrollText
 } from "lucide-react";
 
-type TabId = "command" | "crime-map" | "pipeline" | "sel" | "court" | "trends" | "stakeholders" | "wizard" | "programs" | "rplice" | "workforce" | "government" | "community" | "ecosystem-builder" | "generational";
+type TabId = "command" | "crime-map" | "pipeline" | "sel" | "court" | "trends" | "stakeholders" | "wizard" | "programs" | "rplice" | "workforce" | "government" | "community" | "ecosystem-builder" | "generational" | "data-story";
 
 const US_STATES = [
   { code: "AL", name: "Alabama" }, { code: "AK", name: "Alaska" }, { code: "AZ", name: "Arizona" },
@@ -299,6 +300,341 @@ function CommandDashboard() {
   );
 }
 
+function LocationIntelligence({ embedded = false }: { embedded?: boolean }) {
+  const [locState, setLocState] = useState("TX");
+  const [locCity, setLocCity] = useState("");
+  const [locZip, setLocZip] = useState("");
+  const [drillLevel, setDrillLevel] = useState<"state" | "county" | "neighborhood">("state");
+
+  const locationQuery = useQuery({
+    queryKey: ["/api/justice/live/location-intel", locState, locCity, locZip],
+    queryFn: async () => {
+      const params = new URLSearchParams({ state: locState });
+      if (locCity) params.set("city", locCity);
+      if (locZip) params.set("zip", locZip);
+      const res = await fetch(`/api/justice/live/location-intel?${params}`);
+      if (!res.ok) throw new Error("Failed to fetch");
+      return res.json();
+    },
+    enabled: !!locState,
+  });
+
+  const crimeQuery = useQuery({
+    queryKey: ["/api/justice/live/crime", locState],
+    queryFn: async () => {
+      const res = await fetch(`/api/justice/live/crime/${locState}`);
+      if (!res.ok) throw new Error("Failed");
+      return res.json();
+    },
+    enabled: !!locState,
+  });
+
+  const legalGuideQuery = useQuery({
+    queryKey: ["/api/justice/live/legal-guide", locState],
+    queryFn: async () => {
+      const res = await fetch(`/api/justice/live/legal-guide/${locState}`);
+      if (!res.ok) throw new Error("Failed");
+      return res.json();
+    },
+    enabled: false,
+  });
+
+  const resourcesQuery = useQuery({
+    queryKey: ["/api/justice/live/resources", locZip],
+    queryFn: async () => {
+      const res = await fetch(`/api/justice/live/resources/${locZip}`);
+      if (!res.ok) throw new Error("Failed");
+      return res.json();
+    },
+    enabled: !!locZip && locZip.length === 5,
+  });
+
+  const intel = locationQuery.data;
+  const crime = crimeQuery.data;
+  const resources = resourcesQuery.data;
+
+  const fmt = (n: number | undefined | null) => n ? n.toLocaleString() : "—";
+  const fmtMoney = (n: number | undefined | null) => n && n > 0 ? `$${n.toLocaleString()}` : "—";
+
+  return (
+    <div className={`space-y-6 ${embedded ? "" : ""}`}>
+      <Card className="p-6 bg-gradient-to-br from-cyan-900/30 to-slate-800/60 border-cyan-700/50">
+        <h3 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
+          <MapPin className="w-6 h-6 text-cyan-400" />
+          Location Intelligence — Drill Down to Your Neighborhood
+        </h3>
+        <p className="text-sm text-slate-300 mb-4">
+          Select your state, enter your city or ZIP code, and get real-time data from FBI Crime Data, U.S. Census, BLS, and community resource directories. Drill from state → county → neighborhood.
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+          <div>
+            <label className="text-xs text-slate-400 mb-1 block">State</label>
+            <Select value={locState} onValueChange={(v) => { setLocState(v); setLocCity(""); setLocZip(""); }}>
+              <SelectTrigger className="bg-slate-700 border-slate-600" data-testid="loc-state-select">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {US_STATES.map(s => (
+                  <SelectItem key={s.code} value={s.code}>{s.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <label className="text-xs text-slate-400 mb-1 block">City (optional)</label>
+            <Input
+              placeholder="e.g. Austin, Houston"
+              value={locCity}
+              onChange={(e) => setLocCity(e.target.value)}
+              className="bg-slate-700 border-slate-600 text-white"
+              data-testid="loc-city-input"
+            />
+          </div>
+          <div>
+            <label className="text-xs text-slate-400 mb-1 block">ZIP Code (optional)</label>
+            <Input
+              placeholder="e.g. 78660"
+              value={locZip}
+              onChange={(e) => setLocZip(e.target.value.replace(/\D/g, "").slice(0, 5))}
+              className="bg-slate-700 border-slate-600 text-white"
+              data-testid="loc-zip-input"
+            />
+          </div>
+          <div>
+            <label className="text-xs text-slate-400 mb-1 block">Drill Level</label>
+            <div className="flex gap-1">
+              {(["state", "county", "neighborhood"] as const).map(level => (
+                <button key={level} onClick={() => setDrillLevel(level)} className={`flex-1 px-2 py-2 rounded text-xs font-medium transition-all ${drillLevel === level ? "bg-cyan-600 text-white" : "bg-slate-700 text-slate-400 hover:bg-slate-600"}`} data-testid={`drill-${level}`}>
+                  {level.charAt(0).toUpperCase() + level.slice(1)}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </Card>
+
+      {locationQuery.isLoading && (
+        <Card className="p-6 bg-slate-800/60 border-slate-700">
+          <div className="flex items-center gap-3"><Activity className="w-5 h-5 animate-spin text-cyan-400" /><span className="text-sm text-slate-300">Fetching live data from FBI, Census Bureau, BLS, and community databases...</span></div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">{[1,2,3].map(i => <Skeleton key={i} className="h-32 bg-slate-700" />)}</div>
+        </Card>
+      )}
+
+      {intel && (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card className="p-5 bg-slate-800/60 border-slate-700" data-testid="intel-location-card">
+              <h4 className="text-sm font-semibold text-cyan-400 mb-3 flex items-center gap-2"><MapPin className="w-4 h-4" /> Location Resolved</h4>
+              <div className="space-y-2 text-xs">
+                <div className="flex justify-between"><span className="text-slate-400">State:</span><span className="text-white font-medium">{intel.location?.state}</span></div>
+                {intel.location?.county && <div className="flex justify-between"><span className="text-slate-400">County:</span><span className="text-white font-medium">{intel.location.county}</span></div>}
+                {intel.location?.city && <div className="flex justify-between"><span className="text-slate-400">City/Place:</span><span className="text-white font-medium">{intel.location.city}</span></div>}
+                {intel.location?.zip && <div className="flex justify-between"><span className="text-slate-400">ZIP:</span><span className="text-white font-medium">{intel.location.zip}</span></div>}
+                {intel.location?.countyFips && <div className="flex justify-between"><span className="text-slate-400">County FIPS:</span><span className="text-slate-300">{intel.location.stateFips}-{intel.location.countyFips}</span></div>}
+                {intel.location?.tractFips && <div className="flex justify-between"><span className="text-slate-400">Census Tract:</span><span className="text-slate-300">{intel.location.tractFips}</span></div>}
+              </div>
+              <div className="mt-3 pt-3 border-t border-slate-600">
+                <span className="text-xs text-slate-500">Drill-down available:</span>
+                <div className="flex gap-2 mt-1">
+                  {intel.drillDownAvailable?.hasCounty && <Badge variant="outline" className="text-xs text-green-400 border-green-400/30">County</Badge>}
+                  {intel.drillDownAvailable?.hasTract && <Badge variant="outline" className="text-xs text-green-400 border-green-400/30">Neighborhood</Badge>}
+                  {intel.drillDownAvailable?.hasZip && <Badge variant="outline" className="text-xs text-green-400 border-green-400/30">ZIP Services</Badge>}
+                </div>
+              </div>
+            </Card>
+
+            {intel.countyDemographics && (
+              <Card className="p-5 bg-slate-800/60 border-slate-700" data-testid="intel-county-demo">
+                <h4 className="text-sm font-semibold text-blue-400 mb-3 flex items-center gap-2"><Building2 className="w-4 h-4" /> County Demographics</h4>
+                <p className="text-xs text-white font-medium mb-2">{intel.countyDemographics.name}</p>
+                <div className="space-y-2 text-xs">
+                  <div className="flex justify-between"><span className="text-slate-400">Population:</span><span className="text-white font-bold">{fmt(intel.countyDemographics.totalPopulation)}</span></div>
+                  <div className="flex justify-between"><span className="text-slate-400">Median Income:</span><span className="text-green-400 font-bold">{fmtMoney(intel.countyDemographics.medianHouseholdIncome)}</span></div>
+                  <div className="flex justify-between"><span className="text-slate-400">Poverty Rate:</span><span className={`font-bold ${parseFloat(intel.countyDemographics.povertyRate) > 15 ? "text-red-400" : "text-amber-400"}`}>{intel.countyDemographics.povertyRate}</span></div>
+                  <div className="flex justify-between"><span className="text-slate-400">Unemployment:</span><span className={`font-bold ${parseFloat(intel.countyDemographics.unemploymentRate) > 6 ? "text-red-400" : "text-amber-400"}`}>{intel.countyDemographics.unemploymentRate}</span></div>
+                  <div className="flex justify-between"><span className="text-slate-400">Median Home Value:</span><span className="text-white">{fmtMoney(intel.countyDemographics.medianHomeValue)}</span></div>
+                  <div className="flex justify-between"><span className="text-slate-400">Median Rent:</span><span className="text-white">{fmtMoney(intel.countyDemographics.medianRent)}</span></div>
+                </div>
+                <p className="text-xs text-slate-500 mt-2">Source: Census ACS 5-Year 2022</p>
+              </Card>
+            )}
+
+            {intel.neighborhoodDemographics && (
+              <Card className="p-5 bg-slate-800/60 border-green-700/50" data-testid="intel-neighborhood-demo">
+                <h4 className="text-sm font-semibold text-green-400 mb-3 flex items-center gap-2"><Home className="w-4 h-4" /> Neighborhood (Census Tract)</h4>
+                <p className="text-xs text-white font-medium mb-2">{intel.neighborhoodDemographics.name}</p>
+                <div className="space-y-2 text-xs">
+                  <div className="flex justify-between"><span className="text-slate-400">Population:</span><span className="text-white font-bold">{fmt(intel.neighborhoodDemographics.totalPopulation)}</span></div>
+                  <div className="flex justify-between"><span className="text-slate-400">Median Income:</span><span className="text-green-400 font-bold">{fmtMoney(intel.neighborhoodDemographics.medianHouseholdIncome)}</span></div>
+                  <div className="flex justify-between"><span className="text-slate-400">Poverty Rate:</span><span className={`font-bold ${parseFloat(intel.neighborhoodDemographics.povertyRate) > 15 ? "text-red-400" : "text-amber-400"}`}>{intel.neighborhoodDemographics.povertyRate}</span></div>
+                  <div className="flex justify-between"><span className="text-slate-400">Unemployment:</span><span className={`font-bold ${parseFloat(intel.neighborhoodDemographics.unemploymentRate) > 6 ? "text-red-400" : "text-amber-400"}`}>{intel.neighborhoodDemographics.unemploymentRate}</span></div>
+                  <div className="flex justify-between"><span className="text-slate-400">Median Rent:</span><span className="text-white">{fmtMoney(intel.neighborhoodDemographics.medianRent)}</span></div>
+                </div>
+                <p className="text-xs text-green-500 mt-2">Tract-level = ~4,000 people (neighborhood)</p>
+              </Card>
+            )}
+
+            {!intel.countyDemographics && !intel.neighborhoodDemographics && (
+              <Card className="p-5 bg-slate-800/60 border-slate-700 md:col-span-2">
+                <h4 className="text-sm font-semibold text-amber-400 mb-2 flex items-center gap-2"><Lightbulb className="w-4 h-4" /> Get Deeper Data</h4>
+                <p className="text-xs text-slate-300">Enter a city name or ZIP code to unlock county and neighborhood-level demographics, local services, and community resources.</p>
+              </Card>
+            )}
+          </div>
+
+          {crime?.counties && crime.counties.length > 0 && (
+            <Card className="p-5 bg-slate-800/60 border-slate-700" data-testid="intel-county-breakdown">
+              <h4 className="text-sm font-semibold text-red-400 mb-3 flex items-center gap-2"><ShieldAlert className="w-4 h-4" /> {locState} County Breakdown — {crime.totalCounties} Counties</h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+                <div className="p-3 bg-slate-700/50 rounded-lg border border-slate-600 text-center">
+                  <p className="text-2xl font-bold text-white">{fmt(crime.statePopulation)}</p>
+                  <p className="text-xs text-slate-400">Total State Population</p>
+                </div>
+                <div className="p-3 bg-slate-700/50 rounded-lg border border-red-600/30 text-center">
+                  <p className="text-2xl font-bold text-red-400">{crime.highPovertyCounties}</p>
+                  <p className="text-xs text-slate-400">Counties &gt;20% Poverty Rate</p>
+                </div>
+                <div className="p-3 bg-slate-700/50 rounded-lg border border-amber-600/30 text-center">
+                  <p className="text-2xl font-bold text-amber-400">{crime.highUnemploymentCounties}</p>
+                  <p className="text-xs text-slate-400">Counties &gt;8% Unemployment</p>
+                </div>
+              </div>
+              <p className="text-xs text-slate-400 mb-2">Top {Math.min(crime.counties.length, 50)} counties by population. Colors indicate poverty risk levels.</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-[400px] overflow-y-auto">
+                {crime.counties.map((county: any, i: number) => {
+                  const pov = parseFloat(county.povertyRate) || 0;
+                  const borderColor = pov > 25 ? "border-red-500/50" : pov > 15 ? "border-amber-500/50" : "border-slate-600";
+                  return (
+                    <div key={i} className={`p-3 bg-slate-700/50 rounded border ${borderColor} text-xs`}>
+                      <div className="flex items-center justify-between mb-1">
+                        <p className="text-white font-medium">{county.name}</p>
+                        <Badge variant="outline" className="text-xs">{fmt(county.population)}</Badge>
+                      </div>
+                      <div className="grid grid-cols-3 gap-2 mt-1">
+                        <div>
+                          <span className="text-slate-500">Income:</span>
+                          <p className="text-green-400 font-medium">{fmtMoney(county.medianIncome)}</p>
+                        </div>
+                        <div>
+                          <span className="text-slate-500">Poverty:</span>
+                          <p className={`font-medium ${pov > 20 ? "text-red-400" : pov > 12 ? "text-amber-400" : "text-green-400"}`}>{county.povertyRate}%</p>
+                        </div>
+                        <div>
+                          <span className="text-slate-500">Unemploy:</span>
+                          <p className={`font-medium ${parseFloat(county.unemploymentRate) > 8 ? "text-red-400" : "text-amber-400"}`}>{county.unemploymentRate}%</p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              <p className="text-xs text-slate-500 mt-2">Source: {crime.source}</p>
+            </Card>
+          )}
+
+          {resources?.resources?.localSearchUrls && (
+            <Card className="p-5 bg-slate-800/60 border-green-700/50" data-testid="intel-local-resources">
+              <h4 className="text-sm font-semibold text-green-400 mb-3 flex items-center gap-2"><Search className="w-4 h-4" /> Local Resources for ZIP {locZip}</h4>
+              <p className="text-xs text-slate-300 mb-3">Click any link to find services in your exact area. These search your ZIP code across verified service directories.</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                {Object.entries(resources.resources.localSearchUrls).map(([name, url]: [string, any]) => (
+                  <a key={name} href={url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 p-3 bg-slate-700/50 rounded-lg border border-slate-600 hover:border-green-500/50 hover:bg-slate-700 transition-all" data-testid={`resource-link-${name}`}>
+                    <Globe className="w-4 h-4 text-green-400 shrink-0" />
+                    <div>
+                      <p className="text-sm font-medium text-white">{name}</p>
+                      <p className="text-xs text-green-400">Search ZIP {locZip} →</p>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </Card>
+          )}
+
+          {resources?.resources?.nationalHotlines && (
+            <Card className="p-5 bg-slate-800/60 border-red-700/50" data-testid="intel-hotlines">
+              <h4 className="text-sm font-semibold text-red-400 mb-3 flex items-center gap-2"><Phone className="w-4 h-4" /> Crisis & Emergency Hotlines</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                {resources.resources.nationalHotlines.map((h: any, i: number) => (
+                  <div key={i} className="flex items-center gap-3 p-3 bg-slate-700/50 rounded-lg border border-slate-600">
+                    <Phone className="w-4 h-4 text-red-400 shrink-0" />
+                    <div>
+                      <p className="text-sm font-medium text-white">{h.name}</p>
+                      <p className="text-sm font-bold text-red-400">{h.phone}</p>
+                      <p className="text-xs text-slate-400">{h.description}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
+
+          {intel.localResources && !resources && (
+            <Card className="p-5 bg-slate-800/60 border-green-700/50" data-testid="intel-zip-resources">
+              <h4 className="text-sm font-semibold text-green-400 mb-3 flex items-center gap-2"><Search className="w-4 h-4" /> Local Services for ZIP {locZip}</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                {Object.entries(intel.localResources).map(([name, url]: [string, any]) => (
+                  <a key={name} href={url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 p-3 bg-slate-700/50 rounded-lg border border-slate-600 hover:border-green-500/50 transition-all">
+                    <Globe className="w-4 h-4 text-green-400 shrink-0" />
+                    <div>
+                      <p className="text-sm font-medium text-white">{name}</p>
+                      <p className="text-xs text-green-400">Search →</p>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </Card>
+          )}
+
+          {intel.legislativeTracking && (
+            <Card className="p-5 bg-slate-800/60 border-blue-700/50" data-testid="intel-legislation">
+              <h4 className="text-sm font-semibold text-blue-400 mb-3 flex items-center gap-2"><Scale className="w-4 h-4" /> {locState} Legislative Tracking</h4>
+              <div className="flex flex-wrap gap-2">
+                {Object.entries(intel.legislativeTracking).map(([name, url]: [string, any]) => (
+                  <a key={name} href={url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-slate-700/50 rounded-lg border border-slate-600 hover:border-blue-500/50 transition-all">
+                    <FileText className="w-4 h-4 text-blue-400" />
+                    <span className="text-sm text-white">{name.replace(/([A-Z])/g, " $1").trim()}</span>
+                    <ArrowRight className="w-3 h-3 text-blue-400" />
+                  </a>
+                ))}
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                className="mt-3 text-xs border-indigo-500/30 text-indigo-400"
+                onClick={() => legalGuideQuery.refetch()}
+                disabled={legalGuideQuery.isFetching}
+                data-testid="btn-legal-guide"
+              >
+                {legalGuideQuery.isFetching ? <><Activity className="w-3 h-3 mr-1 animate-spin" /> Generating...</> : <><Scale className="w-3 h-3 mr-1" /> Generate {locState} Legal Rights Guide</>}
+              </Button>
+            </Card>
+          )}
+
+          {legalGuideQuery.data?.legalGuide && (
+            <Card className="p-5 bg-slate-800/60 border-indigo-700/50" data-testid="intel-legal-guide">
+              <h4 className="text-sm font-semibold text-indigo-400 mb-3 flex items-center gap-2"><Scale className="w-4 h-4" /> {locState} Legal Rights Guide</h4>
+              <p className="text-xs text-amber-400 mb-3">{legalGuideQuery.data.disclaimer}</p>
+              <pre className="text-xs text-slate-300 whitespace-pre-wrap overflow-auto max-h-[600px] bg-slate-900 p-4 rounded-lg">
+                {typeof legalGuideQuery.data.legalGuide === "string" ? legalGuideQuery.data.legalGuide : JSON.stringify(legalGuideQuery.data.legalGuide, null, 2)}
+              </pre>
+            </Card>
+          )}
+
+          <Card className="p-4 bg-slate-800/40 border-slate-700">
+            <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
+              <span className="font-medium text-slate-400">Live Data Sources:</span>
+              {(intel.dataSources || []).map((src: string, i: number) => (
+                <Badge key={i} variant="outline" className="text-xs">{src}</Badge>
+              ))}
+            </div>
+          </Card>
+        </>
+      )}
+    </div>
+  );
+}
+
 function CrimeMapOverlay() {
   const [selectedState1, setSelectedState1] = useState("TX");
   const [selectedState2, setSelectedState2] = useState("CA");
@@ -313,6 +649,8 @@ function CrimeMapOverlay() {
 
   return (
     <div className="space-y-6">
+      <LocationIntelligence embedded />
+
       <Card className="p-6 bg-slate-800/60 border-slate-700">
         <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
           <Map className="w-5 h-5 text-blue-400" />
@@ -337,27 +675,16 @@ function CrimeMapOverlay() {
           ))}
         </div>
 
-        <div className="bg-slate-900 rounded-xl border border-slate-600 p-8 min-h-[400px] relative overflow-hidden">
-          <div className="absolute inset-0 opacity-10" style={{ background: "radial-gradient(circle at 30% 40%, #3b82f6 0%, transparent 50%), radial-gradient(circle at 70% 60%, #ef4444 0%, transparent 40%), radial-gradient(circle at 50% 30%, #f59e0b 0%, transparent 45%)" }} />
-          <div className="relative z-10 flex flex-col items-center justify-center h-full text-center">
-            <Globe className="w-16 h-16 text-blue-400 mb-4" />
-            <h4 className="text-xl font-bold text-white mb-2">National GIS Intelligence Map</h4>
-            <p className="text-sm text-slate-400 max-w-lg mb-4">
-              Interactive neighborhood-level mapping with {activeLayers.length} active data layers.
-              Crime hotspots, resource deserts, education gaps, and community assets — all overlaid for pattern recognition.
-            </p>
-            <div className="flex flex-wrap gap-2 justify-center">
-              {activeLayers.map(id => {
-                const layer = DATA_LAYERS.find(l => l.id === id);
-                return layer ? (
-                  <Badge key={id} style={{ backgroundColor: layer.color + "30", color: layer.color, borderColor: layer.color }} variant="outline" className="text-xs">
-                    <CircleDot className="w-3 h-3 mr-1" />
-                    {layer.label} Active
-                  </Badge>
-                ) : null;
-              })}
-            </div>
-          </div>
+        <div className="flex flex-wrap gap-2">
+          {activeLayers.map(id => {
+            const layer = DATA_LAYERS.find(l => l.id === id);
+            return layer ? (
+              <Badge key={id} style={{ backgroundColor: layer.color + "30", color: layer.color, borderColor: layer.color }} variant="outline" className="text-xs">
+                <CircleDot className="w-3 h-3 mr-1" />
+                {layer.label} Active
+              </Badge>
+            ) : null;
+          })}
         </div>
       </Card>
 
@@ -1718,6 +2045,599 @@ function EcosystemBuilder() {
   );
 }
 
+const PRESET_CITIES = [
+  { city: "Wilmington", state: "NC", label: "Wilmington, NC", context: "Creekwood neighborhood → Laney HS pipeline" },
+  { city: "Austin", state: "TX", label: "Austin, TX", context: "East Austin vs North Austin disparity corridor" },
+  { city: "Houston", state: "TX", label: "Houston, TX", context: "Third Ward → Yates HS pipeline" },
+  { city: "Dallas", state: "TX", label: "Dallas, TX", context: "South Dallas → Lincoln HS pipeline" },
+  { city: "Chicago", state: "IL", label: "Chicago, IL", context: "South Side violence corridor" },
+  { city: "Philadelphia", state: "PA", label: "Philadelphia, PA", context: "North Philly corridor" },
+  { city: "Baltimore", state: "MD", label: "Baltimore, MD", context: "West Baltimore pipeline" },
+  { city: "Memphis", state: "TN", label: "Memphis, TN", context: "South Memphis pipeline" },
+  { city: "New Orleans", state: "LA", label: "New Orleans, LA", context: "Central City to 7th Ward" },
+  { city: "St. Louis", state: "MO", label: "St. Louis, MO", context: "North St. Louis corridor" },
+  { city: "Detroit", state: "MI", label: "Detroit, MI", context: "East Side pipeline" },
+  { city: "Atlanta", state: "GA", label: "Atlanta, GA", context: "Southwest Atlanta pipeline" },
+  { city: "Jackson", state: "MS", label: "Jackson, MS", context: "South Jackson corridor" },
+  { city: "Birmingham", state: "AL", label: "Birmingham, AL", context: "West End pipeline" },
+  { city: "Charlotte", state: "NC", label: "Charlotte, NC", context: "West Charlotte corridor" },
+  { city: "Kansas City", state: "MO", label: "Kansas City, MO", context: "East KC pipeline" },
+  { city: "Milwaukee", state: "WI", label: "Milwaukee, WI", context: "North Side corridor" },
+  { city: "San Antonio", state: "TX", label: "San Antonio, TX", context: "East Side pipeline" },
+  { city: "Indianapolis", state: "IN", label: "Indianapolis, IN", context: "East/Near East pipeline" },
+  { city: "Oakland", state: "CA", label: "Oakland, CA", context: "East Oakland corridor" },
+];
+
+const STATE_CODES: Record<string, string> = {
+  AL:"01",AK:"02",AZ:"04",AR:"05",CA:"06",CO:"08",CT:"09",DE:"10",FL:"12",GA:"13",
+  HI:"15",ID:"16",IL:"17",IN:"18",IA:"19",KS:"20",KY:"21",LA:"22",ME:"23",MD:"24",
+  MA:"25",MI:"26",MN:"27",MS:"28",MO:"29",MT:"30",NE:"31",NV:"32",NH:"33",NJ:"34",
+  NM:"35",NY:"36",NC:"37",ND:"38",OH:"39",OK:"40",OR:"41",PA:"42",RI:"44",SC:"45",
+  SD:"46",TN:"47",TX:"48",UT:"49",VT:"50",VA:"51",WA:"53",WV:"54",WI:"55",WY:"56"
+};
+
+function DataStoryteller() {
+  const [selectedCities, setSelectedCities] = useState<Array<{ city: string; state: string; label: string; context: string }>>([
+    PRESET_CITIES[0], PRESET_CITIES[1]
+  ]);
+  const [customCity, setCustomCity] = useState("");
+  const [customState, setCustomState] = useState("");
+  const [activeView, setActiveView] = useState<"dashboard" | "story" | "compare">("dashboard");
+  const [focusCity, setFocusCity] = useState<string>("Wilmington");
+  const [storyLoading, setStoryLoading] = useState(false);
+  const [generatedStory, setGeneratedStory] = useState<any>(null);
+  const [storyContext, setStoryContext] = useState("");
+
+  const citiesKey = selectedCities.map(c => `${c.city}-${c.state}`).join(",");
+
+  const gvQuery = useQuery({
+    queryKey: ["/api/justice/live/gun-violence/compare", citiesKey],
+    queryFn: async () => {
+      const resp = await apiRequest("POST", "/api/justice/live/gun-violence/compare", {
+        cities: selectedCities.map(c => ({ city: c.city, state: c.state }))
+      });
+      return resp.json();
+    },
+    enabled: selectedCities.length > 0,
+  });
+
+  const uniqueStates = [...new Set(selectedCities.map(c => c.state))];
+  const censusQuery = useQuery({
+    queryKey: ["/api/justice/live/census-batch", uniqueStates.join(",")],
+    queryFn: async () => {
+      const results: Record<string, any> = {};
+      await Promise.allSettled(
+        uniqueStates.map(async (st) => {
+          const fips = STATE_CODES[st];
+          if (!fips) return;
+          const resp = await fetch(`/api/justice/live/census/${fips}`);
+          results[st] = await resp.json();
+        })
+      );
+      return results;
+    },
+    enabled: uniqueStates.length > 0,
+  });
+
+  const addCity = (preset?: typeof PRESET_CITIES[0]) => {
+    const toAdd = preset || { city: customCity.trim(), state: customState.trim().toUpperCase(), label: `${customCity.trim()}, ${customState.trim().toUpperCase()}`, context: "" };
+    if (!toAdd.city || !toAdd.state) return;
+    if (selectedCities.some(c => c.city === toAdd.city && c.state === toAdd.state)) return;
+    setSelectedCities(prev => [...prev, toAdd]);
+    setCustomCity("");
+    setCustomState("");
+    queryClient.invalidateQueries({ queryKey: ["/api/justice/live/gun-violence/compare"] });
+  };
+
+  const removeCity = (idx: number) => {
+    setSelectedCities(prev => prev.filter((_, i) => i !== idx));
+    queryClient.invalidateQueries({ queryKey: ["/api/justice/live/gun-violence/compare"] });
+  };
+
+  const generateStory = async (cityLabel: string) => {
+    setStoryLoading(true);
+    setGeneratedStory(null);
+    try {
+      const city = selectedCities.find(c => c.label === cityLabel || c.city === cityLabel);
+      const gvData = gvQuery.data?.comparison?.find((c: any) => c.city === city?.city);
+      const fips = city ? STATE_CODES[city.state] : null;
+      let countyData = null;
+      if (fips) {
+        try {
+          const cResp = await fetch(`/api/justice/live/census/${fips}`);
+          countyData = await cResp.json();
+        } catch {}
+      }
+
+      const resp = await apiRequest("POST", "/api/justice/live/data-story", {
+        location: { city: city?.city, state: city?.state, context: city?.context },
+        neighborhoodData: { gunViolence: gvData },
+        countyData,
+        customContext: storyContext || `Data story for ${cityLabel}. ${city?.context || ""}. Include gun violence data from the National Gun Violence Tracker. Connect neighborhood conditions → school outcomes → justice system contact. Be specific with numbers.`,
+      });
+      const story = await resp.json();
+      setGeneratedStory(story);
+      setActiveView("story");
+    } catch (e: any) {
+      setGeneratedStory({ error: e.message });
+    }
+    setStoryLoading(false);
+  };
+
+  const comparison = gvQuery.data?.comparison || [];
+  const maxKilled = Math.max(...comparison.map((c: any) => c.killed || 0), 1);
+  const maxIncidents = Math.max(...comparison.map((c: any) => c.totalIncidents || 0), 1);
+
+  const riskColor = (level: string) => {
+    if (level === "high" || level === "critical") return "text-red-400 bg-red-500/10 border-red-500/30";
+    if (level === "medium") return "text-amber-400 bg-amber-500/10 border-amber-500/30";
+    return "text-green-400 bg-green-500/10 border-green-500/30";
+  };
+
+  return (
+    <div className="space-y-6" data-testid="data-storyteller">
+      <div className="bg-gradient-to-r from-red-900/30 via-orange-900/20 to-red-900/30 border border-red-500/20 rounded-xl p-6">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="p-2 bg-red-600/20 rounded-lg border border-red-500/30">
+            <Flame className="w-6 h-6 text-red-400" />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-white" data-testid="section-title-storyteller">Data Storyteller — Neighborhood → School → Outcomes</h2>
+            <p className="text-sm text-red-300">Live gun violence tracking + Census data + AI-powered data narratives | No city limit on comparisons</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 mt-2 text-xs text-slate-400">
+          <Badge variant="outline" className="border-red-500/30 text-red-300">Gun Violence Registry Live</Badge>
+          <Badge variant="outline" className="border-blue-500/30 text-blue-300">Census Bureau ACS</Badge>
+          <Badge variant="outline" className="border-purple-500/30 text-purple-300">AI Data Story Engine</Badge>
+          <Badge variant="outline" className="border-green-500/30 text-green-300">{selectedCities.length} Cities Tracked</Badge>
+        </div>
+      </div>
+
+      {/* City Selector — Unlimited */}
+      <Card className="bg-slate-800/50 border-slate-700 p-4">
+        <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+          <MapPin className="w-4 h-4 text-red-400" /> Add Cities to Track & Compare (No Limit)
+        </h3>
+        <div className="flex flex-wrap gap-2 mb-3">
+          {selectedCities.map((c, i) => (
+            <Badge key={i} variant="outline" className="border-blue-500/30 text-blue-300 flex items-center gap-1 px-3 py-1" data-testid={`city-badge-${i}`}>
+              {c.label}
+              <button onClick={() => removeCity(i)} className="ml-1 text-red-400 hover:text-red-300" data-testid={`remove-city-${i}`}>×</button>
+            </Badge>
+          ))}
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-1 mb-3">
+          {PRESET_CITIES.filter(p => !selectedCities.some(s => s.city === p.city && s.state === p.state)).map(p => (
+            <button key={p.label} onClick={() => addCity(p)} className="text-xs px-2 py-1 rounded bg-slate-700/50 text-slate-300 hover:bg-slate-600 hover:text-white transition-colors" data-testid={`add-preset-${p.city}`}>
+              + {p.label}
+            </button>
+          ))}
+        </div>
+        <div className="flex gap-2">
+          <Input value={customCity} onChange={e => setCustomCity(e.target.value)} placeholder="City name" className="bg-slate-700 border-slate-600 text-white text-sm max-w-[200px]" data-testid="input-custom-city" />
+          <Input value={customState} onChange={e => setCustomState(e.target.value)} placeholder="State (e.g. TX)" className="bg-slate-700 border-slate-600 text-white text-sm max-w-[100px]" data-testid="input-custom-state" />
+          <Button size="sm" onClick={() => addCity()} className="bg-red-600 hover:bg-red-700" data-testid="button-add-city">Add City</Button>
+        </div>
+      </Card>
+
+      {/* View Tabs */}
+      <div className="flex gap-2">
+        {(["dashboard", "compare", "story"] as const).map(v => (
+          <button key={v} onClick={() => setActiveView(v)} className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeView === v ? "bg-red-600 text-white" : "bg-slate-700/50 text-slate-300 hover:bg-slate-600"}`} data-testid={`view-tab-${v}`}>
+            {v === "dashboard" ? "City Dashboards" : v === "compare" ? "Side-by-Side Compare" : "AI Data Story"}
+          </button>
+        ))}
+      </div>
+
+      {/* === DASHBOARD VIEW === */}
+      {activeView === "dashboard" && (
+        <div className="space-y-4">
+          {gvQuery.isLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {[1,2].map(i => <Skeleton key={i} className="h-64 bg-slate-700" />)}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {comparison.map((cityData: any, idx: number) => {
+                const stateCode = selectedCities[idx]?.state;
+                const censusData = stateCode ? censusQuery.data?.[stateCode] : null;
+                const countyInfo = censusData?.counties?.[0];
+                return (
+                  <Card key={`${cityData.city}-${cityData.state}`} className="bg-slate-800/60 border-slate-700 overflow-hidden" data-testid={`city-dashboard-${cityData.city}`}>
+                    <div className="bg-gradient-to-r from-red-900/40 to-slate-800 p-4 border-b border-slate-700">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="text-lg font-bold text-white">{cityData.city}, {cityData.state}</h3>
+                          <p className="text-xs text-slate-400">{selectedCities[idx]?.context}</p>
+                        </div>
+                        <Button size="sm" variant="outline" onClick={() => { setFocusCity(cityData.city); generateStory(`${cityData.city}, ${cityData.state}`); }} className="border-red-500/30 text-red-300 hover:bg-red-600/20 text-xs" data-testid={`generate-story-${cityData.city}`}>
+                          <ScrollText className="w-3 h-3 mr-1" /> Generate Data Story
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div className="p-4 space-y-4">
+                      {/* Gun Violence Stats */}
+                      <div>
+                        <h4 className="text-xs font-semibold text-red-400 uppercase tracking-wider mb-2 flex items-center gap-1">
+                          <Flame className="w-3 h-3" /> Gun Violence — Live Registry Data
+                        </h4>
+                        <div className="grid grid-cols-4 gap-2">
+                          <div className="bg-slate-900/60 rounded-lg p-2 text-center">
+                            <div className="text-lg font-bold text-red-400" data-testid={`stat-incidents-${cityData.city}`}>{cityData.totalIncidents}</div>
+                            <div className="text-[10px] text-slate-400">Incidents</div>
+                          </div>
+                          <div className="bg-slate-900/60 rounded-lg p-2 text-center">
+                            <div className="text-lg font-bold text-red-500" data-testid={`stat-killed-${cityData.city}`}>{cityData.killed}</div>
+                            <div className="text-[10px] text-slate-400">Killed</div>
+                          </div>
+                          <div className="bg-slate-900/60 rounded-lg p-2 text-center">
+                            <div className="text-lg font-bold text-orange-400" data-testid={`stat-injured-${cityData.city}`}>{cityData.injured}</div>
+                            <div className="text-[10px] text-slate-400">Injured</div>
+                          </div>
+                          <div className="bg-slate-900/60 rounded-lg p-2 text-center">
+                            <div className="text-lg font-bold text-yellow-400">{cityData.homicides}</div>
+                            <div className="text-[10px] text-slate-400">Homicides</div>
+                          </div>
+                        </div>
+                        {/* Visual bar for killed relative to max */}
+                        <div className="mt-2">
+                          <div className="flex items-center justify-between text-[10px] text-slate-400 mb-1">
+                            <span>Fatality Index</span>
+                            <span>{cityData.killed} of {maxKilled} (tracked max)</span>
+                          </div>
+                          <div className="w-full bg-slate-700 rounded-full h-2">
+                            <div className="bg-gradient-to-r from-red-600 to-red-400 h-2 rounded-full transition-all" style={{ width: `${(cityData.killed / maxKilled) * 100}%` }} />
+                          </div>
+                        </div>
+                        {cityData.massShootings > 0 && (
+                          <div className="mt-2 bg-red-900/30 border border-red-500/30 rounded-lg p-2">
+                            <span className="text-xs text-red-300 font-semibold">{cityData.massShootings} Mass Shooting Event{cityData.massShootings > 1 ? "s" : ""}</span>
+                            <span className="text-[10px] text-red-400 ml-1">(4+ victims per incident)</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Census / Demographics if available */}
+                      {countyInfo && (
+                        <div>
+                          <h4 className="text-xs font-semibold text-blue-400 uppercase tracking-wider mb-2 flex items-center gap-1">
+                            <BarChart3 className="w-3 h-3" /> Census Demographics — {countyInfo.name}
+                          </h4>
+                          <div className="grid grid-cols-3 gap-2">
+                            <div className="bg-slate-900/60 rounded-lg p-2 text-center">
+                              <div className="text-sm font-bold text-blue-400">{parseInt(countyInfo.population).toLocaleString()}</div>
+                              <div className="text-[10px] text-slate-400">Population</div>
+                            </div>
+                            <div className="bg-slate-900/60 rounded-lg p-2 text-center">
+                              <div className="text-sm font-bold text-green-400">${parseInt(countyInfo.medianIncome).toLocaleString()}</div>
+                              <div className="text-[10px] text-slate-400">Med. Income</div>
+                            </div>
+                            <div className="bg-slate-900/60 rounded-lg p-2 text-center">
+                              <div className={`text-sm font-bold ${parseFloat(countyInfo.povertyRate) > 20 ? "text-red-400" : parseFloat(countyInfo.povertyRate) > 15 ? "text-amber-400" : "text-green-400"}`}>
+                                {countyInfo.povertyRate}%
+                              </div>
+                              <div className="text-[10px] text-slate-400">Poverty Rate</div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Monthly Trend */}
+                      {cityData.monthlyTrend && cityData.monthlyTrend.length > 0 && (
+                        <div>
+                          <h4 className="text-xs font-semibold text-amber-400 uppercase tracking-wider mb-2 flex items-center gap-1">
+                            <TrendingUp className="w-3 h-3" /> Monthly Trend
+                          </h4>
+                          <div className="flex gap-1 items-end h-16">
+                            {cityData.monthlyTrend.map((m: any, mi: number) => {
+                              const maxMo = Math.max(...cityData.monthlyTrend.map((x: any) => x.incidents), 1);
+                              return (
+                                <div key={mi} className="flex-1 flex flex-col items-center gap-0.5">
+                                  <div className="w-full bg-red-500/60 rounded-t" style={{ height: `${(m.incidents / maxMo) * 48}px` }} title={`${m.month}: ${m.incidents} incidents, ${m.killed} killed`} />
+                                  <span className="text-[8px] text-slate-500 truncate w-full text-center">{m.month.substring(5)}</span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Recent Incidents */}
+                      {cityData.recentIncidents && cityData.recentIncidents.length > 0 && (
+                        <div>
+                          <h4 className="text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Recent Incidents</h4>
+                          <div className="space-y-1 max-h-32 overflow-y-auto">
+                            {cityData.recentIncidents.slice(0, 5).map((inc: any, ii: number) => (
+                              <div key={ii} className="flex items-center justify-between bg-slate-900/40 rounded px-2 py-1 text-[10px]">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-slate-500">{inc.date}</span>
+                                  <span className="text-slate-300">{inc.address || inc.city}</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  {inc.killed > 0 && <span className="text-red-400 font-semibold">{inc.killed} killed</span>}
+                                  {inc.injured > 0 && <span className="text-orange-400">{inc.injured} injured</span>}
+                                  {inc.sourceUrl && <a href={inc.sourceUrl} target="_blank" rel="noreferrer" className="text-blue-400 hover:underline">source</a>}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* === COMPARISON VIEW === */}
+      {activeView === "compare" && (
+        <div className="space-y-4">
+          <Card className="bg-slate-800/50 border-slate-700 p-4">
+            <h3 className="text-sm font-semibold text-white mb-3">Gun Violence Comparison — {comparison.length} Cities</h3>
+
+            {/* Comparison Table */}
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs" data-testid="comparison-table">
+                <thead>
+                  <tr className="border-b border-slate-600">
+                    <th className="text-left py-2 px-2 text-slate-400 font-medium">City</th>
+                    <th className="text-right py-2 px-2 text-slate-400 font-medium">Incidents</th>
+                    <th className="text-right py-2 px-2 text-slate-400 font-medium">Killed</th>
+                    <th className="text-right py-2 px-2 text-slate-400 font-medium">Injured</th>
+                    <th className="text-right py-2 px-2 text-slate-400 font-medium">Homicides</th>
+                    <th className="text-right py-2 px-2 text-slate-400 font-medium">Mass Shootings</th>
+                    <th className="text-right py-2 px-2 text-slate-400 font-medium">Violence Index</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {comparison.sort((a: any, b: any) => (b.killed || 0) - (a.killed || 0)).map((c: any, i: number) => (
+                    <tr key={i} className="border-b border-slate-700/50 hover:bg-slate-700/30">
+                      <td className="py-2 px-2 font-semibold text-white">{c.city}, {c.state}</td>
+                      <td className="text-right py-2 px-2 text-slate-300">{c.totalIncidents}</td>
+                      <td className="text-right py-2 px-2 text-red-400 font-bold">{c.killed}</td>
+                      <td className="text-right py-2 px-2 text-orange-400">{c.injured}</td>
+                      <td className="text-right py-2 px-2 text-amber-400">{c.homicides}</td>
+                      <td className="text-right py-2 px-2 text-red-300">{c.massShootings}</td>
+                      <td className="text-right py-2 px-2">
+                        <div className="flex items-center justify-end gap-1">
+                          <div className="w-16 bg-slate-700 rounded-full h-1.5">
+                            <div className="bg-gradient-to-r from-red-600 to-red-400 h-1.5 rounded-full" style={{ width: `${(c.killed / maxKilled) * 100}%` }} />
+                          </div>
+                          <span className="text-slate-400 w-8 text-right">{Math.round((c.killed / maxKilled) * 100)}</span>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+                <tfoot>
+                  <tr className="border-t-2 border-slate-600 bg-slate-800/60">
+                    <td className="py-2 px-2 font-bold text-white">TOTAL ({comparison.length} cities)</td>
+                    <td className="text-right py-2 px-2 font-bold text-white">{comparison.reduce((s: number, c: any) => s + (c.totalIncidents || 0), 0)}</td>
+                    <td className="text-right py-2 px-2 font-bold text-red-400">{comparison.reduce((s: number, c: any) => s + (c.killed || 0), 0)}</td>
+                    <td className="text-right py-2 px-2 font-bold text-orange-400">{comparison.reduce((s: number, c: any) => s + (c.injured || 0), 0)}</td>
+                    <td className="text-right py-2 px-2 font-bold text-amber-400">{comparison.reduce((s: number, c: any) => s + (c.homicides || 0), 0)}</td>
+                    <td className="text-right py-2 px-2 font-bold text-red-300">{comparison.reduce((s: number, c: any) => s + (c.massShootings || 0), 0)}</td>
+                    <td></td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+
+            {/* Visual Bar Comparison */}
+            <div className="mt-6 space-y-2">
+              <h4 className="text-xs font-semibold text-slate-300">Fatality Comparison — Bar Chart</h4>
+              {comparison.sort((a: any, b: any) => (b.killed || 0) - (a.killed || 0)).map((c: any, i: number) => (
+                <div key={i} className="flex items-center gap-2">
+                  <span className="text-xs text-slate-400 w-28 truncate text-right">{c.city}, {c.state}</span>
+                  <div className="flex-1 bg-slate-700 rounded-full h-4 overflow-hidden relative">
+                    <div className="absolute inset-y-0 left-0 bg-gradient-to-r from-red-700 to-red-500 rounded-full transition-all" style={{ width: `${(c.killed / maxKilled) * 100}%` }} />
+                    <div className="absolute inset-y-0 left-0 rounded-full transition-all opacity-40" style={{ width: `${(c.injured / Math.max(maxKilled, c.injured)) * 100}%`, background: "linear-gradient(90deg, orange, transparent)" }} />
+                    <span className="absolute right-2 text-[10px] text-white font-bold top-0.5">{c.killed} killed / {c.injured} injured</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Incident Type Distribution */}
+            <div className="mt-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+              {comparison.map((c: any, i: number) => (
+                <div key={i} className="bg-slate-900/40 rounded-lg p-3">
+                  <h5 className="text-xs font-semibold text-white mb-2">{c.city} — By Type</h5>
+                  {(c.byType || []).map((t: any, ti: number) => (
+                    <div key={ti} className="flex items-center justify-between text-[10px] py-0.5">
+                      <span className="text-slate-400 capitalize">{t.type}</span>
+                      <span className="text-slate-300 font-medium">{t.count}</span>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </Card>
+
+          {/* Census Comparison */}
+          {censusQuery.data && Object.values(censusQuery.data).some((d: any) => d?.counties) && (
+            <Card className="bg-slate-800/50 border-slate-700 p-4">
+              <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+                <BarChart3 className="w-4 h-4 text-blue-400" /> Census Demographics — Side by Side
+              </h3>
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs">
+                  <thead>
+                    <tr className="border-b border-slate-600">
+                      <th className="text-left py-2 px-2 text-slate-400">State</th>
+                      <th className="text-left py-2 px-2 text-slate-400">Top County</th>
+                      <th className="text-right py-2 px-2 text-slate-400">Population</th>
+                      <th className="text-right py-2 px-2 text-slate-400">Med. Income</th>
+                      <th className="text-right py-2 px-2 text-slate-400">Poverty %</th>
+                      <th className="text-right py-2 px-2 text-slate-400">Unemployment %</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {selectedCities.map((sc, i) => {
+                      const stCensus = censusQuery.data?.[sc.state];
+                      const county = stCensus?.counties?.[0];
+                      if (!county) return null;
+                      return (
+                        <tr key={i} className="border-b border-slate-700/50">
+                          <td className="py-2 px-2 font-semibold text-white">{selectedCities[i]?.label}</td>
+                          <td className="py-2 px-2 text-slate-300">{county.name}</td>
+                          <td className="text-right py-2 px-2 text-blue-400">{parseInt(county.population).toLocaleString()}</td>
+                          <td className="text-right py-2 px-2 text-green-400">${parseInt(county.medianIncome).toLocaleString()}</td>
+                          <td className={`text-right py-2 px-2 font-semibold ${parseFloat(county.povertyRate) > 20 ? "text-red-400" : parseFloat(county.povertyRate) > 15 ? "text-amber-400" : "text-green-400"}`}>{county.povertyRate}%</td>
+                          <td className="text-right py-2 px-2 text-slate-300">{county.unemploymentRate}%</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </Card>
+          )}
+        </div>
+      )}
+
+      {/* === AI DATA STORY VIEW === */}
+      {activeView === "story" && (
+        <div className="space-y-4">
+          <Card className="bg-slate-800/50 border-slate-700 p-4">
+            <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-purple-400" /> AI Data Story Generator
+            </h3>
+            <p className="text-xs text-slate-400 mb-3">Select a city and provide optional context. The AI will weave gun violence data, Census demographics, and neighborhood conditions into a powerful narrative connecting neighborhood → school → outcomes.</p>
+            <div className="flex flex-wrap gap-2 mb-3">
+              {selectedCities.map((c, i) => (
+                <Button key={i} size="sm" variant={focusCity === c.city ? "default" : "outline"} onClick={() => setFocusCity(c.city)} className={focusCity === c.city ? "bg-purple-600 hover:bg-purple-700" : "border-slate-600 text-slate-300"} data-testid={`story-select-${c.city}`}>
+                  {c.label}
+                </Button>
+              ))}
+            </div>
+            <Textarea value={storyContext} onChange={e => setStoryContext(e.target.value)} placeholder="Optional context: e.g. 'Focus on the Creekwood neighborhood feeding into Laney HS, compare east side to affluent areas, include busing effects and school police encounters'" className="bg-slate-700 border-slate-600 text-white text-sm mb-3 min-h-[60px]" data-testid="story-context-input" />
+            <Button onClick={() => generateStory(focusCity)} disabled={storyLoading || !focusCity} className="bg-purple-600 hover:bg-purple-700" data-testid="button-generate-story">
+              {storyLoading ? <><Activity className="w-4 h-4 mr-2 animate-spin" /> Generating Data Story...</> : <><Sparkles className="w-4 h-4 mr-2" /> Generate Data Story for {focusCity}</>}
+            </Button>
+          </Card>
+
+          {generatedStory && !generatedStory.error && (
+            <Card className="bg-slate-800/50 border-slate-700 overflow-hidden" data-testid="generated-story">
+              <div className="bg-gradient-to-r from-purple-900/40 to-red-900/40 p-6 border-b border-slate-700">
+                <h3 className="text-xl font-bold text-white">{generatedStory.title || generatedStory.story?.title}</h3>
+                <p className="text-xs text-purple-300 mt-1">AI-Generated Data Narrative — {new Date().toLocaleDateString()}</p>
+              </div>
+              <div className="p-6 space-y-6">
+                {/* Main Narrative */}
+                {(generatedStory.narrative || generatedStory.story?.narrative) && (
+                  <div className="prose prose-invert max-w-none">
+                    <div className="text-sm text-slate-200 leading-relaxed whitespace-pre-line">{generatedStory.narrative || generatedStory.story?.narrative}</div>
+                  </div>
+                )}
+
+                {/* Pipeline Stages */}
+                {(generatedStory.pipelineStages || generatedStory.story?.pipelineStages) && (
+                  <div>
+                    <h4 className="text-sm font-semibold text-purple-300 mb-3 flex items-center gap-2">
+                      <ArrowRight className="w-4 h-4" /> Neighborhood → School → Outcomes Pipeline
+                    </h4>
+                    <div className="space-y-2">
+                      {(generatedStory.pipelineStages || generatedStory.story?.pipelineStages || []).map((stage: any, si: number) => (
+                        <div key={si} className={`rounded-lg p-3 border ${riskColor(stage.riskLevel)}`}>
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-sm font-semibold">{stage.stage}</span>
+                            <Badge variant="outline" className={`text-[10px] ${riskColor(stage.riskLevel)}`}>{stage.riskLevel?.toUpperCase()}</Badge>
+                          </div>
+                          <p className="text-xs text-slate-300">{stage.findings}</p>
+                          {stage.data && <p className="text-[10px] text-slate-400 mt-1 italic">{stage.data}</p>}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Key Disparities */}
+                {(generatedStory.keyDisparities || generatedStory.story?.keyDisparities) && (
+                  <div>
+                    <h4 className="text-sm font-semibold text-red-300 mb-3">Key Disparities Identified</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                      {(generatedStory.keyDisparities || generatedStory.story?.keyDisparities || []).map((d: any, di: number) => (
+                        <div key={di} className="bg-red-900/20 border border-red-500/20 rounded-lg p-3">
+                          <div className="text-xs font-semibold text-red-300">{d.metric}</div>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className="text-sm text-white">{d.value1}</span>
+                            <span className="text-[10px] text-slate-400">vs</span>
+                            <span className="text-sm text-white">{d.value2}</span>
+                          </div>
+                          <div className="text-[10px] text-slate-400 mt-1">{d.context}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Root Causes and Actions */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {(generatedStory.rootCauses || generatedStory.story?.rootCauses) && (
+                    <div>
+                      <h4 className="text-sm font-semibold text-amber-300 mb-2">Root Causes</h4>
+                      <ul className="space-y-1">
+                        {(generatedStory.rootCauses || generatedStory.story?.rootCauses || []).map((rc: string, ri: number) => (
+                          <li key={ri} className="text-xs text-slate-300 flex items-start gap-1">
+                            <AlertTriangle className="w-3 h-3 text-amber-400 mt-0.5 shrink-0" /> {rc}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {(generatedStory.immediateActions || generatedStory.story?.immediateActions) && (
+                    <div>
+                      <h4 className="text-sm font-semibold text-green-300 mb-2">Recommended Actions</h4>
+                      <ul className="space-y-1">
+                        {(generatedStory.immediateActions || generatedStory.story?.immediateActions || []).map((a: string, ai: number) => (
+                          <li key={ai} className="text-xs text-slate-300 flex items-start gap-1">
+                            <CheckCircle2 className="w-3 h-3 text-green-400 mt-0.5 shrink-0" /> {a}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="border-t border-slate-700 p-3 bg-slate-900/40 text-[10px] text-slate-500 flex items-center justify-between">
+                <span>Sources: National Gun Violence Tracker (ACOS), Census Bureau ACS, Gun Violence Archive</span>
+                <span>ACOS Data Storytelling Engine — The Collaborative Advocate Foundation</span>
+              </div>
+            </Card>
+          )}
+
+          {generatedStory?.error && (
+            <Card className="bg-red-900/20 border-red-500/30 p-4">
+              <p className="text-sm text-red-300">Error generating story: {generatedStory.error}</p>
+              <p className="text-xs text-slate-400 mt-1">Try again or adjust your context.</p>
+            </Card>
+          )}
+        </div>
+      )}
+
+      {/* Data Sources Footer */}
+      <div className="bg-slate-800/30 border border-slate-700 rounded-lg p-3 text-[10px] text-slate-500">
+        <div className="flex items-center gap-2 mb-1">
+          <BookOpenCheck className="w-3 h-3" />
+          <span className="font-semibold text-slate-400">Data Sources & Attribution</span>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+          <div><span className="text-red-400">Gun Violence Registry</span> — ACOS National Gun Violence Tracker (Dr. Terry Flood)</div>
+          <div><span className="text-blue-400">Census Bureau</span> — American Community Survey (ACS) 5-Year Estimates</div>
+          <div><span className="text-green-400">Gun Violence Archive</span> — National incident database (public domain)</div>
+          <div><span className="text-purple-400">AI Engine</span> — ACOS Data Storytelling via Implementation Science frameworks</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function GenerationalAI() {
   const [chatInput, setChatInput] = useState("");
   const [chatHistory, setChatHistory] = useState<Array<{ role: string; content: string }>>([]);
@@ -1893,6 +2813,7 @@ export default function JusticeCommandCenter() {
     { id: "community", label: "Community Action", icon: Megaphone, color: "text-orange-400" },
     { id: "ecosystem-builder", label: "Ecosystem Builder", icon: Layers, color: "text-teal-400" },
     { id: "generational", label: "Generational AI", icon: Compass, color: "text-indigo-400" },
+    { id: "data-story", label: "Data Storyteller", icon: Flame, color: "text-red-400" },
   ];
 
   return (
@@ -1957,6 +2878,7 @@ export default function JusticeCommandCenter() {
         {activeTab === "community" && <CommunityMobilization />}
         {activeTab === "ecosystem-builder" && <EcosystemBuilder />}
         {activeTab === "generational" && <GenerationalAI />}
+        {activeTab === "data-story" && <DataStoryteller />}
       </div>
     </div>
   );
