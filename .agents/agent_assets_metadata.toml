@@ -102,3 +102,9 @@ id = "UnJ3p4um53x89Ac5axalm"
 uri = "file://docs/ecosystem-cross-evaluation-2026-03-24.md"
 type = "text"
 title = "Ecosystem Cross-Evaluation Report — March 24, 2026"
+
+[[outputs]]
+id = "jcktLP3rQLRf_AEbRg_FC"
+uri = "file://attached_assets/ThriveUp_RPLICE_MEASURE_Improved.pptx"
+type = "slides"
+title = "ThriveUp + RPLICE Ecosystem Presentation (AI/RAG Enhanced)"
