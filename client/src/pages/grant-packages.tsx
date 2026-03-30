@@ -2373,6 +2373,963 @@ PROPOSAL SUBMISSION CHECKLIST:
       ],
     },
   },
+  {
+    id: "bb-collective",
+    name: "BB Collective Research",
+    fullName: "BB Collective Research Grant — Community-Driven Implementation Science",
+    funder: "BB Collective",
+    amount: "$50,000",
+    deadline: "April 13, 2026",
+    deadlineUrgency: "urgent" as const,
+    icon: Microscope,
+    color: "text-purple-600",
+    bgColor: "bg-purple-50 dark:bg-purple-950/30",
+    borderColor: "border-purple-200 dark:border-purple-800",
+    description: "Research grant supporting Black-led organizations conducting community-driven research. TCAF proposes RPLICE + CARE Model integration — combining AI-powered implementation science with ethical community data practices.",
+    referenceUrl: "https://bbcollectiveresearch.org",
+    referenceLabel: "BB Collective Research Grant",
+    grantKnowledge: `BB Collective Research Grant — $50,000.
+PURPOSE: Support Black-led organizations conducting community-driven research that addresses systemic inequities. Prioritizes research methodologies that center lived experience and community voice.
+ALIGNMENT: TCAF's RPLICE platform operationalizes implementation science frameworks (CFIR 2.0, RE-AIM) through AI-powered analysis. Combined with MEASURE's CARE Model for equity-centered evaluation, this creates a publishable, fundable methodology for ethical community AI.
+SUBMITTING ENTITY: The Collaborative Advocate Foundation — EIN 41-3618003, 501(c)(3).`,
+    essentials: [
+      { label: "Black-Led Organization", detail: "TCAF is veteran-founded, Black-led 501(c)(3) — Dr. Terry Flood, DHA, is CEO and principal researcher", critical: true },
+      { label: "Community-Driven Research", detail: "Three Realities methodology + RPLICE RAG architecture ensures research is driven by community voice, not institutional assumption", critical: true },
+      { label: "April 13 Deadline", detail: "Submission deadline April 13, 2026 — 2 weeks from today", critical: true },
+      { label: "$50K Award", detail: "Single-year research grant — fundable scope: RPLICE + CARE Model integration pilot" },
+      { label: "Publishable Methodology", detail: "MAP-GAP + CARE Model = peer-reviewable framework for ethical AI in community settings" },
+    ],
+    competitiveEdge: [
+      "Only applicant with a live AI-powered implementation science platform (RPLICE) — not a proposal, a working system",
+      "4-engine RAG architecture (GPT-5, Claude, 6 scholarly databases, ecosystem context) with anti-hallucination guardrails and APA citations",
+      "Three Realities methodology centers community voice — exactly what BB Collective requires",
+      "MEASURE partnership adds CARE Model governance — ethical AI that community organizations trust",
+      "167 database tables of implementation data already collected — not starting from zero",
+    ],
+    serviceArea: {
+      region: "Central Texas",
+      state: "Texas",
+      counties: ["Travis", "Williamson"],
+      city: "Austin",
+      keyIndustries: ["Implementation Science", "Community Health", "Workforce Development"],
+      targetEmployers: [],
+      laborMarketNotes: "Research focuses on implementation fidelity in community-based programs across Central Texas.",
+      locationEligibility: "national" as const,
+      locationNotes: "National program — TCAF based in Austin/Pflugerville qualifies.",
+      multiSiteEligible: false,
+    },
+    sections: [
+      { id: "bb-narrative", name: "Research Narrative", description: "Research question, methodology, RPLICE + CARE Model integration, expected contributions", icon: FileText, status: "draft" as ApprovalStatus,
+        content: `RESEARCH NARRATIVE — BB COLLECTIVE RESEARCH GRANT
+
+APPLICANT ORGANIZATION:
+The Collaborative Advocate Foundation
+EIN: 41-3618003 | 501(c)(3) Nonprofit
+17912 Stefano Drive, Pflugerville, TX 78660
+Contact: Dr. Terry Flood, DHA — Founder & CEO
+Email: mr.terryflood@gmail.com | Website: thrivingcommunitiesforall.com
+
+RESEARCH TITLE: "Ethical AI for Community Implementation Science: Integrating RPLICE RAG Architecture with the CARE Model for Equity-Centered Program Evaluation"
+
+RESEARCH QUESTION:
+Can an AI-powered implementation science platform (RPLICE), combined with an equity-centered evaluation framework (MEASURE's CARE Model), produce more accurate, community-trusted, and actionable program fidelity assessments than traditional evaluation methods — while ensuring AI outputs remain transparent, cited, and bias-auditable?
+
+BACKGROUND & SIGNIFICANCE:
+Implementation science has a measurement problem. Evidence-based programs are adopted by community organizations, but most lack the tools to track whether those programs are being delivered as designed. Traditional evaluation requires expensive external evaluators, produces reports months after data collection, and rarely centers the voice of the communities being served.
+
+RPLICE (Research-to-Practice Implementation with fidelity for all stakeholders) addresses this through AI-powered, real-time implementation tracking. Our 4-engine architecture runs GPT-5 (structured analysis), Claude Sonnet (nuanced reasoning), a Scholarly Research RAG engine querying 6 live academic databases (PubMed, Semantic Scholar, CrossRef, Europe PMC, medRxiv, bioRxiv), and an Ecosystem RAG engine with platform-specific context. Anti-hallucination guardrails ensure every AI output includes APA citations and confidence scores.
+
+However, AI in community settings raises legitimate concerns about bias, extractive data practices, and loss of community voice. MEASURE's CARE Model (Community-centered, Anti-extractive, Research-grounded, Equity-first) provides the governance framework that ensures AI serves communities rather than surveilling them.
+
+METHODOLOGY:
+1. PILOT INTEGRATION: Connect MEASURE's Ignite data collection platform to RPLICE's RAG pipeline, enabling AI analysis grounded in both scholarly evidence AND community-collected data.
+2. THREE REALITIES DIAGNOSTIC: Apply our proprietary Three Realities methodology (Designed Reality vs. Operational Reality vs. Experienced Reality) to map gaps between intended and actual program delivery.
+3. AI FIDELITY ASSESSMENT: Run RPLICE's CFIR 2.0 and RE-AIM assessments against pilot programs, comparing AI-generated fidelity scores against traditional evaluator assessments.
+4. COMMUNITY VALIDATION: Present AI-generated findings to community stakeholders through MEASURE's participatory action research process. Measure trust, comprehension, and actionability of AI outputs.
+5. BIAS AUDIT: Document every AI output chain for bias auditability — a requirement of ethical AI practice that Meme Styles has championed.
+
+MAP-GAP GOVERNANCE: All research activities follow our MAP-GAP continuous improvement cycle: Orient → Map → Gap → Act → Track → Reflect. This ensures findings are not just published but operationalized.
+
+EXPECTED CONTRIBUTIONS:
+- A replicable model for ethical AI in community program evaluation
+- Peer-reviewable methodology combining CARE Model + MAP-GAP + RPLICE
+- Evidence base for AI-powered implementation science in Black-led organizations
+- Open documentation of anti-hallucination guardrails and bias audit protocols
+
+ORGANIZATIONAL QUALIFICATIONS:
+Dr. Terry Flood holds a Doctorate in Health Administration, MS in Implementation Science, MA in Psychology, MSHRM, MBA, MSCJ, and Public Policy credentials. U.S. Army Veteran with two Bronze Stars. The 24-platform ACOS ecosystem (thrivingcommunitiesforall.com) demonstrates operational technology infrastructure, not theoretical proposals. RPLICE is live at bettersciencelab.com with 167 database tables and 223+ pages of implementation science tooling.`,
+        reviewNotes: "PRIORITY — April 13 deadline. Strong draft. Dr. Flood: add specific pilot program details and MEASURE partnership confirmation.", lastUpdated: "March 30, 2026", assignee: "Dr. Flood + AI", pageLimit: "10 pages", wordCount: "3,000-4,000 words" },
+      { id: "bb-budget", name: "Budget & Justification", description: "$50K allocation across research activities, technology, personnel, and dissemination", icon: DollarSign, status: "draft" as ApprovalStatus,
+        content: `BUDGET — BB COLLECTIVE RESEARCH GRANT ($50,000)
+
+APPLICANT: The Collaborative Advocate Foundation | EIN: 41-3618003
+
+PERSONNEL ($20,000 — 40%):
+- Principal Investigator (Dr. Terry Flood, DHA): $12,000 (20% effort, 12 months)
+  Responsibilities: Research design, RPLICE configuration, analysis, publication
+- Research Coordinator: $8,000 (25% effort, 12 months)
+  Responsibilities: Data collection coordination, community engagement, IRB compliance
+
+TECHNOLOGY & AI INFRASTRUCTURE ($12,000 — 24%):
+- RPLICE AI engine operations: $6,000 (GPT-5 + Claude API costs for research queries, RAG pipeline processing against 6 scholarly databases)
+- Ignite → RPLICE integration development: $4,000 (data pipeline connecting MEASURE's Ignite platform to RPLICE's RAG engine)
+- Data storage and security: $2,000 (encrypted community data storage, HIPAA-aligned practices)
+
+COMMUNITY ENGAGEMENT ($8,000 — 16%):
+- Three Realities listening sessions: $3,000 (venue, refreshments, facilitator materials)
+- Community participant stipends: $3,000 (compensating community members for research participation)
+- MEASURE partnership coordination: $2,000 (joint planning, CARE Model alignment sessions)
+
+DISSEMINATION & PUBLICATION ($5,000 — 10%):
+- Open-access publication fees: $2,500
+- Conference presentation (Implementation Science conference): $2,500
+
+INDIRECT COSTS ($5,000 — 10%):
+- 10% de minimis rate per 2 CFR 200
+
+TOTAL: $50,000
+
+BUDGET JUSTIFICATION:
+Technology costs are minimal because RPLICE is already built and operational. The $6,000 AI engine allocation covers marginal API costs for research-specific queries — the platform infrastructure (167 database tables, 223+ pages, 4-engine architecture) is already funded through organizational operations. This means 90% of grant funds go directly to research activities, not platform development.`,
+        reviewNotes: "Budget is clean. Dr. Flood: confirm MEASURE partnership cost-share and any in-kind contributions.", lastUpdated: "March 30, 2026", assignee: "Dr. Flood", pageLimit: "2 pages", wordCount: "500-800 words" },
+      { id: "bb-org-capacity", name: "Organizational Capacity", description: "Leadership credentials, technology infrastructure, research capability", icon: Building2, status: "draft" as ApprovalStatus,
+        content: `ORGANIZATIONAL CAPACITY — THE COLLABORATIVE ADVOCATE FOUNDATION
+
+ORGANIZATION: The Collaborative Advocate Foundation
+EIN: 41-3618003 | 501(c)(3) Nonprofit
+Address: 17912 Stefano Drive, Pflugerville, TX 78660
+Website: thrivingcommunitiesforall.com
+Founded: Veteran-founded, Black-led nonprofit
+
+PRINCIPAL INVESTIGATOR:
+Dr. Terry Flood, DHA
+Credentials: Doctorate in Health Administration, MS Implementation Science, MA Psychology, MSHRM, MBA, MSCJ, Public Policy
+Military Service: U.S. Army Veteran — Bronze Star (x2)
+Frameworks Developed: MAP-GAP (continuous improvement), SALP (monitoring), Three Realities (community voice), MG-PATR (replication)
+
+TECHNOLOGY INFRASTRUCTURE:
+- 24-platform ACOS ecosystem — all live and operational (see appendix for URLs)
+- RPLICE implementation science engine: 167 database tables, 223+ pages, CFIR 2.0 + RE-AIM + EPIS operationalized
+- 4-Engine AI + RAG Architecture: GPT-5, Claude Sonnet, Scholarly Research RAG (PubMed, Semantic Scholar, CrossRef, Europe PMC, medRxiv, bioRxiv), Ecosystem RAG
+- Anti-hallucination guardrails with APA citations on every AI output
+- Bias-auditable output chains — every AI recommendation can be traced to source data
+
+AFFILIATED ENTITIES:
+- Collaboration & Implementation Professionals LLC (EIN 41-4996540) — VOSB, government contracting
+- M&T Consulting Solutions LLC (EIN 41-4952178) — consulting services
+
+RESEARCH CAPABILITY:
+RPLICE is not a proposal — it is a live system that has already conducted CFIR 2.0 assessments (scoring 3.96/5.0), RE-AIM evaluations (79.6/100), Three Realities diagnostics (3.17/5.0), and implementation fidelity checklists (68/100) against real grant proposals. Results are persisted in our database and directly inform program improvements through the MAP-GAP cycle.`,
+        reviewNotes: "Strong. Dr. Flood: add board member list and any prior research publications or presentations.", lastUpdated: "March 30, 2026", assignee: "Dr. Flood", pageLimit: "3 pages", wordCount: "800-1,200 words" },
+    ],
+    phases: [
+      {
+        id: "collaborate" as PhaseId, name: "1. Collaborate & Research", description: "Align research design with BB Collective priorities", status: "active" as const,
+        tasks: [
+          { id: "bbc1", task: "Finalize research question and RPLICE + CARE Model scope", owner: "Dr. Flood + AI", status: "in-progress" as const, dueDate: "2026-04-05" },
+          { id: "bbc2", task: "Confirm MEASURE partnership and Meme's endorsement", owner: "Dr. Flood", status: "pending" as const, dueDate: "2026-04-07" },
+          { id: "bbc3", task: "Run RPLICE assessment against draft narrative", owner: "RPLICE System", status: "pending" as const, dueDate: "2026-04-08" },
+        ],
+      },
+      {
+        id: "build" as PhaseId, name: "2. Build & Draft", description: "Write research narrative, budget, and capacity statement", status: "active" as const,
+        tasks: [
+          { id: "bbb1", task: "Draft research narrative with AI/RAG methodology", owner: "AI + Dr. Flood Review", status: "done" as const, dueDate: "2026-03-30" },
+          { id: "bbb2", task: "Draft budget with $50K allocation", owner: "Dr. Flood", status: "done" as const, dueDate: "2026-03-30" },
+          { id: "bbb3", task: "Draft organizational capacity statement", owner: "AI + Dr. Flood", status: "done" as const, dueDate: "2026-03-30" },
+        ],
+      },
+      {
+        id: "review" as PhaseId, name: "3. Review & Approve", description: "RPLICE quality gate + Dr. Flood final review", status: "upcoming" as const,
+        tasks: [
+          { id: "bbr0", task: "RPLICE quality review — CFIR 2.0 + RE-AIM + fidelity assessment", owner: "RPLICE System", status: "pending" as const, dueDate: "2026-04-09" },
+          { id: "bbr1", task: "Address RPLICE findings", owner: "Dr. Flood", status: "pending" as const, dueDate: "2026-04-10" },
+          { id: "bbr2", task: "RPLICE re-assessment — target fidelity ≥ 85/100", owner: "RPLICE System", status: "pending" as const, dueDate: "2026-04-11" },
+          { id: "bbr3", task: "Dr. Flood final approval", owner: "Dr. Flood", status: "pending" as const, dueDate: "2026-04-12" },
+        ],
+      },
+      {
+        id: "submit" as PhaseId, name: "4. Package & Submit", description: "Submit by April 13 deadline", status: "upcoming" as const,
+        tasks: [
+          { id: "bbs1", task: "Assemble final package", owner: "Dr. Flood + AI", status: "pending" as const, dueDate: "2026-04-12" },
+          { id: "bbs2", task: "Submit through BB Collective portal", owner: "Dr. Flood", status: "pending" as const, dueDate: "2026-04-13" },
+        ],
+      },
+      {
+        id: "pre-execute" as PhaseId, name: "5. Pre-Execution Readiness", description: "Prepare research launch if awarded", status: "upcoming" as const,
+        tasks: [
+          { id: "bbp1", task: "Configure RPLICE for research-specific data collection", owner: "AI", status: "pending" as const, dueDate: "TBD" },
+          { id: "bbp2", task: "Establish Ignite → RPLICE data pipeline", owner: "AI + Dr. Flood", status: "pending" as const, dueDate: "TBD" },
+        ],
+      },
+    ],
+    preExecutionChecklist: [
+      { id: "bbpe-1", category: "Eligibility", item: "501(c)(3) determination letter", status: "verified" as const, notes: "TCAF EIN 41-3618003" },
+      { id: "bbpe-2", category: "Eligibility", item: "Black-led organization verification", status: "verified" as const, notes: "Dr. Terry Flood, DHA — Founder & CEO" },
+      { id: "bbpe-3", category: "Technology", item: "RPLICE operational and accessible", status: "verified" as const, notes: "bettersciencelab.com — live" },
+      { id: "bbpe-4", category: "Partnerships", item: "MEASURE partnership confirmed", status: "action-needed" as const, notes: "Dr. Flood must confirm with Meme Styles" },
+    ],
+    winStrategy: {
+      differentiators: [
+        "Only applicant with a live AI-powered implementation science platform — not a proposal",
+        "4-engine RAG architecture with anti-hallucination guardrails and APA citations",
+        "MEASURE partnership adds CARE Model governance for ethical AI",
+        "Three Realities ensures community voice drives research, not institutional assumption",
+      ],
+      reviewerPriorities: [
+        "Community-driven research methodology",
+        "Black-led organizational leadership",
+        "Practical outputs that benefit community organizations",
+        "Ethical data practices and community data ownership",
+      ],
+      scoringTips: [
+        "Lead with the AI + ethics angle — this is what makes the research novel",
+        "Show RPLICE is operational today — reviewers can visit bettersciencelab.com",
+        "Emphasize the publishable methodology: CARE Model + MAP-GAP + RPLICE",
+      ],
+      commonPitfalls: [
+        "Proposing research without existing infrastructure — we already have 167 tables",
+        "Not addressing AI bias concerns — our anti-hallucination + bias audit protocols are the answer",
+        "Missing the community voice requirement — Three Realities is our proof",
+      ],
+    },
+  },
+  {
+    id: "rare-impact",
+    name: "Rare Impact Fund",
+    fullName: "Rare Impact Fund — Strengthening the Nonclinical Youth Mental Health Workforce",
+    funder: "Rare Impact Fund (Selena Gomez, $100M Initiative)",
+    amount: "$250,000 - $500,000",
+    deadline: "April 10, 2026",
+    deadlineUrgency: "urgent" as const,
+    icon: Heart,
+    color: "text-pink-600",
+    bgColor: "bg-pink-50 dark:bg-pink-950/30",
+    borderColor: "border-pink-200 dark:border-pink-800",
+    description: "The Rare Impact Fund is mobilizing $100M to transform youth mental health. This RFP invests $2.5M+ in nonprofit partners building sustainable career pathways for nonclinical providers — peer mentors, community health workers, navigators, and educators.",
+    referenceUrl: "https://www.rareimpactfund.org",
+    referenceLabel: "Rare Impact Fund — $100M Initiative",
+    grantKnowledge: `Rare Impact Fund — Strengthening the Nonclinical Youth Mental Health Workforce — $250,000-$500,000.
+PURPOSE: Invest in nonprofit partners building career pathways for nonclinical youth mental health providers — peer mentors, community health workers, navigators, and educators. 2-year grants.
+PRIORITIES: (1) Expand culturally responsive nonclinical support, (2) Strengthen workforce pipeline for undervalued mental health roles, (3) Elevate youth voices and equity strategies, (4) Build legitimacy for nonclinical roles in mental health ecosystem.
+SUBMITTING ENTITY: The Collaborative Advocate Foundation — EIN 41-3618003, 501(c)(3).
+WHY WE FIT: ThriveUp Academy provides the workforce training infrastructure. RPLICE tracks whether training programs produce competent nonclinical providers. WholeMind Learning addresses K-12 mental health. Sankofa Health provides culturally responsive screening. Three Realities ensures youth voice drives program design.
+LOI DEADLINE: April 10, 2026.`,
+    essentials: [
+      { label: "Nonclinical Workforce Focus", detail: "Must build career pathways for peer mentors, CHWs, navigators, educators — not licensed clinicians. ThriveUp Academy trains exactly these roles.", critical: true },
+      { label: "Youth Mental Health", detail: "Programs must serve youth mental health — WholeMind Learning + Sankofa Health screening tools are direct alignment", critical: true },
+      { label: "LOI Due April 10", detail: "Letter of Intent due April 10, 2026 — URGENT. Must be submitted within 11 days.", critical: true },
+      { label: "$250K-$500K, 2-Year", detail: "Substantial multi-year funding — request $400K+ with full ecosystem justification" },
+      { label: "Culturally Responsive", detail: "Must demonstrate culturally responsive approaches — Three Realities + Sankofa methodology are direct proof" },
+      { label: "Youth Voice Required", detail: "Must elevate youth voices in program design — Three Realities Lived Reality centers this" },
+    ],
+    competitiveEdge: [
+      "ThriveUp Academy already trains nonclinical mental health workforce roles — not building from scratch",
+      "RPLICE tracks whether training produces competent providers using AI-powered fidelity monitoring",
+      "Sankofa Health has PHQ-9/GAD-7 screening built in — culturally responsive mental health tools operational",
+      "WholeMind Learning addresses K-12 mental health — school-based pathway for nonclinical support",
+      "4-engine AI + RAG architecture generates evidence-based curriculum recommendations from 6 scholarly databases",
+      "Three Realities ensures youth voice shapes every program component — not an afterthought",
+    ],
+    serviceArea: {
+      region: "Central Texas",
+      state: "Texas",
+      counties: ["Travis", "Williamson", "Hays"],
+      city: "Austin",
+      keyIndustries: ["Youth Mental Health", "Nonclinical Workforce", "Community Health Workers", "Peer Mentors"],
+      targetEmployers: [
+        { name: "Integral Care (Austin LMHA)", sector: "Behavioral Health", type: "Local mental health authority — employer of CHWs and peer specialists" },
+        { name: "CommUnityCare Health Centers", sector: "Healthcare", type: "FQHC — hires community health workers and navigators" },
+        { name: "AISD / Manor ISD / PfISD", sector: "Education", type: "School districts hiring counselor aides, peer mentors, and navigators" },
+        { name: "Any Baby Can", sector: "Family Services", type: "Hires parent navigators and family support specialists" },
+      ],
+      laborMarketNotes: "Austin faces critical shortage of nonclinical mental health providers. Youth mental health crisis accelerated post-COVID. Texas ranks 51st nationally in mental health workforce per capita. Nonclinical roles (CHWs, peer specialists, navigators) are fastest-growing category but lack structured career pathways.",
+      locationEligibility: "national" as const,
+      locationNotes: "National program — no geographic restrictions. Austin's mental health workforce shortage makes a compelling case.",
+      multiSiteEligible: true,
+    },
+    sections: [
+      { id: "rif-loi", name: "Letter of Intent (LOI)", description: "Organization overview, program concept, target population, alignment with Rare Impact priorities", icon: FileText, status: "draft" as ApprovalStatus,
+        content: `LETTER OF INTENT — RARE IMPACT FUND
+Strengthening the Nonclinical Youth Mental Health Workforce
+
+APPLICANT ORGANIZATION:
+The Collaborative Advocate Foundation
+EIN: 41-3618003 | 501(c)(3) Nonprofit
+17912 Stefano Drive, Pflugerville, TX 78660
+Contact: Dr. Terry Flood, DHA — Founder & CEO
+Email: mr.terryflood@gmail.com | Website: thrivingcommunitiesforall.com
+
+FUNDING REQUEST: $400,000 (2-year grant)
+
+PROGRAM TITLE: "Pathways to Purpose: AI-Powered Career Development for Nonclinical Youth Mental Health Providers in Central Texas"
+
+PROGRAM SUMMARY:
+The Collaborative Advocate Foundation proposes a comprehensive career pathway program for nonclinical youth mental health providers — peer mentors, community health workers, navigators, and school-based support specialists — serving Central Texas communities disproportionately affected by the youth mental health crisis.
+
+THE PROBLEM:
+Texas ranks 51st nationally in mental health workforce per capita. In Central Texas, the shortage is acute for nonclinical roles — the peer mentors, community health workers, and navigators who serve as the first point of contact for youth in crisis. These roles are undervalued, underpaid, and lack structured career pathways. Young people from marginalized communities who WANT to help their peers have no clear path from lived experience to professional credential.
+
+OUR APPROACH:
+Using our 24-platform ACOS ecosystem, we provide:
+1. TRAINING: ThriveUp Academy (thrivingcommunitiesforall.com) delivers workforce training with AI-powered career pathway mapping, competency-based progression, and industry-recognized credential tracks for CHW, peer specialist, and navigator roles.
+2. CLINICAL TOOLS: Sankofa Health (yourhealthbirthright.net) provides culturally responsive PHQ-9/GAD-7 screening tools that nonclinical providers learn to administer — giving them real clinical support technology from Day 1.
+3. SCHOOL INTEGRATION: WholeMind Learning provides K-12 mental health support tools that connect school-based nonclinical staff to the broader care ecosystem.
+4. QUALITY ASSURANCE: RPLICE (bettersciencelab.com) tracks whether our training program produces competent providers using AI-powered implementation fidelity monitoring. Our 4-engine RAG architecture (GPT-5, Claude, 6 scholarly databases, ecosystem context) validates training effectiveness against published evidence — with anti-hallucination guardrails and APA citations on every assessment.
+5. COMMUNITY VOICE: Three Realities methodology ensures youth voice drives every program design decision. We ask young people what they experience (Lived Reality), map what institutions intend to deliver (Institutional Reality), and design interventions that bridge the gap (Gap Reality).
+
+ORGANIZATIONAL QUALIFICATIONS:
+Dr. Terry Flood (DHA, MS Implementation Science, MA Psychology, U.S. Army Veteran — Bronze Star x2) brings implementation science rigor to workforce development. Our platform ecosystem is live and operational — not a proposal. RPLICE has conducted CFIR 2.0 assessments, RE-AIM evaluations, and fidelity checklists against real programs, with results persisted in our 167-table database.
+
+TARGET OUTCOMES (2-year):
+- 150+ individuals trained in nonclinical mental health roles
+- 75% credential attainment rate (CHW, Peer Specialist, Navigator certifications)
+- 80% employment placement within 90 days of program completion
+- All training tracked via RPLICE for implementation fidelity ≥ 85/100
+- Youth advisory board with minimum 12 members ages 16-24 informing program design`,
+        reviewNotes: "URGENT — April 10 deadline. Strong draft. Dr. Flood: review and approve for submission within 10 days.", lastUpdated: "March 30, 2026", assignee: "Dr. Flood + AI", pageLimit: "5 pages", wordCount: "1,500-2,500 words" },
+      { id: "rif-narrative", name: "Full Proposal Narrative", description: "Complete program design — prepared for full proposal invitation", icon: BookOpen, status: "draft" as ApprovalStatus,
+        content: `FULL PROPOSAL NARRATIVE — RARE IMPACT FUND (DRAFT — for full submission if LOI accepted)
+
+APPLICANT: The Collaborative Advocate Foundation | EIN: 41-3618003
+
+PROGRAM: "Pathways to Purpose: AI-Powered Career Development for Nonclinical Youth Mental Health Providers"
+
+I. PROGRAM DESIGN
+
+A. Career Pathway Model
+ThriveUp Academy provides a structured career pathway from lived experience to professional credential for nonclinical youth mental health roles:
+
+Track 1 — Community Health Worker (CHW): 120-hour certification program covering mental health first aid, motivational interviewing, trauma-informed care, and cultural humility. Graduates qualify for Texas DSHS CHW certification.
+
+Track 2 — Peer Support Specialist: 80-hour program for individuals with lived mental health experience. Covers peer support ethics, recovery-oriented care, boundaries, and documentation. Aligned with Texas Certified Peer Specialist requirements.
+
+Track 3 — Youth Navigator: 60-hour program focused on system navigation — connecting youth to mental health services, school-based supports, housing, and social services. Integrates technology tools (LifeBridge, Sankofa Health) for real-time resource mapping.
+
+B. AI-Powered Training Enhancement
+Our 4-engine RAG architecture ensures training content is grounded in the latest evidence:
+- GPT-5 analyzes training module effectiveness against published competency standards
+- Claude Sonnet provides nuanced feedback on trainee case study responses
+- Scholarly RAG queries PubMed, Semantic Scholar, CrossRef, Europe PMC, medRxiv, bioRxiv for current best practices
+- Anti-hallucination guardrails ensure every AI recommendation includes APA citations and confidence scores
+
+C. Implementation Fidelity
+RPLICE (bettersciencelab.com) tracks whether the training program produces competent providers:
+- CFIR 2.0 domain assessments evaluate implementation context
+- RE-AIM framework measures Reach, Effectiveness, Adoption, Implementation, and Maintenance
+- MAP-GAP cycle ensures continuous improvement — not annual reports
+- Fidelity target: ≥ 85/100 across all training tracks
+
+II. TARGET POPULATION
+Youth and young adults ages 18-30 in Central Texas, with priority recruitment from:
+- Communities of color disproportionately affected by the youth mental health crisis
+- Individuals with lived mental health experience seeking peer support careers
+- First-generation college students interested in helping professions
+- Veterans transitioning to civilian behavioral health careers
+
+III. COMMUNITY VOICE
+Three Realities methodology ensures youth voice drives program design:
+- Designed Reality: What the training program intends to deliver
+- Operational Reality: What actually happens in classrooms and field placements
+- Experienced Reality: What trainees and the youth they serve actually experience
+Gap analysis between these three realities produces actionable improvements.
+
+IV. EMPLOYER PARTNERSHIPS
+Integral Care (Travis County LMHA), CommUnityCare Health Centers, AISD/Manor ISD/PfISD, and Any Baby Can have all indicated need for nonclinical mental health workforce. Program includes employer advisory board for curriculum alignment.`,
+        reviewNotes: "Draft after LOI submission — prepare in advance for fast turnaround if invited", lastUpdated: "March 30, 2026", assignee: "Dr. Flood + AI", pageLimit: "15 pages", wordCount: "5,000-6,000 words" },
+      { id: "rif-budget", name: "Budget & Justification", description: "$400K allocation over 2 years — personnel, technology, training, community engagement", icon: DollarSign, status: "draft" as ApprovalStatus,
+        content: `BUDGET — RARE IMPACT FUND ($400,000 over 2 years)
+
+APPLICANT: The Collaborative Advocate Foundation | EIN: 41-3618003
+
+YEAR 1 ($210,000):
+Personnel ($120,000):
+- Program Director (Dr. Flood, 30% effort): $45,000
+- Training Coordinator (full-time): $50,000
+- Community Health Worker Instructor (0.5 FTE): $25,000
+
+Technology & AI ($30,000):
+- RPLICE AI engine operations (RAG queries, fidelity monitoring): $15,000
+- ThriveUp Academy training platform operations: $10,000
+- Sankofa Health screening tool configuration: $5,000
+
+Training Delivery ($35,000):
+- Curriculum materials and certification fees: $15,000
+- Training site costs: $10,000
+- Participant stipends during training: $10,000
+
+Community Engagement ($15,000):
+- Youth advisory board stipends: $6,000
+- Three Realities listening sessions: $5,000
+- Cultural responsiveness materials: $4,000
+
+Indirect ($10,000): 10% de minimis
+
+YEAR 2 ($190,000):
+Personnel ($110,000) | Technology ($25,000) | Training ($30,000) | Community ($15,000) | Indirect ($10,000)
+
+TOTAL: $400,000
+
+NOTE: Platform infrastructure costs are minimal because the 24-platform ecosystem is already built. Grant funds go to people, training, and community engagement — not software development.`,
+        reviewNotes: "Dr. Flood: confirm salary allocations and certification fee estimates.", lastUpdated: "March 30, 2026", assignee: "Dr. Flood", pageLimit: "3 pages", wordCount: "800-1,200 words" },
+      { id: "rif-outcomes", name: "Outcomes Framework", description: "Measurable outcomes tracked via RPLICE", icon: BarChart3, status: "draft" as ApprovalStatus,
+        content: `OUTCOMES FRAMEWORK — RARE IMPACT FUND
+
+APPLICANT: The Collaborative Advocate Foundation | EIN: 41-3618003
+
+All outcomes tracked via RPLICE implementation fidelity monitoring (bettersciencelab.com).
+
+PRIMARY OUTCOMES (2-year targets):
+
+1. WORKFORCE PIPELINE
+- 150+ individuals enrolled in nonclinical mental health career tracks
+- 120+ completions (80% completion rate)
+- 90+ credential attainments: CHW certification, Peer Specialist certification, Navigator credential
+- 80% employed in nonclinical mental health roles within 90 days of completion
+
+2. YOUTH MENTAL HEALTH ACCESS
+- 500+ youth served by program-trained nonclinical providers
+- 85% of served youth report improved access to mental health support
+- 70% of youth report improved mental health literacy (pre/post assessment)
+
+3. CULTURAL RESPONSIVENESS
+- 100% of training modules reviewed for cultural responsiveness via Three Realities methodology
+- Youth advisory board (12+ members ages 16-24) meets quarterly and provides documented feedback
+- Sankofa Health screening tools deployed to all program graduates
+
+4. IMPLEMENTATION FIDELITY (RPLICE-tracked)
+- Training program fidelity score ≥ 85/100 (RPLICE assessment)
+- CFIR 2.0 implementation context score ≥ 3.5/5.0
+- RE-AIM evaluation ≥ 80/100 across all 5 dimensions
+- MAP-GAP cycle completed quarterly with documented improvements
+
+5. SUSTAINABILITY
+- 3+ employer partners providing paid positions for graduates
+- Revenue model established for continuing training operations beyond grant period
+- At least 1 peer-reviewed publication documenting program methodology and outcomes
+
+EVALUATION METHOD:
+All outcomes assessed through RPLICE's 4-engine AI + RAG architecture. Scholarly RAG validates assessment instruments against published psychometric standards. Anti-hallucination guardrails ensure outcome reports are grounded in actual data, not AI fabrication. All outcome data stored in RPLICE's 167-table database for transparency and auditability.`,
+        reviewNotes: "Dr. Flood: review outcome targets for achievability. Adjust numbers based on realistic enrollment projections.", lastUpdated: "March 30, 2026", assignee: "Dr. Flood + AI", pageLimit: "3 pages", wordCount: "1,000-1,500 words" },
+    ],
+    phases: [
+      {
+        id: "collaborate" as PhaseId, name: "1. Collaborate & Research", description: "Align with Rare Impact priorities, gather youth mental health data", status: "active" as const,
+        tasks: [
+          { id: "rifc1", task: "Review Rare Impact Fund RFP requirements in detail", owner: "Dr. Flood + AI", status: "done" as const, dueDate: "2026-03-28" },
+          { id: "rifc2", task: "Map ecosystem platforms to nonclinical workforce needs", owner: "AI", status: "done" as const, dueDate: "2026-03-29" },
+          { id: "rifc3", task: "Research Austin nonclinical mental health workforce data", owner: "AI", status: "in-progress" as const, dueDate: "2026-04-02" },
+        ],
+      },
+      {
+        id: "build" as PhaseId, name: "2. Build & Draft", description: "Draft LOI and supporting materials", status: "active" as const,
+        tasks: [
+          { id: "rifb1", task: "Draft Letter of Intent", owner: "AI + Dr. Flood Review", status: "done" as const, dueDate: "2026-03-30" },
+          { id: "rifb2", task: "Draft budget ($400K, 2-year)", owner: "Dr. Flood", status: "done" as const, dueDate: "2026-03-30" },
+        ],
+      },
+      {
+        id: "review" as PhaseId, name: "3. Review & Approve", description: "RPLICE quality gate + Dr. Flood review", status: "upcoming" as const,
+        tasks: [
+          { id: "rifr0", task: "RPLICE quality review — CFIR 2.0 + RE-AIM assessment", owner: "RPLICE System", status: "pending" as const, dueDate: "2026-04-05" },
+          { id: "rifr1", task: "Address RPLICE findings", owner: "Dr. Flood", status: "pending" as const, dueDate: "2026-04-07" },
+          { id: "rifr2", task: "RPLICE re-assessment — target ≥ 85/100", owner: "RPLICE System", status: "pending" as const, dueDate: "2026-04-08" },
+          { id: "rifr3", task: "Dr. Flood final approval", owner: "Dr. Flood", status: "pending" as const, dueDate: "2026-04-09" },
+        ],
+      },
+      {
+        id: "submit" as PhaseId, name: "4. Package & Submit", description: "Submit LOI by April 10", status: "upcoming" as const,
+        tasks: [
+          { id: "rifs1", task: "Submit LOI through Rare Impact Fund portal", owner: "Dr. Flood", status: "pending" as const, dueDate: "2026-04-10" },
+        ],
+      },
+      {
+        id: "pre-execute" as PhaseId, name: "5. Pre-Execution Readiness", description: "Prepare full proposal if LOI accepted", status: "upcoming" as const,
+        tasks: [
+          { id: "rifp1", task: "Draft full proposal narrative (15 pages)", owner: "AI + Dr. Flood", status: "pending" as const, dueDate: "TBD" },
+          { id: "rifp2", task: "Configure ThriveUp Academy CHW/peer specialist training tracks", owner: "AI", status: "pending" as const, dueDate: "TBD" },
+        ],
+      },
+    ],
+    preExecutionChecklist: [
+      { id: "rifpe-1", category: "Eligibility", item: "501(c)(3) determination letter", status: "verified" as const, notes: "TCAF EIN 41-3618003" },
+      { id: "rifpe-2", category: "Alignment", item: "Nonclinical workforce pathway documented", status: "verified" as const, notes: "ThriveUp Academy career pathways" },
+      { id: "rifpe-3", category: "Technology", item: "Training platform operational", status: "verified" as const, notes: "thrivingcommunitiesforall.com — live" },
+      { id: "rifpe-4", category: "Technology", item: "Mental health screening tools operational", status: "verified" as const, notes: "Sankofa Health — yourhealthbirthright.net" },
+      { id: "rifpe-5", category: "Community", item: "Youth advisory board established", status: "action-needed" as const, notes: "Dr. Flood: recruit 12+ youth ages 16-24" },
+    ],
+    winStrategy: {
+      differentiators: [
+        "24-platform ecosystem already serves nonclinical mental health workforce — not proposing, operating",
+        "RPLICE AI tracks whether training produces competent providers — implementation fidelity, not just completion rates",
+        "Sankofa Health screening tools give trainees real clinical technology from Day 1",
+        "Three Realities ensures youth voice drives every design decision",
+      ],
+      reviewerPriorities: [
+        "Programs that build sustainable career pathways, not one-off trainings",
+        "Culturally responsive approaches centered on communities of color",
+        "Youth voice elevated in program design",
+        "Evidence-based with measurable outcomes",
+        "Scalable beyond initial funding",
+      ],
+      scoringTips: [
+        "Show the training-to-credential-to-employment pipeline end to end",
+        "Emphasize AI-powered fidelity tracking — most applicants can't prove their training works",
+        "Include youth voice examples from Three Realities methodology",
+      ],
+      commonPitfalls: [
+        "Proposing clinical training — this fund is specifically for NONCLINICAL roles",
+        "Not addressing cultural responsiveness concretely — Sankofa is our proof",
+        "Missing the youth voice requirement — Three Realities is the answer",
+      ],
+    },
+  },
+  {
+    id: "centene-behavioral",
+    name: "Centene Foundation",
+    fullName: "Centene Foundation — Behavioral Health Community Innovation Grants",
+    funder: "Centene Foundation",
+    amount: "Up to $500,000",
+    deadline: "May 31, 2026",
+    deadlineUrgency: "on-track" as const,
+    icon: Activity,
+    color: "text-emerald-600",
+    bgColor: "bg-emerald-50 dark:bg-emerald-950/30",
+    borderColor: "border-emerald-200 dark:border-emerald-800",
+    description: "Centene Foundation funds behavioral health innovation in underserved communities — integrated care models, community health worker programs, culturally responsive mental health services, and technology-enabled behavioral health access.",
+    referenceUrl: "https://www.centene.com/who-we-are/centene-foundation.html",
+    referenceLabel: "Centene Foundation Grants",
+    grantKnowledge: `Centene Foundation — Behavioral Health Community Innovation Grants — Up to $500,000.
+PURPOSE: Fund innovative behavioral health programs in underserved communities. Focuses on integrated care models, community health workers, technology-enabled access, and culturally responsive approaches.
+ALIGNMENT: TCAF's Whole-Person Health platform (mentalwellnesssupport.net) provides behavioral health screening and support. Sankofa Health (yourhealthbirthright.net) delivers culturally responsive health tools. RPLICE validates whether behavioral health interventions are delivered with fidelity.
+SUBMITTING ENTITY: The Collaborative Advocate Foundation — EIN 41-3618003, 501(c)(3).
+DEADLINE: May 31, 2026.`,
+    essentials: [
+      { label: "Behavioral Health Focus", detail: "Must address behavioral health access, integration, or innovation — Whole-Person Health + Sankofa Health are direct alignment", critical: true },
+      { label: "Underserved Communities", detail: "Must serve communities with behavioral health disparities — Austin's Black and Hispanic communities face 2-3x disparities in access", critical: true },
+      { label: "May 31 Deadline", detail: "Two months to prepare — use time to strengthen community partnerships and pilot data" },
+      { label: "Up to $500K", detail: "Substantial funding — request $350K-$500K with full ecosystem justification" },
+      { label: "Innovation Required", detail: "Centene wants innovation — AI-powered behavioral health screening + implementation fidelity tracking is novel" },
+    ],
+    competitiveEdge: [
+      "Whole-Person Health platform provides integrated behavioral health screening and support — live at mentalwellnesssupport.net",
+      "Sankofa Health delivers culturally responsive health tools for Black and Brown communities",
+      "RPLICE tracks behavioral health intervention fidelity using AI + RAG architecture",
+      "4-engine AI generates treatment recommendations grounded in 6 scholarly databases — with citations",
+      "PillScheduler supports medication adherence — critical for behavioral health outcomes",
+      "SafeCogniCare addresses cognitive health needs often co-occurring with behavioral health conditions",
+    ],
+    serviceArea: {
+      region: "Central Texas",
+      state: "Texas",
+      counties: ["Travis", "Williamson", "Hays"],
+      city: "Austin",
+      keyIndustries: ["Behavioral Health", "Integrated Care", "Community Health Workers"],
+      targetEmployers: [
+        { name: "Integral Care", sector: "Behavioral Health", type: "Local mental health authority — primary behavioral health provider for Travis County" },
+        { name: "CommUnityCare", sector: "Healthcare", type: "FQHC with integrated behavioral health services" },
+        { name: "Sendero Health Plans", sector: "Insurance", type: "Centene subsidiary — Medicaid managed care in Travis County" },
+      ],
+      laborMarketNotes: "Centene operates Sendero Health Plans in Travis County. Direct relationship to their Medicaid population. Behavioral health access gaps are severe in Central Texas — 60% of adults with mental illness receive no treatment.",
+      locationEligibility: "national" as const,
+      locationNotes: "National program, but Centene operates Sendero Health Plans in Travis County — local alignment is a competitive advantage.",
+      multiSiteEligible: false,
+    },
+    sections: [
+      { id: "cen-narrative", name: "Program Narrative", description: "Integrated behavioral health model, technology platform, culturally responsive approach", icon: FileText, status: "draft" as ApprovalStatus,
+        content: `PROGRAM NARRATIVE — CENTENE FOUNDATION BEHAVIORAL HEALTH GRANT
+
+APPLICANT ORGANIZATION:
+The Collaborative Advocate Foundation
+EIN: 41-3618003 | 501(c)(3) Nonprofit
+17912 Stefano Drive, Pflugerville, TX 78660
+Contact: Dr. Terry Flood, DHA — Founder & CEO
+Email: mr.terryflood@gmail.com | Website: thrivingcommunitiesforall.com
+
+PROGRAM TITLE: "Integrated Behavioral Health Access Through AI-Powered Community Technology in Central Texas"
+
+THE PROBLEM:
+In Travis County, 60% of adults with mental illness receive no treatment. For Black and Hispanic communities, the gap is worse — cultural stigma, provider shortages, language barriers, and systemic distrust compound the access crisis. Centene's own Sendero Health Plans serves this population — improving behavioral health access directly benefits Centene's mission and member outcomes.
+
+OUR APPROACH:
+We deploy an AI-powered behavioral health ecosystem that reaches community members where they are:
+
+1. SCREENING & ASSESSMENT: Whole-Person Health (mentalwellnesssupport.net) provides PHQ-9 (depression), GAD-7 (anxiety), and Columbia Suicide Severity screening accessible via mobile device — no clinic visit required. Sankofa Health (yourhealthbirthright.net) provides culturally responsive versions designed for Black and Brown communities.
+
+2. AI-POWERED RECOMMENDATIONS: When a screening indicates need, our 4-engine RAG architecture (GPT-5, Claude, 6 scholarly databases, ecosystem context) generates evidence-based next steps — not generic advice, but recommendations grounded in published literature with APA citations and anti-hallucination guardrails.
+
+3. CARE COORDINATION: LifeBridge (lifetransitionsaid.org) connects individuals to wraparound services — housing, food, transportation — because behavioral health cannot improve when basic needs are unmet.
+
+4. MEDICATION SUPPORT: PillScheduler (pillscheduler.net) provides medication adherence tools for psychiatric medications — reminders, interaction warnings, refill tracking.
+
+5. IMPLEMENTATION FIDELITY: RPLICE (bettersciencelab.com) tracks whether behavioral health interventions are delivered as designed using CFIR 2.0 and RE-AIM frameworks. The MAP-GAP cycle ensures continuous improvement — not annual reports.
+
+6. COMMUNITY VOICE: Three Realities methodology ensures the Lived Reality of community members drives service design. We don't assume what communities need — we ask, listen, map the gaps, and build solutions that bridge them.
+
+ORGANIZATIONAL QUALIFICATIONS:
+Dr. Terry Flood (DHA, MS Implementation Science, MA Psychology, U.S. Army Veteran — Bronze Star x2) leads with implementation science expertise. The 24-platform ACOS ecosystem is live and operational. RPLICE has conducted real assessments with results persisted in our 167-table database.
+
+AFFILIATED ENTITIES:
+- Collaboration & Implementation Professionals LLC (EIN 41-4996540) — VOSB, government contracting
+- M&T Consulting Solutions LLC (EIN 41-4952178) — consulting services`,
+        reviewNotes: "Good first draft. Dr. Flood: add Sendero Health Plans connection explicitly and any prior behavioral health program data.", lastUpdated: "March 30, 2026", assignee: "Dr. Flood + AI", pageLimit: "15 pages", wordCount: "4,000-6,000 words" },
+      { id: "cen-budget", name: "Budget & Justification", description: "$350K-$500K — behavioral health personnel, technology, community engagement", icon: DollarSign, status: "draft" as ApprovalStatus,
+        content: `BUDGET — CENTENE FOUNDATION BEHAVIORAL HEALTH GRANT ($400,000)
+
+APPLICANT: The Collaborative Advocate Foundation | EIN: 41-3618003
+
+PERSONNEL ($200,000 — 50%):
+- Program Director (Dr. Terry Flood, DHA — 40% effort): $60,000
+- Behavioral Health Coordinator (full-time): $55,000
+- Community Health Workers (2 at 0.75 FTE): $70,000
+- Data & Technology Coordinator (0.5 FTE): $15,000
+
+TECHNOLOGY & AI OPERATIONS ($60,000 — 15%):
+- RPLICE AI engine operations (4-engine RAG pipeline for behavioral health assessments): $25,000
+- Whole-Person Health platform operations (PHQ-9/GAD-7 screening infrastructure): $15,000
+- Sankofa Health culturally responsive tool maintenance: $10,000
+- PillScheduler medication adherence integration: $5,000
+- Data security & HIPAA compliance infrastructure: $5,000
+
+COMMUNITY ENGAGEMENT ($60,000 — 15%):
+- Three Realities listening sessions (quarterly): $15,000
+- Community participant stipends: $15,000
+- Behavioral health awareness events: $15,000
+- Transportation assistance for participants: $15,000
+
+TRAINING & WORKFORCE ($40,000 — 10%):
+- CHW behavioral health certification training: $20,000
+- Continuing education for program staff: $10,000
+- Training materials and curriculum development: $10,000
+
+EVALUATION ($20,000 — 5%):
+- External evaluation consultant (validation of RPLICE-generated fidelity data): $15,000
+- Publication and dissemination: $5,000
+
+INDIRECT COSTS ($20,000 — 5%):
+- 5% de minimis rate
+
+TOTAL: $400,000
+
+NOTE: The 24-platform technology infrastructure is already built and operational. Technology line items cover marginal operating costs (API usage, hosting, maintenance) — not development. This means 80%+ of grant funds go directly to people and community services.`,
+        reviewNotes: "Dr. Flood: confirm salary rates and verify HIPAA compliance cost estimates.", lastUpdated: "March 30, 2026", assignee: "Dr. Flood", pageLimit: "3 pages", wordCount: "800-1,200 words" },
+      { id: "cen-outcomes", name: "Outcomes & Evaluation", description: "Behavioral health screening rates, treatment connection, fidelity scores via RPLICE", icon: BarChart3, status: "draft" as ApprovalStatus,
+        content: `OUTCOMES & EVALUATION — CENTENE FOUNDATION BEHAVIORAL HEALTH GRANT
+
+APPLICANT: The Collaborative Advocate Foundation | EIN: 41-3618003
+
+All outcomes tracked via RPLICE implementation fidelity monitoring (bettersciencelab.com).
+
+PRIMARY OUTCOMES (Year 1):
+
+1. BEHAVIORAL HEALTH SCREENING ACCESS
+- 1,000+ community members complete behavioral health screening via Whole-Person Health or Sankofa Health platforms
+- 60% of screenings completed outside traditional clinical settings (mobile, community events, home)
+- PHQ-9, GAD-7, and Columbia Suicide Severity screens available in English and Spanish
+
+2. TREATMENT CONNECTION
+- 70% of individuals screening positive connected to behavioral health services within 14 days
+- Warm handoff protocols established with Integral Care, CommUnityCare, and private providers
+- LifeBridge (lifetransitionsaid.org) provides wraparound services for SDOH barriers to treatment
+
+3. WORKFORCE DEVELOPMENT
+- 20+ community health workers trained in behavioral health screening and navigation
+- All CHWs certified to administer standardized screening instruments
+- CHWs equipped with Sankofa Health mobile screening tools
+
+4. IMPLEMENTATION FIDELITY (RPLICE-tracked)
+- Program fidelity score ≥ 85/100
+- CFIR 2.0 implementation context score ≥ 3.5/5.0
+- RE-AIM evaluation ≥ 80/100
+- MAP-GAP cycle completed quarterly
+
+5. AI QUALITY ASSURANCE
+- 100% of AI-generated behavioral health recommendations include APA citations
+- Anti-hallucination audit completed monthly — zero uncited recommendations in clinical pathways
+- Bias audit protocol documented and published
+
+EVALUATION DESIGN:
+Mixed-methods: quantitative outcome tracking via RPLICE + qualitative community voice via Three Realities methodology. External evaluator validates RPLICE-generated data annually. Results published for field contribution.`,
+        reviewNotes: "Dr. Flood: review screening volume targets. Are 1,000+ screenings realistic in Year 1?", lastUpdated: "March 30, 2026", assignee: "Dr. Flood + AI", pageLimit: "5 pages", wordCount: "1,500-2,000 words" },
+      { id: "cen-org-capacity", name: "Organizational Capacity", description: "Leadership, technology infrastructure, behavioral health experience", icon: Building2, status: "draft" as ApprovalStatus,
+        content: `ORGANIZATIONAL CAPACITY — CENTENE FOUNDATION BEHAVIORAL HEALTH GRANT
+
+ORGANIZATION: The Collaborative Advocate Foundation
+EIN: 41-3618003 | 501(c)(3) Nonprofit
+Address: 17912 Stefano Drive, Pflugerville, TX 78660
+Website: thrivingcommunitiesforall.com
+
+LEADERSHIP:
+Dr. Terry Flood, DHA — Founder & CEO
+Credentials: Doctorate in Health Administration, MS Implementation Science, MA Psychology, MSHRM, MBA, MSCJ, Public Policy
+Military Service: U.S. Army Veteran — Bronze Star (x2)
+Relevance: Implementation science expertise ensures behavioral health programs are delivered with fidelity. Health administration doctorate provides healthcare systems knowledge. Psychology background informs clinical understanding of behavioral health needs.
+
+TECHNOLOGY INFRASTRUCTURE:
+The 24-platform ACOS ecosystem includes multiple behavioral health-specific tools:
+- Whole-Person Health (mentalwellnesssupport.net): PHQ-9, GAD-7, Columbia Suicide Severity screening — live
+- Sankofa Health (yourhealthbirthright.net): Culturally responsive health tools for Black and Brown communities — live
+- PillScheduler (pillscheduler.net): Medication adherence for psychiatric medications — live
+- SafeCogniCare (safecognicare.com): Cognitive health assessment — live
+- Black Men's Health Hub (blackmenshealthhub.com): Health equity focus — live
+- RPLICE (bettersciencelab.com): AI-powered implementation fidelity tracking — live
+
+AI INFRASTRUCTURE:
+4-Engine RAG Architecture: GPT-5 (structured analysis), Claude Sonnet (nuanced reasoning), Scholarly Research RAG (PubMed, Semantic Scholar, CrossRef, Europe PMC, medRxiv, bioRxiv), Ecosystem RAG (platform-specific context). Anti-hallucination guardrails + APA citations on every output. 167 database tables. Bias-auditable output chains.
+
+AFFILIATED ENTITIES:
+- Collaboration & Implementation Professionals LLC (EIN 41-4996540) — VOSB, government contracting
+- M&T Consulting Solutions LLC (EIN 41-4952178) — consulting services
+
+SENDERO HEALTH PLANS CONNECTION:
+Centene operates Sendero Health Plans in Travis County. Our behavioral health services directly serve the Sendero Medicaid population, creating alignment between TCAF's mission and Centene's member health outcomes.`,
+        reviewNotes: "Dr. Flood: add board member list and any behavioral health-specific prior results.", lastUpdated: "March 30, 2026", assignee: "Dr. Flood", pageLimit: "5 pages", wordCount: "1,500-2,000 words" },
+      { id: "cen-partnerships", name: "Partnership Documentation", description: "Integral Care, CommUnityCare, and community organization partnerships", icon: Handshake, status: "draft" as ApprovalStatus,
+        content: `PARTNERSHIP DOCUMENTATION — CENTENE FOUNDATION BEHAVIORAL HEALTH GRANT
+
+APPLICANT: The Collaborative Advocate Foundation | EIN: 41-3618003
+
+PARTNERSHIP 1: INTEGRAL CARE (Travis County LMHA)
+Role: Primary behavioral health referral partner. Integral Care is the Local Mental Health Authority for Travis County, providing crisis services, psychiatric care, and community-based behavioral health programs.
+Alignment: When our screening tools identify individuals needing clinical-level care, Integral Care provides the clinical pathway. Our nonclinical CHWs complement their clinical staff by handling navigation, follow-up, and SDOH support.
+Status: Partnership letter requested — Dr. Flood to follow up.
+
+PARTNERSHIP 2: COMMUNITYCARE HEALTH CENTERS
+Role: Integrated care partner. CommUnityCare is the largest FQHC in Austin, providing primary care with integrated behavioral health services.
+Alignment: Our mobile screening tools extend CommUnityCare's reach into communities that don't visit clinics. Positive screens are warm-transferred to CommUnityCare for follow-up care.
+Status: Partnership letter requested.
+
+PARTNERSHIP 3: SENDERO HEALTH PLANS (Centene subsidiary)
+Role: Managed care alignment. Sendero is Centene's Medicaid managed care organization in Travis County.
+Alignment: Our behavioral health services improve outcomes for Sendero members — reducing ED utilization and improving treatment engagement. This creates direct value for Centene's mission and bottom line.
+Status: To be established — strategic connection for proposal strength.
+
+PARTNERSHIP 4: AISD / MANOR ISD / PFISD
+Role: School-based behavioral health integration. WholeMind Learning provides K-12 mental health tools.
+Alignment: School counselors and behavioral health staff use our tools to identify at-risk youth and connect them to community services.
+Status: Partnership letters to be requested.`,
+        reviewNotes: "Dr. Flood: secure partnership letters from Integral Care and CommUnityCare before May 31 deadline.", lastUpdated: "March 30, 2026", assignee: "Dr. Flood", pageLimit: "No limit", wordCount: "300-500 words each" },
+    ],
+    phases: [
+      {
+        id: "collaborate" as PhaseId, name: "1. Collaborate & Research", description: "Understand Centene priorities, build behavioral health partnerships", status: "upcoming" as const,
+        tasks: [
+          { id: "cenc1", task: "Review Centene Foundation grant guidelines", owner: "Dr. Flood + AI", status: "pending" as const, dueDate: "2026-04-15" },
+          { id: "cenc2", task: "Research Sendero Health Plans member behavioral health data", owner: "AI", status: "pending" as const, dueDate: "2026-04-20" },
+          { id: "cenc3", task: "Contact Integral Care for partnership letter", owner: "Dr. Flood", status: "pending" as const, dueDate: "2026-04-25" },
+          { id: "cenc4", task: "Map ecosystem platforms to behavioral health intervention model", owner: "AI + Dr. Flood", status: "pending" as const, dueDate: "2026-04-30" },
+        ],
+      },
+      {
+        id: "build" as PhaseId, name: "2. Build & Draft", description: "Write narrative, budget, outcomes, and partnership docs", status: "upcoming" as const,
+        tasks: [
+          { id: "cenb1", task: "Draft Program Narrative with AI/RAG methodology", owner: "AI + Dr. Flood", status: "done" as const, dueDate: "2026-03-30" },
+          { id: "cenb2", task: "Draft budget ($350K-$500K)", owner: "Dr. Flood", status: "pending" as const, dueDate: "2026-05-05" },
+          { id: "cenb3", task: "Design outcomes framework with RPLICE tracking", owner: "AI + Dr. Flood", status: "pending" as const, dueDate: "2026-05-10" },
+        ],
+      },
+      {
+        id: "review" as PhaseId, name: "3. Review & Approve", description: "RPLICE quality gate + Dr. Flood review", status: "upcoming" as const,
+        tasks: [
+          { id: "cenr0", task: "RPLICE quality review — CFIR 2.0 + RE-AIM + fidelity assessment", owner: "RPLICE System", status: "pending" as const, dueDate: "2026-05-18" },
+          { id: "cenr1", task: "Address RPLICE findings", owner: "Dr. Flood", status: "pending" as const, dueDate: "2026-05-22" },
+          { id: "cenr2", task: "RPLICE re-assessment — target ≥ 85/100", owner: "RPLICE System", status: "pending" as const, dueDate: "2026-05-25" },
+          { id: "cenr3", task: "Dr. Flood final approval", owner: "Dr. Flood", status: "pending" as const, dueDate: "2026-05-28" },
+        ],
+      },
+      {
+        id: "submit" as PhaseId, name: "4. Package & Submit", description: "Submit by May 31", status: "upcoming" as const,
+        tasks: [
+          { id: "cens1", task: "Assemble and submit through Centene portal", owner: "Dr. Flood", status: "pending" as const, dueDate: "2026-05-31" },
+        ],
+      },
+      {
+        id: "pre-execute" as PhaseId, name: "5. Pre-Execution Readiness", description: "Prepare for behavioral health program launch", status: "upcoming" as const,
+        tasks: [
+          { id: "cenp1", task: "Configure Whole-Person Health for Centene-specific screening workflows", owner: "AI", status: "pending" as const, dueDate: "TBD" },
+          { id: "cenp2", task: "Establish referral protocols with Integral Care", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD" },
+        ],
+      },
+    ],
+    preExecutionChecklist: [
+      { id: "cenpe-1", category: "Eligibility", item: "501(c)(3) determination letter", status: "verified" as const, notes: "TCAF EIN 41-3618003" },
+      { id: "cenpe-2", category: "Technology", item: "Behavioral health screening operational", status: "verified" as const, notes: "Whole-Person Health + Sankofa Health — both live" },
+      { id: "cenpe-3", category: "Partnerships", item: "Integral Care partnership", status: "action-needed" as const, notes: "Dr. Flood must initiate contact" },
+      { id: "cenpe-4", category: "Partnerships", item: "Sendero Health Plans alignment documented", status: "pending" as const, notes: "Centene subsidiary in Travis County" },
+    ],
+    winStrategy: {
+      differentiators: [
+        "Centene operates Sendero in Travis County — we serve their exact population",
+        "AI-powered behavioral health screening reaches people who never enter a clinic",
+        "RPLICE fidelity tracking proves interventions work as designed — not just activity counts",
+        "Full ecosystem addresses SDOH factors (housing, food, employment) that drive behavioral health crises",
+      ],
+      reviewerPriorities: [
+        "Innovation in behavioral health access for underserved populations",
+        "Technology-enabled solutions that scale beyond traditional clinic models",
+        "Culturally responsive approaches for communities of color",
+        "Measurable outcomes with evidence-based methodology",
+      ],
+      scoringTips: [
+        "Lead with the Sendero Health Plans connection — Centene funds what benefits their members",
+        "Show the AI generating real behavioral health recommendations with citations",
+        "Emphasize wraparound services through ecosystem — behavioral health doesn't improve in isolation",
+      ],
+      commonPitfalls: [
+        "Proposing only clinical services — Centene wants community-based innovation",
+        "Not connecting to Centene's Medicaid population in Travis County",
+        "Generic mental health programs without cultural responsiveness evidence",
+      ],
+    },
+  },
+  {
+    id: "austin-fc-dream",
+    name: "Austin FC Dream Starter",
+    fullName: "Austin FC Dream Starter Competition — $100,000 Entrepreneurship Award",
+    funder: "Austin FC & Q2",
+    amount: "$100,000",
+    deadline: "April 13, 2026",
+    deadlineUrgency: "urgent" as const,
+    icon: Star,
+    color: "text-green-600",
+    bgColor: "bg-green-50 dark:bg-green-950/30",
+    borderColor: "border-green-200 dark:border-green-800",
+    description: "6th annual competition awarding $100K to Central Texas entrepreneurs from underrepresented groups. Combines Q2's mission with Austin FC's inclusivity-through-equity community pillar.",
+    referenceUrl: "https://austinfc.typeform.com/to/bYJOT3j9",
+    referenceLabel: "Austin FC Dream Starter Application",
+    grantKnowledge: `Austin FC Dream Starter Competition — $100,000.
+PURPOSE: 6th annual business competition inviting Austin entrepreneurs from underrepresented groups to compete for $100K in Dream Starter funds. Presented by Q2. Winner announced May 28, 2026.
+ALIGNMENT: TCAF is veteran-founded, Black-led, Austin-based — precisely the underrepresented entrepreneur profile. MCE (Minority Center of Excellence) demonstrates business infrastructure. The 24-platform ACOS ecosystem shows scalable technology business.
+SUBMITTING ENTITY: The Collaborative Advocate Foundation — EIN 41-3618003, or Collaboration & Implementation Professionals LLC (EIN 41-4996540).
+APPLICATION: Via Typeform at austinfc.typeform.com/to/bYJOT3j9.
+DEADLINE: April 13, 2026 at 11:59 PM.`,
+    essentials: [
+      { label: "Underrepresented Entrepreneur", detail: "TCAF is veteran-founded, Black-led — Dr. Flood is exactly the profile this competition targets", critical: true },
+      { label: "Central Texas Based", detail: "Must be Austin-area entrepreneur — TCAF is headquartered in Pflugerville", critical: true },
+      { label: "April 13 Deadline", detail: "Application due April 13, 2026 at 11:59 PM via Typeform", critical: true },
+      { label: "$100K Award", detail: "Cash award to accelerate entrepreneurial venture — no equity taken" },
+      { label: "Winner May 28", detail: "Winner announced May 28, 2026" },
+    ],
+    competitiveEdge: [
+      "24-platform live technology ecosystem — this is not a concept, it's operational",
+      "Veteran-founded, Black-led — authentic underrepresented entrepreneur, not performative",
+      "MCE (Minority Center of Excellence) already supports minority business ecosystem",
+      "Revenue model through government contracts (Central Health CMS) + grants + consulting",
+      "AI-powered platform serves real communities — healthcare, education, workforce, criminal justice, housing, safety",
+      "Dr. Flood's credentials: DHA, MS Implementation Science, MBA, U.S. Army Veteran — Bronze Star x2",
+    ],
+    serviceArea: {
+      region: "Central Texas",
+      state: "Texas",
+      counties: ["Travis", "Williamson"],
+      city: "Austin",
+      keyIndustries: ["Technology", "Healthcare", "Workforce Development", "Implementation Science"],
+      targetEmployers: [],
+      laborMarketNotes: "Austin FC Dream Starter focuses on underrepresented entrepreneurs building businesses in the Austin area.",
+      locationEligibility: "regional" as const,
+      locationNotes: "Central Texas entrepreneurs only.",
+      multiSiteEligible: false,
+    },
+    sections: [
+      { id: "afc-application", name: "Dream Starter Application", description: "Typeform application — business overview, impact, growth plan", icon: FileText, status: "draft" as ApprovalStatus,
+        content: `AUSTIN FC DREAM STARTER — APPLICATION CONTENT
+
+ENTREPRENEUR: Dr. Terry Flood, DHA
+BUSINESS: The Collaborative Advocate Foundation (501(c)(3), EIN 41-3618003) & Collaboration & Implementation Professionals LLC (VOSB, EIN 41-4996540)
+LOCATION: 17912 Stefano Drive, Pflugerville, TX 78660
+EMAIL: mr.terryflood@gmail.com
+
+BUSINESS DESCRIPTION:
+We build AI-powered technology that bridges the gap between research and practice — so what works in studies actually works in communities. Our 24-platform ACOS (Advanced Community Operating System) ecosystem spans healthcare, education, workforce development, criminal justice, housing, and safety.
+
+At the core is RPLICE — an implementation science engine powered by a 4-engine AI + RAG architecture (GPT-5, Claude Sonnet, 6 scholarly databases, platform-aware context). RPLICE tracks whether community programs are delivered as designed using CFIR 2.0 and RE-AIM frameworks, with anti-hallucination guardrails ensuring every AI recommendation is grounded in peer-reviewed evidence.
+
+We plan. We research. We understand. We coordinate. We implement with fidelity. We continuously improve. From healthcare to defense, criminal justice to education — we put people first.
+
+WHY THIS MATTERS:
+79% of Black-led organizations have no systems for collecting data. Community programs fail not because they're bad — but because nobody tracks whether they're implemented correctly. Our technology changes that. We give organizations the tools to measure what matters and continuously improve.
+
+REVENUE MODEL:
+- Government contracts (Central Health CMS — Solicitation #2603-002, live system)
+- Federal/foundation grants ($3.6M+ pipeline: St. David's, SSG Fox VA, Rare Impact Fund, Centene, BB Collective)
+- Consulting through Collaboration & Implementation Professionals LLC (VOSB)
+- SaaS licensing for RPLICE and ecosystem platforms
+
+WHAT $100K WOULD DO:
+- Hire 2 community engagement coordinators to expand Austin/Pflugerville operations
+- Fund RPLICE AI operations (RAG queries across scholarly databases) for 18 months
+- Accelerate grant submission pipeline — currently pursuing $3.6M+ in active opportunities
+- Establish physical community presence for Three Realities listening sessions
+
+IMPACT:
+- 24 live platforms serving communities across 6 domains
+- 167 database tables of implementation data
+- Active partnerships with community organizations across Central Texas
+- Veteran-founded, Black-led — authentic representation, not performative allyship`,
+        reviewNotes: "Adapt for Typeform format — may need to shorten for character limits. Dr. Flood: confirm which entity to apply under.", lastUpdated: "March 30, 2026", assignee: "Dr. Flood", pageLimit: "Typeform fields", wordCount: "Varies by field" },
+    ],
+    phases: [
+      {
+        id: "collaborate" as PhaseId, name: "1. Collaborate & Research", description: "Understand Dream Starter requirements", status: "active" as const,
+        tasks: [
+          { id: "afcc1", task: "Complete Typeform application questions", owner: "Dr. Flood", status: "in-progress" as const, dueDate: "2026-04-10" },
+        ],
+      },
+      {
+        id: "build" as PhaseId, name: "2. Build & Draft", description: "Draft application responses", status: "active" as const,
+        tasks: [
+          { id: "afcb1", task: "Draft business overview and impact narrative", owner: "AI + Dr. Flood", status: "done" as const, dueDate: "2026-03-30" },
+        ],
+      },
+      {
+        id: "review" as PhaseId, name: "3. Review & Approve", description: "Dr. Flood final review", status: "upcoming" as const,
+        tasks: [
+          { id: "afcr1", task: "Dr. Flood review application answers", owner: "Dr. Flood", status: "pending" as const, dueDate: "2026-04-11" },
+        ],
+      },
+      {
+        id: "submit" as PhaseId, name: "4. Package & Submit", description: "Submit via Typeform by April 13", status: "upcoming" as const,
+        tasks: [
+          { id: "afcs1", task: "Submit Typeform application", owner: "Dr. Flood", status: "pending" as const, dueDate: "2026-04-13" },
+        ],
+      },
+      {
+        id: "pre-execute" as PhaseId, name: "5. Pre-Execution Readiness", description: "Prepare for pitch if selected", status: "upcoming" as const,
+        tasks: [
+          { id: "afcp1", task: "Prepare pitch deck for Dream Starter finals", owner: "Dr. Flood + AI", status: "pending" as const, dueDate: "TBD" },
+        ],
+      },
+    ],
+    preExecutionChecklist: [
+      { id: "afcpe-1", category: "Eligibility", item: "Central Texas based entrepreneur", status: "verified" as const, notes: "Pflugerville, TX" },
+      { id: "afcpe-2", category: "Eligibility", item: "Underrepresented group", status: "verified" as const, notes: "Black-led, veteran-founded" },
+      { id: "afcpe-3", category: "Application", item: "Typeform submitted", status: "pending" as const, notes: "austinfc.typeform.com/to/bYJOT3j9" },
+    ],
+    winStrategy: {
+      differentiators: [
+        "24 live platforms — not a concept, a working business",
+        "Veteran-founded, Black-led — authentic underrepresented entrepreneur",
+        "$3.6M+ grant pipeline shows revenue growth trajectory",
+        "Government contract (Central Health CMS) shows enterprise credibility",
+        "AI-powered platform solving a real problem — 79% of Black-led orgs have no data systems",
+      ],
+      reviewerPriorities: [
+        "Scalable business with clear growth trajectory",
+        "Authentic connection to underrepresented communities",
+        "Clear use of $100K with measurable impact",
+        "Austin-area business serving local community",
+      ],
+      scoringTips: [
+        "Lead with the 24-platform ecosystem — judges can visit the live sites",
+        "Show the $3.6M grant pipeline — this is a real business, not a side project",
+        "Connect to Austin FC's equity pillar — your mission IS equity",
+      ],
+      commonPitfalls: [
+        "Being too technical — lead with community impact, not architecture details",
+        "Not showing revenue/sustainability — grants + contracts + SaaS = viable model",
+      ],
+    },
+  },
 ];
 
 function StatusBadge({ status }: { status: ApprovalStatus }) {
