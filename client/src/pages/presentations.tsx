@@ -13,6 +13,7 @@ import {
   Zap, Home, GraduationCap, Baby, Stethoscope,
   ArrowRight, Clock, BookOpen, Lightbulb, Eye, Handshake,
   Database, AlertTriangle, Map, Search as SearchIcon,
+  Network, MessageSquare, Workflow, Radio,
 } from "lucide-react";
 import { BackToTop } from "@/components/back-to-top";
 import jsPDF from "jspdf";
@@ -792,10 +793,17 @@ export default function PresentationsPage() {
           section="ai-analysis"
           color="bg-cyan-600"
         />
+        <SectionCard
+          title="Ecosystem AI & Agent Network"
+          description="24 autonomous agents with reasoning-required communication, RPLICE activation pipeline, and DeepSeek intelligence"
+          icon={Network}
+          section="ecosystem-ai"
+          color="bg-violet-600"
+        />
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} data-testid="tabs-presentations">
-        <TabsList className="grid w-full grid-cols-2 md:grid-cols-8 gap-1 h-auto p-1">
+        <TabsList className="grid w-full grid-cols-2 md:grid-cols-9 gap-1 h-auto p-1">
           <TabsTrigger value="executive" className="text-xs" data-testid="tab-executive">
             <FileText className="h-3.5 w-3.5 mr-1" /> Executive
           </TabsTrigger>
@@ -819,6 +827,9 @@ export default function PresentationsPage() {
           </TabsTrigger>
           <TabsTrigger value="ai-analysis" className="text-xs" data-testid="tab-ai-analysis">
             <Database className="h-3.5 w-3.5 mr-1" /> AI Analysis
+          </TabsTrigger>
+          <TabsTrigger value="ecosystem-ai" className="text-xs" data-testid="tab-ecosystem-ai">
+            <Network className="h-3.5 w-3.5 mr-1" /> Agent AI
           </TabsTrigger>
         </TabsList>
 
@@ -1663,6 +1674,273 @@ export default function PresentationsPage() {
                     ].map((item, i) => (
                       <li key={i} className="text-xs text-muted-foreground flex items-start gap-2">
                         <ArrowRight className="h-3 w-3 text-emerald-500 mt-0.5 shrink-0" /> {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="ecosystem-ai" className="mt-6 space-y-8" data-testid="content-ecosystem-ai">
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div>
+              <h2 className="text-2xl font-bold mb-1">Autonomous Agent Network & RPLICE Activation</h2>
+              <p className="text-muted-foreground">24 autonomous platforms with reasoning-required AI communication and RPLICE activation pipeline</p>
+            </div>
+            <Button variant="outline" size="sm" onClick={() => generatePDF("ecosystem-ai")} data-testid="button-download-ecosystem-ai-inline">
+              <Download className="h-4 w-4 mr-2" /> Download PDF
+            </Button>
+          </div>
+
+          <Card className="border-violet-200 dark:border-violet-800">
+            <CardHeader className="bg-gradient-to-r from-violet-50 to-indigo-50 dark:from-violet-950/30 dark:to-indigo-950/30">
+              <CardTitle className="flex items-center gap-2">
+                <Network className="h-5 w-5 text-violet-600" />
+                Agent Communication Architecture
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <p className="text-sm text-muted-foreground mb-6">
+                Every platform in the 24-platform ecosystem operates as an autonomous agent with its own capability registry, domain expertise, and communication channels. All exchanges require 50+ character reasoning explaining WHY this platform, WHY now, and expected outcome.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="space-y-3">
+                  <h4 className="text-sm font-semibold flex items-center gap-2">
+                    <MessageSquare className="h-4 w-4 text-violet-500" /> Targeted Exchange
+                  </h4>
+                  <ul className="space-y-2">
+                    {[
+                      "Platform-to-platform with domain validation",
+                      "High/medium/low alignment confidence scoring",
+                      "Reasoning enforced — generic messages rejected",
+                      "Exchange types: data_share, data_request, alert, outcome_report, feedback",
+                    ].map((item, i) => (
+                      <li key={i} className="text-xs text-muted-foreground flex items-start gap-2">
+                        <ArrowRight className="h-3 w-3 text-violet-500 mt-0.5 shrink-0" /> {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="space-y-3">
+                  <h4 className="text-sm font-semibold flex items-center gap-2">
+                    <Radio className="h-4 w-4 text-indigo-500" /> Smart Broadcasting
+                  </h4>
+                  <ul className="space-y-2">
+                    {[
+                      "Domain-filtered delivery — only relevant platforms receive",
+                      "Alert, outcome_report, feedback broadcasts allowed",
+                      "data_share broadcasts blocked — 'target specific platforms'",
+                      "Health-equity broadcast → 10/23 platforms (domain match)",
+                    ].map((item, i) => (
+                      <li key={i} className="text-xs text-muted-foreground flex items-start gap-2">
+                        <ArrowRight className="h-3 w-3 text-indigo-500 mt-0.5 shrink-0" /> {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="space-y-3">
+                  <h4 className="text-sm font-semibold flex items-center gap-2">
+                    <Brain className="h-4 w-4 text-blue-500" /> DeepSeek Reasoning Engine
+                  </h4>
+                  <ul className="space-y-2">
+                    {[
+                      "AI-powered strategic analysis for any platform",
+                      "Context-aware: risk factors, outcomes, interventions",
+                      "Actionable guidance: who to coordinate with, impact forecast",
+                      "Autonomous decision support — act or escalate recommendations",
+                    ].map((item, i) => (
+                      <li key={i} className="text-xs text-muted-foreground flex items-start gap-2">
+                        <ArrowRight className="h-3 w-3 text-blue-500 mt-0.5 shrink-0" /> {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-emerald-200 dark:border-emerald-800">
+            <CardHeader className="bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30">
+              <CardTitle className="flex items-center gap-2">
+                <Workflow className="h-5 w-5 text-emerald-600" />
+                RPLICE Activation Pipeline
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <p className="text-sm text-muted-foreground mb-6">
+                Four AI-powered tools that transform Census data and implementation science research into grant-ready deliverables and ecosystem interventions.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4 p-4 rounded-lg bg-muted/50">
+                  <div className="flex items-center gap-2">
+                    <FileText className="h-5 w-5 text-amber-600" />
+                    <h4 className="font-semibold">Grant Narrative Generator</h4>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    8 funder-specific voice profiles — BB Collective Research, Rare Impact Fund, Austin FC Dream Starter, St. David's, SSG Fox VA, Centene Foundation, Hogg Foundation, and generic. Each generates narratives tuned to funder priorities, evaluation criteria, and language patterns. SSE streaming for real-time generation.
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {["BB Collective $50K", "Rare Impact $500K", "St. David's $1M", "SSG Fox $750K"].map((g, i) => (
+                      <Badge key={i} variant="outline" className="text-[10px]">{g}</Badge>
+                    ))}
+                  </div>
+                </div>
+                <div className="space-y-4 p-4 rounded-lg bg-muted/50">
+                  <div className="flex items-center gap-2">
+                    <Target className="h-5 w-5 text-blue-600" />
+                    <h4 className="font-semibold">Community Action Planner</h4>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    AI-generated 90-day implementation plans with 18 milestones across 3 phases. Each milestone includes responsible platforms, success criteria, and ecosystem dependencies. Plans are tailored to community-specific risk factors identified through Census tract analysis.
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {["90-Day Timeline", "18 Milestones", "3 Phases", "Platform Assignments"].map((g, i) => (
+                      <Badge key={i} variant="outline" className="text-[10px]">{g}</Badge>
+                    ))}
+                  </div>
+                </div>
+                <div className="space-y-4 p-4 rounded-lg bg-muted/50">
+                  <div className="flex items-center gap-2">
+                    <BarChart3 className="h-5 w-5 text-emerald-600" />
+                    <h4 className="font-semibold">Outcome Baseline Dashboard</h4>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Locks Census ACS metrics as baseline measurements — poverty rate, unemployment, median income, educational attainment, health insurance coverage. Sets improvement targets (10% default, configurable). Tracks current gaps with visual progress indicators. Feeds directly into grant reports and funder dashboards.
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {["Census Baselines", "Target Setting", "Gap Tracking", "Grant Reporting"].map((g, i) => (
+                      <Badge key={i} variant="outline" className="text-[10px]">{g}</Badge>
+                    ))}
+                  </div>
+                </div>
+                <div className="space-y-4 p-4 rounded-lg bg-muted/50">
+                  <div className="flex items-center gap-2">
+                    <Layers className="h-5 w-5 text-violet-600" />
+                    <h4 className="font-semibold">Platform-to-Intervention Matcher</h4>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Maps community risk factors to ecosystem platform capabilities. High poverty → workforce development platforms. Low educational attainment → education platforms. Each match includes live platform health status, risk score contribution, and specific intervention actions the platform should take.
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {["Risk Mapping", "Live Status", "Domain Matching", "Action Plans"].map((g, i) => (
+                      <Badge key={i} variant="outline" className="text-[10px]">{g}</Badge>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-amber-200 dark:border-amber-800">
+            <CardHeader className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30">
+              <CardTitle className="flex items-center gap-2">
+                <Activity className="h-5 w-5 text-amber-600" />
+                Ecosystem RPLICE Bridge — Targeted Intelligence Delivery
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <p className="text-sm text-muted-foreground mb-6">
+                Every heartbeat response now includes domain-filtered RPLICE intelligence. Platforms only receive data relevant to their mission — no noise, no irrelevant directives.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                {[
+                  { title: "Intervention Assignments", desc: "Risk factors matched to platform capabilities with action vs. awareness distinction and confidence scoring", icon: Target, color: "text-red-500" },
+                  { title: "Action Plan Milestones", desc: "90-day milestones filtered to owner vs. contributor role — platforms only see what they're responsible for", icon: CheckCircle2, color: "text-emerald-500" },
+                  { title: "Outcome Baselines", desc: "Census metrics filtered to domain-relevant indicators — education platforms see attainment, health platforms see insurance", icon: BarChart3, color: "text-blue-500" },
+                  { title: "Reasoning Justification", desc: "Every intelligence delivery explains WHY this platform received it — transparent, auditable, defensible", icon: Lightbulb, color: "text-amber-500" },
+                ].map((item, i) => (
+                  <div key={i} className="p-4 rounded-lg border bg-card space-y-2">
+                    <item.icon className={`h-5 w-5 ${item.color}`} />
+                    <h4 className="text-sm font-semibold">{item.title}</h4>
+                    <p className="text-xs text-muted-foreground">{item.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Globe className="h-5 w-5 text-violet-600" />
+                Agent Network Endpoints
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {[
+                  { method: "POST", path: "/api/ecosystem/agent/exchange", desc: "Targeted platform-to-platform exchange with reasoning validation" },
+                  { method: "POST", path: "/api/ecosystem/agent/broadcast", desc: "Domain-filtered broadcast (alerts, outcomes, feedback only)" },
+                  { method: "POST", path: "/api/ecosystem/agent/respond", desc: "Acknowledge, act on, decline, or defer an exchange" },
+                  { method: "GET", path: "/api/ecosystem/agent/inbox", desc: "Platform inbox with pending messages and action-required flags" },
+                  { method: "GET", path: "/api/ecosystem/agent/capabilities", desc: "Full data flow map with compatible platform matching" },
+                  { method: "GET", path: "/api/ecosystem/agent/network", desc: "Communication network activity and partnership tracking" },
+                  { method: "POST", path: "/api/ecosystem/agent/reason", desc: "DeepSeek-powered strategic reasoning and decision support" },
+                ].map((ep, i) => (
+                  <div key={i} className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">
+                    <Badge variant={ep.method === "POST" ? "default" : "secondary"} className="text-[10px] shrink-0 mt-0.5">{ep.method}</Badge>
+                    <div>
+                      <code className="text-xs font-mono text-foreground">{ep.path}</code>
+                      <p className="text-xs text-muted-foreground mt-1">{ep.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-blue-200 dark:border-blue-800">
+            <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30">
+              <CardTitle className="flex items-center gap-2">
+                <Award className="h-5 w-5 text-blue-600" />
+                Grant Impact — What This Means for Funders
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                  <h4 className="text-sm font-semibold mb-3">Measurable Outcomes</h4>
+                  <ul className="space-y-2">
+                    {[
+                      "Locked Census baselines with verifiable improvement targets",
+                      "Real-time gap tracking — funders see progress, not just promises",
+                      "Platform health monitoring proves capacity for sustained impact",
+                      "Outcome reporting feeds directly from intervention data",
+                    ].map((item, i) => (
+                      <li key={i} className="text-xs text-muted-foreground flex items-start gap-2">
+                        <ArrowRight className="h-3 w-3 text-emerald-500 mt-0.5 shrink-0" /> {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="text-sm font-semibold mb-3">Coordinated Intervention</h4>
+                  <ul className="space-y-2">
+                    {[
+                      "24 platforms working as autonomous agents — not siloed tools",
+                      "Risk factors automatically route to the right platform capabilities",
+                      "Domain alignment prevents wasted resources on mismatched interventions",
+                      "90-day action plans with clear platform accountability",
+                    ].map((item, i) => (
+                      <li key={i} className="text-xs text-muted-foreground flex items-start gap-2">
+                        <ArrowRight className="h-3 w-3 text-violet-500 mt-0.5 shrink-0" /> {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="text-sm font-semibold mb-3">Transparent & Defensible</h4>
+                  <ul className="space-y-2">
+                    {[
+                      "Every inter-platform exchange has documented reasoning",
+                      "AI decisions are auditable — no black-box interventions",
+                      "Funder-specific narratives generated from real community data",
+                      "Implementation science frameworks (CFIR, RE-AIM) validate approach",
+                    ].map((item, i) => (
+                      <li key={i} className="text-xs text-muted-foreground flex items-start gap-2">
+                        <ArrowRight className="h-3 w-3 text-blue-500 mt-0.5 shrink-0" /> {item}
                       </li>
                     ))}
                   </ul>
