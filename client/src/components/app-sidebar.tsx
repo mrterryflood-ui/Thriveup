@@ -66,6 +66,7 @@ const workforceSolutionsItems: NavItem[] = [
   { title: "Find Mentor/Partner", url: "/academy/mentor-finder", icon: Handshake },
   { title: "My Pathway", url: "/academy/pathway", icon: Route },
   { title: "Dream Design", url: "/academy/dreams", icon: Target },
+  { title: "Justice Command Center", url: "/justice-command-center", icon: Shield },
   { title: "Reentry Dashboard", url: "/reentry", icon: Shield },
   { title: "Community Partners", url: "/partners", icon: Handshake },
   { title: "Collaboration Hub", url: "/collaboration-hub", icon: Building2 },

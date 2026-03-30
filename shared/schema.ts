@@ -1744,6 +1744,256 @@ export const insertSupervisionComplianceSchema = createInsertSchema(supervisionC
 export type InsertSupervisionCompliance = z.infer<typeof insertSupervisionComplianceSchema>;
 export type SupervisionCompliance = typeof supervisionCompliance.$inferSelect;
 
+// ==================== JUSTICE COMMAND CENTER TABLES ====================
+
+export const juvenileCases = pgTable("juvenile_cases", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  caseNumber: varchar("case_number", { length: 100 }),
+  youthAge: integer("youth_age"),
+  ageGroup: varchar("age_group", { length: 50 }).notNull().default("adolescent"),
+  gender: varchar("gender", { length: 50 }),
+  raceEthnicity: varchar("race_ethnicity", { length: 100 }),
+  zipCode: varchar("zip_code", { length: 20 }),
+  neighborhood: varchar("neighborhood", { length: 255 }),
+  county: varchar("county", { length: 100 }),
+  stateCode: varchar("state_code", { length: 10 }),
+  referralSource: varchar("referral_source", { length: 100 }).notNull(),
+  referralType: varchar("referral_type", { length: 100 }),
+  offenseCategory: varchar("offense_category", { length: 100 }),
+  riskLevel: varchar("risk_level", { length: 50 }).default("moderate"),
+  protectiveFactors: jsonb("protective_factors"),
+  riskFactors: jsonb("risk_factors"),
+  selScreeningScore: integer("sel_screening_score"),
+  diversionEligible: boolean("diversion_eligible").default(false),
+  diversionProgramId: varchar("diversion_program_id", { length: 100 }),
+  status: varchar("status", { length: 50 }).notNull().default("intake"),
+  assignedSpecialistId: varchar("assigned_specialist_id", { length: 255 }),
+  parentGuardianContact: jsonb("parent_guardian_contact"),
+  schoolInfo: jsonb("school_info"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertJuvenileCaseSchema = createInsertSchema(juvenileCases).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertJuvenileCase = z.infer<typeof insertJuvenileCaseSchema>;
+export type JuvenileCase = typeof juvenileCases.$inferSelect;
+
+export const courtServices = pgTable("court_services", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  caseId: varchar("case_id", { length: 100 }),
+  courtName: varchar("court_name", { length: 500 }).notNull(),
+  courtType: varchar("court_type", { length: 100 }).notNull(),
+  jurisdiction: varchar("jurisdiction", { length: 255 }),
+  judgeAssigned: varchar("judge_assigned", { length: 255 }),
+  hearingDate: timestamp("hearing_date"),
+  hearingType: varchar("hearing_type", { length: 100 }),
+  serviceType: varchar("service_type", { length: 100 }).notNull(),
+  serviceDescription: text("service_description"),
+  courtOrderRequirements: jsonb("court_order_requirements"),
+  complianceStatus: varchar("compliance_status", { length: 50 }).default("pending"),
+  alternativeSentencing: jsonb("alternative_sentencing"),
+  restorativeJusticeEligible: boolean("restorative_justice_eligible").default(false),
+  diversionRecommended: boolean("diversion_recommended").default(false),
+  status: varchar("status", { length: 50 }).notNull().default("active"),
+  outcomeSummary: text("outcome_summary"),
+  nextActionDate: timestamp("next_action_date"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertCourtServiceSchema = createInsertSchema(courtServices).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertCourtService = z.infer<typeof insertCourtServiceSchema>;
+export type CourtService = typeof courtServices.$inferSelect;
+
+export const selPrograms = pgTable("sel_programs", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  programName: varchar("program_name", { length: 500 }).notNull(),
+  targetAgeGroup: varchar("target_age_group", { length: 50 }).notNull(),
+  selCompetency: varchar("sel_competency", { length: 100 }).notNull(),
+  description: text("description"),
+  curriculum: jsonb("curriculum"),
+  facilitatorId: varchar("facilitator_id", { length: 255 }),
+  location: varchar("location", { length: 500 }),
+  neighborhood: varchar("neighborhood", { length: 255 }),
+  zipCode: varchar("zip_code", { length: 20 }),
+  stateCode: varchar("state_code", { length: 10 }),
+  maxCapacity: integer("max_capacity"),
+  currentEnrollment: integer("current_enrollment").default(0),
+  startDate: timestamp("start_date"),
+  endDate: timestamp("end_date"),
+  sessionFrequency: varchar("session_frequency", { length: 50 }),
+  fidelityScore: integer("fidelity_score"),
+  prePostAssessment: jsonb("pre_post_assessment"),
+  outcomeMetrics: jsonb("outcome_metrics"),
+  status: varchar("status", { length: 50 }).notNull().default("active"),
+  evidenceBase: varchar("evidence_base", { length: 255 }),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertSelProgramSchema = createInsertSchema(selPrograms).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertSelProgram = z.infer<typeof insertSelProgramSchema>;
+export type SelProgram = typeof selPrograms.$inferSelect;
+
+export const preventionPrograms = pgTable("prevention_programs", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  programName: varchar("program_name", { length: 500 }).notNull(),
+  programType: varchar("program_type", { length: 100 }).notNull(),
+  targetPopulation: varchar("target_population", { length: 255 }).notNull(),
+  description: text("description"),
+  interventionLevel: varchar("intervention_level", { length: 50 }).notNull().default("primary"),
+  deliveryModel: varchar("delivery_model", { length: 100 }),
+  stakeholderTypes: text("stakeholder_types").array(),
+  neighborhoodsFocus: text("neighborhoods_focus").array(),
+  stateCode: varchar("state_code", { length: 10 }),
+  zipCodes: text("zip_codes").array(),
+  institutionalBarriersAddressed: text("institutional_barriers_addressed").array(),
+  communityPartnersInvolved: text("community_partners_involved").array(),
+  roleModelMentors: jsonb("role_model_mentors"),
+  faithBasedPartners: jsonb("faith_based_partners"),
+  fatherEngagementComponent: boolean("father_engagement_component").default(false),
+  educationComponent: jsonb("education_component"),
+  fidelityProtocol: jsonb("fidelity_protocol"),
+  fidelityScore: integer("fidelity_score"),
+  outcomeMetrics: jsonb("outcome_metrics"),
+  enrollmentCount: integer("enrollment_count").default(0),
+  successRate: real("success_rate"),
+  costPerParticipant: real("cost_per_participant"),
+  fundingSource: varchar("funding_source", { length: 500 }),
+  status: varchar("status", { length: 50 }).notNull().default("active"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertPreventionProgramSchema = createInsertSchema(preventionPrograms).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertPreventionProgram = z.infer<typeof insertPreventionProgramSchema>;
+export type PreventionProgram = typeof preventionPrograms.$inferSelect;
+
+export const justiceStakeholders = pgTable("justice_stakeholders", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  name: varchar("name", { length: 500 }).notNull(),
+  organizationName: varchar("organization_name", { length: 500 }),
+  stakeholderType: varchar("stakeholder_type", { length: 100 }).notNull(),
+  role: varchar("role", { length: 255 }),
+  contactEmail: varchar("contact_email", { length: 255 }),
+  contactPhone: varchar("contact_phone", { length: 50 }),
+  address: text("address"),
+  city: varchar("city", { length: 100 }),
+  stateCode: varchar("state_code", { length: 10 }),
+  zipCode: varchar("zip_code", { length: 20 }),
+  serviceArea: text("service_area").array(),
+  specializations: text("specializations").array(),
+  populationsServed: text("populations_served").array(),
+  isActive: boolean("is_active").default(true),
+  verificationStatus: varchar("verification_status", { length: 50 }).default("pending"),
+  communicationPreference: varchar("communication_preference", { length: 50 }).default("email"),
+  engagementLevel: varchar("engagement_level", { length: 50 }).default("moderate"),
+  referralCapacity: integer("referral_capacity"),
+  currentCaseload: integer("current_caseload").default(0),
+  successStories: jsonb("success_stories"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertJusticeStakeholderSchema = createInsertSchema(justiceStakeholders).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertJusticeStakeholder = z.infer<typeof insertJusticeStakeholderSchema>;
+export type JusticeStakeholder = typeof justiceStakeholders.$inferSelect;
+
+export const neighborhoodIntelligence = pgTable("neighborhood_intelligence", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  neighborhood: varchar("neighborhood", { length: 255 }).notNull(),
+  city: varchar("city", { length: 100 }).notNull(),
+  county: varchar("county", { length: 100 }),
+  stateCode: varchar("state_code", { length: 10 }).notNull(),
+  zipCode: varchar("zip_code", { length: 20 }),
+  latitude: real("latitude"),
+  longitude: real("longitude"),
+  populationEstimate: integer("population_estimate"),
+  youthPopulation: integer("youth_population"),
+  medianIncome: real("median_income"),
+  povertyRate: real("poverty_rate"),
+  unemploymentRate: real("unemployment_rate"),
+  crimeIndex: real("crime_index"),
+  violentCrimeRate: real("violent_crime_rate"),
+  propertyCrimeRate: real("property_crime_rate"),
+  juvenileOffenseRate: real("juvenile_offense_rate"),
+  schoolDropoutRate: real("school_dropout_rate"),
+  substanceAbuseIndex: real("substance_abuse_index"),
+  mentalHealthAccessScore: real("mental_health_access_score"),
+  communityResourceScore: real("community_resource_score"),
+  hotspotLevel: varchar("hotspot_level", { length: 50 }).default("low"),
+  activeProgramsCount: integer("active_programs_count").default(0),
+  activeStakeholdersCount: integer("active_stakeholders_count").default(0),
+  institutionalBarriers: jsonb("institutional_barriers"),
+  communityAssets: jsonb("community_assets"),
+  trendDirection: varchar("trend_direction", { length: 50 }).default("stable"),
+  lastAssessmentDate: timestamp("last_assessment_date"),
+  dataSource: varchar("data_source", { length: 255 }),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertNeighborhoodIntelligenceSchema = createInsertSchema(neighborhoodIntelligence).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertNeighborhoodIntelligence = z.infer<typeof insertNeighborhoodIntelligenceSchema>;
+export type NeighborhoodIntelligence = typeof neighborhoodIntelligence.$inferSelect;
+
+export const trendAlerts = pgTable("trend_alerts", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  alertType: varchar("alert_type", { length: 100 }).notNull(),
+  severity: varchar("severity", { length: 50 }).notNull().default("moderate"),
+  title: varchar("title", { length: 500 }).notNull(),
+  description: text("description"),
+  affectedArea: varchar("affected_area", { length: 255 }),
+  affectedNeighborhoods: text("affected_neighborhoods").array(),
+  stateCode: varchar("state_code", { length: 10 }),
+  trendData: jsonb("trend_data"),
+  patternType: varchar("pattern_type", { length: 100 }),
+  dataPoints: jsonb("data_points"),
+  predictedTrajectory: varchar("predicted_trajectory", { length: 50 }),
+  recommendedActions: jsonb("recommended_actions"),
+  relatedPrograms: text("related_programs").array(),
+  stakeholdersNotified: text("stakeholders_notified").array(),
+  acknowledgedBy: varchar("acknowledged_by", { length: 255 }),
+  resolvedDate: timestamp("resolved_date"),
+  status: varchar("status", { length: 50 }).notNull().default("active"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertTrendAlertSchema = createInsertSchema(trendAlerts).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertTrendAlert = z.infer<typeof insertTrendAlertSchema>;
+export type TrendAlert = typeof trendAlerts.$inferSelect;
+
+export const cycleBreakingSessions = pgTable("cycle_breaking_sessions", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id", { length: 255 }),
+  sessionType: varchar("session_type", { length: 100 }).notNull(),
+  targetCycle: varchar("target_cycle", { length: 255 }).notNull(),
+  neighborhoodContext: varchar("neighborhood_context", { length: 255 }),
+  stateCode: varchar("state_code", { length: 10 }),
+  populationFocus: varchar("population_focus", { length: 100 }),
+  currentPatterns: jsonb("current_patterns"),
+  identifiedBarriers: jsonb("identified_barriers"),
+  proposedInterventions: jsonb("proposed_interventions"),
+  aiRecommendations: jsonb("ai_recommendations"),
+  implementationPlan: jsonb("implementation_plan"),
+  stakeholdersInvolved: text("stakeholders_involved").array(),
+  expectedOutcomes: jsonb("expected_outcomes"),
+  timelineWeeks: integer("timeline_weeks"),
+  fidelityCheckpoints: jsonb("fidelity_checkpoints"),
+  wizardStep: integer("wizard_step").default(1),
+  wizardTotalSteps: integer("wizard_total_steps").default(7),
+  status: varchar("status", { length: 50 }).notNull().default("in_progress"),
+  completedAt: timestamp("completed_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertCycleBreakingSessionSchema = createInsertSchema(cycleBreakingSessions).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertCycleBreakingSession = z.infer<typeof insertCycleBreakingSessionSchema>;
+export type CycleBreakingSession = typeof cycleBreakingSessions.$inferSelect;
+
 // ==================== WORKFORCE PIPELINE TABLES ====================
 
 export const workforceAssessments = pgTable("workforce_assessments", {

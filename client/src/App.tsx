@@ -90,6 +90,7 @@ const ReentryDashboardPage = lazy(() => import("@/pages/reentry-dashboard"));
 const CommunityPartnersPage = lazy(() => import("@/pages/community-partners"));
 const OutcomeReportingPage = lazy(() => import("@/pages/outcome-reporting"));
 const JusticePartnersPage = lazy(() => import("@/pages/justice-partners"));
+const JusticeCommandCenterPage = lazy(() => import("@/pages/justice-command-center"));
 const WorkforceAssessmentPage = lazy(() => import("@/pages/workforce-assessment"));
 const WorkforceTrainingPage = lazy(() => import("@/pages/workforce-training"));
 const WorkforceEmployersPage = lazy(() => import("@/pages/workforce-employers"));
@@ -263,6 +264,7 @@ function AppRouter() {
       <Route path="/partners" component={CommunityPartnersPage} />
       <Route path="/outcomes" component={OutcomeReportingPage} />
       <Route path="/justice-partners" component={JusticePartnersPage} />
+      <Route path="/justice-command-center" component={JusticeCommandCenterPage} />
       <Route path="/workforce-assessment" component={WorkforceAssessmentPage} />
       <Route path="/workforce-training" component={WorkforceTrainingPage} />
       <Route path="/workforce-employers" component={WorkforceEmployersPage} />
