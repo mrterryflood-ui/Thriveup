@@ -2066,6 +2066,11 @@ const PRESET_CITIES = [
   { city: "San Antonio", state: "TX", label: "San Antonio, TX", context: "East Side pipeline" },
   { city: "Indianapolis", state: "IN", label: "Indianapolis, IN", context: "East/Near East pipeline" },
   { city: "Oakland", state: "CA", label: "Oakland, CA", context: "East Oakland corridor" },
+  { city: "Buffalo", state: "NY", label: "Buffalo, NY", context: "East Side → Orchard Park/Hamburg disparity" },
+  { city: "Rochester", state: "NY", label: "Rochester, NY", context: "Northeast corridor pipeline" },
+  { city: "Syracuse", state: "NY", label: "Syracuse, NY", context: "South Side pipeline" },
+  { city: "Fayetteville", state: "NC", label: "Fayetteville, NC", context: "Military community pipeline" },
+  { city: "Raleigh", state: "NC", label: "Raleigh, NC", context: "Southeast Raleigh corridor" },
 ];
 
 const STATE_CODES: Record<string, string> = {
@@ -2082,7 +2087,7 @@ function DataStoryteller() {
   ]);
   const [customCity, setCustomCity] = useState("");
   const [customState, setCustomState] = useState("");
-  const [activeView, setActiveView] = useState<"dashboard" | "story" | "compare">("dashboard");
+  const [activeView, setActiveView] = useState<"dashboard" | "story" | "compare" | "risk" | "gentrification">("dashboard");
   const [focusCity, setFocusCity] = useState<string>("Wilmington");
   const [storyLoading, setStoryLoading] = useState(false);
   const [generatedStory, setGeneratedStory] = useState<any>(null);
@@ -2117,6 +2122,65 @@ function DataStoryteller() {
       return results;
     },
     enabled: uniqueStates.length > 0,
+  });
+
+  const riskQuery = useQuery({
+    queryKey: ["/api/justice/live/risk-protective-factors", citiesKey],
+    queryFn: async () => {
+      const results: Record<string, any> = {};
+      await Promise.allSettled(
+        uniqueStates.map(async (st) => {
+          const fips = STATE_CODES[st];
+          if (!fips) return;
+          const resp = await apiRequest("POST", "/api/justice/live/risk-protective-factors", {
+            stateFips: fips, includeGunViolence: true,
+          });
+          results[st] = await resp.json();
+        })
+      );
+      return results;
+    },
+    enabled: activeView === "risk" && uniqueStates.length > 0,
+  });
+
+  const COUNTY_LOOKUP: Record<string, { stateFips: string; countyFips: string }> = {
+    "Wilmington-NC": { stateFips: "37", countyFips: "129" },
+    "Austin-TX": { stateFips: "48", countyFips: "453" },
+    "Houston-TX": { stateFips: "48", countyFips: "201" },
+    "Dallas-TX": { stateFips: "48", countyFips: "113" },
+    "Chicago-IL": { stateFips: "17", countyFips: "031" },
+    "Philadelphia-PA": { stateFips: "42", countyFips: "101" },
+    "Baltimore-MD": { stateFips: "24", countyFips: "510" },
+    "Memphis-TN": { stateFips: "47", countyFips: "157" },
+    "New Orleans-LA": { stateFips: "22", countyFips: "071" },
+    "St. Louis-MO": { stateFips: "29", countyFips: "510" },
+    "Detroit-MI": { stateFips: "26", countyFips: "163" },
+    "Atlanta-GA": { stateFips: "13", countyFips: "121" },
+    "Charlotte-NC": { stateFips: "37", countyFips: "119" },
+    "San Antonio-TX": { stateFips: "48", countyFips: "029" },
+    "Oakland-CA": { stateFips: "06", countyFips: "001" },
+    "Milwaukee-WI": { stateFips: "55", countyFips: "079" },
+    "Indianapolis-IN": { stateFips: "18", countyFips: "097" },
+    "Kansas City-MO": { stateFips: "29", countyFips: "095" },
+    "Birmingham-AL": { stateFips: "01", countyFips: "073" },
+    "Jackson-MS": { stateFips: "28", countyFips: "049" },
+    "Buffalo-NY": { stateFips: "36", countyFips: "029" },
+    "Rochester-NY": { stateFips: "36", countyFips: "055" },
+    "Syracuse-NY": { stateFips: "36", countyFips: "067" },
+    "Fayetteville-NC": { stateFips: "37", countyFips: "051" },
+    "Raleigh-NC": { stateFips: "37", countyFips: "183" },
+  };
+
+  const [gentrificationCity, setGentrificationCity] = useState<string>("Austin-TX");
+  const gentrificationQuery = useQuery({
+    queryKey: ["/api/justice/live/gentrification", gentrificationCity],
+    queryFn: async () => {
+      const lookup = COUNTY_LOOKUP[gentrificationCity];
+      if (!lookup) return null;
+      const resp = await fetch(`/api/justice/live/gentrification/${lookup.stateFips}/${lookup.countyFips}`);
+      return resp.json();
+    },
+    enabled: activeView === "gentrification" && !!COUNTY_LOOKUP[gentrificationCity],
   });
 
   const addCity = (preset?: typeof PRESET_CITIES[0]) => {
@@ -2222,10 +2286,16 @@ function DataStoryteller() {
       </Card>
 
       {/* View Tabs */}
-      <div className="flex gap-2">
-        {(["dashboard", "compare", "story"] as const).map(v => (
-          <button key={v} onClick={() => setActiveView(v)} className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeView === v ? "bg-red-600 text-white" : "bg-slate-700/50 text-slate-300 hover:bg-slate-600"}`} data-testid={`view-tab-${v}`}>
-            {v === "dashboard" ? "City Dashboards" : v === "compare" ? "Side-by-Side Compare" : "AI Data Story"}
+      <div className="flex flex-wrap gap-2">
+        {([
+          { key: "dashboard", label: "City Dashboards", icon: "grid" },
+          { key: "compare", label: "Side-by-Side Compare", icon: "bar" },
+          { key: "risk", label: "Risk & Protective Factors", icon: "shield" },
+          { key: "gentrification", label: "Gentrification Tracker", icon: "home" },
+          { key: "story", label: "AI Data Story", icon: "spark" },
+        ] as const).map(v => (
+          <button key={v.key} onClick={() => setActiveView(v.key)} className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeView === v.key ? "bg-red-600 text-white" : "bg-slate-700/50 text-slate-300 hover:bg-slate-600"}`} data-testid={`view-tab-${v.key}`}>
+            {v.label}
           </button>
         ))}
       </div>
@@ -2496,6 +2566,326 @@ function DataStoryteller() {
                   </tbody>
                 </table>
               </div>
+            </Card>
+          )}
+        </div>
+      )}
+
+      {/* === RISK & PROTECTIVE FACTORS VIEW === */}
+      {activeView === "risk" && (
+        <div className="space-y-4">
+          <Card className="bg-gradient-to-r from-emerald-900/30 to-blue-900/30 border-emerald-500/20 p-4">
+            <h3 className="text-sm font-bold text-white mb-1 flex items-center gap-2">
+              <Shield className="w-4 h-4 text-emerald-400" /> Risk & Protective Factor Analysis
+            </h3>
+            <p className="text-xs text-emerald-300 mb-2">Inspired by Dr. Flood's military research: 1 year of college education = primary protective factor. Married individuals and employed adults also show dramatically lower risk profiles.</p>
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-2 text-[10px]">
+              <div className="bg-emerald-900/30 border border-emerald-500/20 rounded p-2">
+                <div className="text-emerald-400 font-bold">Protective: College</div>
+                <div className="text-slate-300">≥1 year college education reduces risk by up to 99% (military study)</div>
+              </div>
+              <div className="bg-emerald-900/30 border border-emerald-500/20 rounded p-2">
+                <div className="text-emerald-400 font-bold">Protective: Marriage</div>
+                <div className="text-slate-300">Married individuals avoid trouble at significantly higher rates</div>
+              </div>
+              <div className="bg-emerald-900/30 border border-emerald-500/20 rounded p-2">
+                <div className="text-emerald-400 font-bold">Protective: Employment</div>
+                <div className="text-slate-300">Stable employment is a primary buffer against justice system contact</div>
+              </div>
+              <div className="bg-red-900/30 border border-red-500/20 rounded p-2">
+                <div className="text-red-400 font-bold">Risk: Poverty</div>
+                <div className="text-slate-300">High poverty concentration drives increased crime/violence exposure</div>
+              </div>
+              <div className="bg-red-900/30 border border-red-500/20 rounded p-2">
+                <div className="text-red-400 font-bold">Risk: ACEs</div>
+                <div className="text-slate-300">Adverse Childhood Experiences compound across generations</div>
+              </div>
+            </div>
+          </Card>
+
+          {riskQuery.isLoading ? (
+            <Skeleton className="h-64 bg-slate-700" />
+          ) : riskQuery.data ? (
+            <>
+              {Object.entries(riskQuery.data).map(([stateCode, stateData]: [string, any]) => {
+                if (!stateData?.areas) return null;
+                const sortedAreas = [...stateData.areas].sort((a: any, b: any) => b.riskScore - a.riskScore).slice(0, 25);
+                const maxRisk = Math.max(...sortedAreas.map((a: any) => a.riskScore), 1);
+                return (
+                  <Card key={stateCode} className="bg-slate-800/50 border-slate-700 p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="text-sm font-semibold text-white">{stateCode} — County Risk Rankings (Top 25 by Risk Score)</h4>
+                      <div className="flex items-center gap-2 text-[10px]">
+                        <span className="text-red-400">Critical: {stateData.criticalAreas}</span>
+                        <span className="text-amber-400">High: {stateData.highRiskAreas}</span>
+                        {stateData.gunViolence && (
+                          <Badge variant="outline" className="border-red-500/30 text-red-300 text-[10px]">
+                            GV: {stateData.gunViolence.killed} killed, {stateData.gunViolence.injured} injured ({stateData.gunViolence.totalIncidents} incidents)
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-xs" data-testid={`risk-table-${stateCode}`}>
+                        <thead>
+                          <tr className="border-b border-slate-600">
+                            <th className="text-left py-1.5 px-2 text-slate-400">County</th>
+                            <th className="text-right py-1.5 px-2 text-slate-400">Risk Score</th>
+                            <th className="text-right py-1.5 px-2 text-slate-400">College %</th>
+                            <th className="text-right py-1.5 px-2 text-slate-400">Poverty %</th>
+                            <th className="text-right py-1.5 px-2 text-slate-400">Unemployment %</th>
+                            <th className="text-right py-1.5 px-2 text-slate-400">Married HH %</th>
+                            <th className="text-right py-1.5 px-2 text-slate-400">2-Parent %</th>
+                            <th className="text-right py-1.5 px-2 text-slate-400">Income</th>
+                            <th className="text-left py-1.5 px-2 text-slate-400">Top Risk Factors</th>
+                            <th className="text-left py-1.5 px-2 text-slate-400">Protective Factors</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {sortedAreas.map((area: any, i: number) => (
+                            <tr key={i} className={`border-b border-slate-700/50 ${area.riskLevel === "critical" ? "bg-red-900/10" : area.riskLevel === "high" ? "bg-amber-900/10" : ""}`}>
+                              <td className="py-1.5 px-2 font-medium text-white text-[11px]">{area.name.replace(/ County.*/, "")}</td>
+                              <td className="text-right py-1.5 px-2">
+                                <div className="flex items-center justify-end gap-1">
+                                  <div className="w-12 bg-slate-700 rounded-full h-1.5">
+                                    <div className={`h-1.5 rounded-full ${area.riskLevel === "critical" ? "bg-red-500" : area.riskLevel === "high" ? "bg-amber-500" : area.riskLevel === "moderate" ? "bg-yellow-500" : "bg-green-500"}`} style={{ width: `${(area.riskScore / Math.max(maxRisk, 1)) * 100}%` }} />
+                                  </div>
+                                  <span className={`font-bold w-6 text-right ${area.riskLevel === "critical" ? "text-red-400" : area.riskLevel === "high" ? "text-amber-400" : "text-green-400"}`}>{area.riskScore}</span>
+                                </div>
+                              </td>
+                              <td className={`text-right py-1.5 px-2 font-semibold ${area.collegePct >= 30 ? "text-emerald-400" : area.collegePct >= 20 ? "text-slate-300" : "text-red-400"}`}>{area.collegePct}%</td>
+                              <td className={`text-right py-1.5 px-2 ${area.povertyRate > 20 ? "text-red-400 font-semibold" : area.povertyRate > 15 ? "text-amber-400" : "text-green-400"}`}>{area.povertyRate}%</td>
+                              <td className={`text-right py-1.5 px-2 ${area.unemploymentRate > 8 ? "text-red-400" : "text-slate-300"}`}>{area.unemploymentRate}%</td>
+                              <td className={`text-right py-1.5 px-2 ${area.marriagePct > 50 ? "text-emerald-400" : area.marriagePct < 35 ? "text-red-400" : "text-slate-300"}`}>{area.marriagePct}%</td>
+                              <td className={`text-right py-1.5 px-2 ${area.childrenInTwoParentPct > 65 ? "text-emerald-400" : area.childrenInTwoParentPct < 50 ? "text-red-400" : "text-slate-300"}`}>{area.childrenInTwoParentPct}%</td>
+                              <td className="text-right py-1.5 px-2 text-slate-300">${area.medianIncome?.toLocaleString()}</td>
+                              <td className="py-1.5 px-2">
+                                <div className="flex flex-wrap gap-0.5">
+                                  {area.riskFactors.slice(0, 2).map((rf: string, ri: number) => (
+                                    <span key={ri} className="text-[9px] bg-red-900/30 text-red-300 px-1 rounded">{rf.split(":")[0]}</span>
+                                  ))}
+                                </div>
+                              </td>
+                              <td className="py-1.5 px-2">
+                                <div className="flex flex-wrap gap-0.5">
+                                  {area.protectiveFactors.slice(0, 2).map((pf: string, pi: number) => (
+                                    <span key={pi} className="text-[9px] bg-emerald-900/30 text-emerald-300 px-1 rounded">{pf.split(":")[0]}</span>
+                                  ))}
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* Gun Violence by City */}
+                    {stateData.gunViolence?.byCityCount && (
+                      <div className="mt-4 bg-red-900/10 border border-red-500/20 rounded-lg p-3">
+                        <h5 className="text-xs font-semibold text-red-300 mb-2 flex items-center gap-1"><Flame className="w-3 h-3" /> Gun Violence by City ({stateCode})</h5>
+                        <div className="flex flex-wrap gap-2">
+                          {stateData.gunViolence.byCityCount.slice(0, 10).map((c: any, ci: number) => (
+                            <div key={ci} className="bg-slate-900/40 rounded px-2 py-1 text-[10px]">
+                              <span className="text-white font-medium">{c.city}</span>
+                              <span className="text-red-400 ml-1">{c.count} incidents</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </Card>
+                );
+              })}
+
+              {/* ACEs / Child Abuse Awareness */}
+              <Card className="bg-gradient-to-r from-purple-900/30 to-red-900/30 border-purple-500/20 p-4">
+                <h3 className="text-sm font-bold text-white mb-2 flex items-center gap-2">
+                  <Heart className="w-4 h-4 text-purple-400" /> Adverse Childhood Experiences (ACEs) — No ZIP Code Left Behind
+                </h3>
+                <p className="text-xs text-purple-300 mb-3">ACEs are traumatic events in childhood that have lasting impacts on health, behavior, and opportunity. Every community must track and address these factors.</p>
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+                  {[
+                    { ace: "Physical Abuse", icon: "fist", stat: "28% of adults report", color: "text-red-400" },
+                    { ace: "Emotional Neglect", icon: "heart", stat: "16% of adults report", color: "text-orange-400" },
+                    { ace: "Household Substance Abuse", icon: "bottle", stat: "27% of adults report", color: "text-amber-400" },
+                    { ace: "Parental Incarceration", icon: "lock", stat: "8% of adults report", color: "text-red-400" },
+                    { ace: "Domestic Violence", icon: "shield", stat: "17% of adults report", color: "text-red-400" },
+                    { ace: "Mental Illness in Home", icon: "brain", stat: "19% of adults report", color: "text-purple-400" },
+                    { ace: "Parental Separation", icon: "split", stat: "28% of adults report", color: "text-amber-400" },
+                    { ace: "Sexual Abuse", icon: "alert", stat: "21% of women, 8% of men", color: "text-red-400" },
+                    { ace: "Household Food Insecurity", icon: "food", stat: "10% of children", color: "text-orange-400" },
+                    { ace: "Community Violence Exposure", icon: "flame", stat: "Varies by ZIP code", color: "text-red-400" },
+                  ].map((item, i) => (
+                    <div key={i} className="bg-slate-900/40 border border-slate-700 rounded-lg p-2">
+                      <div className={`text-[10px] font-bold ${item.color}`}>{item.ace}</div>
+                      <div className="text-[9px] text-slate-400 mt-0.5">{item.stat}</div>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-3 bg-slate-900/40 rounded-lg p-3 text-xs text-slate-300">
+                  <strong className="text-purple-300">The Science:</strong> Individuals with 4+ ACEs are 12x more likely to attempt suicide, 7x more likely to become alcoholic, and 4.6x more likely to experience depression. Children in high-poverty, high-violence neighborhoods accumulate ACEs at 3-4x the rate of children in low-poverty areas. <strong className="text-white">Education and stable family structure are the #1 protective factors against ACE accumulation.</strong>
+                </div>
+                <div className="mt-2 flex flex-wrap gap-2 text-[10px]">
+                  <a href="https://www.cdc.gov/violenceprevention/aces/index.html" target="_blank" rel="noreferrer" className="text-blue-400 hover:underline">CDC ACES Data</a>
+                  <a href="https://www.childwelfare.gov/topics/can/statistics/" target="_blank" rel="noreferrer" className="text-blue-400 hover:underline">Child Welfare Statistics</a>
+                  <a href="https://gunmemorial.org/" target="_blank" rel="noreferrer" className="text-red-400 hover:underline">Gun Memorial — National Database</a>
+                  <a href="https://www.gunviolencearchive.org/" target="_blank" rel="noreferrer" className="text-red-400 hover:underline">Gun Violence Archive</a>
+                </div>
+              </Card>
+            </>
+          ) : (
+            <Card className="bg-slate-800/50 border-slate-700 p-6 text-center">
+              <p className="text-slate-400">Select cities above and click this tab to load risk/protective factor data.</p>
+            </Card>
+          )}
+        </div>
+      )}
+
+      {/* === GENTRIFICATION TRACKER VIEW === */}
+      {activeView === "gentrification" && (
+        <div className="space-y-4">
+          <Card className="bg-gradient-to-r from-amber-900/30 to-red-900/30 border-amber-500/20 p-4">
+            <h3 className="text-sm font-bold text-white mb-1 flex items-center gap-2">
+              <Home className="w-4 h-4 text-amber-400" /> Gentrification & Displacement Tracker
+            </h3>
+            <p className="text-xs text-amber-300">Historical Census data (2015→2022) tracking rent spikes, home value surges, demographic shifts, and population displacement. As communities gentrify, crime doesn't disappear — it migrates.</p>
+          </Card>
+
+          <Card className="bg-slate-800/50 border-slate-700 p-4">
+            <h4 className="text-xs font-semibold text-white mb-2">Select City to Track</h4>
+            <div className="flex flex-wrap gap-2">
+              {Object.keys(COUNTY_LOOKUP).map(key => (
+                <button key={key} onClick={() => setGentrificationCity(key)} className={`text-xs px-3 py-1.5 rounded-lg transition-colors ${gentrificationCity === key ? "bg-amber-600 text-white" : "bg-slate-700/50 text-slate-300 hover:bg-slate-600"}`} data-testid={`gent-select-${key}`}>
+                  {key.replace("-", ", ")}
+                </button>
+              ))}
+            </div>
+          </Card>
+
+          {gentrificationQuery.isLoading ? (
+            <Skeleton className="h-64 bg-slate-700" />
+          ) : gentrificationQuery.data ? (
+            <Card className="bg-slate-800/50 border-slate-700 overflow-hidden" data-testid="gentrification-results">
+              <div className={`p-4 border-b border-slate-700 ${
+                gentrificationQuery.data.gentrificationLevel === "high" ? "bg-gradient-to-r from-red-900/40 to-amber-900/30"
+                : gentrificationQuery.data.gentrificationLevel === "moderate" ? "bg-gradient-to-r from-amber-900/30 to-slate-800"
+                : "bg-gradient-to-r from-green-900/30 to-slate-800"
+              }`}>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-bold text-white">{gentrificationQuery.data.county}</h3>
+                    <p className="text-xs text-slate-400">{gentrificationQuery.data.source}</p>
+                  </div>
+                  <div className="text-right">
+                    <div className={`text-2xl font-black ${
+                      gentrificationQuery.data.gentrificationLevel === "high" ? "text-red-400"
+                      : gentrificationQuery.data.gentrificationLevel === "moderate" ? "text-amber-400"
+                      : "text-green-400"
+                    }`}>{gentrificationQuery.data.gentrificationScore}/100</div>
+                    <div className="text-xs text-slate-400">Gentrification Score</div>
+                    <Badge variant="outline" className={`mt-1 ${
+                      gentrificationQuery.data.gentrificationLevel === "high" ? "border-red-500/30 text-red-300"
+                      : gentrificationQuery.data.gentrificationLevel === "moderate" ? "border-amber-500/30 text-amber-300"
+                      : "border-green-500/30 text-green-300"
+                    }`}>{gentrificationQuery.data.gentrificationLevel?.toUpperCase()}</Badge>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-4 space-y-4">
+                {/* Indicators */}
+                {gentrificationQuery.data.indicators?.length > 0 && (
+                  <div>
+                    <h4 className="text-xs font-semibold text-amber-300 mb-2">Displacement Indicators Detected</h4>
+                    <div className="space-y-1">
+                      {gentrificationQuery.data.indicators.map((ind: string, ii: number) => (
+                        <div key={ii} className="flex items-center gap-2 text-xs bg-amber-900/20 border border-amber-500/20 rounded px-3 py-1.5">
+                          <AlertTriangle className="w-3 h-3 text-amber-400 shrink-0" />
+                          <span className="text-slate-200">{ind}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Historical Timeline */}
+                {gentrificationQuery.data.timeline?.length > 0 && (
+                  <div>
+                    <h4 className="text-xs font-semibold text-blue-300 mb-2">Historical Census Timeline (2015→2022)</h4>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-xs">
+                        <thead>
+                          <tr className="border-b border-slate-600">
+                            <th className="text-left py-1.5 px-2 text-slate-400">Year</th>
+                            <th className="text-right py-1.5 px-2 text-slate-400">Population</th>
+                            <th className="text-right py-1.5 px-2 text-slate-400">Med. Income</th>
+                            <th className="text-right py-1.5 px-2 text-slate-400">Med. Rent</th>
+                            <th className="text-right py-1.5 px-2 text-slate-400">Home Value</th>
+                            <th className="text-right py-1.5 px-2 text-slate-400">Poverty %</th>
+                            <th className="text-right py-1.5 px-2 text-slate-400">College %</th>
+                            <th className="text-right py-1.5 px-2 text-slate-400">Black %</th>
+                            <th className="text-right py-1.5 px-2 text-slate-400">Hispanic %</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {gentrificationQuery.data.timeline.map((t: any, ti: number) => {
+                            const isFirst = ti === 0; const isLast = ti === gentrificationQuery.data.timeline.length - 1;
+                            const first = gentrificationQuery.data.timeline[0];
+                            const rentDelta = isLast && first.medianRent ? ((t.medianRent - first.medianRent) / first.medianRent * 100).toFixed(0) : null;
+                            return (
+                              <tr key={ti} className={`border-b border-slate-700/50 ${isLast ? "bg-slate-700/20 font-medium" : ""}`}>
+                                <td className="py-1.5 px-2 text-white font-semibold">{t.year}</td>
+                                <td className="text-right py-1.5 px-2 text-blue-400">{t.population?.toLocaleString()}</td>
+                                <td className="text-right py-1.5 px-2 text-green-400">${t.medianIncome?.toLocaleString()}</td>
+                                <td className="text-right py-1.5 px-2 text-amber-400">
+                                  ${t.medianRent?.toLocaleString()}
+                                  {rentDelta && <span className="text-red-400 text-[9px] ml-1">(+{rentDelta}%)</span>}
+                                </td>
+                                <td className="text-right py-1.5 px-2 text-amber-300">${t.medianHomeValue?.toLocaleString()}</td>
+                                <td className={`text-right py-1.5 px-2 ${t.povertyRate > 15 ? "text-red-400" : "text-green-400"}`}>{t.povertyRate}%</td>
+                                <td className="text-right py-1.5 px-2 text-purple-400">{t.bachelorsPct}%</td>
+                                <td className={`text-right py-1.5 px-2 ${isLast && first.blackPct && t.blackPct < first.blackPct - 1 ? "text-red-400 font-semibold" : "text-slate-300"}`}>{t.blackPct}%</td>
+                                <td className="text-right py-1.5 px-2 text-slate-300">{t.hispanicPct}%</td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* Visual Trend Bars */}
+                    <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-3">
+                      {["medianRent", "medianHomeValue", "medianIncome", "povertyRate"].map(metric => {
+                        const label = metric === "medianRent" ? "Rent" : metric === "medianHomeValue" ? "Home Value" : metric === "medianIncome" ? "Income" : "Poverty Rate";
+                        const vals = gentrificationQuery.data.timeline.map((t: any) => t[metric] || 0);
+                        const max = Math.max(...vals, 1);
+                        return (
+                          <div key={metric} className="bg-slate-900/40 rounded-lg p-2">
+                            <div className="text-[10px] font-semibold text-slate-400 mb-1">{label} Trend</div>
+                            <div className="flex items-end gap-1 h-12">
+                              {gentrificationQuery.data.timeline.map((t: any, ti: number) => (
+                                <div key={ti} className="flex-1 flex flex-col items-center gap-0.5">
+                                  <div className={`w-full rounded-t ${metric === "povertyRate" ? "bg-red-500/60" : "bg-blue-500/60"}`} style={{ height: `${(t[metric] / max) * 40}px` }} title={`${t.year}: ${metric.includes("Rate") ? t[metric] + "%" : "$" + t[metric]?.toLocaleString()}`} />
+                                  <span className="text-[8px] text-slate-500">{t.year}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                <div className="bg-slate-900/40 rounded-lg p-3 text-xs text-slate-300">
+                  <strong className="text-amber-300">Crime Displacement Principle:</strong> When gentrification displaces residents, crime doesn't disappear — it migrates to the next affordable neighborhood. Track where displaced populations move to predict future violence hotspots. Education and workforce investment in receiving communities is the only sustainable prevention.
+                </div>
+              </div>
+            </Card>
+          ) : (
+            <Card className="bg-slate-800/50 border-slate-700 p-6 text-center">
+              <p className="text-slate-400">Select a city above to load gentrification tracking data.</p>
             </Card>
           )}
         </div>

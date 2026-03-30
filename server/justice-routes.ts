@@ -809,6 +809,200 @@ Provide a JSON assessment with:
     }
   });
 
+  // ── GENTRIFICATION & HISTORICAL TRACKING ──
+  // Multi-year Census comparison to detect displacement, rent spikes, demographic shifts
+  app.get("/api/justice/live/gentrification/:stateFips/:countyFips", async (req, res) => {
+    try {
+      const { stateFips, countyFips } = req.params;
+      const years = [2015, 2017, 2019, 2022];
+      const vars = "NAME,B19013_001E,B25064_001E,B25077_001E,B01003_001E,B17001_002E,B17001_001E,B15003_022E,B15003_001E,B02001_003E,B02001_001E,B03003_003E,B03003_001E";
+
+      const yearData = await Promise.allSettled(
+        years.map(async (yr) => {
+          try {
+            const data = await apiFetch(
+              `https://api.census.gov/data/${yr}/acs/acs5?get=${vars}&for=county:${countyFips}&in=state:${stateFips}`,
+              15000
+            );
+            if (!data || !Array.isArray(data) || data.length < 2) return null;
+            const h = data[0]; const r = data[1];
+            const v = (name: string) => { const idx = h.indexOf(name); return idx >= 0 ? parseInt(r[idx]) || 0 : 0; };
+            const pop = v("B01003_001E"); const povU = v("B17001_001E"); const belowPov = v("B17001_002E");
+            const edPop = v("B15003_001E"); const bachelors = v("B15003_022E");
+            const blackPop = v("B02001_003E"); const totalRace = v("B02001_001E");
+            const hispanicPop = v("B03003_003E"); const totalHispanic = v("B03003_001E");
+            return {
+              year: yr, name: r[h.indexOf("NAME")], population: pop,
+              medianIncome: v("B19013_001E"), medianRent: v("B25064_001E"), medianHomeValue: v("B25077_001E"),
+              povertyRate: povU > 0 ? parseFloat(((belowPov / povU) * 100).toFixed(1)) : 0,
+              bachelorsPct: edPop > 0 ? parseFloat(((bachelors / edPop) * 100).toFixed(1)) : 0,
+              blackPct: totalRace > 0 ? parseFloat(((blackPop / totalRace) * 100).toFixed(1)) : 0,
+              hispanicPct: totalHispanic > 0 ? parseFloat(((hispanicPop / totalHispanic) * 100).toFixed(1)) : 0,
+            };
+          } catch { return null; }
+        })
+      );
+
+      const timeline = yearData.map(r => r.status === "fulfilled" ? r.value : null).filter(Boolean);
+      const first = timeline[0] as any; const last = timeline[timeline.length - 1] as any;
+      let gentrificationScore = 0;
+      const indicators: string[] = [];
+      if (first && last) {
+        const rentChange = last.medianRent && first.medianRent ? ((last.medianRent - first.medianRent) / first.medianRent) * 100 : 0;
+        const homeValueChange = last.medianHomeValue && first.medianHomeValue ? ((last.medianHomeValue - first.medianHomeValue) / first.medianHomeValue) * 100 : 0;
+        const educationChange = (last.bachelorsPct || 0) - (first.bachelorsPct || 0);
+        const blackPctChange = (last.blackPct || 0) - (first.blackPct || 0);
+        const incomeChange = last.medianIncome && first.medianIncome ? ((last.medianIncome - first.medianIncome) / first.medianIncome) * 100 : 0;
+
+        if (rentChange > 30) { gentrificationScore += 25; indicators.push(`Rent surged ${rentChange.toFixed(0)}% (${first.year}→${last.year})`); }
+        else if (rentChange > 15) { gentrificationScore += 15; indicators.push(`Rent rose ${rentChange.toFixed(0)}%`); }
+        if (homeValueChange > 40) { gentrificationScore += 25; indicators.push(`Home values jumped ${homeValueChange.toFixed(0)}%`); }
+        else if (homeValueChange > 20) { gentrificationScore += 15; indicators.push(`Home values rose ${homeValueChange.toFixed(0)}%`); }
+        if (educationChange > 5) { gentrificationScore += 15; indicators.push(`College-educated population grew ${educationChange.toFixed(1)} pts`); }
+        if (blackPctChange < -3) { gentrificationScore += 20; indicators.push(`Black population share declined ${Math.abs(blackPctChange).toFixed(1)} pts — potential displacement`); }
+        if (incomeChange > 30 && last.povertyRate < first.povertyRate) { gentrificationScore += 15; indicators.push(`Income rose ${incomeChange.toFixed(0)}% while poverty fell — wealth influx`); }
+      }
+
+      const level = gentrificationScore >= 60 ? "high" : gentrificationScore >= 30 ? "moderate" : gentrificationScore > 0 ? "low" : "none";
+
+      res.json({
+        county: first?.name || `County ${countyFips}`,
+        stateFips, countyFips, timeline,
+        gentrificationScore, gentrificationLevel: level, indicators,
+        analysis: gentrificationScore >= 60 ? "Significant gentrification detected — rising housing costs, demographic shifts, and potential displacement of long-term residents"
+          : gentrificationScore >= 30 ? "Moderate gentrification signals — housing costs rising faster than income, some demographic shifts"
+          : "Limited gentrification indicators in the tracked period",
+        source: "U.S. Census Bureau ACS 5-Year Estimates (2015, 2017, 2019, 2022)",
+      });
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  // ── RISK & PROTECTIVE FACTORS ENGINE ──
+  // Inspired by Dr. Flood's military observation: 1 year of college = protective factor
+  app.post("/api/justice/live/risk-protective-factors", async (req, res) => {
+    try {
+      const { stateFips, countyFips, includeGunViolence } = req.body;
+      const vars = "NAME,B01003_001E,B19013_001E,B17001_002E,B17001_001E,B23025_005E,B23025_002E,B15003_017E,B15003_022E,B15003_023E,B15003_024E,B15003_025E,B15003_001E,B25064_001E,B25077_001E,B12001_001E,B12001_003E,B12001_005E,B11001_001E,B11001_003E,B09002_001E,B09002_002E";
+      // B15003_022E=Bachelor's, B15003_023E=Master's, B15003_024E=Professional, B15003_025E=Doctorate
+      // B12001_003E=Now Married Male, B12001_005E=Now Married Female
+      // B11001_003E=Married-couple families, B09002_002E=Children in married-couple families
+
+      const geoLevel = countyFips ? `county:${countyFips}&in=state:${stateFips}` : `county:*&in=state:${stateFips}`;
+      const data = await apiFetch(`https://api.census.gov/data/2022/acs/acs5?get=${vars}&for=${geoLevel}`, 15000);
+
+      if (!data || !Array.isArray(data) || data.length < 2) {
+        return res.json({ areas: [], source: "Census ACS" });
+      }
+
+      const h = data[0];
+      const areas = data.slice(1).map((r: string[]) => {
+        const v = (name: string) => { const idx = h.indexOf(name); return idx >= 0 ? parseInt(r[idx]) || 0 : 0; };
+        const pop = v("B01003_001E"); const edPop = v("B15003_001E");
+        const bachelors = v("B15003_022E"); const masters = v("B15003_023E");
+        const professional = v("B15003_024E"); const doctorate = v("B15003_025E");
+        const hsGrad = v("B15003_017E");
+        const collegeOrHigher = bachelors + masters + professional + doctorate;
+        const povU = v("B17001_001E"); const belowPov = v("B17001_002E");
+        const unemp = v("B23025_005E"); const lf = v("B23025_002E");
+        const marriedPop = v("B12001_003E") + v("B12001_005E");
+        const totalHouseholds = v("B11001_001E"); const marriedHouseholds = v("B11001_003E");
+        const childrenTotal = v("B09002_001E"); const childrenMarried = v("B09002_002E");
+
+        const collegePct = edPop > 0 ? (collegeOrHigher / edPop) * 100 : 0;
+        const povertyRate = povU > 0 ? (belowPov / povU) * 100 : 0;
+        const unemploymentRate = lf > 0 ? (unemp / lf) * 100 : 0;
+        const marriagePct = totalHouseholds > 0 ? (marriedHouseholds / totalHouseholds) * 100 : 0;
+        const childrenInTwoParentPct = childrenTotal > 0 ? (childrenMarried / childrenTotal) * 100 : 0;
+
+        // Risk Score (0-100): higher = more at-risk
+        let riskScore = 0;
+        const riskFactors: string[] = [];
+        const protectiveFactors: string[] = [];
+
+        if (povertyRate > 25) { riskScore += 20; riskFactors.push(`High poverty: ${povertyRate.toFixed(1)}%`); }
+        else if (povertyRate > 15) { riskScore += 12; riskFactors.push(`Elevated poverty: ${povertyRate.toFixed(1)}%`); }
+        else { protectiveFactors.push(`Low poverty: ${povertyRate.toFixed(1)}%`); }
+
+        if (unemploymentRate > 10) { riskScore += 15; riskFactors.push(`High unemployment: ${unemploymentRate.toFixed(1)}%`); }
+        else if (unemploymentRate > 6) { riskScore += 8; riskFactors.push(`Moderate unemployment: ${unemploymentRate.toFixed(1)}%`); }
+        else { protectiveFactors.push(`Low unemployment: ${unemploymentRate.toFixed(1)}%`); }
+
+        if (collegePct < 15) { riskScore += 20; riskFactors.push(`Very low college attainment: ${collegePct.toFixed(1)}%`); }
+        else if (collegePct < 25) { riskScore += 10; riskFactors.push(`Below-average college attainment: ${collegePct.toFixed(1)}%`); }
+        else { protectiveFactors.push(`Strong college attainment: ${collegePct.toFixed(1)}%`); }
+
+        if (marriagePct > 50) { protectiveFactors.push(`Stable household structure: ${marriagePct.toFixed(1)}% married households`); }
+        else if (marriagePct < 30) { riskScore += 10; riskFactors.push(`Low marriage rate: ${marriagePct.toFixed(1)}% — family instability indicator`); }
+
+        if (childrenInTwoParentPct > 65) { protectiveFactors.push(`${childrenInTwoParentPct.toFixed(1)}% children in two-parent homes`); }
+        else if (childrenInTwoParentPct < 40) { riskScore += 15; riskFactors.push(`Only ${childrenInTwoParentPct.toFixed(1)}% children in two-parent homes`); }
+
+        const medianIncome = v("B19013_001E");
+        if (medianIncome < 35000) { riskScore += 15; riskFactors.push(`Low median income: $${medianIncome.toLocaleString()}`); }
+        else if (medianIncome > 65000) { protectiveFactors.push(`Strong median income: $${medianIncome.toLocaleString()}`); }
+
+        const riskLevel = riskScore >= 60 ? "critical" : riskScore >= 40 ? "high" : riskScore >= 20 ? "moderate" : "low";
+
+        return {
+          name: r[h.indexOf("NAME")], population: pop, countyFips: r[h.indexOf("county")],
+          collegePct: parseFloat(collegePct.toFixed(1)),
+          povertyRate: parseFloat(povertyRate.toFixed(1)),
+          unemploymentRate: parseFloat(unemploymentRate.toFixed(1)),
+          marriagePct: parseFloat(marriagePct.toFixed(1)),
+          childrenInTwoParentPct: parseFloat(childrenInTwoParentPct.toFixed(1)),
+          medianIncome, medianRent: v("B25064_001E"), medianHomeValue: v("B25077_001E"),
+          riskScore, riskLevel, riskFactors, protectiveFactors,
+        };
+      }).sort((a: any, b: any) => b.riskScore - a.riskScore);
+
+      // Aggregate gun violence if requested
+      let gvData = null;
+      if (includeGunViolence) {
+        try {
+          const stateAbbr = Object.entries({
+            AL:"01",AK:"02",AZ:"04",AR:"05",CA:"06",CO:"08",CT:"09",DE:"10",FL:"12",GA:"13",
+            HI:"15",ID:"16",IL:"17",IN:"18",IA:"19",KS:"20",KY:"21",LA:"22",ME:"23",MD:"24",
+            MA:"25",MI:"26",MN:"27",MS:"28",MO:"29",MT:"30",NE:"31",NV:"32",NH:"33",NJ:"34",
+            NM:"35",NY:"36",NC:"37",ND:"38",OH:"39",OK:"40",OR:"41",PA:"42",RI:"44",SC:"45",
+            SD:"46",TN:"47",TX:"48",UT:"49",VT:"50",VA:"51",WA:"53",WV:"54",WI:"55",WY:"56",
+          }).find(([_, v]) => v === stateFips)?.[0];
+          if (stateAbbr) {
+            const incidents = await apiFetch(`${GV_REGISTRY_URL}/api/incidents?state=${stateAbbr}&limit=100`, 15000);
+            if (Array.isArray(incidents)) {
+              gvData = {
+                totalIncidents: incidents.length,
+                killed: incidents.reduce((s: number, i: any) => s + (i.killed || 0), 0),
+                injured: incidents.reduce((s: number, i: any) => s + (i.injured || 0), 0),
+                byCityCount: Object.entries(incidents.reduce((acc: Record<string, number>, i: any) => {
+                  const c = i.city || "Unknown"; acc[c] = (acc[c] || 0) + 1; return acc;
+                }, {})).map(([city, count]) => ({ city, count })).sort((a: any, b: any) => b.count - a.count).slice(0, 15),
+              };
+            }
+          }
+        } catch {}
+      }
+
+      res.json({
+        areas,
+        totalAreas: areas.length,
+        criticalAreas: areas.filter((a: any) => a.riskLevel === "critical").length,
+        highRiskAreas: areas.filter((a: any) => a.riskLevel === "high").length,
+        gunViolence: gvData,
+        methodology: "Risk/Protective Factor Model — Inspired by military behavioral research (Dr. Terry Flood). College attainment (≥1 year), stable family structure, and employment are primary protective factors. Poverty, unemployment, low education, and family instability are risk factors.",
+        source: "U.S. Census Bureau ACS 2022 + National Gun Violence Tracker",
+        references: [
+          "gunmemorial.org — National gun death memorial database",
+          "gunviolencearchive.org — Comprehensive national incident tracking",
+          "gun-violence-registry.replit.app — ACOS National Gun Violence Tracker",
+        ],
+      });
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
   // ── DATA STORYTELLING ENGINE ──
   // Neighborhood → School → Outcomes pipeline
   app.get("/api/justice/live/school-data/:state", async (req, res) => {
