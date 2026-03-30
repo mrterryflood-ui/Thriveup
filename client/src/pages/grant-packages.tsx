@@ -506,8 +506,8 @@ ELIGIBILITY: 501(c)(3) organizations or fiscal sponsors; must demonstrate authen
     fullName: "St. David's Foundation — We All Benefit 2.0: Building Economic Stability",
     funder: "St. David's Foundation",
     amount: "Up to $250,000 (individual) / $1,000,000 (collaborative)",
-    deadline: "Application Opens March 30, 2026",
-    deadlineUrgency: "approaching",
+    deadline: "TBD — 2026 cycle not yet announced (2024 cycle opened May 29, due Aug 9)",
+    deadlineUrgency: "on-track" as const,
     icon: Leaf,
     color: "text-teal-600",
     bgColor: "bg-teal-50 dark:bg-teal-950/30",
@@ -520,7 +520,7 @@ PURPOSE: Invest in community-informed organizations that provide core economic s
 GEOGRAPHIC ELIGIBILITY (CRITICAL): Must serve Central Texas — specifically Bastrop, Caldwell, Hays, Travis, or Williamson counties. Collaborative track ($1M) requires at least 3 organizations with primary operations in these counties.
 FUNDING PRIORITIES: (1) Public benefits enrollment (SNAP, Medicaid, CHIP, WIC, housing, childcare subsidies), (2) Financial coaching and asset building, (3) Workforce development as economic stability pathway, (4) Addressing barriers to benefits access, (5) Community-informed program design (organizations must demonstrate how community voice shapes their work).
 WHAT MAKES A STRONG APPLICATION: Community-informed design is paramount — St. David's explicitly looks for how organizations listen to and incorporate the voices of people they serve. Data-driven approaches, cross-sector collaboration, cultural responsiveness, addressing systemic barriers, demonstrating impact on economic stability indicators.
-APPLICATION PROCESS: Application opens March 30, 2026. Letter of Intent may be required. Full application includes: program narrative, budget, community voice evidence, outcomes plan, organizational capacity, partnership documentation.
+APPLICATION PROCESS: Two-stage process — Letter of Intent (LOI) first, then full application only if invited. In 2024, 300+ LOIs received, 114 invited to apply, 39 awarded (13% LOI-to-award rate). 2026 cycle NOT YET ANNOUNCED — monitor stdavidsfoundation.org. Contact: Christina Thompson (cthompson@stdavidsfoundation.org).
 ELIGIBILITY: 501(c)(3) organizations operating in Central Texas counties. Collaborative track requires 3+ organizations with combined geographic coverage. St. David's favors organizations with authentic community relationships, not drop-in service models.`,
     essentials: [
       { label: "Central Texas Only", detail: "STRICTLY limited to Bastrop, Caldwell, Hays, Travis, and Williamson counties — no exceptions. Must have operations in these counties.", critical: true },
@@ -528,7 +528,7 @@ ELIGIBILITY: 501(c)(3) organizations operating in Central Texas counties. Collab
       { label: "Collaborative Track ($1M)", detail: "For the larger $1M award, must partner with at least 3 organizations with primary operations across the 5-county area" },
       { label: "Public Benefits Focus", detail: "Priority: increasing enrollment in public benefits (SNAP, Medicaid, CHIP, WIC, housing, childcare subsidies) as pathway to economic stability" },
       { label: "501(c)(3) Required", detail: "Must be a 501(c)(3) with authentic community relationships — St. David's favors embedded organizations, not drop-in service models" },
-      { label: "Application Opens March 30", detail: "Application window opens March 30, 2026 — prepare now so you're ready to submit when it opens" },
+      { label: "LOI First, Then Full Application", detail: "Two-stage process: LOI first (short), then full application only if invited. In 2024, only 13% of LOIs were awarded. 2026 cycle not yet announced — monitor stdavidsfoundation.org" },
       { label: "Financial Stability Outcomes", detail: "Must track economic stability indicators: benefits enrollment rates, financial coaching outcomes, self-sufficiency measures" },
       { label: "Data-Driven Approach", detail: "Must show data-driven program design with cultural responsiveness and cross-sector collaboration" },
     ],
@@ -615,7 +615,7 @@ IMPLEMENTATION SCIENCE ADVANTAGE:
 What distinguishes TCAF from other applicants is not just service delivery capacity — it is the ability to validate that services are delivered as designed. RPLICE provides live CFIR 2.0 assessments, RE-AIM outcome scoring, and implementation fidelity checklists that most organizations would need to hire external evaluators to produce. Combined with our MAP-GAP continuous improvement engine, this creates a self-correcting program delivery model: RPLICE identifies where implementation drifts from design, MAP-GAP generates the corrective action, and the program improves in 30-day cycles — not annual grant reports. This is what St. David's means by "data-driven" — not dashboards showing activity counts, but implementation science frameworks ensuring service quality.`,
         reviewNotes: "Must decide Individual ($250K) vs Collaborative ($1M) track before finalizing. Add specific Three Realities examples.", lastUpdated: "March 30, 2026", assignee: "Dr. Flood + AI", pageLimit: "5 pages", wordCount: "1,500-2,000 words" },
 
-      { id: "std-narrative", name: "Program Narrative", description: "Community-informed program design, economic stability services, public benefits enrollment strategy", icon: BookOpen, status: "draft" as ApprovalStatus,
+      { id: "std-narrative", name: "Program Narrative (If Invited)", description: "Full proposal — only needed if LOI is accepted and you are invited to submit a complete application", icon: BookOpen, status: "not-started" as ApprovalStatus,
         content: `PROGRAM NARRATIVE — PATHWAYS TO STABILITY
 
 I. THE PROBLEM: ECONOMIC INSTABILITY IN CENTRAL TEXAS
@@ -754,7 +754,7 @@ Our program is designed by and for the communities it serves:
 [Dr. Flood: Add any additional cultural responsiveness elements, language capabilities, community relationships]`,
         reviewNotes: "Strong draft — needs specific numbers in targets and Dr. Flood's community engagement examples inserted", lastUpdated: "March 30, 2026", assignee: "Dr. Flood + AI", pageLimit: "15 pages", wordCount: "5,000-6,000 words" },
 
-      { id: "std-budget", name: "Budget & Justification", description: "Line-item budget with cost allocation for economic stability services", icon: DollarSign, status: "draft" as ApprovalStatus,
+      { id: "std-budget", name: "Budget & Justification (If Invited)", description: "Full proposal budget — only needed if LOI is accepted", icon: DollarSign, status: "not-started" as ApprovalStatus,
         content: `BUDGET & JUSTIFICATION — INDIVIDUAL TRACK ($250,000)
 [Adjust all amounts if pursuing Collaborative Track ($1,000,000)]
 
@@ -813,7 +813,7 @@ BUDGET NOTES:
 [Dr. Flood: Adjust salary amounts to match actual compensation plans. Verify fringe benefit rates. Confirm indirect cost rate — if you have a negotiated indirect rate, use it; otherwise 10% is standard for foundations.]`,
         reviewNotes: "Adjust salary figures to actual. Verify fringe rates. If pursuing collaborative track, create partner budget allocations.", lastUpdated: "March 30, 2026", assignee: "Dr. Flood", pageLimit: "3 pages", wordCount: "1,000-1,500 words" },
 
-      { id: "std-community", name: "Community Voice Documentation", description: "Evidence of community-informed design — Three Realities analysis, stakeholder input, lived experience", icon: Users, status: "draft" as ApprovalStatus,
+      { id: "std-community", name: "Community Voice Documentation (If Invited)", description: "Full proposal section — evidence of community-informed design. Start gathering this NOW so it's ready.", icon: Users, status: "not-started" as ApprovalStatus,
         content: `COMMUNITY VOICE DOCUMENTATION
 Evidence of Community-Informed Program Design
 
@@ -892,7 +892,7 @@ This section MUST contain real, documented community engagement. St. David's wil
 If you have not yet conducted formal Three Realities sessions in Central Texas, schedule them THIS WEEK. Even 2-3 small listening sessions with 5-10 people each would provide authentic documentation. Partner organizations (churches, food banks, community health centers) can help recruit participants.`,
         reviewNotes: "HIGHEST PRIORITY. Must be populated with REAL community engagement evidence. This is the section St. David's scores most heavily.", lastUpdated: "March 30, 2026", assignee: "Dr. Flood", pageLimit: "5 pages", wordCount: "1,500-2,500 words" },
 
-      { id: "std-outcomes", name: "Outcomes & Evaluation Plan", description: "Measurable outcomes: benefits enrollment rates, economic stability indicators, participant economic health", icon: BarChart3, status: "draft" as ApprovalStatus,
+      { id: "std-outcomes", name: "Outcomes & Evaluation (If Invited)", description: "Full proposal section — measurable outcomes and evaluation plan", icon: BarChart3, status: "not-started" as ApprovalStatus,
         content: `OUTCOMES & EVALUATION PLAN
 
 I. THEORY OF CHANGE
@@ -984,7 +984,7 @@ Annual Outcomes Report: Full evaluation against all targets, cost-effectiveness 
 Final Report: Comprehensive outcomes summary, sustainability plan status, recommendations for replication`,
         reviewNotes: "Strong outcomes framework. Adjust target numbers based on budget track (individual vs collaborative).", lastUpdated: "March 30, 2026", assignee: "Dr. Flood + AI", pageLimit: "5 pages", wordCount: "1,500-2,000 words" },
 
-      { id: "std-partnerships", name: "Partnership & Collaboration Letters", description: "Community organizations, benefits agencies, workforce partners in Central Texas", icon: Handshake, status: "draft" as ApprovalStatus,
+      { id: "std-partnerships", name: "Partnership Letters (If Invited)", description: "Full proposal section — partner letters. Start outreach NOW so letters are ready.", icon: Handshake, status: "not-started" as ApprovalStatus,
         content: `PARTNERSHIP & COLLABORATION DOCUMENTATION
 
 TARGET PARTNERS — NEED LETTERS OF SUPPORT FROM EACH:
@@ -1049,7 +1049,7 @@ Subject: Partnership Opportunity — St. David's Foundation Grant Application
 Body: Brief intro of TCAF, description of Pathways to Stability, what you're asking of them (letter of support + specific partnership role), timeline for response.`,
         reviewNotes: "Outreach must begin immediately. Letters take time — follow up within 48 hours.", lastUpdated: "March 30, 2026", assignee: "Dr. Flood", pageLimit: "No limit (1 per partner)", wordCount: "300-500 words each" },
 
-      { id: "std-org-capacity", name: "Organizational Capacity", description: "Board composition, leadership bios, financial statements, prior results", icon: Building2, status: "draft" as ApprovalStatus,
+      { id: "std-org-capacity", name: "Organizational Capacity (If Invited)", description: "Full proposal section — board, financials, prior results", icon: Building2, status: "not-started" as ApprovalStatus,
         content: `ORGANIZATIONAL CAPACITY
 
 I. ORGANIZATION OVERVIEW
@@ -1123,7 +1123,7 @@ TCAF delivers: Three Realities community voice methodology, Black-led organizati
 The alignment is structural, not aspirational — our organization was built to do exactly what St. David's funds.`,
         reviewNotes: "Need: board list, financial statements, prior results documentation. These are not optional — foundations verify organizational capacity.", lastUpdated: "March 30, 2026", assignee: "Dr. Flood", pageLimit: "5 pages", wordCount: "1,500-2,000 words" },
 
-      { id: "std-sustainability", name: "Sustainability Plan", description: "How economic stability services continue beyond St. David's funding", icon: Globe, status: "draft" as ApprovalStatus,
+      { id: "std-sustainability", name: "Sustainability Plan (If Invited)", description: "Full proposal section — how services continue post-grant", icon: Globe, status: "not-started" as ApprovalStatus,
         content: `SUSTAINABILITY PLAN
 How Pathways to Stability Continues Beyond St. David's Funding
 
@@ -1316,36 +1316,31 @@ This review is stored in the RPLICE assessment database and will be updated when
         ],
       },
       {
-        id: "build" as PhaseId, name: "2. Build & Draft", description: "Draft application materials — ALL 8 SECTIONS DRAFTED", status: "active" as const,
+        id: "build" as PhaseId, name: "2. Build & Draft", description: "Stage 1: LOI only. Full proposal sections drafted but saved for Stage 2 if invited.", status: "active" as const,
         tasks: [
-          { id: "stb1", task: "Draft program narrative (3-track model: benefits, financial coaching, workforce)", owner: "AI + Dr. Flood Review", status: "done" as const, dueDate: "2026-03-30" },
-          { id: "stb2", task: "Develop budget — $250K individual track (adjust if collaborative)", owner: "Dr. Flood", status: "in-progress" as const, dueDate: "TBD", guidance: "Draft budget created at $250K. Adjust salary figures to actual. If pursuing $1M collaborative track, create partner budget allocations." },
-          { id: "stb3", task: "Document Three Realities community engagement with REAL examples", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD", guidance: "HIGHEST PRIORITY. Community Voice section is drafted with template structure but needs YOUR real community engagement data — dates, locations, participants, findings, quotes. Schedule listening sessions THIS WEEK if needed." },
-          { id: "stb4", task: "Draft public benefits enrollment strategy using LifeBridge", owner: "AI + Dr. Flood Review", status: "done" as const, dueDate: "2026-03-30" },
-          { id: "stb5", task: "Build outcomes framework (RE-AIM style with measurable targets)", owner: "AI + Dr. Flood Review", status: "done" as const, dueDate: "2026-03-30" },
-          { id: "stb6", task: "Begin partner outreach — need letters from Foundation Communities, CommUnityCare, United Way, Goodwill, Workforce Solutions", owner: "Dr. Flood + Meredith", status: "pending" as const, dueDate: "TBD", guidance: "Email template provided in Partnerships section. Contact all 5 target partners THIS WEEK." },
-          { id: "stb7", task: "Complete Organizational Capacity — add board list, financials, prior results", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD" },
-          { id: "stb8", task: "Validate sustainability plan revenue projections", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD" },
+          { id: "stb1", task: "Draft LOI (2-3 pages: org overview, program concept, population, funding ask)", owner: "AI + Dr. Flood Review", status: "done" as const, dueDate: "2026-03-30" },
+          { id: "stb2", task: "Decide Individual ($250K) vs. Collaborative ($1M) track", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD", guidance: "Individual = just TCAF. Collaborative = 3+ orgs with MOUs. Collaborative unlocks more funding but requires partner commitments before LOI." },
+          { id: "stb3", task: "Begin community listening sessions for Three Realities evidence", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD", guidance: "Start NOW even though 2026 cycle hasn't opened. Community voice is the #1 scoring factor. Even 2-3 listening sessions with 5-10 people provides real evidence." },
+          { id: "stb4", task: "Begin partner outreach (Foundation Communities, CommUnityCare, United Way)", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD", guidance: "Letters of support take time. Start conversations now so letters are ready when LOI opens." },
         ],
       },
       {
-        id: "review" as PhaseId, name: "3. Review & Approve", description: "Dr. Flood final review + RPLICE quality gate", status: "upcoming" as const,
+        id: "review" as PhaseId, name: "3. Review & Submit LOI", description: "Review LOI and submit when 2026 cycle opens", status: "upcoming" as const,
         tasks: [
-          { id: "str0", task: "RPLICE quality review — CFIR 2.0 + RE-AIM + Three Realities + Fidelity Checklist", owner: "RPLICE System", status: "done" as const, dueDate: "2026-03-30", guidance: "COMPLETED. RPLICE assessed all 8 sections. Results: CFIR 3.96/5.0, RE-AIM 79.6/100, Three Realities 3.17/5.0 (Lived Reality CRITICAL GAP), Fidelity 68/100 (5 FAIL items). See RPLICE Quality Review section for full findings and action items." },
-          { id: "str1", task: "Address RPLICE critical findings — close 5 FAIL items before submission", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD", guidance: "RPLICE identified 5 FAIL items: (1) staffing — name team members, (2) community voice — real data, (3) partners — secured letters, (4) org capacity — board/financials, (5) timeline — add milestones. Each completed item triggers RPLICE re-assessment." },
-          { id: "str2", task: "Review and approve program narrative", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD" },
-          { id: "str3", task: "Review and approve budget with real dollar amounts", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD" },
-          { id: "str4", task: "Verify community voice documentation is authentic and complete", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD" },
-          { id: "str5", task: "RPLICE re-assessment — confirm all FAIL items resolved, score ≥ 85/100", owner: "RPLICE System", status: "pending" as const, dueDate: "TBD", guidance: "After Dr. Flood addresses critical findings, re-run RPLICE CFIR + RE-AIM + fidelity assessments. Target: CFIR ≥ 4.2/5.0, RE-AIM ≥ 85/100, Fidelity ≥ 85/100, Three Realities ≥ 4.0/5.0. Do not submit below these thresholds." },
-          { id: "str6", task: "Final alignment check with St. David's NOFO requirements", owner: "Dr. Flood + Meredith", status: "pending" as const, dueDate: "TBD" },
+          { id: "str0", task: "RPLICE quality review of LOI draft", owner: "RPLICE System", status: "pending" as const, dueDate: "TBD" },
+          { id: "str1", task: "Dr. Flood review and finalize LOI", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD" },
+          { id: "str2", task: "Submit LOI when 2026 cycle opens", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD", guidance: "Monitor stdavidsfoundation.org for 2026 announcement. Contact Christina Thompson (cthompson@stdavidsfoundation.org) to ask about timing." },
         ],
       },
       {
-        id: "submit" as PhaseId, name: "4. Package & Submit", description: "Submit through St. David's grants portal", status: "upcoming" as const,
+        id: "submit" as PhaseId, name: "4. Full Proposal (If Invited)", description: "Only if LOI is accepted — complete full proposal with narrative, budget, community voice, partnerships, outcomes", status: "upcoming" as const,
         tasks: [
-          { id: "sts1", task: "Assemble final package per foundation format", owner: "Dr. Flood + AI", status: "pending" as const, dueDate: "TBD" },
-          { id: "sts2", task: "Submit through St. David's online Grants Portal", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD" },
-          { id: "sts3", task: "Confirm receipt and follow up timeline", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD" },
+          { id: "sts1", task: "Complete full program narrative (15 pages) — draft already prepared", owner: "Dr. Flood + AI", status: "pending" as const, dueDate: "TBD" },
+          { id: "sts2", task: "Finalize budget with real salary figures", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD" },
+          { id: "sts3", task: "Complete Community Voice section with real listening session data", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD" },
+          { id: "sts4", task: "Secure partner letters of support", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD" },
+          { id: "sts5", task: "RPLICE quality review of full proposal — target ≥ 85/100", owner: "RPLICE System", status: "pending" as const, dueDate: "TBD" },
+          { id: "sts6", task: "Submit full proposal through St. David's portal", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD" },
         ],
       },
       {
