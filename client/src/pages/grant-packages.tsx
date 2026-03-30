@@ -17,7 +17,7 @@ import {
   Activity, Lightbulb, Heart, Handshake, Scale,
   Package, CheckSquare, XCircle, Upload, Camera, Search,
   Loader2, Leaf, Plus, Trash2, Bell, Pencil, ExternalLink,
-  Award, Star, GraduationCap, Headphones,
+  Award, Star, GraduationCap, Headphones, Microscope,
 } from "lucide-react";
 
 type ApprovalStatus = "not-started" | "draft" | "in-review" | "approved" | "needs-revision";
@@ -252,12 +252,15 @@ SERVICE AREA: Central Texas (Travis, Williamson, Hays, Bastrop, Caldwell countie
         ],
       },
       {
-        id: "review", name: "3. Review & Approve", description: "Dr. Flood reviews and approves all sections", status: "upcoming",
+        id: "review", name: "3. Review & Approve", description: "Dr. Flood review + RPLICE quality gate", status: "upcoming",
         tasks: [
-          { id: "wr1", task: "Review and approve complete narrative", owner: "Dr. Flood", status: "pending", dueDate: "TBD" },
-          { id: "wr2", task: "Review and approve budget", owner: "Dr. Flood", status: "pending", dueDate: "TBD" },
-          { id: "wr3", task: "Verify performance targets are achievable", owner: "Dr. Flood", status: "pending", dueDate: "TBD" },
-          { id: "wr4", task: "Final compliance review against WIOA regulations", owner: "Dr. Flood + AI", status: "pending", dueDate: "TBD" },
+          { id: "wr0", task: "RPLICE quality review — CFIR 2.0 + RE-AIM + fidelity checklist assessment", owner: "RPLICE System", status: "pending", dueDate: "TBD", guidance: "Standard operating procedure: Run RPLICE CFIR domain assessment, RE-AIM readiness scorecard, and fidelity checklist against all proposal sections before Dr. Flood review. Results stored in RPLICE database and used to identify gaps." },
+          { id: "wr1", task: "Address RPLICE critical findings before proceeding", owner: "Dr. Flood", status: "pending", dueDate: "TBD" },
+          { id: "wr2", task: "Review and approve complete narrative", owner: "Dr. Flood", status: "pending", dueDate: "TBD" },
+          { id: "wr3", task: "Review and approve budget", owner: "Dr. Flood", status: "pending", dueDate: "TBD" },
+          { id: "wr4", task: "Verify performance targets are achievable", owner: "Dr. Flood", status: "pending", dueDate: "TBD" },
+          { id: "wr5", task: "RPLICE re-assessment — confirm all critical items resolved", owner: "RPLICE System", status: "pending", dueDate: "TBD" },
+          { id: "wr6", task: "Final compliance review against WIOA regulations", owner: "Dr. Flood + AI", status: "pending", dueDate: "TBD" },
         ],
       },
       {
@@ -422,13 +425,16 @@ ELIGIBILITY: 501(c)(3) organizations or fiscal sponsors; must demonstrate authen
         ],
       },
       {
-        id: "review", name: "3. Review & Approve", description: "Dr. Flood final review and approval", status: "upcoming",
+        id: "review", name: "3. Review & Approve", description: "Dr. Flood review + RPLICE quality gate", status: "upcoming",
         tasks: [
-          { id: "nr1", task: "Review and approve LOI", owner: "Dr. Flood", status: "pending", dueDate: "TBD" },
-          { id: "nr2", task: "Review and approve full narrative", owner: "Dr. Flood", status: "pending", dueDate: "TBD" },
-          { id: "nr3", task: "Review and approve budget", owner: "Dr. Flood", status: "pending", dueDate: "TBD" },
-          { id: "nr4", task: "Verify outcomes framework is achievable", owner: "Dr. Flood", status: "pending", dueDate: "TBD" },
-          { id: "nr5", task: "Final alignment check with Foundation Grant priorities", owner: "Dr. Flood + AI", status: "pending", dueDate: "TBD" },
+          { id: "nr0", task: "RPLICE quality review — CFIR 2.0 + RE-AIM + fidelity checklist assessment", owner: "RPLICE System", status: "pending", dueDate: "TBD", guidance: "Standard operating procedure: Run RPLICE CFIR domain assessment, RE-AIM readiness scorecard, and fidelity checklist against all proposal sections. Results stored in RPLICE database." },
+          { id: "nr1", task: "Address RPLICE critical findings before proceeding", owner: "Dr. Flood", status: "pending", dueDate: "TBD" },
+          { id: "nr2", task: "Review and approve LOI", owner: "Dr. Flood", status: "pending", dueDate: "TBD" },
+          { id: "nr3", task: "Review and approve full narrative", owner: "Dr. Flood", status: "pending", dueDate: "TBD" },
+          { id: "nr4", task: "Review and approve budget", owner: "Dr. Flood", status: "pending", dueDate: "TBD" },
+          { id: "nr5", task: "Verify outcomes framework is achievable", owner: "Dr. Flood", status: "pending", dueDate: "TBD" },
+          { id: "nr6", task: "RPLICE re-assessment — confirm all critical items resolved", owner: "RPLICE System", status: "pending", dueDate: "TBD" },
+          { id: "nr7", task: "Final alignment check with Foundation Grant priorities", owner: "Dr. Flood + AI", status: "pending", dueDate: "TBD" },
         ],
       },
       {
@@ -694,7 +700,48 @@ Primary: Travis County (Austin, Pflugerville, Manor, Del Valle) and Williamson C
 Secondary: Hays County (San Marcos, Kyle, Buda)
 Expansion (if collaborative): Bastrop and Caldwell counties through partner organizations
 
-V. CULTURAL RESPONSIVENESS & EQUITY
+Note on 5-County Coverage: For Bastrop and Caldwell counties specifically, our model deploys through partner organizations with existing community presence. RPLICE's CFIR assessment identified Travis-centricity as a gap (Outer Setting: 4.0/5.0); this partner-based expansion strategy addresses that finding while maintaining service quality through RPLICE fidelity monitoring of partner delivery.
+
+VI. IMPLEMENTATION TIMELINE (RPLICE-INFORMED)
+[Added per RPLICE assessment — Implementation Process domain flagged missing milestones]
+
+Days 1-30: FOUNDATION
+- Hire Community Benefits Navigators (2 part-time, lived experience required)
+- Configure LifeBridge for benefits enrollment tracking in target ZIP codes
+- Execute partner MOUs with Foundation Communities, CommUnityCare, United Way
+- Baseline RPLICE fidelity assessment — document starting implementation readiness
+- First Three Realities community listening session (Travis County)
+
+Days 31-60: LAUNCH
+- Begin participant enrollment — target: 25 households
+- Launch Track 1 (Benefits Navigation) and Track 2 (Financial Coaching)
+- First MAP-GAP improvement cycle — identify and address early implementation barriers
+- Second community listening session (Williamson County)
+- RPLICE mid-launch fidelity check — are we delivering as designed?
+
+Days 61-90: SCALE
+- Expand enrollment — target: 75 cumulative households
+- Launch Track 3 (Workforce Pathways) for participants with employment needs
+- First quarterly outcome report to St. David's
+- RPLICE RE-AIM Reach assessment — are we reaching target populations?
+- Adjust recruitment strategy based on first 90 days of enrollment data
+
+Days 91-180: OPTIMIZE
+- Target: 150 cumulative households enrolled in at least one benefit
+- First full MAP-GAP cycle completion — documented program modifications
+- RPLICE fidelity re-assessment — target score ≥ 4.0/5.0
+- Partner service integration fully operational
+- First 6-month retention report — target: >80% retention
+
+Days 181-365: SUSTAIN & MEASURE
+- Target: 200-500 households served (varies by track combination)
+- Full RE-AIM evaluation — all 5 dimensions scored and reported
+- RPLICE Three Realities re-assessment — Gap Reality closing?
+- Year 1 outcomes report with evidence of impact
+- Sustainability planning: federal funding applications submitted, post-grant revenue identified
+- CFIR 2.0 full program assessment — ready for replication?
+
+VII. CULTURAL RESPONSIVENESS & EQUITY
 
 Our program is designed by and for the communities it serves:
 - Founder and CEO is a Black veteran with lived experience navigating institutional barriers
@@ -1138,6 +1185,123 @@ Mitigation: Revenue diversification across federal, state, foundation, and earne
 Risk: Key personnel departure
 Mitigation: Three Realities methodology is documented and trainable; LifeBridge platform is institution-owned, not person-dependent; train-the-trainer model ensures organizational knowledge transfer`,
         reviewNotes: "Strong framework. Dr. Flood should validate revenue projections and add specific earned revenue data.", lastUpdated: "March 30, 2026", assignee: "Dr. Flood", pageLimit: "3 pages", wordCount: "1,000-1,500 words" },
+      { id: "std-rplice-review", name: "RPLICE Quality Review (Internal)", description: "CFIR 2.0 domain assessment, RE-AIM readiness scorecard, Three Realities diagnostic, and fidelity checklist — generated by RPLICE tools", icon: Microscope, status: "needs-revision" as ApprovalStatus,
+        content: `RPLICE QUALITY REVIEW — ST. DAVID'S PATHWAYS TO STABILITY
+Generated: March 30, 2026 | Assessor: RPLICE Automated Assessment Engine
+This is an INTERNAL quality review. RPLICE tools assessed every section of this application before submission.
+
+══════════════════════════════════════════════════════
+CFIR 2.0 DOMAIN ASSESSMENT — Overall Score: 3.96 / 5.0
+══════════════════════════════════════════════════════
+
+INNOVATION CHARACTERISTICS: 4.2/5.0
+✓ Three-track model addresses interconnected barriers — not siloed
+✓ LifeBridge provides real enrollment tracking, not spreadsheets
+✓ Three Realities is a named, documented methodology
+⚠ GAP: Relative advantage over existing TX enrollment programs not clearly articulated
+→ ACTION: Show what TCAF adds vs. Foundation Communities / United Way 2-1-1
+
+OUTER SETTING: 4.0/5.0
+✓ 40% benefits enrollment gap well-documented
+✓ ZIP code targeting shows geographic precision
+⚠ GAP: Proposal is Austin/Travis-centric — St. David's funds ALL 5 counties
+⚠ GAP: Policy adaptability not addressed (what if SNAP rules change?)
+→ ACTION: Add Bastrop/Caldwell county needs. Address policy adaptability.
+
+INNER SETTING: 3.5/5.0 — WEAKEST DOMAIN
+✓ 24-platform technology infrastructure
+✓ Veteran-founded, Black-led matches equity priorities
+✗ FAIL: No board list, financial statements, or prior results
+✗ FAIL: Only Dr. Flood named — signals solo operation
+✗ FAIL: No prior benefits enrollment experience documented
+→ CRITICAL: Fill Org Capacity with REAL data before submission
+
+INDIVIDUAL CHARACTERISTICS: 4.1/5.0
+✓ Dr. Flood's credentials are exceptional
+✓ Lived experience requirement for Navigators
+⚠ GAP: No named team members beyond Dr. Flood
+→ ACTION: Name 1-2 additional team members or subcontractors
+
+IMPLEMENTATION PROCESS: 4.0/5.0
+✓ MAP-GAP provides structured 30-day improvement cycles
+✓ RPLICE fidelity tracking is genuine competitive advantage
+✗ FAIL: No implementation timeline with milestones
+→ ACTION: Add 30/60/90/180/365 day milestone chart
+
+══════════════════════════════════════════════════════
+RE-AIM READINESS SCORECARD — Overall Score: 79.6 / 100
+══════════════════════════════════════════════════════
+
+REACH: 78/100
+⚠ No baseline population count for target ZIPs — cannot measure reach % without denominator
+→ ACTION: Add estimated eligible households per ZIP code
+
+EFFECTIVENESS: 82/100
+✓ $3K-$8K annual economic value per household is concrete
+⚠ No comparison group for attributing outcomes to TCAF vs. other efforts
+→ CONSIDER: Wait-list control or county-trend comparison
+
+ADOPTION: 75/100 — HIGHEST RISK
+✗ FAIL: Partners identified but NONE contacted or committed
+→ CRITICAL: Secure signed letters from Foundation Communities, CommUnityCare, United Way BEFORE SUBMISSION
+
+IMPLEMENTATION: 85/100 — STRONGEST
+✓ RPLICE fidelity tracking + MAP-GAP cycles = strongest CQI in applicant pool
+⚠ No 30/60/90 day milestone timeline
+→ ACTION: Add phased timeline
+
+MAINTENANCE: 78/100
+✓ Revenue diversification strategy with 4-year projection
+⚠ No confirmed post-grant revenue source
+→ ACTION: Identify 1 concrete source (SNAP E&T reimbursement?)
+
+══════════════════════════════════════════════════════
+THREE REALITIES DIAGNOSTIC — Overall Score: 3.17 / 5.0
+══════════════════════════════════════════════════════
+
+LIVED REALITY: 2.0/5.0 — CRITICAL FAILURE
+✗ Proposal describes what barriers SHOULD look like, not what community ACTUALLY SAID
+✗ No dates, locations, or participant counts for engagement activities
+✗ No direct quotes or themes from community members
+✗ Three Realities described as framework but NOT APPLIED
+→ VERDICT: DO NOT SUBMIT without documented Lived Reality data
+→ MINIMUM: 2-3 listening sessions, documented with dates, participants, 5+ quotes
+
+INSTITUTIONAL REALITY: 3.5/5.0
+✓ Correctly identifies institutional barriers
+⚠ Specific agencies (HHSC offices, WIC clinics) not analyzed
+→ ACTION: Contact 1-2 agencies for their perspective on enrollment barriers
+
+GAP REALITY: 4.0/5.0
+✓ 40% enrollment gap IS the gap
+⚠ Missing specific friction points — which steps cause abandonment?
+→ ACTION: Map 3-5 friction points with institution→community→bridge structure
+
+══════════════════════════════════════════════════════
+FIDELITY CHECKLIST — Overall Score: 68/100
+══════════════════════════════════════════════════════
+
+✓ PASS (4/12): Program design, target population, outcome measures, CQI methodology
+◐ PARTIAL (3/12): Fidelity indicators, budget alignment, sustainability plan
+✗ FAIL (5/12): Staffing plan, timeline, community engagement, partner commitments, org capacity
+
+SUBMISSION READINESS: NOT READY
+5 critical items must be completed before submission.
+
+══════════════════════════════════════════════════════
+RPLICE CRITICAL PATH — PRIORITY ORDER
+══════════════════════════════════════════════════════
+
+1. ★★★ COMMUNITY VOICE: Conduct and document 2-3 listening sessions — this is St. David's #1 scoring criterion
+2. ★★★ PARTNER LETTERS: Secure signed commitments from at least 3 organizations
+3. ★★★ ORG CAPACITY: Board list, 2 years financials, prior program results
+4. ★★☆ STAFFING: Name 2+ team members beyond Dr. Flood with qualifications
+5. ★★☆ TIMELINE: Add phased implementation milestones (30/60/90/180/365)
+6. ★☆☆ 5-COUNTY COVERAGE: Address Bastrop and Caldwell county service delivery
+7. ★☆☆ POST-GRANT REVENUE: Identify 1 confirmed revenue source
+
+This review is stored in the RPLICE assessment database and will be updated when gaps are addressed.`,
+        reviewNotes: "RPLICE assessment complete. 5 FAIL items require Dr. Flood's input before resubmission. Strongest areas: program design, CQI methodology, and evaluation framework. Weakest: organizational evidence and community voice documentation.", lastUpdated: "March 30, 2026", assignee: "RPLICE System", pageLimit: "Internal document — not submitted", wordCount: "N/A" },
     ],
     phases: [
       {
@@ -1165,12 +1329,15 @@ Mitigation: Three Realities methodology is documented and trainable; LifeBridge 
         ],
       },
       {
-        id: "review" as PhaseId, name: "3. Review & Approve", description: "Dr. Flood final review and approval", status: "upcoming" as const,
+        id: "review" as PhaseId, name: "3. Review & Approve", description: "Dr. Flood final review + RPLICE quality gate", status: "upcoming" as const,
         tasks: [
-          { id: "str1", task: "Review and approve program narrative", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD" },
-          { id: "str2", task: "Review and approve budget with real dollar amounts", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD" },
-          { id: "str3", task: "Verify community voice documentation is authentic and complete", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD" },
-          { id: "str4", task: "Final alignment check with St. David's NOFO requirements", owner: "Dr. Flood + Meredith", status: "pending" as const, dueDate: "TBD" },
+          { id: "str0", task: "RPLICE quality review — CFIR 2.0 + RE-AIM + Three Realities + Fidelity Checklist", owner: "RPLICE System", status: "done" as const, dueDate: "2026-03-30", guidance: "COMPLETED. RPLICE assessed all 8 sections. Results: CFIR 3.96/5.0, RE-AIM 79.6/100, Three Realities 3.17/5.0 (Lived Reality CRITICAL GAP), Fidelity 68/100 (5 FAIL items). See RPLICE Quality Review section for full findings and action items." },
+          { id: "str1", task: "Address RPLICE critical findings — close 5 FAIL items before submission", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD", guidance: "RPLICE identified 5 FAIL items: (1) staffing — name team members, (2) community voice — real data, (3) partners — secured letters, (4) org capacity — board/financials, (5) timeline — add milestones. Each completed item triggers RPLICE re-assessment." },
+          { id: "str2", task: "Review and approve program narrative", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD" },
+          { id: "str3", task: "Review and approve budget with real dollar amounts", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD" },
+          { id: "str4", task: "Verify community voice documentation is authentic and complete", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD" },
+          { id: "str5", task: "RPLICE re-assessment — confirm all FAIL items resolved, score ≥ 85/100", owner: "RPLICE System", status: "pending" as const, dueDate: "TBD", guidance: "After Dr. Flood addresses critical findings, re-run RPLICE CFIR + RE-AIM + fidelity assessments. Target: CFIR ≥ 4.2/5.0, RE-AIM ≥ 85/100, Fidelity ≥ 85/100, Three Realities ≥ 4.0/5.0. Do not submit below these thresholds." },
+          { id: "str6", task: "Final alignment check with St. David's NOFO requirements", owner: "Dr. Flood + Meredith", status: "pending" as const, dueDate: "TBD" },
         ],
       },
       {
@@ -1352,14 +1519,17 @@ APPLICATION WINDOW: June 12–18, 2026 (confirm exact date at Grants.gov). Award
         ],
       },
       {
-        id: "review", name: "3. Review & Approve", description: "Dr. Flood reviews all sections, advisory board check, compliance verification", status: "upcoming",
+        id: "review", name: "3. Review & Approve", description: "Dr. Flood review + RPLICE quality gate + advisory board check", status: "upcoming",
         tasks: [
-          { id: "fxr1", task: "Review and approve Program Narrative", owner: "Dr. Flood", status: "pending", dueDate: "2026-05-20" },
-          { id: "fxr2", task: "Review Intervention Model for clinical accuracy", owner: "Dr. Flood", status: "pending", dueDate: "2026-05-22" },
-          { id: "fxr3", task: "Review and approve Budget & Justification", owner: "Dr. Flood", status: "pending", dueDate: "2026-05-25" },
-          { id: "fxr4", task: "Verify all partnership letters are signed and collected", owner: "Dr. Flood", status: "pending", dueDate: "2026-05-28" },
-          { id: "fxr5", task: "Final compliance check against NOFO requirements", owner: "Dr. Flood + AI", status: "pending", dueDate: "2026-06-01" },
-          { id: "fxr6", task: "External review by veteran community advisor", owner: "Advisory Board", status: "pending", dueDate: "2026-06-05" },
+          { id: "fxr0", task: "RPLICE quality review — CFIR 2.0 + RE-AIM + fidelity checklist + Three Realities diagnostic", owner: "RPLICE System", status: "pending", dueDate: "2026-05-18", guidance: "Standard operating procedure: Run full RPLICE assessment suite against all proposal sections. SSG Fox VA requires SAMHSA evidence-based alignment — CFIR 2.0 is critical for this funder. Results stored in RPLICE database." },
+          { id: "fxr1", task: "Address RPLICE critical findings before section reviews", owner: "Dr. Flood", status: "pending", dueDate: "2026-05-19" },
+          { id: "fxr2", task: "Review and approve Program Narrative", owner: "Dr. Flood", status: "pending", dueDate: "2026-05-20" },
+          { id: "fxr3", task: "Review Intervention Model for clinical accuracy", owner: "Dr. Flood", status: "pending", dueDate: "2026-05-22" },
+          { id: "fxr4", task: "Review and approve Budget & Justification", owner: "Dr. Flood", status: "pending", dueDate: "2026-05-25" },
+          { id: "fxr5", task: "Verify all partnership letters are signed and collected", owner: "Dr. Flood", status: "pending", dueDate: "2026-05-28" },
+          { id: "fxr6", task: "RPLICE re-assessment — confirm all critical items resolved, fidelity ≥ 85/100", owner: "RPLICE System", status: "pending", dueDate: "2026-05-30" },
+          { id: "fxr7", task: "Final compliance check against NOFO requirements", owner: "Dr. Flood + AI", status: "pending", dueDate: "2026-06-01" },
+          { id: "fxr8", task: "External review by veteran community advisor", owner: "Advisory Board", status: "pending", dueDate: "2026-06-05" },
         ],
       },
       {
@@ -2125,11 +2295,14 @@ PROPOSAL SUBMISSION CHECKLIST:
         ],
       },
       {
-        id: "review" as PhaseId, name: "3. Review & Finalize", description: "Final review of complete proposal package", status: "upcoming" as const,
+        id: "review" as PhaseId, name: "3. Review & Finalize", description: "Final review + RPLICE quality gate", status: "upcoming" as const,
         tasks: [
-          { id: "ch11", task: "Compile complete proposal package", owner: "Dr. Flood + AI", status: "pending" as const, dueDate: "April 18, 2026" },
-          { id: "ch12", task: "Final compliance review against solicitation requirements", owner: "Dr. Flood", status: "pending" as const, dueDate: "April 20, 2026" },
-          { id: "ch13", task: "Verify live system is fully operational", owner: "Dr. Flood", status: "pending" as const, dueDate: "April 22, 2026" },
+          { id: "chr0", task: "RPLICE quality review — CFIR 2.0 + RE-AIM + fidelity checklist against proposal", owner: "RPLICE System", status: "pending" as const, dueDate: "April 16, 2026", guidance: "Standard operating procedure: Run full RPLICE assessment suite. Central Health is a contract, not a grant — focus fidelity checklist on vendor qualifications, past performance, and technical approach compliance with solicitation requirements." },
+          { id: "chr1", task: "Address RPLICE critical findings", owner: "Dr. Flood", status: "pending" as const, dueDate: "April 17, 2026" },
+          { id: "chr2", task: "Compile complete proposal package", owner: "Dr. Flood + AI", status: "pending" as const, dueDate: "April 18, 2026" },
+          { id: "chr3", task: "RPLICE re-assessment — confirm fidelity ≥ 85/100", owner: "RPLICE System", status: "pending" as const, dueDate: "April 19, 2026" },
+          { id: "chr4", task: "Final compliance review against solicitation requirements", owner: "Dr. Flood", status: "pending" as const, dueDate: "April 20, 2026" },
+          { id: "chr5", task: "Verify live system is fully operational", owner: "Dr. Flood", status: "pending" as const, dueDate: "April 22, 2026" },
         ],
       },
       {
