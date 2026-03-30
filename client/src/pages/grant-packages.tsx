@@ -874,6 +874,465 @@ APPLICATION WINDOW: June 12–18, 2026 (confirm exact date at Grants.gov). Award
       ],
     },
   },
+  {
+    id: "central-health-cms",
+    name: "Central Health CMS",
+    fullName: "Central Health Compensation Management System — Solicitation #2603-002",
+    funder: "Travis County Healthcare District dba Central Health",
+    amount: "Enterprise Contract (TBD)",
+    deadline: "April 24, 2026 3:00 PM EDT",
+    deadlineUrgency: "approaching",
+    icon: Building2,
+    color: "text-cyan-600",
+    bgColor: "bg-cyan-50 dark:bg-cyan-950/30",
+    borderColor: "border-cyan-200 dark:border-cyan-800",
+    description: "Government procurement for a centralized, automated Compensation Management System replacing fragmented manual processes at Central Health. Full lifecycle: job architecture, market pricing, offer management, equity analysis, workflow automation, and executive reporting.",
+    referenceUrl: "https://centralhealthcms.com",
+    referenceLabel: "Live System — centralhealthcms.com",
+    grantKnowledge: `Central Health Compensation Management System — Solicitation #2603-002.
+PURPOSE: Central Health is soliciting proposals from qualified vendors to provide and implement a centralized, automated Compensation Management System (CMS) that replaces fragmented, manual, and email-based processes with a secure, auditable, and data-driven platform. The CMS will serve as the system of record for compensation-related activities and will support the full lifecycle of compensation decisions.
+BUYING ORGANIZATION: Travis County Healthcare District dba Central Health — serves 300,000+ Travis County residents.
+WHAT WE BUILT: 15-module enterprise platform — fully operational, not a prototype. Live at centralhealthcms.com. Modules: Job Architecture, Market Pricing, Offer Management, Pay Equity, Comp Planning, Analytics, Integrations (Workday/SAP/PeopleSoft), Audit & Compliance (NIST 800-53), AI Intelligence Hub (6 wizards, RAG), User Management (7 roles, 30+ permissions), Total Rewards, Workflow Pipeline (7-stage), System Guide, Command Bar, Policy & Change Management.
+SUBMITTING ENTITY: Collaboration & Implementation Professionals LLC (EIN 41-4996540) — Veteran-Owned Small Business.
+STATUS: App built and deployed. Capability packet written. Need: pricing, vendor qualifications, SLAs, insurance documentation, HUB certification, data migration plan.`,
+    serviceArea: {
+      region: "Travis County",
+      state: "Texas",
+      counties: ["Travis"],
+      city: "Austin",
+      keyIndustries: ["Healthcare", "Public Health", "Government"],
+      targetEmployers: [
+        { name: "Central Health", sector: "Healthcare", type: "Travis County Healthcare District — 2,000+ employees" },
+        { name: "CommUnityCare Health Centers", sector: "Healthcare", type: "FQHC network operated by Central Health" },
+        { name: "Sendero Health Plans", sector: "Healthcare", type: "Central Health's insurance arm" },
+      ],
+      laborMarketNotes: "Central Health serves 300,000+ Travis County residents through a network of community health centers, specialty services, and partnerships. Healthcare compensation in Austin is highly competitive — nursing shortage, behavioral health gaps, and high cost of living drive above-average salary requirements.",
+      locationEligibility: "local",
+      locationNotes: "Travis County Healthcare District procurement — local government entity. This is a competitive bid, not a grant. Evaluated on technical merit, vendor qualifications, and cost.",
+      multiSiteEligible: false,
+    },
+    competitiveEdge: [
+      "Fully operational on Day 1 — live system at centralhealthcms.com, not a prototype or roadmap",
+      "15 integrated modules covering the entire compensation lifecycle end-to-end",
+      "AI-native with 6 guided wizards, RAG decision support, and community impact analysis",
+      "Purpose-built for Central Health — Austin TX calibrated, public healthcare focused, 300,000 resident context",
+      "7-stage workflow engine with RAG accountability and Four Amigos governance triggers",
+      "Bidirectional integration with Workday, SAP, PeopleSoft + market survey providers (Mercer, Radford, Sullivan Cotter)",
+      "NIST 800-53 compliance framework with full audit trail",
+      "Veteran-Owned Small Business (VOSB) — may qualify for HUB preference points",
+      "MAP-GAP implementation science framework embedded in prioritization logic",
+    ],
+    essentials: [
+      { label: "Live System Deployed", detail: "centralhealthcms.com — fully operational with pre-seeded evaluation data, welcome video, and guided onboarding", critical: true },
+      { label: "Capability Packet Written", detail: "Complete technical proposal covering all 15 modules, AI engine, workflow automation, security, and architecture", critical: true },
+      { label: "Pricing Proposal Needed", detail: "Must include licensing model, implementation costs, annual maintenance, support fees, and total cost of ownership", critical: true },
+      { label: "Vendor Qualifications Needed", detail: "Past performance, team bios, comparable contracts, organizational capacity statement", critical: true },
+      { label: "SLA Documentation Needed", detail: "Uptime guarantee, response times by severity, escalation path, support hours, dedicated contacts" },
+      { label: "Insurance & Bonding Needed", detail: "Cyber liability, errors & omissions (E&O), general liability, professional liability — check C&IP LLC coverage" },
+      { label: "HUB Certification", detail: "Check Texas Comptroller HUB status — VOSB + minority-led may qualify. Significant preference points in TX government procurement" },
+      { label: "Data Migration Plan Needed", detail: "How existing Central Health compensation data migrates into the new system — ETL process, validation, cutover, rollback" },
+    ],
+    sections: [
+      {
+        id: "chcms-capability", name: "Capability Packet & Technical Proposal", description: "Complete 15-module technical documentation — DONE",
+        icon: FileText, status: "approved" as ApprovalStatus, content: "COMPLETE — Full capability packet written covering all 15 modules, AI engine, workflow automation, security, integrations, and Day 1 readiness. See centralhealthcms.com for live system.",
+        reviewNotes: "Reviewed against RFP requirements — 100% functional coverage", lastUpdated: "March 28, 2026", assignee: "Dr. Flood + AI",
+      },
+      {
+        id: "chcms-pricing", name: "Pricing & Cost Proposal", description: "Licensing model, implementation, annual maintenance, total cost of ownership",
+        icon: DollarSign, status: "not-started" as ApprovalStatus,
+        content: `CENTRAL HEALTH CMS — PRICING PROPOSAL TEMPLATE
+
+1. LICENSING MODEL
+   Option A: Annual SaaS License
+   - Year 1 (Implementation + License): $[___]
+   - Year 2+ Annual License: $[___]
+   - Per-user add-on (beyond base): $[___]/user/month
+
+   Option B: Perpetual License + Annual Maintenance
+   - One-time license fee: $[___]
+   - Annual maintenance & support (20% of license): $[___]/year
+
+2. IMPLEMENTATION COSTS
+   - System configuration & customization: $[___]
+   - Data migration (ETL from existing systems): $[___]
+   - Integration setup (Workday/SAP/PeopleSoft): $[___]
+   - User training (admin, analyst, manager roles): $[___]
+   - Project management: $[___]
+   - Total implementation: $[___]
+
+3. ONGOING COSTS
+   - Annual support & maintenance: $[___]
+   - Hosting & infrastructure: $[___]
+   - AI/ML processing (Anthropic Claude usage): $[___]
+   - Annual enhancements & updates: $[___]
+
+4. TOTAL COST OF OWNERSHIP (5-YEAR)
+   Year 1: $[___] (implementation + license)
+   Year 2: $[___]
+   Year 3: $[___]
+   Year 4: $[___]
+   Year 5: $[___]
+   5-Year Total: $[___]
+
+NOTES FOR DR. FLOOD:
+- Research comparable compensation system contracts (Payscale, Salary.com, Decusoft) to benchmark pricing
+- Central Health annual budget is ~$400M; compensation system is a significant but justified investment
+- Consider pricing competitively against incumbents — your Day 1 readiness eliminates implementation risk premium
+- Government contracts typically favor fixed-price over T&M
+- Include optional line items for: additional integrations, custom reporting, training sessions`,
+        reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood",
+        pageLimit: "5-10 pages", wordCount: "2,000-3,000 words",
+      },
+      {
+        id: "chcms-vendor", name: "Vendor Qualifications & Past Performance", description: "Organizational capacity, team bios, comparable experience, references",
+        icon: Award, status: "not-started" as ApprovalStatus,
+        content: `VENDOR QUALIFICATIONS — TEMPLATE
+
+1. ORGANIZATIONAL OVERVIEW
+   Collaboration & Implementation Professionals LLC
+   EIN: 41-4996540
+   Type: Veteran-Owned Small Business (VOSB)
+   Address: 17912 Stefano Drive, Pflugerville, TX 78660
+   Principal: Dr. Terry Flood, DHA, MS, MA, MSHRM, MBA, MSCJ
+
+2. PRINCIPAL QUALIFICATIONS
+   Dr. Terry Flood — Founder & CEO
+   - Doctor of Healthcare Administration (DHA)
+   - MS Implementation Science
+   - MA Psychology (Industrial-Organizational focus)
+   - MS Human Resource Management
+   - MBA
+   - MS Criminal Justice / Public Policy
+   - U.S. Army Veteran — Bronze Star (x2)
+   - Expertise: Compensation systems, organizational development, workforce analytics, implementation science
+   - Proprietary frameworks: MAP-GAP, SALP, Three Realities, MG-PATR
+
+3. RELEVANT EXPERIENCE
+   [Dr. Flood: List comparable projects here — HR consulting, compensation analysis, workforce systems, technology implementations. Include:]
+   - Client name (or "Government Healthcare Agency" if confidential)
+   - Scope of work
+   - Contract value
+   - Outcome / deliverables
+   - Reference contact (name, title, phone, email)
+
+4. ORGANIZATIONAL CAPACITY
+   - Technology stack: React, Express.js, PostgreSQL, Anthropic Claude AI
+   - Hosting: Cloud-deployed, HTTPS-secured, 24/7 availability
+   - Development methodology: Agile with MAP-GAP continuous improvement
+   - Security certifications: NIST 800-53 compliance framework
+   - Data handling: HIPAA-aware architecture, encrypted sessions, full audit trail
+
+5. TEAM MEMBERS
+   [List any additional team members or subcontractors who will support implementation]
+   - Name, role, qualifications, relevant experience
+
+6. REFERENCES (Minimum 3)
+   Reference 1: [Name, Organization, Title, Phone, Email, Project Description]
+   Reference 2: [Name, Organization, Title, Phone, Email, Project Description]
+   Reference 3: [Name, Organization, Title, Phone, Email, Project Description]`,
+        reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood",
+        pageLimit: "10-15 pages", wordCount: "3,000-5,000 words",
+      },
+      {
+        id: "chcms-sla", name: "Service Level Agreement (SLA)", description: "Uptime, response times, escalation, support hours, dedicated contacts",
+        icon: Shield, status: "not-started" as ApprovalStatus,
+        content: `SERVICE LEVEL AGREEMENT — TEMPLATE
+
+1. SYSTEM AVAILABILITY
+   - Guaranteed uptime: 99.9% (excluding scheduled maintenance)
+   - Scheduled maintenance window: Sundays 2:00-6:00 AM CT
+   - Planned maintenance notice: 72 hours minimum
+   - Emergency maintenance notice: As soon as practicable
+
+2. INCIDENT RESPONSE TIMES
+   Severity 1 (Critical — system down, data loss risk):
+   - Response: Within 1 hour
+   - Resolution target: 4 hours
+   - Escalation: Immediate to Principal
+
+   Severity 2 (High — major feature unavailable):
+   - Response: Within 4 hours
+   - Resolution target: 1 business day
+   - Escalation: After 8 hours
+
+   Severity 3 (Medium — degraded performance, workaround available):
+   - Response: Within 1 business day
+   - Resolution target: 3 business days
+
+   Severity 4 (Low — cosmetic, enhancement request):
+   - Response: Within 2 business days
+   - Resolution target: Next scheduled release
+
+3. SUPPORT HOURS
+   - Standard support: Monday-Friday, 8:00 AM - 6:00 PM CT
+   - Emergency support: 24/7 for Severity 1 incidents
+   - Support channels: Email, phone, in-app ticket system
+   - Dedicated account manager: Named contact for Central Health
+
+4. ESCALATION PATH
+   Level 1: Support Team (initial response)
+   Level 2: Technical Lead (if unresolved within SLA)
+   Level 3: Dr. Terry Flood, Principal (if unresolved at L2)
+   Level 4: Executive escalation + written remediation plan
+
+5. SERVICE CREDITS
+   - Below 99.9% monthly uptime: 5% credit on monthly fees
+   - Below 99.5%: 10% credit
+   - Below 99.0%: 20% credit
+   - Three consecutive months below 99.5%: Right to terminate without penalty
+
+6. DATA BACKUP & RECOVERY
+   - Automated daily backups with 30-day retention
+   - Point-in-time recovery capability
+   - Recovery Time Objective (RTO): 4 hours
+   - Recovery Point Objective (RPO): 1 hour
+   - Annual disaster recovery test with documented results`,
+        reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood",
+        pageLimit: "5-8 pages", wordCount: "2,000-3,000 words",
+      },
+      {
+        id: "chcms-migration", name: "Data Migration Plan", description: "ETL process, validation, cutover, rollback for existing Central Health data",
+        icon: Layers, status: "not-started" as ApprovalStatus,
+        content: `DATA MIGRATION PLAN — TEMPLATE
+
+1. MIGRATION APPROACH
+   Phase 1: Discovery & Assessment (Weeks 1-2)
+   - Inventory all existing compensation data sources
+   - Map current data fields to CMS schema
+   - Identify data quality issues and cleaning requirements
+   - Document business rules for data transformation
+
+   Phase 2: Extract & Transform (Weeks 3-4)
+   - Extract data from current systems (CSV/API/database exports)
+   - Clean and normalize data (deduplication, format standardization)
+   - Transform to CMS target schema
+   - Load into staging environment for validation
+
+   Phase 3: Validation & Testing (Weeks 5-6)
+   - Central Health HR team validates migrated data
+   - Reconciliation reports comparing source vs. target counts
+   - Spot-check critical records (compensation packages, equity data)
+   - User acceptance testing with real data
+
+   Phase 4: Cutover (Week 7)
+   - Final delta migration (changes since last extract)
+   - Production data load
+   - System validation and smoke testing
+   - Go-live decision gate with Central Health stakeholders
+
+   Phase 5: Post-Migration Support (Weeks 8-10)
+   - Hypercare period with daily check-ins
+   - Issue tracking and rapid resolution
+   - Performance monitoring
+   - Sign-off and transition to standard support
+
+2. DATA MAPPING
+   Source Systems → CMS Modules:
+   - HRIS (Workday/PeopleSoft/SAP) → Employees, Positions, Job Architecture
+   - Compensation records → Salary bands, compa-ratios, total rewards packages
+   - Market survey data → Market benchmarks (Mercer, Sullivan Cotter)
+   - Offer history → Offer management module
+   - Equity analysis results → Pay equity module
+   - Policy documents → Policy & change management
+
+3. ROLLBACK PLAN
+   - Pre-migration snapshot preserved for 90 days
+   - Rollback can be executed within 4 hours if critical issues found
+   - Parallel operation period: old system remains read-only for 30 days post-cutover
+   - No data destruction until Central Health signs off on migration completeness
+
+4. SUCCESS CRITERIA
+   - 100% of employee records migrated and validated
+   - All compensation packages accurately reflected
+   - Compa-ratios match within 0.1% of source calculations
+   - All historical equity analyses preserved
+   - Zero data loss confirmed by reconciliation audit`,
+        reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood + AI",
+        pageLimit: "8-12 pages", wordCount: "3,000-4,000 words",
+      },
+      {
+        id: "chcms-insurance", name: "Insurance & Bonding Documentation", description: "Cyber liability, E&O, general liability, professional liability certificates",
+        icon: Scale, status: "not-started" as ApprovalStatus,
+        content: `INSURANCE & BONDING — CHECKLIST
+
+Required for Texas government procurement:
+
+1. GENERAL LIABILITY INSURANCE
+   - Minimum: $1,000,000 per occurrence / $2,000,000 aggregate
+   - Status: [  ] Have coverage  [  ] Need to obtain
+   - Carrier: _______________
+   - Policy #: _______________
+
+2. PROFESSIONAL LIABILITY (E&O)
+   - Minimum: $1,000,000 per claim / $2,000,000 aggregate
+   - Status: [  ] Have coverage  [  ] Need to obtain
+   - Carrier: _______________
+
+3. CYBER LIABILITY INSURANCE
+   - Minimum: $1,000,000 (recommended $2,000,000+ for healthcare data)
+   - Must cover: data breach, network security, privacy liability
+   - Status: [  ] Have coverage  [  ] Need to obtain
+   - Carrier: _______________
+
+4. WORKERS' COMPENSATION
+   - As required by Texas law
+   - Status: [  ] Have coverage  [  ] N/A (sole proprietor)
+
+5. AUTOMOBILE LIABILITY (if applicable)
+   - Status: [  ] Have coverage  [  ] N/A
+
+ACTION ITEMS FOR DR. FLOOD:
+- Contact insurance broker to verify current C&IP LLC coverage
+- Request Certificates of Insurance (COIs) naming Travis County Healthcare District as additional insured
+- If new policies needed, get quotes ASAP — underwriting can take 1-2 weeks
+- Government contracts typically require COIs BEFORE contract execution, not at proposal stage
+- Include a statement in the proposal: "Certificates of Insurance will be provided upon contract award"`,
+        reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood",
+        pageLimit: "2-3 pages", wordCount: "500-1,000 words",
+      },
+      {
+        id: "chcms-hub", name: "HUB Certification & Small Business Status", description: "Texas Historically Underutilized Business certification, VOSB status, disadvantaged business",
+        icon: Star, status: "not-started" as ApprovalStatus,
+        content: `HUB CERTIFICATION — ACTION PLAN
+
+Texas government procurements give preference points to Historically Underutilized Businesses (HUB).
+
+YOU LIKELY QUALIFY BASED ON:
+- Veteran-owned (U.S. Army, Bronze Star x2)
+- Black-led / minority-owned
+- Small business (annual revenue thresholds)
+
+CERTIFICATION OPTIONS:
+
+1. TEXAS HUB CERTIFICATION (Highest priority)
+   - Apply through: Texas Comptroller of Public Accounts
+   - URL: https://comptroller.texas.gov/purchasing/vendor/hub/
+   - Categories that may apply:
+     * Service-Disabled Veteran-Owned Business
+     * Minority-Owned Business (Black American)
+   - Processing time: 30-90 days
+   - Cost: FREE
+   - ACTION: Start application immediately — even if pending at proposal time, mention "HUB application submitted" in proposal
+
+2. FEDERAL CERTIFICATIONS (Supporting)
+   - SBA 8(a) Business Development Program
+   - Service-Disabled Veteran-Owned Small Business (SDVOSB) via VA
+   - SBA HUBZone (if Pflugerville qualifies)
+
+3. CITY OF AUSTIN MBE/WBE
+   - Minority Business Enterprise certification
+   - May carry weight with Travis County entities
+
+HOW THIS HELPS YOUR BID:
+- Travis County procurement policies include HUB subcontracting goals (typically 20-30%)
+- As a prime contractor with HUB status, you EXCEED the subcontracting requirement
+- HUB vendors often receive 5-10 preference points in evaluation scoring
+- Central Health as a public entity follows Travis County procurement rules
+
+INCLUDE IN PROPOSAL:
+- "Collaboration & Implementation Professionals LLC is a veteran-owned, minority-led small business"
+- If certified: "HUB-certified vendor, Certificate #[___]"
+- If pending: "HUB certification application submitted [date], status: pending"
+- Reference Dr. Flood's veteran status and Bronze Star commendations`,
+        reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood",
+        pageLimit: "1-2 pages", wordCount: "300-500 words",
+      },
+    ],
+    phases: [
+      {
+        id: "collaborate" as PhaseId, name: "1. Build System", description: "Develop the compensation management platform", status: "complete" as const,
+        tasks: [
+          { id: "ch1", task: "Build 15-module CMS platform", owner: "Dr. Flood + AI", status: "done" as const, dueDate: "March 28, 2026" },
+          { id: "ch2", task: "Deploy to centralhealthcms.com", owner: "Dr. Flood", status: "done" as const, dueDate: "March 28, 2026" },
+          { id: "ch3", task: "Write capability packet & technical proposal", owner: "Dr. Flood + AI", status: "done" as const, dueDate: "March 28, 2026" },
+          { id: "ch4", task: "Pre-seed evaluation data and onboarding flow", owner: "AI", status: "done" as const, dueDate: "March 28, 2026" },
+        ],
+      },
+      {
+        id: "build" as PhaseId, name: "2. Complete Proposal Package", description: "Write remaining business proposal sections", status: "active" as const,
+        tasks: [
+          { id: "ch5", task: "Develop pricing / cost proposal", owner: "Dr. Flood", status: "pending" as const, dueDate: "April 10, 2026", guidance: "Research comparable compensation system pricing (Payscale, Decusoft, Salary.com enterprise). Central Health budget supports enterprise pricing but be competitive. Include 5-year TCO.", aiCanHelp: true, aiAction: "Draft pricing framework based on market research" },
+          { id: "ch6", task: "Write vendor qualifications with past performance", owner: "Dr. Flood", status: "pending" as const, dueDate: "April 10, 2026", guidance: "List all comparable consulting/technology projects. Even if not identical, show pattern: system builds, HR consulting, government contracts, healthcare work. Include 3 references." },
+          { id: "ch7", task: "Finalize SLA documentation", owner: "Dr. Flood + AI", status: "pending" as const, dueDate: "April 12, 2026", guidance: "Use the template provided. Adjust numbers based on your actual hosting capabilities. 99.9% uptime is standard for SaaS; ensure your Replit deployment can meet this.", aiCanHelp: true, aiAction: "Refine SLA terms" },
+          { id: "ch8", task: "Document data migration plan", owner: "Dr. Flood + AI", status: "pending" as const, dueDate: "April 12, 2026", guidance: "Customize the template for Central Health's specific systems. Find out what HRIS they currently use (likely Workday or PeopleSoft). The migration plan should be specific to their environment.", aiCanHelp: true, aiAction: "Customize migration plan" },
+          { id: "ch9", task: "Obtain insurance quotes / COIs", owner: "Dr. Flood", status: "pending" as const, dueDate: "April 15, 2026", guidance: "Contact your insurance broker. You need general liability, professional liability (E&O), and cyber liability at minimum. Get quotes for C&IP LLC. Government contracts require COIs before execution." },
+          { id: "ch10", task: "Submit HUB certification application", owner: "Dr. Flood", status: "pending" as const, dueDate: "April 5, 2026", guidance: "Apply at comptroller.texas.gov/purchasing/vendor/hub/. Free application. Even if pending at proposal time, note 'application submitted' in your bid. Veteran-owned + minority-led = strong qualification." },
+        ],
+      },
+      {
+        id: "review" as PhaseId, name: "3. Review & Finalize", description: "Final review of complete proposal package", status: "upcoming" as const,
+        tasks: [
+          { id: "ch11", task: "Compile complete proposal package", owner: "Dr. Flood + AI", status: "pending" as const, dueDate: "April 18, 2026" },
+          { id: "ch12", task: "Final compliance review against solicitation requirements", owner: "Dr. Flood", status: "pending" as const, dueDate: "April 20, 2026" },
+          { id: "ch13", task: "Verify live system is fully operational", owner: "Dr. Flood", status: "pending" as const, dueDate: "April 22, 2026" },
+        ],
+      },
+      {
+        id: "submit" as PhaseId, name: "4. Submit on BidNet", description: "Submit complete proposal via BidNet Direct", status: "upcoming" as const,
+        tasks: [
+          { id: "ch14", task: "Submit proposal via BidNet Direct", owner: "Dr. Flood", status: "pending" as const, dueDate: "April 23, 2026", guidance: "Submit at least 24 hours before deadline. BidNet can have upload issues at deadline. Deadline: April 24, 2026 3:00 PM EDT." },
+          { id: "ch15", task: "Confirm receipt with Central Health procurement", owner: "Dr. Flood", status: "pending" as const, dueDate: "April 24, 2026" },
+        ],
+      },
+      {
+        id: "pre-execute" as PhaseId, name: "5. Post-Award Readiness", description: "Prepare for contract execution if awarded", status: "upcoming" as const,
+        tasks: [
+          { id: "ch16", task: "Prepare for vendor presentation / demo if invited", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD" },
+          { id: "ch17", task: "Finalize insurance certificates naming Central Health", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD" },
+          { id: "ch18", task: "Prepare implementation timeline for contract negotiation", owner: "Dr. Flood + AI", status: "pending" as const, dueDate: "TBD" },
+        ],
+      },
+    ],
+    preExecutionChecklist: [
+      { id: "chpe-1", category: "System", item: "Live system operational at centralhealthcms.com", status: "verified", notes: "Deployed and accessible", guidance: "Verify the live system is accessible and all 15 modules are functional. Test login, navigation, and AI features." },
+      { id: "chpe-2", category: "System", item: "Backup URL operational (secure-health-plug.replit.app)", status: "verified", notes: "Backup deployment active", guidance: "Secondary URL in case of DNS issues with custom domain." },
+      { id: "chpe-3", category: "Documentation", item: "Capability packet complete", status: "verified", notes: "Full technical proposal written", guidance: "15-module technical documentation, AI engine, workflow, security, architecture." },
+      { id: "chpe-4", category: "Documentation", item: "Pricing proposal drafted", status: "action-needed", notes: "Template ready — needs Dr. Flood to set pricing", guidance: "Use comparable market data: enterprise compensation systems typically $50K-$300K/year for organizations of Central Health's size. Price competitively." },
+      { id: "chpe-5", category: "Documentation", item: "Vendor qualifications written", status: "action-needed", notes: "Template ready — needs past performance details", guidance: "Fill in comparable projects, references, and team qualifications. Even adjacent experience (HR consulting, workforce systems) strengthens the bid." },
+      { id: "chpe-6", category: "Documentation", item: "SLA finalized", status: "action-needed", notes: "Template ready — review and customize terms", guidance: "Standard SaaS SLA with 99.9% uptime, tiered response times, service credits. Adjust based on hosting capabilities." },
+      { id: "chpe-7", category: "Documentation", item: "Data migration plan completed", status: "action-needed", notes: "Template ready — needs Central Health system specifics", guidance: "Customize for their current HRIS. If unknown, keep the plan generic but comprehensive." },
+      { id: "chpe-8", category: "Compliance", item: "Insurance coverage verified", status: "action-needed", notes: "Contact insurance broker for C&IP LLC", guidance: "Need general liability, E&O, cyber liability. Get quotes and COIs." },
+      { id: "chpe-9", category: "Compliance", item: "HUB certification submitted", status: "action-needed", notes: "Apply at Texas Comptroller — free", guidance: "https://comptroller.texas.gov/purchasing/vendor/hub/ — VOSB + minority-owned qualifies." },
+      { id: "chpe-10", category: "Submission", item: "BidNet Direct account ready", status: "pending", notes: "Ensure account can submit to Central Health", guidance: "Verify your BidNet account can submit to Travis County Healthcare District solicitations." },
+    ],
+    winStrategy: {
+      differentiators: [
+        "Fully operational Day 1 — competitors will promise roadmaps, you deliver a live system",
+        "AI-native architecture with RAG — not bolted-on AI, but integrated intelligence across all modules",
+        "Purpose-built for Central Health — Austin TX calibrated, public healthcare focused, 300,000 resident context baked in",
+        "Veteran-owned, minority-led small business — potential HUB preference points",
+        "MAP-GAP implementation science methodology embedded in system logic",
+        "Community impact analysis connects compensation decisions to patient care outcomes",
+        "7-stage workflow engine with configurable RAG thresholds and Four Amigos governance",
+      ],
+      reviewerPriorities: [
+        "Does the system actually work? (Your live demo answers this definitively)",
+        "Can it replace their current fragmented processes?",
+        "Integration with existing HRIS (Workday/SAP/PeopleSoft)",
+        "Security and compliance (NIST 800-53, RBAC, audit trail)",
+        "Total cost of ownership over contract period",
+        "Vendor ability to support and maintain post-implementation",
+        "Ease of use for HR staff who are not technical",
+      ],
+      scoringTips: [
+        "Lead with the live system — invite evaluators to test it themselves",
+        "Emphasize Day 1 readiness vs. competitors' 6-12 month implementation timelines",
+        "Show the AI wizards in action — this is your most visually impressive differentiator",
+        "Quantify: 15 modules, 30+ database tables, 7 roles, 17 API route groups, 6 AI wizards",
+        "Connect every feature back to Central Health's mission of serving 300,000 residents",
+        "Price competitively — being the lowest cost + highest capability is hard to beat",
+      ],
+      commonPitfalls: [
+        "Submitting without pricing — this is a procurement, cost is always scored",
+        "No vendor references — government buyers need proof you've delivered before",
+        "Missing insurance documentation — can disqualify even the best technical proposal",
+        "Not mentioning HUB/VOSB status — leaving free preference points on the table",
+        "App URL not working during evaluation — test centralhealthcms.com daily until decision",
+        "Submitting at the deadline — BidNet has upload issues, submit 24+ hours early",
+      ],
+    },
+  },
 ];
 
 function StatusBadge({ status }: { status: ApprovalStatus }) {
