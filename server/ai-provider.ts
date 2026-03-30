@@ -2,7 +2,7 @@ import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from "@google/ge
 import OpenAI from "openai";
 import Anthropic from "@anthropic-ai/sdk";
 
-type Provider = "gemini" | "claude" | "openai" | "replit-ai-integrations";
+type Provider = "gemini" | "claude" | "openai" | "replit-ai-integrations" | "deepseek-r1";
 
 interface StreamAIResponseParams {
   messages: Array<{ role: string; content: string }>;
@@ -18,6 +18,7 @@ function getAvailableProviders(): Provider[] {
   if (process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY && process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL) providers.push("claude");
   if (process.env.OPENAI_API_KEY) providers.push("openai");
   if (process.env.AI_INTEGRATIONS_OPENAI_API_KEY && process.env.AI_INTEGRATIONS_OPENAI_BASE_URL) providers.push("replit-ai-integrations");
+  if (process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY && process.env.AI_INTEGRATIONS_OPENROUTER_BASE_URL) providers.push("deepseek-r1");
   return providers;
 }
 
@@ -36,16 +37,22 @@ const PROVIDER_CONFIG: Record<Provider, { model: string; isFree: boolean }> = {
   claude: { model: "claude-haiku-4-5", isFree: false },
   openai: { model: "gpt-4o-mini", isFree: false },
   "replit-ai-integrations": { model: "gpt-5-nano", isFree: false },
+  "deepseek-r1": { model: "deepseek/deepseek-r1", isFree: false },
 };
 
 export function getActiveProvider(): string {
   return detectProvider();
 }
 
-export function getProviderInfo(): { name: string; model: string; isFree: boolean } {
+export function getProviderInfo(): { name: string; model: string; isFree: boolean; allProviders: Array<{ name: string; model: string; isFree: boolean }> } {
   const provider = detectProvider();
   const config = PROVIDER_CONFIG[provider];
-  return { name: provider, model: config.model, isFree: config.isFree };
+  const allProviders = getAvailableProviders().map(p => ({
+    name: p,
+    model: PROVIDER_CONFIG[p].model,
+    isFree: PROVIDER_CONFIG[p].isFree,
+  }));
+  return { name: provider, model: config.model, isFree: config.isFree, allProviders };
 }
 
 function isRateLimitError(error: unknown): boolean {
@@ -180,11 +187,36 @@ async function streamOpenAI(params: StreamAIResponseParams, provider: "openai" |
   params.onDone();
 }
 
+async function streamDeepSeekR1(params: StreamAIResponseParams): Promise<void> {
+  const client = new OpenAI({
+    apiKey: process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY,
+    baseURL: process.env.AI_INTEGRATIONS_OPENROUTER_BASE_URL,
+  });
+
+  const stream = await client.chat.completions.create({
+    model: "deepseek/deepseek-r1",
+    messages: params.messages as Array<{ role: "system" | "user" | "assistant"; content: string }>,
+    stream: true,
+    max_tokens: params.maxTokens || 4000,
+  });
+
+  for await (const chunk of stream) {
+    const content = chunk.choices[0]?.delta?.content || "";
+    if (content) {
+      params.onChunk(content);
+    }
+  }
+
+  params.onDone();
+}
+
 async function tryProvider(provider: Provider, params: StreamAIResponseParams): Promise<void> {
   if (provider === "gemini") {
     await streamGemini(params);
   } else if (provider === "claude") {
     await streamClaude(params);
+  } else if (provider === "deepseek-r1") {
+    await streamDeepSeekR1(params);
   } else {
     await streamOpenAI(params, provider);
   }
@@ -222,6 +254,20 @@ export async function generateAIJSON<T = unknown>(prompt: string, systemPrompt?:
         });
         const block = resp.content[0];
         text = block.type === "text" ? block.text : "{}";
+      } else if (provider === "deepseek-r1") {
+        const client = new OpenAI({
+          apiKey: process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY,
+          baseURL: process.env.AI_INTEGRATIONS_OPENROUTER_BASE_URL,
+        });
+        const msgs: Array<{ role: "system" | "user"; content: string }> = [];
+        if (systemPrompt) msgs.push({ role: "system", content: systemPrompt });
+        msgs.push({ role: "user", content: `${prompt}\n\nRespond with valid JSON only, no markdown.` });
+        const resp = await client.chat.completions.create({
+          model: "deepseek/deepseek-r1",
+          messages: msgs,
+          max_tokens: 4000,
+        });
+        text = resp.choices[0]?.message?.content || "{}";
       } else {
         const isReplit = provider === "replit-ai-integrations";
         const client = new OpenAI({
@@ -239,7 +285,7 @@ export async function generateAIJSON<T = unknown>(prompt: string, systemPrompt?:
         });
         text = resp.choices[0]?.message?.content || "{}";
       }
-      const cleaned = text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+      const cleaned = text.replace(/```json\n?/g, "").replace(/```\n?/g, "").replace(/<think>[\s\S]*?<\/think>/g, "").trim();
       if (!cleaned || cleaned.length === 0) {
         if (i < providers.length - 1) {
           console.error(`[AI Provider] ${provider} returned empty JSON response, falling back to ${providers[i + 1]}`);
@@ -297,6 +343,21 @@ async function callProviderDirect(provider: Provider, prompt: string, systemProm
     });
     const block = resp.content[0];
     return block.type === "text" ? block.text : "";
+  } else if (provider === "deepseek-r1") {
+    const client = new OpenAI({
+      apiKey: process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY,
+      baseURL: process.env.AI_INTEGRATIONS_OPENROUTER_BASE_URL,
+    });
+    const msgs: Array<{ role: "system" | "user"; content: string }> = [];
+    if (systemPrompt) msgs.push({ role: "system", content: systemPrompt });
+    msgs.push({ role: "user", content: prompt });
+    const resp = await client.chat.completions.create({
+      model: "deepseek/deepseek-r1",
+      messages: msgs,
+      max_tokens: maxTokens || 4000,
+    });
+    const raw = resp.choices[0]?.message?.content || "";
+    return raw.replace(/<think>[\s\S]*?<\/think>/g, "").trim();
   } else {
     const isReplit = provider === "replit-ai-integrations";
     const client = new OpenAI({
@@ -406,6 +467,8 @@ export async function streamAIResponse(params: StreamAIResponseParams): Promise<
         await streamGemini(wrappedParams);
       } else if (provider === "claude") {
         await streamClaude(wrappedParams);
+      } else if (provider === "deepseek-r1") {
+        await streamDeepSeekR1(wrappedParams);
       } else {
         await streamOpenAI(wrappedParams, provider);
       }

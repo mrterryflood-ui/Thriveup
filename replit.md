@@ -19,6 +19,7 @@ The agent should prioritize iterative development, clearly explaining major chan
 ThriveUp Academy employs a modern web architecture. The frontend uses React with Vite, styled by Tailwind CSS and shadcn/ui components, with Wouter for routing and TanStack Query for data management. The backend is an Express.js server on Node.js, utilizing a PostgreSQL database via Drizzle ORM. Authentication is managed by Replit Auth (OIDC).
 
 Core architectural features and design decisions include:
+- **5-Provider AI Engine:** Gemini 2.0 Flash (primary/free), Claude Haiku 4.5, GPT-5 Nano (Replit AI Integrations), DeepSeek R1 (via OpenRouter) — automatic failover across all providers with rate-limit detection; DeepSeek R1 `<think>` tags auto-stripped.
 - **AI-Powered Learning & Creation:** AI Mastery curriculum, age-adaptive AI companions, and an AI Creation Studio with 10 professional-grade AI tools.
 - **Grant Management System:** Grant Hub with SAM.gov API integration for discovery, AI-powered semantic analysis, fit scoring, readiness checklists, and AI-assisted narrative generation for grant submissions. It includes **Daily Automated Grant Discovery** across 7 sources and 15 keywords, with a "Team-of-Teams" platform assignment based on grant relevance.
 - **Workforce Development & Case Management:** Reentry and case management dashboards with phase-based plans, intake assessments, milestone tracking, and service delivery records.
