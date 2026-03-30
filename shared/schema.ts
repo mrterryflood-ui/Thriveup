@@ -4015,4 +4015,24 @@ export const insertExternalWarmHandoffSchema = createInsertSchema(externalWarmHa
 export type InsertExternalWarmHandoff = z.infer<typeof insertExternalWarmHandoffSchema>;
 export type ExternalWarmHandoff = typeof externalWarmHandoffs.$inferSelect;
 
+export const agentExchanges = pgTable("agent_exchanges", {
+  id: serial("id").primaryKey(),
+  fromPlatformId: varchar("from_platform_id", { length: 100 }).notNull(),
+  toPlatformId: varchar("to_platform_id", { length: 100 }).notNull(),
+  exchangeType: varchar("exchange_type", { length: 50 }).notNull(),
+  reasoning: text("reasoning").notNull(),
+  purpose: text("purpose").notNull(),
+  domainJustification: text("domain_justification"),
+  data: jsonb("data"),
+  status: varchar("status", { length: 50 }).notNull().default("pending"),
+  responseData: jsonb("response_data"),
+  respondedAt: timestamp("responded_at"),
+  expiresAt: timestamp("expires_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertAgentExchangeSchema = createInsertSchema(agentExchanges).omit({ id: true, createdAt: true });
+export type InsertAgentExchange = z.infer<typeof insertAgentExchangeSchema>;
+export type AgentExchange = typeof agentExchanges.$inferSelect;
+
 export * from "./models/auth";

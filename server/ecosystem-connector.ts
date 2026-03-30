@@ -6,6 +6,8 @@ import crypto from "crypto";
 import { z } from "zod";
 import { seedEcosystemDirectives } from "./ecosystem-directives-seed";
 import { sendEcosystemUpdate } from "./email-service";
+import { generateRpliceHeartbeatIntelligence } from "./ecosystem-rplice-bridge";
+import { getAgentInbox } from "./agent-communication";
 
 const heartbeatSchema = z.object({
   platformId: z.string().max(100).optional(),
@@ -6151,6 +6153,38 @@ if (typeof module !== "undefined") {
             },
           },
         },
+        rpliceIntelligence: await (async () => {
+          try {
+            return await generateRpliceHeartbeatIntelligence(platform.id);
+          } catch {
+            return { relevant: false, reasoning: "RPLICE intelligence temporarily unavailable.", relevanceScore: 0, analyses: [], interventionAssignments: [], actionPlanMilestones: [], outcomeBaselines: [], availableTools: {} };
+          }
+        })(),
+        agentInbox: await (async () => {
+          try {
+            const inbox = await getAgentInbox(platform.id);
+            return {
+              count: inbox.length,
+              actionRequired: inbox.filter((m: any) => m.actionRequired).length,
+              messages: inbox,
+              agentIdentity: {
+                youAre: `${platform.name} — an autonomous agent in the ThriveUp ACOS ecosystem.`,
+                principle: "You have autonomy within your domain. Exchange data with other platforms when it serves a clear purpose. Every exchange requires reasoning — why this platform, why now, what outcome. The hub coordinates and tracks all exchanges but does not bottleneck your communication.",
+                endpoints: {
+                  exchange: "POST /api/ecosystem/agent/exchange — Send targeted data to a specific platform with reasoning",
+                  inbox: "GET /api/ecosystem/agent/inbox — Check your incoming messages",
+                  respond: "POST /api/ecosystem/agent/respond — Respond to an exchange",
+                  broadcast: "POST /api/ecosystem/agent/broadcast — Send alert/outcome to relevant platforms by domain",
+                  capabilities: "GET /api/ecosystem/agent/capabilities — See your data flow map and compatible platforms",
+                  reason: "POST /api/ecosystem/agent/reason — Get AI-assisted reasoning for your next action (DeepSeek)",
+                  network: "GET /api/ecosystem/agent/network — View your communication network activity",
+                },
+              },
+            };
+          } catch {
+            return { count: 0, actionRequired: 0, messages: [], agentIdentity: { youAre: platform.name, principle: "Agent communication temporarily unavailable." } };
+          }
+        })(),
         siblingPlatformProfiles: await (async () => {
           const CONTENT_PRODUCTION_PLATFORMS = ["video-creator-ai", "ad-targeting", "ecosystem-nexus"];
           const isContentProducer = CONTENT_PRODUCTION_PLATFORMS.includes(platform.id);
