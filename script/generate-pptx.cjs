@@ -933,20 +933,20 @@ addSlide({
 });
 
 // ============================================================
-// SLIDE 26: WHAT FUNDERS GET
+// SLIDE 26: WHAT FUNDERS & COLLABORATORS GET
 // ============================================================
 addSlide({
   bg: LIGHT_BG,
-  speakerNotes: "Here's what makes this different for funders. First, measurable outcomes — we lock Census baselines with verifiable improvement targets and track gaps in real time. Funders see progress, not just promises. Second, coordinated intervention — 24 platforms working as autonomous agents, not siloed tools. Risk factors automatically route to the right platform. Third, transparent and defensible — every inter-platform exchange has documented reasoning. AI decisions are auditable. Implementation science frameworks validate our approach. And fourth, grant-ready deliverables — funder-specific narratives, logic models, evidence packages, and 90-day action plans with clear platform accountability. This is the infrastructure funders wish every grantee had.",
+  speakerNotes: "This slide speaks to both funders and collaborators — because organizations like Measure Austin, United Way, and local coalitions need to see what they gain from partnering with us, not just what a funder gets for their money. For funders: measurable outcomes with locked Census baselines, real-time gap tracking, and automated reporting. For collaborators: shared data infrastructure — tract-level community data, GIS mapping, and 8 federal data sources already integrated and actionable. Both get coordinated intervention through 24 autonomous platforms with documented reasoning on every exchange. And both get ready-made deliverables — funders get grant narratives and logic models, collaborators get community data packages, shared dashboards, and API access to co-build on our infrastructure. The value proposition is different but equally strong: funders see accountability, collaborators see infrastructure they don't have to build themselves.",
   buildFn: (slide) => {
-    slide.addText("WHAT FUNDERS GET", { x: 0.8, y: 0.3, w: 11, h: 0.4, fontSize: 11, fontFace: "Arial", color: MAROON, bold: true, charSpacing: 3 });
-    slide.addText("Infrastructure Funders Wish Every Grantee Had", { x: 0.8, y: 0.7, w: 11, h: 0.6, fontSize: 24, fontFace: "Arial", color: DARK_TEXT, bold: true });
+    slide.addText("WHAT FUNDERS & COLLABORATORS GET", { x: 0.8, y: 0.3, w: 11, h: 0.4, fontSize: 11, fontFace: "Arial", color: MAROON, bold: true, charSpacing: 3 });
+    slide.addText("Why Partner With Us — Whether You Fund or Build", { x: 0.8, y: 0.7, w: 11, h: 0.6, fontSize: 24, fontFace: "Arial", color: DARK_TEXT, bold: true });
 
     const items = [
-      { title: "Measurable Outcomes", items: ["Locked Census baselines with targets", "Real-time gap tracking", "Platform health monitoring", "Automated outcome reporting"], color: GREEN },
-      { title: "Coordinated Intervention", items: ["24 autonomous agent platforms", "Risk-to-platform routing", "Domain alignment validation", "90-day action plans"], color: VIOLET },
-      { title: "Transparent & Defensible", items: ["Documented reasoning on every exchange", "Auditable AI decisions", "CFIR & RE-AIM validation", "Implementation science frameworks"], color: BLUE },
-      { title: "Grant-Ready Deliverables", items: ["Funder-specific narratives (8 profiles)", "Logic models & evidence packages", "Budget templates", "Community data packages"], color: AMBER },
+      { title: "For Funders: Measurable ROI", items: ["Locked Census baselines with targets", "Real-time gap tracking dashboards", "Automated outcome reporting", "Grant-specific narratives & logic models"], color: GREEN },
+      { title: "For Collaborators: Shared Infrastructure", items: ["Tract-level community data access", "8 federal data sources integrated", "GIS mapping & visualization tools", "API access to co-build solutions"], color: VIOLET },
+      { title: "For Both: Coordinated Impact", items: ["24 autonomous platforms — not siloed tools", "Risk-to-platform routing", "Documented reasoning on every exchange", "CFIR & RE-AIM validated frameworks"], color: BLUE },
+      { title: "For Both: Ready-Made Deliverables", items: ["Community data packages", "Impact dashboards & CSV export", "Evidence packages & budget templates", "90-day action plans with accountability"], color: AMBER },
     ];
     items.forEach((item, i) => {
       const col = i % 2;
