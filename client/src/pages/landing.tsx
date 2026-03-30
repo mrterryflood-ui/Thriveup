@@ -205,13 +205,13 @@ export default function LandingPage() {
             4 Disciplines. 24 Platforms. One Living System.
           </Badge>
           <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-4 sm:mb-6 tracking-tight leading-tight" data-testid="text-hero-title">
-            We Plan. We Research. We Understand.<br />We Coordinate. We Implement with Fidelity.<br />We Continuously Improve.
+            Equity-Focused. Data-Led.<br />Leaving No One Behind.
           </h1>
           <p className="text-base sm:text-lg md:text-xl text-white/80 max-w-3xl mx-auto mb-3 sm:mb-4 px-2" data-testid="text-hero-subtitle">
-            From healthcare to defense, criminal justice to education — we put people first. We listen before we build, we measure before we scale, and we never stop making things better for the communities we serve.
+            We are problem solvers using collaborative accountability and transparency that is data-led and intentional — to make good programs better and leave no one behind. We listen before we build, we measure before we scale, and our data tells the truth that county averages hide.
           </p>
           <p className="text-xs sm:text-sm md:text-base text-white/60 max-w-2xl mx-auto mb-6 sm:mb-8 px-2">
-            Powered by implementation science, criminal justice research, HR management, and I-O psychology — MAP-GAP turns academic research into working technology and sustained community impact. We don't propose. We execute with fidelity, measure every step, and continuously improve.
+            Veterans transitioning to civilian life. People experiencing homelessness. Immigrants navigating systems in a new language. Formerly incarcerated individuals rebuilding. Youth aging out of foster care. Everyone has a pathway through our 24-platform ecosystem — holistic, comprehensive, and accountable to the communities we serve.
           </p>
           <div className="flex flex-wrap justify-center gap-2 sm:gap-3 mb-8 sm:mb-10 px-4">
             {DISCIPLINES.map((d) => (
@@ -290,7 +290,7 @@ export default function LandingPage() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
               {VALUES.map((value) => {
-                const iconMap: Record<string, typeof Heart> = { Heart, Microscope, Users, Globe, Shield, BarChart3, BookOpen, Scale, Briefcase, Brain };
+                const iconMap: Record<string, typeof Heart> = { Heart, Microscope, Users, Globe, Shield, BarChart3, BookOpen, Scale, Briefcase, Brain, GraduationCap };
                 const Icon = iconMap[value.iconName] || Heart;
                 return (
                   <Card key={value.title} className="p-5 hover-elevate" data-testid={`card-value-${value.title.toLowerCase().replace(/\s+/g, '-')}`}>
