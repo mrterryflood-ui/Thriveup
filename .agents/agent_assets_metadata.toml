@@ -108,3 +108,9 @@ id = "jcktLP3rQLRf_AEbRg_FC"
 uri = "file://attached_assets/ThriveUp_RPLICE_MEASURE_Improved.pptx"
 type = "slides"
 title = "ThriveUp + RPLICE Ecosystem Presentation (Rebalanced + Live Links)"
+
+[[outputs]]
+id = "MqIxRAWTLFio_8eqpGl1g"
+uri = "file://ThriveUp_ACOS_Complete_Briefing.pptx"
+type = "slides"
+title = "ThriveUp ACOS Complete Briefing — 30 Slides with Speaker Notes"
