@@ -603,7 +603,10 @@ COMMUNITY-INFORMED DESIGN:
 This program was designed using our Three Realities methodology, which ensures that every service component originates from community voice rather than institutional assumption. Three Realities examines: (1) The Lived Reality — what community members actually experience, (2) The Institutional Reality — what systems intend and deliver, and (3) The Gap Reality — where the disconnect between intent and experience creates harm. [Dr. Flood: Add specific examples of Three Realities application in Central Texas — community listening sessions, focus groups, advisory board input]
 
 ORGANIZATIONAL QUALIFICATIONS:
-The Collaborative Advocate Foundation is a veteran-founded, Black-led 501(c)(3) nonprofit with a 24-platform technology ecosystem serving marginalized communities. Our founder, Dr. Terry Flood (DHA, MS Implementation Science, U.S. Army Veteran — Bronze Star x2), brings decades of experience in organizational change, workforce development, and community health. Our technology infrastructure — including LifeBridge (benefits navigation), ThriveUp Academy (workforce development), and SafeReport (community safety) — provides the digital backbone for scalable, data-driven service delivery.`,
+The Collaborative Advocate Foundation is a veteran-founded, Black-led 501(c)(3) nonprofit with a 24-platform technology ecosystem serving marginalized communities. Our founder, Dr. Terry Flood (DHA, MS Implementation Science, U.S. Army Veteran — Bronze Star x2), brings decades of experience in organizational change, workforce development, and community health. Our technology infrastructure — including LifeBridge (benefits navigation), ThriveUp Academy (workforce development), RPLICE/Better Science Lab (implementation science validation and fidelity tracking), and SafeReport (community safety) — provides the digital backbone for scalable, data-driven service delivery.
+
+IMPLEMENTATION SCIENCE ADVANTAGE:
+What distinguishes TCAF from other applicants is not just service delivery capacity — it is the ability to validate that services are delivered as designed. RPLICE provides live CFIR 2.0 assessments, RE-AIM outcome scoring, and implementation fidelity checklists that most organizations would need to hire external evaluators to produce. Combined with our MAP-GAP continuous improvement engine, this creates a self-correcting program delivery model: RPLICE identifies where implementation drifts from design, MAP-GAP generates the corrective action, and the program improves in 30-day cycles — not annual grant reports. This is what St. David's means by "data-driven" — not dashboards showing activity counts, but implementation science frameworks ensuring service quality.`,
         reviewNotes: "Must decide Individual ($250K) vs Collaborative ($1M) track before finalizing. Add specific Three Realities examples.", lastUpdated: "March 30, 2026", assignee: "Dr. Flood + AI", pageLimit: "5 pages", wordCount: "1,500-2,000 words" },
 
       { id: "std-narrative", name: "Program Narrative", description: "Community-informed program design, economic stability services, public benefits enrollment strategy", icon: BookOpen, status: "draft" as ApprovalStatus,
@@ -679,11 +682,12 @@ TECHNOLOGY ECOSYSTEM:
 Our 24-platform ACOS (Advanced Community Operating System) provides integrated digital infrastructure that no single-program organization can match:
 - LifeBridge: Benefits navigation, enrollment tracking, referral management
 - ThriveUp Academy: Workforce training, learning management, career pathways
+- RPLICE (Better Science Lab): Implementation science validation engine — provides CFIR 2.0 assessments, RE-AIM outcome scoring, implementation fidelity tracking, and Three Realities diagnostic tools. This is our evidence-based quality assurance backbone — every program component is validated against implementation science frameworks, not just activity metrics.
+- MAP-GAP Engine: Continuous quality improvement — translates RPLICE's fidelity data into actionable program modifications within 30-day cycles
 - SafeReport: Community safety reporting and response coordination
 - Minority Center of Excellence: Small business support and economic empowerment
-- MAP-GAP Engine: Continuous quality improvement and outcomes monitoring
 
-This technology infrastructure allows us to track participants across service tracks, identify compound needs, measure long-term outcomes, and continuously improve service delivery based on data — not assumptions.
+This technology infrastructure allows us to track participants across service tracks, identify compound needs, measure long-term outcomes, and continuously improve service delivery based on data — not assumptions. RPLICE ensures that our service delivery maintains implementation fidelity — meaning we don't just measure WHAT we do, we validate that we're doing it the way the evidence says it should be done.
 
 GEOGRAPHIC COVERAGE:
 Primary: Travis County (Austin, Pflugerville, Manor, Del Valle) and Williamson County (Round Rock, Georgetown, Cedar Park)
@@ -822,10 +826,13 @@ V. ONGOING COMMUNITY VOICE INTEGRATION
 
 Three Realities is not a one-time activity. Our program maintains continuous community voice through:
 - Quarterly community listening sessions to assess whether services are meeting needs
+- RPLICE Three Realities diagnostic tools — automated re-assessment of Gap Reality to validate that program modifications are actually closing the gaps community members identified
 - Participant feedback mechanisms embedded in LifeBridge platform (post-service surveys, satisfaction tracking)
 - Community Benefits Navigators with lived experience who serve as ongoing voice conduits
 - Advisory board with community member majority — meeting monthly during Year 1
-- MAP-GAP continuous improvement engine that translates community feedback into program modifications within 30 days
+- MAP-GAP continuous improvement engine, powered by RPLICE fidelity data, that translates community feedback into validated program modifications within 30-day cycles
+
+The RPLICE + Three Realities combination ensures that community voice is not just collected — it is systematically validated against program design and delivery. When community members tell us something isn't working, RPLICE's fidelity assessment identifies exactly where the implementation diverged from the community-informed design, and MAP-GAP generates the corrective action.
 
 CRITICAL NOTE FOR DR. FLOOD:
 This section MUST contain real, documented community engagement. St. David's will not fund programs that claim community voice without evidence. You need:
@@ -888,26 +895,40 @@ III. DATA COLLECTION & MANAGEMENT
 
 LifeBridge Platform: Automated tracking of benefits enrollment, application status, follow-up scheduling, and retention monitoring
 ThriveUp Academy: Learning progress, certification completion, employment placement
-MAP-GAP Engine: Continuous quality improvement — aggregates outcome data, identifies service gaps, triggers program modifications
+RPLICE (Better Science Lab): Implementation fidelity validation — ensures program delivery matches evidence-based design. RPLICE provides:
+  - CFIR 2.0 domain assessments across all 5 implementation science domains (Innovation, Outer Setting, Inner Setting, Individuals, Process)
+  - RE-AIM outcome scoring (Reach, Effectiveness, Adoption, Implementation, Maintenance)
+  - Three Realities diagnostic tools for ongoing community voice validation
+  - Fidelity checklists that measure whether services are delivered as designed, not just whether they happen
+MAP-GAP Engine: Continuous quality improvement — translates RPLICE's fidelity data into actionable 30-day improvement cycles
 Financial Literacy Module: Pre/post assessment scores, session attendance, goal completion
 
 DATA QUALITY ASSURANCE:
 - Benefits enrollment verified against agency confirmation (not self-reported)
 - Financial coaching outcomes measured through standardized assessment tools
 - Employment placement verified through employer contact at 30/60/90 days
+- Implementation fidelity validated through RPLICE's CFIR 2.0 assessments — ensuring program integrity over time
 - All data disaggregated by race/ethnicity, gender, ZIP code, household composition, and veteran status
 
 IV. EVALUATION DESIGN
 
+RPLICE-POWERED EVALUATION FRAMEWORK:
+Our evaluation is not a separate activity bolted onto the program — it is built into the technology infrastructure through RPLICE's implementation science engine.
+
 Internal Evaluation (Quarterly):
-- MAP-GAP framework produces continuous improvement reports
+- RPLICE CFIR 2.0 assessments validate that program components maintain implementation fidelity
+- RE-AIM scoring provides structured outcome evaluation across all 5 domains
+- MAP-GAP framework translates fidelity data into actionable program modifications within 30-day cycles
 - Dashboard monitoring of all outcome indicators
-- Community feedback integration (participant surveys, navigator observations)
+- Community feedback integration (participant surveys, navigator observations, Three Realities re-assessment)
 
 External Evaluation (Annual — if budget allows):
-- Independent evaluator reviews methodology, outcomes, and community impact
+- Independent evaluator reviews RPLICE-generated fidelity data, outcomes, and community impact
 - Cost-per-enrollment and cost-per-outcome analysis
 - Comparison to regional benchmarks and similar programs
+
+WHAT MAKES THIS DIFFERENT:
+Most grant applicants write vague "continuous quality improvement" paragraphs. We have a named, structured methodology (MAP-GAP) powered by a live implementation science platform (RPLICE) that produces automated fidelity assessments, not manual reports. When St. David's asks "how will you know if the program is working?" — we don't just have an answer, we have a system that generates the answer continuously.
 
 V. REPORTING TO ST. DAVID'S FOUNDATION
 
@@ -1024,11 +1045,12 @@ Relevant Platforms for This Grant:
 - LifeBridge: Benefits navigation, enrollment tracking, referral management — directly supports Track 1
 - ThriveUp Academy: Workforce training and career pathways — directly supports Track 3
 - Financial Literacy Module: Financial coaching curricula and tracking — directly supports Track 2
-- MAP-GAP Engine: Continuous quality improvement and outcomes monitoring
+- RPLICE (Better Science Lab): Implementation science validation engine — CFIR 2.0 assessments, RE-AIM outcome scoring, implementation fidelity tracking, Three Realities diagnostic tools. This is the evidence-based quality assurance backbone that most organizations cannot afford to build. It is live and operational.
+- MAP-GAP Engine: Continuous quality improvement — translates RPLICE fidelity data into actionable 30-day improvement cycles
 - Minority Center of Excellence: Small business and economic empowerment
 - SafeReport: Community safety reporting
 
-This technology infrastructure is already built and operational, reducing the startup costs and timeline for new programs. St. David's funding would scale service delivery, not technology development.
+This technology infrastructure is already built and operational, reducing the startup costs and timeline for new programs. St. David's funding would scale service delivery, not technology development. The RPLICE + MAP-GAP combination means every dollar St. David's invests is validated by implementation science — not just spent and reported on.
 
 V. PRIOR RESULTS & EXPERIENCE
 [Dr. Flood: Document any prior program results, even small scale. Include:]
@@ -1080,13 +1102,20 @@ Year 4+: 20% foundation + 50% federal/state + 30% earned/consulting
 III. OPERATIONAL SUSTAINABILITY
 
 TECHNOLOGY AS FORCE MULTIPLIER:
-Because our platforms (LifeBridge, ThriveUp, MAP-GAP) are already built and operational, the marginal cost of serving additional participants is primarily personnel. Technology maintenance costs approximately $15K-$25K/year regardless of participant volume. This means that even with reduced funding, the service infrastructure continues to operate.
+Because our platforms (LifeBridge, ThriveUp, RPLICE, MAP-GAP) are already built and operational, the marginal cost of serving additional participants is primarily personnel. Technology maintenance costs approximately $15K-$25K/year regardless of participant volume. This means that even with reduced funding, the service infrastructure continues to operate.
+
+RPLICE AS SUSTAINABILITY ENGINE:
+RPLICE's implementation science tools (CFIR assessments, RE-AIM scoring, fidelity checklists) are available to our partner organizations — not just to us. During the grant period, we will extend RPLICE access to collaborative partners, enabling them to validate their own program delivery against implementation science standards. This creates a shared evaluation infrastructure across Central Texas that persists beyond any single funder. Partners who adopt RPLICE-validated practices maintain evidence-based service delivery regardless of whether TCAF's funding continues.
 
 TRAIN-THE-TRAINER MODEL:
-During the grant period, we will train partner organization staff in benefits navigation protocols and Three Realities methodology. This builds capacity within the Central Texas service ecosystem that persists beyond our direct involvement.
+During the grant period, we will train partner organization staff in:
+- Benefits navigation protocols using LifeBridge
+- Three Realities community engagement methodology
+- RPLICE fidelity assessment tools for their own programs
+This builds implementation science capacity within the Central Texas service ecosystem that persists beyond our direct involvement — partners gain the ability to self-evaluate and continuously improve.
 
 DATA-DRIVEN EFFICIENCY:
-MAP-GAP continuous improvement identifies which service components produce the highest ROI, allowing us to focus limited post-grant resources on the highest-impact activities.
+MAP-GAP continuous improvement, powered by RPLICE's fidelity data, identifies which service components produce the highest ROI, allowing us to focus limited post-grant resources on the highest-impact activities. This is not a manual process — it is automated through our technology infrastructure.
 
 IV. COMMUNITY SUSTAINABILITY
 
