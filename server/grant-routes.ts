@@ -1154,6 +1154,43 @@ export function registerGrantRoutes(app: Express) {
         WIOA: `Generate a WIOA Title I Youth grant narrative section for ThriveUp, a comprehensive youth workforce development platform. The program follows a Three-Pillar framework: Relief (immediate stabilization), Stabilize (skill building), and Contribute (career pathways and community engagement). Focus on workforce development outcomes, career pathways, employer partnerships, and digital literacy training.`,
         OJJDP: `Generate an OJJDP Second Chance Act grant narrative section for ThriveUp, a technology-enabled reentry support platform. The program follows a Three-Pillar framework: Relief (immediate stabilization), Stabilize (skill building), and Contribute (career pathways and community engagement). Focus on recidivism reduction, reentry case management, evidence-based interventions, and community-based support services.`,
         SAMHSA: `Generate a SAMHSA Community Mental Health grant narrative section for ThriveUp, a holistic youth development platform with integrated behavioral health support. The program follows a Three-Pillar framework: Relief (immediate stabilization), Stabilize (skill building), and Contribute (career pathways and community engagement). Focus on trauma-informed care, behavioral health screening, mental health integration, and whole-child support.`,
+        ST_DAVIDS_LOI: `Generate a Letter of Intent (LOI) for St. David's Foundation "We All Benefit 2.0: Building Economic Stability" grant program.
+
+APPLICANT: The Collaborative Advocate Foundation, 501(c)(3), EIN 41-3618003. Veteran-founded, Black-led. Dr. Terry Flood, Founder & CEO. 17912 Stefano Drive, Pflugerville, TX 78660.
+
+VOICE & VALUES — This is who we are:
+- We are EQUITY-FOCUSED and EQUALITY and ACCESS driven. Not theoretical equity — tract-level data that exposes the neighborhoods county averages hide.
+- We are PROBLEM SOLVERS using COLLABORATIVE ACCOUNTABILITY and TRANSPARENCY that is DATA-LED and INTENTIONAL. We don't guess. We measure. Then we act.
+- We make GOOD PROGRAMS BETTER. We don't compete with existing organizations — we give them infrastructure to amplify their impact.
+- We LEAVE NO ONE BEHIND. Homeless individuals (3,238 PIT count in Austin, 68% became homeless IN Austin), immigrants and refugees (Speech Bridge for language access, LifeBridge for resource navigation regardless of documentation status), veterans (13% of homeless population), youth aging out of foster care, formerly incarcerated — everyone has a pathway.
+- We are HOLISTIC and COMPREHENSIVE. 24 coordinated platforms. One entry point. No dead ends. If one platform identifies a need, the ecosystem routes it to the right service automatically.
+- We MEASURE IMPACT for everyone — including homeless populations and immigrants. Our LifeBridge platform tracks housing stability outcomes. Speech Bridge provides multilingual access. Our data captures outcomes for ALL populations, not just those easiest to count.
+
+ST. DAVID'S REQUIREMENTS:
+- Geographic: Central Texas (Travis, Williamson, Bastrop, Caldwell, Hays counties) — we serve Travis and Williamson through our Austin, Manor, and Pflugerville regional hubs.
+- Focus: Economic stability through public benefits enrollment (SNAP, Medicaid, CHIP, WIC, housing, childcare), financial coaching, workforce development, addressing barriers to benefits access.
+- Community voice: St. David's explicitly scores for community-informed design. Our Three Realities methodology IS this — community data shapes every intervention.
+- Data-driven: 8 federal data sources integrated. Locked Census baselines. Real-time gap tracking. Implementation science validation (CFIR, RE-AIM).
+
+THRIVEUP ECOSYSTEM ALIGNMENT:
+- LifeBridge: Virtual 211 — housing navigation, benefits enrollment, food access, utilities assistance, crisis support. DIRECTLY addresses public benefits enrollment priority.
+- ThriveUp Academy: Workforce development with 55 career pathways, AI Workforce Academy, WIOA-aligned curriculum. Economic stability through employment.
+- Financial Literacy module: Academy Wallet, Stock Market Simulator — asset building and financial coaching.
+- Speech Bridge: Language translation and culturally responsive communication — removes barriers for immigrant and LEP communities.
+- Whole-Person Health + 6 health platforms: Holistic health screening that identifies SDOH factors blocking economic stability.
+- MAP-GAP framework: Continuous improvement methodology — makes good programs better, doesn't replace them.
+- LifeBridge tracks outcomes for homeless and unhoused populations. Speech Bridge serves immigrant and refugee communities. No population is invisible in our data.
+
+AUSTIN CRISIS DATA TO WEAVE IN:
+- 3,238 people counted in 2025 PIT (up 36% from 2023)
+- 68% became homeless IN Austin — not transplants
+- Youth homelessness nearly quadrupled: 247 (2020) to 934 (2024)
+- A family needs $95,000/year to afford Austin's median home. Median household income: $80,954.
+- Without credentials beyond high school, Central Texans have only a 12% chance of earning a living wage.
+- Black homeownership: 30% vs 70% white — a 40-point gap.
+
+Write the LOI in 500-750 words. Professional but passionate. This should sound like a problem solver who builds infrastructure, not someone asking for charity. Use plain paragraphs, no markdown formatting. The tone is: "We see what's broken. We built the tools. Here's what we'll do."`,
+        ST_DAVIDS_FULL: `Generate a full grant narrative for St. David's Foundation "We All Benefit 2.0" application. Use the same voice, values, and ecosystem alignment as the LOI but expanded to 2,000-2,500 words with detailed sections: (1) Organizational Background, (2) Community Need with Census tract-level data, (3) Program Design showing how 24 platforms create comprehensive economic stability pathways, (4) Community Voice through Three Realities methodology, (5) Populations Served including homeless, immigrants, veterans, justice-involved, foster youth — no one left behind, (6) Data & Measurement Infrastructure showing 8 federal sources and locked baselines, (7) Collaborative Approach showing ecosystem coordination and partner integration, (8) Sustainability beyond the grant period. Emphasize equity, access, collaborative accountability, transparency, data-led decision making, and holistic comprehensive service delivery.`,
         COLLABORATION: `Generate a collaboration proposal narrative for ThriveUp Academy ACOS (Autonomous Collaborative Operating System), a 24-platform AI-powered ecosystem under The Collaborative Advocate Foundation (501(c)(3), EIN 41-3618003). This is NOT a grant request — it is a partnership proposal showing mutual value. ThriveUp offers collaborators: tract-level community data (not county averages), 8 integrated federal data sources (CDC PLACES, SVI, FBI Crime, Census ACS, USDA Food Atlas, HUD, SAMHSA, BLS), GIS mapping infrastructure, autonomous agent coordination across 24 platforms, and implementation science validation (CFIR, RE-AIM). In return, collaborators bring credibility, network access, co-validation, and shared impact measurement. Frame this as infrastructure the collaborator doesn't have to build themselves — they plug into what already exists. Emphasize mutual accountability, shared data, and joint community impact.`,
         DATA_PARTNERSHIP: `Generate a data partnership proposal for ThriveUp Academy's community measurement infrastructure. ThriveUp has built tract-level data analysis across 8 federal sources — CDC PLACES API, CDC/ATSDR SVI, FBI Crime Data Explorer, Census ACS, USDA Food Atlas, HUD, SAMHSA, and BLS. The platform exposes the neighborhoods where poverty exceeds 40% and unemployment tops 20% that county averages hide. For data-focused organizations like Measure Austin, United Way, and community foundations, this is shared infrastructure: API access, community data packages, GIS visualization, and automated reporting. Frame this as a two-way data relationship — not a one-sided ask.`,
       };

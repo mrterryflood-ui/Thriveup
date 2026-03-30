@@ -589,7 +589,9 @@ FUNDING REQUEST: $[250,000 — Individual Track / $1,000,000 — Collaborative T
 PROGRAM TITLE: "Pathways to Stability: Community-Informed Economic Empowerment for Central Texas"
 
 PROGRAM SUMMARY:
-The Collaborative Advocate Foundation proposes a community-informed economic stability initiative serving historically marginalized residents of Travis, Williamson, and surrounding Central Texas counties. Grounded in our proprietary Three Realities methodology — which centers community voice, lived experience, and systemic analysis — the program addresses the root causes of economic instability through three integrated service tracks:
+We are equity-focused and equality and access driven. We are problem solvers using collaborative accountability and transparency that is data-led and intentional — to make good programs better and leave no one behind.
+
+The Collaborative Advocate Foundation proposes a holistic, comprehensive economic stability initiative serving historically marginalized residents of Travis, Williamson, and surrounding Central Texas counties. Grounded in our proprietary Three Realities methodology — which centers community voice, lived experience, and systemic analysis — the program addresses the root causes of economic instability through three integrated service tracks. Our 24-platform ecosystem ensures that when one platform identifies a need, the entire system responds — coordinated, accountable, and transparent:
 
 1. PUBLIC BENEFITS NAVIGATION & ENROLLMENT: Using our LifeBridge platform, trained Community Benefits Navigators will conduct targeted outreach and enrollment assistance for SNAP, Medicaid, CHIP, WIC, housing vouchers, childcare subsidies, and utility assistance. Central Texas has significant enrollment gaps — an estimated 40% of eligible households do not access available benefits due to awareness gaps, application complexity, language barriers, and systemic distrust.
 
@@ -597,13 +599,18 @@ The Collaborative Advocate Foundation proposes a community-informed economic sta
 
 3. WORKFORCE PATHWAYS TO ECONOMIC STABILITY: For participants whose economic instability stems from unemployment or underemployment, our ThriveUp Academy provides career readiness, digital literacy, and industry-specific training aligned with Central Texas growth sectors (healthcare, IT, manufacturing, logistics).
 
-POPULATION SERVED:
-Low-income residents of Central Texas (Bastrop, Caldwell, Hays, Travis, Williamson counties) with priority for:
+POPULATION SERVED — WE LEAVE NO ONE BEHIND:
+We serve anyone in Central Texas (Bastrop, Caldwell, Hays, Travis, Williamson counties) who has been left behind by systems that were not designed for them. Priority populations include:
 - Individuals and families below 200% of the Federal Poverty Level
 - Communities of color disproportionately affected by benefits enrollment gaps
-- Veterans and military families transitioning to civilian economic stability
+- Veterans and military families transitioning to civilian economic stability (13% of Austin's homeless population are veterans)
+- Individuals experiencing homelessness (3,238 PIT count in 2025 — up 36% from 2023; 68% became homeless IN Austin; youth homelessness nearly quadrupled from 247 to 934)
+- Immigrants and refugees facing language barriers and documentation challenges — our Speech Bridge platform provides multilingual access, and LifeBridge navigates resources regardless of documentation status
 - Single-parent households navigating multiple benefits systems
-- Individuals experiencing housing instability or food insecurity
+- Formerly incarcerated individuals rebuilding economic stability through our 5-phase reentry pipeline
+- Youth aging out of foster care with no safety net
+
+We measure impact for ALL populations — including those most organizations don't count. Our data doesn't leave anyone invisible.
 
 COMMUNITY-INFORMED DESIGN:
 This program was designed using our Three Realities methodology, which ensures that every service component originates from community voice rather than institutional assumption. Three Realities examines: (1) The Lived Reality — what community members actually experience, (2) The Institutional Reality — what systems intend and deliver, and (3) The Gap Reality — where the disconnect between intent and experience creates harm. [Dr. Flood: Add specific examples of Three Realities application in Central Texas — community listening sessions, focus groups, advisory board input]
