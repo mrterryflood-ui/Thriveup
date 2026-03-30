@@ -205,13 +205,13 @@ export default function LandingPage() {
             4 Disciplines. 24 Platforms. One Living System.
           </Badge>
           <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-4 sm:mb-6 tracking-tight leading-tight" data-testid="text-hero-title">
-            We Plan. We Coordinate.<br />We Build. We Measure.
+            We Plan. We Research. We Understand.<br />We Coordinate. We Implement with Fidelity.<br />We Continuously Improve.
           </h1>
           <p className="text-base sm:text-lg md:text-xl text-white/80 max-w-3xl mx-auto mb-3 sm:mb-4 px-2" data-testid="text-hero-subtitle">
-            We build with the precision of engineers, the rigor of scientists, the compassion of community health workers, and the coordination of seasoned program managers — with transparency woven into every decision, communication, and evaluation.
+            From healthcare to defense, criminal justice to education — we put people first. We listen before we build, we measure before we scale, and we never stop making things better for the communities we serve.
           </p>
           <p className="text-xs sm:text-sm md:text-base text-white/60 max-w-2xl mx-auto mb-6 sm:mb-8 px-2">
-            Powered by implementation science, criminal justice research, HR management, and I-O psychology — MAP-GAP turns academic research into working technology and sustained community impact. We don't propose. We execute with fidelity and measure every step.
+            Powered by implementation science, criminal justice research, HR management, and I-O psychology — MAP-GAP turns academic research into working technology and sustained community impact. We don't propose. We execute with fidelity, measure every step, and continuously improve.
           </p>
           <div className="flex flex-wrap justify-center gap-2 sm:gap-3 mb-8 sm:mb-10 px-4">
             {DISCIPLINES.map((d) => (

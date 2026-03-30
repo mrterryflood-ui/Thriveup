@@ -699,7 +699,7 @@ function EcosystemOverview() {
             Cross-Platform Data Flow
           </CardTitle>
           <p className="text-xs text-muted-foreground">
-            "We Plan. We Coordinate. We Build. We Measure." — each action spans multiple platforms
+            "We Plan. We Research. We Understand. We Coordinate. We Implement with Fidelity. We Continuously Improve." — each action spans multiple platforms
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
