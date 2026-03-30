@@ -18,6 +18,7 @@ import {
   Microscope, ClipboardCheck, Target, Layers, Shield,
   ChevronRight, ChevronLeft, CheckCircle2, AlertTriangle,
   BarChart3, FileText, Plus, Clock, TrendingUp, Activity,
+  Brain, MapPin, Loader2, Download, Globe,
 } from "lucide-react";
 import type { RpliceAssessment } from "@shared/schema";
 
@@ -918,18 +919,342 @@ function QualityGateDashboard() {
   );
 }
 
+const PRESET_REGIONS = [
+  { label: "Buffalo NY (Erie County)", stateFips: "36", countyFips: "029", cityName: "Buffalo NY (Erie County)" },
+  { label: "Wilmington NC (New Hanover)", stateFips: "37", countyFips: "129", cityName: "Wilmington NC (New Hanover County)" },
+  { label: "Austin TX (Travis County)", stateFips: "48", countyFips: "453", cityName: "Austin TX (Travis County)" },
+  { label: "San Antonio TX (Bexar)", stateFips: "48", countyFips: "029", cityName: "San Antonio TX (Bexar County)" },
+  { label: "Houston TX (Harris)", stateFips: "48", countyFips: "201", cityName: "Houston TX (Harris County)" },
+  { label: "Dallas TX (Dallas)", stateFips: "48", countyFips: "113", cityName: "Dallas TX (Dallas County)" },
+  { label: "Philadelphia PA (Philadelphia)", stateFips: "42", countyFips: "101", cityName: "Philadelphia PA" },
+  { label: "Baltimore MD (Baltimore City)", stateFips: "24", countyFips: "510", cityName: "Baltimore MD" },
+  { label: "Detroit MI (Wayne)", stateFips: "26", countyFips: "163", cityName: "Detroit MI (Wayne County)" },
+  { label: "Chicago IL (Cook)", stateFips: "17", countyFips: "031", cityName: "Chicago IL (Cook County)" },
+  { label: "Memphis TN (Shelby)", stateFips: "47", countyFips: "157", cityName: "Memphis TN (Shelby County)" },
+  { label: "New Orleans LA (Orleans)", stateFips: "22", countyFips: "071", cityName: "New Orleans LA (Orleans Parish)" },
+];
+
+function AICommunityAnalysis() {
+  const { toast } = useToast();
+  const [selectedRegion, setSelectedRegion] = useState("");
+  const [customState, setCustomState] = useState("");
+  const [customCounty, setCustomCounty] = useState("");
+  const [customCity, setCustomCity] = useState("");
+  const [focusAreas, setFocusAreas] = useState("poverty,education,violence prevention,ACEs,gentrification");
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [statusMessages, setStatusMessages] = useState<string[]>([]);
+  const [censusData, setCensusData] = useState<any>(null);
+  const [rpliceData, setRpliceData] = useState<any>(null);
+  const [analysisText, setAnalysisText] = useState("");
+  const [analysisComplete, setAnalysisComplete] = useState(false);
+
+  const runAnalysis = async () => {
+    const preset = PRESET_REGIONS.find(r => r.label === selectedRegion);
+    const stateFips = preset?.stateFips || customState;
+    const countyFips = preset?.countyFips || customCounty;
+    const cityName = preset?.cityName || customCity || "Custom Region";
+
+    if (!stateFips || !countyFips) {
+      toast({ title: "Select a region or enter state/county FIPS codes", variant: "destructive" });
+      return;
+    }
+
+    setIsStreaming(true);
+    setStatusMessages([]);
+    setCensusData(null);
+    setRpliceData(null);
+    setAnalysisText("");
+    setAnalysisComplete(false);
+
+    try {
+      const resp = await fetch("/api/rplice/community-analysis", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          stateFips, countyFips, cityName,
+          focusAreas: focusAreas.split(",").map(s => s.trim()).filter(Boolean),
+        }),
+      });
+
+      const reader = resp.body?.getReader();
+      if (!reader) throw new Error("No response stream");
+
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue;
+          try {
+            const evt = JSON.parse(line.slice(6));
+            if (evt.type === "status") setStatusMessages(prev => [...prev, evt.message]);
+            else if (evt.type === "data" && evt.section === "census") setCensusData(evt);
+            else if (evt.type === "data" && evt.section === "rplice") setRpliceData(evt);
+            else if (evt.type === "chunk") setAnalysisText(prev => prev + evt.content);
+            else if (evt.type === "done") setAnalysisComplete(true);
+            else if (evt.type === "error") {
+              toast({ title: "Analysis Error", description: evt.message, variant: "destructive" });
+            }
+          } catch {}
+        }
+      }
+    } catch (e: any) {
+      toast({ title: "Analysis failed", description: e.message, variant: "destructive" });
+    } finally {
+      setIsStreaming(false);
+    }
+  };
+
+  const downloadAnalysis = () => {
+    const blob = new Blob([analysisText], { type: "text/markdown" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `rplice-analysis-${selectedRegion || "custom"}-${new Date().toISOString().slice(0, 10)}.md`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Brain className="h-5 w-5 text-violet-500" />
+            AI-Powered RPLICE Community Analysis
+          </CardTitle>
+          <CardDescription>
+            Pulls live Census ACS data + RPLICE research library → AI generates a complete 9-section analysis with CFIR 2.0, RE-AIM, Three Realities, SALP, and intervention plans. Grant-ready output.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Select Community</Label>
+              <Select value={selectedRegion} onValueChange={setSelectedRegion}>
+                <SelectTrigger data-testid="select-region">
+                  <SelectValue placeholder="Choose a preset region..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {PRESET_REGIONS.map(r => (
+                    <SelectItem key={r.label} value={r.label}>
+                      <span className="flex items-center gap-2">
+                        <MapPin className="h-3 w-3" /> {r.label}
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Focus Areas</Label>
+              <Input
+                value={focusAreas}
+                onChange={e => setFocusAreas(e.target.value)}
+                placeholder="poverty, education, violence prevention..."
+                data-testid="input-focus-areas"
+              />
+            </div>
+          </div>
+
+          {!selectedRegion && (
+            <div className="grid grid-cols-3 gap-3">
+              <div className="space-y-1">
+                <Label className="text-xs">State FIPS</Label>
+                <Input value={customState} onChange={e => setCustomState(e.target.value)} placeholder="e.g. 36" data-testid="input-state-fips" />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">County FIPS</Label>
+                <Input value={customCounty} onChange={e => setCustomCounty(e.target.value)} placeholder="e.g. 029" data-testid="input-county-fips" />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">City Name</Label>
+                <Input value={customCity} onChange={e => setCustomCity(e.target.value)} placeholder="e.g. Buffalo NY" data-testid="input-city-name" />
+              </div>
+            </div>
+          )}
+
+          <Button
+            onClick={runAnalysis}
+            disabled={isStreaming}
+            className="w-full"
+            size="lg"
+            data-testid="button-run-analysis"
+          >
+            {isStreaming ? (
+              <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Analysis in progress...</>
+            ) : (
+              <><Brain className="h-4 w-4 mr-2" /> Run RPLICE Community Analysis</>
+            )}
+          </Button>
+        </CardContent>
+      </Card>
+
+      {statusMessages.length > 0 && (
+        <Card>
+          <CardContent className="pt-4">
+            <div className="space-y-1">
+              {statusMessages.map((msg, i) => (
+                <div key={i} className="flex items-center gap-2 text-sm">
+                  {i === statusMessages.length - 1 && isStreaming ? (
+                    <Loader2 className="h-3 w-3 animate-spin text-blue-500 shrink-0" />
+                  ) : (
+                    <CheckCircle2 className="h-3 w-3 text-green-500 shrink-0" />
+                  )}
+                  <span data-testid={`text-status-${i}`}>{msg}</span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {censusData && (
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base flex items-center gap-2">
+              <MapPin className="h-4 w-4 text-blue-500" />
+              Census Data: {censusData.county?.name}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+              {[
+                { label: "Population", value: censusData.county?.population?.toLocaleString() },
+                { label: "Median Income", value: "$" + censusData.county?.medianIncome?.toLocaleString() },
+                { label: "Poverty Rate", value: censusData.county?.povertyRate + "%" },
+                { label: "College %", value: censusData.county?.collegePct + "%" },
+                { label: "Unemployment", value: censusData.county?.unemploymentRate + "%" },
+                { label: "Tracts Analyzed", value: censusData.stats?.totalTracts },
+                { label: "Income Gap", value: censusData.incomeGap + "x" },
+                { label: "High Risk (30%+ Poverty)", value: censusData.stats?.tractsOver30Poverty },
+                { label: "Risk Score 100 Tracts", value: censusData.stats?.tractsRisk100 },
+                { label: "Marriage Rate", value: censusData.county?.marriagePct + "%" },
+              ].map((item, i) => (
+                <div key={i} className="bg-muted/50 rounded-lg p-2 text-center">
+                  <div className="text-xs text-muted-foreground">{item.label}</div>
+                  <div className="text-sm font-bold" data-testid={`text-census-${i}`}>{item.value}</div>
+                </div>
+              ))}
+            </div>
+            {censusData.gentrification?.length > 0 && (
+              <div className="mt-3 flex flex-wrap gap-2">
+                {censusData.gentrification.map((g: string, i: number) => (
+                  <Badge key={i} variant="destructive" className="text-xs">{g}</Badge>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {rpliceData && (
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base flex items-center gap-2">
+              <Globe className="h-4 w-4 text-violet-500" />
+              RPLICE Research Library
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center gap-4 mb-3 flex-wrap">
+              <Badge variant="outline">{rpliceData.researchCount} studies matched</Badge>
+              {rpliceData.frameworks?.map((f: any) => (
+                <Badge key={f.id} className="bg-violet-100 text-violet-800 dark:bg-violet-900 dark:text-violet-200">{f.name}</Badge>
+              ))}
+              {rpliceData.ecosystemStatus?.connected && (
+                <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                  <CheckCircle2 className="h-3 w-3 mr-1" /> Ecosystem Connected
+                </Badge>
+              )}
+            </div>
+            {rpliceData.topStudies?.length > 0 && (
+              <div className="space-y-1">
+                {rpliceData.topStudies.map((s: any, i: number) => (
+                  <div key={i} className="text-xs text-muted-foreground">
+                    <span className="font-medium text-foreground">{s.title}</span>
+                    {s.authors && <span> — {s.authors} ({s.year})</span>}
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {analysisText && (
+        <Card>
+          <CardHeader className="pb-2">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Brain className="h-4 w-4 text-violet-500" />
+                RPLICE Analysis Report
+                {analysisComplete && <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">Complete</Badge>}
+                {isStreaming && <Loader2 className="h-4 w-4 animate-spin text-blue-500" />}
+              </CardTitle>
+              {analysisComplete && (
+                <Button size="sm" variant="outline" onClick={downloadAnalysis} data-testid="button-download-analysis">
+                  <Download className="h-4 w-4 mr-1" /> Download Markdown
+                </Button>
+              )}
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div
+              className="prose prose-sm dark:prose-invert max-w-none [&_table]:w-full [&_table]:text-xs [&_th]:p-1.5 [&_td]:p-1.5 [&_th]:bg-muted/50 [&_table]:border [&_th]:border [&_td]:border"
+              data-testid="text-analysis-report"
+              dangerouslySetInnerHTML={{ __html: renderMarkdown(analysisText) }}
+            />
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+}
+
+function renderMarkdown(text: string): string {
+  return text
+    .replace(/^### (.+)$/gm, '<h3 class="text-base font-bold mt-4 mb-2">$1</h3>')
+    .replace(/^## (.+)$/gm, '<h2 class="text-lg font-bold mt-6 mb-3 border-b pb-1">$1</h2>')
+    .replace(/^# (.+)$/gm, '<h1 class="text-xl font-bold mt-6 mb-3">$1</h1>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/^\|(.+)$/gm, (match) => {
+      const cells = match.split("|").filter(c => c.trim()).map(c => c.trim());
+      if (cells.every(c => /^[-:]+$/.test(c))) return '';
+      const tag = match.includes('---') ? 'td' : 'td';
+      return '<tr>' + cells.map(c => `<${tag} class="border p-1.5">${c}</${tag}>`).join('') + '</tr>';
+    })
+    .replace(/((<tr>.*<\/tr>\s*)+)/g, '<table class="w-full border-collapse border text-xs my-3">$1</table>')
+    .replace(/^- (.+)$/gm, '<li class="ml-4 list-disc">$1</li>')
+    .replace(/((<li[^>]*>.*<\/li>\s*)+)/g, '<ul class="my-2">$1</ul>')
+    .replace(/^(\d+)\. (.+)$/gm, '<li class="ml-4 list-decimal">$2</li>')
+    .replace(/\n{2,}/g, '<br/><br/>')
+    .replace(/\n/g, '<br/>');
+}
+
 export default function RpliceToolsPage() {
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-6">
       <div>
         <h1 className="text-2xl font-bold" data-testid="text-page-title">RPLICE Implementation Science Toolkit</h1>
         <p className="text-muted-foreground">
-          Research-Practice Linkage for Implementation, Compliance, and Evaluation
+          Research, Planning, Learning & Implementation Center of Excellence
         </p>
       </div>
 
-      <Tabs defaultValue="cfir" className="space-y-6">
+      <Tabs defaultValue="ai-analysis" className="space-y-6">
         <TabsList className="flex-wrap">
+          <TabsTrigger value="ai-analysis" data-testid="tab-ai-analysis">
+            <Brain className="h-4 w-4 mr-1.5" /> AI Community Analysis
+          </TabsTrigger>
           <TabsTrigger value="cfir" data-testid="tab-cfir">
             <Microscope className="h-4 w-4 mr-1.5" /> CFIR Assessment
           </TabsTrigger>
@@ -947,6 +1272,7 @@ export default function RpliceToolsPage() {
           </TabsTrigger>
         </TabsList>
 
+        <TabsContent value="ai-analysis"><AICommunityAnalysis /></TabsContent>
         <TabsContent value="cfir"><CFIRWizard /></TabsContent>
         <TabsContent value="reaim"><REAIMScorecard /></TabsContent>
         <TabsContent value="fidelity"><FidelityChecklist /></TabsContent>

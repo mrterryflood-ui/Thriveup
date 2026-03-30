@@ -41,7 +41,7 @@ Core architectural features and design decisions include:
 - **Directive Compliance Center:** Real-time tracking of directives, statistics, and grant readiness views.
 - **Instructor Presentation System:** Reusable component for interactive slideshows.
 - **Video Production Pipeline:** End-to-end system for video content creation, rendering, and distribution.
-- **RPLICE Implementation Science Toolkit:** Interactive tools for CFIR assessment, RE-AIM scorecards, fidelity checklists, and a Quality Gate Dashboard.
+- **RPLICE Implementation Science Toolkit:** Interactive tools for CFIR assessment, RE-AIM scorecards, fidelity checklists, Quality Gate Dashboard, and **AI-Powered Community Analysis** — streams live Census ACS data + RPLICE external research library (salp-science--mrterryflood.replit.app) through the AI engine to produce 9-section RPLICE reports (Three Realities, CFIR 2.0, RE-AIM, SALP, Risk/Protective Factor Matrix, Grant Alignment, 90-Day Roadmap). 12 preset regions including Buffalo, Wilmington, Austin + custom FIPS input. Downloadable markdown output.
 - **MCE Contract Management Center:** Full contract lifecycle management.
 - **Program Management Suite:** Post-award grant execution tools, KPI dashboards, and a Facilitator Hub.
 - **Accessibility & Design:** WCAG 2.1 AA compliant, with dyslexia-friendly fonts, high contrast, reduced motion, screen reader optimization, mobile responsiveness, and a violet/indigo branding system with dark mode.
