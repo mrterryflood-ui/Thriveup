@@ -565,62 +565,600 @@ ELIGIBILITY: 501(c)(3) organizations operating in Central Texas counties. Collab
       ],
     },
     sections: [
-      { id: "std-loi", name: "Letter of Intent / Application", description: "Organization overview, program description, population served, funding request", icon: FileText, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood + AI", pageLimit: "5 pages", wordCount: "1,500–2,000 words" },
-      { id: "std-narrative", name: "Program Narrative", description: "Community-informed program design, economic stability services, public benefits enrollment strategy", icon: BookOpen, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood + AI", pageLimit: "15 pages", wordCount: "5,000–6,000 words" },
-      { id: "std-budget", name: "Budget & Justification", description: "Line-item budget with cost allocation for economic stability services", icon: DollarSign, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood", pageLimit: "3 pages", wordCount: "1,000–1,500 words" },
-      { id: "std-community", name: "Community Voice Documentation", description: "Evidence of community-informed design — Three Realities analysis, stakeholder input, lived experience", icon: Users, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood", pageLimit: "5 pages", wordCount: "1,500–2,500 words" },
-      { id: "std-outcomes", name: "Outcomes & Evaluation Plan", description: "Measurable outcomes: benefits enrollment rates, economic stability indicators, participant economic health", icon: BarChart3, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood + AI", pageLimit: "5 pages", wordCount: "1,500–2,000 words" },
-      { id: "std-partnerships", name: "Partnership & Collaboration Letters", description: "Community organizations, benefits agencies, workforce partners in Central Texas", icon: Handshake, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood", pageLimit: "No limit (1 per partner)", wordCount: "300–500 words each" },
-      { id: "std-org-capacity", name: "Organizational Capacity", description: "Board composition, leadership bios, financial statements, prior results", icon: Building2, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood", pageLimit: "5 pages", wordCount: "1,500–2,000 words" },
-      { id: "std-sustainability", name: "Sustainability Plan", description: "How economic stability services continue beyond St. David's funding", icon: Globe, status: "not-started", content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood", pageLimit: "3 pages", wordCount: "1,000–1,500 words" },
+      { id: "std-loi", name: "Letter of Intent / Application", description: "Organization overview, program description, population served, funding request", icon: FileText, status: "draft" as ApprovalStatus,
+        content: `LETTER OF INTENT — ST. DAVID'S FOUNDATION
+We All Benefit 2.0: Building Economic Stability
+
+APPLICANT ORGANIZATION:
+The Collaborative Advocate Foundation
+EIN: 41-3618003 | 501(c)(3) Nonprofit
+17912 Stefano Drive, Pflugerville, TX 78660
+Contact: Dr. Terry Flood, DHA — Founder & CEO
+Email: mr.terryflood@gmail.com
+Website: thrivingcommunitiesforall.com
+
+FUNDING REQUEST: $[250,000 — Individual Track / $1,000,000 — Collaborative Track]
+[Dr. Flood: Decide which track before submitting. Individual = just TCAF. Collaborative = need 3+ orgs with MOUs.]
+
+PROGRAM TITLE: "Pathways to Stability: Community-Informed Economic Empowerment for Central Texas"
+
+PROGRAM SUMMARY:
+The Collaborative Advocate Foundation proposes a community-informed economic stability initiative serving historically marginalized residents of Travis, Williamson, and surrounding Central Texas counties. Grounded in our proprietary Three Realities methodology — which centers community voice, lived experience, and systemic analysis — the program addresses the root causes of economic instability through three integrated service tracks:
+
+1. PUBLIC BENEFITS NAVIGATION & ENROLLMENT: Using our LifeBridge platform, trained Community Benefits Navigators will conduct targeted outreach and enrollment assistance for SNAP, Medicaid, CHIP, WIC, housing vouchers, childcare subsidies, and utility assistance. Central Texas has significant enrollment gaps — an estimated 40% of eligible households do not access available benefits due to awareness gaps, application complexity, language barriers, and systemic distrust.
+
+2. FINANCIAL COACHING & ASSET BUILDING: Participants receive individualized financial coaching including budgeting, credit repair, savings strategies, and debt management. Our Financial Literacy module provides structured curricula accessible via mobile and in-person sessions, meeting participants where they are.
+
+3. WORKFORCE PATHWAYS TO ECONOMIC STABILITY: For participants whose economic instability stems from unemployment or underemployment, our ThriveUp Academy provides career readiness, digital literacy, and industry-specific training aligned with Central Texas growth sectors (healthcare, IT, manufacturing, logistics).
+
+POPULATION SERVED:
+Low-income residents of Central Texas (Bastrop, Caldwell, Hays, Travis, Williamson counties) with priority for:
+- Individuals and families below 200% of the Federal Poverty Level
+- Communities of color disproportionately affected by benefits enrollment gaps
+- Veterans and military families transitioning to civilian economic stability
+- Single-parent households navigating multiple benefits systems
+- Individuals experiencing housing instability or food insecurity
+
+COMMUNITY-INFORMED DESIGN:
+This program was designed using our Three Realities methodology, which ensures that every service component originates from community voice rather than institutional assumption. Three Realities examines: (1) The Lived Reality — what community members actually experience, (2) The Institutional Reality — what systems intend and deliver, and (3) The Gap Reality — where the disconnect between intent and experience creates harm. [Dr. Flood: Add specific examples of Three Realities application in Central Texas — community listening sessions, focus groups, advisory board input]
+
+ORGANIZATIONAL QUALIFICATIONS:
+The Collaborative Advocate Foundation is a veteran-founded, Black-led 501(c)(3) nonprofit with a 24-platform technology ecosystem serving marginalized communities. Our founder, Dr. Terry Flood (DHA, MS Implementation Science, U.S. Army Veteran — Bronze Star x2), brings decades of experience in organizational change, workforce development, and community health. Our technology infrastructure — including LifeBridge (benefits navigation), ThriveUp Academy (workforce development), and SafeReport (community safety) — provides the digital backbone for scalable, data-driven service delivery.`,
+        reviewNotes: "Must decide Individual ($250K) vs Collaborative ($1M) track before finalizing. Add specific Three Realities examples.", lastUpdated: "March 30, 2026", assignee: "Dr. Flood + AI", pageLimit: "5 pages", wordCount: "1,500-2,000 words" },
+
+      { id: "std-narrative", name: "Program Narrative", description: "Community-informed program design, economic stability services, public benefits enrollment strategy", icon: BookOpen, status: "draft" as ApprovalStatus,
+        content: `PROGRAM NARRATIVE — PATHWAYS TO STABILITY
+
+I. THE PROBLEM: ECONOMIC INSTABILITY IN CENTRAL TEXAS
+
+Central Texas is one of the fastest-growing regions in the country, yet prosperity is not shared equally. Behind the headlines of Austin's tech boom lies a persistent crisis of economic instability:
+
+BENEFITS ENROLLMENT GAPS: An estimated 40% of eligible households in Travis and Williamson counties do not access available public benefits — SNAP, Medicaid, CHIP, WIC, housing vouchers, childcare subsidies. This is not because benefits don't exist. It is because the systems designed to deliver them were not designed for the people who need them most.
+
+The barriers are structural, not personal:
+- Application processes require documentation many families cannot easily produce
+- Language barriers exclude non-English-speaking households
+- Stigma and systemic distrust discourage engagement, especially in communities of color
+- Fragmented systems require navigating multiple agencies with different requirements, hours, and locations
+- Digital divides exclude households without reliable internet or devices
+
+ECONOMIC INSTABILITY DATA (Travis County):
+- 15.4% of residents live below the poverty line (U.S. Census ACS)
+- Median rent increased 30%+ since 2020, displacing thousands of families
+- ZIP codes 78741, 78744, 78753, and 78745 have the highest concentrations of public benefits-eligible households
+- Black and Hispanic/Latino households are 2-3x more likely to be eligible for but not enrolled in SNAP and Medicaid
+- Single-parent households face compounded barriers: childcare, transportation, time, and application complexity
+
+THE HUMAN COST:
+When a family eligible for SNAP doesn't enroll, they spend $200-400 more per month on food — money that comes from rent, utilities, or medical care. When a child eligible for CHIP doesn't enroll, a preventable illness becomes an emergency room visit. When a veteran eligible for housing assistance doesn't know how to apply, housing instability becomes homelessness. These are not statistics. They are the daily reality of thousands of Central Texas families.
+
+II. OUR APPROACH: THREE REALITIES METHODOLOGY
+
+Our program design is grounded in the Three Realities methodology — a proprietary framework developed by Dr. Terry Flood that ensures every service component originates from community voice rather than institutional assumption.
+
+REALITY 1 — THE LIVED REALITY:
+What do community members actually experience when they try to access public benefits? Through structured listening sessions, focus groups, and individual interviews with Central Texas residents, we document the real barriers, frustrations, and fears that prevent enrollment. This is not survey data — it is narrative understanding of what it feels like to navigate a system that wasn't designed for you.
+[Dr. Flood: Insert specific examples — dates, locations, number of participants, key findings from community engagement sessions]
+
+REALITY 2 — THE INSTITUTIONAL REALITY:
+What do benefits agencies, social service organizations, and government systems intend to deliver? We map the policies, processes, and assumptions that drive institutional behavior — identifying where systems believe they are accessible and effective.
+
+REALITY 3 — THE GAP REALITY:
+Where does the disconnect between intent and experience create harm? The Gap Reality is where our intervention lives. By mapping the precise points where institutional design fails community need, we design services that bridge specific gaps rather than adding another layer of well-intentioned but disconnected programming.
+
+THIS IS WHAT ST. DAVID'S MEANS BY "COMMUNITY-INFORMED":
+Community-informed design is not a checkbox. It is not a single focus group conducted after the program is already designed. It is an ongoing methodology that keeps community voice at the center of every design decision, service modification, and outcome evaluation. Three Realities provides the structure to do this authentically and consistently.
+
+III. PROGRAM DESIGN: THREE INTEGRATED SERVICE TRACKS
+
+TRACK 1: PUBLIC BENEFITS NAVIGATION & ENROLLMENT
+Service: Community Benefits Navigators conduct targeted outreach, eligibility screening, application assistance, and enrollment support for public benefits.
+Technology: LifeBridge platform provides digital intake, eligibility cross-matching, application tracking, and follow-up scheduling.
+Target Benefits: SNAP, Medicaid, CHIP, WIC, housing vouchers (Section 8, LIHTC), childcare subsidies, utility assistance (LIHEAP), earned income tax credits.
+Delivery Model: Mobile outreach at community sites (churches, schools, food banks, health clinics) + walk-in hours at partner locations + virtual assistance via LifeBridge.
+Staffing: [NUMBER] Community Benefits Navigators recruited from target communities (lived experience requirement), supervised by Benefits Program Manager.
+Target: Enroll [NUMBER] households in at least one new public benefit within 12 months, with average annual economic impact of $3,000-$8,000 per household.
+
+TRACK 2: FINANCIAL COACHING & ASSET BUILDING
+Service: Individualized financial coaching addressing budgeting, debt management, credit repair, savings strategies, and tax preparation.
+Technology: Financial Literacy module within ThriveUp Academy provides structured curricula, progress tracking, and goal setting.
+Delivery Model: One-on-one coaching sessions (in-person or virtual) + group workshops + self-paced digital modules.
+Curriculum: 8-session core program covering: (1) Financial assessment, (2) Budgeting, (3) Banking and credit, (4) Debt management, (5) Savings strategies, (6) Benefits optimization, (7) Tax credits (EITC, CTC), (8) Long-term financial planning.
+Target: [NUMBER] participants complete financial coaching with measurable improvement in financial stability indicators.
+
+TRACK 3: WORKFORCE PATHWAYS TO ECONOMIC STABILITY
+Service: Career readiness training, digital literacy, and industry-specific certifications for participants whose economic instability stems from unemployment or underemployment.
+Technology: ThriveUp Academy platform provides learning management, skills assessment, career pathway mapping, and employer connections.
+Industries: Healthcare (CNA, MA, CHW), IT (CompTIA, help desk), Manufacturing (safety, quality), Logistics (CDL prep, warehouse).
+Delivery Model: Cohort-based training (8-12 week programs) with wraparound supports (childcare, transportation, benefits continuation during training).
+Target: [NUMBER] participants placed in employment at or above 150% FPL within 90 days of program completion.
+
+IV. SERVICE DELIVERY INFRASTRUCTURE
+
+TECHNOLOGY ECOSYSTEM:
+Our 24-platform ACOS (Advanced Community Operating System) provides integrated digital infrastructure that no single-program organization can match:
+- LifeBridge: Benefits navigation, enrollment tracking, referral management
+- ThriveUp Academy: Workforce training, learning management, career pathways
+- SafeReport: Community safety reporting and response coordination
+- Minority Center of Excellence: Small business support and economic empowerment
+- MAP-GAP Engine: Continuous quality improvement and outcomes monitoring
+
+This technology infrastructure allows us to track participants across service tracks, identify compound needs, measure long-term outcomes, and continuously improve service delivery based on data — not assumptions.
+
+GEOGRAPHIC COVERAGE:
+Primary: Travis County (Austin, Pflugerville, Manor, Del Valle) and Williamson County (Round Rock, Georgetown, Cedar Park)
+Secondary: Hays County (San Marcos, Kyle, Buda)
+Expansion (if collaborative): Bastrop and Caldwell counties through partner organizations
+
+V. CULTURAL RESPONSIVENESS & EQUITY
+
+Our program is designed by and for the communities it serves:
+- Founder and CEO is a Black veteran with lived experience navigating institutional barriers
+- Community Benefits Navigators are recruited from target communities with lived experience requirements
+- Materials available in English and Spanish; interpretation services for other languages
+- Service delivery locations chosen based on community accessibility, not institutional convenience
+- Program design explicitly addresses systemic distrust by building relationships before asking for enrollment
+- Three Realities methodology ensures community voice continuously shapes service delivery
+
+[Dr. Flood: Add any additional cultural responsiveness elements, language capabilities, community relationships]`,
+        reviewNotes: "Strong draft — needs specific numbers in targets and Dr. Flood's community engagement examples inserted", lastUpdated: "March 30, 2026", assignee: "Dr. Flood + AI", pageLimit: "15 pages", wordCount: "5,000-6,000 words" },
+
+      { id: "std-budget", name: "Budget & Justification", description: "Line-item budget with cost allocation for economic stability services", icon: DollarSign, status: "draft" as ApprovalStatus,
+        content: `BUDGET & JUSTIFICATION — INDIVIDUAL TRACK ($250,000)
+[Adjust all amounts if pursuing Collaborative Track ($1,000,000)]
+
+PERSONNEL (60% — $150,000):
+Program Director (Dr. Flood — 30% FTE): $[45,000]
+  Justification: Overall program leadership, community partnerships, Three Realities methodology facilitation, stakeholder engagement, reporting
+Benefits Program Manager (1 FTE): $[55,000]
+  Justification: Supervises Community Benefits Navigators, manages LifeBridge platform operations, tracks enrollment outcomes, coordinates with benefits agencies
+Community Benefits Navigators (2 part-time): $[40,000] ($20K each)
+  Justification: Frontline outreach, eligibility screening, application assistance, enrollment support, follow-up. Recruited from target communities with lived experience requirement.
+Financial Coach (1 part-time): $[10,000]
+  Justification: Individualized financial coaching sessions, group workshop facilitation, curriculum delivery
+
+FRINGE BENEFITS (15% of personnel — $22,500):
+FICA, workers' comp, health insurance contribution: $[22,500]
+
+TECHNOLOGY & EQUIPMENT ($20,000 — 8%):
+LifeBridge platform hosting and maintenance: $[8,000]
+  Justification: Cloud hosting, AI services, data storage for benefits navigation platform
+Laptops/tablets for field navigators (3 units): $[4,500]
+  Justification: Mobile intake, eligibility screening in community settings
+Internet/phone for field staff: $[3,600]
+  Justification: $100/month x 3 staff x 12 months
+Software licenses (case management, reporting): $[3,900]
+
+PROGRAM OPERATIONS ($25,000 — 10%):
+Client assistance fund (emergency needs): $[8,000]
+  Justification: Application fees, document procurement (birth certificates, IDs), transportation to benefits offices
+Outreach materials (multilingual): $[5,000]
+  Justification: Flyers, brochures, social media content in English and Spanish
+Training and professional development: $[5,000]
+  Justification: Benefits certification training for navigators, financial coaching certifications
+Meeting and venue costs: $[4,000]
+  Justification: Community listening sessions, focus groups, workshop space rental
+Mileage/transportation: $[3,000]
+  Justification: Field navigator travel to community sites across Travis/Williamson counties
+
+EVALUATION ($15,000 — 6%):
+Data analysis and outcomes reporting: $[10,000]
+  Justification: Quarterly outcomes analysis, benefits enrollment tracking, economic stability measurement
+External evaluator (optional): $[5,000]
+  Justification: Independent validation of program outcomes and community impact
+
+INDIRECT COSTS (10% — $17,000):
+Administrative overhead: $[17,000]
+  Justification: Accounting, legal, insurance, facilities, organizational administration
+
+TOTAL: $250,000
+
+BUDGET NOTES:
+- 60% personnel ratio demonstrates direct service investment
+- Technology costs are low because platforms are already built — St. David's funds scale operations, not development
+- All budget lines support direct economic stability services or their infrastructure
+- If awarded Collaborative Track, multiply personnel and operations proportionally across partner organizations
+
+[Dr. Flood: Adjust salary amounts to match actual compensation plans. Verify fringe benefit rates. Confirm indirect cost rate — if you have a negotiated indirect rate, use it; otherwise 10% is standard for foundations.]`,
+        reviewNotes: "Adjust salary figures to actual. Verify fringe rates. If pursuing collaborative track, create partner budget allocations.", lastUpdated: "March 30, 2026", assignee: "Dr. Flood", pageLimit: "3 pages", wordCount: "1,000-1,500 words" },
+
+      { id: "std-community", name: "Community Voice Documentation", description: "Evidence of community-informed design — Three Realities analysis, stakeholder input, lived experience", icon: Users, status: "draft" as ApprovalStatus,
+        content: `COMMUNITY VOICE DOCUMENTATION
+Evidence of Community-Informed Program Design
+
+THIS SECTION IS YOUR #1 SCORING FACTOR FOR ST. DAVID'S.
+
+I. THREE REALITIES METHODOLOGY — APPLICATION TO CENTRAL TEXAS
+
+The Pathways to Stability program was designed using the Three Realities methodology, a structured community engagement framework developed by Dr. Terry Flood that ensures program design originates from community voice rather than institutional assumption.
+
+COMMUNITY ENGAGEMENT ACTIVITIES:
+[Dr. Flood: Document ALL community engagement activities. For each, include:]
+
+Activity 1: [Community Listening Session / Focus Group / Advisory Board Meeting]
+Date: [DATE]
+Location: [LOCATION — Central Texas community site]
+Participants: [NUMBER] community members from [DESCRIPTION — e.g., "East Austin families receiving SNAP benefits"]
+Key Findings:
+- [Finding 1 — what community members reported about their experience]
+- [Finding 2]
+- [Finding 3]
+How This Shaped Program Design:
+- [Specific program element that changed or was created based on this input]
+
+Activity 2: [REPEAT FORMAT]
+Activity 3: [REPEAT FORMAT]
+
+II. LIVED REALITY FINDINGS — WHAT COMMUNITY MEMBERS TOLD US
+
+Benefits Navigation Barriers (from community input):
+[Dr. Flood: Insert actual quotes, themes, and patterns from community members. Examples of what to document:]
+- "I didn't know I qualified for [BENEFIT] until [HOW THEY FOUND OUT]"
+- "The application asked for [DOCUMENT] and I couldn't get it because [BARRIER]"
+- "I went to the office but [EXPERIENCE — long wait, language barrier, felt judged]"
+- "I stopped trying because [REASON — too complicated, got denied without explanation, couldn't take time off work]"
+
+Financial Instability Patterns:
+[Document what community members shared about financial challenges, coping strategies, priorities]
+
+Workforce Barriers:
+[Document what community members shared about employment challenges, training needs, childcare/transportation barriers]
+
+III. INSTITUTIONAL REALITY — WHAT SYSTEMS BELIEVE THEY DELIVER
+
+Benefits Agencies: [Document what agencies like HHSC, WIC offices, housing authorities say about their accessibility and enrollment processes]
+
+Gap Analysis: [Where institutional intent diverges from community experience — these gaps are where your program intervenes]
+
+IV. COMMUNITY ADVISORY STRUCTURE
+
+Community Advisory Board:
+[Dr. Flood: List any community members, partner organization representatives, or people with lived experience who advise program design. If you don't have a formal advisory board yet, describe plans to establish one and any informal advisory relationships.]
+
+Name: [NAME] — Role: [Community member / Partner rep / Lived experience advisor]
+Contribution: [How they shape program design]
+
+V. ONGOING COMMUNITY VOICE INTEGRATION
+
+Three Realities is not a one-time activity. Our program maintains continuous community voice through:
+- Quarterly community listening sessions to assess whether services are meeting needs
+- Participant feedback mechanisms embedded in LifeBridge platform (post-service surveys, satisfaction tracking)
+- Community Benefits Navigators with lived experience who serve as ongoing voice conduits
+- Advisory board with community member majority — meeting monthly during Year 1
+- MAP-GAP continuous improvement engine that translates community feedback into program modifications within 30 days
+
+CRITICAL NOTE FOR DR. FLOOD:
+This section MUST contain real, documented community engagement. St. David's will not fund programs that claim community voice without evidence. You need:
+1. Dates and locations of community engagement activities
+2. Number of participants and how they were recruited
+3. Specific findings that shaped program design
+4. Quotes or themes from community members (anonymized if needed)
+5. Evidence that community voice is ONGOING, not a one-time checkbox
+
+If you have not yet conducted formal Three Realities sessions in Central Texas, schedule them THIS WEEK. Even 2-3 small listening sessions with 5-10 people each would provide authentic documentation. Partner organizations (churches, food banks, community health centers) can help recruit participants.`,
+        reviewNotes: "HIGHEST PRIORITY. Must be populated with REAL community engagement evidence. This is the section St. David's scores most heavily.", lastUpdated: "March 30, 2026", assignee: "Dr. Flood", pageLimit: "5 pages", wordCount: "1,500-2,500 words" },
+
+      { id: "std-outcomes", name: "Outcomes & Evaluation Plan", description: "Measurable outcomes: benefits enrollment rates, economic stability indicators, participant economic health", icon: BarChart3, status: "draft" as ApprovalStatus,
+        content: `OUTCOMES & EVALUATION PLAN
+
+I. THEORY OF CHANGE
+
+IF we deploy community-recruited Benefits Navigators using the Three Realities methodology to identify and address specific barriers to public benefits enrollment,
+AND we pair enrollment assistance with financial coaching and workforce pathways,
+THEN participants will achieve measurable economic stability through increased benefits access, improved financial capability, and sustainable employment —
+BECAUSE addressing the Gap Reality (where systems fail community needs) at the point of failure produces enrollment and retention outcomes that traditional outreach cannot.
+
+II. OUTCOME FRAMEWORK
+
+OUTCOME 1: INCREASED PUBLIC BENEFITS ENROLLMENT
+Metric: Number of households newly enrolled in at least one public benefit
+Target: [NUMBER — suggest 200-500 depending on track] households within 12 months
+Measurement: LifeBridge platform enrollment tracking, verified against agency confirmation
+Baseline: 0 (new enrollments facilitated by this program)
+Reporting: Monthly enrollment counts by benefit type, ZIP code, and demographics
+
+OUTCOME 2: ECONOMIC IMPACT PER HOUSEHOLD
+Metric: Average annual economic value of benefits secured per enrolled household
+Target: $3,000-$8,000 per household annually
+Measurement: Sum of annualized benefit values (SNAP: avg $3,588/year; Medicaid: avg $7,000/year; CHIP: avg $2,000/year; housing: avg $6,000-$12,000/year)
+Baseline: $0 in new benefits accessed
+Reporting: Quarterly aggregate economic impact analysis
+
+OUTCOME 3: BENEFITS RETENTION
+Metric: Percentage of enrolled households maintaining benefits at 6 and 12 months
+Target: >80% retention at 6 months; >70% at 12 months
+Measurement: Follow-up tracking via LifeBridge, recertification assistance tracking
+Baseline: National average benefits retention is approximately 60% at 12 months
+Reporting: Semi-annual retention analysis
+
+OUTCOME 4: FINANCIAL STABILITY IMPROVEMENT
+Metric: Participant financial capability assessment scores (pre/post)
+Target: >60% of financial coaching participants show measurable improvement on at least 2 of 5 financial stability indicators
+Indicators: (1) Has a monthly budget, (2) Has emergency savings, (3) Reduced unsecured debt, (4) Improved credit score, (5) Filed for EITC/CTC
+Measurement: Pre/post financial capability assessment, administered at intake and 6 months
+Reporting: Quarterly cohort analysis
+
+OUTCOME 5: WORKFORCE PLACEMENT (for Track 3 participants)
+Metric: Participants placed in employment at or above 150% FPL
+Target: >65% placement rate within 90 days of program completion
+Measurement: ThriveUp Academy placement tracking, employer verification, wage records
+Reporting: Quarterly placement and wage analysis
+
+III. DATA COLLECTION & MANAGEMENT
+
+LifeBridge Platform: Automated tracking of benefits enrollment, application status, follow-up scheduling, and retention monitoring
+ThriveUp Academy: Learning progress, certification completion, employment placement
+MAP-GAP Engine: Continuous quality improvement — aggregates outcome data, identifies service gaps, triggers program modifications
+Financial Literacy Module: Pre/post assessment scores, session attendance, goal completion
+
+DATA QUALITY ASSURANCE:
+- Benefits enrollment verified against agency confirmation (not self-reported)
+- Financial coaching outcomes measured through standardized assessment tools
+- Employment placement verified through employer contact at 30/60/90 days
+- All data disaggregated by race/ethnicity, gender, ZIP code, household composition, and veteran status
+
+IV. EVALUATION DESIGN
+
+Internal Evaluation (Quarterly):
+- MAP-GAP framework produces continuous improvement reports
+- Dashboard monitoring of all outcome indicators
+- Community feedback integration (participant surveys, navigator observations)
+
+External Evaluation (Annual — if budget allows):
+- Independent evaluator reviews methodology, outcomes, and community impact
+- Cost-per-enrollment and cost-per-outcome analysis
+- Comparison to regional benchmarks and similar programs
+
+V. REPORTING TO ST. DAVID'S FOUNDATION
+
+Quarterly Progress Reports: Enrollment numbers, economic impact, participant demographics, community voice updates, budget expenditures, program modifications
+Annual Outcomes Report: Full evaluation against all targets, cost-effectiveness analysis, community impact narrative, sustainability progress, lessons learned
+Final Report: Comprehensive outcomes summary, sustainability plan status, recommendations for replication`,
+        reviewNotes: "Strong outcomes framework. Adjust target numbers based on budget track (individual vs collaborative).", lastUpdated: "March 30, 2026", assignee: "Dr. Flood + AI", pageLimit: "5 pages", wordCount: "1,500-2,000 words" },
+
+      { id: "std-partnerships", name: "Partnership & Collaboration Letters", description: "Community organizations, benefits agencies, workforce partners in Central Texas", icon: Handshake, status: "draft" as ApprovalStatus,
+        content: `PARTNERSHIP & COLLABORATION DOCUMENTATION
+
+TARGET PARTNERS — NEED LETTERS OF SUPPORT FROM EACH:
+
+PARTNER 1: Foundation Communities
+Role: Co-enrollment partner, shared benefits navigation
+Why: Austin's largest provider of affordable housing with integrated services. They already conduct benefits enrollment — our partnership adds capacity and technology (LifeBridge) to their work.
+Contact: [Dr. Flood: Research Foundation Communities contact]
+Letter Status: [Not yet contacted / Contacted / Letter received]
+
+PARTNER 2: CommUnityCare Health Centers
+Role: Community health integration, Medicaid/CHIP enrollment
+Why: Federally Qualified Health Center serving uninsured/underinsured Travis County residents. Natural referral pipeline — patients who need health benefits also need SNAP, housing, childcare.
+Contact: [Dr. Flood: Research CommUnityCare partnerships contact]
+Letter Status: [Not yet contacted / Contacted / Letter received]
+
+PARTNER 3: United Way for Greater Austin
+Role: 2-1-1 referral integration, collaborative infrastructure
+Why: United Way's 2-1-1 helpline is the primary social service referral system in Central Texas. Integration with our LifeBridge platform creates a seamless referral-to-enrollment pipeline.
+Contact: [Dr. Flood: Research United Way partnerships contact]
+Letter Status: [Not yet contacted / Contacted / Letter received]
+
+PARTNER 4: Goodwill Central Texas
+Role: Workforce development co-enrollment, career readiness
+Why: Goodwill provides workforce services across the 5-county region. Partnership enables dual-track service: benefits enrollment + career pathways for participants with employment needs.
+Contact: [Dr. Flood: Research Goodwill Central Texas contact]
+Letter Status: [Not yet contacted / Contacted / Letter received]
+
+PARTNER 5: Workforce Solutions Capital Area
+Role: WIOA co-enrollment, employer connections
+Why: Official workforce board for the Capital Area. Co-enrollment allows participants to access WIOA-funded services (training vouchers, supportive services) alongside our program.
+Contact: [Dr. Flood: Research Workforce Solutions contact]
+Letter Status: [Not yet contacted / Contacted / Letter received]
+
+FOR COLLABORATIVE TRACK ($1M) — NEED FORMAL MOUs:
+If pursuing the $1M collaborative track, you need at least 3 organizations with:
+- Signed MOUs defining roles, governance, budget allocation
+- Shared governance structure (collaborative steering committee)
+- Geographic coverage across the 5-county area
+- Joint budget showing how $1M is allocated across partners
+
+LETTER OF SUPPORT TEMPLATE:
+[Organization Letterhead]
+[Date]
+
+St. David's Foundation
+Re: Letter of Support — Pathways to Stability (The Collaborative Advocate Foundation)
+
+Dear St. David's Foundation,
+
+[Organization Name] is pleased to support The Collaborative Advocate Foundation's application to the We All Benefit 2.0 grant program. We have [describe existing relationship or planned partnership] with TCAF and believe their Pathways to Stability program addresses critical gaps in [specific service area] for Central Texas communities.
+
+Our organization will contribute to this initiative by: [specific role — referrals, co-enrollment, shared service delivery, data sharing, etc.]
+
+We look forward to partnering with TCAF to advance economic stability for the residents we jointly serve.
+
+Sincerely,
+[Name, Title, Organization]
+
+DR. FLOOD ACTION: Begin outreach to these organizations THIS WEEK. You need actual letters before submission. Email template:
+Subject: Partnership Opportunity — St. David's Foundation Grant Application
+Body: Brief intro of TCAF, description of Pathways to Stability, what you're asking of them (letter of support + specific partnership role), timeline for response.`,
+        reviewNotes: "Outreach must begin immediately. Letters take time — follow up within 48 hours.", lastUpdated: "March 30, 2026", assignee: "Dr. Flood", pageLimit: "No limit (1 per partner)", wordCount: "300-500 words each" },
+
+      { id: "std-org-capacity", name: "Organizational Capacity", description: "Board composition, leadership bios, financial statements, prior results", icon: Building2, status: "draft" as ApprovalStatus,
+        content: `ORGANIZATIONAL CAPACITY
+
+I. ORGANIZATION OVERVIEW
+
+The Collaborative Advocate Foundation (TCAF) is a veteran-founded, Black-led 501(c)(3) nonprofit organization headquartered in Pflugerville, Texas. Founded by Dr. Terry Flood, TCAF operates a 24-platform technology ecosystem designed to address systemic barriers facing marginalized communities through integrated, data-driven service delivery.
+
+Mission: To empower thriving communities through advocacy, technology, and evidence-based programs that address the interconnected challenges of economic stability, health equity, workforce development, and community safety.
+
+Year Established: [YEAR]
+Annual Budget: $[AMOUNT — Dr. Flood to provide]
+Number of Staff: [NUMBER]
+Number of Volunteers: [NUMBER]
+Service Area: Central Texas (Travis, Williamson, Hays, Bastrop, Caldwell counties)
+
+II. LEADERSHIP
+
+Dr. Terry Flood, DHA — Founder & CEO
+Credentials: Doctor of Health Administration, MS Implementation Science, MA Psychology (Industrial-Organizational), MSHRM, MBA, MSCJ, Public Policy
+Military Service: U.S. Army Veteran — Bronze Star (x2)
+Expertise: Organizational change, implementation science, workforce development, community health
+Proprietary Frameworks: MAP-GAP (continuous improvement), SALP (assessment), Three Realities (community engagement), MG-PATR (governance)
+Relevance to This Grant: Dr. Flood's implementation science training ensures programs are not just designed but adopted, sustained, and continuously improved — directly aligning with St. David's emphasis on community-informed, evidence-based approaches.
+
+[Dr. Flood: Add other leadership team members, board members if applicable]
+
+III. BOARD OF DIRECTORS
+[Dr. Flood: List board members with name, title/affiliation, and expertise area]
+
+Name: [NAME] — [Affiliation] — [Expertise: Finance / Community Health / Legal / etc.]
+Name: [NAME] — [Affiliation] — [Expertise]
+Name: [NAME] — [Affiliation] — [Expertise]
+
+Board Composition Notes: [Describe diversity of board, community representation, relevant expertise]
+
+IV. TECHNOLOGY INFRASTRUCTURE
+
+TCAF operates a 24-platform Advanced Community Operating System (ACOS) providing integrated digital services:
+
+Relevant Platforms for This Grant:
+- LifeBridge: Benefits navigation, enrollment tracking, referral management — directly supports Track 1
+- ThriveUp Academy: Workforce training and career pathways — directly supports Track 3
+- Financial Literacy Module: Financial coaching curricula and tracking — directly supports Track 2
+- MAP-GAP Engine: Continuous quality improvement and outcomes monitoring
+- Minority Center of Excellence: Small business and economic empowerment
+- SafeReport: Community safety reporting
+
+This technology infrastructure is already built and operational, reducing the startup costs and timeline for new programs. St. David's funding would scale service delivery, not technology development.
+
+V. PRIOR RESULTS & EXPERIENCE
+[Dr. Flood: Document any prior program results, even small scale. Include:]
+- Number of people served
+- Programs operated
+- Outcomes achieved
+- Awards, recognition, media coverage
+- Relevant consulting or training delivered
+
+VI. FINANCIAL HEALTH
+[Dr. Flood: Attach or summarize:]
+- Most recent financial statements or Form 990
+- Current annual budget
+- Other funding sources (diversification shows sustainability)
+- Any prior foundation grants received
+
+VII. ORGANIZATIONAL VALUES ALIGNMENT WITH ST. DAVID'S
+
+St. David's Foundation prioritizes: Community-informed design, equity, economic stability, cross-sector collaboration, data-driven approaches.
+
+TCAF delivers: Three Realities community voice methodology, Black-led organization serving communities of color, integrated economic stability services, multi-partner approach, MAP-GAP data-driven continuous improvement.
+
+The alignment is structural, not aspirational — our organization was built to do exactly what St. David's funds.`,
+        reviewNotes: "Need: board list, financial statements, prior results documentation. These are not optional — foundations verify organizational capacity.", lastUpdated: "March 30, 2026", assignee: "Dr. Flood", pageLimit: "5 pages", wordCount: "1,500-2,000 words" },
+
+      { id: "std-sustainability", name: "Sustainability Plan", description: "How economic stability services continue beyond St. David's funding", icon: Globe, status: "draft" as ApprovalStatus,
+        content: `SUSTAINABILITY PLAN
+How Pathways to Stability Continues Beyond St. David's Funding
+
+I. SUSTAINABILITY STRATEGY
+
+St. David's Foundation invests in organizations that build lasting community capacity, not programs that disappear when grant funding ends. Our sustainability strategy addresses three dimensions: financial, operational, and community.
+
+II. FINANCIAL SUSTAINABILITY
+
+REVENUE DIVERSIFICATION (During Grant Period):
+- Federal Grants: Apply for SNAP E&T (Employment & Training) funding through Texas HHSC — our benefits enrollment + workforce pathway model qualifies for federal cost reimbursement
+- Workforce Funding: WIOA Title I co-enrollment through Workforce Solutions Capital Area — our workforce track participants may be co-enrolled for WIOA-funded services
+- Foundation Grants: Our grant pipeline includes $3.6M+ across multiple foundations (BB Collective, Rare Impact Fund, SSG Fox VA, Centene) — economic stability services are fundable across multiple categories
+- Government Contracts: Our Central Health CMS contract demonstrates capacity for public-sector service delivery — similar contracts for benefits navigation are available through HHSC, county governments, and managed care organizations
+- Earned Revenue: M&T Consulting Solutions LLC (EIN 41-4952178), our consulting entity, generates revenue through workforce consulting and implementation science training — a portion of consulting revenue supports TCAF operations
+
+POST-GRANT REVENUE TARGETS:
+Year 1 (Grant Year): 100% St. David's funded
+Year 2: 60% St. David's (if renewal) + 25% federal/state + 15% earned/other grants
+Year 3: 30% foundation + 40% federal/state + 30% earned/other
+Year 4+: 20% foundation + 50% federal/state + 30% earned/consulting
+
+III. OPERATIONAL SUSTAINABILITY
+
+TECHNOLOGY AS FORCE MULTIPLIER:
+Because our platforms (LifeBridge, ThriveUp, MAP-GAP) are already built and operational, the marginal cost of serving additional participants is primarily personnel. Technology maintenance costs approximately $15K-$25K/year regardless of participant volume. This means that even with reduced funding, the service infrastructure continues to operate.
+
+TRAIN-THE-TRAINER MODEL:
+During the grant period, we will train partner organization staff in benefits navigation protocols and Three Realities methodology. This builds capacity within the Central Texas service ecosystem that persists beyond our direct involvement.
+
+DATA-DRIVEN EFFICIENCY:
+MAP-GAP continuous improvement identifies which service components produce the highest ROI, allowing us to focus limited post-grant resources on the highest-impact activities.
+
+IV. COMMUNITY SUSTAINABILITY
+
+COMMUNITY CAPACITY BUILDING:
+- Community Benefits Navigators recruited from target communities gain professional skills and certifications that serve the community regardless of funding source
+- Partner organizations (Foundation Communities, CommUnityCare, United Way) adopt shared protocols and referral systems that continue after the grant
+- Community Advisory Board becomes a permanent structure advocating for benefits access across funders and programs
+
+SYSTEMS CHANGE:
+The Three Realities Gap Analysis documents systemic barriers that can inform policy advocacy. Aggregate findings from our community engagement will be shared (with participant consent) with benefits agencies, county commissioners, and state legislators to drive policy changes that reduce enrollment barriers at the system level. This is sustainability at the deepest level — changing the systems that create the problem.
+
+V. RISK MITIGATION
+
+Risk: Federal funding cuts to public benefits programs
+Mitigation: Our model helps people access EXISTING benefits — program remains valuable as long as benefits exist, and becomes MORE valuable if application processes become more complex
+
+Risk: Foundation funding landscape shifts
+Mitigation: Revenue diversification across federal, state, foundation, and earned sources reduces dependence on any single funder
+
+Risk: Key personnel departure
+Mitigation: Three Realities methodology is documented and trainable; LifeBridge platform is institution-owned, not person-dependent; train-the-trainer model ensures organizational knowledge transfer`,
+        reviewNotes: "Strong framework. Dr. Flood should validate revenue projections and add specific earned revenue data.", lastUpdated: "March 30, 2026", assignee: "Dr. Flood", pageLimit: "3 pages", wordCount: "1,000-1,500 words" },
     ],
     phases: [
       {
-        id: "collaborate", name: "1. Collaborate & Research", description: "Understand St. David's priorities and Central Texas landscape", status: "active",
+        id: "collaborate" as PhaseId, name: "1. Collaborate & Research", description: "Understand St. David's priorities and Central Texas landscape", status: "active" as const,
         tasks: [
-          { id: "stc1", task: "Review full NOFO when application opens March 30", owner: "Dr. Flood + AI", status: "pending", dueDate: "2026-03-30" },
-          { id: "stc2", task: "Research St. David's 2024-2030 strategic plan and priorities", owner: "AI", status: "in-progress", dueDate: "2026-03-25" },
-          { id: "stc3", task: "Map ThriveUp + LifeBridge capabilities to economic stability requirements", owner: "AI + Dr. Flood", status: "pending", dueDate: "2026-04-01" },
-          { id: "stc4", task: "Identify Central Texas community partners for collaborative application", owner: "Dr. Flood + Meredith", status: "pending", dueDate: "2026-04-05" },
-          { id: "stc5", task: "Gather economic stability data for target communities (Bastrop, Caldwell, Hays, Travis, Williamson)", owner: "AI", status: "pending", dueDate: "2026-04-03" },
-          { id: "stc6", task: "Determine individual vs. collaborative application strategy", owner: "Dr. Flood + Meredith", status: "pending", dueDate: "2026-04-05" },
+          { id: "stc1", task: "Review full NOFO when application opens March 30", owner: "Dr. Flood + AI", status: "in-progress" as const, dueDate: "2026-03-30" },
+          { id: "stc2", task: "Research St. David's 2024-2030 strategic plan and priorities", owner: "AI", status: "done" as const, dueDate: "2026-03-25" },
+          { id: "stc3", task: "Map ThriveUp + LifeBridge capabilities to economic stability requirements", owner: "AI + Dr. Flood", status: "done" as const, dueDate: "2026-03-30" },
+          { id: "stc4", task: "Identify Central Texas community partners for collaborative application", owner: "Dr. Flood + Meredith", status: "pending" as const, dueDate: "2026-04-05" },
+          { id: "stc5", task: "Gather economic stability data for target communities", owner: "AI", status: "done" as const, dueDate: "2026-03-30" },
+          { id: "stc6", task: "Determine individual ($250K) vs. collaborative ($1M) application strategy", owner: "Dr. Flood + Meredith", status: "pending" as const, dueDate: "2026-04-05" },
         ],
       },
       {
-        id: "build", name: "2. Build & Draft", description: "Draft application materials after NOFO review", status: "upcoming",
+        id: "build" as PhaseId, name: "2. Build & Draft", description: "Draft application materials — ALL 8 SECTIONS DRAFTED", status: "active" as const,
         tasks: [
-          { id: "stb1", task: "Draft program narrative emphasizing community-informed design", owner: "AI + Dr. Flood Review", status: "pending", dueDate: "TBD (after NOFO)" },
-          { id: "stb2", task: "Develop budget — consider collaborative ($1M) vs individual ($250K)", owner: "Dr. Flood", status: "pending", dueDate: "TBD" },
-          { id: "stb3", task: "Document Three Realities community engagement process", owner: "Dr. Flood", status: "pending", dueDate: "TBD" },
-          { id: "stb4", task: "Design public benefits enrollment strategy using LifeBridge", owner: "AI + Dr. Flood Review", status: "pending", dueDate: "TBD" },
-          { id: "stb5", task: "Build outcomes framework around economic stability metrics", owner: "AI + Dr. Flood Review", status: "pending", dueDate: "TBD" },
-          { id: "stb6", task: "Secure partnership commitment letters from Central Texas orgs", owner: "Dr. Flood + Meredith", status: "pending", dueDate: "TBD" },
+          { id: "stb1", task: "Draft program narrative (3-track model: benefits, financial coaching, workforce)", owner: "AI + Dr. Flood Review", status: "done" as const, dueDate: "2026-03-30" },
+          { id: "stb2", task: "Develop budget — $250K individual track (adjust if collaborative)", owner: "Dr. Flood", status: "in-progress" as const, dueDate: "TBD", guidance: "Draft budget created at $250K. Adjust salary figures to actual. If pursuing $1M collaborative track, create partner budget allocations." },
+          { id: "stb3", task: "Document Three Realities community engagement with REAL examples", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD", guidance: "HIGHEST PRIORITY. Community Voice section is drafted with template structure but needs YOUR real community engagement data — dates, locations, participants, findings, quotes. Schedule listening sessions THIS WEEK if needed." },
+          { id: "stb4", task: "Draft public benefits enrollment strategy using LifeBridge", owner: "AI + Dr. Flood Review", status: "done" as const, dueDate: "2026-03-30" },
+          { id: "stb5", task: "Build outcomes framework (RE-AIM style with measurable targets)", owner: "AI + Dr. Flood Review", status: "done" as const, dueDate: "2026-03-30" },
+          { id: "stb6", task: "Begin partner outreach — need letters from Foundation Communities, CommUnityCare, United Way, Goodwill, Workforce Solutions", owner: "Dr. Flood + Meredith", status: "pending" as const, dueDate: "TBD", guidance: "Email template provided in Partnerships section. Contact all 5 target partners THIS WEEK." },
+          { id: "stb7", task: "Complete Organizational Capacity — add board list, financials, prior results", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD" },
+          { id: "stb8", task: "Validate sustainability plan revenue projections", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD" },
         ],
       },
       {
-        id: "review", name: "3. Review & Approve", description: "Dr. Flood final review and approval", status: "upcoming",
+        id: "review" as PhaseId, name: "3. Review & Approve", description: "Dr. Flood final review and approval", status: "upcoming" as const,
         tasks: [
-          { id: "str1", task: "Review and approve program narrative", owner: "Dr. Flood", status: "pending", dueDate: "TBD" },
-          { id: "str2", task: "Review and approve budget", owner: "Dr. Flood", status: "pending", dueDate: "TBD" },
-          { id: "str3", task: "Verify community voice documentation is authentic and complete", owner: "Dr. Flood", status: "pending", dueDate: "TBD" },
-          { id: "str4", task: "Final alignment check with St. David's priorities", owner: "Dr. Flood + Meredith", status: "pending", dueDate: "TBD" },
+          { id: "str1", task: "Review and approve program narrative", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD" },
+          { id: "str2", task: "Review and approve budget with real dollar amounts", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD" },
+          { id: "str3", task: "Verify community voice documentation is authentic and complete", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD" },
+          { id: "str4", task: "Final alignment check with St. David's NOFO requirements", owner: "Dr. Flood + Meredith", status: "pending" as const, dueDate: "TBD" },
         ],
       },
       {
-        id: "submit", name: "4. Package & Submit", description: "Submit through St. David's grants portal", status: "upcoming",
+        id: "submit" as PhaseId, name: "4. Package & Submit", description: "Submit through St. David's grants portal", status: "upcoming" as const,
         tasks: [
-          { id: "sts1", task: "Assemble final package per foundation format", owner: "Dr. Flood + AI", status: "pending", dueDate: "TBD" },
-          { id: "sts2", task: "Submit through St. David's online Grants Portal", owner: "Dr. Flood", status: "pending", dueDate: "TBD" },
-          { id: "sts3", task: "Confirm receipt and follow up timeline", owner: "Dr. Flood", status: "pending", dueDate: "TBD" },
+          { id: "sts1", task: "Assemble final package per foundation format", owner: "Dr. Flood + AI", status: "pending" as const, dueDate: "TBD" },
+          { id: "sts2", task: "Submit through St. David's online Grants Portal", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD" },
+          { id: "sts3", task: "Confirm receipt and follow up timeline", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD" },
         ],
       },
       {
-        id: "pre-execute", name: "5. Pre-Execution Readiness", description: "Prepare for launch if awarded", status: "upcoming",
+        id: "pre-execute" as PhaseId, name: "5. Pre-Execution Readiness", description: "Prepare for launch if awarded", status: "upcoming" as const,
         tasks: [
-          { id: "stp1", task: "Configure LifeBridge for public benefits enrollment tracking", owner: "AI", status: "pending", dueDate: "TBD" },
-          { id: "stp2", task: "Set up economic stability outcome tracking in platform", owner: "AI + Dr. Flood", status: "pending", dueDate: "TBD" },
-          { id: "stp3", task: "Establish Central Texas community partnerships", owner: "Dr. Flood + Meredith", status: "pending", dueDate: "TBD" },
-          { id: "stp4", task: "Design 90-day launch plan for economic stability services", owner: "Dr. Flood + AI", status: "pending", dueDate: "TBD" },
+          { id: "stp1", task: "Configure LifeBridge for public benefits enrollment tracking", owner: "AI", status: "pending" as const, dueDate: "TBD" },
+          { id: "stp2", task: "Set up economic stability outcome tracking in platform", owner: "AI + Dr. Flood", status: "pending" as const, dueDate: "TBD" },
+          { id: "stp3", task: "Establish Central Texas community partnerships", owner: "Dr. Flood + Meredith", status: "pending" as const, dueDate: "TBD" },
+          { id: "stp4", task: "Design 90-day launch plan for economic stability services", owner: "Dr. Flood + AI", status: "pending" as const, dueDate: "TBD" },
         ],
       },
     ],
