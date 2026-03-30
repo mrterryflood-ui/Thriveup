@@ -17,6 +17,7 @@ import {
   Activity, Lightbulb, Heart, Handshake, Scale,
   Package, CheckSquare, XCircle, Upload, Camera, Search,
   Loader2, Leaf, Plus, Trash2, Bell, Pencil, ExternalLink,
+  Award, Star, GraduationCap, Headphones,
 } from "lucide-react";
 
 type ApprovalStatus = "not-started" | "draft" | "in-review" | "approved" | "needs-revision";
@@ -894,7 +895,7 @@ PURPOSE: Central Health is soliciting proposals from qualified vendors to provid
 BUYING ORGANIZATION: Travis County Healthcare District dba Central Health — serves 300,000+ Travis County residents.
 WHAT WE BUILT: 15-module enterprise platform — fully operational, not a prototype. Live at centralhealthcms.com. Modules: Job Architecture, Market Pricing, Offer Management, Pay Equity, Comp Planning, Analytics, Integrations (Workday/SAP/PeopleSoft), Audit & Compliance (NIST 800-53), AI Intelligence Hub (6 wizards, RAG), User Management (7 roles, 30+ permissions), Total Rewards, Workflow Pipeline (7-stage), System Guide, Command Bar, Policy & Change Management.
 SUBMITTING ENTITY: Collaboration & Implementation Professionals LLC (EIN 41-4996540) — Veteran-Owned Small Business.
-STATUS: App built and deployed. Capability packet written. Need: pricing, vendor qualifications, SLAs, insurance documentation, HUB certification, data migration plan.`,
+STATUS: App built and deployed. Backend operational — 50+ API routes responding, auth system functional, AI intelligence engine live (Claude-powered briefings and alerts). CRITICAL GAP: All data modules are currently empty (0 employees, 0 positions, 0 benchmarks, 0 offers). System needs seed data before evaluator demo. Proposal template drafted (14-section business proposal). Still need: pricing with dollar amounts, vendor qualifications with past performance, SLA commitments, insurance COIs, HUB certification, data migration customization, and seed data population.`,
     serviceArea: {
       region: "Travis County",
       state: "Texas",
@@ -923,7 +924,7 @@ STATUS: App built and deployed. Capability packet written. Need: pricing, vendor
       "MAP-GAP implementation science framework embedded in prioritization logic",
     ],
     essentials: [
-      { label: "Live System Deployed", detail: "centralhealthcms.com — fully operational with pre-seeded evaluation data, welcome video, and guided onboarding", critical: true },
+      { label: "Live System Deployed — BUT EMPTY", detail: "centralhealthcms.com responds 200 OK, auth works, 50+ API routes operational, AI briefing generates real content — BUT all data modules return empty (0 employees, 0 positions, 0 benchmarks). Evaluators will see an empty system. MUST seed demo data before submission.", critical: true },
       { label: "Capability Packet Written", detail: "Complete technical proposal covering all 15 modules, AI engine, workflow automation, security, and architecture", critical: true },
       { label: "Pricing Proposal Needed", detail: "Must include licensing model, implementation costs, annual maintenance, support fees, and total cost of ownership", critical: true },
       { label: "Vendor Qualifications Needed", detail: "Past performance, team bios, comparable contracts, organizational capacity statement", critical: true },
@@ -934,319 +935,619 @@ STATUS: App built and deployed. Capability packet written. Need: pricing, vendor
     ],
     sections: [
       {
-        id: "chcms-capability", name: "Capability Packet & Technical Proposal", description: "Complete 15-module technical documentation — DONE",
-        icon: FileText, status: "approved" as ApprovalStatus, content: "COMPLETE — Full capability packet written covering all 15 modules, AI engine, workflow automation, security, integrations, and Day 1 readiness. See centralhealthcms.com for live system.",
-        reviewNotes: "Reviewed against RFP requirements — 100% functional coverage", lastUpdated: "March 28, 2026", assignee: "Dr. Flood + AI",
+        id: "chcms-live-eval", name: "LIVE SYSTEM EVALUATION — March 30, 2026", description: "Honest assessment from testing centralhealthcms.com",
+        icon: AlertTriangle, status: "needs-revision" as ApprovalStatus,
+        content: `LIVE SYSTEM EVALUATION — centralhealthcms.com
+Tested: March 30, 2026 by automated API probe
+
+WHAT WORKS:
+✅ Both URLs live: centralhealthcms.com (200 OK) + secure-health-plug.replit.app (200 OK)
+✅ Auth system: Registration, login, session management all functional
+✅ 50+ API routes respond correctly when authenticated (under /api/cms/*)
+✅ AI Intelligence Engine: Claude-powered daily briefings generate real contextual analysis
+✅ AI Alerts: Returns actionable, context-aware alerts (e.g., "No Equity Analysis on Record")
+✅ Integration configs: Workday (bidirectional), SAP (inbound), PeopleSoft (inbound), Market Data Import — all properly structured with field mappings
+✅ Role-based access: First user gets hr_admin role automatically
+✅ Session-based auth with secure cookies (HttpOnly, SameSite=Lax, HTTPS)
+
+WHAT DOES NOT WORK — CRITICAL:
+❌ ALL DATA MODULES ARE EMPTY:
+   - Job Architecture: {"families":[], "positions":[], "grades":[], "levels":[]}
+   - Market Pricing: {"benchmarks":[], "surveys":[]}
+   - Offers: {"offers":[]}
+   - Equity Analysis: {"analyses":[]}
+   - Comp Planning: {"plans":[]}
+   - Total Rewards: {"packages":[]}
+   - Analytics Dashboard: 0 employees, $0 comp spend, $0 avg salary, 0 pending offers
+   - Policy Changes: (timed out, likely empty)
+   - Correlations: {"correlations":[]}
+
+❌ NO DEMO ACCOUNT: Evaluators must register themselves (no pre-created demo login)
+❌ NO SEED DATA: The AI briefing itself tells users "no active employee records loaded"
+❌ The AI is working AGAINST you right now — it correctly identifies the system is empty and tells evaluators to populate data
+
+WHAT THIS MEANS:
+An evaluator from Central Health would register, log in, and see a beautiful empty shell. Every module would show "No data" or empty tables. The AI would tell them the system has no employee records. This is NOT a Day 1 ready demo — it's an empty framework.
+
+FIT SCORE REVISION: 95% → 72%
+- Technical capability: 95% (the code and architecture are genuinely solid)
+- Demo readiness: 20% (empty data makes the live system a liability, not an asset)
+- Proposal completeness: 10% (no pricing, no references, no insurance, no HUB cert)
+
+IMMEDIATE ACTIONS REQUIRED:
+1. Seed the database with realistic demo data (50-100 employees, 10+ job families, salary bands, market benchmarks)
+2. Create a demo account with pre-populated walkthrough
+3. Pre-run an equity analysis so the module isn't empty
+4. Create at least one compensation plan
+5. Add market survey benchmarks
+6. Set up the welcome video and guided onboarding that the capability packet promises`,
+        reviewNotes: "This is the ground truth from testing the live system — not what we claimed it could do", lastUpdated: "March 30, 2026", assignee: "Dr. Flood + AI",
       },
       {
-        id: "chcms-pricing", name: "Pricing & Cost Proposal", description: "Licensing model, implementation, annual maintenance, total cost of ownership",
+        id: "chcms-coverletter", name: "Section 1: Cover Letter", description: "Signed letter from authorized representative to Central Health procurement",
+        icon: FileText, status: "not-started" as ApprovalStatus,
+        content: `COVER LETTER — TEMPLATE
+
+[DATE]
+
+Central Health / Travis County Healthcare District
+Procurement Division
+Re: Solicitation #2603-002 — Compensation Management System
+
+Dear Evaluation Committee,
+
+Collaboration & Implementation Professionals LLC is pleased to submit this proposal in response to Solicitation #2603-002 for a Compensation Management System for Travis County Healthcare District.
+
+We understand that Central Health serves more than 300,000 residents across Travis County and that competitive, equitable compensation is foundational to recruiting and retaining the healthcare workforce that makes this mission possible. We have built — and are delivering with this proposal — a fully operational, AI-powered compensation intelligence platform purpose-built for Central Health's needs.
+
+Our differentiator is simple: this system is not a concept, not a prototype, and not a roadmap. It is a live, deployed, fully functional platform that your evaluators can access today. Every requirement in this solicitation has been addressed with working, tested software.
+
+We look forward to the opportunity to serve Central Health and the residents of Travis County.
+
+Respectfully,
+
+Dr. Terry Flood, DHA
+CEO & Principal
+Collaboration & Implementation Professionals LLC
+17912 Stefano Drive, Pflugerville, TX 78660
+mr.terryflood@gmail.com`,
+        reviewNotes: "Must be signed by authorized representative", lastUpdated: "", assignee: "Dr. Flood",
+        pageLimit: "1 page", wordCount: "200-300 words",
+      },
+      {
+        id: "chcms-vendor", name: "Section 2: Vendor Qualifications & Company Profile", description: "Legal entity info, NAICS codes, SAM.gov, certifications, company overview",
+        icon: Award, status: "not-started" as ApprovalStatus,
+        content: `VENDOR QUALIFICATIONS — FILL IN ALL BRACKETED FIELDS
+
+COMPANY INFORMATION:
+Legal Entity: Collaboration & Implementation Professionals LLC
+EIN: 41-4996540
+Business Structure: LLC
+State of Incorporation: [STATE]
+Year Established: [YEAR]
+DUNS Number: [DUNS — needed for government contracting]
+UEI (SAM.gov): [UEI — REQUIRED. Register at SAM.gov if not already]
+CAGE Code: [CAGE — assigned through SAM registration]
+Primary NAICS: 541511 — Custom Computer Programming Services
+Secondary NAICS: 541512 — Computer Systems Design Services
+Address: 17912 Stefano Drive, Pflugerville, TX 78660
+Website: centralhealthcms.com
+Primary Contact: Dr. Terry Flood, CEO, mr.terryflood@gmail.com
+Authorized Signatory: Dr. Terry Flood, CEO
+
+CORE COMPETENCIES:
+• Enterprise compensation management system design and implementation
+• AI/ML-powered workforce analytics and decision support
+• Public sector HR technology consulting
+• HRIS integration (Workday, SAP SuccessFactors, PeopleSoft)
+• Pay equity analysis and compliance
+• Data migration and system conversion
+• Cloud application development and deployment
+• NIST/FISMA security compliance
+
+CERTIFICATIONS & REGISTRATIONS — ACTION REQUIRED:
+SAM.gov Registration: [Active / Need to register — REQUIRED for government contracts]
+Texas Secretary of State: [Filing Number]
+Texas Comptroller HUB: [Apply NOW at comptroller.texas.gov/purchasing/vendor/hub/]
+Veteran-Owned Business: [Self-certified / VA CVE certified]
+Minority Business Enterprise: [Status]
+
+DR. FLOOD ACTION ITEMS:
+1. If not registered at SAM.gov — register immediately (takes 2-4 weeks)
+2. Get your DUNS/UEI number
+3. Apply for HUB certification (free, 5-10 business days)
+4. Verify Texas Secretary of State filing is active for C&IP LLC`,
+        reviewNotes: "SAM.gov registration is REQUIRED for government contracting — verify status immediately", lastUpdated: "", assignee: "Dr. Flood",
+        pageLimit: "3-5 pages", wordCount: "1,000-2,000 words",
+      },
+      {
+        id: "chcms-personnel", name: "Section 3: Key Personnel & Team", description: "Project team with roles, qualifications, certifications, availability",
+        icon: Users, status: "not-started" as ApprovalStatus,
+        content: `KEY PERSONNEL — TEMPLATE
+
+PROJECT TEAM:
+Role: Project Manager / Lead
+Name: Dr. Terry Flood
+Qualifications: DHA, MS Implementation Science, MA Psychology (I-O), MSHRM, MBA, MSCJ; U.S. Army Veteran (Bronze Star x2); Proprietary frameworks: MAP-GAP, SALP, Three Realities
+Availability: Dedicated to this engagement
+
+Role: Technical Architect
+Name: [NAME — if subcontracting, identify now]
+Qualifications: [Full-stack development, React/Node.js/PostgreSQL, security certs, prior public sector]
+Availability: [PERCENT]% dedicated
+
+Role: AI/ML Engineer
+Name: [NAME — or describe capability]
+Qualifications: [NLP/AI, RAG architecture, compensation domain]
+Availability: [PERCENT]% dedicated
+
+Role: Data Migration Specialist
+Name: [NAME]
+Qualifications: [HRIS data conversion, Workday/SAP/PeopleSoft migration]
+Availability: Available during migration phase
+
+Role: QA / Testing Lead
+Name: [NAME]
+Qualifications: [Enterprise QA, automated testing, compliance validation]
+Availability: [PERCENT]% dedicated
+
+Role: Support & Training Lead
+Name: [NAME]
+Qualifications: [Public sector training delivery, adult learning methodology]
+Availability: Available during training and ongoing support
+
+SUBCONTRACTORS (if applicable):
+[LIST any firms you plan to subcontract to and their roles]
+
+CRITICAL NOTE: If you are a solo operation, be honest about it. Frame it as: "Lean team with Dr. Flood as principal, supplemented by specialized subcontractors as needed." Government evaluators respect honesty more than fake team rosters. They WILL ask during the demo.`,
+        reviewNotes: "Must identify real people — evaluators may request interviews", lastUpdated: "", assignee: "Dr. Flood",
+        pageLimit: "3-5 pages", wordCount: "1,000-2,000 words",
+      },
+      {
+        id: "chcms-pastperf", name: "Section 4: Past Performance & References", description: "3+ relevant contracts with reference contacts — CRITICAL scoring section",
+        icon: Award, status: "not-started" as ApprovalStatus,
+        content: `PAST PERFORMANCE — THIS IS WHERE BIDS ARE WON OR LOST
+
+You need at least 3 references. Government evaluators WILL call them.
+
+CONTRACT 1: [PROJECT NAME]
+Client: [CLIENT — government agency, healthcare system, etc.]
+Contract Value: $[AMOUNT]
+Period: [START] — [END]
+Description: [2-3 sentences: what you delivered, scale, outcomes]
+Relevance: [How it relates — compensation, HR tech, public sector, healthcare]
+Reference: [NAME, TITLE, PHONE, EMAIL]
+
+CONTRACT 2: [PROJECT NAME]
+Client: [CLIENT]
+Contract Value: $[AMOUNT]
+Period: [START] — [END]
+Description: [2-3 sentences]
+Relevance: [How it relates]
+Reference: [NAME, TITLE, PHONE, EMAIL]
+
+CONTRACT 3: [PROJECT NAME]
+Client: [CLIENT]
+Contract Value: $[AMOUNT]
+Period: [START] — [END]
+Description: [2-3 sentences]
+Relevance: [How it relates]
+Reference: [NAME, TITLE, PHONE, EMAIL]
+
+IF LIMITED CONTRACT HISTORY:
+Include: relevant internal projects, pro-bono work for nonprofits/government, consulting engagements, academic/research work, ThriveUp Academy platform development. Frame honestly — evaluators respect transparency.
+
+The CMS platform itself IS past performance — you built a 15-module enterprise system. Document the development effort, timeline, and technical scope as a case study.`,
+        reviewNotes: "References will be called — notify them in advance. Weak references lose more bids than weak tech.", lastUpdated: "", assignee: "Dr. Flood",
+        pageLimit: "3-5 pages", wordCount: "1,000-2,000 words",
+      },
+      {
+        id: "chcms-pricing", name: "Section 5: Pricing & Cost Proposal", description: "Annual SaaS license + implementation — 5-year TCO with specific dollar amounts",
         icon: DollarSign, status: "not-started" as ApprovalStatus,
-        content: `CENTRAL HEALTH CMS — PRICING PROPOSAL TEMPLATE
+        content: `PRICING — MUST HAVE SPECIFIC DOLLAR AMOUNTS
 
-1. LICENSING MODEL
-   Option A: Annual SaaS License
-   - Year 1 (Implementation + License): $[___]
-   - Year 2+ Annual License: $[___]
-   - Per-user add-on (beyond base): $[___]/user/month
+OPTION A: FULL IMPLEMENTATION (Recommended)
+                        Year 1      Year 2      Year 3      Year 4      Year 5
+Platform License:       $[___]      $[___]      $[___]      $[___]      $[___]
+Implementation:         $[___]      —           —           —           —
+Data Migration:         $[___]      —           —           —           —
+Training (Initial):     $[___]      —           —           —           —
+Support & Maintenance:  Included    $[___]      $[___]      $[___]      $[___]
+AI Intelligence Module: Included    Included    Included    Included    Included
+Annual Total:           $[___]      $[___]      $[___]      $[___]      $[___]
+5-Year Total:           $[GRAND TOTAL]
 
-   Option B: Perpetual License + Annual Maintenance
-   - One-time license fee: $[___]
-   - Annual maintenance & support (20% of license): $[___]/year
+Platform License includes: All 15 modules, unlimited named users within Central Health, AI intelligence engine, all standard integrations, cloud hosting, SSL/TLS, automated backups, all updates during license period.
 
-2. IMPLEMENTATION COSTS
-   - System configuration & customization: $[___]
-   - Data migration (ETL from existing systems): $[___]
-   - Integration setup (Workday/SAP/PeopleSoft): $[___]
-   - User training (admin, analyst, manager roles): $[___]
-   - Project management: $[___]
-   - Total implementation: $[___]
+OPTION B: PHASED IMPLEMENTATION
+Phase 1 (Months 1-3): Core — Job Architecture, Market Pricing, Offers, Pay Equity, Analytics, Users — $[___]
+Phase 2 (Months 4-6): Planning — Comp Planning, Total Rewards, Workflow, Integrations — $[___]
+Phase 3 (Months 7-9): Intelligence — AI Hub, Policy, Audit, System Guide, Command Bar — $[___]
+Annual License (post-implementation): All modules — $[___]/year
 
-3. ONGOING COSTS
-   - Annual support & maintenance: $[___]
-   - Hosting & infrastructure: $[___]
-   - AI/ML processing (Anthropic Claude usage): $[___]
-   - Annual enhancements & updates: $[___]
+OPTIONAL ADD-ONS:
+Additional Training Sessions: $[___]/session
+Custom Integration (beyond Workday/SAP/PeopleSoft): $[___]/connector
+Custom Report Development: $[___]/report
+On-Site Implementation Support: $[___]/week
+Annual Third-Party Security Audit: $[___]/year
 
-4. TOTAL COST OF OWNERSHIP (5-YEAR)
-   Year 1: $[___] (implementation + license)
-   Year 2: $[___]
-   Year 3: $[___]
-   Year 4: $[___]
-   Year 5: $[___]
-   5-Year Total: $[___]
+MARKET BENCHMARKS FOR PRICING:
+Small (<500 employees): $75K-$200K Year 1, $40K-$80K/year ongoing
+Mid-size (500-2,000 employees): $150K-$400K Year 1, $60K-$150K/year ongoing
+Large (2,000+): $300K-$1M+ Year 1, $100K-$300K/year ongoing
+Central Health has ~2,000 employees — target mid-to-large range.
 
-NOTES FOR DR. FLOOD:
-- Research comparable compensation system contracts (Payscale, Salary.com, Decusoft) to benchmark pricing
-- Central Health annual budget is ~$400M; compensation system is a significant but justified investment
-- Consider pricing competitively against incumbents — your Day 1 readiness eliminates implementation risk premium
-- Government contracts typically favor fixed-price over T&M
-- Include optional line items for: additional integrations, custom reporting, training sessions`,
-        reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood",
+CRITICAL: Don't price too low. Government evaluators are SUSPICIOUS of lowball prices — they assume you can't deliver. Price to show you can sustain the contract for 5 years.`,
+        reviewNotes: "EVERY bracket must have a real dollar amount before submission. No blanks.", lastUpdated: "", assignee: "Dr. Flood",
         pageLimit: "5-10 pages", wordCount: "2,000-3,000 words",
       },
       {
-        id: "chcms-vendor", name: "Vendor Qualifications & Past Performance", description: "Organizational capacity, team bios, comparable experience, references",
-        icon: Award, status: "not-started" as ApprovalStatus,
-        content: `VENDOR QUALIFICATIONS — TEMPLATE
-
-1. ORGANIZATIONAL OVERVIEW
-   Collaboration & Implementation Professionals LLC
-   EIN: 41-4996540
-   Type: Veteran-Owned Small Business (VOSB)
-   Address: 17912 Stefano Drive, Pflugerville, TX 78660
-   Principal: Dr. Terry Flood, DHA, MS, MA, MSHRM, MBA, MSCJ
-
-2. PRINCIPAL QUALIFICATIONS
-   Dr. Terry Flood — Founder & CEO
-   - Doctor of Healthcare Administration (DHA)
-   - MS Implementation Science
-   - MA Psychology (Industrial-Organizational focus)
-   - MS Human Resource Management
-   - MBA
-   - MS Criminal Justice / Public Policy
-   - U.S. Army Veteran — Bronze Star (x2)
-   - Expertise: Compensation systems, organizational development, workforce analytics, implementation science
-   - Proprietary frameworks: MAP-GAP, SALP, Three Realities, MG-PATR
-
-3. RELEVANT EXPERIENCE
-   [Dr. Flood: List comparable projects here — HR consulting, compensation analysis, workforce systems, technology implementations. Include:]
-   - Client name (or "Government Healthcare Agency" if confidential)
-   - Scope of work
-   - Contract value
-   - Outcome / deliverables
-   - Reference contact (name, title, phone, email)
-
-4. ORGANIZATIONAL CAPACITY
-   - Technology stack: React, Express.js, PostgreSQL, Anthropic Claude AI
-   - Hosting: Cloud-deployed, HTTPS-secured, 24/7 availability
-   - Development methodology: Agile with MAP-GAP continuous improvement
-   - Security certifications: NIST 800-53 compliance framework
-   - Data handling: HIPAA-aware architecture, encrypted sessions, full audit trail
-
-5. TEAM MEMBERS
-   [List any additional team members or subcontractors who will support implementation]
-   - Name, role, qualifications, relevant experience
-
-6. REFERENCES (Minimum 3)
-   Reference 1: [Name, Organization, Title, Phone, Email, Project Description]
-   Reference 2: [Name, Organization, Title, Phone, Email, Project Description]
-   Reference 3: [Name, Organization, Title, Phone, Email, Project Description]`,
-        reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood",
-        pageLimit: "10-15 pages", wordCount: "3,000-5,000 words",
-      },
-      {
-        id: "chcms-sla", name: "Service Level Agreement (SLA)", description: "Uptime, response times, escalation, support hours, dedicated contacts",
+        id: "chcms-sla", name: "Section 6: Service Level Agreements", description: "Uptime, incident response, support channels, SLA credits, performance & data protection",
         icon: Shield, status: "not-started" as ApprovalStatus,
-        content: `SERVICE LEVEL AGREEMENT — TEMPLATE
+        content: `SERVICE LEVEL AGREEMENTS — READY FOR REVIEW
 
-1. SYSTEM AVAILABILITY
-   - Guaranteed uptime: 99.9% (excluding scheduled maintenance)
-   - Scheduled maintenance window: Sundays 2:00-6:00 AM CT
-   - Planned maintenance notice: 72 hours minimum
-   - Emergency maintenance notice: As soon as practicable
+SYSTEM AVAILABILITY:
+• Uptime: 99.9% monthly (excludes scheduled maintenance)
+• Maintenance window: Sundays 2:00-6:00 AM CT, 72-hour advance notice
+• Unscheduled downtime cap: 43 minutes/month
+• DR RTO: 4 hours | DR RPO: 1 hour (continuous backups)
 
-2. INCIDENT RESPONSE TIMES
-   Severity 1 (Critical — system down, data loss risk):
-   - Response: Within 1 hour
-   - Resolution target: 4 hours
-   - Escalation: Immediate to Principal
+INCIDENT RESPONSE:
+P1 Critical (system down, data at risk): Response 30 min, Resolve 4 hours
+P2 High (major feature unavailable): Response 1 hour, Resolve 8 business hours
+P3 Medium (degraded, workaround exists): Response 4 business hours, Resolve 2 business days
+P4 Low (cosmetic, enhancements): Response 1 business day, Resolve next release
 
-   Severity 2 (High — major feature unavailable):
-   - Response: Within 4 hours
-   - Resolution target: 1 business day
-   - Escalation: After 8 hours
+SUPPORT CHANNELS:
+• Emergency Hotline: 24/7/365 (P1 only)
+• Support Email: M-F 8AM-6PM CT (all severities)
+• Support Portal: 24/7 self-service (tickets, status, knowledge base)
+• Dedicated Account Manager: Business hours (escalations, quarterly reviews)
 
-   Severity 3 (Medium — degraded performance, workaround available):
-   - Response: Within 1 business day
-   - Resolution target: 3 business days
+SLA CREDITS:
+99.9%-99.5% uptime: 5% monthly credit
+99.5%-99.0%: 10% credit
+Below 99.0%: 25% credit
 
-   Severity 4 (Low — cosmetic, enhancement request):
-   - Response: Within 2 business days
-   - Resolution target: Next scheduled release
+PERFORMANCE SLAs:
+Page load: <3s (95th percentile) | API response: <500ms | Reports: <10s
+Batch import: <5 min for 10K records | AI generation: <15s
 
-3. SUPPORT HOURS
-   - Standard support: Monday-Friday, 8:00 AM - 6:00 PM CT
-   - Emergency support: 24/7 for Severity 1 incidents
-   - Support channels: Email, phone, in-app ticket system
-   - Dedicated account manager: Named contact for Central Health
+DATA PROTECTION:
+Encryption at rest: AES-256 | In transit: TLS 1.2+
+Backup: Continuous, 30-day retention | Residency: US only
+Data ownership: Central Health at all times
+Data portability: Full CSV/JSON export anytime
+Deletion upon termination: 30 days with certification
 
-4. ESCALATION PATH
-   Level 1: Support Team (initial response)
-   Level 2: Technical Lead (if unresolved within SLA)
-   Level 3: Dr. Terry Flood, Principal (if unresolved at L2)
-   Level 4: Executive escalation + written remediation plan
-
-5. SERVICE CREDITS
-   - Below 99.9% monthly uptime: 5% credit on monthly fees
-   - Below 99.5%: 10% credit
-   - Below 99.0%: 20% credit
-   - Three consecutive months below 99.5%: Right to terminate without penalty
-
-6. DATA BACKUP & RECOVERY
-   - Automated daily backups with 30-day retention
-   - Point-in-time recovery capability
-   - Recovery Time Objective (RTO): 4 hours
-   - Recovery Point Objective (RPO): 1 hour
-   - Annual disaster recovery test with documented results`,
-        reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood",
+HONEST CHECK: Can Replit hosting actually meet 99.9% uptime? If this goes to production, consider dedicated cloud hosting (AWS/GCP) for the SLA commitment. Replit deployments are good but may not hit 99.9% consistently. Factor hosting migration into pricing if needed.`,
+        reviewNotes: "Review uptime commitments against actual hosting capabilities", lastUpdated: "", assignee: "Dr. Flood",
         pageLimit: "5-8 pages", wordCount: "2,000-3,000 words",
       },
       {
-        id: "chcms-migration", name: "Data Migration Plan", description: "ETL process, validation, cutover, rollback for existing Central Health data",
+        id: "chcms-migration", name: "Section 7: Data Migration Plan", description: "4-phase migration with specific timelines, cutover plan, rollback, and data entities",
         icon: Layers, status: "not-started" as ApprovalStatus,
-        content: `DATA MIGRATION PLAN — TEMPLATE
+        content: `DATA MIGRATION — 4-PHASE PLAN WITH CUTOVER SCHEDULE
 
-1. MIGRATION APPROACH
-   Phase 1: Discovery & Assessment (Weeks 1-2)
-   - Inventory all existing compensation data sources
-   - Map current data fields to CMS schema
-   - Identify data quality issues and cleaning requirements
-   - Document business rules for data transformation
+PHASE 1: ASSESSMENT & DISCOVERY (Weeks 1-2)
+• Identify all existing compensation data sources → Data Source Inventory
+• Document data structures, formats, volumes → Data Dictionary
+• Assess data quality → Data Quality Report
+• Map source fields to CMS schema → Field Mapping Document
+• Define transformation rules → Transformation Rules Document
+• Define scope and exclusions → Migration Scope Agreement
 
-   Phase 2: Extract & Transform (Weeks 3-4)
-   - Extract data from current systems (CSV/API/database exports)
-   - Clean and normalize data (deduplication, format standardization)
-   - Transform to CMS target schema
-   - Load into staging environment for validation
+PHASE 2: DESIGN & BUILD (Weeks 3-4)
+• Design ETL pipelines → ETL Design Document
+• Build extraction scripts → Extraction Scripts
+• Develop transformation logic (cleansing, normalization, dedup) → Transformation Scripts
+• Create validation rules and checksums → Validation Framework
+• Build reconciliation reports → Reconciliation Templates
 
-   Phase 3: Validation & Testing (Weeks 5-6)
-   - Central Health HR team validates migrated data
-   - Reconciliation reports comparing source vs. target counts
-   - Spot-check critical records (compensation packages, equity data)
-   - User acceptance testing with real data
+PHASE 3: TEST MIGRATION (Weeks 5-6)
+• Dry-run #1 with full production data copy → Test Results
+• Automated validation (counts, checksums, referential integrity) → Validation Report
+• UAT — Central Health staff verify migrated data → UAT Sign-off
+• Identify and resolve issues → Issue Log
+• Dry-run #2 with fixes applied → Revised Results
 
-   Phase 4: Cutover (Week 7)
-   - Final delta migration (changes since last extract)
-   - Production data load
-   - System validation and smoke testing
-   - Go-live decision gate with Central Health stakeholders
+PHASE 4: PRODUCTION CUTOVER (Week 7)
+Friday 5:00 PM CT — Freeze changes in source system
+Friday 6:00 PM CT — Final data extraction
+Friday 6:30 PM - Saturday 6:00 AM CT — Execute production migration
+Saturday 6:00 AM - 10:00 AM CT — Run production validation suite
+Saturday 10:00 AM - 2:00 PM CT — Central Health spot-check validation
+Saturday 2:00 PM CT — Go / No-Go decision
+Monday 8:00 AM CT — System live for users
 
-   Phase 5: Post-Migration Support (Weeks 8-10)
-   - Hypercare period with daily check-ins
-   - Issue tracking and rapid resolution
-   - Performance monitoring
-   - Sign-off and transition to standard support
+ROLLBACK TRIGGERS:
+Critical data integrity failure during migration → Abort, restore backup (2 hours)
+Validation failure >1% error rate → Roll back to source, schedule remediation (4 hours)
+User-identified critical issues within 48 hours → Parallel run with source system
 
-2. DATA MAPPING
-   Source Systems → CMS Modules:
-   - HRIS (Workday/PeopleSoft/SAP) → Employees, Positions, Job Architecture
-   - Compensation records → Salary bands, compa-ratios, total rewards packages
-   - Market survey data → Market benchmarks (Mercer, Sullivan Cotter)
-   - Offer history → Offer management module
-   - Equity analysis results → Pay equity module
-   - Policy documents → Policy & change management
-
-3. ROLLBACK PLAN
-   - Pre-migration snapshot preserved for 90 days
-   - Rollback can be executed within 4 hours if critical issues found
-   - Parallel operation period: old system remains read-only for 30 days post-cutover
-   - No data destruction until Central Health signs off on migration completeness
-
-4. SUCCESS CRITERIA
-   - 100% of employee records migrated and validated
-   - All compensation packages accurately reflected
-   - Compa-ratios match within 0.1% of source calculations
-   - All historical equity analyses preserved
-   - Zero data loss confirmed by reconciliation audit`,
-        reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood + AI",
+DATA ENTITIES TO MIGRATE:
+Employees (active + terminated): [ESTIMATED COUNT] — Critical
+Position classifications: [COUNT] — Critical
+Job families and levels: [COUNT] — Critical
+Salary bands / grade structures: [COUNT] — Critical
+Current compensation data: [COUNT] — Critical
+Benefits / total rewards: [COUNT] — High
+Historical offers: [COUNT] — Medium
+Market survey data: [COUNT] — High
+Equity analysis history: [COUNT] — Medium`,
+        reviewNotes: "Entity counts must be estimated — Central Health should provide during discovery", lastUpdated: "", assignee: "Dr. Flood + AI",
         pageLimit: "8-12 pages", wordCount: "3,000-4,000 words",
       },
       {
-        id: "chcms-insurance", name: "Insurance & Bonding Documentation", description: "Cyber liability, E&O, general liability, professional liability certificates",
-        icon: Scale, status: "not-started" as ApprovalStatus,
-        content: `INSURANCE & BONDING — CHECKLIST
+        id: "chcms-timeline", name: "Section 8: Implementation Timeline", description: "12-week implementation schedule with milestones",
+        icon: Clock, status: "not-started" as ApprovalStatus,
+        content: `IMPLEMENTATION TIMELINE — 12 WEEKS
 
-Required for Texas government procurement:
+WEEK 1-2: PROJECT KICKOFF & DISCOVERY
+• Kickoff meeting with Central Health stakeholders
+• Requirements validation against live system
+• Current state documentation
+• Data migration assessment (Phase 1)
+• Integration environment access setup
 
-1. GENERAL LIABILITY INSURANCE
-   - Minimum: $1,000,000 per occurrence / $2,000,000 aggregate
-   - Status: [  ] Have coverage  [  ] Need to obtain
-   - Carrier: _______________
-   - Policy #: _______________
+WEEK 3-4: CONFIGURATION & DATA MIGRATION DESIGN
+• Org structure configuration (departments, job families, levels)
+• RBAC role assignment for Central Health users
+• Integration connector configuration (HRIS)
+• Data migration ETL design (Phase 2)
+• Salary band and grade structure alignment
 
-2. PROFESSIONAL LIABILITY (E&O)
-   - Minimum: $1,000,000 per claim / $2,000,000 aggregate
-   - Status: [  ] Have coverage  [  ] Need to obtain
-   - Carrier: _______________
+WEEK 5-6: DATA MIGRATION TESTING & INTEGRATION
+• Test migration dry-run #1 (Phase 3)
+• HRIS integration testing (Workday/SAP/PeopleSoft)
+• Webhook and outbound push validation
+• UAT environment provisioning
+• Reconciliation and issue resolution
 
-3. CYBER LIABILITY INSURANCE
-   - Minimum: $1,000,000 (recommended $2,000,000+ for healthcare data)
-   - Must cover: data breach, network security, privacy liability
-   - Status: [  ] Have coverage  [  ] Need to obtain
-   - Carrier: _______________
+WEEK 7-8: USER ACCEPTANCE TESTING
+• UAT with Central Health HR team
+• Test migration dry-run #2
+• Workflow pipeline configuration (approval chains, escalation rules)
+• Policy and knowledge base population
+• Defect resolution and retesting
 
-4. WORKERS' COMPENSATION
-   - As required by Texas law
-   - Status: [  ] Have coverage  [  ] N/A (sole proprietor)
+WEEK 9-10: TRAINING
+• HR Admin training (2 days)
+• Compensation Analyst training (2 days)
+• Department Manager training (1 day)
+• Executive / Board overview (half day)
+• Train-the-trainer sessions (1 day)
 
-5. AUTOMOBILE LIABILITY (if applicable)
-   - Status: [  ] Have coverage  [  ] N/A
+WEEK 11: PRODUCTION MIGRATION & CUTOVER
+• Final data freeze and extraction
+• Production migration execution
+• Validation and reconciliation
+• Go/No-Go decision → Go-live
 
-ACTION ITEMS FOR DR. FLOOD:
-- Contact insurance broker to verify current C&IP LLC coverage
-- Request Certificates of Insurance (COIs) naming Travis County Healthcare District as additional insured
-- If new policies needed, get quotes ASAP — underwriting can take 1-2 weeks
-- Government contracts typically require COIs BEFORE contract execution, not at proposal stage
-- Include a statement in the proposal: "Certificates of Insurance will be provided upon contract award"`,
+WEEK 12: HYPERCARE & STABILIZATION
+• On-site support during first week
+• Issue triage and rapid resolution
+• Performance monitoring
+• User feedback collection
+• Transition to standard support
+
+KEY MILESTONES:
+Contract Award → [DATE]
+Project Kickoff → Award + 5 business days
+Discovery Complete → Kickoff + 2 weeks
+UAT Ready → Kickoff + 6 weeks
+UAT Sign-off → Kickoff + 8 weeks
+Training Complete → Kickoff + 10 weeks
+Go-Live → Kickoff + 11 weeks
+Hypercare Complete → Kickoff + 12 weeks`,
+        reviewNotes: "12-week timeline is aggressive but credible given system is already built", lastUpdated: "", assignee: "Dr. Flood + AI",
+        pageLimit: "3-5 pages", wordCount: "1,000-2,000 words",
+      },
+      {
+        id: "chcms-training", name: "Section 9: Training & Change Management", description: "Role-based training, built-in self-service, change management activities",
+        icon: GraduationCap, status: "not-started" as ApprovalStatus,
+        content: `TRAINING & CHANGE MANAGEMENT PLAN
+
+ROLE-BASED TRAINING:
+HR Administrator (HR Director, HRIS team): 2 days (16 hours) — All modules, user management, integrations, AI wizards, workflow admin
+Compensation Analyst (Comp team): 2 days (16 hours) — Job architecture, market pricing, offers, equity, comp planning, total rewards, AI tools
+Department Manager (Department heads): 1 day (8 hours) — Dashboard, offers (review/approve), merit worksheets, total rewards, reporting
+Executive / Board (Leadership): Half day (4 hours) — Dashboard, analytics, AI briefings, community impact, reporting
+Train-the-Trainer (Internal trainers): 1 day (8 hours) — Complete system walkthrough, delivery methodology, materials handoff
+
+Format: On-site or Virtual | Conducted in the live system with Central Health's own data
+
+BUILT-IN SELF-SERVICE (Included at no cost):
+• 75-second animated welcome video
+• 3-step guided onboarding overlay for new users
+• Multi-step tutorial walkthroughs for every module
+• SOP viewer with searchable documentation
+• System Architecture Guide with evaluation checklists
+• 5-day self-paced onboarding plan
+• Contextual help buttons on every page
+• AI teaching mode — every wizard explains reasoning, not just answers
+
+CHANGE MANAGEMENT:
+• Stakeholder Communication Plan — template announcements
+• FAQ Document — common user questions
+• Quick Reference Cards — one-page per-role guides
+• Go-Live Readiness Checklist
+• Post-Go-Live Survey — satisfaction + issue identification
+
+NOTE: The "75-second welcome video" and "3-step guided onboarding" — verify these actually exist in the live system. If not, build them before submission.`,
+        reviewNotes: "Verify all claimed self-service features exist in live system", lastUpdated: "", assignee: "Dr. Flood + AI",
+        pageLimit: "3-5 pages", wordCount: "1,000-2,000 words",
+      },
+      {
+        id: "chcms-support", name: "Section 10: Ongoing Support & Maintenance", description: "What's included in annual maintenance, escalation path, quarterly reviews",
+        icon: Headphones, status: "not-started" as ApprovalStatus,
+        content: `ONGOING SUPPORT — WHAT'S INCLUDED
+
+ANNUAL MAINTENANCE INCLUDES:
+• Software updates and patches — all updates included
+• Security patches — critical patches within 24 hours
+• New feature releases — all platform enhancements
+• AI model updates — as improved models become available
+• Database maintenance — automated optimization, backup verification
+• Uptime monitoring — 24/7 automated with alerting
+• Dedicated account manager — single point of contact
+• Quarterly business reviews — usage analytics, roadmap preview, optimization recommendations
+• Annual security assessment — vulnerability scanning and remediation
+
+ESCALATION PATH:
+Level 1: Support Portal / Email → Support engineer triages (target: 80% resolved at L1)
+Level 2: Senior Engineer → Complex technical issues, code-level investigation
+Level 3: Engineering Lead / Architect → Critical system issues, data integrity, security
+Level 4: Account Executive / Management → SLA disputes, contract issues, strategic escalations`,
         reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood",
+        pageLimit: "2-3 pages", wordCount: "800-1,200 words",
+      },
+      {
+        id: "chcms-insurance", name: "Section 11: Insurance & Compliance Certifications", description: "Required insurance coverage + compliance frameworks (NIST, HIPAA, SOC 2, ADA)",
+        icon: Scale, status: "not-started" as ApprovalStatus,
+        content: `INSURANCE — REQUIRED COVERAGE
+
+Commercial General Liability: $1M per occurrence / $2M aggregate — [Active / Need to obtain]
+Professional Liability (E&O): $1M per claim / $2M aggregate — [Active / Need to obtain]
+Cyber Liability / Data Breach: $2M per occurrence — [Active / Need to obtain]
+Workers' Compensation: Statutory limits — [Active / N/A]
+Commercial Auto: $1M combined single limit — [Active / N/A]
+Umbrella / Excess: $2M — [Active / Need to obtain]
+
+"Certificates of Insurance will be provided to Central Health upon contract award. Central Health will be named as Additional Insured on all applicable policies."
+
+COMPLIANCE CERTIFICATIONS:
+NIST 800-53: Implemented — built-in compliance checklist with item-by-item tracking
+HIPAA: [Compliant / In Progress] — [BAA available upon request]
+SOC 2 Type II: [Certified / In Progress / Planned] — [Timeline]
+FISMA: [Compliant / Self-assessed]
+ADA / Section 508: Compliant — WCAG 2.1 AA-compliant component library
+
+ACTION ITEMS:
+1. Contact insurance broker for C&IP LLC — get quotes on all lines
+2. Get COIs ready to provide upon award
+3. For HIPAA: determine if BAA is needed (healthcare compensation data may trigger HIPAA)
+4. SOC 2: If not certified, state "SOC 2 Type II audit planned for Q[X] 2026"
+5. Cyber liability is critical — healthcare data + compensation data = high-value target`,
+        reviewNotes: "Insurance broker call is time-sensitive — underwriting takes 1-2 weeks", lastUpdated: "", assignee: "Dr. Flood",
         pageLimit: "2-3 pages", wordCount: "500-1,000 words",
       },
       {
-        id: "chcms-hub", name: "HUB Certification & Small Business Status", description: "Texas Historically Underutilized Business certification, VOSB status, disadvantaged business",
+        id: "chcms-hub", name: "Section 12: HUB / Small Business Certifications", description: "Texas HUB, VOSB, SDVOSB, SBA 8(a), MBE — preference points in scoring",
         icon: Star, status: "not-started" as ApprovalStatus,
-        content: `HUB CERTIFICATION — ACTION PLAN
+        content: `HUB & SMALL BUSINESS CERTIFICATIONS
 
-Texas government procurements give preference points to Historically Underutilized Businesses (HUB).
+TEXAS HUB (Highest Priority):
+Status: [Certified / Application Submitted / Pending]
+Certificate #: [NUMBER]
+Category: [Veteran-Owned / Minority-Owned / Service-Disabled Veteran]
+Agency: Texas Comptroller of Public Accounts
+Expiration: [DATE]
 
-YOU LIKELY QUALIFY BASED ON:
-- Veteran-owned (U.S. Army, Bronze Star x2)
-- Black-led / minority-owned
-- Small business (annual revenue thresholds)
+OTHER CERTIFICATIONS:
+SBA 8(a): [Status]
+SBA HUBZone: [Status — check if Pflugerville qualifies]
+SDVOSB: [Status — if service-connected disability applies]
+VOSB: [Status]
+State of Texas VID: [Number]
 
-CERTIFICATION OPTIONS:
+APPLY NOW: comptroller.texas.gov/purchasing/vendor/hub/
+Processing time: 5-10 business days. FREE. You almost certainly qualify as veteran-owned + minority-led.
+Even if pending at proposal time: "HUB certification application submitted [date], status: pending"
 
-1. TEXAS HUB CERTIFICATION (Highest priority)
-   - Apply through: Texas Comptroller of Public Accounts
-   - URL: https://comptroller.texas.gov/purchasing/vendor/hub/
-   - Categories that may apply:
-     * Service-Disabled Veteran-Owned Business
-     * Minority-Owned Business (Black American)
-   - Processing time: 30-90 days
-   - Cost: FREE
-   - ACTION: Start application immediately — even if pending at proposal time, mention "HUB application submitted" in proposal
-
-2. FEDERAL CERTIFICATIONS (Supporting)
-   - SBA 8(a) Business Development Program
-   - Service-Disabled Veteran-Owned Small Business (SDVOSB) via VA
-   - SBA HUBZone (if Pflugerville qualifies)
-
-3. CITY OF AUSTIN MBE/WBE
-   - Minority Business Enterprise certification
-   - May carry weight with Travis County entities
-
-HOW THIS HELPS YOUR BID:
-- Travis County procurement policies include HUB subcontracting goals (typically 20-30%)
-- As a prime contractor with HUB status, you EXCEED the subcontracting requirement
-- HUB vendors often receive 5-10 preference points in evaluation scoring
-- Central Health as a public entity follows Travis County procurement rules
-
-INCLUDE IN PROPOSAL:
-- "Collaboration & Implementation Professionals LLC is a veteran-owned, minority-led small business"
-- If certified: "HUB-certified vendor, Certificate #[___]"
-- If pending: "HUB certification application submitted [date], status: pending"
-- Reference Dr. Flood's veteran status and Bronze Star commendations`,
-        reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood",
+HUB status = significant scoring advantage in Travis County procurement. Don't leave these points on the table.`,
+        reviewNotes: "Apply for HUB certification THIS WEEK — it's free and fast", lastUpdated: "", assignee: "Dr. Flood",
         pageLimit: "1-2 pages", wordCount: "300-500 words",
+      },
+      {
+        id: "chcms-assumptions", name: "Section 13: Assumptions & Exceptions", description: "What Central Health must provide, scope boundaries, exclusions",
+        icon: FileText, status: "not-started" as ApprovalStatus,
+        content: `ASSUMPTIONS:
+• Central Health will provide timely access to existing HRIS/compensation data
+• Central Health will designate a project lead and stakeholders for weekly meetings
+• Central Health will provide VPN or secure access to integration endpoints
+• UAT will be completed within the scheduled 2-week window
+• Existing data is in structured format (database, CSV, or API-accessible)
+• Training sessions scheduled during business hours with dedicated facilities
+• Go-live date assumes no scope changes beyond Solicitation #2603-002
+
+EXCEPTIONS:
+• Custom integrations beyond Workday/SAP/PeopleSoft require separate scope & cost
+• Historical data beyond [X] years may require additional assessment
+• Third-party software licenses (HRIS vendor API fees) are Central Health's responsibility
+• Physical infrastructure, network, and end-user devices are Central Health's responsibility`,
+        reviewNotes: "Standard assumptions — review for completeness", lastUpdated: "", assignee: "Dr. Flood",
+        pageLimit: "1-2 pages", wordCount: "300-500 words",
+      },
+      {
+        id: "chcms-appendices", name: "Section 14: Appendices", description: "Capability packet, exec slides, live system access, resumes, COIs, HUB cert, sample reports",
+        icon: Layers, status: "not-started" as ApprovalStatus,
+        content: `APPENDICES CHECKLIST:
+
+Appendix A: Capability Packet (Technical/Functional) — DONE
+Complete 15-module technical documentation. See capability-packet.md
+
+Appendix B: Executive Summary Slide Deck — [NEED TO CREATE]
+7-slide presentation for board/executive audience
+
+Appendix C: Live System Access — DEPLOYED (but needs seed data)
+URL: https://centralhealthcms.com
+Backup: https://secure-health-plug.replit.app
+NOTE: System needs demo data populated before giving URL to evaluators
+
+Appendix D: Resumes of Key Personnel — [DR. FLOOD TO PROVIDE]
+
+Appendix E: Certificates of Insurance — [PENDING BROKER]
+
+Appendix F: HUB Certification — [PENDING APPLICATION]
+
+Appendix G: Sample Reports — [OPTIONAL: screenshots of system reports]
+Cannot generate meaningful sample reports until seed data is populated`,
+        reviewNotes: "Most appendices depend on completing earlier sections first", lastUpdated: "", assignee: "Dr. Flood",
+        pageLimit: "Variable", wordCount: "Supporting documents",
+      },
+      {
+        id: "chcms-seeddata", name: "BLOCKER: Seed Demo Data", description: "System is empty — must populate before any evaluator sees it",
+        icon: AlertTriangle, status: "not-started" as ApprovalStatus,
+        content: `THIS IS THE #1 BLOCKER FOR SUBMISSION
+
+The live system at centralhealthcms.com has ZERO data in every module. An evaluator registering today would see:
+• 0 employees, 0 positions, 0 job families
+• $0 comp spend, $0 average salary
+• Empty benchmarks, empty offers, empty equity analyses
+• The AI briefing literally tells users "no active employee records loaded"
+
+WHAT NEEDS TO BE SEEDED:
+1. 50-100 realistic employee records (names, departments, positions, salaries, hire dates)
+2. 10+ job families (Clinical, Administrative, Executive, IT, Finance, etc.)
+3. 5+ grade levels with salary bands
+4. Market benchmarks (Mercer/Sullivan Cotter format) for key positions
+5. 5-10 sample offers (mix of approved, pending, draft)
+6. At least 1 completed equity analysis showing results
+7. At least 1 active compensation plan with budget allocation
+8. Total rewards packages for a few sample employees
+9. Pre-configured demo account (demo@centralhealth.net / standard password)
+
+All data should be realistic for a Travis County healthcare district context:
+• Austin, TX salary ranges
+• Healthcare-specific positions (RN, LVN, MA, Behavioral Health Specialist, etc.)
+• Public sector pay structures
+• 300,000 resident service area context
+
+This must be done in the Central Health CMS Replit project — not this one. Schedule this work as highest priority.`,
+        reviewNotes: "Without seed data, the live system is a liability — it proves the system is empty, not that it works", lastUpdated: "March 30, 2026", assignee: "Dr. Flood + AI",
+        pageLimit: "N/A — this is system work, not a document", wordCount: "N/A",
       },
     ],
     phases: [
       {
-        id: "collaborate" as PhaseId, name: "1. Build System", description: "Develop the compensation management platform", status: "complete" as const,
+        id: "collaborate" as PhaseId, name: "1. Build System + Seed Data", description: "Develop the platform and populate demo data for evaluator walkthrough", status: "active" as const,
         tasks: [
           { id: "ch1", task: "Build 15-module CMS platform", owner: "Dr. Flood + AI", status: "done" as const, dueDate: "March 28, 2026" },
           { id: "ch2", task: "Deploy to centralhealthcms.com", owner: "Dr. Flood", status: "done" as const, dueDate: "March 28, 2026" },
           { id: "ch3", task: "Write capability packet & technical proposal", owner: "Dr. Flood + AI", status: "done" as const, dueDate: "March 28, 2026" },
-          { id: "ch4", task: "Pre-seed evaluation data and onboarding flow", owner: "AI", status: "done" as const, dueDate: "March 28, 2026" },
+          { id: "ch4", task: "Pre-seed evaluation data and onboarding flow", owner: "AI", status: "pending" as const, dueDate: "April 5, 2026", guidance: "CRITICAL: System is currently empty. Must seed 50-100 employees, job families, benchmarks, offers, equity analyses, and comp plans. Without this, the live demo is a liability." },
         ],
       },
       {
