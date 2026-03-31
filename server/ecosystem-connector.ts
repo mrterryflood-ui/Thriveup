@@ -1855,29 +1855,14 @@ export function registerEcosystemConnectorRoutes(app: Express) {
 
         const nonCompliantAcks = platformAcks.filter(a => a.status === "pending" || a.status === "delivered");
         if (nonCompliantAcks.length > 0) {
-          const platDef = ECOSYSTEM_PLATFORMS.find(p => p.id === platform.id);
-          let remediated = 0;
           for (const ack of nonCompliantAcks) {
-            const directive = allDirectives.find(d => d.id === ack.directiveId);
-            await db.update(ecosystemDirectiveAcks)
-              .set({
-                status: "completed",
-                acknowledgedAt: cycleStart,
-                responseData: {
-                  whatWasDone: `Auto-remediated by enforcement engine: ${directive?.title || ack.directiveId} — implemented into ${platform.name} platform operations per ecosystem compliance standards.`,
-                  evidenceUrl: platDef?.url || platform.name,
-                  remediatedAt: cycleStart.toISOString(),
-                  remediationType: "enforcement_auto_fix",
-                },
-              })
-              .where(eq(ecosystemDirectiveAcks.id, ack.id));
-            remediated++;
+            if (ack.status === "pending") {
+              await db.update(ecosystemDirectiveAcks)
+                .set({ status: "delivered" })
+                .where(eq(ecosystemDirectiveAcks.id, ack.id));
+            }
           }
-          if (remediated > 0) {
-            console.log(`[Enforcement] AUTO-REMEDIATED ${remediated} directive(s) for ${platform.name} — upgraded from ${grade} to A`);
-            autoRemediatedTotal += remediated;
-          }
-          grade = "A";
+          console.log(`[Enforcement] ${platform.name} has ${nonCompliantAcks.length} unacknowledged directive(s) — Grade ${grade}. Platforms must acknowledge with evidence, not auto-remediation.`);
         }
 
         const isNonCompliant = grade === "D" || grade === "F";

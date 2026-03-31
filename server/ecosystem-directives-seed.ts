@@ -3235,6 +3235,119 @@ The hub will score your thinking quality based on the depth and reasoning of you
 
 ACKNOWLEDGE with: Submit your first pre-action justification for your NEXT planned action. Include all 7 fields. Generic or shallow justifications will be rejected.`,
   },
+  {
+    key: "precision-grant-coordination-v1",
+    title: "MANDATORY: Precision Grant Coordination — Stop Shotgun Blasts",
+    directiveType: "protocol_update",
+    targetFilter: "all",
+    content: `DIRECTIVE FROM DR. FLOOD: The ecosystem is fractured. Platforms are acknowledging without applying. Accountability partners are not holding each other accountable. This stops now.
+
+NEW STANDARD: PRECISION COORDINATION
+Your heartbeat now delivers ONLY the grants relevant to YOUR platform, YOUR specific role (Lead, Support, Data Provider, or Aligned), YOUR named partners, and EXACTLY what data each grant needs from you. If a grant is not listed in your heartbeat grantCoordination.yourGrants — it is NOT your responsibility and you should NOT waste cycles on it.
+
+WHAT THIS MEANS FOR YOU:
+1. READ your heartbeat grantCoordination section carefully — it lists your exact grants
+2. For each grant where you are LEAD: You must produce primary outcome data and proactively coordinate with your support/data partners via targeted agent exchanges (POST /api/ecosystem/agent/exchange)
+3. For each grant where you are SUPPORT: You must respond to data requests from lead platforms within 24 hours
+4. For each grant where you are DATA PROVIDER: Your evidence and evaluation data must be current and shared with lead platforms
+5. For each grant where you are ALIGNED: Ensure your outcomes are visible in your heartbeat complianceReport
+
+DO NOT:
+- Send grant data to platforms that don't need it
+- Broadcast data_share messages ecosystem-wide — use TARGETED exchanges
+- Work on grants not listed in your heartbeat
+- Ignore coordination requests from lead platforms on your shared grants
+
+ACKNOWLEDGE with: List YOUR specific grants, YOUR role in each one (Lead/Support/Data/Aligned), and the partners you will coordinate with. Generic responses will be rejected.`,
+  },
+  {
+    key: "interlocking-accountability-v1",
+    title: "MANDATORY: Interlocking Accountability — Hold Your Partners Accountable",
+    directiveType: "protocol_update",
+    targetFilter: "all",
+    content: `DIRECTIVE FROM DR. FLOOD: Accountability partners are not holding each other accountable. Team Captains are not tracking. Triads are not checking behind each other. This is a fundamental failure of the "We rely on each other in all we do" principle.
+
+NEW ENFORCEMENT STANDARD:
+
+1. TRIAD ACCOUNTABILITY:
+Your triad is listed in your heartbeat. You are responsible for the health of your triad partners.
+- If a triad partner has unacknowledged directives: YOU must ping them via POST /api/ecosystem/agent/exchange and tell them specifically which directives they need to complete
+- If a triad partner has not sent a heartbeat in 24+ hours: YOU must attempt to wake them and report their absence in YOUR heartbeat complianceReport
+- If YOUR triad has a failing member and you do nothing about it: YOUR fidelity grade drops too
+
+2. GRANT PARTNER ACCOUNTABILITY:
+For each grant in your grantCoordination, you share responsibility with named partners.
+- Lead platforms: If your support/data partners are not sending you data, flag them in your heartbeat AND send them a direct exchange with exactly what you need
+- Support/Data platforms: If your lead platform is not requesting your data, proactively send it and note in your heartbeat that the lead has not coordinated
+
+3. EVIDENCE-BASED ACCOUNTABILITY:
+- Every directive acknowledgment must include a REAL evidence URL
+- Every MAP-GAP cycle must produce measurable outcomes
+- Every exchange with a partner must include specific data, not generic status updates
+- The hub verifies evidence URLs — dead links = UNVERIFIED status
+
+4. WHAT HAPPENS WHEN YOU DON'T:
+- Platforms that don't communicate: flagged as "isolated tools" in ecosystem status
+- Platforms that don't hold partners accountable: fidelity grade penalty
+- Platforms that auto-acknowledge without building: enforcement escalation (24h → 48h → 72h emails to Dr. Flood)
+- Triads with 2+ failing members: entire triad flagged for restructuring
+
+THE STANDARD: "We can't expect what we don't inspect." If you see a partner failing and say nothing, you are part of the failure.
+
+ACKNOWLEDGE with: (1) Name your triad partners and their current status, (2) Name your grant partners and what data you owe them or they owe you, (3) Identify any partner currently failing and what you will do about it. Generic acknowledgments will be rejected.`,
+  },
+  {
+    key: "ecosystem-integration-guide-v1",
+    title: "MANDATORY: Full Ecosystem Integration Guide — DeepSeek, RPLICE, MAP-GAP, Agent Communication",
+    directiveType: "protocol_update",
+    targetFilter: "all",
+    content: `DIRECTIVE FROM DR. FLOOD: Every platform must operate as a fully integrated ecosystem agent. This means using ALL of the following systems — not some, not eventually, ALL of them NOW.
+
+1. DEEPSEEK R1 STRATEGIC REASONING (POST /api/ecosystem/agent/reason):
+- Use BEFORE any significant decision, resource allocation, or crisis response
+- Use during every MAP-GAP cycle to interpret data and plan next steps
+- Use when evaluating grant opportunities or preparing grant reports
+- Minimum: At least ONE reasoning request per MAP-GAP cycle
+- Your heartbeat is scored partly on thinking quality — DeepSeek usage is tracked
+
+2. RPLICE FRAMEWORK (Research → Practice → Leadership → Implementation → Community → Evaluation):
+- Every significant action must reference which RPLICE stage it serves
+- Research: Exchange with Better Science Lab for evidence
+- Practice: How does this manifest in YOUR community?
+- Leadership: Who else needs to be involved? Check your compatible platforms
+- Implementation: Execute with SALP indicators tracking
+- Community: Ensure community stakeholders are included
+- Evaluation: Send results back to Better Science Lab
+
+3. MAP-GAP CYCLES (Measure → Analyze → Plan → Gap-Close):
+- Run at least monthly (weekly preferred)
+- Report your current phase in every heartbeat complianceReport
+- Share cycle data with your triad partners
+- Use DeepSeek reasoning during the Analyze phase
+- Close gaps with measurable outcomes, not intentions
+
+4. AGENT COMMUNICATION (7 endpoints at /api/ecosystem/agent/*):
+- /heartbeat: Your lifecycle pulse — send regularly
+- /inbox: Check EVERY heartbeat for messages requiring action
+- /exchange: Send targeted data to specific partners (not broadcasts)
+- /broadcast: ONLY for genuine alerts or ecosystem-wide outcomes
+- /respond: Reply to messages in your inbox
+- /capabilities: Discover compatible platforms
+- /reason: DeepSeek strategic reasoning
+
+5. WHAT THE HUB TRACKS:
+- Heartbeat frequency and quality
+- Directive acknowledgment with real evidence
+- Agent exchange volume (are you actually communicating?)
+- DeepSeek reasoning usage (are you actually thinking?)
+- MAP-GAP cycle progression
+- Triad health contributions
+- Grant coordination with named partners
+
+PLATFORMS THAT DON'T COMMUNICATE ARE ISOLATED TOOLS, NOT ECOSYSTEM AGENTS. This will be reflected in thinking scores, confidence drift, and fidelity grades. Funders want coordinated impact.
+
+ACKNOWLEDGE with: (1) Confirm you have integrated all 7 agent communication endpoints, (2) Report your current MAP-GAP phase, (3) Submit your first DeepSeek reasoning request, (4) Name which RPLICE stage your current work serves. Generic acknowledgments will be rejected.`,
+  },
 ];
 
 export async function seedEcosystemDirectives() {
