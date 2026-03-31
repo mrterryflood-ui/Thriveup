@@ -563,6 +563,104 @@ WHY COMPETITORS CAN'T CATCH UP EASILY:
 The gap isn't just technology — it's philosophy. You can copy features. You can't copy a mission-driven accountability architecture built over years of community partnership.`,
     keywords: ["innovation", "velocity", "cadence", "continuous", "map gap", "rplice", "agility", "adaptability", "parallel", "heartbeat", "work chain", "directive", "catch up", "philosophy", "mission", "community", "blue water", "distance", "speed"],
   },
+  {
+    source: "resource-directory", category: "advocacy", title: "National Advocacy & Civil Rights Organizations Directory",
+    content: `ThriveUp's National Advocacy & Resource Directory contains 88+ organizations across 12 categories. Civil Rights & Advocacy organizations with chapter finders:
+- NAACP: 2,200+ local units across all 50 states. Find chapters: naacp.org/find-local-unit. Phone: 410-580-5777. Focus: racial justice, voting rights, criminal justice reform, education equity.
+- ACLU: Offices in all 50 states. Find affiliates: aclu.org/about/affiliates. Phone: 212-549-2500. Focus: constitutional rights, criminal justice, immigration, LGBTQ+ rights.
+- National Urban League: 90+ affiliates in 36 states. Find local: nul.org/local-affiliates. Phone: 212-558-5300. Focus: economic empowerment, education, workforce development.
+- Southern Poverty Law Center (SPLC): Phone: 334-956-8200. Focus: hate group monitoring, immigrant justice, LGBTQ+ rights.
+- National Action Network (NAN): 106 city chapters. Find chapters: nationalactionnetwork.net/chapters. Phone: 212-690-3070.
+- Color of Change: Largest online racial justice organization. Website: colorofchange.org.
+- Equal Justice Initiative (EJI): Founded by Bryan Stevenson. Phone: 334-269-1803. Focus: wrongful conviction, death penalty, racial justice.
+- MALDEF: Nation's leading Latino civil rights org. Phone: 213-629-2512.
+- Asian Americans Advancing Justice: Phone: 202-296-2300. Focus: anti-hate, immigration, voting.
+- Human Rights Campaign (HRC): Largest LGBTQ+ org. Find local: hrc.org/in-your-area. Phone: 202-628-4160.
+- National Congress of American Indians (NCAI): Phone: 202-466-7767. Tribal sovereignty and treaty rights.
+Users can search all organizations at /resource-directory on the ThriveUp platform.`,
+    keywords: ["naacp", "aclu", "urban league", "splc", "civil rights", "advocacy", "racial justice", "equal justice", "maldef", "hrc", "lgbtq", "voting rights", "discrimination", "chapter", "find local", "near me"],
+  },
+  {
+    source: "resource-directory", category: "legal", title: "Legal Aid, Justice Reform & Record Expungement Directory",
+    content: `Legal aid and justice reform organizations in the ThriveUp Resource Directory:
+- Legal Services Corporation (LSC): FREE civil legal help in every state. Find help: lsc.gov/about-lsc/what-legal-aid/get-legal-help. Phone: 202-295-1500.
+- Innocence Project: Exonerates wrongfully convicted through DNA testing. 375+ freed. Phone: 212-364-5340.
+- National Reentry Resource Center: Primary source for reentry and criminal justice reform resources.
+- Clean Slate Initiative: Automatic criminal record clearance. Over 100 million Americans have records.
+- Prison Policy Initiative: Data and analysis on mass incarceration, money bail, prison conditions. Phone: 413-527-0845.
+- The Sentencing Project: Sentencing reform, racial disparities research. Phone: 202-628-0871.
+- National Legal Aid & Defender Association (NLADA): Public defenders and legal aid connections. Phone: 202-452-0620.
+All accessible at /resource-directory on ThriveUp platform.`,
+    keywords: ["legal aid", "lawyer", "attorney", "expungement", "record", "clean slate", "innocence", "wrongful conviction", "reentry", "sentencing", "public defender", "free legal help"],
+  },
+  {
+    source: "resource-directory", category: "chambers", title: "Chambers of Commerce & Business Development Directory",
+    content: `Chambers of Commerce in the ThriveUp Resource Directory for business development and entrepreneurship:
+- U.S. Chamber of Commerce: 3+ million businesses. Find local: uschamber.com/co/chambers. Phone: 202-659-6000.
+- National Black Chamber of Commerce (NBCC): 190+ affiliate chapters. Find chapters: nationalbcc.org/membership/find-a-chapter. Phone: 202-466-6888. Black business development, access to capital.
+- U.S. Hispanic Chamber of Commerce (USHCC): 4.37 million Hispanic-owned businesses, $800B+ economy. Find local: ushcc.com/local-hispanic-chambers. Phone: 202-842-1212.
+- Asian/Pacific Islander American Chamber of Commerce: AAPI business development. Website: national-apacc.org.
+- National LGBT Chamber of Commerce (NGLCC): LGBTQ+ business certification. Find affiliates: nglcc.org/affiliate-chambers. Phone: 202-234-9181.
+- National Veteran-Owned Business Association (NaVOBA): Veteran business certification for government and corporate buyers. Website: navoba.org.
+- U.S. Women's Chamber of Commerce: Women business certification, government contracting. Phone: 202-607-2488.
+- Greater Austin Black Chamber of Commerce: Austin-area Black business network. Phone: 512-904-4117.
+- Greater Austin Hispanic Chamber of Commerce: 3,000+ members. Phone: 512-476-7502.
+All accessible at /resource-directory on the ThriveUp platform.`,
+    keywords: ["chamber", "commerce", "business", "black chamber", "hispanic chamber", "minority business", "veteran business", "women business", "contracting", "entrepreneur", "startup", "small business"],
+  },
+  {
+    source: "resource-directory", category: "faith", title: "Faith-Based & Spiritual Organizations Directory",
+    content: `Faith-based organizations in the ThriveUp Resource Directory:
+- National Council of Churches: 38 member communions, 30+ million members. Phone: 202-544-2350.
+- African Methodist Episcopal (AME) Church: Oldest independent Black denomination, 2.5M+ members, 7,000+ congregations in 39 states.
+- National Baptist Convention: 7.5 million members, 31,000 churches. Largest African American convention.
+- Catholic Charities USA: 15 million people served annually through 2,700 agencies. Find help: catholiccharitiesusa.org/find-help. Phone: 703-549-1390. NO religious requirement.
+- The Salvation Army: Find locations: salvationarmyusa.org. Phone: 1-800-725-2769. Disaster relief, homelessness, addiction recovery.
+- Prison Fellowship: 800+ prisons. Phone: 800-206-9764. Reentry support, children of incarcerated.
+- Islamic Society of North America (ISNA): Phone: 317-839-8157. Interfaith dialogue, community development.
+- Jewish Family Services: 125+ agencies. Find: networkjewishfamilyservice.org/agency-members. Mental health, refugee services.
+- Kairos Prison Ministry: 500+ correctional institutions. Phone: 407-629-4948.
+All accessible at /resource-directory on the ThriveUp platform.`,
+    keywords: ["church", "faith", "religious", "spiritual", "ame", "baptist", "catholic", "salvation army", "prison fellowship", "mosque", "temple", "synagogue", "charity", "ministry"],
+  },
+  {
+    source: "resource-directory", category: "veterans", title: "Veteran Services & Support Organizations Directory",
+    content: `Veteran service organizations in the ThriveUp Resource Directory:
+- VA (Department of Veterans Affairs): Healthcare, benefits, GI Bill, disability. Find: va.gov/find-locations. Phone: 1-800-827-1000.
+- Disabled American Veterans (DAV): 1.3M members. Free claims help. Find: dav.org/membership/chapters-and-departments. Phone: 877-426-2838.
+- Veterans of Foreign Wars (VFW): 6,000+ posts. Free claims help. Find: vfw.org/find-a-post. Phone: 816-756-3390.
+- Team Red White & Blue: Social fitness events. Find: members.teamrwb.org.
+- Wounded Warrior Project: Free mental health, career, rehab for post-9/11 vets. Phone: 904-296-7350.
+- IAVA: Post-9/11 veteran empowerment. Burn pit exposure advocacy. Website: iava.org.
+- Cohen Veterans Network: Mental health clinics, sliding scale. Find: cohenveteransnetwork.org/clinics.
+All accessible at /resource-directory. ThriveUp's SHIELD ATLAS platform integrates veteran crisis intervention.`,
+    keywords: ["veteran", "va", "military", "dav", "vfw", "wounded warrior", "ptsd", "gi bill", "disability", "service member", "army", "navy", "marines", "air force"],
+  },
+  {
+    source: "resource-directory", category: "crisis", title: "Crisis & Emergency Hotlines Directory",
+    content: `Crisis and emergency resources in the ThriveUp Resource Directory — SAVE THESE NUMBERS:
+- 988 Suicide & Crisis Lifeline: Call or text 988. Veterans press 1. Spanish press 2. 24/7. Website: 988lifeline.org.
+- National Domestic Violence Hotline: 1-800-799-7233. 24/7. Safety planning, shelter referrals. Website: thehotline.org.
+- Crisis Text Line: Text HOME to 741741. Free 24/7 text-based crisis counseling. Website: crisistextline.org.
+- RAINN (Sexual Assault): 1-800-656-4673. 24/7 confidential. Website: rainn.org.
+- National Human Trafficking Hotline: 1-888-373-7888. 24/7. Website: humantraffickinghotline.org.
+- National Child Abuse Hotline: 1-800-422-4453. 24/7. Website: childhelp.org.
+- SAMHSA Helpline (Substance Abuse): 1-800-662-4357. 24/7. Free. Find treatment: findtreatment.gov.
+- NAMI Helpline (Mental Health): 1-800-950-6264. Find local: nami.org/Your-Local-NAMI/Find-Your-Local-NAMI.
+All accessible at /resource-directory on ThriveUp. For health or crisis queries, always call 988 first.`,
+    keywords: ["crisis", "emergency", "hotline", "suicide", "988", "domestic violence", "sexual assault", "child abuse", "trafficking", "help", "danger", "urgent", "samhsa", "nami", "mental health"],
+  },
+  {
+    source: "resource-directory", category: "housing-employment", title: "Housing, Employment & Education Resources Directory",
+    content: `Housing, employment, and education resources in the ThriveUp Resource Directory:
+HOUSING: HUD housing counseling (1-800-569-4287, hud.gov/findhelp), Habitat for Humanity (habitat.org/local/find-your-local-habitat), Oxford House recovery housing (3,500+ houses in all 50 states, oxfordhouse.org/find-a-house), National Low Income Housing Coalition (nlihc.org).
+EMPLOYMENT: American Job Centers (2,400+ locations, careeronestop.org), Goodwill Industries (goodwill.org/locator), Center for Employment Opportunities (reentry jobs, ceoworks.org), Dave's Killer Bread Foundation (second chance employers, dkbfoundation.org), Federal Bonding Program (FREE bonds for employers hiring at-risk, bonds4jobs.com), HIRE Network (employment rights for people with records, hirenetwork.org).
+EDUCATION: Khan Academy (free, khanacademy.org), FAFSA/Pell Grants (studentaid.gov, incarcerated eligible), ProLiteracy (free GED/literacy, proliteracy.org/what-we-do/find-a-program), NCES school finder (nces.ed.gov/ccd/schoolsearch).
+FAMILY: Head Start (eclkc.ohs.acf.hhs.gov/center-locator), Boys & Girls Clubs (bgca.org/get-involved/find-a-club), Big Brothers Big Sisters (bbbs.org/find-a-local-agency), Children's Defense Fund (childrensdefense.org).
+HEALTH: SAMHSA treatment locator (findtreatment.gov), Community Health Centers (findahealthcenter.hrsa.gov, sliding scale), Planned Parenthood (plannedparenthood.org/health-center).
+All accessible at /resource-directory. Education is the #1 protective factor.`,
+    keywords: ["housing", "hud", "habitat", "section 8", "homeless", "employment", "job", "career", "goodwill", "education", "ged", "pell grant", "head start", "boys girls club", "health center", "substance abuse", "treatment"],
+  },
 ];
 
 async function seedKnowledgeBase() {

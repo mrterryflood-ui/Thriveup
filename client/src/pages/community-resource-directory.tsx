@@ -1,15 +1,18 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Link } from "wouter";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 import {
   Shield, ExternalLink, Search, MapPin, Phone, Globe, Heart,
   Scale, Users, Building2, BookOpen, Briefcase, GraduationCap,
   Church, HandHeart, Baby, Flag, AlertTriangle, Stethoscope,
   Home, ChevronDown, ChevronUp, ArrowRight, Star, Filter,
-  Megaphone, Gavel, Award, Landmark, Layers
+  Megaphone, Gavel, Award, Landmark, Layers, Loader2,
+  MessageCircle, Send, Navigation, X
 } from "lucide-react";
 
 type OrgCategory = "civil-rights" | "legal-aid" | "chambers" | "faith" | "veteran" | "health" | "housing" | "employment" | "education" | "family" | "crisis" | "ecosystem";
@@ -262,11 +265,43 @@ const RESOURCE_CATEGORIES: CategoryData[] = [
 
 const CATEGORY_FILTER_ALL = "all";
 
+const US_STATES_LIST = [
+  "Alabama","Alaska","Arizona","Arkansas","California","Colorado","Connecticut","Delaware","Florida","Georgia",
+  "Hawaii","Idaho","Illinois","Indiana","Iowa","Kansas","Kentucky","Louisiana","Maine","Maryland",
+  "Massachusetts","Michigan","Minnesota","Mississippi","Missouri","Montana","Nebraska","Nevada","New Hampshire","New Jersey",
+  "New Mexico","New York","North Carolina","North Dakota","Ohio","Oklahoma","Oregon","Pennsylvania","Rhode Island","South Carolina",
+  "South Dakota","Tennessee","Texas","Utah","Vermont","Virginia","Washington","West Virginia","Wisconsin","Wyoming","DC"
+];
+
 export default function CommunityResourceDirectoryPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>(CATEGORY_FILTER_ALL);
   const [expandedOrgs, setExpandedOrgs] = useState<Set<string>>(new Set());
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set(["civil-rights", "ecosystem"]));
+  const [selectedState, setSelectedState] = useState("");
+  const [zipCode, setZipCode] = useState("");
+  const [aiQuestion, setAiQuestion] = useState("");
+  const [aiAnswer, setAiAnswer] = useState("");
+  const [showAI, setShowAI] = useState(false);
+  const aiInputRef = useRef<HTMLInputElement>(null);
+
+  const aiQuery = useMutation({
+    mutationFn: async (question: string) => {
+      const res = await apiRequest("POST", "/api/ecosystem-ai/query", { query: question });
+      return res.json();
+    },
+    onSuccess: (data: { answer: string }) => {
+      setAiAnswer(data.answer);
+    },
+  });
+
+  const handleAiSubmit = () => {
+    if (!aiQuestion.trim()) return;
+    let q = aiQuestion;
+    if (zipCode) q += ` (near zip code ${zipCode})`;
+    if (selectedState) q += ` (in ${selectedState})`;
+    aiQuery.mutate(q);
+  };
 
   const toggleOrg = (key: string) => {
     setExpandedOrgs(prev => {
@@ -289,6 +324,18 @@ export default function CommunityResourceDirectoryPage() {
     if (selectedCategory !== CATEGORY_FILTER_ALL) {
       cats = cats.filter(c => c.id === selectedCategory);
     }
+    if (selectedState) {
+      cats = cats.map(cat => ({
+        ...cat,
+        organizations: cat.organizations.filter(org => {
+          if (org.national && org.stateCount && org.stateCount >= 36) return true;
+          if (org.national && org.chapterFinder) return true;
+          if (!org.national && org.description.toLowerCase().includes(selectedState.toLowerCase())) return true;
+          if (!org.national && selectedState === "Texas" && org.description.toLowerCase().includes("austin")) return true;
+          return org.national;
+        }),
+      })).filter(cat => cat.organizations.length > 0);
+    }
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       cats = cats.map(cat => ({
@@ -301,7 +348,7 @@ export default function CommunityResourceDirectoryPage() {
       })).filter(cat => cat.organizations.length > 0);
     }
     return cats;
-  }, [searchQuery, selectedCategory]);
+  }, [searchQuery, selectedCategory, selectedState]);
 
   const totalOrgs = RESOURCE_CATEGORIES.reduce((sum, c) => sum + c.organizations.length, 0);
 
@@ -343,6 +390,77 @@ export default function CommunityResourceDirectoryPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+        <Card className="p-4 bg-gradient-to-r from-blue-900/20 to-purple-900/20 border-blue-700/30 mb-6">
+          <div className="flex items-center gap-2 mb-3">
+            <MessageCircle className="w-5 h-5 text-blue-400" />
+            <h3 className="text-sm font-semibold text-white">Ask the AI Assistant</h3>
+            <Badge variant="outline" className="text-xs text-blue-400 border-blue-400/30">Natural Language</Badge>
+          </div>
+          <p className="text-xs text-slate-400 mb-3">
+            Ask anything: "Find NAACP chapters in Texas" or "What legal aid is near 78660" or "Where can veterans get mental health help" — the AI knows every organization in this directory and the full ThriveUp ecosystem.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <div className="relative flex-1">
+              <MessageCircle className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-400" />
+              <Input
+                ref={aiInputRef}
+                placeholder="Ask a question in plain English..."
+                value={aiQuestion}
+                onChange={e => setAiQuestion(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && handleAiSubmit()}
+                className="pl-10 bg-slate-800/60 border-slate-700 text-white placeholder:text-slate-500"
+                data-testid="input-ai-question"
+              />
+            </div>
+            <div className="flex gap-2">
+              <Input
+                placeholder="Zip code"
+                value={zipCode}
+                onChange={e => setZipCode(e.target.value.replace(/\D/g, "").slice(0, 5))}
+                className="w-24 bg-slate-800/60 border-slate-700 text-white placeholder:text-slate-500 text-xs"
+                data-testid="input-zip"
+              />
+              <select
+                value={selectedState}
+                onChange={e => setSelectedState(e.target.value)}
+                className="bg-slate-800/60 border border-slate-700 text-white text-xs rounded-md px-2 py-1.5 min-w-[100px]"
+                data-testid="select-state"
+              >
+                <option value="">All States</option>
+                {US_STATES_LIST.map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
+              <Button size="sm" onClick={handleAiSubmit} disabled={aiQuery.isPending || !aiQuestion.trim()} data-testid="button-ai-ask">
+                {aiQuery.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+              </Button>
+            </div>
+          </div>
+          {(selectedState || zipCode) && (
+            <div className="flex items-center gap-2 mt-2">
+              <Navigation className="w-3 h-3 text-green-400" />
+              <span className="text-xs text-green-400">
+                Location filter active: {selectedState && `${selectedState}`}{selectedState && zipCode && ", "}{zipCode && `ZIP ${zipCode}`}
+              </span>
+              <Button size="sm" variant="ghost" className="text-xs h-5 px-1 text-slate-400" onClick={() => { setSelectedState(""); setZipCode(""); }} data-testid="button-clear-location">
+                <X className="w-3 h-3" /> Clear
+              </Button>
+            </div>
+          )}
+          {aiAnswer && (
+            <Card className="mt-3 p-4 bg-slate-800/80 border-blue-700/30">
+              <div className="flex items-start gap-2">
+                <MessageCircle className="w-4 h-4 text-blue-400 mt-0.5 shrink-0" />
+                <div>
+                  <p className="text-xs font-semibold text-blue-400 mb-1">AI Response</p>
+                  <div className="text-sm text-slate-300 whitespace-pre-wrap leading-relaxed" data-testid="text-ai-answer">{aiAnswer}</div>
+                </div>
+              </div>
+            </Card>
+          )}
+          {aiQuery.isError && (
+            <p className="text-xs text-red-400 mt-2">Could not get an AI response. Try a simpler question or check your connection.</p>
+          )}
+        </Card>
+
         <div className="flex flex-col md:flex-row gap-4 mb-6">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -461,9 +579,9 @@ export default function CommunityResourceDirectoryPage() {
                                 </Button>
                               )}
                               {org.chapterFinder && (
-                                <Button size="sm" variant="outline" className="text-xs" asChild>
+                                <Button size="sm" variant={selectedState ? "default" : "outline"} className={`text-xs ${selectedState ? "bg-green-600 hover:bg-green-700" : ""}`} asChild>
                                   <a href={org.chapterFinder} target="_blank" rel="noopener noreferrer">
-                                    <MapPin className="w-3 h-3 mr-1" /> Find Local Chapter
+                                    <MapPin className="w-3 h-3 mr-1" /> {selectedState ? `Find in ${selectedState}` : "Find Local Chapter"}
                                   </a>
                                 </Button>
                               )}
