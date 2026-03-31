@@ -202,7 +202,7 @@ export default function LandingPage() {
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSA2MCAwIEwgMCAwIDAgNjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjA1KSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-40" />
         <div className="relative mx-auto max-w-5xl text-center">
           <Badge variant="secondary" className="mb-4 sm:mb-6 bg-white/15 text-white border-white/20 text-xs sm:text-sm">
-            4 Disciplines. 24 Platforms. One Living System.
+            7 Disciplines. 24 Platforms. One Living System.
           </Badge>
           <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-4 sm:mb-6 tracking-tight leading-tight" data-testid="text-hero-title">
             Equity-Focused. Data-Led.<br />Leaving No One Behind.
@@ -388,7 +388,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Six Interdisciplinary Disciplines → MAP-GAP Components */}
+      {/* Seven Interdisciplinary Disciplines → MAP-GAP Components */}
       <section className="py-12 px-4 sm:py-20 sm:px-6 bg-card" data-testid="section-disciplines-ip">
         <div className="mx-auto max-w-5xl">
           <div className="text-center mb-10 sm:mb-14">
@@ -399,12 +399,12 @@ export default function LandingPage() {
               Interdisciplinary Foundation, One Ecosystem
             </h2>
             <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto px-2">
-              Six academic disciplines map directly to MAP-GAP components — ensuring every platform in the ecosystem is grounded in rigorous research, not guesswork. Communities see themselves in the data and drive their own transformation.
+              Seven academic disciplines map directly to MAP-GAP components — ensuring every platform in the ecosystem is grounded in rigorous research, not guesswork. Communities see themselves in the data and drive their own transformation.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {DISCIPLINES.map((d) => {
-              const dIconMap: Record<string, typeof Heart> = { Microscope, Scale, Briefcase, Brain, GraduationCap, Users };
+              const dIconMap: Record<string, typeof Heart> = { Microscope, Scale, Briefcase, Brain, GraduationCap, Users, Heart };
               const DIcon = dIconMap[d.icon] || Microscope;
               return (
                 <Card key={d.id} className={`p-6 border-2 ${d.borderColor}`} data-testid={`card-discipline-${d.id}`}>
@@ -439,7 +439,7 @@ export default function LandingPage() {
               Platform Capabilities
             </h2>
             <p className="text-sm sm:text-base text-muted-foreground max-w-lg mx-auto px-2">
-              Grant discovery, workforce development, case management, and community coordination — all powered by six interdisciplinary disciplines through MAP-GAP.
+              Grant discovery, workforce development, case management, and community coordination — all powered by seven interdisciplinary disciplines through MAP-GAP.
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">

@@ -1,5 +1,5 @@
 export const MISSION_STATEMENT =
-  "We are equity-focused and equality and access driven. We are problem solvers using collaborative accountability and transparency that is data-led and intentional — to make good programs better and leave no one behind. The Collaborative Advocate Foundation transforms communities by listening first, measuring always, and building technology that reflects real feelings and real experiences. Our 24-platform ecosystem — powered by six academic disciplines and our MAP-GAP framework — ensures that every person has a pathway: veterans transitioning to civilian life through M2C, individuals experiencing homelessness navigating stability through LifeBridge, immigrants accessing resources regardless of documentation status through Speech Bridge, formerly incarcerated individuals rebuilding through our reentry pipeline, and every community member who has been left behind by systems not designed for them.";
+  "We are equity-focused and equality and access driven. We are problem solvers using collaborative accountability and transparency that is data-led and intentional — to make good programs better and leave no one behind. The Collaborative Advocate Foundation transforms communities by listening first, measuring always, and building technology that reflects real feelings and real experiences. Our 24-platform ecosystem — powered by seven academic disciplines and our MAP-GAP framework — ensures that every person has a pathway: veterans transitioning to civilian life through M2C, individuals experiencing homelessness navigating stability through LifeBridge, immigrants accessing resources regardless of documentation status through Speech Bridge, formerly incarcerated individuals rebuilding through our reentry pipeline, and every community member who has been left behind by systems not designed for them.";
 
 export const VISION_STATEMENT =
   "A nation where no one is invisible. Where every community — regardless of zip code, documentation status, housing situation, or history — has access to a holistic, comprehensive system that listens before it builds, measures what matters, holds itself accountable with transparency, and never stops improving. Where veterans have a real transition path, not just a thank-you. Where people experiencing homelessness are counted and served, not stepped over. Where immigrants can access resources in their language without fear. Where education is the number one protective factor and data tells the truth that county averages hide.";
@@ -83,6 +83,17 @@ export const DISCIPLINES = [
     mapGapComponent: "Community intelligence mapping and SDOH analysis — GIS-powered data integration from 8 federal sources enabling communities to identify gaps, measure progress, and advocate with evidence.",
     platforms: ["thriveup", "isss", "sankofa", "lifebridge", "wholemind", "perfectly-different", "safereport"],
   },
+  {
+    id: "healthcare",
+    name: "Healthcare & Public Health",
+    shortName: "Healthcare",
+    color: "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300",
+    borderColor: "border-red-300 dark:border-red-700",
+    icon: "Heart" as const,
+    desc: "Integrates whole-person health, maternal and infant care, community health worker deployment, substance abuse prevention, and health equity analysis — closing the gap between clinical systems and the communities they should serve.",
+    mapGapComponent: "Health equity measurement and CHW coordination — tracking maternal outcomes, behavioral health access, chronic disease management, and social determinants across the full care continuum from prevention through recovery.",
+    platforms: ["sankofa", "whole-person-health", "lifebridge", "wholemind", "shield-atlas", "sankofa-feminine-health", "sankofa-maternal-health", "sankofa-mens-health"],
+  },
 ] as const;
 
 export const MAPGAP_CYCLE = [
@@ -91,7 +102,7 @@ export const MAPGAP_CYCLE = [
     title: "Identify the Problem",
     subtitle: "Research & Data",
     desc: "Community data reveals the problem — suspension rates, recidivism, ACEs prevalence, unaddressed SDOH. Map it to specific grant opportunities.",
-    disciplines: ["implementation-science", "social-science"],
+    disciplines: ["implementation-science", "social-science", "healthcare"],
     platforms: ["Community Intelligence Map", "GIS Data", "Grant Discovery Engine"],
   },
   {
@@ -99,7 +110,7 @@ export const MAPGAP_CYCLE = [
     title: "Design the Intervention",
     subtitle: "MAP-GAP + Three Realities",
     desc: "Use MAP-GAP and Three Realities to design a program tailored to THIS community. What research says, what politics allow, what actually works on the ground.",
-    disciplines: ["implementation-science", "criminal-justice", "hr-management", "io-psychology", "education", "social-science"],
+    disciplines: ["implementation-science", "criminal-justice", "hr-management", "io-psychology", "education", "social-science", "healthcare"],
     platforms: ["MAP-GAP CQI", "RPLICE", "Better Science Lab"],
   },
   {
@@ -107,7 +118,7 @@ export const MAPGAP_CYCLE = [
     title: "Coordinate Stakeholders",
     subtitle: "Build the Network",
     desc: "Bring in CHWs, mentors, community police, educators, employers — everyone connected through shared dashboards, shared goals, transparent metrics.",
-    disciplines: ["hr-management", "io-psychology", "social-science"],
+    disciplines: ["hr-management", "io-psychology", "social-science", "healthcare"],
     platforms: ["Coalition Dashboard", "Partner Network", "DFC Command Center"],
   },
   {

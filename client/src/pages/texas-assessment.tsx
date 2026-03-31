@@ -125,7 +125,7 @@ const CFIR_DOMAINS = [
     findings: [
       "Three organizational entities provide structural flexibility (Foundation, Academy, Collaborative Advocate)",
       "VOSB status enables federal contracting pipeline via 8(a) and HUBZone programs",
-      "Doctoral-level leadership across 4 disciplines provides implementation science depth",
+      "Doctoral-level leadership across 7 disciplines provides implementation science depth",
       "Technology infrastructure supports real-time fidelity tracking via SALP indicators",
     ],
     strengths: ["Leadership depth", "Organizational structure", "Technology readiness"],
