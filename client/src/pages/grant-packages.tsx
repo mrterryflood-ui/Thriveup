@@ -3334,6 +3334,429 @@ IMPACT:
       ],
     },
   },
+  {
+    id: "doj-second-chance",
+    name: "DOJ Second Chance Act",
+    fullName: "FY25 Second Chance Act Community-Based Reentry Program",
+    funder: "U.S. Department of Justice — Bureau of Justice Assistance (BJA)",
+    amount: "Up to $1,000,000",
+    deadline: "May 11, 2026 (JustGrants)",
+    deadlineUrgency: "approaching" as const,
+    icon: Scale,
+    color: "text-indigo-600",
+    bgColor: "bg-indigo-50 dark:bg-indigo-950/30",
+    borderColor: "border-indigo-200 dark:border-indigo-800",
+    description: "Federal reentry program funding mentoring and transitional services for adults returning from incarceration. BJA anticipates 13 awards from a $12.5M pool. Nonprofits with 501(c)(3) status are directly eligible.",
+    referenceUrl: "https://bja.ojp.gov/funding/opportunities/o-bja-2025-172499",
+    referenceLabel: "BJA Solicitation O-BJA-2025-172499",
+    grantKnowledge: `FY25 Second Chance Act Community-Based Reentry Program — Up to $1,000,000.
+SOLICITATION: O-BJA-2025-172499, posted March 25, 2026.
+PURPOSE: Support community-based organizations to provide mentoring and transitional services for adults returning to communities after incarceration who are assessed as moderate-to-high risk for recidivism. Services may be pre- and/or post-release.
+TOTAL POOL: $12.5 million across approximately 13 awards.
+ELIGIBLE APPLICANTS: 501(c)(3) nonprofits (TCAF qualifies directly), federally recognized tribal governments. State/local governments NOT eligible for this specific program.
+KEY DATES: Grants.gov deadline May 4, 2026. JustGrants deadline May 11, 2026, 8:59 PM ET.
+PRIORITIES: (1) Evidence-based mentoring programs, (2) Transitional services including employment, housing, substance abuse treatment, (3) Risk/needs assessment tools, (4) Data-driven recidivism reduction strategies.
+WHY WE FIT: Justice Command Center provides tract-level crime migration analysis (Buffalo East Side, Wilmington Creekwood, Austin gentrification corridor). Dr. Flood's implementation science approach — "crime migrates with gentrification" and "county averages lie, tract-level tells truth" — is exactly the evidence-based framework BJA wants. Workforce development pathways (CHW certification, career explorer) serve as reentry employment pipelines. Veteran-founded, Black-led nonprofit checks multiple DOJ priority areas.
+SUBMITTING ENTITY: The Collaborative Advocate Foundation — EIN 41-3618003, 501(c)(3).`,
+    serviceArea: {
+      region: "Central Texas",
+      state: "Texas",
+      counties: ["Travis", "Williamson", "Hays", "Bastrop"],
+      city: "Austin",
+      keyIndustries: ["Healthcare", "Construction", "Logistics", "Food Service", "Manufacturing"],
+      targetEmployers: [
+        { name: "Goodwill Central Texas", sector: "Workforce Development", type: "Job training, employment placement for justice-involved adults" },
+        { name: "CommUnityCare Health Centers", sector: "Healthcare", type: "FQHC — CHW roles, medical assistant pathways for reentry population" },
+        { name: "H-E-B", sector: "Retail/Logistics", type: "Second-chance employer — store operations, warehouse, CDL training" },
+        { name: "Austin Resource Recovery", sector: "Government", type: "City of Austin — CDL, equipment operator, maintenance roles" },
+        { name: "Foundation Communities", sector: "Housing/Services", type: "Affordable housing + workforce services for justice-involved adults" },
+      ],
+      laborMarketNotes: "Travis County processes ~40,000 criminal cases/year. Texas reincarceration rate ~21.4% within 3 years. Austin MSA has growing second-chance employer network. Key credential gaps for reentry population: CDL, forklift, food handler, OSHA-10, CNA.",
+      locationEligibility: "national",
+      locationNotes: "Federal grant — open to nonprofits nationwide. TCAF's Central Texas focus with tract-level data for Austin gentrification corridor and justice-involved population analysis provides strong local evidence base.",
+      multiSiteEligible: true,
+      multiSiteNotes: "Can propose services in multiple Texas communities. Consider including Travis County (Austin) as primary and expanding to Williamson/Hays counties where gentrification is pushing formerly incarcerated populations.",
+    },
+    partnershipTimeline: {
+      summary: "DOJ values existing community partnerships. Secure reentry service providers, employers willing to hire justice-involved adults, and local criminal justice agencies before drafting. Letters of support from probation/parole, sheriff's office, and community organizations strengthen the application significantly.",
+      workflowOrder: "SAM.gov Verification → Partner Letters → Narrative Draft → Budget → JustGrants Submission",
+      requirements: [
+        { partnerType: "Criminal Justice Agencies", requiredInDocs: true, timing: "pre-award", docSections: ["Program Narrative", "Letters of Support"], description: "Local probation/parole offices, sheriff's department, county jail re-entry coordinators. They refer participants and validate your approach. Travis County has an active reentry initiative.", evidenceNeeded: "Letters of support on agency letterhead describing planned collaboration, referral pathways, and data-sharing agreements" },
+        { partnerType: "Second-Chance Employers", requiredInDocs: true, timing: "pre-award", docSections: ["Program Narrative", "Budget"], description: "Employers committed to hiring justice-involved adults. Must demonstrate real job placement pipeline, not aspirational partnerships.", evidenceNeeded: "Commitment letters specifying number of positions, types of roles, onboarding support, and any ban-the-box policies" },
+        { partnerType: "Housing Partners", requiredInDocs: true, timing: "pre-award", docSections: ["Program Narrative"], description: "Transitional and permanent housing partners. Housing instability is the #1 predictor of recidivism. Foundation Communities, ECHO (Ending Community Homelessness Coalition), or similar.", evidenceNeeded: "Letters describing housing slots, referral process, and capacity for justice-involved adults" },
+        { partnerType: "Substance Abuse / Mental Health", requiredInDocs: false, timing: "both", docSections: ["Program Narrative"], description: "Treatment providers for co-occurring substance use and mental health needs. Integral Care (Travis County LMHA) is the primary public provider.", evidenceNeeded: "Letters of support, referral agreements" },
+        { partnerType: "Mentoring Program Partners", requiredInDocs: true, timing: "pre-award", docSections: ["Program Narrative", "Budget"], description: "SCA specifically funds mentoring. You need a structured mentoring component — peer mentors with lived experience are highly valued by BJA.", evidenceNeeded: "Mentoring program design, mentor recruitment plan, training curriculum for mentors" },
+      ],
+    },
+    essentials: [
+      { label: "501(c)(3) Eligible", detail: "TCAF qualifies directly as a 501(c)(3) nonprofit — no state/local government required", critical: true },
+      { label: "Up to $1M Award", detail: "BJA anticipates 13 awards from $12.5M pool — approximately $1M each", critical: true },
+      { label: "JustGrants Deadline May 11", detail: "Grants.gov SF-424 due May 4, full JustGrants application due May 11, 2026 at 8:59 PM ET", critical: true },
+      { label: "Mentoring + Transitional Services", detail: "Must provide structured mentoring and transitional services (employment, housing, substance abuse) for adults returning from incarceration" },
+      { label: "Moderate-to-High Risk Focus", detail: "Must serve individuals assessed as moderate-to-high risk for recidivism using validated risk assessment tools" },
+      { label: "Pre/Post Release Services", detail: "Can provide services before and/or after release — flexibility in program design" },
+      { label: "SAM.gov Required", detail: "Active SAM.gov registration with current UEI number required for all federal grants" },
+      { label: "Evidence-Based Required", detail: "Must demonstrate evidence-based or evidence-informed approaches — your implementation science framework (CFIR 2.0, RE-AIM) is a strong differentiator" },
+    ],
+    competitiveEdge: [
+      "Justice Command Center with tract-level crime migration data — most applicants don't have live analytics",
+      "Dr. Flood's 'crime migrates with gentrification' framework backed by Census tract data from Buffalo, Wilmington, Austin",
+      "24-platform ecosystem provides wraparound services (health, education, workforce) that BJA values in reentry programs",
+      "Veteran-founded, Black-led organization — DOJ Priority 1 areas include serving communities of color",
+      "Implementation science approach (CFIR 2.0, RE-AIM) provides the evidence framework DOJ reviewers want to see",
+      "Existing workforce pathways (CHW, career explorer, credential tracking) serve as immediate employment pipelines for reentry population",
+      "RPLICE system provides built-in fidelity monitoring — can demonstrate program quality assurance from Day 1",
+    ],
+    sections: [
+      { id: "sca-narrative", name: "Program Narrative", description: "Reentry service model, mentoring design, evidence base, target population, and community partnerships", icon: FileText, status: "not-started" as ApprovalStatus, content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood + AI", pageLimit: "20 pages", wordCount: "8,000–10,000 words" },
+      { id: "sca-budget", name: "Budget Detail Worksheet & Narrative", description: "Detailed budget with justification aligned to BJA cost categories", icon: DollarSign, status: "not-started" as ApprovalStatus, content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood", pageLimit: "Per BJA template", wordCount: "2,000–3,000 words" },
+      { id: "sca-capabilities", name: "Organizational Capabilities", description: "TCAF capacity, track record, key personnel, facilities", icon: Building2, status: "not-started" as ApprovalStatus, content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood + AI", pageLimit: "5 pages", wordCount: "2,000–2,500 words" },
+      { id: "sca-data", name: "Data & Evidence Strategy", description: "Risk assessment tools, recidivism tracking, outcome measurement, Justice Command Center analytics", icon: BarChart3, status: "not-started" as ApprovalStatus, content: "", reviewNotes: "", lastUpdated: "", assignee: "AI + Dr. Flood Review", pageLimit: "5 pages", wordCount: "1,500–2,000 words" },
+      { id: "sca-mentoring", name: "Mentoring Program Design", description: "Structured mentoring model, mentor recruitment/training, peer mentor component", icon: Users, status: "not-started" as ApprovalStatus, content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood + AI", pageLimit: "5 pages", wordCount: "1,500–2,000 words" },
+      { id: "sca-letters", name: "Letters of Support", description: "Criminal justice agencies, employers, housing, treatment, community partners", icon: Handshake, status: "not-started" as ApprovalStatus, content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood", pageLimit: "No limit", wordCount: "300–500 words each" },
+    ],
+    phases: [
+      {
+        id: "collaborate" as PhaseId, name: "1. Collaborate & Research", description: "Understand BJA priorities, build reentry partnerships, gather local justice data", status: "active" as const,
+        tasks: [
+          { id: "sca-c1", task: "Verify SAM.gov registration is active and current", owner: "Dr. Flood", status: "pending" as const, dueDate: "April 10, 2026", guidance: "SAM.gov registration must be active before submitting any federal grant. Verify at sam.gov — search for The Collaborative Advocate Foundation. Ensure UEI number is current. Registration renewal takes 24-48 hours if expired." },
+          { id: "sca-c2", task: "Pull Travis County reentry data — incarceration rates, recidivism, demographics by census tract", owner: "AI", status: "pending" as const, dueDate: "April 12, 2026", guidance: "Use Justice Command Center data: Austin gentrification corridor tract-level analysis, crime migration patterns, demographic shifts. Pull Texas Department of Criminal Justice (TDCJ) recidivism data for Travis County.", aiCanHelp: true, aiAction: "Compile Travis County reentry data brief" },
+          { id: "sca-c3", task: "Contact Travis County Reentry Roundtable for partnership", owner: "Dr. Flood", status: "pending" as const, dueDate: "April 14, 2026", guidance: "Travis County has an active Reentry Roundtable coordinating services for returning citizens. Contact them to discuss partnership, letter of support, and referral pipeline. This demonstrates community integration." },
+          { id: "sca-c4", task: "Secure 3-5 second-chance employer commitments", owner: "Dr. Flood", status: "pending" as const, dueDate: "April 21, 2026", guidance: "Target: Goodwill Central Texas, H-E-B (known second-chance employer), Foundation Communities, Austin Resource Recovery, construction contractors. Need signed commitment letters specifying roles and number of positions." },
+          { id: "sca-c5", task: "Design mentoring program model with peer mentor component", owner: "Dr. Flood + AI", status: "pending" as const, dueDate: "April 18, 2026", guidance: "BJA specifically funds mentoring in SCA grants. Design a structured model: (1) peer mentors with lived experience of incarceration, (2) professional mentors from employer partners, (3) 12-month minimum mentoring relationship, (4) training curriculum for mentors.", aiCanHelp: true, aiAction: "Draft mentoring program framework" },
+        ],
+      },
+      {
+        id: "build" as PhaseId, name: "2. Build & Draft", description: "Write narrative, budget, evidence strategy, and compile documentation", status: "upcoming" as const,
+        tasks: [
+          { id: "sca-b1", task: "Draft program narrative with reentry service model", owner: "AI + Dr. Flood Review", status: "pending" as const, dueDate: "April 25, 2026" },
+          { id: "sca-b2", task: "Develop budget aligned to BJA cost categories", owner: "Dr. Flood", status: "pending" as const, dueDate: "April 27, 2026" },
+          { id: "sca-b3", task: "Write data/evidence strategy featuring Justice Command Center", owner: "AI + Dr. Flood Review", status: "pending" as const, dueDate: "April 25, 2026" },
+          { id: "sca-b4", task: "Document mentoring program design with training curriculum", owner: "Dr. Flood + AI", status: "pending" as const, dueDate: "April 25, 2026" },
+          { id: "sca-b5", task: "Compile organizational capabilities section", owner: "AI + Dr. Flood Review", status: "pending" as const, dueDate: "April 23, 2026" },
+        ],
+      },
+      {
+        id: "review" as PhaseId, name: "3. Review & Approve", description: "Dr. Flood review + RPLICE quality gate", status: "upcoming" as const,
+        tasks: [
+          { id: "sca-r1", task: "RPLICE quality review — CFIR 2.0 + RE-AIM assessment against narrative", owner: "RPLICE System", status: "pending" as const, dueDate: "April 30, 2026" },
+          { id: "sca-r2", task: "Dr. Flood full narrative review and approval", owner: "Dr. Flood", status: "pending" as const, dueDate: "May 2, 2026" },
+          { id: "sca-r3", task: "Budget review — verify BJA allowable costs compliance", owner: "Dr. Flood", status: "pending" as const, dueDate: "May 2, 2026" },
+          { id: "sca-r4", task: "Final compliance check against solicitation requirements", owner: "Dr. Flood + AI", status: "pending" as const, dueDate: "May 3, 2026" },
+        ],
+      },
+      {
+        id: "submit" as PhaseId, name: "4. Package & Submit", description: "Submit SF-424 on Grants.gov, then full application on JustGrants", status: "upcoming" as const,
+        tasks: [
+          { id: "sca-s1", task: "Submit SF-424 on Grants.gov by May 4 deadline", owner: "Dr. Flood", status: "pending" as const, dueDate: "May 4, 2026" },
+          { id: "sca-s2", task: "Submit full application on JustGrants by May 11 deadline", owner: "Dr. Flood", status: "pending" as const, dueDate: "May 11, 2026" },
+          { id: "sca-s3", task: "Confirm receipt and save confirmation numbers", owner: "Dr. Flood", status: "pending" as const, dueDate: "May 11, 2026" },
+        ],
+      },
+      {
+        id: "pre-execute" as PhaseId, name: "5. Pre-Execution Readiness", description: "Prepare for program launch if awarded (awards expected Sept-Oct 2026)", status: "upcoming" as const,
+        tasks: [
+          { id: "sca-p1", task: "Configure reentry tracking module in Justice Command Center", owner: "AI", status: "pending" as const, dueDate: "TBD" },
+          { id: "sca-p2", task: "Recruit and train peer mentors with lived experience", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD" },
+          { id: "sca-p3", task: "Formalize employer partnership agreements and onboarding", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD" },
+          { id: "sca-p4", task: "Set up BJA performance reporting in platform", owner: "AI", status: "pending" as const, dueDate: "TBD" },
+        ],
+      },
+    ],
+    preExecutionChecklist: [
+      { id: "sca-pe1", category: "Registration", item: "SAM.gov registration active", status: "verified" as const, notes: "", guidance: "Must be active before submission. Verify UEI number matches across Grants.gov and JustGrants.", resources: [{ label: "SAM.gov", url: "https://sam.gov" }] },
+      { id: "sca-pe2", category: "Registration", item: "Grants.gov account active", status: "pending" as const, notes: "", guidance: "Need active Grants.gov account to submit SF-424. Register at grants.gov if not already registered.", resources: [{ label: "Grants.gov", url: "https://www.grants.gov" }] },
+      { id: "sca-pe3", category: "Registration", item: "JustGrants account active", status: "pending" as const, notes: "", guidance: "DOJ uses JustGrants for full application. Separate from Grants.gov. Register at justgrants.usdoj.gov.", resources: [{ label: "JustGrants", url: "https://justgrants.usdoj.gov" }] },
+      { id: "sca-pe4", category: "Compliance", item: "501(c)(3) status confirmed", status: "verified" as const, notes: "EIN 41-3618003", guidance: "TCAF's 501(c)(3) status is current. Include IRS determination letter in application." },
+      { id: "sca-pe5", category: "Partnerships", item: "Criminal justice agency letters secured", status: "action-needed" as const, notes: "Contact Travis County Reentry Roundtable, probation/parole", guidance: "Need letters from local criminal justice agencies demonstrating collaboration and referral pipeline." },
+      { id: "sca-pe6", category: "Partnerships", item: "Second-chance employer commitments (3-5)", status: "action-needed" as const, notes: "Target Goodwill, H-E-B, Foundation Communities", guidance: "Need signed commitment letters from employers willing to hire justice-involved adults." },
+      { id: "sca-pe7", category: "Data", item: "Justice Command Center reentry data ready", status: "verified" as const, notes: "Tract-level crime migration analysis operational", guidance: "Justice Command Center already has Austin gentrification corridor analysis. Add reentry-specific metrics." },
+      { id: "sca-pe8", category: "Technology", item: "Reentry tracking module configured", status: "pending" as const, notes: "Configure in Justice Command Center", guidance: "Add reentry-specific tracking: risk assessments, mentoring contacts, employment placement, housing stability, recidivism monitoring." },
+    ],
+    winStrategy: {
+      differentiators: [
+        "Justice Command Center with live tract-level crime migration data — no other applicant has this",
+        "Implementation science framework (CFIR 2.0, RE-AIM) matches BJA's evidence-based requirements",
+        "24-platform ecosystem provides wraparound services (health, education, workforce) in one integrated system",
+        "Veteran-founded, Black-led organization serving communities most impacted by mass incarceration",
+        "Dr. Flood's research: 'crime migrates with gentrification' — original scholarly insight backed by Census data",
+        "Built-in fidelity monitoring via RPLICE — can demonstrate program quality assurance from Day 1",
+      ],
+      reviewerPriorities: [
+        "Evidence-based mentoring model with validated risk assessment",
+        "Strong community partnerships — criminal justice agencies, employers, housing, treatment",
+        "Data-driven approach to reducing recidivism with measurable outcomes",
+        "Organizational capacity to manage federal funds and reporting requirements",
+        "Services addressing multiple reentry needs: employment, housing, substance abuse, mental health",
+        "Cultural responsiveness and equity focus in service delivery",
+      ],
+      scoringTips: [
+        "Lead with tract-level data showing where returning citizens concentrate — reviewers rarely see this precision",
+        "Cite specific recidivism reduction targets with methodology for measurement",
+        "Name every partner with specific roles — don't be vague about collaboration",
+        "Show how the 24-platform ecosystem addresses BJA's preference for comprehensive wraparound services",
+        "Reference Dr. Flood's military service background — DOJ values veteran leadership",
+        "Include a logic model connecting activities → outputs → short-term outcomes → long-term recidivism reduction",
+      ],
+      commonPitfalls: [
+        "Vague mentoring plan — BJA wants structured, evidence-based mentoring with training and supervision",
+        "No risk assessment tool identified — must specify validated instrument (LSI-R, COMPAS, ORAS, etc.)",
+        "Missing housing component — housing is the #1 predictor of recidivism, cannot be overlooked",
+        "Budget misaligned with BJA cost categories — review solicitation budget instructions carefully",
+        "Not addressing sustainability after grant period — BJA wants to know what continues after funding ends",
+      ],
+    },
+  },
+  {
+    id: "tx-capital-foundation",
+    name: "TX Capital Foundation",
+    fullName: "Texas Capital Foundation Honors Awards — Veterans & First Responders + Education & Workforce Development",
+    funder: "Texas Capital Foundation",
+    amount: "$50,000 - $100,000",
+    deadline: "TBD — Contact Foundation",
+    deadlineUrgency: "on-track" as const,
+    icon: Award,
+    color: "text-emerald-600",
+    bgColor: "bg-emerald-50 dark:bg-emerald-950/30",
+    borderColor: "border-emerald-200 dark:border-emerald-800",
+    description: "Texas Capital Foundation awards $100K for Veterans & First Responders and $50K for Education & Workforce Development. TCAF qualifies for BOTH categories. Must serve low-to-moderate-income communities in Austin, Dallas, Fort Worth, Houston, or San Antonio with 3+ years of performance.",
+    referenceUrl: "https://texascapitalbank.com/foundation",
+    referenceLabel: "Texas Capital Foundation",
+    grantKnowledge: `Texas Capital Foundation Honors Awards — $50,000–$100,000.
+THREE CATEGORIES: (1) Housing Solutions — $50K, (2) Education & Workforce Development — $50K, (3) Veterans & First Responders — $100K.
+TCAF QUALIFIES FOR TWO: Veterans & First Responders ($100K) — veteran-founded organization serving veteran population. Education & Workforce Development ($50K) — ThriveUp Academy is literally a workforce development platform.
+ELIGIBILITY: 501(c)(3) or 501(c)(4) with 3+ year performance record. Must serve low-to-moderate-income communities within Texas Capital's service areas: Dallas, Fort Worth, Austin, Houston, San Antonio. Must be active in IRS Publication 78.
+ALSO AVAILABLE: Community Impact Grants — smaller grants aligned to CRA requirements, same focus areas.
+NOT ELIGIBLE: Political advocacy, for-profit orgs, municipalities, membership orgs, ticketed events.
+APPLICATION REQUIREMENTS: Financial statements, board member list, organization chart. Impact Statement required at conclusion of grant year.
+SUBMITTING ENTITY: The Collaborative Advocate Foundation — EIN 41-3618003, 501(c)(3), 17912 Stefano Drive, Pflugerville, TX 78660.
+WHY WE WIN: Veteran-founded (Dr. Terry Flood, U.S. Army veteran), Black-led, 501(c)(3) with 3+ years, serving low-to-moderate-income communities in Austin service area. We hit TWO of their three categories. 24-platform technology ecosystem demonstrates innovation and scale that most local nonprofits can't match.`,
+    essentials: [
+      { label: "Two Category Fit", detail: "TCAF qualifies for Veterans & First Responders ($100K) AND Education & Workforce Development ($50K) — can potentially apply for both", critical: true },
+      { label: "Austin Service Area", detail: "Pflugerville/Austin is within Texas Capital's service area — home court advantage", critical: true },
+      { label: "3+ Year Track Record", detail: "Must demonstrate minimum 3 years of program performance — ensure documentation is ready" },
+      { label: "Low-to-Moderate Income", detail: "Must serve LMI communities — your Census tract data proves this definitively" },
+      { label: "Financial Docs Required", detail: "Financial statements, board member list, and org chart must be submitted with application" },
+      { label: "Impact Statement Post-Award", detail: "Grantees must provide Impact Statement at conclusion of grant year — your platform tracks this automatically" },
+      { label: "Deadline TBD", detail: "Application cycle timing not publicly posted — contact foundation directly to get on the notification list" },
+    ],
+    competitiveEdge: [
+      "Veteran-founded AND workforce development — hits TWO of three focus categories",
+      "Based in Austin — Texas Capital service area with local community presence",
+      "24-platform technology ecosystem shows innovation that stands out from traditional nonprofits",
+      "Census tract data proves LMI community service — not just claiming it, showing it",
+      "Dr. Flood's U.S. Army service combined with 7-discipline academic foundation",
+      "Existing platform with measurable outcomes — not a startup or concept",
+    ],
+    sections: [
+      { id: "txcf-narrative", name: "Program Narrative", description: "Organization mission, program impact, community served, veteran connection", icon: FileText, status: "not-started" as ApprovalStatus, content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood + AI", pageLimit: "Per application format", wordCount: "3,000–5,000 words" },
+      { id: "txcf-financials", name: "Financial Statements", description: "Current financial statements demonstrating organizational health", icon: DollarSign, status: "not-started" as ApprovalStatus, content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood", pageLimit: "N/A", wordCount: "N/A" },
+      { id: "txcf-board", name: "Board Member List", description: "Current board of directors with affiliations", icon: Users, status: "not-started" as ApprovalStatus, content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood", pageLimit: "1-2 pages", wordCount: "N/A" },
+      { id: "txcf-orgchart", name: "Organization Chart", description: "Current organizational structure", icon: Layers, status: "not-started" as ApprovalStatus, content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood", pageLimit: "1 page", wordCount: "N/A" },
+      { id: "txcf-impact", name: "Impact Evidence", description: "3+ years of program performance data, outcomes, community testimonials", icon: BarChart3, status: "not-started" as ApprovalStatus, content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood + AI", pageLimit: "Per application format", wordCount: "1,500–2,500 words" },
+    ],
+    phases: [
+      {
+        id: "collaborate" as PhaseId, name: "1. Research & Contact", description: "Contact Texas Capital Foundation, understand timeline, prepare documentation", status: "active" as const,
+        tasks: [
+          { id: "txcf-c1", task: "Contact Texas Capital Foundation to get on application notification list", owner: "Dr. Flood", status: "pending" as const, dueDate: "April 7, 2026", guidance: "Visit texascapitalbank.com/foundation or call Texas Capital Bank's community relations department. Ask: (1) When does the next Honors Awards application cycle open? (2) How to apply for Community Impact Grants? (3) Can you apply for both Veterans and Education/Workforce categories?" },
+          { id: "txcf-c2", task: "Verify TCAF is active in IRS Publication 78", owner: "Dr. Flood", status: "pending" as const, dueDate: "April 7, 2026", guidance: "Search IRS Tax Exempt Organization Search (TEOS) at apps.irs.gov/app/eos/ for The Collaborative Advocate Foundation. Must appear in Publication 78 database.", resources: [{ label: "IRS TEOS", url: "https://apps.irs.gov/app/eos/" }] },
+          { id: "txcf-c3", task: "Compile 3+ years of program performance documentation", owner: "Dr. Flood + AI", status: "pending" as const, dueDate: "April 14, 2026", guidance: "Texas Capital requires 3-year track record. Gather: annual reports, program data, community impact metrics, testimonials, media coverage. Your platform dashboards can generate much of this.", aiCanHelp: true, aiAction: "Generate program performance summary from platform data" },
+          { id: "txcf-c4", task: "Prepare current financial statements", owner: "Dr. Flood", status: "pending" as const, dueDate: "April 14, 2026", guidance: "Need current financials — ideally audited or reviewed. If not audited, compiled statements from accountant plus most recent Form 990." },
+          { id: "txcf-c5", task: "Update board member list and org chart", owner: "Dr. Flood", status: "pending" as const, dueDate: "April 14, 2026" },
+        ],
+      },
+      {
+        id: "build" as PhaseId, name: "2. Build Application", description: "Draft narrative and compile supporting documentation", status: "upcoming" as const,
+        tasks: [
+          { id: "txcf-b1", task: "Draft Veterans & First Responders category narrative", owner: "AI + Dr. Flood Review", status: "pending" as const, dueDate: "TBD" },
+          { id: "txcf-b2", task: "Draft Education & Workforce Development category narrative", owner: "AI + Dr. Flood Review", status: "pending" as const, dueDate: "TBD" },
+          { id: "txcf-b3", task: "Compile LMI community service evidence with Census tract data", owner: "AI", status: "pending" as const, dueDate: "TBD", aiCanHelp: true, aiAction: "Generate LMI service evidence from Census data" },
+        ],
+      },
+      {
+        id: "review" as PhaseId, name: "3. Review & Approve", description: "Dr. Flood review before submission", status: "upcoming" as const,
+        tasks: [
+          { id: "txcf-r1", task: "Dr. Flood narrative review and approval", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD" },
+          { id: "txcf-r2", task: "Verify all required documents are complete", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD" },
+        ],
+      },
+      {
+        id: "submit" as PhaseId, name: "4. Submit Application", description: "Submit through Texas Capital Foundation portal", status: "upcoming" as const,
+        tasks: [
+          { id: "txcf-s1", task: "Submit application through foundation portal when cycle opens", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD" },
+          { id: "txcf-s2", task: "Confirm receipt", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD" },
+        ],
+      },
+      {
+        id: "pre-execute" as PhaseId, name: "5. Pre-Execution Readiness", description: "Prepare for impact reporting if awarded", status: "upcoming" as const,
+        tasks: [
+          { id: "txcf-p1", task: "Configure Impact Statement tracking for grant year", owner: "AI", status: "pending" as const, dueDate: "TBD" },
+          { id: "txcf-p2", task: "Set up quarterly reporting aligned to grant goals", owner: "Dr. Flood + AI", status: "pending" as const, dueDate: "TBD" },
+        ],
+      },
+    ],
+    preExecutionChecklist: [
+      { id: "txcf-pe1", category: "Compliance", item: "501(c)(3) status confirmed", status: "verified" as const, notes: "EIN 41-3618003", guidance: "TCAF's 501(c)(3) status is current." },
+      { id: "txcf-pe2", category: "Compliance", item: "Active in IRS Publication 78", status: "action-needed" as const, notes: "Verify at apps.irs.gov/app/eos/", guidance: "Must be searchable in IRS Tax Exempt Organization Search.", resources: [{ label: "IRS TEOS", url: "https://apps.irs.gov/app/eos/" }] },
+      { id: "txcf-pe3", category: "Documentation", item: "3+ year performance record documented", status: "action-needed" as const, notes: "Compile program data, outcomes, testimonials", guidance: "Foundation requires minimum 3-year track record of program performance." },
+      { id: "txcf-pe4", category: "Documentation", item: "Current financial statements ready", status: "pending" as const, notes: "", guidance: "Audited or reviewed financial statements preferred. At minimum, compiled statements + Form 990." },
+      { id: "txcf-pe5", category: "Documentation", item: "Board member list current", status: "pending" as const, notes: "", guidance: "List all current board members with professional affiliations." },
+      { id: "txcf-pe6", category: "Documentation", item: "Organization chart current", status: "pending" as const, notes: "", guidance: "Visual org chart showing reporting structure and key positions." },
+      { id: "txcf-pe7", category: "Location", item: "Austin service area confirmed", status: "verified" as const, notes: "Pflugerville, TX is within Austin service area", guidance: "Texas Capital Foundation serves Dallas, Fort Worth, Austin, Houston, San Antonio. Pflugerville is Austin metro." },
+    ],
+    winStrategy: {
+      differentiators: [
+        "Veteran-founded — qualifies for the $100K Veterans & First Responders category",
+        "Workforce development platform — also qualifies for $50K Education & Workforce category",
+        "Local Austin presence — Texas Capital Foundation values local community connection",
+        "24-platform technology ecosystem — stands out from traditional nonprofits",
+        "Census tract data proves LMI community service with precision",
+        "Black-led organization serving communities of color — equity focus",
+      ],
+      reviewerPriorities: [
+        "Demonstrated 3+ year track record with measurable outcomes",
+        "Direct services to low-to-moderate-income communities",
+        "Strong organizational capacity and financial health",
+        "Clear alignment to Veterans or Education/Workforce focus areas",
+        "Community impact that is sustainable beyond the grant period",
+      ],
+      scoringTips: [
+        "Lead with Dr. Flood's military service for the Veterans category — personal connection matters",
+        "Show the technology platform as a force multiplier — $100K goes further with existing infrastructure",
+        "Include Census tract maps showing exactly which LMI communities you serve",
+        "Emphasize that TCAF is Austin-based — local organizations get priority over national applicants",
+        "For Education/Workforce: highlight credential attainment data and career pathway completion rates",
+      ],
+      commonPitfalls: [
+        "Not having 3 years of documented performance data — start compiling now",
+        "Financial statements not current or professionally prepared",
+        "Describing plans instead of existing programs — they fund proven work",
+        "Not demonstrating direct service to LMI communities with data",
+      ],
+    },
+  },
+  {
+    id: "tx-health-resources",
+    name: "TX Health Resources",
+    fullName: "Texas Health Resources Community Impact Grants — Health Equity & Social Determinants",
+    funder: "Texas Health Resources",
+    amount: "$5,000,000 pool (varies per award)",
+    deadline: "2027-2028 RFP expected mid-2026",
+    deadlineUrgency: "on-track" as const,
+    icon: Heart,
+    color: "text-rose-600",
+    bgColor: "bg-rose-50 dark:bg-rose-950/30",
+    borderColor: "border-rose-200 dark:border-rose-800",
+    description: "Texas Health Resources awards strategic collaborative grants totaling $5M per cycle to drive transformative health equity improvements. Current 2025-2026 cycle is underway; the 2027-2028 RFP will be released in 2026. This is a WATCH LIST item — prepare now, apply when cycle opens.",
+    referenceUrl: "https://www.texashealth.org/community-health/community-impact/Grant-Opportunities",
+    referenceLabel: "Texas Health Community Impact — Grant Opportunities",
+    grantKnowledge: `Texas Health Resources Community Impact Grants — $5,000,000 total pool per 2-year cycle.
+STATUS: 2025-2026 cycle is CLOSED/IN PROGRESS. 2027-2028 RFP expected to be released in 2026.
+FOCUS AREAS: Access to care, health literacy, food security/nutrition, behavioral health, social determinants of health (SDoH). Must drive transformative, measurable changes in health equity.
+APPROACH: Strategic, collaborative grants — they want multi-organization partnerships, not solo programs. Community-driven solutions with data-driven approaches.
+WHY WE FIT: Sankofa Health (culturally responsive screening), PillScheduler (medication adherence), WholeMind Learning (mental health), AutoImmune Thrive (chronic disease), Speech Bridge (communication access). 7 health-focused platforms across the ecosystem. CHW workforce pipeline directly addresses access to care in underserved communities.
+SUBMITTING ENTITY: The Collaborative Advocate Foundation — EIN 41-3618003, 501(c)(3).
+WATCH LIST: Sign up for email notifications at texashealth.org/community-health/community-impact to be notified when 2027-2028 RFP drops.`,
+    essentials: [
+      { label: "WATCH LIST — Not Open Yet", detail: "2025-2026 cycle is underway. 2027-2028 RFP expected to release mid-to-late 2026. Sign up for notifications now.", critical: true },
+      { label: "$5M Pool", detail: "Strategic collaborative grants from a $5 million pool per 2-year cycle — substantial funding" },
+      { label: "Collaborative Required", detail: "Texas Health wants multi-organization partnerships, not solo applicants — start identifying health system partners now" },
+      { label: "Health Equity Focus", detail: "Access to care, health literacy, food security, behavioral health, SDoH — your 7 health platforms align directly" },
+      { label: "Data-Driven", detail: "Must demonstrate data-driven approach — your Census tract health disparity data and platform analytics are exactly what they want" },
+      { label: "CHW Pipeline", detail: "Your CHW workforce pipeline addresses their access-to-care priority — trained CHWs expand healthcare reach in underserved communities" },
+    ],
+    competitiveEdge: [
+      "7 health-focused platforms in the ecosystem — Sankofa, PillScheduler, WholeMind, AutoImmune Thrive, Speech Bridge, and more",
+      "CHW workforce pipeline directly addresses healthcare access gaps — train and deploy CHWs in underserved communities",
+      "Census tract health disparity data provides the evidence base Texas Health values",
+      "Implementation science framework ensures program fidelity and measurable outcomes",
+      "Existing technology infrastructure means grant funds go to services, not system-building",
+      "Culturally responsive health approaches — Sankofa methodology centers community voice",
+    ],
+    sections: [
+      { id: "txhr-prep", name: "Pre-Application Research", description: "Study 2025-2026 awardees, identify partnership opportunities, compile health disparity data", icon: Search, status: "not-started" as ApprovalStatus, content: "", reviewNotes: "", lastUpdated: "", assignee: "AI + Dr. Flood", pageLimit: "N/A", wordCount: "N/A" },
+      { id: "txhr-partners", name: "Partnership Development", description: "Identify and engage health system collaborative partners before RFP drops", icon: Handshake, status: "not-started" as ApprovalStatus, content: "", reviewNotes: "", lastUpdated: "", assignee: "Dr. Flood", pageLimit: "N/A", wordCount: "N/A" },
+      { id: "txhr-data", name: "Health Disparity Data Brief", description: "Census tract health data for Central Texas — access gaps, chronic disease, behavioral health, SDoH indicators", icon: BarChart3, status: "not-started" as ApprovalStatus, content: "", reviewNotes: "", lastUpdated: "", assignee: "AI", pageLimit: "5-10 pages", wordCount: "2,000–3,000 words" },
+      { id: "txhr-narrative", name: "Draft Narrative Framework", description: "Pre-draft narrative framework that can be adapted when RFP requirements are known", icon: FileText, status: "not-started" as ApprovalStatus, content: "", reviewNotes: "", lastUpdated: "", assignee: "AI + Dr. Flood Review", pageLimit: "TBD (per RFP)", wordCount: "TBD" },
+    ],
+    phases: [
+      {
+        id: "collaborate" as PhaseId, name: "1. Pre-RFP Preparation", description: "Get on notification list, study past awardees, build partnerships BEFORE the RFP drops", status: "active" as const,
+        tasks: [
+          { id: "txhr-c1", task: "Sign up for Texas Health Community Impact email notifications", owner: "Dr. Flood", status: "pending" as const, dueDate: "April 7, 2026", guidance: "Go to texashealth.org/community-health/community-impact/Grant-Opportunities and sign up for the email distribution list. This ensures you know the moment the 2027-2028 RFP is released.", resources: [{ label: "THR Grant Opportunities", url: "https://www.texashealth.org/community-health/community-impact/Grant-Opportunities" }] },
+          { id: "txhr-c2", task: "Research 2025-2026 cycle awardees — what did they fund?", owner: "AI", status: "pending" as const, dueDate: "April 14, 2026", guidance: "Study the current round's awardees to understand what Texas Health values: types of organizations, program models, geographic focus, partnership structures. This intelligence shapes your application.", aiCanHelp: true, aiAction: "Research THR 2025-2026 grant awardees" },
+          { id: "txhr-c3", task: "Identify collaborative health system partners for joint application", owner: "Dr. Flood", status: "pending" as const, dueDate: "May 2026", guidance: "Texas Health wants collaborative applications. Consider: CommUnityCare Health Centers (FQHC), Integral Care (LMHA), Central Health, Lone Star Circle of Care, People's Community Clinic. A partnership with an established health system dramatically strengthens your application." },
+          { id: "txhr-c4", task: "Compile Central Texas health disparity data by census tract", owner: "AI", status: "pending" as const, dueDate: "May 2026", guidance: "Pull CDC PLACES data, County Health Rankings, and Census ACS data for Travis County census tracts. Focus on: uninsured rates, chronic disease prevalence, mental health indicators, food access, transportation barriers.", aiCanHelp: true, aiAction: "Compile Travis County health disparity data" },
+        ],
+      },
+      {
+        id: "build" as PhaseId, name: "2. Draft Framework", description: "Pre-build narrative framework and partnership commitments so you're ready when RFP drops", status: "upcoming" as const,
+        tasks: [
+          { id: "txhr-b1", task: "Draft narrative framework with health equity focus", owner: "AI + Dr. Flood Review", status: "pending" as const, dueDate: "TBD" },
+          { id: "txhr-b2", task: "Develop CHW pipeline program design for health access expansion", owner: "Dr. Flood + AI", status: "pending" as const, dueDate: "TBD" },
+          { id: "txhr-b3", task: "Secure letters of interest from collaborative partners", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD" },
+        ],
+      },
+      {
+        id: "review" as PhaseId, name: "3. RFP Response (When Released)", description: "Adapt framework to specific RFP requirements and submit", status: "upcoming" as const,
+        tasks: [
+          { id: "txhr-r1", task: "Analyze RFP requirements and adapt narrative framework", owner: "Dr. Flood + AI", status: "pending" as const, dueDate: "TBD" },
+          { id: "txhr-r2", task: "RPLICE quality review of final application", owner: "RPLICE System", status: "pending" as const, dueDate: "TBD" },
+        ],
+      },
+      {
+        id: "submit" as PhaseId, name: "4. Submit Application", description: "Submit when 2027-2028 cycle opens", status: "upcoming" as const,
+        tasks: [
+          { id: "txhr-s1", task: "Submit application through THR portal", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD" },
+        ],
+      },
+      {
+        id: "pre-execute" as PhaseId, name: "5. Pre-Execution Readiness", description: "Prepare for collaborative program launch if awarded", status: "upcoming" as const,
+        tasks: [
+          { id: "txhr-p1", task: "Configure health equity tracking dashboards", owner: "AI", status: "pending" as const, dueDate: "TBD" },
+          { id: "txhr-p2", task: "Formalize collaborative partner agreements", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD" },
+          { id: "txhr-p3", task: "Deploy CHW training cohort if program includes CHW pipeline", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD" },
+        ],
+      },
+    ],
+    preExecutionChecklist: [
+      { id: "txhr-pe1", category: "Notification", item: "Email notification list signup", status: "action-needed" as const, notes: "Sign up at texashealth.org", guidance: "Critical first step — ensures you know when the 2027-2028 RFP drops.", resources: [{ label: "THR Grant Opportunities", url: "https://www.texashealth.org/community-health/community-impact/Grant-Opportunities" }] },
+      { id: "txhr-pe2", category: "Compliance", item: "501(c)(3) status confirmed", status: "verified" as const, notes: "EIN 41-3618003", guidance: "TCAF's 501(c)(3) status is current." },
+      { id: "txhr-pe3", category: "Partnerships", item: "Health system collaborative partners identified", status: "action-needed" as const, notes: "Need FQHC, hospital, or LMHA partner", guidance: "Texas Health wants collaborative applications. Identify and approach partners NOW, before the RFP drops." },
+      { id: "txhr-pe4", category: "Data", item: "Health disparity data compiled for Central Texas", status: "pending" as const, notes: "", guidance: "Census tract health data for Travis County — the foundation expects data-driven applications." },
+      { id: "txhr-pe5", category: "Technology", item: "Health platform demos ready", status: "verified" as const, notes: "Sankofa, PillScheduler, WholeMind, AutoImmune Thrive all operational", guidance: "All health platforms are live and can be demoed to Texas Health reviewers if needed." },
+    ],
+    winStrategy: {
+      differentiators: [
+        "7 health-focused platforms already operational — not building from scratch",
+        "CHW workforce pipeline trains the workforce that expands health access",
+        "Census tract health disparity data provides precision that most applicants lack",
+        "Implementation science framework ensures measurable, replicable outcomes",
+        "Technology infrastructure means grant funds go to direct services, not system-building",
+      ],
+      reviewerPriorities: [
+        "Collaborative approach with multiple organizations working together",
+        "Data-driven program design with measurable health equity outcomes",
+        "Sustainability beyond the grant period — how does this continue?",
+        "Community voice and culturally responsive approaches",
+        "Focus on social determinants of health, not just clinical care",
+      ],
+      scoringTips: [
+        "Partner with an established FQHC or hospital system — collaborative applications win",
+        "Show Census tract maps with health disparity data overlaid — visual evidence is powerful",
+        "Emphasize the CHW pipeline as a sustainable workforce solution, not a temporary program",
+        "Connect each health platform to a specific SDoH domain Texas Health cares about",
+        "Reference their 2025-2026 awardees and show how your work extends or complements their portfolio",
+      ],
+      commonPitfalls: [
+        "Applying solo instead of as a collaborative — Texas Health explicitly wants partnerships",
+        "Being too technology-focused — lead with health outcomes, not platform features",
+        "Not demonstrating community engagement and input in program design",
+        "Missing the RFP release because you weren't on the notification list",
+      ],
+    },
+  },
 ];
 
 function StatusBadge({ status }: { status: ApprovalStatus }) {
