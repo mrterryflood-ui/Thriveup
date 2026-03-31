@@ -1620,6 +1620,7 @@ export function registerEcosystemConnectorRoutes(app: Express) {
       "pinnacle-business-conglomerate": "https://black-business-hub.replit.app",
       "pillscheduler": "https://pill-reminder.replit.app",
       "shield-atlas": "https://secure-assure.replit.app",
+      "ad-targeting": "https://agent-target.replit.app",
     };
 
     const pingPromises = platforms.map(async (platform) => {
