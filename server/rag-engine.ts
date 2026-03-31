@@ -19,13 +19,14 @@ const ECOSYSTEM_KNOWLEDGE: KnowledgeChunk[] = [
     keywords: ["thriveup", "ecosystem", "overview", "platforms", "terry flood", "austin", "manor", "pflugerville", "how many", "what is"],
   },
   {
-    source: "ecosystem-overview", category: "grants", title: "Active Grant Portfolio — 4 Grants",
-    content: `ThriveUp Academy has 4 active grant opportunities:
+    source: "ecosystem-overview", category: "grants", title: "Active Grant Portfolio — 5 Grants",
+    content: `ThriveUp Academy has 5 active grant opportunities:
 1. WIOA (Workforce Innovation & Opportunity Act) — $200K–$500K. Focus: workforce training, career pathways, job readiness, employer engagement. Aligned platforms: 8.
 2. Foundation Grant — $100K–$500K. Focus: community impact, education equity, wraparound services. Aligned platforms: 3.
 3. St. David's Foundation — up to $1M, opens March 30, 2026. Focus: health equity, maternal health, mental health, community health workers. Aligned platforms: 12.
-4. SSG Fox VA Grant — $750K, deadline June 12–18, 2026. Focus: veteran services, suicide prevention, transition support, peer support. Aligned platforms: 10.`,
-    keywords: ["grants", "wioa", "foundation", "st davids", "ssg fox", "funding", "deadline", "money", "amount"],
+4. SSG Fox VA Grant — $750K, deadline June 12–18, 2026. Focus: veteran services, suicide prevention, transition support, peer support. Aligned platforms: 10.
+5. St. David's We All Benefit 2.0 — Building Economic Stability. LOI due April 27, 2026 at 5 PM CT. If LOI accepted, full application due June 18, 2026 at 5 PM CT. Focus: income supports, food security, healthcare access, increasing enrollment in public benefits for historically marginalized communities. SEPARATE from the general St. David's health equity grant — both can be pursued simultaneously. Aligned platforms: LifeBridge (resource navigation), MCE (workforce/business development), Whole-Person Health (healthcare access), Sankofa (health equity), CHW Dashboard, community resource directory. Central TX 5-county focus. More info: https://lnkd.in/gPkAUS-u`,
+    keywords: ["grants", "wioa", "foundation", "st davids", "ssg fox", "funding", "deadline", "money", "amount", "we all benefit", "economic stability", "benefits enrollment", "food security"],
   },
   {
     source: "ecosystem-overview", category: "regional", title: "Regional Hub Strategy — Austin, Manor, Pflugerville",

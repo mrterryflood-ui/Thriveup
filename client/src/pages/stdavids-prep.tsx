@@ -758,7 +758,7 @@ export default function StDavidsPrep() {
             </h1>
           </div>
           <p className="text-muted-foreground text-lg max-w-3xl">
-            We All Benefit 2.0: Building Economic Stability — Everything you need to complete your submission. 
+            Everything you need to complete your St. David's Foundation submissions. 
             Print any document, send any email, make any call. These are ready to use.
           </p>
           <div className="flex flex-wrap gap-2 mt-4">
@@ -768,6 +768,65 @@ export default function StDavidsPrep() {
             <Badge variant="outline" className="text-sm">LOI-First Process</Badge>
           </div>
         </div>
+
+        <Card className="mb-8 border-green-200 dark:border-green-800 bg-green-50/50 dark:bg-green-950/20" data-testid="card-we-all-benefit-2">
+          <CardContent className="p-6">
+            <div className="flex items-start gap-3">
+              <DollarSign className="h-6 w-6 text-green-600 mt-0.5 shrink-0" />
+              <div className="w-full">
+                <div className="flex items-center gap-2 mb-2">
+                  <h3 className="font-bold text-green-900 dark:text-green-200 text-lg">NEW: We All Benefit 2.0 — Building Economic Stability</h3>
+                  <Badge className="bg-green-600 text-white">APPLICATION OPEN</Badge>
+                </div>
+                <p className="text-sm text-green-800 dark:text-green-300 mb-3">
+                  Separate grant opportunity from St. David's Foundation investing in community-informed organizations providing core economic stability services for historically marginalized communities.
+                </p>
+                <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+                  <div className="bg-white/60 dark:bg-green-900/30 rounded-lg p-3">
+                    <p className="text-xs font-medium text-green-600 dark:text-green-400 uppercase">LOI Deadline</p>
+                    <p className="font-bold text-green-900 dark:text-green-200">April 27, 5 PM CT</p>
+                  </div>
+                  <div className="bg-white/60 dark:bg-green-900/30 rounded-lg p-3">
+                    <p className="text-xs font-medium text-green-600 dark:text-green-400 uppercase">Full App (If Invited)</p>
+                    <p className="font-bold text-green-900 dark:text-green-200">June 18, 5 PM CT</p>
+                  </div>
+                  <div className="bg-white/60 dark:bg-green-900/30 rounded-lg p-3">
+                    <p className="text-xs font-medium text-green-600 dark:text-green-400 uppercase">Focus Areas</p>
+                    <p className="font-bold text-green-900 dark:text-green-200 text-sm">Income, Food, Health</p>
+                  </div>
+                  <div className="bg-white/60 dark:bg-green-900/30 rounded-lg p-3">
+                    <p className="text-xs font-medium text-green-600 dark:text-green-400 uppercase">More Info</p>
+                    <a href="https://lnkd.in/gPkAUS-u" target="_blank" rel="noopener noreferrer" className="font-bold text-green-700 dark:text-green-300 underline text-sm" data-testid="link-wab2-info">lnkd.in/gPkAUS-u</a>
+                  </div>
+                </div>
+                <div className="space-y-2 text-sm text-green-800 dark:text-green-300">
+                  <p className="font-semibold">TCAF Alignment — Why We're a Strong Fit:</p>
+                  <div className="grid sm:grid-cols-2 gap-2">
+                    <div className="flex items-start gap-2">
+                      <CheckCircle2 className="h-4 w-4 text-green-600 mt-0.5 shrink-0" />
+                      <span><strong>Income Supports</strong> — LifeBridge navigation, MCE business development, workforce platforms</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle2 className="h-4 w-4 text-green-600 mt-0.5 shrink-0" />
+                      <span><strong>Food Security</strong> — Community resource coordination via Resource Directory</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle2 className="h-4 w-4 text-green-600 mt-0.5 shrink-0" />
+                      <span><strong>Healthcare Access</strong> — Whole Person Health, Sankofa Health Suite, CHW Dashboard</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle2 className="h-4 w-4 text-green-600 mt-0.5 shrink-0" />
+                      <span><strong>Benefits Enrollment</strong> — AI navigator + case management for SNAP, Medicaid, CHIP, WIC, housing</span>
+                    </div>
+                  </div>
+                  <p className="text-xs text-green-700 dark:text-green-400 mt-2 italic">
+                    This is a SEPARATE opportunity from the general St. David's health equity grant. Both can be pursued simultaneously.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         <Card className="mb-8 border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/20">
           <CardContent className="p-6">

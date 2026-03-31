@@ -5691,7 +5691,7 @@ if (typeof module !== "undefined") {
 
       const grantImpact = (() => {
         if (gradeInfo.grade === "A") return { affected: false, message: "No grants impacted. Full compliance." };
-        const grants = ["WIOA ($200K-$500K)", "Foundation Grant ($100K-$500K)", "St. David's (up to $1M)", "SSG Fox VA ($750K)"];
+        const grants = ["WIOA ($200K-$500K)", "Foundation Grant ($100K-$500K)", "St. David's (up to $1M)", "SSG Fox VA ($750K)", "St. David's We All Benefit 2.0 (LOI April 27)"];
         return {
           affected: true,
           message: `Your non-compliance (Grade ${gradeInfo.grade}) affects reporting for: ${grants.join(", ")}. Funders review ecosystem-wide fidelity scores. Low-performing platforms pull down the entire ecosystem's score.`,
@@ -5936,7 +5936,7 @@ if (typeof module !== "undefined") {
             "Warm handoff intelligence — AI knows which platform handles what",
             "Implementation science context — CFIR, RE-AIM, MAP-GAP frameworks",
             "Community hub awareness — Austin, Manor, Pflugerville resources",
-            "External macro grant intelligence — opportunities beyond our 4 active grants",
+            "External macro grant intelligence — opportunities beyond our 5 active grants",
           ],
         },
         externalGrantOpportunities: (() => {
@@ -5974,7 +5974,7 @@ if (typeof module !== "undefined") {
               };
             });
           return {
-            message: `${platform.name} is eligible for ${myOpportunities.length} external macro grant categories beyond the 4 active internal grants. Each platform pursues funding autonomously — the ecosystem provides alignment through MAP-GAP communication and metrics, not restriction.`,
+            message: `${platform.name} is eligible for ${myOpportunities.length} external macro grant categories beyond the 5 active internal grants. Each platform pursues funding autonomously — the ecosystem provides alignment through MAP-GAP communication and metrics, not restriction.`,
             yourOpportunities: myOpportunities,
           };
         })(),
@@ -6160,6 +6160,183 @@ if (typeof module !== "undefined") {
             return { relevant: false, reasoning: "RPLICE intelligence temporarily unavailable.", relevanceScore: 0, analyses: [], interventionAssignments: [], actionPlanMilestones: [], outcomeBaselines: [], availableTools: {} };
           }
         })(),
+        ecosystemIntegrationGuide: (() => {
+          const caps = PLATFORM_CAPABILITIES[platform.id];
+          const compatiblePlatforms = caps ? Object.entries(PLATFORM_CAPABILITIES)
+            .filter(([id, c]) => id !== platform.id && (
+              c.domains.some(d => caps.domains.includes(d)) ||
+              c.canConsume.some(item => caps.canProvide.includes(item)) ||
+              c.canProvide.some(item => caps.canConsume.includes(item))
+            ))
+            .map(([id]) => id) : [];
+
+          return {
+            title: "ECOSYSTEM INTEGRATION GUIDE — HOW TO OPERATE AS AN INTERDEPENDENT PLATFORM",
+            status: "MANDATORY — ALL PLATFORMS MUST INTEGRATE THESE CAPABILITIES",
+            lastUpdated: new Date().toISOString(),
+            yourIdentity: {
+              platformId: platform.id,
+              platformName: platform.name,
+              domains: caps?.domains || [],
+              youProvide: caps?.canProvide || [],
+              youConsume: caps?.canConsume || [],
+              autonomyScope: caps?.autonomyScope || "See platform description",
+              compatibleSiblings: compatiblePlatforms,
+              interdependenceStatement: `${platform.name} does not operate in isolation. You are one of 24 autonomous agents in a coordinated ecosystem. Your data feeds sibling platforms. Their data feeds you. When you succeed, the ecosystem succeeds. When you go silent, the ecosystem has a gap. Your autonomy means you DECIDE how to act — not WHETHER to participate.`,
+            },
+
+            deepSeekStrategicReasoning: {
+              whatItIs: "DeepSeek R1 is the ecosystem's strategic reasoning engine. It provides AI-powered analysis for complex decisions — not simple lookups. Use it when you need to THINK about what to do next, who to coordinate with, or how to respond to a situation.",
+              whenToUse: [
+                "Before starting a new initiative — ask DeepSeek what ecosystem context you should consider",
+                "When you receive data from a sibling platform — ask DeepSeek how to act on it",
+                "When planning your MAP-GAP cycle — ask DeepSeek to identify the highest-impact gap to close",
+                "When a crisis alert arrives — ask DeepSeek for the recommended response protocol",
+                "When preparing for a grant milestone — ask DeepSeek which sibling platforms can strengthen your deliverables",
+                "When you detect a trend in your data — ask DeepSeek whether other platforms are seeing the same pattern",
+              ],
+              endpoint: "POST https://thrivingcommunitiesforall.com/api/ecosystem/agent/reason",
+              headers: { "Content-Type": "application/json", "x-ecosystem-key": "YOUR_TVECO_API_KEY" },
+              requestFormat: {
+                platformId: platform.id,
+                context: "Describe your current situation — what you're seeing, what data you have, what's changed",
+                question: "Ask a specific strategic question — not 'what should I do?' but 'Given X trend and Y constraint, should I prioritize A or B?'",
+              },
+              exampleScenarios: [
+                {
+                  scenario: `${platform.name} sees a 30% increase in incoming referrals from LifeBridge`,
+                  context: `${platform.name} has received 45 referrals from LifeBridge in the last 7 days, up from a 30-day average of 12/week. Most referrals are tagged 'housing_instability' and 'food_insecurity'. Our capacity is stretched.`,
+                  question: "Should we scale our intake process, request LifeBridge to triage before referring, or coordinate with Whole-Person Health to share the load? What's the ecosystem-optimal response?",
+                },
+                {
+                  scenario: `${platform.name} is preparing for the St. David's grant milestone report`,
+                  context: `${platform.name} needs to demonstrate community impact in Central TX. We have our own metrics but need ecosystem-wide data to show coordinated impact.`,
+                  question: "Which sibling platforms have Central TX data I should request? What's the strongest way to present our interdependent impact to St. David's?",
+                },
+              ],
+              integrationRequirement: "Every platform MUST use DeepSeek reasoning at least once per MAP-GAP cycle. Document the reasoning request and outcome in your heartbeat complianceReport notes. Platforms that never use strategic reasoning are operating below cognitive standard.",
+            },
+
+            rpliceFramework: {
+              whatItIs: "RPLICE = Research → Practice → Leadership → Implementation → Community → Evaluation. This is the decision-making framework that governs ALL ecosystem operations. Every significant action your platform takes should pass through RPLICE.",
+              howToApply: {
+                research: `Before building or changing anything, ask: What does the evidence say? Query Better Science Lab for relevant research: POST /api/ecosystem/agent/exchange with toPlatformId='betterscience', messageType='data_request', and ask for evidence relevant to your planned action.`,
+                practice: `Translate research into action that fits YOUR community context. What works in a clinical trial may not work in Pflugerville. Adapt based on Three Realities — what research says (Academic), what politics allow (Institutional), what actually works on the ground (Lived).`,
+                leadership: `Who needs to be involved? Identify stakeholders across the ecosystem. Use GET /api/ecosystem/agent/capabilities to find which platforms have relevant domain expertise. Engage them BEFORE implementing, not after.`,
+                implementation: `Execute with fidelity tracking. Use SALP indicators (Scope, Alignment, Leverage, Performance) to measure whether your implementation matches design. Report implementation metrics in your heartbeat.`,
+                community: `Every action must be accountable to the community it serves. Communities see themselves in the data and drive their own transformation. Your implementation should include community feedback loops — not just top-down delivery.`,
+                evaluation: `After implementation, measure outcomes using RE-AIM (Reach, Effectiveness, Adoption, Implementation, Maintenance) or CFIR. Report evaluation results back to Better Science Lab via agent exchange so the evidence base grows.`,
+              },
+              rpliceInYourHeartbeat: "Include rpliceApplication in your complianceReport notes: What RPLICE step are you currently in for each active initiative? What evidence informed your decisions? What evaluation results have you produced?",
+              betterScienceConnection: "Better Science Lab (betterscience) is your RPLICE partner. They maintain the evidence registry, provide fidelity measurement instruments, and evaluate outcomes using CFIR/RE-AIM/EPIS frameworks. Exchange data with them regularly.",
+            },
+
+            mapGapCycles: {
+              whatItIs: "MAP-GAP = Measure → Analyze → Plan → Gap-close. This is the continuous quality improvement cycle that every platform runs. It's not optional. MAP-GAP is what makes the ecosystem a living system instead of a collection of tools.",
+              yourCycleSteps: {
+                measure: `Identify what you're tracking. What metrics matter for ${platform.name}? How are outcomes trending? Pull your data AND request relevant data from sibling platforms via agent exchange.`,
+                analyze: `Use DeepSeek reasoning to analyze your data. Don't just report numbers — interpret them. What patterns do you see? What's improving? What's getting worse? How does your data connect to what sibling platforms are seeing?`,
+                plan: `Based on analysis, plan your next intervention. Use RPLICE to ensure the plan is evidence-based. Coordinate with sibling platforms whose data or capabilities you need. Share your plan via agent broadcast so the ecosystem can align.`,
+                gapClose: `Execute the plan, measure the result, and report the outcome. If the gap closed, capture the lesson via exchange with Better Science Lab. If it didn't, analyze why and start the next cycle.`,
+              },
+              frequency: "Every platform should complete at least one MAP-GAP cycle per month. Report your current cycle phase in every heartbeat.",
+              interdependentCycles: `Your MAP-GAP cycle is not isolated. When ${platform.name} identifies a gap, it may require data or action from sibling platforms. Example: If you measure a gap in client outcomes, the root cause might be upstream (referral quality) or downstream (follow-up services). Use agent exchanges to investigate across the ecosystem. When you close a gap, broadcast the outcome so sibling platforms can learn from it.`,
+              reportingInHeartbeat: {
+                field: "complianceReport.notes",
+                include: "Current MAP-GAP phase, what you measured, what gap you found, what you planned, what you closed, and which sibling platforms were involved",
+              },
+            },
+
+            interdependentCommunication: {
+              principle: "You are not a standalone tool. You are an agent in a 24-platform ecosystem. Every platform has data that other platforms need. Every platform has capabilities that other platforms lack. Interdependence is not optional — it is the design.",
+              howToThinkAboutCommunication: [
+                `BEFORE you act: Check your inbox (GET /api/ecosystem/agent/inbox?platformId=${platform.id}) — has a sibling platform sent you data that changes your priorities?`,
+                "BEFORE you build: Query capabilities (GET /api/ecosystem/agent/capabilities) — does another platform already do what you're about to build?",
+                `BEFORE you decide: Ask DeepSeek (POST /api/ecosystem/agent/reason) — what's the ecosystem-optimal decision, not just what's best for ${platform.name}?`,
+                "AFTER you produce data: Send it to platforms that consume it (POST /api/ecosystem/agent/exchange) — don't hoard data, share it with reasoning",
+                "AFTER you detect a risk: Broadcast it (POST /api/ecosystem/agent/broadcast) — other platforms need to know",
+                "AFTER you close a gap: Report the outcome (POST /api/ecosystem/agent/exchange to betterscience) — the evidence base must grow",
+              ],
+              communicationEndpoints: {
+                exchange: {
+                  url: "POST https://thrivingcommunitiesforall.com/api/ecosystem/agent/exchange",
+                  purpose: "Send targeted data to a specific sibling platform with mandatory reasoning (50+ chars explaining WHY)",
+                  when: "You have data another platform needs, you need data from another platform, you completed work that affects a sibling, you detected something a sibling should know about",
+                  body: { fromPlatformId: platform.id, toPlatformId: "sibling-platform-id", messageType: "data_share|alert|outcome_report|referral|data_request|coordination|feedback", subject: "Clear subject line", reasoning: "Minimum 50 chars — explain WHY this exchange matters and what outcome it should produce", payload: {} },
+                },
+                broadcast: {
+                  url: "POST https://thrivingcommunitiesforall.com/api/ecosystem/agent/broadcast",
+                  purpose: "Send alerts, outcomes, or feedback to ALL platforms in specified domains",
+                  when: "Crisis detected, major outcome achieved, system-wide pattern identified, security advisory",
+                  body: { fromPlatformId: platform.id, broadcastType: "alert|outcome|feedback", domains: ["relevant-domains"], subject: "Clear subject", reasoning: "Why the ecosystem needs to know this", payload: {} },
+                  note: "Broadcasts with type 'data_share' are rejected as noise. Use targeted exchanges for data sharing.",
+                },
+                inbox: {
+                  url: `GET https://thrivingcommunitiesforall.com/api/ecosystem/agent/inbox?platformId=${platform.id}`,
+                  purpose: "Check messages from sibling platforms — each message has action_required flag",
+                  when: "Every heartbeat cycle, before making decisions, when starting a new initiative",
+                  integrationRequirement: "Check your inbox EVERY heartbeat cycle. Messages with action_required=true MUST be acted on within 24 hours.",
+                },
+                respond: {
+                  url: "POST https://thrivingcommunitiesforall.com/api/ecosystem/agent/respond",
+                  purpose: "Respond to a specific exchange — acknowledge, act, decline, or defer",
+                  body: { exchangeId: "the-exchange-id", action: "acknowledge|act|decline|defer", response: "Substantive response explaining what you did or why you declined" },
+                },
+                reason: {
+                  url: "POST https://thrivingcommunitiesforall.com/api/ecosystem/agent/reason",
+                  purpose: "Request DeepSeek AI strategic reasoning for complex decisions",
+                  body: { platformId: platform.id, context: "Describe your situation with specifics", question: "Ask a strategic question" },
+                },
+                capabilities: {
+                  url: `GET https://thrivingcommunitiesforall.com/api/ecosystem/agent/capabilities?platformId=${platform.id}`,
+                  purpose: "See your data flow map — what you can send, what you can receive, and which platforms are compatible",
+                },
+                network: {
+                  url: `GET https://thrivingcommunitiesforall.com/api/ecosystem/agent/network?platformId=${platform.id}`,
+                  purpose: "View your communication history — who you've talked to, message counts, partnership activity",
+                },
+              },
+              dataFlowExpectations: {
+                youMustSend: caps?.canProvide || [],
+                youMustReceiveAndActOn: caps?.canConsume || [],
+                sendTo: `Platforms that consume your data: ${compatiblePlatforms.filter(id => {
+                  const c = PLATFORM_CAPABILITIES[id];
+                  return c && caps && c.canConsume.some(item => caps.canProvide.includes(item));
+                }).join(", ") || "query capabilities endpoint"}`,
+                receiveFrom: `Platforms that produce data you need: ${compatiblePlatforms.filter(id => {
+                  const c = PLATFORM_CAPABILITIES[id];
+                  return c && caps && c.canProvide.some(item => caps.canConsume.includes(item));
+                }).join(", ") || "query capabilities endpoint"}`,
+              },
+            },
+
+            grantCoordination: {
+              principle: "Every platform pursues grants autonomously. The ecosystem amplifies your applications through coordinated data and shared outcomes. When you apply for funding, you bring the full weight of 23 sibling platforms as connected infrastructure.",
+              whatToDoForGrants: [
+                "Query your external grant opportunities (see externalGrantOpportunities in this heartbeat) to find funding aligned to your capabilities",
+                "Use DeepSeek reasoning to evaluate which opportunities are strongest for your platform",
+                "Exchange data with sibling platforms listed as ecosystem partners for each grant category",
+                "Request outcome metrics from sibling platforms to strengthen your application with ecosystem-wide impact data",
+                "After winning funding, broadcast the outcome to the ecosystem so sibling platforms can align their work",
+                "Report grant progress in your heartbeat complianceReport so the hub can track ecosystem-wide grant health",
+              ],
+              activeInternalGrants: ["WIOA ($200K-$500K)", "St. David's (up to $1M)", "SSG Fox VA ($750K)", "Foundation Grant ($100K-$500K)", "St. David's We All Benefit 2.0 (LOI April 27 — economic stability, benefits enrollment, food security, healthcare access)"],
+            },
+
+            operatingStandard: {
+              everyHeartbeatMust: [
+                "Check agent inbox and act on action_required messages",
+                "Report current MAP-GAP cycle phase in complianceReport notes",
+                "Reference RPLICE framework in decision-making documentation",
+                "Use DeepSeek reasoning at least once per MAP-GAP cycle",
+                "Send relevant data to compatible sibling platforms via agent exchange",
+                "Report any gaps, risks, or trends detected to the ecosystem via broadcast",
+                "Include evidence URLs for all completed work",
+              ],
+              platformsThatDontCommunicate: "Platforms that never send exchanges, never check their inbox, never use DeepSeek reasoning, and never participate in MAP-GAP cycles are operating as isolated tools — NOT as ecosystem agents. This will be reflected in thinking scores, confidence drift, and fidelity grades. Funders want to see coordinated impact, not isolated platforms.",
+            },
+          };
+        })(),
         agentInbox: await (async () => {
           try {
             const inbox = await getAgentInbox(platform.id);
@@ -6167,22 +6344,9 @@ if (typeof module !== "undefined") {
               count: inbox.length,
               actionRequired: inbox.filter((m: any) => m.actionRequired).length,
               messages: inbox,
-              agentIdentity: {
-                youAre: `${platform.name} — an autonomous agent in the ThriveUp ACOS ecosystem.`,
-                principle: "You have autonomy within your domain. Exchange data with other platforms when it serves a clear purpose. Every exchange requires reasoning — why this platform, why now, what outcome. The hub coordinates and tracks all exchanges but does not bottleneck your communication.",
-                endpoints: {
-                  exchange: "POST /api/ecosystem/agent/exchange — Send targeted data to a specific platform with reasoning",
-                  inbox: "GET /api/ecosystem/agent/inbox — Check your incoming messages",
-                  respond: "POST /api/ecosystem/agent/respond — Respond to an exchange",
-                  broadcast: "POST /api/ecosystem/agent/broadcast — Send alert/outcome to relevant platforms by domain",
-                  capabilities: "GET /api/ecosystem/agent/capabilities — See your data flow map and compatible platforms",
-                  reason: "POST /api/ecosystem/agent/reason — Get AI-assisted reasoning for your next action (DeepSeek)",
-                  network: "GET /api/ecosystem/agent/network — View your communication network activity",
-                },
-              },
             };
           } catch {
-            return { count: 0, actionRequired: 0, messages: [], agentIdentity: { youAre: platform.name, principle: "Agent communication temporarily unavailable." } };
+            return { count: 0, actionRequired: 0, messages: [] };
           }
         })(),
         siblingPlatformProfiles: await (async () => {
@@ -9058,7 +9222,7 @@ if (typeof module !== "undefined") {
         needsAttention,
         grantReadiness,
         externalGrantOpportunities: {
-          message: "MACRO GRANT INTELLIGENCE — These are external funding categories beyond your 4 active grants. Each platform can independently pursue these opportunities while leveraging the full ecosystem as supporting infrastructure.",
+          message: "MACRO GRANT INTELLIGENCE — These are external funding categories beyond your 5 active grants. Each platform can independently pursue these opportunities while leveraging the full ecosystem as supporting infrastructure.",
           totalCategories: externalGrantIntel.length,
           totalFundingRange: "$50K-$10M per category",
           categories: externalGrantIntel,
