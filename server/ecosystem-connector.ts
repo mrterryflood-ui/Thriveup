@@ -1612,30 +1612,13 @@ export function registerEcosystemConnectorRoutes(app: Express) {
     const results: Array<{ id: string; name: string; url: string; status: string; responseMs: number; wokenUp: boolean; error?: string }> = [];
 
     const REPLIT_DEPLOY_URLS: Record<string, string> = {
-      "wholemind": "https://wholemindlearning.replit.app",
-      "video-creator-ai": "https://videocreatorai.replit.app",
-      "ad-targeting": "https://adtargetingplatforms.replit.app",
-      "perfectly-different": "https://perfectlydifferent.replit.app",
-      "pinnacle-business-conglomerate": "https://pinnaclebusinessconglomerate.replit.app",
-      "lifebridge": "https://lifebridge.replit.app",
-      "m2c": "https://m2c.replit.app",
-      "sankofa-maternal-health": "https://sankofamaternalhealth.replit.app",
-      "safereport": "https://safereport.replit.app",
-      "autoimmune-thrive": "https://autoimmunethrive.replit.app",
-      "speech-bridge": "https://lexibridge.replit.app",
-      "sankofa": "https://sankofahealth.replit.app",
-      "sankofa-mens-health": "https://sankofamenshealth.replit.app",
-      "safecognicare": "https://safecognicare.replit.app",
-      "sankofa-feminine-health": "https://sankofafemininehealth.replit.app",
-      "mce": "https://mce.replit.app",
-      "isss": "https://isss.replit.app",
-      "whole-person-health": "https://wholepersonhealth.replit.app",
-      "betterscience": "https://betterscience.replit.app",
-      "shield-atlas": "https://shieldatlas.replit.app",
-      "pillscheduler": "https://pillscheduler.replit.app",
-      "collaborative-advocate": "https://collaborativeadvocate.replit.app",
-      "ecosystem-nexus": "https://ecosystemnexus.replit.app",
-      "code-canvas": "https://codecanvas.replit.app",
+      "video-creator-ai": "https://video-creator-ai.replit.app",
+      "autoimmune-thrive": "https://autoimmune-thrive.replit.app",
+      "speech-bridge": "https://speech-bridge.replit.app",
+      "code-canvas": "https://code-canvas.replit.app",
+      "ecosystem-nexus": "https://ecosystem-nexus.replit.app",
+      "pinnacle-business-conglomerate": "https://black-business-hub.replit.app",
+      "pillscheduler": "https://pill-reminder.replit.app",
     };
 
     const pingPromises = platforms.map(async (platform) => {
