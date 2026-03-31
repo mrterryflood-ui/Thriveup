@@ -1939,10 +1939,7 @@ export function registerEcosystemConnectorRoutes(app: Express) {
       const compliant = platformReports.filter(p => p.grade === "A" || p.grade === "B");
 
       if (escalationsSent > 0 || nonCompliant.length > 5) {
-        await sendEcosystemUpdate(
-          `Compliance Enforcement Report — ${nonCompliant.length} Non-Compliant, ${escalationsSent} Escalations`,
-          buildEnforcementSummaryEmail(platformReports, escalationsSent, cycleStart)
-        );
+        console.log(`[Enforcement] Report: ${nonCompliant.length} non-compliant, ${escalationsSent} escalations — stored in system (not emailed)`);
       }
 
       console.log(`[Enforcement] Cycle complete: ${compliant.length} compliant, ${atRisk.length} at-risk, ${nonCompliant.length} non-compliant, ${autoRemediatedTotal} auto-remediated, ${escalationsSent} escalations sent, ${decayedCount} stale heartbeats`);
@@ -2009,11 +2006,7 @@ ${level >= 3 ? "<li>Platform may be suspended from ecosystem operations</li>" : 
 <br/><p><strong>— ThriveUp Academy Compliance Enforcement</strong></p>
 </div>`;
 
-    await sendEcosystemUpdate(
-      `ESCALATION Level ${level}: ${platform.name} — ${hoursNonCompliant}h Non-Compliant (Grade ${grade})`,
-      html
-    );
-    console.log(`[Enforcement] Escalation Level ${level} sent for ${platform.name} (${hoursNonCompliant}h non-compliant, Grade ${grade})`);
+    console.log(`[Enforcement] Escalation Level ${level} for ${platform.name} (${hoursNonCompliant}h non-compliant, Grade ${grade}) — stored in system (not emailed)`);
   }
 
   function buildEnforcementSummaryEmail(
