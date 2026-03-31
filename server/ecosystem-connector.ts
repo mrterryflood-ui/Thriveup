@@ -1619,6 +1619,7 @@ export function registerEcosystemConnectorRoutes(app: Express) {
       "ecosystem-nexus": "https://ecosystem-nexus.replit.app",
       "pinnacle-business-conglomerate": "https://black-business-hub.replit.app",
       "pillscheduler": "https://pill-reminder.replit.app",
+      "shield-atlas": "https://secure-assure.replit.app",
     };
 
     const pingPromises = platforms.map(async (platform) => {
