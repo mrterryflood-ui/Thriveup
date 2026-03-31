@@ -3,6 +3,8 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "wouter";
+import SectionTutorial from "@/components/section-tutorial";
+import { SECTION_TUTORIALS } from "@/lib/tutorial-content";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -2691,6 +2693,7 @@ export default function RpliceToolsPage() {
           Research, Planning, Learning & Implementation Center of Excellence
         </p>
       </div>
+      <SectionTutorial {...SECTION_TUTORIALS["rplice-tools"]} />
 
       <Tabs defaultValue="ai-analysis" className="space-y-6">
         <TabsList className="flex-wrap">

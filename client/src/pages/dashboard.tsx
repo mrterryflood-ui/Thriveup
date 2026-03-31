@@ -2,6 +2,8 @@ import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { Card } from "@/components/ui/card";
+import SectionTutorial from "@/components/section-tutorial";
+import { SECTION_TUTORIALS } from "@/lib/tutorial-content";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -118,6 +120,7 @@ export default function DashboardPage() {
         description="ThriveUp Academy — Keep exploring and growing!"
         actions={<TrainingGuideButton moduleId="dashboard" />}
       />
+      <SectionTutorial {...SECTION_TUTORIALS.dashboard} />
 
       {isNewUser && (
         <Card className="p-4 sm:p-6 mb-6 border-primary/20 bg-primary/5" data-testid="card-getting-started">

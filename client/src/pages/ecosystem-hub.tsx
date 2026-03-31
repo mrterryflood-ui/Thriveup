@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import SectionTutorial from "@/components/section-tutorial";
+import { SECTION_TUTORIALS } from "@/lib/tutorial-content";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -509,6 +511,7 @@ function FullPortfolioTab() {
 
   return (
     <div className="space-y-6">
+      <SectionTutorial {...SECTION_TUTORIALS["ecosystem-hub"]} />
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
         <Card data-testid="stat-portfolio-platforms">
           <CardContent className="pt-3 pb-3 text-center">

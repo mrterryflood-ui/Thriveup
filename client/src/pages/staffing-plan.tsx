@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
+import SectionTutorial from "@/components/section-tutorial";
+import { SECTION_TUTORIALS } from "@/lib/tutorial-content";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -164,6 +166,7 @@ export default function StaffingPlanPage() {
 
   return (
     <div className="p-4 sm:p-6 max-w-6xl mx-auto space-y-6">
+      <SectionTutorial {...SECTION_TUTORIALS["staffing-plan"]} />
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold" data-testid="text-staffing-title">Staffing Plan</h1>

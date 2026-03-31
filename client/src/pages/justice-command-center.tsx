@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import SectionTutorial from "@/components/section-tutorial";
+import { SECTION_TUTORIALS } from "@/lib/tutorial-content";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -3397,6 +3399,9 @@ export default function JusticeCommandCenter() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800">
+      <div className="px-6 pt-4">
+        <SectionTutorial {...SECTION_TUTORIALS["justice-command-center"]} />
+      </div>
       <div className="bg-gradient-to-r from-slate-900 via-blue-900/40 to-slate-900 border-b border-slate-700 px-6 py-8">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center gap-3 mb-2">

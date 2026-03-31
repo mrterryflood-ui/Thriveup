@@ -3,6 +3,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Link } from "wouter";
+import SectionTutorial from "@/components/section-tutorial";
+import { SECTION_TUTORIALS } from "@/lib/tutorial-content";
 import {
   GraduationCap, Building2, Globe, Heart, Users, Target, Sparkles,
   ArrowRight, DollarSign, Shield, BarChart3, Briefcase, TrendingUp,
@@ -112,6 +114,9 @@ const competitiveAdvantages = [
 export default function BusinessPlanPage() {
   return (
     <div className="min-h-screen">
+      <div className="px-4 sm:px-6 pt-4">
+        <SectionTutorial {...SECTION_TUTORIALS["business-plan"]} />
+      </div>
       <section className="relative overflow-hidden py-14 px-4 sm:py-24 sm:px-6">
         <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-violet-950 to-indigo-950" />
         <div className="relative mx-auto max-w-5xl text-center">

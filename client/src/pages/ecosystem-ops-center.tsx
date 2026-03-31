@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import SectionTutorial from "@/components/section-tutorial";
+import { SECTION_TUTORIALS } from "@/lib/tutorial-content";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -295,6 +297,7 @@ export default function EcosystemOpsCenterPage() {
 
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-8" data-testid="ecosystem-ops-center-page">
+      <SectionTutorial {...SECTION_TUTORIALS["ops-center"]} />
       <PageHeader
         title="Ecosystem Operations Center"
         description={`Real-time monitoring of all ${liveStatus?.summary.total || ""} platforms — who's online, who's responding, who needs attention.`}

@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import SectionTutorial from "@/components/section-tutorial";
+import { SECTION_TUTORIALS } from "@/lib/tutorial-content";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -724,6 +726,7 @@ export default function PresentationsPage() {
 
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-10" data-testid="presentations-page">
+      <SectionTutorial {...SECTION_TUTORIALS["presentations"]} />
       <PageHeader
         title="Presentations Hub"
         description="Downloadable, print-ready materials for funders, stakeholders, and partners"

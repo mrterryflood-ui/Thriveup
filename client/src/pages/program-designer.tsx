@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { TrainingGuideButton } from "@/components/training-guide";
+import SectionTutorial from "@/components/section-tutorial";
+import { SECTION_TUTORIALS } from "@/lib/tutorial-content";
 import { Link } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -789,6 +791,7 @@ export default function ProgramDesignerPage() {
 
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-6" data-testid="page-program-designer">
+      <SectionTutorial {...SECTION_TUTORIALS["program-designer"]} />
       <div>
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <h1 className="text-2xl font-bold flex items-center gap-2" data-testid="text-page-title">

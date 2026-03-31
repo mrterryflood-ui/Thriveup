@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Link } from "wouter";
+import SectionTutorial from "@/components/section-tutorial";
+import { SECTION_TUTORIALS } from "@/lib/tutorial-content";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -3561,6 +3563,7 @@ function GrantRemindersChecklist({ grants }: { grants: typeof GRANT_PACKAGES }) 
 
   return (
     <div className="space-y-6">
+      <SectionTutorial {...SECTION_TUTORIALS["grant-packages"]} />
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card className="border-l-4 border-l-red-500">
           <CardContent className="p-4">

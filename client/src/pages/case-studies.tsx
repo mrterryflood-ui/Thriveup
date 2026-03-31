@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Link } from "wouter";
+import SectionTutorial from "@/components/section-tutorial";
+import { SECTION_TUTORIALS } from "@/lib/tutorial-content";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -681,6 +683,7 @@ export default function CaseStudiesPage() {
 
   return (
     <div className="p-6 max-w-6xl mx-auto space-y-6" data-testid="page-case-studies">
+      <SectionTutorial {...SECTION_TUTORIALS["case-studies"]} />
       <div>
         <div className="flex items-center gap-2 flex-wrap">
           <h1 className="text-2xl font-bold flex items-center gap-2" data-testid="text-page-title">

@@ -1,5 +1,7 @@
 import { useState, useMemo } from "react";
 import { TrainingGuideButton } from "@/components/training-guide";
+import SectionTutorial from "@/components/section-tutorial";
+import { SECTION_TUTORIALS } from "@/lib/tutorial-content";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { queryClient, apiRequest } from "@/lib/queryClient";
@@ -1216,7 +1218,8 @@ export default function ProgramEnginePage() {
   const [selectedProgramId, setSelectedProgramId] = useState<number | null>(null);
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
+    <div className="p-6 max-w-5xl mx-auto space-y-6">
+      <SectionTutorial {...SECTION_TUTORIALS["program-engine"]} />
       {view === "list" && (
         <ProgramList
           onSelect={(id) => { setSelectedProgramId(id); setView("dashboard"); }}
