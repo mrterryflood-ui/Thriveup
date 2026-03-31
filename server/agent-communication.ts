@@ -4,7 +4,7 @@ import { agentExchanges, ecosystemPlatforms } from "@shared/schema";
 import { eq, and, desc, or, sql, gte } from "drizzle-orm";
 import { generateAIJSON } from "./ai-provider";
 
-const PLATFORM_CAPABILITIES: Record<string, {
+export const PLATFORM_CAPABILITIES: Record<string, {
   domains: string[];
   canProvide: string[];
   canConsume: string[];

@@ -7,7 +7,7 @@ import { z } from "zod";
 import { seedEcosystemDirectives } from "./ecosystem-directives-seed";
 import { sendEcosystemUpdate } from "./email-service";
 import { generateRpliceHeartbeatIntelligence } from "./ecosystem-rplice-bridge";
-import { getAgentInbox } from "./agent-communication";
+import { getAgentInbox, PLATFORM_CAPABILITIES } from "./agent-communication";
 
 const heartbeatSchema = z.object({
   platformId: z.string().max(100).optional(),
