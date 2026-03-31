@@ -49,61 +49,69 @@ interface NavItem {
 
 const communityIntelItems: NavItem[] = [
   { title: "Dashboard", url: "/dashboard", icon: Home },
-  { title: "Directive Compliance", url: "/directive-compliance", icon: ClipboardCheck },
-  { title: "Transparency Dashboard", url: "/transparency", icon: Activity },
   { title: "Community", url: "/community", icon: Globe },
+  { title: "Community Map", url: "/community-map", icon: Map },
   { title: "Resource Finder", url: "/resources", icon: MapPin },
   { title: "Impact Dashboard", url: "/impact", icon: TrendingUp },
+  { title: "Transparency Dashboard", url: "/transparency", icon: Activity },
+  { title: "Directive Compliance", url: "/directive-compliance", icon: ClipboardCheck },
 ];
 
 const workforceSolutionsItems: NavItem[] = [
   { title: "Workforce Dashboard", url: "/workforce-dashboard", icon: BarChart3 },
   { title: "Workforce Training", url: "/workforce-training", icon: GraduationCap },
   { title: "Workforce Assessment", url: "/workforce-assessment", icon: ClipboardCheck },
-  { title: "Employer Connections", url: "/workforce-employers", icon: Building2 },
   { title: "Career Explorer", url: "/academy/careers", icon: Briefcase },
+  { title: "Employer Connections", url: "/workforce-employers", icon: Building2 },
   { title: "Mentor Network", url: "/academy/mentors", icon: Users },
   { title: "Find Mentor/Partner", url: "/academy/mentor-finder", icon: Handshake },
   { title: "My Pathway", url: "/academy/pathway", icon: Route },
   { title: "Dream Design", url: "/academy/dreams", icon: Target },
-  { title: "Justice Command Center", url: "/justice-command-center", icon: Shield },
-  { title: "Reentry Dashboard", url: "/reentry", icon: Shield },
-  { title: "Community Partners", url: "/partners", icon: Handshake },
-  { title: "Collaboration Hub", url: "/collaboration-hub", icon: Building2 },
-  { title: "For Justice Partners", url: "/justice-partners", icon: Scale },
 ];
 
-const coalitionItems: NavItem[] = [
+const justiceReentryItems: NavItem[] = [
+  { title: "Justice Command Center", url: "/justice-command-center", icon: Shield },
+  { title: "Reentry Dashboard", url: "/reentry", icon: Scale },
+  { title: "For Justice Partners", url: "/justice-partners", icon: Handshake },
+];
+
+const partnershipItems: NavItem[] = [
   { title: "Coalition Dashboard", url: "/coalition", icon: Users },
+  { title: "Collaboration Hub", url: "/collaboration-hub", icon: Building2 },
+  { title: "Community Partners", url: "/partners", icon: Handshake },
 ];
 
 const programMgmtItems: NavItem[] = [
   { title: "Program Engine", url: "/program-engine", icon: Zap },
-  { title: "PM Academy", url: "/pm-academy", icon: GraduationCap },
+  { title: "Program Designer", url: "/program-designer", icon: Target },
   { title: "Program Management", url: "/program-management", icon: Briefcase },
   { title: "Program Lifecycle", url: "/program-lifecycle", icon: RefreshCw },
-  { title: "Program Designer", url: "/program-designer", icon: Target },
+  { title: "PM Academy", url: "/pm-academy", icon: GraduationCap },
   { title: "MCE Contracts", url: "/mce-contracts", icon: Building2 },
 ];
 
 const grantEngineItems: NavItem[] = [
   { title: "Grant Hub", url: "/grants", icon: Target },
+  { title: "Grant Packages", url: "/grant-packages", icon: Package },
+  { title: "St. David's Prep", url: "/stdavids-prep", icon: Heart },
+  { title: "Narrative Builder", url: "/grant-narrative", icon: FileText },
   { title: "Ecosystem Hub", url: "/ecosystem", icon: Globe },
   { title: "Ecosystem Story", url: "/ecosystem-story", icon: BookMarked },
   { title: "Logic Model", url: "/logic-model", icon: Route },
-  { title: "Narrative Builder", url: "/grant-narrative", icon: FileText },
   { title: "Advisory Board", url: "/advisory-board", icon: Users },
   { title: "Staffing Plan", url: "/staffing-plan", icon: Briefcase },
+  { title: "Stakeholder Deck", url: "/presentations", icon: Presentation },
+  { title: "E-Sign Center", url: "/esign", icon: PenTool },
+  { title: "APEX Accelerators", url: "/apex-accelerators", icon: Landmark },
+  { title: "Ops Center", url: "/ops-center", icon: Activity },
+  { title: "Ecosystem AI", url: "/ecosystem-ai", icon: Brain },
+];
+
+const dataReportingItems: NavItem[] = [
+  { title: "Platform Metrics", url: "/platform-metrics", icon: BarChart3 },
   { title: "Pilot Dashboard", url: "/pilot", icon: Users },
   { title: "Dosage Report", url: "/dosage", icon: Activity },
   { title: "Outcome Reporting", url: "/outcomes", icon: FileBarChart },
-  { title: "Stakeholder Deck", url: "/presentations", icon: Presentation },
-  { title: "Platform Metrics", url: "/platform-metrics", icon: BarChart3 },
-  { title: "APEX Accelerators", url: "/apex-accelerators", icon: Landmark },
-  { title: "Grant Packages", url: "/grant-packages", icon: Package },
-  { title: "E-Sign Center", url: "/esign", icon: PenTool },
-  { title: "Ops Center", url: "/ops-center", icon: Activity },
-  { title: "Ecosystem AI", url: "/ecosystem-ai", icon: Brain },
 ];
 
 const regionalHubItems: NavItem[] = [
@@ -124,7 +132,6 @@ const aiToolsItems: NavItem[] = [
   { title: "Subjects", url: "/subjects", icon: GraduationCap },
   { title: "Achievements", url: "/achievements", icon: Award },
   { title: "Certificates", url: "/certificates", icon: ScrollText },
-  { title: "Community Map", url: "/community-map", icon: Map },
   { title: "Roku & CTV Ads", url: "/roku-ads", icon: Smartphone },
   { title: "Video Pipeline", url: "/video-pipeline", icon: Film },
 ];
@@ -256,7 +263,7 @@ function groupContainsActive(location: string, items: NavItem[]): boolean {
 
 function NavSection({ label, items, location }: { label: string; items: NavItem[]; location: string }) {
   const containsActive = groupContainsActive(location, items);
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
   const resolvedOpen = isOpen || containsActive;
   const testId = `trigger-sidebar-${label.toLowerCase().replace(/\s+/g, '-')}`;
 
@@ -384,13 +391,15 @@ export function AppSidebar() {
 
         <NavSection label="Community Intelligence" items={communityIntelItems} location={location} />
         <NavSection label="Workforce Solutions" items={workforceSolutionsItems} location={location} />
-        <NavSection label="Coalition" items={coalitionItems} location={location} />
-        <NavSection label="Program Management" items={programMgmtItems} location={location} />
+        <NavSection label="Criminal Justice & Reentry" items={justiceReentryItems} location={location} />
+        <NavSection label="Partnerships & Coalitions" items={partnershipItems} location={location} />
         <NavSection label="Grant Engine" items={grantEngineItems} location={location} />
-        <NavSection label="Regional Hubs" items={regionalHubItems} location={location} />
-        <NavSection label="AI Tools" items={aiToolsItems} location={location} />
+        <NavSection label="Data & Reporting" items={dataReportingItems} location={location} />
+        <NavSection label="Program Management" items={programMgmtItems} location={location} />
         <NavSection label="Prevention" items={preventionItems} location={location} />
         <NavSection label="Health & Wellness" items={healthWellnessItems} location={location} />
+        <NavSection label="Regional Hubs" items={regionalHubItems} location={location} />
+        <NavSection label="AI Tools" items={aiToolsItems} location={location} />
         <NavSection label="Research & Implementation" items={researchItems} location={location} />
         <NavSection label="Case Management" items={caseManagementItems} location={location} />
         {isAuthenticated && (
