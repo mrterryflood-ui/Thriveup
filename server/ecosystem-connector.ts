@@ -1611,6 +1611,33 @@ export function registerEcosystemConnectorRoutes(app: Express) {
     const platforms = await db.select().from(ecosystemPlatforms);
     const results: Array<{ id: string; name: string; url: string; status: string; responseMs: number; wokenUp: boolean; error?: string }> = [];
 
+    const REPLIT_DEPLOY_URLS: Record<string, string> = {
+      "wholemind": "https://wholemindlearning.replit.app",
+      "video-creator-ai": "https://videocreatorai.replit.app",
+      "ad-targeting": "https://adtargetingplatforms.replit.app",
+      "perfectly-different": "https://perfectlydifferent.replit.app",
+      "pinnacle-business-conglomerate": "https://pinnaclebusinessconglomerate.replit.app",
+      "lifebridge": "https://lifebridge.replit.app",
+      "m2c": "https://m2c.replit.app",
+      "sankofa-maternal-health": "https://sankofamaternalhealth.replit.app",
+      "safereport": "https://safereport.replit.app",
+      "autoimmune-thrive": "https://autoimmunethrive.replit.app",
+      "speech-bridge": "https://lexibridge.replit.app",
+      "sankofa": "https://sankofahealth.replit.app",
+      "sankofa-mens-health": "https://sankofamenshealth.replit.app",
+      "safecognicare": "https://safecognicare.replit.app",
+      "sankofa-feminine-health": "https://sankofafemininehealth.replit.app",
+      "mce": "https://mce.replit.app",
+      "isss": "https://isss.replit.app",
+      "whole-person-health": "https://wholepersonhealth.replit.app",
+      "betterscience": "https://betterscience.replit.app",
+      "shield-atlas": "https://shieldatlas.replit.app",
+      "pillscheduler": "https://pillscheduler.replit.app",
+      "collaborative-advocate": "https://collaborativeadvocate.replit.app",
+      "ecosystem-nexus": "https://ecosystemnexus.replit.app",
+      "code-canvas": "https://codecanvas.replit.app",
+    };
+
     const pingPromises = platforms.map(async (platform) => {
       const start = Date.now();
       let status = "offline";
@@ -1618,31 +1645,39 @@ export function registerEcosystemConnectorRoutes(app: Express) {
       let error: string | undefined;
       let wokenUp = false;
 
-      // Check if platform was previously offline/unknown — if ping succeeds, it was woken up
       const wasSleeping = platform.healthStatus === "offline" || platform.healthStatus === "unknown";
 
-      try {
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 12000);
-        const response = await fetch(platform.url, {
-          method: "GET",
-          signal: controller.signal,
-          redirect: "follow",
-          headers: { "User-Agent": "ThriveUp-Ecosystem-Hub/3.0 (Platform-Pinger)" },
-        });
-        clearTimeout(timeout);
-        responseMs = Date.now() - start;
+      const urlsToTry = [platform.url];
+      const replitUrl = REPLIT_DEPLOY_URLS[platform.id];
+      if (replitUrl && replitUrl !== platform.url) {
+        urlsToTry.push(replitUrl);
+      }
 
-        if (response.status < 500) {
-          status = "online";
-          wokenUp = wasSleeping;
-        } else {
-          status = "degraded";
+      for (const url of urlsToTry) {
+        try {
+          const controller = new AbortController();
+          const timeout = setTimeout(() => controller.abort(), 12000);
+          const response = await fetch(url, {
+            method: "GET",
+            signal: controller.signal,
+            redirect: "follow",
+            headers: { "User-Agent": "ThriveUp-Ecosystem-Hub/3.0 (Platform-Pinger)" },
+          });
+          clearTimeout(timeout);
+          responseMs = Date.now() - start;
+
+          if (response.status < 500) {
+            status = "online";
+            wokenUp = wasSleeping;
+            break;
+          } else {
+            status = "degraded";
+          }
+        } catch (err: any) {
+          responseMs = Date.now() - start;
+          error = err.name === "AbortError" ? "Timeout (12s)" : (err.message || "Connection failed");
+          status = "offline";
         }
-      } catch (err: any) {
-        responseMs = Date.now() - start;
-        error = err.name === "AbortError" ? "Timeout (12s)" : (err.message || "Connection failed");
-        status = "offline";
       }
 
       // Update platform health in DB
