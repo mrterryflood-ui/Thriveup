@@ -6315,7 +6315,7 @@ if (typeof module !== "undefined") {
                   leadPlatforms: ["thriveup", "isss", "m2c", "mce", "pinnacle-business-conglomerate"],
                   supportPlatforms: ["lifebridge", "whole-person-health", "collaborative-advocate"],
                   dataPlatforms: ["betterscience", "ecosystem-nexus"],
-                  notRelevantTo: ["shield-atlas", "safereport", "video-creator-ai", "ad-targeting", "pillscheduler", "autoimmune-thrive", "safecognicare", "sankofa-feminine-health", "sankofa-maternal-health", "sankofa-mens-health"],
+                  notRelevantTo: ["shield-atlas", "safereport", "video-creator-ai", "ad-targeting", "pillscheduler", "autoimmune-thrive", "safecognicare", "sankofa-feminine-health", "sankofa-maternal-health", "sankofa-mens-health", "code-canvas"],
                   whatThisGrantNeeds: "Workforce outcome data — job placements, credential completions, employer engagement metrics, wage gains, retention rates.",
                 },
                 "st-davids-health": {
@@ -6326,7 +6326,7 @@ if (typeof module !== "undefined") {
                   leadPlatforms: ["whole-person-health", "sankofa", "sankofa-maternal-health", "sankofa-feminine-health", "sankofa-mens-health"],
                   supportPlatforms: ["lifebridge", "perfectly-different", "safecognicare", "autoimmune-thrive", "pillscheduler"],
                   dataPlatforms: ["betterscience", "ecosystem-nexus"],
-                  notRelevantTo: ["shield-atlas", "mce", "pinnacle-business-conglomerate", "m2c", "video-creator-ai", "ad-targeting", "safereport"],
+                  notRelevantTo: ["shield-atlas", "mce", "pinnacle-business-conglomerate", "m2c", "video-creator-ai", "ad-targeting", "safereport", "code-canvas"],
                   whatThisGrantNeeds: "Health outcome data — screenings conducted, maternal outcomes, mental health access, CHW deployments, community voice evidence, SDOH improvements in Travis/Williamson/Hays/Bastrop/Caldwell counties.",
                 },
                 "st-davids-wab2": {
@@ -6337,7 +6337,7 @@ if (typeof module !== "undefined") {
                   leadPlatforms: ["lifebridge", "whole-person-health", "thriveup"],
                   supportPlatforms: ["sankofa", "mce", "collaborative-advocate", "speech-bridge"],
                   dataPlatforms: ["betterscience", "ecosystem-nexus"],
-                  notRelevantTo: ["shield-atlas", "safereport", "video-creator-ai", "ad-targeting", "pinnacle-business-conglomerate", "safecognicare", "wholemind", "perfectly-different"],
+                  notRelevantTo: ["shield-atlas", "safereport", "video-creator-ai", "ad-targeting", "pinnacle-business-conglomerate", "safecognicare", "wholemind", "perfectly-different", "code-canvas"],
                   whatThisGrantNeeds: "Benefits enrollment data — SNAP, Medicaid, CHIP, WIC, housing voucher enrollment rates, food access metrics, income stability indicators, community-informed program design evidence.",
                 },
                 "ssg-fox": {
@@ -6348,7 +6348,7 @@ if (typeof module !== "undefined") {
                   leadPlatforms: ["m2c", "whole-person-health", "collaborative-advocate"],
                   supportPlatforms: ["lifebridge", "shield-atlas", "sankofa-mens-health", "safecognicare"],
                   dataPlatforms: ["betterscience", "safereport"],
-                  notRelevantTo: ["mce", "pinnacle-business-conglomerate", "sankofa-feminine-health", "sankofa-maternal-health", "wholemind", "video-creator-ai", "ad-targeting", "autoimmune-thrive", "pillscheduler"],
+                  notRelevantTo: ["mce", "pinnacle-business-conglomerate", "sankofa-feminine-health", "sankofa-maternal-health", "wholemind", "video-creator-ai", "ad-targeting", "autoimmune-thrive", "pillscheduler", "code-canvas"],
                   whatThisGrantNeeds: "Veteran outcome data — C-SSRS screenings, transition milestones, peer support engagement, crisis interventions, employment outcomes, housing stability for veterans.",
                 },
                 "foundation": {
@@ -6359,7 +6359,7 @@ if (typeof module !== "undefined") {
                   leadPlatforms: ["thriveup", "isss", "wholemind"],
                   supportPlatforms: ["lifebridge", "perfectly-different", "whole-person-health"],
                   dataPlatforms: ["betterscience", "ecosystem-nexus"],
-                  notRelevantTo: ["shield-atlas", "safereport", "video-creator-ai", "ad-targeting", "pinnacle-business-conglomerate", "mce"],
+                  notRelevantTo: ["shield-atlas", "safereport", "video-creator-ai", "ad-targeting", "pinnacle-business-conglomerate", "mce", "code-canvas"],
                   whatThisGrantNeeds: "Education and community outcome data — learning gains, wraparound service utilization, family engagement, community resilience metrics.",
                 },
               };
