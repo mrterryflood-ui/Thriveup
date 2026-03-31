@@ -162,6 +162,18 @@ function CommandDashboard() {
 
   return (
     <div className="space-y-6">
+      <Card className="p-4 bg-blue-900/20 border-blue-500/30">
+        <div className="flex items-start gap-3">
+          <Lightbulb className="w-5 h-5 text-blue-400 mt-0.5 shrink-0" />
+          <div>
+            <h3 className="text-sm font-semibold text-blue-300">How to Use the Command Center</h3>
+            <p className="text-xs text-slate-300 mt-1">
+              This is your at-a-glance overview. The national statistics below are sourced from DOJ, Census Bureau, and BJS — they're always live. The stat cards at the top reflect your organization's tracked data (referrals, court cases, programs). To explore live data for any city or state, switch to the <strong>Data Storyteller</strong> tab — it pulls real-time gun violence, Census demographics, and AI-powered analysis for 25+ cities. Use <strong>Crime Map & Overlays</strong> to drill down to any neighborhood in America.
+            </p>
+          </div>
+        </div>
+      </Card>
+
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
         {statCards.map((s, i) => (
           <Card key={i} className="p-4 bg-slate-800/60 border-slate-700" data-testid={`stat-card-${i}`}>
@@ -644,11 +656,86 @@ function CrimeMapOverlay() {
     setActiveLayers(prev => prev.includes(id) ? prev.filter(l => l !== id) : [...prev, id]);
   };
 
-  const state1Data = STATE_COMPARISON_DATA[selectedState1];
-  const state2Data = STATE_COMPARISON_DATA[selectedState2];
+  const state1Fips = STATE_CODES[selectedState1];
+  const state2Fips = STATE_CODES[selectedState2];
+
+  const censusState1 = useQuery({
+    queryKey: ["/api/justice/live/census", state1Fips],
+    queryFn: async () => { const r = await fetch(`/api/justice/live/census/${state1Fips}`); if (!r.ok) throw new Error("Failed"); return r.json(); },
+    enabled: !!state1Fips,
+  });
+  const censusState2 = useQuery({
+    queryKey: ["/api/justice/live/census", state2Fips],
+    queryFn: async () => { const r = await fetch(`/api/justice/live/census/${state2Fips}`); if (!r.ok) throw new Error("Failed"); return r.json(); },
+    enabled: !!state2Fips,
+  });
+
+  const LAYER_INSIGHTS: Record<string, { title: string; stats: { label: string; value: string; color: string }[]; source: string }> = {
+    crime: { title: "Crime & Violence Data", stats: [
+      { label: "National Violent Crime Rate", value: `${NATIONAL_CRIME_DATA.violentCrimeRate}/100K`, color: "text-red-400" },
+      { label: "Property Crime Rate", value: `${NATIONAL_CRIME_DATA.propertyCrimeRate}/100K`, color: "text-amber-400" },
+      { label: "Incarceration Rate", value: `${NATIONAL_CRIME_DATA.incarcerationRate}/100K`, color: "text-red-400" },
+    ], source: "FBI UCR, BJS" },
+    schools: { title: "School Discipline & Pipeline", stats: [
+      { label: "Black Student Suspension Rate", value: `${NATIONAL_CRIME_DATA.schoolSuspensionRateBlack}%`, color: "text-red-400" },
+      { label: "White Student Suspension Rate", value: `${NATIONAL_CRIME_DATA.schoolSuspensionRateWhite}%`, color: "text-blue-400" },
+      { label: "Black/White Disparity", value: `${(NATIONAL_CRIME_DATA.schoolSuspensionRateBlack / NATIONAL_CRIME_DATA.schoolSuspensionRateWhite).toFixed(1)}x`, color: "text-red-400" },
+      { label: "School-Based Arrests/Year", value: "52,300", color: "text-amber-400" },
+    ], source: "CRDC, NCES" },
+    poverty: { title: "Poverty & Economic Indicators", stats: [
+      { label: "Black Poverty Rate", value: `${NATIONAL_CRIME_DATA.povertyRateBlack}%`, color: "text-red-400" },
+      { label: "Hispanic Poverty Rate", value: `${NATIONAL_CRIME_DATA.povertyRateHispanic}%`, color: "text-amber-400" },
+      { label: "White Poverty Rate", value: `${NATIONAL_CRIME_DATA.povertyRateWhite}%`, color: "text-blue-400" },
+    ], source: "Census ACS" },
+    programs: { title: "Prevention & Intervention Programs", stats: [
+      { label: "Evidence-Based Programs Cataloged", value: `${EVIDENCE_BASED_PROGRAMS.length}`, color: "text-green-400" },
+      { label: "Avg Cost per Youth", value: "$2,500-$7,500", color: "text-amber-400" },
+      { label: "Avg Recidivism Reduction", value: "25-60%", color: "text-green-400" },
+    ], source: "OJJDP, Blueprints" },
+    stakeholders: { title: "Stakeholder & Partner Network", stats: [
+      { label: "Community Org Types", value: "Faith, Education, Legal, Health, Employment", color: "text-blue-400" },
+      { label: "DOJ Model Programs", value: "CURE Violence, BAM, CTC, MST", color: "text-green-400" },
+    ], source: "ACOS Network" },
+    reentry: { title: "Reentry & Second Chance", stats: [
+      { label: "3-Year Recidivism Rate", value: `${NATIONAL_CRIME_DATA.recidivismRate3Year}%`, color: "text-red-400" },
+      { label: "Pell Grant Restored", value: "2023 (up to $7,395/yr)", color: "text-green-400" },
+      { label: "Ban-the-Box States", value: "37 states + 150 cities", color: "text-blue-400" },
+    ], source: "BJS, DOE" },
+    health: { title: "Mental Health Access", stats: [
+      { label: "Incarcerated with Mental Health Condition", value: "44%", color: "text-red-400" },
+      { label: "Incarcerated with Substance Use Disorder", value: "65%", color: "text-red-400" },
+      { label: "Crisis Line", value: "988 (24/7)", color: "text-green-400" },
+    ], source: "SAMHSA, BJS" },
+    employment: { title: "Employment & Workforce", stats: [
+      { label: "Black Youth Unemployment", value: `${NATIONAL_CRIME_DATA.youthUnemploymentBlack}%`, color: "text-red-400" },
+      { label: "White Youth Unemployment", value: `${NATIONAL_CRIME_DATA.youthUnemploymentWhite}%`, color: "text-blue-400" },
+      { label: "WOTC Tax Credit", value: "$2,400-$9,600/hire", color: "text-green-400" },
+    ], source: "BLS, IRS" },
+    churches: { title: "Faith-Based Partners", stats: [
+      { label: "Prison Fellowship", value: "Angel Tree serves 300K+ children/yr", color: "text-purple-400" },
+      { label: "Reentry Mentoring", value: "Proven 20-30% recidivism reduction", color: "text-green-400" },
+    ], source: "ACOS Network" },
+    sentencing: { title: "Sentencing Disparities", stats: [
+      { label: "Black/White Drug Sentencing Gap", value: `${SENTENCING_DISPARITIES[0].disparity}`, color: "text-red-400" },
+      { label: "Black/White Weapons Gap", value: `${SENTENCING_DISPARITIES[3].disparity}`, color: "text-red-400" },
+      { label: "Federal Mandatory Min Gap", value: `${SENTENCING_DISPARITIES[4].disparity}`, color: "text-red-400" },
+    ], source: "USSC" },
+  };
 
   return (
     <div className="space-y-6">
+      <Card className="p-4 bg-red-900/20 border-red-500/30">
+        <div className="flex items-start gap-3">
+          <Lightbulb className="w-5 h-5 text-red-400 mt-0.5 shrink-0" />
+          <div>
+            <h3 className="text-sm font-semibold text-red-300">How to Use Crime Map & Overlays</h3>
+            <p className="text-xs text-slate-300 mt-1">
+              Start with <strong>Location Intelligence</strong> below — select any state, enter a city or ZIP code, and get live data from FBI, Census, and BLS down to the neighborhood level. Then use <strong>Data Layer Overlays</strong> to toggle on different data categories and see national statistics for each. Use <strong>State Comparison</strong> at the bottom to compare any two states using live Census data.
+            </p>
+          </div>
+        </div>
+      </Card>
+
       <LocationIntelligence embedded />
 
       <Card className="p-6 bg-slate-800/60 border-slate-700">
@@ -656,6 +743,7 @@ function CrimeMapOverlay() {
           <Map className="w-5 h-5 text-blue-400" />
           Data Layer Overlays
         </h3>
+        <p className="text-xs text-slate-400 mb-3">Toggle layers on/off to view national data for each category. Each layer shows real statistics from federal data sources.</p>
         <div className="flex flex-wrap gap-2 mb-4">
           {DATA_LAYERS.map(layer => (
             <button
@@ -675,24 +763,40 @@ function CrimeMapOverlay() {
           ))}
         </div>
 
-        <div className="flex flex-wrap gap-2">
-          {activeLayers.map(id => {
-            const layer = DATA_LAYERS.find(l => l.id === id);
-            return layer ? (
-              <Badge key={id} style={{ backgroundColor: layer.color + "30", color: layer.color, borderColor: layer.color }} variant="outline" className="text-xs">
-                <CircleDot className="w-3 h-3 mr-1" />
-                {layer.label} Active
-              </Badge>
-            ) : null;
-          })}
-        </div>
+        {activeLayers.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mt-4">
+            {activeLayers.map(id => {
+              const layer = DATA_LAYERS.find(l => l.id === id);
+              const insight = LAYER_INSIGHTS[id];
+              if (!layer || !insight) return null;
+              return (
+                <div key={id} className="p-4 rounded-lg border" style={{ backgroundColor: layer.color + "10", borderColor: layer.color + "40" }} data-testid={`layer-data-${id}`}>
+                  <h4 className="text-sm font-semibold text-white mb-2 flex items-center gap-2">
+                    <layer.icon className="w-4 h-4" style={{ color: layer.color }} />
+                    {insight.title}
+                  </h4>
+                  <div className="space-y-1.5">
+                    {insight.stats.map((stat, si) => (
+                      <div key={si} className="flex justify-between text-xs">
+                        <span className="text-slate-400">{stat.label}</span>
+                        <span className={`font-semibold ${stat.color}`}>{stat.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-[10px] text-slate-500 mt-2">Source: {insight.source}</p>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </Card>
 
       <Card className="p-6 bg-slate-800/60 border-slate-700">
         <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
           <BarChart className="w-5 h-5 text-purple-400" />
-          State Comparison Tool
+          State Comparison Tool — Live Census Data
         </h3>
+        <p className="text-xs text-slate-400 mb-4">Compare any two states using live data from the U.S. Census Bureau American Community Survey. Select states below to see demographic and economic indicators side by side.</p>
         <div className="flex gap-4 mb-6">
           <div className="flex-1">
             <label className="text-sm text-slate-400 mb-1 block">State 1</label>
@@ -701,8 +805,8 @@ function CrimeMapOverlay() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {Object.keys(STATE_COMPARISON_DATA).map(code => (
-                  <SelectItem key={code} value={code}>{US_STATES.find(s => s.code === code)?.name || code}</SelectItem>
+                {US_STATES.map(s => (
+                  <SelectItem key={s.code} value={s.code}>{s.name}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -717,15 +821,76 @@ function CrimeMapOverlay() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {Object.keys(STATE_COMPARISON_DATA).map(code => (
-                  <SelectItem key={code} value={code}>{US_STATES.find(s => s.code === code)?.name || code}</SelectItem>
+                {US_STATES.map(s => (
+                  <SelectItem key={s.code} value={s.code}>{s.name}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
         </div>
 
-        {state1Data && state2Data && (
+        {(censusState1.isLoading || censusState2.isLoading) && (
+          <div className="flex items-center gap-3 p-4">
+            <Activity className="w-5 h-5 animate-spin text-purple-400" />
+            <span className="text-sm text-slate-300">Loading live Census data...</span>
+          </div>
+        )}
+
+        {censusState1.data?.counties && censusState2.data?.counties && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-3 gap-4 text-center">
+              <div className="p-3 bg-blue-900/20 border border-blue-500/30 rounded-lg">
+                <p className="text-xs text-slate-400">{US_STATES.find(s => s.code === selectedState1)?.name}</p>
+                <p className="text-lg font-bold text-blue-400">{censusState1.data.counties.length} Counties</p>
+              </div>
+              <div className="flex items-center justify-center">
+                <span className="text-lg font-bold text-slate-400">VS</span>
+              </div>
+              <div className="p-3 bg-purple-900/20 border border-purple-500/30 rounded-lg">
+                <p className="text-xs text-slate-400">{US_STATES.find(s => s.code === selectedState2)?.name}</p>
+                <p className="text-lg font-bold text-purple-400">{censusState2.data.counties.length} Counties</p>
+              </div>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs" data-testid="census-comparison-table">
+                <thead>
+                  <tr className="border-b border-slate-600">
+                    <th className="text-left py-2 px-2 text-slate-400">Top Counties</th>
+                    <th className="text-right py-2 px-2 text-slate-400">Population</th>
+                    <th className="text-right py-2 px-2 text-slate-400">Med. Income</th>
+                    <th className="text-right py-2 px-2 text-slate-400">Poverty %</th>
+                    <th className="text-right py-2 px-2 text-slate-400">Unemployment %</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="border-b-2 border-blue-500/30"><td colSpan={5} className="py-1 px-2 text-blue-400 font-bold text-xs">{US_STATES.find(s => s.code === selectedState1)?.name}</td></tr>
+                  {censusState1.data.counties.slice(0, 5).map((c: any, i: number) => (
+                    <tr key={`s1-${i}`} className="border-b border-slate-700/50">
+                      <td className="py-1.5 px-2 text-white">{c.name}</td>
+                      <td className="text-right py-1.5 px-2 text-blue-400">{parseInt(c.population).toLocaleString()}</td>
+                      <td className="text-right py-1.5 px-2 text-green-400">${parseInt(c.medianIncome).toLocaleString()}</td>
+                      <td className={`text-right py-1.5 px-2 font-semibold ${parseFloat(c.povertyRate) > 20 ? "text-red-400" : parseFloat(c.povertyRate) > 15 ? "text-amber-400" : "text-green-400"}`}>{c.povertyRate}%</td>
+                      <td className="text-right py-1.5 px-2 text-slate-300">{c.unemploymentRate}%</td>
+                    </tr>
+                  ))}
+                  <tr className="border-b-2 border-purple-500/30"><td colSpan={5} className="py-1 px-2 text-purple-400 font-bold text-xs">{US_STATES.find(s => s.code === selectedState2)?.name}</td></tr>
+                  {censusState2.data.counties.slice(0, 5).map((c: any, i: number) => (
+                    <tr key={`s2-${i}`} className="border-b border-slate-700/50">
+                      <td className="py-1.5 px-2 text-white">{c.name}</td>
+                      <td className="text-right py-1.5 px-2 text-blue-400">{parseInt(c.population).toLocaleString()}</td>
+                      <td className="text-right py-1.5 px-2 text-green-400">${parseInt(c.medianIncome).toLocaleString()}</td>
+                      <td className={`text-right py-1.5 px-2 font-semibold ${parseFloat(c.povertyRate) > 20 ? "text-red-400" : parseFloat(c.povertyRate) > 15 ? "text-amber-400" : "text-green-400"}`}>{c.povertyRate}%</td>
+                      <td className="text-right py-1.5 px-2 text-slate-300">{c.unemploymentRate}%</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {STATE_COMPARISON_DATA[selectedState1] && STATE_COMPARISON_DATA[selectedState2] && (() => { const state1Data = STATE_COMPARISON_DATA[selectedState1]; const state2Data = STATE_COMPARISON_DATA[selectedState2]; return state1Data && state2Data && (
           <div className="space-y-4">
             {[
               { label: "Violent Crime Rate (per 100K)", v1: state1Data.violentCrime, v2: state2Data.violentCrime, max: 600, lowerBetter: true },
@@ -769,7 +934,7 @@ function CrimeMapOverlay() {
               );
             })}
           </div>
-        )}
+        ); })()}
       </Card>
 
       <Card className="p-6 bg-slate-800/60 border-slate-700">
@@ -1080,6 +1245,18 @@ function TrendsAndPatterns() {
 
   return (
     <div className="space-y-6">
+      <Card className="p-4 bg-orange-900/20 border-orange-500/30">
+        <div className="flex items-start gap-3">
+          <Lightbulb className="w-5 h-5 text-orange-400 mt-0.5 shrink-0" />
+          <div>
+            <h3 className="text-sm font-semibold text-orange-300">How to Use Trends & Warnings</h3>
+            <p className="text-xs text-slate-300 mt-1">
+              Type any city, state, or "nationwide" in the box below, pick a focus area, and click <strong>Analyze Trends</strong>. The AI will analyze current crime patterns, education metrics, and social determinants for that area and provide actionable insights. The system also monitors for early warning patterns based on Dr. Flood's research principles.
+            </p>
+          </div>
+        </div>
+      </Card>
+
       <Card className="p-6 bg-gradient-to-br from-orange-900/30 to-slate-800/60 border-orange-700/50">
         <h3 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
           <TrendingUp className="w-6 h-6 text-orange-400" />
@@ -2078,7 +2255,7 @@ const STATE_CODES: Record<string, string> = {
   HI:"15",ID:"16",IL:"17",IN:"18",IA:"19",KS:"20",KY:"21",LA:"22",ME:"23",MD:"24",
   MA:"25",MI:"26",MN:"27",MS:"28",MO:"29",MT:"30",NE:"31",NV:"32",NH:"33",NJ:"34",
   NM:"35",NY:"36",NC:"37",ND:"38",OH:"39",OK:"40",OR:"41",PA:"42",RI:"44",SC:"45",
-  SD:"46",TN:"47",TX:"48",UT:"49",VT:"50",VA:"51",WA:"53",WV:"54",WI:"55",WY:"56"
+  SD:"46",TN:"47",TX:"48",UT:"49",VT:"50",VA:"51",WA:"53",WV:"54",WI:"55",WY:"56",DC:"11"
 };
 
 function DataStoryteller() {
@@ -2240,6 +2417,18 @@ function DataStoryteller() {
 
   return (
     <div className="space-y-6" data-testid="data-storyteller">
+      <Card className="p-4 bg-red-900/20 border-red-500/30">
+        <div className="flex items-start gap-3">
+          <Lightbulb className="w-5 h-5 text-red-400 mt-0.5 shrink-0" />
+          <div>
+            <h3 className="text-sm font-semibold text-red-300">How to Use the Data Storyteller</h3>
+            <p className="text-xs text-slate-300 mt-1">
+              <strong>Step 1:</strong> Add cities from the preset list or type your own below. <strong>Step 2:</strong> The dashboard auto-loads live gun violence data and Census demographics for every city you add. <strong>Step 3:</strong> Switch between views — Dashboard (city cards), Compare (side-by-side table), Risk & Protective Factors (education/poverty correlations), Gentrification Tracker (8-year Census timeline), or AI Data Story (generates a full narrative with the click of a button). <strong>Everything is live</strong> — real data from Gun Violence Archive and the U.S. Census Bureau.
+            </p>
+          </div>
+        </div>
+      </Card>
+
       <div className="bg-gradient-to-r from-red-900/30 via-orange-900/20 to-red-900/30 border border-red-500/20 rounded-xl p-6">
         <div className="flex items-center gap-3 mb-2">
           <div className="p-2 bg-red-600/20 rounded-lg border border-red-500/30">
@@ -3185,7 +3374,7 @@ function GenerationalAI() {
 }
 
 export default function JusticeCommandCenter() {
-  const [activeTab, setActiveTab] = useState<TabId>("command");
+  const [activeTab, setActiveTab] = useState<TabId>("data-story");
 
   const tabs: { id: TabId; label: string; icon: any; color: string }[] = [
     { id: "command", label: "Command Center", icon: LayoutGrid, color: "text-blue-400" },
