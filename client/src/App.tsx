@@ -157,6 +157,7 @@ const VideoPipelinePage = lazy(() => import("@/pages/video-pipeline"));
 const ProgramEnginePage = lazy(() => import("@/pages/program-engine"));
 const PricingPage = lazy(() => import("@/pages/pricing"));
 const BusinessDocumentsPage = lazy(() => import("@/pages/business-documents"));
+const CommunityResourceDirectoryPage = lazy(() => import("@/pages/community-resource-directory"));
 
 function PageFallback() {
   return (
@@ -266,6 +267,7 @@ function AppRouter() {
       <Route path="/outcomes" component={OutcomeReportingPage} />
       <Route path="/justice-partners" component={JusticePartnersPage} />
       <Route path="/justice-command-center" component={JusticeCommandCenterPage} />
+      <Route path="/resource-directory" component={CommunityResourceDirectoryPage} />
       <Route path="/workforce-assessment" component={WorkforceAssessmentPage} />
       <Route path="/workforce-training" component={WorkforceTrainingPage} />
       <Route path="/workforce-employers" component={WorkforceEmployersPage} />

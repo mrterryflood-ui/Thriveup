@@ -32,7 +32,7 @@ import {
   MessageCircle, MapPin, Presentation, Scale, FileBarChart, LayoutDashboard,
   Info, BookMarked,
   Mail, Landmark, RefreshCw, Package, PenTool,
-  Microscope, Stethoscope, Film,
+  Microscope, Stethoscope, Film, HandHeart,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -71,6 +71,7 @@ const workforceSolutionsItems: NavItem[] = [
 
 const justiceReentryItems: NavItem[] = [
   { title: "Justice Command Center", url: "/justice-command-center", icon: Shield },
+  { title: "Resource Directory", url: "/resource-directory", icon: HandHeart },
   { title: "Reentry Dashboard", url: "/reentry", icon: Scale },
   { title: "For Justice Partners", url: "/justice-partners", icon: Handshake },
 ];
