@@ -6310,18 +6310,126 @@ if (typeof module !== "undefined") {
               },
             },
 
-            grantCoordination: {
-              principle: "Every platform pursues grants autonomously. The ecosystem amplifies your applications through coordinated data and shared outcomes. When you apply for funding, you bring the full weight of 23 sibling platforms as connected infrastructure.",
-              whatToDoForGrants: [
-                "Query your external grant opportunities (see externalGrantOpportunities in this heartbeat) to find funding aligned to your capabilities",
-                "Use DeepSeek reasoning to evaluate which opportunities are strongest for your platform",
-                "Exchange data with sibling platforms listed as ecosystem partners for each grant category",
-                "Request outcome metrics from sibling platforms to strengthen your application with ecosystem-wide impact data",
-                "After winning funding, broadcast the outcome to the ecosystem so sibling platforms can align their work",
-                "Report grant progress in your heartbeat complianceReport so the hub can track ecosystem-wide grant health",
-              ],
-              activeInternalGrants: ["WIOA ($200K-$500K)", "St. David's (up to $1M)", "SSG Fox VA ($750K)", "Foundation Grant ($100K-$500K)", "St. David's We All Benefit 2.0 (LOI April 27 — economic stability, benefits enrollment, food security, healthcare access)"],
-            },
+            grantCoordination: (() => {
+              const GRANT_DEFINITIONS: Record<string, {
+                name: string;
+                amount: string;
+                deadline: string;
+                focus: string[];
+                leadPlatforms: string[];
+                supportPlatforms: string[];
+                dataPlatforms: string[];
+                notRelevantTo: string[];
+                whatThisGrantNeeds: string;
+              }> = {
+                "wioa": {
+                  name: "WIOA (Workforce Innovation & Opportunity Act)",
+                  amount: "$200K-$500K",
+                  deadline: "Rolling",
+                  focus: ["workforce training", "career pathways", "job readiness", "employer engagement", "youth workforce"],
+                  leadPlatforms: ["thriveup", "isss", "m2c", "mce", "pinnacle-business-conglomerate"],
+                  supportPlatforms: ["lifebridge", "whole-person-health", "collaborative-advocate"],
+                  dataPlatforms: ["betterscience", "ecosystem-nexus"],
+                  notRelevantTo: ["shield-atlas", "safereport", "video-creator-ai", "ad-targeting", "pillscheduler", "autoimmune-thrive", "safecognicare", "sankofa-feminine-health", "sankofa-maternal-health", "sankofa-mens-health"],
+                  whatThisGrantNeeds: "Workforce outcome data — job placements, credential completions, employer engagement metrics, wage gains, retention rates.",
+                },
+                "st-davids-health": {
+                  name: "St. David's Foundation — Health Equity",
+                  amount: "Up to $1M collaborative",
+                  deadline: "Open — LOI first",
+                  focus: ["health equity", "maternal health", "mental health", "community health workers", "5-county Central TX"],
+                  leadPlatforms: ["whole-person-health", "sankofa", "sankofa-maternal-health", "sankofa-feminine-health", "sankofa-mens-health"],
+                  supportPlatforms: ["lifebridge", "perfectly-different", "safecognicare", "autoimmune-thrive", "pillscheduler"],
+                  dataPlatforms: ["betterscience", "ecosystem-nexus"],
+                  notRelevantTo: ["shield-atlas", "mce", "pinnacle-business-conglomerate", "m2c", "video-creator-ai", "ad-targeting", "safereport"],
+                  whatThisGrantNeeds: "Health outcome data — screenings conducted, maternal outcomes, mental health access, CHW deployments, community voice evidence, SDOH improvements in Travis/Williamson/Hays/Bastrop/Caldwell counties.",
+                },
+                "st-davids-wab2": {
+                  name: "St. David's We All Benefit 2.0 — Building Economic Stability",
+                  amount: "TBD (open call)",
+                  deadline: "LOI: April 27, 5 PM CT | Full App (if invited): June 18, 5 PM CT",
+                  focus: ["income supports", "food security", "healthcare access", "public benefits enrollment", "economic stability"],
+                  leadPlatforms: ["lifebridge", "whole-person-health", "thriveup"],
+                  supportPlatforms: ["sankofa", "mce", "collaborative-advocate", "speech-bridge"],
+                  dataPlatforms: ["betterscience", "ecosystem-nexus"],
+                  notRelevantTo: ["shield-atlas", "safereport", "video-creator-ai", "ad-targeting", "pinnacle-business-conglomerate", "safecognicare", "wholemind", "perfectly-different"],
+                  whatThisGrantNeeds: "Benefits enrollment data — SNAP, Medicaid, CHIP, WIC, housing voucher enrollment rates, food access metrics, income stability indicators, community-informed program design evidence.",
+                },
+                "ssg-fox": {
+                  name: "SSG Fox VA Grant",
+                  amount: "$750K",
+                  deadline: "June 12-18, 2026",
+                  focus: ["veteran services", "suicide prevention", "transition support", "peer support", "veteran mental health"],
+                  leadPlatforms: ["m2c", "whole-person-health", "collaborative-advocate"],
+                  supportPlatforms: ["lifebridge", "shield-atlas", "sankofa-mens-health", "safecognicare"],
+                  dataPlatforms: ["betterscience", "safereport"],
+                  notRelevantTo: ["mce", "pinnacle-business-conglomerate", "sankofa-feminine-health", "sankofa-maternal-health", "wholemind", "video-creator-ai", "ad-targeting", "autoimmune-thrive", "pillscheduler"],
+                  whatThisGrantNeeds: "Veteran outcome data — C-SSRS screenings, transition milestones, peer support engagement, crisis interventions, employment outcomes, housing stability for veterans.",
+                },
+                "foundation": {
+                  name: "Foundation Grant",
+                  amount: "$100K-$500K",
+                  deadline: "Rolling",
+                  focus: ["community impact", "education equity", "wraparound services"],
+                  leadPlatforms: ["thriveup", "isss", "wholemind"],
+                  supportPlatforms: ["lifebridge", "perfectly-different", "whole-person-health"],
+                  dataPlatforms: ["betterscience", "ecosystem-nexus"],
+                  notRelevantTo: ["shield-atlas", "safereport", "video-creator-ai", "ad-targeting", "pinnacle-business-conglomerate", "mce"],
+                  whatThisGrantNeeds: "Education and community outcome data — learning gains, wraparound service utilization, family engagement, community resilience metrics.",
+                },
+              };
+
+              const myGrants = Object.entries(GRANT_DEFINITIONS)
+                .filter(([_, g]) => !g.notRelevantTo.includes(platform.id))
+                .map(([grantId, g]) => {
+                  const isLead = g.leadPlatforms.includes(platform.id);
+                  const isSupport = g.supportPlatforms.includes(platform.id);
+                  const isData = g.dataPlatforms.includes(platform.id);
+                  const role = isLead ? "LEAD" : isSupport ? "SUPPORT" : isData ? "DATA PROVIDER" : "ALIGNED";
+
+                  const myPartners = [
+                    ...g.leadPlatforms.filter(id => id !== platform.id).map(id => ({ id, role: "Lead" })),
+                    ...g.supportPlatforms.filter(id => id !== platform.id).map(id => ({ id, role: "Support" })),
+                    ...g.dataPlatforms.filter(id => id !== platform.id).map(id => ({ id, role: "Data" })),
+                  ];
+
+                  const yourAction = isLead
+                    ? `You are a LEAD platform for ${g.name}. You must produce primary outcome data and coordinate with your partners. Exchange data regularly with: ${myPartners.filter(p => p.role === "Support" || p.role === "Data").map(p => p.id).join(", ")}.`
+                    : isSupport
+                    ? `You are a SUPPORT platform for ${g.name}. Provide your data to lead platforms: ${g.leadPlatforms.join(", ")}. They will request specific metrics from you.`
+                    : isData
+                    ? `You are a DATA PROVIDER for ${g.name}. Your evidence and evaluation data strengthens the application. Send findings to: ${g.leadPlatforms.join(", ")}.`
+                    : `You are ALIGNED with ${g.name}. Your work contributes to the narrative. Ensure your outcomes are visible in your heartbeat.`;
+
+                  return {
+                    grantId,
+                    name: g.name,
+                    amount: g.amount,
+                    deadline: g.deadline,
+                    yourRole: role,
+                    yourAction,
+                    whatThisGrantNeeds: g.whatThisGrantNeeds,
+                    yourPartners: myPartners,
+                    coordinationEndpoint: `POST /api/ecosystem/agent/exchange — send your ${g.focus[0]} data to lead platforms`,
+                  };
+                });
+
+              const irrelevantGrants = Object.entries(GRANT_DEFINITIONS)
+                .filter(([_, g]) => g.notRelevantTo.includes(platform.id))
+                .map(([_, g]) => g.name);
+
+              return {
+                principle: "Precision coordination — not shotgun blasts. You receive ONLY the grants relevant to your platform, ONLY the partners you need to work with, and ONLY your specific role. If a grant is not listed here, it is not your responsibility.",
+                yourGrants: myGrants,
+                totalRelevantGrants: myGrants.length,
+                notYourGrants: irrelevantGrants.length > 0 ? {
+                  count: irrelevantGrants.length,
+                  names: irrelevantGrants,
+                  message: `These ${irrelevantGrants.length} grant(s) are NOT relevant to ${platform.name}. You will not receive coordination requests for them. Focus your energy on your ${myGrants.length} assigned grant(s).`,
+                } : null,
+                coordinationStandard: `${platform.name} has ${myGrants.length} relevant grant(s). For each one, you know your role (Lead/Support/Data/Aligned), your specific partners, and what data is needed. Use agent exchanges to coordinate with your partners — not broadcasts to the whole ecosystem. Precision, not noise.`,
+              };
+            })(),
 
             operatingStandard: {
               everyHeartbeatMust: [
