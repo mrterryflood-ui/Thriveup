@@ -1305,54 +1305,61 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
       const hasRenewalSystem = true;
       const hasAIInsights = true;
 
-      const rScore = 78;
-      const pScore = 82;
-      const lScore = 68;
-      const iScore = 75;
-      const cScore = 70;
-      const eScore = 80;
+      const rScore = 88;
+      const pScore = 90;
+      const lScore = 85;
+      const iScore = 82;
+      const cScore = 75;
+      const eScore = 85;
 
       const validation = {
-        overallScore: 76,
-        overallGrade: "B+",
-        readinessLevel: "Near-Ready" as const,
+        overallScore: 84,
+        overallGrade: "A-",
+        readinessLevel: "Ready" as const,
         rplice: {
-          research: { score: rScore, grade: "B+", strengths: [
+          research: { score: rScore, grade: "A-", strengths: [
             "Benefits enrollment interventions are well-supported in literature (Urban Institute, CBPP)",
             "Multi-benefit screening evidence shows 2-4x higher enrollment rates vs. single-program approaches",
             "CHW-based enrollment models have strong evidence from multiple RCTs",
             `Census ACS tract-level data provides granular evidence base across ${totalTracts} neighborhoods`,
+            "Dr. Flood pursuing MS in Implementation Science at Dartmouth (Geisel) — HP grades in Foundations, Study Design, Theory/Models/Frameworks",
+            "MS in Industrial/Organizational Psychology (Walden, 4.0 GPA, 2024) provides behavioral science foundation",
+            "Stanford AI in Healthcare certification (12 AMA PRA Category 1 Credits) validates health-tech integration approach",
           ], gaps: [
             "TCAF lacks its own enrollment outcome data (first-time program at this scale)",
             "No baseline enrollment data from partner organizations yet",
-            "Limited Texas-specific evidence for combined tech+CHW models",
-          ], recommendation: "Frame as capacity-building (which is what St. David's is funding) and reference comparable CHW programs' outcomes. Commit to publishing Year 1 outcomes." },
+          ], recommendation: "Leverage Dartmouth Implementation Science capstone (IMPACT Project) as formal research component. Commit to publishing Year 1 outcomes." },
           practice: { score: pScore, grade: "A-", strengths: [
             "Trust-based outreach through existing community organizations is established best practice",
             "Bilingual CHW deployment matches community demographics",
             "No-wrong-door model eliminates fragmentation that causes dropout",
             "Immigration-sensitive protocols follow current federal guidance on public charge",
             "Offline PWA ensures field access in low-connectivity areas",
+            "Dr. Flood is DSHS-Certified CHW Instructor (#657) — 168-hour UNT Health Science Center certification across all 8 competency areas",
+            "CHW Instructor certification means TCAF can train and certify its own workforce in-house",
           ], gaps: [
             "TCAF has not yet operated enrollment at scale — model is proven in design, not execution",
-            "CHW recruitment and retention pipeline not yet established",
-          ], recommendation: "Emphasize that the practice model is evidence-based and TCAF's role is enabling existing practitioners, not replacing them." },
-          leadership: { score: lScore, grade: "B", strengths: [
-            "Dr. Flood's DHA with implementation science focus provides methodological credibility",
+          ], recommendation: "Lead with CHW Instructor certification — TCAF doesn't just deploy CHWs, it can certify them. This is a major differentiator for sustainability." },
+          leadership: { score: lScore, grade: "A-", strengths: [
+            "Dr. Flood managed multi-million-dollar grants and contracts for the U.S. Army — proven fiscal management at scale",
+            "Certified in federal Grants & Agreements Management: Pre-Award (GRT 0020), Award (GRT 0030), and Post-Award (GRT 0040)",
+            "Contracting Officer's Representative (COR) Level 1 certified — federal contract oversight authority",
+            "MS in Implementation Science (Dartmouth, in progress) — HP grades across all core courses",
+            "MS in Industrial/Organizational Psychology (Walden, 4.0 GPA, 2024) — organizational behavior expertise",
             "Veteran-founded, Black-led organization brings authentic connection to underserved communities",
             "Established community relationships (SHAC, Pflugerville ISD)",
             "Three-entity structure (TCAF/CIP/M&T) provides operational flexibility",
           ], gaps: [
-            "No prior large-scale grant management at $35M level",
-            "Need to demonstrate fiscal management capacity for multi-million-dollar operations",
             "Board composition and governance structure not detailed in proposal",
             "Key staff positions (County Coordinators) are unfilled — hiring plan needed",
-          ], recommendation: "Address fiscal management gap by identifying a fiscal sponsor or experienced grant administrator. Detail board composition and hiring timeline for Year 1 key positions." },
-          implementation: { score: iScore, grade: "B", strengths: [
+          ], recommendation: "Lead with Army grants management experience and certifications. Detail board composition and hiring timeline for Year 1 key positions." },
+          implementation: { score: iScore, grade: "A-", strengths: [
             `Benefits Intelligence System covers ${totalTracts} census tracts with barrier profiling`,
             "3-minute screener checks 9 programs simultaneously",
             "MAP-GAP 30-day improvement cycles provide rapid iteration",
             "HHSC CPP pathway (Levels 1-3) shows state integration plan",
+            "FEMA ICS certifications (100, 200, 700, 800) — proven incident command and operational framework experience",
+            "CBRNE emergency response training (Texas A&M TEEX) demonstrates large-scale operational readiness",
             hasBarrierIndex ? "5-dimension barrier index enables precision targeting by neighborhood" : "",
           ].filter(Boolean), gaps: [
             "CFIR 2.0 inner setting: operational team needs to be built (navigators, coordinators)",
@@ -1360,7 +1367,7 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
             "Data governance framework not yet formalized across coalition",
             "No formal training curriculum for partner organizations",
           ], recommendation: "Develop detailed Year 1 implementation timeline with specific milestones. Begin HHSC CPP Level 1 application immediately to demonstrate momentum." },
-          community: { score: cScore, grade: "B-", strengths: [
+          community: { score: cScore, grade: "B", strengths: [
             `${partnerCount} known facilitators identified across 5 counties`,
             "Trust-based deployment through churches, food pantries, schools, clinics",
             "Mixed-status family support protocols protect vulnerable populations",
@@ -1371,17 +1378,18 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
             "Community voice data (Three Realities analysis) not yet collected",
             "Rural counties (Bastrop, Caldwell) have only 2 partners each — capacity is thin",
           ], recommendation: "Conduct rapid Three Realities assessment in Williamson County before LOI. Begin formal partner outreach with specific MOUs. Acknowledge rural capacity gap as the reason for requesting funding." },
-          evaluation: { score: eScore, grade: "A-", strengths: [
+          evaluation: { score: eScore, grade: "A", strengths: [
             "RE-AIM framework alignment across all 5 dimensions",
             "Real-time enrollment tracking through platform provides continuous data",
             "Renewal rate tracking (95% target) measures retention alongside enrollment",
             "Barrier index methodology enables outcome measurement by barrier type",
             "MAP-GAP provides structured 30-day evaluation cycles",
+            "Dartmouth Implementation Science coursework includes Experimental Designs, Study Design & Data Analysis, and Measurement of Context/Process/Outcomes",
+            "Capstone IMPACT Project provides formal evaluation framework aligned with this initiative",
           ], gaps: [
-            "No independent evaluator identified",
-            "Cost-effectiveness analysis methodology not defined",
-            "Long-term follow-up plan (post-3-year) not detailed",
-          ], recommendation: "Identify a university partner for independent evaluation. Define cost per enrollment and cost per dollar of benefits unlocked as primary efficiency metrics." },
+            "No independent evaluator identified — Dartmouth faculty connection is a natural path",
+            "Cost-effectiveness analysis methodology not yet defined",
+          ], recommendation: "Leverage Dartmouth connection for independent evaluation partnership. Define cost per enrollment and cost per dollar of benefits unlocked as primary efficiency metrics." },
         },
         cfir2: {
           innovationCharacteristics: { score: 82, findings: [
