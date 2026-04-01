@@ -268,6 +268,7 @@ function AppRouter() {
       <Route path="/outcomes" component={OutcomeReportingPage} />
       <Route path="/justice-partners" component={JusticePartnersPage} />
       <Route path="/justice-command-center" component={JusticeCommandCenterPage} />
+      <Route path="/benefits-command-center" component={BenefitsCommandCenterPage} />
       <Route path="/resource-directory" component={CommunityResourceDirectoryPage} />
       <Route path="/workforce-assessment" component={WorkforceAssessmentPage} />
       <Route path="/workforce-training" component={WorkforceTrainingPage} />

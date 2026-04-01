@@ -23,6 +23,8 @@ Core architectural features and design decisions include:
 - **Fidelity Report Card System:** Provides report cards with grades and improvement plans.
 - **Mandatory RAG AI Integration:** Enforces RAG AI system integration across all platforms.
 - **Auto-Deliverable Verification:** Automatically verifies evidence URLs.
+- **Regional Hubs & Network:** Dedicated community hubs in Austin, Manor, and Pflugerville.
+- **Program Execution Engine:** A full operational program management system with a 6-step setup wizard, three methodology paths (Implementation Science, Traditional PM, Hybrid), and a real-time Execution Dashboard.
 - **RPLICE Implementation Science Toolkit:** Interactive tools for CFIR assessment, RE-AIM scorecards, fidelity checklists, Quality Gate Dashboard, and AI-Powered Community Analysis, which streams live Census ACS data and external research to produce 9-section RPLICE reports. Includes an Activation Pipeline for grant narrative generation, community action planning, and outcome baseline tracking.
 - **Agent Communication Layer:** All 24 platforms function as autonomous agents with reasoning-required communication, tracking inter-platform exchanges and enabling targeted or broadcast communication, responses, and strategic reasoning.
 - **Ecosystem Integration Guide:** Provides instructions for DeepSeek Strategic Reasoning, RPLICE Framework integration, MAP-GAP Cycle instructions, interdependent communication protocols, and grant coordination guidelines.
@@ -30,9 +32,12 @@ Core architectural features and design decisions include:
 - **Internationalization:** Supports English and Spanish.
 - **Collaborative Multi-AI Intelligence:** A 4-provider AI architecture (Gemini, Claude, OpenAI, Replit AI) for dual-AI review and perspective synthesis.
 - **4-Layer Congruence Rule:** Ensures synchronization across database schema, backend API, frontend, and public-facing pages.
+- **Shadow/Observer Mode:** Allows external applications to observe operations.
 - **Ecosystem Cross-Evaluation & Self-Audit:** Weekly/on-demand peer review and automated self-audits for continuous improvement.
 - **Bilateral Collaboration Exchange:** Automated daily exchange of intelligence, changes, lessons, and questions.
 - **TEKS §127.15 CTE Employability Skills Alignment:** Full alignment map and API endpoint for structured JSON alignment data, offering a verifiable Workforce Readiness Certificate.
+- **Confidence Drift + Autonomy Quadrants:** Tracks earned trust and thinking scores to assess autonomy levels.
+- **Capability Orchestration Map:** Maps all 23 platforms to lead/support/validate roles for coordinated execution.
 - **Full Curriculum Library:** 60 in-depth lessons across AI Literacy, Workforce Readiness, and Social-Emotional Learning, complete with multi-thousand-word instruction and interactive activities.
 - **Conditional Seed Architecture:** Uses targeted conditional seeds for content, preventing data duplication while ensuring all necessary content is present.
 
@@ -53,3 +58,4 @@ Core architectural features and design decisions include:
 - **Cross-Platform Integration:** Student Support Portal (ISSS).
 - **Ecosystem AI Chatbot:** RAG-powered intelligent assistant.
 - **Ecosystem Operations Center:** Real-time health monitoring and management.
+- **5-County Benefits Intelligence System:** Benefits enrollment gap analysis covering Travis, Williamson, Hays, Bastrop, and Caldwell counties for St. David's Foundation "We All Benefit 2.0" ($35M/3yr). Features Census ACS data ingestion, barrier index computation, facilitator/partner mapping, CHW network management, virtual eligibility screening, HHSC Community Partner Program pathway, 3-year enrollment targets, and outreach strategy generation. Tables: `benefitsEnrollmentData`, `benefitsPartners`, `benefitsChwNetwork`, `benefitsScreenings`, `benefitsRenewals`. Route: `/benefits-command-center`. API: `server/benefits-routes.ts`.

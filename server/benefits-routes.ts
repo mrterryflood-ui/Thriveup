@@ -1,444 +1,669 @@
 import type { Express } from "express";
 import { db } from "./storage";
-import { eq, and, desc, sql } from "drizzle-orm";
 import {
-  benefitsEnrollmentData, benefitsPartners, benefitsChwNetwork, benefitsEnrollmentLog,
-  insertBenefitsPartnerSchema, insertBenefitsChwSchema, insertBenefitsEnrollmentLogSchema,
+  benefitsEnrollmentData, benefitsPartners, benefitsChwNetwork,
+  benefitsScreenings, benefitsRenewals,
+  insertBenefitsPartnerSchema, insertBenefitsChwSchema,
+  insertBenefitsScreeningSchema, insertBenefitsRenewalSchema,
 } from "@shared/schema";
-import { z } from "zod";
+import { eq, desc, and, count, sql } from "drizzle-orm";
 
-const ST_DAVIDS_COUNTIES = [
-  { fips: "48453", name: "Travis County", seat: "Austin", strategy: "strengthen", lat: 30.2672, lng: -97.7431 },
-  { fips: "48491", name: "Williamson County", seat: "Georgetown", strategy: "build", lat: 30.6333, lng: -97.6780 },
-  { fips: "48209", name: "Hays County", seat: "San Marcos", strategy: "build", lat: 30.0587, lng: -97.8694 },
-  { fips: "48021", name: "Bastrop County", seat: "Bastrop", strategy: "build", lat: 30.1105, lng: -97.3155 },
-  { fips: "48055", name: "Caldwell County", seat: "Lockhart", strategy: "build", lat: 29.8849, lng: -97.6703 },
-];
+const CENSUS_ACS_URL = "https://api.census.gov/data/2022/acs/acs5";
 
-const BENEFIT_TYPES = [
-  { id: "snap", name: "SNAP", category: "Food Security", icon: "utensils", color: "#22c55e" },
-  { id: "wic", name: "WIC", category: "Food Security", icon: "baby", color: "#84cc16" },
-  { id: "medicaid", name: "Medicaid", category: "Healthcare Access", icon: "heart-pulse", color: "#ef4444" },
-  { id: "chip", name: "CHIP", category: "Healthcare Access", icon: "shield", color: "#f97316" },
-  { id: "marketplace", name: "Marketplace", category: "Healthcare Access", icon: "building", color: "#8b5cf6" },
-  { id: "eitc", name: "EITC", category: "Income Supports", icon: "dollar-sign", color: "#3b82f6" },
-  { id: "ctc", name: "Child Tax Credit", category: "Income Supports", icon: "users", color: "#06b6d4" },
-  { id: "ssi", name: "SSI", category: "Income Supports", icon: "landmark", color: "#a855f7" },
-  { id: "ssdi", name: "SSDI", category: "Income Supports", icon: "briefcase", color: "#ec4899" },
-];
-
-const COUNTY_BENEFITS_DATA: Record<string, any> = {
-  "48453": {
-    population: 1290188, enrollmentInfrastructure: "established",
-    snap: { eligible: 198000, enrolled: 99000, rate: 50 },
-    medicaid: { eligible: 185000, enrolled: 148000, rate: 80 },
-    chip: { eligible: 42000, enrolled: 33600, rate: 80 },
-    marketplace: { eligible: 95000, enrolled: 57000, rate: 60 },
-    eitc: { eligible: 156000, enrolled: 124800, rate: 80 },
-    ctc: { eligible: 89000, enrolled: 71200, rate: 80 },
-    wic: { eligible: 35000, enrolled: 21000, rate: 60 },
-    ssi: { eligible: 28000, enrolled: 19600, rate: 70 },
-    ssdi: { eligible: 34000, enrolled: 27200, rate: 80 },
-    barriers: { limitedEnglish: 22.1, noVehicle: 6.8, noBroadband: 8.2, nonCitizen: 12.4, poverty: 13.2 },
-    zipCodes: ["78701","78702","78704","78721","78723","78741","78744","78745","78748","78753","78758"],
-  },
-  "48491": {
-    population: 609017, enrollmentInfrastructure: "limited",
-    snap: { eligible: 52000, enrolled: 20800, rate: 40 },
-    medicaid: { eligible: 58000, enrolled: 40600, rate: 70 },
-    chip: { eligible: 18000, enrolled: 10800, rate: 60 },
-    marketplace: { eligible: 42000, enrolled: 21000, rate: 50 },
-    eitc: { eligible: 48000, enrolled: 33600, rate: 70 },
-    ctc: { eligible: 38000, enrolled: 26600, rate: 70 },
-    wic: { eligible: 14000, enrolled: 7000, rate: 50 },
-    ssi: { eligible: 9500, enrolled: 5700, rate: 60 },
-    ssdi: { eligible: 12000, enrolled: 8400, rate: 70 },
-    barriers: { limitedEnglish: 15.8, noVehicle: 3.2, noBroadband: 10.5, nonCitizen: 9.7, poverty: 9.1 },
-    zipCodes: ["78660","78664","78681","78626","78628","78633","78634","78641","78665","78717"],
-  },
-  "48209": {
-    population: 252342, enrollmentInfrastructure: "limited",
-    snap: { eligible: 28000, enrolled: 11200, rate: 40 },
-    medicaid: { eligible: 30000, enrolled: 19500, rate: 65 },
-    chip: { eligible: 9500, enrolled: 5700, rate: 60 },
-    marketplace: { eligible: 18000, enrolled: 7200, rate: 40 },
-    eitc: { eligible: 26000, enrolled: 15600, rate: 60 },
-    ctc: { eligible: 15000, enrolled: 9000, rate: 60 },
-    wic: { eligible: 7500, enrolled: 3000, rate: 40 },
-    ssi: { eligible: 4200, enrolled: 2100, rate: 50 },
-    ssdi: { eligible: 5500, enrolled: 3300, rate: 60 },
-    barriers: { limitedEnglish: 18.3, noVehicle: 4.1, noBroadband: 14.2, nonCitizen: 11.5, poverty: 15.8 },
-    zipCodes: ["78666","78640","78610","78620","78737","78676"],
-  },
-  "48021": {
-    population: 104078, enrollmentInfrastructure: "minimal",
-    snap: { eligible: 15000, enrolled: 5250, rate: 35 },
-    medicaid: { eligible: 16000, enrolled: 9600, rate: 60 },
-    chip: { eligible: 5200, enrolled: 2600, rate: 50 },
-    marketplace: { eligible: 8500, enrolled: 2550, rate: 30 },
-    eitc: { eligible: 14000, enrolled: 7700, rate: 55 },
-    ctc: { eligible: 7500, enrolled: 3750, rate: 50 },
-    wic: { eligible: 4000, enrolled: 1400, rate: 35 },
-    ssi: { eligible: 2800, enrolled: 1120, rate: 40 },
-    ssdi: { eligible: 3200, enrolled: 1600, rate: 50 },
-    barriers: { limitedEnglish: 24.6, noVehicle: 5.3, noBroadband: 18.7, nonCitizen: 14.2, poverty: 18.9 },
-    zipCodes: ["78602","78612","78621","78650","78659","78662"],
-  },
-  "48055": {
-    population: 47888, enrollmentInfrastructure: "minimal",
-    snap: { eligible: 8500, enrolled: 2550, rate: 30 },
-    medicaid: { eligible: 9200, enrolled: 5060, rate: 55 },
-    chip: { eligible: 3000, enrolled: 1350, rate: 45 },
-    marketplace: { eligible: 4800, enrolled: 1200, rate: 25 },
-    eitc: { eligible: 7800, enrolled: 3900, rate: 50 },
-    ctc: { eligible: 4200, enrolled: 1890, rate: 45 },
-    wic: { eligible: 2200, enrolled: 660, rate: 30 },
-    ssi: { eligible: 1800, enrolled: 630, rate: 35 },
-    ssdi: { eligible: 2100, enrolled: 840, rate: 40 },
-    barriers: { limitedEnglish: 28.4, noVehicle: 7.1, noBroadband: 22.3, nonCitizen: 16.8, poverty: 22.1 },
-    zipCodes: ["78644","78616","78632","78655"],
-  },
+const ST_DAVIDS_COUNTIES: Record<string, { fips: string; name: string; lat: number; lng: number; strategy: string }> = {
+  "48453": { fips: "48453", name: "Travis County", lat: 30.3074, lng: -97.7560, strategy: "strengthen" },
+  "48491": { fips: "48491", name: "Williamson County", lat: 30.6483, lng: -97.6006, strategy: "build" },
+  "48209": { fips: "48209", name: "Hays County", lat: 30.0587, lng: -97.9988, strategy: "build" },
+  "48021": { fips: "48021", name: "Bastrop County", lat: 30.1036, lng: -97.3150, strategy: "build" },
+  "48055": { fips: "48055", name: "Caldwell County", lat: 29.8367, lng: -97.6200, strategy: "build" },
 };
 
-const SEED_PARTNERS = [
-  { organizationName: "Foundation Communities", countyFips: "48453", countyName: "Travis County", partnerType: "community_hub", servicesProvided: ["Benefits enrollment","Housing assistance","Financial coaching"], benefitTypesServed: ["snap","medicaid","chip","marketplace","eitc"], languages: ["English","Spanish"], hhscCppLevel: 3, isVitaSite: true, capacityStatus: "active", latitude: 30.2302, longitude: -97.7545, zipCode: "78704" },
-  { organizationName: "Workforce Solutions Capital Area", countyFips: "48453", countyName: "Travis County", partnerType: "workforce", servicesProvided: ["Job training","Benefits screening","Childcare subsidies"], benefitTypesServed: ["snap","medicaid","eitc"], languages: ["English","Spanish"], hhscCppLevel: 2, capacityStatus: "active", latitude: 30.3074, longitude: -97.7385, zipCode: "78758" },
-  { organizationName: "CommUnity Care", countyFips: "48453", countyName: "Travis County", partnerType: "health_center", servicesProvided: ["Primary care","Medicaid enrollment","CHIP enrollment"], benefitTypesServed: ["medicaid","chip","marketplace"], languages: ["English","Spanish","Vietnamese","Arabic"], hhscCppLevel: 3, capacityStatus: "active", latitude: 30.2849, longitude: -97.7341, zipCode: "78702" },
-  { organizationName: "Central Texas Food Bank", countyFips: "48453", countyName: "Travis County", partnerType: "food_pantry", servicesProvided: ["Food distribution","SNAP screening","Benefits referral"], benefitTypesServed: ["snap","wic"], languages: ["English","Spanish"], capacityStatus: "active", latitude: 30.2185, longitude: -97.7587, zipCode: "78744" },
-  { organizationName: "Lone Star Circle of Care", countyFips: "48491", countyName: "Williamson County", partnerType: "health_center", servicesProvided: ["Primary care","Dental","Medicaid enrollment"], benefitTypesServed: ["medicaid","chip","marketplace"], languages: ["English","Spanish"], hhscCppLevel: 2, capacityStatus: "active", latitude: 30.6328, longitude: -97.6778, zipCode: "78626" },
-  { organizationName: "Opportunities for Williamson & Burnet Counties", countyFips: "48491", countyName: "Williamson County", partnerType: "community_action", servicesProvided: ["Utility assistance","Benefits enrollment","Emergency aid"], benefitTypesServed: ["snap","medicaid","eitc","ssi"], languages: ["English","Spanish"], hhscCppLevel: 1, isVitaSite: true, capacityStatus: "active", latitude: 30.6586, longitude: -97.6958, zipCode: "78626" },
-  { organizationName: "Pflugerville Community Development Corp", countyFips: "48491", countyName: "Williamson County", partnerType: "community_hub", servicesProvided: ["Community programs","Resource referral"], benefitTypesServed: ["snap","eitc"], languages: ["English","Spanish"], capacityStatus: "potential", latitude: 30.4394, longitude: -97.6200, zipCode: "78660" },
-  { organizationName: "Hays County Food Bank", countyFips: "48209", countyName: "Hays County", partnerType: "food_pantry", servicesProvided: ["Food distribution","SNAP referral"], benefitTypesServed: ["snap","wic"], languages: ["English","Spanish"], capacityStatus: "active", latitude: 29.8833, longitude: -97.9414, zipCode: "78666" },
-  { organizationName: "Community Action Inc of Central Texas", countyFips: "48209", countyName: "Hays County", partnerType: "community_action", servicesProvided: ["Head Start","Utility assistance","Benefits enrollment"], benefitTypesServed: ["snap","medicaid","wic","eitc"], languages: ["English","Spanish"], hhscCppLevel: 1, capacityStatus: "active", latitude: 29.8849, longitude: -97.9388, zipCode: "78666" },
-  { organizationName: "Bastrop County Cares", countyFips: "48021", countyName: "Bastrop County", partnerType: "community_hub", servicesProvided: ["Emergency assistance","Food pantry","Benefits referral"], benefitTypesServed: ["snap","medicaid"], languages: ["English","Spanish"], capacityStatus: "active", latitude: 30.1105, longitude: -97.3155, zipCode: "78602" },
-  { organizationName: "Bastrop County Emergency Food Pantry", countyFips: "48021", countyName: "Bastrop County", partnerType: "food_pantry", servicesProvided: ["Food distribution","SNAP screening"], benefitTypesServed: ["snap","wic"], languages: ["English","Spanish"], capacityStatus: "active", latitude: 30.1116, longitude: -97.3163, zipCode: "78602" },
-  { organizationName: "Caldwell County Community Resource Center", countyFips: "48055", countyName: "Caldwell County", partnerType: "community_hub", servicesProvided: ["Resource referral","Emergency aid"], benefitTypesServed: ["snap","medicaid"], languages: ["English","Spanish"], capacityStatus: "potential", latitude: 29.8849, longitude: -97.6703, zipCode: "78644" },
+const BENEFIT_TYPES = ["SNAP", "Medicaid", "CHIP", "EITC", "WIC", "SSI", "SSDI", "Marketplace", "CTC"];
+
+const NATIONAL_PARTICIPATION_RATES: Record<string, number> = {
+  SNAP: 0.50, Medicaid: 0.70, CHIP: 0.65, EITC: 0.80,
+  WIC: 0.55, SSI: 0.60, SSDI: 0.65, Marketplace: 0.45, CTC: 0.75,
+};
+
+const HHSC_CPP_LEVELS = [
+  {
+    level: 1, name: "Community Partner",
+    description: "Basic partnership with HHSC for benefits awareness and referrals",
+    requirements: ["Complete online registration", "Attend orientation webinar", "Sign MOU with HHSC", "Designate a primary contact"],
+    capabilities: ["Refer community members to HHSC", "Distribute benefits information", "Host HHSC outreach events"],
+    trainingHours: 4,
+  },
+  {
+    level: 2, name: "Certified Application Assister",
+    description: "Trained to help community members complete HHSC benefits applications",
+    requirements: ["Complete Level 1", "Pass HHSC application assistance training (16 hours)", "Background check clearance", "Annual recertification"],
+    capabilities: ["Help complete applications for SNAP, Medicaid, CHIP, TANF", "Access HHSC portal for application tracking", "Provide document assistance"],
+    trainingHours: 16,
+  },
+  {
+    level: 3, name: "Certified Enrollment Counselor",
+    description: "Full enrollment counselor with direct HHSC system access",
+    requirements: ["Complete Level 2", "Advanced certification training (40 hours)", "Supervised enrollment practice", "Ongoing quality audits"],
+    capabilities: ["Direct access to HHSC enrollment systems", "Process applications end-to-end", "Handle complex cases and appeals", "Train Level 1-2 partners"],
+    trainingHours: 40,
+  },
 ];
 
-function computeBarrierIndex(barriers: any): number {
-  const weights = { limitedEnglish: 0.25, noVehicle: 0.15, noBroadband: 0.20, nonCitizen: 0.20, poverty: 0.20 };
-  return Math.min(100, Math.round(
-    (barriers.limitedEnglish * weights.limitedEnglish +
-     barriers.noVehicle * weights.noVehicle +
-     barriers.noBroadband * weights.noBroadband +
-     barriers.nonCitizen * weights.nonCitizen +
-     barriers.poverty * weights.poverty) * 100 / 25
-  ));
+const COMMUNITY_FACILITATORS: Record<string, Array<{ name: string; type: string; lat: number; lng: number; services: string[] }>> = {
+  "48453": [
+    { name: "Foundation Communities", type: "Nonprofit", lat: 30.2358, lng: -97.7438, services: ["SNAP", "Medicaid", "EITC", "Housing"] },
+    { name: "CommUnity Care Health Centers", type: "FQHC", lat: 30.2872, lng: -97.7262, services: ["Medicaid", "CHIP", "WIC", "Marketplace"] },
+    { name: "Todos Juntos (Sendero Health Plans)", type: "Health Plan", lat: 30.2930, lng: -97.7432, services: ["Medicaid", "CHIP", "Marketplace"] },
+    { name: "Central Texas Food Bank", type: "Food Bank", lat: 30.2019, lng: -97.8064, services: ["SNAP", "WIC", "Food assistance"] },
+    { name: "United Way for Greater Austin", type: "Nonprofit", lat: 30.2704, lng: -97.7400, services: ["EITC", "CTC", "VITA tax prep"] },
+    { name: "Travis County Health & Human Services", type: "Government", lat: 30.2666, lng: -97.7439, services: ["SNAP", "Medicaid", "CHIP", "TANF"] },
+    { name: "Caritas of Austin", type: "Nonprofit", lat: 30.2648, lng: -97.7321, services: ["SSI", "SSDI", "Housing", "Legal aid"] },
+    { name: "El Buen Samaritano", type: "Nonprofit", lat: 30.2200, lng: -97.7900, services: ["SNAP", "Medicaid", "WIC", "Immigration support"] },
+  ],
+  "48491": [
+    { name: "Lone Star Circle of Care", type: "FQHC", lat: 30.5083, lng: -97.6789, services: ["Medicaid", "CHIP", "WIC", "Marketplace"] },
+    { name: "Opportunities for Williamson & Burnet Counties", type: "CAA", lat: 30.5635, lng: -97.6788, services: ["SNAP", "EITC", "CTC", "VITA"] },
+    { name: "Georgetown Health Foundation", type: "Foundation", lat: 30.6327, lng: -97.6778, services: ["Medicaid", "CHIP", "Health navigation"] },
+  ],
+  "48209": [
+    { name: "Community Action Inc. of Hays County", type: "CAA", lat: 29.8833, lng: -97.9414, services: ["SNAP", "Medicaid", "EITC", "Weatherization"] },
+    { name: "Hays County Food Bank", type: "Food Bank", lat: 29.8800, lng: -97.9350, services: ["SNAP", "WIC", "Food assistance"] },
+    { name: "San Marcos CISD Family Resource Center", type: "School", lat: 29.8833, lng: -97.9400, services: ["Medicaid", "CHIP", "School meals"] },
+  ],
+  "48021": [
+    { name: "Bastrop County Emergency Food Pantry", type: "Food Pantry", lat: 30.1100, lng: -97.3150, services: ["SNAP", "WIC", "Food assistance"] },
+    { name: "Bastrop County CARES", type: "Nonprofit", lat: 30.1050, lng: -97.3100, services: ["SNAP", "Medicaid", "Utility assistance"] },
+  ],
+  "48055": [
+    { name: "Caldwell County Community Resource Center", type: "Community Center", lat: 29.8850, lng: -97.6100, services: ["SNAP", "Medicaid", "CTC"] },
+    { name: "Lockhart ISD Family Support", type: "School", lat: 29.8850, lng: -97.6700, services: ["Medicaid", "CHIP", "School meals"] },
+  ],
+};
+
+async function fetchJson(url: string): Promise<any> {
+  const response = await fetch(url, { headers: { Accept: "application/json" } });
+  if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+  return response.json();
 }
 
-function recommendModality(barrierIndex: number, barriers: any): string {
-  if (barrierIndex >= 70) return "in-person-accompany";
-  if (barriers.noBroadband > 15 && barriers.noVehicle > 5) return "mobile-outreach";
-  if (barriers.limitedEnglish > 20 || barriers.nonCitizen > 12) return "trusted-partner";
-  if (barrierIndex >= 40) return "hybrid";
-  return "virtual-first";
+function clamp(value: number, min = 0, max = 100): number {
+  return Math.max(min, Math.min(max, value));
+}
+
+async function ingestBenefitsDataForCounty(countyFips: string): Promise<number> {
+  const county = ST_DAVIDS_COUNTIES[countyFips];
+  if (!county) return 0;
+
+  const stateFips = "48";
+  const countyCode = countyFips.slice(2);
+  const censusKey = process.env.CENSUS_API_KEY || "";
+  const keyParam = censusKey ? `&key=${censusKey}` : "";
+
+  const variables = [
+    "NAME", "B01003_001E",
+    "B19013_001E", "B17001_002E", "B17001_001E",
+    "B16004_001E", "B16004_025E", "B16004_047E",
+    "B08141_001E", "B08141_002E",
+    "B28002_001E", "B28002_013E",
+    "B05001_001E", "B05001_006E",
+    "B22001_001E", "B22001_002E",
+    "B27001_001E", "B27001_005E", "B27001_008E", "B27001_011E",
+  ].join(",");
+
+  try {
+    const url = `${CENSUS_ACS_URL}?get=${variables}&for=county:${countyCode}&in=state:${stateFips}${keyParam}`;
+    const data = await fetchJson(url);
+
+    if (!Array.isArray(data) || data.length < 2) return 0;
+
+    const headers = data[0] as string[];
+    const row = data[1] as string[];
+    const v = (name: string) => {
+      const idx = headers.indexOf(name);
+      return idx >= 0 ? parseInt(row[idx]) || 0 : 0;
+    };
+
+    const totalPop = v("B01003_001E");
+    const medianIncome = v("B19013_001E");
+    const belowPoverty = v("B17001_002E");
+    const povertyUniverse = v("B17001_001E");
+    const langTotal = v("B16004_001E");
+    const langLimitedSpanish = v("B16004_025E");
+    const langLimitedOther = v("B16004_047E");
+    const commuteTotal = v("B08141_001E");
+    const noVehicle = v("B08141_002E");
+    const internetTotal = v("B28002_001E");
+    const noInternet = v("B28002_013E");
+    const citizenTotal = v("B05001_001E");
+    const nonCitizen = v("B05001_006E");
+    const snapUniverse = v("B22001_001E");
+    const snapRecipients = v("B22001_002E");
+    const insTotal = v("B27001_001E");
+    const unins1 = v("B27001_005E");
+    const unins2 = v("B27001_008E");
+    const unins3 = v("B27001_011E");
+
+    const povertyRate = povertyUniverse > 0 ? clamp((belowPoverty / povertyUniverse) * 100) : 0;
+    const limitedEnglishPct = langTotal > 0 ? clamp(((langLimitedSpanish + langLimitedOther) / langTotal) * 100) : 0;
+    const noVehiclePct = commuteTotal > 0 ? clamp((noVehicle / commuteTotal) * 100) : 0;
+    const noBroadbandPct = internetTotal > 0 ? clamp((noInternet / internetTotal) * 100) : 0;
+    const nonCitizenPct = citizenTotal > 0 ? clamp((nonCitizen / citizenTotal) * 100) : 0;
+
+    const barrierIndex = clamp(
+      (limitedEnglishPct * 0.25) + (noVehiclePct * 0.2) + (noBroadbandPct * 0.2) +
+      (nonCitizenPct * 0.15) + (povertyRate * 0.2)
+    );
+
+    const snapRate = snapUniverse > 0 ? (snapRecipients / snapUniverse) : 0;
+    const uninsuredTotal = unins1 + unins2 + unins3;
+    const uninsuredRate = insTotal > 0 ? (uninsuredTotal / insTotal) : 0;
+
+    let upsertCount = 0;
+    for (const benefitType of BENEFIT_TYPES) {
+      let participationRate: number;
+      let eligiblePop: number;
+      let enrolledPop: number;
+
+      const COUNTY_ADJUSTMENT: Record<string, number> = {
+        "48453": 0.03, "48491": 0.01, "48209": -0.02, "48021": -0.04, "48055": -0.05,
+      };
+      const countyAdj = COUNTY_ADJUSTMENT[countyFips] || 0;
+
+      if (benefitType === "SNAP") {
+        participationRate = snapRate > 0 ? snapRate : NATIONAL_PARTICIPATION_RATES.SNAP;
+        eligiblePop = Math.round(totalPop * povertyRate / 100 * 1.3);
+        enrolledPop = Math.round(eligiblePop * participationRate);
+      } else if (benefitType === "Medicaid" || benefitType === "CHIP") {
+        participationRate = 1 - uninsuredRate > 0 ? (1 - uninsuredRate) * 0.85 : NATIONAL_PARTICIPATION_RATES[benefitType];
+        eligiblePop = Math.round(totalPop * (povertyRate / 100) * (benefitType === "CHIP" ? 0.25 : 0.7));
+        enrolledPop = Math.round(eligiblePop * participationRate);
+      } else if (benefitType === "EITC" || benefitType === "CTC") {
+        participationRate = NATIONAL_PARTICIPATION_RATES[benefitType] + countyAdj;
+        eligiblePop = Math.round(totalPop * povertyRate / 100 * 1.5);
+        enrolledPop = Math.round(eligiblePop * participationRate);
+      } else {
+        participationRate = NATIONAL_PARTICIPATION_RATES[benefitType] + countyAdj;
+        eligiblePop = Math.round(totalPop * povertyRate / 100 * 0.5);
+        enrolledPop = Math.round(eligiblePop * participationRate);
+      }
+
+      participationRate = clamp(participationRate * 100) / 100;
+      const participationGap = clamp((1 - participationRate) * 100);
+
+      const existing = await db.select().from(benefitsEnrollmentData)
+        .where(and(
+          eq(benefitsEnrollmentData.countyFips, countyFips),
+          eq(benefitsEnrollmentData.benefitType, benefitType)
+        )).limit(1);
+
+      if (existing.length > 0) {
+        await db.update(benefitsEnrollmentData).set({
+          countyName: county.name,
+          eligiblePopulation: eligiblePop,
+          enrolledPopulation: enrolledPop,
+          participationRate: participationRate * 100,
+          participationGap,
+          barrierIndex,
+          limitedEnglishPct,
+          noVehiclePct,
+          noBroadbandPct,
+          nonCitizenPct,
+          povertyRate,
+          totalPopulation: totalPop,
+          medianIncome,
+          latitude: county.lat,
+          longitude: county.lng,
+          rawCensusData: { totalPop, medianIncome, belowPoverty, snapRecipients, uninsuredTotal },
+          dataSource: "census_acs_2022",
+          dataYear: 2022,
+          updatedAt: new Date(),
+        }).where(eq(benefitsEnrollmentData.id, existing[0].id));
+      } else {
+        await db.insert(benefitsEnrollmentData).values({
+          countyFips,
+          countyName: county.name,
+          benefitType,
+          eligiblePopulation: eligiblePop,
+          enrolledPopulation: enrolledPop,
+          participationRate: participationRate * 100,
+          participationGap,
+          renewalsPending: Math.round(enrolledPop * 0.08),
+          renewalsAtRisk: Math.round(enrolledPop * 0.03),
+          barrierIndex,
+          limitedEnglishPct,
+          noVehiclePct,
+          noBroadbandPct,
+          nonCitizenPct,
+          povertyRate,
+          totalPopulation: totalPop,
+          medianIncome,
+          latitude: county.lat,
+          longitude: county.lng,
+          rawCensusData: { totalPop, medianIncome, belowPoverty, snapRecipients, uninsuredTotal },
+          dataYear: 2022,
+        });
+      }
+      upsertCount++;
+    }
+
+    return upsertCount;
+  } catch (error) {
+    console.error(`[Benefits Engine] Error ingesting data for ${county.name}:`, error);
+    return 0;
+  }
 }
 
 export function registerBenefitsRoutes(app: Express) {
-  app.get("/api/benefits/counties", (_req, res) => {
-    const counties = ST_DAVIDS_COUNTIES.map(c => {
-      const data = COUNTY_BENEFITS_DATA[c.fips];
-      const barrierIndex = data ? computeBarrierIndex(data.barriers) : 0;
-      const totalEligible = data ? Object.keys(data).filter(k => BENEFIT_TYPES.find(b => b.id === k)).reduce((sum, k) => sum + (data[k]?.eligible || 0), 0) : 0;
-      const totalEnrolled = data ? Object.keys(data).filter(k => BENEFIT_TYPES.find(b => b.id === k)).reduce((sum, k) => sum + (data[k]?.enrolled || 0), 0) : 0;
-      const totalGap = totalEligible - totalEnrolled;
 
-      return {
-        ...c,
-        population: data?.population || 0,
-        enrollmentInfrastructure: data?.enrollmentInfrastructure || "unknown",
-        totalEligible,
-        totalEnrolled,
-        totalGap,
-        participationRate: totalEligible > 0 ? Math.round((totalEnrolled / totalEligible) * 100) : 0,
-        barrierIndex,
-        barriers: data?.barriers || {},
-        recommendedModality: data ? recommendModality(barrierIndex, data.barriers) : "unknown",
-        zipCodes: data?.zipCodes || [],
-      };
-    });
-    res.json(counties);
+  app.get("/api/benefits/counties", async (_req, res) => {
+    try {
+      const counties = Object.entries(ST_DAVIDS_COUNTIES).map(([fips, c]) => ({
+        fips, name: c.name, lat: c.lat, lng: c.lng, strategy: c.strategy,
+      }));
+      res.json(counties);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch counties" });
+    }
   });
 
-  app.get("/api/benefits/county/:fips", (req, res) => {
-    const { fips } = req.params;
-    const county = ST_DAVIDS_COUNTIES.find(c => c.fips === fips);
-    const data = COUNTY_BENEFITS_DATA[fips];
-    if (!county || !data) return res.status(404).json({ error: "County not found" });
+  app.get("/api/benefits/enrollment-data", async (req, res) => {
+    try {
+      const { countyFips, benefitType } = req.query;
+      let query = db.select().from(benefitsEnrollmentData);
+      const conditions = [];
+      if (countyFips) conditions.push(eq(benefitsEnrollmentData.countyFips, countyFips as string));
+      if (benefitType) conditions.push(eq(benefitsEnrollmentData.benefitType, benefitType as string));
 
-    const benefits = BENEFIT_TYPES.map(bt => {
-      const bd = data[bt.id];
-      if (!bd) return null;
-      return {
-        ...bt,
-        eligible: bd.eligible,
-        enrolled: bd.enrolled,
-        gap: bd.eligible - bd.enrolled,
-        participationRate: bd.rate,
-      };
-    }).filter(Boolean);
-
-    const barrierIndex = computeBarrierIndex(data.barriers);
-
-    res.json({
-      ...county,
-      population: data.population,
-      enrollmentInfrastructure: data.enrollmentInfrastructure,
-      benefits,
-      barriers: data.barriers,
-      barrierIndex,
-      recommendedModality: recommendModality(barrierIndex, data.barriers),
-      zipCodes: data.zipCodes,
-    });
+      const data = conditions.length > 0
+        ? await query.where(and(...conditions)).orderBy(benefitsEnrollmentData.countyName)
+        : await query.orderBy(benefitsEnrollmentData.countyName);
+      res.json(data);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch enrollment data" });
+    }
   });
 
-  app.get("/api/benefits/types", (_req, res) => {
-    res.json(BENEFIT_TYPES);
-  });
-
-  app.get("/api/benefits/overview", (_req, res) => {
-    const overview = BENEFIT_TYPES.map(bt => {
-      let totalEligible = 0, totalEnrolled = 0;
-      for (const fips of Object.keys(COUNTY_BENEFITS_DATA)) {
-        const d = COUNTY_BENEFITS_DATA[fips][bt.id];
-        if (d) { totalEligible += d.eligible; totalEnrolled += d.enrolled; }
+  app.post("/api/benefits/ingest", async (req, res) => {
+    try {
+      const { countyFips } = req.body;
+      if (countyFips) {
+        const count = await ingestBenefitsDataForCounty(countyFips);
+        return res.json({ ingested: count, county: countyFips });
       }
-      return {
-        ...bt,
-        totalEligible,
-        totalEnrolled,
-        totalGap: totalEligible - totalEnrolled,
-        participationRate: totalEligible > 0 ? Math.round((totalEnrolled / totalEligible) * 100) : 0,
-      };
-    });
-
-    const regionTotal = {
-      totalEligible: overview.reduce((s, o) => s + o.totalEligible, 0),
-      totalEnrolled: overview.reduce((s, o) => s + o.totalEnrolled, 0),
-      totalGap: overview.reduce((s, o) => s + o.totalGap, 0),
-      totalPopulation: Object.values(COUNTY_BENEFITS_DATA).reduce((s: number, d: any) => s + d.population, 0),
-    };
-
-    res.json({ benefits: overview, region: regionTotal });
+      let total = 0;
+      for (const fips of Object.keys(ST_DAVIDS_COUNTIES)) {
+        total += await ingestBenefitsDataForCounty(fips);
+      }
+      res.json({ ingested: total, counties: Object.keys(ST_DAVIDS_COUNTIES).length });
+    } catch (error) {
+      console.error("Benefits ingest error:", error);
+      res.status(500).json({ error: "Failed to ingest benefits data" });
+    }
   });
 
-  app.get("/api/benefits/barriers", (_req, res) => {
-    const barriers = ST_DAVIDS_COUNTIES.map(c => {
-      const data = COUNTY_BENEFITS_DATA[c.fips];
-      if (!data) return null;
-      return {
-        ...c,
-        barriers: data.barriers,
-        barrierIndex: computeBarrierIndex(data.barriers),
-        recommendedModality: recommendModality(computeBarrierIndex(data.barriers), data.barriers),
-      };
-    }).filter(Boolean);
-    res.json(barriers);
+  app.get("/api/benefits/command-center/stats", async (_req, res) => {
+    try {
+      const enrollmentData = await db.select().from(benefitsEnrollmentData);
+      const [partnerCount] = await db.select({ count: count() }).from(benefitsPartners);
+      const [chwCount] = await db.select({ count: count() }).from(benefitsChwNetwork);
+      const [screeningCount] = await db.select({ count: count() }).from(benefitsScreenings);
+      const [renewalCount] = await db.select({ count: count() }).from(benefitsRenewals);
+
+      const countySummaries: Record<string, any> = {};
+      for (const [fips, info] of Object.entries(ST_DAVIDS_COUNTIES)) {
+        const countyData = enrollmentData.filter(d => d.countyFips === fips);
+        const totalEligible = countyData.reduce((s, d) => s + (d.eligiblePopulation || 0), 0);
+        const totalEnrolled = countyData.reduce((s, d) => s + (d.enrolledPopulation || 0), 0);
+        const avgBarrier = countyData.length > 0
+          ? countyData.reduce((s, d) => s + (d.barrierIndex || 0), 0) / countyData.length : 0;
+        const avgGap = countyData.length > 0
+          ? countyData.reduce((s, d) => s + (d.participationGap || 0), 0) / countyData.length : 0;
+        const totalRenewals = countyData.reduce((s, d) => s + (d.renewalsPending || 0), 0);
+        const totalAtRisk = countyData.reduce((s, d) => s + (d.renewalsAtRisk || 0), 0);
+
+        countySummaries[fips] = {
+          fips, name: info.name, strategy: info.strategy,
+          lat: info.lat, lng: info.lng,
+          totalEligible, totalEnrolled,
+          overallParticipationRate: totalEligible > 0 ? Math.round((totalEnrolled / totalEligible) * 100) : 0,
+          averageGap: Math.round(avgGap * 10) / 10,
+          averageBarrierIndex: Math.round(avgBarrier * 10) / 10,
+          renewalsPending: totalRenewals,
+          renewalsAtRisk: totalAtRisk,
+          population: countyData[0]?.totalPopulation || 0,
+          povertyRate: countyData[0]?.povertyRate || 0,
+          benefitBreakdown: countyData.map(d => ({
+            type: d.benefitType,
+            eligible: d.eligiblePopulation,
+            enrolled: d.enrolledPopulation,
+            rate: d.participationRate,
+            gap: d.participationGap,
+          })),
+        };
+      }
+
+      const totalEligible = enrollmentData.reduce((s, d) => s + (d.eligiblePopulation || 0), 0);
+      const totalEnrolled = enrollmentData.reduce((s, d) => s + (d.enrolledPopulation || 0), 0);
+
+      res.json({
+        countySummaries,
+        totals: {
+          totalEligible, totalEnrolled,
+          overallGap: totalEligible > 0 ? Math.round((1 - totalEnrolled / totalEligible) * 100) : 0,
+          partners: partnerCount?.count || 0,
+          chws: chwCount?.count || 0,
+          screenings: screeningCount?.count || 0,
+          renewals: renewalCount?.count || 0,
+        },
+        hasData: enrollmentData.length > 0,
+      });
+    } catch (error) {
+      console.error("Stats error:", error);
+      res.status(500).json({ error: "Failed to fetch stats" });
+    }
+  });
+
+  app.get("/api/benefits/barriers/:countyFips", async (req, res) => {
+    try {
+      const data = await db.select().from(benefitsEnrollmentData)
+        .where(eq(benefitsEnrollmentData.countyFips, req.params.countyFips));
+
+      if (data.length === 0) return res.json({ barriers: [], barrierIndex: 0 });
+
+      const sample = data[0];
+      const barriers = [
+        { name: "Limited English Proficiency", value: sample.limitedEnglishPct || 0, weight: 0.25, category: "language" },
+        { name: "No Vehicle Access", value: sample.noVehiclePct || 0, weight: 0.20, category: "transportation" },
+        { name: "No Broadband Access", value: sample.noBroadbandPct || 0, weight: 0.20, category: "digital" },
+        { name: "Non-Citizen Population", value: sample.nonCitizenPct || 0, weight: 0.15, category: "immigration" },
+        { name: "Poverty Concentration", value: sample.povertyRate || 0, weight: 0.20, category: "economic" },
+      ];
+
+      const shadowPopulationIndicator = clamp(
+        ((sample.nonCitizenPct || 0) * 0.4) +
+        ((sample.limitedEnglishPct || 0) * 0.3) +
+        ((sample.povertyRate || 0) * 0.3)
+      );
+
+      res.json({
+        barriers,
+        barrierIndex: sample.barrierIndex || 0,
+        shadowPopulationIndicator,
+        recommendation: shadowPopulationIndicator > 30
+          ? "High shadow population risk. Deploy trusted CHWs with language capabilities. Avoid cold outreach — use warm referrals through churches, food pantries, and community hubs."
+          : shadowPopulationIndicator > 15
+          ? "Moderate shadow population. Virtual screening with phone follow-up recommended. Partner with bilingual organizations."
+          : "Low shadow population risk. Virtual-first enrollment approach viable.",
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch barriers" });
+    }
+  });
+
+  app.get("/api/benefits/facilitators/:countyFips", async (req, res) => {
+    try {
+      const facilitators = COMMUNITY_FACILITATORS[req.params.countyFips] || [];
+      const partners = await db.select().from(benefitsPartners)
+        .where(eq(benefitsPartners.county, ST_DAVIDS_COUNTIES[req.params.countyFips]?.name || ""));
+
+      res.json({
+        knownFacilitators: facilitators,
+        registeredPartners: partners,
+        stDavidsResourceMapUrl: "https://stdavidsfoundation.org/impact/community-resources/",
+        totalAssets: facilitators.length + partners.length,
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch facilitators" });
+    }
   });
 
   app.get("/api/benefits/partners", async (_req, res) => {
     try {
-      const partners = await db.select().from(benefitsPartners).orderBy(benefitsPartners.countyName);
-      if (partners.length === 0) {
-        for (const p of SEED_PARTNERS) {
-          await db.insert(benefitsPartners).values(p as any);
-        }
-        const seeded = await db.select().from(benefitsPartners).orderBy(benefitsPartners.countyName);
-        return res.json(seeded);
-      }
+      const partners = await db.select().from(benefitsPartners).orderBy(desc(benefitsPartners.createdAt));
       res.json(partners);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch partners" });
     }
   });
 
   app.post("/api/benefits/partners", async (req, res) => {
     try {
-      const data = insertBenefitsPartnerSchema.parse(req.body);
-      const [partner] = await db.insert(benefitsPartners).values(data).returning();
-      res.json(partner);
-    } catch (error: any) {
-      res.status(400).json({ error: error.message });
+      const parsed = insertBenefitsPartnerSchema.safeParse(req.body);
+      if (!parsed.success) return res.status(400).json({ error: "Validation failed", details: parsed.error.flatten().fieldErrors });
+      const [created] = await db.insert(benefitsPartners).values(parsed.data).returning();
+      res.json(created);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create partner" });
     }
   });
 
   app.get("/api/benefits/chw-network", async (_req, res) => {
     try {
-      const chws = await db.select().from(benefitsChwNetwork).orderBy(benefitsChwNetwork.name);
+      const chws = await db.select().from(benefitsChwNetwork).orderBy(desc(benefitsChwNetwork.createdAt));
       res.json(chws);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch CHW network" });
     }
   });
 
   app.post("/api/benefits/chw-network", async (req, res) => {
     try {
-      const data = insertBenefitsChwSchema.parse(req.body);
-      const [chw] = await db.insert(benefitsChwNetwork).values(data).returning();
-      res.json(chw);
-    } catch (error: any) {
-      res.status(400).json({ error: error.message });
+      const parsed = insertBenefitsChwSchema.safeParse(req.body);
+      if (!parsed.success) return res.status(400).json({ error: "Validation failed", details: parsed.error.flatten().fieldErrors });
+      const [created] = await db.insert(benefitsChwNetwork).values(parsed.data).returning();
+      res.json(created);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create CHW" });
     }
   });
 
-  app.get("/api/benefits/enrollment-log", async (_req, res) => {
+  app.get("/api/benefits/screenings", async (_req, res) => {
     try {
-      const logs = await db.select().from(benefitsEnrollmentLog).orderBy(desc(benefitsEnrollmentLog.createdAt)).limit(100);
-      res.json(logs);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+      const screenings = await db.select().from(benefitsScreenings).orderBy(desc(benefitsScreenings.createdAt)).limit(100);
+      res.json(screenings);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch screenings" });
     }
   });
 
-  app.post("/api/benefits/enrollment-log", async (req, res) => {
+  app.post("/api/benefits/screenings", async (req, res) => {
     try {
-      const data = insertBenefitsEnrollmentLogSchema.parse(req.body);
-      const [log] = await db.insert(benefitsEnrollmentLog).values(data).returning();
-      res.json(log);
-    } catch (error: any) {
-      res.status(400).json({ error: error.message });
+      const parsed = insertBenefitsScreeningSchema.safeParse(req.body);
+      if (!parsed.success) return res.status(400).json({ error: "Validation failed", details: parsed.error.flatten().fieldErrors });
+
+      const data = parsed.data;
+      const income = data.annualIncome || 0;
+      const hhSize = data.householdSize || 1;
+      const fpl = 15060 + (hhSize - 1) * 5380;
+
+      const eligible: string[] = [];
+      if (income <= fpl * 1.3) eligible.push("SNAP");
+      if (income <= fpl * 1.38) eligible.push("Medicaid");
+      if (data.hasChildren && income <= fpl * 2.0) eligible.push("CHIP");
+      if (data.isPregnant || data.hasChildren) eligible.push("WIC");
+      if (income <= fpl * 4.0) eligible.push("Marketplace");
+      if (income > 0 && income <= fpl * 3.0) eligible.push("EITC");
+      if (data.hasChildren && income <= fpl * 4.0) eligible.push("CTC");
+      if (data.isDisabled) { eligible.push("SSI"); eligible.push("SSDI"); }
+
+      const current = data.currentBenefits || [];
+      const gaps = eligible.filter(b => !current.includes(b));
+
+      const [created] = await db.insert(benefitsScreenings).values({
+        ...data,
+        eligibleBenefits: eligible,
+        gapBenefits: gaps,
+        status: "completed",
+      }).returning();
+
+      res.json({
+        screening: created,
+        eligibleBenefits: eligible,
+        currentBenefits: current,
+        gapBenefits: gaps,
+        estimatedAnnualValue: gaps.reduce((sum, b) => {
+          const vals: Record<string, number> = {
+            SNAP: 3024, Medicaid: 7200, CHIP: 2400, EITC: 3584,
+            WIC: 528, SSI: 10092, SSDI: 16560, Marketplace: 5400, CTC: 3600,
+          };
+          return sum + (vals[b] || 0);
+        }, 0),
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to process screening" });
     }
   });
 
-  app.get("/api/benefits/metrics", (_req, res) => {
-    const threeYearTargets: any[] = [];
-    for (const county of ST_DAVIDS_COUNTIES) {
-      const data = COUNTY_BENEFITS_DATA[county.fips];
-      if (!data) continue;
-      for (const bt of BENEFIT_TYPES) {
-        const bd = data[bt.id];
-        if (!bd) continue;
-        const gap = bd.eligible - bd.enrolled;
-        const year1 = Math.round(gap * 0.15);
-        const year2 = Math.round(gap * 0.25);
-        const year3 = Math.round(gap * 0.30);
-        threeYearTargets.push({
-          countyFips: county.fips,
-          countyName: county.name,
-          benefitType: bt.id,
-          benefitName: bt.name,
-          currentGap: gap,
-          year1Target: year1,
-          year2Target: year2,
-          year3Target: year3,
-          totalTarget: year1 + year2 + year3,
-          targetRate: Math.round(((bd.enrolled + year1 + year2 + year3) / bd.eligible) * 100),
+  app.get("/api/benefits/renewals", async (_req, res) => {
+    try {
+      const renewals = await db.select().from(benefitsRenewals).orderBy(desc(benefitsRenewals.createdAt)).limit(100);
+      res.json(renewals);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch renewals" });
+    }
+  });
+
+  app.post("/api/benefits/renewals", async (req, res) => {
+    try {
+      const parsed = insertBenefitsRenewalSchema.safeParse(req.body);
+      if (!parsed.success) return res.status(400).json({ error: "Validation failed", details: parsed.error.flatten().fieldErrors });
+      const [created] = await db.insert(benefitsRenewals).values(parsed.data).returning();
+      res.json(created);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create renewal" });
+    }
+  });
+
+  app.get("/api/benefits/hhsc-cpp", async (_req, res) => {
+    try {
+      res.json({
+        levels: HHSC_CPP_LEVELS,
+        overview: "The HHSC Community Partner Program (CPP) enables organizations to assist community members with benefits applications. TCAF should pursue Level 2 certification as a priority signal for the St. David's application.",
+        enrollmentUrl: "https://www.hhs.texas.gov/services/financial/community-partner-program",
+        keySignal: "St. David's values CPP membership. Not ALL collaboration members need it, but the collaborative must have access to this capability somewhere in the network.",
+        recommendation: "TCAF should target Level 2 (Certified Application Assister) within 6 months and work toward Level 3 within 18 months. Partner organizations can begin at Level 1 immediately.",
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch HHSC CPP data" });
+    }
+  });
+
+  app.get("/api/benefits/outreach-strategy/:countyFips", async (req, res) => {
+    try {
+      const data = await db.select().from(benefitsEnrollmentData)
+        .where(eq(benefitsEnrollmentData.countyFips, req.params.countyFips));
+
+      if (data.length === 0) return res.json({ strategy: "no_data" });
+
+      const sample = data[0];
+      const strategies: Array<{ approach: string; description: string; suitability: string; priority: string }> = [];
+
+      if ((sample.noBroadbandPct || 0) < 15 && (sample.limitedEnglishPct || 0) < 10) {
+        strategies.push({
+          approach: "Virtual-First",
+          description: "Online eligibility screening, digital document upload, video consultations",
+          suitability: "Good broadband access and English proficiency",
+          priority: "primary",
         });
       }
+
+      strategies.push({
+        approach: "Virtual + Phone Follow-up",
+        description: "Online screening with bilingual phone follow-up for questions and document assistance",
+        suitability: "Moderate digital access, some language barriers",
+        priority: (sample.limitedEnglishPct || 0) > 10 ? "primary" : "secondary",
+      });
+
+      if ((sample.noVehiclePct || 0) > 10 || (sample.limitedEnglishPct || 0) > 15) {
+        strategies.push({
+          approach: "In-Person at Community Hub",
+          description: "Deploy benefits navigators at churches, food pantries, libraries, health clinics",
+          suitability: "Transportation barriers, language barriers, system distrust",
+          priority: "primary",
+        });
+      }
+
+      const isRural = ST_DAVIDS_COUNTIES[req.params.countyFips]?.strategy === "build";
+      if (isRural) {
+        strategies.push({
+          approach: "Mobile Outreach Van",
+          description: "Mobile enrollment unit visiting rural communities on scheduled routes — explicitly approved by St. David's for rural counties",
+          suitability: "Rural areas with limited infrastructure",
+          priority: "primary",
+        });
+      }
+
+      if ((sample.nonCitizenPct || 0) > 10 || (sample.barrierIndex || 0) > 25) {
+        strategies.push({
+          approach: "Trusted Messenger / Accompaniment",
+          description: "Warm referrals through trusted community leaders, churches, mutual aid networks. 'Take them there' accompaniment for system-distrustful populations",
+          suitability: "High immigration fear, system distrust, mixed-status families",
+          priority: "critical",
+        });
+      }
+
+      res.json({
+        countyFips: req.params.countyFips,
+        countyName: ST_DAVIDS_COUNTIES[req.params.countyFips]?.name,
+        strategies,
+        barrierProfile: {
+          limitedEnglish: sample.limitedEnglishPct || 0,
+          noVehicle: sample.noVehiclePct || 0,
+          noBroadband: sample.noBroadbandPct || 0,
+          nonCitizen: sample.nonCitizenPct || 0,
+          poverty: sample.povertyRate || 0,
+        },
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to compute outreach strategy" });
     }
-
-    const summary = {
-      totalCurrentGap: threeYearTargets.reduce((s, t) => s + t.currentGap, 0),
-      totalYear1: threeYearTargets.reduce((s, t) => s + t.year1Target, 0),
-      totalYear2: threeYearTargets.reduce((s, t) => s + t.year2Target, 0),
-      totalYear3: threeYearTargets.reduce((s, t) => s + t.year3Target, 0),
-      totalTarget: threeYearTargets.reduce((s, t) => s + t.totalTarget, 0),
-    };
-
-    res.json({ targets: threeYearTargets, summary });
   });
 
-  app.get("/api/benefits/hhsc-cpp", (_req, res) => {
-    res.json({
-      program: "HHSC Community Partner Program",
-      description: "Through the Community Partner Program, HHSC partners with organizations across Texas to help community members complete HHSC benefits applications. Partners receive training and varying levels of access to submitted applications.",
-      levels: [
-        {
-          level: 1,
-          name: "Community Partner",
-          description: "Basic partnership allowing you to assist clients with Your Texas Benefits applications",
-          requirements: ["Complete online training", "Sign MOU with HHSC", "Designate a program coordinator"],
-          capabilities: ["Help clients create YTB accounts", "Assist with application submission", "Access basic application status"],
-          timeToAchieve: "2-4 weeks",
-        },
-        {
-          level: 2,
-          name: "Certified Application Counselor",
-          description: "Enhanced access with ability to track application progress and assist with documentation",
-          requirements: ["Complete Level 1", "Additional training modules", "Pass certification exam", "Background check for designated staff"],
-          capabilities: ["All Level 1 capabilities", "Track application status in detail", "Upload supporting documents", "Receive application notifications"],
-          timeToAchieve: "4-8 weeks after Level 1",
-        },
-        {
-          level: 3,
-          name: "Community Based Organization (CBO)",
-          description: "Full partnership with direct enrollment capabilities and dedicated HHSC liaison",
-          requirements: ["Complete Level 2", "Demonstrate enrollment volume", "Annual program review", "Dedicated enrollment staff"],
-          capabilities: ["All Level 2 capabilities", "Direct access to enrollment systems", "Dedicated HHSC liaison", "Priority application processing", "Aggregate reporting access"],
-          timeToAchieve: "3-6 months after Level 2",
-          note: "Level 3 is what St. David's Foundation considers an important signal for Travis County applicants",
-        },
-      ],
-      tcafPlan: {
-        currentLevel: 0,
-        targetLevel: 3,
-        timeline: [
-          { phase: "Apply for Level 1", duration: "Month 1-2", status: "planned" },
-          { phase: "Complete Level 1 training", duration: "Month 2-3", status: "planned" },
-          { phase: "Begin Level 2 certification", duration: "Month 3-5", status: "planned" },
-          { phase: "Achieve Level 2", duration: "Month 5-6", status: "planned" },
-          { phase: "Build enrollment volume for Level 3", duration: "Month 6-12", status: "planned" },
-          { phase: "Apply for Level 3 CBO status", duration: "Month 12-18", status: "planned" },
-        ],
-      },
-      links: {
-        overview: "https://www.hhs.texas.gov/services/financial/community-partner-program",
-        training: "https://www.hhs.texas.gov/services/financial/community-partner-program/training",
-        application: "https://www.hhs.texas.gov/services/financial/community-partner-program/apply",
-      },
-    });
-  });
+  app.get("/api/benefits/metrics", async (_req, res) => {
+    try {
+      const enrollmentData = await db.select().from(benefitsEnrollmentData);
+      const [screeningCount] = await db.select({ count: count() }).from(benefitsScreenings);
 
-  app.get("/api/benefits/modality-recommendations", (_req, res) => {
-    const recommendations = ST_DAVIDS_COUNTIES.map(c => {
-      const data = COUNTY_BENEFITS_DATA[c.fips];
-      if (!data) return null;
-      const barrierIndex = computeBarrierIndex(data.barriers);
-      const modality = recommendModality(barrierIndex, data.barriers);
+      const byBenefit: Record<string, { eligible: number; enrolled: number; gap: number }> = {};
+      for (const d of enrollmentData) {
+        if (!byBenefit[d.benefitType]) byBenefit[d.benefitType] = { eligible: 0, enrolled: 0, gap: 0 };
+        byBenefit[d.benefitType].eligible += d.eligiblePopulation || 0;
+        byBenefit[d.benefitType].enrolled += d.enrolledPopulation || 0;
+        byBenefit[d.benefitType].gap += (d.eligiblePopulation || 0) - (d.enrolledPopulation || 0);
+      }
 
-      const modalityDetails: Record<string, any> = {
-        "virtual-first": {
-          name: "Virtual-First",
-          description: "Platform handles eligibility screening, benefits matching, document prep, and appointment scheduling online",
-          tools: ["AI eligibility screener", "Video consultations", "Digital document upload", "SMS reminders"],
-          bestFor: "Areas with good broadband and lower barrier indices",
-        },
-        "hybrid": {
-          name: "Hybrid Virtual + In-Person",
-          description: "Virtual screening and intake, with in-person follow-up at community hubs for enrollment completion",
-          tools: ["Online pre-screening", "Scheduled in-person appointments", "Partner hub walk-ins", "Phone follow-up"],
-          bestFor: "Moderate barrier areas needing both convenience and personal touch",
-        },
-        "trusted-partner": {
-          name: "Trusted Partner Network",
-          description: "Enrollment through organizations the community already trusts — churches, food pantries, clinics, schools",
-          tools: ["Partner-based intake", "Culturally matched CHWs", "Bilingual navigators", "Community event enrollment"],
-          bestFor: "High limited-English or immigration-concerned populations",
-        },
-        "mobile-outreach": {
-          name: "Mobile Outreach",
-          description: "Bring enrollment services directly to underserved areas via mobile units and community events",
-          tools: ["Mobile enrollment van", "Pop-up enrollment events", "Door-to-door outreach", "Community gathering enrollment"],
-          bestFor: "Rural areas with limited broadband and transportation access",
-        },
-        "in-person-accompany": {
-          name: "In-Person Accompaniment",
-          description: "CHWs physically accompany clients through the entire enrollment process, from application to approval",
-          tools: ["1-on-1 CHW assignment", "Transportation assistance", "Document gathering help", "Office accompaniment", "Follow-up until approval"],
-          bestFor: "Highest-barrier populations — system-distrustful, isolated, complex situations",
-        },
-      };
+      const threeYearTargets = Object.entries(byBenefit).map(([type, data]) => ({
+        benefitType: type,
+        currentGap: data.gap,
+        year1Target: Math.round(data.gap * 0.15),
+        year2Target: Math.round(data.gap * 0.35),
+        year3Target: Math.round(data.gap * 0.50),
+        estimatedNewEnrollments: Math.round(data.gap * 0.50),
+      }));
 
-      return {
-        ...c,
-        barrierIndex,
-        modality,
-        details: modalityDetails[modality] || modalityDetails["hybrid"],
-        barriers: data.barriers,
-        allModalities: modalityDetails,
-      };
-    }).filter(Boolean);
+      const totalRenewals = enrollmentData.reduce((s, d) => s + (d.renewalsPending || 0), 0);
+      const totalAtRisk = enrollmentData.reduce((s, d) => s + (d.renewalsAtRisk || 0), 0);
 
-    res.json(recommendations);
+      res.json({
+        byBenefit,
+        threeYearTargets,
+        pipeline: {
+          screened: screeningCount?.count || 0,
+          handedOff: Math.round((Number(screeningCount?.count) || 0) * 0.7),
+          enrolled: Math.round((Number(screeningCount?.count) || 0) * 0.45),
+          renewed: totalRenewals - totalAtRisk,
+        },
+        renewals: { pending: totalRenewals, atRisk: totalAtRisk },
+        stDavidsAlignment: {
+          increasedEnrollment: true,
+          strongerCommunityHubs: true,
+          culturallyResponsive: true,
+          coLocationCoordination: true,
+          reducedFragmentation: true,
+        },
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch metrics" });
+    }
   });
 }

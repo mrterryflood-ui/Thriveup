@@ -4035,57 +4035,66 @@ export const insertAgentExchangeSchema = createInsertSchema(agentExchanges).omit
 export type InsertAgentExchange = z.infer<typeof insertAgentExchangeSchema>;
 export type AgentExchange = typeof agentExchanges.$inferSelect;
 
+// ==================== BENEFITS INTELLIGENCE SYSTEM ====================
+
 export const benefitsEnrollmentData = pgTable("benefits_enrollment_data", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
   countyFips: varchar("county_fips", { length: 10 }).notNull(),
-  countyName: varchar("county_name", { length: 100 }).notNull(),
+  countyName: varchar("county_name", { length: 255 }).notNull(),
   zipCode: varchar("zip_code", { length: 10 }),
   tractId: varchar("tract_id", { length: 20 }),
   benefitType: varchar("benefit_type", { length: 50 }).notNull(),
   eligiblePopulation: integer("eligible_population"),
   enrolledPopulation: integer("enrolled_population"),
   participationRate: real("participation_rate"),
-  enrollmentGap: integer("enrollment_gap"),
+  participationGap: real("participation_gap"),
+  renewalsPending: integer("renewals_pending").default(0),
+  renewalsAtRisk: integer("renewals_at_risk").default(0),
   barrierIndex: real("barrier_index"),
-  limitedEnglishRate: real("limited_english_rate"),
-  noVehicleRate: real("no_vehicle_rate"),
-  noBroadbandRate: real("no_broadband_rate"),
-  nonCitizenRate: real("non_citizen_rate"),
-  povertyConcentration: real("poverty_concentration"),
-  recommendedModality: varchar("recommended_modality", { length: 50 }),
-  dataSource: varchar("data_source"),
+  limitedEnglishPct: real("limited_english_pct"),
+  noVehiclePct: real("no_vehicle_pct"),
+  noBroadbandPct: real("no_broadband_pct"),
+  nonCitizenPct: real("non_citizen_pct"),
+  povertyRate: real("poverty_rate"),
+  totalPopulation: integer("total_population"),
+  medianIncome: real("median_income"),
+  rawCensusData: jsonb("raw_census_data"),
+  dataSource: varchar("data_source", { length: 255 }),
   dataYear: integer("data_year"),
-  rawData: jsonb("raw_data"),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  latitude: real("latitude"),
+  longitude: real("longitude"),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const insertBenefitsEnrollmentDataSchema = createInsertSchema(benefitsEnrollmentData).omit({ id: true, updatedAt: true });
+export const insertBenefitsEnrollmentDataSchema = createInsertSchema(benefitsEnrollmentData).omit({ id: true, createdAt: true, updatedAt: true });
 export type InsertBenefitsEnrollmentData = z.infer<typeof insertBenefitsEnrollmentDataSchema>;
 export type BenefitsEnrollmentData = typeof benefitsEnrollmentData.$inferSelect;
 
 export const benefitsPartners = pgTable("benefits_partners", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  organizationName: varchar("organization_name", { length: 200 }).notNull(),
-  countyFips: varchar("county_fips", { length: 10 }).notNull(),
-  countyName: varchar("county_name", { length: 100 }).notNull(),
-  partnerType: varchar("partner_type", { length: 50 }).notNull(),
-  servicesProvided: text("services_provided").array(),
-  benefitTypesServed: text("benefit_types_served").array(),
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  name: varchar("name", { length: 500 }).notNull(),
+  organizationType: varchar("organization_type", { length: 100 }).notNull(),
+  county: varchar("county", { length: 100 }).notNull(),
+  coverageZips: text("coverage_zips").array(),
+  servicesOffered: text("services_offered").array(),
+  benefitTypes: text("benefit_types").array(),
   languages: text("languages").array(),
+  contactName: varchar("contact_name", { length: 255 }),
+  contactEmail: varchar("contact_email", { length: 255 }),
+  contactPhone: varchar("contact_phone", { length: 50 }),
   address: text("address"),
-  zipCode: varchar("zip_code", { length: 10 }),
   latitude: real("latitude"),
   longitude: real("longitude"),
-  contactName: varchar("contact_name", { length: 200 }),
-  contactEmail: varchar("contact_email", { length: 200 }),
-  contactPhone: varchar("contact_phone", { length: 20 }),
   hhscCppLevel: integer("hhsc_cpp_level"),
   isVitaSite: boolean("is_vita_site").default(false),
-  capacityStatus: varchar("capacity_status", { length: 50 }),
-  coverageZipCodes: text("coverage_zip_codes").array(),
+  capacity: integer("capacity"),
+  currentCaseload: integer("current_caseload").default(0),
+  isActive: boolean("is_active").notNull().default(true),
   notes: text("notes"),
+  stDavidsListed: boolean("st_davids_listed").default(false),
   createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 export const insertBenefitsPartnerSchema = createInsertSchema(benefitsPartners).omit({ id: true, createdAt: true, updatedAt: true });
@@ -4093,21 +4102,26 @@ export type InsertBenefitsPartner = z.infer<typeof insertBenefitsPartnerSchema>;
 export type BenefitsPartner = typeof benefitsPartners.$inferSelect;
 
 export const benefitsChwNetwork = pgTable("benefits_chw_network", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  name: varchar("name", { length: 200 }).notNull(),
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  name: varchar("name", { length: 255 }).notNull(),
   role: varchar("role", { length: 100 }).notNull(),
-  organizationId: varchar("organization_id"),
-  countyFips: varchar("county_fips", { length: 10 }).notNull(),
-  zipCodes: text("zip_codes").array(),
+  county: varchar("county", { length: 100 }).notNull(),
+  assignedZips: text("assigned_zips").array(),
   languages: text("languages").array(),
-  specializations: text("specializations").array(),
+  culturalCompetencies: text("cultural_competencies").array(),
   certifications: text("certifications").array(),
-  activeClients: integer("active_clients").default(0),
-  enrollmentsCompleted: integer("enrollments_completed").default(0),
-  renewalsCompleted: integer("renewals_completed").default(0),
-  status: varchar("status", { length: 50 }).default("active"),
+  affiliatedOrg: varchar("affiliated_org", { length: 255 }),
+  contactEmail: varchar("contact_email", { length: 255 }),
+  contactPhone: varchar("contact_phone", { length: 50 }),
+  capacity: integer("capacity").default(20),
+  activeCases: integer("active_cases").default(0),
+  specializations: text("specializations").array(),
+  trustLevel: varchar("trust_level", { length: 50 }).default("established"),
+  isActive: boolean("is_active").notNull().default(true),
+  latitude: real("latitude"),
+  longitude: real("longitude"),
   createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 export const insertBenefitsChwSchema = createInsertSchema(benefitsChwNetwork).omit({ id: true, createdAt: true, updatedAt: true });
@@ -4115,7 +4129,7 @@ export type InsertBenefitsChw = z.infer<typeof insertBenefitsChwSchema>;
 export type BenefitsChw = typeof benefitsChwNetwork.$inferSelect;
 
 export const benefitsEnrollmentLog = pgTable("benefits_enrollment_log", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
   countyFips: varchar("county_fips", { length: 10 }).notNull(),
   zipCode: varchar("zip_code", { length: 10 }),
   benefitType: varchar("benefit_type", { length: 50 }).notNull(),
@@ -4131,5 +4145,52 @@ export const benefitsEnrollmentLog = pgTable("benefits_enrollment_log", {
 export const insertBenefitsEnrollmentLogSchema = createInsertSchema(benefitsEnrollmentLog).omit({ id: true, createdAt: true });
 export type InsertBenefitsEnrollmentLog = z.infer<typeof insertBenefitsEnrollmentLogSchema>;
 export type BenefitsEnrollmentLog = typeof benefitsEnrollmentLog.$inferSelect;
+
+export const benefitsScreenings = pgTable("benefits_screenings", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  countyFips: varchar("county_fips", { length: 10 }),
+  zipCode: varchar("zip_code", { length: 10 }),
+  screeningType: varchar("screening_type", { length: 50 }).notNull(),
+  householdSize: integer("household_size"),
+  annualIncome: real("annual_income"),
+  hasChildren: boolean("has_children").default(false),
+  isPregnant: boolean("is_pregnant").default(false),
+  isDisabled: boolean("is_disabled").default(false),
+  isElderly: boolean("is_elderly").default(false),
+  citizenshipStatus: varchar("citizenship_status", { length: 50 }),
+  eligibleBenefits: text("eligible_benefits").array(),
+  currentBenefits: text("current_benefits").array(),
+  gapBenefits: text("gap_benefits").array(),
+  referredToChwId: varchar("referred_to_chw_id", { length: 100 }),
+  referredToPartnerId: varchar("referred_to_partner_id", { length: 100 }),
+  status: varchar("status", { length: 50 }).notNull().default("completed"),
+  handoffType: varchar("handoff_type", { length: 50 }),
+  enrollmentOutcome: varchar("enrollment_outcome", { length: 50 }),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertBenefitsScreeningSchema = createInsertSchema(benefitsScreenings).omit({ id: true, createdAt: true });
+export type InsertBenefitsScreening = z.infer<typeof insertBenefitsScreeningSchema>;
+export type BenefitsScreening = typeof benefitsScreenings.$inferSelect;
+
+export const benefitsRenewals = pgTable("benefits_renewals", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  countyFips: varchar("county_fips", { length: 10 }),
+  zipCode: varchar("zip_code", { length: 10 }),
+  benefitType: varchar("benefit_type", { length: 50 }).notNull(),
+  renewalDeadline: timestamp("renewal_deadline"),
+  daysUntilDeadline: integer("days_until_deadline"),
+  outreachStatus: varchar("outreach_status", { length: 50 }).default("pending"),
+  assignedChwId: varchar("assigned_chw_id", { length: 100 }),
+  contactAttempts: integer("contact_attempts").default(0),
+  renewalOutcome: varchar("renewal_outcome", { length: 50 }),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertBenefitsRenewalSchema = createInsertSchema(benefitsRenewals).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertBenefitsRenewal = z.infer<typeof insertBenefitsRenewalSchema>;
+export type BenefitsRenewal = typeof benefitsRenewals.$inferSelect;
 
 export * from "./models/auth";

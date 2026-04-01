@@ -70,6 +70,7 @@ import {
   type AssessmentQuestion,
   type ScoringRubric,
 } from "./sankofa-gateway";
+import { registerBenefitsRoutes } from "./benefits-routes";
 import { registerGrantRoutes } from "./grant-routes";
 import { registerReentryRoutes } from "./reentry-routes";
 import { registerPartnerRoutes } from "./partner-routes";
@@ -415,6 +416,7 @@ export async function registerRoutes(
   registerPeerReviewRoutes(app);
   registerPricingRoutes(app);
   registerCollaborationRoutes(app);
+  registerBenefitsRoutes(app);
   storage.seedData().catch(err => console.error("[Seed] Data seeding failed:", err));
 
   app.get("/api/ai-provider", (_req, res) => {

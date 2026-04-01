@@ -1,788 +1,1400 @@
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { Card } from "@/components/ui/card";
+import { useState, useCallback, useMemo, useEffect } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { queryClient, apiRequest } from "@/lib/queryClient";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+import { useToast } from "@/hooks/use-toast";
+import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
 import {
-  Heart, Shield, DollarSign, Users, MapPin, AlertTriangle, Activity,
-  TrendingUp, Building2, Target, Globe, Search, ChevronRight,
-  Eye, ArrowRight, FileText, CheckCircle2, Handshake, Home,
-  Briefcase, Phone, BarChart, Sparkles, Network, Star,
-  Baby, Landmark, UtensilsCrossed, ShieldCheck, Truck,
-  Wifi, WifiOff, Car, Languages, UserCheck, ClipboardList,
-  ArrowUpRight, CircleDot, Layers, BookOpen, Calendar
+  MapPin, RefreshCw, Users, Activity, Heart, Shield, Home, Briefcase,
+  AlertTriangle, BarChart3, FileText, Globe, Search, Loader2, ChevronRight,
+  Building2, Phone, Mail, Plus, Target, TrendingUp, TrendingDown,
+  CheckCircle2, Clock, ArrowRight, Layers, Eye, Zap, UserCheck,
+  GraduationCap, Truck, Wifi, WifiOff, Languages, Ban,
+  HandHeart, Stethoscope, Baby, DollarSign, ClipboardList, Navigation,
 } from "lucide-react";
 
-type TabId = "overview" | "counties" | "barriers" | "partners" | "chw" | "navigator" | "hhsc" | "metrics" | "modality";
+type TabId = "command" | "gis" | "barriers" | "map" | "partners" | "chw" | "navigator" | "hhsc" | "metrics" | "outreach";
 
-const TAB_ITEMS: { id: TabId; label: string; icon: any }[] = [
-  { id: "overview", label: "5-County Overview", icon: Globe },
-  { id: "counties", label: "County Deep Dive", icon: MapPin },
-  { id: "barriers", label: "Barriers & Facilitators", icon: AlertTriangle },
-  { id: "partners", label: "Partner Hub", icon: Handshake },
-  { id: "chw", label: "CHW Network", icon: UserCheck },
-  { id: "navigator", label: "Virtual Navigator", icon: Sparkles },
-  { id: "hhsc", label: "HHSC CPP Pathway", icon: ShieldCheck },
-  { id: "metrics", label: "3-Year Targets", icon: Target },
-  { id: "modality", label: "Outreach Modalities", icon: Truck },
-];
-
-const BENEFIT_ICONS: Record<string, any> = {
-  snap: UtensilsCrossed, wic: Baby, medicaid: Heart, chip: Shield,
-  marketplace: Building2, eitc: DollarSign, ctc: Users, ssi: Landmark, ssdi: Briefcase,
+const COUNTY_COLORS: Record<string, string> = {
+  "48453": "#3b82f6",
+  "48491": "#8b5cf6",
+  "48209": "#22c55e",
+  "48021": "#f97316",
+  "48055": "#ef4444",
 };
 
-function formatNumber(n: number): string {
-  if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
-  if (n >= 1000) return `${(n / 1000).toFixed(1)}K`;
-  return n.toString();
+const BENEFIT_ICONS: Record<string, typeof Heart> = {
+  SNAP: Home, Medicaid: Stethoscope, CHIP: Baby, EITC: DollarSign,
+  WIC: Heart, SSI: Shield, SSDI: Shield, Marketplace: Building2, CTC: Users,
+};
+
+const BENEFIT_COLORS: Record<string, string> = {
+  SNAP: "#22c55e", Medicaid: "#3b82f6", CHIP: "#06b6d4", EITC: "#eab308",
+  WIC: "#ec4899", SSI: "#8b5cf6", SSDI: "#a855f7", Marketplace: "#f97316", CTC: "#14b8a6",
+};
+
+function getGapColor(gap: number): string {
+  if (gap >= 50) return "#ef4444";
+  if (gap >= 35) return "#f97316";
+  if (gap >= 20) return "#eab308";
+  return "#22c55e";
 }
 
-function OverviewTab() {
-  const { data: overview, isLoading } = useQuery<any>({ queryKey: ["/api/benefits/overview"] });
-  const { data: counties, isLoading: countiesLoading } = useQuery<any[]>({ queryKey: ["/api/benefits/counties"] });
+function getBarrierColor(index: number): string {
+  if (index >= 25) return "#ef4444";
+  if (index >= 15) return "#f97316";
+  if (index >= 8) return "#eab308";
+  return "#22c55e";
+}
 
-  if (isLoading || countiesLoading) return <div className="space-y-4">{[1,2,3].map(i => <Skeleton key={i} className="h-32" />)}</div>;
+function CommandDashboard() {
+  const { toast } = useToast();
+  const { data: stats, isLoading } = useQuery<any>({ queryKey: ["/api/benefits/command-center/stats"] });
+
+  const ingestMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest("POST", "/api/benefits/ingest", {});
+      return res.json();
+    },
+    onSuccess: (data) => {
+      toast({ title: "Data Ingested", description: `Loaded ${data.ingested} records from Census ACS for ${data.counties} counties.` });
+      queryClient.invalidateQueries({ queryKey: ["/api/benefits/command-center/stats"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/benefits/enrollment-data"] });
+    },
+    onError: () => toast({ title: "Ingest Failed", description: "Could not fetch Census data.", variant: "destructive" }),
+  });
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          {Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-40" />)}
+        </div>
+      </div>
+    );
+  }
+
+  if (!stats?.hasData) {
+    return (
+      <div className="space-y-6">
+        <Card className="p-8 text-center" data-testid="card-no-data">
+          <div className="space-y-4">
+            <Globe className="h-16 w-16 mx-auto text-muted-foreground" />
+            <h3 className="text-xl font-semibold">Load 5-County Benefits Data</h3>
+            <p className="text-muted-foreground max-w-lg mx-auto">
+              Pull enrollment gap data from Census ACS for all 5 St. David's Foundation counties:
+              Travis, Williamson, Hays, Bastrop, and Caldwell.
+            </p>
+            <Button size="lg" onClick={() => ingestMutation.mutate()} disabled={ingestMutation.isPending} data-testid="button-ingest-data">
+              {ingestMutation.isPending ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Ingesting...</> : <><RefreshCw className="h-4 w-4 mr-2" /> Load Census Data</>}
+            </Button>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
+  const counties = stats.countySummaries ? Object.values(stats.countySummaries) as any[] : [];
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="p-4 border-red-200 dark:border-red-800 bg-red-50/50 dark:bg-red-950/20">
-          <p className="text-sm text-muted-foreground">Total Enrollment Gap</p>
-          <p className="text-2xl font-bold text-red-600" data-testid="text-total-gap">{formatNumber(overview?.region?.totalGap || 0)}</p>
-          <p className="text-xs text-muted-foreground">Eligible but not enrolled</p>
-        </Card>
-        <Card className="p-4 border-green-200 dark:border-green-800 bg-green-50/50 dark:bg-green-950/20">
-          <p className="text-sm text-muted-foreground">Currently Enrolled</p>
-          <p className="text-2xl font-bold text-green-600" data-testid="text-total-enrolled">{formatNumber(overview?.region?.totalEnrolled || 0)}</p>
-          <p className="text-xs text-muted-foreground">Across all benefits</p>
-        </Card>
-        <Card className="p-4 border-blue-200 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-950/20">
-          <p className="text-sm text-muted-foreground">Total Eligible</p>
-          <p className="text-2xl font-bold text-blue-600" data-testid="text-total-eligible">{formatNumber(overview?.region?.totalEligible || 0)}</p>
-          <p className="text-xs text-muted-foreground">5-county region</p>
-        </Card>
-        <Card className="p-4 border-purple-200 dark:border-purple-800 bg-purple-50/50 dark:bg-purple-950/20">
-          <p className="text-sm text-muted-foreground">Regional Population</p>
-          <p className="text-2xl font-bold text-purple-600" data-testid="text-total-population">{formatNumber(overview?.region?.totalPopulation || 0)}</p>
-          <p className="text-xs text-muted-foreground">Travis, Williamson, Hays, Bastrop, Caldwell</p>
-        </Card>
-      </div>
-
-      <Card className="p-6">
-        <h3 className="text-lg font-semibold mb-4">Enrollment Gap by Benefit Type</h3>
-        <div className="space-y-3">
-          {overview?.benefits?.map((b: any) => {
-            const Icon = BENEFIT_ICONS[b.id] || Heart;
-            return (
-              <div key={b.id} className="flex items-center gap-3" data-testid={`row-benefit-${b.id}`}>
-                <Icon className="h-5 w-5 shrink-0" style={{ color: b.color }} />
-                <div className="flex-1">
-                  <div className="flex justify-between text-sm mb-1">
-                    <span className="font-medium">{b.name} <span className="text-muted-foreground">({b.category})</span></span>
-                    <span className="text-muted-foreground">{b.participationRate}% enrolled · {formatNumber(b.totalGap)} gap</span>
-                  </div>
-                  <Progress value={b.participationRate} className="h-2" />
-                </div>
-              </div>
-            );
-          })}
+      <Card className="p-4 bg-blue-900/10 border-blue-500/30 dark:bg-blue-900/20">
+        <div className="flex items-start gap-3">
+          <Zap className="w-5 h-5 text-blue-500 mt-0.5 shrink-0" />
+          <div>
+            <h3 className="text-sm font-semibold text-blue-700 dark:text-blue-300">TCAF Benefits Intelligence System</h3>
+            <p className="text-xs text-muted-foreground mt-1">
+              Covering 5 St. David's Foundation counties. Travis = strengthen existing capacity. Williamson, Hays, Bastrop, Caldwell = build/expand. Both new enrollments AND renewals are tracked. Mixed-status families are explicitly served.
+            </p>
+          </div>
         </div>
       </Card>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {counties?.map((c: any) => (
-          <Card key={c.fips} className="p-4" data-testid={`card-county-${c.fips}`}>
-            <div className="flex items-center justify-between mb-3">
-              <div>
-                <h4 className="font-semibold">{c.name}</h4>
-                <p className="text-sm text-muted-foreground">Pop: {formatNumber(c.population)}</p>
-              </div>
-              <Badge variant={c.strategy === "strengthen" ? "default" : "secondary"}>
-                {c.strategy === "strengthen" ? "Strengthen" : "Build"}
-              </Badge>
-            </div>
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span>Participation Rate</span>
-                <span className="font-medium">{c.participationRate}%</span>
-              </div>
-              <Progress value={c.participationRate} className="h-2" />
-              <div className="flex justify-between text-sm">
-                <span>Enrollment Gap</span>
-                <span className="font-medium text-red-600">{formatNumber(c.totalGap)}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span>Barrier Index</span>
-                <Badge variant={c.barrierIndex > 60 ? "destructive" : c.barrierIndex > 40 ? "secondary" : "default"} className="text-xs">
-                  {c.barrierIndex}/100
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <Card className="p-4" data-testid="stat-total-gap">
+          <div className="flex flex-col items-center text-center gap-1">
+            <AlertTriangle className="h-5 w-5 text-red-500" />
+            <span className="text-2xl font-bold">{stats.totals.overallGap}%</span>
+            <span className="text-xs text-muted-foreground">Overall Enrollment Gap</span>
+          </div>
+        </Card>
+        <Card className="p-4" data-testid="stat-total-eligible">
+          <div className="flex flex-col items-center text-center gap-1">
+            <Users className="h-5 w-5 text-blue-500" />
+            <span className="text-2xl font-bold">{(stats.totals.totalEligible || 0).toLocaleString()}</span>
+            <span className="text-xs text-muted-foreground">Total Eligible</span>
+          </div>
+        </Card>
+        <Card className="p-4" data-testid="stat-partners">
+          <div className="flex flex-col items-center text-center gap-1">
+            <Building2 className="h-5 w-5 text-purple-500" />
+            <span className="text-2xl font-bold">{stats.totals.partners}</span>
+            <span className="text-xs text-muted-foreground">Partners</span>
+          </div>
+        </Card>
+        <Card className="p-4" data-testid="stat-chws">
+          <div className="flex flex-col items-center text-center gap-1">
+            <HandHeart className="h-5 w-5 text-green-500" />
+            <span className="text-2xl font-bold">{stats.totals.chws}</span>
+            <span className="text-xs text-muted-foreground">CHWs Deployed</span>
+          </div>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+        {counties.map((county: any) => (
+          <Card key={county.fips} className="relative overflow-hidden" data-testid={`card-county-${county.fips}`}>
+            <div className="absolute top-0 left-0 right-0 h-1" style={{ backgroundColor: COUNTY_COLORS[county.fips] }} />
+            <CardHeader className="pb-2 pt-4">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-sm">{county.name.replace(" County", "")}</CardTitle>
+                <Badge variant={county.strategy === "strengthen" ? "default" : "secondary"} className="text-xs">
+                  {county.strategy}
                 </Badge>
               </div>
-            </div>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="text-center">
+                <span className="text-3xl font-bold" style={{ color: getGapColor(county.averageGap) }}>
+                  {county.averageGap}%
+                </span>
+                <p className="text-xs text-muted-foreground">Avg Enrollment Gap</p>
+              </div>
+              <div className="space-y-1 text-xs">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Population</span>
+                  <span className="font-medium">{(county.population || 0).toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Eligible</span>
+                  <span className="font-medium">{(county.totalEligible || 0).toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Enrolled</span>
+                  <span className="font-medium">{(county.totalEnrolled || 0).toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Barrier Index</span>
+                  <span className="font-medium" style={{ color: getBarrierColor(county.averageBarrierIndex) }}>
+                    {county.averageBarrierIndex}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Renewals At Risk</span>
+                  <span className="font-medium text-orange-500">{county.renewalsAtRisk}</span>
+                </div>
+              </div>
+              <Progress value={county.overallParticipationRate} className="h-1.5" />
+              <p className="text-xs text-center text-muted-foreground">{county.overallParticipationRate}% participation</p>
+            </CardContent>
           </Card>
         ))}
       </div>
+
+      <div className="flex justify-end">
+        <Button variant="outline" size="sm" onClick={() => ingestMutation.mutate()} disabled={ingestMutation.isPending} data-testid="button-refresh-data">
+          <RefreshCw className={`h-4 w-4 mr-2 ${ingestMutation.isPending ? "animate-spin" : ""}`} /> Refresh Census Data
+        </Button>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Enrollment Gap by Benefit Type</CardTitle>
+          <CardDescription>Across all 5 counties</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {counties.length > 0 && counties[0].benefitBreakdown?.map((b: any) => {
+              const totals = counties.reduce(
+                (acc: any, c: any) => {
+                  const match = c.benefitBreakdown?.find((x: any) => x.type === b.type);
+                  if (match) {
+                    acc.eligible += match.eligible || 0;
+                    acc.enrolled += match.enrolled || 0;
+                  }
+                  return acc;
+                },
+                { eligible: 0, enrolled: 0 }
+              );
+              const gap = totals.eligible > 0 ? Math.round((1 - totals.enrolled / totals.eligible) * 100) : 0;
+              const Icon = BENEFIT_ICONS[b.type] || Heart;
+              return (
+                <div key={b.type} className="flex items-center gap-3" data-testid={`benefit-row-${b.type}`}>
+                  <Icon className="h-4 w-4 shrink-0" style={{ color: BENEFIT_COLORS[b.type] }} />
+                  <span className="text-sm font-medium w-24">{b.type}</span>
+                  <div className="flex-1 bg-muted rounded-full h-3 overflow-hidden">
+                    <div
+                      className="h-full rounded-full transition-all"
+                      style={{ width: `${100 - gap}%`, backgroundColor: BENEFIT_COLORS[b.type] }}
+                    />
+                  </div>
+                  <span className="text-sm font-bold w-16 text-right" style={{ color: getGapColor(gap) }}>
+                    {gap}% gap
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
 
-function CountyDeepDiveTab() {
-  const [selectedFips, setSelectedFips] = useState("48491");
+function GisMapPanel() {
+  const { data: stats } = useQuery<any>({ queryKey: ["/api/benefits/command-center/stats"] });
   const { data: counties } = useQuery<any[]>({ queryKey: ["/api/benefits/counties"] });
-  const { data: county, isLoading } = useQuery<any>({ queryKey: ["/api/benefits/county", selectedFips] });
+  const [mapLayer, setMapLayer] = useState<"gaps" | "barriers" | "facilitators">("gaps");
+  const [selectedCounty, setSelectedCounty] = useState<string | null>(null);
+  const { data: facilitators } = useQuery<any>({
+    queryKey: ["/api/benefits/facilitators", selectedCounty],
+    enabled: !!selectedCounty && mapLayer === "facilitators",
+  });
+  const { data: barriers } = useQuery<any>({
+    queryKey: ["/api/benefits/barriers", selectedCounty],
+    enabled: !!selectedCounty && mapLayer === "barriers",
+  });
+
+  const countySummaries = stats?.countySummaries ? Object.values(stats.countySummaries) as any[] : [];
+
+  const getRadius = (county: any) => {
+    if (mapLayer === "gaps") return Math.max(15, Math.min(50, (county.averageGap || 0) * 1.2));
+    if (mapLayer === "barriers") return Math.max(15, Math.min(50, (county.averageBarrierIndex || 0) * 2));
+    return 25;
+  };
+
+  const getColor = (county: any) => {
+    if (mapLayer === "gaps") return getGapColor(county.averageGap || 0);
+    if (mapLayer === "barriers") return getBarrierColor(county.averageBarrierIndex || 0);
+    return COUNTY_COLORS[county.fips] || "#3b82f6";
+  };
 
   return (
-    <div className="space-y-6">
-      <div className="flex gap-2 flex-wrap">
-        {counties?.map((c: any) => (
-          <Button key={c.fips} variant={selectedFips === c.fips ? "default" : "outline"} size="sm"
-            onClick={() => setSelectedFips(c.fips)} data-testid={`button-county-${c.fips}`}>
-            {c.name.replace(" County", "")}
+    <div className="space-y-4">
+      <div className="flex items-center gap-3 flex-wrap">
+        <Label className="text-sm font-medium">Map Layer:</Label>
+        {(["gaps", "barriers", "facilitators"] as const).map(layer => (
+          <Button
+            key={layer}
+            size="sm"
+            variant={mapLayer === layer ? "default" : "outline"}
+            onClick={() => setMapLayer(layer)}
+            data-testid={`button-layer-${layer}`}
+          >
+            {layer === "gaps" ? <><AlertTriangle className="h-3 w-3 mr-1" /> Enrollment Gaps</> :
+             layer === "barriers" ? <><Ban className="h-3 w-3 mr-1" /> Barrier Index</> :
+             <><Building2 className="h-3 w-3 mr-1" /> Facilitators</>}
           </Button>
         ))}
       </div>
 
-      {isLoading ? <Skeleton className="h-64" /> : county && (
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="lg:col-span-2">
+          <Card className="overflow-hidden" data-testid="card-gis-map">
+            <div style={{ height: "500px" }}>
+              <MapContainer
+                center={[30.25, -97.65]}
+                zoom={9}
+                style={{ height: "100%", width: "100%" }}
+                scrollWheelZoom={true}
+              >
+                <TileLayer
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  attribution='&copy; <a href="https://openstreetmap.org">OpenStreetMap</a>'
+                />
+                {countySummaries.map((county: any) => (
+                  <CircleMarker
+                    key={county.fips}
+                    center={[county.lat, county.lng]}
+                    radius={getRadius(county)}
+                    pathOptions={{
+                      fillColor: getColor(county),
+                      color: getColor(county),
+                      weight: 2,
+                      opacity: 0.8,
+                      fillOpacity: 0.35,
+                    }}
+                    eventHandlers={{
+                      click: () => setSelectedCounty(county.fips),
+                    }}
+                  >
+                    <Popup>
+                      <div className="text-sm">
+                        <p className="font-bold">{county.name}</p>
+                        <p>Population: {(county.population || 0).toLocaleString()}</p>
+                        <p>Enrollment Gap: <strong style={{ color: getGapColor(county.averageGap) }}>{county.averageGap}%</strong></p>
+                        <p>Barrier Index: <strong style={{ color: getBarrierColor(county.averageBarrierIndex) }}>{county.averageBarrierIndex}</strong></p>
+                        <p>Eligible: {(county.totalEligible || 0).toLocaleString()}</p>
+                        <p>Enrolled: {(county.totalEnrolled || 0).toLocaleString()}</p>
+                        <p>Strategy: <em>{county.strategy}</em></p>
+                      </div>
+                    </Popup>
+                  </CircleMarker>
+                ))}
+                {mapLayer === "facilitators" && facilitators?.knownFacilitators?.map((f: any, i: number) => (
+                  <CircleMarker
+                    key={`fac-${i}`}
+                    center={[f.lat, f.lng]}
+                    radius={8}
+                    pathOptions={{ fillColor: "#22c55e", color: "#16a34a", weight: 2, opacity: 0.9, fillOpacity: 0.6 }}
+                  >
+                    <Popup>
+                      <div className="text-sm">
+                        <p className="font-bold">{f.name}</p>
+                        <p className="text-gray-500">{f.type}</p>
+                        <p>Services: {f.services?.join(", ")}</p>
+                      </div>
+                    </Popup>
+                  </CircleMarker>
+                ))}
+              </MapContainer>
+            </div>
+          </Card>
+        </div>
+
+        <div className="space-y-4">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">Map Legend</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {mapLayer === "gaps" ? (
+                <>
+                  <p className="text-xs text-muted-foreground">Circle size = enrollment gap magnitude</p>
+                  {[
+                    { label: "Critical (≥50%)", color: "#ef4444" },
+                    { label: "High (35-49%)", color: "#f97316" },
+                    { label: "Moderate (20-34%)", color: "#eab308" },
+                    { label: "Low (<20%)", color: "#22c55e" },
+                  ].map(l => (
+                    <div key={l.label} className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full" style={{ backgroundColor: l.color }} />
+                      <span className="text-xs">{l.label}</span>
+                    </div>
+                  ))}
+                </>
+              ) : mapLayer === "barriers" ? (
+                <>
+                  <p className="text-xs text-muted-foreground">Circle size = barrier index magnitude</p>
+                  {[
+                    { label: "Severe (≥25)", color: "#ef4444" },
+                    { label: "High (15-24)", color: "#f97316" },
+                    { label: "Moderate (8-14)", color: "#eab308" },
+                    { label: "Low (<8)", color: "#22c55e" },
+                  ].map(l => (
+                    <div key={l.label} className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full" style={{ backgroundColor: l.color }} />
+                      <span className="text-xs">{l.label}</span>
+                    </div>
+                  ))}
+                </>
+              ) : (
+                <>
+                  <p className="text-xs text-muted-foreground">Click a county to show its facilitators</p>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-green-500" />
+                    <span className="text-xs">Community Facilitator</span>
+                  </div>
+                  {(counties || []).map((c: any) => (
+                    <Button
+                      key={c.fips}
+                      size="sm"
+                      variant={selectedCounty === c.fips ? "default" : "outline"}
+                      className="w-full justify-start text-xs"
+                      onClick={() => setSelectedCounty(c.fips)}
+                      data-testid={`button-map-county-${c.fips}`}
+                    >
+                      <div className="w-2 h-2 rounded-full mr-2" style={{ backgroundColor: COUNTY_COLORS[c.fips] }} />
+                      {c.name}
+                    </Button>
+                  ))}
+                </>
+              )}
+            </CardContent>
+          </Card>
+
+          {selectedCounty && barriers && mapLayer === "barriers" && (
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm">{stats?.countySummaries?.[selectedCounty]?.name} Barriers</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                {barriers.barriers?.map((b: any, i: number) => (
+                  <div key={i} className="flex justify-between text-xs">
+                    <span>{b.name}</span>
+                    <span className="font-bold" style={{ color: getBarrierColor(b.value) }}>{b.value?.toFixed(1)}%</span>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          )}
+
+          {selectedCounty && stats?.countySummaries?.[selectedCounty] && (
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm">{stats.countySummaries[selectedCounty].name}</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-1 text-xs">
+                <div className="flex justify-between"><span>Gap</span><span className="font-bold">{stats.countySummaries[selectedCounty].averageGap}%</span></div>
+                <div className="flex justify-between"><span>Eligible</span><span>{stats.countySummaries[selectedCounty].totalEligible?.toLocaleString()}</span></div>
+                <div className="flex justify-between"><span>Enrolled</span><span>{stats.countySummaries[selectedCounty].totalEnrolled?.toLocaleString()}</span></div>
+                <div className="flex justify-between"><span>Renewals At Risk</span><span className="text-orange-500">{stats.countySummaries[selectedCounty].renewalsAtRisk}</span></div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function BarriersPanel() {
+  const [selectedCounty, setSelectedCounty] = useState("48453");
+  const { data: counties } = useQuery<any[]>({ queryKey: ["/api/benefits/counties"] });
+  const { data: barriers, isLoading } = useQuery<any>({
+    queryKey: ["/api/benefits/barriers", selectedCounty],
+    enabled: !!selectedCounty,
+  });
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center gap-4 flex-wrap">
+        <Select value={selectedCounty} onValueChange={setSelectedCounty}>
+          <SelectTrigger className="w-[220px]" data-testid="select-barrier-county">
+            <SelectValue placeholder="Select county" />
+          </SelectTrigger>
+          <SelectContent>
+            {(counties || []).map((c: any) => (
+              <SelectItem key={c.fips} value={c.fips}>{c.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {isLoading ? (
+        <div className="space-y-3">{Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-16" />)}</div>
+      ) : barriers ? (
         <div className="space-y-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Card className="p-4">
-              <p className="text-sm text-muted-foreground">Population</p>
-              <p className="text-xl font-bold">{formatNumber(county.population)}</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card className="p-4 text-center" data-testid="stat-barrier-index">
+              <AlertTriangle className="h-8 w-8 mx-auto mb-2" style={{ color: getBarrierColor(barriers.barrierIndex) }} />
+              <span className="text-3xl font-bold" style={{ color: getBarrierColor(barriers.barrierIndex) }}>
+                {barriers.barrierIndex?.toFixed(1)}
+              </span>
+              <p className="text-xs text-muted-foreground mt-1">Enrollment Barrier Index</p>
             </Card>
-            <Card className="p-4">
-              <p className="text-sm text-muted-foreground">Infrastructure</p>
-              <Badge>{county.enrollmentInfrastructure}</Badge>
+            <Card className="p-4 text-center" data-testid="stat-shadow-pop">
+              <Ban className="h-8 w-8 mx-auto mb-2 text-purple-500" />
+              <span className="text-3xl font-bold text-purple-600 dark:text-purple-400">
+                {barriers.shadowPopulationIndicator?.toFixed(1)}
+              </span>
+              <p className="text-xs text-muted-foreground mt-1">Shadow Population Risk</p>
             </Card>
-            <Card className="p-4">
-              <p className="text-sm text-muted-foreground">Barrier Index</p>
-              <p className="text-xl font-bold text-orange-600">{county.barrierIndex}/100</p>
-            </Card>
-            <Card className="p-4">
-              <p className="text-sm text-muted-foreground">Recommended Approach</p>
-              <Badge variant="secondary" className="text-xs">{county.recommendedModality?.replace(/-/g, " ")}</Badge>
+            <Card className="p-4" data-testid="stat-recommendation">
+              <Zap className="h-5 w-5 text-blue-500 mb-2" />
+              <p className="text-sm">{barriers.recommendation}</p>
             </Card>
           </div>
 
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Benefits Enrollment by Type</h3>
-            <div className="space-y-4">
-              {county.benefits?.map((b: any) => {
-                const Icon = BENEFIT_ICONS[b.id] || Heart;
-                return (
-                  <div key={b.id} className="border rounded-lg p-3" data-testid={`detail-benefit-${b.id}`}>
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <Icon className="h-4 w-4" style={{ color: b.color }} />
-                        <span className="font-medium">{b.name}</span>
-                        <Badge variant="outline" className="text-xs">{b.category}</Badge>
-                      </div>
-                      <span className="text-sm font-medium">{b.participationRate}% enrolled</span>
-                    </div>
-                    <Progress value={b.participationRate} className="h-2 mb-2" />
-                    <div className="grid grid-cols-3 gap-2 text-xs text-muted-foreground">
-                      <span>Eligible: {formatNumber(b.eligible)}</span>
-                      <span>Enrolled: {formatNumber(b.enrolled)}</span>
-                      <span className="text-red-600 font-medium">Gap: {formatNumber(b.gap)}</span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </Card>
-
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Barrier Profile</h3>
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-              {county.barriers && Object.entries(county.barriers as Record<string, number>).map(([key, value]) => {
-                const labels: Record<string, { label: string; icon: any }> = {
-                  limitedEnglish: { label: "Limited English", icon: Languages },
-                  noVehicle: { label: "No Vehicle", icon: Car },
-                  noBroadband: { label: "No Broadband", icon: WifiOff },
-                  nonCitizen: { label: "Non-Citizen", icon: Globe },
-                  poverty: { label: "Poverty Rate", icon: DollarSign },
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Barrier Breakdown</CardTitle>
+              <CardDescription>Higher values indicate stronger barriers to enrollment</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {barriers.barriers?.map((b: any, i: number) => {
+                const icons: Record<string, typeof MapPin> = {
+                  language: Languages, transportation: Truck, digital: WifiOff, immigration: Ban, economic: DollarSign,
                 };
-                const meta = labels[key] || { label: key, icon: AlertTriangle };
-                const Icon = meta.icon;
+                const Icon = icons[b.category] || AlertTriangle;
                 return (
-                  <div key={key} className="text-center p-3 border rounded-lg">
-                    <Icon className="h-5 w-5 mx-auto mb-1 text-muted-foreground" />
-                    <p className="text-lg font-bold">{value}%</p>
-                    <p className="text-xs text-muted-foreground">{meta.label}</p>
+                  <div key={i} className="space-y-1" data-testid={`barrier-${b.category}`}>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Icon className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm font-medium">{b.name}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-bold" style={{ color: getBarrierColor(b.value) }}>
+                          {b.value?.toFixed(1)}%
+                        </span>
+                        <Badge variant="outline" className="text-xs">weight: {(b.weight * 100).toFixed(0)}%</Badge>
+                      </div>
+                    </div>
+                    <Progress value={b.value} className="h-2" />
                   </div>
                 );
               })}
-            </div>
-          </Card>
-
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-3">Zip Codes Served</h3>
-            <div className="flex gap-2 flex-wrap">
-              {county.zipCodes?.map((z: string) => (
-                <Badge key={z} variant="outline">{z}</Badge>
-              ))}
-            </div>
+            </CardContent>
           </Card>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }
 
-function BarriersTab() {
-  const { data: barriers, isLoading } = useQuery<any[]>({ queryKey: ["/api/benefits/barriers"] });
-
-  if (isLoading) return <Skeleton className="h-64" />;
-
-  const barrierLabels = [
-    { key: "limitedEnglish", label: "Limited English Proficiency", icon: Languages, description: "Population with limited English creates language barriers for benefits applications" },
-    { key: "noVehicle", label: "No Vehicle Access", icon: Car, description: "Lack of transportation prevents reaching enrollment offices and partner sites" },
-    { key: "noBroadband", label: "No Broadband Access", icon: WifiOff, description: "Digital divide prevents online applications and virtual navigator sessions" },
-    { key: "nonCitizen", label: "Non-Citizen Population", icon: Globe, description: "Immigration-related fear and mixed-status family complexity — explicitly named by St. David's as a barrier they want addressed" },
-    { key: "poverty", label: "Poverty Concentration", icon: DollarSign, description: "Concentrated poverty indicates high need and compounding barriers" },
-  ];
+function FacilitatorsPanel() {
+  const [selectedCounty, setSelectedCounty] = useState("48453");
+  const { data: counties } = useQuery<any[]>({ queryKey: ["/api/benefits/counties"] });
+  const { data: facilitators, isLoading } = useQuery<any>({
+    queryKey: ["/api/benefits/facilitators", selectedCounty],
+    enabled: !!selectedCounty,
+  });
 
   return (
     <div className="space-y-6">
-      <Card className="p-6 border-amber-200 dark:border-amber-800 bg-amber-50/30 dark:bg-amber-950/10">
-        <h3 className="text-lg font-semibold mb-2">Enrollment Barrier Index</h3>
-        <p className="text-sm text-muted-foreground">Composite score (0-100) weighing five key barriers that prevent eligible people from enrolling in benefits. Higher scores indicate neighborhoods where people are most likely in the shadows — needing trusted, culturally responsive, in-person support.</p>
-      </Card>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {barriers?.sort((a: any, b: any) => b.barrierIndex - a.barrierIndex).map((county: any) => (
-          <Card key={county.fips} className="p-4" data-testid={`card-barrier-${county.fips}`}>
-            <div className="flex items-center justify-between mb-3">
-              <h4 className="font-semibold">{county.name}</h4>
-              <div className="text-right">
-                <p className="text-2xl font-bold" style={{ color: county.barrierIndex > 60 ? '#ef4444' : county.barrierIndex > 40 ? '#f97316' : '#22c55e' }}>
-                  {county.barrierIndex}
-                </p>
-                <p className="text-xs text-muted-foreground">Barrier Index</p>
-              </div>
-            </div>
-            <Progress value={county.barrierIndex} className="h-3 mb-3" />
-            <div className="space-y-1 text-sm">
-              {barrierLabels.map(bl => (
-                <div key={bl.key} className="flex justify-between">
-                  <span className="text-muted-foreground">{bl.label}</span>
-                  <span className="font-medium">{county.barriers[bl.key]}%</span>
-                </div>
-              ))}
-            </div>
-            <div className="mt-3 pt-3 border-t">
-              <Badge variant="secondary" className="text-xs">{county.recommendedModality?.replace(/-/g, " ")}</Badge>
-            </div>
-          </Card>
-        ))}
+      <div className="flex items-center gap-4 flex-wrap">
+        <Select value={selectedCounty} onValueChange={setSelectedCounty}>
+          <SelectTrigger className="w-[220px]" data-testid="select-facilitator-county">
+            <SelectValue placeholder="Select county" />
+          </SelectTrigger>
+          <SelectContent>
+            {(counties || []).map((c: any) => (
+              <SelectItem key={c.fips} value={c.fips}>{c.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <a href="https://stdavidsfoundation.org/impact/community-resources/" target="_blank" rel="noopener noreferrer">
+          <Button variant="outline" size="sm" data-testid="link-st-davids-map">
+            <Globe className="h-4 w-4 mr-2" /> St. David's Resource Map
+          </Button>
+        </a>
       </div>
 
-      <Card className="p-6">
-        <h3 className="text-lg font-semibold mb-4">Barrier Definitions</h3>
-        <div className="space-y-4">
-          {barrierLabels.map(bl => {
-            const Icon = bl.icon;
-            return (
-              <div key={bl.key} className="flex items-start gap-3">
-                <Icon className="h-5 w-5 mt-0.5 text-muted-foreground shrink-0" />
-                <div>
-                  <p className="font-medium">{bl.label}</p>
-                  <p className="text-sm text-muted-foreground">{bl.description}</p>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </Card>
-    </div>
-  );
-}
+      {isLoading ? (
+        <Skeleton className="h-64" />
+      ) : (
+        <div className="space-y-6">
+          <div className="flex items-center gap-2">
+            <Badge variant="secondary">{facilitators?.totalAssets || 0} Community Assets</Badge>
+          </div>
 
-function PartnersTab() {
-  const { data: partners, isLoading } = useQuery<any[]>({ queryKey: ["/api/benefits/partners"] });
-
-  if (isLoading) return <div className="space-y-4">{[1,2,3].map(i => <Skeleton key={i} className="h-24" />)}</div>;
-
-  const grouped = (partners || []).reduce((acc: any, p: any) => {
-    if (!acc[p.countyName]) acc[p.countyName] = [];
-    acc[p.countyName].push(p);
-    return acc;
-  }, {});
-
-  const typeLabels: Record<string, string> = {
-    community_hub: "Community Hub", health_center: "Health Center", food_pantry: "Food Pantry",
-    workforce: "Workforce Services", community_action: "Community Action Agency", church: "Faith-Based",
-    library: "Library", school: "School",
-  };
-
-  return (
-    <div className="space-y-6">
-      <Card className="p-6 border-blue-200 dark:border-blue-800 bg-blue-50/30 dark:bg-blue-950/10">
-        <h3 className="text-lg font-semibold mb-2">Partner Collaboration Hub</h3>
-        <p className="text-sm text-muted-foreground">TCAF serves as the technology backbone — sharing enrollment gap data, coordinating CHW deployment, and tracking coverage to avoid duplication. Partners bring trusted faces, local presence, and enrollment expertise. Use St. David's resource map by county to find complementary organizations.</p>
-      </Card>
-
-      {Object.entries(grouped).map(([county, countyPartners]: [string, any]) => (
-        <div key={county}>
-          <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-            <MapPin className="h-5 w-5" />
-            {county}
-            <Badge variant="outline">{countyPartners.length} partners</Badge>
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            {countyPartners.map((p: any) => (
-              <Card key={p.id} className="p-4" data-testid={`card-partner-${p.id}`}>
-                <div className="flex items-start justify-between mb-2">
-                  <div>
-                    <h4 className="font-semibold">{p.organizationName}</h4>
-                    <Badge variant="outline" className="text-xs mt-1">{typeLabels[p.partnerType] || p.partnerType}</Badge>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {facilitators?.knownFacilitators?.map((f: any, i: number) => (
+              <Card key={i} data-testid={`card-facilitator-${i}`}>
+                <CardContent className="pt-4">
+                  <div className="flex items-start gap-3">
+                    <Building2 className="h-5 w-5 text-blue-500 mt-0.5 shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm">{f.name}</p>
+                      <Badge variant="outline" className="text-xs mt-1">{f.type}</Badge>
+                      <div className="flex flex-wrap gap-1 mt-2">
+                        {f.services?.map((s: string) => (
+                          <Badge key={s} variant="secondary" className="text-xs">{s}</Badge>
+                        ))}
+                      </div>
+                    </div>
                   </div>
-                  <Badge variant={p.capacityStatus === "active" ? "default" : "secondary"} className="text-xs">
-                    {p.capacityStatus}
-                  </Badge>
-                </div>
-                {p.servicesProvided && (
-                  <div className="flex gap-1 flex-wrap mt-2">
-                    {p.servicesProvided.map((s: string) => (
-                      <Badge key={s} variant="secondary" className="text-xs">{s}</Badge>
-                    ))}
-                  </div>
-                )}
-                <div className="mt-3 text-xs text-muted-foreground space-y-1">
-                  {p.languages && <p>Languages: {p.languages.join(", ")}</p>}
-                  {p.hhscCppLevel && <p>HHSC CPP Level: <span className="font-medium text-foreground">{p.hhscCppLevel}</span></p>}
-                  {p.isVitaSite && <Badge variant="outline" className="text-xs">VITA Site</Badge>}
-                  {p.zipCode && <p>Zip: {p.zipCode}</p>}
-                </div>
+                </CardContent>
               </Card>
             ))}
           </div>
-        </div>
-      ))}
-    </div>
-  );
-}
 
-function ChwNetworkTab() {
-  const { data: chws, isLoading } = useQuery<any[]>({ queryKey: ["/api/benefits/chw-network"] });
-
-  return (
-    <div className="space-y-6">
-      <Card className="p-6 border-green-200 dark:border-green-800 bg-green-50/30 dark:bg-green-950/10">
-        <h3 className="text-lg font-semibold mb-2">Community Health Workers & Champions Network</h3>
-        <p className="text-sm text-muted-foreground">CHWs and trusted community champions are the "last mile" of benefits enrollment — the people who physically accompany clients through the process, speak their language, understand their fears, and have earned the community's trust. This is how we reach people in the shadows.</p>
-      </Card>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="p-4 text-center">
-          <UserCheck className="h-8 w-8 mx-auto mb-2 text-green-600" />
-          <p className="text-2xl font-bold" data-testid="text-chw-count">{chws?.length || 0}</p>
-          <p className="text-sm text-muted-foreground">Active CHWs/Champions</p>
-        </Card>
-        <Card className="p-4 text-center">
-          <CheckCircle2 className="h-8 w-8 mx-auto mb-2 text-blue-600" />
-          <p className="text-2xl font-bold">{chws?.reduce((s: number, c: any) => s + (c.enrollmentsCompleted || 0), 0) || 0}</p>
-          <p className="text-sm text-muted-foreground">Enrollments Completed</p>
-        </Card>
-        <Card className="p-4 text-center">
-          <Activity className="h-8 w-8 mx-auto mb-2 text-purple-600" />
-          <p className="text-2xl font-bold">{chws?.reduce((s: number, c: any) => s + (c.renewalsCompleted || 0), 0) || 0}</p>
-          <p className="text-sm text-muted-foreground">Renewals Completed</p>
-        </Card>
-      </div>
-
-      {chws && chws.length > 0 ? (
-        <div className="space-y-3">
-          {chws.map((chw: any) => (
-            <Card key={chw.id} className="p-4" data-testid={`card-chw-${chw.id}`}>
-              <div className="flex items-center justify-between">
-                <div>
-                  <h4 className="font-semibold">{chw.name}</h4>
-                  <p className="text-sm text-muted-foreground">{chw.role}</p>
-                </div>
-                <Badge variant={chw.status === "active" ? "default" : "secondary"}>{chw.status}</Badge>
+          {facilitators?.registeredPartners?.length > 0 && (
+            <>
+              <Separator />
+              <h3 className="font-semibold">Registered TCAF Partners</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {facilitators.registeredPartners.map((p: any) => (
+                  <Card key={p.id} data-testid={`card-partner-${p.id}`}>
+                    <CardContent className="pt-4">
+                      <p className="font-medium text-sm">{p.name}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Badge variant="outline" className="text-xs">{p.organizationType}</Badge>
+                        {p.hhscCppLevel && <Badge className="text-xs">CPP Level {p.hhscCppLevel}</Badge>}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
-              {chw.languages && <div className="flex gap-1 mt-2">{chw.languages.map((l: string) => <Badge key={l} variant="outline" className="text-xs">{l}</Badge>)}</div>}
-            </Card>
-          ))}
+            </>
+          )}
         </div>
-      ) : (
-        <Card className="p-8 text-center">
-          <UserCheck className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
-          <h4 className="font-semibold mb-2">Build Your CHW Network</h4>
-          <p className="text-sm text-muted-foreground mb-4">No CHWs registered yet. As TCAF builds partnerships, add Community Health Workers and trusted community champions who will provide in-person enrollment support in each neighborhood.</p>
-          <div className="text-sm text-left max-w-md mx-auto space-y-2">
-            <p className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-green-600" /> Bilingual navigators for mixed-status families</p>
-            <p className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-green-600" /> Culturally matched by neighborhood</p>
-            <p className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-green-600" /> Trained on SNAP, Medicaid, CHIP, EITC enrollment</p>
-            <p className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-green-600" /> Trusted voices already embedded in community</p>
-          </div>
-        </Card>
       )}
     </div>
   );
 }
 
-function VirtualNavigatorTab() {
+function PartnerHub() {
+  const { toast } = useToast();
+  const { data: partners, isLoading } = useQuery<any[]>({ queryKey: ["/api/benefits/partners"] });
+  const { data: counties } = useQuery<any[]>({ queryKey: ["/api/benefits/counties"] });
+  const [showForm, setShowForm] = useState(false);
+  const [name, setName] = useState("");
+  const [orgType, setOrgType] = useState("");
+  const [county, setCounty] = useState("");
+  const [contactName, setContactName] = useState("");
+  const [contactEmail, setContactEmail] = useState("");
+
+  const createMutation = useMutation({
+    mutationFn: async () => {
+      await apiRequest("POST", "/api/benefits/partners", {
+        name, organizationType: orgType, county,
+        contactName: contactName || null, contactEmail: contactEmail || null,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/benefits/partners"] });
+      toast({ title: "Partner Added" });
+      setShowForm(false);
+      setName(""); setOrgType(""); setCounty(""); setContactName(""); setContactEmail("");
+    },
+    onError: () => toast({ title: "Error", description: "Failed to add partner.", variant: "destructive" }),
+  });
+
   return (
     <div className="space-y-6">
-      <Card className="p-6 border-purple-200 dark:border-purple-800 bg-purple-50/30 dark:bg-purple-950/10">
-        <h3 className="text-lg font-semibold mb-2">Virtual Benefits Navigator</h3>
-        <p className="text-sm text-muted-foreground">The platform handles as much as possible virtually — eligibility screening, benefits matching, document prep, appointment scheduling — then creates a warm handoff to in-person support when someone needs to be met where they are.</p>
-      </Card>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card className="p-6">
-          <h4 className="font-semibold mb-4 flex items-center gap-2"><Sparkles className="h-5 w-5 text-purple-600" /> AI Eligibility Screening</h4>
-          <div className="space-y-3 text-sm">
-            <div className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
-              <Badge className="mt-0.5">1</Badge>
-              <div>
-                <p className="font-medium">Quick Intake</p>
-                <p className="text-muted-foreground">Household size, income, age of children, county of residence — simple questions in the client's preferred language</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
-              <Badge className="mt-0.5">2</Badge>
-              <div>
-                <p className="font-medium">Benefits Matching</p>
-                <p className="text-muted-foreground">AI screens for eligibility across SNAP, Medicaid, CHIP, EITC, WIC, SSI/SSDI, Marketplace — shows all benefits the household may qualify for</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
-              <Badge className="mt-0.5">3</Badge>
-              <div>
-                <p className="font-medium">Document Checklist</p>
-                <p className="text-muted-foreground">Generates personalized list of required documents for each benefit application</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
-              <Badge className="mt-0.5">4</Badge>
-              <div>
-                <p className="font-medium">Warm Handoff</p>
-                <p className="text-muted-foreground">Connects to nearest CHW or partner organization for in-person enrollment support if needed</p>
-              </div>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-6">
-          <h4 className="font-semibold mb-4 flex items-center gap-2"><Activity className="h-5 w-5 text-blue-600" /> Renewal Pipeline</h4>
-          <div className="space-y-3 text-sm">
-            <p className="text-muted-foreground">St. David's explicitly values renewal support equally with new enrollments. Keeping benefits is as hard as getting them.</p>
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
-                <Calendar className="h-4 w-4 text-orange-500" />
-                <div>
-                  <p className="font-medium">Renewal Tracking</p>
-                  <p className="text-xs text-muted-foreground">Flag clients approaching renewal deadlines 60/30/14 days out</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
-                <Phone className="h-4 w-4 text-green-500" />
-                <div>
-                  <p className="font-medium">Proactive Outreach</p>
-                  <p className="text-xs text-muted-foreground">Automated SMS/call reminders in client's preferred language</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
-                <ClipboardList className="h-4 w-4 text-blue-500" />
-                <div>
-                  <p className="font-medium">Re-enrollment Support</p>
-                  <p className="text-xs text-muted-foreground">Pre-fill renewal forms with existing data, flag changed circumstances</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
-                <UserCheck className="h-4 w-4 text-purple-500" />
-                <div>
-                  <p className="font-medium">CHW Follow-Up</p>
-                  <p className="text-xs text-muted-foreground">Assign CHW for in-person renewal help if client is at risk of losing benefits</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </Card>
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <div>
+          <h3 className="font-semibold text-lg" data-testid="text-partners-header">Partner Collaboration Hub</h3>
+          <p className="text-sm text-muted-foreground">TCAF as the connective backbone - coordinate CHW deployment, share data, avoid duplication</p>
+        </div>
+        <Button size="sm" onClick={() => setShowForm(!showForm)} data-testid="button-add-partner">
+          <Plus className="h-4 w-4 mr-1" /> Add Partner
+        </Button>
       </div>
 
-      <Card className="p-6">
-        <h4 className="font-semibold mb-3">Virtual → In-Person Pipeline</h4>
-        <div className="flex items-center justify-between text-center">
-          {[
-            { label: "Virtual Screening", icon: Sparkles, color: "text-purple-600" },
-            { label: "Benefits Matched", icon: CheckCircle2, color: "text-blue-600" },
-            { label: "Documents Prepped", icon: FileText, color: "text-cyan-600" },
-            { label: "CHW Handoff", icon: Handshake, color: "text-orange-600" },
-            { label: "Enrolled", icon: Star, color: "text-green-600" },
-          ].map((step, i) => (
-            <div key={step.label} className="flex items-center gap-2">
-              <div className="text-center">
-                <step.icon className={`h-6 w-6 mx-auto mb-1 ${step.color}`} />
-                <p className="text-xs font-medium">{step.label}</p>
+      {showForm && (
+        <Card>
+          <CardContent className="pt-4 space-y-3">
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label>Organization Name</Label>
+                <Input value={name} onChange={e => setName(e.target.value)} placeholder="e.g., Foundation Communities" data-testid="input-partner-name" />
               </div>
-              {i < 4 && <ArrowRight className="h-4 w-4 text-muted-foreground mx-1" />}
+              <div>
+                <Label>Organization Type</Label>
+                <Select value={orgType} onValueChange={setOrgType}>
+                  <SelectTrigger data-testid="select-partner-type"><SelectValue placeholder="Select type" /></SelectTrigger>
+                  <SelectContent>
+                    {["Nonprofit", "FQHC", "Government", "Food Bank", "Church", "Library", "School", "Health Plan", "CAA", "Community Center"].map(t => (
+                      <SelectItem key={t} value={t}>{t}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
+            <div className="grid grid-cols-3 gap-3">
+              <div>
+                <Label>County</Label>
+                <Select value={county} onValueChange={setCounty}>
+                  <SelectTrigger data-testid="select-partner-county"><SelectValue placeholder="Select" /></SelectTrigger>
+                  <SelectContent>
+                    {(counties || []).map((c: any) => (
+                      <SelectItem key={c.fips} value={c.name}>{c.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Contact Name</Label>
+                <Input value={contactName} onChange={e => setContactName(e.target.value)} data-testid="input-partner-contact" />
+              </div>
+              <div>
+                <Label>Contact Email</Label>
+                <Input value={contactEmail} onChange={e => setContactEmail(e.target.value)} data-testid="input-partner-email" />
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <Button size="sm" onClick={() => createMutation.mutate()} disabled={!name || !orgType || !county || createMutation.isPending} data-testid="button-submit-partner">
+                {createMutation.isPending ? "Saving..." : "Save Partner"}
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => setShowForm(false)}>Cancel</Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {isLoading ? (
+        <div className="space-y-3">{Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-20" />)}</div>
+      ) : (partners || []).length === 0 ? (
+        <Card><CardContent className="py-8 text-center text-muted-foreground">No partners registered yet. Add enrollment partners to coordinate coverage.</CardContent></Card>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {(partners || []).map((p: any) => (
+            <Card key={p.id} data-testid={`card-partner-list-${p.id}`}>
+              <CardContent className="pt-4">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="font-medium">{p.name}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Badge variant="outline" className="text-xs">{p.organizationType}</Badge>
+                      <Badge variant="secondary" className="text-xs">{p.county}</Badge>
+                      {p.hhscCppLevel && <Badge className="text-xs">CPP L{p.hhscCppLevel}</Badge>}
+                      {p.isVitaSite && <Badge className="text-xs bg-yellow-500">VITA</Badge>}
+                    </div>
+                    {p.contactEmail && (
+                      <div className="flex items-center gap-1 mt-2 text-xs text-muted-foreground">
+                        <Mail className="h-3 w-3" /> {p.contactEmail}
+                      </div>
+                    )}
+                  </div>
+                  {p.isActive && <Badge variant="default" className="text-xs">Active</Badge>}
+                </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
-      </Card>
+      )}
     </div>
   );
 }
 
-function HhscCppTab() {
+function ChwNetwork() {
+  const { toast } = useToast();
+  const { data: chws, isLoading } = useQuery<any[]>({ queryKey: ["/api/benefits/chw-network"] });
+  const { data: counties } = useQuery<any[]>({ queryKey: ["/api/benefits/counties"] });
+  const [showForm, setShowForm] = useState(false);
+  const [name, setName] = useState("");
+  const [role, setRole] = useState("");
+  const [county, setCounty] = useState("");
+  const [langs, setLangs] = useState("");
+  const [org, setOrg] = useState("");
+
+  const createMutation = useMutation({
+    mutationFn: async () => {
+      await apiRequest("POST", "/api/benefits/chw-network", {
+        name, role, county,
+        languages: langs ? langs.split(",").map(l => l.trim()) : [],
+        affiliatedOrg: org || null,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/benefits/chw-network"] });
+      toast({ title: "CHW Added" });
+      setShowForm(false);
+      setName(""); setRole(""); setCounty(""); setLangs(""); setOrg("");
+    },
+    onError: () => toast({ title: "Error", description: "Failed to add CHW.", variant: "destructive" }),
+  });
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <div>
+          <h3 className="font-semibold text-lg" data-testid="text-chw-header">CHW & Champion Network</h3>
+          <p className="text-sm text-muted-foreground">Community Health Workers, benefits navigators, and trusted community leaders - the last mile of enrollment</p>
+        </div>
+        <Button size="sm" onClick={() => setShowForm(!showForm)} data-testid="button-add-chw">
+          <Plus className="h-4 w-4 mr-1" /> Add CHW/Champion
+        </Button>
+      </div>
+
+      {showForm && (
+        <Card>
+          <CardContent className="pt-4 space-y-3">
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label>Name</Label>
+                <Input value={name} onChange={e => setName(e.target.value)} data-testid="input-chw-name" />
+              </div>
+              <div>
+                <Label>Role</Label>
+                <Select value={role} onValueChange={setRole}>
+                  <SelectTrigger data-testid="select-chw-role"><SelectValue placeholder="Select role" /></SelectTrigger>
+                  <SelectContent>
+                    {["Community Health Worker", "Benefits Navigator", "Enrollment Counselor", "Community Champion", "Promotora", "Peer Support"].map(r => (
+                      <SelectItem key={r} value={r}>{r}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-3">
+              <div>
+                <Label>County</Label>
+                <Select value={county} onValueChange={setCounty}>
+                  <SelectTrigger data-testid="select-chw-county"><SelectValue placeholder="Select" /></SelectTrigger>
+                  <SelectContent>
+                    {(counties || []).map((c: any) => (
+                      <SelectItem key={c.fips} value={c.name}>{c.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Languages (comma-separated)</Label>
+                <Input value={langs} onChange={e => setLangs(e.target.value)} placeholder="English, Spanish" data-testid="input-chw-languages" />
+              </div>
+              <div>
+                <Label>Affiliated Organization</Label>
+                <Input value={org} onChange={e => setOrg(e.target.value)} data-testid="input-chw-org" />
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <Button size="sm" onClick={() => createMutation.mutate()} disabled={!name || !role || !county || createMutation.isPending} data-testid="button-submit-chw">
+                {createMutation.isPending ? "Saving..." : "Save"}
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => setShowForm(false)}>Cancel</Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {isLoading ? (
+        <div className="space-y-3">{Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-20" />)}</div>
+      ) : (chws || []).length === 0 ? (
+        <Card><CardContent className="py-8 text-center text-muted-foreground">No CHWs or champions registered. These trusted community members are the last mile of enrollment.</CardContent></Card>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {(chws || []).map((chw: any) => (
+            <Card key={chw.id} data-testid={`card-chw-${chw.id}`}>
+              <CardContent className="pt-4">
+                <div className="flex items-start gap-3">
+                  <UserCheck className="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-sm">{chw.name}</p>
+                    <p className="text-xs text-muted-foreground">{chw.role}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Badge variant="secondary" className="text-xs">{chw.county}</Badge>
+                      {chw.affiliatedOrg && <span className="text-xs text-muted-foreground">{chw.affiliatedOrg}</span>}
+                    </div>
+                    {chw.languages?.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-2">
+                        {chw.languages.map((l: string) => (
+                          <Badge key={l} variant="outline" className="text-xs">
+                            <Languages className="h-3 w-3 mr-1" />{l}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                    <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
+                      <span>Capacity: {chw.activeCases || 0}/{chw.capacity || 20}</span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function VirtualNavigator() {
+  const { toast } = useToast();
+  const [householdSize, setHouseholdSize] = useState("1");
+  const [annualIncome, setAnnualIncome] = useState("");
+  const [hasChildren, setHasChildren] = useState(false);
+  const [isPregnant, setIsPregnant] = useState(false);
+  const [isDisabled, setIsDisabled] = useState(false);
+  const [isElderly, setIsElderly] = useState(false);
+  const [currentBenefits, setCurrentBenefits] = useState<string[]>([]);
+  const [result, setResult] = useState<any>(null);
+
+  const screenMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest("POST", "/api/benefits/screenings", {
+        screeningType: "virtual",
+        householdSize: parseInt(householdSize),
+        annualIncome: parseFloat(annualIncome) || 0,
+        hasChildren,
+        isPregnant,
+        isDisabled,
+        isElderly,
+        currentBenefits,
+      });
+      return res.json();
+    },
+    onSuccess: (data) => {
+      setResult(data);
+      queryClient.invalidateQueries({ queryKey: ["/api/benefits/screenings"] });
+      toast({ title: "Screening Complete", description: `Found ${data.gapBenefits?.length || 0} potential benefits.` });
+    },
+    onError: () => toast({ title: "Error", description: "Screening failed.", variant: "destructive" }),
+  });
+
+  return (
+    <div className="space-y-6">
+      <Card className="p-4 bg-green-900/10 border-green-500/30 dark:bg-green-900/20">
+        <div className="flex items-start gap-3">
+          <ClipboardList className="w-5 h-5 text-green-500 mt-0.5 shrink-0" />
+          <div>
+            <h3 className="text-sm font-semibold text-green-700 dark:text-green-300">Virtual Eligibility Screener</h3>
+            <p className="text-xs text-muted-foreground mt-1">
+              Screen for SNAP, Medicaid/CHIP, EITC, WIC, SSI/SSDI, Marketplace, CTC eligibility. The platform handles everything it can digitally, then creates a warm handoff to a CHW or partner for in-person support.
+            </p>
+          </div>
+        </div>
+      </Card>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Household Information</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label>Household Size</Label>
+                <Select value={householdSize} onValueChange={setHouseholdSize}>
+                  <SelectTrigger data-testid="select-household-size"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {[1, 2, 3, 4, 5, 6, 7, 8].map(n => (
+                      <SelectItem key={n} value={String(n)}>{n} {n === 1 ? "person" : "people"}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Annual Household Income ($)</Label>
+                <Input type="number" value={annualIncome} onChange={e => setAnnualIncome(e.target.value)} placeholder="e.g., 25000" data-testid="input-annual-income" />
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label>Has children under 18</Label>
+                <Switch checked={hasChildren} onCheckedChange={setHasChildren} data-testid="switch-has-children" />
+              </div>
+              <div className="flex items-center justify-between">
+                <Label>Pregnant</Label>
+                <Switch checked={isPregnant} onCheckedChange={setIsPregnant} data-testid="switch-pregnant" />
+              </div>
+              <div className="flex items-center justify-between">
+                <Label>Has a disability</Label>
+                <Switch checked={isDisabled} onCheckedChange={setIsDisabled} data-testid="switch-disabled" />
+              </div>
+              <div className="flex items-center justify-between">
+                <Label>Age 65+</Label>
+                <Switch checked={isElderly} onCheckedChange={setIsElderly} data-testid="switch-elderly" />
+              </div>
+            </div>
+
+            <div>
+              <Label>Currently receiving (select all that apply)</Label>
+              <div className="grid grid-cols-3 gap-2 mt-2">
+                {["SNAP", "Medicaid", "CHIP", "EITC", "WIC", "SSI", "SSDI", "Marketplace", "CTC"].map(b => (
+                  <Button
+                    key={b}
+                    variant={currentBenefits.includes(b) ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setCurrentBenefits(prev =>
+                      prev.includes(b) ? prev.filter(x => x !== b) : [...prev, b]
+                    )}
+                    data-testid={`button-current-${b}`}
+                  >
+                    {b}
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            <Button className="w-full" onClick={() => screenMutation.mutate()} disabled={!annualIncome || screenMutation.isPending} data-testid="button-screen">
+              {screenMutation.isPending ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Screening...</> : <><Search className="h-4 w-4 mr-2" /> Screen for Benefits</>}
+            </Button>
+          </CardContent>
+        </Card>
+
+        {result && (
+          <Card data-testid="card-screening-result">
+            <CardHeader>
+              <CardTitle className="text-base flex items-center gap-2">
+                <CheckCircle2 className="h-5 w-5 text-green-500" /> Screening Results
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {result.gapBenefits?.length > 0 ? (
+                <>
+                  <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                    <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                      ${result.estimatedAnnualValue?.toLocaleString()}/year
+                    </p>
+                    <p className="text-sm text-muted-foreground">Estimated annual value of unclaimed benefits</p>
+                  </div>
+
+                  <div>
+                    <h4 className="font-medium text-sm mb-2">You may be eligible for:</h4>
+                    <div className="space-y-2">
+                      {result.gapBenefits.map((b: string) => {
+                        const Icon = BENEFIT_ICONS[b] || Heart;
+                        return (
+                          <div key={b} className="flex items-center gap-2 p-2 rounded-lg bg-green-50 dark:bg-green-900/20" data-testid={`result-benefit-${b}`}>
+                            <Icon className="h-4 w-4" style={{ color: BENEFIT_COLORS[b] }} />
+                            <span className="font-medium text-sm">{b}</span>
+                            <Badge variant="secondary" className="text-xs ml-auto">Not receiving</Badge>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {result.eligibleBenefits?.filter((b: string) => result.currentBenefits?.includes(b)).length > 0 && (
+                    <div>
+                      <h4 className="font-medium text-sm mb-2">Already receiving:</h4>
+                      <div className="flex flex-wrap gap-1">
+                        {result.currentBenefits?.map((b: string) => (
+                          <Badge key={b} variant="outline" className="text-xs">{b}</Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <Separator />
+                  <div className="text-center">
+                    <p className="text-sm font-medium mb-2">Next Step: Warm Handoff</p>
+                    <p className="text-xs text-muted-foreground">Connect with a CHW or partner organization for in-person enrollment assistance</p>
+                    <Button variant="outline" size="sm" className="mt-2" data-testid="button-handoff">
+                      <HandHeart className="h-4 w-4 mr-2" /> Find Nearest Navigator
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                <div className="text-center py-4">
+                  <CheckCircle2 className="h-8 w-8 mx-auto text-green-500 mb-2" />
+                  <p className="font-medium">All eligible benefits are being received</p>
+                  <p className="text-sm text-muted-foreground mt-1">Renewals should still be tracked to prevent lapses.</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function HhscPathway() {
   const { data, isLoading } = useQuery<any>({ queryKey: ["/api/benefits/hhsc-cpp"] });
 
   if (isLoading) return <Skeleton className="h-64" />;
 
   return (
     <div className="space-y-6">
-      <Card className="p-6 border-green-200 dark:border-green-800 bg-green-50/30 dark:bg-green-950/10">
-        <h3 className="text-lg font-semibold mb-2">{data?.program}</h3>
-        <p className="text-sm text-muted-foreground">{data?.description}</p>
+      <Card className="p-4 bg-purple-900/10 border-purple-500/30 dark:bg-purple-900/20">
+        <div className="flex items-start gap-3">
+          <GraduationCap className="w-5 h-5 text-purple-500 mt-0.5 shrink-0" />
+          <div>
+            <h3 className="text-sm font-semibold text-purple-700 dark:text-purple-300">HHSC Community Partner Program</h3>
+            <p className="text-xs text-muted-foreground mt-1">{data?.keySignal}</p>
+          </div>
+        </div>
       </Card>
+
+      <p className="text-sm text-muted-foreground">{data?.overview}</p>
+      <p className="text-sm font-medium">{data?.recommendation}</p>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {data?.levels?.map((level: any) => (
-          <Card key={level.level} className={`p-6 ${level.level === 3 ? 'border-green-500 ring-1 ring-green-500' : ''}`} data-testid={`card-cpp-level-${level.level}`}>
-            <div className="flex items-center gap-2 mb-3">
-              <Badge variant={level.level === 3 ? "default" : "secondary"} className="text-lg px-3 py-1">Level {level.level}</Badge>
-              <h4 className="font-semibold">{level.name}</h4>
-            </div>
-            <p className="text-sm text-muted-foreground mb-4">{level.description}</p>
-            <div className="space-y-3">
+          <Card key={level.level} className="relative overflow-hidden" data-testid={`card-cpp-level-${level.level}`}>
+            <div className={`absolute top-0 left-0 right-0 h-1 ${level.level === 1 ? "bg-green-500" : level.level === 2 ? "bg-blue-500" : "bg-purple-500"}`} />
+            <CardHeader className="pt-5">
+              <div className="flex items-center gap-2">
+                <Badge variant={level.level === 3 ? "default" : "secondary"}>Level {level.level}</Badge>
+                <CardTitle className="text-base">{level.name}</CardTitle>
+              </div>
+              <CardDescription>{level.description}</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
               <div>
-                <p className="text-xs font-semibold uppercase text-muted-foreground mb-1">Requirements</p>
-                <ul className="text-sm space-y-1">
-                  {level.requirements?.map((r: string) => (
-                    <li key={r} className="flex items-start gap-2"><CircleDot className="h-3 w-3 mt-1 shrink-0" />{r}</li>
+                <p className="text-xs font-semibold text-muted-foreground mb-1">REQUIREMENTS</p>
+                <ul className="space-y-1">
+                  {level.requirements.map((r: string, i: number) => (
+                    <li key={i} className="text-xs flex items-start gap-1.5">
+                      <CheckCircle2 className="h-3 w-3 text-muted-foreground mt-0.5 shrink-0" />
+                      {r}
+                    </li>
                   ))}
                 </ul>
               </div>
               <div>
-                <p className="text-xs font-semibold uppercase text-muted-foreground mb-1">Capabilities</p>
-                <ul className="text-sm space-y-1">
-                  {level.capabilities?.map((c: string) => (
-                    <li key={c} className="flex items-start gap-2"><CheckCircle2 className="h-3 w-3 mt-1 text-green-600 shrink-0" />{c}</li>
+                <p className="text-xs font-semibold text-muted-foreground mb-1">CAPABILITIES</p>
+                <ul className="space-y-1">
+                  {level.capabilities.map((c: string, i: number) => (
+                    <li key={i} className="text-xs flex items-start gap-1.5">
+                      <ArrowRight className="h-3 w-3 text-blue-500 mt-0.5 shrink-0" />
+                      {c}
+                    </li>
                   ))}
                 </ul>
               </div>
-              <Badge variant="outline" className="text-xs">{level.timeToAchieve}</Badge>
-              {level.note && <p className="text-xs text-green-700 dark:text-green-400 font-medium mt-2">{level.note}</p>}
-            </div>
+              <div className="text-center pt-2 border-t">
+                <span className="text-lg font-bold">{level.trainingHours}h</span>
+                <p className="text-xs text-muted-foreground">Training Required</p>
+              </div>
+            </CardContent>
           </Card>
         ))}
       </div>
 
-      <Card className="p-6">
-        <h3 className="text-lg font-semibold mb-4">TCAF's CPP Journey Plan</h3>
-        <div className="space-y-3">
-          {data?.tcafPlan?.timeline?.map((phase: any, i: number) => (
-            <div key={i} className="flex items-center gap-4 p-3 border rounded-lg" data-testid={`row-cpp-phase-${i}`}>
-              <Badge variant="outline" className="shrink-0">{phase.duration}</Badge>
-              <div className="flex-1">
-                <p className="font-medium">{phase.phase}</p>
-              </div>
-              <Badge variant={phase.status === "completed" ? "default" : "secondary"} className="text-xs">{phase.status}</Badge>
-            </div>
-          ))}
-        </div>
-        <div className="mt-4 p-4 bg-muted/50 rounded-lg">
-          <p className="text-sm"><span className="font-semibold">Current Level:</span> {data?.tcafPlan?.currentLevel} → <span className="font-semibold">Target:</span> Level {data?.tcafPlan?.targetLevel}</p>
-        </div>
-      </Card>
-    </div>
-  );
-}
-
-function MetricsTab() {
-  const { data, isLoading } = useQuery<any>({ queryKey: ["/api/benefits/metrics"] });
-
-  if (isLoading) return <Skeleton className="h-64" />;
-
-  const countyGroups = (data?.targets || []).reduce((acc: any, t: any) => {
-    if (!acc[t.countyName]) acc[t.countyName] = [];
-    acc[t.countyName].push(t);
-    return acc;
-  }, {});
-
-  return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="p-4">
-          <p className="text-sm text-muted-foreground">Current Gap</p>
-          <p className="text-2xl font-bold text-red-600" data-testid="text-metrics-gap">{formatNumber(data?.summary?.totalCurrentGap || 0)}</p>
-        </Card>
-        <Card className="p-4">
-          <p className="text-sm text-muted-foreground">Year 1 Target</p>
-          <p className="text-2xl font-bold text-blue-600">{formatNumber(data?.summary?.totalYear1 || 0)}</p>
-        </Card>
-        <Card className="p-4">
-          <p className="text-sm text-muted-foreground">Year 2 Target</p>
-          <p className="text-2xl font-bold text-purple-600">{formatNumber(data?.summary?.totalYear2 || 0)}</p>
-        </Card>
-        <Card className="p-4">
-          <p className="text-sm text-muted-foreground">3-Year Total</p>
-          <p className="text-2xl font-bold text-green-600">{formatNumber(data?.summary?.totalTarget || 0)}</p>
-        </Card>
+      <div className="flex justify-center">
+        <a href={data?.enrollmentUrl} target="_blank" rel="noopener noreferrer">
+          <Button data-testid="button-hhsc-enroll">
+            <Globe className="h-4 w-4 mr-2" /> Visit HHSC CPP Enrollment
+          </Button>
+        </a>
       </div>
-
-      <Card className="p-6">
-        <h3 className="text-lg font-semibold mb-2">3-Year Enrollment Targets</h3>
-        <p className="text-sm text-muted-foreground mb-4">Year 1: 15% gap closure | Year 2: 25% gap closure | Year 3: 30% gap closure — achievable, data-driven, with fidelity tracked through MAP-GAP.</p>
-      </Card>
-
-      {Object.entries(countyGroups).map(([county, targets]: [string, any]) => (
-        <Card key={county} className="p-6">
-          <h4 className="font-semibold mb-3">{county}</h4>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left py-2">Benefit</th>
-                  <th className="text-right py-2">Gap</th>
-                  <th className="text-right py-2">Yr 1</th>
-                  <th className="text-right py-2">Yr 2</th>
-                  <th className="text-right py-2">Yr 3</th>
-                  <th className="text-right py-2">Total</th>
-                  <th className="text-right py-2">New Rate</th>
-                </tr>
-              </thead>
-              <tbody>
-                {targets.map((t: any) => (
-                  <tr key={t.benefitType} className="border-b last:border-0" data-testid={`row-target-${county}-${t.benefitType}`}>
-                    <td className="py-2 font-medium">{t.benefitName}</td>
-                    <td className="text-right text-red-600">{formatNumber(t.currentGap)}</td>
-                    <td className="text-right">{formatNumber(t.year1Target)}</td>
-                    <td className="text-right">{formatNumber(t.year2Target)}</td>
-                    <td className="text-right">{formatNumber(t.year3Target)}</td>
-                    <td className="text-right font-medium text-green-600">{formatNumber(t.totalTarget)}</td>
-                    <td className="text-right">
-                      <Badge variant="outline" className="text-xs">{t.targetRate}%</Badge>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </Card>
-      ))}
     </div>
   );
 }
 
-function ModalityTab() {
-  const { data, isLoading } = useQuery<any[]>({ queryKey: ["/api/benefits/modality-recommendations"] });
+function MetricsPanel() {
+  const { data: metrics, isLoading } = useQuery<any>({ queryKey: ["/api/benefits/metrics"] });
 
-  if (isLoading) return <Skeleton className="h-64" />;
-
-  const modalityIcons: Record<string, any> = {
-    "virtual-first": Wifi, "hybrid": Network, "trusted-partner": Handshake,
-    "mobile-outreach": Truck, "in-person-accompany": UserCheck,
-  };
+  if (isLoading) return <div className="space-y-3">{Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-24" />)}</div>;
+  if (!metrics) return null;
 
   return (
     <div className="space-y-6">
-      <Card className="p-6 border-cyan-200 dark:border-cyan-800 bg-cyan-50/30 dark:bg-cyan-950/10">
-        <h3 className="text-lg font-semibold mb-2">Multi-Modal Outreach Strategy</h3>
-        <p className="text-sm text-muted-foreground">Each neighborhood gets the right approach based on its barrier profile. Virtual where we can, in-person through trusted people where we must. Mobile van for rural areas (explicitly approved by St. David's). Always through people the community already trusts.</p>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Virtual-to-In-Person Pipeline</CardTitle>
+          <CardDescription>How many people move through each stage</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center gap-4 flex-wrap justify-center">
+            {[
+              { label: "Screened", value: metrics.pipeline.screened, icon: Search },
+              { label: "Handed Off", value: metrics.pipeline.handedOff, icon: HandHeart },
+              { label: "Enrolled", value: metrics.pipeline.enrolled, icon: CheckCircle2 },
+              { label: "Renewed", value: metrics.pipeline.renewed, icon: RefreshCw },
+            ].map((stage, i) => (
+              <div key={stage.label} className="flex items-center gap-2">
+                {i > 0 && <ArrowRight className="h-4 w-4 text-muted-foreground" />}
+                <div className="text-center p-3 rounded-lg bg-muted/50" data-testid={`pipeline-${stage.label.toLowerCase()}`}>
+                  <stage.icon className="h-5 w-5 mx-auto mb-1 text-primary" />
+                  <span className="text-xl font-bold block">{stage.value}</span>
+                  <span className="text-xs text-muted-foreground">{stage.label}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
       </Card>
 
-      {data?.map((county: any) => {
-        const Icon = modalityIcons[county.modality] || Globe;
-        return (
-          <Card key={county.fips} className="p-6" data-testid={`card-modality-${county.fips}`}>
-            <div className="flex items-start justify-between mb-4">
-              <div>
-                <h4 className="text-lg font-semibold">{county.name}</h4>
-                <p className="text-sm text-muted-foreground">Barrier Index: {county.barrierIndex}/100</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <Icon className="h-5 w-5 text-primary" />
-                <Badge>{county.details?.name}</Badge>
-              </div>
-            </div>
-            <p className="text-sm text-muted-foreground mb-4">{county.details?.description}</p>
-            <div className="grid grid-cols-2 gap-2">
-              {county.details?.tools?.map((tool: string) => (
-                <div key={tool} className="flex items-center gap-2 text-sm p-2 bg-muted/50 rounded">
-                  <CheckCircle2 className="h-3 w-3 text-green-600 shrink-0" />
-                  {tool}
-                </div>
-              ))}
-            </div>
-            <p className="text-xs text-muted-foreground mt-3"><span className="font-medium">Best for:</span> {county.details?.bestFor}</p>
-          </Card>
-        );
-      })}
-
-      {data?.[0]?.allModalities && (
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">All Available Modalities</h3>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">3-Year Enrollment Targets</CardTitle>
+          <CardDescription>Aligned with St. David's expected outcomes</CardDescription>
+        </CardHeader>
+        <CardContent>
           <div className="space-y-4">
-            {Object.entries(data[0].allModalities as Record<string, any>).map(([key, mod]: [string, any]) => {
-              const Icon = modalityIcons[key] || Globe;
+            {metrics.threeYearTargets?.map((t: any) => {
+              const Icon = BENEFIT_ICONS[t.benefitType] || Heart;
               return (
-                <div key={key} className="flex items-start gap-3 p-3 border rounded-lg">
-                  <Icon className="h-5 w-5 mt-0.5 text-primary shrink-0" />
-                  <div>
-                    <p className="font-medium">{mod.name}</p>
-                    <p className="text-sm text-muted-foreground">{mod.description}</p>
-                    <p className="text-xs text-muted-foreground mt-1"><span className="font-medium">Best for:</span> {mod.bestFor}</p>
+                <div key={t.benefitType} className="space-y-2" data-testid={`target-${t.benefitType}`}>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Icon className="h-4 w-4" style={{ color: BENEFIT_COLORS[t.benefitType] }} />
+                      <span className="text-sm font-medium">{t.benefitType}</span>
+                    </div>
+                    <span className="text-sm text-muted-foreground">Gap: {t.currentGap?.toLocaleString()}</span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2 text-center text-xs">
+                    <div className="p-2 rounded bg-muted/50">
+                      <span className="font-bold block">{t.year1Target?.toLocaleString()}</span>
+                      <span className="text-muted-foreground">Year 1 (15%)</span>
+                    </div>
+                    <div className="p-2 rounded bg-muted/50">
+                      <span className="font-bold block">{t.year2Target?.toLocaleString()}</span>
+                      <span className="text-muted-foreground">Year 2 (35%)</span>
+                    </div>
+                    <div className="p-2 rounded bg-primary/10">
+                      <span className="font-bold block text-primary">{t.year3Target?.toLocaleString()}</span>
+                      <span className="text-muted-foreground">Year 3 (50%)</span>
+                    </div>
                   </div>
                 </div>
               );
             })}
           </div>
-        </Card>
-      )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Renewal Tracking</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 gap-4 text-center">
+            <div className="p-4 rounded-lg bg-muted/50" data-testid="renewals-pending">
+              <Clock className="h-6 w-6 mx-auto mb-1 text-yellow-500" />
+              <span className="text-2xl font-bold">{metrics.renewals.pending?.toLocaleString()}</span>
+              <p className="text-xs text-muted-foreground">Renewals Pending</p>
+            </div>
+            <div className="p-4 rounded-lg bg-red-50 dark:bg-red-900/20" data-testid="renewals-at-risk">
+              <AlertTriangle className="h-6 w-6 mx-auto mb-1 text-red-500" />
+              <span className="text-2xl font-bold text-red-600 dark:text-red-400">{metrics.renewals.atRisk?.toLocaleString()}</span>
+              <p className="text-xs text-muted-foreground">At Risk of Lapsing</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">St. David's Alignment</CardTitle>
+          <CardDescription>We All Benefit 2.0 evaluation criteria</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            {[
+              { label: "Increased enrollment in core benefits", key: "increasedEnrollment" },
+              { label: "Stronger community hubs with culturally responsive practices", key: "strongerCommunityHubs" },
+              { label: "Culturally and linguistically responsive services", key: "culturallyResponsive" },
+              { label: "Co-location and coordination among providers", key: "coLocationCoordination" },
+              { label: "Reduced fragmentation in service delivery", key: "reducedFragmentation" },
+            ].map((item) => (
+              <div key={item.key} className="flex items-center gap-2" data-testid={`alignment-${item.key}`}>
+                <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />
+                <span className="text-sm">{item.label}</span>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function OutreachPanel() {
+  const [selectedCounty, setSelectedCounty] = useState("48453");
+  const { data: counties } = useQuery<any[]>({ queryKey: ["/api/benefits/counties"] });
+  const { data: strategy, isLoading } = useQuery<any>({
+    queryKey: ["/api/benefits/outreach-strategy", selectedCounty],
+    enabled: !!selectedCounty,
+  });
+
+  const strategyIcons: Record<string, typeof MapPin> = {
+    "Virtual-First": Wifi, "Virtual + Phone Follow-up": Phone,
+    "In-Person at Community Hub": Building2, "Mobile Outreach Van": Truck,
+    "Trusted Messenger / Accompaniment": HandHeart,
+  };
+
+  const priorityColors: Record<string, string> = {
+    primary: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
+    secondary: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400",
+    critical: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center gap-4 flex-wrap">
+        <Select value={selectedCounty} onValueChange={setSelectedCounty}>
+          <SelectTrigger className="w-[220px]" data-testid="select-outreach-county">
+            <SelectValue placeholder="Select county" />
+          </SelectTrigger>
+          <SelectContent>
+            {(counties || []).map((c: any) => (
+              <SelectItem key={c.fips} value={c.fips}>{c.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {isLoading ? (
+        <Skeleton className="h-64" />
+      ) : strategy?.strategies ? (
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Barrier Profile: {strategy.countyName}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-5 gap-3 text-center text-xs">
+                {[
+                  { label: "English", value: strategy.barrierProfile.limitedEnglish, icon: Languages },
+                  { label: "Vehicle", value: strategy.barrierProfile.noVehicle, icon: Truck },
+                  { label: "Broadband", value: strategy.barrierProfile.noBroadband, icon: WifiOff },
+                  { label: "Non-Citizen", value: strategy.barrierProfile.nonCitizen, icon: Ban },
+                  { label: "Poverty", value: strategy.barrierProfile.poverty, icon: DollarSign },
+                ].map((b) => (
+                  <div key={b.label} className="p-2 rounded-lg bg-muted/50">
+                    <b.icon className="h-4 w-4 mx-auto mb-1 text-muted-foreground" />
+                    <span className="font-bold block" style={{ color: getBarrierColor(b.value) }}>
+                      {b.value?.toFixed(1)}%
+                    </span>
+                    <span className="text-muted-foreground">{b.label}</span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="space-y-4">
+            <h3 className="font-semibold">Recommended Engagement Strategies</h3>
+            {strategy.strategies.map((s: any, i: number) => {
+              const Icon = strategyIcons[s.approach] || Navigation;
+              return (
+                <Card key={i} data-testid={`strategy-${i}`}>
+                  <CardContent className="pt-4">
+                    <div className="flex items-start gap-3">
+                      <Icon className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-medium">{s.approach}</span>
+                          <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${priorityColors[s.priority] || ""}`}>
+                            {s.priority}
+                          </span>
+                        </div>
+                        <p className="text-sm text-muted-foreground">{s.description}</p>
+                        <p className="text-xs text-muted-foreground mt-1 italic">{s.suitability}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
 
 export default function BenefitsCommandCenterPage() {
-  const [activeTab, setActiveTab] = useState<TabId>("overview");
-
-  const tabContent: Record<TabId, JSX.Element> = {
-    overview: <OverviewTab />,
-    counties: <CountyDeepDiveTab />,
-    barriers: <BarriersTab />,
-    partners: <PartnersTab />,
-    chw: <ChwNetworkTab />,
-    navigator: <VirtualNavigatorTab />,
-    hhsc: <HhscCppTab />,
-    metrics: <MetricsTab />,
-    modality: <ModalityTab />,
-  };
+  const [activeTab, setActiveTab] = useState<TabId>("command");
 
   return (
-    <div className="p-6 max-w-7xl mx-auto" data-testid="benefits-command-center">
-      <div className="mb-6">
-        <div className="flex items-center gap-3 mb-2">
-          <Heart className="h-8 w-8 text-red-600" />
-          <div>
-            <h1 className="text-2xl font-bold">Benefits Command Center</h1>
-            <p className="text-muted-foreground">We All Benefit 2.0 · 5-County Enrollment Intelligence · St. David's Foundation</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2 mt-2">
-          <Badge variant="outline">LOI Due: April 27</Badge>
-          <Badge variant="outline">$35M over 3 years</Badge>
-          <Badge variant="outline">15-25 grants</Badge>
-          <Badge variant="outline">Travis · Williamson · Hays · Bastrop · Caldwell</Badge>
-        </div>
+    <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-6">
+      <div>
+        <h1 className="text-2xl md:text-3xl font-bold" data-testid="text-page-title">Benefits Command Center</h1>
+        <p className="text-muted-foreground mt-1">
+          5-County Benefits Intelligence System — Travis, Williamson, Hays, Bastrop, Caldwell
+        </p>
       </div>
 
-      <div className="flex gap-2 flex-wrap mb-6 border-b pb-4">
-        {TAB_ITEMS.map(tab => (
-          <Button key={tab.id} variant={activeTab === tab.id ? "default" : "ghost"} size="sm"
-            onClick={() => setActiveTab(tab.id)} className="gap-1.5" data-testid={`tab-${tab.id}`}>
-            <tab.icon className="h-4 w-4" />
-            {tab.label}
-          </Button>
-        ))}
-      </div>
+      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as TabId)}>
+        <div className="overflow-x-auto">
+          <TabsList className="inline-flex w-auto min-w-full md:min-w-0">
+            <TabsTrigger value="command" data-testid="tab-command">Command Center</TabsTrigger>
+            <TabsTrigger value="gis" data-testid="tab-gis">GIS Map</TabsTrigger>
+            <TabsTrigger value="barriers" data-testid="tab-barriers">Barriers</TabsTrigger>
+            <TabsTrigger value="map" data-testid="tab-facilitators">Facilitators</TabsTrigger>
+            <TabsTrigger value="partners" data-testid="tab-partners">Partners</TabsTrigger>
+            <TabsTrigger value="chw" data-testid="tab-chw">CHW Network</TabsTrigger>
+            <TabsTrigger value="navigator" data-testid="tab-navigator">Navigator</TabsTrigger>
+            <TabsTrigger value="hhsc" data-testid="tab-hhsc">HHSC CPP</TabsTrigger>
+            <TabsTrigger value="metrics" data-testid="tab-metrics">Metrics</TabsTrigger>
+            <TabsTrigger value="outreach" data-testid="tab-outreach">Outreach</TabsTrigger>
+          </TabsList>
+        </div>
 
-      {tabContent[activeTab]}
+        <TabsContent value="command"><CommandDashboard /></TabsContent>
+        <TabsContent value="gis"><GisMapPanel /></TabsContent>
+        <TabsContent value="barriers"><BarriersPanel /></TabsContent>
+        <TabsContent value="map"><FacilitatorsPanel /></TabsContent>
+        <TabsContent value="partners"><PartnerHub /></TabsContent>
+        <TabsContent value="chw"><ChwNetwork /></TabsContent>
+        <TabsContent value="navigator"><VirtualNavigator /></TabsContent>
+        <TabsContent value="hhsc"><HhscPathway /></TabsContent>
+        <TabsContent value="metrics"><MetricsPanel /></TabsContent>
+        <TabsContent value="outreach"><OutreachPanel /></TabsContent>
+      </Tabs>
     </div>
   );
 }
