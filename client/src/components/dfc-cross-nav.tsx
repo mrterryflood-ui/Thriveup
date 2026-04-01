@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import {
   Users, Shield, Heart, Globe, MapPin, Link2,
   ShieldCheck, FileText, ArrowRight, ClipboardCheck,
-  Brain, BarChart3, Target, Network,
+  Brain, BarChart3, Target, Network, Search,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -28,6 +28,7 @@ const NAV_MAP: Record<string, CrossNavItem[]> = {
     { title: "Community Map", description: "GIS tract-level enrollment gaps and barriers", href: "/community-map", icon: MapPin },
     { title: "Ecosystem Hub", description: "24-platform ecosystem command center", href: "/ecosystem", icon: Network },
     { title: "Grant Hub", description: "Full grant management and narrative builder", href: "/grants", icon: Target },
+    { title: "SDOH Explorer", description: "Public, replicable SDOH analysis for any US county", href: "/sdoh-explorer", icon: Search },
   ],
   "loi-writer": [
     { title: "Coalition Portal", description: "Partner data, county summaries, and coalition structure", href: "/coalition", icon: Users },
@@ -35,6 +36,7 @@ const NAV_MAP: Record<string, CrossNavItem[]> = {
     { title: "Benefits Screener", description: "9-program screener feeding real enrollment data", href: "/benefits-screener", icon: ClipboardCheck },
     { title: "Community Map", description: "GIS view of tract-level gaps and barriers", href: "/community-map", icon: MapPin },
     { title: "Ecosystem Hub", description: "24-platform command center", href: "/ecosystem", icon: Network },
+    { title: "SDOH Explorer", description: "Public, replicable analysis — share with anyone", href: "/sdoh-explorer", icon: Search },
   ],
   "benefits-screener": [
     { title: "Coalition Portal", description: "See how screenings feed the 5-county strategy", href: "/coalition", icon: Users },
@@ -48,6 +50,7 @@ const NAV_MAP: Record<string, CrossNavItem[]> = {
     { title: "Benefits Screener", description: "Direct intervention — screen families now", href: "/benefits-screener", icon: ClipboardCheck },
     { title: "Community Map", description: "See the chain geographically by census tract", href: "/community-map", icon: MapPin },
     { title: "Grant Hub", description: "Full grant strategy and narrative", href: "/grants", icon: Target },
+    { title: "SDOH Explorer", description: "Replicable public analysis — verify every number", href: "/sdoh-explorer", icon: Search },
   ],
   "community-map": [
     { title: "SDOH Impact Chain", description: "Chain analysis for the tracts you're viewing", href: "/sdoh-chain", icon: Link2 },

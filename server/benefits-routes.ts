@@ -1508,6 +1508,188 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
     }
   });
 
+  app.get("/api/benefits/sdoh-explorer/live", async (req, res) => {
+    try {
+      const stateCode = (req.query.state as string) || "48";
+      const countyCodesRaw = req.query.counties as string;
+      const countyCodeList = countyCodesRaw ? countyCodesRaw.split(",").map(c => c.trim()) : [];
+
+      if (countyCodeList.length === 0 || countyCodeList.length > 10) {
+        return res.status(400).json({ error: "Provide 1-10 county FIPS codes (3-digit county codes within the state)" });
+      }
+
+      const censusKey = process.env.CENSUS_API_KEY || "";
+      const keyParam = censusKey ? `&key=${censusKey}` : "";
+
+      const variables = [
+        "NAME", "B01003_001E", "B19013_001E", "B17001_002E", "B17001_001E",
+        "B27001_001E", "B27001_005E", "B27001_008E", "B27001_011E",
+        "B16004_001E", "B16004_025E", "B16004_047E",
+        "B08141_001E", "B08141_002E",
+        "B28002_001E", "B28002_013E",
+        "B22001_001E", "B22001_002E",
+      ].join(",");
+
+      const countySummaries: Record<string, any> = {};
+      let allTracts: any[] = [];
+
+      for (const countyCode of countyCodeList) {
+        try {
+          const url = `${CENSUS_ACS_URL}?get=${variables}&for=tract:*&in=state:${stateCode}+county:${countyCode}${keyParam}`;
+          const data = await fetchJson(url);
+          if (!Array.isArray(data) || data.length < 2) continue;
+
+          const headers = data[0] as string[];
+          const tracts: any[] = [];
+
+          for (let i = 1; i < data.length; i++) {
+            const row = data[i] as string[];
+            const v = (name: string) => {
+              const idx = headers.indexOf(name);
+              return idx >= 0 ? parseInt(row[idx]) || 0 : 0;
+            };
+            const totalPop = v("B01003_001E");
+            if (totalPop < 100) continue;
+
+            const tractCode = row[headers.indexOf("tract")];
+            const tractName = row[headers.indexOf("NAME")] || `${stateCode}${countyCode}${tractCode}`;
+            const medianIncome = v("B19013_001E");
+            const belowPoverty = v("B17001_002E");
+            const povertyUniverse = v("B17001_001E");
+            const povertyRate = povertyUniverse > 0 ? clamp((belowPoverty / povertyUniverse) * 100) : 0;
+
+            const langTotal = v("B16004_001E");
+            const langLimited = v("B16004_025E") + v("B16004_047E");
+            const limitedEnglishPct = langTotal > 0 ? clamp((langLimited / langTotal) * 100) : 0;
+
+            const commuteTotal = v("B08141_001E");
+            const noVehicle = v("B08141_002E");
+            const noVehiclePct = commuteTotal > 0 ? clamp((noVehicle / commuteTotal) * 100) : 0;
+
+            const internetTotal = v("B28002_001E");
+            const noInternet = v("B28002_013E");
+            const noBroadbandPct = internetTotal > 0 ? clamp((noInternet / internetTotal) * 100) : 0;
+
+            const insTotal = v("B27001_001E");
+            const uninsured = v("B27001_005E") + v("B27001_008E") + v("B27001_011E");
+            const uninsuredRate = insTotal > 0 ? (uninsured / insTotal) * 100 : 0;
+
+            const snapUniverse = v("B22001_001E");
+            const snapRecipients = v("B22001_002E");
+
+            const barrierIndex = clamp(
+              (limitedEnglishPct * 0.25) + (noVehiclePct * 0.2) +
+              (noBroadbandPct * 0.2) + (povertyRate * 0.2)
+            );
+
+            const eligiblePop = Math.round(totalPop * povertyRate / 100 * 1.3);
+            const snapRate = snapUniverse > 0 ? (snapRecipients / snapUniverse) : 0.5;
+            const enrolledPop = Math.round(eligiblePop * Math.max(snapRate, 0.4));
+
+            tracts.push({
+              tractId: `${stateCode}${countyCode}${tractCode}`,
+              tractName, totalPop, medianIncome, povertyRate,
+              limitedEnglishPct, noVehiclePct, noBroadbandPct, uninsuredRate,
+              barrierIndex, eligiblePop, enrolledPop,
+              gap: eligiblePop - enrolledPop,
+            });
+          }
+
+          const totalPop = tracts.reduce((s, t) => s + t.totalPop, 0);
+          const eligible = tracts.reduce((s, t) => s + t.eligiblePop, 0);
+          const enrolled = tracts.reduce((s, t) => s + t.enrolledPop, 0);
+          const countyName = tracts[0]?.tractName?.split(",").slice(1).join(",").trim() || `County ${countyCode}`;
+
+          countySummaries[`${stateCode}${countyCode}`] = {
+            fips: `${stateCode}${countyCode}`, name: countyName,
+            totalPop, eligible, enrolled, gap: eligible - enrolled,
+            gapRate: eligible > 0 ? Math.round(((eligible - enrolled) / eligible) * 100) : 0,
+            avgPoverty: Math.round((tracts.reduce((s, t) => s + t.povertyRate, 0) / Math.max(tracts.length, 1)) * 10) / 10,
+            avgBarrier: Math.round((tracts.reduce((s, t) => s + t.barrierIndex, 0) / Math.max(tracts.length, 1)) * 10) / 10,
+            avgLimitedEnglish: Math.round((tracts.reduce((s, t) => s + t.limitedEnglishPct, 0) / Math.max(tracts.length, 1)) * 10) / 10,
+            avgNoBroadband: Math.round((tracts.reduce((s, t) => s + t.noBroadbandPct, 0) / Math.max(tracts.length, 1)) * 10) / 10,
+            avgNoVehicle: Math.round((tracts.reduce((s, t) => s + t.noVehiclePct, 0) / Math.max(tracts.length, 1)) * 10) / 10,
+            avgUninsured: Math.round((tracts.reduce((s, t) => s + t.uninsuredRate, 0) / Math.max(tracts.length, 1)) * 10) / 10,
+            tractCount: tracts.length,
+            highPovertyTracts: tracts.filter(t => t.povertyRate > 25).length,
+            highBarrierTracts: tracts.filter(t => t.barrierIndex > 20).length,
+          };
+
+          allTracts = allTracts.concat(tracts);
+        } catch (err) {
+          console.error(`Census fetch error for county ${countyCode}:`, err);
+        }
+      }
+
+      const totalEligible = allTracts.reduce((s, t) => s + t.eligiblePop, 0);
+      const totalEnrolled = allTracts.reduce((s, t) => s + t.enrolledPop, 0);
+      const totalGap = totalEligible - totalEnrolled;
+
+      res.json({
+        query: { state: stateCode, counties: countyCodeList },
+        summary: {
+          totalPopulation: allTracts.reduce((s, t) => s + t.totalPop, 0),
+          totalEligible, totalEnrolled, totalGap,
+          gapRate: totalEligible > 0 ? Math.round((totalGap / totalEligible) * 100) : 0,
+          totalTracts: allTracts.length,
+          highPovertyTracts: allTracts.filter(t => t.povertyRate > 25).length,
+          highBarrierTracts: allTracts.filter(t => t.barrierIndex > 20).length,
+          noBroadbandTracts: allTracts.filter(t => t.noBroadbandPct > 10).length,
+          noVehicleTracts: allTracts.filter(t => t.noVehiclePct > 10).length,
+          unclaimedBenefits: `$${((totalGap * 4800) / 1e9).toFixed(1)}B`,
+        },
+        counties: countySummaries,
+        topBarrierTracts: allTracts.sort((a, b) => b.barrierIndex - a.barrierIndex).slice(0, 20),
+        methodology: {
+          source: "U.S. Census Bureau American Community Survey (ACS) 5-Year Estimates (2018-2022)",
+          endpoint: CENSUS_ACS_URL,
+          variables: {
+            "B01003_001E": "Total Population",
+            "B19013_001E": "Median Household Income",
+            "B17001_002E / B17001_001E": "Poverty Rate (below poverty / poverty universe)",
+            "B16004_025E + B16004_047E / B16004_001E": "Limited English Proficiency Rate",
+            "B08141_002E / B08141_001E": "No Vehicle Rate (commuters with no vehicle / total commuters)",
+            "B28002_013E / B28002_001E": "No Broadband Rate (households with no internet / total households)",
+            "B27001_005E + B27001_008E + B27001_011E / B27001_001E": "Uninsured Rate (uninsured by age groups / total)",
+            "B22001_002E / B22001_001E": "SNAP Participation Rate",
+          },
+          barrierIndexFormula: "(Limited English × 0.25) + (No Vehicle × 0.20) + (No Broadband × 0.20) + (Poverty Rate × 0.20)",
+          eligibilityEstimation: "Total Population × Poverty Rate × 1.3 (factor accounts for near-poverty eligible at 130-200% FPL)",
+          enrollmentEstimation: "Eligible Population × max(SNAP participation rate, 0.40) as proxy for overall benefits uptake",
+          replicationInstructions: [
+            "1. Go to https://data.census.gov and search for the ACS 5-Year variables listed above",
+            "2. Select your state and county of interest",
+            "3. Download tract-level data for all variables",
+            "4. Apply the barrier index formula to calculate composite access barriers",
+            "5. Apply the eligibility estimation to calculate estimated eligible population",
+            "6. Compare enrolled (SNAP participation as proxy) to eligible to find the gap",
+            "7. The gap represents people who qualify for benefits but are not receiving them",
+          ],
+          limitations: [
+            "ACS 5-year estimates have margins of error, especially for small tracts",
+            "SNAP participation is used as a proxy for overall benefits enrollment — actual rates vary by program",
+            "Eligibility at 130% FPL is a rough estimate; actual program thresholds vary (e.g., Medicaid at 138% FPL, CHIP higher)",
+            "Limited English proficiency data captures ages 5+ who speak English less than 'very well'",
+            "Census tract boundaries do not align with school districts, city limits, or service areas",
+            "Crime correlation is based on published research linking SDOH to crime rates, not tract-level crime data overlay",
+          ],
+          citedResearch: [
+            "Marmot, M. (2015). The Health Gap: The Challenge of an Unequal World. Bloomsbury.",
+            "Braveman, P., & Gottlieb, L. (2014). The Social Determinants of Health. Public Health Reports, 129(2), 19-31.",
+            "Urban Institute (2023). Reaching Eligible Non-Participants in SNAP.",
+            "CBPP (2023). State-Level SNAP Participation Rates.",
+            "Healthy People 2030 — Social Determinants of Health Framework (ODPHP/HHS).",
+            "SAMHSA Risk and Protective Factors Framework — Education as both risk and protective factor.",
+          ],
+        },
+        generatedAt: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.error("SDOH Explorer live error:", error);
+      res.status(500).json({ error: "Failed to run SDOH analysis. Check state/county codes." });
+    }
+  });
+
   app.get("/api/benefits/sdoh-impact-chain", async (req, res) => {
     try {
       const enrollmentData = await db.select().from(benefitsEnrollmentData)

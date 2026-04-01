@@ -32,7 +32,7 @@ import {
   MessageCircle, MapPin, Presentation, Scale, FileBarChart, LayoutDashboard,
   Info, BookMarked,
   Mail, Landmark, RefreshCw, Package, PenTool,
-  Microscope, Stethoscope, Film, HandHeart,
+  Microscope, Stethoscope, Film, HandHeart, Search,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -100,6 +100,7 @@ const grantEngineItems: NavItem[] = [
   { title: "Coalition Portal", url: "/coalition", icon: Globe },
   { title: "LOI Writer", url: "/loi-writer", icon: FileText },
   { title: "SDOH Impact Chain", url: "/sdoh-chain", icon: Link2 },
+  { title: "SDOH Explorer (Public)", url: "/sdoh-explorer", icon: Search },
   { title: "Narrative Builder", url: "/grant-narrative", icon: FileText },
   { title: "Ecosystem Hub", url: "/ecosystem", icon: Globe },
   { title: "Ecosystem Story", url: "/ecosystem-story", icon: BookMarked },
