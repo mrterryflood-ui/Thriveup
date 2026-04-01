@@ -76,7 +76,6 @@ import { registerReentryRoutes } from "./reentry-routes";
 import { registerPartnerRoutes } from "./partner-routes";
 import { registerOutcomeRoutes } from "./outcome-routes";
 import { registerJusticeRoutes } from "./justice-routes";
-import { registerBenefitsRoutes } from "./benefits-routes";
 import { registerWorkforceRoutes } from "./workforce-routes";
 import { registerNavigatorRoutes } from "./navigator-routes";
 import { registerPilotRoutes } from "./pilot-routes";
@@ -416,7 +415,6 @@ export async function registerRoutes(
   registerPeerReviewRoutes(app);
   registerPricingRoutes(app);
   registerCollaborationRoutes(app);
-  registerBenefitsRoutes(app);
   storage.seedData().catch(err => console.error("[Seed] Data seeding failed:", err));
 
   app.get("/api/ai-provider", (_req, res) => {
