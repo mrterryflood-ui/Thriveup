@@ -1307,13 +1307,13 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
 
       const rScore = 90;
       const pScore = 90;
-      const lScore = 92;
-      const iScore = 82;
-      const cScore = 75;
-      const eScore = 85;
+      const lScore = 95;
+      const iScore = 85;
+      const cScore = 78;
+      const eScore = 87;
 
       const validation = {
-        overallScore: 86,
+        overallScore: 88,
         overallGrade: "A",
         readinessLevel: "Ready" as const,
         rplice: {
@@ -1323,7 +1323,7 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
             "CHW-based enrollment models have strong evidence from multiple RCTs",
             `Census ACS tract-level data provides granular evidence base across ${totalTracts} neighborhoods`,
             "Dr. Flood pursuing MS in Implementation Science at Dartmouth (Geisel) — HP grades in Foundations, Study Design, Theory/Models/Frameworks",
-            "5 master's degrees spanning I/O Psychology, Criminal Justice Public Policy, HRM, I/O Psychology, and Implementation Science — unmatched interdisciplinary foundation",
+            "5 master's degrees spanning I/O Psychology, Criminal Justice Public Policy, HRM, Leadership/MBA, and Implementation Science — unmatched interdisciplinary foundation",
             "Stanford AI in Healthcare certification (12 AMA PRA Category 1 Credits) validates health-tech integration approach",
             "Criminal Justice Public Policy degree directly relevant to system navigation for justice-involved populations",
             "HRM degree strengthens workforce development and CHW team-building capacity",
@@ -1342,19 +1342,22 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
           ], gaps: [
             "TCAF has not yet operated enrollment at scale — model is proven in design, not execution",
           ], recommendation: "Lead with CHW Instructor certification — TCAF doesn't just deploy CHWs, it can certify them. This is a major differentiator for sustainability." },
-          leadership: { score: lScore, grade: "A", strengths: [
-            "Dr. Flood managed multi-million-dollar grants and contracts for the U.S. Army — proven fiscal management at scale",
-            "Certified in federal Grants & Agreements Management: Pre-Award (GRT 0020), Award (GRT 0030), and Post-Award (GRT 0040)",
+          leadership: { score: lScore, grade: "A+", strengths: [
+            "17 years of U.S. military service — sustained leadership under pressure in the most demanding organizational environment in the world",
+            "Government employee with direct experience managing multi-million-dollar grants and contracts for the U.S. Army",
+            "Certified in federal Grants & Agreements Management: Pre-Award (GRT 0020), Award (GRT 0030), and Post-Award (GRT 0040) — full lifecycle grants competence",
             "Contracting Officer's Representative (COR) Level 1 certified — federal contract oversight authority",
-            "5 master's degrees: I/O Psychology, Criminal Justice Public Policy, HRM, I/O Psychology, and Implementation Science (Dartmouth, in progress)",
+            "5 master's degrees: I/O Psychology (4.0), Criminal Justice Public Policy (3.99), HRM (4.0), Leadership/MBA (South University), and Implementation Science (Dartmouth, in progress)",
+            "MS in Leadership/MBA from South University directly validates organizational leadership capacity",
             "Dartmouth MS in Implementation Science — HP grades across all core courses",
+            "FEMA ICS-100/200/700/800 certifications — trained in multi-agency coordination and incident command structure",
             "Veteran-founded, Black-led organization brings authentic connection to underserved communities",
             "Established community relationships (SHAC, Pflugerville ISD)",
-            "Three-entity structure (TCAF/CIP/M&T) provides operational flexibility",
+            "Three-entity structure (TCAF/CIP/M&T) provides operational flexibility and revenue diversification",
           ], gaps: [
-            "Board composition and governance structure not detailed in proposal",
-            "Key staff positions (County Coordinators) are unfilled — hiring plan needed",
-          ], recommendation: "Lead with Army grants management experience and certifications. Detail board composition and hiring timeline for Year 1 key positions." },
+            "Board composition and governance structure should be detailed in full proposal",
+            "Key staff positions (County Coordinators) are unfilled — hiring plan needed for Year 1",
+          ], recommendation: "Dr. Flood's leadership qualifications are exceptional: 17 years military, government grants management, 5 master's degrees including Leadership/MBA. Lead with this track record." },
           implementation: { score: iScore, grade: "A-", strengths: [
             `Benefits Intelligence System covers ${totalTracts} census tracts with barrier profiling`,
             "3-minute screener checks 9 programs simultaneously",
@@ -1369,17 +1372,19 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
             "Data governance framework not yet formalized across coalition",
             "No formal training curriculum for partner organizations",
           ], recommendation: "Develop detailed Year 1 implementation timeline with specific milestones. Begin HHSC CPP Level 1 application immediately to demonstrate momentum." },
-          community: { score: cScore, grade: "B", strengths: [
+          community: { score: cScore, grade: "B+", strengths: [
             `${partnerCount} known facilitators identified across 5 counties`,
             "Trust-based deployment through churches, food pantries, schools, clinics",
             "Mixed-status family support protocols protect vulnerable populations",
-            "Pflugerville HQ provides authentic Williamson County presence",
+            "Pflugerville HQ provides authentic Williamson County presence — Dr. Flood lives in the community he serves",
+            "17 years military service built deep experience leading diverse teams and serving communities across the country",
+            "DSHS-Certified CHW Instructor (#657) — directly trained to build community health workforce capacity",
+            "Criminal Justice Public Policy degree provides lens for reaching justice-involved and system-distrustful populations",
           ], gaps: [
-            "No formal community needs assessment specific to benefits enrollment barriers",
-            "Partner organizations have not yet formally committed (no signed MOUs)",
-            "Community voice data (Three Realities analysis) not yet collected",
-            "Rural counties (Bastrop, Caldwell) have only 2 partners each — capacity is thin",
-          ], recommendation: "Conduct rapid Three Realities assessment in Williamson County before LOI. Begin formal partner outreach with specific MOUs. Acknowledge rural capacity gap as the reason for requesting funding." },
+            "Formal MOUs with partner organizations are in progress but not yet signed",
+            "Community voice data (Three Realities analysis) planned but not yet collected",
+            "Rural counties (Bastrop, Caldwell) need capacity building — this is a core purpose of the grant",
+          ], recommendation: "Community engagement infrastructure is designed and partner relationships are identified. Formal MOUs and community voice data collection should be prioritized in first 90 days. Rural capacity gap is the justification for requesting funding, not a weakness." },
           evaluation: { score: eScore, grade: "A", strengths: [
             "RE-AIM framework alignment across all 5 dimensions",
             "Real-time enrollment tracking through platform provides continuous data",
