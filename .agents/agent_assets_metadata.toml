@@ -150,3 +150,9 @@ id = "jQZ9ndamv69PV43BPELKO"
 uri = "file://TCAF_Texas_RFP_Deep_Analysis_April_2026.md"
 type = "text"
 title = "TCAF Texas RFP Deep Analysis — 1,291 RFPs Screened, Source Documents Located"
+
+[[outputs]]
+id = "FrQPadYHrD4aZ-mKwBby7"
+uri = "file://TCAF_Staffing_RFP_Opportunities_April_2026.md"
+type = "text"
+title = "TCAF + M&T Consulting — Staffing RFP Opportunities (25+ Low-Hanging Fruit)"
