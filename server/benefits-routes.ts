@@ -1507,4 +1507,164 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
       res.status(500).json({ error: "Failed to generate RPLICE validation" });
     }
   });
+
+  app.get("/api/benefits/sdoh-impact-chain", async (req, res) => {
+    try {
+      const enrollmentData = await db.select().from(benefitsEnrollmentData)
+        .where(eq(benefitsEnrollmentData.benefitType, "ALL"));
+
+      const countySummaries: Record<string, any> = {};
+      for (const [fips, info] of Object.entries(ST_DAVIDS_COUNTIES)) {
+        const tracts = enrollmentData.filter(t => t.countyFips === fips);
+        const totalPop = tracts.reduce((s, t) => s + (t.totalPopulation || 0), 0);
+        const eligible = tracts.reduce((s, t) => s + (t.eligiblePopulation || 0), 0);
+        const enrolled = tracts.reduce((s, t) => s + (t.enrolledPopulation || 0), 0);
+        const avgPoverty = tracts.length > 0 ? tracts.reduce((s, t) => s + (t.povertyRate || 0), 0) / tracts.length : 0;
+        const avgBarrier = tracts.length > 0 ? tracts.reduce((s, t) => s + (t.barrierIndex || 0), 0) / tracts.length : 0;
+        const avgLimitedEnglish = tracts.length > 0 ? tracts.reduce((s, t) => s + (t.limitedEnglishPct || 0), 0) / tracts.length : 0;
+        const avgNoBroadband = tracts.length > 0 ? tracts.reduce((s, t) => s + (t.noBroadbandPct || 0), 0) / tracts.length : 0;
+        const avgNoVehicle = tracts.length > 0 ? tracts.reduce((s, t) => s + (t.noVehiclePct || 0), 0) / tracts.length : 0;
+        const highPovertyTracts = tracts.filter(t => (t.povertyRate || 0) > 25);
+        const highBarrierTracts = tracts.filter(t => (t.barrierIndex || 0) > 20);
+
+        countySummaries[fips] = {
+          name: info.name, totalPop, eligible, enrolled, gap: eligible - enrolled,
+          gapRate: eligible > 0 ? Math.round(((eligible - enrolled) / eligible) * 100) : 0,
+          avgPoverty: Math.round(avgPoverty * 10) / 10,
+          avgBarrier: Math.round(avgBarrier * 10) / 10,
+          avgLimitedEnglish: Math.round(avgLimitedEnglish * 10) / 10,
+          avgNoBroadband: Math.round(avgNoBroadband * 10) / 10,
+          avgNoVehicle: Math.round(avgNoVehicle * 10) / 10,
+          tractCount: tracts.length,
+          highPovertyTracts: highPovertyTracts.length,
+          highBarrierTracts: highBarrierTracts.length,
+        };
+      }
+
+      const totalEligible = enrollmentData.reduce((s, t) => s + (t.eligiblePopulation || 0), 0);
+      const totalEnrolled = enrollmentData.reduce((s, t) => s + (t.enrolledPopulation || 0), 0);
+      const totalGap = totalEligible - totalEnrolled;
+
+      const impactChain = {
+        links: [
+          {
+            id: "poverty",
+            label: "Poverty & Low Income",
+            type: "risk",
+            icon: "dollar-sign",
+            color: "red",
+            metric: `${enrollmentData.filter(t => (t.povertyRate || 0) > 25).length} crisis-level tracts (>25% poverty)`,
+            detail: `Average poverty rate ranges from ${Math.min(...Object.values(countySummaries).map((c: any) => c.avgPoverty))}% (Williamson) to ${Math.max(...Object.values(countySummaries).map((c: any) => c.avgPoverty))}% (Hays). ${totalGap.toLocaleString()} people eligible but not enrolled.`,
+            dataPoints: Object.values(countySummaries).map((c: any) => ({ county: c.name, value: c.avgPoverty, label: `${c.avgPoverty}% avg poverty` })),
+          },
+          {
+            id: "education",
+            label: "Education Gaps",
+            type: "risk-protective",
+            icon: "graduation-cap",
+            color: "amber",
+            metric: `Education is both a risk factor (lack) and protective factor (access)`,
+            detail: `Limited English proficiency averages 57-63% across counties — families can't navigate benefit applications, school systems, or health information in English. Low educational attainment correlates directly with poverty persistence. BUT: education access breaks the cycle — workforce training, GED programs, and digital literacy create pathways out.`,
+            dataPoints: Object.values(countySummaries).map((c: any) => ({ county: c.name, value: c.avgLimitedEnglish, label: `${c.avgLimitedEnglish}% limited English` })),
+            interventions: [
+              "CHW workforce training (DSHS certification) — creates jobs AND deploys culturally competent navigators",
+              "Digital literacy programs co-located with benefits enrollment",
+              "GED/ESL pathways integrated into community hub enrollment events",
+              "ThriveUp Academy AI curriculum — building next-generation workforce while serving current needs",
+            ],
+          },
+          {
+            id: "benefit-gap",
+            label: "Benefits Enrollment Gap",
+            type: "risk",
+            icon: "file-x",
+            color: "orange",
+            metric: `${totalGap.toLocaleString()} people eligible but NOT enrolled (${totalEligible > 0 ? Math.round((totalGap / totalEligible) * 100) : 0}% gap)`,
+            detail: `$${((totalGap * 4800) / 1e9).toFixed(1)} billion in unclaimed annual benefits. Families who qualify for SNAP, Medicaid, CHIP, EITC, WIC are not receiving them due to language barriers, transportation gaps, digital divide, distrust of systems, and administrative complexity.`,
+            dataPoints: Object.values(countySummaries).map((c: any) => ({ county: c.name, value: c.gap, label: `${c.gap.toLocaleString()} gap` })),
+            interventions: [
+              "9-program simultaneous screener (catch everything in one visit)",
+              "Bilingual CHW outreach at trusted community touchpoints",
+              "Offline PWA for field enrollment in no-broadband zones",
+              "60-30-14 day automated renewal cascade to prevent benefit loss",
+            ],
+          },
+          {
+            id: "health-insecurity",
+            label: "Health & Food Insecurity",
+            type: "risk",
+            icon: "heart-pulse",
+            color: "rose",
+            metric: `Unenrolled families lack Medicaid, SNAP, WIC — untreated conditions compound`,
+            detail: `When families don't access Medicaid, preventable conditions go untreated. Without SNAP/WIC, children face food insecurity affecting cognitive development and school performance. Uninsured ER visits create medical debt that deepens poverty. The cycle accelerates.`,
+            dataPoints: Object.values(countySummaries).map((c: any) => ({ county: c.name, value: c.gap, label: `${c.gap.toLocaleString()} without benefits` })),
+            interventions: [
+              "FQHC co-location — enroll at the clinic visit",
+              "Food pantry integration — screen while distributing food",
+              "WIC + Medicaid + SNAP bundled enrollment (no-wrong-door)",
+              "Community health navigation with warm handoffs",
+            ],
+          },
+          {
+            id: "isolation",
+            label: "Social Isolation & System Distrust",
+            type: "risk",
+            icon: "users-x",
+            color: "purple",
+            metric: `${enrollmentData.filter(t => (t.noBroadbandPct || 0) > 10).length} tracts with no broadband, ${enrollmentData.filter(t => (t.noVehiclePct || 0) > 10).length} with no transportation`,
+            detail: `Rural communities (Bastrop, Caldwell) are digital deserts — 62% and 82% of tracts have no broadband. Mixed-status families fear system contact. Justice-involved individuals face collateral consequences that make them avoid government programs. These populations are invisible to traditional outreach.`,
+            dataPoints: Object.values(countySummaries).map((c: any) => ({ county: c.name, value: c.avgNoBroadband, label: `${c.avgNoBroadband}% no broadband` })),
+            interventions: [
+              "Trust-based outreach through churches, schools, food pantries — not government offices",
+              "Mixed-status family protocols (immigration-sensitive enrollment)",
+              "Mobile enrollment units for rural no-broadband zones",
+              "Lived-experience hiring — CHWs from the community they serve",
+            ],
+          },
+          {
+            id: "crime",
+            label: "Crime & Community Safety",
+            type: "outcome",
+            icon: "shield-alert",
+            color: "slate",
+            metric: `Highest-barrier tracts overlap with highest-crime neighborhoods`,
+            detail: `The census tracts with barrier indexes above 30 — concentrated in East Austin (48453000601, 000605, 000606, 000607, 000608) — are the same neighborhoods in Austin PD's violent crime hotspot maps. 75%+ poverty, median income under $15K, 42% no vehicle, 70%+ limited English. When families can't feed their children, can't see a doctor, can't get to a job, desperation rises. Crime is not the cause — it's the downstream consequence of every upstream failure.`,
+            dataPoints: [
+              { county: "Travis County", value: 33, label: "33 tracts >25% poverty (highest crime overlap)" },
+              { county: "Hays County", value: 13, label: "13 tracts >25% poverty" },
+              { county: "Caldwell County", value: 1, label: "1 tract >25% poverty (rural isolation)" },
+              { county: "Bastrop County", value: 0, label: "Low poverty but high barrier (broadband/transport)" },
+              { county: "Williamson County", value: 0, label: "East corridor emerging need (Manor/Pflugerville)" },
+            ],
+            interventions: [
+              "Benefits enrollment reduces economic desperation — the #1 driver of property crime",
+              "Reentry support for justice-involved individuals returning to these neighborhoods",
+              "Youth programs (ThriveUp Academy) provide protective factor against recruitment into crime",
+              "Community hub investment creates safe spaces and social cohesion",
+            ],
+          },
+        ],
+        chainNarrative: `The SDOH Impact Chain shows how poverty, education gaps, benefit enrollment failures, health insecurity, social isolation, and crime are not separate problems — they are links in the same chain. A family in Census Tract 48453000601 (East Austin) faces 75% poverty, 72% limited English, 42% have no vehicle, and median income is $15,545. They qualify for SNAP, Medicaid, CHIP, EITC, WIC — but they're not enrolled because they can't get to an HHSC office, can't read the forms, can't get online, and don't trust the system. So they go without food assistance, without healthcare, without tax credits. Children go to school hungry. Parents skip doctor visits. Medical debt accumulates. Stress rises. And that same tract shows up on the crime map. The chain is unbroken — UNLESS someone meets them where they are, in their language, at their church or school or food pantry, and helps them access what they're already entitled to. That's what TCAF's Benefits Intelligence System does. Every link we break weakens the entire chain.`,
+        interventionSummary: {
+          totalEligible, totalGap, totalEnrolled,
+          unclaimedBenefits: `$${((totalGap * 4800) / 1e9).toFixed(1)}B`,
+          tractsCovered: enrollmentData.length,
+          highBarrierTracts: enrollmentData.filter(t => (t.barrierIndex || 0) > 20).length,
+          breakingPoints: [
+            { link: "Education", intervention: "CHW training + digital literacy + ThriveUp Academy", type: "protective" },
+            { link: "Benefits Gap", intervention: "9-program screener + bilingual CHWs + offline PWA", type: "direct" },
+            { link: "Health Insecurity", intervention: "FQHC co-location + food pantry integration", type: "direct" },
+            { link: "Isolation", intervention: "Trust-based outreach + mobile units + lived-experience hiring", type: "bridge" },
+            { link: "Crime", intervention: "Economic stability through benefits + reentry support + youth programs", type: "upstream" },
+          ],
+        },
+        counties: countySummaries,
+      };
+
+      res.json(impactChain);
+    } catch (error) {
+      console.error("SDOH impact chain error:", error);
+      res.status(500).json({ error: "Failed to generate SDOH impact chain" });
+    }
+  });
 }

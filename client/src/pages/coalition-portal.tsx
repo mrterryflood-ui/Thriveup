@@ -11,6 +11,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { SDOHImpactChain } from "@/components/sdoh-impact-chain";
+import { DFCCrossNav } from "@/components/dfc-cross-nav";
 import {
   Users, MapPin, Shield, Heart, Building2, Target, TrendingUp,
   AlertTriangle, CheckCircle2, Loader2, ArrowRight, Globe,
@@ -214,10 +216,11 @@ export default function CoalitionPortalPage() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid grid-cols-3 md:grid-cols-6 w-full">
+          <TabsList className="grid grid-cols-4 md:grid-cols-7 w-full">
             <TabsTrigger value="plan" data-testid="tab-plan">The Plan</TabsTrigger>
             <TabsTrigger value="counties" data-testid="tab-counties">Counties</TabsTrigger>
             <TabsTrigger value="coalition" data-testid="tab-coalition">Coalition</TabsTrigger>
+            <TabsTrigger value="sdoh" data-testid="tab-sdoh">SDOH Chain</TabsTrigger>
             <TabsTrigger value="data" data-testid="tab-data">Data</TabsTrigger>
             <TabsTrigger value="join" data-testid="tab-join">Join</TabsTrigger>
             <TabsTrigger value="summary" data-testid="tab-summary">Exec Summary</TabsTrigger>
@@ -728,7 +731,13 @@ export default function CoalitionPortalPage() {
               </Card>
             )}
           </TabsContent>
+
+          <TabsContent value="sdoh" className="space-y-4">
+            <SDOHImpactChain />
+          </TabsContent>
         </Tabs>
+
+        <DFCCrossNav currentPage="coalition" />
       </div>
     </div>
   );

@@ -1,8 +1,9 @@
 import { Link } from "wouter";
 import { Card } from "@/components/ui/card";
 import {
-  Users, Shield, Heart, Globe,
-  ShieldCheck, FileText, ArrowRight,
+  Users, Shield, Heart, Globe, MapPin, Link2,
+  ShieldCheck, FileText, ArrowRight, ClipboardCheck,
+  Brain, BarChart3, Target, Network,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -21,9 +22,38 @@ const NAV_MAP: Record<string, CrossNavItem[]> = {
     { title: "Prevention Strategies", description: "EBPs, environmental strategies, and CFIR", href: "/prevention-strategies", icon: ShieldCheck, metricKey: "activeStrategies" },
   ],
   coalition: [
-    { title: "Prevention Hub", description: "Youth substance prevention curriculum", href: "/prevention", icon: Shield, metricKey: "youthReached" },
-    { title: "Ecosystem Hub", description: "Community partnerships and integration", href: "/ecosystem", icon: Globe },
-    { title: "Grant Narrative", description: "Draft application narrative sections", href: "/grant-narrative", icon: FileText },
+    { title: "LOI Writer", description: "Draft & validate your 500-word LOI with real data", href: "/loi-writer", icon: FileText },
+    { title: "Benefits Screener", description: "9-program screening tool for field use", href: "/benefits-screener", icon: ClipboardCheck },
+    { title: "SDOH Impact Chain", description: "Visualize the poverty → crime chain across 5 counties", href: "/sdoh-chain", icon: Link2 },
+    { title: "Community Map", description: "GIS tract-level enrollment gaps and barriers", href: "/community-map", icon: MapPin },
+    { title: "Ecosystem Hub", description: "24-platform ecosystem command center", href: "/ecosystem", icon: Network },
+    { title: "Grant Hub", description: "Full grant management and narrative builder", href: "/grants", icon: Target },
+  ],
+  "loi-writer": [
+    { title: "Coalition Portal", description: "Partner data, county summaries, and coalition structure", href: "/coalition", icon: Users },
+    { title: "SDOH Impact Chain", description: "Poverty → education → benefits → crime chain with data", href: "/sdoh-chain", icon: Link2 },
+    { title: "Benefits Screener", description: "9-program screener feeding real enrollment data", href: "/benefits-screener", icon: ClipboardCheck },
+    { title: "Community Map", description: "GIS view of tract-level gaps and barriers", href: "/community-map", icon: MapPin },
+    { title: "Ecosystem Hub", description: "24-platform command center", href: "/ecosystem", icon: Network },
+  ],
+  "benefits-screener": [
+    { title: "Coalition Portal", description: "See how screenings feed the 5-county strategy", href: "/coalition", icon: Users },
+    { title: "LOI Writer", description: "Screening data powers the LOI narrative", href: "/loi-writer", icon: FileText },
+    { title: "SDOH Impact Chain", description: "Where screenings break the poverty chain", href: "/sdoh-chain", icon: Link2 },
+    { title: "Community Map", description: "Map view of enrollment gaps by tract", href: "/community-map", icon: MapPin },
+  ],
+  "sdoh-chain": [
+    { title: "Coalition Portal", description: "Partner network addressing each chain link", href: "/coalition", icon: Users },
+    { title: "LOI Writer", description: "Turn chain analysis into grant narrative", href: "/loi-writer", icon: FileText },
+    { title: "Benefits Screener", description: "Direct intervention — screen families now", href: "/benefits-screener", icon: ClipboardCheck },
+    { title: "Community Map", description: "See the chain geographically by census tract", href: "/community-map", icon: MapPin },
+    { title: "Grant Hub", description: "Full grant strategy and narrative", href: "/grants", icon: Target },
+  ],
+  "community-map": [
+    { title: "SDOH Impact Chain", description: "Chain analysis for the tracts you're viewing", href: "/sdoh-chain", icon: Link2 },
+    { title: "Coalition Portal", description: "Partner coverage for these neighborhoods", href: "/coalition", icon: Users },
+    { title: "LOI Writer", description: "Use this geographic data in the LOI", href: "/loi-writer", icon: FileText },
+    { title: "Benefits Screener", description: "Screen families in these tracts", href: "/benefits-screener", icon: ClipboardCheck },
   ],
   "prevention-strategies": [
     { title: "Prevention Hub", description: "Youth curriculum and risk assessments", href: "/prevention", icon: Shield, metricKey: "youthReached" },

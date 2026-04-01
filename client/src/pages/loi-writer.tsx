@@ -10,11 +10,13 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
+import { SDOHImpactChain } from "@/components/sdoh-impact-chain";
+import { DFCCrossNav } from "@/components/dfc-cross-nav";
 import {
   FileText, Brain, Loader2, Copy, Printer, CheckCircle2,
   AlertTriangle, Target, Shield, Sparkles, BarChart3,
   RefreshCw, Award, TrendingUp, Zap, BookOpen, Star,
-  ChevronDown, ChevronUp, Activity
+  ChevronDown, ChevronUp, Activity, Link2
 } from "lucide-react";
 
 function ScoreCard({ label, score, grade, color }: { label: string; score: number; grade?: string; color: string }) {
@@ -99,8 +101,9 @@ export default function LOIWriterPage() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid grid-cols-2 w-full max-w-md mx-auto">
+          <TabsList className="grid grid-cols-3 w-full max-w-lg mx-auto">
             <TabsTrigger value="loi" data-testid="tab-loi"><FileText className="h-4 w-4 mr-2" /> 500-Word LOI</TabsTrigger>
+            <TabsTrigger value="sdoh" data-testid="tab-sdoh"><Link2 className="h-4 w-4 mr-2" /> SDOH Chain</TabsTrigger>
             <TabsTrigger value="validation" data-testid="tab-validation"><Shield className="h-4 w-4 mr-2" /> RPLICE Validation</TabsTrigger>
           </TabsList>
 
@@ -223,6 +226,10 @@ export default function LOIWriterPage() {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="sdoh" className="space-y-4">
+            <SDOHImpactChain />
           </TabsContent>
 
           <TabsContent value="validation" className="space-y-4">
@@ -373,6 +380,8 @@ export default function LOIWriterPage() {
             )}
           </TabsContent>
         </Tabs>
+
+        <DFCCrossNav currentPage="loi-writer" />
       </div>
     </div>
   );
