@@ -58,6 +58,14 @@ const NAV_MAP: Record<string, CrossNavItem[]> = {
     { title: "LOI Writer", description: "Use this geographic data in the LOI", href: "/loi-writer", icon: FileText },
     { title: "Benefits Screener", description: "Screen families in these tracts", href: "/benefits-screener", icon: ClipboardCheck },
   ],
+  "city-comparison": [
+    { title: "SDOH Explorer", description: "Replicable analysis with live Census data", href: "/sdoh-explorer", icon: Search },
+    { title: "SDOH Impact Chain", description: "6-link poverty-to-crime chain visualization", href: "/sdoh-chain", icon: Link2 },
+    { title: "Coalition Portal", description: "Partner network and 5-county strategy", href: "/coalition", icon: Users },
+    { title: "LOI Writer", description: "Turn city comparison insights into grant narrative", href: "/loi-writer", icon: FileText },
+    { title: "Benefits Screener", description: "Screen families across all programs", href: "/benefits-screener", icon: ClipboardCheck },
+    { title: "Community Map", description: "GIS view of enrollment gaps by census tract", href: "/community-map", icon: MapPin },
+  ],
   "prevention-strategies": [
     { title: "Prevention Hub", description: "Youth curriculum and risk assessments", href: "/prevention", icon: Shield, metricKey: "youthReached" },
     { title: "Coalition Dashboard", description: "Sector mapping and coalition capacity", href: "/coalition", icon: Users, metricKey: "coalitionMembers" },

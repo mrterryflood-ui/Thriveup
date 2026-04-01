@@ -101,6 +101,7 @@ const grantEngineItems: NavItem[] = [
   { title: "LOI Writer", url: "/loi-writer", icon: FileText },
   { title: "SDOH Impact Chain", url: "/sdoh-chain", icon: Link2 },
   { title: "SDOH Explorer (Public)", url: "/sdoh-explorer", icon: Search },
+  { title: "City Comparison", url: "/city-comparison", icon: Scale },
   { title: "Narrative Builder", url: "/grant-narrative", icon: FileText },
   { title: "Ecosystem Hub", url: "/ecosystem", icon: Globe },
   { title: "Ecosystem Story", url: "/ecosystem-story", icon: BookMarked },

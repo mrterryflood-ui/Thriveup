@@ -164,6 +164,7 @@ const CoalitionPortalPage = lazy(() => import("@/pages/coalition-portal"));
 const LOIWriterPage = lazy(() => import("@/pages/loi-writer"));
 const SDOHChainPage = lazy(() => import("@/pages/sdoh-chain"));
 const SDOHExplorerPage = lazy(() => import("@/pages/sdoh-explorer"));
+const CityComparisonPage = lazy(() => import("@/pages/city-comparison"));
 
 function PageFallback() {
   return (
@@ -337,6 +338,7 @@ function AppRouter() {
       <Route path="/loi-writer" component={LOIWriterPage} />
       <Route path="/sdoh-chain" component={SDOHChainPage} />
       <Route path="/sdoh-explorer" component={SDOHExplorerPage} />
+      <Route path="/city-comparison" component={CityComparisonPage} />
       <Route path="/ai-workforce" component={AIWorkforcePage} />
       <Route path="/pm-academy" component={PMAcademyPage} />
       <Route path="/directive-compliance" component={DirectiveCompliancePage} />
