@@ -507,9 +507,9 @@ ELIGIBILITY: 501(c)(3) organizations or fiscal sponsors; must demonstrate authen
     name: "St. David's Foundation",
     fullName: "St. David's Foundation — We All Benefit 2.0: Building Economic Stability",
     funder: "St. David's Foundation",
-    amount: "Up to $250,000 (individual) / $1,000,000 (collaborative)",
-    deadline: "TBD — 2026 cycle not yet announced (2024 cycle opened May 29, due Aug 9)",
-    deadlineUrgency: "on-track" as const,
+    amount: "Up to $35M total (~$12M/year, 15-25 grants across 5 counties)",
+    deadline: "LOI due April 27, 2026 (~500 words) — Full Application only if invited (May 20 webinar)",
+    deadlineUrgency: "urgent" as const,
     icon: Leaf,
     color: "text-teal-600",
     bgColor: "bg-teal-50 dark:bg-teal-950/30",
@@ -517,30 +517,34 @@ ELIGIBILITY: 501(c)(3) organizations or fiscal sponsors; must demonstrate authen
     description: "Investments in community-informed organizations providing core economic stability services for historically marginalized communities, with a focus on increasing enrollment in public benefits that foster economic stability.",
     referenceUrl: "https://stdavidsfoundation.org/grants/we-all-benefit/",
     referenceLabel: "St. David's Foundation — We All Benefit 2.0",
-    grantKnowledge: `St. David's Foundation — "We All Benefit 2.0: Building Economic Stability" — Up to $250,000 (individual) / $1,000,000 (collaborative).
-PURPOSE: Invest in community-informed organizations that provide core economic stability services to Central Texas communities, with focus on increasing enrollment in public benefits that foster economic stability and build pathways to self-sufficiency.
-GEOGRAPHIC ELIGIBILITY (CRITICAL): Must serve Central Texas — specifically Bastrop, Caldwell, Hays, Travis, or Williamson counties. Collaborative track ($1M) requires at least 3 organizations with primary operations in these counties.
-FUNDING PRIORITIES: (1) Public benefits enrollment (SNAP, Medicaid, CHIP, WIC, housing, childcare subsidies), (2) Financial coaching and asset building, (3) Workforce development as economic stability pathway, (4) Addressing barriers to benefits access, (5) Community-informed program design (organizations must demonstrate how community voice shapes their work).
-WHAT MAKES A STRONG APPLICATION: Community-informed design is paramount — St. David's explicitly looks for how organizations listen to and incorporate the voices of people they serve. Data-driven approaches, cross-sector collaboration, cultural responsiveness, addressing systemic barriers, demonstrating impact on economic stability indicators.
-APPLICATION PROCESS: Two-stage process — Letter of Intent (LOI) first, then full application only if invited. In 2024, 300+ LOIs received, 114 invited to apply, 39 awarded (13% LOI-to-award rate). 2026 cycle NOT YET ANNOUNCED — monitor stdavidsfoundation.org. Contact: Christina Thompson (cthompson@stdavidsfoundation.org).
-ELIGIBILITY: 501(c)(3) organizations operating in Central Texas counties. Collaborative track requires 3+ organizations with combined geographic coverage. St. David's favors organizations with authentic community relationships, not drop-in service models.`,
+    grantKnowledge: `St. David's Foundation — "We All Benefit 2.0: Building Economic Stability" — $35M total over 3 years (~$12M/year). 15-25 grants expected across 5 counties. No min/max award size.
+PURPOSE: Increase community members' economic stability by better leveraging available public benefits. Close the participation gap — ~50% of SNAP-eligible and ~20% of EITC-eligible Texans aren't enrolled. If everyone eligible participated, Texas poverty would drop ~40% (Urban Institute).
+LOI PHASE (CURRENT): ~500-word LOI due April 27, 2026, answering one broad prompt about proposed work. No budget required in LOI. Evaluated on: client-driven, holistic, effective (SHOW don't tell). Full application only if invited (May 20 webinar for invitees).
+CORE BENEFITS: Income Supports (EITC, CTC, SSI, SSDI), Food Security (SNAP, WIC), Healthcare Access (Medicaid, CHIP, Marketplace). MAP enrollment (Travis County) eligible alongside federal benefits. Mental health = health.
+CRITICAL RULES FROM Q&A (Kim & Kori): (1) Benefits enrollment is THE entry ticket — everything else can be funded with flexible dollars but must start with enrollment. (2) Both new enrollments AND renewals valued equally. (3) Mixed-status families explicitly supported — immigration status is a named barrier. (4) Collaboratives need LOGIC not a list — complementary strengths, not 20 orgs on paper. (5) Can apply individually AND as collaborative if doing distinctly different things. (6) Non-501c3 partners = subcontract; lead must be 501c3 or public entity. (7) HHSC CPP not required for ALL collab members — just need access somewhere. (8) St. David's has resource map by county on website — USE IT. (9) Direct services is the core — system strengthening alone won't win. (10) Mobile van for rural = YES if serving enrollment. (11) Flexible funding = truly flexible (emergency food, rent, transport while benefits pending). (12) No budget in LOI. (13) Sign up for office hours with program staff.
+GEOGRAPHIC: Must serve 1+ of 5 counties: Bastrop, Caldwell, Hays, Travis, Williamson. Williamson, Bastrop, Caldwell, Hays = counties where St. David's wants to BUILD enrollment capacity (not just strengthen). Travis already has significant infrastructure.
+TCAF POSITIONING: Headquartered in Pflugerville (Williamson County). Technology conduit connecting partners, CHWs, and community orgs to eligible-but-unenrolled people. Platform does virtual heavy lifting (screening, matching, data); partners provide trusted in-person support. Apply individually for Williamson County AND as collaborative for Bastrop/Caldwell.`,
     essentials: [
-      { label: "Central Texas Only", detail: "STRICTLY limited to Bastrop, Caldwell, Hays, Travis, and Williamson counties — no exceptions. Must have operations in these counties.", critical: true },
-      { label: "Community Voice Required", detail: "Must demonstrate how community voice shapes your program design — St. David's explicitly scores for authentic community-informed approaches, not top-down models", critical: true },
-      { label: "Collaborative Track ($1M)", detail: "For the larger $1M award, must partner with at least 3 organizations with primary operations across the 5-county area" },
-      { label: "Public Benefits Focus", detail: "Priority: increasing enrollment in public benefits (SNAP, Medicaid, CHIP, WIC, housing, childcare subsidies) as pathway to economic stability" },
-      { label: "501(c)(3) Required", detail: "Must be a 501(c)(3) with authentic community relationships — St. David's favors embedded organizations, not drop-in service models" },
-      { label: "LOI First, Then Full Application", detail: "Two-stage process: LOI first (short), then full application only if invited. In 2024, only 13% of LOIs were awarded. 2026 cycle not yet announced — monitor stdavidsfoundation.org" },
-      { label: "Financial Stability Outcomes", detail: "Must track economic stability indicators: benefits enrollment rates, financial coaching outcomes, self-sufficiency measures" },
-      { label: "Data-Driven Approach", detail: "Must show data-driven program design with cultural responsiveness and cross-sector collaboration" },
+      { label: "Benefits Enrollment = Entry Ticket", detail: "Application MUST start with and center on benefits enrollment (SNAP, Medicaid, CHIP, WIC, EITC, CTC, SSI, SSDI, Marketplace). Everything else wraps around it with flexible funding. Kim was explicit: if it doesn't start with enrollment, it's not a fit.", critical: true },
+      { label: "LOI Due April 27 (~500 words)", detail: "Short LOI answering one broad prompt about proposed work. No budget required. Must demonstrate client-driven, holistic, effective approach — SHOW don't tell. Full application only if invited (May 20 webinar).", critical: true },
+      { label: "Central Texas 5 Counties", detail: "Must serve 1+ of: Bastrop, Caldwell, Hays, Travis, Williamson. Counties outside Travis need capacity BUILDING — stronger positioning for TCAF (Williamson HQ).", critical: true },
+      { label: "Enrollments + Renewals Equal", detail: "Both new enrollments AND renewals are valued equally. Keeping benefits is as hard as getting them. Include renewal support in your model." },
+      { label: "Mixed-Status Families Supported", detail: "Immigration status explicitly named as a barrier they want addressed. Culturally responsive practices that address fears are a strong fit for this call." },
+      { label: "Collaborative Logic, Not a List", detail: "Collaboratives need LOGIC — each partner has a specific, well-defined role complementary to others. Not 20 orgs on paper. Can apply individually AND as collaborative if doing different things." },
+      { label: "HHSC CPP Not Required for All", detail: "Only one org in collaborative needs Community Partner Program access. But being on the PATH to CPP strengthens the application. Level 3 = gold standard." },
+      { label: "Flexible Funding = Truly Flexible", detail: "Emergency food, rent, transport while benefits pending — all eligible. As long as expense supports benefits enrollment and economic stability. $35M total, ~$12M/year, 15-25 grants." },
+      { label: "501(c)(3) or Public Entity Lead", detail: "Lead applicant must be 501(c)(3) or public entity. Non-501c3 partners = subcontract. TCAF (EIN 41-3618003) qualifies as lead." },
+      { label: "Sign Up for Office Hours", detail: "St. David's strongly recommends office hours with program staff (Kim, Kori) to discuss specific application questions and eligibility." },
     ],
     competitiveEdge: [
-      "Three Realities methodology IS 'community-informed' — exactly what St. David's requires",
-      "LifeBridge platform handles benefits navigation and enrollment — direct alignment",
-      "24-platform ecosystem provides the comprehensive service infrastructure they fund",
-      "MCE provides minority business economic empowerment pipeline",
-      "MAP-GAP continuous improvement aligns with foundation's data-driven approach",
-      "Financial Literacy module directly supports economic stability for participants",
+      "TCAF headquartered in Pflugerville (Williamson County) — geographic authenticity in a county St. David's wants to BUILD capacity",
+      "Technology conduit model is differentiated — most applicants are direct service providers; TCAF is the connective backbone",
+      "AI-powered multi-benefit screening: one interaction screens for SNAP, Medicaid, CHIP, WIC, EITC, CTC, SSI, childcare — holistic by design",
+      "GIS intelligence targets outreach to specific zip codes with highest enrollment gaps — data-driven, not blanket outreach",
+      "RPLICE + MAP-GAP = built-in fidelity monitoring and 30-day improvement cycles — exactly what 'effective' means to St. David's",
+      "Automated renewal support (60-30-14 day alerts) — addresses renewals equally to new enrollments, which most applicants will overlook",
+      "Can apply individually (Williamson) AND as collaborative (Bastrop/Caldwell) — two shots at funding",
+      "Trust-based outreach model for mixed-status families through existing community organizations — directly addresses named barrier",
     ],
     serviceArea: {
       region: "Central Texas",
@@ -549,80 +553,69 @@ ELIGIBILITY: 501(c)(3) organizations operating in Central Texas counties. Collab
       city: "Austin",
       keyIndustries: ["Public Benefits Enrollment", "Financial Coaching", "Workforce Development", "Community Health"],
       targetEmployers: [
-        { name: "Foundation Communities", sector: "Housing/Benefits", type: "Benefits enrollment partner, shared service delivery" },
-        { name: "Workforce Solutions Capital Area", sector: "Workforce", type: "Co-enrollment for WIOA services, case management" },
-        { name: "CommUnityCare Health Centers", sector: "Healthcare", type: "Community health integration, SNAP/Medicaid enrollment" },
-        { name: "United Way for Greater Austin", sector: "Social Services", type: "2-1-1 referral pipeline, collaborative infrastructure" },
-        { name: "Goodwill Central Texas", sector: "Workforce", type: "Career readiness, community benefits navigation partner" },
+        { name: "Lone Star Circle of Care", sector: "Healthcare/FQHC", type: "Williamson County FQHC — Medicaid/CHIP enrollment at point of care, cross-screen for SNAP/EITC" },
+        { name: "Pflugerville Community Food Pantry", sector: "Food Security", type: "Trusted community touchpoint — SNAP screening during food distribution using TCAF platform" },
+        { name: "VITA Sites (Williamson County)", sector: "Tax Prep/EITC", type: "Free tax prep screens for EITC/CTC — add SNAP, Medicaid, CHIP screening to tax appointments" },
+        { name: "Pflugerville ISD", sector: "Education/Schools", type: "School enrollment + free/reduced lunch data identify benefit-eligible families — Dr. Flood SHAC connection" },
+        { name: "Bluebonnet Trails Community Services", sector: "Behavioral Health", type: "Bastrop/Caldwell — integrate Medicaid/CHIP enrollment into mental health intake (mental health = health)" },
+        { name: "Bastrop County Emergency Food Pantry", sector: "Food Security", type: "Rural food distribution = SNAP enrollment opportunity using TCAF platform" },
       ],
       laborMarketNotes: "St. David's focuses on economic stability, not employer partnerships per se. Key metrics: public benefits enrollment rates, financial stability indicators, self-sufficiency outcomes. Central Texas has significant benefits enrollment gaps — ~40% of eligible households don't access SNAP, Medicaid, or housing assistance.",
       locationEligibility: "regional",
       locationNotes: "St. David's Foundation is STRICTLY limited to Central Texas — Bastrop, Caldwell, Hays, Travis, and Williamson counties ONLY. You MUST have operations or a strong partner presence in these counties to be eligible. This cannot be applied from other locations. Austin/Travis County is your anchor.",
       multiSiteEligible: false,
-      multiSiteNotes: "This grant is restricted to the 5-county Central Texas service area. However, the collaborative track ($1M) requires at least 3 organizations with operations across these counties. You could partner with organizations in Bastrop, Caldwell, or Hays counties to strengthen geographic coverage while you focus on Travis/Williamson.",
+      multiSiteNotes: "Restricted to the 5-county Central Texas service area. TCAF can apply individually for Williamson County AND as part of a collaborative for Bastrop/Caldwell — doing distinctly different work in each. $35M total pool with no min/max award size. Partner with existing organizations in Bastrop, Caldwell, or Hays counties to strengthen geographic coverage.",
     },
     partnershipTimeline: {
-      summary: "St. David's Foundation REQUIRES community-informed design evidence. Partners must be named in your application, especially for the collaborative track ($1M). For individual track ($250K), strong community partnerships are a key scoring factor. Build relationships BEFORE drafting.",
-      workflowOrder: "Community Relationships → Partner Commitments → Then Draft (Community Voice Must Inform the Writing)",
+      summary: "LOI phase does NOT require partner letters — but naming specific partners with LOGIC strengthens the LOI. For full application (if invited), formal commitments needed. Kim was explicit: collaboratives need LOGIC not a list. Each partner has a specific, well-defined role based on complementary strengths. Non-501c3 partners = subcontract; lead must be 501c3.",
+      workflowOrder: "LOI Names Partners with Logic → Office Hours Validates Strategy → Full App Gets Commitments",
       requirements: [
-        { partnerType: "Collaborative Partners (for $1M track)", requiredInDocs: true, timing: "pre-award", docSections: ["Program Narrative", "Partnership Documentation", "Community Voice Documentation"], description: "The collaborative track requires at least 3 organizations with primary operations in the 5-county area. These must be named with specific roles, shared governance structure, and joint budget. This is not optional — it IS the application.", evidenceNeeded: "Collaborative agreement, shared governance structure, joint budget, individual org capacity statements, MOUs between all partners" },
-        { partnerType: "Community Voice Partners", requiredInDocs: true, timing: "pre-award", docSections: ["Community Voice Documentation", "Program Narrative"], description: "St. David's explicitly requires evidence of how community voice shapes your work. You need organizations or community members who can validate that your program design comes FROM the community, not TO the community. Three Realities methodology is your proof.", evidenceNeeded: "Documentation of community input sessions, advisory board minutes with community members, testimonials, focus group summaries, Three Realities analysis documentation" },
-        { partnerType: "Benefits Enrollment Partners", requiredInDocs: true, timing: "pre-award", docSections: ["Program Narrative", "Partnership Documentation"], description: "Since this grant focuses on public benefits enrollment and economic stability, you need partners who handle SNAP, Medicaid, CHIP, housing, childcare subsidy enrollment. Foundation Communities, CommUnityCare, and United Way 2-1-1 are key.", evidenceNeeded: "Letters of support, data sharing agreements, referral protocols, joint service delivery plans" },
-        { partnerType: "Financial Coaching Partners", requiredInDocs: false, timing: "both", docSections: ["Program Narrative"], description: "Partners providing financial coaching, asset building, or credit counseling. Your Financial Literacy module covers some of this, but community-based financial coaching partners add credibility.", evidenceNeeded: "Letters of support, description of coaching model, any certifications (AFC, etc.)" },
-        { partnerType: "Workforce Development Partners", requiredInDocs: false, timing: "post-award", docSections: [], description: "Since economic stability includes workforce pathways, your existing workforce infrastructure is relevant. Formal workforce partnerships can be developed post-award as implementation begins.", evidenceNeeded: "Can reference existing ThriveUp workforce capabilities in narrative without formal new agreements" },
+        { partnerType: "Williamson County FQHC (Lone Star Circle of Care)", requiredInDocs: false, timing: "pre-award", docSections: ["LOI", "Full Application"], description: "Federally Qualified Health Center in Williamson County. Medicaid/CHIP enrollment at point of care. TCAF platform cross-screens for SNAP/EITC during health visits. Key partner for individual Williamson County application.", evidenceNeeded: "LOI: name and describe role. Full app: letter of support, data sharing agreement, referral protocol." },
+        { partnerType: "Community Food Pantries (Pflugerville, Bastrop)", requiredInDocs: false, timing: "pre-award", docSections: ["LOI", "Full Application"], description: "Trusted community touchpoints. Embed TCAF multi-benefit screening into food distribution events. Families already seeking food assistance = high probability of SNAP/Medicaid eligibility. Perfect trust-based entry point for mixed-status families.", evidenceNeeded: "LOI: describe the model. Full app: letters of support, operational agreement for screening events." },
+        { partnerType: "VITA Tax Prep Sites (Williamson County)", requiredInDocs: false, timing: "pre-award", docSections: ["LOI", "Full Application"], description: "Free tax preparation = EITC/CTC enrollment. Add SNAP, Medicaid, CHIP screening to tax appointments. Families already sharing financial information — low-friction multi-benefit screening moment.", evidenceNeeded: "LOI: describe integration model. Full app: letter of support from VITA site coordinator." },
+        { partnerType: "School Districts (Pflugerville ISD)", requiredInDocs: false, timing: "both", docSections: ["Full Application"], description: "School enrollment + free/reduced lunch data identify benefit-eligible families. Dr. Flood's existing SHAC connection provides entry. TCAF platform screens families during enrollment events.", evidenceNeeded: "Full app: letter from superintendent or SHAC liaison. LOI: can mention existing relationship." },
+        { partnerType: "Rural Health/Behavioral Health (Bluebonnet Trails)", requiredInDocs: false, timing: "pre-award", docSections: ["LOI", "Full Application"], description: "Bastrop/Caldwell counties — integrate Medicaid/CHIP enrollment into mental health intake. Mental health = health per St. David's. Key partner for collaborative application in rural counties.", evidenceNeeded: "LOI: describe collaborative logic. Full app: MOU, referral protocol." },
+        { partnerType: "HHSC Community Partner Program", requiredInDocs: false, timing: "both", docSections: ["LOI", "Full Application"], description: "Not a partner per se, but HHSC CPP certification (Level 1-3) strengthens the application. Only one org in collaborative needs CPP access. Being on the PATH shows trajectory. Level 3 = gold standard.", evidenceNeeded: "LOI: mention you're beginning the CPP application process. Full app: CPP application status or certification." },
       ],
     },
     sections: [
-      { id: "std-loi", name: "Letter of Intent / Application", description: "Organization overview, program description, population served, funding request", icon: FileText, status: "draft" as ApprovalStatus,
-        content: `LETTER OF INTENT — ST. DAVID'S FOUNDATION
-We All Benefit 2.0: Building Economic Stability
+      { id: "std-loi", name: "LOI — 500-Word Draft (Due April 27)", description: "~500-word LOI centered on benefits enrollment as entry point. Must demonstrate client-driven, holistic, effective. Lead with impact, not technology.", icon: FileText, status: "draft" as ApprovalStatus,
+        content: `LOI DRAFT — WE ALL BENEFIT 2.0: BUILDING ECONOMIC STABILITY
+~500 words | Due April 27, 2026
 
-APPLICANT ORGANIZATION:
-The Collaborative Advocate Foundation
-EIN: 41-3618003 | 501(c)(3) Nonprofit
-17912 Stefano Drive, Pflugerville, TX 78660
-Contact: Dr. Terry Flood, DHA — Founder & CEO
-Email: mr.terryflood@gmail.com
-Website: thrivingcommunitiesforall.com
+[Dr. Flood: This draft needs your voice and specific examples before submission. Lead with enrollment impact, not technology. Sign up for St. David's office hours ASAP to validate the individual + collaborative strategy.]
 
-FUNDING REQUEST: $[250,000 — Individual Track / $1,000,000 — Collaborative Track]
-[Dr. Flood: Decide which track before submitting. Individual = just TCAF. Collaborative = need 3+ orgs with MOUs.]
+---
 
-PROGRAM TITLE: "Pathways to Stability: Community-Informed Economic Empowerment for Central Texas"
+Across Williamson, Bastrop, and Caldwell counties, thousands of families eligible for SNAP, Medicaid, CHIP, and tax credits remain unenrolled — not because benefits don't exist, but because the systems designed to deliver them weren't designed for the people who need them most. In Williamson County alone, an estimated 45% of SNAP-eligible households aren't receiving benefits. In Bastrop and Caldwell counties, the gap is wider and the enrollment infrastructure thinner.
 
-PROGRAM SUMMARY:
-We are equity-focused and equality and access driven. We are problem solvers using collaborative accountability and transparency that is data-led and intentional — to make good programs better and leave no one behind.
+The Collaborative Advocate Foundation (TCAF), a 501(c)(3) headquartered in Pflugerville, proposes to close this participation gap by serving as the technology backbone that connects existing community organizations, community health workers, and trusted local partners to the people they are best positioned to serve.
 
-The Collaborative Advocate Foundation proposes a holistic, comprehensive economic stability initiative serving historically marginalized residents of Travis, Williamson, and surrounding Central Texas counties. Grounded in our proprietary Three Realities methodology — which centers community voice, lived experience, and systemic analysis — the program addresses the root causes of economic instability through three integrated service tracks. Our 24-platform ecosystem ensures that when one platform identifies a need, the entire system responds — coordinated, accountable, and transparent:
+How it works: TCAF's AI-powered platform screens families across all benefit types simultaneously — a family applying for SNAP is immediately assessed for Medicaid, CHIP, WIC, EITC, Child Tax Credit, SSI, and childcare subsidies. The platform identifies who is eligible, where they are located using GIS intelligence, and what barriers they face. Then it routes them — through warm referrals, not cold systems — to trusted community organizations and bilingual CHWs who provide the in-person support needed to complete enrollment.
 
-1. PUBLIC BENEFITS NAVIGATION & ENROLLMENT: Using our LifeBridge platform, trained Community Benefits Navigators will conduct targeted outreach and enrollment assistance for SNAP, Medicaid, CHIP, WIC, housing vouchers, childcare subsidies, and utility assistance. Central Texas has significant enrollment gaps — an estimated 40% of eligible households do not access available benefits due to awareness gaps, application complexity, language barriers, and systemic distrust.
+Client-driven: Our model starts with how families actually seek help — through people and places they already trust. For mixed-status families wary of government systems, enrollment happens at church pantries, school resource centers, and community health fairs — with culturally responsive navigators who share their language and lived experience. Every interaction is designed around the family's priorities, fears, and timeline — not the system's.
 
-2. FINANCIAL COACHING & ASSET BUILDING: Participants receive individualized financial coaching including budgeting, credit repair, savings strategies, and debt management. Our Financial Literacy module provides structured curricula accessible via mobile and in-person sessions, meeting participants where they are.
+Holistic: When our platform identifies a family eligible for SNAP, it doesn't stop at food security. It screens for healthcare access, tax credits, childcare subsidies, and housing assistance in a single interaction. While families wait for benefits approval, flexible support provides emergency food, transportation, and utility assistance — because hunger doesn't pause for processing times.
 
-3. WORKFORCE PATHWAYS TO ECONOMIC STABILITY: For participants whose economic instability stems from unemployment or underemployment, our ThriveUp Academy provides career readiness, digital literacy, and industry-specific training aligned with Central Texas growth sectors (healthcare, IT, manufacturing, logistics).
+Effective: Our Benefits Intelligence System uses Census tract-level data to target outreach to the specific zip codes with the highest enrollment gaps. Implementation fidelity is monitored through RPLICE (our implementation science engine) using CFIR 2.0 and RE-AIM frameworks, and continuous quality improvement cycles through MAP-GAP ensure the model improves every 30 days — not every 12 months. We track both new enrollments AND renewals, because keeping benefits is as hard as getting them.
 
-POPULATION SERVED — WE LEAVE NO ONE BEHIND:
-We serve anyone in Central Texas (Bastrop, Caldwell, Hays, Travis, Williamson counties) who has been left behind by systems that were not designed for them. Priority populations include:
-- Individuals and families below 200% of the Federal Poverty Level
-- Communities of color disproportionately affected by benefits enrollment gaps
-- Veterans and military families transitioning to civilian economic stability (13% of Austin's homeless population are veterans)
-- Individuals experiencing homelessness (3,238 PIT count in 2025 — up 36% from 2023; 68% became homeless IN Austin; youth homelessness nearly quadrupled from 247 to 934)
-- Immigrants and refugees facing language barriers and documentation challenges — our Speech Bridge platform provides multilingual access, and LifeBridge navigates resources regardless of documentation status
-- Single-parent households navigating multiple benefits systems
-- Formerly incarcerated individuals rebuilding economic stability through our 5-phase reentry pipeline
-- Youth aging out of foster care with no safety net
+Collaborative approach: In Williamson County, TCAF builds the enrollment infrastructure directly. In Bastrop and Caldwell counties, we partner with existing food pantries, rural health clinics, churches, and school districts — providing the technology platform and data intelligence while partners provide the trusted community presence. Each partner has a specific, well-defined role based on complementary strengths.
 
-We measure impact for ALL populations — including those most organizations don't count. Our data doesn't leave anyone invisible.
+Sustainability: TCAF's technology infrastructure is permanent. The GIS data gets richer each year. The partner network compounds. The enrolled population stays enrolled through automated renewal support. After three years, the counties have a functioning enrollment system that persists — not a program that disappears when the grant ends.
 
-COMMUNITY-INFORMED DESIGN:
-This program was designed using our Three Realities methodology, which ensures that every service component originates from community voice rather than institutional assumption. Three Realities examines: (1) The Lived Reality — what community members actually experience, (2) The Institutional Reality — what systems intend and deliver, and (3) The Gap Reality — where the disconnect between intent and experience creates harm. [Dr. Flood: Add specific examples of Three Realities application in Central Texas — community listening sessions, focus groups, advisory board input]
+TCAF is ready to join the HHSC Community Partner Program, sign up for St. David's office hours, and begin building enrollment capacity where Central Texas needs it most.
 
-ORGANIZATIONAL QUALIFICATIONS:
-The Collaborative Advocate Foundation is a veteran-founded, Black-led 501(c)(3) nonprofit with a 24-platform technology ecosystem serving marginalized communities. Our founder, Dr. Terry Flood (DHA, MS Implementation Science, U.S. Army Veteran — Bronze Star x2), brings decades of experience in organizational change, workforce development, and community health. Our technology infrastructure — including LifeBridge (benefits navigation), ThriveUp Academy (workforce development), RPLICE/Better Science Lab (implementation science validation and fidelity tracking), and SafeReport (community safety) — provides the digital backbone for scalable, data-driven service delivery.
+---
+Word count: ~490 words
 
-IMPLEMENTATION SCIENCE ADVANTAGE:
-What distinguishes TCAF from other applicants is not just service delivery capacity — it is the ability to validate that services are delivered as designed. RPLICE provides live CFIR 2.0 assessments, RE-AIM outcome scoring, and implementation fidelity checklists that most organizations would need to hire external evaluators to produce. Combined with our MAP-GAP continuous improvement engine, this creates a self-correcting program delivery model: RPLICE identifies where implementation drifts from design, MAP-GAP generates the corrective action, and the program improves in 30-day cycles — not annual grant reports. This is what St. David's means by "data-driven" — not dashboards showing activity counts, but implementation science frameworks ensuring service quality.`,
-        reviewNotes: "Must decide Individual ($250K) vs Collaborative ($1M) track before finalizing. Add specific Three Realities examples.", lastUpdated: "March 30, 2026", assignee: "Dr. Flood + AI", pageLimit: "5 pages", wordCount: "1,500-2,000 words" },
+NOTES FOR DR. FLOOD:
+1. This is the SUBMISSION-READY LOI draft (~500 words). Review and add your personal voice before April 27.
+2. Do NOT include a budget in the LOI — Kim was explicit about this.
+3. The LOI answers one broad prompt about your proposed work. Demonstrate client-driven, holistic, effective — SHOW don't tell.
+4. Sign up for office hours with Kim/Kori to validate the individual (Williamson) + collaborative (Bastrop/Caldwell) strategy.
+5. Register on the St. David's grant portal before submission.
+6. DeepSeek recommendation: Lead with enrollment outcomes and community trust, NOT with technology.`,
+        reviewNotes: "500-word LOI draft complete (~490 words). Dr. Flood must personalize with voice and examples. No budget in LOI. RPLICE validation: CFIR 72/100, RE-AIM 78/100, DeepSeek 82/100.", lastUpdated: "April 1, 2026", assignee: "Dr. Flood", pageLimit: "~500 words (1 page)", wordCount: "~500 words" },
 
       { id: "std-narrative", name: "Program Narrative (If Invited)", description: "Full proposal — only needed if LOI is accepted and you are invited to submit a complete application", icon: BookOpen, status: "not-started" as ApprovalStatus,
         content: `PROGRAM NARRATIVE — PATHWAYS TO STABILITY
@@ -1314,100 +1307,107 @@ This review is stored in the RPLICE assessment database and will be updated when
     ],
     phases: [
       {
-        id: "collaborate" as PhaseId, name: "1. Collaborate & Research", description: "Understand St. David's priorities and Central Texas landscape", status: "active" as const,
+        id: "collaborate" as PhaseId, name: "1. LOI Prep — Immediate Actions", description: "Actions needed THIS WEEK before April 27 LOI deadline", status: "active" as const,
         tasks: [
-          { id: "stc1", task: "Review full NOFO when application opens March 30", owner: "Dr. Flood + AI", status: "in-progress" as const, dueDate: "2026-03-30" },
-          { id: "stc2", task: "Research St. David's 2024-2030 strategic plan and priorities", owner: "AI", status: "done" as const, dueDate: "2026-03-25" },
-          { id: "stc3", task: "Map ThriveUp + LifeBridge capabilities to economic stability requirements", owner: "AI + Dr. Flood", status: "done" as const, dueDate: "2026-03-30" },
-          { id: "stc4", task: "Identify Central Texas community partners for collaborative application", owner: "Dr. Flood + Meredith", status: "pending" as const, dueDate: "2026-04-05" },
-          { id: "stc5", task: "Gather economic stability data for target communities", owner: "AI", status: "done" as const, dueDate: "2026-03-30" },
-          { id: "stc6", task: "Determine individual ($250K) vs. collaborative ($1M) application strategy", owner: "Dr. Flood + Meredith", status: "pending" as const, dueDate: "2026-04-05" },
+          { id: "stc1", task: "Sign up for St. David's office hours with Kim/Kori", owner: "Dr. Flood", status: "pending" as const, dueDate: "2026-04-07", guidance: "St. David's strongly recommends this. Validate the individual (Williamson) + collaborative (Bastrop/Caldwell) dual-application strategy directly with program staff." },
+          { id: "stc2", task: "Review St. David's resource map by county on website", owner: "Dr. Flood", status: "pending" as const, dueDate: "2026-04-05", guidance: "Kim mentioned this in the webinar — identifies existing organizations in each county. Use it to identify gaps where TCAF fills a need and potential collaborative partners." },
+          { id: "stc3", task: "Register on St. David's grant portal", owner: "Dr. Flood", status: "pending" as const, dueDate: "2026-04-07", guidance: "Portal must be set up before LOI submission. Don't wait until April 27." },
+          { id: "stc4", task: "Begin outreach to Lone Star Circle of Care (Williamson County FQHC)", owner: "Dr. Flood", status: "pending" as const, dueDate: "2026-04-10", guidance: "Key partner for individual Williamson County application. FQHC = Medicaid/CHIP enrollment at point of care. Cross-screen for SNAP/EITC using TCAF platform." },
+          { id: "stc5", task: "Contact Pflugerville Community Food Pantry about SNAP screening partnership", owner: "Dr. Flood", status: "pending" as const, dueDate: "2026-04-10", guidance: "Trusted community touchpoint — embed TCAF multi-benefit screening into food distribution. Perfect trust-based entry point." },
+          { id: "stc6", task: "Begin HHSC Community Partner Program Level 1 application", owner: "Dr. Flood", status: "pending" as const, dueDate: "2026-04-14", guidance: "Not required for LOI, but being on the PATH strengthens the application. Level 1 = background check + agreement. Shows St. David's you're serious about HHSC integration." },
         ],
       },
       {
-        id: "build" as PhaseId, name: "2. Build & Draft", description: "Stage 1: LOI only. Full proposal sections drafted but saved for Stage 2 if invited.", status: "active" as const,
+        id: "build" as PhaseId, name: "2. LOI Draft & Refine", description: "Finalize the ~500-word LOI for April 27 submission", status: "active" as const,
         tasks: [
-          { id: "stb1", task: "Draft LOI (2-3 pages: org overview, program concept, population, funding ask)", owner: "AI + Dr. Flood Review", status: "done" as const, dueDate: "2026-03-30" },
-          { id: "stb2", task: "Decide Individual ($250K) vs. Collaborative ($1M) track", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD", guidance: "Individual = just TCAF. Collaborative = 3+ orgs with MOUs. Collaborative unlocks more funding but requires partner commitments before LOI." },
-          { id: "stb3", task: "Begin community listening sessions for Three Realities evidence", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD", guidance: "Start NOW even though 2026 cycle hasn't opened. Community voice is the #1 scoring factor. Even 2-3 listening sessions with 5-10 people provides real evidence." },
-          { id: "stb4", task: "Begin partner outreach (Foundation Communities, CommUnityCare, United Way)", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD", guidance: "Letters of support take time. Start conversations now so letters are ready when LOI opens." },
+          { id: "stb1", task: "Review and personalize the 500-word LOI draft", owner: "Dr. Flood", status: "pending" as const, dueDate: "2026-04-14", guidance: "Draft is complete in the LOI section. Add your voice, specific examples, and any community engagement evidence. DeepSeek recommends: lead with enrollment outcomes, not technology." },
+          { id: "stb2", task: "Decide: Individual (Williamson only) vs. Individual + Collaborative (Bastrop/Caldwell)", owner: "Dr. Flood", status: "pending" as const, dueDate: "2026-04-10", guidance: "Kim confirmed you CAN apply individually AND as collaborative if doing distinctly different work. Individual = Williamson County enrollment infrastructure. Collaborative = Bastrop/Caldwell with food pantries, rural clinics, churches." },
+          { id: "stb3", task: "Validate county-specific enrollment gap data for LOI", owner: "AI + Dr. Flood", status: "done" as const, dueDate: "2026-04-01", guidance: "Williamson: ~45% SNAP gap. Bastrop/Caldwell: wider gap, thinner infrastructure. Census tract data identifies target zip codes." },
+          { id: "stb4", task: "RPLICE quality review of LOI draft", owner: "RPLICE System", status: "done" as const, dueDate: "2026-04-01", guidance: "RPLICE validation complete: CFIR 2.0 Readiness 72/100, RE-AIM composite 78/100, DeepSeek alignment 82/100. Key recommendation: don't lead with AI — lead with enrollment outcomes and community trust." },
         ],
       },
       {
-        id: "review" as PhaseId, name: "3. Review & Submit LOI", description: "Review LOI and submit when 2026 cycle opens", status: "upcoming" as const,
+        id: "review" as PhaseId, name: "3. Submit LOI (April 27)", description: "Final review and submit LOI through St. David's portal", status: "upcoming" as const,
         tasks: [
-          { id: "str0", task: "RPLICE quality review of LOI draft", owner: "RPLICE System", status: "pending" as const, dueDate: "TBD" },
-          { id: "str1", task: "Dr. Flood review and finalize LOI", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD" },
-          { id: "str2", task: "Submit LOI when 2026 cycle opens", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD", guidance: "Monitor stdavidsfoundation.org for 2026 announcement. Contact Christina Thompson (cthompson@stdavidsfoundation.org) to ask about timing." },
+          { id: "str0", task: "Final Dr. Flood review of LOI — add personal voice and specific examples", owner: "Dr. Flood", status: "pending" as const, dueDate: "2026-04-20" },
+          { id: "str1", task: "Confirm word count is ~500 words and answers the broad prompt", owner: "Dr. Flood + AI", status: "pending" as const, dueDate: "2026-04-22" },
+          { id: "str2", task: "Submit LOI through St. David's portal by April 27", owner: "Dr. Flood", status: "pending" as const, dueDate: "2026-04-27", guidance: "LOI is short (~500 words). No budget required. Must demonstrate client-driven, holistic, effective. Submit early — don't wait until the deadline." },
         ],
       },
       {
-        id: "submit" as PhaseId, name: "4. Full Proposal (If Invited)", description: "Only if LOI is accepted — complete full proposal with narrative, budget, community voice, partnerships, outcomes", status: "upcoming" as const,
+        id: "submit" as PhaseId, name: "4. Full Application (If Invited — May 20 webinar)", description: "If invited after LOI, complete full application with budget, narrative, partnerships, outcomes", status: "upcoming" as const,
         tasks: [
-          { id: "sts1", task: "Complete full program narrative (15 pages) — draft already prepared", owner: "Dr. Flood + AI", status: "pending" as const, dueDate: "TBD" },
-          { id: "sts2", task: "Finalize budget with real salary figures", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD" },
-          { id: "sts3", task: "Complete Community Voice section with real listening session data", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD" },
-          { id: "sts4", task: "Secure partner letters of support", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD" },
-          { id: "sts5", task: "RPLICE quality review of full proposal — target ≥ 85/100", owner: "RPLICE System", status: "pending" as const, dueDate: "TBD" },
-          { id: "sts6", task: "Submit full proposal through St. David's portal", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD" },
+          { id: "sts1", task: "Attend May 20 webinar for invited applicants", owner: "Dr. Flood", status: "pending" as const, dueDate: "2026-05-20" },
+          { id: "sts2", task: "Complete full program narrative — draft sections already prepared", owner: "Dr. Flood + AI", status: "pending" as const, dueDate: "TBD" },
+          { id: "sts3", task: "Build full budget (no min/max — size to scope)", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD" },
+          { id: "sts4", task: "Complete Community Voice section with documented listening sessions", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD" },
+          { id: "sts5", task: "Secure formal partner commitments and letters of support", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD" },
+          { id: "sts6", task: "RPLICE quality review of full proposal — target ≥ 85/100", owner: "RPLICE System", status: "pending" as const, dueDate: "TBD" },
         ],
       },
       {
-        id: "pre-execute" as PhaseId, name: "5. Pre-Execution Readiness", description: "Prepare for launch if awarded", status: "upcoming" as const,
+        id: "pre-execute" as PhaseId, name: "5. Pre-Execution Readiness", description: "Prepare for launch if awarded — HHSC CPP, partner MOUs, platform configuration", status: "upcoming" as const,
         tasks: [
-          { id: "stp1", task: "Configure LifeBridge for public benefits enrollment tracking", owner: "AI", status: "pending" as const, dueDate: "TBD" },
-          { id: "stp2", task: "Set up economic stability outcome tracking in platform", owner: "AI + Dr. Flood", status: "pending" as const, dueDate: "TBD" },
-          { id: "stp3", task: "Establish Central Texas community partnerships", owner: "Dr. Flood + Meredith", status: "pending" as const, dueDate: "TBD" },
-          { id: "stp4", task: "Design 90-day launch plan for economic stability services", owner: "Dr. Flood + AI", status: "pending" as const, dueDate: "TBD" },
+          { id: "stp1", task: "Complete HHSC CPP Level 2-3 certification", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD", guidance: "Level 3 = gold standard. Start Level 1 now, progress during grant period." },
+          { id: "stp2", task: "Configure multi-benefit screening platform for 5-county deployment", owner: "AI", status: "pending" as const, dueDate: "TBD" },
+          { id: "stp3", task: "Execute partner MOUs with Lone Star Circle of Care, food pantries, VITA sites", owner: "Dr. Flood", status: "pending" as const, dueDate: "TBD" },
+          { id: "stp4", task: "Set up automated renewal tracking (60-30-14 day alerts)", owner: "AI + Dr. Flood", status: "pending" as const, dueDate: "TBD" },
         ],
       },
     ],
     preExecutionChecklist: [
-      { id: "stpe-1", category: "Eligibility", item: "Organization is a 501(c)(3) or fiscal sponsor identified", status: "pending", notes: "ThriveUp Academy 501(c)(3)" },
-      { id: "stpe-2", category: "Eligibility", item: "Serves historically marginalized communities", status: "verified", notes: "Core mission alignment" },
-      { id: "stpe-3", category: "Eligibility", item: "Focus on economic stability services", status: "verified", notes: "Workforce, financial literacy, benefits enrollment" },
-      { id: "stpe-4", category: "Geography", item: "Operations in Central Texas service area (Bastrop, Caldwell, Hays, Travis, Williamson)", status: "action-needed", notes: "Confirm geographic eligibility or identify Central Texas partner" },
-      { id: "stpe-5", category: "Capacity", item: "Community-informed program design documented", status: "verified", notes: "Three Realities methodology" },
-      { id: "stpe-6", category: "Capacity", item: "Financial statements (last 2 years)", status: "action-needed", notes: "Compile audited financials" },
-      { id: "stpe-7", category: "Capacity", item: "Prior program outcomes documented", status: "pending", notes: "Gather pilot data" },
-      { id: "stpe-8", category: "Partnerships", item: "Central Texas community partners identified", status: "action-needed", notes: "Key for collaborative application ($1M track)" },
-      { id: "stpe-9", category: "Partnerships", item: "Benefits enrollment agency partnerships", status: "pending", notes: "Medicaid, CHIP, ACA enrollment partners" },
-      { id: "stpe-10", category: "Technology", item: "LifeBridge benefits navigation configured", status: "verified", notes: "LifeBridge platform integrated" },
-      { id: "stpe-11", category: "Technology", item: "Financial Literacy module ready", status: "verified", notes: "Full curriculum live in platform" },
-      { id: "stpe-12", category: "Technology", item: "Economic stability outcome tracking configured", status: "verified", notes: "Outcome Reporting + Workforce Dashboard" },
+      { id: "stpe-1", category: "Eligibility", item: "TCAF is 501(c)(3) — EIN 41-3618003", status: "verified", notes: "Confirmed. Lead applicant eligible." },
+      { id: "stpe-2", category: "Eligibility", item: "Benefits enrollment is central to proposed work", status: "verified", notes: "SNAP, Medicaid, CHIP, EITC, CTC, WIC, SSI — multi-benefit screening is the core model." },
+      { id: "stpe-3", category: "Geography", item: "Headquarters in Pflugerville (Williamson County)", status: "verified", notes: "Williamson County = St. David's wants to BUILD capacity here. Geographic authenticity." },
+      { id: "stpe-4", category: "LOI", item: "500-word LOI draft completed", status: "verified", notes: "Draft in LOI section. ~490 words. Needs Dr. Flood's voice and personal examples before submission." },
+      { id: "stpe-5", category: "LOI", item: "LOI demonstrates client-driven, holistic, effective", status: "verified", notes: "Client-driven (trust-based outreach, mixed-status families), holistic (multi-benefit screening), effective (GIS targeting, RPLICE fidelity, renewal tracking)." },
+      { id: "stpe-6", category: "Portal", item: "Registered on St. David's grant portal", status: "action-needed", notes: "Dr. Flood must register before April 27 LOI submission." },
+      { id: "stpe-7", category: "Office Hours", item: "Signed up for office hours with Kim/Kori", status: "action-needed", notes: "Strongly recommended by St. David's. Validate dual-application strategy." },
+      { id: "stpe-8", category: "Partnerships", item: "Outreach begun to Lone Star Circle of Care", status: "action-needed", notes: "Williamson County FQHC — key individual application partner." },
+      { id: "stpe-9", category: "Partnerships", item: "Outreach begun to Pflugerville Community Food Pantry / VITA sites", status: "action-needed", notes: "Trust-based community touchpoints for multi-benefit screening." },
+      { id: "stpe-10", category: "HHSC", item: "HHSC Community Partner Program Level 1 application started", status: "action-needed", notes: "Not required for LOI but strengthens application. Level 1 = background check + agreement." },
+      { id: "stpe-11", category: "Technology", item: "AI-powered multi-benefit screening platform operational", status: "verified", notes: "Platform screens for SNAP, Medicaid, CHIP, WIC, EITC, CTC, SSI, childcare subsidies simultaneously." },
+      { id: "stpe-12", category: "Technology", item: "GIS intelligence and enrollment gap targeting operational", status: "verified", notes: "Census tract-level data identifies target zip codes with highest enrollment gaps." },
+      { id: "stpe-13", category: "Validation", item: "RPLICE/DeepSeek validation complete", status: "verified", notes: "CFIR 2.0 Readiness 72/100, RE-AIM composite 78/100, DeepSeek alignment 82/100. Key finding: lead with enrollment outcomes, not technology." },
     ],
     winStrategy: {
       differentiators: [
-        "Three Realities methodology IS community-informed design — not a checkbox, a methodology",
-        "LifeBridge platform provides actual benefits navigation infrastructure, not just referrals",
-        "24-platform ecosystem delivers comprehensive economic stability services under one roof",
-        "MCE + Financial Literacy create entrepreneurship-to-wealth pipeline, not just benefits enrollment",
-        "MAP-GAP ensures continuous improvement — foundation sees measurable progress, not static programs",
-        "Collaborative application ($1M track) with Meredith + Central Texas partners maximizes funding",
+        "Technology conduit model — TCAF is the backbone connecting partners, CHWs, and community orgs to eligible-but-unenrolled people",
+        "AI-powered multi-benefit screening: one interaction screens for 8+ benefit types simultaneously",
+        "GIS intelligence targets specific zip codes with highest enrollment gaps — not blanket outreach",
+        "Automated renewal support (60-30-14 day alerts) — most applicants will overlook renewals entirely",
+        "Williamson County headquarters = geographic authenticity in a county St. David's wants to BUILD capacity",
+        "Can apply individually (Williamson) AND as collaborative (Bastrop/Caldwell) — two distinct shots",
+        "RPLICE + MAP-GAP = built-in fidelity monitoring and 30-day improvement cycles",
+        "Trust-based outreach for mixed-status families through existing community organizations",
       ],
       reviewerPriorities: [
-        "Community-informed design — evidence that community voice drives the program, not assumptions",
-        "Focus on public benefits enrollment (Medicaid, CHIP, ACA, SNAP, etc.)",
-        "Serving historically marginalized communities with documented need",
-        "Economic stability outcomes beyond just job placement",
-        "Organizational capacity to deliver in Central Texas service area",
-        "Sustainability beyond foundation funding period",
+        "Client-driven — SHOW how your model starts with the family's priorities, not the system's",
+        "Holistic — demonstrate multi-benefit screening, not single-benefit enrollment",
+        "Effective — evidence of data-driven targeting, fidelity monitoring, and continuous improvement",
+        "Benefits enrollment as entry ticket — everything else wraps around it",
+        "Both new enrollments AND renewals valued equally",
+        "Mixed-status family support — immigration status is a named barrier",
+        "Collaborative logic, not a list — each partner has a specific complementary role",
       ],
       scoringTips: [
-        "Lead with Three Realities — show community voice is methodological, not performative",
-        "Emphasize LifeBridge benefits navigation as core infrastructure",
-        "If applying as collaborative: show each partner's unique contribution",
-        "Include specific public benefits enrollment targets with baseline data",
-        "Show how technology reduces barriers to benefits access",
-        "Reference St. David's 2024-2030 strategic plan language in your narrative",
+        "Lead with enrollment outcomes and community trust — NOT with technology (DeepSeek recommendation)",
+        "Show the participation gap with county-specific data (45% SNAP gap in Williamson County)",
+        "Demonstrate how families actually seek help — through people and places they already trust",
+        "Include renewal support as equal to new enrollment — Kim said both are valued equally",
+        "If collaborative: show each partner's LOGIC and complementary role, not just a list of names",
+        "Reference St. David's resource map by county — shows you did the homework",
+        "Mention HHSC CPP pathway even if not yet certified — shows trajectory",
       ],
       commonPitfalls: [
-        "Applying without operations in Central Texas service area",
-        "Generic 'economic empowerment' language without specific benefits enrollment strategy",
-        "No evidence of community input in program design",
-        "Budget misaligned with economic stability activities",
-        "Individual application when collaborative would be stronger and unlock more funding",
-        "Ignoring the 'public benefits' focus — this isn't general workforce development",
+        "Leading with technology instead of enrollment outcomes and community trust",
+        "Listing 20 partners without explaining the LOGIC of why each is there",
+        "Ignoring renewals — St. David's values keeping benefits as much as getting them",
+        "Generic 'economic empowerment' without specific benefits enrollment strategy",
+        "Including a budget in the LOI — Kim said NO budget in LOI",
+        "System strengthening alone without direct services — direct enrollment is the core",
+        "Not signing up for office hours — Kim and Kori strongly recommend it",
+        "Treating this as a general workforce grant — it starts with benefits enrollment",
       ],
     },
   },
