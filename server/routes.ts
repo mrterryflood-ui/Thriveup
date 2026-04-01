@@ -75,6 +75,7 @@ import { registerReentryRoutes } from "./reentry-routes";
 import { registerPartnerRoutes } from "./partner-routes";
 import { registerOutcomeRoutes } from "./outcome-routes";
 import { registerJusticeRoutes } from "./justice-routes";
+import { registerBenefitsRoutes } from "./benefits-routes";
 import { registerWorkforceRoutes } from "./workforce-routes";
 import { registerNavigatorRoutes } from "./navigator-routes";
 import { registerPilotRoutes } from "./pilot-routes";
@@ -389,6 +390,7 @@ export async function registerRoutes(
   registerPartnerRoutes(app);
   registerOutcomeRoutes(app);
   registerJusticeRoutes(app);
+  registerBenefitsRoutes(app);
   registerWorkforceRoutes(app);
   registerNavigatorRoutes(app);
   registerPilotRoutes(app);

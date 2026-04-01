@@ -95,6 +95,7 @@ const grantEngineItems: NavItem[] = [
   { title: "Grant Hub", url: "/grants", icon: Target },
   { title: "Grant Packages", url: "/grant-packages", icon: Package },
   { title: "St. David's Prep", url: "/stdavids-prep", icon: Heart },
+  { title: "Benefits Intel", url: "/benefits", icon: Shield },
   { title: "Narrative Builder", url: "/grant-narrative", icon: FileText },
   { title: "Ecosystem Hub", url: "/ecosystem", icon: Globe },
   { title: "Ecosystem Story", url: "/ecosystem-story", icon: BookMarked },
