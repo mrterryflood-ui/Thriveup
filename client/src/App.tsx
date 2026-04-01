@@ -160,6 +160,7 @@ const BusinessDocumentsPage = lazy(() => import("@/pages/business-documents"));
 const CommunityResourceDirectoryPage = lazy(() => import("@/pages/community-resource-directory"));
 const BenefitsCommandCenterPage = lazy(() => import("@/pages/benefits-command-center"));
 const BenefitsScreenerPage = lazy(() => import("@/pages/benefits-screener"));
+const CoalitionPortalPage = lazy(() => import("@/pages/coalition-portal"));
 
 function PageFallback() {
   return (
@@ -329,6 +330,7 @@ function AppRouter() {
       <Route path="/healthcare-grants" component={HealthcareGrantsPage} />
       <Route path="/benefits" component={BenefitsCommandCenterPage} />
       <Route path="/benefits-screener" component={BenefitsScreenerPage} />
+      <Route path="/coalition" component={CoalitionPortalPage} />
       <Route path="/ai-workforce" component={AIWorkforcePage} />
       <Route path="/pm-academy" component={PMAcademyPage} />
       <Route path="/directive-compliance" component={DirectiveCompliancePage} />
