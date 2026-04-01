@@ -98,6 +98,7 @@ const grantEngineItems: NavItem[] = [
   { title: "Benefits Intel", url: "/benefits", icon: Shield },
   { title: "Benefits Screener", url: "/benefits-screener", icon: Heart },
   { title: "Coalition Portal", url: "/coalition", icon: Globe },
+  { title: "LOI Writer", url: "/loi-writer", icon: FileText },
   { title: "Narrative Builder", url: "/grant-narrative", icon: FileText },
   { title: "Ecosystem Hub", url: "/ecosystem", icon: Globe },
   { title: "Ecosystem Story", url: "/ecosystem-story", icon: BookMarked },
