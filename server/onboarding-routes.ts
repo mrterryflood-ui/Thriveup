@@ -1,4 +1,4 @@
-import type { Express, Request, Response } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { storage } from "./storage";
 import { db } from "./storage";
 import {
@@ -9,6 +9,14 @@ import {
   insertOnboardingBaselineSnapshotSchema,
 } from "@shared/schema";
 import { eq, sql, and, desc } from "drizzle-orm";
+
+function requireAuth(req: Request, res: Response, next: NextFunction) {
+  const user = (req as any).user;
+  if (!user?.claims?.sub) {
+    return res.status(401).json({ error: "Authentication required" });
+  }
+  next();
+}
 
 const JOURNEY_TEMPLATES = [
   {
@@ -254,7 +262,7 @@ export function registerOnboardingRoutes(app: Express) {
     }
   });
 
-  app.post("/api/onboarding/journeys", async (req: Request, res: Response) => {
+  app.post("/api/onboarding/journeys", requireAuth, async (req: Request, res: Response) => {
     try {
       const { participantId, templateId, participantName, population, userId } = req.body;
       if (!participantId || !templateId || !participantName || !population) {
@@ -320,7 +328,7 @@ export function registerOnboardingRoutes(app: Express) {
     }
   });
 
-  app.post("/api/onboarding/journeys/:journeyId/milestones/:milestoneId/complete", async (req: Request, res: Response) => {
+  app.post("/api/onboarding/journeys/:journeyId/milestones/:milestoneId/complete", requireAuth, async (req: Request, res: Response) => {
     try {
       const { journeyId, milestoneId } = req.params;
       const { completedBy, completedByName, notes } = req.body;
@@ -390,7 +398,7 @@ export function registerOnboardingRoutes(app: Express) {
     }
   });
 
-  app.post("/api/onboarding/journeys/:journeyId/baseline-snapshot", async (req: Request, res: Response) => {
+  app.post("/api/onboarding/journeys/:journeyId/baseline-snapshot", requireAuth, async (req: Request, res: Response) => {
     try {
       const { journeyId } = req.params;
       const journey = await storage.getOnboardingJourney(journeyId);
@@ -488,7 +496,7 @@ export function registerOnboardingRoutes(app: Express) {
     }
   });
 
-  app.patch("/api/onboarding/journeys/:id", async (req: Request, res: Response) => {
+  app.patch("/api/onboarding/journeys/:id", requireAuth, async (req: Request, res: Response) => {
     try {
       const journey = await storage.getOnboardingJourney(req.params.id);
       if (!journey) return res.status(404).json({ error: "Journey not found" });

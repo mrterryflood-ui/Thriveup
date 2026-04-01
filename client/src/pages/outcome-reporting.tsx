@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { TrainingGuideButton } from "@/components/training-guide";
 import {
   BarChart3, Plus, Download, FileText, Target, Users,
-  Briefcase, GraduationCap, Home, Heart, Shield, TrendingUp, CheckCircle2, Filter,
+  Briefcase, GraduationCap, Home, Heart, Shield, TrendingUp, CheckCircle2, Filter, Loader2,
 } from "lucide-react";
 
 interface OutcomeDashboard {
@@ -95,7 +95,7 @@ export default function OutcomeReportingPage() {
   const [selectedCohort, setSelectedCohort] = useState("");
   const [formData, setFormData] = useState({ userId: "", planId: "", category: "employment", metricName: "", metricValue: "", periodMonths: "", source: "" });
 
-  const { data: dashboard } = useQuery<OutcomeDashboard>({ queryKey: ["/api/outcomes/dashboard"] });
+  const { data: dashboard, isLoading } = useQuery<OutcomeDashboard>({ queryKey: ["/api/outcomes/dashboard"] });
   const { data: dojReport } = useQuery<DOJReport>({ queryKey: ["/api/outcomes/report/doj"] });
   const { data: cohortDashboard } = useQuery<CohortDashboard>({ queryKey: ["/api/pilot/dashboard"] });
   const { data: cohortOutcomes } = useQuery<CohortOutcome[]>({
@@ -137,6 +137,8 @@ export default function OutcomeReportingPage() {
       toast({ title: "Export failed", variant: "destructive" });
     }
   };
+
+  if (isLoading) return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>;
 
   return (
     <div className="p-4 sm:p-6 max-w-6xl mx-auto space-y-6">

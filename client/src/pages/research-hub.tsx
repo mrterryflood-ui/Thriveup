@@ -19,7 +19,7 @@ import {
   CheckCircle2, ChevronRight, ExternalLink, Lightbulb, Brain,
   FileText, ArrowRight, Shield, Activity, Layers, Microscope,
   GraduationCap, Network, Sparkles, ClipboardCheck, TrendingUp,
-  AlertTriangle, Info, Star, Compass, BookMarked,
+  AlertTriangle, Info, Star, Compass, BookMarked, Loader2,
 } from "lucide-react";
 
 const RE_AIM_DOMAINS = [

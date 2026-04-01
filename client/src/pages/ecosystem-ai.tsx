@@ -19,7 +19,7 @@ export default function EcosystemAIPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
 
-  const { data: suggestions } = useQuery<{ questions: string[] }>({
+  const { data: suggestions, isLoading } = useQuery<{ questions: string[] }>({
     queryKey: ["/api/ecosystem-ai/suggested-questions"],
   });
 
@@ -147,6 +147,8 @@ export default function EcosystemAIPage() {
       handleSubmit();
     }
   }
+
+  if (isLoading) return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>;
 
   return (
     <div className="flex flex-col h-full bg-gradient-to-br from-violet-50 via-white to-blue-50 dark:from-gray-950 dark:via-gray-900 dark:to-violet-950">

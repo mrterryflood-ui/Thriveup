@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import {
   Shield, Target, Users, BarChart3, Download, RefreshCw,
   AlertTriangle, CheckCircle2, TrendingUp, Brain, ArrowRight,
-  ChevronDown, ChevronUp, FileText, Zap, Star, Eye
+  ChevronDown, ChevronUp, FileText, Zap, Star, Eye, Loader2,
 } from "lucide-react";
 import { Link } from "wouter";
 import { TrainingGuideButton } from "@/components/training-guide";
@@ -195,6 +195,8 @@ export default function PeerReviewPage() {
       peerCount: d.scores.length,
     })).sort((a, b) => b.overall - a.overall);
   })() : [];
+
+  if (statusQuery.isLoading) return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-gray-950 dark:to-blue-950">

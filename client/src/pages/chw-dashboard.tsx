@@ -19,7 +19,7 @@ import {
   Calendar, Activity, ChevronRight, CheckCircle2, AlertTriangle,
   Clock, Home, FileText, Star, GraduationCap, BookOpen,
   Stethoscope, Brain, ExternalLink, Plus, TrendingUp,
-  ArrowRight, Sparkles, Building2, UserCheck, Clipboard, Lightbulb,
+  ArrowRight, Sparkles, Building2, UserCheck, Clipboard, Lightbulb, Loader2,
 } from "lucide-react";
 
 interface ScreeningReferral {

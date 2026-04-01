@@ -4598,17 +4598,24 @@ function SectionDrafter({ section, grant, autoTrigger, onAutoTriggered, onDraftU
   });
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(draftContent);
-    toast({ title: "Copied to clipboard" });
+    try {
+      navigator.clipboard.writeText(draftContent);
+      toast({ title: "Copied to clipboard" });
+    } catch {
+      toast({ title: "Failed to copy", variant: "destructive" });
+    }
   };
 
-  if (autoTrigger && !hasAutoTriggered && !draftMutation.isPending && !draftContent) {
-    setHasAutoTriggered(true);
-    setTimeout(() => {
-      draftMutation.mutate();
-      if (onAutoTriggered) onAutoTriggered();
-    }, 100);
-  }
+  useEffect(() => {
+    if (autoTrigger && !hasAutoTriggered && !draftMutation.isPending && !draftContent) {
+      setHasAutoTriggered(true);
+      const timer = setTimeout(() => {
+        draftMutation.mutate();
+        if (onAutoTriggered) onAutoTriggered();
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [autoTrigger, hasAutoTriggered, draftMutation.isPending, draftContent]);
 
   return (
     <div className="space-y-3">
@@ -6033,8 +6040,7 @@ export default function GrantPackagesPage() {
                                                 variant="ghost"
                                                 className="text-xs h-6 px-2"
                                                 onClick={() => {
-                                                  navigator.clipboard.writeText(pipelineAiResult.content);
-                                                  toast({ title: "Copied to clipboard" });
+                                                  try { navigator.clipboard.writeText(pipelineAiResult.content); toast({ title: "Copied to clipboard" }); } catch { toast({ title: "Failed to copy", variant: "destructive" }); }
                                                 }}
                                                 data-testid={`button-copy-pipeline-${task.id}`}
                                               >
@@ -6212,8 +6218,7 @@ export default function GrantPackagesPage() {
                                     variant="ghost"
                                     className="text-xs h-6 px-2"
                                     onClick={() => {
-                                      navigator.clipboard.writeText(aiResult.content);
-                                      toast({ title: "Copied to clipboard" });
+                                      try { navigator.clipboard.writeText(aiResult.content); toast({ title: "Copied to clipboard" }); } catch { toast({ title: "Failed to copy", variant: "destructive" }); }
                                     }}
                                     data-testid={`button-copy-ai-${item.id}`}
                                   >

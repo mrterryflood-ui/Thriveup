@@ -13,7 +13,7 @@ import {
   ExternalLink, AlertOctagon, Eye, Zap, FileCheck,
   ChevronRight, ChevronDown, Radio, TrendingUp, Globe,
   DollarSign, BookOpen, GraduationCap, Briefcase, Calendar,
-  MapPin, Heart, Users, Brain,
+  MapPin, Heart, Users, Brain, Loader2,
 } from "lucide-react";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -426,7 +426,7 @@ export default function DirectiveCompliancePage() {
   const [expandedGrant, setExpandedGrant] = useState<string | null>(null);
   const [expandedPlatform, setExpandedPlatform] = useState<string | null>(null);
 
-  const { data: intelReport, refetch } = useQuery<IntelReport>({
+  const { data: intelReport, isLoading, refetch } = useQuery<IntelReport>({
     queryKey: ["/api/ecosystem/intelligence-report"],
     retry: false,
   });
@@ -449,6 +449,8 @@ export default function DirectiveCompliancePage() {
   const submittedCount = ACTIVE_GRANTS.filter(g => g.status === "submitted" || g.status === "loi-submitted" || g.status === "identified" || g.status === "in_progress").length;
   const totalStandards = TX_STANDARDS_ALIGNMENT.reduce((acc, cat) => acc + cat.standards.length, 0);
   const alignedStandards = TX_STANDARDS_ALIGNMENT.reduce((acc, cat) => acc + cat.standards.filter(s => s.aligned).length, 0);
+
+  if (isLoading) return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>;
 
   return (
     <div className="p-4 md:p-6 max-w-6xl mx-auto space-y-6" data-testid="directive-compliance-page">

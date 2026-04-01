@@ -97,7 +97,7 @@ export default function AIToolsWorkspacePage() {
 
   const toolsQueryKey = isAdult ? "/api/ai-tools?mode=adult" : "/api/ai-tools";
 
-  const { data: rawToolsData, error: toolsError, refetch: refetchTools } = useQuery<Tool[]>({
+  const { data: rawToolsData, isLoading, error: toolsError, refetch: refetchTools } = useQuery<Tool[]>({
     queryKey: [toolsQueryKey],
   });
   const rawTools = rawToolsData ?? [];
@@ -312,6 +312,8 @@ export default function AIToolsWorkspacePage() {
   }, [generatedContent]);
 
   useEffect(() => { document.title = "AI Tool Workspace | ThriveUp Academy"; }, []);
+
+  if (isLoading) return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>;
 
   if (toolsError) {
     return <div className="p-6"><ErrorRetry message="Failed to load AI tools." onRetry={refetchTools} /></div>;

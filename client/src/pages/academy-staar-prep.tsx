@@ -758,7 +758,7 @@ export default function AcademyStaarPrepPage() {
                         <CheckCircle2 className="h-4 w-4 mr-1" /> Check Answer
                       </Button>
                     ) : (
-                      <Button size="sm" onClick={handleNextQuestion} data-testid="button-next-question" className="font-semibold">
+                      <Button size="sm" onClick={handleNextQuestion} disabled={submitAssessment.isPending} data-testid="button-next-question" className="font-semibold">
                         {currentQuestion + 1 >= questions.length ? (
                           <><Trophy className="h-4 w-4 mr-1" /> See My Results</>
                         ) : (

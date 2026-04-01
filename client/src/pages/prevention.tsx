@@ -172,7 +172,7 @@ function ModuleDetail({ mod, onBack, onComplete }: { mod: PreventionModule; onBa
             ))}
           </div>
           <div className="flex justify-end mt-4">
-            <Button disabled={!allAnswered} onClick={handleSubmitQuiz} data-testid="button-submit-quiz">
+            <Button disabled={!allAnswered || progressMutation.isPending} onClick={handleSubmitQuiz} data-testid="button-submit-quiz">
               Submit Answers
             </Button>
           </div>
@@ -182,11 +182,12 @@ function ModuleDetail({ mod, onBack, onComplete }: { mod: PreventionModule; onBa
   );
 }
 
-function AssessmentTaker({ type, questions, onComplete, onCancel }: {
+function AssessmentTaker({ type, questions, onComplete, onCancel, isSubmitting }: {
   type: "risk" | "protective";
   questions: RiskQuestion[];
   onComplete: (responses: Record<string, number>) => void;
   onCancel: () => void;
+  isSubmitting?: boolean;
 }) {
   const [currentQ, setCurrentQ] = useState(0);
   const [responses, setResponses] = useState<Record<string, number>>({});
@@ -229,6 +230,7 @@ function AssessmentTaker({ type, questions, onComplete, onCancel }: {
               variant="outline"
               className="w-full justify-start text-left h-auto py-3 px-4"
               onClick={() => handleAnswer(i)}
+              disabled={isSubmitting}
               data-testid={`button-option-${i}`}
             >
               {option}
@@ -300,10 +302,11 @@ function AssessmentResultView({ assessment, onDismiss }: { assessment: RiskAsses
   );
 }
 
-function SurveyTaker({ survey, onSubmit, onCancel }: {
+function SurveyTaker({ survey, onSubmit, onCancel, isSubmitting }: {
   survey: YouthSurvey;
   onSubmit: (responses: Record<string, number>, demographics: Record<string, string>) => void;
   onCancel: () => void;
+  isSubmitting?: boolean;
 }) {
   const [currentQ, setCurrentQ] = useState(0);
   const [responses, setResponses] = useState<Record<string, number>>({});
@@ -349,6 +352,7 @@ function SurveyTaker({ survey, onSubmit, onCancel }: {
               variant="outline"
               className="w-full justify-start text-left h-auto py-3 px-4"
               onClick={() => handleAnswer(i)}
+              disabled={isSubmitting}
               data-testid={`button-survey-option-${i}`}
             >
               {option}
@@ -521,7 +525,7 @@ export default function PreventionPage() {
     return (
       <div className="p-4 sm:p-6 max-w-5xl mx-auto" data-testid="prevention-page">
         <PageHeader title="Substance Prevention" breadcrumbs={[{ label: "Prevention", href: "/prevention" }, { label: activeAssessment === "risk" ? "Risk Assessment" : "Protective Factors" }]} />
-        <AssessmentTaker type={activeAssessment} questions={questions} onComplete={handleCompleteAssessment} onCancel={() => setActiveAssessment(null)} />
+        <AssessmentTaker type={activeAssessment} questions={questions} onComplete={handleCompleteAssessment} onCancel={() => setActiveAssessment(null)} isSubmitting={assessmentMutation.isPending} />
       </div>
     );
   }
@@ -539,7 +543,7 @@ export default function PreventionPage() {
     return (
       <div className="p-4 sm:p-6 max-w-5xl mx-auto" data-testid="prevention-page">
         <PageHeader title="Substance Prevention" breadcrumbs={[{ label: "Prevention", href: "/prevention" }, { label: "Youth Survey" }]} />
-        <SurveyTaker survey={activeSurveyData} onSubmit={handleSubmitSurvey} onCancel={() => setActiveSurvey(null)} />
+        <SurveyTaker survey={activeSurveyData} onSubmit={handleSubmitSurvey} onCancel={() => setActiveSurvey(null)} isSubmitting={surveyMutation.isPending} />
       </div>
     );
   }

@@ -37,6 +37,7 @@ import {
   School,
   HandHeart,
   MapPin,
+  Loader2,
 } from "lucide-react";
 
 interface ImpactData {
@@ -833,7 +834,7 @@ export default function StakeholderPresentation() {
   const [showNotes, setShowNotes] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
-  const { data: impactData } = useQuery<ImpactData>({
+  const { data: impactData, isLoading } = useQuery<ImpactData>({
     queryKey: ["/api/public/impact"],
   });
 
@@ -871,6 +872,8 @@ export default function StakeholderPresentation() {
   }, []);
 
   const CurrentSlideComponent = SLIDES[currentSlide].component;
+
+  if (isLoading) return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>;
 
   return (
     <div className="fixed inset-0 bg-black flex flex-col" data-testid="stakeholder-presentation">

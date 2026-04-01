@@ -1,8 +1,16 @@
-import type { Express, Request, Response } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { db } from "./storage";
 import { videoRenderJobs, insertVideoRenderJobSchema, ecosystemEvents } from "@shared/schema";
 import { eq, desc, sql } from "drizzle-orm";
 import { z } from "zod";
+
+function requireAuth(req: Request, res: Response, next: NextFunction) {
+  const user = (req as any).user;
+  if (!user?.claims?.sub) {
+    return res.status(401).json({ error: "Authentication required" });
+  }
+  next();
+}
 
 function generateMrssEntry(job: { title: string; id: number; duration: number | null; renderUrl: string | null; thumbnailUrl: string | null }) {
   const videoId = `thriveup-video-${job.id}`;
@@ -99,7 +107,7 @@ export function registerVideoPipelineRoutes(app: Express) {
     }
   });
 
-  app.post("/api/video-pipeline/render", async (req: Request, res: Response) => {
+  app.post("/api/video-pipeline/render", requireAuth, async (req: Request, res: Response) => {
     try {
       const body = insertVideoRenderJobSchema.parse(req.body);
       const [job] = await db.insert(videoRenderJobs).values({
@@ -142,7 +150,7 @@ export function registerVideoPipelineRoutes(app: Express) {
     }
   });
 
-  app.post("/api/video-pipeline/distribute/:jobId", async (req: Request, res: Response) => {
+  app.post("/api/video-pipeline/distribute/:jobId", requireAuth, async (req: Request, res: Response) => {
     try {
       const jobId = parseInt(req.params.jobId as string);
       const [job] = await db.select().from(videoRenderJobs).where(eq(videoRenderJobs.id, jobId));
@@ -187,7 +195,7 @@ export function registerVideoPipelineRoutes(app: Express) {
     }
   });
 
-  app.patch("/api/video-pipeline/jobs/:jobId", async (req: Request, res: Response) => {
+  app.patch("/api/video-pipeline/jobs/:jobId", requireAuth, async (req: Request, res: Response) => {
     try {
       const jobId = parseInt(req.params.jobId as string);
       const { status } = req.body;

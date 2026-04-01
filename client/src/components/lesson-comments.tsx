@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { MessageSquare, ThumbsUp, Heart, Star, Zap, Send, LogIn } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/use-auth";
+import { useToast } from "@/hooks/use-toast";
 import type { LessonComment } from "@shared/schema";
 
 const REACTION_CONFIG = [
@@ -33,6 +34,7 @@ function formatTimeAgo(date: string | Date | null): string {
 export default function LessonComments({ lessonId }: { lessonId: string }) {
   const [commentText, setCommentText] = useState("");
   const { isAuthenticated } = useAuth();
+  const { toast } = useToast();
 
   const { data: comments, isLoading: commentsLoading, error: commentsError } = useQuery<LessonComment[]>({
     queryKey: ["/api/lessons", lessonId, "comments"],
@@ -50,6 +52,10 @@ export default function LessonComments({ lessonId }: { lessonId: string }) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/lessons", lessonId, "comments"] });
       setCommentText("");
+      toast({ title: "Comment Posted", description: "Your comment has been added." });
+    },
+    onError: (error: Error) => {
+      toast({ title: "Failed to Post Comment", description: error.message, variant: "destructive" });
     },
   });
 
@@ -60,6 +66,10 @@ export default function LessonComments({ lessonId }: { lessonId: string }) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/lessons", lessonId, "reactions"] });
+      toast({ title: "Reaction Added", description: "Your reaction has been recorded." });
+    },
+    onError: (error: Error) => {
+      toast({ title: "Failed to React", description: error.message, variant: "destructive" });
     },
   });
 

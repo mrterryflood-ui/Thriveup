@@ -148,8 +148,8 @@ function CFIRWizard() {
   const [ratings, setRatings] = useState<Record<string, { rating: number; notes: string; type: string }>>({});
   const [showSummary, setShowSummary] = useState(false);
 
-  const domain = CFIR_DOMAINS[step];
   const totalDomains = CFIR_DOMAINS.length;
+  const domain = CFIR_DOMAINS[Math.min(step, totalDomains - 1)];
 
   const saveMutation = useMutation({
     mutationFn: async () => {
@@ -737,7 +737,7 @@ function ThreeRealitiesDiagnostic() {
     },
   ];
 
-  const currentStep = steps[step];
+  const currentStep = steps[Math.min(step, steps.length - 1)];
   const Icon = currentStep.icon;
 
   if (saved) {
@@ -2107,7 +2107,10 @@ function ActionPlanner() {
   function toggleMilestoneStatus(phaseIdx: number, milestoneIdx: number) {
     if (!viewingPlan) return;
     const phases = JSON.parse(JSON.stringify(viewingPlan.phases)) as ActionPlanPhase[];
-    const ms = phases[phaseIdx].milestones[milestoneIdx];
+    if (phaseIdx < 0 || phaseIdx >= phases.length) return;
+    const phase = phases[phaseIdx];
+    if (!phase.milestones || milestoneIdx < 0 || milestoneIdx >= phase.milestones.length) return;
+    const ms = phase.milestones[milestoneIdx];
     if (ms.status === "pending") ms.status = "in-progress";
     else if (ms.status === "in-progress") ms.status = "complete";
     else ms.status = "pending";

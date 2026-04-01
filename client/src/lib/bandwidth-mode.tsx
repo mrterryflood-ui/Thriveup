@@ -13,8 +13,11 @@ const BandwidthContext = createContext<{
 export function BandwidthProvider({ children }: { children: React.ReactNode }) {
   const [isLowBandwidth, setIsLowBandwidth] = useState<boolean>(() => {
     if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("learning-academy-low-bandwidth");
-      return stored ? JSON.parse(stored) : false;
+      try {
+        const stored = localStorage.getItem("learning-academy-low-bandwidth");
+        if (stored) return JSON.parse(stored) === true;
+      } catch {
+      }
     }
     return false;
   });
@@ -26,7 +29,10 @@ export function BandwidthProvider({ children }: { children: React.ReactNode }) {
     } else {
       root.classList.remove("low-bandwidth");
     }
-    localStorage.setItem("learning-academy-low-bandwidth", JSON.stringify(isLowBandwidth));
+    try {
+      localStorage.setItem("learning-academy-low-bandwidth", JSON.stringify(isLowBandwidth));
+    } catch {
+    }
   }, [isLowBandwidth]);
 
   const setLowBandwidth = (value: boolean) => setIsLowBandwidth(value);

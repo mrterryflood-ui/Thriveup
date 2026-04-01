@@ -19,11 +19,34 @@ import {
   insertStaarStudentAssessmentSchema,
   savedResources, insertSavedResourceSchema, resourceSearchHistory,
   communityStories,
+  insertCommunityStorySchema,
   insertProgramDesignSchema,
   type CqiFidelityObservation,
+  insertAcademyAvatarSchema,
+  insertAcademyMeritEventSchema,
+  insertAcademyCampusProjectSchema,
+  insertAcademyCompetitionSchema,
+  insertAcademyCompetitionEntrySchema,
+  insertAcademyDreamProfileSchema,
+  insertAcademyMerchItemSchema,
+  insertAcademyMerchOrderSchema,
+  academyMerchItems,
+  academyMerchOrders,
+  insertAcademyPantherPowerSchema,
+  insertAcademyAdminNoteSchema,
+  insertAcademyContentReportSchema,
+  insertRiskNotificationSettingsSchema,
+  insertCqiCycleSchema,
+  insertCqiGapSchema,
+  insertCqiInterventionSchema,
+  insertCqiFidelityDefinitionSchema,
+  insertCqiFidelityObservationSchema,
+  insertCqiCyclePhaseSchema,
+  insertCqiOutcomeSchema,
 } from "@shared/schema";
 import { searchResources, getResourceCategories, getStatesList, getStateName, fetchBLSWageData } from "./resource-engine";
 import { eq, and, desc, sql, count, gte } from "drizzle-orm";
+import { z } from "zod";
 import { computeFullThriveScore, computeAllStudentScores, getThriveHistory } from "./thrive-engine";
 import { evaluateFlags, getActiveFlags, resolveFlag, runEarlyWarningCheck } from "./early-warning";
 import { runFullIngestion, getContextForGeography, searchByState, searchByLocation, generateCommunityNarrative, getStateCoords, getStateName as gisGetStateName } from "./gis-engine";
@@ -1396,8 +1419,13 @@ export async function registerRoutes(
   });
 
   app.delete("/api/curriculum-documents/:docId/attachments/:attachmentId", requireAuth, async (req, res) => {
-    await storage.deleteAttachment(req.params.attachmentId as string);
-    res.json({ success: true });
+    try {
+      await storage.deleteAttachment(req.params.attachmentId as string);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error in DELETE /api/curriculum-documents/:docId/attachments/:attachmentId", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   app.get("/api/lessons/:lessonId/comments", async (req, res) => {
@@ -1697,14 +1725,17 @@ export async function registerRoutes(
   app.post("/api/academy/avatar", requireAuth, async (req, res) => {
     try {
       const userId = getUserId(req)!;
+      const parsed = insertAcademyAvatarSchema.partial().safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid avatar data", details: parsed.error.flatten() });
+      }
+      const { displayName, role, skinTone, hairStyle, hairColor, outfit, outfitColor, accessory, background, bio } = parsed.data;
       const existing = await storage.getAcademyAvatar(userId);
       if (existing) {
-        const { displayName, role, skinTone, hairStyle, hairColor, outfit, outfitColor, accessory, background, bio } = req.body;
         const updated = await storage.updateAcademyAvatar(existing.id, { displayName, role, skinTone, hairStyle, hairColor, outfit, outfitColor, accessory, background, bio });
         return res.json(updated);
       }
-      const { displayName, role, skinTone, hairStyle, hairColor, outfit, outfitColor, accessory, background, bio } = req.body;
-      const avatar = await storage.createAcademyAvatar({ displayName, role, skinTone, hairStyle, hairColor, outfit, outfitColor, accessory, background, bio, userId });
+      const avatar = await storage.createAcademyAvatar({ displayName: displayName || "Student", role, skinTone, hairStyle, hairColor, outfit, outfitColor, accessory, background, bio, userId });
       res.status(201).json(avatar);
     } catch (error) {
       res.status(500).json({ error: "Failed to save avatar" });
@@ -1721,9 +1752,13 @@ export async function registerRoutes(
     }
   });
 
-  app.post("/api/academy/merit", requireAuth, async (req, res) => {
+  app.post("/api/academy/merit", requireAuth, requireAdmin, async (req, res) => {
     try {
-      const { userId, houseId, points, reason, category } = req.body;
+      const parsed = insertAcademyMeritEventSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid merit event data", details: parsed.error.flatten() });
+      }
+      const { userId, houseId, points, reason, category } = parsed.data;
       if (!userId || !points || !reason) {
         return res.status(400).json({ error: "userId, points, and reason are required" });
       }
@@ -1922,7 +1957,7 @@ export async function registerRoutes(
     }
   });
 
-  app.post("/api/academy/stocks/simulate", requireAdmin, async (_req, res) => {
+  app.post("/api/academy/stocks/simulate", requireAuth, requireAdmin, async (_req, res) => {
     try {
       const stocks = await storage.getAllStocks();
       const updated = [];
@@ -1961,13 +1996,17 @@ export async function registerRoutes(
   app.post("/api/academy/campus", requireAuth, async (req, res) => {
     try {
       const userId = getUserId(req)!;
+      const parsed = insertAcademyCampusProjectSchema.partial().safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid campus project data", details: parsed.error.flatten() });
+      }
+      const { projectName, totalBudget, amountFunded, currentPhase, completedPhases, features } = parsed.data;
       const existing = await storage.getCampusProject(userId);
-      const { projectName, totalBudget, amountFunded, currentPhase, completedPhases, features } = req.body;
       if (existing) {
         const updated = await storage.updateCampusProject(existing.id, { projectName, totalBudget, amountFunded, currentPhase, completedPhases, features });
         return res.json(updated);
       }
-      const project = await storage.createCampusProject({ projectName, totalBudget, amountFunded, currentPhase, completedPhases, features, userId });
+      const project = await storage.createCampusProject({ projectName: projectName || "My Campus", totalBudget, amountFunded, currentPhase, completedPhases, features, userId });
       res.status(201).json(project);
     } catch (error) {
       res.status(500).json({ error: "Failed to save campus project" });
@@ -2027,9 +2066,13 @@ export async function registerRoutes(
     }
   });
 
-  app.post("/api/academy/competitions", requireAuth, async (req, res) => {
+  app.post("/api/academy/competitions", requireAuth, requireAdmin, async (req, res) => {
     try {
-      const comp = await storage.createCompetition(req.body);
+      const parsed = insertAcademyCompetitionSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid competition data", details: parsed.error.flatten() });
+      }
+      const comp = await storage.createCompetition(parsed.data);
       res.status(201).json(comp);
     } catch (error) {
       res.status(500).json({ error: "Failed to create competition" });
@@ -2050,13 +2093,18 @@ export async function registerRoutes(
     try {
       const comp = await storage.getCompetition(req.params.id as string);
       if (!comp) return res.status(404).json({ error: "Competition not found" });
-      const { score } = req.body;
-      const entry = await storage.createCompetitionEntry({
+      const { score } = req.body ?? {};
+      const entryData = {
         competitionId: req.params.id as string,
         userId: getUserId(req)!,
         userName: getUserName(req) || "Student",
-        score,
-      });
+        score: score != null ? Number(score) : undefined,
+      };
+      const parsed = insertAcademyCompetitionEntrySchema.safeParse(entryData);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid entry data", details: parsed.error.flatten() });
+      }
+      const entry = await storage.createCompetitionEntry(parsed.data);
       try {
         const power = await storage.getOrCreatePantherPower(getUserId(req)!);
         await storage.updatePantherPower(getUserId(req)!, {
@@ -2069,10 +2117,12 @@ export async function registerRoutes(
     }
   });
 
-  app.post("/api/academy/competitions/:id/score", requireAuth, async (req, res) => {
+  app.post("/api/academy/competitions/:id/score", requireAuth, requireAdmin, async (req, res) => {
     try {
       const { entryId, score, placement } = req.body;
-      if (!entryId) return res.status(400).json({ error: "entryId is required" });
+      if (!entryId || typeof entryId !== "string") return res.status(400).json({ error: "entryId is required" });
+      if (score != null && typeof score !== "number") return res.status(400).json({ error: "score must be a number" });
+      if (placement != null && typeof placement !== "number") return res.status(400).json({ error: "placement must be a number" });
       const updated = await storage.updateCompetitionEntry(entryId, {
         score,
         placement,
@@ -2097,7 +2147,11 @@ export async function registerRoutes(
 
   app.post("/api/academy/dream-profile", requireAuth, async (req, res) => {
     try {
-      const profile = await storage.createOrUpdateDreamProfile(getUserId(req)!, req.body);
+      const parsed = insertAcademyDreamProfileSchema.partial().safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid dream profile data", details: parsed.error.flatten() });
+      }
+      const profile = await storage.createOrUpdateDreamProfile(getUserId(req)!, parsed.data);
       try {
         const power = await storage.getOrCreatePantherPower(getUserId(req)!);
         await storage.updatePantherPower(getUserId(req)!, {
@@ -2120,13 +2174,34 @@ export async function registerRoutes(
     }
   });
 
-  app.post("/api/academy/merch", requireAuth, async (req, res) => {
+  app.post("/api/academy/merch", requireAuth, requireAdmin, async (req, res) => {
     try {
-      const item = await storage.createMerchItem(req.body);
+      const parsed = insertAcademyMerchItemSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid merch item data", details: parsed.error.flatten() });
+      }
+      const item = await storage.createMerchItem(parsed.data);
       res.status(201).json(item);
     } catch (error) {
       res.status(500).json({ error: "Failed to create merch item" });
     }
+  });
+
+  app.patch("/api/academy/merch/:id", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const { name, description, price, category } = req.body;
+      const updated = await db.update(academyMerchItems).set({ name, description, price, category }).where(eq(academyMerchItems.id, req.params.id as string)).returning();
+      if (!updated.length) return res.status(404).json({ error: "Merch item not found" });
+      res.json(updated[0]);
+    } catch (error) { res.status(500).json({ error: "Failed to update merch item" }); }
+  });
+
+  app.delete("/api/academy/merch/:id", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const deleted = await db.delete(academyMerchItems).where(eq(academyMerchItems.id, req.params.id as string)).returning();
+      if (!deleted.length) return res.status(404).json({ error: "Merch item not found" });
+      res.json({ success: true });
+    } catch (error) { res.status(500).json({ error: "Failed to delete merch item" }); }
   });
 
   app.get("/api/academy/merch/orders", requireAuth, async (req, res) => {
@@ -2142,15 +2217,29 @@ export async function registerRoutes(
   app.post("/api/academy/merch/orders", requireAuth, async (req, res) => {
     try {
       const { itemId, quantity, totalPrice } = req.body;
-      const order = await storage.createMerchOrder({
+      const orderData = {
         itemId, quantity, totalPrice,
         userId: getUserId(req)!,
         userName: getUserName(req) || "Student",
-      });
+      };
+      const parsed = insertAcademyMerchOrderSchema.safeParse(orderData);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid order data", details: parsed.error.flatten() });
+      }
+      const order = await storage.createMerchOrder(parsed.data);
       res.status(201).json(order);
     } catch (error) {
       res.status(500).json({ error: "Failed to create order" });
     }
+  });
+
+  app.patch("/api/academy/merch/orders/:id", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const { status } = req.body;
+      const updated = await db.update(academyMerchOrders).set({ status }).where(eq(academyMerchOrders.id, req.params.id as string)).returning();
+      if (!updated.length) return res.status(404).json({ error: "Order not found" });
+      res.json(updated[0]);
+    } catch (error) { res.status(500).json({ error: "Failed to update order" }); }
   });
 
   // ==================== PANTHER POWER ====================
@@ -2165,7 +2254,11 @@ export async function registerRoutes(
 
   app.post("/api/academy/panther-power", requireAuth, async (req, res) => {
     try {
-      const updated = await storage.updatePantherPower(getUserId(req)!, req.body);
+      const parsed = insertAcademyPantherPowerSchema.partial().safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid panther power data", details: parsed.error.flatten() });
+      }
+      const updated = await storage.updatePantherPower(getUserId(req)!, parsed.data);
       res.json(updated);
     } catch (error) {
       res.status(500).json({ error: "Failed to update panther power" });
@@ -2766,11 +2859,16 @@ export async function registerRoutes(
   app.post("/api/academy/admin/notes", requireAuth, requireAdmin, async (req, res) => {
     try {
       const { userId: targetUserId, note: noteText, category } = req.body;
-      const note = await storage.createAdminNote({
+      const noteData = {
         userId: targetUserId, note: noteText, category,
         adminId: getUserId(req)!,
         adminName: getUserName(req) || "Admin",
-      });
+      };
+      const parsed = insertAcademyAdminNoteSchema.safeParse(noteData);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid note data", details: parsed.error.flatten() });
+      }
+      const note = await storage.createAdminNote(parsed.data);
       res.status(201).json(note);
     } catch (error) {
       res.status(500).json({ error: "Failed to create note" });
@@ -2779,8 +2877,12 @@ export async function registerRoutes(
 
   app.patch("/api/academy/admin/notes/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
-      const note = await storage.updateAdminNote(req.params.id as string, req.body);
-      res.json(note);
+      const parsed = insertAcademyAdminNoteSchema.partial().safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid note data", details: parsed.error.flatten() });
+      }
+      const result = await storage.updateAdminNote(req.params.id as string, parsed.data);
+      res.json(result);
     } catch (error) {
       res.status(500).json({ error: "Failed to update note" });
     }
@@ -2816,7 +2918,11 @@ export async function registerRoutes(
 
   app.patch("/api/academy/admin/reports/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
-      const report = await storage.updateContentReport(req.params.id as string, req.body);
+      const parsed = insertAcademyContentReportSchema.partial().safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid report data", details: parsed.error.flatten() });
+      }
+      const report = await storage.updateContentReport(req.params.id as string, parsed.data);
       res.json(report);
     } catch (error) {
       res.status(500).json({ error: "Failed to update report" });
@@ -3697,7 +3803,7 @@ export async function registerRoutes(
     }
   });
 
-  app.get("/api/play-sessions/flagged", requireAdmin, async (req, res) => {
+  app.get("/api/play-sessions/flagged", requireAuth, requireAdmin, async (req, res) => {
     try {
       const flagged = await storage.getFlaggedPlaySessions();
       res.json(flagged);
@@ -3757,6 +3863,15 @@ export async function registerRoutes(
     }
   });
 
+  app.patch("/api/announcements/:id", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const { title, content, priority, audience } = req.body;
+      const updated = await db.update(announcementsTable).set({ title, content, priority, audience }).where(eq(announcementsTable.id, req.params.id as string)).returning();
+      if (!updated.length) return res.status(404).json({ error: "Announcement not found" });
+      res.json(updated[0]);
+    } catch (error) { res.status(500).json({ error: "Failed to update announcement" }); }
+  });
+
   app.delete("/api/announcements/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
       await storage.deleteAnnouncement(req.params.id as string);
@@ -3788,6 +3903,15 @@ export async function registerRoutes(
     } catch (error) {
       res.status(500).json({ error: "Failed to create event" });
     }
+  });
+
+  app.patch("/api/events/:id", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const { title, description, eventDate, eventTime, category } = req.body;
+      const updated = await db.update(academyEventsTable).set({ title, description, eventDate, eventTime, category }).where(eq(academyEventsTable.id, req.params.id as string)).returning();
+      if (!updated.length) return res.status(404).json({ error: "Event not found" });
+      res.json(updated[0]);
+    } catch (error) { res.status(500).json({ error: "Failed to update event" }); }
   });
 
   app.delete("/api/events/:id", requireAuth, requireAdmin, async (req, res) => {
@@ -3901,7 +4025,11 @@ export async function registerRoutes(
 
   app.patch("/api/admin/risk-settings", requireAuth, requireAdmin, async (req, res) => {
     try {
-      const settings = await storage.updateRiskNotificationSettings(req.body);
+      const parsed = insertRiskNotificationSettingsSchema.partial().safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid risk settings data", details: parsed.error.flatten() });
+      }
+      const settings = await storage.updateRiskNotificationSettings(parsed.data);
       res.json(settings);
     } catch (error) {
       res.status(500).json({ error: "Failed to update risk settings" });
@@ -3910,7 +4038,15 @@ export async function registerRoutes(
 
   app.patch("/api/admin/risk-decisions/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
-      const decision = await storage.updateRiskDecision(req.params.id as string, req.body);
+      const riskDecisionUpdateSchema = z.object({
+        adminReviewed: z.boolean().optional(),
+        adminNotes: z.string().optional(),
+      });
+      const parsed = riskDecisionUpdateSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid risk decision data", details: parsed.error.flatten() });
+      }
+      const decision = await storage.updateRiskDecision(req.params.id as string, parsed.data);
       res.json(decision);
     } catch (error) {
       res.status(500).json({ error: "Failed to update risk decision" });
@@ -4218,7 +4354,7 @@ export async function registerRoutes(
     }
   });
 
-  app.post("/api/ai-tools/generate-roku-script", async (req, res) => {
+  app.post("/api/ai-tools/generate-roku-script", requireAuth, async (req, res) => {
     const { prompt } = req.body;
     if (!prompt) return res.status(400).json({ error: "Prompt is required" });
     try {
@@ -4269,13 +4405,16 @@ Then include a ## Roku & CTV Distribution section with:
     }
   });
 
-  app.post("/api/community-stories", async (req, res) => {
+  app.post("/api/community-stories", requireAuth, async (req, res) => {
     try {
-      const { authorName, authorNeighborhood, storyType, title, content, needsIdentified, platformsRouted, isAnonymous } = req.body;
-      if (!storyType || !title || !content) return res.status(400).json({ error: "Missing required fields" });
+      const parsed = insertCommunityStorySchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid community story data", details: parsed.error.flatten() });
+      }
+      const { authorName, authorNeighborhood, storyType, title, content, needsIdentified, platformsRouted, isAnonymous } = parsed.data;
       if (!isAnonymous && !authorName) return res.status(400).json({ error: "Name required when not anonymous" });
       const [story] = await db.insert(communityStories).values({
-        authorName: isAnonymous ? "Anonymous" : authorName,
+        authorName: isAnonymous ? "Anonymous" : (authorName || "Anonymous"),
         authorNeighborhood: authorNeighborhood || null,
         storyType,
         title,
@@ -4499,7 +4638,7 @@ Then include a ## Roku & CTV Distribution section with:
     }
   });
 
-  app.post("/api/admin/courses/:courseId/enroll", requireAdmin, async (req, res) => {
+  app.post("/api/admin/courses/:courseId/enroll", requireAuth, requireAdmin, async (req, res) => {
     try {
       const userId = getUserId(req)!;
       const userName = req.headers["x-replit-user-name"] as string || "Student";
@@ -4962,7 +5101,11 @@ Key guidelines:
     try {
       const userId = getUserId(req);
       const userName = getUserName(req) || "";
-      const cycle = await storage.createCqiCycle({ ...req.body, createdBy: userId, createdByName: userName });
+      const parsed = insertCqiCycleSchema.safeParse({ ...req.body, createdBy: userId, createdByName: userName });
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid cycle data", details: parsed.error.flatten() });
+      }
+      const cycle = await storage.createCqiCycle(parsed.data);
       res.json(cycle);
     } catch (error) {
       console.error("Error creating CQI cycle:", error);
@@ -4972,7 +5115,11 @@ Key guidelines:
 
   app.patch("/api/cqi/cycles/:id", requireAuth, async (req, res) => {
     try {
-      const cycle = await storage.updateCqiCycle(req.params.id, req.body);
+      const parsed = insertCqiCycleSchema.partial().safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid cycle data", details: parsed.error.flatten() });
+      }
+      const cycle = await storage.updateCqiCycle(req.params.id, parsed.data);
       res.json(cycle);
     } catch (error) {
       res.status(500).json({ error: "Failed to update cycle" });
@@ -4999,7 +5146,11 @@ Key guidelines:
 
   app.post("/api/cqi/gaps", requireAuth, async (req, res) => {
     try {
-      const gap = await storage.createCqiGap(req.body);
+      const parsed = insertCqiGapSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid gap data", details: parsed.error.flatten() });
+      }
+      const gap = await storage.createCqiGap(parsed.data);
       res.json(gap);
     } catch (error) {
       res.status(500).json({ error: "Failed to create gap" });
@@ -5008,7 +5159,11 @@ Key guidelines:
 
   app.patch("/api/cqi/gaps/:id", requireAuth, async (req, res) => {
     try {
-      const gap = await storage.updateCqiGap(req.params.id, req.body);
+      const parsed = insertCqiGapSchema.partial().safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid gap data", details: parsed.error.flatten() });
+      }
+      const gap = await storage.updateCqiGap(req.params.id, parsed.data);
       res.json(gap);
     } catch (error) {
       res.status(500).json({ error: "Failed to update gap" });
@@ -5035,7 +5190,11 @@ Key guidelines:
 
   app.post("/api/cqi/interventions", requireAuth, async (req, res) => {
     try {
-      const intervention = await storage.createCqiIntervention(req.body);
+      const parsed = insertCqiInterventionSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid intervention data", details: parsed.error.flatten() });
+      }
+      const intervention = await storage.createCqiIntervention(parsed.data);
       res.json(intervention);
     } catch (error) {
       res.status(500).json({ error: "Failed to create intervention" });
@@ -5044,7 +5203,11 @@ Key guidelines:
 
   app.patch("/api/cqi/interventions/:id", requireAuth, async (req, res) => {
     try {
-      const intervention = await storage.updateCqiIntervention(req.params.id, req.body);
+      const parsed = insertCqiInterventionSchema.partial().safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid intervention data", details: parsed.error.flatten() });
+      }
+      const intervention = await storage.updateCqiIntervention(req.params.id, parsed.data);
       res.json(intervention);
     } catch (error) {
       res.status(500).json({ error: "Failed to update intervention" });
@@ -5072,7 +5235,11 @@ Key guidelines:
 
   app.post("/api/cqi/fidelity-definitions", requireAuth, async (req, res) => {
     try {
-      const def = await storage.createCqiFidelityDefinition(req.body);
+      const parsed = insertCqiFidelityDefinitionSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid fidelity definition data", details: parsed.error.flatten() });
+      }
+      const def = await storage.createCqiFidelityDefinition(parsed.data);
       res.json(def);
     } catch (error) {
       res.status(500).json({ error: "Failed to create fidelity definition" });
@@ -5081,7 +5248,11 @@ Key guidelines:
 
   app.patch("/api/cqi/fidelity-definitions/:id", requireAuth, async (req, res) => {
     try {
-      const def = await storage.updateCqiFidelityDefinition(req.params.id, req.body);
+      const parsed = insertCqiFidelityDefinitionSchema.partial().safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid fidelity definition data", details: parsed.error.flatten() });
+      }
+      const def = await storage.updateCqiFidelityDefinition(req.params.id, parsed.data);
       res.json(def);
     } catch (error) {
       res.status(500).json({ error: "Failed to update fidelity definition" });
@@ -5108,7 +5279,11 @@ Key guidelines:
 
   app.post("/api/cqi/fidelity-observations", requireAuth, async (req, res) => {
     try {
-      const obs = await storage.createCqiFidelityObservation(req.body);
+      const parsed = insertCqiFidelityObservationSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid fidelity observation data", details: parsed.error.flatten() });
+      }
+      const obs = await storage.createCqiFidelityObservation(parsed.data);
       res.json(obs);
     } catch (error) {
       res.status(500).json({ error: "Failed to create fidelity observation" });
@@ -5117,7 +5292,11 @@ Key guidelines:
 
   app.patch("/api/cqi/fidelity-observations/:id", requireAuth, async (req, res) => {
     try {
-      const obs = await storage.updateCqiFidelityObservation(req.params.id, req.body);
+      const parsed = insertCqiFidelityObservationSchema.partial().safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid fidelity observation data", details: parsed.error.flatten() });
+      }
+      const obs = await storage.updateCqiFidelityObservation(req.params.id, parsed.data);
       res.json(obs);
     } catch (error) {
       res.status(500).json({ error: "Failed to update fidelity observation" });
@@ -5144,7 +5323,11 @@ Key guidelines:
 
   app.post("/api/cqi/cycle-phases", requireAuth, async (req, res) => {
     try {
-      const phase = await storage.createCqiCyclePhase(req.body);
+      const parsed = insertCqiCyclePhaseSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid cycle phase data", details: parsed.error.flatten() });
+      }
+      const phase = await storage.createCqiCyclePhase(parsed.data);
       res.json(phase);
     } catch (error) {
       res.status(500).json({ error: "Failed to create cycle phase" });
@@ -5153,7 +5336,11 @@ Key guidelines:
 
   app.patch("/api/cqi/cycle-phases/:id", requireAuth, async (req, res) => {
     try {
-      const phase = await storage.updateCqiCyclePhase(req.params.id, req.body);
+      const parsed = insertCqiCyclePhaseSchema.partial().safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid cycle phase data", details: parsed.error.flatten() });
+      }
+      const phase = await storage.updateCqiCyclePhase(req.params.id, parsed.data);
       res.json(phase);
     } catch (error) {
       res.status(500).json({ error: "Failed to update cycle phase" });
@@ -5171,7 +5358,11 @@ Key guidelines:
 
   app.post("/api/cqi/outcomes", requireAuth, async (req, res) => {
     try {
-      const outcome = await storage.createCqiOutcome(req.body);
+      const parsed = insertCqiOutcomeSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid outcome data", details: parsed.error.flatten() });
+      }
+      const outcome = await storage.createCqiOutcome(parsed.data);
       res.json(outcome);
     } catch (error) {
       res.status(500).json({ error: "Failed to create outcome" });
@@ -5180,7 +5371,11 @@ Key guidelines:
 
   app.patch("/api/cqi/outcomes/:id", requireAuth, async (req, res) => {
     try {
-      const outcome = await storage.updateCqiOutcome(req.params.id, req.body);
+      const parsed = insertCqiOutcomeSchema.partial().safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid outcome data", details: parsed.error.flatten() });
+      }
+      const outcome = await storage.updateCqiOutcome(req.params.id, parsed.data);
       res.json(outcome);
     } catch (error) {
       res.status(500).json({ error: "Failed to update outcome" });

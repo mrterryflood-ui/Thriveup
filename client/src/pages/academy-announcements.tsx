@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Megaphone, Pin, Trash2, Plus } from "lucide-react";
 import { ErrorRetry } from "@/components/error-retry";
+import { useToast } from "@/hooks/use-toast";
 import { PageHeader } from "@/components/page-header";
 import type { Announcement } from "@shared/schema";
 
@@ -54,6 +55,7 @@ function getCategoryBadge(category: string) {
 
 export default function AcademyAnnouncementsPage() {
   const { user, isLoading: authLoading } = useAuth();
+  const { toast } = useToast();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [category, setCategory] = useState("general");
@@ -78,6 +80,10 @@ export default function AcademyAnnouncementsPage() {
       setCategory("general");
       setPinned(false);
       setShowForm(false);
+      toast({ title: "Announcement Posted", description: "Your announcement has been published successfully." });
+    },
+    onError: (error: Error) => {
+      toast({ title: "Failed to Post", description: error.message, variant: "destructive" });
     },
   });
 
@@ -87,6 +93,10 @@ export default function AcademyAnnouncementsPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/announcements"] });
+      toast({ title: "Announcement Deleted", description: "The announcement has been removed." });
+    },
+    onError: (error: Error) => {
+      toast({ title: "Failed to Delete", description: error.message, variant: "destructive" });
     },
   });
 

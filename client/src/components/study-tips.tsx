@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Lightbulb, ThumbsUp, Send, LogIn } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/use-auth";
+import { useToast } from "@/hooks/use-toast";
 import type { StudyTip } from "@shared/schema";
 
 function formatTimeAgo(date: string | Date | null): string {
@@ -26,6 +27,7 @@ function formatTimeAgo(date: string | Date | null): string {
 export default function StudyTips({ moduleId }: { moduleId: string }) {
   const [tipText, setTipText] = useState("");
   const { isAuthenticated } = useAuth();
+  const { toast } = useToast();
 
   const { data: tips, isLoading, error } = useQuery<StudyTip[]>({
     queryKey: ["/api/modules", moduleId, "tips"],
@@ -39,6 +41,10 @@ export default function StudyTips({ moduleId }: { moduleId: string }) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/modules", moduleId, "tips"] });
       setTipText("");
+      toast({ title: "Tip Shared", description: "Your study tip has been posted." });
+    },
+    onError: (error: Error) => {
+      toast({ title: "Failed to Share Tip", description: error.message, variant: "destructive" });
     },
   });
 
@@ -49,6 +55,10 @@ export default function StudyTips({ moduleId }: { moduleId: string }) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/modules", moduleId, "tips"] });
+      toast({ title: "Upvoted", description: "You upvoted this tip." });
+    },
+    onError: (error: Error) => {
+      toast({ title: "Failed to Upvote", description: error.message, variant: "destructive" });
     },
   });
 

@@ -132,10 +132,11 @@ function AssessmentCard({ assessment, onStart, lastResult }: {
   );
 }
 
-function AssessmentTaker({ assessment, onComplete, onCancel }: {
+function AssessmentTaker({ assessment, onComplete, onCancel, isSubmitting }: {
   assessment: HealthAssessment;
   onComplete: (responses: Record<string, number>, totalScore: number) => void;
   onCancel: () => void;
+  isSubmitting?: boolean;
 }) {
   const [currentQ, setCurrentQ] = useState(0);
   const [responses, setResponses] = useState<Record<string, number>>({});
@@ -181,6 +182,7 @@ function AssessmentTaker({ assessment, onComplete, onCancel }: {
               variant="outline"
               className="w-full justify-start text-left h-auto py-3 px-4"
               onClick={() => handleAnswer(i)}
+              disabled={isSubmitting}
               data-testid={`button-option-${i}`}
             >
               {option}
@@ -514,6 +516,7 @@ export default function HealthWellnessPage() {
           assessment={activeAssessment}
           onComplete={handleCompleteAssessment}
           onCancel={() => setActiveAssessmentId(null)}
+          isSubmitting={submitMutation.isPending}
         />
       </div>
     );

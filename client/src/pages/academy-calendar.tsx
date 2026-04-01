@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar, Clock, Plus, Trash2, Loader2 } from "lucide-react";
 import { ErrorRetry } from "@/components/error-retry";
+import { useToast } from "@/hooks/use-toast";
 import { PageHeader } from "@/components/page-header";
 import type { AcademyEvent } from "@shared/schema";
 
@@ -126,6 +127,7 @@ function EventSection({ title, events, isAdmin, onDelete }: { title: string; eve
 export default function AcademyCalendarPage() {
   useEffect(() => { document.title = 'Calendar | ThriveUp Academy'; }, []);
   const { user } = useAuth();
+  const { toast } = useToast();
   const isAdmin = !!(user as any)?.isAdmin;
 
   const [title, setTitle] = useState("");
@@ -157,6 +159,10 @@ export default function AcademyCalendarPage() {
       setEventTime("");
       setCategory("school");
       setShowForm(false);
+      toast({ title: "Event Created", description: "Your event has been added to the calendar." });
+    },
+    onError: (error: Error) => {
+      toast({ title: "Failed to Create Event", description: error.message, variant: "destructive" });
     },
   });
 
@@ -166,6 +172,10 @@ export default function AcademyCalendarPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/events"] });
+      toast({ title: "Event Deleted", description: "The event has been removed from the calendar." });
+    },
+    onError: (error: Error) => {
+      toast({ title: "Failed to Delete Event", description: error.message, variant: "destructive" });
     },
   });
 

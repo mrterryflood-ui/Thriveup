@@ -10,6 +10,7 @@ import {
   Loader2, Sparkles, Phone, ExternalLink, AlertTriangle,
   History, Minimize2, Maximize2, Bot, User,
 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface NavigatorMessage {
   id?: string;
@@ -105,6 +106,7 @@ function renderInlineContent(text: string) {
 }
 
 export function AINavigator() {
+  const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [view, setView] = useState<"chat" | "history">("chat");
@@ -124,6 +126,10 @@ export function AINavigator() {
     mutationFn: (id: string) => apiRequest("DELETE", `/api/navigator/conversations/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/navigator/conversations"] });
+      toast({ title: "Conversation deleted", description: "The conversation has been removed." });
+    },
+    onError: (error: Error) => {
+      toast({ title: "Failed to Delete", description: error.message, variant: "destructive" });
     },
   });
 

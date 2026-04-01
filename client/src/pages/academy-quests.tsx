@@ -22,6 +22,7 @@ import {
   Target,
 } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
+import { useToast } from "@/hooks/use-toast";
 
 interface Quest {
   id: string;
@@ -102,6 +103,7 @@ function LoadingSkeleton() {
 
 export default function AcademyQuestsPage() {
   useEffect(() => { document.title = 'Daily Quests | ThriveUp Academy'; }, []);
+  const { toast } = useToast();
   const { data: quests, isLoading: questsLoading, error: questsError, refetch: refetchQuests } = useQuery<Quest[]>({
     queryKey: ["/api/academy/quests"],
   });
@@ -117,6 +119,10 @@ export default function AcademyQuestsPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/academy/quests"] });
       queryClient.invalidateQueries({ queryKey: ["/api/academy/panther-power"] });
+      toast({ title: "Quest Complete! \u{1F389}", description: "Great job! Your Panther Power has been updated." });
+    },
+    onError: (error: Error) => {
+      toast({ title: "Failed to Complete Quest", description: error.message, variant: "destructive" });
     },
   });
 

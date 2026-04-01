@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import {
   ClipboardList, Plus, Clock, Users, BarChart3, AlertCircle,
   CheckCircle2, Calendar, MapPin, User, Search, ChevronDown, ChevronRight,
-  FileText, Activity
+  FileText, Activity, Loader2,
 } from "lucide-react";
 import type { ParticipantProfile, ServiceRecord } from "@shared/schema";
 
@@ -83,7 +83,7 @@ export default function ServiceDelivery() {
   const [assigningFacilitator, setAssigningFacilitator] = useState(false);
   const [facilitatorInput, setFacilitatorInput] = useState("");
 
-  const { data: rawParticipants } = useQuery<ParticipantProfile[]>({ queryKey: ["/api/intake/participants"] });
+  const { data: rawParticipants, isLoading } = useQuery<ParticipantProfile[]>({ queryKey: ["/api/intake/participants"] });
   const participants = rawParticipants ?? [];
   const { data: rawServiceRecords } = useQuery<ServiceRecord[]>({
     queryKey: ["/api/intake/services", selectedParticipant],
@@ -144,6 +144,8 @@ export default function ServiceDelivery() {
   const selectedProfile = participants.find(p => p.id === selectedParticipant);
 
   const followUps = allServices.filter(s => s.followUpNeeded && s.status !== "follow_up_completed");
+
+  if (isLoading) return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>;
 
   return (
     <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-6">

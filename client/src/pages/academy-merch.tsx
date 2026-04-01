@@ -91,6 +91,7 @@ export default function AcademyMerchPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/academy/merch/orders"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/academy/wallet"] });
       setSelectedItem(null);
       setOrderQuantity(1);
       toast({ title: "Order placed", description: "Your order has been submitted successfully." });
