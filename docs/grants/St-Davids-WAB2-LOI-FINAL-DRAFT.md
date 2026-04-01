@@ -14,7 +14,7 @@ County boundaries are administrative lines. Poverty is not.
 
 The Collaborative Advocate Foundation proposes to deploy a community-based benefits enrollment initiative across all five counties, placing trained Community Health Workers in the 198 highest-barrier census tracts — neighborhoods where poverty, limited English proficiency, lack of broadband, and lack of transportation compound to create enrollment deserts.
 
-Our approach is direct: screen families for nine federal and state benefit programs, assist with applications on-site, and follow each family through enrollment and annual renewal. We do not refer and hope. We enroll and track. Our initiative follows an implementation science framework with real-time measurement. Our data methodology, Census tract analysis, and evidence chain are publicly available and verifiable at thriveupacademy.replit.app/sdoh-explorer.
+Our approach is direct: screen families for nine federal and state benefit programs, assist with applications on-site, and follow each family through enrollment and annual renewal. We do not refer and hope. We enroll and track. Our initiative follows an implementation science framework with real-time measurement. Our data methodology, Census tract analysis, and evidence chain are publicly available and verifiable at thrivingcommunitiesforall.com/sdoh-explorer.
 
 We are building this initiative with partners already embedded in these communities. The Cities of Pflugerville and Manor provide municipal touchpoints for enrollment in Williamson and Travis counties. Frost Bank brings community financial presence and connection to EITC and Child Tax Credit enrollment. Austin Community College, through Professor Laura Franco, provides campus-based enrollment access reaching students and families — many near-poverty and benefits-eligible — across Travis, Williamson, and Hays counties.
 
@@ -34,4 +34,5 @@ We are asking for the resources to be that effort.
 **EIN:** 41-3618003
 **Address:** 17912 Stefano Drive, Pflugerville, TX 78660 (Williamson County)
 **Contact:** Dr. Terry Flood, mr.terryflood@gmail.com, 254-319-8460
-**Public Data Platform:** thriveupacademy.replit.app/sdoh-explorer
+**Public Data Platform:** thrivingcommunitiesforall.com/sdoh-explorer
+**Website:** https://thrivingcommunitiesforall.com
