@@ -138,3 +138,9 @@ id = "oTIREMYjxTMJFXhcsSyMr"
 uri = "file://TCAF_Federal_Health_Grants_April_2026.md"
 type = "text"
 title = "TCAF Federal Health Grant Opportunities — April 1, 2026"
+
+[[outputs]]
+id = "PN9IqfR6KRSe2-RO9Vw0j"
+uri = "file://TCAF_RFPMart_Health_RFP_Analysis_April_2026.md"
+type = "text"
+title = "TCAF RFPMart Health RFP Deep Analysis — April 2026"
