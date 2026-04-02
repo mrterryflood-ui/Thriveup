@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import {
   Users, Shield, Heart, Globe, MapPin, Link2,
   ShieldCheck, FileText, ArrowRight, ClipboardCheck,
-  Brain, BarChart3, Target, Network, Search,
+  Brain, BarChart3, Target, Network, Search, HandHeart,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -22,6 +22,7 @@ const NAV_MAP: Record<string, CrossNavItem[]> = {
     { title: "Prevention Strategies", description: "EBPs, environmental strategies, and CFIR", href: "/prevention-strategies", icon: ShieldCheck, metricKey: "activeStrategies" },
   ],
   coalition: [
+    { title: "Get Help Now", description: "CPP service hub — all HHSC categories in one place", href: "/get-help", icon: HandHeart },
     { title: "LOI Writer", description: "Draft & validate your 500-word LOI with real data", href: "/loi-writer", icon: FileText },
     { title: "Benefits Screener", description: "9-program screening tool for field use", href: "/benefits-screener", icon: ClipboardCheck },
     { title: "SDOH Impact Chain", description: "Visualize the poverty → crime chain across 5 counties", href: "/sdoh-chain", icon: Link2 },
@@ -64,6 +65,14 @@ const NAV_MAP: Record<string, CrossNavItem[]> = {
     { title: "Coalition Portal", description: "Partner network and 5-county strategy", href: "/coalition", icon: Users },
     { title: "LOI Writer", description: "Turn city comparison insights into grant narrative", href: "/loi-writer", icon: FileText },
     { title: "Benefits Screener", description: "Screen families across all programs", href: "/benefits-screener", icon: ClipboardCheck },
+    { title: "Community Map", description: "GIS view of enrollment gaps by census tract", href: "/community-map", icon: MapPin },
+  ],
+  "get-help": [
+    { title: "Benefits Screener", description: "Screen for 9 programs in minutes", href: "/benefits-screener", icon: ClipboardCheck },
+    { title: "Resource Finder", description: "Search resources by state and category", href: "/resources", icon: Search },
+    { title: "Community Resource Directory", description: "National organizations with local chapters", href: "/resource-directory", icon: Users },
+    { title: "SDOH Explorer", description: "Live Census data for any US county cluster", href: "/sdoh-explorer", icon: Search },
+    { title: "Ecosystem Hub", description: "24-platform command center", href: "/ecosystem", icon: Network },
     { title: "Community Map", description: "GIS view of enrollment gaps by census tract", href: "/community-map", icon: MapPin },
   ],
   "prevention-strategies": [

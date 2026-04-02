@@ -82,6 +82,7 @@ const AIToolsWorkspacePage = lazy(() => import("@/pages/ai-tools-workspace"));
 const ImplementationRecommendationsPage = lazy(() => import("@/pages/implementation-recommendations"));
 const PrivacyPolicyPage = lazy(() => import("@/pages/privacy-policy"));
 const ResourceFinderPage = lazy(() => import("@/pages/resource-finder"));
+const GetHelpPage = lazy(() => import("@/pages/get-help"));
 const ImpactPage = lazy(() => import("@/pages/impact"));
 const APIDocsPage = lazy(() => import("@/pages/api-docs"));
 const StakeholderPresentationPage = lazy(() => import("@/pages/stakeholder-presentation"));
@@ -266,6 +267,7 @@ function AppRouter() {
       <Route path="/implementation" component={ImplementationRecommendationsPage} />
       <Route path="/privacy" component={PrivacyPolicyPage} />
       <Route path="/resources" component={ResourceFinderPage} />
+      <Route path="/get-help" component={GetHelpPage} />
       <Route path="/impact" component={ImpactPage} />
       <Route path="/api-docs" component={APIDocsPage} />
       <Route path="/grants" component={GrantHubPage} />
