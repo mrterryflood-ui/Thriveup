@@ -156,3 +156,9 @@ id = "FrQPadYHrD4aZ-mKwBby7"
 uri = "file://TCAF_Staffing_RFP_Opportunities_April_2026.md"
 type = "text"
 title = "TCAF + M&T Consulting — Staffing RFP Opportunities (25+ Low-Hanging Fruit)"
+
+[[outputs]]
+id = "v3M7_g6rTuqJtb2u_pzzr"
+uri = "file://docs/grants/TCAF-Coalition-Partner-Presentation.md"
+type = "text"
+title = "Coalition Partner Presentation — We All Benefit 2.0"
