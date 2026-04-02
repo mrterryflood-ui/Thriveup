@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { AlertCircle, Home, LayoutDashboard, GraduationCap, ArrowLeft, Briefcase, Sparkles, BookOpen, MapPin } from "lucide-react";
+import { AlertCircle, Home, ArrowLeft, HandHeart, Search, Shield, GraduationCap, MapPin, Briefcase, Phone } from "lucide-react";
 import { Link } from "wouter";
 
 export default function NotFound() {
@@ -13,30 +13,24 @@ export default function NotFound() {
         <CardContent className="pt-6">
           <div className="flex mb-4 gap-2 items-center flex-wrap">
             <AlertCircle className="h-8 w-8 text-destructive" />
-            <h1 className="text-2xl font-bold" data-testid="text-404-title">404 Page Not Found</h1>
+            <h1 className="text-2xl font-bold" data-testid="text-404-title">Page Not Found</h1>
           </div>
 
           <p className="mt-4 text-sm text-muted-foreground" data-testid="text-404-description">
-            The page you're looking for doesn't exist or has been moved. Try one of the links below to get back on track.
+            The page you're looking for doesn't exist or has been moved. Use the links below to find what you need.
           </p>
 
           <div className="mt-6 flex flex-col gap-2">
             <Button variant="default" asChild>
+              <Link href="/get-help" data-testid="link-get-help">
+                <HandHeart className="mr-2 h-4 w-4" />
+                Get Help Now
+              </Link>
+            </Button>
+            <Button variant="outline" asChild>
               <Link href="/" data-testid="link-home">
                 <Home className="mr-2 h-4 w-4" />
                 Go to Home
-              </Link>
-            </Button>
-            <Button variant="outline" asChild>
-              <Link href="/dashboard" data-testid="link-dashboard">
-                <LayoutDashboard className="mr-2 h-4 w-4" />
-                Dashboard
-              </Link>
-            </Button>
-            <Button variant="outline" asChild>
-              <Link href="/curriculum" data-testid="link-curriculum">
-                <GraduationCap className="mr-2 h-4 w-4" />
-                AI Curriculum
               </Link>
             </Button>
             <Button variant="ghost" onClick={() => window.history.back()} data-testid="button-go-back" aria-label="Go back to previous page">
@@ -46,21 +40,25 @@ export default function NotFound() {
           </div>
 
           <div className="mt-6 pt-4 border-t">
-            <p className="text-xs font-medium text-muted-foreground mb-3">Popular pages:</p>
+            <p className="text-xs font-medium text-muted-foreground mb-3">Looking for help?</p>
             <div className="grid grid-cols-2 gap-2">
-              <Link href="/academy/careers" className="text-xs text-primary hover:underline flex items-center gap-1" data-testid="link-popular-careers">
-                <Briefcase className="h-3 w-3" /> Career Explorer
-              </Link>
-              <Link href="/ai-companion" className="text-xs text-primary hover:underline flex items-center gap-1" data-testid="link-popular-spark">
-                <Sparkles className="h-3 w-3" /> Ask Spark
-              </Link>
-              <Link href="/ai-tools" className="text-xs text-primary hover:underline flex items-center gap-1" data-testid="link-popular-tools">
-                <BookOpen className="h-3 w-3" /> AI Creation Studio
+              <Link href="/benefits-screener" className="text-xs text-primary hover:underline flex items-center gap-1" data-testid="link-popular-screener">
+                <Shield className="h-3 w-3" /> Benefits Screener
               </Link>
               <Link href="/resources" className="text-xs text-primary hover:underline flex items-center gap-1" data-testid="link-popular-resources">
-                <MapPin className="h-3 w-3" /> Resource Finder
+                <Search className="h-3 w-3" /> Resource Finder
+              </Link>
+              <Link href="/ecosystem" className="text-xs text-primary hover:underline flex items-center gap-1" data-testid="link-popular-ecosystem">
+                <MapPin className="h-3 w-3" /> Ecosystem Hub
+              </Link>
+              <Link href="/resource-directory" className="text-xs text-primary hover:underline flex items-center gap-1" data-testid="link-popular-directory">
+                <Briefcase className="h-3 w-3" /> Resource Directory
               </Link>
             </div>
+          </div>
+
+          <div className="mt-4 pt-3 border-t text-center">
+            <p className="text-xs text-muted-foreground">Need immediate help? Call <a href="tel:211" className="text-primary font-medium">2-1-1</a></p>
           </div>
         </CardContent>
       </Card>
