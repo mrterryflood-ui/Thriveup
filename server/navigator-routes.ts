@@ -1,6 +1,7 @@
 import type { Express, Request } from "express";
 import { db } from "./storage";
 import { streamAIResponse } from "./ai-provider";
+import { collaborativeStream } from "./collaborative-ai";
 import { searchByState, searchByLocation, generateCommunityNarrative } from "./gis-engine";
 import { searchResources, getResourceCategories } from "./resource-engine";
 import { navigatorConversations, navigatorMessages, communityPartners, grantOpportunities, gisContextData } from "@shared/schema";
@@ -468,14 +469,18 @@ export function registerNavigatorRoutes(app: Express) {
     let fullResponse = "";
 
     try {
-      await streamAIResponse({
-        messages: msgs,
-        maxTokens: 1500,
+      await collaborativeStream({
+        prompt: message,
+        systemPrompt: msgs.find(m => m.role === "system")?.content,
+        maxTokens: 2000,
         onChunk: (content) => {
           fullResponse += content;
           res.write(`data: ${JSON.stringify({ content })}\n\n`);
         },
-        onDone: async () => {
+        onMeta: (meta) => {
+          res.write(`data: ${JSON.stringify({ meta: { engines: meta.engines, ragSources: meta.ragSources.length, frameworks: meta.frameworks } })}\n\n`);
+        },
+        onDone: async (result) => {
           try {
             await db.insert(navigatorMessages).values({
               conversationId: activeConversationId,
@@ -492,7 +497,7 @@ export function registerNavigatorRoutes(app: Express) {
           } catch (err) {
             console.error("[Navigator] Error saving response:", err);
           }
-          res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
+          res.write(`data: ${JSON.stringify({ done: true, collaborative: { engines: result.engines.filter(e => !e.error).map(e => e.engine), consensusMethod: result.consensusMethod, ragChunks: result.ragContext.chunkCount, timeMs: result.totalTimeMs } })}\n\n`);
           res.end();
         },
         onError: (error) => {

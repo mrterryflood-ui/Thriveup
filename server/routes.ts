@@ -52,6 +52,7 @@ import { evaluateFlags, getActiveFlags, resolveFlag, runEarlyWarningCheck } from
 import { runFullIngestion, getContextForGeography, searchByState, searchByLocation, generateCommunityNarrative, getStateCoords, getStateName as gisGetStateName } from "./gis-engine";
 import { db } from "./storage";
 import { streamAIResponse, getProviderInfo } from "./ai-provider";
+import { collaborativeStream, collaborativeResponse, collaborativeJSON, getCollaborativeStatus } from "./collaborative-ai";
 import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
 import { registerCrossPlatformRoutes } from "./cross-platform-api";
 import {
@@ -1029,14 +1030,18 @@ export async function registerRoutes(
 
         msgs.push({ role: "user", content: message });
 
-        await streamAIResponse({
-          messages: msgs,
-          maxTokens: 1000,
+        await collaborativeStream({
+          prompt: message,
+          systemPrompt: systemPrompt,
+          maxTokens: 1500,
           onChunk: (content) => {
             res.write(`data: ${JSON.stringify({ content })}\n\n`);
           },
-          onDone: () => {
-            res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
+          onMeta: (meta) => {
+            res.write(`data: ${JSON.stringify({ meta: { engines: meta.engines, ragSources: meta.ragSources.length, frameworks: meta.frameworks } })}\n\n`);
+          },
+          onDone: (result) => {
+            res.write(`data: ${JSON.stringify({ done: true, collaborative: { engines: result.engines.filter(e => !e.error).map(e => e.engine), consensusMethod: result.consensusMethod, ragChunks: result.ragContext.chunkCount, timeMs: result.totalTimeMs } })}\n\n`);
             res.end();
           },
           onError: (error) => {
@@ -1199,14 +1204,18 @@ export async function registerRoutes(
 
         msgs.push({ role: "user", content: message });
 
-        await streamAIResponse({
-          messages: msgs,
-          maxTokens: 1500,
+        await collaborativeStream({
+          prompt: message,
+          systemPrompt: systemPrompt,
+          maxTokens: 2000,
           onChunk: (content) => {
             res.write(`data: ${JSON.stringify({ content })}\n\n`);
           },
-          onDone: () => {
-            res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
+          onMeta: (meta) => {
+            res.write(`data: ${JSON.stringify({ meta: { engines: meta.engines, ragSources: meta.ragSources.length, frameworks: meta.frameworks } })}\n\n`);
+          },
+          onDone: (result) => {
+            res.write(`data: ${JSON.stringify({ done: true, collaborative: { engines: result.engines.filter(e => !e.error).map(e => e.engine), consensusMethod: result.consensusMethod, ragChunks: result.ragContext.chunkCount, timeMs: result.totalTimeMs } })}\n\n`);
             res.end();
           },
           onError: (error) => {
@@ -4324,17 +4333,18 @@ export async function registerRoutes(
       res.setHeader("Connection", "keep-alive");
 
       try {
-        await streamAIResponse({
-          messages: [
-            { role: "system", content: systemMsg },
-            { role: "user", content: prompt },
-          ],
+        await collaborativeStream({
+          prompt,
+          systemPrompt: systemMsg,
           maxTokens: 3000,
           onChunk: (content) => {
             res.write(`data: ${JSON.stringify({ content })}\n\n`);
           },
-          onDone: () => {
-            res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
+          onMeta: (meta) => {
+            res.write(`data: ${JSON.stringify({ meta: { engines: meta.engines, ragSources: meta.ragSources.length, frameworks: meta.frameworks } })}\n\n`);
+          },
+          onDone: (result) => {
+            res.write(`data: ${JSON.stringify({ done: true, collaborative: { engines: result.engines.filter(e => !e.error).map(e => e.engine), consensusMethod: result.consensusMethod, ragChunks: result.ragContext.chunkCount, timeMs: result.totalTimeMs } })}\n\n`);
             res.end();
           },
           onError: (error) => {
@@ -5526,6 +5536,15 @@ Provide a comprehensive MAP-GAP intervention design with discipline recommendati
       });
     } catch (error: any) {
       res.status(500).json({ error: error.message || "Failed to generate recommendation" });
+    }
+  });
+
+  app.get("/api/collaborative-ai/status", async (_req, res) => {
+    try {
+      const status = getCollaborativeStatus();
+      res.json(status);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message || "Failed to get collaborative AI status" });
     }
   });
 

@@ -14,6 +14,7 @@ import type { ReentryMilestone, OutcomeTracking, SupervisionCompliance as Superv
 import { z } from "zod";
 import { eq, desc, sql, and, gte, count } from "drizzle-orm";
 import { generateAIResponse } from "./ai-provider";
+import { collaborativeResponse } from "./collaborative-ai";
 
 const requireApiKey = (req: Request, res: Response, next: Function) => {
   const rawKey = req.headers["x-api-key"];

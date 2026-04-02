@@ -8,6 +8,7 @@ import {
 } from "@shared/schema";
 import { eq, desc, and, count, sql } from "drizzle-orm";
 import { generateAIResponse, generateAIJSON } from "./ai-provider";
+import { collaborativeResponse, collaborativeJSON } from "./collaborative-ai";
 
 const CENSUS_ACS_URL = "https://api.census.gov/data/2022/acs/acs5";
 
@@ -991,12 +992,13 @@ Be specific with numbers. Name neighborhoods. Recommend specific partner types n
         ? `Given this data about ${county.name}, answer this question: ${question}\n\nDATA:\n${dataContext}`
         : `Generate a comprehensive neighborhood-level analysis for ${county.name} that a coalition partner or funder could use to understand:\n1. Where the biggest enrollment gaps are (specific neighborhoods)\n2. What barriers are most significant and how they vary by neighborhood\n3. Which populations are hardest to reach and why\n4. What outreach strategies match the barrier profile\n5. What partner roles are needed and where\n6. How this connects to the broader 5-county coalition\n\nDATA:\n${dataContext}`;
 
-      const insight = await generateAIResponse([
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userPrompt },
-      ], 3000);
+      const collabResult = await collaborativeResponse(userPrompt, {
+        systemPrompt,
+        maxTokens: 3000,
+        topic: `benefits enrollment ${county.name} gap analysis`,
+      });
 
-      res.json({ insight, county: county.name, dataSnapshot: { totalEligible, totalEnrolled, gap: totalEligible - totalEnrolled, tractCount: tractData.length, highNeedTracts: highNeedTracts.length } });
+      res.json({ insight: collabResult.synthesis, county: county.name, dataSnapshot: { totalEligible, totalEnrolled, gap: totalEligible - totalEnrolled, tractCount: tractData.length, highNeedTracts: highNeedTracts.length }, collaborative: { engines: collabResult.engines.filter(e => !e.error).map(e => e.engine), ragChunks: collabResult.ragContext.chunkCount, consensusMethod: collabResult.consensusMethod, timeMs: collabResult.totalTimeMs } });
     } catch (error) {
       console.error("AI insight error:", error);
       res.status(500).json({ error: "Failed to generate AI insight" });
@@ -1139,12 +1141,13 @@ KEY RESOURCES FROM ST. DAVID'S:
 ANNUAL VALUE OF BENEFITS PER PERSON:
 SNAP: $3,024 | Medicaid: $7,200 | CHIP: $2,400 | EITC: $3,584 | WIC: $528 | SSI: $10,092 | SSDI: $16,560 | Marketplace: $5,400 | CTC: $3,600`;
 
-      const summary = await generateAIResponse([
-        { role: "system", content: systemPrompt },
-        { role: "user", content: dataPrompt },
-      ], 8000);
+      const collabResult = await collaborativeResponse(dataPrompt, {
+        systemPrompt,
+        maxTokens: 8000,
+        topic: "benefits coalition executive summary 5-county gap analysis",
+      });
 
-      res.json({ summary, generatedAt: new Date().toISOString(), dataSnapshot: { totalEligible, totalEnrolled, totalGap, counties: countyBreakdowns.length, tracts: tractData.length } });
+      res.json({ summary: collabResult.synthesis, generatedAt: new Date().toISOString(), dataSnapshot: { totalEligible, totalEnrolled, totalGap, counties: countyBreakdowns.length, tracts: tractData.length }, collaborative: { engines: collabResult.engines.filter(e => !e.error).map(e => e.engine), ragChunks: collabResult.ragContext.chunkCount, consensusMethod: collabResult.consensusMethod, timeMs: collabResult.totalTimeMs } });
     } catch (error) {
       console.error("Exec summary error:", error);
       res.status(500).json({ error: "Failed to generate executive summary" });
@@ -1269,17 +1272,19 @@ EMPHASIS: ${emphasize || "Williamson County geographic specificity, renewal supp
 FOCUS: ${focus || "Individual application for Williamson County + collaborative for Bastrop/Caldwell"}
 
 Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowing paragraphs. Do NOT mention "NBA Foundation" or any fake organizations. Start with the problem and human impact, not with TCAF's name.`;
-      const result = await generateAIResponse([
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userPrompt },
-      ], 4000);
+      const collabResult = await collaborativeResponse(userPrompt, {
+        systemPrompt,
+        maxTokens: 4000,
+        topic: "LOI grant writing benefits enrollment coalition",
+      });
 
-      const wordCount = result.split(/\s+/).length;
+      const wordCount = collabResult.synthesis.split(/\s+/).length;
       res.json({
-        loi: result,
+        loi: collabResult.synthesis,
         wordCount,
         dataSnapshot: { totalEligible, totalGap, totalTracts, unclaimed, counties: countyStats.length },
         generatedAt: new Date().toISOString(),
+        collaborative: { engines: collabResult.engines.filter(e => !e.error).map(e => e.engine), ragChunks: collabResult.ragContext.chunkCount, consensusMethod: collabResult.consensusMethod, timeMs: collabResult.totalTimeMs },
       });
     } catch (error) {
       console.error("LOI generation error:", error);

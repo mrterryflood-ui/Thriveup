@@ -680,7 +680,7 @@ async function seedKnowledgeBase() {
   console.log(`[RAG] Seeded ${ECOSYSTEM_KNOWLEDGE.length} knowledge chunks`);
 }
 
-async function buildLiveIntelligenceContext(): Promise<string> {
+export async function buildLiveIntelligenceContext(): Promise<string> {
   const platforms = await db.select().from(ecosystemPlatforms);
   const allAcks = await db.select().from(ecosystemDirectiveAcks);
   const now = Date.now();
@@ -761,7 +761,7 @@ function tokenize(text: string): string[] {
   return text.toLowerCase().replace(/[^a-z0-9\s-]/g, " ").split(/\s+/).filter(w => w.length > 2);
 }
 
-async function retrieveRelevantChunks(query: string, topK: number = 10): Promise<Array<typeof ecosystemKnowledgeChunks.$inferSelect>> {
+export async function retrieveRelevantChunks(query: string, topK: number = 10): Promise<Array<typeof ecosystemKnowledgeChunks.$inferSelect>> {
   const queryTokens = tokenize(query);
   const allChunks = await db.select().from(ecosystemKnowledgeChunks);
 

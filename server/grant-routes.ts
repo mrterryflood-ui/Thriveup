@@ -5,6 +5,7 @@ import type { GrantOpportunity } from "@shared/schema";
 import { z } from "zod";
 import { eq, desc, sql, gte, lte, and, or, ilike } from "drizzle-orm";
 import { generateAIResponse } from "./ai-provider";
+import { collaborativeResponse } from "./collaborative-ai";
 import PDFDocument from "pdfkit";
 import type { SQL } from "drizzle-orm";
 
@@ -1829,10 +1830,12 @@ Write EVERY subsection with substantial depth. Do not summarize or abbreviate. I
       }
       let maxTokens = Math.max(4000, Math.ceil(targetWords * 2.0));
 
-      let draft = await generateAIResponse([
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userPrompt },
-      ], maxTokens);
+      const collabResult = await collaborativeResponse(userPrompt, {
+        systemPrompt,
+        maxTokens,
+        topic: `grant draft ${grantName} ${sectionName}`,
+      });
+      let draft = collabResult.synthesis;
 
       if (targetWords > 0) {
         let currentWords = draft.trim().split(/\s+/).length;
@@ -1862,12 +1865,13 @@ Continue writing the "${sectionName}" section for the ${grantName} grant. Pick u
 
 Do NOT repeat content already written. Do NOT add headers or section labels. Continue as flowing narrative paragraphs. Complete every sentence — never stop mid-sentence.`;
 
-          const continuation = await generateAIResponse([
-            { role: "system", content: systemPrompt },
-            { role: "user", content: continuationPrompt },
-          ], Math.max(4000, Math.ceil(remaining * 2.0)));
+          const contResult = await collaborativeResponse(continuationPrompt, {
+            systemPrompt,
+            maxTokens: Math.max(4000, Math.ceil(remaining * 2.0)),
+            topic: `grant continuation ${grantName} ${sectionName}`,
+          });
 
-          draft = draft.trimEnd() + " " + continuation.trimStart();
+          draft = draft.trimEnd() + " " + contResult.synthesis.trimStart();
           currentWords = draft.trim().split(/\s+/).length;
         }
 
@@ -1876,7 +1880,7 @@ Do NOT repeat content already written. Do NOT add headers or section labels. Con
         }
       }
 
-      res.json({ draft, sectionId, sectionName });
+      res.json({ draft, sectionId, sectionName, collaborative: { engines: collabResult.engines.filter(e => !e.error).map(e => e.engine), consensusMethod: collabResult.consensusMethod, ragChunks: collabResult.ragContext.chunkCount, timeMs: collabResult.totalTimeMs } });
     } catch (error) {
       console.error("Failed to draft section:", error);
       res.status(500).json({ error: "Failed to generate draft" });
@@ -1903,10 +1907,11 @@ Do NOT repeat content already written. Do NOT add headers or section labels. Con
       const refineMinWords = Math.max(inputWords, refineTargetWords);
       let refineMaxTokens = Math.max(4000, Math.ceil(refineMinWords * 2.0));
 
-      let refined = await generateAIResponse([
-        { role: "system", content: systemContent },
-        { role: "user", content: `Grant: ${grantName}\nSection: ${sectionName}\n\nCurrent draft (${inputWords} words — your refined version must be AT LEAST this long):\n${currentDraft}\n\nRefinement instructions:\n${refinementInstructions}\n\nReturn the COMPLETE refined version from beginning to end. Do not skip or summarize any part of the original:` },
-      ], refineMaxTokens);
+      const refineCollab = await collaborativeResponse(
+        `Grant: ${grantName}\nSection: ${sectionName}\n\nCurrent draft (${inputWords} words — your refined version must be AT LEAST this long):\n${currentDraft}\n\nRefinement instructions:\n${refinementInstructions}\n\nReturn the COMPLETE refined version from beginning to end. Do not skip or summarize any part of the original:`,
+        { systemPrompt: systemContent, maxTokens: refineMaxTokens, topic: `grant refine ${grantName} ${sectionName}` }
+      );
+      let refined = refineCollab.synthesis;
 
       if (refineMinWords > 0) {
         let currentWords = refined.trim().split(/\s+/).length;
