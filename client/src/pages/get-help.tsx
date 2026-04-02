@@ -354,7 +354,64 @@ export default function GetHelpPage() {
           </Card>
         )}
 
-        <Card className="mt-8 bg-gradient-to-r from-slate-50 to-blue-50 dark:from-slate-950/20 dark:to-blue-950/20">
+        <Card className="mt-8 border-2 border-blue-200 dark:border-blue-800" data-testid="card-cpp-infrastructure">
+          <CardHeader className="pb-2">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                <Building2 className="h-5 w-5 text-blue-600" />
+              </div>
+              <div>
+                <CardTitle className="text-base">HHSC Community Partner Infrastructure</CardTitle>
+                <CardDescription className="text-xs">TCAF is a certified HHSC Community Partner — trained navigators, physical sites, and digital tools</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <a href="https://www.texascommunitypartnerprogram.com/TCPP_Site_PartnerResources?lang=" target="_blank" rel="noopener noreferrer"
+                className="block" data-testid="link-cpp-resources">
+                <div className="p-3 rounded-lg border hover:border-blue-400 hover:bg-blue-50/50 dark:hover:bg-blue-950/20 transition-all">
+                  <div className="flex items-start gap-2">
+                    <Shield className="h-4 w-4 text-blue-600 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-medium text-sm">TCPP Partner Resources</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">Navigator training, HHSC tools, and partner support materials</p>
+                      <Badge variant="outline" className="mt-1 text-xs">texascommunitypartnerprogram.com <ExternalLink className="h-3 w-3 ml-1" /></Badge>
+                    </div>
+                  </div>
+                </div>
+              </a>
+              <a href="https://library.pflugervilletx.gov/269/Library" target="_blank" rel="noopener noreferrer"
+                className="block" data-testid="link-pflugerville-library">
+                <div className="p-3 rounded-lg border hover:border-green-400 hover:bg-green-50/50 dark:hover:bg-green-950/20 transition-all">
+                  <div className="flex items-start gap-2">
+                    <MapPin className="h-4 w-4 text-green-600 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-medium text-sm">Pflugerville Public Library</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">In-person enrollment site — benefits screening, application help, and navigator access</p>
+                      <Badge variant="outline" className="mt-1 text-xs">Pflugerville, TX <ExternalLink className="h-3 w-3 ml-1" /></Badge>
+                    </div>
+                  </div>
+                </div>
+              </a>
+              <a href="https://www.yourtexasbenefits.com/Learn/Home" target="_blank" rel="noopener noreferrer"
+                className="block" data-testid="link-ytb-learn">
+                <div className="p-3 rounded-lg border hover:border-amber-400 hover:bg-amber-50/50 dark:hover:bg-amber-950/20 transition-all">
+                  <div className="flex items-start gap-2">
+                    <BookOpen className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-medium text-sm">YourTexasBenefits Learn</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">Help clients understand what programs exist and how to apply</p>
+                      <Badge variant="outline" className="mt-1 text-xs">yourtexasbenefits.com <ExternalLink className="h-3 w-3 ml-1" /></Badge>
+                    </div>
+                  </div>
+                </div>
+              </a>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="mt-4 bg-gradient-to-r from-slate-50 to-blue-50 dark:from-slate-950/20 dark:to-blue-950/20">
           <CardContent className="pt-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="text-center">
