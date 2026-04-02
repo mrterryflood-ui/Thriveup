@@ -93,6 +93,7 @@ Every eligible family in the 5-county region is screened, enrolled, and retained
 | City of Manor | Eastern Travis County | Fastest-growing underserved community | Operates enrollment through community centers |
 | Frost Bank | Cross-county | Financial literacy, existing customer relationships | Operates EITC/CTC enrollment through branch locations and financial wellness workshops |
 | ACC / Prof. Laura Franco | Travis, Williamson, Hays | Campus access, student population, Latina leadership | Operates enrollment through student services and campus events |
+| Fountain of Life Ministries / Dads Care 2 (Eric Hargrave) | Cross-county | Fatherhood empowerment, reentry support, workforce development, parenting education | Operates father-specific benefits enrollment through fatherhood programming and mentoring |
 | Faith-based partners (growing) | All 5 counties | Deep congregational trust | Operates enrollment through existing ministry and outreach |
 | Food pantries/WIC offices (growing) | Bastrop, Caldwell, Hays | Existing access point for food-insecure families | Co-locates enrollment with food distribution |
 

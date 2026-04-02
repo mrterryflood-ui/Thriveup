@@ -104,6 +104,16 @@ Policy changes are too fast, too complex. Organizations need peer networks, real
 
 ---
 
+### Fountain of Life Ministries / Dads Care 2 — Fatherhood & Family Stability
+**Who:** Eric Hargrave, Program Director / Fatherhood Master Trainer
+**What you bring:** Structured fatherhood empowerment programming — parenting education, mentoring, workforce support, and reentry navigation for fathers facing barriers like unemployment, incarceration reentry, housing instability, and child support challenges
+**Your role:** Father-specific benefits enrollment and family stabilization — connecting fathers in your programs to SNAP, Medicaid, EITC, CTC, and workforce supports through TCAF's screening platform
+**What this means for your families:** Fathers in the Dads Care 2 program get screened for every benefit their family qualifies for — not just workforce services, but food security, healthcare, and tax credits. Stronger fathers build stronger families.
+**What TCAF provides you:** Benefits screening integrated into your fatherhood programming, enrollment tracking for your participants, data on family outcomes for your own grant reporting, and connection to the full coalition network
+**Website:** dadscare2.com | **EIN:** 47-4824735
+
+---
+
 ### Future Coalition Partners (Growing as We Go)
 As we demonstrate results, the coalition expands:
 
@@ -130,6 +140,9 @@ Frost Bank hosts a financial wellness workshop. A TCAF CHW screens attendees for
 
 **Scenario 4: Manor Community Center**
 A mixed-status family attends a community health fair. They're afraid of government systems. A CHW — a neighbor they know — explains that their U.S. citizen children qualify for Medicaid and CHIP without affecting the parents' immigration status. The family decides to enroll the children. Trust, not pressure.
+
+**Scenario 5: Dads Care 2 Fatherhood Program**
+A father in Eric Hargrave's Dads Care 2 program is rebuilding after incarceration. He's focused on employment and co-parenting — he doesn't know his children qualify for Medicaid and CHIP, or that he's eligible for SNAP and EITC. During a Dads Care 2 session, a TCAF screener identifies $9,608/year in benefits for his family. The CHW helps him apply on site. Stronger father, more stable family.
 
 ---
 
