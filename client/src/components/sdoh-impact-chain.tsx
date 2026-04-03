@@ -7,7 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import {
   DollarSign, GraduationCap, FileX, HeartPulse, UsersRound,
   ShieldAlert, ArrowDown, Zap, ChevronDown, ChevronUp,
-  Link2, Target, TrendingDown, Loader2, MapPin, AlertTriangle,
+  Link2, Target, TrendingDown, Loader2, MapPin, AlertTriangle, BarChart3,
   CheckCircle2, Lightbulb, ArrowRight
 } from "lucide-react";
 
@@ -113,9 +113,19 @@ function ChainLink({ link, isLast }: { link: any; isLast: boolean }) {
   );
 }
 
-export function SDOHImpactChain({ compact = false }: { compact?: boolean }) {
+export function SDOHImpactChain({ compact = false, stateCode, countyCodes }: { compact?: boolean; stateCode?: string; countyCodes?: string }) {
+  const isLive = !!(stateCode && countyCodes);
   const { data, isLoading, error } = useQuery({
-    queryKey: ["/api/benefits/sdoh-impact-chain"],
+    queryKey: isLive
+      ? ["/api/benefits/sdoh-impact-chain/live", stateCode, countyCodes]
+      : ["/api/benefits/sdoh-impact-chain"],
+    queryFn: isLive
+      ? async () => {
+          const res = await fetch(`/api/benefits/sdoh-impact-chain/live?state=${stateCode}&counties=${countyCodes}`);
+          if (!res.ok) throw new Error("Failed to fetch");
+          return res.json();
+        }
+      : undefined,
   });
 
   if (isLoading) {
@@ -183,13 +193,12 @@ export function SDOHImpactChain({ compact = false }: { compact?: boolean }) {
     <div className="space-y-2" data-testid="sdoh-chain-full">
       <div className="text-center mb-6">
         <Badge variant="outline" className="mb-3 text-sm px-3 py-1">
-          <Link2 className="h-3.5 w-3.5 mr-1.5" /> SDOH Impact Chain — 5-County Analysis
+          <Link2 className="h-3.5 w-3.5 mr-1.5" /> SDOH Impact Chain — {chain.region || "Live Analysis"} {chain.interventionSummary?.tractsCovered ? `(${chain.interventionSummary.tractsCovered} tracts)` : ""}
         </Badge>
         <h2 className="text-2xl md:text-3xl font-bold mb-2">Break the Chain, Change the Outcome</h2>
         <p className="text-muted-foreground max-w-3xl mx-auto">
           Poverty, education gaps, benefit enrollment failures, health insecurity, social isolation, and crime
-          are links in the same chain. These problems don't respect county lines — a family in North Austin
-          faces the same chain as a family in Pflugerville or Manor. See the chain. Break it with targeted interventions.
+          are links in the same chain. These problems don't respect county lines. See the chain. Break it with targeted interventions.
         </p>
       </div>
 
@@ -200,10 +209,10 @@ export function SDOHImpactChain({ compact = false }: { compact?: boolean }) {
             <div>
               <p className="text-sm font-bold text-blue-800 dark:text-blue-300 mb-1">No Boundaries, No Silos</p>
               <p className="text-sm text-blue-700 dark:text-blue-400">
-                Travis and Williamson counties are bordered by name only. North Austin IS Pflugerville IS Manor.
-                The SDOH Impact Chain cuts across every artificial boundary. Our AI engines, RPLICE framework,
-                GIS mapping, and Benefits Intelligence System work as one connected ecosystem to show the complete picture
-                and deliver targeted interventions at every link in the chain.
+                County boundaries are political constructs — the SDOH Impact Chain cuts across every artificial line.
+                Our AI engines, RPLICE framework, GIS mapping, and Benefits Intelligence System work as one connected
+                ecosystem to show the complete picture and deliver targeted interventions at every link in the chain.
+                {chain.threeRealities ? " Research Reality (tract data) vs. Political Reality (county averages) vs. Ground Truth (lived experience) — all three exposed." : ""}
               </p>
             </div>
           </div>
@@ -253,6 +262,46 @@ export function SDOHImpactChain({ compact = false }: { compact?: boolean }) {
                 </div>
               ))}
             </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {chain.threeRealities && (
+        <Card className="mt-4 border-2 border-blue-200 dark:border-blue-800 bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-950/20 dark:to-indigo-950/20">
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <AlertTriangle className="h-5 w-5 text-blue-600" /> The Three Realities
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="p-3 rounded-lg bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800">
+              <p className="text-xs font-bold uppercase tracking-wider text-green-700 dark:text-green-400 mb-1">Research Reality (Census Tract Data)</p>
+              <p className="text-sm">{chain.threeRealities.research}</p>
+            </div>
+            <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800">
+              <p className="text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400 mb-1">Political Reality (County Averages)</p>
+              <p className="text-sm">{chain.threeRealities.political}</p>
+            </div>
+            <div className="p-3 rounded-lg bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800">
+              <p className="text-xs font-bold uppercase tracking-wider text-red-700 dark:text-red-400 mb-1">Ground Truth (Lived Experience)</p>
+              <p className="text-sm">{chain.threeRealities.groundTruth}</p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {chain.crimeEducationCorrelation && (
+        <Card className="mt-4 border-2 border-slate-300 dark:border-slate-700 bg-gradient-to-br from-slate-50/50 to-gray-50/50 dark:from-slate-950/20 dark:to-gray-950/20">
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <TrendingDown className="h-5 w-5 text-slate-600" /> Crime-Education Correlation
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <p className="text-sm"><strong>Finding:</strong> {chain.crimeEducationCorrelation.finding}</p>
+            <p className="text-sm"><strong>Principle:</strong> {chain.crimeEducationCorrelation.principle}</p>
+            <p className="text-sm"><strong>Displacement:</strong> {chain.crimeEducationCorrelation.displacement}</p>
+            <p className="text-sm text-green-700 dark:text-green-400"><strong>Education as Protection:</strong> {chain.crimeEducationCorrelation.educationProtective}</p>
           </CardContent>
         </Card>
       )}

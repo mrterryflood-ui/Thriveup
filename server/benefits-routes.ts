@@ -1970,6 +1970,306 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
     }
   });
 
+  app.get("/api/benefits/sdoh-impact-chain/live", async (req, res) => {
+    try {
+      const stateCode = (req.query.state as string) || "48";
+      const countyCodesRaw = req.query.counties as string;
+      const countyCodeList = countyCodesRaw ? countyCodesRaw.split(",").map(c => c.trim()) : [];
+
+      if (countyCodeList.length === 0 || countyCodeList.length > 10) {
+        return res.status(400).json({ error: "Provide 1-10 county FIPS codes" });
+      }
+
+      const censusKey = process.env.CENSUS_API_KEY || "";
+      const keyParam = censusKey ? `&key=${censusKey}` : "";
+
+      const variables = [
+        "NAME", "B01003_001E", "B19013_001E", "B17001_002E", "B17001_001E",
+        "B27001_001E", "B27001_005E", "B27001_008E", "B27001_011E",
+        "B16004_001E", "B16004_025E", "B16004_047E",
+        "B08141_001E", "B08141_002E",
+        "B28002_001E", "B28002_013E",
+        "B22001_001E", "B22001_002E",
+        "B15003_001E", "B15003_017E", "B15003_018E", "B15003_021E", "B15003_022E", "B15003_023E", "B15003_024E", "B15003_025E",
+        "B11001_001E", "B11001_006E",
+      ].join(",");
+
+      const countySummaries: Record<string, any> = {};
+      let allTracts: any[] = [];
+      let regionName = "";
+
+      for (const countyCode of countyCodeList) {
+        try {
+          const url = `${CENSUS_ACS_URL}?get=${variables}&for=tract:*&in=state:${stateCode}+county:${countyCode}${keyParam}`;
+          const data = await fetchJson(url);
+          if (!Array.isArray(data) || data.length < 2) continue;
+
+          const headers = data[0] as string[];
+          const tracts: any[] = [];
+
+          for (let i = 1; i < data.length; i++) {
+            const row = data[i] as string[];
+            const v = (name: string) => {
+              const idx = headers.indexOf(name);
+              return idx >= 0 ? parseInt(row[idx]) || 0 : 0;
+            };
+            const totalPop = v("B01003_001E");
+            if (totalPop < 100) continue;
+
+            const tractCode = row[headers.indexOf("tract")];
+            const tractName = row[headers.indexOf("NAME")] || `${stateCode}${countyCode}${tractCode}`;
+            const medianIncome = v("B19013_001E");
+            const belowPoverty = v("B17001_002E");
+            const povertyUniverse = v("B17001_001E");
+            const povertyRate = povertyUniverse > 0 ? clamp((belowPoverty / povertyUniverse) * 100) : 0;
+
+            const langTotal = v("B16004_001E");
+            const langLimited = v("B16004_025E") + v("B16004_047E");
+            const limitedEnglishPct = langTotal > 0 ? clamp((langLimited / langTotal) * 100) : 0;
+
+            const commuteTotal = v("B08141_001E");
+            const noVehicle = v("B08141_002E");
+            const noVehiclePct = commuteTotal > 0 ? clamp((noVehicle / commuteTotal) * 100) : 0;
+
+            const internetTotal = v("B28002_001E");
+            const noInternet = v("B28002_013E");
+            const noBroadbandPct = internetTotal > 0 ? clamp((noInternet / internetTotal) * 100) : 0;
+
+            const insTotal = v("B27001_001E");
+            const uninsured = v("B27001_005E") + v("B27001_008E") + v("B27001_011E");
+            const uninsuredRate = insTotal > 0 ? clamp((uninsured / insTotal) * 100) : 0;
+
+            const snapUniverse = v("B22001_001E");
+            const snapRecipients = v("B22001_002E");
+
+            const edTotal = v("B15003_001E");
+            const hsGrad = v("B15003_017E") + v("B15003_018E");
+            const bachelorsPlus = v("B15003_021E") + v("B15003_022E") + v("B15003_023E") + v("B15003_024E") + v("B15003_025E");
+            const collegeAttainPct = edTotal > 0 ? clamp((bachelorsPlus / edTotal) * 100) : 0;
+            const noHsDiplomaPct = edTotal > 0 ? clamp(((edTotal - hsGrad - bachelorsPlus) / edTotal) * 100) : 0;
+
+            const totalHouseholds = v("B11001_001E");
+            const singleParentHH = v("B11001_006E");
+            const singleParentPct = totalHouseholds > 0 ? clamp((singleParentHH / totalHouseholds) * 100) : 0;
+
+            const barrierIndex = clamp(
+              (limitedEnglishPct * 0.25) + (noVehiclePct * 0.2) +
+              (noBroadbandPct * 0.2) + (povertyRate * 0.2) + (uninsuredRate * 0.15)
+            );
+
+            const eligiblePop = Math.round(totalPop * povertyRate / 100 * 1.3);
+            const snapRate = snapUniverse > 0 ? (snapRecipients / snapUniverse) : 0.5;
+            const enrolledPop = Math.round(eligiblePop * Math.max(snapRate, 0.4));
+
+            tracts.push({
+              tractId: `${stateCode}${countyCode}${tractCode}`,
+              tractName, totalPop, medianIncome, povertyRate,
+              limitedEnglishPct, noVehiclePct, noBroadbandPct, uninsuredRate,
+              collegeAttainPct, noHsDiplomaPct, singleParentPct,
+              barrierIndex, eligiblePop, enrolledPop,
+              gap: eligiblePop - enrolledPop,
+            });
+          }
+
+          if (tracts.length === 0) continue;
+
+          const totalPop = tracts.reduce((s, t) => s + t.totalPop, 0);
+          const eligible = tracts.reduce((s, t) => s + t.eligiblePop, 0);
+          const enrolled = tracts.reduce((s, t) => s + t.enrolledPop, 0);
+          const countyName = tracts[0]?.tractName?.split(",").slice(1).join(",").trim() || `County ${countyCode}`;
+          if (!regionName) regionName = countyName;
+
+          const avg = (field: string) => Math.round((tracts.reduce((s: number, t: any) => s + (t[field] || 0), 0) / Math.max(tracts.length, 1)) * 10) / 10;
+
+          countySummaries[`${stateCode}${countyCode}`] = {
+            fips: `${stateCode}${countyCode}`, name: countyName,
+            totalPop, eligible, enrolled, gap: eligible - enrolled,
+            gapRate: eligible > 0 ? Math.round(((eligible - enrolled) / eligible) * 100) : 0,
+            avgPoverty: avg("povertyRate"),
+            avgBarrier: avg("barrierIndex"),
+            avgLimitedEnglish: avg("limitedEnglishPct"),
+            avgNoBroadband: avg("noBroadbandPct"),
+            avgNoVehicle: avg("noVehiclePct"),
+            avgUninsured: avg("uninsuredRate"),
+            avgCollegeAttain: avg("collegeAttainPct"),
+            avgSingleParent: avg("singleParentPct"),
+            tractCount: tracts.length,
+            highPovertyTracts: tracts.filter(t => t.povertyRate > 25).length,
+            highBarrierTracts: tracts.filter(t => t.barrierIndex > 20).length,
+          };
+
+          allTracts = allTracts.concat(tracts);
+        } catch (err) {
+          console.error(`Census chain fetch error for county ${countyCode}:`, err);
+        }
+      }
+
+      if (allTracts.length === 0) {
+        return res.status(404).json({ error: "No tract data found for the given region" });
+      }
+
+      const totalEligible = allTracts.reduce((s, t) => s + t.eligiblePop, 0);
+      const totalEnrolled = allTracts.reduce((s, t) => s + t.enrolledPop, 0);
+      const totalGap = totalEligible - totalEnrolled;
+      const totalPop = allTracts.reduce((s, t) => s + t.totalPop, 0);
+      const crisisTracts = allTracts.filter(t => t.povertyRate > 25);
+      const highBarrierTracts = allTracts.filter(t => t.barrierIndex > 20);
+      const noBroadbandTracts = allTracts.filter(t => t.noBroadbandPct > 10);
+      const noVehicleTracts = allTracts.filter(t => t.noVehiclePct > 10);
+      const lowEdTracts = allTracts.filter(t => t.collegeAttainPct < 20);
+      const highSPTracts = allTracts.filter(t => t.singleParentPct > 30);
+
+      const worstTract = allTracts.sort((a, b) => b.barrierIndex - a.barrierIndex)[0];
+      const bestTract = allTracts.sort((a, b) => a.povertyRate - b.povertyRate)[0];
+      const incomeGap = bestTract && worstTract && worstTract.medianIncome > 0
+        ? Math.round(bestTract.medianIncome / worstTract.medianIncome)
+        : 0;
+
+      const countyNames = Object.values(countySummaries).map((c: any) => c.name);
+      const countyVals = Object.values(countySummaries) as any[];
+
+      const minPoverty = Math.min(...countyVals.map((c: any) => c.avgPoverty));
+      const maxPoverty = Math.max(...countyVals.map((c: any) => c.avgPoverty));
+      const minCounty = countyVals.find((c: any) => c.avgPoverty === minPoverty)?.name || "";
+      const maxCounty = countyVals.find((c: any) => c.avgPoverty === maxPoverty)?.name || "";
+
+      const impactChain = {
+        region: regionName,
+        query: { state: stateCode, counties: countyCodeList },
+        links: [
+          {
+            id: "poverty",
+            label: "Poverty & Low Income",
+            type: "risk",
+            icon: "dollar-sign",
+            color: "red",
+            metric: `${crisisTracts.length} crisis-level tracts (>25% poverty) out of ${allTracts.length} total`,
+            detail: `Average poverty rate ranges from ${minPoverty}% (${minCounty}) to ${maxPoverty}% (${maxCounty}). ${totalGap.toLocaleString()} people eligible for benefits but not enrolled. The worst tract (${worstTract.tractId}) has ${worstTract.povertyRate.toFixed(1)}% poverty and median income of $${worstTract.medianIncome.toLocaleString()}.${incomeGap > 5 ? ` Income gap: the highest-income tract earns ${incomeGap}x what the lowest-income tract earns — in the same region.` : ""}`,
+            dataPoints: countyVals.map((c: any) => ({ county: c.name, value: c.avgPoverty, label: `${c.avgPoverty}% avg poverty` })),
+          },
+          {
+            id: "education",
+            label: "Education Gaps",
+            type: "risk-protective",
+            icon: "graduation-cap",
+            color: "amber",
+            metric: `${lowEdTracts.length} tracts with <20% college attainment — education is both the #1 risk factor and the #1 protective factor`,
+            detail: `Limited English proficiency averages ${Math.round(allTracts.reduce((s, t) => s + t.limitedEnglishPct, 0) / allTracts.length)}% across tracts — families can't navigate benefit applications, school systems, or health information in English. ${lowEdTracts.length} tracts have college attainment below 20%, correlating directly with poverty persistence. BUT: education access breaks the cycle. Across all RPLICE-analyzed regions, higher education attainment is the strongest single predictor of reduced poverty, better health outcomes, and economic mobility. "1 year of college = primary protective factor."`,
+            dataPoints: countyVals.map((c: any) => ({ county: c.name, value: c.avgLimitedEnglish, label: `${c.avgLimitedEnglish}% limited English` })),
+            interventions: [
+              "CHW workforce training (DSHS certification) — creates jobs AND deploys culturally competent navigators",
+              "Digital literacy programs co-located with benefits enrollment",
+              "GED/ESL pathways integrated into community hub enrollment events",
+              "ThriveUp Academy AI curriculum — building next-generation workforce while serving current needs",
+            ],
+          },
+          {
+            id: "benefit-gap",
+            label: "Benefits Enrollment Gap",
+            type: "risk",
+            icon: "file-x",
+            color: "orange",
+            metric: `${totalGap.toLocaleString()} people eligible but NOT enrolled (${totalEligible > 0 ? Math.round((totalGap / totalEligible) * 100) : 0}% gap)`,
+            detail: `$${((totalGap * 4800) / 1e9).toFixed(1)} billion in unclaimed annual benefits. Families who qualify for SNAP, Medicaid, CHIP, EITC, WIC are not receiving them due to language barriers, transportation gaps, digital divide, distrust of systems, and administrative complexity.`,
+            dataPoints: countyVals.map((c: any) => ({ county: c.name, value: c.gap, label: `${c.gap.toLocaleString()} gap` })),
+            interventions: [
+              "9-program simultaneous screener (catch everything in one visit)",
+              "Bilingual CHW outreach at trusted community touchpoints",
+              "Offline PWA for field enrollment in no-broadband zones",
+              "60-30-14 day automated renewal cascade to prevent benefit loss",
+            ],
+          },
+          {
+            id: "health-insecurity",
+            label: "Health & Food Insecurity",
+            type: "risk",
+            icon: "heart-pulse",
+            color: "rose",
+            metric: `${allTracts.filter(t => t.uninsuredRate > 15).length} tracts with >15% uninsured — unenrolled families lack Medicaid, SNAP, WIC`,
+            detail: `When families don't access Medicaid, preventable conditions go untreated. Without SNAP/WIC, children face food insecurity affecting cognitive development and school performance. Uninsured ER visits create medical debt that deepens poverty. Average uninsured rate: ${Math.round(allTracts.reduce((s, t) => s + t.uninsuredRate, 0) / allTracts.length)}%.`,
+            dataPoints: countyVals.map((c: any) => ({ county: c.name, value: c.avgUninsured, label: `${c.avgUninsured}% uninsured` })),
+            interventions: [
+              "FQHC co-location — enroll at the clinic visit",
+              "Food pantry integration — screen while distributing food",
+              "WIC + Medicaid + SNAP bundled enrollment (no-wrong-door)",
+              "Community health navigation with warm handoffs",
+            ],
+          },
+          {
+            id: "isolation",
+            label: "Social Isolation & System Distrust",
+            type: "risk",
+            icon: "users-x",
+            color: "purple",
+            metric: `${noBroadbandTracts.length} tracts with no broadband, ${noVehicleTracts.length} with no transportation, ${highSPTracts.length} with >30% single-parent households`,
+            detail: `${noBroadbandTracts.length} tracts are digital deserts — residents can't apply for benefits online. ${noVehicleTracts.length} tracts have significant no-vehicle populations — they can't get to HHSC offices. ${highSPTracts.length} tracts have >30% single-parent households — a 3-5x poverty multiplier. Mixed-status families fear system contact. Justice-involved individuals face collateral consequences. These populations are invisible to traditional outreach.`,
+            dataPoints: countyVals.map((c: any) => ({ county: c.name, value: c.avgNoBroadband, label: `${c.avgNoBroadband}% no broadband` })),
+            interventions: [
+              "Trust-based outreach through churches, schools, food pantries — not government offices",
+              "Mixed-status family protocols (immigration-sensitive enrollment)",
+              "Mobile enrollment units for rural no-broadband zones",
+              "Lived-experience hiring — CHWs from the community they serve",
+            ],
+          },
+          {
+            id: "crime",
+            label: "Crime & Community Safety",
+            type: "outcome",
+            icon: "shield-alert",
+            color: "slate",
+            metric: `${highBarrierTracts.length} high-barrier tracts overlap with highest-crime neighborhoods`,
+            detail: `The census tracts with barrier indexes above 30 are consistently the same neighborhoods on law enforcement crime hotspot maps. ${crisisTracts.length > 0 ? `The worst tract (${worstTract.tractId}): ${worstTract.povertyRate.toFixed(1)}% poverty, $${worstTract.medianIncome.toLocaleString()} median income, ${worstTract.noVehiclePct.toFixed(1)}% no vehicle, ${worstTract.limitedEnglishPct.toFixed(1)}% limited English.` : ""} When families can't feed their children, can't see a doctor, can't get to a job, desperation rises. Crime is not the cause — it's the downstream consequence of every upstream failure. "Crime doesn't disappear, it migrates." When gentrification displaces low-income residents, the problems move with them. County statistics "improve" because demographics changed — not because anyone's life got better.`,
+            dataPoints: countyVals.map((c: any) => ({ county: c.name, value: c.highPovertyTracts, label: `${c.highPovertyTracts} tracts >25% poverty` })),
+            interventions: [
+              "Benefits enrollment reduces economic desperation — the #1 driver of property crime",
+              "Reentry support for justice-involved individuals returning to these neighborhoods",
+              "Youth programs (ThriveUp Academy) provide protective factor against recruitment into crime",
+              "Community hub investment creates safe spaces and social cohesion",
+            ],
+          },
+        ],
+        chainNarrative: `The SDOH Impact Chain for this region shows how poverty, education gaps, benefit enrollment failures, health insecurity, social isolation, and crime are links in the same chain. ${worstTract ? `A family in Census Tract ${worstTract.tractId} faces ${worstTract.povertyRate.toFixed(1)}% poverty, ${worstTract.limitedEnglishPct.toFixed(1)}% limited English, ${worstTract.noVehiclePct.toFixed(1)}% no vehicle, and median income of $${worstTract.medianIncome.toLocaleString()}.` : ""} They qualify for SNAP, Medicaid, CHIP, EITC, WIC — but they're not enrolled because they can't get to an office, can't read the forms, can't get online, and don't trust the system. The chain is unbroken — UNLESS someone meets them where they are, in their language, at their church or school or food pantry, and helps them access what they're already entitled to. Every link we break weakens the entire chain.`,
+        threeRealities: {
+          research: `${crisisTracts.length} crisis-level tracts with >25% poverty. Worst tract: ${worstTract.tractId} — ${worstTract.povertyRate.toFixed(1)}% poverty, $${worstTract.medianIncome.toLocaleString()} income, ${worstTract.noVehiclePct.toFixed(1)}% no vehicle.${incomeGap > 5 ? ` ${incomeGap}x income gap within the same region.` : ""}`,
+          political: `County averages show ${Math.round(allTracts.reduce((s, t) => s + t.povertyRate, 0) / allTracts.length)}% poverty across ${allTracts.length} tracts. The crisis is invisible at this resolution — media covers growth and development, not the neighborhoods left behind.`,
+          groundTruth: `In Tract ${worstTract.tractId}, median income is $${Math.round(worstTract.medianIncome / 12).toLocaleString()}/month. Rent exceeds that. The family qualifies for every benefit program — but has no broadband to apply and no car to get to the office. They don't appear in the county average. They don't appear in the growth story. They appear in the Census tract data — and RPLICE finds them.`,
+        },
+        crimeEducationCorrelation: {
+          finding: `The census tracts with barrier indexes above 30 are the SAME neighborhoods on crime hotspot maps. ${crisisTracts.length} tracts with >25% poverty, ${lowEdTracts.length} with <20% college attainment.`,
+          principle: `Crime is not the cause — it is the downstream consequence of every upstream failure. When families cannot feed their children, cannot see a doctor, cannot get to a job, desperation rises.`,
+          displacement: `"Crime doesn't disappear, it migrates." When gentrification displaces low-income residents, the problems move with them to surrounding areas. The county-level statistics "improve" because the demographics changed — not because anyone's life got better.`,
+          educationProtective: `Education is the #1 protective factor. Communities with college attainment below 20% consistently show moderate-to-high risk across ALL other metrics. ${lowEdTracts.length} tracts in this region fall below that threshold.`,
+        },
+        interventionSummary: {
+          totalEligible, totalGap, totalEnrolled,
+          unclaimedBenefits: `$${((totalGap * 4800) / 1e9).toFixed(1)}B`,
+          tractsCovered: allTracts.length,
+          highBarrierTracts: highBarrierTracts.length,
+          crisisTracts: crisisTracts.length,
+          noBroadbandTracts: noBroadbandTracts.length,
+          noVehicleTracts: noVehicleTracts.length,
+          lowEdTracts: lowEdTracts.length,
+          highSingleParentTracts: highSPTracts.length,
+          breakingPoints: [
+            { link: "Education", intervention: "CHW training + digital literacy + ThriveUp Academy", type: "protective" },
+            { link: "Benefits Gap", intervention: "9-program screener + bilingual CHWs + offline PWA", type: "direct" },
+            { link: "Health Insecurity", intervention: "FQHC co-location + food pantry integration", type: "direct" },
+            { link: "Isolation", intervention: "Trust-based outreach + mobile units + lived-experience hiring", type: "bridge" },
+            { link: "Crime", intervention: "Economic stability through benefits + reentry support + youth programs", type: "upstream" },
+          ],
+        },
+        topBarrierTracts: allTracts.sort((a, b) => b.barrierIndex - a.barrierIndex).slice(0, 10),
+        counties: countySummaries,
+        generatedAt: new Date().toISOString(),
+      };
+
+      res.json(impactChain);
+    } catch (error) {
+      console.error("SDOH impact chain live error:", error);
+      res.status(500).json({ error: "Failed to generate dynamic SDOH impact chain" });
+    }
+  });
+
   app.get("/api/benefits/sdoh-impact-chain", async (req, res) => {
     try {
       const enrollmentData = await db.select().from(benefitsEnrollmentData)

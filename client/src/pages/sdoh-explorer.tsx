@@ -331,7 +331,7 @@ export default function SDOHExplorerPage() {
           </TabsContent>
 
           <TabsContent value="chain" className="space-y-4">
-            <SDOHImpactChain />
+            <SDOHImpactChain stateCode={queryParams.state} countyCodes={queryParams.counties} />
           </TabsContent>
 
           <TabsContent value="methodology" className="space-y-4">
