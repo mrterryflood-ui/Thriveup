@@ -162,3 +162,9 @@ id = "v3M7_g6rTuqJtb2u_pzzr"
 uri = "file://docs/grants/TCAF-Coalition-Partner-Presentation.md"
 type = "text"
 title = "Coalition Partner Presentation — We All Benefit 2.0"
+
+[[outputs]]
+id = "i701GtjlWXMprlIbtNO3j"
+uri = "file://docs/RPLICE-Data-Science-SOP.md"
+type = "text"
+title = "RPLICE Data Science SOP — How We Tell the #DATA Story"
