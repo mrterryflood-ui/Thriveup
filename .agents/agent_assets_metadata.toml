@@ -180,3 +180,9 @@ id = "ePhpem3exywtuNjdD5GTf"
 uri = "file://RFQ_202-CW_Travis_County_Strategic_Planning_Retreat_Response.pdf"
 type = "pdf"
 title = "Travis County RFQ 202-CW — Complete Quote Response for Eric Hargrave"
+
+[[outputs]]
+id = "Oei49FBDBiKbSkb88johM"
+uri = "file://RFQ_202-CW_HIS_Response.pdf"
+type = "pdf"
+title = "Travis County RFQ 202-CW — Hargrave Innovative Solutions Quote Response"
