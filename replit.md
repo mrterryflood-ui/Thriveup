@@ -3,19 +3,45 @@
 ## Overview
 ThriveUp Academy is an AI-powered workforce development and community enablement platform designed for under-resourced communities. It offers AI mastery curricula, career pathways, mentorship, an AI Creation Studio, entrepreneurship tools, financial literacy, and community engagement. The platform aims to connect individuals with grant funding, align with workforce development criteria, and achieve significant community impact through technology and education.
 
-## Founder / PI Credentials — Dr. Terry Flood
+## Founder / PI Credentials — Dr. Terry Flood (VERIFIED FROM TRANSCRIPTS)
+
+### Doctoral Degrees
 - **DHA (Doctor of Healthcare Administration)** — Virginia University of Lynchburg
 - **DBA (Doctor of Business Administration)** — Virginia University of Lynchburg
-- **MS, Industrial-Organizational Psychology** — Walden University (I/O Psych = core social science)
-- **MS, Implementation Science (In Progress)** — Dartmouth College
+
+### Master's Degrees
+- **MS, Industrial-Organizational Psychology** — Walden University, Conferred 02/02/2024, 4.0 GPA, General Practice specialization. Coursework: Themes & Theories of I/O Psych, Consulting for Organizational Development & Change, Psychology of Organizational Behavior, Ethics/Values/Legal Issues in I/O Psych, Personnel Psychology in the Workplace, Leadership & Leader Development, Research Theory/Design/Methods, Quantitative Reasoning & Analysis, Capstone. ALL A's.
+- **MS, Implementation Science (In Progress)** — Dartmouth College, Geisel School of Medicine. Fall 2025 completed (HP/P grades): Foundations of ImpSci, Intro Study Design & Data Analysis, Application of Theory/Models/Frameworks, Experimental Designs, Climate & Health. Winter 2026 (in progress): Implementation & De-Implementation Strategies, Qualitative & Mixed-Methods in Impl Research, Ed/Comm Research & State Services, Measuring IS Context/Process/Outcome. Spring 2026 (in progress): Behavior Interventions Scaling Up/Out, Evaluation of Experimental Trials Including Cost, UC Design Applications, Fidelity/Adaptation/Sustainability of EBI. Capstone IMPACT Project spans all 3 terms.
 - **MS, Human Resource Management** — Walden University
 - **MS, Criminal Justice (Public Policy)** — Walden University
 - **MBA, Leadership** — South University
+
+### Undergraduate & Certificates
 - **Graduate Certificate, Business Analytics** — Texas A&M University
 - **BS, Healthcare Management** — South University
-- **Federal:** Public Health Social Scientist, VA + DoD (2017–present); CR2I Advisor, DoD (2021-2023); VCL Trainer, VA (current)
-- **Military:** U.S. Army Warrant Officer (Retired)
-- **Roles:** Founder & CEO of TCAF; Pflugerville ISD SHAC member
+
+### Professional Certifications (VERIFIED)
+- **168-Hour Community Health Worker Instructor Certification** — UNT Health Science Center (DSHS Site #73), DSHS-Certified, completed 03/02/2023–06/22/2023. 8 competency areas: Communication, Interpersonal, Service Coordination, Capacity-Building, Advocacy, Teaching, Organizational Skills, Knowledge Base. (NOTE: cert has EXPIRED — frame as "access to certified CHW instructors in professional network")
+- **Stanford University School of Medicine: AI Series — Introduction to Healthcare** — 12.00 AMA PRA Category 1 Credits, completed 06/28/2024
+- **Federal Grants & Agreements Management** — Pre-Award (GRT 0020), Award Phase (GRT 0030), Post-Award (GRT 0040), all completed 07/26/2024
+- **Contracting Officer's Representative (COR) Level 1** (FCR 110) — 8 CLPs, completed 07/25/2024
+- **R&D Processes & Programs** (CON 0210) — completed 07/26/2024
+- **Legal Considerations for R&D Instruments** (CCON 021) — completed 07/26/2024
+- **Federally Funded Research & Development Centers** (ACQ 0800) — completed 07/26/2024
+- **FEMA Emergency Management:** ICS-100.C, ICS-200.C, IS-700.B (NIMS), IS-800.D (National Response Framework) — all July 2024
+- **TEEX/DHS CBRNE:** Basic EMS Concepts for Chemical, Biological, Radiological, Nuclear, and Explosive Events — July 2024
+
+### Federal Service
+- **Public Health Social Scientist** — VA + DoD (2017–present)
+- **Community Readiness & Resilience Implementer (CR2I) Advisor** — Department of Defense (2021–2023)
+- **Trainer, Veterans Crisis Line (VCL)** — U.S. Department of Veterans Affairs (current)
+
+### Military
+- **U.S. Army Warrant Officer (Retired)**
+
+### Leadership Roles
+- Founder & CEO, The Collaborative Advocate Foundation (TCAF)
+- Pflugerville ISD SHAC member
 
 ## User Preferences
 The agent should prioritize iterative development, clearly explaining major changes before implementation. It should focus on delivering high-quality, well-tested code, and use clear, simple language when describing technical concepts. Avoid making changes to sensitive configuration files or core architectural components without explicit instruction. CRITICAL: "NBA" must NEVER appear in UI code identifiers. CRITICAL: Always work in parallel using subagents. Never stop to have conversations when there is more work to do. Keep building.

@@ -100,23 +100,44 @@ TCAF operates 24 interconnected platforms — this is not a proposal to build so
 - **Status: NEEDS ACTION**
 
 ### GAP 2: Principal Investigator (PI) Credentials — LARGELY RESOLVED
-**Issue:** NSF proposals require a PI with research credentials. Dr. Terry Flood holds MULTIPLE doctoral and master's-level credentials directly relevant to this work:
-- **DHA (Doctor of Healthcare Administration)** — Virginia University of Lynchburg
-- **DBA (Doctor of Business Administration)** — Virginia University of Lynchburg
-- **MS, Industrial-Organizational Psychology** — Walden University (I/O Psychology is a core social science discipline)
-- **MS, Implementation Science (In Progress)** — Dartmouth College (the exact methodology TCAF deploys)
-- **MS, Human Resource Management** — Walden University
-- **MS, Criminal Justice (Public Policy)** — Walden University
-- **MBA, Leadership** — South University
-- **Graduate Certificate, Business Analytics** — Texas A&M University
-- **BS, Healthcare Management** — South University
-- **Federal experience:** Public Health Social Scientist (VA + DoD, 2017–present), CR2I Advisor (DoD, 2021-2023), VCL Trainer (VA, current)
-- **Military:** U.S. Army Warrant Officer (Retired)
+**Issue:** NSF proposals require a PI with research credentials. Dr. Terry Flood holds EXTENSIVE doctoral, master's-level, and professional credentials directly relevant:
 
-Dr. Flood's I/O Psychology credential is significant — I/O is a recognized social science with direct relevance to workforce development, organizational behavior, and AI readiness adoption. Combined with the in-progress Dartmouth Implementation Science MS, Dr. Flood is uniquely qualified as both a practitioner AND a research-oriented PI.
+**Doctoral (2):**
+- DHA (Doctor of Healthcare Administration) — Virginia University of Lynchburg
+- DBA (Doctor of Business Administration) — Virginia University of Lynchburg
 
-- A university Co-PI with NSF-funded research track record would still strengthen the proposal, but Dr. Flood's credentials are far stronger than a typical community nonprofit leader applying to NSF.
-- **Status: STRONG PI CREDENTIALS — Co-PI still recommended for NSF track record, not for credential gaps**
+**Master's (5, including 1 in progress at Dartmouth):**
+- MS, Industrial-Organizational Psychology — Walden University, 4.0 GPA, all A's (Conferred 02/02/2024). I/O Psych is a core NSF SBE discipline. Coursework includes: Research Theory/Design/Methods, Quantitative Reasoning & Analysis, Organizational Behavior, Consulting for OD & Change, Personnel Psychology, Leadership & Leader Development, Ethics in I/O Psych, Capstone research.
+- MS, Implementation Science — Dartmouth College, Geisel School of Medicine (In Progress, completing Spring 2026). Coursework: Foundations of ImpSci, Study Design & Data Analysis, Theory/Models/Frameworks, Experimental Designs, Implementation & De-Implementation Strategies, Qualitative & Mixed Methods, Measuring IS Context/Process/Outcome, Behavior Interventions Scaling Up/Out, Evaluation of Experimental Trials Including Cost, Fidelity/Adaptation/Sustainability of EBI. Capstone IMPACT Project.
+- MS, Human Resource Management — Walden University
+- MS, Criminal Justice (Public Policy) — Walden University
+- MBA, Leadership — South University
+
+**Certificates:**
+- Graduate Certificate, Business Analytics — Texas A&M University
+- Stanford University School of Medicine: AI Series — Introduction to Healthcare (12 AMA PRA Category 1 Credits, 06/28/2024)
+- Federal Grants & Agreements Management: Pre-Award, Award Phase, Post-Award (07/2024)
+- Contracting Officer's Representative (COR) Level 1 (07/2024)
+- R&D Processes & Programs; Legal Considerations for R&D Instruments; Federally Funded R&D Centers (07/2024)
+- 168-Hour Community Health Worker Instructor Certification — UNT Health Science Center / DSHS (completed 06/2023; cert expired — professional network access to certified CHW instructors)
+- FEMA: ICS-100, ICS-200, IS-700.B NIMS, IS-800.D National Response Framework (07/2024)
+
+**Federal Service:**
+- Public Health Social Scientist, VA + DoD (2017–present)
+- Community Readiness & Resilience Implementer (CR2I) Advisor, DoD (2021-2023)
+- Trainer, Veterans Crisis Line (VCL), VA (current)
+- U.S. Army Warrant Officer (Retired)
+
+**Why this matters for NSF:**
+- I/O Psychology IS a core social science — organizational behavior, workforce systems, measurement, and applied research methods are exactly what TechAccess AI readiness hubs need
+- Dartmouth Implementation Science provides the exact evaluation methodology (CFIR, RE-AIM, fidelity measurement, scaling) this Hub proposal is built on
+- Federal grants management certs demonstrate capacity to manage $1M/year NSF award
+- COR Level 1 and R&D certs demonstrate federal research & development administration experience
+- Stanford AI in Healthcare cert demonstrates AI domain expertise
+- Research methods training (quantitative, qualitative, mixed methods) across BOTH Walden and Dartmouth programs
+
+- A university Co-PI with NSF-funded research track record would still strengthen the proposal, but Dr. Flood's credentials are exceptionally strong for a PI.
+- **Status: STRONG PI CREDENTIALS — Co-PI recommended for NSF publication track record, not for credential gaps**
 
 ### GAP 3: "Texas Coordination Hub" Framing
 **Issue:** The solicitation requires ONE hub per state. The LOI title MUST begin with "[Full name of state] Coordination Hub." TCAF needs to position as the TEXAS Coordination Hub.
