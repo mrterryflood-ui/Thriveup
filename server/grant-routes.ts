@@ -4426,6 +4426,352 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
     }
   });
 
+  app.get("/api/proposal-command/eric-loi-pdf", async (_req, res) => {
+    try {
+      const doc = new PDFDocument({ size: "LETTER", margin: 60, bufferPages: true });
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader("Content-Disposition", 'attachment; filename="Fountain_of_Life_Ministries_Dads_Care_2_LOI.pdf"');
+      doc.pipe(res);
+
+      const NAVY = "#1a2744";
+      const DARK = "#1f2937";
+      const MEDIUM = "#374151";
+      const LIGHT = "#6b7280";
+      const ACCENT = "#c2410c";
+      const PW = 612 - 120;
+
+      doc.rect(0, 0, 612, 110).fill(NAVY);
+      doc.fontSize(22).fillColor("#ffffff").text("Letter of Inquiry", 60, 25, { width: PW });
+      doc.fontSize(12).fillColor("#fbbf24").text("Dads Care 2 Fatherhood Empowerment Initiative", 60, 55, { width: PW });
+      doc.fontSize(10).fillColor("#d1d5db").text("Fountain of Life Ministries", 60, 75, { width: PW });
+      doc.fontSize(8).fillColor("#9ca3af").text(`Prepared: ${new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}`, 60, 92, { width: PW });
+
+      let y = 130;
+
+      const heading = (num: string, title: string) => {
+        if (y > 680) { doc.addPage(); y = 60; }
+        doc.fontSize(11).fillColor(ACCENT).font("Helvetica-Bold").text(`${num}. ${title}`, 60, y, { width: PW });
+        doc.font("Helvetica");
+        y = doc.y + 6;
+        doc.moveTo(60, y).lineTo(60 + PW, y).strokeColor(ACCENT).lineWidth(0.5).stroke();
+        y += 10;
+      };
+
+      const para = (text: string) => {
+        if (y > 680) { doc.addPage(); y = 60; }
+        doc.fontSize(10).fillColor(DARK).text(text, 60, y, { width: PW, lineGap: 3 });
+        y = doc.y + 8;
+      };
+
+      const field = (label: string, value: string) => {
+        if (y > 700) { doc.addPage(); y = 60; }
+        doc.fontSize(8).fillColor(LIGHT).text(label.toUpperCase(), 60, y, { width: PW });
+        y = doc.y + 2;
+        doc.fontSize(10).fillColor(DARK).text(value, 60, y, { width: PW });
+        y = doc.y + 6;
+      };
+
+      heading("1", "Organization Name, Website, and Contact Information");
+      field("Organization", "Fountain of Life Ministries");
+      field("Program", "Dads Care 2 Fatherhood Empowerment Initiative");
+      field("Website", "www.dadscare2.com");
+      field("Contact Person", "Eric Hargrave — Program Director / Fatherhood Master Trainer");
+      field("Email", "admin@thefountainlife.com");
+      field("Phone", "(316) 530-7123");
+      field("Mailing Address", "4601 E Douglas Ave, Wichita, KS");
+
+      heading("2", "Summary of Organization Mission and Program History (250 words max)");
+      para("Fountain of Life Ministries is a community-based nonprofit organization committed to strengthening families, empowering fathers, and improving outcomes for children through education, mentorship, and supportive services. Our mission is to equip parents — particularly fathers — with the tools, knowledge, and support necessary to build stable, nurturing environments where children can thrive socially, emotionally, and developmentally.");
+      para("Through our Dads Care 2 Fatherhood Empowerment Initiative, Fountain of Life Ministries works with fathers across multiple communities to provide structured parenting education, mentoring, workforce support, and connection to community resources. The program focuses on strengthening father-child relationships, improving family stability, and increasing positive father engagement in early childhood development.");
+      para("In recent years, our organization has delivered fatherhood classes, mentoring groups, and resource navigation support to fathers facing barriers such as unemployment, reentry after incarceration, housing instability, and child support challenges. These services help fathers develop practical parenting skills, improve communication with co-parents, and strengthen their capacity to be emotionally present and actively engaged in their children's lives.");
+      para("Our programs partner with community organizations, workforce agencies, and social service providers to ensure fathers have access to the resources necessary to support their families. By strengthening fathers, we help build healthier families and improve developmental outcomes for young children during the most critical years of early childhood.");
+
+      heading("3", "501(c)(3) Status and Federal Tax ID");
+      field("Status", "Fountain of Life Ministries is a registered 501(c)(3) nonprofit organization.");
+      field("Federal Tax ID (EIN)", "47-4824735");
+      para("IRS Determination Letter: Attached separately.");
+
+      heading("4", "Total Annual Organizational Budget");
+      para("{{ACTION REQUIRED: Eric — insert your organization's total annual operating budget for the current fiscal year. Example: $150,000}}");
+
+      heading("5", "Amount Requested and Proposed Project Duration");
+      para("{{ACTION REQUIRED: Eric — specify the total funding amount you are requesting and the project timeline. Example: '$75,000 over 24 months' or '$50,000 for one year.' Base this on the funder's stated funding range and your program's actual capacity.}}");
+
+      heading("6", "Project Description");
+      para("The Dads Care 2 Fatherhood Empowerment Initiative delivers structured, evidence-informed programming that addresses the interconnected barriers facing fathers in our community — workforce instability, family separation, justice system involvement, housing challenges, and limited access to parenting resources.");
+      para("Program Components:");
+      const components = [
+        "Fatherhood Education Classes: 12-week structured curriculum covering parenting skills, child development, co-parenting communication, anger management, and financial literacy. Classes are delivered in cohort format to build peer support networks among participating fathers.",
+        "Individual Mentorship: Each enrolled father is matched with a trained mentor who provides one-on-one coaching, accountability, and goal-setting support throughout the program and for 6 months post-completion.",
+        "Workforce Navigation: Direct connection to employment resources including resume development, job placement assistance, and vocational training referrals. For fathers reentering from incarceration, specialized support addresses background check barriers and employer engagement.",
+        "Benefits Enrollment Support: Screening and enrollment assistance for SNAP, Medicaid, CHIP (for children), EITC/CTC tax credits, childcare subsidies, and housing assistance — ensuring families access every benefit they qualify for.",
+        "Crisis Stabilization: Emergency support for immediate needs (food, transportation, utility assistance) that, if unmet, prevent fathers from engaging in long-term programming.",
+        "Co-Parenting Mediation: Facilitated communication support between fathers and co-parents to reduce conflict, improve custody cooperation, and increase father access to children.",
+      ];
+      for (const comp of components) {
+        if (y > 680) { doc.addPage(); y = 60; }
+        doc.fontSize(9).fillColor(DARK).text(`•  ${comp}`, 75, y, { width: PW - 15, lineGap: 2 });
+        y = doc.y + 5;
+      }
+
+      heading("7", "Target Population and Geographic Area");
+      para("Primary Population: Fathers aged 18-55 facing one or more of the following barriers: unemployment or underemployment, reentry from incarceration, family court involvement (custody, child support), housing instability, substance recovery, and limited educational attainment.");
+      para("Priority Subpopulations: (1) Justice-involved fathers within 24 months of release, (2) Non-custodial fathers seeking to increase involvement with their children, (3) Young fathers aged 18-25 without established employment history, (4) Fathers experiencing homelessness or housing instability.");
+      para("Geographic Service Area: {{ACTION REQUIRED: Eric — specify your primary service area. Example: 'Sedgwick County and surrounding communities in south-central Kansas' or specific cities/zip codes you serve.}}");
+
+      heading("8", "Expected Outcomes and Measurement");
+      para("The Dads Care 2 program tracks measurable outcomes across four domains:");
+      const outcomes = [
+        "Father Engagement: 80% of enrolled fathers complete the full 12-week curriculum. 90% report increased confidence in parenting skills (pre/post survey). 75% demonstrate increased frequency of father-child contact (monthly tracking).",
+        "Economic Stability: 60% of unemployed fathers gain employment within 90 days of program enrollment. 85% of eligible fathers are successfully enrolled in at least one public benefit (SNAP, Medicaid, EITC). Average household income increase of 15% within 12 months.",
+        "Family Stability: 50% reduction in family court filings among participating fathers. 70% of fathers report improved co-parenting communication. 40% of non-custodial fathers gain increased custody or visitation access.",
+        "Child Outcomes: Children of participating fathers show improved school attendance (tracked through school partnerships). Reduced behavioral referrals for children of enrolled fathers. Increased father presence at school events and parent-teacher conferences.",
+      ];
+      for (const out of outcomes) {
+        if (y > 680) { doc.addPage(); y = 60; }
+        doc.fontSize(9).fillColor(DARK).text(`•  ${out}`, 75, y, { width: PW - 15, lineGap: 2 });
+        y = doc.y + 5;
+      }
+      para("Data Collection Methods: Pre/post participant surveys, monthly case management logs, employment verification, benefits enrollment confirmation, family court record tracking (with participant consent), and school-reported data for enrolled fathers' children.");
+
+      heading("9", "Organizational Capacity and Key Staff");
+      field("Program Director", "Eric Hargrave — Fatherhood Master Trainer with extensive experience in faith-based community programming, fatherhood curriculum development, and direct service delivery to fathers facing complex barriers.");
+      para("{{ACTION REQUIRED: Eric — list 2-3 additional key staff members and their roles. Include any relevant certifications (e.g., certified fatherhood practitioner, certified peer support specialist, social work credentials). Also note the total number of staff and volunteers who support the program.}}");
+
+      heading("10", "Current Partnerships and Collaborative Relationships");
+      para("Fountain of Life Ministries maintains active partnerships with:");
+      const partners = [
+        "The Collaborative Advocate Foundation (TCAF) — Technology partner providing AI-powered benefits screening, data intelligence, and platform infrastructure for participant tracking and outcomes measurement.",
+        "Local workforce development agencies — Job placement and vocational training referrals for participating fathers.",
+        "Community health organizations — Physical and behavioral health referrals for participants and their families.",
+        "School districts — Coordination on father engagement in children's education and school-reported outcome data.",
+        "{{ACTION REQUIRED: Eric — add 2-3 additional local partners specific to your community. Include faith-based organizations, court systems, reentry programs, housing organizations, or any other formal partnerships.}}",
+      ];
+      for (const p of partners) {
+        if (y > 680) { doc.addPage(); y = 60; }
+        doc.fontSize(9).fillColor(DARK).text(`•  ${p}`, 75, y, { width: PW - 15, lineGap: 2 });
+        y = doc.y + 5;
+      }
+
+      heading("11", "How Did You Hear About This Opportunity?");
+      para("{{ACTION REQUIRED: Eric — state how you learned about this funding opportunity. Example: 'Through our coalition partner The Collaborative Advocate Foundation' or 'Posted on the funder's website.'}}");
+
+      if (y > 500) { doc.addPage(); y = 60; }
+      y += 15;
+      doc.rect(60, y, PW, 130).fillAndStroke("#fefce8", "#d97706");
+      y += 10;
+      doc.fontSize(11).fillColor(ACCENT).font("Helvetica-Bold").text("SUBMISSION CHECKLIST", 75, y, { width: PW - 30 });
+      doc.font("Helvetica");
+      y += 20;
+      const checklist = [
+        "This completed Letter of Inquiry",
+        "IRS Determination Letter (501(c)(3) verification)",
+        "Current fiscal year budget or most recent audited financials",
+        "Board of Directors list with affiliations",
+        "Organizational chart (if available)",
+        "Letters of support from key partners (recommended)",
+      ];
+      for (const item of checklist) {
+        doc.fontSize(9).fillColor(DARK).text(`☐  ${item}`, 80, y, { width: PW - 40 });
+        y = doc.y + 4;
+      }
+
+      if (y > 500) { doc.addPage(); y = 60; }
+      y += 15;
+      doc.rect(60, y, PW, 90).fillAndStroke("#fef2f2", "#dc2626");
+      y += 10;
+      doc.fontSize(11).fillColor("#dc2626").font("Helvetica-Bold").text("ACTION ITEMS FOR ERIC", 75, y, { width: PW - 30 });
+      doc.font("Helvetica");
+      y += 18;
+      const actions = [
+        "Fill in total annual organizational budget (Section 4)",
+        "Fill in amount requested and project duration (Section 5)",
+        "Fill in geographic service area (Section 7)",
+        "Fill in key staff details (Section 9)",
+        "Fill in additional local partners (Section 10)",
+        "Fill in how you heard about this opportunity (Section 11)",
+      ];
+      for (const a of actions) {
+        doc.fontSize(9).fillColor("#7f1d1d").text(`▸  ${a}`, 80, y, { width: PW - 40 });
+        y = doc.y + 3;
+      }
+
+      const totalPages = doc.bufferedPageRange().count;
+      for (let i = 0; i < totalPages; i++) {
+        doc.switchToPage(i);
+        doc.fontSize(7).fillColor(LIGHT).text(
+          `Page ${i + 1} of ${totalPages}  |  Fountain of Life Ministries — Dads Care 2 LOI  |  CONFIDENTIAL`,
+          60, 740, { width: PW, align: "center" }
+        );
+      }
+
+      doc.end();
+    } catch (error: any) {
+      console.error("[EricLOI] PDF error:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.post("/api/proposal-command/export-pdf", async (req, res) => {
+    try {
+      const { proposalText, intelData, companyProfile } = req.body;
+      if (!proposalText) {
+        return res.status(400).json({ error: "No proposal text provided" });
+      }
+
+      const doc = new PDFDocument({ size: "LETTER", margin: 60, bufferPages: true });
+      res.setHeader("Content-Type", "application/pdf");
+      const filename = `proposal-${(companyProfile?.companyName || "draft").replace(/[^a-zA-Z0-9]/g, "_")}-${new Date().toISOString().slice(0, 10)}.pdf`;
+      res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+      doc.pipe(res);
+
+      const NAVY = "#1a2744";
+      const DARK = "#1f2937";
+      const MEDIUM = "#374151";
+      const LIGHT = "#6b7280";
+      const ACCENT = "#d97706";
+      const PAGE_WIDTH = 612 - 120;
+
+      doc.rect(0, 0, 612, 100).fill(NAVY);
+      doc.fontSize(20).fillColor("#ffffff").text(companyProfile?.companyName || "Proposal Document", 60, 30, { width: PAGE_WIDTH });
+      doc.fontSize(10).fillColor("#d1d5db").text(`Generated: ${new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}`, 60, 60, { width: PAGE_WIDTH });
+      if (intelData?.title) {
+        doc.fontSize(9).fillColor("#fbbf24").text(`RE: ${intelData.title}`, 60, 78, { width: PAGE_WIDTH });
+      }
+
+      doc.y = 120;
+
+      if (intelData) {
+        doc.fontSize(12).fillColor(ACCENT).text("SUBMISSION SUMMARY", 60, doc.y);
+        doc.moveDown(0.4);
+        doc.moveTo(60, doc.y).lineTo(60 + PAGE_WIDTH, doc.y).strokeColor(ACCENT).lineWidth(1).stroke();
+        doc.moveDown(0.5);
+
+        const summaryItems: [string, string][] = [];
+        if (intelData.issuingAgency) summaryItems.push(["Issuing Agency", intelData.issuingAgency]);
+        if (intelData.documentType) summaryItems.push(["Document Type", intelData.documentType]);
+        if (intelData.deadline) summaryItems.push(["Deadline", intelData.deadline]);
+        if (intelData.budgetStated) {
+          const b = intelData.budgetStated;
+          const budgetStr = b.exact ? `$${Number(b.exact).toLocaleString()}` : b.notToExceed ? `NTE $${Number(b.notToExceed).toLocaleString()}` : b.high ? `$${Number(b.low || 0).toLocaleString()} – $${Number(b.high).toLocaleString()}` : "See document";
+          summaryItems.push(["Budget", budgetStr]);
+        }
+        if (intelData.submissionMethod) summaryItems.push(["Submission Method", intelData.submissionMethod]);
+        if (intelData.contactInfo) summaryItems.push(["Contact", intelData.contactInfo]);
+
+        for (const [label, value] of summaryItems) {
+          doc.fontSize(8).fillColor(LIGHT).text(label.toUpperCase(), 60, doc.y, { continued: false });
+          doc.fontSize(10).fillColor(DARK).text(String(value), 60, doc.y);
+          doc.moveDown(0.3);
+        }
+        doc.moveDown(0.5);
+
+        if (intelData.requiredDocuments && intelData.requiredDocuments.length > 0) {
+          doc.fontSize(10).fillColor(ACCENT).text("REQUIRED DOCUMENTS CHECKLIST", 60, doc.y);
+          doc.moveDown(0.3);
+          for (const d of intelData.requiredDocuments) {
+            doc.fontSize(9).fillColor(DARK).text(`☐  ${d}`, 70, doc.y);
+            doc.moveDown(0.2);
+          }
+          doc.moveDown(0.5);
+        }
+      }
+
+      if (companyProfile && companyProfile.companyName) {
+        doc.fontSize(12).fillColor(ACCENT).text("RESPONDENT INFORMATION", 60, doc.y);
+        doc.moveDown(0.4);
+        doc.moveTo(60, doc.y).lineTo(60 + PAGE_WIDTH, doc.y).strokeColor(ACCENT).lineWidth(1).stroke();
+        doc.moveDown(0.5);
+        const info: [string, string][] = [
+          ["Organization", companyProfile.companyName],
+        ];
+        if (companyProfile.ein) info.push(["EIN", companyProfile.ein]);
+        if (companyProfile.companyType) info.push(["Type", companyProfile.companyType]);
+        if (companyProfile.yearsInBusiness) info.push(["Years in Business", companyProfile.yearsInBusiness]);
+        if (companyProfile.employeeCount) info.push(["Employees", companyProfile.employeeCount]);
+        if (companyProfile.certifications) info.push(["Certifications", companyProfile.certifications]);
+        if (companyProfile.pastPerformance) info.push(["Past Performance", companyProfile.pastPerformance]);
+        for (const [label, value] of info) {
+          doc.fontSize(8).fillColor(LIGHT).text(label.toUpperCase(), 60, doc.y);
+          doc.fontSize(10).fillColor(DARK).text(String(value), 60, doc.y);
+          doc.moveDown(0.3);
+        }
+        doc.moveDown(0.5);
+      }
+
+      doc.addPage();
+      doc.fontSize(12).fillColor(ACCENT).text("PROPOSAL", 60, 60);
+      doc.moveDown(0.4);
+      doc.moveTo(60, doc.y).lineTo(60 + PAGE_WIDTH, doc.y).strokeColor(ACCENT).lineWidth(1).stroke();
+      doc.moveDown(0.8);
+
+      const lines = proposalText.split("\n");
+      for (const line of lines) {
+        if (doc.y > 700) {
+          doc.addPage();
+          doc.y = 60;
+        }
+
+        const trimmed = line.trim();
+
+        if (trimmed.startsWith("# ")) {
+          doc.moveDown(0.5);
+          doc.fontSize(16).fillColor(NAVY).text(trimmed.replace(/^# /, ""), 60, doc.y, { width: PAGE_WIDTH });
+          doc.moveDown(0.3);
+        } else if (trimmed.startsWith("## ")) {
+          doc.moveDown(0.4);
+          doc.fontSize(13).fillColor(NAVY).text(trimmed.replace(/^## /, ""), 60, doc.y, { width: PAGE_WIDTH });
+          doc.moveDown(0.2);
+          doc.moveTo(60, doc.y).lineTo(250, doc.y).strokeColor("#d1d5db").lineWidth(0.5).stroke();
+          doc.moveDown(0.3);
+        } else if (trimmed.startsWith("### ")) {
+          doc.moveDown(0.3);
+          doc.fontSize(11).fillColor(MEDIUM).font("Helvetica-Bold").text(trimmed.replace(/^### /, ""), 60, doc.y, { width: PAGE_WIDTH });
+          doc.font("Helvetica");
+          doc.moveDown(0.2);
+        } else if (trimmed.startsWith("- ") || trimmed.startsWith("• ")) {
+          doc.fontSize(10).fillColor(DARK).text(`•  ${trimmed.replace(/^[-•]\s*/, "")}`, 75, doc.y, { width: PAGE_WIDTH - 15, indent: 0 });
+          doc.moveDown(0.15);
+        } else if (/^\d+\.\s/.test(trimmed)) {
+          doc.fontSize(10).fillColor(DARK).text(trimmed, 70, doc.y, { width: PAGE_WIDTH - 10 });
+          doc.moveDown(0.15);
+        } else if (trimmed.startsWith("**") && trimmed.endsWith("**")) {
+          doc.fontSize(10).fillColor(DARK).font("Helvetica-Bold").text(trimmed.replace(/\*\*/g, ""), 60, doc.y, { width: PAGE_WIDTH });
+          doc.font("Helvetica");
+          doc.moveDown(0.15);
+        } else if (trimmed.startsWith("{{NEEDS_INPUT:")) {
+          const label = trimmed.match(/\{\{NEEDS_INPUT:\s*(.+?)\}\}/)?.[1] || trimmed;
+          doc.fontSize(10).fillColor("#dc2626").text(`[ACTION REQUIRED: ${label}]`, 60, doc.y, { width: PAGE_WIDTH });
+          doc.moveDown(0.15);
+        } else if (trimmed === "---") {
+          doc.moveDown(0.3);
+          doc.moveTo(60, doc.y).lineTo(60 + PAGE_WIDTH, doc.y).strokeColor("#e5e7eb").lineWidth(0.5).stroke();
+          doc.moveDown(0.3);
+        } else if (trimmed.length > 0) {
+          let cleanText = trimmed.replace(/\*\*(.+?)\*\*/g, "$1").replace(/\*(.+?)\*/g, "$1");
+          doc.fontSize(10).fillColor(DARK).text(cleanText, 60, doc.y, { width: PAGE_WIDTH, lineGap: 2 });
+          doc.moveDown(0.15);
+        } else {
+          doc.moveDown(0.3);
+        }
+      }
+
+      const totalPages = doc.bufferedPageRange().count;
+      for (let i = 0; i < totalPages; i++) {
+        doc.switchToPage(i);
+        doc.fontSize(7).fillColor(LIGHT).text(
+          `Page ${i + 1} of ${totalPages}  |  ${companyProfile?.companyName || "Proposal"}  |  CONFIDENTIAL`,
+          60, 740, { width: PAGE_WIDTH, align: "center" }
+        );
+      }
+
+      doc.end();
+    } catch (error: any) {
+      console.error("[ProposalExport] PDF error:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   let lastDailyDiscoveryRun: Date | null = null;
   let lastDiscoveryResult: { imported: number; skipped: number; total: number; error?: string } | null = null;
 

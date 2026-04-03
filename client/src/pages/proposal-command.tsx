@@ -264,6 +264,28 @@ export default function ProposalCommandPage() {
     URL.revokeObjectURL(url);
   };
 
+  const downloadPDF = async () => {
+    try {
+      toast({ title: "Generating PDF..." });
+      const response = await fetch("/api/proposal-command/export-pdf", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ proposalText, intelData, companyProfile }),
+      });
+      if (!response.ok) throw new Error("PDF generation failed");
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `proposal-${companyProfile.companyName || "draft"}-${new Date().toISOString().slice(0, 10)}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast({ title: "PDF downloaded" });
+    } catch (e: any) {
+      toast({ title: "PDF export failed", description: e.message, variant: "destructive" });
+    }
+  };
+
   const copyProposal = () => {
     navigator.clipboard.writeText(proposalText);
     toast({ title: "Copied to clipboard" });
@@ -808,8 +830,11 @@ export default function ProposalCommandPage() {
                   <Button variant="outline" size="sm" onClick={copyProposal} data-testid="button-copy">
                     <Copy className="h-4 w-4 mr-1.5" /> Copy
                   </Button>
-                  <Button variant="outline" size="sm" onClick={downloadProposal} data-testid="button-download">
-                    <Download className="h-4 w-4 mr-1.5" /> Download
+                  <Button variant="outline" size="sm" onClick={downloadProposal} data-testid="button-download-md">
+                    <Download className="h-4 w-4 mr-1.5" /> .md
+                  </Button>
+                  <Button size="sm" onClick={downloadPDF} className="bg-amber-600 hover:bg-amber-700 text-white" data-testid="button-download-pdf">
+                    <FileText className="h-4 w-4 mr-1.5" /> Download PDF
                   </Button>
                 </div>
               </div>

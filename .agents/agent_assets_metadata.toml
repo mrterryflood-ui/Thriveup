@@ -168,3 +168,9 @@ id = "i701GtjlWXMprlIbtNO3j"
 uri = "file://docs/RPLICE-Data-Science-SOP.md"
 type = "text"
 title = "RPLICE Data Science SOP — How We Tell the #DATA Story"
+
+[[outputs]]
+id = "IrA2CN-YXJRieK2h12waY"
+uri = "file://Fountain_of_Life_Ministries_Dads_Care_2_LOI.pdf"
+type = "pdf"
+title = "Eric Hargrave — Dads Care 2 LOI (Complete)"
