@@ -4426,6 +4426,403 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
     }
   });
 
+  app.get("/api/proposal-command/travis-county-rfq-pdf", async (_req, res) => {
+    try {
+      const doc = new PDFDocument({ size: "LETTER", margin: 60, bufferPages: true });
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader("Content-Disposition", 'attachment; filename="RFQ_202-CW_Travis_County_Strategic_Planning_Retreat_Response.pdf"');
+      doc.pipe(res);
+
+      const NAVY = "#1a2744";
+      const DARK = "#1f2937";
+      const MEDIUM = "#374151";
+      const LIGHT = "#6b7280";
+      const ACCENT = "#c2410c";
+      const GREEN = "#166534";
+      const PW = 612 - 120;
+
+      let y = 0;
+
+      const checkPage = (need = 60) => { if (y > 740 - need) { doc.addPage(); y = 60; } };
+
+      const sectionHeading = (title: string) => {
+        checkPage(40);
+        y += 8;
+        doc.rect(60, y, PW, 22).fill(NAVY);
+        doc.fontSize(11).fillColor("#ffffff").font("Helvetica-Bold").text(title.toUpperCase(), 68, y + 5, { width: PW - 16 });
+        doc.font("Helvetica");
+        y += 32;
+      };
+
+      const subHeading = (title: string) => {
+        checkPage(30);
+        doc.fontSize(10).fillColor(ACCENT).font("Helvetica-Bold").text(title, 60, y, { width: PW });
+        doc.font("Helvetica");
+        y = doc.y + 4;
+        doc.moveTo(60, y).lineTo(250, y).strokeColor("#d1d5db").lineWidth(0.5).stroke();
+        y += 8;
+      };
+
+      const para = (text: string, indent = 0) => {
+        checkPage(30);
+        doc.fontSize(9.5).fillColor(DARK).text(text, 60 + indent, y, { width: PW - indent, lineGap: 2.5 });
+        y = doc.y + 6;
+      };
+
+      const bullet = (text: string, indent = 15) => {
+        checkPage(20);
+        doc.fontSize(9.5).fillColor(DARK).text("\u2022  " + text, 60 + indent, y, { width: PW - indent - 5, lineGap: 2 });
+        y = doc.y + 3;
+      };
+
+      const field = (label: string, value: string) => {
+        checkPage(20);
+        doc.fontSize(8).fillColor(LIGHT).text(label.toUpperCase(), 60, y, { width: PW });
+        y = doc.y + 1;
+        doc.fontSize(10).fillColor(DARK).text(value, 60, y, { width: PW });
+        y = doc.y + 5;
+      };
+
+      // ==================== COVER PAGE ====================
+      doc.rect(0, 0, 612, 792).fill("#f8f9fa");
+      doc.rect(0, 0, 612, 8).fill(ACCENT);
+      doc.rect(0, 784, 612, 8).fill(ACCENT);
+
+      doc.rect(60, 160, PW, 3).fill(NAVY);
+      doc.fontSize(28).fillColor(NAVY).font("Helvetica-Bold").text("QUOTE RESPONSE", 60, 185, { width: PW });
+      doc.font("Helvetica");
+      doc.fontSize(14).fillColor(ACCENT).text("Request for Quote No. 202-CW", 60, 225, { width: PW });
+      doc.fontSize(16).fillColor(MEDIUM).text("Two-Day Strategic Planning Retreat", 60, 250, { width: PW });
+      doc.fontSize(11).fillColor(LIGHT).text("Travis County Transportation & Natural Resources Division", 60, 280, { width: PW });
+      doc.rect(60, 310, PW, 1).fill("#d1d5db");
+
+      doc.fontSize(11).fillColor(DARK).text("SUBMITTED TO:", 60, 340, { width: PW });
+      doc.fontSize(10).fillColor(MEDIUM).text("Travis County Purchasing Office", 60, 358, { width: PW });
+      doc.text("P.O. Box 1748", 60, 373, { width: PW });
+      doc.text("Austin, TX 78767", 60, 388, { width: PW });
+
+      doc.fontSize(11).fillColor(DARK).text("SUBMITTED BY:", 60, 430, { width: PW });
+      doc.fontSize(12).fillColor(NAVY).font("Helvetica-Bold").text("Hargrave Innovative Solutions", 60, 448, { width: PW });
+      doc.font("Helvetica");
+      doc.fontSize(10).fillColor(MEDIUM).text("Eric Hargrave, Chief Executive Officer", 60, 468, { width: PW });
+      doc.text("Phone: (601) 238-4186", 60, 483, { width: PW });
+      doc.text("Email: ericd@hisolution.org", 60, 498, { width: PW });
+
+      doc.fontSize(10).fillColor(LIGHT).text("Date: " + new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }), 60, 540, { width: PW });
+      doc.fontSize(8).fillColor(LIGHT).text("CONFIDENTIAL \u2014 PROPRIETARY PRICING INFORMATION", 60, 720, { width: PW, align: "center" });
+
+      // ==================== COVER LETTER ====================
+      doc.addPage();
+      y = 60;
+
+      sectionHeading("Cover Letter");
+
+      para(new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }));
+      y += 4;
+      para("Travis County Purchasing Office");
+      para("P.O. Box 1748");
+      para("Austin, TX 78767");
+      y += 4;
+      para("RE: Request for Quote No. 202-CW \u2014 Two-Day Strategic Planning Retreat");
+      y += 4;
+      para("Dear Procurement Specialist,");
+      y += 2;
+      para("Hargrave Innovative Solutions (HIS) is pleased to submit this quote in response to Travis County\u2019s Request for Quote No. 202-CW for facilitation services for a Two-Day Strategic Planning Retreat for the Transportation & Natural Resources (TNR) Division.");
+      para("We bring direct experience facilitating executive and leadership retreats for local government agencies, with particular expertise in helping public-sector teams align strategic priorities, synthesize complex operational input into actionable plans, and build shared vision across organizational levels.");
+      para("Our approach to this engagement is grounded in three principles:");
+      bullet("Structured yet adaptive facilitation that respects the distinct needs of senior leadership (Day 1) and the broader management team (Day 2)");
+      bullet("Pre-retreat discovery that ensures every minute of retreat time is productive \u2014 no orientation, no warm-up waste");
+      bullet("Actionable deliverables that translate retreat outcomes into a clear roadmap the TNR Division can execute immediately");
+      para("We understand the unique dynamics of county government \u2014 the balance between elected leadership priorities, departmental operations, and public accountability. Our facilitation approach is calibrated specifically for this environment.");
+      para("We confirm that we meet all minimum qualifications, can comply with all insurance requirements, and are prepared to begin pre-retreat consultation immediately upon award.");
+      y += 8;
+      para("Respectfully submitted,");
+      y += 20;
+      doc.fontSize(10).fillColor(DARK).font("Helvetica-Bold").text("Eric Hargrave", 60, y, { width: PW });
+      doc.font("Helvetica");
+      y = doc.y + 2;
+      para("Chief Executive Officer");
+      para("Hargrave Innovative Solutions");
+      para("ericd@hisolution.org | (601) 238-4186");
+
+      // ==================== QUALIFICATIONS ====================
+      doc.addPage();
+      y = 60;
+
+      sectionHeading("Response to Minimum Qualifications");
+
+      subHeading("1. Local Government Experience");
+      para("Hargrave Innovative Solutions has direct experience providing strategic planning, facilitation, and organizational development services to local government entities. Our team understands county governance structures, commissioners court dynamics, interdepartmental coordination challenges, and the public accountability requirements that shape how government teams set and execute strategy.");
+      para("{{ACTION REQUIRED: Eric \u2014 insert 2-3 specific local government clients or engagements here. Example: \u2018Facilitated strategic planning retreat for [County/City] [Department], resulting in a 3-year operational roadmap adopted by commissioners court.\u2019}}");
+
+      subHeading("2. Executive/Leadership Retreat Facilitation");
+      para("We have demonstrated experience designing and facilitating retreats for senior leaders in organizations with complex stakeholder dynamics. Our retreats are structured to move beyond status updates into genuine strategic alignment \u2014 ensuring that leadership teams leave with shared priorities, clear ownership, and concrete next steps.");
+      para("{{ACTION REQUIRED: Eric \u2014 insert 2-3 specific retreat facilitation examples. Include audience size, duration, and outcomes. Government examples are strongest.}}");
+
+      subHeading("3. Relevant Domain Experience");
+      para("While the RFQ notes that experience in permitting, transportation, parks, and natural resources is preferred, our facilitation methodology is domain-adaptive. We invest pre-retreat time understanding the specific operational landscape, terminology, and challenges facing the TNR Division. Our pre-retreat questionnaire and consultation process ensures that facilitation is grounded in the Division\u2019s actual priorities \u2014 not generic exercises.");
+      para("{{ACTION REQUIRED: Eric \u2014 if you or any team member has direct experience in transportation, parks, infrastructure, or environmental services, cite it here. Even adjacent experience (public works, infrastructure planning, environmental compliance) strengthens this section.}}");
+
+      subHeading("4. Strategic Planning & Group Facilitation Expertise");
+      para("Our facilitation practice is built on proven methodologies for synthesizing complex, sometimes competing inputs into actionable strategic outcomes. We specialize in:");
+      bullet("Structured consensus-building across hierarchical teams");
+      bullet("SWOT and environmental scanning adapted for government context");
+      bullet("Priority-mapping exercises that connect operational realities to strategic vision");
+      bullet("Conflict-aware facilitation that surfaces productive disagreement without derailing progress");
+      bullet("Real-time documentation that captures decisions as they happen \u2014 no post-retreat guesswork");
+
+      subHeading("5. Synthesizing Complex Input into Actionable Outcomes");
+      para("Every retreat we facilitate produces a written summary report with clear, prioritized outcomes. We do not deliver vague \u2018themes\u2019 \u2014 we deliver decision-ready recommendations with ownership, timelines, and success metrics defined.");
+
+      subHeading("6. Bringing Diverse Groups Together");
+      para("The RFQ requires facilitation across two distinct groups: a senior leadership team of 8 on Day 1 and an expanded management team of 22 on Day 2. Our approach is specifically designed for this structure \u2014 Day 1 establishes strategic direction, and Day 2 cascades that direction into operational planning with the broader team, ensuring alignment without top-down imposition.");
+
+      // ==================== APPROACH ====================
+      doc.addPage();
+      y = 60;
+
+      sectionHeading("Technical Approach & Methodology");
+
+      subHeading("Phase 1: Pre-Retreat Planning (2\u20133 Weeks Before Retreat)");
+      bullet("Initial consultation with the County Executive or designee to confirm retreat objectives, desired outcomes, organizational context, and any sensitive dynamics");
+      bullet("Design and administer a confidential pre-retreat questionnaire to all participants (tailored versions for Day 1 and Day 2 groups)");
+      bullet("Analyze questionnaire responses and identify key themes, alignment areas, tension points, and priority opportunities");
+      bullet("Prepare and submit a detailed retreat agenda for review and approval, including session descriptions, timing, facilitation methods, and materials");
+      bullet("Coordinate logistics with County staff (room setup, AV needs, materials, breaks)");
+
+      subHeading("Phase 2: Day 1 \u2014 Senior Leadership Strategic Session (8 Participants)");
+      para("Focus: Strategic direction-setting with Division Directors, County Executive, and Chief Deputy.");
+      bullet("Morning: Environmental scan and state-of-the-division assessment \u2014 what\u2019s working, what\u2019s not, what\u2019s changed since last strategic review");
+      bullet("Midday: Priority identification exercise \u2014 structured process to surface, debate, and rank the 3\u20135 strategic priorities for the next planning period");
+      bullet("Afternoon: Decision framework \u2014 for each priority, define success metrics, resource requirements, ownership, and realistic timelines");
+      bullet("Close: Prepare the \u2018cascade brief\u2019 \u2014 the structured summary that will frame Day 2\u2019s management team session");
+
+      subHeading("Phase 3: Day 2 \u2014 Management Team Working Session (22 Participants)");
+      para("Focus: Translating strategic direction into operational plans with the full management team.");
+      bullet("Morning: Leadership presents Day 1 strategic priorities (with facilitator support) \u2014 not as directives but as direction for collaborative operational planning");
+      bullet("Midday: Breakout working groups aligned to each strategic priority \u2014 management team members develop implementation approaches, identify barriers, and define resource needs");
+      bullet("Afternoon: Cross-group sharing and alignment \u2014 each group presents plans, interdependencies are identified, and the full team builds a unified implementation roadmap");
+      bullet("Close: Commitment exercise \u2014 each participant identifies their specific role and first 30-day actions tied to the strategic plan");
+
+      subHeading("Phase 4: Post-Retreat Deliverables (5\u20137 Business Days After Retreat)");
+      bullet("Comprehensive written summary report documenting: key themes from pre-retreat assessment, Day 1 strategic priorities and rationale, Day 2 operational plans by priority area, cross-cutting interdependencies and resource needs, recommended next steps with timelines and ownership");
+      bullet("Clean, presentation-ready format suitable for sharing with Commissioners Court or other stakeholders");
+      bullet("Optional 30-day check-in call to assess implementation progress and address emerging questions");
+
+      // ==================== PRICING ====================
+      doc.addPage();
+      y = 60;
+
+      sectionHeading("Pricing Schedule");
+
+      para("Hargrave Innovative Solutions proposes the following all-inclusive pricing for the Two-Day Strategic Planning Retreat facilitation services as described in RFQ 202-CW:");
+      y += 6;
+
+      // Pricing table
+      const tableX = 60;
+      const col1W = 300;
+      const col2W = PW - col1W;
+
+      // Header row
+      doc.rect(tableX, y, PW, 22).fill(NAVY);
+      doc.fontSize(9).fillColor("#ffffff").font("Helvetica-Bold").text("SERVICE COMPONENT", tableX + 8, y + 6, { width: col1W - 16 });
+      doc.text("PRICE", tableX + col1W + 8, y + 6, { width: col2W - 16, align: "right" });
+      doc.font("Helvetica");
+      y += 24;
+
+      const priceRows: [string, string][] = [
+        ["Pre-Retreat Planning & Consultation", "$3,500"],
+        [" \u2022 Stakeholder consultation with County Executive/designee", ""],
+        [" \u2022 Pre-retreat questionnaire design, administration, analysis", ""],
+        [" \u2022 Agenda development and finalization", ""],
+        ["", ""],
+        ["Day 1: Senior Leadership Strategic Session (8 participants)", "$7,500"],
+        [" \u2022 Full-day facilitation (6\u20138 hours)", ""],
+        [" \u2022 All facilitation materials and supplies", ""],
+        [" \u2022 Real-time documentation and cascade brief preparation", ""],
+        ["", ""],
+        ["Day 2: Management Team Working Session (22 participants)", "$8,500"],
+        [" \u2022 Full-day facilitation (6\u20138 hours)", ""],
+        [" \u2022 Breakout group facilitation materials", ""],
+        [" \u2022 Cross-group alignment session facilitation", ""],
+        ["", ""],
+        ["Post-Retreat Deliverables", "$3,000"],
+        [" \u2022 Written summary report (delivered within 5\u20137 business days)", ""],
+        [" \u2022 Key themes, outcomes, priorities, and recommended next steps", ""],
+        [" \u2022 Presentation-ready format", ""],
+      ];
+
+      for (const [label, price] of priceRows) {
+        if (label === "" && price === "") { y += 2; continue; }
+        const isHeader = price.startsWith("$");
+        const isSubItem = label.startsWith(" ");
+        checkPage(16);
+        if (isHeader) {
+          doc.rect(tableX, y, PW, 16).fill("#f3f4f6");
+        }
+        doc.fontSize(isSubItem ? 8.5 : 9.5).fillColor(isSubItem ? LIGHT : DARK);
+        if (isHeader) doc.font("Helvetica-Bold");
+        doc.text(label, tableX + 8, y + 3, { width: col1W - 16 });
+        if (price) {
+          doc.fontSize(10).fillColor(DARK).text(price, tableX + col1W + 8, y + 3, { width: col2W - 16, align: "right" });
+        }
+        if (isHeader) doc.font("Helvetica");
+        y += 16;
+      }
+
+      // Total
+      y += 4;
+      doc.rect(tableX, y, PW, 26).fill(NAVY);
+      doc.fontSize(11).fillColor("#ffffff").font("Helvetica-Bold").text("TOTAL PROPOSED PRICE", tableX + 8, y + 7, { width: col1W - 16 });
+      doc.fontSize(13).text("$22,500", tableX + col1W + 8, y + 6, { width: col2W - 16, align: "right" });
+      doc.font("Helvetica");
+      y += 36;
+
+      para("This is an all-inclusive price covering all labor, supervision, materials, facilitation supplies, and expertise required to perform the services described in RFQ 202-CW. Travel expenses, if any, are billed separately per Travis County\u2019s Travel Reimbursement Policy for Contractors (effective October 1, 2024) at actual cost, not to exceed policy limits.");
+      y += 4;
+
+      subHeading("Pricing Notes");
+      bullet("Price is firm and fixed for the scope described");
+      bullet("No additional charges for facilitation materials, supplies, or preparation time");
+      bullet("Travel reimbursement (if applicable): mileage at IRS rate, lodging at reasonable rate, meals not to exceed $72/day per Travis County policy");
+      bullet("Optional 30-day post-retreat check-in call included at no additional charge");
+      bullet("Price valid for 90 days from date of submission");
+
+      // ==================== INSURANCE COMPLIANCE ====================
+      doc.addPage();
+      y = 60;
+
+      sectionHeading("Insurance Compliance");
+
+      para("Hargrave Innovative Solutions confirms compliance with all insurance requirements specified in Attachment A of RFQ 202-CW:");
+      y += 4;
+
+      const insRows: [string, string, string][] = [
+        ["Commercial General Liability", "$500,000 per occurrence / $1,000,000 aggregate", "WILL COMPLY"],
+        ["Blanket Contractual Liability", "For this Contract", "WILL COMPLY"],
+        ["Independent Contractor Coverage", "Included in CGL policy", "WILL COMPLY"],
+        ["Waiver of Subrogation", "In favor of Travis County", "WILL COMPLY"],
+        ["30-Day Notice of Cancellation", "Written notice to Travis County", "WILL COMPLY"],
+        ["Additional Insured", "Travis County named", "WILL COMPLY"],
+      ];
+
+      // Insurance table header
+      doc.rect(60, y, PW, 20).fill(NAVY);
+      doc.fontSize(8).fillColor("#ffffff").font("Helvetica-Bold");
+      doc.text("COVERAGE TYPE", 68, y + 5, { width: 180 });
+      doc.text("REQUIREMENT", 255, y + 5, { width: 170 });
+      doc.text("STATUS", 430, y + 5, { width: 80, align: "center" });
+      doc.font("Helvetica");
+      y += 22;
+
+      for (const [type, req, status] of insRows) {
+        checkPage(18);
+        doc.rect(60, y, PW, 18).fill(y % 2 === 0 ? "#f9fafb" : "#ffffff");
+        doc.fontSize(8.5).fillColor(DARK).text(type, 68, y + 4, { width: 180 });
+        doc.fillColor(MEDIUM).text(req, 255, y + 4, { width: 170 });
+        doc.fillColor(GREEN).font("Helvetica-Bold").text(status, 430, y + 4, { width: 80, align: "center" });
+        doc.font("Helvetica");
+        y += 18;
+      }
+
+      y += 10;
+      para("Certificate of Insurance will be provided to the Purchasing Agent within 10 working days of contract execution, showing the Travis County contract number, all deductibles and self-insured retention, and all required endorsements.");
+
+      // ==================== CERTIFICATIONS & COMPLIANCE ====================
+      sectionHeading("Certifications & Compliance Statements");
+
+      const certs = [
+        ["Non-Debarment Certification", "Hargrave Innovative Solutions certifies that neither it nor its principals are debarred, suspended, proposed for debarment, declared ineligible, or voluntarily excluded from participation in this transaction by any federal department or agency."],
+        ["Non-Discrimination", "HIS complies with the Civil Rights Act of 1964, the Rehabilitation Act of 1973, the Americans with Disabilities Act of 1990, and all federal, state, and local equal opportunity laws and regulations."],
+        ["Israel Non-Boycott (TX Gov\u2019t Code \u00A72271)", "HIS does not boycott Israel and will not boycott Israel during the contract term."],
+        ["Energy Company Non-Boycott (TX Gov\u2019t Code \u00A72274)", "HIS does not boycott energy companies and will not boycott energy companies during the contract term."],
+        ["Firearm Entity Non-Discrimination (TX Gov\u2019t Code \u00A72274)", "HIS does not have a practice, policy, guidance, or directive that discriminates against a firearm entity or firearm trade association."],
+        ["Iran/Sudan/Foreign Terrorist Organization (TX Gov\u2019t Code \u00A72252.152)", "HIS is not a company identified on the Texas Comptroller\u2019s list as engaged in business with Iran, Sudan, or any foreign terrorist organization."],
+        ["Covenant Against Contingent Fees", "No person, other than bona fide employees and commercial selling agencies of HIS, has been employed or retained to solicit or secure this contract for a commission, percentage, brokerage, or contingent fee."],
+      ];
+
+      for (const [title, statement] of certs) {
+        checkPage(35);
+        doc.fontSize(9).fillColor(ACCENT).font("Helvetica-Bold").text(title, 60, y, { width: PW });
+        doc.font("Helvetica");
+        y = doc.y + 2;
+        doc.fontSize(9).fillColor(DARK).text(statement, 60, y, { width: PW, lineGap: 2 });
+        y = doc.y + 8;
+      }
+
+      // ==================== SUBMISSION CHECKLIST ====================
+      doc.addPage();
+      y = 60;
+
+      sectionHeading("Submission Checklist");
+
+      para("The following items are included or required for a complete submission of RFQ 202-CW:");
+      y += 4;
+
+      const checklistItems = [
+        [true, "Completed Quote Response (this document)"],
+        [true, "Cover Letter"],
+        [true, "Response to Minimum Qualifications"],
+        [true, "Technical Approach & Methodology"],
+        [true, "Pricing Schedule"],
+        [true, "Insurance Compliance Acknowledgment"],
+        [true, "All Required Certifications & Compliance Statements"],
+        [false, "IRS Form W-9 (required before payment \u2014 submit with response or upon award)"],
+        [false, "Certificate of Insurance (required within 10 working days of contract execution)"],
+        [false, "Past performance references (recommended \u2014 2-3 government client references)"],
+      ];
+
+      for (const [done, item] of checklistItems) {
+        checkPage(18);
+        const checkmark = done ? "\u2611" : "\u2610";
+        const color = done ? GREEN : ACCENT;
+        doc.fontSize(10).fillColor(color).text(checkmark, 68, y, { width: 20 });
+        doc.fontSize(9.5).fillColor(DARK).text(item as string, 88, y, { width: PW - 28 });
+        y = doc.y + 5;
+      }
+
+      // ==================== ACTION ITEMS FOR ERIC ====================
+      y += 15;
+      checkPage(180);
+      doc.rect(60, y, PW, 170).fillAndStroke("#fef2f2", "#dc2626");
+      y += 10;
+      doc.fontSize(12).fillColor("#dc2626").font("Helvetica-Bold").text("ACTION ITEMS BEFORE SUBMISSION", 75, y, { width: PW - 30 });
+      doc.font("Helvetica");
+      y += 22;
+
+      const actions = [
+        "Insert 2-3 specific local government facilitation engagements (Section: Qualifications #1)",
+        "Insert 2-3 specific retreat facilitation examples with outcomes (Section: Qualifications #2)",
+        "Add any TNR-relevant domain experience \u2014 transportation, parks, permitting (Section: Qualifications #3)",
+        "Review pricing: $22,500 total ($3,500 + $7,500 + $8,500 + $3,000) \u2014 adjust if needed",
+        "Confirm Candyce\u2019s subcontractor quote is separate from this bid price",
+        "Prepare IRS Form W-9",
+        "Confirm insurance coverage meets Attachment A requirements",
+        "Submit via BidNet (strongly encouraged) or contact Procurement Specialist 1 business day before hard copy delivery",
+      ];
+
+      for (const a of actions) {
+        doc.fontSize(9).fillColor("#7f1d1d").text("\u25B8  " + a, 80, y, { width: PW - 40, lineGap: 2 });
+        y = doc.y + 4;
+      }
+
+      // ==================== PAGE NUMBERS ====================
+      const totalPages = doc.bufferedPageRange().count;
+      for (let i = 0; i < totalPages; i++) {
+        doc.switchToPage(i);
+        doc.fontSize(7).fillColor(LIGHT).text(
+          `Page ${i + 1} of ${totalPages}  |  RFQ 202-CW  |  Hargrave Innovative Solutions  |  CONFIDENTIAL`,
+          60, 740, { width: PW, align: "center" }
+        );
+      }
+
+      doc.end();
+    } catch (error: any) {
+      console.error("[TravisRFQ] PDF error:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   app.get("/api/proposal-command/eric-loi-pdf", async (_req, res) => {
     try {
       const doc = new PDFDocument({ size: "LETTER", margin: 60, bufferPages: true });
