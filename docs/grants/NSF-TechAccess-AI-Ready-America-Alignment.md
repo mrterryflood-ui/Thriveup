@@ -65,7 +65,7 @@ TCAF operates 24 interconnected platforms — this is not a proposal to build so
 ### 2. Target Populations NSF Prioritizes
 - **Under-resourced communities** — returning citizens, veterans, single parents, seniors, youth
 - **Veteran-founded, Black-led** — broadening participation in STEM
-- **Rural and urban reach** — 5-county model (Travis, Williamson, Hays, Bastrop, Caldwell)
+- **Nationwide digital reach** — 24 platforms accessible from any state; in-person coalition anchored in Central Texas with statewide scaling plan
 - **Mixed-status families** — culturally responsive AI tools
 
 ### 3. Practical Implementation (Not Just Theory)
@@ -107,11 +107,11 @@ TCAF operates 24 interconnected platforms — this is not a proposal to build so
 - **Status: NEEDS ACTION**
 
 ### GAP 3: "Texas Coordination Hub" Framing
-**Issue:** The solicitation requires ONE hub per state. The LOI title MUST begin with "[Full name of state] Coordination Hub." TCAF needs to position as the TEXAS Coordination Hub — not just a 5-county operation.
-- Currently, TCAF operates in the Austin metro area (5 counties)
-- To be a credible Texas Hub, need to articulate statewide reach or statewide scaling plan
-- **Mitigation:** The 24-platform digital ecosystem is accessible statewide (and nationally). Frame the 5-county coalition as the initial deployment with a statewide scaling roadmap. Partner with organizations in Houston, Dallas-Fort Worth, San Antonio, and the Rio Grande Valley.
-- **Status: NEEDS STRATEGIC FRAMING**
+**Issue:** The solicitation requires ONE hub per state. The LOI title MUST begin with "[Full name of state] Coordination Hub." TCAF needs to position as the TEXAS Coordination Hub.
+- TCAF's 24-platform digital ecosystem is already operational nationwide — accessible from any state, serving users everywhere. This is NOT a 5-county operation. The 5-county focus (Travis, Williamson, Hays, Bastrop, Caldwell) applies ONLY to the St. David's Foundation "We All Benefit 2.0" initiative.
+- For TechAccess, frame TCAF's nationwide digital ecosystem as the technology backbone, with Texas as the in-person deployment hub and national replication model
+- **Mitigation:** Emphasize that the platform is already nationwide. The Texas Hub adds intensive in-person delivery across Texas while the digital ecosystem continues serving communities nationally. Coalition partners in Central Texas provide the physical access points; Year 2-3 regional nodes expand in-person coverage statewide. Partner with organizations in Houston, Dallas-Fort Worth, San Antonio, and the Rio Grande Valley for in-person scaling.
+- **Status: RESOLVED IN FRAMING — nationwide digital + Texas in-person hybrid model**
 
 ### GAP 4: Employer/Industry Partnerships
 **Issue:** The solicitation emphasizes AI readiness for businesses, workforce upskilling, internships, apprenticeships, and project-based work. TCAF's current coalition is government/education/nonprofit-heavy.
