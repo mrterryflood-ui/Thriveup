@@ -4,7 +4,7 @@ import { grantOpportunities, grantAlerts, platformGaps, insertGrantOpportunitySc
 import type { GrantOpportunity } from "@shared/schema";
 import { z } from "zod";
 import { eq, desc, sql, gte, lte, and, or, ilike } from "drizzle-orm";
-import { generateAIResponse } from "./ai-provider";
+import { generateAIResponse, streamAIResponse } from "./ai-provider";
 import { collaborativeResponse } from "./collaborative-ai";
 import PDFDocument from "pdfkit";
 import type { SQL } from "drizzle-orm";
@@ -3454,6 +3454,217 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
       res.json(alignment);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.post("/api/proposal-command/generate", async (req: Request, res: Response) => {
+    const { solicitation, companyProfile, additionalContext, proposalType } = req.body;
+    if (!solicitation || typeof solicitation !== "string" || solicitation.length < 50) {
+      return res.status(400).json({ error: "Paste the full solicitation text (minimum 50 characters)" });
+    }
+
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+
+    const send = (type: string, data: Record<string, unknown>) => {
+      res.write(`data: ${JSON.stringify({ type, ...data })}\n\n`);
+    };
+
+    try {
+      send("status", { message: "Reading solicitation — extracting requirements, deadlines, and evaluation criteria..." });
+
+      send("status", { message: "Running competitive intelligence — researching past winners, market rates, and bid history..." });
+
+      let intel: Record<string, unknown> = {};
+      try {
+        const intelPrompt = `Analyze this solicitation and provide competitive intelligence as JSON:
+
+SOLICITATION (first 4000 chars):
+${solicitation.substring(0, 4000)}
+
+Return ONLY valid JSON:
+{
+  "solicitationType": "RFP|RFQ|LOI|Grant|IFB|RFI",
+  "estimatedBudgetRange": { "low": number, "high": number },
+  "pricingBenchmarks": [{ "source": "description", "range": "$X - $Y", "notes": "context" }],
+  "typicalWinnerProfile": "description of firms that typically win these awards",
+  "competitiveFactors": ["factor1", "factor2"],
+  "deadlines": [{ "item": "description", "date": "date string" }],
+  "requiredDocuments": ["doc1", "doc2"],
+  "evaluationCriteria": [{ "criterion": "name", "weight": "percentage or priority" }],
+  "insuranceRequirements": [{ "type": "coverage type", "minimumCoverage": "$ amount" }],
+  "keyRisks": ["risk1", "risk2"],
+  "winTips": ["specific tip for winning this type of solicitation"],
+  "confidenceLevel": "high|medium|low"
+}
+
+Use real market data for pricing. Reference SAM.gov/USASpending for federal, state procurement portals for state/local. For consulting/facilitation: $150-$300/hr, day rates $1,500-$3,000. For tech: research FPDS comparable awards.`;
+
+        const intelResponse = await generateAIResponse(
+          [
+            { role: "system", content: "You are a competitive intelligence analyst specializing in government contracts (federal, state, local), grants, and RFPs across all levels. You research SAM.gov award history, USASpending.gov, state procurement databases, and foundation 990 data. Return ONLY valid JSON." },
+            { role: "user", content: intelPrompt },
+          ],
+          4000
+        );
+        const jsonStr = intelResponse.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+        intel = JSON.parse(jsonStr);
+      } catch {
+        intel = { error: "Could not parse competitive intel", raw: true };
+      }
+
+      send("data", { section: "intel", ...intel });
+      send("status", { message: `Competitive intel complete — ${(intel as any).solicitationType || "Solicitation"} analyzed, budget range identified` });
+
+      const hasProfile = companyProfile && (companyProfile.companyName || companyProfile.capabilities);
+      send("status", { message: hasProfile ? `Building proposal for ${companyProfile.companyName}...` : "Generating proposal template — fill in your company details after..." });
+
+      const companySection = hasProfile ? `
+RESPONDING COMPANY PROFILE (provided by customer):
+- Company Name: ${companyProfile.companyName || "{{NEEDS_INPUT: Your company/organization name}}"}
+- Type: ${companyProfile.companyType || "{{NEEDS_INPUT: Business type (LLC, Corp, Nonprofit, etc.)}}"}
+- EIN/Tax ID: ${companyProfile.ein || "{{NEEDS_INPUT: Your EIN or Tax ID}}"}
+- Address: ${companyProfile.address || "{{NEEDS_INPUT: Your business address}}"}
+- Point of Contact: ${companyProfile.contactName || "{{NEEDS_INPUT: Primary contact name and title}}"}
+- Phone: ${companyProfile.phone || "{{NEEDS_INPUT: Contact phone number}}"}
+- Email: ${companyProfile.email || "{{NEEDS_INPUT: Contact email}}"}
+- Capabilities: ${companyProfile.capabilities || "{{NEEDS_INPUT: Your key capabilities and services}}"}
+- Certifications: ${companyProfile.certifications || "{{NEEDS_INPUT: Relevant certifications (8(a), HUBZone, SDVOSB, MBE, WBE, etc.)}}"}
+- Past Performance: ${companyProfile.pastPerformance || "{{NEEDS_INPUT: 2-3 relevant past contracts or projects with outcomes}}"}
+- Team/Key Personnel: ${companyProfile.keyPersonnel || "{{NEEDS_INPUT: Key personnel names, titles, and qualifications}}"}
+- Years in Business: ${companyProfile.yearsInBusiness || "{{NEEDS_INPUT: Years of relevant experience}}"}
+- DUNS/UEI: ${companyProfile.uei || "{{NEEDS_INPUT: Your UEI number (required for federal)}}"}` : `
+NO COMPANY PROFILE PROVIDED — Generate a professional template with {{NEEDS_INPUT: ...}} markers for all company-specific information. The customer will fill these in.`;
+
+      const systemPrompt = `You are an expert proposal writer who creates COMPLETE, SUBMISSION-READY proposals for businesses and organizations responding to government solicitations, grants, and RFPs at ALL levels — federal, state, county, and municipal.
+
+${companySection}
+
+COMPETITIVE INTELLIGENCE GATHERED:
+${JSON.stringify(intel, null, 2)}
+
+CRITICAL RULES:
+1. Fill in EVERYTHING you can from the company profile and competitive intelligence.
+2. For information ONLY the customer has, mark with {{NEEDS_INPUT: clear description of what's needed}}
+3. Structure the proposal to MIRROR the solicitation's requirements section-by-section — every requirement gets a direct response.
+4. Include specific pricing with line-item justification based on competitive intel and market rates.
+5. The proposal must read as if a professional proposal writer crafted it — not generic AI output.
+6. Include a compliance matrix mapping EVERY solicitation requirement to the proposal section that addresses it.
+7. For pricing: provide three tiers (Conservative/Value, Competitive/Market, Aggressive/Win) with justification.
+8. Format everything in clean markdown.
+9. If the company has certifications or set-aside eligibility, highlight this prominently — it's often a deciding factor.`;
+
+      const userPrompt = `FULL SOLICITATION TEXT:
+---
+${solicitation}
+---
+
+${additionalContext ? `ADDITIONAL CONTEXT / INSTRUCTIONS:\n${additionalContext}\n---` : ""}
+
+PROPOSAL TYPE: ${proposalType || "auto-detect from solicitation"}
+
+Generate the COMPLETE, READY-TO-SUBMIT proposal with these sections:
+
+## 1. SOLICITATION ANALYSIS
+Break down EVERY requirement, deadline, submission method, evaluation criteria, insurance/bond/compliance needs. Miss nothing.
+
+## 2. PRICING STRATEGY
+Three tiers with line-item breakdown:
+- **Conservative** (win on value, higher price)
+- **Competitive** (market rate)
+- **Aggressive** (lowest defensible bid)
+Include justification based on market data and past winner analysis.
+
+## 3. COVER LETTER
+Professional, properly addressed, 1 page. Highlight differentiators and understanding of the client's needs.
+
+## 4. EXECUTIVE SUMMARY
+Company overview, relevant experience, why this firm is the best fit for THIS specific work.
+
+## 5. TECHNICAL APPROACH / METHODOLOGY
+Step-by-step plan for delivering every requirement. Be specific — not generic consulting language.
+
+## 6. QUALIFICATIONS & EXPERIENCE
+Team credentials, past performance on similar contracts, certifications, relevant references.
+
+## 7. STAFFING PLAN
+Who does what, roles, hours, hourly rates, qualifications. Name specific people if provided.
+
+## 8. PROJECT TIMELINE & DELIVERABLES
+Milestones, deliverable dates, dependencies. Match the solicitation's timeline requirements.
+
+## 9. COST PROPOSAL
+Detailed pricing using the recommended tier. Line items that match the scope of work.
+
+## 10. COMPLIANCE MATRIX
+| Solicitation Requirement | Our Response Section | How We Address It |
+
+## 11. CERTIFICATIONS & INSURANCE
+Acknowledge each insurance/bond/compliance requirement. State willingness to provide or note what's needed.
+
+## 12. ITEMS NEEDING YOUR INPUT
+List every {{NEEDS_INPUT}} item with clear description of what the customer needs to provide.`;
+
+      await streamAIResponse({
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt },
+        ],
+        maxTokens: 8000,
+        onChunk: (content: string) => { send("chunk", { content }); },
+        onDone: () => { send("done", { generatedAt: new Date().toISOString() }); res.end(); },
+        onError: (error: Error) => { send("error", { message: error.message }); res.end(); },
+      });
+    } catch (error: any) {
+      send("error", { message: error.message || "Failed to generate proposal" });
+      res.end();
+    }
+  });
+
+  app.post("/api/proposal-command/refine", async (req: Request, res: Response) => {
+    const { proposal, feedback, unknownAnswers } = req.body;
+    if (!proposal) return res.status(400).json({ error: "Current proposal text required" });
+
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+
+    const send = (type: string, data: Record<string, unknown>) => {
+      res.write(`data: ${JSON.stringify({ type, ...data })}\n\n`);
+    };
+
+    try {
+      let updatedProposal = proposal;
+      if (unknownAnswers && typeof unknownAnswers === "object") {
+        for (const [key, value] of Object.entries(unknownAnswers)) {
+          const escaped = key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+          const pattern = new RegExp(`\\{\\{NEEDS_INPUT:\\s*${escaped}\\s*\\}\\}`, "g");
+          updatedProposal = updatedProposal.replace(pattern, String(value));
+        }
+      }
+
+      if (feedback) {
+        send("status", { message: "Refining proposal based on your feedback..." });
+
+        await streamAIResponse({
+          messages: [
+            { role: "system", content: "You are refining an existing proposal based on user feedback. Maintain the same structure and format. Only change what the user requests. Keep all company-specific details intact. Return the FULL updated proposal in markdown." },
+            { role: "user", content: `CURRENT PROPOSAL:\n${updatedProposal}\n\nFEEDBACK:\n${feedback}\n\nReturn the complete refined proposal.` },
+          ],
+          maxTokens: 8000,
+          onChunk: (content: string) => { send("chunk", { content }); },
+          onDone: () => { send("done", { refinedAt: new Date().toISOString() }); res.end(); },
+          onError: (error: Error) => { send("error", { message: error.message }); res.end(); },
+        });
+      } else {
+        send("chunk", { content: updatedProposal });
+        send("done", { refinedAt: new Date().toISOString() });
+        res.end();
+      }
+    } catch (error: any) {
+      send("error", { message: error.message });
+      res.end();
     }
   });
 
