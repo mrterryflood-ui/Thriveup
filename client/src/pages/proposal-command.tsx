@@ -18,6 +18,8 @@ import { BackToTop } from "@/components/back-to-top";
 
 interface DocumentIntel {
   solicitationType?: string;
+  issuingAgency?: string;
+  agencyLevel?: string;
   estimatedBudgetRange?: { low: number; high: number };
   deadlines?: Array<{ item: string; date: string }>;
   requiredDocuments?: string[];
@@ -33,6 +35,15 @@ interface DocumentIntel {
   responseSize?: string;
   complexity?: string;
   keyFacts?: string[];
+  agencyIntelligence?: {
+    evaluationApproach?: string;
+    whatTheyPrioritize?: string[];
+    winStrategy?: string;
+    commonMistakes?: string[];
+    knownAgency?: boolean;
+    disclaimer?: string;
+  };
+  validationWarnings?: string[];
   confidenceLevel?: string;
   error?: string;
 }
@@ -674,6 +685,61 @@ export default function ProposalCommandPage() {
                     </CardContent>
                   </Card>
 
+                  {intelData.agencyIntelligence && (
+                    <Card className="border-blue-200 dark:border-blue-800">
+                      <CardHeader>
+                        <CardTitle className="text-sm flex items-center gap-2">
+                          <Briefcase className="h-4 w-4 text-blue-600" />
+                          Agency Evaluation Intelligence
+                          {intelData.agencyIntelligence.knownAgency ? (
+                            <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 text-xs ml-auto" data-testid="badge-agency-known">Known Agency</Badge>
+                          ) : (
+                            <Badge variant="outline" className="text-xs ml-auto border-amber-400 text-amber-700" data-testid="badge-agency-researched">Researched</Badge>
+                          )}
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-3">
+                        {intelData.agencyIntelligence.evaluationApproach && (
+                          <div className="text-sm p-2 bg-blue-50 dark:bg-blue-950 rounded" data-testid="text-eval-approach">
+                            <span className="font-medium">How they evaluate: </span>{intelData.agencyIntelligence.evaluationApproach}
+                          </div>
+                        )}
+                        {intelData.agencyIntelligence.whatTheyPrioritize && intelData.agencyIntelligence.whatTheyPrioritize.length > 0 && (
+                          <div>
+                            <div className="text-xs font-medium text-muted-foreground mb-1">WHAT THIS AGENCY PRIORITIZES</div>
+                            {intelData.agencyIntelligence.whatTheyPrioritize.map((item, i) => (
+                              <div key={i} className="flex items-start gap-2 text-sm py-0.5">
+                                <Target className="h-3.5 w-3.5 text-blue-500 shrink-0 mt-0.5" />
+                                <span>{item}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        {intelData.agencyIntelligence.winStrategy && (
+                          <div className="text-sm p-2 bg-green-50 dark:bg-green-950 rounded" data-testid="text-win-strategy">
+                            <span className="font-medium">Win strategy: </span>{intelData.agencyIntelligence.winStrategy}
+                          </div>
+                        )}
+                        {intelData.agencyIntelligence.commonMistakes && intelData.agencyIntelligence.commonMistakes.length > 0 && (
+                          <div>
+                            <div className="text-xs font-medium text-red-600 dark:text-red-400 mb-1">MISTAKES TO AVOID</div>
+                            {intelData.agencyIntelligence.commonMistakes.map((mistake, i) => (
+                              <div key={i} className="flex items-start gap-2 text-sm py-0.5 text-red-700 dark:text-red-300">
+                                <AlertTriangle className="h-3.5 w-3.5 text-red-500 shrink-0 mt-0.5" />
+                                <span>{mistake}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        {intelData.agencyIntelligence.disclaimer && (
+                          <div className="text-xs p-2 bg-amber-50 dark:bg-amber-950 rounded border border-amber-200 dark:border-amber-800" data-testid="text-agency-disclaimer">
+                            <span className="font-medium">Verify: </span>{intelData.agencyIntelligence.disclaimer}
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  )}
+
                   {intelData.insuranceRequirements && intelData.insuranceRequirements.length > 0 && (
                     <Card>
                       <CardHeader>
@@ -692,11 +758,29 @@ export default function ProposalCommandPage() {
                     </Card>
                   )}
 
+                  {intelData.validationWarnings && intelData.validationWarnings.length > 0 && (
+                    <Card className="border-amber-300 dark:border-amber-700">
+                      <CardHeader>
+                        <CardTitle className="text-sm flex items-center gap-2">
+                          <AlertTriangle className="h-4 w-4 text-amber-500" /> Validation Checks
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        {intelData.validationWarnings.map((warning, i) => (
+                          <div key={i} className="flex items-start gap-2 text-sm py-0.5 text-amber-700 dark:text-amber-300">
+                            <AlertTriangle className="h-3.5 w-3.5 text-amber-500 shrink-0 mt-0.5" />
+                            <span>{warning}</span>
+                          </div>
+                        ))}
+                      </CardContent>
+                    </Card>
+                  )}
+
                   {intelData.keyFacts && intelData.keyFacts.length > 0 && (
                     <Card>
                       <CardHeader>
                         <CardTitle className="text-sm flex items-center gap-2">
-                          <AlertTriangle className="h-4 w-4 text-amber-500" /> Key Facts
+                          <FileText className="h-4 w-4 text-gray-500" /> Additional Facts from Document
                         </CardTitle>
                       </CardHeader>
                       <CardContent>

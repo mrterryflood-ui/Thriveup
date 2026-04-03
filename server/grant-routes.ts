@@ -3457,8 +3457,365 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
     }
   });
 
+  const AGENCY_INTELLIGENCE: Record<string, {
+    evaluationApproach: string;
+    whatTheyPrioritize: string[];
+    commonMistakes: string[];
+    winStrategy: string;
+    submissionNorms: string;
+  }> = {
+    "federal_civilian": {
+      evaluationApproach: "Federal civilian agencies (GSA, HHS, DOE, EPA, DOL, etc.) follow FAR Part 15 (negotiated procurement) or FAR Part 13 (simplified acquisition under $250K). Evaluation uses Technical Evaluation Boards (TEBs) with assigned point scores. Best-value tradeoff is common — lowest price doesn't always win. Past performance is weighted heavily (FAR 15.305). Oral presentations may be requested.",
+      whatTheyPrioritize: [
+        "Compliance with every stated requirement — non-compliant proposals are eliminated before scoring",
+        "Past performance on similar contracts (FAR 15.305 — most important factor after technical)",
+        "Small business participation and socioeconomic goals (FAR 19)",
+        "Technical approach that demonstrates understanding of the agency's mission",
+        "Key personnel qualifications and availability",
+        "Management approach and quality control plan",
+        "Section 508 accessibility compliance for IT",
+      ],
+      commonMistakes: [
+        "Missing a single required document means automatic disqualification",
+        "Exceeding page limits — evaluators stop reading at the limit",
+        "Generic past performance — must be directly relevant to the scope",
+        "Not registering in SAM.gov before submission deadline",
+        "Pricing that doesn't match the CLIN structure requested",
+      ],
+      winStrategy: "Mirror the evaluation criteria order in your proposal structure. Address every requirement with a clear 'shall' response. Past performance must include contract numbers, CPARS ratings, and specific measurable outcomes.",
+      submissionNorms: "Electronic submission via agency portal (SAM.gov, eBuy, agency-specific). Strict page limits. Separate technical and price volumes. Government-furnished property forms. Reps & Certs in SAM.gov must be current.",
+    },
+    "dod_military": {
+      evaluationApproach: "DOD follows DFARS supplementing FAR. Source Selection Evaluation Boards (SSEBs) with color/adjectival ratings (Blue/Outstanding, Green/Acceptable, Yellow/Marginal, Red/Unacceptable). Past Performance rated Substantial/Satisfactory/Neutral/Marginal/Unsatisfactory. LPTA (Lowest Price Technically Acceptable) is common for services. Best-value used for complex work.",
+      whatTheyPrioritize: [
+        "DFARS compliance — additional clauses beyond FAR",
+        "Security clearance requirements (facility and personnel)",
+        "Cybersecurity maturity (CMMC level) for CUI handling",
+        "Transition plan from incumbent contractor",
+        "Surge and mobilization capability",
+        "Understanding of military operations and culture",
+        "ITAR/EAR export control compliance where applicable",
+      ],
+      commonMistakes: [
+        "Underestimating security requirements — clearance gaps eliminate proposals",
+        "Not addressing CMMC requirements when handling CUI",
+        "Generic approaches that don't reference specific military doctrine or operations",
+        "Pricing that doesn't account for government overhead rates, DCAA audit requirements",
+      ],
+      winStrategy: "Demonstrate understanding of military culture and operational tempo. Reference specific DOD doctrine, instructions, and publications relevant to the work. Show existing clearance capacity. Past performance on DOD contracts weighted heavily.",
+      submissionNorms: "Electronic submission via DOD-specific portals (PIEE, DOD eSourcing). DD254 for classified work. DCAA-auditable cost proposals. Subcontracting plans required over $750K.",
+    },
+    "darpa_research": {
+      evaluationApproach: "DARPA uses Broad Agency Announcements (BAAs) under FAR 6.102(d)(2) — not traditional competitive procurement. Evaluation is peer review by program managers and technical experts. No formal point scoring — holistic assessment of scientific/technical merit, potential for impact, and team capability. Proposals are evaluated against the BAA criteria, not against each other.",
+      whatTheyPrioritize: [
+        "Scientific and technical merit — is this actually innovative?",
+        "Potential for transformative impact — 10x improvement, not incremental",
+        "Proposer's capability and relevant expertise",
+        "Realism of the technical approach and risk mitigation",
+        "Clear metrics and milestones for go/no-go decisions",
+        "Ethical, legal, and societal implications (ELSI) assessment",
+      ],
+      commonMistakes: [
+        "Proposing incremental improvements — DARPA wants revolutionary, high-risk/high-reward",
+        "Overpromising without acknowledging technical risks",
+        "Not understanding the specific Technical Area (TA) within the BAA",
+        "Academic-style papers instead of actionable research plans",
+      ],
+      winStrategy: "Lead with the problem and why current approaches fail. Propose a fundamentally different approach. Include clear go/no-go milestones. Show you understand the specific program manager's vision. Demonstrate you can execute in 18-36 month phases.",
+      submissionNorms: "Abstracts first (2-5 pages), then full proposals only if invited. Follow BAA-specific formatting exactly. Cost proposals in separate volume. Often requires Organizational Conflict of Interest (OCI) statements.",
+    },
+    "state_agency": {
+      evaluationApproach: "State agencies follow their own procurement codes (e.g., Texas Government Code Chapter 2155/2156, California PCC). Evaluation committees score against published criteria. Many states use best-value methodology. Some require oral presentations. HUB/MWBE goals are often mandatory. State procurement portals (ESBD in Texas, Cal eProcure in California, etc.) are the primary posting sites.",
+      whatTheyPrioritize: [
+        "HUB/MWBE participation goals — often 15-30% of contract value",
+        "Demonstrated experience with state government clients",
+        "Compliance with state-specific terms (e.g., Texas requires CIQ, HUB Subcontracting Plan)",
+        "Understanding of state-specific regulations and reporting requirements",
+        "References from other state agencies",
+        "Cost competitiveness within state pricing guidelines",
+      ],
+      commonMistakes: [
+        "Not completing state-specific forms (CIQ, HUB-SP, vendor registration)",
+        "Ignoring HUB/MWBE goals — some states score this separately",
+        "Not being registered on the state vendor portal before submission",
+        "Using federal formatting for state procurements — different norms",
+      ],
+      winStrategy: "Lead with state-specific experience. Complete every form. Show HUB/MWBE participation prominently. Reference the specific state code sections relevant to the work. Use state agency terminology, not federal.",
+      submissionNorms: "State procurement portal submission. Vendor registration required. State-specific forms mandatory. May require physical copies with wet signatures.",
+    },
+    "city_municipal": {
+      evaluationApproach: "Cities and municipalities follow local purchasing ordinances. Small purchases (often under $50K) may use informal quotes — 3 quotes by email or phone. Formal procurements use sealed bids (IFB for lowest price) or RFP (best value). City Council approval often required above threshold ($50K-$100K typically). Evaluation committees are usually 3-5 city staff members.",
+      whatTheyPrioritize: [
+        "Local business preference — many cities give 5-10% price advantage to local firms",
+        "Responsiveness — did you answer every question and include every form?",
+        "Price — for IFBs and smaller procurements, lowest responsible bid wins",
+        "Understanding of the specific community or department needs",
+        "Insurance and bonding capacity — must meet exact requirements",
+        "References from other government clients, especially local/municipal",
+        "Minority/Women/Veteran business certification",
+      ],
+      commonMistakes: [
+        "Over-engineering the response — a city RFQ wants a clean quote, not a 40-page volume",
+        "Missing local preference advantages by not claiming them",
+        "Not attending mandatory pre-bid meetings — automatic disqualification",
+        "Submitting to the wrong address or past the deadline — zero tolerance",
+      ],
+      winStrategy: "Match the formality level of the solicitation exactly. A 2-page RFQ gets a 2-3 page response. Include every required form. Highlight local presence and past work for this or similar cities. Price competitively — city councils scrutinize pricing.",
+      submissionNorms: "Email, sealed envelope, or city portal. Wet signatures often required. Original + copies (2-3 typical). Required forms vary by city but usually include: W-9, vendor application, insurance certificate, CIQ/conflict of interest.",
+    },
+    "county_government": {
+      evaluationApproach: "Counties follow state procurement law plus their own purchasing policies. Commissioners Court or County Purchasing department makes final award. Thresholds vary ($25K-$100K for formal procurement). Evaluation is usually best-value but lowest-price is common for commodity purchases.",
+      whatTheyPrioritize: [
+        "Compliance with county-specific terms and conditions",
+        "Experience with county government operations",
+        "Cost reasonableness — counties are budget-constrained",
+        "Insurance meeting exact county requirements",
+        "HUB/MWBE participation where required by the state",
+        "Responsiveness to the specific scope — no fluff",
+      ],
+      commonMistakes: [
+        "Treating county procurements like federal — much simpler format expected",
+        "Not attending pre-bid conferences when required",
+        "Missing county-specific forms",
+      ],
+      winStrategy: "Clean, responsive, no-nonsense proposals. Show you understand county operations. Price fairly. Include every form. References from other county governments are gold.",
+      submissionNorms: "County purchasing portal or sealed bids. Fewer forms than state/federal but strict on deadlines. County-specific vendor registration may be required.",
+    },
+    "school_district": {
+      evaluationApproach: "School districts follow state education procurement codes and federal guidelines if using federal funds (2 CFR 200 for Title I, ESSER, etc.). Board of Trustees approval required above threshold. Evaluation by committee of administrators. EDGAR compliance required for federal education funds.",
+      whatTheyPrioritize: [
+        "Student outcome focus — how does this help students?",
+        "EDGAR/2 CFR 200 compliance if using federal funds",
+        "Teacher and staff buy-in — will this be adopted?",
+        "Evidence-based practices — ESSA Tier 1-4 evidence levels",
+        "Integration with existing district systems",
+        "Professional development and training included",
+        "Sustainability after grant funding ends",
+      ],
+      commonMistakes: [
+        "Not understanding whether federal funds are involved (changes compliance requirements)",
+        "Proposing technology without a training/adoption plan",
+        "Ignoring district calendar and school year scheduling",
+      ],
+      winStrategy: "Lead with student outcomes. Show evidence base. Include professional development. Demonstrate understanding of the school year calendar and how work fits into it. Address sustainability.",
+      submissionNorms: "District purchasing portal or email. Board meeting schedule affects award timeline. May require presentation to the board.",
+    },
+    "foundation_philanthropy": {
+      evaluationApproach: "Foundations use program officers and review committees. No formal scoring rubric in most cases — qualitative assessment of alignment with foundation mission, organizational capacity, and impact potential. LOI screening narrows to invited full applications. Site visits may follow. Each foundation has unique priorities — generic applications fail.",
+      whatTheyPrioritize: [
+        "Mission alignment — does your work directly serve their stated focus areas?",
+        "Theory of change — clear logic model from activities to outcomes",
+        "Organizational capacity — can you actually do this work?",
+        "Community voice — are you responding to community-identified needs?",
+        "Measurement and evaluation — how will you prove impact?",
+        "Sustainability — what happens when the grant ends?",
+        "Collaboration — are you working with others or duplicating?",
+        "Equity — who leads? Who benefits? Who decides?",
+      ],
+      commonMistakes: [
+        "Not reading the foundation's annual report and recent grantee list",
+        "Asking for amounts outside their typical range (check 990s for past grants)",
+        "Generic language that could apply to any funder",
+        "Not connecting your work to their specific focus areas and language",
+      ],
+      winStrategy: "Mirror their language. Reference their published priorities. Show community engagement. Include a clear logic model. Budget must be reasonable and specific. Letters of support from community partners add weight.",
+      submissionNorms: "Online portal (Fluxx, Submittable, SmartSimple, custom). LOI first (1-3 pages), then full application by invitation. Budget narrative required. Board list and financials (audited statements, 990) often required.",
+    },
+    "hospital_health_system": {
+      evaluationApproach: "Hospital systems and health foundations evaluate through clinical leadership, community benefit committees, and/or supply chain depending on the solicitation. Community benefit programs follow IRS Schedule H requirements. Health system RFPs for services go through value analysis committees. Community health grants align with Community Health Needs Assessment (CHNA) priorities.",
+      whatTheyPrioritize: [
+        "Alignment with CHNA priorities and community benefit strategy",
+        "Evidence-based interventions with published outcomes",
+        "Health equity focus — disparities data, SDOH framework",
+        "Community partnerships and referral pathways",
+        "Measurable health outcomes (not just outputs)",
+        "Cultural competence and linguistic access",
+        "Sustainability and population health impact",
+        "HIPAA compliance and data security",
+      ],
+      commonMistakes: [
+        "Not reviewing the hospital's most recent CHNA",
+        "Proposing work outside their geographic service area",
+        "Outputs without outcomes — they want health impact, not activities",
+        "Not understanding the difference between community benefit grants and supply chain RFPs",
+      ],
+      winStrategy: "Reference their specific CHNA. Use SDOH framework language. Show health outcomes data. Demonstrate community partnerships. Address health equity explicitly. Include evaluation methodology.",
+      submissionNorms: "Foundation portal or email. LOI screening common. May require presentation to community benefit committee. Budget must show cost-per-participant or cost-per-outcome.",
+    },
+    "nonprofit_funder": {
+      evaluationApproach: "Nonprofit intermediaries and federated funders (United Way, Community Foundation, etc.) use volunteer review panels from the community. Scoring rubrics are published. Site visits are common. Outcomes reporting requirements are specific.",
+      whatTheyPrioritize: [
+        "Alignment with community impact priorities",
+        "Organizational capacity and financial health",
+        "Board governance and diversity",
+        "Program outcomes with data",
+        "Collaboration with other nonprofits",
+        "Client voice in program design",
+        "Cost efficiency and reasonable overhead",
+      ],
+      commonMistakes: [
+        "High overhead percentage without explanation",
+        "No evaluation plan",
+        "Not involving clients in program design",
+      ],
+      winStrategy: "Tell the story with data. Show community demand. Demonstrate fiscal responsibility. Include client testimonials (with permission). Address how you coordinate with other providers.",
+      submissionNorms: "Online portal. Financials required (audit, 990, board-approved budget). Outcomes framework aligned with funder's reporting system.",
+    },
+  };
+
+  function getAgencyIntelligence(parsed: Record<string, unknown>): {
+    knownAgency: boolean;
+    agencyType: string;
+    intelligence: typeof AGENCY_INTELLIGENCE[string] | null;
+    confidenceNote: string;
+  } {
+    const agencyLevel = ((parsed.agencyLevel as string) || "").toLowerCase();
+    const docType = ((parsed.documentType as string) || "").toLowerCase();
+    const agencyName = ((parsed.issuingAgency as string) || "").toLowerCase();
+
+    const typeMap: Record<string, string> = {
+      "federal": "federal_civilian",
+      "state": "state_agency",
+      "county": "county_government",
+      "city": "city_municipal",
+      "municipal": "city_municipal",
+      "school_district": "school_district",
+      "tribal": "federal_civilian",
+      "nonprofit": "nonprofit_funder",
+    };
+
+    if (agencyName.includes("darpa") || agencyName.includes("defense advanced")) {
+      return { knownAgency: true, agencyType: "darpa_research", intelligence: AGENCY_INTELLIGENCE["darpa_research"], confidenceNote: "DARPA identified — BAA/research proposal methodology applied" };
+    }
+    if (agencyName.includes("dod") || agencyName.includes("department of defense") || agencyName.includes("army") || agencyName.includes("navy") || agencyName.includes("air force") || agencyName.includes("marine") || agencyName.includes("space force")) {
+      return { knownAgency: true, agencyType: "dod_military", intelligence: AGENCY_INTELLIGENCE["dod_military"], confidenceNote: "DOD agency identified — DFARS/military procurement methodology applied" };
+    }
+    if (agencyName.includes("hospital") || agencyName.includes("health system") || agencyName.includes("medical center") || agencyName.includes("st. david") || agencyName.includes("saint david") || agencyName.includes("ascension") || agencyName.includes("hca") || agencyName.includes("community health")) {
+      return { knownAgency: true, agencyType: "hospital_health_system", intelligence: AGENCY_INTELLIGENCE["hospital_health_system"], confidenceNote: "Hospital/health system identified — CHNA-aligned community benefit methodology applied" };
+    }
+    if (agencyName.includes("foundation") && !agencyName.includes("national science foundation")) {
+      return { knownAgency: true, agencyType: "foundation_philanthropy", intelligence: AGENCY_INTELLIGENCE["foundation_philanthropy"], confidenceNote: "Foundation/philanthropy identified — program officer review methodology applied" };
+    }
+    if (agencyName.includes("school district") || agencyName.includes("isd") || agencyName.includes("unified school") || agencyName.includes("board of education")) {
+      return { knownAgency: true, agencyType: "school_district", intelligence: AGENCY_INTELLIGENCE["school_district"], confidenceNote: "School district identified — education procurement methodology applied" };
+    }
+    if (agencyName.includes("nsf") || agencyName.includes("national science foundation") || agencyName.includes("nih") || agencyName.includes("national institutes of health")) {
+      return { knownAgency: true, agencyType: "darpa_research", intelligence: AGENCY_INTELLIGENCE["darpa_research"], confidenceNote: "Federal research agency identified — merit review methodology applied" };
+    }
+    if (agencyName.includes("united way") || agencyName.includes("community foundation")) {
+      return { knownAgency: true, agencyType: "nonprofit_funder", intelligence: AGENCY_INTELLIGENCE["nonprofit_funder"], confidenceNote: "Nonprofit funder identified — community review panel methodology applied" };
+    }
+
+    if (agencyLevel && typeMap[agencyLevel]) {
+      const mapped = typeMap[agencyLevel];
+      return { knownAgency: true, agencyType: mapped, intelligence: AGENCY_INTELLIGENCE[mapped], confidenceNote: `${agencyLevel} agency identified — ${mapped.replace(/_/g, " ")} methodology applied` };
+    }
+
+    return { knownAgency: false, agencyType: "unknown", intelligence: null, confidenceNote: "Agency type not recognized from document — will research evaluation methodology" };
+  }
+
+  async function researchUnknownAgency(agencyName: string, docType: string, solicitationText: string): Promise<{
+    evaluationApproach: string;
+    whatTheyPrioritize: string[];
+    commonMistakes: string[];
+    winStrategy: string;
+    submissionNorms: string;
+    researchConfidence: string;
+    disclaimer: string;
+  }> {
+    const prompt = `I need to understand how "${agencyName}" evaluates "${docType}" submissions. Research this agency and provide FACTUAL information about their procurement/grant review process.
+
+SOLICITATION CONTEXT (first 3000 chars):
+${solicitationText.substring(0, 3000)}
+
+CRITICAL: Only state facts you are confident about. If you are not sure about something, say "UNKNOWN — verify with the agency directly." Do NOT guess or fabricate evaluation criteria, scoring methods, or review processes.
+
+Return ONLY valid JSON:
+{
+  "evaluationApproach": "How this agency typically evaluates proposals — based on what you actually know. If unsure, say 'UNKNOWN — contact the agency or check their procurement website for evaluation procedures.'",
+  "whatTheyPrioritize": ["list of priorities you are CONFIDENT this agency type values — if unsure, include 'VERIFY: [item] — confirm with agency'"],
+  "commonMistakes": ["common mistakes when responding to this type of agency — if unsure, include 'VERIFY: confirm this applies to this specific agency'"],
+  "winStrategy": "Specific strategy for this agency type — or 'Research needed: check [specific source] for past awards and evaluation patterns'",
+  "submissionNorms": "How this agency typically accepts submissions — or 'VERIFY with procurement office'",
+  "researchConfidence": "high|medium|low — be honest about how much you actually know about this specific agency",
+  "disclaimer": "What you could NOT verify and what the submitter should confirm directly with the agency"
+}`;
+
+    const response = await generateAIResponse(
+      [
+        { role: "system", content: "You are a procurement research analyst. You NEVER fabricate information about agencies. If you don't know how a specific agency evaluates proposals, you say so clearly and suggest where to find that information (agency website, past solicitations, procurement office phone number). Honesty about gaps in your knowledge is more valuable than confident guessing." },
+        { role: "user", content: prompt },
+      ],
+      2000
+    );
+
+    let jsonStr = response.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+    const fb = jsonStr.indexOf("{");
+    const lb = jsonStr.lastIndexOf("}");
+    if (fb !== -1 && lb !== -1 && lb > fb) jsonStr = jsonStr.substring(fb, lb + 1);
+    return JSON.parse(jsonStr);
+  }
+
+  function validateParsedDocument(parsed: Record<string, unknown>): {
+    valid: boolean;
+    warnings: string[];
+    critical: string[];
+  } {
+    const warnings: string[] = [];
+    const critical: string[] = [];
+
+    if (!parsed.documentType) critical.push("Could not determine document type — verify this is a solicitation");
+    if (!parsed.scope && !parsed.scopeDetails) critical.push("No scope of work found — the document may be incomplete");
+
+    const submissionFormat = parsed.submissionFormat as any;
+    const responseGuidance = parsed.responseGuidance as any;
+
+    if (!parsed.deadlines || (parsed.deadlines as any[]).length === 0) warnings.push("No deadlines found — confirm submission deadline with the issuing agency");
+    if (!parsed.evaluationCriteria || (parsed.evaluationCriteria as any[]).length === 0) warnings.push("No evaluation criteria found — the document may not specify how proposals are scored");
+    if (!parsed.budgetStated || (!(parsed.budgetStated as any)?.exact && !(parsed.budgetStated as any)?.notToExceed && !(parsed.budgetStated as any)?.low)) warnings.push("No budget stated in document — pricing will be based on scope analysis");
+    if (!parsed.contactInfo || !(parsed.contactInfo as any)?.name) warnings.push("No purchasing contact found — verify submission address");
+    if (!submissionFormat?.method && !submissionFormat?.address) warnings.push("Submission method not specified — confirm how to submit with the agency");
+    if (!responseGuidance?.sectionsRequired?.length && !submissionFormat?.requiredSections?.length) warnings.push("Document does not specify required response sections — structuring response based on scope and agency type");
+
+    return { valid: critical.length === 0, warnings, critical };
+  }
+
+  function validateScaleAlignment(scale: ReturnType<typeof determineResponseScale>, parsed: Record<string, unknown>, agencyIntel: ReturnType<typeof getAgencyIntelligence>): string[] {
+    const checks: string[] = [];
+    const budgetStated = parsed.budgetStated as any;
+    const docType = ((parsed.documentType as string) || "").toLowerCase();
+
+    if (scale.documentDriven) {
+      checks.push("VALIDATED: Response structure driven by document-specified sections");
+    } else {
+      checks.push("NOTE: Document did not specify required sections — using agency-type defaults");
+    }
+
+    if (budgetStated?.exact || budgetStated?.notToExceed || budgetStated?.low || budgetStated?.high) {
+      checks.push("VALIDATED: Budget found in document — pricing will be calibrated to stated range");
+    } else {
+      checks.push("WARNING: No budget in document — pricing based on scope complexity analysis");
+    }
+
+    if (agencyIntel.knownAgency) {
+      checks.push(`VALIDATED: ${agencyIntel.confidenceNote}`);
+    } else {
+      checks.push("RESEARCHED: Agency not in knowledge base — evaluation methodology researched and applied");
+    }
+
+    if (docType.includes("rfq") || docType.includes("quote") || docType.includes("informal")) {
+      if (scale.maxTokens > 6000) {
+        checks.push("WARNING: Quote/RFQ detected but response scale seems large — verify this isn't an over-engineered response");
+      } else {
+        checks.push("VALIDATED: Quote/RFQ scale matches document type");
+      }
+    }
+
+    return checks;
+  }
+
   async function parseDocument(solicitationText: string): Promise<Record<string, unknown>> {
-    const parsePrompt = `You are a government procurement document parser. Read this solicitation WORD BY WORD and extract EVERY fact into structured JSON. Do NOT estimate or guess — only extract what the document actually says.
+    const parsePrompt = `You are a government procurement document parser. Read this solicitation WORD BY WORD. Extract ONLY what the document actually states. If something is NOT in the document, use null — do NOT estimate or infer.
 
 DOCUMENT:
 ${solicitationText.substring(0, 15000)}
@@ -3466,34 +3823,58 @@ ${solicitationText.substring(0, 15000)}
 Return ONLY valid JSON. Start with { and end with }. No markdown, no explanation.
 
 {
-  "documentType": "RFP|RFQ|RFI|IFB|LOI|Grant|Quote Request|Informal Quote|Bid",
+  "documentType": "RFP|RFQ|RFI|IFB|LOI|Grant|Quote Request|Informal Quote|Bid|Sole Source|BPA|Task Order",
   "title": "exact title from document",
   "issuingAgency": "exact agency/organization name",
+  "agencyLevel": "federal|state|county|city|municipal|school_district|special_district|tribal|nonprofit|private|null if not clear",
   "solicitationNumber": "exact number if provided or null",
-  "contactInfo": { "name": "purchasing agent/contact", "email": "email", "phone": "phone", "address": "address" },
+  "contactInfo": { "name": "purchasing agent/contact", "email": "email", "phone": "phone", "address": "mailing address", "fax": "fax if listed" },
   "scope": "1-2 sentence summary of what they are buying",
-  "scopeDetails": ["each specific deliverable or service item listed"],
+  "scopeDetails": ["each specific deliverable, service item, or line item listed in the scope of work — be exhaustive"],
   "budgetStated": { "low": null, "high": null, "exact": null, "notToExceed": null, "currency": "USD" },
   "budgetScale": "micro_under_10k|small_10k_50k|medium_50k_250k|large_250k_1m|enterprise_over_1m",
   "contractPeriod": { "start": "date or null", "end": "date or null", "duration": "description", "renewals": "renewal terms or null" },
-  "deadlines": [{ "item": "what is due", "date": "exact date/time", "timezone": "timezone if stated" }],
-  "submissionMethod": "how to submit (email, portal, physical, etc.)",
-  "submissionAddress": "where to submit",
-  "evaluationCriteria": [{ "criterion": "exact name", "weight": "exact weight/points or 'not specified'", "description": "details if given" }],
-  "requiredDocuments": ["exact list of every document they require"],
-  "pageLimits": [{ "section": "which section", "maxPages": "number or 'not specified'" }],
-  "insuranceRequirements": [{ "type": "exact coverage type", "amount": "exact $ amount", "additionalInsured": true }],
-  "bondRequirements": "exact bond requirement or null",
-  "certificationPreferences": ["MBE", "WBE", "DBE", "HUB", "SDVOSB", "8a", "HUBZone", "other"],
+  "deadlines": [{ "item": "what is due", "date": "exact date/time as written in document", "timezone": "timezone if stated" }],
+
+  "submissionFormat": {
+    "method": "email|portal|mail|hand-deliver|fax|electronic|null",
+    "address": "exact submission address or email or portal URL",
+    "totalPageLimit": "exact total page limit stated or null",
+    "formatRequirements": "font size, margins, spacing requirements or null",
+    "numberOfCopies": "how many copies required or null",
+    "fileFormat": "PDF, Word, sealed envelope, etc. or null",
+    "separateVolumes": "whether pricing must be in separate envelope/volume or null",
+    "requiredSections": ["exact list of sections the document says to include in your response, in order — use the document's exact wording"],
+    "requiredForms": ["exact names of forms to complete and include (W-9, CIQ, HUB, etc.)"],
+    "additionalInstructions": "any other submission instructions from the document"
+  },
+
+  "evaluationCriteria": [{ "criterion": "exact name as stated", "weight": "exact weight/points/percentage as stated or null", "description": "details if given" }],
+  "evaluationMethod": "lowest price|best value|qualifications-based|competitive sealed proposal|other|null",
+  "requiredDocuments": ["exact list of every document, form, certificate they require — be exhaustive"],
+
+  "insuranceRequirements": [{ "type": "exact coverage type", "amount": "exact $ amount as stated", "additionalInsured": true }],
+  "bondRequirements": { "bidBond": "amount or null", "performanceBond": "amount or null", "paymentBond": "amount or null" },
+  "certificationPreferences": ["exact certifications mentioned: MBE, WBE, DBE, HUB, SDVOSB, 8a, HUBZone, etc."],
   "setAside": "small business set-aside type or null",
-  "paymentTerms": "Net 30, milestone-based, etc.",
-  "backgroundChecks": true,
-  "ipOwnership": "who owns deliverables",
-  "contractType": "fixed-price|time-and-materials|cost-plus|indefinite-delivery|other",
+
+  "paymentTerms": "Net 30, milestone-based, etc. or null",
+  "backgroundChecks": "true|false|null",
+  "drugTesting": "true|false|null",
+  "prevailingWage": "true|false|null",
+  "ipOwnership": "who owns deliverables or null",
+  "contractType": "fixed-price|time-and-materials|cost-plus|indefinite-delivery|unit-price|other|null",
   "naicsCode": "NAICS code if listed or null",
-  "complexity": "simple|moderate|complex",
-  "responseLength": "estimated appropriate response length based on scope and page limits",
-  "keyFacts": ["any other important facts from the document not captured above"]
+  "nigpCode": "NIGP commodity code if listed or null",
+
+  "responseGuidance": {
+    "documentTellsYouExactly": "Summarize in 1-2 sentences exactly what format and length of response this document requires — based ONLY on what the document states, not estimation",
+    "sectionsRequired": ["list every section the document explicitly requires in the response"],
+    "totalPages": "exact total page count if stated, or null if the document does not state a page limit",
+    "pricingFormat": "how the document says to present pricing (line items, lump sum, unit prices, cost proposal form, etc.) or null"
+  },
+
+  "keyFacts": ["any other important facts, terms, conditions, or requirements from the document not captured above"]
 }`;
 
     const response = await generateAIResponse(
@@ -3516,23 +3897,92 @@ Return ONLY valid JSON. Start with { and end with }. No markdown, no explanation
     sections: string[];
     pricingStyle: string;
     tone: string;
-    pageEstimate: string;
+    pageTarget: string;
     needsMultiPass: boolean;
+    documentDriven: boolean;
   } {
-    const scale = (parsed.budgetScale as string) || "medium_50k_250k";
-    const complexity = (parsed.complexity as string) || "moderate";
+    const responseGuidance = parsed.responseGuidance as any;
+    const submissionFormat = parsed.submissionFormat as any;
 
+    const docSections: string[] = responseGuidance?.sectionsRequired?.length > 0
+      ? responseGuidance.sectionsRequired
+      : submissionFormat?.requiredSections?.length > 0
+        ? submissionFormat.requiredSections
+        : [];
+
+    const docPageLimit = responseGuidance?.totalPages || submissionFormat?.totalPageLimit || null;
+    const docPricingFormat = responseGuidance?.pricingFormat || null;
+    const pageNum = docPageLimit ? parseInt(String(docPageLimit), 10) : 0;
+    const hasPageLimit = pageNum > 0;
+
+    if (docSections.length > 0) {
+      let maxTokens: number;
+      if (hasPageLimit && pageNum <= 5) maxTokens = 3000;
+      else if (hasPageLimit && pageNum <= 10) maxTokens = 6000;
+      else if (hasPageLimit && pageNum <= 25) maxTokens = 10000;
+      else if (docSections.length <= 4) maxTokens = 4000;
+      else if (docSections.length <= 8) maxTokens = 8000;
+      else maxTokens = 12000;
+
+      return {
+        maxTokens,
+        sections: docSections,
+        pricingStyle: docPricingFormat || "as_document_specifies",
+        tone: "match the formality and specificity the document requires",
+        pageTarget: hasPageLimit ? `${docPageLimit} pages (document limit)` : `${docSections.length} sections as specified by the document`,
+        needsMultiPass: maxTokens >= 10000,
+        documentDriven: true,
+      };
+    }
+
+    if (hasPageLimit && docSections.length === 0) {
+      let maxTokens: number;
+      if (pageNum <= 3) maxTokens = 2000;
+      else if (pageNum <= 5) maxTokens = 3000;
+      else if (pageNum <= 10) maxTokens = 6000;
+      else if (pageNum <= 25) maxTokens = 10000;
+      else maxTokens = 12000;
+
+      return {
+        maxTokens,
+        sections: [],
+        pricingStyle: docPricingFormat || "as_document_specifies",
+        tone: "match the formality the document requires",
+        pageTarget: `${docPageLimit} pages (document limit — no specific sections listed, structure response to fit)`,
+        needsMultiPass: maxTokens >= 10000,
+        documentDriven: true,
+      };
+    }
+
+    const scale = (parsed.budgetScale as string) || "medium_50k_250k";
     const budgetStated = parsed.budgetStated as any;
     const statedBudget = budgetStated?.exact || budgetStated?.notToExceed || budgetStated?.high || budgetStated?.low || 0;
+    const docType = ((parsed.documentType as string) || "").toLowerCase();
+    const agencyLevel = ((parsed.agencyLevel as string) || "").toLowerCase();
+
+    const isInformalQuote = docType.includes("quote") || docType.includes("rfq") || docType.includes("informal") || docType === "ifb";
+
+    if (isInformalQuote && (scale === "micro_under_10k" || scale === "small_10k_50k" || (statedBudget > 0 && statedBudget < 50000))) {
+      return {
+        maxTokens: 4000,
+        sections: ["cover_letter", "scope_response", "pricing", "company_info", "compliance"],
+        pricingStyle: docPricingFormat || "line_items_matching_scope",
+        tone: "concise and professional — this is a quote request, be direct and responsive",
+        pageTarget: "Document does not specify page limits — responding proportionally to scope (brief quote format)",
+        needsMultiPass: false,
+        documentDriven: false,
+      };
+    }
 
     if (scale === "micro_under_10k" || (statedBudget > 0 && statedBudget < 10000)) {
       return {
         maxTokens: 3000,
         sections: ["cover_letter", "scope_response", "pricing", "company_info"],
-        pricingStyle: "simple_line_items",
-        tone: "concise and professional — this is a small procurement, keep it brief",
-        pageEstimate: "2-4 pages",
+        pricingStyle: docPricingFormat || "simple_line_items",
+        tone: "concise and professional",
+        pageTarget: "Document does not specify — responding proportionally to scope",
         needsMultiPass: false,
+        documentDriven: false,
       };
     }
 
@@ -3540,24 +3990,23 @@ Return ONLY valid JSON. Start with { and end with }. No markdown, no explanation
       return {
         maxTokens: 6000,
         sections: ["cover_letter", "understanding_of_scope", "technical_approach", "qualifications", "pricing", "compliance"],
-        pricingStyle: "line_item_with_brief_justification",
-        tone: "professional and focused — match the document's scope, don't over-engineer",
-        pageEstimate: "5-10 pages",
+        pricingStyle: docPricingFormat || "line_item_with_brief_justification",
+        tone: "professional and focused",
+        pageTarget: "Document does not specify page limits — responding proportionally to scope",
         needsMultiPass: false,
+        documentDriven: false,
       };
     }
 
     if (scale === "medium_50k_250k" || (statedBudget > 0 && statedBudget < 250000)) {
-      const isComplex = complexity === "complex";
       return {
-        maxTokens: isComplex ? 10000 : 8000,
-        sections: isComplex
-          ? ["cover_letter", "executive_summary", "technical_approach", "qualifications", "staffing", "timeline", "pricing", "compliance_matrix", "certifications"]
-          : ["cover_letter", "executive_summary", "technical_approach", "qualifications", "pricing", "compliance_matrix", "certifications"],
-        pricingStyle: "three_tier_with_line_items",
-        tone: "thorough and detailed — demonstrate capability and methodology",
-        pageEstimate: isComplex ? "15-20 pages" : "10-15 pages",
+        maxTokens: 8000,
+        sections: ["cover_letter", "executive_summary", "technical_approach", "qualifications", "pricing", "compliance_matrix", "certifications"],
+        pricingStyle: docPricingFormat || "three_tier_with_line_items",
+        tone: "thorough and detailed",
+        pageTarget: "Document does not specify page limits — responding proportionally to scope",
         needsMultiPass: false,
+        documentDriven: false,
       };
     }
 
@@ -3565,20 +4014,22 @@ Return ONLY valid JSON. Start with { and end with }. No markdown, no explanation
       return {
         maxTokens: 12000,
         sections: ["solicitation_analysis", "cover_letter", "executive_summary", "technical_approach", "qualifications", "staffing", "timeline", "pricing_strategy", "cost_proposal", "compliance_matrix", "certifications_insurance", "unknowns"],
-        pricingStyle: "three_tier_detailed_with_justification",
-        tone: "comprehensive and detailed — this is a significant procurement requiring thorough demonstration of capability",
-        pageEstimate: "20-30 pages",
+        pricingStyle: docPricingFormat || "three_tier_detailed_with_justification",
+        tone: "comprehensive and detailed",
+        pageTarget: "Document does not specify page limits — responding proportionally to scope",
         needsMultiPass: true,
+        documentDriven: false,
       };
     }
 
     return {
       maxTokens: 12000,
       sections: ["solicitation_analysis", "cover_letter", "executive_summary", "technical_approach", "qualifications", "staffing", "timeline", "pricing_strategy", "cost_proposal", "compliance_matrix", "certifications_insurance", "key_personnel", "unknowns"],
-      pricingStyle: "three_tier_detailed_with_justification",
-      tone: "comprehensive and authoritative — this is a major enterprise procurement, every detail matters",
-      pageEstimate: "30-40+ pages",
+      pricingStyle: docPricingFormat || "three_tier_detailed_with_justification",
+      tone: "comprehensive and authoritative",
+      pageTarget: "Document does not specify page limits — responding proportionally to scope",
       needsMultiPass: true,
+      documentDriven: false,
     };
   }
 
@@ -3711,17 +4162,29 @@ Return ONLY valid JSON. Start with { and end with }. No markdown, no explanation
     req.on("close", () => { clientDisconnected = true; });
 
     try {
-      send("status", { message: "Step 1 — Reading document word by word: extracting every requirement, deadline, budget, page limit, evaluation criterion..." });
+      send("status", { message: "Step 1/4 — Reading document word by word..." });
 
       let parsed: Record<string, unknown>;
       try {
         parsed = await parseDocument(solicitation);
       } catch (parseErr: any) {
         console.error("[ProposalCommand] Document parse error:", parseErr.message);
-        parsed = { documentType: proposalType || "unknown", budgetScale: "medium_50k_250k", complexity: "moderate", scope: solicitation.substring(0, 200) };
+        parsed = { documentType: proposalType || "unknown", budgetScale: "medium_50k_250k", scope: solicitation.substring(0, 200) };
       }
 
-      const scale = determineResponseScale(parsed);
+      if (clientDisconnected) { res.end(); return; }
+
+      const validation = validateParsedDocument(parsed);
+      if (!validation.valid) {
+        for (const c of validation.critical) send("status", { message: `CRITICAL: ${c}` });
+        send("data", { section: "intel", error: true, validationWarnings: validation.critical, confidenceLevel: "low" });
+        send("error", { message: `Document could not be fully parsed: ${validation.critical.join(". ")}. Please verify the text is a complete solicitation and try again.` });
+        res.end();
+        return;
+      }
+      if (validation.warnings.length > 0) {
+        for (const w of validation.warnings) send("status", { message: `CHECK: ${w}` });
+      }
 
       send("data", { section: "parsed", ...parsed });
 
@@ -3732,13 +4195,49 @@ Return ONLY valid JSON. Start with { and end with }. No markdown, no explanation
           ? `NTE $${budgetStated.notToExceed.toLocaleString()}`
           : (budgetStated?.low || budgetStated?.high)
             ? `$${(budgetStated.low || 0).toLocaleString()} - $${(budgetStated.high || 0).toLocaleString()}`
-            : "not stated";
+            : "not stated in document";
 
-      send("status", { message: `Document parsed: ${parsed.documentType || "Solicitation"} | Budget: ${budgetDisplay} | Scale: ${(parsed.budgetScale as string || "").replace(/_/g, " ")} | Response size: ${scale.pageEstimate}` });
+      send("status", { message: `Document read: ${parsed.documentType || "Solicitation"} from ${parsed.issuingAgency || "unknown agency"} | Budget: ${budgetDisplay}` });
+
+      if (clientDisconnected) { res.end(); return; }
+
+      send("status", { message: "Step 2/4 — Identifying agency and researching their evaluation methodology..." });
+
+      const agencyIntel = getAgencyIntelligence(parsed);
+      let agencyResearch: any = null;
+
+      if (!agencyIntel.knownAgency) {
+        send("status", { message: `Agency "${parsed.issuingAgency || "unknown"}" not in knowledge base — researching their evaluation methodology (no guessing)...` });
+        try {
+          agencyResearch = await researchUnknownAgency(
+            (parsed.issuingAgency as string) || "unknown agency",
+            (parsed.documentType as string) || "solicitation",
+            solicitation
+          );
+          send("status", { message: `Agency research complete — confidence: ${agencyResearch.researchConfidence || "medium"}${agencyResearch.disclaimer ? ` | Note: ${agencyResearch.disclaimer}` : ""}` });
+        } catch (researchErr: any) {
+          console.error("[ProposalCommand] Agency research error:", researchErr.message);
+          agencyResearch = { evaluationApproach: "Could not research agency — will structure response based on document requirements only", researchConfidence: "low", disclaimer: "Verify evaluation criteria with the issuing agency" };
+          send("status", { message: "Agency research inconclusive — structuring response from document requirements only" });
+        }
+      } else {
+        send("status", { message: agencyIntel.confidenceNote });
+      }
+
+      const scale = determineResponseScale(parsed);
+
+      const alignmentChecks = validateScaleAlignment(scale, parsed, agencyIntel);
+      for (const check of alignmentChecks) {
+        send("status", { message: check });
+      }
+
+      const activeIntel = agencyIntel.intelligence || agencyResearch;
 
       send("data", {
         section: "intel",
         solicitationType: parsed.documentType,
+        issuingAgency: parsed.issuingAgency,
+        agencyLevel: parsed.agencyLevel,
         estimatedBudgetRange: budgetStated?.low && budgetStated?.high ? { low: budgetStated.low, high: budgetStated.high } : budgetStated?.exact ? { low: budgetStated.exact, high: budgetStated.exact } : undefined,
         deadlines: parsed.deadlines,
         requiredDocuments: parsed.requiredDocuments,
@@ -3747,45 +4246,75 @@ Return ONLY valid JSON. Start with { and end with }. No markdown, no explanation
         certificationPreferences: parsed.certificationPreferences,
         scope: parsed.scope,
         scopeDetails: parsed.scopeDetails,
-        pageLimits: parsed.pageLimits,
+        pageLimits: (parsed.submissionFormat as any)?.totalPageLimit ? [{ section: "Total", maxPages: (parsed.submissionFormat as any).totalPageLimit }] : undefined,
         contactInfo: parsed.contactInfo,
         contractPeriod: parsed.contractPeriod,
         budgetScale: parsed.budgetScale,
-        responseSize: scale.pageEstimate,
-        complexity: parsed.complexity,
+        responseSize: scale.pageTarget,
+        complexity: parsed.responseGuidance ? "document-driven" : undefined,
         keyFacts: parsed.keyFacts,
-        confidenceLevel: "high",
+        agencyIntelligence: activeIntel ? {
+          evaluationApproach: activeIntel.evaluationApproach,
+          whatTheyPrioritize: activeIntel.whatTheyPrioritize,
+          winStrategy: activeIntel.winStrategy,
+          commonMistakes: activeIntel.commonMistakes,
+          knownAgency: agencyIntel.knownAgency,
+          disclaimer: agencyResearch?.disclaimer || null,
+        } : null,
+        validationWarnings: validation.warnings,
+        confidenceLevel: agencyIntel.knownAgency ? "high" : (agencyResearch?.researchConfidence || "medium"),
       });
 
       if (clientDisconnected) { res.end(); return; }
 
+      send("status", { message: "Step 3/4 — Building response structure from document requirements and agency intelligence..." });
+
       const companyContext = buildCompanyContext(companyProfile);
-      const sectionInstructions = buildSectionInstructions(scale, parsed);
 
-      send("status", { message: `Step 2 — Generating ${scale.pageEstimate} proposal${scale.needsMultiPass ? " (multi-pass for completeness)" : ""}...` });
+      let sectionInstructions: string;
+      if (scale.documentDriven) {
+        sectionInstructions = `\nGENERATE THESE SECTIONS (specified by the document):\n${scale.sections.map((s, i) => `${i + 1}. ${s}`).join("\n")}\n`;
+      } else {
+        sectionInstructions = buildSectionInstructions(scale, parsed);
+      }
 
-      const systemPrompt = `You are a master proposal writer. You have just parsed a government solicitation document and extracted every fact from it. Your job is to generate a COMPLETE, SUBMISSION-READY proposal that matches EXACTLY what the document asks for.
+      const agencyContext = activeIntel ? `
+AGENCY INTELLIGENCE (${agencyIntel.knownAgency ? "from procurement knowledge base" : "researched for this submission"}):
+- How they evaluate: ${activeIntel.evaluationApproach}
+- What they prioritize: ${(activeIntel.whatTheyPrioritize || []).join("; ")}
+- Win strategy: ${activeIntel.winStrategy}
+${activeIntel.commonMistakes ? `- Common mistakes to AVOID: ${activeIntel.commonMistakes.join("; ")}` : ""}
+${agencyResearch?.disclaimer ? `- DISCLAIMER: ${agencyResearch.disclaimer}` : ""}` : "";
 
-DOCUMENT INTELLIGENCE (extracted from the actual solicitation):
+      send("status", { message: `Step 4/4 — Writing proposal: ${scale.pageTarget}${scale.needsMultiPass ? " (multi-pass for completeness)" : ""}...` });
+
+      const systemPrompt = `You are a master proposal writer with deep knowledge of government procurement. You have parsed the solicitation, identified the agency, and researched how they evaluate proposals. Every word you write must be calibrated to what THIS specific document and THIS specific agency requires.
+
+DOCUMENT INTELLIGENCE (facts extracted from the actual solicitation — these are verified, not estimated):
 ${JSON.stringify(parsed, null, 2)}
+
+${agencyContext}
 
 ${companyContext}
 
 RESPONSE CALIBRATION:
 - Document type: ${parsed.documentType}
-- Budget scale: ${parsed.budgetScale} (${budgetDisplay})
-- Target response: ${scale.pageEstimate}
+- Issuing agency: ${parsed.issuingAgency || "See document"}
+- Budget: ${budgetDisplay}
+- Target response: ${scale.pageTarget}
 - Tone: ${scale.tone}
-- Pricing style: ${scale.pricingStyle}
+- Pricing format: ${scale.pricingStyle}
+- Document-driven: ${scale.documentDriven ? "YES — sections come from the document itself" : "NO — sections based on agency-type best practices"}
 
-RULES:
-1. Your proposal is EXACTLY the right size for this procurement. A $25K RFQ gets 5-8 pages. A $1M RFP gets 30+ pages. The DOCUMENT tells you what size response is appropriate.
-2. Every price you quote must be within the budget range stated in the document. If the document says $25,000-$30,000, your pricing is within that range — not $750,000.
-3. Structure your response to match EXACTLY what the document asks for. If the document lists specific submission requirements, follow them. If it says "2 pages max" for a section, respect that.
-4. Fill in everything you can from the company profile. For unknowns, use {{NEEDS_INPUT: description}}.
-5. The compliance matrix maps every single requirement from the document to where you address it.
-6. Required documents checklist: acknowledge every required document (W-9, insurance, CIQ, etc.).
-7. Write like a professional who has won hundreds of these — not generic AI.`;
+RULES — ZERO TOLERANCE:
+1. The DOCUMENT tells you what to write. If it says submit 3 sections, you write 3 sections. If it says 10-page limit, you write 10 pages. If it says lump-sum pricing, you give lump-sum pricing. Do NOT add sections the document didn't ask for.
+2. Every price MUST fall within the budget stated in the document. If the document says NTE $25,000, your highest tier cannot exceed $25,000.
+3. If the document specifies how to format the response (font, margins, sections, page limits), follow those instructions EXACTLY.
+4. Use the agency intelligence to prioritize content. If this is a city RFQ evaluated on lowest price, lead with competitive pricing. If this is a foundation LOI evaluated on mission alignment, lead with community impact.
+5. Fill in everything from the company profile. For unknowns, use {{NEEDS_INPUT: description}}.
+6. NEVER fabricate past performance, certifications, or references. If the company profile doesn't include them, use {{NEEDS_INPUT}}.
+7. Include a compliance matrix mapping EVERY stated requirement to where you address it.
+8. Write like someone who has won proposals for THIS type of agency — not generic AI. ${agencyIntel.knownAgency ? `This is a ${agencyIntel.agencyType.replace(/_/g, " ")} procurement.` : ""}`;
 
       const userPrompt = `FULL SOLICITATION TEXT:
 ---
@@ -3794,23 +4323,23 @@ ${solicitation}
 
 ${additionalContext ? `CUSTOMER INSTRUCTIONS:\n${additionalContext}\n---` : ""}
 
-Generate the complete, right-sized proposal with these sections:
+Generate the proposal with these sections:
 ${sectionInstructions}
 
-REMEMBER: This is a ${parsed.budgetScale} procurement. Keep the response proportional. ${scale.pageEstimate}.`;
+RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " specifies this structure" : " does not specify structure — using agency-appropriate format"}.`;
 
       if (scale.needsMultiPass) {
         const halfIdx = Math.ceil(scale.sections.length / 2);
         const firstHalf = scale.sections.slice(0, halfIdx);
         const secondHalf = scale.sections.slice(halfIdx);
 
-        send("status", { message: `Pass 1/2 — Generating: ${firstHalf.map(s => s.replace(/_/g, " ")).join(", ")}...` });
+        send("status", { message: `Pass 1/2 — Generating: ${firstHalf.map(s => typeof s === 'string' ? s.replace(/_/g, " ") : s).join(", ")}...` });
 
         await new Promise<void>((resolve, reject) => {
           streamAIResponse({
             messages: [
               { role: "system", content: systemPrompt },
-              { role: "user", content: `${userPrompt}\n\nIMPORTANT: In this pass, generate ONLY these sections: ${firstHalf.map(s => s.replace(/_/g, " ")).join(", ")}. Complete each section fully.` },
+              { role: "user", content: `${userPrompt}\n\nIMPORTANT: In this pass, generate ONLY these sections: ${firstHalf.map(s => typeof s === 'string' ? s.replace(/_/g, " ") : s).join(", ")}. Complete each section fully.` },
             ],
             maxTokens: scale.maxTokens,
             onChunk: (content: string) => { if (!clientDisconnected) send("chunk", { content }); },
@@ -3821,16 +4350,16 @@ REMEMBER: This is a ${parsed.budgetScale} procurement. Keep the response proport
 
         if (clientDisconnected) { res.end(); return; }
 
-        send("status", { message: `Pass 2/2 — Generating: ${secondHalf.map(s => s.replace(/_/g, " ")).join(", ")}...` });
+        send("status", { message: `Pass 2/2 — Generating: ${secondHalf.map(s => typeof s === 'string' ? s.replace(/_/g, " ") : s).join(", ")}...` });
 
         await streamAIResponse({
           messages: [
             { role: "system", content: systemPrompt },
-            { role: "user", content: `Continue the proposal. You already generated: ${firstHalf.map(s => s.replace(/_/g, " ")).join(", ")}.\n\nNow generate the remaining sections: ${secondHalf.map(s => s.replace(/_/g, " ")).join(", ")}.\n\nSOLICITATION (reference): ${solicitation.substring(0, 3000)}\n\n${companyContext}` },
+            { role: "user", content: `Continue the proposal. You already generated: ${firstHalf.map(s => typeof s === 'string' ? s.replace(/_/g, " ") : s).join(", ")}.\n\nNow generate the remaining sections: ${secondHalf.map(s => typeof s === 'string' ? s.replace(/_/g, " ") : s).join(", ")}.\n\nSOLICITATION (reference): ${solicitation.substring(0, 3000)}\n\n${companyContext}\n\n${agencyContext}` },
           ],
           maxTokens: scale.maxTokens,
           onChunk: (content: string) => { if (!clientDisconnected) send("chunk", { content }); },
-          onDone: () => { send("done", { generatedAt: new Date().toISOString(), scale: parsed.budgetScale, pageEstimate: scale.pageEstimate }); res.end(); },
+          onDone: () => { send("done", { generatedAt: new Date().toISOString(), scale: parsed.budgetScale, pageTarget: scale.pageTarget, documentDriven: scale.documentDriven, agencyKnown: agencyIntel.knownAgency }); res.end(); },
           onError: (error: Error) => { send("error", { message: error.message }); res.end(); },
         });
       } else {
@@ -3841,7 +4370,7 @@ REMEMBER: This is a ${parsed.budgetScale} procurement. Keep the response proport
           ],
           maxTokens: scale.maxTokens,
           onChunk: (content: string) => { if (!clientDisconnected) send("chunk", { content }); },
-          onDone: () => { send("done", { generatedAt: new Date().toISOString(), scale: parsed.budgetScale, pageEstimate: scale.pageEstimate }); res.end(); },
+          onDone: () => { send("done", { generatedAt: new Date().toISOString(), scale: parsed.budgetScale, pageTarget: scale.pageTarget, documentDriven: scale.documentDriven, agencyKnown: agencyIntel.knownAgency }); res.end(); },
           onError: (error: Error) => { send("error", { message: error.message }); res.end(); },
         });
       }
