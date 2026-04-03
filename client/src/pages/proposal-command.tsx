@@ -16,18 +16,23 @@ import {
 } from "lucide-react";
 import { BackToTop } from "@/components/back-to-top";
 
-interface CompetitiveIntel {
+interface DocumentIntel {
   solicitationType?: string;
   estimatedBudgetRange?: { low: number; high: number };
-  pricingBenchmarks?: Array<{ source: string; range: string; notes: string }>;
-  typicalWinnerProfile?: string;
-  competitiveFactors?: string[];
   deadlines?: Array<{ item: string; date: string }>;
   requiredDocuments?: string[];
-  evaluationCriteria?: Array<{ criterion: string; weight: string }>;
-  insuranceRequirements?: Array<{ type: string; minimumCoverage: string }>;
-  keyRisks?: string[];
-  winTips?: string[];
+  evaluationCriteria?: Array<{ criterion: string; weight: string; description?: string }>;
+  insuranceRequirements?: Array<{ type: string; amount?: string; minimumCoverage?: string }>;
+  certificationPreferences?: string[];
+  scope?: string;
+  scopeDetails?: string[];
+  pageLimits?: Array<{ section: string; maxPages: string }>;
+  contactInfo?: { name?: string; email?: string; phone?: string; address?: string };
+  contractPeriod?: { start?: string; end?: string; duration?: string; renewals?: string };
+  budgetScale?: string;
+  responseSize?: string;
+  complexity?: string;
+  keyFacts?: string[];
   confidenceLevel?: string;
   error?: string;
 }
@@ -75,7 +80,7 @@ export default function ProposalCommandPage() {
 
   const [isGenerating, setIsGenerating] = useState(false);
   const [statusMessages, setStatusMessages] = useState<string[]>([]);
-  const [intelData, setIntelData] = useState<CompetitiveIntel | null>(null);
+  const [intelData, setIntelData] = useState<DocumentIntel | null>(null);
   const [proposalText, setProposalText] = useState("");
   const [generationComplete, setGenerationComplete] = useState(false);
   const [activeTab, setActiveTab] = useState("solicitation");
@@ -167,7 +172,7 @@ export default function ProposalCommandPage() {
               setStatusMessages(prev => [...prev, evt.message]);
             } else if (evt.type === "data" && evt.section === "intel") {
               const { type: _t, section: _s, ...rest } = evt;
-              setIntelData(rest as CompetitiveIntel);
+              setIntelData(rest as DocumentIntel);
             } else if (evt.type === "chunk") {
               setProposalText(prev => prev + evt.content);
               if (activeTab !== "proposal") setActiveTab("proposal");
@@ -528,37 +533,99 @@ export default function ProposalCommandPage() {
                   <Card>
                     <CardHeader>
                       <CardTitle className="text-sm flex items-center gap-2">
-                        <DollarSign className="h-4 w-4 text-green-500" /> Pricing Intelligence
+                        <FileText className="h-4 w-4 text-amber-500" /> Document Reading
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3">
-                      {intelData.solicitationType && (
-                        <div className="flex items-center gap-2">
+                      <div className="flex flex-wrap items-center gap-2">
+                        {intelData.solicitationType && (
                           <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200" data-testid="badge-sol-type">
                             {intelData.solicitationType}
                           </Badge>
-                          {intelData.confidenceLevel && (
-                            <Badge variant="outline" data-testid="badge-confidence">
-                              Confidence: {intelData.confidenceLevel}
-                            </Badge>
-                          )}
+                        )}
+                        {intelData.budgetScale && (
+                          <Badge variant="outline" data-testid="badge-scale">
+                            {(intelData.budgetScale as string).replace(/_/g, " ")}
+                          </Badge>
+                        )}
+                        {intelData.complexity && (
+                          <Badge variant="outline" data-testid="badge-complexity">
+                            {intelData.complexity} complexity
+                          </Badge>
+                        )}
+                        {intelData.responseSize && (
+                          <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" data-testid="badge-response-size">
+                            Response: {intelData.responseSize}
+                          </Badge>
+                        )}
+                      </div>
+                      {intelData.scope && (
+                        <div className="text-sm p-2 bg-muted/50 rounded" data-testid="text-scope">
+                          <span className="font-medium">Scope: </span>{intelData.scope}
                         </div>
                       )}
                       {intelData.estimatedBudgetRange && (
                         <div className="p-3 bg-green-50 dark:bg-green-950 rounded-lg" data-testid="text-budget-range">
-                          <div className="text-sm font-medium text-green-800 dark:text-green-200">Estimated Budget Range</div>
+                          <div className="text-sm font-medium text-green-800 dark:text-green-200">Budget (from document)</div>
                           <div className="text-xl font-bold text-green-600">
                             ${intelData.estimatedBudgetRange.low?.toLocaleString()} — ${intelData.estimatedBudgetRange.high?.toLocaleString()}
                           </div>
                         </div>
                       )}
-                      {intelData.pricingBenchmarks && intelData.pricingBenchmarks.length > 0 && (
-                        <div className="space-y-2">
-                          <div className="text-xs font-medium text-muted-foreground">MARKET BENCHMARKS</div>
-                          {intelData.pricingBenchmarks.map((b, i) => (
-                            <div key={i} className="text-sm border-l-2 border-green-300 pl-3">
-                              <div className="font-medium">{b.range}</div>
-                              <div className="text-muted-foreground text-xs">{b.source} — {b.notes}</div>
+                      {intelData.contactInfo && (intelData.contactInfo.name || intelData.contactInfo.email) && (
+                        <div className="text-sm">
+                          <div className="text-xs font-medium text-muted-foreground mb-1">SUBMIT TO</div>
+                          <div>{intelData.contactInfo.name}</div>
+                          {intelData.contactInfo.email && <div className="text-muted-foreground">{intelData.contactInfo.email}</div>}
+                          {intelData.contactInfo.phone && <div className="text-muted-foreground">{intelData.contactInfo.phone}</div>}
+                        </div>
+                      )}
+                      {intelData.contractPeriod && (intelData.contractPeriod.duration || intelData.contractPeriod.start) && (
+                        <div className="text-sm">
+                          <div className="text-xs font-medium text-muted-foreground mb-1">CONTRACT PERIOD</div>
+                          <div>{intelData.contractPeriod.duration || `${intelData.contractPeriod.start} to ${intelData.contractPeriod.end}`}</div>
+                          {intelData.contractPeriod.renewals && <div className="text-muted-foreground text-xs">{intelData.contractPeriod.renewals}</div>}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-sm flex items-center gap-2">
+                        <BarChart3 className="h-4 w-4 text-orange-500" /> Evaluation & Deadlines
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      {intelData.evaluationCriteria && intelData.evaluationCriteria.length > 0 && (
+                        <div>
+                          <div className="text-xs font-medium text-muted-foreground mb-1">EVALUATION CRITERIA (from document)</div>
+                          {intelData.evaluationCriteria.map((c, i) => (
+                            <div key={i} className="flex justify-between text-sm border-b border-muted py-1">
+                              <span>{c.criterion}</span>
+                              <span className="text-muted-foreground font-medium">{c.weight}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {intelData.deadlines && intelData.deadlines.length > 0 && (
+                        <div>
+                          <div className="text-xs font-medium text-muted-foreground mb-1">DEADLINES (from document)</div>
+                          {intelData.deadlines.map((d, i) => (
+                            <div key={i} className="flex justify-between text-sm py-0.5">
+                              <span>{d.item}</span>
+                              <Badge variant="outline" className="text-xs">{d.date}</Badge>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {intelData.scopeDetails && intelData.scopeDetails.length > 0 && (
+                        <div>
+                          <div className="text-xs font-medium text-muted-foreground mb-1">SCOPE ITEMS (from document)</div>
+                          {intelData.scopeDetails.map((item, i) => (
+                            <div key={i} className="flex items-start gap-2 text-sm py-0.5">
+                              <CheckCircle2 className="h-3.5 w-3.5 text-blue-500 shrink-0 mt-0.5" />
+                              <span>{item}</span>
                             </div>
                           ))}
                         </div>
@@ -569,47 +636,39 @@ export default function ProposalCommandPage() {
                   <Card>
                     <CardHeader>
                       <CardTitle className="text-sm flex items-center gap-2">
-                        <BarChart3 className="h-4 w-4 text-orange-500" /> Competitive Landscape
+                        <Target className="h-4 w-4 text-red-500" /> Required Documents
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3">
-                      {intelData.typicalWinnerProfile && (
-                        <div className="text-sm" data-testid="text-winner-profile">
-                          <div className="text-xs font-medium text-muted-foreground mb-1">WHO TYPICALLY WINS THESE</div>
-                          {intelData.typicalWinnerProfile}
-                        </div>
-                      )}
-                      {intelData.evaluationCriteria && intelData.evaluationCriteria.length > 0 && (
+                      {intelData.requiredDocuments && intelData.requiredDocuments.length > 0 && (
                         <div>
-                          <div className="text-xs font-medium text-muted-foreground mb-1">EVALUATION CRITERIA</div>
-                          {intelData.evaluationCriteria.map((c, i) => (
-                            <div key={i} className="flex justify-between text-sm border-b border-muted py-1">
-                              <span>{c.criterion}</span>
-                              <span className="text-muted-foreground">{c.weight}</span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                      {intelData.deadlines && intelData.deadlines.length > 0 && (
-                        <div>
-                          <div className="text-xs font-medium text-muted-foreground mb-1">KEY DEADLINES</div>
-                          {intelData.deadlines.map((d, i) => (
-                            <div key={i} className="flex justify-between text-sm py-0.5">
-                              <span>{d.item}</span>
-                              <Badge variant="outline" className="text-xs">{d.date}</Badge>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                      {intelData.winTips && intelData.winTips.length > 0 && (
-                        <div>
-                          <div className="text-xs font-medium text-muted-foreground mb-1">WIN TIPS</div>
-                          {intelData.winTips.map((tip, i) => (
+                          {intelData.requiredDocuments.map((doc, i) => (
                             <div key={i} className="flex items-start gap-2 text-sm py-0.5">
-                              <CheckCircle2 className="h-3.5 w-3.5 text-green-500 shrink-0 mt-0.5" />
-                              <span>{tip}</span>
+                              <CheckCircle2 className="h-3.5 w-3.5 text-amber-500 shrink-0 mt-0.5" />
+                              <span>{doc}</span>
                             </div>
                           ))}
+                        </div>
+                      )}
+                      {intelData.pageLimits && intelData.pageLimits.length > 0 && (
+                        <div>
+                          <div className="text-xs font-medium text-muted-foreground mb-1 mt-2">PAGE LIMITS</div>
+                          {intelData.pageLimits.map((p, i) => (
+                            <div key={i} className="flex justify-between text-sm py-0.5">
+                              <span>{p.section}</span>
+                              <Badge variant="secondary" className="text-xs">{p.maxPages} pages</Badge>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {intelData.certificationPreferences && intelData.certificationPreferences.length > 0 && (
+                        <div>
+                          <div className="text-xs font-medium text-muted-foreground mb-1 mt-2">PREFERRED CERTIFICATIONS</div>
+                          <div className="flex flex-wrap gap-1">
+                            {intelData.certificationPreferences.map((cert, i) => (
+                              <Badge key={i} variant="outline" className="text-xs">{cert}</Badge>
+                            ))}
+                          </div>
                         </div>
                       )}
                     </CardContent>
@@ -626,8 +685,23 @@ export default function ProposalCommandPage() {
                         {intelData.insuranceRequirements.map((ins, i) => (
                           <div key={i} className="flex justify-between text-sm border-b border-muted py-1.5">
                             <span>{ins.type}</span>
-                            <Badge variant="secondary" className="text-xs">{ins.minimumCoverage}</Badge>
+                            <Badge variant="secondary" className="text-xs">{ins.amount || ins.minimumCoverage}</Badge>
                           </div>
+                        ))}
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {intelData.keyFacts && intelData.keyFacts.length > 0 && (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-sm flex items-center gap-2">
+                          <AlertTriangle className="h-4 w-4 text-amber-500" /> Key Facts
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        {intelData.keyFacts.map((fact, i) => (
+                          <div key={i} className="text-sm py-0.5">{fact}</div>
                         ))}
                       </CardContent>
                     </Card>

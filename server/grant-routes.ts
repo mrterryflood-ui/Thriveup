@@ -3457,6 +3457,242 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
     }
   });
 
+  async function parseDocument(solicitationText: string): Promise<Record<string, unknown>> {
+    const parsePrompt = `You are a government procurement document parser. Read this solicitation WORD BY WORD and extract EVERY fact into structured JSON. Do NOT estimate or guess — only extract what the document actually says.
+
+DOCUMENT:
+${solicitationText.substring(0, 15000)}
+
+Return ONLY valid JSON. Start with { and end with }. No markdown, no explanation.
+
+{
+  "documentType": "RFP|RFQ|RFI|IFB|LOI|Grant|Quote Request|Informal Quote|Bid",
+  "title": "exact title from document",
+  "issuingAgency": "exact agency/organization name",
+  "solicitationNumber": "exact number if provided or null",
+  "contactInfo": { "name": "purchasing agent/contact", "email": "email", "phone": "phone", "address": "address" },
+  "scope": "1-2 sentence summary of what they are buying",
+  "scopeDetails": ["each specific deliverable or service item listed"],
+  "budgetStated": { "low": null, "high": null, "exact": null, "notToExceed": null, "currency": "USD" },
+  "budgetScale": "micro_under_10k|small_10k_50k|medium_50k_250k|large_250k_1m|enterprise_over_1m",
+  "contractPeriod": { "start": "date or null", "end": "date or null", "duration": "description", "renewals": "renewal terms or null" },
+  "deadlines": [{ "item": "what is due", "date": "exact date/time", "timezone": "timezone if stated" }],
+  "submissionMethod": "how to submit (email, portal, physical, etc.)",
+  "submissionAddress": "where to submit",
+  "evaluationCriteria": [{ "criterion": "exact name", "weight": "exact weight/points or 'not specified'", "description": "details if given" }],
+  "requiredDocuments": ["exact list of every document they require"],
+  "pageLimits": [{ "section": "which section", "maxPages": "number or 'not specified'" }],
+  "insuranceRequirements": [{ "type": "exact coverage type", "amount": "exact $ amount", "additionalInsured": true }],
+  "bondRequirements": "exact bond requirement or null",
+  "certificationPreferences": ["MBE", "WBE", "DBE", "HUB", "SDVOSB", "8a", "HUBZone", "other"],
+  "setAside": "small business set-aside type or null",
+  "paymentTerms": "Net 30, milestone-based, etc.",
+  "backgroundChecks": true,
+  "ipOwnership": "who owns deliverables",
+  "contractType": "fixed-price|time-and-materials|cost-plus|indefinite-delivery|other",
+  "naicsCode": "NAICS code if listed or null",
+  "complexity": "simple|moderate|complex",
+  "responseLength": "estimated appropriate response length based on scope and page limits",
+  "keyFacts": ["any other important facts from the document not captured above"]
+}`;
+
+    const response = await generateAIResponse(
+      [
+        { role: "system", content: "You are a document parser that extracts structured data from government solicitations. You read every word. You never guess — you only report what the document actually states. If something is not in the document, use null. Return ONLY valid JSON." },
+        { role: "user", content: parsePrompt },
+      ],
+      4000
+    );
+
+    let jsonStr = response.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+    const fb = jsonStr.indexOf("{");
+    const lb = jsonStr.lastIndexOf("}");
+    if (fb !== -1 && lb !== -1 && lb > fb) jsonStr = jsonStr.substring(fb, lb + 1);
+    return JSON.parse(jsonStr);
+  }
+
+  function determineResponseScale(parsed: Record<string, unknown>): {
+    maxTokens: number;
+    sections: string[];
+    pricingStyle: string;
+    tone: string;
+    pageEstimate: string;
+    needsMultiPass: boolean;
+  } {
+    const scale = (parsed.budgetScale as string) || "medium_50k_250k";
+    const complexity = (parsed.complexity as string) || "moderate";
+
+    const budgetStated = parsed.budgetStated as any;
+    const statedBudget = budgetStated?.exact || budgetStated?.notToExceed || budgetStated?.high || budgetStated?.low || 0;
+
+    if (scale === "micro_under_10k" || (statedBudget > 0 && statedBudget < 10000)) {
+      return {
+        maxTokens: 3000,
+        sections: ["cover_letter", "scope_response", "pricing", "company_info"],
+        pricingStyle: "simple_line_items",
+        tone: "concise and professional — this is a small procurement, keep it brief",
+        pageEstimate: "2-4 pages",
+        needsMultiPass: false,
+      };
+    }
+
+    if (scale === "small_10k_50k" || (statedBudget > 0 && statedBudget < 50000)) {
+      return {
+        maxTokens: 6000,
+        sections: ["cover_letter", "understanding_of_scope", "technical_approach", "qualifications", "pricing", "compliance"],
+        pricingStyle: "line_item_with_brief_justification",
+        tone: "professional and focused — match the document's scope, don't over-engineer",
+        pageEstimate: "5-10 pages",
+        needsMultiPass: false,
+      };
+    }
+
+    if (scale === "medium_50k_250k" || (statedBudget > 0 && statedBudget < 250000)) {
+      const isComplex = complexity === "complex";
+      return {
+        maxTokens: isComplex ? 10000 : 8000,
+        sections: isComplex
+          ? ["cover_letter", "executive_summary", "technical_approach", "qualifications", "staffing", "timeline", "pricing", "compliance_matrix", "certifications"]
+          : ["cover_letter", "executive_summary", "technical_approach", "qualifications", "pricing", "compliance_matrix", "certifications"],
+        pricingStyle: "three_tier_with_line_items",
+        tone: "thorough and detailed — demonstrate capability and methodology",
+        pageEstimate: isComplex ? "15-20 pages" : "10-15 pages",
+        needsMultiPass: false,
+      };
+    }
+
+    if (scale === "large_250k_1m" || (statedBudget > 0 && statedBudget < 1000000)) {
+      return {
+        maxTokens: 12000,
+        sections: ["solicitation_analysis", "cover_letter", "executive_summary", "technical_approach", "qualifications", "staffing", "timeline", "pricing_strategy", "cost_proposal", "compliance_matrix", "certifications_insurance", "unknowns"],
+        pricingStyle: "three_tier_detailed_with_justification",
+        tone: "comprehensive and detailed — this is a significant procurement requiring thorough demonstration of capability",
+        pageEstimate: "20-30 pages",
+        needsMultiPass: true,
+      };
+    }
+
+    return {
+      maxTokens: 12000,
+      sections: ["solicitation_analysis", "cover_letter", "executive_summary", "technical_approach", "qualifications", "staffing", "timeline", "pricing_strategy", "cost_proposal", "compliance_matrix", "certifications_insurance", "key_personnel", "unknowns"],
+      pricingStyle: "three_tier_detailed_with_justification",
+      tone: "comprehensive and authoritative — this is a major enterprise procurement, every detail matters",
+      pageEstimate: "30-40+ pages",
+      needsMultiPass: true,
+    };
+  }
+
+  function buildCompanyContext(cp: any): string {
+    if (!cp || (!cp.companyName && !cp.capabilities)) {
+      return "NO COMPANY PROFILE PROVIDED — Use {{NEEDS_INPUT: description}} markers for all company-specific information.";
+    }
+    const fields = [
+      cp.companyName && `Company: ${cp.companyName}`,
+      cp.companyType && `Type: ${cp.companyType}`,
+      cp.ein && `EIN: ${cp.ein}`,
+      cp.address && `Address: ${cp.address}`,
+      cp.contactName && `Contact: ${cp.contactName}`,
+      cp.phone && `Phone: ${cp.phone}`,
+      cp.email && `Email: ${cp.email}`,
+      cp.capabilities && `Capabilities: ${cp.capabilities}`,
+      cp.certifications && `Certifications: ${cp.certifications}`,
+      cp.pastPerformance && `Past Performance: ${cp.pastPerformance}`,
+      cp.keyPersonnel && `Key Personnel: ${cp.keyPersonnel}`,
+      cp.yearsInBusiness && `Years in Business: ${cp.yearsInBusiness}`,
+      cp.uei && `UEI: ${cp.uei}`,
+    ].filter(Boolean);
+    return `RESPONDING COMPANY:\n${fields.join("\n")}`;
+  }
+
+  function buildSectionInstructions(scale: ReturnType<typeof determineResponseScale>, parsed: Record<string, unknown>): string {
+    const pageLimits = (parsed.pageLimits as any[]) || [];
+    const requiredDocs = (parsed.requiredDocuments as string[]) || [];
+
+    let instructions = "";
+
+    for (const section of scale.sections) {
+      const pageLimit = pageLimits.find((p: any) => p.section?.toLowerCase().includes(section.replace(/_/g, " ")));
+      const limitNote = pageLimit ? ` (PAGE LIMIT: ${pageLimit.maxPages} pages max)` : "";
+
+      switch (section) {
+        case "cover_letter":
+          instructions += `\n## COVER LETTER${limitNote}\nProfessional, properly addressed to ${(parsed.contactInfo as any)?.name || "the purchasing agent"}. 1 page. State solicitation number, your understanding of the need, and key differentiator.\n`;
+          break;
+        case "scope_response":
+          instructions += `\n## RESPONSE TO SCOPE OF WORK\nAddress each deliverable/service item directly. Be specific about HOW you will deliver. Reference the exact requirements from the solicitation.\n`;
+          break;
+        case "understanding_of_scope":
+          instructions += `\n## UNDERSTANDING OF SCOPE${limitNote}\nDemonstrate you have read and understood every requirement. Restate the scope in your own words showing comprehension.\n`;
+          break;
+        case "technical_approach":
+          instructions += `\n## TECHNICAL APPROACH / METHODOLOGY${limitNote}\nStep-by-step plan for delivering EVERY requirement listed in the scope. Be specific — not generic language. Reference the exact deliverables from the solicitation.\n`;
+          break;
+        case "executive_summary":
+          instructions += `\n## EXECUTIVE SUMMARY${limitNote}\nCompany overview, relevant experience, why your firm is the best fit for THIS specific work. Match the solicitation's priorities.\n`;
+          break;
+        case "qualifications":
+          instructions += `\n## QUALIFICATIONS & EXPERIENCE${limitNote}\nTeam credentials, past performance on SIMILAR contracts, certifications. Include references if required (${requiredDocs.filter(d => d.toLowerCase().includes("reference")).join(", ") || "check requirements"}).\n`;
+          break;
+        case "staffing":
+          instructions += `\n## STAFFING PLAN\nWho does what, roles, hours, rates. Name specific people if provided in the company profile.\n`;
+          break;
+        case "timeline":
+          instructions += `\n## PROJECT TIMELINE & DELIVERABLES\nMatch the solicitation's contract period. Milestones, deliverable dates, dependencies.\n`;
+          break;
+        case "pricing":
+        case "cost_proposal":
+          instructions += `\n## COST PROPOSAL\n`;
+          if (scale.pricingStyle === "simple_line_items") {
+            instructions += "Simple line-item pricing. Match the scope items. No tiers needed for this size procurement.\n";
+          } else if (scale.pricingStyle === "line_item_with_brief_justification") {
+            instructions += "Line-item pricing with brief justification for each rate. Include a total.\n";
+          } else {
+            instructions += "Three pricing tiers (Conservative/Value, Competitive/Market, Aggressive/Win) with line-item breakdown and rate justification.\n";
+          }
+          const budget = parsed.budgetStated as any;
+          if (budget?.low || budget?.high || budget?.exact || budget?.notToExceed) {
+            instructions += `BUDGET FROM DOCUMENT: ${budget.exact ? `$${budget.exact.toLocaleString()} (exact)` : budget.notToExceed ? `NTE $${budget.notToExceed.toLocaleString()}` : `$${(budget.low || 0).toLocaleString()} - $${(budget.high || 0).toLocaleString()}`}. Your pricing MUST fall within this range.\n`;
+          }
+          break;
+        case "pricing_strategy":
+          instructions += `\n## PRICING STRATEGY\nThree tiers with full line-item breakdown and market rate justification.\n`;
+          const budgetS = parsed.budgetStated as any;
+          if (budgetS?.low || budgetS?.high || budgetS?.exact || budgetS?.notToExceed) {
+            instructions += `BUDGET FROM DOCUMENT: ${budgetS.exact ? `$${budgetS.exact.toLocaleString()}` : budgetS.notToExceed ? `NTE $${budgetS.notToExceed.toLocaleString()}` : `$${(budgetS.low || 0).toLocaleString()} - $${(budgetS.high || 0).toLocaleString()}`}. Price WITHIN this range.\n`;
+          }
+          break;
+        case "compliance":
+        case "compliance_matrix":
+          instructions += `\n## COMPLIANCE MATRIX\nTable mapping EVERY solicitation requirement to your response section.\n| # | Requirement | Response Section | How Addressed | Compliant? |\n`;
+          break;
+        case "certifications":
+        case "certifications_insurance":
+          const insurance = (parsed.insuranceRequirements as any[]) || [];
+          instructions += `\n## CERTIFICATIONS, INSURANCE & REQUIRED FORMS\n`;
+          if (insurance.length > 0) {
+            instructions += `Insurance requirements from document:\n${insurance.map((i: any) => `- ${i.type}: ${i.amount}`).join("\n")}\nAcknowledge each. State current coverage or willingness to obtain.\n`;
+          }
+          if (requiredDocs.length > 0) {
+            instructions += `Required documents checklist: ${requiredDocs.join(", ")}\nAcknowledge each.\n`;
+          }
+          break;
+        case "solicitation_analysis":
+          instructions += `\n## SOLICITATION ANALYSIS\nBreak down every requirement, deadline, submission method, evaluation criteria, insurance/compliance needs extracted from the document.\n`;
+          break;
+        case "company_info":
+          instructions += `\n## COMPANY INFORMATION\nBrief company overview, relevant capabilities, and contact information.\n`;
+          break;
+        case "key_personnel":
+          instructions += `\n## KEY PERSONNEL RESUMES\n2-page resume format for each key team member.\n`;
+          break;
+        case "unknowns":
+          instructions += `\n## ITEMS NEEDING YOUR INPUT\nList every {{NEEDS_INPUT}} item with description of what's needed and where it appears.\n`;
+          break;
+      }
+    }
+    return instructions;
+  }
+
   app.post("/api/proposal-command/generate", async (req: Request, res: Response) => {
     const { solicitation, companyProfile, additionalContext, proposalType } = req.body;
     if (!solicitation || typeof solicitation !== "string" || solicitation.length < 50) {
@@ -3471,232 +3707,144 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
       res.write(`data: ${JSON.stringify({ type, ...data })}\n\n`);
     };
 
+    let clientDisconnected = false;
+    req.on("close", () => { clientDisconnected = true; });
+
     try {
-      send("status", { message: "Reading solicitation — extracting requirements, deadlines, and evaluation criteria..." });
+      send("status", { message: "Step 1 — Reading document word by word: extracting every requirement, deadline, budget, page limit, evaluation criterion..." });
 
-      send("status", { message: "Running competitive intelligence — researching past winners, market rates, and bid history..." });
-
-      let intel: Record<string, unknown> = {};
+      let parsed: Record<string, unknown>;
       try {
-        const intelPrompt = `Analyze this solicitation and provide competitive intelligence as JSON:
-
-SOLICITATION (first 4000 chars):
-${solicitation.substring(0, 4000)}
-
-Return ONLY valid JSON:
-{
-  "solicitationType": "RFP|RFQ|LOI|Grant|IFB|RFI",
-  "estimatedBudgetRange": { "low": number, "high": number },
-  "pricingBenchmarks": [{ "source": "description", "range": "$X - $Y", "notes": "context" }],
-  "typicalWinnerProfile": "description of firms that typically win these awards",
-  "competitiveFactors": ["factor1", "factor2"],
-  "deadlines": [{ "item": "description", "date": "date string" }],
-  "requiredDocuments": ["doc1", "doc2"],
-  "evaluationCriteria": [{ "criterion": "name", "weight": "percentage or priority" }],
-  "insuranceRequirements": [{ "type": "coverage type", "minimumCoverage": "$ amount" }],
-  "keyRisks": ["risk1", "risk2"],
-  "winTips": ["specific tip for winning this type of solicitation"],
-  "confidenceLevel": "high|medium|low"
-}
-
-Use real market data for pricing. Reference SAM.gov/USASpending for federal, state procurement portals for state/local. For consulting/facilitation: $150-$300/hr, day rates $1,500-$3,000. For tech: research FPDS comparable awards.`;
-
-        const intelResponse = await generateAIResponse(
-          [
-            { role: "system", content: "You are a competitive intelligence analyst specializing in government contracts (federal, state, local), grants, and RFPs across all levels. You research SAM.gov award history, USASpending.gov, state procurement databases, and foundation 990 data. Return ONLY valid JSON — no markdown, no code fences, no explanation text. Start your response with { and end with }." },
-            { role: "user", content: intelPrompt },
-          ],
-          4000
-        );
-        let jsonStr = intelResponse.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
-        const firstBrace = jsonStr.indexOf("{");
-        const lastBrace = jsonStr.lastIndexOf("}");
-        if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
-          jsonStr = jsonStr.substring(firstBrace, lastBrace + 1);
-        }
-        intel = JSON.parse(jsonStr);
+        parsed = await parseDocument(solicitation);
       } catch (parseErr: any) {
-        console.error("[ProposalCommand] Intel parse error:", parseErr.message);
-        intel = { error: "Could not parse competitive intel", raw: true };
+        console.error("[ProposalCommand] Document parse error:", parseErr.message);
+        parsed = { documentType: proposalType || "unknown", budgetScale: "medium_50k_250k", complexity: "moderate", scope: solicitation.substring(0, 200) };
       }
 
-      send("data", { section: "intel", ...intel });
-      send("status", { message: `Competitive intel complete — ${(intel as any).solicitationType || "Solicitation"} analyzed, budget range identified` });
+      const scale = determineResponseScale(parsed);
 
-      const hasProfile = companyProfile && (companyProfile.companyName || companyProfile.capabilities);
-      send("status", { message: hasProfile ? `Building proposal for ${companyProfile.companyName}...` : "Generating proposal template — fill in your company details after..." });
+      send("data", { section: "parsed", ...parsed });
 
-      const companySection = hasProfile ? `
-RESPONDING COMPANY PROFILE (provided by customer):
-- Company Name: ${companyProfile.companyName || "{{NEEDS_INPUT: Your company/organization name}}"}
-- Type: ${companyProfile.companyType || "{{NEEDS_INPUT: Business type (LLC, Corp, Nonprofit, etc.)}}"}
-- EIN/Tax ID: ${companyProfile.ein || "{{NEEDS_INPUT: Your EIN or Tax ID}}"}
-- Address: ${companyProfile.address || "{{NEEDS_INPUT: Your business address}}"}
-- Point of Contact: ${companyProfile.contactName || "{{NEEDS_INPUT: Primary contact name and title}}"}
-- Phone: ${companyProfile.phone || "{{NEEDS_INPUT: Contact phone number}}"}
-- Email: ${companyProfile.email || "{{NEEDS_INPUT: Contact email}}"}
-- Capabilities: ${companyProfile.capabilities || "{{NEEDS_INPUT: Your key capabilities and services}}"}
-- Certifications: ${companyProfile.certifications || "{{NEEDS_INPUT: Relevant certifications (8(a), HUBZone, SDVOSB, MBE, WBE, etc.)}}"}
-- Past Performance: ${companyProfile.pastPerformance || "{{NEEDS_INPUT: 2-3 relevant past contracts or projects with outcomes}}"}
-- Team/Key Personnel: ${companyProfile.keyPersonnel || "{{NEEDS_INPUT: Key personnel names, titles, and qualifications}}"}
-- Years in Business: ${companyProfile.yearsInBusiness || "{{NEEDS_INPUT: Years of relevant experience}}"}
-- DUNS/UEI: ${companyProfile.uei || "{{NEEDS_INPUT: Your UEI number (required for federal)}}"}` : `
-NO COMPANY PROFILE PROVIDED — Generate a professional template with {{NEEDS_INPUT: ...}} markers for all company-specific information. The customer will fill these in.`;
+      const budgetStated = parsed.budgetStated as any;
+      const budgetDisplay = budgetStated?.exact
+        ? `$${budgetStated.exact.toLocaleString()}`
+        : budgetStated?.notToExceed
+          ? `NTE $${budgetStated.notToExceed.toLocaleString()}`
+          : (budgetStated?.low || budgetStated?.high)
+            ? `$${(budgetStated.low || 0).toLocaleString()} - $${(budgetStated.high || 0).toLocaleString()}`
+            : "not stated";
 
-      const systemPrompt = `You are an expert proposal writer who creates COMPLETE, SUBMISSION-READY proposals for businesses and organizations responding to government solicitations, grants, and RFPs at ALL levels — federal, state, county, and municipal.
+      send("status", { message: `Document parsed: ${parsed.documentType || "Solicitation"} | Budget: ${budgetDisplay} | Scale: ${(parsed.budgetScale as string || "").replace(/_/g, " ")} | Response size: ${scale.pageEstimate}` });
 
-${companySection}
+      send("data", {
+        section: "intel",
+        solicitationType: parsed.documentType,
+        estimatedBudgetRange: budgetStated?.low && budgetStated?.high ? { low: budgetStated.low, high: budgetStated.high } : budgetStated?.exact ? { low: budgetStated.exact, high: budgetStated.exact } : undefined,
+        deadlines: parsed.deadlines,
+        requiredDocuments: parsed.requiredDocuments,
+        evaluationCriteria: parsed.evaluationCriteria,
+        insuranceRequirements: parsed.insuranceRequirements,
+        certificationPreferences: parsed.certificationPreferences,
+        scope: parsed.scope,
+        scopeDetails: parsed.scopeDetails,
+        pageLimits: parsed.pageLimits,
+        contactInfo: parsed.contactInfo,
+        contractPeriod: parsed.contractPeriod,
+        budgetScale: parsed.budgetScale,
+        responseSize: scale.pageEstimate,
+        complexity: parsed.complexity,
+        keyFacts: parsed.keyFacts,
+        confidenceLevel: "high",
+      });
 
-COMPETITIVE INTELLIGENCE GATHERED:
-${JSON.stringify(intel, null, 2)}
+      if (clientDisconnected) { res.end(); return; }
 
-CRITICAL RULES:
-1. Fill in EVERYTHING you can from the company profile and competitive intelligence.
-2. For information ONLY the customer has, mark with {{NEEDS_INPUT: clear description of what's needed}}
-3. Structure the proposal to MIRROR the solicitation's requirements section-by-section — every requirement gets a direct response.
-4. Include specific pricing with line-item justification based on competitive intel and market rates.
-5. The proposal must read as if a professional proposal writer crafted it — not generic AI output.
-6. Include a compliance matrix mapping EVERY solicitation requirement to the proposal section that addresses it.
-7. For pricing: provide three tiers (Conservative/Value, Competitive/Market, Aggressive/Win) with justification.
-8. Format everything in clean markdown.
-9. If the company has certifications or set-aside eligibility, highlight this prominently — it's often a deciding factor.`;
+      const companyContext = buildCompanyContext(companyProfile);
+      const sectionInstructions = buildSectionInstructions(scale, parsed);
+
+      send("status", { message: `Step 2 — Generating ${scale.pageEstimate} proposal${scale.needsMultiPass ? " (multi-pass for completeness)" : ""}...` });
+
+      const systemPrompt = `You are a master proposal writer. You have just parsed a government solicitation document and extracted every fact from it. Your job is to generate a COMPLETE, SUBMISSION-READY proposal that matches EXACTLY what the document asks for.
+
+DOCUMENT INTELLIGENCE (extracted from the actual solicitation):
+${JSON.stringify(parsed, null, 2)}
+
+${companyContext}
+
+RESPONSE CALIBRATION:
+- Document type: ${parsed.documentType}
+- Budget scale: ${parsed.budgetScale} (${budgetDisplay})
+- Target response: ${scale.pageEstimate}
+- Tone: ${scale.tone}
+- Pricing style: ${scale.pricingStyle}
+
+RULES:
+1. Your proposal is EXACTLY the right size for this procurement. A $25K RFQ gets 5-8 pages. A $1M RFP gets 30+ pages. The DOCUMENT tells you what size response is appropriate.
+2. Every price you quote must be within the budget range stated in the document. If the document says $25,000-$30,000, your pricing is within that range — not $750,000.
+3. Structure your response to match EXACTLY what the document asks for. If the document lists specific submission requirements, follow them. If it says "2 pages max" for a section, respect that.
+4. Fill in everything you can from the company profile. For unknowns, use {{NEEDS_INPUT: description}}.
+5. The compliance matrix maps every single requirement from the document to where you address it.
+6. Required documents checklist: acknowledge every required document (W-9, insurance, CIQ, etc.).
+7. Write like a professional who has won hundreds of these — not generic AI.`;
 
       const userPrompt = `FULL SOLICITATION TEXT:
 ---
 ${solicitation}
 ---
 
-${additionalContext ? `ADDITIONAL CONTEXT / INSTRUCTIONS:\n${additionalContext}\n---` : ""}
+${additionalContext ? `CUSTOMER INSTRUCTIONS:\n${additionalContext}\n---` : ""}
 
-PROPOSAL TYPE: ${proposalType || "auto-detect from solicitation"}
+Generate the complete, right-sized proposal with these sections:
+${sectionInstructions}
 
-Generate the COMPLETE, READY-TO-SUBMIT proposal with these sections:
+REMEMBER: This is a ${parsed.budgetScale} procurement. Keep the response proportional. ${scale.pageEstimate}.`;
 
-## 1. SOLICITATION ANALYSIS
-Break down EVERY requirement, deadline, submission method, evaluation criteria, insurance/bond/compliance needs. Miss nothing.
+      if (scale.needsMultiPass) {
+        const halfIdx = Math.ceil(scale.sections.length / 2);
+        const firstHalf = scale.sections.slice(0, halfIdx);
+        const secondHalf = scale.sections.slice(halfIdx);
 
-## 2. PRICING STRATEGY
-Three tiers with line-item breakdown:
-- **Conservative** (win on value, higher price)
-- **Competitive** (market rate)
-- **Aggressive** (lowest defensible bid)
-Include justification based on market data and past winner analysis.
+        send("status", { message: `Pass 1/2 — Generating: ${firstHalf.map(s => s.replace(/_/g, " ")).join(", ")}...` });
 
-## 3. COVER LETTER
-Professional, properly addressed, 1 page. Highlight differentiators and understanding of the client's needs.
+        await new Promise<void>((resolve, reject) => {
+          streamAIResponse({
+            messages: [
+              { role: "system", content: systemPrompt },
+              { role: "user", content: `${userPrompt}\n\nIMPORTANT: In this pass, generate ONLY these sections: ${firstHalf.map(s => s.replace(/_/g, " ")).join(", ")}. Complete each section fully.` },
+            ],
+            maxTokens: scale.maxTokens,
+            onChunk: (content: string) => { if (!clientDisconnected) send("chunk", { content }); },
+            onDone: () => resolve(),
+            onError: (error: Error) => reject(error),
+          });
+        });
 
-## 4. EXECUTIVE SUMMARY
-Company overview, relevant experience, why this firm is the best fit for THIS specific work.
+        if (clientDisconnected) { res.end(); return; }
 
-## 5. TECHNICAL APPROACH / METHODOLOGY
-Step-by-step plan for delivering every requirement. Be specific — not generic consulting language.
+        send("status", { message: `Pass 2/2 — Generating: ${secondHalf.map(s => s.replace(/_/g, " ")).join(", ")}...` });
 
-## 6. QUALIFICATIONS & EXPERIENCE
-Team credentials, past performance on similar contracts, certifications, relevant references.
-
-## 7. STAFFING PLAN
-Who does what, roles, hours, hourly rates, qualifications. Name specific people if provided.
-
-## 8. PROJECT TIMELINE & DELIVERABLES
-Milestones, deliverable dates, dependencies. Match the solicitation's timeline requirements.
-
-## 9. COST PROPOSAL
-Detailed pricing using the recommended tier. Line items that match the scope of work.
-
-## 10. COMPLIANCE MATRIX
-| Solicitation Requirement | Our Response Section | How We Address It |
-
-## 11. CERTIFICATIONS & INSURANCE
-Acknowledge each insurance/bond/compliance requirement. State willingness to provide or note what's needed.
-
-## 12. ITEMS NEEDING YOUR INPUT
-List every {{NEEDS_INPUT}} item with clear description of what the customer needs to provide.`;
-
-      let pass1Content = "";
-
-      send("status", { message: "Pass 1/2 — Generating solicitation analysis, pricing strategy, cover letter, executive summary, and technical approach..." });
-
-      const pass1UserPrompt = `${userPrompt}
-
-IMPORTANT: Due to length, generate ONLY sections 1 through 6 in this pass:
-1. SOLICITATION ANALYSIS (every requirement, deadline, submission item, evaluation criteria)
-2. PRICING STRATEGY (three tiers with full line-item breakdown)
-3. COVER LETTER
-4. EXECUTIVE SUMMARY
-5. TECHNICAL APPROACH / METHODOLOGY
-6. QUALIFICATIONS & EXPERIENCE
-
-Be thorough. Do NOT abbreviate. Complete every section fully.`;
-
-      await new Promise<void>((resolve, reject) => {
-        streamAIResponse({
+        await streamAIResponse({
           messages: [
             { role: "system", content: systemPrompt },
-            { role: "user", content: pass1UserPrompt },
+            { role: "user", content: `Continue the proposal. You already generated: ${firstHalf.map(s => s.replace(/_/g, " ")).join(", ")}.\n\nNow generate the remaining sections: ${secondHalf.map(s => s.replace(/_/g, " ")).join(", ")}.\n\nSOLICITATION (reference): ${solicitation.substring(0, 3000)}\n\n${companyContext}` },
           ],
-          maxTokens: 12000,
-          onChunk: (content: string) => { pass1Content += content; send("chunk", { content }); },
-          onDone: () => resolve(),
-          onError: (error: Error) => reject(error),
+          maxTokens: scale.maxTokens,
+          onChunk: (content: string) => { if (!clientDisconnected) send("chunk", { content }); },
+          onDone: () => { send("done", { generatedAt: new Date().toISOString(), scale: parsed.budgetScale, pageEstimate: scale.pageEstimate }); res.end(); },
+          onError: (error: Error) => { send("error", { message: error.message }); res.end(); },
         });
-      });
-
-      send("status", { message: "Pass 2/2 — Generating staffing plan, timeline, cost proposal, compliance matrix, insurance, key personnel resumes, and unknowns summary..." });
-
-      const pass2UserPrompt = `You already generated sections 1-6 of a proposal. Now generate the REMAINING sections 7-12. Continue from where you left off.
-
-SOLICITATION TEXT (for reference):
----
-${solicitation.substring(0, 3000)}
----
-
-COMPANY PROFILE (for reference):
-${companySection}
-
-COMPETITIVE INTEL:
-${JSON.stringify(intel, null, 2)}
-
-${additionalContext ? `ADDITIONAL CONTEXT:\n${additionalContext}` : ""}
-
-NOW generate these remaining sections — be thorough, do NOT abbreviate:
-
-## 7. STAFFING PLAN
-Named personnel with titles, qualifications, roles on THIS project, estimated hours, hourly rates. Include org chart.
-
-## 8. PROJECT TIMELINE & DELIVERABLES
-Month-by-month schedule with specific milestones and deliverables matching solicitation requirements.
-
-## 9. COST PROPOSAL (DETAILED)
-Use the RECOMMENDED pricing tier. Full line-item breakdown matching scope of work sections.
-
-## 10. COMPLIANCE MATRIX
-Table mapping EVERY solicitation requirement to the proposal section that addresses it. Include page references.
-| # | Solicitation Requirement | Response Section | How Addressed | Compliant? |
-
-## 11. CERTIFICATIONS, INSURANCE & REQUIRED FORMS
-Acknowledge each requirement. State current status or what will be obtained.
-Include: Insurance policies, W-9, CIQ, vendor registration, background checks, HUB compliance, performance bond.
-
-## 12. KEY PERSONNEL RESUMES
-2-page resume format for each key team member named in the staffing plan.
-
-## 13. ITEMS NEEDING YOUR INPUT
-Complete list of every {{NEEDS_INPUT}} item from the entire proposal with:
-- What's needed
-- Why it's needed
-- Where in the proposal it appears
-- Suggested action for the customer`;
-
-      await streamAIResponse({
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: pass2UserPrompt },
-        ],
-        maxTokens: 12000,
-        onChunk: (content: string) => { send("chunk", { content }); },
-        onDone: () => { send("done", { generatedAt: new Date().toISOString() }); res.end(); },
-        onError: (error: Error) => { send("error", { message: error.message }); res.end(); },
-      });
+      } else {
+        await streamAIResponse({
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userPrompt },
+          ],
+          maxTokens: scale.maxTokens,
+          onChunk: (content: string) => { if (!clientDisconnected) send("chunk", { content }); },
+          onDone: () => { send("done", { generatedAt: new Date().toISOString(), scale: parsed.budgetScale, pageEstimate: scale.pageEstimate }); res.end(); },
+          onError: (error: Error) => { send("error", { message: error.message }); res.end(); },
+        });
+      }
     } catch (error: any) {
       send("error", { message: error.message || "Failed to generate proposal" });
       res.end();
