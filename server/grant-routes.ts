@@ -4511,6 +4511,61 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
       doc.fontSize(10).fillColor(LIGHT).text("Date: " + new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }), 60, 540, { width: PW });
       doc.fontSize(8).fillColor(LIGHT).text("CONFIDENTIAL \u2014 PROPRIETARY PRICING INFORMATION", 60, 720, { width: PW, align: "center" });
 
+      // ==================== AGENCY INTELLIGENCE BRIEFING ====================
+      doc.addPage();
+      y = 60;
+
+      sectionHeading("Agency Intelligence Briefing \u2014 Internal Strategy Document");
+      doc.fontSize(8).fillColor("#dc2626").text("FOR INTERNAL USE ONLY \u2014 DO NOT INCLUDE IN SUBMISSION TO TRAVIS COUNTY", 60, y, { width: PW, align: "center" });
+      y = doc.y + 12;
+
+      subHeading("Agency Profile");
+      para("Travis County Purchasing Office operates under Texas Local Government Code Chapter 262, using competitive sealed bidding and quick quote procedures for acquisitions. The Transportation & Natural Resources (TNR) Division manages permitting, transportation infrastructure, parks, and natural resource conservation across Travis County. TNR leadership includes a County Executive, Chief Deputy, and Division Directors overseeing distinct operational areas.");
+
+      subHeading("Evaluation Method");
+      para("This is a Quick Quote (QQ) \u2014 Travis County\u2019s simplest procurement vehicle. Evaluation is \u2018lowest responsible quote\u2019 with qualifications as pass/fail gates. This is NOT a scored proposal with weighted criteria. The evaluation sequence is: (1) Does the respondent meet ALL minimum qualifications? If no \u2192 rejected. (2) Is the respondent responsive to all compliance requirements? If no \u2192 rejected. (3) Among qualified, responsive respondents, is the price reasonable and competitive?");
+      para("Key implication: Do not overbuild the response. Meet every qualification clearly, comply with every requirement, and price competitively. Excessive volume signals misunderstanding of the procurement type.");
+
+      subHeading("Pass/Fail Qualification Gates");
+      const gates = [
+        ["REQUIRED", "Local government experience", "Must be explicit \u2014 name agencies, not just \u2018government experience\u2019"],
+        ["REQUIRED", "Executive/leadership retreat facilitation experience", "Cite specific retreats with audience size and outcomes"],
+        ["REQUIRED", "Strategic planning and group facilitation expertise", "Methodology description should demonstrate this"],
+        ["REQUIRED", "Ability to synthesize complex input into actionable outcomes", "Post-retreat deliverable description proves this"],
+        ["REQUIRED", "Neutral, inclusive, productive facilitation environment", "Standard facilitation language \u2014 don\u2019t overclaim DEI unless asked"],
+        ["PREFERRED", "Experience in permitting, transportation, parks, natural resources", "Adjacent experience is acceptable \u2014 public works, infrastructure planning, environmental"],
+      ];
+      for (const [level, qual, note] of gates) {
+        checkPage(22);
+        const levelColor = level === "REQUIRED" ? "#dc2626" : "#d97706";
+        doc.fontSize(8).fillColor(levelColor).font("Helvetica-Bold").text(level, 60, y, { width: 65 });
+        doc.font("Helvetica").fontSize(9).fillColor(DARK).text(qual, 130, y, { width: 200 });
+        doc.fontSize(8).fillColor(LIGHT).text(note, 335, y, { width: PW - 275 });
+        y = Math.max(doc.y + 4, y + 16);
+      }
+      y += 6;
+
+      subHeading("Pricing Intelligence");
+      para("Market rate for two-day government strategic planning retreat facilitation in Texas: $15,000\u2013$35,000. Competitive sweet spot for this scope (pre-planning + 2 days + report): $18,000\u2013$28,000. Eric\u2019s guidance: target $20,000\u2013$25,000. Our proposed price: $22,500 \u2014 positioned mid-range, signaling competence without appearing either desperate or overpriced.");
+      para("Pricing breakdown logic: Pre-retreat planning ($3,500 / 15.6%) reflects the questionnaire, analysis, and agenda work. Day 1 senior session ($7,500 / 33.3%) is premium-priced for executive-level facilitation with smaller group. Day 2 management session ($8,500 / 37.8%) is higher total due to larger group (22 vs 8) and breakout facilitation. Post-retreat report ($3,000 / 13.3%) covers synthesis and delivery within 5\u20137 business days.");
+
+      subHeading("Competitive Landscape");
+      bullet("Primary competitors: Austin-area consulting firms specializing in government facilitation");
+      bullet("Secondary competitors: National government consulting firms (disadvantaged by lack of local knowledge)");
+      bullet("HIS advantage: Texas-based, CEO-led engagement (not delegated to junior staff), right-sized for the work");
+      bullet("Risk: Larger firms may underbid to establish a Travis County relationship \u2014 our price needs to be competitive, not premium");
+
+      subHeading("Compliance Traps to Avoid");
+      bullet("DO NOT contact any Travis County staff outside the designated Procurement Specialist \u2014 immediate disqualification");
+      bullet("DO NOT submit hard copy without contacting Procurement Specialist one business day prior");
+      bullet("Insurance certificate must name Travis County as Additional Insured and show the contract number");
+      bullet("W-9 must be provided before any payment can be processed");
+      bullet("Invoices must redact any PII/PHI or they will be permanently deleted (not returned)");
+      bullet("All certifications (Israel, energy, firearms, Iran/Sudan) are required by Texas Government Code \u2014 not optional");
+
+      subHeading("Win Strategy");
+      para("Lead with specificity, not volume. Name real government clients. Show you understand TNR\u2019s world (parks, permitting, transportation) through your methodology, not through claims of expertise. Price at $22,500 \u2014 competitive, credible, and within Eric\u2019s target range. Keep the response lean. A 10-page response that hits every qualification beats a 40-page response that buries the evaluator.");
+
       // ==================== COVER LETTER ====================
       doc.addPage();
       y = 60;
@@ -4749,6 +4804,165 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
         doc.fontSize(9).fillColor(DARK).text(statement, 60, y, { width: PW, lineGap: 2 });
         y = doc.y + 8;
       }
+
+      // ==================== COMPLIANCE MATRIX ====================
+      doc.addPage();
+      y = 60;
+
+      sectionHeading("Compliance Matrix");
+      para("The following matrix maps each RFQ 202-CW requirement to our response, demonstrating full compliance with all solicitation terms.");
+      y += 6;
+
+      const complianceRows: [string, string, string, string][] = [
+        [
+          "Provide labor, supervision, materials, and expertise for a two-day strategic planning retreat",
+          "Scope of Services",
+          "COMPLIANT",
+          "Technical Approach \u2014 full-service delivery including pre-planning, facilitation, and post-retreat report"
+        ],
+        [
+          "Pre-retreat consultation with County Executive to confirm objectives",
+          "Scope \u2014 Pre-Retreat Planning",
+          "COMPLIANT",
+          "Phase 1 methodology \u2014 initial consultation, objective alignment, and questionnaire development"
+        ],
+        [
+          "Develop and administer a pre-retreat questionnaire",
+          "Scope \u2014 Pre-Retreat Planning",
+          "COMPLIANT",
+          "Phase 1 methodology \u2014 questionnaire design, distribution, analysis, and theme synthesis"
+        ],
+        [
+          "Prepare and finalize a detailed retreat agenda",
+          "Scope \u2014 Pre-Retreat Planning",
+          "COMPLIANT",
+          "Phase 1 methodology \u2014 customized agenda based on questionnaire analysis and County Executive input"
+        ],
+        [
+          "Facilitate two-day in-person retreat for two groups",
+          "Scope \u2014 Retreat Facilitation",
+          "COMPLIANT",
+          "Phase 2 (Day 1: 8 senior leaders) and Phase 3 (Day 2: 22 management team)"
+        ],
+        [
+          "Lead structured discussions and exercises aligned with objectives",
+          "Scope \u2014 Retreat Facilitation",
+          "COMPLIANT",
+          "Environmental scan, priority mapping, decision frameworks, cascade briefs, and commitment exercises"
+        ],
+        [
+          "Ensure neutral, inclusive, and productive environment",
+          "Scope \u2014 Retreat Facilitation",
+          "COMPLIANT",
+          "Professional facilitation approach designed for balanced participation across all levels"
+        ],
+        [
+          "Submit written summary report within 5\u20137 business days",
+          "Scope \u2014 Post-Retreat",
+          "COMPLIANT",
+          "Phase 4 \u2014 comprehensive report with themes, priorities, action items, and recommended next steps"
+        ],
+        [
+          "Demonstrated experience facilitating executive/leadership retreats",
+          "Minimum Qualifications",
+          "COMPLIANT",
+          "Qualifications section \u2014 specific examples required (see ACTION REQUIRED items)"
+        ],
+        [
+          "Local government experience",
+          "Minimum Qualifications",
+          "COMPLIANT",
+          "Qualifications section \u2014 specific government clients required (see ACTION REQUIRED items)"
+        ],
+        [
+          "Strategic planning and group facilitation expertise",
+          "Minimum Qualifications",
+          "COMPLIANT",
+          "Technical Approach \u2014 detailed methodology demonstrates deep facilitation capability"
+        ],
+        [
+          "Experience in permitting, transportation, parks, natural resources",
+          "Minimum Qualifications (Preferred)",
+          "ADDRESSED",
+          "Qualifications section \u2014 adjacent experience cited (see ACTION REQUIRED for specific examples)"
+        ],
+        [
+          "General Liability: $500K/$1M aggregate; Travis County as Additional Insured",
+          "Attachment A \u2014 Insurance",
+          "WILL COMPLY",
+          "Insurance Compliance section \u2014 certificate within 10 working days of execution"
+        ],
+        [
+          "Comply with nondiscrimination laws (Civil Rights Act, ADA, Title VI)",
+          "Civil Rights & EEO",
+          "COMPLIANT",
+          "Certifications \u2014 Non-Discrimination certification provided"
+        ],
+        [
+          "No delinquent property taxes owed to Travis County",
+          "Purchase Order Terms",
+          "COMPLIANT",
+          "Certifications \u2014 statement of compliance included"
+        ],
+        [
+          "All Texas Government Code certifications (Israel, Energy, Firearms, Iran/Sudan)",
+          "TX Gov\u2019t Code",
+          "COMPLIANT",
+          "Certifications \u2014 all four Texas statutory certifications provided"
+        ],
+        [
+          "Timely invoices with correct formatting; redact PII/PHI",
+          "Purchase Order Terms",
+          "WILL COMPLY",
+          "Invoicing per Travis County requirements upon contract execution"
+        ],
+        [
+          "No contact with unauthorized County officials",
+          "RFQ Communication Rules",
+          "COMPLIANT",
+          "All communication directed through designated Procurement Specialist"
+        ],
+      ];
+
+      const colWidths = [155, 95, 68, 165];
+      const colX = [60, 218, 316, 387];
+
+      doc.rect(60, y, PW, 22).fill(NAVY);
+      doc.fontSize(7).fillColor("#ffffff").font("Helvetica-Bold");
+      doc.text("RFQ REQUIREMENT", colX[0] + 4, y + 6, { width: colWidths[0] - 8 });
+      doc.text("RFQ SECTION", colX[1] + 4, y + 6, { width: colWidths[1] - 8 });
+      doc.text("STATUS", colX[2] + 4, y + 6, { width: colWidths[2] - 8, align: "center" });
+      doc.text("OUR RESPONSE", colX[3] + 4, y + 6, { width: colWidths[3] - 8 });
+      doc.font("Helvetica");
+      y += 24;
+
+      let compRowIdx = 0;
+      for (const [req, section, status, response] of complianceRows) {
+        const estHeight = Math.max(
+          doc.heightOfString(req, { width: colWidths[0] - 8, fontSize: 7 }),
+          doc.heightOfString(response, { width: colWidths[3] - 8, fontSize: 7 }),
+          16
+        ) + 8;
+        checkPage(estHeight + 4);
+
+        const bgColor = compRowIdx % 2 === 0 ? "#f9fafb" : "#ffffff";
+        doc.rect(60, y, PW, estHeight).fill(bgColor);
+
+        const statusColor = status === "COMPLIANT" ? GREEN : status === "WILL COMPLY" ? "#2563eb" : "#d97706";
+
+        doc.fontSize(7).fillColor(DARK).text(req, colX[0] + 4, y + 4, { width: colWidths[0] - 8 });
+        doc.fontSize(7).fillColor(LIGHT).text(section, colX[1] + 4, y + 4, { width: colWidths[1] - 8 });
+        doc.fontSize(7).fillColor(statusColor).font("Helvetica-Bold").text(status, colX[2] + 4, y + 4, { width: colWidths[2] - 8, align: "center" });
+        doc.font("Helvetica");
+        doc.fontSize(7).fillColor(MEDIUM).text(response, colX[3] + 4, y + 4, { width: colWidths[3] - 8 });
+
+        y += estHeight;
+        compRowIdx++;
+      }
+
+      y += 12;
+      doc.fontSize(8).fillColor(LIGHT).text("COMPLIANT = Fully addressed in this response | WILL COMPLY = Addressed upon contract execution | ADDRESSED = Partially met, supporting evidence provided", 60, y, { width: PW });
+      y = doc.y + 8;
 
       // ==================== SUBMISSION CHECKLIST ====================
       doc.addPage();
