@@ -99,12 +99,24 @@ TCAF operates 24 interconnected platforms — this is not a proposal to build so
 - **Mitigation:** Partner with a Texas university as a sub-awardee or co-PI institution. ACC (Austin Community College) is already a coalition partner. A university partner (UT Austin, Texas State, Texas A&M) would dramatically strengthen the proposal.
 - **Status: NEEDS ACTION**
 
-### GAP 2: Principal Investigator (PI) Credentials
-**Issue:** NSF proposals require a PI with research credentials. Dr. Terry Flood holds a DHA (Doctor of Healthcare Administration) which IS a doctoral credential.
-- NSF expects PIs with track records of NSF-funded research or equivalent
-- Dr. Flood's strengths: practitioner expertise, ecosystem builder, community impact
-- **Mitigation:** Add a university-based Co-PI with NSF research experience. This is standard practice — the practitioner leads operations, the researcher leads evaluation and dissemination.
-- **Status: NEEDS ACTION**
+### GAP 2: Principal Investigator (PI) Credentials — LARGELY RESOLVED
+**Issue:** NSF proposals require a PI with research credentials. Dr. Terry Flood holds MULTIPLE doctoral and master's-level credentials directly relevant to this work:
+- **DHA (Doctor of Healthcare Administration)** — Virginia University of Lynchburg
+- **DBA (Doctor of Business Administration)** — Virginia University of Lynchburg
+- **MS, Industrial-Organizational Psychology** — Walden University (I/O Psychology is a core social science discipline)
+- **MS, Implementation Science (In Progress)** — Dartmouth College (the exact methodology TCAF deploys)
+- **MS, Human Resource Management** — Walden University
+- **MS, Criminal Justice (Public Policy)** — Walden University
+- **MBA, Leadership** — South University
+- **Graduate Certificate, Business Analytics** — Texas A&M University
+- **BS, Healthcare Management** — South University
+- **Federal experience:** Public Health Social Scientist (VA + DoD, 2017–present), CR2I Advisor (DoD, 2021-2023), VCL Trainer (VA, current)
+- **Military:** U.S. Army Warrant Officer (Retired)
+
+Dr. Flood's I/O Psychology credential is significant — I/O is a recognized social science with direct relevance to workforce development, organizational behavior, and AI readiness adoption. Combined with the in-progress Dartmouth Implementation Science MS, Dr. Flood is uniquely qualified as both a practitioner AND a research-oriented PI.
+
+- A university Co-PI with NSF-funded research track record would still strengthen the proposal, but Dr. Flood's credentials are far stronger than a typical community nonprofit leader applying to NSF.
+- **Status: STRONG PI CREDENTIALS — Co-PI still recommended for NSF track record, not for credential gaps**
 
 ### GAP 3: "Texas Coordination Hub" Framing
 **Issue:** The solicitation requires ONE hub per state. The LOI title MUST begin with "[Full name of state] Coordination Hub." TCAF needs to position as the TEXAS Coordination Hub.

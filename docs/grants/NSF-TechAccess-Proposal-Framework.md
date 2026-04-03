@@ -375,7 +375,7 @@ TCAF does not add DEI as an afterthought. The entire organization exists to serv
 NSF National Coordination Lead
     ↕
 Texas Coordination Hub (TCAF)
-    ├── Hub Director (Dr. Terry Flood)
+    ├── Hub Director / PI (Dr. Terry Flood, DHA, DBA, MS I/O Psych, MS Impl Sci — Dartmouth)
     ├── Research Co-PI (University Partner)
     ├── Program Coordinators (3: Workforce, Education, Community)
     ├── AI Training Specialists (4: deployed to partner sites)

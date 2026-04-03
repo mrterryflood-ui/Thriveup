@@ -28,7 +28,7 @@
 
 | Position | Person | Effort | Year 1 Salary | Justification |
 |---|---|---|---|---|
-| **PI / Hub Director** | Dr. Terry Flood, DHA | 50% (6 calendar months) | $90,000 | Overall hub leadership, coalition management, statewide coordination, NSF reporting |
+| **PI / Hub Director** | Dr. Terry Flood, DHA, DBA, MS I/O Psych, MS Impl Sci (Dartmouth, in progress) | 50% (6 calendar months) | $90,000 | Overall hub leadership, coalition management, statewide coordination, NSF reporting. Federal Public Health Social Scientist (VA/DoD). I/O Psychology and implementation science expertise. U.S. Army Warrant Officer (Retired). |
 | **Co-PI / Research Lead** | [University Partner TBD] | 25% (3 calendar months) | $55,000 | Research design, evaluation oversight, publication, IRB management |
 | **Co-PI / Workforce Lead** | [TBD] | 25% (3 calendar months) | $50,000 | Employer partnerships, workforce pipeline, apprenticeship coordination |
 

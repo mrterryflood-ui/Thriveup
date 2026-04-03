@@ -3,6 +3,20 @@
 ## Overview
 ThriveUp Academy is an AI-powered workforce development and community enablement platform designed for under-resourced communities. It offers AI mastery curricula, career pathways, mentorship, an AI Creation Studio, entrepreneurship tools, financial literacy, and community engagement. The platform aims to connect individuals with grant funding, align with workforce development criteria, and achieve significant community impact through technology and education.
 
+## Founder / PI Credentials — Dr. Terry Flood
+- **DHA (Doctor of Healthcare Administration)** — Virginia University of Lynchburg
+- **DBA (Doctor of Business Administration)** — Virginia University of Lynchburg
+- **MS, Industrial-Organizational Psychology** — Walden University (I/O Psych = core social science)
+- **MS, Implementation Science (In Progress)** — Dartmouth College
+- **MS, Human Resource Management** — Walden University
+- **MS, Criminal Justice (Public Policy)** — Walden University
+- **MBA, Leadership** — South University
+- **Graduate Certificate, Business Analytics** — Texas A&M University
+- **BS, Healthcare Management** — South University
+- **Federal:** Public Health Social Scientist, VA + DoD (2017–present); CR2I Advisor, DoD (2021-2023); VCL Trainer, VA (current)
+- **Military:** U.S. Army Warrant Officer (Retired)
+- **Roles:** Founder & CEO of TCAF; Pflugerville ISD SHAC member
+
 ## User Preferences
 The agent should prioritize iterative development, clearly explaining major changes before implementation. It should focus on delivering high-quality, well-tested code, and use clear, simple language when describing technical concepts. Avoid making changes to sensitive configuration files or core architectural components without explicit instruction. CRITICAL: "NBA" must NEVER appear in UI code identifiers. CRITICAL: Always work in parallel using subagents. Never stop to have conversations when there is more work to do. Keep building.
 

@@ -94,20 +94,28 @@ This maps directly to SoS:DCI's emphasis on "societal benefits of scientific act
 - **Mitigation:** Partner with a university researcher who can design the study. TCAF provides the phenomenon (24-platform ecosystem, community deployment data). The university provides the research methodology.
 - **Status: NEEDS UNIVERSITY RESEARCH PARTNER**
 
-### GAP 2: PI with Social Science Research Credentials
-**Issue:** SoS:DCI sits in NSF's Social, Behavioral and Economic Sciences Directorate (SBE). The PI needs social science research credentials — published papers, research methods expertise, track record of empirical research.
-- Dr. Flood's DHA is clinical/administrative, not social science research
-- **Mitigation:** University Co-PI with social science background (sociology of science, science communication, science policy, organizational behavior, or information science)
-- **Status: NEEDS CO-PI**
+### GAP 2: PI with Social Science Research Credentials — LARGELY RESOLVED
+**Issue:** SoS:DCI sits in NSF's Social, Behavioral and Economic Sciences Directorate (SBE). The PI needs social science research credentials.
+- **Dr. Flood IS a social scientist.** His MS in Industrial-Organizational Psychology (Walden University) is a core SBE discipline — organizational behavior, workforce systems, measurement, and applied research methods are exactly what SoS:DCI funds.
+- **Additional credentials:** DHA, DBA, MS Human Resource Management, MS Criminal Justice (Public Policy), MS Implementation Science (in progress, Dartmouth), Graduate Certificate Business Analytics (Texas A&M), BS Healthcare Management
+- **Federal role:** Public Health Social Scientist at VA + DoD (2017–present) — this is literally a social scientist job title in the federal system
+- **Military:** U.S. Army Warrant Officer (Retired), CR2I Advisor (DoD 2021-2023)
+- **Remaining gap:** NSF reviewers look for publication track record in peer-reviewed journals. Dr. Flood's strength is practitioner expertise and federal implementation, not academic publishing. A university Co-PI with a publication record in science-of-science or I/O journals would complement perfectly.
+- **Status: PI CREDENTIALS STRONG — Co-PI recommended for publication record, not for credential type**
 
-### GAP 3: Theoretical Framework
-**Issue:** SoS:DCI explicitly requires proposals to "draw from and advance theory, knowledge and frameworks on the science of science." TCAF uses implementation science (CFIR/RE-AIM) — but SoS:DCI wants science-of-science theory.
-- **Mitigation:** Frame the research within established SoS frameworks:
+### GAP 3: Theoretical Framework — PARTIALLY RESOLVED
+**Issue:** SoS:DCI explicitly requires proposals to "draw from and advance theory, knowledge and frameworks on the science of science." TCAF uses implementation science (CFIR/RE-AIM) — and Dr. Flood's I/O Psychology training provides additional theoretical grounding in organizational systems, change management, and sociotechnical systems.
+- **I/O Psychology frameworks directly applicable:**
+  - Sociotechnical Systems Theory — how technology and human systems interact (the 24-platform ecosystem IS a sociotechnical system)
+  - Technology Acceptance Model (TAM) / UTAUT — how communities adopt AI tools
+  - Organizational Learning Theory — how the ecosystem generates and spreads knowledge
+  - Job Demands-Resources Model — how AI tools change workforce capacity
+- **Additional SoS frameworks to integrate:**
   - Diffusion of Innovation Theory (Rogers) — how AI tools diffuse through community networks
   - Knowledge Translation Framework — how scientific AI tools are adopted by non-scientific communities
   - Responsible Research and Innovation (RRI) — inclusive, anticipatory approach to AI
   - Network Science — how the 24-platform ecosystem generates emergent discovery
-- **Status: NEEDS THEORETICAL FRAMING**
+- **Status: STRONG THEORETICAL FOUNDATION — needs formal SoS framing in proposal writing**
 
 ### GAP 4: Publication Track Record
 **Issue:** SoS:DCI reviewers expect PIs with published research in science-of-science journals (e.g., Science, Research Policy, Scientometrics, Science Communication, Minerva).
@@ -127,14 +135,14 @@ This maps directly to SoS:DCI's emphasis on "societal benefits of scientific act
 | Criterion | Score (1-10) | Notes |
 |---|---|---|
 | **Mission Alignment** | 8 | TCAF's ecosystem is a natural experiment SoS:DCI should study |
-| **PI Readiness** | 4 | Needs university Co-PI with social science credentials |
+| **PI Readiness** | 7 | Dr. Flood is an I/O Psychologist (social scientist), federal Public Health Social Scientist, implementation scientist (Dartmouth). Co-PI needed for publication record, not credentials. |
 | **Competitive Position** | 7 | Unique community-level data no university can generate alone |
 | **Funding Amount** | 6 | $100K-$500K helpful but not transformative |
 | **Timeline Pressure** | 8 | Rolling submissions — no immediate deadline crisis |
 | **Strategic Value** | 9 | Positions TCAF as a research institution, not just a service provider |
 | **Effort Required** | 5 | Moderate — but most effort is finding the right Co-PI |
 
-**Overall: 6.7/10 — WORTH PURSUING, but secondary to TechAccess**
+**Overall: 7.4/10 — STRONG CANDIDATE, secondary to TechAccess only on timeline**
 
 ---
 
@@ -190,7 +198,7 @@ TCAF's 24-platform AI ecosystem, deployed through community infrastructure acros
 
 | Category | Amount | Notes |
 |---|---|---|
-| PI effort (TCAF) | $50,000/year | 25% effort — ecosystem access, community coordination |
+| PI effort (TCAF — Dr. Flood, I/O Psychologist, Implementation Scientist) | $50,000/year | 25% effort — research leadership, ecosystem access, I/O psych framework application, community coordination |
 | Co-PI effort (University) | $60,000/year | 30% effort — research design, analysis, publication |
 | Graduate Research Assistants (2) | $60,000/year | Data collection, coding, analysis |
 | Data Management | $15,000/year | Database, archiving, open science compliance |
@@ -238,6 +246,6 @@ SoS:DCI needs a social science researcher, not just an AI/education researcher:
 
 **Best framing:** TCAF is not proposing to DO more community work. TCAF is proposing to STUDY its existing ecosystem as a scientific innovation system. The 24-platform ecosystem is the research site. The communities using it are the study population. The question is: how does community-based AI deployment function as a mechanism of scientific discovery, communication, and impact?
 
-**Why it's competitive:** No university has a 24-platform community AI ecosystem to study. TCAF has the phenomenon. A university partner has the methodology. Together, this is a proposal no one else can write.
+**Why it's competitive:** No university has a 24-platform community AI ecosystem to study. TCAF has the phenomenon AND the PI has the social science credentials to lead the research — I/O Psychology (organizational systems, measurement, workforce), Implementation Science (CFIR/RE-AIM, Dartmouth-trained), and federal Public Health Social Scientist experience. A university Co-PI adds publication track record and IRB infrastructure. Together, this is a proposal no one else can write.
 
 **Strategic play:** Submit TechAccess LOI June 16 → Submit TechAccess full proposal July 16 → Submit SoS:DCI proposal August-September 2026. Two active NSF proposals, different directorates (CISE/EHR for TechAccess, SBE for SoS:DCI), no conflict.
