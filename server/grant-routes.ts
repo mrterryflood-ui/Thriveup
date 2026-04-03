@@ -3503,14 +3503,20 @@ Use real market data for pricing. Reference SAM.gov/USASpending for federal, sta
 
         const intelResponse = await generateAIResponse(
           [
-            { role: "system", content: "You are a competitive intelligence analyst specializing in government contracts (federal, state, local), grants, and RFPs across all levels. You research SAM.gov award history, USASpending.gov, state procurement databases, and foundation 990 data. Return ONLY valid JSON." },
+            { role: "system", content: "You are a competitive intelligence analyst specializing in government contracts (federal, state, local), grants, and RFPs across all levels. You research SAM.gov award history, USASpending.gov, state procurement databases, and foundation 990 data. Return ONLY valid JSON — no markdown, no code fences, no explanation text. Start your response with { and end with }." },
             { role: "user", content: intelPrompt },
           ],
           4000
         );
-        const jsonStr = intelResponse.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+        let jsonStr = intelResponse.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+        const firstBrace = jsonStr.indexOf("{");
+        const lastBrace = jsonStr.lastIndexOf("}");
+        if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+          jsonStr = jsonStr.substring(firstBrace, lastBrace + 1);
+        }
         intel = JSON.parse(jsonStr);
-      } catch {
+      } catch (parseErr: any) {
+        console.error("[ProposalCommand] Intel parse error:", parseErr.message);
         intel = { error: "Could not parse competitive intel", raw: true };
       }
 
@@ -3606,12 +3612,87 @@ Acknowledge each insurance/bond/compliance requirement. State willingness to pro
 ## 12. ITEMS NEEDING YOUR INPUT
 List every {{NEEDS_INPUT}} item with clear description of what the customer needs to provide.`;
 
+      let pass1Content = "";
+
+      send("status", { message: "Pass 1/2 — Generating solicitation analysis, pricing strategy, cover letter, executive summary, and technical approach..." });
+
+      const pass1UserPrompt = `${userPrompt}
+
+IMPORTANT: Due to length, generate ONLY sections 1 through 6 in this pass:
+1. SOLICITATION ANALYSIS (every requirement, deadline, submission item, evaluation criteria)
+2. PRICING STRATEGY (three tiers with full line-item breakdown)
+3. COVER LETTER
+4. EXECUTIVE SUMMARY
+5. TECHNICAL APPROACH / METHODOLOGY
+6. QUALIFICATIONS & EXPERIENCE
+
+Be thorough. Do NOT abbreviate. Complete every section fully.`;
+
+      await new Promise<void>((resolve, reject) => {
+        streamAIResponse({
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: pass1UserPrompt },
+          ],
+          maxTokens: 12000,
+          onChunk: (content: string) => { pass1Content += content; send("chunk", { content }); },
+          onDone: () => resolve(),
+          onError: (error: Error) => reject(error),
+        });
+      });
+
+      send("status", { message: "Pass 2/2 — Generating staffing plan, timeline, cost proposal, compliance matrix, insurance, key personnel resumes, and unknowns summary..." });
+
+      const pass2UserPrompt = `You already generated sections 1-6 of a proposal. Now generate the REMAINING sections 7-12. Continue from where you left off.
+
+SOLICITATION TEXT (for reference):
+---
+${solicitation.substring(0, 3000)}
+---
+
+COMPANY PROFILE (for reference):
+${companySection}
+
+COMPETITIVE INTEL:
+${JSON.stringify(intel, null, 2)}
+
+${additionalContext ? `ADDITIONAL CONTEXT:\n${additionalContext}` : ""}
+
+NOW generate these remaining sections — be thorough, do NOT abbreviate:
+
+## 7. STAFFING PLAN
+Named personnel with titles, qualifications, roles on THIS project, estimated hours, hourly rates. Include org chart.
+
+## 8. PROJECT TIMELINE & DELIVERABLES
+Month-by-month schedule with specific milestones and deliverables matching solicitation requirements.
+
+## 9. COST PROPOSAL (DETAILED)
+Use the RECOMMENDED pricing tier. Full line-item breakdown matching scope of work sections.
+
+## 10. COMPLIANCE MATRIX
+Table mapping EVERY solicitation requirement to the proposal section that addresses it. Include page references.
+| # | Solicitation Requirement | Response Section | How Addressed | Compliant? |
+
+## 11. CERTIFICATIONS, INSURANCE & REQUIRED FORMS
+Acknowledge each requirement. State current status or what will be obtained.
+Include: Insurance policies, W-9, CIQ, vendor registration, background checks, HUB compliance, performance bond.
+
+## 12. KEY PERSONNEL RESUMES
+2-page resume format for each key team member named in the staffing plan.
+
+## 13. ITEMS NEEDING YOUR INPUT
+Complete list of every {{NEEDS_INPUT}} item from the entire proposal with:
+- What's needed
+- Why it's needed
+- Where in the proposal it appears
+- Suggested action for the customer`;
+
       await streamAIResponse({
         messages: [
           { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt },
+          { role: "user", content: pass2UserPrompt },
         ],
-        maxTokens: 8000,
+        maxTokens: 12000,
         onChunk: (content: string) => { send("chunk", { content }); },
         onDone: () => { send("done", { generatedAt: new Date().toISOString() }); res.end(); },
         onError: (error: Error) => { send("error", { message: error.message }); res.end(); },
@@ -3652,7 +3733,7 @@ List every {{NEEDS_INPUT}} item with clear description of what the customer need
             { role: "system", content: "You are refining an existing proposal based on user feedback. Maintain the same structure and format. Only change what the user requests. Keep all company-specific details intact. Return the FULL updated proposal in markdown." },
             { role: "user", content: `CURRENT PROPOSAL:\n${updatedProposal}\n\nFEEDBACK:\n${feedback}\n\nReturn the complete refined proposal.` },
           ],
-          maxTokens: 8000,
+          maxTokens: 16000,
           onChunk: (content: string) => { send("chunk", { content }); },
           onDone: () => { send("done", { refinedAt: new Date().toISOString() }); res.end(); },
           onError: (error: Error) => { send("error", { message: error.message }); res.end(); },
