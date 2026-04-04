@@ -71,6 +71,22 @@ const EMPTY_PROFILE: CompanyProfile = {
   yearsInBusiness: "", uei: "",
 };
 
+const TCAF_PROFILE: CompanyProfile = {
+  companyName: "The Collaborative Advocate Foundation (TCAF)",
+  companyType: "nonprofit-501c3",
+  ein: "41-3618003",
+  address: "17912 Stefano Drive, Pflugerville, TX 78660",
+  contactName: "Dr. Terry Flood, DHA/DBA, Founder & CEO",
+  phone: "",
+  email: "mr.terryflood@gmail.com",
+  capabilities: "AI-powered workforce development and community enablement platform (ThriveUp Academy). 24-platform interdependent ecosystem covering workforce readiness, career pathways, mentorship, financial literacy, whole-person health, case management, and community engagement. TEKS §127.15 CTE Employability Skills fully aligned curriculum (100% coverage, verifiable via live API). WIOA-aligned programming. Implementation Science methodology (CFIR 2.0 + RE-AIM). Continuous Quality Improvement (CQI) engine with MAP-GAP framework. AI-powered learning with culturally responsive companions, personalized pacing, and real-time assessment. Bilingual (English/Spanish). WCAG 2.1 AA accessible. Regional hubs in Austin, Manor, and Pflugerville TX.",
+  certifications: "501(c)(3) tax-exempt nonprofit. SAM.gov registered (pending activation). Veteran-founded, Black-led organization. Founder holds DHA, DBA, MS Industrial-Organizational Psychology (4.0 GPA, Walden), MS Implementation Science (in progress, Dartmouth Geisel School of Medicine), MBA Leadership, MS HRM, MS Criminal Justice. Federal Grants & Agreements Management certified. Contracting Officer's Representative (COR) Level 1. Stanford AI in Healthcare (12 AMA PRA Category 1 Credits). FEMA ICS-100.C, ICS-200.C, IS-700.B, IS-800.D. Graduate Certificate Business Analytics (Texas A&M).",
+  pastPerformance: "{{ACTION REQUIRED: Dr. Flood — list 2-3 specific contracts, grants, or engagements TCAF has delivered. Include agency/client name, dollar value, dates, and measurable outcomes. Only include real, verifiable work. If TCAF is early-stage, note that and emphasize platform readiness, SHAC membership, and established community relationships instead.}}",
+  keyPersonnel: "Dr. Terry Flood, DHA/DBA — Founder & CEO / Principal Investigator. U.S. Army Warrant Officer (Retired). Public Health Social Scientist (VA + DoD, 2017-present). Community Readiness & Resilience Implementer (CR2I) Advisor (DoD, 2021-2023). Trainer, Veterans Crisis Line (current). Pflugerville ISD School Health Advisory Council (SHAC) member. 168-Hour Community Health Worker Instructor certification (DSHS). MS Implementation Science candidate at Dartmouth College Geisel School of Medicine.",
+  yearsInBusiness: "",
+  uei: "",
+};
+
 const STORAGE_KEY = "proposal-command-profile";
 
 function loadSavedProfile(): CompanyProfile {
@@ -522,6 +538,18 @@ export default function ProposalCommandPage() {
                     data-testid="button-back-to-solicitation"
                   >
                     <ChevronRight className="mr-2 h-4 w-4" /> Profile Saved — Go to Solicitation
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="border-violet-300 text-violet-700 hover:bg-violet-50 dark:border-violet-700 dark:text-violet-300 dark:hover:bg-violet-950"
+                    onClick={() => {
+                      setCompanyProfile({ ...TCAF_PROFILE });
+                      localStorage.setItem(STORAGE_KEY, JSON.stringify(TCAF_PROFILE));
+                      toast({ title: "TCAF profile loaded", description: "All verified organization data pre-filled." });
+                    }}
+                    data-testid="button-load-tcaf"
+                  >
+                    <Briefcase className="mr-2 h-4 w-4" /> Load TCAF Profile
                   </Button>
                   <Button
                     variant="outline"
