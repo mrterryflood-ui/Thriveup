@@ -186,3 +186,9 @@ id = "Oei49FBDBiKbSkb88johM"
 uri = "file://RFQ_202-CW_HIS_Response.pdf"
 type = "pdf"
 title = "Travis County RFQ 202-CW — Hargrave Innovative Solutions Quote Response"
+
+[[outputs]]
+id = "EdUAP577i7mSsE7ZwcEsP"
+uri = "file://docs/pitches/deel-the-pitch-3min-script.md"
+type = "text"
+title = "ThriveUp - The Pitch by Deel - 3-Minute Script"
