@@ -36,6 +36,18 @@ Persistent lessons from each improvement cycle. Each lesson should inform future
 - **H-L04 — NEVER EXPOSE PRICING STRATEGY:** The competing AI included "Pricing Target: $20,000–$25,000 (per Eric Hargrave)" in the submission document. Revealing your pricing source and strategy in a government submission tells the evaluator you're pricing to a target rather than to scope. **RULE: Pricing intelligence belongs in the internal strategy briefing (never submitted), not in the quote response.**
 - **H-L05 — MULTI-AI ACCOUNTABILITY:** When multiple AI engines are available, use them to cross-check each other's outputs for fabricated content, inapplicable compliance claims, and scope mismatches. No single AI should produce final output without validation. This is why our collaborative multi-engine architecture exists — engines hold each other accountable so humans don't have to catch AI hallucinations.
 
+## I-Series Lessons (Proposal Research Discipline — DOL RESTART Comparison)
+
+- **I-L01 — READ THE ACTUAL FOA BEFORE WRITING:** When a grant has a downloadable FOA/NOFO/RFP document, download and read the full document BEFORE writing any narrative, budget, or strategy. Web search summaries and press releases do not contain scoring weights, participant minimums, age restrictions, FTE requirements, or period of performance specifics. The competing system (MCE) read the actual FOA PDF and caught: (a) intermediaries can ONLY serve ages 15-24, (b) 42-month POP not 36, (c) PI must be 100% FTE, (d) 680 minimum participants at $5.1M, (e) exact scoring breakdown (106 pts, Project Design = 58 pts). We missed all five because we relied on web search summaries. **ABSOLUTE RULE: Source document first, web research second. Never draft a proposal narrative from secondary sources when the primary document is available.**
+
+- **I-L02 — INCLUDE DEMOGRAPHIC AND CRIME DATA IN SERVICE AREA ANALYSIS:** When proposing services in a geographic area, always pull actual statistical data — incarceration rates, recidivism, unemployment among target populations, demographic breakdowns, existing program capacity. Don't use estimates and flag them for the human to verify. Do the research upfront. Sources: Bureau of Justice Statistics (bjs.gov), state DOC data (TDCJ for Texas), Census ACS, Bureau of Labor Statistics. The user specifically called this out as a gap.
+
+- **I-L03 — LEARN FROM COMPETING OUTPUTS:** When the user shares a competing system's output, analyze it for: (a) things they caught that we missed, (b) structural/design choices that are stronger, (c) errors or fabrications in their output. Be honest about where they did better. This is not a competition to win — it's a quality improvement process. Document specific improvements and apply them to the next deliverable.
+
+- **I-L04 — MATCH FOA TERMINOLOGY AND STRUCTURE EXACTLY:** Federal grant applications should mirror the FOA's section headers, scoring criteria labels, and terminology. If the FOA says "Project Design" worth 58 points, the narrative section should be titled "Project Design" and address every sub-criterion listed. Don't paraphrase or reorganize the FOA's structure — follow it.
+
+- **I-L05 — VALIDATE ELIGIBILITY CONSTRAINTS BEFORE PROPOSING TRACK/POPULATION:** Before choosing an application track (intermediary vs. direct, youth vs. adult), verify every eligibility constraint for that track. The intermediary track restricting service to ages 15-24 was a disqualification-level error that would have killed the application. Track selection should be a deliberate decision matrix, not an assumption.
+
 ## Enforced Rules (Machine-Checkable)
 
 These lessons have been converted into automated health checks in the MAP phase:
