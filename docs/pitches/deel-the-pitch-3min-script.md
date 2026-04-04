@@ -7,12 +7,12 @@
 ## FORMAT
 
 - **2 minutes live on stage** with supporting slides behind you
-- **10 slides** in the deck
+- **10 slides** in the deck (V5 — Keisha: One Woman, Every Platform)
 - In-person only, English, Q&A follows the pitch
 
 ---
 
-## THE 2-MINUTE SCRIPT (Revised — Ecosystem WHY Integrated)
+## THE 2-MINUTE SCRIPT (V5 — Keisha Story)
 
 **TARGET: 1 minute 55 seconds**
 
@@ -20,110 +20,125 @@
 
 **[SLIDE 1 — TITLE]**
 
-I'm Dr. Terry Flood. Army veteran. Five master's degrees. Two doctorates. Twenty-five years serving the people America forgets — returning citizens, veterans, mothers, young people with nowhere to turn.
+I'm Dr. Terry Flood. Army veteran. Two doctorates. Twenty-five years serving the people America forgets.
 
 **[SLIDE 2 — THE PROBLEM]**
 
-The United States spends **180 billion dollars a year** on social services. Most of it is lost — not to fraud — to **fragmentation**. A veteran leaving the military needs job placement, mental health support, benefits, family services — and we hand them four disconnected agencies. A pregnant Black woman in a maternal health desert needs one connected care pathway — instead she gets referral loops and dropped calls. The systems don't talk to each other. People die in the gaps.
+The United States spends **180 billion dollars a year** on social services. And most of it is lost — not to fraud — to **fragmentation**. The agencies don't talk to each other. The systems don't connect. People die in the gaps between them.
 
-**[SLIDE 3 — WHY AN ECOSYSTEM, NOT APPS]**
+**[SLIDE 3 — THE ECOSYSTEM MAP]**
 
-The world doesn't need another app. It needs systems that are **connected.**
+So I built something different. Not one app. **One ecosystem.** Twenty-four interconnected platforms across six domains — criminal justice, health, behavioral health, workforce, education, and community. Every platform sees the others. Every platform can flag gaps, trigger services, and hold the other platforms accountable.
 
-A standalone mental health app doesn't know you just lost your job. A standalone job board doesn't know you're in a mental health crisis. A standalone breast cancer screening app tells you to get a mammogram but doesn't check if you have transportation, childcare, or insurance.
+**[SLIDE 4 — MEET KEISHA]**
 
-That's why I built **ThriveUp** — not 24 apps, but **one ecosystem** where every platform sees the whole person. When a veteran gets a job, their behavioral health platform adjusts. When a mother is flagged high-risk, her workforce, housing, and family services all activate. **One record. One identity. Twenty-four connected platforms.**
+Let me tell you about Keisha. She's a **veteran.** She's a **mother.** She's a **breast cancer survivor.** She has **depression.** She runs a **small nonprofit.** She needs **community resources.**
 
-**[SLIDE 4 — HOW AI POWERS THIS]**
+She is **every woman.**
 
-And the AI isn't a chatbot. It's a **cross-platform intelligence layer**. It predicts risk by connecting data no single app can see — job loss plus missed prenatal visit plus housing instability equals automatic high-risk alert. Four AI engines cross-check each other so nothing gets fabricated.
+*(Pause.)*
 
-**[SLIDES 5-6-7 — PLATFORM SPOTLIGHTS — flip quickly]**
+In the current system, Keisha would navigate eight disconnected agencies. Tell her story eight times. Hope someone connects the dots. Nobody does.
 
-**Mission Transition** takes veterans from their last day in uniform through skills translation, credentialing, employer matching, and career tracking — end to end, connected to every other service they need.
+In ThriveUp — she walks through **any door** and every platform that can help her already knows she's there. Mission Transition handles her military career. Maternal Health tracks her pregnancy. Sankofa coordinates her cancer care. Whole-Person Health manages her depression. Minority Center of Excellence supports her nonprofit. And the Collaborative Advocate connects her to housing, legal aid, and benefits.
 
-**Black Maternal Health Network** — AI risk screening, community doula coordination, culturally responsive care — because Black women are **three times more likely** to die from pregnancy complications.
+**One person. One record. Every platform responds.**
 
-**Sankofa Health Network** — breast cancer screening navigation for underserved women, connecting them to mammography, genetic counseling, and survivor support.
+**[SLIDE 5 — ECOSYSTEM IN MOTION]**
 
-All live. All deployed. All connected.
+And when life hits — when her cancer treatment intensifies, her depression worsens, she can't work full-time, her daughter's grades drop — the ecosystem doesn't wait for someone to make a phone call. The AI sees across all 24 platforms and alerts the right people **before crisis.** Because no human case manager can connect dots across six domains. The AI can.
 
-**[SLIDE 8 — BUSINESS MODEL]**
+**[SLIDE 6 — MARCUS]** *(flip quickly)*
 
-The business: **SaaS licensing.** Community organizations, school districts, workforce boards pay monthly or annual licenses. These buyers already spend federal dollars on technology — we align to how the money flows.
+Her brother Marcus comes home from prison. Same ecosystem. Same family file. LifeBridge, workforce, behavioral health, family services — all ready on Day 1. Because the ecosystem already knows the family.
+
+**[SLIDES 7-8 — AI + BUSINESS MODEL]** *(quick flip)*
+
+SaaS licensing. Communities enter where their gap is — a school district starts with education, a reentry program starts with LifeBridge — and they expand as they see what's connected. Every expansion is recurring revenue. These buyers already spend federal dollars on technology.
 
 **[SLIDE 9 — MARKET + TRACTION]**
 
-**40,000 community action agencies. 13,000 school districts. 550 workforce boards.** All 24 platforms are live right now. First customer deployed. **$1.6 million** pipeline with Texas Workforce Commission. Applications in with Google.org, Gates Foundation, and NSF.
+40,000 community agencies. 13,000 school districts. All 24 platforms live today. $1.6 million pipeline with Texas Workforce Commission. Applications with Google.org, Gates, and NSF.
 
 **[SLIDE 10 — THE ASK]**
 
-I'm asking for **one million dollars** to scale from Central Texas to five markets in twelve months. Reach **two million in ARR.**
+I'm asking for **one million dollars** to scale from Central Texas to five communities in twelve months. Two million ARR.
 
 *(Direct eye contact. Slow down.)*
 
-I didn't build ThriveUp because I thought it would be a good business. I built it because the communities I serve were dying without it.
+Keisha is not hypothetical. She is every woman in every underserved community in America. The current system treats each of her needs as a separate problem handled by a separate agency.
 
-It exists. It's live. It works. Now it needs to scale.
+ThriveUp treats her as one person. Because she is.
 
-I'm Dr. Terry Flood. This is ThriveUp. We're ready.
+Walk through any door. Get help in every room.
 
 *(Hold.)*
 
 ---
 
-## SLIDE DECK STRUCTURE (V2 — With Ecosystem WHY)
+## SLIDE DECK STRUCTURE (V5 — Keisha Story)
 
 | Slide | Title | Purpose | Time |
 |-------|-------|---------|------|
-| 1 | Title | Your name, credentials, company | 10s |
-| 2 | The Problem | $180B fragmentation — real human cost with stats (3x maternal mortality, 67% recidivism, 44% veteran underemployment) | 15s |
-| 3 | Apps vs. Ecosystem | Side-by-side comparison. LEFT: what 24 separate apps look like (broken). RIGHT: what one connected ecosystem looks like (ThriveUp). THIS is the slide that answers "why should we care" | 15s |
-| 4 | How AI Powers This | 4 concrete AI capabilities with real examples — NOT buzzwords. Predictive risk, cross-platform early warning, skills translation, multi-engine consensus | 10s |
-| 5 | Mission Transition | Veteran pipeline spotlight — 5 steps, connected to ecosystem | 8s |
-| 6 | Black Maternal Health | Maternal health spotlight — AI risk screening, doula coordination, ecosystem connection | 8s |
-| 7 | Sankofa Health | Breast cancer / health equity spotlight — screening navigation, with ecosystem difference callout | 8s |
-| 8 | Business Model | SaaS tiers + why federal funding alignment matters | 8s |
-| 9 | Market + Traction | TAM numbers + all traction proof on one slide | 10s |
-| 10 | The Ask | $1M, use of funds, 12-month targets, founder credentials, closing line | 12s |
+| 1 | Title | Name, credentials, ISS, 6 domain pills | 8s |
+| 2 | The Problem | $180B fragmentation + 6 stat cards (67% recidivism, 3x maternal mortality, 44% veteran underemployment, 1.2M dropouts, 8+ systems, $0 connecting them) | 12s |
+| 3 | Ecosystem Map | 6 domains, 24 platforms, central AI hub — the visual that says "this is not one app" | 12s |
+| 4 | Meet Keisha | The killer slide. One woman who IS a veteran, mother, cancer survivor, depression, nonprofit founder, community needs. 6 cards showing each need → platform | 25s |
+| 5 | Ecosystem in Motion | What happens when life hits — cancer worsens, can't work, daughter's grades drop — 6 cascading responses across domains | 12s |
+| 6 | Marcus (CJ) | Keisha's brother comes home. Same family, same ecosystem. 6-step reentry timeline. | 8s |
+| 7 | AI Intelligence | 4 AI capabilities with Keisha/Marcus examples — predictive risk, early warning, accountability, multi-engine | 8s |
+| 8 | Business Model | Entry → Expansion → Full Ecosystem. Communities start where gap is, expand as they see connections | 8s |
+| 9 | Market + Traction | TAM + traction panel. 24/24 live, TCAF deployed, pipeline, applications | 10s |
+| 10 | The Ask | $1M, use of funds, closing: "She is every woman. ThriveUp treats her as one person. Because she is." | 12s |
 
 ---
 
-## THE GAPS THIS DECK NOW FILLS
+## WHY KEISHA IS THE STORY
 
 **"What does ecosystem mean?"**
-→ Slide 3 shows it side-by-side. Left panel: 24 disconnected apps where data is siloed, people fall through cracks, case managers re-enter data 8 times. Right panel: one ecosystem where data flows, platforms trigger each other, AI sees the whole person. The word "ecosystem" is now defined by what it DOES, not what it claims.
+→ It means Keisha doesn't navigate 8 agencies. She enters once and every platform responds.
 
-**"Why is this different from 24 apps on the App Store?"**
-→ Slide 3 + Slide 7 (Sankofa callout box). "A standalone breast cancer app tells a woman to get a mammogram. Sankofa inside ThriveUp does that AND checks: Does she have transportation? Is she employed? Does she have childcare? Is her mental health stable? If not — those platforms activate automatically."
+**"Why is this different from 24 apps?"**
+→ Because 24 apps don't know Keisha is the same person. They don't know her cancer affects her work affects her daughter's grades. ThriveUp does.
 
-**"How is AI special here?"**
-→ Slide 4. Four concrete capabilities with real examples. Not "we use AI" — but "AI cross-references job loss + missed prenatal visit + housing instability = automatic high-risk alert." Four engines cross-checking each other so nothing is fabricated.
+**"Why should we care?"**
+→ Because Keisha is not hypothetical. She is millions of women. And the current system treats each of her needs as a separate problem handled by a separate agency that will never speak to the others.
 
-**"Why should we fund this?"**
-→ Slide 2. Because fragmentation literally kills people. 3x maternal mortality. 67% recidivism. 44% veteran underemployment. Not because systems can't help — because systems aren't connected. ThriveUp is the connection layer.
-
-**"Is this just pitching apps to the App Store?"**
-→ No. This is infrastructure. Slide 8 makes it clear: these buyers already spend federal dollars on technology platforms. We sell to the same institutional buyers that Salesforce, Workday, and Canvas sell to — solving a problem none of them address.
+**"How does AI fit?"**
+→ No human case manager can track Keisha's needs across 6 domains, her brother Marcus's needs across 5, and her daughter's needs across 3. The AI sees all of it because it sees across all 24 platforms.
 
 ---
 
 ## Q&A PREP
 
+**Q: Is Keisha a real person?**
+A: Keisha is a composite — but every single one of her needs is something I've seen in 25 years of direct service. I've met hundreds of Keishas. The point is: real people have co-occurring needs across every domain. The current system pretends they don't.
+
 **Q: What does "ecosystem" actually mean in practice?**
-A: One person, one record, across all 24 platforms. When a veteran gets a job through Mission Transition, their behavioral health platform knows. When a mother is flagged high-risk in the maternal health platform, her workforce services, housing navigation, and family support all activate automatically. The platforms share data and trigger actions across each other. That's what makes it an ecosystem — not the word, the architecture.
+A: One person, one record, across all 24 platforms. When Keisha's cancer treatment intensifies, her workforce platform adjusts her job search. When Marcus is released, the family file Keisha already has means every service is ready on day one. The platforms share data, trigger actions, and hold each other accountable. That's what makes it an ecosystem.
 
 **Q: Why can't someone just build 24 apps and connect them?**
-A: They could — in theory. But building 24 interoperable platforms from scratch across workforce, health, education, crisis, business development, and community navigation takes years. We've already done it. Every platform is live. A competitor starting today is 3-4 years behind. And the integration depth — the shared data model, the cross-platform AI, the unified identity layer — that's what no one has replicated.
+A: They could — in 4-5 years. We've already done it. Every platform is live. The integration depth — shared data model, cross-platform AI, unified identity — that's the moat. A competitor starting today is years behind.
 
 **Q: How is the AI different from ChatGPT?**
-A: ChatGPT is a single model that answers questions. Our AI is an intelligence layer across 24 connected platforms that uses four different models (GPT-4o, Claude, Gemini, DeepSeek) cross-checking each other. It doesn't just answer questions — it predicts risk by connecting data points that no single app can see. A job loss in the workforce platform plus a missed prenatal visit in the health platform plus a housing instability flag equals an automatic alert to the care team. ChatGPT can't do that because ChatGPT doesn't have access to someone's full service history across 24 systems.
+A: ChatGPT answers questions. Our AI predicts risk by connecting data across 24 platforms using four models cross-checking each other. Job loss + missed prenatal visit + housing instability = automatic alert. ChatGPT can't do that because it doesn't have access to someone's full service record across 24 systems.
 
 **Q: Why should we invest in social impact?**
-A: Because this isn't charity — it's infrastructure. Every school district in America buys software. Every workforce board buys software. Every community health center buys software. We sell to the same institutional buyers, solving a problem nobody else has addressed. The social impact IS the market opportunity — it's not a limitation.
+A: This isn't charity — it's infrastructure. Every school district, workforce board, and health center in America buys software. We sell to the same institutional buyers Salesforce and Workday sell to, solving a problem none of them address. The social impact IS the market.
 
 **Q: What's your competitive moat?**
-A: Integration depth. Anyone can build one platform. We built 24 that share data, trigger actions across each other, and use AI to see patterns no single platform can detect. A competitor would need to replicate workforce + health + education + crisis + business development + community navigation AND make them all interoperable. That's years of work.
+A: Integration depth. Anyone can build one platform. We built 24 that share data, trigger actions, and use AI to detect patterns across domains. A competitor would need to replicate workforce + health + education + criminal justice + business + community AND make them interoperable. That's years of work.
 
 **Q: Show me it works?**
-A: Every platform is live right now. I can pull up any of the 24 on my phone. (Have your phone ready with 3 platforms loaded.)
+A: Every platform is live. I can pull up any of the 24 right now. *(Have phone ready with 3 platforms loaded.)*
+
+**Q: How does a family like Keisha and Marcus benefit vs. individual platforms?**
+A: The family file is the key. Marcus entering the reentry platform on Day 1 doesn't start from scratch — the ecosystem already knows his sister, her health situation, her kids' schools, the community resources they use. That context means every service for Marcus is faster, better targeted, and connected to the people who already support him. No other system does that.
+
+---
+
+## FINAL NOTE
+
+The V5 deck centers one truth: **real people have co-occurring needs that cross every domain.** Keisha is a veteran AND a mother AND a cancer patient AND a person with depression AND a business owner AND someone who needs community resources — all at the same time. The current system treats each of those as a separate problem. ThriveUp treats her as one person. That's the pitch.
+
+Walk through any door. Get help in every room.
