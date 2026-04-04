@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TCAF RESTART Grant Proposal Plan — FOA-ETA-26-17</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Plus Jakarta Sans', sans-serif; background: #0f0f0f; color: #e8e8e8; line-height: 1.7; }
+  .container { max-width: 1100px; margin: 0 auto; padding: 40px 24px; }
+  
+  /* Header */
+  .header { text-align: center; padding: 60px 0 40px; border-bottom: 2px solid #b8860b; margin-bottom: 40px; }
+  .header h1 { font-size: 2.2rem; font-weight: 800; color: #daa520; margin-bottom: 8px; }
+  .header h2 { font-size: 1.1rem; font-weight: 500; color: #999; margin-bottom: 20px; }
+  .header .meta { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; margin-top: 20px; }
+  .header .meta-item { background: #1a1a1a; border: 1px solid #333; border-radius: 8px; padding: 12px 20px; text-align: center; }
+  .header .meta-item .label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: #888; }
+  .header .meta-item .value { font-size: 1.1rem; font-weight: 700; color: #daa520; }
+  
+  /* Sections */
+  .section { margin-bottom: 48px; }
+  .section-title { font-size: 1.5rem; font-weight: 700; color: #daa520; border-left: 4px solid #b8860b; padding-left: 16px; margin-bottom: 20px; }
+  .subsection { margin-bottom: 28px; }
+  .subsection h3 { font-size: 1.1rem; font-weight: 700; color: #f0c040; margin-bottom: 10px; }
+  .subsection h4 { font-size: 0.95rem; font-weight: 600; color: #ccc; margin-bottom: 8px; }
+  p, li { font-size: 0.92rem; color: #ccc; margin-bottom: 8px; }
+  ul, ol { padding-left: 24px; margin-bottom: 12px; }
+  li { margin-bottom: 6px; }
+  
+  /* Cards */
+  .card { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 12px; padding: 24px; margin-bottom: 16px; }
+  .card-gold { border-color: #b8860b; }
+  .card-red { border-color: #c0392b; background: #1c1212; }
+  .card-green { border-color: #27ae60; background: #121c14; }
+  
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.88rem; }
+  th { background: #1e1e1e; color: #daa520; text-align: left; padding: 10px 14px; border-bottom: 2px solid #b8860b; font-weight: 600; }
+  td { padding: 10px 14px; border-bottom: 1px solid #2a2a2a; color: #ccc; }
+  tr:hover td { background: #1a1a1a; }
+  
+  /* Scoring */
+  .score-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+  .score-bar .label { min-width: 200px; font-size: 0.85rem; color: #ccc; }
+  .score-bar .bar-bg { flex: 1; height: 20px; background: #2a2a2a; border-radius: 10px; overflow: hidden; }
+  .score-bar .bar-fill { height: 100%; background: linear-gradient(90deg, #b8860b, #daa520); border-radius: 10px; }
+  .score-bar .pts { min-width: 50px; text-align: right; font-weight: 700; color: #daa520; font-size: 0.85rem; }
+  
+  /* Alert boxes */
+  .alert { padding: 16px 20px; border-radius: 8px; margin-bottom: 16px; font-size: 0.88rem; }
+  .alert-critical { background: #2d1111; border: 1px solid #c0392b; color: #e74c3c; }
+  .alert-action { background: #1a2010; border: 1px solid #6b8e23; color: #9acd32; }
+  .alert-info { background: #111a2d; border: 1px solid #2980b9; color: #5dade2; }
+  .alert strong { display: block; margin-bottom: 4px; }
+  
+  /* Timeline */
+  .timeline { position: relative; padding-left: 30px; }
+  .timeline::before { content: ''; position: absolute; left: 8px; top: 0; bottom: 0; width: 2px; background: #b8860b; }
+  .timeline-item { position: relative; margin-bottom: 20px; }
+  .timeline-item::before { content: ''; position: absolute; left: -26px; top: 6px; width: 12px; height: 12px; background: #daa520; border-radius: 50%; border: 2px solid #0f0f0f; }
+  .timeline-item .date { font-size: 0.78rem; color: #b8860b; font-weight: 700; text-transform: uppercase; }
+  .timeline-item .desc { font-size: 0.88rem; color: #ccc; }
+  
+  .badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; }
+  .badge-gold { background: #b8860b22; color: #daa520; border: 1px solid #b8860b; }
+  .badge-red { background: #c0392b22; color: #e74c3c; border: 1px solid #c0392b; }
+  .badge-green { background: #27ae6022; color: #2ecc71; border: 1px solid #27ae60; }
+  
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 768px) { .two-col { grid-template-columns: 1fr; } }
+  
+  .highlight { color: #daa520; font-weight: 600; }
+  hr { border: none; border-top: 1px solid #2a2a2a; margin: 32px 0; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- HEADER -->
+<div class="header">
+  <h1>RESTART Grant Proposal Plan</h1>
+  <h2>FOA-ETA-26-17 — Reentry Employment in Skilled Trades, Advanced Manufacturing, Registered Apprenticeships, and Training</h2>
+  <p style="color:#888; font-size:0.85rem; margin-top:8px;">Prepared for ThriveUp Community Advancement Foundation (TCAF) — Dr. Terry Flood, DMSc, Principal Investigator</p>
+  <div class="meta">
+    <div class="meta-item"><div class="label">Total Funding</div><div class="value">$81,000,000</div></div>
+    <div class="meta-item"><div class="label">TCAF Request</div><div class="value">$5,100,000</div></div>
+    <div class="meta-item"><div class="label">Awards</div><div class="value">Up to 20</div></div>
+    <div class="meta-item"><div class="label">Deadline</div><div class="value">April 15, 2026</div></div>
+    <div class="meta-item"><div class="label">POP</div><div class="value">42 Months</div></div>
+    <div class="meta-item"><div class="label">Start Date</div><div class="value">July 1, 2026</div></div>
+  </div>
+</div>
+
+<!-- SECTION 0: EXECUTIVE DECISION BRIEF -->
+<div class="section">
+  <h2 class="section-title">Executive Decision Brief</h2>
+  
+  <div class="alert alert-action">
+    <strong>GO / NO-GO RECOMMENDATION: CONDITIONAL GO</strong>
+    TCAF is eligible as a National/Regional Intermediary (501(c)(3) nonprofit). The grant aligns directly with TCAF's mission — workforce readiness for underserved populations via AI-powered training platforms. The $30M intermediary set-aside favors organizations like TCAF. However, three critical requirements must be addressed in the next 11 days (see Critical Action Items below).
+  </div>
+
+  <div class="card card-gold">
+    <h3 style="color:#daa520; margin-bottom:12px;">TCAF Competitive Advantages</h3>
+    <ul>
+      <li><span class="highlight">ThriveUp Academy 24-Platform AI Ecosystem</span> — Directly addresses FOA's emphasis on AI literacy, digital literacy, and technology training</li>
+      <li><span class="highlight">Veteran-Founded, Black-Led Organization</span> — Dr. Flood's U.S. Army service, DHA/DBA credentials, and VA Crisis Line training demonstrate deep understanding of reentry populations</li>
+      <li><span class="highlight">Community Health Worker Instructor Certification</span> — Wraparound services capability for participants with complex needs</li>
+      <li><span class="highlight">Multi-Entity Ecosystem</span> — CIP LLC and M&T Consulting provide additional capacity for employer partnerships and training delivery</li>
+      <li><span class="highlight">MCE Platform with 115,232 Businesses</span> — Built-in employer partner network for participant job placement</li>
+      <li><span class="highlight">AI Infrastructure Focus</span> — ThriveUp's AI platforms directly align with FOA's priority industry: "AI infrastructure build-out" and "information technology including AI" (worth up to 8 bonus points in Project Design + 2 bonus points in Priority Consideration)</li>
+    </ul>
+  </div>
+
+  <div class="card card-red">
+    <h3 style="color:#e74c3c; margin-bottom:12px;">Critical Gaps to Address — {{ACTION REQUIRED}}</h3>
+    <ol>
+      <li><strong>Past Performance ($400K+ completed grant with 40+ participants)</strong> — TCAF must identify a completed federally or non-federally funded grant/cooperative agreement within the past 5 years that meets the $400K threshold and enrolled 40+ participants in workforce development services. If TCAF has not completed such a grant, this section will score 0/14 points, reducing competitiveness significantly. {{ACTION REQUIRED: Dr. Flood to identify qualifying past performance or identify a sub-grantee partner who has REO/ETA past performance.}}</li>
+      <li><strong>Required Partnerships (LOCs/MOUs within 11 days)</strong> — As an intermediary, TCAF must secure signed LOCs/MOUs from: (a) at least 2 sub-grantees across 3+ non-contiguous metro areas or rural regions, (b) 1 state government/SWDB, (c) 1 SAA, (d) 1 criminal justice system partner, and (e) at least 3 employers in target industries. Failure to attach all required LOCs/MOUs = automatic disqualification (non-responsive). {{ACTION REQUIRED: Begin partner outreach immediately.}}</li>
+      <li><strong>Intermediaries Can ONLY Serve Youth/Young Adults (Ages 15-24)</strong> — TCAF CANNOT propose to serve adults (25+). Applications from intermediaries proposing to serve adults will be found non-responsive. Design all programming for ages 15-24 only.</li>
+    </ol>
+  </div>
+</div>
+
+<hr>
+
+<!-- SECTION 1: SCORING STRATEGY -->
+<div class="section">
+  <h2 class="section-title">Scoring Strategy — 106 Points Maximum</h2>
+  <p>The scoring breakdown reveals that <span class="highlight">Project Design (58 pts) is the dominant category at 55% of total score</span>. Past Performance (14 pts) and Statement of Need (14 pts) are tied for second. Priority Consideration offers 6 bonus points for shipbuilding focus and Registered Apprenticeship employer partners.</p>
+  
+  <div class="score-bar"><span class="label">1. Statement of Need</span><div class="bar-bg"><div class="bar-fill" style="width:13.2%"></div></div><span class="pts">14 pts</span></div>
+  <div class="score-bar"><span class="label">2. Expected Outcomes</span><div class="bar-bg"><div class="bar-fill" style="width:5.7%"></div></div><span class="pts">6 pts</span></div>
+  <div class="score-bar"><span class="label">3. Project Design</span><div class="bar-bg"><div class="bar-fill" style="width:54.7%"></div></div><span class="pts">58 pts</span></div>
+  <div class="score-bar"><span class="label">4. Past Performance</span><div class="bar-bg"><div class="bar-fill" style="width:13.2%"></div></div><span class="pts">14 pts</span></div>
+  <div class="score-bar"><span class="label">5. Budget & Narrative</span><div class="bar-bg"><div class="bar-fill" style="width:7.5%"></div></div><span class="pts">8 pts</span></div>
+  <div class="score-bar"><span class="label">6. Priority Consideration</span><div class="bar-bg"><div class="bar-fill" style="width:5.7%"></div></div><span class="pts">6 pts</span></div>
+  
+  <div class="card" style="margin-top:20px;">
+    <h4>Target Score: 88–96 / 106</h4>
+    <p>Assuming strong Project Design (50/58), solid Statement of Need (12/14), full Outcomes (6/6), competitive Past Performance (8-14/14), clean Budget (8/8), and Priority bonus (4-6/6).</p>
+  </div>
+</div>
+
+<hr>
+
+<!-- SECTION 2: APPLICANT PROFILE -->
+<div class="section">
+  <h2 class="section-title">Applicant Profile</h2>
+  <table>
+    <tr><th style="width:35%">Field</th><th>Detail</th></tr>
+    <tr><td>Applicant Name</td><td>ThriveUp Community Advancement Foundation (TCAF)</td></tr>
+    <tr><td>Entity Type</td><td>National/Regional Intermediary — 501(c)(3) Nonprofit</td></tr>
+    <tr><td>EIN</td><td>41-3618003</td></tr>
+    <tr><td>Headquarters</td><td>Pflugerville, Texas</td></tr>
+    <tr><td>PI / Project Director</td><td>Dr. Terry Flood, DHA/DBA/DMSc — U.S. Army Veteran</td></tr>
+    <tr><td>PI FTE on Project</td><td>100% (FOA Requirement for Project Director)</td></tr>
+    <tr><td>Population to Serve</td><td>Youth (15-17) and Young Adults (18-24) with criminal justice involvement</td></tr>
+    <tr><td>Funding Request</td><td>$5,100,000 (maximum for intermediaries)</td></tr>
+    <tr><td>Minimum Participants</td><td>680 over 42-month POP (per Figure 1 for $5M-$5.1M request)</td></tr>
+    <tr><td>Cost Per Participant</td><td>$7,500 ($5,100,000 ÷ 680)</td></tr>
+    <tr><td>SAA Status</td><td>Texas has a State Apprenticeship Agency (Texas Workforce Commission)</td></tr>
+    <tr><td>Sub-Grantee Requirement</td><td>Minimum 2 sub-grantees across 3+ non-contiguous metro areas</td></tr>
+  </table>
+</div>
+
+<hr>
+
+<!-- SECTION 3: PROJECT CONCEPT -->
+<div class="section">
+  <h2 class="section-title">Project Concept — "RESTART Through Technology"</h2>
+  
+  <div class="card card-gold">
+    <h3 style="color:#daa520; margin-bottom:12px;">Project Title (Proposed)</h3>
+    <p style="font-size:1.1rem; font-weight:700; color:#fff;">"ThriveUp RESTART: AI-Powered Reentry Pathways to Skilled Trades & Technology Careers for Justice-Involved Youth and Young Adults"</p>
+  </div>
+
+  <div class="subsection">
+    <h3>Core Program Model</h3>
+    <p>TCAF will leverage its ThriveUp Academy AI ecosystem to deliver a technology-integrated reentry workforce development program targeting justice-involved youth (15-17) and young adults (18-24) across 3+ non-contiguous metropolitan areas. The program focuses on FOA priority industries: <span class="highlight">AI infrastructure build-out, information technology including AI, and advanced manufacturing</span>.</p>
+    
+    <h4 style="margin-top:16px;">Three-Phase Service Delivery Model</h4>
+    <div class="card">
+      <p><strong>Phase 1: Assessment & Readiness (Months 1-3)</strong></p>
+      <ul>
+        <li>Robust assessment of prior learning and skills using ThriveUp AI diagnostic tools</li>
+        <li>Individual Development Plan (IDP) creation with AI-assisted career pathway mapping</li>
+        <li>WIOA eligibility screening and co-enrollment</li>
+        <li>Digital literacy baseline assessment and foundational AI literacy training</li>
+        <li>Financial literacy training and needs assessment (repeated every 6 months for youth/young adults)</li>
+        <li>Criminal record review — verify participants eligible for licensure in target occupations</li>
+      </ul>
+    </div>
+    <div class="card">
+      <p><strong>Phase 2: Training & Credentialing (Months 3-18)</strong></p>
+      <ul>
+        <li>Pre-apprenticeship programs in AI infrastructure, IT, and advanced manufacturing</li>
+        <li>Registered Apprenticeship placements with employer partners (RA sponsors)</li>
+        <li>On-the-Job Training (OJT) with up to 90% employer reimbursement</li>
+        <li>AI and digital literacy coursework integrated into all training tracks</li>
+        <li>Industry-recognized credential attainment (CompTIA, AWS, manufacturing certs)</li>
+        <li>Learning and Employment Records (LER) development where feasible</li>
+        <li>Paid work experiences and subsidized wages/stipends</li>
+        <li>Soft skills development: workplace etiquette, professionalism, job search strategies</li>
+        <li>Mentorship program pairing participants with industry professionals</li>
+      </ul>
+    </div>
+    <div class="card">
+      <p><strong>Phase 3: Placement & Follow-Up (Months 12-42)</strong></p>
+      <ul>
+        <li>Unsubsidized employment placement in target industries</li>
+        <li>Registered Apprenticeship continuation and completion tracking</li>
+        <li>12-month follow-up services (FOA requirement)</li>
+        <li>Recidivism tracking — 12-month window post-enrollment (per Amendment 1 definition)</li>
+        <li>Supportive services referrals and continuation</li>
+        <li>Credential portability through LER/CLR integration</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <h3>Target Industries & Training Tracks</h3>
+    <table>
+      <tr><th>Track</th><th>FOA Priority Industry</th><th>Credentials</th><th>Employer Partners Needed</th></tr>
+      <tr><td>AI Infrastructure & Data Center Operations</td><td>AI infrastructure build-out</td><td>CompTIA A+, Network+, AWS Cloud Practitioner</td><td>Data center operators, cloud providers, IT firms</td></tr>
+      <tr><td>Information Technology & Cybersecurity</td><td>Information technology including AI</td><td>CompTIA Security+, CySA+, Google IT Support</td><td>IT services companies, MSPs, tech employers</td></tr>
+      <tr><td>Advanced Manufacturing & CNC</td><td>Advanced manufacturing</td><td>NIMS CNC, MSSC CPT, OSHA 10</td><td>Manufacturing employers, fabrication shops</td></tr>
+    </table>
+    <div class="alert alert-info">
+      <strong>Priority Consideration Bonus (Up to 6 Points)</strong>
+      If any employer partner is a Registered Apprenticeship Program sponsor: 2 bonus points for 1 RA sponsor, 4 bonus points for 2+ RA sponsors. Additionally, if training includes shipbuilding-related content: 2 more bonus points. Consider adding a shipbuilding-adjacent track (e.g., welding, marine electrical) to capture the full 6 bonus points.
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<!-- SECTION 4: REQUIRED PARTNERSHIPS -->
+<div class="section">
+  <h2 class="section-title">Required Partnerships — LOC/MOU Matrix</h2>
+  
+  <div class="alert alert-critical">
+    <strong>NON-NEGOTIABLE: Missing ANY required LOC/MOU = AUTOMATIC DISQUALIFICATION</strong>
+    All LOCs/MOUs must be signed, dated, and uploaded as attachments labeled "Letters of Commitment." Begin outreach TODAY.
+  </div>
+
+  <table>
+    <tr><th>Partner Type</th><th>Requirement</th><th>Suggested Target</th><th>LOC Content Required</th><th>Status</th></tr>
+    <tr>
+      <td><strong>Sub-Grantee #1</strong></td>
+      <td>Required — must be in non-contiguous metro area</td>
+      <td>{{ACTION REQUIRED}} — Identify reentry org in City #1 (e.g., Houston, Dallas, or San Antonio TX area)</td>
+      <td>42-month commitment, funding amount, roles, data reporting commitment, all III.I.3 partner requirements per sub-grantee</td>
+      <td><span class="badge badge-red">NEEDED</span></td>
+    </tr>
+    <tr>
+      <td><strong>Sub-Grantee #2</strong></td>
+      <td>Required — must be in non-contiguous metro area</td>
+      <td>{{ACTION REQUIRED}} — Identify reentry org in City #2 (e.g., Atlanta GA, Chicago IL, or another state entirely)</td>
+      <td>Same as Sub-Grantee #1</td>
+      <td><span class="badge badge-red">NEEDED</span></td>
+    </tr>
+    <tr>
+      <td><strong>Sub-Grantee #3</strong> (Recommended)</td>
+      <td>Optional but strengthens "3+ non-contiguous" requirement</td>
+      <td>{{ACTION REQUIRED}} — Identify reentry org in City #3 (e.g., Detroit MI, Memphis TN, or Philadelphia PA)</td>
+      <td>Same as above</td>
+      <td><span class="badge badge-red">NEEDED</span></td>
+    </tr>
+    <tr>
+      <td><strong>State Government / SWDB</strong></td>
+      <td>Required (III.I.3.a)</td>
+      <td>Texas Workforce Commission (TWC) or Texas State Workforce Development Board</td>
+      <td>Commitment to coordinate WIOA co-enrollment, share LMI data, embed in AJC network</td>
+      <td><span class="badge badge-red">NEEDED</span></td>
+    </tr>
+    <tr>
+      <td><strong>State Apprenticeship Agency</strong></td>
+      <td>Required (III.I.3.b) — Texas has an SAA</td>
+      <td>Texas Workforce Commission — Apprenticeship Division</td>
+      <td>Commitment to register participants in RA programs, coordinate with RAPIDS</td>
+      <td><span class="badge badge-red">NEEDED</span></td>
+    </tr>
+    <tr>
+      <td><strong>Criminal Justice Partner</strong></td>
+      <td>Required (III.I.3.c)</td>
+      <td>Travis County Community Supervision & Corrections, Texas Department of Criminal Justice, or local probation/parole office</td>
+      <td>Participant referrals, data sharing on justice involvement, pre-release coordination</td>
+      <td><span class="badge badge-red">NEEDED</span></td>
+    </tr>
+    <tr>
+      <td><strong>Employer #1</strong></td>
+      <td>Required (III.I.3.d) — target industry</td>
+      <td>AI/IT employer — data center operator, cloud services, or IT firm</td>
+      <td>Commitment to hire/train RESTART participants, specify if RA sponsor (bonus points)</td>
+      <td><span class="badge badge-red">NEEDED</span></td>
+    </tr>
+    <tr>
+      <td><strong>Employer #2</strong></td>
+      <td>Required — target industry</td>
+      <td>Advanced manufacturing employer in target metro areas</td>
+      <td>Same — specify if RA sponsor</td>
+      <td><span class="badge badge-red">NEEDED</span></td>
+    </tr>
+    <tr>
+      <td><strong>Employer #3</strong></td>
+      <td>Required — target industry</td>
+      <td>IT/cybersecurity employer or shipbuilding-adjacent employer</td>
+      <td>Same — specify if RA sponsor (2 bonus points if RA sponsor)</td>
+      <td><span class="badge badge-red">NEEDED</span></td>
+    </tr>
+  </table>
+
+  <div class="alert alert-action" style="margin-top:16px;">
+    <strong>Sub-Grantee LOC/MOU Must Include (per FOA III.I.3):</strong>
+    (1) Statement confirming 42-month partnership starting July 1, 2026; (2) Signatures of all authorized representatives with dates; (3) Amount of funds sub-grantee will receive; (4) Specific roles and grant activities; (5) Statement that sub-grantee ensures all partners adhere to FOA requirements; (6) Statement that intermediary provides quarterly data to DOL and sub-grantee will cooperate. Each sub-grantee must also independently partner with entities in III.I.3(a-d) — including 3 employers each.
+  </div>
+</div>
+
+<hr>
+
+<!-- SECTION 5: STATEMENT OF NEED -->
+<div class="section">
+  <h2 class="section-title">Section 1: Statement of Need — Writing Guide (14 Points)</h2>
+
+  <div class="subsection">
+    <h3>i. Participant Numbers (Up to 2 Points)</h3>
+    <div class="card">
+      <p><strong>What to Write:</strong></p>
+      <ul>
+        <li>State: "TCAF proposes to enroll a minimum of 680 youth and young adults across the 42-month POP"</li>
+        <li>Break down by sub-grantee: e.g., Sub-Grantee #1: 230 participants, Sub-Grantee #2: 225 participants, Sub-Grantee #3: 225 participants</li>
+        <li>Specify target age groups: Youth (15-17) and Young Adults (18-24)</li>
+        <li>Include total cumulative number served by all sub-grantees combined</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <h3>ii. Service Area Data (Up to 6 Points)</h3>
+    <div class="card">
+      <p><strong>Required Data for Each Target Area (per Appendix A):</strong></p>
+      <ul>
+        <li><strong>Poverty rate</strong> — from American Community Survey (ACS) data, by county or contiguous Census Tracts</li>
+        <li><strong>Crime rate</strong> — per 100,000 residents from FBI Crime in the United States report</li>
+        <li><strong>Labor force participation rate</strong> — from US Census Bureau, for ages 24 and below</li>
+        <li>For each target area: attach a table with total population, persons in poverty, crime rate, and labor force participation rate per Census Tract</li>
+        <li>Attach a <strong>contiguous Census Tract map</strong> (screenshot from Census website)</li>
+        <li>If serving multiple areas: calculate <strong>weighted crime and poverty rates</strong></li>
+      </ul>
+      <p style="margin-top:12px;"><strong>{{ACTION REQUIRED}}</strong> — Generate these data tables for each sub-grantee city. Use data.census.gov for ACS data and FBI UCR for crime data. This attachment does NOT count toward the 25-page limit.</p>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <h3>iii. Existing Service Gaps (Up to 2 Points)</h3>
+    <div class="card">
+      <p><strong>Key Argument:</strong> Despite existing reentry programs, justice-involved youth/young adults in target areas lack access to technology-focused training pathways in AI infrastructure, IT, and advanced manufacturing. Existing programs focus on traditional trades and do not integrate AI literacy, digital workforce readiness, or Learning & Employment Records. Cite specific gaps in each target metro area.</p>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <h3>iv. Complementary Services & Governor Letter (Up to 4 Points)</h3>
+    <div class="card">
+      <p><strong>Strategy:</strong></p>
+      <ul>
+        <li>Describe how RESTART complements WIOA services, American Job Centers, state apprenticeship programs, and existing reentry services</li>
+        <li>Show how ThriveUp Academy's AI platform extends (not duplicates) existing services</li>
+        <li><strong>For full points:</strong> Submit a Letter of Support from the Texas Governor OR other stakeholders coordinating service delivery. As an intermediary, TCAF can substitute with letters from Tribal government or other coordinating stakeholders if a Governor's letter is not feasible</li>
+        <li>{{ACTION REQUIRED}} — Pursue Governor's office letter or stakeholder support letters</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<!-- SECTION 6: EXPECTED OUTCOMES -->
+<div class="section">
+  <h2 class="section-title">Section 2: Expected Outcomes & Outputs — Writing Guide (6 Points)</h2>
+
+  <div class="subsection">
+    <h3>i. Outcomes and Outputs (Up to 2 Points)</h3>
+    <table>
+      <tr><th>Measure Type</th><th>Metric</th><th>Target</th></tr>
+      <tr><td>Output</td><td>Total participants enrolled</td><td>680 minimum</td></tr>
+      <tr><td>Output</td><td>Participants completing training</td><td>544 (80% completion rate)</td></tr>
+      <tr><td>Output</td><td>Industry-recognized credentials earned</td><td>480 (70% of enrolled)</td></tr>
+      <tr><td>Output</td><td>Registered Apprenticeship placements</td><td>136 (20% of enrolled)</td></tr>
+      <tr><td>Outcome</td><td>WIOA: Employment Rate — 2nd Quarter After Exit</td><td>65%</td></tr>
+      <tr><td>Outcome</td><td>WIOA: Employment Rate — 4th Quarter After Exit</td><td>60%</td></tr>
+      <tr><td>Outcome</td><td>WIOA: Credential Attainment Rate</td><td>70%</td></tr>
+      <tr><td>Outcome</td><td>WIOA: Measurable Skill Gains</td><td>75%</td></tr>
+      <tr><td>REO-Specific</td><td>Recidivism Rate (within 12 months of enrollment)</td><td>Below 15%</td></tr>
+      <tr><td>REO-Specific</td><td>Participants co-enrolled in WIOA</td><td>100% screened, 80%+ co-enrolled</td></tr>
+    </table>
+  </div>
+
+  <div class="subsection">
+    <h3>ii. Tracking & Reporting Plan (Up to 4 Points)</h3>
+    <div class="card">
+      <ul>
+        <li>Quarterly Performance Reports using ETA-9173 format</li>
+        <li>Separate tracking for youth/young adult participants (FOA requirement)</li>
+        <li>WIOA co-enrollment tracking through coordination with local Workforce Development Boards</li>
+        <li>Pre- and post-release tracking for participants served while incarcerated</li>
+        <li>ThriveUp Academy platform provides built-in participant tracking, credential verification, and outcomes reporting</li>
+        <li>Sub-grantee quarterly data cooperation commitment (required in LOC/MOU)</li>
+        <li>Staff roles: Data Manager at TCAF, Site Coordinators at each sub-grantee</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<!-- SECTION 7: PROJECT DESIGN -->
+<div class="section">
+  <h2 class="section-title">Section 3: Project Design — Writing Guide (58 Points)</h2>
+  <p style="margin-bottom:20px;">This is the <span class="highlight">most critical section — 55% of total score</span>. The FOA awards points across 7 sub-criteria. Every sub-criterion must be addressed thoroughly.</p>
+
+  <div class="subsection">
+    <h3>i. Implementation Plan & Timeline (Up to 8 Points)</h3>
+    <div class="card">
+      <p><strong>Required:</strong> Detailed 6-month implementation and planning period, followed by full service delivery.</p>
+      <div class="timeline" style="margin-top:16px;">
+        <div class="timeline-item">
+          <div class="date">Months 1-6 (Jul–Dec 2026): Implementation & Planning</div>
+          <div class="desc">Hire staff (Project Director at 100% FTE, Data Manager, Site Coordinators), finalize sub-grantee agreements, establish MIS/reporting systems, develop curricula, configure ThriveUp Academy for RESTART delivery, execute employer MOUs, coordinate with TWC/SAA for WIOA co-enrollment processes, establish referral pipelines with criminal justice partners</div>
+        </div>
+        <div class="timeline-item">
+          <div class="date">Months 4-12 (Oct 2026–Jun 2027): Recruitment & Phase 1 Services</div>
+          <div class="desc">Begin participant recruitment through criminal justice partners, begin assessments, IDP creation, foundational digital/financial literacy, WIOA screening and co-enrollment</div>
+        </div>
+        <div class="timeline-item">
+          <div class="date">Months 7-30 (Jan 2027–Dec 2028): Full Training Delivery</div>
+          <div class="desc">Pre-apprenticeship programs, OJT placements, Registered Apprenticeship enrollment, AI/IT/manufacturing training tracks, credential attainment, paid work experiences</div>
+        </div>
+        <div class="timeline-item">
+          <div class="date">Months 18-42 (Dec 2027–Dec 2029): Placement & Follow-Up</div>
+          <div class="desc">Unsubsidized employment placement, 12-month follow-up services, recidivism tracking, final performance reporting, sustainability planning</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <h3>ii. Evidence Base (Up to 4 Points)</h3>
+    <div class="card">
+      <p><strong>Cite these sources:</strong></p>
+      <ul>
+        <li>DOL's Clearinghouse for Labor Evaluation and Research (CLEAR) — cite relevant reentry employment studies</li>
+        <li>RAND Corporation reentry workforce studies</li>
+        <li>Evidence on apprenticeship/OJT effectiveness for justice-involved populations</li>
+        <li>ThriveUp Academy's own data on AI-powered learning outcomes (if available)</li>
+        <li>Research on digital literacy as predictor of employment retention</li>
+        <li>If no compelling evidence exists for specific innovations, describe the "information, experiences, and assumptions" per FOA language</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <h3>iii. Target Industries & LMI (Up to 8 Points)</h3>
+    <div class="card card-gold">
+      <p><strong>CRITICAL — This is where TCAF can dominate.</strong> The FOA explicitly states: "Mere mention of these industries is not adequate for full points." You must:</p>
+      <ul>
+        <li>Provide Labor Market Information (LMI) for each target metro area showing demand for AI infrastructure, IT, and manufacturing workers</li>
+        <li>Cite Bureau of Labor Statistics (BLS) occupational projections for target occupations</li>
+        <li>Show local economic activity: data center construction, tech company expansion, manufacturing facility openings in target areas</li>
+        <li>Connect LMI to specific training tracks: "Austin-Round Rock MSA has 15 data center projects under construction requiring 3,200+ IT infrastructure workers by 2028" ({{ACTION REQUIRED: verify with real LMI data}})</li>
+        <li>Show how employer partners reflect these industries</li>
+        <li>For shipbuilding bonus: If targeting a coastal sub-grantee area, include shipbuilding/maritime LMI for that region</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <h3>iv. Program Activities & Approach (Up to 8 Points)</h3>
+    <div class="card">
+      <p><strong>Must include ALL of these (FOA mandatory activities):</strong></p>
+      <ul>
+        <li>✅ Training programs resulting in industry-recognized credentials (with AI coursework where appropriate)</li>
+        <li>✅ Career development services: WIOA screening/co-enrollment, prior learning assessment, digital/financial literacy, soft skills, job search strategies</li>
+        <li>✅ IDP creation and implementation</li>
+        <li>✅ Supportive services provision/referral (exhaust other sources first before using REO funds — max 15% of grant)</li>
+        <li>✅ Mentorship programs</li>
+        <li>✅ Follow-up services for 12+ months</li>
+        <li>✅ Needs assessments repeated every 6 months (required for youth/young adult programs)</li>
+      </ul>
+      <p style="margin-top:12px;"><strong>Also address:</strong></p>
+      <ul>
+        <li>How youth (15-17) and young adults (18-24) will be served <strong>separately</strong> — cannot interact with each other</li>
+        <li>Procedures for service delivery restrictions (internet/staff access) if serving incarcerated individuals</li>
+        <li>Verify that target occupations have no criminal record barriers to licensure</li>
+        <li>Explain why this approach was chosen over alternatives</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <h3>v. Partnerships (Up to 18 Points)</h3>
+    <div class="card card-gold">
+      <p><strong>This is the HIGHEST-SCORING sub-criterion within Project Design.</strong> Every required partnership must be described in detail in the narrative AND supported by a compliant LOC/MOU attachment. See the Partnership Matrix above for all required partners. Additional points for:</p>
+      <ul>
+        <li>Partners with reentry experience (if TCAF lacks reentry experience, partnering with experienced reentry orgs is "strongly encouraged")</li>
+        <li>Additional partners that leverage resources and provide complementary services</li>
+        <li>Community-based organizations, faith-based organizations, educational institutions</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <h3>vi. Management & Staffing (Up to 6 Points)</h3>
+    <div class="card">
+      <table>
+        <tr><th>Position</th><th>FTE</th><th>Key Responsibilities</th></tr>
+        <tr><td>Project Director (Dr. Terry Flood)</td><td>100% (REQUIRED by FOA)</td><td>Overall project management, DOL coordination, partner management, compliance</td></tr>
+        <tr><td>Fiscal Director/Manager</td><td>50%</td><td>Federal fund management, budget monitoring, SF-425 reporting, OMB compliance</td></tr>
+        <tr><td>Data Manager</td><td>100%</td><td>ETA-9173 quarterly reporting, WIOA performance tracking, sub-grantee data collection</td></tr>
+        <tr><td>Employer Outreach Coordinator</td><td>100%</td><td>Employer partner management, OJT/RA placements, job development</td></tr>
+        <tr><td>Site Coordinators (per sub-grantee)</td><td>100% each</td><td>Local program delivery, participant case management, partner coordination</td></tr>
+      </table>
+      <p style="margin-top:12px;"><strong>Also describe:</strong> Organizational structure, fiscal/administrative controls, procurement procedures, sustainability plan after grant ends.</p>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <h3>vii. WIOA Integration (Up to 6 Points)</h3>
+    <div class="card">
+      <p><strong>Critical Requirements:</strong></p>
+      <ul>
+        <li>Embed RESTART activities within American Job Centers (AJCs) and local service networks</li>
+        <li>Leverage State/Local Workforce Development Boards, sector partnerships, RA/pre-apprenticeship programs</li>
+        <li>Use state LMI, LER/CLR solutions, performance data systems to target in-demand industries</li>
+        <li>Ensure training aligns with state/local in-demand occupation lists</li>
+        <li>Apply for inclusion on Eligible Training Provider Lists (ETPLs)</li>
+        <li>Coordinate with Carl D. Perkins CTE programs, community colleges, trade schools</li>
+        <li>Plan to braid and align funding streams — show how RESTART + WIOA + other funding create sustainability</li>
+        <li>Describe what continues after the 42-month POP ends</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<!-- SECTION 8: PAST PERFORMANCE -->
+<div class="section">
+  <h2 class="section-title">Section 4: Past Performance — Writing Guide (14 Points)</h2>
+  
+  <div class="alert alert-critical">
+    <strong>CRITICAL DECISION POINT — This section determines 13% of your score</strong>
+    TCAF must identify ONE completed grant/cooperative agreement that meets these thresholds. The FOA scoring is mechanical — it is based on whether you met/exceeded 3 performance goals.
+  </div>
+
+  <div class="card">
+    <h3 style="color:#daa520; margin-bottom:12px;">Past Performance Requirements (for non-ETA grants)</h3>
+    <table>
+      <tr><th>Requirement</th><th>Threshold</th><th>TCAF Status</th></tr>
+      <tr><td>Completed within past 5 years</td><td>After April 15, 2021</td><td>{{ACTION REQUIRED — Verify}}</td></tr>
+      <tr><td>Minimum funding amount</td><td>$400,000+</td><td>{{ACTION REQUIRED — Verify}}</td></tr>
+      <tr><td>Minimum participants enrolled</td><td>40+ during grant period</td><td>{{ACTION REQUIRED — Verify}}</td></tr>
+      <tr><td>Services provided</td><td>Workforce development services</td><td>{{ACTION REQUIRED — Verify}}</td></tr>
+      <tr><td>Grantor verification</td><td>Chart signed by grantor OR letter on grantor letterhead</td><td>{{ACTION REQUIRED — Obtain}}</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3 style="color:#f0c040; margin-bottom:12px;">Past Performance Chart — Required Format</h3>
+    <p>Must include 3 performance indicators similar to:</p>
+    <ol>
+      <li>Employment/education placement (post completion) or employment rate — 2nd quarter after exit</li>
+      <li>Credential/degree attainment rate</li>
+      <li>Employment/education retention or employment rate — 4th quarter after exit</li>
+    </ol>
+    <p style="margin-top:12px;"><strong>Scoring is mechanical:</strong></p>
+    <ul>
+      <li><span class="highlight">14 pts</span> — Exceeded ALL 3 goals</li>
+      <li>12 pts — Exceeded at least 1, met remaining</li>
+      <li>8 pts — Met all 3 goals</li>
+      <li>4 pts — Met at least 1, did not meet remaining</li>
+      <li>0 pts — Did not meet any goals</li>
+    </ul>
+  </div>
+
+  <div class="alert alert-action">
+    <strong>{{ACTION REQUIRED}} — Dr. Flood must provide:</strong>
+    (1) Name of previous grantor organization; (2) Grant recipient name, project number, and title; (3) POP dates; (4) Number of participants enrolled; (5) Population served; (6) Performance data for 3 indicators (goal, outcome, fraction, percentage). If TCAF does not have a qualifying past grant, consider whether a sub-grantee partner has REO or ETA past performance that could strengthen the application. Note: Only TCAF's (lead applicant's) past performance is scored.
+  </div>
+</div>
+
+<hr>
+
+<!-- SECTION 9: BUDGET -->
+<div class="section">
+  <h2 class="section-title">Section 5: Budget & Budget Narrative — Writing Guide (8 Points)</h2>
+
+  <div class="subsection">
+    <h3>Proposed Budget Framework — $5,100,000</h3>
+    <table>
+      <tr><th>Category</th><th>Amount</th><th>% of Total</th><th>Notes</th></tr>
+      <tr><td><strong>Personnel</strong></td><td>$850,000</td><td>16.7%</td><td>Project Director (100% FTE), Fiscal Director, Data Manager, Employer Outreach Coordinator — all subject to Executive Level II salary cap</td></tr>
+      <tr><td><strong>Fringe Benefits</strong></td><td>$255,000</td><td>5.0%</td><td>~30% of personnel</td></tr>
+      <tr><td><strong>Travel</strong></td><td>$120,000</td><td>2.4%</td><td>Sub-grantee site visits, DOL meetings, partner coordination</td></tr>
+      <tr><td><strong>Equipment</strong></td><td>$75,000</td><td>1.5%</td><td>Technology for training delivery (computers, AI lab setup)</td></tr>
+      <tr><td><strong>Supplies</strong></td><td>$50,000</td><td>1.0%</td><td>Training materials, work tools, work clothes</td></tr>
+      <tr><td><strong>Contractual (Sub-Grantees)</strong></td><td>$2,400,000</td><td>47.1%</td><td>Funds distributed to 2-3 sub-grantees for direct service delivery</td></tr>
+      <tr><td><strong>OJT Employer Reimbursements</strong></td><td>$450,000</td><td>8.8%</td><td>Up to 90% wage reimbursement for OJT contracts (max 12 months per participant)</td></tr>
+      <tr><td><strong>Participant Support</strong></td><td></td><td></td><td></td></tr>
+      <tr><td>&nbsp;&nbsp;— Supportive Services</td><td>$765,000</td><td>15.0%</td><td>Max 15% per FOA — childcare, transportation, food, legal assistance, work tools</td></tr>
+      <tr><td>&nbsp;&nbsp;— Needs-Related Payments</td><td>$255,000</td><td>5.0%</td><td>Max 10% (subset of supportive services) — direct payments to participants</td></tr>
+      <tr><td>&nbsp;&nbsp;— Incentive Payments</td><td>$255,000</td><td>5.0%</td><td>Max 5% per FOA — recognition/achievement tied to training</td></tr>
+      <tr><td>&nbsp;&nbsp;— Stipends/Wages</td><td>$300,000</td><td>5.9%</td><td>Wage replacement during training participation</td></tr>
+      <tr><td><strong>Indirect Costs</strong></td><td>$325,000</td><td>6.4%</td><td>Per NICRA or 10% de minimis if no NICRA</td></tr>
+      <tr style="background:#1e1e1e; font-weight:700;"><td><strong>TOTAL</strong></td><td><strong>$5,100,000</strong></td><td><strong>100%</strong></td><td><strong>Cost per participant: $7,500</strong></td></tr>
+    </table>
+    
+    <div class="alert alert-info" style="margin-top:16px;">
+      <strong>Budget Scoring Notes:</strong>
+      (1) Must address ALL project requirements including payment management (2 pts); (2) Must describe costs for each SF-424A line item plus cost-per-participant and leveraged resources (4 pts); (3) SF-424A and Budget Narrative totals must align exactly (2 pts — all or nothing).
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<!-- SECTION 10: PRIORITY CONSIDERATION -->
+<div class="section">
+  <h2 class="section-title">Section 6: Priority Consideration — Bonus Points (6 Points)</h2>
+  
+  <div class="two-col">
+    <div class="card card-green">
+      <h4>Shipbuilding Bonus (2 Points)</h4>
+      <p>Indicate in Project Design AND highlight in Abstract that program includes shipbuilding-related training and/or employment. Strategy: If any sub-grantee is near a shipbuilding hub (e.g., Gulf Coast TX, Hampton Roads VA, Bath ME), include a welding/marine electrical/pipe-fitting track. Even without a coastal sub-grantee, shipbuilding-adjacent skills (welding, electrical) can qualify.</p>
+    </div>
+    <div class="card card-green">
+      <h4>Registered Apprenticeship Sponsor Bonus (Up to 4 Points)</h4>
+      <p>2 points for 1 employer partner who is an RA sponsor. 4 points for 2+ employer partners who are RA sponsors. Documented in LOC/MOU specifying they will offer RA opportunities to RESTART participants. {{ACTION REQUIRED: Target employer partners who are already RA sponsors.}}</p>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<!-- SECTION 11: ABSTRACT -->
+<div class="section">
+  <h2 class="section-title">Abstract Template (Up to 3 Pages — Required Attachment)</h2>
+  <div class="card">
+    <p>The Abstract must include ALL of the following (missing items may impact score):</p>
+    <table>
+      <tr><th>Required Element</th><th>TCAF Content</th></tr>
+      <tr><td>Applicant Name</td><td>ThriveUp Community Advancement Foundation (TCAF)</td></tr>
+      <tr><td>City and State</td><td>Pflugerville, Texas</td></tr>
+      <tr><td>SWDB/SAA/CJ Agency Statement</td><td>N/A — TCAF is a National/Regional Intermediary</td></tr>
+      <tr><td>SAA or OA State</td><td>Texas has a State Apprenticeship Agency (TWC)</td></tr>
+      <tr><td>Project Title</td><td>ThriveUp RESTART: AI-Powered Reentry Pathways to Skilled Trades & Technology Careers</td></tr>
+      <tr><td>Project Purpose</td><td>{{Draft 2-3 sentences summarizing workforce readiness for justice-involved youth/young adults through AI-integrated training in target industries}}</td></tr>
+      <tr><td>Area to Be Served</td><td>{{List 3+ non-contiguous metro areas across sub-grantees}}</td></tr>
+      <tr><td>Population Served</td><td>Youth (15-17) and Young Adults (18-24) with criminal justice involvement</td></tr>
+      <tr><td>Number of Participants</td><td>680 minimum</td></tr>
+      <tr><td>Expected Outcomes</td><td>65% employment rate (Q2 after exit), 70% credential attainment, &lt;15% recidivism</td></tr>
+      <tr><td>Funding Requested</td><td>$5,100,000</td></tr>
+      <tr><td>Cost Per Participant</td><td>$7,500</td></tr>
+      <tr><td>Subrecipient Activities</td><td>{{Describe sub-grantee service delivery activities}}</td></tr>
+      <tr><td>Required Partners</td><td>{{List all partners with names, addresses, and partner type}}</td></tr>
+      <tr><td>RA Sponsor Employers</td><td>{{Identify which employer partners are RA sponsors — for bonus points}}</td></tr>
+      <tr><td>Other Partners</td><td>{{List additional non-required partners}}</td></tr>
+      <tr><td>Target Industries</td><td>AI infrastructure build-out, Information Technology including AI, Advanced Manufacturing. {{Highlight shipbuilding if applicable for bonus points}}</td></tr>
+      <tr><td>Activities</td><td>{{Summarize: assessment, training, OJT, RA, credentialing, mentorship, follow-up}}</td></tr>
+    </table>
+  </div>
+</div>
+
+<hr>
+
+<!-- SECTION 12: APPLICATION CHECKLIST -->
+<div class="section">
+  <h2 class="section-title">Application Checklist — Responsiveness Review</h2>
+  <p style="margin-bottom:16px;">Applications failing ANY of these checks are <strong>automatically disqualified</strong>:</p>
+  
+  <table>
+    <tr><th>Requirement</th><th>Status</th><th>Notes</th></tr>
+    <tr><td>Submit via Grants.gov by 04/15/2026 11:59 PM ET</td><td><span class="badge badge-red">PENDING</span></td><td>Must have SAM.gov registration and UEI</td></tr>
+    <tr><td>Eligibility: National/Regional Intermediary — Youth/Young Adults ONLY</td><td><span class="badge badge-green">CONFIRMED</span></td><td>TCAF is 501(c)(3), serving 15-24 age group only</td></tr>
+    <tr><td>Minimum 680 participants for $5.1M request</td><td><span class="badge badge-green">CONFIRMED</span></td><td>Per Figure 1</td></tr>
+    <tr><td>SF-424 with UEI, amount between $1M-$5.1M</td><td><span class="badge badge-red">PENDING</span></td><td>{{Complete SF-424}}</td></tr>
+    <tr><td>SF-424A Budget Information Form</td><td><span class="badge badge-red">PENDING</span></td><td>Must align with Budget Narrative</td></tr>
+    <tr><td>Budget Narrative</td><td><span class="badge badge-red">PENDING</span></td><td>Must match SF-424A exactly</td></tr>
+    <tr><td>Project Narrative (25 pages max, double-spaced, TNR 12pt, 1" margins)</td><td><span class="badge badge-red">PENDING</span></td><td>All section headers required</td></tr>
+    <tr><td>LOCs/MOUs from ALL required partners</td><td><span class="badge badge-red">CRITICAL</span></td><td>Missing = automatic disqualification</td></tr>
+    <tr><td>Sub-grantee LOCs with all 6 required elements</td><td><span class="badge badge-red">CRITICAL</span></td><td>See III.I.3 requirements above</td></tr>
+    <tr><td>Abstract (up to 3 pages) with all required elements</td><td><span class="badge badge-red">PENDING</span></td><td>Category specification mandatory</td></tr>
+    <tr><td>Past Performance Chart + Grantor Verification Letter</td><td><span class="badge badge-red">PENDING</span></td><td>{{Identify qualifying past grant}}</td></tr>
+    <tr><td>Statement of Need data tables + Census Tract maps</td><td><span class="badge badge-red">PENDING</span></td><td>See Appendix A instructions</td></tr>
+  </table>
+</div>
+
+<hr>
+
+<!-- SECTION 13: 11-DAY ACTION PLAN -->
+<div class="section">
+  <h2 class="section-title">11-Day Countdown — Action Plan to April 15</h2>
+  
+  <div class="timeline">
+    <div class="timeline-item">
+      <div class="date">Day 1-2 (Apr 4-5): Partner Identification & Outreach</div>
+      <div class="desc">
+        <strong>Dr. Flood Priority Actions:</strong><br>
+        • Identify 2-3 sub-grantee organizations (reentry nonprofits in 3+ non-contiguous metro areas)<br>
+        • Contact Texas Workforce Commission for SWDB and SAA LOCs<br>
+        • Contact Travis County or TDCJ for criminal justice partner LOC<br>
+        • Identify 3+ employers in target industries (prioritize RA sponsors for bonus points)<br>
+        • Identify qualifying past performance grant and contact grantor for verification letter<br>
+        • Confirm SAM.gov registration is active with current UEI
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="date">Day 3-4 (Apr 6-7): Data Collection</div>
+      <div class="desc">
+        • Pull ACS poverty data, FBI crime data, Census labor force data for each target metro area<br>
+        • Create Census Tract tables and contiguous maps for Statement of Need attachment<br>
+        • Pull BLS occupational projection data for target industries in each metro area<br>
+        • Calculate weighted crime and poverty rates if serving multiple target areas
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="date">Day 5-7 (Apr 8-10): Narrative Drafting</div>
+      <div class="desc">
+        • Draft Statement of Need (3-4 pages)<br>
+        • Draft Expected Outcomes (1-2 pages)<br>
+        • Draft Project Design — all 7 sub-sections (12-15 pages)<br>
+        • Draft Past Performance section (1-2 pages)<br>
+        • Draft Abstract (3 pages)<br>
+        • <strong>Total: 25 pages maximum, double-spaced, TNR 12pt, 1" margins</strong>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="date">Day 8-9 (Apr 11-12): Budget & LOC Collection</div>
+      <div class="desc">
+        • Complete SF-424A Budget Information Form<br>
+        • Write detailed Budget Narrative matching SF-424A line items<br>
+        • Collect all signed/dated LOCs/MOUs — verify sub-grantee LOCs have all 6 required elements<br>
+        • Obtain Past Performance Chart with grantor signature or verification letter
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="date">Day 10 (Apr 13-14): Review & Quality Check</div>
+      <div class="desc">
+        • Verify SF-424A totals match Budget Narrative exactly<br>
+        • Verify Abstract contains ALL required elements<br>
+        • Verify all LOCs/MOUs are signed, dated, and properly labeled<br>
+        • Page count check: Narrative ≤ 25 pages (attachments don't count)<br>
+        • Final review against Responsiveness Checklist above<br>
+        • Run through MCE Solicitation Response Generator for MAP-GAP audit
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="date">Day 11 (Apr 15): Submission</div>
+      <div class="desc">
+        • Submit via Grants.gov BEFORE 11:59 PM ET<br>
+        • Submit early — allow for technical difficulties<br>
+        • Confirm receipt/tracking number from Grants.gov<br>
+        • Save confirmation for records
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<!-- SECTION 14: AMENDMENT 1 -->
+<div class="section">
+  <h2 class="section-title">Amendment 1 Changes (Signed March 18, 2026)</h2>
+  <div class="card">
+    <table>
+      <tr><th>Section Changed</th><th>Change</th><th>Impact on TCAF</th></tr>
+      <tr><td>II.A.1 Eligible Applicants</td><td>Added: State Government/State Government Agency must be state workforce agency OR state Department of Corrections. City/county/local governments are NOT considered intermediaries.</td><td>No impact — TCAF applies as intermediary, not state agency.</td></tr>
+      <tr><td>III.I Required Partnerships</td><td>Exceptions for states/tribes with population under 1M now also apply to all sub-grantees operating solely within such areas. Reduced requirements: SAA + 1 CJ partner + 1 employer.</td><td>If any sub-grantee operates in a state/tribal area under 1M population, they have reduced partnership requirements.</td></tr>
+      <tr><td>Appendix B: Recidivism Rate</td><td>Redefined as: percentage of participants convicted of a new criminal offense within 12 months of enrollment (not release).</td><td>Important for tracking — measure from enrollment date, not release date.</td></tr>
+    </table>
+  </div>
+</div>
+
+<hr>
+
+<!-- SECTION 15: MAP-GAP ASSESSMENT -->
+<div class="section">
+  <h2 class="section-title">MAP-GAP Pre-Submission Assessment</h2>
+  
+  <div class="two-col">
+    <div class="card">
+      <h4 style="color:#daa520;">Designed Reality (What FOA Requires)</h4>
+      <ul>
+        <li>National/regional intermediary with 2+ sub-grantees in 3+ non-contiguous areas</li>
+        <li>Youth/young adult focus (15-24) — NO adults</li>
+        <li>680+ participants for $5.1M request</li>
+        <li>All required LOCs/MOUs signed, dated, attached</li>
+        <li>Target industries with LMI documentation</li>
+        <li>WIOA co-enrollment, AJC integration</li>
+        <li>Past performance: $400K+ grant, 40+ participants, workforce development</li>
+        <li>25-page narrative, specific format requirements</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4 style="color:#f0c040;">Operational Reality (TCAF Current State)</h4>
+      <ul>
+        <li>✅ Eligible as 501(c)(3) intermediary</li>
+        <li>✅ AI/technology training platform operational</li>
+        <li>✅ Veteran-led, minority-focused mission alignment</li>
+        <li>⚠️ Sub-grantees not yet identified</li>
+        <li>⚠️ LOCs/MOUs not yet secured</li>
+        <li>⚠️ Past performance documentation not confirmed</li>
+        <li>⚠️ Census/LMI data not yet pulled</li>
+        <li>⚠️ Employer RA sponsors not yet identified</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px;">
+    <h4 style="color:#e74c3c;">Gap Analysis — 3 Make-or-Break Items</h4>
+    <table>
+      <tr><th>Gap</th><th>Severity</th><th>Resolution Path</th><th>Deadline</th></tr>
+      <tr><td>Required partnerships / LOCs/MOUs</td><td><span class="badge badge-red">DISQUALIFYING</span></td><td>Begin outreach Day 1. Prioritize sub-grantees and CJ partner. Template LOCs can accelerate.</td><td>April 12</td></tr>
+      <tr><td>Past performance documentation</td><td><span class="badge badge-red">HIGH (14 pts)</span></td><td>Identify qualifying grant. If none, score 0/14 but can still compete on other sections (~92 pts available).</td><td>April 10</td></tr>
+      <tr><td>Statement of Need data tables</td><td><span class="badge badge-gold">MEDIUM (6 pts)</span></td><td>Pull Census/FBI data for target areas. Time-intensive but formulaic.</td><td>April 8</td></tr>
+    </table>
+  </div>
+</div>
+
+<hr>
+
+<div class="section" style="text-align:center; padding:40px 0;">
+  <p style="color:#888; font-size:0.85rem;">Generated by Minority Center of Excellence — Solicitation Response Generator</p>
+  <p style="color:#666; font-size:0.78rem;">FOA-ETA-26-17 RESTART | TCAF Proposal Plan | April 4, 2026</p>
+  <p style="color:#555; font-size:0.72rem; margin-top:8px;">This document contains coaching placeholders marked {{ACTION REQUIRED}} where applicant-specific information must be provided. No data has been fabricated. All requirements sourced directly from FOA-ETA-26-17 and Amendment 1.</p>
+</div>
+
+</div>
+</body>
+</html>
