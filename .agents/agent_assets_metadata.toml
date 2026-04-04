@@ -192,3 +192,9 @@ id = "EdUAP577i7mSsE7ZwcEsP"
 uri = "file://docs/pitches/deel-the-pitch-3min-script.md"
 type = "text"
 title = "ThriveUp - The Pitch by Deel - 2-Min Script + 10-Slide Deck Outline"
+
+[[outputs]]
+id = "Hwee3A0Bi0SOgHe_SxLMi"
+uri = "file://docs/pitches/ThriveUp-The-Pitch-by-Deel-2026.pptx"
+type = "slides"
+title = "ThriveUp — The Pitch by Deel 2026 | 10-Slide Pitch Deck"
