@@ -5484,9 +5484,9 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
       doc.text("Email: mr.terryflood@gmail.com", 60, 472, { width: PW });
 
       doc.fontSize(10).fillColor(LIGHT).text("Application Track: National/Regional Intermediary (Track 1)", 60, 510, { width: PW });
-      doc.text("Funding Requested: $4,200,000", 60, 526, { width: PW });
-      doc.text("Period of Performance: 36 months", 60, 542, { width: PW });
-      doc.text("Target Population: Adults (25+) and Young Adults (18\u201324)", 60, 558, { width: PW });
+      doc.text("Funding Requested: $5,100,000 (Maximum for Intermediaries)", 60, 526, { width: PW });
+      doc.text("Period of Performance: 42 months (July 1, 2026 \u2014 December 31, 2029)", 60, 542, { width: PW });
+      doc.text("Target Population: Youth (15\u201317) and Young Adults (18\u201324)", 60, 558, { width: PW });
 
       doc.fontSize(8).fillColor(LIGHT).text("Date: " + new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }), 60, 600, { width: PW });
       doc.fontSize(8).fillColor(LIGHT).text("GRANT APPLICATION \u2014 FOA-ETA-26-17", 60, 720, { width: PW, align: "center" });
@@ -5530,24 +5530,24 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
       sectionHeading("Part B: Project Budget \u2014 Budget Narrative");
 
       field("Funding Opportunity", "FOA-ETA-26-17 RESTART Initiative");
-      field("Total Federal Request", "$4,200,000 over 36 months");
-      field("Cost Sharing / Match", "Voluntary cost share of $210,000 (in-kind platform licensing)");
+      field("Total Federal Request", "$5,100,000 over 42 months (July 1, 2026 \u2014 December 31, 2029)");
+      field("Cost Sharing / Match", "Voluntary cost share of $255,000 (in-kind platform licensing)");
       field("Indirect Cost Rate", "10% de minimis rate per 2 CFR 200.414(f)");
       y += 4;
 
       subHeading("Budget Summary by Category");
 
       const budgetRows: [string, string, string][] = [
-        ["Personnel", "$1,176,000", "28.0%"],
-        ["Fringe Benefits", "$352,800", "8.4%"],
-        ["Travel", "$126,000", "3.0%"],
+        ["Personnel", "$1,428,000", "28.0%"],
+        ["Fringe Benefits", "$428,400", "8.4%"],
+        ["Travel", "$153,000", "3.0%"],
         ["Equipment", "$0", "0.0%"],
-        ["Supplies", "$84,000", "2.0%"],
-        ["Contractual", "$630,000", "15.0%"],
-        ["Participant Support Costs", "$1,050,000", "25.0%"],
-        ["Other (Rent, Meetings, Insurance)", "$399,200", "9.5%"],
-        ["Indirect Costs (10% de minimis)", "$382,000", "9.1%"],
-        ["TOTAL", "$4,200,000", "100%"],
+        ["Supplies", "$102,000", "2.0%"],
+        ["Contractual", "$765,000", "15.0%"],
+        ["Participant Support Costs", "$1,377,600", "27.0%"],
+        ["Other (Rent, Meetings, Insurance)", "$382,500", "7.5%"],
+        ["Indirect Costs (10% de minimis)", "$463,500", "9.1%"],
+        ["TOTAL", "$5,100,000", "100%"],
       ];
 
       for (const [cat, amt, pct] of budgetRows) {
@@ -5568,13 +5568,14 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
       subHeading("Personnel Detail");
 
       const personnelRows: [string, string, string, string][] = [
-        ["Program Director (Dr. Terry Flood, PI)", "75%", "$140,000/yr", "$315,000"],
-        ["Deputy Director / Operations Manager", "100%", "$95,000/yr", "$285,000"],
-        ["Case Manager \u2014 Austin Hub", "100%", "$55,000/yr", "$165,000"],
-        ["Case Manager \u2014 Remote Site 1", "100%", "$55,000/yr", "$165,000"],
-        ["Workforce Training Coordinator", "100%", "$60,000/yr", "$180,000"],
-        ["Data & Outcomes Analyst", "75%", "$65,000/yr", "$146,250"],
-        ["Employer Engagement Specialist", "50%", "$60,000/yr", "$90,000"],
+        ["Program Director (Dr. Terry Flood, PI)", "100%", "$140,000/yr", "$490,000"],
+        ["Deputy Director / Operations Manager", "100%", "$95,000/yr", "$332,500"],
+        ["Case Manager \u2014 Austin Hub", "100%", "$55,000/yr", "$192,500"],
+        ["Case Manager \u2014 Site 2", "100%", "$55,000/yr", "$192,500"],
+        ["Case Manager \u2014 Site 3", "100%", "$52,000/yr", "$182,000"],
+        ["Workforce Training Coordinator", "100%", "$60,000/yr", "$210,000"],
+        ["Data & Outcomes Analyst", "75%", "$65,000/yr", "$170,625"],
+        ["Employer Engagement Specialist", "50%", "$60,000/yr", "$105,000"],
       ];
 
       for (const [title, fte, salary, total] of personnelRows) {
@@ -5589,20 +5590,21 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
       y += 6;
       para("Fringe benefits are calculated at 30% of personnel costs, covering FICA (7.65%), health insurance (15%), retirement (5%), workers\u2019 compensation (1.35%), and state unemployment (1%).");
 
-      subHeading("Participant Support Costs Detail ($1,050,000)");
-      bullet("Training stipends: $15/hour x 20 hrs/week x 12 weeks x 150 participants = $540,000");
-      bullet("Transportation assistance: $200/month x 6 months x 150 participants = $180,000");
-      bullet("Tools and work gear (PPE, safety equipment): $800 x 150 participants = $120,000");
-      bullet("Credential exam fees: $400 x 150 participants = $60,000");
-      bullet("Emergency supportive services (childcare, housing deposits): $1,000 x 150 = $150,000");
+      subHeading("Participant Support Costs Detail ($1,377,600)");
+      bullet("Training stipends: $10/hour x 20 hrs/week x 10 weeks x 680 participants = $1,360,000");
+      bullet("Transportation assistance: Included in Other category (transit passes)");
+      bullet("Tools and work gear (PPE, safety equipment): Included in Supplies category");
+      bullet("Credential exam fees: Included in Contractual (apprenticeship sponsor covers)");
+      bullet("Emergency supportive services reserve: $17,600");
+      para("Note: Per FOA Figure 1, minimum participant enrollment at the $5,100,000 level is 680 over the 42-month period of performance. Cost per participant: $7,500. Participant support costs are budgeted conservatively to maximize training delivery and case management capacity.");
 
-      subHeading("Contractual Detail ($630,000)");
-      bullet("Registered Apprenticeship sponsor training delivery: $300,000");
-      bullet("AI/digital literacy curriculum licensing (ThriveUp Academy platform): $180,000");
-      bullet("External evaluation (independent program evaluator): $100,000");
-      bullet("Legal and fiscal compliance consulting: $50,000");
+      subHeading("Contractual Detail ($765,000)");
+      bullet("Registered Apprenticeship sponsor training delivery: $375,000");
+      bullet("AI/digital literacy curriculum licensing (ThriveUp Academy platform): $210,000");
+      bullet("External evaluation (independent program evaluator): $120,000");
+      bullet("Legal and fiscal compliance consulting: $60,000");
 
-      actionRequired("Dr. Flood \u2014 Review budget allocations. Confirm salary ranges are competitive for Austin market. Adjust participant count (currently 150) if the service area requires more or fewer. Confirm whether TCAF has a Negotiated Indirect Cost Rate Agreement (NICRA) or will use the 10% de minimis. Confirm voluntary cost share amount ($210,000 in-kind ThriveUp platform value).");
+      actionRequired("Dr. Flood \u2014 Review budget allocations. Confirm salary ranges are competitive for Austin market. Per FOA Figure 1, minimum enrollment at $5.1M is 680 participants over 42 months. Confirm whether TCAF has a Negotiated Indirect Cost Rate Agreement (NICRA) or will use the 10% de minimis. Confirm voluntary cost share amount ($255,000 in-kind ThriveUp platform value). Note: PI is budgeted at 100% FTE per FOA requirement.");
 
       // ==================== PART C.1: STATEMENT OF NEED ====================
       doc.addPage();
@@ -5651,10 +5653,10 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
       sectionHeading("C.2 \u2014 Program Design");
 
       subHeading("Program Overview: The RESTART Reentry Workforce Pipeline");
-      para("TCAF proposes a 36-month program serving 150 justice-involved adults (ages 18+) across the Austin-Central Texas region and two additional non-contiguous service sites, providing a comprehensive pipeline from pre-release preparation through credential attainment, apprenticeship placement, and 12-month employment retention.");
+      para("TCAF proposes a 42-month program (July 1, 2026 \u2014 December 31, 2029) serving 680 justice-involved youth (ages 15\u201317) and young adults (ages 18\u201324) across the Austin-Central Texas region and two additional non-contiguous service sites, providing a comprehensive pipeline from pre-release preparation through credential attainment, apprenticeship placement, and 12-month employment retention. Per FOA Figure 1, the minimum participant enrollment at the $5,100,000 award level is 680 over the period of performance. Cost per participant: $7,500.");
       para("The program is built on TCAF\u2019s ThriveUp Academy platform \u2014 a 24-platform AI-powered ecosystem that delivers workforce readiness training, digital literacy, case management, and wraparound services through a single integrated technology architecture.");
 
-      subHeading("Phase 1: Pre-Release Services (Months 1\u201336, Rolling Enrollment)");
+      subHeading("Phase 1: Pre-Release Services (Months 1\u201342, Rolling Enrollment)");
       para("In partnership with correctional facilities, TCAF will deliver pre-release programming to individuals within 6 months of their expected release date:");
 
       bullet("Individual Development Plans (IDPs): Comprehensive assessment of barriers to employment, skills inventory, career interests, and reentry needs using TCAF\u2019s validated assessment tools");
@@ -5672,12 +5674,12 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
       bullet("Industry-Recognized Credentials: NCCER Core, CompTIA A+/Network+, AWS Certified Cloud Practitioner, or Microsoft Certified: Azure Fundamentals (based on career track)");
       bullet("Work-Based Learning: 80+ hours of supervised work experience with employer partners, including structured mentoring");
 
-      subHeading("Phase 3: Apprenticeship Placement & Employment (Months 4\u201336)");
+      subHeading("Phase 3: Apprenticeship Placement & Employment (Months 4\u201342)");
       para("Participants completing Phase 2 are placed into one of three employment pathways:");
 
-      bullet("Registered Apprenticeship: Direct placement into registered programs with employer sponsors. Target: 40% of completers (60 participants)");
-      bullet("Direct Employment: Placement into full-time positions with committed employer partners at $18+/hour minimum. Target: 45% of completers (68 participants)");
-      bullet("Entrepreneurship/Self-Employment: For participants with viable business plans, supported through MCE business development platform. Target: 15% of completers (22 participants)");
+      bullet("Registered Apprenticeship: Direct placement into registered programs with employer sponsors. Target: 40% of completers (204 participants)");
+      bullet("Direct Employment: Placement into full-time positions with committed employer partners at $18+/hour minimum. Target: 45% of completers (230 participants)");
+      bullet("Entrepreneurship/Self-Employment: For participants with viable business plans, supported through MCE business development platform. Target: 15% of completers (76 participants)");
 
       subHeading("Phase 4: Retention & Follow-Up (12 Months Post-Placement)");
       para("TCAF provides 12 months of post-placement support:");
@@ -5853,16 +5855,16 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
 
       sectionHeading("C.5 \u2014 Outcomes & Performance Measures");
 
-      subHeading("Proposed Performance Targets (36-Month Program)");
+      subHeading("Proposed Performance Targets (42-Month Program, 680 Participants)");
 
       const outcomes: [string, string, string][] = [
-        ["Total Participants Enrolled", "150", "50 per year across 3 sites"],
-        ["Program Completion Rate", "75% (113)", "Industry average for reentry programs: 60\u201365%"],
-        ["Credential Attainment Rate", "80% of completers (90)", "OSHA, NCCER, CompTIA, or equivalent"],
-        ["Employment Rate \u2014 Q2 After Exit", "70%", "DOL benchmark: 68% (adults)"],
+        ["Total Participants Enrolled", "680", "~194/year across 3 sites over 42 months"],
+        ["Program Completion Rate", "75% (510)", "Industry average for reentry programs: 60\u201365%"],
+        ["Credential Attainment Rate", "80% of completers (408)", "OSHA, NCCER, CompTIA, or equivalent"],
+        ["Employment Rate \u2014 Q2 After Exit", "70%", "DOL benchmark: 66% (youth/YA)"],
         ["Employment Rate \u2014 Q4 After Exit", "65%", "Demonstrates retention beyond initial placement"],
-        ["Median Earnings \u2014 Q2 After Exit", "$7,200/quarter", "DOL benchmark: $6,400"],
-        ["Registered Apprenticeship Enrollment", "60 participants (40%)", "Priority outcome per FOA"],
+        ["Median Earnings \u2014 Q2 After Exit", "$6,800/quarter", "DOL benchmark: $6,400"],
+        ["Registered Apprenticeship Enrollment", "204 participants (40%)", "Priority outcome per FOA"],
         ["Measurable Skill Gains", "85% of active", "Training milestones, credential progress"],
         ["Recidivism Rate (12 months post-exit)", "<15%", "vs. 35\u201345% baseline without services"],
         ["AI/Digital Literacy Completion", "90% of enrolled", "ThriveUp 5-level mastery curriculum"],
