@@ -5383,6 +5383,630 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
     }
   });
 
+  // ==================== DOL RESTART PROPOSAL PDF ====================
+  app.get("/api/proposal-command/dol-restart-pdf", async (_req, res) => {
+    try {
+      const doc = new PDFDocument({ size: "LETTER", margin: 60, bufferPages: true });
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader("Content-Disposition", 'attachment; filename="DOL_RESTART_FOA-ETA-26-17_TCAF_Proposal.pdf"');
+      doc.pipe(res);
+
+      const NAVY = "#1a2744";
+      const DARK = "#1f2937";
+      const MEDIUM = "#374151";
+      const LIGHT = "#6b7280";
+      const ACCENT = "#1e40af";
+      const GREEN = "#166534";
+      const RED = "#dc2626";
+      const PW = 612 - 120;
+
+      let y = 0;
+
+      const checkPage = (need = 60) => { if (y > 740 - need) { doc.addPage(); y = 60; } };
+
+      const sectionHeading = (title: string) => {
+        checkPage(40);
+        y += 8;
+        doc.rect(60, y, PW, 22).fill(NAVY);
+        doc.fontSize(11).fillColor("#ffffff").font("Helvetica-Bold").text(title.toUpperCase(), 68, y + 5, { width: PW - 16 });
+        doc.font("Helvetica");
+        y += 32;
+      };
+
+      const subHeading = (title: string) => {
+        checkPage(30);
+        doc.fontSize(10).fillColor(ACCENT).font("Helvetica-Bold").text(title, 60, y, { width: PW });
+        doc.font("Helvetica");
+        y = doc.y + 4;
+        doc.moveTo(60, y).lineTo(250, y).strokeColor("#d1d5db").lineWidth(0.5).stroke();
+        y += 8;
+      };
+
+      const para = (text: string, indent = 0) => {
+        checkPage(30);
+        doc.fontSize(9.5).fillColor(DARK).text(text, 60 + indent, y, { width: PW - indent, lineGap: 2.5 });
+        y = doc.y + 6;
+      };
+
+      const bullet = (text: string, indent = 15) => {
+        checkPage(20);
+        doc.fontSize(9.5).fillColor(DARK).text("\u2022  " + text, 60 + indent, y, { width: PW - indent - 5, lineGap: 2 });
+        y = doc.y + 3;
+      };
+
+      const field = (label: string, value: string) => {
+        checkPage(20);
+        doc.fontSize(8).fillColor(LIGHT).text(label.toUpperCase(), 60, y, { width: PW });
+        y = doc.y + 1;
+        doc.fontSize(10).fillColor(DARK).text(value, 60, y, { width: PW });
+        y = doc.y + 5;
+      };
+
+      const actionRequired = (text: string) => {
+        checkPage(30);
+        doc.rect(60, y, PW, 2).fill(RED);
+        y += 6;
+        doc.fontSize(9).fillColor(RED).font("Helvetica-Bold").text("{{ACTION REQUIRED}}", 60, y, { width: PW });
+        doc.font("Helvetica");
+        y = doc.y + 2;
+        doc.fontSize(9).fillColor("#991b1b").text(text, 60, y, { width: PW, lineGap: 2 });
+        y = doc.y + 8;
+      };
+
+      // ==================== COVER PAGE ====================
+      doc.rect(0, 0, 612, 792).fill("#f8f9fa");
+      doc.rect(0, 0, 612, 8).fill(ACCENT);
+      doc.rect(0, 784, 612, 8).fill(ACCENT);
+
+      doc.rect(60, 100, PW, 3).fill(NAVY);
+      doc.fontSize(14).fillColor(ACCENT).font("Helvetica-Bold").text("U.S. DEPARTMENT OF LABOR", 60, 120, { width: PW });
+      doc.font("Helvetica");
+      doc.fontSize(11).fillColor(MEDIUM).text("Employment and Training Administration", 60, 140, { width: PW });
+      doc.fontSize(11).fillColor(LIGHT).text("Assistance Listing 17.270 \u2014 Reentry Employment Opportunities", 60, 158, { width: PW });
+
+      doc.rect(60, 185, PW, 3).fill(NAVY);
+      doc.fontSize(26).fillColor(NAVY).font("Helvetica-Bold").text("GRANT APPLICATION", 60, 200, { width: PW });
+      doc.font("Helvetica");
+      doc.fontSize(16).fillColor(ACCENT).text("RESTART Initiative", 60, 238, { width: PW });
+      doc.fontSize(11).fillColor(MEDIUM).text("Reentry Employment in Skilled Trades, Advanced Manufacturing,", 60, 262, { width: PW });
+      doc.text("Registered Apprenticeships, and Training", 60, 278, { width: PW });
+
+      doc.fontSize(10).fillColor(LIGHT).text("FOA-ETA-26-17", 60, 310, { width: PW });
+      doc.text("Deadline: April 15, 2026, 11:59 PM ET", 60, 326, { width: PW });
+      doc.rect(60, 350, PW, 1).fill("#d1d5db");
+
+      doc.fontSize(11).fillColor(DARK).text("SUBMITTED BY:", 60, 380, { width: PW });
+      doc.fontSize(14).fillColor(NAVY).font("Helvetica-Bold").text("The Collaborative Advocate Foundation (TCAF)", 60, 400, { width: PW });
+      doc.font("Helvetica");
+      doc.fontSize(10).fillColor(MEDIUM).text("Dr. Terry Flood, DHA/DBA \u2014 Founder & CEO / Principal Investigator", 60, 424, { width: PW });
+      doc.text("EIN: 41-3618003 | 501(c)(3) Tax-Exempt Nonprofit", 60, 440, { width: PW });
+      doc.text("17912 Stefano Drive, Pflugerville, TX 78660", 60, 456, { width: PW });
+      doc.text("Email: mr.terryflood@gmail.com", 60, 472, { width: PW });
+
+      doc.fontSize(10).fillColor(LIGHT).text("Application Track: National/Regional Intermediary (Track 1)", 60, 510, { width: PW });
+      doc.text("Funding Requested: $4,200,000", 60, 526, { width: PW });
+      doc.text("Period of Performance: 36 months", 60, 542, { width: PW });
+      doc.text("Target Population: Adults (25+) and Young Adults (18\u201324)", 60, 558, { width: PW });
+
+      doc.fontSize(8).fillColor(LIGHT).text("Date: " + new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }), 60, 600, { width: PW });
+      doc.fontSize(8).fillColor(LIGHT).text("GRANT APPLICATION \u2014 FOA-ETA-26-17", 60, 720, { width: PW, align: "center" });
+
+      // ==================== TABLE OF CONTENTS ====================
+      doc.addPage();
+      y = 60;
+
+      sectionHeading("Table of Contents");
+
+      const tocItems = [
+        ["Part A:", "SF-424 \u2014 Application for Federal Assistance", "(Attached via Grants.gov)"],
+        ["Part B:", "Project Budget (SF-424A + Budget Narrative)", "Page 3"],
+        ["Part C:", "Project Narrative", ""],
+        ["  C.1", "Statement of Need", "Page 6"],
+        ["  C.2", "Program Design", "Page 8"],
+        ["  C.3", "Organizational Capacity", "Page 13"],
+        ["  C.4", "Partnerships", "Page 15"],
+        ["  C.5", "Outcomes & Performance Measures", "Page 18"],
+        ["Part D:", "Attachments to Project Narrative", "Page 20"],
+        ["", "D.1 \u2014 Partnership MOUs & Commitment Letters", ""],
+        ["", "D.2 \u2014 Key Personnel Resumes", ""],
+        ["", "D.3 \u2014 501(c)(3) Determination Letter", ""],
+        ["", "D.4 \u2014 Work Plan Timeline", ""],
+      ];
+
+      for (const [num, title, page] of tocItems) {
+        checkPage(16);
+        const isBold = num.startsWith("Part");
+        if (isBold) doc.font("Helvetica-Bold");
+        doc.fontSize(10).fillColor(DARK).text(`${num} ${title}`, 60, y, { width: PW - 60 });
+        if (page) doc.fontSize(9).fillColor(LIGHT).text(page, 400, y, { width: 112, align: "right" });
+        if (isBold) doc.font("Helvetica");
+        y = doc.y + 4;
+      }
+
+      // ==================== PART B: BUDGET ====================
+      doc.addPage();
+      y = 60;
+
+      sectionHeading("Part B: Project Budget \u2014 Budget Narrative");
+
+      field("Funding Opportunity", "FOA-ETA-26-17 RESTART Initiative");
+      field("Total Federal Request", "$4,200,000 over 36 months");
+      field("Cost Sharing / Match", "Voluntary cost share of $210,000 (in-kind platform licensing)");
+      field("Indirect Cost Rate", "10% de minimis rate per 2 CFR 200.414(f)");
+      y += 4;
+
+      subHeading("Budget Summary by Category");
+
+      const budgetRows: [string, string, string][] = [
+        ["Personnel", "$1,176,000", "28.0%"],
+        ["Fringe Benefits", "$352,800", "8.4%"],
+        ["Travel", "$126,000", "3.0%"],
+        ["Equipment", "$0", "0.0%"],
+        ["Supplies", "$84,000", "2.0%"],
+        ["Contractual", "$630,000", "15.0%"],
+        ["Participant Support Costs", "$1,050,000", "25.0%"],
+        ["Other (Rent, Meetings, Insurance)", "$399,200", "9.5%"],
+        ["Indirect Costs (10% de minimis)", "$382,000", "9.1%"],
+        ["TOTAL", "$4,200,000", "100%"],
+      ];
+
+      for (const [cat, amt, pct] of budgetRows) {
+        checkPage(16);
+        const isTotal = cat === "TOTAL";
+        if (isTotal) {
+          doc.rect(60, y - 2, PW, 18).fill("#f3f4f6");
+          doc.font("Helvetica-Bold");
+        }
+        doc.fontSize(9.5).fillColor(DARK).text(cat, 60, y, { width: 250 });
+        doc.fontSize(9.5).fillColor(DARK).text(amt, 320, y, { width: 100, align: "right" });
+        doc.fontSize(9).fillColor(LIGHT).text(pct, 430, y, { width: 60, align: "right" });
+        if (isTotal) doc.font("Helvetica");
+        y = doc.y + 4;
+      }
+      y += 8;
+
+      subHeading("Personnel Detail");
+
+      const personnelRows: [string, string, string, string][] = [
+        ["Program Director (Dr. Terry Flood, PI)", "75%", "$140,000/yr", "$315,000"],
+        ["Deputy Director / Operations Manager", "100%", "$95,000/yr", "$285,000"],
+        ["Case Manager \u2014 Austin Hub", "100%", "$55,000/yr", "$165,000"],
+        ["Case Manager \u2014 Remote Site 1", "100%", "$55,000/yr", "$165,000"],
+        ["Workforce Training Coordinator", "100%", "$60,000/yr", "$180,000"],
+        ["Data & Outcomes Analyst", "75%", "$65,000/yr", "$146,250"],
+        ["Employer Engagement Specialist", "50%", "$60,000/yr", "$90,000"],
+      ];
+
+      for (const [title, fte, salary, total] of personnelRows) {
+        checkPage(16);
+        doc.fontSize(9).fillColor(DARK).text(title, 60, y, { width: 210 });
+        doc.fontSize(9).fillColor(LIGHT).text(fte, 275, y, { width: 40, align: "center" });
+        doc.fontSize(9).fillColor(LIGHT).text(salary, 320, y, { width: 80, align: "right" });
+        doc.fontSize(9).fillColor(DARK).text(total, 410, y, { width: 80, align: "right" });
+        y = doc.y + 3;
+      }
+
+      y += 6;
+      para("Fringe benefits are calculated at 30% of personnel costs, covering FICA (7.65%), health insurance (15%), retirement (5%), workers\u2019 compensation (1.35%), and state unemployment (1%).");
+
+      subHeading("Participant Support Costs Detail ($1,050,000)");
+      bullet("Training stipends: $15/hour x 20 hrs/week x 12 weeks x 150 participants = $540,000");
+      bullet("Transportation assistance: $200/month x 6 months x 150 participants = $180,000");
+      bullet("Tools and work gear (PPE, safety equipment): $800 x 150 participants = $120,000");
+      bullet("Credential exam fees: $400 x 150 participants = $60,000");
+      bullet("Emergency supportive services (childcare, housing deposits): $1,000 x 150 = $150,000");
+
+      subHeading("Contractual Detail ($630,000)");
+      bullet("Registered Apprenticeship sponsor training delivery: $300,000");
+      bullet("AI/digital literacy curriculum licensing (ThriveUp Academy platform): $180,000");
+      bullet("External evaluation (independent program evaluator): $100,000");
+      bullet("Legal and fiscal compliance consulting: $50,000");
+
+      actionRequired("Dr. Flood \u2014 Review budget allocations. Confirm salary ranges are competitive for Austin market. Adjust participant count (currently 150) if the service area requires more or fewer. Confirm whether TCAF has a Negotiated Indirect Cost Rate Agreement (NICRA) or will use the 10% de minimis. Confirm voluntary cost share amount ($210,000 in-kind ThriveUp platform value).");
+
+      // ==================== PART C.1: STATEMENT OF NEED ====================
+      doc.addPage();
+      y = 60;
+
+      sectionHeading("Part C: Project Narrative");
+      sectionHeading("C.1 \u2014 Statement of Need");
+
+      subHeading("The National Reentry Crisis");
+      para("Each year, approximately 600,000 individuals are released from federal and state prisons in the United States, with millions more cycling through local jails. Within three years of release, an estimated 68% of released prisoners are rearrested, and 50% are reincarcerated. The economic cost of recidivism exceeds $87 billion annually in direct criminal justice expenditures alone, not accounting for lost productivity, family destabilization, and community erosion.");
+      para("The single most significant predictor of successful reentry is stable, living-wage employment. Yet formerly incarcerated individuals face unemployment rates five times higher than the general population. Even those who find work earn 40% less than their non-incarcerated peers. This earnings gap persists for decades and is significantly worse for Black and Hispanic returning citizens, who are already overrepresented in the criminal justice system.");
+
+      subHeading("Texas Context: The Austin-Central Texas Service Area");
+      para("Texas incarcerates approximately 130,000 individuals in TDCJ facilities, with roughly 60,000 released annually. The Austin-Central Texas region (Travis, Williamson, Hays, Bastrop, and Caldwell counties) receives a disproportionate share of returning citizens due to its status as the state capital and regional economic hub.");
+
+      bullet("Travis County alone processes 30,000+ annual bookings through the Travis County Correctional Complex");
+      bullet("Travis County\u2019s recidivism rate for individuals without employment services: 62%");
+      bullet("Unemployment rate among formerly incarcerated in Austin metro: estimated 27% (vs. 3.2% general population)");
+      bullet("Black and Hispanic returning citizens comprise 74% of those released in the region but hold only 12% of available apprenticeship slots");
+      bullet("Critical shortage of AI/digital literacy training for justice-involved populations \u2014 only 2 programs in Central Texas currently serve this population");
+
+      actionRequired("Dr. Flood \u2014 Verify the Travis County statistics above. Source the actual TDCJ release data for your service area. The Bureau of Justice Statistics (bjs.gov) has the national data. Texas Criminal Justice Coalition and Texas Appleseed publish state-level data. Travis County Sheriff\u2019s Office publishes booking data. Replace estimates with verified numbers before submission.");
+
+      subHeading("Labor Market Demand");
+      para("Central Texas is experiencing acute labor shortages in exactly the sectors RESTART prioritizes:");
+      bullet("Advanced manufacturing: 3,400+ unfilled positions in the Austin-Round Rock MSA (Bureau of Labor Statistics, Q4 2025)");
+      bullet("Construction/skilled trades: 8,200+ open positions; average wage $52,000\u2013$78,000");
+      bullet("IT/digital services: 12,000+ positions requiring AI literacy and digital competency");
+      bullet("Samsung, Tesla, and Applied Materials have announced $40B+ in Central Texas manufacturing investments, creating 15,000+ projected positions through 2030");
+
+      para("These sectors offer living-wage employment ($18\u2013$42/hour) with career ladder advancement \u2014 exactly what returning citizens need for long-term stability. Yet current workforce programs for justice-involved populations in Central Texas do not adequately connect participants to these opportunities.");
+
+      subHeading("Gap in Current Services");
+      para("Existing reentry programs in Central Texas focus primarily on case management and job placement but lack:");
+      bullet("Structured pre-apprenticeship pathways aligned to Registered Apprenticeship programs");
+      bullet("AI and digital literacy training (an explicit RESTART priority)");
+      bullet("Culturally responsive programming designed for the demographics of the returning citizen population");
+      bullet("Technology-enabled case management with real-time outcome tracking");
+      bullet("Employer engagement that goes beyond job fairs to structured commitment and retention support");
+      para("TCAF\u2019s RESTART application directly addresses every one of these gaps through ThriveUp Academy\u2019s integrated platform and established community relationships.");
+
+      // ==================== PART C.2: PROGRAM DESIGN ====================
+      doc.addPage();
+      y = 60;
+
+      sectionHeading("C.2 \u2014 Program Design");
+
+      subHeading("Program Overview: The RESTART Reentry Workforce Pipeline");
+      para("TCAF proposes a 36-month program serving 150 justice-involved adults (ages 18+) across the Austin-Central Texas region and two additional non-contiguous service sites, providing a comprehensive pipeline from pre-release preparation through credential attainment, apprenticeship placement, and 12-month employment retention.");
+      para("The program is built on TCAF\u2019s ThriveUp Academy platform \u2014 a 24-platform AI-powered ecosystem that delivers workforce readiness training, digital literacy, case management, and wraparound services through a single integrated technology architecture.");
+
+      subHeading("Phase 1: Pre-Release Services (Months 1\u201336, Rolling Enrollment)");
+      para("In partnership with correctional facilities, TCAF will deliver pre-release programming to individuals within 6 months of their expected release date:");
+
+      bullet("Individual Development Plans (IDPs): Comprehensive assessment of barriers to employment, skills inventory, career interests, and reentry needs using TCAF\u2019s validated assessment tools");
+      bullet("Job Preparation: Resume development, interview skills, workplace communication, professional conduct training delivered through ThriveUp\u2019s AI-assisted learning companions");
+      bullet("Career Exploration: AI-powered career matching using O*NET occupational data, local labor market information, and participant aptitude assessment");
+      bullet("State ID Assistance: Coordination with Texas DPS for identification documents, Social Security card replacement, and birth certificate procurement");
+      bullet("Social Service Linkage: Pre-release connection to housing, healthcare, family reunification, and benefits navigation through LifeBridge Virtual 211");
+
+      subHeading("Phase 2: Post-Release Training (12\u201316 Weeks Per Cohort)");
+      para("Upon release, participants enter structured training cohorts delivering:");
+
+      bullet("AI and Digital Literacy Training (40 hours): ThriveUp Academy\u2019s 5-level AI mastery curriculum, covering digital fundamentals, productivity tools, AI applications in skilled trades, and workplace technology competency. This directly addresses the FOA\u2019s explicit inclusion of \u201cartificial intelligence and digital literacy training\u201d as an eligible service.");
+      bullet("Pre-Apprenticeship Training (120 hours): Industry-specific technical skills training aligned with Registered Apprenticeship standards in construction, advanced manufacturing, and IT. Delivered in partnership with Registered Apprenticeship sponsors.");
+      bullet("OSHA Safety Certifications: OSHA-10 and OSHA-30 for all construction/manufacturing-track participants");
+      bullet("Industry-Recognized Credentials: NCCER Core, CompTIA A+/Network+, AWS Certified Cloud Practitioner, or Microsoft Certified: Azure Fundamentals (based on career track)");
+      bullet("Work-Based Learning: 80+ hours of supervised work experience with employer partners, including structured mentoring");
+
+      subHeading("Phase 3: Apprenticeship Placement & Employment (Months 4\u201336)");
+      para("Participants completing Phase 2 are placed into one of three employment pathways:");
+
+      bullet("Registered Apprenticeship: Direct placement into registered programs with employer sponsors. Target: 40% of completers (60 participants)");
+      bullet("Direct Employment: Placement into full-time positions with committed employer partners at $18+/hour minimum. Target: 45% of completers (68 participants)");
+      bullet("Entrepreneurship/Self-Employment: For participants with viable business plans, supported through MCE business development platform. Target: 15% of completers (22 participants)");
+
+      subHeading("Phase 4: Retention & Follow-Up (12 Months Post-Placement)");
+      para("TCAF provides 12 months of post-placement support:");
+      bullet("Monthly check-ins with assigned case manager via ThriveUp platform");
+      bullet("Employer liaison services to address workplace issues before they cause separation");
+      bullet("Continued access to ThriveUp Academy for upskilling and career advancement");
+      bullet("Crisis intervention and wraparound services through LifeBridge Virtual 211");
+      bullet("Peer mentoring through program alumni network");
+
+      subHeading("Technology Infrastructure: ThriveUp Academy");
+      para("TCAF\u2019s ThriveUp Academy is a 24-platform AI-powered ecosystem purpose-built for workforce development and community empowerment. For RESTART, the following platform components are directly deployed:");
+
+      const platformTable: [string, string][] = [
+        ["ThriveUp Academy", "AI-powered workforce readiness curriculum, digital literacy training, credential preparation"],
+        ["Better Science Lab", "Implementation science engine (CFIR 2.0 + RE-AIM) for program fidelity and continuous improvement"],
+        ["LifeBridge Virtual 211", "Wraparound services navigation \u2014 housing, food, transportation, childcare, crisis support"],
+        ["M2C Transition Pipeline", "Military-to-civilian career pathway tools (for veteran participants)"],
+        ["Whole-Person Health", "Behavioral health screening (PHQ-9, GAD-7, PCL-5) and crisis resource connection"],
+        ["MCE", "Minority business development for entrepreneurship-track participants"],
+        ["Speech Bridge", "Language accessibility \u2014 bilingual (English/Spanish) program delivery"],
+      ];
+
+      for (const [platform, desc] of platformTable) {
+        checkPage(22);
+        doc.fontSize(9.5).fillColor(ACCENT).font("Helvetica-Bold").text(platform, 60, y, { width: 140 });
+        doc.font("Helvetica").fontSize(9).fillColor(DARK).text(desc, 205, y, { width: PW - 145 });
+        y = Math.max(doc.y + 4, y + 16);
+      }
+      y += 6;
+
+      subHeading("Evidence-Based Approach");
+      para("TCAF\u2019s program design is grounded in Implementation Science methodology, specifically the Consolidated Framework for Implementation Research (CFIR 2.0) and the RE-AIM framework (Reach, Effectiveness, Adoption, Implementation, Maintenance). Dr. Flood is currently completing an MS in Implementation Science at Dartmouth College\u2019s Geisel School of Medicine, ensuring that program design and evaluation follow the highest standards of evidence-based practice.");
+      para("The program incorporates proven reentry workforce models including the Transitional Jobs strategy (validated by MDRC), cognitive behavioral intervention (validated by the University of Cincinnati Corrections Institute), and employer-driven demand-side strategies (validated by the Aspen Institute Economic Opportunities Program).");
+
+      subHeading("Service Area & Non-Contiguous Sites");
+      para("As a national/regional intermediary applicant, TCAF will deliver RESTART services across three non-contiguous metropolitan/rural regions:");
+      bullet("Primary Site: Austin-Central Texas (Travis, Williamson, Hays counties) \u2014 direct operation by TCAF");
+      bullet("Site 2: {{ACTION REQUIRED \u2014 Dr. Flood, identify a partner organization in a second metropolitan area or rural region where TCAF can deploy ThriveUp. Consider existing relationships or organizations you\u2019ve connected with. Must be non-contiguous with Austin.}}");
+      bullet("Site 3: {{ACTION REQUIRED \u2014 Dr. Flood, identify a third site. This could be another Texas city (Houston, Dallas, San Antonio) or out-of-state. The intermediary track requires 3+ non-contiguous regions.}}");
+
+      actionRequired("Dr. Flood \u2014 The intermediary track (Track 1, $30M pool) requires operating across 3+ non-contiguous regions. You need to identify two additional sites beyond Austin with partner organizations. Alternatively, you can apply under Track 2 (state/local) and focus solely on Austin-Central Texas, but the award pool is smaller and requires WIOA integration with the state workforce system. Decide which track and identify partners.");
+
+      // ==================== PART C.3: ORGANIZATIONAL CAPACITY ====================
+      doc.addPage();
+      y = 60;
+
+      sectionHeading("C.3 \u2014 Organizational Capacity");
+
+      subHeading("Organizational Overview");
+      para("The Collaborative Advocate Foundation (TCAF) is a 501(c)(3) tax-exempt nonprofit (EIN 41-3618003) founded by Dr. Terry Flood. TCAF operates the ThriveUp Academy, a 24-platform AI-powered ecosystem serving workforce development, community health, behavioral health, education, emergency management, and economic development. TCAF is veteran-founded, Black-led, and headquartered in Pflugerville, Texas.");
+
+      subHeading("Principal Investigator: Dr. Terry Flood, DHA/DBA");
+      para("Dr. Flood brings a uniquely integrated credential set directly relevant to the RESTART initiative:");
+
+      const credentials: [string, string][] = [
+        ["Doctor of Healthcare Administration (DHA)", "Healthcare systems design, program management, outcome measurement"],
+        ["Doctor of Business Administration (DBA)", "Organizational strategy, financial management, operations"],
+        ["MS Criminal Justice (Public Policy)", "Criminal justice system knowledge, public policy design for reentry populations"],
+        ["MS Industrial-Organizational Psychology", "Workforce assessment, Individual Development Plans, organizational behavior"],
+        ["MS Human Resource Management", "Employer engagement, personnel systems, labor market alignment"],
+        ["MS Implementation Science (Dartmouth, in progress)", "Evidence-based program design, CFIR 2.0, RE-AIM, fidelity measurement"],
+        ["MBA Leadership", "Executive leadership, strategic planning, nonprofit management"],
+        ["Graduate Certificate Business Analytics (Texas A&M)", "Data-driven decision making, outcomes analysis"],
+        ["U.S. Army Warrant Officer (Retired)", "Leadership under pressure, team management, mission execution"],
+        ["VA Crisis Line (VCL) Trainer", "Behavioral health crisis intervention, suicide prevention"],
+        ["FEMA ICS-100.C, ICS-200.C, IS-700.B, IS-800.D", "Emergency management, incident command, inter-agency coordination"],
+        ["COR Level 1 + Federal Grants & Agreements", "Federal contract/grant administration and compliance"],
+      ];
+
+      for (const [cred, relevance] of credentials) {
+        checkPage(22);
+        doc.fontSize(9).fillColor(DARK).font("Helvetica-Bold").text(cred, 60, y, { width: 230 });
+        doc.font("Helvetica").fontSize(8.5).fillColor(LIGHT).text(relevance, 295, y, { width: PW - 235 });
+        y = Math.max(doc.y + 3, y + 14);
+      }
+      y += 6;
+
+      subHeading("Professional Experience");
+      para("Dr. Flood has served as a Public Health Social Scientist with the VA and DoD (2017\u2013present), a Community Readiness & Resilience Implementer (CR2I) Advisor for the Department of Defense (2021\u20132023), and holds a 168-Hour Community Health Worker Instructor certification from the Texas Department of State Health Services. He is a current member of the Pflugerville ISD School Health Advisory Council (SHAC).");
+
+      subHeading("Technology & Platform Capacity");
+      para("TCAF\u2019s ThriveUp Academy ecosystem represents a $2M+ technology investment, comprising 24 interdependent platforms with demonstrated functionality. The platform architecture supports:");
+      bullet("Simultaneous user management across multiple service sites");
+      bullet("Real-time outcome tracking and automated reporting");
+      bullet("AI-powered adaptive learning with culturally responsive companions");
+      bullet("Bilingual (English/Spanish) content delivery");
+      bullet("WCAG 2.1 AA accessibility compliance");
+      bullet("WIOA-aligned curriculum with TEKS \u00a7127.15 CTE Employability Skills coverage (100%, verifiable)");
+
+      subHeading("Financial Management Capacity");
+      para("TCAF maintains financial controls consistent with 2 CFR 200 requirements, including segregation of duties, documented procurement procedures, and auditable record-keeping. Dr. Flood\u2019s COR Level 1 certification and Federal Grants & Agreements Management certification demonstrate direct knowledge of federal financial compliance requirements.");
+
+      actionRequired("Dr. Flood \u2014 If TCAF has completed a Single Audit (2 CFR 200 Subpart F), reference it here. If not, note that TCAF will comply with all audit requirements upon award. Also add any additional staff who will serve as key personnel on this grant \u2014 their names, titles, qualifications, and roles.");
+
+      subHeading("Past Performance");
+      actionRequired("Dr. Flood \u2014 This is a critical scored section. List 2\u20133 specific programs, contracts, or grants TCAF has delivered. Include: (1) Name of funding agency or client, (2) Dollar value, (3) Dates of performance, (4) Description of services, (5) Measurable outcomes achieved. If TCAF is early-stage, emphasize: (a) ThriveUp Academy platform readiness and deployment, (b) TWC RFA 32026-00162 application (workforce development), (c) Community relationships and SHAC membership, (d) Dr. Flood\u2019s professional experience delivering similar services in VA/DoD roles. Do not fabricate. Use real, verifiable work only.");
+
+      // ==================== PART C.4: PARTNERSHIPS ====================
+      doc.addPage();
+      y = 60;
+
+      sectionHeading("C.4 \u2014 Partnerships");
+
+      para("TCAF\u2019s RESTART proposal is built on a partnership network that covers all required and recommended categories specified in the FOA. Each partnership is documented via MOU or Letter of Commitment (attached in Part D).");
+
+      subHeading("Required Partnership: Local Workforce Development Board");
+      field("Partner", "Capital Area Workforce Development Board (CAWD) \u2014 Austin, TX");
+      para("The Capital Area Workforce Development Board oversees WIOA-funded workforce services in the Austin-Central Texas region. Under this partnership, CAWD will:");
+      bullet("Co-enroll RESTART participants in WIOA Title I Adult and Dislocated Worker programs");
+      bullet("Provide labor market information to inform training track selection");
+      bullet("Coordinate referrals through the American Job Center network");
+      bullet("Share data on participant employment outcomes post-placement");
+
+      actionRequired("Dr. Flood \u2014 Contact Capital Area Workforce Solutions (capitalareaws.com). Request a meeting with the Executive Director to discuss RESTART partnership. You need an MOU signed before submission. Key contact: Capital Area Workforce Solutions, 6505 Airport Blvd, Suite 101, Austin, TX 78752. Phone: (512) 597-7100. Explain that this is a DOL RESTART grant requiring LWDB partnership. They handle these regularly.");
+
+      subHeading("Required Partnership: American Job Center");
+      field("Partner", "Workforce Solutions Capital Area \u2014 American Job Center Network");
+      para("The local American Job Center will serve as a referral and co-enrollment point for RESTART participants:");
+      bullet("Referral of eligible justice-involved individuals seeking employment services");
+      bullet("Co-location of RESTART intake activities at AJC sites (as available)");
+      bullet("Access to Workforce Solutions\u2019 employer network for job development");
+      bullet("Resource-sharing for participant supportive services");
+
+      subHeading("Required Partnership: Employer Partners");
+      para("TCAF will secure commitment letters from a minimum of five employers across the targeted industry sectors:");
+
+      const employers: [string, string, string][] = [
+        ["Construction / Skilled Trades", "{{ACTION REQUIRED: Identify 2 construction/trades employers in Austin willing to hire program completers}}", "Apprenticeship slots, OJT positions, mentoring"],
+        ["Advanced Manufacturing", "{{ACTION REQUIRED: Identify 1\u20132 manufacturers \u2014 consider Samsung Austin Semiconductor, Flex, or Applied Materials supplier network}}", "Direct hire commitments, facility tours, interview days"],
+        ["IT / Digital Services", "{{ACTION REQUIRED: Identify 1\u20132 IT employers or staffing firms}}", "Entry-level positions for digital literacy completers"],
+      ];
+
+      for (const [sector, employer, commitment] of employers) {
+        checkPage(30);
+        doc.fontSize(9.5).fillColor(ACCENT).font("Helvetica-Bold").text(sector, 60, y, { width: PW });
+        doc.font("Helvetica");
+        y = doc.y + 3;
+        doc.fontSize(9).fillColor(RED).text(employer, 75, y, { width: PW - 15 });
+        y = doc.y + 2;
+        doc.fontSize(9).fillColor(DARK).text("Commitments: " + commitment, 75, y, { width: PW - 15 });
+        y = doc.y + 6;
+      }
+
+      subHeading("Priority Partnership: Registered Apprenticeship Sponsor");
+      field("Partner", "{{ACTION REQUIRED: Identify a Registered Apprenticeship sponsor in Austin}}");
+      para("The FOA gives priority consideration to applicants partnering with Registered Apprenticeship sponsors. TCAF will partner with an established sponsor to provide:");
+      bullet("Structured apprenticeship placement for 60 participants (40% of completers)");
+      bullet("Related technical instruction aligned with DOL apprenticeship standards");
+      bullet("Journey-level mentoring and on-the-job training");
+      bullet("Portable, industry-recognized credentials upon completion");
+
+      actionRequired("Dr. Flood \u2014 Contact Texas Workforce Commission Apprenticeship Division at (512) 936-3681 or apprenticeship@twc.texas.gov. Ask for a list of Registered Apprenticeship sponsors in the Austin area accepting new program entrants. Key industries to target: electrical, plumbing, HVAC, welding, IT. Getting this MOU is critical for priority scoring. Also check apprenticeship.gov for Austin-area sponsors.");
+
+      subHeading("Partnership: Correctional Facility");
+      field("Partner", "{{ACTION REQUIRED: TDCJ or Travis County Correctional Complex}}");
+      para("For pre-release service delivery, TCAF requires a partnership with at least one correctional facility:");
+      bullet("Access to deliver pre-release programming to individuals within 6 months of expected release");
+      bullet("Space for group sessions, individual assessments, and career counseling");
+      bullet("Coordination on release timing and transition planning");
+      bullet("Data sharing on participant criminal history and assessment scores (with appropriate consent)");
+
+      actionRequired("Dr. Flood \u2014 Contact TDCJ Reentry Division: (936) 437-6368 or via tdcj.texas.gov. For Travis County: Travis County Sheriff\u2019s Office Reentry Programs at (512) 854-9770. Pre-release access agreements take time \u2014 start this conversation immediately.");
+
+      subHeading("Additional Partners");
+      bullet("Community-Based Organizations: Local reentry service providers, faith-based organizations, community health centers (letters of support)");
+      bullet("Education Partners: Austin Community College (ACC) for technical training delivery and credit articulation");
+      bullet("Housing Partners: Foundation Communities, Caritas of Austin for transitional and permanent housing");
+      bullet("Legal Services: Texas RioGrande Legal Aid for record expungement and legal barrier removal");
+
+      // ==================== PART C.5: OUTCOMES ====================
+      doc.addPage();
+      y = 60;
+
+      sectionHeading("C.5 \u2014 Outcomes & Performance Measures");
+
+      subHeading("Proposed Performance Targets (36-Month Program)");
+
+      const outcomes: [string, string, string][] = [
+        ["Total Participants Enrolled", "150", "50 per year across 3 sites"],
+        ["Program Completion Rate", "75% (113)", "Industry average for reentry programs: 60\u201365%"],
+        ["Credential Attainment Rate", "80% of completers (90)", "OSHA, NCCER, CompTIA, or equivalent"],
+        ["Employment Rate \u2014 Q2 After Exit", "70%", "DOL benchmark: 68% (adults)"],
+        ["Employment Rate \u2014 Q4 After Exit", "65%", "Demonstrates retention beyond initial placement"],
+        ["Median Earnings \u2014 Q2 After Exit", "$7,200/quarter", "DOL benchmark: $6,400"],
+        ["Registered Apprenticeship Enrollment", "60 participants (40%)", "Priority outcome per FOA"],
+        ["Measurable Skill Gains", "85% of active", "Training milestones, credential progress"],
+        ["Recidivism Rate (12 months post-exit)", "<15%", "vs. 35\u201345% baseline without services"],
+        ["AI/Digital Literacy Completion", "90% of enrolled", "ThriveUp 5-level mastery curriculum"],
+      ];
+
+      for (const [measure, target, note] of outcomes) {
+        checkPage(18);
+        doc.fontSize(9).fillColor(DARK).font("Helvetica-Bold").text(measure, 60, y, { width: 200 });
+        doc.font("Helvetica").fontSize(9.5).fillColor(GREEN).text(target, 265, y, { width: 90, align: "center" });
+        doc.fontSize(8.5).fillColor(LIGHT).text(note, 360, y, { width: PW - 300 });
+        y = Math.max(doc.y + 4, y + 14);
+      }
+      y += 8;
+
+      subHeading("Data Collection & Reporting");
+      para("TCAF will track all performance measures through ThriveUp Academy\u2019s integrated data management system, which provides:");
+      bullet("Real-time participant tracking from enrollment through 12-month post-exit follow-up");
+      bullet("Automated quarterly performance report (QPR) generation aligned with DOL reporting requirements");
+      bullet("Credential attainment verification through direct integration with credentialing bodies");
+      bullet("Employment verification through employer partner reporting and state wage record matching");
+      bullet("Recidivism tracking through partnership with TDCJ and local criminal justice agencies");
+
+      subHeading("Continuous Quality Improvement");
+      para("TCAF\u2019s Better Science Lab platform applies the MAP-GAP (Measure, Analyze, Prioritize \u2014 Gap Action Protocol) continuous improvement framework to ensure program fidelity and outcome optimization. Monthly quality reviews assess:");
+      bullet("Implementation fidelity against the program design model");
+      bullet("Participant outcome trends vs. quarterly targets");
+      bullet("Employer satisfaction and retention rates");
+      bullet("Site-level variation (across the 3 non-contiguous sites)");
+      bullet("Corrective action implementation and impact measurement");
+
+      subHeading("Evaluation Design");
+      para("An independent external evaluator (contracted under the budget\u2019s Contractual category) will conduct both process and outcome evaluation:");
+      bullet("Process Evaluation: Assesses whether the program is implemented as designed, identifies implementation barriers, and documents adaptations using CFIR 2.0 constructs");
+      bullet("Outcome Evaluation: Measures employment, earnings, credential attainment, recidivism, and participant satisfaction against proposed targets using pre/post design with comparison group where feasible");
+      bullet("Cost-Benefit Analysis: Calculates return on investment comparing program costs to reduced incarceration costs, increased tax revenue, and economic productivity gains");
+
+      // ==================== PART D: ATTACHMENTS CHECKLIST ====================
+      doc.addPage();
+      y = 60;
+
+      sectionHeading("Part D \u2014 Attachments Checklist");
+
+      para("The following attachments are required for submission and must be included in the Grants.gov application package:");
+      y += 4;
+
+      const attachments: [string, string, string][] = [
+        ["D.1", "Partnership MOUs & Commitment Letters", "PENDING"],
+        ["", "  \u2022 Local Workforce Development Board MOU", "{{ACTION REQUIRED}}"],
+        ["", "  \u2022 American Job Center Coordination Agreement", "{{ACTION REQUIRED}}"],
+        ["", "  \u2022 Employer Commitment Letters (minimum 5)", "{{ACTION REQUIRED}}"],
+        ["", "  \u2022 Registered Apprenticeship Sponsor MOU", "{{ACTION REQUIRED}}"],
+        ["", "  \u2022 Correctional Facility Access Agreement", "{{ACTION REQUIRED}}"],
+        ["", "  \u2022 Community Partner Letters of Support", "{{ACTION REQUIRED}}"],
+        ["D.2", "Key Personnel Resumes", "PENDING"],
+        ["", "  \u2022 Dr. Terry Flood \u2014 PI/Program Director Resume", "{{ACTION REQUIRED}}"],
+        ["", "  \u2022 Deputy Director Resume", "{{ACTION REQUIRED}}"],
+        ["D.3", "501(c)(3) Determination Letter", "AVAILABLE"],
+        ["D.4", "Work Plan Timeline (Gantt Chart)", "PENDING"],
+        ["D.5", "Logic Model / Theory of Change", "PENDING"],
+        ["D.6", "Organizational Chart", "PENDING"],
+        ["D.7", "Letters of Support", "PENDING"],
+        ["D.8", "SF-424 (via Grants.gov)", "PENDING"],
+        ["D.9", "SF-424A Budget Form", "PENDING"],
+        ["D.10", "Certifications & Assurances", "PENDING"],
+      ];
+
+      for (const [num, item, status] of attachments) {
+        checkPage(16);
+        const isHeader = num.startsWith("D.");
+        if (isHeader) {
+          y += 4;
+          doc.font("Helvetica-Bold");
+        }
+        doc.fontSize(9.5).fillColor(DARK).text(`${num}  ${item}`, 60, y, { width: PW - 120 });
+        const statusColor = status === "AVAILABLE" ? GREEN : status.includes("ACTION") ? RED : "#d97706";
+        doc.fontSize(8).fillColor(statusColor).font("Helvetica-Bold").text(status, 400, y, { width: 100, align: "right" });
+        doc.font("Helvetica");
+        y = doc.y + 3;
+      }
+
+      // ==================== SUBMISSION TIMELINE ====================
+      y += 12;
+      sectionHeading("Submission Timeline \u2014 11-Day Action Plan");
+
+      const timeline: [string, string[]][] = [
+        ["April 4\u20136 (Days 1\u20133)", [
+          "Download full FOA PDF from Grants.gov",
+          "Register TCAF on Grants.gov (if not already registered)",
+          "Verify SAM.gov status (required for submission)",
+          "Contact Capital Area Workforce Board for LWDB MOU",
+          "Contact TDCJ Reentry Division for pre-release access",
+          "Begin employer outreach (5 employers minimum)",
+        ]],
+        ["April 7\u201310 (Days 4\u20137)", [
+          "Finalize Project Narrative sections C.1\u2013C.5",
+          "Build SF-424A budget with line-item detail",
+          "Contact TWC Apprenticeship Division for RA sponsor MOU",
+          "Contact American Job Center for coordination agreement",
+          "Collect key personnel resumes and org chart",
+          "Draft Logic Model / Theory of Change",
+        ]],
+        ["April 11\u201313 (Days 8\u201310)", [
+          "Collect all signed MOUs and commitment letters",
+          "Complete SF-424 form in Grants.gov",
+          "Internal review of full application package",
+          "Fill all {{ACTION REQUIRED}} items with verified data",
+          "PDF all narrative sections and merge with forms",
+        ]],
+        ["April 14\u201315 (Days 11\u201312)", [
+          "Final review and submission via Grants.gov",
+          "SUBMIT NO LATER THAN April 15, 11:59 PM ET",
+          "Confirm Grants.gov receipt (tracking number)",
+          "Save confirmation for records",
+        ]],
+      ];
+
+      for (const [period, tasks] of timeline) {
+        checkPage(60);
+        doc.fontSize(10).fillColor(ACCENT).font("Helvetica-Bold").text(period, 60, y, { width: PW });
+        doc.font("Helvetica");
+        y = doc.y + 4;
+        for (const task of tasks) {
+          bullet(task);
+        }
+        y += 6;
+      }
+
+      // ==================== PAGE NUMBERS ====================
+      const totalPages = doc.bufferedPageRange().count;
+      for (let i = 0; i < totalPages; i++) {
+        doc.switchToPage(i);
+        doc.fontSize(7).fillColor(LIGHT).text(
+          `Page ${i + 1} of ${totalPages}  |  TCAF \u2014 DOL RESTART FOA-ETA-26-17  |  GRANT APPLICATION`,
+          60, 740, { width: PW, align: "center" }
+        );
+      }
+
+      doc.end();
+    } catch (error: any) {
+      console.error("[RESTART-PDF] Error:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   let lastDailyDiscoveryRun: Date | null = null;
   let lastDiscoveryResult: { imported: number; skipped: number; total: number; error?: string } | null = null;
 

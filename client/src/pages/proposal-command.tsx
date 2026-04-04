@@ -965,6 +965,58 @@ export default function ProposalCommandPage() {
           </TabsContent>
         </Tabs>
 
+        <Card className="border-blue-200 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-950/20">
+          <CardContent className="p-4">
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <FileText className="h-5 w-5 text-blue-600" />
+                <span className="font-semibold text-sm">Active Proposal Drafts</span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="justify-start text-xs h-auto py-2 px-3"
+                  onClick={() => window.open("/api/proposal-command/dol-restart-pdf", "_blank")}
+                  data-testid="button-download-dol-restart-pdf"
+                >
+                  <Download className="h-3.5 w-3.5 mr-2 shrink-0 text-blue-600" />
+                  <div className="text-left">
+                    <div className="font-medium">DOL RESTART — $4.2M</div>
+                    <div className="text-muted-foreground">FOA-ETA-26-17 | Due Apr 15</div>
+                  </div>
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="justify-start text-xs h-auto py-2 px-3"
+                  onClick={() => window.open("/api/proposal-command/travis-county-rfq-pdf", "_blank")}
+                  data-testid="button-download-travis-rfq-pdf"
+                >
+                  <Download className="h-3.5 w-3.5 mr-2 shrink-0 text-amber-600" />
+                  <div className="text-left">
+                    <div className="font-medium">Travis County RFQ 202-CW</div>
+                    <div className="text-muted-foreground">HISolution | Strategic Retreat</div>
+                  </div>
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="justify-start text-xs h-auto py-2 px-3"
+                  onClick={() => window.open("/api/proposal-command/eric-loi-pdf", "_blank")}
+                  data-testid="button-download-eric-loi-pdf"
+                >
+                  <Download className="h-3.5 w-3.5 mr-2 shrink-0 text-green-600" />
+                  <div className="text-left">
+                    <div className="font-medium">Eric Hargrave LOI</div>
+                    <div className="text-muted-foreground">Letter of Intent Package</div>
+                  </div>
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         <Card className="bg-muted/30">
           <CardContent className="p-4">
             <div className="flex items-start gap-3">
