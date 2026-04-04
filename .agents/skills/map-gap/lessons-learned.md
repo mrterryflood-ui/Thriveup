@@ -48,6 +48,29 @@ Persistent lessons from each improvement cycle. Each lesson should inform future
 
 - **I-L05 — VALIDATE ELIGIBILITY CONSTRAINTS BEFORE PROPOSING TRACK/POPULATION:** Before choosing an application track (intermediary vs. direct, youth vs. adult), verify every eligibility constraint for that track. The intermediary track restricting service to ages 15-24 was a disqualification-level error that would have killed the application. Track selection should be a deliberate decision matrix, not an assumption.
 
+## P-Series Lessons (Proposal Pipeline Standard Operating Procedure)
+
+- **P-L01 — THE 5-STEP PROPOSAL PIPELINE IS MANDATORY:** Every proposal, regardless of size or timeline, follows this pipeline. No shortcuts, no skipping steps. Whether the user says "build it now" or "let's take the long road," the steps are the same — only the depth changes.
+
+  **Step 1: KNOW THE APPLICANT**
+  Before touching the solicitation, ingest the applicant's baseline reality: capability statements, past performance history, organizational profile, certifications, key personnel, financials, geographic presence. This is who they actually are. For TCAF, the Load Profile button captures this. For any other applicant, this step must happen first.
+
+  **Step 2: KNOW THE OPPORTUNITY**
+  Read the actual source document (FOA/RFP/RFQ/RFA/BAA). Extract every requirement, scoring criterion, eligibility threshold, compliance rule, page limit, formatting requirement, and submission instruction. Web searches and press releases are supplementary — the source document is the truth. This is the target reality.
+
+  **Step 3: MAP-GAP ASSESSMENT**
+  Compare baseline (Step 1) against target (Step 2). Produce a structured gap analysis: Here is who you are. Here is where you need to be. These are the gaps. These are your strengths. This is your competitive position — scored, quantified, honest. Include demographic and statistical data for the service area (I-L02). Include eligibility constraint validation (I-L05). This assessment drives every word of the proposal.
+
+  **Step 4: GENERATE AGAINST THE RUBRIC**
+  Build the proposal section by section, mapped directly to the scoring criteria from Step 2, informed by the gap analysis from Step 3. Where the applicant is strong, write with confidence using their actual data. Where they're deficient, use {{ACTION REQUIRED}} placeholders with specific instructions — never fabricate (H-L01). Mirror the FOA's terminology and section structure exactly (I-L04).
+
+  **Step 5: MULTI-LENS REVIEW**
+  Evaluate the output through three lenses: (a) the evaluator's eyes — does it score well against the published rubric? (b) the compliance officer's eyes — does it meet every threshold requirement? (c) the competitor's eyes — where would a stronger applicant beat this? Score it against the same rubric the reviewers will use. Flag weaknesses honestly.
+
+- **P-L02 — QUICK BUILD vs. PIPELINE BUILD:** When the user says "build it now," run all 5 steps but compress the timeline — the steps don't change, only the depth. When the user says "let's do this right," run all 5 steps with full depth, including research, data packages, partner outreach plans, and iterative reviews. The pipeline is the same either way. Consistency and deliberateness in the process — every time.
+
+- **P-L03 — QUALITY OF OUTPUT = QUALITY OF INPUT:** The deliverable is only as good as what goes in. If the applicant hasn't provided past performance, the proposal will have gaps. If we haven't read the FOA, the proposal will have compliance errors. If we haven't pulled the data, the Statement of Need will be weak. The pipeline ensures nothing gets skipped.
+
 ## Enforced Rules (Machine-Checkable)
 
 These lessons have been converted into automated health checks in the MAP phase:
