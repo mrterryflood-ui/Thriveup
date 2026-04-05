@@ -99,7 +99,7 @@ The Collaborative Advocate Foundation operates through a unique Adaptive Capabil
 
 • ThriveUp Academy — AI-powered workforce development (central hub)
 • Mission Transition (M2C) — Military-to-civilian career pipelines
-• Shield Atlas — Risk intelligence and community safety
+• Emergency Management — Risk intelligence and community safety
 • Whole-Person Health — Behavioral health and crisis support
 • SafeReport — Mandatory reporter incident management
 • ISSS — Integrated Supports for Thriving Youth

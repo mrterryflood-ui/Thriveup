@@ -44,7 +44,7 @@ const PLATFORMS = [
   { name: "SafeCogniCare", domain: "Cognitive Health / TBI", color: "bg-sky-500" },
   { name: "PillScheduler", domain: "Medication Adherence", color: "bg-lime-500" },
   { name: "SafeReport", domain: "Community Safety", color: "bg-yellow-500" },
-  { name: "Shield Atlas", domain: "Cybersecurity", color: "bg-gray-500" },
+  { name: "Emergency Management", domain: "Crisis Response", color: "bg-gray-500" },
   { name: "RPLICE / Better Science", domain: "Research Validation", color: "bg-blue-600" },
   { name: "Video Creator AI", domain: "Content Production", color: "bg-violet-600" },
   { name: "Pinnacle Business", domain: "Business Development", color: "bg-orange-600" },

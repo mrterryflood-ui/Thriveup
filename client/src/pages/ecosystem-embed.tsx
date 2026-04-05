@@ -485,7 +485,7 @@ export function LifeBridgeEmbedPage() {
             {[
               { title: "Healthy Kids", icon: Heart, color: "text-rose-600", bg: "bg-rose-50 dark:bg-rose-950/30", stats: ["2,000+ health screenings", "Maternal health support", "Nutrition & food access", "Telehealth for families"] },
               { title: "Happy Kids", icon: Smile, color: "text-amber-600", bg: "bg-amber-50 dark:bg-amber-950/30", stats: ["SEL curriculum (WholeMind)", "Neurodivergent support", "Family stability services", "Community belonging"] },
-              { title: "Safe Kids", icon: ShieldCheck, color: "text-emerald-600", bg: "bg-emerald-50 dark:bg-emerald-950/30", stats: ["SafeReport protection", "Mandatory reporter tools", "School safety (ISSS)", "Cybersecurity (Shield Atlas)"] },
+              { title: "Safe Kids", icon: ShieldCheck, color: "text-emerald-600", bg: "bg-emerald-50 dark:bg-emerald-950/30", stats: ["SafeReport protection", "Mandatory reporter tools", "School safety (ISSS)", "Data security protocols"] },
             ].map((pillar) => (
               <div key={pillar.title} className={`p-2 rounded-md ${pillar.bg}`} data-testid={`pillar-${pillar.title.toLowerCase().replace(/\s+/g, '-')}`}>
                 <pillar.icon className={`w-4 h-4 mx-auto mb-1 ${pillar.color}`} />
@@ -512,7 +512,6 @@ export function LifeBridgeEmbedPage() {
                 { platform: "Sankofa Health Network", role: "Culturally responsive health content for families" },
                 { platform: "LifeBridge", role: "Housing navigation, benefits enrollment, family stabilization" },
                 { platform: "PillScheduler", role: "Medication management for children with chronic conditions" },
-                { platform: "Shield Atlas", role: "Online safety, cyberbullying protection, data security" },
               ].map((p) => (
                 <div key={p.platform} className="p-1.5 rounded bg-muted/50" data-testid={`kids-platform-${p.platform.toLowerCase().replace(/\s+/g, '-')}`}>
                   <p className="text-xs font-medium">{p.platform}</p>

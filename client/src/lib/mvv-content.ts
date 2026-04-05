@@ -92,7 +92,7 @@ export const DISCIPLINES = [
     icon: "Heart" as const,
     desc: "Integrates whole-person health, maternal and infant care, community health worker deployment, substance abuse prevention, and health equity analysis — closing the gap between clinical systems and the communities they should serve.",
     mapGapComponent: "Health equity measurement and CHW coordination — tracking maternal outcomes, behavioral health access, chronic disease management, and social determinants across the full care continuum from prevention through recovery.",
-    platforms: ["sankofa", "whole-person-health", "lifebridge", "wholemind", "shield-atlas", "sankofa-feminine-health", "sankofa-maternal-health", "sankofa-mens-health"],
+    platforms: ["sankofa", "whole-person-health", "lifebridge", "wholemind", "emergency-mgmt", "sankofa-feminine-health", "sankofa-maternal-health", "sankofa-mens-health"],
   },
 ] as const;
 

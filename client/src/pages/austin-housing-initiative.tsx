@@ -70,7 +70,7 @@ const ECOSYSTEM_PLATFORMS = [
     category: "Safety & Research",
     color: "from-slate-500 to-slate-700",
     platforms: [
-      { name: "Shield Atlas", role: "Cybersecurity & data protection", impact: "Protects all platform data" },
+      { name: "Emergency Management", role: "Crisis response & data protection", impact: "Protects all platform data" },
       { name: "RPLICE / Better Science Lab", role: "Research validation, CFIR/RE-AIM", impact: "Evidence base that wins grants" },
       { name: "Video Creator AI", role: "AI video production & Roku ads", impact: "Every platform gets a public face" },
     ],

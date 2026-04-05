@@ -141,7 +141,7 @@ const ECOSYSTEM_PLATFORMS = [
   { name: "Perfectly Different", inPerson: true, virtual: true, mobile: false, kiosk: false, category: "Neurodivergent Support" },
   { name: "BetterScience Lab", inPerson: false, virtual: true, mobile: false, kiosk: false, category: "Research & Data" },
   { name: "SafeReport", inPerson: true, virtual: true, mobile: true, kiosk: true, category: "Incident Reporting" },
-  { name: "Shield Atlas", inPerson: false, virtual: true, mobile: false, kiosk: false, category: "Cybersecurity" },
+  { name: "Emergency Management", inPerson: false, virtual: true, mobile: false, kiosk: false, category: "Crisis Response" },
   { name: "Video Creator AI", inPerson: false, virtual: true, mobile: false, kiosk: false, category: "Content Production" },
   { name: "M2C Transition", inPerson: true, virtual: true, mobile: true, kiosk: true, category: "Benefits & Navigation" },
 ];

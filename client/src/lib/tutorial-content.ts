@@ -38,7 +38,7 @@ export const SECTION_TUTORIALS: Record<string, TutorialDef> = {
     ],
     examples: [
       { title: "Grant Reviewer Verification", scenario: "A St. David's Foundation reviewer asks 'How do your platforms actually work together?' You open the Ecosystem Hub and show all 24 platforms online with real-time health checks, organized into 8 functional triads with bidirectional data flows.", outcome: "The reviewer sees live proof that this isn't a slide deck — it's a functioning ecosystem with verifiable health metrics and integration depth." },
-      { title: "Platform Outage Response", scenario: "Shield Atlas shows 'offline' status. You check the health logs and see it went down 30 minutes ago. The pinger automatically tried the .replit.app fallback URL and woke it up on the next cycle.", outcome: "Shield Atlas returns to 'online' status within 10 minutes without any manual intervention. The incident is logged for compliance reporting." },
+      { title: "Platform Outage Response", scenario: "Emergency Management shows 'offline' status. You check the health logs and see it went down 30 minutes ago. The pinger automatically tried the .replit.app fallback URL and woke it up on the next cycle.", outcome: "The platform returns to 'online' status within 10 minutes without any manual intervention. The incident is logged for compliance reporting." },
     ],
     tips: [
       "The Ecosystem Hub is your strongest proof point for grant applications — it shows real, live infrastructure, not just plans.",

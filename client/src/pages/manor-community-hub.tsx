@@ -112,7 +112,7 @@ const MANOR_NEEDS_ASSESSMENT = [
       "City using ESRI for 3rd Spaces mapping — opportunity for data integration",
       "Limited digital government services — most require in-person Austin trips",
     ],
-    platforms: ["Shield Atlas", "Ecosystem Nexus", "Video Creator AI"],
+    platforms: ["Emergency Management", "Ecosystem Nexus", "Video Creator AI"],
     solutions: [
       "Digital inclusion initiative — partner with city on broadband expansion",
       "Community tech hub — computer access, digital literacy training",

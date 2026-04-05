@@ -329,14 +329,64 @@ function DeepDiveSection() {
               </p>
             </div>
 
+            <div className="mb-8">
+              <h3 className="text-lg font-bold text-center mb-4" data-testid="text-domains-heading">Six Domains, One Ecosystem</h3>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {[
+                  { icon: Shield, title: "Criminal Justice", desc: "Reentry, reintegration, family reunification, diversion, recidivism reduction." },
+                  { icon: Heart, title: "Health Equity", desc: "Maternal health, chronic disease, medication management, cognitive safety, SDOH navigation." },
+                  { icon: Sparkles, title: "Behavioral Health", desc: "Mental health screening, crisis intervention, safety planning, substance use, 988 integration." },
+                  { icon: Briefcase, title: "Workforce & Business", desc: "Career pathways, apprenticeships, small business support, procurement, employer partnerships." },
+                  { icon: GraduationCap, title: "Education & Learning", desc: "Pre-K through graduate and professional development, STEM, digital literacy, neurodiversity." },
+                  { icon: HandshakeIcon, title: "Community & Advocacy", desc: "Housing, food access, utilities, emergency management, civic engagement, faith-based coordination." },
+                ].map((d) => (
+                  <Card key={d.title} className="p-4" data-testid={`card-domain-${d.title.toLowerCase().replace(/\s/g, '-')}`}>
+                    <div className="flex items-start gap-2">
+                      <div className="rounded-md bg-primary/10 p-1.5 shrink-0">
+                        <d.icon className="h-3.5 w-3.5 text-primary" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-sm mb-0.5">{d.title}</h4>
+                        <p className="text-xs text-muted-foreground leading-relaxed">{d.desc}</p>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            </div>
+
+            <div className="mb-8">
+              <h3 className="text-lg font-bold text-center mb-4" data-testid="text-ai-heading">4-Engine AI Architecture</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {[
+                  { icon: Map, title: "Community Intelligence Engine", desc: "Maps needs, assets, and service gaps across zip codes. Live Census, CDC, and FBI data integration." },
+                  { icon: Target, title: "Personal Navigation Engine", desc: "AI-powered case management that sees the whole person — not just one presenting need." },
+                  { icon: Microscope, title: "Implementation Science Engine", desc: "Evaluates program effectiveness using CFIR 2.0 + RE-AIM frameworks via the RPLICE instrument." },
+                  { icon: TrendingUp, title: "Predictive Analytics Engine", desc: "Identifies emerging community needs before they become crises. Pattern detection across all six domains." },
+                ].map((e) => (
+                  <Card key={e.title} className="p-4" data-testid={`card-engine-${e.title.toLowerCase().replace(/\s/g, '-')}`}>
+                    <div className="flex items-start gap-3">
+                      <div className="rounded-md bg-primary/10 p-2 shrink-0">
+                        <e.icon className="h-4 w-4 text-primary" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-sm mb-0.5">{e.title}</h4>
+                        <p className="text-xs text-muted-foreground leading-relaxed">{e.desc}</p>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {[
-                { icon: Map, title: "Community Intelligence", desc: "GIS-powered maps layering health, crime, poverty, and resource data to show exactly where gaps exist." },
-                { icon: Target, title: "Grant Discovery Engine", desc: "AI-powered alignment scoring matching your capabilities to federal, state, and private funding." },
+                { icon: Search, title: "Grant Discovery Engine", desc: "AI-powered alignment scoring matching capabilities to federal, state, and private funding." },
                 { icon: Briefcase, title: "Workforce Pipeline", desc: "Complete lifecycle: intake to training, credentials, placement, and 365-day retention tracking." },
                 { icon: Shield, title: "Reentry & Case Management", desc: "Evidence-based reentry plans, milestone tracking, and reporting aligned to DOJ/WIOA standards." },
                 { icon: Sparkles, title: "AI-Powered Tools", desc: "10 professional-grade tools for presentations, resumes, business plans, and portfolios." },
                 { icon: HandshakeIcon, title: "Partner Ecosystem", desc: "Coordinated service delivery across churches, employers, schools, and community organizations." },
+                { icon: Microscope, title: "Implementation Science", desc: "CFIR 2.0, RE-AIM, and RPLICE-powered evaluation embedded in every program and proposal." },
               ].map((f) => (
                 <Card key={f.title} className="p-4" data-testid={`card-feature-${f.title.toLowerCase().replace(/\s/g, '-')}`}>
                   <div className="flex items-start gap-3">
@@ -464,8 +514,11 @@ export default function LandingPage() {
           <p className="text-base sm:text-lg text-muted-foreground max-w-xl mx-auto mb-4 px-2 leading-relaxed" data-testid="text-hero-subtitle">
             Whether you need help paying for groceries, finding a job, getting job training, or navigating a system that wasn't built for you — start here. We'll walk with you.
           </p>
-          <p className="text-sm text-muted-foreground/70 max-w-lg mx-auto px-2">
+          <p className="text-sm text-muted-foreground/70 max-w-lg mx-auto px-2 mb-4">
             Built by a veteran. Led by people who've been where you are. Serving every community, every background, every age.
+          </p>
+          <p className="text-xs text-muted-foreground/60 max-w-2xl mx-auto px-2 leading-relaxed" data-testid="text-hero-identity">
+            ThriveUp is the community infrastructure platform — the operating system for how communities support, engage, connect, and serve their people across every domain at every life stage.
           </p>
         </div>
       </section>
@@ -512,7 +565,7 @@ export default function LandingPage() {
                 <span className="font-semibold" data-testid="text-footer-brand">ThriveUp Academy</span>
               </div>
               <p className="text-xs text-muted-foreground leading-relaxed mb-2" data-testid="text-footer-tagline">
-                AI-powered workforce development and community enablement for under-resourced communities.
+                Community infrastructure platform — the OS for how communities support, engage, connect, and serve their people across every domain at every life stage.
               </p>
               <p className="text-xs text-muted-foreground/70" data-testid="text-footer-foundation">
                 The Collaborative Advocate Foundation 501(c)(3)
@@ -524,7 +577,7 @@ export default function LandingPage() {
                 <li><Link href="/benefits-screener" className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-screener">Benefits Screener</Link></li>
                 <li><Link href="/sdoh-explorer" className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-sdoh">SDOH Explorer</Link></li>
                 <li><Link href="/grants" className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-grants">Grant Discovery</Link></li>
-                <li><Link href="/resources" className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-resources">Resource Finder</Link></li>
+                <li><Link href="/proposal-pipeline" className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-pipeline">Proposal Pipeline</Link></li>
               </ul>
             </div>
             <div data-testid="footer-column-partners">

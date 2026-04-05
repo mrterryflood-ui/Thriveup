@@ -29,7 +29,7 @@ const PLATFORM_ICONS: Record<string, typeof Heart> = {
   "sankofa-feminine-health": Stethoscope,
   "sankofa-maternal-health": Heart,
   "sankofa-mens-health": Shield,
-  "shield-atlas": Shield,
+  "emergency-mgmt": Shield,
   "collaborative-advocate": Shield,
   "wholemind": BookOpen,
   "perfectly-different": Brain,
@@ -58,7 +58,7 @@ const PLATFORM_COLORS: Record<string, { bg: string; border: string; text: string
   "sankofa-feminine-health": { bg: "bg-pink-50 dark:bg-pink-950/30", border: "border-pink-200 dark:border-pink-800", text: "text-pink-600" },
   "sankofa-maternal-health": { bg: "bg-rose-50 dark:bg-rose-950/30", border: "border-rose-200 dark:border-rose-800", text: "text-rose-600" },
   "sankofa-mens-health": { bg: "bg-blue-50 dark:bg-blue-950/30", border: "border-blue-200 dark:border-blue-800", text: "text-blue-600" },
-  "shield-atlas": { bg: "bg-orange-50 dark:bg-orange-950/30", border: "border-orange-200 dark:border-orange-800", text: "text-orange-600" },
+  "emergency-mgmt": { bg: "bg-orange-50 dark:bg-orange-950/30", border: "border-orange-200 dark:border-orange-800", text: "text-orange-600" },
   "collaborative-advocate": { bg: "bg-emerald-50 dark:bg-emerald-950/30", border: "border-emerald-200 dark:border-emerald-800", text: "text-emerald-600" },
 };
 

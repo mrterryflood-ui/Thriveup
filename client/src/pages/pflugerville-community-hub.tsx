@@ -122,7 +122,7 @@ const PFLUGERVILLE_NEEDS_ASSESSMENT = [
       "Digital divide persists in eastern Pflugerville neighborhoods",
       "Parks & recreation strong but lacking integrated social service programming",
     ],
-    platforms: ["Ecosystem Nexus", "Shield Atlas", "Video Creator AI", "Collaborative Advocate"],
+    platforms: ["Ecosystem Nexus", "Emergency Management", "Video Creator AI", "Collaborative Advocate"],
     solutions: [
       "Digital Community Hub — ThriveUp as virtual multi-service center for Pflugerville",
       "Veteran Services Portal — Collaborative Advocate as dedicated veteran support",

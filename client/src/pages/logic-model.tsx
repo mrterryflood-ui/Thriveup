@@ -410,7 +410,7 @@ export default function LogicModelPage() {
           </div>
           <div className="space-y-2">
             <h3 className="text-sm font-medium flex items-center gap-2"><Zap className="h-4 w-4 text-violet-600" /> Support Platforms</h3>
-            {["LifeBridge (community resources)", "SafeReport (mandatory reporting)", "Shield Atlas (emergency mgmt)", "Better Science Lab (evaluation)"].map((p) => (
+            {["LifeBridge (community resources)", "SafeReport (mandatory reporting)", "Emergency Management (crisis response)", "Better Science Lab (evaluation)"].map((p) => (
               <div key={p} className="text-xs p-2 bg-muted rounded">{p}</div>
             ))}
           </div>

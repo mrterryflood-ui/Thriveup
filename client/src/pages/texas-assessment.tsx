@@ -305,12 +305,12 @@ const FIVE_DOMAINS = [
       "Limited digital government services — most require in-person Austin trips",
     ],
     thriveupResponse: [
-      "Shield Atlas — cybersecurity and data protection across all platforms",
+      "Emergency management — cybersecurity and data protection across all platforms",
       "Ecosystem Nexus — cross-platform coordination, virtual service delivery",
       "Video Creator AI — community content production, Roku CTV distribution",
       "ESRI integration overlay — ThriveUp data layers on city GIS infrastructure",
     ],
-    platforms: ["Shield Atlas", "Ecosystem Nexus", "Video Creator AI"],
+    platforms: ["Emergency Management", "Ecosystem Nexus", "Video Creator AI"],
   },
 ];
 
