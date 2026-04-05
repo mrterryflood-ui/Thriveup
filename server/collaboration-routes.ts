@@ -1,4 +1,4 @@
-import type { Express } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { db } from "./storage";
 import {
   communityPartners, partnerReferrals, partnerEngagements, mouDocuments,
@@ -7,6 +7,13 @@ import {
   insertCommunityPartnerSchema,
 } from "@shared/schema";
 import { eq, desc, sql, and, ilike, or, count } from "drizzle-orm";
+
+function requireAuth(req: Request, res: Response, next: NextFunction) {
+  if (!(req as any).isAuthenticated?.() && !(req as any).user) {
+    return res.status(401).json({ error: "Authentication required" });
+  }
+  next();
+}
 
 export function registerCollaborationRoutes(app: Express) {
 
@@ -54,7 +61,7 @@ export function registerCollaborationRoutes(app: Express) {
     }
   });
 
-  app.post("/api/collaboration/partners", async (req, res) => {
+  app.post("/api/collaboration/partners", requireAuth, async (req, res) => {
     try {
       const parsed = insertCommunityPartnerSchema.parse(req.body);
       const [partner] = await db.insert(communityPartners).values(parsed).returning();
@@ -64,7 +71,7 @@ export function registerCollaborationRoutes(app: Express) {
     }
   });
 
-  app.patch("/api/collaboration/partners/:id", async (req, res) => {
+  app.patch("/api/collaboration/partners/:id", requireAuth, async (req, res) => {
     try {
       const [partner] = await db.update(communityPartners)
         .set({ ...req.body, updatedAt: new Date() })
@@ -85,7 +92,7 @@ export function registerCollaborationRoutes(app: Express) {
     }
   });
 
-  app.post("/api/collaboration/partnership-requests", async (req, res) => {
+  app.post("/api/collaboration/partnership-requests", requireAuth, async (req, res) => {
     try {
       const parsed = insertPartnershipRequestSchema.parse(req.body);
       const [request] = await db.insert(partnershipRequests).values(parsed).returning();
@@ -95,7 +102,7 @@ export function registerCollaborationRoutes(app: Express) {
     }
   });
 
-  app.patch("/api/collaboration/partnership-requests/:id", async (req, res) => {
+  app.patch("/api/collaboration/partnership-requests/:id", requireAuth, async (req, res) => {
     try {
       const updates: any = { ...req.body };
       if (req.body.status === "approved" || req.body.status === "declined") {
@@ -111,7 +118,7 @@ export function registerCollaborationRoutes(app: Express) {
     }
   });
 
-  app.post("/api/collaboration/partnership-requests/:id/convert", async (req, res) => {
+  app.post("/api/collaboration/partnership-requests/:id/convert", requireAuth, async (req, res) => {
     try {
       const [request] = await db.select().from(partnershipRequests).where(eq(partnershipRequests.id, req.params.id));
       if (!request) return res.status(404).json({ error: "Request not found" });
@@ -153,7 +160,7 @@ export function registerCollaborationRoutes(app: Express) {
     }
   });
 
-  app.post("/api/collaboration/shared-outcomes", async (req, res) => {
+  app.post("/api/collaboration/shared-outcomes", requireAuth, async (req, res) => {
     try {
       const parsed = insertSharedOutcomeSchema.parse(req.body);
       const [outcome] = await db.insert(sharedOutcomes).values(parsed).returning();
@@ -163,7 +170,7 @@ export function registerCollaborationRoutes(app: Express) {
     }
   });
 
-  app.patch("/api/collaboration/shared-outcomes/:id", async (req, res) => {
+  app.patch("/api/collaboration/shared-outcomes/:id", requireAuth, async (req, res) => {
     try {
       const [outcome] = await db.update(sharedOutcomes)
         .set({ ...req.body, lastReportedAt: new Date() })
@@ -194,7 +201,7 @@ export function registerCollaborationRoutes(app: Express) {
     }
   });
 
-  app.post("/api/collaboration/warm-handoffs", async (req, res) => {
+  app.post("/api/collaboration/warm-handoffs", requireAuth, async (req, res) => {
     try {
       const parsed = insertExternalWarmHandoffSchema.parse(req.body);
       const [handoff] = await db.insert(externalWarmHandoffs).values(parsed).returning();
@@ -204,7 +211,7 @@ export function registerCollaborationRoutes(app: Express) {
     }
   });
 
-  app.patch("/api/collaboration/warm-handoffs/:id", async (req, res) => {
+  app.patch("/api/collaboration/warm-handoffs/:id", requireAuth, async (req, res) => {
     try {
       const updates: any = { ...req.body };
       if (req.body.status === "accepted") updates.acceptedAt = new Date();
@@ -239,7 +246,7 @@ export function registerCollaborationRoutes(app: Express) {
     }
   });
 
-  app.post("/api/collaboration/partnership-inquiry", async (req, res) => {
+  app.post("/api/collaboration/partnership-inquiry", requireAuth, async (req, res) => {
     try {
       const parsed = insertPartnershipRequestSchema.parse({ ...req.body, status: "pending" });
       const [request] = await db.insert(partnershipRequests).values(parsed).returning();

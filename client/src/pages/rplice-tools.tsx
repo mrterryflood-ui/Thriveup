@@ -2400,13 +2400,15 @@ function OutcomeBaselineDashboard() {
   const [editTargets, setEditTargets] = useState<Record<string, string>>({});
   const [editTimeline, setEditTimeline] = useState(12);
 
-  const { data: baselines = [], isLoading: baselinesLoading } = useQuery<any[]>({
+  const { data: baselinesRaw, isLoading: baselinesLoading } = useQuery<any[]>({
     queryKey: ["/api/rplice/baselines"],
   });
+  const baselines = baselinesRaw ?? [];
 
-  const { data: analyses = [] } = useQuery<any[]>({
+  const { data: analysesRaw } = useQuery<any[]>({
     queryKey: ["/api/rplice/assessments"],
   });
+  const analyses = analysesRaw ?? [];
 
   const communityAnalyses = (analyses || []).filter(
     (a: any) => a.assessmentType === "community_analysis" && a.status === "complete"

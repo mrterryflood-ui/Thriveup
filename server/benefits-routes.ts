@@ -1,4 +1,4 @@
-import type { Express } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { db } from "./storage";
 import {
   benefitsEnrollmentData, benefitsPartners, benefitsChwNetwork,
@@ -9,6 +9,13 @@ import {
 import { eq, desc, and, count, sql } from "drizzle-orm";
 import { generateAIResponse, generateAIJSON } from "./ai-provider";
 import { collaborativeResponse, collaborativeJSON } from "./collaborative-ai";
+
+function requireAuth(req: Request, res: Response, next: NextFunction) {
+  if (!(req as any).isAuthenticated?.() && !(req as any).user) {
+    return res.status(401).json({ error: "Authentication required" });
+  }
+  next();
+}
 
 const CENSUS_ACS_URL = "https://api.census.gov/data/2022/acs/acs5";
 
@@ -285,7 +292,7 @@ export function registerBenefitsRoutes(app: Express) {
     }
   });
 
-  app.post("/api/benefits/ingest", async (req, res) => {
+  app.post("/api/benefits/ingest", requireAuth, async (req, res) => {
     try {
       const { countyFips } = req.body;
       if (countyFips) {
@@ -428,7 +435,7 @@ export function registerBenefitsRoutes(app: Express) {
     }
   });
 
-  app.post("/api/benefits/partners", async (req, res) => {
+  app.post("/api/benefits/partners", requireAuth, async (req, res) => {
     try {
       const parsed = insertBenefitsPartnerSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Validation failed", details: parsed.error.flatten().fieldErrors });
@@ -448,7 +455,7 @@ export function registerBenefitsRoutes(app: Express) {
     }
   });
 
-  app.post("/api/benefits/chw-network", async (req, res) => {
+  app.post("/api/benefits/chw-network", requireAuth, async (req, res) => {
     try {
       const parsed = insertBenefitsChwSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Validation failed", details: parsed.error.flatten().fieldErrors });
@@ -468,7 +475,7 @@ export function registerBenefitsRoutes(app: Express) {
     }
   });
 
-  app.post("/api/benefits/screenings", async (req, res) => {
+  app.post("/api/benefits/screenings", requireAuth, async (req, res) => {
     try {
       const parsed = insertBenefitsScreeningSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Validation failed", details: parsed.error.flatten().fieldErrors });
@@ -525,7 +532,7 @@ export function registerBenefitsRoutes(app: Express) {
     }
   });
 
-  app.post("/api/benefits/renewals", async (req, res) => {
+  app.post("/api/benefits/renewals", requireAuth, async (req, res) => {
     try {
       const parsed = insertBenefitsRenewalSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Validation failed", details: parsed.error.flatten().fieldErrors });
@@ -621,7 +628,7 @@ export function registerBenefitsRoutes(app: Express) {
     }
   });
 
-  app.post("/api/benefits/ingest-tracts", async (req, res) => {
+  app.post("/api/benefits/ingest-tracts", requireAuth, async (req, res) => {
     try {
       const { countyFips } = req.body;
       const fipsList = countyFips ? [countyFips] : Object.keys(ST_DAVIDS_COUNTIES);
@@ -931,7 +938,7 @@ export function registerBenefitsRoutes(app: Express) {
     }
   });
 
-  app.post("/api/benefits/coalition/ai-insight", async (req, res) => {
+  app.post("/api/benefits/coalition/ai-insight", requireAuth, async (req, res) => {
     try {
       const { countyFips, question } = req.body;
       const county = ST_DAVIDS_COUNTIES[countyFips];
@@ -1005,7 +1012,7 @@ Be specific with numbers. Name neighborhoods. Recommend specific partner types n
     }
   });
 
-  app.post("/api/benefits/coalition/ai-exec-summary", async (req, res) => {
+  app.post("/api/benefits/coalition/ai-exec-summary", requireAuth, async (req, res) => {
     try {
       const enrollmentData = await db.select().from(benefitsEnrollmentData)
         .where(sql`${benefitsEnrollmentData.benefitType} != 'ALL'`);
@@ -1154,7 +1161,7 @@ SNAP: $3,024 | Medicaid: $7,200 | CHIP: $2,400 | EITC: $3,584 | WIC: $528 | SSI:
     }
   });
 
-  app.post("/api/benefits/coalition/ai-collab-match", async (req, res) => {
+  app.post("/api/benefits/coalition/ai-collab-match", requireAuth, async (req, res) => {
     try {
       const { organizationType, county, services, description } = req.body;
       const countyInfo = Object.values(ST_DAVIDS_COUNTIES).find(c => c.name === county);
@@ -1208,7 +1215,7 @@ Generate a JSON object with these fields:
     }
   });
 
-  app.post("/api/benefits/coalition/ai-loi", async (req, res) => {
+  app.post("/api/benefits/coalition/ai-loi", requireAuth, async (req, res) => {
     try {
       const { focus, tone, emphasize } = req.body;
       const allData = await db.select().from(benefitsEnrollmentData);
@@ -1292,7 +1299,7 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
     }
   });
 
-  app.post("/api/benefits/coalition/rplice-validation", async (req, res) => {
+  app.post("/api/benefits/coalition/rplice-validation", requireAuth, async (req, res) => {
     try {
       const allData = await db.select().from(benefitsEnrollmentData);
       const totalEligible = allData.reduce((s, r) => s + (r.eligiblePopulation || 0), 0);

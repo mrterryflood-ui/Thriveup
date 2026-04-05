@@ -160,9 +160,9 @@ Three-layer architecture: Learn It (Academy) → Apply It (RPLICE/MCE/Ecosystem)
     keywords: ["sankofa", "health equity", "maternal health", "mental health", "black health", "breast cancer"],
   },
   {
-    source: "platform", category: "platform", title: "Shield Atlas — Security & Risk Intelligence",
-    content: `Security backbone. Geographic risk mapping, safety analytics, protective factor identification, community resilience scoring. Security audits, vulnerability scans, incident response playbooks for all 24 platforms. URL: shield-atlas.replit.app. Grants: SSG Fox, DFC, SAMHSA.`,
-    keywords: ["shield-atlas", "security", "risk", "cybersecurity", "threat", "audit", "vulnerability", "protection"],
+    source: "platform", category: "platform", title: "Emergency Management — Security & Risk Intelligence",
+    content: `Security backbone. Geographic risk mapping, safety analytics, protective factor identification, community resilience scoring. Security audits, vulnerability scans, incident response playbooks for all 24 platforms. URL: emergency-mgmt.replit.app. Grants: SSG Fox, DFC, SAMHSA.`,
+    keywords: ["emergency-mgmt", "security", "risk", "cybersecurity", "threat", "audit", "vulnerability", "protection"],
   },
   {
     source: "platform", category: "platform", title: "SafeReport — Mandatory Reporter Compliance",
@@ -434,7 +434,7 @@ EVIDENCE DIFFERENTIATION: Unlike most organizations that report what they did, T
   {
     source: "strategic-framework", category: "strategy", title: "Parallel by Design — Resilient Ecosystem Architecture",
     content: `ThriveUp's 24 platforms are empowered to work in parallel, not in series. This is resilience by design:
-SELF-SUFFICIENT NODES: Each platform has its own server, its own data, and its own heartbeat cycle. MCE doesn't need the Maternal Health Hub to be online to serve 115,000+ businesses. Shield Atlas doesn't need MCE to run risk assessments. They share data when they can, but stand on their own when they have to.
+SELF-SUFFICIENT NODES: Each platform has its own server, its own data, and its own heartbeat cycle. MCE doesn't need the Maternal Health Hub to be online to serve 115,000+ businesses. Emergency Management doesn't need MCE to run risk assessments. They share data when they can, but stand on their own when they have to.
 HUB AS COORDINATOR, NOT DEPENDENCY: The hub at thrivingcommunitiesforall.com distributes directives, tracks compliance, and routes warm handoffs. But if it's offline for an hour, all 24 platforms keep doing their jobs. The heartbeat just retries on the next interval and picks up where it left off.
 GRACEFUL DEGRADATION: Platforms cache their last directives and continue functioning independently if the hub is unavailable. No single broken link stops everything — this is a network where each node is self-sufficient and the connections make the whole greater than the parts.
 NOT A CHAIN — A NETWORK: Most systems are chains where one broken link stops everything. ThriveUp is a network of self-sufficient platforms. The hub makes them more effective together, but each one stands on its own.
@@ -634,7 +634,7 @@ All accessible at /resource-directory on the ThriveUp platform.`,
 - Wounded Warrior Project: Free mental health, career, rehab for post-9/11 vets. Phone: 904-296-7350.
 - IAVA: Post-9/11 veteran empowerment. Burn pit exposure advocacy. Website: iava.org.
 - Cohen Veterans Network: Mental health clinics, sliding scale. Find: cohenveteransnetwork.org/clinics.
-All accessible at /resource-directory. ThriveUp's SHIELD ATLAS platform integrates veteran crisis intervention.`,
+All accessible at /resource-directory. ThriveUp's EMERGENCY MANAGEMENT platform integrates veteran crisis intervention.`,
     keywords: ["veteran", "va", "military", "dav", "vfw", "wounded warrior", "ptsd", "gi bill", "disability", "service member", "army", "navy", "marines", "air force"],
   },
   {

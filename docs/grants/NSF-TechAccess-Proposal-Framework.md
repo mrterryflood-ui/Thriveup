@@ -118,7 +118,7 @@ TCAF operates 24 interconnected platforms — each deploying AI for real-world c
 **Community Safety & Infrastructure (5 platforms):**
 | Platform | Function | AI Application |
 |---|---|---|
-| Shield Atlas | Community safety mapping | AI threat assessment, resource mapping |
+| Emergency Management | Community safety mapping | AI threat assessment, resource mapping |
 | SafeReport | Incident reporting | AI-guided reporting, pattern analysis |
 | LifeBridge | Crisis prevention | AI intervention matching |
 | Perfectly Different | Neurodiversity support | AI adaptive tools |

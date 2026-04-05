@@ -1,4 +1,4 @@
-import type { Express, Request, Response } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { db, storage } from "./storage";
 import {
   justiceReferrals, supervisionCompliance, reentryPlans, reentryMilestones, outcomeTracking,
@@ -12,6 +12,7 @@ import {
 } from "@shared/schema";
 import type { ReentryMilestone, OutcomeTracking, SupervisionCompliance as SupervisionComplianceType } from "@shared/schema";
 import { z } from "zod";
+
 import { eq, desc, sql, and, gte, count } from "drizzle-orm";
 import { generateAIResponse } from "./ai-provider";
 import { collaborativeResponse } from "./collaborative-ai";
@@ -122,7 +123,7 @@ const complianceUpdateSchema = z.object({
 
 export function registerJusticeRoutes(app: Express) {
 
-  app.post("/api/external/justice/referrals", requireApiKey, async (req, res) => {
+  app.post("/api/external/justice/referrals", requireApiKey, requireAuth, async (req, res) => {
     try {
       const parsed = externalReferralSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Invalid referral data", details: parsed.error.flatten().fieldErrors });
@@ -272,7 +273,7 @@ export function registerJusticeRoutes(app: Express) {
     } catch (error) { res.status(500).json({ error: "Failed to fetch juvenile cases" }); }
   });
 
-  app.post("/api/justice/juvenile-cases", async (req, res) => {
+  app.post("/api/justice/juvenile-cases", requireAuth, async (req, res) => {
     try {
       const parsed = insertJuvenileCaseSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Validation failed", details: parsed.error.flatten().fieldErrors });
@@ -288,7 +289,7 @@ export function registerJusticeRoutes(app: Express) {
     } catch (error) { res.status(500).json({ error: "Failed to fetch court services" }); }
   });
 
-  app.post("/api/justice/court-services", async (req, res) => {
+  app.post("/api/justice/court-services", requireAuth, async (req, res) => {
     try {
       const parsed = insertCourtServiceSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Validation failed", details: parsed.error.flatten().fieldErrors });
@@ -304,7 +305,7 @@ export function registerJusticeRoutes(app: Express) {
     } catch (error) { res.status(500).json({ error: "Failed to fetch SEL programs" }); }
   });
 
-  app.post("/api/justice/sel-programs", async (req, res) => {
+  app.post("/api/justice/sel-programs", requireAuth, async (req, res) => {
     try {
       const parsed = insertSelProgramSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Validation failed", details: parsed.error.flatten().fieldErrors });
@@ -320,7 +321,7 @@ export function registerJusticeRoutes(app: Express) {
     } catch (error) { res.status(500).json({ error: "Failed to fetch prevention programs" }); }
   });
 
-  app.post("/api/justice/prevention-programs", async (req, res) => {
+  app.post("/api/justice/prevention-programs", requireAuth, async (req, res) => {
     try {
       const parsed = insertPreventionProgramSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Validation failed", details: parsed.error.flatten().fieldErrors });
@@ -336,7 +337,7 @@ export function registerJusticeRoutes(app: Express) {
     } catch (error) { res.status(500).json({ error: "Failed to fetch stakeholders" }); }
   });
 
-  app.post("/api/justice/stakeholders", async (req, res) => {
+  app.post("/api/justice/stakeholders", requireAuth, async (req, res) => {
     try {
       const parsed = insertJusticeStakeholderSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Validation failed", details: parsed.error.flatten().fieldErrors });
@@ -352,7 +353,7 @@ export function registerJusticeRoutes(app: Express) {
     } catch (error) { res.status(500).json({ error: "Failed to fetch neighborhoods" }); }
   });
 
-  app.post("/api/justice/neighborhoods", async (req, res) => {
+  app.post("/api/justice/neighborhoods", requireAuth, async (req, res) => {
     try {
       const parsed = insertNeighborhoodIntelligenceSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Validation failed", details: parsed.error.flatten().fieldErrors });
@@ -368,7 +369,7 @@ export function registerJusticeRoutes(app: Express) {
     } catch (error) { res.status(500).json({ error: "Failed to fetch alerts" }); }
   });
 
-  app.post("/api/justice/trend-alerts", async (req, res) => {
+  app.post("/api/justice/trend-alerts", requireAuth, async (req, res) => {
     try {
       const parsed = insertTrendAlertSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Validation failed", details: parsed.error.flatten().fieldErrors });
@@ -384,7 +385,7 @@ export function registerJusticeRoutes(app: Express) {
     } catch (error) { res.status(500).json({ error: "Failed to fetch sessions" }); }
   });
 
-  app.post("/api/justice/cycle-breaking-sessions", async (req, res) => {
+  app.post("/api/justice/cycle-breaking-sessions", requireAuth, async (req, res) => {
     try {
       const parsed = insertCycleBreakingSessionSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Validation failed", details: parsed.error.flatten().fieldErrors });
@@ -393,14 +394,14 @@ export function registerJusticeRoutes(app: Express) {
     } catch (error) { res.status(500).json({ error: "Failed to create session" }); }
   });
 
-  app.patch("/api/justice/cycle-breaking-sessions/:id", async (req, res) => {
+  app.patch("/api/justice/cycle-breaking-sessions/:id", requireAuth, async (req, res) => {
     try {
       const [updated] = await db.update(cycleBreakingSessions).set({ ...req.body, updatedAt: new Date() }).where(eq(cycleBreakingSessions.id, req.params.id)).returning();
       res.json(updated);
     } catch (error) { res.status(500).json({ error: "Failed to update session" }); }
   });
 
-  app.post("/api/justice/ai/analyze-trends", async (req, res) => {
+  app.post("/api/justice/ai/analyze-trends", requireAuth, async (req, res) => {
     try {
       const { area, timeframe, dataType } = req.body;
       const ragContext = getJusticeRAGContext(`trends ${area || ""} ${dataType || ""} patterns analysis`);
@@ -442,7 +443,7 @@ Format as JSON with keys: trends, warnings, rootCauses, interventions, community
     }
   });
 
-  app.post("/api/justice/ai/cycle-breaking-wizard", async (req, res) => {
+  app.post("/api/justice/ai/cycle-breaking-wizard", requireAuth, async (req, res) => {
     try {
       const { step, sessionData, userInput } = req.body;
       const currentStep = step || 1;
@@ -502,7 +503,7 @@ Respond with a JSON object containing:
     }
   });
 
-  app.post("/api/justice/ai/sel-assessment", async (req, res) => {
+  app.post("/api/justice/ai/sel-assessment", requireAuth, async (req, res) => {
     try {
       const { youthProfile, assessmentType } = req.body;
       const ragContext = getJusticeRAGContext("social emotional learning assessment youth");
@@ -538,7 +539,7 @@ Provide a JSON response with:
     }
   });
 
-  app.post("/api/justice/ai/neighborhood-analysis", async (req, res) => {
+  app.post("/api/justice/ai/neighborhood-analysis", requireAuth, async (req, res) => {
     try {
       const { neighborhood, city, stateCode } = req.body;
       const ragContext = getJusticeRAGContext("neighborhood community violence prevention hotspot");
@@ -579,7 +580,7 @@ Provide JSON with:
     }
   });
 
-  app.post("/api/justice/rplice/assess-program", async (req, res) => {
+  app.post("/api/justice/rplice/assess-program", requireAuth, async (req, res) => {
     try {
       const { programName, programType, data } = req.body;
       const ragContext = getJusticeRAGContext("RPLICE implementation fidelity CFIR RE-AIM justice program");
@@ -748,7 +749,7 @@ Provide a JSON assessment with:
   });
 
   // Multi-city comparison — unlimited cities from Gun Violence Registry
-  app.post("/api/justice/live/gun-violence/compare", async (req, res) => {
+  app.post("/api/justice/live/gun-violence/compare", requireAuth, async (req, res) => {
     try {
       const { cities } = req.body as { cities: Array<{ city: string; state: string }> };
       if (!cities || !Array.isArray(cities) || cities.length === 0) {
@@ -882,7 +883,7 @@ Provide a JSON assessment with:
 
   // ── RISK & PROTECTIVE FACTORS ENGINE ──
   // Inspired by Dr. Flood's military observation: 1 year of college = protective factor
-  app.post("/api/justice/live/risk-protective-factors", async (req, res) => {
+  app.post("/api/justice/live/risk-protective-factors", requireAuth, async (req, res) => {
     try {
       const { stateFips, countyFips, includeGunViolence } = req.body;
       const vars = "NAME,B01003_001E,B19013_001E,B17001_002E,B17001_001E,B23025_005E,B23025_002E,B15003_017E,B15003_022E,B15003_023E,B15003_024E,B15003_025E,B15003_001E,B25064_001E,B25077_001E,B12001_001E,B12001_003E,B12001_005E,B11001_001E,B11001_003E,B09002_001E,B09002_002E";
@@ -1098,7 +1099,7 @@ Provide a JSON assessment with:
   });
 
   // ── AI Data Story Generator ──
-  app.post("/api/justice/live/data-story", async (req, res) => {
+  app.post("/api/justice/live/data-story", requireAuth, async (req, res) => {
     try {
       const { location, neighborhoodData, schoolData, countyData, customContext } = req.body;
       const ragContext = getJusticeRAGContext("school pipeline disparity neighborhood poverty incarceration outcomes data storytelling");

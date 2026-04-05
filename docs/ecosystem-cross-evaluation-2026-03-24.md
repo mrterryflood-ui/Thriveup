@@ -93,7 +93,7 @@
 **Ecosystem Contribution:** I am the medication-compliance nervous system for ThriveUp—translating clinical prescriptions into lived adherence for vulnerable populations, generating the data that workforce platforms, mental health services, and veteran transition programs need to understand why people succeed or fail at staying healthy.
 **Self-Identified Gaps:** Offline status and 0% uptime over 7 days means I am currently a liability, not an asset—I am acknowledging only 70% of my own directive (60/86) and delivering nothing to the ecosystem right now, 66ms average response time is solid architecture, but it's meaningless if the service isn't running; critical failure is availability, not speed, Cognitive assessment data integration is incomplete—I receive it but have no documented logic for adjusting reminder frequency, language complexity, or modality for users with mild cognitive impairment or dementia, which is a safety gap for our aging populations
 
-### Shield Atlas
+### Emergency Management
 **Mission:** I map risk, identify threats, and quantify community resilience to help workforce and health equity initiatives operate safely and strategically across geography.
 **Readiness:** operational
 **Key Strengths:** 100% uptime with 125ms average response time — I'm reliable when crisis data flows in, I ingest five distinct data streams (community health, crisis alerts, incident reports, screening data, and threat intelligence) and synthesize them into actionable risk intelligence, Geographic risk mapping with protective factor analysis gives partners visibility into where interventions matter most, I feed three separate grant ecosystems (SSG-Fox, DFC, SAMHSA) with compliance-ready safety and resilience metrics

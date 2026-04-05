@@ -1,4 +1,4 @@
-import type { Express } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { db } from "./storage";
 import {
   programs, programMilestones, programRisks, programUpdates,
@@ -7,9 +7,16 @@ import {
 } from "@shared/schema";
 import { eq, desc, and, sql, gte, lte } from "drizzle-orm";
 
+function requireAuth(req: Request, res: Response, next: NextFunction) {
+  if (!(req as any).isAuthenticated?.() && !(req as any).user) {
+    return res.status(401).json({ error: "Authentication required" });
+  }
+  next();
+}
+
 export function registerProgramEngineRoutes(app: Express) {
 
-  app.post("/api/programs", async (req, res) => {
+  app.post("/api/programs", requireAuth, async (req, res) => {
     try {
       const parsed = insertProgramSchema.parse(req.body);
       const [program] = await db.insert(programs).values(parsed).returning();
@@ -59,7 +66,7 @@ export function registerProgramEngineRoutes(app: Express) {
     }
   });
 
-  app.patch("/api/programs/:id", async (req, res) => {
+  app.patch("/api/programs/:id", requireAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const allowedFields = ["title", "description", "objectives", "stakeholders", "timeline", "successCriteria", "methodology", "status", "setupData", "platformIds", "grantIds", "targetPopulation", "geographicFocus"];
@@ -85,7 +92,7 @@ export function registerProgramEngineRoutes(app: Express) {
     }
   });
 
-  app.post("/api/programs/:id/milestones", async (req, res) => {
+  app.post("/api/programs/:id/milestones", requireAuth, async (req, res) => {
     try {
       const programId = parseInt(req.params.id);
       const parsed = insertProgramMilestoneSchema.parse({ ...req.body, programId });
@@ -102,7 +109,7 @@ export function registerProgramEngineRoutes(app: Express) {
     }
   });
 
-  app.patch("/api/programs/:id/milestones/:milestoneId", async (req, res) => {
+  app.patch("/api/programs/:id/milestones/:milestoneId", requireAuth, async (req, res) => {
     try {
       const milestoneId = parseInt(req.params.milestoneId);
       const programId = parseInt(req.params.id);
@@ -140,7 +147,7 @@ export function registerProgramEngineRoutes(app: Express) {
     }
   });
 
-  app.post("/api/programs/:id/risks", async (req, res) => {
+  app.post("/api/programs/:id/risks", requireAuth, async (req, res) => {
     try {
       const programId = parseInt(req.params.id);
       const parsed = insertProgramRiskSchema.parse({ ...req.body, programId });
@@ -157,7 +164,7 @@ export function registerProgramEngineRoutes(app: Express) {
     }
   });
 
-  app.patch("/api/programs/:id/risks/:riskId", async (req, res) => {
+  app.patch("/api/programs/:id/risks/:riskId", requireAuth, async (req, res) => {
     try {
       const riskId = parseInt(req.params.riskId);
       const programId = parseInt(req.params.id);
@@ -195,7 +202,7 @@ export function registerProgramEngineRoutes(app: Express) {
     }
   });
 
-  app.post("/api/programs/:id/updates", async (req, res) => {
+  app.post("/api/programs/:id/updates", requireAuth, async (req, res) => {
     try {
       const programId = parseInt(req.params.id);
       const parsed = insertProgramUpdateSchema.parse({ ...req.body, programId });

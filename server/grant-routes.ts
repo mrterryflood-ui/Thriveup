@@ -67,7 +67,7 @@ const PLATFORM_CAPABILITIES = [
   { area: "Veteran Transition Services", features: ["M2C military-to-civilian pipeline", "MOS translation engine", "Benefits navigation", "Housing planning", "Identity transition support", "Military family support"], grantKeywords: ["veteran", "military", "transition", "VA", "service member", "armed forces"] },
   { area: "Behavioral Health & Mental Health", features: ["Whole-Person Health platform", "PHQ-9 depression screening", "GAD-7 anxiety screening", "C-SSRS suicide risk assessment", "PCL-5 PTSD screening", "Safety plan builder", "Crisis tools", "988 integration"], grantKeywords: ["behavioral health", "mental health", "substance", "crisis", "suicide prevention", "trauma", "PTSD", "depression"] },
   { area: "Child & Family Safety", features: ["SafeReport mandatory reporting", "ISSS integrated family support for children AND parents", "Early warning systems", "Coordinated family case management", "Cross-agency referral workflows"], grantKeywords: ["child abuse", "neglect", "child welfare", "family", "prevention", "protective factors", "ACEs", "mandatory reporting"] },
-  { area: "Emergency Management & Community Safety", features: ["Shield Atlas emergency response", "Geographic risk mapping", "Crisis coordination", "Continuity planning", "Community resilience scoring", "All-hazard preparedness"], grantKeywords: ["emergency", "disaster", "resilience", "preparedness", "FEMA", "crisis", "safety", "hazard"] },
+  { area: "Emergency Management & Community Safety", features: ["Emergency Management emergency response", "Geographic risk mapping", "Crisis coordination", "Continuity planning", "Community resilience scoring", "All-hazard preparedness"], grantKeywords: ["emergency", "disaster", "resilience", "preparedness", "FEMA", "crisis", "safety", "hazard"] },
   { area: "Minority Business & Economic Development", features: ["MCE with 656K+ SAM.gov records", "Certification wizard", "Proposal review", "Teaming hub", "APEX Accelerator integration", "Pinnacle Business Conglomerate"], grantKeywords: ["minority business", "small business", "economic development", "contracting", "8(a)", "HUBZone", "MWBE", "disadvantaged"] },
   { area: "Health Equity", features: ["Sankofa maternal health", "Sankofa feminine health", "Black men's health", "Autoimmune Thrive", "PillScheduler medication management", "SafeCogniCare cognitive safety", "SDOH navigation"], grantKeywords: ["health equity", "disparities", "maternal", "chronic disease", "medication", "cognitive", "social determinants"] },
   { area: "Education & Youth Development", features: ["WholeMind K-12 education platform", "Life Pals student support", "Perfectly Different neurodiversity support", "Digital literacy curriculum", "Mentoring and peer support"], grantKeywords: ["education", "youth", "K-12", "STEM", "digital literacy", "mentoring", "neurodiversity", "disability", "special education"] },
@@ -161,7 +161,7 @@ const PLATFORM_DIRECTORY: Record<string, { url: string; capabilities: string[] }
   "Whole-Person Health": { url: "https://mentalwellnesssupport.net", capabilities: ["mental health", "behavioral health", "suicide prevention", "crisis", "PTSD", "depression", "screening", "trauma", "substance"] },
   "ISSS": { url: "https://implementationineducatio.com", capabilities: ["child welfare", "child abuse", "family", "prevention", "ACEs", "youth", "school"] },
   "SafeReport": { url: "https://safereports.net", capabilities: ["mandatory reporting", "child abuse", "neglect", "compliance", "incident"] },
-  "Shield Atlas": { url: "https://shield-atlas.replit.app", capabilities: ["emergency", "disaster", "resilience", "safety", "hazard", "crisis", "preparedness"] },
+  "Emergency Management": { url: "https://emergency-mgmt.replit.app", capabilities: ["emergency", "disaster", "resilience", "safety", "hazard", "crisis", "preparedness"] },
   "MCE": { url: "https://minoritycenterofexcellence.com", capabilities: ["minority business", "small business", "contracting", "SAM.gov", "8(a)", "HUBZone", "MWBE", "economic development"] },
   "Pinnacle Business": { url: "https://pinnacle-business-conglomerate.replit.app", capabilities: ["contractor", "business development", "certification", "teaming", "proposal", "disadvantaged"] },
   "Sankofa Health": { url: "https://yourhealthbirthright.net", capabilities: ["health equity", "maternal", "disparities", "culturally responsive"] },
@@ -614,7 +614,7 @@ export function registerGrantRoutes(app: Express) {
     }
   });
 
-  app.post("/api/grants/refresh-samgov", async (_req, res) => {
+  app.post("/api/grants/refresh-samgov", requireAuth, async (_req, res) => {
     try {
       const keywords = [
         "workforce development",
@@ -1781,7 +1781,7 @@ Respond in this exact JSON format (no markdown, just JSON):
 Key context about the organization:
 - ThriveUp Academy is part of a 3-entity ecosystem: ThriveUp Academy (501(c)(3)), The Collaborative Advocate (VOSB), and MCE (Minority Center of Excellence - minority business SaaS)
 - Dr. Flood's methodologies: MAP-GAP (Monitoring, Assessing, Predicting — Gap analysis, a continuous improvement framework), SALP (structured adherence/fidelity protocol), Three Realities (Research Reality, Political Reality, Ground-Level Reality), MG-PATR
-- 24-platform technology ecosystem: ThriveUp Academy (education), MCE (minority business), LifeBridge (community voice/benefits navigation), RPLICE/Better Science Lab (fidelity monitoring/research), Sankofa Health Network (health equity), Holistic Black Feminine Health Hub, Black Maternal Health Network, Black Men's Health Hub, M2C Transition (military-to-civilian), Mission Transition (separation support), SafeReport (safety/mandatory reporting), Perfectly Different (neurodiversity), WholeMind Learning (K-12 education), PillScheduler (medication adherence), SafeCogniCare (cognitive health), Shield Atlas (risk intelligence), The Collaborative Advocate (VOSB services), Video Creator AI (content production), Ecosystem Nexus (coordination), ISSS (student support), Pinnacle Business Conglomerate (contractor enablement)
+- 24-platform technology ecosystem: ThriveUp Academy (education), MCE (minority business), LifeBridge (community voice/benefits navigation), RPLICE/Better Science Lab (fidelity monitoring/research), Sankofa Health Network (health equity), Holistic Black Feminine Health Hub, Black Maternal Health Network, Black Men's Health Hub, M2C Transition (military-to-civilian), Mission Transition (separation support), SafeReport (safety/mandatory reporting), Perfectly Different (neurodiversity), WholeMind Learning (K-12 education), PillScheduler (medication adherence), SafeCogniCare (cognitive health), Emergency Management (risk intelligence), The Collaborative Advocate (VOSB services), Video Creator AI (content production), Ecosystem Nexus (coordination), ISSS (student support), Pinnacle Business Conglomerate (contractor enablement)
 - Focus areas: youth workforce development, substance use prevention, community coalition building, economic empowerment, reentry services
 
 ${grantKnowledge ? `\nDETAILED GRANT KNOWLEDGE (use this to align every section precisely):\n${grantKnowledge}` : ""}
@@ -2875,7 +2875,7 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
     }
   });
 
-  app.post("/api/esign/sign/:id", async (req, res) => {
+  app.post("/api/esign/sign/:id", requireAuth, async (req, res) => {
     try {
       const { id } = req.params;
       const { signatureData, signerName } = req.body;
@@ -3297,7 +3297,7 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
         { title: "SBA Minority Business Development Grants", agency: "U.S. Small Business Administration", description: "Federal funding for minority business development centers, entrepreneurship training, and small business technical assistance. Supports capacity building for minority-owned enterprises.", fundingAmount: "$100,000 - $300,000", sourceUrl: "https://www.sba.gov/funding-programs/grants", grantType: "federal", focusAreas: ["minority business", "entrepreneurship", "small business", "technical assistance"], eligibilityCriteria: "Organizations serving minority and disadvantaged business owners", source: "federal_sba", category: "workforce" },
         { title: "FEMA Emergency Preparedness Grants", agency: "Federal Emergency Management Agency", description: "Grants for community emergency preparedness, disaster response planning, and resilience building. Includes programs for underserved communities and whole-community approaches.", fundingAmount: "$50,000 - $500,000", sourceUrl: "https://www.fema.gov/grants", grantType: "federal", focusAreas: ["emergency preparedness", "disaster response", "community resilience"], eligibilityCriteria: "State, local, tribal, and nonprofit organizations", source: "federal_fema", category: "community" },
         { title: "⭐ PRIORITY: TWC RFA 32026-00162 — Workforce Readiness Training for CTE Students II", agency: "Texas Workforce Commission (State of Texas)", description: "Workforce readiness training for Career and Technical Education students (grades 9-12). Funds TEKS §127.15-aligned employability skills training, curriculum delivery, and credential programs. Nonprofit organizations eligible to apply directly. Contact: Cassandra Johnson, RFAgrants@twc.texas.gov. DEADLINE: April 14, 2026 at 10AM CDT (extended via Amendment I, April 3, 2026). Submit via TWC Bonfire Procurement Portal.", fundingAmount: "Up to $2,000,000", sourceUrl: "https://twc-texas-gov.bonfirehub.com/opportunities/224162", grantType: "state_grant", focusAreas: ["workforce development", "CTE", "employability skills", "youth workforce", "career pathways", "TEKS alignment"], eligibilityCriteria: "Texas nonprofit organizations, ISDs, and workforce training providers", source: "state_texas", category: "workforce", deadline: new Date("2026-04-14T15:00:00Z") },
-        { title: "⭐ PRIORITY: PM C2 Transport — Capability Statement Solicitation (Army PEO C3T)", agency: "U.S. Army / PEO C3T (Program Executive Office Command, Control & Communications-Tactical)", description: "Army PM C2 Transport capability statement solicitation. Shield Atlas maps to all 6 Program Assessment Elements (PAEs): Transport Network Ops, Network Security, Spectrum Management, Satellite Communications, Tactical Radio Systems, Network Modernization. Full COMSEC tier alignment and C2 transport alignment table built. Capability statement live at /capability-statement. Email submission deadline April 3, 2026 at 1300 EST. In-person event April 28-29, 2026 in Augusta, GA if selected.", fundingAmount: "Contract Vehicle (TBD upon award)", sourceUrl: "https://shield-atlas.replit.app/capability-statement", grantType: "federal", focusAreas: ["command and control", "C2 transport", "COMSEC", "tactical communications", "network security", "satellite communications", "spectrum management", "defense contracting", "emergency communications"], eligibilityCriteria: "Organizations with C2 transport capabilities and SAM.gov registration", source: "federal_dod", category: "defense", deadline: new Date("2026-04-03T18:00:00Z") },
+        { title: "⭐ PRIORITY: PM C2 Transport — Capability Statement Solicitation (Army PEO C3T)", agency: "U.S. Army / PEO C3T (Program Executive Office Command, Control & Communications-Tactical)", description: "Army PM C2 Transport capability statement solicitation. Emergency Management maps to all 6 Program Assessment Elements (PAEs): Transport Network Ops, Network Security, Spectrum Management, Satellite Communications, Tactical Radio Systems, Network Modernization. Full COMSEC tier alignment and C2 transport alignment table built. Capability statement live at /capability-statement. Email submission deadline April 3, 2026 at 1300 EST. In-person event April 28-29, 2026 in Augusta, GA if selected.", fundingAmount: "Contract Vehicle (TBD upon award)", sourceUrl: "https://emergency-mgmt.replit.app/capability-statement", grantType: "federal", focusAreas: ["command and control", "C2 transport", "COMSEC", "tactical communications", "network security", "satellite communications", "spectrum management", "defense contracting", "emergency communications"], eligibilityCriteria: "Organizations with C2 transport capabilities and SAM.gov registration", source: "federal_dod", category: "defense", deadline: new Date("2026-04-03T18:00:00Z") },
         { title: "⭐ PRIORITY: U.S. Space Force SkillBridge & DoD Workforce Transition", agency: "U.S. Space Force / Department of Defense", description: "DoD SkillBridge program and Space Force workforce transition initiatives supporting military-to-civilian career pipelines. Funds training providers offering space, cyber, AI/ML, and defense technology credential programs for transitioning service members. Includes Guardian workforce development, Space Operations career pathways, and cybersecurity training. Rolling BAA cycles and annual solicitations.", fundingAmount: "$500,000 - $1,500,000", sourceUrl: "https://skillbridge.osd.mil/", grantType: "federal", focusAreas: ["veteran transition", "military to civilian", "SkillBridge", "space operations", "cybersecurity", "AI/ML workforce", "defense technology", "credential translation", "career pathways"], eligibilityCriteria: "DoD SkillBridge-approved or pending training providers supporting military transition", source: "federal_dod", category: "workforce" },
         { title: "DoD Cyber Workforce Development Grants", agency: "Department of Defense / Cyber Command", description: "Federal funding for cybersecurity workforce development, training pipeline creation, and credential programs. Supports programs producing CompTIA Security+, CISSP, and cyber operations certifications for transitioning military and underserved populations.", fundingAmount: "$250,000 - $1,000,000", sourceUrl: "https://www.cybercom.mil/", grantType: "federal", focusAreas: ["cybersecurity", "workforce development", "military transition", "credential programs", "STEM"], eligibilityCriteria: "Training providers with cybersecurity credential programs", source: "federal_dod", category: "workforce" },
       ];
@@ -4144,7 +4144,7 @@ Return ONLY valid JSON. Start with { and end with }. No markdown, no explanation
     return instructions;
   }
 
-  app.post("/api/proposal-command/generate", async (req: Request, res: Response) => {
+  app.post("/api/proposal-command/generate", requireAuth, async (req: Request, res: Response) => {
     const { solicitation, companyProfile, additionalContext, proposalType } = req.body;
     if (!solicitation || typeof solicitation !== "string" || solicitation.length < 50) {
       return res.status(400).json({ error: "Paste the full solicitation text (minimum 50 characters)" });
@@ -4380,7 +4380,7 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
     }
   });
 
-  app.post("/api/proposal-command/refine", async (req: Request, res: Response) => {
+  app.post("/api/proposal-command/refine", requireAuth, async (req: Request, res: Response) => {
     const { proposal, feedback, unknownAnswers } = req.body;
     if (!proposal) return res.status(400).json({ error: "Current proposal text required" });
 
@@ -5223,7 +5223,7 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
     }
   });
 
-  app.post("/api/proposal-command/export-pdf", async (req, res) => {
+  app.post("/api/proposal-command/export-pdf", requireAuth, async (req, res) => {
     try {
       const { proposalText, intelData, companyProfile } = req.body;
       if (!proposalText) {
@@ -6193,6 +6193,171 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
             "Develop quantum-for-community curriculum outline",
             "Add secondary aim to parent proposal"
           ]
+        },
+        {
+          id: "twc-rfa-32026",
+          title: "Comprehensive Workforce Development and Time & Priority Management Training for Underserved Populations",
+          shortTitle: "TWC RFA 32026-00162",
+          solicitation: "RFA 32026-00162",
+          agency: "Texas Workforce Commission",
+          entity: "TCAF (501(c)(3))",
+          priority: 1,
+          status: "narrative_drafted",
+          fundingRange: "Per RFA specifications",
+          budgetTarget: 250000,
+          deadline: "2026-04-10T15:00:00Z",
+          deadlineLabel: "April 10, 2026, 10:00 AM CDT",
+          partnersRequired: false,
+          partners: [],
+          frameworkDoc: "/docs/grants/TWC-RFA-32026-00162-NARRATIVE.md",
+          implementationScience: {
+            frameworks: ["CFIR 2.0", "RE-AIM"],
+            instrument: "RPLICE",
+            researchDesign: "Program evaluation with implementation tracking",
+            evaluationLevel: "Implementation monitoring"
+          },
+          readinessChecklist: [
+            { item: "Full Narrative", status: "complete", note: "Drafted and structured per RFA requirements" },
+            { item: "Budget & Justification", status: "action_required", note: "Must finalize per RFA cost guidelines" },
+            { item: "Organizational Capacity", status: "complete", note: "TCAF qualifications documented" },
+            { item: "Final Review & Submission", status: "action_required", note: "Due April 10 — 5 days remaining" }
+          ],
+          blockers: [],
+          winStrategy: "Uniquely positioned with 24-platform community infrastructure that wraps workforce training in whole-person support — behavioral health, housing stability, family services. No other applicant connects time management training to community-level social determinants.",
+          nextActions: [
+            "Final budget review",
+            "Compliance check against RFA requirements",
+            "Submit by April 10, 10:00 AM CDT"
+          ]
+        },
+        {
+          id: "rare-impact-fund",
+          title: "ThriveUp Community Infrastructure: Workforce Development and Life Skills for Underserved Populations",
+          shortTitle: "RARE Impact Fund LOI",
+          solicitation: "RARE Impact Fund",
+          agency: "RARE Impact Fund",
+          entity: "TCAF (501(c)(3))",
+          priority: 1,
+          status: "loi_drafted",
+          fundingRange: "Per fund guidelines",
+          budgetTarget: 150000,
+          deadline: "2026-04-10T23:59:59Z",
+          deadlineLabel: "April 10, 2026",
+          partnersRequired: false,
+          partners: [],
+          frameworkDoc: "/docs/grants/RARE-IMPACT-FUND-LOI.md",
+          implementationScience: {
+            frameworks: ["CFIR 2.0", "RE-AIM"],
+            instrument: "RPLICE",
+            researchDesign: "Implementation-focused program evaluation",
+            evaluationLevel: "Process and outcome evaluation"
+          },
+          readinessChecklist: [
+            { item: "Letter of Intent", status: "complete", note: "LOI framework drafted" },
+            { item: "Program Description", status: "complete", note: "4 core modules defined" },
+            { item: "Final LOI Review", status: "action_required", note: "Due April 10 — 5 days remaining" },
+            { item: "Submission", status: "action_required", note: "Submit LOI by deadline" }
+          ],
+          blockers: [],
+          winStrategy: "Community infrastructure approach differentiates from pure workforce programs. ThriveUp wraps training in behavioral health, housing, and family support that other applicants can't match.",
+          nextActions: [
+            "Final LOI review and polish",
+            "Submit by April 10"
+          ]
+        },
+        {
+          id: "dol-restart",
+          title: "Reentry Employment Support and Training (RESTART) — Comprehensive Workforce Reintegration for Justice-Involved Individuals",
+          shortTitle: "DOL RESTART",
+          solicitation: "FOA-ETA-26-17",
+          agency: "U.S. Department of Labor",
+          entity: "TCAF (501(c)(3))",
+          priority: 2,
+          status: "research_complete",
+          fundingRange: "Up to $5.1M",
+          budgetTarget: 5100000,
+          deadline: "2026-04-15T23:59:59Z",
+          deadlineLabel: "April 15, 2026, 11:59 PM ET",
+          partnersRequired: true,
+          partners: [
+            { name: "Local Workforce Development Board", role: "Required MOU Partner", status: "action_required", note: "Call 512-597-7100 for MOU" },
+            { name: "Registered Apprenticeship Sponsor", role: "Required MOU Partner", status: "action_required", note: "Call 512-936-3681" },
+            { name: "Correctional Facility", role: "Pre-release Access Partner", status: "action_required", note: "Call 936-437-6368" }
+          ],
+          frameworkDoc: "/docs/grants/DOL-RESTART-FOA-ETA-26-17-RESEARCH.md",
+          implementationScience: {
+            frameworks: ["CFIR 2.0", "RE-AIM"],
+            instrument: "RPLICE",
+            researchDesign: "Multi-site quasi-experimental with implementation evaluation",
+            evaluationLevel: "Effectiveness-Implementation Hybrid"
+          },
+          readinessChecklist: [
+            { item: "FOA Research & Analysis", status: "complete", note: "Full FOA analyzed and documented" },
+            { item: "Program Design", status: "complete", note: "Multi-phase reentry model designed" },
+            { item: "LWDB MOU", status: "blocker", note: "Must secure Local Workforce Development Board MOU — 512-597-7100" },
+            { item: "Employer Letters of Commitment", status: "blocker", note: "Need employer partners willing to hire justice-involved individuals" },
+            { item: "Registered Apprenticeship MOU", status: "blocker", note: "512-936-3681 — required partnership" },
+            { item: "Correctional Facility Agreement", status: "blocker", note: "936-437-6368 — pre-release access required" },
+            { item: "Sites 2 & 3 Identification", status: "blocker", note: "Must identify additional service delivery sites" },
+            { item: "Budget & Justification", status: "not_started", note: "Up to $5.1M over performance period" },
+            { item: "SAM.gov TIN Resolution", status: "blocker", note: "IRS TIN mismatch blocks federal submissions" }
+          ],
+          blockers: [
+            "SAM.gov IRS TIN mismatch — blocks ALL federal submissions",
+            "LWDB MOU not secured",
+            "No employer commitment letters",
+            "No Registered Apprenticeship MOU",
+            "No correctional facility agreement",
+            "Sites 2 & 3 unidentified"
+          ],
+          winStrategy: "Only applicant with a 24-platform ecosystem purpose-built for justice-involved population reentry. Criminal justice, behavioral health, workforce training, housing, and family reunification all integrated in one platform. The community infrastructure model eliminates the siloed service delivery that causes recidivism.",
+          nextActions: [
+            "Resolve SAM.gov TIN mismatch",
+            "Call LWDB for MOU (512-597-7100)",
+            "Call Registered Apprenticeship sponsor (512-936-3681)",
+            "Call correctional facility (936-437-6368)",
+            "Identify Sites 2 & 3",
+            "Secure employer commitment letters",
+            "Build full budget justification"
+          ]
+        },
+        {
+          id: "stdavids-wab2",
+          title: "Workforce & Adult Basic Education Pipeline: Community-Integrated Career Pathways for Pflugerville/Manor",
+          shortTitle: "St. David's WAB2 LOI",
+          solicitation: "WAB2 LOI Cycle",
+          agency: "St. David's Foundation",
+          entity: "TCAF (501(c)(3))",
+          priority: 2,
+          status: "loi_complete",
+          fundingRange: "Per foundation guidelines",
+          budgetTarget: 300000,
+          deadline: "2026-04-27T22:00:00Z",
+          deadlineLabel: "April 27, 2026, 5:00 PM CT",
+          partnersRequired: true,
+          partners: [
+            { name: "Coalition Partners", role: "Community delivery partners", status: "in_progress", note: "Coalition partner presentation built" }
+          ],
+          frameworkDoc: "/docs/grants/St-Davids-WAB2-LOI-Package.md",
+          implementationScience: {
+            frameworks: ["CFIR 2.0", "RE-AIM"],
+            instrument: "RPLICE",
+            researchDesign: "Community-based implementation evaluation",
+            evaluationLevel: "Process evaluation with outcome tracking"
+          },
+          readinessChecklist: [
+            { item: "LOI Final Draft", status: "complete", note: "Full LOI package built and reviewed" },
+            { item: "LOI Package Materials", status: "complete", note: "Supporting documents assembled" },
+            { item: "Coalition Partner Presentation", status: "complete", note: "Presentation built for partners" },
+            { item: "Strategic Alignment Analysis", status: "complete", note: "St. David's alignment documented" },
+            { item: "Final Review & Submission", status: "action_required", note: "Due April 27 — 22 days remaining" }
+          ],
+          blockers: [],
+          winStrategy: "Deep local roots in Pflugerville/Manor with existing community hub infrastructure. The 24-platform ecosystem demonstrates capacity beyond any other applicant. St. David's strategic alignment analysis shows direct fit with foundation priorities.",
+          nextActions: [
+            "Final LOI review with coalition partners",
+            "Submit by April 27, 5:00 PM CT"
+          ]
         }
       ];
 
@@ -6222,7 +6387,11 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
       "nsf-stem-k12": "docs/grants/NSF-STEM-K12-Proposal-Framework.md",
       "nsf-ate": "docs/grants/NSF-ATE-Proposal-Framework.md",
       "nsf-iuse-edu": "docs/grants/NSF-IUSE-EDU-RPLICE-Evaluation.md",
-      "nsf-quantum": "docs/grants/NSF-Quantum-Education-RPLICE-Evaluation.md"
+      "nsf-quantum": "docs/grants/NSF-Quantum-Education-RPLICE-Evaluation.md",
+      "twc-rfa-32026": "docs/grants/TWC-RFA-32026-00162-NARRATIVE.md",
+      "rare-impact-fund": "docs/grants/RARE-IMPACT-FUND-LOI.md",
+      "dol-restart": "docs/grants/DOL-RESTART-FOA-ETA-26-17-RESEARCH.md",
+      "stdavids-wab2": "docs/grants/St-Davids-WAB2-LOI-Package.md"
     };
 
     const docPath = docMap[id as string];

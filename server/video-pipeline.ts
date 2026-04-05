@@ -159,7 +159,7 @@ export function registerVideoPipelineRoutes(app: Express) {
       const platforms = job.targetPlatforms.length > 0 ? job.targetPlatforms : [
         "whole-person-health", "isss", "sankofa", "wholemind", "lifebridge",
         "mce", "betterscience", "m2c", "safereport", "perfectly-different",
-        "shield-atlas", "safecognicare", "pillscheduler", "collaborative-advocate",
+        "emergency-mgmt", "safecognicare", "pillscheduler", "collaborative-advocate",
         "video-creator-ai", "ecosystem-nexus", "ad-targeting",
         "sankofa-feminine-health", "sankofa-maternal-health", "sankofa-mens-health",
       ];

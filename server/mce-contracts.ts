@@ -1,7 +1,14 @@
-import type { Express } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { db } from "./storage";
 import { mceContracts, mceContractDeliverables, mceVendors, insertMceContractSchema, insertMceContractDeliverableSchema, insertMceVendorSchema } from "@shared/schema";
 import { eq, desc, gte, lte, and } from "drizzle-orm";
+
+function requireAuth(req: Request, res: Response, next: NextFunction) {
+  if (!(req as any).isAuthenticated?.() && !(req as any).user) {
+    return res.status(401).json({ error: "Authentication required" });
+  }
+  next();
+}
 
 export function registerMceContractRoutes(app: Express) {
   app.get("/api/mce/contracts", async (_req, res) => {
@@ -13,7 +20,7 @@ export function registerMceContractRoutes(app: Express) {
     }
   });
 
-  app.post("/api/mce/contracts", async (req, res) => {
+  app.post("/api/mce/contracts", requireAuth, async (req, res) => {
     try {
       const parsed = insertMceContractSchema.parse(req.body);
       const [contract] = await db.insert(mceContracts).values(parsed).returning();
@@ -23,7 +30,7 @@ export function registerMceContractRoutes(app: Express) {
     }
   });
 
-  app.patch("/api/mce/contracts/:id", async (req, res) => {
+  app.patch("/api/mce/contracts/:id", requireAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const [updated] = await db.update(mceContracts).set({ ...req.body, updatedAt: new Date() }).where(eq(mceContracts.id, id)).returning();
@@ -44,7 +51,7 @@ export function registerMceContractRoutes(app: Express) {
     }
   });
 
-  app.post("/api/mce/contracts/:id/deliverables", async (req, res) => {
+  app.post("/api/mce/contracts/:id/deliverables", requireAuth, async (req, res) => {
     try {
       const contractId = parseInt(req.params.id);
       const parsed = insertMceContractDeliverableSchema.parse({ ...req.body, contractId });
@@ -55,7 +62,7 @@ export function registerMceContractRoutes(app: Express) {
     }
   });
 
-  app.patch("/api/mce/deliverables/:id", async (req, res) => {
+  app.patch("/api/mce/deliverables/:id", requireAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const [updated] = await db.update(mceContractDeliverables).set({ ...req.body, updatedAt: new Date() }).where(eq(mceContractDeliverables.id, id)).returning();
@@ -75,7 +82,7 @@ export function registerMceContractRoutes(app: Express) {
     }
   });
 
-  app.post("/api/mce/vendors", async (req, res) => {
+  app.post("/api/mce/vendors", requireAuth, async (req, res) => {
     try {
       const parsed = insertMceVendorSchema.parse(req.body);
       const [vendor] = await db.insert(mceVendors).values(parsed).returning();

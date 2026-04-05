@@ -1,7 +1,7 @@
 # ThriveUp Academy
 
 ## Overview
-ThriveUp Academy is an AI-powered workforce development and community enablement platform for under-resourced communities. It offers AI mastery curricula, career pathways, mentorship, an AI Creation Studio, entrepreneurship tools, financial literacy, and community engagement features. The platform's core purpose is to connect individuals with grant funding, align with workforce development criteria, and achieve significant community impact through technology and education, addressing critical community needs and fostering economic mobility.
+ThriveUp Academy is a community infrastructure platform — the operating system for how communities support, engage, connect, and serve their people across 6 domains (Criminal Justice, Health Equity, Behavioral Health, Workforce & Business, Education & Learning, Community & Advocacy), 24 platforms, and 4-engine AI. It offers AI mastery curricula, career pathways, mentorship, an AI Creation Studio, entrepreneurship tools, financial literacy, and community engagement features. The platform's core purpose is to connect individuals with grant funding, align with workforce development criteria, and achieve significant community impact through technology and education, addressing critical community needs and fostering economic mobility.
 
 ## User Preferences
 The agent should prioritize iterative development, clearly explaining major changes before implementation. It should focus on delivering high-quality, well-tested code, and use clear, simple language when describing technical concepts. Avoid making changes to sensitive configuration files or core architectural components without explicit instruction. CRITICAL: "NBA" must NEVER appear in UI code identifiers. CRITICAL: Always work in parallel using subagents. Never stop to have conversations when there is more work to do. Keep building.
@@ -25,7 +25,8 @@ Key architectural features and design decisions include:
 - **Accessibility & Design:** WCAG 2.1 AA compliant, with dyslexia-friendly fonts, high contrast, reduced motion, screen reader optimization, mobile responsiveness, and a violet/indigo branding system with dark mode.
 - **Internationalization:** Supports English and Spanish.
 - **4-Layer Congruence Rule:** Ensures synchronization across database schema, backend API, frontend, and public-facing pages.
-- **Proposal Pipeline Dashboard:** Tracks active NSF proposal submissions with priority ordering, readiness checklists, implementation science lens (CFIR 2.0 + RE-AIM + RPLICE), and win strategies.
+- **Proposal Pipeline Dashboard:** Tracks 8 active proposals (4 NSF + TWC + RARE Impact Fund + DOL RESTART + St. David's WAB2) totaling $7.6M, with priority ordering, readiness checklists, deadline countdowns, blocker flags, implementation science lens (CFIR 2.0 + RE-AIM + RPLICE), and win strategies.
+- **Security:** All mutation API endpoints require authentication. API keys stored as environment variables (not in config files). Response logging truncated to prevent PII exposure. Shield Atlas branding removed from all public-facing content, replaced with "Emergency Management".
 - **Confidence Drift + Autonomy Quadrants:** Tracks earned trust and thinking scores to assess autonomy levels.
 - **Capability Orchestration Map:** Maps all 23 platforms to lead/support/validate roles for coordinated execution.
 - **Full Curriculum Library:** 60 in-depth lessons across AI Literacy, Workforce Readiness, and Social-Emotional Learning.

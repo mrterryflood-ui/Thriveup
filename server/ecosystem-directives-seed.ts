@@ -105,25 +105,25 @@ This data feeds into Better Science Lab/RPLICE for grant reporting and fidelity 
 ACKNOWLEDGE with confirmation that you will add these metrics to your heartbeat payload.`,
   },
   {
-    key: "shield-atlas-security-v1",
-    title: "Shield Atlas Cybersecurity Awareness Integration",
+    key: "emergency-mgmt-security-v1",
+    title: "Emergency Management Cybersecurity Awareness Integration",
     directiveType: "protocol_update",
     targetFilter: "all",
-    content: `DIRECTIVE: All platforms must integrate Shield Atlas cybersecurity awareness.
+    content: `DIRECTIVE: All platforms must integrate Emergency Management cybersecurity awareness.
 
-Shield Atlas maintains the latest threat intelligence, risk mapping, and security protocols. As an ecosystem handling sensitive health, education, and veteran data, every platform is responsible for security.
+Emergency Management maintains the latest threat intelligence, risk mapping, and security protocols. As an ecosystem handling sensitive health, education, and veteran data, every platform is responsible for security.
 
 REQUIRED ACTIONS:
 1. Ensure all API endpoints validate input (prevent injection attacks)
 2. Encrypt sensitive data at rest and in transit (HTTPS everywhere)
 3. Implement rate limiting on all public-facing endpoints
 4. Log security events and send security_alert events to the ecosystem when threats are detected
-5. Subscribe to Shield Atlas threat_alerts — when Shield Atlas detects a geographic or sector-specific threat, your platform should receive and act on it
+5. Subscribe to Emergency Management threat_alerts — when Emergency Management detects a geographic or sector-specific threat, your platform should receive and act on it
 6. Review your authentication mechanisms — ensure session management is secure
 7. Never store passwords in plaintext, never log sensitive user data
 8. Implement Content Security Policy headers
 
-Shield Atlas will periodically send threat intelligence updates. Every platform should process these and report compliance.
+Emergency Management will periodically send threat intelligence updates. Every platform should process these and report compliance.
 
 ACKNOWLEDGE with your current security posture and any gaps you need help addressing.`,
   },
@@ -218,10 +218,10 @@ You will receive standardized metrics from all platforms in their heartbeat data
 ACKNOWLEDGE with your implementation timeline.`,
   },
   {
-    key: "shield-atlas-audit-v1",
-    title: "Shield Atlas: Ecosystem Security Audit & Threat Distribution",
+    key: "emergency-mgmt-audit-v1",
+    title: "Emergency Management: Ecosystem Security Audit & Threat Distribution",
     directiveType: "improvement_directive",
-    targetFilter: ["shield-atlas"],
+    targetFilter: ["emergency-mgmt"],
     content: `PRIORITY ACTION: You are the security backbone. Every platform handles sensitive data — C-SSRS scores, medication lists, veteran records, student data, financial information.
 
 30-DAY DELIVERABLES:
@@ -373,7 +373,7 @@ ACKNOWLEDGE with your pipeline integration plan.`,
 2-WEEK DELIVERABLES:
 1. Pull ISSS early warning flags to proactively stage incident response before escalation
 2. Integrate Whole-Person Health screening triggers — high-risk screening results should automatically open incident awareness
-3. Share incident pattern data (anonymized) with Shield Atlas for geographic risk mapping
+3. Share incident pattern data (anonymized) with Emergency Management for geographic risk mapping
 4. Feed compliance audit data to Better Science Lab/RPLICE for program accountability
 5. Add LifeBridge resource referral capabilities for victims/families identified through incident reports
 
@@ -409,7 +409,7 @@ ACKNOWLEDGE with your coordination plan.`,
 
 IMPROVEMENTS:
 1. Share cognitive assessment data with Perfectly Different for neurodiversity-informed care
-2. Feed safety alert patterns to Shield Atlas for cognitive safety risk mapping
+2. Feed safety alert patterns to Emergency Management for cognitive safety risk mapping
 3. Push care plan data to Whole-Person Health for integrated care summaries
 4. Pull PillScheduler medication data — cognitive medications need monitoring
 5. Integrate Sankofa culturally responsive cognitive screening
@@ -595,7 +595,7 @@ YOUR ROLE IN VOICES OF AUSTIN:
 - ISSS / WholeMind / Perfectly Different: Receive youth and education referrals
 - Video Creator AI: Transform community stories into Roku/CTV content
 - RPLICE: Validate outcome data from story-to-action conversions
-- Shield Atlas: Ensure story data privacy and anonymous submission security
+- Emergency Management: Ensure story data privacy and anonymous submission security
 - Ecosystem Nexus: Track cross-platform story routing metrics
 
 PILOT STRATEGY:
@@ -664,7 +664,7 @@ RPLICE / BETTER SCIENCE LAB:
 - Create a Voices of Austin Outcome Dashboard showing conversion funnel
 - DELIVERABLE: /voices-outcomes endpoint returning funnel metrics
 
-SHIELD ATLAS:
+EMERGENCY MANAGEMENT:
 - Audit the anonymous submission pipeline — ensure PII is properly stripped
 - Validate that anonymous stories cannot be de-anonymized through metadata
 - Certify the data handling meets HIPAA-adjacent standards for health stories
@@ -846,7 +846,7 @@ HOUSING/RESOURCE PLATFORMS (LifeBridge):
 - Resource navigator for Austin-specific services
 - Evidence URL required: /austin-housing or equivalent
 
-SAFETY/COMPLIANCE PLATFORMS (SafeReport, Shield Atlas):
+SAFETY/COMPLIANCE PLATFORMS (SafeReport, Emergency Management):
 - Austin community safety resource page
 - Evidence URL required: /austin-safety or equivalent
 
@@ -2068,7 +2068,7 @@ Multiple platforms are listed as DEGRADED — they respond to pings (the URL is 
 - You appear non-compliant on the ecosystem dashboard
 - Manual management of 24 platforms is not sustainable — the automated pinger exists to solve this
 
-Currently DEGRADED (not heartbeating): Ad Targeting, Shield Atlas, Holistic Black Feminine Health Hub, Collaborative Advocate, Pinnacle Business Conglomerate, Black Maternal Health Network
+Currently DEGRADED (not heartbeating): Ad Targeting, Emergency Management, Holistic Black Feminine Health Hub, Collaborative Advocate, Pinnacle Business Conglomerate, Black Maternal Health Network
 Currently OFFLINE: PillScheduler
 
 WHAT YOUR PLATFORM MUST HAVE:
@@ -2273,7 +2273,7 @@ ACKNOWLEDGE with: Live URL of the caregiver check-in page, confirmation the flow
 The hub must NOT be a single point of failure. You are now a VERIFICATION PARTNER — responsible for peer-verifying deliverables from your assigned sibling platforms. This is a need-to-know assignment: you only see evidence from platforms you're assigned to verify, not the entire ecosystem.
 
 === YOUR ASSIGNED PLATFORMS ===
-You verify: M2C Transition, LifeBridge, Minority Center of Excellence, Pinnacle Business Conglomerate, Shield Atlas, Advertising Targeting for Platforms
+You verify: M2C Transition, LifeBridge, Minority Center of Excellence, Pinnacle Business Conglomerate, Emergency Management, Advertising Targeting for Platforms
 
 === YOUR VERIFICATION DOMAINS ===
 Veteran services, workforce development, business consulting, social services
@@ -2293,7 +2293,7 @@ Veteran services, workforce development, business consulting, social services
 - Do NOT share verification data with platforms you're verifying — report only to the hub
 
 === WHY THIS MATTERS ===
-Grant funders want to see independent verification, not self-reporting. When the Collaborative Advocate verifies M2C's transition tools actually work, that's third-party evidence. When you verify Shield Atlas's security audits are real, that's independent confirmation. This is the difference between "we said we did it" and "our ecosystem partner confirmed it."
+Grant funders want to see independent verification, not self-reporting. When the Collaborative Advocate verifies M2C's transition tools actually work, that's third-party evidence. When you verify Emergency Management's security audits are real, that's independent confirmation. This is the difference between "we said we did it" and "our ecosystem partner confirmed it."
 
 ACKNOWLEDGE with: Confirmation you've integrated the verification-assignments endpoint into your heartbeat cycle, and a description of how you're checking sibling deliverables.`,
   },

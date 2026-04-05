@@ -46,7 +46,7 @@ export const PLATFORM_CAPABILITIES: Record<string, {
     canConsume: ["crisis_alerts", "veteran_health_referrals", "substance_use_screenings", "medication_adherence"],
     autonomyScope: "Men's health programs, prostate/cardiovascular screening, mental health stigma reduction, peer mentoring",
   },
-  "shield-atlas": {
+  "emergency-mgmt": {
     domains: ["compliance", "safety"],
     canProvide: ["risk_assessments", "safety_analytics", "resilience_scores", "threat_alerts", "risk_heat_maps", "predictive_models"],
     canConsume: ["incident_reports", "crisis_alerts", "screening_data", "social_determinant_data", "veteran_profiles"],

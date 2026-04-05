@@ -1,4 +1,4 @@
-import type { Express, Request, Response } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { db } from "./storage";
 import { ecosystemPlatforms, ecosystemEvents, ecosystemHealthLogs, ecosystemDirectives, ecosystemDirectiveAcks, grantOpportunities, inboundFixes } from "@shared/schema";
 import { eq, desc, and, gte, sql, inArray } from "drizzle-orm";
@@ -8,6 +8,13 @@ import { seedEcosystemDirectives } from "./ecosystem-directives-seed";
 import { sendEcosystemUpdate } from "./email-service";
 import { generateRpliceHeartbeatIntelligence } from "./ecosystem-rplice-bridge";
 import { getAgentInbox, PLATFORM_CAPABILITIES } from "./agent-communication";
+
+function requireAuth(req: Request, res: Response, next: NextFunction) {
+  if (!(req as any).isAuthenticated?.() && !(req as any).user) {
+    return res.status(401).json({ error: "Authentication required" });
+  }
+  next();
+}
 
 const heartbeatSchema = z.object({
   platformId: z.string().max(100).optional(),
@@ -768,9 +775,9 @@ const ECOSYSTEM_PLATFORMS = [
     grantAlignment: ["st-davids", "ssg-fox", "foundation"],
   },
   {
-    id: "shield-atlas",
-    name: "Shield Atlas",
-    url: "https://shieldatlas.net",
+    id: "emergency-mgmt",
+    name: "Emergency Management",
+    url: "https://emergency-mgmt.replit.app",
     role: "risk-intelligence",
     domain: "compliance",
     description: "Risk intelligence and threat assessment platform providing geographic risk mapping, multi-factor safety analytics, protective factor identification, and community resilience scoring. Ingests incident data from SafeReport, crisis events from Whole-Person Health, and community health data from LifeBridge to produce real-time risk heat maps and predictive safety models. Generates risk scores that inform resource deployment, crisis response routing, and grant compliance reporting for safety-focused programs. API-accessible risk assessments enable all 22 sibling platforms to make location-aware safety decisions.",
@@ -831,10 +838,10 @@ const ECOSYSTEM_PLATFORMS = [
     url: "https://safereports.net",
     role: "compliance",
     domain: "compliance",
-    description: "Enterprise-grade mandatory reporter incident management system — comprehensive 50-state regulation database with auto-updated jurisdictional requirements, 7-stage incident lifecycle from intake to resolution, auto-generated filing deadlines with escalation alerts, tamper-evident blockchain-anchored audit trails, cross-agency referencing for multi-jurisdiction incidents, and court-admissible evidence packaging. Integrates with Shield Atlas for risk intelligence, ISSS for student safety, Whole-Person Health for crisis routing, and LifeBridge for victim support resources. The compliance backbone ensuring every platform in the ecosystem meets mandatory reporting obligations.",
+    description: "Enterprise-grade mandatory reporter incident management system — comprehensive 50-state regulation database with auto-updated jurisdictional requirements, 7-stage incident lifecycle from intake to resolution, auto-generated filing deadlines with escalation alerts, tamper-evident blockchain-anchored audit trails, cross-agency referencing for multi-jurisdiction incidents, and court-admissible evidence packaging. Integrates with Emergency Management for risk intelligence, ISSS for student safety, Whole-Person Health for crisis routing, and LifeBridge for victim support resources. The compliance backbone ensuring every platform in the ecosystem meets mandatory reporting obligations.",
     capabilities: {
       features: ["50-State Regulation Database", "7-Stage Incident Lifecycle", "Auto-Generated Deadlines", "Tamper-Evident Audit Trails", "Cross-Agency Referencing", "Court-Admissible Records", "Jurisdictional Auto-Routing", "Multi-Reporter Coordination", "Evidence Chain of Custody", "Deadline Escalation Alerts", "Compliance Dashboard", "Incident Pattern Analytics"],
-      integrationDepth: "Feeds incident data to Shield Atlas (risk), receives early warnings from ISSS (student safety), routes crisis to Whole-Person Health, coordinates victim support with LifeBridge",
+      integrationDepth: "Feeds incident data to Emergency Management (risk), receives early warnings from ISSS (student safety), routes crisis to Whole-Person Health, coordinates victim support with LifeBridge",
       outcomeMetrics: ["Incident reports filed: 456 across 50 states","Deadline compliance rate: 97%","Audit trail integrity: 100% tamper-evident","Cross-agency referrals: 89","Average incident-to-resolution time: 4.3 days","Court-admissible evidence packages: 34","Compliance dashboard active jurisdictions: 47 states"],
       grantNarrative: "Provides compliance rates, incident resolution metrics, and mandatory reporting adherence data for SSG Fox, foundation, and state grants requiring child/elder abuse prevention evidence",
     },
@@ -1187,7 +1194,7 @@ const ECOSYSTEM_TRIADS: EcosystemTriad[] = [
     id: "safety-accessibility-triad",
     name: "Safety & Accessibility Triad",
     description: "Incident reporting, risk intelligence, communication accessibility, and neurodiversity support — the safety net.",
-    members: ["safereport", "shield-atlas", "speech-bridge", "perfectly-different"],
+    members: ["safereport", "emergency-mgmt", "speech-bridge", "perfectly-different"],
     leadPlatform: "safereport",
     domain: "safety-compliance",
     grantAlignment: ["ssg-fox", "foundation"],
@@ -1619,7 +1626,7 @@ export function registerEcosystemConnectorRoutes(app: Express) {
       "ecosystem-nexus": "https://ecosystem-nexus.replit.app",
       "pinnacle-business-conglomerate": "https://black-business-hub.replit.app",
       "pillscheduler": "https://pill-reminder.replit.app",
-      "shield-atlas": "https://secure-assure.replit.app",
+      "emergency-mgmt": "https://secure-assure.replit.app",
       "ad-targeting": "https://agent-target.replit.app",
     };
 
@@ -1712,7 +1719,7 @@ export function registerEcosystemConnectorRoutes(app: Express) {
   }
 
   // Manual trigger — wake all platforms now
-  app.post("/api/ecosystem/wake-all", requireAdminAuth, async (_req, res) => {
+  app.post("/api/ecosystem/wake-all", requireAdminAuth, requireAuth, async (_req, res) => {
     try {
       console.log("[Pinger] Manual wake-all triggered");
       const result = await pingAllPlatforms();
@@ -1743,7 +1750,7 @@ export function registerEcosystemConnectorRoutes(app: Express) {
     }
   });
 
-  app.post("/api/ecosystem/send-email", requireAdminAuth, async (req, res) => {
+  app.post("/api/ecosystem/send-email", requireAdminAuth, requireAuth, async (req, res) => {
     try {
       const { subject, html } = req.body;
       if (!subject || !html) {
@@ -1757,7 +1764,7 @@ export function registerEcosystemConnectorRoutes(app: Express) {
     }
   });
 
-  app.post("/api/ecosystem/test-email", requireAdminAuth, async (_req, res) => {
+  app.post("/api/ecosystem/test-email", requireAdminAuth, requireAuth, async (_req, res) => {
     try {
       const sent = await sendEcosystemUpdate(
         "Email Service Test — " + new Date().toISOString(),
@@ -2157,7 +2164,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
     }
   });
 
-  app.post("/api/ecosystem/enforce-now", requireAdminAuth, async (_req, res) => {
+  app.post("/api/ecosystem/enforce-now", requireAdminAuth, requireAuth, async (_req, res) => {
     try {
       console.log("[Enforcement] Manual enforcement cycle triggered");
       const result = await runComplianceEnforcement();
@@ -2617,7 +2624,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
     }
   });
 
-  app.post("/api/ecosystem/co-captain/activate", requireAdminAuth, async (req, res) => {
+  app.post("/api/ecosystem/co-captain/activate", requireAdminAuth, requireAuth, async (req, res) => {
     try {
       const { reason } = req.body || {};
       const coCaptain = await electCoCaptain();
@@ -2662,7 +2669,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
     }
   });
 
-  app.post("/api/ecosystem/co-captain/deactivate", requireAdminAuth, async (_req, res) => {
+  app.post("/api/ecosystem/co-captain/deactivate", requireAdminAuth, requireAuth, async (_req, res) => {
     try {
       const previousCoCaptain = coCaptainSystem.activeCoCaptainId;
       const storedCount = coCaptainSystem.storedHeartbeats.length;
@@ -2716,7 +2723,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
     }
   });
 
-  app.post("/api/ecosystem/co-captain/receive-directive", requireAdminAuth, async (req, res) => {
+  app.post("/api/ecosystem/co-captain/receive-directive", requireAdminAuth, requireAuth, async (req, res) => {
     try {
       const { title, content, urgency, targetFilter } = req.body;
       if (!title || !content) {
@@ -2780,7 +2787,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
     }
   });
 
-  app.post("/api/ecosystem/co-captain/broadcast", requireAdminAuth, async (req, res) => {
+  app.post("/api/ecosystem/co-captain/broadcast", requireAdminAuth, requireAuth, async (req, res) => {
     try {
       const { message, urgency, action } = req.body;
       if (!message) {
@@ -2862,7 +2869,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
   // playbook in action and adapts the patterns to its own ecosystem.
   // ===================================================================
 
-  app.post("/api/ecosystem/shadow/register", requireAdminAuth, async (req, res) => {
+  app.post("/api/ecosystem/shadow/register", requireAdminAuth, requireAuth, async (req, res) => {
     try {
       const { observerId, observerName, observerUrl, contactEmail } = req.body;
       if (!observerId || !observerName) {
@@ -3356,7 +3363,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
 
   const collaborationInsights: CollaborationInsight[] = [];
 
-  app.post("/api/ecosystem/shadow/collaborate", requireShadowAuth, async (req, res) => {
+  app.post("/api/ecosystem/shadow/collaborate", requireShadowAuth, requireAuth, async (req, res) => {
     try {
       const { type, title, body, context, relatedDomain } = req.body;
 
@@ -3522,7 +3529,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
     }
   });
 
-  app.post("/api/ecosystem/shadow/collaborate/review/:insightId", requireAdminAuth, async (req, res) => {
+  app.post("/api/ecosystem/shadow/collaborate/review/:insightId", requireAdminAuth, requireAuth, async (req, res) => {
     try {
       const insight = collaborationInsights.find(i => i.id === req.params.insightId);
       if (!insight) {
@@ -3576,11 +3583,11 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
   const CAPABILITY_ORCHESTRATION_MAP: Record<string, { lead: string; support: string[]; validate: string[]; capabilities: string[] }> = {
     "ecosystem-nexus": {
       lead: "Orchestration + Intelligence Backbone",
-      support: ["shield-atlas", "betterscience", "isss"],
+      support: ["emergency-mgmt", "betterscience", "isss"],
       validate: ["betterscience"],
       capabilities: ["system orchestration", "data integration", "grant intelligence", "cross-platform coordination", "contract intelligence", "budget modeling"],
     },
-    "shield-atlas": {
+    "emergency-mgmt": {
       lead: "Safety + Continuity + Emergency",
       support: ["ecosystem-nexus", "safereport"],
       validate: ["betterscience", "ecosystem-nexus"],
@@ -3639,13 +3646,13 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
   const CAPABILITY_MATRIX: Array<{ capability: string; lead: string; support: string; validate: string }> = [
     { capability: "Budgets & Financial Modeling", lead: "ecosystem-nexus", support: "betterscience", validate: "isss" },
     { capability: "Grants & Funding", lead: "ecosystem-nexus / ThriveUp", support: "isss", validate: "betterscience" },
-    { capability: "Decision Modeling", lead: "ecosystem-nexus", support: "shield-atlas", validate: "betterscience" },
-    { capability: "Emergency Scenarios", lead: "shield-atlas", support: "ecosystem-nexus", validate: "betterscience" },
+    { capability: "Decision Modeling", lead: "ecosystem-nexus", support: "emergency-mgmt", validate: "betterscience" },
+    { capability: "Emergency Scenarios", lead: "emergency-mgmt", support: "ecosystem-nexus", validate: "betterscience" },
     { capability: "Collaboration & Partnerships", lead: "isss", support: "ecosystem-nexus", validate: "betterscience" },
     { capability: "Governance & Compliance", lead: "betterscience", support: "ecosystem-nexus", validate: "isss" },
     { capability: "Workforce Development", lead: "ThriveUp", support: "isss", validate: "ecosystem-nexus" },
     { capability: "System Integration", lead: "ecosystem-nexus", support: "betterscience", validate: "all platforms" },
-    { capability: "Risk Detection & Safety", lead: "shield-atlas", support: "ecosystem-nexus", validate: "betterscience" },
+    { capability: "Risk Detection & Safety", lead: "emergency-mgmt", support: "ecosystem-nexus", validate: "betterscience" },
     { capability: "Health Screening", lead: "whole-person-health", support: "sankofa", validate: "betterscience" },
     { capability: "Veteran Services", lead: "m2c", support: "collaborative-advocate", validate: "ecosystem-nexus" },
     { capability: "Business Enablement", lead: "mce", support: "pinnacle-business-conglomerate", validate: "betterscience" },
@@ -3658,10 +3665,10 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
     { capability: "Cognitive Safety", lead: "safecognicare", support: "whole-person-health", validate: "betterscience" },
     { capability: "Maternal Health", lead: "sankofa-maternal-health", support: "sankofa-feminine-health", validate: "whole-person-health" },
     { capability: "Autoimmune Disease", lead: "autoimmune-thrive", support: "pillscheduler", validate: "whole-person-health" },
-    { capability: "Incident Reporting", lead: "safereport", support: "shield-atlas", validate: "betterscience" },
+    { capability: "Incident Reporting", lead: "safereport", support: "emergency-mgmt", validate: "betterscience" },
   ];
 
-  app.post("/api/ecosystem/pre-build-gate", requireAdminAuth, async (req, res) => {
+  app.post("/api/ecosystem/pre-build-gate", requireAdminAuth, requireAuth, async (req, res) => {
     try {
       const { problem, requiredOutcome, domains } = req.body;
 
@@ -4043,7 +4050,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
     }
   });
 
-  app.post("/api/ecosystem/shadow/exchange/update", requireShadowAuth, async (req, res) => {
+  app.post("/api/ecosystem/shadow/exchange/update", requireShadowAuth, requireAuth, async (req, res) => {
     try {
       const { ecosystemHealth, recentChanges, lessonsShared, questionsForPartner, capabilities } = req.body;
 
@@ -4202,12 +4209,12 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
             pitch: "Real-time risk intelligence, incident management, and community resilience scoring — for cities needing operational awareness, companies needing compliance, and individuals needing safety information.",
             platforms: [
               {
-                name: "Shield Atlas",
+                name: "Emergency Management",
                 capability: "Risk intelligence and threat assessment — geographic risk mapping, safety analytics, protective factor identification, community resilience scoring",
                 forIndividuals: ["Personal safety awareness by location", "Community risk visibility", "Emergency preparedness planning"],
                 forCompanies: ["Corporate safety assessments", "Site risk analysis", "Employee safety planning", "Insurance risk documentation"],
                 forGovernment: ["City emergency operations centers", "County risk assessments", "Community resilience planning", "Disaster preparedness mapping", "First responder resource allocation"],
-                url: "https://shieldatlas.net",
+                url: "https://emergency-mgmt.replit.app",
               },
               {
                 name: "SafeReport",
@@ -4488,7 +4495,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
           forGovernment: {
             singlePlatform: {
               description: "Contract a single platform for a specific agency need",
-              example: "A city contracts Shield Atlas for their emergency operations center",
+              example: "A city contracts Emergency Management for their emergency operations center",
               pricing: "Contact for quote — GSA Schedule compatible",
             },
             domainBundle: {
@@ -4777,7 +4784,7 @@ if (typeof module !== "undefined") {
   // than what the platform was originally given.
   // ===================================================================
 
-  app.post("/api/ecosystem/register-key", requireAdminAuth, async (req, res) => {
+  app.post("/api/ecosystem/register-key", requireAdminAuth, requireAuth, async (req, res) => {
     try {
       const { platformId, apiKey } = req.body;
       if (!platformId || !apiKey) {
@@ -4837,7 +4844,7 @@ if (typeof module !== "undefined") {
     }
   });
 
-  app.post("/api/ecosystem/initialize", requireAdminAuth, async (_req, res) => {
+  app.post("/api/ecosystem/initialize", requireAdminAuth, requireAuth, async (_req, res) => {
     try {
       const results = [];
       for (const platform of ECOSYSTEM_PLATFORMS) {
@@ -4871,7 +4878,7 @@ if (typeof module !== "undefined") {
     }
   });
 
-  app.post("/api/ecosystem/health-check", requireAdminAuth, async (_req, res) => {
+  app.post("/api/ecosystem/health-check", requireAdminAuth, requireAuth, async (_req, res) => {
     try {
       const platforms = await db.select().from(ecosystemPlatforms);
       const results = [];
@@ -5032,8 +5039,8 @@ if (typeof module !== "undefined") {
     {
       pattern: /shield.*atlas|security|cybersecurity|threat/i,
       category: "security-compliance",
-      crossPlatformTargets: ["shield-atlas"],
-      followUpAction: "Update Shield Atlas security posture assessment for this platform",
+      crossPlatformTargets: ["emergency-mgmt"],
+      followUpAction: "Update Emergency Management security posture assessment for this platform",
       grantRelevance: ["ssg-fox"],
     },
     {
@@ -5342,7 +5349,7 @@ if (typeof module !== "undefined") {
     }
   });
 
-  app.post("/api/ecosystem/backfill-flow", requireAdminAuth, async (req, res) => {
+  app.post("/api/ecosystem/backfill-flow", requireAdminAuth, requireAuth, async (req, res) => {
     try {
       const allAcks = await db.select().from(ecosystemDirectiveAcks).where(eq(ecosystemDirectiveAcks.status, "acknowledged"));
       const allDirectives = await db.select().from(ecosystemDirectives);
@@ -5940,16 +5947,16 @@ if (typeof module !== "undefined") {
         externalGrantOpportunities: (() => {
           const MACRO_GRANTS: Record<string, { category: string; fundingRange: string; sources: string[]; platformCapabilities: string[] }> = {
             "federal-health-disparities": { category: "Health Disparities & Equity", fundingRange: "$100K-$5M", sources: ["NIH NIMHD", "HRSA", "CDC Office of Minority Health"], platformCapabilities: ["whole-person-health", "sankofa", "sankofa-maternal-health", "sankofa-feminine-health", "sankofa-mens-health", "autoimmune-thrive", "safecognicare", "speech-bridge"] },
-            "federal-veteran-services": { category: "Veteran Services & Suicide Prevention", fundingRange: "$250K-$3M", sources: ["VA", "DOD CDMRP", "SAMHSA", "Bob Woodruff Foundation"], platformCapabilities: ["m2c", "collaborative-advocate", "whole-person-health", "lifebridge", "shield-atlas", "speech-bridge"] },
+            "federal-veteran-services": { category: "Veteran Services & Suicide Prevention", fundingRange: "$250K-$3M", sources: ["VA", "DOD CDMRP", "SAMHSA", "Bob Woodruff Foundation"], platformCapabilities: ["m2c", "collaborative-advocate", "whole-person-health", "lifebridge", "emergency-mgmt", "speech-bridge"] },
             "federal-workforce-development": { category: "Workforce Development", fundingRange: "$200K-$10M", sources: ["DOL ETA", "WIOA Competitive", "Apprenticeship USA"], platformCapabilities: ["pinnacle-business-conglomerate", "mce", "collaborative-advocate", "m2c", "lifebridge", "isss"] },
             "federal-accessibility": { category: "Accessibility & Communication Tech", fundingRange: "$100K-$2M", sources: ["NSF CISE", "HHS", "FCC", "NIDILRR"], platformCapabilities: ["speech-bridge", "perfectly-different", "safecognicare", "wholemind"] },
             "federal-maternal-child": { category: "Maternal & Child Health", fundingRange: "$250K-$5M", sources: ["HRSA MCH", "Healthy Start", "CDC ERASE MM"], platformCapabilities: ["sankofa-maternal-health", "sankofa-feminine-health", "whole-person-health", "speech-bridge"] },
             "federal-aging-disability": { category: "Aging & Disability Services", fundingRange: "$100K-$3M", sources: ["ACL", "AoA", "NIDILRR", "Alzheimer's Association"], platformCapabilities: ["safecognicare", "pillscheduler", "autoimmune-thrive", "speech-bridge", "whole-person-health"] },
             "foundation-community-health": { category: "Community Health Innovation", fundingRange: "$50K-$2M", sources: ["RWJF", "Kresge", "BCBS Foundation", "W.K. Kellogg"], platformCapabilities: ["whole-person-health", "sankofa", "autoimmune-thrive", "pillscheduler", "lifebridge", "speech-bridge"] },
             "foundation-racial-equity": { category: "Racial Equity & Justice", fundingRange: "$50K-$1M", sources: ["Ford Foundation", "Kapor Center", "Emerson Collective"], platformCapabilities: ["sankofa", "sankofa-maternal-health", "sankofa-mens-health", "mce", "collaborative-advocate", "speech-bridge"] },
-            "foundation-tech-social-good": { category: "Technology for Social Good", fundingRange: "$100K-$5M", sources: ["Schmidt Futures", "MacArthur", "Google.org", "Microsoft Philanthropies"], platformCapabilities: ["betterscience", "safereport", "shield-atlas", "ecosystem-nexus", "video-creator-ai", "speech-bridge"] },
+            "foundation-tech-social-good": { category: "Technology for Social Good", fundingRange: "$100K-$5M", sources: ["Schmidt Futures", "MacArthur", "Google.org", "Microsoft Philanthropies"], platformCapabilities: ["betterscience", "safereport", "emergency-mgmt", "ecosystem-nexus", "video-creator-ai", "speech-bridge"] },
             "federal-small-business": { category: "Small Business & Minority Enterprise", fundingRange: "$50K-$2M", sources: ["SBA", "MBDA", "PTAC"], platformCapabilities: ["mce", "pinnacle-business-conglomerate", "collaborative-advocate"] },
-            "federal-housing": { category: "Housing & Community Development", fundingRange: "$200K-$5M", sources: ["HUD", "CDBG", "HOME Program"], platformCapabilities: ["lifebridge", "whole-person-health", "shield-atlas", "speech-bridge"] },
+            "federal-housing": { category: "Housing & Community Development", fundingRange: "$200K-$5M", sources: ["HUD", "CDBG", "HOME Program"], platformCapabilities: ["lifebridge", "whole-person-health", "emergency-mgmt", "speech-bridge"] },
             "federal-mental-health": { category: "Substance Abuse & Mental Health", fundingRange: "$500K-$8M", sources: ["SAMHSA", "CCBHC"], platformCapabilities: ["whole-person-health", "lifebridge", "sankofa", "safecognicare"] },
             "federal-education": { category: "Education & Youth Development", fundingRange: "$100K-$3M", sources: ["Dept of Education", "NSF Education", "21st CCLC"], platformCapabilities: ["isss", "wholemind", "perfectly-different", "betterscience"] },
           };
@@ -6146,7 +6153,7 @@ if (typeof module !== "undefined") {
               directivesInProgress: 0,
               directivesBlocked: 0,
               completedWork: [{ directiveId: "example-id", whatWasDone: "Built the fidelity dashboard with CFIR scores", evidenceUrl: "https://yourplatform.com/fidelity" }],
-              blockers: [{ directiveId: "example-id", blockerDescription: "Need API access from Shield Atlas", needsFrom: "shield-atlas" }],
+              blockers: [{ directiveId: "example-id", blockerDescription: "Need API access from Emergency Management", needsFrom: "emergency-mgmt" }],
               notes: "Working on remaining directives this cycle",
             },
           },
@@ -6328,7 +6335,7 @@ if (typeof module !== "undefined") {
                   leadPlatforms: ["thriveup", "isss", "m2c", "mce", "pinnacle-business-conglomerate"],
                   supportPlatforms: ["lifebridge", "whole-person-health", "collaborative-advocate"],
                   dataPlatforms: ["betterscience", "ecosystem-nexus"],
-                  notRelevantTo: ["shield-atlas", "safereport", "video-creator-ai", "ad-targeting", "pillscheduler", "autoimmune-thrive", "safecognicare", "sankofa-feminine-health", "sankofa-maternal-health", "sankofa-mens-health", "code-canvas"],
+                  notRelevantTo: ["emergency-mgmt", "safereport", "video-creator-ai", "ad-targeting", "pillscheduler", "autoimmune-thrive", "safecognicare", "sankofa-feminine-health", "sankofa-maternal-health", "sankofa-mens-health", "code-canvas"],
                   whatThisGrantNeeds: "Workforce outcome data — job placements, credential completions, employer engagement metrics, wage gains, retention rates.",
                 },
                 "st-davids-health": {
@@ -6339,7 +6346,7 @@ if (typeof module !== "undefined") {
                   leadPlatforms: ["whole-person-health", "sankofa", "sankofa-maternal-health", "sankofa-feminine-health", "sankofa-mens-health"],
                   supportPlatforms: ["lifebridge", "perfectly-different", "safecognicare", "autoimmune-thrive", "pillscheduler"],
                   dataPlatforms: ["betterscience", "ecosystem-nexus"],
-                  notRelevantTo: ["shield-atlas", "mce", "pinnacle-business-conglomerate", "m2c", "video-creator-ai", "ad-targeting", "safereport", "code-canvas"],
+                  notRelevantTo: ["emergency-mgmt", "mce", "pinnacle-business-conglomerate", "m2c", "video-creator-ai", "ad-targeting", "safereport", "code-canvas"],
                   whatThisGrantNeeds: "Health outcome data — screenings conducted, maternal outcomes, mental health access, CHW deployments, community voice evidence, SDOH improvements in Travis/Williamson/Hays/Bastrop/Caldwell counties.",
                 },
                 "st-davids-wab2": {
@@ -6350,7 +6357,7 @@ if (typeof module !== "undefined") {
                   leadPlatforms: ["lifebridge", "whole-person-health", "thriveup"],
                   supportPlatforms: ["sankofa", "mce", "collaborative-advocate", "speech-bridge"],
                   dataPlatforms: ["betterscience", "ecosystem-nexus"],
-                  notRelevantTo: ["shield-atlas", "safereport", "video-creator-ai", "ad-targeting", "pinnacle-business-conglomerate", "safecognicare", "wholemind", "perfectly-different", "code-canvas"],
+                  notRelevantTo: ["emergency-mgmt", "safereport", "video-creator-ai", "ad-targeting", "pinnacle-business-conglomerate", "safecognicare", "wholemind", "perfectly-different", "code-canvas"],
                   whatThisGrantNeeds: "Benefits enrollment data — SNAP, Medicaid, CHIP, WIC, housing voucher enrollment rates, food access metrics, income stability indicators, community-informed program design evidence.",
                 },
                 "ssg-fox": {
@@ -6359,7 +6366,7 @@ if (typeof module !== "undefined") {
                   deadline: "June 12-18, 2026",
                   focus: ["veteran services", "suicide prevention", "transition support", "peer support", "veteran mental health"],
                   leadPlatforms: ["m2c", "whole-person-health", "collaborative-advocate"],
-                  supportPlatforms: ["lifebridge", "shield-atlas", "sankofa-mens-health", "safecognicare"],
+                  supportPlatforms: ["lifebridge", "emergency-mgmt", "sankofa-mens-health", "safecognicare"],
                   dataPlatforms: ["betterscience", "safereport"],
                   notRelevantTo: ["mce", "pinnacle-business-conglomerate", "sankofa-feminine-health", "sankofa-maternal-health", "wholemind", "video-creator-ai", "ad-targeting", "autoimmune-thrive", "pillscheduler", "code-canvas"],
                   whatThisGrantNeeds: "Veteran outcome data — C-SSRS screenings, transition milestones, peer support engagement, crisis interventions, employment outcomes, housing stability for veterans.",
@@ -6372,7 +6379,7 @@ if (typeof module !== "undefined") {
                   leadPlatforms: ["thriveup", "isss", "wholemind"],
                   supportPlatforms: ["lifebridge", "perfectly-different", "whole-person-health"],
                   dataPlatforms: ["betterscience", "ecosystem-nexus"],
-                  notRelevantTo: ["shield-atlas", "safereport", "video-creator-ai", "ad-targeting", "pinnacle-business-conglomerate", "mce", "code-canvas"],
+                  notRelevantTo: ["emergency-mgmt", "safereport", "video-creator-ai", "ad-targeting", "pinnacle-business-conglomerate", "mce", "code-canvas"],
                   whatThisGrantNeeds: "Education and community outcome data — learning gains, wraparound service utilization, family engagement, community resilience metrics.",
                 },
               };
@@ -7188,7 +7195,7 @@ if (typeof module !== "undefined") {
     }
   });
 
-  app.post("/api/sitesync/inject", async (req, res) => {
+  app.post("/api/sitesync/inject", requireAuth, async (req, res) => {
     try {
       const apiKey = req.headers["x-ecosystem-key"] || req.query.key;
       if (!apiKey) {
@@ -7297,7 +7304,7 @@ if (typeof module !== "undefined") {
     }
   });
 
-  app.post("/api/ecosystem/resend-directives", requireAdminAuth, async (req, res) => {
+  app.post("/api/ecosystem/resend-directives", requireAdminAuth, requireAuth, async (req, res) => {
     try {
       const { platformId } = req.body;
       if (!platformId) {
@@ -7318,7 +7325,7 @@ if (typeof module !== "undefined") {
     }
   });
 
-  app.post("/api/ecosystem/directives", requireAdminAuth, async (req, res) => {
+  app.post("/api/ecosystem/directives", requireAdminAuth, requireAuth, async (req, res) => {
     try {
       const { title, directiveType, content, grantId, targetPlatformIds, platformRoles, trackingRequirements, expiresAt } = req.body;
 
@@ -7359,7 +7366,7 @@ if (typeof module !== "undefined") {
     }
   });
 
-  app.post("/api/ecosystem/wake-up", requireAdminAuth, async (req, res) => {
+  app.post("/api/ecosystem/wake-up", requireAdminAuth, requireAuth, async (req, res) => {
     try {
       const { platformIds } = req.body || {};
       const platforms = await db.select().from(ecosystemPlatforms);
@@ -7799,7 +7806,7 @@ if (typeof module !== "undefined") {
     }
   });
 
-  app.patch("/api/ecosystem/directives/:directiveId", requireAdminAuth, async (req, res) => {
+  app.patch("/api/ecosystem/directives/:directiveId", requireAdminAuth, requireAuth, async (req, res) => {
     try {
       const { directiveId } = req.params;
       const { status } = req.body;
@@ -8565,7 +8572,7 @@ if (typeof module !== "undefined") {
 
   const WORK_CHAINS: Record<string, { nextPlatform: string; eventType: string; description: string }[]> = {
     "video_script_ready": [{ nextPlatform: "video-creator-ai", eventType: "produce_video", description: "Video script submitted — produce video" }],
-    "security_audit_complete": ECOSYSTEM_PLATFORMS.filter(p => p.id !== "shield-atlas").map(p => ({ nextPlatform: p.id, eventType: "security_findings", description: "Security audit results for your platform" })),
+    "security_audit_complete": ECOSYSTEM_PLATFORMS.filter(p => p.id !== "emergency-mgmt").map(p => ({ nextPlatform: p.id, eventType: "security_findings", description: "Security audit results for your platform" })),
     "grant_narrative_ready": [{ nextPlatform: "betterscience", eventType: "review_narrative", description: "Grant narrative ready for RPLICE quality review" }],
     "voices_story_submitted": [
       { nextPlatform: "lifebridge", eventType: "voices_housing_referral", description: "Community story with housing needs" },
@@ -8630,7 +8637,7 @@ if (typeof module !== "undefined") {
     ],
     "product_launched": [
       { nextPlatform: "betterscience", eventType: "evaluate_product", description: "New product launched — RPLICE evaluate with RE-AIM" },
-      { nextPlatform: "shield-atlas", eventType: "security_scan_needed", description: "New product launched — Shield Atlas security scan" },
+      { nextPlatform: "emergency-mgmt", eventType: "security_scan_needed", description: "New product launched — Emergency Management security scan" },
       { nextPlatform: "video-creator-ai", eventType: "product_demo_video", description: "New product launched — create demo video" },
     ],
     "map_gap_finding": [
@@ -8739,7 +8746,7 @@ if (typeof module !== "undefined") {
       name: "The Collaborative Advocate",
       role: "Primary Verification Partner — VOSB service delivery arm",
       verifyDomains: ["veteran-services", "workforce", "business-consulting", "social-services"],
-      platformAssignments: ["m2c", "lifebridge", "mce", "pinnacle-business-conglomerate", "shield-atlas", "ad-targeting"],
+      platformAssignments: ["m2c", "lifebridge", "mce", "pinnacle-business-conglomerate", "emergency-mgmt", "ad-targeting"],
     },
     "ecosystem-nexus": {
       name: "Ecosystem Nexus",
@@ -9073,7 +9080,7 @@ if (typeof module !== "undefined") {
           description: "VA, DOD, SAMHSA grants for veteran transition, mental health, suicide prevention",
           fundingRange: "$250K-$3M",
           sources: ["VA Office of Mental Health", "DOD CDMRP", "SAMHSA", "Bob Woodruff Foundation", "Gary Sinise Foundation"],
-          platformCapabilities: ["m2c", "collaborative-advocate", "whole-person-health", "lifebridge", "shield-atlas", "speech-bridge"],
+          platformCapabilities: ["m2c", "collaborative-advocate", "whole-person-health", "lifebridge", "emergency-mgmt", "speech-bridge"],
         },
         "federal-workforce-development": {
           category: "Workforce Development & Job Training",
@@ -9129,7 +9136,7 @@ if (typeof module !== "undefined") {
           description: "Schmidt Futures, MacArthur, Gates Foundation technology for impact",
           fundingRange: "$100K-$5M",
           sources: ["Schmidt Futures", "MacArthur Foundation", "Gates Foundation", "Google.org", "Microsoft Philanthropies"],
-          platformCapabilities: ["betterscience", "safereport", "shield-atlas", "ecosystem-nexus", "video-creator-ai", "ad-targeting", "speech-bridge"],
+          platformCapabilities: ["betterscience", "safereport", "emergency-mgmt", "ecosystem-nexus", "video-creator-ai", "ad-targeting", "speech-bridge"],
         },
         "federal-small-business-minority": {
           category: "Small Business & Minority Enterprise",
@@ -9143,7 +9150,7 @@ if (typeof module !== "undefined") {
           description: "HUD CDBG, HOME, supportive housing, homelessness prevention",
           fundingRange: "$200K-$5M",
           sources: ["HUD", "CDBG", "HOME Program", "CoC Program"],
-          platformCapabilities: ["lifebridge", "whole-person-health", "shield-atlas", "speech-bridge"],
+          platformCapabilities: ["lifebridge", "whole-person-health", "emergency-mgmt", "speech-bridge"],
         },
         "federal-aging-disability": {
           category: "Aging & Disability Services",
@@ -9417,7 +9424,7 @@ if (typeof module !== "undefined") {
           category: "Veteran Services & Suicide Prevention", fundingRange: "$250K-$3M", type: "external-federal",
           description: "VA, DOD, SAMHSA grants for veteran transition, mental health, suicide prevention",
           sources: ["VA Office of Mental Health", "DOD CDMRP", "SAMHSA", "Bob Woodruff Foundation", "Gary Sinise Foundation"],
-          platformCapabilities: ["m2c", "collaborative-advocate", "whole-person-health", "lifebridge", "shield-atlas", "speech-bridge"],
+          platformCapabilities: ["m2c", "collaborative-advocate", "whole-person-health", "lifebridge", "emergency-mgmt", "speech-bridge"],
           soloEligible: ["m2c", "collaborative-advocate", "lifebridge"],
         },
         "federal-workforce-development": {
@@ -9473,7 +9480,7 @@ if (typeof module !== "undefined") {
           category: "Foundation — Technology for Social Good", fundingRange: "$100K-$5M", type: "external-foundation",
           description: "Schmidt Futures, MacArthur, Gates Foundation technology for impact",
           sources: ["Schmidt Futures", "MacArthur Foundation", "Gates Foundation", "Google.org", "Microsoft Philanthropies"],
-          platformCapabilities: ["betterscience", "safereport", "shield-atlas", "ecosystem-nexus", "video-creator-ai", "ad-targeting", "speech-bridge"],
+          platformCapabilities: ["betterscience", "safereport", "emergency-mgmt", "ecosystem-nexus", "video-creator-ai", "ad-targeting", "speech-bridge"],
           soloEligible: ["betterscience", "speech-bridge", "ecosystem-nexus"],
         },
         "federal-small-business-minority": {
@@ -9487,7 +9494,7 @@ if (typeof module !== "undefined") {
           category: "Housing & Community Development", fundingRange: "$200K-$5M", type: "external-federal",
           description: "HUD CDBG, HOME, supportive housing, homelessness prevention",
           sources: ["HUD", "CDBG", "HOME Program", "CoC Program"],
-          platformCapabilities: ["lifebridge", "whole-person-health", "shield-atlas", "speech-bridge"],
+          platformCapabilities: ["lifebridge", "whole-person-health", "emergency-mgmt", "speech-bridge"],
           soloEligible: ["lifebridge"],
         },
         "federal-aging-disability": {
@@ -9622,7 +9629,7 @@ if (typeof module !== "undefined") {
     }
   });
 
-  app.post("/api/ecosystem/verify-deliverables", requireAdminAuth, async (_req, res) => {
+  app.post("/api/ecosystem/verify-deliverables", requireAdminAuth, requireAuth, async (_req, res) => {
     try {
       const results = await runDeliverableVerification();
       res.json({ verifiedAt: new Date().toISOString(), checked: results.length, results });
@@ -9631,7 +9638,7 @@ if (typeof module !== "undefined") {
     }
   });
 
-  app.post("/api/ecosystem/send-report-card", requireAdminAuth, async (req, res) => {
+  app.post("/api/ecosystem/send-report-card", requireAdminAuth, requireAuth, async (req, res) => {
     try {
       const authKey = req.headers["x-ecosystem-key"] as string;
       const session = (req as any).session;

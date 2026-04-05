@@ -32,9 +32,10 @@ function PartnerDirectory() {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [selectedPartner, setSelectedPartner] = useState<string | null>(null);
 
-  const { data: partners = [], isLoading } = useQuery<CommunityPartner[]>({
+  const { data: partnersRaw, isLoading } = useQuery<CommunityPartner[]>({
     queryKey: ["/api/collaboration/partners", search, categoryFilter],
   });
+  const partners = partnersRaw ?? [];
 
   const filtered = partners.filter(p => {
     if (search) {
@@ -157,7 +158,8 @@ function PartnerDetailView({ detail }: { detail: { partner: CommunityPartner; re
 function PartnershipRequestsTab() {
   const { toast } = useToast();
   const [showForm, setShowForm] = useState(false);
-  const { data: requests = [], isLoading } = useQuery<PartnershipRequest[]>({ queryKey: ["/api/collaboration/partnership-requests"] });
+  const { data: requestsRaw, isLoading } = useQuery<PartnershipRequest[]>({ queryKey: ["/api/collaboration/partnership-requests"] });
+  const requests = requestsRaw ?? [];
 
   const convertMutation = useMutation({
     mutationFn: async (id: string) => {
@@ -373,8 +375,10 @@ function PartnershipRequestForm({ onClose }: { onClose: () => void }) {
 function SharedOutcomesTab() {
   const { toast } = useToast();
   const [showForm, setShowForm] = useState(false);
-  const { data: outcomes = [], isLoading } = useQuery<SharedOutcome[]>({ queryKey: ["/api/collaboration/shared-outcomes"] });
-  const { data: partners = [] } = useQuery<CommunityPartner[]>({ queryKey: ["/api/collaboration/partners"] });
+  const { data: outcomesRaw, isLoading } = useQuery<SharedOutcome[]>({ queryKey: ["/api/collaboration/shared-outcomes"] });
+  const outcomes = outcomesRaw ?? [];
+  const { data: partnersRaw2 } = useQuery<CommunityPartner[]>({ queryKey: ["/api/collaboration/partners"] });
+  const partners = partnersRaw2 ?? [];
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, currentValue }: { id: string; currentValue: number }) => {
@@ -527,8 +531,10 @@ function WarmHandoffsTab() {
   const [showForm, setShowForm] = useState(false);
   const [directionFilter, setDirectionFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
-  const { data: handoffs = [], isLoading } = useQuery<ExternalWarmHandoff[]>({ queryKey: ["/api/collaboration/warm-handoffs"] });
-  const { data: partners = [] } = useQuery<CommunityPartner[]>({ queryKey: ["/api/collaboration/partners"] });
+  const { data: handoffsRaw, isLoading } = useQuery<ExternalWarmHandoff[]>({ queryKey: ["/api/collaboration/warm-handoffs"] });
+  const handoffs = handoffsRaw ?? [];
+  const { data: partnersRaw3 } = useQuery<CommunityPartner[]>({ queryKey: ["/api/collaboration/partners"] });
+  const partners = partnersRaw3 ?? [];
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, status, outcomeNotes }: { id: string; status: string; outcomeNotes?: string }) => {

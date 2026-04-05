@@ -1,7 +1,14 @@
-import type { Express } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { db } from "./storage";
 import { serviceOrders, consultationRequests, insertServiceOrderSchema, insertConsultationRequestSchema } from "@shared/schema";
 import { eq, desc } from "drizzle-orm";
+
+function requireAuth(req: Request, res: Response, next: NextFunction) {
+  if (!(req as any).isAuthenticated?.() && !(req as any).user) {
+    return res.status(401).json({ error: "Authentication required" });
+  }
+  next();
+}
 
 export function registerPricingRoutes(app: Express) {
   app.get("/api/pricing/tiers", (_req, res) => {
@@ -159,7 +166,7 @@ export function registerPricingRoutes(app: Express) {
     });
   });
 
-  app.post("/api/pricing/order", async (req, res) => {
+  app.post("/api/pricing/order", requireAuth, async (req, res) => {
     try {
       const parsed = insertServiceOrderSchema.safeParse(req.body);
       if (!parsed.success) {
@@ -172,7 +179,7 @@ export function registerPricingRoutes(app: Express) {
     }
   });
 
-  app.post("/api/pricing/consultation", async (req, res) => {
+  app.post("/api/pricing/consultation", requireAuth, async (req, res) => {
     try {
       const parsed = insertConsultationRequestSchema.safeParse(req.body);
       if (!parsed.success) {

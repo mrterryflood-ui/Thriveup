@@ -65,9 +65,10 @@ export default function ESignPage() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
 
-  const { data: documents = [], isLoading } = useQuery<DocumentSignature[]>({
+  const { data: documentsRaw, isLoading } = useQuery<DocumentSignature[]>({
     queryKey: ["/api/esign/documents"],
   });
+  const documents = documentsRaw ?? [];
 
   const createMutation = useMutation({
     mutationFn: async (data: typeof newDoc) => {

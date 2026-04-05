@@ -313,7 +313,7 @@ export function registerPreventionRoutes(app: Express) {
     }
   });
 
-  app.post("/api/prevention/survey-responses", async (req, res) => {
+  app.post("/api/prevention/survey-responses", requireAuth, async (req, res) => {
     try {
       const parsed = insertSurveyResponseSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Invalid data", details: parsed.error.flatten().fieldErrors });

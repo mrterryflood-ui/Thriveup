@@ -34,7 +34,7 @@ ThriveUp is a **community infrastructure platform** — a 24-platform interconne
 
 | Domain | Platforms | Focus |
 |--------|----------|-------|
-| Criminal Justice & Safety | LifeBridge, SafeReport, Shield Atlas, ISSS | Reentry, mandated reporting, emergency mgmt, youth supports |
+| Criminal Justice & Safety | LifeBridge, SafeReport, Emergency Management, ISSS | Reentry, mandated reporting, emergency mgmt, youth supports |
 | Health Equity | Black Maternal Health Network, Sankofa Health, Autoimmune CoE, Black Men's Health Hub | Maternal mortality, cancer, chronic disease, men's health |
 | Behavioral Health | Whole-Person Health, SafeCogniCare, PillScheduler, WholeMind Learning | Mental health, cognitive screening, medication mgmt, health literacy |
 | Workforce & Business | Mission Transition, Pinnacle Business, Ecosystem Nexus, Minority Center of Excellence | Veteran careers, entrepreneurship, job matching, small business |

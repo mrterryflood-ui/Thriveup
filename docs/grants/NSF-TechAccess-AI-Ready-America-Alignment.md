@@ -57,7 +57,7 @@ TCAF operates 24 interconnected platforms — this is not a proposal to build so
 | **Health & Human Services** | SafeCogniCare, PillScheduler, Black Maternal Health, Sankofa Health, ISSS | AI in healthcare delivery, health equity |
 | **Education** | WholeMind Learning, Code Canvas | AI education K-adult, coding/evaluation |
 | **Business** | Pinnacle Business, Advertising Targeting | AI for small business, minority business development |
-| **Community Services** | LifeBridge, Shield Atlas, SafeReport | AI for crisis prevention, safety, reporting |
+| **Community Services** | LifeBridge, Emergency Management, SafeReport | AI for crisis prevention, safety, reporting |
 | **Research & Implementation** | Better Science Lab / RPLICE | Implementation science, CFIR/RE-AIM measurement |
 | **Language & Accessibility** | LexiBridge | AI-powered speech/language tools |
 | **Creative & Media** | Video Creator AI | AI content creation tools |

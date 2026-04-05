@@ -1,8 +1,15 @@
-import type { Express, Response } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { db } from "./storage";
 import { rpliceAssessments, rpliceActionPlans, outcomeBaselines, ecosystemPlatforms } from "@shared/schema";
 import { eq, desc } from "drizzle-orm";
 import { generateAIJSON, streamAIResponse, generateMultiAIResponse, getProviderInfo } from "./ai-provider";
+
+function requireAuth(req: Request, res: Response, next: NextFunction) {
+  if (!(req as any).isAuthenticated?.() && !(req as any).user) {
+    return res.status(401).json({ error: "Authentication required" });
+  }
+  next();
+}
 
 const CENSUS_API_KEY = process.env.CENSUS_API_KEY || "";
 
@@ -144,7 +151,7 @@ async function gatherRegionData(stateFips: string, countyFips: string) {
 }
 
 export function registerRpliceToolsRoutes(app: Express) {
-  app.post("/api/rplice/cfir-assessment", async (req, res) => {
+  app.post("/api/rplice/cfir-assessment", requireAuth, async (req, res) => {
     try {
       const { programName, data, score, status } = req.body;
       const [row] = await db.insert(rpliceAssessments).values({
@@ -171,7 +178,7 @@ export function registerRpliceToolsRoutes(app: Express) {
     }
   });
 
-  app.post("/api/rplice/reaim-scorecard", async (req, res) => {
+  app.post("/api/rplice/reaim-scorecard", requireAuth, async (req, res) => {
     try {
       const { programName, data, score, status } = req.body;
       const [row] = await db.insert(rpliceAssessments).values({
@@ -198,7 +205,7 @@ export function registerRpliceToolsRoutes(app: Express) {
     }
   });
 
-  app.post("/api/rplice/fidelity-checklist", async (req, res) => {
+  app.post("/api/rplice/fidelity-checklist", requireAuth, async (req, res) => {
     try {
       const { programName, data, score, status } = req.body;
       const [row] = await db.insert(rpliceAssessments).values({
@@ -214,7 +221,7 @@ export function registerRpliceToolsRoutes(app: Express) {
     }
   });
 
-  app.post("/api/rplice/three-realities", async (req, res) => {
+  app.post("/api/rplice/three-realities", requireAuth, async (req, res) => {
     try {
       const { programName, data, score, status } = req.body;
       const [row] = await db.insert(rpliceAssessments).values({
@@ -240,7 +247,7 @@ export function registerRpliceToolsRoutes(app: Express) {
     }
   });
 
-  app.post("/api/rplice/quality-reviews/:id/resolve", async (req, res) => {
+  app.post("/api/rplice/quality-reviews/:id/resolve", requireAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const { status } = req.body;
@@ -315,7 +322,7 @@ export function registerRpliceToolsRoutes(app: Express) {
     },
   };
 
-  app.post("/api/rplice/grant-narrative", async (req, res) => {
+  app.post("/api/rplice/grant-narrative", requireAuth, async (req, res) => {
     const { stateFips, countyFips, cityName, grantName } = req.body;
     if (!stateFips || !countyFips || !grantName) {
       return res.status(400).json({ error: "stateFips, countyFips, and grantName required" });
@@ -507,7 +514,7 @@ Write in the voice specified for this funder. Be specific. Every claim must refe
     } catch { return null; }
   }
 
-  app.post("/api/rplice/community-analysis", async (req, res) => {
+  app.post("/api/rplice/community-analysis", requireAuth, async (req, res) => {
     const { stateFips, countyFips, cityName, neighboringCounties, focusAreas } = req.body;
     if (!stateFips || !countyFips) return res.status(400).json({ error: "stateFips and countyFips required" });
 
@@ -710,7 +717,7 @@ Be specific. Use actual numbers from the data. Reference specific tracts. This i
     res.end();
   });
 
-  app.post("/api/rplice/match-platforms", async (req, res) => {
+  app.post("/api/rplice/match-platforms", requireAuth, async (req, res) => {
     try {
       const { analysisId, riskFactors } = req.body;
 
@@ -745,7 +752,7 @@ Be specific. Use actual numbers from the data. Reference specific tracts. This i
         "safety": {
           platforms: [
             { id: "safereport", name: "SafeReport", domain: "compliance", url: "https://safereports.net", interventions: ["Incident management", "50-state regulation database", "Compliance tracking", "Court-admissible records"] },
-            { id: "shield-atlas", name: "Shield Atlas", domain: "compliance", url: "https://shieldatlas.net", interventions: ["Geographic risk mapping", "Community resilience scoring", "Predictive safety modeling", "Emergency coordination"] },
+            { id: "emergency-mgmt", name: "Emergency Management", domain: "compliance", url: "https://shieldatlas.net", interventions: ["Geographic risk mapping", "Community resilience scoring", "Predictive safety modeling", "Emergency coordination"] },
           ],
         },
         "mental-health": {
@@ -818,7 +825,7 @@ Be specific. Use actual numbers from the data. Reference specific tracts. This i
     }
   });
 
-  app.post("/api/rplice/multi-ai-analysis", async (req, res) => {
+  app.post("/api/rplice/multi-ai-analysis", requireAuth, async (req, res) => {
     const { stateFips, countyFips, cityName, question } = req.body;
     if (!stateFips || !countyFips) return res.status(400).json({ error: "stateFips and countyFips required" });
 
@@ -884,7 +891,7 @@ Be specific. Use the actual data. Apply Dr. Flood's principle: education is the 
     }
   });
 
-  app.post("/api/rplice/baseline", async (req, res) => {
+  app.post("/api/rplice/baseline", requireAuth, async (req, res) => {
     try {
       const { regionName, stateFips, countyFips, metrics, targets, timelineMonths } = req.body;
       if (!regionName || !stateFips || !countyFips || !metrics) {
@@ -914,7 +921,7 @@ Be specific. Use the actual data. Apply Dr. Flood's principle: education is the 
     }
   });
 
-  app.patch("/api/rplice/baseline/:id", async (req, res) => {
+  app.patch("/api/rplice/baseline/:id", requireAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const { targets, timelineMonths, status } = req.body;
@@ -933,7 +940,7 @@ Be specific. Use the actual data. Apply Dr. Flood's principle: education is the 
     }
   });
 
-  app.post("/api/rplice/action-plan", async (req, res) => {
+  app.post("/api/rplice/action-plan", requireAuth, async (req, res) => {
     try {
       const { regionName, stateFips, countyFips, analysisData } = req.body;
       if (!regionName || !stateFips || !countyFips) {
@@ -1044,7 +1051,7 @@ Generate 4-6 milestones per phase. Make them specific to the region's data. Use 
     }
   });
 
-  app.patch("/api/rplice/action-plan/:id", async (req, res) => {
+  app.patch("/api/rplice/action-plan/:id", requireAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const { phases, status } = req.body;

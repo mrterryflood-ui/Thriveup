@@ -68,7 +68,7 @@
 | WIOA | $200K–$500K | Active | Academy, M2C, MCE, PBC, ISSS |
 | Foundation | $100K–$500K | Active | Cross-ecosystem |
 | St. David's | Up to $1M | Active | Health platforms (7+) |
-| SSG Fox VA | $750K | Active | M2C, Collaborative Advocate, Shield Atlas |
+| SSG Fox VA | $750K | Active | M2C, Collaborative Advocate, Emergency Management |
 
 ### External Capabilities (What We Can Leverage)
 

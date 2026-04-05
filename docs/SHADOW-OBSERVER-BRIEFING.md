@@ -361,7 +361,7 @@ These are the 23 platforms you can observe health metrics for. You cannot see th
 | Platform | Purpose |
 |----------|---------|
 | SafeReport | Mandatory reporter incident management — 50-state regulations |
-| Shield Atlas | Risk intelligence — geographic risk mapping, resilience scoring |
+| Emergency Management | Risk intelligence — geographic risk mapping, resilience scoring |
 | LexiBridge (Speech Bridge) | Dialect-aware communication and culturally responsive translation |
 | Perfectly Different | Neurodiversity support — Autism, ADHD, IEP/504 plan assistance |
 

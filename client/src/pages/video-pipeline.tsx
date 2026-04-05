@@ -65,10 +65,11 @@ export default function VideoPipelinePage() {
     document.title = "Video Production Pipeline | ThriveUp Academy";
   }, []);
 
-  const { data: jobs = [], isLoading: jobsLoading } = useQuery<VideoRenderJob[]>({
+  const { data: jobsRaw, isLoading: jobsLoading } = useQuery<VideoRenderJob[]>({
     queryKey: ["/api/video-pipeline/jobs"],
     refetchInterval: 5000,
   });
+  const jobs = jobsRaw ?? [];
 
   const { data: stats } = useQuery<PipelineStats>({
     queryKey: ["/api/video-pipeline/stats"],

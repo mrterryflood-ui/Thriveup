@@ -165,7 +165,7 @@
 **Current ThriveUp Coverage:**
 - SafeReport platform exists in ecosystem for safety incident reporting
 - OSHA-adjacent content not present in student-facing curriculum
-- Shield Atlas handles security/threat assessment but not workplace safety training
+- Emergency Management handles security/threat assessment but not workplace safety training
 
 **Gap:** No student-facing workplace safety module. No coverage of OSHA basics, hazard identification, PPE, emergency procedures, or employer/employee safety responsibilities.
 

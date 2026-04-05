@@ -96,7 +96,7 @@ Active grants that your platform may support:
 | sankofa-feminine-health | Holistic Black Feminine Health Hub | Women's reproductive health |
 | sankofa-maternal-health | Black Maternal Health Network | Maternal care |
 | sankofa-mens-health | Black Men's Health Hub | Men's health |
-| shield-atlas | Shield Atlas | Risk intelligence |
+| emergency-mgmt | Emergency Management | Risk intelligence |
 | wholemind | WholeMind Learning | K-12 neuroscience education |
 | perfectly-different | Perfectly Different | Neurodiversity support |
 | safereport | SafeReport | Incident reporting |
@@ -123,7 +123,7 @@ Active grants that your platform may support:
 | Specialized Health | autoimmune-thrive, safecognicare, pillscheduler | Chronic/cognitive |
 | Maternal & Gender Health | sankofa-maternal-health, sankofa-feminine-health, sankofa-mens-health | Gender health |
 | Education & Youth | wholemind, isss, betterscience | Education |
-| Safety & Accessibility | safereport, shield-atlas, speech-bridge, perfectly-different | Safety |
+| Safety & Accessibility | safereport, emergency-mgmt, speech-bridge, perfectly-different | Safety |
 | Veteran & Workforce | m2c, mce, pinnacle-business-conglomerate | Veterans |
 
 ---
@@ -1516,7 +1516,7 @@ Body: { "problem": "...", "requiredOutcome": "...", "domains": ["..."] }
 | Platform | Primary Role | Leads In |
 |----------|-------------|----------|
 | Ecosystem Nexus | Orchestration + Intelligence Backbone | System orchestration, grants, integration, budget modeling |
-| Shield Atlas | Safety + Continuity + Emergency | Crisis scenarios, emergency planning, risk detection |
+| Emergency Management | Safety + Continuity + Emergency | Crisis scenarios, emergency planning, risk detection |
 | Better Science Lab / RPLICE | Governance + Architecture + Decision Integrity | Architecture, governance, validation, implementation science |
 | ISSS | People + Community + Execution Layer | Human-centered implementation, stakeholder engagement |
 | ThriveUp Academy | Workforce + Learning + Grants Support | Workforce training, grant readiness, skill alignment |
@@ -1532,13 +1532,13 @@ Body: { "problem": "...", "requiredOutcome": "...", "domains": ["..."] }
 |-----------|------|---------|----------|
 | Budgets & Financial | Nexus | RPLICE | ISSS |
 | Grants & Funding | Nexus / ThriveUp | ISSS | RPLICE |
-| Decision Modeling | Nexus | Shield Atlas | RPLICE |
-| Emergency Scenarios | Shield Atlas | Nexus | RPLICE |
+| Decision Modeling | Nexus | Emergency Management | RPLICE |
+| Emergency Scenarios | Emergency Management | Nexus | RPLICE |
 | Collaboration | ISSS | Nexus | RPLICE |
 | Governance | RPLICE | Nexus | ISSS |
 | Workforce | ThriveUp | ISSS | Nexus |
 | System Integration | Nexus | RPLICE | All |
-| Risk Detection | Shield Atlas | Nexus | RPLICE |
+| Risk Detection | Emergency Management | Nexus | RPLICE |
 | Health Screening | Whole-Person Health | Sankofa | RPLICE |
 | Veteran Services | M2C | Collaborative Advocate | Nexus |
 | Business Enablement | MCE | Pinnacle | RPLICE |
