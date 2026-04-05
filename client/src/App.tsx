@@ -158,6 +158,7 @@ const VideoPipelinePage = lazy(() => import("@/pages/video-pipeline"));
 const ProgramEnginePage = lazy(() => import("@/pages/program-engine"));
 const PricingPage = lazy(() => import("@/pages/pricing"));
 const ProposalCommandPage = lazy(() => import("@/pages/proposal-command"));
+const ProposalPipelinePage = lazy(() => import("@/pages/proposal-pipeline"));
 const BusinessDocumentsPage = lazy(() => import("@/pages/business-documents"));
 const CommunityResourceDirectoryPage = lazy(() => import("@/pages/community-resource-directory"));
 const BenefitsCommandCenterPage = lazy(() => import("@/pages/benefits-command-center"));
@@ -351,6 +352,7 @@ function AppRouter() {
       <Route path="/program-engine" component={ProgramEnginePage} />
       <Route path="/pricing" component={PricingPage} />
       <Route path="/proposal-command" component={ProposalCommandPage} />
+      <Route path="/proposal-pipeline" component={ProposalPipelinePage} />
       <Route component={NotFound} />
     </Switch>
   );

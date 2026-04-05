@@ -6009,6 +6009,237 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
     }
   });
 
+  app.get("/api/proposal-pipeline", async (_req: Request, res: Response) => {
+    try {
+      const proposals = [
+        {
+          id: "nsf-stem-k12",
+          title: "Community Infrastructure for STEM: How a 24-Platform Ecosystem Improves K-12 STEM Outcomes by Seeing the Whole Child, the Whole Family, and the Whole Community",
+          shortTitle: "NSF STEM K-12",
+          solicitation: "NSF 25-545",
+          agency: "National Science Foundation",
+          entity: "TCAF (501(c)(3))",
+          priority: 1,
+          status: "framework_complete",
+          fundingRange: "$350K - $750K",
+          budgetTarget: 738000,
+          deadline: null,
+          deadlineLabel: "No Deadline — Submit Anytime",
+          partnersRequired: false,
+          partners: [],
+          frameworkDoc: "/docs/grants/NSF-STEM-K12-Proposal-Framework.md",
+          implementationScience: {
+            frameworks: ["CFIR 2.0", "RE-AIM"],
+            instrument: "RPLICE",
+            researchDesign: "Mixed-methods with embedded implementation evaluation",
+            evaluationLevel: "Effectiveness-Implementation Hybrid Type 2"
+          },
+          readinessChecklist: [
+            { item: "Project Summary (1 page)", status: "complete", note: "Drafted in framework" },
+            { item: "Project Description (15 pages)", status: "complete", note: "Full framework built — needs final polish" },
+            { item: "Budget & Justification", status: "complete", note: "$738K budget detailed" },
+            { item: "PI Biosketch (NSF format)", status: "action_required", note: "Dr. Flood — convert CV to NSF biosketch format" },
+            { item: "Current & Pending Support", status: "action_required", note: "List all active/pending support" },
+            { item: "Data Management Plan", status: "not_started", note: "2 pages max — standard NSF format" },
+            { item: "References Cited", status: "not_started", note: "Compile from framework citations" },
+            { item: "Facilities & Equipment", status: "not_started", note: "Describe ThriveUp platform infrastructure" },
+            { item: "SAM.gov TIN Resolution", status: "blocker", note: "IRS TIN mismatch blocks ALL federal submissions" }
+          ],
+          blockers: [
+            "SAM.gov IRS TIN mismatch — must resolve before any Grants.gov/NSF submission"
+          ],
+          winStrategy: "Only applicant whose STEM platform is connected to cancer care, reentry services, veteran transitions, and family crisis support. The community infrastructure angle is unique in the NSF STEM K-12 portfolio.",
+          nextActions: [
+            "Resolve SAM.gov TIN mismatch",
+            "Convert Dr. Flood CV to NSF biosketch",
+            "Write Data Management Plan",
+            "Compile References Cited",
+            "Final polish on Project Description",
+            "Submit via Research.gov"
+          ]
+        },
+        {
+          id: "nsf-ate",
+          title: "AI-Ready Implementation Science Technicians: Training Community College Students to Bridge the Evidence-to-Practice Gap Using an Integrated Community Infrastructure Platform",
+          shortTitle: "NSF ATE",
+          solicitation: "NSF 24-586",
+          agency: "National Science Foundation",
+          entity: "ACC (Lead) + TCAF (Co-PI / Subaward)",
+          priority: 2,
+          status: "framework_complete",
+          fundingRange: "$150K - $600K",
+          budgetTarget: 599925,
+          deadline: "2026-10-01T23:59:59Z",
+          deadlineLabel: "October 1, 2026",
+          partnersRequired: true,
+          partners: [
+            { name: "Austin Community College (ACC)", role: "Lead Institution / PI", status: "connection_available", note: "Colleague contact at ACC — needs formal engagement" }
+          ],
+          frameworkDoc: "/docs/grants/NSF-ATE-Proposal-Framework.md",
+          implementationScience: {
+            frameworks: ["CFIR 2.0", "RE-AIM"],
+            instrument: "RPLICE",
+            researchDesign: "Mixed-methods quasi-experimental with embedded process evaluation",
+            evaluationLevel: "Meta-evaluation: using implementation science to evaluate implementation science training"
+          },
+          readinessChecklist: [
+            { item: "Project Summary (1 page)", status: "complete", note: "Drafted in framework" },
+            { item: "Project Description (15 pages)", status: "complete", note: "Full framework built — needs ACC PI input" },
+            { item: "Budget & Justification", status: "complete", note: "$599,925 over 3 years" },
+            { item: "ACC PI Identification", status: "action_required", note: "Must identify ACC faculty member as PI" },
+            { item: "ACC Institutional Letter", status: "action_required", note: "Dean/Provost commitment letter needed" },
+            { item: "PI Biosketch (NSF format)", status: "action_required", note: "Both ACC PI and Dr. Flood Co-PI" },
+            { item: "Current & Pending Support", status: "action_required", note: "Both PI and Co-PI" },
+            { item: "Collaboration Plan", status: "not_started", note: "ACC + TCAF roles and responsibilities" },
+            { item: "Data Management Plan", status: "not_started", note: "2 pages max" },
+            { item: "Employer Partner Letters (3-5)", status: "not_started", note: "Health departments, Integral Care, CommUnity Care, Workforce Solutions" },
+            { item: "SAM.gov TIN Resolution", status: "blocker", note: "Blocks TCAF subaward from ACC" }
+          ],
+          blockers: [
+            "SAM.gov IRS TIN mismatch — blocks subaward to TCAF",
+            "ACC PI must be identified and engaged"
+          ],
+          winStrategy: "First-ever associate's level implementation science program. Students train on live community data, not simulations. The meta-evaluation design (using implementation science to evaluate implementation science training) is uniquely elegant.",
+          nextActions: [
+            "Engage ACC colleague — identify PI",
+            "Get ACC institutional commitment letter",
+            "Resolve SAM.gov TIN mismatch",
+            "Recruit 3-5 employer partners",
+            "Write Collaboration Plan",
+            "Write Data Management Plan",
+            "IRB planning with ACC"
+          ]
+        },
+        {
+          id: "nsf-iuse-edu",
+          title: "Ecosystem-Integrated STEM Education for Nontraditional Undergraduates: A Community Infrastructure Approach",
+          shortTitle: "NSF IUSE:EDU",
+          solicitation: "NSF 23-510",
+          agency: "National Science Foundation",
+          entity: "TCAF (501(c)(3))",
+          priority: 3,
+          status: "evaluation_complete",
+          fundingRange: "$150K - $400K",
+          budgetTarget: 400000,
+          deadline: "2026-07-15T23:59:59Z",
+          deadlineLabel: "July 15, 2026",
+          partnersRequired: false,
+          partners: [],
+          frameworkDoc: "/docs/grants/NSF-IUSE-EDU-RPLICE-Evaluation.md",
+          implementationScience: {
+            frameworks: ["CFIR 2.0", "RE-AIM"],
+            instrument: "RPLICE",
+            researchDesign: "To be developed — Level 1 Engaged Student Learning",
+            evaluationLevel: "Level 1: Engaged Student Learning"
+          },
+          readinessChecklist: [
+            { item: "RPLICE Fit Evaluation", status: "complete", note: "HIGH priority — no gap identified" },
+            { item: "Community Infrastructure Framing", status: "complete", note: "Education is subordinate domain, not the platform" },
+            { item: "Project Summary", status: "not_started", note: "1 page" },
+            { item: "Project Description", status: "not_started", note: "15 pages max — must differentiate from STEM K-12" },
+            { item: "Budget & Justification", status: "not_started", note: "Up to $400K" },
+            { item: "PI Biosketch", status: "action_required", note: "Dr. Flood — NSF format" },
+            { item: "Data Management Plan", status: "not_started", note: "2 pages max" },
+            { item: "SAM.gov TIN Resolution", status: "blocker", note: "Must resolve before submission" }
+          ],
+          blockers: [
+            "SAM.gov IRS TIN mismatch",
+            "Must differentiate clearly from STEM K-12 submission"
+          ],
+          winStrategy: "Frame as undergraduate education research within a community infrastructure ecosystem. The platform doesn't just teach STEM — it shows how STEM learning is affected by housing, health, family stability, and community resources. No other IUSE proposal connects education to a 24-platform service delivery ecosystem.",
+          nextActions: [
+            "Build full proposal framework (similar to STEM K-12)",
+            "Differentiate from STEM K-12 in framing",
+            "Resolve SAM.gov TIN mismatch",
+            "Write Data Management Plan",
+            "Submit via Research.gov by July 15"
+          ]
+        },
+        {
+          id: "nsf-quantum",
+          title: "Quantum Education Through Community Infrastructure: Broadening Participation in Quantum Information Science",
+          shortTitle: "NSF Quantum DCL",
+          solicitation: "DCL 21-033",
+          agency: "National Science Foundation",
+          entity: "TCAF (501(c)(3))",
+          priority: 4,
+          status: "evaluation_complete",
+          fundingRange: "Embedded — adds $50K-$100K to parent proposal",
+          budgetTarget: 75000,
+          deadline: null,
+          deadlineLabel: "Embedded in STEM K-12 or IUSE:EDU — no separate deadline",
+          partnersRequired: false,
+          partners: [],
+          frameworkDoc: "/docs/grants/NSF-Quantum-Education-RPLICE-Evaluation.md",
+          implementationScience: {
+            frameworks: ["CFIR 2.0", "RE-AIM"],
+            instrument: "RPLICE",
+            researchDesign: "Two paths: embed in STEM K-12 (Path A) or standalone IUSE with quantum focus (Path B)",
+            evaluationLevel: "Secondary aim within parent proposal"
+          },
+          readinessChecklist: [
+            { item: "RPLICE Path Analysis", status: "complete", note: "Two paths evaluated — Path A (embed) recommended" },
+            { item: "Broadening Participation Angle", status: "complete", note: "Quantum currently excludes community populations" },
+            { item: "Quantum Curriculum Content", status: "not_started", note: "Must develop quantum concepts for community audience" },
+            { item: "Integration into Parent Proposal", status: "not_started", note: "Add as secondary aim in STEM K-12 or IUSE:EDU" }
+          ],
+          blockers: [
+            "Depends on STEM K-12 or IUSE:EDU parent proposal",
+            "Quantum content must be developed"
+          ],
+          winStrategy: "The broadening participation angle is the differentiator. Quantum education currently reaches elite universities — NOT the communities ThriveUp serves. We ARE the broadening participation engine. Add this as a secondary aim to any NSF submission for free optionality.",
+          nextActions: [
+            "Decide: embed in STEM K-12 (Path A) or IUSE:EDU (Path B)",
+            "Develop quantum-for-community curriculum outline",
+            "Add secondary aim to parent proposal"
+          ]
+        }
+      ];
+
+      const summary = {
+        totalProposals: proposals.length,
+        totalPotentialFunding: proposals.reduce((sum, p) => sum + p.budgetTarget, 0),
+        readyToSubmit: proposals.filter(p => p.status === "submission_ready").length,
+        frameworksComplete: proposals.filter(p => p.status === "framework_complete").length,
+        evaluationsComplete: proposals.filter(p => p.status === "evaluation_complete").length,
+        criticalBlockers: ["SAM.gov IRS TIN mismatch — blocks ALL federal submissions"],
+        upcomingDeadlines: proposals
+          .filter(p => p.deadline)
+          .sort((a, b) => new Date(a.deadline!).getTime() - new Date(b.deadline!).getTime())
+          .map(p => ({ title: p.shortTitle, deadline: p.deadlineLabel, daysRemaining: Math.ceil((new Date(p.deadline!).getTime() - Date.now()) / (1000 * 60 * 60 * 24)) }))
+      };
+
+      res.json({ proposals, summary });
+    } catch (error: any) {
+      console.error("[ProposalPipeline] Error:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.get("/api/proposal-pipeline/:id/framework", async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const docMap: Record<string, string> = {
+      "nsf-stem-k12": "docs/grants/NSF-STEM-K12-Proposal-Framework.md",
+      "nsf-ate": "docs/grants/NSF-ATE-Proposal-Framework.md",
+      "nsf-iuse-edu": "docs/grants/NSF-IUSE-EDU-RPLICE-Evaluation.md",
+      "nsf-quantum": "docs/grants/NSF-Quantum-Education-RPLICE-Evaluation.md"
+    };
+
+    const docPath = docMap[id as string];
+    if (!docPath) {
+      return res.status(404).json({ error: "Proposal not found" });
+    }
+
+    try {
+      const fs = await import("fs/promises");
+      const path = await import("path");
+      const content = await fs.readFile(path.join(process.cwd(), docPath), "utf-8");
+      res.json({ id, content, path: docPath });
+    } catch (error: any) {
+      res.status(500).json({ error: `Failed to read framework: ${error.message}` });
+    }
+  });
+
   let lastDailyDiscoveryRun: Date | null = null;
   let lastDiscoveryResult: { imported: number; skipped: number; total: number; error?: string } | null = null;
 

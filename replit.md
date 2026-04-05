@@ -73,6 +73,7 @@ Core architectural features and design decisions include:
 - **Collaborative Multi-AI Intelligence:** A 4-provider AI architecture (Gemini, Claude, OpenAI, Replit AI) for dual-AI review and perspective synthesis.
 - **4-Layer Congruence Rule:** Ensures synchronization across database schema, backend API, frontend, and public-facing pages.
 - **Shadow/Observer Mode:** Allows external applications to observe operations.
+- **Proposal Pipeline Dashboard (`/proposal-pipeline`):** Tracks all active NSF proposal submissions with priority ordering, readiness checklists, implementation science lens (CFIR 2.0 + RE-AIM + RPLICE), deadline countdowns, critical blockers, and win strategies. Currently tracks 4 proposals: NSF STEM K-12 (P1), NSF ATE with ACC partnership (P2), NSF IUSE:EDU (P3), NSF Quantum DCL (P4). Total pipeline: ~$1.8M. API: `GET /api/proposal-pipeline`, `GET /api/proposal-pipeline/:id/framework`. Framework documents in `docs/grants/`.
 - **Ecosystem Cross-Evaluation & Self-Audit:** Weekly/on-demand peer review and automated self-audits for continuous improvement.
 - **Bilateral Collaboration Exchange:** Automated daily exchange of intelligence, changes, lessons, and questions.
 - **TEKS §127.15 CTE Employability Skills Alignment:** Full alignment map and API endpoint for structured JSON alignment data, offering a verifiable Workforce Readiness Certificate.
