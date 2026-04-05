@@ -207,7 +207,7 @@ function CommunitiesWeServe() {
           </Badge>
           <h2 className="text-2xl sm:text-3xl font-bold mb-2" data-testid="text-communities-heading">Who We Empower</h2>
           <p className="text-sm text-muted-foreground max-w-lg mx-auto">
-            Real people in real communities — youth, veterans, returning citizens, and the organizations that champion them. We don't just provide services. We build the infrastructure so communities can lead their own transformation.
+            We take a holistic approach — seeing the whole person, not just one problem. We're agnostic about where solutions come from and agile enough to adapt when communities tell us what they actually need. The result: infrastructure built through intentional collaboration, not assumptions.
           </p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -240,7 +240,7 @@ function WhatWeDeliver() {
     },
     {
       icon: Building2, title: "Community Empowerment Infrastructure",
-      desc: "We don't parachute in and leave. We equip churches, nonprofits, schools, and local organizations with the tools to run their own workforce programs, track their own outcomes, and sustain their own impact — long after the grant ends.",
+      desc: "We don't parachute in and leave. We equip churches, nonprofits, schools, and local organizations with the tools to run their own programs, track their own outcomes, and sustain their own impact. Platform-agnostic. Community-led. Built to last beyond any single grant.",
     },
     {
       icon: BarChart3, title: "Transparent Outcome Accountability",
@@ -258,7 +258,7 @@ function WhatWeDeliver() {
         <div className="text-center mb-8">
           <h2 className="text-2xl sm:text-3xl font-bold mb-2" data-testid="text-deliver-heading">What We Actually Build</h2>
           <p className="text-sm text-muted-foreground max-w-lg mx-auto">
-            Not promises — infrastructure. Not handouts — credentials. Not programs that end when funding does — systems that communities own and sustain.
+            Not promises — infrastructure. Not handouts — credentials. Not rigid programs — agile systems that adapt to each community. We build through intentional collaboration and transparent communication, so every stakeholder sees the same truth.
           </p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -323,7 +323,7 @@ function HowItWorks() {
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-8">
           <h2 className="text-2xl sm:text-3xl font-bold mb-2" data-testid="text-how-heading">Three Steps to Impact</h2>
-          <p className="text-sm text-muted-foreground max-w-lg mx-auto">From community insight to measurable outcomes.</p>
+          <p className="text-sm text-muted-foreground max-w-lg mx-auto">A holistic path — from discovering what you're entitled to, through earning credentials, to owning your future. At every step, you lead. We build alongside you.</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {[
@@ -374,7 +374,7 @@ function DeepDiveSection() {
               </Badge>
               <h2 className="text-2xl font-bold mb-2">24 Platforms, One Living System</h2>
               <p className="text-sm text-muted-foreground max-w-2xl mx-auto">
-                We are problem solvers using collaborative accountability and transparency that is data-led and intentional — to make good programs better and leave no one behind.
+                Holistic by design. Agile by necessity. Agnostic by principle. We build through intentional collaboration, transparent communication, and the conviction that every community already has what it takes — they just need the infrastructure to prove it.
               </p>
             </div>
 
@@ -565,6 +565,9 @@ export default function LandingPage() {
           </p>
           <p className="text-sm text-muted-foreground/70 max-w-lg mx-auto px-2 mb-4" data-testid="text-hero-geography">
             Empowering Pflugerville, Manor, East Austin, and communities across Central Texas. Veteran-founded. Black-led. Built by people who've been where you are.
+          </p>
+          <p className="text-sm font-medium text-foreground/80 max-w-xl mx-auto px-2 mb-4" data-testid="text-hero-philosophy">
+            Holistic. Agile. Agnostic. We meet every community where they are — through intentional collaboration, honest communication, and building together.
           </p>
           <p className="text-xs text-muted-foreground/60 max-w-2xl mx-auto px-2 leading-relaxed" data-testid="text-hero-identity">
             ThriveUp is the community infrastructure platform — the operating system that empowers communities to coordinate workforce training, health equity, education, and case management across 6 domains, 24 platforms, and 4-engine AI.
