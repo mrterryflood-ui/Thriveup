@@ -114,10 +114,11 @@ export default function EcosystemConnectorPage() {
   const [directiveGrant, setDirectiveGrant] = useState("all");
   const [selectedTargets, setSelectedTargets] = useState<string[]>([]);
 
-  const { data: platforms = [], isLoading: platformsLoading } = useQuery<EcosystemPlatform[]>({
+  const { data: platformsRaw, isLoading: platformsLoading } = useQuery<EcosystemPlatform[]>({
     queryKey: ["/api/ecosystem/platforms"],
     refetchInterval: 5 * 60 * 1000,
   });
+  const platforms = platformsRaw ?? [];
 
   const { data: statusData } = useQuery<{
     totalPlatforms: number;
@@ -130,15 +131,17 @@ export default function EcosystemConnectorPage() {
     refetchInterval: 5 * 60 * 1000,
   });
 
-  const { data: events = [] } = useQuery<EcosystemEvent[]>({
+  const { data: eventsRaw } = useQuery<EcosystemEvent[]>({
     queryKey: ["/api/ecosystem/events"],
     refetchInterval: 5 * 60 * 1000,
   });
+  const events = eventsRaw ?? [];
 
-  const { data: directives = [] } = useQuery<any[]>({
+  const { data: directivesRaw } = useQuery<any[]>({
     queryKey: ["/api/ecosystem/directives"],
     refetchInterval: 5 * 60 * 1000,
   });
+  const directives = directivesRaw ?? [];
 
   const broadcastMutation = useMutation({
     mutationFn: async (payload: any) => {
