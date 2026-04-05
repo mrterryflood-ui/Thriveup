@@ -19,9 +19,9 @@ const PATHWAYS = [
   {
     id: "help",
     icon: Heart,
-    title: "I need help for my family",
+    title: "I need to know what my family qualifies for",
     subtitle: "Benefits, food, housing, healthcare, jobs",
-    description: "You may qualify for food assistance, healthcare, childcare, or other support you didn't know about. We check 9 programs at once — one conversation, not nine offices.",
+    description: "You may be eligible for programs you don't know about yet. We screen 9 programs at once — one conversation, not nine offices. You decide what to pursue.",
     action: "See What I Qualify For",
     href: "/benefits-screener",
     color: "from-rose-500 to-pink-600",
@@ -60,7 +60,7 @@ const PATHWAYS = [
     icon: HandshakeIcon,
     title: "My organization wants to do more for our community",
     subtitle: "Church, nonprofit, employer, school, or agency",
-    description: "You're already doing good work. We help you connect it to a larger network — shared referrals, coordinated services, and the data to show funders what you're accomplishing together.",
+    description: "You're already doing the work. We give you the infrastructure to multiply it — shared referrals, coordinated services, outcome tracking, and the data to prove to funders what your community already knows.",
     action: "See How We Work Together",
     href: "/coalition",
     color: "from-emerald-500 to-teal-600",
@@ -121,7 +121,7 @@ function TrustBar() {
     <div className="py-6 px-4 text-center" data-testid="section-trust-bar">
       <div className="max-w-5xl mx-auto">
         <p className="text-sm text-muted-foreground mb-3">
-          <strong>The Collaborative Advocate Foundation</strong> is a 501(c)(3) nonprofit, veteran-founded and Black-led, serving under-resourced communities nationwide.
+          <strong>The Collaborative Advocate Foundation</strong> (EIN 41-3618003) is a 501(c)(3) nonprofit, veteran-founded and Black-led, headquartered in Pflugerville, TX. Led by Dr. Terry Flood, DHA/DBA.
         </p>
         <div className="flex flex-wrap items-center justify-center gap-3">
           <Badge variant="outline" className="text-xs" data-testid="badge-trust-501c3">
@@ -148,10 +148,10 @@ function ImpactNumbers() {
       <div className="max-w-5xl mx-auto">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
           {[
+            { value: "6", label: "Service Domains" },
             { value: "24", label: "Connected Platforms" },
-            { value: "50", label: "States Deployable" },
-            { value: "12+", label: "Regions Analyzed" },
             { value: "4", label: "AI Engines" },
+            { value: "20", label: "TEKS Standards Covered" },
           ].map((stat) => (
             <div key={stat.label} className="py-2" data-testid={`stat-${stat.label.toLowerCase().replace(/\s+/g, '-')}`}>
               <p className="text-2xl sm:text-3xl font-bold text-primary">{stat.value}</p>
@@ -164,64 +164,113 @@ function ImpactNumbers() {
   );
 }
 
-function WhoWeServe() {
-  const stakeholders = [
+function CommunitiesWeServe() {
+  const populations = [
     {
-      icon: Heart, title: "Participants & Families",
-      desc: "AI navigator, benefits screening, career training, mentorship, and whole-person support — all free through community partners.",
-      cta: "Get Started", href: "/dashboard",
+      icon: GraduationCap, title: "CTE Students (Grades 9-12)",
+      desc: "Empowered with workforce readiness training aligned to all 20 TEKS §127.15 standards, verifiable digital credentials, and career pathways in healthcare, skilled trades, IT, and business — so they graduate ready to lead.",
+      location: "Pflugerville ISD, Manor ISD, Austin ISD",
     },
     {
-      icon: DollarSign, title: "Grant Makers & Funders",
-      desc: "Transparent outcome tracking across recidivism, employment, education, housing, and health. Data you can verify.",
-      cta: "View Outcomes", href: "/outcomes",
+      icon: Briefcase, title: "Out-of-School Youth (16-24)",
+      desc: "Equipped with GED pathways, AI-powered career exploration, and employer connections — giving young adults who were written off the tools to write their own story.",
+      location: "Austin metro area",
     },
     {
-      icon: Building2, title: "Community & Faith-Based Orgs",
-      desc: "Host programs, refer participants, track services, and demonstrate collective impact. Become a delivery partner.",
-      cta: "Become a Partner", href: "/partners",
+      icon: Shield, title: "Returning Citizens & Justice-Involved",
+      desc: "Empowered to rebuild — with credential recovery, fair-chance employer partnerships, housing navigation, and 365-day retention tracking that proves they belong in the workforce.",
+      location: "Travis County & surrounding counties",
     },
     {
-      icon: Shield, title: "Justice & Law Enforcement",
-      desc: "Diversion referrals, reentry case management, supervision tracking, and measurable recidivism reduction.",
-      cta: "Justice Integration", href: "/justice-partners",
+      icon: Award, title: "Veterans & Military Families",
+      desc: "Equipped to translate military discipline into civilian careers — with skills mapping, benefits navigation, peer mentorship, and employer connections that honor their service.",
+      location: "Central Texas",
     },
     {
-      icon: Factory, title: "Employers & Workforce",
-      desc: "Access trained, credentialed candidates. Fair chance hiring support. Retention tracking at 30/90/180/365 days.",
-      cta: "Partner With Us", href: "/workforce-employers",
+      icon: Heart, title: "Families Navigating Barriers",
+      desc: "Empowered to access what they're entitled to — benefits screening across 9 programs in one conversation, plus housing, food, and wraparound support so they can focus on what's next.",
+      location: "Any U.S. community",
     },
     {
-      icon: School, title: "Schools & Education",
-      desc: "Standards-aligned AI and digital literacy curriculum with teacher dashboards. GED pathways for adult learners.",
-      cta: "Explore Integration", href: "/academy/integration",
+      icon: Building2, title: "Community & Faith-Based Organizations",
+      desc: "Equipped with the infrastructure to run real workforce programs — track who you reach, coordinate referrals, report outcomes to funders, and prove the impact your community already knows you're making.",
+      location: "Pflugerville, Manor, East Austin",
     },
   ];
 
   return (
-    <section className="py-12 px-4 sm:py-16 sm:px-6" data-testid="section-who-we-serve">
+    <section className="py-12 px-4 sm:py-16 sm:px-6" data-testid="section-communities-we-serve">
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-8">
-          <h2 className="text-2xl sm:text-3xl font-bold mb-2" data-testid="text-serve-heading">Built for Every Stakeholder</h2>
+          <Badge variant="secondary" className="mb-3">
+            <MapPin className="mr-1 h-3 w-3" /> Central Texas &amp; Beyond
+          </Badge>
+          <h2 className="text-2xl sm:text-3xl font-bold mb-2" data-testid="text-communities-heading">Who We Empower</h2>
           <p className="text-sm text-muted-foreground max-w-lg mx-auto">
-            One platform that speaks every stakeholder's language — funders see outcomes, partners see coordination, participants see opportunity.
+            Real people in real communities — youth, veterans, returning citizens, and the organizations that champion them. We don't just provide services. We build the infrastructure so communities can lead their own transformation.
           </p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {stakeholders.map((s) => (
-            <Card key={s.title} className="p-5 flex flex-col" data-testid={`card-serve-${s.title.toLowerCase().replace(/\s+/g, '-')}`}>
+          {populations.map((p) => (
+            <Card key={p.title} className="p-5 flex flex-col" data-testid={`card-population-${p.title.toLowerCase().replace(/\s+/g, '-')}`}>
               <div className="flex items-start gap-3 mb-3">
                 <div className="rounded-md bg-primary/10 p-2 shrink-0">
-                  <s.icon className="h-4 w-4 text-primary" />
+                  <p.icon className="h-4 w-4 text-primary" />
                 </div>
-                <h3 className="font-semibold text-sm">{s.title}</h3>
+                <h3 className="font-semibold text-sm">{p.title}</h3>
               </div>
-              <p className="text-sm text-muted-foreground leading-relaxed flex-1 mb-4">{s.desc}</p>
-              <Link href={s.href}>
-                <Button variant="outline" size="sm" className="w-full" data-testid={`button-serve-${s.title.toLowerCase().replace(/\s+/g, '-')}`}>
-                  {s.cta} <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
-                </Button>
-              </Link>
+              <p className="text-sm text-muted-foreground leading-relaxed flex-1 mb-3">{p.desc}</p>
+              <div className="flex items-center gap-1.5 text-xs text-primary/70">
+                <MapPin className="h-3 w-3 shrink-0" />
+                <span>{p.location}</span>
+              </div>
+            </Card>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function WhatWeDeliver() {
+  const programs = [
+    {
+      icon: GraduationCap, title: "ThriveUp Workforce Readiness Certificate",
+      desc: "15-week AI-powered curriculum covering professional presence, workplace rights, safety (OSHA), time management, and work ethic. Mapped to all 20 TEKS §127.15 CTE standards. Completers earn a verifiable digital credential they own forever.",
+    },
+    {
+      icon: Building2, title: "Community Empowerment Infrastructure",
+      desc: "We don't parachute in and leave. We equip churches, nonprofits, schools, and local organizations with the tools to run their own workforce programs, track their own outcomes, and sustain their own impact — long after the grant ends.",
+    },
+    {
+      icon: BarChart3, title: "Transparent Outcome Accountability",
+      desc: "Employment at 30/90/180/365 days, credential attainment, recidivism reduction, wage gains, and housing stability — all transparent, all verifiable. Communities see their own data. Funders see proof.",
+    },
+    {
+      icon: Sparkles, title: "AI That Works for the Community",
+      desc: "Four AI engines that personalize learning paths, screen for benefits, map community needs, and evaluate what's working — putting the power of data science in the hands of the people it's supposed to help.",
+    },
+  ];
+
+  return (
+    <section className="py-12 px-4 sm:py-16 sm:px-6 bg-card" data-testid="section-what-we-deliver">
+      <div className="max-w-5xl mx-auto">
+        <div className="text-center mb-8">
+          <h2 className="text-2xl sm:text-3xl font-bold mb-2" data-testid="text-deliver-heading">What We Actually Build</h2>
+          <p className="text-sm text-muted-foreground max-w-lg mx-auto">
+            Not promises — infrastructure. Not handouts — credentials. Not programs that end when funding does — systems that communities own and sustain.
+          </p>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {programs.map((pr) => (
+            <Card key={pr.title} className="p-5" data-testid={`card-deliver-${pr.title.toLowerCase().replace(/\s+/g, '-')}`}>
+              <div className="flex items-start gap-3 mb-2">
+                <div className="rounded-md bg-primary/10 p-2 shrink-0">
+                  <pr.icon className="h-4 w-4 text-primary" />
+                </div>
+                <h3 className="font-semibold text-sm">{pr.title}</h3>
+              </div>
+              <p className="text-sm text-muted-foreground leading-relaxed">{pr.desc}</p>
             </Card>
           ))}
         </div>
@@ -278,9 +327,9 @@ function HowItWorks() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {[
-            { step: 1, title: "Understand the Community", desc: "Enter any location and see layered data: health, poverty, resources, employment gaps. Know exactly what your community needs.", icon: Search },
-            { step: 2, title: "Connect to Services", desc: "Benefits screening, workforce training, partner referrals, and AI-powered navigation — all in one place.", icon: Target },
-            { step: 3, title: "Measure Impact", desc: "Track outcomes, generate reports, and prove results to funders with verifiable data at every step.", icon: BarChart3 },
+            { step: 1, title: "Discover & Unlock", desc: "Find out what you qualify for — 9+ benefit programs screened in one conversation. Then choose your path: workforce training, education, career exploration, or the support you need to get stable first.", icon: Search },
+            { step: 2, title: "Learn & Earn Your Credential", desc: "AI-powered workforce readiness curriculum — 15 weeks, self-paced, aligned to Texas CTE standards. You earn a verifiable digital credential that's yours to keep and share with employers.", icon: Target },
+            { step: 3, title: "Launch & Own Your Future", desc: "Employer matching, interview prep, and placement support. Outcomes tracked at 30, 90, 180, and 365 days — not to check on you, but to prove what you've built.", icon: BarChart3 },
           ].map((item) => (
             <Card key={item.step} className="p-5 text-center" data-testid={`card-step-${item.step}`}>
               <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
@@ -508,17 +557,17 @@ export default function LandingPage() {
             <span className="text-sm font-medium text-primary">The Collaborative Advocate Foundation</span>
           </div>
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 tracking-tight leading-[1.15]" data-testid="text-hero-title">
-            You're not alone.<br />
-            <span className="text-primary">We're here to help.</span>
+            Empowering communities<br />
+            <span className="text-primary">to build their own futures.</span>
           </h1>
           <p className="text-base sm:text-lg text-muted-foreground max-w-xl mx-auto mb-4 px-2 leading-relaxed" data-testid="text-hero-subtitle">
-            Whether you need help paying for groceries, finding a job, getting job training, or navigating a system that wasn't built for you — start here. We'll walk with you.
+            We equip youth, veterans, returning citizens, families, and the organizations that champion them — with AI-powered training, verifiable credentials, and the infrastructure to create lasting change from within.
           </p>
-          <p className="text-sm text-muted-foreground/70 max-w-lg mx-auto px-2 mb-4">
-            Built by a veteran. Led by people who've been where you are. Serving every community, every background, every age.
+          <p className="text-sm text-muted-foreground/70 max-w-lg mx-auto px-2 mb-4" data-testid="text-hero-geography">
+            Empowering Pflugerville, Manor, East Austin, and communities across Central Texas. Veteran-founded. Black-led. Built by people who've been where you are.
           </p>
           <p className="text-xs text-muted-foreground/60 max-w-2xl mx-auto px-2 leading-relaxed" data-testid="text-hero-identity">
-            ThriveUp is the community infrastructure platform — the operating system for how communities support, engage, connect, and serve their people across every domain at every life stage.
+            ThriveUp is the community infrastructure platform — the operating system that empowers communities to coordinate workforce training, health equity, education, and case management across 6 domains, 24 platforms, and 4-engine AI.
           </p>
         </div>
       </section>
@@ -551,9 +600,10 @@ export default function LandingPage() {
 
       <TrustBar />
       <ImpactNumbers />
+      <CommunitiesWeServe />
+      <WhatWeDeliver />
       <HowItWorks />
       <SuccessStories />
-      <WhoWeServe />
       <DeepDiveSection />
 
       <footer className="py-8 px-4 sm:py-10 sm:px-6 border-t bg-card" data-testid="footer-main">
@@ -565,7 +615,7 @@ export default function LandingPage() {
                 <span className="font-semibold" data-testid="text-footer-brand">ThriveUp Academy</span>
               </div>
               <p className="text-xs text-muted-foreground leading-relaxed mb-2" data-testid="text-footer-tagline">
-                Community infrastructure platform — the OS for how communities support, engage, connect, and serve their people across every domain at every life stage.
+                Empowering youth, veterans, returning citizens, families, and the organizations that champion them — with AI-powered workforce development and community infrastructure across Central Texas and beyond.
               </p>
               <p className="text-xs text-muted-foreground/70" data-testid="text-footer-foundation">
                 The Collaborative Advocate Foundation 501(c)(3)
