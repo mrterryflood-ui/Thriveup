@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import { PageHeader } from "@/components/page-header";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -14,12 +16,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import {
   GraduationCap,
   Briefcase,
@@ -43,6 +39,17 @@ import {
   ArrowRight,
   Star,
   Clock,
+  Brain,
+  Sparkles,
+  Loader2,
+  ChevronRight,
+  Compass,
+  Activity,
+  BarChart3,
+  Zap,
+  DollarSign,
+  Lightbulb,
+  Search,
 } from "lucide-react";
 import { Link } from "wouter";
 
@@ -60,6 +67,7 @@ interface TransitionPlan {
   status: string;
   createdDate: string;
   lastUpdated: string;
+  isExample?: boolean;
 }
 
 interface CollegeApplication {
@@ -101,6 +109,21 @@ interface FollowUp {
   wageInfo: string;
   notes: string;
   completedDate: string;
+}
+
+interface AIAdvisorResponse {
+  answer: string;
+  engines: Array<{
+    engine: string;
+    model: string;
+    responseTimeMs: number;
+    hasResponse: boolean;
+    error?: string;
+  }>;
+  ragContext?: { sources: string[] };
+  frameworks?: string[];
+  consensusMethod?: string;
+  totalTimeMs?: number;
 }
 
 const EDUCATION_GOAL_TYPES = [
@@ -170,6 +193,55 @@ const SUPPORT_SERVICES = [
 
 const FOLLOW_UP_MONTHS = [1, 2, 3, 6, 9, 12];
 
+const LIFECYCLE_STEPS = [
+  {
+    label: "Assessment",
+    icon: ClipboardCheck,
+    tools: ["Self-Assessment", "Readiness Gauges"],
+    outcomes: ["Baseline scores", "Barrier identification"],
+  },
+  {
+    label: "Goal Setting",
+    icon: Target,
+    tools: ["ITP Builder", "Career Explorer"],
+    outcomes: ["Education goals", "Career goals"],
+  },
+  {
+    label: "Plan Development",
+    icon: FileText,
+    tools: ["Transition Plan Builder", "Support Services"],
+    outcomes: ["Individualized plan", "Service coordination"],
+  },
+  {
+    label: "Implementation",
+    icon: Zap,
+    tools: ["My Journey", "FAFSA Navigator"],
+    outcomes: ["Enrollment", "Credential pursuit"],
+  },
+  {
+    label: "Monitoring",
+    icon: Activity,
+    tools: ["Readiness Dashboard", "AI Advisor"],
+    outcomes: ["Progress tracking", "Intervention triggers"],
+  },
+  {
+    label: "Post-Exit Follow-Up",
+    icon: BarChart3,
+    tools: ["12-Month Tracker", "Outcome Reports"],
+    outcomes: ["Employment data", "WIOA compliance"],
+  },
+];
+
+const CROSS_PAGE_LINKS = [
+  { label: "FAFSA Navigator", href: "/fafsa-navigator", icon: DollarSign, description: "Financial aid guidance" },
+  { label: "Apprenticeship Pathways", href: "/apprenticeship-tracker", icon: Briefcase, description: "Career apprenticeships" },
+  { label: "Workforce Dashboard", href: "/workforce-dashboard", icon: BarChart3, description: "Employment pipeline" },
+  { label: "Career Exploration", href: "/academy/careers", icon: Compass, description: "Explore career paths" },
+  { label: "Opportunity Youth", href: "/opportunity-youth", icon: Users, description: "Re-engagement programs" },
+  { label: "My Journey", href: "/my-journey", icon: MapPin, description: "30-day onboarding" },
+  { label: "Benefits Screener", href: "/benefits-screener", icon: Shield, description: "Eligibility screening" },
+];
+
 const SAMPLE_PLANS: TransitionPlan[] = [
   {
     id: "tp-1",
@@ -189,6 +261,7 @@ const SAMPLE_PLANS: TransitionPlan[] = [
     status: "active",
     createdDate: "2025-09-01",
     lastUpdated: "2026-04-15",
+    isExample: true,
   },
   {
     id: "tp-2",
@@ -208,6 +281,7 @@ const SAMPLE_PLANS: TransitionPlan[] = [
     status: "active",
     createdDate: "2025-08-15",
     lastUpdated: "2026-04-10",
+    isExample: true,
   },
   {
     id: "tp-3",
@@ -227,6 +301,7 @@ const SAMPLE_PLANS: TransitionPlan[] = [
     status: "active",
     createdDate: "2025-10-01",
     lastUpdated: "2026-04-12",
+    isExample: true,
   },
 ];
 
@@ -323,6 +398,372 @@ function getReadinessLevel(score: number): { label: string; color: string } {
   return { label: "Beginning", color: "text-red-600" };
 }
 
+function ExampleBadge() {
+  return (
+    <Badge
+      variant="secondary"
+      className="bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 text-[10px] shrink-0"
+      data-testid="badge-example"
+    >
+      EXAMPLE
+    </Badge>
+  );
+}
+
+function ExampleNote({ text }: { text: string }) {
+  return (
+    <div className="flex items-start gap-2 p-3 rounded-md bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/40 mt-3" data-testid="note-example">
+      <Lightbulb className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
+      <p className="text-xs text-amber-700 dark:text-amber-300">{text}</p>
+    </div>
+  );
+}
+
+function TransitionLifecycle() {
+  return (
+    <Card className="p-5" data-testid="card-lifecycle">
+      <h3 className="font-semibold text-sm mb-4 flex items-center gap-2">
+        <Activity className="h-4 w-4" /> Transition Planning Lifecycle
+      </h3>
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        {LIFECYCLE_STEPS.map((step, i) => {
+          const StepIcon = step.icon;
+          return (
+            <div key={step.label} className="relative" data-testid={`lifecycle-step-${i}`}>
+              <div className="flex flex-col items-center text-center p-3 rounded-md bg-muted/30">
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mb-2">
+                  <StepIcon className="h-5 w-5 text-primary" />
+                </div>
+                <p className="text-xs font-semibold mb-1">{step.label}</p>
+                <div className="space-y-0.5">
+                  {step.tools.map(t => (
+                    <p key={t} className="text-[10px] text-muted-foreground">{t}</p>
+                  ))}
+                </div>
+                <div className="mt-2 space-y-0.5">
+                  {step.outcomes.map(o => (
+                    <p key={o} className="text-[10px] text-emerald-600 dark:text-emerald-400">{o}</p>
+                  ))}
+                </div>
+              </div>
+              {i < LIFECYCLE_STEPS.length - 1 && (
+                <div className="hidden lg:flex absolute top-1/3 -right-2 z-10">
+                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </Card>
+  );
+}
+
+function CrossPageNav() {
+  return (
+    <Card className="p-5" data-testid="card-cross-page-nav">
+      <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
+        <Compass className="h-4 w-4" /> Connected Tools & Resources
+      </h3>
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
+        {CROSS_PAGE_LINKS.map(link => {
+          const NavIcon = link.icon;
+          return (
+            <Link key={link.href} href={link.href}>
+              <div
+                className="flex items-center gap-3 p-3 rounded-md bg-muted/30 hover-elevate cursor-pointer"
+                data-testid={`link-nav-${link.href.replace(/\//g, "-").slice(1)}`}
+              >
+                <NavIcon className="h-4 w-4 text-muted-foreground shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-xs font-medium truncate">{link.label}</p>
+                  <p className="text-[10px] text-muted-foreground truncate">{link.description}</p>
+                </div>
+              </div>
+            </Link>
+          );
+        })}
+      </div>
+    </Card>
+  );
+}
+
+function AITransitionAdvisor({ plans }: { plans: TransitionPlan[] }) {
+  const { toast } = useToast();
+  const [question, setQuestion] = useState("");
+  const [aiResponse, setAiResponse] = useState<AIAdvisorResponse | null>(null);
+  const [activeAction, setActiveAction] = useState<string | null>(null);
+
+  const advisorMutation = useMutation({
+    mutationFn: async (payload: { question: string; studentProfile?: Record<string, unknown> }) => {
+      const res = await apiRequest("POST", "/api/transition/ai-advisor", payload);
+      return res.json() as Promise<AIAdvisorResponse>;
+    },
+    onSuccess: (data) => {
+      setAiResponse(data);
+      setActiveAction(null);
+    },
+    onError: (err: Error) => {
+      toast({ title: "AI Advisor Error", description: err.message, variant: "destructive" });
+      setActiveAction(null);
+    },
+  });
+
+  const handleAskQuestion = () => {
+    if (!question.trim()) return;
+    setActiveAction("custom");
+    advisorMutation.mutate({ question });
+  };
+
+  const handleGeneratePlan = () => {
+    setActiveAction("generate");
+    const samplePlan = plans[0];
+    advisorMutation.mutate({
+      question: "Generate a comprehensive personalized transition plan for this student. Include specific milestones, timelines, recommended services, and measurable goals aligned with WIOA requirements.",
+      studentProfile: samplePlan ? {
+        age: 18,
+        gradeLevel: "12th",
+        postSecondaryGoal: samplePlan.educationGoalDetails,
+        employmentGoal: samplePlan.careerGoal,
+        strengths: ["Self-advocacy", "Time management"],
+        barriers: ["Transportation", "Financial literacy"],
+      } : {
+        age: 17,
+        gradeLevel: "11th",
+        postSecondaryGoal: "Community College",
+        employmentGoal: "Entry-level career",
+        strengths: ["Motivation", "Communication"],
+        barriers: ["Academic gaps", "Limited work experience"],
+      },
+    });
+  };
+
+  const handlePredictReadiness = () => {
+    setActiveAction("readiness");
+    const avgScores = plans.length > 0 ? {
+      academic: Math.round(plans.reduce((s, p) => s + p.readinessScores.academic, 0) / plans.length),
+      career: Math.round(plans.reduce((s, p) => s + p.readinessScores.career, 0) / plans.length),
+      personalSocial: Math.round(plans.reduce((s, p) => s + p.readinessScores.personalSocial, 0) / plans.length),
+    } : { academic: 50, career: 50, personalSocial: 50 };
+
+    advisorMutation.mutate({
+      question: `Analyze these current readiness scores and predict timeline to full readiness (80%+ in all domains). Academic: ${avgScores.academic}%, Career: ${avgScores.career}%, Personal/Social: ${avgScores.personalSocial}%. Provide specific interventions for each domain and estimated months to reach readiness thresholds.`,
+      studentProfile: {
+        age: 18,
+        gradeLevel: "12th",
+        barriers: ["Transportation", "Limited work experience"],
+        strengths: ["Self-advocacy", "Motivation"],
+      },
+    });
+  };
+
+  const handleRecommendServices = () => {
+    setActiveAction("services");
+    advisorMutation.mutate({
+      question: "Based on this student's profile, recommend specific support services with justification. Include local Austin/Travis County resources, community organizations, and WIOA-funded programs. Prioritize services by urgency and impact.",
+      studentProfile: {
+        age: 18,
+        gradeLevel: "12th",
+        postSecondaryGoal: "Community College",
+        employmentGoal: "IT Support",
+        barriers: ["Transportation", "Housing instability", "Limited financial literacy"],
+        strengths: ["Technical aptitude", "Self-motivation"],
+        currentServices: ["Academic tutoring", "Mentoring"],
+      },
+    });
+  };
+
+  return (
+    <Card className="p-5" data-testid="card-ai-advisor">
+      <div className="flex items-center gap-2 mb-4 flex-wrap">
+        <Brain className="h-5 w-5 text-primary" />
+        <h3 className="font-semibold text-sm">AI Transition Advisor</h3>
+        <Badge variant="secondary" className="text-[10px]">4-Engine Collaborative AI</Badge>
+      </div>
+
+      <div className="flex gap-2 mb-4 flex-wrap">
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={handleGeneratePlan}
+          disabled={advisorMutation.isPending}
+          data-testid="button-ai-generate-plan"
+        >
+          {activeAction === "generate" && advisorMutation.isPending ? (
+            <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+          ) : (
+            <Sparkles className="h-4 w-4 mr-1" />
+          )}
+          Generate My Transition Plan
+        </Button>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={handlePredictReadiness}
+          disabled={advisorMutation.isPending}
+          data-testid="button-ai-predict-readiness"
+        >
+          {activeAction === "readiness" && advisorMutation.isPending ? (
+            <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+          ) : (
+            <TrendingUp className="h-4 w-4 mr-1" />
+          )}
+          Predict My Readiness
+        </Button>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={handleRecommendServices}
+          disabled={advisorMutation.isPending}
+          data-testid="button-ai-recommend-services"
+        >
+          {activeAction === "services" && advisorMutation.isPending ? (
+            <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+          ) : (
+            <Search className="h-4 w-4 mr-1" />
+          )}
+          Recommend Support Services
+        </Button>
+      </div>
+
+      <div className="flex gap-2 mb-4">
+        <Textarea
+          placeholder="Ask the AI Transition Advisor any question about postsecondary planning, readiness, services, or WIOA compliance..."
+          value={question}
+          onChange={e => setQuestion(e.target.value)}
+          className="text-sm min-h-[60px]"
+          data-testid="input-ai-question"
+        />
+        <Button
+          onClick={handleAskQuestion}
+          disabled={advisorMutation.isPending || !question.trim()}
+          data-testid="button-ai-ask"
+        >
+          {activeAction === "custom" && advisorMutation.isPending ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <ArrowRight className="h-4 w-4" />
+          )}
+        </Button>
+      </div>
+
+      {advisorMutation.isPending && (
+        <div className="flex items-center gap-3 p-4 rounded-md bg-primary/5" data-testid="status-ai-loading">
+          <Loader2 className="h-5 w-5 animate-spin text-primary" />
+          <div>
+            <p className="text-sm font-medium">AI engines collaborating...</p>
+            <p className="text-xs text-muted-foreground">Querying 4 AI engines with RAG, RPLICE, and MAP-GAP frameworks</p>
+          </div>
+        </div>
+      )}
+
+      {aiResponse && !advisorMutation.isPending && (
+        <div className="space-y-4" data-testid="section-ai-response">
+          <div className="p-4 rounded-md bg-muted/30">
+            <p className="text-sm whitespace-pre-wrap" data-testid="text-ai-answer">{aiResponse.answer}</p>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2" data-testid="section-engine-metadata">
+            {aiResponse.engines.map((engine, i) => (
+              <div key={i} className="p-2 rounded-md bg-muted/20 text-center" data-testid={`engine-${engine.engine}`}>
+                <p className="text-[10px] font-semibold truncate">{engine.engine}</p>
+                <p className="text-[10px] text-muted-foreground truncate">{engine.model}</p>
+                <div className="flex items-center justify-center gap-1 mt-1">
+                  {engine.hasResponse ? (
+                    <CheckCircle2 className="h-3 w-3 text-emerald-500" />
+                  ) : (
+                    <Circle className="h-3 w-3 text-muted-foreground" />
+                  )}
+                  <span className="text-[9px] text-muted-foreground">{engine.responseTimeMs}ms</span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-2 flex-wrap text-[10px]">
+            {aiResponse.frameworks && aiResponse.frameworks.length > 0 && (
+              <Badge variant="outline" className="text-[10px]" data-testid="badge-frameworks">
+                Frameworks: {aiResponse.frameworks.join(", ")}
+              </Badge>
+            )}
+            {aiResponse.ragContext?.sources && aiResponse.ragContext.sources.length > 0 && (
+              <Badge variant="outline" className="text-[10px]" data-testid="badge-rag-sources">
+                RAG Sources: {aiResponse.ragContext.sources.length}
+              </Badge>
+            )}
+            {aiResponse.consensusMethod && (
+              <Badge variant="outline" className="text-[10px]" data-testid="badge-consensus">
+                {aiResponse.consensusMethod}
+              </Badge>
+            )}
+            {aiResponse.totalTimeMs && (
+              <span className="text-muted-foreground" data-testid="text-total-time">
+                Total: {aiResponse.totalTimeMs}ms
+              </span>
+            )}
+          </div>
+        </div>
+      )}
+    </Card>
+  );
+}
+
+function HolisticDashboard({ plans }: { plans: TransitionPlan[] }) {
+  const activePlans = plans.filter(p => p.status === "active").length;
+  const avgAcademic = plans.length > 0 ? Math.round(plans.reduce((s, p) => s + p.readinessScores.academic, 0) / plans.length) : 0;
+  const avgCareer = plans.length > 0 ? Math.round(plans.reduce((s, p) => s + p.readinessScores.career, 0) / plans.length) : 0;
+  const avgPersonal = plans.length > 0 ? Math.round(plans.reduce((s, p) => s + p.readinessScores.personalSocial, 0) / plans.length) : 0;
+  const avgOverall = plans.length > 0 ? Math.round((avgAcademic + avgCareer + avgPersonal) / 3) : 0;
+
+  const totalApps = SAMPLE_APPLICATIONS.length;
+  const acceptedApps = SAMPLE_APPLICATIONS.filter(a => a.applicationStatus === "accepted" || a.applicationStatus === "enrolled").length;
+  const acceptanceRate = totalApps > 0 ? Math.round((acceptedApps / totalApps) * 100) : 0;
+
+  const totalCreds = SAMPLE_CREDENTIALS.length;
+  const earnedCreds = SAMPLE_CREDENTIALS.filter(c => c.status === "earned").length;
+  const credRate = totalCreds > 0 ? Math.round((earnedCreds / totalCreds) * 100) : 0;
+
+  const followUpCompliance = FOLLOW_UP_MONTHS.length > 0
+    ? Math.round((SAMPLE_FOLLOWUPS.length / FOLLOW_UP_MONTHS.length) * 100)
+    : 0;
+
+  const employedFollowups = SAMPLE_FOLLOWUPS.filter(f => f.employmentStatus.includes("employed")).length;
+  const employmentRate = SAMPLE_FOLLOWUPS.length > 0
+    ? Math.round((employedFollowups / SAMPLE_FOLLOWUPS.length) * 100)
+    : 0;
+
+  const metrics = [
+    { label: "Active Plans", value: activePlans, icon: FileText, color: "from-blue-500 to-blue-600", progress: null },
+    { label: "Avg. Readiness", value: `${avgOverall}%`, icon: Star, color: "from-amber-500 to-amber-600", progress: avgOverall },
+    { label: "College Acceptance", value: `${acceptanceRate}%`, icon: GraduationCap, color: "from-emerald-500 to-emerald-600", progress: acceptanceRate },
+    { label: "Credential Attainment", value: `${credRate}%`, icon: Award, color: "from-purple-500 to-purple-600", progress: credRate },
+    { label: "WIOA Follow-Up", value: `${followUpCompliance}%`, icon: Shield, color: "from-sky-500 to-sky-600", progress: followUpCompliance },
+    { label: "Post-Exit Employment", value: `${employmentRate}%`, icon: Briefcase, color: "from-rose-500 to-rose-600", progress: employmentRate },
+  ];
+
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3" data-testid="section-holistic-dashboard">
+      {metrics.map((m, i) => {
+        const MIcon = m.icon;
+        return (
+          <Card key={m.label} className="p-4" data-testid={`metric-${m.label.toLowerCase().replace(/\s+/g, "-")}`}>
+            <div className="flex items-center gap-2 mb-2">
+              <div className={`p-1.5 rounded-md bg-gradient-to-br ${m.color}`}>
+                <MIcon className="h-3.5 w-3.5 text-white" />
+              </div>
+              <p className="text-[10px] text-muted-foreground">{m.label}</p>
+            </div>
+            <p className="text-lg font-bold" data-testid={`text-metric-${i}`}>{m.value}</p>
+            {m.progress !== null && (
+              <Progress value={m.progress} className="h-1 mt-2" />
+            )}
+          </Card>
+        );
+      })}
+    </div>
+  );
+}
+
 function ReadinessGauge({ label, score, icon: Icon }: { label: string; score: number; icon: typeof GraduationCap }) {
   const level = getReadinessLevel(score);
   return (
@@ -375,6 +816,7 @@ function PlanBuilder({ onSave }: { onSave: (plan: Partial<TransitionPlan>) => vo
       supportServices: selectedServices,
       readinessScores: { academic: 50, career: 50, personalSocial: 50 },
       status: "active",
+      isExample: false,
     });
   };
 
@@ -559,15 +1001,22 @@ function PlanCard({ plan, applications, credentials, followUps, onSelect }: {
   const earnedCredentials = credentials.filter(c => c.status === "earned").length;
 
   return (
-    <Card className="p-4 hover-elevate cursor-pointer" onClick={onSelect} data-testid={`card-plan-${plan.id}`}>
+    <Card
+      className={`p-4 hover-elevate cursor-pointer ${plan.isExample ? "border-amber-300 dark:border-amber-700" : ""}`}
+      onClick={onSelect}
+      data-testid={`card-plan-${plan.id}`}
+    >
       <div className="flex items-start justify-between gap-3 mb-3 flex-wrap">
         <div>
           <h3 className="font-semibold" data-testid={`text-plan-name-${plan.id}`}>{plan.studentName}</h3>
           <p className="text-xs text-muted-foreground">{plan.studentId}</p>
         </div>
-        <Badge variant="secondary" className={getStatusColor(plan.status)} data-testid={`badge-plan-status-${plan.id}`}>
-          {plan.status}
-        </Badge>
+        <div className="flex items-center gap-1.5 flex-wrap">
+          {plan.isExample && <ExampleBadge />}
+          <Badge variant="secondary" className={getStatusColor(plan.status)} data-testid={`badge-plan-status-${plan.id}`}>
+            {plan.status}
+          </Badge>
+        </div>
       </div>
 
       <div className="space-y-2 mb-3">
@@ -603,6 +1052,10 @@ function PlanCard({ plan, applications, credentials, followUps, onSelect }: {
         </div>
         <Progress value={skillsPercent} className="h-1.5" />
       </div>
+
+      {plan.isExample && (
+        <ExampleNote text="This is an example transition plan — create real plans by completing the student intake process and working with your transition coordinator to set personalized goals." />
+      )}
     </Card>
   );
 }
@@ -623,13 +1076,31 @@ function PlanDetail({ plan, applications, credentials, followUps }: {
 
   return (
     <div className="space-y-6">
+      {plan.isExample && (
+        <div className="flex items-start gap-3 p-4 rounded-md bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/40" data-testid="banner-example-plan">
+          <Lightbulb className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+          <div>
+            <div className="flex items-center gap-2 mb-1 flex-wrap">
+              <p className="text-sm font-semibold text-amber-700 dark:text-amber-300">Example Plan</p>
+              <ExampleBadge />
+            </div>
+            <p className="text-xs text-amber-700 dark:text-amber-300">
+              This is a demonstration plan showing system capabilities. Real plans are created through the student intake process with your transition coordinator. Data shown here is fictional and for illustration purposes only.
+            </p>
+          </div>
+        </div>
+      )}
+
       <Card className="p-5" data-testid="card-plan-overview">
         <div className="flex items-start justify-between gap-3 mb-4 flex-wrap">
           <div>
             <h2 className="font-semibold text-lg" data-testid="text-detail-name">{plan.studentName}</h2>
             <p className="text-sm text-muted-foreground">{plan.studentId} | Last updated: {plan.lastUpdated}</p>
           </div>
-          <Badge variant="secondary" className={getStatusColor(plan.status)}>{plan.status}</Badge>
+          <div className="flex items-center gap-1.5 flex-wrap">
+            {plan.isExample && <ExampleBadge />}
+            <Badge variant="secondary" className={getStatusColor(plan.status)}>{plan.status}</Badge>
+          </div>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
@@ -680,11 +1151,14 @@ function PlanDetail({ plan, applications, credentials, followUps }: {
         </div>
       </Card>
 
-      <Card className="p-5" data-testid="card-college-applications">
+      <Card className={`p-5 ${plan.isExample ? "border-amber-200 dark:border-amber-800/40" : ""}`} data-testid="card-college-applications">
         <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
-          <h3 className="font-semibold text-sm flex items-center gap-2">
-            <FileText className="h-4 w-4" /> College Applications ({applications.length})
-          </h3>
+          <div className="flex items-center gap-2 flex-wrap">
+            <h3 className="font-semibold text-sm flex items-center gap-2">
+              <FileText className="h-4 w-4" /> College Applications ({applications.length})
+            </h3>
+            {plan.isExample && <ExampleBadge />}
+          </div>
           <Button size="sm" variant="outline" onClick={() => setShowAppForm(true)} data-testid="button-add-application">
             <Plus className="h-4 w-4 mr-1" /> Add Application
           </Button>
@@ -714,13 +1188,19 @@ function PlanDetail({ plan, applications, credentials, followUps }: {
             ))}
           </div>
         )}
+        {plan.isExample && applications.length > 0 && (
+          <ExampleNote text="These are example college applications showing how the system tracks application status, financial aid progress, and decision timelines. Real applications are added as students apply to colleges." />
+        )}
       </Card>
 
-      <Card className="p-5" data-testid="card-credentials">
+      <Card className={`p-5 ${plan.isExample ? "border-amber-200 dark:border-amber-800/40" : ""}`} data-testid="card-credentials">
         <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
-          <h3 className="font-semibold text-sm flex items-center gap-2">
-            <Award className="h-4 w-4" /> Credential Attainment ({credentials.length})
-          </h3>
+          <div className="flex items-center gap-2 flex-wrap">
+            <h3 className="font-semibold text-sm flex items-center gap-2">
+              <Award className="h-4 w-4" /> Credential Attainment ({credentials.length})
+            </h3>
+            {plan.isExample && <ExampleBadge />}
+          </div>
           <Button size="sm" variant="outline" onClick={() => setShowCredForm(true)} data-testid="button-add-credential">
             <Plus className="h-4 w-4 mr-1" /> Add Credential
           </Button>
@@ -749,6 +1229,9 @@ function PlanDetail({ plan, applications, credentials, followUps }: {
               </div>
             ))}
           </div>
+        )}
+        {plan.isExample && credentials.length > 0 && (
+          <ExampleNote text="These are example credentials demonstrating how the system tracks industry certifications, stackable credentials, and professional licenses. Real credentials are recorded as students earn them." />
         )}
       </Card>
 
@@ -911,19 +1394,11 @@ export default function TransitionPlansPage() {
   const [plans, setPlans] = useState<TransitionPlan[]>(SAMPLE_PLANS);
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
   const [showBuilder, setShowBuilder] = useState(false);
-  const [activeTab, setActiveTab] = useState("overview");
 
   const selectedPlan = plans.find(p => p.id === selectedPlanId);
   const planApplications = selectedPlan ? SAMPLE_APPLICATIONS.filter(a => a.planId === selectedPlan.id) : [];
   const planCredentials = selectedPlan ? SAMPLE_CREDENTIALS.filter(c => c.planId === selectedPlan.id) : [];
   const planFollowUps = selectedPlan ? SAMPLE_FOLLOWUPS.filter(f => f.planId === selectedPlan.id) : [];
-
-  const totalPlans = plans.length;
-  const activePlans = plans.filter(p => p.status === "active").length;
-  const totalCredentials = SAMPLE_CREDENTIALS.filter(c => c.status === "earned").length;
-  const avgReadiness = plans.length > 0
-    ? Math.round(plans.reduce((sum, p) => sum + (p.readinessScores.academic + p.readinessScores.career + p.readinessScores.personalSocial) / 3, 0) / plans.length)
-    : 0;
 
   const handleCreatePlan = (planData: Partial<TransitionPlan>) => {
     const newPlan: TransitionPlan = {
@@ -940,6 +1415,7 @@ export default function TransitionPlansPage() {
       status: "active",
       createdDate: new Date().toISOString().split("T")[0],
       lastUpdated: new Date().toISOString().split("T")[0],
+      isExample: false,
     };
     setPlans(prev => [...prev, newPlan]);
     setShowBuilder(false);
@@ -951,64 +1427,35 @@ export default function TransitionPlansPage() {
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <PageHeader
           title="Postsecondary Transition Plans"
-          description="Individual Transition Plan builder with college tracking, credential tracking, and WIOA-aligned post-exit follow-up"
+          description="AI-powered transition planning with college tracking, credential tracking, and WIOA-aligned post-exit follow-up"
           icon={<GraduationCap className="h-7 w-7" />}
         />
         <div className="flex items-center gap-2 flex-wrap">
+          <Link href="/fafsa-navigator">
+            <Button variant="outline" size="sm" data-testid="link-fafsa-navigator">
+              <DollarSign className="h-4 w-4 mr-1" /> FAFSA
+            </Button>
+          </Link>
           <Link href="/workforce-dashboard">
             <Button variant="outline" size="sm" data-testid="link-workforce-dashboard">
-              <TrendingUp className="h-4 w-4 mr-1" /> Workforce Dashboard
+              <TrendingUp className="h-4 w-4 mr-1" /> Workforce
+            </Button>
+          </Link>
+          <Link href="/apprenticeship-tracker">
+            <Button variant="outline" size="sm" data-testid="link-apprenticeship-tracker">
+              <Briefcase className="h-4 w-4 mr-1" /> Apprenticeships
             </Button>
           </Link>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4" data-testid="section-plan-stats">
-        <Card className="p-4" data-testid="card-stat-total-plans">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-md bg-gradient-to-br from-blue-500 to-blue-600">
-              <FileText className="h-4 w-4 text-white" />
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Total Plans</p>
-              <p className="text-xl font-bold" data-testid="text-stat-total-plans">{totalPlans}</p>
-            </div>
-          </div>
-        </Card>
-        <Card className="p-4" data-testid="card-stat-active-plans">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-md bg-gradient-to-br from-emerald-500 to-emerald-600">
-              <Target className="h-4 w-4 text-white" />
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Active Plans</p>
-              <p className="text-xl font-bold" data-testid="text-stat-active-plans">{activePlans}</p>
-            </div>
-          </div>
-        </Card>
-        <Card className="p-4" data-testid="card-stat-credentials">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-md bg-gradient-to-br from-purple-500 to-purple-600">
-              <Award className="h-4 w-4 text-white" />
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Credentials Earned</p>
-              <p className="text-xl font-bold" data-testid="text-stat-credentials">{totalCredentials}</p>
-            </div>
-          </div>
-        </Card>
-        <Card className="p-4" data-testid="card-stat-readiness">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-md bg-gradient-to-br from-amber-500 to-amber-600">
-              <Star className="h-4 w-4 text-white" />
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Avg. Readiness</p>
-              <p className="text-xl font-bold" data-testid="text-stat-readiness">{avgReadiness}%</p>
-            </div>
-          </div>
-        </Card>
-      </div>
+      <TransitionLifecycle />
+
+      <HolisticDashboard plans={plans} />
+
+      <AITransitionAdvisor plans={plans} />
+
+      <CrossPageNav />
 
       {selectedPlan ? (
         <div>
@@ -1081,13 +1528,15 @@ export default function TransitionPlansPage() {
               </div>
               <div className="p-3 rounded-md bg-muted/30">
                 <p className="text-xs text-muted-foreground">Follow-Up Compliance</p>
-                <p className="font-bold text-lg" data-testid="text-agg-followup">
-                  {SAMPLE_FOLLOWUPS.length} checks
+                <p className="font-bold text-lg" data-testid="text-agg-followups">
+                  {SAMPLE_FOLLOWUPS.length}/{FOLLOW_UP_MONTHS.length * plans.filter(p => p.isExample).length || 1}
                 </p>
               </div>
               <div className="p-3 rounded-md bg-muted/30">
                 <p className="text-xs text-muted-foreground">Avg. Readiness Score</p>
-                <p className="font-bold text-lg" data-testid="text-agg-readiness">{avgReadiness}%</p>
+                <p className="font-bold text-lg" data-testid="text-agg-readiness">
+                  {plans.length > 0 ? Math.round(plans.reduce((sum, p) => sum + (p.readinessScores.academic + p.readinessScores.career + p.readinessScores.personalSocial) / 3, 0) / plans.length) : 0}%
+                </p>
               </div>
             </div>
           </Card>

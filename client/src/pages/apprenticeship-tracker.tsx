@@ -1,4 +1,8 @@
 import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import { Link } from "wouter";
 import { PageHeader } from "@/components/page-header";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -34,11 +38,26 @@ import {
   Target,
   Plus,
   Search,
-  Calendar,
   Star,
   ClipboardCheck,
   FileText,
   UserCheck,
+  Brain,
+  Send,
+  Loader2,
+  Sparkles,
+  GraduationCap,
+  ExternalLink,
+  BookOpen,
+  Zap,
+  BarChart3,
+  Activity,
+  AlertTriangle,
+  Info,
+  ChevronDown,
+  ChevronUp,
+  Shield,
+  Map,
 } from "lucide-react";
 
 interface Apprentice {
@@ -89,6 +108,21 @@ interface EmployerPartnerData {
   trades: string[];
   contactName: string;
   contactEmail: string;
+}
+
+interface AICoachResponse {
+  answer: string;
+  engines: {
+    engine: string;
+    model: string;
+    responseTimeMs: number;
+    hasResponse: boolean;
+    error?: string;
+  }[];
+  ragContext?: { source: string; content: string }[];
+  frameworks?: string[];
+  consensusMethod?: string;
+  totalTimeMs?: number;
 }
 
 const EMPLOYER_PARTNERS: EmployerPartnerData[] = [
@@ -311,6 +345,563 @@ const RAPIDS_REQUIREMENTS = [
   { requirement: "Apprenticeship Agreement", description: "Signed agreement between apprentice and sponsor", status: "complete" },
 ];
 
+const LIFECYCLE_STEPS = [
+  {
+    key: "pre-apprenticeship",
+    label: "Pre-Apprenticeship",
+    description: "Foundational readiness program",
+    dataCapture: "Skills assessment, career interest inventory, barrier screening",
+    success: "Participant is work-ready and matched to a trade pathway",
+    icon: BookOpen,
+    color: "bg-amber-500",
+  },
+  {
+    key: "application",
+    label: "Application",
+    description: "Formal apprenticeship enrollment",
+    dataCapture: "Application form, employer match, eligibility verification",
+    success: "Accepted into a DOL-registered program with an employer sponsor",
+    icon: FileText,
+    color: "bg-blue-400",
+  },
+  {
+    key: "registered",
+    label: "Registered",
+    description: "Active in DOL RAPIDS system",
+    dataCapture: "RAPIDS ID, apprenticeship agreement, wage schedule",
+    success: "Fully registered with training plan and mentor assigned",
+    icon: Shield,
+    color: "bg-blue-600",
+  },
+  {
+    key: "ojt",
+    label: "On-the-Job Training",
+    description: "Supervised work experience",
+    dataCapture: "Hours logged, competency sign-offs, mentor check-ins",
+    success: "Meeting hour milestones and demonstrating skill progression",
+    icon: Wrench,
+    color: "bg-purple-500",
+  },
+  {
+    key: "rti",
+    label: "Related Instruction",
+    description: "Classroom and technical education",
+    dataCapture: "Course completions, certifications, exam scores",
+    success: "144+ hours/year of instruction with passing grades",
+    icon: GraduationCap,
+    color: "bg-emerald-500",
+  },
+  {
+    key: "journeyworker",
+    label: "Journeyworker",
+    description: "Completion and credential award",
+    dataCapture: "Final competency verification, credential issuance, wage data",
+    success: "Industry-recognized credential earned, full journeyworker wages",
+    icon: Award,
+    color: "bg-emerald-600",
+  },
+];
+
+function ExampleBadge() {
+  return (
+    <Badge
+      variant="outline"
+      className="border-amber-400 bg-amber-50 text-amber-700 dark:border-amber-600 dark:bg-amber-900/20 dark:text-amber-300 text-xs shrink-0"
+      data-testid="badge-example"
+    >
+      <AlertTriangle className="h-3 w-3 mr-1" />
+      EXAMPLE
+    </Badge>
+  );
+}
+
+function LifecycleVisualization() {
+  const [expandedStep, setExpandedStep] = useState<string | null>(null);
+
+  return (
+    <Card className="p-5" data-testid="card-lifecycle-visualization">
+      <h2 className="font-semibold text-base mb-4 flex items-center gap-2">
+        <Map className="h-4 w-4" /> Apprenticeship Lifecycle
+      </h2>
+      <div className="flex items-start gap-1 overflow-x-auto pb-2">
+        {LIFECYCLE_STEPS.map((step, i) => {
+          const StepIcon = step.icon;
+          const isExpanded = expandedStep === step.key;
+          return (
+            <div key={step.key} className="flex items-start gap-1 shrink-0">
+              <div
+                className="flex flex-col items-center cursor-pointer min-w-[100px] max-w-[140px]"
+                onClick={() => setExpandedStep(isExpanded ? null : step.key)}
+                data-testid={`lifecycle-step-${step.key}`}
+              >
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${step.color} text-white mb-1.5`}>
+                  <StepIcon className="h-4 w-4" />
+                </div>
+                <p className="text-xs font-medium text-center leading-tight">{step.label}</p>
+                <p className="text-[10px] text-muted-foreground text-center leading-tight mt-0.5">{step.description}</p>
+                {isExpanded ? (
+                  <ChevronUp className="h-3 w-3 text-muted-foreground mt-1" />
+                ) : (
+                  <ChevronDown className="h-3 w-3 text-muted-foreground mt-1" />
+                )}
+              </div>
+              {i < LIFECYCLE_STEPS.length - 1 && (
+                <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0 mt-3" />
+              )}
+            </div>
+          );
+        })}
+      </div>
+      {expandedStep && (
+        <div className="mt-4 p-4 rounded-md bg-muted/30" data-testid={`lifecycle-detail-${expandedStep}`}>
+          {(() => {
+            const step = LIFECYCLE_STEPS.find(s => s.key === expandedStep);
+            if (!step) return null;
+            return (
+              <div className="space-y-2">
+                <h4 className="text-sm font-semibold flex items-center gap-2">
+                  <step.icon className="h-4 w-4" /> {step.label}
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                  <div>
+                    <p className="font-medium text-muted-foreground mb-0.5">Data Captured</p>
+                    <p>{step.dataCapture}</p>
+                  </div>
+                  <div>
+                    <p className="font-medium text-muted-foreground mb-0.5">Success Criteria</p>
+                    <p>{step.success}</p>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+        </div>
+      )}
+    </Card>
+  );
+}
+
+function CrossPageDrilldowns() {
+  const links = [
+    { label: "Find Financial Aid", href: "/fafsa-navigator", icon: DollarSign, color: "bg-gradient-to-br from-emerald-500 to-emerald-600" },
+    { label: "View Transition Plans", href: "/transition-plans", icon: FileText, color: "bg-gradient-to-br from-blue-500 to-blue-600" },
+    { label: "Workforce Dashboard", href: "/workforce-dashboard", icon: BarChart3, color: "bg-gradient-to-br from-purple-500 to-purple-600" },
+    { label: "Employer Partners", href: "/workforce-employers", icon: Building2, color: "bg-gradient-to-br from-amber-500 to-amber-600" },
+    { label: "Opportunity Youth Pipeline", href: "/opportunity-youth", icon: Users, color: "bg-gradient-to-br from-rose-500 to-rose-600" },
+  ];
+
+  return (
+    <Card className="p-5" data-testid="card-cross-page-drilldowns">
+      <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
+        <ExternalLink className="h-4 w-4" /> Connected Systems
+      </h3>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+        {links.map((link) => (
+          <Link key={link.href} href={link.href}>
+            <Button
+              variant="outline"
+              className="w-full h-auto flex flex-col items-center gap-2 py-3"
+              data-testid={`link-drilldown-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
+            >
+              <div className={`p-2 rounded-md ${link.color}`}>
+                <link.icon className="h-4 w-4 text-white" />
+              </div>
+              <span className="text-xs text-center leading-tight">{link.label}</span>
+            </Button>
+          </Link>
+        ))}
+      </div>
+    </Card>
+  );
+}
+
+function HolisticDashboard({ apprentices }: { apprentices: Apprentice[] }) {
+  const totalActive = apprentices.filter(a => a.stage !== "journeyworker").length;
+  const totalCompleted = apprentices.filter(a => a.stage === "journeyworker").length;
+  const totalAll = apprentices.length;
+  const avgCompletion = Math.round(
+    apprentices.reduce((sum, a) => sum + (a.hoursCompleted / a.hoursRequired) * 100, 0) / apprentices.length
+  );
+  const totalEmployers = EMPLOYER_PARTNERS.length;
+
+  const avgHoursToCompletion = Math.round(
+    apprentices.reduce((sum, a) => sum + a.hoursRequired, 0) / apprentices.length
+  );
+
+  const employerEngagementScore = Math.round(
+    (EMPLOYER_PARTNERS.reduce((sum, e) => sum + e.activeApprentices + e.completedApprentices, 0) /
+      (EMPLOYER_PARTNERS.length * 30)) * 100
+  );
+
+  const allComps = apprentices.flatMap(a => a.competencies);
+  const verifiedComps = allComps.filter(c => c.verifiedDate);
+  const competencyAttainmentRate = allComps.length > 0
+    ? Math.round((verifiedComps.length / allComps.length) * 100)
+    : 0;
+
+  const wageProgression = apprentices.map(a => {
+    const start = parseFloat(a.startingWage.replace(/[^0-9.]/g, ''));
+    const current = parseFloat(a.currentWage.replace(/[^0-9.]/g, ''));
+    return { name: a.name.split(' ')[0], start, current, increase: current - start };
+  });
+  const avgWageIncrease = wageProgression.length > 0
+    ? (wageProgression.reduce((sum, w) => sum + w.increase, 0) / wageProgression.length).toFixed(2)
+    : "0.00";
+
+  const stageBreakdown = {
+    pre: apprentices.filter(a => a.stage === "pre-apprenticeship").length,
+    registered: apprentices.filter(a => a.stage === "registered").length,
+    journeyworker: apprentices.filter(a => a.stage === "journeyworker").length,
+  };
+
+  const statCards = [
+    { label: "Active Apprentices", value: totalActive, icon: Users, color: "bg-gradient-to-br from-blue-500 to-blue-600" },
+    { label: "Completed (Journeyworkers)", value: totalCompleted, icon: Award, color: "bg-gradient-to-br from-emerald-500 to-emerald-600" },
+    { label: "Avg. Completion Rate", value: `${avgCompletion}%`, icon: TrendingUp, color: "bg-gradient-to-br from-purple-500 to-purple-600" },
+    { label: "Employer Partners", value: totalEmployers, icon: Building2, color: "bg-gradient-to-br from-amber-500 to-amber-600" },
+    { label: "Avg Hours to Completion", value: avgHoursToCompletion.toLocaleString(), icon: Clock, color: "bg-gradient-to-br from-cyan-500 to-cyan-600" },
+    { label: "Competency Attainment", value: `${competencyAttainmentRate}%`, icon: Target, color: "bg-gradient-to-br from-rose-500 to-rose-600" },
+    { label: "Employer Engagement", value: `${employerEngagementScore}%`, icon: Activity, color: "bg-gradient-to-br from-indigo-500 to-indigo-600" },
+    { label: "Avg Wage Increase", value: `+$${avgWageIncrease}/hr`, icon: DollarSign, color: "bg-gradient-to-br from-green-500 to-green-600" },
+  ];
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4" data-testid="section-holistic-stats">
+        {statCards.map((stat) => (
+          <Card key={stat.label} className="p-4" data-testid={`card-stat-${stat.label.toLowerCase().replace(/\s+/g, '-')}`}>
+            <div className="flex items-center gap-3">
+              <div className={`p-2 rounded-md ${stat.color}`}>
+                <stat.icon className="h-4 w-4 text-white" />
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">{stat.label}</p>
+                <p className="text-xl font-bold">{stat.value}</p>
+              </div>
+            </div>
+          </Card>
+        ))}
+      </div>
+
+      <Card className="p-6" data-testid="card-completion-funnel">
+        <h2 className="font-semibold text-base mb-4 flex items-center gap-2">
+          <Target className="h-4 w-4" /> Completion Funnel
+        </h2>
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          <div className="text-center" data-testid="funnel-total">
+            <div className="w-16 h-16 rounded-full mx-auto mb-2 flex items-center justify-center bg-muted text-foreground font-bold text-lg">
+              {totalAll}
+            </div>
+            <p className="text-xs font-medium">Total Enrolled</p>
+          </div>
+          <ArrowRight className="h-5 w-5 text-muted-foreground shrink-0 hidden sm:block" />
+          <div className="text-center" data-testid="funnel-pre">
+            <div className="w-16 h-16 rounded-full mx-auto mb-2 flex items-center justify-center bg-amber-500 text-white font-bold text-lg">
+              {stageBreakdown.pre}
+            </div>
+            <p className="text-xs font-medium">Pre-Apprenticeship</p>
+          </div>
+          <ArrowRight className="h-5 w-5 text-muted-foreground shrink-0 hidden sm:block" />
+          <div className="text-center" data-testid="funnel-registered">
+            <div className="w-16 h-16 rounded-full mx-auto mb-2 flex items-center justify-center bg-blue-500 text-white font-bold text-lg">
+              {stageBreakdown.registered}
+            </div>
+            <p className="text-xs font-medium">Registered</p>
+          </div>
+          <ArrowRight className="h-5 w-5 text-muted-foreground shrink-0 hidden sm:block" />
+          <div className="text-center" data-testid="funnel-journeyworker">
+            <div className="w-16 h-16 rounded-full mx-auto mb-2 flex items-center justify-center bg-emerald-500 text-white font-bold text-lg">
+              {stageBreakdown.journeyworker}
+            </div>
+            <p className="text-xs font-medium">Journeyworker</p>
+          </div>
+        </div>
+      </Card>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card className="p-5" data-testid="card-wage-progression">
+          <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
+            <DollarSign className="h-4 w-4" /> Wage Progression
+          </h3>
+          <div className="space-y-3">
+            {wageProgression.map((w, i) => (
+              <div key={i} className="flex items-center justify-between p-2 rounded-md bg-muted/30" data-testid={`wage-row-${i}`}>
+                <span className="text-sm font-medium">{w.name}</span>
+                <div className="flex items-center gap-2 text-xs">
+                  <span className="text-muted-foreground">${w.start.toFixed(2)}</span>
+                  <ArrowRight className="h-3 w-3 text-muted-foreground" />
+                  <span className="font-medium text-emerald-600 dark:text-emerald-400">${w.current.toFixed(2)}</span>
+                  <Badge variant="secondary" className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 text-xs">
+                    +${w.increase.toFixed(2)}
+                  </Badge>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+
+        <Card className="p-5" data-testid="card-employer-engagement">
+          <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
+            <Building2 className="h-4 w-4" /> Employer Engagement
+          </h3>
+          <div className="space-y-3">
+            {EMPLOYER_PARTNERS.map((emp) => (
+              <div key={emp.id} className="flex items-center justify-between p-2 rounded-md bg-muted/30" data-testid={`employer-row-${emp.id}`}>
+                <div>
+                  <p className="text-sm font-medium">{emp.name}</p>
+                  <p className="text-xs text-muted-foreground">{emp.industry}</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Badge variant="secondary" className="text-xs">{emp.activeApprentices} active</Badge>
+                  <Badge variant="outline" className="text-xs">{emp.completedApprentices} completed</Badge>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card className="p-5" data-testid="card-individual-progress">
+          <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
+            <TrendingUp className="h-4 w-4" /> Individual Progress
+          </h3>
+          <div className="space-y-3">
+            {apprentices.map((app) => {
+              const pct = Math.round((app.hoursCompleted / app.hoursRequired) * 100);
+              return (
+                <div key={app.id} className="space-y-1" data-testid={`progress-row-${app.id}`}>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="font-medium">{app.name}</span>
+                    <span className="text-muted-foreground">{pct}%</span>
+                  </div>
+                  <Progress value={pct} className="h-1.5" />
+                  <p className="text-xs text-muted-foreground">{app.hoursCompleted.toLocaleString()} / {app.hoursRequired.toLocaleString()} hours</p>
+                </div>
+              );
+            })}
+          </div>
+        </Card>
+
+        <Card className="p-5" data-testid="card-competency-overview">
+          <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
+            <ClipboardCheck className="h-4 w-4" /> Competency Overview
+          </h3>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">Total Competencies Tracked</span>
+              <span className="font-bold">{allComps.length}</span>
+            </div>
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">Verified / Attained</span>
+              <span className="font-bold text-emerald-600 dark:text-emerald-400">{verifiedComps.length}</span>
+            </div>
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">In Progress</span>
+              <span className="font-bold text-amber-600 dark:text-amber-400">{allComps.length - verifiedComps.length}</span>
+            </div>
+            <Progress value={competencyAttainmentRate} className="h-2" />
+            <p className="text-xs text-muted-foreground text-center">{competencyAttainmentRate}% attainment rate</p>
+          </div>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+function AICareerCoachPanel() {
+  const { toast } = useToast();
+  const [question, setQuestion] = useState("");
+  const [skills, setSkills] = useState("");
+  const [targetOccupation, setTargetOccupation] = useState("");
+  const [aiResponse, setAiResponse] = useState<AICoachResponse | null>(null);
+  const [showEngineDetails, setShowEngineDetails] = useState(false);
+
+  const coachMutation = useMutation({
+    mutationFn: async (payload: { question: string; skills?: string[]; targetOccupation?: string }) => {
+      const res = await apiRequest("POST", "/api/apprenticeship/ai-coach", payload);
+      return res.json() as Promise<AICoachResponse>;
+    },
+    onSuccess: (data) => {
+      setAiResponse(data);
+    },
+    onError: (error: Error) => {
+      toast({ title: "AI Coach Error", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const handleAsk = () => {
+    if (!question.trim()) return;
+    const skillsArr = skills.trim() ? skills.split(",").map(s => s.trim()).filter(Boolean) : undefined;
+    coachMutation.mutate({
+      question: question.trim(),
+      skills: skillsArr,
+      targetOccupation: targetOccupation.trim() || undefined,
+    });
+  };
+
+  const handleGapAnalysis = () => {
+    const skillsArr = skills.trim() ? skills.split(",").map(s => s.trim()).filter(Boolean) : ["General labor skills"];
+    const target = targetOccupation.trim() || "Skilled trades worker";
+    coachMutation.mutate({
+      question: `Analyze my competency gaps for becoming a ${target}. Identify specific skills I'm missing, recommend a learning pathway with timeline, suggest certifications and training programs, and provide wage progression expectations. Be specific and actionable.`,
+      skills: skillsArr,
+      targetOccupation: target,
+    });
+  };
+
+  return (
+    <Card className="p-5" data-testid="card-ai-career-coach">
+      <h3 className="font-semibold text-base mb-1 flex items-center gap-2">
+        <Brain className="h-5 w-5" /> AI Career Coach
+      </h3>
+      <p className="text-xs text-muted-foreground mb-4">
+        Ask questions about apprenticeships, career pathways, or get a personalized competency gap analysis powered by 4-engine collaborative AI.
+      </p>
+
+      <div className="space-y-3 mb-4">
+        <div>
+          <label className="text-xs font-medium mb-1 block">Your Current Skills (comma-separated)</label>
+          <Input
+            value={skills}
+            onChange={(e) => setSkills(e.target.value)}
+            placeholder="e.g., Basic electrical, OSHA 10, forklift certified"
+            data-testid="input-ai-skills"
+          />
+        </div>
+        <div>
+          <label className="text-xs font-medium mb-1 block">Target Occupation</label>
+          <Input
+            value={targetOccupation}
+            onChange={(e) => setTargetOccupation(e.target.value)}
+            placeholder="e.g., Electrical Line Worker, Process Technician"
+            data-testid="input-ai-target-occupation"
+          />
+        </div>
+        <div>
+          <label className="text-xs font-medium mb-1 block">Ask a Question</label>
+          <Textarea
+            value={question}
+            onChange={(e) => setQuestion(e.target.value)}
+            placeholder="e.g., What certifications do I need for a semiconductor career? How long does an electrical apprenticeship take?"
+            className="min-h-[80px]"
+            data-testid="input-ai-question"
+          />
+        </div>
+        <div className="flex gap-2 flex-wrap">
+          <Button
+            onClick={handleAsk}
+            disabled={!question.trim() || coachMutation.isPending}
+            data-testid="button-ai-ask"
+          >
+            {coachMutation.isPending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Send className="h-4 w-4 mr-2" />}
+            Ask AI Coach
+          </Button>
+          <Button
+            variant="outline"
+            onClick={handleGapAnalysis}
+            disabled={coachMutation.isPending}
+            data-testid="button-ai-gap-analysis"
+          >
+            {coachMutation.isPending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Sparkles className="h-4 w-4 mr-2" />}
+            Analyze My Competency Gaps
+          </Button>
+        </div>
+      </div>
+
+      {aiResponse && (
+        <div className="space-y-3" data-testid="section-ai-response">
+          <div className="p-4 rounded-md bg-muted/30">
+            <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
+              <Zap className="h-4 w-4" /> AI Career Coach Response
+            </h4>
+            <div className="text-sm whitespace-pre-wrap" data-testid="text-ai-answer">
+              {aiResponse.answer}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 flex-wrap">
+            {aiResponse.consensusMethod && (
+              <Badge variant="secondary" className="text-xs" data-testid="badge-consensus-method">
+                {aiResponse.consensusMethod}
+              </Badge>
+            )}
+            {aiResponse.totalTimeMs && (
+              <Badge variant="outline" className="text-xs" data-testid="badge-total-time">
+                {aiResponse.totalTimeMs}ms total
+              </Badge>
+            )}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowEngineDetails(!showEngineDetails)}
+              data-testid="button-toggle-engine-details"
+            >
+              <Info className="h-3 w-3 mr-1" />
+              {showEngineDetails ? "Hide" : "Show"} Engine Details
+            </Button>
+          </div>
+
+          {showEngineDetails && (
+            <div className="space-y-2" data-testid="section-engine-details">
+              <h5 className="text-xs font-semibold text-muted-foreground">Contributing AI Engines</h5>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {aiResponse.engines.map((engine, i) => (
+                  <div
+                    key={i}
+                    className="p-3 rounded-md bg-muted/30 text-xs"
+                    data-testid={`engine-detail-${i}`}
+                  >
+                    <div className="flex items-center justify-between gap-2 mb-1">
+                      <span className="font-medium">{engine.engine}</span>
+                      {engine.hasResponse ? (
+                        <Badge variant="secondary" className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 text-[10px]">
+                          Responded
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline" className="text-[10px]">No Response</Badge>
+                      )}
+                    </div>
+                    <p className="text-muted-foreground">Model: {engine.model}</p>
+                    <p className="text-muted-foreground">{engine.responseTimeMs}ms</p>
+                    {engine.error && <p className="text-red-500 dark:text-red-400 mt-1">{engine.error}</p>}
+                  </div>
+                ))}
+              </div>
+
+              {aiResponse.ragContext && aiResponse.ragContext.length > 0 && (
+                <div data-testid="section-rag-sources">
+                  <h5 className="text-xs font-semibold text-muted-foreground mb-1">RAG Sources</h5>
+                  <div className="space-y-1">
+                    {aiResponse.ragContext.map((ctx, i) => (
+                      <div key={i} className="p-2 rounded-md bg-muted/20 text-xs" data-testid={`rag-source-${i}`}>
+                        <span className="font-medium">{ctx.source}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {aiResponse.frameworks && aiResponse.frameworks.length > 0 && (
+                <div data-testid="section-frameworks">
+                  <h5 className="text-xs font-semibold text-muted-foreground mb-1">Frameworks Applied</h5>
+                  <div className="flex gap-1 flex-wrap">
+                    {aiResponse.frameworks.map((fw, i) => (
+                      <Badge key={i} variant="outline" className="text-[10px]" data-testid={`badge-framework-${i}`}>
+                        {fw}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+    </Card>
+  );
+}
+
 function StageIndicator({ stage }: { stage: Apprentice["stage"] }) {
   const stages = [
     { key: "pre-apprenticeship", label: "Pre-Apprenticeship" },
@@ -334,126 +925,13 @@ function StageIndicator({ stage }: { stage: Apprentice["stage"] }) {
   );
 }
 
-function DashboardOverview({ apprentices }: { apprentices: Apprentice[] }) {
-  const totalActive = apprentices.filter(a => a.stage !== "journeyworker").length;
-  const totalCompleted = apprentices.filter(a => a.stage === "journeyworker").length;
-  const avgCompletion = Math.round(
-    apprentices.reduce((sum, a) => sum + (a.hoursCompleted / a.hoursRequired) * 100, 0) / apprentices.length
-  );
-  const totalEmployers = EMPLOYER_PARTNERS.length;
-
-  const statCards = [
-    { label: "Active Apprentices", value: totalActive, icon: Users, color: "bg-gradient-to-br from-blue-500 to-blue-600" },
-    { label: "Completed (Journeyworkers)", value: totalCompleted, icon: Award, color: "bg-gradient-to-br from-emerald-500 to-emerald-600" },
-    { label: "Avg. Completion Rate", value: `${avgCompletion}%`, icon: TrendingUp, color: "bg-gradient-to-br from-purple-500 to-purple-600" },
-    { label: "Employer Partners", value: totalEmployers, icon: Building2, color: "bg-gradient-to-br from-amber-500 to-amber-600" },
-  ];
-
-  const stageBreakdown = {
-    pre: apprentices.filter(a => a.stage === "pre-apprenticeship").length,
-    registered: apprentices.filter(a => a.stage === "registered").length,
-    journeyworker: apprentices.filter(a => a.stage === "journeyworker").length,
-  };
-
-  return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4" data-testid="section-dashboard-stats">
-        {statCards.map((stat) => (
-          <Card key={stat.label} className="p-4" data-testid={`card-stat-${stat.label.toLowerCase().replace(/\s+/g, '-')}`}>
-            <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-md ${stat.color}`}>
-                <stat.icon className="h-4 w-4 text-white" />
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">{stat.label}</p>
-                <p className="text-xl font-bold">{stat.value}</p>
-              </div>
-            </div>
-          </Card>
-        ))}
-      </div>
-
-      <Card className="p-6" data-testid="card-pathway-funnel">
-        <h2 className="font-semibold text-base mb-4 flex items-center gap-2">
-          <Target className="h-4 w-4" /> Apprenticeship Pathway
-        </h2>
-        <div className="flex items-center justify-between gap-4 flex-wrap">
-          <div className="text-center" data-testid="stage-count-pre">
-            <div className="w-16 h-16 rounded-full mx-auto mb-2 flex items-center justify-center bg-amber-500 text-white font-bold text-lg">
-              {stageBreakdown.pre}
-            </div>
-            <p className="text-xs font-medium">Pre-Apprenticeship</p>
-          </div>
-          <ArrowRight className="h-5 w-5 text-muted-foreground shrink-0 hidden sm:block" />
-          <div className="text-center" data-testid="stage-count-registered">
-            <div className="w-16 h-16 rounded-full mx-auto mb-2 flex items-center justify-center bg-blue-500 text-white font-bold text-lg">
-              {stageBreakdown.registered}
-            </div>
-            <p className="text-xs font-medium">Registered</p>
-          </div>
-          <ArrowRight className="h-5 w-5 text-muted-foreground shrink-0 hidden sm:block" />
-          <div className="text-center" data-testid="stage-count-journeyworker">
-            <div className="w-16 h-16 rounded-full mx-auto mb-2 flex items-center justify-center bg-emerald-500 text-white font-bold text-lg">
-              {stageBreakdown.journeyworker}
-            </div>
-            <p className="text-xs font-medium">Journeyworker</p>
-          </div>
-        </div>
-      </Card>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card className="p-5" data-testid="card-employer-engagement">
-          <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
-            <Building2 className="h-4 w-4" /> Employer Engagement
-          </h3>
-          <div className="space-y-3">
-            {EMPLOYER_PARTNERS.map((emp) => (
-              <div key={emp.id} className="flex items-center justify-between p-2 rounded-md bg-muted/30" data-testid={`employer-row-${emp.id}`}>
-                <div>
-                  <p className="text-sm font-medium">{emp.name}</p>
-                  <p className="text-xs text-muted-foreground">{emp.industry}</p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Badge variant="secondary" className="text-xs">{emp.activeApprentices} active</Badge>
-                  <Badge variant="outline" className="text-xs">{emp.completedApprentices} completed</Badge>
-                </div>
-              </div>
-            ))}
-          </div>
-        </Card>
-
-        <Card className="p-5" data-testid="card-completion-rates">
-          <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
-            <TrendingUp className="h-4 w-4" /> Individual Progress
-          </h3>
-          <div className="space-y-3">
-            {apprentices.map((app) => {
-              const pct = Math.round((app.hoursCompleted / app.hoursRequired) * 100);
-              return (
-                <div key={app.id} className="space-y-1" data-testid={`progress-row-${app.id}`}>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="font-medium">{app.name}</span>
-                    <span className="text-muted-foreground">{pct}%</span>
-                  </div>
-                  <Progress value={pct} className="h-1.5" />
-                  <p className="text-xs text-muted-foreground">{app.hoursCompleted.toLocaleString()} / {app.hoursRequired.toLocaleString()} hours</p>
-                </div>
-              );
-            })}
-          </div>
-        </Card>
-      </div>
-    </div>
-  );
-}
-
 function ApprenticeCard({ apprentice, onClick }: { apprentice: Apprentice; onClick: () => void }) {
   const pct = Math.round((apprentice.hoursCompleted / apprentice.hoursRequired) * 100);
   const verifiedCount = apprentice.competencies.filter(c => c.verifiedDate).length;
 
   return (
     <Card
-      className="p-5 cursor-pointer hover:shadow-md transition-shadow"
+      className="p-5 cursor-pointer hover:shadow-md transition-shadow border-amber-300 dark:border-amber-700"
       onClick={onClick}
       data-testid={`card-apprentice-${apprentice.id}`}
     >
@@ -462,13 +940,20 @@ function ApprenticeCard({ apprentice, onClick }: { apprentice: Apprentice; onCli
           <h3 className="font-semibold text-sm" data-testid={`text-name-${apprentice.id}`}>{apprentice.name}</h3>
           <p className="text-xs text-muted-foreground">{apprentice.trade} at {apprentice.employer}</p>
         </div>
-        <Badge
-          variant="secondary"
-          className={`text-xs shrink-0 ${apprentice.stage === "journeyworker" ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300" : apprentice.stage === "registered" ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300" : "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300"}`}
-        >
-          {apprentice.stage === "pre-apprenticeship" ? "Pre-Apprenticeship" : apprentice.stage === "registered" ? "Registered" : "Journeyworker"}
-        </Badge>
+        <div className="flex items-center gap-1.5 shrink-0">
+          <ExampleBadge />
+          <Badge
+            variant="secondary"
+            className={`text-xs ${apprentice.stage === "journeyworker" ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300" : apprentice.stage === "registered" ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300" : "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300"}`}
+          >
+            {apprentice.stage === "pre-apprenticeship" ? "Pre-Apprenticeship" : apprentice.stage === "registered" ? "Registered" : "Journeyworker"}
+          </Badge>
+        </div>
       </div>
+
+      <p className="text-[11px] text-amber-600 dark:text-amber-400 mb-2 italic" data-testid={`text-example-hint-${apprentice.id}`}>
+        This is an example apprentice profile. To add real apprentices, use the Intake Wizard to enroll participants and assign them to employer partners.
+      </p>
 
       <div className="space-y-2 mb-3">
         <div className="flex items-center justify-between text-xs">
@@ -495,7 +980,10 @@ function ApprenticeDetail({ apprentice, onClose }: { apprentice: Apprentice; onC
     <Dialog open onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto" data-testid="dialog-apprentice-detail">
         <DialogHeader>
-          <DialogTitle data-testid="text-dialog-apprentice-name">{apprentice.name}</DialogTitle>
+          <div className="flex items-center gap-2">
+            <DialogTitle data-testid="text-dialog-apprentice-name">{apprentice.name}</DialogTitle>
+            <ExampleBadge />
+          </div>
         </DialogHeader>
 
         <StageIndicator stage={apprentice.stage} />
@@ -649,23 +1137,33 @@ function ApprenticeDetail({ apprentice, onClose }: { apprentice: Apprentice; onC
 
 function CompetencyFrameworkSection() {
   return (
-    <Card className="p-5" data-testid="card-competency-framework">
-      <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
-        <ClipboardCheck className="h-4 w-4" /> Competency Framework (O*NET Aligned)
-      </h3>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {COMPETENCY_FRAMEWORK.map((cat) => (
-          <div key={cat.category} className="flex items-start gap-3 p-3 rounded-md bg-muted/30" data-testid={`framework-${cat.onetGroup}`}>
-            <div className={`w-2 h-full min-h-[40px] rounded-full ${cat.color} shrink-0`} />
-            <div>
-              <p className="text-sm font-medium">{cat.category}</p>
-              <p className="text-xs text-muted-foreground">O*NET Group: {cat.onetGroup}</p>
-              <p className="text-xs text-muted-foreground mt-0.5">{cat.description}</p>
+    <div className="space-y-4">
+      <Card className="p-4 border-amber-300 dark:border-amber-700" data-testid="card-competency-example-note">
+        <div className="flex items-start gap-2">
+          <ExampleBadge />
+          <p className="text-xs text-amber-600 dark:text-amber-400 italic">
+            These competency categories are examples based on O*NET standards. Real competency entries are populated when apprentices are enrolled and assigned trade-specific training plans through the program engine.
+          </p>
+        </div>
+      </Card>
+      <Card className="p-5" data-testid="card-competency-framework">
+        <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
+          <ClipboardCheck className="h-4 w-4" /> Competency Framework (O*NET Aligned)
+        </h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {COMPETENCY_FRAMEWORK.map((cat) => (
+            <div key={cat.category} className="flex items-start gap-3 p-3 rounded-md bg-muted/30" data-testid={`framework-${cat.onetGroup}`}>
+              <div className={`w-2 h-full min-h-[40px] rounded-full ${cat.color} shrink-0`} />
+              <div>
+                <p className="text-sm font-medium">{cat.category}</p>
+                <p className="text-xs text-muted-foreground">O*NET Group: {cat.onetGroup}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{cat.description}</p>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
-    </Card>
+          ))}
+        </div>
+      </Card>
+    </div>
   );
 }
 
@@ -701,15 +1199,26 @@ function RapidsComplianceSection() {
 function EmployerDashboardSection() {
   return (
     <div className="space-y-4">
+      <Card className="p-4 border-amber-300 dark:border-amber-700" data-testid="card-employer-example-note">
+        <div className="flex items-start gap-2">
+          <ExampleBadge />
+          <p className="text-xs text-amber-600 dark:text-amber-400 italic">
+            These are example employer partner profiles. Real employer data is managed through the Employer Partners page. Use the Workforce Employers section to add and manage actual partner organizations.
+          </p>
+        </div>
+      </Card>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {EMPLOYER_PARTNERS.map((emp) => (
-          <Card key={emp.id} className="p-5" data-testid={`card-employer-detail-${emp.id}`}>
+          <Card key={emp.id} className="p-5 border-amber-300 dark:border-amber-700" data-testid={`card-employer-detail-${emp.id}`}>
             <div className="flex items-start justify-between gap-2 mb-3">
               <div>
                 <h3 className="font-semibold text-sm">{emp.name}</h3>
                 <p className="text-xs text-muted-foreground">{emp.industry}</p>
               </div>
-              <Badge variant="secondary" className="text-xs">{emp.activeApprentices + emp.completedApprentices} total</Badge>
+              <div className="flex items-center gap-1.5">
+                <ExampleBadge />
+                <Badge variant="secondary" className="text-xs">{emp.activeApprentices + emp.completedApprentices} total</Badge>
+              </div>
             </div>
             <div className="flex items-center gap-3 mb-3">
               <div className="text-center">
@@ -892,10 +1401,14 @@ export default function ApprenticeshipTrackerPage() {
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <PageHeader
           title="Apprenticeship Tracking System"
-          description="Track registered apprenticeships, log hours, monitor competencies, and manage employer partnerships"
+          description="AI-powered apprenticeship management with competency tracking, career coaching, and employer engagement"
           icon={<Wrench className="h-7 w-7" />}
         />
       </div>
+
+      <LifecycleVisualization />
+
+      <CrossPageDrilldowns />
 
       <div className="flex gap-3 flex-wrap">
         <Button onClick={() => setShowLogHours(true)} data-testid="button-log-hours">
@@ -907,19 +1420,29 @@ export default function ApprenticeshipTrackerPage() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="dashboard" data-testid="tab-main-dashboard">Dashboard</TabsTrigger>
           <TabsTrigger value="apprentices" data-testid="tab-main-apprentices">Apprentices</TabsTrigger>
           <TabsTrigger value="employers" data-testid="tab-main-employers">Employers</TabsTrigger>
           <TabsTrigger value="competencies" data-testid="tab-main-competencies">Competencies</TabsTrigger>
           <TabsTrigger value="compliance" data-testid="tab-main-compliance">RAPIDS</TabsTrigger>
+          <TabsTrigger value="ai-coach" data-testid="tab-main-ai-coach">AI Coach</TabsTrigger>
         </TabsList>
 
         <TabsContent value="dashboard" className="mt-6">
-          <DashboardOverview apprentices={SAMPLE_APPRENTICES} />
+          <HolisticDashboard apprentices={SAMPLE_APPRENTICES} />
         </TabsContent>
 
         <TabsContent value="apprentices" className="mt-6 space-y-4">
+          <Card className="p-4 border-amber-300 dark:border-amber-700" data-testid="card-apprentice-example-note">
+            <div className="flex items-start gap-2">
+              <ExampleBadge />
+              <p className="text-xs text-amber-600 dark:text-amber-400 italic">
+                All apprentice profiles below are examples showing what real data looks like. To add real apprentices, use the Intake Wizard to enroll participants, then assign them to employer partners and trade pathways.
+              </p>
+            </div>
+          </Card>
+
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -983,6 +1506,10 @@ export default function ApprenticeshipTrackerPage() {
 
         <TabsContent value="compliance" className="mt-6">
           <RapidsComplianceSection />
+        </TabsContent>
+
+        <TabsContent value="ai-coach" className="mt-6">
+          <AICareerCoachPanel />
         </TabsContent>
       </Tabs>
 

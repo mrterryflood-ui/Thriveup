@@ -1,4 +1,7 @@
 import { useState, useMemo } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -6,13 +9,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   GraduationCap, DollarSign, FileText, Calendar, Search, CheckCircle2,
   ChevronRight, ChevronLeft, BookOpen, Landmark, Briefcase, Clock,
   AlertCircle, Star, Users, Building2, Award, Target, ArrowRight,
-  ClipboardCheck, Shield, Info, Sparkles, HandHeart, MapPin
+  ClipboardCheck, Shield, Info, Sparkles, HandHeart, MapPin,
+  MessageSquare, Loader2, Cpu, ExternalLink, BarChart3, Compass,
+  Route, Heart, Hammer, LayoutDashboard, Send, Zap
 } from "lucide-react";
 
 const AID_TYPES = [
@@ -149,6 +156,15 @@ interface EstimatorData {
   county: string;
 }
 
+const PROCESS_STEPS = [
+  { key: "explore", label: "Explore Aid Types", icon: Search, description: "Learn about grants, loans, work-study, and scholarships", produces: "Knowledge of all aid options available to you" },
+  { key: "readiness", label: "Check Readiness", icon: ClipboardCheck, description: "Gather documents and verify eligibility requirements", produces: "A completed checklist of everything you need to file" },
+  { key: "estimate", label: "Estimate Award", icon: Target, description: "Calculate your expected financial aid package", produces: "Estimated Pell Grant, total aid, and net cost of attendance" },
+  { key: "scholarships", label: "Find Scholarships", icon: Award, description: "Match with scholarships based on your profile", produces: "A personalized list of scholarships you qualify for" },
+  { key: "apply", label: "Apply", icon: FileText, description: "Submit your FAFSA and scholarship applications", produces: "Submitted FAFSA and pending scholarship applications" },
+  { key: "track", label: "Track Status", icon: BarChart3, description: "Monitor your applications and award letters", produces: "Real-time status of all your financial aid applications" },
+];
+
 const WIZARD_STEPS = [
   { key: "welcome", label: "Welcome", icon: GraduationCap },
   { key: "aid-types", label: "Aid Types", icon: DollarSign },
@@ -157,6 +173,31 @@ const WIZARD_STEPS = [
   { key: "scholarships", label: "Scholarships", icon: Award },
   { key: "timeline", label: "Timeline", icon: Calendar },
 ];
+
+interface AIAdvisorResponse {
+  answer: string;
+  engines: Array<{ engine: string; model: string; responseTimeMs: number; hasResponse: boolean; error?: string }>;
+  ragContext?: { documentsUsed: number; topics: string[] };
+  frameworks?: string[];
+  consensusMethod?: string;
+  totalTimeMs?: number;
+}
+
+function ExampleCard({ title, description }: { title: string; description: string }) {
+  return (
+    <Card className="border-dashed border-2 border-amber-400 dark:border-amber-600 bg-amber-50/30 dark:bg-amber-950/10" data-testid={`card-example-${title.toLowerCase().replace(/\s+/g, '-')}`}>
+      <CardContent className="pt-4 pb-4">
+        <div className="flex items-start gap-3">
+          <Badge variant="outline" className="shrink-0 border-amber-500 text-amber-700 dark:text-amber-400">EXAMPLE</Badge>
+          <div>
+            <p className="font-semibold text-sm">{title}</p>
+            <p className="text-xs text-muted-foreground mt-1">{description}</p>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
 
 export default function FafsaNavigatorPage() {
   const [activeTab, setActiveTab] = useState("wizard");
@@ -176,6 +217,35 @@ export default function FafsaNavigatorPage() {
     minGpa: "",
   });
   const [expandedAid, setExpandedAid] = useState<string | null>(null);
+  const [activeProcessStep, setActiveProcessStep] = useState<string | null>(null);
+  const [aiQuestion, setAiQuestion] = useState("");
+  const [aiResponse, setAiResponse] = useState<AIAdvisorResponse | null>(null);
+  const [aiHistory, setAiHistory] = useState<Array<{ question: string; response: AIAdvisorResponse }>>([]);
+
+  const aiMutation = useMutation({
+    mutationFn: async (question: string) => {
+      const res = await apiRequest("POST", "/api/fafsa/ai-advisor", {
+        question,
+        studentProfile: {
+          incomeBracket: estimatorData.incomeBracket || undefined,
+          county: estimatorData.county || undefined,
+          firstGen: estimatorData.isFirstGen,
+          schoolType: estimatorData.schoolType || undefined,
+        },
+      });
+      return res.json() as Promise<AIAdvisorResponse>;
+    },
+    onSuccess: (data) => {
+      setAiResponse(data);
+      setAiHistory(prev => [...prev, { question: aiQuestion, response: data }]);
+      setAiQuestion("");
+    },
+  });
+
+  const handleAskAI = () => {
+    if (!aiQuestion.trim()) return;
+    aiMutation.mutate(aiQuestion.trim());
+  };
 
   const toggleCheckItem = (id: string) => {
     setCheckedItems(prev => {
@@ -228,8 +298,60 @@ export default function FafsaNavigatorPage() {
           </div>
         </div>
 
+        <Card className="mb-6" data-testid="card-process-flow">
+          <CardContent className="pt-4 pb-4">
+            <p className="text-xs font-semibold text-muted-foreground mb-3">YOUR FINANCIAL AID JOURNEY</p>
+            <div className="flex items-center gap-1 overflow-x-auto pb-2">
+              {PROCESS_STEPS.map((step, i) => {
+                const Icon = step.icon;
+                const isActive = activeProcessStep === step.key;
+                return (
+                  <div key={step.key} className="flex items-center shrink-0">
+                    <button
+                      onClick={() => setActiveProcessStep(isActive ? null : step.key)}
+                      className={`flex flex-col items-center gap-1 px-3 py-2 rounded-md transition-colors cursor-pointer ${
+                        isActive ? 'bg-primary/10 text-primary' : 'text-muted-foreground'
+                      }`}
+                      data-testid={`button-process-${step.key}`}
+                    >
+                      <Icon className="h-5 w-5" />
+                      <span className="text-[10px] font-medium whitespace-nowrap">{step.label}</span>
+                    </button>
+                    {i < PROCESS_STEPS.length - 1 && (
+                      <ArrowRight className="h-3 w-3 text-muted-foreground/40 shrink-0 mx-0.5" />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            {activeProcessStep && (
+              <div className="mt-3 pt-3 border-t" data-testid={`text-process-detail-${activeProcessStep}`}>
+                {(() => {
+                  const step = PROCESS_STEPS.find(s => s.key === activeProcessStep);
+                  if (!step) return null;
+                  return (
+                    <div className="flex items-start gap-3">
+                      <div className="shrink-0 h-8 w-8 rounded-md bg-primary/10 flex items-center justify-center">
+                        <step.icon className="h-4 w-4 text-primary" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-sm">{step.label}</p>
+                        <p className="text-xs text-muted-foreground">{step.description}</p>
+                        <p className="text-xs mt-1"><span className="font-medium">Produces:</span> {step.produces}</p>
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <TabsList className="grid grid-cols-2 md:grid-cols-4 w-full">
+          <TabsList className="grid grid-cols-3 md:grid-cols-6 w-full">
+            <TabsTrigger value="dashboard" data-testid="tab-dashboard" className="gap-1">
+              <LayoutDashboard className="h-4 w-4" /> Dashboard
+            </TabsTrigger>
             <TabsTrigger value="wizard" data-testid="tab-wizard" className="gap-1">
               <BookOpen className="h-4 w-4" /> Guide
             </TabsTrigger>
@@ -242,7 +364,163 @@ export default function FafsaNavigatorPage() {
             <TabsTrigger value="scholarships" data-testid="tab-scholarships" className="gap-1">
               <Award className="h-4 w-4" /> Scholarships
             </TabsTrigger>
+            <TabsTrigger value="ai-advisor" data-testid="tab-ai-advisor" className="gap-1">
+              <MessageSquare className="h-4 w-4" /> AI Advisor
+            </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="dashboard" className="space-y-4">
+            <h2 className="text-lg font-bold flex items-center gap-2" data-testid="text-dashboard-title">
+              <LayoutDashboard className="h-5 w-5" /> Your Financial Aid Dashboard
+            </h2>
+            <p className="text-sm text-muted-foreground">A holistic view of your financial aid journey progress and opportunities.</p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+              <Card data-testid="card-dashboard-estimated-aid">
+                <CardContent className="pt-4 pb-4 text-center">
+                  <DollarSign className="h-6 w-6 mx-auto text-green-600 mb-1" />
+                  <p className="text-xs text-muted-foreground">Total Estimated Aid</p>
+                  <p className="text-xl font-bold text-green-600" data-testid="text-dashboard-total-aid">
+                    {selectedBracket ? selectedBracket.totalEstimate : "Complete estimator"}
+                  </p>
+                </CardContent>
+              </Card>
+              <Card data-testid="card-dashboard-scholarships">
+                <CardContent className="pt-4 pb-4 text-center">
+                  <Award className="h-6 w-6 mx-auto text-amber-600 mb-1" />
+                  <p className="text-xs text-muted-foreground">Scholarship Matches</p>
+                  <p className="text-xl font-bold text-amber-600" data-testid="text-dashboard-scholarship-count">
+                    {filteredScholarships.length}
+                  </p>
+                </CardContent>
+              </Card>
+              <Card data-testid="card-dashboard-readiness">
+                <CardContent className="pt-4 pb-4 text-center">
+                  <ClipboardCheck className="h-6 w-6 mx-auto text-blue-600 mb-1" />
+                  <p className="text-xs text-muted-foreground">Readiness Completion</p>
+                  <p className="text-xl font-bold text-blue-600" data-testid="text-dashboard-readiness-pct">
+                    {checklistProgress}%
+                  </p>
+                </CardContent>
+              </Card>
+              <Card data-testid="card-dashboard-pell">
+                <CardContent className="pt-4 pb-4 text-center">
+                  <Sparkles className="h-6 w-6 mx-auto text-purple-600 mb-1" />
+                  <p className="text-xs text-muted-foreground">Est. Pell Grant</p>
+                  <p className="text-xl font-bold text-purple-600" data-testid="text-dashboard-pell">
+                    {selectedBracket ? selectedBracket.pellEstimate : "--"}
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+
+            <Card data-testid="card-dashboard-summary">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <Compass className="h-4 w-4" /> Your Financial Aid Picture
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                    <span className="text-sm">FAFSA Readiness</span>
+                    <span className="text-sm font-medium">{checkedItems.size}/{CHECKLIST_ITEMS.length} items</span>
+                  </div>
+                  <Progress value={checklistProgress} className="h-2" data-testid="progress-dashboard-readiness" />
+                </div>
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <span className="text-sm">Income Bracket</span>
+                  <Badge variant="outline" data-testid="text-dashboard-income">{estimatorData.incomeBracket ? INCOME_BRACKETS.find(b => b.value === estimatorData.incomeBracket)?.label : "Not set"}</Badge>
+                </div>
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <span className="text-sm">School Type</span>
+                  <Badge variant="outline" data-testid="text-dashboard-school">{estimatorData.schoolType ? SCHOOL_TYPES.find(s => s.value === estimatorData.schoolType)?.label : "Not set"}</Badge>
+                </div>
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <span className="text-sm">First-Generation</span>
+                  <Badge variant={estimatorData.isFirstGen ? "default" : "outline"} data-testid="text-dashboard-firstgen">{estimatorData.isFirstGen ? "Yes" : "No"}</Badge>
+                </div>
+                {estimatorData.isFirstGen && (
+                  <div className="flex items-start gap-2 bg-green-50 dark:bg-green-950/20 rounded-md p-3">
+                    <HandHeart className="h-4 w-4 text-green-600 shrink-0 mt-0.5" />
+                    <p className="text-xs">First-generation students often qualify for additional scholarships and support programs. Check the Scholarships tab for matches.</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            <ExampleCard
+              title="Application Tracker"
+              description="This is an example — the real version would show live status updates for each FAFSA submission, scholarship application, and award letter. To enable this, connect your StudentAid.gov FSA ID and let the system track your progress automatically."
+            />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <Card className="hover-elevate" data-testid="card-dashboard-next-deadline">
+                <CardContent className="pt-4 pb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="shrink-0 h-10 w-10 rounded-md bg-red-100 dark:bg-red-950/30 flex items-center justify-center">
+                      <AlertCircle className="h-5 w-5 text-red-600" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Next Deadline</p>
+                      <p className="font-semibold text-sm">Texas Priority Deadline</p>
+                      <p className="text-xs text-muted-foreground">January 15 — File FAFSA by this date</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card className="hover-elevate" data-testid="card-dashboard-quick-action">
+                <CardContent className="pt-4 pb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="shrink-0 h-10 w-10 rounded-md bg-blue-100 dark:bg-blue-950/30 flex items-center justify-center">
+                      <Zap className="h-5 w-5 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Quick Action</p>
+                      <p className="font-semibold text-sm">
+                        {checklistProgress < 100 ? "Complete your readiness checklist" : "You're ready to file!"}
+                      </p>
+                      <Button variant="outline" size="sm" onClick={() => setActiveTab("checklist")} data-testid="button-dashboard-go-checklist" className="mt-1">
+                        {checklistProgress < 100 ? "Go to Checklist" : "Review Checklist"} <ArrowRight className="h-3 w-3 ml-1" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <Card data-testid="card-cross-page-links">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <Route className="h-4 w-4" /> Connected Resources
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  <Link href="/apprenticeship-tracker">
+                    <Button variant="outline" className="w-full justify-start gap-2" data-testid="link-career-pathways">
+                      <Briefcase className="h-4 w-4" /> View Career Pathways <ExternalLink className="h-3 w-3 ml-auto" />
+                    </Button>
+                  </Link>
+                  <Link href="/benefits-screener">
+                    <Button variant="outline" className="w-full justify-start gap-2" data-testid="link-benefits-eligibility">
+                      <Heart className="h-4 w-4" /> Check Benefits Eligibility <ExternalLink className="h-3 w-3 ml-auto" />
+                    </Button>
+                  </Link>
+                  <Link href="/workforce-dashboard">
+                    <Button variant="outline" className="w-full justify-start gap-2" data-testid="link-workforce-options">
+                      <Hammer className="h-4 w-4" /> Explore Workforce Options <ExternalLink className="h-3 w-3 ml-auto" />
+                    </Button>
+                  </Link>
+                  <Link href="/transition-plans">
+                    <Button variant="outline" className="w-full justify-start gap-2" data-testid="link-transition-plan">
+                      <Route className="h-4 w-4" /> My Transition Plan <ExternalLink className="h-3 w-3 ml-auto" />
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           <TabsContent value="wizard" className="space-y-4">
             <div className="mb-4">
@@ -306,6 +584,29 @@ export default function FafsaNavigatorPage() {
                       <p className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" /> FAFSA is <strong>100% free</strong> to file — never pay someone to fill it out</p>
                     </CardContent>
                   </Card>
+
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                    <Link href="/apprenticeship-tracker">
+                      <Button variant="outline" size="sm" className="w-full gap-1" data-testid="link-welcome-careers">
+                        <Briefcase className="h-3 w-3" /> Career Pathways
+                      </Button>
+                    </Link>
+                    <Link href="/benefits-screener">
+                      <Button variant="outline" size="sm" className="w-full gap-1" data-testid="link-welcome-benefits">
+                        <Heart className="h-3 w-3" /> Benefits
+                      </Button>
+                    </Link>
+                    <Link href="/workforce-dashboard">
+                      <Button variant="outline" size="sm" className="w-full gap-1" data-testid="link-welcome-workforce">
+                        <Hammer className="h-3 w-3" /> Workforce
+                      </Button>
+                    </Link>
+                    <Link href="/transition-plans">
+                      <Button variant="outline" size="sm" className="w-full gap-1" data-testid="link-welcome-transition">
+                        <Route className="h-3 w-3" /> Transition
+                      </Button>
+                    </Link>
+                  </div>
                 </CardContent>
               </Card>
             )}
@@ -363,6 +664,10 @@ export default function FafsaNavigatorPage() {
                     </Card>
                   );
                 })}
+                <ExampleCard
+                  title="Institutional Aid Detail"
+                  description="This is an example — the real version would pull your specific institution's grant and scholarship programs, showing exact amounts and application requirements. To set this up, work with your financial aid office to import your school's institutional aid database."
+                />
               </div>
             )}
 
@@ -588,6 +893,10 @@ export default function FafsaNavigatorPage() {
                     </Card>
                   ))}
                 </div>
+                <ExampleCard
+                  title="Institutional Scholarship Database"
+                  description="This is an example — to add real scholarships specific to your institution, work with your financial aid office to import your institution's scholarship database. The system can automatically match students to eligible scholarships based on their profile."
+                />
               </div>
             )}
 
@@ -633,6 +942,10 @@ export default function FafsaNavigatorPage() {
                     </Button>
                   </CardContent>
                 </Card>
+                <ExampleCard
+                  title="Personalized Timeline Reminders"
+                  description="This is an example — the real version would send you SMS/email reminders before each deadline based on your selected schools and state. To enable this, connect your phone number or email in your profile settings."
+                />
               </div>
             )}
 
@@ -694,6 +1007,10 @@ export default function FafsaNavigatorPage() {
                 </CardContent>
               </Card>
             ))}
+            <ExampleCard
+              title="Document Upload & Verification"
+              description="This is an example — the real version would let you upload and verify each document (tax returns, W-2s, bank statements) directly. To enable this, your institution's financial aid office would integrate their document verification system."
+            />
           </TabsContent>
 
           <TabsContent value="estimator" className="space-y-4">
@@ -801,6 +1118,10 @@ export default function FafsaNavigatorPage() {
                 </CardContent>
               </Card>
             )}
+            <ExampleCard
+              title="Net Price Calculator Integration"
+              description="This is an example — the real version would integrate with your specific school's Net Price Calculator to give you a precise cost-after-aid estimate. Each accredited institution is required to offer one. Ask your financial aid office for the link."
+            />
           </TabsContent>
 
           <TabsContent value="scholarships" className="space-y-4">
@@ -884,6 +1205,202 @@ export default function FafsaNavigatorPage() {
                 </Card>
               ))}
             </div>
+
+            <ExampleCard
+              title="Local Scholarship Database"
+              description="This is an example — to add real scholarships from your institution or community, work with your financial aid office to import your institution's scholarship database. The system can automatically match students to eligible scholarships based on GPA, demographics, and field of study."
+            />
+          </TabsContent>
+
+          <TabsContent value="ai-advisor" className="space-y-4">
+            <div className="flex items-center justify-between gap-2 flex-wrap">
+              <h2 className="text-lg font-bold flex items-center gap-2" data-testid="text-ai-advisor-title">
+                <MessageSquare className="h-5 w-5" /> Ask AI Financial Aid Advisor
+              </h2>
+              <Badge variant="secondary" className="gap-1">
+                <Cpu className="h-3 w-3" /> 4-Engine Collaborative AI
+              </Badge>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Get personalized financial aid guidance powered by our multi-engine AI system. Your student profile context is sent automatically for more relevant answers.
+            </p>
+
+            <Card data-testid="card-ai-advisor-input">
+              <CardContent className="pt-4 space-y-3">
+                <Label>Your Question</Label>
+                <Textarea
+                  value={aiQuestion}
+                  onChange={e => setAiQuestion(e.target.value)}
+                  placeholder="e.g., Am I eligible for the Pell Grant if my family makes $35,000? What scholarships should I apply for as a first-generation student?"
+                  className="resize-none"
+                  rows={3}
+                  data-testid="input-ai-question"
+                />
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {estimatorData.incomeBracket && (
+                      <Badge variant="outline" className="text-xs" data-testid="badge-ai-context-income">
+                        Income: {INCOME_BRACKETS.find(b => b.value === estimatorData.incomeBracket)?.label}
+                      </Badge>
+                    )}
+                    {estimatorData.isFirstGen && (
+                      <Badge variant="outline" className="text-xs" data-testid="badge-ai-context-firstgen">First-Gen</Badge>
+                    )}
+                    {estimatorData.county && (
+                      <Badge variant="outline" className="text-xs" data-testid="badge-ai-context-county">
+                        {estimatorData.county.charAt(0).toUpperCase() + estimatorData.county.slice(1)} County
+                      </Badge>
+                    )}
+                  </div>
+                  <Button
+                    onClick={handleAskAI}
+                    disabled={!aiQuestion.trim() || aiMutation.isPending}
+                    data-testid="button-ask-ai"
+                  >
+                    {aiMutation.isPending ? (
+                      <><Loader2 className="h-4 w-4 mr-1 animate-spin" /> Thinking...</>
+                    ) : (
+                      <><Send className="h-4 w-4 mr-1" /> Ask Advisor</>
+                    )}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+              {[
+                "Am I eligible for the Pell Grant?",
+                "What's the difference between subsidized and unsubsidized loans?",
+                "How do I apply for work-study?",
+                "What Texas-specific aid programs exist?",
+              ].map((q, i) => (
+                <Button
+                  key={i}
+                  variant="outline"
+                  size="sm"
+                  className="text-xs text-left h-auto py-2 whitespace-normal"
+                  onClick={() => { setAiQuestion(q); }}
+                  data-testid={`button-ai-suggestion-${i}`}
+                >
+                  {q}
+                </Button>
+              ))}
+            </div>
+
+            {aiMutation.isPending && (
+              <Card data-testid="card-ai-loading">
+                <CardContent className="pt-4 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                    <p className="text-sm font-medium">AI Advisor is analyzing your question...</p>
+                  </div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <Badge variant="outline" className="text-xs gap-1"><Cpu className="h-3 w-3" /> Engine 1: Processing</Badge>
+                    <Badge variant="outline" className="text-xs gap-1"><Cpu className="h-3 w-3" /> Engine 2: Processing</Badge>
+                    <Badge variant="outline" className="text-xs gap-1"><Cpu className="h-3 w-3" /> Engine 3: Processing</Badge>
+                    <Badge variant="outline" className="text-xs gap-1"><Cpu className="h-3 w-3" /> Engine 4: Processing</Badge>
+                  </div>
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-4 w-5/6" />
+                </CardContent>
+              </Card>
+            )}
+
+            {aiMutation.isError && (
+              <Card className="border-red-300 dark:border-red-800" data-testid="card-ai-error">
+                <CardContent className="pt-4">
+                  <div className="flex items-center gap-2">
+                    <AlertCircle className="h-4 w-4 text-red-600 shrink-0" />
+                    <p className="text-sm text-red-600">Failed to get AI response. Please try again.</p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {aiResponse && !aiMutation.isPending && (
+              <Card data-testid="card-ai-response">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm flex items-center justify-between gap-2 flex-wrap">
+                    <span className="flex items-center gap-2">
+                      <Sparkles className="h-4 w-4 text-yellow-500" /> AI Advisor Response
+                    </span>
+                    {aiResponse.totalTimeMs && (
+                      <Badge variant="outline" className="text-xs" data-testid="badge-ai-response-time">
+                        {(aiResponse.totalTimeMs / 1000).toFixed(1)}s
+                      </Badge>
+                    )}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="prose prose-sm max-w-none dark:prose-invert" data-testid="text-ai-answer">
+                    <p className="text-sm whitespace-pre-wrap">{aiResponse.answer}</p>
+                  </div>
+                  <div className="pt-2 border-t space-y-2">
+                    <p className="text-xs font-semibold text-muted-foreground">Engines Used</p>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {aiResponse.engines.map((e, i) => (
+                        <Badge
+                          key={i}
+                          variant={e.hasResponse ? "secondary" : "outline"}
+                          className="text-xs gap-1"
+                          data-testid={`badge-ai-engine-${i}`}
+                        >
+                          <Cpu className="h-3 w-3" />
+                          {e.engine}{e.model ? ` (${e.model})` : ""}
+                          {e.hasResponse ? <CheckCircle2 className="h-3 w-3 text-green-600" /> : null}
+                          {e.error ? <AlertCircle className="h-3 w-3 text-red-500" /> : null}
+                        </Badge>
+                      ))}
+                    </div>
+                    {aiResponse.ragContext && (
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <Badge variant="outline" className="text-xs gap-1" data-testid="badge-ai-rag">
+                          <BookOpen className="h-3 w-3" />
+                          RAG: {aiResponse.ragContext.documentsUsed} docs
+                        </Badge>
+                        {aiResponse.ragContext.topics?.map((t, i) => (
+                          <Badge key={i} variant="outline" className="text-xs">{t}</Badge>
+                        ))}
+                      </div>
+                    )}
+                    {aiResponse.consensusMethod && (
+                      <Badge variant="outline" className="text-xs" data-testid="badge-ai-consensus">
+                        Consensus: {aiResponse.consensusMethod}
+                      </Badge>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {aiHistory.length > 1 && (
+              <Card data-testid="card-ai-history">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm">Previous Questions</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  {aiHistory.slice(0, -1).reverse().map((item, i) => (
+                    <button
+                      key={i}
+                      className="w-full text-left p-2 rounded-md border text-sm hover-elevate"
+                      onClick={() => {
+                        setAiResponse(item.response);
+                        setAiQuestion(item.question);
+                      }}
+                      data-testid={`button-ai-history-${i}`}
+                    >
+                      <p className="text-xs text-muted-foreground truncate">{item.question}</p>
+                    </button>
+                  ))}
+                </CardContent>
+              </Card>
+            )}
+
+            <ExampleCard
+              title="AI-Powered Document Review"
+              description="This is an example — the real version would let you upload your FAFSA draft or financial documents and the AI would review them for errors, missing information, and optimization opportunities. To enable this, integrate document upload with your institution's verification system."
+            />
           </TabsContent>
         </Tabs>
       </div>

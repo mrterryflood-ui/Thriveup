@@ -1,4 +1,7 @@
 import { useState, useMemo } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -8,12 +11,15 @@ import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
 import {
   Users, MapPin, AlertTriangle, Target, TrendingUp, ChevronRight,
   UserCheck, Clock, CheckCircle2, ArrowRight, BarChart3,
   Home, Briefcase, Heart, Shield, Scale, GraduationCap,
-  Plus, Search, Eye, UserPlus, Phone, FileText, RefreshCw,
-  Baby, Car, Brain, Pill,
+  Search, Eye, UserPlus, Phone, FileText, RefreshCw,
+  Baby, Car, Brain, Pill, Sparkles, Bot, Send, Loader2,
+  ClipboardList, HandHeart, Megaphone, PenLine, ExternalLink,
+  Workflow, Info, Zap, Activity, BookOpen, LinkIcon,
 } from "lucide-react";
 
 const COUNTIES = [
@@ -159,6 +165,74 @@ const SUCCESS_STORIES = [
   },
 ];
 
+const LIFECYCLE_STEPS = [
+  {
+    key: "identification",
+    label: "Identification",
+    icon: Search,
+    description: "Locate disconnected youth ages 16-24 using Census data, school dropout records, justice referrals, and community partner outreach.",
+    tools: ["Population Overview tab", "Community Partners page"],
+    color: "#6366f1",
+  },
+  {
+    key: "outreach",
+    label: "Outreach",
+    icon: Megaphone,
+    description: "Engage identified youth through mobile teams, digital campaigns, peer navigators, and community events using trauma-informed approaches.",
+    tools: ["Re-engagement Strategies tab", "AI Community Analyst"],
+    color: "#8b5cf6",
+  },
+  {
+    key: "assessment",
+    label: "Assessment",
+    icon: ClipboardList,
+    description: "Complete comprehensive intake including barrier identification, needs assessment, strengths mapping, and goal setting.",
+    tools: ["Intake Wizard", "Benefits Screener"],
+    color: "#a855f7",
+  },
+  {
+    key: "enrollment",
+    label: "Enrollment",
+    icon: UserCheck,
+    description: "Formally enroll youth into WIOA Title I Youth program with individualized service plans and assigned case managers.",
+    tools: ["Case Management", "Transition Planning"],
+    color: "#22c55e",
+  },
+  {
+    key: "services",
+    label: "Services",
+    icon: HandHeart,
+    description: "Deliver 14 WIOA Youth Elements: tutoring, mentoring, work experience, occupational training, leadership development, and supportive services.",
+    tools: ["Apprenticeship Pathways", "Benefits Screener"],
+    color: "#14b8a6",
+  },
+  {
+    key: "retention",
+    label: "Retention",
+    icon: Activity,
+    description: "Monitor engagement, address emerging barriers, celebrate milestones, and maintain consistent contact through 30/60/90 day checkpoints.",
+    tools: ["Case Tracking tab", "Retention Tracking"],
+    color: "#0ea5e9",
+  },
+  {
+    key: "followup",
+    label: "Follow-Up",
+    icon: RefreshCw,
+    description: "12-month post-exit follow-up tracking employment, education, and credential attainment outcomes for WIOA performance reporting.",
+    tools: ["Outcome Reporting", "Case Management"],
+    color: "#f59e0b",
+  },
+];
+
+const CROSS_PAGE_LINKS = [
+  { label: "Intake Wizard", href: "/intake-wizard", icon: ClipboardList, description: "Comprehensive intake assessment for new participants" },
+  { label: "Benefits Screener", href: "/benefits-screener", icon: Shield, description: "Screen for SNAP, Medicaid, housing, and other benefits eligibility" },
+  { label: "Case Management", href: "/reentry-dashboard", icon: FileText, description: "Individualized reentry plans with phase-based milestones" },
+  { label: "Apprenticeship Pathways", href: "/apprenticeship-tracker", icon: Briefcase, description: "Registered apprenticeship and career pathway tracking" },
+  { label: "Transition Planning", href: "/transition-plans", icon: GraduationCap, description: "ITP development and post-secondary readiness" },
+  { label: "Community Partners", href: "/community-partners", icon: Users, description: "Partner organization directory and referral network" },
+];
+
 function getOYRateColor(rate: number): string {
   if (rate >= 11) return "#ef4444";
   if (rate >= 9) return "#f97316";
@@ -171,6 +245,191 @@ function getSeverityColor(severity: number): string {
   if (severity >= 60) return "#f97316";
   if (severity >= 40) return "#eab308";
   return "#22c55e";
+}
+
+function ExampleBadge() {
+  return (
+    <Badge variant="outline" className="text-xs border-amber-500/50 text-amber-700 dark:text-amber-400" data-testid="badge-example">
+      EXAMPLE
+    </Badge>
+  );
+}
+
+function HolisticDashboard() {
+  const totalOY = COUNTIES.reduce((sum, c) => sum + c.oyEstimate, 0);
+  const pipelineConversion = Math.round((PIPELINE_STAGES[3].count / PIPELINE_STAGES[0].count) * 100);
+  const completedStories = SUCCESS_STORIES.filter(s => s.status === "Completed").length;
+
+  return (
+    <div className="space-y-6" data-testid="section-holistic-dashboard">
+      <Card className="p-4 bg-indigo-900/10 border-indigo-500/30 dark:bg-indigo-900/20">
+        <div className="flex items-start gap-3">
+          <BarChart3 className="w-5 h-5 text-indigo-500 mt-0.5 shrink-0" />
+          <div>
+            <h3 className="text-sm font-semibold text-indigo-700 dark:text-indigo-300">Holistic OY Dashboard</h3>
+            <p className="text-xs text-muted-foreground mt-1">
+              At-a-glance summary of opportunity youth population, outreach pipeline, barriers, retention, and success outcomes across all 5 counties.
+            </p>
+          </div>
+        </div>
+      </Card>
+
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <Card className="p-4" data-testid="stat-dashboard-total-oy">
+          <div className="flex flex-col items-center text-center gap-1">
+            <Users className="h-5 w-5 text-indigo-500" />
+            <span className="text-2xl font-bold">{totalOY.toLocaleString()}</span>
+            <span className="text-xs text-muted-foreground">Est. OY Population</span>
+          </div>
+        </Card>
+        <Card className="p-4" data-testid="stat-dashboard-contacts">
+          <div className="flex flex-col items-center text-center gap-1">
+            <Phone className="h-5 w-5 text-purple-500" />
+            <span className="text-2xl font-bold">{PIPELINE_STAGES[1].count.toLocaleString()}</span>
+            <span className="text-xs text-muted-foreground">Active Contacts</span>
+          </div>
+        </Card>
+        <Card className="p-4" data-testid="stat-dashboard-conversion">
+          <div className="flex flex-col items-center text-center gap-1">
+            <TrendingUp className="h-5 w-5 text-green-500" />
+            <span className="text-2xl font-bold">{pipelineConversion}%</span>
+            <span className="text-xs text-muted-foreground">Pipeline Conversion</span>
+          </div>
+        </Card>
+        <Card className="p-4" data-testid="stat-dashboard-30day">
+          <div className="flex flex-col items-center text-center gap-1">
+            <Clock className="h-5 w-5 text-emerald-500" />
+            <span className="text-2xl font-bold">{RETENTION_DATA[0].rate}%</span>
+            <span className="text-xs text-muted-foreground">30-Day Retention</span>
+          </div>
+        </Card>
+        <Card className="p-4" data-testid="stat-dashboard-90day">
+          <div className="flex flex-col items-center text-center gap-1">
+            <CheckCircle2 className="h-5 w-5 text-teal-500" />
+            <span className="text-2xl font-bold">{RETENTION_DATA[2].rate}%</span>
+            <span className="text-xs text-muted-foreground">90-Day Retention</span>
+          </div>
+        </Card>
+        <Card className="p-4" data-testid="stat-dashboard-success">
+          <div className="flex flex-col items-center text-center gap-1">
+            <Sparkles className="h-5 w-5 text-amber-500" />
+            <span className="text-2xl font-bold">{completedStories}</span>
+            <span className="text-xs text-muted-foreground">Success Stories</span>
+          </div>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <Card data-testid="card-barrier-heatmap">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">Barrier Prevalence Heat Map</CardTitle>
+            <CardDescription>Severity and population affected by barrier type</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {BARRIERS.sort((a, b) => b.severity - a.severity).map((barrier) => {
+                const Icon = barrier.icon;
+                return (
+                  <div key={barrier.id} className="flex items-center gap-3" data-testid={`heatmap-barrier-${barrier.id}`}>
+                    <Icon className="h-4 w-4 shrink-0" style={{ color: getSeverityColor(barrier.severity) }} />
+                    <span className="text-sm w-36 truncate">{barrier.label}</span>
+                    <div className="flex-1 bg-muted rounded-full h-3 overflow-hidden">
+                      <div
+                        className="h-full rounded-full transition-all"
+                        style={{ width: `${barrier.severity}%`, backgroundColor: getSeverityColor(barrier.severity) }}
+                      />
+                    </div>
+                    <span className="text-xs font-bold w-10 text-right" style={{ color: getSeverityColor(barrier.severity) }}>
+                      {barrier.severity}%
+                    </span>
+                    <span className="text-xs text-muted-foreground w-16 text-right">{barrier.affected.toLocaleString()}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card data-testid="card-retention-summary">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">Retention Rates</CardTitle>
+            <CardDescription>30 / 60 / 90 day retention after enrollment</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {RETENTION_DATA.map((ret) => (
+                <div key={ret.period} className="space-y-1" data-testid={`dashboard-retention-${ret.period.replace(/\s+/g, '-').toLowerCase()}`}>
+                  <div className="flex justify-between text-sm gap-1">
+                    <span className="font-medium">{ret.period}</span>
+                    <span>
+                      <span className="font-bold">{ret.retained.toLocaleString()}</span>
+                      <span className="text-muted-foreground"> / {ret.enrolled.toLocaleString()}</span>
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1 bg-muted rounded-full h-3 overflow-hidden">
+                      <div
+                        className="h-full rounded-full transition-all"
+                        style={{
+                          width: `${ret.rate}%`,
+                          backgroundColor: ret.rate >= 80 ? "#22c55e" : ret.rate >= 70 ? "#eab308" : "#f97316",
+                        }}
+                      />
+                    </div>
+                    <span className="text-sm font-bold w-12 text-right" style={{
+                      color: ret.rate >= 80 ? "#22c55e" : ret.rate >= 70 ? "#eab308" : "#f97316",
+                    }}>
+                      {ret.rate}%
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 p-3 bg-muted/50 rounded-lg">
+              <p className="text-xs text-muted-foreground">
+                WIOA Title I Youth performance target: 70% retention at 90 days.
+                Current performance: <span className="font-semibold text-foreground">{RETENTION_DATA[2].rate}%</span>
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card data-testid="card-cross-page-links">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2">
+            <LinkIcon className="h-4 w-4" /> Connected Platform Tools
+          </CardTitle>
+          <CardDescription>Navigate to related tools across the ecosystem</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {CROSS_PAGE_LINKS.map((link) => {
+              const Icon = link.icon;
+              return (
+                <Link key={link.href} href={link.href}>
+                  <Card className="p-4 hover-elevate cursor-pointer h-full" data-testid={`link-cross-page-${link.href.replace(/\//g, '')}`}>
+                    <div className="flex items-start gap-3">
+                      <div className="rounded-md p-2 bg-muted shrink-0">
+                        <Icon className="h-4 w-4 text-indigo-500" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium flex items-center gap-1">
+                          {link.label}
+                          <ExternalLink className="h-3 w-3 text-muted-foreground" />
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-0.5">{link.description}</p>
+                      </div>
+                    </div>
+                  </Card>
+                </Link>
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
 }
 
 function PopulationOverview() {
@@ -331,10 +590,18 @@ function OutreachPipeline() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Referral Sources</CardTitle>
-            <CardDescription>How OY enter our pipeline</CardDescription>
+            <div className="flex items-center justify-between gap-2 flex-wrap">
+              <div>
+                <CardTitle className="text-base">Referral Sources</CardTitle>
+                <CardDescription>How OY enter our pipeline</CardDescription>
+              </div>
+              <ExampleBadge />
+            </div>
           </CardHeader>
           <CardContent>
+            <p className="text-xs text-muted-foreground mb-3 p-2 bg-muted/50 rounded-lg" data-testid="text-referral-example-note">
+              These are example referral sources. Real referral data is populated when youth are identified through outreach or partner organizations and entered via the Intake Wizard.
+            </p>
             <div className="space-y-3">
               {REFERRAL_SOURCES.map((ref) => {
                 const Icon = ref.icon;
@@ -366,7 +633,7 @@ function OutreachPipeline() {
             <div className="space-y-4">
               {RETENTION_DATA.map((ret) => (
                 <div key={ret.period} className="space-y-1" data-testid={`retention-${ret.period.replace(/\s+/g, '-').toLowerCase()}`}>
-                  <div className="flex justify-between text-sm">
+                  <div className="flex justify-between text-sm gap-1">
                     <span className="font-medium">{ret.period}</span>
                     <span>
                       <span className="font-bold">{ret.retained.toLocaleString()}</span>
@@ -430,6 +697,8 @@ function BarrierAssessment() {
             ))}
           </SelectContent>
         </Select>
+        <ExampleBadge />
+        <span className="text-xs text-muted-foreground">Example barrier data -- real data is collected through the Intake Wizard assessment.</span>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -448,7 +717,7 @@ function BarrierAssessment() {
                 </div>
               </div>
               <div className="space-y-1">
-                <div className="flex justify-between text-xs">
+                <div className="flex justify-between text-xs gap-1">
                   <span className="text-muted-foreground">Severity</span>
                   <span className="font-bold" style={{ color: getSeverityColor(barrier.severity) }}>{barrier.severity}%</span>
                 </div>
@@ -466,8 +735,13 @@ function BarrierAssessment() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Barrier Co-Occurrence Analysis</CardTitle>
-          <CardDescription>Most common barrier combinations among enrolled OY</CardDescription>
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <div>
+              <CardTitle className="text-base">Barrier Co-Occurrence Analysis</CardTitle>
+              <CardDescription>Most common barrier combinations among enrolled OY</CardDescription>
+            </div>
+            <ExampleBadge />
+          </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
@@ -578,6 +852,21 @@ function CaseTracking() {
 
   return (
     <div className="space-y-6">
+      <Card className="p-4 bg-amber-900/10 border-amber-500/30 dark:bg-amber-900/20" data-testid="card-case-example-notice">
+        <div className="flex items-start gap-3">
+          <Info className="w-5 h-5 text-amber-500 mt-0.5 shrink-0" />
+          <div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h3 className="text-sm font-semibold text-amber-700 dark:text-amber-300">Example Case Profiles</h3>
+              <ExampleBadge />
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              These are example case profiles showing what real cases look like. Real cases are created through the Intake Wizard when youth are identified through outreach or referral partners. All names shown are fictional initials only.
+            </p>
+          </div>
+        </div>
+      </Card>
+
       <div className="flex items-center gap-3 flex-wrap">
         <div className="relative flex-1 min-w-[200px] max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -589,6 +878,11 @@ function CaseTracking() {
             data-testid="input-case-search"
           />
         </div>
+        <Link href="/intake-wizard">
+          <Button variant="outline" data-testid="button-goto-intake">
+            <ClipboardList className="h-4 w-4 mr-1" /> Start New Intake
+          </Button>
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -613,7 +907,10 @@ function CaseTracking() {
                         <p className="text-xs text-muted-foreground">Age {story.age} - {story.county}</p>
                       </div>
                     </div>
-                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                    <div className="flex items-center gap-1">
+                      <ExampleBadge />
+                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                    </div>
                   </div>
                   <div className="flex gap-1 flex-wrap">
                     <Badge variant={story.status === "Active" ? "default" : "secondary"} className="text-xs">
@@ -639,7 +936,10 @@ function CaseTracking() {
                       {selected.initials}
                     </div>
                     <div>
-                      <h3 className="text-lg font-semibold">Youth {selected.initials}</h3>
+                      <h3 className="text-lg font-semibold flex items-center gap-2">
+                        Youth {selected.initials}
+                        <ExampleBadge />
+                      </h3>
                       <p className="text-sm text-muted-foreground">
                         Age {selected.age} | {selected.county} County | Enrolled {selected.enrollment}
                       </p>
@@ -683,12 +983,38 @@ function CaseTracking() {
                   <p className="text-xs font-medium text-muted-foreground mb-1">CASE NOTES</p>
                   <p className="text-sm">{selected.notes}</p>
                 </div>
+
+                <Separator />
+
+                <div className="flex gap-2 flex-wrap">
+                  <Link href="/reentry-dashboard">
+                    <Button variant="outline" size="sm" data-testid="button-case-to-management">
+                      <FileText className="h-4 w-4 mr-1" /> Case Management
+                    </Button>
+                  </Link>
+                  <Link href="/transition-plans">
+                    <Button variant="outline" size="sm" data-testid="button-case-to-transition">
+                      <GraduationCap className="h-4 w-4 mr-1" /> Transition Plan
+                    </Button>
+                  </Link>
+                  <Link href="/benefits-screener">
+                    <Button variant="outline" size="sm" data-testid="button-case-to-benefits">
+                      <Shield className="h-4 w-4 mr-1" /> Screen Benefits
+                    </Button>
+                  </Link>
+                  <Link href="/apprenticeship-tracker">
+                    <Button variant="outline" size="sm" data-testid="button-case-to-apprenticeship">
+                      <Briefcase className="h-4 w-4 mr-1" /> Apprenticeship
+                    </Button>
+                  </Link>
+                </div>
               </div>
             </Card>
           ) : (
             <Card className="p-8 text-center text-muted-foreground" data-testid="card-select-case">
               <FileText className="h-10 w-10 mx-auto mb-3 opacity-40" />
               <p>Select a case from the list to view details</p>
+              <p className="text-xs mt-2">All cases shown are examples. Create real cases via the Intake Wizard.</p>
             </Card>
           )}
         </div>
@@ -697,8 +1023,360 @@ function CaseTracking() {
   );
 }
 
+function ProcessVisualization() {
+  return (
+    <div className="space-y-6" data-testid="section-process-visualization">
+      <Card className="p-4 bg-violet-900/10 border-violet-500/30 dark:bg-violet-900/20">
+        <div className="flex items-start gap-3">
+          <Workflow className="w-5 h-5 text-violet-500 mt-0.5 shrink-0" />
+          <div>
+            <h3 className="text-sm font-semibold text-violet-700 dark:text-violet-300">OY Engagement Lifecycle</h3>
+            <p className="text-xs text-muted-foreground mt-1">
+              The complete journey from identifying disconnected youth to sustained follow-up. Each step shows what happens and which platform tools support it.
+            </p>
+          </div>
+        </div>
+      </Card>
+
+      <div className="relative">
+        <div className="hidden md:block absolute top-8 left-8 right-8 h-0.5 bg-muted z-0" />
+        <div className="grid grid-cols-1 md:grid-cols-7 gap-4 relative z-10">
+          {LIFECYCLE_STEPS.map((step, i) => {
+            const Icon = step.icon;
+            return (
+              <div key={step.key} className="flex flex-col items-center text-center" data-testid={`lifecycle-step-${step.key}`}>
+                <div
+                  className="w-14 h-14 rounded-full flex items-center justify-center mb-2 border-2 bg-background"
+                  style={{ borderColor: step.color }}
+                >
+                  <Icon className="h-6 w-6" style={{ color: step.color }} />
+                </div>
+                <p className="text-xs font-semibold mb-1">{step.label}</p>
+                <p className="text-xs text-muted-foreground leading-tight">{step.description}</p>
+                <div className="mt-2 flex flex-col gap-1">
+                  {step.tools.map((tool) => (
+                    <Badge key={tool} variant="outline" className="text-xs">
+                      {tool}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <Card data-testid="card-process-drilldowns">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2">
+            <Zap className="h-4 w-4" /> Quick Actions
+          </CardTitle>
+          <CardDescription>Jump to the right tool for each stage of the lifecycle</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {CROSS_PAGE_LINKS.map((link) => {
+              const Icon = link.icon;
+              return (
+                <Link key={link.href} href={link.href}>
+                  <Button variant="outline" className="w-full justify-start" data-testid={`button-process-link-${link.href.replace(/\//g, '')}`}>
+                    <Icon className="h-4 w-4 mr-2 shrink-0" />
+                    <span className="truncate">{link.label}</span>
+                    <ExternalLink className="h-3 w-3 ml-auto shrink-0 text-muted-foreground" />
+                  </Button>
+                </Link>
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+interface AIResponse {
+  answer: string;
+  engines: Array<{
+    engine: string;
+    model: string;
+    responseTimeMs: number;
+    hasResponse: boolean;
+    error?: string;
+  }>;
+  ragContext?: string[];
+  frameworks?: string[];
+  consensusMethod?: string;
+  totalTimeMs?: number;
+}
+
+function AIAnalystPanel() {
+  const [question, setQuestion] = useState("");
+  const [selectedCounty, setSelectedCounty] = useState("all");
+  const [aiResponse, setAiResponse] = useState<AIResponse | null>(null);
+
+  const analystMutation = useMutation({
+    mutationFn: async (payload: { question: string; barrierProfile?: string[]; demographics?: Record<string, string>; county?: string }) => {
+      const res = await apiRequest("POST", "/api/opportunity-youth/ai-analyst", payload);
+      return res.json() as Promise<AIResponse>;
+    },
+    onSuccess: (data) => {
+      setAiResponse(data);
+    },
+  });
+
+  const handleSubmit = () => {
+    if (!question.trim()) return;
+    const county = selectedCounty !== "all" ? COUNTIES.find(c => c.fips === selectedCounty)?.name : undefined;
+    analystMutation.mutate({
+      question,
+      county,
+    });
+  };
+
+  const handlePresetQuery = (presetQuestion: string, barrierProfile?: string[], demographics?: Record<string, string>) => {
+    setQuestion(presetQuestion);
+    const county = selectedCounty !== "all" ? COUNTIES.find(c => c.fips === selectedCounty)?.name : undefined;
+    analystMutation.mutate({
+      question: presetQuestion,
+      barrierProfile,
+      demographics,
+      county,
+    });
+  };
+
+  return (
+    <div className="space-y-6" data-testid="section-ai-analyst">
+      <Card className="p-4 bg-purple-900/10 border-purple-500/30 dark:bg-purple-900/20">
+        <div className="flex items-start gap-3">
+          <Bot className="w-5 h-5 text-purple-500 mt-0.5 shrink-0" />
+          <div>
+            <h3 className="text-sm font-semibold text-purple-700 dark:text-purple-300">AI Community Analyst</h3>
+            <p className="text-xs text-muted-foreground mt-1">
+              Ask questions about opportunity youth populations, barriers, and strategies. Powered by 4-engine collaborative AI with RAG context from census data, WIOA guidelines, and evidence-based frameworks.
+            </p>
+          </div>
+        </div>
+      </Card>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <Card className="p-4 hover-elevate cursor-pointer" onClick={() => handlePresetQuery(
+          "Generate a comprehensive re-engagement plan for opportunity youth ages 16-24 facing housing instability, mental health challenges, and education gaps. Include timeline, resource requirements, and measurable outcomes.",
+          ["housing", "mental_health", "education"],
+          { ageRange: "16-24", educationLevel: "Some high school or less" }
+        )} data-testid="button-generate-reengagement">
+          <div className="flex items-start gap-3">
+            <div className="rounded-md p-2 bg-green-100 dark:bg-green-900/30 shrink-0">
+              <Target className="h-5 w-5 text-green-600 dark:text-green-400" />
+            </div>
+            <div>
+              <p className="text-sm font-medium">Generate Re-engagement Plan</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                AI-generated intervention strategy based on barrier profiles and demographics
+              </p>
+            </div>
+          </div>
+        </Card>
+
+        <Card className="p-4 hover-elevate cursor-pointer" onClick={() => handlePresetQuery(
+          "Create a targeted outreach strategy for disconnected youth in our 5-county service area. Include specific messaging for different demographics, recommended channels (social media, community events, partner referrals), and engagement tactics for youth who are hardest to reach.",
+          ["housing", "employment", "transportation"],
+          { ageRange: "16-24" }
+        )} data-testid="button-create-outreach">
+          <div className="flex items-start gap-3">
+            <div className="rounded-md p-2 bg-blue-100 dark:bg-blue-900/30 shrink-0">
+              <Megaphone className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+            </div>
+            <div>
+              <p className="text-sm font-medium">Create Outreach Strategy</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Targeted messaging and channel recommendations for youth outreach
+              </p>
+            </div>
+          </div>
+        </Card>
+
+        <Card className="p-4 hover-elevate cursor-pointer" onClick={() => {
+          const totalOY = COUNTIES.reduce((sum, c) => sum + c.oyEstimate, 0);
+          handlePresetQuery(
+            `Write a grant-ready narrative section about our opportunity youth program. Key data: ${totalOY.toLocaleString()} estimated OY across 5 counties, ${PIPELINE_STAGES[3].count.toLocaleString()} currently enrolled, ${RETENTION_DATA[2].rate}% 90-day retention rate. Top barriers: mental health (82% severity), housing instability (78%), transportation (72%). Include statement of need, target population description, and evidence-based approach.`,
+            BARRIERS.map(b => b.id),
+            { ageRange: "16-24", region: "5-county Central Texas" }
+          );
+        }} data-testid="button-write-grant">
+          <div className="flex items-start gap-3">
+            <div className="rounded-md p-2 bg-amber-100 dark:bg-amber-900/30 shrink-0">
+              <PenLine className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+            </div>
+            <div>
+              <p className="text-sm font-medium">Write Grant Narrative</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Synthesize population data into grant-ready language
+              </p>
+            </div>
+          </div>
+        </Card>
+      </div>
+
+      <Card className="p-4">
+        <div className="space-y-4">
+          <div className="flex items-center gap-3 flex-wrap">
+            <Select value={selectedCounty} onValueChange={setSelectedCounty}>
+              <SelectTrigger className="w-[200px]" data-testid="select-ai-county">
+                <SelectValue placeholder="County context" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Counties</SelectItem>
+                {COUNTIES.map(c => (
+                  <SelectItem key={c.fips} value={c.fips}>{c.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex gap-2">
+            <Textarea
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+              placeholder="Ask a question about opportunity youth populations, barriers, strategies, or program design..."
+              rows={3}
+              data-testid="input-ai-question"
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSubmit();
+                }
+              }}
+            />
+          </div>
+          <div className="flex justify-end">
+            <Button
+              onClick={handleSubmit}
+              disabled={!question.trim() || analystMutation.isPending}
+              data-testid="button-ai-submit"
+            >
+              {analystMutation.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-1 animate-spin" /> Analyzing...
+                </>
+              ) : (
+                <>
+                  <Send className="h-4 w-4 mr-1" /> Ask AI Analyst
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+      </Card>
+
+      {analystMutation.isPending && (
+        <Card className="p-6" data-testid="card-ai-loading">
+          <div className="flex items-center gap-3">
+            <Loader2 className="h-5 w-5 animate-spin text-purple-500" />
+            <div>
+              <p className="text-sm font-medium">AI engines collaborating...</p>
+              <p className="text-xs text-muted-foreground">Querying multiple AI models with RAG context for comprehensive analysis</p>
+            </div>
+          </div>
+        </Card>
+      )}
+
+      {analystMutation.isError && (
+        <Card className="p-4 border-destructive/50" data-testid="card-ai-error">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="h-5 w-5 text-destructive shrink-0" />
+            <div>
+              <p className="text-sm font-medium">Analysis failed</p>
+              <p className="text-xs text-muted-foreground">{(analystMutation.error as Error)?.message || "An error occurred while processing your request."}</p>
+            </div>
+          </div>
+        </Card>
+      )}
+
+      {aiResponse && !analystMutation.isPending && (
+        <div className="space-y-4">
+          <Card className="p-6" data-testid="card-ai-response">
+            <div className="flex items-center gap-2 mb-4">
+              <Sparkles className="h-5 w-5 text-purple-500" />
+              <h3 className="font-semibold">AI Analysis</h3>
+            </div>
+            <div className="prose prose-sm dark:prose-invert max-w-none" data-testid="text-ai-answer">
+              <div className="whitespace-pre-wrap text-sm">{aiResponse.answer}</div>
+            </div>
+          </Card>
+
+          <Card className="p-4" data-testid="card-ai-metadata">
+            <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
+              <Bot className="h-4 w-4" /> Engine Metadata
+            </h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              {aiResponse.engines.map((engine, i) => (
+                <div key={i} className="p-3 rounded-lg bg-muted/50 space-y-1" data-testid={`card-engine-${engine.engine}`}>
+                  <div className="flex items-center justify-between gap-1">
+                    <span className="text-xs font-semibold truncate">{engine.engine}</span>
+                    {engine.hasResponse ? (
+                      <CheckCircle2 className="h-3 w-3 text-green-500 shrink-0" />
+                    ) : (
+                      <AlertTriangle className="h-3 w-3 text-amber-500 shrink-0" />
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground truncate">{engine.model}</p>
+                  <p className="text-xs text-muted-foreground">{engine.responseTimeMs}ms</p>
+                  {engine.error && <p className="text-xs text-destructive truncate">{engine.error}</p>}
+                </div>
+              ))}
+            </div>
+
+            <Separator className="my-3" />
+
+            <div className="flex flex-wrap gap-4 text-xs">
+              {aiResponse.consensusMethod && (
+                <div data-testid="text-ai-consensus">
+                  <span className="text-muted-foreground">Consensus: </span>
+                  <span className="font-medium">{aiResponse.consensusMethod}</span>
+                </div>
+              )}
+              {aiResponse.totalTimeMs && (
+                <div data-testid="text-ai-time">
+                  <span className="text-muted-foreground">Total Time: </span>
+                  <span className="font-medium">{aiResponse.totalTimeMs}ms</span>
+                </div>
+              )}
+            </div>
+
+            {aiResponse.ragContext && aiResponse.ragContext.length > 0 && (
+              <div className="mt-3" data-testid="section-rag-sources">
+                <p className="text-xs font-semibold mb-1">RAG Sources</p>
+                <div className="flex flex-wrap gap-1">
+                  {aiResponse.ragContext.map((source, i) => (
+                    <Badge key={i} variant="outline" className="text-xs" data-testid={`badge-rag-source-${i}`}>
+                      <BookOpen className="h-3 w-3 mr-1" /> {source}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {aiResponse.frameworks && aiResponse.frameworks.length > 0 && (
+              <div className="mt-3" data-testid="section-frameworks">
+                <p className="text-xs font-semibold mb-1">Frameworks Applied</p>
+                <div className="flex flex-wrap gap-1">
+                  {aiResponse.frameworks.map((fw, i) => (
+                    <Badge key={i} variant="secondary" className="text-xs" data-testid={`badge-framework-${i}`}>
+                      {fw}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+          </Card>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function OpportunityYouthPage() {
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState("dashboard");
 
   return (
     <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-6" data-testid="page-opportunity-youth">
@@ -709,30 +1387,42 @@ export default function OpportunityYouthPage() {
             Opportunity Youth Dashboard
           </h1>
           <p className="text-muted-foreground mt-1">
-            Disconnected youth outreach, engagement, and retention tracking across 5 counties
+            AI-powered disconnected youth outreach, engagement, and retention tracking across 5 counties
           </p>
         </div>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="flex-wrap">
+          <TabsTrigger value="dashboard" data-testid="tab-dashboard">
+            <Activity className="h-4 w-4 mr-1" /> Dashboard
+          </TabsTrigger>
           <TabsTrigger value="overview" data-testid="tab-overview">
-            <BarChart3 className="h-4 w-4 mr-1" /> Population Overview
+            <BarChart3 className="h-4 w-4 mr-1" /> Population
           </TabsTrigger>
           <TabsTrigger value="pipeline" data-testid="tab-pipeline">
-            <ArrowRight className="h-4 w-4 mr-1" /> Outreach Pipeline
+            <ArrowRight className="h-4 w-4 mr-1" /> Pipeline
           </TabsTrigger>
           <TabsTrigger value="barriers" data-testid="tab-barriers">
-            <AlertTriangle className="h-4 w-4 mr-1" /> Barrier Assessment
+            <AlertTriangle className="h-4 w-4 mr-1" /> Barriers
           </TabsTrigger>
           <TabsTrigger value="strategies" data-testid="tab-strategies">
             <Target className="h-4 w-4 mr-1" /> Re-engagement
           </TabsTrigger>
           <TabsTrigger value="cases" data-testid="tab-cases">
-            <Eye className="h-4 w-4 mr-1" /> Case Tracking
+            <Eye className="h-4 w-4 mr-1" /> Cases
+          </TabsTrigger>
+          <TabsTrigger value="lifecycle" data-testid="tab-lifecycle">
+            <Workflow className="h-4 w-4 mr-1" /> Lifecycle
+          </TabsTrigger>
+          <TabsTrigger value="ai-analyst" data-testid="tab-ai-analyst">
+            <Sparkles className="h-4 w-4 mr-1" /> AI Analyst
           </TabsTrigger>
         </TabsList>
 
+        <TabsContent value="dashboard">
+          <HolisticDashboard />
+        </TabsContent>
         <TabsContent value="overview">
           <PopulationOverview />
         </TabsContent>
@@ -747,6 +1437,12 @@ export default function OpportunityYouthPage() {
         </TabsContent>
         <TabsContent value="cases">
           <CaseTracking />
+        </TabsContent>
+        <TabsContent value="lifecycle">
+          <ProcessVisualization />
+        </TabsContent>
+        <TabsContent value="ai-analyst">
+          <AIAnalystPanel />
         </TabsContent>
       </Tabs>
     </div>
