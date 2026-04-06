@@ -385,8 +385,8 @@ export default function AcademyAvatarPage() {
       queryClient.invalidateQueries({ queryKey: ["/api/academy/avatars"] });
       toast({ title: "Avatar saved", description: "Your avatar has been updated." });
     },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to save avatar.", variant: "destructive" });
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message || "Failed to save avatar.", variant: "destructive" });
     },
   });
 

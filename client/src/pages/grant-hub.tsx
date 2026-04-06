@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { TrainingGuideButton } from "@/components/training-guide";
+import { PillarFlowNav } from "@/components/dfc-cross-nav";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { Card } from "@/components/ui/card";
@@ -172,8 +173,8 @@ function GrantDetailDialog({ grant }: { grant: GrantOpportunity }) {
       queryClient.invalidateQueries({ queryKey: ["/api/grants/stats"] });
       toast({ title: "AI analysis complete" });
     },
-    onError: () => {
-      toast({ title: "AI analysis failed", variant: "destructive" });
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message || "AI analysis failed. Please try again.", variant: "destructive" });
     },
   });
 
@@ -355,8 +356,8 @@ export default function GrantHubPage() {
       queryClient.invalidateQueries({ queryKey: ["/api/grants/discovery/status"] });
       toast({ title: "Discovery Scan Complete", description: `Found ${data.total} opportunities. ${data.imported} new grants imported, ${data.skipped} already tracked.` });
     },
-    onError: () => {
-      toast({ title: "Discovery scan failed", description: "Will retry automatically on next scheduled run", variant: "destructive" });
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message || "Discovery scan failed. Will retry automatically on next scheduled run.", variant: "destructive" });
     },
   });
 
@@ -402,8 +403,8 @@ export default function GrantHubPage() {
       queryClient.invalidateQueries({ queryKey: ["/api/grants/alerts"] });
       toast({ title: `SAM.gov Refresh Complete`, description: `Imported ${data.imported} new opportunities (${data.skipped} already existed). ${data.newHighFitAlerts} high-fit alerts created.` });
     },
-    onError: () => {
-      toast({ title: "SAM.gov refresh failed", description: "Check API key configuration or try again later", variant: "destructive" });
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message || "SAM.gov refresh failed. Check API key configuration or try again later.", variant: "destructive" });
     },
   });
 
@@ -1060,6 +1061,8 @@ export default function GrantHubPage() {
           <ReportSection title="OJJDP/DOJ Compliance Report" endpoint="/api/grants/report/ojjdp" testId="ojjdp" />
         </TabsContent>
       </Tabs>
+
+      <PillarFlowNav currentStep="grant-discovery" />
     </div>
   );
 }

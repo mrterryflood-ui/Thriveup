@@ -42,17 +42,6 @@ import type { AcademyMerchItem, AcademyMerchOrder } from "@shared/schema";
 import { ErrorRetry } from "@/components/error-retry";
 import { PageHeader } from "@/components/page-header";
 
-const PLACEHOLDER_ITEMS = [
-  { name: "T-Shirts", price: "25.00", category: "Apparel", description: "ThriveUp Academy branded t-shirts in various sizes" },
-  { name: "Hoodies", price: "45.00", category: "Apparel", description: "Warm hoodies with ThriveUp Academy logo" },
-  { name: "Caps", price: "20.00", category: "Accessories", description: "Adjustable caps with embroidered logo" },
-  { name: "Tote Bags", price: "15.00", category: "Accessories", description: "Durable tote bags for everyday use" },
-  { name: "Water Bottles", price: "18.00", category: "Accessories", description: "Reusable water bottles with ThriveUp Academy branding" },
-  { name: "Notebooks", price: "12.00", category: "Stationery", description: "Lined notebooks for learning and notes" },
-  { name: "Stickers Pack", price: "8.00", category: "Stationery", description: "Pack of ThriveUp Academy-themed stickers" },
-  { name: "Wristbands", price: "5.00", category: "Accessories", description: "Silicone wristbands showing your support" },
-];
-
 const STATUS_CONFIG: Record<string, { label: string; variant: "default" | "secondary" | "outline" | "destructive"; className: string }> = {
   pending: { label: "Pending", variant: "secondary", className: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300" },
   processing: { label: "Processing", variant: "secondary", className: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300" },
@@ -225,22 +214,13 @@ export default function AcademyMerchPage() {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" data-testid="grid-preview-catalog">
-              {PLACEHOLDER_ITEMS.map((item) => (
-                <Card key={item.name} className="p-4 flex flex-col" data-testid={`card-preview-${item.name.toLowerCase().replace(/\s+/g, "-")}`}>
-                  <div className="flex items-center justify-between gap-2 mb-2 flex-wrap">
-                    <Badge variant="outline">{item.category}</Badge>
-                    <Badge variant="secondary" className="bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300">${item.price}</Badge>
-                  </div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <Package className="h-4 w-4 text-muted-foreground shrink-0" />
-                    <h3 className="font-semibold text-sm">{item.name}</h3>
-                  </div>
-                  <p className="text-xs text-muted-foreground mb-3 flex-1">{item.description}</p>
-                  <span className="text-lg font-bold">${item.price}</span>
-                </Card>
-              ))}
-            </div>
+            <Card className="p-8 text-center" data-testid="card-empty-merch">
+              <ShoppingBag className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="font-semibold text-lg mb-2">Merch Shop Coming Soon</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Branded merchandise items are being added to the catalog. Check back soon for ThriveUp Academy apparel, accessories, and stationery.
+              </p>
+            </Card>
             <Card className="p-4 mt-4" data-testid="card-preview-notice">
               <div className="flex items-center gap-3 flex-wrap">
                 <Mail className="h-4 w-4 text-muted-foreground shrink-0" />

@@ -441,8 +441,8 @@ export default function CommunityMapPage() {
         queryClient.invalidateQueries({ queryKey: ["/api/community-map/location-search?q=" + encodeURIComponent(activeSearch)] });
       }
     },
-    onError: () => {
-      toast({ title: "Refresh failed", description: "Could not fetch fresh data.", variant: "destructive" });
+    onError: (error: Error) => {
+      toast({ title: "Refresh failed", description: error.message || "Could not fetch fresh data.", variant: "destructive" });
     },
   });
 

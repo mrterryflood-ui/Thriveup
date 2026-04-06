@@ -251,8 +251,8 @@ export default function EcosystemOpsCenterPage() {
       });
       queryClient.invalidateQueries({ queryKey: ["/api/ecosystem/live-status"] });
     },
-    onError: () => {
-      toast({ title: "Wake-up failed", description: "Could not reach platforms", variant: "destructive" });
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message || "Could not reach platforms.", variant: "destructive" });
     },
   });
 
@@ -270,8 +270,8 @@ export default function EcosystemOpsCenterPage() {
       });
       queryClient.invalidateQueries({ queryKey: ["/api/ecosystem/intelligence-report"] });
     },
-    onError: () => {
-      toast({ title: "Verification failed", variant: "destructive" });
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message || "Verification failed. Please try again.", variant: "destructive" });
     },
   });
 

@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SDOHImpactChain } from "@/components/sdoh-impact-chain";
-import { DFCCrossNav } from "@/components/dfc-cross-nav";
+import { DFCCrossNav, PillarFlowNav } from "@/components/dfc-cross-nav";
 import {
   Search, Loader2, MapPin, AlertTriangle, ChevronDown, ChevronUp,
   BarChart3, DollarSign, GraduationCap, HeartPulse, ShieldAlert,
@@ -527,6 +527,7 @@ export default function SDOHExplorerPage() {
           </TabsContent>
         </Tabs>
 
+        <PillarFlowNav currentStep="community-intelligence" />
         <DFCCrossNav currentPage="sdoh-chain" />
       </div>
     </div>

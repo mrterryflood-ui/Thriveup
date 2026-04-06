@@ -247,8 +247,8 @@ export default function AcademyMarketplacePage() {
       setReportingId(null);
       setReportReason("");
     },
-    onError: () => {
-      toast({ title: "Error", description: "Could not submit report. Please try again.", variant: "destructive" });
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message || "Could not submit report. Please try again.", variant: "destructive" });
     },
   });
 

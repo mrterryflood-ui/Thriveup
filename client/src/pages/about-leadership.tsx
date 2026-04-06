@@ -6,7 +6,7 @@ import { Link } from "wouter";
 import {
   GraduationCap, Shield, Award, Briefcase, BookOpen, Mail,
   Star, Globe, Heart, Users, FlaskConical, Building2, Medal,
-  Target, Sparkles, Microscope, BarChart3,
+  Target, Sparkles, Microscope, BarChart3, ArrowRight, Search, TrendingUp,
 } from "lucide-react";
 import { MISSION_STATEMENT, VISION_STATEMENT, VALUES } from "@/lib/mvv-content";
 import terryPhoto from "@assets/Terry2_1773768611245.jpg";
@@ -362,6 +362,34 @@ export default function AboutLeadershipPage() {
               </Link>
             </div>
           </div>
+        </div>
+      </Card>
+
+      <Card className="p-6" data-testid="section-explore-links">
+        <h2 className="font-semibold text-lg mb-1">Explore the Platform</h2>
+        <p className="text-sm text-muted-foreground mb-4">See the ecosystem Dr. Flood and the team have built.</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {[
+            { title: "Ecosystem Story", desc: "See how 24 platforms work together on a real grant scenario", href: "/ecosystem-story", icon: BookOpen },
+            { title: "SDOH Explorer", desc: "Live community data analysis for any U.S. region", href: "/sdoh-explorer", icon: Search },
+            { title: "Case Studies", desc: "Real implementation evidence and outcome metrics", href: "/case-studies", icon: BarChart3 },
+            { title: "Stakeholder Deck", desc: "Presentation materials for funders and partners", href: "/presentations", icon: Target },
+            { title: "Research Hub", desc: "Implementation science and MAP-GAP methodology", href: "/research-hub", icon: Microscope },
+            { title: "Outcome Reporting", desc: "Track program outcomes across all domains", href: "/outcomes", icon: TrendingUp },
+          ].map((item) => (
+            <Link key={item.href} href={item.href}>
+              <div className="flex items-start gap-3 p-3 rounded-md border hover-elevate cursor-pointer" data-testid={`link-about-${item.title.toLowerCase().replace(/\s+/g, '-')}`}>
+                <div className="rounded-md p-2 bg-primary/10 shrink-0">
+                  <item.icon className="h-4 w-4 text-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-semibold text-sm">{item.title}</h4>
+                  <p className="text-xs text-muted-foreground mt-0.5">{item.desc}</p>
+                </div>
+                <ArrowRight className="h-3 w-3 text-muted-foreground shrink-0 mt-1" />
+              </div>
+            </Link>
+          ))}
         </div>
       </Card>
     </div>

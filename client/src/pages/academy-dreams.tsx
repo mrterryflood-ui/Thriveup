@@ -237,8 +237,8 @@ function DreamProfileForm({
       toast({ title: "Dream profile saved!" });
       onCancel();
     },
-    onError: () => {
-      toast({ title: "Failed to save profile", variant: "destructive" });
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message || "Failed to save profile. Please try again.", variant: "destructive" });
     },
   });
 

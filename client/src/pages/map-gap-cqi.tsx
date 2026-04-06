@@ -165,7 +165,7 @@ function CreateCycleDialog({ onCreated }: { onCreated: () => void }) {
       setTitle(""); setDescription(""); setProgramArea(""); setFramework(""); setTargetEndDate("");
       onCreated();
     },
-    onError: () => toast({ title: "Error", description: "Failed to create cycle.", variant: "destructive" }),
+    onError: (error: Error) => toast({ title: "Error", description: error.message || "Failed to create cycle.", variant: "destructive" }),
   });
 
   return (

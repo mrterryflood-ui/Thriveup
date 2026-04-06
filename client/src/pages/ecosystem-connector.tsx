@@ -156,7 +156,7 @@ export default function EcosystemConnectorPage() {
       setDirectiveGrant("all");
       toast({ title: "Directive broadcast", description: data.message });
     },
-    onError: () => toast({ title: "Failed to broadcast directive", variant: "destructive" }),
+    onError: (error: Error) => toast({ title: "Error", description: error.message || "Failed to broadcast directive.", variant: "destructive" }),
   });
 
   const initMutation = useMutation({
@@ -169,7 +169,7 @@ export default function EcosystemConnectorPage() {
       queryClient.invalidateQueries({ queryKey: ["/api/ecosystem/status"] });
       toast({ title: "Ecosystem initialized", description: `${data.platforms.length} platforms registered.` });
     },
-    onError: () => toast({ title: "Initialization failed", variant: "destructive" }),
+    onError: (error: Error) => toast({ title: "Error", description: error.message || "Initialization failed.", variant: "destructive" }),
   });
 
   const healthCheckMutation = useMutation({
@@ -183,7 +183,7 @@ export default function EcosystemConnectorPage() {
       const online = data.platforms.filter((p: any) => p.status === "online").length;
       toast({ title: "Health check complete", description: `${online}/${data.platforms.length} platforms online.` });
     },
-    onError: () => toast({ title: "Health check failed", variant: "destructive" }),
+    onError: (error: Error) => toast({ title: "Error", description: error.message || "Health check failed.", variant: "destructive" }),
   });
 
   const [wakeResults, setWakeResults] = useState<{ wokenAt: string; summary: { targeted: number; awake: number; responded: number; failed: number }; platforms: Array<{ id: string; name: string; url: string; status: string; responseTimeMs: number; statusCode: number; errorMessage: string | null; wakeAttempts: number }> } | null>(null);
@@ -213,9 +213,9 @@ export default function EcosystemConnectorPage() {
         description: `${awake} awake, ${data.summary?.responded || 0} responded, ${failed} unreachable`,
       });
     },
-    onError: () => {
+    onError: (error: Error) => {
       setWakingPlatformIds([]);
-      toast({ title: "Wake-up failed", description: "Could not reach platforms", variant: "destructive" });
+      toast({ title: "Error", description: error.message || "Could not reach platforms.", variant: "destructive" });
     },
   });
 

@@ -158,8 +158,8 @@ export default function RokuAdsPage() {
       setGeneratedScript(data.script || data.content || "");
       toast({ title: "Script generated", description: "Roku-optimized video script with ad breaks ready." });
     },
-    onError: () => {
-      toast({ title: "Generation failed", description: "Please try again.", variant: "destructive" });
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message || "Generation failed. Please try again.", variant: "destructive" });
     },
   });
 

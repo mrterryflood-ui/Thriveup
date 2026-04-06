@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import { PillarFlowNav } from "@/components/dfc-cross-nav";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -137,8 +138,8 @@ export default function GrantNarrativePage() {
       setExpandedNarrative(0);
       toast({ title: "Narrative section generated successfully" });
     },
-    onError: () => {
-      toast({ title: "Failed to generate narrative", variant: "destructive" });
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message || "Failed to generate narrative. Please try again.", variant: "destructive" });
     },
   });
 
@@ -452,6 +453,8 @@ export default function GrantNarrativePage() {
           </div>
         </div>
       </Card>
+
+      <PillarFlowNav currentStep="narrative" />
     </div>
   );
 }

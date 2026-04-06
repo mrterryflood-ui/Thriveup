@@ -7,7 +7,7 @@ import { Link } from "wouter";
 import {
   Search, MapPin, Users, BookOpen, FileText, Award, Rocket,
   BarChart3, TrendingUp, Globe, ChevronLeft, ChevronRight,
-  ArrowRight, Sparkles, Shield, Target, Activity,
+  ArrowRight, Sparkles, Shield, Target, Activity, Heart, Briefcase,
 } from "lucide-react";
 
 interface StoryStep {
@@ -324,6 +324,38 @@ export default function EcosystemStoryPage() {
           </Button>
         )}
       </div>
+
+      <Card className="p-6" data-testid="section-explore-platform">
+        <h3 className="font-semibold mb-3">Explore the Platform</h3>
+        <p className="text-sm text-muted-foreground mb-4">Jump into any part of the ecosystem to see it in action.</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {[
+            { title: "SDOH Explorer", desc: "Live Census & CDC data for any U.S. community", href: "/sdoh-explorer", icon: Search },
+            { title: "Grant Discovery", desc: "AI-powered grant matching and alignment scoring", href: "/grants", icon: Target },
+            { title: "Program Designer", desc: "Design evidence-based programs with AI", href: "/program-designer", icon: Sparkles },
+            { title: "Logic Model", desc: "Auto-populated inputs, activities, and outcomes", href: "/logic-model", icon: BarChart3 },
+            { title: "Benefits Screener", desc: "Screen for 9+ programs in one conversation", href: "/benefits-screener", icon: Heart },
+            { title: "Workforce Dashboard", desc: "Career pathways and employer connections", href: "/workforce-dashboard", icon: Briefcase },
+            { title: "Coalition Portal", desc: "12-sector coalition management", href: "/coalition", icon: Users },
+            { title: "Outcome Reporting", desc: "Track outcomes at 30/90/180/365 days", href: "/outcomes", icon: TrendingUp },
+            { title: "Case Studies", desc: "Real implementation evidence and metrics", href: "/case-studies", icon: BookOpen },
+            { title: "About & Leadership", desc: "Meet the team behind the ecosystem", href: "/about-leadership", icon: Users },
+          ].map((item) => (
+            <Link key={item.href} href={item.href}>
+              <div className="flex items-start gap-3 p-3 rounded-md border hover-elevate cursor-pointer" data-testid={`link-explore-${item.title.toLowerCase().replace(/\s+/g, '-')}`}>
+                <div className="rounded-md p-2 bg-primary/10 shrink-0">
+                  <item.icon className="h-4 w-4 text-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-semibold text-sm">{item.title}</h4>
+                  <p className="text-xs text-muted-foreground mt-0.5">{item.desc}</p>
+                </div>
+                <ArrowRight className="h-3 w-3 text-muted-foreground shrink-0 mt-1" />
+              </div>
+            </Link>
+          ))}
+        </div>
+      </Card>
 
       <Card className="p-6">
         <h3 className="font-semibold mb-4" data-testid="text-platform-flow-title">Platform Data Flow</h3>

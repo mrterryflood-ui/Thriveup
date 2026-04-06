@@ -4314,8 +4314,8 @@ function OpportunityScanner() {
       setScanResult(result);
       toast({ title: "Opportunity analyzed successfully" });
     },
-    onError: () => {
-      toast({ title: "Analysis failed — try again or paste text instead", variant: "destructive" });
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message || "Analysis failed — try again or paste text instead.", variant: "destructive" });
     },
   });
 
@@ -4566,8 +4566,8 @@ function SectionDrafter({ section, grant, autoTrigger, onAutoTriggered, onDraftU
       if (onSaveDraft) onSaveDraft(section.id, data.draft);
       toast({ title: "Draft generated & saved", description: `"${section.name}" has been drafted by AI. Review and edit as needed.` });
     },
-    onError: () => {
-      toast({ title: "Failed to generate draft", description: "Please try again", variant: "destructive" });
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message || "Failed to generate draft. Please try again.", variant: "destructive" });
     },
   });
 
@@ -4592,8 +4592,8 @@ function SectionDrafter({ section, grant, autoTrigger, onAutoTriggered, onDraftU
       setShowRefine(false);
       toast({ title: "Draft refined & saved", description: "Your instructions have been applied." });
     },
-    onError: () => {
-      toast({ title: "Failed to refine", description: "Please try again", variant: "destructive" });
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message || "Failed to refine. Please try again.", variant: "destructive" });
     },
   });
 

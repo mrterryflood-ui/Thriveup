@@ -235,8 +235,8 @@ function AwardPointsForm({ houses }: { houses: AcademyHouse[] }) {
       setCategory("");
       setReason("");
     },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to award points. Please try again.", variant: "destructive" });
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message || "Failed to award points. Please try again.", variant: "destructive" });
     },
   });
 

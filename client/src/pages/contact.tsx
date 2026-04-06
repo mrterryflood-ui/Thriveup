@@ -54,10 +54,10 @@ function ContactForm() {
       setSubmitted(true);
       queryClient.invalidateQueries({ queryKey: ["/api/contact/inquiries"] });
     },
-    onError: () => {
+    onError: (error: Error) => {
       toast({
         title: "Error",
-        description: "Failed to submit inquiry. Please try again.",
+        description: error.message || "Failed to submit inquiry. Please try again.",
         variant: "destructive",
       });
     },

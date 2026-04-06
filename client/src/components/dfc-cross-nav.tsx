@@ -86,6 +86,73 @@ const NAV_MAP: Record<string, CrossNavItem[]> = {
 };
 
 
+const FLOW_STEPS = [
+  { id: "community-intelligence", label: "Community Intelligence", href: "/sdoh-explorer", icon: Search, shortLabel: "Intelligence" },
+  { id: "grant-discovery", label: "Grant Discovery", href: "/grants", icon: Target, shortLabel: "Grants" },
+  { id: "program-designer", label: "Program Designer", href: "/program-designer", icon: Brain, shortLabel: "Design" },
+  { id: "logic-model", label: "Logic Model", href: "/logic-model", icon: BarChart3, shortLabel: "Logic Model" },
+  { id: "narrative", label: "Grant Narrative", href: "/grant-narrative", icon: FileText, shortLabel: "Narrative" },
+  { id: "outcomes", label: "Outcome Reporting", href: "/outcomes", icon: ClipboardCheck, shortLabel: "Outcomes" },
+];
+
+export function PillarFlowNav({ currentStep }: { currentStep: string }) {
+  const currentIdx = FLOW_STEPS.findIndex(s => s.id === currentStep);
+
+  return (
+    <Card className="p-5 mt-6" data-testid="section-pillar-flow-nav">
+      <h3 className="text-sm font-semibold text-muted-foreground mb-3">Your Journey: From Data to Impact</h3>
+      <div className="flex flex-wrap items-center gap-2 mb-4">
+        {FLOW_STEPS.map((step, i) => {
+          const isActive = step.id === currentStep;
+          const isPast = i < currentIdx;
+          const StepIcon = step.icon;
+          return (
+            <div key={step.id} className="flex items-center gap-2">
+              <Link href={step.href}>
+                <div
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium cursor-pointer transition-colors ${
+                    isActive
+                      ? "bg-primary text-primary-foreground"
+                      : isPast
+                      ? "bg-primary/10 text-primary"
+                      : "bg-muted text-muted-foreground hover-elevate"
+                  }`}
+                  data-testid={`flow-step-${step.id}`}
+                >
+                  <StepIcon className="h-3 w-3" />
+                  <span className="hidden sm:inline">{step.label}</span>
+                  <span className="sm:hidden">{step.shortLabel}</span>
+                </div>
+              </Link>
+              {i < FLOW_STEPS.length - 1 && (
+                <ArrowRight className="h-3 w-3 text-muted-foreground shrink-0" />
+              )}
+            </div>
+          );
+        })}
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {currentIdx > 0 && (
+          <Link href={FLOW_STEPS[currentIdx - 1].href}>
+            <div className="inline-flex items-center gap-1.5 text-xs text-muted-foreground cursor-pointer hover:text-foreground transition-colors" data-testid="link-flow-prev">
+              <ArrowRight className="h-3 w-3 rotate-180" />
+              Previous: {FLOW_STEPS[currentIdx - 1].label}
+            </div>
+          </Link>
+        )}
+        {currentIdx < FLOW_STEPS.length - 1 && currentIdx >= 0 && (
+          <Link href={FLOW_STEPS[currentIdx + 1].href}>
+            <div className="inline-flex items-center gap-1.5 text-xs text-primary font-medium cursor-pointer hover:underline ml-auto" data-testid="link-flow-next">
+              Next Step: {FLOW_STEPS[currentIdx + 1].label}
+              <ArrowRight className="h-3 w-3" />
+            </div>
+          </Link>
+        )}
+      </div>
+    </Card>
+  );
+}
+
 export function DFCCrossNav({ currentPage }: { currentPage: string }) {
   const items = NAV_MAP[currentPage] || [];
 

@@ -3,6 +3,7 @@ import { TrainingGuideButton } from "@/components/training-guide";
 import SectionTutorial from "@/components/section-tutorial";
 import { SECTION_TUTORIALS } from "@/lib/tutorial-content";
 import { Link } from "wouter";
+import { PillarFlowNav } from "@/components/dfc-cross-nav";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -886,6 +887,8 @@ export default function ProgramDesignerPage() {
           </div>
         </CardContent>
       </Card>
+
+      <PillarFlowNav currentStep="program-designer" />
     </div>
   );
 }

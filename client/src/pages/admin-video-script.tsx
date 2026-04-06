@@ -172,8 +172,8 @@ export default function AdminVideoScriptPage() {
     onSuccess: () => {
       toast({ title: "Sent to Pipeline", description: "Video script has been submitted to the render pipeline." });
     },
-    onError: () => {
-      toast({ title: "Pipeline Error", description: "Failed to submit script to the video pipeline.", variant: "destructive" });
+    onError: (error: Error) => {
+      toast({ title: "Pipeline Error", description: error.message || "Failed to submit script to the video pipeline.", variant: "destructive" });
     },
   });
 

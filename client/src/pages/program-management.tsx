@@ -479,9 +479,9 @@ function SustainabilityPartnersTab() {
       setSuggestions(result.suggestions || []);
       setDiscovering(false);
     },
-    onError: () => {
+    onError: (error: Error) => {
       setDiscovering(false);
-      toast({ title: "Discovery failed", description: "Could not reach AI service", variant: "destructive" });
+      toast({ title: "Discovery failed", description: error.message || "Could not reach AI service", variant: "destructive" });
     },
   });
 

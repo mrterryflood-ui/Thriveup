@@ -130,7 +130,7 @@ const ECOSYSTEM_APPS: EcosystemApp[] = [
     color: "text-blue-600 dark:text-blue-400",
     bgColor: "bg-blue-50 dark:bg-blue-950/30",
     borderColor: "border-blue-200 dark:border-blue-800",
-    status: "linked",
+    status: "integrated",
     description: "Free, visual-first learning platform for Pre-K through 12th grade covering Math, Reading, Science, English, and Social Studies. Features silent accessibility adaptations, AI homework help, and parent-friendly progress tracking.",
     features: ["Pre-K to 12th Grade Curriculum", "Visual-First Learning", "AI Homework Help", "Silent Accessibility", "Parent Progress Tracking", "Math, Reading, Science, English, Social Studies"],
     populations: ["Youth (Pre-K to 12)", "Parents", "Educators"],
@@ -155,7 +155,7 @@ const ECOSYSTEM_APPS: EcosystemApp[] = [
     color: "text-purple-600 dark:text-purple-400",
     bgColor: "bg-purple-50 dark:bg-purple-950/30",
     borderColor: "border-purple-200 dark:border-purple-800",
-    status: "linked",
+    status: "integrated",
     description: "Nonprofit, neurodiversity-affirming support platform for individuals with autism, ADHD, AuDHD, and other neurodivergent conditions.",
     features: ["AI-Powered Guidance", "IEP/504 Plan Assistance", "Crisis Resources", "Therapy Tools", "Community Support", "Neurodiversity Advocacy"],
     populations: ["Neurodivergent Individuals", "Youth with IEP/504 Plans", "Parents of Neurodivergent Youth", "Educators"],
@@ -180,7 +180,7 @@ const ECOSYSTEM_APPS: EcosystemApp[] = [
     color: "text-amber-600 dark:text-amber-400",
     bgColor: "bg-amber-50 dark:bg-amber-950/30",
     borderColor: "border-amber-200 dark:border-amber-800",
-    status: "linked",
+    status: "integrated",
     description: "Incident management platform for mandatory reporters in Texas foster care, schools, healthcare, and childcare. 50-state regulation database, 7-stage incident lifecycle.",
     features: ["50-State Regulation Database", "7-Stage Incident Lifecycle", "Auto-Generated Deadlines", "Tamper-Evident Audit Trails", "Cross-Agency Referencing", "Court-Admissible Records"],
     populations: ["Mandatory Reporters", "Foster Care Workers", "School Personnel", "Healthcare Workers", "Childcare Providers"],
@@ -205,7 +205,7 @@ const ECOSYSTEM_APPS: EcosystemApp[] = [
     color: "text-green-600 dark:text-green-400",
     bgColor: "bg-green-50 dark:bg-green-950/30",
     borderColor: "border-green-200 dark:border-green-800",
-    status: "linked",
+    status: "integrated",
     description: "Free veteran support platform helping service members, veterans, and military families transition from military to civilian life.",
     features: ["Transition Planning Tools", "Benefits Guidance", "Military Skills Translation", "Community Connections", "Military Family Support", "Resource Curation"],
     populations: ["Veterans", "Active Duty Transitioning", "Military Families", "Military Spouses"],
@@ -230,7 +230,7 @@ const ECOSYSTEM_APPS: EcosystemApp[] = [
     color: "text-indigo-600 dark:text-indigo-400",
     bgColor: "bg-indigo-50 dark:bg-indigo-950/30",
     borderColor: "border-indigo-200 dark:border-indigo-800",
-    status: "linked",
+    status: "integrated",
     description: "Free virtual 211 and Community Health Worker hub connecting individuals to resources. 24/7 with no prerequisites.",
     features: ["24/7 Resource Navigation", "Housing Assistance", "Food Access", "Healthcare Connections", "Mental Health Resources", "Substance Abuse Support", "Domestic Violence Support", "Crisis Support"],
     populations: ["All Community Members", "Individuals in Crisis", "Unhoused Individuals", "Substance Use Recovery", "Domestic Violence Survivors"],
@@ -284,7 +284,7 @@ const ECOSYSTEM_APPS: EcosystemApp[] = [
     color: "text-cyan-600 dark:text-cyan-400",
     bgColor: "bg-cyan-50 dark:bg-cyan-950/30",
     borderColor: "border-cyan-200 dark:border-cyan-800",
-    status: "linked",
+    status: "integrated",
     description: "Research and implementation science platform translating evidence-based practices into real-world community applications through structured methodology and fidelity tracking.",
     features: ["Implementation Science Tools", "Evidence-Based Practice Registry", "Fidelity Measurement", "Research Translation", "Community Application Guides"],
     populations: ["Researchers", "Program Implementers", "Community Organizations", "Grant Writers"],
@@ -351,7 +351,7 @@ const ECOSYSTEM_APPS: EcosystemApp[] = [
     color: "text-slate-600 dark:text-slate-400",
     bgColor: "bg-slate-50 dark:bg-slate-950/30",
     borderColor: "border-slate-200 dark:border-slate-800",
-    status: "linked",
+    status: "integrated",
     description: "Cognitive safety platform providing tools for cognitive health assessment, early intervention, and protective strategies for vulnerable populations.",
     features: ["Cognitive Health Assessments", "Early Intervention Tools", "Safety Protocols", "Care Coordination", "Family Support Resources"],
     populations: ["Seniors", "Caregivers", "Healthcare Workers", "Families"],
@@ -374,7 +374,7 @@ const ECOSYSTEM_APPS: EcosystemApp[] = [
     color: "text-sky-600 dark:text-sky-400",
     bgColor: "bg-sky-50 dark:bg-sky-950/30",
     borderColor: "border-sky-200 dark:border-sky-800",
-    status: "linked",
+    status: "integrated",
     description: "Medication management platform with pill reminders, dosage tracking, interaction warnings, and care coordination for individuals managing complex medication regimens.",
     features: ["Medication Reminders", "Dosage Tracking", "Interaction Warnings", "Care Coordination", "Refill Alerts"],
     populations: ["Individuals on Medication", "Seniors", "Caregivers", "Substance Use Recovery"],
@@ -474,7 +474,8 @@ const DOMAIN_LABELS: Record<string, string> = {
 function StatusBadge({ status }: { status: string }) {
   if (status === "integrated") return <Badge data-testid="badge-status-integrated" className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">Fully Integrated</Badge>;
   if (status === "linked") return <Badge data-testid="badge-status-linked" className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">Linked</Badge>;
-  return <Badge data-testid="badge-status-planned" variant="outline">Planned</Badge>;
+  if (status === "planned") return <Badge data-testid="badge-status-planned" className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">In Development</Badge>;
+  return <Badge data-testid="badge-status-unknown" variant="outline">Unknown</Badge>;
 }
 
 function FullPortfolioTab() {

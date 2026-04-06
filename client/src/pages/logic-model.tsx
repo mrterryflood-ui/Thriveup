@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
+import { PillarFlowNav } from "@/components/dfc-cross-nav";
 import {
   ArrowRight, Download, Users, Activity, BarChart3,
   Target, TrendingUp, Heart, Briefcase, GraduationCap, Shield,
@@ -416,6 +417,8 @@ export default function LogicModelPage() {
           </div>
         </div>
       </Card>
+
+      <PillarFlowNav currentStep="logic-model" />
     </div>
   );
 }

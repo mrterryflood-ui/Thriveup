@@ -48,3 +48,7 @@ Key architectural features and design decisions include:
 - **External Platform Integration:** Student Support Portal (ISSS).
 - **5-County Benefits Intelligence System:** Integrates Census ACS data for Travis, Williamson, Hays, Bastrop, and Caldwell counties for benefits enrollment gap analysis, barrier index computation, and eligibility screening.
 - **Gun Violence Registry Integration:** Live API connection to Dr. Flood's National Gun Violence Tracker and Gun Violence Archive national data.
+- **Comprehensive Seed Data:** `server/seed-comprehensive.ts` populates all tables with realistic example data on startup — merch items, participant profiles, service records, grant projects, staffing plans, coalition data, pilot cohorts, benefits intelligence, prevention frameworks, facilitator profiles, and outcome tracking.
+- **Cross-Pillar Navigation:** `PillarFlowNav` component (`client/src/components/dfc-cross-nav.tsx`) provides pipeline flow navigation across Community Intelligence → Grant Discovery → Program Designer → Logic Model → Grant Narrative → Outcome Reporting on all 6 pipeline pages.
+- **Error Handling:** All mutation `onError` handlers across 24+ pages provide user-facing toast messages with error details (no silent failures).
+- **Ecosystem Hub Status:** Platforms show "Fully Integrated", "Linked", or "In Development" status badges based on actual integration state. 16 of 20 platforms are Fully Integrated.

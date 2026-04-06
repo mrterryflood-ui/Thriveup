@@ -447,7 +447,7 @@ function CaseStudyDetail({ study }: { study: CaseStudy }) {
     { id: "challenge", title: "The Challenge", icon: AlertTriangle, color: "text-red-500" },
     { id: "three-realities", title: "Three Realities Analysis", icon: Eye, color: "text-violet-500" },
     { id: "map-gap", title: "MAP-GAP Application", icon: RefreshCw, color: "text-primary" },
-    { id: "platforms", title: "14-Platform Contributions", icon: Globe, color: "text-teal-500" },
+    { id: "platforms", title: "Platform Contributions", icon: Globe, color: "text-teal-500" },
     { id: "outcomes", title: "Measured Outcomes", icon: BarChart3, color: "text-emerald-500" },
     { id: "lessons", title: "Lessons Learned", icon: Lightbulb, color: "text-amber-500" },
   ];
@@ -486,7 +486,7 @@ function CaseStudyDetail({ study }: { study: CaseStudy }) {
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Platforms Active</p>
-              <p className="font-medium">{study.platformContributions.length} of 14</p>
+              <p className="font-medium">{study.platformContributions.length} of 20</p>
             </div>
           </div>
           <div className="flex flex-wrap gap-1.5 mt-3">

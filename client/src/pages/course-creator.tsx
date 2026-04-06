@@ -163,8 +163,8 @@ function CreateCourseDialog({ open, onOpenChange }: { open: boolean; onOpenChang
       toast({ title: "Course Created", description: "Your new course has been created successfully." });
       resetAndClose();
     },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to create course. Please try again.", variant: "destructive" });
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message || "Failed to create course. Please try again.", variant: "destructive" });
     },
   });
 
@@ -406,8 +406,8 @@ function LessonEditDialog({
       toast({ title: "Lesson Created" });
       onOpenChange(false);
     },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to create lesson.", variant: "destructive" });
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message || "Failed to create lesson.", variant: "destructive" });
     },
   });
 
@@ -421,8 +421,8 @@ function LessonEditDialog({
       toast({ title: "Lesson Updated" });
       onOpenChange(false);
     },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to update lesson.", variant: "destructive" });
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message || "Failed to update lesson.", variant: "destructive" });
     },
   });
 
@@ -582,8 +582,8 @@ function CourseEditor({ courseId, onBack }: { courseId: string; onBack: () => vo
       queryClient.invalidateQueries({ queryKey: ["/api/admin/courses", courseId] });
       toast({ title: "Course Updated" });
     },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to update course.", variant: "destructive" });
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message || "Failed to update course.", variant: "destructive" });
     },
   });
 
@@ -596,8 +596,8 @@ function CourseEditor({ courseId, onBack }: { courseId: string; onBack: () => vo
       toast({ title: "Course Deleted" });
       onBack();
     },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to delete course.", variant: "destructive" });
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message || "Failed to delete course.", variant: "destructive" });
     },
   });
 
@@ -613,8 +613,8 @@ function CourseEditor({ courseId, onBack }: { courseId: string; onBack: () => vo
       setNewModuleDescription("");
       setShowAddModule(false);
     },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to create module.", variant: "destructive" });
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message || "Failed to create module.", variant: "destructive" });
     },
   });
 
@@ -626,8 +626,8 @@ function CourseEditor({ courseId, onBack }: { courseId: string; onBack: () => vo
       queryClient.invalidateQueries({ queryKey: ["/api/admin/courses", courseId] });
       toast({ title: "Module Deleted" });
     },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to delete module.", variant: "destructive" });
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message || "Failed to delete module.", variant: "destructive" });
     },
   });
 
@@ -639,8 +639,8 @@ function CourseEditor({ courseId, onBack }: { courseId: string; onBack: () => vo
       queryClient.invalidateQueries({ queryKey: ["/api/admin/courses", courseId] });
       toast({ title: "Lesson Deleted" });
     },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to delete lesson.", variant: "destructive" });
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message || "Failed to delete lesson.", variant: "destructive" });
     },
   });
 

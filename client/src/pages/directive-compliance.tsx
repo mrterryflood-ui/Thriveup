@@ -439,8 +439,8 @@ export default function DirectiveCompliancePage() {
       toast({ title: "Directives resent", description: "Pending directives have been re-delivered." });
       queryClient.invalidateQueries({ queryKey: ["/api/ecosystem/intelligence-report"] });
     },
-    onError: () => {
-      toast({ title: "Resend failed", description: "Could not resend directives.", variant: "destructive" });
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message || "Could not resend directives. Please try again.", variant: "destructive" });
     },
   });
 

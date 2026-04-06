@@ -260,8 +260,8 @@ export default function VoicesOfAustinPage() {
           : "The story has been rejected and will not be shown.",
       });
     },
-    onError: () => {
-      toast({ title: "Action failed", description: "Could not update story status.", variant: "destructive" });
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message || "Could not update story status.", variant: "destructive" });
     },
   });
 
@@ -299,8 +299,8 @@ export default function VoicesOfAustinPage() {
       setFormData({ authorName: "", authorNeighborhood: "", storyType: "", title: "", content: "", isAnonymous: false });
       toast({ title: "Story submitted", description: "Thank you for sharing your voice. Your story is pending review and you'll be connected to resources once approved." });
     },
-    onError: () => {
-      toast({ title: "Submission failed", description: "Please try again.", variant: "destructive" });
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message || "Submission failed. Please try again.", variant: "destructive" });
     },
   });
 

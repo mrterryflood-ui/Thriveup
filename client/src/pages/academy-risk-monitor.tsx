@@ -112,8 +112,8 @@ export default function AcademyRiskMonitorPage() {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/risk-settings"] });
       toast({ title: "Settings saved", description: "Notification thresholds updated." });
     },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to save settings.", variant: "destructive" });
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message || "Failed to save settings.", variant: "destructive" });
     },
   });
 

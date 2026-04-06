@@ -386,8 +386,8 @@ function RevisionQueueTab() {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/pathway-plans"] });
       toast({ title: "Revision Approved", description: "The plan revision has been approved and unlocked." });
     },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to approve revision.", variant: "destructive" });
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message || "Failed to approve revision.", variant: "destructive" });
     },
   });
 
@@ -401,8 +401,8 @@ function RevisionQueueTab() {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/longitudinal-metrics"] });
       toast({ title: "Revision Declined", description: "The revision request has been declined." });
     },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to decline revision.", variant: "destructive" });
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message || "Failed to decline revision.", variant: "destructive" });
     },
   });
 
@@ -508,8 +508,8 @@ function MentorRequestsTab() {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/longitudinal-metrics"] });
       toast({ title: "Request Updated", description: "Mentor request status has been updated." });
     },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to update mentor request.", variant: "destructive" });
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message || "Failed to update mentor request.", variant: "destructive" });
     },
   });
 
@@ -612,8 +612,8 @@ function AlumniTab() {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/longitudinal-metrics"] });
       toast({ title: "Alumni Updated", description: "Alumni record has been updated." });
     },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to update alumni record.", variant: "destructive" });
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message || "Failed to update alumni record.", variant: "destructive" });
     },
   });
 

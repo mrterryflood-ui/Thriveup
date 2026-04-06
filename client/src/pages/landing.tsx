@@ -606,6 +606,49 @@ export default function LandingPage() {
       <CommunitiesWeServe />
       <WhatWeDeliver />
       <HowItWorks />
+
+      <section className="py-12 px-4 sm:py-16 sm:px-6" data-testid="section-journey-flow">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-8">
+            <Badge variant="secondary" className="mb-3">
+              <Layers className="mr-1 h-3 w-3" /> End-to-End Pipeline
+            </Badge>
+            <h2 className="text-2xl sm:text-3xl font-bold mb-2" data-testid="text-journey-flow-heading">From Community Data to Funded Programs</h2>
+            <p className="text-sm text-muted-foreground max-w-lg mx-auto">
+              Six integrated tools that take you from understanding your community's needs all the way to reporting outcomes. Each step feeds the next.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[
+              { step: 1, title: "Community Intelligence", desc: "Analyze SDOH data, map barriers, and understand community needs with live Census and CDC data.", href: "/sdoh-explorer", icon: Search },
+              { step: 2, title: "Grant Discovery", desc: "AI-powered grant matching scores opportunities against your capacity and community alignment.", href: "/grants", icon: Target },
+              { step: 3, title: "Program Designer", desc: "Design evidence-based programs using the Three Realities framework and AI-generated recommendations.", href: "/program-designer", icon: Sparkles },
+              { step: 4, title: "Logic Model", desc: "Auto-populated logic model connecting inputs, activities, outputs, and outcomes with live platform data.", href: "/logic-model", icon: BarChart3 },
+              { step: 5, title: "Grant Narrative", desc: "AI-generated narratives for WIOA, OJJDP, and SAMHSA grants, populated with real metrics.", href: "/grant-narrative", icon: BookOpen },
+              { step: 6, title: "Outcome Reporting", desc: "Track recidivism, employment, education, housing, and behavioral health outcomes across cohorts.", href: "/outcomes", icon: TrendingUp },
+            ].map((item) => (
+              <Link key={item.step} href={item.href}>
+                <Card className="p-5 hover-elevate cursor-pointer h-full" data-testid={`card-journey-step-${item.step}`}>
+                  <div className="flex items-start gap-3 mb-2">
+                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                      <span className="text-sm font-bold text-primary">{item.step}</span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-sm mb-1">{item.title}</h3>
+                      <p className="text-xs text-muted-foreground leading-relaxed">{item.desc}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 text-xs text-primary mt-2 ml-11">
+                    <span>Explore</span>
+                    <ArrowRight className="h-3 w-3" />
+                  </div>
+                </Card>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <SuccessStories />
       <DeepDiveSection />
 

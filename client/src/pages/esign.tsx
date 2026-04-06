@@ -81,8 +81,8 @@ export default function ESignPage() {
       setNewDoc({ documentType: "", documentTitle: "", documentContext: "", recipientName: "", recipientEmail: "", recipientOrg: "", grantId: "" });
       toast({ title: "Signature request created", description: "Share the signing link with your recipient." });
     },
-    onError: () => {
-      toast({ title: "Failed to create request", variant: "destructive" });
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message || "Failed to create request. Please try again.", variant: "destructive" });
     },
   });
 
@@ -96,8 +96,8 @@ export default function ESignPage() {
       setShowSignModal(null);
       toast({ title: "Document signed", description: "The signature has been recorded." });
     },
-    onError: () => {
-      toast({ title: "Failed to sign", variant: "destructive" });
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message || "Failed to sign. Please try again.", variant: "destructive" });
     },
   });
 
@@ -121,8 +121,8 @@ export default function ESignPage() {
       setGeneratedTemplate(data.content);
       toast({ title: "Template generated", description: "Review and customize the document before sending for signature." });
     },
-    onError: () => {
-      toast({ title: "Failed to generate template", variant: "destructive" });
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message || "Failed to generate template. Please try again.", variant: "destructive" });
     },
   });
 

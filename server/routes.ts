@@ -372,6 +372,9 @@ export async function registerRoutes(
   await seedAiToolCatalog();
   await seedStaarContent();
 
+  const { seedComprehensive } = await import("./seed-comprehensive");
+  await seedComprehensive();
+
   app.use((_req, res, next) => {
     res.setHeader("X-Content-Type-Options", "nosniff");
     res.setHeader("X-Frame-Options", "DENY");

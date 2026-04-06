@@ -88,8 +88,8 @@ export default function VideoPipelinePage() {
       setScriptContent("");
       toast({ title: "Render job created", description: "Video is now in the render queue." });
     },
-    onError: () => {
-      toast({ title: "Failed to create render job", variant: "destructive" });
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message || "Failed to create render job. Please try again.", variant: "destructive" });
     },
   });
 
@@ -103,8 +103,8 @@ export default function VideoPipelinePage() {
       queryClient.invalidateQueries({ queryKey: ["/api/video-pipeline/stats"] });
       toast({ title: "Distribution started", description: "Video is being distributed to all platforms." });
     },
-    onError: () => {
-      toast({ title: "Distribution failed", variant: "destructive" });
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message || "Distribution failed. Please try again.", variant: "destructive" });
     },
   });
 

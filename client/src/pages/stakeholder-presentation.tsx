@@ -83,7 +83,7 @@ function TitleSlide({ isFullscreen }: SlideProps) {
           ThriveUp Academy
         </h1>
         <p className="text-white/80 mt-[2vh] max-w-[60vw] leading-relaxed" style={{ fontSize: "2vw" }}>
-          Workforce Development & Community Enablement Platform
+          20-Platform Workforce Development & Community Enablement Ecosystem
         </p>
         <div className="mt-[5vh] flex items-center gap-[2vw]">
           <div className="px-[2vw] py-[1vh] rounded-full bg-white/15 backdrop-blur-sm text-white/90" style={{ fontSize: "1.4vw" }}>
@@ -97,7 +97,7 @@ function TitleSlide({ isFullscreen }: SlideProps) {
           </div>
         </div>
         <p className="text-white/50 mt-[6vh]" style={{ fontSize: "1.3vw" }}>
-          Reducing recidivism, increasing employment, strengthening communities
+          Reducing recidivism, increasing employment, strengthening communities through integrated technology
         </p>
       </div>
     </div>
@@ -577,7 +577,7 @@ function ComplianceSlide({ isFullscreen }: SlideProps) {
             { title: "COPPA Compliant", desc: "Parental consent, data retention policies, age-appropriate content safeguards" },
             { title: "FERPA Aligned", desc: "Student data protection, role-based access control, secure session management" },
             { title: "Authentication", desc: "OIDC authentication via magic link, Google, and GitHub with encrypted sessions" },
-            { title: "Rate Limited", desc: "AI chat rate-limited at 20 req/min, all routes with error handling, input validation" },
+            { title: "Rate Limited", desc: "AI chat rate-limited at 20 req/min, all 150+ routes with error handling, input validation" },
           ].map((item, i) => (
             <div key={i} className="bg-white/5 rounded-xl p-[2vw] border border-white/10">
               <h3 className="text-white font-bold mb-[1vh]" style={{ fontSize: "1.8vw" }}>{item.title}</h3>
@@ -601,8 +601,8 @@ function TechnicalSlide({ isFullscreen }: SlideProps) {
         <h2 className="text-[#2a1015] font-bold tracking-tight leading-tight mb-[4vh]" style={{ fontSize: "3.2vw" }}>Production-Ready Architecture</h2>
         <div className="grid grid-cols-4 gap-[1.5vw]">
           {[
-            { label: "Pages", value: "70+" },
-            { label: "API Routes", value: "124" },
+            { label: "Pages", value: "120+" },
+            { label: "API Routes", value: "150+" },
             { label: "Error Handling", value: "100%" },
             { label: "Code Split", value: "60+" },
           ].map((s, i) => (
@@ -765,6 +765,65 @@ function DifferentiatorsSlide({ isFullscreen }: SlideProps) {
   );
 }
 
+function EcosystemSlide({ isFullscreen }: SlideProps) {
+  const platforms = [
+    { name: "ThriveUp Academy", desc: "Central workforce hub" },
+    { name: "ISSS", desc: "Whole-child implementation" },
+    { name: "Sankofa Health", desc: "Community health gateway" },
+    { name: "MCE", desc: "Minority business lifecycle" },
+    { name: "WholeMind Learning", desc: "Pre-K to 12th education" },
+    { name: "Perfectly Different", desc: "Neurodiversity support" },
+    { name: "SafeReport", desc: "Mandatory reporter mgmt" },
+    { name: "M2C Transition", desc: "Military-to-civilian" },
+    { name: "LifeBridge", desc: "Virtual 211 & CHW hub" },
+    { name: "Better Science Lab", desc: "Implementation science" },
+    { name: "SafeCogniCare", desc: "Cognitive safety" },
+    { name: "PillScheduler", desc: "Medication management" },
+  ];
+  return (
+    <div className="relative w-full h-full overflow-hidden bg-[#1a1215]" data-testid="slide-ecosystem">
+      <div className="absolute inset-0 opacity-15">
+        <div className="absolute top-[15%] left-[50%] w-[40vw] h-[40vw] rounded-full bg-violet-500/20 blur-3xl transform -translate-x-1/2" />
+      </div>
+      <div className="relative z-10 flex flex-col justify-center h-full px-[6vw]">
+        <div className="flex items-center justify-between mb-[3vh]">
+          <div>
+            <p className="text-[#c9a0a0] font-semibold uppercase tracking-widest mb-[1vh]" style={{ fontSize: "1.3vw" }}>20-Platform Ecosystem</p>
+            <h2 className="text-white font-bold tracking-tight" style={{ fontSize: "3.2vw" }}>Integrated technology portfolio</h2>
+          </div>
+          <Link href="/ecosystem" className="flex items-center gap-[0.5vw] text-[#c9a0a0] hover:text-white transition-colors" style={{ fontSize: "1.3vw" }}>
+            Explore Hub <ExternalLink style={{ width: "1.2vw", height: "1.2vw" }} />
+          </Link>
+        </div>
+        <div className="grid grid-cols-4 gap-[1.2vw]">
+          {platforms.map((p, i) => (
+            <div key={i} className="bg-white/5 rounded-lg px-[1.2vw] py-[1.2vh] border border-white/10 flex items-center gap-[0.6vw]">
+              <CheckCircle2 className="text-emerald-400 shrink-0" style={{ width: "1.3vw", height: "1.3vw" }} />
+              <div>
+                <span className="text-white/90 block" style={{ fontSize: "1.2vw" }}>{p.name}</span>
+                <span className="text-white/40 block" style={{ fontSize: "0.9vw" }}>{p.desc}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="mt-[3vh] grid grid-cols-4 gap-[2vw]">
+          {[
+            { value: "16", label: "Fully Integrated" },
+            { value: "656K+", label: "Curated Records" },
+            { value: "50+", label: "State Coverage" },
+            { value: "100%", label: "IP Ownership" },
+          ].map((s, i) => (
+            <div key={i} className="text-center">
+              <p className="text-[#c9a0a0] font-bold" style={{ fontSize: "2.5vw" }}>{s.value}</p>
+              <p className="text-white/50" style={{ fontSize: "1.1vw" }}>{s.label}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ClosingSlide({ isFullscreen }: SlideProps) {
   return (
     <div className="relative w-full h-full overflow-hidden bg-gradient-to-br from-[#6b1c2a] via-[#8b2040] to-[#4a1020]" data-testid="slide-closing">
@@ -821,10 +880,11 @@ const SLIDES = [
   { component: WholeChildSlide, title: "Whole-Child Support", speakerNotes: "Beyond academics, we provide whole-child support including the ThriveUp Academy six-domain scoring engine with early warning systems, financial literacy through stock market simulation, a nationwide community resource finder covering 55 U.S. jurisdictions, and STAAR test preparation aligned to Texas standards." },
   { component: ResourceFinderSlide, title: "Resource Finder", speakerNotes: "Our Community Resource Finder connects families to local support services including healthcare, food assistance, housing, education, and employment across all 50 states plus DC, Puerto Rico, U.S. Virgin Islands, Guam, and American Samoa. It uses real-time GIS data from CDC, FBI, and ATSDR sources." },
   { component: AudienceSlide, title: "Who We Serve", speakerNotes: "We serve multiple stakeholders. Participants of all ages get AI and digital literacy training, career exploration and placement, reentry case management, and workforce development. Community partners get service delivery tracking, referral workflows, volunteer coordination, and collective impact reporting. Funders and grant makers get grant-aligned outcome reports, impact dashboards, CSV exports, and API integration." },
+  { component: EcosystemSlide, title: "20-Platform Ecosystem", speakerNotes: "The Collaborative Advocate operates a 20-platform technology ecosystem with 16 fully integrated platforms. This includes ThriveUp Academy as the central hub, ISSS for whole-child implementation, Sankofa Health Network for community health, MCE for minority business development, WholeMind Learning for K-12 education, and specialized platforms for veterans, neurodiversity, mandatory reporting, cognitive safety, and medication management. All platforms share data through a unified cross-platform API with 100% IP ownership." },
   { component: DifferentiatorsSlide, title: "What Makes Us Different", speakerNotes: "Four things differentiate us. First, tools are earned through mastery, not purchased. Second, our AI has safety-first design with age-appropriate guardrails. Third, we provide real impact data, not projections. Fourth, we are community-embedded with nationwide resource support and early warning systems." },
   { component: AccessibilitySlide, title: "Accessibility", speakerNotes: "Accessibility is not an afterthought. We have over 2,415 test identifiers, 95+ accessibility labels, WCAG 2.1 AA compliance, dyslexia-friendly fonts, large text mode, high contrast, reduced motion support, English and Spanish, low-bandwidth mode, and full mobile responsiveness." },
-  { component: ComplianceSlide, title: "Security & Compliance", speakerNotes: "We are COPPA compliant with parental consent and data retention policies, FERPA aligned with student data protection and role-based access control, secure OIDC authentication, and rate-limited AI interactions. All 124 API routes have comprehensive error handling." },
-  { component: TechnicalSlide, title: "Technical Architecture", speakerNotes: "The platform runs on a production-ready stack with 70+ pages, 124 API routes with 100% error handling coverage, 60+ code-split components for performance. The frontend uses React, Vite, and TanStack Query. The backend runs Express with PostgreSQL and Drizzle ORM. AI is powered by Gemini with fallback providers." },
+  { component: ComplianceSlide, title: "Security & Compliance", speakerNotes: "We are COPPA compliant with parental consent and data retention policies, FERPA aligned with student data protection and role-based access control, secure OIDC authentication, and rate-limited AI interactions. All API routes have comprehensive error handling." },
+  { component: TechnicalSlide, title: "Technical Architecture", speakerNotes: "The platform runs on a production-ready stack with 120+ pages, 150+ API routes with 100% error handling coverage, 60+ code-split components for performance. The frontend uses React, Vite, and TanStack Query. The backend runs Express with PostgreSQL and Drizzle ORM. AI is powered by Gemini with fallback providers." },
   { component: ImplementationSlide, title: "Implementation Plan", speakerNotes: "Our phased rollout starts with foundation deployment and initial school partnerships in months 1-3, moves to growth with mentor expansion and career pipeline activation in months 4-6, and scales to multi-district rollout with employer partnerships and national expansion planning in months 7-12." },
   { component: ClosingSlide, title: "Let's Connect", speakerNotes: "The people who learn to think with AI today will lead tomorrow. We invite you to explore the live platform, review our impact dashboard, and connect with us to discuss partnership opportunities. Contact us at the email addresses shown. Thank you for your time and interest in ThriveUp Academy." },
 ];

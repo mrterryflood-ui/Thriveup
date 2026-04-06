@@ -326,7 +326,9 @@ export default function AcademyDominoesGame() {
       queryClient.invalidateQueries({ queryKey: ["/api/ratings"] });
       queryClient.invalidateQueries({ queryKey: ["/api/leaderboard/dominoes"] });
     },
-    onError: () => {},
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message || "Something went wrong. Please try again.", variant: "destructive" });
+    },
   });
 
   const rematchGame = useMutation({

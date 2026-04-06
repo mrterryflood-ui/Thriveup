@@ -626,8 +626,8 @@ export default function AcademyAdminPage() {
       setNoteCategory("observation");
       toast({ title: "Note created", description: "Admin note has been saved successfully." });
     },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to create note. Please try again.", variant: "destructive" });
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message || "Failed to create note. Please try again.", variant: "destructive" });
     },
   });
 
@@ -651,8 +651,8 @@ export default function AcademyAdminPage() {
       queryClient.invalidateQueries({ queryKey: ["/api/academy/admin/reports"] });
       toast({ title: "Report Updated", description: "Report status has been updated." });
     },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to update report.", variant: "destructive" });
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message || "Failed to update report.", variant: "destructive" });
     },
   });
 

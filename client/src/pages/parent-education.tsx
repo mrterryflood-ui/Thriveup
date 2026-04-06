@@ -461,8 +461,8 @@ function ConversationStartersTab({ lang }: { lang: "en" | "es" }) {
     onSuccess: (data: { starters: ConversationStarter[] }) => {
       setStarters(data.starters || []);
     },
-    onError: () => {
-      toast({ title: "Error", description: lang === "es" ? "Error al generar iniciadores." : "Failed to generate conversation starters. Please try again.", variant: "destructive" });
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message || (lang === "es" ? "Error al generar iniciadores." : "Failed to generate conversation starters. Please try again."), variant: "destructive" });
     },
   });
 
