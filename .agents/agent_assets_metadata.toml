@@ -204,3 +204,15 @@ id = "Re3HbKctMBlYqWUT1Idt4"
 uri = "file://attached_assets/Agency_Fund_EOI_Collaborative_Advocate.md"
 type = "text"
 title = "Agency Fund EOI — The Collaborative Advocate Foundation"
+
+[[outputs]]
+id = "cA-V9NdbICdnON-Fhh8dK"
+uri = "file://attached_assets/TWC_PfISD_Curriculum_Summary.md"
+type = "text"
+title = "Curriculum Summary for Traci Hendrix (PfISD)"
+
+[[outputs]]
+id = "sH01WAxAmxJQn4Ftpd1pC"
+uri = "file://attached_assets/TWC_PfISD_Support_Letter_Draft.md"
+type = "text"
+title = "Draft Support Letter for PfISD Signature"
