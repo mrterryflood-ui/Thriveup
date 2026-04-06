@@ -93,6 +93,8 @@ function getStatusBadge(status: string) {
       return <Badge className="bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200" data-testid={`badge-status-${status}`}><FileText className="h-3 w-3 mr-1" /> Narrative Drafted</Badge>;
     case "research_complete":
       return <Badge className="bg-violet-100 text-violet-800 dark:bg-violet-900 dark:text-violet-200" data-testid={`badge-status-${status}`}><Microscope className="h-3 w-3 mr-1" /> Research Complete</Badge>;
+    case "concept_development":
+      return <Badge className="bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200" data-testid={`badge-status-${status}`}><Rocket className="h-3 w-3 mr-1" /> Concept Development</Badge>;
     default:
       return <Badge variant="outline" data-testid={`badge-status-${status}`}>{status}</Badge>;
   }
@@ -123,6 +125,10 @@ function getProposalIcon(id: string) {
       return <Atom className="h-5 w-5" />;
     case "agency-fund-spring2026":
       return <Zap className="h-5 w-5" />;
+    case "nsf-sbir-phase1":
+      return <Rocket className="h-5 w-5" />;
+    case "nih-sbir-phase1":
+      return <Shield className="h-5 w-5" />;
     default:
       return <FileText className="h-5 w-5" />;
   }

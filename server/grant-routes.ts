@@ -6397,6 +6397,100 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
             "Submit Stage 1 EOI by April 26 via agency.fund/apply",
             "If shortlisted: Full application Stage 2 (May 4-18, 2026)"
           ]
+        },
+        {
+          id: "nsf-sbir-phase1",
+          title: "Community Intelligence Consensus Engine: A Multi-Model AI Architecture for Real-Time Social Determinants Analysis and Community Agency",
+          shortTitle: "NSF SBIR Phase I",
+          solicitation: "NSF SBIR/STTR (Pending Reauthorization)",
+          agency: "National Science Foundation",
+          entity: "M&T Consulting (For-Profit)",
+          priority: 1,
+          status: "concept_development",
+          fundingRange: "$305K (Phase I) / $1.2M (Phase II)",
+          budgetTarget: 305000,
+          deadline: null,
+          deadlineLabel: "SBIR Reauthorization expected April 15, 2026 — new windows TBD",
+          partnersRequired: false,
+          partners: [
+            { name: "Eighteen Ventures (Darrell Williams)", role: "SBIR Proposal Development Consultant", status: "connection_available", note: "Contact via LinkedIn DM for proposal development assistance" }
+          ],
+          frameworkDoc: "/attached_assets/NSF_SBIR_Phase1_Concept.md",
+          implementationScience: {
+            frameworks: ["CFIR 2.0", "RE-AIM"],
+            instrument: "RPLICE",
+            researchDesign: "Technical feasibility demonstration with pilot community deployment",
+            evaluationLevel: "Phase I: Proof of concept and prototype validation"
+          },
+          readinessChecklist: [
+            { item: "Innovation Concept Document", status: "complete", note: "4-engine consensus AI + Neighborhood Intelligence + RPLICE instrument — novel technology documented" },
+            { item: "Commercial Potential Analysis", status: "complete", note: "SaaS model, workforce boards (600+ nationwide), FQHCs, county health departments" },
+            { item: "Technical Architecture", status: "complete", note: "4-engine AI (Gemini + Claude + GPT-4o-mini + DeepSeek), 8 federal API integrations, working prototype" },
+            { item: "Working Prototype", status: "complete", note: "ThriveUp Academy is live — 24 platforms, Neighborhood Intelligence operational" },
+            { item: "SAM.gov Registration (M&T Consulting)", status: "action_required", note: "Register M&T Consulting as for-profit entity — NAICS 541611, 541511, 611430" },
+            { item: "SBIR Proposal Draft", status: "not_started", note: "Awaiting SBIR reauthorization and new solicitation windows" },
+            { item: "Contact Darrell Williams (Eighteen Ventures)", status: "action_required", note: "LinkedIn DM for SBIR proposal development assistance" }
+          ],
+          blockers: [
+            "SBIR reauthorization pending — expected law by April 15, 2026",
+            "M&T Consulting SAM.gov registration needed"
+          ],
+          winStrategy: "No other SBIR applicant has a multi-model AI consensus architecture for community health. The 4-engine system (Gemini + Claude + GPT-4o-mini + DeepSeek) eliminates single-model bias — this is genuinely novel. The working prototype (24 platforms live, Neighborhood Intelligence operational) de-risks the Phase I dramatically. RPLICE as a validated implementation science instrument embedded in the technology gives scientific credibility that pure tech startups lack. Stillwell (2026) SVI research under review at Nature adds academic weight.",
+          nextActions: [
+            "Contact Darrell Williams at Eighteen Ventures via LinkedIn DM",
+            "Register M&T Consulting on SAM.gov with SBIR-relevant NAICS codes",
+            "Monitor SBIR reauthorization — expected April 15, 2026",
+            "Draft NSF SBIR Phase I proposal once solicitation window opens",
+            "Prepare technical feasibility documentation from working platform"
+          ]
+        },
+        {
+          id: "nih-sbir-phase1",
+          title: "AI-Powered Social Determinants of Health Intelligence Platform: Reducing Health Disparities Through Real-Time Community Data and Behavioral Health Navigation",
+          shortTitle: "NIH SBIR Phase I",
+          solicitation: "NIH SBIR/STTR (Pending Reauthorization)",
+          agency: "National Institutes of Health",
+          entity: "M&T Consulting (For-Profit)",
+          priority: 2,
+          status: "concept_development",
+          fundingRange: "$314K (Phase I) / $2M (Phase II)",
+          budgetTarget: 314000,
+          deadline: null,
+          deadlineLabel: "SBIR Reauthorization expected April 15, 2026 — new windows TBD",
+          partnersRequired: false,
+          partners: [
+            { name: "Eighteen Ventures (Darrell Williams)", role: "SBIR Proposal Development Consultant", status: "connection_available", note: "Contact via LinkedIn DM for proposal development assistance" }
+          ],
+          frameworkDoc: "/attached_assets/NIH_SBIR_Phase1_Concept.md",
+          implementationScience: {
+            frameworks: ["CFIR 2.0", "RE-AIM"],
+            instrument: "RPLICE",
+            researchDesign: "Digital health intervention feasibility with SDOH integration",
+            evaluationLevel: "Phase I: Proof of concept for health equity technology"
+          },
+          readinessChecklist: [
+            { item: "Health Innovation Concept", status: "complete", note: "6 health platforms (Sankofa, Black Maternal, SafeCogniCare, PillScheduler, Black Men's Health, Holistic BFH) + SDOH data integration" },
+            { item: "Health Disparities Focus", status: "complete", note: "SVI scoring identifies highest-vulnerability communities, connects to health services, benefits navigation" },
+            { item: "Digital Health Technology", status: "complete", note: "AI-powered benefits screener, medication adherence (PillScheduler), cognitive health monitoring (SafeCogniCare)" },
+            { item: "SDOH Data Integration", status: "complete", note: "8 federal data sources, real-time Census ACS, CDC PLACES health outcomes, SAMHSA treatment locator" },
+            { item: "Research Foundation", status: "complete", note: "Stillwell (2026) SVI-education correlation, RPLICE implementation science, CDC/ATSDR SVI methodology" },
+            { item: "SAM.gov Registration (M&T Consulting)", status: "action_required", note: "Register M&T Consulting as for-profit entity — NAICS 541511, 541611" },
+            { item: "NIH SBIR Proposal Draft", status: "not_started", note: "Awaiting SBIR reauthorization and NIH solicitation windows" },
+            { item: "Contact Darrell Williams (Eighteen Ventures)", status: "action_required", note: "LinkedIn DM for SBIR proposal development assistance" }
+          ],
+          blockers: [
+            "SBIR reauthorization pending — expected law by April 15, 2026",
+            "M&T Consulting SAM.gov registration needed"
+          ],
+          winStrategy: "The health equity platform cluster is unique — no other SBIR applicant connects Black maternal health, cognitive health monitoring, medication adherence, and SDOH data in a single ecosystem. The Neighborhood Intelligence tool transforms abstract health statistics into compassionate, actionable community profiles. NIH values health disparities reduction — ThriveUp is purpose-built for it. CDC PLACES integration gives tract-level health outcome data that competitors don't have. RPLICE provides the implementation science rigor NIH reviewers expect. Phase II ($2M) potential makes this a high-upside investment.",
+          nextActions: [
+            "Contact Darrell Williams at Eighteen Ventures via LinkedIn DM",
+            "Register M&T Consulting on SAM.gov",
+            "Identify target NIH institute (NIMHD — National Institute on Minority Health and Health Disparities is strongest fit)",
+            "Monitor SBIR reauthorization — expected April 15, 2026",
+            "Draft NIH-specific aims page once solicitation opens",
+            "Map platform health features to NIH program priorities"
+          ]
         }
       ];
 
@@ -6431,7 +6525,9 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
       "rare-impact-fund": "docs/grants/RARE-IMPACT-FUND-LOI.md",
       "dol-restart": "docs/grants/DOL-RESTART-FOA-ETA-26-17-RESEARCH.md",
       "stdavids-wab2": "docs/grants/St-Davids-WAB2-LOI-Package.md",
-      "agency-fund-spring2026": "attached_assets/Agency_Fund_EOI_Collaborative_Advocate.md"
+      "agency-fund-spring2026": "attached_assets/Agency_Fund_EOI_Collaborative_Advocate.md",
+      "nsf-sbir-phase1": "attached_assets/NSF_SBIR_Phase1_Concept.md",
+      "nih-sbir-phase1": "attached_assets/NIH_SBIR_Phase1_Concept.md"
     };
 
     const docPath = docMap[id as string];
