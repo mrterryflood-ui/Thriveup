@@ -32,7 +32,7 @@ import {
   MessageCircle, MapPin, Presentation, Scale, FileBarChart, LayoutDashboard,
   Info, BookMarked,
   Mail, Landmark, RefreshCw, Package, PenTool,
-  Microscope, Stethoscope, Film, HandHeart, Search,
+  Microscope, Stethoscope, Film, HandHeart, Search, Wrench,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -52,6 +52,7 @@ const communityIntelItems: NavItem[] = [
   { title: "Community", url: "/community", icon: Globe },
   { title: "Community Map", url: "/community-map", icon: Map },
   { title: "Resource Finder", url: "/resources", icon: MapPin },
+  { title: "Opportunity Youth", url: "/opportunity-youth", icon: Users },
   { title: "Impact Dashboard", url: "/impact", icon: TrendingUp },
   { title: "Transparency Dashboard", url: "/transparency", icon: Activity },
   { title: "Directive Compliance", url: "/directive-compliance", icon: ClipboardCheck },
@@ -59,6 +60,7 @@ const communityIntelItems: NavItem[] = [
 
 const workforceSolutionsItems: NavItem[] = [
   { title: "Workforce Dashboard", url: "/workforce-dashboard", icon: BarChart3 },
+  { title: "Apprenticeship Tracker", url: "/apprenticeship-tracker", icon: Wrench },
   { title: "Workforce Training", url: "/workforce-training", icon: GraduationCap },
   { title: "Workforce Assessment", url: "/workforce-assessment", icon: ClipboardCheck },
   { title: "Career Explorer", url: "/academy/careers", icon: Briefcase },
@@ -66,6 +68,7 @@ const workforceSolutionsItems: NavItem[] = [
   { title: "Mentor Network", url: "/academy/mentors", icon: Users },
   { title: "Find Mentor/Partner", url: "/academy/mentor-finder", icon: Handshake },
   { title: "My Pathway", url: "/academy/pathway", icon: Route },
+  { title: "Transition Plans", url: "/transition-plans", icon: GraduationCap },
   { title: "Dream Design", url: "/academy/dreams", icon: Target },
 ];
 
@@ -167,6 +170,7 @@ const campusLifeItems: NavItem[] = [
   { title: "Stock Market", url: "/academy/stocks", icon: TrendingUp },
   { title: "My Wallet", url: "/academy/wallet", icon: Wallet },
   { title: "Financial Literacy", url: "/academy/financial-literacy", icon: DollarSign },
+  { title: "FAFSA Navigator", url: "/fafsa-navigator", icon: GraduationCap },
   { title: "Announcements", url: "/academy/announcements", icon: Megaphone },
   { title: "Calendar", url: "/academy/calendar", icon: Calendar },
   { title: "Help & FAQ", url: "/academy/help", icon: HelpCircle },

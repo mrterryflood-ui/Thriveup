@@ -168,6 +168,10 @@ const LOIWriterPage = lazy(() => import("@/pages/loi-writer"));
 const SDOHChainPage = lazy(() => import("@/pages/sdoh-chain"));
 const SDOHExplorerPage = lazy(() => import("@/pages/sdoh-explorer"));
 const CityComparisonPage = lazy(() => import("@/pages/city-comparison"));
+const FafsaNavigatorPage = lazy(() => import("@/pages/fafsa-navigator"));
+const TransitionPlansPage = lazy(() => import("@/pages/transition-plans"));
+const ApprenticeshipTrackerPage = lazy(() => import("@/pages/apprenticeship-tracker"));
+const OpportunityYouthPage = lazy(() => import("@/pages/opportunity-youth"));
 
 function PageFallback() {
   return (
@@ -343,6 +347,7 @@ function AppRouter() {
       <Route path="/sdoh-chain" component={SDOHChainPage} />
       <Route path="/sdoh-explorer" component={SDOHExplorerPage} />
       <Route path="/city-comparison" component={CityComparisonPage} />
+      <Route path="/transition-plans" component={TransitionPlansPage} />
       <Route path="/ai-workforce" component={AIWorkforcePage} />
       <Route path="/pm-academy" component={PMAcademyPage} />
       <Route path="/directive-compliance" component={DirectiveCompliancePage} />
@@ -353,6 +358,9 @@ function AppRouter() {
       <Route path="/pricing" component={PricingPage} />
       <Route path="/proposal-command" component={ProposalCommandPage} />
       <Route path="/proposal-pipeline" component={ProposalPipelinePage} />
+      <Route path="/apprenticeship-tracker" component={ApprenticeshipTrackerPage} />
+      <Route path="/opportunity-youth" component={OpportunityYouthPage} />
+      <Route path="/fafsa-navigator" component={FafsaNavigatorPage} />
       <Route component={NotFound} />
     </Switch>
   );
