@@ -49,6 +49,7 @@ interface NavItem {
 
 const communityIntelItems: NavItem[] = [
   { title: "Dashboard", url: "/dashboard", icon: Home },
+  { title: "Neighborhood Intel", url: "/neighborhood", icon: MapPin },
   { title: "Community", url: "/community", icon: Globe },
   { title: "Community Map", url: "/community-map", icon: Map },
   { title: "Resource Finder", url: "/resources", icon: MapPin },

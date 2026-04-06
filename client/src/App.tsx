@@ -172,6 +172,7 @@ const FafsaNavigatorPage = lazy(() => import("@/pages/fafsa-navigator"));
 const TransitionPlansPage = lazy(() => import("@/pages/transition-plans"));
 const ApprenticeshipTrackerPage = lazy(() => import("@/pages/apprenticeship-tracker"));
 const OpportunityYouthPage = lazy(() => import("@/pages/opportunity-youth"));
+const NeighborhoodLookupPage = lazy(() => import("@/pages/neighborhood-lookup"));
 
 function PageFallback() {
   return (
@@ -361,6 +362,7 @@ function AppRouter() {
       <Route path="/apprenticeship-tracker" component={ApprenticeshipTrackerPage} />
       <Route path="/opportunity-youth" component={OpportunityYouthPage} />
       <Route path="/fafsa-navigator" component={FafsaNavigatorPage} />
+      <Route path="/neighborhood" component={NeighborhoodLookupPage} />
       <Route component={NotFound} />
     </Switch>
   );
