@@ -83,6 +83,16 @@ function getStatusBadge(status: string) {
       return <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200" data-testid={`badge-status-${status}`}><Target className="h-3 w-3 mr-1" /> Evaluation Complete</Badge>;
     case "in_progress":
       return <Badge className="bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200" data-testid={`badge-status-${status}`}><Clock className="h-3 w-3 mr-1" /> In Progress</Badge>;
+    case "eoi_drafted":
+      return <Badge className="bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200" data-testid={`badge-status-${status}`}><Rocket className="h-3 w-3 mr-1" /> EOI Drafted</Badge>;
+    case "loi_drafted":
+      return <Badge className="bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-200" data-testid={`badge-status-${status}`}><FileText className="h-3 w-3 mr-1" /> LOI Drafted</Badge>;
+    case "loi_complete":
+      return <Badge className="bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-200" data-testid={`badge-status-${status}`}><CheckCircle2 className="h-3 w-3 mr-1" /> LOI Complete</Badge>;
+    case "narrative_drafted":
+      return <Badge className="bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200" data-testid={`badge-status-${status}`}><FileText className="h-3 w-3 mr-1" /> Narrative Drafted</Badge>;
+    case "research_complete":
+      return <Badge className="bg-violet-100 text-violet-800 dark:bg-violet-900 dark:text-violet-200" data-testid={`badge-status-${status}`}><Microscope className="h-3 w-3 mr-1" /> Research Complete</Badge>;
     default:
       return <Badge variant="outline" data-testid={`badge-status-${status}`}>{status}</Badge>;
   }
@@ -111,6 +121,8 @@ function getProposalIcon(id: string) {
       return <BookOpen className="h-5 w-5" />;
     case "nsf-quantum":
       return <Atom className="h-5 w-5" />;
+    case "agency-fund-spring2026":
+      return <Zap className="h-5 w-5" />;
     default:
       return <FileText className="h-5 w-5" />;
   }

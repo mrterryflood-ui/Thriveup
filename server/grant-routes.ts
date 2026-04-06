@@ -6358,6 +6358,45 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
             "Final LOI review with coalition partners",
             "Submit by April 27, 5:00 PM CT"
           ]
+        },
+        {
+          id: "agency-fund-spring2026",
+          title: "ThriveUp Academy: An AI-Powered Community Agency Platform — Turning Census Data into Compassionate Action",
+          shortTitle: "Agency Fund EOI",
+          solicitation: "Spring 2026 Open Call",
+          agency: "The Agency Fund",
+          entity: "TCAF (501(c)(3))",
+          priority: 1,
+          status: "eoi_drafted",
+          fundingRange: "$75K - $500K",
+          budgetTarget: 350000,
+          deadline: "2026-04-26T23:59:59Z",
+          deadlineLabel: "April 26, 2026 (Stage 1 EOI)",
+          partnersRequired: false,
+          partners: [],
+          frameworkDoc: "/attached_assets/Agency_Fund_EOI_Collaborative_Advocate.md",
+          implementationScience: {
+            frameworks: ["CFIR 2.0", "RE-AIM"],
+            instrument: "RPLICE",
+            researchDesign: "Mixed-methods with rapid iteration and RE-AIM evaluation",
+            evaluationLevel: "Implementation evaluation with agency measurement"
+          },
+          readinessChecklist: [
+            { item: "Expression of Interest Draft", status: "complete", note: "Full EOI drafted — 14 sections, theory of change, evidence base, budget" },
+            { item: "Organization Details", status: "complete", note: "TCAF 501(c)(3), EIN 41-3618003, Dr. Terry Flood Founder & CEO" },
+            { item: "Alignment Analysis", status: "complete", note: "Strong fit across all Agency Fund criteria — agency, dignity, technology, scale" },
+            { item: "Evidence Base", status: "complete", note: "Stillwell (2026) SVI research, 8 federal data sources, implementation science frameworks" },
+            { item: "Path to Scale (1M+ users)", status: "complete", note: "Zero-marginal-cost tech, church networks, workforce board expansion strategy" },
+            { item: "Budget & Use of Funds", status: "complete", note: "$350K over 18 months — platform dev, community deployment, research, operations, dissemination" },
+            { item: "Final Review & Submission", status: "action_required", note: "Review EOI and submit via lnkd.in/gtDTYQcn or agency.fund/apply by April 26" }
+          ],
+          blockers: [],
+          winStrategy: "Neighborhood Intelligence is the perfect Agency Fund project — it literally builds agency by putting Census data directly into community members' hands. The 'what if' scenario sandbox transforms data from diagnosis into possibility. 4-engine AI consensus system, zero-training-required interface, church network distribution. Strong alignment with their AI accelerator track (OpenAI partnership).",
+          nextActions: [
+            "Final review of EOI draft",
+            "Submit Stage 1 EOI by April 26 via agency.fund/apply",
+            "If shortlisted: Full application Stage 2 (May 4-18, 2026)"
+          ]
         }
       ];
 
@@ -6391,7 +6430,8 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
       "twc-rfa-32026": "docs/grants/TWC-RFA-32026-00162-NARRATIVE.md",
       "rare-impact-fund": "docs/grants/RARE-IMPACT-FUND-LOI.md",
       "dol-restart": "docs/grants/DOL-RESTART-FOA-ETA-26-17-RESEARCH.md",
-      "stdavids-wab2": "docs/grants/St-Davids-WAB2-LOI-Package.md"
+      "stdavids-wab2": "docs/grants/St-Davids-WAB2-LOI-Package.md",
+      "agency-fund-spring2026": "attached_assets/Agency_Fund_EOI_Collaborative_Advocate.md"
     };
 
     const docPath = docMap[id as string];
