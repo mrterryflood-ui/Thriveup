@@ -89,6 +89,19 @@ const COMMUNITY_FACILITATORS: Record<string, Array<{ name: string; type: string;
   ],
 };
 
+const FIPS_TO_STATE: Record<string, string> = {
+  '01': 'AL', '02': 'AK', '04': 'AZ', '05': 'AR', '06': 'CA', '08': 'CO', '09': 'CT',
+  '10': 'DE', '11': 'DC', '12': 'FL', '13': 'GA', '15': 'HI', '16': 'ID', '17': 'IL',
+  '18': 'IN', '19': 'IA', '20': 'KS', '21': 'KY', '22': 'LA', '23': 'ME', '24': 'MD',
+  '25': 'MA', '26': 'MI', '27': 'MN', '28': 'MS', '29': 'MO', '30': 'MT', '31': 'NE',
+  '32': 'NV', '33': 'NH', '34': 'NJ', '35': 'NM', '36': 'NY', '37': 'NC', '38': 'ND',
+  '39': 'OH', '40': 'OK', '41': 'OR', '42': 'PA', '44': 'RI', '45': 'SC', '46': 'SD',
+  '47': 'TN', '48': 'TX', '49': 'UT', '50': 'VT', '51': 'VA', '53': 'WA', '54': 'WV',
+  '55': 'WI', '56': 'WY',
+};
+
+const CDC_SVI_URL = 'https://data.cdc.gov/resource/4d8n-kk8a.json';
+
 async function fetchJson(url: string): Promise<any> {
   const response = await fetch(url, { headers: { Accept: "application/json" } });
   if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -1974,6 +1987,381 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
     } catch (error) {
       console.error("SDOH Explorer live error:", error);
       res.status(500).json({ error: "Failed to run SDOH analysis. Check state/county codes." });
+    }
+  });
+
+  app.get("/api/benefits/svi-analysis", async (req, res) => {
+    try {
+      const stateCode = (req.query.state as string) || "48";
+      const countyCodesRaw = req.query.counties as string;
+      const countyCodeList = countyCodesRaw ? countyCodesRaw.split(",").map(c => c.trim()) : [];
+
+      if (countyCodeList.length === 0 || countyCodeList.length > 10) {
+        return res.status(400).json({ error: "Provide 1-10 county FIPS codes (3-digit county codes within the state)" });
+      }
+
+      const stateAbbr = FIPS_TO_STATE[stateCode] || "TX";
+
+      const sviVarsBatch1 = [
+        "NAME", "B01003_001E",
+        "B17001_002E", "B17001_001E",
+        "B23025_005E", "B23025_003E",
+        "B15003_001E", "B15003_017E", "B15003_018E", "B15003_021E", "B15003_022E", "B15003_023E", "B15003_024E", "B15003_025E",
+        "B27001_001E", "B27001_005E", "B27001_008E", "B27001_011E",
+        "B27001_033E", "B27001_036E", "B27001_039E",
+        "B11001_001E", "B11001_006E",
+        "B01001_020E", "B01001_021E", "B01001_022E", "B01001_023E", "B01001_024E", "B01001_025E",
+        "B01001_044E", "B01001_045E", "B01001_046E", "B01001_047E", "B01001_048E", "B01001_049E",
+        "B01001_003E", "B01001_004E", "B01001_005E", "B01001_006E",
+        "B01001_027E", "B01001_028E", "B01001_029E", "B01001_030E",
+      ].join(",");
+
+      const sviVarsBatch2 = [
+        "NAME",
+        "B18101_001E", "B18101_004E", "B18101_007E", "B18101_010E", "B18101_013E", "B18101_016E", "B18101_019E",
+        "B18101_023E", "B18101_026E", "B18101_029E", "B18101_032E", "B18101_035E", "B18101_038E",
+        "B16004_001E", "B16004_025E", "B16004_047E",
+        "B03002_001E", "B03002_003E",
+        "B25024_001E", "B25024_007E", "B25024_008E", "B25024_009E", "B25024_010E",
+        "B25014_001E", "B25014_005E", "B25014_006E", "B25014_007E", "B25014_011E", "B25014_012E", "B25014_013E",
+        "B08141_001E", "B08141_002E",
+        "B26001_001E",
+      ].join(",");
+
+      const censusKey = process.env.CENSUS_API_KEY || "";
+      const keyParam = censusKey ? `&key=${censusKey}` : "";
+
+      interface TractData {
+        fips: string;
+        location: string;
+        rpl_themes: number;
+        rpl_theme1: number;
+        rpl_theme2: number;
+        rpl_theme3: number;
+        rpl_theme4: number;
+        ep_pov150: number;
+        ep_unemp: number;
+        ep_nohsdp: number;
+        ep_uninsur: number;
+        ep_age65: number;
+        ep_age17: number;
+        ep_disabl: number;
+        ep_sngpnt: number;
+        ep_limeng: number;
+        ep_minrty: number;
+        ep_munit: number;
+        ep_mobile: number;
+        ep_crowd: number;
+        ep_noveh: number;
+        ep_groupq: number;
+        e_totpop: number;
+        countyFips: string;
+        riskFactors: string[];
+        protectiveFactors: string[];
+      }
+
+      const allTracts: TractData[] = [];
+
+      for (const countyCode of countyCodeList) {
+        try {
+          const url1 = `${CENSUS_ACS_URL}?get=${sviVarsBatch1}&for=tract:*&in=state:${stateCode}+county:${countyCode}${keyParam}`;
+          const url2 = `${CENSUS_ACS_URL}?get=${sviVarsBatch2}&for=tract:*&in=state:${stateCode}+county:${countyCode}${keyParam}`;
+          const [data1, data2] = await Promise.all([fetchJson(url1), fetchJson(url2)]);
+          if (!Array.isArray(data1) || data1.length < 2) continue;
+
+          const headers1 = data1[0] as string[];
+          const headers2 = Array.isArray(data2) && data2.length > 0 ? data2[0] as string[] : [];
+          const data2Map = new Map<string, string[]>();
+          if (Array.isArray(data2) && data2.length > 1) {
+            const tractIdx2 = headers2.indexOf("tract");
+            for (let i = 1; i < data2.length; i++) {
+              const row2 = data2[i] as string[];
+              if (tractIdx2 >= 0) data2Map.set(row2[tractIdx2], row2);
+            }
+          }
+
+          const v = (row: string[], name: string, hdrs: string[] = headers1) => {
+            const idx = hdrs.indexOf(name);
+            return idx >= 0 ? parseInt(row[idx]) || 0 : 0;
+          };
+          const v2 = (tractCode: string, name: string) => {
+            const row2 = data2Map.get(tractCode);
+            if (!row2) return 0;
+            const idx = headers2.indexOf(name);
+            return idx >= 0 ? parseInt(row2[idx]) || 0 : 0;
+          };
+
+          for (let i = 1; i < data1.length; i++) {
+            const row = data1[i] as string[];
+            const totalPop = v(row, "B01003_001E");
+            if (totalPop < 100) continue;
+
+            const tractCode = row[headers1.indexOf("tract")];
+            const tractName = row[headers1.indexOf("NAME")] || `Tract ${tractCode}`;
+            const fips = `${stateCode}${countyCode}${tractCode}`;
+
+            const belowPov = v(row, "B17001_002E");
+            const povUniverse = v(row, "B17001_001E");
+            const povertyPct = povUniverse > 0 ? (belowPov / povUniverse) * 100 : 0;
+
+            const unemployed = v(row, "B23025_005E");
+            const laborForce = v(row, "B23025_003E");
+            const unempPct = laborForce > 0 ? (unemployed / laborForce) * 100 : 0;
+
+            const eduTotal = v(row, "B15003_001E");
+            const hsOrHigher = v(row, "B15003_017E") + v(row, "B15003_018E") + v(row, "B15003_021E") +
+                               v(row, "B15003_022E") + v(row, "B15003_023E") + v(row, "B15003_024E") + v(row, "B15003_025E");
+            const noHsDpPct = eduTotal > 0 ? ((eduTotal - hsOrHigher) / eduTotal) * 100 : 0;
+
+            const insTotal = v(row, "B27001_001E");
+            const uninsured = v(row, "B27001_005E") + v(row, "B27001_008E") + v(row, "B27001_011E") +
+                              v(row, "B27001_033E") + v(row, "B27001_036E") + v(row, "B27001_039E");
+            const uninsuredPct = insTotal > 0 ? (uninsured / insTotal) * 100 : 0;
+
+            const age65plus = v(row, "B01001_020E") + v(row, "B01001_021E") + v(row, "B01001_022E") +
+                              v(row, "B01001_023E") + v(row, "B01001_024E") + v(row, "B01001_025E") +
+                              v(row, "B01001_044E") + v(row, "B01001_045E") + v(row, "B01001_046E") +
+                              v(row, "B01001_047E") + v(row, "B01001_048E") + v(row, "B01001_049E");
+            const age65Pct = totalPop > 0 ? (age65plus / totalPop) * 100 : 0;
+
+            const age17under = v(row, "B01001_003E") + v(row, "B01001_004E") + v(row, "B01001_005E") + v(row, "B01001_006E") +
+                               v(row, "B01001_027E") + v(row, "B01001_028E") + v(row, "B01001_029E") + v(row, "B01001_030E");
+            const age17Pct = totalPop > 0 ? (age17under / totalPop) * 100 : 0;
+
+            const disabTotal = v2(tractCode, "B18101_001E");
+            const disabled = v2(tractCode, "B18101_004E") + v2(tractCode, "B18101_007E") + v2(tractCode, "B18101_010E") +
+                             v2(tractCode, "B18101_013E") + v2(tractCode, "B18101_016E") + v2(tractCode, "B18101_019E") +
+                             v2(tractCode, "B18101_023E") + v2(tractCode, "B18101_026E") + v2(tractCode, "B18101_029E") +
+                             v2(tractCode, "B18101_032E") + v2(tractCode, "B18101_035E") + v2(tractCode, "B18101_038E");
+            const disablPct = disabTotal > 0 ? (disabled / disabTotal) * 100 : 0;
+
+            const singleParent = v(row, "B11001_006E");
+            const totalHH = v(row, "B11001_001E");
+            const sngpntPct = totalHH > 0 ? (singleParent / totalHH) * 100 : 0;
+
+            const langTotal = v2(tractCode, "B16004_001E");
+            const langLimited = v2(tractCode, "B16004_025E") + v2(tractCode, "B16004_047E");
+            const limengPct = langTotal > 0 ? (langLimited / langTotal) * 100 : 0;
+
+            const raceTotal = v2(tractCode, "B03002_001E");
+            const whiteNH = v2(tractCode, "B03002_003E");
+            const minorityPct = raceTotal > 0 ? ((raceTotal - whiteNH) / raceTotal) * 100 : 0;
+
+            const housingTotal = v2(tractCode, "B25024_001E");
+            const multiUnit = v2(tractCode, "B25024_007E") + v2(tractCode, "B25024_008E") + v2(tractCode, "B25024_009E") + v2(tractCode, "B25024_010E");
+            const munitPct = housingTotal > 0 ? (multiUnit / housingTotal) * 100 : 0;
+
+            const crowdTotal = v2(tractCode, "B25014_001E");
+            const crowded = v2(tractCode, "B25014_005E") + v2(tractCode, "B25014_006E") + v2(tractCode, "B25014_007E") +
+                            v2(tractCode, "B25014_011E") + v2(tractCode, "B25014_012E") + v2(tractCode, "B25014_013E");
+            const crowdPct = crowdTotal > 0 ? (crowded / crowdTotal) * 100 : 0;
+
+            const commuteTotal = v2(tractCode, "B08141_001E");
+            const noVehicle = v2(tractCode, "B08141_002E");
+            const novehPct = commuteTotal > 0 ? (noVehicle / commuteTotal) * 100 : 0;
+
+            const groupQ = v2(tractCode, "B26001_001E");
+            const groupqPct = totalPop > 0 ? (groupQ / totalPop) * 100 : 0;
+
+            const mobilePct = 0;
+
+            const theme1 = (povertyPct / 50 + unempPct / 30 + noHsDpPct / 40 + uninsuredPct / 30) / 4;
+            const theme2 = (age65Pct / 30 + age17Pct / 35 + disablPct / 25 + sngpntPct / 50 + limengPct / 30) / 5;
+            const theme3 = minorityPct / 100;
+            const theme4 = (munitPct / 50 + mobilePct / 30 + crowdPct / 15 + novehPct / 30 + groupqPct / 10) / 5;
+
+            const clampSvi = (v: number) => Math.max(0, Math.min(1, v));
+            const rpl_themes = clampSvi((theme1 + theme2 + theme3 + theme4) / 4);
+
+            const tract: TractData = {
+              fips,
+              location: tractName,
+              rpl_themes,
+              rpl_theme1: clampSvi(theme1),
+              rpl_theme2: clampSvi(theme2),
+              rpl_theme3: clampSvi(theme3),
+              rpl_theme4: clampSvi(theme4),
+              ep_pov150: povertyPct,
+              ep_unemp: unempPct,
+              ep_nohsdp: noHsDpPct,
+              ep_uninsur: uninsuredPct,
+              ep_age65: age65Pct,
+              ep_age17: age17Pct,
+              ep_disabl: disablPct,
+              ep_sngpnt: sngpntPct,
+              ep_limeng: limengPct,
+              ep_minrty: minorityPct,
+              ep_munit: munitPct,
+              ep_mobile: mobilePct,
+              ep_crowd: crowdPct,
+              ep_noveh: novehPct,
+              ep_groupq: groupqPct,
+              e_totpop: totalPop,
+              countyFips: `${stateCode}${countyCode}`,
+              riskFactors: [],
+              protectiveFactors: [],
+            };
+
+            if (tract.ep_pov150 > 20) tract.riskFactors.push('High Poverty');
+            if (tract.ep_unemp > 8) tract.riskFactors.push('High Unemployment');
+            if (tract.ep_nohsdp > 15) tract.riskFactors.push('Low Educational Attainment');
+            if (tract.ep_uninsur > 12) tract.riskFactors.push('High Uninsured Rate');
+            if (tract.ep_sngpnt > 35) tract.riskFactors.push('High Single-Parent Rate');
+            if (tract.ep_limeng > 10) tract.riskFactors.push('Language Barrier');
+            if (tract.ep_noveh > 15) tract.riskFactors.push('Transportation Barrier');
+            if (tract.ep_mobile > 15) tract.riskFactors.push('Vulnerable Housing');
+            if (tract.ep_crowd > 5) tract.riskFactors.push('Overcrowded Housing');
+            if (tract.ep_disabl > 15) tract.riskFactors.push('High Disability Rate');
+
+            if (tract.ep_pov150 < 10) tract.protectiveFactors.push('Low Poverty');
+            if (tract.ep_unemp < 4) tract.protectiveFactors.push('Near-Full Employment');
+            if (tract.ep_nohsdp < 10) tract.protectiveFactors.push('High Educational Attainment');
+            if (tract.ep_uninsur < 5) tract.protectiveFactors.push('High Insurance Coverage');
+            if (tract.ep_noveh < 5) tract.protectiveFactors.push('Transportation Access');
+
+            allTracts.push(tract);
+          }
+        } catch (err) {
+          console.error(`SVI Census fetch error for county ${countyCode}:`, err);
+        }
+      }
+
+      const validTracts = allTracts;
+      const avgSvi = validTracts.length > 0
+        ? Math.round((validTracts.reduce((s, t) => s + t.rpl_themes, 0) / validTracts.length) * 1000) / 1000
+        : 0;
+
+      const avgTheme = (field: keyof TractData) => {
+        const vals = validTracts.filter(t => (t[field] as number) >= 0);
+        return vals.length > 0
+          ? Math.round((vals.reduce((s, t) => s + (t[field] as number), 0) / vals.length) * 1000) / 1000
+          : 0;
+      };
+
+      const sviSummary = {
+        totalTracts: validTracts.length,
+        averageSVI: avgSvi,
+        highVulnerabilityTracts: validTracts.filter(t => t.rpl_themes > 0.75).length,
+        moderateVulnerabilityTracts: validTracts.filter(t => t.rpl_themes > 0.5 && t.rpl_themes <= 0.75).length,
+        lowVulnerabilityTracts: validTracts.filter(t => t.rpl_themes <= 0.25).length,
+        totalPopulation: validTracts.reduce((s, t) => s + (t.e_totpop > 0 ? t.e_totpop : 0), 0),
+      };
+
+      const themes = {
+        socioeconomic: { label: 'Socioeconomic Status', average: avgTheme('rpl_theme1') },
+        household: { label: 'Household Characteristics & Disability', average: avgTheme('rpl_theme2') },
+        minority: { label: 'Racial & Ethnic Minority Status', average: avgTheme('rpl_theme3') },
+        housingTransport: { label: 'Housing Type & Transportation', average: avgTheme('rpl_theme4') },
+      };
+
+      const riskFactorPrevalence: Record<string, number> = {};
+      const protectiveFactorPrevalence: Record<string, number> = {};
+      for (const tract of validTracts) {
+        for (const rf of tract.riskFactors) {
+          riskFactorPrevalence[rf] = (riskFactorPrevalence[rf] || 0) + 1;
+        }
+        for (const pf of tract.protectiveFactors) {
+          protectiveFactorPrevalence[pf] = (protectiveFactorPrevalence[pf] || 0) + 1;
+        }
+      }
+
+      const countyPrefixes = countyCodeList.map(c => stateCode + c);
+      const counties: Record<string, any> = {};
+      for (const prefix of countyPrefixes) {
+        const countyTracts = validTracts.filter(t => t.countyFips === prefix);
+        if (countyTracts.length === 0) continue;
+
+        const cAvgSvi = Math.round((countyTracts.reduce((s, t) => s + t.rpl_themes, 0) / countyTracts.length) * 1000) / 1000;
+        const cAvgTheme = (field: keyof TractData) => {
+          const vals = countyTracts.filter(t => (t[field] as number) >= 0);
+          return vals.length > 0
+            ? Math.round((vals.reduce((s, t) => s + (t[field] as number), 0) / vals.length) * 1000) / 1000
+            : 0;
+        };
+
+        const sortedByVuln = [...countyTracts].sort((a, b) => b.rpl_themes - a.rpl_themes);
+        const topVulnerable = sortedByVuln.slice(0, 10).map(t => ({
+          fips: t.fips, location: t.location, svi: t.rpl_themes,
+          population: t.e_totpop > 0 ? t.e_totpop : 0,
+          riskFactors: t.riskFactors,
+        }));
+        const topProtective = sortedByVuln.slice(-10).reverse().map(t => ({
+          fips: t.fips, location: t.location, svi: t.rpl_themes,
+          population: t.e_totpop > 0 ? t.e_totpop : 0,
+          protectiveFactors: t.protectiveFactors,
+        }));
+
+        const cRiskPrevalence: Record<string, number> = {};
+        const cProtPrevalence: Record<string, number> = {};
+        for (const t of countyTracts) {
+          for (const rf of t.riskFactors) cRiskPrevalence[rf] = (cRiskPrevalence[rf] || 0) + 1;
+          for (const pf of t.protectiveFactors) cProtPrevalence[pf] = (cProtPrevalence[pf] || 0) + 1;
+        }
+
+        counties[prefix] = {
+          fips: prefix,
+          tractCount: countyTracts.length,
+          averageSVI: cAvgSvi,
+          themes: {
+            socioeconomic: cAvgTheme('rpl_theme1'),
+            household: cAvgTheme('rpl_theme2'),
+            minority: cAvgTheme('rpl_theme3'),
+            housingTransport: cAvgTheme('rpl_theme4'),
+          },
+          highVulnerabilityTracts: countyTracts.filter(t => t.rpl_themes > 0.75).length,
+          lowVulnerabilityTracts: countyTracts.filter(t => t.rpl_themes <= 0.25).length,
+          topVulnerableTracts: topVulnerable,
+          topProtectiveTracts: topProtective,
+          riskFactorPrevalence: cRiskPrevalence,
+          protectiveFactorPrevalence: cProtPrevalence,
+        };
+      }
+
+      const highVulnTracts = validTracts.filter(t => t.rpl_themes > 0.75);
+      const lowVulnTracts = validTracts.filter(t => t.rpl_themes < 0.25);
+      const adjacentResources: any[] = [];
+
+      for (const hvt of highVulnTracts) {
+        const hvtCounty = hvt.fips.substring(0, 5);
+        const nearby = lowVulnTracts.filter(lvt => {
+          const lvtCounty = lvt.fips.substring(0, 5);
+          return lvtCounty === hvtCounty ||
+            countyPrefixes.includes(lvtCounty);
+        }).slice(0, 5).map(lvt => ({
+          fips: lvt.fips,
+          location: lvt.location,
+          svi: lvt.rpl_themes,
+          protectiveFactors: lvt.protectiveFactors,
+        }));
+
+        if (nearby.length > 0) {
+          adjacentResources.push({
+            vulnerableTract: {
+              fips: hvt.fips,
+              location: hvt.location,
+              svi: hvt.rpl_themes,
+              riskFactors: hvt.riskFactors,
+            },
+            nearbyProtectiveTracts: nearby,
+            insight: 'These problems do not have borders — resources in adjacent low-vulnerability tracts can serve high-vulnerability neighbors',
+          });
+        }
+      }
+
+      res.json({
+        query: { state: stateCode, stateAbbr, counties: countyCodeList },
+        sviSummary,
+        themes,
+        riskFactorPrevalence,
+        protectiveFactorPrevalence,
+        counties,
+        adjacentResources: adjacentResources.slice(0, 50),
+        dataSource: "CDC/ATSDR SVI methodology applied to U.S. Census Bureau ACS 5-Year Estimates (2018-2022) — computed from 16 social vulnerability indicators across 4 themes",
+        generatedAt: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.error("SVI Analysis error:", error);
+      res.status(500).json({ error: "Failed to run SVI analysis. Check state/county codes." });
     }
   });
 

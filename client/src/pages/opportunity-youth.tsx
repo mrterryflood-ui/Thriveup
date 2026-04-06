@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -19,7 +19,7 @@ import {
   Search, Eye, UserPlus, Phone, FileText, RefreshCw,
   Baby, Car, Brain, Pill, Sparkles, Bot, Send, Loader2,
   ClipboardList, HandHeart, Megaphone, PenLine, ExternalLink,
-  Workflow, Info, Zap, Activity, BookOpen, LinkIcon,
+  Workflow, Info, Zap, Activity, BookOpen, LinkIcon, DollarSign,
 } from "lucide-react";
 
 const COUNTIES = [
@@ -1375,6 +1375,470 @@ function AIAnalystPanel() {
   );
 }
 
+const REGION_PRESETS = [
+  { label: "Central Texas", state: "48", counties: "453,491,209,021,055" },
+  { label: "Houston", state: "48", counties: "201,157,039,071" },
+  { label: "Dallas-Fort Worth", state: "48", counties: "113,439,085,397" },
+  { label: "San Antonio", state: "48", counties: "029,091,259,187" },
+  { label: "Rio Grande Valley", state: "48", counties: "215,061,427,489" },
+];
+
+const RISK_FACTOR_NOTES: Record<string, string> = {
+  "High Poverty": "Youth in high-poverty tracts are 3x more likely to disconnect from school and work",
+  "Low Educational Attainment": "Parents without HS diplomas often lack knowledge of postsecondary pathways",
+  "Transportation Barrier": "Without transit access, youth cannot reach job training or education sites",
+  "Language Barrier": "Limited English creates barriers to program enrollment and documentation",
+  "High Single-Parent Rate": "Single-parent households face higher caregiving demands that pull youth from education",
+  "High Unemployment": "Youth model adult labor market participation \u2014 high unemployment normalizes disconnection",
+  "High Uninsured Rate": "Lack of health coverage prevents access to mental health and substance use treatment",
+  "Vulnerable Housing": "Mobile or substandard housing correlates with frequent school changes and instability",
+  "Overcrowded Housing": "Overcrowded conditions reduce study space and increase stress on youth",
+  "High Disability Rate": "Communities with high disability need targeted accommodations in program design",
+};
+
+const PROTECTIVE_FACTOR_NOTES: Record<string, string> = {
+  "High Educational Attainment": "These communities can serve as mentorship pipelines for adjacent high-risk areas",
+  "Near-Full Employment": "Employer partnerships in these areas can create apprenticeship on-ramps",
+  "Transportation Access": "Transit-connected tracts are ideal locations for program sites",
+  "High Insurance Coverage": "Health access enables wraparound support service delivery",
+  "Low Poverty": "Economically stable neighborhoods provide natural bridging opportunities for nearby high-need areas",
+};
+
+function getSviColor(svi: number): string {
+  if (svi >= 0.75) return "#ef4444";
+  if (svi >= 0.5) return "#f97316";
+  if (svi >= 0.25) return "#eab308";
+  return "#22c55e";
+}
+
+function NeighborhoodIntel({ onDesignOutreach }: { onDesignOutreach: (context: string) => void }) {
+  const [selectedRegion, setSelectedRegion] = useState(REGION_PRESETS[0]);
+  const [expandedTract, setExpandedTract] = useState<string | null>(null);
+
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["/api/benefits/svi-analysis", selectedRegion.state, selectedRegion.counties],
+    queryFn: async () => {
+      const res = await fetch(`/api/benefits/svi-analysis?state=${selectedRegion.state}&counties=${selectedRegion.counties}`);
+      if (!res.ok) throw new Error("Failed to fetch SVI data");
+      return res.json();
+    },
+  });
+
+  const result = data as any;
+  const sviSummary = result?.sviSummary;
+  const themes = result?.themes;
+  const riskFactors = result?.riskFactorPrevalence || {};
+  const protectiveFactors = result?.protectiveFactorPrevalence || {};
+  const adjacentResources = result?.adjacentResources || [];
+
+  const allVulnerableTracts = useMemo(() => {
+    if (!result?.counties) return [];
+    const tracts: any[] = [];
+    for (const county of Object.values(result.counties) as any[]) {
+      if (county.topVulnerableTracts) {
+        tracts.push(...county.topVulnerableTracts);
+      }
+    }
+    return tracts.sort((a: any, b: any) => b.svi - a.svi).slice(0, 10);
+  }, [result]);
+
+  return (
+    <div className="space-y-6" data-testid="section-neighborhood-intel">
+      <Card className="p-4 bg-teal-900/10 border-teal-500/30 dark:bg-teal-900/20">
+        <div className="flex items-start gap-3">
+          <MapPin className="w-5 h-5 text-teal-500 mt-0.5 shrink-0" />
+          <div>
+            <h3 className="text-sm font-semibold text-teal-700 dark:text-teal-300">Neighborhood Intel</h3>
+            <p className="text-xs text-muted-foreground mt-1">
+              CDC Social Vulnerability Index data at the census tract level. This tab shows where vulnerability concentrates and where protective factors exist \u2014 so outreach teams know exactly which neighborhoods need what.
+            </p>
+          </div>
+        </div>
+      </Card>
+
+      <div className="flex gap-2 flex-wrap" data-testid="region-selector">
+        {REGION_PRESETS.map((preset) => (
+          <Button
+            key={preset.label}
+            variant={selectedRegion.label === preset.label ? "default" : "outline"}
+            size="sm"
+            onClick={() => setSelectedRegion(preset)}
+            data-testid={`button-region-${preset.label.toLowerCase().replace(/\s+/g, '-')}`}
+          >
+            {preset.label}
+          </Button>
+        ))}
+      </div>
+
+      {isLoading && (
+        <Card className="p-8" data-testid="card-svi-loading">
+          <div className="flex flex-col items-center gap-3">
+            <Loader2 className="h-8 w-8 animate-spin text-teal-500" />
+            <p className="text-sm text-muted-foreground">Pulling CDC SVI data for {selectedRegion.label}...</p>
+          </div>
+        </Card>
+      )}
+
+      {error && (
+        <Card className="p-4 border-destructive/50" data-testid="card-svi-error">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="h-5 w-5 text-destructive shrink-0" />
+            <div>
+              <p className="text-sm font-medium">Failed to load SVI data</p>
+              <p className="text-xs text-muted-foreground">{(error as Error)?.message}</p>
+            </div>
+          </div>
+        </Card>
+      )}
+
+      {sviSummary && !isLoading && (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card className="md:row-span-2 p-6 flex flex-col items-center justify-center text-center" data-testid="card-community-vulnerability-score">
+              <p className="text-xs text-muted-foreground mb-2 font-medium uppercase tracking-wide">Community Vulnerability Score</p>
+              <div
+                className="text-5xl font-bold mb-2"
+                style={{ color: getSviColor(sviSummary.averageSVI) }}
+                data-testid="text-avg-svi"
+              >
+                {Math.round(sviSummary.averageSVI * 100)}
+              </div>
+              <p className="text-xs text-muted-foreground">out of 100 (higher = more vulnerable)</p>
+              <div className="w-full mt-4 h-3 rounded-full overflow-hidden bg-muted">
+                <div
+                  className="h-full rounded-full transition-all"
+                  style={{
+                    width: `${Math.round(sviSummary.averageSVI * 100)}%`,
+                    background: `linear-gradient(to right, #22c55e, #eab308, #f97316, #ef4444)`,
+                  }}
+                />
+              </div>
+              <div className="flex justify-between w-full text-xs text-muted-foreground mt-1 gap-1">
+                <span>Low Risk</span>
+                <span>High Risk</span>
+              </div>
+            </Card>
+
+            <Card className="p-4" data-testid="stat-total-tracts">
+              <div className="flex flex-col items-center text-center gap-1">
+                <MapPin className="h-5 w-5 text-teal-500" />
+                <span className="text-2xl font-bold">{sviSummary.totalTracts}</span>
+                <span className="text-xs text-muted-foreground">Census Tracts Analyzed</span>
+              </div>
+            </Card>
+            <Card className="p-4" data-testid="stat-total-population">
+              <div className="flex flex-col items-center text-center gap-1">
+                <Users className="h-5 w-5 text-indigo-500" />
+                <span className="text-2xl font-bold">{sviSummary.totalPopulation?.toLocaleString()}</span>
+                <span className="text-xs text-muted-foreground">Total Population</span>
+              </div>
+            </Card>
+            <Card className="p-4" data-testid="stat-high-vuln-tracts">
+              <div className="flex flex-col items-center text-center gap-1">
+                <AlertTriangle className="h-5 w-5 text-red-500" />
+                <span className="text-2xl font-bold text-red-600">{sviSummary.highVulnerabilityTracts}</span>
+                <span className="text-xs text-muted-foreground">High Vulnerability Tracts</span>
+              </div>
+            </Card>
+            <Card className="p-4" data-testid="stat-low-vuln-tracts">
+              <div className="flex flex-col items-center text-center gap-1">
+                <Shield className="h-5 w-5 text-green-500" />
+                <span className="text-2xl font-bold text-green-600">{sviSummary.lowVulnerabilityTracts}</span>
+                <span className="text-xs text-muted-foreground">Low Vulnerability Tracts</span>
+              </div>
+            </Card>
+          </div>
+
+          {themes && (
+            <Card data-testid="card-theme-scores">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base">SVI Theme Scores</CardTitle>
+                <CardDescription>Average percentile ranking across 4 vulnerability dimensions (higher = more vulnerable)</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {[
+                    { key: "socioeconomic", label: "Socioeconomic Status", icon: DollarSign, color: "#6366f1" },
+                    { key: "household", label: "Household Characteristics", icon: Home, color: "#8b5cf6" },
+                    { key: "minority", label: "Racial & Ethnic Minority Status", icon: Users, color: "#a855f7" },
+                    { key: "housingTransport", label: "Housing Type & Transportation", icon: Car, color: "#0ea5e9" },
+                  ].map((theme) => {
+                    const Icon = theme.icon;
+                    const val = themes[theme.key]?.average || 0;
+                    const pct = Math.round(val * 100);
+                    return (
+                      <div key={theme.key} className="space-y-2" data-testid={`theme-score-${theme.key}`}>
+                        <div className="flex items-center gap-2">
+                          <Icon className="h-4 w-4 shrink-0" style={{ color: theme.color }} />
+                          <span className="text-sm font-medium truncate">{theme.label}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1 bg-muted rounded-full h-3 overflow-hidden">
+                            <div
+                              className="h-full rounded-full transition-all"
+                              style={{ width: `${pct}%`, backgroundColor: getSviColor(val) }}
+                            />
+                          </div>
+                          <span className="text-sm font-bold w-10 text-right" style={{ color: getSviColor(val) }}>
+                            {pct}%
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <Card data-testid="card-risk-factors">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <AlertTriangle className="h-4 w-4 text-red-500" /> Risk Factors \u2014 Where to Focus Outreach
+                </CardTitle>
+                <CardDescription>Tract-level risk factors that drive youth disconnection</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {Object.entries(riskFactors)
+                    .sort(([, a], [, b]) => (b as number) - (a as number))
+                    .map(([factor, count]) => {
+                      const pct = sviSummary.totalTracts > 0 ? Math.round(((count as number) / sviSummary.totalTracts) * 100) : 0;
+                      const note = RISK_FACTOR_NOTES[factor] || "This factor correlates with higher rates of youth disconnection";
+                      return (
+                        <div key={factor} className="space-y-1" data-testid={`risk-factor-${factor.toLowerCase().replace(/\s+/g, '-')}`}>
+                          <div className="flex items-center gap-2">
+                            <div className="w-1 h-8 rounded-full bg-red-500 shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between gap-2 flex-wrap">
+                                <span className="text-sm font-medium">{factor}</span>
+                                <span className="text-xs text-muted-foreground shrink-0">{count as number} tracts ({pct}%)</span>
+                              </div>
+                              <div className="flex-1 bg-muted rounded-full h-2 overflow-hidden mt-1">
+                                <div className="h-full rounded-full bg-red-500/70" style={{ width: `${pct}%` }} />
+                              </div>
+                              <p className="text-xs text-muted-foreground mt-1 italic">{note}</p>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card data-testid="card-protective-factors">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Shield className="h-4 w-4 text-green-500" /> Protective Factors \u2014 Build on These Strengths
+                </CardTitle>
+                <CardDescription>Community assets that can anchor program design</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {Object.entries(protectiveFactors)
+                    .sort(([, a], [, b]) => (b as number) - (a as number))
+                    .map(([factor, count]) => {
+                      const pct = sviSummary.totalTracts > 0 ? Math.round(((count as number) / sviSummary.totalTracts) * 100) : 0;
+                      const note = PROTECTIVE_FACTOR_NOTES[factor] || "This factor supports positive youth outcomes";
+                      return (
+                        <div key={factor} className="space-y-1" data-testid={`protective-factor-${factor.toLowerCase().replace(/\s+/g, '-')}`}>
+                          <div className="flex items-center gap-2">
+                            <div className="w-1 h-8 rounded-full bg-green-500 shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between gap-2 flex-wrap">
+                                <span className="text-sm font-medium">{factor}</span>
+                                <span className="text-xs text-muted-foreground shrink-0">{count as number} tracts ({pct}%)</span>
+                              </div>
+                              <div className="flex-1 bg-muted rounded-full h-2 overflow-hidden mt-1">
+                                <div className="h-full rounded-full bg-green-500/70" style={{ width: `${pct}%` }} />
+                              </div>
+                              <p className="text-xs text-muted-foreground mt-1 italic">{note}</p>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {allVulnerableTracts.length > 0 && (
+            <Card data-testid="card-high-vuln-table">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Target className="h-4 w-4 text-red-500" /> Top 10 Most Vulnerable Neighborhoods
+                </CardTitle>
+                <CardDescription>These tracts have the highest concentration of risk factors for youth disconnection</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {allVulnerableTracts.map((tract: any, i: number) => {
+                    const isExpanded = expandedTract === tract.fips;
+                    const topRisks = (tract.riskFactors || []).slice(0, 3);
+                    return (
+                      <div key={tract.fips} data-testid={`row-vuln-tract-${i}`}>
+                        <button
+                          className="w-full text-left p-3 rounded-lg bg-muted/30 hover-elevate"
+                          onClick={() => setExpandedTract(isExpanded ? null : tract.fips)}
+                          data-testid={`button-expand-tract-${i}`}
+                        >
+                          <div className="flex items-center gap-3 flex-wrap">
+                            <span className="text-xs font-mono text-muted-foreground w-6 shrink-0">#{i + 1}</span>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium truncate">{tract.location?.split(",")[0] || tract.fips}</p>
+                              <p className="text-xs text-muted-foreground">Pop: {(tract.population || 0).toLocaleString()}</p>
+                            </div>
+                            <div className="flex items-center gap-2 shrink-0">
+                              <span className="text-sm font-bold" style={{ color: getSviColor(tract.svi) }}>
+                                {Math.round(tract.svi * 100)}
+                              </span>
+                              <div className="flex gap-1 flex-wrap">
+                                {topRisks.map((rf: string) => (
+                                  <Badge key={rf} variant="destructive" className="text-xs">{rf}</Badge>
+                                ))}
+                              </div>
+                            </div>
+                            <ChevronRight className={`h-4 w-4 transition-transform shrink-0 ${isExpanded ? "rotate-90" : ""}`} />
+                          </div>
+                        </button>
+                        {isExpanded && (
+                          <div className="ml-9 mt-2 p-3 rounded-lg bg-muted/20 space-y-3" data-testid={`detail-tract-${i}`}>
+                            <div>
+                              <p className="text-xs font-semibold mb-1">All Risk Factors</p>
+                              <div className="flex flex-wrap gap-1">
+                                {(tract.riskFactors || []).map((rf: string) => (
+                                  <Badge key={rf} variant="destructive" className="text-xs">{rf}</Badge>
+                                ))}
+                                {(!tract.riskFactors || tract.riskFactors.length === 0) && (
+                                  <span className="text-xs text-muted-foreground">None identified</span>
+                                )}
+                              </div>
+                            </div>
+                            <div>
+                              <p className="text-xs font-semibold mb-1">FIPS Code</p>
+                              <p className="text-xs font-mono text-muted-foreground">{tract.fips}</p>
+                            </div>
+                            <Button
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onDesignOutreach(
+                                  `Design a targeted outreach strategy for census tract ${tract.location || tract.fips} (SVI score: ${Math.round(tract.svi * 100)}/100, population: ${tract.population?.toLocaleString()}). Risk factors: ${(tract.riskFactors || []).join(", ")}. This tract is in the top 10 most vulnerable neighborhoods in the ${selectedRegion.label} region. What specific interventions, staffing, and partnership strategies would be most effective for reconnecting opportunity youth in this neighborhood?`
+                                );
+                              }}
+                              data-testid={`button-design-outreach-${i}`}
+                            >
+                              <Sparkles className="h-4 w-4 mr-1" /> Design Outreach Strategy
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {adjacentResources.length > 0 && (
+            <Card data-testid="card-adjacent-resources">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Heart className="h-4 w-4 text-purple-500" /> Resources Without Borders
+                </CardTitle>
+                <CardDescription>How low-vulnerability neighborhoods can serve high-vulnerability neighbors</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="p-4 rounded-lg bg-purple-50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-800" data-testid="text-adjacent-concept">
+                  <p className="text-sm">
+                    A youth in a high-poverty tract may be 2 miles from a transit-connected, high-employment community with job training programs. Geographic proximity means we can design programs that bridge these boundaries.
+                  </p>
+                </div>
+                <div className="space-y-3">
+                  {adjacentResources.slice(0, 5).map((ar: any, i: number) => (
+                    <div key={i} className="p-3 rounded-lg bg-muted/30 space-y-2" data-testid={`adjacent-resource-${i}`}>
+                      <div className="flex items-start gap-3 flex-wrap">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium flex items-center gap-1">
+                            <AlertTriangle className="h-3 w-3 text-red-500 shrink-0" />
+                            <span className="truncate">{ar.vulnerableTract?.location?.split(",")[0] || ar.vulnerableTract?.fips}</span>
+                            <span className="text-xs font-bold text-red-600 shrink-0">(SVI {Math.round((ar.vulnerableTract?.svi || 0) * 100)})</span>
+                          </p>
+                          <div className="flex gap-1 mt-1 flex-wrap">
+                            {(ar.vulnerableTract?.riskFactors || []).slice(0, 3).map((rf: string) => (
+                              <Badge key={rf} variant="destructive" className="text-xs">{rf}</Badge>
+                            ))}
+                          </div>
+                        </div>
+                        <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0 mt-1" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs text-muted-foreground mb-1">Nearby protective tracts:</p>
+                          {(ar.nearbyProtectiveTracts || []).slice(0, 2).map((pt: any) => (
+                            <p key={pt.fips} className="text-xs">
+                              <span className="font-medium">{pt.location?.split(",")[0] || pt.fips}</span>
+                              <span className="text-green-600 ml-1">(SVI {Math.round((pt.svi || 0) * 100)})</span>
+                              {pt.protectiveFactors?.length > 0 && (
+                                <span className="text-muted-foreground ml-1">\u2014 {pt.protectiveFactors.slice(0, 2).join(", ")}</span>
+                              )}
+                            </p>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          <Card data-testid="card-intel-cross-links">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center gap-2">
+                <LinkIcon className="h-4 w-4" /> Continue Your Analysis
+              </CardTitle>
+              <CardDescription>Go deeper into the data or take action</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                {[
+                  { label: "Deep Dive into SVI Data", href: "/sdoh-explorer", icon: BarChart3 },
+                  { label: "View Community Map", href: "/community-map", icon: MapPin },
+                  { label: "Design Transition Plans", href: "/transition-plans", icon: GraduationCap },
+                  { label: "Screen for Benefits", href: "/benefits-screener", icon: Shield },
+                ].map((link) => {
+                  const Icon = link.icon;
+                  return (
+                    <Link key={link.href} href={link.href}>
+                      <Button variant="outline" className="w-full justify-start" data-testid={`link-intel-${link.href.replace(/\//g, '')}`}>
+                        <Icon className="h-4 w-4 mr-2 shrink-0" />
+                        <span className="truncate">{link.label}</span>
+                        <ExternalLink className="h-3 w-3 ml-auto shrink-0 text-muted-foreground" />
+                      </Button>
+                    </Link>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-teal-50/30 dark:bg-teal-950/10 border-teal-200 dark:border-teal-800" data-testid="card-svi-source">
+            <CardContent className="pt-4">
+              <p className="text-xs text-muted-foreground">
+                <strong>Data Source:</strong> CDC/ATSDR Social Vulnerability Index (SVI).
+                Generated at {result?.generatedAt ? new Date(result.generatedAt).toLocaleString() : "just now"}.
+                SVI rankings are relative \u2014 a score of 75 means more vulnerable than 75% of all U.S. census tracts.
+              </p>
+            </CardContent>
+          </Card>
+        </>
+      )}
+    </div>
+  );
+}
+
 export default function OpportunityYouthPage() {
   const [activeTab, setActiveTab] = useState("dashboard");
 
@@ -1396,6 +1860,9 @@ export default function OpportunityYouthPage() {
         <TabsList className="flex-wrap">
           <TabsTrigger value="dashboard" data-testid="tab-dashboard">
             <Activity className="h-4 w-4 mr-1" /> Dashboard
+          </TabsTrigger>
+          <TabsTrigger value="neighborhood-intel" data-testid="tab-neighborhood-intel">
+            <MapPin className="h-4 w-4 mr-1" /> Neighborhood Intel
           </TabsTrigger>
           <TabsTrigger value="overview" data-testid="tab-overview">
             <BarChart3 className="h-4 w-4 mr-1" /> Population
@@ -1422,6 +1889,20 @@ export default function OpportunityYouthPage() {
 
         <TabsContent value="dashboard">
           <HolisticDashboard />
+        </TabsContent>
+        <TabsContent value="neighborhood-intel">
+          <NeighborhoodIntel onDesignOutreach={(context) => {
+            setActiveTab("ai-analyst");
+            setTimeout(() => {
+              const textarea = document.querySelector('[data-testid="input-ai-question"]') as HTMLTextAreaElement;
+              if (textarea) {
+                const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value')?.set;
+                nativeInputValueSetter?.call(textarea, context);
+                textarea.dispatchEvent(new Event('input', { bubbles: true }));
+                textarea.dispatchEvent(new Event('change', { bubbles: true }));
+              }
+            }, 100);
+          }} />
         </TabsContent>
         <TabsContent value="overview">
           <PopulationOverview />
