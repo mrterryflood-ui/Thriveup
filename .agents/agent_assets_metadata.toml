@@ -209,10 +209,22 @@ title = "Agency Fund EOI — The Collaborative Advocate Foundation"
 id = "cA-V9NdbICdnON-Fhh8dK"
 uri = "file://attached_assets/TWC_PfISD_Curriculum_Summary.md"
 type = "text"
-title = "Curriculum Summary for Traci Hendrix (PfISD)"
+title = "Curriculum Summary for PfISD (Send to Traci)"
 
 [[outputs]]
 id = "sH01WAxAmxJQn4Ftpd1pC"
 uri = "file://attached_assets/TWC_PfISD_Support_Letter_Draft.md"
 type = "text"
-title = "Draft Support Letter for PfISD Signature"
+title = "Draft Support Letter for Traci to Sign"
+
+[[outputs]]
+id = "0L5MGPUMg-DfkiV3Q6mEo"
+uri = "file://docs/grants/TWC-RFA-32026-00162-NARRATIVE.md"
+type = "text"
+title = "TWC Grant Narrative (Internal - For Submission)"
+
+[[outputs]]
+id = "ucwoijIrUrJCK1DarrzAa"
+uri = "file://docs/grants/PFISD-PARTNER-LETTER-TEMPLATE.md"
+type = "text"
+title = "PfISD Partner Letter Template (Internal - Multi-Use)"
