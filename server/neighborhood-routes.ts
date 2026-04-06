@@ -93,14 +93,17 @@ async function resolveLocationToZip(locationText: string): Promise<{ zip: string
       const addr = match.matchedAddress || trimmed;
       const zipMatch = addr.match(/\b(\d{5})\b/);
       if (zipMatch) return { zip: zipMatch[1], displayName: addr };
-      const geo = match.geographies?.["Census Tracts"]?.[0];
-      if (geo) {
-        const zctaUrl = `https://geocoding.geo.census.gov/geocoder/geographies/coordinates?x=${match.coordinates.x}&y=${match.coordinates.y}&benchmark=Public_AR_Current&vintage=Current_Current&format=json`;
+      if (match.coordinates) {
+        const revUrl = `https://nominatim.openstreetmap.org/reverse?lat=${match.coordinates.y}&lon=${match.coordinates.x}&format=json&addressdetails=1&zoom=18`;
         try {
-          const coordData = await fetchJson(zctaUrl);
-          const coordMatch = coordData?.result?.geographies?.["Census Tracts"]?.[0];
-          if (coordMatch) {
-            return { zip: "", displayName: addr };
+          const revResp = await fetch(revUrl, { headers: { Accept: "application/json", "User-Agent": "ThriveUpAcademy/1.0" } });
+          if (revResp.ok) {
+            const revData = await revResp.json() as any;
+            const pc = revData?.address?.postcode;
+            if (pc) {
+              const z5 = pc.match(/(\d{5})/)?.[1];
+              if (z5) return { zip: z5, displayName: addr };
+            }
           }
         } catch {}
       }
@@ -1451,13 +1454,36 @@ export function registerNeighborhoodRoutes(app: Express) {
     }
   });
 
+  const emailRateLimit = new Map<string, number>();
   app.post("/api/neighborhood/email-report", async (req, res) => {
     try {
       const { profile, recipientEmail } = req.body;
       if (!profile || !recipientEmail) return res.status(400).json({ error: "Profile and recipient email required." });
 
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(recipientEmail) || recipientEmail.length > 254) {
+        return res.status(400).json({ error: "Please provide a valid email address." });
+      }
+
+      const ip = req.ip || "unknown";
+      const now = Date.now();
+      const lastSent = emailRateLimit.get(ip) || 0;
+      if (now - lastSent < 30000) {
+        return res.status(429).json({ error: "Please wait 30 seconds between email requests." });
+      }
+      emailRateLimit.set(ip, now);
+
+      const sanitize = (s: string) => String(s || "").replace(/[<>]/g, "").substring(0, 500);
+      const safeProfile = {
+        ...profile,
+        neighborhoodName: sanitize(profile.neighborhoodName),
+        countyName: sanitize(profile.countyName),
+        stateName: sanitize(profile.stateName),
+        tractName: sanitize(profile.tractName),
+      };
+
       const { sendNeighborhoodReport } = await import("./email-service");
-      const sent = await sendNeighborhoodReport(profile, recipientEmail);
+      const sent = await sendNeighborhoodReport(safeProfile, recipientEmail);
       res.json({ sent, message: sent ? "Report emailed successfully." : "Email delivery pending." });
     } catch (err) {
       console.error("Email error:", err);
