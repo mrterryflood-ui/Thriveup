@@ -1279,8 +1279,18 @@ export class DatabaseStorage implements IStorage {
         const { seedAILiteracyFullLessons } = await import("./seed-ai-lessons-full");
         await seedAILiteracyFullLessons(db);
       }
-      const wrLessonCount = await db.select().from(lessons).where(eq(lessons.moduleId, "wr_professional_presence"));
-      if (wrLessonCount.length < 1) {
+      const wrNewLessons = await db.select().from(lessons).where(eq(lessons.id, "wr_m1_lesson_1"));
+      if (wrNewLessons.length < 1) {
+        const oldWrLessons = await db.select().from(lessons).where(eq(lessons.id, "wr_prof_l1"));
+        if (oldWrLessons.length > 0) {
+          const { inArray } = await import("drizzle-orm");
+          await db.delete(lessons).where(inArray(lessons.moduleId, [
+            "wr_professional_presence", "wr_workplace_rights", "wr_workplace_safety",
+            "wr_time_management", "wr_work_ethic_leadership",
+            "wr_career_foundations_teamwork", "wr_career_foundations_professionalism"
+          ]));
+          console.log("[Seed] Cleared old workforce lessons for culturally-responsive upgrade");
+        }
         const { seedWorkforceLessons } = await import("./seed-workforce-lessons");
         await seedWorkforceLessons(db);
       }

@@ -1,1409 +1,1524 @@
-import { lessons } from "@shared/schema";
+import { lessons, quizQuestions, badges } from "@shared/schema";
 
 export async function seedWorkforceLessons(db: any): Promise<void> {
+  const { eq } = await import("drizzle-orm");
+
   // ============================================================
   // WORKFORCE READINESS GRADES 9-12 — TEKS §127.15 Aligned
+  // Culturally Responsive, Student-Centered, Phone-First
+  // 5 Modules × 4 Lessons = 20 Lessons + 50 Quiz Questions + 11 Badges
   // ============================================================
 
   await db.insert(lessons).values([
-    // ---- wr_professional_presence L1, L2, L3 ----
+    // ===== MODULE 1: PROFESSIONAL PRESENCE =====
     {
-      id: "wr_prof_l1", moduleId: "wr_professional_presence", lessonNumber: 1,
-      title: "First Impressions — Professional Communication and Presence", durationMinutes: 35, activityType: "matching",
+      id: "wr_m1_lesson_1",
+      moduleId: "wr_professional_presence",
+      lessonNumber: 1,
+      title: "Welcome & Your Professional Identity",
+      durationMinutes: 45,
+      activityType: "interactive",
+      content: `## Welcome to the Workforce Readiness Academy
+
+You're here because you're ready for something real. Not a worksheet. Not a lecture. A program that actually prepares you for the world that's waiting.
+
+**First things first — download ThriveUp on your phone right now.**
+
+On your phone's browser, go to this site and tap "Add to Home Screen" (or "Install App"). This gives you 24/7 access to:
+- Your resume builder (we'll start today)
+- AI mock interview practice (anytime, anywhere)
+- Your career portfolio
+- Your badges and progress
+- Direct connection to mentors and neighborhood champions
+
+**Do it now. We'll wait. This is your first career move.**
+
+---
+
+### Your Professional Identity Already Exists
+
+Here's what nobody tells you: **you already have professional skills.** Right now. Today.
+
+- Do you show up on time to things that matter to you? That's **punctuality**.
+- Have you ever helped a younger sibling with homework? That's **tutoring and mentorship**.
+- Do you translate for family members? That's **bilingual communication skills**.
+- Have you ever organized a group chat, planned a hangout, or coordinated rides? That's **project coordination**.
+- Do you babysit, mow lawns, help at church, or work with family? That's **work experience**.
+
+The world tries to tell you that you don't have experience. That's not true. You have experience — you just haven't been taught how to name it yet. That changes today.
+
+### What Does "Professional" Actually Mean?
+
+Let's be real — "professional" doesn't mean "act white" or "pretend to be someone you're not." Professional means:
+
+- **Showing respect** — for yourself, your coworkers, and your workplace
+- **Being reliable** — doing what you said you'd do
+- **Communicating clearly** — so people understand your ideas
+- **Representing yourself well** — so opportunities come TO you
+
+You can be professional AND be yourself. Code-switching is a skill you probably already have. This program teaches you when and how to use it strategically — for YOUR benefit.
+
+### First Impressions: The 7-Second Rule
+
+Research shows people form a first impression in about 7 seconds. That's not fair, but it's real. Here's what those 7 seconds include:
+
+- **How you look** — clean, put-together, appropriate for the setting
+- **How you carry yourself** — eye contact, posture, confidence (even if you're faking it)
+- **What you say first** — a clear greeting, your name, a firm handshake
+
+**Real Talk:** What if you can't afford interview clothes?
+- Goodwill and thrift stores have professional clothes for $5-10
+- Some nonprofits give free interview outfits (ask your school counselor)
+- Clean, pressed, and fitting well matters more than brand names
+- ThriveUp connects you to local resources through our Community Resource Directory
+
+### Your Turn: Professional Identity Inventory
+
+Open your ThriveUp profile and complete the **Professional Identity Inventory**:
+1. List 5 things you do regularly that are actually professional skills
+2. For each one, write the "professional name" (babysitting = childcare experience)
+3. Rate your confidence in each skill from 1-5
+
+This becomes the foundation of your resume. You're not starting from zero — you're starting from YOU.
+
+### Neighborhood Champion Connection
+
+Your community has people who've walked this path before you. Throughout this program, neighborhood champions — local professionals, business owners, faith leaders, and mentors from YOUR area — will check in with real talk about what the working world is actually like. Not textbook stuff. Real stuff.
+
+### Weekly Live Check-In
+
+Every week, we gather for a live virtual check-in. This is your space to:
+- Ask questions you don't want to ask in class
+- Hear from a neighborhood champion guest
+- Share wins and challenges with your cohort
+- Get motivation from people who get it
+
+**First check-in is this week. Don't miss it.**`,
       activityData: JSON.stringify({
-        type: "matching",
-        pairs: [
-          { left: "Slouching, looking at phone during conversation", right: "Unprofessional — signals disinterest and disrespect to the speaker" },
-          { left: "Firm handshake, eye contact, and a genuine greeting", right: "Professional — creates an immediate positive first impression" },
-          { left: "Using slang and abbreviations in a work email", right: "Unprofessional — workplace communication requires standard language and clear structure" },
-          { left: "Arriving 5 minutes early, prepared with materials", right: "Professional — demonstrates reliability, planning, and respect for others' time" },
-          { left: "Interrupting coworkers to share your opinion", right: "Unprofessional — active listening shows respect and produces better collaboration" },
-          { left: "Asking clarifying questions when you don't understand a task", right: "Professional — shows initiative, prevents mistakes, and demonstrates maturity" },
-        ],
-        instructions: "Classify each workplace behavior as professional or unprofessional. Every interaction shapes how others perceive your competence.",
-      }),
-      content: `## First Impressions — Professional Communication and Presence
-
-Research shows that first impressions form in 7 seconds. Seven seconds. In a job interview, a client meeting, or your first day at work, those seven seconds shape everything that follows. Let's make sure they work in your favor.
-
-### The Three Channels of Professional Presence
-
-Communication research (Albert Mehrabian's studies) suggests that in-person communication breaks down into three channels:
-
-**1. VERBAL — What you say (7% of impact)**
-Your words matter, but less than you think. What counts:
-- Speaking clearly and at an appropriate pace
-- Using language appropriate to the workplace (no slang, profanity, or excessive filler words)
-- Asking intelligent questions
-- Expressing ideas concisely — get to the point
-
-**2. VOCAL — How you say it (38% of impact)**
-Your tone, pace, volume, and inflection carry more meaning than the words themselves:
-- Confident but not aggressive
-- Enthusiastic but not manic
-- Calm under pressure
-- Matching the energy of the professional setting
-
-**3. VISUAL — What they see (55% of impact)**
-Body language and appearance dominate first impressions:
-- Posture: Stand and sit up straight. Slouching signals low energy or disinterest.
-- Eye contact: Maintain natural eye contact (not staring). It builds trust.
-- Facial expression: A genuine smile goes further than any perfect answer.
-- Grooming: Clean, neat, and appropriate for the workplace.
-- Attire: Dress for the job you want, not the job you have. When in doubt, overdress.
-
-### Professional Communication Fundamentals
-
-**Email Communication:**
-Every professional email should have:
-- A clear, specific subject line ("Meeting Follow-Up: Q3 Budget Review" not "Hey")
-- A professional greeting ("Good morning, Ms. Johnson" not "Hey")
-- A clear purpose in the first 1-2 sentences
-- Any required action items clearly stated
-- A professional closing ("Best regards," "Thank you,")
-- Proofread for grammar, spelling, and tone
-
-**Phone/Video Communication:**
-- Answer professionally: "Good morning, this is [your name]."
-- Speak clearly and at a moderate pace
-- On video: Look at the camera (not yourself), ensure good lighting, choose a clean background
-- Minimize background noise
-- Follow up important calls with a written summary
-
-**In-Person Communication:**
-- Arrive on time (early is on time; on time is late)
-- Offer a firm handshake (when culturally appropriate)
-- Use people's names — it shows respect and attention
-- Practice active listening: nod, maintain eye contact, paraphrase what you heard
-- Take notes when receiving instructions
-
-### The Professionalism Spectrum
-
-Professionalism isn't just about formal settings. It's a spectrum you navigate daily:
-
-**Formal:** Client presentations, job interviews, meetings with executives
-→ Highest level of professional behavior, formal language, business attire
-
-**Business Casual:** Regular office environment, team meetings, daily interactions
-→ Professional but relaxed, conversational tone, appropriate casual attire
-
-**Informal Professional:** Team lunches, casual Fridays, informal check-ins
-→ Relaxed but still respectful, appropriate humor, awareness of boundaries
-
-**Key insight:** You can always dress down from formal to match your environment. It's much harder to recover from being too casual in a formal setting.
-
-### Common First-Job Mistakes
-
-1. **Being too casual too fast** — Observe the culture before you relax. Match or slightly exceed the professional level around you.
-2. **Not asking questions** — New employees who ask questions learn faster and make fewer costly mistakes. Silence isn't strength — it's a missed opportunity.
-3. **Phone addiction** — Nothing says "I'm not invested" like checking your phone during a meeting or conversation.
-4. **Gossip** — It will always get back to the person. Always. Stay out of it.
-5. **Defensiveness when receiving feedback** — Say "Thank you for the feedback. I'll work on that." Process your emotions later. Responding defensively makes people stop helping you grow.`,
-    },
-    {
-      id: "wr_prof_l2", moduleId: "wr_professional_presence", lessonNumber: 2,
-      title: "Professional Writing — Emails, Reports, and Documentation", durationMinutes: 35, activityType: "sorting",
-      activityData: JSON.stringify({
-        type: "sorting",
-        categories: ["Strong Professional Writing", "Needs Improvement", "Unacceptable"],
+        type: "checklist",
+        title: "Day 1 Setup Checklist",
         items: [
-          { text: "Subject: Project Update — Phase 2 Milestone Reached, Next Steps Inside", category: "Strong Professional Writing" },
-          { text: "Subject: stuff", category: "Unacceptable" },
-          { text: "Hi team, wanted to share a quick update on our progress and outline next steps.", category: "Strong Professional Writing" },
-          { text: "yo, so basically we kinda finished the thing, lmk what u think", category: "Unacceptable" },
-          { text: "Hi, I finished the report. Attached. Let me know if you need anything else.", category: "Needs Improvement" },
-          { text: "Dear Mr. Rodriguez, Thank you for your time today. As discussed, I've attached the proposal with the three options we reviewed. I'd welcome your feedback by Friday if possible.", category: "Strong Professional Writing" },
-        ],
-        instructions: "Classify each piece of writing by professionalism level. In the workplace, writing is your first impression when you're not in the room.",
+          { id: "pwa", text: "Download ThriveUp PWA to your phone", points: 20 },
+          { id: "profile", text: "Complete your career profile", points: 15 },
+          { id: "inventory", text: "List 5 professional skills you already have", points: 15 },
+          { id: "name", text: "Write the 'professional name' for each skill", points: 10 },
+          { id: "confidence", text: "Rate your confidence 1-5 for each", points: 10 },
+        ]
       }),
-      content: `## Professional Writing — Emails, Reports, and Documentation
-
-In the modern workplace, you are judged by your writing every single day. Your emails, reports, messages, and documents represent you when you're not in the room. Strong professional writing is one of the most consistently valuable career skills.
-
-### The CLEAR Framework for Professional Writing
-
-**C — Concise:** Say what needs to be said in as few words as possible. Busy professionals don't read walls of text.
-
-**L — Logical:** Organize information in a logical sequence. Lead with the most important point.
-
-**E — Error-free:** Proofread everything. Grammar and spelling errors undermine your credibility instantly.
-
-**A — Actionable:** Make clear what you need from the reader. "Please review and approve by Friday" is actionable. "Let me know your thoughts" is vague.
-
-**R — Respectful:** Professional tone that respects the reader's time and position.
-
-### Email Mastery
-
-**The anatomy of a professional email:**
-
-Subject Line: Specific and informative
-"Q3 Budget Review — Action Required by March 15"
-NOT: "Important" or "Question" or "Help"
-
-Opening: Context and purpose
-"Following up on our Tuesday meeting, I've compiled the three vendor proposals you requested."
-NOT: "Hey, so remember when we talked about that thing..."
-
-Body: Organized information
-- Use bullet points for multiple items
-- Bold key deadlines or action items
-- Keep paragraphs short (2-3 sentences max)
-- Put the most important information first
-
-Closing: Clear next steps
-"Could you review the attached proposals and share your preferred option by Thursday? I'll schedule vendor demos once we've narrowed it down."
-NOT: "Let me know."
-
-Sign-off: Professional and consistent
-"Best regards," "Thank you," "Respectfully,"
-
-### Report Writing
-
-Professional reports follow a standard structure:
-
-**Executive Summary:** The entire report compressed into 1 page. A busy executive should be able to read only this and understand the key findings, conclusions, and recommendations.
-
-**Background/Context:** Why does this report exist? What problem does it address?
-
-**Methodology:** How was the information gathered? What data was used?
-
-**Findings:** What did you discover? Present data clearly with charts and tables.
-
-**Analysis:** What do the findings mean? What are the implications?
-
-**Recommendations:** Based on the analysis, what should be done? Be specific and actionable.
-
-**Appendices:** Supporting data, detailed tables, raw data for reference.
-
-### Documentation Skills
-
-In every job, you'll need to document processes, decisions, and outcomes:
-
-**Why documentation matters:**
-- It creates institutional memory (so knowledge doesn't leave when people leave)
-- It enables consistency (everyone follows the same process)
-- It provides accountability (decisions and reasoning are recorded)
-- It supports compliance (auditors can verify procedures)
-
-**Good documentation is:**
-- Written for someone who wasn't in the room
-- Step-by-step and specific enough to follow
-- Updated when processes change
-- Stored where people can actually find it
-
-### The AI Writing Partnership
-
-AI can help with professional writing — but only if you use it correctly:
-
-**Good AI use:** Draft a report outline, check grammar, suggest clearer phrasing, format data tables
-**Bad AI use:** Have AI write the entire report without your analysis, skip proofreading because "AI wrote it," submit AI-generated content without verification
-
-**Remember:** AI-assisted writing is YOUR writing. Every word, every claim, every recommendation bears YOUR name. You are accountable for accuracy, tone, and content.`,
     },
     {
-      id: "wr_prof_l3", moduleId: "wr_professional_presence", lessonNumber: 3,
-      title: "Interview Skills — Preparation, Performance, and Follow-Up", durationMinutes: 40, activityType: "matching",
+      id: "wr_m1_lesson_2",
+      moduleId: "wr_professional_presence",
+      lessonNumber: 2,
+      title: "How to Email Your Boss Without Stress",
+      durationMinutes: 40,
+      activityType: "interactive",
+      content: `## Professional Communication — It's Simpler Than You Think
+
+### Jaylen's Story
+
+Jaylen just got hired at H-E-B. His manager, Ms. Rodriguez, sends him a text: "Can you come in Saturday instead of Sunday this week?" Jaylen can't — he has a family thing. How does he respond?
+
+**Option A:** "nah cant do sat" — Unprofessional, no alternative offered
+**Option B:** *doesn't respond and just shows up Sunday* — Leaves manager guessing, breaks trust
+**Option C:** "Hi Ms. Rodriguez, thank you for asking. I'm not available Saturday but I can work my regular Sunday shift. I can also pick up an extra shift next week if that helps. — Jaylen" — Clear, respectful, shows initiative
+
+Option C isn't fake. It's not "acting." It's clear, respectful, and shows initiative. And it took 30 seconds to type.
+
+### The Email Formula
+
+Every professional email follows the same simple pattern:
+
+**1. Greeting:** "Hi [Name]," or "Good morning [Name],"
+**2. Purpose:** One sentence — why are you writing?
+**3. Details:** 2-3 sentences max — what do they need to know?
+**4. Action:** What happens next? What do you need from them?
+**5. Closing:** "Thank you," or "Best," then your name
+
+That's it. Five parts. You can write any professional email with this formula.
+
+### Phone Communication
+
+When you answer a work phone:
+- "Good [morning/afternoon], this is [Your Name]. How can I help you?"
+- Speak clearly — don't mumble
+- Write down names and numbers (don't trust your memory)
+- If you don't know the answer: "Let me find out and get back to you" (never guess)
+
+### In-Person Communication
+
+- **Eye contact** — not staring, just connecting. If eye contact is hard for you, look at the bridge of their nose. Nobody can tell the difference.
+- **Active listening** — nod, say "I understand," repeat back what they said
+- **Ask questions** — it shows you care and helps you get it right the first time
+- **"I don't know, but I'll find out"** — the most professional sentence you'll ever learn
+
+### Real Talk: Code-Switching
+
+You probably already switch how you talk depending on who you're with. That's not being fake — that's being smart. You talk differently with your friends than with your grandmother, right? Professional communication is just another setting on the dial. You're not losing who you are. You're adding a tool to your toolkit.
+
+### Your Turn: Write Three Emails
+
+Use the AI Email Coach to write and get feedback on:
+1. An email to a manager saying you'll be late tomorrow (with a reason)
+2. An email to a coworker asking them to cover your shift
+3. A thank-you email after a job interview
+
+The AI will give you real feedback — grammar, tone, professionalism. Practice until it feels natural.
+
+### Video Motivation
+
+Watch this week's motivation video from a neighborhood champion who shares their communication story — the mistakes they made early on and what they wish someone had told them.`,
       activityData: JSON.stringify({
-        type: "matching",
-        pairs: [
-          { left: "Tell me about yourself", right: "Prepare a 90-second professional summary: current situation, relevant experience, why you're interested in this role" },
-          { left: "What's your greatest weakness?", right: "Name a real area of growth with specific steps you're taking to improve. Never say 'I work too hard.'" },
-          { left: "Why should we hire you?", right: "Connect your specific skills and experience directly to their stated job requirements. Use evidence, not adjectives." },
-          { left: "Tell me about a time you failed", right: "Share a genuine failure, what you learned from it, and how you applied that lesson. Show self-awareness and growth." },
-          { left: "Do you have any questions for us?", right: "Ask thoughtful questions about the role, team culture, and growth opportunities. Never say 'No.' This is your chance to show genuine interest." },
-          { left: "Where do you see yourself in 5 years?", right: "Show ambition aligned with the company's growth. Demonstrate you've thought about your career path beyond just getting hired." },
-        ],
-        instructions: "Match each common interview question to the strongest response strategy.",
+        type: "email_practice",
+        title: "Professional Email Workshop",
+        scenarios: [
+          { id: "late", prompt: "Write an email to your manager explaining you'll be 15 minutes late tomorrow because of a doctor's appointment." },
+          { id: "cover", prompt: "Write an email to a coworker asking if they can cover your Saturday shift. Offer to take one of theirs in return." },
+          { id: "thanks", prompt: "Write a thank-you email to send after a job interview at Target." },
+        ]
       }),
-      content: `## Interview Skills — Preparation, Performance, and Follow-Up
-
-Job interviews are one of the highest-stakes communication situations you'll face. The difference between getting the job and not getting it often comes down to preparation — not talent. This lesson teaches you to prepare like a professional.
-
-### Before the Interview — Research and Preparation
-
-**Research the organization:**
-- What do they do? What's their mission?
-- What's their culture like? (Check Glassdoor, their social media, news articles)
-- Who are their competitors?
-- What challenges are they facing?
-- Who will be interviewing you? (LinkedIn research)
-
-**Research the role:**
-- Read the job description line by line
-- Identify the top 3-5 requirements
-- Prepare a specific example from your experience for each requirement
-- Understand the salary range for this role in your area
-
-**Prepare your stories — The STAR Method:**
-For behavioral questions ("Tell me about a time when..."), use STAR:
-- **S — Situation:** Set the scene briefly. Where were you? What was happening?
-- **T — Task:** What was your specific responsibility or challenge?
-- **A — Action:** What did YOU specifically do? (Not the team — YOU)
-- **R — Result:** What was the measurable outcome? What did you learn?
-
-Prepare 5-7 STAR stories covering: leadership, teamwork, problem-solving, conflict resolution, failure/learning, and achievement.
-
-### During the Interview — Performance
-
-**The first 2 minutes:**
-- Arrive 10 minutes early
-- Greet everyone warmly — including the receptionist
-- Firm handshake, eye contact, genuine smile
-- Thank them for the opportunity
-
-**Answering questions:**
-- Listen to the FULL question before answering
-- Take a breath before responding (2 seconds of thought is fine)
-- Be specific — use numbers, details, and concrete examples
-- Keep answers to 1-2 minutes (don't ramble)
-- If you don't understand, ask for clarification (this shows confidence, not weakness)
-
-**Body language:**
-- Sit up straight but don't look rigid
-- Lean slightly forward to show engagement
-- Maintain natural eye contact
-- Keep hands visible and gestures controlled
-- Smile when appropriate — you want to seem like someone people want to work with
-
-**Asking YOUR questions:**
-Always ask at least 3 questions. Strong options:
-- "What does success look like in this role in the first 90 days?"
-- "What are the team's biggest priorities this quarter?"
-- "How would you describe the team's working style?"
-- "What do you enjoy most about working here?"
-- "What are the growth opportunities for someone in this role?"
-
-Never ask about salary, vacation, or benefits in a first interview (unless they bring it up).
-
-### After the Interview — Follow-Up
-
-**Within 24 hours:** Send a thank-you email to every person who interviewed you.
-
-**Template:**
-"Dear [Name], Thank you for taking the time to meet with me today about the [Position] role. I particularly enjoyed learning about [specific topic discussed]. Our conversation reinforced my interest in joining [Company] — especially the opportunity to [specific aspect]. I'm confident my experience with [relevant skill/experience] would allow me to contribute meaningfully to your team. Please don't hesitate to reach out if you need any additional information. I look forward to hearing from you."
-
-**If you don't hear back:** Follow up politely after 1 week. One email. If they don't respond after that, move on.
-
-**If you get rejected:** Respond graciously. "Thank you for letting me know. I appreciate the opportunity to interview and would welcome consideration for future openings." The professional world is smaller than you think. Today's rejection could be next year's opportunity.
-
-### The Mindset Shift
-
-The biggest interview mistake is treating it as a test you might fail. Instead, think of it as a conversation between two parties trying to determine if they're a good fit for each other. You're interviewing THEM as much as they're interviewing you. This mindset reduces anxiety and produces more authentic, confident interviews.`,
     },
-  ]);
-
-  // ---- wr_workplace_rights L1, L2, L3 ----
-  await db.insert(lessons).values([
     {
-      id: "wr_rights_l1", moduleId: "wr_workplace_rights", lessonNumber: 1,
-      title: "Know Your Rights — Employment Law Fundamentals", durationMinutes: 35, activityType: "sorting",
+      id: "wr_m1_lesson_3",
+      moduleId: "wr_professional_presence",
+      lessonNumber: 3,
+      title: "AI Mock Interview Lab",
+      durationMinutes: 45,
+      activityType: "interactive",
+      content: `## Your Private Interview Practice Space
+
+Here's the truth about interviews: **they're a skill, not a talent.** Nobody is born good at interviews. You get good by practicing. And most people don't practice because they're scared to mess up in front of someone.
+
+That's why we built the AI Mock Interview Lab. It's private. It's patient. It doesn't judge you. And you can practice as many times as you want until you feel ready.
+
+### Jaylen's Interview Story
+
+Jaylen almost didn't apply to H-E-B because he was terrified of the interview. "What if they ask me something I don't know? What if I freeze up? What if they can tell I'm nervous?"
+
+His older cousin told him: "Everybody's nervous. The people who get hired are the ones who practiced being nervous until it felt normal."
+
+So Jaylen practiced. With the AI. At 11 PM in his room. Twenty times. By the time he sat across from the real interviewer, the questions felt familiar. Not because he memorized answers — because he'd practiced thinking on his feet.
+
+### The Top 10 Interview Questions (And How to Answer Them)
+
+1. **"Tell me about yourself."** — Not your life story. 30 seconds: who you are, what you're good at, why you're here.
+2. **"Why do you want to work here?"** — Show you researched the company. Even one specific thing you noticed.
+3. **"What are your strengths?"** — Pick one real strength. Give a specific example.
+4. **"What's your biggest weakness?"** — Pick something real but not disqualifying. Show you're working on it.
+5. **"Tell me about a time you solved a problem."** — Use the STAR method: Situation, Task, Action, Result.
+6. **"How do you handle conflict?"** — "I listen first, then try to find a solution that works for everyone."
+7. **"Where do you see yourself in 5 years?"** — Show ambition but be realistic. "Growing with this company" works.
+8. **"Why should we hire you?"** — Connect your skills to what THEY need.
+9. **"Do you have any questions for us?"** — ALWAYS say yes. "What does a typical day look like?" or "What do you enjoy about working here?"
+10. **"When can you start?"** — Be honest about your availability.
+
+### Real Talk: Interview Anxiety
+
+- **What if I freeze?** — Say "That's a great question. Let me think about that for a moment." Pausing is professional.
+- **What if I don't have experience?** — Talk about school, volunteering, family responsibilities. Your Professional Identity Inventory has real experience.
+- **What if I can't afford nice clothes?** — See the resources in Lesson 1. Clean and pressed matters more than brand names.
+- **What if they ask about my background?** — You're never required to disclose anything about your family's legal status, criminal history (in most states for minors), or personal life. If it feels illegal, it probably is.
+
+### Your Turn: AI Mock Interview
+
+Launch the AI Mock Interview Lab and complete:
+1. A **Starter Interview** — basic questions, gentle feedback (5 minutes)
+2. A **Standard Interview** — the full 10 questions with scoring (15 minutes)
+3. A **Tough Interview** — curveball questions and pressure scenarios (10 minutes)
+
+After each round, the AI gives you feedback on:
+- Content (did you answer the question?)
+- Confidence (how did your response sound?)
+- Specificity (did you give examples?)
+- Areas to practice more
+
+**You can do this at home, on your phone, at midnight. Nobody's watching. Just practice.**`,
       activityData: JSON.stringify({
-        type: "sorting",
-        categories: ["Your Right", "Employer's Right", "Shared Responsibility"],
-        items: [
-          { text: "Work in an environment free from harassment and discrimination", category: "Your Right" },
-          { text: "Set work schedules and assign tasks within the job description", category: "Employer's Right" },
-          { text: "Receive at least minimum wage for all hours worked", category: "Your Right" },
-          { text: "Terminate employment for legitimate business reasons", category: "Employer's Right" },
-          { text: "Maintain a safe workplace meeting OSHA standards", category: "Shared Responsibility" },
-          { text: "Report unsafe conditions without retaliation", category: "Your Right" },
-          { text: "Following company policies and procedures", category: "Shared Responsibility" },
-          { text: "File a workers' compensation claim if injured on the job", category: "Your Right" },
-        ],
-        instructions: "Classify each workplace protection by who holds the right or responsibility.",
+        type: "mock_interview",
+        title: "AI Mock Interview Lab",
+        levels: [
+          { id: "starter", name: "Starter Interview", questions: 5, difficulty: "easy" },
+          { id: "standard", name: "Standard Interview", questions: 10, difficulty: "medium" },
+          { id: "tough", name: "Tough Interview", questions: 7, difficulty: "hard" },
+        ]
       }),
-      content: `## Know Your Rights — Employment Law Fundamentals
+    },
+    {
+      id: "wr_m1_lesson_4",
+      moduleId: "wr_professional_presence",
+      lessonNumber: 4,
+      title: "Resume Builder Part 1 — Start From YOU",
+      durationMinutes: 40,
+      activityType: "interactive",
+      content: `## Your Resume Starts Today — And It Starts With What You Already Have
 
-Knowing your rights at work isn't optional — it's essential. Too many workers, especially young workers and workers of color, are exploited because they don't know what protections exist. This lesson ensures you're not one of them.
+### The Resume Myth
 
-### The Foundation: Key Employment Laws
+A lot of students think: "I can't write a resume because I don't have any experience." That's a lie the world tells you. Let's fix it right now.
 
-**Fair Labor Standards Act (FLSA):**
-- Establishes federal minimum wage (currently $7.25/hr federal; Texas matches this, but many cities set higher local minimums)
-- Requires overtime pay (1.5x regular rate) for non-exempt employees working over 40 hours/week
-- Sets rules for youth employment (hours, types of work, age minimums)
-- Requires employers to keep accurate time records
+Look at your Professional Identity Inventory from Lesson 1. Those skills? Those experiences? They go on your resume. Here's how:
 
-**Title VII of the Civil Rights Act:**
-- Prohibits employment discrimination based on race, color, religion, sex, or national origin
-- Applies to employers with 15 or more employees
-- Covers hiring, firing, pay, promotions, and workplace conditions
-- Established the Equal Employment Opportunity Commission (EEOC) for enforcement
+| What You Call It | What Your Resume Calls It |
+|---|---|
+| Babysitting | Childcare Provider — Supervised children ages 2-8, managed schedules, prepared meals |
+| Helping at church | Volunteer, [Church Name] — Coordinated events, greeted visitors, managed setup/cleanup |
+| Translating for family | Bilingual Communication — Provided English-Spanish interpretation for family business and medical appointments |
+| Mowing lawns | Independent Lawn Care — Managed client schedules, operated equipment safely, handled payments |
+| Helping with family business | Assistant, [Business Name] — Customer service, inventory management, cash handling |
+| School club officer | [Title], [Club Name] — Led meetings, organized events, managed team of [X] members |
+| Sports team | [Position], [Team] — Demonstrated teamwork, discipline, time management, and performance under pressure |
 
-**Americans with Disabilities Act (ADA):**
-- Prohibits discrimination against qualified individuals with disabilities
-- Requires reasonable accommodations (modified schedules, assistive technology, accessible workspaces)
-- Applies to employers with 15 or more employees
+### Your Resume Sections (Part 1)
 
-**Age Discrimination in Employment Act (ADEA):**
-- Protects workers 40 and older from age-based discrimination
-- Applies to employers with 20 or more employees
+Today we build the top of your resume:
 
-**Equal Pay Act:**
-- Requires equal pay for equal work regardless of sex
-- Applies to all employers
+**1. Header**
+- Your name (make it big and bold)
+- Phone number (one that you actually answer)
+- Email address (professional — not xXgamer420Xx@gmail.com. If you need to, create a new one: firstname.lastname@gmail.com)
+- City, State (you do NOT need your full address)
+- LinkedIn (optional but impressive — we'll set this up later)
 
-### Texas-Specific Protections
+**2. Objective Statement**
+One sentence about who you are and what you're looking for. Examples:
+- "Motivated CTE student seeking a part-time position to develop customer service and teamwork skills while contributing to a positive team environment."
+- "Hardworking high school junior with experience in food service seeking opportunities in healthcare to explore career interests."
 
-- Texas is an "at-will" employment state — either party can end employment at any time for any lawful reason
-- Texas Payday Law requires payment of wages on regular paydays
-- Texas Commission on Human Rights Act mirrors federal anti-discrimination protections
-- Workers' compensation is not required in Texas but most employers carry it
+**3. Education**
+- Your school name, expected graduation year
+- GPA (only if it's 3.0 or above — if not, leave it off)
+- Relevant courses (CTE courses, AP classes, anything career-related)
+- Honors or awards (if any)
+
+### Real Talk: What If I Have Gaps?
+
+- **No work experience?** Lead with education and skills. Your volunteer work and extracurriculars count.
+- **Bad grades?** Don't include GPA. Focus on skills and experience.
+- **No references?** Teachers, coaches, church leaders, family friends all count. Ask them FIRST before listing them.
+- **No computer to print?** Your school library, public library, or workforce center can print for free. The ThriveUp platform stores your resume digitally so it's always accessible from your phone.
+
+### Your Turn: Build Your Resume Header
+
+Using the ThriveUp Resume Builder:
+1. Create your professional email address (if you don't have one)
+2. Fill in your header information
+3. Write your objective statement (AI will give feedback)
+4. Add your education section
+5. Save it — this is a living document. We'll add to it every module.
+
+### Ecosystem Connection
+
+Your resume connects to other ThriveUp tools:
+- **Career Pathways** — explore industries to tailor your objective
+- **Financial Literacy Hub** — understand the earning potential of different career paths
+- **Community Resource Directory** — find free professional development resources near you
+- **AI Creation Studio** — design a professional portfolio website later in the program`,
+      activityData: JSON.stringify({
+        type: "resume_builder",
+        title: "Resume Builder — Part 1",
+        sections: ["header", "objective", "education"],
+        milestone: "resume_started"
+      }),
+    },
+
+    // ===== MODULE 2: WORKPLACE RIGHTS & RESPONSIBILITIES =====
+    {
+      id: "wr_m2_lesson_1",
+      moduleId: "wr_workplace_rights",
+      lessonNumber: 1,
+      title: "Know Your Rights Before You Clock In",
+      durationMinutes: 45,
+      activityType: "interactive",
+      content: `## Your Rights Are Not Optional
+
+### Aaliyah's Story
+
+Aaliyah is 17 and works at a clothing store in the mall. On her third week, her manager tells her to stay 20 minutes after her shift to fold clothes — off the clock. "It's just 20 minutes," he says. "Everyone does it."
+
+Is that legal? **No.** If you're working, you must be paid. Period. That's federal law.
+
+But here's the problem: Aaliyah doesn't know that. And her manager is counting on it.
+
+**This module exists so that nobody can count on you not knowing your rights.**
+
+### The Big Three Laws You Need to Know
+
+**1. Title VII of the Civil Rights Act (1964)**
+- Protects you from discrimination based on race, color, religion, sex, or national origin
+- Applies to employers with 15+ employees
+- Real example: A manager can't refuse to promote you because of your race or give you worse shifts because of your religion
+
+**2. Americans with Disabilities Act (ADA)**
+- Protects people with disabilities from discrimination
+- Requires employers to provide "reasonable accommodations"
+- Real example: If you have ADHD and need written instructions instead of verbal ones, your employer must try to accommodate that
+
+**3. Age Discrimination in Employment Act (ADEA)**
+- Protects workers 40 and older (less relevant to you now, but know it exists)
+- You can't be passed over for hiring or promotion just because of age
+
+### What Discrimination Actually Looks Like
+
+It's not always obvious. It's not always someone saying something racist. Sometimes it's:
+- Always giving the worst shifts to employees of one race
+- Making jokes about someone's accent, hair, or cultural practices
+- Asking interview questions about family plans, religion, or national origin
+- Paying women less than men for the same work
+- Refusing to accommodate a disability when it wouldn't be hard to do so
 
 ### Your Rights as a Young Worker
 
-If you're under 18 in Texas:
-- Cannot work in hazardous occupations (mining, manufacturing, operating heavy equipment)
-- 14-15 year olds: Limited to 3 hours on school days, 8 hours on non-school days, 18 hours during school weeks
-- 16-17 year olds: No federal hour restrictions, but may be limited by school requirements
-- Must have working papers or age verification available
+Texas law and federal law give you specific protections:
+- **You MUST be paid** for all hours worked (including training)
+- **Minimum wage** applies to you ($7.25 federal, but most Austin employers pay $12-15+)
+- **Overtime** (1.5x pay) after 40 hours/week
+- **Safe working conditions** (more in Module 3)
+- **No retaliation** — your employer cannot fire you for reporting a violation
+- **Break requirements** — Texas doesn't require breaks for adults, but if your employer gives you a break of 20+ minutes, they must pay you. Breaks under 20 minutes must be paid.
 
-### What to Do If Your Rights Are Violated
+### Real Talk: "But I Need This Job"
 
-**Step 1: Document everything**
-- Dates, times, witnesses, what was said or done
-- Save emails, texts, and any written communication
-- Keep records at home (not just on work devices)
+We know. Reporting a violation feels risky when you need the paycheck. Here's what to know:
+- **Document everything.** Dates, times, what was said, who was there. Write it in your phone notes.
+- **You don't have to confront anyone.** You can report anonymously to the EEOC or the Texas Workforce Commission.
+- **Retaliation is illegal.** If they fire you for reporting, that's a SECOND violation — and they know it.
+- **Free legal help exists.** Texas RioGrande Legal Aid and Lone Star Legal Aid offer free consultations.
 
-**Step 2: Report internally**
-- Follow your employer's complaint procedure (usually HR)
-- Put your complaint in writing
-- Keep a copy for yourself
+### Your Turn: "Is This Discrimination?" Scenarios
 
-**Step 3: Report externally if needed**
-- EEOC (discrimination): eeoc.gov or 1-800-669-4000
-- Department of Labor (wage/hour): dol.gov/agencies/whd
-- OSHA (safety): osha.gov or 1-800-321-6742
-- Texas Workforce Commission: twc.texas.gov
+Read 8 workplace scenarios and decide: Is this discrimination, harassment, both, or neither? The AI will explain the law behind each one.
 
-**Step 4: Know your retaliation protections**
-It is ILLEGAL for an employer to retaliate against you for:
-- Filing a discrimination complaint
-- Reporting safety violations
-- Filing for workers' compensation
-- Cooperating with an investigation
+### Weekly Check-In Topic
 
-### The Power of Knowledge
-
-Many employers count on workers not knowing their rights. A 2021 survey found that 40% of workers couldn't identify basic employment protections. Knowledge is your first line of defense. You don't need to be aggressive — you just need to know what you're entitled to and how to advocate for yourself professionally.`,
+This week's live check-in features a neighborhood champion who works in HR. They'll share real stories about workplace rights violations they've seen — and how young workers can protect themselves.`,
+      activityData: JSON.stringify({
+        type: "scenario_sort",
+        title: "Is This Discrimination?",
+        scenarios: [
+          { id: "s1", text: "Your manager schedules all Black employees for closing shifts and all white employees for morning shifts.", answer: "discrimination", law: "Title VII" },
+          { id: "s2", text: "Your coworker keeps calling you 'amiga' even though you've asked them to stop.", answer: "could_be_harassment", law: "Title VII — hostile work environment" },
+          { id: "s3", text: "You're told you can't wear your hijab at work because it 'doesn't match the uniform.'", answer: "discrimination", law: "Title VII — religious discrimination" },
+          { id: "s4", text: "Your manager asks you to stay late and doesn't pay you for the extra time.", answer: "wage_violation", law: "Fair Labor Standards Act" },
+          { id: "s5", text: "A coworker makes fun of your stutter.", answer: "harassment", law: "ADA — disability harassment" },
+          { id: "s6", text: "You don't get the promotion, but neither did anyone else — the company eliminated the position.", answer: "not_discrimination", law: "Business decision, not discrimination" },
+          { id: "s7", text: "During your interview, the manager asks 'Do you plan on having kids soon?'", answer: "discrimination", law: "Title VII — sex discrimination" },
+          { id: "s8", text: "Your employer requires everyone to speak English while helping customers, but allows other languages on breaks.", answer: "likely_legal", law: "Business necessity exception — generally allowed if applied equally" },
+        ]
+      }),
     },
     {
-      id: "wr_rights_l2", moduleId: "wr_workplace_rights", lessonNumber: 2,
-      title: "Workplace Harassment and Discrimination — Recognition and Response", durationMinutes: 40, activityType: "sorting",
+      id: "wr_m2_lesson_2",
+      moduleId: "wr_workplace_rights",
+      lessonNumber: 2,
+      title: "Harassment Is Not Part of the Job",
+      durationMinutes: 40,
+      activityType: "interactive",
+      content: `## Nobody Should Dread Going to Work
+
+### The Difference Between Uncomfortable and Illegal
+
+Not everything that makes you uncomfortable at work is harassment. But some of it is. Here's how to tell:
+
+**Harassment is:**
+- Unwanted behavior based on your race, sex, religion, disability, or national origin
+- Severe enough OR frequent enough to create a "hostile work environment"
+- Behavior that a reasonable person would find intimidating, hostile, or offensive
+
+**Examples of harassment:**
+- Repeated sexual comments, jokes, or gestures
+- Showing inappropriate images at work
+- Touching you without permission
+- Racial slurs or "jokes" — even if they say "I'm just playing"
+- Mocking someone's disability, accent, or religion
+- Threatening your job if you don't go along with it
+
+**Not harassment (even though it's unpleasant):**
+- A tough boss who holds everyone to high standards equally
+- Being asked to redo work that wasn't done right
+- A coworker who's just unfriendly to everyone
+- Constructive criticism about your performance
+
+### What to Do If It Happens to You
+
+**Step 1: Say something (if you feel safe)**
+"Please don't say that" or "That makes me uncomfortable" — clear and direct.
+
+**Step 2: Document it**
+Write down: What happened, when, where, who was there, exact words used. Save texts or screenshots.
+
+**Step 3: Report it**
+Tell your supervisor (unless they're the problem). If they are, go to HR, a district manager, or the company's ethics hotline.
+
+**Step 4: File externally if needed**
+EEOC (federal): eeoc.gov | Texas Workforce Commission Civil Rights Division
+
+### Bystander Intervention: What If You See It Happening to Someone Else?
+
+You don't have to be a hero. But you can be an ally. The 5 D's:
+- **Distract** — interrupt the situation. "Hey, can you help me with something?"
+- **Delegate** — get someone with more authority. "I think you should talk to the manager about what's happening."
+- **Document** — record or write down what you see (for the person being harassed, not social media)
+- **Delay** — check in with the person afterward. "Are you okay? I saw what happened."
+- **Direct** — speak up if it's safe. "That's not okay."
+
+### Your Turn: Bystander Practice
+
+Role-play 5 scenarios with the AI companion. Practice using each of the 5 D's. The AI plays the harasser, the victim, or a coworker — and you practice responding.
+
+### Ecosystem Connection
+
+If you or someone you know is dealing with harassment or an unsafe situation:
+- **SafeReport** — ThriveUp's confidential incident reporting tool
+- **Community Resource Directory** — local legal aid and advocacy organizations
+- **LifeBridge** — benefits navigation including victim services`,
       activityData: JSON.stringify({
-        type: "sorting",
-        categories: ["Harassment", "Discrimination", "Inappropriate But Not Illegal"],
-        items: [
-          { text: "A supervisor makes repeated sexual comments despite being asked to stop", category: "Harassment" },
-          { text: "A qualified candidate is not promoted because of their race", category: "Discrimination" },
-          { text: "A coworker occasionally tells annoying jokes unrelated to protected characteristics", category: "Inappropriate But Not Illegal" },
-          { text: "An employee is paid less than colleagues doing the same work because of their gender", category: "Discrimination" },
-          { text: "A manager creates a hostile environment by mocking an employee's religious practices", category: "Harassment" },
-          { text: "A coworker is rude and difficult to work with toward everyone equally", category: "Inappropriate But Not Illegal" },
-          { text: "Job postings that require a 'young, energetic' candidate", category: "Discrimination" },
-          { text: "Persistent unwanted physical contact from a colleague", category: "Harassment" },
-        ],
-        instructions: "Classify each scenario correctly. Understanding the legal categories helps you respond appropriately.",
+        type: "role_play",
+        title: "Bystander Intervention Practice",
+        scenarios: [
+          { id: "b1", situation: "A coworker keeps making comments about another coworker's weight.", technique: "direct" },
+          { id: "b2", situation: "Your manager is yelling at a new employee in front of customers.", technique: "delegate" },
+          { id: "b3", situation: "Someone is showing inappropriate images on their phone to uncomfortable coworkers.", technique: "distract" },
+          { id: "b4", situation: "You overheard a racial slur directed at a coworker but the moment passed.", technique: "delay" },
+          { id: "b5", situation: "A customer is aggressively harassing a cashier.", technique: "delegate" },
+        ]
       }),
-      content: `## Workplace Harassment and Discrimination — Recognition and Response
-
-This lesson covers material that is serious and important. Workplace harassment and discrimination are real, they're common, and they disproportionately affect women, people of color, LGBTQ+ individuals, and people with disabilities. Knowing how to recognize and respond is essential.
-
-### What Is Workplace Harassment?
-
-Legal harassment occurs when unwelcome conduct based on a protected characteristic (race, color, religion, sex, national origin, age, disability, genetic information) becomes:
-- **Severe:** A single incident so serious it creates a hostile environment, OR
-- **Pervasive:** Repeated behavior that creates an intimidating, hostile, or offensive work environment
-
-**Types of harassment:**
-
-**Verbal:** Slurs, offensive jokes targeting protected groups, sexual comments, intimidation, threats
-**Physical:** Unwanted touching, blocking movement, assault, invasion of personal space
-**Visual:** Displaying offensive images, sharing inappropriate content, making obscene gestures
-**Online/Digital:** Harassing emails, texts, or social media posts related to work
-
-### What Is Workplace Discrimination?
-
-Discrimination occurs when an employer makes job decisions based on protected characteristics rather than qualifications and performance:
-
-- Not hiring someone because of their race or gender
-- Paying different wages for the same work based on sex
-- Denying promotions based on age, religion, or national origin
-- Firing someone because of disability or pregnancy
-- Creating requirements that disproportionately exclude protected groups without business justification
-
-### Recognizing the Signs
-
-Harassment and discrimination aren't always obvious. Watch for:
-- Being excluded from meetings, projects, or social events based on identity
-- Different standards applied to different groups
-- "Jokes" that target specific identity groups
-- Unwelcome personal questions about identity, religion, or family planning
-- Subtle comments that undermine competence based on identity ("You're articulate — for your background")
-- Patterns of certain groups being passed over for opportunities
-
-### How to Respond
-
-**If you're experiencing harassment or discrimination:**
-
-1. **Name it (if safe to do so).** "That comment is inappropriate and I need you to stop." Clear, firm, professional. Many harassers count on targets staying silent.
-
-2. **Document everything.** Date, time, location, what was said/done, who witnessed it. This is critical if you need to file a complaint later.
-
-3. **Report it.** Use your employer's reporting procedure. Most companies have an HR department or hotline. Report in WRITING so there's a record.
-
-4. **Know your protections.** Retaliation is illegal. If your employer retaliates for reporting, that's a separate legal violation.
-
-5. **Seek external help if needed.** EEOC (federal), Texas Workforce Commission (state), or an employment attorney.
-
-**If you witness harassment or discrimination:**
-
-1. **Support the target.** Check in privately. "I saw what happened. That wasn't okay. How can I support you?"
-
-2. **Speak up when safe.** "That's not appropriate" or "We don't talk to people that way here."
-
-3. **Report what you saw.** Bystanders who report strengthen the target's case and contribute to a safer workplace.
-
-4. **Don't minimize.** "It was just a joke" or "That's just how they are" enables harassment. Take it seriously.
-
-### Prevention Is Everyone's Job
-
-Creating a respectful workplace isn't just HR's responsibility:
-- Don't participate in or tolerate offensive behavior
-- Treat every person with dignity regardless of their role or identity
-- Educate yourself about different perspectives and experiences
-- Model the professional behavior you want to see
-- Speak up when something isn't right
-
-The workplace you help create is the workplace you work in. Make it one where everyone can contribute their best work.`,
     },
     {
-      id: "wr_rights_l3", moduleId: "wr_workplace_rights", lessonNumber: 3,
-      title: "Financial Literacy — Understanding Pay, Benefits, and Taxes", durationMinutes: 40, activityType: "matching",
+      id: "wr_m2_lesson_3",
+      moduleId: "wr_workplace_rights",
+      lessonNumber: 3,
+      title: "Your Digital Rights at Work",
+      durationMinutes: 35,
+      activityType: "exploration",
+      content: `## Your Phone, Your Social Media, Your Privacy — At Work
+
+### What Your Employer Can and Can't Do
+
+**They CAN:**
+- Monitor your work email and work computer
+- Have policies about phone use during work hours
+- Check your public social media posts
+- Drug test you (with notice, in most cases)
+- Use security cameras in work areas (not bathrooms or changing rooms)
+
+**They CAN'T:**
+- Read your personal texts or emails on your personal phone
+- Require you to give them your social media passwords (illegal in some states)
+- Record you in private spaces
+- Fire you for discussing wages with coworkers (that's protected by the NLRA)
+- Fire you for social media posts about unsafe working conditions
+
+### Social Media and Your Career
+
+**The reality:** Employers Google you. They look at your Instagram, TikTok, and Twitter. A 2025 survey found that 70% of employers check candidates' social media before hiring.
+
+**What gets you rejected:**
+- Posts about illegal drug use
+- Racist, sexist, or violent content
+- Badmouthing a previous employer
+- Posting confidential work information
+
+**What helps you get hired:**
+- A professional LinkedIn profile (even a basic one)
+- Posts showing community involvement, volunteering, or achievements
+- Evidence of passion for your field (sharing articles, projects, certifications)
+- A consistent, professional digital presence
+
+**Pro tip:** Google yourself right now. What comes up? That's what employers see.
+
+### Your Turn: Digital Presence Audit
+
+1. Google your name — screenshot what comes up
+2. Review your most recent 10 social media posts — would an employer have a problem with any of them?
+3. Set up or update a basic LinkedIn profile using the AI assistant
+4. Adjust your privacy settings on personal accounts
+
+### Ecosystem Connection
+- **AI Creation Studio** — build a professional portfolio site
+- **Career Pathways** — research employers in your target industry`,
       activityData: JSON.stringify({
-        type: "matching",
-        pairs: [
-          { left: "Gross pay", right: "Your total earnings before any deductions — the number in your offer letter" },
-          { left: "Net pay", right: "Your take-home pay after all taxes and deductions — what actually hits your bank account" },
-          { left: "W-4 form", right: "Tells your employer how much federal income tax to withhold from your paycheck" },
-          { left: "W-2 form", right: "Annual statement from your employer showing total earnings and taxes withheld — needed to file your tax return" },
-          { left: "401(k) contribution", right: "Pre-tax retirement savings deducted from your paycheck — employer may match a percentage" },
-          { left: "FICA taxes", right: "Social Security (6.2%) and Medicare (1.45%) — automatically deducted from every paycheck" },
-        ],
-        instructions: "Match each financial term to its correct definition. Understanding your paycheck is understanding your financial reality.",
+        type: "audit",
+        title: "Digital Presence Audit",
+        steps: [
+          { id: "google", text: "Google your name and note what appears" },
+          { id: "review", text: "Review your last 10 social media posts for professionalism" },
+          { id: "linkedin", text: "Create or update a basic LinkedIn profile" },
+          { id: "privacy", text: "Adjust privacy settings on personal accounts" },
+        ]
       }),
-      content: `## Financial Literacy — Understanding Pay, Benefits, and Taxes
-
-Your first real paycheck will probably be smaller than you expected. That's because you didn't understand the difference between gross pay and net pay, or how taxes, benefits, and deductions work. This lesson fixes that.
-
-### Reading Your Pay Stub
-
-Every paycheck comes with a pay stub showing:
-
-**Gross Pay:** Your total earnings before anything is taken out.
-If you make $20/hour and work 40 hours: Gross pay = $800
-
-**Deductions (what comes out):**
-- **Federal income tax:** Based on your W-4 and tax bracket (10-37%)
-- **State income tax:** Texas has NO state income tax (a real advantage)
-- **FICA — Social Security:** 6.2% of your gross pay
-- **FICA — Medicare:** 1.45% of your gross pay
-- **Health insurance premium:** If you elect coverage (can be $50-$500/month for your share)
-- **401(k) retirement:** If you choose to contribute (typically 3-10% of gross)
-- **Other:** Dental, vision, life insurance, union dues, etc.
-
-**Net Pay (Take-Home):** What's left after all deductions. Typically 65-80% of gross pay.
-
-**Example:** $50,000 annual salary in Texas
-- Gross monthly: ~$4,167
-- Federal income tax: ~$500
-- Social Security: ~$258
-- Medicare: ~$60
-- Health insurance: ~$200
-- 401(k) at 5%: ~$208
-- **Net monthly: ~$2,941** (about 70% of gross)
-
-### Understanding Benefits
-
-Benefits are part of your total compensation — sometimes worth 30-40% on top of salary:
-
-**Health Insurance:** The most valuable benefit. Without employer-provided insurance, individual coverage can cost $400-$800/month. Key terms:
-- **Premium:** Monthly cost (often split between you and employer)
-- **Deductible:** Amount you pay before insurance starts covering costs
-- **Copay:** Fixed amount you pay for each doctor visit or prescription
-- **Out-of-pocket maximum:** The most you'll pay in a year — after this, insurance covers 100%
-
-**Retirement (401k/403b):**
-- You contribute pre-tax money (reduces your taxable income)
-- Many employers MATCH your contribution up to a percentage (FREE MONEY)
-- If your employer matches 100% up to 5%, contributing 5% means they ADD another 5% — that's an immediate 100% return on your investment
-- **Rule #1 of financial adulting:** ALWAYS contribute enough to get the full employer match
-
-**Paid Time Off (PTO):** Vacation days, sick days, personal days. Typical entry-level: 10-15 days/year.
-
-**Other benefits to value:** Life insurance, disability insurance, tuition reimbursement, professional development budget, flexible schedule, remote work options.
-
-### Taxes — The Basics
-
-**Filing your taxes:**
-Every year by April 15, you file a tax return with the IRS. Your W-2 from each employer tells you what you earned and what was withheld.
-
-If too much was withheld → you get a refund
-If too little was withheld → you owe money
-
-**Tax brackets (2026 approximate, single filer):**
-- $0 - $11,600: 10%
-- $11,601 - $47,150: 12%
-- $47,151 - $100,525: 22%
-- And up from there...
-
-**Important:** Tax brackets are MARGINAL. If you earn $50,000, you don't pay 22% on all $50,000. You pay 10% on the first $11,600, 12% on the next $35,550, and 22% only on the remaining portion.
-
-### Negotiating Salary
-
-Most entry-level workers accept the first offer. Don't.
-
-**Do your research:** Know the market rate for your role, location, and experience level. Use Glassdoor, Bureau of Labor Statistics, and LinkedIn Salary.
-
-**Negotiate professionally:** "Thank you for the offer. I'm very excited about this opportunity. Based on my research and the value I can bring, I was hoping we could discuss a salary of $X. Is there flexibility?"
-
-**If they can't move on salary:** Negotiate other things — signing bonus, additional PTO, flexible schedule, professional development budget, earlier performance review.
-
-**Know your worth:** Companies expect negotiation. You're not being greedy — you're being professional.`,
     },
-  ]);
-
-  // ---- wr_workplace_safety L1, L2, L3 ----
-  await db.insert(lessons).values([
     {
-      id: "wr_safety_l1", moduleId: "wr_workplace_safety", lessonNumber: 1,
-      title: "Workplace Safety — OSHA Standards and Your Responsibilities", durationMinutes: 35, activityType: "matching",
+      id: "wr_m2_lesson_4",
+      moduleId: "wr_workplace_rights",
+      lessonNumber: 4,
+      title: "Resume Builder Part 2 — Your Skills Tell a Story",
+      durationMinutes: 35,
+      activityType: "interactive",
+      content: `## Adding Your Skills Section
+
+Now that you understand workplace rights and professional communication, you have NEW skills to add to your resume. Let's build your Skills section.
+
+### Types of Skills Employers Want
+
+**Hard Skills** — things you can demonstrate:
+- Bilingual (English/Spanish)
+- Microsoft Office / Google Workspace
+- Cash register / POS systems
+- Food handling certification
+- CPR/First Aid certified
+- Social media management
+- Basic coding or website building
+
+**Soft Skills** — how you work with people:
+- Customer service
+- Teamwork and collaboration
+- Conflict resolution
+- Time management
+- Adaptability
+- Bilingual communication
+- Leadership
+
+### How to Write Skills on Your Resume
+
+Don't just list words. Connect them to evidence:
+
+Bad: "Good communicator"
+Better: "Professional written and verbal communication — experienced in customer-facing roles and formal email correspondence"
+
+Bad: "Teamwork"
+Better: "Collaborative team member — coordinated group projects in CTE classes and organized church volunteer events"
+
+### What You Learned in This Module Goes on Your Resume
+
+From Modules 1 and 2, you can now legitimately add:
+- Professional email and phone communication
+- Understanding of workplace rights (Title VII, ADA, FLSA)
+- Harassment recognition and bystander intervention
+- Digital professionalism and social media management
+- Interview preparation
+
+These are REAL skills that REAL employers value.
+
+### Your Turn: Build Your Skills Section
+
+1. Open your resume in the ThriveUp Resume Builder
+2. Add a "Skills" section below your education
+3. List at least 6 skills — mix hard and soft
+4. For each skill, write one line connecting it to evidence
+5. Save and review with the AI for feedback`,
       activityData: JSON.stringify({
-        type: "matching",
-        pairs: [
-          { left: "OSHA", right: "Occupational Safety and Health Administration — federal agency enforcing workplace safety standards" },
-          { left: "PPE", right: "Personal Protective Equipment — gear required to protect workers from specific hazards" },
-          { left: "MSDS/SDS", right: "Safety Data Sheets — detailed information about hazardous chemicals in the workplace" },
-          { left: "Workers' Compensation", right: "Insurance providing wage replacement and medical benefits for work-related injuries" },
-          { left: "Near miss", right: "An unplanned event that didn't result in injury but had the potential to — must be reported" },
-          { left: "Ergonomics", right: "Designing workspaces and tasks to fit human capabilities and reduce strain injuries" },
-        ],
-        instructions: "Match each workplace safety term to its correct definition.",
+        type: "resume_builder",
+        title: "Resume Builder — Part 2",
+        sections: ["skills"],
+        milestone: "resume_skills_added"
       }),
-      content: `## Workplace Safety — OSHA Standards and Your Responsibilities
+    },
 
-Workplace injuries are not just statistics. Every year, approximately 2.6 million workers in the US suffer nonfatal workplace injuries, and about 5,000 workers die from workplace incidents. Safety isn't bureaucratic red tape — it saves lives.
+    // ===== MODULE 3: WORKPLACE SAFETY =====
+    {
+      id: "wr_m3_lesson_1",
+      moduleId: "wr_workplace_safety",
+      lessonNumber: 1,
+      title: "They Can't Make You Do That — Your Safety Rights",
+      durationMinutes: 45,
+      activityType: "interactive",
+      content: `## Marcus's Story
 
-### OSHA — Your Safety Watchdog
+Marcus is 16 and works at a warehouse on weekends. Good money — $14/hour. His supervisor, Rick, tells him to climb a ladder to stack heavy boxes on a high shelf. The ladder is missing a rung and wobbles.
 
-The Occupational Safety and Health Administration (OSHA) was created in 1970 after a year when 14,000 workers died on the job. Its mission: ensure safe and healthful working conditions.
+"Just be careful," Rick says. "We need those boxes up there before the truck comes."
 
-**Your OSHA rights as a worker:**
-- Work in a safe environment
-- Receive safety training in a language you understand
-- Access information about hazards, safety procedures, and injury records
-- Report unsafe conditions without fear of retaliation
-- Request an OSHA inspection if you believe conditions are unsafe
-- Refuse dangerous work that could cause serious injury or death
+Marcus looks at the ladder. He looks at the boxes. He looks at Rick.
 
-**Your employer's OSHA responsibilities:**
-- Provide a workplace free from recognized hazards
-- Train workers on safety procedures and hazard recognition
-- Provide required personal protective equipment (PPE) at no cost
-- Maintain injury and illness records
-- Display the OSHA poster informing workers of their rights
+**What should Marcus do?**
 
-### The Big Four Hazard Categories
+He should say: "I'm not comfortable doing that. The ladder isn't safe. Can we find another way to get the boxes up, or fix the ladder first?"
 
-**1. Safety Hazards** (most common)
-- Slips, trips, and falls
-- Working from heights
-- Unguarded machinery
+And here's the thing Rick doesn't want Marcus to know: **Marcus has the legal right to refuse.**
+
+### OSHA: Your Safety Guardian
+
+OSHA stands for the **Occupational Safety and Health Administration**. They exist for one reason: to make sure you go home in the same condition you came to work.
+
+**Your OSHA rights:**
+- A safe workplace free from serious hazards
+- Training about workplace dangers (in a language you understand)
+- Access to safety records and injury logs
+- The right to report unsafe conditions WITHOUT retaliation
+- The right to **refuse dangerous work** if you believe there's an immediate threat to your life
+
+**How to report:** Call OSHA at 1-800-321-OSHA (6742) or file online at osha.gov. You can report anonymously.
+
+### Common Hazards by Industry
+
+**Retail (Target, Walmart, H-E-B):**
+- Slip and fall hazards (wet floors, cluttered aisles)
+- Lifting injuries (heavy boxes, poor technique)
+- Repetitive strain (scanning, stocking)
+- Customer aggression
+
+**Food Service (Chick-fil-A, McDonald's, restaurants):**
+- Burns (grills, fryers, hot surfaces)
+- Cuts (knives, slicers, broken glass)
+- Slip hazards (grease, water on kitchen floors)
+- Chemical exposure (cleaning products)
+
+**Warehouse/Logistics (Amazon, UPS):**
+- Forklift injuries
+- Falling objects
+- Repetitive strain and back injuries
+- Heat stress (non-climate-controlled facilities)
+
+**Construction/Trades:**
+- Falls from heights
 - Electrical hazards
-- Vehicle/equipment operations
+- Power tool injuries
+- Hearing damage
 
-**2. Chemical Hazards**
-- Cleaning products, solvents, fuels, pesticides
-- Safety Data Sheets (SDS) must be available for every chemical
-- Proper ventilation, PPE, and storage required
+### Real Talk: "But I'm New — I Can't Say No to My Boss"
 
-**3. Biological Hazards**
-- Bacteria, viruses, mold, animal waste
-- Common in healthcare, food service, agriculture, laboratory work
-- Prevention: hand hygiene, PPE, vaccinations, proper disposal
+Yes you can. And here's why: if you get hurt because of an unsafe condition your employer knew about, THEY are liable. Most supervisors will respect you MORE for speaking up — it protects them too.
 
-**4. Ergonomic Hazards**
-- Repetitive motions (typing, assembly line work)
-- Poor posture and workstation setup
-- Heavy lifting with improper technique
-- Prolonged standing or sitting
+If they retaliate against you for raising a safety concern, that's a federal violation. Document it, report it, and know that the law is on your side.
 
-### Safety in Modern Workplaces
+### Your Turn: Hazard Hunt
 
-Even if you work in an office, safety matters:
-- **Ergonomic setup:** Monitor at eye level, feet flat on floor, wrists neutral while typing
-- **Fire safety:** Know two exit routes, location of fire extinguishers, and assembly point
-- **Emergency procedures:** Know what to do for fire, severe weather, active shooter
-- **Mental health:** Excessive workload, harassment, and toxic culture are safety hazards too
-
-### Your Responsibilities
-
-Safety is not just the employer's job. As a worker, you must:
-- Follow all safety rules and procedures
-- Use required PPE correctly and consistently
-- Report hazards, near misses, and unsafe conditions immediately
-- Participate in safety training
-- Look out for your coworkers — safety is a team effort
-- Never operate equipment you haven't been trained on
-- Never work under the influence of substances that impair judgment
-
-### If You're Injured at Work
-
-1. **Report the injury immediately** — even if it seems minor
-2. **Seek medical attention** — don't "tough it out"
-3. **Document everything** — date, time, circumstances, witnesses
-4. **File a workers' compensation claim** — this is your right
-5. **Know that retaliation is illegal** — your employer cannot punish you for reporting an injury`,
-    },
-    {
-      id: "wr_safety_l2", moduleId: "wr_workplace_safety", lessonNumber: 2,
-      title: "Digital Safety and Cybersecurity in the Workplace", durationMinutes: 35, activityType: "sorting",
+Look at 5 workplace photos and identify:
+1. All the hazards you can find
+2. What injury could happen
+3. How to fix it
+4. Whether this is an OSHA violation`,
       activityData: JSON.stringify({
-        type: "sorting",
-        categories: ["Do This", "Never Do This"],
-        items: [
-          { text: "Use unique, complex passwords for each work account", category: "Do This" },
-          { text: "Click a link in an unexpected email from 'IT Department' asking you to verify your password", category: "Never Do This" },
-          { text: "Enable two-factor authentication on all work accounts", category: "Do This" },
-          { text: "Use public WiFi to access company systems without a VPN", category: "Never Do This" },
-          { text: "Report a suspicious email to IT rather than clicking anything", category: "Do This" },
-          { text: "Share your login credentials with a coworker who needs access", category: "Never Do This" },
-          { text: "Lock your computer screen every time you step away from your desk", category: "Do This" },
-          { text: "Download software from the internet onto your work computer without IT approval", category: "Never Do This" },
-        ],
-        instructions: "Classify each action as safe practice or dangerous behavior. In the modern workplace, cybersecurity is everyone's responsibility.",
+        type: "hazard_hunt",
+        title: "Workplace Hazard Identification",
+        industries: ["retail", "food_service", "warehouse", "construction", "office"]
       }),
-      content: `## Digital Safety and Cybersecurity in the Workplace
-
-In the modern workplace, your digital behavior can protect or endanger your entire organization. A single clicked phishing link can cost a company millions. Cybersecurity isn't just IT's job — it's yours.
-
-### The Threat Landscape
-
-**Phishing:** Fake emails, texts, or messages designed to trick you into revealing credentials, clicking malicious links, or downloading malware. This is the #1 cyberattack method.
-
-**How to recognize phishing:**
-- Urgent language: "Your account will be suspended!" "Act now!"
-- Slightly wrong email addresses: john@company-support.com instead of john@company.com
-- Generic greetings: "Dear Employee" instead of your name
-- Requests for sensitive information via email (legitimate companies never do this)
-- Links that don't match the displayed text (hover to check before clicking)
-- Unexpected attachments from unknown senders
-
-**Social Engineering:** Manipulation techniques that exploit human psychology rather than technical vulnerabilities:
-- Pretexting (creating a false scenario to gain trust)
-- Baiting (offering something enticing that contains malware)
-- Tailgating (following an authorized person into a secure area)
-- Quid pro quo (offering help in exchange for information)
-
-### Password Security
-
-**The math:** A 6-character password can be cracked in seconds. A 12-character password with mixed characters could take thousands of years.
-
-**Best practices:**
-- Use 12+ characters with uppercase, lowercase, numbers, and symbols
-- Never reuse passwords across accounts
-- Use a password manager (Bitwarden, 1Password, LastPass)
-- Enable two-factor authentication (2FA) on every account that supports it
-- Never share passwords — even with your manager (they shouldn't ask)
-
-### Data Protection
-
-Every organization handles sensitive data. Your responsibility:
-
-**Classify before sharing:**
-- Public information: OK to share freely
-- Internal information: OK within the organization
-- Confidential: Only with authorized individuals
-- Restricted: Highest protection level — regulated data (financial, medical, personal)
-
-**Practical rules:**
-- Don't discuss confidential work in public places
-- Don't leave sensitive documents on your desk (clean desk policy)
-- Encrypt sensitive emails and files
-- Use secure file sharing (not personal email or social media)
-- Report lost or stolen devices immediately
-
-### AI-Specific Cybersecurity
-
-As AI tools become standard in workplaces, new security risks emerge:
-- Don't paste confidential company data into public AI tools
-- Don't share customer information, financial data, or trade secrets with AI chatbots
-- Be aware that AI-generated phishing emails are increasingly sophisticated
-- AI can be used to create deepfake voice calls impersonating executives
-- Verify unusual requests through a separate communication channel
-
-### Your Digital Responsibility
-
-In the modern workplace, every employee is a security checkpoint. The strongest firewalls and antivirus software can't protect against a human who clicks a phishing link or shares their password. Your awareness and behavior are the first line of defense.`,
     },
     {
-      id: "wr_safety_l3", moduleId: "wr_workplace_safety", lessonNumber: 3,
-      title: "Emergency Preparedness and Mental Health Safety", durationMinutes: 35, activityType: "matching",
+      id: "wr_m3_lesson_2",
+      moduleId: "wr_workplace_safety",
+      lessonNumber: 2,
+      title: "PPE, Chemicals & Protecting Your Body",
+      durationMinutes: 40,
+      activityType: "interactive",
+      content: `## Your Body Is Your Most Important Tool
+
+### Personal Protective Equipment (PPE)
+
+PPE is any equipment you wear to protect yourself from workplace hazards. Your employer is REQUIRED to provide it for free. You should never have to buy your own safety equipment for a job.
+
+**Common PPE by job:**
+
+| Equipment | When You Need It |
+|---|---|
+| Safety glasses/goggles | Construction, manufacturing, lab work, some cleaning tasks |
+| Gloves | Food handling, cleaning with chemicals, construction, healthcare |
+| Non-slip shoes | Kitchens, warehouses, retail (spill-prone areas) |
+| Hard hat | Construction, warehouse (falling object risk) |
+| Hearing protection | Manufacturing, construction, loud equipment |
+| Back brace/support | Heavy lifting jobs |
+| Face mask/respirator | Chemical cleaning, painting, dusty environments |
+| High-visibility vest | Warehouse, construction, night/outdoor work |
+
+### How to Lift Safely
+
+Back injuries are the #1 workplace injury for young workers. Here's the right way:
+
+1. **Get close** to the object — don't reach
+2. **Bend your knees**, not your back
+3. **Grip firmly** with both hands
+4. **Lift with your legs** — keep your back straight
+5. **Don't twist** — move your feet to turn
+6. **Know your limits** — if it's too heavy, get help. That's not weakness, that's smart.
+
+### Chemical Safety (GHS Labels)
+
+If you work with any cleaning products, you need to know:
+- **SDS (Safety Data Sheets)** — your employer must keep these available for every chemical in the workplace. They tell you what's in it, what it can do to you, and what to do if something goes wrong.
+- **Never mix chemicals** — especially bleach + ammonia (creates toxic gas)
+- **Always read the label** before using any cleaning product
+- **Ventilation** — open windows/doors when using strong chemicals
+
+### Your Turn: PPE Matching Challenge
+
+Match the correct PPE to each workplace scenario. The AI will explain why each answer is correct and what could happen without proper protection.
+
+### Ecosystem Connection
+- **PillScheduler** — track any medications that might interact with workplace chemicals
+- **Sankofa Health Network** — connect with local health resources if you've been exposed to workplace hazards`,
       activityData: JSON.stringify({
         type: "matching",
+        title: "PPE Matching Challenge",
         pairs: [
-          { left: "Fire alarm sounds", right: "Leave immediately by the nearest exit. Do not use elevators. Go to the designated assembly point." },
-          { left: "Active threat/shooter", right: "Run if possible, hide if not, fight only as last resort. Call 911 when safe." },
-          { left: "Severe weather warning", right: "Move to interior rooms on lowest floor. Stay away from windows. Follow facility-specific procedures." },
-          { left: "Medical emergency", right: "Call 911. Provide first aid if trained. Do not move the person unless in immediate danger." },
-          { left: "Chemical spill", right: "Evacuate the immediate area. Do not attempt cleanup unless trained. Report to supervisor and emergency services." },
-          { left: "Coworker showing signs of extreme distress", right: "Listen without judgment. Ask directly if they need help. Connect them with EAP or crisis resources." },
-        ],
-        instructions: "Match each emergency scenario to the correct response. Knowing what to do before an emergency happens saves lives.",
+          { scenario: "Working the fryer at McDonald's", ppe: "Non-slip shoes, heat-resistant gloves, apron" },
+          { scenario: "Stacking boxes at an Amazon warehouse", ppe: "Steel-toe boots, back brace, high-vis vest" },
+          { scenario: "Cleaning bathrooms at a hotel", ppe: "Rubber gloves, safety glasses, face mask" },
+          { scenario: "Construction site helper", ppe: "Hard hat, safety glasses, steel-toe boots, high-vis vest" },
+          { scenario: "Working at a lawn care company", ppe: "Safety glasses, hearing protection, gloves, sun protection" },
+        ]
       }),
-      content: `## Emergency Preparedness and Mental Health Safety
-
-Every workplace should prepare you for physical emergencies. Fewer prepare you for mental health crises — but both can be life-threatening. This lesson covers both.
-
-### Physical Emergency Preparedness
-
-**Every first day at a new job, identify:**
-1. Two exit routes from your workspace
-2. Location of fire extinguishers and first aid kits
-3. Location of the AED (automated external defibrillator)
-4. The designated assembly point for evacuations
-5. Emergency contact numbers (posted in common areas)
-6. Your building's emergency action plan (ask your supervisor)
-
-**Fire Response:**
-- When the alarm sounds, leave IMMEDIATELY
-- Don't stop to gather belongings
-- Use stairs, never elevators
-- Close doors behind you (this slows fire spread)
-- Go to the assembly point and report to your supervisor
-- Don't re-enter until emergency services clear the building
-
-**Active Threat Response (Run-Hide-Fight):**
-- **RUN:** If there's a safe escape path, take it. Leave belongings. Help others if possible without putting yourself at risk.
-- **HIDE:** If you can't run, find a secure room. Lock and barricade the door. Silence your phone. Stay quiet and hidden.
-- **FIGHT:** Only as an absolute last resort. Act with aggression. Use anything available to defend yourself.
-- Call 911 when it's safe to do so.
-
-**Medical Emergency:**
-- Call 911 immediately for serious injuries or illness
-- If trained in first aid/CPR, provide assistance
-- Don't move an injured person unless they're in immediate danger
-- Stay calm and provide information to emergency responders
-
-### Mental Health Safety in the Workplace
-
-Mental health IS workplace safety. Untreated mental health challenges lead to:
-- Increased workplace accidents
-- Decreased productivity and concentration
-- Higher turnover and absenteeism
-- Interpersonal conflict
-
-**Recognizing distress in yourself:**
-- Persistent anxiety or dread about going to work
-- Difficulty concentrating or making decisions
-- Physical symptoms: headaches, stomach problems, sleep disruption
-- Withdrawal from coworkers and activities
-- Increased irritability or emotional reactions
-- Using substances to cope with work stress
-
-**Recognizing distress in coworkers:**
-- Sudden changes in behavior or performance
-- Withdrawal from team activities
-- Increased absences
-- Expressions of hopelessness or worthlessness
-- Talking about feeling trapped or being a burden
-
-**What to do:**
-- For yourself: Use your Employee Assistance Program (EAP) — free, confidential counseling provided by most employers. Talk to your doctor. Set boundaries. It's not weakness — it's maintenance.
-- For others: Ask directly — "I've noticed you seem down lately. Are you okay? Is there anything I can do?" Listen without judgment. Share EAP and crisis resources. If someone is in immediate danger, call 988 (Suicide & Crisis Lifeline) or 911.
-
-### Burnout Prevention
-
-Burnout is not just "being tired." It's a state of chronic workplace stress characterized by:
-- Emotional exhaustion (feeling drained and unable to cope)
-- Depersonalization (cynicism and detachment from your work)
-- Reduced personal accomplishment (feeling ineffective)
-
-**Prevention strategies:**
-- Set clear boundaries between work and personal time
-- Use your PTO — it exists for a reason
-- Communicate workload concerns before reaching a breaking point
-- Maintain relationships and activities outside of work
-- Move your body regularly — exercise is the most evidence-based stress intervention
-- Sleep 7-9 hours — everything is harder when you're exhausted
-
-### Creating a Safe Culture
-
-Safety culture isn't about posters on the wall. It's about:
-- Leaders who model safe behavior and mental health openness
-- Workers who look out for each other
-- An environment where reporting concerns is encouraged, not punished
-- Regular training that's taken seriously
-- Continuous improvement based on incidents and near-misses
-
-**You contribute to safety culture by:** Following procedures, speaking up about hazards, supporting coworkers, and treating safety as a value — not a checkbox.`,
     },
-  ]);
-
-  // ---- wr_time_management L1, L2, L3 ----
-  await db.insert(lessons).values([
     {
-      id: "wr_time_l1", moduleId: "wr_time_management", lessonNumber: 1,
-      title: "Time Management — The Eisenhower Matrix and Priority Setting", durationMinutes: 35, activityType: "sorting",
-      activityData: JSON.stringify({
-        type: "sorting",
-        categories: ["Urgent + Important (Do First)", "Important + Not Urgent (Schedule)", "Urgent + Not Important (Delegate)", "Neither (Eliminate)"],
-        items: [
-          { text: "Project deadline is tomorrow and you haven't started", category: "Urgent + Important (Do First)" },
-          { text: "Building skills that will advance your career next year", category: "Important + Not Urgent (Schedule)" },
-          { text: "A coworker asks you to attend a meeting you're not needed in", category: "Urgent + Not Important (Delegate)" },
-          { text: "Scrolling social media during work hours", category: "Neither (Eliminate)" },
-          { text: "Client has an emergency that only you can resolve", category: "Urgent + Important (Do First)" },
-          { text: "Planning your professional development for the quarter", category: "Important + Not Urgent (Schedule)" },
-          { text: "Responding to a non-critical email within minutes of receiving it", category: "Urgent + Not Important (Delegate)" },
-          { text: "Attending to a task that no longer serves any purpose but 'we've always done it'", category: "Neither (Eliminate)" },
-        ],
-        instructions: "Sort each task into the correct quadrant of the Eisenhower Matrix. How you spend your time determines your career trajectory.",
-      }),
-      content: `## Time Management — The Eisenhower Matrix and Priority Setting
+      id: "wr_m3_lesson_3",
+      moduleId: "wr_workplace_safety",
+      lessonNumber: 3,
+      title: "Emergency Response — Know Before You Need It",
+      durationMinutes: 45,
+      activityType: "interactive",
+      content: `## When Something Goes Wrong
 
-"I don't have time" is almost never true. What's true is "I haven't prioritized this." Time management isn't about doing more — it's about doing the RIGHT things.
+You never think an emergency will happen at YOUR workplace. Until it does. The difference between a crisis and a catastrophe is preparation.
+
+### Fire Emergency
+
+**If you discover a fire:**
+1. **Pull the fire alarm** (if there is one)
+2. **Alert people nearby** — "FIRE! Everyone out!"
+3. **Exit immediately** — use the nearest EXIT, not the elevator
+4. **Close doors behind you** (slows the fire)
+5. **Call 911** once you're outside
+6. **Go to the meeting point** — don't go back inside for anything
+
+**Know BEFORE an emergency:** Where are the exits? Where is the fire extinguisher? Where is the meeting point?
+
+### Medical Emergency
+
+**If someone is injured:**
+1. **Don't panic.** Take a breath.
+2. **Call 911** (or have someone call while you help)
+3. **Don't move them** unless they're in immediate danger
+4. **Apply pressure** to bleeding wounds with a clean cloth
+5. **Stay with them** and keep them calm until help arrives
+
+**Burns:** Run cool (not cold) water over the burn for at least 10 minutes. Don't apply ice, butter, or ointment.
+
+### Active Threat
+
+**Run. Hide. Fight.** In that order.
+- **Run** — if you can get out safely, go. Don't wait for others to decide. Leave your stuff.
+- **Hide** — if you can't run, find a room with a lockable door. Turn off lights. Silence your phone. Stay quiet.
+- **Fight** — only as an absolute last resort. Use anything available. Commit fully.
+
+Call 911 as soon as it's safe.
+
+### Incident Reporting
+
+After ANY workplace incident (even minor ones), you should:
+1. Report it to your supervisor immediately
+2. Write down exactly what happened while it's fresh
+3. Include: date, time, location, what happened, injuries, witnesses
+4. Get a copy of any incident report you sign
+5. Take photos if relevant
+
+### Your Turn: Emergency Scenario Walkthroughs
+
+Walk through 3 emergency scenarios with the AI. You make decisions at each step. The AI shows you the consequences of each choice and teaches the correct procedure.
+
+### Video: How to Do the Heimlich Maneuver
+
+Watch the demonstration video and practice the hand positioning (on a pillow, not a person).`,
+      activityData: JSON.stringify({
+        type: "scenario_walkthrough",
+        title: "Emergency Response Scenarios",
+        scenarios: [
+          { id: "fire", title: "Kitchen Fire at Work", steps: 6 },
+          { id: "injury", title: "Coworker Falls Off a Ladder", steps: 5 },
+          { id: "medical", title: "Customer Has a Seizure", steps: 5 },
+        ]
+      }),
+    },
+    {
+      id: "wr_m3_lesson_4",
+      moduleId: "wr_workplace_safety",
+      lessonNumber: 4,
+      title: "Resume Builder Part 3 — Certifications That Matter",
+      durationMinutes: 35,
+      activityType: "interactive",
+      content: `## Your Certifications & Training Section
+
+Completing this module means you now have REAL training to put on your resume. Let's add it.
+
+### What Counts as a Certification?
+
+- **ThriveUp Workforce Readiness Certificate** (when you complete all 5 modules)
+- **OSHA 10-Hour General Industry** (available free online — we'll show you how)
+- **Food Handler's Permit** (required for food service in Texas — $7-15 online)
+- **CPR/First Aid** (American Red Cross or American Heart Association)
+- **TABC Certification** (if you plan to work where alcohol is served, 18+)
+- **Any school-issued CTE certifications**
+
+### Free Certifications You Can Get RIGHT NOW
+
+| Certification | Where | Cost | Time |
+|---|---|---|---|
+| OSHA 10-Hour | oshaeducationcenter.com | Free for students | 10 hours |
+| Texas Food Handler | statefoodsafety.com/texas | $7.99 | 2 hours |
+| Google Digital Garage | grow.google | Free | 40 hours |
+| Microsoft Office Specialist prep | linkedin.com/learning | Free with library card | Self-paced |
+
+**Pro tip:** Getting even ONE certification before your first interview sets you apart from 90% of other applicants your age.
+
+### How to List Certifications on Your Resume
+
+**Certifications & Training**
+- ThriveUp Workforce Readiness Certificate — The Collaborative Advocate, 2026
+- OSHA 10-Hour General Industry Safety — OSHA Education Center, 2026
+- Texas Food Handler Certification — Texas DSHS, 2026
+- Workplace Hazard Identification Training — ThriveUp Academy, 2026
+- Emergency Response Procedures — ThriveUp Academy, 2026
+
+### Your Turn
+
+1. Add a "Certifications & Training" section to your resume
+2. Include the training you've completed so far in this program
+3. Pick ONE free certification from the list above and start it this week
+4. Set a calendar reminder to complete it within 2 weeks
+
+### Ecosystem Connection
+- **Career Pathways** — see which certifications are most valued in your target industry
+- **Apprenticeship Tracker** — explore registered apprenticeships that build on these certifications`,
+      activityData: JSON.stringify({
+        type: "resume_builder",
+        title: "Resume Builder — Part 3",
+        sections: ["certifications"],
+        milestone: "resume_certifications_added"
+      }),
+    },
+
+    // ===== MODULE 4: TIME & PRIORITY MANAGEMENT =====
+    {
+      id: "wr_m4_lesson_1",
+      moduleId: "wr_time_management",
+      lessonNumber: 1,
+      title: "Where Does Your Time Actually Go?",
+      durationMinutes: 40,
+      activityType: "interactive",
+      content: `## Sofia's Story
+
+Sofia is 17. Here's her typical Monday:
+- 6:30 AM — Wake up, get her little brother ready for school
+- 7:15 AM — Bus to school
+- 7:45 AM - 3:15 PM — School (AP US History, CTE Health Science, Spanish 3)
+- 3:30 PM — Pick up her brother from aftercare
+- 4:00 PM — Help brother with homework, make him a snack
+- 4:30 PM — Start on her own homework (if she has time)
+- 5:30 PM — Drive to Chick-fil-A for her 6 PM shift
+- 6:00 PM - 10:00 PM — Work
+- 10:30 PM — Get home, eat something, shower
+- 11:00 PM — Try to do homework. Fall asleep with the book on her face.
+
+Sofia is exhausted. Her grades are slipping. She feels like she's failing at everything.
+
+**Sound familiar?**
+
+Here's the truth: Sofia doesn't have a time management problem. She has a **boundary** problem and a **prioritization** problem. She's trying to do everything at 100% and there aren't enough hours in the day.
+
+### The Time Audit
+
+Before you can manage your time, you need to see where it actually goes. Most people are surprised.
+
+**Your Turn — Map Your Actual Week:**
+For the next 3 days, track everything you do in 30-minute blocks. Don't change your behavior — just observe.
+
+You'll probably find:
+- 1-3 hours/day on social media (not judging — just noticing)
+- "Dead time" between activities where you scroll or zone out
+- Tasks that take longer than they should because of distractions
+- Time commitments you didn't choose (family responsibilities, commuting)
 
 ### The Eisenhower Matrix
 
-President Eisenhower said: "What is important is seldom urgent, and what is urgent is seldom important." This insight becomes a powerful decision-making tool:
+President Eisenhower said: "What is important is seldom urgent, and what is urgent is seldom important."
 
-**Quadrant 1: Urgent + Important → DO FIRST**
-Crises, deadlines, emergencies. These demand immediate attention.
-But if you're ALWAYS in Q1, something is wrong — you're not planning or preventing well enough.
+| | URGENT | NOT URGENT |
+|---|---|---|
+| **IMPORTANT** | DO IT NOW (homework due tomorrow, work shift starts in 1 hour) | SCHEDULE IT (studying for next week's test, working on resume, exercise) |
+| **NOT IMPORTANT** | DELEGATE or LIMIT (responding to group chat, social media drama) | ELIMINATE (scrolling TikTok for 2 hours, drama that isn't yours) |
 
-**Quadrant 2: Important + Not Urgent → SCHEDULE**
-This is where growth happens: skill development, relationship building, planning, health, strategic thinking.
-Most people neglect Q2 because it never screams for attention. But Q2 activities PREVENT Q1 crises.
+The magic is in the **Important but Not Urgent** box. That's where your future lives — career planning, skill building, health, relationships. But it keeps getting pushed out by urgent stuff.
 
-**Quadrant 3: Urgent + Not Important → DELEGATE or minimize**
-Interruptions, some meetings, many emails. They feel urgent but don't advance your goals.
-Learn to say: "Can this wait?" or "Is there someone better suited to handle this?"
+### Real Talk: "I Don't Have Time"
 
-**Quadrant 4: Not Urgent + Not Important → ELIMINATE**
-Time-wasters: excessive social media, busywork, activities that don't serve any purpose.
-Be honest about how much time you spend here.
+If you have family responsibilities that eat your time — caring for siblings, translating for parents, working to help pay bills — that's REAL. This program isn't going to pretend that everyone has the same 24 hours. They don't.
 
-### The 80/20 Rule (Pareto Principle)
+But even with heavy responsibilities, there's usually 30-60 minutes of recoverable time per day. We're going to find those minutes and make them count for YOUR goals.
 
-Roughly 80% of your results come from 20% of your efforts. The key is identifying which 20% produces the most value:
-- Which tasks directly advance your most important goals?
-- Which activities produce measurable outcomes?
-- Which relationships create the most opportunities?
+### Your Turn: Build Your Eisenhower Matrix
 
-Focus your best energy and attention on the high-impact 20%.
+1. List 15 things you do in a typical week
+2. Place each one in the correct quadrant
+3. Identify your top 3 "Important but Not Urgent" items — these are your growth activities
+4. Identify 2 things you can reduce or eliminate
+5. The AI will help you build a realistic plan
 
-### Practical Time Management Techniques
+### Weekly Check-In
 
-**Time Blocking:**
-Schedule specific blocks for specific types of work:
-- 8:00-10:00: Deep work (complex, creative, high-concentration tasks)
-- 10:00-11:00: Meetings and collaboration
-- 11:00-12:00: Communication (email, messages, follow-ups)
-- 1:00-3:00: Deep work
-- 3:00-4:00: Administrative tasks
-- 4:00-5:00: Planning and preparation for tomorrow
-
-**The Two-Minute Rule:**
-If a task takes less than 2 minutes, do it immediately. If it takes longer, schedule it.
-
-**Eat the Frog:**
-Do your most difficult or dreaded task FIRST each day. Once it's done, everything else feels easier.
-
-**Batch Similar Tasks:**
-Group similar activities: answer all emails at once, make all phone calls in sequence, complete all data entry together. Context-switching between different types of tasks wastes significant mental energy.
-
-### Planning Rhythms
-
-**Daily:** Spend 10 minutes each evening planning tomorrow. Identify your top 3 priorities.
-**Weekly:** Spend 30 minutes on Sunday or Monday reviewing the week ahead. What are the must-accomplish items?
-**Monthly:** Review progress toward larger goals. What's working? What needs to change?
-**Quarterly:** Evaluate your direction. Are you spending time on what matters most?
-
-### The Productivity Trap
-
-Busyness is not productivity. You can be extremely busy and accomplish nothing important. The most productive people aren't the ones who work the most hours — they're the ones who work on the right things.
-
-Ask yourself regularly: "Is this the most important thing I could be doing right now?" If the answer is no, stop and switch.`,
+This week's live check-in: a neighborhood champion shares how they balance work, family, school (or how they did when they were your age). Real talk about what they sacrificed, what they protected, and what they wish they'd done differently.`,
+      activityData: JSON.stringify({
+        type: "eisenhower_matrix",
+        title: "Build Your Eisenhower Matrix",
+        quadrants: ["do_now", "schedule", "delegate", "eliminate"]
+      }),
     },
     {
-      id: "wr_time_l2", moduleId: "wr_time_management", lessonNumber: 2,
-      title: "Goal Setting — SMART Goals and Accountability Systems", durationMinutes: 35, activityType: "matching",
+      id: "wr_m4_lesson_2",
+      moduleId: "wr_time_management",
+      lessonNumber: 2,
+      title: "Digital Calendar Mastery",
+      durationMinutes: 35,
+      activityType: "interactive",
+      content: `## Your Calendar Is Your Career's Best Friend
+
+### Why a Digital Calendar Changes Everything
+
+Your brain is terrible at remembering appointments, deadlines, and commitments. That's not a weakness — that's biology. Your brain is built for creative thinking, not storage. Let your phone do the storage.
+
+A digital calendar (Google Calendar, Apple Calendar, Outlook) gives you:
+- **Reminders** — never forget a shift, assignment, or appointment
+- **Visibility** — see your whole week at a glance
+- **Conflict detection** — spot scheduling problems before they happen
+- **Recurring events** — set it once, it repeats forever
+- **Sharing** — let your manager see your availability
+
+### How to Set Up Your Calendar
+
+**Step 1:** Color-code your life
+- Red = Work shifts
+- Blue = School/classes
+- Green = Personal/family
+- Yellow = Career development (resume work, certifications, ThriveUp lessons)
+- Gray = Non-negotiable (appointments, deadlines)
+
+**Step 2:** Block your fixed commitments first
+School hours, work shifts, family responsibilities — these go in first because they're non-negotiable.
+
+**Step 3:** Block your growth time
+Look at the gaps. Find 30-60 minutes, 3-4 days a week, for career development. Block it like an appointment. If it's not on the calendar, it doesn't exist.
+
+**Step 4:** Set reminders
+- 1 day before important deadlines
+- 1 hour before interviews or meetings
+- 15 minutes before work shifts (so you arrive early)
+
+### Pro Tips From People Who've Made It
+
+- **Never say "I'll remember."** Put it in the calendar immediately.
+- **Check your calendar every morning.** 60 seconds. Know what's coming.
+- **Say "let me check my calendar" before committing.** This is the most professional thing you can do.
+- **Block "buffer time" between activities.** You can't teleport. Travel time is real.
+
+### Your Turn: Build Your First Professional Calendar
+
+1. Set up a digital calendar (if you don't have one)
+2. Color-code with the system above
+3. Block your next 2 weeks — all fixed commitments
+4. Find and block at least 3 career development sessions (30 min each)
+5. Set reminders for everything
+6. Screenshot your finished calendar — this is proof of a professional skill`,
       activityData: JSON.stringify({
-        type: "matching",
-        pairs: [
-          { left: "I want to be healthier", right: "Vague — no measurement, no timeline, no specific action" },
-          { left: "I will exercise for 30 minutes, 4 days per week, for the next 3 months and track my workouts in a journal", right: "SMART — Specific, Measurable, Achievable, Relevant, Time-bound" },
-          { left: "I want to make more money", right: "Vague — no target, no strategy, no deadline" },
-          { left: "I will earn my CompTIA A+ certification by September 2026 by studying 1 hour daily using the official study guide", right: "SMART — clear target, timeline, and daily action plan" },
-          { left: "I should read more books", right: "Vague — no number, no timeline, no accountability" },
-          { left: "I will read 2 professional development books per month for the next 6 months and write a 1-page summary of key takeaways for each", right: "SMART — specific quantity, timeline, and output that demonstrates learning" },
-        ],
-        instructions: "Match each goal to its evaluation. Vague goals fail. SMART goals succeed because they build in accountability.",
+        type: "calendar_builder",
+        title: "Digital Calendar Setup",
+        steps: [
+          { id: "colors", text: "Set up color-coding system" },
+          { id: "fixed", text: "Block all fixed commitments for 2 weeks" },
+          { id: "growth", text: "Schedule 3+ career development sessions" },
+          { id: "reminders", text: "Set reminders for all commitments" },
+        ]
       }),
-      content: `## Goal Setting — SMART Goals and Accountability Systems
-
-Dreams without goals are wishes. Goals without plans are fantasies. Plans without accountability are procrastination. This lesson teaches you to build the entire chain.
-
-### The SMART Framework
-
-Every professional goal should be:
-
-**S — Specific:** What exactly will you accomplish? Not "do better at work" but "complete the project management certification."
-
-**M — Measurable:** How will you know you've achieved it? Not "improve my skills" but "pass the PMP exam with a score of 70% or higher."
-
-**A — Achievable:** Is this realistic given your current resources, time, and circumstances? Ambitious is good. Impossible is demotivating.
-
-**R — Relevant:** Does this goal align with your larger career or life objectives? A goal that doesn't connect to your bigger picture wastes your limited time.
-
-**T — Time-bound:** When will you achieve this? Not "someday" but "by December 31, 2026."
-
-### Breaking Big Goals into Milestones
-
-A big goal like "Build a career in technology" is overwhelming. Break it down:
-
-**Annual goal:** Earn CompTIA A+ certification and secure an entry-level IT position
-**Quarterly milestones:**
-- Q1: Complete first half of study material, pass 2 practice exams
-- Q2: Complete study material, pass final practice exam, schedule certification test
-- Q3: Pass certification exam, update resume, begin job applications
-- Q4: Apply to 20 positions, attend 2 networking events, secure employment
-
-**Weekly actions:**
-- Study 5 hours per week (1 hour daily, M-F)
-- Complete one practice module per week
-- Connect with one IT professional on LinkedIn per week
-
-### Accountability Systems
-
-Goals without accountability have a ~10% success rate. Goals with accountability systems have a ~70% success rate. Build accountability:
-
-**1. Public commitment:** Tell someone your goal. The social pressure to follow through is powerful.
-
-**2. Progress tracking:** Use a visible tracking system (spreadsheet, journal, app, calendar). Seeing progress motivates continued effort. Seeing stagnation motivates course correction.
-
-**3. Accountability partner:** Find someone pursuing similar goals. Check in weekly. Share progress and obstacles. Hold each other to commitments.
-
-**4. Reward milestones:** Celebrate when you hit milestones. Not just the final achievement — the intermediate wins that keep you going.
-
-**5. Review and adjust:** Every month, review: Am I on track? What's working? What needs to change? Adjust your plan — not your goal.
-
-### Common Goal-Setting Mistakes
-
-**Too many goals:** Focus on 3-5 goals at a time. More than that splits your attention too thin.
-
-**All-or-nothing thinking:** Missing one day doesn't mean failure. It means you're human. Get back on track tomorrow.
-
-**No flexibility:** Life happens. Rigid plans break. Build in buffer time and be willing to adjust timelines while maintaining the goal.
-
-**Comparing to others:** Your timeline is yours. Someone else's speed doesn't change your path.
-
-**Forgetting why:** When motivation drops, reconnect with WHY this goal matters. The emotional fuel of purpose sustains effort when willpower fades.
-
-### Your Professional Development Plan
-
-Write 3 SMART goals for the next 12 months:
-1. One skill development goal (certification, course completion, or skill mastery)
-2. One career advancement goal (job, promotion, raise, or professional milestone)
-3. One personal growth goal that supports your career (health, networking, financial)
-
-For each goal, create:
-- Quarterly milestones
-- Weekly action items
-- An accountability system
-- A progress tracking method`,
     },
     {
-      id: "wr_time_l3", moduleId: "wr_time_management", lessonNumber: 3,
-      title: "Project Management Basics — Planning and Executing Work", durationMinutes: 40, activityType: "sorting",
+      id: "wr_m4_lesson_3",
+      moduleId: "wr_time_management",
+      lessonNumber: 3,
+      title: "SMART Goals — Make Your Future Specific",
+      durationMinutes: 40,
+      activityType: "interactive",
+      content: `## The Difference Between a Dream and a Plan
+
+"I want to be successful" is a dream.
+"I will earn my Food Handler's Permit by April 30 by studying 20 minutes a day on the ThriveUp app" is a plan.
+
+Dreams are nice. Plans get things done.
+
+### SMART Goals
+
+| Letter | Means | Example |
+|---|---|---|
+| **S** — Specific | What exactly will you do? | "Complete the OSHA 10-Hour certification" |
+| **M** — Measurable | How will you know it's done? | "Certificate of completion downloaded" |
+| **A** — Achievable | Can you actually do this? | "Yes — it's free and online, 1 hour/day for 10 days" |
+| **R** — Relevant | Does this matter for your goals? | "Yes — required for warehouse and construction jobs" |
+| **T** — Time-bound | When will it be done? | "By May 15, 2026" |
+
+### Breaking Big Goals Into Weekly Milestones
+
+**Big goal:** Get hired at a healthcare facility by August
+**Weekly milestones:**
+- Week 1: Complete Food Handler's Permit
+- Week 2: Update resume with certification
+- Week 3: Research 5 healthcare facilities in Austin that hire high school students
+- Week 4: Apply to all 5
+- Week 5: Practice interviews using AI Mock Interview Lab
+- Week 6: Follow up on applications
+
+Each week has ONE clear action. Not overwhelming. Just the next step.
+
+### Accountability: The Secret Ingredient
+
+Goals you tell someone about are 65% more likely to happen. Goals with a specific accountability partner are 95% more likely.
+
+**Your accountability options:**
+- Your ThriveUp cohort (weekly check-ins)
+- A neighborhood champion mentor
+- The AI companion (it'll check on your progress)
+- A friend who's also in the program
+
+### Your Turn: Set Your First Career SMART Goal
+
+1. Choose ONE career goal for the next 30 days
+2. Run it through the SMART framework (AI helps you tighten it)
+3. Break it into 4 weekly milestones
+4. Choose an accountability partner
+5. Add all milestones to your digital calendar with reminders
+
+### Ecosystem Connection
+- **Career Pathways** — explore careers and salary data to set informed goals
+- **Financial Literacy Hub** — calculate what your target salary means for your actual life
+- **Neighborhood Intelligence** — understand your local job market and opportunities`,
       activityData: JSON.stringify({
-        type: "sorting",
-        categories: ["Planning Phase", "Execution Phase", "Closing Phase"],
-        items: [
-          { text: "Define project scope, objectives, and deliverables", category: "Planning Phase" },
-          { text: "Assign tasks to team members and begin work", category: "Execution Phase" },
-          { text: "Conduct lessons-learned review with the team", category: "Closing Phase" },
-          { text: "Create a timeline with milestones and deadlines", category: "Planning Phase" },
-          { text: "Track progress and adjust plans as obstacles arise", category: "Execution Phase" },
-          { text: "Document outcomes and archive project files", category: "Closing Phase" },
-          { text: "Identify risks and create mitigation strategies", category: "Planning Phase" },
-          { text: "Hold regular check-ins to monitor status and resolve blockers", category: "Execution Phase" },
-        ],
-        instructions: "Sort each activity into the correct project phase. Understanding the phases helps you lead projects successfully.",
+        type: "goal_builder",
+        title: "SMART Goal Workshop",
+        fields: ["specific", "measurable", "achievable", "relevant", "timebound", "milestones", "accountability"]
       }),
-      content: `## Project Management Basics — Planning and Executing Work
+    },
+    {
+      id: "wr_m4_lesson_4",
+      moduleId: "wr_time_management",
+      lessonNumber: 4,
+      title: "Resume Builder Part 4 — Show What You've Done",
+      durationMinutes: 35,
+      activityType: "interactive",
+      content: `## Projects & Accomplishments — Proof That You Can Deliver
 
-Every job involves projects — tasks with a beginning, a middle, and an end. Whether you manage projects formally or informally, understanding project management basics makes you more effective, more reliable, and more promotable.
+### Why This Section Matters
 
-### The Project Lifecycle
+Skills tell an employer what you CAN do. Projects and accomplishments tell them what you HAVE done. This is the section that makes employers say, "Let's interview this person."
 
-**Phase 1: Initiation**
-- What are we trying to accomplish?
-- Why does this project matter?
-- Who are the stakeholders?
-- What does success look like?
-- Is this project worth doing?
+### What Counts as a Project or Accomplishment?
 
-**Phase 2: Planning**
-- Define the scope: What's included and what's NOT included?
-- Break the work into tasks (Work Breakdown Structure)
-- Estimate time for each task
-- Identify dependencies (what must happen before what?)
-- Assign responsibilities
-- Create the timeline
-- Identify risks and plan responses
-- Get stakeholder approval on the plan
+- Organized a school club event (how many people attended?)
+- Led a group project in class (what was the result?)
+- Raised money for a cause (how much? for what?)
+- Built something (website, app, garden, business)
+- Won a competition or award
+- Completed a certification or training program
+- Improved something measurable
 
-**Phase 3: Execution**
-- Do the work according to the plan
-- Track progress against the timeline
-- Communicate status regularly
-- Solve problems as they arise
-- Adjust plans when necessary (scope changes, delays, resource issues)
-- Document decisions and changes
+### How to Write Accomplishments (The XYZ Formula)
 
-**Phase 4: Closing**
-- Deliver the final product/outcome
-- Get stakeholder acceptance
-- Conduct a lessons-learned review
-- Document what worked, what didn't, and what to do differently
-- Archive project files
-- Celebrate the team's accomplishment
+Google uses this formula for resumes. You should too:
 
-### Essential Project Management Tools
+**"Accomplished [X] as measured by [Y] by doing [Z]"**
 
-**The Work Breakdown Structure (WBS):**
-Break a large project into smaller, manageable tasks:
-- Project: Plan a community health fair
-  - Task 1: Secure venue (research locations, visit sites, negotiate cost, sign contract)
-  - Task 2: Recruit vendors (identify potential vendors, send invitations, confirm participants)
-  - Task 3: Marketing (design flyer, create social media posts, distribute to community partners)
-  - Task 4: Logistics (plan layout, arrange tables/chairs, coordinate setup crew, plan cleanup)
-  - Task 5: Day-of execution (setup, run event, breakdown, collect feedback)
+Examples:
+- "Organized a school fundraiser that raised $1,200 for the food bank by coordinating a team of 8 student volunteers"
+- "Increased church youth group attendance by 40% by creating a social media campaign and personal outreach plan"
+- "Completed ThriveUp Workforce Readiness Academy (15-week TEKS-aligned employability skills program) with 90%+ assessment scores"
+- "Managed weekly schedule balancing AP coursework, part-time employment, and family responsibilities while maintaining a 3.2 GPA"
 
-**The Gantt Chart:**
-A visual timeline showing tasks, durations, and dependencies. Many free tools available (Google Sheets, Trello, Asana free tier).
+### Real Talk: "But I Haven't Done Anything Special"
 
-**The Status Report:**
-Weekly or bi-weekly update covering:
-- What was accomplished since last report
-- What's planned for next period
-- Risks, issues, or blockers
-- Any scope or timeline changes needed
+Yes you have. You just haven't named it yet. Let's try:
 
-### Leading Without Authority
+| What You Think | What It Actually Is |
+|---|---|
+| "I just help my mom's friend with her kids" | "Provided reliable childcare services for family network, managing 3 children ages 4-9" |
+| "I made some TikToks that got views" | "Created social media content achieving [X] views, demonstrating digital marketing and audience engagement skills" |
+| "I organized rides for my friends" | "Coordinated transportation logistics for peer group events, demonstrating planning and communication skills" |
+| "I took this workforce readiness course" | "Completed 15-week TEKS-aligned Workforce Readiness Academy covering professional conduct, workplace rights, safety, time management, and career leadership" |
 
-You don't need to be a manager to lead a project. Project leadership skills:
+### Your Turn: Add Projects & Accomplishments
 
-**Communication:** Keep everyone informed. Over-communicate rather than under-communicate.
-**Organization:** Track tasks, deadlines, and assignments systematically.
-**Problem-solving:** When obstacles arise, propose solutions rather than just identifying problems.
-**Accountability:** Follow through on your commitments and hold others to theirs (professionally).
-**Adaptability:** Plans change. Be the person who adjusts calmly rather than panicking.
+1. List 3-5 things you've done that you're proud of (any area of life)
+2. Rewrite each using the XYZ formula
+3. Add them to your resume in a "Projects & Accomplishments" section
+4. AI reviews and suggests improvements`,
+      activityData: JSON.stringify({
+        type: "resume_builder",
+        title: "Resume Builder — Part 4",
+        sections: ["projects_accomplishments"],
+        milestone: "resume_accomplishments_added"
+      }),
+    },
 
-### The Professional Difference
+    // ===== MODULE 5: WORK ETHIC & CAREER LEADERSHIP =====
+    {
+      id: "wr_m5_lesson_1",
+      moduleId: "wr_work_ethic_leadership",
+      lessonNumber: 1,
+      title: "What Work Ethic Really Means",
+      durationMinutes: 40,
+      activityType: "interactive",
+      content: `## DeAndre's Story
 
-The workers who get promoted are often the ones who can manage projects — even informally. When your boss says "Can someone handle this?" and you step up with a plan, a timeline, and clear communication, you demonstrate leadership. That's how careers are built.`,
+DeAndre is 18. He's worked at the same auto parts store for a year. He shows up on time, does his job, and goes home. He's fine. But "fine" isn't getting him anywhere.
+
+Then a new kid starts — 16 years old, first job. And DeAndre's manager asks HIM to train the new kid. "Why me?" DeAndre asks. His manager says: "Because you're the one I trust."
+
+That's when DeAndre realizes: he has a reputation. And it's a good one. Not because he's flashy or the best salesperson — because he's RELIABLE. Every day. No drama. No excuses. Just shows up and does the work.
+
+**That's work ethic. And it's the skill that gets you promoted.**
+
+### The Four Pillars of Work Ethic
+
+**1. Punctuality** — Being on time means being early. If your shift starts at 6, you're there at 5:50. Ready to go. Not walking in the door at 6:01 with a coffee in your hand.
+
+Why it matters: Being late tells your employer, "My time is more important than yours." Even if that's not what you mean, that's what they hear.
+
+**2. Dependability** — Can people count on you? If you say you'll do something, do you do it? If you're scheduled, do you show up?
+
+The test: If your manager needed someone for an important task and had to choose between you and someone else — would they choose you? Why or why not?
+
+**3. Reliability** — Consistency over time. Anyone can have a good day. Work ethic is having a good day EVERY day. Even when you're tired. Even when it's boring. Even when nobody's watching.
+
+**4. Responsibility** — Owning your work. If you made a mistake, say "I made a mistake and here's how I'll fix it." Don't blame others, don't make excuses, don't hide.
+
+### Work Ethic Self-Assessment
+
+Be honest with yourself (this is private — nobody sees it but you):
+
+Rate yourself 1-5 on each:
+- I arrive on time (or early) to commitments
+- People can count on me to follow through
+- I'm consistent — I don't just show up when I feel like it
+- I own my mistakes instead of making excuses
+- I give full effort even when the task is boring
+- I'm respectful to everyone, not just people I like
+- I keep my phone away when I should be focused
+
+Your score isn't a grade — it's a starting point. If you scored yourself low on something, that's an area to grow. The fact that you're honest about it already puts you ahead.
+
+### Your Turn
+
+1. Complete the work ethic self-assessment
+2. Identify your strongest pillar and your growth area
+3. Write one specific commitment for the next 2 weeks
+4. Share your commitment in the weekly check-in (optional but powerful)
+
+### Weekly Check-In
+
+This week's neighborhood champion: someone who started in a job similar to yours and built a career through work ethic. Not college degrees. Not connections. Just showing up and being excellent, every day.`,
+      activityData: JSON.stringify({
+        type: "self_assessment",
+        title: "Work Ethic Self-Assessment",
+        categories: ["punctuality", "dependability", "reliability", "responsibility", "effort", "respect", "focus"],
+        scale: 5
+      }),
+    },
+    {
+      id: "wr_m5_lesson_2",
+      moduleId: "wr_work_ethic_leadership",
+      lessonNumber: 2,
+      title: "How Organizations Really Work",
+      durationMinutes: 35,
+      activityType: "exploration",
+      content: `## Understanding the Game So You Can Win It
+
+### What Is Meritocracy?
+
+Meritocracy means: you advance based on your skills, effort, and results — not who you know, what you look like, or where you come from.
+
+**The honest truth:** Pure meritocracy is the IDEAL, not always the reality. Bias exists. Discrimination happens. We covered that in Module 2.
+
+But here's what's also true: **work ethic and skill are the things YOU can control.** You can't control other people's biases. But you can make yourself so good that saying no to you costs THEM.
+
+### How Organizations Are Structured
+
+Most businesses have a hierarchy. Understanding it helps you navigate it.
+
+**Entry Level** — Where most of us start. Learn the job, prove yourself, build trust.
+
+**Team Lead / Shift Lead** — First step up. You're still doing the work, but now you're also helping organize others.
+
+**Supervisor / Manager** — You're responsible for a team's performance. More meetings, less hands-on work.
+
+**Director / Regional Manager** — You manage managers. You set strategy for your area.
+
+**VP / Executive** — Big picture decisions. Company-wide strategy.
+
+**CEO / Owner** — The top. Where Dr. Flood sits at The Collaborative Advocate.
+
+### How People Actually Get Promoted
+
+Here's what actually moves you up (from real managers):
+1. **Do your current job excellently** — not just adequately
+2. **Solve problems without being asked** — see something broken? Fix it.
+3. **Be easy to work with** — drama-free, positive, team-oriented
+4. **Make your manager's job easier** — the fastest path to promotion
+5. **Ask for more responsibility** — "I've got my tasks handled. What else can I help with?"
+6. **Learn the next job** — watch what your supervisor does. Ask questions. Be ready.
+
+### Equal Opportunity: Know the Law AND the Reality
+
+**Equal Employment Opportunity** means employers cannot discriminate based on race, color, religion, sex, national origin, age, disability, or genetic information.
+
+Every employer with 15+ employees must follow these laws. They must post EEO notices. They must have complaint procedures.
+
+**If you believe you've been passed over unfairly:** Document everything. File with the EEOC. Use the tools from Module 2.
+
+**AND:** Keep being excellent. Build your skills. Network. Make yourself undeniable.
+
+### Your Turn: Org Chart Builder
+
+1. Pick a company you'd like to work for (or one you work at now)
+2. Research their organizational structure
+3. Build a simple org chart showing the path from entry level to leadership
+4. Identify the skills needed at each level
+5. Mark where YOU are now and where you want to be in 5 years`,
+      activityData: JSON.stringify({
+        type: "org_chart",
+        title: "Build an Organizational Chart",
+        levels: ["entry", "team_lead", "supervisor", "manager", "director", "executive"]
+      }),
+    },
+    {
+      id: "wr_m5_lesson_3",
+      moduleId: "wr_work_ethic_leadership",
+      lessonNumber: 3,
+      title: "Managers vs. Leaders — Be Both",
+      durationMinutes: 40,
+      activityType: "interactive",
+      content: `## The Difference That Changes Everything
+
+### Manager vs. Leader
+
+| Manager | Leader |
+|---|---|
+| Tells people what to do | Shows people how and why |
+| Focuses on tasks | Focuses on people |
+| Maintains the system | Improves the system |
+| Has authority from a title | Has authority from trust |
+| "Get it done" | "Let's figure this out together" |
+| Creates compliance | Creates commitment |
+
+**The best bosses are BOTH.** They manage tasks AND lead people. You don't need a title to start being a leader. DeAndre proved that — he led by being reliable, helpful, and trustworthy.
+
+### Leadership Styles
+
+**Servant Leader** — Leads by serving others first. "How can I help you succeed?"
+- Best for: teams that need support and trust-building
+
+**Transformational Leader** — Inspires people to see a bigger vision. "Here's where we're going and why it matters."
+- Best for: organizations going through change
+
+**Democratic Leader** — Includes the team in decisions. "What do you all think?"
+- Best for: creative teams, problem-solving
+
+**Coaching Leader** — Develops people's potential. "Let me show you, then you try."
+- Best for: training environments, mentorship
+
+### Your Leadership Style
+
+There's no "right" style. The best leaders adapt. But you probably have a natural tendency. Understanding it helps you lean into your strengths.
+
+### The Leadership Actions That Anyone Can Take (No Title Required)
+
+1. **Help the new person** — remember how lost you felt on day one? Be the person who makes it better.
+2. **Speak up in meetings** — your ideas matter even if you're the youngest person in the room.
+3. **Give credit** — "Maria actually came up with that idea." People never forget when you lift them up.
+4. **Take initiative** — don't wait to be told. If the trash is full, take it out.
+5. **Stay positive** — not fake-positive. Real-positive. "This is tough, but we've got it."
+
+### Your Turn: Leadership Style Assessment
+
+1. Take the leadership style quiz (AI-powered, 15 questions)
+2. Get your primary and secondary leadership styles
+3. Read about a real leader who shares your style
+4. Write a "Leadership Pledge" — one way you'll lead THIS WEEK, with no title required
+
+### Video Motivation
+
+This week: a neighborhood champion who started as the youngest person on their team and became a leader. How they did it. What they learned. What they'd tell you.`,
+      activityData: JSON.stringify({
+        type: "leadership_assessment",
+        title: "Leadership Style Quiz",
+        styles: ["servant", "transformational", "democratic", "coaching"],
+        questions: 15
+      }),
+    },
+    {
+      id: "wr_m5_lesson_4",
+      moduleId: "wr_work_ethic_leadership",
+      lessonNumber: 4,
+      title: "Resume Builder Part 5 — Your Career Passport Is Complete",
+      durationMinutes: 45,
+      activityType: "interactive",
+      content: `## The Final Polish — Your Resume Is Your Career Passport
+
+You've been building this for 15 weeks. Module by module. Section by section. And now it's time to bring it all together into a document that opens doors.
+
+### Your Complete Resume Should Now Have:
+
+1. **Header** — name, contact info, professional email (Module 1)
+2. **Objective Statement** — who you are and what you're looking for (Module 1)
+3. **Education** — school, graduation year, relevant courses (Module 1)
+4. **Skills** — hard and soft skills with evidence (Module 2)
+5. **Certifications & Training** — OSHA, food handler, ThriveUp certificate (Module 3)
+6. **Projects & Accomplishments** — XYZ formula, quantified results (Module 4)
+7. **Work/Volunteer Experience** — jobs, volunteering, family business (all modules)
+8. **References** — "Available upon request" or 2-3 listed names (with permission)
+
+### Writing Your Cover Letter
+
+A cover letter is a one-page letter that goes WITH your resume. It answers: "Why should we hire YOU for THIS specific job?"
+
+**The Formula:**
+
+**Paragraph 1:** I'm applying for [specific job] at [company]. I found it on [where]. I'm excited about it because [specific reason about THEIR company].
+
+**Paragraph 2:** Here's what I bring: [2-3 skills or experiences that match what THEY asked for in the job posting]. Use specific examples from your resume.
+
+**Paragraph 3:** I'm available [your availability]. I'd love the opportunity to discuss how I can contribute to your team. Thank you for your time.
+
+That's it. Three paragraphs. One page. Tailored to each job.
+
+### The Final Step: Tailor to a Real Job
+
+1. Find a real job posting online (Indeed, LinkedIn, company website) for a job you actually want
+2. Highlight the skills they're asking for
+3. Adjust your objective statement to match
+4. Reorder your skills to put their priorities first
+5. Write a cover letter specific to this job
+6. Have the AI review both documents for fit
+
+### Your Turn: Complete Your Career Passport
+
+1. Open your resume — review all sections one more time
+2. Run the AI Resume Reviewer for grammar, formatting, and content feedback
+3. Find a real job posting and tailor your resume
+4. Write a cover letter for that specific job
+5. Download your completed resume as a PDF
+6. **Celebrate.** You just did something most adults haven't done — built a professional resume from scratch using real experiences and real skills.
+
+### What Happens Next
+
+When you complete this lesson and pass the Module 5 quiz, you earn your **ThriveUp Workforce Readiness Certificate**. This is:
+- Verifiable with a unique certificate ID
+- Shareable on LinkedIn
+- Printable for your portfolio
+- Evidence that you completed a TEKS-aligned employability skills program
+- A real credential that employers recognize
+
+### Neighborhood Champions: Your Network
+
+Throughout this program, you've connected with neighborhood champions who shared their real experiences. These aren't just guest speakers — they're your NETWORK now. Stay connected. Ask for advice. Let them know when you get that first interview, that first job, that first promotion.
+
+This is how it works. Not who you know — who knows THAT YOU SHOW UP.
+
+### Ecosystem Connection: Your ThriveUp Journey Continues
+
+Completing the Workforce Readiness Academy unlocks new pathways across the ThriveUp ecosystem:
+- **Career Pathways** — explore specific industries and career ladders
+- **AI Creation Studio** — build a professional portfolio website
+- **Financial Literacy Hub** — learn to manage your first paycheck
+- **Mentor-to-Career (M2C)** — get matched with a professional mentor
+- **LifeBridge** — navigate benefits and resources you may qualify for
+- **Apprenticeship Tracker** — explore paid training opportunities
+- **Neighborhood Intelligence** — understand the economic landscape of your community
+
+**You started this program with skills you didn't know how to name. You're ending it with a resume, a certificate, a network, and a plan. That's not just workforce readiness. That's AGENCY.**`,
+      activityData: JSON.stringify({
+        type: "resume_builder",
+        title: "Resume Builder — Part 5 (Final)",
+        sections: ["experience", "references", "cover_letter", "review"],
+        milestone: "resume_complete"
+      }),
     },
   ]);
 
-  // ---- wr_work_ethic_leadership L1, L2, L3 ----
-  await db.insert(lessons).values([
-    {
-      id: "wr_ethic_l1", moduleId: "wr_work_ethic_leadership", lessonNumber: 1,
-      title: "Work Ethic — Reliability, Initiative, and Professional Growth", durationMinutes: 35, activityType: "matching",
-      activityData: JSON.stringify({
-        type: "matching",
-        pairs: [
-          { left: "Completing every task on time, every time, without reminders", right: "Reliability — the foundation of professional trust" },
-          { left: "Identifying a problem and proposing a solution before being asked", right: "Initiative — the trait that separates average from exceptional employees" },
-          { left: "Asking for feedback on your work and actually implementing it", right: "Growth mindset — demonstrating commitment to continuous improvement" },
-          { left: "Doing the minimum required and watching the clock until quitting time", right: "Low work ethic — noticed by every supervisor and remembered during promotion decisions" },
-          { left: "Helping a struggling coworker complete their work when you've finished yours", right: "Teamwork and service orientation — valued in every workplace" },
-          { left: "Taking responsibility when you make a mistake instead of making excuses", right: "Accountability — the character trait that builds lasting professional reputation" },
-        ],
-        instructions: "Match each workplace behavior to the professional quality it demonstrates.",
-      }),
-      content: `## Work Ethic — Reliability, Initiative, and Professional Growth
+  // ===== QUIZ QUESTIONS: 10 PER MODULE, 50 TOTAL =====
+  const existingQuiz = await db.select().from(quizQuestions).where(eq(quizQuestions.id, "wr_q_m1_1")).limit(1);
+  if (existingQuiz.length === 0) {
+    await db.insert(quizQuestions).values([
+      // MODULE 1 QUIZ: Professional Presence
+      { id: "wr_q_m1_1", moduleId: "wr_professional_presence", questionText: "Jaylen just got hired at H-E-B. His manager asks him to come in Saturday instead of Sunday. Jaylen can't make Saturday. What's the most professional response?", questionType: "multiple_choice", options: JSON.stringify([{id:"a",text:"Don't respond and just show up Sunday"},{id:"b",text:"Text back 'nah cant do sat'"},{id:"c",text:"Reply thanking her for asking, explain he can't Saturday, offer his regular Sunday shift and an extra shift next week"},{id:"d",text:"Quit because the schedule keeps changing"}]), correctAnswer: "c", explanation: "Option C is professional — it's clear, respectful, shows initiative by offering an alternative, and keeps the relationship positive.", points: 10 },
+      { id: "wr_q_m1_2", moduleId: "wr_professional_presence", questionText: "Research shows people form a first impression in about how many seconds?", questionType: "multiple_choice", options: JSON.stringify([{id:"a",text:"30 seconds"},{id:"b",text:"7 seconds"},{id:"c",text:"2 minutes"},{id:"d",text:"It depends on the conversation"}]), correctAnswer: "b", explanation: "Studies show first impressions form in about 7 seconds — based on appearance, body language, and your initial greeting.", points: 10 },
+      { id: "wr_q_m1_3", moduleId: "wr_professional_presence", questionText: "Which email is the most professional?", questionType: "multiple_choice", options: JSON.stringify([{id:"a",text:"xXgamer420Xx@gmail.com"},{id:"b",text:"jaylen.carter@gmail.com"},{id:"c",text:"hotboy2009@yahoo.com"},{id:"d",text:"jc123456789@gmail.com"}]), correctAnswer: "b", explanation: "firstname.lastname@gmail.com is the standard professional format. Employers notice your email address before they even open your message.", points: 10 },
+      { id: "wr_q_m1_4", moduleId: "wr_professional_presence", questionText: "Your friend says 'I can't make a resume because I don't have any experience.' What's the best response?", questionType: "multiple_choice", options: JSON.stringify([{id:"a",text:"They're right — you need a real job first"},{id:"b",text:"Babysitting, volunteering, school clubs, and family responsibilities all count as real experience"},{id:"c",text:"Just make stuff up — nobody checks"},{id:"d",text:"Wait until after college to write a resume"}]), correctAnswer: "b", explanation: "Volunteer work, family responsibilities, school activities, and community involvement are ALL real experience. You just need to name them professionally.", points: 10 },
+      { id: "wr_q_m1_5", moduleId: "wr_professional_presence", questionText: "During a job interview, the interviewer asks a question and your mind goes blank. What should you do?", questionType: "multiple_choice", options: JSON.stringify([{id:"a",text:"Say 'I don't know' and move on"},{id:"b",text:"Make something up quickly"},{id:"c",text:"Say 'That's a great question. Let me think about that for a moment.'"},{id:"d",text:"Change the subject"}]), correctAnswer: "c", explanation: "Pausing to think is professional and shows you take the question seriously. It's much better than rushing into a bad answer.", points: 10 },
+      { id: "wr_q_m1_6", moduleId: "wr_professional_presence", questionText: "What is code-switching in a professional context?", questionType: "multiple_choice", options: JSON.stringify([{id:"a",text:"Changing computer passwords frequently"},{id:"b",text:"Adapting how you communicate based on your audience and setting"},{id:"c",text:"Switching jobs frequently"},{id:"d",text:"Using a different phone for work"}]), correctAnswer: "b", explanation: "Code-switching means adjusting your communication style for different settings. It's a SKILL, not being fake — you already do it with friends vs. grandparents.", points: 10 },
+      { id: "wr_q_m1_7", moduleId: "wr_professional_presence", questionText: "Which part of a professional email should state WHY you're writing?", questionType: "multiple_choice", options: JSON.stringify([{id:"a",text:"The greeting"},{id:"b",text:"The purpose line (first sentence after greeting)"},{id:"c",text:"The closing"},{id:"d",text:"The subject line only"}]), correctAnswer: "b", explanation: "The purpose line — the first sentence after your greeting — should clearly state why you're writing.", points: 10 },
+      { id: "wr_q_m1_8", moduleId: "wr_professional_presence", questionText: "What should you ALWAYS say at the end of a job interview when asked 'Do you have any questions for us?'", questionType: "multiple_choice", options: JSON.stringify([{id:"a",text:"No, I'm good"},{id:"b",text:"How much does this job pay?"},{id:"c",text:"Something specific about the role or company, like 'What does a typical day look like here?'"},{id:"d",text:"When do I start?"}]), correctAnswer: "c", explanation: "Always have at least one thoughtful question. It shows genuine interest in the role and that you've done your homework.", points: 10 },
+      { id: "wr_q_m1_9", moduleId: "wr_professional_presence", questionText: "What's the FIRST thing you should do when you start the Workforce Readiness Academy?", questionType: "multiple_choice", options: JSON.stringify([{id:"a",text:"Write your resume"},{id:"b",text:"Download ThriveUp as an app on your phone for 24/7 access"},{id:"c",text:"Buy interview clothes"},{id:"d",text:"Find a job posting"}]), correctAnswer: "b", explanation: "Downloading the ThriveUp PWA gives you 24/7 access to your career tools, resume builder, AI mock interviews, and lessons — right from your phone.", points: 10 },
+      { id: "wr_q_m1_10", moduleId: "wr_professional_presence", questionText: "If you can't afford professional interview clothes, what should you do?", questionType: "multiple_choice", options: JSON.stringify([{id:"a",text:"Skip the interview"},{id:"b",text:"Go in whatever you have — clothes don't matter"},{id:"c",text:"Check thrift stores, nonprofits that give free interview outfits, or ask your school counselor for resources"},{id:"d",text:"Borrow clothes that don't fit"}]), correctAnswer: "c", explanation: "Resources exist! Thrift stores, nonprofits, and school counselors can help. Clean, pressed, and fitting well matters more than brand names.", points: 10 },
 
-Talent gets you in the door. Work ethic keeps you in the room. The most talented person who is unreliable will always lose to a moderately talented person who shows up every day, does excellent work, and continually improves.
+      // MODULE 2 QUIZ: Workplace Rights
+      { id: "wr_q_m2_1", moduleId: "wr_workplace_rights", questionText: "Your manager asks you to stay 20 minutes after your shift to fold clothes — off the clock. Is this legal?", questionType: "multiple_choice", options: JSON.stringify([{id:"a",text:"Yes, if it's less than 30 minutes"},{id:"b",text:"Yes, everyone does it"},{id:"c",text:"No — if you're working, you must be paid"},{id:"d",text:"Only if your manager asks nicely"}]), correctAnswer: "c", explanation: "The Fair Labor Standards Act requires you to be paid for ALL hours worked, including any time your employer asks you to stay.", points: 10 },
+      { id: "wr_q_m2_2", moduleId: "wr_workplace_rights", questionText: "Title VII of the Civil Rights Act protects workers from discrimination based on:", questionType: "multiple_choice", options: JSON.stringify([{id:"a",text:"Race, color, religion, sex, and national origin"},{id:"b",text:"Height and weight"},{id:"c",text:"Political party"},{id:"d",text:"Personality type"}]), correctAnswer: "a", explanation: "Title VII protects against discrimination based on race, color, religion, sex, and national origin.", points: 10 },
+      { id: "wr_q_m2_3", moduleId: "wr_workplace_rights", questionText: "A coworker keeps calling you by a nickname related to your ethnicity even though you've asked them to stop. This is:", questionType: "multiple_choice", options: JSON.stringify([{id:"a",text:"Just a joke"},{id:"b",text:"Potentially harassment — creating a hostile work environment"},{id:"c",text:"Fine as long as they don't mean it"},{id:"d",text:"Only a problem if your manager does it"}]), correctAnswer: "b", explanation: "Repeated unwanted behavior based on ethnicity that creates a hostile work environment can be harassment under Title VII.", points: 10 },
+      { id: "wr_q_m2_4", moduleId: "wr_workplace_rights", questionText: "If you report a workplace violation and your employer fires you, that's called:", questionType: "multiple_choice", options: JSON.stringify([{id:"a",text:"Discipline"},{id:"b",text:"Downsizing"},{id:"c",text:"Retaliation — and it's illegal"},{id:"d",text:"Normal business"}]), correctAnswer: "c", explanation: "Firing someone for reporting a legitimate workplace violation is retaliation, which is illegal.", points: 10 },
+      { id: "wr_q_m2_5", moduleId: "wr_workplace_rights", questionText: "Which of these is the BEST first step if you experience harassment at work?", questionType: "multiple_choice", options: JSON.stringify([{id:"a",text:"Post about it on social media"},{id:"b",text:"Quit immediately"},{id:"c",text:"Document it — write down dates, times, what was said, and who was there"},{id:"d",text:"Ignore it and hope it stops"}]), correctAnswer: "c", explanation: "Documentation is crucial. Write down specifics while they're fresh.", points: 10 },
+      { id: "wr_q_m2_6", moduleId: "wr_workplace_rights", questionText: "The ADA requires employers to provide:", questionType: "multiple_choice", options: JSON.stringify([{id:"a",text:"Higher pay for disabled workers"},{id:"b",text:"Reasonable accommodations for workers with disabilities"},{id:"c",text:"Separate workspaces"},{id:"d",text:"Fewer work hours"}]), correctAnswer: "b", explanation: "The ADA requires 'reasonable accommodations' — adjustments that help a person with a disability do their job.", points: 10 },
+      { id: "wr_q_m2_7", moduleId: "wr_workplace_rights", questionText: "During a job interview, which of these questions is ILLEGAL for an employer to ask?", questionType: "multiple_choice", options: JSON.stringify([{id:"a",text:"What are your strengths?"},{id:"b",text:"Are you available to work weekends?"},{id:"c",text:"Do you plan on having children soon?"},{id:"d",text:"Tell me about a challenge you've overcome"}]), correctAnswer: "c", explanation: "Asking about family plans is sex discrimination under Title VII.", points: 10 },
+      { id: "wr_q_m2_8", moduleId: "wr_workplace_rights", questionText: "You see a coworker being harassed but you're afraid to speak up directly. What's a safe alternative?", questionType: "multiple_choice", options: JSON.stringify([{id:"a",text:"Nothing — it's not your problem"},{id:"b",text:"Use the 'Distract' technique — interrupt with 'Hey, can you help me with something?'"},{id:"c",text:"Film it for social media"},{id:"d",text:"Wait and see if it gets worse"}]), correctAnswer: "b", explanation: "The Distract technique is one of the 5 D's of bystander intervention. It safely interrupts the situation.", points: 10 },
+      { id: "wr_q_m2_9", moduleId: "wr_workplace_rights", questionText: "Can your employer check your public social media posts?", questionType: "multiple_choice", options: JSON.stringify([{id:"a",text:"No — that's an invasion of privacy"},{id:"b",text:"Yes — anything public is fair game"},{id:"c",text:"Only after they hire you"},{id:"d",text:"Only with your permission"}]), correctAnswer: "b", explanation: "Public social media is public. 70% of employers check candidates' social media.", points: 10 },
+      { id: "wr_q_m2_10", moduleId: "wr_workplace_rights", questionText: "Which right is protected by the National Labor Relations Act (NLRA)?", questionType: "multiple_choice", options: JSON.stringify([{id:"a",text:"The right to refuse any task"},{id:"b",text:"The right to discuss wages with coworkers"},{id:"c",text:"The right to unlimited breaks"},{id:"d",text:"The right to set your own schedule"}]), correctAnswer: "b", explanation: "The NLRA protects your right to discuss wages and working conditions with coworkers.", points: 10 },
 
-### The Three Pillars of Work Ethic
+      // MODULE 3 QUIZ: Workplace Safety
+      { id: "wr_q_m3_1", moduleId: "wr_workplace_safety", questionText: "Marcus's supervisor tells him to climb a broken ladder. Marcus says no. Is he protected?", questionType: "multiple_choice", options: JSON.stringify([{id:"a",text:"No — he has to do what his supervisor says"},{id:"b",text:"Yes — OSHA gives workers the right to refuse dangerous work"},{id:"c",text:"Only if he files paperwork first"},{id:"d",text:"Only if someone else got hurt on that ladder before"}]), correctAnswer: "b", explanation: "OSHA protects your right to refuse work that poses an immediate threat to your life or health.", points: 10 },
+      { id: "wr_q_m3_2", moduleId: "wr_workplace_safety", questionText: "Who is required to pay for Personal Protective Equipment (PPE)?", questionType: "multiple_choice", options: JSON.stringify([{id:"a",text:"The employee"},{id:"b",text:"The employer — by law"},{id:"c",text:"It depends on the job"},{id:"d",text:"The government"}]), correctAnswer: "b", explanation: "OSHA requires employers to provide PPE at no cost to employees.", points: 10 },
+      { id: "wr_q_m3_3", moduleId: "wr_workplace_safety", questionText: "You discover a grease fire in the kitchen at work. What's the FIRST thing you should do?", questionType: "multiple_choice", options: JSON.stringify([{id:"a",text:"Throw water on it"},{id:"b",text:"Try to pick up the pan and carry it outside"},{id:"c",text:"Alert people nearby, pull the fire alarm if available, and evacuate"},{id:"d",text:"Take a video for your manager"}]), correctAnswer: "c", explanation: "Alert others and evacuate first. NEVER throw water on a grease fire. NEVER try to move a burning pan.", points: 10 },
+      { id: "wr_q_m3_4", moduleId: "wr_workplace_safety", questionText: "What does SDS stand for, and why does it matter?", questionType: "multiple_choice", options: JSON.stringify([{id:"a",text:"Safety Data Sheet — tells you what's in a chemical and what to do if something goes wrong"},{id:"b",text:"Standard Delivery Service — how chemicals are shipped"},{id:"c",text:"Safe Distance Standard — how far to stand from machines"},{id:"d",text:"Supervisor Decision Sheet — your manager's safety rules"}]), correctAnswer: "a", explanation: "Safety Data Sheets contain critical information about every chemical in your workplace.", points: 10 },
+      { id: "wr_q_m3_5", moduleId: "wr_workplace_safety", questionText: "The correct way to lift a heavy box is:", questionType: "multiple_choice", options: JSON.stringify([{id:"a",text:"Bend at the waist, lift with your back, twist to place it"},{id:"b",text:"Get close, bend your knees, lift with your legs, don't twist"},{id:"c",text:"Lift as fast as possible to get it over with"},{id:"d",text:"It doesn't matter as long as you're strong enough"}]), correctAnswer: "b", explanation: "Lift with your legs, not your back. Get close, bend your knees, grip firmly, and move your FEET to turn.", points: 10 },
+      { id: "wr_q_m3_6", moduleId: "wr_workplace_safety", questionText: "What is OSHA's phone number for reporting unsafe conditions?", questionType: "multiple_choice", options: JSON.stringify([{id:"a",text:"911"},{id:"b",text:"1-800-321-OSHA (6742)"},{id:"c",text:"311"},{id:"d",text:"1-800-CALL-FBI"}]), correctAnswer: "b", explanation: "1-800-321-OSHA (6742). You can also file complaints online at osha.gov. Reports can be anonymous.", points: 10 },
+      { id: "wr_q_m3_7", moduleId: "wr_workplace_safety", questionText: "In an active threat situation at work, what is the recommended response order?", questionType: "multiple_choice", options: JSON.stringify([{id:"a",text:"Fight, Hide, Run"},{id:"b",text:"Run, Hide, Fight"},{id:"c",text:"Call 911, then wait"},{id:"d",text:"Hide and stay quiet no matter what"}]), correctAnswer: "b", explanation: "Run, Hide, Fight — in that order. Escape if possible, hide if you can't escape, fight only as an absolute last resort.", points: 10 },
+      { id: "wr_q_m3_8", moduleId: "wr_workplace_safety", questionText: "If a coworker falls off a ladder and is injured, what should you NOT do?", questionType: "multiple_choice", options: JSON.stringify([{id:"a",text:"Call 911"},{id:"b",text:"Stay with them and keep them calm"},{id:"c",text:"Move them to a more comfortable position"},{id:"d",text:"Apply pressure to any bleeding wounds"}]), correctAnswer: "c", explanation: "Do NOT move an injured person unless they're in immediate danger. Moving them could worsen injuries.", points: 10 },
+      { id: "wr_q_m3_9", moduleId: "wr_workplace_safety", questionText: "You should NEVER mix these two cleaning chemicals:", questionType: "multiple_choice", options: JSON.stringify([{id:"a",text:"Dish soap and water"},{id:"b",text:"Bleach and ammonia"},{id:"c",text:"Window cleaner and paper towels"},{id:"d",text:"Hand soap and sanitizer"}]), correctAnswer: "b", explanation: "Bleach + ammonia = toxic chloramine gas. This can cause serious breathing problems and even death.", points: 10 },
+      { id: "wr_q_m3_10", moduleId: "wr_workplace_safety", questionText: "After a workplace incident (even a minor one), you should:", questionType: "multiple_choice", options: JSON.stringify([{id:"a",text:"Keep it to yourself so you don't cause trouble"},{id:"b",text:"Report it to your supervisor, document what happened, and keep a copy"},{id:"c",text:"Post about it online for evidence"},{id:"d",text:"Only report it if someone got seriously hurt"}]), correctAnswer: "b", explanation: "Always report incidents. Document everything while it's fresh.", points: 10 },
 
-**Pillar 1: Reliability**
-Being reliable means people can count on you. Period.
-- You do what you say you'll do
-- You meet deadlines without excuses
-- You show up on time, prepared
-- You follow through on commitments
-- You communicate proactively when issues arise
+      // MODULE 4 QUIZ: Time Management
+      { id: "wr_q_m4_1", moduleId: "wr_time_management", questionText: "In the Eisenhower Matrix, where do tasks like 'studying for next week's test' and 'working on your resume' go?", questionType: "multiple_choice", options: JSON.stringify([{id:"a",text:"Urgent & Important — Do It Now"},{id:"b",text:"Important but Not Urgent — Schedule It"},{id:"c",text:"Urgent but Not Important — Delegate or Limit"},{id:"d",text:"Not Urgent & Not Important — Eliminate"}]), correctAnswer: "b", explanation: "Career development and future planning are Important but Not Urgent. This is where your GROWTH lives.", points: 10 },
+      { id: "wr_q_m4_2", moduleId: "wr_time_management", questionText: "What's the most professional response when someone asks you to commit to something?", questionType: "multiple_choice", options: JSON.stringify([{id:"a",text:"Say yes immediately to seem helpful"},{id:"b",text:"Say 'Let me check my calendar and get back to you'"},{id:"c",text:"Say no to everything to protect your time"},{id:"d",text:"Say 'I'll try' and figure it out later"}]), correctAnswer: "b", explanation: "Checking your calendar before committing shows professionalism and prevents overcommitting.", points: 10 },
+      { id: "wr_q_m4_3", moduleId: "wr_time_management", questionText: "What does the 'S' in SMART goals stand for?", questionType: "multiple_choice", options: JSON.stringify([{id:"a",text:"Simple"},{id:"b",text:"Specific"},{id:"c",text:"Strategic"},{id:"d",text:"Successful"}]), correctAnswer: "b", explanation: "Specific — your goal must clearly define what you'll do.", points: 10 },
+      { id: "wr_q_m4_4", moduleId: "wr_time_management", questionText: "Goals you share with an accountability partner are how much more likely to happen?", questionType: "multiple_choice", options: JSON.stringify([{id:"a",text:"10% more likely"},{id:"b",text:"30% more likely"},{id:"c",text:"65% more likely"},{id:"d",text:"95% more likely"}]), correctAnswer: "d", explanation: "Research shows goals with a specific accountability partner are 95% more likely to be achieved.", points: 10 },
+      { id: "wr_q_m4_5", moduleId: "wr_time_management", questionText: "Sofia is overwhelmed with school, work, and family. The FIRST thing she should do is:", questionType: "multiple_choice", options: JSON.stringify([{id:"a",text:"Quit her job"},{id:"b",text:"Drop her AP classes"},{id:"c",text:"Track where her time actually goes for 3 days, then use the Eisenhower Matrix to prioritize"},{id:"d",text:"Sleep less to fit everything in"}]), correctAnswer: "c", explanation: "Before you can manage your time, you need to see where it goes.", points: 10 },
+      { id: "wr_q_m4_6", moduleId: "wr_time_management", questionText: "What's the best way to handle 'buffer time' in your calendar?", questionType: "multiple_choice", options: JSON.stringify([{id:"a",text:"Don't plan buffers — fill every minute"},{id:"b",text:"Block travel time and transition time between activities"},{id:"c",text:"Only add buffers on weekends"},{id:"d",text:"Buffer time is wasted time"}]), correctAnswer: "b", explanation: "You can't teleport. Blocking buffer time between activities accounts for travel, transitions, and mental reset.", points: 10 },
+      { id: "wr_q_m4_7", moduleId: "wr_time_management", questionText: "Color-coding your calendar helps because:", questionType: "multiple_choice", options: JSON.stringify([{id:"a",text:"It looks pretty"},{id:"b",text:"It lets you see at a glance how your time is distributed across work, school, personal, and growth"},{id:"c",text:"It's required by employers"},{id:"d",text:"It only helps if you use specific colors"}]), correctAnswer: "b", explanation: "Color-coding gives you a visual snapshot of your time distribution.", points: 10 },
+      { id: "wr_q_m4_8", moduleId: "wr_time_management", questionText: "Which Eisenhower Matrix quadrant includes 'scrolling TikTok for 2 hours'?", questionType: "multiple_choice", options: JSON.stringify([{id:"a",text:"Urgent & Important"},{id:"b",text:"Important but Not Urgent"},{id:"c",text:"Urgent but Not Important"},{id:"d",text:"Not Urgent & Not Important — Eliminate"}]), correctAnswer: "d", explanation: "Extended social media scrolling is neither urgent nor important. It's the quadrant to minimize.", points: 10 },
+      { id: "wr_q_m4_9", moduleId: "wr_time_management", questionText: "Using Google's XYZ resume formula, which is the BEST way to describe an accomplishment?", questionType: "multiple_choice", options: JSON.stringify([{id:"a",text:"Helped at school"},{id:"b",text:"Did good work"},{id:"c",text:"Organized a school fundraiser that raised $1,200 by coordinating a team of 8 volunteers"},{id:"d",text:"Was responsible for fundraising"}]), correctAnswer: "c", explanation: "The XYZ formula: Accomplished [X] as measured by [Y] by doing [Z]. Specific, quantified, and action-oriented.", points: 10 },
+      { id: "wr_q_m4_10", moduleId: "wr_time_management", questionText: "What's the most important calendar habit to build?", questionType: "multiple_choice", options: JSON.stringify([{id:"a",text:"Check it once a week"},{id:"b",text:"Check it every morning — 60 seconds to know what's coming"},{id:"c",text:"Only check it when you remember"},{id:"d",text:"Have someone else manage it for you"}]), correctAnswer: "b", explanation: "60 seconds every morning. Know what's coming. No surprises.", points: 10 },
 
-Reliability is boring. It's not flashy. And it is the SINGLE most valuable trait in a new employee. Managers will forgive skill gaps in reliable people. They will not keep unreliable people regardless of talent.
+      // MODULE 5 QUIZ: Work Ethic & Leadership
+      { id: "wr_q_m5_1", moduleId: "wr_work_ethic_leadership", questionText: "DeAndre's manager asks him to train the new employee. Why did the manager choose DeAndre?", questionType: "multiple_choice", options: JSON.stringify([{id:"a",text:"DeAndre is the best salesperson"},{id:"b",text:"DeAndre has been there the longest"},{id:"c",text:"DeAndre is the most reliable — he shows up consistently, no drama, no excuses"},{id:"d",text:"Nobody else was available"}]), correctAnswer: "c", explanation: "Work ethic — showing up, being reliable, being consistent — is what builds trust.", points: 10 },
+      { id: "wr_q_m5_2", moduleId: "wr_work_ethic_leadership", questionText: "What are the four pillars of work ethic?", questionType: "multiple_choice", options: JSON.stringify([{id:"a",text:"Speed, strength, intelligence, creativity"},{id:"b",text:"Punctuality, dependability, reliability, responsibility"},{id:"c",text:"Education, connections, talent, luck"},{id:"d",text:"Ambition, aggression, networking, charm"}]), correctAnswer: "b", explanation: "Punctuality, dependability, reliability, responsibility. These are the foundation.", points: 10 },
+      { id: "wr_q_m5_3", moduleId: "wr_work_ethic_leadership", questionText: "What is the FASTEST path to promotion according to real managers?", questionType: "multiple_choice", options: JSON.stringify([{id:"a",text:"Being friends with the boss"},{id:"b",text:"Working the most hours"},{id:"c",text:"Making your manager's job easier — solving problems without being asked"},{id:"d",text:"Complaining about others to look better"}]), correctAnswer: "c", explanation: "Making your manager's job easier shows initiative, competence, and leadership potential.", points: 10 },
+      { id: "wr_q_m5_4", moduleId: "wr_work_ethic_leadership", questionText: "A Servant Leader focuses on:", questionType: "multiple_choice", options: JSON.stringify([{id:"a",text:"Being in charge and making all decisions"},{id:"b",text:"Serving others first — 'How can I help you succeed?'"},{id:"c",text:"Competing with team members"},{id:"d",text:"Avoiding responsibility"}]), correctAnswer: "b", explanation: "Servant leadership means leading by serving others' needs first. It builds trust and loyalty.", points: 10 },
+      { id: "wr_q_m5_5", moduleId: "wr_work_ethic_leadership", questionText: "You made a mistake at work that affected a customer. The most professional response is:", questionType: "multiple_choice", options: JSON.stringify([{id:"a",text:"Hope nobody notices"},{id:"b",text:"Blame a coworker"},{id:"c",text:"Say 'I made a mistake. Here's what happened and here's how I'll fix it.'"},{id:"d",text:"Wait for your manager to bring it up"}]), correctAnswer: "c", explanation: "Owning your mistakes is the 'Responsibility' pillar of work ethic.", points: 10 },
+      { id: "wr_q_m5_6", moduleId: "wr_work_ethic_leadership", questionText: "What's the difference between a manager and a leader?", questionType: "multiple_choice", options: JSON.stringify([{id:"a",text:"Managers make more money"},{id:"b",text:"Leaders have bigger offices"},{id:"c",text:"Managers maintain systems; leaders inspire people and drive change"},{id:"d",text:"There's no difference"}]), correctAnswer: "c", explanation: "Managers focus on tasks and systems. Leaders focus on people and vision. The best do both.", points: 10 },
+      { id: "wr_q_m5_7", moduleId: "wr_work_ethic_leadership", questionText: "You don't need a title to be a leader. Which of these is a leadership action ANYONE can take?", questionType: "multiple_choice", options: JSON.stringify([{id:"a",text:"Wait to be told what to do"},{id:"b",text:"Help the new person on their first day"},{id:"c",text:"Only do exactly what's in your job description"},{id:"d",text:"Stay quiet in meetings"}]), correctAnswer: "b", explanation: "Helping new team members is leadership. It shows initiative, empathy, and teamwork.", points: 10 },
+      { id: "wr_q_m5_8", moduleId: "wr_work_ethic_leadership", questionText: "What does 'being on time' actually mean in the workplace?", questionType: "multiple_choice", options: JSON.stringify([{id:"a",text:"Arriving at your start time"},{id:"b",text:"Arriving 5-10 minutes early, ready to start at your scheduled time"},{id:"c",text:"It doesn't matter as long as you get your work done"},{id:"d",text:"Arriving within 15 minutes of your start time"}]), correctAnswer: "b", explanation: "Being on time means being READY at your start time — not walking in the door.", points: 10 },
+      { id: "wr_q_m5_9", moduleId: "wr_work_ethic_leadership", questionText: "By completing the Workforce Readiness Academy, you've earned:", questionType: "multiple_choice", options: JSON.stringify([{id:"a",text:"A participation trophy"},{id:"b",text:"A verifiable ThriveUp Workforce Readiness Certificate aligned to TEKS, a complete resume, and real skills"},{id:"c",text:"A discount on college tuition"},{id:"d",text:"A guaranteed job"}]), correctAnswer: "b", explanation: "Your certificate is verifiable, your resume is built from real experiences, and your skills are aligned to Texas state standards.", points: 10 },
+      { id: "wr_q_m5_10", moduleId: "wr_work_ethic_leadership", questionText: "What is the key message of the Workforce Readiness Academy?", questionType: "multiple_choice", options: JSON.stringify([{id:"a",text:"Get a job as fast as possible"},{id:"b",text:"You already have more skills than you think — this program helps you name them, prove them, and build on them"},{id:"c",text:"College is the only path to success"},{id:"d",text:"Just follow the rules and you'll be fine"}]), correctAnswer: "b", explanation: "You started with skills you didn't know how to name. You're ending with a resume, a certificate, a network, and a plan. That's agency.", points: 10 },
+    ]);
+  }
 
-**Pillar 2: Initiative**
-Initiative means seeing what needs to be done and doing it — without being asked.
-- Notice a process that could be improved? Propose the improvement.
-- Finish your work early? Ask your supervisor what else you can help with.
-- See a problem emerging? Raise it before it becomes a crisis.
-- Learn a new skill that could benefit the team? Share it.
-
-Initiative is what separates "good employees" from "future leaders."
-
-**Pillar 3: Continuous Improvement**
-The professional world changes constantly. The workers who thrive are the ones who never stop learning:
-- Seek feedback regularly and implement it
-- Stay current in your field (read industry publications, attend webinars, pursue certifications)
-- Learn from mistakes — document what went wrong and what you'll do differently
-- Develop skills outside your immediate job requirements
-- Build relationships with people who challenge you to grow
-
-### What Employers Actually Value
-
-Multiple employer surveys consistently rank these traits above technical skills:
-
-1. **Dependability/reliability** — 93% of employers rate this as critical
-2. **Integrity/honesty** — 90%
-3. **Communication skills** — 89%
-4. **Work ethic/initiative** — 88%
-5. **Adaptability** — 85%
-6. **Technical skills specific to the job** — 78%
-
-Notice that technical skills rank BELOW character and communication traits. You can teach skills. You can't easily teach character.
-
-### Building Your Professional Reputation
-
-Your reputation is built one interaction at a time:
-- Every email is an impression
-- Every deadline met (or missed) is noted
-- Every interaction with a coworker shapes how you're perceived
-- Every response to feedback reveals your character
-- Every challenge is an opportunity to demonstrate (or undermine) your reputation
-
-**The compound effect:** Small, consistent positive actions compound over time. The person who consistently delivers quality work, communicates proactively, and treats everyone with respect builds a reputation that opens doors for decades.
-
-### Career Leadership
-
-You don't have to manage people to be a leader. Leadership is:
-- Setting the standard through your own behavior
-- Lifting others up rather than competing against them
-- Speaking up when something isn't right
-- Taking responsibility for outcomes, not just tasks
-- Making the people around you better at their jobs
-
-The best leaders don't say "follow me." They demonstrate excellence so consistently that others naturally want to follow.`,
-    },
-    {
-      id: "wr_ethic_l2", moduleId: "wr_work_ethic_leadership", lessonNumber: 2,
-      title: "Teamwork — Collaboration, Conflict Resolution, and Communication", durationMinutes: 40, activityType: "sorting",
-      activityData: JSON.stringify({
-        type: "sorting",
-        categories: ["Effective Team Behavior", "Ineffective Team Behavior"],
-        items: [
-          { text: "Listening fully before responding to a teammate's idea", category: "Effective Team Behavior" },
-          { text: "Taking credit for the team's work in front of the boss", category: "Ineffective Team Behavior" },
-          { text: "Raising disagreements respectfully with specific alternatives", category: "Effective Team Behavior" },
-          { text: "Agreeing with everything to avoid conflict, then complaining later", category: "Ineffective Team Behavior" },
-          { text: "Sharing information proactively so teammates aren't blindsided", category: "Effective Team Behavior" },
-          { text: "Doing all the work yourself because 'it's faster that way'", category: "Ineffective Team Behavior" },
-          { text: "Acknowledging teammates' contributions publicly", category: "Effective Team Behavior" },
-          { text: "Sending passive-aggressive messages instead of having direct conversations", category: "Ineffective Team Behavior" },
-        ],
-        instructions: "Classify each behavior. Teamwork is a skill — and these are the specific behaviors that make teams work (or fail).",
-      }),
-      content: `## Teamwork — Collaboration, Conflict Resolution, and Communication
-
-Almost every job requires working with other people. The ability to collaborate effectively — to communicate clearly, resolve conflicts constructively, and contribute to a team's success — is one of the most consistently demanded skills across every industry.
-
-### What Makes Teams Work
-
-Research (most notably Google's Project Aristotle) identified the factors that make teams effective:
-
-**#1: Psychological Safety** — Team members feel safe taking risks, admitting mistakes, and sharing ideas without fear of punishment or humiliation. This is BY FAR the most important factor.
-
-**#2: Dependability** — Every team member reliably completes quality work on time.
-
-**#3: Structure & Clarity** — Everyone understands their role, the plan, and the goals.
-
-**#4: Meaning** — The work matters to the team members personally.
-
-**#5: Impact** — The team believes their work makes a difference.
-
-### Communication in Teams
-
-**Active Listening:**
-- Focus fully on the speaker (put down the phone)
-- Don't plan your response while they're talking
-- Paraphrase what you heard: "So what you're saying is..."
-- Ask clarifying questions before disagreeing
-- Acknowledge emotions: "I can see this is important to you"
-
-**Clear Communication:**
-- State your point upfront, then provide supporting details
-- Be specific: "I need the report by 3 PM Thursday" not "I need it soon"
-- Match your communication channel to the message (complex = meeting, simple = email, urgent = phone/text)
-- Confirm understanding: "Just to make sure we're aligned — you'll handle X and I'll handle Y?"
-
-**Difficult Conversations:**
-- Address issues directly but respectfully
-- Focus on behavior, not personality: "The report had errors" not "You're careless"
-- Use "I" statements: "I felt frustrated when the deadline was missed" not "You always miss deadlines"
-- Propose solutions, not just problems: "Here's what I think we could do differently"
-
-### Conflict Resolution
-
-Conflict in teams is normal and can be healthy if handled well:
-
-**Step 1: Acknowledge the conflict**
-Ignoring conflict makes it worse. Name it: "I think we see this differently. Let's talk it through."
-
-**Step 2: Listen to understand (not to win)**
-Each person shares their perspective without interruption. The goal is understanding, not agreement.
-
-**Step 3: Identify shared interests**
-Even in disagreement, you usually share a goal: "We both want the project to succeed."
-
-**Step 4: Generate options**
-Brainstorm solutions together. Don't lock into positions — explore possibilities.
-
-**Step 5: Agree on a path forward**
-Choose a solution you can both support. Document what was agreed. Follow up.
-
-### Giving and Receiving Feedback
-
-**Giving feedback:**
-- Be timely (don't wait months)
-- Be specific (not "good job" but "the way you organized the client data made the analysis much clearer")
-- Balance: acknowledge strengths AND identify areas for growth
-- Make it actionable: "Next time, try starting with the executive summary"
-
-**Receiving feedback:**
-- Listen without defending
-- Thank the person (it takes courage to give honest feedback)
-- Ask clarifying questions
-- Take time to process before responding emotionally
-- Implement what's useful
-
-### Your Role on Any Team
-
-Regardless of your title or seniority:
-- Contribute your best work consistently
-- Communicate proactively and clearly
-- Support teammates who are struggling
-- Share credit generously
-- Take responsibility for problems
-- Bring solutions, not just complaints
-- Be someone others want to work with`,
-    },
-    {
-      id: "wr_ethic_l3", moduleId: "wr_work_ethic_leadership", lessonNumber: 3,
-      title: "Career Planning — Building Your Professional Path", durationMinutes: 40, activityType: "matching",
-      activityData: JSON.stringify({
-        type: "matching",
-        pairs: [
-          { left: "Resume", right: "A 1-2 page summary of your experience, skills, and education — your marketing document" },
-          { left: "Cover letter", right: "A personalized letter explaining WHY you want THIS specific job at THIS specific company" },
-          { left: "LinkedIn profile", right: "Your professional online presence — 85% of recruiters use this to find candidates" },
-          { left: "Professional network", right: "The relationships you build with people in your field — 70% of jobs are filled through networking" },
-          { left: "Portfolio", right: "A collection of your best work samples that demonstrate your capabilities to potential employers" },
-          { left: "Informational interview", right: "A conversation with a professional in your target field to learn about the work, not to ask for a job" },
-        ],
-        instructions: "Match each career tool to its description and purpose.",
-      }),
-      content: `## Career Planning — Building Your Professional Path
-
-A career doesn't just happen to you. It's built intentionally through planning, preparation, and strategic action. Whether you're heading to college, trade school, the military, or directly into the workforce, this lesson gives you the tools to build your path.
-
-### Self-Assessment — Know Yourself First
-
-Before planning a career, understand yourself:
-
-**Skills inventory:** What are you good at? Not just school subjects — include soft skills (communication, leadership, problem-solving), technical skills (computer skills, languages, certifications), and practical skills (driving, cooking, construction).
-
-**Interest exploration:** What topics make you lose track of time? What problems do you want to solve? What activities energize rather than drain you?
-
-**Values clarification:** What matters most to you in work? Options include: helping others, earning high income, work-life balance, creative freedom, job security, leadership opportunities, making a difference, working outdoors, working with technology.
-
-**Personality fit:** Are you energized by working with people or independently? Do you prefer routine or variety? Do you thrive under pressure or in calm environments? Do you prefer leading or supporting?
-
-### Career Research
-
-Once you know yourself, research careers that match:
-
-**Bureau of Labor Statistics (bls.gov/ooh):** The Occupational Outlook Handbook provides:
-- Job descriptions and daily responsibilities
-- Education and training requirements
-- Median salary
-- Job growth projections
-- Similar occupations
-
-**Key questions for any career:**
-- What does a typical day look like?
-- What education or training is required?
-- What's the salary range (entry-level through experienced)?
-- Is the field growing or shrinking?
-- What's the work-life balance like?
-- What advancement opportunities exist?
-
-### Building Your Professional Toolkit
-
-**Your Resume:**
-- Keep it to 1 page (until you have 10+ years of experience)
-- Lead with your strongest qualifications
-- Use action verbs: "Led," "Created," "Managed," "Increased," "Designed"
-- Quantify results: "Increased sales 20%" not "Helped with sales"
-- Tailor it for each application
-- Proofread. Then proofread again. Then have someone else proofread.
-
-**Your LinkedIn:**
-- Professional photo (doesn't need to be expensive — just professional)
-- Compelling headline beyond just your job title
-- Summary that tells your professional story
-- Complete experience section with accomplishments (not just duties)
-- Skills section with endorsements
-- Active engagement: share industry content, comment thoughtfully, connect with professionals
-
-**Your Network:**
-- 70% of jobs are filled through networking
-- Attend industry events, join professional organizations, connect with alumni
-- Build relationships BEFORE you need something
-- Give before you ask — share resources, make introductions, offer help
-- Follow up and maintain connections
-
-### The Career Ladder vs. The Career Lattice
-
-**Old model (ladder):** One path straight up — entry level → manager → director → VP
-**New model (lattice):** Multiple paths — lateral moves, skill pivots, industry changes, entrepreneurship
-
-The lattice model reflects reality. Your career will likely include:
-- Multiple employers (average tenure is ~4 years for young professionals)
-- At least one career pivot
-- Continuous skill development
-- Both traditional and non-traditional roles
-- Possible entrepreneurship or freelancing
-
-### Your Career Action Plan
-
-Create a 5-year career action plan:
-**Year 1:** Foundation — complete education/certification, build professional presence, gain entry-level experience
-**Year 2:** Development — deepen skills, expand network, seek increasing responsibility
-**Year 3:** Growth — pursue advanced training, lead projects, build expertise
-**Year 4:** Advancement — seek promotion or strategic career move, mentor others
-**Year 5:** Leadership — take on leadership responsibilities, contribute to your field, plan next phase
-
-This plan will change. That's fine. Having a direction you can adjust is infinitely better than drifting.`,
-    },
-  ]);
+  // ===== WORKFORCE READINESS BADGES =====
+  const existingBadge = await db.select().from(badges).where(eq(badges.id, "wr_professional_presence_badge")).limit(1);
+  if (existingBadge.length === 0) {
+    await db.insert(badges).values([
+      { id: "wr_professional_presence_badge", name: "Professional Presence Pro", description: "Completed Module 1 — mastered first impressions, communication, and interview skills", category: "skill", levelRequirement: 4, rarity: "uncommon" },
+      { id: "wr_workplace_rights_badge", name: "Rights Champion", description: "Completed Module 2 — knows workplace rights, harassment response, and bystander intervention", category: "skill", levelRequirement: 4, rarity: "uncommon" },
+      { id: "wr_workplace_safety_badge", name: "Safety Expert", description: "Completed Module 3 — OSHA-trained in hazard ID, PPE, and emergency response", category: "skill", levelRequirement: 4, rarity: "uncommon" },
+      { id: "wr_time_management_badge", name: "Time Master", description: "Completed Module 4 — Eisenhower Matrix, SMART goals, and calendar management", category: "skill", levelRequirement: 4, rarity: "uncommon" },
+      { id: "wr_career_leader_badge", name: "Career Leader", description: "Completed Module 5 — work ethic, organizational understanding, and leadership identity", category: "skill", levelRequirement: 4, rarity: "rare" },
+      { id: "wr_resume_started", name: "Resume Started", description: "Started building your professional resume", category: "milestone", levelRequirement: 4, rarity: "common" },
+      { id: "wr_resume_skills", name: "Skills Documented", description: "Added a Skills section to your resume with evidence", category: "milestone", levelRequirement: 4, rarity: "common" },
+      { id: "wr_resume_certs", name: "Certified", description: "Added Certifications & Training to your resume", category: "milestone", levelRequirement: 4, rarity: "uncommon" },
+      { id: "wr_resume_accomplishments", name: "Accomplishments Proven", description: "Added Projects & Accomplishments with the XYZ formula", category: "milestone", levelRequirement: 4, rarity: "uncommon" },
+      { id: "wr_resume_complete", name: "Career Passport Complete", description: "Finished your entire resume including cover letter — ready for the world", category: "milestone", levelRequirement: 4, rarity: "rare" },
+      { id: "wr_workforce_ready_cert", name: "Workforce Ready", description: "Completed all 5 modules and earned the ThriveUp Workforce Readiness Certificate", category: "milestone", levelRequirement: 4, rarity: "legendary" },
+    ]);
+  }
 
   // ---- GRADES 6-8 WORKFORCE: wr_career_foundations_teamwork L1, L2, L3 ----
   await db.insert(lessons).values([
@@ -1499,137 +1614,109 @@ Wherever you scored lowest — that's where you grow next.`,
       }),
       content: `## Communication Skills — Speaking, Writing, and Presenting
 
-The ability to communicate clearly is the #1 skill employers look for — above technical ability, above education, above experience. Whether you become a doctor, an engineer, a teacher, or an entrepreneur, your career will be built on how well you communicate.
+Communication is more than just talking. It's about making sure the right message reaches the right person in the right way. In this lesson, you'll learn the three levels of communication and when to use each one.
 
-### The Three Communication Registers
+### The Three Levels of Communication
 
-**Casual:** How you talk to friends. Relaxed language, slang, incomplete sentences, emojis in texts. Perfectly appropriate with peers in social settings.
+**Casual** — How you talk with friends. Relaxed, informal, slang is fine. Group chats, hanging out, social media with friends.
 
-**Semi-formal:** How you communicate with teachers, coaches, and supervisors. Polite, clear, complete sentences, proper grammar. Respectful but not stiff.
+**Semi-Formal** — How you talk with teachers, coaches, or adults you respect. Polite, clear, proper grammar. Emails to teachers, talking to a coach, meeting a friend's parents.
 
-**Formal:** How you communicate in professional settings. Job interviews, presentations, official emails, business meetings. Organized, professional language, practiced delivery.
-
-**The skill:** Knowing which register fits each situation. Using casual language in a formal setting makes you look unprepared. Using formal language with friends makes you look disconnected.
+**Formal** — How you talk in professional settings. Organized, practiced, professional vocabulary. Job interviews, class presentations, workplace communication.
 
 ### Written Communication
 
-**Email structure that works every time:**
-1. **Clear subject line:** "Science Project Question — Period 3" (not "hey")
-2. **Greeting:** "Hi Ms. Rodriguez," (not "yo")
-3. **Purpose in first sentence:** "I'm writing to ask about..."
-4. **Details in the middle:** Keep it brief and organized
-5. **Clear closing:** What do you need? By when? "Could you let me know by Friday?"
-6. **Sign off:** "Thank you, [Your name]"
+**Emails** follow a simple formula:
+1. Subject line (what it's about)
+2. Greeting ("Dear Ms. Johnson," or "Hi Mr. Rodriguez,")
+3. Purpose (why you're writing — ONE sentence)
+4. Details (what they need to know — 2-3 sentences)
+5. Closing ("Thank you," + your name)
 
-**Proofread everything.** Read it once for content, once for grammar, once for tone. Would you be comfortable if this email was read out loud to the whole class? If not, revise it.
+**Pro tip:** Read your email out loud before sending. If it sounds rude, confusing, or too long — edit it.
 
 ### Speaking and Presenting
 
-**Preparation:**
-- Know your material (don't read from slides)
-- Practice out loud (not just in your head)
-- Time yourself (stay within your limit)
-- Prepare for questions (what might people ask?)
+Public speaking is the #1 fear in America — more than spiders, heights, or even death. But it's also one of the most valuable skills you can develop.
 
-**Delivery:**
-- Make eye contact with different people around the room
-- Speak clearly and at a moderate pace (slow down — nervousness makes you speed up)
-- Use your hands naturally (don't put them in your pockets or cross your arms)
-- Pause between points (silence is more powerful than "um")
-- Stand up straight and project confidence (even if you're nervous)
+**Tips for presenting:**
+- Practice out loud at least 3 times
+- Make eye contact with different people in the room
+- Speak slowly — you're always faster than you think
+- Use your hands naturally — don't put them in your pockets
+- If you mess up, keep going. Nobody noticed as much as you think.
 
-**The #1 fear:** Public speaking is feared more than death by many adults. The cure is practice. Every presentation you give makes the next one easier. Start now, and by the time you're interviewing for jobs, you'll be ahead of 90% of candidates.
+### Body Language — The Communication You Don't Say
 
-### Listening — The Hidden Communication Skill
+55% of communication is body language. That means MORE than half of your message comes from how you stand, sit, and move — not what you say.
 
-Communication isn't just about talking. The best communicators are exceptional listeners:
-- They make the speaker feel heard and valued
-- They ask questions that show genuine interest
-- They remember details from previous conversations
-- They don't interrupt or finish others' sentences
-- They respond to what was actually said, not what they assumed
+**Positive body language:** Eye contact, open posture, nodding, leaning in slightly, genuine smile
+**Negative body language:** Crossed arms, looking at phone, slouching, avoiding eye contact, fidgeting
 
-People who feel listened to trust you more, collaborate better, and support you more. Listening is a superpower with a very low price tag.`,
+### Your Turn
+
+Practice writing a semi-formal email to a teacher asking for help with an assignment. Then practice introducing yourself to a new person in 30 seconds — your "elevator pitch."`,
     },
     {
       id: "wr_68_teamwork_l3", moduleId: "wr_career_foundations_teamwork", lessonNumber: 3,
-      title: "Leadership — Influence, Service, and Taking Initiative", durationMinutes: 30, activityType: "sorting",
+      title: "Conflict Resolution — Turning Problems Into Solutions", durationMinutes: 30, activityType: "interactive",
       activityData: JSON.stringify({
-        type: "sorting",
-        categories: ["Real Leadership", "Not Leadership"],
-        items: [
-          { text: "Helping a struggling classmate understand the material", category: "Real Leadership" },
-          { text: "Telling everyone what to do because you're the 'group leader'", category: "Not Leadership" },
-          { text: "Speaking up when you see something unfair, even when it's uncomfortable", category: "Real Leadership" },
-          { text: "Taking credit for the group's success in front of the teacher", category: "Not Leadership" },
-          { text: "Volunteering to do the task nobody wants to do", category: "Real Leadership" },
-          { text: "Being the loudest person in every discussion", category: "Not Leadership" },
-          { text: "Admitting when you're wrong and changing your approach", category: "Real Leadership" },
-          { text: "Refusing to listen to ideas that aren't yours", category: "Not Leadership" },
-        ],
-        instructions: "Sort each behavior: Is this real leadership, or is it something else dressed up as leadership?",
+        type: "scenario_sort",
+        title: "Conflict Resolution Strategies",
+        scenarios: [
+          { id: "c1", text: "Your teammate isn't doing their share of a group project.", answer: "Talk to them privately first. Ask if something is going on. Offer to help redistribute tasks.", law: "Direct communication" },
+          { id: "c2", text: "Two friends are fighting and both want you to take their side.", answer: "Listen to both sides without judging. Help them see each other's perspective. Don't pick sides.", law: "Mediation" },
+          { id: "c3", text: "Someone spreads a rumor about you at school.", answer: "Don't retaliate with another rumor. Address it calmly with the person if safe, or talk to a trusted adult.", law: "De-escalation" },
+          { id: "c4", text: "Your coach criticizes your performance in front of the team.", answer: "Stay calm in the moment. Talk to the coach privately afterward about how the feedback felt.", law: "Assertive communication" },
+        ]
       }),
-      content: `## Leadership — Influence, Service, and Taking Initiative
+      content: `## Conflict Resolution — Turning Problems Into Solutions
 
-Leadership isn't about being in charge. It's about taking care of the people in your charge. The best leaders in every field — business, education, military, community — share common traits that you can start building right now.
+Conflict is normal. It happens in every relationship, every team, every workplace. The question isn't whether you'll face conflict — it's whether you'll handle it in a way that makes things better or worse.
 
-### What Leadership Actually Looks Like
+### The Five Conflict Resolution Styles
 
-**Leadership is NOT:**
-- Being the loudest person in the room
-- Having the fanciest title
-- Telling people what to do
-- Taking credit for the team's work
-- Winning every argument
+**Competing** — "My way or the highway." Win at all costs.
+- When it works: Emergencies, safety issues
+- When it doesn't: Most other situations. Creates resentment.
 
-**Leadership IS:**
-- Seeing what needs to be done and doing it without being asked
-- Making the people around you better
-- Taking responsibility when things go wrong
-- Giving credit when things go right
-- Speaking up for what's right, even when it's hard
+**Avoiding** — "I don't want to deal with this." Walk away, ignore it.
+- When it works: The issue is truly minor and temporary
+- When it doesn't: Important issues that won't go away on their own
 
-### The Service Leadership Model
+**Accommodating** — "Whatever you want." Give in to keep the peace.
+- When it works: The issue matters more to them than to you
+- When it doesn't: When you always give in (leads to resentment)
 
-The most effective leadership model is servant leadership — the idea that a leader's primary job is to serve the people they lead, not the other way around.
+**Compromising** — "Let's meet in the middle." Both sides give something up.
+- When it works: Both sides have valid points and time is limited
+- When it doesn't: When the compromise satisfies nobody
 
-**Service leaders:**
-- Ask "How can I help?" more than "Why didn't you?"
-- Remove obstacles for their team
-- Develop others' skills and confidence
-- Put the team's needs above their ego
-- Lead by example — they do what they ask others to do
+**Collaborating** — "Let's find a solution that works for everyone." Creative problem-solving together.
+- When it works: Important issues where the relationship matters
+- When it doesn't: When time is extremely limited (takes more effort)
 
-### Leadership Skills You Can Build Now
+### The "I" Statement Formula
 
-**1. Initiative:** Don't wait to be asked. See the problem, propose the solution, volunteer to help.
+Instead of blaming ("YOU always..."), use "I" statements:
 
-**2. Responsibility:** Own your outcomes. When you make a mistake, say "I made a mistake and here's how I'll fix it." No excuses, no blame.
+"I feel [emotion] when [specific behavior] because [impact on you]. I would like [specific request]."
 
-**3. Encouragement:** Notice what others do well and tell them. "Your presentation was really strong — especially the way you explained the data." Specific encouragement builds people up.
+Example: "I feel frustrated when the project work isn't divided equally because I end up staying up late to finish everything. I would like us to sit down and split the tasks more fairly."
 
-**4. Courage:** Leadership requires doing hard things — speaking up against bullying, admitting you were wrong, taking on challenges you might fail at.
+### Steps to Resolve Conflict
 
-**5. Empathy:** Understand what others are going through. A leader who can see the world through others' eyes makes better decisions for everyone.
+1. **Cool down first.** Don't address conflict when you're angry. Take a walk, take a breath.
+2. **Choose the right time and place.** Private, when you're both calm.
+3. **Use "I" statements.** Focus on how you feel, not what they did wrong.
+4. **Listen to their side.** Really listen. There might be something you don't know.
+5. **Find common ground.** What do you both want? Start there.
+6. **Agree on a solution.** Be specific about what changes.
+7. **Follow up.** Check in later to make sure the solution is working.
 
-### Leadership in Action
+### Your Turn
 
-You don't need a title to lead. Look for opportunities:
-- In class: Organize a study group. Help someone who's struggling.
-- In clubs/sports: Be the person who keeps morale up and holds standards high.
-- In your community: Volunteer. Organize. Advocate.
-- At home: Help your family. Take responsibility for your space.
-
-Every act of initiative, service, and courage builds your leadership muscles. By the time you enter the workforce, you won't need to be told to lead — it will be who you are.
-
-### Your Leadership Reflection
-
-Think about the best leader you've ever experienced — a teacher, coach, family member, or mentor.
-1. What specifically did they do that made them effective?
-2. How did they make you feel?
-3. What did you learn from them?
-4. Which of their qualities do you want to develop in yourself?
-5. What one leadership action will you take this week?`,
+Practice resolving 4 conflict scenarios using the strategies you've learned. The AI will guide you through each one and show you how different approaches lead to different outcomes.`,
     },
   ]);
 
@@ -1637,246 +1724,190 @@ Think about the best leader you've ever experienced — a teacher, coach, family
   await db.insert(lessons).values([
     {
       id: "wr_68_prof_l1", moduleId: "wr_career_foundations_professionalism", lessonNumber: 1,
-      title: "What Does 'Professional' Mean? — Standards and Expectations", durationMinutes: 30, activityType: "matching",
+      title: "What Does 'Professional' Mean? (It's Not What You Think)", durationMinutes: 30, activityType: "sorting",
       activityData: JSON.stringify({
-        type: "matching",
-        pairs: [
-          { left: "Showing up on time with everything you need", right: "Preparedness — a basic building block of professionalism" },
-          { left: "Following through on what you said you'd do", right: "Reliability — people trust professionals who keep their word" },
-          { left: "Treating everyone with respect regardless of their role", right: "Respect — true professionals treat the janitor the same as the CEO" },
-          { left: "Dressing appropriately for the situation", right: "Presentation — how you present yourself signals how seriously you take the situation" },
-          { left: "Staying calm when things go wrong", right: "Composure — professionals manage their emotions, especially under pressure" },
-          { left: "Admitting mistakes and learning from them", right: "Integrity — owning your errors builds trust and shows character" },
+        type: "sorting",
+        categories: ["Professional Behavior", "Unprofessional Behavior"],
+        items: [
+          { text: "Saying 'please' and 'thank you' to adults", category: "Professional Behavior" },
+          { text: "Rolling your eyes when a teacher gives instructions", category: "Unprofessional Behavior" },
+          { text: "Turning in assignments on time", category: "Professional Behavior" },
+          { text: "Making excuses instead of owning mistakes", category: "Unprofessional Behavior" },
+          { text: "Dressing appropriately for the occasion", category: "Professional Behavior" },
+          { text: "Using your phone during class or meetings", category: "Unprofessional Behavior" },
+          { text: "Helping a classmate who's struggling", category: "Professional Behavior" },
+          { text: "Talking negatively about people behind their back", category: "Unprofessional Behavior" },
         ],
-        instructions: "Match each professional behavior to the quality it demonstrates.",
+        instructions: "Sort each behavior: professional or unprofessional?",
       }),
       content: `## What Does 'Professional' Mean?
 
-You've heard adults say "be professional" but what does that actually mean? It's not about wearing a suit or using big words. Professionalism is a set of behaviors and attitudes that show you take your work and the people around you seriously.
+When most people hear "professional," they think of suits, offices, and boring adults. But being professional isn't about what you wear — it's about how you carry yourself.
 
-### The Core of Professionalism
+### Professional = Reliable + Respectful + Responsible
 
-**Professionalism = Treating your commitments, your work, and the people around you with respect and care.**
+That's it. Three R's:
 
-That's it. Everything else flows from there:
-- You show up on time because you respect other people's time
-- You do quality work because you respect the task and the people counting on you
-- You communicate clearly because you respect the relationship
-- You dress appropriately because you respect the environment
-- You handle problems calmly because you respect yourself enough to stay in control
+**Reliable:** You do what you say you'll do. If you commit to something, people can count on you.
 
-### Professional Behavior Starts Now
+**Respectful:** You treat everyone with dignity — classmates, teachers, cafeteria workers, janitors, everyone. Not just people who can do something for you.
 
-You might think "I don't need to be professional yet — I'm in middle school." But every habit you build now becomes your default behavior later. The students who practice professionalism now don't have to learn it under pressure later.
+**Responsible:** You own your actions. Good or bad, you take responsibility.
 
-**In school, professionalism looks like:**
-- Being on time to class, prepared with materials
-- Turning in work that represents your best effort
-- Communicating respectfully with teachers and classmates
-- Following through on commitments to group projects
-- Handling disagreements calmly and respectfully
-- Taking responsibility for your mistakes
+### You're Already More Professional Than You Think
 
-**In activities and part-time jobs:**
-- Being reliable — doing what you said you'd do
-- Representing your team, school, or employer positively
-- Treating customers, coaches, and teammates with respect
-- Learning from feedback without getting defensive
-- Being someone others can count on
+Do you:
+- Show up to practice on time? That's professional.
+- Keep your promises to friends? That's professional.
+- Help around the house without being asked? That's professional.
+- Apologize when you mess up? That's professional.
 
-### The Professionalism Mindset
+Professionalism isn't something you turn on at 18 when you get a job. It's a set of habits you build NOW that will serve you for the rest of your life.
 
-Professional behavior isn't about being fake or stiff. It's about being your best self in situations that matter:
+### The Golden Rule of Professionalism
 
-**Self-awareness:** Know how your behavior affects others
-**Self-regulation:** Control your reactions, especially when frustrated or upset
-**Empathy:** Consider how others feel and adjust your approach
-**Accountability:** Own your actions — both successes and mistakes
-**Continuous improvement:** Always be learning and growing
+Treat every interaction as if it might lead to an opportunity — because it might. The teacher you're respectful to might write your college recommendation. The neighbor you help might know about a summer job. The classmate you're kind to might become your business partner.
 
-### Why It Matters (Even Now)
+You never know who's watching, and you never know who can open a door for you.
 
-- Teachers recommend students for programs, awards, and opportunities based on professionalism
-- Coaches select team leaders based on character, not just skill
-- Early job references matter — your supervisor at your summer job may write references for years
-- College admissions look for demonstrated maturity and responsibility
-- The habits you build now become automatic later
+### First Impressions Start NOW
 
-### Your Professionalism Assessment
+In middle school, you're building your reputation. Every day, people are forming opinions about you:
+- Is this person reliable?
+- Is this person kind?
+- Is this person someone I want on my team?
 
-Rate yourself honestly on each (1 = rarely, 5 = consistently):
-- I arrive on time and prepared
-- I complete my commitments
-- I treat everyone respectfully
-- I handle frustration calmly
-- I accept feedback without getting defensive
-- I take responsibility for my mistakes
+The answers they form now follow you. Make them good answers.
 
-Your lowest score is your biggest growth opportunity. Pick one area to focus on this week.`,
+### Your Turn
+
+Sort 8 behaviors into "Professional" and "Unprofessional" categories. Then write 3 professional habits you already have and 2 you want to build.`,
     },
     {
       id: "wr_68_prof_l2", moduleId: "wr_career_foundations_professionalism", lessonNumber: 2,
-      title: "Digital Professionalism — Your Online Reputation", durationMinutes: 30, activityType: "sorting",
+      title: "Time Management for Middle Schoolers — Your Future Self Will Thank You", durationMinutes: 30, activityType: "interactive",
       activityData: JSON.stringify({
-        type: "sorting",
-        categories: ["Helps Your Future", "Hurts Your Future", "Neutral"],
+        type: "checklist",
+        title: "Time Management Setup",
         items: [
-          { text: "Social media posts about community service you did", category: "Helps Your Future" },
-          { text: "Photos of underage drinking at a party", category: "Hurts Your Future" },
-          { text: "A blog about a hobby you're passionate about", category: "Helps Your Future" },
-          { text: "Angry rants about teachers or classmates", category: "Hurts Your Future" },
-          { text: "Sharing an article about your career interest", category: "Helps Your Future" },
-          { text: "A meme account that's funny but not offensive", category: "Neutral" },
-          { text: "Cyberbullying comments, even 'as a joke'", category: "Hurts Your Future" },
-          { text: "A private account with strict privacy settings", category: "Neutral" },
-        ],
-        instructions: "Sort each online activity by how it affects your future opportunities. Remember: the internet is forever.",
+          { id: "planner", text: "Set up a planner or digital calendar", points: 15 },
+          { id: "homework", text: "Write down all homework due this week", points: 10 },
+          { id: "activities", text: "Block out all activities and commitments", points: 10 },
+          { id: "study", text: "Schedule at least 3 study sessions", points: 10 },
+          { id: "fun", text: "Schedule fun/relaxation time too", points: 5 },
+        ]
       }),
-      content: `## Digital Professionalism — Your Online Reputation
+      content: `## Time Management — Your Future Self Will Thank You
 
-Here's a reality most teenagers don't know: **70% of employers check applicants' social media before hiring.** What they find can eliminate you from consideration — even if your resume is perfect.
+In middle school, you're juggling more than ever: multiple classes, homework, sports, clubs, family, friends, and your own interests. Learning to manage your time NOW saves you from constant stress later.
 
-### The Internet Is Forever
+### Why Time Management Matters
 
-Every post, photo, comment, and like creates a digital footprint:
-- Deleted posts may still exist in screenshots, caches, or archives
-- Private accounts can be screenshot and shared
-- Today's joke could be tomorrow's disqualification
-- Things that seem funny at 14 can be career-ending at 24
+Students who manage their time well:
+- Get better grades (not because they're smarter — because they're organized)
+- Feel less stressed (knowing what's coming reduces anxiety)
+- Have MORE free time (efficient work = more play time)
+- Build habits that carry into high school, college, and careers
 
-### What Employers Look For (and Find)
+### The Planner System
 
-**Red flags that get candidates rejected:**
-- Discriminatory comments, hate speech, or bullying
-- Photos or references to illegal activities
-- Complaints about previous employers or teachers
-- Poor communication skills (constant profanity, inability to write clearly)
-- Posts that contradict the professional image they presented in the interview
+Whether you use a paper planner, a phone app, or a notebook — the system is the same:
 
-**Green flags that help candidates:**
-- Involvement in community service, clubs, or organizations
-- Content showing passion for their field or interests
-- Professional communication and positive interactions
-- Evidence of creativity, leadership, or initiative
-- Thoughtful engagement with topics related to their career
+1. **Write it down immediately.** When a teacher assigns something, write it down RIGHT THEN. Don't say "I'll remember." You won't.
 
-### Building a Positive Digital Presence
+2. **Check your planner every night.** 5 minutes before bed. What's due tomorrow? What's coming this week?
 
-**The Google Test:** Google your name. What comes up? This is what employers, colleges, and others see. If the results don't represent your best self, start creating content that does.
+3. **Break big projects into small steps.** A project due in 2 weeks = 10 small tasks, not 1 all-nighter.
 
-**Smart practices:**
-- Think before you post: Would you be comfortable with a future employer seeing this?
-- Separate personal and professional: Consider having accounts for different purposes
-- Create positive content: Share your interests, achievements, and thoughtful opinions
-- Be kind online: Treat digital interactions with the same respect as in-person ones
-- Privacy settings: Use them — but don't rely on them completely
+4. **Estimate time.** How long will each task actually take? Most people underestimate by 50%. If you think it'll take 30 minutes, plan for 45.
 
-### Digital Communication Etiquette
+### The Homework Strategy
 
-**Emails to teachers, employers, or professionals:**
-- Use a professional email address (firstname.lastname@, not coolgamer2012@)
-- Include a clear subject line
-- Use proper greeting and closing
-- Write in complete sentences with correct grammar
-- Proofread before sending
+**Best order for homework:**
+1. Start with the hardest subject (when your brain is freshest)
+2. Alternate between subjects (math, then reading, then science — variety keeps you focused)
+3. Take 5-minute breaks every 25 minutes (the Pomodoro Technique)
+4. Put your phone in another room while working (seriously — it makes a huge difference)
 
-**Online meetings (Zoom, Teams, etc.):**
-- Camera on unless told otherwise
-- Mute when not speaking
-- Professional background (or use blur)
-- Don't multitask visibly
-- Pay attention and participate
+### Building Good Habits NOW
 
-### Your Digital Audit
+The habits you build in middle school become automatic by high school. Start with just ONE:
+- Checking your planner every night before bed
+- OR starting homework at the same time every day
+- OR putting your phone away during study time
 
-Do a self-audit:
-1. Google your name — what appears?
-2. Review your social media profiles — what would an employer think?
-3. Check your email address — is it professional?
-4. Review your recent posts — anything you'd want to delete?
-5. Look at your online comments — are they respectful?
+Master one habit before adding another. Small wins build momentum.
 
-Start today: Make one change that improves your digital professional presence.`,
+### Your Turn
+
+Set up your time management system and plan your next week.`,
     },
     {
       id: "wr_68_prof_l3", moduleId: "wr_career_foundations_professionalism", lessonNumber: 3,
-      title: "Career Exploration — Discovering Your Path", durationMinutes: 35, activityType: "matching",
+      title: "Career Exploration — What's Out There?", durationMinutes: 35, activityType: "exploration",
       activityData: JSON.stringify({
-        type: "matching",
-        pairs: [
-          { left: "I love helping people and am interested in science", right: "Explore: Healthcare (nursing, physical therapy, public health, medical research)" },
-          { left: "I enjoy building things and solving mechanical problems", right: "Explore: Skilled trades (electrician, plumber, HVAC technician, construction management)" },
-          { left: "I love computers and figuring out how technology works", right: "Explore: Technology (software development, cybersecurity, data science, IT support)" },
-          { left: "I enjoy working with children and love explaining things", right: "Explore: Education (teaching, counseling, educational technology, administration)" },
-          { left: "I'm creative and love visual design and storytelling", right: "Explore: Creative industries (graphic design, marketing, film/video, UX design)" },
-          { left: "I want to run my own business someday", right: "Explore: Entrepreneurship (business management, marketing, finance, product development)" },
-        ],
-        instructions: "Match your interests to potential career paths. This is just a starting point — most careers combine multiple interests.",
+        type: "career_explorer",
+        title: "Career Interest Inventory",
+        categories: ["Technology", "Healthcare", "Business", "Creative Arts", "Trades & Construction", "Education", "Public Service"],
+        instructions: "Explore 3 careers that interest you and research what they involve."
       }),
-      content: `## Career Exploration — Discovering Your Path
+      content: `## Career Exploration — What's Out There?
 
-You don't have to know exactly what you want to do with your life right now. But starting to explore opens doors you didn't know existed. The students who explore early make better decisions later.
+You don't have to know what you want to be "when you grow up" right now. But exploring careers helps you understand what's possible — and what skills to start building.
 
-### The Career Clusters
+### Career Clusters
 
-The U.S. Department of Education organizes careers into 16 clusters. Here are some with high demand and good earning potential:
+The U.S. Department of Education organizes careers into 16 clusters. Here are some that might interest you:
 
-**Healthcare:** Doctors, nurses, therapists, technicians, public health workers
-- Growing fast (aging population)
-- Range from 2-year certifications to 12+ years of education
-- Strong job security and benefits
+**Technology & IT**
+- Software Developer — builds apps and websites ($120K+ average)
+- Cybersecurity Analyst — protects systems from hackers ($100K+)
+- Data Scientist — finds patterns in data to solve problems ($95K+)
 
-**Technology:** Software developers, cybersecurity analysts, data scientists, IT support
-- Highest growth sector
-- Many paths don't require a 4-year degree (certifications, bootcamps, apprenticeships)
-- Remote work options
+**Healthcare**
+- Registered Nurse — direct patient care ($80K+)
+- Physical Therapist — helps people recover from injuries ($90K+)
+- Medical Technologist — runs lab tests that diagnose diseases ($55K+)
 
-**Skilled Trades:** Electricians, plumbers, HVAC technicians, welders, construction managers
-- Chronic shortage of workers (high demand)
-- Earn while you learn through apprenticeships
-- Average salaries often exceed college graduate averages
-- Essential jobs that can't be outsourced or automated
+**Business & Finance**
+- Accountant — manages money for companies and individuals ($75K+)
+- Marketing Manager — helps companies reach customers ($135K+)
+- Entrepreneur — starts and runs your own business (unlimited potential)
 
-**Education:** Teachers, counselors, administrators, educational technology specialists
-- Deep personal fulfillment
-- Strong benefits and job security
-- Growing demand, especially in STEM and special education
+**Skilled Trades**
+- Electrician — installs and maintains electrical systems ($60K+)
+- Plumber — installs and repairs water systems ($60K+)
+- HVAC Technician — heating and cooling systems ($50K+)
+- Welder — joins metal for construction and manufacturing ($45K+)
 
-**Business & Finance:** Accountants, financial analysts, marketing managers, project managers
-- Present in every industry
-- AI is changing these roles (creating new opportunities for AI-skilled professionals)
-- Strong earning potential with experience
+**Creative & Media**
+- Graphic Designer — creates visual content ($55K+)
+- Video Producer — creates video content for companies ($65K+)
+- UX Designer — designs user-friendly apps and websites ($100K+)
 
-### Pathways Beyond the 4-Year Degree
+### Not All Careers Require College
 
-A 4-year college degree is ONE path — not the only path:
+This is important: many high-paying careers DON'T require a 4-year degree. Skilled trades, technology certifications, and apprenticeships can lead to six-figure careers.
 
-**Community college (2-year degree):** Many high-demand jobs (nursing, IT, dental hygiene, paralegal) require only an associate degree. Lower cost, practical training.
-
-**Trade/vocational school:** Direct training for skilled trades. Often includes paid apprenticeships.
-
-**Certifications:** Industry-recognized credentials (CompTIA for IT, AWS for cloud computing, Google Career Certificates) that can be earned in months.
-
-**Military:** Training in dozens of career fields, education benefits (GI Bill), leadership development, and job placement support.
-
-**Direct workforce entry:** Some careers start with entry-level positions and on-the-job training. Retail management, customer service, sales, and many others offer advancement without degrees.
+**Paths to a career:**
+- 4-year college degree
+- 2-year associate degree
+- Trade school / vocational program
+- Apprenticeship (earn while you learn)
+- Certifications + experience
+- Military service + training
+- Entrepreneurship
 
 ### How to Explore
 
-**1. Informational interviews:** Talk to people who do jobs that interest you. Ask: What does a typical day look like? What do you love about it? What's hard? How did you get started?
+1. **Talk to adults in your life.** Ask them what they do and how they got there.
+2. **Job shadow.** Spend a day watching someone work.
+3. **Research online.** Bureau of Labor Statistics (bls.gov) has detailed career info.
+4. **Try things.** Join clubs, take electives, volunteer — every experience teaches you something.
 
-**2. Job shadowing:** Spend a day observing someone in a career that interests you. Most professionals are happy to have a motivated young person shadow them.
+### Your Career Interest Inventory
 
-**3. Volunteering:** Get hands-on experience in a field. Volunteer at a hospital, animal shelter, school, nonprofit, or community organization.
-
-**4. Online exploration:** Bureau of Labor Statistics (bls.gov/ooh), career exploration websites, and YouTube "day in the life" videos from real professionals.
-
-**5. School courses and electives:** Take classes in areas that interest you. CTE (Career and Technical Education) courses give you hands-on experience in career fields.
-
-### The Career Exploration Journal
-
-Start a career exploration journal:
-- List 5 careers that interest you
+For this activity, pick 3 careers that interest you:
 - For each, research: daily responsibilities, education required, salary range, growth outlook
 - Interview or research someone in each field
 - Rate each on a scale of 1-10 for: interest, fit with your skills, earning potential, lifestyle match
