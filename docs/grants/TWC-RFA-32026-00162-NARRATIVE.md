@@ -9,7 +9,7 @@
 **Location:** Austin, Texas (serving Pflugerville ISD and surrounding districts)
 **Amount Requested:** Up to $2,000,000
 **Grant Period:** July 2026 — June 2028 (24 months initial, up to 5 years)
-**Deadline:** April 10, 2026, 10:00 AM CDT
+**Deadline:** April 14, 2026, 10:00 AM CDT
 **Contact at TWC:** Cassandra Johnson, RFAgrants@twc.texas.gov
 
 ---
@@ -52,60 +52,165 @@ This ecosystem approach means that when a CTE student enrolls in our workforce r
 
 ### 2.1 Program Overview
 
-The ThriveUp Workforce Readiness Academy is a 15-week employability skills training program for CTE students in grades 9-12, fully aligned to TEKS §127.15 (Career and Technical Education Employability Skills, adopted 2025). The program delivers all 20 standards across Levels 1-2 (foundational) and Levels 3-4 (advanced) through 5 core modules and 2 supplementary modules, resulting in the ThriveUp Workforce Readiness Certificate.
+The ThriveUp Workforce Readiness Academy is a 15-week employability skills training program for CTE students in grades 9-12, fully aligned to TEKS §127.15 (Career and Technical Education Employability Skills, adopted 2025). The program delivers all 20 standards across Levels 1-4 through 5 core modules, 20 interactive lessons, 50 scenario-based quiz questions, and 11 earnable badges, culminating in the ThriveUp Workforce Readiness Certificate.
 
-### 2.2 Curriculum — TEKS §127.15 Alignment
+**The curriculum is live and interactive at thriveupacademy.com/workforce-readiness.**
+
+### 2.2 Design Philosophy — Built FOR Students, Not AT Students
+
+This is not a worksheet program. The ThriveUp Workforce Readiness Academy was designed with a culturally responsive, phone-first, student-centered philosophy:
+
+- **Relatable Student Characters:** Every module follows a student character navigating real workplace scenarios in settings where our students actually work — Jaylen at H-E-B, Aaliyah at a clothing store, Marcus at a warehouse, Sofia at Chick-fil-A, and DeAndre at an auto parts store. Students see themselves in the curriculum.
+
+- **"Real Talk" Barrier Sections:** Every module includes honest sections addressing the barriers our students actually face — no printer for applications, no interview clothes, no transportation, no references, family responsibilities that compete with work. We name these barriers directly and provide practical solutions.
+
+- **Code-Switching Honored as a Skill:** We do not erase who students are. We teach them to add professional communication tools to their existing toolbox while affirming that how they communicate with friends and family is valid.
+
+- **Progressive Resume Builder:** A resume thread runs across all 5 modules. Students don't write a resume from scratch in one sitting — they build it progressively from their real experiences (babysitting = childcare management, church volunteering = event coordination, helping at a family business = customer service), adding a new section each module until they graduate with a complete, professional document.
+
+- **Phone-First PWA Delivery:** Students download ThriveUp as a Progressive Web App on Day 1. Full curriculum access from any device, 24/7, without requiring a laptop or reliable home internet.
+
+### 2.3 Curriculum — TEKS §127.15 Alignment
 
 Our curriculum achieves 100% alignment with TEKS §127.15. Each standard maps to specific modules, learning objectives, and assessable activities:
 
-#### Module 1: Professional Presence (3 weeks)
-**TEKS Standards Addressed:** (A) Professional Conduct
+#### Module 1: Professional Presence (3 weeks, 4 lessons)
+**TEKS Standards Addressed:** (A) Professional Conduct, (C) Communication
+**Character: Jaylen** — 16, just hired at H-E-B
 
-Students learn to dress appropriately for different industries, communicate professionally in written and verbal formats, present themselves in interviews, and conduct themselves according to workplace behavioral expectations. Activities include industry dress code research, professional email workshops, AI-powered mock interviews, workplace scenario role-plays, and personal brand development.
+Students learn to make strong first impressions using the 7-Second Rule, communicate professionally via email, phone, and in person, practice job interviews privately with the AI Mock Interview Lab, and identify and professionally name their existing skills. Day 1 begins with PWA download and platform setup.
 
-#### Module 2: Workplace Rights & Responsibilities (3 weeks)
+**Resume Builder Part 1:** Header, Objective Statement, Education Section
+
+Activities: Professional Identity Inventory, AI Email Coach (write 3 professional emails with real-time AI feedback), AI Mock Interview Lab (Starter, Standard, and Tough difficulty levels), industry dress code research
+
+**Real Talk:** What if you can't afford interview clothes? Resources for free professional clothing programs, thrift store tips, "clean and pressed matters more than brand names."
+
+---
+
+#### Module 2: Workplace Rights & Responsibilities (3 weeks, 4 lessons)
 **TEKS Standards Addressed:** (H) Discrimination & Harassment
+**Character: Aaliyah** — 17, works at a clothing store
 
-Students learn to define and identify workplace discrimination and harassment, understand employee rights under Title VII, ADA, and ADEA, follow reporting procedures, exercise bystander responsibilities, and understand consequences for violations. Activities include EEOC case study analysis, scenario identification exercises, reporting procedure practice, and bystander intervention training.
+Students learn to identify workplace discrimination under Title VII, ADA, and ADEA, recognize harassment vs. uncomfortable-but-legal situations, practice bystander intervention using the 5 D's (Distract, Delegate, Document, Delay, Direct), understand digital rights including employer monitoring and NLRA wage discussion protections, and conduct a personal Digital Presence Audit.
 
-#### Module 3: Workplace Safety Essentials (3 weeks)
+**Resume Builder Part 2:** Skills Section (hard skills + soft skills with evidence)
+
+Activities: "Is This Discrimination?" interactive scenarios (8 real-world cases), Bystander Intervention role-play with AI, Digital Presence Audit (Google yourself, review social media, set up LinkedIn)
+
+**Real Talk:** "But I need this job" — documenting violations, anonymous EEOC reporting, free legal aid resources (Texas RioGrande Legal Aid, Lone Star Legal Aid).
+
+---
+
+#### Module 3: Workplace Safety Essentials (3 weeks, 4 lessons)
 **TEKS Standards Addressed:** (I) Workplace Safety
+**Character: Marcus** — 16, works at a warehouse
 
-Students learn OSHA's role and workers' rights, identify common workplace hazards across industries, understand PPE requirements, outline emergency procedures, identify safety plan components, and understand the right to refuse unsafe work. Activities include multi-industry hazard hunts, PPE matching, emergency procedure walkthroughs, safety plan development, and incident report documentation.
+Students learn OSHA's role and workers' rights including the right to refuse dangerous work, identify hazards across retail, food service, warehouse, and construction environments, match PPE to specific workplace scenarios, execute emergency procedures (fire, medical, active threat), and write formal incident reports.
 
-#### Module 4: Time & Priority Management (3 weeks)
+**Resume Builder Part 3:** Certifications & Training Section
+
+Activities: Workplace Hazard Hunt (5 industry-specific photos), PPE Matching Challenge, Emergency Scenario Walkthroughs (interactive decision trees with AI coaching), free certification guide (OSHA 10-Hour, Texas Food Handler, Google Digital Garage)
+
+**Real Talk:** "But I'm new — I can't say no to my boss" — yes you can, and here's why it protects both of you.
+
+---
+
+#### Module 4: Time & Priority Management (3 weeks, 4 lessons)
 **TEKS Standards Addressed:** (D) Time Management
+**Character: Sofia** — 17, AP classes + Chick-fil-A + caring for little brother
 
-Students apply the Eisenhower Matrix for task prioritization, create and maintain digital calendars, set SMART goals with actionable milestones, identify and eliminate time-wasting behaviors, coordinate group schedules, and connect time management to professional reputation. Activities include prioritization workshops, weekly planning challenges, time audits, and group deadline simulations.
+Students apply the Eisenhower Matrix to real priorities (school, work, family, social), build and maintain a color-coded digital calendar, set SMART goals with weekly milestones and accountability partners, identify and eliminate time-wasting patterns, and write accomplishments using Google's XYZ resume formula.
 
-#### Module 5: Work Ethic & Career Leadership (3 weeks)
+**Resume Builder Part 4:** Projects & Accomplishments Section
+
+Activities: Time Audit (track 3 days in 30-minute blocks), Eisenhower Matrix with students' real tasks, Digital Calendar Setup, SMART Goal Workshop with AI coaching
+
+**Real Talk:** "I don't have time" — acknowledging that not everyone has the same 24 hours, finding 30-60 recoverable minutes per day.
+
+---
+
+#### Module 5: Work Ethic & Career Leadership (3 weeks, 4 lessons)
 **TEKS Standards Addressed:** (E) Work Ethic, (G) Meritocracy & Equal Opportunity, (J) Roles of Managers / Managers vs. Leaders
+**Character: DeAndre** — 18, about to graduate, asked to train new employees
 
-Students define work ethic and its core characteristics (punctuality, dependability, reliability, responsibility), explain meritocracy and equal opportunity principles, describe organizational structures, compare managers and leaders, and connect work ethic to career advancement. Activities include self-assessments, dependability tracking using the platform's attendance system, organizational chart building, manager vs. leader case studies, and career character pledges.
+Students define work ethic through 4 pillars (punctuality, dependability, reliability, responsibility), understand organizational structures and how promotions actually work, compare managers vs. leaders and identify personal leadership style (Servant, Transformational, Democratic, Coaching), connect work ethic to career advancement and earning power, and complete a polished professional resume with a tailored cover letter.
+
+**Resume Builder Part 5:** Final polish, Work/Volunteer Experience, References, Cover Letter tailored to a real job posting
+
+Activities: Work Ethic Self-Assessment, Org Chart Builder, Leadership Style Quiz (AI-powered, 15 questions), Career Character Pledge, resume tailored to a real job posting with AI review
+
+---
 
 #### Supplementary Coverage (embedded across all modules):
-- **TEKS (B) Teamwork** — Covered through PM Academy integration, group projects in every module, and the Teamwork & Communication foundation module
-- **TEKS (C) Communication** — Covered through AI Prompt Engineering, professional writing in Module 1, presentation requirements in every module, and the SpeechBridge integration
-- **TEKS (F) Respect for Differences** — Embedded in organizational DNA (equity-focused lens), culturally responsive AI, multilingual support, and explicit diversity activities in Module 5
+- **TEKS (B) Teamwork** — Covered through cohort collaboration in every module, weekly live virtual check-ins, bystander intervention teamwork in Module 2, group projects
+- **TEKS (C) Communication** — Covered through AI-coached professional email writing in Module 1, professional phone and in-person communication, resume writing threaded across all modules, presentation skills
+- **TEKS (F) Respect for Differences** — Embedded in curriculum design through culturally responsive approach, code-switching honored as a skill, inclusive scenarios featuring diverse characters, explicit diversity and equity content in Modules 2 and 5
 
-### 2.3 TEKS Alignment Verification
+### 2.4 TEKS Alignment Verification
 
-Our TEKS alignment is verifiable in real-time at:
-**https://thrivingcommunitiesforall.com/api/teks-alignment**
+| TEKS Standard | Module | Coverage |
+|---|---|---|
+| (A) Professional Conduct | Module 1 | Full — 4 lessons |
+| (B) Teamwork | All Modules | Embedded — cohort work, weekly check-ins |
+| (C) Communication | All Modules | Embedded — email, phone, in-person, resume writing |
+| (D) Time Management | Module 4 | Full — 4 lessons |
+| (E) Work Ethic | Module 5 | Full — 4 lessons |
+| (F) Respect for Differences | All Modules | Embedded — culturally responsive design |
+| (G) Meritocracy & Equal Opportunity | Module 5 | Full |
+| (H) Discrimination & Harassment | Module 2 | Full — 4 lessons |
+| (I) Workplace Safety | Module 3 | Full — 4 lessons |
+| (J) Roles of Managers / Managers vs. Leaders | Module 5 | Full |
 
-This API endpoint returns structured data showing every TEKS §127.15 standard, the module that addresses it, and the specific coverage provided. This level of transparency and accountability is unique to ThriveUp's approach.
+**All 20 standards across Levels 1–4 are addressed.**
 
-### 2.4 AI-Powered Delivery Model
+### 2.5 Engagement & Community Integration
+
+#### Neighborhood Champions
+Local professionals, business owners, faith leaders, and mentors from the students' own communities are integrated throughout the program. Champions are not outsiders — they are people students recognize from their neighborhoods who have walked similar paths. They serve as guest speakers during weekly check-ins, real-world examples in lesson content, and accessible mentors students can connect with after the program.
+
+#### Weekly Live Virtual Check-Ins
+Every week, the cohort gathers for a live virtual session to ask questions they might not ask in class, hear from a neighborhood champion guest, share wins and challenges with peers, and receive real-time motivation and accountability. These check-ins build the cohort community that keeps students engaged throughout the 15-week program.
+
+#### Motivational Video Content
+Regular video posts from neighborhood champions and program alumni sharing communication stories and early career mistakes, how they balanced work, school, and family, leadership moments that changed their trajectory, and honest advice they wish someone had given them.
+
+### 2.6 Ecosystem Integration
+
+The workforce readiness curriculum connects students to ThriveUp's full ecosystem of tools:
+
+- **AI Mock Interview Lab** — Unlimited private interview practice with AI coaching at three difficulty levels
+- **Career Pathways** — Explore industries, salaries, career ladders, and credentialing requirements
+- **Financial Literacy Hub** — Understand paychecks, deductions, budgeting, and building credit
+- **Community Resource Directory** — Free professional development resources in the student's neighborhood
+- **Neighborhood Intelligence** — Local job market data and opportunity mapping
+- **Apprenticeship Tracker** — Paid training and earn-while-you-learn programs
+- **AI Creation Studio** — Build a professional portfolio website
+
+This means that when a student encounters a barrier during workforce readiness training — food insecurity, housing instability, mental health challenges — the platform can connect them to support services without leaving the ecosystem.
+
+### 2.7 AI-Powered Delivery Model
 
 ThriveUp's AI integration is not a gimmick — it is a core instructional tool that addresses real barriers:
 
 - **Personalized pacing** — Students who need more time on workplace safety get it without holding back students who are ready to advance
-- **Culturally responsive AI companions** — Age-appropriate, culturally aware AI tutors that meet students where they are
-- **24/7 access** — Students can review material, practice scenarios, and complete assessments outside of scheduled class time
+- **AI Mock Interview Lab** — Private, judgment-free interview practice available 24/7 — students who are nervous about interviewing can practice as many times as they need
+- **AI Email Coach** — Students write professional emails and receive real-time AI feedback on tone, format, and content
+- **AI Resume Review** — The progressive resume builder includes AI feedback at each stage
+- **Culturally responsive AI companion** — An age-appropriate, culturally aware AI tutor that functions as "the older cousin who made it" — encouraging, direct, and practical
+- **24/7 access** — Students can review material, practice scenarios, and complete assessments outside of scheduled class time via the PWA
 - **Real-time assessment** — AI evaluates student responses to scenario-based exercises, providing immediate feedback
 - **Instructor dashboard** — Facilitators see real-time progress, identify struggling students, and intervene early
 
-### 2.5 Credential
+### 2.8 Assessment & Credentialing
+
+| Component | Details |
+|---|---|
+| **Lessons** | 20 interactive lessons across 5 modules |
+| **Quiz Questions** | 50 scenario-based multiple-choice questions (10 per module) |
+| **Badges** | 11 earnable badges (5 module completion + 5 resume milestones + 1 certificate) |
+| **Resume** | Complete professional resume built progressively across all 5 modules |
+| **Certificate** | ThriveUp Workforce Readiness Certificate — verifiable with unique ID, LinkedIn-shareable, printable |
 
 Upon successful completion of all 5 modules, students earn the **ThriveUp Workforce Readiness Certificate** — a digital credential that:
 - Maps to all 20 TEKS §127.15 standards
@@ -130,11 +235,14 @@ CTE students in grades 9-12 at Pflugerville ISD, with expansion to surrounding A
 - English Language Learners (ThriveUp supports English and Spanish)
 - Justice-involved youth or youth with justice-involved family members
 
+The curriculum was designed specifically for this population. The student characters reflect their backgrounds. The workplace scenarios reflect the jobs they actually hold. The "Real Talk" sections address the barriers they actually face. This is not a generic employability skills program adapted for diverse students — it was built from the ground up for the students we serve.
+
 ### 3.2 Recruitment Strategy
 
 - **SHAC partnership** — Dr. Flood's SHAC membership provides direct access to district leadership and student wellness infrastructure
 - **CTE department coordination** — Direct partnership with PfISD CTE coordinators to integrate workforce readiness training into existing CTE pathways
 - **Community hubs** — Our Austin, Manor, and Pflugerville regional hubs serve as community access points
+- **Neighborhood champions** — Community members who serve as ambassadors, connecting students to the program through existing trust relationships
 - **Referral network** — ISSS platform manages referrals from community partners, social workers, and school counselors
 - **Employer pipeline** — Partner employers participate in career days and serve as visible proof that the training leads somewhere
 
@@ -156,7 +264,7 @@ CTE students in grades 9-12 at Pflugerville ISD, with expansion to surrounding A
 | Lead Facilitator | 1.0 | Curriculum delivery, student assessment, facilitator training | $55,000 |
 | Facilitator | 2.0 | Direct instruction, student mentoring, activity facilitation | $45,000 each |
 | Data & Outcomes Coordinator | 1.0 | Data collection, outcome tracking, credential management, reporting | $50,000 |
-| Community Liaison | 0.5 | Employer engagement, partner coordination, career day organization | $25,000 |
+| Community Liaison | 0.5 | Employer engagement, neighborhood champion coordination, partner management | $25,000 |
 | Technology Support | 0.5 | Platform support, device management, student tech assistance | $25,000 |
 
 **Total Annual Staffing: $320,000**
@@ -174,7 +282,8 @@ All positions report to Dr. Terry Flood (CEO/PI). The Program Director manages d
 | Enrollment | 500 students over 24 months | Platform registration data |
 | Completion rate | 75%+ complete all 5 modules | Platform completion tracking |
 | Credential attainment | 75%+ earn ThriveUp Workforce Readiness Certificate | Credential management system |
-| TEKS mastery | 80%+ demonstrate proficiency on each standard | Pre/post assessment, module quizzes |
+| Resume completion | 90%+ graduate with a complete professional resume | Resume builder progress tracking |
+| TEKS mastery | 80%+ demonstrate proficiency on each standard | Pre/post assessment, module quizzes (50 questions) |
 | Employment/post-secondary | 60%+ employed or enrolled within 6 months | Follow-up surveys, employer verification |
 | Employer satisfaction | 70%+ rate completers "workforce ready" | Employer surveys |
 | Student satisfaction | 85%+ rate program "valuable" or "very valuable" | Student exit surveys |
@@ -183,15 +292,17 @@ All positions report to Dr. Terry Flood (CEO/PI). The Program Director manages d
 
 ThriveUp's platform automatically captures:
 - Module completion rates and timestamps
-- Assessment scores (pre/post for each standard)
-- Attendance and engagement metrics
+- Assessment scores (pre/post for each standard, 50 scenario-based quiz questions)
+- Badge attainment (11 badges tracking module completion and resume milestones)
+- Resume builder progress across all 5 modules
+- Attendance and engagement metrics (including weekly live check-in participation)
 - Credential issuance records
-- Student progress dashboards
 
 The Data & Outcomes Coordinator will supplement platform data with:
 - 6-month follow-up surveys on employment and post-secondary enrollment
 - Employer partner satisfaction surveys
 - Qualitative student feedback and testimonials
+- Neighborhood champion engagement metrics
 
 All data will be reported to TWC on the schedule specified in the contract, using TWC's required formats.
 
@@ -232,21 +343,28 @@ Dr. Terry Flood serves on the SHAC for Pflugerville ISD, establishing an ongoing
 - Coordination with CTE department leadership
 - Integration with district health and wellness infrastructure
 - Shared outcome data (FERPA-compliant)
+- Support for student participation in weekly live virtual check-ins
 
-### 7.2 Employer Partners
+### 7.2 Neighborhood Champions
+
+The Collaborative Advocate recruits and coordinates neighborhood champions — local professionals, business owners, faith leaders, and mentors from the communities our students live in. Champions participate in weekly live check-ins, contribute motivational video content, and serve as accessible mentors. This model ensures that students are not just learning employability skills from a screen — they are building real relationships with professionals who look like them and have walked similar paths.
+
+### 7.3 Employer Partners
 
 The Collaborative Advocate will engage Austin-area employers to:
 - Provide input on employability skills priorities
 - Participate in career days and mock interview events
 - Offer internship and job shadow opportunities
 - Hire program completers
+- Serve as neighborhood champions in the curriculum
 
-### 7.3 Sustainability Plan
+### 7.4 Sustainability Plan
 
 Beyond the grant period, the program sustains through:
 - **Platform efficiency** — ThriveUp's AI-powered delivery reduces per-student costs as enrollment scales
 - **Credential value** — As employer recognition of the ThriveUp Workforce Readiness Certificate grows, demand for the program increases
 - **District integration** — Embedding the program into PfISD's CTE offerings creates institutional sustainability
+- **Neighborhood champion network** — Building a self-sustaining community of mentors who continue to support students beyond the grant period
 - **Additional funding** — WIOA Title I, foundation grants, corporate partnerships, and fee-for-service contracts with additional ISDs
 - **Ecosystem cross-funding** — The 24-platform ecosystem generates multiple revenue streams that support core operations
 
