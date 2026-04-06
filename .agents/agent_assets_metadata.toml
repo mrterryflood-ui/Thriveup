@@ -198,3 +198,9 @@ id = "Hwee3A0Bi0SOgHe_SxLMi"
 uri = "file://docs/pitches/ThriveUp-The-Pitch-by-Deel-2026.pptx"
 type = "slides"
 title = "ThriveUp Pitch Deck V7 — Keisha: Pregnant During Cancer, Child Struggling"
+
+[[outputs]]
+id = "Re3HbKctMBlYqWUT1Idt4"
+uri = "file://attached_assets/Agency_Fund_EOI_Collaborative_Advocate.md"
+type = "text"
+title = "Agency Fund EOI — The Collaborative Advocate Foundation"
