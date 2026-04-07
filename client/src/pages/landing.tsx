@@ -11,7 +11,10 @@ import {
   BookOpen, GraduationCap, Building2, Factory, School,
   HandshakeIcon, Quote, Award, TrendingUp,
   Wrench, ChevronDown, Mail,
-  Map, Microscope, Layers
+  Map, Microscope, Layers,
+  Globe, ExternalLink, Brain, Stethoscope, Baby, User,
+  Siren, Eye, Pill, MessageSquare, Activity,
+  Video, Megaphone, Network, Cpu
 } from "lucide-react";
 import { BackToTop } from "@/components/back-to-top";
 
@@ -346,6 +349,153 @@ function HowItWorks() {
   );
 }
 
+const ECOSYSTEM_PLATFORMS_DATA = [
+  {
+    domain: "Health Equity & Wellness",
+    color: "from-rose-500 to-pink-600",
+    platforms: [
+      { name: "Whole-Person Health Ecosystem", url: "https://mentalwellnesssupport.net", desc: "Clinical screenings (C-SSRS, PHQ-9, GAD-7, PCL-5), safety plans, crisis tools, 20,670+ resources across 2,091 community groups", icon: Heart },
+      { name: "Sankofa Health Network", url: "https://yourhealthbirthright.net", desc: "Health equity gateway orchestrating 5 sub-platforms for culturally responsive behavioral health in Black communities", icon: Stethoscope },
+      { name: "Holistic Black Feminine Health Hub", url: "https://yourfeminineneeds.com", desc: "Reproductive health, preventive screening, hormonal wellness, cervical/breast cancer awareness, culturally responsive provider matching", icon: Heart },
+      { name: "Black Maternal Health Network", url: "https://yourhealthbirthright.net", desc: "Prenatal/postnatal care navigation, certified doula matching, maternal mental health screening — addressing the 3x mortality gap", icon: Baby },
+      { name: "Black Men's Health Hub", url: "https://thehealthyblkman.com", desc: "Prostate cancer screening, cardiovascular risk assessment, mental health stigma reduction, peer mentoring for Black men", icon: User },
+      { name: "Autoimmune Center of Excellence", url: "https://autoimmunethrive.com", desc: "Daily symptom tracking, flare analysis, 80+ condition database, AI health companion — built by a founder with autoimmune disease", icon: Activity },
+      { name: "SafeCogniCare", url: "https://safecognicare.com", desc: "TBI, ADHD, dementia, and peripartum cognitive assessments (MoCA, MMSE), safety protocols, care coordination", icon: Brain },
+      { name: "PillScheduler", url: "https://pillscheduler.net", desc: "Medication management with drug interaction warnings, adaptive scheduling, refill alerts, cognitive-capacity-aware interface", icon: Pill },
+    ],
+  },
+  {
+    domain: "Education & Youth",
+    color: "from-amber-500 to-orange-600",
+    platforms: [
+      { name: "WholeMind Learning", url: "https://wholemindlearning.com", desc: "Free Pre-K to 12th grade learning — Math, Reading, Science, English, Social Studies with AI homework help and silent accessibility", icon: GraduationCap },
+      { name: "ISSS — Integrated Supports for Thriving Youth", url: "https://implementationineducatio.com", desc: "MTSS engine with Thrive Scores, early warning indicators, multi-stakeholder coordination for student support at scale", icon: School },
+      { name: "Perfectly Different", url: "https://neurodifferentassistant.app", desc: "Neurodiversity-affirming support for autism, ADHD, AuDHD — IEP/504 plan builder, executive function coaching, sensory tools", icon: Sparkles },
+      { name: "Better Science Lab / RPLICE", url: "https://bettersciencelab.com", desc: "Implementation science engine — CFIR, RE-AIM, EPIS frameworks, evidence-based practice registry, research translation tools", icon: Microscope },
+    ],
+  },
+  {
+    domain: "Veterans & Workforce",
+    color: "from-blue-500 to-indigo-600",
+    platforms: [
+      { name: "Mission Transition (M2C)", url: "https://vetmissiontransition.com", desc: "Military-to-civilian transition — MOS translation, benefits navigation, identity support, targeting the first 12-month risk window", icon: Shield },
+      { name: "Minority Center of Excellence", url: "https://minoritycenterofexcellence.com", desc: "656,794 SAM.gov records, 14 AI tools, dual-AI proposal review, certification wizard for 8(a)/HUBZone/WOSB/SDVOSB", icon: Building2 },
+      { name: "Pinnacle Business Conglomerate", url: "https://pinnaclebusinessconglomerate.com", desc: "Contractor enablement — business diagnostics, bid strategy, teaming, dual-AI proposal development, serving NAMC Austin & USHCC", icon: Briefcase },
+      { name: "The Collaborative Advocate", url: "https://thrivingcommunitiesforall.com", desc: "501(c)(3) nonprofit, veteran-founded, Black-led — the organizational backbone providing fiscal sponsorship and grant execution", icon: HandshakeIcon },
+    ],
+  },
+  {
+    domain: "Safety & Compliance",
+    color: "from-emerald-500 to-teal-600",
+    platforms: [
+      { name: "SafeReport", url: "https://safereports.net", desc: "50-state mandatory reporter system — 7-stage incident lifecycle, tamper-evident audit trails, court-admissible evidence packaging", icon: Shield },
+      { name: "Emergency Management", url: "https://emergency-mgmt.replit.app", desc: "Geographic risk mapping, multi-factor threat assessment, community resilience scoring, predictive safety modeling", icon: Siren },
+      { name: "LexiBridge (Speech Bridge)", url: "https://lexibridge.net", desc: "Dialect-aware communication — AAVE, Spanglish, 12+ dialects, real-time speech-to-text, multi-language translation", icon: MessageSquare },
+    ],
+  },
+  {
+    domain: "Community & Resources",
+    color: "from-violet-500 to-purple-600",
+    platforms: [
+      { name: "LifeBridge", url: "https://lifetransitionsaid.org", desc: "Virtual 211 — 24/7 resource navigation for housing, food, healthcare, crisis support, 20,670+ resources, life event guides", icon: Heart },
+      { name: "ThriveUp Academy", url: "https://thriveupacademy.com", desc: "The anchor platform — AI-powered workforce readiness curriculum, career pathways, 4-engine AI, community infrastructure", icon: GraduationCap },
+    ],
+  },
+  {
+    domain: "Operations & Content",
+    color: "from-gray-500 to-slate-600",
+    platforms: [
+      { name: "Ecosystem Nexus", url: "https://ecosystemnexus.net", desc: "Central coordination hub — cross-platform visibility, real-time health monitoring, directive enforcement, co-captain failover", icon: Network },
+      { name: "Video Creator AI", url: "https://videocreatorai.com", desc: "AI content production — grant presentations, training content, platform showcase videos, marketing materials for all 24 platforms", icon: Video },
+      { name: "Advertising Targeting for Platforms", url: "https://adtargetingplatforms.com", desc: "Data-driven outreach to reach underserved populations with relevant services and grant-funded programs", icon: Megaphone },
+      { name: "Code Canvas — System Evaluator", url: "https://codecanvaseval.com", desc: "Independent evaluation engine — code audits, architecture analysis, performance profiling, ecosystem coherence scoring", icon: Cpu },
+    ],
+  },
+];
+
+function EcosystemPlatformsSection() {
+  const [expanded, setExpanded] = useState(false);
+  const totalPlatforms = ECOSYSTEM_PLATFORMS_DATA.reduce((sum, d) => sum + d.platforms.length, 0);
+
+  return (
+    <section className="py-12 px-4 sm:py-16 sm:px-6" data-testid="section-ecosystem-platforms">
+      <div className="max-w-6xl mx-auto">
+        <div className="text-center mb-8">
+          <Badge variant="secondary" className="mb-3">
+            <Globe className="mr-1 h-3 w-3" /> {totalPlatforms} Live Platforms
+          </Badge>
+          <h2 className="text-2xl sm:text-3xl font-bold mb-2" data-testid="text-ecosystem-heading">
+            Our Ecosystem — Live & Connected
+          </h2>
+          <p className="text-sm text-muted-foreground max-w-2xl mx-auto">
+            Every platform is live, branded, and purpose-built. Click any link to see it yourself. This is not a roadmap — this is what's running right now.
+          </p>
+        </div>
+
+        <div className="text-center mb-6">
+          <Button
+            variant="outline"
+            size="lg"
+            onClick={() => setExpanded(!expanded)}
+            data-testid="button-show-platforms"
+          >
+            {expanded ? "Collapse Platforms" : `See All ${totalPlatforms} Platforms`}
+            <ChevronDown className={`ml-2 h-4 w-4 transition-transform ${expanded ? "rotate-180" : ""}`} />
+          </Button>
+        </div>
+
+        {expanded && (
+          <div className="space-y-8 animate-in fade-in slide-in-from-top-4 duration-500">
+            {ECOSYSTEM_PLATFORMS_DATA.map((domain) => (
+              <div key={domain.domain}>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className={`h-1 w-8 rounded-full bg-gradient-to-r ${domain.color}`} />
+                  <h3 className="font-bold text-lg" data-testid={`text-domain-${domain.domain.toLowerCase().replace(/\s+/g, '-')}`}>
+                    {domain.domain}
+                  </h3>
+                  <Badge variant="outline" className="text-xs">{domain.platforms.length}</Badge>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+                  {domain.platforms.map((platform) => (
+                    <a
+                      key={platform.name}
+                      href={platform.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group block"
+                      data-testid={`card-platform-${platform.name.toLowerCase().replace(/\s+/g, '-')}`}
+                    >
+                      <Card className="p-4 h-full transition-all duration-200 hover:shadow-md hover:border-primary/30 hover:scale-[1.01]">
+                        <div className="flex items-start gap-3 mb-2">
+                          <div className={`rounded-md p-2 bg-gradient-to-br ${domain.color} shrink-0`}>
+                            <platform.icon className="h-4 w-4 text-white" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-semibold text-sm leading-tight group-hover:text-primary transition-colors">
+                              {platform.name}
+                            </h4>
+                          </div>
+                        </div>
+                        <p className="text-xs text-muted-foreground leading-relaxed mb-3 line-clamp-3">
+                          {platform.desc}
+                        </p>
+                        <div className="flex items-center gap-1.5 text-xs text-primary/70 group-hover:text-primary transition-colors">
+                          <ExternalLink className="h-3 w-3 shrink-0" />
+                          <span className="truncate">{platform.url.replace("https://", "")}</span>
+                        </div>
+                      </Card>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
 function DeepDiveSection() {
   const [showMore, setShowMore] = useState(false);
 
@@ -650,6 +800,7 @@ export default function LandingPage() {
       </section>
 
       <SuccessStories />
+      <EcosystemPlatformsSection />
       <DeepDiveSection />
 
       <footer className="py-8 px-4 sm:py-10 sm:px-6 border-t bg-card" data-testid="footer-main">
