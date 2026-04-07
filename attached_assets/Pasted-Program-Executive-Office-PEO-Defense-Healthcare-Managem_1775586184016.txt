@@ -1,0 +1,121 @@
+Program Executive Office (PEO) Defense Healthcare Management Systems (DHMS) Deployment Solutions
+Active
+Notice ID
+HT003826RE001
+Related Notice
+HT003826RE001
+Contract Opportunity Type
+Combined Synopsis/Solicitation
+Contract Line Item Number
+(blank)
+Inactive Dates
+Dec 31, 2026
+Inactive Policy
+Manual
+Date Offers Due
+Apr 15, 2026 12:00 PM EDT
+Published Date
+Apr 06, 2026 8:52 AM EDT
+Department/Ind. Agency
+DEPT OF DEFENSE
+Sub-tier
+DEFENSE HEALTH AGENCY (DHA)
+Major Command
+(blank)
+Sub Command 1, 2, 3
+(blank)
+Office
+DEFENSE HEALTH AGENCY
+Classification
+Original Set Aside
+No Set aside used
+Product Service Code
+DA01 - IT AND TELECOM - BUSINESS APPLICATION/APPLICATION DEVELOPMENT SUPPORT SERVICES (LABOR)
+NAICS Code
+541512 - Computer Systems Design Services
+Place of Performance
+(blank)
+Initiative
+None
+Description
+The Defense Health Agency Contracting Activity (DHACA), on behalf of the Program Executive Office (PEO) Defense Healthcare Management Systems (DHMS), intends to issue a multiple award, Indefinite Delivery Indefinite Quantity (IDIQ) contract for Deployment Solutions. Deployment Solutions is a non-personal services requirement to provide all services and materials necessary to support and execute the on-demand deployment of DHMS products, and related or supporting components, including site preparation, deployment, training, user adoption, change management, and post-installation support to ensure seamless integration and minimal disruption to existing healthcare systems.
+This is a combined synopsis/solicitation for commercial products or commercial services prepared in accordance with part 12. This announcement constitutes the only solicitation. Offers are being requested and a separate written solicitation will not be issued.
+Solicitation number HT003826RE001 is issued as a request for proposal (RFP) for Deployment Solutions.
+This acquisition is not set-aside for small business concerns. This solicitation incorporates provisions and clauses by reference. The full text of provisions and clauses may be accessed electronically at www.acquisition.gov.
+See the solicitation for a description of Contract Line Item Numbers (CLINs), option periods in support of the Performance Work Statement (PWS), and a list of provisions and contract clauses that apply to the acquisition.
+Instructions for Responding
+Solicitation questions must be submitted no later than April 9, 2026 at 12:00 PM Eastern Time to the Contract Specialist listed below. Include in the Subject Line the following: Company name and Deployment Solutions.
+Proposals must be submitted electronically via a secure online submission portal by April 15, 2026 at 12:00 PM Eastern Time. See 52.212-1 Instructions to Offerors – Commercial Items for specific instructions.
+Proprietary information may be submitted; however, respondents are responsible for adequately marking proprietary, restricted or competition sensitive information contained in their response.  If a submission is marked, it will be protected from disclosure outside of Government personnel, unless permission is granted for Government support contractors to view the material.
+The following companies and individual employees are bound contractually by Organizational Conflict of Interest and disclosure clauses with respect to proprietary information, and they will take all reasonable action necessary to preclude unauthorized use or disclosure of a respondent’s proprietary data.  Responses MUST clearly state whether permission is granted allowing the support contractors identified below access to any proprietary information.
+Boston Consulting Group (BCG)
+Swing Tide
+Andrew Morgan Consulting, LLC
+Greenlight Analytic, LLC
+Monterey Consultants, INC
+This notice is for informational and market research purposes only. It does not constitute a formal Request for Proposal (RFP) and is not to be construed as a commitment by the Government to issue a solicitation or award a contract. The Government will not pay for any information or administrative costs incurred in response to this notice. All information submitted in response to this notice is voluntary, and the Government may or may not use the information to develop its acquisition strategy and final solicitation.
+Points of Contact:
+Contracting Officer: Joyce Elaine Pace-Reed, joyce.e.pace-reed.civ@health.mil
+Contract Specialist: Samantha DeLuca, dha.ncr.co.mbx.cd-dhms-contracting@health.mil
+Contact Information
+Primary Point of Contact
+Samantha DeLuca
+Email
+hailey.s.deluca.civ@health.mil
+Phone Number
+(blank)
+Alternative Point of Contact
+Joyce Elaine Pace-Reed
+Email
+joyce.e.pace-reed.civ@health.mil
+Phone Number
+(blank)
+Contracting Office Address
+DEF HC MGT SYS CONTRACT DIV DHMS-CD
+1700 NORTH MOORE STREET, SUITE 2300
+ROSSLYN, VA 22209 USA
+Attachments/Links
+Links
+No links have been added to this opportunity.
+Attachments
+Download All
+Request Access
+Document	File Size	Access	Updated Date
+Solicitation - HT003826RE001.pdf
+2.36 MB	 Public	Apr 6, 2026
+PWS - Deployment Solutions.docx
+167.13 KB	 Public	Apr 6, 2026
+Quality Assurance Surveillance Plan (QASP).docx
+55.86 KB	 Public	Apr 6, 2026
+Exhibit A001 Quality Control Plan CDRL.pdf
+52.95 KB	 Public	Apr 6, 2026
+Exhibit A002 Training Curriculum CDRL .pdf
+53.15 KB	 Public	Apr 6, 2026
+Exhibit A003 Deployment Approach CDRL.pdf
+53.72 KB	 Public	Apr 6, 2026
+Exhibit A004 Transition-In Plan CDRL.pdf
+116.9 KB	 Public	Apr 6, 2026
+Exhibit A005 Transition-Out Plan CDRL.pdf
+117.01 KB	 Public	Apr 6, 2026
+Exhibit A006 CSP CDRL.pdf
+116.92 KB	 Public	Apr 6, 2026
+Exhibit A007 CWBS CDRL.pdf
+53.12 KB	 Public	Apr 6, 2026
+Exhibit A008 Cost and Hour Report (FlexFile) CDRL.pdf
+112.7 KB	 Public	Apr 6, 2026
+Exhibit A009 Technical Data Report CDRL.pdf
+116.24 KB	 Public	Apr 6, 2026
+Exhibit A010 Implementation Plan CDRL.pdf
+53.31 KB	 Public	Apr 6, 2026
+Exhibit A011 Integrated Master Schedule CDRL.pdf
+53.9 KB	 Public	Apr 6, 2026
+DHMS Deployment DD2794 CSDR Plan.xlsx
+75.93 KB	 Public	Apr 6, 2026
+PEO DHMS Operational View.pdf
+87.25 KB	 Public	Apr 6, 2026
+Organizational Conflict of Interest (OCI) Declaration and Disclosure.docx
+54.54 KB	 Public	Apr 6, 2026
+DHA Common Federal Training List.pdf
+1.01 MB	 Public	Apr 6, 2026
+NDA DHA Form 49.pdf
+28.91 KB	 Public	Apr 6, 2026
