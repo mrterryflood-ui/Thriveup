@@ -6360,47 +6360,50 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
           ]
         },
         {
-          id: "stdavids-community-health",
-          title: "AI-Powered Community Health Infrastructure: Connecting Sankofa Health Network to Central Texas's Most Underserved Populations",
-          shortTitle: "St. David's Community Health",
-          solicitation: "Community Health Grants Cycle",
+          id: "stdavids-community-led-change",
+          title: "Community-Led Health Technology: Empowering Central Texas Communities to Define, Measure, and Improve Their Own Health Outcomes",
+          shortTitle: "St. David's Community-Led Change",
+          solicitation: "Catalyzing Community-Led Change Open Call",
           agency: "St. David's Foundation",
           entity: "TCAF (501(c)(3))",
-          priority: 2,
-          status: "concept_development",
-          fundingRange: "Up to $1,000,000",
-          budgetTarget: 750000,
-          deadline: "2026-06-30T22:00:00Z",
-          deadlineLabel: "TBD — Confirm with Christina Thompson (cthompson@stdavidsfoundation.org)",
+          priority: 1,
+          status: "loi_drafting",
+          fundingRange: "$75K–$250K (individual) / Up to $1,000,000 (collaborative)",
+          budgetTarget: 500000,
+          deadline: "2026-05-31T22:00:00Z",
+          deadlineLabel: "May 2026 — Open call expected mid-May (LOI window ~4 weeks based on 2024 pattern)",
           partnersRequired: true,
           partners: [
-            { name: "Sankofa Health Network partners", role: "Culturally responsive health delivery", status: "not_started", note: "Need to identify Central Texas health partners" },
-            { name: "CommUnityCare / FQHC partners", role: "Primary care integration", status: "not_started", note: "Natural referral pathway" }
+            { name: "Community-led health organizations (People of Color-led)", role: "Community voice, decision-making, direct service delivery", status: "not_started", note: "91% of 2024 awardees were POC-led — partner alignment critical" },
+            { name: "CommUnityCare / Lone Star Circle of Care", role: "FQHC clinical pathway + community health data", status: "not_started", note: "Natural referral pathway for health equity" },
+            { name: "Pflugerville ISD (SHAC)", role: "Family health navigation through school system", status: "in_progress", note: "Dr. Flood serves on SHAC — existing relationship" }
           ],
-          frameworkDoc: "/docs/grants/St-Davids-Community-Health-LOI-Package.md",
+          frameworkDoc: "/docs/grants/St-Davids-Community-Led-Change-LOI-Package.md",
           implementationScience: {
             frameworks: ["CFIR 2.0", "RE-AIM"],
             instrument: "RPLICE",
-            researchDesign: "Community-based participatory health equity evaluation",
-            evaluationLevel: "Health equity outcome tracking with SDOH integration"
+            researchDesign: "Community-based participatory evaluation with community-defined health priorities",
+            evaluationLevel: "Community voice + health outcome tracking with SDOH integration"
           },
           readinessChecklist: [
-            { item: "Confirm 2026 cycle deadline with Christina Thompson", status: "action_required", note: "Email drafted on St. David's prep page — SEND NOW" },
-            { item: "Draft LOI (~500 words)", status: "complete", note: "Initial draft created" },
-            { item: "Health equity data assembly (CDC PLACES, SVI)", status: "action_required", note: "Pull tract-level data for target zip codes" },
-            { item: "Partner identification and outreach", status: "not_started", note: "Need FQHC, CHW network, maternal health partners" },
-            { item: "Sankofa platform cluster documentation", status: "action_required", note: "Document live platform capabilities for submission" },
-            { item: "Final review and submission", status: "not_started", note: "Pending deadline confirmation" }
+            { item: "Draft LOI", status: "complete", note: "Initial LOI draft created — needs Dr. Flood review" },
+            { item: "Monitor St. David's website for open call announcement", status: "action_required", note: "Expected May 2026 — check stdavidsfoundation.org/funding-opportunities weekly" },
+            { item: "Research 2024 Community Driven Change awardees", status: "action_required", note: "23 orgs funded at $9.1M — study who won and why" },
+            { item: "Identify collaborative partners (POC-led orgs)", status: "action_required", note: "Collaborative applications get up to $1M vs $250K individual" },
+            { item: "Assemble community voice evidence", status: "action_required", note: "Document how TCAF platforms enable community decision-making" },
+            { item: "CDC PLACES + SVI health equity data", status: "action_required", note: "Pull tract-level data for target zip codes" },
+            { item: "Final review and submission", status: "not_started", note: "Submit within LOI window once open call goes live" }
           ],
           blockers: [
-            { issue: "Deadline unknown — must confirm 2026 Community Health Grants cycle timeline", severity: "high", resolution: "Email Christina Thompson at cthompson@stdavidsfoundation.org" }
+            { issue: "Exact open call date TBD — St. David's lists 'May 2026' but no specific date yet", severity: "medium", resolution: "Monitor funding opportunities page weekly; sign up for St. David's email newsletter" }
           ],
-          winStrategy: "The Sankofa Health Network cluster is unique — no other applicant connects Black maternal health, men's health, feminine health, cognitive safety monitoring, medication adherence, and SDOH navigation in a single integrated ecosystem. CDC PLACES tract-level data powers neighborhood-specific targeting. RPLICE provides the implementation science rigor St. David's values. TCAF's Pflugerville headquarters puts us inside the service area. Veteran-founded, Black-led organization with authentic connection to historically marginalized communities.",
+          winStrategy: "This call is about COMMUNITY VOICE AND DECISION-MAKING — not just health services. TCAF's 24-platform ecosystem is purpose-built to put data and tools in community hands. LifeBridge captures community voice. Neighborhood Intelligence translates census data into compassionate community profiles. The entire platform enables communities to define their own priorities — exactly what St. David's wants. 91% of 2024 awardees were POC-led; TCAF is Black-led and veteran-founded. Apply as COLLABORATIVE LEAD to access $1M tier. Pflugerville HQ = Williamson County presence. RPLICE provides implementation science rigor.",
           nextActions: [
-            "Email Christina Thompson to confirm 2026 Community Health Grants deadline",
-            "Assemble CDC PLACES + SVI health equity data for Williamson/Travis/Bastrop",
-            "Identify and approach FQHC and maternal health partners",
-            "Finalize LOI draft once deadline is confirmed"
+            "Sign up for St. David's Foundation email newsletter for open call alerts",
+            "Research 2024 Community Driven Change awardee list — identify patterns and gaps",
+            "Begin partner outreach to POC-led community orgs in 5-county area",
+            "Prepare collaborative application structure (TCAF as technology backbone + community partners as decision-makers)",
+            "Finalize LOI immediately when open call is announced"
           ]
         },
         {
@@ -6569,7 +6572,7 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
       "rare-impact-fund": "docs/grants/RARE-IMPACT-FUND-LOI.md",
       "dol-restart": "docs/grants/DOL-RESTART-FOA-ETA-26-17-RESEARCH.md",
       "stdavids-wab2": "docs/grants/St-Davids-WAB2-LOI-Package.md",
-      "stdavids-community-health": "docs/grants/St-Davids-Community-Health-LOI-Package.md",
+      "stdavids-community-led-change": "docs/grants/St-Davids-Community-Led-Change-LOI-Package.md",
       "agency-fund-spring2026": "attached_assets/Agency_Fund_EOI_Collaborative_Advocate.md",
       "nsf-sbir-phase1": "attached_assets/NSF_SBIR_Phase1_Concept.md",
       "nih-sbir-phase1": "attached_assets/NIH_SBIR_Phase1_Concept.md"
