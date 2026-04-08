@@ -6360,6 +6360,50 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
           ]
         },
         {
+          id: "stdavids-community-health",
+          title: "AI-Powered Community Health Infrastructure: Connecting Sankofa Health Network to Central Texas's Most Underserved Populations",
+          shortTitle: "St. David's Community Health",
+          solicitation: "Community Health Grants Cycle",
+          agency: "St. David's Foundation",
+          entity: "TCAF (501(c)(3))",
+          priority: 2,
+          status: "concept_development",
+          fundingRange: "Up to $1,000,000",
+          budgetTarget: 750000,
+          deadline: "2026-06-30T22:00:00Z",
+          deadlineLabel: "TBD — Confirm with Christina Thompson (cthompson@stdavidsfoundation.org)",
+          partnersRequired: true,
+          partners: [
+            { name: "Sankofa Health Network partners", role: "Culturally responsive health delivery", status: "not_started", note: "Need to identify Central Texas health partners" },
+            { name: "CommUnityCare / FQHC partners", role: "Primary care integration", status: "not_started", note: "Natural referral pathway" }
+          ],
+          frameworkDoc: "/docs/grants/St-Davids-Community-Health-LOI-Package.md",
+          implementationScience: {
+            frameworks: ["CFIR 2.0", "RE-AIM"],
+            instrument: "RPLICE",
+            researchDesign: "Community-based participatory health equity evaluation",
+            evaluationLevel: "Health equity outcome tracking with SDOH integration"
+          },
+          readinessChecklist: [
+            { item: "Confirm 2026 cycle deadline with Christina Thompson", status: "action_required", note: "Email drafted on St. David's prep page — SEND NOW" },
+            { item: "Draft LOI (~500 words)", status: "complete", note: "Initial draft created" },
+            { item: "Health equity data assembly (CDC PLACES, SVI)", status: "action_required", note: "Pull tract-level data for target zip codes" },
+            { item: "Partner identification and outreach", status: "not_started", note: "Need FQHC, CHW network, maternal health partners" },
+            { item: "Sankofa platform cluster documentation", status: "action_required", note: "Document live platform capabilities for submission" },
+            { item: "Final review and submission", status: "not_started", note: "Pending deadline confirmation" }
+          ],
+          blockers: [
+            { issue: "Deadline unknown — must confirm 2026 Community Health Grants cycle timeline", severity: "high", resolution: "Email Christina Thompson at cthompson@stdavidsfoundation.org" }
+          ],
+          winStrategy: "The Sankofa Health Network cluster is unique — no other applicant connects Black maternal health, men's health, feminine health, cognitive safety monitoring, medication adherence, and SDOH navigation in a single integrated ecosystem. CDC PLACES tract-level data powers neighborhood-specific targeting. RPLICE provides the implementation science rigor St. David's values. TCAF's Pflugerville headquarters puts us inside the service area. Veteran-founded, Black-led organization with authentic connection to historically marginalized communities.",
+          nextActions: [
+            "Email Christina Thompson to confirm 2026 Community Health Grants deadline",
+            "Assemble CDC PLACES + SVI health equity data for Williamson/Travis/Bastrop",
+            "Identify and approach FQHC and maternal health partners",
+            "Finalize LOI draft once deadline is confirmed"
+          ]
+        },
+        {
           id: "agency-fund-spring2026",
           title: "ThriveUp Academy: An AI-Powered Community Agency Platform — Turning Census Data into Compassionate Action",
           shortTitle: "Agency Fund EOI",
@@ -6525,6 +6569,7 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
       "rare-impact-fund": "docs/grants/RARE-IMPACT-FUND-LOI.md",
       "dol-restart": "docs/grants/DOL-RESTART-FOA-ETA-26-17-RESEARCH.md",
       "stdavids-wab2": "docs/grants/St-Davids-WAB2-LOI-Package.md",
+      "stdavids-community-health": "docs/grants/St-Davids-Community-Health-LOI-Package.md",
       "agency-fund-spring2026": "attached_assets/Agency_Fund_EOI_Collaborative_Advocate.md",
       "nsf-sbir-phase1": "attached_assets/NSF_SBIR_Phase1_Concept.md",
       "nih-sbir-phase1": "attached_assets/NIH_SBIR_Phase1_Concept.md"
