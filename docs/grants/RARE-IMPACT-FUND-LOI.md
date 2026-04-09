@@ -7,7 +7,7 @@
 **Contact:** Dr. Terry Flood, DHA — Founder & CEO
 **Email:** mr.terryflood@gmail.com
 **Website:** thrivingcommunitiesforall.com
-**Funding Request:** $400,000 (2-year program support)
+**Funding Request:** $350,000 (2-year program support)
 **LOI Deadline:** April 10, 2026
 **Submission Link:** https://forms.gle/jeP6kpsLMt6haw9m8
 
@@ -78,15 +78,15 @@ Youth voice enters the program at three points: (1) LifeBridge community input s
 
 ### Funding Request
 
-**$400,000** over 2 years ($200,000/year)
+**$350,000** over 2 years ($175,000/year)
 
 High-level allocation:
-- Participant stipends and support: $100,000
-- Training delivery and curriculum: $80,000
-- Staff (Program Director, Training Coordinator): $120,000
-- Technology infrastructure (ThriveUp Academy platform): $40,000
-- Evaluation (RPLICE + MAP-GAP): $30,000
-- Indirect costs (under 20%): $30,000
+- Participant stipends and support: $85,000
+- Training delivery and curriculum: $70,000
+- Staff (Program Director, Training Coordinator): $100,000
+- Technology infrastructure (ThriveUp Academy platform): $35,000
+- Evaluation (RPLICE + MAP-GAP): $25,000
+- Indirect costs (under 20%): $35,000
 
 ### Partnerships (Optional)
 
@@ -94,6 +94,7 @@ High-level allocation:
 - **Integral Care** — Austin/Travis County mental health authority; downstream placement partner for trained nonclinical providers
 - **Lone Star Circle of Care** — FQHC serving Williamson County; clinical supervision and placement for CHW and navigator roles
 - **NAMI Central Texas** — Peer support specialist training alignment and referral partnership
+- **Hargrave Innovative Solutions (HIS) & Universal Spectrum** — Grant administration, compliance management, and program operations support; 50+ years combined experience across federal contracting, workforce development, and nonprofit program management
 
 ---
 

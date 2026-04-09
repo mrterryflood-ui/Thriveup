@@ -252,3 +252,9 @@ id = "fLg4JnlYbEDwrtMx-6Lnl"
 uri = "file://docs/grants/TCAF-Leadership-Staff-Overview.doc"
 type = "word_document"
 title = "TCAF Leadership & Staff Overview — Updated with Meredith Sisnett"
+
+[[outputs]]
+id = "0KnKIF1tMgCyFxM8nIdYp"
+uri = "file://docs/grants/TCAF-Rare-Impact-Fund-LOI-Narrative.doc"
+type = "word_document"
+title = "TCAF Rare Impact Fund LOI Narrative — Final (Upload This)"

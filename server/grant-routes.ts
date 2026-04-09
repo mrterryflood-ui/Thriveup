@@ -6240,7 +6240,7 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
           priority: 1,
           status: "loi_drafted",
           fundingRange: "$250,000 - $500,000",
-          budgetTarget: 400000,
+          budgetTarget: 350000,
           deadline: "2026-04-10T23:59:59Z",
           deadlineLabel: "April 10, 2026 — LOI via Google Form",
           partnersRequired: false,
