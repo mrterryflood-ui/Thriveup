@@ -6232,37 +6232,49 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
         },
         {
           id: "rare-impact-fund",
-          title: "ThriveUp Community Infrastructure: Workforce Development and Life Skills for Underserved Populations",
-          shortTitle: "RARE Impact Fund LOI",
-          solicitation: "RARE Impact Fund",
-          agency: "RARE Impact Fund",
+          title: "Pathways to Purpose: Building Central Texas's Nonclinical Youth Mental Health Workforce",
+          shortTitle: "Rare Impact Fund LOI",
+          solicitation: "Strengthening the Nonclinical Youth Mental Health Workforce RFP",
+          agency: "Rare Impact Fund (Selena Gomez / Hopewell Fund)",
           entity: "TCAF (501(c)(3))",
           priority: 1,
           status: "loi_drafted",
-          fundingRange: "Per fund guidelines",
-          budgetTarget: 150000,
+          fundingRange: "$250,000 - $500,000",
+          budgetTarget: 400000,
           deadline: "2026-04-10T23:59:59Z",
-          deadlineLabel: "April 10, 2026",
+          deadlineLabel: "April 10, 2026 — LOI via Google Form",
           partnersRequired: false,
-          partners: [],
+          partners: [
+            { name: "Pflugerville ISD", role: "Recruitment pipeline via SHAC; school-based placement", status: "in_progress", note: "Dr. Flood on SHAC — existing relationship" },
+            { name: "Integral Care", role: "Downstream placement partner for trained nonclinical providers", status: "not_started", note: "Austin/Travis County mental health authority" },
+            { name: "Lone Star Circle of Care", role: "FQHC clinical supervision and CHW/navigator placement", status: "not_started", note: "Serving Williamson County" },
+            { name: "NAMI Central Texas", role: "Peer support specialist training alignment", status: "not_started", note: "Referral partnership" }
+          ],
           frameworkDoc: "/docs/grants/RARE-IMPACT-FUND-LOI.md",
           implementationScience: {
             frameworks: ["CFIR 2.0", "RE-AIM"],
             instrument: "RPLICE",
-            researchDesign: "Implementation-focused program evaluation",
-            evaluationLevel: "Process and outcome evaluation"
+            researchDesign: "Implementation science-driven workforce pipeline evaluation",
+            evaluationLevel: "Fidelity monitoring + disaggregated outcome tracking across full pipeline"
           },
           readinessChecklist: [
-            { item: "Letter of Intent", status: "complete", note: "LOI framework drafted" },
-            { item: "Program Description", status: "complete", note: "4 core modules defined" },
-            { item: "Final LOI Review", status: "action_required", note: "Due April 10 — 5 days remaining" },
-            { item: "Submission", status: "action_required", note: "Submit LOI by deadline" }
+            { item: "LOI Narrative Draft", status: "complete", note: "Full 1-2 page narrative drafted — all RFP prompts addressed" },
+            { item: "501(c)(3) determination letter", status: "action_required", note: "Dr. Flood to provide — REQUIRED for submission" },
+            { item: "Most recent Form 990 or org budget", status: "action_required", note: "Dr. Flood to provide — REQUIRED for submission" },
+            { item: "Leadership/staff overview", status: "action_required", note: "Board, exec leadership, key staff with expertise descriptions" },
+            { item: "Dr. Flood review of narrative", status: "action_required", note: "Needs his voice and approval before submission" },
+            { item: "Submit Google Form", status: "action_required", note: "https://forms.gle/jeP6kpsLMt6haw9m8 — DUE APRIL 10" }
           ],
-          blockers: [],
-          winStrategy: "Community infrastructure approach differentiates from pure workforce programs. ThriveUp wraps training in behavioral health, housing, and family support that other applicants can't match.",
+          blockers: [
+            { issue: "501(c)(3) letter and Form 990 needed from Dr. Flood before submission", severity: "critical", resolution: "Dr. Flood must provide these documents ASAP — cannot submit without them" }
+          ],
+          winStrategy: "RPLICE is the differentiator — no other applicant has a proprietary implementation science engine that monitors workforce training fidelity AND drives 30-day improvement cycles. TCAF covers ALL 5 pipeline stages (recruit, train, place, upskill, retain) while most applicants will only cover 1-2. Culturally responsive curriculum is LIVE (not proposed). GIS intelligence targets recruitment to exact census tracts with highest need. Black-led, veteran-founded = authentic community rootedness. The technology platform is permanent infrastructure, not a time-limited program.",
           nextActions: [
-            "Final LOI review and polish",
-            "Submit by April 10"
+            "Dr. Flood: Review LOI narrative and provide feedback IMMEDIATELY",
+            "Dr. Flood: Provide 501(c)(3) determination letter",
+            "Dr. Flood: Provide most recent Form 990 or organizational budget",
+            "Prepare leadership/staff overview document",
+            "Submit via Google Form by April 10, 2026"
           ]
         },
         {
