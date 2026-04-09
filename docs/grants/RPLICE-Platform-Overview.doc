@@ -1,0 +1,143 @@
+
+  <html>
+  <head>
+  <meta charset="utf-8">
+  <style>
+  body { font-family: 'Calibri', 'Arial', sans-serif; font-size: 11pt; line-height: 1.4; margin: 1in; color: #1a1a1a; }
+  h1 { font-size: 16pt; font-weight: bold; margin-top: 18pt; margin-bottom: 6pt; color: #1a1a1a; }
+  h2 { font-size: 13pt; font-weight: bold; margin-top: 14pt; margin-bottom: 4pt; color: #2a2a2a; }
+  h3 { font-size: 11pt; font-weight: bold; margin-top: 10pt; margin-bottom: 3pt; color: #2a2a2a; }
+  p { margin: 4pt 0; }
+  ul, ol { margin: 4pt 0 4pt 20pt; }
+  li { margin: 2pt 0; }
+  strong { font-weight: bold; }
+  code { font-family: 'Courier New', monospace; font-size: 10pt; background: #f5f5f5; padding: 1px 3px; }
+  table { border-collapse: collapse; margin: 8pt 0; width: 100%; }
+  th, td { border: 1px solid #ccc; padding: 4pt 8pt; text-align: left; font-size: 10pt; }
+  th { background: #f0f0f0; font-weight: bold; }
+  </style>
+  </head>
+  <body>
+  <h1>RPLICE — The Research-to-Practice Implementation Platform</h1>
+
+<h2>Overview</h2>
+<p>RPLICE is an AI-assisted platform designed to bridge the research-to-practice gap in implementation science. Its core purpose is to translate evidence-based research into routine practice more effectively by integrating evidence discovery, implementation design, project execution, evaluation, and sustainment. The platform operationalizes established implementation frameworks (CFIR 2.0, RE-AIM, EPIS, FAST, MADI, ADKAR, IRLM) and utilizes the MAP-GAP methodology for adaptive learning. It supports diverse operational modes such as Implementation Science, Military Planning, and Climate & Environment, aiming to accelerate implementation speed as measured by the FAST framework. RPLICE incorporates a comprehensive AI knowledge base, including the 2026 Springer special collection on implementation science advancements, to drive its capabilities.</p>
+
+<h2>User Preferences</h2>
+<p>Preferred communication style: Simple, everyday language.</p>
+
+<h2>System Architecture</h2>
+
+<h3>UI/UX Decisions</h3>
+<p>The platform features a modern, responsive UI built with React 18, TypeScript, Tailwind CSS, and shadcn/ui, offering both light and dark modes. Key UX elements include a global command palette, persona-based quick starts, PWA support, an 8-section collapsible sidebar, lifecycle-aware tool recommendations, and a comprehensive Help & Manual. A "Guided Start" provides role-specific journeys, and an Educational Design System is used to scaffold AI output and user learning, emphasizing human expertise amplification.</p>
+
+<h3>Technical Implementations</h3>
+<p>The frontend uses Vite, Wouter for routing, TanStack React Query for state management, and React Hook Form with Zod for forms. The backend is an Express.js application in TypeScript with PostgreSQL and Drizzle ORM. AI capabilities are integrated via OpenAI, Anthropic Claude, and Perplexity Sonar Pro. Authentication is session-based using magic links, and AI chat responses are rendered with ReactMarkdown. DALL-E 3 is used for image generation.</p>
+
+<p>Core features include:</p>
+<ul>
+<li><strong>Unified Project Assessment Pipeline</strong>: Automates project assessment for "Implementation" and "Research Protocol" modes, supporting multi-site capabilities and PPTX export.</li>
+<li><strong>Smart Plan Generator</strong>: Provides multi-modal input, AI orchestration, an 8-step implementation wizard, comparison views, branching scenarios, and multi-format export.</li>
+<li><strong>User Workspace</strong>: Offers per-user sandboxes, a personal AI assistant, document management, and project creation.</li>
+<li><strong>Evidence-Based Programs Gateway</strong>: Aggregates 14 major evidence registries and streamlines project creation.</li>
+<li><strong>Unified Evidence Discovery System</strong>: Searches 4 live scholarly databases and 13 evidence registries with AI-generated insights.</li>
+<li><strong>Custom Tool Builder</strong>: Enables autonomous tool creation with automated quality checks.</li>
+<li><strong>Project Workflow</strong>: A 6-step Project Wizard with AI recommendations, Validation & Fidelity Hub, and SALP engine for continuous improvement.</li>
+<li><strong>Action-Oriented Tools</strong>: Supports the ASSESS → UNDERSTAND → APPLY → DISSEMINATE cycle.</li>
+<li><strong>Scale-Up & Spread Planner</strong>: A comprehensive tool for scaling evidence-based interventions, including scaling factor assessments, the Hexagon Tool, and integration of multiple scaling frameworks.</li>
+<li><strong>Discipline Rosetta Stone</strong>: A cross-discipline translation tool supporting 14 professional disciplines, featuring AI-powered content translation, a universal crosswalk table, and multiple output formats.</li>
+<li><strong>9 Advanced IS Gap-Filling Tools</strong>: Includes Re-Implementation Workflow, Implementation Climate Assessment, Dynamic Barriers & Facilitators, De-Implementation Planning, MADI Adaptation Tracker, Champion Preparation ADKAR, Implementation Costing, Equity-Focused TMF Adapter, and Context-Adapted ERIC Strategies.</li>
+<li><strong>CFDE Dataset Explorer</strong>: Facilitates browsing and analysis of 17 NIH Common Fund datasets for research proposals, with live API access and AI-powered cross-dataset analysis.</li>
+<li><strong>Evidence-to-Impact Lifecycle Dashboard</strong>: Manages a 7-stage lifecycle from evidence to community impact, featuring AI-generated implementation plans, role-specific views, HIPAA-compliant data access, and qualitative data capture.</li>
+<li><strong>Case Studies Showcase</strong> (<code>/case-studies</code>): Three interactive Evidence-to-Impact lifecycle case studies: (1) MoTrPAC Exercise Biomarker Screening (San Antonio TX, health/biomedical), (2) Workplace Financial Wellness (Detroit MI, financial/workforce), and (3) Austin Hybrid Transit (Austin TX, urban policy/SDOH — FEATURED EXAMPLE). Each walks all 7 stages with downloadable PPTX + DOCX. Demonstrates platform versatility and scientific replicability across domains.</li>
+<li><strong>Austin Transit Feasibility Study</strong> (<code>/transit-feasibility</code>): Full Evidence-to-Impact lifecycle-framed analysis of hybrid rideshare credits vs. low-ridership bus routes. Includes 7-stage lifecycle tracker, interactive ROI calculator, crime/education/health impact modeling, City Council motions, and "How This Was Built" explainer. Labeled as FEATURED EXAMPLE. Links to city-specific micro plans.</li>
+<li><strong>Transit City-Specific Micro Plans</strong> (<code>/transit-city-plans</code>): Three city-specific micro transit implementation plans adapted from the macro transit concept. Same 3-city structure as exRNA: San Francisco (Muni/SFMTA, union negotiations, multilingual), Fayetteville NC (FAST transit, Ft. Liberty military, rural-adjacent), Austin TX (Capital Metro, East Austin equity, Council-ready). Each city has CFIR barriers, ERIC strategies, RE-AIM targets, PDSA cycles, fidelity plan (FIXED rideshare mechanism vs ADAPTABLE routes/credits/partners), data governance, and EPIS timeline. 8 downloadable documents via <code>scripts/generate-transit-docs.ts</code>.</li>
+<li><strong>exRNA + Metabolomics Implementation Plan</strong> (<code>/exrna-implementation</code>): Macro-level implementation plan bridging two CFDE datasets (exRNA Atlas + Metabolomics Workbench) for non-invasive liquid biopsy screening at community health centers. Covers BLUF, evidence synthesis, target conditions, CFIR 2.0/RE-AIM/EPIS frameworks, site selection (San Francisco, Fayetteville NC, Austin TX), licensing/regulatory pathway, entity roles (ThriveUp/CAF/CIP), HIPAA tiers, R03 grant connection (RFA-RM-26-017), and cross-dataset analysis. Macro document before city-specific adaptation.</li>
+<li><strong>exRNA City-Specific Micro Plans</strong> (<code>/exrna-city-plans</code>): Three city-specific micro implementation plans adapted from the macro plan. Each city has: city-specific BLUF, real Census demographics, healthcare infrastructure map, city-specific CFIR barrier scoring (9 constructs with different weights), adapted ERIC strategies, city-adapted RE-AIM targets, 3 PDSA cycles per city, fidelity monitoring (FIXED core panel vs ADAPTABLE workflow), local partnership map, adaptation boundaries with flexibility ratings, HIPAA implementation per city, and EPIS timeline. Cities: San Francisco (UCSF/FQHC/multilingual), Fayetteville NC (military/veteran/TBI-PTSD), Austin TX (Dell Med/East Austin equity/promotoras). 8 downloadable documents (1 macro + 3 city × PPTX + DOCX) generated via <code>scripts/generate-exrna-docs.ts</code>.</li>
+<li><strong>Resilience & Validation Infrastructure</strong>: Enforces a "5-Point Resilience Pattern" including data persistence, type safety, validation, atomicity, and fault tolerance, with AI response validation using Zod schemas.</li>
+</ul>
+
+<h3>System Design Choices</h3>
+<p>The data layer utilizes PostgreSQL with Drizzle ORM. Development uses <code>tsx</code>, with esbuild for server production builds and Vite for client builds. Security measures include session security, CSRF protection, rate limiting, security headers, audit logging, and input sanitization. Comprehensive SEO infrastructure is also in place.</p>
+
+<h2>External Dependencies</h2>
+
+<h3>Database</h3>
+<ul>
+<li><strong>PostgreSQL</strong>: Primary relational database.</li>
+</ul>
+
+<h3>AI Services</h3>
+<ul>
+<li><strong>OpenAI GPT (gpt-5-mini / gpt-4o / gpt-5.2)</strong>: Primary AI engine and synthesis coordinator.</li>
+<li><strong>Anthropic Claude (claude-sonnet-4-6)</strong>: Independent critical evaluation and parallel processing.</li>
+<li><strong>Perplexity Sonar Pro</strong>: Live web search with real-time citations, integrating with academic libraries like Springer Nature, PubMed, and BioMed Central.</li>
+<li><strong>DeepSeek V3 (deepseek/deepseek-v3.2)</strong>: Cross-disciplinary AI insights (backend fallback).</li>
+</ul>
+
+<h3>Hallucination Controls & Citation Verification</h3>
+<ul>
+<li><strong>Citation Verification Pipeline</strong>: Validates citations against CrossRef and PubMed APIs.</li>
+<li><strong>Framework Validation</strong>: Checks AI outputs against CFIR, RE-AIM, and ERIC constructs.</li>
+<li><strong>Claim Classification</strong>: Classifies claims as [EVIDENCE-BASED], [INFERRED], or [SPECULATIVE].</li>
+</ul>
+
+<h3>Email Services</h3>
+<ul>
+<li><strong>Gmail</strong>: For reports and notifications.</li>
+<li><strong>Resend</strong>: For transactional emails.</li>
+</ul>
+
+<h3>UI Component Libraries</h3>
+<ul>
+<li><strong>Radix UI</strong>: Accessible, unstyled UI primitives.</li>
+<li><strong>shadcn/ui</strong>: Component library built on Radix UI and Tailwind CSS.</li>
+<li><strong>recharts</strong>: Charting library.</li>
+<li><strong>lucide-react</strong>: Icon library.</li>
+</ul>
+
+<h3>Form & Validation</h3>
+<ul>
+<li><strong>react-hook-form</strong>: Form state management.</li>
+<li><strong>zod</strong>: Schema validation.</li>
+</ul>
+
+<h3>Styling</h3>
+<ul>
+<li><strong>tailwindcss</strong>: Utility-first CSS framework.</li>
+</ul>
+
+<h3>SMS Alerts</h3>
+<ul>
+<li><strong>Twilio</strong>: For sending SMS text alerts.</li>
+</ul>
+
+<h3>Scholarly Research Integration</h3>
+<ul>
+<li><strong>PubMed, Semantic Scholar, CrossRef, Europe PMC, Springer Nature, medRxiv, bioRxiv</strong>: Live academic databases.</li>
+</ul>
+
+<h3>National Data Intelligence</h3>
+<ul>
+<li>Live API connections to federal data sources including Census Bureau ACS, BLS, CDC WONDER & PLACES, FBI UCR, HRSA, FDA, SAMHSA, EPA.</li>
+</ul>
+
+<h3>ThriveUp Ecosystem Integration</h3>
+<ul>
+<li><strong>Ecosystem Connector, Quality Gate API, Ecosystem Evidence Dashboard, Evidence Chain</strong>: For inter-platform communication.</li>
+</ul>
+
+<h3>NCI EBCCP Integration</h3>
+<ul>
+<li>Integration with NCI's Evidence-Based Cancer Control Programs database.</li>
+</ul>
+
+<h3>Google Cloud Data Warehouse Integration</h3>
+<ul>
+<li><strong>BigQuery Data Explorer, Connection API, Datastream CDC</strong>: For data exploration and real-time change data capture.</li>
+</ul>
+
+<h3>Parker Dewey Execution Hub</h3>
+<ul>
+<li>Manages project execution, team assignment, AI analysis, and deliverable tracking.</li>
+</ul></body></html>

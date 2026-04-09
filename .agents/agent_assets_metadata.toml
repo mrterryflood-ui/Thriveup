@@ -234,3 +234,9 @@ id = "WxpEZ7xBFQNRV2_qfalWX"
 uri = "file://docs/grants/RARE-IMPACT-FUND-LOI.md"
 type = "text"
 title = "Rare Impact Fund LOI — Pathways to Purpose (Due April 10, 2026)"
+
+[[outputs]]
+id = "2IxJyaiNxtfejEykA_lew"
+uri = "file://docs/grants/RPLICE-Platform-Overview.doc"
+type = "word_document"
+title = "RPLICE Platform Overview — Word Document"
