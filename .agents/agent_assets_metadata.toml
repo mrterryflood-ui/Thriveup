@@ -228,3 +228,9 @@ id = "ucwoijIrUrJCK1DarrzAa"
 uri = "file://docs/grants/PFISD-PARTNER-LETTER-TEMPLATE.md"
 type = "text"
 title = "PfISD Partner Letter Template (Internal - Multi-Use)"
+
+[[outputs]]
+id = "WxpEZ7xBFQNRV2_qfalWX"
+uri = "file://docs/grants/RARE-IMPACT-FUND-LOI.md"
+type = "text"
+title = "Rare Impact Fund LOI — Pathways to Purpose (Due April 10, 2026)"
