@@ -240,3 +240,9 @@ id = "2IxJyaiNxtfejEykA_lew"
 uri = "file://docs/grants/RPLICE-Platform-Overview.doc"
 type = "word_document"
 title = "RPLICE Platform Overview — Word Document"
+
+[[outputs]]
+id = "lj252nah1mojDodaoHWv7"
+uri = "file://docs/grants/TCAF-Organizational-Budget-FY2025-2026.doc"
+type = "word_document"
+title = "TCAF Organizational Budget FY2025-2026 (for Rare Impact Fund LOI)"
