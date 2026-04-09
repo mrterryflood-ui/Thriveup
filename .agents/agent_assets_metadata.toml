@@ -245,4 +245,10 @@ title = "RPLICE Platform Overview — Word Document"
 id = "lj252nah1mojDodaoHWv7"
 uri = "file://docs/grants/TCAF-Organizational-Budget-FY2025-2026.doc"
 type = "word_document"
-title = "TCAF Organizational Budget FY2025-2026 (for Rare Impact Fund LOI)"
+title = "TCAF Organizational Budget FY2025-2026"
+
+[[outputs]]
+id = "fLg4JnlYbEDwrtMx-6Lnl"
+uri = "file://docs/grants/TCAF-Leadership-Staff-Overview.doc"
+type = "word_document"
+title = "TCAF Leadership & Staff Overview (for Rare Impact Fund LOI)"
