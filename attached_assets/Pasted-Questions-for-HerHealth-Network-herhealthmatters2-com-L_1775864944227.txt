@@ -1,0 +1,22 @@
+Questions for HerHealth Network (herhealthmatters2.com)
+List all 70 condition platforms — I need the complete list, not just the ones we've discussed. Every condition is a potential CDMRP topic match.
+Does HerHealth cover any of these specifically? Lung cancer, kidney cancer/kidney disease, pancreatic cancer, melanoma/skin cancer, ovarian cancer, rare cancers, epilepsy, multiple sclerosis, vision/eye health (glaucoma, diabetic retinopathy), hearing health, Lyme disease or tick-borne illness, ALS, Parkinson's, muscular dystrophy, neurofibromatosis, sickle cell disease, lupus, rheumatoid arthritis
+What screening tools or assessments are built into HerHealth? Self-assessment quizzes, risk calculators, symptom checkers, appointment preparation tools — list everything interactive, not just informational pages.
+What data does HerHealth collect on users? Page views, resource clicks, condition searches, ZIP code, AI navigator conversations — anything that could serve as preliminary outcome data for a grant application.
+Questions for TheHealthyBlkMan
+What conditions/health topics does it cover? Specifically: prostate cancer, cardiovascular disease, diabetes, mental health/depression, substance use, chronic pain, sexual health, anything else.
+How many condition pages or health domains does it have?
+Any screening tools, risk assessments, or interactive features?
+Questions for SafeCogniCare
+What specific conditions does it cover? TBI, dementia, Alzheimer's, Parkinson's, ALS, epilepsy, brain cancer — which ones exactly?
+What assessment or screening tools are built in? Cognitive screening, caregiver burden assessments, care navigation features?
+Questions for Whole-Person Health
+Full list of validated screening instruments — you mentioned PHQ-9, GAD-7, C-SSRS. What else? AUDIT for alcohol? DAST for drugs? PCL-5 for PTSD? Pain scales?
+What behavioral health conditions does it cover beyond mental health? Sleep, chronic pain, substance use, eating disorders?
+Questions for the Other Platforms
+M2C — What does it stand for, what does it cover, who does it serve? Is it specifically veteran transition?
+Perfectly Different — Is it autism-only or does it cover other neurodevelopmental/childhood conditions? (DMD, intellectual disability, ADHD, learning disabilities?)
+Autoimmune Thrive — Which autoimmune conditions? MS, lupus, RA, Crohn's, celiac, psoriasis, Type 1 diabetes — which ones specifically?
+LifeBridge — What does it cover? Substance use recovery only, or broader? Does it include harm reduction, MAT navigation, recovery housing?
+Maternal health platform — Is this separate from HerHealth? What does it cover specifically? Preeclampsia, gestational diabetes, postpartum depression, maternal mortality, doula/midwife navigation?
+Any other platforms I don't know about yet? You mentioned a "Sankofa network" and "3-platform ecosystem" but there seem to be more than 3. Give me the complete list of every platform in the ecosystem.
