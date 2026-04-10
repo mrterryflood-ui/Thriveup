@@ -57,6 +57,8 @@ interface GrantEntry {
   documents: { name: string; path: string }[];
   notes: string;
   url?: string;
+  submitUrl?: string;
+  submitPortal?: string;
   priority: 1 | 2 | 3;
   submittedDate?: string;
   contactName?: string;
@@ -96,6 +98,8 @@ const INITIAL_GRANTS: GrantEntry[] = [
     ],
     notes: "LOI submitted April 9. $350K over 2 years. All 5 pipeline stages. Waiting for Stage 2 invitation.",
     url: "https://forms.gle/jeP6kpsLMt6haw9m8",
+    submitUrl: "https://forms.gle/jeP6kpsLMt6haw9m8",
+    submitPortal: "Google Forms",
     priority: 1,
     submittedDate: "April 9, 2026",
     contactName: "Rare Impact Fund Program Team",
@@ -116,6 +120,8 @@ const INITIAL_GRANTS: GrantEntry[] = [
       { name: "TWC Narrative Draft", path: "/docs/grants/TWC-RFA-32026-00162-NARRATIVE.md" },
     ],
     notes: "Live curriculum is the differentiator. 5 modules, 20 lessons, 50 questions serving via API. Due April 14, 10AM CDT.",
+    submitUrl: "https://apps.hhs.texas.gov/esbd/",
+    submitPortal: "Texas ESBD",
     priority: 1,
   },
   {
@@ -150,6 +156,8 @@ const INITIAL_GRANTS: GrantEntry[] = [
     ],
     notes: "LOI package ready. Waiting on signed PfISD support letter from Traci Hendrix (traci.hendrix@pfisd.net). She sent to CAO for review.",
     url: "https://stdavidsfoundation.org/funding-opportunities",
+    submitUrl: "https://stdavidsfoundation.org/funding-opportunities",
+    submitPortal: "St. David's Foundation Portal",
     priority: 1,
     contactName: "Traci Hendrix",
     contactEmail: "traci.hendrix@pfisd.net",
@@ -172,6 +180,8 @@ const INITIAL_GRANTS: GrantEntry[] = [
     ],
     notes: "Texas Coordination Hub. Needs university Co-PI partner (Huston-Tillotson or Texas State recommended). Biggest single opportunity at $3M total.",
     url: "https://www.nsf.gov/pubs/2026/nsf26508/nsf26508.htm",
+    submitUrl: "https://www.research.gov/",
+    submitPortal: "Research.gov",
     priority: 1,
     contactName: "NSF AI-Ready Program",
     contactEmail: "ai-ready@nsf.gov",
@@ -192,6 +202,8 @@ const INITIAL_GRANTS: GrantEntry[] = [
       { name: "Proposal Framework (15-page)", path: "/docs/grants/NSF-TechAccess-Proposal-Framework.md" },
     ],
     notes: "15-page project description. Dependent on LOI submission June 16 and university partner secured by May 15.",
+    submitUrl: "https://www.research.gov/",
+    submitPortal: "Research.gov",
     priority: 1,
   },
   {
@@ -207,11 +219,11 @@ const INITIAL_GRANTS: GrantEntry[] = [
     platforms: ["TCAF", "LifeBridge"],
     category: "federal",
     documents: [],
-    notes: "Housing instability cascade mapping in Austin, TX (ZIP codes 78741, 78702, 78753). Partners: Austin Housing Authority, ECHO, Foundation Communities, Central Health, Integral Care. Submit via eRA Commons / ASSIST. RPLICE Pipeline at /r03-pipeline. SAM.gov registration required (EIN 41-3618003). Most urgent NIH submission.",
+    notes: "Housing instability cascade mapping in Austin, TX (ZIP codes 78741, 78702, 78753). Partners: Austin Housing Authority, ECHO, Foundation Communities, Central Health, Integral Care. RPLICE Pipeline at /r03-pipeline. SAM.gov registration required (EIN 41-3618003). Most urgent NIH submission.",
     url: "https://grants.nih.gov/grants/guide/pa-files/PA-25-302.html",
+    submitUrl: "https://public.era.nih.gov/assist",
+    submitPortal: "NIH ASSIST / eRA Commons",
     priority: 1,
-    contactName: "eRA Commons / ASSIST",
-    contactEmail: "https://public.era.nih.gov/assist",
   },
   {
     id: "nih-r03-shield-austin",
@@ -226,8 +238,10 @@ const INITIAL_GRANTS: GrantEntry[] = [
     platforms: ["TCAF", "LifeBridge", "Sankofa Health Network"],
     category: "federal",
     documents: [],
-    notes: "Overdose prevention cascade mapping in Austin, TX (78741, 78702, 78753). Partners: Integral Care, Travis County Opioid Task Force, Austin Harm Reduction Coalition, ATCEMS. Austin OD rate 33/100K (highest in TX), 279 fentanyl deaths 2023, 78753 OD rate 44.8/100K. Submit via eRA Commons / ASSIST.",
+    notes: "Overdose prevention cascade mapping in Austin, TX (78741, 78702, 78753). Partners: Integral Care, Travis County Opioid Task Force, Austin Harm Reduction Coalition, ATCEMS. Austin OD rate 33/100K (highest in TX), 279 fentanyl deaths 2023, 78753 OD rate 44.8/100K.",
     url: "https://grants.nih.gov/grants/guide/pa-files/PAR-25-233.html",
+    submitUrl: "https://public.era.nih.gov/assist",
+    submitPortal: "NIH ASSIST / eRA Commons",
     priority: 2,
   },
   {
@@ -243,6 +257,8 @@ const INITIAL_GRANTS: GrantEntry[] = [
     category: "federal",
     documents: [],
     notes: "Full-scale integrated intervention combining housing stabilization with substance use prevention across 6-8 sites. Cluster randomized stepped-wedge design. Builds on both R03 pilots (AIM-Housing + SHIELD-Austin) as preliminary data. All R03 partners plus expanded network. $1.25M over 5 years.",
+    submitUrl: "https://public.era.nih.gov/assist",
+    submitPortal: "NIH ASSIST / eRA Commons",
     priority: 2,
   },
   {
@@ -539,6 +555,34 @@ function GrantRow({ grant }: { grant: GrantEntry }) {
 
       {expanded && (
         <div className="px-10 pb-4 space-y-3 bg-muted/10">
+          {(grant.submitUrl || grant.url) && (
+            <div className="flex gap-2 mb-1">
+              {grant.submitUrl && (
+                <a
+                  href={grant.submitUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-xs font-semibold hover:opacity-90 transition-opacity"
+                  data-testid={`link-submit-${grant.id}`}
+                >
+                  <Send className="h-3.5 w-3.5" />
+                  Submit via {grant.submitPortal || "Portal"}
+                </a>
+              )}
+              {grant.url && grant.url !== grant.submitUrl && (
+                <a
+                  href={grant.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border text-xs font-medium hover:bg-muted transition-colors"
+                  data-testid={`link-foa-${grant.id}`}
+                >
+                  <ExternalLink className="h-3.5 w-3.5" />
+                  View Funding Opportunity
+                </a>
+              )}
+            </div>
+          )}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
             <div>
               <p className="font-semibold text-muted-foreground mb-1">Details</p>
@@ -584,11 +628,6 @@ function GrantRow({ grant }: { grant: GrantEntry }) {
             <p className="font-semibold text-muted-foreground mb-1">Notes</p>
             <p className="text-muted-foreground">{grant.notes}</p>
           </div>
-          {grant.url && (
-            <a href={grant.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-primary hover:underline">
-              <ExternalLink className="h-3 w-3" /> Open Grant Page
-            </a>
-          )}
         </div>
       )}
     </div>
