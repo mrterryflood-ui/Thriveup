@@ -258,3 +258,9 @@ id = "0KnKIF1tMgCyFxM8nIdYp"
 uri = "file://docs/grants/TCAF-Rare-Impact-Fund-LOI-Narrative.doc"
 type = "word_document"
 title = "TCAF Rare Impact Fund LOI Narrative — Final (Upload This)"
+
+[[outputs]]
+id = "geYq5YbH8Lny5VGzzw8jR"
+uri = "file://docs/grants/GRANT-OPPORTUNITY-CRITERIA-MATRIX.md"
+type = "text"
+title = "Grant Opportunity Criteria Matrix — 17 New Grants with Full Criteria"
