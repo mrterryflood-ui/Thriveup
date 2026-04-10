@@ -1,0 +1,40 @@
+Your Active Grants
+
+1. R03 AIM-Housing
+
+Funding Opportunity: PA-25-302
+Amount: $100,000 (2 years)
+Due Date: June 16, 2026
+Focus: Housing instability cascade mapping in Austin, TX (ZIP codes 78741, 78702, 78753)
+Partners: Austin Housing Authority, ECHO, Foundation Communities, Central Health, Integral Care
+NIH Submission Portal: eRA Commons / ASSIST
+FOA Link: https://grants.nih.gov/grants/guide/pa-files/PA-25-302.html
+RPLICE Pipeline: Your platform's R03 Pipeline is at /r03-pipeline
+2. R03 SHIELD-Austin
+
+Funding Opportunity: PAR-25-233
+Amount: $100,000 (2 years)
+Due Date: October 5, 2026
+Focus: Overdose prevention cascade mapping in Austin, TX (ZIP codes 78741, 78702, 78753)
+Partners: Integral Care, Travis County Opioid Task Force, Austin Harm Reduction Coalition, ATCEMS
+Key Data: Austin OD rate 33/100K (highest in TX), 279 fentanyl deaths 2023, 78753 OD rate 44.8/100K
+NIH Submission Portal: eRA Commons / ASSIST
+FOA Link: https://grants.nih.gov/grants/guide/pa-files/PAR-25-233.html
+RPLICE Pipeline: /r03-pipeline
+3. R01 INTEGRATE-Austin
+
+Funding Opportunity: (Standard R01 — confirm specific FOA)
+Amount: $1,250,000 (5 years)
+Due Date: TBD (builds on both R03 pilots as preliminary data)
+Focus: Full-scale integrated intervention combining housing stabilization with substance use prevention across 6-8 sites, cluster randomized stepped-wedge design
+Partners: All R03 partners plus expanded network
+NIH Submission Portal: eRA Commons / ASSIST
+RPLICE Pipeline: /r01-pipeline
+Common Submission Links
+
+eRA Commons: https://commons.era.nih.gov
+NIH ASSIST (Application Submission): https://public.era.nih.gov/assist
+Grants.gov (Workspace): https://www.grants.gov
+NIH Reporter (Track funded grants): https://reporter.nih.gov
+SAM.gov (Entity registration — required): https://sam.gov
+Your EIN is 41-3618003 and VOSB status should be current in SAM.gov for all three submissions. AIM-Housing is the most urgent — June 16, 2026 is about two months out. Want me to also pull the document artifacts you've generated for each grant through the R03 and R01 pipelines?
