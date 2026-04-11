@@ -1230,11 +1230,11 @@ const INITIAL_GRANTS: GrantEntry[] = [
     documents: [
       { name: "CDMRP Master Strategy", path: "/docs/grants/CDMRP-FY2026-Master-Grant-Strategy.md" },
     ],
-    notes: "CRITERIA: Must be 501(c)(3), operational 3+ years, annual revenue under $10M, located in AmeriHealth Caritas Medicaid market state (Texas qualifies — Dallas, Harris, Tarrant, Jefferson, Bexar counties). THREE PILLARS: (1) Empowered Families — secure employment, stable housing, safe communities, quality education → LifeBridge (SDOH hub, 20,670+ resources), ISSS (student supports), ThriveUp workforce. (2) Healing Behaviors — substance use, mental health, family violence → Whole-Person Health (PHQ-9, GAD-7, C-SSRS, AUDIT-C, DAST-10), HerHealth Mental Health platform, TheHealthyBlkMan. (3) Access to Health Care — equitable services, language/cultural barriers, maternal health → HerHealth (70 conditions, Nia AI in culturally responsive design), Maternal Health (EPDS, doula matching), LexiBridge (language access). Focus: Prevent/mitigate Adverse Childhood Experiences (ACEs) + promote Protective & Compensatory Experiences (PACEs). INFO SESSION: April 23, 2026 at 1:00 PM ET. STRONG FIT — ecosystem directly addresses all 3 pillars.",
+    notes: "REQUIRES CHURCH PARTNERSHIP — TCAF cannot apply directly. Must partner with a church or other 501(c)(3) in an AmeriHealth Caritas Medicaid market state as lead applicant. CRITERIA: Lead applicant must be 501(c)(3), operational 3+ years, annual revenue under $10M. TX markets: Dallas, Harris, Tarrant, Jefferson, Bexar counties (NOT Travis/Austin). THREE PILLARS: (1) Empowered Families — employment, housing, education. (2) Healing Behaviors — substance use, mental health, family violence. (3) Access to Health Care — equitable services, maternal health, language barriers. Focus: ACEs prevention + PACEs promotion. INFO SESSION: April 23, 2026 at 1:00 PM ET.",
     url: "https://www.amerihealthcaritasfoundation.org/grants",
     submitUrl: "https://www.amerihealthcaritasfoundation.org/grants",
     submitPortal: "AmeriHealth Caritas Foundation Portal",
-    priority: 1,
+    priority: 3,
     contactEmail: "foundation@amerihealthcaritas.com",
   },
   {
