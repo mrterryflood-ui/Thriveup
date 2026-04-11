@@ -121,6 +121,33 @@ Contracts are already leaning toward someone before they're posted. Agencies don
 
 ---
 
+## 7. RURAL TEXAS STRONG — $1B State Investment in Rural Health
+**Source:** Government Market Strategies (GMS) — RHTP State Spotlight: Texas
+**Date:** April 11, 2026
+
+Texas is investing **$1 BILLION over five years** through Rural Texas Strong to expand access, modernize infrastructure, and rebuild the rural health workforce across **4.7 million rural residents**.
+
+**What makes Texas different:**
+- Community-driven design shaped by rural Texans
+- Major investments in telehealth, AI, and infrastructure
+- Clear execution model — funding flows directly to providers and networks
+- Long-term sustainability focus, not short-term fixes
+
+**Critical Veteran Angle:**
+- Rural health access affects **~923,000 TRICARE beneficiaries** and **318,000+ Veterans** who rely on the same provider networks
+- As rural systems strengthen, so does healthcare access for those who serve
+
+**TCAF Opportunity:**
+1. Telehealth platforms (HerHealth, TheHealthyBlkMan, Whole-Person Health, M2C) directly serve rural populations
+2. AI-powered navigation aligns with Texas's AI investment priority
+3. Veteran platforms (M2C, LifeBridge) directly serve 318K+ rural TX veterans
+4. RPLICE provides the data infrastructure Texas is building toward
+5. Position as implementation partner for Rural Texas Strong initiatives
+
+**ACTION:** Subscribe to Texas HHSC and DSHS procurement portals for RFPs and sub-awards flowing from this $1B investment.
+
+---
+
 ## RUNNING LESSONS LEARNED
 
 | # | Lesson | Source | Applied To |
@@ -135,6 +162,8 @@ Contracts are already leaning toward someone before they're posted. Agencies don
 | 8 | Position RPLICE as research infrastructure, not just a platform | Manifold case study | CDMRP, NIH |
 | 9 | SAM.gov TIN mismatch blocks ALL federal submissions — CRITICAL | Internal | All federal |
 | 10 | Subscribe to eBRAP.org alerts for CDMRP FOA drops | CDMRP strategy | All CDMRP |
+| 11 | Rural Texas Strong = $1B over 5 years; 923K TRICARE + 318K veterans in rural TX | GMS/RHTP | State contracts, CDMRP |
+| 12 | Subscribe to HHSC + DSHS procurement portals for Rural TX Strong sub-awards | GMS/RHTP | State procurement |
 
 ---
 
