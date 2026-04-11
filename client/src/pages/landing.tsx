@@ -602,6 +602,11 @@ function DeepDiveSection() {
             </div>
 
             <div className="flex flex-wrap justify-center gap-3">
+              <Link href="/health-network">
+                <Button variant="default" data-testid="button-deep-health-network">
+                  <Heart className="mr-2 h-4 w-4" /> Health Network
+                </Button>
+              </Link>
               <Link href="/ecosystem">
                 <Button variant="outline" data-testid="button-deep-ecosystem">
                   <Layers className="mr-2 h-4 w-4" /> Full Ecosystem Map
@@ -831,6 +836,7 @@ export default function LandingPage() {
               <h4 className="font-semibold text-sm mb-2">For Partners</h4>
               <ul className="space-y-1.5">
                 <li><Link href="/coalition" className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-coalition">Coalition Portal</Link></li>
+                <li><Link href="/health-network" className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-health-network">Health Network</Link></li>
                 <li><Link href="/ecosystem" className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-ecosystem">Ecosystem Map</Link></li>
                 <li><Link href="/outcomes" className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-outcomes">Outcome Reports</Link></li>
                 <li><Link href="/rplice-tools" className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-rplice">Research Tools</Link></li>

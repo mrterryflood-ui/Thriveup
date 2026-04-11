@@ -205,7 +205,8 @@ const preventionItems: NavItem[] = [
 ];
 
 const healthWellnessItems: NavItem[] = [
-  { title: "Health Hub", url: "/health-wellness", icon: Heart },
+  { title: "Health Network", url: "/health-network", icon: Heart },
+  { title: "Health Hub", url: "/health-wellness", icon: Activity },
   { title: "CHW Dashboard", url: "/chw-dashboard", icon: Stethoscope },
 ];
 
