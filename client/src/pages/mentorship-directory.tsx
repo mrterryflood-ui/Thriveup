@@ -63,10 +63,10 @@ const mentorshipPrograms: MentorshipProgram[] = [
     organization: "100 Black Men of America, Inc. — Austin Chapter",
     url: "https://www.100blackmenaustin.org",
     phone: "",
-    address: "Austin, TX",
+    address: "Austin, TX (serves Central Texas)",
     category: "men",
     categories: ["men", "youth", "stem"],
-    zipCodes: ["78702", "78721", "78723", "78741", "78744", "78752", "78753"],
+    zipCodes: ["78702", "78721", "78723", "78741", "78744", "78752", "78753", "78660", "78664", "78665", "78681"],
     agesServed: "K-12 and Collegiate",
     cost: "Free",
     description: "Since 1995, 100 Black Men of Austin has inspired change by being the example. Focused on enhancing education and economic opportunities for young African-American men and women through mentorship, leadership development, and community engagement. Partners with Texas Empowerment Academy in East Austin.",
@@ -84,7 +84,7 @@ const mentorshipPrograms: MentorshipProgram[] = [
     address: "4800 Manor Rd, Bldg K, Austin, TX 78723",
     category: "youth",
     categories: ["youth"],
-    zipCodes: ["78702", "78721", "78723", "78741", "78744", "78745", "78748", "78752", "78753", "78758", "78660", "78681"],
+    zipCodes: ["78702", "78721", "78723", "78741", "78744", "78745", "78748", "78752", "78753", "78758", "78660", "78664", "78665", "78681", "78613", "78626", "78634", "78641", "78610", "78640"],
     agesServed: "Ages 6-16",
     cost: "Free",
     description: "Creates caring, one-to-one relationships between children and adult volunteers serving as mentors, role models, and guides. Bigs and Littles meet in the community 3-4 times per month for a minimum of one year. Covers Travis, Williamson, and Hays counties.",
@@ -102,7 +102,7 @@ const mentorshipPrograms: MentorshipProgram[] = [
     address: "6633 US-290 Suite 307, Austin, TX 78723",
     category: "youth",
     categories: ["youth", "men"],
-    zipCodes: ["78702", "78721", "78723", "78741", "78744", "78752", "78753"],
+    zipCodes: ["78702", "78721", "78723", "78741", "78744", "78752", "78753", "78660", "78664", "78665", "78681"],
     agesServed: "Youth (all ages)",
     cost: "Free",
     description: "Founded in 2007 to provide culturally competent, community-driven support for African American youth and families. Partners with the National CARES Mentoring Movement to connect mentors with youth. CEO Michael Lofton describes it as 'a one-stop-shop and ecosystem for support.'",
@@ -254,10 +254,10 @@ const mentorshipPrograms: MentorshipProgram[] = [
     organization: "Austin Area Urban League",
     url: "https://aaul.org/girl-mentorship-program/",
     phone: "",
-    address: "Austin, TX",
+    address: "Austin metro area",
     category: "women",
     categories: ["women", "youth"],
-    zipCodes: ["78702", "78721", "78723", "78741", "78744", "78745", "78752", "78753"],
+    zipCodes: ["78702", "78721", "78723", "78741", "78744", "78745", "78752", "78753", "78660", "78664", "78665", "78681"],
     agesServed: "Young Black Women/Girls",
     cost: "Free",
     description: "Running September through July, the G.I.R.L. (Growing Into Remarkable Leaders) program features monthly 1-on-1 meetings — in-person, virtual, phone, email, or social media — plus job shadowing, service-learning projects, and casual social interactions. Mentors complete training and a background check.",
@@ -288,10 +288,10 @@ const mentorshipPrograms: MentorshipProgram[] = [
     organization: "Black Mamas ATX, Mama Sana, GALS, Healing Hands",
     url: "https://www.mhecatx.org",
     phone: "",
-    address: "Austin, TX",
+    address: "Central Texas",
     category: "health",
     categories: ["health", "women"],
-    zipCodes: ["78702", "78721", "78723", "78741", "78744", "78745", "78748", "78753"],
+    zipCodes: ["78702", "78721", "78723", "78741", "78744", "78745", "78748", "78753", "78660", "78664", "78665", "78681"],
     agesServed: "Pregnant & Postpartum Women",
     cost: "Free",
     description: "Collaboration of Black Mamas ATX, Mama Sana Vibrant Woman, Giving Austin Labor Support, and Healing Hands Community Doula Project advancing birth equity in Central Texas. Respite childcare (76 families served, 2,900 hours), Gap Fund ($25,000+ distributed), and advocacy that helped Austin win the Merck for Mothers Safer Childbirth Cities Grant.",
@@ -344,7 +344,7 @@ const mentorshipPrograms: MentorshipProgram[] = [
     address: "Travis & Williamson County",
     category: "fatherhood",
     categories: ["fatherhood"],
-    zipCodes: ["78702", "78721", "78723", "78741", "78744", "78745", "78748", "78752", "78753", "78758"],
+    zipCodes: ["78702", "78721", "78723", "78741", "78744", "78745", "78748", "78752", "78753", "78758", "78660", "78664", "78665", "78681", "78613", "78626"],
     agesServed: "Fathers with children ages 0-11",
     cost: "Free",
     description: "Evidence-based parenting classes tailored for fathers and father figures with children aged 0-11 in Travis or Williamson County. Sessions focus on building healthy family relationships, emotional regulation, and coping strategies.",
@@ -358,10 +358,10 @@ const mentorshipPrograms: MentorshipProgram[] = [
     organization: "Goodwill Central Texas",
     url: "https://www.goodwillcentraltexas.org",
     phone: "",
-    address: "Austin, TX",
+    address: "Central Texas (metro-wide)",
     category: "fatherhood",
     categories: ["fatherhood", "reentry"],
-    zipCodes: ["78702", "78721", "78723", "78741", "78744", "78745", "78748", "78752", "78753", "78758"],
+    zipCodes: ["78702", "78721", "78723", "78741", "78744", "78745", "78748", "78752", "78753", "78758", "78660", "78664", "78665", "78681", "78613", "78610", "78640"],
     agesServed: "Fathers 18+ with children up to 24",
     cost: "Free",
     description: "Free program for dads and father figures providing parenting workshops, job search assistance, financial literacy training, and career certifications. Holistic approach supporting responsible parenting alongside economic self-sufficiency.",
@@ -392,10 +392,10 @@ const mentorshipPrograms: MentorshipProgram[] = [
     organization: "A/TCRRT",
     url: "https://reentryroundtable.org",
     phone: "",
-    address: "Travis County, TX",
+    address: "Travis County, TX (includes Pflugerville, Manor)",
     category: "reentry",
     categories: ["reentry"],
-    zipCodes: ["78702", "78721", "78723", "78741", "78744", "78745", "78748", "78752", "78753", "78758", "78660"],
+    zipCodes: ["78702", "78721", "78723", "78741", "78744", "78745", "78748", "78752", "78753", "78758", "78660", "78664", "78653"],
     agesServed: "Returning Citizens (Adults)",
     cost: "Free",
     description: "Partially funded by Travis County, the Roundtable brings public awareness and coordinates services for people returning from incarceration. Includes Executive Committee, Planning Committee, Evidence-Based Practice, Ex-offender, and Support Services subcommittees. Contact: info@reentryroundtable.org.",
@@ -426,10 +426,10 @@ const mentorshipPrograms: MentorshipProgram[] = [
     organization: "SCORE / U.S. Small Business Administration",
     url: "https://www.score.org/austin",
     phone: "(512) 928-2425",
-    address: "Austin, TX",
+    address: "Austin, TX (serves Central Texas metro)",
     category: "business",
     categories: ["business"],
-    zipCodes: ["78701", "78702", "78704", "78721", "78723", "78741", "78744", "78745", "78748", "78752", "78753", "78758"],
+    zipCodes: ["78701", "78702", "78704", "78721", "78723", "78741", "78744", "78745", "78748", "78752", "78753", "78758", "78660", "78664", "78665", "78681", "78613", "78626"],
     agesServed: "Adults (Business Owners & Entrepreneurs)",
     cost: "Free",
     description: "50+ volunteer mentors — experienced entrepreneurs, corporate managers, and executives — providing free small business counseling, low-cost workshops, and customized services. Backed by the U.S. Small Business Administration. Business owners who receive 3+ hours of mentoring report higher revenues.",
@@ -478,10 +478,10 @@ const mentorshipPrograms: MentorshipProgram[] = [
     organization: "BGCAA",
     url: "https://www.bgcaustin.org",
     phone: "",
-    address: "28 locations across Austin",
+    address: "28 locations across Austin metro",
     category: "youth",
     categories: ["youth", "stem"],
-    zipCodes: ["78702", "78721", "78723", "78741", "78744", "78745", "78748", "78752", "78753", "78758", "78660"],
+    zipCodes: ["78702", "78721", "78723", "78741", "78744", "78745", "78748", "78752", "78753", "78758", "78660", "78664", "78665", "78681", "78613", "78634", "78641", "78610", "78640"],
     agesServed: "Youth (K-12)",
     cost: "Free/Low Cost",
     description: "Over 10,000 youth annually across 28 club locations including the newly renovated Chalmers Courts Club in East Austin (doubled capacity). STEM Academy addresses the opportunity gap in applied sciences for underrepresented youth. Academic support, leadership development, athletics, and arts education.",
@@ -547,10 +547,10 @@ const mentorshipPrograms: MentorshipProgram[] = [
     organization: "Fountain of Life Ministries (Eric Hargrave)",
     url: "https://www.gofountain.org",
     phone: "",
-    address: "Austin, TX (Cross-county)",
+    address: "Austin, TX (Cross-county — Manor, Pflugerville, Del Valle)",
     category: "fatherhood",
     categories: ["fatherhood", "faith", "reentry"],
-    zipCodes: ["78702", "78721", "78723", "78741", "78744", "78660"],
+    zipCodes: ["78702", "78721", "78723", "78741", "78744", "78660", "78653", "78617"],
     agesServed: "Fathers & Father Figures",
     cost: "Free",
     description: "Fatherhood empowerment, reentry support, workforce development, and parenting education. Operates father-specific benefits enrollment through fatherhood programming and mentoring. Cross-county reach serving fathers facing barriers like unemployment, incarceration reentry, housing instability, and child support challenges.",
@@ -561,6 +561,19 @@ const mentorshipPrograms: MentorshipProgram[] = [
 ];
 
 const austinZipCodes = [...new Set(mentorshipPrograms.flatMap(p => p.zipCodes))].sort();
+
+const austinMetroZips = new Set([
+  "78660", "78664", "78665", "78681", "78717", "78728", "78729", "78750", "78753", "78758",
+  "78759", "78613", "78626", "78628", "78633", "78634", "78641", "78642", "78645", "78646",
+  "78652", "78653", "78654", "78669", "78610", "78612", "78615", "78616", "78617", "78619",
+  "78621", "78640", "78644", "78648", "78656", "78659", "78662", "78666", "78667", "78676",
+  "78680", "78682", "78683", "78691",
+  ...austinZipCodes,
+]);
+
+function isAustinMetro(zip: string): boolean {
+  return austinMetroZips.has(zip);
+}
 
 export default function MentorshipDirectoryPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -591,8 +604,19 @@ export default function MentorshipDirectoryPage() {
       });
       const data = await res.json();
       if (data.programs && Array.isArray(data.programs)) {
-        setAiResults(data.programs);
-        if (data.programs.length === 0) {
+        const aiPrograms = data.programs as MentorshipProgram[];
+
+        if (isAustinMetro(zipSearch)) {
+          const aiNames = new Set(aiPrograms.map((p: MentorshipProgram) => p.name.toLowerCase()));
+          const curatedToMerge = mentorshipPrograms.filter(
+            (cp) => !aiNames.has(cp.name.toLowerCase())
+          ).map(cp => ({ ...cp, ecosystemConnection: (cp.ecosystemConnection || "") + " [Curated Austin Program]" }));
+          setAiResults([...curatedToMerge, ...aiPrograms]);
+        } else {
+          setAiResults(aiPrograms);
+        }
+
+        if (aiPrograms.length === 0 && !isAustinMetro(zipSearch)) {
           toast({ title: "No programs found for this area. Try a nearby zip code." });
         }
       }
