@@ -164,6 +164,11 @@ Texas is investing **$1 BILLION over five years** through Rural Texas Strong to 
 | 10 | Subscribe to eBRAP.org alerts for CDMRP FOA drops | CDMRP strategy | All CDMRP |
 | 11 | Rural Texas Strong = $1B over 5 years; 923K TRICARE + 318K veterans in rural TX | GMS/RHTP | State contracts, CDMRP |
 | 12 | Subscribe to HHSC + DSHS procurement portals for Rural TX Strong sub-awards | GMS/RHTP | State procurement |
+| 13 | PRMRP Concept Award draft complete ($385K) — autoimmune uveitis + genetic variant screening | RPLICE | CDMRP PRMRP |
+| 14 | Cross-Reference Report: 7 Tier 1 grants (95-80 fit score), 6 Tier 2, 7 Tier 3 watch | RPLICE | All grants |
+| 15 | Bidirectional Planning Engine = novel publishable methodology (competitive advantage) | RPLICE | NIH D&I R01, CDMRP |
+| 16 | Need 6 letters of support for PRMRP: 3 clinical sites, EvolutionaryScale, patient advocacy, health dept | PRMRP draft | CDMRP PRMRP |
+| 17 | NIH PAR-25-144 D&I R01 = "natural home" for RPLICE; pair with INTEGRATE-Austin | Cross-ref report | NIH R01 Oct 5 |
 
 ---
 
