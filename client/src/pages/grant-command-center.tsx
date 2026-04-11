@@ -1230,7 +1230,7 @@ const INITIAL_GRANTS: GrantEntry[] = [
     documents: [
       { name: "CDMRP Master Strategy", path: "/docs/grants/CDMRP-FY2026-Master-Grant-Strategy.md" },
     ],
-    notes: "REQUIRES CHURCH PARTNERSHIP — TCAF cannot apply directly. Must partner with a church or other 501(c)(3) in an AmeriHealth Caritas Medicaid market state as lead applicant. CRITERIA: Lead applicant must be 501(c)(3), operational 3+ years, annual revenue under $10M. TX markets: Dallas, Harris, Tarrant, Jefferson, Bexar counties (NOT Travis/Austin). THREE PILLARS: (1) Empowered Families — employment, housing, education. (2) Healing Behaviors — substance use, mental health, family violence. (3) Access to Health Care — equitable services, maternal health, language barriers. Focus: ACEs prevention + PACEs promotion. INFO SESSION: April 23, 2026 at 1:00 PM ET.",
+    notes: "REQUIRES CHURCH AS LEAD APPLICANT — TCAF does not yet meet the 3-year operational history requirement. Church partner applies as lead 501(c)(3) with TCAF as implementation partner. CRITERIA: Lead applicant must be 501(c)(3), operational 3+ years, annual revenue under $10M. TX markets: Dallas, Harris, Tarrant, Jefferson, Bexar counties (NOT Travis/Austin — verify church location qualifies). THREE PILLARS: (1) Empowered Families — employment, housing, education. (2) Healing Behaviors — substance use, mental health, family violence. (3) Access to Health Care — equitable services, maternal health, language barriers. Focus: ACEs prevention + PACEs promotion. INFO SESSION: April 23, 2026 at 1:00 PM ET.",
     url: "https://www.amerihealthcaritasfoundation.org/grants",
     submitUrl: "https://www.amerihealthcaritasfoundation.org/grants",
     submitPortal: "AmeriHealth Caritas Foundation Portal",
