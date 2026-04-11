@@ -1,10 +1,12 @@
 import { useState, useMemo } from "react";
-import { ExternalLink, MapPin, Users, GraduationCap, Heart, Briefcase, Shield, Baby, Scale, Brain, Paintbrush, Rocket, Search, Filter, Phone, Globe, Star, ChevronDown, ChevronUp } from "lucide-react";
+import { MapPin, Users, Heart, Briefcase, Shield, Scale, Brain, Paintbrush, Rocket, Search, Phone, Globe, Star, ChevronDown, ChevronUp, Loader2, Sparkles, Zap } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 type ProgramCategory =
   | "youth"
@@ -558,25 +560,62 @@ const mentorshipPrograms: MentorshipProgram[] = [
   },
 ];
 
-const allZipCodes = [...new Set(mentorshipPrograms.flatMap(p => p.zipCodes))].sort();
+const austinZipCodes = [...new Set(mentorshipPrograms.flatMap(p => p.zipCodes))].sort();
 
 export default function MentorshipDirectoryPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedZip, setSelectedZip] = useState<string>("all");
   const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
+  const [zipSearch, setZipSearch] = useState("");
+  const [aiResults, setAiResults] = useState<MentorshipProgram[]>([]);
+  const [aiSearching, setAiSearching] = useState(false);
+  const [aiSearchedZip, setAiSearchedZip] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<"search" | "austin">("search");
+  const { toast } = useToast();
+
+  const handleNationwideSearch = async () => {
+    if (!zipSearch || !/^\d{5}$/.test(zipSearch)) {
+      toast({ title: "Enter a valid 5-digit zip code", variant: "destructive" });
+      return;
+    }
+    setAiSearching(true);
+    setAiResults([]);
+    setAiSearchedZip(zipSearch);
+    setActiveTab("search");
+    try {
+      const res = await apiRequest("POST", "/api/mentorship/search", {
+        zipCode: zipSearch,
+        category: selectedCategory !== "all" ? selectedCategory : undefined,
+        query: searchQuery || undefined,
+      });
+      const data = await res.json();
+      if (data.programs && Array.isArray(data.programs)) {
+        setAiResults(data.programs);
+        if (data.programs.length === 0) {
+          toast({ title: "No programs found for this area. Try a nearby zip code." });
+        }
+      }
+    } catch (err: any) {
+      toast({ title: "Search failed", description: err.message, variant: "destructive" });
+    } finally {
+      setAiSearching(false);
+    }
+  };
+
+  const displayPrograms = activeTab === "austin" ? mentorshipPrograms : aiResults;
 
   const filteredPrograms = useMemo(() => {
-    return mentorshipPrograms.filter(program => {
+    return displayPrograms.filter(program => {
       const matchesSearch = searchQuery === "" ||
         program.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         program.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
         program.programs.some(p => p.toLowerCase().includes(searchQuery.toLowerCase()));
       const matchesCategory = selectedCategory === "all" || program.categories.includes(selectedCategory as ProgramCategory);
-      const matchesZip = selectedZip === "all" || program.zipCodes.includes(selectedZip);
+      const matchesZip = activeTab === "search" || selectedZip === "all" || program.zipCodes.includes(selectedZip);
       return matchesSearch && matchesCategory && matchesZip;
     });
-  }, [searchQuery, selectedCategory, selectedZip]);
+  }, [searchQuery, selectedCategory, selectedZip, displayPrograms, activeTab]);
 
   const toggleExpanded = (id: string) => {
     setExpandedCards(prev => {
@@ -589,11 +628,12 @@ export default function MentorshipDirectoryPage() {
 
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = {};
+    const source = activeTab === "austin" ? mentorshipPrograms : aiResults;
     for (const cat of Object.keys(categoryConfig)) {
-      counts[cat] = mentorshipPrograms.filter(p => p.categories.includes(cat as ProgramCategory)).length;
+      counts[cat] = source.filter(p => p.categories.includes(cat as ProgramCategory)).length;
     }
     return counts;
-  }, []);
+  }, [activeTab, aiResults]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
@@ -604,13 +644,72 @@ export default function MentorshipDirectoryPage() {
               <Users className="w-8 h-8" />
             </div>
             <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent" data-testid="text-page-title">
-              Austin Mentorship Directory
+              Nationwide Mentorship Directory
             </h1>
           </div>
           <p className="text-muted-foreground text-lg max-w-3xl mx-auto" data-testid="text-page-subtitle">
-            {mentorshipPrograms.length} real mentorship programs across Austin — searchable by zip code, category, and population served.
-            These are not our programs. These are community partners we connect you to.
+            Find real mentorship programs anywhere in the United States. Enter your zip code and we'll search for programs near you.
+            These are not our programs — these are community partners we connect you to.
           </p>
+        </div>
+
+        <Card className="mb-6 border-2 border-primary/20 bg-gradient-to-r from-blue-50/50 to-indigo-50/50 dark:from-blue-950/20 dark:to-indigo-950/20">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-2 mb-3">
+              <Sparkles className="w-5 h-5 text-primary" />
+              <h3 className="font-semibold">AI-Powered Mentorship Search</h3>
+              <Badge variant="secondary" className="text-[10px]">Powered by Perplexity</Badge>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="relative flex-1">
+                <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                <Input
+                  placeholder="Enter any US zip code (e.g. 90210, 10001, 78702)"
+                  value={zipSearch}
+                  onChange={(e) => setZipSearch(e.target.value.replace(/\D/g, "").slice(0, 5))}
+                  className="pl-10 text-lg h-12"
+                  onKeyDown={(e) => e.key === "Enter" && handleNationwideSearch()}
+                  data-testid="input-zip-search"
+                />
+              </div>
+              <Button
+                onClick={handleNationwideSearch}
+                disabled={aiSearching || zipSearch.length !== 5}
+                className="h-12 px-8 gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+                data-testid="button-search-nationwide"
+              >
+                {aiSearching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
+                {aiSearching ? "Searching..." : "Find Programs"}
+              </Button>
+            </div>
+            {aiSearchedZip && !aiSearching && aiResults.length > 0 && (
+              <p className="text-sm text-muted-foreground mt-2">
+                Found {aiResults.length} mentorship programs near <strong>{aiSearchedZip}</strong>
+              </p>
+            )}
+          </CardContent>
+        </Card>
+
+        <div className="flex gap-2 mb-6">
+          <Button
+            variant={activeTab === "search" ? "default" : "outline"}
+            onClick={() => setActiveTab("search")}
+            className="gap-2"
+            data-testid="tab-search-results"
+          >
+            <Sparkles className="w-4 h-4" />
+            Search Results
+            {aiResults.length > 0 && <Badge variant="secondary" className="ml-1">{aiResults.length}</Badge>}
+          </Button>
+          <Button
+            variant={activeTab === "austin" ? "default" : "outline"}
+            onClick={() => setActiveTab("austin")}
+            className="gap-2"
+            data-testid="tab-austin-curated"
+          >
+            <Zap className="w-4 h-4" />
+            Austin Curated ({mentorshipPrograms.length})
+          </Button>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-6">
@@ -627,36 +726,38 @@ export default function MentorshipDirectoryPage() {
             >
               {config.icon}
               <span className="truncate">{config.label}</span>
-              <Badge variant="secondary" className="ml-auto text-[10px] px-1.5 py-0">{categoryCounts[key]}</Badge>
+              {categoryCounts[key] > 0 && <Badge variant="secondary" className="ml-auto text-[10px] px-1.5 py-0">{categoryCounts[key]}</Badge>}
             </button>
           ))}
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-3 mb-8">
+        <div className="flex flex-col sm:flex-row gap-3 mb-6">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
             <Input
-              placeholder="Search programs, skills, populations..."
+              placeholder="Filter by name, skill, population..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
               data-testid="input-search"
             />
           </div>
-          <Select value={selectedZip} onValueChange={setSelectedZip}>
-            <SelectTrigger className="w-full sm:w-48" data-testid="select-zip-code">
-              <div className="flex items-center gap-2">
-                <MapPin className="w-4 h-4" />
-                <SelectValue placeholder="All Zip Codes" />
-              </div>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Zip Codes</SelectItem>
-              {allZipCodes.map(zip => (
-                <SelectItem key={zip} value={zip}>{zip}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {activeTab === "austin" && (
+            <Select value={selectedZip} onValueChange={setSelectedZip}>
+              <SelectTrigger className="w-full sm:w-48" data-testid="select-zip-code">
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-4 h-4" />
+                  <SelectValue placeholder="All Zip Codes" />
+                </div>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Zip Codes</SelectItem>
+                {austinZipCodes.map(zip => (
+                  <SelectItem key={zip} value={zip}>{zip}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
           {(selectedCategory !== "all" || selectedZip !== "all" || searchQuery) && (
             <Button
               variant="ghost"
@@ -671,17 +772,37 @@ export default function MentorshipDirectoryPage() {
 
         <div className="flex items-center justify-between mb-4">
           <p className="text-sm text-muted-foreground" data-testid="text-result-count">
-            Showing {filteredPrograms.length} of {mentorshipPrograms.length} programs
+            {activeTab === "search" && !aiSearchedZip
+              ? "Enter a zip code above to search for mentorship programs nationwide"
+              : `Showing ${filteredPrograms.length} programs${activeTab === "search" && aiSearchedZip ? ` near ${aiSearchedZip}` : " (Austin curated)"}`
+            }
           </p>
-          {selectedZip !== "all" && (
+          {selectedZip !== "all" && activeTab === "austin" && (
             <Badge variant="outline" className="gap-1">
               <MapPin className="w-3 h-3" /> {selectedZip}
             </Badge>
           )}
         </div>
 
+        {aiSearching && (
+          <div className="text-center py-16">
+            <Loader2 className="w-12 h-12 mx-auto text-primary animate-spin mb-4" />
+            <h3 className="text-lg font-semibold mb-2">Searching for mentorship programs near {zipSearch}...</h3>
+            <p className="text-muted-foreground">Powered by Perplexity AI — finding real, verified programs in your area.</p>
+          </div>
+        )}
+
+        {activeTab === "search" && !aiSearchedZip && !aiSearching && (
+          <div className="text-center py-16">
+            <MapPin className="w-12 h-12 mx-auto text-muted-foreground/40 mb-4" />
+            <h3 className="text-lg font-semibold mb-2">Search Any Zip Code in the U.S.</h3>
+            <p className="text-muted-foreground mb-4">Enter a zip code above to discover mentorship programs near that location.</p>
+            <p className="text-sm text-muted-foreground">Or switch to the <strong>Austin Curated</strong> tab to browse our {mentorshipPrograms.length} hand-verified Austin programs.</p>
+          </div>
+        )}
+
         <div className="grid gap-4">
-          {filteredPrograms.map((program) => {
+          {!aiSearching && (activeTab === "austin" || (activeTab === "search" && aiSearchedZip)) && filteredPrograms.map((program) => {
             const isExpanded = expandedCards.has(program.id);
             const primaryCat = categoryConfig[program.category];
             return (
@@ -751,7 +872,9 @@ export default function MentorshipDirectoryPage() {
                         key={zip}
                         variant="outline"
                         className={`text-[10px] cursor-pointer hover:bg-primary/10 ${selectedZip === zip ? "border-primary bg-primary/10" : ""}`}
-                        onClick={() => setSelectedZip(selectedZip === zip ? "all" : zip)}
+                        onClick={() => {
+                          if (activeTab === "austin") setSelectedZip(selectedZip === zip ? "all" : zip);
+                        }}
                         data-testid={`badge-zip-${program.id}-${zip}`}
                       >
                         <MapPin className="w-2.5 h-2.5 mr-0.5" /> {zip}
@@ -803,10 +926,17 @@ export default function MentorshipDirectoryPage() {
           })}
         </div>
 
-        {filteredPrograms.length === 0 && (
+        {!aiSearching && activeTab === "search" && aiSearchedZip && filteredPrograms.length === 0 && (
           <div className="text-center py-16">
             <Search className="w-12 h-12 mx-auto text-muted-foreground/40 mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No programs found</h3>
+            <h3 className="text-lg font-semibold mb-2">No programs found near {aiSearchedZip}</h3>
+            <p className="text-muted-foreground">Try a nearby zip code or adjust your category filter.</p>
+          </div>
+        )}
+        {activeTab === "austin" && filteredPrograms.length === 0 && (
+          <div className="text-center py-16">
+            <Search className="w-12 h-12 mx-auto text-muted-foreground/40 mb-4" />
+            <h3 className="text-lg font-semibold mb-2">No Austin programs match your filter</h3>
             <p className="text-muted-foreground">Try adjusting your filters or search terms.</p>
           </div>
         )}
@@ -835,8 +965,8 @@ export default function MentorshipDirectoryPage() {
         </Card>
 
         <div className="mt-6 text-center text-xs text-muted-foreground">
-          <p>Data compiled from public sources. Last updated April 2026. Programs, availability, and eligibility may change.</p>
-          <p className="mt-1">Know a mentorship program we should add? Contact us through the Collaboration Hub.</p>
+          <p>Austin curated data compiled from public sources. AI search results powered by Perplexity. Programs, availability, and eligibility may change.</p>
+          <p className="mt-1">Know a mentorship program we should feature? Contact us through the Collaboration Hub.</p>
         </div>
       </div>
     </div>

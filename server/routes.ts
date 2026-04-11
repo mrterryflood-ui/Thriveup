@@ -5546,6 +5546,80 @@ Provide a comprehensive MAP-GAP intervention design with discipline recommendati
     }
   });
 
+  app.post("/api/mentorship/search", async (req, res) => {
+    try {
+      const { zipCode, category, query } = req.body;
+      if (!zipCode || typeof zipCode !== "string" || !/^\d{5}$/.test(zipCode)) {
+        return res.status(400).json({ error: "Valid 5-digit zip code required" });
+      }
+
+      const openrouterKey = process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY;
+      const openrouterBase = process.env.AI_INTEGRATIONS_OPENROUTER_BASE_URL;
+      if (!openrouterKey || !openrouterBase) {
+        return res.status(503).json({ error: "AI search not configured" });
+      }
+
+      const OpenAI = (await import("openai")).default;
+      const client = new OpenAI({ apiKey: openrouterKey, baseURL: openrouterBase });
+
+      const categoryFilter = category && category !== "all" ? ` Focus on ${category} mentorship programs.` : "";
+      const queryFilter = query ? ` Also search for: "${query}".` : "";
+
+      const completion = await client.chat.completions.create({
+        model: "perplexity/sonar",
+        messages: [
+          {
+            role: "system",
+            content: `You are a mentorship program research assistant. Return ONLY valid JSON — no markdown, no code fences, no explanation. The response must be a JSON array of mentorship program objects with these exact fields: name (string), organization (string), url (string or null), phone (string or null), address (string or null), categories (array of strings from: youth, men, women, stem, veteran, reentry, business, health, fatherhood, disability, arts, faith), agesServed (string or null), cost (string like "Free" or "Varies"), description (string, 2-3 sentences), programs (array of program name strings), badges (array of short descriptive tags). Return 5-15 real, verified programs. Do not invent fake programs.`
+          },
+          {
+            role: "user",
+            content: `Find real mentorship programs near zip code ${zipCode}.${categoryFilter}${queryFilter} Include the organization name, website, phone, address, what ages they serve, cost, a description, their specific programs, and descriptive badges. Only return programs that actually exist and serve the area near this zip code. Return as a JSON array.`
+          }
+        ],
+        max_tokens: 4000,
+        temperature: 0.1,
+      });
+
+      const raw = completion.choices[0]?.message?.content || "[]";
+      let programs: any[] = [];
+      try {
+        const cleaned = raw.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
+        programs = JSON.parse(cleaned);
+        if (!Array.isArray(programs)) programs = [];
+      } catch {
+        const match = raw.match(/\[[\s\S]*\]/);
+        if (match) {
+          try { programs = JSON.parse(match[0]); } catch { programs = []; }
+        }
+      }
+
+      programs = programs.map((p: any, i: number) => ({
+        id: `search-${zipCode}-${i}`,
+        name: p.name || "Unknown Program",
+        organization: p.organization || p.name || "",
+        url: p.url || null,
+        phone: p.phone || null,
+        address: p.address || null,
+        category: Array.isArray(p.categories) && p.categories.length > 0 ? p.categories[0] : "youth",
+        categories: Array.isArray(p.categories) ? p.categories : ["youth"],
+        zipCodes: [zipCode],
+        agesServed: p.agesServed || null,
+        cost: p.cost || "Contact for details",
+        description: p.description || "",
+        programs: Array.isArray(p.programs) ? p.programs : [],
+        badges: Array.isArray(p.badges) ? p.badges : [],
+        impact: p.impact || null,
+        ecosystemConnection: null,
+      }));
+
+      res.json({ programs, zipCode, source: "perplexity" });
+    } catch (error: any) {
+      console.error("[Mentorship Search] Error:", error.message);
+      res.status(500).json({ error: "Search failed. Please try again." });
+    }
+  });
+
   app.get("/api/collaborative-ai/status", async (_req, res) => {
     try {
       const status = getCollaborativeStatus();
