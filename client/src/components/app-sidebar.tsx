@@ -66,6 +66,7 @@ const workforceSolutionsItems: NavItem[] = [
   { title: "Workforce Assessment", url: "/workforce-assessment", icon: ClipboardCheck },
   { title: "Career Explorer", url: "/academy/careers", icon: Briefcase },
   { title: "Employer Connections", url: "/workforce-employers", icon: Building2 },
+  { title: "Mentorship Directory", url: "/mentorship-directory", icon: Users },
   { title: "Mentor Network", url: "/academy/mentors", icon: Users },
   { title: "Find Mentor/Partner", url: "/academy/mentor-finder", icon: Handshake },
   { title: "My Pathway", url: "/academy/pathway", icon: Route },

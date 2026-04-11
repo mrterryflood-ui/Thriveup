@@ -101,6 +101,7 @@ const IntakeWizardPage = lazy(() => import("@/pages/intake-wizard"));
 const ServiceDeliveryPage = lazy(() => import("@/pages/service-delivery"));
 const HealthWellnessPage = lazy(() => import("@/pages/health-wellness"));
 const HealthNetworkPage = lazy(() => import("@/pages/health-network"));
+const MentorshipDirectoryPage = lazy(() => import("@/pages/mentorship-directory"));
 const PilotDashboardPage = lazy(() => import("@/pages/pilot-dashboard"));
 const DosageReportPage = lazy(() => import("@/pages/dosage-report"));
 const PreventionPage = lazy(() => import("@/pages/prevention"));
@@ -300,6 +301,7 @@ function AppRouter() {
       <Route path="/services" component={ServiceDeliveryPage} />
       <Route path="/health-wellness" component={HealthWellnessPage} />
       <Route path="/health-network" component={HealthNetworkPage} />
+      <Route path="/mentorship-directory" component={MentorshipDirectoryPage} />
       <Route path="/pilot" component={PilotDashboardPage} />
       <Route path="/dosage" component={DosageReportPage} />
       <Route path="/prevention" component={PreventionPage} />
