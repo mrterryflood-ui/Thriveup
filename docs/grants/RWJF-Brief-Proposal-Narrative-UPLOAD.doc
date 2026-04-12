@@ -1,0 +1,115 @@
+<html>
+<head>
+<style>
+@page {
+  margin: 1in;
+  size: letter;
+}
+body {
+  font-family: Arial, sans-serif;
+  font-size: 11pt;
+  color: black;
+  line-height: 1.5;
+  margin: 1in;
+}
+h2 {
+  font-size: 11pt;
+  font-weight: bold;
+  margin-top: 12pt;
+  margin-bottom: 4pt;
+}
+h3 {
+  font-size: 11pt;
+  font-weight: bold;
+  margin-top: 10pt;
+  margin-bottom: 4pt;
+}
+p {
+  margin-top: 0;
+  margin-bottom: 6pt;
+}
+table.header {
+  width: 100%;
+  border: none;
+  margin-bottom: 12pt;
+}
+table.header td {
+  font-size: 11pt;
+  padding: 2pt 0;
+  border: none;
+}
+</style>
+</head>
+<body>
+
+<table class="header">
+<tr><td><b>Project Title:</b> Sankofa Knowledge Systems: Bridging African Diaspora Health Wisdom with AI-Powered Community Navigation to Advance U.S. Health Equity</td></tr>
+<tr><td><b>Proposal I.D.:</b> 164054</td></tr>
+<tr><td><b>Applicant Name:</b> Anika Amie</td></tr>
+<tr><td><b>Legal Name of Applicant Organization:</b> The Collaborative Advocate Foundation</td></tr>
+</table>
+
+<h2>Brief Proposal Narrative</h2>
+
+<h3>The Crisis in Health Knowledge Systems</h3>
+
+<p>The U.S. health knowledge system was not built for the communities most affected by health inequities. In Austin, Texas — one of the fastest-growing and most rapidly gentrifying cities in America — Black and Latino residents face widening health disparities driven not only by structural barriers to care, but by a knowledge system that systematically excludes their lived experience, cultural health practices, and community-generated evidence from health decision-making.</p>
+
+<p>Census ACS, CDC PLACES, and EPA EJScreen data for Austin ZIP codes 78702, 78721, 78741, and 78744 reveal stark disparities: uninsurance rates 3x the county average, food desert designation, and chronic disease prevalence 40-60% above state baselines. Yet the health "knowledge" used to serve these communities — clinical protocols, referral networks, resource databases — reflects neither the cultural context nor the health wisdom these communities carry.</p>
+
+<p>Globally, this problem has been addressed. Ghana's CHPS program integrates traditional birth attendants and herbalists into primary care, reducing maternal mortality by 40% in pilot districts. Brazil's Family Health Strategy trains 260,000+ community health agents who bridge biomedical care with traditional and Afro-Brazilian healing practices, achieving universal primary care coverage. Jamaica's community health aides preserve Caribbean bush medicine knowledge alongside Western clinical pathways. These nations demonstrate that health knowledge systems become more effective — and more equitable — when they braid ancestral wisdom with biomedical science.</p>
+
+<h3>Our Vision: Sankofa Knowledge Systems</h3>
+
+<p>"Sankofa" — an Akan concept from Ghana meaning "go back and get it" — captures our vision precisely. TCAF proposes to go back and retrieve the health knowledge, healing practices, and community evidence systems that the U.S. health infrastructure has excluded, and bring them forward into a technology-enabled, AI-powered knowledge system that serves the communities who need it most.</p>
+
+<h3>Three Pillars of Action</h3>
+
+<p><b>Pillar 1: Knowledge Generation &amp; Preservation (Months 1-18)</b><br/>
+We will conduct community-led participatory research in Austin's Eastern Crescent neighborhoods, documenting diaspora health knowledge through oral histories, healing practice inventories, and community health narratives. Working with elders, traditional practitioners, and community health workers, we will create a digital archive of culturally rooted health knowledge — accessible through our AI-powered Sankofa Health Network platform. International partners in Ghana, Brazil, and Jamaica will participate in parallel documentation, creating a cross-cultural knowledge repository.</p>
+
+<p><b>Pillar 2: Knowledge System Integration (Months 6-30)</b><br/>
+We will build and deploy technology infrastructure that braids traditional, community, and biomedical knowledge into a unified health navigation system. TCAF's existing 24-platform digital ecosystem — covering health (Sankofa Health Network, HerHealth, TheHealthyBlkMan), education (ThriveUp Academy, ISSS), housing (LifeBridge), workforce (Mission Transition), and cognitive health (SafeCogniCare) — provides the operational foundation. The AI engines powering this ecosystem will be enhanced to incorporate diaspora health knowledge alongside clinical evidence, enabling community health workers to navigate residents to both biomedical and culturally grounded resources.</p>
+
+<p><b>Pillar 3: Bidirectional Knowledge Exchange (Months 12-36)</b><br/>
+We will establish a structured exchange program where Austin-based CHWs and community health leaders travel to partner sites in Accra, Salvador, and Kingston to learn ancestral health integration practices firsthand, while international counterparts visit Austin to understand technology-enabled navigation models. This bidirectional learning produces co-created curricula, jointly authored publications, and a replicable framework for culturally braided health knowledge systems.</p>
+
+<h3>Existing Infrastructure — Ready to Scale</h3>
+
+<p>TCAF is not starting from zero. Our 24-platform digital ecosystem is already deployed and serving Austin communities:</p>
+
+<p><b>Sankofa Health Network</b> — Health equity gateway with behavioral assessments, GIS-powered resource matching, and cross-platform routing<br/>
+<b>HerHealth Network</b> — Women's health navigation covering 70+ conditions with validated screenings (PHQ-9, GAD-7, C-SSRS)<br/>
+<b>LifeBridge</b> — Community health worker hub with SDOH screening and resource navigation<br/>
+<b>RPLICE Model</b> — Research-Practice-Learning-Innovation-Community-Engagement framework integrating SDOH baseline data by ZIP code (Census ACS, CDC PLACES, EPA EJScreen, SVI)<br/>
+<b>AI Architecture</b> — Four engines: RAG knowledge base, Bidirectional Planning, SDOH Analytics, and Community Intelligence</p>
+
+<p>This infrastructure means RWJF funding goes directly to knowledge generation, partnership development, and systems integration — not platform construction.</p>
+
+<h3>Leadership</h3>
+
+<p><b>Anika Amie, Founder &amp; Executive Director</b> — A Black woman community health advocate who built TCAF's 24-platform ecosystem from lived experience navigating systemic barriers in health, housing, and workforce systems. Her leadership centers the voices and knowledge of communities most affected by health inequities — the exact populations this project serves.</p>
+
+<p>The project team includes community health workers with deep roots in Austin's Eastern Crescent neighborhoods, academic advisors from local institutions, and technology staff who maintain the 24-platform ecosystem. International partners bring decades of experience integrating traditional and biomedical health knowledge systems.</p>
+
+<h3>Expected Outcomes (36 months)</h3>
+
+<p>1. Digital archive of 500+ diaspora health knowledge entries (oral histories, healing practices, community health narratives) — publicly accessible and indexed for AI-powered navigation<br/>
+2. Enhanced Sankofa Health Network with culturally braided knowledge integration serving 2,000+ community members annually<br/>
+3. 20 Austin-based CHWs trained in culturally grounded navigation using the Bidirectional Knowledge Exchange curriculum<br/>
+4. 3 peer-reviewed publications documenting the Sankofa Knowledge Systems model, co-authored with international partners<br/>
+5. Open-source "Culturally Braided Health Knowledge Framework" — downloadable toolkit for other communities to adapt<br/>
+6. National Community of Practice — 50+ organizations engaged in culturally integrated health knowledge systems</p>
+
+<h3>Dissemination Plan</h3>
+
+<p>Results will be disseminated through: (1) peer-reviewed publications in journals such as the American Journal of Public Health, Health Affairs, and Global Health Promotion; (2) conference presentations at APHA, AcademyHealth, and the Global Symposium on Health Systems Research; (3) an open-source toolkit published on TCAF's platform and shared through the Community of Practice; (4) a documentary series capturing the knowledge exchange process for community and funder audiences; and (5) policy briefs targeting state and local health departments and philanthropic funders.</p>
+
+<h3>Why TCAF, Why Now</h3>
+
+<p>TCAF is uniquely positioned for this work because we have already built the technology infrastructure that most health equity organizations aspire to — 24 interconnected platforms, 4 AI engines, SDOH integration by ZIP code, and community health worker coordination tools. What we have not yet done is systematically integrate the ancestral and cultural health knowledge of the communities we serve into that infrastructure. This project fills that gap.</p>
+
+<p>The current political climate makes this work urgent. As structural racism intensifies and public health institutions face political threats, community-controlled health knowledge systems become essential infrastructure for resilience. By building technology, evidence, and community capacity simultaneously, we create a health knowledge system that communities own, that reflects their wisdom, and that cannot be dismantled.</p>
+
+</body>
+</html>
