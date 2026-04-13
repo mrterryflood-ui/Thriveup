@@ -9,7 +9,7 @@
 **Location:** Austin, Texas (serving Pflugerville ISD and surrounding districts)
 **Amount Requested:** Up to $2,000,000
 **Grant Period:** July 2026 — June 2028 (24 months initial, up to 5 years)
-**Deadline:** April 14, 2026, 10:00 AM CDT
+**Deadline:** April 23, 2026, 10:00 AM CDT (extended via Amendment I; Amendment II posted April 13)
 **Contact at TWC:** Cassandra Johnson, RFAgrants@twc.texas.gov
 
 ---
@@ -385,12 +385,13 @@ Beyond the grant period, the program sustains through:
 
 ## SUBMISSION CHECKLIST
 
-- [ ] Form A — Signed organizational commitment
-- [ ] Form B — Excel budget (formulas unaltered)
-- [ ] Form C — Exceptions (if applicable)
-- [ ] 501(c)(3) determination letter
-- [ ] This narrative
-- [ ] Pflugerville ISD partnership letter
+- [ ] Form A — Core Application (signed PDF + Word) — DRAFT COMPLETE: docs/grants/TWC-RFA-32026-00162-FORM-A-APPLICATION.doc
+- [ ] Form B — Budget Workbook (Excel, formulas unaltered) — TEMPLATE: attached_assets/32026-00162_Form_B_Budget_Workbook.xlsx
+- [ ] Form C — GTC Exceptions (optional, Word)
+- [ ] Proof of nonprofit status — IRS 501(c)(3) determination letter (PDF)
+- [x] Pflugerville ISD Letter of Support — RECEIVED April 13, 2026 from Traci Hendrix, Executive Director of Career, College, Military Readiness (attached_assets/ThriveUp_LOS-13Apr2026.pdf)
+- [ ] Authorized Representative signed certifications confirmation (Yes/No on Bonfire)
+- [ ] Download and review Amendment II (posted April 13, 2026 on Bonfire)
+- [ ] Download and review Amendment I (posted April 3, 2026 on Bonfire)
 - [ ] Employer partner letters (recommended)
-- [ ] Organizational chart
 - [ ] Dr. Flood resume/CV
