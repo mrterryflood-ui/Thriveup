@@ -125,9 +125,9 @@ Three-layer architecture: Learn It (Academy) → Apply It (RPLICE/MCE/Ecosystem)
     keywords: ["terry flood", "founder", "ceo", "leadership", "veteran", "dha", "healthcare", "who"],
   },
   {
-    source: "platform", category: "platform", title: "Better Science Lab / RPLICE",
-    content: `RPLICE is the research and implementation science engine. Uses CFIR and RE-AIM frameworks. Evidence-based practice registry, fidelity measurement, research translation, community application guides. Quality gate — all platform work verified through RPLICE. RPLICE uses collaborative multi-AI review: multiple AI models (Gemini, Claude, OpenAI) independently analyze the same document, then a synthesis step builds consensus — bringing different perspectives together so nothing is missed. URL: bettersciencelab.com. Grants: DFC, SSG Fox, SAMHSA.`,
-    keywords: ["betterscience", "rplice", "research", "cfir", "re-aim", "implementation science", "evidence", "fidelity", "quality", "collaborative ai", "multi ai"],
+    source: "platform", category: "platform", title: "RPLICE — Research-to-Practice Lifecycle Implementation & Community Evidence",
+    content: `RPLICE (Research-to-Practice Lifecycle Implementation & Community Evidence) is a free, AI-powered platform that helps researchers, practitioners, and planners close the gap between what science proves works and what actually gets implemented in communities. Search live evidence, assess projects against real community data, build implementation plans, and track outcomes -- all in one place. Uses CFIR 2.0, RE-AIM, and EPIS frameworks. Evidence-based practice registry, fidelity measurement, research translation, community application guides. Quality gate -- all platform work verified through RPLICE. RPLICE uses collaborative multi-AI review: multiple AI models independently analyze the same document, then a synthesis step builds consensus. URL: implementationineducatio.com. Connected to SALP Science research platform (salp-science--mrterryflood.replit.app / Research-Science-Collaborator on Replit). Grants: DFC, SSG Fox, SAMHSA, Spencer Foundation.`,
+    keywords: ["rplice", "research", "cfir", "re-aim", "epis", "implementation science", "evidence", "fidelity", "quality", "collaborative ai", "multi ai", "research-to-practice", "lifecycle", "community evidence", "implementationineducatio"],
   },
   {
     source: "platform", category: "platform", title: "LifeBridge — Resource Navigation",
@@ -146,8 +146,8 @@ Three-layer architecture: Learn It (Academy) → Apply It (RPLICE/MCE/Ecosystem)
   },
   {
     source: "platform", category: "platform", title: "ISSS — Integrated Supports for Thriving Youth",
-    content: `Whole-child implementation infrastructure for schools, districts, and regions. Evidence-based student support at scale through multi-stakeholder coordination. Youth development, wraparound services, school-based mental health, preventing school-to-prison pipeline. URL: implementationineducatio.com. Grants: DFC, WIOA, Foundation.`,
-    keywords: ["isss", "youth", "schools", "students", "education", "wraparound", "implementation", "children", "kids"],
+    content: `Whole-child implementation infrastructure for schools, districts, and regions. Evidence-based student support at scale through multi-stakeholder coordination. Youth development, wraparound services, school-based mental health, preventing school-to-prison pipeline. MTSS compliance, SEL curriculum, early warning systems (thrive_scores, early_warning_flags), wraparound coordination. Serves PfISD across 5 high schools, 120 students Year 1. Built-in data: fidelity scores, readiness assessments, Proctor's 8 implementation outcomes, practice-policy reports. Powered by RPLICE implementation science engine (implementationineducatio.com). SALP Science (salp-science--mrterryflood.replit.app) provides research analysis capability. Grants: DFC, WIOA, Foundation, Spencer Foundation.`,
+    keywords: ["isss", "youth", "schools", "students", "education", "wraparound", "implementation", "children", "kids", "mtss", "sel", "thrive_scores", "early_warning", "fidelity", "pfisd"],
   },
   {
     source: "platform", category: "platform", title: "WholeMind Learning",

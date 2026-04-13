@@ -90,6 +90,28 @@ const STATUS_CONFIG: Record<GrantStatus, { label: string; color: string; icon: a
 
 const INITIAL_GRANTS: GrantEntry[] = [
   {
+    id: "spencer-small-research-2026",
+    name: "Spencer Foundation Small Research Grant — ISSS Implementation Fidelity",
+    funder: "Spencer Foundation",
+    solicitation: "Small Research Grants",
+    amount: "$50,000",
+    amountNum: 50000,
+    deadline: "April 15, 2026, 12:00 PM CT",
+    deadlineDate: new Date("2026-04-15"),
+    status: "proposal_drafting",
+    platforms: ["ISSS", "TCAF"],
+    category: "foundation",
+    documents: [
+      { name: "Grant Brief & Tracking", path: "/docs/grants/Spencer-Foundation-Small-Research-Grant-2026.md" },
+    ],
+    notes: "STRONG FIT. No university-as-lead required -- TCAF 501(c)(3) eligible directly. Field-initiated: propose exactly what ISSS does. Up to $50K + optional $10K course release, no indirect costs. 1-5 year timeline. RQ: How does adaptive implementation infrastructure affect fidelity of evidence-based student support practices? Mixed methods using ISSS built-in data (fidelity scores, readiness assessments, Proctor's 8 outcomes, practice-policy reports) + qualitative interviews. Sites: 3-5 schools using ISSS (PfISD anchor). SALP Science platform (salp-science--mrterryflood.replit.app) provides research analysis. RPLICE (implementationineducatio.com) provides implementation science engine. AI DISCLOSURE REQUIRED: Spencer has generative AI policy -- be transparent about AI supporting practitioners vs. conducting research. PI can only hold one active Spencer grant. PfISD support letter pending (Traci Hendrix, supervisor reviewing April 13).",
+    url: "https://www.spencer.org/grant_types/small-research-grant",
+    submitUrl: "https://www.spencer.org/grant_types/small-research-grant",
+    submitPortal: "Spencer Foundation Online Portal",
+    priority: 1,
+    contactName: "Spencer Foundation Program Team",
+  },
+  {
     id: "rare-impact-2026",
     name: "Rare Impact Fund — Nonclinical Youth MH Workforce",
     funder: "Rare Impact Fund (Selena Gomez / Hopewell Fund)",
