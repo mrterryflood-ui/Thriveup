@@ -264,3 +264,15 @@ id = "geYq5YbH8Lny5VGzzw8jR"
 uri = "file://docs/grants/GRANT-OPPORTUNITY-CRITERIA-MATRIX.md"
 type = "text"
 title = "Grant Opportunity Criteria Matrix — 17 New Grants with Full Criteria"
+
+[[outputs]]
+id = "Ue33Y5KqdsrKtAK8yLCoi"
+uri = "file://docs/grants/TX-Reentry-Stipend-Pilot-Overview.doc"
+type = "word_document"
+title = "TX Reentry Stipend Pilot - Full Document"
+
+[[outputs]]
+id = "oBh8nyW3rdh34po39EJ8S"
+uri = "file://docs/grants/TX-Reentry-Stipend-Pilot-Presentation.pptx"
+type = "slides"
+title = "TX Reentry Stipend Pilot - PowerPoint Presentation"
