@@ -12,13 +12,15 @@ interface StreamAIResponseParams {
   onError: (error: Error) => void;
 }
 
+let geminiQuotaExhaustedUntil = 0;
+
 function getAvailableProviders(): Provider[] {
   const providers: Provider[] = [];
-  if (process.env.GEMINI_API_KEY) providers.push("gemini");
   if (process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY && process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL) providers.push("claude");
-  if (process.env.OPENAI_API_KEY) providers.push("openai");
   if (process.env.AI_INTEGRATIONS_OPENAI_API_KEY && process.env.AI_INTEGRATIONS_OPENAI_BASE_URL) providers.push("replit-ai-integrations");
   if (process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY && process.env.AI_INTEGRATIONS_OPENROUTER_BASE_URL) providers.push("deepseek-r1");
+  if (process.env.OPENAI_API_KEY) providers.push("openai");
+  if (process.env.GEMINI_API_KEY && Date.now() > geminiQuotaExhaustedUntil) providers.push("gemini");
   return providers;
 }
 
@@ -294,6 +296,10 @@ export async function generateAIJSON<T = unknown>(prompt: string, systemPrompt?:
       }
       return JSON.parse(cleaned) as T;
     } catch (error) {
+      if (isRateLimitError(error) && provider === "gemini") {
+        geminiQuotaExhaustedUntil = Date.now() + 30 * 60 * 1000;
+        console.error(`[AI Provider] Gemini quota exhausted — skipping for 30 minutes`);
+      }
       if (i < providers.length - 1) {
         const reason = isRateLimitError(error) ? "rate limit" : isTransientError(error) ? "transient error" : (error instanceof SyntaxError ? "JSON parse failure" : "error");
         console.error(`[AI Provider] ${provider} failed for JSON (${reason}), falling back to ${providers[i + 1]}`);
@@ -487,6 +493,11 @@ export async function streamAIResponse(params: StreamAIResponseParams): Promise<
       return;
     } catch (error) {
       const isLast = i === providers.length - 1;
+
+      if (isRateLimitError(error) && provider === "gemini") {
+        geminiQuotaExhaustedUntil = Date.now() + 30 * 60 * 1000;
+        console.error(`[AI Provider] Gemini quota exhausted — skipping for 30 minutes`);
+      }
 
       if (!isLast) {
         const reason = isRateLimitError(error) ? "rate limit" : isTransientError(error) ? "transient error" : "provider error";

@@ -48,12 +48,14 @@ const MAPGAP_LENS = `Apply MAP-GAP continuous improvement framework:
 - Action: What concrete steps close the gap?
 - Progress: How do we track improvement and verify results?`;
 
+let geminiCollabQuotaExhaustedUntil = 0;
+
 function getAvailableEngines(): Array<{ id: EngineId; model: string }> {
   const engines: Array<{ id: EngineId; model: string }> = [];
-  if (process.env.GEMINI_API_KEY) engines.push({ id: "gemini", model: "gemini-2.0-flash" });
   if (process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY && process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL) engines.push({ id: "claude", model: "claude-haiku-4-5" });
   if (process.env.AI_INTEGRATIONS_OPENAI_API_KEY && process.env.AI_INTEGRATIONS_OPENAI_BASE_URL) engines.push({ id: "openai", model: "gpt-4o-mini" });
   if (process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY && process.env.AI_INTEGRATIONS_OPENROUTER_BASE_URL) engines.push({ id: "deepseek-r1", model: "deepseek/deepseek-r1" });
+  if (process.env.GEMINI_API_KEY && Date.now() > geminiCollabQuotaExhaustedUntil) engines.push({ id: "gemini", model: "gemini-2.0-flash" });
   return engines;
 }
 
@@ -125,12 +127,17 @@ async function callEngine(engine: { id: EngineId; model: string }, prompt: strin
       responseTimeMs: Date.now() - start,
     };
   } catch (err: any) {
+    const msg = err.message || "Engine failed";
+    if (engine.id === "gemini" && (msg.includes("429") || msg.includes("quota") || msg.includes("Too Many Requests"))) {
+      geminiCollabQuotaExhaustedUntil = Date.now() + 30 * 60 * 1000;
+      console.error(`[CollabAI] Gemini quota exhausted — skipping for 30 minutes`);
+    }
     return {
       engine: engine.id,
       model: engine.model,
       response: "",
       responseTimeMs: Date.now() - start,
-      error: err.message || "Engine failed",
+      error: msg,
     };
   }
 }
