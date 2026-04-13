@@ -738,6 +738,31 @@ export async function registerRoutes(
     }
   });
 
+  const resumeStore = new Map<string, any>();
+
+  app.get("/api/resume-builder", requireAuth, async (req, res) => {
+    try {
+      const userId = getUserId(req);
+      const data = resumeStore.get(userId);
+      res.json(data || { resumeData: null });
+    } catch (error) {
+      console.error("Error in GET /api/resume-builder", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.post("/api/resume-builder", requireAuth, async (req, res) => {
+    try {
+      const userId = getUserId(req);
+      const { resumeData } = req.body;
+      resumeStore.set(userId, { resumeData, updatedAt: new Date().toISOString() });
+      res.json({ success: true, message: "Resume saved" });
+    } catch (error) {
+      console.error("Error in POST /api/resume-builder", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
   app.get("/api/dashboard", requireAuth, async (req, res) => {
     try {
       const progress = await storage.getOrCreateProgress(getUserId(req), getUserName(req));

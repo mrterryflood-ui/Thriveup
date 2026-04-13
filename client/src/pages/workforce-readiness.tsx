@@ -169,6 +169,12 @@ export default function WorkforceReadinessPage() {
                 View Full Curriculum
               </Button>
             </Link>
+            <Link href="/resume-builder">
+              <Button size="lg" variant="outline" className="border-green-300 text-green-700 hover:bg-green-50 dark:border-green-700 dark:text-green-400" data-testid="button-resume-builder">
+                <FileText className="w-5 h-5 mr-2" />
+                Resume Builder
+              </Button>
+            </Link>
           </div>
         </div>
 
