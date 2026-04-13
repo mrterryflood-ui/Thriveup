@@ -179,6 +179,7 @@ const WorkforceReadinessPage = lazy(() => import("@/pages/workforce-readiness"))
 const BusinessCardPage = lazy(() => import("@/pages/business-card"));
 const GrantCommandCenterPage = lazy(() => import("@/pages/grant-command-center"));
 const DataSourcesPage = lazy(() => import("@/pages/data-sources"));
+const ReentryStipendPilotPage = lazy(() => import("@/pages/reentry-stipend-pilot"));
 
 function PageFallback() {
   return (
@@ -375,6 +376,7 @@ function AppRouter() {
       <Route path="/fafsa-navigator" component={FafsaNavigatorPage} />
       <Route path="/neighborhood" component={NeighborhoodLookupPage} />
       <Route path="/data-sources" component={DataSourcesPage} />
+      <Route path="/reentry-stipend-pilot" component={ReentryStipendPilotPage} />
       <Route component={NotFound} />
     </Switch>
   );

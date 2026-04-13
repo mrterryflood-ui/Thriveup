@@ -76,6 +76,7 @@ const workforceSolutionsItems: NavItem[] = [
 
 const justiceReentryItems: NavItem[] = [
   { title: "Justice Command Center", url: "/justice-command-center", icon: Shield },
+  { title: "TX Reentry Stipend Pilot", url: "/reentry-stipend-pilot", icon: Landmark },
   { title: "Resource Directory", url: "/resource-directory", icon: HandHeart },
   { title: "Reentry Dashboard", url: "/reentry", icon: Scale },
   { title: "For Justice Partners", url: "/justice-partners", icon: Handshake },
