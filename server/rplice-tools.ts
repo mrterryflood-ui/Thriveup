@@ -726,7 +726,7 @@ Be specific. Use actual numbers from the data. Reference specific tracts. This i
           platforms: [
             { id: "isss", name: "ISSS — Integrated Supports for Thriving Youth", domain: "education", url: "https://implementationineducatio.com", interventions: ["MTSS implementation", "Student support coordination", "Early warning system", "Implementation fidelity tracking"] },
             { id: "wholemind", name: "WholeMind Learning", domain: "education", url: "https://wholemindlearning.com", interventions: ["Pre-K to 12th grade curriculum", "AI homework help", "Adaptive learning", "Skill mastery tracking"] },
-            { id: "rplice", name: "RPLICE — Research-to-Practice Lifecycle Implementation & Community Evidence", domain: "education", url: "https://implementationineducatio.com", interventions: ["Evidence-based practice registry", "CFIR/RE-AIM evaluation", "Research translation", "Fidelity measurement", "Live community data assessment", "Implementation plan builder"] },
+            { id: "betterscience", name: "RPLICE — Research-to-Practice Lifecycle Implementation & Community Evidence", domain: "education", url: "https://implementationineducatio.com", interventions: ["Evidence-based practice registry", "CFIR/RE-AIM evaluation", "Research translation", "Fidelity measurement", "Live community data assessment", "Implementation plan builder"] },
           ],
         },
         "health-equity": {
@@ -771,7 +771,7 @@ Be specific. Use actual numbers from the data. Reference specific tracts. This i
         },
         "research": {
           platforms: [
-            { id: "rplice", name: "RPLICE — Research-to-Practice Lifecycle Implementation & Community Evidence", domain: "education", url: "https://implementationineducatio.com", interventions: ["CFIR implementation framework", "RE-AIM evaluation", "Evidence-based practice registry", "Fidelity measurement", "Live community data assessment", "Outcome tracking"] },
+            { id: "betterscience", name: "RPLICE — Research-to-Practice Lifecycle Implementation & Community Evidence", domain: "education", url: "https://implementationineducatio.com", interventions: ["CFIR implementation framework", "RE-AIM evaluation", "Evidence-based practice registry", "Fidelity measurement", "Live community data assessment", "Outcome tracking"] },
           ],
         },
       };

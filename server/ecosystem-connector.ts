@@ -912,7 +912,7 @@ const ECOSYSTEM_PLATFORMS = [
     grantAlignment: ["wioa", "foundation", "ssg-fox"],
   },
   {
-    id: "rplice",
+    id: "betterscience",
     name: "RPLICE — Research-to-Practice Lifecycle Implementation & Community Evidence",
     url: "https://implementationineducatio.com",
     role: "research",
