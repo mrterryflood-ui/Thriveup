@@ -684,7 +684,7 @@ const ECOSYSTEM_PLATFORMS = [
     capabilities: {
       features: ["Multi-Stakeholder Coordination", "Evidence-Based Student Support", "District-Level Analytics", "Data-Driven Decision Making", "Implementation Fidelity Tracking", "MTSS Tiered Intervention Engine", "Thrive Score Algorithm", "Early Warning System", "Parent Engagement Portal", "IEP/504 Integration", "Trauma-Informed Practices", "School Climate Assessment", "Community Partner Coordination", "Grant Outcome Reporting"],
       frameworks: ["MTSS", "CFIR", "RE-AIM", "PBIS"],
-      integrationDepth: "Bidirectional data flows with WholeMind (academic), Perfectly Different (neurodiversity), SafeReport (incidents), Better Science Lab (research), Whole-Person Health (crisis)",
+      integrationDepth: "Bidirectional data flows with WholeMind (academic), Perfectly Different (neurodiversity), SafeReport (incidents), RPLICE (research/implementation science), Whole-Person Health (crisis)",
       outcomeMetrics: ["Schools implementing MTSS with fidelity: 12 districts","Student Thrive Score improvement: 23% average increase over semester","Early warning flag-to-intervention rate: 78%","Parent engagement portal active users: 1,847","Implementation fidelity score (CFIR): 7.2/10 average","Intervention effectiveness rate: 64% of flagged students improved","IEP/504 accommodation compliance rate: 91%"],
       grantNarrative: "Provides student-level outcome data, implementation fidelity metrics, and multi-stakeholder coordination evidence for WIOA youth employment and foundation education grant reporting",
     },
@@ -912,12 +912,12 @@ const ECOSYSTEM_PLATFORMS = [
     grantAlignment: ["wioa", "foundation", "ssg-fox"],
   },
   {
-    id: "betterscience",
-    name: "Better Science Lab / RPLICE",
-    url: "https://bettersciencelab.com",
+    id: "rplice",
+    name: "RPLICE — Research-to-Practice Lifecycle Implementation & Community Evidence",
+    url: "https://implementationineducatio.com",
     role: "research",
     domain: "education",
-    description: "Research and implementation science engine powering evidence-based practice across the entire ecosystem. CFIR (Consolidated Framework for Implementation Research), RE-AIM (Reach, Effectiveness, Adoption, Implementation, Maintenance), and EPIS (Exploration, Preparation, Implementation, Sustainment) frameworks applied to every platform's intervention design. Evidence-based practice registry with 500+ validated interventions, fidelity measurement instruments for each platform, research translation tools converting academic findings to community-actionable guides, and the RPLICE Decision Framework (Research-Practice-Leadership-Implementation-Community-Evaluation) that governs ecosystem decision-making. Provides the scientific backbone ensuring every platform's approach is evidence-based and measurable.",
+    description: "Free, AI-powered platform that helps researchers, practitioners, and planners close the gap between what science proves works and what actually gets implemented in communities. Search live evidence, assess projects against real community data, build implementation plans, and track outcomes -- all in one place. CFIR 2.0 (Consolidated Framework for Implementation Research), RE-AIM (Reach, Effectiveness, Adoption, Implementation, Maintenance), and EPIS (Exploration, Preparation, Implementation, Sustainment) frameworks applied to every platform's intervention design. Evidence-based practice registry with 500+ validated interventions, fidelity measurement instruments for each platform, research translation tools converting academic findings to community-actionable guides. Collaborative multi-AI review: multiple AI models independently analyze the same document, then a synthesis step builds consensus. API backend: salp-science--mrterryflood.replit.app (Research-Science-Collaborator on Replit). Provides the scientific backbone ensuring every platform's approach is evidence-based and measurable.",
     capabilities: {
       features: ["CFIR Implementation Framework", "RE-AIM Evaluation Model", "EPIS Framework Tools", "Evidence-Based Practice Registry", "Fidelity Measurement Instruments", "Research Translation Engine", "RPLICE Decision Framework", "Community Application Guides", "Outcome Measurement Design", "Program Logic Model Builder", "Data Visualization Tools", "Publication Pipeline", "IRB Protocol Templates"],
       frameworks: ["CFIR", "RE-AIM", "EPIS", "RPLICE"],
@@ -4411,12 +4411,12 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
             pitch: "Prove your programs work. For researchers needing frameworks, companies needing program evaluation, and government needing evidence-based accountability.",
             platforms: [
               {
-                name: "Better Science Lab / RPLICE",
-                capability: "Implementation science tools — CFIR assessment, RE-AIM evaluation, evidence-based practice registry, fidelity measurement, research translation",
-                forIndividuals: ["Learn implementation science", "Evaluate programs you participate in", "Research literacy tools"],
-                forCompanies: ["Program evaluation consulting", "ROI measurement for social programs", "Evidence-based program design"],
+                name: "RPLICE — Research-to-Practice Lifecycle Implementation & Community Evidence",
+                capability: "Free AI-powered implementation science platform — search live evidence, assess projects against real community data, build implementation plans, track outcomes, CFIR/RE-AIM/EPIS frameworks, fidelity measurement, research translation",
+                forIndividuals: ["Search live evidence", "Assess projects against community data", "Build implementation plans", "Track outcomes"],
+                forCompanies: ["Program evaluation consulting", "ROI measurement for social programs", "Evidence-based program design", "Implementation plan builder"],
                 forGovernment: ["University research centers", "Public health departments", "Foundation-funded programs", "Government program evaluation"],
-                url: "https://bettersciencelab.com",
+                url: "https://implementationineducatio.com",
               },
             ],
           },

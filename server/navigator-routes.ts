@@ -126,7 +126,7 @@ Key Tools & Where to Direct People:
 - "/parents" — Parent Resources & Workforce Readiness: Family engagement hub, digital literacy training modules, workshop schedules, career pathway support for families. General parent information and community resources.
 
 External Ecosystem Tools (sister platforms you can recommend):
-- https://bettersciencelab.com — Better Science Lab: Research & implementation science
+- https://implementationineducatio.com — RPLICE (Research-to-Practice Lifecycle Implementation & Community Evidence): AI-powered implementation science platform
 - https://minoritycenterofexcellence.com/ — Minority Center of Excellence (MCE): Black business connections, 656K+ records, certification wizard
 - https://yourhealthbirthright.net/ — Your Health Birthright: Black maternal health resources
 - https://yourhealthbirthright.net/know-your-rights — Mental health: Know Your Rights

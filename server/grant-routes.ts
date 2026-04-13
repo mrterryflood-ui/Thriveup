@@ -175,7 +175,7 @@ const PLATFORM_DIRECTORY: Record<string, { url: string; capabilities: string[] }
   "WholeMind Learning": { url: "https://life-pals-standalone.replit.app", capabilities: ["K-12", "education", "STEM", "digital literacy", "learning"] },
   "Perfectly Different": { url: "https://neurodifferentassistant.app", capabilities: ["neurodiversity", "disability", "autism", "ADHD", "IEP", "504", "special education"] },
   "Speech Bridge": { url: "https://speech-bridge.replit.app", capabilities: ["language", "translation", "accessibility", "communication", "LEP", "bilingual"] },
-  "Better Science Lab": { url: "https://bettersciencelab.com", capabilities: ["evidence-based", "implementation science", "outcomes", "fidelity", "evaluation", "CFIR", "RE-AIM"] },
+  "RPLICE": { url: "https://implementationineducatio.com", capabilities: ["evidence-based", "implementation science", "outcomes", "fidelity", "evaluation", "CFIR", "RE-AIM", "research-to-practice", "community evidence"] },
   "Video Creator AI": { url: "https://video-creator-ai-mrterryflood.replit.app", capabilities: ["content", "video", "training materials", "marketing", "outreach"] },
   "Ecosystem Nexus": { url: "https://ecosystem-nexus.replit.app", capabilities: ["coordination", "collaboration", "integration", "ecosystem", "systems"] },
   "Ad Targeting": { url: "https://advertising-targeting-for-platforms.replit.app", capabilities: ["outreach", "audience", "campaign", "engagement", "underserved"] },
@@ -201,7 +201,7 @@ function assignTeamOfTeams(grant: { title?: string | null; description?: string 
   for (let i = 1; i < Math.min(4, scored.length); i++) {
     assignments.push({ role: "Support", platform: scored[i].name, url: scored[i].url, reason: `Matched: ${scored[i].matchedCaps.slice(0, 2).join(", ")}` });
   }
-  assignments.push({ role: "Validate", platform: "Better Science Lab", url: "https://bettersciencelab.com", reason: "Evidence validation via CFIR/RE-AIM" });
+  assignments.push({ role: "Validate", platform: "RPLICE", url: "https://implementationineducatio.com", reason: "Evidence validation via CFIR/RE-AIM" });
   if (!assignments.find(a => a.platform === "Ecosystem Nexus")) {
     assignments.push({ role: "Validate", platform: "Ecosystem Nexus", url: "https://ecosystem-nexus.replit.app", reason: "Cross-platform coordination and monitoring" });
   }
