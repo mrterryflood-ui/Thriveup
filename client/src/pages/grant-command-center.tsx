@@ -18,6 +18,7 @@ import {
 type GrantStatus =
   | "identified"
   | "researching"
+  | "tracking"
   | "loi_drafting"
   | "loi_submitted"
   | "proposal_drafting"
@@ -78,6 +79,7 @@ interface GrantEntry {
 const STATUS_CONFIG: Record<GrantStatus, { label: string; color: string; icon: any }> = {
   identified: { label: "Identified", color: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200", icon: Target },
   researching: { label: "Researching", color: "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200", icon: Search },
+  tracking: { label: "Tracking", color: "bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-200", icon: Bell },
   loi_drafting: { label: "LOI Drafting", color: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200", icon: FileText },
   loi_submitted: { label: "LOI Submitted", color: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200", icon: Send },
   proposal_drafting: { label: "Proposal Drafting", color: "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200", icon: FileText },
@@ -138,21 +140,23 @@ const INITIAL_GRANTS: GrantEntry[] = [
   },
   {
     id: "twc-rfa-32026",
-    name: "TWC RFA 32026-00162 — Workforce Readiness Curriculum",
+    name: "TWC RFA 32026-00162 — Workforce Readiness Training for CTE Students II",
     funder: "Texas Workforce Commission",
     solicitation: "RFA 32026-00162",
-    amount: "TBD",
-    amountNum: 0,
-    deadline: "April 14, 2026",
+    amount: "Up to $2,000,000",
+    amountNum: 2000000,
+    deadline: "April 14, 2026 @ 10AM CDT",
     deadlineDate: new Date("2026-04-14"),
-    status: "archived",
-    platforms: ["TCAF", "ThriveUp Academy"],
+    status: "tracking",
+    platforms: ["TCAF", "ThriveUp Academy", "ISSS", "Mission Transition"],
     category: "state",
-    documents: [],
-    notes: "PASSED — Required too many partners to assemble in the timeframe. Live curriculum remains a differentiator for future TWC opportunities.",
-    submitUrl: "https://apps.hhs.texas.gov/esbd/",
-    submitPortal: "Texas ESBD",
-    priority: 3,
+    documents: [{ name: "Full Narrative Draft", path: "docs/grants/TWC-RFA-32026-00162-NARRATIVE.md" }],
+    notes: "REACTIVATED — Full narrative drafted. TEKS 127.15-aligned workforce readiness for CTE students (grades 9-12). Bonfire portal ID: 224162. Check messages section for amendments/extensions. Contact: Cassandra Johnson, RFAgrants@twc.texas.gov. Deadline extended once via Amendment I (April 3). Submit via TWC Bonfire Procurement Portal.",
+    submitUrl: "https://twc-texas-gov.bonfirehub.com/opportunities/224162",
+    submitPortal: "TWC Bonfire (Euna Procurement)",
+    priority: 1,
+    contactName: "Cassandra Johnson",
+    contactEmail: "RFAgrants@twc.texas.gov",
   },
   {
     id: "nbcuniversal-local-impact-2026",
