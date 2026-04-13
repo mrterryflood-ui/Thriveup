@@ -122,6 +122,7 @@ const grantEngineItems: NavItem[] = [
 ];
 
 const dataReportingItems: NavItem[] = [
+  { title: "Data Sources", url: "/data-sources", icon: LayoutDashboard },
   { title: "Platform Metrics", url: "/platform-metrics", icon: BarChart3 },
   { title: "Pilot Dashboard", url: "/pilot", icon: Users },
   { title: "Dosage Report", url: "/dosage", icon: Activity },
