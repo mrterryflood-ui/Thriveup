@@ -1,0 +1,93 @@
+Adaptive Implementation Infrastructure and Fidelity of Evidence-Based Student Support Practices: A Mixed-Methods Study of the ISSS Platform
+
+Abstract
+
+This study examines how digitally embedded implementation science infrastructure affects the fidelity of evidence-based student support practices across diverse school contexts. Using the Integrated Supports for Thriving Youth (ISSS) platform -- a technology system that embeds Consolidated Framework for Implementation Research (CFIR 2.0) and RE-AIM frameworks directly into school-level workflows -- we investigate whether adaptive, real-time implementation support produces measurably different fidelity outcomes compared to traditional implementation approaches. The study employs a convergent mixed-methods design across 3 to 5 school sites in Pflugerville Independent School District, combining quantitative platform-generated data (implementation fidelity scores, Thrive Scores, early warning response rates, intervention effectiveness metrics) with qualitative interviews of school staff, families, and practitioners. The research contributes foundational knowledge about whether embedding implementation science into digital infrastructure changes how schools adopt, adapt, and sustain evidence-based practices -- a question with implications for the broader field of implementation science in education. This is not a program evaluation but an investigation into the mechanisms by which technology-mediated implementation support may alter the adoption and maintenance of whole-child practices.
+
+
+Adaptive Implementation Infrastructure and Fidelity of Evidence-Based Student Support Practices: A Mixed-Methods Study of the ISSS Platform
+
+
+Introduction and Problem Statement
+
+A persistent gap exists between what research demonstrates works for students and what actually gets implemented in schools with fidelity. Decades of implementation science research have documented that evidence-based practices are adopted inconsistently, adapted without fidelity tracking, and abandoned before they can produce measurable outcomes (Fixsen et al., 2005; Damschroder et al., 2009). Traditional implementation support relies on periodic external consultation, manual fidelity checklists, and retrospective data review -- approaches that cannot respond to the real-time challenges practitioners face during implementation.
+
+This study investigates whether embedding implementation science frameworks directly into digital infrastructure -- creating what we term adaptive implementation infrastructure -- changes how schools adopt and maintain evidence-based student support practices. Specifically, we examine the Integrated Supports for Thriving Youth (ISSS) platform, which operationalizes CFIR 2.0 (Damschroder et al., 2022), RE-AIM (Glasgow et al., 1999), and Multi-Tiered Systems of Support (MTSS) frameworks within a working school platform that generates real-time fidelity data, early warning flags, and implementation guidance.
+
+
+Research Question
+
+How does adaptive implementation infrastructure affect the fidelity of evidence-based student support practices across diverse school contexts?
+
+Sub-questions include: (a) What patterns of implementation fidelity emerge when practitioners receive real-time, technology-mediated implementation support? (b) How do practitioners experience and respond to embedded implementation guidance compared to traditional support models? (c) What contextual factors moderate the relationship between adaptive infrastructure and fidelity outcomes?
+
+
+Theoretical Framework
+
+This study draws on three interconnected frameworks. The Consolidated Framework for Implementation Research (CFIR 2.0) provides the overarching structure for examining implementation determinants across five domains: innovation characteristics, outer setting, inner setting, individuals, and implementation process (Damschroder et al., 2022). RE-AIM (Reach, Effectiveness, Adoption, Implementation, Maintenance) provides the evaluative framework for assessing implementation outcomes across multiple dimensions (Glasgow et al., 1999). Proctor et al.'s (2011) taxonomy of implementation outcomes -- acceptability, adoption, appropriateness, costs, feasibility, fidelity, penetration, and sustainability -- provides the specific outcome constructs measured through the platform.
+
+The innovation under study is not a curriculum or intervention program but the implementation infrastructure itself. ISSS embeds these frameworks into a digital system that continuously monitors implementation fidelity, generates early warning flags when fidelity drifts, coordinates multi-stakeholder responses, and produces practice-policy reports that connect implementation data to decision-making. The Research-to-Practice Lifecycle Implementation and Community Evidence (RPLICE) engine provides the implementation science backend, delivering framework-aligned analysis and evidence matching through validated instruments.
+
+
+Research Design and Methods
+
+This study employs a convergent mixed-methods design (Creswell and Plano Clark, 2018) conducted across 3 to 5 school sites within Pflugerville Independent School District over a 2-year period.
+
+Quantitative Component. ISSS generates continuous implementation data through platform use, including: implementation fidelity scores (CFIR-based, scored 1-10 across 5 domains), Thrive Score trajectories for students receiving support, early warning flag-to-intervention response rates, intervention effectiveness rates (proportion of flagged students showing improvement), IEP/504 accommodation compliance rates, parent engagement metrics, and Proctor's 8 implementation outcome indicators. These data are collected automatically through routine platform use, not through researcher-imposed instruments, reducing measurement reactivity and participant burden. We will analyze fidelity trajectories over time, comparing early implementation periods to sustained use, and examine variation across school contexts.
+
+Qualitative Component. Semi-structured interviews will be conducted with school staff (n = 15-20), including teachers, counselors, and administrators using ISSS, and with families (n = 10-15) whose children receive support through the platform. Interview protocols will explore how practitioners experience real-time implementation guidance, how they respond to fidelity feedback, what contextual factors support or hinder their use of embedded frameworks, and how the infrastructure changes their decision-making compared to prior implementation experiences. Interviews will be conducted at three time points: early implementation (months 2-3), mid-implementation (months 8-10), and sustained use (months 18-20).
+
+Integration. Quantitative fidelity trajectories and qualitative experience data will be integrated using a joint display approach (Guetterman et al., 2015), examining where quantitative patterns of fidelity change correspond to qualitative accounts of practitioner experience, and where they diverge. This integration will generate hypotheses about the mechanisms through which adaptive infrastructure affects fidelity.
+
+Research Sites. Pflugerville ISD serves as the anchor site, with 5 high schools serving approximately 120 students in Year 1. PfISD's student body is approximately 25% Black and 35% Hispanic, providing diverse school contexts within a single district. The PI serves on PfISD's School Health Advisory Council (SHAC), providing established partnership infrastructure. A letter of support from Traci Hendrix, Executive Director of Career, College, and Military Readiness at PfISD, confirms district commitment to the study, including CTE student access, classroom space, and FERPA-compliant data sharing.
+
+
+AI Transparency Disclosure
+
+ISSS uses AI tools (GPT-4o and Claude) as practitioner support tools -- generating implementation suggestions, analyzing patterns in student data, and supporting individualized intervention planning. RPLICE uses multi-AI consensus methodology (multiple AI models independently analyze the same data, then a synthesis step builds consensus) for research synthesis and evidence matching. In this study, AI functions as infrastructure supporting practitioners -- the PI conducts the research. AI does not generate research findings, interpret qualitative data, or draw conclusions. All analysis, interpretation, and dissemination are conducted by the research team.
+
+
+Budget
+
+The requested budget of $50,000 covers the following categories with no indirect costs:
+
+Personnel: PI time (Dr. Terry Flood, DHA) for study design, data analysis, qualitative interviews, and dissemination -- $20,000
+
+Participant compensation: Interview participants (school staff n = 15-20, families n = 10-15) at $50 per interview across 3 time points -- $5,250
+
+Research assistance: Qualitative coding, transcript preparation, and data management -- $10,000
+
+Travel: Site visits to 3-5 PfISD schools for interviews and observation -- $4,750
+
+Dissemination: Conference presentations and open-access publication fees -- $5,000
+
+Materials and supplies: Recording equipment, transcription services, data storage -- $5,000
+
+Total: $50,000
+
+
+Budget Justification
+
+PI time reflects approximately 15% effort across the 2-year study period, covering study design, IRB protocol development, interview protocol development, conducting qualitative interviews, quantitative data analysis, mixed-methods integration, and manuscript preparation. Participant compensation ensures equitable recognition of school staff and family time at all three data collection points. Research assistance covers qualitative coding using established frameworks (CFIR domains) and data management. Travel covers round-trip visits to PfISD school sites for in-person interviews and implementation observation. Dissemination costs support conference attendance (AERA, Society for Implementation Research Collaboration) and open-access publication to ensure findings are accessible to practitioners and researchers. No indirect costs are requested per Spencer Foundation policy.
+
+
+Significance
+
+This study addresses a foundational question: does embedding implementation science into digital infrastructure change how schools adopt and sustain evidence-based practices? If adaptive implementation infrastructure produces measurably different fidelity outcomes, the implications extend beyond any single platform to the broader design of implementation support systems in education. The study contributes to implementation science theory by examining whether real-time, technology-mediated support alters the mechanisms described in CFIR 2.0 and RE-AIM frameworks, and to educational practice by generating evidence about how to design implementation support that actually works in diverse school contexts.
+
+
+References
+
+Creswell, J. W., and Plano Clark, V. L. (2018). Designing and conducting mixed methods research (3rd ed.). Sage.
+
+Damschroder, L. J., Aron, D. C., Keith, R. E., Kirsh, S. R., Alexander, J. A., and Lowery, J. C. (2009). Fostering implementation of health services research findings into practice. Implementation Science, 4(50).
+
+Damschroder, L. J., Reardon, C. M., Widerquist, M. A. O., and Lowery, J. C. (2022). The updated Consolidated Framework for Implementation Research based on user feedback. Implementation Science, 17(75).
+
+Fixsen, D. L., Naoom, S. F., Blase, K. A., Friedman, R. M., and Wallace, F. (2005). Implementation research: A synthesis of the literature. University of South Florida.
+
+Glasgow, R. E., Vogt, T. M., and Boles, S. M. (1999). Evaluating the public health impact of health promotion interventions: The RE-AIM framework. American Journal of Public Health, 89(9), 1322-1327.
+
+Guetterman, T. C., Fetters, M. D., and Creswell, J. W. (2015). Integrating quantitative and qualitative results in health science mixed methods research through joint displays. Annals of Family Medicine, 13(6), 554-561.
+
+Proctor, E., Silmere, H., Raghavan, R., Hovmand, P., Aarons, G., Bunger, A., Griffey, R., and Hensley, M. (2011). Outcomes for implementation research: Conceptual distinctions, measurement challenges, and a research agenda. Administration and Policy in Mental Health and Mental Health Services Research, 38(2), 65-76.
