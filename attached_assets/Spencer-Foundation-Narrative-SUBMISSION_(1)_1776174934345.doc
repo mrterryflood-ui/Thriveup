@@ -1,0 +1,80 @@
+Adaptive Implementation Infrastructure and Fidelity of Evidence-Based Student Support Practices: A Mixed-Methods Study of the ISSS Platform
+
+
+Introduction and Problem Statement
+
+A persistent gap exists between what research demonstrates works for students and what actually gets implemented in schools with fidelity. Decades of implementation science research have documented that evidence-based practices are adopted inconsistently, adapted without fidelity tracking, and abandoned before they can produce measurable outcomes (Fixsen et al., 2005; Damschroder et al., 2009). Traditional implementation support relies on periodic external consultation, manual fidelity checklists, and retrospective data review -- approaches that cannot respond to the real-time challenges practitioners face during implementation (Lyon and Bruns, 2019).
+
+Emerging work in technology-facilitated implementation support suggests that digital tools can enhance practitioner adherence and reduce the research-to-practice lag (Powell et al., 2015; Aschbrenner et al., 2022). However, existing platforms typically function as add-on data dashboards or static decision aids rather than infrastructure that embeds implementation science frameworks into daily workflows. The field lacks foundational knowledge about whether structural integration of implementation frameworks into digital infrastructure -- not merely technology-assisted monitoring -- changes how schools adopt and sustain evidence-based practices.
+
+This study investigates whether embedding implementation science frameworks directly into digital infrastructure -- creating what we term adaptive implementation infrastructure -- changes how schools adopt and maintain evidence-based student support practices. Specifically, we examine the Integrated Supports for Thriving Youth (ISSS) platform, which operationalizes CFIR 2.0 (Damschroder et al., 2022), RE-AIM (Glasgow et al., 1999), and Multi-Tiered Systems of Support (MTSS) frameworks within a working school platform that generates real-time fidelity data, early warning flags, and implementation guidance.
+
+
+Literature and Conceptual Framework
+
+Implementation fidelity -- the degree to which interventions are delivered as intended -- is consistently identified as a critical moderator of program outcomes in education (Durlak and DuPre, 2008; Century et al., 2010). Yet fidelity measurement in school settings remains largely retrospective, relying on periodic observation checklists and self-report instruments that capture snapshots rather than trajectories (Schoenwald et al., 2011). When fidelity data does reach decision-makers, it often arrives too late to inform meaningful adaptation.
+
+Technology-mediated implementation support represents an emerging area of inquiry. Lyon and Bruns (2019) documented how digital clinical decision support systems can improve practitioner adherence to evidence-based protocols in youth mental health. Aschbrenner and colleagues (2022) demonstrated that technology-assisted implementation strategies improved reach and adoption of health interventions in community settings. Powell and colleagues (2015) compiled 73 discrete implementation strategies, noting that technology-enabled strategies remained underspecified and understudied. Collectively, this literature establishes that technology can support implementation, but the question of whether embedding IS frameworks into infrastructure -- rather than layering them on top of existing workflows -- produces fundamentally different fidelity outcomes remains unanswered.
+
+This study draws on three complementary frameworks. CFIR 2.0 (Damschroder et al., 2022) provides the overarching structure for examining implementation determinants across five domains: innovation, outer setting, inner setting, individuals, and implementation process. RE-AIM (Glasgow et al., 1999) guides evaluation of reach, effectiveness, adoption, implementation, and maintenance at both individual and organizational levels. Proctor and colleagues' (2011) taxonomy of implementation outcomes -- acceptability, adoption, appropriateness, feasibility, fidelity, implementation cost, penetration, and sustainability -- provides the measurement architecture for dependent variables. The convergence of these frameworks enables multi-level analysis of how adaptive infrastructure operates across individual practitioner behavior, organizational processes, and system-level adoption patterns.
+
+
+Research Question
+
+How does adaptive implementation infrastructure affect the fidelity of evidence-based student support practices across diverse school contexts?
+
+Sub-questions include: (a) What patterns of implementation fidelity emerge when practitioners receive real-time, technology-mediated implementation support? (b) How do practitioners experience and respond to embedded implementation guidance compared to traditional support models? (c) What contextual factors moderate the relationship between adaptive infrastructure and fidelity outcomes?
+
+
+Methods
+
+Design. This study employs a convergent mixed-methods design (Creswell and Plano Clark, 2018) collecting quantitative and qualitative data concurrently, with integration through joint display matrices (Guetterman et al., 2015) that map fidelity trajectories against practitioner experience narratives.
+
+Setting and sample. The study takes place across five high schools in Pflugerville Independent School District (PfISD), serving approximately 120 students in Year 1. Schools were selected to maximize variation in demographic composition, resource levels, and prior MTSS experience. The school site is the primary unit of analysis for organizational-level outcomes; practitioners (n = 15-20) and families (n = 10-15) are the units for individual-level qualitative data. This sample size is appropriate for convergent mixed-methods designs where the goal is transferable analytic generalization rather than statistical generalization, and is consistent with recommended ranges for multi-site qualitative case comparison (Creswell and Plano Clark, 2018).
+
+Quantitative data. The ISSS platform generates continuous implementation data including fidelity scores calculated across five CFIR 2.0 domains (scored 1-10 per domain using standardized rubrics aligned to Damschroder et al., 2022), Thrive Scores (composite student wellness indicators), early warning response rates, and Proctor's eight implementation outcomes. Fidelity rubrics were developed through iterative consultation with implementation scientists and piloted across 12 districts, yielding adequate inter-rater reliability (Cohen's kappa greater than 0.75). Platform-generated metrics will be validated against independent observer ratings at each data collection point to address potential measurement bias.
+
+Qualitative data. Semi-structured interviews at three time points (baseline, midpoint, endpoint) explore practitioner experiences with embedded implementation guidance, perceived changes in practice, and contextual factors influencing adoption. Interview protocols are structured around CFIR 2.0 domains to enable direct integration with quantitative data during analysis.
+
+Analysis. Quantitative data will be analyzed using descriptive and inferential statistics to characterize fidelity trajectories. Qualitative data will undergo thematic analysis using CFIR 2.0 domains as an a priori coding framework with openness to emergent themes. Integration occurs through joint display matrices mapping quantitative fidelity patterns against qualitative experience themes, enabling identification of convergence, divergence, and complementarity across data sources. The ISSS platform uses AI tools (GPT-4o, Claude) as practitioner support infrastructure; these tools do not conduct research analysis, which is performed independently by the PI.
+
+IRB. This study will be submitted for IRB review prior to data collection. The PI is affiliated with The Collaborative Advocate Foundation (TCAF), a 501(c)(3) nonprofit organization (EIN: 41-3618003), which serves as the administering organization for this grant.
+
+
+Researcher Positionality
+
+The PI is the developer of the ISSS platform under study. This insider position provides unique access to platform architecture, implementation data, and practitioner relationships that would be unavailable to an external researcher. To mitigate potential bias, the study employs four safeguards: (1) independent qualitative coders with no platform affiliation will code all interview transcripts; (2) member-checking with participants at each data collection point will verify interpretive accuracy; (3) quantitative fidelity scores will be validated against independent observer ratings; and (4) Dr. Laura France will serve as an external advisory board member, independently reviewing research findings, analytic interpretations, and conclusions to provide an objective check on the PI's analysis. The convergent mixed-methods design itself serves as a structural check, requiring that findings be supported across independent data sources.
+
+
+Significance
+
+This study addresses a foundational question: does embedding implementation science into digital infrastructure change how schools adopt and sustain evidence-based practices? If adaptive implementation infrastructure produces measurably different fidelity outcomes, the implications extend beyond any single platform to the broader design of implementation support systems in education. The study contributes to implementation science theory by examining whether real-time, technology-mediated support alters the mechanisms described in CFIR 2.0 and RE-AIM frameworks, and to educational practice by generating evidence about how to design implementation support that works in diverse school contexts.
+
+
+References
+
+Aschbrenner, K. A., Kruse, G., Engelman, A., and Bartels, S. J. (2022). Technology-assisted implementation strategies for health promotion interventions in community settings. Implementation Science, 17(1), 42.
+
+Century, J., Rudnick, M., and Freeman, C. (2010). A framework for measuring fidelity of implementation: A foundation for shared language and accumulation of knowledge. American Journal of Evaluation, 31(2), 199-218.
+
+Creswell, J. W., and Plano Clark, V. L. (2018). Designing and conducting mixed methods research (3rd ed.). Sage.
+
+Damschroder, L. J., Aron, D. C., Keith, R. E., Kirsh, S. R., Alexander, J. A., and Lowery, J. C. (2009). Fostering implementation of health services research findings into practice. Implementation Science, 4(50).
+
+Damschroder, L. J., Reardon, C. M., Widerquist, M. A. O., and Lowery, J. C. (2022). The updated Consolidated Framework for Implementation Research based on user feedback. Implementation Science, 17(75).
+
+Durlak, J. A., and DuPre, E. P. (2008). Implementation matters: A review of research on the influence of implementation on program outcomes and the factors affecting implementation. American Journal of Community Psychology, 41(3-4), 327-350.
+
+Fixsen, D. L., Naoom, S. F., Blase, K. A., Friedman, R. M., and Wallace, F. (2005). Implementation research: A synthesis of the literature. University of South Florida.
+
+Glasgow, R. E., Vogt, T. M., and Boles, S. M. (1999). Evaluating the public health impact of health promotion interventions: The RE-AIM framework. American Journal of Public Health, 89(9), 1322-1327.
+
+Guetterman, T. C., Fetters, M. D., and Creswell, J. W. (2015). Integrating quantitative and qualitative results in health science mixed methods research through joint displays. Annals of Family Medicine, 13(6), 554-561.
+
+Lyon, A. R., and Bruns, E. J. (2019). From evidence to impact: Joining our efforts to advance implementation science in schools. School Psychology Quarterly, 34(2), 145-152.
+
+Powell, B. J., Waltz, T. J., Chinman, M. J., Damschroder, L. J., Smith, J. L., Matthieu, M. M., Proctor, E. K., and Kirchner, J. E. (2015). A refined compilation of implementation strategies: Results from the Expert Recommendations for Implementing Change (ERIC) project. Implementation Science, 10(21).
+
+Proctor, E., Silmere, H., Raghavan, R., Hovmand, P., Aarons, G., Bunger, A., Griffey, R., and Hensley, M. (2011). Outcomes for implementation research: Conceptual distinctions, measurement challenges, and a research agenda. Administration and Policy in Mental Health and Mental Health Services Research, 38(2), 65-76.
+
+Schoenwald, S. K., Garland, A. F., Chapman, J. E., Frazier, S. L., Sheidow, A. J., and Southam-Gerow, M. A. (2011). Toward the effective and efficient measurement of implementation fidelity. Administration and Policy in Mental Health and Mental Health Services Research, 38(1), 32-43.
