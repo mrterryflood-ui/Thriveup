@@ -1383,6 +1383,9 @@ export class DatabaseStorage implements IStorage {
     if (existingCareers.length === 0) {
       await seedCareerFields(db);
     }
+    const { seedNonCollegiatePathways } = await import("./seed-non-collegiate");
+    await seedNonCollegiatePathways(db);
+
     const existingMilestones = await db.select().from(careerMilestones).limit(1);
     if (existingMilestones.length === 0) {
       await seedCareerMilestones(db);
