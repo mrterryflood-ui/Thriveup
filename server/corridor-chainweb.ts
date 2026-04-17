@@ -19,7 +19,7 @@ import { upsertEvidence, getStateFips } from "./gis-engine";
 const CENSUS_ACS = "https://api.census.gov/data/2022/acs/acs5";
 const CDC_PLACES = "https://data.cdc.gov/resource/swc5-untb.json";
 const ATSDR_SVI = "https://services3.arcgis.com/ZvidGQkLaDJxRSJ2/arcgis/rest/services/SVI2022_US_county/FeatureServer/0/query";
-const FBI_CRIME = "https://api.usa.gov/crime/fbi/cde/estimate/state";
+const FBI_CDE = "https://api.usa.gov/crime/fbi/cde/summarized/state";
 
 /* --- local fetch with retry (self-contained so this module is portable) ---- */
 async function fetchJson(url: string, retries = 3, timeoutMs = 25000): Promise<any> {
@@ -429,46 +429,58 @@ export const CHAIN_STEPS: ChainStep[] = [
     },
   },
 
-  /* ---------------- Step 8: FBI crime by offense (state-level proxy) ---------------- */
+  /* ---------------- Step 8: FBI CDE — state summarized by offense ---------------- */
   {
     id: "fbi_crime_state",
-    label: "FBI Crime Data — state estimates by offense",
-    source: "FBI Crime Data Explorer API",
-    sourceUrl: FBI_CRIME,
+    label: "FBI Crime Data Explorer — state summarized by offense",
+    source: "FBI Crime Data Explorer (CDE) — summarized state endpoint",
+    sourceUrl: FBI_CDE,
     dependsOn: ["census_total_population"],
     run: async (county, ctx) => {
       if (!ctx.fbiKey) {
         return { ok: false, evidenceWritten: 0, values: {}, skipped: "FBI_CRIME_API_KEY not configured" };
       }
       const stateAbbr = "TX";
-      const url = `${FBI_CRIME}/${stateAbbr}?API_KEY=${ctx.fbiKey}`;
-      const data = await fetchJson(url);
-      const years = data?.results ?? [];
-      const latest = years[years.length - 1];
-      if (!latest) return { ok: false, evidenceWritten: 0, values: {}, error: "no data" };
+      const stateName = "Texas";
+      const year = "2022";
+      const from = `01-${year}`;
+      const to = `12-${year}`;
+      // Offense IDs per FBI CDE docs
+      const offenses: Array<{ id: string; metricKey: string; metricLabel: string }> = [
+        { id: "violent-crime", metricKey: "crime_violent", metricLabel: "Violent crime (state total, FBI CDE)" },
+        { id: "property-crime", metricKey: "crime_property", metricLabel: "Property crime (state total, FBI CDE)" },
+        { id: "homicide", metricKey: "crime_homicide", metricLabel: "Homicide (state total, FBI CDE)" },
+        { id: "aggravated-assault", metricKey: "crime_aggravated_assault", metricLabel: "Aggravated assault (state total, FBI CDE)" },
+        { id: "robbery", metricKey: "crime_robbery", metricLabel: "Robbery (state total, FBI CDE)" },
+        { id: "burglary", metricKey: "crime_burglary", metricLabel: "Burglary (state total, FBI CDE)" },
+      ];
       let wrote = 0;
-      const writeOne = async (metricKey: string, metricLabel: string, value: number) => {
-        if (!value) return;
-        await upsertEvidence(db, {
-          geographyKey: county.countyFips, geographyType: "county",
-          metricKey, metricLabel,
-          value, unit: "incidents (state-level, apportioned by population)",
-          asOfDate: `${latest.year}-12-31`,
-          sourceName: "FBI Crime Data Explorer — TX state estimate (" + latest.year + ")",
-          sourceUrl: FBI_CRIME,
-          documentTitle: "Crime Estimate by Offense",
-          methodology: `CHAIN STEP 8 · Cites step 1. State-level count (no free county API). Apportioned signal only.`,
-          verifiedBy: "chainweb:fbi_crime_state",
-        });
-        wrote++;
-      };
-      await writeOne("crime_violent", "Violent crime (state total)", parseInt(latest.violent_crime) || 0);
-      await writeOne("crime_property", "Property crime (state total)", parseInt(latest.property_crime) || 0);
-      await writeOne("crime_homicide", "Homicide (state total)", parseInt(latest.homicide) || 0);
-      await writeOne("crime_aggravated_assault", "Aggravated assault (state total)", parseInt(latest.aggravated_assault) || 0);
-      await writeOne("crime_robbery", "Robbery (state total)", parseInt(latest.robbery) || 0);
-      await writeOne("crime_burglary", "Burglary (state total)", parseInt(latest.burglary) || 0);
-      return { ok: wrote > 0, evidenceWritten: wrote, values: { [county.countyFips]: parseInt(latest.violent_crime) || 0 } };
+      let violentTotal = 0;
+      for (const off of offenses) {
+        try {
+          const url = `${FBI_CDE}/${stateAbbr}/${off.id}?type=counts&from=${from}&to=${to}&API_KEY=${ctx.fbiKey}`;
+          const data = await fetchJson(url);
+          const monthly = data?.offenses?.actuals?.[`${stateName} Offenses`];
+          if (!monthly || typeof monthly !== "object") continue;
+          const annual = Object.values(monthly as Record<string, number>).reduce((a, v) => a + (Number(v) || 0), 0);
+          if (!annual) continue;
+          await upsertEvidence(db, {
+            geographyKey: county.countyFips, geographyType: "county",
+            metricKey: off.metricKey, metricLabel: off.metricLabel,
+            value: annual, unit: `incidents (${year}, TX state total)`, asOfDate: `${year}-12-31`,
+            sourceName: `FBI Crime Data Explorer — TX summarized ${off.id} (${year})`,
+            sourceUrl: FBI_CDE,
+            documentTitle: "FBI CDE Summarized by Offense",
+            methodology: `CHAIN STEP 8 · Cites step 1 (total_population). Sum of monthly FBI CDE counts 01-${year}..12-${year} for offense=${off.id}. State-level signal — not apportioned to county.`,
+            verifiedBy: "chainweb:fbi_crime_state",
+          });
+          wrote++;
+          if (off.id === "violent-crime") violentTotal = annual;
+        } catch (err) {
+          // continue; one bad offense shouldn't break the whole step
+        }
+      }
+      return { ok: wrote > 0, evidenceWritten: wrote, values: { [county.countyFips]: violentTotal } };
     },
   },
 ];
