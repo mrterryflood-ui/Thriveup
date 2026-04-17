@@ -288,3 +288,15 @@ id = "1kNxN_LOPkvEQOhjNhDAT"
 uri = "file://attached_assets/WAB2-LOI-RequestSummary-v5-FINAL.docx"
 type = "word_document"
 title = "WAB2 LOI v5 FINAL — 95th-Percentile Draft"
+
+[[outputs]]
+id = "EbwKSHSop0B0Q44IAc2nC"
+uri = "file://attached_assets/decks/Waco-Austin-Fatherhood-Gap-v1.pptx"
+type = "slides"
+title = "Waco & Austin Fatherhood Gap — PowerPoint"
+
+[[outputs]]
+id = "RF-aXJGjQEFoTVQfiTudZ"
+uri = "file://attached_assets/decks/Waco-Austin-Fatherhood-Gap-v1.docx"
+type = "word_document"
+title = "Waco & Austin Fatherhood Gap — Word Doc"
