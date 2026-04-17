@@ -3082,4 +3082,85 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
       countiesWithPartners: Object.keys(rpliceCache.partners),
     });
   });
+
+  app.get("/api/rplice/sync", async (_req, res) => {
+    res.json({
+      ok: true,
+      platform: "thriveup",
+      role: "consumer",
+      acceptedEventTypes: ["county.profile.updated", "mapgap.refreshed", "partners.updated", "program.alert"],
+      pushEndpoint: "/api/rplice/sync",
+      legacyPushEndpoint: "/api/rplice/inbound-event",
+      stateEndpoint: "/api/rplice/state/:countyFips",
+      lastEventAt: rpliceCache.lastEventAt || null,
+      counties: {
+        withProfile: Object.keys(rpliceCache.countyProfiles),
+        withMapGap: Object.keys(rpliceCache.mapgapPriority),
+        withPartners: Object.keys(rpliceCache.partners),
+      },
+      activeAlertCount: rpliceCache.programAlerts.length,
+    });
+  });
+
+  app.post("/api/rplice/sync", async (req, res) => {
+    try {
+      const body = req.body || {};
+      const events = Array.isArray(body.events)
+        ? body.events
+        : body.type
+        ? [{ type: body.type, payload: body.payload }]
+        : [];
+      if (!events.length) return res.status(400).json({ error: "events[] or {type,payload} required" });
+
+      const results: Array<{ type: string; ok: boolean; error?: string }> = [];
+      for (const evt of events) {
+        const { type, payload } = evt || {};
+        if (!type) { results.push({ type: "?", ok: false, error: "type required" }); continue; }
+        rpliceCache.lastEventAt = new Date().toISOString();
+        try {
+          switch (type) {
+            case "county.profile.updated": {
+              const { countyFips, fplOverride, specialThresholds } = payload || {};
+              if (!countyFips) throw new Error("countyFips required");
+              rpliceCache.countyProfiles[countyFips] = { fplOverride, specialThresholds, updatedAt: rpliceCache.lastEventAt };
+              break;
+            }
+            case "mapgap.refreshed": {
+              const { countyFips, prioritizedPrograms } = payload || {};
+              if (!countyFips || !Array.isArray(prioritizedPrograms)) throw new Error("countyFips + prioritizedPrograms[] required");
+              rpliceCache.mapgapPriority[countyFips] = prioritizedPrograms;
+              break;
+            }
+            case "partners.updated": {
+              const { countyFips, partners } = payload || {};
+              if (!countyFips || !Array.isArray(partners)) throw new Error("countyFips + partners[] required");
+              rpliceCache.partners[countyFips] = partners;
+              break;
+            }
+            case "program.alert": {
+              const alert = {
+                id: payload?.id || `alert_${Date.now()}`,
+                program: payload?.program || "ALL",
+                counties: payload?.counties,
+                severity: (payload?.severity || "info") as "info" | "warning" | "critical",
+                message: payload?.message || "",
+                effectiveAt: payload?.effectiveAt || rpliceCache.lastEventAt,
+              };
+              rpliceCache.programAlerts = [alert, ...rpliceCache.programAlerts.filter(a => a.id !== alert.id)].slice(0, 20);
+              break;
+            }
+            default:
+              throw new Error(`Unknown event type: ${type}`);
+          }
+          results.push({ type, ok: true });
+        } catch (e: any) {
+          results.push({ type, ok: false, error: e.message });
+        }
+      }
+      res.json({ ok: true, processed: results.length, results, lastEventAt: rpliceCache.lastEventAt });
+    } catch (error: any) {
+      console.error("RPLICE sync failed:", error);
+      res.status(500).json({ error: error.message || "Failed to process sync batch" });
+    }
+  });
 }
