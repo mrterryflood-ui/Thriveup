@@ -105,6 +105,7 @@ import { registerCollaborationRoutes } from "./collaboration-routes";
 import { registerCollegeAccessAIRoutes } from "./college-access-ai-routes";
 import { registerNeighborhoodRoutes } from "./neighborhood-routes";
 import { registerCorridorRoutes } from "./corridor-story";
+import { registerChainWebRoutes } from "./corridor-chainweb";
 
 const AI_TOOLS = [
   { toolKey: "presentation-builder", name: "Presentation Builder", description: "Create slide-by-slide presentations with AI-generated content, talking points, and visual suggestions", category: "create", iconName: "presentation", gradeBand: "all", requiredModuleKey: "ai-presentations", promptTemplate: "PRESENTATION_BUILDER", outputFormat: "slides", sortOrder: 1 },
@@ -425,6 +426,7 @@ export async function registerRoutes(
   registerCollegeAccessAIRoutes(app);
   registerNeighborhoodRoutes(app);
   registerCorridorRoutes(app);
+  registerChainWebRoutes(app);
   storage.seedData().catch(err => console.error("[Seed] Data seeding failed:", err));
 
   app.get("/api/ai-provider", (_req, res) => {

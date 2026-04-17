@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowRight, Database, RefreshCw, Sparkles, ExternalLink, MapPin, Users, FileText, AlertTriangle } from "lucide-react";
+import { ArrowRight, Database, RefreshCw, Sparkles, ExternalLink, MapPin, Users, FileText, AlertTriangle, Link2, Shield, ShieldAlert, Lightbulb, Network } from "lucide-react";
 
 interface Claim<T = number | string> {
   value: T | null;
@@ -23,6 +23,13 @@ interface MetroStory {
   dataFreshness: { asOfDate: string | null; dataSources: string | null; refreshedAt: string | null };
   counts: Record<string, Claim>;
   fatherhoodGap: Record<string, Claim>;
+  riskFactors: { key: string; label: string; weight: number; claim: Claim }[];
+  riskIndex: number | null;
+  protectiveFactors: { key: string; label: string; claim?: Claim; value?: any; source?: string }[];
+  crimeProfile: Record<string, Claim | number | null>;
+  rootCauses: { cause: string; narrative: string; citesStepIds: string[]; evidenceId: string | null }[];
+  recommendedSolutions: { solution: string; addresses: string[]; deliveryPartners: string[]; platformModules: string[]; fundingFit: string[]; kpi: string }[];
+  communityResources: any[];
   zipDetail: any[];
   partners: any[];
   chainedStory: string[];
@@ -40,6 +47,7 @@ interface CorridorStory {
   };
   grantPipeline: any[];
   narrative: { headline: string; arc: { beat: string; text: string }[] };
+  chainWeb: { steps: { id: string; label: string; source: string; sourceUrl: string; dependsOn: string[] }[]; legend: string; runEndpoint: string; statusEndpoint: string };
   sources: { id: string; name: string; url: string; role: string }[];
 }
 
@@ -123,6 +131,88 @@ function MetroCard({ story, accent }: { story: MetroStory; accent: string }) {
           </div>
         ))}
 
+        {/* RISK FACTORS */}
+        <div className="text-xs font-semibold uppercase text-muted-foreground mt-4 mb-1 flex items-center gap-1">
+          <ShieldAlert className="w-3 h-3" /> Risk factors
+          {story.riskIndex != null && (
+            <Badge variant="outline" className="ml-auto text-[10px] bg-rose-50 dark:bg-rose-950 border-rose-300">risk index {story.riskIndex}</Badge>
+          )}
+        </div>
+        {story.riskFactors.map((r) => <ClaimRow key={r.key} label={r.label} claim={r.claim} />)}
+
+        {/* PROTECTIVE FACTORS */}
+        <div className="text-xs font-semibold uppercase text-muted-foreground mt-4 mb-1 flex items-center gap-1">
+          <Shield className="w-3 h-3" /> Protective factors
+        </div>
+        {story.protectiveFactors.map((p) => (
+          <div key={p.key} className="flex items-center justify-between py-1.5 border-b border-border/50 last:border-0 text-xs" data-testid={`row-protective-${p.key}`}>
+            <div>
+              <div>{p.label}</div>
+              <div className="text-[10px] text-muted-foreground">{p.claim?.source ?? p.source}</div>
+            </div>
+            <div className="font-mono font-medium">
+              {p.claim ? (p.claim.value ?? "—") + (p.claim.unit ? ` ${p.claim.unit}` : "") : (p.value ?? "—")}
+            </div>
+          </div>
+        ))}
+
+        {/* CRIME PROFILE */}
+        <div className="text-xs font-semibold uppercase text-muted-foreground mt-4 mb-1">Crime profile</div>
+        {story.crimeProfile && typeof story.crimeProfile.violent === "object" && story.crimeProfile.violent && <ClaimRow label="Violent crime" claim={story.crimeProfile.violent as Claim} />}
+        {story.crimeProfile && typeof story.crimeProfile.property === "object" && story.crimeProfile.property && <ClaimRow label="Property crime" claim={story.crimeProfile.property as Claim} />}
+        {story.crimeProfile && typeof story.crimeProfile.homicide === "object" && story.crimeProfile.homicide && <ClaimRow label="Homicide" claim={story.crimeProfile.homicide as Claim} />}
+        {story.crimeProfile && typeof story.crimeProfile.aggravatedAssault === "object" && story.crimeProfile.aggravatedAssault && <ClaimRow label="Aggravated assault" claim={story.crimeProfile.aggravatedAssault as Claim} />}
+        <div className="text-[11px] text-muted-foreground mt-1">
+          Focus ZIP {story.metro.focusZip}: crime index {String(story.crimeProfile?.focusZipCrimeIndex ?? "—")} · violent rate {String(story.crimeProfile?.focusZipViolentRate ?? "—")} · juvenile rate {String(story.crimeProfile?.focusZipJuvenileRate ?? "—")}
+        </div>
+
+        {/* ROOT CAUSES */}
+        <div className="text-xs font-semibold uppercase text-muted-foreground mt-4 mb-1">Root causes</div>
+        <ul className="space-y-2 text-xs">
+          {story.rootCauses.map((rc, i) => (
+            <li key={i} className="border-l-2 border-amber-400 pl-2" data-testid={`row-root-cause-${i}`}>
+              <div className="font-semibold">{rc.cause}</div>
+              <div className="text-muted-foreground">{rc.narrative}</div>
+              {rc.citesStepIds.length > 0 && (
+                <div className="text-[10px] text-amber-700 dark:text-amber-400 mt-0.5">
+                  cites chain step{rc.citesStepIds.length > 1 ? "s" : ""}: {rc.citesStepIds.join(" · ")}
+                </div>
+              )}
+            </li>
+          ))}
+        </ul>
+
+        {/* RECOMMENDED SOLUTIONS */}
+        <div className="text-xs font-semibold uppercase text-muted-foreground mt-4 mb-1 flex items-center gap-1">
+          <Lightbulb className="w-3 h-3" /> Recommended solutions
+        </div>
+        <ul className="space-y-2 text-xs">
+          {story.recommendedSolutions.map((s, i) => (
+            <li key={i} className="border rounded p-2 bg-muted/30" data-testid={`row-solution-${i}`}>
+              <div className="font-semibold">{s.solution}</div>
+              <div className="text-[11px] text-muted-foreground mt-0.5">Addresses: {s.addresses.join(", ")}</div>
+              <div className="text-[11px] text-muted-foreground">Partners: {s.deliveryPartners.join(", ")}</div>
+              <div className="text-[11px] text-muted-foreground">Modules: {s.platformModules.join(" · ")}</div>
+              <div className="text-[11px] text-muted-foreground">Funding: {s.fundingFit.join(" · ")}</div>
+              <div className="text-[11px] text-emerald-700 dark:text-emerald-400">KPI: {s.kpi}</div>
+            </li>
+          ))}
+        </ul>
+
+        {/* COMMUNITY RESOURCES */}
+        <div className="text-xs font-semibold uppercase text-muted-foreground mt-4 mb-1">
+          Community resources ({story.communityResources.length})
+        </div>
+        {story.communityResources.length === 0 && (
+          <div className="text-[11px] text-muted-foreground italic">No partners matched this metro yet.</div>
+        )}
+        {story.communityResources.slice(0, 6).map((p, i) => (
+          <div key={i} className="text-[11px] py-1 border-b border-border/50 last:border-0" data-testid={`row-resource-${i}`}>
+            <span className="font-semibold">{p.name}</span> — {p.type ?? "—"} · {p.city ?? "—"} {p.isActive === false ? <Badge variant="outline" className="ml-1 text-[9px]">inactive</Badge> : null}
+            {p.mou && p.mou !== "none" && <Badge variant="outline" className="ml-1 text-[9px]">MOU: {p.mou}</Badge>}
+          </div>
+        ))}
+
         <div className="text-xs font-semibold uppercase text-muted-foreground mt-4 mb-1">Chained story</div>
         <ol className="space-y-1 text-xs list-decimal pl-4 text-foreground" data-testid={`list-chained-${story.metro.id}`}>
           {story.chainedStory.map((s, i) => <li key={i}>{s}</li>)}
@@ -145,6 +235,21 @@ export default function CorridorIntelligencePage() {
     onError: (e: any) => toast({ title: "Refresh failed", description: e.message, variant: "destructive" }),
   });
 
+  const chainweb = useMutation({
+    mutationFn: async () => {
+      const r = await apiRequest("POST", "/api/corridor/chainweb/run");
+      return r.json();
+    },
+    onSuccess: (res: any) => {
+      const rows = res?.report?.totalEvidenceWritten ?? 0;
+      const ok = res?.report?.summary?.succeeded ?? 0;
+      const fail = res?.report?.summary?.failed ?? 0;
+      toast({ title: `Chain web complete — ${rows} evidence rows written`, description: `${ok} steps ok · ${fail} failed. Pulls Census poverty, family structure, education, CDC PLACES, SVI, FBI crime. Each step cites the step before it.` });
+      queryClient.invalidateQueries({ queryKey: ["/api/corridor/story"] });
+    },
+    onError: (e: any) => toast({ title: "Chain web failed", description: e.message, variant: "destructive" }),
+  });
+
   if (isLoading || !data) {
     return (
       <div className="container max-w-7xl py-8 space-y-4">
@@ -165,8 +270,11 @@ export default function CorridorIntelligencePage() {
         <h1 className="text-3xl md:text-4xl font-bold leading-tight" data-testid="text-hero-title">{data.narrative.headline}</h1>
         <p className="text-sm text-amber-100 mt-2">{data.corridor.name} · synthesized {new Date(data.generatedAt).toLocaleString()}</p>
         <div className="flex flex-wrap gap-2 mt-4">
+          <Button size="sm" variant="secondary" onClick={() => chainweb.mutate()} disabled={chainweb.isPending} data-testid="button-run-chainweb">
+            <Network className={`w-4 h-4 mr-1 ${chainweb.isPending ? "animate-spin" : ""}`} /> Run chain web (pull & link all)
+          </Button>
           <Button size="sm" variant="secondary" onClick={() => refresh.mutate()} disabled={refresh.isPending} data-testid="button-refresh">
-            <RefreshCw className={`w-4 h-4 mr-1 ${refresh.isPending ? "animate-spin" : ""}`} /> Refresh data sources
+            <RefreshCw className={`w-4 h-4 mr-1 ${refresh.isPending ? "animate-spin" : ""}`} /> Refresh GIS base
           </Button>
           <a href="/api/corridor/story" target="_blank" rel="noreferrer">
             <Button size="sm" variant="outline" className="bg-white/10 border-white/30 text-white hover:bg-white/20" data-testid="button-raw-json">
@@ -196,6 +304,42 @@ export default function CorridorIntelligencePage() {
               </li>
             ))}
           </ol>
+        </CardContent>
+      </Card>
+
+      {/* Chain web */}
+      <Card data-testid="card-chainweb">
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <Network className="w-4 h-4" /> Chain web · every fact linked to its source
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-xs text-muted-foreground mb-3">{data.chainWeb.legend}</div>
+          <ol className="space-y-2">
+            {data.chainWeb.steps.map((s, i) => (
+              <li key={s.id} className="flex items-start gap-2" data-testid={`row-chainweb-${s.id}`}>
+                <div className="shrink-0 w-6 h-6 rounded-full bg-amber-100 dark:bg-amber-900 text-amber-900 dark:text-amber-100 text-xs font-bold grid place-items-center">{i + 1}</div>
+                <div className="flex-1 text-xs">
+                  <div className="font-semibold">{s.label}</div>
+                  <a href={s.sourceUrl} target="_blank" rel="noreferrer" className="text-muted-foreground hover:underline inline-flex items-center gap-1">
+                    {s.source} <ExternalLink className="w-3 h-3" />
+                  </a>
+                  {s.dependsOn.length > 0 && (
+                    <div className="text-[10px] text-amber-700 dark:text-amber-400 mt-0.5 flex items-center gap-1">
+                      <Link2 className="w-3 h-3" /> cites: {s.dependsOn.join(" · ")}
+                    </div>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ol>
+          <div className="mt-3">
+            <Button size="sm" onClick={() => chainweb.mutate()} disabled={chainweb.isPending} data-testid="button-run-chainweb-inline">
+              <Network className={`w-4 h-4 mr-1 ${chainweb.isPending ? "animate-spin" : ""}`} />
+              {chainweb.isPending ? "Running…" : "Run chain web now"}
+            </Button>
+          </div>
         </CardContent>
       </Card>
 

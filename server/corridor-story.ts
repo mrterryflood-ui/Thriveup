@@ -25,6 +25,7 @@ import {
   insertCommunityEvidenceSchema,
 } from "@shared/schema";
 import { runFullIngestion, getContextForGeography, ingestCorridorRaceAge } from "./gis-engine";
+import { CHAIN_STEPS } from "./corridor-chainweb";
 import { z } from "zod";
 
 /* ============================================================================
@@ -402,6 +403,190 @@ async function buildMetroStory(metro: typeof CORRIDOR.metros[number]) {
     }), evidence, "tjjd_black_referral_rate", geoKeys),
   };
 
+  /* -------------------------------------------------------------------------
+   * DEPTH SECTIONS — pull from chain-web evidence written into community_evidence.
+   * Each section cites the exact evidence row it came from, so every number in
+   * the story has a traceable chain back to a primary source.
+   * ------------------------------------------------------------------------- */
+  const evFor = (metricKey: string) => evidenceFor(evidence, metricKey, geoKeys);
+  const toClaim = (metricKey: string, label: string, fallbackSource: string): Claim<number | null> => {
+    const e = evFor(metricKey);
+    if (!e) return claim({ value: null, source: fallbackSource, asOfDate: null, geographyKey: null, confidence: "unverified", methodology: `No evidence uploaded for ${metricKey}` });
+    return claim({
+      value: Number(e.value),
+      unit: e.unit ?? undefined,
+      source: e.sourceName + (e.documentTitle ? ` — ${e.documentTitle}` : ""),
+      asOfDate: e.asOfDate ?? null,
+      geographyKey: e.geographyKey,
+      confidence: (e.confidence as Confidence) ?? "verified",
+      methodology: e.methodology ?? undefined,
+      url: e.sourceUrl ?? undefined,
+    });
+  };
+
+  // RISK FACTORS — indicators that increase fatherhood/mentorship need.
+  // Each pulled straight from chain-web evidence when available.
+  const riskFactors = [
+    { key: "black_poverty_rate", label: "Black poverty rate", weight: 0.20, claim: toClaim("black_poverty_rate", "Black poverty rate", "Census ACS B17001B (run chain web)") },
+    { key: "black_family_single_parent_rate", label: "Black families single-parent share", weight: 0.20, claim: toClaim("black_family_single_parent_rate", "Black single-parent share", "Census ACS B11003B (run chain web)") },
+    { key: "black_less_than_hs_rate", label: "Black adults without HS diploma", weight: 0.10, claim: toClaim("black_less_than_hs_rate", "Black <HS rate", "Census ACS C15002B (run chain web)") },
+    { key: "svi_overall_percentile", label: "Social Vulnerability Index percentile", weight: 0.15, claim: toClaim("svi_overall_percentile", "SVI percentile", "CDC/ATSDR SVI (run chain web)") },
+    { key: "frequent_mental_distress_rate", label: "Adults with frequent mental distress", weight: 0.10, claim: toClaim("frequent_mental_distress_rate", "Mental distress rate", "CDC PLACES MHLTH (run chain web)") },
+    { key: "depression_prevalence", label: "Depression prevalence", weight: 0.10, claim: toClaim("depression_prevalence", "Depression %", "CDC PLACES (run chain web)") },
+    { key: "uninsured_rate", label: "Adults without health insurance", weight: 0.10, claim: toClaim("uninsured_rate", "Uninsured %", "CDC PLACES ACCESS2 (run chain web)") },
+    { key: "black_student_discipline_rate", label: "Black student discipline rate", weight: 0.05, claim: toClaim("black_student_discipline_rate", "Discipline rate", "TEA TAPR (upload required)") },
+  ];
+  // Composite risk index: weighted average of verified values on 0-100 scale.
+  const verifiedRisks = riskFactors.filter((r) => r.claim.value != null && r.claim.confidence === "verified");
+  const riskIndex = verifiedRisks.length
+    ? +(
+        verifiedRisks.reduce((acc, r) => {
+          // Normalize: SVI is 0-100 already. Others are %. Cap at 100.
+          const v = Math.min(100, Number(r.claim.value));
+          return acc + v * r.weight;
+        }, 0) / verifiedRisks.reduce((acc, r) => acc + r.weight, 0)
+      ).toFixed(1)
+    : null;
+
+  // PROTECTIVE FACTORS — assets that reduce fatherhood/mentorship need.
+  const baPlus = toClaim("black_bachelors_plus_rate", "Black BA+ rate", "Census ACS C15002B (run chain web)");
+  const activePartners = partners.filter((p) => p.isActive);
+  const activeMouPartners = partners.filter((p) => p.mouStatus === "active" || p.mouStatus === "signed");
+  const protectiveFactors = [
+    { key: "black_bachelors_plus_rate", label: "Black adults 25+ with BA+", claim: baPlus },
+    { key: "active_community_partners", label: "Active community partners on file", value: activePartners.length, source: "Platform partner directory" },
+    { key: "active_mou_partners", label: "Partners with active MOU", value: activeMouPartners.length, source: "Platform partner directory" },
+    { key: "active_programs_in_focus_zip", label: `Active programs in focus ZIP ${metro.focusZip}`, value: focusHood?.activeProgramsCount ?? 0, source: "Neighborhood intelligence" },
+    { key: "community_resource_score", label: "Community resource score (focus ZIP)", value: focusHood?.communityResourceScore ?? null, source: "Neighborhood intelligence" },
+  ];
+
+  // CRIME PROFILE — from FBI chain-web step (state-level proxy) + neighborhood rates.
+  const crimeProfile = {
+    violent: toClaim("crime_violent", "Violent crime", "FBI Crime Data API (run chain web)"),
+    property: toClaim("crime_property", "Property crime", "FBI Crime Data API (run chain web)"),
+    homicide: toClaim("crime_homicide", "Homicide", "FBI Crime Data API (run chain web)"),
+    aggravatedAssault: toClaim("crime_aggravated_assault", "Aggravated assault", "FBI Crime Data API (run chain web)"),
+    robbery: toClaim("crime_robbery", "Robbery", "FBI Crime Data API (run chain web)"),
+    burglary: toClaim("crime_burglary", "Burglary", "FBI Crime Data API (run chain web)"),
+    focusZipCrimeIndex: focusHood?.crimeIndex ?? null,
+    focusZipViolentRate: focusHood?.violentCrimeRate ?? null,
+    focusZipJuvenileRate: focusHood?.juvenileOffenseRate ?? null,
+  };
+
+  // ROOT CAUSES — narrative that links the chain: each cause references the verified data that supports it.
+  const povertyEv = evFor("black_poverty_rate");
+  const familyEv = evFor("black_family_single_parent_rate");
+  const eduEv = evFor("black_less_than_hs_rate");
+  const sviEv = evFor("svi_overall_percentile");
+  const mhEv = evFor("frequent_mental_distress_rate");
+  const rootCauses = [
+    {
+      cause: "Economic exclusion",
+      narrative: povertyEv
+        ? `${Number(povertyEv.value).toFixed(1)}% of the Black population in ${metro.name} lives below poverty (Census B17001B, ${povertyEv.asOfDate ?? "—"}). This is the upstream driver of housing instability, food insecurity, and caregiver stress.`
+        : `Poverty rate pending — run chain web to populate from Census B17001B.`,
+      citesStepIds: ["census_black_poverty"],
+      evidenceId: povertyEv?.id ?? null,
+    },
+    {
+      cause: "Family structure under economic stress",
+      narrative: familyEv
+        ? `${Number(familyEv.value).toFixed(1)}% of Black families with own children in ${metro.name} are single-parent households (Census B11003B). This sets the scale of the mentorship gap.`
+        : `Single-parent share pending — run chain web to populate from Census B11003B.`,
+      citesStepIds: ["census_black_family"],
+      evidenceId: familyEv?.id ?? null,
+    },
+    {
+      cause: "Education-to-opportunity gap",
+      narrative: eduEv
+        ? `${Number(eduEv.value).toFixed(1)}% of Black adults 25+ lack a HS diploma in ${metro.name} (Census C15002B), limiting earning power and modeling effects for youth.`
+        : `Educational attainment pending — run chain web to populate from Census C15002B.`,
+      citesStepIds: ["census_black_education"],
+      evidenceId: eduEv?.id ?? null,
+    },
+    {
+      cause: "Compounded social vulnerability",
+      narrative: sviEv
+        ? `${Number(sviEv.value).toFixed(0)}th percentile SVI (CDC/ATSDR 2022) — the same geographic footprint carries poverty + housing burden + transportation + language barriers simultaneously.`
+        : `SVI pending — run chain web to populate from CDC/ATSDR.`,
+      citesStepIds: ["atsdr_svi_county"],
+      evidenceId: sviEv?.id ?? null,
+    },
+    {
+      cause: "Untreated mental-health burden",
+      narrative: mhEv
+        ? `${Number(mhEv.value).toFixed(1)}% of adults report frequent mental distress (CDC PLACES MHLTH) — paired with ${evFor("uninsured_rate") ? Number(evFor("uninsured_rate").value).toFixed(1) + "%" : "—"} uninsured, access to support is structurally blocked.`
+        : `Mental-health indicators pending — run chain web to populate from CDC PLACES.`,
+      citesStepIds: ["cdc_places_county"],
+      evidenceId: mhEv?.id ?? null,
+    },
+    {
+      cause: "School-to-prison pipeline",
+      narrative: `Publicly documented Black-student discipline disparities in ${metro.district} feed juvenile-offense rates in the focus ZIP. Upload TEA TAPR + TJJD data to quantify locally.`,
+      citesStepIds: [],
+      evidenceId: evFor("black_student_discipline_rate")?.id ?? null,
+    },
+  ];
+
+  // RECOMMENDED SOLUTIONS — derived from gaps × partner capabilities × platform modules.
+  const recommendedSolutions = [
+    {
+      solution: "Fatherhood Pod (peer + case-managed)",
+      addresses: ["black_family_single_parent_rate", "mentor_gap"],
+      deliveryPartners: metro.id === "waco-mclennan"
+        ? ["STARRY Fatherhood", "Prosper Waco", "Baylor Diana R. Garland SSW"]
+        : ["AAUL", "100 BMCT Austin", "Foundation Communities", "Huston-Tillotson"],
+      platformModules: ["LifeBridge", "Sankofa Men", "WholeMind"],
+      fundingFit: ["TX HHSC Fatherhood", "TWC Skills Development", "United Way"],
+      kpi: "active_father_enrollment, 6-month retention",
+    },
+    {
+      solution: "Black-male mentor match pipeline",
+      addresses: ["mentor_gap", "bbbs_waitlist_black_boys"],
+      deliveryPartners: ["BBBS Lone Star", "100 Black Men (chapter or chartered)", "Alpha Phi Alpha / Omega Psi Phi / Kappa Alpha Psi"],
+      platformModules: ["Sankofa Men", "WholeMind", "ISSS Youth"],
+      fundingFit: ["NBCUniversal Together Fund", "Spencer", "BJA SCA"],
+      kpi: "black_boys_matched_quarterly, match_wait_time_days",
+    },
+    {
+      solution: "Wraparound behavioral-health access",
+      addresses: ["frequent_mental_distress_rate", "depression_prevalence", "uninsured_rate"],
+      deliveryPartners: metro.id === "waco-mclennan"
+        ? ["Ascension Providence Waco", "MHMR Waco-Heart of Texas"]
+        : ["St. David's Foundation", "Integral Care", "Austin Travis County Integral Care"],
+      platformModules: ["WholeMind", "ISSS Youth", "Medicaid 1115 alignment layer"],
+      fundingFit: ["SAMHSA MHBG", "PCORI Cycle-2", "HRSA RCORP"],
+      kpi: "referral_to_service_days, warm_handoff_rate",
+    },
+    {
+      solution: "School-climate + discipline disparity intervention",
+      addresses: ["black_student_discipline_rate", "school-to-prison pipeline"],
+      deliveryPartners: metro.id === "waco-mclennan" ? ["Waco ISD"] : ["Austin ISD", "Manor ISD", "Del Valle ISD", "Pflugerville ISD"],
+      platformModules: ["ISSS Youth", "Community Intelligence"],
+      fundingFit: ["OJJDP Youth Mentoring", "ED Title IV"],
+      kpi: "suspension_rate_black_students, restorative_practice_adoption",
+    },
+    {
+      solution: "Corridor evidence engine (this platform)",
+      addresses: ["data fragmentation across funders"],
+      deliveryPartners: ["TCAF (backbone)"],
+      platformModules: ["Corridor Intelligence", "RPLICE event bus", "Chain Web ingestor"],
+      fundingFit: ["Agency Fund", "Borealis", "Walton"],
+      kpi: "verified_evidence_rows, unique_sources_cited, platform_synthesis_runs",
+    },
+  ];
+
+  // COMMUNITY RESOURCES — tied to partner directory (real records).
+  const communityResources = partners.map((p) => ({
+    name: p.name,
+    type: p.type,
+    city: p.city,
+    zip: p.zipCode,
+    services: p.serviceCategories,
+    mou: p.mouStatus,
+    isActive: p.isActive,
+  }));
+
   // The chained story for this metro
   const chainedStory = [
     `${metro.name} (${metro.character} pattern). Population ${totalPopulation.value?.toLocaleString() ?? "—"}. Poverty rate ${povertyRate.value != null ? povertyRate.value.toFixed(1) + "%" : "—"}. Median income ${medianIncome.value ? "$" + medianIncome.value.toLocaleString() : "—"}.`,
@@ -424,6 +609,13 @@ async function buildMetroStory(metro: typeof CORRIDOR.metros[number]) {
       svi,
     },
     fatherhoodGap,
+    riskFactors,
+    riskIndex,
+    protectiveFactors,
+    crimeProfile,
+    rootCauses,
+    recommendedSolutions,
+    communityResources,
     zipDetail: zipClaims,
     partners: partners.map((p) => ({
       name: p.name,
@@ -541,6 +733,14 @@ export async function buildCorridorStory() {
     ],
   };
 
+  // Chain-web definition — flat list of steps + their dependencies, for UI to render the graph.
+  const chainWeb = {
+    steps: CHAIN_STEPS.map((s) => ({ id: s.id, label: s.label, source: s.source, sourceUrl: s.sourceUrl, dependsOn: s.dependsOn })),
+    legend: "Each step pulls from a public data source and writes verified evidence. Later steps cite earlier steps in their methodology — every verified fact is traceable back through the chain.",
+    runEndpoint: "POST /api/corridor/chainweb/run",
+    statusEndpoint: "GET /api/corridor/chainweb/last",
+  };
+
   return {
     corridor: { id: CORRIDOR.id, name: CORRIDOR.name },
     generatedAt: new Date().toISOString(),
@@ -548,6 +748,7 @@ export async function buildCorridorStory() {
     comparison,
     grantPipeline,
     narrative,
+    chainWeb,
     sources: [
       { id: "census_acs", name: "U.S. Census ACS 5-year (2018–2022)", url: "https://api.census.gov/data/2022/acs/acs5", role: "Population, poverty, income, education attainment" },
       { id: "cdc_places", name: "CDC PLACES Local Health Data", url: "https://data.cdc.gov/resource/swc5-untb.json", role: "Chronic disease + mental health burden by tract/ZIP" },
