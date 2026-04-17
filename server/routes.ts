@@ -89,7 +89,6 @@ import { registerPreventionStrategiesRoutes } from "./prevention-strategies-rout
 import { registerEcosystemCapacityRoutes } from "./ecosystem-capacity-routes";
 import { registerEcosystemConnectorRoutes } from "./ecosystem-connector";
 import { registerEcosystemRpliceBridgeRoutes } from "./ecosystem-rplice-bridge";
-import { registerRplicePeerSyncRoutes } from "./rplice-peer-sync";
 import { registerAgentCommunicationRoutes } from "./agent-communication";
 import { registerRAGRoutes } from "./rag-engine";
 import { registerFacilitatorRoutes } from "./facilitator-routes";
@@ -415,7 +414,6 @@ export async function registerRoutes(
   registerContactRoutes(app);
   registerRpliceToolsRoutes(app);
   registerEcosystemRpliceBridgeRoutes(app);
-  registerRplicePeerSyncRoutes(app);
   registerAgentCommunicationRoutes(app);
   registerMceContractRoutes(app);
   registerVideoPipelineRoutes(app);
