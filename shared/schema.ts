@@ -4222,6 +4222,15 @@ export const benefitsApplications = pgTable("benefits_applications", {
   outcomeNotes: text("outcome_notes"),
   estimatedAnnualValue: real("estimated_annual_value"),
   renewalDueAt: timestamp("renewal_due_at"),
+  // Submission receipts (proof of enrollment)
+  confirmationNumber: varchar("confirmation_number", { length: 100 }),
+  submissionPortal: varchar("submission_portal", { length: 100 }),
+  receiptUrl: text("receipt_url"),
+  // Denial / appeal lifecycle
+  denialReason: text("denial_reason"),
+  appealFiledAt: timestamp("appeal_filed_at"),
+  appealStatus: varchar("appeal_status", { length: 50 }),
+  appealNotes: text("appeal_notes"),
   source: varchar("source", { length: 50 }).default("wab2"),
   notes: text("notes"),
   createdAt: timestamp("created_at").defaultNow(),

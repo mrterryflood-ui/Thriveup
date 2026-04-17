@@ -228,6 +228,81 @@ function programsForCounty(fips: string): BenefitDef[] {
   return BENEFITS.filter(b => !b.countyRestriction || b.countyRestriction.includes(fips));
 }
 
+// Direct enrollment portals — by program, per county.
+// Most TX safety-net programs use one statewide portal; WIC/MAP/VITA differ by county.
+type PortalLink = { label: string; url: string; type: "state_portal" | "federal_portal" | "local_clinic" | "tax_site" | "phone" };
+const COUNTY_PORTALS: Record<string, Record<string, PortalLink[]>> = {
+  // Travis (48453)
+  "48453": {
+    SNAP: [{ label: "Your Texas Benefits (apply online)", url: "https://www.yourtexasbenefits.com/", type: "state_portal" }, { label: "HHSC Office — 1431 Collier St, Austin", url: "https://www.hhs.texas.gov/services/your-texas-benefits/find-office", type: "local_clinic" }, { label: "2-1-1 Texas (phone help)", url: "tel:211", type: "phone" }],
+    Medicaid: [{ label: "Your Texas Benefits", url: "https://www.yourtexasbenefits.com/", type: "state_portal" }, { label: "Lone Star Circle of Care (FQHC)", url: "https://www.lscctx.org/", type: "local_clinic" }, { label: "CommUnityCare", url: "https://communitycaretx.org/", type: "local_clinic" }],
+    CHIP: [{ label: "Your Texas Benefits", url: "https://www.yourtexasbenefits.com/", type: "state_portal" }, { label: "AISD school enrollment events", url: "https://www.austinisd.org/", type: "local_clinic" }],
+    WIC: [{ label: "Texas WIC — find clinic", url: "https://texaswic.org/find-wic-clinic", type: "state_portal" }, { label: "Travis County WIC: 7800 Shoal Creek Blvd, Austin", url: "https://texaswic.org/find-wic-clinic", type: "local_clinic" }, { label: "Schedule appointment: 512-972-4942", url: "tel:5129724942", type: "phone" }],
+    EITC: [{ label: "Foundation Communities VITA", url: "https://foundcom.org/community-tax-center/", type: "tax_site" }, { label: "United Way VITA", url: "https://www.unitedwayaustin.org/program/vita/", type: "tax_site" }, { label: "IRS Free File", url: "https://www.irs.gov/filing/free-file-do-your-federal-taxes-for-free", type: "federal_portal" }],
+    CTC: [{ label: "Foundation Communities VITA", url: "https://foundcom.org/community-tax-center/", type: "tax_site" }, { label: "IRS Free File", url: "https://www.irs.gov/filing/free-file-do-your-federal-taxes-for-free", type: "federal_portal" }],
+    Marketplace: [{ label: "HealthCare.gov", url: "https://www.healthcare.gov/", type: "federal_portal" }, { label: "Foundation Communities — Insure Central Texas", url: "https://foundcom.org/insure-central-texas/", type: "local_clinic" }],
+    SSI: [{ label: "Apply on ssa.gov", url: "https://www.ssa.gov/benefits/ssi/", type: "federal_portal" }, { label: "SSA Field Office: 1029 Camino La Costa, Austin", url: "https://secure.ssa.gov/ICON/main.jsp", type: "local_clinic" }, { label: "Phone: 1-800-772-1213", url: "tel:18007721213", type: "phone" }],
+    TANF: [{ label: "Your Texas Benefits", url: "https://www.yourtexasbenefits.com/", type: "state_portal" }],
+    MAP: [{ label: "Central Health MAP — apply online", url: "https://www.centralhealth.net/medical-access-program-map/", type: "local_clinic" }, { label: "CommUnityCare enrollment sites", url: "https://communitycaretx.org/services/eligibility/", type: "local_clinic" }, { label: "Enrollment hotline: 512-978-8130", url: "tel:5129788130", type: "phone" }],
+  },
+  // Williamson (48491)
+  "48491": {
+    SNAP: [{ label: "Your Texas Benefits", url: "https://www.yourtexasbenefits.com/", type: "state_portal" }, { label: "HHSC Round Rock: 1801 Old Settlers Blvd", url: "https://www.hhs.texas.gov/services/your-texas-benefits/find-office", type: "local_clinic" }],
+    Medicaid: [{ label: "Your Texas Benefits", url: "https://www.yourtexasbenefits.com/", type: "state_portal" }, { label: "Lone Star Circle of Care (Williamson clinics)", url: "https://www.lscctx.org/locations/", type: "local_clinic" }],
+    CHIP: [{ label: "Your Texas Benefits", url: "https://www.yourtexasbenefits.com/", type: "state_portal" }],
+    WIC: [{ label: "Texas WIC — find clinic", url: "https://texaswic.org/find-wic-clinic", type: "state_portal" }, { label: "Williamson WIC: 100 W. 3rd St, Georgetown", url: "https://texaswic.org/find-wic-clinic", type: "local_clinic" }, { label: "Phone: 512-943-3636", url: "tel:5129433636", type: "phone" }],
+    EITC: [{ label: "United Way Williamson VITA", url: "https://www.uwwc.org/financial-stability/vita/", type: "tax_site" }, { label: "IRS Free File", url: "https://www.irs.gov/filing/free-file-do-your-federal-taxes-for-free", type: "federal_portal" }],
+    CTC: [{ label: "United Way Williamson VITA", url: "https://www.uwwc.org/financial-stability/vita/", type: "tax_site" }, { label: "IRS Free File", url: "https://www.irs.gov/filing/free-file-do-your-federal-taxes-for-free", type: "federal_portal" }],
+    Marketplace: [{ label: "HealthCare.gov", url: "https://www.healthcare.gov/", type: "federal_portal" }, { label: "Foundation Communities — Insure Central Texas", url: "https://foundcom.org/insure-central-texas/", type: "local_clinic" }],
+    SSI: [{ label: "Apply on ssa.gov", url: "https://www.ssa.gov/benefits/ssi/", type: "federal_portal" }, { label: "SSA Field Office: 1300 N IH-35, Round Rock", url: "https://secure.ssa.gov/ICON/main.jsp", type: "local_clinic" }],
+    TANF: [{ label: "Your Texas Benefits", url: "https://www.yourtexasbenefits.com/", type: "state_portal" }],
+  },
+  // Hays (48209)
+  "48209": {
+    SNAP: [{ label: "Your Texas Benefits", url: "https://www.yourtexasbenefits.com/", type: "state_portal" }, { label: "HHSC San Marcos: 401 Broadway St", url: "https://www.hhs.texas.gov/services/your-texas-benefits/find-office", type: "local_clinic" }],
+    Medicaid: [{ label: "Your Texas Benefits", url: "https://www.yourtexasbenefits.com/", type: "state_portal" }, { label: "CommUnityCare Hays clinic", url: "https://communitycaretx.org/", type: "local_clinic" }],
+    CHIP: [{ label: "Your Texas Benefits", url: "https://www.yourtexasbenefits.com/", type: "state_portal" }],
+    WIC: [{ label: "Texas WIC — find clinic", url: "https://texaswic.org/find-wic-clinic", type: "state_portal" }, { label: "Hays WIC: 401-B Broadway, San Marcos", url: "https://texaswic.org/find-wic-clinic", type: "local_clinic" }, { label: "Phone: 512-393-5520", url: "tel:5123935520", type: "phone" }],
+    EITC: [{ label: "Hays County VITA at SMTX library", url: "https://www.uwhayscaldwell.org/vita", type: "tax_site" }, { label: "IRS Free File", url: "https://www.irs.gov/filing/free-file-do-your-federal-taxes-for-free", type: "federal_portal" }],
+    CTC: [{ label: "Hays County VITA", url: "https://www.uwhayscaldwell.org/vita", type: "tax_site" }, { label: "IRS Free File", url: "https://www.irs.gov/filing/free-file-do-your-federal-taxes-for-free", type: "federal_portal" }],
+    Marketplace: [{ label: "HealthCare.gov", url: "https://www.healthcare.gov/", type: "federal_portal" }],
+    SSI: [{ label: "Apply on ssa.gov", url: "https://www.ssa.gov/benefits/ssi/", type: "federal_portal" }, { label: "SSA Field Office: 600 IH-35 N, San Marcos", url: "https://secure.ssa.gov/ICON/main.jsp", type: "local_clinic" }],
+    TANF: [{ label: "Your Texas Benefits", url: "https://www.yourtexasbenefits.com/", type: "state_portal" }],
+  },
+  // Bastrop (48021)
+  "48021": {
+    SNAP: [{ label: "Your Texas Benefits", url: "https://www.yourtexasbenefits.com/", type: "state_portal" }, { label: "HHSC Bastrop: 906 Old Austin Hwy", url: "https://www.hhs.texas.gov/services/your-texas-benefits/find-office", type: "local_clinic" }],
+    Medicaid: [{ label: "Your Texas Benefits", url: "https://www.yourtexasbenefits.com/", type: "state_portal" }, { label: "Lone Star Circle of Care — Bastrop", url: "https://www.lscctx.org/locations/", type: "local_clinic" }],
+    CHIP: [{ label: "Your Texas Benefits", url: "https://www.yourtexasbenefits.com/", type: "state_portal" }],
+    WIC: [{ label: "Texas WIC — find clinic", url: "https://texaswic.org/find-wic-clinic", type: "state_portal" }, { label: "Bastrop WIC: 803 Pecan St, Bastrop", url: "https://texaswic.org/find-wic-clinic", type: "local_clinic" }],
+    EITC: [{ label: "Bastrop County VITA (BCAA)", url: "https://www.bcaa.org/", type: "tax_site" }, { label: "IRS Free File", url: "https://www.irs.gov/filing/free-file-do-your-federal-taxes-for-free", type: "federal_portal" }],
+    CTC: [{ label: "Bastrop County VITA", url: "https://www.bcaa.org/", type: "tax_site" }, { label: "IRS Free File", url: "https://www.irs.gov/filing/free-file-do-your-federal-taxes-for-free", type: "federal_portal" }],
+    Marketplace: [{ label: "HealthCare.gov", url: "https://www.healthcare.gov/", type: "federal_portal" }],
+    SSI: [{ label: "Apply on ssa.gov", url: "https://www.ssa.gov/benefits/ssi/", type: "federal_portal" }],
+    TANF: [{ label: "Your Texas Benefits", url: "https://www.yourtexasbenefits.com/", type: "state_portal" }],
+  },
+  // Caldwell (48055)
+  "48055": {
+    SNAP: [{ label: "Your Texas Benefits", url: "https://www.yourtexasbenefits.com/", type: "state_portal" }, { label: "HHSC Lockhart: 1701 S Colorado", url: "https://www.hhs.texas.gov/services/your-texas-benefits/find-office", type: "local_clinic" }],
+    Medicaid: [{ label: "Your Texas Benefits", url: "https://www.yourtexasbenefits.com/", type: "state_portal" }, { label: "Community Action — Caldwell", url: "https://www.uwhayscaldwell.org/", type: "local_clinic" }],
+    CHIP: [{ label: "Your Texas Benefits", url: "https://www.yourtexasbenefits.com/", type: "state_portal" }],
+    WIC: [{ label: "Texas WIC — find clinic", url: "https://texaswic.org/find-wic-clinic", type: "state_portal" }, { label: "Caldwell WIC: 1403 Blackjack St, Lockhart", url: "https://texaswic.org/find-wic-clinic", type: "local_clinic" }],
+    EITC: [{ label: "Hays/Caldwell VITA", url: "https://www.uwhayscaldwell.org/vita", type: "tax_site" }, { label: "IRS Free File", url: "https://www.irs.gov/filing/free-file-do-your-federal-taxes-for-free", type: "federal_portal" }],
+    CTC: [{ label: "Hays/Caldwell VITA", url: "https://www.uwhayscaldwell.org/vita", type: "tax_site" }, { label: "IRS Free File", url: "https://www.irs.gov/filing/free-file-do-your-federal-taxes-for-free", type: "federal_portal" }],
+    Marketplace: [{ label: "HealthCare.gov", url: "https://www.healthcare.gov/", type: "federal_portal" }],
+    SSI: [{ label: "Apply on ssa.gov", url: "https://www.ssa.gov/benefits/ssi/", type: "federal_portal" }],
+    TANF: [{ label: "Your Texas Benefits", url: "https://www.yourtexasbenefits.com/", type: "state_portal" }],
+  },
+};
+
+const PORTAL_TYPE_LABEL: Record<string, string> = {
+  state_portal: "State Portal",
+  federal_portal: "Federal Portal",
+  local_clinic: "Local Site",
+  tax_site: "VITA / Tax Site",
+  phone: "Phone",
+};
+
 const WIZARD_STEPS = [
   { key: "location", label: "Location" },
   { key: "household", label: "Household" },
@@ -671,6 +746,35 @@ export default function WAB2EnrollmentHubPage() {
                       <div>
                         <div className="font-semibold text-xs uppercase tracking-wide text-muted-foreground mb-0.5">Processing</div>
                         <p className="text-xs">{b.processingTime}</p>
+                      </div>
+                    </div>
+                    <div className="pt-2 border-t">
+                      <div className="font-semibold text-xs uppercase tracking-wide text-muted-foreground mb-1.5">Direct Enrollment by County</div>
+                      <div className="space-y-2">
+                        {COUNTIES.filter(c => !b.countyRestriction || b.countyRestriction.includes(c.fips)).map(county => {
+                          const links = COUNTY_PORTALS[county.fips]?.[b.key] || [];
+                          if (links.length === 0) return null;
+                          return (
+                            <div key={county.fips} className="text-xs" data-testid={`portal-${b.key}-${county.fips}`}>
+                              <div className="font-medium text-muted-foreground mb-0.5">{county.name}</div>
+                              <div className="flex flex-wrap gap-1">
+                                {links.map((l, i) => (
+                                  <a
+                                    key={i}
+                                    href={l.url}
+                                    target={l.type === "phone" ? undefined : "_blank"}
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-1 px-2 py-1 rounded border hover-elevate text-[10px]"
+                                    data-testid={`link-${b.key}-${county.fips}-${i}`}
+                                  >
+                                    {l.type === "phone" ? <Phone className="h-2.5 w-2.5" /> : <ArrowRight className="h-2.5 w-2.5" />}
+                                    {l.label}
+                                  </a>
+                                ))}
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
                   </CardContent>
@@ -1180,6 +1284,118 @@ export default function WAB2EnrollmentHubPage() {
                               <Badge variant="outline" className="text-xs">
                                 ${app.estimatedAnnualValue.toLocaleString()}/yr unlocked
                               </Badge>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Direct enrollment portal links for THIS application's county+program */}
+                        {(() => {
+                          const links = COUNTY_PORTALS[app.countyFips]?.[app.benefitType] || [];
+                          if (links.length === 0 || app.status === "approved" || app.status === "denied") return null;
+                          return (
+                            <div className="mt-2 pt-2 border-t">
+                              <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1">Submit / Continue Online</div>
+                              <div className="flex flex-wrap gap-1">
+                                {links.map((l, i) => (
+                                  <a key={i} href={l.url} target={l.type === "phone" ? undefined : "_blank"} rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-1 px-2 py-1 rounded border hover-elevate text-[10px]"
+                                    data-testid={`tracker-link-${app.id}-${i}`}>
+                                    {l.type === "phone" ? <Phone className="h-2.5 w-2.5" /> : <ArrowRight className="h-2.5 w-2.5" />}
+                                    {l.label}
+                                  </a>
+                                ))}
+                              </div>
+                            </div>
+                          );
+                        })()}
+
+                        {/* Receipt capture — record confirmation # + receipt URL when CHW submits */}
+                        {(app.status === "submitted" || app.status === "in_progress" || app.outcome === "approved") && (
+                          <div className="mt-2 pt-2 border-t space-y-2">
+                            <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Submission Receipt</div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                              <Input
+                                placeholder="Confirmation # (e.g. YTB123456789)"
+                                defaultValue={app.confirmationNumber || ""}
+                                onBlur={(e) => {
+                                  const v = e.currentTarget.value.trim();
+                                  if (v !== (app.confirmationNumber || "")) {
+                                    updateApp.mutate({ id: app.id, updates: { confirmationNumber: v, submittedAt: app.submittedAt || new Date().toISOString() } });
+                                  }
+                                }}
+                                className="h-8 text-xs"
+                                data-testid={`input-confirmation-${app.id}`}
+                              />
+                              <Input
+                                placeholder="Receipt URL (screenshot, PDF link)"
+                                defaultValue={app.receiptUrl || ""}
+                                onBlur={(e) => {
+                                  const v = e.currentTarget.value.trim();
+                                  if (v !== (app.receiptUrl || "")) updateApp.mutate({ id: app.id, updates: { receiptUrl: v } });
+                                }}
+                                className="h-8 text-xs"
+                                data-testid={`input-receipt-${app.id}`}
+                              />
+                            </div>
+                            {app.confirmationNumber && (
+                              <div className="text-[10px] text-green-600 dark:text-green-500 flex items-center gap-1">
+                                <CheckCircle2 className="h-3 w-3" /> Receipt captured
+                                {app.receiptUrl && <> · <a href={app.receiptUrl} target="_blank" rel="noopener noreferrer" className="underline">view receipt</a></>}
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Denial → appeal workflow */}
+                        {app.outcome === "denied" && (
+                          <div className="mt-2 pt-2 border-t space-y-2 bg-red-50 dark:bg-red-950/20 -mx-3 -mb-3 px-3 pb-3 rounded-b-md">
+                            <div className="text-xs font-semibold uppercase tracking-wide text-red-700 dark:text-red-400 flex items-center gap-1">
+                              <AlertTriangle className="h-3 w-3" /> Denial — Appeal Workflow
+                            </div>
+                            <Textarea
+                              placeholder="Denial reason (verbatim from notice — needed for appeal)"
+                              defaultValue={app.denialReason || ""}
+                              onBlur={(e) => {
+                                const v = e.currentTarget.value.trim();
+                                if (v !== (app.denialReason || "")) updateApp.mutate({ id: app.id, updates: { denialReason: v } });
+                              }}
+                              className="text-xs min-h-[60px]"
+                              data-testid={`input-denial-${app.id}`}
+                            />
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 items-center">
+                              <Select
+                                value={app.appealStatus || ""}
+                                onValueChange={(v) => updateApp.mutate({ id: app.id, updates: { appealStatus: v, appealFiledAt: v && v !== "not_filed" ? (app.appealFiledAt || new Date().toISOString()) : null } })}
+                              >
+                                <SelectTrigger className="h-8 text-xs" data-testid={`appeal-status-${app.id}`}>
+                                  <SelectValue placeholder="Appeal status" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="not_filed">Not filed</SelectItem>
+                                  <SelectItem value="preparing">Preparing</SelectItem>
+                                  <SelectItem value="filed">Appeal filed</SelectItem>
+                                  <SelectItem value="hearing_scheduled">Hearing scheduled</SelectItem>
+                                  <SelectItem value="overturned">Overturned (approved)</SelectItem>
+                                  <SelectItem value="upheld">Denial upheld</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <Input
+                                placeholder="Appeal notes / hearing date"
+                                defaultValue={app.appealNotes || ""}
+                                onBlur={(e) => {
+                                  const v = e.currentTarget.value.trim();
+                                  if (v !== (app.appealNotes || "")) updateApp.mutate({ id: app.id, updates: { appealNotes: v } });
+                                }}
+                                className="h-8 text-xs"
+                                data-testid={`input-appeal-notes-${app.id}`}
+                              />
+                            </div>
+                            {app.appealStatus === "overturned" && (
+                              <Button size="sm" variant="outline" className="text-xs"
+                                onClick={() => updateApp.mutate({ id: app.id, updates: { outcome: "approved", status: "approved", stage: "enrolled" } })}
+                                data-testid={`button-mark-enrolled-${app.id}`}>
+                                <CheckCircle2 className="h-3 w-3 mr-1" /> Mark enrolled (appeal won)
+                              </Button>
                             )}
                           </div>
                         )}
