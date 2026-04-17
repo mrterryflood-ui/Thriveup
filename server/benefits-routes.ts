@@ -2,9 +2,10 @@ import type { Express, Request, Response, NextFunction } from "express";
 import { db } from "./storage";
 import {
   benefitsEnrollmentData, benefitsPartners, benefitsChwNetwork,
-  benefitsScreenings, benefitsRenewals,
+  benefitsScreenings, benefitsRenewals, benefitsApplications,
   insertBenefitsPartnerSchema, insertBenefitsChwSchema,
   insertBenefitsScreeningSchema, insertBenefitsRenewalSchema,
+  insertBenefitsApplicationSchema,
 } from "@shared/schema";
 import { eq, desc, and, count, sql } from "drizzle-orm";
 import { generateAIResponse, generateAIJSON } from "./ai-provider";
@@ -2822,6 +2823,137 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
     } catch (error) {
       console.error("SDOH impact chain error:", error);
       res.status(500).json({ error: "Failed to generate SDOH impact chain" });
+    }
+  });
+
+  app.get("/api/benefits/applications", async (req, res) => {
+    try {
+      const { county, benefit, status, source } = req.query as Record<string, string>;
+      const conditions: any[] = [];
+      if (county) conditions.push(eq(benefitsApplications.countyFips, county));
+      if (benefit) conditions.push(eq(benefitsApplications.benefitType, benefit));
+      if (status) conditions.push(eq(benefitsApplications.status, status));
+      if (source) conditions.push(eq(benefitsApplications.source, source));
+      const query = conditions.length
+        ? db.select().from(benefitsApplications).where(and(...conditions)).orderBy(desc(benefitsApplications.createdAt)).limit(500)
+        : db.select().from(benefitsApplications).orderBy(desc(benefitsApplications.createdAt)).limit(500);
+      const apps = await query;
+      res.json(apps);
+    } catch (error) {
+      console.error("Failed to fetch applications:", error);
+      res.status(500).json({ error: "Failed to fetch applications" });
+    }
+  });
+
+  app.post("/api/benefits/applications", async (req, res) => {
+    try {
+      const parsed = insertBenefitsApplicationSchema.safeParse(req.body);
+      if (!parsed.success) return res.status(400).json({ error: "Validation failed", details: parsed.error.flatten().fieldErrors });
+      const annualValueMap: Record<string, number> = {
+        SNAP: 3024, Medicaid: 7200, CHIP: 2400, EITC: 3584,
+        WIC: 528, SSI: 10092, SSDI: 16560, Marketplace: 5400, CTC: 3600,
+      };
+      const data = parsed.data;
+      const [created] = await db.insert(benefitsApplications).values({
+        ...data,
+        estimatedAnnualValue: data.estimatedAnnualValue ?? annualValueMap[data.benefitType] ?? 0,
+        source: data.source || "wab2",
+      }).returning();
+      res.json(created);
+    } catch (error) {
+      console.error("Create application failed:", error);
+      res.status(500).json({ error: "Failed to create application" });
+    }
+  });
+
+  app.patch("/api/benefits/applications/:id", async (req, res) => {
+    try {
+      const id = req.params.id;
+      const updates: any = { ...req.body, updatedAt: new Date() };
+      if (updates.status === "submitted" && !updates.submittedAt) updates.submittedAt = new Date();
+      if (updates.outcome && !updates.decisionAt) updates.decisionAt = new Date();
+      const [updated] = await db.update(benefitsApplications).set(updates).where(eq(benefitsApplications.id, id)).returning();
+      if (!updated) return res.status(404).json({ error: "Application not found" });
+      res.json(updated);
+    } catch (error) {
+      console.error("Update application failed:", error);
+      res.status(500).json({ error: "Failed to update application" });
+    }
+  });
+
+  app.get("/api/benefits/wab2/dashboard", async (_req, res) => {
+    try {
+      const apps = await db.select().from(benefitsApplications).where(eq(benefitsApplications.source, "wab2"));
+      const Y1_TARGETS = { SNAP: 200, Medicaid: 150, CHIP: 0, EITC: 100, WIC: 50, Other: 50 };
+      const COUNTY_TARGETS_Y1: Record<string, number> = {
+        "48453": 80, "48491": 350, "48209": 50, "48021": 100, "48055": 100,
+      };
+
+      const byBenefit: Record<string, { registered: number; inProgress: number; submitted: number; enrolled: number; denied: number; estimatedValue: number }> = {};
+      const byCounty: Record<string, { registered: number; enrolled: number; estimatedValue: number; name: string }> = {};
+      const byStage: Record<string, number> = { registered: 0, screening: 0, intake: 0, documents: 0, submitted: 0, decision: 0, enrolled: 0 };
+
+      for (const a of apps) {
+        const benefitKey = ["SNAP", "Medicaid", "CHIP", "EITC", "WIC"].includes(a.benefitType) ? a.benefitType : "Other";
+        if (!byBenefit[benefitKey]) byBenefit[benefitKey] = { registered: 0, inProgress: 0, submitted: 0, enrolled: 0, denied: 0, estimatedValue: 0 };
+        byBenefit[benefitKey].registered += 1;
+        if (a.status === "in_progress") byBenefit[benefitKey].inProgress += 1;
+        if (a.status === "submitted") byBenefit[benefitKey].submitted += 1;
+        if (a.outcome === "approved") {
+          byBenefit[benefitKey].enrolled += 1;
+          byBenefit[benefitKey].estimatedValue += a.estimatedAnnualValue || 0;
+        }
+        if (a.outcome === "denied") byBenefit[benefitKey].denied += 1;
+
+        if (!byCounty[a.countyFips]) byCounty[a.countyFips] = { registered: 0, enrolled: 0, estimatedValue: 0, name: a.countyName };
+        byCounty[a.countyFips].registered += 1;
+        if (a.outcome === "approved") {
+          byCounty[a.countyFips].enrolled += 1;
+          byCounty[a.countyFips].estimatedValue += a.estimatedAnnualValue || 0;
+        }
+
+        if (a.stage && byStage[a.stage] !== undefined) byStage[a.stage] += 1;
+      }
+
+      const totalRegistered = apps.length;
+      const totalEnrolled = apps.filter(a => a.outcome === "approved").length;
+      const totalEstimatedValue = apps.filter(a => a.outcome === "approved").reduce((s, a) => s + (a.estimatedAnnualValue || 0), 0);
+      const conversionRate = totalRegistered > 0 ? totalEnrolled / totalRegistered : 0;
+
+      const targetProgress = Object.entries(Y1_TARGETS).map(([benefit, target]) => ({
+        benefit,
+        target,
+        actual: byBenefit[benefit]?.enrolled || 0,
+        progressPct: target > 0 ? Math.round(((byBenefit[benefit]?.enrolled || 0) / target) * 100) : 0,
+      }));
+
+      const countyProgress = Object.entries(COUNTY_TARGETS_Y1).map(([fips, target]) => ({
+        countyFips: fips,
+        countyName: byCounty[fips]?.name || ST_DAVIDS_COUNTIES[fips]?.name || fips,
+        target,
+        actual: byCounty[fips]?.enrolled || 0,
+        progressPct: target > 0 ? Math.round(((byCounty[fips]?.enrolled || 0) / target) * 100) : 0,
+      }));
+
+      res.json({
+        totals: {
+          registered: totalRegistered,
+          enrolled: totalEnrolled,
+          inProgress: apps.filter(a => ["in_progress", "submitted"].includes(a.status)).length,
+          denied: apps.filter(a => a.outcome === "denied").length,
+          conversionRate,
+          estimatedAnnualValue: totalEstimatedValue,
+        },
+        byBenefit,
+        byCounty,
+        byStage,
+        targetProgress,
+        countyProgress,
+        recentApplications: apps.slice(0, 10),
+      });
+    } catch (error) {
+      console.error("WAB2 dashboard failed:", error);
+      res.status(500).json({ error: "Failed to load WAB2 dashboard" });
     }
   });
 }

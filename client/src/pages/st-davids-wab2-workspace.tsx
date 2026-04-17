@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
+import { Link } from "wouter";
 import {
   Calendar,
   CheckCircle2,
@@ -20,6 +21,7 @@ import {
   ClipboardCheck,
   Target,
   Repeat,
+  Rocket,
 } from "lucide-react";
 
 const DEADLINE = new Date("2026-04-27T17:00:00-05:00");
@@ -203,6 +205,12 @@ export default function StDavidsWAB2WorkspacePage() {
               <Calendar className="h-3.5 w-3.5 mr-1" />
               {daysLeft} days until deadline
             </Badge>
+            <Button size="sm" asChild data-testid="link-enrollment-hub">
+              <Link href="/wab2-enrollment">
+                <Rocket className="h-3.5 w-3.5 mr-1" />
+                Open Enrollment Hub
+              </Link>
+            </Button>
             <Button variant="outline" size="sm" asChild data-testid="link-givingdata">
               <a href="https://stdavidsfoundation.org/funding-opportunities" target="_blank" rel="noopener noreferrer">
                 <ExternalLink className="h-3.5 w-3.5 mr-1" />

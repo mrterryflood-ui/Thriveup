@@ -4193,4 +4193,43 @@ export const insertBenefitsRenewalSchema = createInsertSchema(benefitsRenewals).
 export type InsertBenefitsRenewal = z.infer<typeof insertBenefitsRenewalSchema>;
 export type BenefitsRenewal = typeof benefitsRenewals.$inferSelect;
 
+export const benefitsApplications = pgTable("benefits_applications", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  screeningId: varchar("screening_id", { length: 100 }),
+  countyFips: varchar("county_fips", { length: 10 }).notNull(),
+  countyName: varchar("county_name", { length: 100 }).notNull(),
+  zipCode: varchar("zip_code", { length: 10 }),
+  benefitType: varchar("benefit_type", { length: 50 }).notNull(),
+  applicantName: varchar("applicant_name", { length: 255 }).notNull(),
+  applicantPhone: varchar("applicant_phone", { length: 50 }),
+  applicantEmail: varchar("applicant_email", { length: 255 }),
+  preferredLanguage: varchar("preferred_language", { length: 50 }).default("English"),
+  householdSize: integer("household_size").notNull(),
+  annualIncome: real("annual_income"),
+  hasChildren: boolean("has_children").default(false),
+  citizenshipStatus: varchar("citizenship_status", { length: 50 }),
+  documentsCollected: text("documents_collected").array(),
+  documentsMissing: text("documents_missing").array(),
+  consentGiven: boolean("consent_given").notNull().default(false),
+  status: varchar("status", { length: 50 }).notNull().default("intake"),
+  stage: varchar("stage", { length: 50 }).notNull().default("registered"),
+  assignedChwId: varchar("assigned_chw_id", { length: 100 }),
+  assignedPartnerId: varchar("assigned_partner_id", { length: 100 }),
+  hhscCaseNumber: varchar("hhsc_case_number", { length: 100 }),
+  submittedAt: timestamp("submitted_at"),
+  decisionAt: timestamp("decision_at"),
+  outcome: varchar("outcome", { length: 50 }),
+  outcomeNotes: text("outcome_notes"),
+  estimatedAnnualValue: real("estimated_annual_value"),
+  renewalDueAt: timestamp("renewal_due_at"),
+  source: varchar("source", { length: 50 }).default("wab2"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertBenefitsApplicationSchema = createInsertSchema(benefitsApplications).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertBenefitsApplication = z.infer<typeof insertBenefitsApplicationSchema>;
+export type BenefitsApplication = typeof benefitsApplications.$inferSelect;
+
 export * from "./models/auth";

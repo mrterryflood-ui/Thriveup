@@ -179,6 +179,7 @@ const WorkforceReadinessPage = lazy(() => import("@/pages/workforce-readiness"))
 const BusinessCardPage = lazy(() => import("@/pages/business-card"));
 const GrantCommandCenterPage = lazy(() => import("@/pages/grant-command-center"));
 const StDavidsWAB2WorkspacePage = lazy(() => import("@/pages/st-davids-wab2-workspace"));
+const WAB2EnrollmentHubPage = lazy(() => import("@/pages/wab2-enrollment-hub"));
 const DataSourcesPage = lazy(() => import("@/pages/data-sources"));
 const ReentryStipendPilotPage = lazy(() => import("@/pages/reentry-stipend-pilot"));
 const ResumeBuilderPage = lazy(() => import("@/pages/resume-builder"));
@@ -302,6 +303,7 @@ function AppRouter() {
       <Route path="/business-card" component={BusinessCardPage} />
       <Route path="/grant-command-center" component={GrantCommandCenterPage} />
       <Route path="/st-davids-wab2" component={StDavidsWAB2WorkspacePage} />
+      <Route path="/wab2-enrollment" component={WAB2EnrollmentHubPage} />
       <Route path="/community-map" component={CommunityMapPage} />
       <Route path="/intake" component={IntakeWizardPage} />
       <Route path="/services" component={ServiceDeliveryPage} />
