@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Link } from "wouter";
-import { FileText, Presentation, FileBarChart, Radio, Link2, AlertTriangle, CheckCircle2, Circle, Download, RefreshCw } from "lucide-react";
+import { FileText, Presentation, FileBarChart, Radio, Link2, AlertTriangle, CheckCircle2, Circle, Download, RefreshCw, Play, ExternalLink } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 type DocReport = {
@@ -83,6 +83,20 @@ export default function CorridorDocsPage() {
     onError: (err: any) => toast({ title: "Rescan failed", description: String(err?.message ?? err), variant: "destructive" }),
   });
 
+  const regenerate = useMutation<any>({
+    mutationFn: async () => {
+      const r = await apiRequest("POST", "/api/corridor/docs/regenerate");
+      return r;
+    },
+    onSuccess: (r: any) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/corridor/docs"] });
+      const okCount = (r?.results ?? []).filter((x: any) => x.ok).length;
+      const total = (r?.results ?? []).length;
+      toast({ title: "Decks regenerated", description: `${okCount}/${total} build scripts ran against live data. PPTX + DOCX updated.` });
+    },
+    onError: (err: any) => toast({ title: "Regenerate failed", description: String(err?.message ?? err), variant: "destructive" }),
+  });
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
@@ -99,13 +113,22 @@ export default function CorridorDocsPage() {
             <Link href="/corridor">
               <Button variant="outline" size="sm" data-testid="link-back-corridor">← Corridor</Button>
             </Link>
+            <Link href="/corridor/docs/live">
+              <Button size="sm" variant="default" data-testid="link-live-view">
+                <ExternalLink className="h-4 w-4 mr-2" /> Live document view
+              </Button>
+            </Link>
+            <Button size="sm" onClick={() => regenerate.mutate()} disabled={regenerate.isPending} data-testid="button-regenerate">
+              <Play className={`h-4 w-4 mr-2 ${regenerate.isPending ? "animate-pulse" : ""}`} />
+              {regenerate.isPending ? "Regenerating…" : "Regenerate PPTX + DOCX"}
+            </Button>
             <Button size="sm" variant="outline" onClick={() => rebuild.mutate()} disabled={rebuild.isPending} data-testid="button-rescan">
               <RefreshCw className={`h-4 w-4 mr-2 ${rebuild.isPending ? "animate-spin" : ""}`} />
               Rescan
             </Button>
-            <Button size="sm" onClick={() => refetch()} disabled={isLoading} data-testid="button-refresh">
+            <Button size="sm" variant="ghost" onClick={() => refetch()} disabled={isLoading} data-testid="button-refresh">
               <Radio className="h-4 w-4 mr-2" />
-              Refresh connection status
+              Refresh status
             </Button>
           </div>
         </div>

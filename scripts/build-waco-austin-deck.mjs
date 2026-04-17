@@ -23,7 +23,14 @@ const liveGenAt = LIVE_STORY?.generatedAt ? new Date(LIVE_STORY.generatedAt).toI
 const findMetric = (metroKey, metricLabelSubstr) => {
   const metro = LIVE_STORY?.metros?.[metroKey];
   if (!metro) return null;
-  const all = [...(metro.riskFactors ?? []), ...(metro.protectiveFactors ?? []), ...(metro.crimeProfile ?? [])];
+  const arrs = [metro.riskFactors, metro.protectiveFactors].filter(Array.isArray);
+  const all = arrs.flat();
+  // crimeProfile is a keyed object of claims; also search its entries
+  if (metro.crimeProfile && typeof metro.crimeProfile === "object") {
+    for (const [k, v] of Object.entries(metro.crimeProfile)) {
+      if (v && typeof v === "object" && "value" in v) all.push({ label: k, claim: v });
+    }
+  }
   const hit = all.find((m) => (m.label ?? "").toLowerCase().includes(metricLabelSubstr.toLowerCase()));
   if (!hit?.claim) return null;
   return { value: hit.claim.value, unit: hit.claim.unit, confidence: hit.claim.confidence, source: hit.claim.source, asOf: hit.claim.asOfDate };

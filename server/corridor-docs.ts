@@ -431,4 +431,27 @@ export function registerCorridorDocRoutes(app: Express) {
       res.status(500).json({ ok: false, error: String(err?.message ?? err) });
     }
   });
+
+  // Regenerate the PPTX/DOCX decks by running both build scripts against live data.
+  app.post("/api/corridor/docs/regenerate", async (_req: Request, res: Response) => {
+    const { spawn } = await import("child_process");
+    const runOne = (script: string) => new Promise<{ script: string; ok: boolean; output: string }>((resolve) => {
+      const p = spawn("node", [script], { env: { ...process.env, BASE_URL: `http://localhost:${process.env.PORT || 5000}` } });
+      let out = "";
+      p.stdout.on("data", (d) => (out += d.toString()));
+      p.stderr.on("data", (d) => (out += d.toString()));
+      p.on("close", (code) => resolve({ script, ok: code === 0, output: out.slice(-4000) }));
+      p.on("error", (err) => resolve({ script, ok: false, output: String(err) }));
+    });
+    try {
+      const results = await Promise.all([
+        runOne("scripts/build-corridor-deck.mjs"),
+        runOne("scripts/build-waco-austin-deck.mjs"),
+      ]);
+      _cachedDocs = await scanDocs();
+      res.json({ ok: results.every((r) => r.ok), results, rescanned: _cachedDocs.length });
+    } catch (err: any) {
+      res.status(500).json({ ok: false, error: String(err?.message ?? err) });
+    }
+  });
 }
