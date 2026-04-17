@@ -3002,42 +3002,78 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
     }
   });
 
-  // RPLICE inbound event cache — feeds wizards, partner pickers, and program alerts
+  // RPLICE inbound event cache — feeds wizards, partner pickers, and program alerts.
+  // Now tracks per-origin events and mirrors to peer platforms so the network shares state.
   const rpliceCache: {
-    countyProfiles: Record<string, { fplOverride?: number; specialThresholds?: any; updatedAt: string }>;
-    mapgapPriority: Record<string, string[]>;
-    partners: Record<string, Array<{ id: string; name: string; programs: string[]; address?: string; phone?: string }>>;
-    programAlerts: Array<{ id: string; program: string; counties?: string[]; severity: "info" | "warning" | "critical"; message: string; effectiveAt: string }>;
+    countyProfiles: Record<string, { fplOverride?: number; specialThresholds?: any; updatedAt: string; origin?: string }>;
+    mapgapPriority: Record<string, { programs: string[]; updatedAt: string; origin?: string }>;
+    partners: Record<string, { items: Array<{ id: string; name: string; programs: string[]; address?: string; phone?: string }>; updatedAt: string; origin?: string }>;
+    programAlerts: Array<{ id: string; program: string; counties?: string[]; severity: "info" | "warning" | "critical"; message: string; effectiveAt: string; origin?: string }>;
     lastEventAt?: string;
+    originCounters: Record<string, { events: number; lastEventAt: string; lastEventType: string }>;
+    mirrorLog: Array<{ at: string; targetId: string; targetUrl: string; eventType: string; origin: string; ok: boolean; status?: number; error?: string }>;
   } = {
     countyProfiles: {},
     mapgapPriority: {},
     partners: {},
     programAlerts: [],
+    originCounters: {},
+    mirrorLog: [],
   };
 
-  app.post("/api/rplice/inbound-event", async (req, res) => {
+  const SELF_PLATFORM_ID = "thriveup";
+  // Peer platforms that should receive mirrored events. Add more as the network grows.
+  const MIRROR_TARGETS: Array<{ id: string; baseUrl: string }> = [
+    { id: "lifebridge", baseUrl: "https://lifetransitionsaid.org" },
+  ];
+
+  function recordOrigin(origin: string, eventType: string, at: string) {
+    const cur = rpliceCache.originCounters[origin] || { events: 0, lastEventAt: at, lastEventType: eventType };
+    cur.events += 1;
+    cur.lastEventAt = at;
+    cur.lastEventType = eventType;
+    rpliceCache.originCounters[origin] = cur;
+  }
+
+  async function mirrorToPeers(eventType: string, payload: any, origin: string) {
+    const targets = MIRROR_TARGETS.filter(t => t.id !== origin);
+    await Promise.all(targets.map(async (t) => {
+      const at = new Date().toISOString();
+      try {
+        const r = await fetch(`${t.baseUrl}/api/rplice/sync`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "x-rplice-origin": origin, "x-rplice-relay": SELF_PLATFORM_ID },
+          body: JSON.stringify({ events: [{ type: eventType, payload, origin }], origin, relayedBy: SELF_PLATFORM_ID }),
+          signal: AbortSignal.timeout(4000),
+        });
+        rpliceCache.mirrorLog = [{ at, targetId: t.id, targetUrl: t.baseUrl, eventType, origin, ok: r.ok, status: r.status }, ...rpliceCache.mirrorLog].slice(0, 50);
+      } catch (e: any) {
+        rpliceCache.mirrorLog = [{ at, targetId: t.id, targetUrl: t.baseUrl, eventType, origin, ok: false, error: e?.message || "fetch failed" }, ...rpliceCache.mirrorLog].slice(0, 50);
+      }
+    }));
+  }
+
+  function applyEvent(type: string, payload: any, origin: string): { ok: boolean; error?: string } {
+    const at = new Date().toISOString();
+    rpliceCache.lastEventAt = at;
     try {
-      const { type, payload } = req.body || {};
-      if (!type) return res.status(400).json({ error: "type required" });
-      rpliceCache.lastEventAt = new Date().toISOString();
       switch (type) {
         case "county.profile.updated": {
           const { countyFips, fplOverride, specialThresholds } = payload || {};
-          if (!countyFips) return res.status(400).json({ error: "countyFips required" });
-          rpliceCache.countyProfiles[countyFips] = { fplOverride, specialThresholds, updatedAt: rpliceCache.lastEventAt };
+          if (!countyFips) throw new Error("countyFips required");
+          rpliceCache.countyProfiles[countyFips] = { fplOverride, specialThresholds, updatedAt: at, origin };
           break;
         }
         case "mapgap.refreshed": {
           const { countyFips, prioritizedPrograms } = payload || {};
-          if (!countyFips || !Array.isArray(prioritizedPrograms)) return res.status(400).json({ error: "countyFips + prioritizedPrograms[] required" });
-          rpliceCache.mapgapPriority[countyFips] = prioritizedPrograms;
+          if (!countyFips || !Array.isArray(prioritizedPrograms)) throw new Error("countyFips + prioritizedPrograms[] required");
+          rpliceCache.mapgapPriority[countyFips] = { programs: prioritizedPrograms, updatedAt: at, origin };
           break;
         }
         case "partners.updated": {
           const { countyFips, partners } = payload || {};
-          if (!countyFips || !Array.isArray(partners)) return res.status(400).json({ error: "countyFips + partners[] required" });
-          rpliceCache.partners[countyFips] = partners;
+          if (!countyFips || !Array.isArray(partners)) throw new Error("countyFips + partners[] required");
+          rpliceCache.partners[countyFips] = { items: partners, updatedAt: at, origin };
           break;
         }
         case "program.alert": {
@@ -3047,47 +3083,108 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
             counties: payload?.counties,
             severity: (payload?.severity || "info") as "info" | "warning" | "critical",
             message: payload?.message || "",
-            effectiveAt: payload?.effectiveAt || rpliceCache.lastEventAt,
+            effectiveAt: payload?.effectiveAt || at,
+            origin,
           };
           rpliceCache.programAlerts = [alert, ...rpliceCache.programAlerts.filter(a => a.id !== alert.id)].slice(0, 20);
           break;
         }
         default:
-          return res.status(400).json({ error: `Unknown event type: ${type}` });
+          throw new Error(`Unknown event type: ${type}`);
       }
-      res.json({ ok: true, type, lastEventAt: rpliceCache.lastEventAt });
+      recordOrigin(origin, type, at);
+      return { ok: true };
+    } catch (e: any) {
+      return { ok: false, error: e.message };
+    }
+  }
+
+  app.post("/api/rplice/inbound-event", async (req, res) => {
+    try {
+      const { type, payload } = req.body || {};
+      if (!type) return res.status(400).json({ error: "type required" });
+      const origin = (req.headers["x-rplice-origin"] as string) || (req.body?.origin as string) || "betterscience";
+      const result = applyEvent(type, payload, origin);
+      if (!result.ok) return res.status(400).json({ error: result.error });
+      // Mirror to peers (don't await — fire-and-forget so the caller isn't blocked).
+      mirrorToPeers(type, payload, origin).catch(() => {});
+      res.json({ ok: true, type, origin, mirroredTo: MIRROR_TARGETS.filter(t => t.id !== origin).map(t => t.id), lastEventAt: rpliceCache.lastEventAt });
     } catch (error) {
       console.error("RPLICE inbound event failed:", error);
       res.status(500).json({ error: "Failed to process inbound event" });
     }
   });
 
+  function buildNetworkView() {
+    const peers = MIRROR_TARGETS.map(t => {
+      const recent = rpliceCache.mirrorLog.filter(m => m.targetId === t.id);
+      const last = recent[0];
+      const okCount = recent.filter(m => m.ok).length;
+      return {
+        id: t.id,
+        url: t.baseUrl,
+        syncEndpoint: `${t.baseUrl}/api/rplice/sync`,
+        lastMirrorAt: last?.at || null,
+        lastMirrorOk: last?.ok ?? null,
+        lastMirrorStatus: last?.status ?? null,
+        lastMirrorError: last?.error ?? null,
+        successCount: okCount,
+        failureCount: recent.length - okCount,
+      };
+    });
+    return {
+      self: SELF_PLATFORM_ID,
+      peers,
+      origins: rpliceCache.originCounters,
+      totals: {
+        eventsReceived: Object.values(rpliceCache.originCounters).reduce((s, o) => s + o.events, 0),
+        countiesWithProfile: Object.keys(rpliceCache.countyProfiles).length,
+        countiesWithMapGap: Object.keys(rpliceCache.mapgapPriority).length,
+        countiesWithPartners: Object.keys(rpliceCache.partners).length,
+        activeAlerts: rpliceCache.programAlerts.length,
+      },
+    };
+  }
+
   app.get("/api/rplice/state/:countyFips", async (req, res) => {
     const fips = req.params.countyFips;
+    const profile = rpliceCache.countyProfiles[fips];
+    const map = rpliceCache.mapgapPriority[fips];
+    const partners = rpliceCache.partners[fips];
     res.json({
       countyFips: fips,
-      countyProfile: rpliceCache.countyProfiles[fips] || null,
-      prioritizedPrograms: rpliceCache.mapgapPriority[fips] || null,
-      partners: rpliceCache.partners[fips] || [],
+      countyProfile: profile || null,
+      prioritizedPrograms: map?.programs || null,
+      prioritizedProgramsOrigin: map?.origin || null,
+      partners: partners?.items || [],
+      partnersOrigin: partners?.origin || null,
       activeAlerts: rpliceCache.programAlerts.filter(a => !a.counties || a.counties.includes(fips) || a.counties.length === 0),
       lastEventAt: rpliceCache.lastEventAt || null,
+      network: buildNetworkView(),
     });
   });
 
   app.get("/api/rplice/state", async (_req, res) => {
     res.json({
-      ...rpliceCache,
+      countyProfiles: rpliceCache.countyProfiles,
+      mapgapPriority: rpliceCache.mapgapPriority,
+      partners: rpliceCache.partners,
+      programAlerts: rpliceCache.programAlerts,
+      lastEventAt: rpliceCache.lastEventAt,
       countiesWithProfile: Object.keys(rpliceCache.countyProfiles),
       countiesWithMapGap: Object.keys(rpliceCache.mapgapPriority),
       countiesWithPartners: Object.keys(rpliceCache.partners),
+      network: buildNetworkView(),
+      mirrorLog: rpliceCache.mirrorLog.slice(0, 20),
     });
   });
 
   app.get("/api/rplice/sync", async (_req, res) => {
+    const network = buildNetworkView();
     res.json({
       ok: true,
-      platform: "thriveup",
-      role: "consumer",
+      platform: SELF_PLATFORM_ID,
+      role: "consumer+relay",
       acceptedEventTypes: ["county.profile.updated", "mapgap.refreshed", "partners.updated", "program.alert"],
       pushEndpoint: "/api/rplice/sync",
       legacyPushEndpoint: "/api/rplice/inbound-event",
@@ -3099,65 +3196,53 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
         withPartners: Object.keys(rpliceCache.partners),
       },
       activeAlertCount: rpliceCache.programAlerts.length,
+      network,
+      recentMirrors: rpliceCache.mirrorLog.slice(0, 10),
     });
   });
 
   app.post("/api/rplice/sync", async (req, res) => {
     try {
       const body = req.body || {};
+      const headerOrigin = (req.headers["x-rplice-origin"] as string) || "";
+      const bodyOrigin = (body.origin as string) || "";
+      const defaultOrigin = headerOrigin || bodyOrigin || "betterscience";
+
       const events = Array.isArray(body.events)
         ? body.events
         : body.type
-        ? [{ type: body.type, payload: body.payload }]
+        ? [{ type: body.type, payload: body.payload, origin: bodyOrigin || undefined }]
         : [];
       if (!events.length) return res.status(400).json({ error: "events[] or {type,payload} required" });
 
-      const results: Array<{ type: string; ok: boolean; error?: string }> = [];
+      const results: Array<{ type: string; origin: string; ok: boolean; error?: string }> = [];
+      const acceptedForMirror: Array<{ type: string; payload: any; origin: string }> = [];
+
       for (const evt of events) {
         const { type, payload } = evt || {};
-        if (!type) { results.push({ type: "?", ok: false, error: "type required" }); continue; }
-        rpliceCache.lastEventAt = new Date().toISOString();
-        try {
-          switch (type) {
-            case "county.profile.updated": {
-              const { countyFips, fplOverride, specialThresholds } = payload || {};
-              if (!countyFips) throw new Error("countyFips required");
-              rpliceCache.countyProfiles[countyFips] = { fplOverride, specialThresholds, updatedAt: rpliceCache.lastEventAt };
-              break;
-            }
-            case "mapgap.refreshed": {
-              const { countyFips, prioritizedPrograms } = payload || {};
-              if (!countyFips || !Array.isArray(prioritizedPrograms)) throw new Error("countyFips + prioritizedPrograms[] required");
-              rpliceCache.mapgapPriority[countyFips] = prioritizedPrograms;
-              break;
-            }
-            case "partners.updated": {
-              const { countyFips, partners } = payload || {};
-              if (!countyFips || !Array.isArray(partners)) throw new Error("countyFips + partners[] required");
-              rpliceCache.partners[countyFips] = partners;
-              break;
-            }
-            case "program.alert": {
-              const alert = {
-                id: payload?.id || `alert_${Date.now()}`,
-                program: payload?.program || "ALL",
-                counties: payload?.counties,
-                severity: (payload?.severity || "info") as "info" | "warning" | "critical",
-                message: payload?.message || "",
-                effectiveAt: payload?.effectiveAt || rpliceCache.lastEventAt,
-              };
-              rpliceCache.programAlerts = [alert, ...rpliceCache.programAlerts.filter(a => a.id !== alert.id)].slice(0, 20);
-              break;
-            }
-            default:
-              throw new Error(`Unknown event type: ${type}`);
-          }
-          results.push({ type, ok: true });
-        } catch (e: any) {
-          results.push({ type, ok: false, error: e.message });
-        }
+        const origin = (evt && evt.origin) || defaultOrigin;
+        if (!type) { results.push({ type: "?", origin, ok: false, error: "type required" }); continue; }
+        const r = applyEvent(type, payload, origin);
+        results.push({ type, origin, ok: r.ok, error: r.error });
+        if (r.ok) acceptedForMirror.push({ type, payload, origin });
       }
-      res.json({ ok: true, processed: results.length, results, lastEventAt: rpliceCache.lastEventAt });
+
+      // Mirror accepted events to peers (excluding the origin to prevent loops).
+      // Skip mirroring entirely if this request was itself a relay (prevents re-mirror storms).
+      const wasRelay = !!req.headers["x-rplice-relay"];
+      if (!wasRelay) {
+        Promise.all(acceptedForMirror.map(e => mirrorToPeers(e.type, e.payload, e.origin))).catch(() => {});
+      }
+
+      res.json({
+        ok: true,
+        processed: results.length,
+        results,
+        mirrored: !wasRelay,
+        mirrorTargets: wasRelay ? [] : MIRROR_TARGETS.map(t => t.id),
+        lastEventAt: rpliceCache.lastEventAt,
+        network: buildNetworkView(),
+      });
     } catch (error: any) {
       console.error("RPLICE sync failed:", error);
       res.status(500).json({ error: error.message || "Failed to process sync batch" });
