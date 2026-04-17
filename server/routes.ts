@@ -105,6 +105,7 @@ import { registerCollaborationRoutes } from "./collaboration-routes";
 import { registerCollegeAccessAIRoutes } from "./college-access-ai-routes";
 import { registerNeighborhoodRoutes } from "./neighborhood-routes";
 import { registerCorridorRoutes } from "./corridor-story";
+import { registerNetworkRoutes } from "./network-routes";
 import { registerChainWebRoutes } from "./corridor-chainweb";
 import { registerCorridorDocRoutes } from "./corridor-docs";
 
@@ -427,6 +428,7 @@ export async function registerRoutes(
   registerCollegeAccessAIRoutes(app);
   registerNeighborhoodRoutes(app);
   registerCorridorRoutes(app);
+  registerNetworkRoutes(app);
   registerChainWebRoutes(app);
   registerCorridorDocRoutes(app);
   storage.seedData().catch(err => console.error("[Seed] Data seeding failed:", err));

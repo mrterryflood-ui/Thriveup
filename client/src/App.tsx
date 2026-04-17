@@ -188,6 +188,7 @@ const CorridorIntelligencePage = lazy(() => import("@/pages/corridor-intelligenc
 const CorridorEvidencePage = lazy(() => import("@/pages/corridor-evidence"));
 const CorridorDocsPage = lazy(() => import("@/pages/corridor-docs"));
 const CorridorDocsLivePage = lazy(() => import("@/pages/corridor-docs-live"));
+const NetworkMembersPage = lazy(() => import("@/pages/network-members"));
 
 function PageFallback() {
   return (
@@ -394,6 +395,8 @@ function AppRouter() {
       <Route path="/corridor/evidence" component={CorridorEvidencePage} />
       <Route path="/corridor/docs" component={CorridorDocsPage} />
       <Route path="/corridor/docs/live" component={CorridorDocsLivePage} />
+      <Route path="/network/members" component={NetworkMembersPage} />
+      <Route path="/network" component={NetworkMembersPage} />
       <Route component={NotFound} />
     </Switch>
   );

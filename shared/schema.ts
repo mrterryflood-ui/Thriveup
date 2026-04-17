@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, integer, boolean, timestamp, jsonb, decimal, real, serial, numeric } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, integer, boolean, timestamp, jsonb, decimal, real, serial, numeric, index } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -4264,5 +4264,71 @@ export const communityEvidence = pgTable("community_evidence", {
 export const insertCommunityEvidenceSchema = createInsertSchema(communityEvidence).omit({ id: true, createdAt: true, updatedAt: true });
 export type InsertCommunityEvidence = z.infer<typeof insertCommunityEvidenceSchema>;
 export type CommunityEvidence = typeof communityEvidence.$inferSelect;
+
+// ==================== NETWORK FEDERATION (cross-platform members & events) ====================
+// Federates HerHealth Network, Bible Study Buddies, and other ecosystem platforms.
+// Each platform keeps its own auth/data; this gives ThriveUp Academy admins a unified
+// roster + activity feed via signed webhook events.
+
+export const networkPlatforms = pgTable("network_platforms", {
+  id: varchar("id", { length: 50 }).primaryKey(),
+  name: text("name").notNull(),
+  baseUrl: text("base_url").notNull(),
+  ownerEmail: text("owner_email"),
+  description: text("description"),
+  color: varchar("color", { length: 30 }).default("from-pink-500 to-rose-600"),
+  secretEnvVar: varchar("secret_env_var", { length: 100 }),
+  active: boolean("active").notNull().default(true),
+  lastEventAt: timestamp("last_event_at"),
+  totalMembers: integer("total_members").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+export const insertNetworkPlatformSchema = createInsertSchema(networkPlatforms).omit({ createdAt: true, updatedAt: true, lastEventAt: true, totalMembers: true });
+export type InsertNetworkPlatform = z.infer<typeof insertNetworkPlatformSchema>;
+export type NetworkPlatform = typeof networkPlatforms.$inferSelect;
+
+export const networkMembers = pgTable("network_members", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  platformId: varchar("platform_id", { length: 50 }).notNull(),
+  externalUserId: varchar("external_user_id", { length: 200 }).notNull(),
+  email: text("email"),
+  displayName: text("display_name"),
+  role: varchar("role", { length: 30 }).notNull().default("member"),
+  conditions: text("conditions").array(),
+  zip: varchar("zip", { length: 20 }),
+  county: varchar("county", { length: 100 }),
+  navigatorEngaged: boolean("navigator_engaged").notNull().default(false),
+  appointmentsBooked: integer("appointments_booked").notNull().default(0),
+  loginCount: integer("login_count").notNull().default(0),
+  firstSeenAt: timestamp("first_seen_at").defaultNow(),
+  lastLoginAt: timestamp("last_login_at"),
+  lastEventAt: timestamp("last_event_at"),
+  metadata: jsonb("metadata"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (t) => ({
+  platformExternalIdx: index("network_members_platform_extid_idx").on(t.platformId, t.externalUserId),
+  lastEventIdx: index("network_members_last_event_idx").on(t.lastEventAt),
+}));
+export const insertNetworkMemberSchema = createInsertSchema(networkMembers).omit({ id: true, createdAt: true, updatedAt: true, firstSeenAt: true });
+export type InsertNetworkMember = z.infer<typeof insertNetworkMemberSchema>;
+export type NetworkMember = typeof networkMembers.$inferSelect;
+
+export const networkMemberEvents = pgTable("network_member_events", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  platformId: varchar("platform_id", { length: 50 }).notNull(),
+  externalUserId: varchar("external_user_id", { length: 200 }).notNull(),
+  eventType: varchar("event_type", { length: 60 }).notNull(),
+  payload: jsonb("payload"),
+  occurredAt: timestamp("occurred_at").notNull(),
+  receivedAt: timestamp("received_at").defaultNow(),
+}, (t) => ({
+  platformExternalIdx: index("network_events_platform_extid_idx").on(t.platformId, t.externalUserId),
+  occurredIdx: index("network_events_occurred_idx").on(t.occurredAt),
+}));
+export const insertNetworkMemberEventSchema = createInsertSchema(networkMemberEvents).omit({ id: true, receivedAt: true });
+export type InsertNetworkMemberEvent = z.infer<typeof insertNetworkMemberEventSchema>;
+export type NetworkMemberEvent = typeof networkMemberEvents.$inferSelect;
 
 export * from "./models/auth";
