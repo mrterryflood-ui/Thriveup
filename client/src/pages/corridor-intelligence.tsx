@@ -173,6 +173,11 @@ export default function CorridorIntelligencePage() {
               <Database className="w-4 h-4 mr-1" /> Raw story JSON
             </Button>
           </a>
+          <a href="/corridor/evidence">
+            <Button size="sm" variant="outline" className="bg-white/10 border-white/30 text-white hover:bg-white/20" data-testid="button-evidence-vault">
+              <Database className="w-4 h-4 mr-1" /> Evidence vault
+            </Button>
+          </a>
         </div>
       </div>
 

@@ -20,8 +20,12 @@ import {
   neighborhoodIntelligence,
   grantOpportunities,
   communityPartners,
+  communityEvidence,
+  ecosystemEvents,
+  insertCommunityEvidenceSchema,
 } from "@shared/schema";
-import { runFullIngestion, getContextForGeography } from "./gis-engine";
+import { runFullIngestion, getContextForGeography, ingestCorridorRaceAge } from "./gis-engine";
+import { z } from "zod";
 
 /* ============================================================================
  * Corridor scope
@@ -66,6 +70,85 @@ export interface Claim<T = number | string> {
 }
 
 function claim<T>(c: Claim<T>): Claim<T> { return c; }
+
+/* ============================================================================
+ * Metric catalog — canonical metric keys the synthesis recognizes.
+ * Uploaders pick from this list so evidence lines up with the right claim.
+ * ============================================================================ */
+export const METRIC_CATALOG = [
+  { key: "black_population", label: "Black population (count)", unit: "people", confidenceWhenUploaded: "verified" },
+  { key: "black_children_single_parent", label: "Black children in single-parent households", unit: "children", confidenceWhenUploaded: "verified" },
+  { key: "disconnected_black_youth", label: "Disconnected Black youth (16–24, not in school/work)", unit: "youth", confidenceWhenUploaded: "verified" },
+  { key: "mentor_gap", label: "Black-male mentor gap (waitlist or unmet demand)", unit: "mentors needed", confidenceWhenUploaded: "verified" },
+  { key: "black_student_discipline_rate", label: "Black student discipline rate (TEA TAPR)", unit: "%", confidenceWhenUploaded: "verified" },
+  { key: "bbbs_waitlist_black_boys", label: "BBBS waitlist — Black boys", unit: "youth", confidenceWhenUploaded: "verified" },
+  { key: "tjjd_black_referral_rate", label: "TJJD juvenile referral rate (Black youth)", unit: "per 1,000", confidenceWhenUploaded: "verified" },
+  { key: "fatherhood_program_enrollment", label: "Active fatherhood-program enrollment", unit: "fathers enrolled", confidenceWhenUploaded: "verified" },
+  { key: "chna_priority_rank", label: "CHNA / CHA priority rank", unit: "rank", confidenceWhenUploaded: "verified" },
+  { key: "partner_intake_count", label: "Partner intake referrals (last 12 mo)", unit: "referrals", confidenceWhenUploaded: "verified" },
+] as const;
+
+function geographyCatalog() {
+  const out: Array<{ key: string; label: string; type: string }> = [];
+  for (const m of CORRIDOR.metros) {
+    out.push({ key: m.countyFips, label: `${m.name} (county FIPS ${m.countyFips})`, type: "county" });
+    out.push({ key: m.id, label: `${m.name} (metro)`, type: "metro" });
+    out.push({ key: m.focusZip, label: `${m.focusZip} (focus ZIP)`, type: "zip" });
+    for (const z of m.anchorZips.filter((z) => z !== m.focusZip)) {
+      out.push({ key: z, label: `${z} (anchor ZIP)`, type: "zip" });
+    }
+  }
+  return out;
+}
+
+/* ============================================================================
+ * Evidence overlay
+ * ----------------------------------------------------------------------------
+ * Verified evidence rows in `community_evidence` always override modeled
+ * claims. This is THE credibility lever: as soon as the team uploads a
+ * primary-source fact (TEA TAPR, BBBS waitlist, partner intake), the synthesis
+ * picks it up and the claim renders green/verified with full citation.
+ * ============================================================================ */
+async function pullEvidenceFor(geographyKeys: string[], metricKeys?: string[]) {
+  if (geographyKeys.length === 0) return [] as any[];
+  let q = db
+    .select()
+    .from(communityEvidence)
+    .where(inArray(communityEvidence.geographyKey, geographyKeys));
+  const rows = await q;
+  if (!metricKeys?.length) return rows;
+  return rows.filter((r) => metricKeys.includes(r.metricKey));
+}
+
+function evidenceFor(
+  evidence: any[],
+  metricKey: string,
+  geographyKeys: string[],
+) {
+  return evidence.find(
+    (e) => e.metricKey === metricKey && geographyKeys.includes(e.geographyKey),
+  );
+}
+
+function applyEvidence<T = number | null>(
+  base: Claim<T>,
+  evidence: any[],
+  metricKey: string,
+  geographyKeys: string[],
+): Claim<T> {
+  const e = evidenceFor(evidence, metricKey, geographyKeys);
+  if (!e) return base;
+  return {
+    value: e.value as unknown as T,
+    unit: e.unit ?? base.unit,
+    source: e.sourceName + (e.documentTitle ? ` — ${e.documentTitle}` : "") + (e.pageReference ? ` (${e.pageReference})` : ""),
+    asOfDate: e.asOfDate ?? base.asOfDate,
+    geographyKey: e.geographyKey,
+    confidence: (e.confidence as Confidence) ?? "verified",
+    methodology: e.methodology ?? `Verified by ${e.verifiedBy ?? "team"}; replaces modeled value (${base.value ?? "—"}).`,
+    url: e.sourceUrl ?? base.url,
+  };
+}
 
 /* ============================================================================
  * Pulls
@@ -113,6 +196,8 @@ async function pullGrants() {
  * ============================================================================ */
 async function buildMetroStory(metro: typeof CORRIDOR.metros[number]) {
   const ctx = await pullCountyContext("48", metro.countyFips);
+  const geoKeys = [metro.countyFips, metro.focusZip, ...metro.anchorZips, metro.id];
+  const evidence = await pullEvidenceFor(geoKeys);
   const hoods = await pullNeighborhoodRows(metro.anchorZips);
   const focusHood = hoods.find((h) => h.zipCode === metro.focusZip) ?? hoods[0] ?? null;
   const partners = await pullPartners([metro.name.split("/")[0].trim(), metro.name.split("/")[1]?.trim() ?? metro.name]);
@@ -214,19 +299,38 @@ async function buildMetroStory(metro: typeof CORRIDOR.metros[number]) {
   // Each carries methodology so the audience knows how the number was produced.
   const totalPop = ctx?.totalPopulation ?? null;
   const blackShareModel = metro.id === "waco-mclennan" ? 0.155 : 0.085;
-  const blackPopulationModel = totalPop ? Math.round(totalPop * blackShareModel) : null;
-  const blackChildrenSingleParent = blackPopulationModel
-    ? Math.round(blackPopulationModel * 0.21 * 0.55) // ~21% are children, ~55% in single-parent
-    : null;
-  const disconnectedBlackYouth = blackPopulationModel
-    ? Math.round(blackPopulationModel * 0.13 * 0.18) // ~13% age 16-24, ~18% disconnection rate
-    : null;
+
+  // Pull verified Census ACS race+age evidence (written by ingestCorridorRaceAge).
+  // When present, these become the VERIFIED BASE of the fatherhood-gap math.
+  const verifiedBlackPop = evidenceFor(evidence, "black_population", geoKeys)?.value ?? null;
+  const verifiedBlackChildren017 = evidenceFor(evidence, "black_children_017", geoKeys)?.value ?? null;
+  const verifiedBlackYouth1824 = evidenceFor(evidence, "black_youth_1824", geoKeys)?.value ?? null;
+
+  const blackPopulationModel = verifiedBlackPop ?? (totalPop ? Math.round(totalPop * blackShareModel) : null);
+  // Children: prefer verified Census children count, then apply single-parent share.
+  const childBase = verifiedBlackChildren017 ?? (blackPopulationModel ? blackPopulationModel * 0.21 : null);
+  const blackChildrenSingleParent = childBase ? Math.round(childBase * 0.55) : null;
+  // Youth 16-24: prefer verified Census 18-24 count (close proxy), then apply disconnection rate.
+  const youthBase = verifiedBlackYouth1824 ?? (blackPopulationModel ? blackPopulationModel * 0.13 : null);
+  const disconnectedBlackYouth = youthBase ? Math.round(youthBase * 0.18) : null;
   const mentorGap = blackChildrenSingleParent
-    ? Math.round(blackChildrenSingleParent * 0.22) // ~22% need active mentor
+    ? Math.round(blackChildrenSingleParent * 0.22)
     : null;
 
+  // Confidence ladder: if the base is verified Census, the modeled output is "estimated"
+  // (better than pure modeled — half the formula is verified).
+  const childConfidence: Confidence = verifiedBlackChildren017 ? "estimated" : "modeled";
+  const youthConfidence: Confidence = verifiedBlackYouth1824 ? "estimated" : "modeled";
+  const mentorConfidence: Confidence = verifiedBlackChildren017 ? "estimated" : "modeled";
+  const childMethodology = verifiedBlackChildren017
+    ? `verified_black_children_017 (${verifiedBlackChildren017.toLocaleString()}, Census ACS B01001B) × 55% single-parent share`
+    : "black_pop × 21% (ages 0-17) × 55% (single-parent share among Black families)";
+  const youthMethodology = verifiedBlackYouth1824
+    ? `verified_black_youth_18_24 (${verifiedBlackYouth1824.toLocaleString()}, Census ACS B01001B) × 18% Black disconnection rate (TX statewide)`
+    : "black_pop × 13% (ages 16-24) × 18% (Black disconnection rate, TX statewide)";
+
   const fatherhoodGap = {
-    blackPopulation: claim<number | null>({
+    blackPopulation: applyEvidence(claim<number | null>({
       value: blackPopulationModel,
       unit: "people",
       source: "Modeled from Census ACS county totals × Black population share",
@@ -234,34 +338,68 @@ async function buildMetroStory(metro: typeof CORRIDOR.metros[number]) {
       geographyKey: ctx?.geographyKey ?? null,
       confidence: "modeled",
       methodology: `total_pop × ${(blackShareModel * 100).toFixed(1)}% Black share (TX Demographic Center est.)`,
-    }),
-    blackChildrenSingleParent: claim<number | null>({
+    }), evidence, "black_population", geoKeys),
+    blackChildrenSingleParent: applyEvidence(claim<number | null>({
       value: blackChildrenSingleParent,
       unit: "children",
-      source: "Modeled from Census ACS + Kids Count single-parent share",
+      source: verifiedBlackChildren017
+        ? "Verified Census ACS B01001B children 0-17 × 55% single-parent share"
+        : "Modeled from Census ACS + Kids Count single-parent share",
       asOfDate: asOf,
       geographyKey: ctx?.geographyKey ?? null,
-      confidence: "modeled",
-      methodology: "black_pop × 21% (ages 0-17) × 55% (single-parent share among Black families)",
-    }),
-    disconnectedBlackYouth: claim<number | null>({
+      confidence: childConfidence,
+      methodology: childMethodology,
+    }), evidence, "black_children_single_parent", geoKeys),
+    disconnectedBlackYouth: applyEvidence(claim<number | null>({
       value: disconnectedBlackYouth,
       unit: "youth 16-24",
-      source: "Modeled from ACS PUMS opportunity-youth methodology",
+      source: verifiedBlackYouth1824
+        ? "Verified Census ACS B01001B youth 18-24 × 18% Black disconnection rate"
+        : "Modeled from ACS PUMS opportunity-youth methodology",
       asOfDate: asOf,
       geographyKey: ctx?.geographyKey ?? null,
-      confidence: "modeled",
-      methodology: "black_pop × 13% (ages 16-24) × 18% (Black disconnection rate, TX statewide)",
-    }),
-    mentorGap: claim<number | null>({
+      confidence: youthConfidence,
+      methodology: youthMethodology,
+    }), evidence, "disconnected_black_youth", geoKeys),
+    mentorGap: applyEvidence(claim<number | null>({
       value: mentorGap,
       unit: "Black-male mentors needed",
-      source: "Modeled from BBBS Lone Star public statements + single-parent population",
+      source: verifiedBlackChildren017
+        ? "Derived from verified Census children 0-17 × 55% single-parent share × 22% mentor demand"
+        : "Modeled from BBBS Lone Star public statements + single-parent population",
       asOfDate: asOf,
       geographyKey: ctx?.geographyKey ?? null,
-      confidence: "modeled",
+      confidence: mentorConfidence,
       methodology: "black_children_single_parent × 22% active mentor demand",
-    }),
+    }), evidence, "mentor_gap", geoKeys),
+    // School-to-prison pipeline metrics — purely evidence-driven (no good public API).
+    blackStudentDisciplineRate: applyEvidence(claim<number | null>({
+      value: null,
+      unit: "% of Black students disciplined",
+      source: "TEA TAPR (upload required)",
+      asOfDate: null,
+      geographyKey: ctx?.geographyKey ?? null,
+      confidence: "unverified",
+      methodology: "Upload TEA Discipline Action Group filtered by district + race=Black via /corridor/evidence",
+    }), evidence, "black_student_discipline_rate", geoKeys),
+    bbbsWaitlist: applyEvidence(claim<number | null>({
+      value: null,
+      unit: "Black boys on BBBS waitlist",
+      source: "BBBS Lone Star intake (upload required)",
+      asOfDate: null,
+      geographyKey: ctx?.geographyKey ?? null,
+      confidence: "unverified",
+      methodology: "Upload BBBS Lone Star quarterly intake report via /corridor/evidence",
+    }), evidence, "bbbs_waitlist_black_boys", geoKeys),
+    juvenileReferralRate: applyEvidence(claim<number | null>({
+      value: null,
+      unit: "Black youth juvenile referrals per 1000",
+      source: "TJJD county dashboard (upload required)",
+      asOfDate: null,
+      geographyKey: ctx?.geographyKey ?? null,
+      confidence: "unverified",
+      methodology: "Upload TJJD county-level referral rate by race via /corridor/evidence",
+    }), evidence, "tjjd_black_referral_rate", geoKeys),
   };
 
   // The chained story for this metro
@@ -430,13 +568,103 @@ export async function buildCorridorStory() {
 /* ============================================================================
  * Routes
  * ============================================================================ */
+async function emitCorridorRpliceEvent(story: any) {
+  try {
+    const wfg = story.metros.waco.fatherhoodGap;
+    const afg = story.metros.austin.fatherhoodGap;
+    await db.insert(ecosystemEvents).values({
+      sourcePlatformId: "tcaf-corridor-intelligence",
+      targetPlatformId: null, // broadcast to all peer platforms
+      eventType: "corridor.intelligence.synthesized",
+      eventData: {
+        corridor: story.corridor,
+        generatedAt: story.generatedAt,
+        confidence: {
+          waco: {
+            blackPopulation: wfg.blackPopulation.confidence,
+            mentorGap: wfg.mentorGap.confidence,
+            disciplineRate: wfg.blackStudentDisciplineRate.confidence,
+          },
+          austin: {
+            blackPopulation: afg.blackPopulation.confidence,
+            mentorGap: afg.mentorGap.confidence,
+            disciplineRate: afg.blackStudentDisciplineRate.confidence,
+          },
+        },
+        keyClaims: {
+          mentorGapTotal: (wfg.mentorGap.value ?? 0) + (afg.mentorGap.value ?? 0),
+          grantPipelineCount: story.grantPipeline.length,
+          sourcesCount: story.sources.length,
+        },
+      },
+      status: "broadcast",
+    });
+  } catch (err) {
+    console.warn("[corridor/event] failed to emit ecosystem event:", err);
+  }
+}
+
 export function registerCorridorRoutes(app: Express) {
   app.get("/api/corridor/story", async (_req: Request, res: Response) => {
     try {
       const story = await buildCorridorStory();
+      // Fire-and-forget peer broadcast — never block the response.
+      emitCorridorRpliceEvent(story).catch(() => {});
       res.json(story);
     } catch (err: any) {
       console.error("[corridor/story]", err);
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  /* ----- Community Evidence CRUD --------------------------------------- */
+  app.get("/api/corridor/evidence", async (req: Request, res: Response) => {
+    try {
+      const metro = (req.query.metro as string) || "all";
+      const allowed: string[] = [];
+      for (const m of CORRIDOR.metros) {
+        if (metro === "all" || metro === m.id) {
+          allowed.push(m.countyFips, m.focusZip, ...m.anchorZips, m.id);
+        }
+      }
+      const rows = allowed.length
+        ? await db.select().from(communityEvidence).where(inArray(communityEvidence.geographyKey, allowed))
+        : await db.select().from(communityEvidence);
+      res.json({ evidence: rows, metricCatalog: METRIC_CATALOG, geographyCatalog: geographyCatalog() });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.post("/api/corridor/evidence", async (req: Request, res: Response) => {
+    try {
+      const parsed = insertCommunityEvidenceSchema.parse(req.body);
+      const [row] = await db.insert(communityEvidence).values(parsed).returning();
+      res.json({ ok: true, evidence: row });
+    } catch (err: any) {
+      if (err?.issues) return res.status(400).json({ error: "validation", issues: err.issues });
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.delete("/api/corridor/evidence/:id", async (req: Request, res: Response) => {
+    try {
+      await db.delete(communityEvidence).where(eq(communityEvidence.id, req.params.id));
+      res.json({ ok: true });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  /* ----- Census ACS race+age fetch (verified Black population) --------- */
+  app.post("/api/corridor/refresh-race", async (_req: Request, res: Response) => {
+    try {
+      const result = await ingestCorridorRaceAge(db, CORRIDOR.metros.map((m) => ({
+        countyFips: m.countyFips,
+        metroId: m.id,
+      })));
+      res.json({ ok: true, result });
+    } catch (err: any) {
       res.status(500).json({ error: err.message });
     }
   });

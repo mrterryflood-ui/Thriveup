@@ -4241,4 +4241,28 @@ export const insertBenefitsApplicationSchema = createInsertSchema(benefitsApplic
 export type InsertBenefitsApplication = z.infer<typeof insertBenefitsApplicationSchema>;
 export type BenefitsApplication = typeof benefitsApplications.$inferSelect;
 
+export const communityEvidence = pgTable("community_evidence", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  geographyKey: varchar("geography_key", { length: 50 }).notNull(),
+  geographyType: varchar("geography_type", { length: 50 }).notNull(),
+  metricKey: varchar("metric_key", { length: 100 }).notNull(),
+  metricLabel: text("metric_label").notNull(),
+  value: real("value").notNull(),
+  unit: varchar("unit", { length: 50 }),
+  asOfDate: varchar("as_of_date", { length: 20 }),
+  sourceName: text("source_name").notNull(),
+  sourceUrl: text("source_url"),
+  documentTitle: text("document_title"),
+  pageReference: text("page_reference"),
+  methodology: text("methodology"),
+  verifiedBy: varchar("verified_by", { length: 200 }),
+  confidence: varchar("confidence", { length: 20 }).notNull().default("verified"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+export const insertCommunityEvidenceSchema = createInsertSchema(communityEvidence).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertCommunityEvidence = z.infer<typeof insertCommunityEvidenceSchema>;
+export type CommunityEvidence = typeof communityEvidence.$inferSelect;
+
 export * from "./models/auth";

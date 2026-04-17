@@ -4,6 +4,8 @@ import type { GisContextData } from "@shared/schema";
 
 const CDC_PLACES_URL = "https://data.cdc.gov/resource/swc5-untb.json";
 const CDC_SVI_URL = "https://data.cdc.gov/resource/4d8n-kk8a.json";
+// ATSDR SVI 2022 county-level (ArcGIS Feature Service) — used as primary, with Socrata fallback above.
+const ATSDR_SVI_COUNTY_URL = "https://services3.arcgis.com/ZvidGQkLaDJxRSJ2/arcgis/rest/services/SVI2022_US_county/FeatureServer/0/query";
 const FBI_CRIME_URL = "https://api.usa.gov/crime/fbi/sapi/api/estimates/states";
 const CENSUS_ACS_URL = "https://api.census.gov/data/2022/acs/acs5";
 const SAMHSA_LOCATOR_URL = "https://findtreatment.gov/locator/listing";
@@ -191,15 +193,38 @@ export async function ingestCdcPlacesData(
   }
 }
 
+async function fetchSviAtsdr(stateAbbr: string): Promise<any[]> {
+  const stateFips = getStateFips(stateAbbr);
+  if (!stateFips) return [];
+  const url = `${ATSDR_SVI_COUNTY_URL}?where=${encodeURIComponent(`ST_ABBR='${stateAbbr.toUpperCase()}'`)}&outFields=FIPS,COUNTY,STATE,RPL_THEMES,EP_POV150,EP_UNEMP,EP_NOHSDP&f=json&resultRecordCount=2000`;
+  try {
+    const data = await fetchJson(url);
+    const features = data?.features ?? [];
+    return features.map((f: any) => f.attributes ?? f);
+  } catch (err) {
+    console.log(`[GIS Engine] ATSDR SVI fetch failed for ${stateAbbr}: ${err}`);
+    return [];
+  }
+}
+
 export async function ingestSviData(
   db: any,
   stateAbbr: string
 ): Promise<number> {
   try {
-    const whereClause = `st_abbr='${stateAbbr.toUpperCase()}'`;
-    const url = `${CDC_SVI_URL}?$where=${encodeURIComponent(whereClause)}&$limit=50000`;
-    const data = await fetchJson(url);
-
+    // Primary: ATSDR ArcGIS county-level (more reliable than the deprecated Socrata endpoint).
+    let data: any[] = await fetchSviAtsdr(stateAbbr);
+    if (data.length === 0) {
+      // Fallback: legacy CDC Socrata.
+      try {
+        const whereClause = `st_abbr='${stateAbbr.toUpperCase()}'`;
+        const url = `${CDC_SVI_URL}?$where=${encodeURIComponent(whereClause)}&$limit=50000`;
+        const fb = await fetchJson(url);
+        if (Array.isArray(fb)) data = fb;
+      } catch (err) {
+        console.log(`[GIS Engine] CDC SVI Socrata fallback also failed for ${stateAbbr}: ${err}`);
+      }
+    }
     if (!Array.isArray(data) || data.length === 0) {
       return 0;
     }
@@ -854,6 +879,167 @@ export async function computeContextLoadIndex(
     console.error(`[GIS Engine] Error computing Context Load Index for ${geographyKey}:`, error);
     return null;
   }
+}
+
+/* ============================================================================
+ * Census ACS race+age fetcher (B01001B = Black/African American by sex/age)
+ * ----------------------------------------------------------------------------
+ * Pulls real Census counts for specific corridor counties and writes them
+ * directly into community_evidence as VERIFIED rows. This converts the
+ * synthesis's modeled `black_population` / `disconnected_black_youth` claims
+ * into verified ones, with full citation back to Census ACS.
+ *
+ * B01001B variables (by sex × age):
+ *   B01001B_001E = Total Black/African American alone
+ *   B01001B_002E = Male total ; B01001B_017E = Female total
+ *   Children 0-17 (male):  003E..006E   ; female: 018E..021E
+ *   Youth 16-24 (male):    006E (15-17 partial), 007E (18-19), 008E (20-24)
+ *                          (we use 18-24 for the "16-24" approximation)
+ * ============================================================================ */
+async function upsertEvidence(
+  db: any,
+  row: {
+    geographyKey: string;
+    geographyType: string;
+    metricKey: string;
+    metricLabel: string;
+    value: number;
+    unit: string;
+    asOfDate: string;
+    sourceName: string;
+    sourceUrl: string;
+    documentTitle: string;
+    methodology: string;
+    verifiedBy: string;
+  },
+) {
+  const { communityEvidence } = await import("@shared/schema");
+  const { and, eq } = await import("drizzle-orm");
+  const existing = await db
+    .select()
+    .from(communityEvidence)
+    .where(
+      and(
+        eq(communityEvidence.geographyKey, row.geographyKey),
+        eq(communityEvidence.metricKey, row.metricKey),
+        eq(communityEvidence.sourceName, row.sourceName),
+      ),
+    )
+    .limit(1);
+  if (existing.length > 0) {
+    await db
+      .update(communityEvidence)
+      .set({ ...row, confidence: "verified", updatedAt: new Date() })
+      .where(eq(communityEvidence.id, existing[0].id));
+  } else {
+    await db.insert(communityEvidence).values({ ...row, confidence: "verified" });
+  }
+}
+
+export async function ingestCorridorRaceAge(
+  db: any,
+  counties: Array<{ countyFips: string; metroId: string }>,
+): Promise<{ updated: number; perCounty: Record<string, any> }> {
+  const censusKey = process.env.CENSUS_API_KEY || "";
+  const keyParam = censusKey ? `&key=${censusKey}` : "";
+  const perCounty: Record<string, any> = {};
+  let updated = 0;
+
+  for (const { countyFips, metroId } of counties) {
+    const stateFips = countyFips.slice(0, 2);
+    const cFips = countyFips.slice(2);
+    const vars = [
+      "NAME",
+      "B01001B_001E", // total Black
+      "B01001B_002E", // male total Black
+      "B01001B_017E", // female total Black
+      // children male 0-17: 003 (<5) 004 (5-9) 005 (10-14) 006 (15-17)
+      "B01001B_003E","B01001B_004E","B01001B_005E","B01001B_006E",
+      // children female 0-17: 018 019 020 021
+      "B01001B_018E","B01001B_019E","B01001B_020E","B01001B_021E",
+      // youth 18-24 male: 007 (18-19) 008 (20-24)
+      "B01001B_007E","B01001B_008E",
+      // youth 18-24 female: 022 (18-19) 023 (20-24)
+      "B01001B_022E","B01001B_023E",
+    ].join(",");
+    const url = `${CENSUS_ACS_URL}?get=${vars}&for=county:${cFips}&in=state:${stateFips}${keyParam}`;
+
+    let data: string[][];
+    try {
+      data = await fetchJson(url);
+    } catch (err) {
+      console.log(`[GIS Engine] Census B01001B fetch failed for ${countyFips}: ${err}`);
+      perCounty[countyFips] = { error: String(err) };
+      continue;
+    }
+    if (!Array.isArray(data) || data.length < 2) {
+      perCounty[countyFips] = { error: "no-data" };
+      continue;
+    }
+    const headers = data[0];
+    const row = data[1];
+    const idx = (k: string) => headers.indexOf(k);
+    const num = (k: string) => parseInt(row[idx(k)] ?? "0") || 0;
+
+    const blackTotal = num("B01001B_001E");
+    const childrenMale = num("B01001B_003E")+num("B01001B_004E")+num("B01001B_005E")+num("B01001B_006E");
+    const childrenFemale = num("B01001B_018E")+num("B01001B_019E")+num("B01001B_020E")+num("B01001B_021E");
+    const blackChildren017 = childrenMale + childrenFemale;
+    const youth1824 = num("B01001B_007E")+num("B01001B_008E")+num("B01001B_022E")+num("B01001B_023E");
+
+    const asOf = "2022-12-31";
+    const baseSrc = {
+      sourceName: "U.S. Census Bureau ACS 5-year (2018–2022) — Table B01001B",
+      sourceUrl: "https://api.census.gov/data/2022/acs/acs5",
+      documentTitle: "Sex by Age — Black or African American Alone",
+      verifiedBy: "Census ACS API direct fetch",
+      asOfDate: asOf,
+    };
+
+    if (blackTotal > 0) {
+      await upsertEvidence(db, {
+        geographyKey: countyFips,
+        geographyType: "county",
+        metricKey: "black_population",
+        metricLabel: "Black population (Census ACS B01001B_001E)",
+        value: blackTotal,
+        unit: "people",
+        methodology: "Direct Census API call to ACS 5-year B01001B_001E (Black/African American alone, total).",
+        ...baseSrc,
+      });
+      updated++;
+    }
+    if (blackChildren017 > 0) {
+      await upsertEvidence(db, {
+        geographyKey: countyFips,
+        geographyType: "county",
+        metricKey: "black_children_017",
+        metricLabel: "Black children 0–17 (Census ACS B01001B sums 003-006 + 018-021)",
+        value: blackChildren017,
+        unit: "children",
+        methodology: "Sum of B01001B male+female age brackets covering 0-17.",
+        ...baseSrc,
+      });
+      updated++;
+    }
+    if (youth1824 > 0) {
+      await upsertEvidence(db, {
+        geographyKey: countyFips,
+        geographyType: "county",
+        metricKey: "black_youth_1824",
+        metricLabel: "Black youth 18–24 (Census ACS B01001B sums 007-008 + 022-023)",
+        value: youth1824,
+        unit: "youth 18-24",
+        methodology: "Sum of B01001B male+female age brackets covering 18-24.",
+        ...baseSrc,
+      });
+      updated++;
+    }
+
+    perCounty[countyFips] = { metroId, blackTotal, blackChildren017, youth1824 };
+  }
+
+  return { updated, perCounty };
 }
 
 export async function runFullIngestion(
