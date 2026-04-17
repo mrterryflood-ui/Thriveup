@@ -282,3 +282,9 @@ id = "Be0rVtDMbdf-XB9StPTAY"
 uri = "file://attached_assets/WAB2-LOI-RequestSummary-v4-FINAL.docx"
 type = "word_document"
 title = "WAB2 LOI v4 FINAL — TCAF Benefits Enrollment Collaborative"
+
+[[outputs]]
+id = "1kNxN_LOPkvEQOhjNhDAT"
+uri = "file://attached_assets/WAB2-LOI-RequestSummary-v5-FINAL.docx"
+type = "word_document"
+title = "WAB2 LOI v5 FINAL — 95th-Percentile Draft"
