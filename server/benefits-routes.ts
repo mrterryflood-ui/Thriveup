@@ -2889,9 +2889,31 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
         "48453": 80, "48491": 350, "48209": 50, "48021": 100, "48055": 100,
       };
 
+      // St. David's 5 priority areas — each program maps to one or more
+      const PROGRAM_TO_AREAS: Record<string, string[]> = {
+        SNAP: ["healthy_children_families"],
+        Medicaid: ["healthcare_access", "mental_health", "dental", "healthy_aging", "healthy_children_families"],
+        CHIP: ["healthcare_access", "dental", "healthy_children_families"],
+        WIC: ["healthy_children_families"],
+        EITC: ["healthy_children_families"],
+        CTC: ["healthy_children_families"],
+        Marketplace: ["healthcare_access", "mental_health"],
+        SSI: ["healthy_aging"],
+        SSDI: ["healthy_aging"],
+        TANF: ["healthy_children_families"],
+        MAP: ["healthcare_access", "mental_health", "dental"], // Travis only
+      };
+      const AREAS = ["healthcare_access", "mental_health", "dental", "healthy_aging", "healthy_children_families"];
+
       const byBenefit: Record<string, { registered: number; inProgress: number; submitted: number; enrolled: number; denied: number; estimatedValue: number }> = {};
       const byCounty: Record<string, { registered: number; enrolled: number; estimatedValue: number; name: string }> = {};
       const byStage: Record<string, number> = { registered: 0, screening: 0, intake: 0, documents: 0, submitted: 0, decision: 0, enrolled: 0 };
+      const byArea: Record<string, { registered: number; enrolled: number; estimatedValue: number }> = {};
+      const byLanguage: Record<string, { registered: number; enrolled: number }> = {};
+      // The St. David's renewal report axis: county × area × program × language
+      const matrix: Record<string, { countyFips: string; countyName: string; area: string; program: string; language: string; enrolled: number }> = {};
+
+      for (const a of AREAS) byArea[a] = { registered: 0, enrolled: 0, estimatedValue: 0 };
 
       for (const a of apps) {
         const benefitKey = ["SNAP", "Medicaid", "CHIP", "EITC", "WIC"].includes(a.benefitType) ? a.benefitType : "Other";
@@ -2913,6 +2935,26 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
         }
 
         if (a.stage && byStage[a.stage] !== undefined) byStage[a.stage] += 1;
+
+        const lang = a.preferredLanguage || "English";
+        if (!byLanguage[lang]) byLanguage[lang] = { registered: 0, enrolled: 0 };
+        byLanguage[lang].registered += 1;
+        if (a.outcome === "approved") byLanguage[lang].enrolled += 1;
+
+        const areas = PROGRAM_TO_AREAS[a.benefitType] || [];
+        for (const area of areas) {
+          if (!byArea[area]) byArea[area] = { registered: 0, enrolled: 0, estimatedValue: 0 };
+          byArea[area].registered += 1;
+          if (a.outcome === "approved") {
+            byArea[area].enrolled += 1;
+            byArea[area].estimatedValue += (a.estimatedAnnualValue || 0) / areas.length;
+          }
+          if (a.outcome === "approved") {
+            const k = `${a.countyFips}|${area}|${a.benefitType}|${lang}`;
+            if (!matrix[k]) matrix[k] = { countyFips: a.countyFips, countyName: a.countyName, area, program: a.benefitType, language: lang, enrolled: 0 };
+            matrix[k].enrolled += 1;
+          }
+        }
       }
 
       const totalRegistered = apps.length;
@@ -2947,6 +2989,9 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
         byBenefit,
         byCounty,
         byStage,
+        byArea,
+        byLanguage,
+        renewalMatrix: Object.values(matrix).sort((a, b) => b.enrolled - a.enrolled),
         targetProgress,
         countyProgress,
         recentApplications: apps.slice(0, 10),
@@ -2955,5 +3000,86 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
       console.error("WAB2 dashboard failed:", error);
       res.status(500).json({ error: "Failed to load WAB2 dashboard" });
     }
+  });
+
+  // RPLICE inbound event cache — feeds wizards, partner pickers, and program alerts
+  const rpliceCache: {
+    countyProfiles: Record<string, { fplOverride?: number; specialThresholds?: any; updatedAt: string }>;
+    mapgapPriority: Record<string, string[]>;
+    partners: Record<string, Array<{ id: string; name: string; programs: string[]; address?: string; phone?: string }>>;
+    programAlerts: Array<{ id: string; program: string; counties?: string[]; severity: "info" | "warning" | "critical"; message: string; effectiveAt: string }>;
+    lastEventAt?: string;
+  } = {
+    countyProfiles: {},
+    mapgapPriority: {},
+    partners: {},
+    programAlerts: [],
+  };
+
+  app.post("/api/rplice/inbound-event", async (req, res) => {
+    try {
+      const { type, payload } = req.body || {};
+      if (!type) return res.status(400).json({ error: "type required" });
+      rpliceCache.lastEventAt = new Date().toISOString();
+      switch (type) {
+        case "county.profile.updated": {
+          const { countyFips, fplOverride, specialThresholds } = payload || {};
+          if (!countyFips) return res.status(400).json({ error: "countyFips required" });
+          rpliceCache.countyProfiles[countyFips] = { fplOverride, specialThresholds, updatedAt: rpliceCache.lastEventAt };
+          break;
+        }
+        case "mapgap.refreshed": {
+          const { countyFips, prioritizedPrograms } = payload || {};
+          if (!countyFips || !Array.isArray(prioritizedPrograms)) return res.status(400).json({ error: "countyFips + prioritizedPrograms[] required" });
+          rpliceCache.mapgapPriority[countyFips] = prioritizedPrograms;
+          break;
+        }
+        case "partners.updated": {
+          const { countyFips, partners } = payload || {};
+          if (!countyFips || !Array.isArray(partners)) return res.status(400).json({ error: "countyFips + partners[] required" });
+          rpliceCache.partners[countyFips] = partners;
+          break;
+        }
+        case "program.alert": {
+          const alert = {
+            id: payload?.id || `alert_${Date.now()}`,
+            program: payload?.program || "ALL",
+            counties: payload?.counties,
+            severity: (payload?.severity || "info") as "info" | "warning" | "critical",
+            message: payload?.message || "",
+            effectiveAt: payload?.effectiveAt || rpliceCache.lastEventAt,
+          };
+          rpliceCache.programAlerts = [alert, ...rpliceCache.programAlerts.filter(a => a.id !== alert.id)].slice(0, 20);
+          break;
+        }
+        default:
+          return res.status(400).json({ error: `Unknown event type: ${type}` });
+      }
+      res.json({ ok: true, type, lastEventAt: rpliceCache.lastEventAt });
+    } catch (error) {
+      console.error("RPLICE inbound event failed:", error);
+      res.status(500).json({ error: "Failed to process inbound event" });
+    }
+  });
+
+  app.get("/api/rplice/state/:countyFips", async (req, res) => {
+    const fips = req.params.countyFips;
+    res.json({
+      countyFips: fips,
+      countyProfile: rpliceCache.countyProfiles[fips] || null,
+      prioritizedPrograms: rpliceCache.mapgapPriority[fips] || null,
+      partners: rpliceCache.partners[fips] || [],
+      activeAlerts: rpliceCache.programAlerts.filter(a => !a.counties || a.counties.includes(fips) || a.counties.length === 0),
+      lastEventAt: rpliceCache.lastEventAt || null,
+    });
+  });
+
+  app.get("/api/rplice/state", async (_req, res) => {
+    res.json({
+      ...rpliceCache,
+      countiesWithProfile: Object.keys(rpliceCache.countyProfiles),
+      countiesWithMapGap: Object.keys(rpliceCache.mapgapPriority),
+      countiesWithPartners: Object.keys(rpliceCache.partners),
+    });
   });
 }

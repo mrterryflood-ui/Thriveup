@@ -17,7 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 import {
   Home, Stethoscope, Baby, Heart, DollarSign, Users, Shield, Building2,
   ChevronRight, ChevronLeft, CheckCircle2, Circle, Loader2, FileText,
-  TrendingUp, MapPin, ClipboardList, RefreshCw, AlertCircle, Phone, Mail,
+  TrendingUp, MapPin, ClipboardList, RefreshCw, AlertCircle, AlertTriangle, Phone, Mail,
   Globe, Calendar, Target, Award, ArrowRight,
 } from "lucide-react";
 import type { BenefitsApplication } from "@shared/schema";
@@ -30,6 +30,16 @@ const COUNTIES = [
   { fips: "48055", name: "Caldwell County", target: 100, cities: "Lockhart, Luling, Martindale" },
 ];
 
+type AreaKey = "healthcare_access" | "mental_health" | "dental" | "healthy_aging" | "healthy_children_families";
+
+const AREAS: { key: AreaKey; label: string; description: string; color: string }[] = [
+  { key: "healthcare_access", label: "Healthcare Access", description: "Primary care coverage, prescriptions, hospital access", color: "#3b82f6" },
+  { key: "mental_health", label: "Mental Health", description: "Behavioral health, counseling, substance use treatment", color: "#8b5cf6" },
+  { key: "dental", label: "Dental", description: "Pediatric and adult dental coverage", color: "#06b6d4" },
+  { key: "healthy_aging", label: "Healthy Aging", description: "Coverage and income supports for adults 65+ and disabled", color: "#a855f7" },
+  { key: "healthy_children_families", label: "Healthy Children & Families", description: "Food, child health, family income supports", color: "#22c55e" },
+];
+
 type BenefitDef = {
   key: string;
   name: string;
@@ -37,6 +47,8 @@ type BenefitDef = {
   icon: any;
   color: string;
   category: "food" | "health" | "income" | "family" | "other";
+  areas: AreaKey[];
+  countyRestriction?: string[]; // FIPS codes; if set, only these counties
   annualValue: number;
   description: string;
   eligibility: string;
@@ -48,6 +60,7 @@ type BenefitDef = {
 const BENEFITS: BenefitDef[] = [
   {
     key: "SNAP", name: "SNAP — Food Benefits", short: "SNAP", icon: Home, color: "#22c55e", category: "food",
+    areas: ["healthy_children_families"],
     annualValue: 3024,
     description: "Monthly funds on a Lone Star Card for groceries.",
     eligibility: "Income at or below 130% of Federal Poverty Level. Mixed-status families: citizen children eligible regardless of parent status.",
@@ -57,6 +70,7 @@ const BENEFITS: BenefitDef[] = [
   },
   {
     key: "Medicaid", name: "Medicaid — Health Coverage", short: "Medicaid", icon: Stethoscope, color: "#3b82f6", category: "health",
+    areas: ["healthcare_access", "mental_health", "dental", "healthy_aging", "healthy_children_families"],
     annualValue: 7200,
     description: "Free or low-cost health coverage — doctor visits, hospital, prescriptions, mental health.",
     eligibility: "Income limits vary by category. Pregnant women up to 198% FPL. Children up to 144% FPL. Adults with disabilities. Parents with very low income.",
@@ -66,6 +80,7 @@ const BENEFITS: BenefitDef[] = [
   },
   {
     key: "CHIP", name: "CHIP — Children's Health Insurance", short: "CHIP", icon: Baby, color: "#06b6d4", category: "health",
+    areas: ["healthcare_access", "dental", "healthy_children_families"],
     annualValue: 2400,
     description: "Health coverage for children whose families earn too much for Medicaid but can't afford private insurance.",
     eligibility: "Children under 19. Family income up to 201% FPL. Must be uninsured.",
@@ -75,6 +90,7 @@ const BENEFITS: BenefitDef[] = [
   },
   {
     key: "WIC", name: "WIC — Women, Infants & Children", short: "WIC", icon: Heart, color: "#ec4899", category: "family",
+    areas: ["healthy_children_families"],
     annualValue: 528,
     description: "Nutrition support, healthy food, breastfeeding support — pregnant women, new mothers, children under 5.",
     eligibility: "Income at or below 185% FPL. Pregnant, breastfeeding, postpartum women, infants, children under 5. Available regardless of immigration status.",
@@ -84,6 +100,7 @@ const BENEFITS: BenefitDef[] = [
   },
   {
     key: "EITC", name: "EITC — Earned Income Tax Credit", short: "EITC", icon: DollarSign, color: "#eab308", category: "income",
+    areas: ["healthy_children_families"],
     annualValue: 3584,
     description: "Tax refund up to $7,830 (2025) for working families. Can claim up to 3 prior years if missed.",
     eligibility: "Must have earned income from work. Income limits vary by household size. Up to ~$66,800 for families with 3+ children.",
@@ -93,6 +110,7 @@ const BENEFITS: BenefitDef[] = [
   },
   {
     key: "CTC", name: "CTC — Child Tax Credit", short: "CTC", icon: Users, color: "#14b8a6", category: "income",
+    areas: ["healthy_children_families"],
     annualValue: 3600,
     description: "Up to $2,000 per qualifying child under 17. Refundable portion up to $1,700 per child.",
     eligibility: "Child must be under 17, US citizen/national/resident, claimed as dependent, lived with taxpayer 6+ months, has SSN.",
@@ -102,6 +120,7 @@ const BENEFITS: BenefitDef[] = [
   },
   {
     key: "Marketplace", name: "ACA Marketplace — Health Insurance", short: "Marketplace", icon: Building2, color: "#f97316", category: "health",
+    areas: ["healthcare_access", "mental_health"],
     annualValue: 5400,
     description: "Subsidized health insurance plans. Many families pay $0–$50/month with tax credits.",
     eligibility: "US citizens and lawfully present immigrants. Not eligible for affordable employer coverage or Medicaid. Income above Medicaid limit.",
@@ -111,6 +130,7 @@ const BENEFITS: BenefitDef[] = [
   },
   {
     key: "SSI", name: "SSI — Supplemental Security Income", short: "SSI", icon: Shield, color: "#8b5cf6", category: "other",
+    areas: ["healthy_aging"],
     annualValue: 10092,
     description: "Monthly cash income for people with disabilities or age 65+ with very limited income/resources.",
     eligibility: "Disabled, blind, or 65+. Resources under $2,000 individual / $3,000 couple. Income limits.",
@@ -120,12 +140,24 @@ const BENEFITS: BenefitDef[] = [
   },
   {
     key: "TANF", name: "TANF — Temporary Cash Assistance", short: "TANF", icon: Award, color: "#a855f7", category: "income",
+    areas: ["healthy_children_families"],
     annualValue: 3500,
     description: "Monthly cash assistance for very low-income families with children. Time-limited (5 years lifetime).",
     eligibility: "Families with children under 18. Income at or below very low threshold (~$200/mo for family of 3 in TX).",
     documents: ["IDs for all adults", "Birth certificates for children", "Social Security numbers", "Proof of income", "Proof of residence", "Proof of pregnancy (if applicable)"],
     applicationChannel: "Your Texas Benefits portal · HHSC office · TCAF CHW assist",
     processingTime: "45 days",
+  },
+  {
+    key: "MAP", name: "MAP — Medical Access Program (Travis County only)", short: "MAP", icon: Stethoscope, color: "#dc2626", category: "health",
+    areas: ["healthcare_access", "mental_health", "dental"],
+    countyRestriction: ["48453"],
+    annualValue: 4800,
+    description: "Travis County's local low-income healthcare program — primary care, specialty care, dental, behavioral health, and prescriptions for residents not eligible for Medicaid.",
+    eligibility: "TRAVIS COUNTY RESIDENTS ONLY. At or below 200% FPL. Not eligible for Medicaid or Medicare. Available regardless of immigration status.",
+    documents: ["Photo ID (or alternative ID for immigrants)", "Proof of Travis County residence", "Proof of income (pay stubs, tax return)", "Proof of household composition", "Denial letter from Medicaid (if previously applied)"],
+    applicationChannel: "CommUnityCare clinics · Central Health enrollment sites · TCAF CHW assist (Travis only)",
+    processingTime: "Same-day enrollment at most clinics if documents are complete",
   },
 ];
 
@@ -187,7 +219,13 @@ function computeEligibility(d: WizardData): string[] {
   if (income > fpl * 1.38 && income <= fpl * 4.0) eligible.push("Marketplace");
   if (d.isDisabled || d.isElderly) eligible.push("SSI");
   if (d.hasChildren && income <= fpl * 0.2) eligible.push("TANF");
+  // MAP — Travis County ONLY (FIPS 48453); 200% FPL; ineligible for Medicaid/Medicare; immigration-status-blind
+  if (d.countyFips === "48453" && income <= fpl * 2.0 && !d.isElderly) eligible.push("MAP");
   return eligible;
+}
+
+function programsForCounty(fips: string): BenefitDef[] {
+  return BENEFITS.filter(b => !b.countyRestriction || b.countyRestriction.includes(fips));
 }
 
 const WIZARD_STEPS = [
@@ -212,6 +250,25 @@ export default function WAB2EnrollmentHubPage() {
 
   const dashboardQuery = useQuery<any>({ queryKey: ["/api/benefits/wab2/dashboard"] });
   const applicationsQuery = useQuery<BenefitsApplication[]>({ queryKey: ["/api/benefits/applications", "wab2"] });
+  const rpliceStateQuery = useQuery<any>({
+    queryKey: ["/api/rplice/state", wizardData.countyFips],
+    enabled: !!wizardData.countyFips,
+  });
+
+  // RPLICE-driven prioritization: reorder eligible programs by mapgap.refreshed; surface partner picker; show alerts
+  const rpliceState = rpliceStateQuery.data;
+  const activeAlerts: Array<{ id: string; program: string; severity: string; message: string }> = rpliceState?.activeAlerts || [];
+  const rpliceCountyPartners: Array<{ id: string; name: string; programs: string[]; address?: string; phone?: string }> = rpliceState?.partners || [];
+  const prioritizedPrograms: string[] = rpliceState?.prioritizedPrograms || [];
+  const orderedEligibility = useMemo(() => {
+    if (!prioritizedPrograms.length) return eligibility;
+    const ranked = [...eligibility].sort((a, b) => {
+      const ai = prioritizedPrograms.indexOf(a);
+      const bi = prioritizedPrograms.indexOf(b);
+      return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
+    });
+    return ranked;
+  }, [eligibility, prioritizedPrograms]);
 
   const filteredApps = useMemo(() => {
     const apps = applicationsQuery.data || [];
@@ -316,7 +373,7 @@ export default function WAB2EnrollmentHubPage() {
               WAB2 Enrollment Hub
             </h1>
             <p className="text-muted-foreground mt-1">
-              Forms · Wizards · Trackers · Outcomes — covering 9 benefits across 5 Central Texas counties
+              Engine — not directory. 5 St. David's areas · 5 Central Texas counties · CHW-driven enrollment with RPLICE intelligence
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -433,6 +490,94 @@ export default function WAB2EnrollmentHubPage() {
                 </CardContent>
               </Card>
 
+              <Card data-testid="card-by-area">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-base">
+                    <Target className="h-4 w-4" />
+                    St. David's 5 Priority Areas — Outcomes
+                  </CardTitle>
+                  <CardDescription>The renewal-reporting lens: programs grouped by their Foundation focus area.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+                    {AREAS.map(area => {
+                      const a = dashboard.byArea?.[area.key] || { registered: 0, enrolled: 0, estimatedValue: 0 };
+                      return (
+                        <div key={area.key} className="p-3 border rounded-md" data-testid={`area-${area.key}`} style={{ borderTopColor: area.color, borderTopWidth: 3 }}>
+                          <div className="text-xs font-semibold uppercase tracking-wide" style={{ color: area.color }}>{area.label}</div>
+                          <div className="text-xs text-muted-foreground mt-0.5">{area.description}</div>
+                          <div className="mt-2 flex justify-between items-baseline">
+                            <span className="text-2xl font-semibold">{a.enrolled}</span>
+                            <span className="text-xs text-muted-foreground">enrolled</span>
+                          </div>
+                          <div className="text-xs text-muted-foreground">{a.registered} registered · ${Math.round(a.estimatedValue / 1000)}K value</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {(dashboard.renewalMatrix?.length || 0) > 0 && (
+                <Card data-testid="card-renewal-matrix">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-base">
+                      <Award className="h-4 w-4" />
+                      Renewal Report Matrix — County × Area × Program × Language
+                    </CardTitle>
+                    <CardDescription>The exact format St. David's needs at renewal: "in 90 days we enrolled X residents in Caldwell County in WIC, X in Hays in Medicaid Dental..."</CardDescription>
+                  </CardHeader>
+                  <CardContent className="overflow-x-auto">
+                    <table className="w-full text-xs">
+                      <thead>
+                        <tr className="border-b">
+                          <th className="text-left p-2 font-semibold">County</th>
+                          <th className="text-left p-2 font-semibold">Area</th>
+                          <th className="text-left p-2 font-semibold">Program</th>
+                          <th className="text-left p-2 font-semibold">Language</th>
+                          <th className="text-right p-2 font-semibold">Enrolled</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {dashboard.renewalMatrix.slice(0, 50).map((row: any, i: number) => {
+                          const areaLabel = AREAS.find(a => a.key === row.area)?.label || row.area;
+                          return (
+                            <tr key={i} className="border-b last:border-0" data-testid={`matrix-row-${i}`}>
+                              <td className="p-2">{row.countyName}</td>
+                              <td className="p-2">{areaLabel}</td>
+                              <td className="p-2 font-mono">{row.program}</td>
+                              <td className="p-2">{row.language}</td>
+                              <td className="p-2 text-right font-semibold">{row.enrolled}</td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </CardContent>
+                </Card>
+              )}
+
+              {dashboard.byLanguage && Object.keys(dashboard.byLanguage).length > 0 && (
+                <Card data-testid="card-by-language">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-base">
+                      <Globe className="h-4 w-4" />
+                      Language Access — Outcomes
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                      {Object.entries(dashboard.byLanguage).map(([lang, v]: any) => (
+                        <div key={lang} className="p-2 border rounded-md" data-testid={`lang-${lang}`}>
+                          <div className="text-xs text-muted-foreground">{lang}</div>
+                          <div className="text-base font-semibold">{v.enrolled} <span className="text-xs text-muted-foreground font-normal">/ {v.registered}</span></div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
               <Card data-testid="card-pipeline-stages">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-base">
@@ -460,10 +605,31 @@ export default function WAB2EnrollmentHubPage() {
         <TabsContent value="forms" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">9 Benefit Programs · Document Checklists & Application Channels</CardTitle>
-              <CardDescription>Reference forms for every benefit available to WAB2 households across all 5 counties.</CardDescription>
+              <CardTitle className="text-base">Programs by St. David's Priority Area · Document Checklists & Application Channels</CardTitle>
+              <CardDescription>Each program is grouped by the Foundation areas it advances. MAP appears for Travis County only.</CardDescription>
             </CardHeader>
           </Card>
+          {AREAS.map(area => {
+            const programsInArea = BENEFITS.filter(b => b.areas.includes(area.key));
+            return (
+              <Card key={area.key} data-testid={`forms-area-${area.key}`} style={{ borderLeftColor: area.color, borderLeftWidth: 4 }}>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm" style={{ color: area.color }}>{area.label}</CardTitle>
+                  <CardDescription className="text-xs">{area.description} · {programsInArea.length} programs</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-wrap gap-1.5">
+                    {programsInArea.map(p => (
+                      <Badge key={p.key} variant="outline" data-testid={`area-program-${area.key}-${p.key}`}>
+                        {p.short}{p.countyRestriction ? " (Travis only)" : ""}
+                      </Badge>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+          <Separator />
           <div className="grid md:grid-cols-2 gap-4">
             {BENEFITS.map((b) => {
               const Icon = b.icon;
@@ -691,15 +857,40 @@ export default function WAB2EnrollmentHubPage() {
 
               {wizardStep === 3 && (
                 <div className="space-y-3">
-                  {eligibility.length === 0 ? (
+                  {activeAlerts.length > 0 && (
+                    <div className="space-y-2">
+                      {activeAlerts.map(a => (
+                        <div
+                          key={a.id}
+                          className={`p-3 border rounded-md text-sm flex items-start gap-2 ${
+                            a.severity === "critical" ? "border-red-500/50 bg-red-50 dark:bg-red-950/30" :
+                            a.severity === "warning" ? "border-amber-500/50 bg-amber-50 dark:bg-amber-950/30" :
+                            "border-blue-500/50 bg-blue-50 dark:bg-blue-950/30"
+                          }`}
+                          data-testid={`alert-rplice-${a.id}`}
+                        >
+                          <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" />
+                          <div>
+                            <span className="font-semibold">RPLICE alert · {a.program}:</span> {a.message}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {prioritizedPrograms.length > 0 && (
+                    <p className="text-xs text-muted-foreground italic">
+                      Programs reordered by RPLICE MAP-Gap intelligence for {wizardData.countyName}.
+                    </p>
+                  )}
+                  {orderedEligibility.length === 0 ? (
                     <p className="text-sm text-muted-foreground">No benefits identified. Adjust prior steps.</p>
                   ) : (
                     <>
                       <p className="text-sm">
-                        Based on your household, you appear eligible for <strong>{eligibility.length}</strong> programs.
+                        Based on your household, you appear eligible for <strong>{orderedEligibility.length}</strong> programs.
                         Select which to register for:
                       </p>
-                      {eligibility.map((key) => {
+                      {orderedEligibility.map((key) => {
                         const def = BENEFITS.find(b => b.key === key);
                         if (!def) return null;
                         const Icon = def.icon;
