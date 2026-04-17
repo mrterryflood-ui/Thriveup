@@ -66,14 +66,33 @@ const STATE_NAMES: Record<string, string> = {
   DC: "District of Columbia"
 };
 
-async function fetchJson(url: string): Promise<any> {
-  const response = await fetch(url, {
-    headers: { "Accept": "application/json" },
-  });
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status}: ${response.statusText} for ${url}`);
+async function fetchJson(url: string, opts?: { retries?: number; timeoutMs?: number; init?: RequestInit }): Promise<any> {
+  const retries = opts?.retries ?? 3;
+  const timeoutMs = opts?.timeoutMs ?? 25000;
+  let lastErr: any;
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    const ctl = new AbortController();
+    const t = setTimeout(() => ctl.abort(), timeoutMs);
+    try {
+      const response = await fetch(url, {
+        headers: { "Accept": "application/json", ...(opts?.init?.headers || {}) },
+        signal: ctl.signal,
+        ...opts?.init,
+      });
+      clearTimeout(t);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText} for ${url}`);
+      }
+      return await response.json();
+    } catch (err: any) {
+      clearTimeout(t);
+      lastErr = err;
+      if (attempt < retries) {
+        await new Promise((r) => setTimeout(r, 500 * Math.pow(2, attempt - 1)));
+      }
+    }
   }
-  return response.json();
+  throw lastErr;
 }
 
 function clamp(value: number, min = 0, max = 100): number {
@@ -896,7 +915,7 @@ export async function computeContextLoadIndex(
  *   Youth 16-24 (male):    006E (15-17 partial), 007E (18-19), 008E (20-24)
  *                          (we use 18-24 for the "16-24" approximation)
  * ============================================================================ */
-async function upsertEvidence(
+export async function upsertEvidence(
   db: any,
   row: {
     geographyKey: string;
