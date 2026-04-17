@@ -286,6 +286,11 @@ export default function CorridorIntelligencePage() {
               <Database className="w-4 h-4 mr-1" /> Evidence vault
             </Button>
           </a>
+          <a href="/corridor/docs">
+            <Button size="sm" variant="outline" className="bg-white/10 border-white/30 text-white hover:bg-white/20" data-testid="button-connected-docs">
+              <Database className="w-4 h-4 mr-1" /> Connected docs
+            </Button>
+          </a>
         </div>
       </div>
 

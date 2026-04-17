@@ -5,6 +5,35 @@ import fs from "fs";
 const OUT_DIR = "attached_assets/decks";
 fs.mkdirSync(OUT_DIR, { recursive: true });
 
+/* ---------- LIVE DATA PULL (so this deck is "connected") ---------- */
+const BASE = process.env.BASE_URL || "http://localhost:5000";
+let LIVE_STORY = null;
+try {
+  const r = await fetch(`${BASE}/api/corridor/story`);
+  if (r.ok) {
+    LIVE_STORY = await r.json();
+    console.log("[waco-austin-deck] LIVE data loaded · generated", LIVE_STORY.generatedAt);
+  } else {
+    console.warn("[waco-austin-deck] story API returned", r.status, "— falling back to static copy");
+  }
+} catch (e) {
+  console.warn("[waco-austin-deck] live API unreachable:", e.message, "— falling back to static copy");
+}
+const liveGenAt = LIVE_STORY?.generatedAt ? new Date(LIVE_STORY.generatedAt).toISOString().slice(0, 10) : "static snapshot";
+const findMetric = (metroKey, metricLabelSubstr) => {
+  const metro = LIVE_STORY?.metros?.[metroKey];
+  if (!metro) return null;
+  const all = [...(metro.riskFactors ?? []), ...(metro.protectiveFactors ?? []), ...(metro.crimeProfile ?? [])];
+  const hit = all.find((m) => (m.label ?? "").toLowerCase().includes(metricLabelSubstr.toLowerCase()));
+  if (!hit?.claim) return null;
+  return { value: hit.claim.value, unit: hit.claim.unit, confidence: hit.claim.confidence, source: hit.claim.source, asOf: hit.claim.asOfDate };
+};
+const liveLine = (metroKey, metricSubstr, fallback) => {
+  const m = findMetric(metroKey, metricSubstr);
+  if (!m || m.value == null) return `${fallback} (static — live API unavailable)`;
+  return `${metricSubstr}: ${typeof m.value === "number" ? m.value.toLocaleString() : m.value}${m.unit ? ` ${m.unit}` : ""} · ${m.source ?? "source n/a"} · ${m.asOf ?? ""} [${m.confidence ?? "verified"}]`;
+};
+
 const COLORS = {
   navy: "0B2545", gold: "D4A24C", crimson: "9B1C2E", slate: "2D3E50",
   cream: "F7F2E7", ink: "1A1A1A", gray: "5A6470", green: "2E7D32",
@@ -64,6 +93,37 @@ function addSectionDivider(title, subtitle) {
   s.addText("Waco / McLennan County  ·  Austin / Travis County", { x: 0.5, y: 2.3, w: W - 1, h: 0.7, fontSize: 28, color: "FFFFFF", fontFace: "Calibri", bold: true, align: "center" });
   s.addText("A two-metro picture of disconnection, the school-to-prison pipeline,\nand the mentor gap — and how a coordinated AI-augmented response can close it.", { x: 1, y: 3.3, w: W - 2, h: 1.4, fontSize: 18, color: "FFFFFF", italic: true, fontFace: "Calibri", align: "center" });
   s.addText("Prepared by TCAF / ThriveUp Community Academy\nApril 17, 2026", { x: 0.5, y: 5.9, w: W - 1, h: 0.8, fontSize: 14, color: COLORS.gold, fontFace: "Calibri", align: "center" });
+}
+
+/* ---------- Slide 1.5: LIVE DATA SNAPSHOT ---------- */
+{
+  const s = pptx.addSlide(); addBg(s);
+  addHeader(s, "Live data snapshot", `Pulled from /api/corridor/story · ${liveGenAt}`);
+  const waco = [
+    liveLine("waco", "Black poverty rate", "Black poverty rate (Waco)"),
+    liveLine("waco", "Black families single-parent share", "Single-parent share (Waco)"),
+    liveLine("waco", "Black adults without HS diploma", "No-HS adults (Waco)"),
+    liveLine("waco", "Depression prevalence", "Depression (Waco)"),
+    liveLine("waco", "Adults without health insurance", "Uninsured (Waco)"),
+    liveLine("waco", "Violent crime", "Violent crime (TX)"),
+  ];
+  const austin = [
+    liveLine("austin", "Black poverty rate", "Black poverty rate (Austin)"),
+    liveLine("austin", "Black families single-parent share", "Single-parent share (Austin)"),
+    liveLine("austin", "Black adults without HS diploma", "No-HS adults (Austin)"),
+    liveLine("austin", "Depression prevalence", "Depression (Austin)"),
+    liveLine("austin", "Adults without health insurance", "Uninsured (Austin)"),
+    liveLine("austin", "Violent crime", "Violent crime (TX)"),
+  ];
+  s.addText("WACO / MCLENNAN — LIVE", { x: 0.4, y: 1.0, w: 6, h: 0.4, bold: true, fontSize: 14, color: COLORS.crimson, fontFace: "Calibri" });
+  s.addText(waco.map((t) => ({ text: t, options: { bullet: { code: "25A0" }, fontSize: 11, color: COLORS.ink, breakLine: true, paraSpaceAfter: 4 } })),
+    { x: 0.4, y: 1.4, w: 6.2, h: 5.0, fontFace: "Calibri" });
+  s.addText("AUSTIN / TRAVIS — LIVE", { x: 6.8, y: 1.0, w: 6, h: 0.4, bold: true, fontSize: 14, color: COLORS.crimson, fontFace: "Calibri" });
+  s.addText(austin.map((t) => ({ text: t, options: { bullet: { code: "25A0" }, fontSize: 11, color: COLORS.ink, breakLine: true, paraSpaceAfter: 4 } })),
+    { x: 6.8, y: 1.4, w: 6.2, h: 5.0, fontFace: "Calibri" });
+  s.addText(LIVE_STORY ? "Every line above is the current value in the chain-web. Re-run the deck to refresh." : "LIVE API NOT REACHABLE — this slide is a fallback; start the server and rebuild for connected values.",
+    { x: 0.4, y: 6.5, w: W - 0.8, h: 0.4, fontSize: 10, italic: true, color: LIVE_STORY ? COLORS.green : COLORS.crimson, fontFace: "Calibri" });
+  addFooter(s, LIVE_STORY ? "Live — connected to /api/corridor/story" : "FALLBACK — live API unavailable at build");
 }
 
 /* ---------- Slide 2: Why now ---------- */

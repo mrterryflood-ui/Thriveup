@@ -186,6 +186,7 @@ const ResumeBuilderPage = lazy(() => import("@/pages/resume-builder"));
 const EngagementHubPage = lazy(() => import("@/pages/engagement-hub"));
 const CorridorIntelligencePage = lazy(() => import("@/pages/corridor-intelligence"));
 const CorridorEvidencePage = lazy(() => import("@/pages/corridor-evidence"));
+const CorridorDocsPage = lazy(() => import("@/pages/corridor-docs"));
 
 function PageFallback() {
   return (
@@ -390,6 +391,7 @@ function AppRouter() {
       <Route path="/corridor" component={CorridorIntelligencePage} />
       <Route path="/corridor-intelligence" component={CorridorIntelligencePage} />
       <Route path="/corridor/evidence" component={CorridorEvidencePage} />
+      <Route path="/corridor/docs" component={CorridorDocsPage} />
       <Route component={NotFound} />
     </Switch>
   );
