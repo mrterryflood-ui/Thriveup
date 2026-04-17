@@ -276,3 +276,9 @@ id = "oBh8nyW3rdh34po39EJ8S"
 uri = "file://docs/grants/TX-Reentry-Stipend-Pilot-Presentation.pptx"
 type = "slides"
 title = "TX Reentry Stipend Pilot - PowerPoint Presentation"
+
+[[outputs]]
+id = "Be0rVtDMbdf-XB9StPTAY"
+uri = "file://attached_assets/WAB2-LOI-RequestSummary-v4-FINAL.docx"
+type = "word_document"
+title = "WAB2 LOI v4 FINAL — TCAF Benefits Enrollment Collaborative"
