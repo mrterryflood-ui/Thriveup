@@ -4427,4 +4427,137 @@ export const insertStandardsCrosswalkSchema = createInsertSchema(standardsCrossw
 export type InsertStandardsCrosswalk = z.infer<typeof insertStandardsCrosswalkSchema>;
 export type StandardsCrosswalk = typeof standardsCrosswalk.$inferSelect;
 
+// === NR-2: Coalition + Governance + Strategic Planning + Outcome Reports ===
+
+export const coalitionPartners = pgTable("coalition_partners", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  organizationName: varchar("organization_name", { length: 255 }).notNull(),
+  partnerType: varchar("partner_type", { length: 100 }).notNull(),
+  contactName: varchar("contact_name", { length: 255 }),
+  contactEmail: varchar("contact_email", { length: 255 }),
+  contactPhone: varchar("contact_phone", { length: 50 }),
+  county: varchar("county", { length: 100 }),
+  state: varchar("state", { length: 50 }).default("TX"),
+  website: varchar("website", { length: 500 }),
+  servicesOffered: text("services_offered").array(),
+  mouStatus: varchar("mou_status", { length: 50 }).default("none"),
+  mouSignedDate: text("mou_signed_date"),
+  mouUrl: varchar("mou_url", { length: 500 }),
+  livedExperienceLed: boolean("lived_experience_led").default(false),
+  notes: text("notes"),
+  status: varchar("status", { length: 50 }).default("active"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+export const insertCoalitionPartnerSchema = createInsertSchema(coalitionPartners).omit({ id: true, createdAt: true });
+export type InsertCoalitionPartner = z.infer<typeof insertCoalitionPartnerSchema>;
+export type CoalitionPartner = typeof coalitionPartners.$inferSelect;
+
+export const lettersOfCollaboration = pgTable("letters_of_collaboration", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  partnerId: varchar("partner_id", { length: 100 }),
+  partnerName: varchar("partner_name", { length: 255 }).notNull(),
+  grantOpportunity: varchar("grant_opportunity", { length: 255 }).notNull(),
+  letterStatus: varchar("letter_status", { length: 50 }).notNull().default("requested"),
+  requestedDate: text("requested_date"),
+  receivedDate: text("received_date"),
+  letterUrl: varchar("letter_url", { length: 500 }),
+  contactPerson: varchar("contact_person", { length: 255 }),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+export const insertLetterOfCollaborationSchema = createInsertSchema(lettersOfCollaboration).omit({ id: true, createdAt: true });
+export type InsertLetterOfCollaboration = z.infer<typeof insertLetterOfCollaborationSchema>;
+export type LetterOfCollaboration = typeof lettersOfCollaboration.$inferSelect;
+
+export const recidivismBaselines = pgTable("recidivism_baselines", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  jurisdiction: varchar("jurisdiction", { length: 255 }).notNull(),
+  jurisdictionType: varchar("jurisdiction_type", { length: 50 }).notNull().default("county"),
+  metricType: varchar("metric_type", { length: 100 }).notNull(),
+  metricValue: real("metric_value").notNull(),
+  population: varchar("population", { length: 255 }),
+  cohortYear: integer("cohort_year"),
+  source: varchar("source", { length: 500 }).notNull(),
+  sourceUrl: varchar("source_url", { length: 500 }),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+export const insertRecidivismBaselineSchema = createInsertSchema(recidivismBaselines).omit({ id: true, createdAt: true });
+export type InsertRecidivismBaseline = z.infer<typeof insertRecidivismBaselineSchema>;
+export type RecidivismBaseline = typeof recidivismBaselines.$inferSelect;
+
+export const familyVisitations = pgTable("family_visitations", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  participantId: varchar("participant_id", { length: 100 }).notNull(),
+  participantName: varchar("participant_name", { length: 255 }),
+  contactType: varchar("contact_type", { length: 50 }).notNull(),
+  contactDate: text("contact_date").notNull(),
+  durationMinutes: integer("duration_minutes"),
+  familyMemberRelation: varchar("family_member_relation", { length: 100 }),
+  familyMemberName: varchar("family_member_name", { length: 255 }),
+  childrenInvolved: integer("children_involved").default(0),
+  outcome: varchar("outcome", { length: 100 }),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+export const insertFamilyVisitationSchema = createInsertSchema(familyVisitations).omit({ id: true, createdAt: true });
+export type InsertFamilyVisitation = z.infer<typeof insertFamilyVisitationSchema>;
+export type FamilyVisitation = typeof familyVisitations.$inferSelect;
+
+export const strategicPlans = pgTable("strategic_plans", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  planName: varchar("plan_name", { length: 255 }).notNull(),
+  planYear: integer("plan_year").notNull(),
+  visionStatement: text("vision_statement"),
+  missionStatement: text("mission_statement"),
+  goals: jsonb("goals"),
+  performanceMeasures: jsonb("performance_measures"),
+  approvedDate: text("approved_date"),
+  approvedBy: varchar("approved_by", { length: 255 }),
+  status: varchar("status", { length: 50 }).default("draft"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+export const insertStrategicPlanSchema = createInsertSchema(strategicPlans).omit({ id: true, createdAt: true });
+export type InsertStrategicPlan = z.infer<typeof insertStrategicPlanSchema>;
+export type StrategicPlan = typeof strategicPlans.$inferSelect;
+
+export const outcomeReportsNrrc = pgTable("outcome_reports_nrrc", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  reportName: varchar("report_name", { length: 255 }).notNull(),
+  reportingPeriod: varchar("reporting_period", { length: 100 }).notNull(),
+  funder: varchar("funder", { length: 255 }),
+  participantsServed: integer("participants_served").default(0),
+  cbiReferrals: integer("cbi_referrals").default(0),
+  rnrAssessmentsCompleted: integer("rnr_assessments_completed").default(0),
+  employmentPlacements: integer("employment_placements").default(0),
+  housingPlacements: integer("housing_placements").default(0),
+  recidivismRate: real("recidivism_rate"),
+  narrativeSummary: text("narrative_summary"),
+  challenges: text("challenges"),
+  successes: text("successes"),
+  status: varchar("status", { length: 50 }).default("draft"),
+  generatedFromData: boolean("generated_from_data").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+export const insertOutcomeReportNrrcSchema = createInsertSchema(outcomeReportsNrrc).omit({ id: true, createdAt: true });
+export type InsertOutcomeReportNrrc = z.infer<typeof insertOutcomeReportNrrcSchema>;
+export type OutcomeReportNrrc = typeof outcomeReportsNrrc.$inferSelect;
+
+export const governanceMeetings = pgTable("governance_meetings", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  meetingTier: varchar("meeting_tier", { length: 50 }).notNull(),
+  meetingDate: text("meeting_date").notNull(),
+  cadence: varchar("cadence", { length: 50 }),
+  attendeeCount: integer("attendee_count"),
+  livedExperienceCount: integer("lived_experience_count").default(0),
+  agenda: text("agenda"),
+  decisionsRecorded: text("decisions_recorded"),
+  minutesUrl: varchar("minutes_url", { length: 500 }),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+export const insertGovernanceMeetingSchema = createInsertSchema(governanceMeetings).omit({ id: true, createdAt: true });
+export type InsertGovernanceMeeting = z.infer<typeof insertGovernanceMeetingSchema>;
+export type GovernanceMeeting = typeof governanceMeetings.$inferSelect;
+
 export * from "./models/auth";

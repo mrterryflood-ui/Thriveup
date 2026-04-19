@@ -12,8 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Award, BookOpen, GraduationCap, Layers, Plus, Trash2, ExternalLink, Printer } from "lucide-react";
-import type { CbiProgram, StaffCertification, StandardsCrosswalk, RnrAssessment } from "@shared/schema";
+import { Award, BookOpen, GraduationCap, Layers, Plus, Trash2, ExternalLink, Printer, Download, Pencil, BarChart3, Users, FileDown } from "lucide-react";
+import type { CbiProgram, StaffCertification, StandardsCrosswalk, RnrAssessment, RecidivismBaseline, FamilyVisitation } from "@shared/schema";
 
 const CATEGORY_LABELS: Record<string, string> = {
   governance: "Governance",
@@ -82,9 +82,21 @@ export default function ReentryStandardsPage() {
             Live crosswalk of TCAF capabilities against NRRC and BJA Second Chance Act standards. Use this view in coalition meetings, grant proposals, and partner conversations.
           </p>
         </div>
-        <Button variant="outline" onClick={printPage} data-testid="button-print">
-          <Printer className="h-4 w-4 mr-2" /> Print / PDF
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" asChild data-testid="button-server-pdf">
+            <a href="/api/coalition/public/crosswalk.html" target="_blank" rel="noopener noreferrer">
+              <FileDown className="h-4 w-4 mr-2" /> Grant-Ready PDF
+            </a>
+          </Button>
+          <Button variant="outline" asChild data-testid="button-public-view">
+            <a href="/standards/public" target="_blank" rel="noopener noreferrer">
+              <ExternalLink className="h-4 w-4 mr-2" /> Public View
+            </a>
+          </Button>
+          <Button variant="outline" onClick={printPage} data-testid="button-print">
+            <Printer className="h-4 w-4 mr-2" /> Print
+          </Button>
+        </div>
       </div>
 
       {scorecard.data && (
@@ -103,6 +115,8 @@ export default function ReentryStandardsPage() {
           <TabsTrigger value="cbi" data-testid="tab-cbi"><BookOpen className="h-4 w-4 mr-1" /> CBI Library</TabsTrigger>
           <TabsTrigger value="certifications" data-testid="tab-certifications"><GraduationCap className="h-4 w-4 mr-1" /> Staff Certifications</TabsTrigger>
           <TabsTrigger value="rnr" data-testid="tab-rnr"><Award className="h-4 w-4 mr-1" /> RNR Assessments</TabsTrigger>
+          <TabsTrigger value="recidivism" data-testid="tab-recidivism"><BarChart3 className="h-4 w-4 mr-1" /> Recidivism Baselines</TabsTrigger>
+          <TabsTrigger value="family" data-testid="tab-family"><Users className="h-4 w-4 mr-1" /> Family Contact</TabsTrigger>
         </TabsList>
 
         <TabsContent value="crosswalk">
@@ -116,6 +130,12 @@ export default function ReentryStandardsPage() {
         </TabsContent>
         <TabsContent value="rnr">
           <RnrSection rows={rnr.data || []} loading={rnr.isLoading} cbi={cbi.data || []} />
+        </TabsContent>
+        <TabsContent value="recidivism">
+          <RecidivismSection />
+        </TabsContent>
+        <TabsContent value="family">
+          <FamilyVisitationSection />
         </TabsContent>
       </Tabs>
     </div>
@@ -135,6 +155,36 @@ function Tile({ label, value, sub, highlight }: { label: string; value: string |
 }
 
 function CrosswalkSection({ rows, loading }: { rows: StandardsCrosswalk[]; loading: boolean }) {
+  const { toast } = useToast();
+  const [editing, setEditing] = useState<StandardsCrosswalk | null>(null);
+  const [edit, setEdit] = useState({ coverageStatus: "full", coveragePercent: 100, notes: "", capabilities: "" });
+
+  const update = useMutation({
+    mutationFn: async () => apiRequest("PATCH", `/api/standards/crosswalk/${editing?.id}`, {
+      coverageStatus: edit.coverageStatus,
+      coveragePercent: Number(edit.coveragePercent),
+      notes: edit.notes,
+      tcafCapabilities: edit.capabilities.split(",").map(s => s.trim()).filter(Boolean),
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/standards/crosswalk"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/standards/scorecard"] });
+      toast({ title: "Standard updated" });
+      setEditing(null);
+    },
+    onError: (e: Error) => toast({ title: "Failed", description: e.message, variant: "destructive" }),
+  });
+
+  const openEdit = (r: StandardsCrosswalk) => {
+    setEditing(r);
+    setEdit({
+      coverageStatus: r.coverageStatus,
+      coveragePercent: r.coveragePercent,
+      notes: r.notes || "",
+      capabilities: (r.tcafCapabilities || []).join(", "),
+    });
+  };
+
   if (loading) return <div className="text-sm text-muted-foreground">Loading…</div>;
   const grouped: Record<string, StandardsCrosswalk[]> = {};
   for (const r of rows) (grouped[r.category] ||= []).push(r);
@@ -159,6 +209,9 @@ function CrosswalkSection({ rows, loading }: { rows: StandardsCrosswalk[]; loadi
                     <div className="font-semibold mt-2">{r.standardTitle}</div>
                     <div className="text-sm text-muted-foreground mt-1">{r.standardDescription}</div>
                   </div>
+                  <Button variant="ghost" size="icon" onClick={() => openEdit(r)} data-testid={`button-edit-standard-${r.standardCode}`} className="print:hidden">
+                    <Pencil className="h-4 w-4" />
+                  </Button>
                 </div>
                 {r.tcafCapabilities && r.tcafCapabilities.length > 0 && (
                   <div className="flex flex-wrap gap-1.5 pt-1">
@@ -178,7 +231,243 @@ function CrosswalkSection({ rows, loading }: { rows: StandardsCrosswalk[]; loadi
           </CardContent>
         </Card>
       ))}
+      <Dialog open={!!editing} onOpenChange={o => !o && setEditing(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader><DialogTitle>Edit Standard {editing?.standardCode}</DialogTitle></DialogHeader>
+          <div className="space-y-3">
+            <div className="text-sm font-medium">{editing?.standardTitle}</div>
+            <div className="grid grid-cols-2 gap-2">
+              <div><Label>Status</Label>
+                <Select value={edit.coverageStatus} onValueChange={v => setEdit({ ...edit, coverageStatus: v })}>
+                  <SelectTrigger data-testid="select-edit-status"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="exceeds">Exceeds</SelectItem>
+                    <SelectItem value="full">Full</SelectItem>
+                    <SelectItem value="partial">Partial</SelectItem>
+                    <SelectItem value="gap">Gap</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div><Label>Coverage %</Label><Input type="number" value={edit.coveragePercent} onChange={e => setEdit({ ...edit, coveragePercent: Number(e.target.value) || 0 })} data-testid="input-edit-percent" /></div>
+            </div>
+            <div><Label>TCAF Capabilities (comma-separated)</Label><Input value={edit.capabilities} onChange={e => setEdit({ ...edit, capabilities: e.target.value })} data-testid="input-edit-capabilities" /></div>
+            <div><Label>Notes / Evidence Pointer</Label><Textarea value={edit.notes} onChange={e => setEdit({ ...edit, notes: e.target.value })} data-testid="input-edit-notes" /></div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditing(null)}>Cancel</Button>
+            <Button onClick={() => update.mutate()} disabled={update.isPending} data-testid="button-save-edit">{update.isPending ? "Saving…" : "Save"}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
+  );
+}
+
+function RecidivismSection() {
+  const { toast } = useToast();
+  const q = useQuery<RecidivismBaseline[]>({ queryKey: ["/api/coalition/baselines"] });
+  const [open, setOpen] = useState(false);
+  const empty = { jurisdiction: "", jurisdictionType: "county", metricType: "recidivism_3yr", metricValue: 0, population: "", cohortYear: new Date().getFullYear() - 3, source: "", sourceUrl: "", notes: "" };
+  const [form, setForm] = useState(empty);
+
+  const create = useMutation({
+    mutationFn: async () => apiRequest("POST", "/api/coalition/baselines", { ...form, metricValue: Number(form.metricValue) }),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["/api/coalition/baselines"] }); toast({ title: "Baseline saved" }); setOpen(false); setForm(empty); },
+    onError: (e: Error) => toast({ title: "Failed", description: e.message, variant: "destructive" }),
+  });
+  const del = useMutation({
+    mutationFn: async (id: string) => apiRequest("DELETE", `/api/coalition/baselines/${id}`),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["/api/coalition/baselines"] }),
+  });
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <div>
+          <CardTitle>Local Recidivism + Outcome Baselines</CardTitle>
+          <CardDescription>BJA SCA requires local baseline data. Pre-seeded with TDCJ statewide + Travis/McLennan estimates; replace with FOIA-confirmed county figures as you receive them.</CardDescription>
+        </div>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild><Button data-testid="button-add-baseline"><Plus className="h-4 w-4 mr-1" /> Add Baseline</Button></DialogTrigger>
+          <DialogContent className="max-w-lg">
+            <DialogHeader><DialogTitle>Add Recidivism / Outcome Baseline</DialogTitle></DialogHeader>
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-2">
+                <div><Label>Jurisdiction</Label><Input value={form.jurisdiction} onChange={e => setForm({ ...form, jurisdiction: e.target.value })} placeholder="Travis County" data-testid="input-baseline-jurisdiction" /></div>
+                <div><Label>Type</Label>
+                  <Select value={form.jurisdictionType} onValueChange={v => setForm({ ...form, jurisdictionType: v })}>
+                    <SelectTrigger data-testid="select-baseline-type"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="county">County</SelectItem>
+                      <SelectItem value="state">State</SelectItem>
+                      <SelectItem value="federal">Federal</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                <div><Label>Metric</Label>
+                  <Select value={form.metricType} onValueChange={v => setForm({ ...form, metricType: v })}>
+                    <SelectTrigger data-testid="select-baseline-metric"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="recidivism_3yr">Recidivism 3-yr</SelectItem>
+                      <SelectItem value="recidivism_1yr">Recidivism 1-yr</SelectItem>
+                      <SelectItem value="employment_post_release">Employment</SelectItem>
+                      <SelectItem value="housing_stability">Housing</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div><Label>Value (%)</Label><Input type="number" step="0.1" value={form.metricValue} onChange={e => setForm({ ...form, metricValue: Number(e.target.value) })} data-testid="input-baseline-value" /></div>
+                <div><Label>Cohort Year</Label><Input type="number" value={form.cohortYear} onChange={e => setForm({ ...form, cohortYear: Number(e.target.value) })} data-testid="input-baseline-year" /></div>
+              </div>
+              <div><Label>Population</Label><Input value={form.population} onChange={e => setForm({ ...form, population: e.target.value })} placeholder="All released adults / Black males 18-25 / etc." data-testid="input-baseline-population" /></div>
+              <div><Label>Source</Label><Input value={form.source} onChange={e => setForm({ ...form, source: e.target.value })} placeholder="TDCJ Statistical Report 2023" data-testid="input-baseline-source" /></div>
+              <div><Label>Source URL</Label><Input value={form.sourceUrl} onChange={e => setForm({ ...form, sourceUrl: e.target.value })} data-testid="input-baseline-url" /></div>
+              <div><Label>Notes</Label><Textarea value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} data-testid="input-baseline-notes" /></div>
+            </div>
+            <DialogFooter>
+              <Button onClick={() => create.mutate()} disabled={!form.jurisdiction || !form.source || create.isPending} data-testid="button-save-baseline">
+                {create.isPending ? "Saving…" : "Save Baseline"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </CardHeader>
+      <CardContent>
+        {q.isLoading ? <div className="text-sm text-muted-foreground">Loading…</div>
+          : (q.data || []).length === 0 ? <div className="text-sm text-muted-foreground py-6 text-center">No baselines yet.</div>
+          : <div className="space-y-2">
+            {(q.data || []).map(b => (
+              <div key={b.id} className="border rounded p-3" data-testid={`row-baseline-${b.id}`}>
+                <div className="flex items-start justify-between gap-3 flex-wrap">
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold">{b.jurisdiction} <Badge variant="outline" className="ml-1 text-xs">{b.jurisdictionType}</Badge></div>
+                    <div className="text-sm mt-1"><strong>{b.metricValue}%</strong> {b.metricType.replace(/_/g, " ")} · cohort {b.cohortYear}</div>
+                    {b.population && <div className="text-xs text-muted-foreground mt-1">Population: {b.population}</div>}
+                    <div className="text-xs text-muted-foreground mt-1">Source: {b.source}</div>
+                    {b.sourceUrl && <a href={b.sourceUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline inline-flex items-center mt-1">View source <ExternalLink className="h-3 w-3 ml-1" /></a>}
+                    {b.notes && <div className="text-xs italic text-muted-foreground mt-1">{b.notes}</div>}
+                  </div>
+                  <Button variant="ghost" size="icon" onClick={() => del.mutate(b.id)} data-testid={`button-delete-baseline-${b.id}`}><Trash2 className="h-4 w-4" /></Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        }
+      </CardContent>
+    </Card>
+  );
+}
+
+function FamilyVisitationSection() {
+  const { toast } = useToast();
+  const q = useQuery<FamilyVisitation[]>({ queryKey: ["/api/coalition/visitations"] });
+  const [open, setOpen] = useState(false);
+  const empty = { participantId: "", participantName: "", contactType: "phone_call", contactDate: new Date().toISOString().slice(0, 10), durationMinutes: 0, familyMemberRelation: "child", familyMemberName: "", childrenInvolved: 0, outcome: "positive", notes: "" };
+  const [form, setForm] = useState(empty);
+
+  const create = useMutation({
+    mutationFn: async () => apiRequest("POST", "/api/coalition/visitations", form),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["/api/coalition/visitations"] }); toast({ title: "Family contact logged" }); setOpen(false); setForm(empty); },
+    onError: (e: Error) => toast({ title: "Failed", description: e.message, variant: "destructive" }),
+  });
+  const del = useMutation({
+    mutationFn: async (id: string) => apiRequest("DELETE", `/api/coalition/visitations/${id}`),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["/api/coalition/visitations"] }),
+  });
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <div>
+          <CardTitle>Family + Community Contact Log</CardTitle>
+          <CardDescription>NRRC-SVC-05 — research shows visitation reduces recidivism. Track in-person, video, phone, and letter contacts with family.</CardDescription>
+        </div>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild><Button data-testid="button-add-visitation"><Plus className="h-4 w-4 mr-1" /> Log Contact</Button></DialogTrigger>
+          <DialogContent className="max-w-lg">
+            <DialogHeader><DialogTitle>Log Family Contact</DialogTitle></DialogHeader>
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-2">
+                <div><Label>Participant ID</Label><Input value={form.participantId} onChange={e => setForm({ ...form, participantId: e.target.value })} data-testid="input-visit-participant-id" /></div>
+                <div><Label>Participant Name</Label><Input value={form.participantName} onChange={e => setForm({ ...form, participantName: e.target.value })} data-testid="input-visit-participant-name" /></div>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                <div><Label>Type</Label>
+                  <Select value={form.contactType} onValueChange={v => setForm({ ...form, contactType: v })}>
+                    <SelectTrigger data-testid="select-visit-type"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="visit_in_person">In-Person Visit</SelectItem>
+                      <SelectItem value="video_call">Video Call</SelectItem>
+                      <SelectItem value="phone_call">Phone Call</SelectItem>
+                      <SelectItem value="letter">Letter</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div><Label>Date</Label><Input type="date" value={form.contactDate} onChange={e => setForm({ ...form, contactDate: e.target.value })} data-testid="input-visit-date" /></div>
+                <div><Label>Duration (min)</Label><Input type="number" value={form.durationMinutes} onChange={e => setForm({ ...form, durationMinutes: Number(e.target.value) || 0 })} data-testid="input-visit-duration" /></div>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                <div><Label>Relation</Label>
+                  <Select value={form.familyMemberRelation} onValueChange={v => setForm({ ...form, familyMemberRelation: v })}>
+                    <SelectTrigger data-testid="select-visit-relation"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="child">Child</SelectItem>
+                      <SelectItem value="parent">Parent</SelectItem>
+                      <SelectItem value="partner">Partner / Spouse</SelectItem>
+                      <SelectItem value="sibling">Sibling</SelectItem>
+                      <SelectItem value="other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div><Label>Family Member Name</Label><Input value={form.familyMemberName} onChange={e => setForm({ ...form, familyMemberName: e.target.value })} data-testid="input-visit-family-name" /></div>
+                <div><Label>Children Involved</Label><Input type="number" value={form.childrenInvolved} onChange={e => setForm({ ...form, childrenInvolved: Number(e.target.value) || 0 })} data-testid="input-visit-children" /></div>
+              </div>
+              <div><Label>Outcome</Label>
+                <Select value={form.outcome} onValueChange={v => setForm({ ...form, outcome: v })}>
+                  <SelectTrigger data-testid="select-visit-outcome"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="positive">Positive</SelectItem>
+                    <SelectItem value="neutral">Neutral</SelectItem>
+                    <SelectItem value="conflict">Conflict</SelectItem>
+                    <SelectItem value="no_show">No-Show</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div><Label>Notes</Label><Textarea value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} data-testid="input-visit-notes" /></div>
+            </div>
+            <DialogFooter>
+              <Button onClick={() => create.mutate()} disabled={!form.participantId || create.isPending} data-testid="button-save-visit">{create.isPending ? "Saving…" : "Log Contact"}</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </CardHeader>
+      <CardContent>
+        {q.isLoading ? <div className="text-sm text-muted-foreground">Loading…</div>
+          : (q.data || []).length === 0 ? <div className="text-sm text-muted-foreground py-6 text-center">No contacts logged yet. Each entry strengthens NRRC-SVC-05 evidence.</div>
+          : <div className="space-y-2">
+            {(q.data || []).map(v => (
+              <div key={v.id} className="border rounded p-3" data-testid={`row-visit-${v.id}`}>
+                <div className="flex items-start justify-between gap-3 flex-wrap">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex gap-1.5 flex-wrap items-center">
+                      <Badge variant="outline" className="text-xs">{v.contactType.replace(/_/g, " ")}</Badge>
+                      <span className="font-medium">{v.contactDate}</span>
+                      <span className="text-xs text-muted-foreground">{v.participantName || v.participantId} · {v.familyMemberRelation} {v.familyMemberName ? `(${v.familyMemberName})` : ""}</span>
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-1">
+                      {v.durationMinutes ? `${v.durationMinutes} min · ` : ""}{v.childrenInvolved ? `${v.childrenInvolved} child(ren) · ` : ""}<Badge variant={v.outcome === "positive" ? "default" : v.outcome === "conflict" ? "destructive" : "secondary"} className="text-xs">{v.outcome}</Badge>
+                    </div>
+                    {v.notes && <div className="text-xs italic text-muted-foreground mt-1">{v.notes}</div>}
+                  </div>
+                  <Button variant="ghost" size="icon" onClick={() => del.mutate(v.id)} data-testid={`button-delete-visit-${v.id}`}><Trash2 className="h-4 w-4" /></Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        }
+      </CardContent>
+    </Card>
   );
 }
 

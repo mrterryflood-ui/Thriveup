@@ -183,6 +183,9 @@ const WAB2EnrollmentHubPage = lazy(() => import("@/pages/wab2-enrollment-hub"));
 const DataSourcesPage = lazy(() => import("@/pages/data-sources"));
 const ReentryStipendPilotPage = lazy(() => import("@/pages/reentry-stipend-pilot"));
 const ReentryStandardsPage = lazy(() => import("@/pages/reentry-standards"));
+const StandardsPublicPage = lazy(() => import("@/pages/standards-public"));
+const StrategicPlanPage = lazy(() => import("@/pages/strategic-plan"));
+const OutcomeReportsNrrcPage = lazy(() => import("@/pages/outcome-reports-nrrc"));
 const ResumeBuilderPage = lazy(() => import("@/pages/resume-builder"));
 const EngagementHubPage = lazy(() => import("@/pages/engagement-hub"));
 const CorridorIntelligencePage = lazy(() => import("@/pages/corridor-intelligence"));
@@ -390,6 +393,9 @@ function AppRouter() {
       <Route path="/data-sources" component={DataSourcesPage} />
       <Route path="/reentry-stipend-pilot" component={ReentryStipendPilotPage} />
       <Route path="/reentry/standards" component={ReentryStandardsPage} />
+      <Route path="/standards/public" component={StandardsPublicPage} />
+      <Route path="/reentry/strategic-plan" component={StrategicPlanPage} />
+      <Route path="/reentry/outcome-reports" component={OutcomeReportsNrrcPage} />
       <Route path="/resume-builder" component={ResumeBuilderPage} />
       <Route path="/engagement-hub" component={EngagementHubPage} />
       <Route path="/corridor" component={CorridorIntelligencePage} />

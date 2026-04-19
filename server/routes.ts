@@ -107,6 +107,7 @@ import { registerNeighborhoodRoutes } from "./neighborhood-routes";
 import { registerCorridorRoutes } from "./corridor-story";
 import { registerNetworkRoutes } from "./network-routes";
 import { registerStandardsRoutes } from "./standards-routes";
+import { registerCoalitionRoutes } from "./coalition-routes";
 import { registerChainWebRoutes } from "./corridor-chainweb";
 import { registerCorridorDocRoutes } from "./corridor-docs";
 
@@ -431,6 +432,7 @@ export async function registerRoutes(
   registerCorridorRoutes(app);
   registerNetworkRoutes(app);
   registerStandardsRoutes(app);
+  registerCoalitionRoutes(app);
   registerChainWebRoutes(app);
   registerCorridorDocRoutes(app);
   storage.seedData().catch(err => console.error("[Seed] Data seeding failed:", err));

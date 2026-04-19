@@ -80,6 +80,9 @@ const justiceReentryItems: NavItem[] = [
   { title: "Resource Directory", url: "/resource-directory", icon: HandHeart },
   { title: "Reentry Dashboard", url: "/reentry", icon: Scale },
   { title: "National Reentry Standards", url: "/reentry/standards", icon: Scale },
+  { title: "Coalition Operations", url: "/coalition", icon: Handshake },
+  { title: "Strategic Plan", url: "/reentry/strategic-plan", icon: Scale },
+  { title: "Outcome Reports", url: "/reentry/outcome-reports", icon: Scale },
   { title: "For Justice Partners", url: "/justice-partners", icon: Handshake },
 ];
 

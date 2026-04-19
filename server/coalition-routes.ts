@@ -1,578 +1,316 @@
 import type { Express, Request, Response } from "express";
-import { db } from "./storage";
+import { db, storage } from "./storage";
 import {
-  coalitions, coalitionSectors, coalitionMembers, coalitionMeetings,
-  coalitionActionItems, coalitionCapacityAssessments, communityActionPlans,
-  costMatchRecords, communityPartners,
-  insertCoalitionSchema, insertCoalitionSectorSchema, insertCoalitionMemberSchema,
-  insertCoalitionMeetingSchema, insertCoalitionActionItemSchema,
-  insertCoalitionCapacityAssessmentSchema, insertCommunityActionPlanSchema,
-  insertCostMatchRecordSchema,
+  coalitionPartners, lettersOfCollaboration, recidivismBaselines,
+  familyVisitations, strategicPlans, outcomeReportsNrrc, governanceMeetings,
+  insertCoalitionPartnerSchema, insertLetterOfCollaborationSchema,
+  insertRecidivismBaselineSchema, insertFamilyVisitationSchema,
+  insertStrategicPlanSchema, insertOutcomeReportNrrcSchema, insertGovernanceMeetingSchema,
+  ecosystemEvents, rnrAssessments, staffCertifications, cbiPrograms, standardsCrosswalk,
 } from "@shared/schema";
-import { z } from "zod";
-import { eq, desc, sql, and, count } from "drizzle-orm";
+import { eq, desc, sql } from "drizzle-orm";
 
 function getUserId(req: Request): string | undefined {
   const u = (req as unknown as Record<string, unknown>).user as { claims?: { sub?: string }; id?: string } | undefined;
   return u?.claims?.sub || u?.id;
 }
-
 function requireAuth(req: Request, res: Response, next: Function) {
   if (!getUserId(req)) return res.status(401).json({ error: "Unauthorized" });
   next();
 }
-
-const SECTOR_PARTNER_TYPE_MAP: Record<number, string[]> = {
-  1: ["Youth Development", "Mentoring Program"],
-  2: ["Family Services"],
-  3: ["Employer"],
-  4: ["Community Organization"],
-  5: ["School/Education"],
-  6: ["Youth Development", "Mentoring Program", "Community Organization"],
-  7: ["Law Enforcement", "Community Policing Commission", "Recidivism Prevention Task Force"],
-  8: ["Church/Faith-Based"],
-  9: ["Community Organization"],
-  10: ["Healthcare Provider", "Mental Health Services", "Substance Abuse Treatment"],
-  11: ["Community Organization"],
-  12: ["Substance Abuse Treatment", "Mental Health Services"],
-};
-
-const DFC_SECTORS = [
-  { sectorNumber: 1, sectorName: "Youth (Ages 10-18)", description: "Young people between ages 10-18 who are affected by substance abuse in the community" },
-  { sectorNumber: 2, sectorName: "Parents", description: "Parents, guardians, and caregivers of youth in the community" },
-  { sectorNumber: 3, sectorName: "Business Community", description: "Local business owners and leaders invested in community wellness" },
-  { sectorNumber: 4, sectorName: "Media", description: "Local media outlets including newspapers, radio, TV, and digital media" },
-  { sectorNumber: 5, sectorName: "School Personnel", description: "Teachers, administrators, counselors, and other school staff" },
-  { sectorNumber: 6, sectorName: "Youth-Serving Organizations", description: "Non-profit organizations that provide services to youth" },
-  { sectorNumber: 7, sectorName: "Law Enforcement", description: "Local police, sheriff departments, and other law enforcement agencies" },
-  { sectorNumber: 8, sectorName: "Religious/Fraternal Organizations", description: "Churches, mosques, temples, fraternal orders, and faith-based organizations" },
-  { sectorNumber: 9, sectorName: "Civic/Volunteer Groups", description: "Community service clubs, volunteer organizations, and civic associations" },
-  { sectorNumber: 10, sectorName: "Healthcare Professionals", description: "Doctors, nurses, pharmacists, mental health professionals, and other healthcare providers" },
-  { sectorNumber: 11, sectorName: "State/Local Government", description: "Elected officials, government agencies, and public sector representatives" },
-  { sectorNumber: 12, sectorName: "Other Substance Abuse Organizations", description: "Treatment providers, prevention specialists, recovery organizations" },
-];
-
-async function seedDefaultCoalition() {
+async function requireAdmin(req: Request, res: Response, next: Function) {
+  const userId = getUserId(req);
+  if (!userId) return res.status(401).json({ error: "Authentication required" });
   try {
-    const existing = await db.select().from(coalitions);
-    if (existing.length > 0) return;
-    const [coalition] = await db.insert(coalitions).values({
-      name: "ThriveUp Community Coalition",
-      mission: "To reduce youth substance abuse through community collaboration, evidence-based prevention strategies, and the empowerment of all 12 community sectors.",
-      formationDate: new Date().toISOString().split("T")[0],
-      status: "active",
-    }).returning();
-    for (const sector of DFC_SECTORS) {
-      await db.insert(coalitionSectors).values({ coalitionId: coalition.id, ...sector });
-    }
-    console.log("[coalition] Seeded default coalition with 12 DFC sectors");
-  } catch (e) {
-    console.error("[coalition] Seed error:", e);
+    const user = await storage.getUser(userId);
+    if (user?.role === "admin" || user?.role === "teacher" || user?.role === "case_manager") return next();
+  } catch (e) { console.error("Admin check error:", e); }
+  return res.status(403).json({ error: "Admin access required" });
+}
+
+async function emitRpliceEvent(eventType: string, eventData: Record<string, unknown>) {
+  try {
+    await db.insert(ecosystemEvents).values({
+      sourcePlatformId: "tcaf-reentry-standards",
+      targetPlatformId: null,
+      eventType,
+      eventData: { ...eventData, generatedAt: new Date().toISOString() },
+      status: "broadcast",
+    });
+  } catch (err) {
+    console.warn(`[rplice] failed to emit ${eventType}:`, err);
   }
 }
 
+function crud<T extends { id: any }>(app: Express, base: string, table: any, schema: any, eventName: string | null = null) {
+  app.get(base, requireAuth, requireAdmin, async (_req, res) => {
+    try { res.json(await db.select().from(table).orderBy(desc((table as any).createdAt))); }
+    catch (e) { console.error(e); res.status(500).json({ error: "Failed to fetch" }); }
+  });
+  app.get(`${base}/:id`, requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const [row] = await db.select().from(table).where(eq((table as any).id, req.params.id));
+      if (!row) return res.status(404).json({ error: "Not found" });
+      res.json(row);
+    } catch (e) { console.error(e); res.status(500).json({ error: "Failed" }); }
+  });
+  app.post(base, requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const parsed = schema.safeParse(req.body);
+      if (!parsed.success) return res.status(400).json({ error: "Invalid data", details: parsed.error.flatten().fieldErrors });
+      const [row] = await db.insert(table).values(parsed.data).returning();
+      if (eventName) emitRpliceEvent(eventName, { id: row.id, summary: parsed.data }).catch(() => {});
+      res.json(row);
+    } catch (e) { console.error(e); res.status(500).json({ error: "Failed to create" }); }
+  });
+  app.patch(`${base}/:id`, requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const update = { ...req.body };
+      delete update.id; delete update.createdAt;
+      const [row] = await db.update(table).set(update).where(eq((table as any).id, req.params.id)).returning();
+      if (!row) return res.status(404).json({ error: "Not found" });
+      res.json(row);
+    } catch (e) { console.error(e); res.status(500).json({ error: "Failed to update" }); }
+  });
+  app.delete(`${base}/:id`, requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const [row] = await db.delete(table).where(eq((table as any).id, req.params.id)).returning();
+      if (!row) return res.status(404).json({ error: "Not found" });
+      res.json({ success: true });
+    } catch (e) { console.error(e); res.status(500).json({ error: "Failed to delete" }); }
+  });
+}
+
+const SEED_BASELINES = [
+  { jurisdiction: "Texas (TDCJ Statewide)", jurisdictionType: "state", metricType: "recidivism_3yr",
+    metricValue: 20.3, population: "All released TDCJ adults", cohortYear: 2020,
+    source: "TDCJ Statistical Report — 3-year reincarceration rate",
+    sourceUrl: "https://www.tdcj.texas.gov/documents/Statistical_Report_FY2023.pdf",
+    notes: "Statewide baseline; Black-male subgroup runs ~7-9 points higher in published research." },
+  { jurisdiction: "Travis County", jurisdictionType: "county", metricType: "recidivism_3yr",
+    metricValue: 28.0, population: "All county jail releases (estimated)", cohortYear: 2022,
+    source: "Travis County Sheriff's Office reentry reporting (estimate pending FOIA)",
+    sourceUrl: "https://www.tcsheriff.org/",
+    notes: "Estimate — formal local baseline still being requested. BJA SCA expects local figure." },
+  { jurisdiction: "McLennan County (Waco)", jurisdictionType: "county", metricType: "recidivism_3yr",
+    metricValue: 32.0, population: "County jail releases (estimated)", cohortYear: 2022,
+    source: "McLennan County Jail data — pending formal request",
+    notes: "Working figure; will update once county provides verified baseline." },
+];
+
+const SEED_PARTNERS = [
+  { organizationName: "Beacon Online Training & Coaching Academy", partnerType: "training",
+    contactName: "Dr. Barry M. Gregory, Ed.D., LMHC", website: "https://www.beaconreentryservices.com",
+    state: "FL", servicesOffered: ["CBT facilitator training", "MI training", "Reentry skills curriculum", "Workbooks"],
+    mouStatus: "none", livedExperienceLed: false,
+    notes: "National CBT/reentry trainer — strategic partner for staff certification (NRRC-EBP-02, EBP-03 closure)." },
+];
+
+async function seedCoalitionIfEmpty() {
+  try {
+    const c1 = await db.select({ c: sql<number>`count(*)::int` }).from(recidivismBaselines);
+    if (Number(c1[0]?.c || 0) === 0) {
+      for (const b of SEED_BASELINES) await db.insert(recidivismBaselines).values(b as any).onConflictDoNothing();
+      console.log(`[coalition] Seeded ${SEED_BASELINES.length} recidivism baselines`);
+    }
+    const c2 = await db.select({ c: sql<number>`count(*)::int` }).from(coalitionPartners);
+    if (Number(c2[0]?.c || 0) === 0) {
+      for (const p of SEED_PARTNERS) await db.insert(coalitionPartners).values(p as any).onConflictDoNothing();
+      console.log(`[coalition] Seeded ${SEED_PARTNERS.length} coalition partners`);
+    }
+  } catch (e) { console.error("[coalition] seed failed:", e); }
+}
+
 export function registerCoalitionRoutes(app: Express) {
-  seedDefaultCoalition();
+  void seedCoalitionIfEmpty();
 
-  app.get("/api/coalitions", async (_req, res) => {
-    try {
-      const results = await db.select().from(coalitions);
-      res.json(results);
-    } catch (error) {
-      console.error("Failed to fetch coalitions:", error);
-      res.status(500).json({ error: "Failed to fetch coalitions" });
-    }
+  crud(app, "/api/coalition/partners", coalitionPartners, insertCoalitionPartnerSchema, "coalition.partner.added");
+  crud(app, "/api/coalition/letters", lettersOfCollaboration, insertLetterOfCollaborationSchema, "coalition.letter.updated");
+  crud(app, "/api/coalition/baselines", recidivismBaselines, insertRecidivismBaselineSchema, null);
+  crud(app, "/api/coalition/visitations", familyVisitations, insertFamilyVisitationSchema, "reentry.family_contact.logged");
+  crud(app, "/api/coalition/strategic-plans", strategicPlans, insertStrategicPlanSchema, "coalition.strategic_plan.published");
+  crud(app, "/api/coalition/governance-meetings", governanceMeetings, insertGovernanceMeetingSchema, "coalition.governance.met");
+
+  // ---------- Outcome Reports (with auto-populate from real data) ----------
+  app.get("/api/coalition/outcome-reports", requireAuth, requireAdmin, async (_req, res) => {
+    try { res.json(await db.select().from(outcomeReportsNrrc).orderBy(desc(outcomeReportsNrrc.createdAt))); }
+    catch (e) { console.error(e); res.status(500).json({ error: "Failed" }); }
   });
 
-  app.post("/api/coalitions", requireAuth, async (req, res) => {
+  app.post("/api/coalition/outcome-reports/auto-generate", requireAuth, requireAdmin, async (req, res) => {
     try {
-      const parsed = insertCoalitionSchema.safeParse(req.body);
-      if (!parsed.success) return res.status(400).json({ error: "Invalid data", details: parsed.error.flatten().fieldErrors });
-      const [coalition] = await db.insert(coalitions).values(parsed.data).returning();
+      const { reportName, reportingPeriod, funder, recidivismBaselineId } = req.body || {};
+      if (!reportName || !reportingPeriod) return res.status(400).json({ error: "reportName and reportingPeriod required" });
 
-      for (const sector of DFC_SECTORS) {
-        await db.insert(coalitionSectors).values({
-          coalitionId: coalition.id,
-          ...sector,
-        });
-      }
+      const rnrCount = (await db.select({ c: sql<number>`count(*)::int` }).from(rnrAssessments))[0]?.c || 0;
+      const certCount = (await db.select({ c: sql<number>`count(*)::int` }).from(staffCertifications).where(eq(staffCertifications.status, "active")))[0]?.c || 0;
+      const partnerCount = (await db.select({ c: sql<number>`count(*)::int` }).from(coalitionPartners).where(eq(coalitionPartners.status, "active")))[0]?.c || 0;
+      const visitCount = (await db.select({ c: sql<number>`count(*)::int` }).from(familyVisitations))[0]?.c || 0;
+      const cwAvg = await db.select({ avg: sql<number>`avg(coverage_percent)::int` }).from(standardsCrosswalk);
+      const baseline = recidivismBaselineId ? (await db.select().from(recidivismBaselines).where(eq(recidivismBaselines.id, recidivismBaselineId)))[0] : null;
 
-      res.json(coalition);
-    } catch (error) {
-      console.error("Failed to create coalition:", error);
-      res.status(500).json({ error: "Failed to create coalition" });
-    }
+      const narrative = [
+        `During ${reportingPeriod}, the Collaborative Advocate Foundation maintained ${cwAvg[0]?.avg || 0}% average coverage against NRRC and BJA Second Chance Act standards.`,
+        `Operationally, ${rnrCount} Risk-Needs-Responsivity assessments were completed; ${certCount} staff hold active evidence-based-practice certifications; ${partnerCount} coalition partners are engaged across the corridor; ${visitCount} family-contact records were logged.`,
+        baseline ? `Local recidivism baseline (${baseline.jurisdiction}, cohort ${baseline.cohortYear}): ${baseline.metricValue}% (${baseline.metricType}). Source: ${baseline.source}.` : `Local recidivism baseline pending — formal data request to county in progress.`,
+      ].join("\n\n");
+
+      const [row] = await db.insert(outcomeReportsNrrc).values({
+        reportName, reportingPeriod, funder: funder || "Internal",
+        rnrAssessmentsCompleted: rnrCount, participantsServed: rnrCount + visitCount,
+        cbiReferrals: 0, employmentPlacements: 0, housingPlacements: 0,
+        recidivismRate: baseline?.metricValue ?? null,
+        narrativeSummary: narrative,
+        challenges: "Local-jurisdiction recidivism baselines remain pending formal data-sharing agreements.",
+        successes: "Multi-platform federation enables real-time outcome aggregation across partner agencies (RPLICE).",
+        status: "draft", generatedFromData: true,
+      } as any).returning();
+      emitRpliceEvent("coalition.outcome_report.generated", { id: row.id, period: reportingPeriod }).catch(() => {});
+      res.json(row);
+    } catch (e: any) { console.error(e); res.status(500).json({ error: "Failed", message: e.message }); }
   });
 
-  app.get("/api/coalitions/:id", async (req, res) => {
+  app.patch("/api/coalition/outcome-reports/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
-      const id = req.params.id as string;
-      const [coalition] = await db.select().from(coalitions).where(eq(coalitions.id, id));
-      if (!coalition) return res.status(404).json({ error: "Coalition not found" });
-      res.json(coalition);
-    } catch (error) {
-      console.error("Failed to fetch coalition:", error);
-      res.status(500).json({ error: "Failed to fetch coalition" });
-    }
+      const update = { ...req.body }; delete update.id; delete update.createdAt;
+      const [row] = await db.update(outcomeReportsNrrc).set(update).where(eq(outcomeReportsNrrc.id, req.params.id)).returning();
+      if (!row) return res.status(404).json({ error: "Not found" });
+      res.json(row);
+    } catch (e) { console.error(e); res.status(500).json({ error: "Failed" }); }
   });
 
-  app.patch("/api/coalitions/:id", requireAuth, async (req, res) => {
+  app.delete("/api/coalition/outcome-reports/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
-      const id = req.params.id as string;
-      const allowed = insertCoalitionSchema.partial().safeParse(req.body);
-      if (!allowed.success) return res.status(400).json({ error: "Invalid data" });
-      const [updated] = await db.update(coalitions).set(allowed.data).where(eq(coalitions.id, id)).returning();
-      res.json(updated);
-    } catch (error) {
-      console.error("Failed to update coalition:", error);
-      res.status(500).json({ error: "Failed to update coalition" });
-    }
-  });
-
-  app.get("/api/coalitions/:id/sectors", async (req, res) => {
-    try {
-      const coalitionId = req.params.id as string;
-      const sectors = await db.select().from(coalitionSectors).where(eq(coalitionSectors.coalitionId, coalitionId));
-      res.json(sectors);
-    } catch (error) {
-      console.error("Failed to fetch sectors:", error);
-      res.status(500).json({ error: "Failed to fetch sectors" });
-    }
-  });
-
-  app.patch("/api/coalition-sectors/:id", requireAuth, async (req, res) => {
-    try {
-      const id = req.params.id as string;
-      const allowed = insertCoalitionSectorSchema.partial().safeParse(req.body);
-      if (!allowed.success) return res.status(400).json({ error: "Invalid data" });
-      const [updated] = await db.update(coalitionSectors).set(allowed.data).where(eq(coalitionSectors.id, id)).returning();
-      res.json(updated);
-    } catch (error) {
-      console.error("Failed to update sector:", error);
-      res.status(500).json({ error: "Failed to update sector" });
-    }
-  });
-
-  app.get("/api/coalitions/:id/members", requireAuth, async (req, res) => {
-    try {
-      const coalitionId = req.params.id as string;
-      const members = await db.select().from(coalitionMembers).where(eq(coalitionMembers.coalitionId, coalitionId));
-      res.json(members);
-    } catch (error) {
-      console.error("Failed to fetch members:", error);
-      res.status(500).json({ error: "Failed to fetch members" });
-    }
-  });
-
-  app.post("/api/coalition-members", requireAuth, async (req, res) => {
-    try {
-      const parsed = insertCoalitionMemberSchema.safeParse(req.body);
-      if (!parsed.success) return res.status(400).json({ error: "Invalid data", details: parsed.error.flatten().fieldErrors });
-      const [member] = await db.insert(coalitionMembers).values(parsed.data).returning();
-
-      if (parsed.data.sectorId) {
-        await db.update(coalitionSectors).set({ isRepresented: true }).where(eq(coalitionSectors.id, parsed.data.sectorId));
-      }
-
-      res.json(member);
-    } catch (error) {
-      console.error("Failed to add member:", error);
-      res.status(500).json({ error: "Failed to add member" });
-    }
-  });
-
-  app.delete("/api/coalition-members/:id", requireAuth, async (req, res) => {
-    try {
-      const id = req.params.id as string;
-      const [member] = await db.select().from(coalitionMembers).where(eq(coalitionMembers.id, id));
-      await db.delete(coalitionMembers).where(eq(coalitionMembers.id, id));
-      if (member?.sectorId) {
-        const remaining = await db.select().from(coalitionMembers).where(eq(coalitionMembers.sectorId, member.sectorId));
-        if (remaining.length === 0) {
-          await db.update(coalitionSectors).set({ isRepresented: false }).where(eq(coalitionSectors.id, member.sectorId));
-        }
-      }
+      const [row] = await db.delete(outcomeReportsNrrc).where(eq(outcomeReportsNrrc.id, req.params.id)).returning();
+      if (!row) return res.status(404).json({ error: "Not found" });
       res.json({ success: true });
-    } catch (error) {
-      console.error("Failed to delete member:", error);
-      res.status(500).json({ error: "Failed to delete member" });
-    }
+    } catch (e) { console.error(e); res.status(500).json({ error: "Failed" }); }
   });
 
-  app.get("/api/coalitions/:id/meetings", requireAuth, async (req, res) => {
+  // ---------- Public coalition view (no auth) ----------
+  app.get("/api/coalition/public/summary", async (_req, res) => {
     try {
-      const coalitionId = req.params.id as string;
-      const meetings = await db.select().from(coalitionMeetings).where(eq(coalitionMeetings.coalitionId, coalitionId));
-      res.json(meetings);
-    } catch (error) {
-      console.error("Failed to fetch meetings:", error);
-      res.status(500).json({ error: "Failed to fetch meetings" });
-    }
-  });
-
-  app.post("/api/coalition-meetings", requireAuth, async (req, res) => {
-    try {
-      const parsed = insertCoalitionMeetingSchema.safeParse(req.body);
-      if (!parsed.success) return res.status(400).json({ error: "Invalid data", details: parsed.error.flatten().fieldErrors });
-      const [meeting] = await db.insert(coalitionMeetings).values(parsed.data).returning();
-      res.json(meeting);
-    } catch (error) {
-      console.error("Failed to create meeting:", error);
-      res.status(500).json({ error: "Failed to create meeting" });
-    }
-  });
-
-  app.patch("/api/coalition-meetings/:id", requireAuth, async (req, res) => {
-    try {
-      const id = req.params.id as string;
-      const allowed = insertCoalitionMeetingSchema.partial().safeParse(req.body);
-      if (!allowed.success) return res.status(400).json({ error: "Invalid data" });
-      const [updated] = await db.update(coalitionMeetings).set(allowed.data).where(eq(coalitionMeetings.id, id)).returning();
-      res.json(updated);
-    } catch (error) {
-      console.error("Failed to update meeting:", error);
-      res.status(500).json({ error: "Failed to update meeting" });
-    }
-  });
-
-  app.delete("/api/coalition-meetings/:id", requireAuth, async (req, res) => {
-    try {
-      await db.delete(coalitionMeetings).where(eq(coalitionMeetings.id, req.params.id as string));
-      res.json({ success: true });
-    } catch (error) {
-      console.error("Failed to delete meeting:", error);
-      res.status(500).json({ error: "Failed to delete meeting" });
-    }
-  });
-
-  app.get("/api/coalitions/:id/action-items", requireAuth, async (req, res) => {
-    try {
-      const coalitionId = req.params.id as string;
-      const items = await db.select().from(coalitionActionItems).where(eq(coalitionActionItems.coalitionId, coalitionId));
-      res.json(items);
-    } catch (error) {
-      console.error("Failed to fetch action items:", error);
-      res.status(500).json({ error: "Failed to fetch action items" });
-    }
-  });
-
-  app.post("/api/coalition-action-items", requireAuth, async (req, res) => {
-    try {
-      const parsed = insertCoalitionActionItemSchema.safeParse(req.body);
-      if (!parsed.success) return res.status(400).json({ error: "Invalid data", details: parsed.error.flatten().fieldErrors });
-      const [item] = await db.insert(coalitionActionItems).values(parsed.data).returning();
-      res.json(item);
-    } catch (error) {
-      console.error("Failed to create action item:", error);
-      res.status(500).json({ error: "Failed to create action item" });
-    }
-  });
-
-  app.patch("/api/coalition-action-items/:id", requireAuth, async (req, res) => {
-    try {
-      const id = req.params.id as string;
-      const allowed = insertCoalitionActionItemSchema.partial().safeParse(req.body);
-      if (!allowed.success) return res.status(400).json({ error: "Invalid data" });
-      const updateData: Record<string, unknown> = { ...allowed.data };
-      if (allowed.data.status === "completed") {
-        updateData.completedAt = new Date();
-      }
-      const [updated] = await db.update(coalitionActionItems).set(updateData).where(eq(coalitionActionItems.id, id)).returning();
-      res.json(updated);
-    } catch (error) {
-      console.error("Failed to update action item:", error);
-      res.status(500).json({ error: "Failed to update action item" });
-    }
-  });
-
-  app.delete("/api/coalition-action-items/:id", requireAuth, async (req, res) => {
-    try {
-      await db.delete(coalitionActionItems).where(eq(coalitionActionItems.id, req.params.id as string));
-      res.json({ success: true });
-    } catch (error) {
-      console.error("Failed to delete action item:", error);
-      res.status(500).json({ error: "Failed to delete action item" });
-    }
-  });
-
-  app.get("/api/coalitions/:id/capacity-assessments", requireAuth, async (req, res) => {
-    try {
-      const coalitionId = req.params.id as string;
-      const assessments = await db.select().from(coalitionCapacityAssessments)
-        .where(eq(coalitionCapacityAssessments.coalitionId, coalitionId))
-        .orderBy(desc(coalitionCapacityAssessments.assessedAt));
-      res.json(assessments);
-    } catch (error) {
-      console.error("Failed to fetch capacity assessments:", error);
-      res.status(500).json({ error: "Failed to fetch capacity assessments" });
-    }
-  });
-
-  app.post("/api/coalition-capacity-assessments", requireAuth, async (req, res) => {
-    try {
-      const parsed = insertCoalitionCapacityAssessmentSchema.safeParse(req.body);
-      if (!parsed.success) return res.status(400).json({ error: "Invalid data", details: parsed.error.flatten().fieldErrors });
-      const data = parsed.data;
-      const orgCap = data.organizationalCapacity ?? 0;
-      const leadEff = data.leadershipEffectiveness ?? 0;
-      const subKnow = data.substanceAbuseKnowledge ?? 0;
-      const commEng = data.communityEngagement ?? 0;
-      const overallScore = Math.round((orgCap + leadEff + subKnow + commEng) / 4);
-      const recommendations: string[] = [];
-      if (orgCap < 60) recommendations.push("Strengthen organizational structure and governance processes");
-      if (leadEff < 60) recommendations.push("Invest in leadership development and succession planning");
-      if (subKnow < 60) recommendations.push("Increase training on substance abuse prevention strategies");
-      if (commEng < 60) recommendations.push("Expand community outreach and engagement activities");
-
-      const [assessment] = await db.insert(coalitionCapacityAssessments).values({
-        ...data,
-        overallScore,
-        recommendations,
-        assessorId: getUserId(req as Request) || data.assessorId,
-      }).returning();
-      res.json(assessment);
-    } catch (error) {
-      console.error("Failed to create capacity assessment:", error);
-      res.status(500).json({ error: "Failed to create capacity assessment" });
-    }
-  });
-
-  app.delete("/api/coalition-capacity-assessments/:id", requireAuth, async (req, res) => {
-    try {
-      await db.delete(coalitionCapacityAssessments).where(eq(coalitionCapacityAssessments.id, req.params.id as string));
-      res.json({ success: true });
-    } catch (error) {
-      console.error("Failed to delete capacity assessment:", error);
-      res.status(500).json({ error: "Failed to delete capacity assessment" });
-    }
-  });
-
-  app.get("/api/coalitions/:id/action-plans", requireAuth, async (req, res) => {
-    try {
-      const coalitionId = req.params.id as string;
-      const plans = await db.select().from(communityActionPlans)
-        .where(eq(communityActionPlans.coalitionId, coalitionId))
-        .orderBy(desc(communityActionPlans.createdAt));
-      res.json(plans);
-    } catch (error) {
-      console.error("Failed to fetch action plans:", error);
-      res.status(500).json({ error: "Failed to fetch action plans" });
-    }
-  });
-
-  app.post("/api/coalition-action-plans", requireAuth, async (req, res) => {
-    try {
-      const parsed = insertCommunityActionPlanSchema.safeParse(req.body);
-      if (!parsed.success) return res.status(400).json({ error: "Invalid data", details: parsed.error.flatten().fieldErrors });
-      const [plan] = await db.insert(communityActionPlans).values(parsed.data).returning();
-      res.json(plan);
-    } catch (error) {
-      console.error("Failed to create action plan:", error);
-      res.status(500).json({ error: "Failed to create action plan" });
-    }
-  });
-
-  app.patch("/api/coalition-action-plans/:id", requireAuth, async (req, res) => {
-    try {
-      const id = req.params.id as string;
-      const allowed = insertCommunityActionPlanSchema.partial().safeParse(req.body);
-      if (!allowed.success) return res.status(400).json({ error: "Invalid data" });
-      const [updated] = await db.update(communityActionPlans).set(allowed.data).where(eq(communityActionPlans.id, id)).returning();
-      res.json(updated);
-    } catch (error) {
-      console.error("Failed to update action plan:", error);
-      res.status(500).json({ error: "Failed to update action plan" });
-    }
-  });
-
-  app.delete("/api/coalition-action-plans/:id", requireAuth, async (req, res) => {
-    try {
-      await db.delete(communityActionPlans).where(eq(communityActionPlans.id, req.params.id as string));
-      res.json({ success: true });
-    } catch (error) {
-      console.error("Failed to delete action plan:", error);
-      res.status(500).json({ error: "Failed to delete action plan" });
-    }
-  });
-
-  app.get("/api/coalitions/:id/cost-match", requireAuth, async (req, res) => {
-    try {
-      const coalitionId = req.params.id as string;
-      const records = await db.select().from(costMatchRecords).where(eq(costMatchRecords.coalitionId, coalitionId));
-      res.json(records);
-    } catch (error) {
-      console.error("Failed to fetch cost match records:", error);
-      res.status(500).json({ error: "Failed to fetch cost match records" });
-    }
-  });
-
-  app.post("/api/coalition-cost-match", requireAuth, async (req, res) => {
-    try {
-      const parsed = insertCostMatchRecordSchema.safeParse(req.body);
-      if (!parsed.success) return res.status(400).json({ error: "Invalid data", details: parsed.error.flatten().fieldErrors });
-      const [record] = await db.insert(costMatchRecords).values(parsed.data).returning();
-      res.json(record);
-    } catch (error) {
-      console.error("Failed to create cost match record:", error);
-      res.status(500).json({ error: "Failed to create cost match record" });
-    }
-  });
-
-  app.delete("/api/coalition-cost-match/:id", requireAuth, async (req, res) => {
-    try {
-      await db.delete(costMatchRecords).where(eq(costMatchRecords.id, req.params.id as string));
-      res.json({ success: true });
-    } catch (error) {
-      console.error("Failed to delete cost match record:", error);
-      res.status(500).json({ error: "Failed to delete cost match record" });
-    }
-  });
-
-  app.get("/api/coalitions/:id/dashboard", requireAuth, async (req, res) => {
-    try {
-      const coalitionId = req.params.id as string;
-      const sectors = await db.select().from(coalitionSectors).where(eq(coalitionSectors.coalitionId, coalitionId));
-      const members = await db.select().from(coalitionMembers).where(eq(coalitionMembers.coalitionId, coalitionId));
-      const meetings = await db.select().from(coalitionMeetings).where(eq(coalitionMeetings.coalitionId, coalitionId));
-      const actionItems = await db.select().from(coalitionActionItems).where(eq(coalitionActionItems.coalitionId, coalitionId));
-      const assessments = await db.select().from(coalitionCapacityAssessments)
-        .where(eq(coalitionCapacityAssessments.coalitionId, coalitionId))
-        .orderBy(desc(coalitionCapacityAssessments.assessedAt));
-      const costRecords = await db.select().from(costMatchRecords).where(eq(costMatchRecords.coalitionId, coalitionId));
-      const plans = await db.select().from(communityActionPlans).where(eq(communityActionPlans.coalitionId, coalitionId));
-
-      const representedSectors = sectors.filter(s => s.isRepresented).length;
-      const sectorCoverage = sectors.length > 0 ? Math.round((representedSectors / sectors.length) * 100) : 0;
-      const completedMeetings = meetings.filter(m => m.status === "completed").length;
-      const latestAssessment = assessments.length > 0 ? assessments[0] : null;
-      const totalCostMatch = costRecords.reduce((sum, r) => sum + parseFloat(r.dollarValue || "0"), 0);
-      const completedActions = actionItems.filter(a => a.status === "completed").length;
-
+      const [partners, cw, cbi] = await Promise.all([
+        db.select().from(coalitionPartners).where(eq(coalitionPartners.status, "active")),
+        db.select().from(standardsCrosswalk),
+        db.select().from(cbiPrograms).where(eq(cbiPrograms.active, true)),
+      ]);
+      const avg = cw.length ? Math.round(cw.reduce((s, r) => s + r.coveragePercent, 0) / cw.length) : 0;
       res.json({
-        sectorCoverage,
-        representedSectors,
-        totalSectors: sectors.length,
-        totalMembers: members.length,
-        totalMeetings: meetings.length,
-        completedMeetings,
-        totalActionItems: actionItems.length,
-        completedActions,
-        latestCapacityScore: latestAssessment?.overallScore ?? 0,
-        totalCostMatch,
-        totalPlans: plans.length,
-        capacityTrend: assessments.slice(0, 5).map(a => ({ score: a.overallScore, date: a.assessedAt })),
-      });
-    } catch (error) {
-      console.error("Failed to fetch coalition dashboard:", error);
-      res.status(500).json({ error: "Failed to fetch dashboard" });
-    }
-  });
-
-  app.get("/api/coalitions/:id/sector-partner-map", requireAuth, async (req, res) => {
-    try {
-      const coalitionId = req.params.id as string;
-      const sectors = await db.select().from(coalitionSectors).where(eq(coalitionSectors.coalitionId, coalitionId));
-      const allPartners = await db.select().from(communityPartners);
-
-      const sectorMap = sectors.map(sector => {
-        const matchedTypes = SECTOR_PARTNER_TYPE_MAP[sector.sectorNumber] || [];
-        const suggestedPartners = allPartners.filter(p => matchedTypes.includes(p.type));
-        return {
-          sectorId: sector.id,
-          sectorNumber: sector.sectorNumber,
-          sectorName: sector.sectorName,
-          isRepresented: sector.isRepresented,
-          mappedPartnerTypes: matchedTypes,
-          suggestedPartners: suggestedPartners.map(p => ({
-            id: p.id, name: p.name, type: p.type, contactName: p.contactName,
-          })),
-          suggestedCount: suggestedPartners.length,
-        };
-      });
-
-      const totalCoverage = sectorMap.filter(s => s.isRepresented || s.suggestedCount > 0).length;
-      res.json({ sectors: sectorMap, totalSectors: sectors.length, potentialCoverage: totalCoverage, partnerTypeMapping: SECTOR_PARTNER_TYPE_MAP });
-    } catch (error) {
-      console.error("Failed to fetch sector-partner map:", error);
-      res.status(500).json({ error: "Failed to fetch sector-partner map" });
-    }
-  });
-
-  app.get("/api/coalitions/:id/cost-match-compliance", requireAuth, async (req, res) => {
-    try {
-      const coalitionId = req.params.id as string;
-      const records = await db.select().from(costMatchRecords).where(eq(costMatchRecords.coalitionId, coalitionId));
-
-      let totalCash = 0;
-      let totalInKind = 0;
-      let totalVolunteerHoursDollars = 0;
-      let totalPartnerContributions = 0;
-      let totalVolunteerHours = 0;
-
-      for (const r of records) {
-        const val = parseFloat(r.dollarValue || "0");
-        const hours = parseFloat(r.hoursContributed || "0");
-        totalVolunteerHours += hours;
-        switch (r.contributionType) {
-          case "cash": totalCash += val; break;
-          case "in_kind": totalInKind += val; break;
-          case "volunteer_hours": totalVolunteerHoursDollars += val; break;
-          case "partner_contribution": totalPartnerContributions += val; break;
-        }
-      }
-
-      const totalMatch = totalCash + totalInKind + totalVolunteerHoursDollars + totalPartnerContributions;
-      const dfcGrantAmount = 125000;
-      const matchRatio = dfcGrantAmount > 0 ? Math.round((totalMatch / dfcGrantAmount) * 100) : 0;
-      const isCompliant = matchRatio >= 100;
-
-      res.json({
-        totalMatch,
-        totalCash,
-        totalInKind,
-        totalVolunteerHoursDollars,
-        totalVolunteerHours,
-        totalPartnerContributions,
-        dfcGrantAmount,
-        matchRatio,
-        isCompliant,
-        recordCount: records.length,
-        breakdown: {
-          cash: { amount: totalCash, pct: totalMatch > 0 ? Math.round((totalCash / totalMatch) * 100) : 0 },
-          inKind: { amount: totalInKind, pct: totalMatch > 0 ? Math.round((totalInKind / totalMatch) * 100) : 0 },
-          volunteerHours: { amount: totalVolunteerHoursDollars, hours: totalVolunteerHours, pct: totalMatch > 0 ? Math.round((totalVolunteerHoursDollars / totalMatch) * 100) : 0 },
-          partnerContributions: { amount: totalPartnerContributions, pct: totalMatch > 0 ? Math.round((totalPartnerContributions / totalMatch) * 100) : 0 },
+        generatedAt: new Date().toISOString(),
+        organization: "The Collaborative Advocate Foundation (TCAF)",
+        coverage: {
+          standardsTracked: cw.length,
+          averageCoverage: avg,
+          byCategory: cw.reduce((acc: Record<string, { count: number; sum: number }>, r) => {
+            const c = acc[r.category] ||= { count: 0, sum: 0 };
+            c.count++; c.sum += r.coveragePercent;
+            return acc;
+          }, {}),
         },
+        cbiCatalog: cbi.map(p => ({ code: p.programCode, name: p.name, evidenceTier: p.evidenceTier, modality: p.modality })),
+        crosswalk: cw.map(r => ({
+          code: r.standardCode, body: r.standardBody, category: r.category,
+          title: r.standardTitle, status: r.coverageStatus, percent: r.coveragePercent,
+          capabilities: r.tcafCapabilities,
+        })),
+        partners: partners.map(p => ({
+          name: p.organizationName, type: p.partnerType, county: p.county, state: p.state,
+          services: p.servicesOffered, livedExperienceLed: p.livedExperienceLed,
+        })),
       });
-    } catch (error) {
-      console.error("Failed to fetch cost match compliance:", error);
-      res.status(500).json({ error: "Failed to fetch cost match compliance" });
-    }
+    } catch (e) { console.error(e); res.status(500).json({ error: "Failed" }); }
   });
 
-  app.post("/api/coalitions/seed-default", requireAuth, async (_req, res) => {
+  // ---------- Server-rendered PDF crosswalk (printable HTML) ----------
+  app.get("/api/coalition/public/crosswalk.html", async (_req, res) => {
     try {
-      const existing = await db.select().from(coalitions);
-      if (existing.length > 0) return res.json(existing[0]);
+      const [cw, cbi, partners] = await Promise.all([
+        db.select().from(standardsCrosswalk).orderBy(standardsCrosswalk.category, standardsCrosswalk.standardCode),
+        db.select().from(cbiPrograms).where(eq(cbiPrograms.active, true)),
+        db.select().from(coalitionPartners).where(eq(coalitionPartners.status, "active")),
+      ]);
+      const avg = cw.length ? Math.round(cw.reduce((s, r) => s + r.coveragePercent, 0) / cw.length) : 0;
+      const grouped: Record<string, typeof cw> = {};
+      for (const r of cw) (grouped[r.category] ||= []).push(r);
+      const today = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+      const html = `<!doctype html><html><head><meta charset="utf-8"><title>TCAF Standards Crosswalk</title>
+<style>
+@page { size: letter; margin: 0.6in; }
+body { font: 11pt/1.4 -apple-system, system-ui, "Segoe UI", sans-serif; color: #1a1a1a; }
+h1 { font-size: 22pt; margin: 0 0 6pt; color: #0b1f4d; }
+h2 { font-size: 14pt; margin: 18pt 0 6pt; padding-bottom: 4pt; border-bottom: 2px solid #0b1f4d; color: #0b1f4d; }
+.meta { color: #555; font-size: 9pt; margin-bottom: 12pt; }
+.tile-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8pt; margin: 12pt 0; }
+.tile { border: 1px solid #ddd; border-radius: 6pt; padding: 8pt; }
+.tile .l { text-transform: uppercase; font-size: 8pt; color: #666; letter-spacing: 0.5pt; }
+.tile .v { font-size: 18pt; font-weight: 700; color: #0b1f4d; }
+.std { border-left: 3px solid #ccc; padding: 6pt 8pt; margin: 6pt 0; page-break-inside: avoid; }
+.std.full { border-color: #16a34a; background: #f0fdf4; }
+.std.exceeds { border-color: #059669; background: #ecfdf5; }
+.std.partial { border-color: #f59e0b; background: #fffbeb; }
+.std.gap { border-color: #dc2626; background: #fef2f2; }
+.code { font-family: ui-monospace, SFMono-Regular, monospace; font-size: 9pt; color: #555; }
+.title { font-weight: 600; margin: 2pt 0; }
+.desc { font-size: 9.5pt; color: #444; }
+.caps { margin-top: 4pt; font-size: 9pt; color: #0b1f4d; }
+.cbi-row, .partner-row { padding: 4pt 0; border-bottom: 1px dotted #eee; font-size: 10pt; }
+.footer { margin-top: 24pt; font-size: 8.5pt; color: #777; border-top: 1px solid #ddd; padding-top: 6pt; }
+@media print { .no-print { display: none; } }
+.no-print { background: #f4f4f8; padding: 8pt; text-align: center; margin-bottom: 12pt; border-radius: 4pt; }
+</style></head><body>
+<div class="no-print">
+  <button onclick="window.print()" style="padding:8pt 16pt;font-weight:600;background:#0b1f4d;color:#fff;border:0;border-radius:4pt;cursor:pointer">Print or Save as PDF</button>
+  <span style="margin-left:8pt;color:#555">Use your browser's print dialog and select "Save as PDF" as the destination.</span>
+</div>
+<h1>National Reentry Standards Alignment</h1>
+<div class="meta">The Collaborative Advocate Foundation (TCAF) &middot; Generated ${today}</div>
+<div class="tile-row">
+  <div class="tile"><div class="l">Standards Tracked</div><div class="v">${cw.length}</div></div>
+  <div class="tile"><div class="l">Average Coverage</div><div class="v">${avg}%</div></div>
+  <div class="tile"><div class="l">CBI Programs</div><div class="v">${cbi.length}</div></div>
+  <div class="tile"><div class="l">Coalition Partners</div><div class="v">${partners.length}</div></div>
+</div>
+${Object.entries(grouped).map(([cat, items]) => `
+<h2>${cat.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())}</h2>
+${items.map(r => `<div class="std ${r.coverageStatus}">
+  <div class="code">${r.standardCode} &middot; ${r.standardBody} &middot; ${r.coverageStatus.toUpperCase()} ${r.coveragePercent}%</div>
+  <div class="title">${r.standardTitle}</div>
+  <div class="desc">${r.standardDescription || ""}</div>
+  ${(r.tcafCapabilities && r.tcafCapabilities.length) ? `<div class="caps"><strong>TCAF capabilities:</strong> ${r.tcafCapabilities.join(", ")}</div>` : ""}
+  ${r.notes ? `<div class="desc" style="margin-top:3pt;font-style:italic">${r.notes}</div>` : ""}
+</div>`).join("")}
+`).join("")}
+<h2>CBI Catalog</h2>
+${cbi.map(p => `<div class="cbi-row"><strong>${p.programCode}</strong> &mdash; ${p.name} &middot; ${p.evidenceTier} evidence &middot; ${p.modality} &middot; ${p.internalDelivery ? "in-house" : "referral"}</div>`).join("")}
+<h2>Coalition Partners</h2>
+${partners.length ? partners.map(p => `<div class="partner-row"><strong>${p.organizationName}</strong> &mdash; ${p.partnerType} &middot; ${p.county || p.state || ""} ${p.livedExperienceLed ? "&middot; lived-experience led" : ""}</div>`).join("") : `<div class="cbi-row" style="color:#888">No partners recorded yet.</div>`}
+<div class="footer">
+  Generated by TCAF reentry-standards system. For verification or partnership inquiries, contact The Collaborative Advocate Foundation. This document is suitable for grant-attachment purposes.
+</div>
+</body></html>`;
+      res.setHeader("Content-Type", "text/html; charset=utf-8");
+      res.send(html);
+    } catch (e) { console.error(e); res.status(500).send("Failed to generate"); }
+  });
 
-      const [coalition] = await db.insert(coalitions).values({
-        name: "ThriveUp Community Coalition",
-        mission: "To reduce youth substance abuse through community collaboration, evidence-based prevention strategies, and the empowerment of all 12 community sectors.",
-        formationDate: new Date().toISOString().split("T")[0],
-        status: "active",
-      }).returning();
-
-      for (const sector of DFC_SECTORS) {
-        await db.insert(coalitionSectors).values({
-          coalitionId: coalition.id,
-          ...sector,
-        });
-      }
-
-      res.json(coalition);
-    } catch (error) {
-      console.error("Failed to seed coalition:", error);
-      res.status(500).json({ error: "Failed to seed coalition" });
-    }
+  // ---------- CBI referral tracking — auto-creates a service_record + emits event ----------
+  app.post("/api/coalition/cbi-referrals", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const { participantId, participantName, programCode, providerName, notes } = req.body || {};
+      if (!participantId || !programCode) return res.status(400).json({ error: "participantId and programCode required" });
+      const program = (await db.select().from(cbiPrograms).where(eq(cbiPrograms.programCode, programCode)))[0];
+      if (!program) return res.status(404).json({ error: "CBI program not found" });
+      const { serviceRecords } = await import("@shared/schema");
+      const [rec] = await db.insert(serviceRecords).values({
+        participantId, serviceCategory: "evidence_based_intervention",
+        serviceType: program.name, providerName: providerName || (program.internalDelivery ? "TCAF (in-house)" : program.referralPartner || "External referral"),
+        serviceDate: new Date().toISOString().slice(0, 10),
+        durationMinutes: 0, location: program.modality, notes: notes || `CBI referral: ${program.name}`,
+        outcome: "referred", status: "referred",
+      } as any).returning();
+      emitRpliceEvent("reentry.cbi.referred", { participantId, participantName, programCode, programName: program.name }).catch(() => {});
+      res.json({ success: true, serviceRecord: rec });
+    } catch (e: any) { console.error(e); res.status(500).json({ error: "Failed", message: e.message }); }
   });
 }

@@ -6,6 +6,19 @@ import {
   insertStaffCertificationSchema, insertStandardsCrosswalkSchema,
 } from "@shared/schema";
 import { eq, desc, sql } from "drizzle-orm";
+import { ecosystemEvents, reentryMilestones } from "@shared/schema";
+
+async function emitRpliceEvent(eventType: string, eventData: Record<string, unknown>) {
+  try {
+    await db.insert(ecosystemEvents).values({
+      sourcePlatformId: "tcaf-reentry-standards",
+      targetPlatformId: null,
+      eventType,
+      eventData: { ...eventData, generatedAt: new Date().toISOString() },
+      status: "broadcast",
+    });
+  } catch (err) { console.warn(`[rplice] failed to emit ${eventType}:`, err); }
+}
 
 function getUserId(req: Request): string | undefined {
   const u = (req as unknown as Record<string, unknown>).user as { claims?: { sub?: string }; id?: string } | undefined;
@@ -314,6 +327,30 @@ export function registerStandardsRoutes(app: Express) {
       const parsed = insertRnrAssessmentSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Invalid RNR data", details: parsed.error.flatten().fieldErrors });
       const [row] = await db.insert(rnrAssessments).values(parsed.data).returning();
+
+      // Auto-link recommended programs as reentry-plan milestones if a planId was provided
+      const planId = (req.body as { planId?: string }).planId;
+      const userId = (req.body as { userId?: string }).userId;
+      const recs = (parsed.data.recommendedPrograms || []) as string[];
+      if (planId && userId && recs.length) {
+        for (const code of recs) {
+          try {
+            await db.insert(reentryMilestones).values({
+              planId, userId, category: "evidence_based_intervention",
+              title: `Enroll in ${code}`,
+              description: `Auto-recommended by RNR assessment ${row.id}. Risk level: ${row.riskLevel}.`,
+              status: "pending", phase: "phase_2_active",
+              evidence: { rnrAssessmentId: row.id, programCode: code },
+            } as any);
+          } catch (e) { console.warn("milestone insert failed:", e); }
+        }
+      }
+
+      emitRpliceEvent("reentry.rnr.completed", {
+        assessmentId: row.id, riskLevel: row.riskLevel, riskScore: row.riskScore,
+        recommendedPrograms: recs, planId, participantName: row.participantName,
+      }).catch(() => {});
+
       res.json(row);
     } catch (e) { console.error(e); res.status(500).json({ error: "Failed to create RNR assessment" }); }
   });
@@ -367,6 +404,9 @@ export function registerStandardsRoutes(app: Express) {
       const parsed = insertStaffCertificationSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Invalid certification data", details: parsed.error.flatten().fieldErrors });
       const [row] = await db.insert(staffCertifications).values(parsed.data).returning();
+      emitRpliceEvent("coalition.staff_certification.added", {
+        id: row.id, type: row.certificationType, livedExperience: row.livedExperience,
+      }).catch(() => {});
       res.json(row);
     } catch (e) { console.error(e); res.status(500).json({ error: "Failed to create certification" }); }
   });
@@ -377,6 +417,37 @@ export function registerStandardsRoutes(app: Express) {
       if (!row) return res.status(404).json({ error: "Not found" });
       res.json({ success: true });
     } catch (e) { console.error(e); res.status(500).json({ error: "Failed to delete" }); }
+  });
+
+  // ---------- Public scorecard (no auth, for coalition view) ----------
+  app.get("/api/standards/public/scorecard", async (_req, res) => {
+    try {
+      const cw = await db.select().from(standardsCrosswalk);
+      const cbi = await db.select().from(cbiPrograms).where(eq(cbiPrograms.active, true));
+      const totalPct = cw.reduce((s, r) => s + r.coveragePercent, 0);
+      res.json({
+        generatedAt: new Date().toISOString(),
+        totalStandards: cw.length,
+        averageCoverage: cw.length ? Math.round(totalPct / cw.length) : 0,
+        cbiCatalogSize: cbi.length,
+        byBody: cw.reduce((acc: Record<string, { count: number; sum: number }>, r) => {
+          const b = acc[r.standardBody] ||= { count: 0, sum: 0 };
+          b.count++; b.sum += r.coveragePercent; return acc;
+        }, {}),
+      });
+    } catch (e) { console.error(e); res.status(500).json({ error: "Failed" }); }
+  });
+
+  app.get("/api/standards/public/crosswalk", async (_req, res) => {
+    try {
+      const rows = await db.select().from(standardsCrosswalk).orderBy(standardsCrosswalk.category, standardsCrosswalk.standardCode);
+      res.json(rows.map(r => ({
+        standardCode: r.standardCode, standardBody: r.standardBody, category: r.category,
+        standardTitle: r.standardTitle, standardDescription: r.standardDescription,
+        coverageStatus: r.coverageStatus, coveragePercent: r.coveragePercent,
+        tcafCapabilities: r.tcafCapabilities, notes: r.notes,
+      })));
+    } catch (e) { console.error(e); res.status(500).json({ error: "Failed" }); }
   });
 
   // ---------- Standards Crosswalk ----------
