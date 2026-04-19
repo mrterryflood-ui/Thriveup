@@ -84,9 +84,9 @@ function crud<T extends { id: any }>(app: Express, base: string, table: any, sch
 const SEED_BASELINES = [
   { jurisdiction: "Texas (TDCJ Statewide)", jurisdictionType: "state", metricType: "recidivism_3yr",
     metricValue: 20.3, population: "All released TDCJ adults", cohortYear: 2020,
-    source: "TDCJ Statistical Report — 3-year reincarceration rate",
-    sourceUrl: "https://www.tdcj.texas.gov/documents/Statistical_Report_FY2023.pdf",
-    notes: "Statewide baseline; Black-male subgroup runs ~7-9 points higher in published research." },
+    source: "TDCJ Reentry & Rehabilitation Division (RRD) — Statewide reincarceration data",
+    sourceUrl: "https://www.tdcj.texas.gov/divisions/rrd/index.html",
+    notes: "Statewide baseline from TDCJ RRD; Black-male subgroup runs ~7-9 points higher in published research." },
   { jurisdiction: "Travis County", jurisdictionType: "county", metricType: "recidivism_3yr",
     metricValue: 28.0, population: "All county jail releases (estimated)", cohortYear: 2022,
     source: "Travis County Sheriff's Office reentry reporting (estimate pending FOIA)",
@@ -99,11 +99,19 @@ const SEED_BASELINES = [
 ];
 
 const SEED_PARTNERS = [
-  { organizationName: "Beacon Online Training & Coaching Academy", partnerType: "training",
-    contactName: "Dr. Barry M. Gregory, Ed.D., LMHC", website: "https://www.beaconreentryservices.com",
-    state: "FL", servicesOffered: ["CBT facilitator training", "MI training", "Reentry skills curriculum", "Workbooks"],
+  { organizationName: "Beacon Connections", partnerType: "training",
+    contactName: "Dr. Barry M. Gregory, Ed.D., LMHC",
+    contactEmail: "admin@beaconconnections.org", contactPhone: "337-534-8801",
+    website: "https://beaconconnections.org",
+    servicesOffered: ["CBT facilitator training", "Motivational Interviewing", "Reentry skills curriculum", "Workbooks", "Coaching"],
     mouStatus: "none", livedExperienceLed: false,
-    notes: "National CBT/reentry trainer — strategic partner for staff certification (NRRC-EBP-02, EBP-03 closure)." },
+    notes: "National CBT / reentry training partner — closes NRRC-EBP-02 and EBP-03 (staff certification + curriculum fidelity). Companion blog: beaconreentry.blogspot.com." },
+  { organizationName: "Reentry Roundtable of Austin & Travis County", partnerType: "other",
+    website: "https://www.reentryroundtable.org",
+    county: "Travis", state: "TX",
+    servicesOffered: ["Coalition convening", "Resource navigation (Get Help portal)", "Local advocacy", "Reentry referrals"],
+    mouStatus: "none", livedExperienceLed: true,
+    notes: "Travis County reentry coalition with public Get Help portal — strategic partner for Austin-side BJA SCA work and warm handoffs." },
 ];
 
 async function seedCoalitionIfEmpty() {
