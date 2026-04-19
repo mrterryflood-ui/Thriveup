@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Handshake, FileSignature, Users, Plus, Trash2, ExternalLink, CalendarCheck } from "lucide-react";
+import { Handshake, FileSignature, Users, Plus, Trash2, ExternalLink, CalendarCheck, Mail, Send } from "lucide-react";
 import type { CoalitionPartner, LetterOfCollaboration, GovernanceMeeting } from "@shared/schema";
 
 const MOU_COLOR: Record<string, string> = {
@@ -171,6 +171,70 @@ function PartnersSection() {
   );
 }
 
+type OutreachTemplate = { id: string; partnerName: string; to: string; contactPerson: string; grantOpportunity: string; subject: string; body: string; };
+
+function ComposeOutreachDialog() {
+  const { toast } = useToast();
+  const [open, setOpen] = useState(false);
+  const templates = useQuery<OutreachTemplate[]>({ queryKey: ["/api/coalition/outreach/templates"], enabled: open });
+  const [selected, setSelected] = useState<string>("");
+  const [form, setForm] = useState({ to: "", subject: "", body: "", partnerName: "", grantOpportunity: "", contactPerson: "" });
+
+  const loadTemplate = (id: string) => {
+    setSelected(id);
+    const t = (templates.data || []).find(x => x.id === id);
+    if (t) setForm({ to: t.to, subject: t.subject, body: t.body, partnerName: t.partnerName, grantOpportunity: t.grantOpportunity, contactPerson: t.contactPerson });
+  };
+
+  const send = useMutation({
+    mutationFn: async () => apiRequest("POST", "/api/coalition/outreach/send", { ...form, trackAsLetter: true }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/coalition/letters"] });
+      toast({ title: "Outreach sent", description: `Email delivered to ${form.to} and tracked as a letter.` });
+      setOpen(false); setSelected(""); setForm({ to: "", subject: "", body: "", partnerName: "", grantOpportunity: "", contactPerson: "" });
+    },
+    onError: (e: Error) => toast({ title: "Send failed", description: e.message, variant: "destructive" }),
+  });
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline" data-testid="button-compose-outreach"><Mail className="h-4 w-4 mr-1" /> Compose Outreach</Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader><DialogTitle>Compose Coalition Outreach Email</DialogTitle></DialogHeader>
+        <div className="space-y-3">
+          <div>
+            <Label>Start from template</Label>
+            <Select value={selected} onValueChange={loadTemplate}>
+              <SelectTrigger data-testid="select-outreach-template"><SelectValue placeholder="Pick a prefilled draft, or write from scratch" /></SelectTrigger>
+              <SelectContent>
+                {(templates.data || []).map(t => <SelectItem key={t.id} value={t.id}>{t.partnerName} — {t.grantOpportunity}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <div><Label>To</Label><Input type="email" value={form.to} onChange={e => setForm({ ...form, to: e.target.value })} placeholder="recipient@example.org" data-testid="input-outreach-to" /></div>
+            <div><Label>Partner Name</Label><Input value={form.partnerName} onChange={e => setForm({ ...form, partnerName: e.target.value })} data-testid="input-outreach-partner" /></div>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <div><Label>Grant Opportunity</Label><Input value={form.grantOpportunity} onChange={e => setForm({ ...form, grantOpportunity: e.target.value })} data-testid="input-outreach-grant" /></div>
+            <div><Label>Contact Person</Label><Input value={form.contactPerson} onChange={e => setForm({ ...form, contactPerson: e.target.value })} data-testid="input-outreach-contact" /></div>
+          </div>
+          <div><Label>Subject</Label><Input value={form.subject} onChange={e => setForm({ ...form, subject: e.target.value })} data-testid="input-outreach-subject" /></div>
+          <div><Label>Body</Label><Textarea value={form.body} onChange={e => setForm({ ...form, body: e.target.value })} className="min-h-[300px] font-serif text-sm" data-testid="input-outreach-body" /></div>
+          <div className="text-xs text-muted-foreground">Sent via Resend. Auto-tracked in Letters of Collaboration as <Badge variant="outline" className="text-xs">SENT</Badge> with the body archived in notes.</div>
+        </div>
+        <DialogFooter>
+          <Button onClick={() => send.mutate()} disabled={!form.to || !form.subject || !form.body || send.isPending} data-testid="button-send-outreach">
+            <Send className="h-4 w-4 mr-1" />{send.isPending ? "Sending…" : "Send Email"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 function LettersSection() {
   const { toast } = useToast();
   const q = useQuery<LetterOfCollaboration[]>({ queryKey: ["/api/coalition/letters"] });
@@ -199,6 +263,8 @@ function LettersSection() {
           <CardTitle>Letters of Collaboration</CardTitle>
           <CardDescription>BJA SCA + most federal grants require letters from correctional partners. Track requested → drafted → sent → received.</CardDescription>
         </div>
+        <div className="flex gap-2">
+          <ComposeOutreachDialog />
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild><Button data-testid="button-add-letter"><Plus className="h-4 w-4 mr-1" /> Track Letter</Button></DialogTrigger>
           <DialogContent className="max-w-lg">
@@ -235,6 +301,7 @@ function LettersSection() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+        </div>
       </CardHeader>
       <CardContent>
         {q.isLoading ? <div className="text-sm text-muted-foreground">Loading…</div>

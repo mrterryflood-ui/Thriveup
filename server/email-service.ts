@@ -169,6 +169,31 @@ export async function sendNeighborhoodReport(profile: any, recipientEmail: strin
   }), `neighborhood-report to ${recipientEmail}`);
 }
 
+export async function sendCoalitionOutreach(opts: {
+  to: string; subject: string; html: string; replyTo?: string; cc?: string[];
+}): Promise<{ ok: boolean; id?: string; error?: string }> {
+  try {
+    const { client, fromEmail } = await getResendClient();
+    const result = await client.emails.send({
+      from: fromEmail,
+      to: opts.to,
+      cc: opts.cc,
+      replyTo: opts.replyTo,
+      subject: opts.subject,
+      html: opts.html,
+    } as any);
+    if (result?.error) {
+      console.error("[Email] Outreach FAILED:", JSON.stringify(result.error));
+      return { ok: false, error: result.error.message || JSON.stringify(result.error) };
+    }
+    console.log(`[Email] Outreach SENT to ${opts.to}: id=${result?.data?.id}`);
+    return { ok: true, id: result?.data?.id };
+  } catch (err: any) {
+    console.error("[Email] Outreach ERROR:", err.message || err);
+    return { ok: false, error: err.message || String(err) };
+  }
+}
+
 export async function sendWelcomeEmail(email: string, name: string) {
   const { client, fromEmail } = await getResendClient();
   await safeSend(() => client.emails.send({

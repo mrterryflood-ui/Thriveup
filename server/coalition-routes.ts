@@ -9,6 +9,37 @@ import {
   ecosystemEvents, rnrAssessments, staffCertifications, cbiPrograms, standardsCrosswalk,
 } from "@shared/schema";
 import { eq, desc, sql } from "drizzle-orm";
+import { z } from "zod";
+
+function escapeHtml(s: string): string {
+  return String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+async function requireStrictAdmin(req: Request, res: Response, next: Function) {
+  const userId = getUserId(req);
+  if (!userId) return res.status(401).json({ error: "Authentication required" });
+  try {
+    const user = await storage.getUser(userId);
+    if (user?.role === "admin") return next();
+  } catch (e) { console.error("Strict admin check error:", e); }
+  return res.status(403).json({ error: "Admin role required for outreach actions" });
+}
+
+const outreachSendSchema = z.object({
+  to: z.string().email().max(254),
+  subject: z.string().min(1).max(300),
+  body: z.string().min(1).max(20000),
+  partnerName: z.string().max(200).optional(),
+  grantOpportunity: z.string().max(200).optional(),
+  contactPerson: z.string().max(200).optional(),
+  replyTo: z.string().email().max(254).optional(),
+  trackAsLetter: z.boolean().optional(),
+});
 
 function getUserId(req: Request): string | undefined {
   const u = (req as unknown as Record<string, unknown>).user as { claims?: { sub?: string }; id?: string } | undefined;
@@ -193,6 +224,60 @@ export function registerCoalitionRoutes(app: Express) {
       if (!row) return res.status(404).json({ error: "Not found" });
       res.json({ success: true });
     } catch (e) { console.error(e); res.status(500).json({ error: "Failed" }); }
+  });
+
+  // ---------- Outreach (compose + send via Resend) ----------
+  app.get("/api/coalition/outreach/templates", requireAuth, requireStrictAdmin, async (_req, res) => {
+    res.json([
+      {
+        id: "beacon",
+        partnerName: "Beacon Connections",
+        to: "admin@beaconconnections.org",
+        contactPerson: "Dr. Barry Gregory",
+        grantOpportunity: "BJA SCA 2026",
+        subject: "Training partnership inquiry — Texas reentry coalition (BJA SCA)",
+        body: `Dr. Gregory,\n\nI'm Dr. Tony Burton, founder of The Collaborative Advocate Foundation (TCAF) in Austin, Texas. We're building a multi-platform reentry ecosystem along the I-35 corridor (Austin ↔ Waco) and preparing a Bureau of Justice Assistance Second Chance Act application for the next cycle.\n\nOur coverage analysis against National Reentry Resource Center standards puts us at 84% — the remaining gap is staff certification in evidence-based curricula (NRRC-EBP-02 / EBP-03). Beacon Connections is the natural fit. Your CBT and Motivational Interviewing facilitator training would let us certify our reentry case managers in a curriculum BJA reviewers already recognize.\n\nTwo specific asks:\n1. Cohort training proposal — what would it take to certify 6–10 of our case managers in a CBT-for-reentry track over the next 6 months?\n2. Letter of collaboration — would you consider a short letter naming Beacon Connections as our designated training partner, contingent on award? It strengthens our SCA proposal materially.\n\nHappy to send our standards crosswalk and proposal abstract on a 20-minute call. What's a good week?\n\nBest,\nDr. Tony Burton\nFounder, The Collaborative Advocate Foundation`,
+      },
+      {
+        id: "roundtable",
+        partnerName: "Reentry Roundtable of Austin & Travis County",
+        to: "",
+        contactPerson: "Reentry Roundtable team",
+        grantOpportunity: "BJA SCA 2026",
+        subject: "TCAF — coalition introduction & possible BJA SCA collaboration",
+        body: `Hello Reentry Roundtable team,\n\nI'm Dr. Tony Burton, founder of The Collaborative Advocate Foundation (TCAF). We're a Texas-based 501(c)(3) standing up a multi-platform reentry operating system across the Austin–Waco I-35 corridor, with a BJA Second Chance Act application in preparation.\n\nWe've followed the Roundtable's work for some time. Two specific reasons I'm reaching out:\n\n1. Coalition membership — we'd like to formally join the Roundtable. We bring a federated technology platform that tracks participants across housing, workforce, behavioral health, and family-contact services; lived-experience-led governance; and operational capacity in McLennan County we'd like to extend into Travis. We're not duplicating — we want to plug into the existing table.\n2. BJA SCA letter of support — if our missions align, would the Roundtable consider providing a letter of support for our SCA proposal? In exchange we'd commit to routing all Travis-County participants through your Get Help portal as the warm-handoff layer, and sharing de-identified outcome data back to the coalition.\n\nCould we schedule a 30-minute conversation in the next two weeks? I can come to you.\n\nWith respect for the work,\nDr. Tony Burton\nFounder, The Collaborative Advocate Foundation`,
+      },
+    ]);
+  });
+
+  app.post("/api/coalition/outreach/send", requireAuth, requireStrictAdmin, async (req, res) => {
+    try {
+      const parsed = outreachSendSchema.safeParse(req.body);
+      if (!parsed.success) return res.status(400).json({ error: "Invalid request", details: parsed.error.flatten().fieldErrors });
+      const { to, subject, body, partnerName, grantOpportunity, contactPerson, replyTo, trackAsLetter } = parsed.data;
+
+      const escapedBody = escapeHtml(body);
+      const html = `<div style="font-family:Georgia,serif;font-size:14px;line-height:1.55;color:#222;max-width:640px">${
+        escapedBody.split(/\n\n+/).map(p => `<p style="margin:0 0 14px">${p.replace(/\n/g, "<br/>")}</p>`).join("")
+      }<hr style="border:none;border-top:1px solid #ccc;margin:18px 0"/><div style="font-size:11px;color:#888">Sent via TCAF Coalition Operations · The Collaborative Advocate Foundation</div></div>`;
+
+      const { sendCoalitionOutreach } = await import("./email-service");
+      const result = await sendCoalitionOutreach({ to, subject, html, replyTo });
+      if (!result.ok) return res.status(502).json({ error: "Email send failed", message: result.error });
+
+      let tracked: typeof lettersOfCollaboration.$inferSelect | null = null;
+      if (trackAsLetter !== false && partnerName && grantOpportunity) {
+        const [row] = await db.insert(lettersOfCollaboration).values({
+          partnerName, grantOpportunity, letterStatus: "sent",
+          contactPerson: contactPerson || null,
+          requestedDate: new Date().toISOString().slice(0, 10),
+          notes: `Outreach email sent via Resend (id: ${result.id}). Subject: ${subject}\n\n--- Body ---\n${body}`,
+        }).returning();
+        tracked = row;
+        emitRpliceEvent("coalition.outreach.sent", { letterId: row.id, to, partnerName }).catch(() => {});
+      }
+      res.json({ ok: true, emailId: result.id, letter: tracked });
+    } catch (e: any) { console.error(e); res.status(500).json({ error: "Failed", message: e.message }); }
   });
 
   // ---------- Public coalition view (no auth) ----------

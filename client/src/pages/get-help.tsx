@@ -411,6 +411,63 @@ export default function GetHelpPage() {
           </CardContent>
         </Card>
 
+        <Card className="mt-4 border-2 border-purple-200 dark:border-purple-800" data-testid="card-travis-coalition">
+          <CardHeader className="pb-2">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                <HandHeart className="h-5 w-5 text-purple-600" />
+              </div>
+              <div>
+                <CardTitle className="text-base">Travis County Reentry Coalition Resources</CardTitle>
+                <CardDescription className="text-xs">For people leaving incarceration or supporting someone who is — partner-vetted pathways</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <a href="https://www.reentryroundtable.org/get-help/" target="_blank" rel="noopener noreferrer"
+                className="block" data-testid="link-reentry-roundtable">
+                <div className="p-3 rounded-lg border hover:border-purple-400 hover:bg-purple-50/50 dark:hover:bg-purple-950/20 transition-all h-full">
+                  <div className="flex items-start gap-2">
+                    <HandHeart className="h-4 w-4 text-purple-600 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-medium text-sm">Reentry Roundtable — Get Help</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">Travis County coalition portal — housing, jobs, ID, food, healthcare, behavioral health</p>
+                      <Badge variant="outline" className="mt-1 text-xs">reentryroundtable.org <ExternalLink className="h-3 w-3 ml-1" /></Badge>
+                    </div>
+                  </div>
+                </div>
+              </a>
+              <a href="https://www.tdcj.texas.gov/divisions/rrd/index.html" target="_blank" rel="noopener noreferrer"
+                className="block" data-testid="link-tdcj-rrd">
+                <div className="p-3 rounded-lg border hover:border-blue-400 hover:bg-blue-50/50 dark:hover:bg-blue-950/20 transition-all h-full">
+                  <div className="flex items-start gap-2">
+                    <Building2 className="h-4 w-4 text-blue-600 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-medium text-sm">TDCJ Reentry & Rehabilitation</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">State programs — Project RIO, IPTC, CHANGES, PAMIO, Faith-Based</p>
+                      <Badge variant="outline" className="mt-1 text-xs">tdcj.texas.gov/divisions/rrd <ExternalLink className="h-3 w-3 ml-1" /></Badge>
+                    </div>
+                  </div>
+                </div>
+              </a>
+              <a href="https://beaconconnections.org" target="_blank" rel="noopener noreferrer"
+                className="block" data-testid="link-beacon-connections">
+                <div className="p-3 rounded-lg border hover:border-emerald-400 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 transition-all h-full">
+                  <div className="flex items-start gap-2">
+                    <GraduationCap className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-medium text-sm">Beacon Connections (Training)</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">CBT, MI, and reentry-skills facilitator training for staff and partners</p>
+                      <Badge variant="outline" className="mt-1 text-xs">beaconconnections.org <ExternalLink className="h-3 w-3 ml-1" /></Badge>
+                    </div>
+                  </div>
+                </div>
+              </a>
+            </div>
+          </CardContent>
+        </Card>
+
         <Card className="mt-4 bg-gradient-to-r from-slate-50 to-blue-50 dark:from-slate-950/20 dark:to-blue-950/20">
           <CardContent className="pt-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
