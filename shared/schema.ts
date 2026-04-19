@@ -4331,4 +4331,100 @@ export const insertNetworkMemberEventSchema = createInsertSchema(networkMemberEv
 export type InsertNetworkMemberEvent = z.infer<typeof insertNetworkMemberEventSchema>;
 export type NetworkMemberEvent = typeof networkMemberEvents.$inferSelect;
 
+// ==================== NATIONAL REENTRY STANDARDS ALIGNMENT (NR-1) ====================
+// Aligns TCAF reentry infrastructure with NRRC + BJA Second Chance Act standards.
+
+export const rnrAssessments = pgTable("rnr_assessments", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  participantId: varchar("participant_id", { length: 100 }),
+  planId: varchar("plan_id", { length: 100 }),
+  assessorId: varchar("assessor_id", { length: 255 }),
+  assessorName: varchar("assessor_name", { length: 255 }),
+  participantName: varchar("participant_name", { length: 255 }),
+  riskScore: integer("risk_score").notNull(),
+  riskLevel: varchar("risk_level", { length: 20 }).notNull(),
+  needAntisocialAttitudes: integer("need_antisocial_attitudes").default(0),
+  needAntisocialPeers: integer("need_antisocial_peers").default(0),
+  needSubstanceAbuse: integer("need_substance_abuse").default(0),
+  needFamilyMarital: integer("need_family_marital").default(0),
+  needEducationEmployment: integer("need_education_employment").default(0),
+  needLeisureRecreation: integer("need_leisure_recreation").default(0),
+  needAntisocialPersonality: integer("need_antisocial_personality").default(0),
+  needHistoryOfBehavior: integer("need_history_of_behavior").default(0),
+  responsivityFactors: text("responsivity_factors"),
+  recommendedPrograms: text("recommended_programs").array().default(sql`'{}'::text[]`),
+  notes: text("notes"),
+  assessmentDate: timestamp("assessment_date").defaultNow(),
+  reassessmentDue: timestamp("reassessment_due"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+export const insertRnrAssessmentSchema = createInsertSchema(rnrAssessments).omit({ id: true, createdAt: true });
+export type InsertRnrAssessment = z.infer<typeof insertRnrAssessmentSchema>;
+export type RnrAssessment = typeof rnrAssessments.$inferSelect;
+
+export const cbiPrograms = pgTable("cbi_programs", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  programCode: varchar("program_code", { length: 50 }).notNull().unique(),
+  name: text("name").notNull(),
+  shortName: varchar("short_name", { length: 100 }),
+  description: text("description").notNull(),
+  evidenceTier: varchar("evidence_tier", { length: 50 }).notNull(),
+  evidenceSource: text("evidence_source"),
+  targetPopulation: text("target_population"),
+  durationWeeks: integer("duration_weeks"),
+  sessionsCount: integer("sessions_count"),
+  modality: varchar("modality", { length: 50 }),
+  certificationRequired: boolean("certification_required").default(true),
+  facilitatorTraining: text("facilitator_training"),
+  costPerParticipant: text("cost_per_participant"),
+  internalDelivery: boolean("internal_delivery").default(false),
+  referralPartner: text("referral_partner"),
+  resourceUrl: text("resource_url"),
+  active: boolean("active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+export const insertCbiProgramSchema = createInsertSchema(cbiPrograms).omit({ id: true, createdAt: true });
+export type InsertCbiProgram = z.infer<typeof insertCbiProgramSchema>;
+export type CbiProgram = typeof cbiPrograms.$inferSelect;
+
+export const staffCertifications = pgTable("staff_certifications", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  staffId: varchar("staff_id", { length: 255 }),
+  staffName: varchar("staff_name", { length: 255 }).notNull(),
+  staffEmail: varchar("staff_email", { length: 255 }),
+  staffRole: varchar("staff_role", { length: 100 }),
+  certificationType: varchar("certification_type", { length: 100 }).notNull(),
+  certificationName: text("certification_name").notNull(),
+  issuingBody: text("issuing_body"),
+  issuedDate: text("issued_date"),
+  expiresDate: text("expires_date"),
+  certificateUrl: text("certificate_url"),
+  livedExperience: boolean("lived_experience").default(false),
+  notes: text("notes"),
+  status: varchar("status", { length: 50 }).notNull().default("active"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+export const insertStaffCertificationSchema = createInsertSchema(staffCertifications).omit({ id: true, createdAt: true });
+export type InsertStaffCertification = z.infer<typeof insertStaffCertificationSchema>;
+export type StaffCertification = typeof staffCertifications.$inferSelect;
+
+export const standardsCrosswalk = pgTable("standards_crosswalk", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  standardCode: varchar("standard_code", { length: 50 }).notNull().unique(),
+  standardBody: varchar("standard_body", { length: 100 }).notNull(),
+  category: varchar("category", { length: 100 }).notNull(),
+  standardTitle: text("standard_title").notNull(),
+  standardDescription: text("standard_description").notNull(),
+  coverageStatus: varchar("coverage_status", { length: 50 }).notNull(),
+  coveragePercent: integer("coverage_percent").notNull().default(0),
+  tcafCapabilities: text("tcaf_capabilities").array().default(sql`'{}'::text[]`),
+  evidenceUrl: text("evidence_url"),
+  notes: text("notes"),
+  lastReviewedAt: timestamp("last_reviewed_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+export const insertStandardsCrosswalkSchema = createInsertSchema(standardsCrosswalk).omit({ id: true, createdAt: true });
+export type InsertStandardsCrosswalk = z.infer<typeof insertStandardsCrosswalkSchema>;
+export type StandardsCrosswalk = typeof standardsCrosswalk.$inferSelect;
+
 export * from "./models/auth";

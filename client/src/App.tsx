@@ -182,6 +182,7 @@ const StDavidsWAB2WorkspacePage = lazy(() => import("@/pages/st-davids-wab2-work
 const WAB2EnrollmentHubPage = lazy(() => import("@/pages/wab2-enrollment-hub"));
 const DataSourcesPage = lazy(() => import("@/pages/data-sources"));
 const ReentryStipendPilotPage = lazy(() => import("@/pages/reentry-stipend-pilot"));
+const ReentryStandardsPage = lazy(() => import("@/pages/reentry-standards"));
 const ResumeBuilderPage = lazy(() => import("@/pages/resume-builder"));
 const EngagementHubPage = lazy(() => import("@/pages/engagement-hub"));
 const CorridorIntelligencePage = lazy(() => import("@/pages/corridor-intelligence"));
@@ -388,6 +389,7 @@ function AppRouter() {
       <Route path="/neighborhood" component={NeighborhoodLookupPage} />
       <Route path="/data-sources" component={DataSourcesPage} />
       <Route path="/reentry-stipend-pilot" component={ReentryStipendPilotPage} />
+      <Route path="/reentry/standards" component={ReentryStandardsPage} />
       <Route path="/resume-builder" component={ResumeBuilderPage} />
       <Route path="/engagement-hub" component={EngagementHubPage} />
       <Route path="/corridor" component={CorridorIntelligencePage} />

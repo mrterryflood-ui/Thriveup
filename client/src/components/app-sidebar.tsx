@@ -79,6 +79,7 @@ const justiceReentryItems: NavItem[] = [
   { title: "TX Reentry Stipend Pilot", url: "/reentry-stipend-pilot", icon: Landmark },
   { title: "Resource Directory", url: "/resource-directory", icon: HandHeart },
   { title: "Reentry Dashboard", url: "/reentry", icon: Scale },
+  { title: "National Reentry Standards", url: "/reentry/standards", icon: Scale },
   { title: "For Justice Partners", url: "/justice-partners", icon: Handshake },
 ];
 
