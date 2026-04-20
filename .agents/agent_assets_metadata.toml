@@ -330,3 +330,9 @@ id = "nfvLCk3L-40fYt-V2n_0_"
 uri = "file://attached_assets/decks/Austin-Pflugerville-Opportunity-Pipeline-v2.docx"
 type = "word_document"
 title = "Austin & Pflugerville Daily Opportunity Pipeline (Word)"
+
+[[outputs]]
+id = "6U3tcJN-2Qkc_90oS324Y"
+uri = "file://attached_assets/decks/I35-Corridor-Black-Youth-Assessment-v2.docx"
+type = "word_document"
+title = "I-35 Corridor — Waco ↔ Austin Black-Youth Fatherhood & Mentorship Gap Assessment"
