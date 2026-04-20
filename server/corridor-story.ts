@@ -42,7 +42,7 @@ export const CORRIDOR = {
       countyFips: "48309",
       anchorZips: ["76704", "76707", "76705", "76706", "76710", "76712"],
       focusZip: "76704",
-      district: "Waco ISD",
+      district: "Waco Independent School District",
       character: "concentrated",
     },
     {
@@ -52,7 +52,7 @@ export const CORRIDOR = {
       countyFips: "48453",
       anchorZips: ["78702", "78721", "78723", "78724", "78725", "78617"],
       focusZip: "78721",
-      district: "Austin ISD + Manor + Del Valle + Pflugerville",
+      district: "Austin Independent School District plus Manor, Del Valle, and Pflugerville school districts",
       character: "dispersed",
     },
   ],
@@ -505,24 +505,24 @@ async function buildMetroStory(metro: typeof CORRIDOR.metros[number]) {
       evidenceId: eduEv?.id ?? null,
     },
     {
-      cause: "Compounded social vulnerability",
+      cause: "Compounded neighborhood pressure",
       narrative: sviEv
-        ? `${Number(sviEv.value).toFixed(0)}th percentile SVI (CDC/ATSDR 2022) — the same geographic footprint carries poverty + housing burden + transportation + language barriers simultaneously.`
-        : `SVI pending — run chain web to populate from CDC/ATSDR.`,
+        ? `${Number(sviEv.value).toFixed(0)}th percentile on the federal Social Vulnerability Index (CDC and the federal Agency for Toxic Substances and Disease Registry, 2022). Translation: the same neighborhood carries poverty, housing burden, transportation gaps, and language barriers all at once — not one pressure at a time.`
+        : `Social Vulnerability Index pending — run the data refresh to load from the federal CDC source.`,
       citesStepIds: ["atsdr_svi_county"],
       evidenceId: sviEv?.id ?? null,
     },
     {
       cause: "Untreated mental-health burden",
       narrative: mhEv
-        ? `${Number(mhEv.value).toFixed(1)}% of adults report frequent mental distress (CDC PLACES MHLTH) — paired with ${evFor("uninsured_rate") ? Number(evFor("uninsured_rate").value).toFixed(1) + "%" : "—"} uninsured, access to support is structurally blocked.`
-        : `Mental-health indicators pending — run chain web to populate from CDC PLACES.`,
+        ? `${Number(mhEv.value).toFixed(1)}% of adults report frequent mental distress (CDC PLACES community health survey). Combined with ${evFor("uninsured_rate") ? Number(evFor("uninsured_rate").value).toFixed(1) + "%" : "—"} of adults without health insurance, getting help is structurally hard — not a matter of willpower.`
+        : `Mental-health indicators pending — run the data refresh to load from the CDC PLACES survey.`,
       citesStepIds: ["cdc_places_county"],
       evidenceId: mhEv?.id ?? null,
     },
     {
-      cause: "School-to-prison pipeline",
-      narrative: `Publicly documented Black-student discipline disparities in ${metro.district} feed juvenile-offense rates in the focus ZIP. Upload TEA TAPR + TJJD data to quantify locally.`,
+      cause: "School-to-justice-system pipeline",
+      narrative: `Publicly documented disparities in how Black students are disciplined in ${metro.district} feed juvenile-justice referral rates in the focus ZIP code. Upload the Texas Education Agency annual school-performance report and the Texas Juvenile Justice Department county dashboard to quantify the local picture.`,
       citesStepIds: [],
       evidenceId: evFor("black_student_discipline_rate")?.id ?? null,
     },
@@ -587,13 +587,14 @@ async function buildMetroStory(metro: typeof CORRIDOR.metros[number]) {
     isActive: p.isActive,
   }));
 
-  // The chained story for this metro
+  // The chained story for this metro — written for any reader (parent, employer,
+  // educator, council member, funder), not just grant reviewers. Acronyms spelled out.
   const chainedStory = [
-    `${metro.name} (${metro.character} pattern). Population ${totalPopulation.value?.toLocaleString() ?? "—"}. Poverty rate ${povertyRate.value != null ? povertyRate.value.toFixed(1) + "%" : "—"}. Median income ${medianIncome.value ? "$" + medianIncome.value.toLocaleString() : "—"}.`,
-    `SDOH stack: SVI percentile ${svi.value != null ? svi.value.toFixed(0) : "—"}, health burden composite ${healthBurden.value != null ? healthBurden.value.toFixed(2) : "—"}, food-desert flag ${foodAccess.value != null ? (foodAccess.value > 0.5 ? "YES" : "no") : "—"}, unemployment ${unemployment.value != null ? unemployment.value.toFixed(1) + "%" : "—"}.`,
-    `Focus ZIP ${metro.focusZip}: hotspot=${focusHood?.hotspotLevel ?? "—"}, juvenile offense rate=${focusHood?.juvenileOffenseRate ?? "—"}, dropout=${focusHood?.schoolDropoutRate ?? "—"}, mental-health access=${focusHood?.mentalHealthAccessScore ?? "—"}.`,
-    `Modeled fatherhood gap: ~${fatherhoodGap.blackChildrenSingleParent.value?.toLocaleString() ?? "—"} Black children in single-parent households → ~${fatherhoodGap.mentorGap.value?.toLocaleString() ?? "—"} Black-male mentors needed → ~${fatherhoodGap.disconnectedBlackYouth.value?.toLocaleString() ?? "—"} disconnected Black youth (16–24).`,
-    `${partners.length} known community partners on file in this metro; ${focusHood?.activeProgramsCount ?? 0} active programs in the focus ZIP.`,
+    `${metro.name} (need is ${metro.character === "concentrated" ? "concentrated in one neighborhood" : "spread across several neighborhoods"}). Population: ${totalPopulation.value?.toLocaleString() ?? "—"}. Poverty rate: ${povertyRate.value != null ? povertyRate.value.toFixed(1) + "%" : "—"}. Median household income: ${medianIncome.value ? "$" + medianIncome.value.toLocaleString() : "—"}.`,
+    `Neighborhood-pressure profile: Social Vulnerability Index ranks at the ${svi.value != null ? svi.value.toFixed(0) + "th" : "—"} percentile nationally (the higher the number, the more pressure on the community). Overall health burden score: ${healthBurden.value != null ? healthBurden.value.toFixed(2) : "—"} on a 0-to-1 scale. Federal food-desert flag (U.S. Department of Agriculture): ${foodAccess.value != null ? (foodAccess.value > 0.5 ? "YES" : "no") : "—"}. Unemployment: ${unemployment.value != null ? unemployment.value.toFixed(1) + "%" : "—"}.`,
+    `Focus ZIP code ${metro.focusZip}: activity hotspot level — ${focusHood?.hotspotLevel ?? "—"}; juvenile-justice referral rate — ${focusHood?.juvenileOffenseRate ?? "—"}; high-school dropout rate — ${focusHood?.schoolDropoutRate ?? "—"}; mental-health-care access score — ${focusHood?.mentalHealthAccessScore ?? "—"}.`,
+    `Fatherhood and mentorship gap (modeled from verified U.S. Census data): roughly ${fatherhoodGap.blackChildrenSingleParent.value?.toLocaleString() ?? "—"} Black children in single-parent households → roughly ${fatherhoodGap.mentorGap.value?.toLocaleString() ?? "—"} Black-male mentors needed → roughly ${fatherhoodGap.disconnectedBlackYouth.value?.toLocaleString() ?? "—"} young adults (ages 16–24) currently disconnected from both school and work.`,
+    `${partners.length} community partner organizations on file in this city; ${focusHood?.activeProgramsCount ?? 0} active programs in the focus ZIP code.`,
   ];
 
   return {
@@ -636,10 +637,10 @@ async function buildMetroStory(metro: typeof CORRIDOR.metros[number]) {
  * ============================================================================ */
 function synthesizeComparison(waco: any, austin: any) {
   const symmetry = [
-    "Both counties show the same chained pattern: concentrated SDOH burden in historically Black ZIPs feeds elevated juvenile-offense and dropout signals, which feeds the disconnected-youth pool.",
-    "Both metros operate inside the BBBS Lone Star network — the same Black-male-mentor waitlist crisis is recorded by the same parent organization in both places.",
-    "Both pull from the same TX HHSC Fatherhood pool and the same TWC Skills Development pool. One state application architecture serves both pods.",
-    "Both metros have an active TEA-regulated school district with publicly disproportionate Black-student discipline — the school-to-prison pipeline mechanics are identical.",
+    "Both cities show the same chain of pressure: concentrated neighborhood hardship in historically Black ZIP codes feeds higher juvenile-justice referrals and school dropout, which in turn feeds the population of young adults disconnected from school and work.",
+    "Both cities operate inside the Big Brothers Big Sisters Lone Star network — the same waitlist of Black boys waiting for a mentor is documented by the same parent organization in both places.",
+    "Both cities draw from the same statewide funding pools: the Texas Health and Human Services Commission's fatherhood program and the Texas Workforce Commission's Skills Development Fund. One state application can serve both cities at the same time.",
+    "Both cities have a regulated school district with publicly disproportionate discipline rates for Black students. The pattern is the same in Waco and Austin; only the scale differs.",
   ];
   const alignment = [
     { layer: "Backbone", waco: "Prosper Waco", austin: "Mission Capital", rail: "Joint corridor learning agenda" },
@@ -650,12 +651,12 @@ function synthesizeComparison(waco: any, austin: any) {
     { layer: "Funders", waco: "Cooper / Waco Fdn / UW Waco-McLennan", austin: "St. David's / Dell / UW Greater Austin", rail: "I-35 Corridor co-funded cohort" },
   ];
   const differences = [
-    `Concentration vs dispersion: Waco's need is geographically concentrated in ${waco.metro.focusZip} (one neighborhood-scale intervention); Austin's need is dispersed across ${austin.metro.anchorZips.length} ZIPs and 4+ districts (must be hub-and-spoke).`,
-    "Philanthropic capital: Austin has ~10× the local foundation grant capital — but ~10× the competition for it. Waco has tighter relationships and faster decisions.",
-    "Cultural anchoring: Austin has Six Square (designated Black Cultural District); Waco has no equivalent — building one is part of the play.",
-    "HBCU presence: Austin has Huston-Tillotson; Waco does not — Baylor's Diana R. Garland School of Social Work is the willing partner.",
-    "Gentrification pressure: Austin's intervention must include housing stability (Foundation Communities) because families are being priced out. Waco's families are stable in place but under-resourced.",
-    "Existing 100 Black Men chapter: active in Austin, absent in Waco — Phase 1 Waco deliverable is to charter a Sankofa-Men-led equivalent.",
+    `Concentration vs. spread: Waco's need is concentrated in one ZIP code (${waco.metro.focusZip}), so a single neighborhood-scale program can reach most of it. Austin's need is spread across ${austin.metro.anchorZips.length} ZIP codes and four school districts, so the response has to be a hub with multiple spokes.`,
+    "Foundation funding: Austin has roughly ten times more local foundation money available — and roughly ten times more competition for it. Waco has tighter relationships and faster decisions.",
+    "Cultural anchor: Austin has Six Square, a city-designated Black cultural district. Waco has no equivalent yet — building one is part of the plan.",
+    "Higher education: Austin has Huston-Tillotson University, a Historically Black College or University (HBCU). Waco does not. Baylor University's Diana R. Garland School of Social Work is the willing local partner instead.",
+    "Housing pressure: Austin's response has to include housing stability (in partnership with Foundation Communities) because families are being priced out of the historic neighborhoods. Waco's families are stable in place but under-resourced.",
+    "Mentorship infrastructure: 100 Black Men of Central Texas is active in Austin but does not yet have a Waco chapter. Launching a local equivalent is the first-year deliverable in Waco.",
   ];
 
   // Numeric symmetry scoring — does the data actually mirror?
@@ -702,33 +703,37 @@ export async function buildCorridorStory() {
   const grantPipeline = filterCorridorGrants(allGrants);
   const comparison = synthesizeComparison(waco, austin);
 
-  // The narrative arc — the SINGLE story
+  // The narrative arc — the SINGLE story.
+  // Written in plain language for any reader: parents, teachers, mentors, faith
+  // leaders, employers, city council members, foundation officers, and federal
+  // grant reviewers. Acronyms are spelled out the first time they appear.
   const narrative = {
-    headline: "The I-35 Corridor Black Youth Fatherhood Gap is one problem, two metros.",
+    headline:
+      "One challenge, two cities. Black children along the Interstate 35 corridor between Waco and Austin face the same gaps in mentorship, opportunity, and support — and the same coordinated response can close them.",
     arc: [
       {
-        beat: "1. The shared SDOH signature",
-        text: `In both ${waco.metro.name} and ${austin.metro.name}, the historically Black ZIPs carry the same SDOH stack: elevated SVI, food-desert flags, weaker mental-health access, and concentrated housing instability. The county-level numbers from Census ACS + CDC PLACES + USDA Food Access confirm the pattern — not anecdote.`,
+        beat: "1. The same neighborhood pressures show up in both cities",
+        text: `In both ${waco.metro.name} and ${austin.metro.name}, the historically Black ZIP codes carry the same set of pressures: higher rates of poverty and housing instability, fewer grocery stores within reach, harder access to mental-health care, and high scores on the federal Social Vulnerability Index (a CDC measure of how vulnerable a community is to disasters and chronic stress). These are not anecdotes — the numbers come from the U.S. Census American Community Survey, the CDC PLACES community health survey, and the U.S. Department of Agriculture food-access maps.`,
       },
       {
-        beat: "2. The same school-to-prison pipeline",
-        text: `${waco.metro.district} carries a publicly documented Black-student discipline disparity (TEA Stage 4 reprimand). ${austin.metro.district} carries the same disparity at scale across four districts. Both feed measurable juvenile-offense rates in the focus ZIPs.`,
+        beat: "2. The school-to-justice-system pattern repeats",
+        text: `${waco.metro.district} has publicly documented disparities in how Black students are disciplined, reported each year by the Texas Education Agency. ${austin.metro.district} carries the same disparity at larger scale. In both cities, those discipline gaps feed measurable juvenile-justice referral rates in the same ZIP codes — a chain that is documented, not assumed.`,
       },
       {
-        beat: "3. The fatherhood gap math",
-        text: `Modeled from the verified Census base: ~${waco.fatherhoodGap.blackChildrenSingleParent.value?.toLocaleString() ?? "—"} Black children in single-parent households in McLennan and ~${austin.fatherhoodGap.blackChildrenSingleParent.value?.toLocaleString() ?? "—"} in Travis. Combined Black-male-mentor gap: ~${((waco.fatherhoodGap.mentorGap.value ?? 0) + (austin.fatherhoodGap.mentorGap.value ?? 0)).toLocaleString()} mentors needed across the corridor.`,
+        beat: "3. The fatherhood and mentorship gap, in real numbers",
+        text: `Calculated from verified U.S. Census data: roughly ${waco.fatherhoodGap.blackChildrenSingleParent.value?.toLocaleString() ?? "—"} Black children are growing up in single-parent households in McLennan County (Waco), and roughly ${austin.fatherhoodGap.blackChildrenSingleParent.value?.toLocaleString() ?? "—"} in Travis County (Austin). Together, that points to about ${((waco.fatherhoodGap.mentorGap.value ?? 0) + (austin.fatherhoodGap.mentorGap.value ?? 0)).toLocaleString()} additional Black-male mentors needed across the two cities — adults who can show up consistently in a young person's life. This is a measurable, fillable gap, not a feeling.`,
       },
       {
-        beat: "4. The platform answer",
-        text: "TCAF's 24-platform AI OS is not 24 silos. RPLICE is the event bus that lets WAB2 surface need, LifeBridge engage families, Sankofa Men match mentors, and WholeMind/ISSS Youth wrap services — across both metros, in real time, with shared evidence.",
+        beat: "4. A coordinated answer instead of scattered programs",
+        text: "Today, the work happens in silos: one organization spots a family in need, another runs a fatherhood class, a third tries to find a mentor, a fourth handles housing or behavioral-health support. The Collaborative Advocate Foundation's platform connects all of these in one place, across both cities — so partners can stop duplicating each other and families can stop telling their story over and over.",
       },
       {
-        beat: "5. The funding architecture",
-        text: `${grantPipeline.length} corridor-relevant grant opportunities currently tracked in the platform. Strategy: one TX HHSC application, two place-based foundation tracks (Cooper/Waco Fdn for Waco, St. David's/Dell for Austin), one corporate corridor ask, one PCORI Cycle-2 LOI (April 28).`,
+        beat: "5. One funding plan, not many scattered asks",
+        text: `${grantPipeline.length} grant opportunities relevant to this corridor are currently tracked in the platform. The plan: (a) one statewide application to the Texas Health and Human Services Commission and the Texas Workforce Commission for the fatherhood and workforce pieces; (b) two place-based foundation tracks — Cooper Foundation and Waco Foundation in Waco, St. David's Foundation and Dell Foundation in Austin; (c) one corporate corridor ask aimed at employers with offices in both cities; and (d) one federal research letter of intent to the Patient-Centered Outcomes Research Institute (a federal health-research funder).`,
       },
       {
-        beat: "6. The 90-day partnership table",
-        text: "United Way (both), STARRY, Prosper Waco, 100 BMCT, AAUL, BBBS Lone Star, Foundation Communities, Waco ISD + AISD/Manor/Del Valle/Pflugerville, Baylor SSW + UT SSW + Huston-Tillotson, plus the corporate ERG layer (H-E-B, Dell, USAA, Tito's, McLane, Indeed, Google, Baylor Healthcare).",
+        beat: "6. The partner table that has to be at the table",
+        text: "United Way (in both cities), STARRY, Prosper Waco, 100 Black Men of Central Texas, the Austin Area Urban League, Big Brothers Big Sisters Lone Star, Foundation Communities (housing), Waco Independent School District plus Austin / Manor / Del Valle / Pflugerville school districts, the schools of social work at Baylor University and the University of Texas at Austin, Huston-Tillotson University (Austin's Historically Black University), and the employee-resource-group layer at H-E-B, Dell, USAA, Tito's, McLane, Indeed, Google, and Baylor Scott & White Healthcare.",
       },
     ],
   };
