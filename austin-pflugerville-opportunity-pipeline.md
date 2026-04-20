@@ -1,219 +1,275 @@
-# ThriveUp Academy — Austin & Pflugerville Daily Opportunity Pipeline
-## Comprehensive Grant, State, Federal & I-35 Corridor Report
-### Prepared March 19, 2026 | RPLICE Review Required Before Any Submission
+# ThriveUp Academy — Austin and Pflugerville Daily Opportunity Pipeline
+## Comprehensive Brief on Grants, State and Federal Opportunities, and Interstate 35 Corridor Contracts
+### Prepared March 19, 2026 — Internal RPLICE quality review required before any submission
 
 ---
 
-## SECTION 1: AUSTIN GRANTS — OPEN & UPCOMING
+## HOW TO READ THIS BRIEF
 
-### Immediate Action Items (Next 30 Days)
+This brief is the daily working list of grants, state and federal opportunities, and Interstate 35 construction contracts that ThriveUp Academy is tracking for Austin and Pflugerville. It is written so any reader can use it — a board member, an executive director, a city staffer, a partner organization, or a funder. The first time an acronym appears, it is spelled out in full. A glossary at the end lists every acronym used.
+
+**The bottom line in one paragraph:** Within 90 days, ThriveUp can pursue between $2 million and $5 million in active grants, plus subcontracting work along the Interstate 35 corridor. The most time-sensitive deadlines are the Travis County Community Development Block Grant survey (March 31), the St. David's Foundation opening (March 30), and the Draper Family Charitable Foundation grant (April 14). Everything below is filterable by source, timeline, and dollar size.
+
+---
+
+## SECTION 1: AUSTIN GRANTS — OPEN AND UPCOMING
+
+### Immediate action items (next 30 days)
 
 | # | Grant | Amount | Deadline | Status | Action |
-|---|-------|--------|----------|--------|--------|
-| 1 | **Travis County CDBG PY2026 Survey** | Varies | **March 31, 2026** | OPEN NOW | Submit survey expressing interest in housing/workforce/veteran services |
-| 2 | **City of Austin Housing Development (RHDA/OHDA)** | Gap financing | Rolling FY2026 | OPEN | Apply for affordable housing development support |
+|---|---|---|---|---|---|
+| 1 | **Travis County Community Development Block Grant — Program Year 2026 survey** | Varies | **March 31, 2026** | OPEN NOW | Submit the survey expressing interest in housing, workforce, and veteran services |
+| 2 | **City of Austin Housing Development (Rental Housing Development Assistance and Ownership Housing Development Assistance)** | Gap financing | Rolling, Fiscal Year 2026 | OPEN | Apply for affordable-housing development support |
 | 3 | **City of Austin Workforce Development Contracts** | Multi-year | Ongoing | Active partnerships | Contact Workforce Solutions Capital Area |
-| 4 | **Austin Community Foundation — Forever Austin Fund** | $5K–$50K | Open (check website) | OPEN | Apply under Economic Mobility or Health & Humanities |
-| 5 | **St. David's Foundation** | Up to $1M+ | Opens **March 30, 2026** | 11 DAYS | Call (512) 879-6600 NOW to introduce ThriveUp before opening |
-| 6 | **St. David's Healthcare Workforce Pathways** | Part of $10.1M pool | Active program | Contact | Aligns directly with workforce development mission |
-| 7 | **Impact Austin** | $80K primary / $20K secondary | Closed (Feb 5) — next cycle 2027 | MONITOR | Register for 2027 cycle |
+| 4 | **Austin Community Foundation — Forever Austin Fund** | $5,000–$50,000 | Open (check website) | OPEN | Apply under Economic Mobility or Health and Humanities |
+| 5 | **St. David's Foundation** | Up to $1 million-plus | Opens **March 30, 2026** | 11 days | Call (512) 879-6600 *now* to introduce ThriveUp before the opening |
+| 6 | **St. David's Healthcare Workforce Pathways** | Part of a $10.1 million pool | Active program | Contact | Lines up directly with ThriveUp's workforce-development mission |
+| 7 | **Impact Austin** | $80,000 primary / $20,000 secondary | Closed February 5; next cycle 2027 | MONITOR | Register for the 2027 cycle |
 
-### Our 5 Active Ecosystem Grants
+### Active ecosystem grants (5)
 
-| # | Grant | Amount | Deadline | RPLICE Status |
-|---|-------|--------|----------|---------------|
-| 8 | **DFC** | $625K | **April 14, 2026** (26 days) | Compliance checklist needed |
-| 9 | **WIOA** | $200K–$500K | Rolling | Compliance checklist needed |
-| 10 | **Foundation Grant** | $100K–$500K | Rolling LOI | LOI draft needed |
-| 11 | **St. David's Foundation** | Up to $1M | **March 30, 2026** | LOI draft needed — 11 days |
-| 12 | **SSG Fox VA Suicide Prevention** | Up to $750K | **June 12–18, 2026** | 85 days — full proposal needed |
+| # | Grant | Amount | Deadline | Internal RPLICE status |
+|---|---|---|---|---|
+| 8 | **Drug-Free Communities (federal Office of National Drug Control Policy)** | $625,000 | **April 14, 2026** (26 days) | Compliance checklist needed |
+| 9 | **Workforce Innovation and Opportunity Act (WIOA)** | $200,000–$500,000 | Rolling | Compliance checklist needed |
+| 10 | **NBA Foundation** | $100,000–$500,000 | Rolling letter of intent | Letter-of-intent draft needed |
+| 11 | **St. David's Foundation** | Up to $1 million | **March 30, 2026** | Letter-of-intent draft needed (11 days) |
+| 12 | **Staff Sergeant Parker Gordon Fox Suicide Prevention Grant Program (Department of Veterans Affairs)** | Up to $750,000 | **June 12–18, 2026** | 85 days — full proposal needed |
 
 ---
 
-## SECTION 2: PFLUGERVILLE — GRANTS & OPPORTUNITIES
+## SECTION 2: PFLUGERVILLE — GRANTS AND OPPORTUNITIES
 
-### Key Discovery: Pflugerville Is a CDBG Entitlement City
-Pflugerville receives federal CDBG money directly from HUD — not through the state. This means they run their own application process for housing, infrastructure, workforce, and social services.
+### Why this matters
+Pflugerville is a federal Community Development Block Grant entitlement city. That means it receives federal housing dollars directly from the U.S. Department of Housing and Urban Development — not through the state — and runs its own application process for housing, infrastructure, workforce, and social services. Many partner organizations do not realize this and miss the opportunity.
 
 | # | Opportunity | Amount | Status | Action |
-|---|------------|--------|--------|--------|
-| 13 | **Pflugerville CDBG Program** | Varies | No open application found — contact city | Call Community Development office for FY2026-27 timeline |
-| 14 | **PCDC Community Engagement Grant** | Varies ($42K recent example) | Check pfdevelopment.com | Apply for workforce training program funding |
-| 15 | **PCDC Workforce Development Partnerships** | $150K matching grants available | Active with TWC | Partner with Workforce Solutions Capital Area |
-| 16 | **Pflugerville ISD Career/Technical Education** | Partnership | Active | Propose ThriveUp Academy integration with CTE programs |
-| 17 | **PCDC Business PFirst Program** | Business support | Active | Connect MCE clients to Pflugerville business resources |
+|---|---|---|---|---|
+| 13 | **Pflugerville Community Development Block Grant program** | Varies | No open application listed yet — contact the city | Call the Community Development office for the Fiscal Year 2026–27 timeline |
+| 14 | **Pflugerville Community Development Corporation Community Engagement Grant** | Varies (recent example: $42,000) | Check pfdevelopment.com | Apply for workforce-training program funding |
+| 15 | **Pflugerville Community Development Corporation Workforce Development Partnerships** | Up to $150,000 in matching grants | Active with Texas Workforce Commission | Partner with Workforce Solutions Capital Area |
+| 16 | **Pflugerville Independent School District Career and Technical Education partnership** | Partnership-based | Active | Propose ThriveUp Academy integration with the school district's Career and Technical Education programs |
+| 17 | **Pflugerville Community Development Corporation Business PFirst Program** | Business support services | Active | Connect Minority Center of Excellence clients to Pflugerville business resources |
 
-### Pflugerville Key Contacts
-- **Community Development**: pflugervilletx.gov/209/Community-Development
-- **PCDC**: pfdevelopment.com | info@pfdevelopment.com
-- **Workforce Director**: Stacey Pfefferkorn, Business Retention and Workforce Development
-- **Executive Director**: Jerry W. Jones Jr. (appointed Feb 2025)
+### Pflugerville key contacts
+- **Community Development:** pflugervilletx.gov/209/Community-Development
+- **Pflugerville Community Development Corporation:** pfdevelopment.com — info@pfdevelopment.com
+- **Workforce Director:** Stacey Pfefferkorn, Business Retention and Workforce Development
+- **Executive Director:** Jerry W. Jones Jr. (appointed February 2025)
 
 ---
 
 ## SECTION 3: TEXAS STATE GRANTS
 
-| # | Grant | Agency | Amount | Deadline | Alignment |
-|---|-------|--------|--------|----------|-----------|
-| 18 | **TDHCA Emergency Solutions Grants (ESG)** | TDHCA | Varies | Summer 2026 (anticipated) | Homelessness prevention, rapid re-housing |
-| 19 | **TDHCA HOME Investment Partnerships** | TDHCA | Varies | Year-round | Affordable housing development, rental assistance |
-| 20 | **Amy Young Barrier Removal Program** | TDHCA | Up to $22,500/beneficiary | Through contracted nonprofits | Home accessibility for persons with disabilities |
-| 21 | **TWC Skills Development Fund** | TWC | Up to $500K/project | Year-round | Customized workforce training |
-| 22 | **TWC Lone Star Workforce of the Future** | TWC | Up to $7,500/trainee | Check TWC website | Public college/nonprofit workforce training |
-| 23 | **Texas Veterans Commission — Funds for Veterans Assistance** | TVC | Part of $31M+ cycle | Check TVC website | General assistance, housing, mental health, treatment courts |
-| 24 | **HHSC Social Services Contracts** | HHSC | Varies | Ongoing procurement | Health, human services, veteran support |
+| # | Grant | Texas agency | Amount | Deadline | What it funds |
+|---|---|---|---|---|---|
+| 18 | **Emergency Solutions Grants** | Texas Department of Housing and Community Affairs | Varies | Summer 2026 (anticipated) | Homelessness prevention, rapid rehousing |
+| 19 | **HOME Investment Partnerships Program** | Texas Department of Housing and Community Affairs | Varies | Year-round | Affordable-housing development, rental assistance |
+| 20 | **Amy Young Barrier Removal Program** | Texas Department of Housing and Community Affairs | Up to $22,500 per beneficiary | Through contracted nonprofits | Home accessibility for people with disabilities |
+| 21 | **Skills Development Fund** | Texas Workforce Commission | Up to $500,000 per project | Year-round | Customized workforce training |
+| 22 | **Lone Star Workforce of the Future** | Texas Workforce Commission | Up to $7,500 per trainee | Check the agency website | Public college and nonprofit workforce training |
+| 23 | **Funds for Veterans Assistance** | Texas Veterans Commission | Part of a $31 million-plus annual cycle | Check the agency website | General assistance, housing, mental health, veterans-treatment courts |
+| 24 | **Social Services Contracts** | Texas Health and Human Services Commission | Varies | Ongoing procurement | Health, human services, veteran support |
 
-### State Portals to Monitor
-- **TxSmartBuy**: txsmartbuy.com/sp (all state RFPs)
-- **TDHCA**: tdhca.texas.gov
-- **TWC**: twc.texas.gov/agency/funding-opportunities
-- **TVC**: tvc.texas.gov
-- **Texas Comptroller (HUB)**: comptroller.texas.gov
+### State portals to monitor
+- **Texas Smart Buy (statewide procurement):** txsmartbuy.com/sp
+- **Texas Department of Housing and Community Affairs:** tdhca.texas.gov
+- **Texas Workforce Commission:** twc.texas.gov/agency/funding-opportunities
+- **Texas Veterans Commission:** tvc.texas.gov
+- **Texas Comptroller (Historically Underutilized Business certification):** comptroller.texas.gov
 
 ---
 
 ## SECTION 4: FEDERAL GRANTS
 
-| # | Grant | Agency | Amount | Deadline | Status |
-|---|-------|--------|--------|----------|--------|
-| 25 | **VA Supportive Services for Veteran Families (SSVF)** | VA | Varies | Feb 19, 2026 (CLOSED — next cycle monitor) | Veteran housing/homelessness prevention |
-| 26 | **VA Grant & Per Diem (GPD)** | VA | ~350 grants, 10,500 beds | Open — check grants.gov | Transitional housing for homeless veterans |
-| 27 | **Homeless Veterans Reintegration Program (HVRP)** | DOL/VETS | Varies | Open — check grants.gov | Employment services for homeless veterans |
-| 28 | **VA Stand Down Grants** | DOL/VETS | Varies | Rolling (90 days before event) | Community employment/housing/mental health events |
-| 29 | **HUD CDBG (through City of Austin)** | HUD | Part of Austin's allocation | Through city application | Housing, infrastructure, public services |
-| 30 | **HUD Continuum of Care (CoC)** | HUD | Varies | Annual NOFO (typically summer) | Homeless assistance programs |
+| # | Grant | Federal agency | Amount | Deadline | Status |
+|---|---|---|---|---|---|
+| 25 | **Supportive Services for Veteran Families** | U.S. Department of Veterans Affairs | Varies | February 19, 2026 (CLOSED — monitor for next cycle) | Veteran housing and homelessness prevention |
+| 26 | **Grant and Per Diem Program** | U.S. Department of Veterans Affairs | About 350 grants, 10,500 beds | Open — check grants.gov | Transitional housing for veterans experiencing homelessness |
+| 27 | **Homeless Veterans Reintegration Program** | U.S. Department of Labor, Veterans Employment and Training Service | Varies | Open — check grants.gov | Employment services for veterans experiencing homelessness |
+| 28 | **Stand Down Grants** | U.S. Department of Labor, Veterans Employment and Training Service | Varies | Rolling (apply 90 days before the event) | Community events covering employment, housing, mental health |
+| 29 | **Community Development Block Grant** (administered through the City of Austin) | U.S. Department of Housing and Urban Development | Part of Austin's annual allocation | Through the city application process | Housing, infrastructure, public services |
+| 30 | **Continuum of Care** | U.S. Department of Housing and Urban Development | Varies | Annual Notice of Funding Opportunity (typically summer) | Homeless-assistance programs |
 
-### Federal Portals to Monitor
-- **SAM.gov**: sam.gov (all federal contracts — VOSB set-asides)
-- **Grants.gov**: grants.gov (all federal grants)
-- **VA Acquisition Center**: va.gov/oal/business
+### Federal portals to monitor
+- **System for Award Management (SAM.gov):** sam.gov — all federal contracts, including Veteran-Owned Small Business set-asides
+- **Grants.gov:** grants.gov — all federal grants
+- **Department of Veterans Affairs Acquisition Center:** va.gov/oal/business
 
 ---
 
-## SECTION 5: I-35 CORRIDOR CONTRACTS (Dallas → Austin → San Antonio)
+## SECTION 5: INTERSTATE 35 CORRIDOR CONSTRUCTION CONTRACTS (Dallas → Austin → San Antonio)
 
-### Active Construction Pipeline — $10B+
+### Active construction pipeline — more than $10 billion
 
-| Project | Location | Value | Prime Contractor | Status |
-|---------|----------|-------|-------------------|--------|
-| Capital Express Central | Austin | $4.5B | Multiple segments | Active |
-| Lady Bird Lake Segment | Austin | $228M | Balfour Beatty | Starts late 2026 |
-| Capital Express North | Austin | Part of $5.7B | Various | Active |
-| Capital Express South | Austin | Part of $5.7B | Various | Active |
-| I-35E Phase 2 | Dallas | 6.39-mile | Lone Star Constructors | Completing 2025-26 |
-| NEX Central | San Antonio | $1.5B+ | Lone Star Constructors | 60% complete |
-| Downtown Repairs | San Antonio | $25.9M | Various | Final phases 2026 |
+| Project | Location | Value | Prime contractor | Status |
+|---|---|---|---|---|
+| Capital Express Central | Austin | $4.5 billion | Multiple segments | Active |
+| Lady Bird Lake Segment | Austin | $228 million | Balfour Beatty | Begins late 2026 |
+| Capital Express North | Austin | Part of $5.7 billion | Various | Active |
+| Capital Express South | Austin | Part of $5.7 billion | Various | Active |
+| Interstate 35 East — Phase 2 | Dallas | 6.39-mile segment | Lone Star Constructors | Completing 2025–2026 |
+| North Expansion Central | San Antonio | $1.5 billion-plus | Lone Star Constructors | 60% complete |
+| Downtown Repairs | San Antonio | $25.9 million | Various | Final phases 2026 |
 
-### CRITICAL ALERT: DBE Certification Suspended
-**TxDOT's Disadvantaged Business Enterprise (DBE) program is currently SUSPENDED** due to federal Interim Final Rule (IFR 90 FR 47969):
-- DBE goals on engineering/consulting contracts: SUSPENDED
-- DBE participation reporting: HALTED
-- DBE certification: FROZEN (no new applications)
+### IMPORTANT — federal Disadvantaged Business Enterprise certification is paused
+The Texas Department of Transportation's Disadvantaged Business Enterprise (DBE) program — the federal program that helps small businesses owned by socially or economically disadvantaged people compete for highway-construction contracts — is currently **suspended** under federal Interim Final Rule 90 FR 47969:
+- Disadvantaged Business Enterprise goals on engineering and consulting contracts: SUSPENDED.
+- Disadvantaged Business Enterprise participation reporting: HALTED.
+- Disadvantaged Business Enterprise certification: FROZEN (no new applications).
 
-**Impact on ThriveUp**: VOSB certification through Collaborative Advocate remains valid for VA contracts. SDVOSB set-asides on SAM.gov are NOT affected. TxDOT DBE is separate and currently frozen. Focus contracting efforts on federal VA set-asides through SAM.gov instead.
+**What this means for ThriveUp:** Veteran-Owned Small Business certification (held through The Collaborative Advocate platform) **remains valid** for Department of Veterans Affairs contracts. Service-Disabled Veteran-Owned Small Business set-asides on the federal System for Award Management (SAM.gov) are **not affected**. The Texas Department of Transportation Disadvantaged Business Enterprise track is separate and currently paused — focus contracting effort on federal Department of Veterans Affairs set-asides through SAM.gov instead.
 
-### Subcontracting Opportunities Still Available
-Despite DBE suspension, prime contractors still need subcontractors for:
-- Community outreach & engagement
-- Workforce development & training
+### Subcontracting opportunities still open
+Even with the Disadvantaged Business Enterprise pause, prime contractors still need subcontractors for:
+- Community outreach and engagement
+- Workforce development and training
 - Environmental services
-- Safety training & compliance
-- Translation & interpretation services
+- Safety training and compliance
+- Translation and interpretation services
 - Traffic management support services
 
-**Contact prime contractors directly** — Balfour Beatty, Lone Star Constructors (Fluor + Austin Bridge & Road)
+**Contact prime contractors directly** — Balfour Beatty, Lone Star Constructors (a partnership of Fluor and Austin Bridge & Road).
 
 ---
 
 ## SECTION 6: DAILY MONITORING CHECKLIST
 
-### Every Day — Check These Portals
+### Every day — check these portals
 
-| Portal | URL | What to Look For |
-|--------|-----|-----------------|
-| City of Austin RFPs | austintexas.gov/financeonline | Social services, housing, workforce contracts |
-| Travis County CDBG | traviscountytx.gov/health-human-services/cdbg | Housing, community development |
-| Pflugerville Bids | pflugervilletx.gov/899/BidsRFQs | Infrastructure, services |
-| PCDC | pfdevelopment.com | Workforce grants, community engagement |
-| TxSmartBuy | txsmartbuy.com/sp | All Texas state RFPs |
-| SAM.gov | sam.gov | Federal contracts, VOSB set-asides |
+| Portal | URL | What to look for |
+|---|---|---|
+| City of Austin Requests for Proposals | austintexas.gov/financeonline | Social services, housing, workforce contracts |
+| Travis County Community Development Block Grant program | traviscountytx.gov/health-human-services/cdbg | Housing, community development |
+| Pflugerville bids and requests for qualifications | pflugervilletx.gov/899/BidsRFQs | Infrastructure, services |
+| Pflugerville Community Development Corporation | pfdevelopment.com | Workforce grants, community engagement |
+| Texas Smart Buy | txsmartbuy.com/sp | All Texas state requests for proposals |
+| System for Award Management (federal) | sam.gov | Federal contracts, Veteran-Owned Small Business set-asides |
 | Grants.gov | grants.gov | Federal grants |
-| St. David's Foundation | stdavidsfoundation.org/funding-opportunities | Health equity, workforce, housing-health |
+| St. David's Foundation | stdavidsfoundation.org/funding-opportunities | Health equity, workforce, housing-and-health |
 | Austin Community Foundation | austincf.org/apply-for-funding | Community grants |
 
-### Weekly — Deeper Scan
+### Weekly — deeper scan
 - Texas Veterans Commission: tvc.texas.gov
-- TDHCA funding opportunities: tdhca.texas.gov/apply-funds
-- TWC funding: twc.texas.gov/agency/funding-opportunities
-- VA acquisition: va.gov/oal/business
-- HUD Exchange: hudexchange.info/programs
+- Texas Department of Housing and Community Affairs funding opportunities: tdhca.texas.gov/apply-funds
+- Texas Workforce Commission funding: twc.texas.gov/agency/funding-opportunities
+- Department of Veterans Affairs Acquisition: va.gov/oal/business
+- HUD Exchange (federal Department of Housing and Urban Development): hudexchange.info/programs
 
 ---
 
 ## SECTION 7: RPLICE QUALITY GATE — REQUIRED FOR ALL SUBMISSIONS
 
-### Pre-Submission Checklist (RPLICE Validates Every Item)
+RPLICE stands for Research, Planning, Logistics, Implementation, Compliance, Evaluation. It is ThriveUp's internal quality-control framework. Every grant proposal and document must pass the checklist below before going to Dr. Flood or to a funder.
+
+### Pre-submission checklist
 
 | Check | Description |
-|-------|-------------|
-| Evidence Base | All claims backed by peer-reviewed research or verifiable data |
-| CFIR Alignment | Implementation strategy maps to Consolidated Framework for Implementation Research |
-| RE-AIM Framework | Reach, Effectiveness, Adoption, Implementation, Maintenance documented |
-| Budget Compliance | All line items within funder guidelines, matching requirements met |
-| Format Compliance | Page limits, required sections, fonts, margins per funder specs |
-| Logic Model | Clear inputs → activities → outputs → outcomes → impact chain |
-| Letters of Support | Partners identified, letters drafted, signatures obtained |
-| Certifications | 501(c)(3) letter, DUNS/UEI, SAM registration, state registrations current |
-| Outcome Metrics | Measurable, time-bound, aligned with funder priorities |
-| MAP-GAP Analysis | Current state, desired state, gap identified, action plan documented |
+|---|---|
+| Evidence base | All claims are backed by peer-reviewed research or verifiable data |
+| Implementation-science alignment | Strategy maps to the Consolidated Framework for Implementation Research (CFIR) |
+| Outcomes framework | Reach, Effectiveness, Adoption, Implementation, and Maintenance (RE-AIM) outcomes documented |
+| Budget compliance | Every line item is within funder guidelines; matching requirements are met |
+| Format compliance | Page limits, required sections, fonts, and margins per funder specifications |
+| Logic model | Clear chain from inputs → activities → outputs → outcomes → impact |
+| Letters of support | Partners identified; letters drafted; signatures obtained |
+| Certifications | 501(c)(3) determination letter; Unique Entity Identifier; System for Award Management registration; state registrations all current |
+| Outcome metrics | Measurable, time-bound, and aligned with funder priorities |
+| Continuous-improvement analysis | Current state, desired state, gap identified, action plan documented |
 
-### Document Production Suite — RPLICE Reviews All 10
-1. Executive Summary — RPLICE validates claims
-2. Full Business Proposal — RPLICE validates methodology
-3. Capability Statement — RPLICE validates credentials
-4. Pitch Deck — RPLICE validates data visualizations
-5. Budget/Cost Proposal — RPLICE validates math & compliance
-6. Past Performance — RPLICE validates outcome data
-7. Org Chart — RPLICE validates role definitions
-8. Video Presentation — RPLICE validates script accuracy
-9. Grant Narrative — RPLICE validates alignment with funder priorities
-10. Scope of Work — RPLICE validates deliverables & timelines
+### Document production package — RPLICE reviews all 10
+1. Executive summary — RPLICE validates claims.
+2. Full business proposal — RPLICE validates methodology.
+3. Capability statement — RPLICE validates credentials.
+4. Pitch deck — RPLICE validates data visualizations.
+5. Budget and cost proposal — RPLICE validates math and compliance.
+6. Past-performance documentation — RPLICE validates outcome data.
+7. Organizational chart — RPLICE validates role definitions.
+8. Video presentation — RPLICE validates script accuracy.
+9. Grant narrative — RPLICE validates alignment with funder priorities.
+10. Scope of work — RPLICE validates deliverables and timelines.
 
 ---
 
 ## SECTION 8: PRIORITY ACTION TIMELINE
 
-### THIS WEEK (March 19–25, 2026)
-- [ ] Submit Travis County CDBG PY2026 survey (deadline March 31)
-- [ ] Call St. David's Foundation (512-879-6600) — introduce ThriveUp before March 30 opening
-- [ ] Register on SAM.gov if not already (required for federal grants)
-- [ ] Contact Pflugerville Community Development for CDBG timeline
-- [ ] Contact PCDC (pfdevelopment.com) about workforce partnership
-- [ ] Complete VOSB/SDVOSB certifications (MCE guiding, deadline March 28)
+### This week (March 19–25, 2026)
+- [ ] Submit the Travis County Community Development Block Grant Program-Year-2026 survey (deadline March 31).
+- [ ] Call St. David's Foundation (512-879-6600) to introduce ThriveUp before the March 30 opening.
+- [ ] Register on the federal System for Award Management (SAM.gov) if not already done — required for federal grants.
+- [ ] Contact Pflugerville Community Development for the Community Development Block Grant timeline.
+- [ ] Contact Pflugerville Community Development Corporation (pfdevelopment.com) about the workforce partnership.
+- [ ] Complete Veteran-Owned Small Business and Service-Disabled Veteran-Owned Small Business certifications (the Minority Center of Excellence is guiding the work; deadline March 28).
 
-### NEXT 2 WEEKS (March 26 – April 8)
-- [ ] Prepare St. David's Foundation LOI (opens March 30)
-- [ ] Draft DFC grant proposal (deadline April 14)
-- [ ] Apply to Austin Community Foundation Forever Austin Fund
-- [ ] Submit Pflugerville CDBG application (if cycle opens)
-- [ ] Contact TWC about Skills Development Fund partnership
+### Next 2 weeks (March 26 – April 8)
+- [ ] Prepare the St. David's Foundation letter of intent (application opens March 30).
+- [ ] Draft the Drug-Free Communities grant proposal (deadline April 14).
+- [ ] Apply to the Austin Community Foundation Forever Austin Fund.
+- [ ] Submit the Pflugerville Community Development Block Grant application (if the cycle opens).
+- [ ] Contact the Texas Workforce Commission about the Skills Development Fund partnership.
 
-### 30 DAYS (April)
-- [ ] Submit DFC grant proposal (April 14 deadline)
-- [ ] Submit WIOA application through Workforce Solutions Capital Area
-- [ ] Draft Foundation Grant LOI
-- [ ] Apply for TDHCA HOME funding
-- [ ] Contact TVC about Funds for Veterans Assistance
+### 30 days (April)
+- [ ] Submit the Drug-Free Communities grant proposal (April 14 deadline).
+- [ ] Submit the Workforce Innovation and Opportunity Act application through Workforce Solutions Capital Area.
+- [ ] Draft the NBA Foundation letter of intent.
+- [ ] Apply for HOME Investment Partnerships funding through the Texas Department of Housing and Community Affairs.
+- [ ] Contact the Texas Veterans Commission about Funds for Veterans Assistance.
 
-### 60–90 DAYS (May–June)
-- [ ] Prepare SSG Fox proposal (June 12–18 deadline)
-- [ ] Apply for VA GPD and HVRP grants
-- [ ] Pursue I-35 subcontracting (direct contact with primes)
-- [ ] Apply for TDHCA ESG when summer cycle opens
-- [ ] Monitor HUD CoC annual NOFO
+### 60 to 90 days (May–June)
+- [ ] Prepare the Staff Sergeant Fox suicide-prevention proposal (June 12–18 deadline).
+- [ ] Apply for the Department of Veterans Affairs Grant and Per Diem program and the Homeless Veterans Reintegration Program.
+- [ ] Pursue Interstate 35 subcontracting through direct contact with the prime contractors.
+- [ ] Apply for Texas Department of Housing and Community Affairs Emergency Solutions Grants when the summer cycle opens.
+- [ ] Monitor the federal Department of Housing and Urban Development annual Continuum of Care Notice of Funding Opportunity.
 
 ---
 
-*All submissions must pass RPLICE quality gate before delivery to Dr. Flood or funder.*
-*RPLICE: Research, Planning, Logistics, Implementation, Compliance, Evaluation*
-*Prepared by ThriveUp Academy | thrivingcommunitiesforall.com*
+## GLOSSARY OF ACRONYMS
+
+| Acronym | Stands for |
+|---|---|
+| AMI | Area Median Income |
+| CDBG | Community Development Block Grant — federal housing/community-services funding |
+| CFIR | Consolidated Framework for Implementation Research |
+| CoC | Continuum of Care — federal homeless-services framework |
+| CTE | Career and Technical Education |
+| DBE | Disadvantaged Business Enterprise — federal small-business contracting program |
+| DFC | Drug-Free Communities (federal grant program) |
+| ESG | Emergency Solutions Grants |
+| GPD | Grant and Per Diem Program (Department of Veterans Affairs) |
+| HACA | Housing Authority of the City of Austin |
+| HHSC | Texas Health and Human Services Commission |
+| HOME | HOME Investment Partnerships Program |
+| HUB | Historically Underutilized Business — Texas minority-business certification |
+| HUD | U.S. Department of Housing and Urban Development |
+| HVRP | Homeless Veterans Reintegration Program |
+| IFR | Interim Final Rule (federal regulation type) |
+| LIHTC | Low-Income Housing Tax Credit |
+| LOI | Letter of Intent |
+| MCE | Minority Center of Excellence |
+| NOFO | Notice of Funding Opportunity |
+| OHDA | Ownership Housing Development Assistance (City of Austin) |
+| PCDC | Pflugerville Community Development Corporation |
+| PISD | Pflugerville Independent School District |
+| PY | Program Year (federal grant calendar) |
+| RE-AIM | Reach, Effectiveness, Adoption, Implementation, Maintenance |
+| RFP / RFQ | Request for Proposals / Request for Qualifications |
+| RHDA | Rental Housing Development Assistance (City of Austin) |
+| RPLICE | Research, Planning, Logistics, Implementation, Compliance, Evaluation |
+| SAM.gov | System for Award Management — federal portal |
+| SDVOSB | Service-Disabled Veteran-Owned Small Business |
+| SSG Fox | Staff Sergeant Parker Gordon Fox Suicide Prevention Grant Program |
+| SSVF | Supportive Services for Veteran Families |
+| TDHCA | Texas Department of Housing and Community Affairs |
+| TVC | Texas Veterans Commission |
+| TWC | Texas Workforce Commission |
+| TxDOT | Texas Department of Transportation |
+| UEI | Unique Entity Identifier (federal contractor ID) |
+| VA | U.S. Department of Veterans Affairs |
+| VOSB | Veteran-Owned Small Business |
+| WIOA | Workforce Innovation and Opportunity Act |
+
+---
+
+*All submissions must pass the RPLICE quality gate before delivery to Dr. Flood or to a funder.*
+*Prepared by ThriveUp Academy — thrivingcommunitiesforall.com*

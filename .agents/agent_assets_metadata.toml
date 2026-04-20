@@ -312,3 +312,21 @@ id = "qUKB_k0dWKi2y6xPuxzUt"
 uri = "file://attached_assets/decks/Corridor-Intelligence-Brief-v1.docx"
 type = "word_document"
 title = "Corridor Intelligence Brief v1 (verified base) — Word"
+
+[[outputs]]
+id = "2yNrbYtk3chxNHl5mFaqv"
+uri = "file://attached_assets/decks/Austin-Housing-Gap-Assessment-v2.docx"
+type = "word_document"
+title = "Austin & Pflugerville Housing Gap Assessment (Word)"
+
+[[outputs]]
+id = "GcHfIF0xAvst8CQ9khWrR"
+uri = "file://attached_assets/decks/Austin-Grant-Presentation-v2.docx"
+type = "word_document"
+title = "ThriveUp Academy — Built for Austin (Grant Presentation, Word)"
+
+[[outputs]]
+id = "nfvLCk3L-40fYt-V2n_0_"
+uri = "file://attached_assets/decks/Austin-Pflugerville-Opportunity-Pipeline-v2.docx"
+type = "word_document"
+title = "Austin & Pflugerville Daily Opportunity Pipeline (Word)"
