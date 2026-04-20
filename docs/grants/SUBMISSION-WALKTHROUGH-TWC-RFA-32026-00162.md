@@ -21,7 +21,7 @@ Open these files on your computer right now and confirm each one exists and open
 | 5 | `TWC-RFA-32026-00162-NARRATIVE.md` | Master narrative — the source of truth for what's in Form A. Use to spot-check Form A content. | `docs/grants/` |
 | 6 | `32026-00162_Form_B_Budget_Workbook_1774465344261.xlsx` | The budget workbook. **Formulas are LOCKED. Type only into the green/yellow input cells.** Read section B below before opening. | `attached_assets/` |
 | 7 | `32026-00162_Form_C_General_Terms_and_Conditions_Exceptions_1774465344261.docx` | T&Cs exceptions form. If you take **no exceptions**, write "No exceptions" on page 1, sign, and upload. | `attached_assets/` |
-| 8 | PfISD Letter of Support (signed PDF from Traci Hendrix, received April 13) | Required partner letter. **Confirm the signed PDF is on your machine.** Template is at `docs/grants/PFISD-PARTNER-LETTER-TEMPLATE.md` if you need to compare. | (your email/downloads) |
+| 8 | `ThriveUp_LOS-13Apr2026_1776121339523.pdf` | **Signed PfISD Letter of Support from Traci Hendrix, dated April 13, 2026. Confirmed in project.** | `attached_assets/` |
 | 9 | `32026-00162_Attachment_1_WIOA_STC_PY25_(1-15-2026).pdf` | Reference only — WIOA Standard Terms. No action. | `attached_assets/` |
 | 10 | `32026-00162_Attachment_2_Competitive_RFA_GTCs_3-14-25_(Fed).pdf` | Reference only — General Terms. No action. | `attached_assets/` |
 | 11 | `32026-00162_Attachment_3_Budget_Requirements_Instructions.pdf` | **Print this. Keep it next to you while filling Form B.** | `attached_assets/` |
@@ -83,17 +83,16 @@ Sign the last page (digital signature is fine for Bonfire). Save as PDF: `TCAF_F
 
 ## D. PfISD Letter of Support — confirm
 
-Open the signed PDF from Traci Hendrix. Check:
+Open `attached_assets/ThriveUp_LOS-13Apr2026_1776121339523.pdf` (signed by Traci Hendrix, dated April 13, 2026 — already in your project). Final spot-check:
+
 - [ ] On Pflugerville ISD letterhead
-- [ ] Dated on or before April 21, 2026
+- [ ] Dated April 13, 2026 (on or before April 21 — ✅)
 - [ ] Names the RFA: "RFA 32026-00162 — Workforce Readiness Training for CTE Students II"
 - [ ] Names The Collaborative Advocate as the applicant
-- [ ] Signed by Traci Hendrix, Executive Director of Career/College/Military Readiness
+- [ ] Signed by Traci Hendrix
 - [ ] Mentions the FERPA-compliant data sharing language
 
-If anything is missing, email Traci this morning before you submit. Do not submit without a letter that names the RFA correctly.
-
-Save as: `TCAF_PfISD_LOS_signed.pdf`.
+If any of those is **missing** from the PDF (rare, but worth 60 seconds to verify), email Traci first thing tomorrow before you submit. Otherwise upload this exact file to Bonfire.
 
 ---
 
