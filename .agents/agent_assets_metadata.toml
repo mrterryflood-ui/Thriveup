@@ -336,3 +336,27 @@ id = "6U3tcJN-2Qkc_90oS324Y"
 uri = "file://attached_assets/decks/I35-Corridor-Black-Youth-Assessment-v2.docx"
 type = "word_document"
 title = "I-35 Corridor — Waco ↔ Austin Black-Youth Fatherhood & Mentorship Gap Assessment"
+
+[[outputs]]
+id = "crBlntwO8vwFBiF8cPLbL"
+uri = "file://attached_assets/32026-00162_Form_A_Core_Application_(1)_1774465344261.docx"
+type = "word_document"
+title = "TWC Form A — Core Application (blank from TWC)"
+
+[[outputs]]
+id = "QRPd-lfNlPsyEJ6GQ1O5F"
+uri = "file://attached_assets/32026-00162_Form_B_Budget_Workbook_1774465344261.xlsx"
+type = "table"
+title = "TWC Form B — Budget Workbook (Excel, formulas locked)"
+
+[[outputs]]
+id = "Us2B8ZMe57fd8pnBtFxES"
+uri = "file://attached_assets/32026-00162_Form_C_General_Terms_and_Conditions_Exceptions_1774465344261.docx"
+type = "word_document"
+title = "TWC Form C — Terms & Conditions Exceptions"
+
+[[outputs]]
+id = "YItpbV1jO0qcDOm5gtSGa"
+uri = "file://attached_assets/ThriveUp_LOS-13Apr2026_1776121339523.pdf"
+type = "pdf"
+title = "PfISD Letter of Support (signed by Traci Hendrix)"
