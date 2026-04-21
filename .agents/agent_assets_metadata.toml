@@ -366,3 +366,15 @@ id = "VlTqfSqsCS4EgKdsY9NZJ"
 uri = "file://docs/grants/TWC-FORM-A-FILL-IN-SHEET.md"
 type = "text"
 title = "Form A — Fill-In Cheat Sheet (open this next to Form A in Word)"
+
+[[outputs]]
+id = "fRS6XWKXt55Y7B1r_qyvU"
+uri = "file://docs/grants/TCAF_FormB_Budget_2026-04-21.xlsx"
+type = "table"
+title = "Form B — Pre-Filled Budget Workbook ($1,620,000) — open in Excel"
+
+[[outputs]]
+id = "qaleWh5tHZaKgGcoij_aZ"
+uri = "file://docs/grants/TWC-FORM-B-BUDGET-COMPLETE.md"
+type = "text"
+title = "Form B Budget — Reference Doc (cell-by-cell map + justifications)"
