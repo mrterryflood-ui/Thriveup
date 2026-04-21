@@ -360,3 +360,9 @@ id = "YItpbV1jO0qcDOm5gtSGa"
 uri = "file://attached_assets/ThriveUp_LOS-13Apr2026_1776121339523.pdf"
 type = "pdf"
 title = "PfISD Letter of Support (signed by Traci Hendrix)"
+
+[[outputs]]
+id = "VlTqfSqsCS4EgKdsY9NZJ"
+uri = "file://docs/grants/TWC-FORM-A-FILL-IN-SHEET.md"
+type = "text"
+title = "Form A — Fill-In Cheat Sheet (open this next to Form A in Word)"
