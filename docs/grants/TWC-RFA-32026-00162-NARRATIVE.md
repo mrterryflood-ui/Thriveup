@@ -1,8 +1,9 @@
 # TWC RFA 32026-00162 — Workforce Readiness Training for CTE Students II
 
-## Application Narrative — The Collaborative Advocate
+## Application Narrative — The Collaborative Advocate Foundation
 
-**Applicant:** The Collaborative Advocate (501(c)(3))
+**Applicant:** The Collaborative Advocate Foundation (501(c)(3))
+**SAM.gov UEI:** KDDVD1FGLW35 (registration submitted Apr 19, 2026; CAGE activation in process)
 **Program Name:** ThriveUp Workforce Readiness Academy
 **Contact:** Dr. Terry Flood, Founder & CEO
 **Email:** mr.terryflood@gmail.com
@@ -18,13 +19,13 @@
 
 ### 1.1 Organization Background
 
-The Collaborative Advocate is a 501(c)(3) nonprofit organization headquartered in Austin, Texas. We are veteran-founded and Black-led, registered on SAM.gov, and purpose-built to serve under-resourced communities through technology-driven workforce development, education, and comprehensive support services.
+The Collaborative Advocate Foundation is a 501(c)(3) nonprofit organization headquartered in Austin, Texas. We are veteran-founded and Black-led, registered on SAM.gov, and purpose-built to serve under-resourced communities through technology-driven workforce development, education, and comprehensive support services.
 
 Our founder, Dr. Terry Flood, is a military veteran who brings operational discipline, community understanding, and firsthand knowledge of the barriers facing the populations we serve. Dr. Flood currently serves on the School Health Advisory Council (SHAC) for Pflugerville Independent School District, establishing a direct partnership pipeline to the CTE students this RFA is designed to serve.
 
 ### 1.2 Platform & Infrastructure
 
-The Collaborative Advocate operates ThriveUp Academy, an AI-powered workforce development platform that serves as the anchor of a 24-platform interdependent ecosystem. This is not a collection of disconnected programs — it is a coordinated system where each platform addresses a specific dimension of the challenges our participants face:
+The Collaborative Advocate Foundation operates ThriveUp Academy, an AI-powered workforce development platform that serves as the anchor of a 24-platform interdependent ecosystem. This is not a collection of disconnected programs — it is a coordinated system where each platform addresses a specific dimension of the challenges our participants face:
 
 - **ThriveUp Academy** — Core curriculum delivery, AI-powered learning, career pathways
 - **Whole-Person Health** — Mental health screening, wellness resources, crisis referrals
@@ -42,7 +43,7 @@ This ecosystem approach means that when a CTE student enrolls in our workforce r
 - Active WIOA-aligned workforce development programming
 - Established SHAC membership with Pflugerville ISD
 - Regional hubs in Austin, Manor, and Pflugerville
-- SAM.gov registered (CDC designation)
+- SAM.gov UEI: KDDVD1FGLW35 (registration submitted Apr 19, 2026; in final CAGE activation. Per 2 CFR §25, the assigned UEI satisfies the federal identifier requirement during the activation window.)
 - Experience serving justice-involved youth, veterans, and families navigating systemic barriers
 - Technology infrastructure capable of scaling to serve 500+ students simultaneously
 
@@ -308,7 +309,7 @@ All data will be reported to TWC on the schedule specified in the contract, usin
 
 ### 5.3 Continuous Quality Improvement
 
-The Collaborative Advocate operates a Continuous Quality Improvement (CQI) engine integrated into ThriveUp. This system uses the MAP-GAP framework (Measure, Analyze, Plan — Gap Analysis Protocol) to continuously identify performance gaps, prioritize improvements, and implement changes mid-program rather than waiting for end-of-grant evaluations.
+The Collaborative Advocate Foundation operates a Continuous Quality Improvement (CQI) engine integrated into ThriveUp. This system uses the MAP-GAP framework (Measure, Analyze, Plan — Gap Analysis Protocol) to continuously identify performance gaps, prioritize improvements, and implement changes mid-program rather than waiting for end-of-grant evaluations.
 
 ---
 
@@ -347,11 +348,11 @@ Dr. Terry Flood serves on the SHAC for Pflugerville ISD, establishing an ongoing
 
 ### 7.2 Neighborhood Champions
 
-The Collaborative Advocate recruits and coordinates neighborhood champions — local professionals, business owners, faith leaders, and mentors from the communities our students live in. Champions participate in weekly live check-ins, contribute motivational video content, and serve as accessible mentors. This model ensures that students are not just learning employability skills from a screen — they are building real relationships with professionals who look like them and have walked similar paths.
+The Collaborative Advocate Foundation recruits and coordinates neighborhood champions — local professionals, business owners, faith leaders, and mentors from the communities our students live in. Champions participate in weekly live check-ins, contribute motivational video content, and serve as accessible mentors. This model ensures that students are not just learning employability skills from a screen — they are building real relationships with professionals who look like them and have walked similar paths.
 
 ### 7.3 Employer Partners
 
-The Collaborative Advocate will engage Austin-area employers to:
+The Collaborative Advocate Foundation will engage Austin-area employers to:
 - Provide input on employability skills priorities
 - Participate in career days and mock interview events
 - Offer internship and job shadow opportunities
@@ -372,7 +373,7 @@ Beyond the grant period, the program sustains through:
 
 ## 8. ASSURANCES
 
-- The Collaborative Advocate is a 501(c)(3) tax-exempt nonprofit organization
+- The Collaborative Advocate Foundation is a 501(c)(3) tax-exempt nonprofit organization
 - We are registered on SAM.gov
 - We will comply with all TWC reporting requirements and contract terms
 - We will not alter Form B formulas
