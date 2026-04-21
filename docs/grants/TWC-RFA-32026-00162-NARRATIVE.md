@@ -2,7 +2,7 @@
 
 ## Application Narrative — The Collaborative Advocate Foundation
 
-**Applicant:** The Collaborative Advocate Foundation (501(c)(3))
+**Applicant:** The Collaborative Advocate Foundation (Texas nonprofit corporation; 501(c)(3) determination pending)
 **SAM.gov UEI:** KDDVD1FGLW35 (registration submitted Apr 19, 2026; CAGE activation in process)
 **Program Name:** ThriveUp Workforce Readiness Academy
 **Contact:** Dr. Terry Flood, Founder & CEO
@@ -19,7 +19,7 @@
 
 ### 1.1 Organization Background
 
-The Collaborative Advocate Foundation is a 501(c)(3) nonprofit organization headquartered in Austin, Texas. We are veteran-founded and Black-led, registered on SAM.gov, and purpose-built to serve under-resourced communities through technology-driven workforce development, education, and comprehensive support services.
+The Collaborative Advocate Foundation is a Texas nonprofit corporation, registered with the Texas Secretary of State, headquartered in Pflugerville, Texas (Austin metro). We are veteran-founded and Black-led, registered on SAM.gov (UEI KDDVD1FGLW35), and purpose-built to serve under-resourced communities through technology-driven workforce development, education, and comprehensive support services. Our IRS 501(c)(3) determination is pending; nonprofit status is verifiable via Texas Secretary of State filings.
 
 Our founder, Dr. Terry Flood, is a military veteran who brings operational discipline, community understanding, and firsthand knowledge of the barriers facing the populations we serve. Dr. Flood currently serves on the School Health Advisory Council (SHAC) for Pflugerville Independent School District, establishing a direct partnership pipeline to the CTE students this RFA is designed to serve.
 
@@ -373,11 +373,11 @@ Beyond the grant period, the program sustains through:
 
 ## 8. ASSURANCES
 
-- The Collaborative Advocate Foundation is a 501(c)(3) tax-exempt nonprofit organization
+- The Collaborative Advocate Foundation is a Texas nonprofit corporation registered with the Texas Secretary of State (501(c)(3) determination pending IRS review)
 - We are registered on SAM.gov
 - We will comply with all TWC reporting requirements and contract terms
 - We will not alter Form B formulas
-- We will provide the 501(c)(3) determination letter with this application
+- We will provide our Texas Secretary of State Certificate of Formation as verifiable evidence of nonprofit status, per Form A submission checklist (which accepts SOS registration in lieu of IRS Determination Letter)
 - We will execute Form A as required
 - We understand the grant period begins July 2026 with a 24-month initial term, renewable for up to 5 years
 - We will maintain all required records and make them available for audit
@@ -389,7 +389,7 @@ Beyond the grant period, the program sustains through:
 - [ ] Form A — Core Application (signed PDF + Word) — DRAFT COMPLETE: docs/grants/TWC-RFA-32026-00162-FORM-A-APPLICATION.doc
 - [ ] Form B — Budget Workbook (Excel, formulas unaltered) — TEMPLATE: attached_assets/32026-00162_Form_B_Budget_Workbook.xlsx
 - [ ] Form C — GTC Exceptions (optional, Word)
-- [ ] Proof of nonprofit status — IRS 501(c)(3) determination letter (PDF)
+- [ ] Proof of nonprofit status — Texas Secretary of State Certificate of Formation (PDF) [accepted per Form A checklist in lieu of IRS Determination Letter]
 - [x] Pflugerville ISD Letter of Support — RECEIVED April 13, 2026 from Traci Hendrix, Executive Director of Career, College, Military Readiness (attached_assets/ThriveUp_LOS-13Apr2026.pdf)
 - [ ] Authorized Representative signed certifications confirmation (Yes/No on Bonfire)
 - [ ] Download and review Amendment II (posted April 13, 2026 on Bonfire)
