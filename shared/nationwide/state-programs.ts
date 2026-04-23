@@ -127,8 +127,81 @@ export const STATE_PROGRAMS: BenefitProgram[] = [
   ST("IL", "veterans", "Illinois Dept of Veterans' Affairs", "https://veterans.illinois.gov/", "1-217-782-6641"),
   ST("IL", "income-employment", "Illinois TANF", "https://www.dhs.state.il.us/page.aspx?item=30358", "1-800-843-6154",
      { eligibility: { pregnancyOrParent: true, incomeFPLmax: 50 } }),
+
+  // ---------- BASELINE: remaining 51 jurisdictions (Medicaid + SNAP + SHIP) ----------
+  // Three real programs per jurisdiction: state Medicaid portal, state SNAP portal
+  // (or USDA state directory fallback), and SHIP via the national locator that
+  // resolves to the correct state office. Hub Workbench grows this via discovery.
+  ...baseline51(),
 ];
 
-// TODO (nationwide rollout): extend STATE_PROGRAMS with the remaining
-// 45 states + DC using the same ST() helper. Every addition must be
-// committed to BOTH peers in lockstep so the dedup keys align.
+// Baseline records for the 51 jurisdictions not deep-seeded above.
+// SHIP_LOCATOR is the national SHIP TA Center locator; passing &state=XX
+// resolves to that state's SHIP office.
+function baseline51(): BenefitProgram[] {
+  const SHIP = "https://www.shiphelp.org/about-medicare/regional-ship-location";
+  const SNAP_DIR = "https://www.fns.usda.gov/snap/state-directory";
+  type B = [string, string, string, string, string]; // code, MedicaidName, MedicaidURL, SNAPName, SNAPURL
+  const data: B[] = [
+    ["AL","Alabama Medicaid","https://medicaid.alabama.gov/","Alabama SNAP","https://dhr.alabama.gov/services/food-assistance/"],
+    ["AK","Alaska Medicaid (DenaliCare)","https://health.alaska.gov/dpa/Pages/medicaid/default.aspx","Alaska SNAP (Food Stamps)","https://health.alaska.gov/dpa/Pages/foodstamps/default.aspx"],
+    ["AZ","Arizona AHCCCS (Medicaid)","https://www.azahcccs.gov/","Arizona Nutrition Assistance","https://des.az.gov/services/basic-needs/food-assistance"],
+    ["AR","Arkansas Medicaid","https://medicaid.mmis.arkansas.gov/","Arkansas SNAP","https://humanservices.arkansas.gov/divisions-shared-services/county-operations/programs-services/snap/"],
+    ["CO","Health First Colorado (Medicaid)","https://www.healthfirstcolorado.com/","Colorado SNAP","https://cdhs.colorado.gov/snap"],
+    ["CT","Connecticut HUSKY Health (Medicaid)","https://portal.ct.gov/husky","Connecticut SNAP","https://portal.ct.gov/dss/snap/supplemental-nutrition-assistance-program---snap"],
+    ["DE","Delaware Medicaid","https://dhss.delaware.gov/dhss/dmma/medicaid.html","Delaware SNAP","https://dhss.delaware.gov/dhss/dss/foodstamps.html"],
+    ["GA","Georgia Medicaid","https://medicaid.georgia.gov/","Georgia SNAP","https://dfcs.georgia.gov/services/food-stamps"],
+    ["HI","Hawaii Med-QUEST (Medicaid)","https://medquest.hawaii.gov/","Hawaii SNAP","https://humanservices.hawaii.gov/bessd/snap/"],
+    ["ID","Idaho Medicaid","https://healthandwelfare.idaho.gov/services-programs/medicaid-health","Idaho SNAP","https://healthandwelfare.idaho.gov/services-programs/food-assistance"],
+    ["IN","Indiana Medicaid (Hoosier Healthwise)","https://www.in.gov/medicaid/","Indiana SNAP","https://www.in.gov/fssa/dfr/snap/"],
+    ["IA","Iowa Medicaid (HHS)","https://hhs.iowa.gov/programs/welcome-iowa-medicaid","Iowa SNAP","https://hhs.iowa.gov/programs/welcome-iowa-snap"],
+    ["KS","KanCare (Kansas Medicaid)","https://www.kancare.ks.gov/","Kansas SNAP (Food Assistance)","https://www.dcf.ks.gov/services/ees/Pages/Food/FoodAssistance.aspx"],
+    ["KY","Kentucky Medicaid","https://www.chfs.ky.gov/agencies/dms/Pages/default.aspx","Kentucky SNAP","https://www.chfs.ky.gov/agencies/dcbs/dfs/Pages/snap.aspx"],
+    ["LA","Louisiana Healthy Louisiana (Medicaid)","https://ldh.la.gov/medicaid","Louisiana SNAP","https://www.dcfs.louisiana.gov/page/snap"],
+    ["ME","MaineCare (Medicaid)","https://www.maine.gov/dhhs/ofi/programs-services/medicaid-mainecare","Maine SNAP","https://www.maine.gov/dhhs/ofi/programs-services/food-supplement"],
+    ["MD","Maryland Medicaid","https://health.maryland.gov/mmcp/Pages/Home.aspx","Maryland SNAP (FSP)","https://dhs.maryland.gov/supplemental-nutrition-assistance-program/"],
+    ["MA","MassHealth (Medicaid)","https://www.mass.gov/masshealth","Massachusetts SNAP","https://www.mass.gov/snap-benefits-formerly-food-stamps"],
+    ["MI","Michigan Medicaid","https://www.michigan.gov/mdhhs/assistance-programs/medicaid","Michigan Food Assistance Program","https://www.michigan.gov/mdhhs/assistance-programs/food"],
+    ["MN","Minnesota Medical Assistance","https://mn.gov/dhs/people-we-serve/adults/health-care/health-care-programs/programs-and-services/medical-assistance.jsp","Minnesota SNAP","https://mn.gov/dhs/people-we-serve/adults/economic-assistance/food-nutrition/programs-and-services/supplemental-nutrition-assistance-program.jsp"],
+    ["MS","Mississippi Medicaid","https://medicaid.ms.gov/","Mississippi SNAP","https://www.mdhs.ms.gov/economic-assistance/snap/"],
+    ["MO","MO HealthNet (Medicaid)","https://mydss.mo.gov/healthcare","Missouri SNAP (Food Stamps)","https://mydss.mo.gov/food-assistance"],
+    ["MT","Montana Medicaid (HMK)","https://dphhs.mt.gov/MontanaHealthcarePrograms","Montana SNAP","https://dphhs.mt.gov/hcsd/snap"],
+    ["NE","Nebraska Medicaid","https://dhhs.ne.gov/Pages/Medicaid.aspx","Nebraska SNAP","https://dhhs.ne.gov/Pages/Economic-Assistance.aspx"],
+    ["NV","Nevada Medicaid","https://dhcfp.nv.gov/","Nevada SNAP","https://dwss.nv.gov/SNAP/SNAP/"],
+    ["NH","New Hampshire Medicaid","https://www.dhhs.nh.gov/programs-services/medicaid","New Hampshire SNAP (Food Stamps)","https://www.dhhs.nh.gov/programs-services/economic-stability/food-stamp-program-snap"],
+    ["NJ","NJ FamilyCare (Medicaid)","https://www.njfamilycare.org/","NJ SNAP","https://www.nj.gov/humanservices/njsnap/"],
+    ["NM","New Mexico Medicaid (Centennial Care)","https://www.hsd.state.nm.us/lookingforassistance/medicaid/","New Mexico SNAP","https://www.hsd.state.nm.us/lookingforassistance/supplemental-nutrition-assistance-program-snap-/"],
+    ["NC","NC Medicaid","https://medicaid.ncdhhs.gov/","NC FNS (SNAP)","https://www.ncdhhs.gov/divisions/social-services/food-and-nutrition-services-food-stamps"],
+    ["ND","North Dakota Medicaid","https://www.hhs.nd.gov/healthcare-coverage/medicaid","North Dakota SNAP","https://www.hhs.nd.gov/snap"],
+    ["OH","Ohio Medicaid","https://medicaid.ohio.gov/","Ohio SNAP (Food Assistance)","https://jfs.ohio.gov/job-family-services/food-assistance"],
+    ["OK","SoonerCare (Oklahoma Medicaid)","https://oklahoma.gov/ohca.html","Oklahoma SNAP","https://oklahoma.gov/okdhs/services/snap.html"],
+    ["OR","Oregon Health Plan (Medicaid)","https://www.oregon.gov/oha/HSD/OHP/Pages/index.aspx","Oregon SNAP","https://www.oregon.gov/odhs/food/Pages/snap.aspx"],
+    ["PA","Pennsylvania Medical Assistance (Medicaid)","https://www.dhs.pa.gov/Services/Assistance/Pages/Medical-Assistance.aspx","Pennsylvania SNAP","https://www.dhs.pa.gov/Services/Assistance/Pages/SNAP.aspx"],
+    ["RI","Rhode Island Medicaid","https://eohhs.ri.gov/consumer/find-services/medicaid","Rhode Island SNAP","https://dhs.ri.gov/programs-and-services/snap-supplemental-nutrition-assistance-program"],
+    ["SC","Healthy Connections (SC Medicaid)","https://www.scdhhs.gov/","South Carolina SNAP","https://dss.sc.gov/snap/"],
+    ["SD","South Dakota Medicaid","https://dss.sd.gov/medicaid/","South Dakota SNAP","https://dss.sd.gov/foodstamps/"],
+    ["TN","TennCare (Tennessee Medicaid)","https://www.tn.gov/tenncare.html","Tennessee SNAP (Families First)","https://www.tn.gov/humanservices/for-families/supplemental-nutrition-assistance-program-snap.html"],
+    ["UT","Utah Medicaid","https://medicaid.utah.gov/","Utah SNAP","https://jobs.utah.gov/customereducation/services/foodstamps/index.html"],
+    ["VT","Vermont Medicaid (Green Mountain Care)","https://dvha.vermont.gov/members","Vermont 3SquaresVT (SNAP)","https://dcf.vermont.gov/benefits/3SquaresVT"],
+    ["VA","Virginia Medicaid (Cardinal Care)","https://www.dmas.virginia.gov/","Virginia SNAP","https://www.dss.virginia.gov/benefit/snap.cgi"],
+    ["WA","Washington Apple Health (Medicaid)","https://www.hca.wa.gov/health-care-services-supports/apple-health-medicaid-coverage","Washington Basic Food (SNAP)","https://www.dshs.wa.gov/esa/community-services-offices/basic-food"],
+    ["WV","West Virginia Medicaid","https://dhhr.wv.gov/bms/Pages/default.aspx","West Virginia SNAP","https://dhhr.wv.gov/bcf/Services/familyassistance/Pages/SNAP.aspx"],
+    ["WI","BadgerCare Plus (WI Medicaid)","https://www.dhs.wisconsin.gov/medicaid/","FoodShare Wisconsin (SNAP)","https://www.dhs.wisconsin.gov/foodshare/index.htm"],
+    ["WY","Wyoming Medicaid","https://health.wyo.gov/healthcarefin/medicaid/","Wyoming SNAP","https://dfs.wyo.gov/assistance-programs/snap-food-stamps/"],
+    ["DC","DC Medicaid","https://dhcf.dc.gov/","DC SNAP","https://dhs.dc.gov/service/supplemental-nutrition-assistance-snap"],
+    ["PR","Puerto Rico Medicaid","https://medicaid.pr.gov/","Puerto Rico Nutrition Assistance (PAN)","https://servicios.adsef.pr.gov/"],
+    ["VI","USVI Medical Assistance Program","https://www.dhs.gov.vi/programs/medical-assistance.html","USVI SNAP",SNAP_DIR],
+    ["GU","Guam Medicaid","https://dphss.guam.gov/dhcf-medicaid/","Guam SNAP","https://dphss.guam.gov/bureau-of-economic-security/"],
+    ["AS","American Samoa Medicaid","https://www.lbj.as/health-services/medicaid/","American Samoa Nutrition Assistance",SNAP_DIR],
+    ["MP","CNMI Medicaid","https://www.cnmimedicaid.com/","CNMI Nutrition Assistance",SNAP_DIR],
+  ];
+  const out: BenefitProgram[] = [];
+  for (const [code, mName, mUrl, sName, sUrl] of data) {
+    out.push(ST(code, "healthcare-access", mName, mUrl, "2-1-1",
+      { eligibility: { incomeFPLmax: 138 }, annualDollarValueEstimate: 8400 }));
+    out.push(ST(code, "food-nutrition", sName, sUrl, "2-1-1",
+      { eligibility: { incomeFPLmax: 130 }, annualDollarValueEstimate: 2400 }));
+    out.push(ST(code, "healthy-aging", `${code} SHIP (State Health Insurance Assistance Program)`, SHIP, "1-877-839-2675"));
+  }
+  return out;
+}

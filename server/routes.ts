@@ -398,6 +398,8 @@ export async function registerRoutes(
   registerObjectStorageRoutes(app);
   registerCrossPlatformRoutes(app);
   registerGrantRoutes(app);
+  const { registerLoiRoutes } = await import("./loi-routes");
+  registerLoiRoutes(app);
   registerReentryRoutes(app);
   registerPartnerRoutes(app);
   registerOutcomeRoutes(app);

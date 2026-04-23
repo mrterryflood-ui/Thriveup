@@ -4,6 +4,7 @@ import {
   participantProfiles,
   serviceRecords,
   grantProjects,
+  grantOpportunities,
   staffingPlans,
   complianceCalendar,
   employerPartners,
@@ -40,6 +41,7 @@ export async function seedComprehensive(): Promise<void> {
     await seedBenefitsData();
     await seedPreventionFramework();
     await seedFacilitatorData();
+    await seedNsfTechAccessOpportunity();
     console.log("[Seed] Comprehensive seed completed");
   } catch (err) {
     console.error("[Seed] Comprehensive seed error:", err);
@@ -99,6 +101,35 @@ async function seedParticipantData() {
 
   await db.insert(serviceRecords).values(services);
   console.log("[Seed] Participant profiles and service records seeded");
+}
+
+async function seedNsfTechAccessOpportunity() {
+  const { eq } = await import("drizzle-orm");
+  const exists = await db.select().from(grantOpportunities).where(eq(grantOpportunities.cfda, "47.084-26-508")).limit(1);
+  if (exists.length > 0) return;
+  await db.insert(grantOpportunities).values({
+    title: "NSF 26-508 — TechAccess: AI-Ready America (State/Territory Coordination Hub)",
+    agency: "National Science Foundation (TIP/EDU/CISE) with DOL/ETA, USDA-NIFA, SBA",
+    fundingAmount: "$1,000,000/year × 3 years (Y4 optional)",
+    deadline: new Date("2026-06-16T22:00:00Z"),
+    description: "National program funding one Coordination Hub per state/territory to accelerate AI readiness across education, workforce, small business, and public-serving sectors. TCAF positioning: Texas State Coordination Hub anchored on RPLICE v2 (live multi-org coordination protocol) + 24-platform AI ecosystem + open Hub Adoption Kit usable by all 55 other jurisdictions.",
+    eligibilityCriteria: "One proposal per institution. No cost-share. Round 1: 10 hubs (LOI Jun 16, 2026; full Jul 16, 2026). Round 2: 20 hubs (LOI Dec 15, 2026). Round 3: remainder (LOI Jun 1, 2027).",
+    focusAreas: ["AI readiness","workforce development","small business","cooperative extension","state coordination","federal partner integration"],
+    grantType: "Standard Grant or Continuing Grant",
+    sourceUrl: "https://www.nsf.gov/funding/opportunities/nsf26-508",
+    cfda: "47.084-26-508",
+    awardFloor: 1000000,
+    awardCeiling: 4000000,
+    estimatedFunding: 224000000,
+    expectedAwards: 56,
+    category: "Federal — National Science Foundation",
+    status: "loi_drafting",
+    source: "manual",
+    postedDate: new Date("2026-03-25T00:00:00Z"),
+    responseDate: new Date("2026-07-16T22:00:00Z"),
+    notes: "TCAF Texas Hub Workbench live at /nsf-techaccess-hub. Adoption kit at shared/nationwide/hub-adoption-kit/. Live AI-grounded state intelligence + LOI generator working for all 56 jurisdictions.",
+  });
+  console.log("[Seed] NSF 26-508 TechAccess opportunity inserted");
 }
 
 async function seedGrantData() {
