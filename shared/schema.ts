@@ -4237,9 +4237,33 @@ export const benefitsApplications = pgTable("benefits_applications", {
   externalId: varchar("external_id", { length: 200 }),
   peerPlatform: varchar("peer_platform", { length: 50 }),
   isPeerMirrored: boolean("is_peer_mirrored").default(false),
+  // Nationwide RPLICE v2 fields
+  residentRef: varchar("resident_ref", { length: 32 }),             // sha256(...).substr(0,16)
+  programSlug: varchar("program_slug", { length: 150 }),            // canonical, e.g. "federal:medicaid"
+  stateCode: varchar("state_code", { length: 2 }),                  // 2-letter ISO
+  grantPartnerId: varchar("grant_partner_id", { length: 100 }),
+  grantPartnerName: varchar("grant_partner_name", { length: 200 }),
+  grantReportingTags: text("grant_reporting_tags").array(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
+
+export const grantPartners = pgTable("grant_partners", {
+  id: varchar("id", { length: 100 }).primaryKey(),
+  name: varchar("name", { length: 200 }).notNull(),
+  coverageStates: text("coverage_states").array().notNull().default(sql`ARRAY[]::text[]`),
+  coverageCounties: text("coverage_counties").array().notNull().default(sql`ARRAY[]::text[]`),
+  focusAreas: text("focus_areas").array().notNull().default(sql`ARRAY[]::text[]`),
+  reportingCadence: varchar("reporting_cadence", { length: 30 }).notNull().default("quarterly"),
+  rpliceChannel: varchar("rplice_channel", { length: 100 }),
+  activeFrom: varchar("active_from", { length: 20 }),
+  activeUntil: varchar("active_until", { length: 20 }),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertGrantPartnerSchema = createInsertSchema(grantPartners).omit({ createdAt: true });
+export type InsertGrantPartner = z.infer<typeof insertGrantPartnerSchema>;
+export type GrantPartner = typeof grantPartners.$inferSelect;
 
 export const insertBenefitsApplicationSchema = createInsertSchema(benefitsApplications).omit({ id: true, createdAt: true, updatedAt: true });
 export type InsertBenefitsApplication = z.infer<typeof insertBenefitsApplicationSchema>;

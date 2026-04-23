@@ -3,6 +3,7 @@ import { db } from "./storage";
 import {
   benefitsEnrollmentData, benefitsPartners, benefitsChwNetwork,
   benefitsScreenings, benefitsRenewals, benefitsApplications,
+  grantPartners as grantPartnersTable,
   insertBenefitsPartnerSchema, insertBenefitsChwSchema,
   insertBenefitsScreeningSchema, insertBenefitsRenewalSchema,
   insertBenefitsApplicationSchema,
@@ -10,6 +11,136 @@ import {
 import { eq, desc, and, count, sql } from "drizzle-orm";
 import { generateAIResponse, generateAIJSON } from "./ai-provider";
 import { collaborativeResponse, collaborativeJSON } from "./collaborative-ai";
+import {
+  CATALOG, CATALOG_VERSION, ACCEPTED_EVENT_TYPES, BENEFIT_AREAS,
+  FEDERAL_PROGRAMS, STATE_PROGRAMS, DEFAULT_GRANT_PARTNERS,
+  matchGrantPartners, resolveZip, computeResidentRefFromFields,
+} from "@shared/nationwide";
+import type { GrantPartner as NationwideGrantPartner, BenefitAreaId } from "@shared/nationwide";
+
+// FIPS → 2-letter state code (state FIPS = first 2 digits of county FIPS)
+const FIPS_STATE: Record<string, string> = {
+  "01":"AL","02":"AK","04":"AZ","05":"AR","06":"CA","08":"CO","09":"CT","10":"DE","11":"DC","12":"FL",
+  "13":"GA","15":"HI","16":"ID","17":"IL","18":"IN","19":"IA","20":"KS","21":"KY","22":"LA","23":"ME",
+  "24":"MD","25":"MA","26":"MI","27":"MN","28":"MS","29":"MO","30":"MT","31":"NE","32":"NV","33":"NH",
+  "34":"NJ","35":"NM","36":"NY","37":"NC","38":"ND","39":"OH","40":"OK","41":"OR","42":"PA","44":"RI",
+  "45":"SC","46":"SD","47":"TN","48":"TX","49":"UT","50":"VT","51":"VA","53":"WA","54":"WV","55":"WI","56":"WY",
+};
+function fipsToState(fips: string | null | undefined): string | null {
+  if (!fips) return null;
+  return FIPS_STATE[String(fips).slice(0, 2)] || null;
+}
+
+// Benefit-type (legacy vocabulary on our side) → canonical federal slug.
+const LEGACY_BENEFIT_TO_SLUG: Record<string, string> = {
+  SNAP: "federal:snap", Medicaid: "federal:medicaid", CHIP: "federal:chip",
+  WIC: "federal:wic", EITC: "federal:eitc", CTC: "federal:ctc",
+  Marketplace: "federal:aca-marketplace", SSI: "federal:ssi", TANF: "federal:tanf",
+  SSDI: "federal:ssdi", Medicare: "federal:medicare", Section8: "federal:section8",
+  LIHEAP: "federal:liheap", HeadStart: "federal:head-start",
+};
+const LEGACY_BENEFIT_TO_AREA: Record<string, BenefitAreaId> = {
+  SNAP: "food-nutrition", Medicaid: "healthcare-access", CHIP: "healthy-children-families",
+  WIC: "healthy-children-families", EITC: "income-employment", CTC: "healthy-children-families",
+  Marketplace: "healthcare-access", SSI: "income-employment", TANF: "income-employment",
+  SSDI: "income-employment",
+};
+
+// Load grant partners from DB, falling back to seed. Cached per-request.
+// Reverse lookup: canonical slug → legacy WAB2 benefit-type vocabulary (SNAP/Medicaid/etc).
+function slugToLegacyBenefit(slug: string | null | undefined): string | null {
+  if (!slug) return null;
+  for (const [legacy, s] of Object.entries(LEGACY_BENEFIT_TO_SLUG)) {
+    if (s === slug) return legacy;
+  }
+  return null;
+}
+
+// Normalize status vocabulary across peers. Mirrors LifeBridge's normalizer:
+//   approved → enrolled; denied/withdrew/withdrawn → declined.
+function normalizePeerStatus(status: string | null | undefined): string | null {
+  if (!status) return null;
+  const s = String(status).toLowerCase();
+  if (s === "approved") return "enrolled";
+  if (s === "denied" || s === "withdrew" || s === "withdrawn") return "declined";
+  return s;
+}
+
+async function loadGrantPartners(): Promise<NationwideGrantPartner[]> {
+  try {
+    const rows = await db.select().from(grantPartnersTable);
+    if (rows.length === 0) return DEFAULT_GRANT_PARTNERS;
+    return rows.map(r => ({
+      id: r.id,
+      name: r.name,
+      coverageStates: r.coverageStates || [],
+      coverageCounties: r.coverageCounties || [],
+      focusAreas: (r.focusAreas || []) as BenefitAreaId[],
+      reportingCadence: (r.reportingCadence || "quarterly") as NationwideGrantPartner["reportingCadence"],
+      rpliceChannel: r.rpliceChannel || undefined,
+      activeFrom: r.activeFrom || undefined,
+      activeUntil: r.activeUntil || null,
+    }));
+  } catch {
+    return DEFAULT_GRANT_PARTNERS;
+  }
+}
+
+// Enrich an application record with the nationwide-contract fields if missing.
+async function deriveNationwideFields(data: any): Promise<{
+  residentRef: string | null;
+  programSlug: string | null;
+  stateCode: string | null;
+  grantPartnerId: string | null;
+  grantPartnerName: string | null;
+  grantReportingTags: string[];
+}> {
+  // programSlug — prefer explicit; fall back from legacy benefitType.
+  const programSlug = data.programSlug || LEGACY_BENEFIT_TO_SLUG[data.benefitType] || null;
+  const area = (LEGACY_BENEFIT_TO_AREA[data.benefitType] || null) as BenefitAreaId | null;
+
+  // stateCode — from explicit or derived from FIPS.
+  const stateCode = data.stateCode || fipsToState(data.countyFips) || null;
+
+  // residentRef — compute if we have the inputs; else null.
+  let residentRef: string | null = data.residentRef || null;
+  if (!residentRef && data.applicantName) {
+    const parts = String(data.applicantName).trim().split(/\s+/);
+    const firstName = parts[0] || "";
+    const lastName = parts.length > 1 ? parts[parts.length - 1] : "";
+    const birthYear = data.birthYear ? Number(data.birthYear) : 0;
+    const zip = data.zipCode || "";
+    const phoneOrEmail = data.applicantPhone || data.applicantEmail || "";
+    if (firstName && lastName && zip) {
+      residentRef = computeResidentRefFromFields({ firstName, lastName, birthYear, zip, phone: data.applicantPhone, email: data.applicantEmail });
+    }
+  }
+
+  // Grant-partner auto-tag.
+  let grantPartnerId = data.grantPartnerId || null;
+  let grantPartnerName = data.grantPartnerName || null;
+  const grantReportingTags: string[] = Array.isArray(data.grantReportingTags) ? data.grantReportingTags.slice() : [];
+  if (!grantPartnerId) {
+    const partners = await loadGrantPartners();
+    const countySlug = stateCode && data.countyName
+      ? `${stateCode.toLowerCase()}-${String(data.countyName).toLowerCase().replace(/\s*county\s*$/i,"").replace(/[^a-z0-9]+/g,"-")}`
+      : undefined;
+    const matches = matchGrantPartners(
+      { state: stateCode || undefined, county: countySlug, area: area || undefined },
+      partners,
+    );
+    if (matches.length > 0) {
+      grantPartnerId = matches[0].id;
+      grantPartnerName = matches[0].name;
+      for (const m of matches) {
+        const tag = `grant:${m.id}`;
+        if (!grantReportingTags.includes(tag)) grantReportingTags.push(tag);
+      }
+    }
+  }
+
+  return { residentRef, programSlug, stateCode, grantPartnerId, grantPartnerName, grantReportingTags };
+}
 
 function requireAuth(req: Request, res: Response, next: NextFunction) {
   if (!(req as any).isAuthenticated?.() && !(req as any).user) {
@@ -2854,16 +2985,43 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
         WIC: 528, SSI: 10092, SSDI: 16560, Marketplace: 5400, CTC: 3600,
       };
       const data = parsed.data;
+      const nationwide = await deriveNationwideFields({ ...data, birthYear: (req.body as any).birthYear });
       const [created] = await db.insert(benefitsApplications).values({
         ...data,
         estimatedAnnualValue: data.estimatedAnnualValue ?? annualValueMap[data.benefitType] ?? 0,
         source: data.source || "wab2",
+        residentRef: nationwide.residentRef,
+        programSlug: nationwide.programSlug,
+        stateCode: nationwide.stateCode,
+        grantPartnerId: nationwide.grantPartnerId,
+        grantPartnerName: nationwide.grantPartnerName,
+        grantReportingTags: nationwide.grantReportingTags,
       }).returning();
       res.json(created);
     } catch (error) {
       console.error("Create application failed:", error);
       res.status(500).json({ error: "Failed to create application" });
     }
+  });
+
+  // Nationwide catalog — federal + state programs, canonical slugs.
+  // Peers consume this to stay in sync without redeploying.
+  app.get("/api/benefits/catalog", async (_req, res) => {
+    res.json({
+      version: CATALOG_VERSION,
+      areas: BENEFIT_AREAS,
+      federal: FEDERAL_PROGRAMS,
+      state: STATE_PROGRAMS,
+      catalog: CATALOG,
+      generatedAt: new Date().toISOString(),
+    });
+  });
+
+  // Nationwide ZIP resolver — client UX helper for the any-ZIP wizard.
+  app.get("/api/benefits/resolve-zip/:zip", async (req, res) => {
+    const r = resolveZip(req.params.zip);
+    if (!r) return res.status(404).json({ error: "ZIP not recognized", zip: req.params.zip });
+    res.json({ zip: req.params.zip, ...r });
   });
 
   app.patch("/api/benefits/applications/:id", async (req, res) => {
@@ -3012,6 +3170,9 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
     lastEventAt?: string;
     originCounters: Record<string, { events: number; lastEventAt: string; lastEventType: string }>;
     mirrorLog: Array<{ at: string; targetId: string; targetUrl: string; eventType: string; origin: string; ok: boolean; status?: number; error?: string }>;
+    // RPLICE v2 additions
+    eligibilityScreenedCounts: Record<string, number>;
+    catalogUpdates: Array<{ at: string; origin: string; slug?: string; program?: any }>;
   } = {
     countyProfiles: {},
     mapgapPriority: {},
@@ -3019,6 +3180,8 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
     programAlerts: [],
     originCounters: {},
     mirrorLog: [],
+    eligibilityScreenedCounts: {},
+    catalogUpdates: [],
   };
 
   const SELF_PLATFORM_ID = "thriveup";
@@ -3089,32 +3252,56 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
           rpliceCache.programAlerts = [alert, ...rpliceCache.programAlerts.filter(a => a.id !== alert.id)].slice(0, 20);
           break;
         }
-        case "benefit.enrollment.created": {
-          // Peer-mirror an enrollment created on another platform (e.g. LifeBridge).
+        case "benefit.enrollment.created":
+        case "benefit.enrollment.updated": {
+          // Peer-mirror an enrollment created or updated on another platform (e.g. LifeBridge).
           // When origin === self, we already have the local row — no-op (just acknowledge).
           if (origin === SELF_PLATFORM_ID) break;
           const p = payload || {};
-          if (!p.externalId) throw new Error("payload.externalId required");
-          if (!p.countyFips || !p.countyName || !p.benefitType || !p.applicantName) {
-            throw new Error("payload requires countyFips, countyName, benefitType, applicantName");
-          }
+          // RPLICE v2 dedup: peer|residentRef|programSlug|status.
+          // Fall back to externalId-based dedup for peers still on v1 payload shape.
+          const dedupExternalId = p.externalId || p.residentRef || null;
+          if (!dedupExternalId) throw new Error("payload.externalId or payload.residentRef required");
+
+          // Enrich with nationwide fields the peer may have omitted.
+          const derived = await deriveNationwideFields({
+            ...p,
+            benefitType: p.benefitType || slugToLegacyBenefit(p.programSlug),
+            countyName: p.countyName || "",
+            countyFips: p.countyFips || "",
+          });
+
+          // Normalize status vocabulary across peers (matches LifeBridge's normalizer).
+          const normalizedStatus = normalizePeerStatus(p.status);
+
           const existing = await db.select().from(benefitsApplications)
-            .where(and(eq(benefitsApplications.externalId, p.externalId), eq(benefitsApplications.peerPlatform, origin)))
+            .where(and(eq(benefitsApplications.externalId, dedupExternalId), eq(benefitsApplications.peerPlatform, origin)))
             .limit(1);
+
           if (existing.length > 0) {
             await db.update(benefitsApplications).set({
-              status: p.status || existing[0].status,
+              status: normalizedStatus || existing[0].status,
               stage: p.stage || existing[0].stage,
               outcome: p.outcome ?? existing[0].outcome,
               confirmationNumber: p.confirmationNumber ?? existing[0].confirmationNumber,
+              residentRef: p.residentRef || existing[0].residentRef,
+              programSlug: p.programSlug || derived.programSlug || existing[0].programSlug,
+              stateCode: p.stateCode || derived.stateCode || existing[0].stateCode,
+              grantPartnerId: p.grantPartnerId ?? existing[0].grantPartnerId,
+              grantPartnerName: p.grantPartnerName ?? existing[0].grantPartnerName,
               updatedAt: new Date(),
             }).where(eq(benefitsApplications.id, existing[0].id));
-          } else {
+          } else if (type === "benefit.enrollment.created") {
+            // Only insert on .created; .updated without an existing row is a no-op
+            // (we'd be inserting a partial record that's likely missing required fields).
+            if (!p.countyFips || !p.countyName || !(p.benefitType || p.programSlug) || !p.applicantName) {
+              throw new Error("payload requires countyFips, countyName, benefitType (or programSlug), applicantName");
+            }
             await db.insert(benefitsApplications).values({
               countyFips: p.countyFips,
               countyName: p.countyName,
               zipCode: p.zipCode || null,
-              benefitType: p.benefitType,
+              benefitType: p.benefitType || slugToLegacyBenefit(p.programSlug) || "Other",
               applicantName: p.applicantName,
               applicantPhone: p.applicantPhone || null,
               applicantEmail: p.applicantEmail || null,
@@ -3124,15 +3311,81 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
               hasChildren: !!p.hasChildren,
               citizenshipStatus: p.citizenshipStatus || null,
               consentGiven: !!p.consentGiven,
-              status: p.status || "intake",
+              status: normalizedStatus || "intake",
               stage: p.stage || "registered",
               source: "peer",
               estimatedAnnualValue: p.estimatedAnnualValue ?? null,
-              externalId: p.externalId,
+              externalId: dedupExternalId,
               peerPlatform: origin,
               isPeerMirrored: true,
+              residentRef: p.residentRef || derived.residentRef,
+              programSlug: p.programSlug || derived.programSlug,
+              stateCode: p.stateCode || derived.stateCode,
+              grantPartnerId: p.grantPartnerId ?? derived.grantPartnerId,
+              grantPartnerName: p.grantPartnerName ?? derived.grantPartnerName,
+              grantReportingTags: p.grantReportingTags || derived.grantReportingTags,
             });
           }
+          break;
+        }
+        case "eligibility.screened": {
+          // Anonymous funnel signal — tracks demand by county × area even when
+          // the user doesn't finish the wizard. Stored in in-memory counters.
+          const p = payload || {};
+          const key = `${p.state || "?"}|${p.county || "?"}|${p.area || "?"}|${p.programSlug || "?"}|${p.result || "?"}`;
+          rpliceCache.eligibilityScreenedCounts[key] = (rpliceCache.eligibilityScreenedCounts[key] || 0) + 1;
+          break;
+        }
+        case "benefitProgram.updated": {
+          // Catalog entry changed upstream. We log it; on next handshake, peers
+          // compare catalogVersion and re-fetch /api/benefits/catalog if it drifted.
+          rpliceCache.catalogUpdates.push({ at, origin, slug: payload?.slug, program: payload?.program });
+          rpliceCache.catalogUpdates = rpliceCache.catalogUpdates.slice(-50);
+          break;
+        }
+        case "grantPartner.registered": {
+          const p = payload || {};
+          if (!p.id || !p.name) throw new Error("payload.id and payload.name required");
+          await db.insert(grantPartnersTable).values({
+            id: p.id,
+            name: p.name,
+            coverageStates: p.coverageStates || [],
+            coverageCounties: p.coverageCounties || [],
+            focusAreas: p.focusAreas || [],
+            reportingCadence: p.reportingCadence || "quarterly",
+            rpliceChannel: p.rpliceChannel || null,
+            activeFrom: p.activeFrom || null,
+            activeUntil: p.activeUntil || null,
+          }).onConflictDoUpdate({
+            target: grantPartnersTable.id,
+            set: {
+              name: p.name,
+              coverageStates: p.coverageStates || [],
+              coverageCounties: p.coverageCounties || [],
+              focusAreas: p.focusAreas || [],
+              reportingCadence: p.reportingCadence || "quarterly",
+              rpliceChannel: p.rpliceChannel || null,
+              activeFrom: p.activeFrom || null,
+              activeUntil: p.activeUntil || null,
+            },
+          });
+          break;
+        }
+        case "grantPartner.tagged": {
+          // One peer declares it owns the grant report for a specific enrollment.
+          // We update the row's grantPartnerId so aggregations don't double-count.
+          const p = payload || {};
+          if (!p.grantPartnerId || !(p.residentRef || p.externalId)) {
+            throw new Error("payload requires grantPartnerId and (residentRef or externalId)");
+          }
+          const where = p.externalId
+            ? eq(benefitsApplications.externalId, p.externalId)
+            : eq(benefitsApplications.residentRef, p.residentRef);
+          await db.update(benefitsApplications).set({
+            grantPartnerId: p.grantPartnerId,
+            grantPartnerName: p.grantPartnerName || null,
+            updatedAt: new Date(),
+          }).where(where);
           break;
         }
         default:
@@ -3145,8 +3398,19 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
     }
   }
 
+  // Shared-secret gate for inbound RPLICE traffic.
+  // If THRIVEUP_SHARED_SECRET is set, we require x-rplice-secret to match.
+  // If unset, we log a warning and allow through (backward compatible).
+  function rpliceSharedSecretOk(req: Request): boolean {
+    const expected = process.env.THRIVEUP_SHARED_SECRET;
+    if (!expected) return true;
+    const got = (req.headers["x-rplice-secret"] as string) || (req.body?.sharedSecret as string) || "";
+    return got === expected;
+  }
+
   app.post("/api/rplice/inbound-event", async (req, res) => {
     try {
+      if (!rpliceSharedSecretOk(req)) return res.status(401).json({ error: "invalid shared secret" });
       const { type, payload } = req.body || {};
       if (!type) return res.status(400).json({ error: "type required" });
       const origin = (req.headers["x-rplice-origin"] as string) || (req.body?.origin as string) || "betterscience";
@@ -3232,17 +3496,34 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
       const apps = await db.select().from(benefitsApplications);
       let localOwned = 0;
       let peerMirrored = 0;
+      let localEnrolled = 0;
+      let peerEnrolled = 0;
       const byPeer: Record<string, number> = {};
       const byBenefit: Record<string, { localOwned: number; peerMirrored: number; networkTotal: number }> = {};
       const byCounty: Record<string, { localOwned: number; peerMirrored: number; networkTotal: number }> = {};
+      const byState: Record<string, any> = {};
+      const byGrantPartner: Record<string, number> = {};
+
+      function ensureStateSlice(code: string) {
+        if (!byState[code]) byState[code] = {
+          localOwned: 0, localEnrolled: 0, peerMirrored: 0, peerEnrolled: 0,
+          networkTotal: 0, networkEnrolled: 0,
+          byCounty: {}, byArea: {}, byStatus: {}, byGrantPartner: {},
+        };
+        return byState[code];
+      }
+
       for (const a of apps) {
         const isPeer = !!a.isPeerMirrored;
+        const enrolled = a.status === "enrolled";
         if (isPeer) {
           peerMirrored++;
+          if (enrolled) peerEnrolled++;
           const pp = a.peerPlatform || "unknown";
           byPeer[pp] = (byPeer[pp] || 0) + 1;
         } else {
           localOwned++;
+          if (enrolled) localEnrolled++;
         }
         const b = a.benefitType || "other";
         byBenefit[b] = byBenefit[b] || { localOwned: 0, peerMirrored: 0, networkTotal: 0 };
@@ -3252,16 +3533,45 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
         byCounty[c] = byCounty[c] || { localOwned: 0, peerMirrored: 0, networkTotal: 0 };
         if (isPeer) byCounty[c].peerMirrored++; else byCounty[c].localOwned++;
         byCounty[c].networkTotal++;
+
+        // RPLICE v2: per-state slice
+        const stateCode = a.stateCode || fipsToState(a.countyFips) || "??";
+        const s = ensureStateSlice(stateCode);
+        if (isPeer) { s.peerMirrored++; if (enrolled) s.peerEnrolled++; }
+        else { s.localOwned++; if (enrolled) s.localEnrolled++; }
+        s.networkTotal++;
+        if (enrolled) s.networkEnrolled++;
+        const cName = a.countyName || a.countyFips || "unknown";
+        s.byCounty[cName] = s.byCounty[cName] || { localOwned: 0, peerMirrored: 0, networkTotal: 0 };
+        if (isPeer) s.byCounty[cName].peerMirrored++; else s.byCounty[cName].localOwned++;
+        s.byCounty[cName].networkTotal++;
+        const areaKey = LEGACY_BENEFIT_TO_AREA[a.benefitType] || "other";
+        s.byArea[areaKey] = s.byArea[areaKey] || { localOwned: 0, peerMirrored: 0, networkTotal: 0 };
+        if (isPeer) s.byArea[areaKey].peerMirrored++; else s.byArea[areaKey].localOwned++;
+        s.byArea[areaKey].networkTotal++;
+        const st = a.status || "unknown";
+        s.byStatus[st] = (s.byStatus[st] || 0) + 1;
+        if (a.grantPartnerId) {
+          s.byGrantPartner[a.grantPartnerId] = (s.byGrantPartner[a.grantPartnerId] || 0) + 1;
+          byGrantPartner[a.grantPartnerId] = (byGrantPartner[a.grantPartnerId] || 0) + 1;
+        }
       }
       res.json({
         self: SELF_PLATFORM_ID,
         localOwned,
+        localEnrolled,
         peerMirrored,
+        peerEnrolled,
         networkTotal: localOwned + peerMirrored,
+        networkEnrolled: localEnrolled + peerEnrolled,
         byPeer,
         byBenefit,
         byCounty,
+        byState,
+        byGrantPartner,
         peers: MIRROR_TARGETS.map(t => ({ id: t.id, url: t.baseUrl })),
+        catalogVersion: CATALOG_VERSION,
+        acceptedEventTypes: ACCEPTED_EVENT_TYPES,
         generatedAt: new Date().toISOString(),
       });
     } catch (error: any) {
@@ -3271,12 +3581,62 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
   });
 
   app.get("/api/rplice/sync", async (_req, res) => {
+    // RPLICE v2 handshake — shape must match HandshakeResponse in shared/nationwide/types.ts.
+    // Peers compare byState slices to detect drift and trigger scoped replay.
+    try {
+      const apps = await db.select().from(benefitsApplications);
+      let localOwned = 0, localEnrolled = 0, peerMirrored = 0, peerEnrolled = 0;
+      const byPeer: Record<string, number> = {};
+      const byState: Record<string, any> = {};
+      for (const a of apps) {
+        const isPeer = !!a.isPeerMirrored;
+        const enrolled = a.status === "enrolled";
+        if (isPeer) { peerMirrored++; if (enrolled) peerEnrolled++; byPeer[a.peerPlatform || "unknown"] = (byPeer[a.peerPlatform || "unknown"] || 0) + 1; }
+        else { localOwned++; if (enrolled) localEnrolled++; }
+        const sc = a.stateCode || fipsToState(a.countyFips) || "??";
+        const s = byState[sc] = byState[sc] || { localOwned: 0, localEnrolled: 0, peerMirrored: 0, peerEnrolled: 0, networkTotal: 0, networkEnrolled: 0, byCounty: {}, byArea: {}, byStatus: {}, byGrantPartner: {} };
+        if (isPeer) { s.peerMirrored++; if (enrolled) s.peerEnrolled++; }
+        else { s.localOwned++; if (enrolled) s.localEnrolled++; }
+        s.networkTotal++; if (enrolled) s.networkEnrolled++;
+        const cName = a.countyName || a.countyFips || "unknown";
+        s.byCounty[cName] = s.byCounty[cName] || { localOwned: 0, peerMirrored: 0, networkTotal: 0 };
+        if (isPeer) s.byCounty[cName].peerMirrored++; else s.byCounty[cName].localOwned++;
+        s.byCounty[cName].networkTotal++;
+        const areaKey = LEGACY_BENEFIT_TO_AREA[a.benefitType] || "other";
+        s.byArea[areaKey] = s.byArea[areaKey] || { localOwned: 0, peerMirrored: 0, networkTotal: 0 };
+        if (isPeer) s.byArea[areaKey].peerMirrored++; else s.byArea[areaKey].localOwned++;
+        s.byArea[areaKey].networkTotal++;
+        s.byStatus[a.status || "unknown"] = (s.byStatus[a.status || "unknown"] || 0) + 1;
+        if (a.grantPartnerId) s.byGrantPartner[a.grantPartnerId] = (s.byGrantPartner[a.grantPartnerId] || 0) + 1;
+      }
+      return res.json({
+        ok: true,
+        self: SELF_PLATFORM_ID,
+        peers: MIRROR_TARGETS.map(t => ({ id: t.id, url: t.baseUrl })),
+        enrollments: {
+          localOwned, localEnrolled, peerMirrored, peerEnrolled,
+          networkTotal: localOwned + peerMirrored,
+          networkEnrolled: localEnrolled + peerEnrolled,
+          byPeer, byState,
+        },
+        acceptedEventTypes: ACCEPTED_EVENT_TYPES,
+        catalogVersion: CATALOG_VERSION,
+        lastEventAt: rpliceCache.lastEventAt || null,
+        generatedAt: new Date().toISOString(),
+      });
+    } catch (e: any) {
+      return res.status(500).json({ ok: false, error: e.message || "handshake failed" });
+    }
+  });
+
+  // Legacy sync metadata (kept for backward compat with any existing consumers).
+  app.get("/api/rplice/sync-legacy", async (_req, res) => {
     const network = buildNetworkView();
     res.json({
       ok: true,
       platform: SELF_PLATFORM_ID,
       role: "consumer+relay",
-      acceptedEventTypes: ["county.profile.updated", "mapgap.refreshed", "partners.updated", "program.alert", "benefit.enrollment.created"],
+      acceptedEventTypes: ACCEPTED_EVENT_TYPES,
       pushEndpoint: "/api/rplice/sync",
       legacyPushEndpoint: "/api/rplice/inbound-event",
       stateEndpoint: "/api/rplice/state/:countyFips",
@@ -3294,6 +3654,7 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
 
   app.post("/api/rplice/sync", async (req, res) => {
     try {
+      if (!rpliceSharedSecretOk(req)) return res.status(401).json({ error: "invalid shared secret" });
       const body = req.body || {};
       const headerOrigin = (req.headers["x-rplice-origin"] as string) || "";
       const bodyOrigin = (body.origin as string) || "";
