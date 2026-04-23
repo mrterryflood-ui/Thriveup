@@ -1,0 +1,55 @@
+Here's the full picture of what the St. David's engine on lifetransitionsaid.org can do today, framed around your real question — finding vulnerable people and getting them across the finish line into services.
+
+1. The 5 × 5 Coverage Map
+Five Central Texas counties — Travis, Williamson, Hays, Bastrop, Caldwell — crossed against five focus areas:
+
+Healthcare Access (MAP, MAP-BASIC, CHIP/Medicaid, sliding-scale clinics)
+Mental & Behavioral Health (Integral Care, Bluebonnet Trails, Hill Country MHDD by county)
+Dental (St. David's dental partners, county FQHC dental)
+Healthy Aging (Medicare counseling, AAA services, fall prevention, in-home support)
+Healthy Children & Families (WIC, SNAP, Head Start, CHIP-perinatal, home visiting)
+Every county/area combination has a real program list with eligibility rules, required documents, and the actual application portals. The system enforces program-county compatibility on the server — you can't accidentally enroll someone in MAP outside Travis or Hill Country MHDD outside Hays.
+
+2. How We Identify Vulnerable Populations
+This is where the platform earns its keep. Vulnerability is detected through several overlapping signals, not just one:
+
+ZIP-to-county-to-tract resolution — every interaction (chat, intake, enrollment) gets pinned to a geography so we know if someone is in a MAP-GAP priority tract.
+RPLICE intelligence pushed down to ZIP level — county profiles, MAP-GAP scores, partner saturation, and live program alerts arrive in real-time from the peer mesh, so the platform knows which neighborhoods are underserved before the person even tells us their address.
+Eligibility quick-check in the wizard captures age band, household size, and income band (no PII, no SSN) — enough to surface every program they likely qualify for without scaring them off.
+The 6-engine LifeGuide AI (local resource DB + Perplexity live search + ThriveUp ecosystem RAG + RPLICE planning intel + Sankofa clinical AI + GPT-4o synthesis) listens for vulnerability cues in plain conversation — housing instability, food insecurity, untreated mental health, isolation in seniors — and routes accordingly.
+Crisis detection broadcasts simultaneously to the ThriveUp ecosystem and the Sankofa health mesh, so a person in acute crisis isn't sitting in just one queue.
+Community Needs Assessment layers Census ACS demographics + CDC PLACES health indicators on top of the same map, so navigators can proactively work the highest-burden neighborhoods instead of waiting for walk-ins.
+3. How We Move Them Into Services
+Once someone is identified, the platform does four things:
+
+Forms tab — shows them the actual program cards: who's eligible, what to bring, what to expect, and a direct link to the right county's portal in their language. No guessing which website to use.
+
+6-step bilingual wizard — county → area → program → eligibility → contact preference → confirm. Available in English and Spanish, with language access metrics tracked across English, Spanish, Vietnamese, Chinese, and "other." Confirmation gives them an enrollment ID and clear next steps.
+
+Navigator dashboard — CHWs see a live caseload, can update status (pending → enrolled / referred / denied / withdrew), capture receipts that auto-stamp submission timestamps, and trigger appeal workflows on denials. Every status change fires a strict outcome event to RPLICE so the network knows what actually happened to that person.
+
+Resident-facing tracker — anyone can look up their enrollment ID and see a timeline: where their application is, what happened, what's next. If they were denied, the red Denial → Appeal panel walks them through challenging the decision instead of giving up.
+
+4. Outcomes That Prove Impact
+The Outcomes tab gives you what the foundation actually wants to see:
+
+KPI dashboard — total residents engaged, enrollments completed, dollars of annual benefits unlocked
+Year-1 progress bars against grant targets per focus area
+Pipeline funnel — engagement → application → enrolled / referred / declined, so you can see where people are dropping off
+Renewal matrix — who needs to recertify when, by program
+Language access counts — proving the equity commitment isn't theoretical
+County × area heatmap — which combinations are working and which need more navigator capacity
+5. The Network Effect (No Double-Counting)
+This is the part Terry has been pushing hard on, and it's now live. LifeBridge is one node in a peer network that includes the 23-platform ThriveUp ecosystem and the 4-platform Sankofa health mesh. Every enrollment outcome and every "intent" signal (someone said they need housing, someone showed up, capacity got reduced at a partner clinic) flows out to RPLICE, which rebroadcasts it to peer platforms.
+
+When LifeBridge enrolls Maria, ThriveUp sees it as a peer-mirrored event — not a fresh person. The handshake at /api/rplice/sync exposes:
+
+localOwned — residents we registered here
+peerMirrored — residents another platform registered, that we're reflecting
+networkTotal — the unified count, deduplicated by peer | resident | program | status
+So when the foundation asks "how many Central Texans did the network enroll in MAP this quarter?" — there's one answer, not five conflicting ones from five platforms.
+
+6. What This Means in Practice
+A grandmother in a Caldwell County ZIP with high MAP-GAP scores chats with the assistant about her grandson's asthma medication being unaffordable. The platform: (a) recognizes she's in a high-vulnerability tract, (b) surfaces CHIP-perinatal and MAP for the parents and dental for the grandson, (c) walks her through the wizard in Spanish, (d) hands her a tracker ID, (e) tells the local CHW she exists, (f) reports the engagement to RPLICE so ThriveUp knows not to also count her, and (g) sends back grant-ready outcome data when she gets enrolled.
+
+That's the loop — find them, qualify them, walk them through it, hand them off warmly, and prove it happened — across five counties and five focus areas, with the rest of the ecosystem in sync the entire time.
