@@ -287,7 +287,7 @@ title = "WAB2 LOI v4 FINAL — TCAF Benefits Enrollment Collaborative"
 id = "1kNxN_LOPkvEQOhjNhDAT"
 uri = "file://attached_assets/WAB2-LOI-RequestSummary-v5-FINAL.docx"
 type = "word_document"
-title = "WAB2 LOI v5 FINAL — 95th-Percentile Draft"
+title = "St. David's WAB2 LOI — Draft Request Summary (review & finalize)"
 
 [[outputs]]
 id = "EbwKSHSop0B0Q44IAc2nC"
@@ -390,3 +390,9 @@ id = "OUXMLEX8eryuObulGph3s"
 uri = "file://docs/grants/SUBMISSION-WALKTHROUGH-TWC-RFA-32026-00162.md"
 type = "text"
 title = "Bonfire Submission Walkthrough (step-by-step)"
+
+[[outputs]]
+id = "5EtcfrMq3nFhE5DNEmjNd"
+uri = "file://docs/grants/SUBMISSION-WALKTHROUGH-StDavids-WAB2-LOI.md"
+type = "text"
+title = "St. David's WAB2 LOI — Submission Walkthrough"
