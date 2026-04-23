@@ -5,6 +5,7 @@ import {
   serviceRecords,
   grantProjects,
   grantOpportunities,
+  hubMous,
   staffingPlans,
   complianceCalendar,
   employerPartners,
@@ -42,6 +43,7 @@ export async function seedComprehensive(): Promise<void> {
     await seedPreventionFramework();
     await seedFacilitatorData();
     await seedNsfTechAccessOpportunity();
+    await seedTexasHubMous();
     console.log("[Seed] Comprehensive seed completed");
   } catch (err) {
     console.error("[Seed] Comprehensive seed error:", err);
@@ -130,6 +132,42 @@ async function seedNsfTechAccessOpportunity() {
     notes: "TCAF Texas Hub Workbench live at /nsf-techaccess-hub. Adoption kit at shared/nationwide/hub-adoption-kit/. Live AI-grounded state intelligence + LOI generator working for all 56 jurisdictions.",
   });
   console.log("[Seed] NSF 26-508 TechAccess opportunity inserted");
+}
+
+async function seedTexasHubMous() {
+  const { eq } = await import("drizzle-orm");
+  const exists = await db.select().from(hubMous).where(eq(hubMous.hubStateCode, "TX")).limit(1);
+  if (exists.length > 0) return;
+  await db.insert(hubMous).values([
+    {
+      hubStateCode: "TX",
+      partnerOrg: "Texas Workforce Commission (TWC)",
+      partnerRole: "Workforce — DOL/ETA alignment, AJC integration",
+      contactName: "Workforce Solutions Capital Area",
+      contactEmail: "info@wfscapitalarea.com",
+      status: "outreached",
+      notes: "Aligns NSF 26-508 hub workforce track with active Workforce Innovation & Opportunity Act (WIOA) infrastructure across 28 local boards.",
+    },
+    {
+      hubStateCode: "TX",
+      partnerOrg: "Texas A&M AgriLife Extension Service",
+      partnerRole: "USDA-NIFA Cooperative Extension — rural reach, county network",
+      contactName: "AgriLife Extension State Office",
+      contactEmail: "agrilife-extension@tamu.edu",
+      status: "outreached",
+      notes: "Extension presence in all 254 Texas counties — operational reach for AI-readiness curriculum delivery to rural and small-business audiences.",
+    },
+    {
+      hubStateCode: "TX",
+      partnerOrg: "UTSA Small Business Development Center (Network)",
+      partnerRole: "SBA SBDC — small business AI readiness pilot",
+      contactName: "South-West Texas Border SBDC Network",
+      contactEmail: "sbdc@utsa.edu",
+      status: "outreached",
+      notes: "SBDC Network covers 79 counties in south/west Texas; pilot fits SBA AI-for-small-business priority and provides direct business audience for hub.",
+    },
+  ]);
+  console.log("[Seed] Texas Hub MOUs seeded");
 }
 
 async function seedGrantData() {

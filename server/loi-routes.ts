@@ -6,6 +6,9 @@ import { getFederalPartners } from "@shared/nationwide/federal-partners";
 import { STATE_PROGRAMS } from "@shared/nationwide/state-programs";
 import { generateHubLoi, type LoiPartner } from "@shared/nationwide/loi-generator";
 import { intelligenceBundle, budgetStatus, research } from "./hub-intelligence";
+import { db } from "./storage";
+import { hubMous } from "@shared/schema";
+import { eq, and, inArray } from "drizzle-orm";
 
 export function registerLoiRoutes(app: Express): void {
   // List all jurisdictions for the workbench dropdown.
@@ -49,7 +52,19 @@ export function registerLoiRoutes(app: Express): void {
     if (!leadOrg) return res.status(400).json({ error: "leadOrg required" });
     const includeLive = Boolean(req.body?.includeLive ?? true);
 
-    const partners: LoiPartner[] = Array.isArray(req.body?.partners) ? req.body.partners : [];
+    let partners: LoiPartner[] = Array.isArray(req.body?.partners) ? req.body.partners : [];
+    // Auto-pull MOU partners (outreached / committed / signed) from DB if none provided.
+    if (partners.length === 0) {
+      const dbMous = await db.select().from(hubMous).where(and(
+        eq(hubMous.hubStateCode, code),
+        inArray(hubMous.status, ["outreached", "letter_sent", "committed", "signed"]),
+      ));
+      partners = dbMous.map(m => ({
+        org: m.partnerOrg,
+        role: `${m.partnerRole} (${m.status})`,
+        contact: m.contactEmail || m.contactName || undefined,
+      }));
+    }
     let live;
     if (includeLive) {
       const b = await intelligenceBundle(code);

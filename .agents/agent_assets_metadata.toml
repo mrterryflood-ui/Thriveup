@@ -402,3 +402,9 @@ id = "CBoy7gsib3fSl4V7vXUf7"
 uri = "file://attached_assets/WAB2-LOI-RequestSummary-v7-FINAL.md"
 type = "text"
 title = "WAB2 LOI — v7 (1-page summary)"
+
+[[outputs]]
+id = "1XB7hk_4GsECE5LbuTskO"
+uri = "file://attached_assets/NSF-26-508-LOI-TX-Hub-v1.md"
+type = "text"
+title = "NSF 26-508 — Texas Coordination Hub LOI v1"

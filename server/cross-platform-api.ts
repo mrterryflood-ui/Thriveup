@@ -164,13 +164,38 @@ export function registerCrossPlatformRoutes(app: Express) {
 
   app.post("/api/external/interventions/receive", requireApiKey, async (req, res) => {
     try {
-      const { interventions } = req.body;
+      const { interventions, origin } = req.body;
       if (!Array.isArray(interventions)) {
         return res.status(400).json({ error: "interventions must be an array" });
       }
-      res.json({ received: true, count: interventions.length, timestamp: new Date().toISOString() });
-    } catch (error) {
-      res.status(500).json({ error: "Failed to receive interventions" });
+      const { externalInterventions } = await import("@shared/schema");
+      const originStr = String(origin || req.headers["x-rplice-origin"] || "unknown");
+      const rows = interventions.map((iv: any) => ({
+        origin: originStr,
+        externalId: iv?.externalId ? String(iv.externalId) : iv?.id ? String(iv.id) : null,
+        userId: iv?.userId ? String(iv.userId) : null,
+        interventionType: iv?.type ? String(iv.type) : iv?.interventionType ? String(iv.interventionType) : null,
+        payload: iv,
+      }));
+      let persisted = 0;
+      if (rows.length > 0) {
+        const inserted = await db.insert(externalInterventions).values(rows).returning({ id: externalInterventions.id });
+        persisted = inserted.length;
+      }
+      res.json({ received: true, count: interventions.length, persisted, origin: originStr, timestamp: new Date().toISOString() });
+    } catch (error: any) {
+      console.error("[interventions/receive]", error);
+      res.status(500).json({ error: "Failed to receive interventions", detail: error?.message });
+    }
+  });
+
+  app.get("/api/external/interventions/recent", requireApiKey, async (_req, res) => {
+    try {
+      const { externalInterventions } = await import("@shared/schema");
+      const rows = await db.select().from(externalInterventions).orderBy(desc(externalInterventions.receivedAt)).limit(50);
+      res.json({ count: rows.length, interventions: rows });
+    } catch (error: any) {
+      res.status(500).json({ error: "Failed to fetch interventions", detail: error?.message });
     }
   });
 

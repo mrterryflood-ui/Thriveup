@@ -400,6 +400,8 @@ export async function registerRoutes(
   registerGrantRoutes(app);
   const { registerLoiRoutes } = await import("./loi-routes");
   registerLoiRoutes(app);
+  const { registerMouRoutes } = await import("./mou-routes");
+  registerMouRoutes(app);
   registerReentryRoutes(app);
   registerPartnerRoutes(app);
   registerOutcomeRoutes(app);

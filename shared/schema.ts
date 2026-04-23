@@ -1658,9 +1658,43 @@ export const nationwideDiscoveries = pgTable("nationwide_discoveries", {
   queryHash: varchar("query_hash", { length: 32 }).notNull(),
   text: text("text"),
   citations: jsonb("citations"),
+  // status: 'pending' (just retrieved), 'confirmed' (hub validated), 'dismissed' (rejected)
+  status: varchar("status", { length: 16 }).notNull().default("pending"),
+  reviewedBy: text("reviewed_by"),
+  reviewedAt: timestamp("reviewed_at"),
   retrievedAt: timestamp("retrieved_at").defaultNow(),
 });
 export type NationwideDiscovery = typeof nationwideDiscoveries.$inferSelect;
+
+// Hub partner MOUs — tracks the partnership pipeline for each state's NSF 26-508 Hub.
+export const hubMous = pgTable("hub_mous", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  hubStateCode: varchar("hub_state_code", { length: 2 }).notNull(),
+  partnerOrg: text("partner_org").notNull(),
+  partnerRole: text("partner_role").notNull(),
+  contactName: text("contact_name"),
+  contactEmail: text("contact_email"),
+  contactPhone: text("contact_phone"),
+  // status: planned | outreached | letter_sent | committed | signed | declined
+  status: varchar("status", { length: 24 }).notNull().default("planned"),
+  notes: text("notes"),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+export const insertHubMouSchema = createInsertSchema(hubMous).omit({ id: true, updatedAt: true });
+export type InsertHubMou = z.infer<typeof insertHubMouSchema>;
+export type HubMou = typeof hubMous.$inferSelect;
+
+// External interventions received from peer platforms — persists what was previously discarded.
+export const externalInterventions = pgTable("external_interventions", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  origin: varchar("origin", { length: 64 }).notNull(),
+  externalId: text("external_id"),
+  userId: text("user_id"),
+  interventionType: text("intervention_type"),
+  payload: jsonb("payload").notNull(),
+  receivedAt: timestamp("received_at").defaultNow(),
+});
+export type ExternalIntervention = typeof externalInterventions.$inferSelect;
 
 export const grantAlerts = pgTable("grant_alerts", {
   id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),

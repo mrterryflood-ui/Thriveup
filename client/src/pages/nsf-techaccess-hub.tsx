@@ -9,8 +9,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Sparkles, Download, RefreshCw, ExternalLink, MapPin, Building2, FileText } from "lucide-react";
-import { apiRequest } from "@/lib/queryClient";
+import { Sparkles, Download, RefreshCw, ExternalLink, MapPin, Building2, FileText, Handshake, CheckCircle2, XCircle, Network, Plus, Trash2 } from "lucide-react";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
 interface Jurisdiction { code: string; name: string; capital: string; fips: string; type: string; }
@@ -21,6 +21,18 @@ interface StateSnapshot { jurisdiction: Jurisdiction; federalPartners: FederalPa
 interface Finding { text: string; citations: string[]; retrievedAt: string; cached: boolean; source: string; }
 interface IntelBundle { stateCode: string; aiInitiatives: Finding; recentFederalAwards: Finding; workforcePrograms: Finding; budget: { used: number; cap: number; resetsAt: string }; }
 interface LoiResult { markdown: string; citations: string[]; jurisdictionName: string; partnerCount: number; programCount: number; }
+interface HubMou { id: string; hubStateCode: string; partnerOrg: string; partnerRole: string; contactName: string | null; contactEmail: string | null; status: string; notes: string | null; updatedAt: string; }
+interface Discovery { id: string; stateCode: string; queryType: string; text: string | null; citations: string[] | null; status: string; reviewedBy: string | null; reviewedAt: string | null; retrievedAt: string; }
+interface FedPeer { id: string; url: string; lastMirrorAt: string | null; lastMirrorOk: boolean | null; successCount: number; failureCount: number; }
+interface FedStatus { ok: boolean; peers: FedPeer[]; lastEventAt: string | null; mirrorLog: Array<{ at: string; targetId: string; eventType: string; ok: boolean }>; }
+
+const MOU_STATUSES = ["planned", "outreached", "letter_sent", "committed", "signed", "declined"];
+function mouStatusVariant(s: string): "default" | "secondary" | "destructive" | "outline" {
+  if (s === "signed" || s === "committed") return "default";
+  if (s === "declined") return "destructive";
+  if (s === "letter_sent" || s === "outreached") return "secondary";
+  return "outline";
+}
 
 const DEADLINE = new Date("2026-06-16T22:00:00Z");
 
@@ -41,6 +53,37 @@ export default function NsfTechAccessHubPage() {
     queryKey: ["/api/nsf/intelligence", stateCode],
     enabled: false,
   });
+  const { data: mousData } = useQuery<{ stateCode: string; mous: HubMou[] }>({ queryKey: ["/api/nsf/mous", stateCode] });
+  const { data: discoveriesData } = useQuery<{ count: number; discoveries: Discovery[] }>({ queryKey: ["/api/nsf/discoveries", stateCode] });
+  const { data: federation } = useQuery<FedStatus>({ queryKey: ["/api/nsf/federation-status"], refetchInterval: 30000 });
+
+  const updateMouMut = useMutation({
+    mutationFn: async (v: { id: string; status: string }) => {
+      const r = await apiRequest("PATCH", `/api/nsf/mous/${v.id}`, { status: v.status });
+      return await r.json();
+    },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["/api/nsf/mous", stateCode] }); },
+  });
+  const addMouMut = useMutation({
+    mutationFn: async (v: { partnerOrg: string; partnerRole: string }) => {
+      const r = await apiRequest("POST", "/api/nsf/mous", { hubStateCode: stateCode, ...v, status: "planned" });
+      return await r.json();
+    },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["/api/nsf/mous", stateCode] }); setNewMouOrg(""); setNewMouRole(""); },
+  });
+  const deleteMouMut = useMutation({
+    mutationFn: async (id: string) => { await apiRequest("DELETE", `/api/nsf/mous/${id}`); },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["/api/nsf/mous", stateCode] }); },
+  });
+  const reviewDiscoveryMut = useMutation({
+    mutationFn: async (v: { id: string; status: string }) => {
+      const r = await apiRequest("PATCH", `/api/nsf/discoveries/${v.id}`, { status: v.status });
+      return await r.json();
+    },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["/api/nsf/discoveries", stateCode] }); },
+  });
+  const [newMouOrg, setNewMouOrg] = useState("");
+  const [newMouRole, setNewMouRole] = useState("");
 
   const generateMut = useMutation({
     mutationFn: async () => {
@@ -110,6 +153,9 @@ export default function NsfTechAccessHubPage() {
         <TabsList>
           <TabsTrigger value="snapshot" data-testid="tab-snapshot"><MapPin className="w-4 h-4 mr-1" />State Snapshot</TabsTrigger>
           <TabsTrigger value="intelligence" data-testid="tab-intelligence"><Sparkles className="w-4 h-4 mr-1" />Live Intelligence</TabsTrigger>
+          <TabsTrigger value="mous" data-testid="tab-mous"><Handshake className="w-4 h-4 mr-1" />Partner MOUs ({mousData?.mous?.length ?? 0})</TabsTrigger>
+          <TabsTrigger value="discoveries" data-testid="tab-discoveries"><CheckCircle2 className="w-4 h-4 mr-1" />Discoveries ({discoveriesData?.count ?? 0})</TabsTrigger>
+          <TabsTrigger value="federation" data-testid="tab-federation"><Network className="w-4 h-4 mr-1" />Federation</TabsTrigger>
           <TabsTrigger value="loi" data-testid="tab-loi"><FileText className="w-4 h-4 mr-1" />Generate LOI</TabsTrigger>
         </TabsList>
 
@@ -186,6 +232,106 @@ export default function NsfTechAccessHubPage() {
                 <div className="text-xs text-muted-foreground">Daily token budget: {intel.budget.used.toLocaleString()} / {intel.budget.cap.toLocaleString()} · Resets {new Date(intel.budget.resetsAt).toLocaleString()}</div>
               </div>
             ) : <p className="text-sm text-muted-foreground">Click "Run Research" to pull live state-specific AI readiness intelligence with citations.</p>}
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="mous" className="space-y-4">
+          <Card className="p-4">
+            <h3 className="font-semibold mb-3">Partner MOU Pipeline — {stateCode}</h3>
+            <div className="space-y-2">
+              {mousData?.mous?.map(m => (
+                <div key={m.id} className="border rounded p-3 flex items-start justify-between gap-4" data-testid={`mou-${m.id}`}>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium">{m.partnerOrg}</div>
+                    <div className="text-xs text-muted-foreground">{m.partnerRole}</div>
+                    {m.contactEmail && <div className="text-xs mt-1">{m.contactName ? `${m.contactName} · ` : ""}<a href={`mailto:${m.contactEmail}`} className="text-primary hover:underline">{m.contactEmail}</a></div>}
+                    {m.notes && <div className="text-xs mt-1 text-muted-foreground">{m.notes}</div>}
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Badge variant={mouStatusVariant(m.status)}>{m.status}</Badge>
+                    <Select value={m.status} onValueChange={(v) => updateMouMut.mutate({ id: m.id, status: v })}>
+                      <SelectTrigger className="w-36 h-8" data-testid={`select-mou-status-${m.id}`}><SelectValue /></SelectTrigger>
+                      <SelectContent>{MOU_STATUSES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+                    </Select>
+                    <Button size="sm" variant="ghost" onClick={() => deleteMouMut.mutate(m.id)} data-testid={`button-delete-mou-${m.id}`}><Trash2 className="w-4 h-4" /></Button>
+                  </div>
+                </div>
+              ))}
+              {(!mousData?.mous || mousData.mous.length === 0) && <p className="text-sm text-muted-foreground">No MOUs yet for {stateCode}. Add the first below.</p>}
+            </div>
+            <div className="border-t mt-4 pt-3 flex flex-wrap gap-2 items-end">
+              <div className="flex-1 min-w-[200px]"><Label className="text-xs">Partner organization</Label><Input value={newMouOrg} onChange={e => setNewMouOrg(e.target.value)} placeholder="e.g., State Workforce Board" data-testid="input-new-mou-org" /></div>
+              <div className="flex-1 min-w-[200px]"><Label className="text-xs">Role</Label><Input value={newMouRole} onChange={e => setNewMouRole(e.target.value)} placeholder="e.g., Workforce — DOL/ETA alignment" data-testid="input-new-mou-role" /></div>
+              <Button onClick={() => addMouMut.mutate({ partnerOrg: newMouOrg, partnerRole: newMouRole })} disabled={!newMouOrg || !newMouRole || addMouMut.isPending} data-testid="button-add-mou"><Plus className="w-4 h-4 mr-1" />Add</Button>
+            </div>
+            <p className="text-xs text-muted-foreground mt-3">MOUs in status <code>outreached / letter_sent / committed / signed</code> auto-populate the LOI partner roster when you generate.</p>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="discoveries" className="space-y-4">
+          <Card className="p-4">
+            <h3 className="font-semibold mb-3">Live Intelligence Discoveries — {stateCode}</h3>
+            {discoveriesData?.discoveries?.length ? (
+              <div className="space-y-3">
+                {discoveriesData.discoveries.map(d => (
+                  <div key={d.id} className="border rounded p-3" data-testid={`discovery-${d.id}`}>
+                    <div className="flex items-center justify-between mb-1">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="text-xs">{d.queryType}</Badge>
+                        <Badge variant={d.status === "confirmed" ? "default" : d.status === "dismissed" ? "destructive" : "secondary"}>{d.status}</Badge>
+                      </div>
+                      <div className="text-xs text-muted-foreground">{new Date(d.retrievedAt).toLocaleString()}</div>
+                    </div>
+                    <div className="text-sm whitespace-pre-wrap mb-2">{d.text?.slice(0, 600)}{(d.text?.length ?? 0) > 600 ? "…" : ""}</div>
+                    {d.citations && d.citations.length > 0 && (<div className="text-xs text-muted-foreground mb-2">Sources: {d.citations.map((c, i) => <a key={i} href={c} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline mr-2">[{i + 1}]</a>)}</div>)}
+                    {d.status === "pending" && (
+                      <div className="flex gap-2">
+                        <Button size="sm" variant="default" onClick={() => reviewDiscoveryMut.mutate({ id: d.id, status: "confirmed" })} data-testid={`button-confirm-${d.id}`}><CheckCircle2 className="w-3 h-3 mr-1" />Confirm</Button>
+                        <Button size="sm" variant="outline" onClick={() => reviewDiscoveryMut.mutate({ id: d.id, status: "dismissed" })} data-testid={`button-dismiss-${d.id}`}><XCircle className="w-3 h-3 mr-1" />Dismiss</Button>
+                      </div>
+                    )}
+                    {d.reviewedBy && <div className="text-xs text-muted-foreground mt-1">Reviewed by {d.reviewedBy} · {d.reviewedAt && new Date(d.reviewedAt).toLocaleString()}</div>}
+                  </div>
+                ))}
+              </div>
+            ) : <p className="text-sm text-muted-foreground">No discoveries yet. Run live intelligence to populate.</p>}
+            <p className="text-xs text-muted-foreground mt-3">Confirmed discoveries persist in the catalog; dismissed entries are kept for audit but flagged.</p>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="federation" className="space-y-4">
+          <Card className="p-4">
+            <h3 className="font-semibold mb-3">RPLICE v2 Federation Status</h3>
+            <div className="text-xs text-muted-foreground mb-3">Last network event: {federation?.lastEventAt ? new Date(federation.lastEventAt).toLocaleString() : "(none yet)"}</div>
+            {federation?.peers?.length ? (
+              <div className="space-y-2">
+                {federation.peers.map(p => (
+                  <div key={p.id} className="border rounded p-3 flex items-center justify-between" data-testid={`peer-${p.id}`}>
+                    <div>
+                      <div className="font-medium">{p.id}</div>
+                      <div className="text-xs text-muted-foreground">{p.url}</div>
+                    </div>
+                    <div className="text-right text-xs">
+                      <Badge variant={p.lastMirrorOk === true ? "default" : p.lastMirrorOk === false ? "destructive" : "secondary"}>{p.lastMirrorOk === null ? "no traffic" : p.lastMirrorOk ? "ok" : "fail"}</Badge>
+                      <div className="text-muted-foreground mt-1">last: {p.lastMirrorAt ? new Date(p.lastMirrorAt).toLocaleString() : "—"}</div>
+                      <div className="text-muted-foreground">{p.successCount} ok · {p.failureCount} fail</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : <p className="text-sm text-muted-foreground">No active peer mirroring detected.</p>}
+            {federation?.mirrorLog && federation.mirrorLog.length > 0 && (
+              <div className="mt-4 border-t pt-3">
+                <h4 className="text-sm font-medium mb-2">Recent mirror log</h4>
+                <div className="space-y-1 text-xs font-mono">
+                  {federation.mirrorLog.slice(0, 8).map((m, i) => (
+                    <div key={i} className={m.ok ? "text-green-700 dark:text-green-400" : "text-red-700 dark:text-red-400"}>
+                      {new Date(m.at).toLocaleTimeString()} · {m.targetId} · {m.eventType} · {m.ok ? "ok" : "fail"}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </Card>
         </TabsContent>
 
