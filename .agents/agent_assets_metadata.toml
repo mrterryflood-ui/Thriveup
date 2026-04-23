@@ -396,3 +396,9 @@ id = "5EtcfrMq3nFhE5DNEmjNd"
 uri = "file://docs/grants/SUBMISSION-WALKTHROUGH-StDavids-WAB2-LOI.md"
 type = "text"
 title = "St. David's WAB2 LOI — Submission Walkthrough"
+
+[[outputs]]
+id = "CBoy7gsib3fSl4V7vXUf7"
+uri = "file://attached_assets/WAB2-LOI-RequestSummary-v7-FINAL.md"
+type = "text"
+title = "WAB2 LOI — v7 FINAL (twin-mirror story)"
