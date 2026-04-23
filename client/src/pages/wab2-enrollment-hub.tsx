@@ -373,10 +373,34 @@ export default function WAB2EnrollmentHubPage() {
       const res = await apiRequest("PATCH", `/api/benefits/applications/${id}`, updates);
       return res.json();
     },
-    onSuccess: () => {
+    onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ["/api/benefits/applications", "wab2"] });
       queryClient.invalidateQueries({ queryKey: ["/api/benefits/wab2/dashboard"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/rplice/network-totals"] });
       toast({ title: "Application updated" });
+      // Mirror status/stage changes to peers (LifeBridge) so their handshake stays in sync.
+      // Skip if this row originated from a peer — we don't echo peer-owned data back.
+      if (data?.id && !data?.isPeerMirrored) {
+        apiRequest("POST", "/api/rplice/sync", {
+          origin: "thriveup",
+          events: [{
+            type: "benefit.enrollment.updated",
+            origin: "thriveup",
+            payload: {
+              externalId: data.id,
+              residentRef: data.id,
+              program: data.benefitType,
+              benefitType: data.benefitType,
+              county: (data.countyName || "").toLowerCase().replace(/\s*county$/i, "").trim(),
+              countyFips: data.countyFips,
+              countyName: data.countyName,
+              status: data.status,
+              stage: data.stage,
+              estimatedAnnualValue: data.estimatedAnnualValue || 0,
+            },
+          }],
+        }).catch((err) => console.warn("Peer-mirror update sync failed:", err));
+      }
     },
   });
 
@@ -437,6 +461,9 @@ export default function WAB2EnrollmentHubPage() {
               origin: "thriveup",
               payload: {
                 externalId: createdApp.id,
+                residentRef: createdApp.id,
+                program: benefit,
+                county: (wizardData.countyName || "").toLowerCase().replace(/\s*county$/i, "").trim(),
                 countyFips: wizardData.countyFips,
                 countyName: wizardData.countyName,
                 zipCode: wizardData.zipCode || null,
