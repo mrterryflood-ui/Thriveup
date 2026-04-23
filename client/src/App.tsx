@@ -313,6 +313,7 @@ function AppRouter() {
       <Route path="/grant-command-center" component={GrantCommandCenterPage} />
       <Route path="/st-davids-wab2" component={StDavidsWAB2WorkspacePage} />
       <Route path="/wab2-enrollment" component={WAB2EnrollmentHubPage} />
+      <Route path="/st-davids" component={WAB2EnrollmentHubPage} />
       <Route path="/community-map" component={CommunityMapPage} />
       <Route path="/intake" component={IntakeWizardPage} />
       <Route path="/services" component={ServiceDeliveryPage} />

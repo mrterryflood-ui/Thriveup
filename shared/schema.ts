@@ -4233,6 +4233,10 @@ export const benefitsApplications = pgTable("benefits_applications", {
   appealNotes: text("appeal_notes"),
   source: varchar("source", { length: 50 }).default("wab2"),
   notes: text("notes"),
+  // Peer-mirror fields — tracks whether this record was locally owned or mirrored from a peer (e.g. LifeBridge)
+  externalId: varchar("external_id", { length: 200 }),
+  peerPlatform: varchar("peer_platform", { length: 50 }),
+  isPeerMirrored: boolean("is_peer_mirrored").default(false),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

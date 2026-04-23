@@ -325,6 +325,10 @@ export default function WAB2EnrollmentHubPage() {
 
   const dashboardQuery = useQuery<any>({ queryKey: ["/api/benefits/wab2/dashboard"] });
   const applicationsQuery = useQuery<BenefitsApplication[]>({ queryKey: ["/api/benefits/applications", "wab2"] });
+  const networkQuery = useQuery<{ localOwned: number; peerMirrored: number; networkTotal: number; byPeer: Record<string, number>; peers: Array<{ id: string; url: string }> }>({
+    queryKey: ["/api/rplice/network-totals"],
+    refetchInterval: 30000,
+  });
   const rpliceStateQuery = useQuery<any>({
     queryKey: ["/api/rplice/state", wizardData.countyFips],
     enabled: !!wizardData.countyFips,
@@ -400,7 +404,7 @@ export default function WAB2EnrollmentHubPage() {
     for (const benefit of wizardData.selectedBenefits) {
       const def = BENEFITS.find(b => b.key === benefit);
       try {
-        await createApp.mutateAsync({
+        const createdApp = await createApp.mutateAsync({
           countyFips: wizardData.countyFips,
           countyName: wizardData.countyName,
           zipCode: wizardData.zipCode || null,
@@ -423,6 +427,36 @@ export default function WAB2EnrollmentHubPage() {
           estimatedAnnualValue: def?.annualValue || 0,
         });
         created++;
+        // Peer-mirror this enrollment to the RPLICE network (e.g. LifeBridge at lifetransitionsaid.org).
+        // Fire-and-forget — don't block wizard completion on network latency.
+        if (createdApp?.id) {
+          apiRequest("POST", "/api/rplice/sync", {
+            origin: "thriveup",
+            events: [{
+              type: "benefit.enrollment.created",
+              origin: "thriveup",
+              payload: {
+                externalId: createdApp.id,
+                countyFips: wizardData.countyFips,
+                countyName: wizardData.countyName,
+                zipCode: wizardData.zipCode || null,
+                benefitType: benefit,
+                applicantName: wizardData.applicantName,
+                applicantPhone: wizardData.applicantPhone || null,
+                applicantEmail: wizardData.applicantEmail || null,
+                preferredLanguage: wizardData.preferredLanguage,
+                householdSize: parseInt(wizardData.householdSize),
+                annualIncome: parseFloat(wizardData.annualIncome) || 0,
+                hasChildren: wizardData.hasChildren,
+                citizenshipStatus: wizardData.citizenshipStatus,
+                consentGiven: wizardData.consentGiven,
+                status: "intake",
+                stage: "registered",
+                estimatedAnnualValue: def?.annualValue || 0,
+              },
+            }],
+          }).catch((err) => console.warn("Peer-mirror sync failed:", err));
+        }
       } catch (e) {
         console.error(`Failed to register ${benefit}:`, e);
       }
@@ -484,6 +518,41 @@ export default function WAB2EnrollmentHubPage() {
             </div>
           ) : dashboard ? (
             <>
+              {networkQuery.data && (
+                <Card data-testid="card-network-totals" className="border-primary/40 bg-primary/5">
+                  <CardContent className="pt-4 pb-3">
+                    <div className="flex items-start justify-between gap-4 flex-wrap">
+                      <div>
+                        <div className="text-xs text-muted-foreground uppercase tracking-wide flex items-center gap-1.5">
+                          <Globe className="h-3.5 w-3.5" />
+                          Network View — No Double Counting
+                        </div>
+                        <div className="text-2xl font-semibold mt-1" data-testid="text-network-total">
+                          {networkQuery.data.networkTotal.toLocaleString()} <span className="text-sm font-normal text-muted-foreground">total enrollments across the RPLICE network</span>
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-1">
+                          <span data-testid="text-local-owned" className="font-medium text-foreground">{networkQuery.data.localOwned.toLocaleString()}</span> enrolled on ThriveUp
+                          {" · "}
+                          <span data-testid="text-peer-mirrored" className="font-medium text-foreground">{networkQuery.data.peerMirrored.toLocaleString()}</span> mirrored from peer platform{networkQuery.data.peerMirrored === 1 ? "" : "s"}
+                          {Object.keys(networkQuery.data.byPeer || {}).length > 0 && (
+                            <> ({Object.entries(networkQuery.data.byPeer).map(([k, v]) => `${v} via ${k}`).join(" · ")})</>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {(networkQuery.data.peers || []).map(p => (
+                          <a key={p.id} href={p.url} target="_blank" rel="noopener noreferrer" data-testid={`link-peer-${p.id}`}>
+                            <Badge variant="outline" className="gap-1 hover-elevate">
+                              <ArrowRight className="h-3 w-3" />
+                              {p.id}
+                            </Badge>
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 <Card data-testid="card-total-registered">
                   <CardContent className="pt-4 pb-3">

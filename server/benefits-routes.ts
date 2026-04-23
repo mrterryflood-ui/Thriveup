@@ -3053,7 +3053,7 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
     }));
   }
 
-  function applyEvent(type: string, payload: any, origin: string): { ok: boolean; error?: string } {
+  async function applyEvent(type: string, payload: any, origin: string): Promise<{ ok: boolean; error?: string }> {
     const at = new Date().toISOString();
     rpliceCache.lastEventAt = at;
     try {
@@ -3089,6 +3089,52 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
           rpliceCache.programAlerts = [alert, ...rpliceCache.programAlerts.filter(a => a.id !== alert.id)].slice(0, 20);
           break;
         }
+        case "benefit.enrollment.created": {
+          // Peer-mirror an enrollment created on another platform (e.g. LifeBridge).
+          // When origin === self, we already have the local row — no-op (just acknowledge).
+          if (origin === SELF_PLATFORM_ID) break;
+          const p = payload || {};
+          if (!p.externalId) throw new Error("payload.externalId required");
+          if (!p.countyFips || !p.countyName || !p.benefitType || !p.applicantName) {
+            throw new Error("payload requires countyFips, countyName, benefitType, applicantName");
+          }
+          const existing = await db.select().from(benefitsApplications)
+            .where(and(eq(benefitsApplications.externalId, p.externalId), eq(benefitsApplications.peerPlatform, origin)))
+            .limit(1);
+          if (existing.length > 0) {
+            await db.update(benefitsApplications).set({
+              status: p.status || existing[0].status,
+              stage: p.stage || existing[0].stage,
+              outcome: p.outcome ?? existing[0].outcome,
+              confirmationNumber: p.confirmationNumber ?? existing[0].confirmationNumber,
+              updatedAt: new Date(),
+            }).where(eq(benefitsApplications.id, existing[0].id));
+          } else {
+            await db.insert(benefitsApplications).values({
+              countyFips: p.countyFips,
+              countyName: p.countyName,
+              zipCode: p.zipCode || null,
+              benefitType: p.benefitType,
+              applicantName: p.applicantName,
+              applicantPhone: p.applicantPhone || null,
+              applicantEmail: p.applicantEmail || null,
+              preferredLanguage: p.preferredLanguage || "English",
+              householdSize: p.householdSize || 1,
+              annualIncome: p.annualIncome ?? null,
+              hasChildren: !!p.hasChildren,
+              citizenshipStatus: p.citizenshipStatus || null,
+              consentGiven: !!p.consentGiven,
+              status: p.status || "intake",
+              stage: p.stage || "registered",
+              source: "peer",
+              estimatedAnnualValue: p.estimatedAnnualValue ?? null,
+              externalId: p.externalId,
+              peerPlatform: origin,
+              isPeerMirrored: true,
+            });
+          }
+          break;
+        }
         default:
           throw new Error(`Unknown event type: ${type}`);
       }
@@ -3104,7 +3150,7 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
       const { type, payload } = req.body || {};
       if (!type) return res.status(400).json({ error: "type required" });
       const origin = (req.headers["x-rplice-origin"] as string) || (req.body?.origin as string) || "betterscience";
-      const result = applyEvent(type, payload, origin);
+      const result = await applyEvent(type, payload, origin);
       if (!result.ok) return res.status(400).json({ error: result.error });
       // Mirror to peers (don't await — fire-and-forget so the caller isn't blocked).
       mirrorToPeers(type, payload, origin).catch(() => {});
@@ -3179,13 +3225,58 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
     });
   });
 
+  // Network totals — shows how many enrollments are locally-owned vs peer-mirrored (e.g. from LifeBridge).
+  // This is the count that demonstrates the "one network, two front doors, no double-counting" claim.
+  app.get("/api/rplice/network-totals", async (_req, res) => {
+    try {
+      const apps = await db.select().from(benefitsApplications);
+      let localOwned = 0;
+      let peerMirrored = 0;
+      const byPeer: Record<string, number> = {};
+      const byBenefit: Record<string, { localOwned: number; peerMirrored: number; networkTotal: number }> = {};
+      const byCounty: Record<string, { localOwned: number; peerMirrored: number; networkTotal: number }> = {};
+      for (const a of apps) {
+        const isPeer = !!a.isPeerMirrored;
+        if (isPeer) {
+          peerMirrored++;
+          const pp = a.peerPlatform || "unknown";
+          byPeer[pp] = (byPeer[pp] || 0) + 1;
+        } else {
+          localOwned++;
+        }
+        const b = a.benefitType || "other";
+        byBenefit[b] = byBenefit[b] || { localOwned: 0, peerMirrored: 0, networkTotal: 0 };
+        if (isPeer) byBenefit[b].peerMirrored++; else byBenefit[b].localOwned++;
+        byBenefit[b].networkTotal++;
+        const c = a.countyName || a.countyFips || "unknown";
+        byCounty[c] = byCounty[c] || { localOwned: 0, peerMirrored: 0, networkTotal: 0 };
+        if (isPeer) byCounty[c].peerMirrored++; else byCounty[c].localOwned++;
+        byCounty[c].networkTotal++;
+      }
+      res.json({
+        self: SELF_PLATFORM_ID,
+        localOwned,
+        peerMirrored,
+        networkTotal: localOwned + peerMirrored,
+        byPeer,
+        byBenefit,
+        byCounty,
+        peers: MIRROR_TARGETS.map(t => ({ id: t.id, url: t.baseUrl })),
+        generatedAt: new Date().toISOString(),
+      });
+    } catch (error: any) {
+      console.error("network-totals failed:", error);
+      res.status(500).json({ error: error.message || "Failed to compute network totals" });
+    }
+  });
+
   app.get("/api/rplice/sync", async (_req, res) => {
     const network = buildNetworkView();
     res.json({
       ok: true,
       platform: SELF_PLATFORM_ID,
       role: "consumer+relay",
-      acceptedEventTypes: ["county.profile.updated", "mapgap.refreshed", "partners.updated", "program.alert"],
+      acceptedEventTypes: ["county.profile.updated", "mapgap.refreshed", "partners.updated", "program.alert", "benefit.enrollment.created"],
       pushEndpoint: "/api/rplice/sync",
       legacyPushEndpoint: "/api/rplice/inbound-event",
       stateEndpoint: "/api/rplice/state/:countyFips",
@@ -3222,7 +3313,7 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
         const { type, payload } = evt || {};
         const origin = (evt && evt.origin) || defaultOrigin;
         if (!type) { results.push({ type: "?", origin, ok: false, error: "type required" }); continue; }
-        const r = applyEvent(type, payload, origin);
+        const r = await applyEvent(type, payload, origin);
         results.push({ type, origin, ok: r.ok, error: r.error });
         if (r.ok) acceptedForMirror.push({ type, payload, origin });
       }
