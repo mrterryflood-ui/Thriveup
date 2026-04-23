@@ -1,0 +1,132 @@
+Nationwide Benefits Engine — the plan
+What "nationwide regardless of sponsor" means concretely
+The platform should do, for anyone in any US ZIP, exactly what it does today for the 5 Central Texas counties: show them the benefits they likely qualify for, walk them through enrollment, hand them off warmly, and track outcome. Funder attribution becomes an optional tag on the enrollment record — not a gate on who can use the tool. If a grant later covers that person's county and focus area, we attach the funder retroactively and report against their grant; if no funder applies, the enrollment still happens and still counts toward network totals.
+
+This is a small conceptual change and a large content change.
+
+The six pieces that have to change on both platforms
+1. The program catalog goes data-driven and national
+Today both the 5 counties and their eligible programs are hardcoded constants. Replace that with a single catalog data model shared across LifeBridge and ThriveUp:
+
+BenefitProgram {
+  id, slug
+  scope: "federal" | "state" | "county" | "city"
+  state (null if federal)
+  county (null if federal or statewide)
+  area: "healthcare-access" | "mental-health" | "dental-health"
+       | "healthy-aging" | "healthy-children-families"
+       | ... plus future areas like "housing", "food", "legal", "reentry"
+  programName, programNameEs
+  eligibility: { ageMin, ageMax, incomeFPLmax, householdRules,
+                 residencyRequired, citizenshipRules, docsRequired[],
+                 specialRules (free text) }
+  portalUrl, portalUrlEs, phone
+  applicationChannels: ["online", "phone", "in-person", "paper", "mail"]
+  renewalCadence: "annual" | "6mo" | "continuous" | "one-time"
+  processingDaysMedian
+  annualDollarValueEstimate
+  culturalSpecificity?: ["spanish-language", "tribal", "refugee",
+                          "farmworker", "deaf-asl", ...]
+}
+
+The catalog has three layers of coverage, and they stack:
+
+Federal layer (~30 programs): Medicaid, CHIP, Medicare, ACA Marketplace, SNAP, WIC, SSI, SSDI, TANF, Head Start, LIHEAP, Section 8 HCV, HUD VASH, LifeLine phone, EITC, CTC, VA health, IHS, Ryan White, 988 Lifeline, SAMHSA Treatment Locator, ACL Eldercare Locator, NAMI HelpLine, etc. These apply to every state.
+State layer (50 states + DC × ~10 programs each): each state's Medicaid expansion name, state mental health authority, state health insurance assistance program (SHIP), state WIC portal, state CHIP portal, state unemployment, state AAA, state Medicaid dental, state vocational rehab, state legal aid, state veterans office.
+County/city layer: filled opportunistically — Travis MAP, NYC ActionNYC, LA DPSS, Miami-Dade Community Action, etc. Populated as grants and partnerships come online. For counties without this layer yet, the platform falls back to state + federal + a live Perplexity query.
+Key invariant for ThriveUp: identical schema, identical area vocabulary, identical slug format (e.g. federal:medicaid, state:tx:healthy-texas-women, county:tx-travis:map). So when LifeBridge enrolls county:tx-travis:map and ThriveUp enrolls county:tx-travis:map for the same person, the dedup hits.
+
+2. The wizard works for any ZIP
+Current wizard: county → area → program → eligibility → contact → confirm, limited to 5 counties.
+
+National wizard: ZIP → (state and county auto-resolved) → area → program → eligibility → contact → confirm. Same 6 steps, same bilingual copy, but the first step is a ZIP box and the system figures out geography itself. If the ZIP resolves to a county where we have county-layer programs, those bubble to the top. Otherwise state + federal. Eligibility quick-check stays PII-free (age band, household size, income band, insurance status).
+
+3. The eligibility engine becomes deterministic and shared
+Currently eligibility is mostly descriptive text. For both platforms to qualify the same person identically, eligibility must be a function both sides evaluate the same way:
+
+eligible(applicant, program) → "eligible" | "likely-eligible" | "not-eligible" | "need-more-info"
+
+Inputs: ageBand, householdSize, incomeBand (FPL%), state, county, citizenship/immigration-status-declared, hasInsurance, veteranStatus, pregnancyStatus, disabilityDeclared, childrenInHousehold.
+
+Rules live in the BenefitProgram.eligibility field so a single update propagates to both platforms via RPLICE (benefitProgram.updated event — new).
+
+4. Funder attribution as post-hoc metadata
+Add to the enrollment record (both platforms):
+
+grantPartnerId?      // nullable, optional
+grantPartnerName?
+grantReportingTags?: string[]
+
+Plus a small GrantPartner registry:
+
+GrantPartner {
+  id, name, coverageStates[], coverageCounties[],
+  focusAreas[], reportingCadence,
+  rpliceChannel  // private per-grant channel key
+}
+
+When an enrollment is created, the system automatically checks: does this county + area match any active grant partner's coverage? If yes, auto-tag it. If no, leave blank. A new funder onboarded six months from now retroactively claims already-completed enrollments that match its coverage — they go into its first report without us re-doing the work. Funders never block enrollment.
+
+5. The RPLICE event vocabulary expands to carry this cleanly
+Add these events — both platforms produce and consume all of them:
+
+benefitProgram.updated — catalog entry changed (so both sides stay in sync on eligibility rules and portal URLs without redeploying)
+benefit.enrollment.created / .updated — already handled on our side, needs to be outbound too
+eligibility.screened — pre-enrollment funnel signal (anonymous — shows demand by county × area even if they don't finish the wizard)
+grantPartner.registered — a new funder came online, here's their coverage geo + focus areas
+grantPartner.tagged — we just attached grant X to enrollment Y (so only one platform "owns" the report for a given grant-enrollment pair)
+Plus the existing outcome.enrolled / .declined / .referred and intent.need / .engagement / .capacity.
+
+6. The handshake (GET /api/rplice/sync) adds a per-state slice
+Today it reports national totals. Nationwide version reports per-state slices so RPLICE can verify state-by-state that LifeBridge and ThriveUp agree:
+
+enrollments: {
+  localOwned, localEnrolled, peerMirrored, peerEnrolled,
+  networkTotal, networkEnrolled,
+  byState: {
+    "TX": { localOwned, localEnrolled, peerMirrored, peerEnrolled, byCounty, byArea, byStatus, byGrantPartner },
+    "CA": { ... },
+    ...
+  }
+}
+
+If lifebridge.byState.TX.networkEnrolled !== thriveup.byState.TX.networkEnrolled, RPLICE triggers replay of missing events for Texas only, not the whole country.
+
+The resident-ID dedup formula (must match byte-for-byte on both platforms)
+This is the single most important thing for the "no double-counting" promise to hold nationwide:
+
+residentRef = sha256( lowercased_first_initial + lowercased_last_name
+                    + birthYear + zip5
+                    + last4_of_phone_or_email_local_part ).substr(0, 16)
+
+Deterministic, no PII leaves either platform, collides extremely rarely, and produces the same hash whether Maria enters her info on LifeBridge or ThriveUp first. Dedup key becomes peer|residentRef|programSlug|status.
+
+Data loading strategy — how we actually get to 50 states of content
+Three tiers, in this order:
+
+Seed what's universal (1 week's work): The 30 federal programs × every state get a program record. The 50 state Medicaid expansion names, state CHIP portals, state WIC portals, state mental health authorities, SHIP offices, AAA directories, 211 lines, unemployment portals, legal aid directories — all of these have authoritative public directories. Seed from those directly.
+County layer via partnerships and grants (rolling): Each new grant partner brings county-layer intelligence. The St. David's work populated 5 Travis/WIL/HAY/BAS/CAL counties; the next funder in, say, Cook County IL populates that. Organic.
+Live Perplexity fallback for coverage gaps: When a user in a county without loaded county-layer data uses the wizard, the system shows federal + state programs and fires a live Perplexity query for their specific ZIP to surface local community-action-agency, church-based assistance, mutual-aid etc. — same 6-engine RAG we already use in the chat, but plugged into the wizard's "additional local resources" section.
+This is the key insight: we do not need to pre-seed all 3,143 counties to go national. We need to pre-seed federal + 50 states. That's ~30 + (50 × 10) = ~530 program records. Totally doable in one focused sprint. County-layer fills in as grants and partnerships arrive.
+
+What I'm asking ThriveUp to mirror exactly
+Give Terry this one-pager:
+
+Same BenefitProgram schema, same area vocabulary, same slug format.
+Same eligibility evaluator (we publish the pure function as a spec + TypeScript reference implementation; they port identically).
+Same residentRef hash formula (spec above — byte-exact).
+Same GrantPartner registry shape, same nullable attribution pattern on enrollments.
+Implement the expanded RPLICE event vocabulary as both producer and consumer.
+Expose GET /api/rplice/sync with the byState slice identically shaped.
+Handle benefitProgram.updated inbound so catalog changes propagate without redeploy.
+Funder-agnostic by default — no code paths that require a grant to enroll someone.
+If both sides ship these eight things in lockstep, nationwide-without-sponsor is live. After that, every new grant is a config entry, not an engineering project.
+
+What the user experience looks like once built
+Maria in Fresno, CA types her ZIP into the nationwide wizard. The platform shows her:
+
+Federal: Medicaid, SNAP, WIC, ACA Marketplace, EITC
+California state: Medi-Cal, CalFresh, WIC-CA, Covered California, CalWORKs
+Fresno County: Fresno County Department of Social Services portal, local FQHC
+Live Perplexity layer: Fresno Mission, Central California Food Bank, Fresno EOC Head Start
+She picks Medi-Cal, runs eligibility, gets walked through the wizard in Spanish, gets a tracker ID, gets handed off to whatever navigator is available in California. Whether the California Endowment eventually funds this work or whether it stays unfunded, her enrollment happened and counts. If California Endowment comes on board later, her record retroactively tags grantPartnerId: california-endowment and appears in their first report.
