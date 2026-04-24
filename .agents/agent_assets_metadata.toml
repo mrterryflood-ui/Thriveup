@@ -414,3 +414,9 @@ id = "dGemnORRliJk_auXxh-Tp"
 uri = "file://attached_assets/NSF-26-508-LOI-TX-Hub-v2.md"
 type = "text"
 title = "NSF 26-508 — Texas Hub LOI v2 (live intel + 28 citations)"
+
+[[outputs]]
+id = "xVUZQkDSU4qL9hIyltM4g"
+uri = "file://attached_assets/WAB2-LOI-RequestSummary-v7-FINAL.docx"
+type = "word_document"
+title = "St. David's WAB2 LOI — Request Summary v7 FINAL (.docx)"
