@@ -408,3 +408,9 @@ id = "1XB7hk_4GsECE5LbuTskO"
 uri = "file://attached_assets/NSF-26-508-LOI-TX-Hub-v1.md"
 type = "text"
 title = "NSF 26-508 — Texas Coordination Hub LOI v1"
+
+[[outputs]]
+id = "dGemnORRliJk_auXxh-Tp"
+uri = "file://attached_assets/NSF-26-508-LOI-TX-Hub-v2.md"
+type = "text"
+title = "NSF 26-508 — Texas Hub LOI v2 (live intel + 28 citations)"

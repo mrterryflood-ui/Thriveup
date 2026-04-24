@@ -124,7 +124,18 @@ export async function research(stateCode: string, qt: QueryType, extra?: Record<
     const text = resp.choices[0]?.message?.content ?? "";
     const usage = resp.usage?.total_tokens ?? 0;
     dailyTokensUsed += usage;
-    const citations: string[] = (resp as unknown as { citations?: string[] }).citations ?? [];
+    // Citations may be returned in three different shapes depending on provider:
+    //   1. resp.citations               — direct Perplexity API
+    //   2. resp.search_results          — newer Perplexity API
+    //   3. choices[0].message.annotations[].url_citation.url — OpenRouter / modelfarm proxy
+    const topLevel = (resp as unknown as { citations?: string[]; search_results?: Array<{ url?: string }> });
+    const annotations = (resp.choices[0]?.message as unknown as { annotations?: Array<{ type?: string; url_citation?: { url?: string } }> })?.annotations ?? [];
+    const fromAnnotations = annotations
+      .filter(a => a?.type === "url_citation" && a.url_citation?.url)
+      .map(a => a.url_citation!.url!);
+    const citations: string[] = topLevel.citations
+      ?? topLevel.search_results?.map(s => s.url).filter((u): u is string => !!u)
+      ?? fromAnnotations;
     await persistFinding(code, qt, queryHash, text, citations);
     return { text, citations, retrievedAt: new Date().toISOString(), cached: false, source: "perplexity-sonar-pro" };
   } catch (err: unknown) {
