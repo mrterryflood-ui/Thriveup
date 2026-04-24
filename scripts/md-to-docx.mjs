@@ -78,19 +78,18 @@ function pushBullet(text) {
 
 function pushTable(rows) {
   const tableRows = rows.map((cells, rowIdx) => new TableRow({
-    children: cells.map(cell => new TableCell({
-      children: [new Paragraph({
-        children: parseInline(cell.trim()).map(r => {
-          if (rowIdx === 0 && r instanceof TextRun) {
-            return new TextRun({ text: r.options?.text || cell.trim(), bold: true, font: FONT });
-          }
-          return r;
-        }),
-        spacing: { after: 0 },
-      })],
-      width: { size: Math.floor(9000 / cells.length), type: WidthType.DXA },
-      shading: rowIdx === 0 ? { fill: "EEF2F7" } : undefined,
-    })),
+    tableHeader: rowIdx === 0,
+    children: cells.map(cell => {
+      const text = cell.trim();
+      const children = rowIdx === 0
+        ? [new TextRun({ text, bold: true, font: FONT })]
+        : parseInline(text);
+      return new TableCell({
+        children: [new Paragraph({ children, spacing: { after: 0 } })],
+        width: { size: Math.floor(9000 / cells.length), type: WidthType.DXA },
+        shading: rowIdx === 0 ? { fill: "EEF2F7" } : undefined,
+      });
+    }),
   }));
   blocks.push(new Table({
     rows: tableRows,
