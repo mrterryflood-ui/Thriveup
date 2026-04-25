@@ -88,12 +88,12 @@ const PATHWAYS = [
 
 function PathwayCard({ pathway }: { pathway: typeof PATHWAYS[0] }) {
   return (
-    <Link href={pathway.href}>
-      <a
-        className={`group relative block overflow-hidden rounded-xl border-2 ${pathway.borderColor} ${pathway.bgLight} bg-card transition-all duration-300 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] no-underline`}
-        data-testid={`card-pathway-${pathway.id}`}
-        aria-label={`${pathway.title} — ${pathway.action}`}
-      >
+    <Link
+      href={pathway.href}
+      className={`group relative block overflow-hidden rounded-xl border-2 ${pathway.borderColor} ${pathway.bgLight} bg-card transition-all duration-300 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] no-underline`}
+      data-testid={`card-pathway-${pathway.id}`}
+      aria-label={`${pathway.title} — ${pathway.action}`}
+    >
         <div className="p-5 sm:p-6">
           <div className="flex items-start gap-4">
             <div className={`rounded-xl p-3 bg-gradient-to-br ${pathway.color} shrink-0 shadow-md`}>
@@ -114,7 +114,6 @@ function PathwayCard({ pathway }: { pathway: typeof PATHWAYS[0] }) {
             </div>
           </div>
         </div>
-      </a>
     </Link>
   );
 }
