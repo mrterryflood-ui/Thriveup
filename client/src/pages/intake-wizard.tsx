@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
+import { logJourneyEvent } from "@/lib/journey-log";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -243,10 +244,18 @@ export default function IntakeWizard() {
       }
       return participant;
     },
-    onSuccess: () => {
+    onSuccess: (participant: any) => {
       queryClient.invalidateQueries({ queryKey: ["/api/intake/participants"] });
       toast({ title: "Intake Complete", description: "Welcome! Your information has been securely saved." });
       setStep(STEPS.length - 1);
+      logJourneyEvent({
+        participantId: participant?.id,
+        eventType: "intake_completed",
+        eventDomain: "reentry",
+        eventTitle: `Intake completed${form.firstName ? " — " + form.firstName + " " + form.lastName : ""}`,
+        eventPayload: { participantId: participant?.id, state: form.state, justiceInvolved: form.justiceInvolved },
+        sourcePage: "Intake Wizard",
+      });
     },
     onError: (err: Error) => {
       toast({ title: "Error", description: err.message, variant: "destructive" });

@@ -195,6 +195,8 @@ const CorridorEvidencePage = lazy(() => import("@/pages/corridor-evidence"));
 const CorridorDocsPage = lazy(() => import("@/pages/corridor-docs"));
 const CorridorDocsLivePage = lazy(() => import("@/pages/corridor-docs-live"));
 const NetworkMembersPage = lazy(() => import("@/pages/network-members"));
+const ResidentJourneyPage = lazy(() => import("@/pages/resident-journey"));
+const CaseManagerViewPage = lazy(() => import("@/pages/case-manager-view"));
 
 function PageFallback() {
   return (
@@ -379,6 +381,10 @@ function AppRouter() {
       <Route path="/loi-writer" component={LOIWriterPage} />
       <Route path="/sdoh-chain" component={SDOHChainPage} />
       <Route path="/sdoh-explorer" component={SDOHExplorerPage} />
+      <Route path="/resident-journey" component={ResidentJourneyPage} />
+      <Route path="/resident-journey/:id" component={ResidentJourneyPage} />
+      <Route path="/case-manager" component={CaseManagerViewPage} />
+      <Route path="/case-manager/:id" component={CaseManagerViewPage} />
       <Route path="/city-comparison" component={CityComparisonPage} />
       <Route path="/transition-plans" component={TransitionPlansPage} />
       <Route path="/ai-workforce" component={AIWorkforcePage} />

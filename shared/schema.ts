@@ -4634,4 +4634,61 @@ export const insertGovernanceMeetingSchema = createInsertSchema(governanceMeetin
 export type InsertGovernanceMeeting = z.infer<typeof insertGovernanceMeetingSchema>;
 export type GovernanceMeeting = typeof governanceMeetings.$inferSelect;
 
+// ==================== UNIFIED RESIDENT JOURNEY ====================
+// One identity (participantProfiles.id) flows across reentry, workforce,
+// AI training, benefits, community, and geography. These three tables are
+// the connective tissue every page writes to and reads from.
+
+export const residentJourneyEvents = pgTable("resident_journey_events", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  participantId: varchar("participant_id", { length: 100 }).notNull(),
+  eventType: varchar("event_type", { length: 80 }).notNull(),
+  eventDomain: varchar("event_domain", { length: 50 }).notNull(),
+  eventTitle: text("event_title").notNull(),
+  eventPayload: jsonb("event_payload"),
+  stateAtEvent: varchar("state_at_event", { length: 10 }),
+  countyAtEvent: varchar("county_at_event", { length: 10 }),
+  sourcePage: varchar("source_page", { length: 100 }),
+  sourceUserId: varchar("source_user_id", { length: 255 }),
+  occurredAt: timestamp("occurred_at").defaultNow(),
+});
+export const insertResidentJourneyEventSchema = createInsertSchema(residentJourneyEvents).omit({ id: true, occurredAt: true });
+export type InsertResidentJourneyEvent = z.infer<typeof insertResidentJourneyEventSchema>;
+export type ResidentJourneyEvent = typeof residentJourneyEvents.$inferSelect;
+
+export const residentRelocations = pgTable("resident_relocations", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  participantId: varchar("participant_id", { length: 100 }).notNull(),
+  fromState: varchar("from_state", { length: 10 }),
+  fromCounty: varchar("from_county", { length: 10 }),
+  fromCity: varchar("from_city", { length: 100 }),
+  toState: varchar("to_state", { length: 10 }).notNull(),
+  toCounty: varchar("to_county", { length: 10 }),
+  toCity: varchar("to_city", { length: 100 }),
+  reason: text("reason"),
+  eligibilityDelta: jsonb("eligibility_delta"),
+  servicesContinued: text("services_continued").array(),
+  servicesNeedingTransfer: text("services_needing_transfer").array(),
+  status: varchar("status", { length: 30 }).notNull().default("completed"),
+  occurredAt: timestamp("occurred_at").defaultNow(),
+});
+export const insertResidentRelocationSchema = createInsertSchema(residentRelocations).omit({ id: true, occurredAt: true });
+export type InsertResidentRelocation = z.infer<typeof insertResidentRelocationSchema>;
+export type ResidentRelocation = typeof residentRelocations.$inferSelect;
+
+export const residentRiskSnapshots = pgTable("resident_risk_snapshots", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  participantId: varchar("participant_id", { length: 100 }).notNull(),
+  riskFactors: jsonb("risk_factors"),
+  protectiveFactors: jsonb("protective_factors"),
+  chainwebCitations: jsonb("chainweb_citations"),
+  overallRiskScore: integer("overall_risk_score"),
+  trendDirection: varchar("trend_direction", { length: 20 }),
+  recommendedInterventions: jsonb("recommended_interventions"),
+  snapshotAt: timestamp("snapshot_at").defaultNow(),
+});
+export const insertResidentRiskSnapshotSchema = createInsertSchema(residentRiskSnapshots).omit({ id: true, snapshotAt: true });
+export type InsertResidentRiskSnapshot = z.infer<typeof insertResidentRiskSnapshotSchema>;
+export type ResidentRiskSnapshot = typeof residentRiskSnapshots.$inferSelect;
+
 export * from "./models/auth";

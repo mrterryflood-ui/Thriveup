@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
+import { logJourneyEvent } from "@/lib/journey-log";
 import { useLanguage } from "@/lib/i18n";
 import { useLocation, useRoute } from "wouter";
 import { Card } from "@/components/ui/card";
@@ -137,6 +138,13 @@ export default function AIToolsWorkspacePage() {
       toast({
         title: isEs ? "Proyecto guardado" : "Project saved",
         description: isEs ? "Tu trabajo ha sido guardado exitosamente." : "Your work has been saved successfully.",
+      });
+      logJourneyEvent({
+        eventType: "ai_tool_used",
+        eventDomain: "ai_training",
+        eventTitle: `Used AI tool: ${currentTool?.toolName || toolKey}`,
+        eventPayload: { toolKey, toolId: currentTool?.id, mode: isAdult ? "adult" : "youth" },
+        sourcePage: "AI Tools Workspace",
       });
     },
   });

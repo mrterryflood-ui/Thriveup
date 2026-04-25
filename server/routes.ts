@@ -72,6 +72,7 @@ import {
   type ScoringRubric,
 } from "./sankofa-gateway";
 import { registerBenefitsRoutes } from "./benefits-routes";
+import { registerResidentJourneyRoutes } from "./resident-journey";
 import { registerGrantRoutes } from "./grant-routes";
 import { registerReentryRoutes } from "./reentry-routes";
 import { registerPartnerRoutes } from "./partner-routes";
@@ -407,6 +408,7 @@ export async function registerRoutes(
   registerOutcomeRoutes(app);
   registerJusticeRoutes(app);
   registerBenefitsRoutes(app);
+  registerResidentJourneyRoutes(app);
   registerWorkforceRoutes(app);
   registerNavigatorRoutes(app);
   registerPilotRoutes(app);

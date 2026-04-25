@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { logJourneyEvent } from "@/lib/journey-log";
 import { useToast } from "@/hooks/use-toast";
 import type { TrainingProgram, TrainingEnrollment } from "@shared/schema";
 import { PageHeader } from "@/components/page-header";
@@ -74,10 +75,18 @@ export default function WorkforceTrainingPage() {
       const res = await apiRequest("POST", "/api/workforce/enrollments", data);
       return res.json();
     },
-    onSuccess: () => {
+    onSuccess: (enrollment: any) => {
       queryClient.invalidateQueries({ queryKey: ["/api/workforce/enrollments"] });
       toast({ title: "Enrolled!", description: "You've been enrolled in this training program." });
+      const programName = selectedProgram?.programName || "training program";
       setSelectedProgram(null);
+      logJourneyEvent({
+        eventType: "training_enrolled",
+        eventDomain: "workforce",
+        eventTitle: `Enrolled in ${programName}`,
+        eventPayload: { enrollmentId: enrollment?.id, programId: enrollment?.programId, programName },
+        sourcePage: "Workforce Training",
+      });
     },
     onError: (error: Error) => {
       toast({ title: "Error", description: error.message, variant: "destructive" });

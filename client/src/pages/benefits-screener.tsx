@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
+import { logJourneyEvent } from "@/lib/journey-log";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -112,6 +113,14 @@ export default function BenefitsScreenerPage() {
       setResult(res);
       setStep(4);
       queryClient.invalidateQueries({ queryKey: ["/api/benefits/screenings"] });
+      const eligibleCount = Array.isArray(res?.eligibility) ? res.eligibility.filter((e: any) => e.eligible).length : 0;
+      logJourneyEvent({
+        eventType: "benefit_screened",
+        eventDomain: "benefits",
+        eventTitle: `Benefits screening completed (${eligibleCount} programs eligible)`,
+        eventPayload: { eligibleCount, state: data.state, county: data.county, householdSize: data.householdSize },
+        sourcePage: "Benefits Screener",
+      });
     },
     onError: () => toast({ title: "Error", description: "Screening failed. Please try again.", variant: "destructive" }),
   });

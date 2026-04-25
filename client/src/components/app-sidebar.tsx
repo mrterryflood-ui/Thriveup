@@ -48,6 +48,8 @@ interface NavItem {
 }
 
 const communityIntelItems: NavItem[] = [
+  { title: "Resident Journey (demo)", url: "/resident-journey", icon: Route },
+  { title: "Case Manager View", url: "/case-manager", icon: Shield },
   { title: "Dashboard", url: "/dashboard", icon: Home },
   { title: "Neighborhood Intel", url: "/neighborhood", icon: MapPin },
   { title: "Community", url: "/community", icon: Globe },

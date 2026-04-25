@@ -2,6 +2,7 @@ import { useState } from "react";
 import { TrainingGuideButton } from "@/components/training-guide";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
+import { logJourneyEvent } from "@/lib/journey-log";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -68,12 +69,20 @@ export default function ReentryDashboard() {
       const res = await apiRequest("POST", "/api/reentry/plans", data);
       return res.json();
     },
-    onSuccess: () => {
+    onSuccess: (plan: any) => {
       queryClient.invalidateQueries({ queryKey: ["/api/reentry/plans"] });
       queryClient.invalidateQueries({ queryKey: ["/api/reentry/dashboard"] });
       setShowForm(false);
+      const userName = formData.userName;
       setFormData({ userId: "", userName: "", phase: "pre_release", riskLevel: "medium", notes: "" });
       toast({ title: "Reentry plan created" });
+      logJourneyEvent({
+        eventType: "reentry_plan_created",
+        eventDomain: "reentry",
+        eventTitle: `Reentry plan created${userName ? " for " + userName : ""}`,
+        eventPayload: { planId: plan?.id, phase: plan?.phase, riskLevel: plan?.riskLevel },
+        sourcePage: "Reentry Dashboard",
+      });
     },
   });
 
