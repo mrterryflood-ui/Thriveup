@@ -15,6 +15,7 @@ import {
   CATALOG, CATALOG_VERSION, ACCEPTED_EVENT_TYPES, BENEFIT_AREAS,
   FEDERAL_PROGRAMS, STATE_PROGRAMS, DEFAULT_GRANT_PARTNERS,
   matchGrantPartners, resolveZip, computeResidentRefFromFields,
+  FIPS_TO_COUNTY, JURISDICTIONS_BY_CODE,
 } from "@shared/nationwide";
 import type { GrantPartner as NationwideGrantPartner, BenefitAreaId } from "@shared/nationwide";
 
@@ -2030,7 +2031,12 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
           const totalPop = tracts.reduce((s, t) => s + t.totalPop, 0);
           const eligible = tracts.reduce((s, t) => s + t.eligiblePop, 0);
           const enrolled = tracts.reduce((s, t) => s + t.enrolledPop, 0);
-          const countyName = tracts[0]?.tractName?.split(",").slice(1).join(",").trim() || `County ${countyCode}`;
+          const fips5 = `${stateCode}${countyCode}`;
+          const lookup = FIPS_TO_COUNTY[fips5];
+          const stateName = lookup ? (JURISDICTIONS_BY_CODE[lookup.state]?.name ?? lookup.state) : "";
+          const countyName = lookup
+            ? `${lookup.name}, ${stateName}`
+            : (tracts[0]?.tractName?.split(",").slice(1).join(",").trim() || `County ${countyCode}`);
 
           countySummaries[`${stateCode}${countyCode}`] = {
             fips: `${stateCode}${countyCode}`, name: countyName,
@@ -2603,7 +2609,12 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
           const totalPop = tracts.reduce((s, t) => s + t.totalPop, 0);
           const eligible = tracts.reduce((s, t) => s + t.eligiblePop, 0);
           const enrolled = tracts.reduce((s, t) => s + t.enrolledPop, 0);
-          const countyName = tracts[0]?.tractName?.split(",").slice(1).join(",").trim() || `County ${countyCode}`;
+          const fips5 = `${stateCode}${countyCode}`;
+          const lookup = FIPS_TO_COUNTY[fips5];
+          const stateName = lookup ? (JURISDICTIONS_BY_CODE[lookup.state]?.name ?? lookup.state) : "";
+          const countyName = lookup
+            ? `${lookup.name}, ${stateName}`
+            : (tracts[0]?.tractName?.split(",").slice(1).join(",").trim() || `County ${countyCode}`);
           if (!regionName) regionName = countyName;
 
           const avg = (field: string) => Math.round((tracts.reduce((s: number, t: any) => s + (t[field] || 0), 0) / Math.max(tracts.length, 1)) * 10) / 10;

@@ -718,8 +718,13 @@ export default function LandingPage() {
           <p className="text-base sm:text-lg text-muted-foreground max-w-xl mx-auto mb-4 px-2 leading-relaxed" data-testid="text-hero-subtitle">
             We equip youth, veterans, returning citizens, families, and the organizations that champion them — with AI-powered training, verifiable credentials, and the infrastructure to create lasting change from within.
           </p>
-          <p className="text-sm text-muted-foreground/70 max-w-lg mx-auto px-2 mb-4" data-testid="text-hero-geography">
-            Empowering Pflugerville, Manor, East Austin, and communities across Central Texas. Veteran-founded. Black-led. Built by people who've been where you are.
+          <p className="text-sm text-muted-foreground/70 max-w-xl mx-auto px-2 mb-4" data-testid="text-hero-geography">
+            Built to work in any U.S. county.{" "}
+            <Link href="/coverage" className="text-primary hover:underline" data-testid="link-hero-coverage">
+              Texas is our first deployment
+            </Link>
+            {" "}— launching in Travis, Williamson, Hays, Bastrop, and Caldwell counties through the St. David's pilot.
+            Veteran-founded. Black-led. Built by people who've been where you are.
           </p>
           <p className="text-sm font-medium text-foreground/80 max-w-xl mx-auto px-2 mb-4" data-testid="text-hero-philosophy">
             Holistic. Agile. Agnostic. We meet every community where they are — through intentional collaboration, honest communication, and building together.
@@ -817,7 +822,7 @@ export default function LandingPage() {
                 <span className="font-semibold" data-testid="text-footer-brand">ThriveUp Academy</span>
               </div>
               <p className="text-xs text-muted-foreground leading-relaxed mb-2" data-testid="text-footer-tagline">
-                Empowering youth, veterans, returning citizens, families, and the organizations that champion them — with AI-powered workforce development and community infrastructure across Central Texas and beyond.
+                Empowering youth, veterans, returning citizens, families, and the organizations that champion them — with AI-powered workforce development and community infrastructure built to deploy in any U.S. county. Texas is our first deployment.
               </p>
               <p className="text-xs text-muted-foreground/70" data-testid="text-footer-foundation">
                 The Collaborative Advocate Foundation 501(c)(3)

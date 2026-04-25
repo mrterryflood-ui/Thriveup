@@ -12,6 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import NotFound from "@/pages/not-found";
 import { ContextualHelpButton } from "@/components/contextual-help";
 import LandingPage from "@/pages/landing";
+import CoveragePage from "@/pages/coverage";
 import CurriculumPage, { LevelDetailPage } from "@/pages/curriculum";
 import SubjectsPage, { SubjectDetailPage } from "@/pages/subjects";
 import DashboardPage from "@/pages/dashboard";
@@ -224,6 +225,7 @@ function AppRouter() {
   return (
     <Switch>
       <Route path="/" component={LandingPage} />
+      <Route path="/coverage" component={CoveragePage} />
       <Route path="/subjects" component={SubjectsPage} />
       <Route path="/subject/:subjectId" component={SubjectDetailPage} />
       <Route path="/curriculum" component={CurriculumPage} />

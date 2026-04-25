@@ -134,7 +134,14 @@ const dataReportingItems: NavItem[] = [
   { title: "Outcome Reporting", url: "/outcomes", icon: FileBarChart },
 ];
 
-const regionalHubItems: NavItem[] = [
+const whereWeOperateItems: NavItem[] = [
+  { title: "Coverage Map", url: "/coverage", icon: Map },
+  { title: "Bring TCAF to Your State", url: "/coverage#request", icon: HandHeart },
+];
+
+// Texas is our FIRST county-deployment (St. David's WAB2 pilot region), not the whole product.
+// Keep these grouped under the Texas-specific label so the rest of the sidebar reads as nationwide.
+const texasPilotItems: NavItem[] = [
   { title: "Austin Initiative", url: "/austin", icon: MapPin },
   { title: "Manor Hub", url: "/manor", icon: MapPin },
   { title: "Pflugerville Hub", url: "/pflugerville", icon: MapPin },
@@ -420,7 +427,8 @@ export function AppSidebar() {
         <NavSection label="Program Management" items={programMgmtItems} location={location} />
         <NavSection label="Prevention" items={preventionItems} location={location} />
         <NavSection label="Health & Wellness" items={healthWellnessItems} location={location} />
-        <NavSection label="Regional Hubs" items={regionalHubItems} location={location} />
+        <NavSection label="Where We Operate" items={whereWeOperateItems} location={location} />
+        <NavSection label="Texas (St. David's Pilot)" items={texasPilotItems} location={location} />
         <NavSection label="AI Tools" items={aiToolsItems} location={location} />
         <NavSection label="Research & Implementation" items={researchItems} location={location} />
         <NavSection label="Case Management" items={caseManagementItems} location={location} />

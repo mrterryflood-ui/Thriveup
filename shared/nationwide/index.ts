@@ -8,6 +8,8 @@ export * from "./federal-programs";
 export * from "./state-programs";
 export * from "./grant-partners";
 export * from "./zip-resolver";
+export * from "./counties";
+export * from "./jurisdictions";
 
 import { FEDERAL_PROGRAMS } from "./federal-programs";
 import { STATE_PROGRAMS } from "./state-programs";

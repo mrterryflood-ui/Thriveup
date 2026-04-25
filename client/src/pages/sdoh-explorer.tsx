@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -9,15 +9,32 @@ import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { SDOHImpactChain } from "@/components/sdoh-impact-chain";
 import { DFCCrossNav, PillarFlowNav } from "@/components/dfc-cross-nav";
+import { JURISDICTIONS } from "@shared/nationwide/jurisdictions";
+import { COUNTIES_BY_STATE } from "@shared/nationwide/counties";
 import {
   Search, Loader2, MapPin, AlertTriangle, ChevronDown,
   BarChart3, GraduationCap, HeartPulse, ShieldAlert,
   Link2, Target, BookOpen, ExternalLink, FileText, CheckCircle2,
   Globe, Zap, TrendingDown, Database, FlaskConical,
-  ShieldCheck, ArrowRight, Users, Briefcase, Map
+  ShieldCheck, ArrowRight, Users, Briefcase, Map, X
 } from "lucide-react";
+
+// Map FIPS state codes (e.g. "48") to USPS codes ("TX") so we can index COUNTIES_BY_STATE.
+const STATE_FIPS_TO_USPS: Record<string, string> = {
+  "01":"AL","02":"AK","04":"AZ","05":"AR","06":"CA","08":"CO","09":"CT","10":"DE","11":"DC","12":"FL",
+  "13":"GA","15":"HI","16":"ID","17":"IL","18":"IN","19":"IA","20":"KS","21":"KY","22":"LA","23":"ME",
+  "24":"MD","25":"MA","26":"MI","27":"MN","28":"MS","29":"MO","30":"MT","31":"NE","32":"NV","33":"NH",
+  "34":"NJ","35":"NM","36":"NY","37":"NC","38":"ND","39":"OH","40":"OK","41":"OR","42":"PA","44":"RI",
+  "45":"SC","46":"SD","47":"TN","48":"TX","49":"UT","50":"VT","51":"VA","53":"WA","54":"WV","55":"WI","56":"WY",
+  "60":"AS","66":"GU","69":"MP","72":"PR","78":"VI",
+};
+const USPS_TO_STATE_FIPS: Record<string, string> = Object.fromEntries(
+  Object.entries(STATE_FIPS_TO_USPS).map(([fips, usps]) => [usps, fips])
+);
 
 const PRESETS: Array<{ label: string; state: string; counties: string; description: string }> = [
   { label: "Central Texas (St. David's 5-County)", state: "48", counties: "453,491,209,021,055", description: "Travis, Williamson, Hays, Bastrop, Caldwell — St. David's We All Benefit 2.0 target region" },
@@ -43,6 +60,141 @@ function getSviLabel(value: number): string {
   if (value > 0.6) return "High";
   if (value > 0.3) return "Moderate";
   return "Low";
+}
+
+function RegionPicker({
+  stateCode, countyCodes, onChange,
+}: {
+  stateCode: string;
+  countyCodes: string;
+  onChange: (stateFips: string, countyCsv: string) => void;
+}) {
+  const [search, setSearch] = useState("");
+  const usps = STATE_FIPS_TO_USPS[stateCode] || "TX";
+  const counties = COUNTIES_BY_STATE[usps] || [];
+  const selectedSet = useMemo(
+    () => new Set(countyCodes.split(",").map(c => c.trim()).filter(Boolean)),
+    [countyCodes]
+  );
+  const filtered = useMemo(() => {
+    if (!search.trim()) return counties;
+    const s = search.toLowerCase();
+    return counties.filter(c => c.name.toLowerCase().includes(s));
+  }, [counties, search]);
+
+  const setStateAndReset = (uspsCode: string) => {
+    const fips = USPS_TO_STATE_FIPS[uspsCode] || stateCode;
+    onChange(fips, "");
+    setSearch("");
+  };
+
+  const toggleCounty = (countyFips3: string) => {
+    const next = new Set(selectedSet);
+    if (next.has(countyFips3)) next.delete(countyFips3);
+    else next.add(countyFips3);
+    onChange(stateCode, Array.from(next).join(","));
+  };
+
+  const clearAll = () => onChange(stateCode, "");
+
+  // Resolve a name for a selected code (for the chip strip).
+  const nameFor = (code: string) =>
+    counties.find(c => c.countyFips === code)?.name || code;
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-3 border-t" data-testid="region-picker">
+      <div>
+        <Label htmlFor="state-picker">State</Label>
+        <Select value={usps} onValueChange={setStateAndReset}>
+          <SelectTrigger id="state-picker" data-testid="select-state" className="mt-1">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent className="max-h-[320px]">
+            {JURISDICTIONS.map(j => (
+              <SelectItem key={j.code} value={j.code} data-testid={`option-state-${j.code}`}>
+                {j.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <p className="text-xs text-muted-foreground mt-1">
+          {counties.length.toLocaleString()} counties available in {JURISDICTIONS.find(j => j.code === usps)?.name || usps}.
+        </p>
+      </div>
+
+      <div className="md:col-span-2">
+        <div className="flex items-center justify-between gap-2">
+          <Label htmlFor="county-search">Counties ({selectedSet.size} selected)</Label>
+          {selectedSet.size > 0 && (
+            <Button variant="ghost" size="sm" onClick={clearAll} className="h-6 px-2 text-xs" data-testid="button-clear-counties">
+              Clear
+            </Button>
+          )}
+        </div>
+
+        {selectedSet.size > 0 && (
+          <div className="flex flex-wrap gap-1 mt-1.5 mb-2 max-h-[88px] overflow-y-auto" data-testid="selected-counties">
+            {Array.from(selectedSet).map(code => (
+              <Badge key={code} variant="secondary" className="gap-1 pr-1" data-testid={`chip-county-${code}`}>
+                {nameFor(code)}
+                <button
+                  onClick={() => toggleCounty(code)}
+                  className="hover:bg-muted rounded-sm p-0.5"
+                  aria-label={`Remove ${nameFor(code)}`}
+                  data-testid={`button-remove-county-${code}`}
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </Badge>
+            ))}
+          </div>
+        )}
+
+        <Input
+          id="county-search"
+          placeholder={`Search counties in ${JURISDICTIONS.find(j => j.code === usps)?.name || usps}…`}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          data-testid="input-county-search"
+          className="mt-1"
+        />
+
+        <div className="border rounded-md mt-2 max-h-[260px] overflow-y-auto divide-y" data-testid="list-counties">
+          {filtered.length === 0 ? (
+            <div className="p-3 text-sm text-muted-foreground">No counties match "{search}".</div>
+          ) : (
+            filtered.slice(0, 200).map(c => {
+              const checked = selectedSet.has(c.countyFips);
+              return (
+                <label
+                  key={c.countyFips}
+                  className="flex items-center gap-2 px-3 py-1.5 text-sm hover:bg-muted/50 cursor-pointer"
+                  data-testid={`row-county-${c.countyFips}`}
+                >
+                  <Checkbox
+                    checked={checked}
+                    onCheckedChange={() => toggleCounty(c.countyFips)}
+                    data-testid={`checkbox-county-${c.countyFips}`}
+                  />
+                  <span className="flex-1">{c.name}</span>
+                </label>
+              );
+            })
+          )}
+          {filtered.length > 200 && (
+            <div className="p-2 text-xs text-muted-foreground text-center">
+              Showing first 200 of {filtered.length}. Refine your search to see more.
+            </div>
+          )}
+        </div>
+        {selectedSet.size > 10 && (
+          <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
+            Tip: 10 counties is the analysis limit. Trim your selection before running.
+          </p>
+        )}
+      </div>
+    </div>
+  );
 }
 
 function CountyCard({ county }: { county: any }) {
@@ -495,41 +647,33 @@ export default function SDOHExplorerPage() {
           <TabsContent value="explorer" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2"><Globe className="h-5 w-5" /> Select a Region</CardTitle>
-                <CardDescription>Choose a preset or enter custom FIPS codes. Data is pulled live from the Census Bureau.</CardDescription>
+                <CardTitle className="flex items-center gap-2"><Globe className="h-5 w-5" /> Pick your area</CardTitle>
+                <CardDescription>Choose a state and one or more counties. We pull live data from the U.S. Census Bureau and show you who's eligible for benefits but not yet enrolled.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex gap-2 flex-wrap">
-                  {PRESETS.map(preset => (
-                    <Button key={preset.label} variant={activePreset === preset.label ? "default" : "outline"} size="sm"
-                      onClick={() => selectPreset(preset)} data-testid={`button-preset-${preset.label.toLowerCase().replace(/\s+/g, '-')}`}>
-                      {preset.label}
-                    </Button>
-                  ))}
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2 border-t">
-                  <div>
-                    <Label>State FIPS Code</Label>
-                    <Input value={stateCode} onChange={e => setStateCode(e.target.value)}
-                      placeholder="e.g., 48 (Texas)" data-testid="input-state-code" />
-                    <p className="text-xs text-muted-foreground mt-1">48=TX, 17=IL, 26=MI, 13=GA, 06=CA</p>
-                  </div>
-                  <div className="md:col-span-2">
-                    <Label>County FIPS Codes (comma-separated, 3-digit)</Label>
-                    <Input value={countyCodes} onChange={e => setCountyCodes(e.target.value)}
-                      placeholder="e.g., 453,491,209,021,055" data-testid="input-county-codes" />
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Find codes at <a href="https://www.census.gov/library/reference/code-lists/ansi.html" target="_blank" rel="noopener noreferrer" className="text-primary underline">census.gov/library/reference/code-lists</a>
-                    </p>
+                <div>
+                  <Label className="text-xs uppercase text-muted-foreground tracking-wide">Quick start — common regions</Label>
+                  <div className="flex gap-2 flex-wrap mt-2">
+                    {PRESETS.map(preset => (
+                      <Button key={preset.label} variant={activePreset === preset.label ? "default" : "outline"} size="sm"
+                        onClick={() => selectPreset(preset)} data-testid={`button-preset-${preset.label.toLowerCase().replace(/\s+/g, '-')}`}>
+                        {preset.label}
+                      </Button>
+                    ))}
                   </div>
                 </div>
 
-                <Button onClick={runAnalysis} disabled={isLoading} className="w-full" size="lg" data-testid="button-run-analysis">
+                <RegionPicker
+                  stateCode={stateCode}
+                  countyCodes={countyCodes}
+                  onChange={(s, c) => { setStateCode(s); setCountyCodes(c); setActivePreset(""); }}
+                />
+
+                <Button onClick={runAnalysis} disabled={isLoading || !countyCodes} className="w-full" size="lg" data-testid="button-run-analysis">
                   {isLoading ? (
-                    <><Loader2 className="h-5 w-5 mr-2 animate-spin" /> Pulling live Census data...</>
+                    <><Loader2 className="h-5 w-5 mr-2 animate-spin" /> Pulling live Census data…</>
                   ) : (
-                    <><Search className="h-5 w-5 mr-2" /> Run SDOH Analysis</>
+                    <><Search className="h-5 w-5 mr-2" /> Run analysis</>
                   )}
                 </Button>
               </CardContent>
@@ -568,7 +712,7 @@ export default function SDOHExplorerPage() {
                   <Card className="text-center" data-testid="stat-tracts">
                     <CardContent className="pt-4 pb-3">
                       <p className="text-2xl font-bold">{result.summary?.totalTracts}</p>
-                      <p className="text-xs text-muted-foreground">Census Tracts</p>
+                      <p className="text-xs text-muted-foreground">Neighborhoods analyzed</p>
                     </CardContent>
                   </Card>
                   <Card className="text-center border-orange-200 dark:border-orange-800" data-testid="stat-unclaimed">
@@ -689,28 +833,37 @@ export default function SDOHExplorerPage() {
                   <Card>
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2 text-base">
-                        <AlertTriangle className="h-5 w-5 text-red-500" /> Top 20 Highest-Barrier Census Tracts
+                        <AlertTriangle className="h-5 w-5 text-red-500" /> Top 20 neighborhoods with the most barriers
                       </CardTitle>
-                      <CardDescription>These neighborhoods face the most compounding barriers to benefits enrollment.</CardDescription>
+                      <CardDescription>These neighborhoods face the deepest stack of barriers — poverty, language, transportation, and internet — that keep people from getting the benefits they qualify for.</CardDescription>
                     </CardHeader>
                     <CardContent>
                       <div className="overflow-x-auto">
                         <table className="w-full text-sm" data-testid="table-barrier-tracts">
                           <thead>
                             <tr className="border-b text-left">
-                              <th className="pb-2 pr-3">Tract</th>
-                              <th className="pb-2 pr-3 text-right">Pop</th>
-                              <th className="pb-2 pr-3 text-right">Poverty</th>
-                              <th className="pb-2 pr-3 text-right">Barrier</th>
-                              <th className="pb-2 pr-3 text-right">Ltd English</th>
-                              <th className="pb-2 pr-3 text-right">No Broadband</th>
-                              <th className="pb-2 text-right">Gap</th>
+                              <th className="pb-2 pr-3">Neighborhood</th>
+                              <th className="pb-2 pr-3 text-right">People</th>
+                              <th className="pb-2 pr-3 text-right">In poverty</th>
+                              <th className="pb-2 pr-3 text-right">Barrier score</th>
+                              <th className="pb-2 pr-3 text-right">Limited English</th>
+                              <th className="pb-2 pr-3 text-right">No broadband</th>
+                              <th className="pb-2 text-right">People not enrolled</th>
                             </tr>
                           </thead>
                           <tbody>
-                            {result.topBarrierTracts.slice(0, 20).map((t: any, i: number) => (
+                            {result.topBarrierTracts.slice(0, 20).map((t: any, i: number) => {
+                              // Census NAME is e.g. "Census Tract 18.07, Travis County, Texas".
+                              // Show "Travis County" as the human label, with the tract # as a small subscript.
+                              const parts = (t.tractName || "").split(",").map((s: string) => s.trim()).filter(Boolean);
+                              const tractLabel = parts[0]?.replace(/^Census Tract\s*/i, "") || t.tractId;
+                              const countyLabel = parts[1] || "";
+                              return (
                               <tr key={i} className="border-b border-muted/50">
-                                <td className="py-1.5 pr-3 text-xs font-mono">{t.tractName?.split(",")[0] || t.tractId}</td>
+                                <td className="py-1.5 pr-3 text-xs">
+                                  <div className="font-medium">{countyLabel || `Tract ${tractLabel}`}</div>
+                                  {countyLabel && <div className="text-muted-foreground">Tract {tractLabel}</div>}
+                                </td>
                                 <td className="py-1.5 pr-3 text-right">{t.totalPop?.toLocaleString()}</td>
                                 <td className="py-1.5 pr-3 text-right">
                                   <span className={t.povertyRate > 25 ? "text-red-600 font-bold" : ""}>{Math.round(t.povertyRate)}%</span>
@@ -722,7 +875,8 @@ export default function SDOHExplorerPage() {
                                 <td className="py-1.5 pr-3 text-right">{Math.round(t.noBroadbandPct)}%</td>
                                 <td className="py-1.5 text-right font-bold text-red-600">{t.gap?.toLocaleString()}</td>
                               </tr>
-                            ))}
+                              );
+                            })}
                           </tbody>
                         </table>
                       </div>
@@ -939,7 +1093,7 @@ export default function SDOHExplorerPage() {
               <CardContent className="space-y-4">
                 {[
                   { step: 1, title: "Access Census Data", detail: "Go to data.census.gov or use the Census API directly at api.census.gov/data/2022/acs/acs5. No API key required for basic queries." },
-                  { step: 2, title: "Select Your Geography", detail: "Choose state and county FIPS codes. For Texas: state=48. County codes: Travis=453, Williamson=491, Hays=209, Bastrop=021, Caldwell=055. Request data 'for=tract:*' to get all census tracts." },
+                  { step: 2, title: "Pick your area", detail: "Choose your state and counties using the picker on the Explorer tab. We translate your selection into the Census Bureau's FIPS codes for you and request data for every census tract in those counties." },
                   { step: 3, title: "Pull the Variables", detail: "Request variables: B01003_001E (population), B19013_001E (median income), B17001_002E & B17001_001E (poverty), B16004_025E & B16004_047E & B16004_001E (limited English), B08141_002E & B08141_001E (no vehicle), B28002_013E & B28002_001E (no broadband), B22001_002E & B22001_001E (SNAP participation)." },
                   { step: 4, title: "Calculate Rates", detail: "For each tract: Poverty Rate = B17001_002E / B17001_001E × 100. Limited English = (B16004_025E + B16004_047E) / B16004_001E × 100. No Vehicle = B08141_002E / B08141_001E × 100. No Broadband = B28002_013E / B28002_001E × 100." },
                   { step: 5, title: "Compute Barrier Index", detail: "Barrier Index = (Limited English % × 0.25) + (No Vehicle % × 0.20) + (No Broadband % × 0.20) + (Poverty Rate × 0.20). This composite score identifies neighborhoods with compounding access barriers." },
