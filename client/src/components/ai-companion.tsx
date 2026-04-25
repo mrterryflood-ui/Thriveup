@@ -3,7 +3,8 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Sparkles, Send, Bot, User, GraduationCap, Zap, Brain, Heart, Flame, Moon, Trash2 } from "lucide-react";
+import { Sparkles, Send, Bot, User, GraduationCap, Zap, Brain, Heart, Flame, Moon, Trash2, ShieldAlert } from "lucide-react";
+import { Link } from "wouter";
 
 interface Message {
   role: "user" | "assistant";
@@ -304,6 +305,17 @@ export default function AICompanion({ subject, lessonContext, className, languag
           >
             <Send className="h-4 w-4" />
           </Button>
+        </div>
+        <div
+          className="mt-2 flex items-start gap-2 rounded-md border bg-muted/50 px-3 py-2 text-xs text-muted-foreground"
+          data-testid="banner-spark-privacy-disclosure"
+        >
+          <ShieldAlert className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+          <p>
+            {language === "es"
+              ? <>Tu conversacion con Spark es privada. <strong>Una excepcion:</strong> si dices que vas a hacerte dano o lastimar a alguien, capturamos la conversacion y avisamos a una persona de nuestro equipo de cuidado. Si necesitas hablar ahora, llama o envia un mensaje al <strong>988</strong>, o al <strong>911</strong> si hay peligro inmediato. <Link href="/privacy" className="underline" data-testid="link-spark-privacy">Politica de privacidad</Link>.</>
+              : <>Your conversation with Spark is private. <strong>One exception:</strong> if you say you're going to hurt yourself or someone else, we capture the conversation and alert a real person on our care team. If you need to talk right now, call or text <strong>988</strong>, or <strong>911</strong> if you're in immediate danger. <Link href="/privacy" className="underline" data-testid="link-spark-privacy">Privacy policy</Link>.</>}
+          </p>
         </div>
       </div>
     </Card>

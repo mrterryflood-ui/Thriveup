@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { MessageCircle, Send, Bot, User, Briefcase, BookOpen, Users, Settings, Trash2, Heart, Wand2 } from "lucide-react";
+import { MessageCircle, Send, Bot, User, Briefcase, BookOpen, Users, Settings, Trash2, Heart, Wand2, ShieldAlert } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useLanguage } from "@/lib/i18n";
 import { Link } from "wouter";
@@ -310,6 +310,17 @@ export default function SparkyCompanionPage() {
             >
               <Send className="h-4 w-4" />
             </Button>
+          </div>
+          <div
+            className="mt-2 flex items-start gap-2 rounded-md border bg-muted/50 px-3 py-2 text-xs text-muted-foreground"
+            data-testid="banner-sparky-privacy-disclosure"
+          >
+            <ShieldAlert className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+            <p>
+              {language === "es"
+                ? <>Tu conversacion con Sparky es privada. <strong>Una excepcion:</strong> si dices que vas a hacerte dano o lastimar a alguien, capturamos la conversacion y avisamos a una persona de nuestro equipo de cuidado. Si necesitas hablar ahora, llama o envia un mensaje al <strong>988</strong>, o al <strong>911</strong> si hay peligro inmediato. <Link href="/privacy" className="underline" data-testid="link-sparky-privacy">Politica de privacidad</Link>.</>
+                : <>Your conversation with Sparky is private. <strong>One exception:</strong> if you say you're going to hurt yourself or someone else, we capture the conversation and alert a real person on our care team. If you need to talk right now, call or text <strong>988</strong>, or <strong>911</strong> if you're in immediate danger. <Link href="/privacy" className="underline" data-testid="link-sparky-privacy">Privacy policy</Link>.</>}
+            </p>
           </div>
         </div>
       </Card>

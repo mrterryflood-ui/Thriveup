@@ -4691,4 +4691,23 @@ export const insertResidentRiskSnapshotSchema = createInsertSchema(residentRiskS
 export type InsertResidentRiskSnapshot = z.infer<typeof insertResidentRiskSnapshotSchema>;
 export type ResidentRiskSnapshot = typeof residentRiskSnapshots.$inferSelect;
 
+export const safetyEscalations = pgTable("safety_escalations", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id", { length: 255 }),
+  severity: varchar("severity", { length: 20 }).notNull(),
+  surface: varchar("surface", { length: 80 }).notNull(),
+  matchedPattern: text("matched_pattern"),
+  matchedPhrase: text("matched_phrase"),
+  fullConversation: jsonb("full_conversation").notNull(),
+  emailSent: boolean("email_sent").notNull().default(false),
+  emailMessageId: varchar("email_message_id", { length: 255 }),
+  reviewed: boolean("reviewed").notNull().default(false),
+  reviewedBy: varchar("reviewed_by", { length: 255 }),
+  reviewedAt: timestamp("reviewed_at"),
+  triggeredAt: timestamp("triggered_at").defaultNow(),
+});
+export const insertSafetyEscalationSchema = createInsertSchema(safetyEscalations).omit({ id: true, triggeredAt: true, reviewed: true, reviewedBy: true, reviewedAt: true });
+export type InsertSafetyEscalation = z.infer<typeof insertSafetyEscalationSchema>;
+export type SafetyEscalation = typeof safetyEscalations.$inferSelect;
+
 export * from "./models/auth";

@@ -7,7 +7,7 @@ import { PageHeader } from "@/components/page-header";
 import {
   Shield, Lock, Eye, Database, MapPin, Heart, Users,
   Globe, Clock, Scale, Mail, Baby, FileCheck, AlertTriangle,
-  UserCheck, BookOpen, ArrowLeft,
+  UserCheck, BookOpen, ArrowLeft, ShieldAlert,
 } from "lucide-react";
 
 const sections = [
@@ -18,6 +18,7 @@ const sections = [
   { id: "usage", title: "How We Use Student Data", icon: Database },
   { id: "gis", title: "GIS & Context Data (Thrive System)", icon: MapPin },
   { id: "wellbeing", title: "Self-Assessment & Wellbeing Data", icon: Heart },
+  { id: "ai-companion-privacy", title: "AI Companion Privacy — One Documented Exception", icon: ShieldAlert },
   { id: "access", title: "Who Can Access Student Data", icon: Users },
   { id: "third-party", title: "Third-Party Services & Data Sharing", icon: Globe },
   { id: "security", title: "Data Security", icon: Shield },
@@ -251,6 +252,35 @@ export default function PrivacyPolicyPage() {
             <li>Wellbeing data is stored securely and only accessible to authorized school personnel.</li>
             <li>Wellbeing data is never used for disciplinary purposes or included in academic transcripts.</li>
           </ul>
+        </SectionCard>
+      </section>
+
+      <section id="ai-companion-privacy">
+        <SectionCard num={8} icon={ShieldAlert} title="AI Companion Privacy — One Documented Exception">
+          <div className="rounded-md border-2 border-destructive/40 bg-destructive/5 p-4 mb-4" data-testid="callout-ai-companion-exception">
+            <p className="font-semibold text-base mb-2">Your conversations with Spark and Sparky are private — with one exception.</p>
+            <p className="text-sm">
+              Conversations with our AI companions (Spark and Sparky) are not used for advertising, are not sold, and are not used to train external AI models. We do not surveil normal conversations.
+            </p>
+            <p className="text-sm mt-3">
+              <strong>The single exception:</strong> if our system detects that you (or another user) appear to be endorsing imminent harm to yourself or to another specific person — for example, a clear statement of intent to die, to end your life, or to kill or attack a specific other person — the conversation is captured in full and a real human on our care team is alerted immediately by email so they can check on you and help connect you to local support.
+            </p>
+            <p className="text-sm mt-3">
+              We make this single carve-out because life matters more than secrecy. We do not make this carve-out for any other reason — not for grades, not for behavior, not for substance use disclosures, not for political opinions, not for legal matters, not for anything else.
+            </p>
+          </div>
+          <ul className="space-y-2 text-sm">
+            <li><strong>What triggers it:</strong> automated detection of first-person endorsement of suicide, self-harm with intent, or threat to harm a specific other person.</li>
+            <li><strong>What does NOT trigger it:</strong> asking research questions about suicide, sharing that a friend or family member is struggling, normal venting of frustration, asking for crisis resources, idiomatic language ("I could kill for a coffee").</li>
+            <li><strong>What gets captured:</strong> the full text of that conversation only — not your other platform activity, not data from other days, not data from other tools.</li>
+            <li><strong>Who gets the alert:</strong> the ThriveUp Academy care team lead (Dr. Terry Flood). Not law enforcement automatically. The team will contact you (if you are identified) within one hour.</li>
+            <li><strong>What we tell the AI to do in that moment:</strong> de-escalate, validate the feeling, surface 988 / 911 / Crisis Text Line, tell you plainly that a human is being notified, and stay with you in the conversation.</li>
+            <li><strong>What we audit:</strong> every escalation is recorded with a timestamp, the matched phrase, the surface (Spark or Sparky), and whether the email was successfully delivered. The audit log is reviewable by Dr. Flood and the leadership team.</li>
+          </ul>
+          <div className="mt-4 p-3 rounded-md bg-muted text-sm">
+            <p className="font-semibold mb-1">Crisis resources, no escalation needed:</p>
+            <p>Call or text <strong>988</strong> (Suicide & Crisis Lifeline, U.S., 24/7). Spanish: marca 988 then 2. Text <strong>HOME</strong> to <strong>741741</strong> (Crisis Text Line). Spanish: texto <strong>AYUDA</strong> al <strong>741741</strong>. If anyone is in immediate physical danger, call <strong>911</strong>.</p>
+          </div>
         </SectionCard>
       </section>
 

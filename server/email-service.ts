@@ -194,6 +194,88 @@ export async function sendCoalitionOutreach(opts: {
   }
 }
 
+export async function sendCrisisEscalation(opts: {
+  severity: "crisis_si" | "crisis_hi" | string;
+  userId: string | null;
+  surface: string;
+  matchedPhrase: string;
+  triggeringMessage: string;
+  conversation: Array<{ role: string; content: string }>;
+  escalationRecordId: string | null;
+}): Promise<{ ok: boolean; id?: string; error?: string }> {
+  try {
+    const { client, fromEmail } = await getResendClient();
+    const severityLabel = opts.severity === "crisis_si"
+      ? "SUICIDAL ENDORSEMENT (SI)"
+      : opts.severity === "crisis_hi"
+        ? "HOMICIDAL ENDORSEMENT (HI)"
+        : `OTHER (${opts.severity})`;
+
+    const conversationHtml = opts.conversation.map((m) => {
+      const isUser = m.role === "user";
+      const bg = isUser ? "#fff3cd" : "#e7f3ff";
+      const border = isUser ? "#ffc107" : "#0d6efd";
+      const label = isUser ? "USER" : "AI";
+      const safe = (m.content || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br/>");
+      return `<div style="margin:8px 0;padding:10px;background:${bg};border-left:3px solid ${border};border-radius:4px;"><strong style="font-size:11px;color:#666;">${label}</strong><div style="margin-top:4px;font-size:13px;">${safe}</div></div>`;
+    }).join("");
+
+    const triggeringSafe = opts.triggeringMessage.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    const matchedSafe = (opts.matchedPhrase || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+    const result = await client.emails.send({
+      from: fromEmail,
+      to: ADMIN_EMAIL,
+      subject: `[CRISIS ESCALATION — ${severityLabel}] User ${opts.userId || "anonymous"} on ${opts.surface}`,
+      html: `
+        <div style="max-width:720px;font-family:Arial,sans-serif;">
+          <div style="background:#dc3545;color:white;padding:16px;border-radius:6px 6px 0 0;">
+            <h1 style="margin:0;font-size:20px;">Crisis Escalation: ${severityLabel}</h1>
+            <p style="margin:6px 0 0;font-size:13px;opacity:0.95;">A ThriveUp Academy AI conversation triggered the safety escalation rule. A human review is required.</p>
+          </div>
+          <div style="padding:16px;border:1px solid #ddd;border-top:none;border-radius:0 0 6px 6px;background:white;">
+            <table style="width:100%;font-size:13px;margin-bottom:12px;">
+              <tr><td style="padding:4px 8px;color:#666;">Triggered at:</td><td style="padding:4px 8px;"><strong>${new Date().toISOString()}</strong></td></tr>
+              <tr><td style="padding:4px 8px;color:#666;">User ID:</td><td style="padding:4px 8px;"><code>${opts.userId || "anonymous"}</code></td></tr>
+              <tr><td style="padding:4px 8px;color:#666;">Surface:</td><td style="padding:4px 8px;"><code>${opts.surface}</code></td></tr>
+              <tr><td style="padding:4px 8px;color:#666;">Severity:</td><td style="padding:4px 8px;"><strong style="color:#dc3545;">${severityLabel}</strong></td></tr>
+              <tr><td style="padding:4px 8px;color:#666;">Audit record:</td><td style="padding:4px 8px;"><code>${opts.escalationRecordId || "(db write failed)"}</code></td></tr>
+            </table>
+
+            <div style="background:#fff3cd;border-left:4px solid #dc3545;padding:12px;margin:12px 0;border-radius:4px;">
+              <strong style="font-size:12px;color:#856404;">MATCHED PHRASE</strong>
+              <div style="margin-top:6px;font-size:14px;font-family:monospace;">${matchedSafe || "(none captured)"}</div>
+            </div>
+
+            <div style="background:#f8d7da;border-left:4px solid #dc3545;padding:12px;margin:12px 0;border-radius:4px;">
+              <strong style="font-size:12px;color:#721c24;">TRIGGERING MESSAGE (most recent user input)</strong>
+              <div style="margin-top:6px;font-size:14px;white-space:pre-wrap;">${triggeringSafe}</div>
+            </div>
+
+            <h3 style="font-size:14px;margin:18px 0 8px;border-bottom:1px solid #ddd;padding-bottom:6px;">Full conversation captured (privacy-promise exception)</h3>
+            ${conversationHtml}
+
+            <div style="margin-top:18px;padding:12px;background:#e7f3ff;border-radius:4px;font-size:12px;color:#0d3a5c;">
+              <strong>Recommended action:</strong> Reach out to the user (if identified) within 1 hour. The AI delivered a de-escalation response with 988 / 911 / Crisis Text Line. If user is identified by ID, look up contact via /case-manager. If anonymous, no direct contact possible — document for pattern review.
+            </div>
+          </div>
+          <p style="font-size:11px;color:#999;margin-top:12px;text-align:center;">Generated automatically by ThriveUp Academy safety escalation system. This email is the ONE documented exception to AI conversation privacy.</p>
+        </div>
+      `,
+    } as any);
+
+    if (result?.error) {
+      console.error("[Email] CRISIS ESCALATION FAILED:", JSON.stringify(result.error));
+      return { ok: false, error: result.error.message || JSON.stringify(result.error) };
+    }
+    console.log(`[Email] CRISIS ESCALATION SENT: id=${result?.data?.id} severity=${opts.severity} surface=${opts.surface}`);
+    return { ok: true, id: result?.data?.id };
+  } catch (err: any) {
+    console.error("[Email] CRISIS ESCALATION ERROR:", err.message || err);
+    return { ok: false, error: err.message || String(err) };
+  }
+}
+
 export async function sendWelcomeEmail(email: string, name: string) {
   const { client, fromEmail } = await getResendClient();
   await safeSend(() => client.emails.send({
