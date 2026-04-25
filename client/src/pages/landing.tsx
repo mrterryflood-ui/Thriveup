@@ -757,7 +757,8 @@ export default function LandingPage() {
                   <p className="text-sm text-muted-foreground mb-3 leading-relaxed" data-testid="text-marcus-story-desc">
                     Most communities treat Marcus as seven different cases — child welfare, prison, probation, Medicaid, workforce, school, benefits.
                     Each office asks him to start over. We built a system where his story travels with him: across services, across states, across agencies.
-                    Walk through his journey. Then move him from Austin to Wilmington and watch eligibility recompute in real time.
+                    <strong className="text-foreground"> Borders aren't real, but laws and policies are.</strong> The platform handles the policy layer
+                    — through automation and integration — so families and frontline workers don't have to. Move Marcus from Austin to Wilmington and watch eligibility recompute in real time.
                   </p>
                   <div className="flex items-center gap-3 flex-wrap">
                     <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-gradient-to-r from-violet-500 to-purple-600 text-white text-sm font-medium shadow-sm" data-testid="button-see-marcus">

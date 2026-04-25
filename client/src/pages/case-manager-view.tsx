@@ -39,7 +39,7 @@ export default function CaseManagerView() {
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div>
           <h1 className="text-3xl font-bold flex items-center gap-2"><Shield className="h-7 w-7" /> Case Manager / Probation Officer View</h1>
-          <p className="text-sm text-muted-foreground">Risk and protective factors with primary-source citations. Same data the resident sees, lens shifted to compliance and outcomes.</p>
+          <p className="text-sm text-muted-foreground">Same profile, same evidence the resident sees — lens shifted to compliance and outcomes. No silos, no duplicate intakes, no waiting for records to catch up.</p>
         </div>
         <Link href={`/resident-journey`}>
           <Button variant="outline" className="gap-2" data-testid="link-resident-view">Resident View <ArrowRight className="h-4 w-4" /></Button>

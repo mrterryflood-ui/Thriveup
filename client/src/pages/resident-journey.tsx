@@ -95,6 +95,51 @@ function ProfileHeader({ profile }: { profile: any }) {
   );
 }
 
+function AutomationPanel({ eventsByDomain, eligibility, profile }: { eventsByDomain: Record<string, number>; eligibility: any; profile: any }) {
+  const totalEvents = Object.values(eventsByDomain).reduce((a, b) => a + b, 0);
+  const activeDomains = Object.values(eventsByDomain).filter(v => v > 0).length;
+  const eligibleCount = (eligibility?.eligible || []).length;
+  const federalCount = (eligibility?.eligible || []).filter((e: any) => e.scope === "federal" || (e.reason || "").toLowerCase().includes("federal")).length;
+  const stateName = eligibility?.stateName || profile?.state || "";
+
+  return (
+    <Card className="border-primary/30 bg-gradient-to-br from-primary/5 via-card to-card" data-testid="card-automation">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2"><Sparkles className="h-5 w-5 text-primary" /> What the Platform Did Automatically</CardTitle>
+        <CardDescription>Borders aren't real, but laws and policies are. The system handles the policy layer so people don't have to.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="rounded-lg border bg-card p-3" data-testid="auto-stat-identity">
+            <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">One identity</p>
+            <p className="text-2xl font-bold">{totalEvents}</p>
+            <p className="text-xs text-muted-foreground">touchpoints carried forward — no re-typing</p>
+          </div>
+          <div className="rounded-lg border bg-card p-3" data-testid="auto-stat-domains">
+            <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Connected</p>
+            <p className="text-2xl font-bold">{activeDomains} <span className="text-sm font-normal text-muted-foreground">/ 6</span></p>
+            <p className="text-xs text-muted-foreground">domains sharing the same profile</p>
+          </div>
+          <div className="rounded-lg border bg-card p-3" data-testid="auto-stat-benefits">
+            <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Benefits matched</p>
+            <p className="text-2xl font-bold">{eligibleCount}</p>
+            <p className="text-xs text-muted-foreground">programs computed for {stateName}</p>
+          </div>
+          <div className="rounded-lg border bg-card p-3" data-testid="auto-stat-portable">
+            <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Portable on relocation</p>
+            <p className="text-2xl font-bold">{federalCount}<span className="text-sm font-normal text-muted-foreground">+</span></p>
+            <p className="text-xs text-muted-foreground">federal services follow the person across state lines</p>
+          </div>
+        </div>
+        <p className="text-xs text-muted-foreground mt-4 leading-relaxed">
+          <strong className="text-foreground">Nothing happens in a vacuum.</strong> Every benefits screening, intake, training session, and case note on this platform reads from
+          and writes back to this single profile. When the resident moves, federal benefits continue, state benefits route to local equivalents, and the case manager sees the same evidence the resident does.
+        </p>
+      </CardContent>
+    </Card>
+  );
+}
+
 function ActiveServicesPanel({ eventsByDomain }: { eventsByDomain: Record<string, number> }) {
   return (
     <Card data-testid="card-active-services">
@@ -437,7 +482,7 @@ export default function ResidentJourneyPage() {
                 <p className="text-sm text-muted-foreground leading-relaxed" data-testid="text-marcus-relocation">
                   Then Marcus relocates from Austin, TX to Wilmington, NC. His Medicaid eligibility recomputes (NC expanded; TX did not).
                   Federal services continue uninterrupted. State-specific programs route to local equivalents. His probation officer sees the
-                  same risk and protective factors with citations to primary sources. <strong className="text-foreground">No silos. No re-typing. One identity that travels with the person.</strong>
+                  same risk and protective factors with citations to primary sources. <strong className="text-foreground">Borders aren't real, but laws and policies are — so the platform handles the policy layer, and the person keeps moving forward.</strong>
                 </p>
                 <p className="text-xs text-muted-foreground italic pt-1" data-testid="text-marcus-cta">
                   Use the tabs below to walk through Marcus's journey. Click <span className="font-semibold not-italic">Plan a Move</span> to relocate him to another state and watch eligibility recompute live.
@@ -457,6 +502,7 @@ export default function ResidentJourneyPage() {
           <TabsTrigger value="risk" data-testid="tab-risk">Risk + Protective</TabsTrigger>
         </TabsList>
         <TabsContent value="overview" className="space-y-4">
+          <AutomationPanel eventsByDomain={eventsByDomain} eligibility={eligibility} profile={profile} />
           <ActiveServicesPanel eventsByDomain={eventsByDomain} />
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <EligibilityPanel eligibility={eligibility} />

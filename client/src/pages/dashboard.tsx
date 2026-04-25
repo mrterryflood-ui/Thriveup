@@ -131,7 +131,7 @@ export default function DashboardPage() {
             <div className="flex-1 min-w-0">
               <p className="text-xs uppercase tracking-wide text-muted-foreground font-semibold mb-0.5" data-testid="text-marcus-callout-eyebrow">The headline story</p>
               <h3 className="font-semibold text-sm sm:text-base leading-snug" data-testid="text-marcus-callout-title">
-                See how Marcus's journey shows what we're building — one identity, every service, traveling with the person.
+                Borders aren't real, but laws are. See how Marcus's journey shows the platform doing the policy work — so people don't have to.
               </h3>
             </div>
             <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0" />
