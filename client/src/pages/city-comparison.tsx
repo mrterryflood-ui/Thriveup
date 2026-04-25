@@ -569,8 +569,8 @@ export default function CityComparisonPage() {
           <TabsContent value="lessons" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2"><BookOpen className="h-5 w-5" /> Cross-City Lessons for St. David's</CardTitle>
-                <CardDescription>What we can learn from other cities and apply to the 5-county Austin Metro model</CardDescription>
+                <CardTitle className="flex items-center gap-2"><BookOpen className="h-5 w-5" /> Cross-City Lessons for Any County Deployment</CardTitle>
+                <CardDescription>What other U.S. metros have already learned — applied first to the Central Texas pilot, transferable to any county that adopts the model</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 {[
@@ -636,7 +636,7 @@ export default function CityComparisonPage() {
                           <p className="text-sm">{lesson.lesson}</p>
                           <p className="text-sm font-medium mt-2 flex items-start gap-1.5">
                             <ArrowRight className="h-4 w-4 shrink-0 mt-0.5 text-primary" />
-                            <span><strong>For St. David's:</strong> {lesson.implication}</span>
+                            <span><strong>What this means for the pilot:</strong> {lesson.implication}</span>
                           </p>
                         </div>
                       </div>

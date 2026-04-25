@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,6 +10,8 @@ import { Switch } from "@/components/ui/switch";
 import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { JURISDICTIONS } from "@shared/nationwide/jurisdictions";
+import { COUNTIES_BY_STATE } from "@shared/nationwide/counties";
 import {
   ChevronLeft, ChevronRight, Heart, Shield, Home, Users, Baby,
   DollarSign, Building2, Stethoscope, CheckCircle2, Loader2, Search,
@@ -26,16 +28,19 @@ const STEPS = [
   { key: "next", label: "Next Steps", icon: ArrowRight },
 ];
 
-const COUNTIES = [
-  { fips: "48453", name: "Travis County", cities: "Austin, Del Valle, Manor, Pflugerville (south)" },
-  { fips: "48491", name: "Williamson County", cities: "Round Rock, Georgetown, Cedar Park, Pflugerville (north)" },
-  { fips: "48209", name: "Hays County", cities: "San Marcos, Kyle, Buda, Wimberley" },
-  { fips: "48021", name: "Bastrop County", cities: "Bastrop, Elgin, Smithville, Cedar Creek" },
-  { fips: "48055", name: "Caldwell County", cities: "Lockhart, Luling, Martindale" },
-];
+// States that have at least one county in our nationwide dataset, sorted by full name.
+const STATE_OPTIONS = JURISDICTIONS
+  .filter(j => (COUNTIES_BY_STATE[j.code] || []).length > 0)
+  .sort((a, b) => a.name.localeCompare(b.name));
+
+// USPS code (e.g. "TX") -> 2-digit state FIPS (e.g. "48"). Used to assemble the
+// 5-digit county FIPS the API expects: stateFips + 3-digit countyFips.
+const STATE_FIPS_BY_USPS: Record<string, string> = Object.fromEntries(
+  JURISDICTIONS.map(j => [j.code, j.fips])
+);
 
 const BENEFIT_INFO: Record<string, { name: string; icon: any; color: string; description: string; annualValue: number; docs: string[] }> = {
-  SNAP: { name: "SNAP (Food Benefits)", icon: Home, color: "#22c55e", description: "Monthly funds loaded onto a Lone Star Card for groceries", annualValue: 3024, docs: ["ID for all household members", "Proof of income (pay stubs, tax return)", "Proof of residence (utility bill, lease)", "Social Security numbers"] },
+  SNAP: { name: "SNAP (Food Benefits)", icon: Home, color: "#22c55e", description: "Monthly funds loaded onto an EBT card for groceries", annualValue: 3024, docs: ["ID for all household members", "Proof of income (pay stubs, tax return)", "Proof of residence (utility bill, lease)", "Social Security numbers"] },
   Medicaid: { name: "Medicaid", icon: Stethoscope, color: "#3b82f6", description: "Free or low-cost health coverage including doctor visits, hospital, prescriptions, mental health", annualValue: 7200, docs: ["ID", "Proof of income", "Proof of residence", "Social Security number", "Immigration documents (if applicable)"] },
   CHIP: { name: "CHIP (Children's Health Insurance)", icon: Baby, color: "#06b6d4", description: "Health coverage for children in families who earn too much for Medicaid but can't afford private insurance", annualValue: 2400, docs: ["Child's birth certificate or ID", "Parent/guardian ID", "Proof of income", "Social Security numbers"] },
   WIC: { name: "WIC (Women, Infants & Children)", icon: Heart, color: "#ec4899", description: "Nutrition support, healthy food, breastfeeding support for pregnant women and children under 5", annualValue: 528, docs: ["ID for parent and child", "Proof of income", "Proof of residence", "Proof of pregnancy (if applicable)"] },
@@ -47,7 +52,8 @@ const BENEFIT_INFO: Record<string, { name: string; icon: any; color: string; des
 };
 
 interface ScreenerData {
-  county: string;
+  state: string;       // USPS code (e.g., "TX", "IL")
+  county: string;      // 5-digit county FIPS (e.g., "48453") — never shown to the user
   zipCode: string;
   householdSize: string;
   annualIncome: string;
@@ -63,7 +69,7 @@ interface ScreenerData {
 }
 
 const INITIAL_DATA: ScreenerData = {
-  county: "", zipCode: "", householdSize: "1", annualIncome: "",
+  state: "TX", county: "", zipCode: "", householdSize: "1", annualIncome: "",
   hasChildren: false, childrenUnder5: false, isPregnant: false,
   isDisabled: false, isElderly: false, preferredLanguage: "English",
   currentBenefits: [], contactName: "", contactPhone: "",
@@ -75,8 +81,17 @@ export default function BenefitsScreenerPage() {
   const [data, setData] = useState<ScreenerData>(INITIAL_DATA);
   const [result, setResult] = useState<any>(null);
 
+  // Counties in the currently-selected state. Recomputed only when the state changes.
+  const countiesInState = useMemo(
+    () => COUNTIES_BY_STATE[data.state] || [],
+    [data.state],
+  );
+
   const screenMutation = useMutation({
     mutationFn: async () => {
+      const stateFips = STATE_FIPS_BY_USPS[data.state] || "";
+      // Backend expects 5-digit county FIPS (state FIPS + 3-digit county FIPS).
+      const fullCountyFips = stateFips && data.county ? stateFips + data.county : "";
       const res = await apiRequest("POST", "/api/benefits/screenings", {
         screeningType: "wizard",
         householdSize: parseInt(data.householdSize),
@@ -86,7 +101,8 @@ export default function BenefitsScreenerPage() {
         isDisabled: data.isDisabled,
         isElderly: data.isElderly,
         currentBenefits: data.currentBenefits,
-        county: data.county,
+        stateFips,
+        countyFips: fullCountyFips,
         zipCode: data.zipCode,
         preferredLanguage: data.preferredLanguage,
       });
@@ -183,16 +199,34 @@ export default function BenefitsScreenerPage() {
           <Card data-testid="step-household">
             <CardHeader><CardTitle className="text-lg flex items-center gap-2"><Users className="h-5 w-5" /> About Your Household</CardTitle></CardHeader>
             <CardContent className="space-y-4">
-              <div>
-                <Label>What county do you live in?</Label>
-                <Select value={data.county} onValueChange={v => setData({...data, county: v})}>
-                  <SelectTrigger data-testid="select-county"><SelectValue placeholder="Select your county" /></SelectTrigger>
-                  <SelectContent>
-                    {COUNTIES.map(c => (
-                      <SelectItem key={c.fips} value={c.fips}>{c.name} <span className="text-muted-foreground text-xs">({c.cities})</span></SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <Label>What state do you live in?</Label>
+                  <Select
+                    value={data.state}
+                    onValueChange={v => setData({ ...data, state: v, county: "" })}
+                  >
+                    <SelectTrigger data-testid="select-state"><SelectValue placeholder="Select state" /></SelectTrigger>
+                    <SelectContent className="max-h-72">
+                      {STATE_OPTIONS.map(s => (
+                        <SelectItem key={s.code} value={s.code}>{s.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>What county do you live in?</Label>
+                  <Select value={data.county} onValueChange={v => setData({ ...data, county: v })} disabled={!data.state}>
+                    <SelectTrigger data-testid="select-county">
+                      <SelectValue placeholder={data.state ? "Select your county" : "Select a state first"} />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-72">
+                      {countiesInState.map(c => (
+                        <SelectItem key={c.countyFips} value={c.countyFips}>{c.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
               <div>
                 <Label>Zip code (optional)</Label>
@@ -434,7 +468,7 @@ export default function BenefitsScreenerPage() {
 
             <div className="text-center text-xs text-muted-foreground space-y-1 pb-8">
               <p>This screening is for informational purposes only. Final eligibility is determined by the program.</p>
-              <p>Data sources: U.S. Census Bureau ACS, Federal Poverty Level Guidelines, Texas HHSC</p>
+              <p>Data sources: U.S. Census Bureau ACS, Federal Poverty Level Guidelines, state Medicaid/SNAP agencies</p>
               <p className="font-medium">The Collaborative Advocate Foundation · 501(c)(3) · EIN 41-3618003</p>
             </div>
           </div>

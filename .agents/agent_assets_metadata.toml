@@ -426,3 +426,9 @@ id = "rcbYxqXdd-BM8Fv9N2O-0"
 uri = "file://attached_assets/WAB2-LOI-RequestSummary-v7-FINAL.pdf"
 type = "pdf"
 title = "St. David's WAB2 LOI — Request Summary v7 FINAL (PDF)"
+
+[[outputs]]
+id = "X6oQM4dC_dytQFeEaL6HD"
+uri = "file://attached_assets/wab2_loi_submission.txt"
+type = "text"
+title = "WAB2 LOI Submission Paste Sheet — Apr 27, 2026 5pm CT"

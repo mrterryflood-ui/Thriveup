@@ -98,7 +98,7 @@ const REENGAGEMENT_STRATEGIES = [
   {
     name: "School Re-Engagement Centers",
     evidenceBase: "Moderate",
-    description: "Drop-in centers near schools for credit recovery, GED prep, and wraparound services.",
+    description: "Drop-in centers near schools for credit recovery, GED prep, and the supports — childcare, transit, mental health — that keep students enrolled.",
     targetBarriers: ["education", "childcare", "transportation"],
     successRate: 61,
   },
@@ -268,7 +268,7 @@ function HolisticDashboard() {
           <div>
             <h3 className="text-sm font-semibold text-indigo-700 dark:text-indigo-300">Holistic OY Dashboard</h3>
             <p className="text-xs text-muted-foreground mt-1">
-              At-a-glance summary of opportunity youth population, outreach pipeline, barriers, retention, and success outcomes across all 5 counties.
+              At-a-glance summary of opportunity youth population, outreach pipeline, barriers, retention, and success outcomes across the Central Texas pilot counties.
             </p>
           </div>
         </div>
@@ -400,7 +400,7 @@ function HolisticDashboard() {
           <CardTitle className="text-base flex items-center gap-2">
             <LinkIcon className="h-4 w-4" /> Connected Platform Tools
           </CardTitle>
-          <CardDescription>Navigate to related tools across the ecosystem</CardDescription>
+          <CardDescription>Jump to related tools and dashboards</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -446,7 +446,7 @@ function PopulationOverview() {
             <h3 className="text-sm font-semibold text-indigo-700 dark:text-indigo-300">Opportunity Youth Population Estimates</h3>
             <p className="text-xs text-muted-foreground mt-1">
               Based on Census ACS 5-year estimates for ages 16-24 not enrolled in school and not employed.
-              5-county service area: Travis, Williamson, Hays, Bastrop, and Caldwell counties.
+              Live demo data: Central Texas pilot (Travis, Williamson, Hays, Bastrop, and Caldwell counties).
             </p>
           </div>
         </div>
@@ -1178,7 +1178,7 @@ function AIAnalystPanel() {
         </Card>
 
         <Card className="p-4 hover-elevate cursor-pointer" onClick={() => handlePresetQuery(
-          "Create a targeted outreach strategy for disconnected youth in our 5-county service area. Include specific messaging for different demographics, recommended channels (social media, community events, partner referrals), and engagement tactics for youth who are hardest to reach.",
+          "Create a targeted outreach strategy for disconnected youth across the selected counties. Include specific messaging for different demographics, recommended channels (social media, community events, partner referrals), and engagement tactics for youth who are hardest to reach.",
           ["housing", "employment", "transportation"],
           { ageRange: "16-24" }
         )} data-testid="button-create-outreach">
@@ -1198,9 +1198,9 @@ function AIAnalystPanel() {
         <Card className="p-4 hover-elevate cursor-pointer" onClick={() => {
           const totalOY = COUNTIES.reduce((sum, c) => sum + c.oyEstimate, 0);
           handlePresetQuery(
-            `Write a grant-ready narrative section about our opportunity youth program. Key data: ${totalOY.toLocaleString()} estimated OY across 5 counties, ${PIPELINE_STAGES[3].count.toLocaleString()} currently enrolled, ${RETENTION_DATA[2].rate}% 90-day retention rate. Top barriers: mental health (82% severity), housing instability (78%), transportation (72%). Include statement of need, target population description, and evidence-based approach.`,
+            `Write a grant-ready narrative section about our opportunity youth program. Key data from the Central Texas pilot: ${totalOY.toLocaleString()} estimated OY across 5 counties, ${PIPELINE_STAGES[3].count.toLocaleString()} currently enrolled, ${RETENTION_DATA[2].rate}% 90-day retention rate. Top barriers: mental health (82% severity), housing instability (78%), transportation (72%). Include statement of need, target population description, and evidence-based approach. Note: this model deploys in any U.S. county.`,
             BARRIERS.map(b => b.id),
-            { ageRange: "16-24", region: "5-county Central Texas" }
+            { ageRange: "16-24", region: "Central Texas pilot (5 counties)" }
           );
         }} data-testid="button-write-grant">
           <div className="flex items-start gap-3">
@@ -1400,7 +1400,7 @@ const PROTECTIVE_FACTOR_NOTES: Record<string, string> = {
   "High Educational Attainment": "These communities can serve as mentorship pipelines for adjacent high-risk areas",
   "Near-Full Employment": "Employer partnerships in these areas can create apprenticeship on-ramps",
   "Transportation Access": "Transit-connected tracts are ideal locations for program sites",
-  "High Insurance Coverage": "Health access enables wraparound support service delivery",
+  "High Insurance Coverage": "Health access makes it possible to deliver the full set of supports a young person needs",
   "Low Poverty": "Economically stable neighborhoods provide natural bridging opportunities for nearby high-need areas",
 };
 
@@ -1688,7 +1688,7 @@ function NeighborhoodIntel({ onDesignOutreach }: { onDesignOutreach: (context: s
                           <div className="flex items-center gap-3 flex-wrap">
                             <span className="text-xs font-mono text-muted-foreground w-6 shrink-0">#{i + 1}</span>
                             <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium truncate">{tract.location?.split(",")[0] || tract.fips}</p>
+                              <p className="text-sm font-medium truncate">{tract.location?.split(",")[0] || "Census tract"}</p>
                               <p className="text-xs text-muted-foreground">Pop: {(tract.population || 0).toLocaleString()}</p>
                             </div>
                             <div className="flex items-center gap-2 shrink-0">
@@ -1717,16 +1717,12 @@ function NeighborhoodIntel({ onDesignOutreach }: { onDesignOutreach: (context: s
                                 )}
                               </div>
                             </div>
-                            <div>
-                              <p className="text-xs font-semibold mb-1">FIPS Code</p>
-                              <p className="text-xs font-mono text-muted-foreground">{tract.fips}</p>
-                            </div>
                             <Button
                               size="sm"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 onDesignOutreach(
-                                  `Design a targeted outreach strategy for census tract ${tract.location || tract.fips} (SVI score: ${Math.round(tract.svi * 100)}/100, population: ${tract.population?.toLocaleString()}). Risk factors: ${(tract.riskFactors || []).join(", ")}. This tract is in the top 10 most vulnerable neighborhoods in the ${selectedRegion.label} region. What specific interventions, staffing, and partnership strategies would be most effective for reconnecting opportunity youth in this neighborhood?`
+                                  `Design a targeted outreach strategy for the census tract at ${tract.location || "this neighborhood"} (SVI score: ${Math.round(tract.svi * 100)}/100, population: ${tract.population?.toLocaleString()}). Risk factors: ${(tract.riskFactors || []).join(", ")}. This tract is in the top 10 most vulnerable neighborhoods in the ${selectedRegion.label} region. What specific interventions, staffing, and partnership strategies would be most effective for reconnecting opportunity youth in this neighborhood?`
                                 );
                               }}
                               data-testid={`button-design-outreach-${i}`}
@@ -1764,7 +1760,7 @@ function NeighborhoodIntel({ onDesignOutreach }: { onDesignOutreach: (context: s
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium flex items-center gap-1">
                             <AlertTriangle className="h-3 w-3 text-red-500 shrink-0" />
-                            <span className="truncate">{ar.vulnerableTract?.location?.split(",")[0] || ar.vulnerableTract?.fips}</span>
+                            <span className="truncate">{ar.vulnerableTract?.location?.split(",")[0] || "High-need neighborhood"}</span>
                             <span className="text-xs font-bold text-red-600 shrink-0">(SVI {Math.round((ar.vulnerableTract?.svi || 0) * 100)})</span>
                           </p>
                           <div className="flex gap-1 mt-1 flex-wrap">
@@ -1778,7 +1774,7 @@ function NeighborhoodIntel({ onDesignOutreach }: { onDesignOutreach: (context: s
                           <p className="text-xs text-muted-foreground mb-1">Nearby protective tracts:</p>
                           {(ar.nearbyProtectiveTracts || []).slice(0, 2).map((pt: any) => (
                             <p key={pt.fips} className="text-xs">
-                              <span className="font-medium">{pt.location?.split(",")[0] || pt.fips}</span>
+                              <span className="font-medium">{pt.location?.split(",")[0] || "Nearby tract"}</span>
                               <span className="text-green-600 ml-1">(SVI {Math.round((pt.svi || 0) * 100)})</span>
                               {pt.protectiveFactors?.length > 0 && (
                                 <span className="text-muted-foreground ml-1">\u2014 {pt.protectiveFactors.slice(0, 2).join(", ")}</span>
@@ -1851,9 +1847,12 @@ export default function OpportunityYouthPage() {
             Opportunity Youth Dashboard
           </h1>
           <p className="text-muted-foreground mt-1">
-            AI-powered disconnected youth outreach, engagement, and retention tracking across 5 counties
+            AI-powered outreach, engagement, and retention for disconnected youth in any U.S. county
           </p>
         </div>
+        <Badge variant="outline" className="self-start sm:self-center text-xs px-3 py-1.5 border-amber-300 bg-amber-50 dark:bg-amber-950/20 text-amber-800 dark:text-amber-300" data-testid="badge-pilot-context">
+          <MapPin className="h-3.5 w-3.5 mr-1.5" /> Live demo: Central Texas pilot
+        </Badge>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>

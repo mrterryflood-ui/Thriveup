@@ -1,0 +1,177 @@
+================================================================================
+WE ALL BENEFIT 2.0 — LOI SUBMISSION PASTE SHEET
+St. David's Foundation · GivingData portal
+================================================================================
+
+DEADLINE:    Monday, April 27, 2026 — 5:00 PM Central Time
+PORTAL:      https://stdavidsfoundation.givingdata.com/portal/campaign/WeAllBenefit2LOI
+TIME ZONE:   The portal closes at 5:00 PM CT sharp. Submit at least 1 hour early.
+PRINT THIS:  Open this file in one window, the portal in the other,
+             and paste each field below into the matching portal field.
+
+--------------------------------------------------------------------------------
+BEFORE YOU START — 60-second checklist
+--------------------------------------------------------------------------------
+[ ] Open https://lifetransitionsaid.org/st-davids in a new tab and confirm it loads
+[ ] Confirm the Live Network View tile renders numbers (proves RPLICE is live)
+[ ] Have your portal login credentials ready (reset password if unsure)
+[ ] Save a copy of this file alongside the portal in case the session times out
+
+================================================================================
+FIELD 1 — ORGANIZATION LEGAL NAME
+================================================================================
+The Collaborative Advocate Foundation
+
+================================================================================
+FIELD 2 — DBA / OPERATING NAME (if asked)
+================================================================================
+TCAF (The Collaborative Advocate Foundation)
+
+================================================================================
+FIELD 3 — EIN
+================================================================================
+41-3618003
+
+================================================================================
+FIELD 4 — UEI (SAM.gov Unique Entity Identifier)
+================================================================================
+KDDVD1FGLW35
+
+================================================================================
+FIELD 5 — 501(c)(3) STATUS
+================================================================================
+Texas nonprofit corporation; 501(c)(3) determination pending with IRS.
+Operating under fiscal-sponsor arrangement until determination letter is issued.
+
+================================================================================
+FIELD 6 — HEADQUARTERS ADDRESS
+================================================================================
+Pflugerville, Williamson County, Texas
+(use the official street address on file with the IRS)
+
+================================================================================
+FIELD 7 — PRIMARY CONTACT
+================================================================================
+Name:    Dr. Terry Flood
+Title:   Founder & Executive Director
+Email:   [paste from your records]
+Phone:   [paste from your records]
+
+================================================================================
+FIELD 8 — PROJECT / REQUEST TITLE
+================================================================================
+TCAF Benefits Enrollment Collaborative
+
+================================================================================
+FIELD 9 — AMOUNT REQUESTED
+================================================================================
+$1,000,000
+
+================================================================================
+FIELD 10 — GRANT PERIOD
+================================================================================
+24 months
+
+================================================================================
+FIELD 11 — MATCHING / LEVERAGED FUNDS
+================================================================================
+$200,000 (20%)
+Composition: $120,000 in-kind partner clinical staff time
+           + $80,000 TCAF platform infrastructure
+
+================================================================================
+FIELD 12 — COUNTIES SERVED (check all that apply)
+================================================================================
+[X] Travis (Primary)
+[X] Williamson
+[X] Hays
+[X] Bastrop
+[X] Caldwell
+
+================================================================================
+FIELD 13 — PRIMARY COUNTY
+================================================================================
+Travis
+
+================================================================================
+FIELD 14 — POPULATIONS SERVED (if asked, check all)
+================================================================================
+[X] Low-income families
+[X] Mixed-status / immigrant families
+[X] Rural residents (Bastrop + Caldwell)
+[X] Mothers and children
+[X] Opportunity youth (16-24 disconnected)
+[X] Limited English proficiency households
+    (Spanish, Vietnamese, Mandarin, Arabic)
+
+================================================================================
+FIELD 15 — BENEFIT TYPES ADDRESSED (check all)
+================================================================================
+[X] SNAP
+[X] WIC
+[X] Medicaid
+[X] CHIP
+[X] ACA Marketplace
+[X] EITC
+[X] Child Tax Credit (CTC)
+[X] SSI
+[X] SSDI
+[X] Travis County MAP (Medical Access Program)
+
+================================================================================
+FIELD 16 — APPLICATION TYPE
+================================================================================
+Individual lead applicant (TCAF) operating a confirmed collaborative
+with CommUnityCare, Lone Star Circle of Care, Central Health,
+Foundation Communities, and El Buen Samaritano.
+
+================================================================================
+FIELD 17 — LIVE PLATFORM / DEMO LINK
+================================================================================
+https://lifetransitionsaid.org/st-davids
+(This is the platform St. David's would fund. Reviewers can click and
+experience the 15-minute intake themselves, in any of 5 languages.)
+
+================================================================================
+FIELD 18 — REQUEST SUMMARY  (PASTE EXACTLY — 478 words)
+================================================================================
+
+Tens of thousands of 5-county residents are eligible for SNAP, WIC, Medicaid, CHIP, ACA, EITC, CTC, SSI, and SSDI and don't receive them. SNAP and Medicaid take-up trail eligibility by double digits; 35-40% of EITC-eligible filers never claim. Applications are long, fragmented across 9+ portals, English-default, and scheduled around bank hours families do not have. Maria, a Caldwell mother of two, was eligible for Medicaid, WIC, and EITC for three years — in 15 minutes on her phone, in Spanish, she enrolled in all three, capturing roughly $8,400 a year her family had been leaving on the table.
+
+The experience is one 15-minute intake, in English, Spanish, Vietnamese, Mandarin, and Arabic, that screens all 9 benefits at once, routes to the right portal with deep-links, captures receipts, and runs denial-to-appeal. Any community health worker, promotora, school liaison, pastor, FQHC staffer, or resident on a personal phone runs the same flow. Partners embed the same intake on their own sites — no partner pays, no partner builds their own stack. Reviewers can click lifetransitionsaid.org/st-davids and run the intake themselves.
+
+The infrastructure is already running in production. ChainWeb is a citation-traceable evidence engine; every county-, ZIP-, and tract-level number chains back to a primary federal source — Census ACS, CDC PLACES, ATSDR SVI, HUD CHAS, FBI CDE — across 955 live federal data connections at 67+ agencies. Two front doors share one network: residents can enter at lifetransitionsaid.org/st-davids or at TCAF's navigator hub at /st-davids; the intake, counties, and program catalog are identical. RPLICE, an authenticated peer-mirror event bus, keeps both sites in sync in real time. Records are deduplicated on peer + resident reference + program + status, so a resident enrolled once is counted once — verified end-to-end. A public Live Network View endpoint publishes localOwned, peerMirrored, and networkTotal broken out by peer, benefit, and county; St. David's can audit the count at any moment.
+
+Twenty-four-month targets: 18,000+ residents enrolled in at least one new benefit, with at least 40% from rural Bastrop and Caldwell; $24M+ in captured annual benefit value to households; 85%+ six-month retention; 70%+ appeal-win rate on initial denials; a single deduplicated network total auditable live; and a renewal matrix delivered to St. David's every 90 days, broken out by County × Benefit Area × Language.
+
+Confirmed partners: CommUnityCare, Lone Star Circle of Care, Central Health, Foundation Communities, El Buen Samaritano. MOUs in development with Austin ISD, Hays CISD, Bastrop ISD, faith networks, and county human-services agencies. Active HHSC Community Partner Program Level 1. A 30-day MAP-GAP fidelity cycle uses CFIR + RE-AIM checks. External evaluation by Dell Medical School / UT School of Social Work runs under an IRB-reviewed protocol with quarterly public dashboards. Sustainability: HHSC CPP reimbursements, Medicaid 1115-waiver navigator billing, and ongoing TCAF infrastructure investment carry the work past Year 2. Match: $120K in-kind partner clinical staff time + $80K TCAF platform infrastructure.
+
+================================================================================
+FIELD 19 — KEY PARTNERS (if asked separately from the summary)
+================================================================================
+Confirmed:    CommUnityCare; Lone Star Circle of Care; Central Health;
+              Foundation Communities; El Buen Samaritano
+In Progress:  Austin ISD, Hays CISD, Bastrop ISD; faith networks;
+              county human-services agencies
+Evaluation:   Dell Medical School / UT School of Social Work (IRB-reviewed)
+Compliance:   HHSC Community Partner Program — Level 1 (active)
+
+================================================================================
+FIELD 20 — SUSTAINABILITY (if asked separately)
+================================================================================
+HHSC Community Partner Program reimbursements + Medicaid 1115-waiver
+navigator billing + continued TCAF platform infrastructure investment.
+Partner clinical-staff time is in-kind and persists past the grant period.
+
+================================================================================
+AFTER YOU SUBMIT
+================================================================================
+[ ] Download the portal confirmation PDF and save as
+    attached_assets/WAB2-LOI-confirmation-2026-04-27.pdf
+[ ] Email the confirmation to the TCAF board distro
+[ ] Sign up for St. David's program-staff office hours (per Kim/Kori call)
+[ ] Calendar the May 20 full-application webinar in case the LOI advances
+
+================================================================================
+END OF PASTE SHEET
+================================================================================

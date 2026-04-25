@@ -282,7 +282,7 @@ export default function NeighborhoodLookupPage() {
                 <Input
                   id="locationInput"
                   data-testid="input-location"
-                  placeholder="ZIP code, neighborhood, street, or city (e.g., 78702, East Austin TX, MLK Blvd Austin)"
+                  placeholder="ZIP code, neighborhood, street, or city (e.g., 60617, South Shore Chicago, 78702 East Austin)"
                   value={locationInput}
                   onChange={(e) => setLocationInput(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleLookup()}
@@ -295,7 +295,7 @@ export default function NeighborhoodLookupPage() {
                 <Input
                   id="nameInput"
                   data-testid="input-neighborhood-name"
-                  placeholder="e.g., East Austin, My Community"
+                  placeholder="e.g., South Shore, My Community"
                   value={neighborhoodName}
                   onChange={(e) => setNeighborhoodName(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleLookup()}
