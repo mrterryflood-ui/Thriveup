@@ -8,7 +8,7 @@ import {
   insertBenefitsScreeningSchema, insertBenefitsRenewalSchema,
   insertBenefitsApplicationSchema,
 } from "@shared/schema";
-import { eq, desc, and, count, sql } from "drizzle-orm";
+import { eq, desc, and, count, sql, ne } from "drizzle-orm";
 import { generateAIResponse, generateAIJSON } from "./ai-provider";
 import { collaborativeResponse, collaborativeJSON } from "./collaborative-ai";
 import {
@@ -147,6 +147,25 @@ function requireAuth(req: Request, res: Response, next: NextFunction) {
   if (!(req as any).isAuthenticated?.() && !(req as any).user) {
     return res.status(401).json({ error: "Authentication required" });
   }
+  next();
+}
+
+const screenerRateBuckets = new Map<string, { count: number; windowStart: number }>();
+function publicScreenerRateLimit(req: Request, res: Response, next: NextFunction) {
+  if ((req as any).isAuthenticated?.() || (req as any).user) return next();
+  const ip = (req.headers["x-forwarded-for"]?.toString().split(",")[0].trim()) || req.socket.remoteAddress || "unknown";
+  const now = Date.now();
+  const windowMs = 60_000;
+  const maxPerWindow = 10;
+  const bucket = screenerRateBuckets.get(ip);
+  if (!bucket || now - bucket.windowStart > windowMs) {
+    screenerRateBuckets.set(ip, { count: 1, windowStart: now });
+    return next();
+  }
+  if (bucket.count >= maxPerWindow) {
+    return res.status(429).json({ error: "Too many screening submissions. Please try again in a minute." });
+  }
+  bucket.count++;
   next();
 }
 
@@ -461,7 +480,7 @@ export function registerBenefitsRoutes(app: Express) {
       const enrollmentData = await db.select().from(benefitsEnrollmentData);
       const [partnerCount] = await db.select({ count: count() }).from(benefitsPartners);
       const [chwCount] = await db.select({ count: count() }).from(benefitsChwNetwork);
-      const [screeningCount] = await db.select({ count: count() }).from(benefitsScreenings);
+      const [screeningCount] = await db.select({ count: count() }).from(benefitsScreenings).where(ne(benefitsScreenings.screeningType, "public_demo"));
       const [renewalCount] = await db.select({ count: count() }).from(benefitsRenewals);
 
       const countySummaries: Record<string, any> = {};
@@ -621,12 +640,22 @@ export function registerBenefitsRoutes(app: Express) {
     }
   });
 
-  app.post("/api/benefits/screenings", requireAuth, async (req, res) => {
+  app.post("/api/benefits/screenings", publicScreenerRateLimit, async (req, res) => {
     try {
       const parsed = insertBenefitsScreeningSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Validation failed", details: parsed.error.flatten().fieldErrors });
 
-      const data = parsed.data;
+      const isAuthed = (req as any).isAuthenticated?.() || (req as any).user;
+      const data = isAuthed
+        ? parsed.data
+        : {
+            ...parsed.data,
+            screeningType: "public_demo",
+            referredToChwId: null,
+            referredToPartnerId: null,
+            handoffType: null,
+            enrollmentOutcome: null,
+          };
       const income = data.annualIncome || 0;
       const hhSize = data.householdSize || 1;
       const fpl = 15060 + (hhSize - 1) * 5380;
@@ -1039,7 +1068,7 @@ export function registerBenefitsRoutes(app: Express) {
   app.get("/api/benefits/metrics", async (_req, res) => {
     try {
       const enrollmentData = await db.select().from(benefitsEnrollmentData);
-      const [screeningCount] = await db.select({ count: count() }).from(benefitsScreenings);
+      const [screeningCount] = await db.select({ count: count() }).from(benefitsScreenings).where(ne(benefitsScreenings.screeningType, "public_demo"));
 
       const byBenefit: Record<string, { eligible: number; enrolled: number; gap: number }> = {};
       for (const d of enrollmentData) {
