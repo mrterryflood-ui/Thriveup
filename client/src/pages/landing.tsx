@@ -734,6 +734,47 @@ export default function LandingPage() {
         </div>
       </section>
 
+      <section className="px-4 pb-4 sm:px-6" data-testid="section-marcus-story">
+        <div className="max-w-3xl mx-auto">
+          <Link
+            href="/resident-journey"
+            className="group block overflow-hidden rounded-xl border-2 border-primary/30 bg-gradient-to-br from-primary/5 via-card to-card transition-all duration-300 hover:shadow-xl hover:scale-[1.01] active:scale-[0.99] no-underline"
+            data-testid="card-marcus-story"
+            aria-label="See Marcus's journey — the headline story for how we build stronger communities"
+          >
+            <div className="p-5 sm:p-7">
+              <div className="flex items-start gap-4">
+                <div className="rounded-xl p-3 bg-gradient-to-br from-violet-500 to-purple-600 shrink-0 shadow-md">
+                  <User className="h-6 w-6 text-white" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <Badge variant="secondary" className="mb-2 text-xs" data-testid="badge-headline-story">
+                    The headline story · How we build stronger communities
+                  </Badge>
+                  <h3 className="font-bold text-lg sm:text-xl mb-2 leading-tight" data-testid="text-marcus-story-title">
+                    Meet Marcus. Foster youth. Incarcerated. Now reentering — and the system finally sees him as one person.
+                  </h3>
+                  <p className="text-sm text-muted-foreground mb-3 leading-relaxed" data-testid="text-marcus-story-desc">
+                    Most communities treat Marcus as seven different cases — child welfare, prison, probation, Medicaid, workforce, school, benefits.
+                    Each office asks him to start over. We built a system where his story travels with him: across services, across states, across agencies.
+                    Walk through his journey. Then move him from Austin to Wilmington and watch eligibility recompute in real time.
+                  </p>
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-gradient-to-r from-violet-500 to-purple-600 text-white text-sm font-medium shadow-sm" data-testid="button-see-marcus">
+                      Walk Through Marcus's Journey
+                      <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
+                    </span>
+                    <span className="text-xs text-muted-foreground italic">
+                      Live demo. No signup. See it for yourself.
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Link>
+        </div>
+      </section>
+
       <section className="px-4 pb-4 sm:px-6" data-testid="section-pathways">
         <div className="max-w-3xl mx-auto">
           <p className="text-center text-sm text-muted-foreground mb-4">What brings you here today?</p>

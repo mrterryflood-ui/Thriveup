@@ -122,6 +122,23 @@ export default function DashboardPage() {
       />
       <SectionTutorial {...SECTION_TUTORIALS.dashboard} />
 
+      <Link href="/resident-journey">
+        <Card className="p-4 sm:p-5 mb-6 border-primary/30 bg-gradient-to-r from-primary/5 via-card to-card hover:shadow-md hover:border-primary/50 transition-all cursor-pointer" data-testid="card-marcus-callout">
+          <div className="flex items-center gap-4">
+            <div className="rounded-xl p-2.5 bg-gradient-to-br from-violet-500 to-purple-600 shrink-0 shadow-sm">
+              <Sparkles className="h-5 w-5 text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs uppercase tracking-wide text-muted-foreground font-semibold mb-0.5" data-testid="text-marcus-callout-eyebrow">The headline story</p>
+              <h3 className="font-semibold text-sm sm:text-base leading-snug" data-testid="text-marcus-callout-title">
+                See how Marcus's journey shows what we're building — one identity, every service, traveling with the person.
+              </h3>
+            </div>
+            <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0" />
+          </div>
+        </Card>
+      </Link>
+
       {isNewUser && (
         <Card className="p-4 sm:p-6 mb-6 border-primary/20 bg-primary/5" data-testid="card-getting-started">
           <h2 className="font-semibold mb-3 flex items-center gap-2">

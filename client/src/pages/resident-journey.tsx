@@ -399,6 +399,8 @@ export default function ResidentJourneyPage() {
 
   const { profile, latestRisk, events, eligibility, eventsByDomain } = journeyQuery.data;
 
+  const isMarcusDemo = profile.firstName === "Marcus" && profile.lastName?.startsWith("J");
+
   return (
     <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-4" data-testid="page-resident-journey">
       <div className="flex items-start justify-between gap-3 flex-wrap">
@@ -413,6 +415,39 @@ export default function ResidentJourneyPage() {
           <RelocationWizard residentId="demo" currentState={profile.state || "TX"} onComplete={() => journeyQuery.refetch()} />
         </div>
       </div>
+
+      {isMarcusDemo && (
+        <Card className="border-primary/30 bg-gradient-to-br from-primary/5 via-card to-card" data-testid="card-marcus-narrative">
+          <CardContent className="pt-6">
+            <div className="flex items-start gap-4">
+              <div className="rounded-xl p-3 bg-primary/10 shrink-0">
+                <Sparkles className="h-6 w-6 text-primary" />
+              </div>
+              <div className="space-y-2">
+                <Badge variant="secondary" className="text-xs" data-testid="badge-headline-story">The headline story · How we build stronger communities</Badge>
+                <h2 className="text-xl font-bold leading-tight" data-testid="text-marcus-headline">
+                  This is Marcus. Foster youth. Incarcerated. Now reentering.
+                </h2>
+                <p className="text-sm text-muted-foreground leading-relaxed" data-testid="text-marcus-summary">
+                  Most systems treat Marcus as seven different cases — a child welfare file, an inmate ID, a probation number, a Medicaid applicant,
+                  a job seeker, a student, a benefits screener. Each office asks him to start over. Each agency holds part of the truth.
+                  Here, he is one person with one story. As he moves from reentry to workforce to AI training to community to benefits,
+                  every page on this platform reads from the same profile and writes back to it. Nothing is re-typed. Nothing is lost.
+                </p>
+                <p className="text-sm text-muted-foreground leading-relaxed" data-testid="text-marcus-relocation">
+                  Then Marcus relocates from Austin, TX to Wilmington, NC. His Medicaid eligibility recomputes (NC expanded; TX did not).
+                  Federal services continue uninterrupted. State-specific programs route to local equivalents. His probation officer sees the
+                  same risk and protective factors with citations to primary sources. <strong className="text-foreground">No silos. No re-typing. One identity that travels with the person.</strong>
+                </p>
+                <p className="text-xs text-muted-foreground italic pt-1" data-testid="text-marcus-cta">
+                  Use the tabs below to walk through Marcus's journey. Click <span className="font-semibold not-italic">Plan a Move</span> to relocate him to another state and watch eligibility recompute live.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <ProfileHeader profile={profile} />
       <Tabs defaultValue="overview">
         <TabsList>
