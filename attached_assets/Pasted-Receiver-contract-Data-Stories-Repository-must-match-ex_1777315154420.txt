@@ -1,0 +1,34 @@
+Receiver contract (Data Stories Repository → must match exactly):
+
+Endpoint: POST /api/network/stories/ingest
+Headers (all three required, all case-insensitive):
+Content-Type: application/json
+X-Network-Platform: thrivingcommunities (lowercase; receiver also accepts mixed case)
+X-Network-Timestamp: <Unix seconds as integer string> — must be within ±300s of receiver clock
+X-Network-Signature: sha256=<hex> where <hex> is HMAC-SHA256(NETWORK_SECRET_THRIVINGCOMMUNITIES, "${timestamp}.${rawJsonBody}").digest("hex")
+Critical: the HMAC input is the literal raw JSON body bytes that get sent on the wire — sign before Express/Node serializes, or capture the exact serialized string and use that. If the sender re-stringifies after signing (or pretty-prints differently), signature will fail. Keepalive: stringify once, sign that string, send that string.
+Body shape (single story):
+{
+  "externalId": "stable-slug-or-id-from-source-cms",
+  "title": "string (1–500 chars)",
+  "url": "https://... (valid URL)",
+  "excerpt": "optional, ≤2000 chars",
+  "body": "optional, ≤100000 chars",
+  "author": "optional, ≤200 chars",
+  "publishedAt": "optional ISO 8601 string",
+  "tags": ["gun-violence","social-determinants","mental-health","policy","youth-violence","community-impact","evidence","rplice-aligned"],
+  "geographies": [{"state":"NC","county":"New Hanover","city":"Wilmington"}],
+  "topics": ["optional", "≤50 items"]
+}
+Body shape (batch, up to 100): {"stories": [ ...same shape... ]}
+Idempotency: receiver upserts on (platform, externalId) — re-sending the same externalId overwrites in place, so the backfill can safely re-run.
+Successful response: 200 {"ok":true,"platform":"thrivingcommunities","received":N,"stored":N,"stories":[{id, externalId, title, url, updatedAt}, ...]}
+Failure responses (all useful for the sender's logging):
+400 invalid payload (response includes Zod issues[])
+400 Raw body unavailable for signature verification (only fires if the sender misconfigures its own raw-body capture — irrelevant on the sender side)
+401 missing/invalid headers, unknown platform, stale/future timestamp, tampered body, wrong secret
+500 NETWORK_SECRET_THRIVINGCOMMUNITIES is not configured on the server (receiver-side config issue, not sender's fault)
+Reasonable retry policy for the sender: retry on 5xx with exponential backoff up to 3 attempts. Do not retry on 4xx — those are deterministic (bad signature, bad payload) and will fail again.
+Tag-gating filter on the sender side: only POST stories that carry ≥1 of gun-violence | social-determinants | mental-health | policy | youth-violence | community-impact | evidence | rplice-aligned.
+Backfill: one-time script that walks the existing archive, applies the same tag-gate filter, and POSTs each matching story (batched 100 at a time is fine). Use externalId from the source CMS so re-runs are safe.
+Tell Terry: receiver is hot, contract above is the source of truth, send him the URL (prod or dev preview — your call) and ask him for the drop-in sender file when ready. Once he sends the smoke story I'll watch it land and confirm the round-trip with you.
