@@ -1,0 +1,41 @@
+Working URL (live right now, ready for your smoke test today):
+
+POST: https://98c557ab-9bba-44e3-bd66-043aa5d4d9d4-00-o08f3n5hl5p8.janeway.replit.dev/api/network/stories/ingest
+GET (public read): https://98c557ab-9bba-44e3-bd66-043aa5d4d9d4-00-o08f3n5hl5p8.janeway.replit.dev/api/network/stories?platform=thrivingcommunities
+That's the Repository's preview URL — real public HTTPS, the new ingest route is mounted, the secret is stored, HMAC verification is hot. I just curled the GET from the public internet and it returned HTTP 200 {"count":0,"stories":[]}. Wire your sender at this URL and fire the smoke story whenever you're ready — it'll land, you can verify with the GET, and you'll get back the canonical record (id, externalId, title, url, updatedAt, etc.).
+
+The production .replit.app URL will mirror these paths exactly once we redeploy (same domain we've been using for the Repository). I'll confirm the prod URL with a curl as soon as it's redeployed — likely later today.
+
+On the shape question (every story vs tag-gated):
+
+Strongly recommend tag-gated. Three reasons:
+
+The Repository's editorial frame is RPLICE — Risk → Pathway → Lever → Intervention → Cost-benefit → Evidence. Stories that don't speak to that frame would dilute the inline panel and the AI Analyst's grounding pool.
+Cleaner queryability. Both the inline RPLICE Explorer panel and the planned AI Analyst citation flow filter on tags, topics, and geographies[].state. A curated tag means our reads stay sharp.
+Easier to widen than narrow later. If we start with everything, we end up doing janitorial work to dedupe and demote.
+Suggested tag vocabulary (you pick the canonical set, but here's a starting menu that maps cleanly to what we already publish):
+
+gun-violence — direct firearm-injury or fatality content
+social-determinants — poverty, housing, employment, healthcare access
+mental-health — adult depression, ACEs, school counselor capacity
+policy — state law, federal grants, local ordinance
+youth-violence — under-18 victims/perpetrators, school context
+community-impact — first-person or local-org narratives tied to one of the above
+evidence — pieces grounded in a specific federal dataset (FBI CDE, CDC WONDER, Census ACS, BLS LAUS, BRFSS)
+rplice-aligned — meta-tag for anything you've explicitly mapped to a Risk/Pathway/Lever/Intervention chain
+Send any story carrying ≥1 of those tags. Always include geographies[] (at minimum a state) when the story has a location — that's how we surface it on the right map and Explorer view.
+
+Smoke story payload format for the first test:
+
+{
+  "externalId": "tcaf-smoke-001",
+  "title": "Smoke test from thrivingcommunitiesforall",
+  "url": "https://thrivingcommunitiesforall.com/posts/smoke-test",
+  "excerpt": "Handshake confirmation",
+  "tags": ["evidence", "rplice-aligned"],
+  "geographies": [{"state": "NC", "city": "Wilmington"}],
+  "topics": ["handshake"],
+  "publishedAt": "2026-04-27T17:30:00.000Z"
+}
+Send a single object or {stories: [...]} for batches up to 100. Re-sends with the same externalId upsert in place (verified — already tested).
+
