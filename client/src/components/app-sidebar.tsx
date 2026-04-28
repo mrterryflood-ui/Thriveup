@@ -105,7 +105,7 @@ const programMgmtItems: NavItem[] = [
 ];
 
 const grantEngineItems: NavItem[] = [
-  { title: "Grant Hub", url: "/grants", icon: Target },
+  { title: "Live Grant Opportunities", url: "/grants", icon: Target },
   { title: "Grant Packages", url: "/grant-packages", icon: Package },
   { title: "St. David's Prep", url: "/stdavids-prep", icon: Heart },
   { title: "Benefits Intel", url: "/benefits", icon: Shield },
@@ -429,15 +429,18 @@ export function AppSidebar() {
           </SidebarGroup>
         )}
 
-        {/* Texas (St. David's Pilot) is the active funded pilot — surfaced first so
-            St. David's program officers and operators see the LOI deliverables
-            without scrolling. The NavSection auto-expands when on a page in this group. */}
+        {/* Top of sidebar — the two highest-frequency surfaces:
+            1. Texas (St. David's Pilot) — the active funded pilot, mirrors the LOI
+            2. Grant Engine — the live federal/foundation/state grant scanner (290+
+               opportunities, scans Grants.gov + SAM.gov + USASpending + state TX
+               + foundations every 24 hours). "Live Grant Opportunities" is the
+               top item inside this group. */}
         <NavSection label="Texas (St. David's Pilot)" items={texasPilotItems} location={location} />
+        <NavSection label="Grant Engine" items={grantEngineItems} location={location} />
         <NavSection label="Community Intelligence" items={communityIntelItems} location={location} />
         <NavSection label="Workforce Solutions" items={workforceSolutionsItems} location={location} />
         <NavSection label="Criminal Justice & Reentry" items={justiceReentryItems} location={location} />
         <NavSection label="Partnerships & Coalitions" items={partnershipItems} location={location} />
-        <NavSection label="Grant Engine" items={grantEngineItems} location={location} />
         <NavSection label="Data & Reporting" items={dataReportingItems} location={location} />
         <NavSection label="Program Management" items={programMgmtItems} location={location} />
         <NavSection label="Prevention" items={preventionItems} location={location} />
