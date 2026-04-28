@@ -3576,6 +3576,15 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
     }
   });
 
+  app.post("/api/grants/rescore-all", requireAuth, async (_req, res) => {
+    try {
+      const result = await recomputeAllGrantFitScores();
+      res.json({ success: true, ...result });
+    } catch (error) {
+      res.status(500).json({ error: "Re-score failed", details: String(error) });
+    }
+  });
+
   app.get("/api/teks-alignment", async (_req: Request, res: Response) => {
     try {
       const alignment = {
@@ -6737,10 +6746,16 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
   let lastDiscoveryResult: { imported: number; skipped: number; total: number; error?: string } | null = null;
 
   setTimeout(async () => {
+    console.log("[GrantDiscovery] Re-scoring all existing grants with current algorithm...");
+    try {
+      await recomputeAllGrantFitScores();
+    } catch (e) {
+      console.error("[GrantDiscovery] Re-score on startup failed:", e);
+    }
     console.log("[GrantDiscovery] Running initial grant scan on startup...");
     lastDiscoveryResult = await runDailyGrantDiscovery();
     lastDailyDiscoveryRun = new Date();
-  }, 30000);
+  }, 15000);
 
   setInterval(async () => {
     console.log("[GrantDiscovery] Running scheduled daily grant scan...");
