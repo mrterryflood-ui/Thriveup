@@ -410,6 +410,8 @@ export async function registerRoutes(
   registerJusticeRoutes(app);
   registerBenefitsRoutes(app);
   registerResidentJourneyRoutes(app);
+  const { registerDonorReceiptRoutes } = await import("./donor-receipts");
+  registerDonorReceiptRoutes(app);
   registerWorkforceRoutes(app);
   registerNavigatorRoutes(app);
   registerPilotRoutes(app);

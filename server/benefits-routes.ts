@@ -1392,7 +1392,7 @@ Generate a JSON object with these fields:
 
   app.post("/api/benefits/coalition/ai-loi", requireAuth, async (req, res) => {
     try {
-      const { focus, tone, emphasize } = req.body;
+      const { focus, tone, emphasize, mode } = req.body;
       const allData = await db.select().from(benefitsEnrollmentData);
       const counties = Object.values(ST_DAVIDS_COUNTIES);
       const countyStats = counties.map(c => {
@@ -1406,6 +1406,49 @@ Generate a JSON object with these fields:
       const totalGap = countyStats.reduce((s, c) => s + c.gap, 0);
       const totalTracts = countyStats.reduce((s, c) => s + c.tracts, 0);
       const unclaimed = Math.round(totalGap * 4800);
+
+      // Donor-side mode: produce a donor-confidence narrative instead of a grant LOI.
+      if (mode === "donor") {
+        const donorSystemPrompt = `You are writing for a charitable donor — not a grant funder. Donors care about three things: (1) is this organization real, (2) will my gift actually reach the outcome, (3) can I see proof. Be plain-spoken, specific, and confident without bragging. Lead with the resident outcome, not the platform. Cite real numbers. Avoid jargon, buzzwords, and acronyms unless defined.`;
+        const donorUserPrompt = `Write an approximately 450-word donor-discovery brief for The Collaborative Advocate Foundation (TCAF) — the org behind the WAB2 enrollment engine and the Outcome Receipts pilot.
+
+PURPOSE:
+Help a thoughtful donor (faith network, family foundation, HNWI, or institutional foundation pilot officer) decide in under 5 minutes whether to fund this work. The brief sits on TCAF's donor page and links to a live verifiable receipt demo.
+
+REAL DATA FROM THE LIVE PLATFORM:
+- ${totalEligible.toLocaleString()} people identified as eligible across 5 Central Texas counties
+- ${totalGap.toLocaleString()} of them are not currently enrolled in benefits they qualify for
+- ~$${(unclaimed / 1e9).toFixed(1)}B in unclaimed annual benefits sitting on the table
+- ${totalTracts} census tracts continuously analyzed by the ChainWeb evidence engine
+- Live anonymized resident receipt available at lifetransitionsaid.org/donor-receipt-demo
+
+CRITICAL RULES:
+1. Lead with a resident outcome (e.g., transitional housing, benefits enrolled, job interview), not with technology.
+2. Explain the trust gap problem: most donors give once, never see what happened, so giving stalls. Outcome Receipts close that loop with cryptographically-verifiable proof.
+3. Be honest about pilot status. TCAF is veteran-founded, Black-led; 501(c)(3) status is in active filing (filed 4/27, IRS Tracking 281OIP7B). Today, Abundant Life Church (501(c)(3)) is the fiduciary on grant submissions; donors can give to either entity.
+4. Name three specific gift sizes and what each one verifiably reaches: $500 (one resident's housing-stability month), $2,500 (full benefits-screening cohort of 5), $10,000 (one workforce-readiness placement pipeline).
+5. Close with two CTAs: "See a live receipt" → /donor-receipt-demo, and "Talk to the founder" → contact form.
+
+TONE: ${tone || "Plain-spoken, confident, specific. Sound like a person who built this and knows what they're asking for."}
+EMPHASIS: ${emphasize || "Trust gap → verifiable receipts; real anonymized resident data; pilot honesty"}
+FOCUS: ${focus || "Donor confidence and verifiability, not grant compliance"}
+
+Write EXACTLY 450 words (±20). Do NOT include a title or headers — just flowing paragraphs. Start with a resident moment, not with TCAF's name.`;
+        const collabResultDonor = await collaborativeResponse(donorUserPrompt, {
+          systemPrompt: donorSystemPrompt,
+          maxTokens: 4000,
+          topic: "donor discovery brief outcome receipts TCAF",
+        });
+        const donorWordCount = collabResultDonor.synthesis.split(/\s+/).length;
+        return res.json({
+          loi: collabResultDonor.synthesis,
+          mode: "donor",
+          wordCount: donorWordCount,
+          dataSnapshot: { totalEligible, totalGap, totalTracts, unclaimed, counties: countyStats.length },
+          generatedAt: new Date().toISOString(),
+          collaborative: { engines: collabResultDonor.engines.filter(e => !e.error).map(e => e.engine), ragChunks: collabResultDonor.ragContext.chunkCount, consensusMethod: collabResultDonor.consensusMethod, timeMs: collabResultDonor.totalTimeMs },
+        });
+      }
 
       const systemPrompt = `You are a grant writer for a 501(c)(3) nonprofit. Write clear, specific, impact-focused prose. No jargon, no buzzwords, no fluff. Every sentence earns its place. Use real numbers. Sound like a person who knows their community, not a consultant.`;
       const userPrompt = `Write an approximately 500-word Letter of Intent for the St. David's Foundation We All Benefit 2.0 grant.
