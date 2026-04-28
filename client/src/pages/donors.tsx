@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import {
   Receipt, Shield, ArrowRight, Sparkles, FileCheck, Users, DollarSign,
   Loader2, CheckCircle2, ExternalLink, Heart, Lock, BarChart3, MessageSquare,
+  Copy, Download,
 } from "lucide-react";
 
 const GIFT_TIERS = [
@@ -217,12 +218,45 @@ export default function DonorsPage() {
                 )}
               </Button>
               {briefText && (
-                <Textarea
-                  value={briefText}
-                  readOnly
-                  className="min-h-[280px] font-serif text-sm leading-relaxed"
-                  data-testid="textarea-brief"
-                />
+                <>
+                  <Textarea
+                    value={briefText}
+                    readOnly
+                    className="min-h-[280px] font-serif text-sm leading-relaxed"
+                    data-testid="textarea-brief"
+                  />
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        navigator.clipboard.writeText(briefText);
+                        toast({ title: "Brief copied to clipboard" });
+                      }}
+                      data-testid="button-copy-brief"
+                    >
+                      <Copy className="h-3.5 w-3.5 mr-1.5" /> Copy text
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        const blob = new Blob([briefText], { type: "text/plain;charset=utf-8" });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement("a");
+                        a.href = url;
+                        a.download = `tcaf-donor-brief-${new Date().toISOString().slice(0, 10)}.txt`;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                      }}
+                      data-testid="button-download-brief"
+                    >
+                      <Download className="h-3.5 w-3.5 mr-1.5" /> Download .txt
+                    </Button>
+                  </div>
+                </>
               )}
               {briefMutation.data && (
                 <div className="text-xs text-muted-foreground flex flex-wrap gap-3" data-testid="text-brief-meta">

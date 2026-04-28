@@ -527,6 +527,40 @@ export default function WAB2EnrollmentHubPage() {
             </Button>
           </div>
         </div>
+
+        {/* For Donors panel — links to the donor product surface */}
+        <Card
+          className="border-amber-500/30 bg-gradient-to-br from-amber-50/80 via-card to-card dark:from-amber-950/20"
+          data-testid="card-for-donors"
+        >
+          <CardContent className="pt-4 pb-4">
+            <div className="flex flex-col md:flex-row md:items-center gap-3 md:gap-6">
+              <div className="flex-1">
+                <div className="text-xs font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-300 flex items-center gap-1.5">
+                  <Award className="h-3.5 w-3.5" /> For donors
+                </div>
+                <div className="text-base font-semibold mt-0.5" data-testid="text-donor-headline">
+                  This work is fundable — and verifiable.
+                </div>
+                <div className="text-sm text-muted-foreground mt-0.5">
+                  Every gift gets a cryptographically-verifiable Outcome Receipt tied to a specific resident outcome. PII-free, donor-shareable, independently verifiable.
+                </div>
+              </div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <Button size="sm" asChild data-testid="link-donors-page">
+                  <Link href="/donors">
+                    <Award className="h-3.5 w-3.5 mr-1" /> For Donors
+                  </Link>
+                </Button>
+                <Button variant="outline" size="sm" asChild data-testid="link-receipt-demo">
+                  <Link href="/donor-receipt-demo">
+                    <ArrowRight className="h-3.5 w-3.5 mr-1" /> See a live receipt
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </header>
 
       <Tabs value={tab} onValueChange={setTab} className="space-y-4">

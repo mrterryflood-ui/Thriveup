@@ -253,14 +253,17 @@ export function registerDonorReceiptRoutes(app: Express) {
         });
       }
       const matches = link.hash === eventHash;
+      // On success, return the derived hash + chain head so a third party can
+      // re-derive and confirm. On failure, suppress the derived hash to avoid
+      // turning the verify endpoint into an oracle.
       res.json({
         ok: true,
         verified: matches,
         receiptId: receiptId || null,
         chainPosition,
         suppliedHash: eventHash,
-        derivedHash: link.hash,
-        chainHeadDerived: head,
+        derivedHash: matches ? link.hash : null,
+        chainHeadDerived: matches ? head : null,
         chainTotalEvents: chain.length,
         verifiedAt: new Date().toISOString(),
         message: matches
