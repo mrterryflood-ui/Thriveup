@@ -429,6 +429,10 @@ export function AppSidebar() {
           </SidebarGroup>
         )}
 
+        {/* Texas (St. David's Pilot) is the active funded pilot — surfaced first so
+            St. David's program officers and operators see the LOI deliverables
+            without scrolling. The NavSection auto-expands when on a page in this group. */}
+        <NavSection label="Texas (St. David's Pilot)" items={texasPilotItems} location={location} />
         <NavSection label="Community Intelligence" items={communityIntelItems} location={location} />
         <NavSection label="Workforce Solutions" items={workforceSolutionsItems} location={location} />
         <NavSection label="Criminal Justice & Reentry" items={justiceReentryItems} location={location} />
@@ -439,7 +443,6 @@ export function AppSidebar() {
         <NavSection label="Prevention" items={preventionItems} location={location} />
         <NavSection label="Health & Wellness" items={healthWellnessItems} location={location} />
         <NavSection label="Where We Operate" items={whereWeOperateItems} location={location} />
-        <NavSection label="Texas (St. David's Pilot)" items={texasPilotItems} location={location} />
         <NavSection label="AI Tools" items={aiToolsItems} location={location} />
         <NavSection label="Research & Implementation" items={researchItems} location={location} />
         <NavSection label="Case Management" items={caseManagementItems} location={location} />
