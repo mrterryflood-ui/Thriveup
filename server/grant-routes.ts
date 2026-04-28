@@ -63,18 +63,22 @@ async function requireAdmin(req: Request, res: Response, next: Function) {
 }
 
 const PLATFORM_CAPABILITIES = [
-  { area: "Workforce Development", features: ["ThriveUp Academy training pipelines", "Skill alignment and career pathways", "WIOA-aligned program design", "Employer partnership coordination", "Manager in Training leadership pipeline"], grantKeywords: ["workforce", "employment", "job training", "career", "WIOA", "apprenticeship", "labor"] },
-  { area: "Veteran Transition Services", features: ["M2C military-to-civilian pipeline", "MOS translation engine", "Benefits navigation", "Housing planning", "Identity transition support", "Military family support"], grantKeywords: ["veteran", "military", "transition", "VA", "service member", "armed forces"] },
-  { area: "Behavioral Health & Mental Health", features: ["Whole-Person Health platform", "PHQ-9 depression screening", "GAD-7 anxiety screening", "C-SSRS suicide risk assessment", "PCL-5 PTSD screening", "Safety plan builder", "Crisis tools", "988 integration"], grantKeywords: ["behavioral health", "mental health", "substance", "crisis", "suicide prevention", "trauma", "PTSD", "depression"] },
-  { area: "Child & Family Safety", features: ["SafeReport mandatory reporting", "ISSS integrated family support for children AND parents", "Early warning systems", "Coordinated family case management", "Cross-agency referral workflows"], grantKeywords: ["child abuse", "neglect", "child welfare", "family", "prevention", "protective factors", "ACEs", "mandatory reporting"] },
-  { area: "Emergency Management & Community Safety", features: ["Emergency Management emergency response", "Geographic risk mapping", "Crisis coordination", "Continuity planning", "Community resilience scoring", "All-hazard preparedness"], grantKeywords: ["emergency", "disaster", "resilience", "preparedness", "FEMA", "crisis", "safety", "hazard"] },
-  { area: "Minority Business & Economic Development", features: ["MCE with 656K+ SAM.gov records", "Certification wizard", "Proposal review", "Teaming hub", "APEX Accelerator integration", "Pinnacle Business Conglomerate"], grantKeywords: ["minority business", "small business", "economic development", "contracting", "8(a)", "HUBZone", "MWBE", "disadvantaged"] },
-  { area: "Health Equity", features: ["Sankofa maternal health", "Sankofa feminine health", "Black men's health", "Autoimmune Thrive", "PillScheduler medication management", "SafeCogniCare cognitive safety", "SDOH navigation"], grantKeywords: ["health equity", "disparities", "maternal", "chronic disease", "medication", "cognitive", "social determinants"] },
-  { area: "Education & Youth Development", features: ["WholeMind K-12 education platform", "Life Pals student support", "Perfectly Different neurodiversity support", "Digital literacy curriculum", "Mentoring and peer support"], grantKeywords: ["education", "youth", "K-12", "STEM", "digital literacy", "mentoring", "neurodiversity", "disability", "special education"] },
-  { area: "Community Resources & Social Services", features: ["LifeBridge Virtual 211", "Housing navigation", "Food access", "Utilities assistance", "Crisis support", "Life event guides", "SDOH resource mapping"], grantKeywords: ["community", "housing", "food", "wraparound", "social services", "homelessness", "resource", "211"] },
-  { area: "Communication & Accessibility", features: ["Speech Bridge dialect recognition", "Language translation", "Culturally responsive communication", "Accessibility tools"], grantKeywords: ["language", "translation", "accessibility", "communication", "culturally responsive", "LEP", "bilingual"] },
-  { area: "Data, Outcomes & Governance", features: ["Better Science Lab implementation science", "CFIR and RE-AIM frameworks", "Fidelity measurement", "Outcome tracking", "Cross-platform analytics", "Evidence-based practice validation"], grantKeywords: ["outcomes", "data", "measurement", "evidence-based", "fidelity", "implementation science", "evaluation"] },
-  { area: "Ecosystem Coordination", features: ["24-platform ACOS architecture", "Pre-Build Gate enforcement", "Capability Orchestration Map", "7-triad team-of-teams", "Bilateral collaboration exchange", "Multi-agency coordination"], grantKeywords: ["coordination", "collaboration", "partnership", "multi-agency", "ecosystem", "systems", "integration"] },
+  { area: "Workforce Development", features: ["ThriveUp Academy training pipelines", "Skill alignment and career pathways", "WIOA-aligned program design", "Employer partnership coordination", "Manager in Training leadership pipeline"], grantKeywords: ["workforce", "employment", "job training", "career", "wioa", "apprenticeship", "labor", "vocational", "upskilling", "reskilling", "earn and learn", "registered apprenticeship"] },
+  { area: "Veteran Transition Services", features: ["M2C military-to-civilian pipeline", "MOS translation engine", "Benefits navigation", "Housing planning", "Identity transition support", "Military family support"], grantKeywords: ["veteran", "military", "transition", "va ", "service member", "armed forces", "post-9/11", "mos translation", "military family"] },
+  { area: "Behavioral Health & Mental Health", features: ["Whole-Person Health platform", "PHQ-9 depression screening", "GAD-7 anxiety screening", "C-SSRS suicide risk assessment", "PCL-5 PTSD screening", "Safety plan builder", "Crisis tools", "988 integration"], grantKeywords: ["behavioral health", "mental health", "substance use", "substance abuse", "crisis", "suicide prevention", "trauma", "trauma-informed", "trauma informed", "ptsd", "depression", "opioid", "samhsa", "988", "co-occurring"] },
+  { area: "Child & Family Safety", features: ["SafeReport mandatory reporting", "ISSS integrated family support for children AND parents", "Early warning systems", "Coordinated family case management", "Cross-agency referral workflows"], grantKeywords: ["child abuse", "child welfare", "neglect", "family", "prevention", "protective factors", "aces", "adverse childhood", "mandatory reporting", "two-generation", "two generation", "kinship care", "foster"] },
+  { area: "Emergency Management & Community Safety", features: ["Emergency Management emergency response", "Geographic risk mapping", "Crisis coordination", "Continuity planning", "Community resilience scoring", "All-hazard preparedness"], grantKeywords: ["emergency", "disaster", "resilience", "preparedness", "fema", "crisis response", "hazard", "continuity of operations"] },
+  { area: "Minority Business & Economic Development", features: ["MCE with 656K+ SAM.gov records", "Certification wizard", "Proposal review", "Teaming hub", "APEX Accelerator integration", "Pinnacle Business Conglomerate"], grantKeywords: ["minority business", "small business", "economic development", "contracting", "8(a)", "hubzone", "mwbe", "dbe", "disadvantaged business", "supplier diversity", "apex accelerator"] },
+  { area: "Health Equity", features: ["Sankofa maternal health", "Sankofa feminine health", "Black men's health", "Autoimmune Thrive", "PillScheduler medication management", "SafeCogniCare cognitive safety", "SDOH navigation"], grantKeywords: ["health equity", "disparities", "maternal health", "maternal mortality", "doula", "chronic disease", "medication adherence", "cognitive", "social determinants", "sdoh", "community health worker", "promotora", "minority health"] },
+  { area: "Education & Youth Development", features: ["WholeMind K-12 education platform", "Life Pals student support", "Perfectly Different neurodiversity support", "Digital literacy curriculum", "Mentoring and peer support"], grantKeywords: ["education", "youth development", "k-12", "stem", "digital literacy", "mentoring", "neurodiversity", "disability", "special education", "iep", "504", "after-school", "summer learning", "tutoring", "youth opportunity"] },
+  { area: "Community Resources & Social Services", features: ["LifeBridge Virtual 211", "Housing navigation", "Food access", "Utilities assistance", "Crisis support", "Life event guides", "SDOH resource mapping"], grantKeywords: ["community based", "community-based", "housing assistance", "food security", "wraparound", "social services", "homelessness", "211", "navigator", "benefits enrollment", "social safety net", "place-based", "place based"] },
+  { area: "Communication & Accessibility", features: ["Speech Bridge dialect recognition", "Language translation", "Culturally responsive communication", "Accessibility tools"], grantKeywords: ["language access", "translation", "accessibility", "culturally responsive", "lep ", "limited english", "bilingual"] },
+  { area: "Research, Data & Outcomes", features: ["Better Science Lab implementation science", "CFIR and RE-AIM frameworks", "Fidelity measurement", "Outcome tracking", "Cross-platform analytics", "Evidence-based practice validation"], grantKeywords: ["outcomes measurement", "evidence-based", "evidence based", "fidelity", "implementation science", "evaluation", "rigorous evaluation", "community-based participatory research", "participatory research", "applied research", "translational research", "data infrastructure", "demonstration project"] },
+  { area: "Ecosystem Coordination", features: ["24-platform ACOS architecture", "Pre-Build Gate enforcement", "Capability Orchestration Map", "7-triad team-of-teams", "Bilateral collaboration exchange", "Multi-agency coordination"], grantKeywords: ["coordination", "collaboration", "partnership", "multi-agency", "intermediary", "backbone organization", "collective impact", "systems integration"] },
+  { area: "Criminal Justice & Reentry", features: ["Reentry navigation infrastructure", "Second Chance Act program design", "Restorative justice coordination", "Probation/parole partner workflows", "Recidivism tracking", "Faith-based reentry partnerships"], grantKeywords: ["reentry", "re-entry", "second chance", "restorative justice", "recidivism", "prisoner reentry", "returning citizen", "formerly incarcerated", "justice involved", "justice-involved", "probation", "parole", "diversion", "juvenile justice", "crime victim", "desistance", "community corrections"] },
+  { area: "AI for Good & Responsible Technology", features: ["AI Workforce Academy curricula", "Responsible AI literacy modules", "AI for nonprofit operations", "Agent-to-agent referral automation", "Bias auditing & evaluation harness"], grantKeywords: ["artificial intelligence", "ai for good", "ai for charitable", "responsible ai", "responsible artificial intelligence", "ai literacy", "machine learning", "trustworthy ai", "ai-ready", "ai readiness", "human-centered ai", "ai workforce", "ai adoption"] },
+  { area: "Faith-Based & Community Partnerships", features: ["Abundant Life Church 501(c)(3) fiduciary partnership", "Faith-community navigation hubs", "Congregational health programs", "Interfaith coalition coordination"], grantKeywords: ["faith-based", "faith based", "faith community", "congregation", "congregational", "interfaith", "religious organization", "houses of worship"] },
+  { area: "Fiscal Sponsorship & Nonprofit Capacity", features: ["TCAF/Abundant Life fiduciary structure", "Pending 501(c)(3) determination workflows", "Backbone organization services", "Sub-recipient compliance"], grantKeywords: ["fiscal sponsor", "fiscally sponsored", "fiscal sponsorship", "intermediary organization", "capacity building", "nonprofit infrastructure", "501(c)(3)", "fiduciary", "subaward", "sub-award", "pass-through entity"] },
 ];
 
 const COLLABORATOR_VALUE_PROPOSITIONS: Record<string, { theyGet: string[]; weGet: string[] }> = {
@@ -132,19 +136,81 @@ interface FitResult {
   matchedAreas: string[];
 }
 
+// Tier-1 keywords are exact ecosystem fits — each adds bonus points to the fit score.
+// These reflect TCAF/Abundant Life's strongest, most-distinctive capabilities.
+const TIER1_KEYWORDS: Record<string, number> = {
+  // Criminal justice & reentry — the church-fiduciary sweet spot
+  "second chance act": 18, "prisoner reentry": 15, "second chance": 12,
+  "reentry": 12, "re-entry": 12, "restorative justice": 12,
+  "returning citizen": 12, "formerly incarcerated": 12, "justice-involved": 10,
+  "justice involved": 10, "recidivism": 10, "community corrections": 8,
+  "diversion program": 8, "juvenile justice": 8, "crime victim": 8,
+  // AI for good
+  "ai for charitable": 18, "ai for good": 15, "responsible ai": 14,
+  "responsible artificial intelligence": 14, "trustworthy ai": 12,
+  "human-centered ai": 12, "ai literacy": 10, "ai-ready": 10, "ai readiness": 10,
+  "artificial intelligence": 8, "ai workforce": 10, "ai adoption": 8,
+  // Faith-based
+  "faith-based": 14, "faith based": 14, "faith community": 12,
+  "congregation": 10, "interfaith": 10, "houses of worship": 10,
+  // Fiscal sponsorship & nonprofit infrastructure
+  "fiscal sponsor": 14, "fiscally sponsored": 14, "fiscal sponsorship": 14,
+  "intermediary organization": 10, "backbone organization": 10,
+  "capacity building": 8, "501(c)(3)": 6, "fiduciary": 6,
+  // Research & evidence
+  "implementation science": 12, "community-based participatory research": 12,
+  "participatory research": 10, "evidence-based practice": 8,
+  "demonstration project": 6, "translational research": 8,
+  // Workforce flagship
+  "wioa": 12, "workforce innovation": 12, "registered apprenticeship": 10,
+  // Health flagship
+  "community health worker": 12, "promotora": 10, "maternal mortality": 10,
+  "social determinants": 10, "trauma-informed": 10, "trauma informed": 10,
+  // Family & two-gen
+  "two-generation": 10, "two generation": 10, "kinship care": 8,
+  // Safety net
+  "benefits enrollment": 10, "social safety net": 10,
+};
+
 function computeFitScore(grant: { title?: string | null; description?: string | null; focusAreas?: string[] | null; eligibilityCriteria?: string | null }): FitResult {
-  const searchText = [grant.title, grant.description, ...(grant.focusAreas || []), grant.eligibilityCriteria].join(" ").toLowerCase();
+  const searchText = [grant.title, grant.description, ...(grant.focusAreas || []), grant.eligibilityCriteria].filter(Boolean).join(" ").toLowerCase();
   const matchedAreas: string[] = [];
   const matchedKeywords: string[] = [];
+  let totalKeywordHits = 0;
+
+  // Capability-area matching
   for (const cap of PLATFORM_CAPABILITIES) {
+    let areaHit = false;
     for (const keyword of cap.grantKeywords) {
-      if (searchText.includes(keyword)) {
-        if (!matchedAreas.includes(cap.area)) matchedAreas.push(cap.area);
+      if (searchText.includes(keyword.toLowerCase())) {
+        areaHit = true;
         if (!matchedKeywords.includes(keyword)) matchedKeywords.push(keyword);
+        totalKeywordHits++;
       }
     }
+    if (areaHit && !matchedAreas.includes(cap.area)) matchedAreas.push(cap.area);
   }
-  const score = Math.min(100, Math.round((matchedAreas.length / PLATFORM_CAPABILITIES.length) * 100));
+
+  // Tier-1 ecosystem-signature bonus
+  let tier1Bonus = 0;
+  for (const [kw, bonus] of Object.entries(TIER1_KEYWORDS)) {
+    if (searchText.includes(kw)) {
+      tier1Bonus += bonus;
+      if (!matchedKeywords.includes(kw)) matchedKeywords.push(kw);
+    }
+  }
+  tier1Bonus = Math.min(35, tier1Bonus); // cap so a single domain can't max-out alone
+
+  // Tiered base score from breadth (areas) + depth (keyword hits)
+  let baseScore = 0;
+  const areas = matchedAreas.length;
+  if (areas === 1) baseScore = 35 + Math.min(15, totalKeywordHits * 4);
+  else if (areas === 2) baseScore = 55 + Math.min(15, totalKeywordHits * 2);
+  else if (areas === 3) baseScore = 70 + Math.min(10, totalKeywordHits);
+  else if (areas === 4) baseScore = 78 + Math.min(10, totalKeywordHits);
+  else if (areas >= 5) baseScore = 85 + Math.min(10, totalKeywordHits);
+
+  const score = Math.min(100, baseScore + tier1Bonus);
   return { score, analysis: { matchedAreas, totalAreas: PLATFORM_CAPABILITIES.length, keywords: matchedKeywords }, matchedAreas };
 }
 
@@ -3419,6 +3485,36 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
 
     console.log(`[GrantDiscovery] ALL SOURCES COMPLETE — ${imported} new grants imported, ${skipped} duplicates skipped`);
     return { imported, skipped, total: imported + skipped };
+  }
+
+  // Re-score all grants in the database with the current computeFitScore algorithm.
+  // Run this after the scoring algorithm changes so historical grants reflect new logic.
+  async function recomputeAllGrantFitScores(): Promise<{ updated: number; unchanged: number; total: number }> {
+    const allGrants = await db.select().from(grantOpportunities);
+    let updated = 0;
+    let unchanged = 0;
+    for (const g of allGrants) {
+      const fit = computeFitScore({
+        title: g.title,
+        description: g.description,
+        focusAreas: g.focusAreas,
+        eligibilityCriteria: g.eligibilityCriteria,
+      });
+      if (g.fitScore !== fit.score) {
+        await db.update(grantOpportunities)
+          .set({
+            fitScore: fit.score,
+            fitAnalysis: fit.analysis,
+            readinessChecklist: generateReadinessChecklist(fit.matchedAreas),
+          })
+          .where(eq(grantOpportunities.id, g.id));
+        updated++;
+      } else {
+        unchanged++;
+      }
+    }
+    console.log(`[GrantDiscovery] Re-scored ${updated} grants (${unchanged} unchanged of ${allGrants.length} total)`);
+    return { updated, unchanged, total: allGrants.length };
   }
 
   app.get("/api/grants/discovery/status", async (_req, res) => {
