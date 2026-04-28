@@ -142,8 +142,17 @@ const whereWeOperateItems: NavItem[] = [
 ];
 
 // Texas is our FIRST county-deployment (St. David's WAB2 pilot region), not the whole product.
-// Keep these grouped under the Texas-specific label so the rest of the sidebar reads as nationwide.
+// These items mirror, in order, what the WAB2 LOI v7 (submitted 4/27/2026) promised
+// St. David's Foundation: a 5-county benefits enrollment engine with a single
+// front door, a 9-benefit screener, peer-mirrored Network View, partner
+// coalition, and operator workspace — followed by the implementing neighborhoods.
 const texasPilotItems: NavItem[] = [
+  { title: "St. David's Hub (front door)", url: "/st-davids", icon: LayoutDashboard },
+  { title: "9-Benefit Screener", url: "/benefits-screener", icon: ClipboardList },
+  { title: "Benefits Command Center", url: "/benefits", icon: HandHeart },
+  { title: "Coalition Partners", url: "/coalition", icon: Handshake },
+  { title: "Live Network View", url: "/network", icon: BarChart3 },
+  { title: "Operator Workspace", url: "/st-davids-wab2", icon: Wrench },
   { title: "Austin Initiative", url: "/austin", icon: MapPin },
   { title: "Manor Hub", url: "/manor", icon: MapPin },
   { title: "Pflugerville Hub", url: "/pflugerville", icon: MapPin },
