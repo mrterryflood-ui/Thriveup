@@ -3004,21 +3004,50 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
 
     if (samgovEnabled) {
     const keywords = [
+      // Workforce & economic
       "workforce development",
-      "veteran transition services",
-      "behavioral health equity",
-      "child abuse prevention",
-      "emergency preparedness community",
-      "minority business enterprise",
-      "community health workers",
-      "youth mentoring education",
-      "juvenile reentry",
-      "housing assistance social services",
-      "disability support services",
-      "maternal health equity",
       "workforce innovation opportunity act",
-      "community resilience",
+      "minority business enterprise",
       "digital literacy education",
+      // Health & behavioral
+      "behavioral health equity",
+      "community health workers",
+      "maternal health equity",
+      "disability support services",
+      "trauma informed care",
+      "mental health workforce",
+      // Children, youth, family
+      "child abuse prevention",
+      "youth mentoring education",
+      "two generation family",
+      "adverse childhood experiences",
+      // Criminal justice & reentry
+      "prisoner reentry",
+      "second chance act",
+      "restorative justice",
+      "crime victim services",
+      "juvenile reentry",
+      // Veterans
+      "veteran transition services",
+      // Community, research, faith
+      "community resilience",
+      "community based participatory research",
+      "implementation science",
+      "evidence based practice",
+      "faith based community partnership",
+      "place based initiative",
+      // AI & data
+      "artificial intelligence community",
+      "responsible artificial intelligence",
+      "data infrastructure outcomes",
+      // Safety net & access
+      "benefits enrollment outreach",
+      "social safety net access",
+      "housing assistance social services",
+      "emergency preparedness community",
+      // Capacity
+      "capacity building nonprofit",
+      "fiscal sponsor intermediary",
     ];
 
     try {
@@ -3105,10 +3134,30 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
     try {
       console.log("[GrantDiscovery] Scanning Grants.gov...");
       const grantsGovKeywords = [
-        "workforce development", "veteran services", "behavioral health",
-        "child abuse prevention", "community health", "minority business",
-        "youth mentoring", "juvenile justice", "housing assistance",
-        "maternal health", "disability services", "digital literacy",
+        // Workforce & economic
+        "workforce development", "minority business", "digital literacy",
+        // Health & behavioral
+        "behavioral health", "community health", "maternal health",
+        "disability services", "trauma informed", "mental health",
+        // Children, youth, family
+        "child abuse prevention", "youth mentoring", "two generation",
+        // Criminal justice & reentry
+        "prisoner reentry", "second chance", "restorative justice",
+        "juvenile justice", "crime victim",
+        // Veterans
+        "veteran services",
+        // Community, research, faith
+        "community resilience", "community based participatory research",
+        "implementation science", "evidence based practice",
+        "faith based partnership", "place based",
+        // AI & data
+        "artificial intelligence", "responsible AI",
+        "outcomes measurement",
+        // Safety net
+        "benefits enrollment", "social safety net",
+        "housing assistance",
+        // Capacity
+        "capacity building nonprofit", "fiscal sponsor",
       ];
 
       for (let gi = 0; gi < grantsGovKeywords.length; gi++) {
@@ -3188,10 +3237,30 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
     try {
       console.log("[GrantDiscovery] Scanning USASpending.gov for active federal awards...");
       const spendingKeywords = [
-        "workforce development", "veteran transition", "behavioral health",
-        "child welfare", "community health worker", "minority business",
-        "youth mentoring", "reentry services", "housing assistance",
-        "maternal health", "disability employment",
+        // Workforce & economic
+        "workforce development", "minority business", "digital literacy",
+        // Health & behavioral
+        "behavioral health", "community health worker", "maternal health",
+        "disability employment", "trauma informed care", "mental health services",
+        // Children, youth, family
+        "child welfare", "youth mentoring", "two generation",
+        // Criminal justice & reentry
+        "prisoner reentry", "second chance act", "restorative justice",
+        "juvenile justice", "crime victim assistance", "reentry services",
+        // Veterans
+        "veteran transition",
+        // Community, research, faith
+        "community resilience", "community based participatory research",
+        "implementation science", "evidence based programs",
+        "faith based services", "place based initiatives",
+        // AI & data
+        "artificial intelligence research", "responsible AI",
+        "outcomes measurement",
+        // Safety net
+        "benefits enrollment outreach", "social safety net",
+        "housing assistance",
+        // Capacity
+        "capacity building nonprofit", "fiscal sponsorship",
       ];
 
       for (let si = 0; si < spendingKeywords.length; si++) {
@@ -3374,11 +3443,22 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
       lastResult: lastDiscoveryResult,
       todayNewGrants: todayGrants[0]?.count || 0,
       searchDomains: [
-        "Workforce Development", "Veteran Transition", "Behavioral Health",
-        "Child Abuse Prevention", "Emergency Preparedness", "Minority Business",
-        "Community Health", "Youth Education", "Juvenile Justice",
-        "Housing & Social Services", "Disability Support", "Maternal Health",
-        "WIOA Programs", "Community Resilience", "Digital Literacy",
+        "Workforce Development", "WIOA Programs", "Minority Business", "Digital Literacy",
+        "Behavioral Health", "Community Health Workers", "Maternal Health",
+        "Disability Support", "Trauma-Informed Care", "Mental Health Workforce",
+        "Child Abuse Prevention", "Youth Mentoring", "Two-Generation Family",
+        "Adverse Childhood Experiences",
+        "Prisoner Reentry", "Second Chance Act", "Restorative Justice",
+        "Crime Victim Services", "Juvenile Reentry",
+        "Veteran Transition",
+        "Community Resilience", "Community-Based Participatory Research",
+        "Implementation Science", "Evidence-Based Practice",
+        "Faith-Based Partnerships", "Place-Based Initiatives",
+        "Artificial Intelligence (Community)", "Responsible AI",
+        "Data Infrastructure & Outcomes",
+        "Benefits Enrollment", "Social Safety Net",
+        "Housing & Social Services", "Emergency Preparedness",
+        "Capacity Building (Nonprofit)", "Fiscal Sponsorship",
       ],
       totalGrantsTracked: totalGrants[0]?.count || 0,
       highFitGrants: highFitGrants[0]?.count || 0,
