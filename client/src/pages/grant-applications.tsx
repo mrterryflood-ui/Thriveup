@@ -22,7 +22,6 @@ import {
   Scale,
 } from "lucide-react";
 
-const TODAY = new Date("2026-04-28T12:00:00Z");
 const STORAGE_KEY = "tcaf-application-tracker-v1";
 
 type Owner = "Abundant Life" | "TCAF" | "Joint";
@@ -222,7 +221,7 @@ const PACKAGES: Pkg[] = [
     totalAvailable: "10 hubs in Round 1",
     costShare: "None required",
     deadlines: [
-      { label: "Round 1 Letter of Intent due", date: "2026-06-16T23:59:00Z", note: "REQUIRED — no LOI = no full proposal" },
+      { label: "Round 1 Letter of Intent due", date: "2026-06-16T23:59:00Z", note: "Strongly recommended — full proposal allowed without LOI but LOI helps NSF plan reviewer panels" },
       { label: "Round 1 full proposal due", date: "2026-07-16T23:59:00Z" },
     ],
     submitUrl: "https://www.research.gov",
@@ -306,9 +305,9 @@ const PACKAGES: Pkg[] = [
   },
 ];
 
-function daysFromToday(iso: string): number {
+function daysFromToday(iso: string, now: Date): number {
   const d = new Date(iso);
-  const ms = d.getTime() - TODAY.getTime();
+  const ms = d.getTime() - now.getTime();
   return Math.ceil(ms / (1000 * 60 * 60 * 24));
 }
 
@@ -318,14 +317,15 @@ function deadlineColor(days: number): string {
   return "text-emerald-600 dark:text-emerald-400";
 }
 
-function ownerBadge(owner: Owner) {
+function ownerBadge(owner: Owner, contextId: string) {
   const styles: Record<Owner, string> = {
     "Abundant Life": "bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-200",
     TCAF: "bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-200",
     Joint: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200",
   };
+  const slug = owner.toLowerCase().replace(/ /g, "-");
   return (
-    <Badge variant="outline" className={`${styles[owner]} border-0 text-xs`} data-testid={`badge-owner-${owner.toLowerCase().replace(/ /g, "-")}`}>
+    <Badge variant="outline" className={`${styles[owner]} border-0 text-xs`} data-testid={`badge-owner-${slug}-${contextId}`}>
       {owner}
     </Badge>
   );
@@ -362,9 +362,16 @@ function loadState(): TrackerState {
 
 export default function GrantApplicationsPage() {
   const [state, setState] = useState<TrackerState>(EMPTY_STATE);
+  const [now, setNow] = useState<Date>(() => new Date());
 
   useEffect(() => {
     setState(loadState());
+  }, []);
+
+  useEffect(() => {
+    const tick = () => setNow(new Date());
+    const id = window.setInterval(tick, 60_000);
+    return () => window.clearInterval(id);
   }, []);
 
   useEffect(() => {
@@ -386,11 +393,11 @@ export default function GrantApplicationsPage() {
 
   const nextDeadline = useMemo(() => {
     const all = PACKAGES.flatMap((p) => p.deadlines.map((d) => ({ ...d, pkg: p.shortTitle })));
-    const future = all.filter((d) => new Date(d.date) >= TODAY).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    const future = all.filter((d) => new Date(d.date) >= now).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
     return future[0];
-  }, []);
+  }, [now]);
 
-  const totalAvailable = "$115M+ across the 4 packages";
+  const totalAvailable = "≈ $115M (estimated, see notes per package)";
 
   return (
     <div className="container mx-auto px-4 py-8 space-y-6 max-w-7xl">
@@ -428,8 +435,8 @@ export default function GrantApplicationsPage() {
                 <div className="text-sm text-muted-foreground">Next hard deadline</div>
                 {nextDeadline ? (
                   <>
-                    <div className={`text-2xl font-bold ${deadlineColor(daysFromToday(nextDeadline.date))}`} data-testid="text-next-deadline-days">
-                      {daysFromToday(nextDeadline.date)} days
+                    <div className={`text-2xl font-bold ${deadlineColor(daysFromToday(nextDeadline.date, now))}`} data-testid="text-next-deadline-days">
+                      {daysFromToday(nextDeadline.date, now)} days
                     </div>
                     <div className="text-xs text-muted-foreground" data-testid="text-next-deadline-detail">
                       {formatDeadline(nextDeadline.date)} · {nextDeadline.pkg}
@@ -494,7 +501,7 @@ export default function GrantApplicationsPage() {
                   <span className={`font-medium ${state.registrations[item.id] ? "line-through text-muted-foreground" : ""}`}>
                     {item.label}
                   </span>
-                  {ownerBadge(item.owner)}
+                  {ownerBadge(item.owner, item.id)}
                 </div>
                 {item.detail && <div className="text-xs text-muted-foreground mt-1">{item.detail}</div>}
               </div>
@@ -513,6 +520,7 @@ export default function GrantApplicationsPage() {
           <PackageCard
             key={pkg.id}
             pkg={pkg}
+            now={now}
             documents={state.documents}
             narratives={state.narratives}
             onToggleDocument={(id) => toggle("documents", id)}
@@ -541,13 +549,14 @@ export default function GrantApplicationsPage() {
 
 interface PackageCardProps {
   pkg: Pkg;
+  now: Date;
   documents: Record<string, boolean>;
   narratives: Record<string, boolean>;
   onToggleDocument: (id: string) => void;
   onToggleNarrative: (key: string) => void;
 }
 
-function PackageCard({ pkg, documents, narratives, onToggleDocument, onToggleNarrative }: PackageCardProps) {
+function PackageCard({ pkg, now, documents, narratives, onToggleDocument, onToggleNarrative }: PackageCardProps) {
   const Icon = pkg.icon;
   const docDone = pkg.documents.filter((d) => documents[d.id]).length;
   const docTotal = pkg.documents.length;
@@ -581,11 +590,11 @@ function PackageCard({ pkg, documents, narratives, onToggleDocument, onToggleNar
             <Badge variant="outline" className="font-mono" data-testid={`badge-progress-${pkg.id}`}>
               {overall}% ready
             </Badge>
-            <a href={pkg.submitUrl} target="_blank" rel="noopener noreferrer">
-              <Button variant="default" size="sm" data-testid={`button-submit-${pkg.id}`}>
+            <Button variant="default" size="sm" asChild data-testid={`button-submit-${pkg.id}`}>
+              <a href={pkg.submitUrl} target="_blank" rel="noopener noreferrer">
                 Open submission portal <ExternalLink className="h-3 w-3 ml-1" />
-              </Button>
-            </a>
+              </a>
+            </Button>
           </div>
         </div>
       </CardHeader>
@@ -613,7 +622,7 @@ function PackageCard({ pkg, documents, narratives, onToggleDocument, onToggleNar
           </div>
           <div className="space-y-2">
             {pkg.deadlines.map((d, i) => {
-              const days = daysFromToday(d.date);
+              const days = daysFromToday(d.date, now);
               return (
                 <div
                   key={i}
@@ -650,11 +659,11 @@ function PackageCard({ pkg, documents, narratives, onToggleDocument, onToggleNar
                     <div className="font-medium">{sub.name}</div>
                     <div className="text-xs text-muted-foreground">{sub.oppNumber}</div>
                   </div>
-                  <a href={sub.submitUrl} target="_blank" rel="noopener noreferrer">
-                    <Button variant="outline" size="sm" data-testid={`button-subapp-${pkg.id}-${i}`}>
+                  <Button variant="outline" size="sm" asChild data-testid={`button-subapp-${pkg.id}-${i}`}>
+                    <a href={sub.submitUrl} target="_blank" rel="noopener noreferrer">
                       Open <ExternalLink className="h-3 w-3 ml-1" />
-                    </Button>
-                  </a>
+                    </a>
+                  </Button>
                 </div>
               ))}
             </div>
@@ -692,7 +701,7 @@ function PackageCard({ pkg, documents, narratives, onToggleDocument, onToggleNar
                         {sec.pageGuide && (
                           <span className="text-xs text-muted-foreground">({sec.pageGuide})</span>
                         )}
-                        {ownerBadge(sec.owner)}
+                        {ownerBadge(sec.owner, `${pkg.id}-narr-${i}`)}
                       </div>
                     </div>
                   </div>
@@ -724,7 +733,7 @@ function PackageCard({ pkg, documents, narratives, onToggleDocument, onToggleNar
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className={`text-sm ${documents[doc.id] ? "line-through text-muted-foreground" : ""}`}>{doc.label}</span>
-                      {ownerBadge(doc.owner)}
+                      {ownerBadge(doc.owner, doc.id)}
                     </div>
                   </div>
                 </div>

@@ -106,6 +106,7 @@ const programMgmtItems: NavItem[] = [
 
 const grantEngineItems: NavItem[] = [
   { title: "Live Grant Opportunities", url: "/grants", icon: Target },
+  { title: "Application Tracker", url: "/grants/applications", icon: ClipboardCheck },
   { title: "Grant Packages", url: "/grant-packages", icon: Package },
   { title: "St. David's Prep", url: "/stdavids-prep", icon: Heart },
   { title: "Benefits Intel", url: "/benefits", icon: Shield },
