@@ -404,7 +404,15 @@ export default function GrantHubPage() {
       toast({ title: `SAM.gov Refresh Complete`, description: `Imported ${data.imported} new opportunities (${data.skipped} already existed). ${data.newHighFitAlerts} high-fit alerts created.` });
     },
     onError: (error: Error) => {
-      toast({ title: "Error", description: error.message || "SAM.gov refresh failed. Check API key configuration or try again later.", variant: "destructive" });
+      const msg = error.message || "";
+      const isAuth = /401|unauthorized/i.test(msg);
+      toast({
+        title: isAuth ? "Sign in required" : "SAM.gov refresh failed",
+        description: isAuth
+          ? "Click Sign In in the sidebar, then try Refresh SAM.gov again."
+          : (msg || "Try again in a moment, or check that the SAM.gov API key is configured."),
+        variant: "destructive",
+      });
     },
   });
 
