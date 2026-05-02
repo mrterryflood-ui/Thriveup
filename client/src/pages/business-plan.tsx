@@ -461,7 +461,7 @@ export default function BusinessPlanPage() {
             </div>
           </Card>
           <div className="mt-8 flex flex-wrap justify-center gap-6 text-xs text-muted-foreground">
-            <span>mr.terryflood@gmail.com</span>
+            <span>president@thecollaborativeadvocate.org</span>
             <span>&middot;</span>
             <span>The Collaborative Advocate Foundation 501(c)(3)</span>
             <span>&middot;</span>

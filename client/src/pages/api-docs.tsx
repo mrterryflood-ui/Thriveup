@@ -173,7 +173,9 @@ export default function APIDocsPage() {
             Contact our team for API key provisioning and integration support.
           </p>
           <div className="text-sm text-muted-foreground">
-            sisnett.meredith@gmail.com | mr.terryflood@gmail.com
+            <a href="mailto:president@thecollaborativeadvocate.org" className="text-primary hover:underline" data-testid="link-contact-president">president@thecollaborativeadvocate.org</a>
+            {" · "}
+            <a href="mailto:programs@thecollaborativeadvocate.org" className="text-primary hover:underline" data-testid="link-contact-programs">programs@thecollaborativeadvocate.org</a>
           </div>
         </CardContent>
       </Card>

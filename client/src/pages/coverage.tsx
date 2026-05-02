@@ -276,7 +276,7 @@ export default function CoveragePage() {
                     Founder-led: every first conversation is with Dr. Terry Flood directly.
                   </span>
                 </div>
-                <a href="mailto:mr.terryflood@gmail.com?subject=Bring%20TCAF%20to%20our%20county">
+                <a href="mailto:president@thecollaborativeadvocate.org?subject=Bring%20TCAF%20to%20our%20county">
                   <Button size="lg" className="gap-2" data-testid="button-request-deployment">
                     <Mail className="h-4 w-4" /> Start a conversation
                     <ArrowRight className="h-4 w-4" />

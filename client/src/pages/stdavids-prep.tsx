@@ -22,7 +22,7 @@ const DOCUMENTS = [
     description: "What to say when inviting community members to a listening session. St. David's scores community voice as their #1 criterion.",
     content: `COMMUNITY LISTENING SESSION — INVITATION SCRIPT
 The Collaborative Advocate Foundation
-Dr. Terry Flood, Founder & CEO
+President, TCAF
 
 ═══════════════════════════════════════════════════
 WHO TO INVITE
@@ -51,7 +51,7 @@ WHERE TO HOLD SESSIONS:
 WHAT TO SAY — THE INVITATION
 ═══════════════════════════════════════════════════
 
-"I'm Dr. Terry Flood. I run The Collaborative Advocate Foundation here in Pflugerville. We're building something that's supposed to help people access benefits — SNAP, Medicaid, housing vouchers, childcare, all of it. But I don't want to build what I think you need. I want to hear what's actually happening when you try to get help.
+"I'm with The Collaborative Advocate Foundation here in Pflugerville. We're building something that's supposed to help people access benefits — SNAP, Medicaid, housing vouchers, childcare, all of it. But I don't want to build what I think you need. I want to hear what's actually happening when you try to get help.
 
 What worked? What didn't? Where did the system lose you?
 
@@ -165,7 +165,7 @@ Subject: Partnership Opportunity — St. David's We All Benefit 2.0 | The Collab
 
 Dear [Name],
 
-Thank you for taking my call. As discussed, I'm Dr. Terry Flood, Founder and CEO of The Collaborative Advocate Foundation (TCAF) — a veteran-founded, Black-led 501(c)(3) nonprofit based in Pflugerville, TX.
+Thank you for taking my call. As discussed, I'm the President of The Collaborative Advocate Foundation (TCAF) — a veteran-founded, Black-led 501(c)(3) nonprofit based in Pflugerville, TX.
 
 We are preparing an application for St. David's Foundation's "We All Benefit 2.0: Building Economic Stability" grant program, and I believe a partnership with [Organization Name] would strengthen both our work and the Central Texas communities we serve.
 
@@ -190,11 +190,11 @@ Thank you for your time and your work serving Central Texas communities.
 
 Respectfully,
 Dr. Terry Flood, DHA
-Founder & CEO, The Collaborative Advocate Foundation
+President, The Collaborative Advocate Foundation
 U.S. Army Veteran — Bronze Star x2
 EIN: 41-3618003
 17912 Stefano Drive, Pflugerville, TX 78660
-Email: mr.terryflood@gmail.com
+Email: president@thecollaborativeadvocate.org
 Website: thrivingcommunitiesforall.com
 
 ═══════════════════════════════════════════════════
@@ -614,7 +614,7 @@ DOCUMENTS YOU NEED TO GATHER
 
 □ ORGANIZATIONAL CHART
   Action: Simple chart showing:
-  Dr. Flood (CEO) → Program Staff (to be hired)
+  President, TCAF → Program Staff (to be hired)
                    → Strategic Advisor (Meredith)
                    → Board of Directors (governance)
 
@@ -672,7 +672,7 @@ Subject: Inquiry — We All Benefit 2.0 | 2026 Application Timeline
 
 Dear Ms. Thompson,
 
-My name is Dr. Terry Flood, Founder and CEO of The Collaborative Advocate Foundation, a veteran-founded, Black-led 501(c)(3) nonprofit based in Pflugerville, TX.
+My name is the President of The Collaborative Advocate Foundation, a veteran-founded, Black-led 501(c)(3) nonprofit based in Pflugerville, TX.
 
 I'm writing to inquire about the timeline for the 2026 cycle of the "We All Benefit 2.0: Building Economic Stability" grant program. We are actively preparing our Letter of Intent and want to ensure we're aligned with your schedule.
 
@@ -686,11 +686,11 @@ Thank you for your time and for St. David's Foundation's commitment to Central T
 
 Respectfully,
 Dr. Terry Flood, DHA
-Founder & CEO
+President
 The Collaborative Advocate Foundation
 EIN: 41-3618003
 17912 Stefano Drive, Pflugerville, TX 78660
-Email: mr.terryflood@gmail.com
+Email: president@thecollaborativeadvocate.org
 Website: thrivingcommunitiesforall.com
 U.S. Army Veteran — Bronze Star x2
 

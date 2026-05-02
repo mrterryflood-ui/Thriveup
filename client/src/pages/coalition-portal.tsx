@@ -678,7 +678,7 @@ export default function CoalitionPortalPage() {
             <Card className="bg-muted/30">
               <CardContent className="pt-4 text-center space-y-2">
                 <p className="text-sm font-medium">Questions? Reach out directly:</p>
-                <a href="mailto:mr.terryflood@gmail.com" className="inline-flex items-center gap-1 text-sm text-primary hover:underline"><Mail className="h-4 w-4" /> mr.terryflood@gmail.com</a>
+                <a href="mailto:president@thecollaborativeadvocate.org" className="inline-flex items-center gap-1 text-sm text-primary hover:underline"><Mail className="h-4 w-4" /> president@thecollaborativeadvocate.org</a>
                 <p className="text-xs text-muted-foreground">The Collaborative Advocate Foundation · 501(c)(3) · EIN 41-3618003<br />17912 Stefano Drive, Pflugerville, TX 78660 · Williamson County</p>
               </CardContent>
             </Card>

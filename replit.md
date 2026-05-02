@@ -65,3 +65,50 @@ Key architectural features and design decisions include:
 - **SDOH Explorer SVI Tab:** `/sdoh-explorer` → Vulnerability Map tab — Prominent SVI vulnerability score, 4 theme breakdowns, risk factor prevalence analysis, protective factor identification, adjacent community resources, cross-page navigation to Opportunity Youth, Transition Plans, Benefits Screener, Community Map, and Grant Narrative.
 - **Opportunity Youth Neighborhood Intel:** `/opportunity-youth` → Neighborhood Intel tab — SVI data surfaced for youth outreach targeting, risk factors with OY-specific explanations (why each factor matters for disconnected youth), protective factors with implementation science notes on how to leverage them, high-vulnerability tract table with "Design Outreach Strategy" AI integration, adjacent resources, cross-page links.
 - **Grant Command Center:** `/grant-command-center` — 92 grants tracked across all ecosystem platforms including 31 CDMRP programs ($1.187B addressable, CFDA 12.420). CDMRP organized by tier: Tier 1 (14 programs, ~$890M — submit to all), Tier 2 (12 programs, ~$245M — submit 3-4 strongest), Tier 3 (5 programs, ~$52M — concept awards only). All grants have submit portal buttons, criteria in notes, and linked strategy documents. Grant docs at `docs/grants/`. Key docs: `CDMRP-FY2026-Master-Grant-Strategy.md`, `HerHealth-33-Grant-Opportunities-Prospectus.md`, `GRANT-OPPORTUNITY-CRITERIA-MATRIX.md`, `ECOSYSTEM-COMPLETE-PLATFORM-REFERENCE.md` (all 24 platforms, 70 HerHealth conditions, screening tools, data collection, CDMRP topic matching).
+## Funder Readiness Cycles — Apr–May 2026
+
+The site was put through 4 disciplined cycles + 1 architect audit pass to lift it from
+"unfundable" to A/A− across BJA, NSF, Centene, and VA reviewer lenses. Cardinal rules
+applied site-wide:
+
+- **Real, not notional** — every number, partnership, and capability disclosed at its honest
+  status (operational / pilot / in-development / exploratory).
+- **Plain English, no acronym fog** — FIPS labels relabeled "Census Code", ACOS / RPLICE /
+  MAP-GAP defined on first use.
+- **No FIPS-as-jargon to users** — internal data structures preserved; user-visible labels
+  rewritten.
+- **"President" not "CEO"** — TCAF is a 501(c)(3) (pending), not a for-profit.
+- **St. David's "actively evaluating"** — never claimed as awarded.
+- **Institutional email placeholders** — `president@thecollaborativeadvocate.org` and
+  `programs@thecollaborativeadvocate.org` (not personal Gmail).
+
+### Cycle deliverables
+- **Cycle A** (Honesty & Identity): `/about` (ALC + TCAF dual-org card, IRS Tracking
+  281OIP7B), `/non-discrimination`, footer transparency note, `PartnershipStatus` 7-stage
+  badge component, site-wide CEO→President + Gmail→institutional sweep.
+- **Cycle B** (Agency Targeting): `/veterans` (VA SSG Fox), `/behavioral-health` (Centene +
+  St. David's), `/reentry-program` (BJA SCA), `/research` (NSF intellectual merit). Each
+  page evidence-based with honest disclosure banner + partnership pathway.
+- **Cycle C** (Structure & Plain English): sidebar restructured to 8 public pillars
+  (Texas Pilot · Programs · Grant Engine · Research · Community Intel · Workforce ·
+  Justice · Partnerships) with admin-gated operations sections (only shown when
+  `isAdmin`). Healthcare-grants reframed: NOFO ranges + honest disclosure banner.
+- **Cycle D** (Evidence & Polish): `/transparency-matrix` (4-status × 3-category grid),
+  `/stakeholder-map` (29 stakeholders × 6 categories with PartnershipStatus stages),
+  `/open-innovation-lab` (reframes sandbox/dev surface).
+- **Audit Pass**: P0/P1 punch-list executed — `paypal.me/TERRYFLOODCEO` references hidden
+  from visible labels in pricing surfaces, and replaced in business-document templates;
+  `Dr. Terry Flood, CEO` → `President` in funder-facing grant-packages copy; FIPS labels
+  relabeled to "State Census Code" / "County Census Code" in rplice-tools and
+  justice-command-center; `$15M+ Pipeline Value` replaced with NOFO-range tracking.
+
+### Key files added/modified
+- `client/src/pages/about-leadership.tsx`, `client/src/pages/non-discrimination.tsx`
+- `client/src/pages/veterans-program.tsx`, `client/src/pages/behavioral-health-program.tsx`,
+  `client/src/pages/reentry-program.tsx`, `client/src/pages/research-methodology.tsx`
+- `client/src/pages/transparency-matrix.tsx`, `client/src/pages/stakeholder-map.tsx`,
+  `client/src/pages/open-innovation-lab.tsx`
+- `client/src/components/partnership-status.tsx` (7-stage `PartnershipStage` type +
+  `<PartnershipStatusLegend>`)
+- `client/src/components/app-sidebar.tsx` (8-pillar restructure with admin gating)
+- `client/src/pages/healthcare-grants.tsx` (honest-disclosure banner + NOFO reframe)

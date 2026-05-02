@@ -636,7 +636,7 @@ export default function AustinHousingInitiativePage() {
             <p className="text-xl text-blue-200 mb-4">It's built. It's running. 24 platforms heartbeating right now.</p>
             <div className="flex justify-center gap-3 flex-wrap">
               <Badge className="bg-white/20 border-white/30 text-white">ThriveUp Academy | 501(c)(3)</Badge>
-              <Badge className="bg-white/20 border-white/30 text-white">Dr. Terry Flood, Founder & CEO</Badge>
+              <Badge className="bg-white/20 border-white/30 text-white">Dr. Terry Flood, President</Badge>
               <Badge className="bg-white/20 border-white/30 text-white">thrivingcommunitiesforall.com</Badge>
             </div>
           </div>

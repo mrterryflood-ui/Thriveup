@@ -1223,7 +1223,7 @@ export function registerGrantRoutes(app: Express) {
         SAMHSA: `Generate a SAMHSA Community Mental Health grant narrative section for ThriveUp, a holistic youth development platform with integrated behavioral health support. The program follows a Three-Pillar framework: Relief (immediate stabilization), Stabilize (skill building), and Contribute (career pathways and community engagement). Focus on trauma-informed care, behavioral health screening, mental health integration, and whole-child support.`,
         ST_DAVIDS_LOI: `Generate a Letter of Intent (LOI) for St. David's Foundation "We All Benefit 2.0: Building Economic Stability" grant program.
 
-APPLICANT: The Collaborative Advocate Foundation, 501(c)(3), EIN 41-3618003. Veteran-founded, Black-led. Dr. Terry Flood, Founder & CEO. 17912 Stefano Drive, Pflugerville, TX 78660.
+APPLICANT: The Collaborative Advocate Foundation, 501(c)(3), EIN 41-3618003. Veteran-founded, Black-led. Dr. Terry Flood, President. 17912 Stefano Drive, Pflugerville, TX 78660.
 
 VOICE & VALUES — This is who we are:
 - We are EQUITY-FOCUSED and EQUALITY and ACCESS driven. Not theoretical equity — tract-level data that exposes the neighborhoods county averages hide.
@@ -1330,7 +1330,7 @@ This is NOT a grant request. This is a mutual-value partnership proposal.
 
 ABOUT THRIVEUP:
 - The Collaborative Advocate Foundation, 501(c)(3), EIN 41-3618003
-- Veteran-founded, Black-led, Dr. Terry Flood, Founder & CEO
+- Veteran-founded, Black-led, Dr. Terry Flood, President
 - 24-platform Autonomous Collaborative Operating System (ACOS)
 - ${Number(participants.count)} participants served, ${Number(outcomes.count)} outcomes tracked
 - Tract-level data methodology across 8 federal sources
@@ -5663,10 +5663,10 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
       doc.fontSize(11).fillColor(DARK).text("SUBMITTED BY:", 60, 380, { width: PW });
       doc.fontSize(14).fillColor(NAVY).font("Helvetica-Bold").text("The Collaborative Advocate Foundation (TCAF)", 60, 400, { width: PW });
       doc.font("Helvetica");
-      doc.fontSize(10).fillColor(MEDIUM).text("Dr. Terry Flood, DHA/DBA \u2014 Founder & CEO / Principal Investigator", 60, 424, { width: PW });
+      doc.fontSize(10).fillColor(MEDIUM).text("Dr. Terry Flood, DHA/DBA \u2014 President / Principal Investigator", 60, 424, { width: PW });
       doc.text("EIN: 41-3618003 | 501(c)(3) Tax-Exempt Nonprofit", 60, 440, { width: PW });
       doc.text("17912 Stefano Drive, Pflugerville, TX 78660", 60, 456, { width: PW });
-      doc.text("Email: mr.terryflood@gmail.com", 60, 472, { width: PW });
+      doc.text("Email: president@thecollaborativeadvocate.org", 60, 472, { width: PW });
 
       doc.fontSize(10).fillColor(LIGHT).text("Application Track: National/Regional Intermediary (Track 1)", 60, 510, { width: PW });
       doc.text("Funding Requested: $5,100,000 (Maximum for Intermediaries)", 60, 526, { width: PW });
@@ -6580,7 +6580,7 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
           },
           readinessChecklist: [
             { item: "Expression of Interest Draft", status: "complete", note: "Full EOI drafted — 14 sections, theory of change, evidence base, budget" },
-            { item: "Organization Details", status: "complete", note: "TCAF 501(c)(3), EIN 41-3618003, Dr. Terry Flood Founder & CEO" },
+            { item: "Organization Details", status: "complete", note: "TCAF 501(c)(3), EIN 41-3618003, Dr. Terry Flood President" },
             { item: "Alignment Analysis", status: "complete", note: "Strong fit across all Agency Fund criteria — agency, dignity, technology, scale" },
             { item: "Evidence Base", status: "complete", note: "Stillwell (2026) SVI research, 8 federal data sources, implementation science frameworks" },
             { item: "Path to Scale (1M+ users)", status: "complete", note: "Zero-marginal-cost tech, church networks, workforce board expansion strategy" },

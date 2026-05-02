@@ -1098,7 +1098,7 @@ export default function SDOHExplorerPage() {
                   { step: 4, title: "Calculate Rates", detail: "For each tract: Poverty Rate = B17001_002E / B17001_001E × 100. Limited English = (B16004_025E + B16004_047E) / B16004_001E × 100. No Vehicle = B08141_002E / B08141_001E × 100. No Broadband = B28002_013E / B28002_001E × 100." },
                   { step: 5, title: "Compute Barrier Index", detail: "Barrier Index = (Limited English % × 0.25) + (No Vehicle % × 0.20) + (No Broadband % × 0.20) + (Poverty Rate × 0.20). This composite score identifies neighborhoods with compounding access barriers." },
                   { step: 6, title: "Estimate Eligibility & Gap", detail: "Eligible = Total Pop × (Poverty Rate / 100) × 1.3. Enrolled ≈ Eligible × SNAP Rate. Gap = Eligible - Enrolled. The gap represents people who likely qualify for benefits but are not receiving them." },
-                  { step: 7, title: "Verify Our Numbers", detail: "Compare your calculations to our results. If you find discrepancies, we want to know — contact mr.terryflood@gmail.com. Science requires accountability." },
+                  { step: 7, title: "Verify Our Numbers", detail: "Compare your calculations to our results. If you find discrepancies, we want to know — contact president@thecollaborativeadvocate.org. Science requires accountability." },
                 ].map(step => (
                   <div key={step.step} className="flex items-start gap-4 p-4 rounded-xl bg-white dark:bg-background border" data-testid={`replicate-step-${step.step}`}>
                     <Badge className="shrink-0 h-8 w-8 rounded-full flex items-center justify-center text-sm">{step.step}</Badge>

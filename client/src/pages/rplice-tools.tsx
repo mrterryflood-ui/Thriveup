@@ -1303,7 +1303,7 @@ function AICommunityAnalysis() {
     const cityName = preset?.cityName || customCity || "Custom Region";
 
     if (!stateFips || !countyFips) {
-      toast({ title: "Select a region or enter state/county FIPS codes", variant: "destructive" });
+      toast({ title: "Select a region or enter state/county Census codes", variant: "destructive" });
       return;
     }
 
@@ -1415,12 +1415,12 @@ function AICommunityAnalysis() {
           {!selectedRegion && (
             <div className="grid grid-cols-3 gap-3">
               <div className="space-y-1">
-                <Label className="text-xs">State FIPS</Label>
-                <Input value={customState} onChange={e => setCustomState(e.target.value)} placeholder="e.g. 36" data-testid="input-state-fips" />
+                <Label className="text-xs">State Census Code</Label>
+                <Input value={customState} onChange={e => setCustomState(e.target.value)} placeholder="e.g. 48 (Texas)" data-testid="input-state-fips" />
               </div>
               <div className="space-y-1">
-                <Label className="text-xs">County FIPS</Label>
-                <Input value={customCounty} onChange={e => setCustomCounty(e.target.value)} placeholder="e.g. 029" data-testid="input-county-fips" />
+                <Label className="text-xs">County Census Code</Label>
+                <Input value={customCounty} onChange={e => setCustomCounty(e.target.value)} placeholder="e.g. 453 (Travis)" data-testid="input-county-fips" />
               </div>
               <div className="space-y-1">
                 <Label className="text-xs">City Name</Label>
@@ -1783,7 +1783,7 @@ function GrantNarrativeGenerator() {
     const cityName = preset?.cityName || customCity || "Custom Region";
 
     if (!stateFips || !countyFips) {
-      toast({ title: "Select a region or enter state/county FIPS codes", variant: "destructive" });
+      toast({ title: "Select a region or enter state/county Census codes", variant: "destructive" });
       return;
     }
 
@@ -1909,12 +1909,12 @@ function GrantNarrativeGenerator() {
           {!selectedRegion && (
             <div className="grid grid-cols-3 gap-3">
               <div className="space-y-1">
-                <Label className="text-xs">State FIPS</Label>
-                <Input value={customState} onChange={e => setCustomState(e.target.value)} placeholder="e.g. 36" data-testid="input-grant-state-fips" />
+                <Label className="text-xs">State Census Code</Label>
+                <Input value={customState} onChange={e => setCustomState(e.target.value)} placeholder="e.g. 48 (Texas)" data-testid="input-grant-state-fips" />
               </div>
               <div className="space-y-1">
-                <Label className="text-xs">County FIPS</Label>
-                <Input value={customCounty} onChange={e => setCustomCounty(e.target.value)} placeholder="e.g. 029" data-testid="input-grant-county-fips" />
+                <Label className="text-xs">County Census Code</Label>
+                <Input value={customCounty} onChange={e => setCustomCounty(e.target.value)} placeholder="e.g. 453 (Travis)" data-testid="input-grant-county-fips" />
               </div>
               <div className="space-y-1">
                 <Label className="text-xs">City Name</Label>
@@ -2495,7 +2495,7 @@ function OutcomeBaselineDashboard() {
     const targets = baseline.targets || {};
     let md = `# Outcome Baseline Report\n\n`;
     md += `**Region:** ${baseline.regionName}\n`;
-    md += `**State FIPS:** ${baseline.stateFips} | **County FIPS:** ${baseline.countyFips}\n`;
+    md += `**State Census Code:** ${baseline.stateFips} | **County Census Code:** ${baseline.countyFips}\n`;
     md += `**Locked:** ${new Date(baseline.createdAt).toLocaleDateString()}\n`;
     md += `**Timeline:** ${baseline.timelineMonths} months\n\n`;
     md += `## Metrics\n\n`;

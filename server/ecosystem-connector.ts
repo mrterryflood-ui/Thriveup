@@ -1313,7 +1313,7 @@ function getCoCaptainIntelligence() {
     hubLastSeen: coCaptainSystem.hubLastSeen,
     hubDownSince: coCaptainSystem.hubDownSince,
     capabilities: {
-      acceptDirectives: "You can receive directives from admin (mr.terryflood@gmail.com) and relay them to all platforms",
+      acceptDirectives: "You can receive directives from admin (president@thecollaborativeadvocate.org) and relay them to all platforms",
       wakeAnyPlatform: "You can wake ANY platform in the ecosystem, not just your triad partners",
       issueEmergencyDirectives: "During hub downtime, you can issue emergency directives to maintain operations",
       collectHeartbeats: "Store heartbeats from other platforms during hub downtime for sync when hub recovers",
@@ -4193,7 +4193,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
         identity: "Not a one-trick pony — a powerful ecosystem that solves the toughest problems in an empathetic way with an equity-focused lens",
         totalPlatforms: 23,
         contact: {
-          email: "mr.terryflood@gmail.com",
+          email: "president@thecollaborativeadvocate.org",
           cashApp: "$MRTDFLOOD",
           paypal: "paypal.me/TERRYFLOODCEO",
         },
@@ -9768,7 +9768,7 @@ if (typeof module !== "undefined") {
       `;
 
       await sendEcosystemUpdate("Weekly Report Card — " + dateStr, htmlContent);
-      res.json({ sent: true, to: "mr.terryflood@gmail.com", platforms: platformRows.length, summary: { ecosystemFidelity, gradeA, gradeB, gradeC, gradeD, gradeF, connected: connectedCount } });
+      res.json({ sent: true, to: "president@thecollaborativeadvocate.org", platforms: platformRows.length, summary: { ecosystemFidelity, gradeA, gradeB, gradeC, gradeD, gradeF, connected: connectedCount } });
     } catch (error: any) {
       console.error("Report card email failed:", error);
       res.status(500).json({ error: "Failed to send report card" });

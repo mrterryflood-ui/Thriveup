@@ -13,7 +13,10 @@ import {
   Globe, Users, Stethoscope, Target, Building2, Calendar,
   ArrowRight, Star, Sparkles, Activity, BookOpen, Baby,
   Scale, TrendingUp, MapPin, FileText, Layers, AlertTriangle,
+  Info,
 } from "lucide-react";
+
+const HONEST_DISCLOSURE = "TCAF/ALC has not yet held an award from this opportunity. Award amounts shown are the public NOFO range — individual awards are determined by the funding agency at time of award. Click through to the funder for the most current, official details.";
 
 interface GrantOpportunity {
   id: string;
@@ -38,7 +41,7 @@ const GRANT_OPPORTUNITIES: GrantOpportunity[] = [
     name: "SAMHSA Community Mental Health Centers",
     funder: "SAMHSA",
     category: "mental-health",
-    amount: "$1M–$4M per year",
+    amount: "$1M–$4M (NOFO range — verify current cycle)",
     deadline: "Rolling — Check grants.gov",
     description: "Certified Community Behavioral Health Clinics expansion. Funds integrated mental health and substance use services with 24/7 crisis response, care coordination, and evidence-based practices.",
     url: "https://www.samhsa.gov/grants",
@@ -54,7 +57,7 @@ const GRANT_OPPORTUNITIES: GrantOpportunity[] = [
     name: "HRSA Community Health Worker Training",
     funder: "HRSA",
     category: "community-health",
-    amount: "$500K–$1.5M per year",
+    amount: "$500K–$1.5M (NOFO range — verify current cycle)",
     deadline: "Varies by cycle",
     description: "Training and deploying community health workers in underserved communities. Focuses on health promotion, care navigation, chronic disease prevention, and social determinants of health.",
     url: "https://www.hrsa.gov/grants",
@@ -70,7 +73,7 @@ const GRANT_OPPORTUNITIES: GrantOpportunity[] = [
     name: "HRSA Maternal & Child Health",
     funder: "HRSA",
     category: "womens-health",
-    amount: "$500K–$2M per year",
+    amount: "$500K–$2M (NOFO range — verify current cycle)",
     deadline: "Annual cycle — Check HRSA.gov",
     description: "Improving maternal and child health outcomes, especially in underserved populations. Addresses maternal mortality, perinatal mental health, infant health disparities, and postpartum support.",
     url: "https://mchb.hrsa.gov/funding",
@@ -86,7 +89,7 @@ const GRANT_OPPORTUNITIES: GrantOpportunity[] = [
     name: "CDC Racial & Ethnic Health Disparities",
     funder: "CDC",
     category: "health-equity",
-    amount: "$250K–$1M per year",
+    amount: "$250K–$1M (NOFO range — verify current cycle)",
     deadline: "Annual — Check grants.gov",
     description: "Reducing health disparities in racial and ethnic minority populations through community-based interventions, data-driven strategies, and culturally responsive care models.",
     url: "https://www.cdc.gov/funding",
@@ -102,7 +105,7 @@ const GRANT_OPPORTUNITIES: GrantOpportunity[] = [
     name: "NIMHD Health Disparities Research",
     funder: "NIH / NIMHD",
     category: "research",
-    amount: "$250K–$500K per year",
+    amount: "$250K–$500K (NOFO range — verify current cycle)",
     deadline: "Standard NIH cycles",
     description: "Research grants focused on understanding and eliminating health disparities. Supports community-engaged research, implementation science studies, and intervention development.",
     url: "https://www.nimhd.nih.gov/funding/",
@@ -118,7 +121,7 @@ const GRANT_OPPORTUNITIES: GrantOpportunity[] = [
     name: "Office on Women's Health Programs",
     funder: "HHS / OWH",
     category: "womens-health",
-    amount: "$200K–$800K per year",
+    amount: "$200K–$800K (NOFO range — verify current cycle)",
     deadline: "Annual — Check womenshealth.gov",
     description: "Programs advancing women's health through evidence-based interventions, community health education, preventive care access, and addressing gender-specific health disparities.",
     url: "https://www.womenshealth.gov/about-us/funding-opportunities",
@@ -134,7 +137,7 @@ const GRANT_OPPORTUNITIES: GrantOpportunity[] = [
     name: "SAMHSA Suicide Prevention Programs",
     funder: "SAMHSA",
     category: "mental-health",
-    amount: "$500K–$2M per year",
+    amount: "$500K–$2M (NOFO range — verify current cycle)",
     deadline: "Annual — Check grants.gov",
     description: "Community-based suicide prevention, mental health screening, crisis intervention, and postvention support. Emphasis on high-risk populations including veterans, youth, and minority communities.",
     url: "https://www.samhsa.gov/grants",
@@ -150,7 +153,7 @@ const GRANT_OPPORTUNITIES: GrantOpportunity[] = [
     name: "HRSA Behavioral Health Workforce",
     funder: "HRSA",
     category: "mental-health",
-    amount: "$500K–$1.5M per year",
+    amount: "$500K–$1.5M (NOFO range — verify current cycle)",
     deadline: "Annual — Check HRSA.gov",
     description: "Expanding the behavioral health workforce in underserved areas. Training mental health counselors, peer support specialists, and clinical supervisors in high-need communities.",
     url: "https://bhw.hrsa.gov/funding",
@@ -166,7 +169,7 @@ const GRANT_OPPORTUNITIES: GrantOpportunity[] = [
     name: "CDC Chronic Disease Prevention",
     funder: "CDC",
     category: "community-health",
-    amount: "$300K–$1M per year",
+    amount: "$300K–$1M (NOFO range — verify current cycle)",
     deadline: "Annual — Check grants.gov",
     description: "Preventing and managing chronic diseases (diabetes, heart disease, hypertension) through community-based programs, health education, and addressing social determinants of health.",
     url: "https://www.cdc.gov/chronic-disease/php/funding-and-partners/",
@@ -247,7 +250,7 @@ const GRANT_OPPORTUNITIES: GrantOpportunity[] = [
     funder: "PCORI",
     category: "research",
     amount: "$250K–$2M",
-    deadline: "Multiple cycles per year",
+    deadline: "Multiple cycles (NOFO range — verify current cycle)",
     description: "Patient-centered comparative effectiveness research. Funds studies that engage patients and communities in research design, with emphasis on reducing health disparities and improving care delivery.",
     url: "https://www.pcori.org/funding-opportunities",
     focus: ["Patient-centered research", "Comparative effectiveness", "Community engagement", "Care delivery improvement"],
@@ -401,8 +404,8 @@ export default function HealthcareGrantsPage() {
                 <p className="text-xs text-rose-200">Open / Rolling</p>
               </div>
               <div className="bg-white/10 rounded-md px-4 py-2">
-                <p className="text-2xl font-bold text-white">{grantStats.totalPipeline || "$15M+"}</p>
-                <p className="text-xs text-rose-200">Pipeline Value</p>
+                <p className="text-2xl font-bold text-white">{allGrants.length}</p>
+                <p className="text-xs text-rose-200">NOFOs in catalog (range-tracked)</p>
               </div>
               <div className="bg-white/10 rounded-md px-4 py-2">
                 <p className="text-2xl font-bold text-white">{grantStats.avgFitScore || Math.round(allGrants.reduce((s, g) => s + g.alignmentScore, 0) / allGrants.length)}%</p>
@@ -414,6 +417,19 @@ export default function HealthcareGrantsPage() {
       </div>
 
       <div className="max-w-6xl mx-auto px-6 py-8 space-y-8">
+        <Card className="border-amber-300 bg-amber-50 dark:bg-amber-950/30" data-testid="card-honest-disclosure">
+          <CardContent className="pt-5">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="h-5 w-5 text-amber-700 dark:text-amber-400 shrink-0 mt-0.5" aria-hidden="true" />
+              <div className="text-sm space-y-1.5">
+                <p className="font-semibold">Honest disclosure — what this catalog is</p>
+                <p className="text-muted-foreground">{HONEST_DISCLOSURE} The "Avg Alignment" score reflects how each opportunity aligns with TCAF/ALC's program model — it is not a probability of award. See{" "}
+                  <Link href="/transparency-matrix" className="text-primary hover:underline">our Transparency Matrix</Link> for what is currently funded vs in-development.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4" data-testid="section-category-stats">
           {categoryStats.map(cat => (
             <Card

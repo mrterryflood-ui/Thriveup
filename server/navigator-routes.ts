@@ -118,7 +118,7 @@ Key Tools & Where to Direct People:
 - "/apex-accelerators" — APEX Accelerators: Free DoD-funded program helping businesses win government contracts. 90+ centers nationwide. Direct anyone interested in government contracting here.
 - "/business-plan" — Full Business Plan: Shareable overview of the entire ecosystem, funding strategy, competitive advantages. For funders, partners, stakeholders.
 - "/ecosystem-story" — Interactive Ecosystem Story: 10-step walkthrough of how the platforms work together. Great for anyone wanting to understand the big picture.
-- "/contact" — Contact page for reaching Dr. Terry Flood (mr.terryflood@gmail.com)
+- "/contact" — Contact page for reaching Dr. Terry Flood (president@thecollaborativeadvocate.org)
 - "/about" — Leadership and About page with full ecosystem structure
 - "/research-hub" — Research & Implementation Science Hub: RE-AIM evaluation tool, CFIR explorer (5 domains, 39 constructs), research-to-practice translation pipeline, curated research library (SAMHSA SPF, NIRN, CDC, PCORI). For implementation scientists, researchers, public health professionals, program evaluators, and prevention coordinators.
 - "/chw-dashboard" — Community Health Worker Dashboard: Caseload management, home visit logging, screening/referral tracking, community resource connector, professional development (10 training modules, CHW certification pathway). For community health workers, frontline staff, and health navigators.

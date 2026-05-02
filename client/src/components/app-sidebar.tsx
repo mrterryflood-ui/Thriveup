@@ -48,17 +48,15 @@ interface NavItem {
 }
 
 const communityIntelItems: NavItem[] = [
+  { title: "Transparency Dashboard", url: "/transparency", icon: Activity },
+  { title: "Impact Dashboard", url: "/impact", icon: TrendingUp },
   { title: "Resident Journey (demo)", url: "/resident-journey", icon: Route },
   { title: "Case Manager View", url: "/case-manager", icon: Shield },
-  { title: "Dashboard", url: "/dashboard", icon: Home },
-  { title: "Neighborhood Intel", url: "/neighborhood", icon: MapPin },
-  { title: "Community", url: "/community", icon: Globe },
-  { title: "Community Map", url: "/community-map", icon: Map },
   { title: "Resource Finder", url: "/resources", icon: MapPin },
+  { title: "Community Map", url: "/community-map", icon: Map },
+  { title: "Neighborhood Intel", url: "/neighborhood", icon: MapPin },
   { title: "Opportunity Youth", url: "/opportunity-youth", icon: Users },
-  { title: "Impact Dashboard", url: "/impact", icon: TrendingUp },
-  { title: "Transparency Dashboard", url: "/transparency", icon: Activity },
-  { title: "Directive Compliance", url: "/directive-compliance", icon: ClipboardCheck },
+  { title: "Community", url: "/community", icon: Globe },
 ];
 
 const workforceSolutionsItems: NavItem[] = [
@@ -77,15 +75,28 @@ const workforceSolutionsItems: NavItem[] = [
 ];
 
 const justiceReentryItems: NavItem[] = [
-  { title: "Justice Command Center", url: "/justice-command-center", icon: Shield },
+  { title: "Reentry Program (overview)", url: "/reentry-program", icon: Scale },
+  { title: "Reentry Operational Dashboard", url: "/reentry", icon: Scale },
   { title: "TX Reentry Stipend Pilot", url: "/reentry-stipend-pilot", icon: Landmark },
-  { title: "Resource Directory", url: "/resource-directory", icon: HandHeart },
-  { title: "Reentry Dashboard", url: "/reentry", icon: Scale },
   { title: "National Reentry Standards", url: "/reentry/standards", icon: Scale },
-  { title: "Coalition Operations", url: "/coalition", icon: Handshake },
   { title: "Strategic Plan", url: "/reentry/strategic-plan", icon: Scale },
   { title: "Outcome Reports", url: "/reentry/outcome-reports", icon: Scale },
+  { title: "Resource Directory", url: "/resource-directory", icon: HandHeart },
   { title: "For Justice Partners", url: "/justice-partners", icon: Handshake },
+  { title: "Justice Command Center", url: "/justice-command-center", icon: Shield },
+];
+
+// Programs — new top-level pillar surfacing the Cycle B agency-aligned program pages.
+// Each program page is a focused, evidence-based, plain-English pitch built around a
+// specific federal/foundation funder's reviewer lens.
+const programsItems: NavItem[] = [
+  { title: "Veterans (SSG Fox VA)", url: "/veterans", icon: Shield },
+  { title: "Behavioral Health (Centene · St. David's)", url: "/behavioral-health", icon: Heart },
+  { title: "Reentry (BJA SCA)", url: "/reentry-program", icon: Scale },
+  { title: "Research & Methodology (NSF)", url: "/research", icon: Microscope },
+  { title: "Health & Wellness", url: "/health-wellness", icon: Activity },
+  { title: "Prevention", url: "/prevention", icon: ShieldCheck },
+  { title: "Healthcare Grants Catalog", url: "/healthcare-grants", icon: Stethoscope },
 ];
 
 const partnershipItems: NavItem[] = [
@@ -213,14 +224,32 @@ const buildCreateItems: NavItem[] = [
 ];
 
 
+// PUBLIC About — the trust surfaces a funder, partner, or community member should see.
+// Operational items (business-plan, business-documents, business-card, etc.) are
+// admin-gated below — they are not part of the public storefront.
 const aboutItems: NavItem[] = [
-  { title: "About / Leadership", url: "/about", icon: Info },
-  { title: "Business Plan", url: "/business-plan", icon: Briefcase },
-  { title: "Business Documents", url: "/business-documents", icon: FileText },
+  { title: "About / Our Structure", url: "/about", icon: Info },
+  { title: "Transparency Matrix", url: "/transparency-matrix", icon: ClipboardCheck },
+  { title: "Stakeholder Engagement Map", url: "/stakeholder-map", icon: Users },
+  { title: "Open Innovation Lab", url: "/open-innovation-lab", icon: Microscope },
+  { title: "Non-Discrimination", url: "/non-discrimination", icon: Shield },
   { title: "Pricing & Services", url: "/pricing", icon: DollarSign },
   { title: "AI Consulting", url: "/ai-consulting", icon: Brain },
   { title: "Contact Us", url: "/contact", icon: Mail },
   { title: "Privacy Policy", url: "/privacy", icon: Shield },
+];
+
+// Admin-only operational pages. Hidden from public navigation; only surfaced when
+// userRole === "admin". These pages contain internal financials, personal contact
+// templates, and operational workspaces not intended for funder/community view.
+const adminOpsItems: NavItem[] = [
+  { title: "Business Plan", url: "/business-plan", icon: Briefcase },
+  { title: "Business Documents", url: "/business-documents", icon: FileText },
+  { title: "Business Card", url: "/business-card", icon: User },
+  { title: "St. David's Operator Workspace", url: "/st-davids-wab2", icon: Wrench },
+  { title: "Ops Center", url: "/ops-center", icon: Activity },
+  { title: "Directive Compliance", url: "/directive-compliance", icon: ClipboardCheck },
+  { title: "API Documentation", url: "/api-docs", icon: Globe },
 ];
 
 const preventionItems: NavItem[] = [
@@ -436,20 +465,26 @@ export function AppSidebar() {
                opportunities, scans Grants.gov + SAM.gov + USASpending + state TX
                + foundations every 24 hours). "Live Grant Opportunities" is the
                top item inside this group. */}
+        {/* PUBLIC NAVIGATION — 8 focused pillars in priority order:
+            1. Texas Pilot (live funded work)
+            2. Programs (agency-aligned program pitches — Cycle B)
+            3. Grant Engine (live grant scanner)
+            4. Research & Methodology (intellectual merit)
+            5. Community Intelligence (transparency + dashboards)
+            6. Workforce & Economic (employer pipelines)
+            7. Criminal Justice & Reentry
+            8. Partnerships & Coalitions
+            Plus: AI Literacy, Where We Operate, About */}
         <NavSection label="Texas (St. David's Pilot)" items={texasPilotItems} location={location} />
+        <NavSection label="Programs" items={programsItems} location={location} />
         <NavSection label="Grant Engine" items={grantEngineItems} location={location} />
+        <NavSection label="Research & Methodology" items={researchItems} location={location} />
         <NavSection label="Community Intelligence" items={communityIntelItems} location={location} />
-        <NavSection label="Workforce Solutions" items={workforceSolutionsItems} location={location} />
+        <NavSection label="Workforce & Economic" items={workforceSolutionsItems} location={location} />
         <NavSection label="Criminal Justice & Reentry" items={justiceReentryItems} location={location} />
         <NavSection label="Partnerships & Coalitions" items={partnershipItems} location={location} />
-        <NavSection label="Data & Reporting" items={dataReportingItems} location={location} />
-        <NavSection label="Program Management" items={programMgmtItems} location={location} />
-        <NavSection label="Prevention" items={preventionItems} location={location} />
-        <NavSection label="Health & Wellness" items={healthWellnessItems} location={location} />
         <NavSection label="Where We Operate" items={whereWeOperateItems} location={location} />
-        <NavSection label="AI Tools" items={aiToolsItems} location={location} />
-        <NavSection label="Research & Implementation" items={researchItems} location={location} />
-        <NavSection label="Case Management" items={caseManagementItems} location={location} />
+        <NavSection label="AI Literacy & Tools" items={aiToolsItems} location={location} />
         {isAuthenticated && (
           <>
             <NavSection label="Student Portal" items={myStudentItems} location={location} />
@@ -500,7 +535,22 @@ export function AppSidebar() {
           </SidebarGroup>
         )}
 
-        <NavSection label="About" items={aboutItems} location={location} />
+        <NavSection label="About & Trust" items={aboutItems} location={location} />
+
+        {/* Admin-only operational sections — surfaced only when userRole === "admin".
+            Includes case management, program management, prevention, health admin,
+            data reporting, and internal business documents that are not part of
+            the public funder-facing storefront. */}
+        {isAdmin && (
+          <>
+            <NavSection label="Admin · Operations" items={adminOpsItems} location={location} />
+            <NavSection label="Admin · Case Management" items={caseManagementItems} location={location} />
+            <NavSection label="Admin · Program Mgmt" items={programMgmtItems} location={location} />
+            <NavSection label="Admin · Prevention" items={preventionItems} location={location} />
+            <NavSection label="Admin · Health Network" items={healthWellnessItems} location={location} />
+            <NavSection label="Admin · Data & Reporting" items={dataReportingItems} location={location} />
+          </>
+        )}
 
         {rank && (
           <SidebarGroup>
@@ -560,9 +610,24 @@ export function AppSidebar() {
             <Shield className="mr-2 h-4 w-4" aria-hidden="true" /> Privacy Policy
           </Button>
         </Link>
-        <div className="flex items-center gap-2 text-xs text-muted-foreground mt-2">
-          <Heart className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-          <span>ThriveUp Academy</span>
+        <Link href="/non-discrimination" aria-label="Non-Discrimination Statement">
+          <Button variant="ghost" size="sm" className="w-full justify-start" data-testid="link-non-discrimination">
+            <Shield className="mr-2 h-4 w-4" aria-hidden="true" /> Non-Discrimination
+          </Button>
+        </Link>
+        <Link href="/about" aria-label="About TCAF and ALC">
+          <Button variant="ghost" size="sm" className="w-full justify-start" data-testid="link-about-footer">
+            <Heart className="mr-2 h-4 w-4" aria-hidden="true" /> About / Our Structure
+          </Button>
+        </Link>
+        <div className="mt-3 pt-2 border-t space-y-1">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <Heart className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+            <span>ThriveUp Academy · TCAF · ALC</span>
+          </div>
+          <p className="text-[10px] text-muted-foreground leading-snug" data-testid="text-pilot-transparency">
+            Texas-first pilot operating in Travis County. Open methodology and Hub Adoption Kit released for nationwide replication. ALC is the 501(c)(3) fiduciary; TCAF 501(c)(3) status pending IRS determination (Tracking 281OIP7B, filed 4/27/2026).
+          </p>
         </div>
       </SidebarFooter>
     </Sidebar>

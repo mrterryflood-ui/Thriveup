@@ -597,9 +597,7 @@ export default function JusticePartnersPage() {
       <div className="text-center py-4">
         <p className="text-muted-foreground">
           For integration inquiries, contact:{" "}
-          <a href="mailto:sisnett.meredith@gmail.com" className="font-medium text-foreground" data-testid="link-contact-1">sisnett.meredith@gmail.com</a>
-          {" "}&{" "}
-          <a href="mailto:mr.terryflood@gmail.com" className="font-medium text-foreground" data-testid="link-contact-2">mr.terryflood@gmail.com</a>
+          <a href="mailto:programs@thecollaborativeadvocate.org" className="font-medium text-foreground" data-testid="link-contact-1">programs@thecollaborativeadvocate.org</a>
         </p>
       </div>
     </div>

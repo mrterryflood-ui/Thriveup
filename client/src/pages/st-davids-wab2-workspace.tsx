@@ -420,8 +420,8 @@ export default function StDavidsWAB2WorkspacePage() {
                 </div>
                 <div>
                   <div className="font-semibold mb-1">Contact</div>
-                  <div className="text-muted-foreground">Dr. Terry Flood, DHA — Founder & CEO</div>
-                  <div className="text-muted-foreground">mr.terryflood@gmail.com · 254-319-8460</div>
+                  <div className="text-muted-foreground">Dr. Terry Flood, DHA — President</div>
+                  <div className="text-muted-foreground">president@thecollaborativeadvocate.org · 254-319-8460</div>
                   <div className="text-muted-foreground">thrivingcommunitiesforall.com</div>
                 </div>
               </div>

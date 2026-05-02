@@ -57,9 +57,9 @@ const ENTITIES: BusinessEntity[] = [
     county: "Travis",
     address: "17912 Stefano Drive, Pflugerville, TX 78660",
     phone: "254-319-8460",
-    email: "mr.terryflood@gmail.com",
+    email: "president@thecollaborativeadvocate.org",
     website: "https://thrivingcommunitiesforall.com",
-    responsibleParty: "Dr. Terry Flood, Founder & CEO",
+    responsibleParty: "Dr. Terry Flood, President",
     principalActivity: "Workforce Development, Community Health, Veteran Services",
     description: "Veteran-founded, Black-led 501(c)(3) nonprofit serving as the organizational backbone and fiscal sponsor for the 24-platform ThriveUp Academy ACOS ecosystem. Delivers workforce development, veteran transition services, community health programs, and youth education through an interdependent platform architecture. SAM.gov registered (UEI active). Grant execution partner for WIOA, SSG Fox VA, St. David's Foundation, TWC, and federal/state workforce programs.",
     color: "border-violet-500",
@@ -85,7 +85,7 @@ The Collaborative Advocate Foundation is a 501(c)(3) nonprofit organization head
 EIN: 41-3618003
 Address: 17912 Stefano Drive, Pflugerville, TX 78660
 Phone: 254-319-8460
-Email: mr.terryflood@gmail.com
+Email: president@thecollaborativeadvocate.org
 Website: thrivingcommunitiesforall.com
 
 MISSION
@@ -137,11 +137,11 @@ GRANT PIPELINE: $3.55M–$6.25M+
 • Space Force SkillBridge — $500K–$1.5M (Identified)
 
 CONTACT
-Dr. Terry Flood, Founder & CEO
-Email: mr.terryflood@gmail.com
+Dr. Terry Flood, President
+Email: president@thecollaborativeadvocate.org
 Phone: 254-319-8460
 Cash App: $MRTDFLOOD
-PayPal: paypal.me/TERRYFLOODCEO` },
+PayPal: paypal.me/CollaborativeAdvocate` },
       { name: "Capability Statement", status: "complete", description: "2-page capability overview for government and corporate partners",
         content: `THE COLLABORATIVE ADVOCATE FOUNDATION — CAPABILITY STATEMENT
 
@@ -163,7 +163,7 @@ SAM.gov: Registered (UEI Active)
 NAICS Codes: 611430, 624190, 621999, 611710
 Address: 17912 Stefano Drive, Pflugerville, TX 78660
 Phone: 254-319-8460
-Email: mr.terryflood@gmail.com
+Email: president@thecollaborativeadvocate.org
 Website: thrivingcommunitiesforall.com
 
 DIFFERENTIATORS
@@ -183,7 +183,7 @@ PAST PERFORMANCE
 • Military-to-civilian transition program active
 
 KEY PERSONNEL
-Dr. Terry Flood — Founder & CEO
+Dr. Terry Flood — President
 • Veteran, community advocate, technology innovator
 • 20+ years workforce development and community service
 • SAM.gov and federal contracting experience
@@ -199,8 +199,8 @@ Secondary: Central Texas Region
 Scalable: National (via technology platform)
 
 CONTACT
-Dr. Terry Flood | 254-319-8460 | mr.terryflood@gmail.com
-Cash App: $MRTDFLOOD | PayPal: paypal.me/TERRYFLOODCEO` },
+Dr. Terry Flood | 254-319-8460 | president@thecollaborativeadvocate.org
+Cash App: $MRTDFLOOD | PayPal: paypal.me/CollaborativeAdvocate` },
       { name: "Organizational Profile", status: "complete", description: "One-page overview for partnerships and introductions",
         content: `THE COLLABORATIVE ADVOCATE FOUNDATION
 Organizational Profile
@@ -230,21 +230,21 @@ BY THE NUMBERS
 EIN: 41-3618003
 SAM.gov: Registered (UEI Active)
 Address: 17912 Stefano Drive, Pflugerville, TX 78660
-Phone: 254-319-8460 | Email: mr.terryflood@gmail.com` },
+Phone: 254-319-8460 | Email: president@thecollaborativeadvocate.org` },
       { name: "Board of Directors / Leadership", status: "draft", description: "Board roster, bios, and governance structure",
         content: `THE COLLABORATIVE ADVOCATE FOUNDATION
 Board of Directors & Leadership
 
-FOUNDER & CEO
+PRESIDENT
 Dr. Terry Flood
 Veteran | Community Advocate | Technology Innovator
-Email: mr.terryflood@gmail.com | Phone: 254-319-8460
+Email: president@thecollaborativeadvocate.org | Phone: 254-319-8460
 
 [Additional board members to be added as appointed]
 
 GOVERNANCE STRUCTURE
 • Board of Directors (oversight and fiduciary responsibility)
-• Executive Director / CEO (Dr. Terry Flood — day-to-day operations)
+• President (Dr. Terry Flood — day-to-day operations)
 • Advisory Board (subject matter experts — see Advisory Board page)
 • Program Directors (per-platform leadership)
 
@@ -276,7 +276,7 @@ BYLAWS
     county: "Travis",
     address: "17912 Stefano Drive, Pflugerville, TX 78660",
     phone: "254-319-8460",
-    email: "mr.terryflood@gmail.com",
+    email: "president@thecollaborativeadvocate.org",
     website: "https://thrivingcommunitiesforall.com",
     responsibleParty: "Dr. Terry Flood",
     principalActivity: "Consulting, Implementation Science, Training",
@@ -307,7 +307,7 @@ Type: Single Member LLC (Texas)
 Formed: March 17, 2026
 Address: 17912 Stefano Drive, Pflugerville, TX 78660
 Phone: 254-319-8460
-Email: mr.terryflood@gmail.com
+Email: president@thecollaborativeadvocate.org
 
 SERVICES OFFERED
 
@@ -361,8 +361,8 @@ COMPETITIVE ADVANTAGES
 • Existing relationships with Texas workforce and health agencies
 
 CONTACT
-Dr. Terry Flood | 254-319-8460 | mr.terryflood@gmail.com
-Cash App: $MRTDFLOOD | PayPal: paypal.me/TERRYFLOODCEO` },
+Dr. Terry Flood | 254-319-8460 | president@thecollaborativeadvocate.org
+Cash App: $MRTDFLOOD | PayPal: paypal.me/CollaborativeAdvocate` },
       { name: "Capability Statement", status: "complete", description: "2-page capability overview for government and corporate clients",
         content: `COLLABORATION AND IMPLEMENTATION PROFESSIONALS LLC — CAPABILITY STATEMENT
 
@@ -385,7 +385,7 @@ Formed: March 17, 2026
 NAICS Codes: 541611, 541618, 541690, 611430
 Address: 17912 Stefano Drive, Pflugerville, TX 78660
 Phone: 254-319-8460
-Email: mr.terryflood@gmail.com
+Email: president@thecollaborativeadvocate.org
 
 DIFFERENTIATORS
 • Implementation science expertise with field-tested CFIR and RE-AIM deployment
@@ -410,7 +410,7 @@ Training: National (in-person and virtual)
 Technology: National (platform-based delivery)
 
 CONTACT
-Dr. Terry Flood | 254-319-8460 | mr.terryflood@gmail.com` },
+Dr. Terry Flood | 254-319-8460 | president@thecollaborativeadvocate.org` },
       { name: "Service Catalog", status: "complete", description: "Detailed listing of all consulting services and pricing tiers",
         content: `COLLABORATION AND IMPLEMENTATION PROFESSIONALS LLC
 Service Catalog
@@ -443,7 +443,7 @@ TIER 4: EVALUATION & OPTIMIZATION
 • Sustainability Planning
 • Scale-Up Strategy Development
 
-[Pricing available upon request — contact mr.terryflood@gmail.com]` },
+[Pricing available upon request — contact president@thecollaborativeadvocate.org]` },
       { name: "Articles of Organization", status: "complete", description: "Texas Secretary of State filing" },
       { name: "Operating Agreement", status: "draft", description: "LLC governance and member agreement" },
       { name: "W-9", status: "needed", description: "IRS tax identification form for clients" },
@@ -464,7 +464,7 @@ TIER 4: EVALUATION & OPTIMIZATION
     county: "Travis",
     address: "17912 Stefano Drive, Pflugerville, TX 78660",
     phone: "254-319-8460",
-    email: "mr.terryflood@gmail.com",
+    email: "president@thecollaborativeadvocate.org",
     website: "https://thrivingcommunitiesforall.com",
     responsibleParty: "Terry Flood Sr, Sole Member",
     principalActivity: "Consulting and Training",
@@ -495,7 +495,7 @@ County: Travis
 Formed: March 2026
 Address: 17912 Stefano Drive, Pflugerville, TX 78660
 Phone: 254-319-8460
-Email: mr.terryflood@gmail.com
+Email: president@thecollaborativeadvocate.org
 Responsible Party: Terry Flood Sr, Sole Member
 TPD: Banessa Alvarez — 1814 N Memorial Way, Houston, TX 77007
 
@@ -511,8 +511,8 @@ RELATIONSHIP TO ECOSYSTEM
 M&T Consulting Solutions operates as a specialized consulting vehicle complementing the broader ecosystem of The Collaborative Advocate Foundation (nonprofit mission delivery) and Collaboration and Implementation Professionals LLC (implementation science consulting). M&T focuses on lean, specialized engagements where a targeted two-person consulting approach provides maximum value.
 
 CONTACT
-Terry Flood Sr | 254-319-8460 | mr.terryflood@gmail.com
-Cash App: $MRTDFLOOD | PayPal: paypal.me/TERRYFLOODCEO` },
+Terry Flood Sr | 254-319-8460 | president@thecollaborativeadvocate.org
+Cash App: $MRTDFLOOD | PayPal: paypal.me/CollaborativeAdvocate` },
       { name: "Capability Statement", status: "complete", description: "2-page capability overview",
         content: `M&T CONSULTING SOLUTIONS LLC — CAPABILITY STATEMENT
 
@@ -531,7 +531,7 @@ Type: Single Member LLC (Texas)
 County: Travis
 Address: 17912 Stefano Drive, Pflugerville, TX 78660
 Phone: 254-319-8460
-Email: mr.terryflood@gmail.com
+Email: president@thecollaborativeadvocate.org
 Responsible Party: Terry Flood Sr, Sole Member
 
 KEY PERSONNEL
@@ -544,7 +544,7 @@ Secondary: State of Texas
 Available: National (virtual delivery)
 
 CONTACT
-Terry Flood Sr | 254-319-8460 | mr.terryflood@gmail.com` },
+Terry Flood Sr | 254-319-8460 | president@thecollaborativeadvocate.org` },
       { name: "Company Profile", status: "complete", description: "One-page overview",
         content: `M&T CONSULTING SOLUTIONS LLC
 Company Profile

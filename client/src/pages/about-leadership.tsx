@@ -7,10 +7,12 @@ import {
   GraduationCap, Shield, Award, Briefcase, BookOpen, Mail,
   Star, Globe, Heart, Users, FlaskConical, Building2, Medal,
   Target, Sparkles, Microscope, BarChart3, ArrowRight, Search, TrendingUp,
+  Church, FileCheck, Info,
 } from "lucide-react";
 import { MISSION_STATEMENT, VISION_STATEMENT, VALUES } from "@/lib/mvv-content";
 import terryPhoto from "@assets/Terry2_1773768611245.jpg";
 import terryMilitaryPhoto from "@assets/pic1_1773768611248.jpg";
+import { useEffect } from "react";
 
 const education = [
   { degree: "DHA", field: "Doctor of Health Administration", school: "" },
@@ -68,12 +70,126 @@ const methodologies = [
 ];
 
 export default function AboutLeadershipPage() {
+  useEffect(() => {
+    document.title = "About & Our Structure | The Collaborative Advocate Foundation";
+  }, []);
+
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-8">
       <div className="space-y-2">
-        <h1 className="text-3xl font-bold" data-testid="text-about-title">About & Leadership</h1>
-        <p className="text-muted-foreground">Meet the team behind ThriveUp Academy and the Collaborative Advocate ecosystem.</p>
+        <h1 className="text-3xl font-bold" data-testid="text-about-title">About & Our Structure</h1>
+        <p className="text-muted-foreground">Who we are, how we are organized, and the honest status of every legal and operational detail a funder needs to know.</p>
       </div>
+
+      {/* ORG STRUCTURE — leads the page so every reviewer sees it first */}
+      <Card className="p-6 border-2 border-primary/30 bg-gradient-to-br from-primary/5 to-transparent" data-testid="section-org-structure">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="rounded-md bg-primary/10 p-2 shrink-0">
+            <Building2 className="h-5 w-5 text-primary" aria-hidden="true" />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold" data-testid="text-org-structure-heading">Our Organizational Structure</h2>
+            <p className="text-xs text-muted-foreground">Two organizations working as one. Disclosed in plain English so funders can verify every detail.</p>
+          </div>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-4">
+          <Card className="p-4 bg-background" data-testid="card-org-alc">
+            <div className="flex items-start gap-3 mb-3">
+              <div className="rounded-md bg-amber-100 dark:bg-amber-950 p-2 shrink-0">
+                <Church className="h-5 w-5 text-amber-700 dark:text-amber-400" aria-hidden="true" />
+              </div>
+              <div>
+                <p className="font-bold">Abundant Life Church (ALC)</p>
+                <Badge variant="secondary" className="text-xs mt-1">501(c)(3) — Active</Badge>
+              </div>
+            </div>
+            <div className="space-y-2 text-sm">
+              <div>
+                <p className="font-semibold text-xs uppercase tracking-wide text-muted-foreground">Role</p>
+                <p>Legal applicant and fiscal sponsor (fiduciary). Holds the 501(c)(3) determination. Provides community presence, programmatic reach, and the chartered nonprofit standing required for federal and foundation grant eligibility.</p>
+              </div>
+              <div>
+                <p className="font-semibold text-xs uppercase tracking-wide text-muted-foreground">Responsibilities</p>
+                <ul className="list-disc list-inside text-muted-foreground space-y-0.5">
+                  <li>Receives grant funds as the legal applicant</li>
+                  <li>Holds programmatic accountability under the grant</li>
+                  <li>Provides community-rooted program delivery</li>
+                  <li>Maintains 501(c)(3) compliance and reporting</li>
+                </ul>
+              </div>
+            </div>
+          </Card>
+
+          <Card className="p-4 bg-background" data-testid="card-org-tcaf">
+            <div className="flex items-start gap-3 mb-3">
+              <div className="rounded-md bg-violet-100 dark:bg-violet-950 p-2 shrink-0">
+                <FlaskConical className="h-5 w-5 text-violet-700 dark:text-violet-400" aria-hidden="true" />
+              </div>
+              <div>
+                <p className="font-bold">The Collaborative Advocate Foundation (TCAF)</p>
+                <Badge variant="outline" className="text-xs mt-1 border-amber-400 text-amber-700 dark:text-amber-400">501(c)(3) — Pending IRS Determination</Badge>
+              </div>
+            </div>
+            <div className="space-y-2 text-sm">
+              <div>
+                <p className="font-semibold text-xs uppercase tracking-wide text-muted-foreground">Role</p>
+                <p>Technology partner, methodology developer, and healthcare administrative support. Operates the 24-platform Autonomous Community Operating System and the methodology catalog (RPLICE, MAP-GAP, SALP, MG-PATR) used in service delivery.</p>
+              </div>
+              <div>
+                <p className="font-semibold text-xs uppercase tracking-wide text-muted-foreground">Responsibilities</p>
+                <ul className="list-disc list-inside text-muted-foreground space-y-0.5">
+                  <li>Builds and operates the technology platforms</li>
+                  <li>Provides healthcare administration support</li>
+                  <li>Maintains the methodology and evidence library</li>
+                  <li>Operates as sub-recipient under ALC during pendency</li>
+                </ul>
+              </div>
+            </div>
+          </Card>
+        </div>
+
+        <Card className="p-4 mt-4 bg-amber-50 dark:bg-amber-950/30 border-amber-300 dark:border-amber-800" data-testid="card-501c3-disclosure">
+          <div className="flex items-start gap-3">
+            <FileCheck className="h-5 w-5 text-amber-700 dark:text-amber-400 shrink-0 mt-0.5" aria-hidden="true" />
+            <div className="space-y-1.5 text-sm">
+              <p className="font-semibold">501(c)(3) Status — Honest Disclosure</p>
+              <p className="text-muted-foreground">
+                <span className="font-medium text-foreground">Abundant Life Church</span> holds an active 501(c)(3) determination from the IRS and serves as the legal applicant for all current grant submissions.{" "}
+                <span className="font-medium text-foreground">TCAF</span>'s independent 501(c)(3) application was filed with the IRS on April 27, 2026 (IRS Tracking <span className="font-mono text-xs">281OIP7B</span>) and is currently pending determination. During pendency, TCAF operates as a sub-recipient and technology partner under ALC's fiscal sponsorship — a structurally sound and IRS-compliant pattern used by hundreds of fiscally-sponsored organizations.
+              </p>
+              <p className="text-xs text-muted-foreground italic">We disclose this structure transparently because federal reviewers and foundation program officers reward applicants who name their status honestly. We will update this page within 30 days of any change in TCAF's IRS determination.</p>
+            </div>
+          </div>
+        </Card>
+
+        <Card className="p-4 mt-3 bg-muted/40" data-testid="card-leadership-summary">
+          <div className="flex items-start gap-3">
+            <Users className="h-5 w-5 text-primary shrink-0 mt-0.5" aria-hidden="true" />
+            <div className="space-y-1.5 text-sm">
+              <p className="font-semibold">Named Leadership</p>
+              <ul className="text-muted-foreground space-y-0.5">
+                <li><span className="font-medium text-foreground">President, TCAF</span> — Implementation Scientist, U.S. Army Retired (CW2, 20 years), DHA · DBA · MS Implementation Science (Dartmouth, 2026). Operational lead for technology, methodology, and healthcare administration. Bio below.</li>
+                <li><span className="font-medium text-foreground">Pastoral Leadership, ALC</span> — Holds the fiduciary and 501(c)(3) responsibilities. Contact via <a href="mailto:president@thecollaborativeadvocate.org" className="text-primary hover:underline" data-testid="link-pastoral">president@thecollaborativeadvocate.org</a>.</li>
+                <li><span className="font-medium text-foreground">Strategic Advisor</span> — Meredith Sisnett. Provides guidance on organizational development, community engagement, and partnership strategy.</li>
+              </ul>
+            </div>
+          </div>
+        </Card>
+
+        <Card className="p-4 mt-3 bg-muted/40" data-testid="card-geographic-scope">
+          <div className="flex items-start gap-3">
+            <Globe className="h-5 w-5 text-primary shrink-0 mt-0.5" aria-hidden="true" />
+            <div className="space-y-1.5 text-sm">
+              <p className="font-semibold">Geographic Scope — Honest</p>
+              <p className="text-muted-foreground">
+                <span className="font-medium text-foreground">Operational pilot:</span> Travis County, Texas (Austin, Pflugerville, Manor) with active outreach across Central Texas.{" "}
+                <span className="font-medium text-foreground">Methodology and platform:</span> Released as open infrastructure for nationwide replication via the Hub Adoption Kit. We are Texas-first by design — replicability is the broader-impacts story, not a national operating claim.
+              </p>
+            </div>
+          </div>
+        </Card>
+      </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card className="p-6 border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
@@ -130,7 +246,7 @@ export default function AboutLeadershipPage() {
               <div className="overflow-hidden rounded-lg shadow-md">
                 <img
                   src={terryMilitaryPhoto}
-                  alt="Dr. Terry Flood in U.S. Army dress uniform"
+                  alt="President of TCAF in U.S. Army dress uniform"
                   className="w-32 h-40 object-cover object-top"
                   data-testid="img-leader-military"
                 />
@@ -138,7 +254,7 @@ export default function AboutLeadershipPage() {
               <div className="overflow-hidden rounded-lg shadow-md">
                 <img
                   src={terryPhoto}
-                  alt="Dr. Terry Flood"
+                  alt="President of TCAF"
                   className="w-32 h-40 object-cover object-top"
                   data-testid="img-leader-casual"
                 />
@@ -146,7 +262,8 @@ export default function AboutLeadershipPage() {
             </div>
             <div className="text-center">
               <p className="font-bold text-lg" data-testid="text-leader-name">Dr. Terry Flood, DHA</p>
-              <p className="text-sm text-muted-foreground">Implementation Scientist | Veteran | Platform Architect</p>
+              <p className="text-sm font-semibold text-primary">President, TCAF</p>
+              <p className="text-xs text-muted-foreground">Implementation Scientist · U.S. Army Retired · Platform Architect</p>
             </div>
             <Link href="/contact">
               <Button variant="outline" data-testid="button-contact-leader">
@@ -341,8 +458,8 @@ export default function AboutLeadershipPage() {
             <Mail className="h-5 w-5 text-muted-foreground" />
             <div>
               <p className="text-sm font-medium">Contact</p>
-              <a href="mailto:mr.terryflood@gmail.com" className="text-sm text-primary hover:underline" data-testid="link-email">
-                mr.terryflood@gmail.com
+              <a href="mailto:president@thecollaborativeadvocate.org" className="text-sm text-primary hover:underline" data-testid="link-email">
+                president@thecollaborativeadvocate.org
               </a>
             </div>
           </div>
@@ -367,7 +484,7 @@ export default function AboutLeadershipPage() {
 
       <Card className="p-6" data-testid="section-explore-links">
         <h2 className="font-semibold text-lg mb-1">Explore the Platform</h2>
-        <p className="text-sm text-muted-foreground mb-4">See the ecosystem Dr. Flood and the team have built.</p>
+        <p className="text-sm text-muted-foreground mb-4">See the ecosystem the President and the team have built.</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {[
             { title: "Ecosystem Story", desc: "See how 24 platforms work together on a real grant scenario", href: "/ecosystem-story", icon: BookOpen },

@@ -1050,7 +1050,7 @@ export async function registerRoutes(
   - Funders/partners? → Business Plan (/business-plan): shareable overview of the entire ecosystem
   - Financial Literacy resources, stock market simulation, entrepreneurship training
   - Sparky (/sparky) — your adult counterpart for parents, teachers, veterans, returning citizens
-  - Contact: /contact → reaches Dr. Terry Flood (mr.terryflood@gmail.com)
+  - Contact: /contact → reaches Dr. Terry Flood (president@thecollaborativeadvocate.org)
   - About: /about → leadership, ecosystem structure, credentials
 
   WARMTH & EMPATHY — ALWAYS LEAD WITH THE HEART:
@@ -1285,7 +1285,7 @@ export async function registerRoutes(
   - Managing a grant? → Program Management (/program-management): staffing, compliance, in-kind match tracking
   - Exploring the platform? → Ecosystem Story (/ecosystem-story): interactive 10-step walkthrough
   - Funders/partners? → Business Plan (/business-plan): shareable overview of the entire ecosystem
-  - Contact: /contact → reaches Dr. Terry Flood (mr.terryflood@gmail.com)
+  - Contact: /contact → reaches Dr. Terry Flood (president@thecollaborativeadvocate.org)
 
   WARMTH & EMPATHY — ALWAYS LEAD WITH THE HEART:
   - You genuinely care. Every adult on this platform is working toward something better.

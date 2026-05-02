@@ -843,11 +843,11 @@ function ClosingSlide({ isFullscreen }: SlideProps) {
         <div className="flex flex-col items-center gap-[1.5vh]">
           <p className="text-white/90" style={{ fontSize: "1.6vw" }}>Contact Us</p>
           <div className="flex gap-[3vw]">
-            <a href="mailto:sisnett.meredith@gmail.com" className="text-white/80 hover:text-white transition-colors" style={{ fontSize: "1.4vw" }} data-testid="link-contact-email-1">
-              sisnett.meredith@gmail.com
+            <a href="mailto:programs@thecollaborativeadvocate.org" className="text-white/80 hover:text-white transition-colors" style={{ fontSize: "1.4vw" }} data-testid="link-contact-email-1">
+              programs@thecollaborativeadvocate.org
             </a>
-            <a href="mailto:mr.terryflood@gmail.com" className="text-white/80 hover:text-white transition-colors" style={{ fontSize: "1.4vw" }} data-testid="link-contact-email-2">
-              mr.terryflood@gmail.com
+            <a href="mailto:president@thecollaborativeadvocate.org" className="text-white/80 hover:text-white transition-colors" style={{ fontSize: "1.4vw" }} data-testid="link-contact-email-2">
+              president@thecollaborativeadvocate.org
             </a>
           </div>
         </div>

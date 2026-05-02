@@ -168,7 +168,7 @@ export const SECTION_TUTORIALS: Record<string, TutorialDef> = {
     description: "Build org charts, calculate FTE requirements, and generate budget-ready staffing justifications for grants.",
     accentColor: "orange",
     steps: [
-      { title: "Review the org structure", description: "The staffing plan shows TCAF's organizational structure — from Dr. Terry Flood (Executive Director) through program directors, coordinators, and frontline staff. Each position shows FTE allocation, salary range, and funding source." },
+      { title: "Review the org structure", description: "The staffing plan shows TCAF's organizational structure — from the President through program directors, coordinators, and frontline staff. Each position shows FTE allocation, salary range, and funding source." },
       { title: "Add or modify positions", description: "Add new positions for grant applications. The system auto-calculates fully-loaded costs (salary + 25% fringe benefits) and maps positions to specific grant budgets.", tip: "When adding a position for a specific grant, tag it with the grant name — the grant package builder will pull it automatically." },
       { title: "Generate staffing justifications", description: "For each position, the system generates a narrative justification explaining why the role is necessary, what the person will do, and how their work connects to program outcomes." },
       { title: "Export for budget narratives", description: "Export the staffing plan as a formatted table with position title, FTE, annual salary, fringe, total cost, and funding source — ready for grant budget sections." },

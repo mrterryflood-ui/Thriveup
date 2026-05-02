@@ -417,11 +417,8 @@ export default function CommunityPage() {
             Empowering under-resourced communities through AI skills, career pipelines, and workforce development.
           </p>
           <div className="flex flex-col items-end gap-1">
-            <a href="mailto:sisnett.meredith@gmail.com" className="flex items-center gap-1.5 text-sm text-muted-foreground" data-testid="link-support-email" aria-label="Email sisnett.meredith@gmail.com">
-              <Mail className="h-3.5 w-3.5" /> sisnett.meredith@gmail.com
-            </a>
-            <a href="mailto:mr.terryflood@gmail.com" className="flex items-center gap-1.5 text-sm text-muted-foreground" data-testid="link-support-email-2" aria-label="Email mr.terryflood@gmail.com">
-              <Mail className="h-3.5 w-3.5" /> mr.terryflood@gmail.com
+            <a href="mailto:programs@thecollaborativeadvocate.org" className="flex items-center gap-1.5 text-sm text-muted-foreground" data-testid="link-support-email" aria-label="Email programs at the Collaborative Advocate">
+              <Mail className="h-3.5 w-3.5" /> programs@thecollaborativeadvocate.org
             </a>
           </div>
         </div>

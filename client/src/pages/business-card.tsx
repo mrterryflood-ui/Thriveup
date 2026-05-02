@@ -187,7 +187,7 @@ export default function BusinessCardPage() {
     organization: "The Collaborative Advocate Foundation",
     tagline: "Building workforce and health infrastructure for underserved communities",
     phone: "254-319-8460",
-    email: "mr.terryflood@gmail.com",
+    email: "president@thecollaborativeadvocate.org",
     website: "thrivingcommunitiesforall.com",
     address1: "17912 Stefano Drive",
     address2: "Pflugerville, TX 78660",

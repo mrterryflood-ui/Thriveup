@@ -124,7 +124,7 @@ const MANOR_NEEDS_ASSESSMENT = [
 
 const MANOR_PARTNERSHIPS = [
   { name: "City of Manor", contact: "Communications & Technology Teams", status: "Active conversation", type: "Government", priority: "immediate" },
-  { name: "Manor ISD", contact: "Family Resource Center", status: "Partnership ready", type: "Education", priority: "immediate" },
+  { name: "Manor ISD", contact: "Family Resource Center", status: "Discovery", type: "Education", priority: "immediate" },
   { name: "Manor Economic Dev Corp", contact: "Director", status: "Discovery", type: "Economic Dev", priority: "high" },
   { name: "PCDC (Pflugerville)", contact: "Jerry W. Jones Jr.", status: "Cross-regional partner", type: "Economic Dev", priority: "high" },
   { name: "Travis County", contact: "CDBG Office", status: "Survey deadline March 31", type: "Government", priority: "urgent" },

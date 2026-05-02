@@ -374,7 +374,7 @@ export default function AIConsultingPage() {
 
         <div className="text-center text-sm text-muted-foreground pb-8" data-testid="text-consulting-footer">
           <p>The Collaborative Advocate is a Veteran-Owned Small Business (VOSB) and the umbrella organization for the ThriveUp ecosystem.</p>
-          <p className="mt-1">AI consulting services are led by Dr. Terry Flood, DHA — veteran, educator, architect of the 24-platform Autonomous Community Operating System.</p>
+          <p className="mt-1">AI consulting services are led by the President of TCAF — a U.S. Army Retired veteran, doctoral-level implementation scientist, and architect of the 24-platform Autonomous Community Operating System.</p>
         </div>
       </div>
     </div>

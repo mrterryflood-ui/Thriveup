@@ -445,7 +445,7 @@ function LocationIntelligence({ embedded = false }: { embedded?: boolean }) {
                 {intel.location?.county && <div className="flex justify-between"><span className="text-slate-400">County:</span><span className="text-white font-medium">{intel.location.county}</span></div>}
                 {intel.location?.city && <div className="flex justify-between"><span className="text-slate-400">City/Place:</span><span className="text-white font-medium">{intel.location.city}</span></div>}
                 {intel.location?.zip && <div className="flex justify-between"><span className="text-slate-400">ZIP:</span><span className="text-white font-medium">{intel.location.zip}</span></div>}
-                {intel.location?.countyFips && <div className="flex justify-between"><span className="text-slate-400">County FIPS:</span><span className="text-slate-300">{intel.location.stateFips}-{intel.location.countyFips}</span></div>}
+                {intel.location?.countyFips && <div className="flex justify-between"><span className="text-slate-400">County Code:</span><span className="text-slate-300">{intel.location.stateFips}-{intel.location.countyFips}</span></div>}
                 {intel.location?.tractFips && <div className="flex justify-between"><span className="text-slate-400">Census Tract:</span><span className="text-slate-300">{intel.location.tractFips}</span></div>}
               </div>
               <div className="mt-3 pt-3 border-t border-slate-600">

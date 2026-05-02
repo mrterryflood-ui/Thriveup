@@ -259,7 +259,7 @@ function OrderModal({ tier, onClose }: { tier: Tier; onClose: () => void }) {
                 </div>
                 <div>
                   <p className="font-semibold text-sm">PayPal</p>
-                  <p className="text-xs text-muted-foreground">@TERRYFLOODCEO</p>
+                  <p className="text-xs text-muted-foreground">PayPal · ALC fiscal sponsor</p>
                 </div>
                 <ArrowRight className="w-4 h-4 ml-auto text-muted-foreground" />
               </a>
@@ -274,8 +274,8 @@ function OrderModal({ tier, onClose }: { tier: Tier; onClose: () => void }) {
                 <Mail className="w-4 h-4 text-primary" />
                 <p className="text-sm">
                   Questions? Contact us at{" "}
-                  <a href="mailto:mr.terryflood@gmail.com" className="text-primary font-semibold hover:underline" data-testid="link-contact-email">
-                    mr.terryflood@gmail.com
+                  <a href="mailto:president@thecollaborativeadvocate.org" className="text-primary font-semibold hover:underline" data-testid="link-contact-email">
+                    president@thecollaborativeadvocate.org
                   </a>
                 </p>
               </div>
@@ -592,7 +592,7 @@ export default function PricingPage() {
               <CreditCard className="w-6 h-6 text-blue-600" />
             </div>
             <span className="text-xs font-medium">PayPal</span>
-            <span className="text-xs text-muted-foreground">@TERRYFLOODCEO</span>
+            <span className="text-xs text-muted-foreground">PayPal · ALC fiscal sponsor</span>
           </a>
           <div className="flex flex-col items-center gap-2">
             <div className="w-12 h-12 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
@@ -606,7 +606,7 @@ export default function PricingPage() {
           <div className="flex items-center justify-center gap-2">
             <Mail className="w-4 h-4 text-primary" />
             <p className="text-sm">
-              Contact us: <a href="mailto:mr.terryflood@gmail.com" className="text-primary font-semibold hover:underline" data-testid="link-contact-email-main">mr.terryflood@gmail.com</a>
+              Contact us: <a href="mailto:president@thecollaborativeadvocate.org" className="text-primary font-semibold hover:underline" data-testid="link-contact-email-main">president@thecollaborativeadvocate.org</a>
             </p>
           </div>
         </div>

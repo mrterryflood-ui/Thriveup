@@ -120,8 +120,8 @@ Three-layer architecture: Learn It (Academy) → Apply It (RPLICE/MCE/Ecosystem)
     keywords: ["directive", "compliance", "fidelity", "overdue", "tracking", "dashboard", "resend", "evidence", "verification"],
   },
   {
-    source: "ecosystem-overview", category: "leadership", title: "Dr. Terry Flood — Founder & CEO",
-    content: `Dr. Terry Flood, DHA (Doctor of Healthcare Administration) is the founder and CEO of ThriveUp Academy and The Collaborative Advocate (VOSB). A veteran and healthcare executive, Dr. Flood built the 24-platform ecosystem to address systemic gaps in community services. Based in Central Texas, serving Austin, Manor, and Pflugerville communities. Vision: "No single platform can solve everything. Together, 24 platforms create a crisis continuum from Prevention → Early Warning → Crisis Support → Stabilization → Recovery & Growth." Email: mr.terryflood@gmail.com.`,
+    source: "ecosystem-overview", category: "leadership", title: "Dr. Terry Flood — President",
+    content: `Dr. Terry Flood, DHA (Doctor of Healthcare Administration) is the President of ThriveUp Academy and The Collaborative Advocate (VOSB). A veteran and healthcare executive, Dr. Flood built the 24-platform ecosystem to address systemic gaps in community services. Based in Central Texas, serving Austin, Manor, and Pflugerville communities. Vision: "No single platform can solve everything. Together, 24 platforms create a crisis continuum from Prevention → Early Warning → Crisis Support → Stabilization → Recovery & Growth." Email: president@thecollaborativeadvocate.org.`,
     keywords: ["terry flood", "founder", "ceo", "leadership", "veteran", "dha", "healthcare", "who"],
   },
   {

@@ -792,7 +792,7 @@ export default function LandingPage() {
                   <Sparkles className="h-4 w-4" /> Talk to Someone Who Can Help
                 </Button>
               </Link>
-              <a href="mailto:mr.terryflood@gmail.com">
+              <a href="mailto:president@thecollaborativeadvocate.org">
                 <Button variant="ghost" className="gap-2 text-muted-foreground" data-testid="button-email-us">
                   <Mail className="h-4 w-4" /> Or email us directly
                 </Button>
@@ -892,8 +892,8 @@ export default function LandingPage() {
               <h4 className="font-semibold text-sm mb-2">Contact</h4>
               <ul className="space-y-1.5">
                 <li>
-                  <a href="mailto:mr.terryflood@gmail.com" className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5" data-testid="link-footer-email">
-                    <Mail className="h-3 w-3" /> mr.terryflood@gmail.com
+                  <a href="mailto:president@thecollaborativeadvocate.org" className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5" data-testid="link-footer-email">
+                    <Mail className="h-3 w-3" /> president@thecollaborativeadvocate.org
                   </a>
                 </li>
                 <li className="text-xs text-muted-foreground/70 mt-2">

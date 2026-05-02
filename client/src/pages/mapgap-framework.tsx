@@ -629,7 +629,7 @@ export default function MapGapFrameworkPage() {
               Proprietary Methodology Registry
             </h2>
             <p className="text-sm text-muted-foreground max-w-2xl mx-auto">
-              Four interconnected methodologies developed by Dr. Terry Flood — each solving a specific failure mode in community programs, together forming a complete operating system.
+              Four interconnected methodologies developed by TCAF leadership — each solving a specific failure mode in community programs, together forming a complete operating system.
             </p>
           </div>
 

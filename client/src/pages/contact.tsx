@@ -220,7 +220,7 @@ function LeadershipCard() {
         <div className="space-y-3 text-sm">
           <div className="flex items-start gap-2">
             <Mail className="h-4 w-4 mt-0.5 text-muted-foreground shrink-0" />
-            <span data-testid="text-contact-email">mr.terryflood@gmail.com</span>
+            <span data-testid="text-contact-email">president@thecollaborativeadvocate.org</span>
           </div>
 
           <div className="flex items-start gap-2">

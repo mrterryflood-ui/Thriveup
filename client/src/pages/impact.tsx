@@ -365,7 +365,7 @@ export default function ImpactPage() {
         </p>
         <div className="flex flex-wrap justify-center gap-3">
           <Button asChild data-testid="button-contact-partner">
-            <a href="mailto:sisnett.meredith@gmail.com">
+            <a href="mailto:programs@thecollaborativeadvocate.org">
               Contact Us
               <ArrowRight className="h-4 w-4 ml-1" />
             </a>
@@ -377,7 +377,7 @@ export default function ImpactPage() {
           </Button>
         </div>
         <div className="text-sm text-muted-foreground pt-2">
-          sisnett.meredith@gmail.com | mr.terryflood@gmail.com
+          <a href="mailto:president@thecollaborativeadvocate.org" className="text-primary hover:underline" data-testid="link-impact-president">president@thecollaborativeadvocate.org</a>
         </div>
       </div>
       <BackToTop />

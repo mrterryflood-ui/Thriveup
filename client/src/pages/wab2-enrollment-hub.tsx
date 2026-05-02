@@ -1558,7 +1558,7 @@ export default function WAB2EnrollmentHubPage() {
                             <CardTitle className="text-sm">{c.name}</CardTitle>
                             <CardDescription className="text-xs mt-0.5">{c.cities}</CardDescription>
                           </div>
-                          <Badge variant="outline">FIPS {c.fips}</Badge>
+                          <Badge variant="outline">Texas</Badge>
                         </div>
                       </CardHeader>
                       <CardContent className="space-y-2">

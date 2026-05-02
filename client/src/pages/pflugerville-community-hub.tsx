@@ -60,7 +60,7 @@ const PFLUGERVILLE_NEEDS_ASSESSMENT = [
       "Only 12% of Pflugerville businesses are minority-owned — despite 78% diversity index",
       "No dedicated workforce development center in Pflugerville",
       "PCDC (Pflugerville Community Development Corp) has $150K+ matching grants available — underutilized",
-      "Stacey Pfefferkorn (city workforce contact) and Jerry W. Jones Jr. (PCDC director) — partnership ready",
+      "Stacey Pfefferkorn (city workforce contact) and Jerry W. Jones Jr. (PCDC director) identified — outreach planned",
     ],
     platforms: ["Mission Transition", "MCE", "Collaborative Advocate", "ThriveUp Academy"],
     solutions: [
@@ -134,7 +134,7 @@ const PFLUGERVILLE_NEEDS_ASSESSMENT = [
 ];
 
 const PFLUGERVILLE_PARTNERSHIPS = [
-  { name: "PCDC", contact: "Jerry W. Jones Jr., Director", status: "Partnership ready", type: "Economic Dev", priority: "immediate" },
+  { name: "PCDC", contact: "Jerry W. Jones Jr., Director", status: "Outreach planned", type: "Economic Dev", priority: "immediate" },
   { name: "City of Pflugerville", contact: "Stacey Pfefferkorn, Workforce", status: "Contact identified", type: "Government", priority: "immediate" },
   { name: "PfISD", contact: "District Administration", status: "Discovery", type: "Education", priority: "high" },
   { name: "Pflugerville Chamber", contact: "Business Development", status: "Outreach planned", type: "Business", priority: "high" },

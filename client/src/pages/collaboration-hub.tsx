@@ -789,7 +789,7 @@ function PublicInquiryTab() {
             Our team will review your inquiry and respond within 5 business days.
           </p>
           <p className="text-sm text-muted-foreground mt-4">
-            Questions? Contact us at <a href="mailto:mr.terryflood@gmail.com" className="text-primary hover:underline">mr.terryflood@gmail.com</a>
+            Questions? Contact us at <a href="mailto:president@thecollaborativeadvocate.org" className="text-primary hover:underline">president@thecollaborativeadvocate.org</a>
           </p>
         </CardContent>
       </Card>

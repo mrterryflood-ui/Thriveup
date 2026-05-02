@@ -82,6 +82,14 @@ const AIToolsHubPage = lazy(() => import("@/pages/ai-tools-hub"));
 const AIToolsWorkspacePage = lazy(() => import("@/pages/ai-tools-workspace"));
 const ImplementationRecommendationsPage = lazy(() => import("@/pages/implementation-recommendations"));
 const PrivacyPolicyPage = lazy(() => import("@/pages/privacy-policy"));
+const NonDiscriminationPage = lazy(() => import("@/pages/non-discrimination"));
+const VeteransProgramPage = lazy(() => import("@/pages/veterans-program"));
+const BehavioralHealthProgramPage = lazy(() => import("@/pages/behavioral-health-program"));
+const ReentryProgramPage = lazy(() => import("@/pages/reentry-program"));
+const ResearchMethodologyPage = lazy(() => import("@/pages/research-methodology"));
+const TransparencyMatrixPage = lazy(() => import("@/pages/transparency-matrix"));
+const StakeholderMapPage = lazy(() => import("@/pages/stakeholder-map"));
+const OpenInnovationLabPage = lazy(() => import("@/pages/open-innovation-lab"));
 const ResourceFinderPage = lazy(() => import("@/pages/resource-finder"));
 const GetHelpPage = lazy(() => import("@/pages/get-help"));
 const ImpactPage = lazy(() => import("@/pages/impact"));
@@ -301,6 +309,14 @@ function AppRouter() {
       <Route path="/ai-tools/:toolKey" component={AIToolsWorkspacePage} />
       <Route path="/implementation" component={ImplementationRecommendationsPage} />
       <Route path="/privacy" component={PrivacyPolicyPage} />
+      <Route path="/non-discrimination" component={NonDiscriminationPage} />
+      <Route path="/veterans" component={VeteransProgramPage} />
+      <Route path="/behavioral-health" component={BehavioralHealthProgramPage} />
+      <Route path="/reentry-program" component={ReentryProgramPage} />
+      <Route path="/research" component={ResearchMethodologyPage} />
+      <Route path="/transparency-matrix" component={TransparencyMatrixPage} />
+      <Route path="/stakeholder-map" component={StakeholderMapPage} />
+      <Route path="/open-innovation-lab" component={OpenInnovationLabPage} />
       <Route path="/resources" component={ResourceFinderPage} />
       <Route path="/get-help" component={GetHelpPage} />
       <Route path="/impact" component={ImpactPage} />

@@ -185,9 +185,9 @@ const REAIM_SCORES = [
     score: 85,
     color: "from-violet-500 to-violet-600",
     description: "How many settings/organizations will adopt the intervention?",
-    austin: { score: 87, detail: "St. David's alignment, ECHO Housing coalition, AISD partnerships" },
-    manor: { score: 83, detail: "City of Manor active, Manor ISD partnership ready, CommUnity Care" },
-    pflugerville: { score: 86, detail: "PCDC partnership ready, Samsung/Tesla supplier pipeline, ACC campus" },
+    austin: { score: 87, detail: "St. David's evaluation underway, ECHO Housing in discovery, AISD outreach planned" },
+    manor: { score: 83, detail: "City of Manor in active conversation, Manor ISD discovery underway, CommUnity Care identified" },
+    pflugerville: { score: 86, detail: "PCDC contact identified (outreach planned), Samsung/Tesla supplier pipeline mapped, ACC campus in scope" },
   },
   {
     dimension: "Implementation",

@@ -746,7 +746,7 @@ Days 181-365: SUSTAIN & MEASURE
 VII. CULTURAL RESPONSIVENESS & EQUITY
 
 Our program is designed by and for the communities it serves:
-- Founder and CEO is a Black veteran with lived experience navigating institutional barriers
+- President is a Black veteran with lived experience navigating institutional barriers
 - Community Benefits Navigators are recruited from target communities with lived experience requirements
 - Materials available in English and Spanish; interpretation services for other languages
 - Service delivery locations chosen based on community accessibility, not institutional convenience
@@ -1068,7 +1068,7 @@ Service Area: Central Texas (Travis, Williamson, Hays, Bastrop, Caldwell countie
 
 II. LEADERSHIP
 
-Dr. Terry Flood, DHA — Founder & CEO
+Dr. Terry Flood, DHA — President
 Credentials: Doctor of Health Administration, MS Implementation Science, MA Psychology (Industrial-Organizational), MSHRM, MBA, MSCJ, Public Policy
 Military Service: U.S. Army Veteran — Bronze Star (x2)
 Expertise: Organizational change, implementation science, workforce development, community health
@@ -1717,10 +1717,10 @@ We look forward to the opportunity to partner with Central Health in advancing a
 Respectfully,
 
 Dr. Terry Flood, DHA
-CEO & Principal
+President
 Collaboration & Implementation Professionals LLC
 17912 Stefano Drive, Pflugerville, TX 78660
-mr.terryflood@gmail.com`,
+president@thecollaborativeadvocate.org`,
         reviewNotes: "Sign and date before submission. This version integrates CFIR 2.0 + RE-AIM framing from the opening.", lastUpdated: "March 30, 2026", assignee: "Dr. Flood",
         pageLimit: "1 page", wordCount: "250-350 words",
       },
@@ -1766,8 +1766,8 @@ Primary NAICS: 541511 — Custom Computer Programming Services
 Secondary NAICS: 541512 — Computer Systems Design Services
 Address: 17912 Stefano Drive, Pflugerville, TX 78660
 Website: centralhealthcms.com
-Primary Contact: Dr. Terry Flood, CEO, mr.terryflood@gmail.com
-Authorized Signatory: Dr. Terry Flood, CEO
+Primary Contact: Dr. Terry Flood, President, president@thecollaborativeadvocate.org
+Authorized Signatory: Dr. Terry Flood, President
 
 COMPANY OVERVIEW:
 Collaboration & Implementation Professionals LLC is a veteran-owned, minority-led technology firm specializing in enterprise human capital management and compensation intelligence systems for public-sector organizations.
@@ -2397,7 +2397,7 @@ PURPOSE: Support Black-led organizations conducting community-driven research th
 ALIGNMENT: TCAF's RPLICE platform operationalizes implementation science frameworks (CFIR 2.0, RE-AIM) through AI-powered analysis. Combined with MEASURE's CARE Model for equity-centered evaluation, this creates a publishable, fundable methodology for ethical community AI.
 SUBMITTING ENTITY: The Collaborative Advocate Foundation — EIN 41-3618003, 501(c)(3).`,
     essentials: [
-      { label: "Black-Led Organization", detail: "TCAF is veteran-founded, Black-led 501(c)(3) — Dr. Terry Flood, DHA, is CEO and principal researcher", critical: true },
+      { label: "Black-Led Organization", detail: "TCAF is veteran-founded, Black-led 501(c)(3) — Dr. Terry Flood, DHA, is President and principal researcher", critical: true },
       { label: "Community-Driven Research", detail: "Three Realities methodology + RPLICE RAG architecture ensures research is driven by community voice, not institutional assumption", critical: true },
       { label: "April 13 Deadline", detail: "Submission deadline April 13, 2026 — 2 weeks from today", critical: true },
       { label: "$50K Award", detail: "Single-year research grant — fundable scope: RPLICE + CARE Model integration pilot" },
@@ -2430,8 +2430,8 @@ APPLICANT ORGANIZATION:
 The Collaborative Advocate Foundation
 EIN: 41-3618003 | 501(c)(3) Nonprofit
 17912 Stefano Drive, Pflugerville, TX 78660
-Contact: Dr. Terry Flood, DHA — Founder & CEO
-Email: mr.terryflood@gmail.com | Website: thrivingcommunitiesforall.com
+Contact: Dr. Terry Flood, DHA — President
+Email: president@thecollaborativeadvocate.org | Website: thrivingcommunitiesforall.com
 
 RESEARCH TITLE: "Ethical AI for Community Implementation Science: Integrating RPLICE RAG Architecture with the CARE Model for Equity-Centered Program Evaluation"
 
@@ -2569,7 +2569,7 @@ RPLICE is not a proposal — it is a live system that has already conducted CFIR
     ],
     preExecutionChecklist: [
       { id: "bbpe-1", category: "Eligibility", item: "501(c)(3) determination letter", status: "verified" as const, notes: "TCAF EIN 41-3618003" },
-      { id: "bbpe-2", category: "Eligibility", item: "Black-led organization verification", status: "verified" as const, notes: "Dr. Terry Flood, DHA — Founder & CEO" },
+      { id: "bbpe-2", category: "Eligibility", item: "Black-led organization verification", status: "verified" as const, notes: "Dr. Terry Flood, DHA — President" },
       { id: "bbpe-3", category: "Technology", item: "RPLICE operational and accessible", status: "verified" as const, notes: "bettersciencelab.com — live" },
       { id: "bbpe-4", category: "Partnerships", item: "MEASURE partnership confirmed", status: "action-needed" as const, notes: "Dr. Flood must confirm with Meme Styles" },
     ],
@@ -2661,8 +2661,8 @@ APPLICANT ORGANIZATION:
 The Collaborative Advocate Foundation
 EIN: 41-3618003 | 501(c)(3) Nonprofit
 17912 Stefano Drive, Pflugerville, TX 78660
-Contact: Dr. Terry Flood, DHA — Founder & CEO
-Email: mr.terryflood@gmail.com | Website: thrivingcommunitiesforall.com
+Contact: Dr. Terry Flood, DHA — President
+Email: president@thecollaborativeadvocate.org | Website: thrivingcommunitiesforall.com
 
 FUNDING REQUEST: $400,000 (2-year grant)
 
@@ -2947,8 +2947,8 @@ APPLICANT ORGANIZATION:
 The Collaborative Advocate Foundation
 EIN: 41-3618003 | 501(c)(3) Nonprofit
 17912 Stefano Drive, Pflugerville, TX 78660
-Contact: Dr. Terry Flood, DHA — Founder & CEO
-Email: mr.terryflood@gmail.com | Website: thrivingcommunitiesforall.com
+Contact: Dr. Terry Flood, DHA — President
+Email: president@thecollaborativeadvocate.org | Website: thrivingcommunitiesforall.com
 
 PROGRAM TITLE: "Integrated Behavioral Health Access Through AI-Powered Community Technology in Central Texas"
 
@@ -3064,7 +3064,7 @@ Address: 17912 Stefano Drive, Pflugerville, TX 78660
 Website: thrivingcommunitiesforall.com
 
 LEADERSHIP:
-Dr. Terry Flood, DHA — Founder & CEO
+Dr. Terry Flood, DHA — President
 Credentials: Doctorate in Health Administration, MS Implementation Science, MA Psychology, MSHRM, MBA, MSCJ, Public Policy
 Military Service: U.S. Army Veteran — Bronze Star (x2)
 Relevance: Implementation science expertise ensures behavioral health programs are delivered with fidelity. Health administration doctorate provides healthcare systems knowledge. Psychology background informs clinical understanding of behavioral health needs.
@@ -3241,7 +3241,7 @@ DEADLINE: April 13, 2026 at 11:59 PM.`,
 ENTREPRENEUR: Dr. Terry Flood, DHA
 BUSINESS: The Collaborative Advocate Foundation (501(c)(3), EIN 41-3618003) & Collaboration & Implementation Professionals LLC (VOSB, EIN 41-4996540)
 LOCATION: 17912 Stefano Drive, Pflugerville, TX 78660
-EMAIL: mr.terryflood@gmail.com
+EMAIL: president@thecollaborativeadvocate.org
 
 BUSINESS DESCRIPTION:
 We build AI-powered technology that bridges the gap between research and practice — so what works in studies actually works in communities. Our 24-platform ACOS (Advanced Community Operating System) ecosystem spans healthcare, education, workforce development, criminal justice, housing, and safety.
