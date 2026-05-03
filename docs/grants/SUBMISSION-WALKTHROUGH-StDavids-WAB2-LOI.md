@@ -101,7 +101,7 @@ GivingData is a third-party grants portal that St. David's uses. The exact field
    - Optional: 1-page logic model or theory of change (skip unless you have it ready)
 8. **Submitter contact:**
    - Name: Dr. Terry Flood
-   - Title: Founder & CEO
+   - Title: President
    - Email: mr.terryflood@gmail.com
    - Phone: (have ready)
 9. **Click "Save Draft" first.** Then re-read everything one more time. GivingData lets you save and come back.
@@ -115,7 +115,7 @@ GivingData is a third-party grants portal that St. David's uses. The exact field
 
 - [ ] Save the GivingData receipt PDF in `docs/grants/submitted/`
 - [ ] Send a short courtesy email to St. David's grants team at grants@stdavidsfoundation.org:
-  *"Good afternoon — confirming The Collaborative Advocate Foundation submitted our We All Benefit 2.0 Letter of Intent today via GivingData. We are at $1,000,000 over 3 years, addressing the 862,612-person enrollment gap across the 5-county region. Happy to provide additional context or jump on a call as you review. — Dr. Terry Flood, Founder & CEO"*
+  *"Good afternoon — confirming The Collaborative Advocate Foundation submitted our We All Benefit 2.0 Letter of Intent today via GivingData. We are at $1,000,000 over 3 years, addressing the 862,612-person enrollment gap across the 5-county region. Happy to provide additional context or jump on a call as you review. — Dr. Terry Flood, President"*
 - [ ] Add a database record for St. David's Foundation in your grants pipeline if one doesn't exist (the current record has `deadline: null`)
 - [ ] Calendar reminder: St. David's typically responds to LOIs within 4–6 weeks. Set a check-in for **June 1, 2026.**
 - [ ] If invited to submit a full proposal, the full-app deadline is usually 60–90 days after the LOI invitation — start lining up partner letters from your HHSC Community Partner roster now

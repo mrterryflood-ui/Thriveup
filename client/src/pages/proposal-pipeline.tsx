@@ -66,6 +66,16 @@ interface PipelineSummary {
   evaluationsComplete: number;
   criticalBlockers: string[];
   upcomingDeadlines: Array<{ title: string; deadline: string; daysRemaining: number }>;
+  submitted?: number;
+  deadlinePassedUnconfirmed?: number;
+  federalOpportunitiesNext30Days?: Array<{
+    id: string;
+    title: string;
+    agency: string | null;
+    deadline: string | null;
+    fundingAmount: string | null;
+    daysRemaining: number | null;
+  }>;
 }
 
 interface PipelineData {
@@ -461,6 +471,45 @@ export default function ProposalPipelinePage() {
                       <Badge variant={d.daysRemaining < 90 ? "destructive" : "secondary"} className="ml-2 text-xs">
                         {d.daysRemaining}d
                       </Badge>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {summary.federalOpportunitiesNext30Days && summary.federalOpportunitiesNext30Days.length > 0 && (
+          <Card className="border-blue-200 dark:border-blue-800" data-testid="card-federal-opps">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <Building2 className="h-5 w-5 text-blue-500" />
+                  <span className="font-semibold">Federal Opportunities Closing in Next 30 Days</span>
+                </div>
+                <Badge variant="secondary" data-testid="badge-federal-opps-count">
+                  {summary.federalOpportunitiesNext30Days.length} from SAM.gov / Grants.gov
+                </Badge>
+              </div>
+              <p className="text-xs text-muted-foreground mb-3">
+                Live cross-reference from the federal grant opportunities database. Not yet pulled into the proposal pipeline — review for fit.
+              </p>
+              <div className="grid grid-cols-1 gap-2 max-h-96 overflow-y-auto">
+                {summary.federalOpportunitiesNext30Days.map((g) => (
+                  <div key={g.id} className="flex items-start justify-between p-2 bg-muted/50 rounded gap-3" data-testid={`federal-opp-${g.id}`}>
+                    <div className="min-w-0 flex-1">
+                      <div className="text-sm font-medium truncate">{g.title}</div>
+                      <div className="text-xs text-muted-foreground">{g.agency || "—"}</div>
+                    </div>
+                    <div className="text-right shrink-0">
+                      {g.fundingAmount && (
+                        <div className="text-xs font-medium">{g.fundingAmount}</div>
+                      )}
+                      {g.daysRemaining !== null && (
+                        <Badge variant={g.daysRemaining < 14 ? "destructive" : "secondary"} className="text-xs">
+                          {g.daysRemaining}d
+                        </Badge>
+                      )}
                     </div>
                   </div>
                 ))}

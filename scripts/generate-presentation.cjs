@@ -51,7 +51,7 @@ slide.addText("A 24-Platform AI-Powered Ecosystem for\nWorkforce Development, He
 slide.addShape(pres.ShapeType.line, {
   x: 4, y: 4.2, w: 5, h: 0, line: { color: COLORS.gold, width: 2 },
 });
-slide.addText("Dr. Terry Flood\nFounder & CEO | U.S. Army Veteran", {
+slide.addText("Dr. Terry Flood\nPresident | U.S. Army Veteran", {
   x: 1, y: 4.5, w: 11, h: 0.9,
   fontSize: 18, fontFace: "Arial", color: COLORS.white, align: "center", lineSpacingMultiple: 1.3,
 });
@@ -667,7 +667,7 @@ slide.addText("Dr. Terry Flood", {
   x: 1, y: 2.8, w: 11, h: 0.6,
   fontSize: 24, fontFace: "Arial", color: COLORS.white, bold: true, align: "center",
 });
-slide.addText("Founder & CEO  |  U.S. Army Veteran", {
+slide.addText("President  |  U.S. Army Veteran", {
   x: 1, y: 3.4, w: 11, h: 0.5,
   fontSize: 16, fontFace: "Arial", color: "AABBCC", align: "center",
 });

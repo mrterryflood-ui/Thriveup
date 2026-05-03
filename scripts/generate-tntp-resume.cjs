@@ -109,7 +109,7 @@ slide.addShape(pres.ShapeType.line, {
 
 // TCAF Role
 y += 0.5;
-slide.addText("Founder & CEO", {
+slide.addText("President", {
   x: 0.5, y, w: 6, h: 0.3,
   fontSize: 12, fontFace: "Arial", color: C.navy, bold: true,
 });

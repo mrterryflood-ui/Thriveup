@@ -1,7 +1,7 @@
 # Building Economic Stability Together
 ## A Coalition Opportunity with St. David's Foundation
 ### The Collaborative Advocate Foundation (TCAF)
-### Dr. Terry Flood, DHA — Founder & CEO
+### Dr. Terry Flood, DHA — President
 
 ---
 

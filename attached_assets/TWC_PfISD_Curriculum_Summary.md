@@ -3,7 +3,7 @@
 
 **Program:** ThriveUp Workforce Readiness Academy
 **Provider:** The Collaborative Advocate (501(c)(3))
-**Contact:** Dr. Terry Flood, Founder & CEO
+**Contact:** Dr. Terry Flood, President
 **Alignment:** 100% aligned to TEKS §127.15 — Career and Technical Education Employability Skills (adopted 2025)
 **Duration:** 15 weeks per cohort (5 modules × 3 weeks each)
 **Grades:** 9–12 CTE students
@@ -258,5 +258,5 @@ The Workforce Readiness Academy connects students to ThriveUp's full platform:
 ---
 
 The Collaborative Advocate | 501(c)(3) | EIN 41-3618003
-Dr. Terry Flood, Founder & CEO
+Dr. Terry Flood, President
 thriveupacademy.com/workforce-readiness

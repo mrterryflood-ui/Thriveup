@@ -1,6 +1,7 @@
 import type { Express, Request, Response } from "express";
 import { db, storage } from "./storage";
-import { grantOpportunities, grantAlerts, platformGaps, insertGrantOpportunitySchema, advisoryBoardMembers, advisoryBoardMeetings, staffingPlanEntries, insertAdvisoryBoardMemberSchema, insertAdvisoryBoardMeetingSchema, insertStaffingPlanEntrySchema, outcomeTracking, participantProfiles, serviceRecords, grantReminders, grantChecklistItems, insertGrantReminderSchema, insertGrantChecklistItemSchema, grantSectionDrafts, documentSignatures, insertDocumentSignatureSchema } from "@shared/schema";
+import { grantOpportunities, grantAlerts, platformGaps, insertGrantOpportunitySchema, advisoryBoardMembers, advisoryBoardMeetings, staffingPlanEntries, insertAdvisoryBoardMemberSchema, insertAdvisoryBoardMeetingSchema, insertStaffingPlanEntrySchema, outcomeTracking, participantProfiles, serviceRecords, grantReminders, grantChecklistItems, insertGrantReminderSchema, insertGrantChecklistItemSchema, grantSectionDrafts, documentSignatures, insertDocumentSignatureSchema, proposalPipeline } from "@shared/schema";
+import { seedProposalPipeline } from "./seed-proposal-pipeline";
 import type { GrantOpportunity } from "@shared/schema";
 import { z } from "zod";
 import { eq, desc, sql, gte, lte, and, or, ilike } from "drizzle-orm";
@@ -4737,7 +4738,7 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
       subHeading("Competitive Landscape");
       bullet("Primary competitors: Austin-area consulting firms specializing in government facilitation");
       bullet("Secondary competitors: National government consulting firms (disadvantaged by lack of local knowledge)");
-      bullet("HIS advantage: Texas-based, CEO-led engagement (not delegated to junior staff), right-sized for the work");
+      bullet("HIS advantage: Texas-based, President-led engagement (not delegated to junior staff), right-sized for the work");
       bullet("Risk: Larger firms may underbid to establish a Travis County relationship \u2014 our price needs to be competitive, not premium");
 
       subHeading("Compliance Traps to Avoid");
@@ -6196,504 +6197,44 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
 
   app.get("/api/proposal-pipeline", async (_req: Request, res: Response) => {
     try {
-      const proposals = [
-        {
-          id: "nsf-stem-k12",
-          title: "Community Infrastructure for STEM: How a 24-Platform Ecosystem Improves K-12 STEM Outcomes by Seeing the Whole Child, the Whole Family, and the Whole Community",
-          shortTitle: "NSF STEM K-12",
-          solicitation: "NSF 25-545",
-          agency: "National Science Foundation",
-          entity: "TCAF (501(c)(3))",
-          priority: 1,
-          status: "framework_complete",
-          fundingRange: "$350K - $750K",
-          budgetTarget: 738000,
-          deadline: null,
-          deadlineLabel: "No Deadline — Submit Anytime",
-          partnersRequired: false,
-          partners: [],
-          frameworkDoc: "/docs/grants/NSF-STEM-K12-Proposal-Framework.md",
-          implementationScience: {
-            frameworks: ["CFIR 2.0", "RE-AIM"],
-            instrument: "RPLICE",
-            researchDesign: "Mixed-methods with embedded implementation evaluation",
-            evaluationLevel: "Effectiveness-Implementation Hybrid Type 2"
-          },
-          readinessChecklist: [
-            { item: "Project Summary (1 page)", status: "complete", note: "Drafted in framework" },
-            { item: "Project Description (15 pages)", status: "complete", note: "Full framework built — needs final polish" },
-            { item: "Budget & Justification", status: "complete", note: "$738K budget detailed" },
-            { item: "PI Biosketch (NSF format)", status: "action_required", note: "Dr. Flood — convert CV to NSF biosketch format" },
-            { item: "Current & Pending Support", status: "action_required", note: "List all active/pending support" },
-            { item: "Data Management Plan", status: "not_started", note: "2 pages max — standard NSF format" },
-            { item: "References Cited", status: "not_started", note: "Compile from framework citations" },
-            { item: "Facilities & Equipment", status: "not_started", note: "Describe ThriveUp platform infrastructure" },
-            { item: "SAM.gov TIN Resolution", status: "complete", note: "Resolved May 3, 2026" }
-          ],
-          blockers: [
-          ],
-          winStrategy: "Only applicant whose STEM platform is connected to cancer care, reentry services, veteran transitions, and family crisis support. The community infrastructure angle is unique in the NSF STEM K-12 portfolio.",
-          nextActions: [
-            "Convert Dr. Flood CV to NSF biosketch",
-            "Write Data Management Plan",
-            "Compile References Cited",
-            "Final polish on Project Description",
-            "Submit via Research.gov"
-          ]
-        },
-        {
-          id: "nsf-ate",
-          title: "AI-Ready Implementation Science Technicians: Training Community College Students to Bridge the Evidence-to-Practice Gap Using an Integrated Community Infrastructure Platform",
-          shortTitle: "NSF ATE",
-          solicitation: "NSF 24-586",
-          agency: "National Science Foundation",
-          entity: "ACC (Lead) + TCAF (Co-PI / Subaward)",
-          priority: 2,
-          status: "framework_complete",
-          fundingRange: "$150K - $600K",
-          budgetTarget: 599925,
-          deadline: "2026-10-01T23:59:59Z",
-          deadlineLabel: "October 1, 2026",
-          partnersRequired: true,
-          partners: [
-            { name: "Austin Community College (ACC)", role: "Lead Institution / PI", status: "connection_available", note: "Colleague contact at ACC — needs formal engagement" }
-          ],
-          frameworkDoc: "/docs/grants/NSF-ATE-Proposal-Framework.md",
-          implementationScience: {
-            frameworks: ["CFIR 2.0", "RE-AIM"],
-            instrument: "RPLICE",
-            researchDesign: "Mixed-methods quasi-experimental with embedded process evaluation",
-            evaluationLevel: "Meta-evaluation: using implementation science to evaluate implementation science training"
-          },
-          readinessChecklist: [
-            { item: "Project Summary (1 page)", status: "complete", note: "Drafted in framework" },
-            { item: "Project Description (15 pages)", status: "complete", note: "Full framework built — needs ACC PI input" },
-            { item: "Budget & Justification", status: "complete", note: "$599,925 over 3 years" },
-            { item: "ACC PI Identification", status: "action_required", note: "Must identify ACC faculty member as PI" },
-            { item: "ACC Institutional Letter", status: "action_required", note: "Dean/Provost commitment letter needed" },
-            { item: "PI Biosketch (NSF format)", status: "action_required", note: "Both ACC PI and Dr. Flood Co-PI" },
-            { item: "Current & Pending Support", status: "action_required", note: "Both PI and Co-PI" },
-            { item: "Collaboration Plan", status: "not_started", note: "ACC + TCAF roles and responsibilities" },
-            { item: "Data Management Plan", status: "not_started", note: "2 pages max" },
-            { item: "Employer Partner Letters (3-5)", status: "not_started", note: "Health departments, Integral Care, CommUnity Care, Workforce Solutions" },
-            { item: "SAM.gov TIN Resolution", status: "complete", note: "Resolved May 3, 2026 — TCAF subaward from ACC unblocked" }
-          ],
-          blockers: [
-            "ACC PI must be identified and engaged"
-          ],
-          winStrategy: "First-ever associate's level implementation science program. Students train on live community data, not simulations. The meta-evaluation design (using implementation science to evaluate implementation science training) is uniquely elegant.",
-          nextActions: [
-            "Engage ACC colleague — identify PI",
-            "Get ACC institutional commitment letter",
-            "Recruit 3-5 employer partners",
-            "Write Collaboration Plan",
-            "Write Data Management Plan",
-            "IRB planning with ACC"
-          ]
-        },
-        {
-          id: "nsf-iuse-edu",
-          title: "Ecosystem-Integrated STEM Education for Nontraditional Undergraduates: A Community Infrastructure Approach",
-          shortTitle: "NSF IUSE:EDU",
-          solicitation: "NSF 23-510",
-          agency: "National Science Foundation",
-          entity: "TCAF (501(c)(3))",
-          priority: 3,
-          status: "evaluation_complete",
-          fundingRange: "$150K - $400K",
-          budgetTarget: 400000,
-          deadline: "2026-07-15T23:59:59Z",
-          deadlineLabel: "July 15, 2026",
-          partnersRequired: false,
-          partners: [],
-          frameworkDoc: "/docs/grants/NSF-IUSE-EDU-RPLICE-Evaluation.md",
-          implementationScience: {
-            frameworks: ["CFIR 2.0", "RE-AIM"],
-            instrument: "RPLICE",
-            researchDesign: "To be developed — Level 1 Engaged Student Learning",
-            evaluationLevel: "Level 1: Engaged Student Learning"
-          },
-          readinessChecklist: [
-            { item: "RPLICE Fit Evaluation", status: "complete", note: "HIGH priority — no gap identified" },
-            { item: "Community Infrastructure Framing", status: "complete", note: "Education is subordinate domain, not the platform" },
-            { item: "Project Summary", status: "not_started", note: "1 page" },
-            { item: "Project Description", status: "not_started", note: "15 pages max — must differentiate from STEM K-12" },
-            { item: "Budget & Justification", status: "not_started", note: "Up to $400K" },
-            { item: "PI Biosketch", status: "action_required", note: "Dr. Flood — NSF format" },
-            { item: "Data Management Plan", status: "not_started", note: "2 pages max" },
-            { item: "SAM.gov TIN Resolution", status: "complete", note: "Resolved May 3, 2026" }
-          ],
-          blockers: [
-            "Must differentiate clearly from STEM K-12 submission"
-          ],
-          winStrategy: "Frame as undergraduate education research within a community infrastructure ecosystem. The platform doesn't just teach STEM — it shows how STEM learning is affected by housing, health, family stability, and community resources. No other IUSE proposal connects education to a 24-platform service delivery ecosystem.",
-          nextActions: [
-            "Build full proposal framework (similar to STEM K-12)",
-            "Differentiate from STEM K-12 in framing",
-            "Write Data Management Plan",
-            "Submit via Research.gov by July 15"
-          ]
-        },
-        {
-          id: "nsf-quantum",
-          title: "Quantum Education Through Community Infrastructure: Broadening Participation in Quantum Information Science",
-          shortTitle: "NSF Quantum DCL",
-          solicitation: "DCL 21-033",
-          agency: "National Science Foundation",
-          entity: "TCAF (501(c)(3))",
-          priority: 4,
-          status: "evaluation_complete",
-          fundingRange: "Embedded — adds $50K-$100K to parent proposal",
-          budgetTarget: 75000,
-          deadline: null,
-          deadlineLabel: "Embedded in STEM K-12 or IUSE:EDU — no separate deadline",
-          partnersRequired: false,
-          partners: [],
-          frameworkDoc: "/docs/grants/NSF-Quantum-Education-RPLICE-Evaluation.md",
-          implementationScience: {
-            frameworks: ["CFIR 2.0", "RE-AIM"],
-            instrument: "RPLICE",
-            researchDesign: "Two paths: embed in STEM K-12 (Path A) or standalone IUSE with quantum focus (Path B)",
-            evaluationLevel: "Secondary aim within parent proposal"
-          },
-          readinessChecklist: [
-            { item: "RPLICE Path Analysis", status: "complete", note: "Two paths evaluated — Path A (embed) recommended" },
-            { item: "Broadening Participation Angle", status: "complete", note: "Quantum currently excludes community populations" },
-            { item: "Quantum Curriculum Content", status: "not_started", note: "Must develop quantum concepts for community audience" },
-            { item: "Integration into Parent Proposal", status: "not_started", note: "Add as secondary aim in STEM K-12 or IUSE:EDU" }
-          ],
-          blockers: [
-            "Depends on STEM K-12 or IUSE:EDU parent proposal",
-            "Quantum content must be developed"
-          ],
-          winStrategy: "The broadening participation angle is the differentiator. Quantum education currently reaches elite universities — NOT the communities ThriveUp serves. We ARE the broadening participation engine. Add this as a secondary aim to any NSF submission for free optionality.",
-          nextActions: [
-            "Decide: embed in STEM K-12 (Path A) or IUSE:EDU (Path B)",
-            "Develop quantum-for-community curriculum outline",
-            "Add secondary aim to parent proposal"
-          ]
-        },
-        {
-          id: "twc-rfa-32026",
-          title: "Comprehensive Workforce Development and Time & Priority Management Training for Underserved Populations",
-          shortTitle: "TWC RFA 32026-00162",
-          solicitation: "RFA 32026-00162",
-          agency: "Texas Workforce Commission",
-          entity: "TCAF (501(c)(3))",
-          priority: 1,
-          status: "narrative_drafted",
-          fundingRange: "Per RFA specifications",
-          budgetTarget: 250000,
-          deadline: "2026-04-10T15:00:00Z",
-          deadlineLabel: "April 10, 2026, 10:00 AM CDT",
-          partnersRequired: false,
-          partners: [],
-          frameworkDoc: "/docs/grants/TWC-RFA-32026-00162-NARRATIVE.md",
-          implementationScience: {
-            frameworks: ["CFIR 2.0", "RE-AIM"],
-            instrument: "RPLICE",
-            researchDesign: "Program evaluation with implementation tracking",
-            evaluationLevel: "Implementation monitoring"
-          },
-          readinessChecklist: [
-            { item: "Full Narrative", status: "complete", note: "Drafted and structured per RFA requirements" },
-            { item: "Budget & Justification", status: "action_required", note: "Must finalize per RFA cost guidelines" },
-            { item: "Organizational Capacity", status: "complete", note: "TCAF qualifications documented" },
-            { item: "Final Review & Submission", status: "action_required", note: "Due April 10 — 5 days remaining" }
-          ],
-          blockers: [],
-          winStrategy: "Uniquely positioned with 24-platform community infrastructure that wraps workforce training in whole-person support — behavioral health, housing stability, family services. No other applicant connects time management training to community-level social determinants.",
-          nextActions: [
-            "Final budget review",
-            "Compliance check against RFA requirements",
-            "Submit by April 10, 10:00 AM CDT"
-          ]
-        },
-        {
-          id: "rare-impact-fund",
-          title: "Pathways to Purpose: Building Central Texas's Nonclinical Youth Mental Health Workforce",
-          shortTitle: "Rare Impact Fund LOI",
-          solicitation: "Strengthening the Nonclinical Youth Mental Health Workforce RFP",
-          agency: "Rare Impact Fund (Selena Gomez / Hopewell Fund)",
-          entity: "TCAF (501(c)(3))",
-          priority: 1,
-          status: "loi_drafted",
-          fundingRange: "$250,000 - $500,000",
-          budgetTarget: 350000,
-          deadline: "2026-04-10T23:59:59Z",
-          deadlineLabel: "April 10, 2026 — LOI via Google Form",
-          partnersRequired: false,
-          partners: [
-            { name: "Pflugerville ISD", role: "Recruitment pipeline via SHAC; school-based placement", status: "in_progress", note: "Dr. Flood on SHAC — existing relationship" },
-            { name: "Integral Care", role: "Downstream placement partner for trained nonclinical providers", status: "not_started", note: "Austin/Travis County mental health authority" },
-            { name: "Lone Star Circle of Care", role: "FQHC clinical supervision and CHW/navigator placement", status: "not_started", note: "Serving Williamson County" },
-            { name: "NAMI Central Texas", role: "Peer support specialist training alignment", status: "not_started", note: "Referral partnership" }
-          ],
-          frameworkDoc: "/docs/grants/RARE-IMPACT-FUND-LOI.md",
-          implementationScience: {
-            frameworks: ["CFIR 2.0", "RE-AIM"],
-            instrument: "RPLICE",
-            researchDesign: "Implementation science-driven workforce pipeline evaluation",
-            evaluationLevel: "Fidelity monitoring + disaggregated outcome tracking across full pipeline"
-          },
-          readinessChecklist: [
-            { item: "LOI Narrative Draft", status: "complete", note: "Full 1-2 page narrative drafted — all RFP prompts addressed" },
-            { item: "501(c)(3) determination letter", status: "action_required", note: "Dr. Flood to provide — REQUIRED for submission" },
-            { item: "Most recent Form 990 or org budget", status: "action_required", note: "Dr. Flood to provide — REQUIRED for submission" },
-            { item: "Leadership/staff overview", status: "action_required", note: "Board, exec leadership, key staff with expertise descriptions" },
-            { item: "Dr. Flood review of narrative", status: "action_required", note: "Needs his voice and approval before submission" },
-            { item: "Submit Google Form", status: "action_required", note: "https://forms.gle/jeP6kpsLMt6haw9m8 — DUE APRIL 10" }
-          ],
-          blockers: [
-            { issue: "501(c)(3) letter and Form 990 needed from Dr. Flood before submission", severity: "critical", resolution: "Dr. Flood must provide these documents ASAP — cannot submit without them" }
-          ],
-          winStrategy: "RPLICE is the differentiator — no other applicant has a proprietary implementation science engine that monitors workforce training fidelity AND drives 30-day improvement cycles. TCAF covers ALL 5 pipeline stages (recruit, train, place, upskill, retain) while most applicants will only cover 1-2. Culturally responsive curriculum is LIVE (not proposed). GIS intelligence targets recruitment to exact census tracts with highest need. Black-led, veteran-founded = authentic community rootedness. The technology platform is permanent infrastructure, not a time-limited program.",
-          nextActions: [
-            "Dr. Flood: Review LOI narrative and provide feedback IMMEDIATELY",
-            "Dr. Flood: Provide 501(c)(3) determination letter",
-            "Dr. Flood: Provide most recent Form 990 or organizational budget",
-            "Prepare leadership/staff overview document",
-            "Submit via Google Form by April 10, 2026"
-          ]
-        },
-        {
-          id: "dol-restart",
-          title: "Reentry Employment Support and Training (RESTART) — Comprehensive Workforce Reintegration for Justice-Involved Individuals",
-          shortTitle: "DOL RESTART",
-          solicitation: "FOA-ETA-26-17",
-          agency: "U.S. Department of Labor",
-          entity: "TCAF (501(c)(3))",
-          priority: 2,
-          status: "research_complete",
-          fundingRange: "Up to $5.1M",
-          budgetTarget: 5100000,
-          deadline: "2026-04-15T23:59:59Z",
-          deadlineLabel: "April 15, 2026, 11:59 PM ET",
-          partnersRequired: true,
-          partners: [
-            { name: "Local Workforce Development Board", role: "Required MOU Partner", status: "action_required", note: "Call 512-597-7100 for MOU" },
-            { name: "Registered Apprenticeship Sponsor", role: "Required MOU Partner", status: "action_required", note: "Call 512-936-3681" },
-            { name: "Correctional Facility", role: "Pre-release Access Partner", status: "action_required", note: "Call 936-437-6368" }
-          ],
-          frameworkDoc: "/docs/grants/DOL-RESTART-FOA-ETA-26-17-RESEARCH.md",
-          implementationScience: {
-            frameworks: ["CFIR 2.0", "RE-AIM"],
-            instrument: "RPLICE",
-            researchDesign: "Multi-site quasi-experimental with implementation evaluation",
-            evaluationLevel: "Effectiveness-Implementation Hybrid"
-          },
-          readinessChecklist: [
-            { item: "FOA Research & Analysis", status: "complete", note: "Full FOA analyzed and documented" },
-            { item: "Program Design", status: "complete", note: "Multi-phase reentry model designed" },
-            { item: "LWDB MOU", status: "blocker", note: "Must secure Local Workforce Development Board MOU — 512-597-7100" },
-            { item: "Employer Letters of Commitment", status: "blocker", note: "Need employer partners willing to hire justice-involved individuals" },
-            { item: "Registered Apprenticeship MOU", status: "blocker", note: "512-936-3681 — required partnership" },
-            { item: "Correctional Facility Agreement", status: "blocker", note: "936-437-6368 — pre-release access required" },
-            { item: "Sites 2 & 3 Identification", status: "blocker", note: "Must identify additional service delivery sites" },
-            { item: "Budget & Justification", status: "not_started", note: "Up to $5.1M over performance period" },
-            { item: "SAM.gov TIN Resolution", status: "complete", note: "Resolved May 3, 2026" }
-          ],
-          blockers: [
-            "LWDB MOU not secured",
-            "No employer commitment letters",
-            "No Registered Apprenticeship MOU",
-            "No correctional facility agreement",
-            "Sites 2 & 3 unidentified"
-          ],
-          winStrategy: "Only applicant with a 24-platform ecosystem purpose-built for justice-involved population reentry. Criminal justice, behavioral health, workforce training, housing, and family reunification all integrated in one platform. The community infrastructure model eliminates the siloed service delivery that causes recidivism.",
-          nextActions: [
-            "Call LWDB for MOU (512-597-7100)",
-            "Call Registered Apprenticeship sponsor (512-936-3681)",
-            "Call correctional facility (936-437-6368)",
-            "Identify Sites 2 & 3",
-            "Secure employer commitment letters",
-            "Build full budget justification"
-          ]
-        },
-        {
-          id: "stdavids-wab2",
-          title: "Workforce & Adult Basic Education Pipeline: Community-Integrated Career Pathways for Pflugerville/Manor",
-          shortTitle: "St. David's WAB2 LOI",
-          solicitation: "WAB2 LOI Cycle",
-          agency: "St. David's Foundation",
-          entity: "TCAF (501(c)(3))",
-          priority: 2,
-          status: "loi_complete",
-          fundingRange: "Per foundation guidelines",
-          budgetTarget: 300000,
-          deadline: "2026-04-27T22:00:00Z",
-          deadlineLabel: "April 27, 2026, 5:00 PM CT",
-          partnersRequired: true,
-          partners: [
-            { name: "Coalition Partners", role: "Community delivery partners", status: "in_progress", note: "Coalition partner presentation built" }
-          ],
-          frameworkDoc: "/docs/grants/St-Davids-WAB2-LOI-Package.md",
-          implementationScience: {
-            frameworks: ["CFIR 2.0", "RE-AIM"],
-            instrument: "RPLICE",
-            researchDesign: "Community-based implementation evaluation",
-            evaluationLevel: "Process evaluation with outcome tracking"
-          },
-          readinessChecklist: [
-            { item: "LOI Final Draft", status: "complete", note: "Full LOI package built and reviewed" },
-            { item: "LOI Package Materials", status: "complete", note: "Supporting documents assembled" },
-            { item: "Coalition Partner Presentation", status: "complete", note: "Presentation built for partners" },
-            { item: "Strategic Alignment Analysis", status: "complete", note: "St. David's alignment documented" },
-            { item: "Final Review & Submission", status: "action_required", note: "Due April 27 — 22 days remaining" }
-          ],
-          blockers: [],
-          winStrategy: "Deep local roots in Pflugerville/Manor with existing community hub infrastructure. The 24-platform ecosystem demonstrates capacity beyond any other applicant. St. David's strategic alignment analysis shows direct fit with foundation priorities.",
-          nextActions: [
-            "Final LOI review with coalition partners",
-            "Submit by April 27, 5:00 PM CT"
-          ]
-        },
-        {
-          id: "agency-fund-spring2026",
-          title: "ThriveUp Academy: An AI-Powered Community Agency Platform — Turning Census Data into Compassionate Action",
-          shortTitle: "Agency Fund EOI",
-          solicitation: "Spring 2026 Open Call",
-          agency: "The Agency Fund",
-          entity: "TCAF (501(c)(3))",
-          priority: 1,
-          status: "eoi_drafted",
-          fundingRange: "$75K - $500K",
-          budgetTarget: 350000,
-          deadline: "2026-04-26T23:59:59Z",
-          deadlineLabel: "April 26, 2026 (Stage 1 EOI)",
-          partnersRequired: false,
-          partners: [],
-          frameworkDoc: "/attached_assets/Agency_Fund_EOI_Collaborative_Advocate.md",
-          implementationScience: {
-            frameworks: ["CFIR 2.0", "RE-AIM"],
-            instrument: "RPLICE",
-            researchDesign: "Mixed-methods with rapid iteration and RE-AIM evaluation",
-            evaluationLevel: "Implementation evaluation with agency measurement"
-          },
-          readinessChecklist: [
-            { item: "Expression of Interest Draft", status: "complete", note: "Full EOI drafted — 14 sections, theory of change, evidence base, budget" },
-            { item: "Organization Details", status: "complete", note: "TCAF 501(c)(3), EIN 41-3618003, Dr. Terry Flood President" },
-            { item: "Alignment Analysis", status: "complete", note: "Strong fit across all Agency Fund criteria — agency, dignity, technology, scale" },
-            { item: "Evidence Base", status: "complete", note: "Stillwell (2026) SVI research, 8 federal data sources, implementation science frameworks" },
-            { item: "Path to Scale (1M+ users)", status: "complete", note: "Zero-marginal-cost tech, church networks, workforce board expansion strategy" },
-            { item: "Budget & Use of Funds", status: "complete", note: "$350K over 18 months — platform dev, community deployment, research, operations, dissemination" },
-            { item: "Final Review & Submission", status: "action_required", note: "Review EOI and submit via lnkd.in/gtDTYQcn or agency.fund/apply by April 26" }
-          ],
-          blockers: [],
-          winStrategy: "Neighborhood Intelligence is the perfect Agency Fund project — it literally builds agency by putting Census data directly into community members' hands. The 'what if' scenario sandbox transforms data from diagnosis into possibility. 4-engine AI consensus system, zero-training-required interface, church network distribution. Strong alignment with their AI accelerator track (OpenAI partnership).",
-          nextActions: [
-            "Final review of EOI draft",
-            "Submit Stage 1 EOI by April 26 via agency.fund/apply",
-            "If shortlisted: Full application Stage 2 (May 4-18, 2026)"
-          ]
-        },
-        {
-          id: "nsf-sbir-phase1",
-          title: "Community Intelligence Consensus Engine: A Multi-Model AI Architecture for Real-Time Social Determinants Analysis and Community Agency",
-          shortTitle: "NSF SBIR Phase I",
-          solicitation: "NSF SBIR/STTR (Pending Reauthorization)",
-          agency: "National Science Foundation",
-          entity: "M&T Consulting (For-Profit)",
-          priority: 1,
-          status: "concept_development",
-          fundingRange: "$305K (Phase I) / $1.2M (Phase II)",
-          budgetTarget: 305000,
-          deadline: null,
-          deadlineLabel: "SBIR Reauthorization expected April 15, 2026 — new windows TBD",
-          partnersRequired: false,
-          partners: [
-            { name: "Eighteen Ventures (Darrell Williams)", role: "SBIR Proposal Development Consultant", status: "connection_available", note: "Contact via LinkedIn DM for proposal development assistance" }
-          ],
-          frameworkDoc: "/attached_assets/NSF_SBIR_Phase1_Concept.md",
-          implementationScience: {
-            frameworks: ["CFIR 2.0", "RE-AIM"],
-            instrument: "RPLICE",
-            researchDesign: "Technical feasibility demonstration with pilot community deployment",
-            evaluationLevel: "Phase I: Proof of concept and prototype validation"
-          },
-          readinessChecklist: [
-            { item: "Innovation Concept Document", status: "complete", note: "4-engine consensus AI + Neighborhood Intelligence + RPLICE instrument — novel technology documented" },
-            { item: "Commercial Potential Analysis", status: "complete", note: "SaaS model, workforce boards (600+ nationwide), FQHCs, county health departments" },
-            { item: "Technical Architecture", status: "complete", note: "4-engine AI (Gemini + Claude + GPT-4o-mini + DeepSeek), 8 federal API integrations, working prototype" },
-            { item: "Working Prototype", status: "complete", note: "ThriveUp Academy is live — 24 platforms, Neighborhood Intelligence operational" },
-            { item: "SAM.gov Registration (M&T Consulting)", status: "action_required", note: "Register M&T Consulting as for-profit entity — NAICS 541611, 541511, 611430" },
-            { item: "SBIR Proposal Draft", status: "not_started", note: "Awaiting SBIR reauthorization and new solicitation windows" },
-            { item: "Contact Darrell Williams (Eighteen Ventures)", status: "action_required", note: "LinkedIn DM for SBIR proposal development assistance" }
-          ],
-          blockers: [
-            "SBIR reauthorization pending — expected law by April 15, 2026",
-            "M&T Consulting SAM.gov registration needed"
-          ],
-          winStrategy: "No other SBIR applicant has a multi-model AI consensus architecture for community health. The 4-engine system (Gemini + Claude + GPT-4o-mini + DeepSeek) eliminates single-model bias — this is genuinely novel. The working prototype (24 platforms live, Neighborhood Intelligence operational) de-risks the Phase I dramatically. RPLICE as a validated implementation science instrument embedded in the technology gives scientific credibility that pure tech startups lack. Stillwell (2026) SVI research under review at Nature adds academic weight.",
-          nextActions: [
-            "Contact Darrell Williams at Eighteen Ventures via LinkedIn DM",
-            "Register M&T Consulting on SAM.gov with SBIR-relevant NAICS codes",
-            "Monitor SBIR reauthorization — expected April 15, 2026",
-            "Draft NSF SBIR Phase I proposal once solicitation window opens",
-            "Prepare technical feasibility documentation from working platform"
-          ]
-        },
-        {
-          id: "nih-sbir-phase1",
-          title: "AI-Powered Social Determinants of Health Intelligence Platform: Reducing Health Disparities Through Real-Time Community Data and Behavioral Health Navigation",
-          shortTitle: "NIH SBIR Phase I",
-          solicitation: "NIH SBIR/STTR (Pending Reauthorization)",
-          agency: "National Institutes of Health",
-          entity: "M&T Consulting (For-Profit)",
-          priority: 2,
-          status: "concept_development",
-          fundingRange: "$314K (Phase I) / $2M (Phase II)",
-          budgetTarget: 314000,
-          deadline: null,
-          deadlineLabel: "SBIR Reauthorization expected April 15, 2026 — new windows TBD",
-          partnersRequired: false,
-          partners: [
-            { name: "Eighteen Ventures (Darrell Williams)", role: "SBIR Proposal Development Consultant", status: "connection_available", note: "Contact via LinkedIn DM for proposal development assistance" }
-          ],
-          frameworkDoc: "/attached_assets/NIH_SBIR_Phase1_Concept.md",
-          implementationScience: {
-            frameworks: ["CFIR 2.0", "RE-AIM"],
-            instrument: "RPLICE",
-            researchDesign: "Digital health intervention feasibility with SDOH integration",
-            evaluationLevel: "Phase I: Proof of concept for health equity technology"
-          },
-          readinessChecklist: [
-            { item: "Health Innovation Concept", status: "complete", note: "6 health platforms (Sankofa, Black Maternal, SafeCogniCare, PillScheduler, Black Men's Health, Holistic BFH) + SDOH data integration" },
-            { item: "Health Disparities Focus", status: "complete", note: "SVI scoring identifies highest-vulnerability communities, connects to health services, benefits navigation" },
-            { item: "Digital Health Technology", status: "complete", note: "AI-powered benefits screener, medication adherence (PillScheduler), cognitive health monitoring (SafeCogniCare)" },
-            { item: "SDOH Data Integration", status: "complete", note: "8 federal data sources, real-time Census ACS, CDC PLACES health outcomes, SAMHSA treatment locator" },
-            { item: "Research Foundation", status: "complete", note: "Stillwell (2026) SVI-education correlation, RPLICE implementation science, CDC/ATSDR SVI methodology" },
-            { item: "SAM.gov Registration (M&T Consulting)", status: "action_required", note: "Register M&T Consulting as for-profit entity — NAICS 541511, 541611" },
-            { item: "NIH SBIR Proposal Draft", status: "not_started", note: "Awaiting SBIR reauthorization and NIH solicitation windows" },
-            { item: "Contact Darrell Williams (Eighteen Ventures)", status: "action_required", note: "LinkedIn DM for SBIR proposal development assistance" }
-          ],
-          blockers: [
-            "SBIR reauthorization pending — expected law by April 15, 2026",
-            "M&T Consulting SAM.gov registration needed"
-          ],
-          winStrategy: "The health equity platform cluster is unique — no other SBIR applicant connects Black maternal health, cognitive health monitoring, medication adherence, and SDOH data in a single ecosystem. The Neighborhood Intelligence tool transforms abstract health statistics into compassionate, actionable community profiles. NIH values health disparities reduction — ThriveUp is purpose-built for it. CDC PLACES integration gives tract-level health outcome data that competitors don't have. RPLICE provides the implementation science rigor NIH reviewers expect. Phase II ($2M) potential makes this a high-upside investment.",
-          nextActions: [
-            "Contact Darrell Williams at Eighteen Ventures via LinkedIn DM",
-            "Register M&T Consulting on SAM.gov",
-            "Identify target NIH institute (NIMHD — National Institute on Minority Health and Health Disparities is strongest fit)",
-            "Monitor SBIR reauthorization — expected April 15, 2026",
-            "Draft NIH-specific aims page once solicitation opens",
-            "Map platform health features to NIH program priorities"
-          ]
-        }
-      ];
+      const rows = await db.select().from(proposalPipeline).orderBy(proposalPipeline.priority);
+      const proposals: any[] = rows.map(r => r.data);
+
+      const now = new Date();
+      const thirtyDays = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+      const federalUpcoming = await db.select({
+        id: grantOpportunities.id,
+        title: grantOpportunities.title,
+        agency: grantOpportunities.agency,
+        deadline: grantOpportunities.deadline,
+        fundingAmount: grantOpportunities.fundingAmount,
+      })
+        .from(grantOpportunities)
+        .where(and(gte(grantOpportunities.deadline, now), lte(grantOpportunities.deadline, thirtyDays)))
+        .orderBy(grantOpportunities.deadline)
+        .limit(50);
 
       const summary = {
         totalProposals: proposals.length,
-        totalPotentialFunding: proposals.reduce((sum, p) => sum + p.budgetTarget, 0),
+        totalPotentialFunding: proposals.reduce((sum, p) => sum + (Number(p.budgetTarget) || 0), 0),
         readyToSubmit: proposals.filter(p => p.status === "submission_ready").length,
         frameworksComplete: proposals.filter(p => p.status === "framework_complete").length,
         evaluationsComplete: proposals.filter(p => p.status === "evaluation_complete").length,
-        criticalBlockers: [],
+        submitted: proposals.filter(p => p.status === "submitted" || p.status === "loi_complete").length,
+        deadlinePassedUnconfirmed: proposals.filter(p => p.status === "deadline_passed").length,
+        criticalBlockers: [] as string[],
         upcomingDeadlines: proposals
-          .filter(p => p.deadline)
-          .sort((a, b) => new Date(a.deadline!).getTime() - new Date(b.deadline!).getTime())
-          .map(p => ({ title: p.shortTitle, deadline: p.deadlineLabel, daysRemaining: Math.ceil((new Date(p.deadline!).getTime() - Date.now()) / (1000 * 60 * 60 * 24)) }))
+          .filter(p => p.deadline && new Date(p.deadline) >= now)
+          .sort((a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime())
+          .map(p => ({ title: p.shortTitle, deadline: p.deadlineLabel, daysRemaining: Math.ceil((new Date(p.deadline).getTime() - Date.now()) / (1000 * 60 * 60 * 24)) })),
+        federalOpportunitiesNext30Days: federalUpcoming.map(g => ({
+          id: g.id,
+          title: g.title,
+          agency: g.agency,
+          deadline: g.deadline,
+          fundingAmount: g.fundingAmount,
+          daysRemaining: g.deadline ? Math.ceil((new Date(g.deadline).getTime() - Date.now()) / (1000 * 60 * 60 * 24)) : null,
+        })),
       };
 
       res.json({ proposals, summary });
@@ -6741,6 +6282,7 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
     console.log("[GrantDiscovery] Re-scoring all existing grants with current algorithm...");
     try {
       await recomputeAllGrantFitScores();
+      await seedProposalPipeline();
     } catch (e) {
       console.error("[GrantDiscovery] Re-score on startup failed:", e);
     }

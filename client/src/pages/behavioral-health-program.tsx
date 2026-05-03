@@ -20,7 +20,7 @@ export default function BehavioralHealthProgramPage() {
       <div className="space-y-3">
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="outline" className="gap-1.5 border-emerald-500 text-emerald-700 dark:text-emerald-300">
-            <Heart className="h-3.5 w-3.5" aria-hidden="true" /> Texas Medicaid Aligned · Foundation Pathway
+            <Heart className="h-3.5 w-3.5" aria-hidden="true" /> Texas Medicaid Aligned · Foundation Application Ready
           </Badge>
           <Badge variant="outline">MCO-Billable Service Design</Badge>
         </div>
@@ -34,6 +34,22 @@ export default function BehavioralHealthProgramPage() {
         </p>
       </div>
 
+      <Card className="border-red-300 bg-red-50 dark:bg-red-950/30">
+        <CardContent className="pt-6">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="h-5 w-5 text-red-700 dark:text-red-400 shrink-0 mt-0.5" aria-hidden="true" />
+            <div className="text-sm space-y-1">
+              <p className="font-semibold text-red-900 dark:text-red-200">If you or someone you know is in crisis:</p>
+              <p className="text-muted-foreground">
+                Call or text <span className="font-semibold text-foreground">988</span> for the Suicide & Crisis Lifeline.
+                Veterans: dial <span className="font-semibold text-foreground">988, then Press 1</span> or text <span className="font-semibold text-foreground">838255</span>.
+                Available 24/7. Free and confidential.
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       <Card className="border-amber-300 bg-amber-50 dark:bg-amber-950/30">
         <CardContent className="pt-6">
           <div className="flex items-start gap-3">
@@ -43,10 +59,12 @@ export default function BehavioralHealthProgramPage() {
               <p className="text-muted-foreground">
                 This program is in <span className="font-semibold text-foreground">launch
                 preparation</span>. The screening protocol, navigation model, partnership pathway, and
-                outcome framework documented here are application-ready as of April 2026. Foundation
-                outreach is active (status documented). We disclose this transparently because
-                foundation program officers reward focused programs with credible operational plans
-                over inflated claims.
+                outcome framework documented here are application-ready as of April 2026. St. David's
+                Foundation is currently <span className="font-semibold text-foreground">actively
+                evaluating</span> our We All Benefit 2.0 Letter of Intent — no funding is confirmed.
+                MCO discussions (Superior HealthPlan / Centene, Sendero) are in early outreach.
+                We disclose this transparently because foundation program officers reward focused
+                programs with credible operational plans over inflated partnership claims.
               </p>
             </div>
           </div>
@@ -162,7 +180,7 @@ export default function BehavioralHealthProgramPage() {
           <div className="space-y-2">
             <PartnerRow name="Integral Care (Travis County LMHA)" role="Local Mental Health Authority — primary clinical referral and crisis-response partner" stage="outreach" />
             <PartnerRow name="CommUnityCare Health Centers" role="Federally Qualified Health Center — primary care + behavioral health integration" stage="discovery" />
-            <PartnerRow name="Foundation-aligned community health network" role="Community health partners aligned via local foundation networks" stage="outreach" />
+            <PartnerRow name="Community health partner network (TBD)" role="Community-based providers identified via local foundation referral networks — none confirmed yet" stage="outreach" />
             <PartnerRow name="People's Community Clinic" role="Federally Qualified Health Center — East Austin and Manor service area" stage="aspirational" />
           </div>
           <PartnershipStatusLegend />
@@ -190,6 +208,38 @@ export default function BehavioralHealthProgramPage() {
             All outcomes reported quarterly and surfaced on the public Transparency dashboard. Data
             collection complies with HIPAA and 42 CFR Part 2 (substance use confidentiality) where
             applicable.
+          </p>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <BarChart3 className="h-5 w-5 text-primary" aria-hidden="true" /> HEDIS / Value-Based-Care Alignment
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3 text-sm">
+          <p className="text-muted-foreground">
+            For Medicaid managed-care partners (Superior HealthPlan / Centene, Sendero, Dell
+            Children's), program activities map to the following NCQA HEDIS measures and CMS
+            Adult/Child Core Set indicators. This is the ROI story for an MCO partner — every
+            screening and warm handoff documented here moves a measurable HEDIS gap.
+          </p>
+          <div className="grid sm:grid-cols-2 gap-2">
+            <Metric name="FUH — Follow-Up After Hospitalization for Mental Illness (7-day, 30-day)" />
+            <Metric name="FUM — Follow-Up After ED Visit for Mental Illness" />
+            <Metric name="AMM — Antidepressant Medication Management (acute & continuation phase)" />
+            <Metric name="DEP-REM-12 — Depression Remission at 12 Months (PHQ-9 documented improvement)" />
+            <Metric name="POD — Pharmacotherapy for Opioid Use Disorder" />
+            <Metric name="IET — Initiation & Engagement of Substance Use Disorder Treatment" />
+            <Metric name="PND-CH-2 — Prenatal Depression Screening (postpartum EPDS surfaces this)" />
+            <Metric name="ADD — Follow-Up Care for Children Prescribed ADHD Medication" />
+          </div>
+          <p className="text-xs text-muted-foreground italic">
+            Total-cost-of-care reduction story: every avoided ED visit and inpatient psychiatric
+            admission via warm-handoff and Caring Contacts protocols translates directly to MCO
+            shared-savings. Detailed cost-avoidance projections will be modeled jointly with each
+            MCO partner during contracting (no projections published here without partner sign-off).
           </p>
         </CardContent>
       </Card>

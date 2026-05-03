@@ -241,5 +241,5 @@ A 19-platform integrated set of community-support tools, powered by artificial i
 ---
 
 *Prepared by ThriveUp Academy's 19-platform AI-powered ecosystem*
-*Dr. Terry Flood, Founder and CEO*
+*Dr. Terry Flood, President*
 *thrivingcommunitiesforall.com*

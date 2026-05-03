@@ -1650,6 +1650,15 @@ export const insertGrantOpportunitySchema = createInsertSchema(grantOpportunitie
 export type InsertGrantOpportunity = z.infer<typeof insertGrantOpportunitySchema>;
 export type GrantOpportunity = typeof grantOpportunities.$inferSelect;
 
+export const proposalPipeline = pgTable("proposal_pipeline", {
+  id: varchar("id", { length: 100 }).primaryKey(),
+  priority: integer("priority").notNull().default(99),
+  deadline: timestamp("deadline"),
+  data: jsonb("data").notNull(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+export type ProposalPipelineRow = typeof proposalPipeline.$inferSelect;
+
 // NSF 26-508 Hub Workbench: live intelligence cache. 24h TTL per (state, queryType, queryHash).
 export const nationwideDiscoveries = pgTable("nationwide_discoveries", {
   id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),

@@ -36,9 +36,10 @@ export default function NonDiscriminationPage() {
             The Collaborative Advocate Foundation (TCAF) and Abundant Life Church (ALC), operating jointly
             as fiscal sponsor and program partner, do not discriminate on the basis of race, color, national
             origin, ethnicity, ancestry, religion, creed, sex, gender identity or expression, sexual
-            orientation, age, marital status, parental status, military or veteran status, disability,
-            genetic information, citizenship status, or any other characteristic protected by federal,
-            state, or local law.
+            orientation, age, marital status, parental status, military or veteran status, character of
+            military discharge (including OTH), disability, genetic information, citizenship status,
+            justice-involved status (arrest record, conviction history, or current/prior incarceration),
+            or any other characteristic protected by federal, state, or local law.
           </p>
           <p>
             This commitment applies to every program, service, employment decision, contracting

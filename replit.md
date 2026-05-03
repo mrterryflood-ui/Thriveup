@@ -541,14 +541,186 @@ P0/P1 punch-list: `paypal.me/TERRYFLOODCEO` hidden from visible labels,
   `research_complete`), Agency Fund EOI (Apr 26 — `eoi_drafted`). Each must
   be flipped to `submitted` / `not_submitted` with a reason, not left ambiguous.
 - **Action durably owed to make the dashboard honest:**
-  1. Flip every `"SAM.gov TIN Resolution"` checklist item from `blocker` to
-     `complete` in `server/grant-routes.ts`.
-  2. Either (a) refactor `/api/proposal-pipeline` to read from a real table
-     so the 80+ opportunities above are surfaced, or (b) at minimum extend
-     the hardcoded array to include the 18+ near-deadline items above with
-     real status fields.
-  3. Reconcile the 4 ambiguous-status items above against
-     `docs/grants/submitted/` and update statuses honestly.
+  1. DONE (May 3, 2026): Flipped every `"SAM.gov TIN Resolution"` checklist
+     item from `blocker` to `complete` in `server/grant-routes.ts`; deleted
+     5 TIN-related blocker strings and 4 next-actions.
+  2. DONE (May 3, 2026): Refactored `/api/proposal-pipeline` to read from a
+     new `proposal_pipeline` table (id, priority, deadline, jsonb data,
+     updatedAt) defined in `shared/schema.ts` line 1656. Seed lives in
+     `server/seed-proposal-pipeline.ts` and runs idempotently on startup
+     (~15s after boot). Dashboard now serves **29 proposals / $23.81M**
+     (up from 11 / $8.78M) and additionally cross-references the
+     `grant_opportunities` table for federal opportunities due in the next
+     30 days (50 surfaced as of May 3, 2026). Snapshot of the original
+     11-proposal hardcoded array preserved at
+     `.local/snapshots/proposal-pipeline-2026-05-03.json` for audit trail.
+  3. PENDING (needs Dr. Flood input): Reconcile the 3 remaining
+     `deadline_passed` items (RWJF Learning from Abroad, Gates AI
+     Challenge, NLM G08) and the 4 ambiguous statuses (TWC, Rare Impact,
+     DOL RESTART, Agency Fund EOI) against `docs/grants/submitted/`.
+
+- **New schema table (Section 3 count update):** `proposal_pipeline`
+  (jsonb-backed, queryable) brings schema table count to **249**.
+
+- **New server file:** `server/seed-proposal-pipeline.ts` is single source
+  of truth for what's in the pipeline. To add a proposal: add an entry to
+  `newOpportunities[]` and clear the table (or update the row directly via
+  SQL). Never re-introduce a hardcoded array in the route handler.
+
+### AUDIT PASS-1 — Four-Lens Reviewer Audit (May 3, 2026)
+Ran four parallel reviewer-lens audits (BJA SCA, NSF, Centene/MCO, VA SSG Fox)
+on Cycle B pages plus supporting docs. Convergent findings across all four
+lenses + immediate fixes applied:
+
+**P0/P1 fixes shipped this cycle:**
+1. **Cardinal-rule sweep — "President" not "CEO":** swept 22 files
+   (docs/grants/* LOI packages, TWC Form A/B, narrative, walkthrough;
+   PBC integration; austin housing; bb-collective; rare impact; borealis;
+   NSF TechAccess LOI; coalition presentation; rag-engine.ts;
+   ecosystem-directives-seed.ts; seed-workforce-lessons.ts;
+   grant-routes.ts; attached_assets/TWC_PfISD). All "Founder & CEO" /
+   "Founder and CEO" / "Founder/CEO" / "Dr. Terry Flood, CEO" /
+   "(CEO/PI)" / "CEO/Executive Director" / "CEO-led engagement" → President
+   variants. **Legitimate uses preserved:** replit.md rule self-references;
+   "Center for Employment Opportunities (CEO)" org name; teaching examples
+   in seed-scenarios.ts and seed-ai-lessons-full.ts; third-party CEOs in
+   mentorship-directory; "think like a CEO" generic in academy-quests;
+   ISS LLC pitch (Dr. Flood's separate for-profit, CEO is correct title);
+   proposal-command placeholder for OTHER orgs' contacts.
+2. **St. David's drift — Centene P0:** behavioral-health-program.tsx
+   line 26 badge "Foundation Pathway" → "Foundation Application Ready";
+   honest-disclosure card lines 47-54 rewritten to explicitly state
+   "St. David's Foundation is currently actively evaluating our We All
+   Benefit 2.0 Letter of Intent — no funding is confirmed"; partner row
+   "Foundation-aligned community health network" → "Community health
+   partner network (TBD) — none confirmed yet".
+3. **HEDIS / Value-Based-Care section — Centene P1:** new card on
+   behavioral-health-program.tsx maps program activities to 8 NCQA HEDIS
+   measures (FUH, FUM, AMM, DEP-REM-12, POD, IET, PND-CH-2, ADD) with
+   honest cost-avoidance disclaimer (no projections without partner
+   sign-off).
+4. **VA SSG Fox alignment — VA P2:** veterans-program.tsx badge changed
+   to "SSG Fox Suicide Prevention Grant — FY27 Launch Cohort"; added MST
+   survivors, LGBTQ+ Veterans, justice-involved Veterans to "Who We
+   Serve"; added CAMS as 5th evidence-based model; expanded CALM card
+   with Travis County Sheriff/FFL/Walk the Talk America/Hold My Guns
+   lethal means safety distribution partnerships.
+5. **NSF P2 evidence overclaim:** research-hub.tsx RE-AIM "e1" question
+   — replaced 4-option ["Anecdotal", "Promising", "Evidence-informed",
+   "Evidence-based (RCT)"] with 5-option ladder including
+   "Quasi-experimental / pilot evaluation" and "RCT-validated
+   (peer-reviewed)" so users can't overclaim RCT status they don't have.
+
+**Final cardinal-rule sweep status (verified clean across entire repo):**
+32 files updated total — beyond the original 22, the second pass caught:
+attached_assets/{NIH_SBIR_Phase1_Concept,NSF_SBIR_Phase1_Concept,
+Agency_Fund_EOI_Collaborative_Advocate}.md; build-deck-v6.mjs; 4 deck/
+resume generator scripts (scripts/generate-{reentry-pptx,presentation,
+tntp-resume}.cjs + script/generate-pptx.cjs); and 5 .doc files which
+turned out to be HTML/ASCII-text (not binary Word) so sed-able:
+RWJF-CV-Terry-Flood.doc, TCAF-Financial-Additional-Context.doc,
+TCAF-Organizational-Budget-FY2025-2026.doc,
+TWC-RFA-32026-00162-FORM-A-APPLICATION.doc,
+TX-Reentry-Stipend-Pilot-Overview.doc. ZERO residual "Founder & CEO" /
+"Founder and CEO" / "Dr. Terry Flood, CEO" anywhere outside the
+explicitly allowlisted teaching/third-party/ISS-LLC contexts.
+
+**Live runtime fix during PASS-1:** veterans-program.tsx was missing a
+local `Metric` helper component (used at line 254-261 for outcome metric
+display). Added a 7-line `function Metric({ name }: { name: string })`
+helper alongside Population/ModelCard/PartnerRow/CertRow at line 296.
+Page now returns 200 and renders correctly with SSG Fox badge, Crisis
+Line callout, and full evidence-based model cards including new CAMS card.
+
+## AUDIT PASS-2 (April 2026) — Site-wide cross-cutting
+
+PASS-2 ran 4 parallel reviewer-lens audits with broader-scope mandate
+(don't re-litigate Cycle B pages — find cross-page drift, navigation
+gaps, missed compliance items). Convergent fixes shipped in 5 files:
+
+1. **VA P0 — Crisis Line surfacing inconsistency.** /veterans had the
+   988+Press 1 / text 838255 callout but /reentry-program and
+   /behavioral-health-program did not. Added a red-bordered Crisis Line
+   card immediately under the page header (above the existing amber
+   "honest disclosure" card) on both pages. Now ≤1 click from any of
+   the three program pages a person in crisis can reach 988.
+
+2. **BJA P0 — Justice-involved status missing from non-discrimination
+   protected classes.** non-discrimination.tsx Commitment block now
+   explicitly enumerates "justice-involved status (arrest record,
+   conviction history, or current/prior incarceration)" and "character
+   of military discharge (including OTH)" — both required for federal
+   reentry and Veteran grant compliance.
+
+3. **NSF P1 — Transparency Matrix auth-gated, blocking reviewers.**
+   transparency-matrix.tsx wrapped in <RequireAuth> meant NSF/BJA
+   reviewers clicking from grants pages hit a login wall. Removed the
+   gate (and the unused import) so the matrix is publicly readable —
+   that's the entire point of a transparency artifact.
+
+4. **VA P1 — Peer Support certification overclaim in staffing plan.**
+   staffing-plan.tsx SAMHSA roster listed "Certified Peer Support
+   Worker" without the in-progress disclosure that PASS-1 added to
+   /veterans. Updated the role title and qualifications block to match
+   the honest-disclosure language: "Texas Peer Specialist certification
+   pathway in progress" with explicit mention of Via Hope/HHSC training
+   and supervision under a clinically-licensed program lead.
+
+5. **No-op verifications:** non-discrimination.tsx already had OTH
+   character-of-discharge language in the Veteran-specific section
+   (just missing it in top-level Commitment); about-leadership.tsx
+   already lists CW2 + Bronze Stars correctly; FIPS codes in
+   sdoh-explorer.tsx are functional data fields (not user-visible
+   labels — descriptions show plain-English county names).
+
+**Items deferred to future cycles (not P0 for funder readiness):**
+- BJA: sidebar restructure (justice/reentry section is reachable but
+  could be more prominent — not a compliance gap, just discoverability)
+- NSF: dedicated /broadening-participation landing page (current BPC
+  narrative is in /research and grant docs — adequate for LOI stage)
+- Centene: WAB2 status nomenclature (Pilot vs In-Development) — current
+  language is consistent with foundation LOI evaluation phase
+- Logic-model NSF "intellectual merit" outputs — additive, not
+  corrective
+
+**Remaining P0/P1 gaps that REQUIRE Dr. Flood human action (cannot be
+fixed in code):**
+- **BJA P0:** Signed MOUs with TDCJ, Travis County Correctional Complex
+  for pre-release access (currently "outreach"/"aspirational").
+- **BJA + NSF P0:** Named external evaluator of record (NSF needs academic
+  PI; BJA needs research partner with prior SCA evaluation experience).
+- **VA P0:** Signed MOU with Central Texas VA Health Care System (Temple)
+  AND Integral Care LMHA for warm-handoff care.
+- **Centene + VA P1:** Named Clinical Director / supervising licensed
+  professional. Currently all clinical supervision language references
+  "under clinical supervision" without naming the supervisor.
+- **Centene P1:** Letter of Support or written discovery-stage commitment
+  from at least one Texas MCO (Superior HealthPlan / Centene, Sendero,
+  or Dell Children's) — moves status from "aspirational" to "in-progress".
+- **All four P1/P2:** Lived-experience representation on
+  /advisory-board (justice-involved for BJA; Veterans for VA; etc.).
+
+These six items are tracked here so PASS-2 audit can verify whether
+Dr. Flood has secured any of them between PASS-1 and PASS-2 and update
+partnership-status badges accordingly.
+
+### Cycle I — Pipeline UI Surfacing of Federal Opportunities (May 3, 2026)
+- **Frontend gap closed:** Extended `PipelineSummary` interface in
+  `client/src/pages/proposal-pipeline.tsx` to include the new optional
+  fields (`submitted`, `deadlinePassedUnconfirmed`,
+  `federalOpportunitiesNext30Days`).
+- **New UI card:** "Federal Opportunities Closing in Next 30 Days" renders
+  between the Upcoming Deadlines card and the Proposal Portfolio. Shows
+  title, agency, funding amount, and days-remaining badge (red when <14
+  days). Sourced live from the `grant_opportunities` table — currently
+  surfacing 50 SAM.gov / Grants.gov items including BJA Second Chance Act
+  and OJJDP family-based justice opportunities due tomorrow.
+- **Architect review of Cycle H+I:** No severe issues; medium items
+  addressed (frontend interface + new card). Remaining low-severity:
+  route handler uses `any[]` for proposals (acceptable given jsonb
+  storage); `updatedAt` lacks auto-update trigger (manual updates expected
+  per codebase convention); snapshot file in `.local/` is migration-only
+  and can be deleted once seed table is canonical.
 
 ### Cycle G — Memory Discipline Audit (May 2026)
 - Full system map-gap pass triggered by user directive: "everything we discussed

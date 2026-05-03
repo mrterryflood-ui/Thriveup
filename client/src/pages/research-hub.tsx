@@ -43,7 +43,7 @@ const RE_AIM_DOMAINS = [
     color: "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400",
     description: "The impact of an intervention on important outcomes, including potential negative effects, quality of life, and economic outcomes.",
     questions: [
-      { id: "e1", text: "What is the evidence level for your primary intervention?", options: ["Anecdotal", "Promising", "Evidence-informed", "Evidence-based (RCT)"], scores: [1, 2, 3, 4] },
+      { id: "e1", text: "What is the evidence level for your primary intervention?", options: ["Anecdotal", "Promising", "Evidence-informed (logic model + frameworks)", "Quasi-experimental / pilot evaluation", "RCT-validated (peer-reviewed)"], scores: [1, 2, 3, 4, 5] },
       { id: "e2", text: "How do you measure primary outcomes?", options: ["Not measured", "Self-report only", "Validated instruments", "Multi-method triangulation"], scores: [1, 2, 3, 4] },
       { id: "e3", text: "Do you assess unintended consequences or negative effects?", options: ["Never", "Informally", "Periodically", "Systematically"], scores: [1, 2, 3, 4] },
       { id: "e4", text: "How do you assess quality of life or broader wellbeing impacts?", options: ["Not assessed", "Single measure", "Multiple domains", "Comprehensive framework"], scores: [1, 2, 3, 4] },

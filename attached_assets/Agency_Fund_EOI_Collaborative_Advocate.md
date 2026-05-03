@@ -14,7 +14,7 @@
 | **Organization Type** | 501(c)(3) Nonprofit |
 | **EIN** | 41-3618003 |
 | **Classification** | Veteran-Founded, Black-Led |
-| **Primary Contact** | Dr. Terry Flood, Founder & CEO |
+| **Primary Contact** | Dr. Terry Flood, President |
 | **Address** | 17912 Stefano Drive, Pflugerville, TX 78660 |
 | **Service Area** | Greater Austin Metropolitan Area (Travis, Williamson, Hays, Bastrop, and Caldwell Counties) |
 | **Website** | thriveupacademy.com |
@@ -256,6 +256,6 @@ We are not building a tool. We are building the bridge between data and agency.
 
 ---
 
-**Prepared by:** Dr. Terry Flood, Founder & CEO, The Collaborative Advocate Foundation
+**Prepared by:** Dr. Terry Flood, President, The Collaborative Advocate Foundation
 **Contact:** thriveupacademy.com
 **Apply link:** https://lnkd.in/gtDTYQcn

@@ -54,7 +54,7 @@ addSlide({
     slide.addText("24-Platform AI-Powered Workforce Development & Community Enablement Ecosystem", { x: 0.8, y: 3.6, w: 11.5, h: 0.6, fontSize: 16, fontFace: "Arial", color: "D0D0D0", align: "center" });
     slide.addShape(pptx.ShapeType.rect, { x: 4.5, y: 4.5, w: 4.0, h: 0.04, fill: { color: "FFFFFF" } });
     slide.addText("The Collaborative Advocate Foundation  |  501(c)(3)  |  EIN 41-3618003", { x: 0.8, y: 5.0, w: 11.5, h: 0.5, fontSize: 13, fontFace: "Arial", color: "CCCCCC", align: "center" });
-    slide.addText("Veteran-Founded  |  Black-Led  |  Dr. Terry Flood, Founder & CEO", { x: 0.8, y: 5.5, w: 11.5, h: 0.5, fontSize: 13, fontFace: "Arial", color: "BBBBBB", align: "center" });
+    slide.addText("Veteran-Founded  |  Black-Led  |  Dr. Terry Flood, President", { x: 0.8, y: 5.5, w: 11.5, h: 0.5, fontSize: 13, fontFace: "Arial", color: "BBBBBB", align: "center" });
     slide.addText("17912 Stefano Drive, Pflugerville, TX 78660  |  mr.terryflood@gmail.com", { x: 0.8, y: 6.1, w: 11.5, h: 0.4, fontSize: 11, fontFace: "Arial", color: "999999", align: "center" });
     addFooter(slide, 1, TOTAL_SLIDES);
   },
@@ -69,7 +69,7 @@ addSlide({
   buildFn: (slide) => {
     slide.addShape(pptx.ShapeType.rect, { x: 0, y: 0, w: 4.5, h: 7.5, fill: { color: MAROON } });
     slide.addText("Dr. Terry\nFlood Sr.", { x: 0.5, y: 1.5, w: 3.5, h: 1.8, fontSize: 36, fontFace: "Arial", color: WHITE, bold: true });
-    slide.addText("Founder & CEO", { x: 0.5, y: 3.3, w: 3.5, h: 0.5, fontSize: 16, fontFace: "Arial", color: "DDDDDD" });
+    slide.addText("President", { x: 0.5, y: 3.3, w: 3.5, h: 0.5, fontSize: 16, fontFace: "Arial", color: "DDDDDD" });
     slide.addText("Veteran  |  DHA  |  6 Master's Degrees", { x: 0.5, y: 3.9, w: 3.5, h: 0.5, fontSize: 12, fontFace: "Arial", color: "BBBBBB" });
     const creds = [
       "DHA — Healthcare Administration",
@@ -1062,7 +1062,7 @@ addSlide({
     slide.addText("The people who learn to think with AI today will lead tomorrow.", { x: 1.5, y: 2.5, w: 10.0, h: 0.7, fontSize: 18, fontFace: "Arial", color: "DDDDDD", align: "center", italic: true });
     slide.addShape(pptx.ShapeType.rect, { x: 4.5, y: 3.5, w: 4.0, h: 0.04, fill: { color: "999999" } });
 
-    slide.addText("Dr. Terry Flood  |  Founder & CEO", { x: 0.8, y: 4.0, w: 11.5, h: 0.5, fontSize: 16, fontFace: "Arial", color: WHITE, bold: true, align: "center" });
+    slide.addText("Dr. Terry Flood  |  President", { x: 0.8, y: 4.0, w: 11.5, h: 0.5, fontSize: 16, fontFace: "Arial", color: WHITE, bold: true, align: "center" });
     slide.addText("mr.terryflood@gmail.com", { x: 0.8, y: 4.5, w: 11.5, h: 0.4, fontSize: 14, fontFace: "Arial", color: "E8E8E8", align: "center" });
     slide.addText("Cash App: $MRTDFLOOD  |  PayPal: paypal.me/TERRYFLOODCEO", { x: 0.8, y: 5.0, w: 11.5, h: 0.4, fontSize: 13, fontFace: "Arial", color: "CCCCCC", align: "center" });
 

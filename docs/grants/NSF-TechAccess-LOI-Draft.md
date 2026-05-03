@@ -13,7 +13,7 @@
 
 **Principal Investigator:**
 Dr. Terry Flood, DHA, DBA, MS (I/O Psychology), MS (Implementation Science, in progress — Dartmouth)
-Founder & CEO, The Collaborative Advocate Foundation (TCAF)
+President, The Collaborative Advocate Foundation (TCAF)
 Public Health Social Scientist, U.S. Department of Veterans Affairs
 U.S. Army Warrant Officer (Retired)
 17912 Stefano Drive, Pflugerville, TX 78660

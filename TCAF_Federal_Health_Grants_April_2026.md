@@ -1,7 +1,7 @@
 # TCAF Federal Health Grant Opportunities
 ## The Collaborative Advocate Foundation | EIN 41-3618003
 ### Prepared: April 1, 2026
-### Dr. Terry Flood, Founder & CEO
+### Dr. Terry Flood, President
 
 ---
 

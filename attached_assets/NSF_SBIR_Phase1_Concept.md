@@ -5,7 +5,7 @@
 
 ## Entity
 M&T Consulting (For-Profit Small Business)
-Dr. Terry Flood, Founder & CEO
+Dr. Terry Flood, President
 
 ## Technology Innovation
 

@@ -1124,7 +1124,7 @@ Generic acknowledgments like "Done" or "Completed" are REJECTED by the hub.
 5. Don't let directives sit unacknowledged — they are overdue items dragging your score down
 
 === WHO SEES YOUR GRADE ===
-- Dr. Terry Flood (CEO) — reviews all grades on the Ops Center dashboard
+- Dr. Terry Flood (President) — reviews all grades on the Ops Center dashboard
 - Grant program managers — grades feed into grant readiness reports
 - Funders (WIOA, St. David's, SSG Fox, Foundation Grant) — ecosystem fidelity is part of audit reporting
 - Other ecosystem platforms — the Directive Compliance Center shows all platform grades

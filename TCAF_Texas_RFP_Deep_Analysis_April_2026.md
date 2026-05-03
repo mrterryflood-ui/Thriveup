@@ -204,5 +204,5 @@ https://resources.hhs.texas.gov/rfa/hhs0015167
 ---
 
 *Analysis prepared for The Collaborative Advocate Foundation*
-*Dr. Terry Flood, Founder & CEO*
+*Dr. Terry Flood, President*
 *EIN: 41-3618003 | 17912 Stefano Drive, Pflugerville, TX 78660*

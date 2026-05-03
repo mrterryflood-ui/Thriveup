@@ -52,7 +52,7 @@ The Collaborative Advocate Foundation
 | Field | Value |
 |---|---|
 | Name | Dr. Terry D. Flood |
-| Title | Founder & CEO |
+| Title | President |
 | Phone | (254) 319-8460 |
 | Email | mr.terryflood@gmail.com |
 | Street | 17912 Stefano Drive |
@@ -64,7 +64,7 @@ The Collaborative Advocate Foundation
 | Field | Value |
 |---|---|
 | Name | Dr. Terry D. Flood |
-| Title | Founder & CEO |
+| Title | President |
 | Phone | (254) 319-8460 |
 | Email | mr.terryflood@gmail.com |
 | Street | 17912 Stefano Drive |
@@ -76,7 +76,7 @@ The Collaborative Advocate Foundation
 | Field | Value |
 |---|---|
 | Name | Dr. Terry D. Flood |
-| Title | Founder & CEO |
+| Title | President |
 | Phone | (254) 319-8460 |
 | Email | mr.terryflood@gmail.com |
 | Street | 17912 Stefano Drive |
@@ -88,7 +88,7 @@ The Collaborative Advocate Foundation
 | Field | Value |
 |---|---|
 | Name | Dr. Terry D. Flood |
-| Title | Founder & CEO |
+| Title | President |
 | Phone | (254) 319-8460 |
 | Email | mr.terryflood@gmail.com |
 | Street | 17912 Stefano Drive |

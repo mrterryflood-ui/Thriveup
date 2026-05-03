@@ -34,6 +34,22 @@ export default function ReentryProgramPage() {
         </p>
       </div>
 
+      <Card className="border-red-300 bg-red-50 dark:bg-red-950/30">
+        <CardContent className="pt-6">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="h-5 w-5 text-red-700 dark:text-red-400 shrink-0 mt-0.5" aria-hidden="true" />
+            <div className="text-sm space-y-1">
+              <p className="font-semibold text-red-900 dark:text-red-200">If you or a returning citizen you know is in crisis:</p>
+              <p className="text-muted-foreground">
+                Call or text <span className="font-semibold text-foreground">988</span> for the Suicide & Crisis Lifeline.
+                Veterans: dial <span className="font-semibold text-foreground">988, then Press 1</span> or text <span className="font-semibold text-foreground">838255</span>.
+                Available 24/7. Free and confidential.
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       <Card className="border-amber-300 bg-amber-50 dark:bg-amber-950/30">
         <CardContent className="pt-6">
           <div className="flex items-start gap-3">

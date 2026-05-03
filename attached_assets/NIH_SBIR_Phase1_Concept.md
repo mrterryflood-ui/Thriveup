@@ -5,7 +5,7 @@
 
 ## Entity
 M&T Consulting (For-Profit Small Business)
-Dr. Terry Flood, Founder & CEO
+Dr. Terry Flood, President
 
 ## Target NIH Institute
 **NIMHD — National Institute on Minority Health and Health Disparities**

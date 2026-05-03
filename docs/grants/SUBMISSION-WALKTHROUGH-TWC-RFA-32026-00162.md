@@ -73,7 +73,7 @@ Open `docs/grants/TWC-RFA-32026-00162-FORM-A-APPLICATION.doc` and confirm every 
 - [ ] Grant Period: **July 1, 2026 – June 30, 2028** (24 months)
 - [ ] All narrative sections (1–7) are present and pasted from `TWC-RFA-32026-00162-NARRATIVE.md`
 - [ ] Page numbers, headers, and footers print correctly
-- [ ] Signature block has Dr. Flood's name and title (CEO)
+- [ ] Signature block has Dr. Flood's name and title (President)
 
 **Before signing:** open `Amendment I` PDF and check whether it added any new Form A questions. If it did, answer them before signing.
 

@@ -21,7 +21,7 @@ export default function VeteransProgramPage() {
       <div className="space-y-3">
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="outline" className="gap-1.5 border-blue-500 text-blue-700 dark:text-blue-300">
-            <Shield className="h-3.5 w-3.5" aria-hidden="true" /> Veterans Suicide Prevention — FY27 Launch Cohort
+            <Shield className="h-3.5 w-3.5" aria-hidden="true" /> SSG Fox Suicide Prevention Grant — FY27 Launch Cohort
           </Badge>
           <Badge variant="outline" className="gap-1.5">Veteran-Founded · Veteran-Led</Badge>
         </div>
@@ -92,6 +92,9 @@ export default function VeteransProgramPage() {
             <Population label="Veterans with VA enrollment barriers (OTH discharge, rural access)" />
             <Population label="National Guard and Reserve members between activations" />
             <Population label="Veteran family members (spouses, partners, parents, children)" />
+            <Population label="Survivors of Military Sexual Trauma (MST) — VA SP priority sub-population" />
+            <Population label="LGBTQ+ Veterans (elevated suicide risk per VA OSDP data)" />
+            <Population label="Justice-involved Veterans (Veterans Treatment Court referral pathway)" />
           </div>
         </CardContent>
       </Card>
@@ -116,9 +119,14 @@ export default function VeteransProgramPage() {
               desc="Brief, collaborative intervention completed at first contact. Six-step safety plan: warning signs, internal coping strategies, social supports, professional help, environment safety, and reasons for living."
             />
             <ModelCard
-              title="Counseling on Access to Lethal Means (CALM)"
-              source="Suicide Prevention Resource Center"
-              desc="Evidence-based clinical training to reduce suicide risk by limiting at-risk individuals' access to firearms and other lethal means. All TCAF/ALC clinical staff and peer specialists complete CALM training."
+              title="Counseling on Access to Lethal Means (CALM) + Lethal Means Safety Distribution"
+              source="Suicide Prevention Resource Center; VA/DoD CPG 2024 §6.4"
+              desc="All TCAF/ALC clinical staff and peer specialists complete CALM training. Program operationalizes lethal means safety through partnerships under development with Travis County Sheriff's Office (temporary off-site firearm storage), local Federal Firearms Licensees (voluntary holding), and free gun-lock distribution coordinated with Walk the Talk America and Hold My Guns. Distribution counts published quarterly on the Transparency dashboard."
+            />
+            <ModelCard
+              title="Collaborative Assessment & Management of Suicidality (CAMS)"
+              source="Jobes (2016); VA/DoD CPG 2024 strong recommendation"
+              desc="Therapeutic framework specifically for ongoing case management of Veterans at elevated suicide risk. Clinical partners providing CAMS-trained therapists are part of the warm-handoff partnership criteria."
             />
             <ModelCard
               title="Caring Contacts"
@@ -278,6 +286,15 @@ export default function VeteransProgramPage() {
           </div>
         </CardContent>
       </Card>
+    </div>
+  );
+}
+
+function Metric({ name }: { name: string }) {
+  return (
+    <div className="flex items-start gap-2 p-2 bg-muted/40 rounded text-xs">
+      <Award className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" aria-hidden="true" />
+      <span>{name}</span>
     </div>
   );
 }

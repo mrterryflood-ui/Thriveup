@@ -25,7 +25,7 @@
 
 | Cell | Line Item (col A) | Amount (col B) | Justification (col C) |
 |---|---|---:|---|
-| B20 | CEO/Executive Director — 10% time × 24mo | **$15,000** | Dr. Terry Flood, $150K base × 10% allocation × 2 yrs = $30K; charging only $15K to grant. Provides program oversight, board reporting, fiscal accountability. |
+| B20 | President/Executive Director — 10% time × 24mo | **$15,000** | Dr. Terry Flood, $150K base × 10% allocation × 2 yrs = $30K; charging only $15K to grant. Provides program oversight, board reporting, fiscal accountability. |
 | B21 | Finance & Compliance Manager — 25% × 24mo | $40,000 | $80K base × 25% × 2 yrs. Manages CDER monthly reporting, expenditure tracking, audit prep, single audit coordination. |
 | B22 | Administrative Assistant — 25% × 24mo | $25,000 | $50K base × 25% × 2 yrs. Procurement, contract files, recordkeeping for grant compliance. |
 | B23 | (leave blank) | — | |

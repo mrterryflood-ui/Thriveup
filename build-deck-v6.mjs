@@ -35,7 +35,7 @@ s1.addText("A Living Ecosystem of Interconnected Platforms\nThat Sees the Whole 
   fontSize: 20, fontFace: "Arial", color: TEAL, lineSpacingMultiple: 1.25
 });
 s1.addShape(pptx.ShapeType.rect, { x: 0.8, y: 3.5, w: 4, h: 0.04, fill: { color: BLUE } });
-s1.addText("Dr. Terry Flood, DHA, DBA  |  Founder & CEO", {
+s1.addText("Dr. Terry Flood, DHA, DBA  |  President", {
   x: 0.8, y: 3.8, w: 8, h: 0.4, fontSize: 19, fontFace: "Arial", bold: true, color: W
 });
 s1.addText("Integrated Services and Solutions LLC", {
@@ -344,7 +344,7 @@ s10.addShape(pptx.ShapeType.roundRect, { x: 2.5, y: 3.75, w: 8.3, h: 0.5, fill: 
 s10.addText("12-Month Target:   $2M ARR   •   5 Communities   •   50+ Organizations Licensed", { x: 2.5, y: 3.75, w: 8.3, h: 0.5, fontSize: 13, fontFace: "Arial", bold: true, color: GOLD, align: "center", valign: "middle" });
 
 s10.addShape(pptx.ShapeType.rect, { x: 0.8, y: 4.5, w: 11.7, h: 0.03, fill: { color: BLUE } });
-s10.addText("Dr. Terry Flood, DHA, DBA  —  Founder & CEO", { x: 0.8, y: 4.65, w: 8, h: 0.35, fontSize: 16, fontFace: "Arial", bold: true, color: W });
+s10.addText("Dr. Terry Flood, DHA, DBA  —  President", { x: 0.8, y: 4.65, w: 8, h: 0.35, fontSize: 16, fontFace: "Arial", bold: true, color: W });
 s10.addText("U.S. Army Veteran  •  DHA  •  DBA  •  MS Criminal Justice  •  MS I/O Psychology  •  MS HRM\nImplementation Science (Dartmouth)  •  VA Crisis Line  •  25 Years Direct Service  •  Black-led, Veteran-founded", {
   x: 0.8, y: 5.0, w: 10, h: 0.5, fontSize: 10, fontFace: "Arial", color: G, lineSpacingMultiple: 1.3
 });

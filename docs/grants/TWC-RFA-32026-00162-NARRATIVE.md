@@ -5,7 +5,7 @@
 **Applicant:** The Collaborative Advocate Foundation (Texas nonprofit corporation; 501(c)(3) determination pending)
 **SAM.gov UEI:** KDDVD1FGLW35 (registration submitted Apr 19, 2026; CAGE activation in process)
 **Program Name:** ThriveUp Workforce Readiness Academy
-**Contact:** Dr. Terry Flood, Founder & CEO
+**Contact:** Dr. Terry Flood, President
 **Email:** mr.terryflood@gmail.com
 **Location:** Austin, Texas (serving Pflugerville ISD and surrounding districts)
 **Amount Requested:** Up to $2,000,000
@@ -270,7 +270,7 @@ The curriculum was designed specifically for this population. The student charac
 
 **Total Annual Staffing: $320,000**
 
-All positions report to Dr. Terry Flood (CEO/PI). The Program Director manages day-to-day operations. Facilitators deliver curriculum using ThriveUp's platform with instructor dashboards.
+All positions report to Dr. Terry Flood (President/PI). The Program Director manages day-to-day operations. Facilitators deliver curriculum using ThriveUp's platform with instructor dashboards.
 
 ---
 

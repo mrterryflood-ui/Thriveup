@@ -1246,7 +1246,7 @@ Most businesses have a hierarchy. Understanding it helps you navigate it.
 
 **VP / Executive** — Big picture decisions. Company-wide strategy.
 
-**CEO / Owner** — The top. Where Dr. Flood sits at The Collaborative Advocate.
+**President / Executive Director** — The top of a 501(c)(3) nonprofit. Where Dr. Flood sits at The Collaborative Advocate. (Corporations call this role "CEO"; nonprofits use "President" or "Executive Director.")
 
 ### How People Actually Get Promoted
 

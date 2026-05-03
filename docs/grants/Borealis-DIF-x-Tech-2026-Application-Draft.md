@@ -4,7 +4,7 @@
 **Applicant:** The Collaborative Advocate Foundation
 **EIN:** 41-3618003
 **Address:** 17912 Stefano Drive, Pflugerville, TX 78660
-**Contact:** Dr. Terry Flood Sr., Founder and CEO
+**Contact:** Dr. Terry Flood Sr., President
 **Amount Requested:** $100,000 ($50,000/year x 2 years)
 **Grant Period:** 2026-2027
 
