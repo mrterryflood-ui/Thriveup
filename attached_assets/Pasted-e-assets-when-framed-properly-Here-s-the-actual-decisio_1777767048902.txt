@@ -1,0 +1,102 @@
+e assets when framed properly. Here's the actual decision matrix:
+
+🟦 REFRAME (keep, but present better)
+These stay public but get repositioned so reviewers see them as evidence of capability rather than clutter.
+
+Currently	Reframed as	Grant value
+AI Tools Hub, AI Companion, AI Tutorials	"AI Literacy Curriculum" under a Workforce Development pillar	NSF 26-508 + workforce grants — direct evidence we're already building what we're proposing
+Academy games (Dominoes, Stocks, Wallet, Scenarios)	"Financial Literacy & STEM Engagement Modules" with stated learning objectives	DOL/ETA workforce, USDA youth, foundation youth grants
+Course Creator, Curriculum builder	"Curriculum R&D Lab"	NSF, DOE — shows applied education research
+Mockup sandbox, dev tools	"Open Innovation Lab" with version history	NSF "broader impacts" — open science evidence
+RPLICE tools, SDOH explorer (with FIPS removed)	"Methodology & Evidence" research page	NSF intellectual merit, all health grants
+Coalition / Justice Partners directories	"Stakeholder Engagement Map" with status badges	All grants — transparency demo
+Logic Model, Strategic Plan	"Theory of Change" in standard funder format	All grants — Section 3 evidence
+🟨 HIDE (truly internal — admin login only)
+Pages that are dev/admin tooling and don't make sense to a public reviewer no matter how reframed.
+
+admin-video-script.tsx — internal scripting tool
+academy-admin.tsx, academy-admin-tutorial.tsx — admin internals
+academy-help.tsx, academy-tutorial.tsx — embed inside their parent flow, not standalone routes
+corridor-docs-live.tsx, corridor-docs.tsx — internal documentation drafts
+business-documents.tsx (the one with personal cell/Gmail) — move to authenticated /admin/documents
+mapgap-framework.tsx — internal methodology tool, move to /admin/methodology
+Any duplicate dashboards (benefits-command-center.tsx vs benefits-screener.tsx etc.) — consolidate into one public + one admin
+Game-internal pages like academy-dominoes-game.tsx if they're not part of a documented learning module
+These don't get deleted — they get moved behind authentication. Reviewers can still be shown them on request via a guided demo.
+
+🟩 BUILD NEW (the gaps reviewers will look for and not find)
+New page	Reviewer who needs it	Priority
+/about — org structure, named leadership, ALC + TCAF + 501(c)(3) status disclosure	All	🔴 Today
+/veterans — even minimal: who we plan to serve, clinical partner status, peer support pathway	VA SSG Fox	🔴 By Apr 30
+/behavioral-health — focused page on BH program, Texas Medicaid alignment, named clinical partners	Centene + St. David's	🔴 By May 1
+/research — RPLICE methodology in academic language, named methodology references	NSF	🟡 By May 5
+/reentry-program — focused page on the SCA-aligned program model, evidence base, planned outcomes	BJA	🔴 By May 2
+/transparency — what is pilot, operational, in-development; honest scope statement	All	🟡 By May 5
+/non-discrimination — federally compliant statement with footer link	All federal	🔴 Today
+/methodology — RPLICE, 24-platform ecosystem, hash chain provenance	NSF + St. David's	🟡 By May 7
+🟥 FIX SITE-WIDE (mechanical sweeps)
+These I do as scripted edits across multiple files in one pass each.
+
+Fix	Files	Effort
+Replace mr.terryflood@gmail.com → president@thecollaborativeadvocate.org	8+ files (api-docs, social-media-literacy, parents, pricing, justice-partners, community, impact, etc.)	30 min
+Replace Dr. Terry Flood / Terry → President, TCAF in public pages	tutorial-content, ai-consulting, mapgap-framework, stdavids-prep	20 min
+Strip FIPS exposure from public pages (rplice-tools, sdoh-explorer, justice-command-center, benefits-command-center, etc.) — translate to "Travis County, TX"	10+ files	90 min
+Replace "Partnership ready" strings with explicit status badges	4 files (texas-assessment, pflugerville-community-hub, manor-community-hub)	30 min
+Add status badge component (<PartnershipStatus type="loi-drafted" />) site-wide	New component + retrofit	90 min
+Add visible footer non-discrimination + accessibility statement	1 component update	15 min
+Replace healthcare-grants speculative funding ranges with live scanner data	1 file refactor	45 min
+The map-gap cycles
+I'd run this as four disciplined cycles, each ending with a screenshot+architect review so we can measure improvement.
+
+Cycle A — Honesty & Identity (today, ~4 hrs of work)
+The fixes that change the first impression a reviewer gets.
+
+A01: Replace personal Gmail site-wide → institutional email (mechanical sweep)
+A02: Replace "Dr. Terry Flood" personal name → "President, TCAF" in public pages
+A03: Build /about page (org structure, ALC+TCAF, pending 501(c)(3) honest disclosure)
+A04: Build /non-discrimination page + footer link
+A05: Strip "partnership ready" → status badge component, retrofit 4 files
+A06: Add Transparency note to footer ("Pilot in Travis County, TX. Texas-first scaling pathway documented.")
+End-state after Cycle A: Reviewer no longer sees personal Gmail, no longer sees a personal name in institutional roles, sees a clean About page with honest org disclosure, sees real partnership status not aspiration. First-impression gap closed.
+
+Cycle B — Agency Targeting (Apr 29–30, ~6 hrs)
+Build the four agency-specific landing pages each reviewer wants to find.
+
+B01: /veterans — VA SSG Fox-aligned program statement
+B02: /behavioral-health — Centene + St. David's-aligned program statement, Texas Medicaid mention
+B03: /reentry-program — BJA SCA-aligned program statement with evidence base
+B04: /research — NSF-aligned methodology with academic framing
+End-state after Cycle B: Each agency reviewer can find their own focused page in one click. Per-agency relevance gap closed.
+
+Cycle C — Sidebar & FIPS (Apr 30–May 1, ~4 hrs)
+The structural cleanup.
+
+C01: Restructure sidebar: 8 top-level pillars (About · Programs · Methodology · Coalition · Grants · Donors · Academy · Resources) with everything else nested
+C02: Move admin/dev pages behind /admin/* route group with auth gate
+C03: Strip FIPS from all user-facing pages (mechanical sweep with manual verification)
+C04: Replace healthcare-grants speculative numbers with live data
+C05: Consolidate duplicate dashboards
+End-state after Cycle C: Sidebar reads as a focused organization, not a sprawl. No FIPS leakage. No speculative numbers. Discipline gap closed.
+
+Cycle D — Evidence & Methodology (May 1–7, ~6 hrs)
+The credibility build.
+
+D01: /methodology — RPLICE in academic format with citations
+D02: /transparency — pilot vs operational vs in-development matrix
+D03: Reframe Academy games as "Financial Literacy & STEM Engagement Modules" with learning objectives metadata on each
+D04: Reframe AI Tools Hub as "AI Literacy Curriculum"
+D05: Reframe dev/sandbox as "Open Innovation Lab"
+D06: Add a documented "Stakeholder Engagement Map" replacing the directory listings, with status badges everywhere
+End-state after Cycle D: Reviewer sees a methodologically serious, transparent, focused organization with clearly labeled work-in-progress and honest scope. A/A- target reached.
+
+Things we cannot fully fix in 6 days — and how each becomes a positive
+This is the most important part. Every gap I can't close before May 4 must be owned visibly instead of pretended away. Here's the conversion:
+
+Gap	Cannot fix by May 4	Honest reframe → positive
+TCAF 501(c)(3) pending	Determination won't come for 6–12 months	"Disclosed transparently with IRS Tracking 281OIP7B. ALC serves as 501(c)(3) fiduciary during pendency — a structurally sound and IRS-compliant pattern used by hundreds of fiscally-sponsored organizations."
+No prior SCA award track record	Cannot manufacture history	"New program rigor: launching with a documented logic model, hash-chained donor provenance, and a multi-organization coordination protocol — discipline a typical first-time SCA applicant cannot demonstrate."
+No published peer-reviewed research	Cannot publish in 6 days	"Methodology released as open documentation under the Open Innovation Lab; first peer-reviewed submission targeted Q3 2026; methodology already in active use across 24 platforms."
+No veteran-served numbers	Cannot manufacture	"FY27 launch cohort. Clinical partnership LOI in active development with [named LMHA/FQHC]. Peer support workforce pathway documented through Texas DSHS Peer Specialist certification."
+No Superior HealthPlan formal connection	Takes weeks	"Texas Medicaid alignment via Travis County coordination; Superior HealthPlan engagement letter targeted by [date]; behavioral health program designed to MCO-billable standards."
+No NSF-eligible research institution co-PI	Takes weeks of outreach	"University co-PI engagement underway with [UT-Austin / Huston-Tillotson / Austin Community College] — formal letter of collaboration targeted by July 16 full-proposal deadline."
+Texas-only data	Cannot expand	"Texas-first by design. RPLICE protocol and Hub Adoption Kit released as open infrastructure usable by all 55 other state/territory jurisdictions — replicability is the broader-impacts story, not a weakness."
