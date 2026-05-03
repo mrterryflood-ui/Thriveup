@@ -1,181 +1,543 @@
-# ThriveUp Academy
+# ThriveUp Academy / TCAF / ALC — Institutional Memory
 
-## Overview
-ThriveUp Academy is a community infrastructure platform — the operating system for how communities support, engage, connect, and serve their people across 6 domains (Criminal Justice, Health Equity, Behavioral Health, Workforce & Business, Education & Learning, Community & Advocacy), 24 platforms, and 4-engine AI. It offers AI mastery curricula, career pathways, mentorship, an AI Creation Studio, entrepreneurship tools, financial literacy, and community engagement features. The platform's core purpose is to connect individuals with grant funding, align with workforce development criteria, and achieve significant community impact through technology and education, addressing critical community needs and fostering economic mobility.
+> **Read this file first, every session.** This is the durable memory of who we are,
+> how we operate, and the discipline we hold ourselves to. Every change to the platform
+> updates this file. No silent failures, no information silos. If a fact lives only in
+> one session's chat history, it does not exist next session — write it here.
 
-## User Preferences
-The agent should prioritize iterative development, clearly explaining major changes before implementation. It should focus on delivering high-quality, well-tested code, and use clear, simple language when describing technical concepts. Avoid making changes to sensitive configuration files or core architectural components without explicit instruction. CRITICAL: "NBA" must NEVER appear in UI code identifiers. CRITICAL: Always work in parallel using subagents. Never stop to have conversations when there is more work to do. Keep building.
+---
 
-## System Architecture
-ThriveUp Academy uses a modern web architecture with a React frontend (Vite, Tailwind CSS, shadcn/ui, Wouter, TanStack Query) and an Express.js backend (Node.js, PostgreSQL with Drizzle ORM). Authentication is handled by Replit Auth (OIDC).
+## 1. Identity (do not get this wrong)
 
-Key architectural features and design decisions include:
-- **Collaborative AI Intelligence Engine:** A 4-engine parallel synthesis system (Gemini 2.0 Flash, Claude Haiku 4.5, OpenAI GPT-4o-mini, DeepSeek R1) processes every AI output. It integrates RAG knowledge retrieval and implementation science frameworks (RPLICE, CFIR/RE-AIM, MAP-GAP) into prompts, synthesizing responses for consensus. This engine powers chat, navigation, benefits AI, grant drafting, and other AI tools.
-- **AI-Powered Learning & Creation:** Features an AI Mastery curriculum, age-adaptive AI companions, and an AI Creation Studio with 10 professional-grade AI tools.
-- **Grant Management System:** Includes a Grant Hub with SAM.gov API integration for discovery, AI-powered semantic analysis, fit scoring, readiness checklists, and AI-assisted narrative generation. It offers daily automated grant discovery and a "Team-of-Teams" platform assignment.
-- **Workforce Development & Case Management:** Provides reentry and case management dashboards with phase-based plans, intake assessments, milestone tracking, and service delivery records.
-- **Community Engagement & Coordination:** Features a Community Partner Network, an interactive Community Intelligence Map, and a Smart Intake Wizard.
-- **Outcome Measurement & Reporting:** Offers dashboards aligned with DOJ and SAMHSA metrics, with CSV export and a Continuous Quality Improvement (CQI) engine.
-- **Ecosystem Integration Hub:** A 24-platform connected ecosystem with visual mapping, real-time health monitoring, cross-platform event routing, and embeddable integration code generation.
-- **Platform Management Systems:** Includes SiteSync Inject for external code fixes, Ecosystem Directives for broadcasting improvements, a Unified Operating System Directive (UOSD) with a Cognitive Elevation Addendum (CEA) for foundational standards, and a Fidelity Report Card System.
-- **Mandatory RAG AI Integration:** Enforces RAG AI system integration across all platforms.
-- **Program Execution Engine:** A full operational program management system with a 6-step setup wizard, three methodology paths (Implementation Science, Traditional PM, Hybrid), and a real-time Execution Dashboard.
-- **RPLICE Implementation Science Toolkit:** Interactive tools for CFIR assessment, RE-AIM scorecards, fidelity checklists, a Quality Gate Dashboard, and AI-Powered Community Analysis streaming live Census ACS data for 9-section RPLICE reports.
-- **Agent Communication Layer:** All 24 platforms function as autonomous agents with reasoning-required communication, tracking inter-platform exchanges.
-- **Accessibility & Design:** WCAG 2.1 AA compliant, with dyslexia-friendly fonts, high contrast, reduced motion, screen reader optimization, mobile responsiveness, and a violet/indigo branding system with dark mode.
-- **Internationalization:** Supports English and Spanish.
-- **4-Layer Congruence Rule:** Ensures synchronization across database schema, backend API, frontend, and public-facing pages.
-- **Workforce Readiness Academy (TEKS §127.15):** A complete 15-week, 5-module, 20-lesson, 50-quiz-question employability skills curriculum for CTE grades 9-12. Culturally responsive, phone-first, student-centered design with relatable characters (Jaylen, Aaliyah, Marcus, Sofia, DeAndre), "Real Talk" barrier sections, resume building threaded across all modules, neighborhood champion connections, weekly live virtual check-ins, motivational video postings, and ecosystem tool integrations. Seed file: `server/seed-workforce-lessons.ts`. Landing page: `/workforce-readiness`. Badges: 11 (5 module completion + 5 resume milestones + 1 certificate). PWA download encouraged on Day 1.
-- **Proposal Pipeline Dashboard:** Tracks 11 active proposals totaling ~$8.6M, with priority ordering, readiness checklists, deadline countdowns, blocker flags, implementation science lens (CFIR 2.0 + RE-AIM + RPLICE), and win strategies.
-- **Outcome Receipts (Donor Surface):** Cryptographically-verifiable receipts that bind a charitable gift to a specific service event in the resident journey. Each event in `residentJourneyEvents` is hashed into a tamper-evident chain (`h_n = sha256(h_{n-1} | event_id | event_type | event_title | occurredAt)`); a receipt cites the event hash + chain position, and any third party can re-derive the chain via `POST /api/donor/verify`. PII is stripped at the receipt boundary (resident shown only as alias, e.g., "Resident #M-2026-001"). Routes: `GET /api/donor/receipt-demo` (live anonymized 3-receipt demo from real cohort), `POST /api/donor/verify` (independent verification). Pages: `/donors` (donor product landing with gift tiers and AI-generated donor brief via the Incubator narrative engine in `mode: "donor"`), `/donor-receipt-demo` (live receipt grid + full chain table). For Donors panel surfaces on `/st-davids`. Files: `server/donor-receipts.ts`, `client/src/pages/donors.tsx`, `client/src/pages/donor-receipt-demo.tsx`. Donor-mode prompt branch added to `POST /api/benefits/coalition/ai-loi`.
-- **Security:** All mutation API endpoints require authentication. API keys stored as environment variables (not in config files). Response logging truncated to prevent PII exposure. Shield Atlas branding removed from all public-facing content, replaced with "Emergency Management".
-- **Confidence Drift + Autonomy Quadrants:** Tracks earned trust and thinking scores to assess autonomy levels.
-- **Capability Orchestration Map:** Maps all 23 platforms to lead/support/validate roles for coordinated execution.
-- **Full Curriculum Library:** 60 in-depth lessons across AI Literacy, Workforce Readiness, and Social-Emotional Learning.
-- **Conditional Seed Architecture:** Uses targeted conditional seeds for content delivery, preventing data duplication.
+### The two organizations
+- **The Collaborative Advocate Foundation (TCAF)** — technology partner, methodology
+  developer, healthcare administrative support. Operates the 24-platform Autonomous
+  Community Operating System and the methodology catalog (RPLICE, MAP-GAP, SALP,
+  MG-PATR). **501(c)(3) status: pending IRS determination.** IRS Tracking number
+  **281OIP7B**, application filed **April 27, 2026**.
+- **Abundant Life Church (ALC)** — legal applicant and fiscal sponsor (fiduciary).
+  Holds an **active 501(c)(3) determination**. ALC is the lead applicant on all
+  current grant submissions; TCAF operates as sub-recipient under ALC during the
+  pendency period. This is a structurally sound, IRS-compliant pattern.
+- **ThriveUp Academy** — the youth-facing learning brand within the platform
+  (AI Literacy Curriculum, Workforce Readiness, Financial Literacy & STEM
+  Engagement Modules, etc.). Not a separate legal entity.
 
-## External Dependencies
-- **Database:** PostgreSQL (Neon-backed)
-- **AI Integration:** Google Gemini 2.0 Flash, Anthropic Claude Haiku 4.5, OpenAI GPT-4o-mini, Replit AI Integrations GPT-5-nano.
-- **Email:** Resend (via Replit connector integration)
-- **Authentication:** Replit Auth (OIDC)
-- **GIS Data Sources:** CDC PLACES API, CDC/ATSDR SVI, FBI Crime Data API, Census Bureau ACS, USDA Food Access Atlas, HUD, SAMHSA, BLS.
-- **Federal Grants:** SAM.gov API (api.sam.gov).
-- **Mapping:** Leaflet + react-leaflet with OpenStreetMap tiles.
-- **UI Components:** shadcn/ui.
-- **Styling:** Tailwind CSS.
-- **Data Fetching:** TanStack Query.
-- **Routing:** wouter.
-- **Icons:** lucide-react.
-- **External Platform Integration:** Student Support Portal (ISSS).
-- **5-County Benefits Intelligence System:** Integrates Census ACS data for Travis, Williamson, Hays, Bastrop, and Caldwell counties for benefits enrollment gap analysis, barrier index computation, and eligibility screening.
-- **Strategic Intelligence Playbook:** Persistent learning system at `docs/grants/STRATEGIC-INTELLIGENCE-PLAYBOOK.md`. All strategic intel (GovCon risk reduction, grant writing rules, compliance frameworks, partnership leads) is stored in both the RAG knowledge base and this document. Intel flows bidirectionally — user shares information, it gets internalized into RAG chunks, and ecosystem AI systems (Spark, Sparky, Nia, Malik) can reference it. RAG engine currently has 78+ knowledge chunks covering ecosystem operations, grant strategy, partnerships, and compliance intelligence.
-- **Gun Violence Registry Integration:** Live API connection to Dr. Flood's National Gun Violence Tracker and Gun Violence Archive national data.
-- **Neighborhood Intelligence System:** Flexible location lookup (ZIP code, neighborhood name, street, city — uses Census geocoder + Nominatim fallback), real-time Census ACS data with SVI scoring, up to 10-page PDF reports with full data story, 15-20 slide scripted PPTX presentations, scenario sandbox with "what if" sliders, and up to 20 matched live grants. Email reports with rate limiting and input sanitization. Routes: `/api/neighborhood/lookup`, `/api/neighborhood/scenario`, `/api/neighborhood/report-pdf`, `/api/neighborhood/presentation`, `/api/neighborhood/email-report`.
-- **Comprehensive Seed Data:** `server/seed-comprehensive.ts` populates all tables with realistic example data on startup — merch items, participant profiles, service records, grant projects, staffing plans, coalition data, pilot cohorts, benefits intelligence, prevention frameworks, facilitator profiles, and outcome tracking.
-- **Cross-Pillar Navigation:** `PillarFlowNav` component (`client/src/components/dfc-cross-nav.tsx`) provides pipeline flow navigation across Community Intelligence → Grant Discovery → Program Designer → Logic Model → Grant Narrative → Outcome Reporting on all 6 pipeline pages.
-- **Error Handling:** All mutation `onError` handlers across 24+ pages provide user-facing toast messages with error details (no silent failures).
-- **Ecosystem Hub Status:** Platforms show "Fully Integrated", "Linked", or "In Development" status badges based on actual integration state. 16 of 20 platforms are Fully Integrated.
-- **FAFSA & Financial Aid Navigator:** `/fafsa-navigator` — AI-powered with 4-engine collaborative advisor. 6-step process visualization, holistic dashboard (estimated aid, scholarship matches, readiness %), FAFSA readiness checklist, award estimator, 12 curated scholarships, financial aid timeline. Example cards with guidance. Cross-links to apprenticeships, benefits, workforce, transition plans.
-- **Apprenticeship Tracking System:** `/apprenticeship-tracker` — AI Career Coach with competency gap analysis. DOL RAPIDS-aligned with lifecycle visualization (Pre-Apprenticeship → Journeyworker), holistic dashboard (completion funnel, wage progression, employer engagement), hours logging, O*NET competency tracking, mentor check-ins. Example cards with setup guidance. Cross-links to FAFSA, transition plans, workforce, employers, OY.
-- **Opportunity Youth Outreach Dashboard:** `/opportunity-youth` — AI Community Analyst with re-engagement plan generator, outreach strategy creator, and grant narrative writer. 7-step engagement lifecycle, holistic dashboard (population estimates, pipeline conversion, retention rates, barrier heat map), 5-county Census data, barrier assessment, evidence-based strategies. Example cards with guidance. Cross-links to intake wizard, benefits, case management, apprenticeships, transition plans, partners.
-- **Postsecondary Transition Plans:** `/transition-plans` — AI Transition Advisor with plan generator, readiness predictor, and support services recommender. 6-step lifecycle, holistic dashboard (readiness scores, college acceptance, credential attainment, WIOA compliance, post-exit employment), ITP builder, college tracker, credential tracker. Example cards with guidance. Cross-links to FAFSA, apprenticeships, workforce, careers, OY, My Journey, benefits.
-- **College Access AI Routes:** `server/college-access-ai-routes.ts` — 4 collaborative AI endpoints (FAFSA advisor, apprenticeship coach, OY analyst, transition advisor) using 4-engine parallel synthesis with RPLICE/MAP-GAP frameworks and RAG knowledge retrieval.
-- **SVI Analysis Engine:** `GET /api/benefits/svi-analysis` — Computes CDC/ATSDR Social Vulnerability Index scores from live Census ACS data at the census tract level. Analyzes 16 social indicators across 4 SVI themes (Socioeconomic, Household Characteristics, Minority Status, Housing/Transportation). Identifies risk factors (High Poverty, Low Educational Attainment, Language Barrier, etc.) and protective factors (Transportation Access, Insurance Coverage, Employment) per tract. Connects high-vulnerability tracts to nearby low-vulnerability tracts ("Resources Without Borders" — problems don't have borders). Used by SDOH Explorer (Vulnerability Map tab) and Opportunity Youth (Neighborhood Intel tab).
-- **SDOH Explorer SVI Tab:** `/sdoh-explorer` → Vulnerability Map tab — Prominent SVI vulnerability score, 4 theme breakdowns, risk factor prevalence analysis, protective factor identification, adjacent community resources, cross-page navigation to Opportunity Youth, Transition Plans, Benefits Screener, Community Map, and Grant Narrative.
-- **Opportunity Youth Neighborhood Intel:** `/opportunity-youth` → Neighborhood Intel tab — SVI data surfaced for youth outreach targeting, risk factors with OY-specific explanations (why each factor matters for disconnected youth), protective factors with implementation science notes on how to leverage them, high-vulnerability tract table with "Design Outreach Strategy" AI integration, adjacent resources, cross-page links.
-- **Grant Command Center:** `/grant-command-center` — 92 grants tracked across all ecosystem platforms including 31 CDMRP programs ($1.187B addressable, CFDA 12.420). CDMRP organized by tier: Tier 1 (14 programs, ~$890M — submit to all), Tier 2 (12 programs, ~$245M — submit 3-4 strongest), Tier 3 (5 programs, ~$52M — concept awards only). All grants have submit portal buttons, criteria in notes, and linked strategy documents. Grant docs at `docs/grants/`. Key docs: `CDMRP-FY2026-Master-Grant-Strategy.md`, `HerHealth-33-Grant-Opportunities-Prospectus.md`, `GRANT-OPPORTUNITY-CRITERIA-MATRIX.md`, `ECOSYSTEM-COMPLETE-PLATFORM-REFERENCE.md` (all 24 platforms, 70 HerHealth conditions, screening tools, data collection, CDMRP topic matching).
-## Funder Readiness Cycles — Apr–May 2026
+### The President
+- **Dr. Terry Flood, President, TCAF.** Public title is always **President** —
+  never "CEO" on the public site. TCAF is a 501(c)(3); the title must reflect that.
+- Public-facing email is institutional only:
+  `president@thecollaborativeadvocate.org`, `programs@thecollaborativeadvocate.org`.
+  Personal Gmail addresses must never appear in public copy.
 
-The site was put through 4 disciplined cycles + 1 architect audit pass to lift it from
-"unfundable" to A/A− across BJA, NSF, Centene, and VA reviewer lenses. Cardinal rules
-applied site-wide:
+### Geography
+- **National community-infrastructure platform**, designed for all 50 states + 5
+  U.S. territories.
+- **Live pilot:** Travis County, Texas (Austin, Pflugerville, Manor) with active
+  outreach across Central Texas.
+- Travis County is the **implementation template**, not the ceiling. The 24-platform
+  ecosystem, RPLICE protocol, MAP-GAP CQI engine, and benefits screener are
+  jurisdiction-agnostic by design — replicable in Ohio, Mississippi, Puerto Rico, or
+  any U.S. county via the open Hub Adoption Kit.
 
-- **Real, not notional** — every number, partnership, and capability disclosed at its honest
-  status (operational / pilot / in-development / exploratory).
-- **Plain English, no acronym fog** — FIPS labels relabeled "Census Code", ACOS / RPLICE /
-  MAP-GAP defined on first use.
-- **No FIPS-as-jargon to users** — internal data structures preserved; user-visible labels
-  rewritten.
-- **"President" not "CEO"** — TCAF is a 501(c)(3) (pending), not a for-profit.
-- **St. David's "actively evaluating"** — never claimed as awarded.
-- **Institutional email placeholders** — `president@thecollaborativeadvocate.org` and
-  `programs@thecollaborativeadvocate.org` (not personal Gmail).
+### Funder posture (cardinal rules)
+- **Real, not notional** — every number, partnership, and capability is disclosed at
+  its honest status: operational / pilot / in-development / exploratory.
+- **St. David's Foundation is "actively evaluating"** — never described as awarded.
+  WAB2 LOI was submitted 4/27/2026.
+- **Funder pursuit pipeline is gated behind auth.** Public visitors describe what we
+  do; internal workspace describes who we're pitching. Only the St. David's WAB2
+  surface (`/st-davids`, `/st-davids-wab2`, `/wab2-enrollment`) is public — that is
+  the single funder-facing demonstration of how funds distribute across 5 counties ×
+  5 benefit areas in the LOI.
+- **Funder names stripped from public program pages.** `/veterans`,
+  `/behavioral-health`, `/reentry-program`, `/research` describe program model and
+  federal program category — never the specific funder being pursued.
 
-### Cycle deliverables
-- **Cycle A** (Honesty & Identity): `/about` (ALC + TCAF dual-org card, IRS Tracking
-  281OIP7B), `/non-discrimination`, footer transparency note, `PartnershipStatus` 7-stage
-  badge component, site-wide CEO→President + Gmail→institutional sweep.
-- **Cycle B** (Agency Targeting): `/veterans` (VA SSG Fox), `/behavioral-health` (Centene +
-  St. David's), `/reentry-program` (BJA SCA), `/research` (NSF intellectual merit). Each
-  page evidence-based with honest disclosure banner + partnership pathway.
-- **Cycle C** (Structure & Plain English): sidebar restructured to 8 public pillars
-  (Texas Pilot · Programs · Grant Engine · Research · Community Intel · Workforce ·
-  Justice · Partnerships) with admin-gated operations sections (only shown when
-  `isAdmin`). Healthcare-grants reframed: NOFO ranges + honest disclosure banner.
-- **Cycle D** (Evidence & Polish): `/transparency-matrix` (4-status × 3-category grid),
-  `/stakeholder-map` (29 stakeholders × 6 categories with PartnershipStatus stages),
-  `/open-innovation-lab` (reframes sandbox/dev surface).
-- **Audit Pass**: P0/P1 punch-list executed — `paypal.me/TERRYFLOODCEO` references hidden
-  from visible labels in pricing surfaces, and replaced in business-document templates;
-  `Dr. Terry Flood, CEO` → `President` in funder-facing grant-packages copy; FIPS labels
-  relabeled to "State Census Code" / "County Census Code" in rplice-tools and
-  justice-command-center; `$15M+ Pipeline Value` replaced with NOFO-range tracking.
+---
 
-### Key files added/modified
-- `client/src/pages/about-leadership.tsx`, `client/src/pages/non-discrimination.tsx`
-- `client/src/pages/veterans-program.tsx`, `client/src/pages/behavioral-health-program.tsx`,
-  `client/src/pages/reentry-program.tsx`, `client/src/pages/research-methodology.tsx`
-- `client/src/pages/transparency-matrix.tsx`, `client/src/pages/stakeholder-map.tsx`,
-  `client/src/pages/open-innovation-lab.tsx`
-- `client/src/components/partnership-status.tsx` (7-stage `PartnershipStage` type +
-  `<PartnershipStatusLegend>`)
-- `client/src/components/app-sidebar.tsx` (8-pillar restructure with admin gating)
-- `client/src/pages/healthcare-grants.tsx` (honest-disclosure banner + NOFO reframe)
+## 2. Mission & Theory of Change
+
+ThriveUp Academy / TCAF is national community infrastructure — the operating system
+for how communities support, engage, connect, and serve their people. It spans
+**6 domains** (Criminal Justice, Health Equity, Behavioral Health, Workforce &
+Business, Education & Learning, Community & Advocacy), **24 connected platforms**,
+and a **4-engine collaborative AI** that processes every output through parallel
+synthesis.
+
+The platform connects individuals to grant funding, aligns service delivery with
+workforce-development criteria, and produces measurable community impact. It
+addresses critical community needs — economic mobility, health equity, justice
+reform, AI literacy — through technology-enabled service delivery that is
+jurisdiction-agnostic and replicable.
+
+**Honest operational status (always disclose this when asked):**
+- Technology platform and methodology framework: unusually mature for an
+  organization of this stage.
+- 501(c)(3) structure: handled transparently and competently (ALC active + TCAF
+  pending).
+- Operational pilot: real but small.
+- Peer-reviewed publication record: does not yet exist; first submissions targeted
+  Q3 2026.
+- Evaluator of record: not yet named — required for any outcomes claim funded by
+  NSF/BJA.
+- Fundability posture: B+ today — fundable for the right NOFO with the right
+  co-applicant team; not yet fundable as sole lead applicant on a large federal
+  research award.
+
+---
+
+## 3. System Architecture (durable reference)
+
+### Stack
+- **Frontend:** React + Vite + TypeScript, Tailwind CSS, shadcn/ui, **wouter**
+  routing, **TanStack Query v5**, lucide-react icons.
+- **Backend:** Express.js (Node.js), PostgreSQL via Drizzle ORM (Neon-backed).
+- **Auth:** Replit Auth (OIDC). Client-side via `useAuth()` hook returning
+  `isAuthenticated`, `user`, `isLoading`. Role lookup via avatar query: `userRole`
+  defaults to `"student"`; `isAdmin = userRole === "admin"`,
+  `isTeacher = userRole === "teacher" || isAdmin`.
+- **Internationalization:** English + Spanish via `useLanguage()` from `@/lib/i18n`.
+- **Accessibility:** WCAG 2.1 AA compliant — dyslexia-friendly fonts, high contrast,
+  reduced motion, screen reader optimization, mobile responsive.
+- **Branding:** violet/indigo system with dark mode.
+
+### Surface area (current inventory — updated each cycle)
+- **Pages:** 192 page files in `client/src/pages/`.
+- **Routes:** 206 wouter `<Route>` declarations in `client/src/App.tsx`.
+- **Database tables:** 248 Drizzle `pgTable` definitions in `shared/schema.ts`
+  (4,713 lines).
+- **API endpoints:** 124+ unique endpoints across 35+ server route files.
+- **Sidebar nav groups:** 25 named `NavItem[]` arrays in `app-sidebar.tsx`.
+
+### Server route file map (in `server/`)
+`routes.ts` (main), `agent-communication.ts`, `benefits-routes.ts`,
+`coalition-routes.ts`, `collaboration-routes.ts`, `collaborative-ai.ts`,
+`college-access-ai-routes.ts`, `contact-routes.ts`, `corridor-chainweb.ts`,
+`corridor-docs.ts`, `corridor-story.ts`, `cross-platform-api.ts`,
+`donor-receipts.ts`, `dosage-middleware.ts`, `early-warning.ts`,
+`ecosystem-capacity-routes.ts`, `ecosystem-connector.ts`, `email-service.ts`,
+`facilitator-routes.ts`, `gis-engine.ts`, `grant-routes.ts`,
+`hub-intelligence.ts`, `justice-routes.ts`, `loi-routes.ts`, `mce-contracts.ts`,
+`metrics-routes.ts`, `mou-routes.ts`, `navigator-routes.ts`,
+`neighborhood-routes.ts`, `network-routes.ts`, `onboarding-routes.ts`,
+`outcome-routes.ts`, `parent-education-routes.ts`, `partner-routes.ts`,
+`peer-review-routes.ts`, `pilot-routes.ts`, `prevention-routes.ts`,
+`prevention-strategies-routes.ts`, `pricing-routes.ts`, `program-engine.ts`,
+`program-management-routes.ts`, `rag-engine.ts`, `reentry-routes.ts`,
+`resident-journey.ts`, `resource-engine.ts`, `rplice-tools.ts`,
+`safety-escalation.ts`, `sankofa-gateway.ts`, `standards-routes.ts`,
+`thrive-engine.ts`, `video-pipeline.ts`, `workforce-routes.ts`.
+Seed files: `seed-comprehensive.ts` (master), plus 10+ targeted seeds.
+
+### Sidebar architecture (canonical structure)
+File: `client/src/components/app-sidebar.tsx`. **25 NavItem arrays grouped into
+public / authenticated / admin tiers.** Gating logic at lines 387–413:
+
+- **Always public:** `texasPilotItems`, `programsItems`, `partnershipItems`,
+  `aboutItems`, `communityIntelItems`, `workforceSolutionsItems`,
+  `justiceReentryItems`, `healthWellnessItems`, `researchItems`, plus the public
+  Academy/AI groups.
+- **Only when `isAuthenticated`:** `grantEngineItems` (the funder pursuit pipeline)
+  and `internalWorkspaceItems` (Healthcare Grants Catalog, Grant Packages,
+  Transparency Matrix, Stakeholder Map).
+- **Only when `isAdmin`:** `adminOpsItems`, `programMgmtItems`,
+  `dataReportingItems`, `teachingAdminItems`.
+
+### Route-level gating
+- Component: `client/src/components/require-auth.tsx` — `<RequireAuth>` wrapper.
+- Currently gated routes: `/healthcare-grants`, `/grant-packages`,
+  `/transparency-matrix`, `/stakeholder-map`. Unauthenticated visitors see an
+  "Internal Workspace" notice with sign-in CTA.
+- St. David's WAB2 deliberately remains public.
+
+### PartnershipStatus component (the truth-in-claims primitive)
+File: `client/src/components/partnership-status.tsx`. Exports:
+- `PartnershipStage` type — 7 honest stages from "exploratory" to "operational".
+- `<PartnershipStatus stage={...} asOf={...}>` — single-badge component.
+- `<PartnershipStatusLegend>` — full legend for transparency surfaces.
+
+**Discipline rule:** any claim of partnership on the public site uses this
+component. No "partner" claim ships without a stage badge and an `asOf` date.
+
+---
+
+## 4. Major Subsystems (every important capability, mapped)
+
+### 4.1 Collaborative AI Intelligence Engine (4-engine synthesis)
+Parallel synthesis across **Gemini 2.0 Flash + Claude Haiku 4.5 + OpenAI
+GPT-4o-mini + DeepSeek R1**, with RAG knowledge retrieval and implementation
+science frameworks (RPLICE, CFIR/RE-AIM, MAP-GAP) injected into prompts.
+Powers chat (Spark, Sparky, Nia, Malik), navigation, benefits AI, grant drafting,
+and every AI tool. Implemented in `server/collaborative-ai.ts` +
+`server/ai-provider.ts`. RAG store has 78+ knowledge chunks covering ecosystem
+operations, grant strategy, partnerships, and compliance.
+
+### 4.2 Grant systems
+- **Grant Hub** (`/grants`) — SAM.gov API integration, AI-powered semantic
+  analysis, fit scoring, readiness checklists, AI-assisted narrative generation,
+  daily automated discovery, "Team-of-Teams" platform assignment.
+- **Grant Command Center** (`/grant-command-center`) — 92 grants tracked across
+  the ecosystem, including 31 CDMRP programs ($1.187B addressable, CFDA 12.420).
+  CDMRP organized by tier: Tier 1 (14 programs, ~$890M), Tier 2 (12, ~$245M),
+  Tier 3 (5, ~$52M).
+- **Healthcare Grants Catalog** (`/healthcare-grants`) — gated. 549 NOFOs in
+  catalog with honest disclosure banner.
+- **Grant Packages, LOI Writer, Logic Model, Grant Narrative, Proposal
+  Pipeline, Proposal Command** — the proposal lifecycle surface.
+- **Strategic Intelligence Playbook** at `docs/grants/STRATEGIC-INTELLIGENCE-PLAYBOOK.md`
+  + bidirectional RAG ingestion.
+- Key grant docs: `CDMRP-FY2026-Master-Grant-Strategy.md`,
+  `HerHealth-33-Grant-Opportunities-Prospectus.md`,
+  `GRANT-OPPORTUNITY-CRITERIA-MATRIX.md`,
+  `ECOSYSTEM-COMPLETE-PLATFORM-REFERENCE.md`.
+
+### 4.3 St. David's WAB2 surface (the only public funder demo)
+- `/st-davids` — public landing for the WAB2 LOI demonstration.
+- `/st-davids-wab2` — operator workspace.
+- `/wab2-enrollment` — 5-county enrollment hub (Travis, Williamson, Hays, Bastrop,
+  Caldwell).
+- `/stdavids-prep` — proposal prep workspace.
+- LOI submitted 4/27/2026; foundation actively evaluating. Never "awarded."
+
+### 4.4 Benefits Intelligence (5-county system)
+Census ACS data across Travis, Williamson, Hays, Bastrop, Caldwell counties.
+- `/benefits-screener` — public 9-benefit screener (single front door).
+- `/benefits` (Benefits Command Center) — operator workspace, 10 tabs:
+  command, gis, barriers, map, partners, chw, navigator, hhsc, metrics, outreach.
+- `/coalition` — partner coordination.
+- `/network` — live network view.
+
+### 4.5 Workforce / Education stack
+- **Workforce Readiness Academy** (`/workforce-readiness`) — TEKS §127.15 compliant,
+  15 weeks, 5 modules, 20 lessons, 50 quiz questions. Culturally responsive,
+  phone-first. Characters: Jaylen, Aaliyah, Marcus, Sofia, DeAndre. Resume building
+  threaded across all modules. 11 badges (5 module completion + 5 resume
+  milestones + 1 certificate). Seed: `server/seed-workforce-lessons.ts`.
+- **AI Literacy Curriculum & Creation Studio** (`/ai-tools`) — workforce-aligned;
+  each tool paired with learning objective + guided lesson + portfolio artifact.
+- **Financial Literacy & STEM Engagement Modules** (`/academy/games`) — game-based
+  modules with documented learning objectives (Wallet=budgeting,
+  Stocks=long-horizon decisions, Dominoes=strategic reasoning, Scenarios=real-world
+  problem solving), aligned to TEKS §127.15 + DOL/ETA youth-workforce standards.
+- **Full Curriculum Library** — 60 in-depth lessons across AI Literacy, Workforce
+  Readiness, and Social-Emotional Learning.
+- **FAFSA & Financial Aid Navigator** (`/fafsa-navigator`).
+- **Apprenticeship Tracker** (`/apprenticeship-tracker`) — DOL RAPIDS-aligned,
+  pre-apprenticeship → journeyworker lifecycle.
+- **Opportunity Youth Outreach** (`/opportunity-youth`) — 7-step engagement
+  lifecycle, 5-county Census data, barrier assessment, evidence-based strategies.
+- **Postsecondary Transition Plans** (`/transition-plans`) — 6-step lifecycle,
+  WIOA compliance, ITP builder, college tracker, credential tracker.
+
+### 4.6 Justice / Reentry stack
+- **Reentry Program** (`/reentry-program`), **Reentry Dashboard** (`/reentry`),
+  **Reentry Standards** (`/reentry/standards`), **Reentry Strategic Plan**
+  (`/reentry/strategic-plan`), **NRRC Outcome Reports** (`/reentry/outcome-reports`),
+  **Reentry Stipend Pilot** (`/reentry-stipend-pilot`).
+- **Justice Command Center** (`/justice-command-center`),
+  **Justice Partners** (`/justice-partners`).
+
+### 4.7 Health / Behavioral Health stack
+- **Behavioral Health Program** (`/behavioral-health`) — Texas Medicaid Aligned ·
+  Foundation Pathway. "Superior HealthPlan" (no Centene); "Foundation-aligned
+  community health network" (no St. David's by name).
+- **Health & Wellness** (`/health-wellness`), **Health Network** (`/health-network`),
+  **CHW Dashboard** (`/chw-dashboard`).
+- **Prevention** (`/prevention`), **Prevention Strategies** (`/prevention-strategies`).
+- **Veterans Program** (`/veterans`) — federal Veterans suicide-prevention program
+  standards (no SSG Fox by name on public surface).
+
+### 4.8 Research & Methodology
+- `/research` and `/methodology` (alias) → `ResearchMethodologyPage` — academic
+  format with honest-disclosure banner. TCAF stated as **applied implementation
+  science organization**, not a traditional research university. First peer-reviewed
+  submissions targeted Q3 2026.
+- `/research-hub` — broader research index.
+- **RPLICE Implementation Science Toolkit** (`/rplice-tools`) — CFIR assessment,
+  RE-AIM scorecards, fidelity checklists, Quality Gate Dashboard, AI-Powered
+  Community Analysis streaming live Census ACS data into 9-section RPLICE reports.
+- **MAP-GAP CQI** (`/cqi`) and **MAP-GAP Framework** (`/mapgap-framework`) —
+  the Reflective Adaptive Learning Architecture (5 phases: MAP, GAP, EXECUTE,
+  VALIDATE, LEARN). Lessons persisted in `.agents/skills/map-gap/lessons-learned.md`.
+- **Peer Review** (`/peer-review`).
+
+### 4.9 Community Intelligence
+- **SDOH Explorer** (`/sdoh-explorer`) with Vulnerability Map tab (CDC/ATSDR SVI
+  scores from live Census ACS at census tract level; 16 indicators × 4 themes).
+- **SDOH Impact Chain** (`/sdoh-chain`).
+- **Neighborhood Lookup** (`/neighborhood`) — flexible location lookup (ZIP, name,
+  street, city; Census geocoder + Nominatim fallback). Real-time Census ACS, SVI
+  scoring, up to 10-page PDF reports, 15-20 slide PPTX, scenario sandbox, up to 20
+  matched live grants. Email reports rate-limited and sanitized.
+- **Community Map** (`/community-map`), **Community Resource Directory**
+  (`/resource-directory`), **Coalition Portal** (`/coalition`), **Coalition**
+  (`/coalition-portal`), **Network Members** (`/network/members`).
+- **GIS Sources:** CDC PLACES, CDC/ATSDR SVI, FBI Crime Data, Census Bureau ACS,
+  USDA Food Access Atlas, HUD, SAMHSA, BLS.
+- **Gun Violence Registry** — live API to Dr. Flood's National Gun Violence
+  Tracker + Gun Violence Archive national data.
+
+### 4.10 Donor surface (Outcome Receipts)
+Cryptographically-verifiable receipts that bind a charitable gift to a specific
+service event. Hash chain: `h_n = sha256(h_{n-1} | event_id | event_type | event_title | occurredAt)`.
+PII stripped at receipt boundary (e.g., "Resident #M-2026-001").
+- `/donors` — donor product landing with gift tiers + AI-generated donor brief.
+- `/donor-receipt-demo` — live anonymized 3-receipt demo + full chain table.
+- `GET /api/donor/receipt-demo`, `POST /api/donor/verify`.
+- Files: `server/donor-receipts.ts`, `client/src/pages/donors.tsx`,
+  `client/src/pages/donor-receipt-demo.tsx`.
+
+### 4.11 Ecosystem / Platform Management
+- **Ecosystem Hub** (`/ecosystem`, `/ops-center`) — 24 platforms with status
+  badges (Fully Integrated / Linked / In Development); 16 of 20 currently Fully
+  Integrated.
+- **Ecosystem AI** (`/ecosystem-ai`), **Ecosystem Story** (`/ecosystem-story`),
+  **Ecosystem Connector** (`/ecosystem-connector`).
+- **SiteSync Inject**, **Ecosystem Directives**, **Unified Operating System
+  Directive (UOSD)** with **Cognitive Elevation Addendum (CEA)**.
+- **Fidelity Report Card System**.
+- **Confidence Drift + Autonomy Quadrants** — earned trust + thinking scores.
+- **Capability Orchestration Map** — 23-platform lead/support/validate roles.
+- **Agent Communication Layer** — all 24 platforms as autonomous agents with
+  reasoning-required communication.
+
+### 4.12 Texas Pilot surface (the implementation template)
+Public group "Texas (St. David's Pilot)" in sidebar. The 5-county WAB2 demo plus
+the implementing neighborhoods:
+- `/st-davids` (front door), `/benefits-screener`, `/benefits`, `/coalition`,
+  `/network`, `/st-davids-wab2`, `/austin`, `/manor`, `/pflugerville`,
+  `/voices-of-austin`, `/texas-assessment`, `/third-spaces`.
+
+### 4.13 Public legal / transparency
+- `/about` — ALC + TCAF dual-org card, 501(c)(3) honest disclosure, Geographic
+  Scope card (national platform, Texas-piloted).
+- `/non-discrimination`, `/privacy`.
+- `/transparency` (public dashboard) — distinct from the gated
+  `/transparency-matrix`.
+- `/contact`, `/get-help`, `/impact`, `/coverage`, `/data-sources`.
+- `/open-innovation-lab` — reframes sandbox/dev surface.
+- `/api-docs`, `/business-card`.
+
+---
+
+## 5. Coding Conventions & Discipline
+
+### Always
+- **Auth:** every mutation API endpoint requires authentication. User-specific
+  data routes verify identity via `getUserId`/`getUserName` patterns.
+- **Error handling:** every server route wrapped in try/catch; every client
+  mutation `onError` shows a user-facing toast.
+- **PageHeader:** every navigable page uses `<PageHeader>` from
+  `@/components/page-header` for breadcrumbs + title.
+- **ErrorRetry:** every page that fetches data uses `<ErrorRetry>` from
+  `@/components/error-retry`.
+- **data-testid + aria-label:** every interactive element. Pattern:
+  `{action}-{target}` for buttons/inputs/links; `{type}-{content}` for displays.
+- **useEffect(document.title):** unconditional, before any early returns.
+- **TanStack Query v5:** object form only. Hierarchical query keys as arrays
+  (`['/api/x', id]` not template strings) so invalidation works.
+- **Forms:** `useForm` + `Form` + `zodResolver` + insert schema from
+  `@shared/schema.ts`.
+- **Routing:** `wouter` `Link` and `useLocation`.
+- **Icons:** `lucide-react`.
+
+### Never
+- "CEO" in public copy — always **President**.
+- Personal Gmail in public copy — always institutional `@thecollaborativeadvocate.org`.
+- "Awarded" St. David's — always "actively evaluating".
+- Funder names (BJA, NSF, VA SSG Fox, Centene, St. David's) on public program
+  pages — describe the program category instead.
+- "FIPS" labels in user-facing UI — use "State Census Code" / "County Census Code".
+- "Texas-only" framing — always "national platform, Texas-piloted".
+- `paypal.me/TERRYFLOODCEO` visible labels — payment URL hidden behind
+  institutional copy.
+- Edit `package.json` directly — use the package management tool.
+- Modify `vite.config.ts`, `server/vite.ts`, or `drizzle.config.ts` unless
+  absolutely necessary.
+- Emoji in UI code unless explicitly requested.
+- Silent catch blocks. `console.log` in server.
+- Conditional `useEffect` (React hooks violation).
+- Nested anchor tags (`<Link><a>...`).
+
+### MAP-GAP cycle discipline (every improvement cycle)
+1. **MAP** — run health-check scripts (see `.agents/skills/map-gap/SKILL.md`),
+   launch parallel explorers, never fix what you haven't mapped first.
+2. **GAP** — classify by severity (CRITICAL / HIGH / MODERATE / LOW) + stakeholder
+   impact (Students / Teachers / Funders / Technical).
+3. **EXECUTE** — max 8 tasks per cycle; one cycle = one category of gap.
+4. **VALIDATE** — `curl` endpoints, refresh logs, architect review, `runTest()`.
+5. **LEARN** — update this file (`replit.md`) and
+   `.agents/skills/map-gap/lessons-learned.md`. Delete `.local/session_plan.md`.
+
+### Compound metrics tracking
+| Metric | Status |
+|---|---|
+| GET routes with try/catch | 124/124 (100%) |
+| Pages with ErrorRetry | 50+ |
+| Pages with PageHeader | 55+ |
+| data-testid attributes | 2,338+ |
+| aria-labels | 95+ |
+| React hooks violations | 0 |
+| User-specific routes with auth | 100% |
+| Silent catch blocks | 0 |
+| `console.log` in server | 0 |
+
+---
+
+## 6. External Dependencies & Integrations
+
+- **Database:** PostgreSQL (Neon-backed).
+- **AI:** Google Gemini 2.0 Flash, Anthropic Claude Haiku 4.5, OpenAI GPT-4o-mini,
+  Replit AI Integrations GPT-5-nano, OpenRouter (DeepSeek R1).
+- **Email:** Resend (Replit connector).
+- **Auth:** Replit Auth (OIDC).
+- **Federal grants:** SAM.gov API (`api.sam.gov`).
+- **Mapping:** Leaflet + react-leaflet + OpenStreetMap.
+- **GIS data sources:** CDC PLACES, CDC/ATSDR SVI, FBI Crime Data, Census Bureau
+  ACS, USDA Food Access Atlas, HUD, SAMHSA, BLS.
+- **External platform integration:** Student Support Portal (ISSS).
+
+### Installed Replit integrations (do not reinstall)
+- `javascript_openai_ai_integrations` 2.0.0
+- `javascript_anthropic_ai_integrations` 2.0.0
+- `javascript_openrouter_ai_integrations` 2.0.0
+- `javascript_log_in_with_replit` 2.0.0
+- `javascript_object_storage` 2.0.0
+- `resend` 1.0.0
+
+### Secrets the app needs but may not have set
+- `NETWORK_SECRET_BIBLESTUDY`, `NETWORK_SECRET_HERHEALTH`
+- `SENDGRID_API_KEY`
+- `THRIVEUP_SHARED_SECRET`
+- `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_PHONE_NUMBER`
+
+---
+
+## 7. Cycle History (the durable log)
+
+### Cycle A — Honesty & Identity (April 2026)
+- A01: Personal Gmail → institutional email site-wide.
+- A02: Personal name → "President, TCAF" in functional/role contexts.
+- A03: Built `/about` with ALC + TCAF dual-org card, 501(c)(3) disclosure,
+  IRS Tracking 281OIP7B.
+- A04: Built `/non-discrimination` + footer link.
+- A05: `PartnershipStatus` 7-stage badge + retrofit.
+- A06: Footer transparency note.
+
+### Cycle B — Agency Targeting (April 2026)
+- B01: `/veterans` (initially VA SSG Fox, later genericized).
+- B02: `/behavioral-health` (initially Centene + St. David's, later genericized).
+- B03: `/reentry-program` (initially BJA SCA, later genericized).
+- B04: `/research` (NSF intellectual merit framing).
+Each page shipped with evidence-based content + honest disclosure banner.
+
+### Cycle C — Structure & Plain English (April 2026)
+- C01: Sidebar restructured to 8 public pillars + admin gating.
+- C02: Admin/dev pages moved behind `/admin` gate.
+- C03: FIPS labels relabeled "State Census Code" / "County Census Code"
+  in `rplice-tools` and `justice-command-center`.
+- C04: Healthcare-grants speculative numbers replaced with NOFO ranges +
+  honest disclosure banner.
+- C05: Duplicate dashboards consolidated (later finished in Cycle F).
+
+### Cycle D — Evidence & Methodology (April 2026)
+- D01: Methodology page (later promoted to dedicated `/methodology` route).
+- D02: `/transparency-matrix` (4-status × 3-category grid) — later gated.
+- D03: Academy games reframed (later finished in Cycle F).
+- D04: AI Tools reframed as AI Literacy Curriculum (later finished in Cycle F).
+- D05: `/open-innovation-lab` reframes sandbox/dev surface.
+- D06: `/stakeholder-map` (29 stakeholders × 6 categories) — later gated.
+
+### Audit Pass (April 2026)
+P0/P1 punch-list: `paypal.me/TERRYFLOODCEO` hidden from visible labels,
+"Dr. Terry Flood, CEO" → "President" in funder-facing copy, FIPS relabeled,
+`$15M+ Pipeline Value` replaced with NOFO-range tracking.
 
 ### Cycle E — Public/Internal Separation (May 2026)
-The funder pursuit pipeline was moved off the public site. Public surface now describes
-**what we do**; internal workspace describes **who we're pitching**.
-
-- **Route-level auth gates** added via new `<RequireAuth>` wrapper
-  (`client/src/components/require-auth.tsx`). Pages gated:
-  `/healthcare-grants`, `/grant-packages`, `/transparency-matrix`, `/stakeholder-map`.
-  Unauthenticated visitors see an "Internal Workspace" notice with sign-in CTA.
-- **Sidebar restructure**: "Grant Engine" group and new "Internal Workspace" group
-  (Healthcare Grants Catalog, Grant Packages, Transparency Matrix, Stakeholder Map)
-  now render only when `isAuthenticated`. Public `aboutItems` no longer surfaces
-  Transparency Matrix or Stakeholder Map. Public `programsItems` no longer surfaces
-  Healthcare Grants Catalog. Public `researchItems` no longer surfaces Healthcare Grants.
-- **Funder-name strip from public program pages**: badges, page titles, and body copy
-  on `/veterans`, `/behavioral-health`, `/reentry-program`, `/research` were rewritten
-  to describe program model and federal program category rather than naming the
-  specific funder being pursued (VA SSG Fox → "federal Veterans suicide-prevention
-  program standards"; BJA SCA → "federal Second Chance program standards"; NSF →
-  "peer-review-grade research funding"; Centene/St. David's → "Texas Medicaid Aligned
-  · Foundation Pathway"). Honest-disclosure banners retained but reworded to remove
-  funder-specific reviewer language.
-- **Behavioral Health page**: "Superior HealthPlan (Centene)" → "Superior HealthPlan";
-  "St. David's Foundation network providers" → "Foundation-aligned community health
-  network".
-- **Non-Discrimination page**: VA SSG Fox compliance row reworded to "Federal Veterans
-  Suicide Prevention Programs — Non-Discrimination Conditions".
-- **St. David's WAB2 surface remains public** at `/st-davids` (and `/st-davids-wab2`,
-  `/wab2-enrollment`) — this is the single funder-facing public demonstration of how
-  the system distributes funds across the 5 counties × 5 benefit areas in the LOI sent
-  to St. David's.
-- **Internal data structures untouched**: grant catalog, proposals, stakeholder
-  records, and admin dashboards continue to function for authenticated staff.
+- Built `<RequireAuth>` wrapper (`client/src/components/require-auth.tsx`).
+- Gated routes: `/healthcare-grants`, `/grant-packages`, `/transparency-matrix`,
+  `/stakeholder-map`.
+- Sidebar restructure: `grantEngineItems` + new `internalWorkspaceItems` only
+  render when `isAuthenticated`.
+- Funder names stripped from public program pages (VA SSG Fox → "federal Veterans
+  suicide-prevention program standards"; BJA SCA → "federal Second Chance program
+  standards"; NSF → "peer-review-grade research funding"; Centene → "Superior
+  HealthPlan"; St. David's named only on the WAB2 demo surface).
+- St. David's WAB2 surface remains public.
 
 ### Cycle F — National Framing + Closing the Yellow Triangles (May 2026)
-Three threads were closed in this cycle: (1) reframing the platform as national
-infrastructure piloted in Texas, not a Texas-only product; (2) converting the
-remaining ⚠️-status items in the Cycle plan to ✅; (3) site-wide congruence pass
-so the framing aligns across footer, About, sidebar, and program-page page-headers.
+- Footer copy reframed: "National community-infrastructure platform. Live pilot
+  in Travis County, Texas — the template for the all-50-states + 5-territory
+  rollout via the open Hub Adoption Kit."
+- `/about` Geographic Scope card now leads with "National platform,
+  Texas-piloted" and explicitly names jurisdiction-agnostic architecture.
+- D01 closed: `/methodology` route alias → `ResearchMethodologyPage`.
+- D03 closed: `academy-game-lobby.tsx` page header is now "Financial Literacy
+  & STEM Engagement Modules" with documented learning objectives (TEKS §127.15
+  + DOL/ETA alignment).
+- D04 closed: `ai-tools-hub.tsx` page header is now "AI Literacy Curriculum
+  & Creation Studio" with workforce-aligned framing.
+- C05 closed: removed duplicate "Benefits Intel" + "Benefits Screener" entries
+  from gated `grantEngineItems`. Each page has exactly one canonical sidebar entry.
 
-- **National framing site-wide.** Footer in `client/src/components/app-sidebar.tsx`
-  now reads: "National community-infrastructure platform. Live pilot in Travis
-  County, Texas — the template for the all-50-states + 5-territory rollout via the
-  open Hub Adoption Kit." The `/about` Geographic Scope card now leads with
-  "National platform, Texas-piloted" and explicitly states jurisdiction-agnostic
-  architecture (Ohio, Mississippi, Puerto Rico examples).
-- **D03 closed (Academy games as Financial Literacy & STEM Modules):**
-  `academy-game-lobby.tsx` page header is now "Financial Literacy & STEM
-  Engagement Modules" with documented learning objectives in the description
-  (TEKS §127.15 employability + DOL/ETA youth-workforce alignment). Hero subtitle
-  rewritten to pair each module with its learning objective (Wallet=budgeting,
-  Stocks=long-horizon decisions, Dominoes=strategic reasoning,
-  Scenarios=real-world problem solving). Document title updated.
-- **D04 closed (AI Tools Hub as AI Literacy Curriculum):**
-  `ai-tools-hub.tsx` page header is now "AI Literacy Curriculum & Creation
-  Studio" with workforce-aligned framing in the description (learning objective
-  + guided lesson + portfolio artifact per tool). Document title updated.
-- **D01 closed (/methodology dedicated route):** `/methodology` now resolves to
-  `ResearchMethodologyPage` (same component as `/research`). Sidebar "Research &
-  Methodology" link uses `/methodology`. NSF reviewers and academic partners
-  landing on `/methodology` see the academic-format methodology page directly.
-- **C05 closed (consolidate duplicate dashboards):** Removed duplicate
-  "Benefits Intel" and "Benefits Screener" entries from the gated `grantEngineItems`
-  group — both were shadowed by canonical entries already present in
-  `texasPilotItems` ("9-Benefit Screener" → /benefits-screener,
-  "Benefits Command Center" → /benefits). Each page now has exactly one canonical
-  sidebar entry.
+### Cycle G — Memory Discipline Audit (May 2026)
+- Full system map-gap pass triggered by user directive: "everything we discussed
+  everything that we do gets committed to memory and pulled from that memory".
+- Inventoried: 192 pages, 206 routes, 248 schema tables, 124+ API endpoints,
+  35+ server route files, 25 sidebar nav groups.
+- Rewrote this `replit.md` as durable institutional memory with explicit
+  sections for identity, mission, architecture, every subsystem, conventions,
+  cycle history, and forward-looking unblocks.
+- Established discipline: **every change to the platform updates this file in
+  the same task.** No silent failures, no information silos.
+
+---
+
+## 8. Forward-Looking Unblocks (the honest path to fundability)
+
+The site is structurally and presentationally credible. To become operationally
+fundable as sole lead applicant on large federal awards, in priority order:
+
+1. **Lock the TCAF 501(c)(3) determination.** Until in hand, every federal
+   proposal must use ALC-as-applicant + TCAF-as-sub-recipient structure.
+2. **Name a real evaluator of record.** Required for any outcomes claim funded
+   by NSF or BJA.
+3. **Get one peer-reviewed submission out the door.** Workshop paper or pre-print
+   with a research-institution co-author. Methodology page promises Q3 2026.
+4. **Document the operational pilot honestly with numbers.** Real n=40 with clean
+   data beats notional n=10,000.
+5. **Convert one verbal partner to a signed letter of support** for a specific NOFO.
+6. **Pick one NOFO and write the proposal end-to-end** rather than chasing many.
+
+---
+
+## 9. Memory Discipline (the standing rule)
+
+Going forward, every change — feature, copy edit, route addition, schema change,
+sidebar reshuffle, gating decision, framing decision — gets committed to this
+file in the same task that ships the change. Specifically:
+
+- **New page or route?** Add it to Section 4 (subsystem map) and to the route
+  count in Section 3.
+- **New schema table?** Update the count in Section 3.
+- **New convention or anti-pattern?** Add to Section 5.
+- **New cycle?** Add a dated entry to Section 7 with what was done, why, and
+  which files moved.
+- **Identity / framing decision?** Update Section 1 immediately.
+- **New external dependency or integration?** Update Section 6.
+- **Honest-status change (operational status, fundability posture, 501(c)(3)
+  determination)?** Update Section 2 and Section 8.
+
+If a fact is important enough that the next session of me needs it, it goes
+here. If it is not here, it does not exist next session. No exceptions.
+
+## User Preferences
+- Prioritize iterative development; explain major changes before implementation.
+- High-quality, well-tested code; clear, simple language for technical concepts.
+- Don't change sensitive configs (`vite.config.ts`, `drizzle.config.ts`,
+  `package.json`) without explicit instruction.
+- Always work in parallel using subagents; don't stop to chat when there's more
+  work to do; keep building.
+- Speak plainly, not in jargon. Use President not CEO. Honest disclosure always.
+- Every change commits to this memory file. No silent failures.
