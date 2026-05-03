@@ -481,6 +481,75 @@ P0/P1 punch-list: `paypal.me/TERRYFLOODCEO` hidden from visible labels,
 - C05 closed: removed duplicate "Benefits Intel" + "Benefits Screener" entries
   from gated `grantEngineItems`. Each page has exactly one canonical sidebar entry.
 
+### Cycle H — Grant Opportunity Reconciliation (May 3, 2026)
+
+- **SAM.gov IRS TIN mismatch: RESOLVED** (per Dr. Flood, May 3, 2026).
+  Federal submissions are no longer structurally blocked. Every proposal in
+  `server/grant-routes.ts` still carries a `"SAM.gov TIN Resolution": "blocker"`
+  checklist line — these are stale and must be flipped to `complete` on the
+  next pipeline edit.
+- **Defect identified — silent failure of opportunity tracking.**
+  `/api/proposal-pipeline` is a hardcoded array of **11 proposals** in
+  `server/grant-routes.ts`. It does not read from the `grant_opportunities`
+  table (536 rows, SAM.gov-imported), nor from the 50 docs in `docs/grants/`,
+  nor from the live-researched Criteria Matrix. Result: when asked "what's due
+  this week," the dashboard answered honestly about its own 11 entries while
+  ~80+ opportunities Dr. Flood was actively pursuing were invisible. This is
+  the exact silent-failure pattern Cycle G's Memory Discipline forbids.
+- **True opportunity universe (May 2026), reconciled:**
+  - **In `/api/proposal-pipeline` (11):** NSF STEM K-12, NSF ATE, NSF IUSE:EDU,
+    NSF Quantum DCL, NSF SBIR Phase I, NIH SBIR Phase I, TWC RFA 32026-00162,
+    Rare Impact Fund LOI, DOL RESTART, Agency Fund EOI, St. David's WAB2 LOI.
+  - **Drafted in `docs/grants/` but NOT in pipeline (8):** NSF TechAccess
+    AI-Ready America (NSF 26-508, due **Jun 16, 2026**, $1M/yr × 3),
+    NSF SoSDCI, CDMRP PRMRP Concept Award (window May–Aug 2026),
+    Borealis DIF × Tech 2026, RWJF Global Ideas 2026 (up to $500K),
+    Spencer Foundation Small Research Grant 2026, St. David's Community-Led
+    Change LOI (separate from WAB2), HerHealth Network Prospectus
+    (33 sub-opportunities).
+  - **Criteria Matrix Tier 1 (Apr 10 priority list) NOT in pipeline (5):**
+    RWJF Learning from Abroad (Apr 13 — passed, needs go/no-go log),
+    Gates AI to Accelerate Charitable Giving (Apr 28 — passed, needs status),
+    CDC Drug-Free Communities ($1.25M over 10 yr, NOFO ~May 2026, DFC
+    Command Center already built), TWC + DSHS Healthcare Apprenticeship
+    ($500K/yr × 2, rolling), FEMA BRIC (up to $20M, **Jul 23, 2026**,
+    requires City of Austin or Travis County as gov't applicant).
+  - **Criteria Matrix Tier 2 NOT in pipeline (5):** SAMHSA NCTSI Cat III
+    ($400K–$1M/yr × 5), HRSA MCH PIP, DOL HVRP/IVTP, Title IV-A Stronger
+    Connections (via PfISD), SAMHSA CCBHC-PDI ($2M–$4M/yr).
+  - **NIH HerHealth pathways with near deadlines NOT in pipeline (5):**
+    NIH PAR-25-144 D&I Research R01 (**Jun 5, 2026**, $500K/yr),
+    NIH PA-25-301 NIMHD Parent R01 (**Jun 5, 2026**, $500K/yr),
+    NIH PAR-25-143 D&I Research R21 (**Jun 16, 2026**, $275K),
+    NIH PA-25-304 NIMHD Parent R21 (**Jun 16, 2026**, $275K),
+    NLM G08 Health Disparities Info Resources (Apr 24 — passed).
+  - **CDMRP FY26:** ~31 programs across Tier 1/2/3 in
+    `CDMRP-FY2026-Master-Grant-Strategy.md`, $1.187B total addressable.
+    All FOAs in pre-announcement; submission window May–Aug 2026.
+  - **`/api/grants` (536 SAM.gov-imported):** 29 federal opportunities due
+    May 3–10, 2026. High-fit subset for ALC/TCAF includes BJA FY25 Second
+    Chance Act (Reentry Education + Community-based Reentry, due **May 4**),
+    BJA FY25 Comprehensive Opioid/Stimulant/SUD Site-Based (May 4),
+    OJJDP FY25 Family-Based Alternative Justice (May 4), BJA FY25 National
+    Center on Restorative Justice (May 8), NIJ FY25 Research and Evaluation
+    on Violence Against Women (May 11), BJA FY25 Byrne State Crisis
+    Intervention Formula (May 12).
+- **Pipeline hygiene needed (4 items showed "passed deadline" but uncertain
+  submission status):** TWC RFA 32026-00162 (Apr 10 — `narrative_drafted`),
+  Rare Impact Fund LOI (Apr 10 — `loi_drafted`; a SUBMITTED narrative exists
+  in `docs/grants/` so this likely DID ship), DOL RESTART (Apr 15 —
+  `research_complete`), Agency Fund EOI (Apr 26 — `eoi_drafted`). Each must
+  be flipped to `submitted` / `not_submitted` with a reason, not left ambiguous.
+- **Action durably owed to make the dashboard honest:**
+  1. Flip every `"SAM.gov TIN Resolution"` checklist item from `blocker` to
+     `complete` in `server/grant-routes.ts`.
+  2. Either (a) refactor `/api/proposal-pipeline` to read from a real table
+     so the 80+ opportunities above are surfaced, or (b) at minimum extend
+     the hardcoded array to include the 18+ near-deadline items above with
+     real status fields.
+  3. Reconcile the 4 ambiguous-status items above against
+     `docs/grants/submitted/` and update statuses honestly.
+
 ### Cycle G — Memory Discipline Audit (May 2026)
 - Full system map-gap pass triggered by user directive: "everything we discussed
   everything that we do gets committed to memory and pulled from that memory".

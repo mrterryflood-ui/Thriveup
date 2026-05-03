@@ -6228,14 +6228,12 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
             { item: "Data Management Plan", status: "not_started", note: "2 pages max — standard NSF format" },
             { item: "References Cited", status: "not_started", note: "Compile from framework citations" },
             { item: "Facilities & Equipment", status: "not_started", note: "Describe ThriveUp platform infrastructure" },
-            { item: "SAM.gov TIN Resolution", status: "blocker", note: "IRS TIN mismatch blocks ALL federal submissions" }
+            { item: "SAM.gov TIN Resolution", status: "complete", note: "Resolved May 3, 2026" }
           ],
           blockers: [
-            "SAM.gov IRS TIN mismatch — must resolve before any Grants.gov/NSF submission"
           ],
           winStrategy: "Only applicant whose STEM platform is connected to cancer care, reentry services, veteran transitions, and family crisis support. The community infrastructure angle is unique in the NSF STEM K-12 portfolio.",
           nextActions: [
-            "Resolve SAM.gov TIN mismatch",
             "Convert Dr. Flood CV to NSF biosketch",
             "Write Data Management Plan",
             "Compile References Cited",
@@ -6278,17 +6276,15 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
             { item: "Collaboration Plan", status: "not_started", note: "ACC + TCAF roles and responsibilities" },
             { item: "Data Management Plan", status: "not_started", note: "2 pages max" },
             { item: "Employer Partner Letters (3-5)", status: "not_started", note: "Health departments, Integral Care, CommUnity Care, Workforce Solutions" },
-            { item: "SAM.gov TIN Resolution", status: "blocker", note: "Blocks TCAF subaward from ACC" }
+            { item: "SAM.gov TIN Resolution", status: "complete", note: "Resolved May 3, 2026 — TCAF subaward from ACC unblocked" }
           ],
           blockers: [
-            "SAM.gov IRS TIN mismatch — blocks subaward to TCAF",
             "ACC PI must be identified and engaged"
           ],
           winStrategy: "First-ever associate's level implementation science program. Students train on live community data, not simulations. The meta-evaluation design (using implementation science to evaluate implementation science training) is uniquely elegant.",
           nextActions: [
             "Engage ACC colleague — identify PI",
             "Get ACC institutional commitment letter",
-            "Resolve SAM.gov TIN mismatch",
             "Recruit 3-5 employer partners",
             "Write Collaboration Plan",
             "Write Data Management Plan",
@@ -6325,17 +6321,15 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
             { item: "Budget & Justification", status: "not_started", note: "Up to $400K" },
             { item: "PI Biosketch", status: "action_required", note: "Dr. Flood — NSF format" },
             { item: "Data Management Plan", status: "not_started", note: "2 pages max" },
-            { item: "SAM.gov TIN Resolution", status: "blocker", note: "Must resolve before submission" }
+            { item: "SAM.gov TIN Resolution", status: "complete", note: "Resolved May 3, 2026" }
           ],
           blockers: [
-            "SAM.gov IRS TIN mismatch",
             "Must differentiate clearly from STEM K-12 submission"
           ],
           winStrategy: "Frame as undergraduate education research within a community infrastructure ecosystem. The platform doesn't just teach STEM — it shows how STEM learning is affected by housing, health, family stability, and community resources. No other IUSE proposal connects education to a 24-platform service delivery ecosystem.",
           nextActions: [
             "Build full proposal framework (similar to STEM K-12)",
             "Differentiate from STEM K-12 in framing",
-            "Resolve SAM.gov TIN mismatch",
             "Write Data Management Plan",
             "Submit via Research.gov by July 15"
           ]
@@ -6497,10 +6491,9 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
             { item: "Correctional Facility Agreement", status: "blocker", note: "936-437-6368 — pre-release access required" },
             { item: "Sites 2 & 3 Identification", status: "blocker", note: "Must identify additional service delivery sites" },
             { item: "Budget & Justification", status: "not_started", note: "Up to $5.1M over performance period" },
-            { item: "SAM.gov TIN Resolution", status: "blocker", note: "IRS TIN mismatch blocks federal submissions" }
+            { item: "SAM.gov TIN Resolution", status: "complete", note: "Resolved May 3, 2026" }
           ],
           blockers: [
-            "SAM.gov IRS TIN mismatch — blocks ALL federal submissions",
             "LWDB MOU not secured",
             "No employer commitment letters",
             "No Registered Apprenticeship MOU",
@@ -6509,7 +6502,6 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
           ],
           winStrategy: "Only applicant with a 24-platform ecosystem purpose-built for justice-involved population reentry. Criminal justice, behavioral health, workforce training, housing, and family reunification all integrated in one platform. The community infrastructure model eliminates the siloed service delivery that causes recidivism.",
           nextActions: [
-            "Resolve SAM.gov TIN mismatch",
             "Call LWDB for MOU (512-597-7100)",
             "Call Registered Apprenticeship sponsor (512-936-3681)",
             "Call correctional facility (936-437-6368)",
@@ -6697,7 +6689,7 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
         readyToSubmit: proposals.filter(p => p.status === "submission_ready").length,
         frameworksComplete: proposals.filter(p => p.status === "framework_complete").length,
         evaluationsComplete: proposals.filter(p => p.status === "evaluation_complete").length,
-        criticalBlockers: ["SAM.gov IRS TIN mismatch — blocks ALL federal submissions"],
+        criticalBlockers: [],
         upcomingDeadlines: proposals
           .filter(p => p.deadline)
           .sort((a, b) => new Date(a.deadline!).getTime() - new Date(b.deadline!).getTime())
