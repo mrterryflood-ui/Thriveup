@@ -90,13 +90,12 @@ const justiceReentryItems: NavItem[] = [
 // Each program page is a focused, evidence-based, plain-English pitch built around a
 // specific federal/foundation funder's reviewer lens.
 const programsItems: NavItem[] = [
-  { title: "Veterans (SSG Fox VA)", url: "/veterans", icon: Shield },
-  { title: "Behavioral Health (Centene · St. David's)", url: "/behavioral-health", icon: Heart },
-  { title: "Reentry (BJA SCA)", url: "/reentry-program", icon: Scale },
-  { title: "Research & Methodology (NSF)", url: "/research", icon: Microscope },
+  { title: "Veterans Program", url: "/veterans", icon: Shield },
+  { title: "Behavioral Health Program", url: "/behavioral-health", icon: Heart },
+  { title: "Reentry Program", url: "/reentry-program", icon: Scale },
+  { title: "Research & Methodology", url: "/research", icon: Microscope },
   { title: "Health & Wellness", url: "/health-wellness", icon: Activity },
   { title: "Prevention", url: "/prevention", icon: ShieldCheck },
-  { title: "Healthcare Grants Catalog", url: "/healthcare-grants", icon: Stethoscope },
 ];
 
 const partnershipItems: NavItem[] = [
@@ -229,14 +228,21 @@ const buildCreateItems: NavItem[] = [
 // admin-gated below — they are not part of the public storefront.
 const aboutItems: NavItem[] = [
   { title: "About / Our Structure", url: "/about", icon: Info },
-  { title: "Transparency Matrix", url: "/transparency-matrix", icon: ClipboardCheck },
-  { title: "Stakeholder Engagement Map", url: "/stakeholder-map", icon: Users },
   { title: "Open Innovation Lab", url: "/open-innovation-lab", icon: Microscope },
   { title: "Non-Discrimination", url: "/non-discrimination", icon: Shield },
   { title: "Pricing & Services", url: "/pricing", icon: DollarSign },
   { title: "AI Consulting", url: "/ai-consulting", icon: Brain },
   { title: "Contact Us", url: "/contact", icon: Mail },
   { title: "Privacy Policy", url: "/privacy", icon: Shield },
+];
+
+// Internal grant-development workspace — only shown to authenticated staff and partners.
+// Pages here also enforce auth at the route level via <RequireAuth>.
+const internalWorkspaceItems: NavItem[] = [
+  { title: "Healthcare Grants Catalog", url: "/healthcare-grants", icon: Stethoscope },
+  { title: "Grant Packages", url: "/grant-packages", icon: Package },
+  { title: "Transparency Matrix", url: "/transparency-matrix", icon: ClipboardCheck },
+  { title: "Stakeholder Engagement Map", url: "/stakeholder-map", icon: Users },
 ];
 
 // Admin-only operational pages. Hidden from public navigation; only surfaced when
@@ -266,7 +272,6 @@ const healthWellnessItems: NavItem[] = [
 ];
 
 const researchItems: NavItem[] = [
-  { title: "Healthcare Grants", url: "/healthcare-grants", icon: Heart },
   { title: "MAP-GAP Framework", url: "/mapgap-framework", icon: RefreshCw },
   { title: "MAP-GAP CQI", url: "/cqi", icon: Target },
   { title: "RPLICE Toolkit", url: "/rplice-tools", icon: Microscope },
@@ -477,7 +482,12 @@ export function AppSidebar() {
             Plus: AI Literacy, Where We Operate, About */}
         <NavSection label="Texas (St. David's Pilot)" items={texasPilotItems} location={location} />
         <NavSection label="Programs" items={programsItems} location={location} />
-        <NavSection label="Grant Engine" items={grantEngineItems} location={location} />
+        {isAuthenticated && (
+          <NavSection label="Grant Engine (internal)" items={grantEngineItems} location={location} />
+        )}
+        {isAuthenticated && (
+          <NavSection label="Internal Workspace" items={internalWorkspaceItems} location={location} />
+        )}
         <NavSection label="Research & Methodology" items={researchItems} location={location} />
         <NavSection label="Community Intelligence" items={communityIntelItems} location={location} />
         <NavSection label="Workforce & Economic" items={workforceSolutionsItems} location={location} />

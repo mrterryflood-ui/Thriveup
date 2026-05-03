@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { RequireAuth } from "@/components/require-auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -53,7 +54,15 @@ const MATRIX_ROWS: MatrixRow[] = [
   { area: "Peer-reviewed publication record", description: "Peer-reviewed publications under TCAF authorship.", status: "in-development", evidence: "First submissions targeted Q3 2026; pre-prints will release via OSF on submission. No published peer-reviewed papers yet.", category: "research", icon: FileText },
 ];
 
-export default function TransparencyMatrixPage() {
+export default function TransparencyMatrixPageGated() {
+  return (
+    <RequireAuth reason="The Transparency Matrix lists internal capability status across the funder pursuit pipeline. It is intended for partners and staff, not the public site.">
+      <TransparencyMatrixPage />
+    </RequireAuth>
+  );
+}
+
+function TransparencyMatrixPage() {
   useEffect(() => {
     document.title = "Transparency Matrix | TCAF & ALC";
   }, []);

@@ -13,7 +13,7 @@ import { PartnershipStatus, PartnershipStatusLegend } from "@/components/partner
 
 export default function VeteransProgramPage() {
   useEffect(() => {
-    document.title = "Veterans Program — SSG Fox Suicide Prevention Pathway | TCAF";
+    document.title = "Veterans Program | TCAF";
   }, []);
 
   return (
@@ -21,7 +21,7 @@ export default function VeteransProgramPage() {
       <div className="space-y-3">
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="outline" className="gap-1.5 border-blue-500 text-blue-700 dark:text-blue-300">
-            <Shield className="h-3.5 w-3.5" aria-hidden="true" /> VA OMHSP — SSG Fox FY27 Aligned
+            <Shield className="h-3.5 w-3.5" aria-hidden="true" /> Veterans Suicide Prevention — FY27 Launch Cohort
           </Badge>
           <Badge variant="outline" className="gap-1.5">Veteran-Founded · Veteran-Led</Badge>
         </div>
@@ -31,7 +31,7 @@ export default function VeteransProgramPage() {
         <p className="text-lg text-muted-foreground">
           A Central Texas, community-based pathway to suicide prevention, peer support, and stable
           benefits for Veterans and their families — built by a Veteran-led team and structured to
-          the SSG Fox Veterans Suicide Prevention Grant Program standards.
+          federal Veterans suicide-prevention program standards.
         </p>
       </div>
 
@@ -63,7 +63,7 @@ export default function VeteransProgramPage() {
             <div className="text-sm space-y-1.5">
               <p className="font-semibold">Honest disclosure — program status</p>
               <p className="text-muted-foreground">
-                This is an <span className="font-semibold text-foreground">FY27 launch cohort</span>. We have not yet served Veterans under an SSG Fox award. The program model, clinical partnership pathway, peer-support workforce plan, and outcome measurement framework documented on this page are <span className="font-semibold text-foreground">application-ready as of April 2026</span>. Active outreach is underway with named clinical partners (status documented below). We disclose this transparently because the SSG Fox NOFO rewards applicants who name their state honestly and document a credible plan to serve.
+                This is an <span className="font-semibold text-foreground">FY27 launch cohort</span>. We have not yet served Veterans under a federal suicide-prevention award. The program model, clinical partnership pathway, peer-support workforce plan, and outcome measurement framework documented on this page are <span className="font-semibold text-foreground">application-ready as of April 2026</span>. Active outreach is underway with named clinical partners (status documented below). We disclose this transparently because credible Veterans programs are built on honest disclosure, not inflated claims.
               </p>
             </div>
           </div>
@@ -81,7 +81,7 @@ export default function VeteransProgramPage() {
           <p>
             All eligible Veterans and their family members regardless of religion, sexual orientation,
             gender identity, race, national origin, disability, or character of discharge —
-            consistent with VA SSG Fox non-discrimination conditions.{" "}
+            consistent with federal Veterans-program non-discrimination conditions.{" "}
             <Link href="/non-discrimination" className="text-primary hover:underline" data-testid="link-non-discrim">Read full statement</Link>.
           </p>
           <Separator />
@@ -143,7 +143,7 @@ export default function VeteransProgramPage() {
         </CardHeader>
         <CardContent className="space-y-3 text-sm">
           <p>
-            The SSG Fox NOFO requires baseline mental health screening for every program participant
+            Federal Veterans suicide-prevention programs require baseline mental health screening for every program participant
             age 18 or older. Our screening protocol pairs the validated PHQ-9 (depression) and GAD-7
             (anxiety) instruments with the Columbia-Suicide Severity Rating Scale (C-SSRS) screen
             version, administered at intake by trained clinical staff or certified peer specialists
@@ -172,7 +172,7 @@ export default function VeteransProgramPage() {
         </CardHeader>
         <CardContent className="space-y-3 text-sm">
           <p>
-            SSG Fox requires documented clinical partnerships for warm-handoff care. Our partnership
+            Federal Veterans suicide-prevention programs require documented clinical partnerships for warm-handoff care. Our partnership
             pathway is structured around the Travis County continuum of care.
           </p>
           <div className="space-y-2">
@@ -238,8 +238,8 @@ export default function VeteransProgramPage() {
         </CardHeader>
         <CardContent className="space-y-3 text-sm">
           <p>
-            Every SSG Fox required outcome metric is tracked in our outcome measurement system. Pre-,
-            mid-, and post-program data collection, with quarterly reporting to VA OMHSP per grant
+            Every required Veterans-program outcome metric is tracked in our outcome measurement system. Pre-,
+            mid-, and post-program data collection, with quarterly funder reporting per grant
             terms.
           </p>
           <div className="grid sm:grid-cols-2 gap-2">

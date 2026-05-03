@@ -20,7 +20,7 @@ export default function ReentryProgramPage() {
       <div className="space-y-3">
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="outline" className="gap-1.5 border-violet-500 text-violet-700 dark:text-violet-300">
-            <Scale className="h-3.5 w-3.5" aria-hidden="true" /> BJA Second Chance Act FY26 Aligned
+            <Scale className="h-3.5 w-3.5" aria-hidden="true" /> Reentry Services — Second Chance Pathway
           </Badge>
           <Badge variant="outline">Faith-Based + Non-Discriminatory</Badge>
         </div>
@@ -30,7 +30,7 @@ export default function ReentryProgramPage() {
         <p className="text-lg text-muted-foreground">
           A wraparound reentry program for adults returning to Travis County, Texas — built around
           evidence-based risk-needs assessment, employment-first service sequencing, and a
-          documented fidelity framework aligned to BJA Second Chance Act program standards.
+          documented fidelity framework aligned to federal Second Chance program standards.
         </p>
       </div>
 
@@ -41,7 +41,7 @@ export default function ReentryProgramPage() {
             <div className="text-sm space-y-1.5">
               <p className="font-semibold">Honest disclosure — program status</p>
               <p className="text-muted-foreground">
-                This is a <span className="font-semibold text-foreground">first-time SCA applicant</span>. We have not yet held an SCA award and therefore have no SCA prior-performance data. The program model, evidence base, fidelity framework, partnership pathway, and outcome measurement documented on this page are <span className="font-semibold text-foreground">application-ready as of April 2026</span> and were built specifically to BJA SCA program standards. We disclose this transparently because BJA reviewers reward applicants who name their state honestly and document a credible delivery plan.
+                This is a <span className="font-semibold text-foreground">launch cohort program</span> — we have not yet served returning citizens at scale under this model. The program model, evidence base, fidelity framework, partnership pathway, and outcome measurement documented on this page are <span className="font-semibold text-foreground">application-ready as of April 2026</span> and were built to federal Second Chance program standards. We disclose this transparently because credible reentry programs are built on honest disclosure, not inflated claims.
               </p>
             </div>
           </div>
@@ -174,7 +174,7 @@ export default function ReentryProgramPage() {
         </CardHeader>
         <CardContent className="space-y-3 text-sm">
           <p>
-            All BJA SCA mandatory performance measures plus additional outcomes tied to long-term
+            All federal Second Chance mandatory performance measures plus additional outcomes tied to long-term
             self-sufficiency.
           </p>
           <div className="grid sm:grid-cols-2 gap-2">
@@ -203,7 +203,7 @@ export default function ReentryProgramPage() {
             </Button>
             <Button asChild variant="outline" data-testid="button-reentry-grants">
               <Link href="/grants/applications">
-                <FileText className="mr-2 h-4 w-4" /> View SCA applications in flight
+                <FileText className="mr-2 h-4 w-4" /> View program design documents
               </Link>
             </Button>
             <Button asChild variant="outline" data-testid="button-reentry-non-discrim">

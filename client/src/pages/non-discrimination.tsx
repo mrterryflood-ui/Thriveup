@@ -85,7 +85,7 @@ export default function NonDiscriminationPage() {
             scope="Beneficiaries may not be required to participate in religious activities; alternative providers identified on request; no discrimination on the basis of religion or refusal to participate in religious activity"
           />
           <ComplianceRow
-            statute="VA SSG Fox Suicide Prevention Grant — Non-Discrimination Conditions"
+            statute="Federal Veterans Suicide Prevention Programs — Non-Discrimination Conditions"
             scope="Services provided to all eligible Veterans regardless of religion, sexual orientation, gender identity, or character of discharge"
           />
         </CardContent>

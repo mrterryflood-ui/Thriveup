@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Link } from "wouter";
+import { RequireAuth } from "@/components/require-auth";
 import SectionTutorial from "@/components/section-tutorial";
 import { SECTION_TUTORIALS } from "@/lib/tutorial-content";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -4767,7 +4768,15 @@ function SectionDrafter({ section, grant, autoTrigger, onAutoTriggered, onDraftU
   );
 }
 
-export default function GrantPackagesPage() {
+export default function GrantPackagesPageGated() {
+  return (
+    <RequireAuth reason="Grant Packages contain draft cover letters, vendor qualifications, and funder-specific narratives. They are internal to TCAF/ALC and not part of the public site.">
+      <GrantPackagesPage />
+    </RequireAuth>
+  );
+}
+
+function GrantPackagesPage() {
   const [selectedGrant, setSelectedGrant] = useState<string>("wioa");
   const [activeTab, setActiveTab] = useState<string>("overview");
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());

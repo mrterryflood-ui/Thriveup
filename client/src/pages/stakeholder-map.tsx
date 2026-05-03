@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { RequireAuth } from "@/components/require-auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -67,7 +68,15 @@ const CATEGORY_META: Record<Stakeholder["category"], { label: string; icon: any 
   government: { label: "Government & Medicaid MCOs", icon: Shield },
 };
 
-export default function StakeholderMapPage() {
+export default function StakeholderMapPageGated() {
+  return (
+    <RequireAuth reason="The Stakeholder Engagement Map names funders, MCOs, and clinical partners by current pursuit stage. It is internal and not part of the public site.">
+      <StakeholderMapPage />
+    </RequireAuth>
+  );
+}
+
+function StakeholderMapPage() {
   useEffect(() => {
     document.title = "Stakeholder Engagement Map | TCAF & ALC";
   }, []);

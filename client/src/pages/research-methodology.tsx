@@ -20,9 +20,9 @@ export default function ResearchMethodologyPage() {
       <div className="space-y-3">
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="outline" className="gap-1.5 border-indigo-500 text-indigo-700 dark:text-indigo-300">
-            <Microscope className="h-3.5 w-3.5" aria-hidden="true" /> NSF 26-508 Aligned · Implementation Science
+            <Microscope className="h-3.5 w-3.5" aria-hidden="true" /> Implementation Science · Open Methodology
           </Badge>
-          <Badge variant="outline">Open Methodology · Open Evidence</Badge>
+          <Badge variant="outline">Open Evidence · Pre-Print First</Badge>
         </div>
         <h1 className="text-3xl font-bold tracking-tight" data-testid="text-page-title">
           Research & Methodology
@@ -43,11 +43,10 @@ export default function ResearchMethodologyPage() {
                 TCAF is an <span className="font-semibold text-foreground">applied implementation
                 science organization</span>, not a traditional research university. We do not yet hold
                 peer-reviewed publications in the methodologies described below; first peer-reviewed
-                submissions are targeted for Q3 2026. NSF eligibility for TCAF as lead applicant
-                under PAPPG Chapter I.E. is being addressed through active outreach to a research
-                institution co-PI (status documented below). We disclose this transparently because
-                NSF reviewers reward applicants who address eligibility and credentialing questions
-                directly rather than obscuring them.
+                submissions are targeted for Q3 2026. Lead-applicant eligibility for peer-review-grade
+                research funding is being addressed through active outreach to research-institution
+                co-PIs (status documented below). We disclose this transparently because credible
+                research postures are built on honest disclosure of where you are today.
               </p>
             </div>
           </div>
@@ -152,7 +151,7 @@ export default function ResearchMethodologyPage() {
         </CardHeader>
         <CardContent className="space-y-3 text-sm">
           <p>
-            For NSF and other peer-review-grade funding mechanisms, we are actively pursuing
+            For peer-review-grade research funding mechanisms, we are actively pursuing
             university co-PI partnerships. Status disclosed transparently.
           </p>
           <div className="space-y-2">
@@ -191,7 +190,7 @@ export default function ResearchMethodologyPage() {
 
       <Card className="bg-muted/30">
         <CardContent className="pt-6 space-y-3">
-          <p className="font-semibold">For research collaborators and NSF program officers:</p>
+          <p className="font-semibold">For research collaborators and academic partners:</p>
           <div className="flex flex-wrap gap-2">
             <Button asChild variant="default" data-testid="button-research-contact">
               <a href="mailto:research@thecollaborativeadvocate.org">

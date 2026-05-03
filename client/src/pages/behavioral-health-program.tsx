@@ -20,9 +20,9 @@ export default function BehavioralHealthProgramPage() {
       <div className="space-y-3">
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="outline" className="gap-1.5 border-emerald-500 text-emerald-700 dark:text-emerald-300">
-            <Heart className="h-3.5 w-3.5" aria-hidden="true" /> Centene Foundation · St. David's Foundation Aligned
+            <Heart className="h-3.5 w-3.5" aria-hidden="true" /> Texas Medicaid Aligned · Foundation Pathway
           </Badge>
-          <Badge variant="outline">Texas Medicaid Aware</Badge>
+          <Badge variant="outline">MCO-Billable Service Design</Badge>
         </div>
         <h1 className="text-3xl font-bold tracking-tight" data-testid="text-page-title">
           Behavioral Health Program
@@ -98,8 +98,8 @@ export default function BehavioralHealthProgramPage() {
           </p>
           <div className="space-y-2">
             <PartnerRow
-              name="Superior HealthPlan (Centene)"
-              role="Texas Medicaid STAR + STAR+PLUS MCO — primary alignment for Centene Foundation pathway"
+              name="Superior HealthPlan"
+              role="Texas Medicaid STAR + STAR+PLUS MCO — primary MCO alignment for stepped-care pathway"
               stage="aspirational"
             />
             <PartnerRow
@@ -162,7 +162,7 @@ export default function BehavioralHealthProgramPage() {
           <div className="space-y-2">
             <PartnerRow name="Integral Care (Travis County LMHA)" role="Local Mental Health Authority — primary clinical referral and crisis-response partner" stage="outreach" />
             <PartnerRow name="CommUnityCare Health Centers" role="Federally Qualified Health Center — primary care + behavioral health integration" stage="discovery" />
-            <PartnerRow name="St. David's Foundation network providers" role="Foundation-aligned community health partners" stage="outreach" />
+            <PartnerRow name="Foundation-aligned community health network" role="Community health partners aligned via local foundation networks" stage="outreach" />
             <PartnerRow name="People's Community Clinic" role="Federally Qualified Health Center — East Austin and Manor service area" stage="aspirational" />
           </div>
           <PartnershipStatusLegend />

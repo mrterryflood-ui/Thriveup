@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { RequireAuth } from "@/components/require-auth";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -314,7 +315,15 @@ function getScoreBg(score: number): string {
   return "bg-gray-100 dark:bg-gray-900/30";
 }
 
-export default function HealthcareGrantsPage() {
+export default function HealthcareGrantsPageGated() {
+  return (
+    <RequireAuth reason="The Healthcare Grants Catalog is part of TCAF/ALC's internal grant-development workspace. The funder pursuit pipeline is not part of the public site.">
+      <HealthcareGrantsPage />
+    </RequireAuth>
+  );
+}
+
+function HealthcareGrantsPage() {
   useEffect(() => { document.title = "Healthcare Grant Research Hub | ThriveUp Academy"; }, []);
 
   const [activeCategory, setActiveCategory] = useState("all");

@@ -112,3 +112,36 @@ applied site-wide:
   `<PartnershipStatusLegend>`)
 - `client/src/components/app-sidebar.tsx` (8-pillar restructure with admin gating)
 - `client/src/pages/healthcare-grants.tsx` (honest-disclosure banner + NOFO reframe)
+
+### Cycle E — Public/Internal Separation (May 2026)
+The funder pursuit pipeline was moved off the public site. Public surface now describes
+**what we do**; internal workspace describes **who we're pitching**.
+
+- **Route-level auth gates** added via new `<RequireAuth>` wrapper
+  (`client/src/components/require-auth.tsx`). Pages gated:
+  `/healthcare-grants`, `/grant-packages`, `/transparency-matrix`, `/stakeholder-map`.
+  Unauthenticated visitors see an "Internal Workspace" notice with sign-in CTA.
+- **Sidebar restructure**: "Grant Engine" group and new "Internal Workspace" group
+  (Healthcare Grants Catalog, Grant Packages, Transparency Matrix, Stakeholder Map)
+  now render only when `isAuthenticated`. Public `aboutItems` no longer surfaces
+  Transparency Matrix or Stakeholder Map. Public `programsItems` no longer surfaces
+  Healthcare Grants Catalog. Public `researchItems` no longer surfaces Healthcare Grants.
+- **Funder-name strip from public program pages**: badges, page titles, and body copy
+  on `/veterans`, `/behavioral-health`, `/reentry-program`, `/research` were rewritten
+  to describe program model and federal program category rather than naming the
+  specific funder being pursued (VA SSG Fox → "federal Veterans suicide-prevention
+  program standards"; BJA SCA → "federal Second Chance program standards"; NSF →
+  "peer-review-grade research funding"; Centene/St. David's → "Texas Medicaid Aligned
+  · Foundation Pathway"). Honest-disclosure banners retained but reworded to remove
+  funder-specific reviewer language.
+- **Behavioral Health page**: "Superior HealthPlan (Centene)" → "Superior HealthPlan";
+  "St. David's Foundation network providers" → "Foundation-aligned community health
+  network".
+- **Non-Discrimination page**: VA SSG Fox compliance row reworded to "Federal Veterans
+  Suicide Prevention Programs — Non-Discrimination Conditions".
+- **St. David's WAB2 surface remains public** at `/st-davids` (and `/st-davids-wab2`,
+  `/wab2-enrollment`) — this is the single funder-facing public demonstration of how
+  the system distributes funds across the 5 counties × 5 benefit areas in the LOI sent
+  to St. David's.
+- **Internal data structures untouched**: grant catalog, proposals, stakeholder
+  records, and admin dashboards continue to function for authenticated staff.
