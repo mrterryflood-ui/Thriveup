@@ -145,3 +145,37 @@ The funder pursuit pipeline was moved off the public site. Public surface now de
   to St. David's.
 - **Internal data structures untouched**: grant catalog, proposals, stakeholder
   records, and admin dashboards continue to function for authenticated staff.
+
+### Cycle F — National Framing + Closing the Yellow Triangles (May 2026)
+Three threads were closed in this cycle: (1) reframing the platform as national
+infrastructure piloted in Texas, not a Texas-only product; (2) converting the
+remaining ⚠️-status items in the Cycle plan to ✅; (3) site-wide congruence pass
+so the framing aligns across footer, About, sidebar, and program-page page-headers.
+
+- **National framing site-wide.** Footer in `client/src/components/app-sidebar.tsx`
+  now reads: "National community-infrastructure platform. Live pilot in Travis
+  County, Texas — the template for the all-50-states + 5-territory rollout via the
+  open Hub Adoption Kit." The `/about` Geographic Scope card now leads with
+  "National platform, Texas-piloted" and explicitly states jurisdiction-agnostic
+  architecture (Ohio, Mississippi, Puerto Rico examples).
+- **D03 closed (Academy games as Financial Literacy & STEM Modules):**
+  `academy-game-lobby.tsx` page header is now "Financial Literacy & STEM
+  Engagement Modules" with documented learning objectives in the description
+  (TEKS §127.15 employability + DOL/ETA youth-workforce alignment). Hero subtitle
+  rewritten to pair each module with its learning objective (Wallet=budgeting,
+  Stocks=long-horizon decisions, Dominoes=strategic reasoning,
+  Scenarios=real-world problem solving). Document title updated.
+- **D04 closed (AI Tools Hub as AI Literacy Curriculum):**
+  `ai-tools-hub.tsx` page header is now "AI Literacy Curriculum & Creation
+  Studio" with workforce-aligned framing in the description (learning objective
+  + guided lesson + portfolio artifact per tool). Document title updated.
+- **D01 closed (/methodology dedicated route):** `/methodology` now resolves to
+  `ResearchMethodologyPage` (same component as `/research`). Sidebar "Research &
+  Methodology" link uses `/methodology`. NSF reviewers and academic partners
+  landing on `/methodology` see the academic-format methodology page directly.
+- **C05 closed (consolidate duplicate dashboards):** Removed duplicate
+  "Benefits Intel" and "Benefits Screener" entries from the gated `grantEngineItems`
+  group — both were shadowed by canonical entries already present in
+  `texasPilotItems` ("9-Benefit Screener" → /benefits-screener,
+  "Benefits Command Center" → /benefits). Each page now has exactly one canonical
+  sidebar entry.

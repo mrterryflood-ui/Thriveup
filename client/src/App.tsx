@@ -314,6 +314,7 @@ function AppRouter() {
       <Route path="/behavioral-health" component={BehavioralHealthProgramPage} />
       <Route path="/reentry-program" component={ReentryProgramPage} />
       <Route path="/research" component={ResearchMethodologyPage} />
+      <Route path="/methodology" component={ResearchMethodologyPage} />
       <Route path="/transparency-matrix" component={TransparencyMatrixPage} />
       <Route path="/stakeholder-map" component={StakeholderMapPage} />
       <Route path="/open-innovation-lab" component={OpenInnovationLabPage} />

@@ -183,8 +183,9 @@ export default function AboutLeadershipPage() {
             <div className="space-y-1.5 text-sm">
               <p className="font-semibold">Geographic Scope — Honest</p>
               <p className="text-muted-foreground">
-                <span className="font-medium text-foreground">Operational pilot:</span> Travis County, Texas (Austin, Pflugerville, Manor) with active outreach across Central Texas.{" "}
-                <span className="font-medium text-foreground">Methodology and platform:</span> Released as open infrastructure for nationwide replication via the Hub Adoption Kit. We are Texas-first by design — replicability is the broader-impacts story, not a national operating claim.
+                <span className="font-medium text-foreground">National platform, Texas-piloted.</span> The Collaborative Advocate Foundation is built as national community infrastructure — the operating system for how communities support, engage, and serve their people across all 50 states and 5 U.S. territories.{" "}
+                <span className="font-medium text-foreground">Live pilot:</span> Travis County, Texas (Austin, Pflugerville, Manor) with active outreach across Central Texas. Travis is the implementation template; everything we build for Texas is engineered to deploy in any U.S. county via the open Hub Adoption Kit.{" "}
+                <span className="font-medium text-foreground">National replicability:</span> The 24-platform ecosystem, RPLICE protocol, MAP-GAP CQI engine, and benefits screener are jurisdiction-agnostic by design — a community in Ohio, Mississippi, or Puerto Rico can stand up the same operating system without rewriting code.
               </p>
             </div>
           </div>

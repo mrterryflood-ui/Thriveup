@@ -75,7 +75,7 @@ interface LeaderboardEntry {
 }
 
 export default function AcademyGameLobbyPage() {
-  useEffect(() => { document.title = 'Game Room | ThriveUp Academy'; }, []);
+  useEffect(() => { document.title = 'Financial Literacy & STEM Engagement Modules | ThriveUp Academy'; }, []);
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const [setupOpen, setSetupOpen] = useState(false);
@@ -153,10 +153,11 @@ export default function AcademyGameLobbyPage() {
   return (
     <div className="p-4 sm:p-6 max-w-6xl mx-auto" data-testid="game-lobby-page">
       <PageHeader
-        title="Game Room"
+        title="Financial Literacy & STEM Engagement Modules"
+        description="Game-based learning modules with documented learning objectives — financial decision-making (Wallet, Stocks), strategic reasoning (Dominoes, Scenarios), and applied STEM. Aligned to TEKS §127.15 employability skills and DOL/ETA youth-workforce standards."
         breadcrumbs={[
           { label: "Academy", href: "/academy" },
-          { label: "Games" },
+          { label: "Engagement Modules" },
         ]}
       />
       <div
@@ -167,12 +168,12 @@ export default function AcademyGameLobbyPage() {
         <div className="flex items-center gap-3 mb-2 flex-wrap">
           <Gamepad2 className="h-7 w-7 text-white" />
           <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white" data-testid="text-lobby-title">
-            Panther Game Room
+            Engagement Modules · Learn-by-Playing
           </h1>
         </div>
         <div className="flex items-center gap-4 mb-4 flex-wrap">
           <p className="text-white/80 text-sm sm:text-base" data-testid="text-lobby-subtitle">
-            Challenge yourself or compete with classmates
+            Each module pairs a learning objective with a playable scenario — Wallet (budgeting), Stocks (long-horizon decisions), Dominoes (strategic reasoning), Scenarios (real-world problem solving).
           </p>
           <div
             className="flex items-center gap-2 rounded-md px-3 py-1.5 bg-white/15 text-white text-sm"

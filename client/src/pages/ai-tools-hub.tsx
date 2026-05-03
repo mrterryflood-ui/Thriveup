@@ -192,7 +192,7 @@ export default function AIToolsHubPage() {
   };
 
 
-  useEffect(() => { document.title = "AI Creation Studio | ThriveUp Academy"; }, []);
+  useEffect(() => { document.title = "AI Literacy Curriculum & Creation Studio | ThriveUp Academy"; }, []);
 
   if (toolsError) {
     return <div className="p-6"><ErrorRetry message="Failed to load AI tools." onRetry={refetchTools} /></div>;
@@ -201,9 +201,9 @@ export default function AIToolsHubPage() {
   return (
     <div className="p-4 md:p-6 max-w-7xl mx-auto">
       <PageHeader
-        title="AI Creation Studio"
-        description="Professional-grade AI tools for creativity and productivity"
-        breadcrumbs={[{ label: "AI Creation Studio" }]}
+        title="AI Literacy Curriculum & Creation Studio"
+        description="A workforce-aligned AI literacy curriculum. Each tool is paired with a learning objective, a guided lesson, and a portfolio artifact — building the AI fluency reviewers expect of a 21st-century workforce program."
+        breadcrumbs={[{ label: "AI Literacy Curriculum" }]}
       />
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>

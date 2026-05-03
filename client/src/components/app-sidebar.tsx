@@ -93,7 +93,7 @@ const programsItems: NavItem[] = [
   { title: "Veterans Program", url: "/veterans", icon: Shield },
   { title: "Behavioral Health Program", url: "/behavioral-health", icon: Heart },
   { title: "Reentry Program", url: "/reentry-program", icon: Scale },
-  { title: "Research & Methodology", url: "/research", icon: Microscope },
+  { title: "Research & Methodology", url: "/methodology", icon: Microscope },
   { title: "Health & Wellness", url: "/health-wellness", icon: Activity },
   { title: "Prevention", url: "/prevention", icon: ShieldCheck },
 ];
@@ -119,8 +119,6 @@ const grantEngineItems: NavItem[] = [
   { title: "Application Tracker", url: "/grants/applications", icon: ClipboardCheck },
   { title: "Grant Packages", url: "/grant-packages", icon: Package },
   { title: "St. David's Prep", url: "/stdavids-prep", icon: Heart },
-  { title: "Benefits Intel", url: "/benefits", icon: Shield },
-  { title: "Benefits Screener", url: "/benefits-screener", icon: Heart },
   { title: "Coalition Portal", url: "/coalition", icon: Globe },
   { title: "LOI Writer", url: "/loi-writer", icon: FileText },
   { title: "SDOH Impact Chain", url: "/sdoh-chain", icon: Link2 },
@@ -636,7 +634,7 @@ export function AppSidebar() {
             <span>ThriveUp Academy · TCAF · ALC</span>
           </div>
           <p className="text-[10px] text-muted-foreground leading-snug" data-testid="text-pilot-transparency">
-            Texas-first pilot operating in Travis County. Open methodology and Hub Adoption Kit released for nationwide replication. ALC is the 501(c)(3) fiduciary; TCAF 501(c)(3) status pending IRS determination (Tracking 281OIP7B, filed 4/27/2026).
+            National community-infrastructure platform. Live pilot in Travis County, Texas — the template for the all-50-states + 5-territory rollout via the open Hub Adoption Kit. ALC is the 501(c)(3) fiduciary; TCAF 501(c)(3) status pending IRS determination (Tracking 281OIP7B, filed 4/27/2026).
           </p>
         </div>
       </SidebarFooter>
