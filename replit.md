@@ -802,11 +802,23 @@ here. If it is not here, it does not exist next session. No exceptions.
 | Grant | LOI/App Due | Submitted | Status |
 |---|---|---|---|
 | RARE Impact Fund LOI | Apr 10, 2026 | ✅ Submitted | TCAF-Rare-Impact-Fund-LOI-Narrative-SUBMITTED.md exists |
-| RWJF Global Ideas (CFP #3504) | Apr 13, 2026 | needs confirmation | Brief proposal draft exists |
-| Spencer Foundation Small Research Grant | Apr 15, 2026 | Spencer-Foundation-Narrative-SUBMISSION.doc exists | Confirmed submitted (filename) |
-| DOL RESTART (FOA-ETA-26-17) | Apr 15, 2026 | needs confirmation | Research framework exists |
-| TWC RFA-32026-00162 | Apr 23, 2026 (Amendment II) | needs confirmation | SUBMISSION-WALKTHROUGH exists, Form A + Form B complete |
-| St. David's WAB2 LOI | Apr 27, 2026 | ✅ Submitted | Per memory; foundation actively evaluating |
+| Spencer Foundation Small Research Grant | Apr 15, 2026 | ✅ Submitted | Spencer-Foundation-Narrative-SUBMISSION.doc exists |
+| St. David's WAB2 LOI | Apr 27, 2026 | ✅ Submitted | Foundation actively evaluating |
+
+### ❌ MISSED (permanent lesson — Cycle K, May 3, 2026)
+| Grant | Deadline | Reason | What was ready |
+|---|---|---|---|
+| **RWJF Global Ideas (CFP #3504)** | Apr 13, 2026 | No deadline reminder surfaced between sessions | Brief proposal draft + Terry CV + Meredith CV all complete |
+| **DOL RESTART (FOA-ETA-26-17)** | Apr 15, 2026 | No deadline reminder surfaced between sessions | Research framework complete |
+| **TWC RFA-32026-00162** | Apr 23, 2026 (Amendment II) | No deadline reminder surfaced between sessions | SUBMISSION-WALKTHROUGH + Form A + Form B + narrative all complete |
+
+**Root cause:** Prior sessions did not carry the deadline calendar
+forward in this file. Drafts existed; reminders did not. Dr. Flood:
+"Because you didn't remember to remind me." This is exactly the
+dementia failure mode the May 3, 2026 directive eliminates. **Going
+forward, the FIRST action of every session is: read Section 10, sort by
+days-from-today, and surface anything inside 30 days at the top of the
+session response.**
 
 ### Upcoming (open pursuits — sorted by next action date)
 | Grant | LOI Due | Full Due | Days from May 3 | Status |
@@ -837,14 +849,27 @@ When a grant ships: (1) move source doc into `docs/grants/submitted/`,
 ## 11. People (the names I must remember)
 
 ### Internal
-- **Dr. Terry Flood, DHA** — President, TCAF. CW2 (retired), 2× Bronze
-  Stars. Implementation scientist, doctoral degrees in healthcare admin.
-  Formerly with VA Veterans Crisis Line. Public title: **President** (never
-  CEO). Personal Gmail must never appear publicly. Institutional email:
-  `president@thecollaborativeadvocate.org`.
-- **Meredith Sisnett** — RWJF CV exists in `docs/grants/RWJF-CV-Meredith-Sisnett.doc`.
-  Role/relationship: **TBD — needs Dr. Flood confirmation.** Likely co-author
-  / collaborator on RWJF Global Ideas pursuit.
+- **Dr. Terry Flood Sr., DHA** — President, TCAF. CW2 (retired), 2×
+  Bronze Stars. Doctorate in Healthcare Administration plus graduate
+  degrees in Implementation Science, Psychology, HR Management, Business
+  Administration, Criminal Justice, and Public Policy. Formerly with VA
+  Veterans Crisis Line. Leads three entities: TCAF (nonprofit),
+  Collaboration and Implementation Professionals LLC (veteran-owned
+  small business — tech & consulting), M&T Consulting Solutions LLC
+  (strategic advisory). Public title: **President** (never CEO).
+  Institutional email: `president@thecollaborativeadvocate.org`.
+- **Meredith Sisnett** — **Collaborator and business partner.** CV in
+  `docs/grants/RWJF-CV-Meredith-Sisnett.doc`. Co-author on RWJF Global
+  Ideas pursuit and ongoing work.
+
+### Collaborators
+- **Professor Laura Franco** — Austin Community College. Active
+  collaborator. (Role / specific projects to be expanded as work
+  proceeds.)
+- **Eric Hargrave** — collaborator. (Role / project context to be
+  expanded.)
+- **Jamaika McAdams** — collaborator. (Role / project context to be
+  expanded.)
 
 ### Organizations / fiscal partners
 - **Abundant Life Church (ALC)** — fiscal sponsor, active 501(c)(3),
@@ -870,24 +895,79 @@ confirmed by Dr. Flood and added here:
 
 ---
 
-## 12. Sister / Adjacent Platforms (the broader portfolio)
+## 12. The 24-Platform Ecosystem (the central thing)
 
-The repo contains integration instructions for several platforms beyond
-TCAF/ALC. These appear to be a sister-platform portfolio sharing
-infrastructure. **Confirmation needed from Dr. Flood on which are
-separate Replit projects, which are sub-modules of this codebase, and
-which are dormant / sunset.**
+> **Per Dr. Flood (May 3, 2026):** "I built an ecosystem that pushes
+> and receives information from 24 websites and this website is a
+> co-manager. Get to know the ecosystem and capabilities and members.
+> All sites bring value and most can contribute to grant execution and
+> interdependence."
+>
+> **TCAF/ALC (this codebase) is the co-manager** — not the entire
+> ecosystem. It receives information from and pushes information to 24
+> sister platforms via connectors in `ecosystem-connectors/` and
+> `server/ecosystem-connector.ts`. Every grant pursuit can — and
+> usually should — leverage relevant ecosystem members for capability
+> claims, evidence, and interdependence narratives. Borealis DIF
+> already does this (cites Perfectly Different + LexiBridge +
+> SafeCogniCare).
 
-| Platform | Doc reference | Likely status | Network secret |
+### Ecosystem hub URLs
+- **TCAF Ecosystem Hub:** https://mentalwellnesssupport.net (Whole-Person Health Ecosystem)
+- **This site (co-manager):** the TCAF/ALC platform
+
+### Confirmed platform members (from `ecosystem-connector.ts` + `ecosystem-connectors/`)
+| ID | Name | URL | Domain |
 |---|---|---|---|
-| **AutoimmuneThrive** | `AutoimmuneThrive_Ecosystem_Integration_Instructions.md` | Sister platform | — |
-| **SpeechBridge** | `SpeechBridge_Ecosystem_Integration_Instructions.md` | Sister platform | — |
-| **HerHealth Network** | `HerHealth-Network-Grant-Prospectus.md`, 33-grant prospectus | Active (grant pursuits in flight) | `NETWORK_SECRET_HERHEALTH` |
-| **BibleStudy** | (referenced via secret only) | Unknown | `NETWORK_SECRET_BIBLESTUDY` |
-| **ThriveUp Academy** | This codebase | Active (youth-facing brand within TCAF) | `THRIVEUP_SHARED_SECRET` |
-| **Fountain of Life Ministries — Dads Care 2** | `Fountain_of_Life_Ministries_Dads_Care_2_LOI.pdf` | LOI partner | — |
-| **PBC / Blue Wave** | `PBC_MCE_BlueWave_Pipeline_Instructions.md`, `PBC_Ecosystem_Integration_Instructions.md` | Pipeline integration partner | — |
-| **Integrated Services and Solutions LLC (ISS LLC)** | `docs/pitches/deel-the-pitch-3min-script.md` | Dr. Flood's separate for-profit entity (CEO title is correct here) | — |
+| whole-person-health | Whole-Person Health Ecosystem | mentalwellnesssupport.net | Health (hub) |
+| isss | ISSS — Integrated Supports for Thriving Youth | implementationineducatio.com | Education / K-12 |
+| sankofa | Sankofa Health Network | yourhealthbirthright.net | Black health equity |
+| sankofa-feminine-health | Holistic Black Feminine Health Hub | yourfeminineneeds.com | Black women's health |
+| sankofa-maternal-health | Black Maternal Health Network | yourhealthbirthright.net | Black maternal health |
+| sankofa-mens-health | Black Men's Health Hub | thehealthyblkman.com | Black men's health |
+| emergency-mgmt | Emergency Management | emergency-mgmt.replit.app | Crisis response |
+| wholemind | WholeMind Learning | wholemindlearning.com | Mental health learning |
+| perfectly-different | Perfectly Different | neurodifferentassistant.app | Neurodiversity / disability |
+| safereport | SafeReport | safereports.net | Reporting / safety |
+| m2c | Mission Transition (M2C) | vetmissiontransition.com | Veterans transition |
+| lifebridge | LifeBridge | lifetransitionsaid.org | Reentry |
+| mce | Minority Center of Excellence | (TBD) | Minority business / workforce |
+| betterscience | BetterScience | (TBD) | Research / science |
+| collaborative-advocate | The Collaborative Advocate | (this codebase) | Co-manager hub |
+| pillscheduler | PillScheduler | (TBD) | Medication management |
+| safecognicare | SafeCogniCare | (TBD) | Cognitive assessment |
+| shield-atlas | Shield Atlas | (TBD) | Safety / GIS |
+| video-creator-ai | Video Creator AI | (TBD) | Content creation |
+| LexiBridge / SpeechBridge | (referenced in Borealis) | (TBD) | AAC / speech |
+
+That's 20 confirmed connector files + the co-manager itself. Remaining
+~3-4 to reach 24: likely **AutoimmuneThrive, HerHealth, BibleStudy,
+Fountain of Life — Dads Care 2** (all referenced in repo docs). To be
+confirmed and added as connectors are surfaced.
+
+### Ecosystem capability matrix (for grant interdependence claims)
+When drafting any grant, check which ecosystem members provide
+supporting evidence or capability:
+- **Disability justice grants** → Perfectly Different + LexiBridge + SafeCogniCare
+- **Black health equity grants** → Sankofa (4 hubs)
+- **Veterans grants** → M2C Mission Transition + this site's /veterans
+- **Reentry grants** → LifeBridge + this site's /reentry-program
+- **K-12 / youth grants** → ISSS + ThriveUp Academy
+- **Mental health grants** → WholeMind + Whole-Person Health hub
+- **Crisis / emergency grants** → Emergency Management + SafeReport
+- **Maternal health grants** → Sankofa Maternal Health + (HerHealth when confirmed)
+
+### Network secrets (cross-platform auth)
+- `NETWORK_SECRET_BIBLESTUDY`, `NETWORK_SECRET_HERHEALTH`,
+  `THRIVEUP_SHARED_SECRET` — used by connectors to authenticate
+  cross-platform pushes/pulls.
+
+### For-profit entities (separate from ecosystem)
+- **Collaboration and Implementation Professionals LLC** — Dr. Flood's
+  veteran-owned small business (tech & consulting).
+- **M&T Consulting Solutions LLC** — strategic advisory.
+- **Integrated Services and Solutions LLC (ISS LLC)** — referenced in
+  pitch materials. CEO title is correct in for-profit contexts.
 
 ---
 
@@ -918,14 +998,71 @@ again."
 is now explicitly "hard-and-fast with no exceptions" per today's
 directive. Every session ends with commit; every session begins with read.
 
-**Open questions surfaced to Dr. Flood (May 3, 2026):**
-1. TWC RFA-32026-00162 (deadline 4/23) — submitted? outcome?
-2. RWJF Global Ideas + DOL RESTART (both deadline 4/15) — submitted?
-3. Borealis DIF (deadline May 20, 17 days out) — go/no-go?
-4. Meredith Sisnett's role and relationship to TCAF
-5. Sister platforms: separate repos or sub-modules? Active or sunset?
-6. Personal goals / business goals beyond fundability (revenue
-   targets, hiring plan, self-imposed launch deadlines, family
-   considerations)
-7. Are there other people — collaborators, board members,
-   advisors, partners — whose names should live in Section 11?
+**Dr. Flood's answers (May 3, 2026) — captured to memory:**
+1. **April grants (RWJF, DOL RESTART, TWC):** None submitted. Reason
+   given: "you didn't remember to remind me." Logged as MISSED in
+   Section 10 with permanent lesson and session-start protocol fix.
+2. **Borealis DIF:** **GO.** Finalize and submit by May 20, 2026.
+3. **Meredith Sisnett:** Collaborator AND business partner. Promoted
+   in Section 11.
+4. **Ecosystem:** 24-platform ecosystem. This site is the co-manager,
+   not the whole ecosystem. Section 12 rewritten as ecosystem map with
+   20 confirmed connectors + capability matrix for grant interdependence.
+5. **People to add:** ALC; Professor Laura Franco (ACC); Eric Hargrave;
+   Jamaika McAdams. Added to Section 11. More names will come over time.
+6. **Goals:** "Network and build a thriving ecosystem and do great work
+   in the community." Not revenue-driven; relationship-driven and
+   mission-driven. Captured in Section 14 below.
+
+---
+
+## 14. Dr. Flood's Stated Goals & Operating Posture
+
+**Primary goal (May 3, 2026):** Network and build a thriving ecosystem;
+do great work in the community.
+
+**What this means for prioritization:**
+- Optimize for **relationships and ecosystem health**, not for revenue
+  maximization or aggressive scaling.
+- Grant pursuits serve the mission of delivering community impact —
+  they are not ends in themselves.
+- **Interdependence over independence.** Every TCAF capability claim
+  should reference relevant ecosystem partners (per Section 12 matrix).
+- "Great work in the community" = honest disclosure, real outcomes for
+  real people, no inflation, no notional claims.
+- Networking is operational, not aspirational. New collaborators
+  (Professor Franco, Eric Hargrave, Jamaika McAdams, Meredith Sisnett)
+  represent the ecosystem growing — log them as they appear.
+
+**What this rules out:**
+- Pushing aggressive revenue targets when none have been set.
+- Treating any single grant as make-or-break.
+- Acting alone when an ecosystem partner can co-deliver.
+
+**Self-imposed deadlines / launch milestones:** None set. Will be
+documented here as Dr. Flood names them.
+
+---
+
+## 15. Session-Start Protocol (the fix for the missed-grant failure)
+
+**Every new session begins by:**
+1. Reading this entire `replit.md` file.
+2. Computing days-from-today for each row in Section 10.
+3. **Surfacing every deadline ≤30 days at the top of the first response
+   to Dr. Flood**, sorted nearest-first, with status.
+4. Asking explicitly: "Of these N deadlines inside 30 days, which do
+   you want to push on this session?"
+
+**Every session ends by:**
+1. Updating Section 10 status (any submissions made, deadlines that
+   shifted, new pursuits added).
+2. Adding new people to Section 11, new ecosystem members to Section
+   12, new goals to Section 14.
+3. Adding a Cycle entry to Section 7 / 13 / etc. for any meaningful
+   change.
+4. Deleting `.local/session_plan.md` if all tasks are complete.
+
+This protocol is the implementation of the May 3, 2026 directive. If
+the next session does not perform step 3 above (the deadline surfacing),
+the directive is being violated.
