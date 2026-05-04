@@ -782,3 +782,150 @@ here. If it is not here, it does not exist next session. No exceptions.
   work to do; keep building.
 - Speak plainly, not in jargon. Use President not CEO. Honest disclosure always.
 - Every change commits to this memory file. No silent failures.
+- **Memory continuity is non-negotiable (May 3, 2026 directive):** Dr. Flood
+  named the "talking to someone with dementia" problem — between sessions I
+  have no memory unless this file carries it. The standing rule (Section 9)
+  is now hard-and-fast with no exceptions. Every session ENDS with a memory
+  commit. Every session BEGINS by reading this file. If a fact, person,
+  deadline, project, partner, lesson, or commitment is not here, it does not
+  exist next session.
+
+---
+
+## 10. Active Pursuit Calendar (deadlines & statuses)
+
+> Source: cross-referenced from all `docs/grants/` markdown headers. Update
+> every time a submission is made, a deadline shifts, or a new pursuit opens.
+> Today's anchor date: **May 3, 2026**.
+
+### Submitted (awaiting decision)
+| Grant | LOI/App Due | Submitted | Status |
+|---|---|---|---|
+| RARE Impact Fund LOI | Apr 10, 2026 | ✅ Submitted | TCAF-Rare-Impact-Fund-LOI-Narrative-SUBMITTED.md exists |
+| RWJF Global Ideas (CFP #3504) | Apr 13, 2026 | needs confirmation | Brief proposal draft exists |
+| Spencer Foundation Small Research Grant | Apr 15, 2026 | Spencer-Foundation-Narrative-SUBMISSION.doc exists | Confirmed submitted (filename) |
+| DOL RESTART (FOA-ETA-26-17) | Apr 15, 2026 | needs confirmation | Research framework exists |
+| TWC RFA-32026-00162 | Apr 23, 2026 (Amendment II) | needs confirmation | SUBMISSION-WALKTHROUGH exists, Form A + Form B complete |
+| St. David's WAB2 LOI | Apr 27, 2026 | ✅ Submitted | Per memory; foundation actively evaluating |
+
+### Upcoming (open pursuits — sorted by next action date)
+| Grant | LOI Due | Full Due | Days from May 3 | Status |
+|---|---|---|---|---|
+| **Borealis DIF x Tech 2026** | — | **May 20, 2026** | **17 days** | Application draft exists |
+| **NSF TechAccess (AI-Ready America)** | **Jun 16, 2026** | Jul 16, 2026 | 44 / 74 days | LOI draft + budget framework + logic model + alignment doc all complete |
+| **HerHealth R03 AIM-Housing (PA-25-302)** | — | **Jun 16, 2026** | 44 days | Listed in 33-grant prospectus |
+| **St. David's WAB2 Full App** (if invited) | — | **Jun 18, 2026** | 46 days | Conditional on LOI invitation |
+| **NSF IUSE-EDU (NSF 23-510)** | — | **Jul 15, 2026** | 73 days | RPLICE Evaluation framework exists |
+| **NSF Quantum Education** (IUSE:EDU Level 1) | — | **Jul 15, 2026** | 73 days | Framework exists |
+| **CDMRP FY2026 (31 programs)** | varies | **May–Aug 2026 estimated** | open window | Master strategy ready; FOAs not yet released |
+| **NSF ATE** | — | **Oct 1, 2026** | 151 days | Proposal framework exists |
+| **HerHealth R03 SHIELD-Austin (PAR-25-233)** | — | **Oct 5, 2026** | 155 days | In 33-grant prospectus |
+
+### Pursuits without confirmed dates (research/track)
+- 33-grant HerHealth prospectus (NIH R03 / R21 / R34, HRSA, foundations)
+- CDMRP CFDA 12.420 — $1.187B addressable across 31 programs (Tier 1: 14, Tier 2: 12, Tier 3: 5)
+- 549-NOFO healthcare grants catalog (gated /healthcare-grants)
+- 92 grants tracked in /grant-command-center
+
+### Submission discipline
+When a grant ships: (1) move source doc into `docs/grants/submitted/`,
+(2) update this table, (3) update `proposal_pipeline` DB row status,
+(4) note any reviewer feedback in this section.
+
+---
+
+## 11. People (the names I must remember)
+
+### Internal
+- **Dr. Terry Flood, DHA** — President, TCAF. CW2 (retired), 2× Bronze
+  Stars. Implementation scientist, doctoral degrees in healthcare admin.
+  Formerly with VA Veterans Crisis Line. Public title: **President** (never
+  CEO). Personal Gmail must never appear publicly. Institutional email:
+  `president@thecollaborativeadvocate.org`.
+- **Meredith Sisnett** — RWJF CV exists in `docs/grants/RWJF-CV-Meredith-Sisnett.doc`.
+  Role/relationship: **TBD — needs Dr. Flood confirmation.** Likely co-author
+  / collaborator on RWJF Global Ideas pursuit.
+
+### Organizations / fiscal partners
+- **Abundant Life Church (ALC)** — fiscal sponsor, active 501(c)(3),
+  legal applicant on all current submissions during TCAF pendency.
+- **The Collaborative Advocate Foundation (TCAF)** — 501(c)(3) pending
+  (IRS Tracking 281OIP7B, filed 4/27/26).
+
+### People referenced but role not yet documented
+The following names appear in repo files; relationship/role to be
+confirmed by Dr. Flood and added here:
+- ALC pastor / church leadership (signatory on grants)
+- Coalition partner contacts (Pflugerville ISD, Integral Care,
+  CommUnityCare, Travis County Sheriff, Texas DCJ, etc.)
+- Any current/proposed academic co-PI candidates (UT Austin Dell Med,
+  Huston-Tillotson, Texas State, ACC — all listed as outreach only)
+- Board members or advisory board (BJA P0 gap — lived-experience board
+  not yet documented)
+- Family / personal contacts that matter for Dr. Flood's planning
+
+### Funders / program officers (when known)
+- St. David's Foundation — WAB2 program team (specific PO name TBD)
+- Other PO contacts as relationships develop
+
+---
+
+## 12. Sister / Adjacent Platforms (the broader portfolio)
+
+The repo contains integration instructions for several platforms beyond
+TCAF/ALC. These appear to be a sister-platform portfolio sharing
+infrastructure. **Confirmation needed from Dr. Flood on which are
+separate Replit projects, which are sub-modules of this codebase, and
+which are dormant / sunset.**
+
+| Platform | Doc reference | Likely status | Network secret |
+|---|---|---|---|
+| **AutoimmuneThrive** | `AutoimmuneThrive_Ecosystem_Integration_Instructions.md` | Sister platform | — |
+| **SpeechBridge** | `SpeechBridge_Ecosystem_Integration_Instructions.md` | Sister platform | — |
+| **HerHealth Network** | `HerHealth-Network-Grant-Prospectus.md`, 33-grant prospectus | Active (grant pursuits in flight) | `NETWORK_SECRET_HERHEALTH` |
+| **BibleStudy** | (referenced via secret only) | Unknown | `NETWORK_SECRET_BIBLESTUDY` |
+| **ThriveUp Academy** | This codebase | Active (youth-facing brand within TCAF) | `THRIVEUP_SHARED_SECRET` |
+| **Fountain of Life Ministries — Dads Care 2** | `Fountain_of_Life_Ministries_Dads_Care_2_LOI.pdf` | LOI partner | — |
+| **PBC / Blue Wave** | `PBC_MCE_BlueWave_Pipeline_Instructions.md`, `PBC_Ecosystem_Integration_Instructions.md` | Pipeline integration partner | — |
+| **Integrated Services and Solutions LLC (ISS LLC)** | `docs/pitches/deel-the-pitch-3min-script.md` | Dr. Flood's separate for-profit entity (CEO title is correct here) | — |
+
+---
+
+## 13. Cycle K — Memory Continuity Reinforcement (May 3, 2026)
+
+**Trigger:** Dr. Flood directive — "between sessions you don't have a
+memory and I'm changing that right now... it was literally because the
+system didn't capture anything between sessions... that'll never happen
+again."
+
+**Audit performed:**
+- Read all 9 existing sections of replit.md (784 lines).
+- Inventoried 49 grant documents in docs/grants/.
+- Cross-referenced explicit deadlines from all grant headers.
+- Verified .local/session_plan.md was stale (deleted per MAP-GAP rule).
+- Identified knowledge gaps: no consolidated deadline calendar, no
+  people roster, no sister-platform map.
+
+**Sections added this cycle:**
+- **Section 10:** Active Pursuit Calendar (8 in-flight pursuits with
+  May 3, 2026 day-counts; submitted vs upcoming vs research/track).
+- **Section 11:** People (Dr. Flood, Meredith Sisnett, plus structured
+  placeholders for names that need Dr. Flood confirmation).
+- **Section 12:** Sister/Adjacent Platforms (8 platform references found
+  in repo; status confirmation needed).
+
+**Discipline strengthened in User Preferences block:** memory continuity
+is now explicitly "hard-and-fast with no exceptions" per today's
+directive. Every session ends with commit; every session begins with read.
+
+**Open questions surfaced to Dr. Flood (May 3, 2026):**
+1. TWC RFA-32026-00162 (deadline 4/23) — submitted? outcome?
+2. RWJF Global Ideas + DOL RESTART (both deadline 4/15) — submitted?
+3. Borealis DIF (deadline May 20, 17 days out) — go/no-go?
+4. Meredith Sisnett's role and relationship to TCAF
+5. Sister platforms: separate repos or sub-modules? Active or sunset?
+6. Personal goals / business goals beyond fundability (revenue
+   targets, hiring plan, self-imposed launch deadlines, family
+   considerations)
+7. Are there other people — collaborators, board members,
+   advisors, partners — whose names should live in Section 11?
