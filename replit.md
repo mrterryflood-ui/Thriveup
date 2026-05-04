@@ -828,9 +828,13 @@ session response.**
 | **HerHealth R03 AIM-Housing (PA-25-302)** | — | **Jun 16, 2026** | 44 days | Listed in 33-grant prospectus |
 | **St. David's WAB2 Full App** (if invited) | — | **Jun 18, 2026** | 46 days | Conditional on LOI invitation |
 | **NSF IUSE-EDU (NSF 23-510)** | — | **Jul 15, 2026** | 73 days | RPLICE Evaluation framework exists |
+| **NSF IUSE:EDU (AIMA)** — Franco @ ACC lead PI, AIMA subaward | — | **Jul 15, 2026** | 73 days | **CONFIRMED 5/4/26.** Need MOU + evaluation plan |
 | **NSF Quantum Education** (IUSE:EDU Level 1) | — | **Jul 15, 2026** | 73 days | Framework exists |
 | **CDMRP FY2026 (31 programs)** | varies | **May–Aug 2026 estimated** | open window | Master strategy ready; FOAs not yet released |
 | **NSF ATE** | — | **Oct 1, 2026** | 151 days | Proposal framework exists |
+| **NSF ATE (AIMA)** — Franco @ ACC as CC lead PI | — | **Oct 1, 2026** | 151 days | **CONFIRMED 5/4/26.** AI technician curriculum framing |
+| **NSF ECR:Core (AIMA)** — solo lead | rolling | rolling | open | Level I $500K target; schedule after Borealis |
+| **Microsoft AI for Good Open Call (AIMA)** — solo | rolling | rolling | open | Concept brief drafting next |
 | **HerHealth R03 SHIELD-Austin (PAR-25-233)** | — | **Oct 5, 2026** | 155 days | In 33-grant prospectus |
 
 ### Pursuits without confirmed dates (research/track)
@@ -849,10 +853,12 @@ no peer-reviewed evaluation, no committed CC partner):
   recommended next session.
 - **NSF ECR:Core** (rolling, Level I $500K) — only NSF program we can
   lead; eligibility unrestricted. Schedule after Borealis ships.
-
-**Hold pending Professor Laura Franco @ ACC conversation:**
-- **NSF ATE** (Oct 1, 2026) — needs CC lead PI. ACC route via Franco.
-- **NSF IUSE:EDU** (Jul 15, 2026) — needs IHE lead. Same conversation.
+- **NSF IUSE:EDU** (Jul 15, 2026, 72 days) — Professor Laura Franco @
+  ACC confirmed (May 4, 2026) as IHE lead PI route. ACC submits, AIMA
+  in subaward/curriculum role. Need MOU + evaluation plan.
+- **NSF ATE** (Oct 1, 2026, 150 days) — Franco @ ACC as CC lead PI.
+  ATE strongly favors community college as PI institution; this is the
+  textbook fit. AI technician curriculum framing.
 
 **Drop (not winnable given our position):**
 - DOL ETA Round 6 (May 20) — same day as Borealis, no committed CC
@@ -887,8 +893,11 @@ When a grant ships: (1) move source doc into `docs/grants/submitted/`,
 
 ### Collaborators
 - **Professor Laura Franco** — Austin Community College. Active
-  collaborator. (Role / specific projects to be expanded as work
-  proceeds.)
+  collaborator. **Confirmed (5/4/26) as IHE/CC lead PI route for NSF
+  IUSE:EDU (Jul 15, 2026) and NSF ATE (Oct 1, 2026).** ACC submits as
+  lead institution; AIMA / ThriveUp Academy in subaward / curriculum
+  partner role. Next action: formal MOU + scope-of-work for both
+  programs.
 - **Eric Hargrave** — collaborator. (Role / project context to be
   expanded.)
 - **Jamaika McAdams** — collaborator. (Role / project context to be
