@@ -839,6 +839,29 @@ session response.**
 - 549-NOFO healthcare grants catalog (gated /healthcare-grants)
 - 92 grants tracked in /grant-command-center
 
+### AI Mastery Academy / ThriveUp Academy slate (May 4, 2026 Grant Scout digest)
+9 AIMA opportunities surfaced. After honest filtering (no IHE co-PI yet,
+no peer-reviewed evaluation, no committed CC partner):
+
+**Pursue:**
+- **Microsoft AI for Good Open Call** (rolling) — solo-applicable, fits
+  AI Literacy + 4-engine collaborative AI story. Concept brief drafting
+  recommended next session.
+- **NSF ECR:Core** (rolling, Level I $500K) — only NSF program we can
+  lead; eligibility unrestricted. Schedule after Borealis ships.
+
+**Hold pending Professor Laura Franco @ ACC conversation:**
+- **NSF ATE** (Oct 1, 2026) — needs CC lead PI. ACC route via Franco.
+- **NSF IUSE:EDU** (Jul 15, 2026) — needs IHE lead. Same conversation.
+
+**Drop (not winnable given our position):**
+- DOL ETA Round 6 (May 20) — same day as Borealis, no committed CC
+  consortium, eligibility blocks us as lead.
+- NSF TTP (May 19) — needs university co-applicant; too tight.
+- NSF CyberAICorps (Jul 21) — wrong narrowness; cyber-specific.
+- NSF STEM K-12 (rolling) — needs IHE + K-12 district MOU.
+- NSF ExpandAI (TBD) — MSI-led requirement; no signed MSI partner.
+
 ### Submission discipline
 When a grant ships: (1) move source doc into `docs/grants/submitted/`,
 (2) update this table, (3) update `proposal_pipeline` DB row status,
