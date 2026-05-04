@@ -1,10 +1,10 @@
 # Borealis Philanthropy -- DIF x Tech Fund 2026 Application Draft
 ## The Collaborative Advocate Foundation (TCAF)
 
-**Applicant:** The Collaborative Advocate Foundation
-**EIN:** 41-3618003
+**Applicant:** [TBD — TCAF directly OR Abundant Life Church (ALC) as fiscal sponsor; final decision pending applicant-eligibility confirmation with Borealis]
+**EIN:** [TBD — TCAF EIN 41-3618003 if applicant is TCAF; ALC EIN if fiscal sponsor route]
 **Address:** 17912 Stefano Drive, Pflugerville, TX 78660
-**Contact:** Dr. Terry Flood Sr., President
+**Contact:** Dr. Terry Flood Sr., President, TCAF
 **Amount Requested:** $100,000 ($50,000/year x 2 years)
 **Grant Period:** 2026-2027
 
@@ -92,7 +92,7 @@ TCAF's ecosystem generates real-time outcome data. For this initiative, we will 
 
 ## 5. Organizational Status
 
-The Collaborative Advocate Foundation is a 501(c)(3) nonprofit organization (EIN 41-3618003) based in Pflugerville, Texas. Founded by Dr. Terry Flood Sr., TCAF operates a 24-platform AI-powered ecosystem serving communities across health equity, education, workforce development, veteran services, criminal justice reentry, and disability inclusion.
+The Collaborative Advocate Foundation (TCAF) is a 501(c)(3) nonprofit organization based in Pflugerville, Texas, with IRS determination pending (Tracking #281OIP7B, application filed April 27, 2026). During the determination period, TCAF operates with Abundant Life Church (ALC) — an active 501(c)(3) — available as fiscal sponsor for awards requiring confirmed status. Final applicant designation for this submission (TCAF direct vs. ALC fiscal sponsor) is pending eligibility confirmation with Borealis Philanthropy. Founded by Dr. Terry Flood Sr., TCAF operates a 24-platform AI-powered ecosystem serving communities across health equity, education, workforce development, veteran services, criminal justice reentry, and disability inclusion.
 
 Dr. Flood holds a Doctorate in Healthcare Administration along with graduate degrees in Implementation Science, Psychology, Human Resource Management, Business Administration, Criminal Justice, and Public Policy. He is a veteran and leads three entities: TCAF (nonprofit programs), Collaboration and Implementation Professionals LLC (veteran-owned small business for technology and consulting), and M&T Consulting Solutions LLC (strategic advisory).
 
