@@ -6244,6 +6244,71 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
     }
   });
 
+  // PATCH prior-awards research for a proposal (Tabbara discipline)
+  app.patch("/api/proposal-pipeline/:id/prior-awards", requireAuth, async (req: Request, res: Response) => {
+    const { id } = req.params;
+    try {
+      const { priorAwardsResearchSchema } = await import("@shared/schema");
+      const parsed = priorAwardsResearchSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid payload", details: parsed.error.issues });
+      }
+      const { priorAwardsReviewed, priorAwardsCount, priorAwardsNotes, priorAwardsLinks } = parsed.data;
+      const [updated] = await db.update(proposalPipeline)
+        .set({
+          priorAwardsReviewed,
+          priorAwardsCount,
+          priorAwardsNotes: priorAwardsNotes ?? null,
+          priorAwardsLinks: priorAwardsLinks ?? null,
+          priorAwardsReviewedAt: priorAwardsReviewed ? new Date() : null,
+          updatedAt: new Date(),
+        })
+        .where(eq(proposalPipeline.id, id))
+        .returning();
+      if (!updated) {
+        return res.status(404).json({ error: "Proposal not found" });
+      }
+      res.json({ ok: true, proposal: updated });
+    } catch (error: any) {
+      console.error("[ProposalPipeline:prior-awards] Error:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // GET prior-awards research summary across all proposals
+  app.get("/api/proposal-pipeline/prior-awards/summary", async (_req: Request, res: Response) => {
+    try {
+      const rows = await db.select({
+        id: proposalPipeline.id,
+        priority: proposalPipeline.priority,
+        deadline: proposalPipeline.deadline,
+        data: proposalPipeline.data,
+        priorAwardsReviewed: proposalPipeline.priorAwardsReviewed,
+        priorAwardsCount: proposalPipeline.priorAwardsCount,
+        priorAwardsNotes: proposalPipeline.priorAwardsNotes,
+        priorAwardsLinks: proposalPipeline.priorAwardsLinks,
+        priorAwardsReviewedAt: proposalPipeline.priorAwardsReviewedAt,
+      }).from(proposalPipeline).orderBy(proposalPipeline.priority);
+
+      const total = rows.length;
+      const reviewed = rows.filter(r => r.priorAwardsReviewed).length;
+      const meetingThreshold = rows.filter(r => (r.priorAwardsCount ?? 0) >= 20).length;
+      res.json({
+        proposals: rows,
+        summary: {
+          total,
+          reviewed,
+          notReviewed: total - reviewed,
+          meetingThreshold,
+          percentReviewed: total > 0 ? Math.round((reviewed / total) * 100) : 0,
+        },
+      });
+    } catch (error: any) {
+      console.error("[ProposalPipeline:prior-awards-summary] Error:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   app.get("/api/proposal-pipeline/:id/framework", async (req: Request, res: Response) => {
     const { id } = req.params;
     const docMap: Record<string, string> = {

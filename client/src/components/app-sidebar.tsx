@@ -125,6 +125,8 @@ const grantEngineItems: NavItem[] = [
   { title: "SDOH Explorer (Public)", url: "/sdoh-explorer", icon: Search },
   { title: "City Comparison", url: "/city-comparison", icon: Scale },
   { title: "Narrative Builder", url: "/grant-narrative", icon: FileText },
+  { title: "Prior Award Research", url: "/grant-prior-awards", icon: Search },
+  { title: "Ecosystem Orchestration", url: "/ecosystem-orchestration", icon: Activity },
   { title: "Ecosystem Hub", url: "/ecosystem", icon: Globe },
   { title: "Ecosystem Story", url: "/ecosystem-story", icon: BookMarked },
   { title: "Logic Model", url: "/logic-model", icon: Route },

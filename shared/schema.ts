@@ -1655,9 +1655,27 @@ export const proposalPipeline = pgTable("proposal_pipeline", {
   priority: integer("priority").notNull().default(99),
   deadline: timestamp("deadline"),
   data: jsonb("data").notNull(),
+  // Tabbara discipline (May 4 2026): read 20-30 prior award abstracts
+  // before writing a single word of any proposal.
+  priorAwardsReviewed: boolean("prior_awards_reviewed").notNull().default(false),
+  priorAwardsCount: integer("prior_awards_count").notNull().default(0),
+  priorAwardsNotes: text("prior_awards_notes"),
+  priorAwardsLinks: jsonb("prior_awards_links"),
+  priorAwardsReviewedAt: timestamp("prior_awards_reviewed_at"),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 export type ProposalPipelineRow = typeof proposalPipeline.$inferSelect;
+export const priorAwardsResearchSchema = z.object({
+  priorAwardsReviewed: z.boolean(),
+  priorAwardsCount: z.number().int().min(0).max(10000),
+  priorAwardsNotes: z.string().trim().max(10000).nullable().optional(),
+  priorAwardsLinks: z.array(z.object({
+    title: z.string().trim().max(500),
+    url: z.string().trim().url().max(2000),
+    pattern: z.string().trim().max(1000).optional(),
+  })).max(100).nullable().optional(),
+});
+export type PriorAwardsResearch = z.infer<typeof priorAwardsResearchSchema>;
 
 // NSF 26-508 Hub Workbench: live intelligence cache. 24h TTL per (state, queryType, queryHash).
 export const nationwideDiscoveries = pgTable("nationwide_discoveries", {

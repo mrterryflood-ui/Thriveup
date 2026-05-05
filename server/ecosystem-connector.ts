@@ -3797,6 +3797,46 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
     }
   });
 
+  // Public, read-only registry view — used by /ecosystem-orchestration page.
+  // No live health, no auth needed. Static data only.
+  app.get("/api/ecosystem/registry", async (_req, res) => {
+    try {
+      const platforms = ECOSYSTEM_PLATFORMS.map(p => ({
+        id: p.id,
+        name: p.name,
+        url: p.url,
+        role: p.role,
+        domain: p.domain,
+        description: p.description,
+        grantAlignment: p.grantAlignment ?? [],
+        sends: p.dataFlowConfig?.sends ?? [],
+        receives: p.dataFlowConfig?.receives ?? [],
+        featureCount: Array.isArray((p.capabilities as any)?.features) ? (p.capabilities as any).features.length : 0,
+      }));
+      const triads = ECOSYSTEM_TRIADS.map(t => ({
+        id: t.id,
+        name: t.name,
+        description: t.description,
+        members: t.members,
+        leadPlatform: t.leadPlatform,
+        domain: t.domain,
+        grantAlignment: t.grantAlignment ?? [],
+      }));
+      const domains = Array.from(new Set(platforms.map(p => p.domain))).sort();
+      res.json({
+        platformCount: platforms.length,
+        triadCount: triads.length,
+        domainCount: domains.length,
+        domains,
+        platforms,
+        triads,
+      });
+    } catch (error: any) {
+      console.error("[Ecosystem:registry] Failed:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   app.get("/api/ecosystem/capability-orchestration-map", async (_req, res) => {
     try {
       res.json({

@@ -144,6 +144,8 @@ const CollaborationHubPage = lazy(() => import("@/pages/collaboration-hub"));
 const ProgramLifecyclePage = lazy(() => import("@/pages/program-lifecycle"));
 const GrantPackagesPage = lazy(() => import("@/pages/grant-packages"));
 const GrantApplicationsPage = lazy(() => import("@/pages/grant-applications"));
+const GrantPriorAwardsPage = lazy(() => import("@/pages/grant-prior-awards"));
+const EcosystemOrchestrationPage = lazy(() => import("@/pages/ecosystem-orchestration"));
 const StDavidsPrepPage = lazy(() => import("@/pages/stdavids-prep"));
 const ESignPage = lazy(() => import("@/pages/esign"));
 const EcosystemConnectorPage = lazy(() => import("@/pages/ecosystem-connector"));
@@ -381,6 +383,8 @@ function AppRouter() {
       <Route path="/program-lifecycle" component={ProgramLifecyclePage} />
       <Route path="/grant-packages" component={GrantPackagesPage} />
       <Route path="/grants/applications" component={GrantApplicationsPage} />
+      <Route path="/grant-prior-awards" component={GrantPriorAwardsPage} />
+      <Route path="/ecosystem-orchestration" component={EcosystemOrchestrationPage} />
       <Route path="/stdavids-prep" component={StDavidsPrepPage} />
       <Route path="/esign" component={ESignPage} />
       <Route path="/esign/:id" component={ESignPage} />

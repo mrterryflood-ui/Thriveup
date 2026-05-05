@@ -722,6 +722,64 @@ partnership-status badges accordingly.
   per codebase convention); snapshot file in `.local/` is migration-only
   and can be deleted once seed table is canonical.
 
+### Cycle J — Tabbara Discipline Operationalized + Co-Manager Surface (May 5, 2026)
+- **Schema (`shared/schema.ts`):** Added 5 columns to `proposal_pipeline`
+  for prior-award research tracking — `priorAwardsReviewed` (bool),
+  `priorAwardsCount` (int, target 20–30 per Tabbara), `priorAwardsNotes`
+  (text), `priorAwardsLinks` (jsonb array of {title,url,pattern}), and
+  `priorAwardsReviewedAt` (timestamp). Plus `priorAwardsResearchSchema`
+  zod export for validation. Pushed via `npm run db:push`.
+- **API (`server/grant-routes.ts`):**
+  - `PATCH /api/proposal-pipeline/:id/prior-awards` — Zod-validated
+    update of the 4 research fields. Sets `priorAwardsReviewedAt`
+    automatically when reviewed flips true; clears it when false.
+  - `GET /api/proposal-pipeline/prior-awards/summary` — returns all 29
+    pipeline rows with research status + an aggregate summary
+    (total / reviewed / meetingThreshold≥20 / percentReviewed).
+- **API (`server/ecosystem-connector.ts`):** New public read-only
+  `GET /api/ecosystem/registry` — returns the 24 platforms (id, name,
+  url, role, domain, description, sends/receives counts, grant
+  alignment) and 7 triads (members, lead, domain). No auth needed,
+  no live health data — for grant-reviewer-facing co-manager surface.
+- **Frontend pages:**
+  - `/grant-prior-awards` (`client/src/pages/grant-prior-awards.tsx`)
+    — lists every pipeline pursuit with reviewed/pending icon, abstract
+    count badge, and a Dialog editor for count + pattern notes + linked
+    award URLs. Top of page surfaces 7 free public award databases (NSF
+    Award Search, NIH RePORTER, USASpending, SAM, sbir.gov, CDMRP,
+    Grants.gov) and the Tabbara what-to-look-for checklist (TRL, problem
+    framing, vocabulary, company profile, abstract length, what does NOT
+    get funded).
+  - `/ecosystem-orchestration` (`client/src/pages/ecosystem-orchestration.tsx`)
+    — tabbed view of 24 platforms (filter by domain, search by
+    name/role/id) and 7 triads (members highlighted with lead). Pulls
+    from the new public registry endpoint.
+- **Wiring:** Lazy imports added in `App.tsx`. Routes registered at
+  `/grant-prior-awards` and `/ecosystem-orchestration`. Sidebar links
+  added to `grantEngineItems` block (Search + Activity icons, both
+  already imported).
+- **Smoke tests passed:** Both GET endpoints return valid JSON; PATCH
+  round-trips correctly (test row reset after verification); both pages
+  render with stat cards populated (29 pursuits, 24 platforms, 7
+  triads, 11 domains).
+- **Architect review + fixes applied:**
+  - PATCH endpoint had no auth → wrapped in `requireAuth` (matches the
+    pattern used by every other mutating route in `grant-routes.ts`).
+    Verified: unauthenticated PATCH now returns 401; all GETs still 200.
+  - Zod schema lacked URL validation and length caps → added
+    `z.string().url()` for link URLs plus `trim()` and `max()` on every
+    string and array field.
+  - Icon-only interactive elements (external-link anchors, trash button)
+    lacked accessible names → added `aria-label` and `aria-hidden` on
+    decorative icons.
+- **Tier 2/3 deferred (intentional, with Borealis 15 days out):**
+  - Tier 2 — splitting `routes.ts` (5,792 lines) and `storage.ts`
+    (1,818 lines), and reorganizing 192 flat pages into domain folders
+    — high-risk refactor that touches every import in the app.
+    Documented as a post-Borealis cycle.
+  - Tier 3 — Playwright e2e harness — defer until after Borealis;
+    runTest() suffices for current verification needs.
+
 ### Cycle G — Memory Discipline Audit (May 2026)
 - Full system map-gap pass triggered by user directive: "everything we discussed
   everything that we do gets committed to memory and pulled from that memory".
