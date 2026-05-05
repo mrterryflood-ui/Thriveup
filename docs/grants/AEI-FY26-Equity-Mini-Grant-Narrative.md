@@ -15,7 +15,7 @@
 
 ## 1. Project Summary (≤150 words)
 
-Talk Your Talk is a multilingual, dialect-aware navigation and belonging platform for Austin-area immigrant and refugee residents. Built on TCAF's existing 22-platform technology ecosystem and powered by our deployed multilingual interpreter (107 languages + 18 sign languages, dialect-aware, with crisis detection), the project funds a 15-month community pilot in partnership with 4–6 immigrant-serving Austin CBOs. The pilot delivers four community-defined outcomes: (1) language-accessible navigation across health, school, housing, and workforce systems, (2) a "Belonging Path" learning journey that meets newcomers where they are, (3) Family Circles that re-center parents and elders without parentifying children, and (4) warm-handoff referrals to legal aid, school enrollment, and clinical care. Every dollar of the $25K activates already-built infrastructure rather than rebuilding it — funding goes to community advisory stipends, partner-org onboarding, recording sessions for Voices of Austin, and direct service delivery.
+Talk Your Talk is a 15-month community-infrastructure pilot serving the full breadth of Austin-area immigrant and refugee residents — recent refugees, established immigrant families, mixed-status households, immigrant workers and entrepreneurs, and multi-generational households. Built on three deployed TCAF platforms — Talk Your Talk (107 languages + 18 sign languages, dialect-aware), LifeBridge (20,000+ resource navigator with CHW dispatch), and Voices of Austin (multilingual storytelling) — the pilot embeds language-accessible navigation and warm-handoff infrastructure into 4–6 trusted immigrant-serving Austin CBOs. The $25K funds the **community work** that activates technology already built and operating: community advisory pay, partner-CBO integration, multilingual content review by trusted community reviewers, and a community-recording series. The pilot's deliberate design output is a rigorous evidence packet (RE-AIM/CFIR aligned) sized to unlock renewal funding from RWJF, St. David's, HHS/HRSA, and SAMHSA at $200K–$500K — turning $25K into a multi-year sustainability runway for Austin's immigrant-serving infrastructure.
 
 ---
 
@@ -30,6 +30,14 @@ Talk Your Talk closes that agency gap. It does not replace the trusted CBOs alre
 ---
 
 ## 3. Project Description
+
+The pilot rests on three deployed TCAF platforms that serve as anchors:
+
+- **Talk Your Talk (LexiBridge)** — multilingual interpreter (107 languages + 18 sign languages), dialect-aware, with crisis detection
+- **LifeBridge** — community resource navigator with 20,000+ verified resources and CHW dispatch
+- **Voices of Austin** — multilingual storytelling and cultural preservation infrastructure
+
+These three are the technical foundation. TCAF's broader 22-platform ecosystem (described in Section 8) provides supplemental capability where needed, but the project's reviewer-facing scope and evaluation are anchored on the three above.
 
 The pilot will be implemented in six connected phases over 15 months, with each phase building on the prior. Phases 1–3 ship within the grant window's first 6 months and produce demonstrable resident impact; Phases 4–6 deepen the family, community, and ecosystem layers through the back half.
 
@@ -77,7 +85,15 @@ An Immigrant Outcomes Dashboard (RPLICE-compliant, extending TCAF's existing Out
 
 ## 6. Population Served and Reach Estimates
 
-**Primary population:** Immigrant and refugee residents of Travis County, City of Austin, and the City's Extraterritorial Jurisdiction. Includes recent arrivals (under 3 years), established immigrant families (3+ years), refugee resettlement clients, mixed-status households, and households with limited English proficiency.
+**Primary population:** The full breadth of immigrant and refugee residents of Travis County, City of Austin, and the City's Extraterritorial Jurisdiction. The pilot is intentionally inclusive across five overlapping subpopulations:
+
+1. **Recently-arrived refugees** (under 2 years in US) — highest acuity, language-intensive, most reliant on resettlement-agency warm handoffs
+2. **Established immigrant families with school-age children** — broad reach, clear pathway through Manor ISD, AISD, and Pflugerville ISD parent-engagement channels
+3. **Mixed-status households** — facing institutional pressure across housing, school enrollment, and immigration encounters; require trauma-informed and rights-grounded navigation
+4. **Immigrant workers and entrepreneurs** — connected to TCAF's verified Minority Center of Excellence directory of 112,000+ minority-owned businesses for workforce, wage-theft, and small-business pathways
+5. **Multi-generational households** with parents, grandparents, and children — Family Circles infrastructure (Phase 4) re-centers parents and elders without parentifying children
+
+The pilot does not segment service delivery by subpopulation; the platform meets each resident at the language and life event that matters to them at that moment. Subpopulation framing is for the evaluation packet, not for resident triage.
 
 **Year 1 reach targets (conservative):**
 - 1,200 unique residents onboarded to Talk Your Talk
@@ -97,16 +113,16 @@ An Immigrant Outcomes Dashboard (RPLICE-compliant, extending TCAF's existing Out
 
 | Line Item | Amount | Description |
 |---|---:|---|
-| Community Advisory Council stipends | $6,000 | 6 immigrant residents × $1,000 each — co-design pay, not focus-group token. Compensates 8–10 hours per quarter of advisory work over 15 months. |
-| Partner CBO onboarding | $4,800 | 4–6 partner organizations × $800–$1,200 — covers the staff time required to integrate Talk Your Talk into their intake workflow and warm-handoff training. |
-| Voices of Austin recording sessions | $4,000 | 4 quarterly community recording sessions × $1,000 each — venue, interpreters, refreshments, and modest stipends ($50) for storytellers. Targets 60+ recorded stories over 15 months. |
-| Multilingual content creation | $3,500 | Translation review, cultural validation, and KYR card layout for 12 languages by community-trusted reviewers (paid, not volunteer). |
-| Outreach and amplification | $3,200 | Multilingual outreach campaigns via TCAF's Advertising Targeting platform — Spanish, Vietnamese, Mandarin, Arabic, Dari, Haitian Creole campaigns to surface the platform in the communities it is built for. |
-| Project coordination | $2,500 | TCAF coordinator time at $25/hr × 100 hrs across 15 months — partner liaison, advisory council facilitation, recording session coordination. |
-| Direct service supplies | $1,000 | Printed KYR cards in 12 languages for distribution at partner CBOs, schools, and clinics; printed Belonging Path workbooks for residents preferring print. |
+| Community Advisory Council stipends | $6,000 | 6 immigrant residents × $1,000 each — co-design pay, not focus-group token. Compensates 8–10 hours per quarter of advisory work over 15 months. Subpopulation representation across all five groups (recent refugee, established family, mixed-status, worker/entrepreneur, multi-gen). |
+| Partner CBO integration | $6,000 | 4–6 partner organizations × ~$1,000–$1,500 each — covers the staff time required to integrate Talk Your Talk + LifeBridge warm-handoff into each partner's intake workflow, plus training and quarterly check-ins. This line item *is* the infrastructure being built. |
+| Voices of Austin recording sessions | $3,500 | 4 quarterly community recording sessions × $875 — venue, interpreters, refreshments, and modest stipends ($50) for storytellers. Targets 50+ dialect-preserved stories over 15 months. |
+| Multilingual content review & validation | $3,000 | Cultural validation and KYR card layout in the top 12 languages by community-trusted reviewers (paid, not volunteer). |
+| Evaluation infrastructure & evidence packet | $2,000 | Configures TCAF's RPLICE platform to run RE-AIM/CFIR evaluation on this pilot, produces quarterly reports for AEI, and produces the funder-grade evidence packet at month 15 for renewal applications. This is what converts $25K into multi-year sustainability. |
+| Outreach and amplification | $2,500 | Multilingual outreach via TCAF's Advertising Targeting platform — Spanish, Vietnamese, Mandarin, Arabic, Dari, Haitian Creole campaigns to surface the platform in the communities it is built for. |
+| Project coordination | $2,000 | TCAF coordinator time at $25/hr × 80 hrs across 15 months — partner liaison, advisory council facilitation, recording session coordination. |
 | **Total** | **$25,000** | |
 
-**Important — what the $25K is NOT funding:** The Talk Your Talk technology platform, the LifeBridge resource navigator, the Outcomes Engine, the Warm Handoff Protocol, the Advertising Targeting platform, and the Voices of Austin storytelling infrastructure are already built, deployed, and operational as part of TCAF's 22-platform ecosystem (verified live May 5, 2026 via ecosystem alignment scan). The grant funds the **community work** — advisory pay, partner onboarding, recording sessions, multilingual content, and outreach — not the tech stack. This is why $25K can deliver disproportionately on the four AEI priorities.
+**Important — what the $25K is NOT funding:** The Talk Your Talk technology platform, the LifeBridge resource navigator, the Voices of Austin storytelling infrastructure, the RPLICE evaluation engine, and the Advertising Targeting platform are already built, deployed, and operational as part of TCAF's 22-platform ecosystem (verified live May 5, 2026 via the TCAF ecosystem alignment scan). The grant funds the **community work** — advisory pay, partner-CBO integration, multilingual content review, recording sessions, evaluation packet production, and outreach. This is why $25K can deliver disproportionately on the four AEI priorities and produce a renewal-grade evidence packet at month 15.
 
 ---
 
@@ -129,11 +145,17 @@ TCAF's leadership combines decades of healthcare administration, implementation 
 
 ---
 
-## 9. Sustainability
+## 9. Sustainability — Theory of Change
 
-The 15-month project timeline aligns with AEI's grant window (July 2026 – October 2027). At the end of the grant period, every component of Talk Your Talk continues operating because it runs on TCAF's already-funded ecosystem infrastructure — there is no maintenance cliff. Ongoing community advisory pay and recording sessions will be funded through (a) the Outcomes Dashboard's evidence packet feeding into renewing federal and foundation grants (RWJF, St. David's, SAMHSA, HRSA), (b) revenue from TCAF's licensed enterprise deployments of LifeBridge and the Minority Center of Excellence, and (c) earned income from the Talk Your Talk consumer SaaS tier (free for residents, paid for institutional deployments).
+The pilot is deliberately scoped to be **infrastructure-shape rather than service-delivery-shape**. The $25K is engineered not to disappear at month 15 but to compound, through three distinct sustainability mechanisms:
 
-The Voices of Austin recordings, Belonging Path content, Family Circles infrastructure, and partner-org directory remain in place after grant period as a permanent community asset — not a project that ends with a final report.
+**(1) Renewal-funder pipeline.** The pilot's RE-AIM/CFIR-aligned evidence packet is sized and timed to match the 2027 application windows of four renewal funders TCAF is actively engaged with: Robert Wood Johnson Foundation (Global Ideas track, $250K–$500K range), St. David's Foundation (community-led change track, $150K–$300K), HHS/HRSA (Community Health Center / MIECHV programs, $200K+), and SAMHSA (community mental health services, $200K+). The evaluation infrastructure budgeted in Section 7 is what produces this packet. Even one renewal converts the $25K AEI investment into a 10–20× sustainability runway.
+
+**(2) Operating-cost zero.** The Talk Your Talk platform, LifeBridge navigator, Voices of Austin storytelling infrastructure, RPLICE evaluation engine, and Advertising Targeting outreach platform are already built, deployed, and operating on TCAF's existing infrastructure. There is no technology-cliff at month 15. After the grant period, the platform continues serving residents with zero new TCAF operating cost.
+
+**(3) Partner-CBO embedded workflows.** The four-to-six partner CBOs that integrate Talk Your Talk + LifeBridge warm-handoff into their intake workflows during the pilot retain those workflows after grant end. The infrastructure is community-embedded, not TCAF-controlled — meaning the AEI investment lives inside the partner CBOs' day-to-day operations, not just inside TCAF.
+
+The Voices of Austin recordings, multilingual KYR content, Family Circles infrastructure, and partner-org directory remain in place after grant period as permanent community assets — not a project that ends with a final report.
 
 ---
 
@@ -147,7 +169,7 @@ TCAF's RPLICE platform (Research-to-Practice Lifecycle Implementation & Communit
 - **Implementation:** fidelity to phase milestones, lessons learned per quarter
 - **Maintenance:** sustained engagement at 6, 12, and 15 months
 
-A final evaluation report at month 15 will deliver: aggregate impact dashboard, anonymized resident testimonials (with consent), partner CBO outcome statements, and a publicly-postable Equity Mini Grant impact case study contributing to AEI's body of evidence on what works for Austin's immigrant and refugee residents.
+A final evaluation report at month 15 will deliver: aggregate impact dashboard, anonymized resident testimonials (with consent), partner CBO outcome statements, subpopulation-disaggregated outcomes (across all five subpopulations described in Section 6), and a publicly-postable Equity Mini Grant impact case study contributing to AEI's body of evidence on what works for Austin's immigrant and refugee residents. **This same packet is the renewal-funder evidence base described in Section 9** — designed once, used for AEI close-out and for RWJF/St. David's/HRSA/SAMHSA renewal applications in parallel.
 
 ---
 
