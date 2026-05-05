@@ -120,7 +120,7 @@ The pilot does not segment service delivery by subpopulation; the platform meets
 - 4–6 immigrant-serving CBOs onboarded as warm-handoff partners
 - 30+ mentor pairings completed
 
-**Reach methodology:** Organic recruitment via partner CBOs, AISD/Manor ISD/PfISD parent communications channels (TCAF holds existing community-engagement relationships with Pflugerville ISD), and outreach campaigns through the Advertising Targeting platform component of TCAF's ecosystem.
+**Reach methodology:** Organic recruitment via partner CBOs and AISD/Manor ISD/PfISD parent communications channels (TCAF holds existing community-engagement relationships with Pflugerville ISD).
 
 **Targeted partner CBOs — TCAF will work with the following Austin immigrant-serving organizations.** Outreach is active and TCAF is committed to onboarding 4–6 of these as embedded warm-handoff partners during Year 1. Outreach for the highest-priority partners (⭐) is initiated through warm referrals from established Austin community connectors:
 
@@ -152,7 +152,7 @@ Letters of support from confirming partners are attached separately to the submi
 | Accessibility audit | $1,400 | Third-party WCAG 2.2 AA audit including **paid Deaf/Hard-of-Hearing testers and screen-reader users**. Pays disabled testers for their expertise; we do not ask for free QA from the people the audit serves. |
 | **Total** | **$25,000** | |
 
-**Important — what the $25K is NOT funding:** The Talk Your Talk technology platform, the LifeBridge resource navigator, the Voices of Austin storytelling infrastructure, the Whole-Person Mental Health Ecosystem, the RPLICE evaluation engine, and the Advertising Targeting platform are already built, deployed, and operational as part of TCAF's 22-platform ecosystem (verified live May 5, 2026 via the TCAF ecosystem alignment scan). The grant funds the **community work** — embedded human navigators, printed cards in residents' hands, workshops with childcare provided, paid community translators, paid disabled accessibility testers, and the evaluation packet that unlocks renewal funding. This is why $25K can deliver disproportionately on the four AEI priorities and produce a renewal-grade evidence packet at month 15.
+**Important — what the $25K is NOT funding:** The Talk Your Talk technology platform, the LifeBridge resource navigator, the Voices of Austin storytelling infrastructure, the Whole-Person Mental Health Ecosystem, and the RPLICE evaluation engine are already built, deployed, and operational as part of TCAF's 22-platform ecosystem (verified live May 5, 2026 via the TCAF ecosystem alignment scan). The grant funds the **community work** — embedded human navigators, printed cards in residents' hands, workshops with childcare provided, paid community translators, paid disabled accessibility testers, and the evaluation packet that unlocks renewal funding. This is why $25K can deliver disproportionately on the four AEI priorities and produce a renewal-grade evidence packet at month 15.
 
 ---
 
@@ -168,7 +168,6 @@ The Collaborative Advocate Foundation (TCAF) is a Travis County–based, Veteran
 - **Whole-Person Health Ecosystem** — Mental and behavioral health navigation (https://mentalwellnesssupport.net)
 - **Mission Transition (M2C)** — Veteran transition platform (https://vetmissiontransition.com)
 - **Perfectly Different** — Neurodiversity support including IEP/504 navigation
-- **Advertising Targeting** — Outreach platform built specifically for reaching underserved populations
 - **The Collaborative Advocate** — Coordination hub (https://thrivingcommunitiesforall.com)
 
 TCAF's leadership combines decades of healthcare administration, implementation science, and community organizing. Dr. Terry Flood (DHA) holds a Doctor of Healthcare Administration and is the President of TCAF. Co-leadership includes Meredith Sisnett. The organization has filed concept papers and full proposals with NIH, NSF, DOL, DOJ, SAMHSA, RWJF, the Spencer Foundation, the Robert Wood Johnson Foundation, and the Texas Workforce Commission, and is currently in active engagement with St. David's Foundation and the Borealis Foundation.
@@ -181,7 +180,7 @@ The pilot is deliberately scoped to be **infrastructure-shape rather than servic
 
 **(1) Renewal-funder pipeline.** The pilot's RE-AIM/CFIR-aligned evidence packet is sized and timed to match the 2027 application windows of four renewal funders TCAF is actively engaged with: Robert Wood Johnson Foundation (Global Ideas track, $250K–$500K range), St. David's Foundation (community-led change track, $150K–$300K), HHS/HRSA (Community Health Center / MIECHV programs, $200K+), and SAMHSA (community mental health services, $200K+). The evaluation infrastructure budgeted in Section 7 is what produces this packet. Even one renewal converts the $25K AEI investment into a 10–20× sustainability runway.
 
-**(2) Operating-cost zero.** The Talk Your Talk platform, LifeBridge navigator, Voices of Austin storytelling infrastructure, Whole-Person Mental Health Ecosystem, RPLICE evaluation engine, and Advertising Targeting outreach platform are already built, deployed, and operating on TCAF's existing infrastructure. There is no technology-cliff at month 15. After the grant period, the platform continues serving residents with zero new TCAF operating cost.
+**(2) Operating-cost zero.** The Talk Your Talk platform, LifeBridge navigator, Voices of Austin storytelling infrastructure, Whole-Person Mental Health Ecosystem, and RPLICE evaluation engine are already built, deployed, and operating on TCAF's existing infrastructure. There is no technology-cliff at month 15. After the grant period, the platform continues serving residents with zero new TCAF operating cost.
 
 **(3) Partner-CBO embedded workflows.** The four-to-six partner CBOs that integrate Talk Your Talk + LifeBridge warm-handoff into their intake workflows during the pilot retain those workflows after grant end. The infrastructure is community-embedded, not TCAF-controlled — meaning the AEI investment lives inside the partner CBOs' day-to-day operations, not just inside TCAF.
 
