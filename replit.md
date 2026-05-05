@@ -818,15 +818,19 @@ partnership-status badges accordingly.
 - Custom domain `lexibridge.net` is unbound — needs Replit deploy-panel domain
   binding before AEI submission cites it publicly.
 
-**TCAF / The Collaborative Advocate — EIN reconciliation:**
-- EIN **41-3618003** confirmed in own April 2026 Agency Fund EOI submission
-  (`attached_assets/Agency_Fund_EOI_Collaborative_Advocate.md`). 501(c)(3),
-  Veteran-Founded, Black-Led. Address: 17912 Stefano Drive, Pflugerville, TX
-  78660 (Travis County — AEI-eligible). Service area: Travis, Williamson, Hays,
-  Bastrop, Caldwell counties.
-- **Conflict to verify with President Flood:** earlier replit.md text says
-  "pending IRS determination, Tracking 281OIP7B, filed 4/27/2026". One of
-  these is wrong — needs reconciliation before any submission.
+**TCAF / The Collaborative Advocate — legal status (RECONCILED May 5, 2026):**
+- **EIN 41-3618003 is permanent and confirmed** by President Flood. Source of
+  truth in `attached_assets/Agency_Fund_EOI_Collaborative_Advocate.md`.
+- **501(c)(3) tax-exempt determination letter is still pending with the IRS**
+  (IRS backlog, not a TCAF issue). Tracking 281OIP7B, filed 4/27/2026. Both
+  facts coexist — the EIN was issued, the determination letter has not yet
+  been mailed.
+- For grant applications: cite EIN 41-3618003, classify as **501(c)(3)
+  application pending IRS determination**, and where required offer
+  fiscal-sponsor backstop via Abundant Life Church (ALC).
+- Address: 17912 Stefano Drive, Pflugerville, TX 78660 (Travis County —
+  AEI-eligible). Service area: Travis, Williamson, Hays, Bastrop, Caldwell.
+- Classification: Veteran-Founded, Black-Led.
 
 **AEI FY26 Equity Mini Grant — strategic plan adopted:**
 - Project name: **"Talk Your Talk — Belonging & Voice Initiative for Austin's
