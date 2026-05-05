@@ -1,0 +1,99 @@
+Austin Equity Mini Grant FY26 — Proposal
+Talk Your Talk: A Belonging & Voice Initiative for Austin's Immigrant, Refugee, and Dialect-Diverse Communities
+Applicant: Talk Your Talk (Speech Bridge) Request: $25,000 Project period: July 1, 2026 – June 30, 2027 Service area: City of Austin (with priority focus on Eastern Crescent: 78702, 78721, 78723, 78724, 78744, 78753, 78758) Primary populations served: Spanish-speaking immigrant families, Haitian Creole-speaking newcomers, Vietnamese elders, Arabic- and Dari-speaking refugees, AAVE and Spanglish speakers, Deaf/Hard-of-Hearing residents, stroke survivors, neurodivergent adults, and any Austin resident whose first language or dialect is not standard institutional English.
+
+1. Project Summary (150 words)
+Talk Your Talk is a free, dialect-aware, accessibility-centered communication platform that already exists, already works, and is already in production. We are not asking for funding to build a prototype — we are asking for $25,000 to operationalize what we have built into Austin's most language-isolated neighborhoods over twelve months.
+
+The platform delivers real-time interpretation across 107 spoken languages and 18 sign languages, plain-language explainers for the documents that decide people's lives (school notices, court summons, eviction notices, USCIS letters, medical bills), printable "Know Your Rights" cards in 13 languages, and a peer-to-peer mentor network that connects newcomers with neighbors who arrived a few years before them. Every feature was designed with — not for — the communities who use it. This grant funds outreach, in-person training, multilingual community navigators, printed materials, and outcome reporting back to the Equity Office.
+
+2. Alignment with Equity Office Priorities
+Equity Office Priority	How Talk Your Talk Delivers
+Closing racial and ethnic disparities	Built specifically for the residents most poorly served by English-only, accent-biased, or jargon-heavy institutional communication: Spanish-speaking working families in the Eastern Crescent, Haitian Creole and Vietnamese communities, AAVE and Spanglish speakers routinely misheard by automated systems.
+Community-led / community-defined solutions	The 32 partner organizations seeded in the directory (RAICES, Workers Defense Project, Catholic Charities of Central Texas, Multicultural Refugee Coalition, Asian Family Support Services, Communities In Schools, El Buen Samaritano, etc.) are the source of truth — not an afterthought. Lessons, phrase boards, and Know Your Rights content were built from material these organizations already use.
+Language access and culturally relevant services	13 interface languages (English, Spanish, Haitian Creole, Vietnamese, Chinese, Arabic, Russian, Portuguese, Korean, French, Somali, Urdu, Tagalog) with right-to-left layout for Arabic and Urdu. Translation respects dialect identity instead of erasing it.
+Reducing institutional barriers	The Document Help feature takes any English letter — school discipline notice, eviction filing, USCIS RFE, medical bill, ICE detainer notice — and returns a translation, plain-language explanation, action items with deadlines, and (when warranted) a flag to seek free legal aid with a direct link to the appropriate organization in the directory.
+3. Project Need
+In Austin, roughly one in three residents speaks a language other than English at home, and a meaningful share of those households have limited English proficiency. The city's growth has not been matched by growth in linguistically and culturally appropriate services — and the gap falls hardest on the Eastern Crescent, where displacement pressure is also highest.
+
+The result is a daily pattern that shows up in every immigrant-serving organization in this city:
+
+A parent receives a school notice about a discipline incident and cannot tell whether it requires a response, a meeting, or a lawyer.
+A tenant receives an eviction notice with a 3-day deadline and has no way to know that responding wrong forfeits their case.
+A worker receives a wage-theft document and cannot identify Workers Defense Project as the right place to call.
+A grandmother who speaks Vietnamese watches her grandchild translate a medical consent form she does not understand and then signs anyway.
+A Deaf resident in a hospital intake room is handed an iPad with no interpreter on it.
+Existing tools fail these residents in three specific ways:
+
+They flatten dialect. Automated translation strips out the version of Spanish, English, or Arabic the person actually speaks, and replies in a register that does not sound like home.
+They translate words but not stakes. Google Translate will render an eviction notice in Spanish; it will not tell you that you have 3 days, that you should not pay partial rent, and that BASTA Austin is the number to call.
+They are not accountable to anyone. Big tech translation tools have no relationship to Austin organizations, no feedback loop to Austin equity outcomes, and no obligation to the people who use them.
+Talk Your Talk closes all three gaps — and it does so as infrastructure that local organizations can adopt without paying a license fee.
+
+4. What This Grant Funds
+Total request: $25,000
+Line Item	Amount	Purpose
+Two part-time Community Navigators (Spanish/English + Haitian Creole/English or Vietnamese/English; ~8 hrs/week each × 12 months at $25/hr)	$10,400	Embed in 4 partner organizations (rotating). Run weekly walk-in clinics. Train residents to use Document Help and Know Your Rights features in person.
+Printed "Know Your Rights" card decks (5 scenarios × 6 languages × 2,000 sets)	$4,500	Physically distributed at libraries, schools, clinics, food pantries, faith communities, day-labor sites. Each card carries a QR code linking to the live, updatable digital version.
+In-language community workshops (12 workshops × $300 stipend to host org + materials + childcare + food)	$4,800	Hosted by partner orgs. Participants leave with the app installed, an account, and their first three documents already explained. Stipends respect partner labor.
+Translation review honoraria (community translators reviewing AI output for cultural accuracy in 6 priority languages)	$2,400	$400 per language. Pays the people whose linguistic expertise the platform depends on.
+Outcome reporting & evaluation (independent quarterly review by community advisory group; printed annual report to Equity Office)	$1,500	Real numbers — not estimated impact. Aggregated, anonymized, and verifiable.
+Accessibility audit (third-party WCAG 2.2 AA audit including Deaf/HoH and screen-reader users)	$1,400	Pays Deaf and disabled testers for their expertise.
+TOTAL	$25,000	
+What this grant does not fund: salaries for the platform's existing engineering team. The technology already exists. This budget is entirely for getting the technology to the people who need it and paying the community members whose expertise makes it real.
+
+5. Measurable Outcomes (no estimation; only counted)
+The platform already exposes a live outcomes endpoint (/api/outcomes/immigrant-belonging) that aggregates real database events — never modeled or projected. We will report against the following, by quarter:
+
+Outcome	How It's Measured	Year-1 Target
+Newcomers onboarded	DB count of completed onboarding journeys, with self-reported language and region	1,500
+Documents explained	DB count of /api/document/explain calls with successful response	4,000
+Documents flagged for legal help → user clicked through to legal-aid org	DB join: explain-events with needsLegalHelp=true and subsequent org-directory click to a legal_aid category org	600
+Family Circles created	DB count of family circles with ≥2 members	400
+Mentor matches activated	DB count of mentor matches that reached active status	150
+Belonging Path units completed	DB count of completed learning units	6,000
+Languages of users served (verified, not assumed)	DB distinct count of primary_language from onboarding (consenting users only)	≥10
+Workshops held	Calendar of workshops with sign-in sheet counts	12
+Cards distributed	Inventory tracking	60,000 cards
+Accessibility audit completed	Third-party report delivered	1
+No estimated learning hours. No projected lives changed. No "potential impact." Only counted, verifiable events. This methodology — calling its own measurement honestly rather than inflating it — is itself part of what we believe equity work in Austin needs more of.
+
+6. Community Partnerships
+The platform's organization directory is already seeded with 32 verified Austin-area and Texas-statewide immigrant-serving organizations across 8 categories: legal aid, healthcare, food assistance, housing, education, workforce, mental health, and family services. We are not building these partnerships from scratch.
+
+For this grant, we will formalize Memorandums of Understanding with at least four (4) Austin-based partners as embedded host organizations for the Community Navigators:
+
+A legal-aid partner serving Spanish-speaking residents (e.g., RAICES Austin, Texas RioGrande Legal Aid)
+A refugee-resettlement partner (e.g., Multicultural Refugee Coalition, Refugee Services of Texas Austin)
+A workers' rights partner (e.g., Workers Defense Project)
+A schools-and-families partner (e.g., Communities In Schools of Central Texas, Con Mi Madre)
+Letters of support will be attached separately.
+
+7. Equity & Accountability Practices
+Community advisory group: Five members from served communities, paid stipends, meet quarterly. They review outcomes data and have authority to adjust priorities mid-grant.
+Consent-based data: Anonymized outcome metrics only. Users explicitly opt in before any data is shared with the broader ecosystem.
+No data sale, no advertising, no algorithmic profiling of users. Period.
+Open methodology: Our measurement approach is published and auditable. We will not report numbers we cannot back up with database evidence.
+Pay community labor: Translators, testers, advisory members, and host organizations are all compensated. We do not extract free labor from the communities we serve.
+Child-safe by default: Family Circle members tagged as children only see safety-appropriate content, with no override required from a parent.
+8. Sustainability Beyond the Grant Year
+This grant is operational, not foundational. The technical platform exists and continues to operate regardless of this award. After Year 1, sustainability comes from three sources:
+
+Partner organization adoption: Trained navigators stay embedded; partner orgs absorb usage into their existing case-management workflows.
+Other regional grants and city contracts: Documented Year-1 outcomes become the evidence base for state, federal (HHS Office of Refugee Resettlement, USDOJ Access to Justice), and additional Austin/Travis County funding.
+The technology itself is free to the user, forever. There is no subscription model that fails when funding lapses.
+9. Why Now, Why Austin, Why Us
+Austin is a city that has spent the last decade making "equity" a stated value while watching the residents most affected by inequity get pushed further east, further out, and further from the institutions making decisions about their lives. Language is one of the levers of that displacement. When you cannot read the notice taped to your door, you cannot fight the eviction. When you cannot understand the school's discipline letter, your child's record follows them for years. When you cannot ask the question you need to ask the doctor, your health outcome is worse.
+
+Talk Your Talk does not solve those structural problems. It does, however, refuse to let language be the reason a family loses ground. For $25,000, this grant puts a free, multilingual, community-accountable communication tool into the hands of the Austin residents the city's growth has cost the most.
+
+We respectfully request your support.
+
+Attachments (to be assembled separately)
+A. Letters of support from 4+ partner organizations
+B. Community Navigator job descriptions
+C. Sample outcome report (mock-up using current platform data)
+D. Accessibility commitment statement
+E. Detailed budget narrative
+F. Organizational documents (501(c)(3) determination letter or fiscal sponsor agreement, IRS Form 990, board roster, conflict-of-interest policy)
+This proposal was prepared on May 5, 2026, for submission by the Austin Equity Mini Grant FY26 deadline of May 8, 2026.
