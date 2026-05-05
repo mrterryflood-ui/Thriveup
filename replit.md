@@ -780,6 +780,88 @@ partnership-status badges accordingly.
   - Tier 3 — Playwright e2e harness — defer until after Borealis;
     runTest() suffices for current verification needs.
 
+### Cycle L — Ecosystem Alignment + AEI Talk Your Talk Plan Adopted (May 5, 2026)
+**Methodology lesson burned in (do not repeat):**
+- `curl HTTP 000` against a custom domain ≠ "platform is down". It means the
+  custom domain is **unbound** (DNS/cert/Replit deploy panel binding incomplete).
+  The actual app is almost certainly alive at its `.replit.app` subdomain.
+- Wrong-guessed `.replit.app` subdomains returning 404 also ≠ down. They mean
+  the guess was wrong.
+- **Truth source for "is the app actually serving?"** — the hub DB
+  `ecosystem_platforms.health_status` + `last_heartbeat`, NOT custom-domain curl.
+- **Truth source for capabilities** — each platform exposes `/manifest.json`
+  and `/.well-known/ecosystem`. Pull from there, not from descriptions in code.
+
+**Ecosystem alignment scanner shipped:**
+- `scripts/ecosystem-alignment-scan.sh` — pulls all 24 platforms from hub DB,
+  probes custom domain → known `.replit.app` fallback, reports LIVE/UNBOUND
+  with title + manifest description. Re-run anytime alignment is in doubt.
+- **First scan results (May 5, 2026):** 16 LIVE, 8 UNBOUND custom domains.
+  - LIVE: ad-targeting, betterscience, collaborative-advocate, isss, lifebridge,
+    m2c, mce, perfectly-different, safecognicare, safereport, sankofa,
+    sankofa-maternal-health, sankofa-mens-health, **speech-bridge**,
+    whole-person-health.
+  - UNBOUND custom domain (apps may still be alive at .replit.app):
+    autoimmune-thrive, code-canvas, ecosystem-nexus, emergency-mgmt,
+    pillscheduler, pinnacle-business-conglomerate, sankofa-feminine-health,
+    video-creator-ai, wholemind.
+  - Known `.replit.app` fallbacks recorded in scanner: speech-bridge →
+    `speech-bridge-mrterryflood.replit.app`, ad-targeting → `ad-targeting.replit.app`,
+    mce → `black-business-hub.replit.app`, pinnacle-business-conglomerate →
+    `pinnacle-business-conglomerate.replit.app`, emergency-mgmt →
+    `emergency-mgmt.replit.app`.
+
+**LexiBridge / Speech Bridge / "Talk Your Talk" — verified capability:**
+- Real, live, and powerful: **107 languages + 18 sign languages**, dialect-aware,
+  real-time interpretation, crisis detection. Source: live `/manifest.json` at
+  `speech-bridge-mrterryflood.replit.app/manifest.json`.
+- Custom domain `lexibridge.net` is unbound — needs Replit deploy-panel domain
+  binding before AEI submission cites it publicly.
+
+**TCAF / The Collaborative Advocate — EIN reconciliation:**
+- EIN **41-3618003** confirmed in own April 2026 Agency Fund EOI submission
+  (`attached_assets/Agency_Fund_EOI_Collaborative_Advocate.md`). 501(c)(3),
+  Veteran-Founded, Black-Led. Address: 17912 Stefano Drive, Pflugerville, TX
+  78660 (Travis County — AEI-eligible). Service area: Travis, Williamson, Hays,
+  Bastrop, Caldwell counties.
+- **Conflict to verify with President Flood:** earlier replit.md text says
+  "pending IRS determination, Tracking 281OIP7B, filed 4/27/2026". One of
+  these is wrong — needs reconciliation before any submission.
+
+**AEI FY26 Equity Mini Grant — strategic plan adopted:**
+- Project name: **"Talk Your Talk — Belonging & Voice Initiative for Austin's
+  Immigrant & Refugee Communities"**.
+- $25K funds Sprints 1–3 + community advisory stipends + 6 partner-org
+  onboardings + Voices of Austin recording sessions. Deadline May 8, 2026.
+- 6-phase build (each phase wires through ecosystem events / warm-handoff /
+  outcomes / evidence registry):
+  1. **Foundation** — multilingual app shell + newcomer onboarding journey
+  2. **Access** — 6 phrase boards (ER/School/Housing/Workplace/Police-ICE/Gov
+     Forms) in 12 languages + document explainer + Know Your Rights cards +
+     offline service-worker cache
+  3. **Learning ("Belonging Path")** — gamified XP/streaks/Belonging Badges,
+     three tracks (Health & Safety, Family & School, Work & Money), confidence
+     levels not fluency levels, 2-way cultural exchange units
+  4. **Family Circles** — 2–6 account linking, Caregiver Mode 2.0 ("Helper,
+     not translator"), child-safe parent assist, elder voice preservation,
+     family belonging timeline
+  5. **Community Weave** — org/agency directory (IRC, USCRI, Catholic
+     Charities, HIAS, Manor/AISD/Pflugerville ISD, free clinics, mutual aid),
+     mentor match (language-matched, async, consent-driven), Voices of
+     Austin v2 with story circles, org-side mini-portal for consent-based
+     aggregate demand signals
+  6. **Ecosystem Amplify** — Immigrant Outcomes Dashboard (RPLICE-compliant),
+     one-click Grant Evidence Reports, public `/our-impact` page, hub-driven
+     program campaigns (Citizenship Day, Back-to-School Family Drive, etc.)
+- Grant priority coverage: belonging ✅ access ✅ barriers ✅ stability/mobility ✅
+- All 10 AEI-critical sister platforms confirmed LIVE: speech-bridge,
+  lifebridge, mce, isss, perfectly-different, sankofa, whole-person-health,
+  m2c, collaborative-advocate, ad-targeting.
+
+**Files touched this cycle:**
+- `scripts/ecosystem-alignment-scan.sh` (new)
+- `replit.md` (this Cycle L entry)
+
 ### Cycle K — Deferred Refactor Pass (Tier 2 partial + Tier 3) (May 5, 2026)
 **Done:**
 - **Playwright e2e harness installed** — `@playwright/test` added as
