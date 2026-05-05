@@ -15,17 +15,29 @@
 
 ## 1. Project Summary (≤150 words)
 
-Talk Your Talk is a 15-month community-infrastructure pilot serving the full breadth of Austin-area immigrant and refugee residents — recent refugees, established immigrant families, mixed-status households, immigrant workers and entrepreneurs, and multi-generational households. Built on three deployed TCAF platforms — Talk Your Talk (107 languages + 18 sign languages, dialect-aware), LifeBridge (20,000+ resource navigator with CHW dispatch), and Voices of Austin (multilingual storytelling) — the pilot embeds language-accessible navigation and warm-handoff infrastructure into 4–6 trusted immigrant-serving Austin CBOs. The $25K funds the **community work** that activates technology already built and operating: community advisory pay, partner-CBO integration, multilingual content review by trusted community reviewers, and a community-recording series. The pilot's deliberate design output is a rigorous evidence packet (RE-AIM/CFIR aligned) sized to unlock renewal funding from RWJF, St. David's, HHS/HRSA, and SAMHSA at $200K–$500K — turning $25K into a multi-year sustainability runway for Austin's immigrant-serving infrastructure.
+Talk Your Talk is a 15-month community-infrastructure pilot serving the full breadth of Austin-area immigrant and refugee residents — recent refugees, established immigrant families, mixed-status households, immigrant workers and entrepreneurs, and multi-generational households — with priority focus on Austin's Eastern Crescent. Built on three deployed TCAF platforms — Talk Your Talk (107 languages + 18 sign languages, dialect-aware), LifeBridge (20,000+ resource navigator with CHW dispatch), and Voices of Austin (multilingual storytelling) — the pilot embeds language-accessible navigation and warm-handoff infrastructure into 4–6 trusted immigrant-serving Austin CBOs. The $25K funds the **community work** that activates technology already built and operating: two embedded part-time Community Navigators, 60,000 printed Know Your Rights cards in residents' hands, 12 community workshops with childcare and food provided, paid community translators and paid Deaf/disabled accessibility testers, and the RPLICE evaluation packet that converts pilot evidence into renewal funding. The pilot's deliberate design output is a rigorous, database-grounded evidence packet (RE-AIM/CFIR aligned) sized to unlock renewal funding from RWJF, St. David's, HHS/HRSA, and SAMHSA at $200K–$500K — turning $25K into a multi-year sustainability runway for Austin's immigrant-serving infrastructure.
 
 ---
 
 ## 2. Statement of Need
 
-In the Greater Austin Metropolitan Area, immigrant and refugee residents navigate a fragmented service landscape across at least seven different agencies for any one life event — enrolling a child in school, securing a clinic appointment, responding to an eviction notice, or applying for work authorization. Language barriers compound the fragmentation: nearly 1 in 5 Travis County residents speaks a language other than English at home, with significant Spanish, Vietnamese, Mandarin, Arabic, and increasingly Dari, Pashto, Swahili, and Haitian Creole speaking populations. A parent from Honduras attending a parent-teacher conference often faces a choice between waiting weeks for a district interpreter or asking her 9-year-old to translate a discussion of her own academic struggles — an arrangement that strips dignity from both.
+In Austin, roughly one in three residents speaks a language other than English at home, and a meaningful share of those households have limited English proficiency. The city's growth has not been matched by growth in linguistically and culturally appropriate services — and the gap falls hardest on the Eastern Crescent, where displacement pressure is also highest.
 
-The problem is not absence of services. Austin has remarkable immigrant-serving organizations: Catholic Charities of Central Texas, Refugee Services of Texas, Multicultural Refugee Coalition, Casa Marianella, El Buen Samaritano, RAICES, Workers Defense Project, and others. The problem is **agency** — the day-to-day capacity for an immigrant or refugee resident to see what is available, communicate in the language and dialect that feels like home, and move between services without re-explaining their situation each time.
+The result is a daily pattern that shows up in every immigrant-serving organization in this city:
 
-Talk Your Talk closes that agency gap. It does not replace the trusted CBOs already serving immigrant communities; it amplifies them by giving residents a private, dignified, multilingual layer that handles translation, document explanation, rights education, and warm-handoff referrals — so that when a resident reaches a CBO caseworker, a school counselor, or a clinic, the conversation can begin at the work, not at the language.
+- A parent receives a school discipline notice and cannot tell whether it requires a response, a meeting, or a lawyer.
+- A tenant receives an eviction notice with a 3-day deadline and has no way to know that responding wrong forfeits their case.
+- A worker receives a wage-theft document and cannot identify Workers Defense Project as the right place to call.
+- A grandmother who speaks Vietnamese watches her grandchild translate a medical consent form she does not understand — and then signs anyway.
+- A Deaf resident in a hospital intake room is handed an iPad with no interpreter on it.
+
+Existing tools fail these residents in three specific ways:
+
+1. **They flatten dialect.** Automated translation strips out the version of Spanish, English, or Arabic the person actually speaks, and replies in a register that does not sound like home.
+2. **They translate words but not stakes.** Google Translate will render an eviction notice in Spanish; it will not tell you that you have 3 days, that you should not pay partial rent, and that BASTA Austin is the number to call.
+3. **They are not accountable to anyone.** Big-tech translation tools have no relationship to Austin organizations, no feedback loop to Austin equity outcomes, and no obligation to the people who use them.
+
+Austin has remarkable immigrant-serving organizations — Catholic Charities of Central Texas, Refugee Services of Texas, Multicultural Refugee Coalition, Casa Marianella, El Buen Samaritano, RAICES, Workers Defense Project, and others. The problem is not absence of services. The problem is **agency** — the day-to-day capacity for an immigrant or refugee resident to see what is available, communicate in the language and dialect that feels like home, and move between services without re-explaining their situation each time. Talk Your Talk closes that agency gap, while paying community labor and remaining accountable to the residents and CBOs whose lives the platform touches.
 
 ---
 
@@ -45,7 +57,7 @@ The pilot will be implemented in six connected phases over 15 months, with each 
 A multilingual application shell with browser-locale auto-detection, a "What language feels most like home?" picker, and a five-screen newcomer onboarding journey that produces a personalized starter pack (phrase boards, language preferences, suggested local resources). Built on TCAF's existing Talk Your Talk platform (https://lexibridge.net), already deployed with 107-language coverage.
 
 ### Phase 2 — Access (Months 2–4)
-Six immigrant-focused phrase boards preloaded in the top 12 languages: Emergency Room and Medical, School and Parent-Teacher, Housing and Landlord, Workplace and Wages, Police/ICE Encounter, and Government Forms (DMV, SSA, USCIS). A document explainer accepting photo upload of any letter, returning translation plus plain-language explanation plus suggested next steps. Know Your Rights cards (printable, offline-cached, in 12 languages) sourced from ACLU, NILC, and the Immigrant Defense Project. Offline-first critical-phrase caching via service worker for households with intermittent connectivity.
+Six immigrant-focused phrase boards preloaded in **13 interface languages — English, Spanish, Haitian Creole, Vietnamese, Chinese, Arabic, Russian, Portuguese, Korean, French, Somali, Urdu, and Tagalog — with right-to-left layout for Arabic and Urdu**. Phrase boards cover: Emergency Room and Medical, School and Parent-Teacher, Housing and Landlord, Workplace and Wages, Police/ICE Encounter, and Government Forms (DMV, SSA, USCIS). A document explainer accepting photo upload of any letter, returning translation plus plain-language explanation plus suggested next steps. Know Your Rights cards (printable, offline-cached, in all 13 languages) sourced from ACLU, NILC, and the Immigrant Defense Project. Offline-first critical-phrase caching via service worker for households with intermittent connectivity.
 
 ### Phase 3 — Belonging Path Learning Journey (Months 4–8)
 A gamified learning experience — explicitly framed not as English-as-a-Second-Language remediation but as **"the world meeting you halfway."** Three tracks: Health and Safety, Family and School, Work and Money. Mechanics include experience points, streaks (designed without shame for missed days), and Belonging Badges (Newcomer, Connector, Parent, Voice, Bridge-Builder, Community Anchor). Two-way cultural exchange units pair a unit on Texas culture for newcomers with a unit on the resident's culture that they can share with neighbors.
@@ -95,6 +107,8 @@ An Immigrant Outcomes Dashboard (RPLICE-compliant, extending TCAF's existing Out
 
 The pilot does not segment service delivery by subpopulation; the platform meets each resident at the language and life event that matters to them at that moment. Subpopulation framing is for the evaluation packet, not for resident triage.
 
+**Geographic priority focus — Austin's Eastern Crescent.** While the platform is available to any eligible resident in Travis County, the City of Austin, and the City's Extraterritorial Jurisdiction, the pilot's embedded Community Navigators (Section 7), workshop sites (Section 7), and physical Know Your Rights card distribution (Section 7) prioritize the Eastern Crescent ZIP codes — **78702, 78721, 78723, 78724, 78744, 78753, and 78758** — where immigrant household density and displacement pressure are both highest. This priority focus is operational, not exclusionary; residents from any ZIP code are welcomed.
+
 **Year 1 reach targets (conservative):**
 - 1,200 unique residents onboarded to Talk Your Talk
 - 4,000+ document explainer requests (medical, school, housing, government)
@@ -113,16 +127,15 @@ The pilot does not segment service delivery by subpopulation; the platform meets
 
 | Line Item | Amount | Description |
 |---|---:|---|
-| Community Advisory Council stipends | $6,000 | 6 immigrant residents × $1,000 each — co-design pay, not focus-group token. Compensates 8–10 hours per quarter of advisory work over 15 months. Subpopulation representation across all five groups (recent refugee, established family, mixed-status, worker/entrepreneur, multi-gen). |
-| Partner CBO integration | $6,000 | 4–6 partner organizations × ~$1,000–$1,500 each — covers the staff time required to integrate Talk Your Talk + LifeBridge warm-handoff into each partner's intake workflow, plus training and quarterly check-ins. This line item *is* the infrastructure being built. |
-| Voices of Austin recording sessions | $3,500 | 4 quarterly community recording sessions × $875 — venue, interpreters, refreshments, and modest stipends ($50) for storytellers. Targets 50+ dialect-preserved stories over 15 months. |
-| Multilingual content review & validation | $3,000 | Cultural validation and KYR card layout in the top 12 languages by community-trusted reviewers (paid, not volunteer). |
-| Evaluation infrastructure & evidence packet | $2,000 | Configures TCAF's RPLICE platform to run RE-AIM/CFIR evaluation on this pilot, produces quarterly reports for AEI, and produces the funder-grade evidence packet at month 15 for renewal applications. This is what converts $25K into multi-year sustainability. |
-| Outreach and amplification | $2,500 | Multilingual outreach via TCAF's Advertising Targeting platform — Spanish, Vietnamese, Mandarin, Arabic, Dari, Haitian Creole campaigns to surface the platform in the communities it is built for. |
-| Project coordination | $2,000 | TCAF coordinator time at $25/hr × 80 hrs across 15 months — partner liaison, advisory council facilitation, recording session coordination. |
+| Two part-time Community Navigators | $10,400 | Spanish/English navigator + Haitian Creole/English or Vietnamese/English navigator. ~8 hrs/week each × 12 months × $25/hr. Embedded in 4 partner CBOs (rotating). Run weekly walk-in clinics. Train residents to use Document Help and Know Your Rights features in person. This line item *is* how the infrastructure reaches residents. |
+| Printed Know Your Rights card decks | $4,500 | 5 scenarios (Emergency Room/Medical, School, Housing, Workplace, Police/ICE) × 6 priority languages × 2,000 sets = **60,000 physical cards**. Distributed at libraries, schools, clinics, food pantries, faith communities, day-labor sites in the Eastern Crescent ZIPs. Each card carries a QR code linking to the live, updatable digital version. |
+| 12 in-language community workshops | $4,800 | Hosted at partner CBOs, monthly across the 12 service-delivery months. $400 per workshop covering partner-org host stipend, **childcare, food, and materials**. Participants leave with the app installed, an account created, and their first three documents already explained. Stipends respect partner labor. |
+| Translation review honoraria | $2,400 | 6 priority languages × $400 — pays community translators reviewing AI output for cultural and dialect accuracy. The people whose linguistic expertise the platform depends on get paid. |
+| Evaluation infrastructure & renewal-funder evidence packet | $1,500 | Configures TCAF's RPLICE platform to run RE-AIM/CFIR evaluation on this pilot, produces quarterly reports for AEI, and produces the funder-grade evidence packet at month 15 for renewal applications (RWJF, St. David's, HRSA, SAMHSA). This is what converts $25K into multi-year sustainability. |
+| Accessibility audit | $1,400 | Third-party WCAG 2.2 AA audit including **paid Deaf/Hard-of-Hearing testers and screen-reader users**. Pays disabled testers for their expertise; we do not ask for free QA from the people the audit serves. |
 | **Total** | **$25,000** | |
 
-**Important — what the $25K is NOT funding:** The Talk Your Talk technology platform, the LifeBridge resource navigator, the Voices of Austin storytelling infrastructure, the RPLICE evaluation engine, and the Advertising Targeting platform are already built, deployed, and operational as part of TCAF's 22-platform ecosystem (verified live May 5, 2026 via the TCAF ecosystem alignment scan). The grant funds the **community work** — advisory pay, partner-CBO integration, multilingual content review, recording sessions, evaluation packet production, and outreach. This is why $25K can deliver disproportionately on the four AEI priorities and produce a renewal-grade evidence packet at month 15.
+**Important — what the $25K is NOT funding:** The Talk Your Talk technology platform, the LifeBridge resource navigator, the Voices of Austin storytelling infrastructure, the RPLICE evaluation engine, and the Advertising Targeting platform are already built, deployed, and operational as part of TCAF's 22-platform ecosystem (verified live May 5, 2026 via the TCAF ecosystem alignment scan). The grant funds the **community work** — embedded human navigators, printed cards in residents' hands, workshops with childcare provided, paid community translators, paid disabled accessibility testers, and the evaluation packet that unlocks renewal funding. This is why $25K can deliver disproportionately on the four AEI priorities and produce a renewal-grade evidence packet at month 15.
 
 ---
 
@@ -161,15 +174,39 @@ The Voices of Austin recordings, multilingual KYR content, Family Circles infras
 
 ## 10. Evaluation and Reporting
 
-TCAF's RPLICE platform (Research-to-Practice Lifecycle Implementation & Community Evidence) provides RE-AIM and CFIR-aligned outcome measurement built into the application itself. Quarterly reports to AEI will include:
+TCAF's RPLICE platform (Research-to-Practice Lifecycle Implementation & Community Evidence) provides RE-AIM and CFIR-aligned outcome measurement built directly into the Talk Your Talk application. Outcomes are exposed via a live endpoint (`/api/outcomes/immigrant-belonging`) that aggregates real database events. **No estimated learning hours, no projected lives changed, no "potential impact." Only counted, verifiable events.** This methodology — calling its own measurement honestly rather than inflating it — is itself part of what we believe equity work in Austin needs more of.
 
-- **Reach:** unique residents onboarded, by language and county
-- **Effectiveness:** resident-reported confidence and belonging scores, document explainer accuracy validation, warm-handoff completion rate
-- **Adoption:** partner CBOs actively using warm handoff, schools and clinics receiving handoffs
-- **Implementation:** fidelity to phase milestones, lessons learned per quarter
-- **Maintenance:** sustained engagement at 6, 12, and 15 months
+Quarterly reports to AEI will include the following counted measures, all DB-grounded:
+
+| Outcome | How It's Measured | Year-1 Target |
+|---|---|---:|
+| Newcomers onboarded | DB count of completed onboarding journeys, with self-reported language and ZIP | 1,500 |
+| Documents explained | DB count of `/api/document/explain` calls with successful response | 4,000 |
+| Documents flagged for legal help → user clicked through to legal-aid org | DB join: explain-events with `needsLegalHelp=true` and subsequent legal-aid org-directory click | 600 |
+| Family Circles created | DB count of Family Circles with ≥2 members | 400 |
+| Mentor matches activated | DB count of mentor pairings reaching active status | 150 |
+| Belonging Path units completed | DB count of completed learning units | 6,000 |
+| Languages of users served (verified, not assumed) | DB distinct count of `primary_language` from onboarding (consenting users only) | ≥10 |
+| Workshops held | Calendar of workshops with sign-in sheet counts | 12 |
+| Cards distributed | Inventory tracking | 60,000 cards |
+| Accessibility audit completed | Third-party WCAG 2.2 AA report delivered | 1 |
+
+The five RE-AIM dimensions map cleanly to these counts: **Reach** (newcomers, Eastern Crescent ZIPs, languages), **Effectiveness** (documents explained, legal-aid click-throughs, accessibility audit), **Adoption** (partner CBOs running workshops, navigators embedded), **Implementation** (workshop fidelity, card distribution, phase milestones), **Maintenance** (sustained Family Circles and Mentor matches at 6/12/15 months).
 
 A final evaluation report at month 15 will deliver: aggregate impact dashboard, anonymized resident testimonials (with consent), partner CBO outcome statements, subpopulation-disaggregated outcomes (across all five subpopulations described in Section 6), and a publicly-postable Equity Mini Grant impact case study contributing to AEI's body of evidence on what works for Austin's immigrant and refugee residents. **This same packet is the renewal-funder evidence base described in Section 9** — designed once, used for AEI close-out and for RWJF/St. David's/HRSA/SAMHSA renewal applications in parallel.
+
+---
+
+## 11. Equity & Accountability Practices
+
+The pilot operates on six explicit commitments that are non-negotiable and built into the platform's architecture, not added as a policy overlay:
+
+1. **Community Advisory Group with authority.** Five members from served communities, paid stipends, meeting quarterly. They review outcomes data and have authority to adjust priorities mid-grant. Not a focus group; a governance body.
+2. **Consent-based data only.** Anonymized outcome metrics only. Users explicitly opt in before any data is shared with the broader TCAF ecosystem or used in renewal-funder evidence packets.
+3. **No data sale, no advertising, no algorithmic profiling of users.** Period. This is enforced at the platform level — there is no data-monetization code path to disable.
+4. **Open, auditable methodology.** The measurement approach in Section 10 is published. We will not report numbers we cannot back up with database evidence.
+5. **Pay community labor.** Translators ($2,400 budget line), accessibility testers ($1,400 budget line), advisory members (compensated quarterly), and partner CBOs hosting workshops ($4,800 budget line) are all paid. We do not extract free labor from the communities we serve.
+6. **Child-safe by default.** Family Circle members tagged as children only see safety-appropriate content. No parental override required to enable safety; safety is the floor.
 
 ---
 
