@@ -169,6 +169,9 @@ Texas is investing **$1 BILLION over five years** through Rural Texas Strong to 
 | 15 | Bidirectional Planning Engine = novel publishable methodology (competitive advantage) | RPLICE | NIH D&I R01, CDMRP |
 | 16 | Need 6 letters of support for PRMRP: 3 clinical sites, EvolutionaryScale, patient advocacy, health dept | PRMRP draft | CDMRP PRMRP |
 | 17 | NIH PAR-25-144 D&I R01 = "natural home" for RPLICE; pair with INTEGRATE-Austin | Cross-ref report | NIH R01 Oct 5 |
+| 18 | **AEI / City of Austin Equity Mini Grant: coalition framing is explicitly bonus-scoring** ("even stronger candidate"). Always name partner orgs, not vague "we will partner." Quote funder rubric language verbatim in narrative. Address ≤$500K grassroots preference head-on rather than ignoring it. | austintexas.gov/equity-inclusion/grant-programs (May 5, 2026) | All city/county equity grants |
+| 19 | **Tabbara prior-award discipline is mandatory for ALL grants regardless of size or source.** Before finalizing any narrative: (a) identify funder office + authority, (b) document reviewer scoring posture from primary sources, (c) inventory prior winners and inferred patterns, (d) name post-award commitments, (e) write a funder-intelligence doc and apply findings to the narrative. No exceptions for "small" or "easy" grants. | User directive May 5, 2026 | All grants — see `docs/grants/AEI-Funder-Intelligence.md` as the template |
+| 20 | **City of Austin grants do not require 501(c)(3); fiscal sponsorship and vendor registration accepted.** Vendor registration with City required *before disbursement* (post-award), not before submission. | austintexas.gov FY26 page | All City of Austin grants |
 
 ---
 

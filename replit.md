@@ -80,4 +80,4 @@ An AI-powered national community infrastructure platform that connects individua
 - **SAM.gov API:** Official API documentation for federal grant opportunities.
 - **Playwright:** End-to-end testing framework documentation.
 - **Implementation Science:** RPLICE, CFIR/RE-AIM, MAP-GAP frameworks for program design and evaluation.
-- **Grant Research Methodology:** Robert Tabbara's checklist for prior award research (SAM.gov, USASpending.gov, sbir.gov, etc.)
+- **Grant Research Methodology:** Robert Tabbara's checklist for prior award research (SAM.gov, USASpending.gov, sbir.gov, etc.) — **mandatory for ALL grants regardless of size or source**. Reference template: `docs/grants/AEI-Funder-Intelligence.md`. See playbook lesson #19.

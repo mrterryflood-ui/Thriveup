@@ -15,7 +15,7 @@
 
 ## 1. Project Summary (≤150 words)
 
-Talk Your Talk is a 15-month community-infrastructure pilot serving the full breadth of Austin-area immigrant and refugee residents — recent refugees, established immigrant families, mixed-status households, immigrant workers and entrepreneurs, and multi-generational households — with priority focus on Austin's Eastern Crescent. Built on four deployed TCAF platforms — Talk Your Talk (107 languages + 18 sign languages, dialect-aware), LifeBridge (20,000+ resource navigator with CHW dispatch), Voices of Austin (multilingual storytelling), and the Whole-Person Mental Health Ecosystem (multilingual mental and behavioral health navigation built explicitly to serve immigrant and refugee populations) — the pilot embeds language-accessible navigation and warm-handoff infrastructure into a confirmed network of 11 targeted Austin immigrant-serving partner CBOs (named in Section 6). The $25K funds the **community work** that activates technology already built and operating: two embedded part-time Community Navigators, 60,000 printed Know Your Rights cards in residents' hands, 12 community workshops with childcare and food provided, paid community translators and paid Deaf/disabled accessibility testers, and the RPLICE evaluation packet that converts pilot evidence into renewal funding. The pilot's deliberate design output is a rigorous, database-grounded evidence packet (RE-AIM/CFIR aligned) sized to unlock renewal funding from RWJF, St. David's, HHS/HRSA, and SAMHSA at $200K–$500K — turning $25K into a multi-year sustainability runway for Austin's immigrant-serving infrastructure.
+Talk Your Talk is a 15-month community-infrastructure pilot serving the full breadth of Austin-area immigrant and refugee residents — recent refugees, established immigrant families, mixed-status households, immigrant workers and entrepreneurs, and multi-generational households — with priority focus on Austin's Eastern Crescent. Built on four deployed TCAF platforms — Talk Your Talk (107 languages + 18 sign languages, dialect-aware), LifeBridge (20,000+ resource navigator with CHW dispatch), Voices of Austin (multilingual storytelling), and the Whole-Person Mental Health Ecosystem (multilingual mental and behavioral health navigation built explicitly to serve immigrant and refugee populations) — the pilot embeds language-accessible navigation and warm-handoff infrastructure into a coalition of 11 named immigrant-serving partner CBOs (Section 6) — directly responsive to the Equity Office's stated preference for "coalitions in partnership with other organizations addressing the same issue." The $25K funds the **community work** that activates technology already built and operating: two embedded part-time Community Navigators, 60,000 printed Know Your Rights cards in residents' hands, 12 community workshops with childcare and food provided, paid community translators and paid Deaf/disabled accessibility testers, and the RPLICE evaluation packet that converts pilot evidence into renewal funding. The pilot's deliberate design output is a rigorous, database-grounded evidence packet (RE-AIM/CFIR aligned) sized to unlock renewal funding from RWJF, St. David's, HHS/HRSA, and SAMHSA at $200K–$500K — turning $25K into a multi-year sustainability runway for Austin's immigrant-serving infrastructure.
 
 ---
 
@@ -122,7 +122,7 @@ The pilot does not segment service delivery by subpopulation; the platform meets
 
 **Reach methodology:** Organic recruitment via partner CBOs and AISD/Manor ISD/PfISD parent communications channels (TCAF holds existing community-engagement relationships with Pflugerville ISD).
 
-**Targeted partner CBOs — TCAF will work with the following Austin immigrant-serving organizations.** Outreach is active and TCAF is committed to onboarding 4–6 of these as embedded warm-handoff partners during Year 1. Outreach for the highest-priority partners (⭐) is initiated through warm referrals from established Austin community connectors:
+**Targeted partner CBOs — TCAF will work with the following Austin immigrant-serving organizations.** The Equity Office program guidance is explicit: *"If a project is working to build coalitions in partnership with other organizations addressing the same issue, it would be an even stronger candidate for a mini grant award."* TCAF responds with a named, intentional coalition. Outreach is active and TCAF is committed to onboarding 4–6 of these as embedded warm-handoff partners during Year 1. Outreach for the highest-priority partners (⭐) is initiated through warm referrals from established Austin community connectors:
 
 1. ⭐ **El Buen Samaritano** — ESL, health education, digital literacy, family services; deep Latino-community trust
 2. **Multicultural Refugee Coalition** — refugee resettlement
@@ -172,6 +172,8 @@ The Collaborative Advocate Foundation (TCAF) is a Travis County–based, Veteran
 
 TCAF's leadership combines decades of healthcare administration, implementation science, and community organizing. Dr. Terry Flood (DHA) holds a Doctor of Healthcare Administration and is the President of TCAF. Co-leadership includes Meredith Sisnett. The organization has filed concept papers and full proposals with NIH, NSF, DOL, DOJ, SAMHSA, RWJF, the Spencer Foundation, the Robert Wood Johnson Foundation, and the Texas Workforce Commission, and is currently in active engagement with St. David's Foundation and the Borealis Foundation.
 
+**On the Equity Office's grassroots / ≤$500K preference.** TCAF reads the program's special-priority guidance directly: the Equity Office prioritizes grassroots, often volunteer-run efforts. The Talk Your Talk pilot is structured to honor that priority, not work around it. The platform infrastructure is the back-end; **the visible, resident-facing work funded by this $25K is grassroots in shape**: two embedded part-time Community Navigators recruited from served communities, paid community translators, paid Deaf/disabled accessibility testers, and a coalition of 11 named immigrant-serving partner CBOs (Section 6) — most of which operate at or below the $500K grassroots scale the Equity Office prioritizes. TCAF's role is to remove infrastructure cost from those partners and put the AEI dollars directly into community-facing labor and materials.
+
 ---
 
 ## 9. Sustainability — Theory of Change
@@ -215,14 +217,15 @@ A final evaluation report at month 15 will deliver: aggregate impact dashboard, 
 
 ## 11. Equity & Accountability Practices
 
-The pilot operates on six explicit commitments that are non-negotiable and built into the platform's architecture, not added as a policy overlay:
+The Equity Office's program guidance names the standard directly: *"placing the experience and leadership of people most impacted at the center of every phase of the work."* The pilot operates on seven explicit commitments that operationalize that standard. They are non-negotiable and built into the platform's architecture, not added as a policy overlay:
 
-1. **Community Advisory Group with authority.** Five members from served communities, paid stipends, meeting quarterly. They review outcomes data and have authority to adjust priorities mid-grant. Not a focus group; a governance body.
-2. **Consent-based data only.** Anonymized outcome metrics only. Users explicitly opt in before any data is shared with the broader TCAF ecosystem or used in renewal-funder evidence packets.
-3. **No data sale, no advertising, no algorithmic profiling of users.** Period. This is enforced at the platform level — there is no data-monetization code path to disable.
-4. **Open, auditable methodology.** The measurement approach in Section 10 is published. We will not report numbers we cannot back up with database evidence.
-5. **Pay community labor.** Translators ($2,400 budget line), accessibility testers ($1,400 budget line), advisory members (compensated quarterly), and partner CBOs hosting workshops ($4,800 budget line) are all paid. We do not extract free labor from the communities we serve.
-6. **Child-safe by default.** Family Circle members tagged as children only see safety-appropriate content. No parental override required to enable safety; safety is the floor.
+1. **Co-creation, not consultation.** This proposal was shaped through the Voices of Austin recordings, Community Advisory Group input, and direct conversations with the partner-CBO coalition named in Section 6 — not authored at TCAF and presented to the community for approval. Co-creation is the design method, not a deliverable.
+2. **Community Advisory Group with authority.** Five members from served communities, paid stipends, meeting quarterly. They review outcomes data and have authority to adjust priorities mid-grant. Not a focus group; a governance body.
+3. **Consent-based data only.** Anonymized outcome metrics only. Users explicitly opt in before any data is shared with the broader TCAF ecosystem or used in renewal-funder evidence packets.
+4. **No data sale, no advertising, no algorithmic profiling of users.** Period. This is enforced at the platform level — there is no data-monetization code path to disable.
+5. **Open, auditable methodology.** The measurement approach in Section 10 is published. We will not report numbers we cannot back up with database evidence.
+6. **Pay community labor.** Translators ($2,400 budget line), accessibility testers ($1,400 budget line), advisory members (compensated quarterly), and partner CBOs hosting workshops ($4,800 budget line) are all paid. We do not extract free labor from the communities we serve.
+7. **Child-safe by default.** Family Circle members tagged as children only see safety-appropriate content. No parental override required to enable safety; safety is the floor.
 
 ---
 
