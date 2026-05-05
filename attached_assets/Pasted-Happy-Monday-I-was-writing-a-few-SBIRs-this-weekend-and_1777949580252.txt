@@ -1,0 +1,15 @@
+Happy Monday! I was writing a few SBIRs this weekend and I was doing some research.  I wanted to share a few thoughts that might help others. 
+
+The single best thing you can do before writing a grant proposal is read the abstracts of previous awards in that program. Most founders skip this entirely, and it costs them.
+
+Here is why it matters. Every program office has a theory of what they fund. Some of it is written down in the solicitation. A lot of it is not. The way topics are worded, the evaluation criteria, the stated priorities, these tell you what the agency says it cares about. Previous award abstracts tell you what it actually funds. Those two things are not always the same, and the gap between them is where most proposals get lost.
+
+The good news is that all of this information is public and free. SAM.gov lists federal contract and grant award data. USASpending.gov shows you where government money actually went, searchable by agency, program, and technology area. The SBIR award database at sbir.gov lets you search past Phase I and Phase II awards by topic, keyword, agency, and year. You can see exactly who won, what they were working on, how they described their technology, and what language they used to connect their work to the program's stated needs.
+
+What you are looking for when you read these abstracts is pattern recognition. Which types of technology consistently get funded in this program? What level of technical maturity do winners tend to be at? How do they frame the problem they are solving, is it mission-focused, capability-focused, or technology-focused? How long are the abstracts and how specific are they? Are the winning proposals coming from university spinouts, established small businesses, or first-time applicants? All of this shapes how you position your own work.
+
+You are also looking for what does not get funded. If you read thirty abstracts from a program and none of them look like your proposal, that is not a coincidence. Either the program is not the right fit and you should look elsewhere, or your framing needs to shift to match what the program office is actually looking for.
+
+Do this research before you write a single word of your proposal. It takes a few hours. It will change what you write, how you write it, and whether it lands. Your win rate will reflect the difference.
+
+#SBIR #NonDilutiveFunding #GrantWriting #GovCon #DefenseTech #Raise

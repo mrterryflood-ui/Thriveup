@@ -873,6 +873,57 @@ When a grant ships: (1) move source doc into `docs/grants/submitted/`,
 (2) update this table, (3) update `proposal_pipeline` DB row status,
 (4) note any reviewer feedback in this section.
 
+### Proposal research discipline (READ BEFORE WRITING ANY PROPOSAL)
+**Source:** Robert Tabbara, Federal Capture Strategist (LinkedIn, May 4
+2026). Captured here as durable methodology, not a one-off tip.
+
+**The single best thing to do before writing a proposal is read prior
+award abstracts in the same program.** Most applicants skip this and
+it costs them. Program offices have an unwritten theory of what they
+fund. The solicitation tells you what they *say* they fund; prior
+awards show what they *actually* fund. The gap is where proposals get
+lost.
+
+**Mandatory pre-write research checklist (every proposal, no exceptions):**
+1. **SAM.gov** — search by NAICS / agency / keyword to see what got
+   funded in this program.
+2. **USASpending.gov** — search by agency, program, technology area to
+   see real award amounts, timelines, and recipients.
+3. **sbir.gov** (for any SBIR/STTR) — search Phase I and Phase II
+   awards by topic / keyword / agency / year.
+4. **Read 20–30 award abstracts** from the target program before
+   writing a single word. Look for:
+   - **Tech maturity (TRL)** — does this program fund early-stage or
+     near-ready prototypes?
+   - **Problem framing** — mission-focused, capability-focused, or
+     technology-focused?
+   - **Language & vocabulary** — mirror the program office's words.
+   - **Company profile** — university spinouts, established small
+     businesses, first-time applicants?
+   - **Abstract length & depth** — how technical, how specific?
+   - **What does NOT get funded** — if 30 abstracts look nothing like
+     yours, the program is wrong OR your framing must shift.
+
+**Other free federal tools worth knowing (5 Free Tools, SBA, May 2026):**
+- **USASpending.gov** — competitive intelligence on real award amounts.
+- **Agency Procurement Forecasts** — pre-solicitation signals (often on
+  the agency's OSDBU page); usually NOT on SAM.gov.
+- **Small Business Search (SBS)** — replaced DSBS in 2025; how primes
+  find subs. Profile must be complete or you're invisible.
+- **FPDS (Federal Procurement Data System)** — who won what, who
+  competed, set-aside data.
+- **SBA SubNet** — subcontracting database for prime/sub matchmaking.
+- **Bonus: GovCon Match** — SBA tool launched late 2024 matching small
+  businesses to agencies likely to need their work.
+
+**Apply this to every active pursuit.** Before drafting any narrative
+for Borealis, NSF TechAccess, NSF IUSE:EDU (Franco), NSF ATE (Franco),
+NSF ECR:Core, Microsoft AI for Good, HerHealth R03s, or CDMRP — pull
+prior award abstracts and read them first. The Borealis draft already
+exists; before final polish, read prior DIF x Tech awardees if Borealis
+publishes them. For NSF programs, prior awards are public on
+nsf.gov/awardsearch.
+
 ---
 
 ## 11. People (the names I must remember)
