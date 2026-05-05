@@ -45,7 +45,7 @@ Austin has remarkable immigrant-serving organizations — Catholic Charities of 
 
 The pilot rests on three deployed TCAF platforms that serve as anchors:
 
-- **Talk Your Talk (LexiBridge)** — multilingual interpreter (107 languages + 18 sign languages), dialect-aware, with crisis detection
+- **Talk Your Talk** — multilingual interpreter (107 languages + 18 sign languages), dialect-aware, with crisis detection (https://talkyourtalk.net)
 - **LifeBridge** — community resource navigator with 20,000+ verified resources and CHW dispatch
 - **Voices of Austin** — multilingual storytelling and cultural preservation infrastructure
 
@@ -54,7 +54,7 @@ These three are the technical foundation. TCAF's broader 22-platform ecosystem (
 The pilot will be implemented in six connected phases over 15 months, with each phase building on the prior. Phases 1–3 ship within the grant window's first 6 months and produce demonstrable resident impact; Phases 4–6 deepen the family, community, and ecosystem layers through the back half.
 
 ### Phase 1 — Foundation (Months 1–2)
-A multilingual application shell with browser-locale auto-detection, a "What language feels most like home?" picker, and a five-screen newcomer onboarding journey that produces a personalized starter pack (phrase boards, language preferences, suggested local resources). Built on TCAF's existing Talk Your Talk platform (https://lexibridge.net), already deployed with 107-language coverage.
+A multilingual application shell with browser-locale auto-detection, a "What language feels most like home?" picker, and a five-screen newcomer onboarding journey that produces a personalized starter pack (phrase boards, language preferences, suggested local resources). Built on TCAF's existing Talk Your Talk platform (https://talkyourtalk.net), already deployed with 107-language coverage.
 
 ### Phase 2 — Access (Months 2–4)
 Six immigrant-focused phrase boards preloaded in **13 interface languages — English, Spanish, Haitian Creole, Vietnamese, Chinese, Arabic, Russian, Portuguese, Korean, French, Somali, Urdu, and Tagalog — with right-to-left layout for Arabic and Urdu**. Phrase boards cover: Emergency Room and Medical, School and Parent-Teacher, Housing and Landlord, Workplace and Wages, Police/ICE Encounter, and Government Forms (DMV, SSA, USCIS). A document explainer accepting photo upload of any letter, returning translation plus plain-language explanation plus suggested next steps. Know Your Rights cards (printable, offline-cached, in all 13 languages) sourced from ACLU, NILC, and the Immigrant Defense Project. Offline-first critical-phrase caching via service worker for households with intermittent connectivity.
@@ -143,7 +143,7 @@ The pilot does not segment service delivery by subpopulation; the platform meets
 
 The Collaborative Advocate Foundation (TCAF) is a Travis County–based, Veteran-Founded, Black-Led 501(c)(3) (EIN 41-3618003; IRS determination letter pending due to current IRS backlog — fiscal sponsorship available through Abundant Life Church if required by AEI). TCAF operates a 22-platform technology ecosystem developed and maintained in-house, including:
 
-- **Talk Your Talk (LexiBridge)** — 107-language and 18-sign-language interpreter with dialect awareness and crisis detection (https://lexibridge.net)
+- **Talk Your Talk** — 107-language and 18-sign-language interpreter with dialect awareness and crisis detection (https://talkyourtalk.net)
 - **LifeBridge** — Virtual 211 with a Community Health Worker hub spanning 20,000+ verified resources (https://lifetransitionsaid.org)
 - **Minority Center of Excellence** — 112,000+ minority-owned business directory (https://minoritycenterofexcellence.com)
 - **ISSS** — K-12 multi-tiered system of supports infrastructure deployed across multiple districts (https://implementationineducatio.com)

@@ -796,27 +796,30 @@ partnership-status badges accordingly.
 - `scripts/ecosystem-alignment-scan.sh` — pulls all 24 platforms from hub DB,
   probes custom domain → known `.replit.app` fallback, reports LIVE/UNBOUND
   with title + manifest description. Re-run anytime alignment is in doubt.
-- **First scan results (May 5, 2026):** 16 LIVE, 8 UNBOUND custom domains.
+- **Scan results (May 5, 2026, post-talkyourtalk.net binding):** 15 LIVE,
+  9 UNBOUND custom domains.
   - LIVE: ad-targeting, betterscience, collaborative-advocate, isss, lifebridge,
     m2c, mce, perfectly-different, safecognicare, safereport, sankofa,
-    sankofa-maternal-health, sankofa-mens-health, **speech-bridge**,
-    whole-person-health.
+    sankofa-maternal-health, sankofa-mens-health, **speech-bridge** (now at
+    `https://talkyourtalk.net`), whole-person-health.
   - UNBOUND custom domain (apps may still be alive at .replit.app):
     autoimmune-thrive, code-canvas, ecosystem-nexus, emergency-mgmt,
     pillscheduler, pinnacle-business-conglomerate, sankofa-feminine-health,
     video-creator-ai, wholemind.
-  - Known `.replit.app` fallbacks recorded in scanner: speech-bridge →
-    `speech-bridge-mrterryflood.replit.app`, ad-targeting → `ad-targeting.replit.app`,
-    mce → `black-business-hub.replit.app`, pinnacle-business-conglomerate →
-    `pinnacle-business-conglomerate.replit.app`, emergency-mgmt →
-    `emergency-mgmt.replit.app`.
+  - Known `.replit.app` fallbacks recorded in scanner: ad-targeting →
+    `ad-targeting.replit.app`, mce → `black-business-hub.replit.app`,
+    pinnacle-business-conglomerate → `pinnacle-business-conglomerate.replit.app`,
+    emergency-mgmt → `emergency-mgmt.replit.app`.
 
-**LexiBridge / Speech Bridge / "Talk Your Talk" — verified capability:**
+**Speech Bridge / "Talk Your Talk" — verified capability + bound custom domain:**
 - Real, live, and powerful: **107 languages + 18 sign languages**, dialect-aware,
-  real-time interpretation, crisis detection. Source: live `/manifest.json` at
-  `speech-bridge-mrterryflood.replit.app/manifest.json`.
-- Custom domain `lexibridge.net` is unbound — needs Replit deploy-panel domain
-  binding before AEI submission cites it publicly.
+  real-time interpretation, document explainer, crisis detection.
+- **Custom domain `talkyourtalk.net` is BOUND and verified** (May 5, 2026,
+  registered through Replit). Hub DB `ecosystem_platforms.url` updated from the
+  prior `lexibridge.net` placeholder to `https://talkyourtalk.net`. AEI
+  narrative §3 + §8 and partner-outreach template all cite the bound domain.
+  Note: `lexibridge.net` is NOT the bound domain — earlier internal references
+  to it were a naming error and have been corrected throughout grant materials.
 
 **TCAF / The Collaborative Advocate — legal status (RECONCILED May 5, 2026):**
 - **EIN 41-3618003 is permanent and confirmed** by President Flood. Source of

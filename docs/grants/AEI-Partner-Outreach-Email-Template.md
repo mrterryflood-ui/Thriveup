@@ -27,8 +27,8 @@ I'm writing on behalf of The Collaborative Advocate Foundation (TCAF), a Pfluger
 
 The project is called **Talk Your Talk — Belonging & Voice Initiative**. Briefly:
 
-- We've already built a deployed multilingual platform that handles **107 languages and 18 sign languages**, with dialect awareness and crisis detection. It's live and operational today.
-- The grant funds the **community work**, not the technology — community advisory council pay, partner-CBO onboarding, multilingual content, recording sessions for a "Voices of Austin" storytelling project, and outreach in the languages residents actually speak at home.
+- We've already built a deployed multilingual platform — live today at **https://talkyourtalk.net** — that handles **107 languages and 18 sign languages**, with dialect awareness, document explanation, and crisis detection.
+- The grant funds the **community work**, not the technology — two embedded part-time Community Navigators, 60,000 printed Know Your Rights cards distributed in the Eastern Crescent, 12 community workshops with childcare and food provided, paid community translators, and a paid third-party WCAG accessibility audit including Deaf and disabled testers.
 - We are **explicitly designing this to amplify the trusted immigrant-serving CBOs already doing this work in Austin** — including yours — not to replace them. The platform handles translation, document explanation, and Know-Your-Rights education so that when a resident reaches your caseworkers, the conversation can begin at the work, not at the language.
 
 **The ask:** A short letter of support (½ to 1 page) confirming three things — (1) that [Partner CBO Name] would be willing to be considered as one of 4–6 warm-handoff partners during the 15-month pilot, (2) that the population we describe (immigrant and refugee residents of Travis County and the City of Austin's ETJ) aligns with the population [Partner CBO] serves, and (3) one sentence on why language access matters in the work [Partner CBO] does.

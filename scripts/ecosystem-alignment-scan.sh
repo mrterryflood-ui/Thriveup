@@ -6,7 +6,7 @@ set +e
 [ -z "$DATABASE_URL" ] && { echo "DATABASE_URL not set" >&2; exit 1; }
 psql "$DATABASE_URL" -t -A -F'|' -c "SELECT id, name, url FROM ecosystem_platforms ORDER BY id;" > /tmp/_platforms.psv
 declare -A FALLBACK=(
-  ["speech-bridge"]="https://speech-bridge-mrterryflood.replit.app"
+  ["speech-bridge"]="https://talkyourtalk.net"
   ["ad-targeting"]="https://ad-targeting.replit.app"
   ["mce"]="https://black-business-hub.replit.app"
   ["pinnacle-business-conglomerate"]="https://pinnacle-business-conglomerate.replit.app"
