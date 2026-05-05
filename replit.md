@@ -780,6 +780,67 @@ partnership-status badges accordingly.
   - Tier 3 — Playwright e2e harness — defer until after Borealis;
     runTest() suffices for current verification needs.
 
+### Cycle K — Deferred Refactor Pass (Tier 2 partial + Tier 3) (May 5, 2026)
+**Done:**
+- **Playwright e2e harness installed** — `@playwright/test` added as
+  dev dep. `playwright.config.ts` at repo root (chromium, baseURL
+  `http://localhost:5000`, 30s timeout, retain-on-failure traces).
+  `tests/e2e/smoke.spec.ts` covers 9 tests total — 5 page tests
+  (landing render, `/grant-prior-awards` page+4 cards,
+  `/ecosystem-orchestration` 24 platforms+7 triads, search-filter
+  narrowing, `/academy` post-reorg sanity asserting
+  `data-testid="academy-village-page"`) and 4 API contract tests
+  (registry shape, prior-awards summary shape, PATCH 401 unauth-gate,
+  PATCH URL-validation reject). Run with
+  `npx playwright test` (browser binaries install on first run via
+  `npx playwright install chromium`).
+- **38 academy pages reorganized into `client/src/pages/academy/`**.
+  Files renamed by stripping `academy-` prefix (e.g. `academy-village.tsx`
+  → `pages/academy/village.tsx`). Verified safe by audit: zero
+  cross-page imports between any of the 194 pages, App.tsx is the sole
+  consumer, sidebar URLs are unchanged (only file paths moved). Patched
+  with one atomic sed over App.tsx imports
+  (`@/pages/academy-` → `@/pages/academy/`). Zero stale refs after the
+  move; HMR reloaded cleanly; `/academy` renders identically post-move.
+- **All TypeScript errors are pre-existing** (achievements.tsx,
+  ai-tools-workspace.tsx, grant-command-center.tsx, etc.) — none
+  introduced by Cycle K. None block the dev server (tsx is permissive).
+
+**Honest re-deferral (still NOT done — and why):**
+- **`routes.ts` route extraction (academy/admin/cqi blocks).** Audit
+  showed routes are NOT contiguous: `/api/academy` spans lines
+  1859→3036, `/api/admin` spans 2936→4819, `/api/cqi` spans 5258→5572,
+  all interleaved. Helpers used inside those handlers (`requireAuth`,
+  `getUserId`, `getUserName`, `calculateElo`, `seedAiToolCatalog`,
+  `seedStaarContent`, `generateStaarQuestions`) live in `routes.ts`
+  itself as closures. Clean extraction requires per-route dependency
+  tracing + helper externalization — multi-hour with high regression
+  risk. With Borealis 15 days out, the trade is wrong; defer to a
+  post-Borealis cycle.
+- **`storage.ts` split (1,818 lines, single IStorage class).** Cohesive
+  interface — splitting requires interface decomposition or composite
+  pattern. Same risk reasoning. Defer.
+- **Reorganizing the other 156 non-academy pages.** Long tail with no
+  shared prefix density (most domains have ≤7 pages); the App.tsx
+  import block is the cleanest possible registry already. Marginal
+  organizational value vs. real risk of typo-induced build breaks.
+  Defer.
+
+**Files changed this cycle:**
+- `playwright.config.ts` (new)
+- `tests/e2e/smoke.spec.ts` (new, 5 page tests + 4 API tests)
+- `client/src/components/training-guide.tsx` (fixed 3 stale academy
+  route refs flagged by architect: `/academy-admin` →
+  `/academy/admin`, `/academy-pathway` → `/academy/pathway`,
+  `/academy-careers` → `/academy/careers`. Pre-existing inconsistency,
+  not introduced by Cycle K, but tightened opportunistically.)
+- `package.json` (npm added @playwright/test devDep — via
+  `installLanguagePackages`, not direct edit)
+- `client/src/pages/academy/*.tsx` (38 files, renamed/moved from
+  `client/src/pages/academy-*.tsx`)
+- `client/src/App.tsx` (38 import paths updated via single sed)
+- `replit.md` (this Cycle K entry)
+
 ### Cycle G — Memory Discipline Audit (May 2026)
 - Full system map-gap pass triggered by user directive: "everything we discussed
   everything that we do gets committed to memory and pulled from that memory".

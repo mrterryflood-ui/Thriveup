@@ -34,9 +34,7 @@ test.describe("smoke: public pages render", () => {
 
   test("academy village page still loads after folder reorg", async ({ page }) => {
     await page.goto("/academy");
-    // Page should render without 404; we just check no NotFound marker
-    const notFound = await page.locator("text=404").count();
-    expect(notFound).toBe(0);
+    await expect(page.getByTestId("academy-village-page")).toBeVisible();
   });
 });
 
