@@ -2,14 +2,18 @@
 
 **Send today, May 5–6, 2026.** Each email is a same-day ask with a low-friction commitment so a CBO partner can respond yes/no/refer-to-someone-else within 24 hours. Goal: 1–2 letters of support secured before the May 8 submission deadline.
 
-**Send order (highest fit first):**
-1. Multicultural Refugee Coalition — Marina Bahta or current Executive Director
-2. Casa Marianella — María Herrera or current Executive Director
-3. El Buen Samaritano — current Executive Director
-4. Catholic Charities of Central Texas — Refugee Resettlement Director
-5. Refugee Services of Texas — Austin office director
-6. Workers Defense Project — Austin lead organizer
-7. RAICES — Austin office contact
+**Send order (highest fit first; ⭐ = named contact via Meredith referral, May 5, 2026):**
+1. ⭐ **El Buen Samaritano — Georgia Hernandez** (`ghernandez@elbuen.org`) — ESL, health ed, digital literacy, family services; deep Latino-community trust. **Send first — named contact warm-intro from Meredith.**
+2. Multicultural Refugee Coalition — Marina Bahta or current Executive Director
+3. Foundation Communities — ESL Learning Center / Community Engagement Director (Meredith referral; ESL + childcare + housing + financial wraparound — strongest fit for AEI "support stability" priority)
+4. Casa Marianella — María Herrera or current Executive Director
+5. AVANCE-Austin — Executive Director (Meredith referral; two-generation model, parents + children, ESL + workforce + financial literacy)
+6. Catholic Charities of Central Texas — Refugee Resettlement Director
+7. Literacy Austin — Executive Director (Meredith referral; adult literacy + ESL, volunteer tutoring, lowest-income residents)
+8. Refugee Services of Texas — Austin office director
+9. Workers Defense Project — Austin lead organizer
+10. RAICES — Austin office contact
+11. Sixth Square — Daphne McDole (Meredith making the intro herself; wait for warm handoff before contacting)
 
 ---
 

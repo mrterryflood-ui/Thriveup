@@ -29,6 +29,7 @@ An AI-powered national community infrastructure platform that connects individua
 - **Grant Strategy:** `docs/grants/STRATEGIC-INTELLIGENCE-PLAYBOOK.md`, `CDMRP-FY2026-Master-Grant-Strategy.md`
 - **MAP-GAP Lessons Learned:** `.agents/skills/map-gap/lessons-learned.md`
 - **Proposal Pipeline Seed:** `server/seed-proposal-pipeline.ts`
+- **Active Commitments / Continuity Log:** `docs/active-commitments.md` — running session memory (active grants, partner pipeline, ecosystem scan results, legal status, next-thread queue). Read at session start; update at session end.
 
 ## Architecture decisions
 - **Collaborative AI:** Employs a 4-engine synthesis (Gemini, Claude, GPT-4o-mini, DeepSeek R1) with RAG and implementation science frameworks for comprehensive AI capabilities.
