@@ -234,3 +234,11 @@ Full reference: `docs/grants/Top-5-Grants-URLs-and-Requirements.md`
 **Confirmed institutional emails:**
 - terryflood@thrivingcommunitiesforall.com (Dr. Flood — primary on all proposals)
 - msisnett@thrivingcommunitiesforall.com (Meredith — for NON-City work only)
+
+---
+## Dr. Terry Flood — Confirmed Contact Info (May 7, 2026)
+
+- **Phone:** (254) 319-8460
+- **Email:** terryflood@thrivingcommunitiesforall.com
+- **Title:** President, TCAF
+- **Use on:** All grant proposals, partner outreach, City of Austin materials, federal/state/foundation submissions
