@@ -27,6 +27,7 @@ An AI-powered national community infrastructure platform that connects individua
 - **Partnership Status Component:** `client/src/components/partnership-status.tsx`
 - **Sidebar Navigation:** `client/src/components/app-sidebar.tsx`
 - **Grant Strategy:** `docs/grants/STRATEGIC-INTELLIGENCE-PLAYBOOK.md`, `CDMRP-FY2026-Master-Grant-Strategy.md`
+- **Quartet One-Pager (drop-in for narratives):** `docs/grants/QUARTET-ONE-PAGER.md` — verified May 6, 2026; Talk Your Talk = 89 spoken + 18 sign + 6 learning surfaces + honest crisis path
 - **MAP-GAP Lessons Learned:** `.agents/skills/map-gap/lessons-learned.md`
 - **Proposal Pipeline Seed:** `server/seed-proposal-pipeline.ts`
 - **Active Commitments / Continuity Log:** `docs/active-commitments.md` — running session memory (active grants, partner pipeline, ecosystem scan results, legal status, next-thread queue). Read at session start; update at session end.
@@ -70,6 +71,9 @@ An AI-powered national community infrastructure platform that connects individua
 - **Conditional `useEffect`:** Avoid React hooks violations by making `useEffect` unconditional.
 - **Hardcoded Arrays for Grants:** `/api/proposal-pipeline` must read from the `proposal_pipeline` database table, not hardcoded arrays, to avoid silent failures in opportunity tracking.
 - **`curl HTTP 000`:** This indicates an unbound custom domain, not necessarily that the platform is down. Check `ecosystem_platforms.health_status` in the hub DB for true platform status.
+- **Hub pinger false-positive:** Marks platforms "online" even when DNS fails or heartbeat is >7 days stale. Bug logged in `docs/active-commitments.md` — fix at hub-vs-connector boundary.
+- **TYT connector self-registration:** Talk Your Talk's connector still announces itself as "LexiBridge (Speech Bridge)" / `lexibridge.net` — overwrites hub row name+URL on every heartbeat. Description and grant_alignment fields survive. Real fix lives in TYT workspace (`artifacts/api-server/...`), not this one.
+- **Talk Your Talk rebrand:** Old name LexiBridge / Speech Bridge → new name **Talk Your Talk** (`talkyourtalk.net`). Verified count: **89 spoken + 18 sign = 107 total** (homepage marketing previously said "107 + 18" conflated). Use **89 / 18 / 107** in all proposals.
 
 ## Pointers
 - **Replit AI Integrations:** Refer to Replit documentation for `javascript_openai_ai_integrations`, `javascript_anthropic_ai_integrations`, `javascript_openrouter_ai_integrations`.

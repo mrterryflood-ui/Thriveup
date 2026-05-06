@@ -73,7 +73,8 @@ We are not naming an abstract need. We are naming what immigrant families in our
 - A tenant gets an eviction notice with a 3-day deadline and does not know that responding the wrong way forfeits the case.
 - A worker gets a wage-theft document and cannot identify Workers Defense Project as the right place to call.
 - A grandmother who speaks Vietnamese watches her grandchild translate a medical consent form she does not understand — and signs anyway.
-- A Deaf resident in a hospital intake room is handed a tablet with no interpreter.
+- A Deaf resident in a hospital intake room is handed a tablet with no interpreter — and there is no Black ASL signer on the platform she was offered, only generic ASL that is not how she signs at home.
+- A DeafBlind resident at a benefits office has no Tactile Sign option in the room at all.
 
 Existing tools fail in three specific ways our partners describe again and again. They flatten dialect, so the reply does not sound like home. They translate the words but not the stakes — Google Translate will render an eviction notice in Spanish, but it will not tell you that BASTA Austin is the number to call. And they have no relationship to Austin: no feedback loop, no accountability, no obligation to the people who use them.
 
@@ -103,7 +104,21 @@ We are seeking $25,000 to fund the **community-facing work** of Talk Your Talk i
 | Evaluation and renewal-funder evidence packet | $1,500 | Configures our evaluation tools to track this pilot, produces simple quarterly reports for the Equity Office, and produces a year-end evidence packet sized to support follow-on funding applications so this work can continue past the grant period. |
 | **Total** | **$25,000** | |
 
-**Why this fits AEI priorities.** The work expands access to essential services in residents' own languages, reduces barriers (cost, English-only forms, child interpreters, intimidation), strengthens belonging through Voices of Austin and the workshops, and contributes to long-term stability by connecting residents to workforce, legal, housing, and health navigation. We are not duplicating City services — we are building the language and trust layer that helps residents reach the services Austin already offers.
+**What the platform actually does (already built, in residents' hands the day funds land).**
+
+Talk Your Talk covers **89 spoken languages and 18 sign languages — 107 total**. The sign-language list intentionally includes **Black ASL as a separate entry** (most platforms erase it by folding it into ASL), **International Sign** for refugee and cross-border use, and **Tactile Sign** for DeafBlind residents — three coverage decisions that matter in Austin and that mainstream tools miss. Spoken-language coverage includes dialect variants residents actually speak at home: 10 English variants (including AAVE, Gullah Geechee, Appalachian, and Spanglish), 8 Spanish variants (Mexican, Dominican, Puerto Rican, Cuban, Colombian, Argentine, Castilian, Central American), 6 Arabic variants, and dialect-aware coverage for French, Portuguese, and Mandarin.
+
+Six everyday surfaces, each accessible from the resident's phone or installed on their home screen as an offline-capable app:
+
+- **Real-time interpretation** with **crisis detection on every utterance** — five severity levels, in-language keyword recall plus AI analysis. When severity rises to *severe* or *critical*, the app surfaces an alert with one-tap dialer access to **911** and **988**. We are explicit with funders: the platform does not auto-dispatch to 988 (their public API does not allow that) and does not yet route to a live human interpreter (next-cycle line item) — what ships is detection, structured outcome data, and immediate dialer access.
+- **Snap & Learn** — point your camera at a document, sign, or label and get a bilingual flashcard in your home dialect.
+- **Spaced-repetition review** — Anki-style SM-2 algorithm so newly learned vocabulary actually sticks.
+- **Match Game** — tap-the-photo learning through play (works for early childhood and adult learners alike).
+- **Live Learning Sessions** — Kahoot-style classroom with a 6-letter join code, designed for partner CBOs to run multilingual workshops.
+- **Belonging Path** — a 12-unit guided journey for residents new to Austin's systems.
+- **Family Circles + Mentor Match** — household-level pairing and 1:1 mentor matching with longer-settled community members.
+
+**Why this fits AEI priorities.** The work expands access to essential services in residents' own languages and dialects, reduces barriers (cost, English-only forms, child interpreters, intimidation), strengthens belonging through Voices of Austin and the workshops, and contributes to long-term stability by connecting residents to workforce, legal, housing, and health navigation. We are not duplicating City services — we are building the language and trust layer that helps residents reach the services Austin already offers.
 
 **Stewardship.** The $25,000 is one-time. By spending it on community labor, printed materials, and partner stipends — not on overhead, salaries above the navigator line, or technology we already maintain — we get a high return per dollar and leave permanent assets behind: 60,000 cards in residents' hands, 12 partner-hosted workshops on the calendar, paid relationships with community translators and disabled testers, and an evidence packet that helps us pursue continuation funding without asking the City to repeat this investment.
 
@@ -162,7 +177,10 @@ The simple counts we will report quarterly to the Equity Office:
 - Mentor pairings activated and still active at 6 and 12 months
 - Workshops held, attendance, childcare provided
 - Know Your Rights cards distributed (inventory tracked)
-- Languages of users actually served (counted from onboarding, not assumed)
+- **Languages and dialects of users actually served** — counted from onboarding across the 89 spoken and 18 sign languages, not assumed
+- **Snap & Learn flashcards generated** and **spaced-repetition review sessions completed** (vocabulary-acquisition outcome data)
+- **Live Learning Sessions hosted** by partner CBOs (with 6-letter join code participation counts)
+- **Crisis-detection events** by severity level and language (queryable from the platform's structured outcome data — supports honest safety reporting to the Equity Office)
 - Accessibility audit completed and findings addressed
 
 Alongside the counts, we report stories. With consent, we share short, anonymized accounts of residents who used the platform at a moment that mattered — a school meeting, a clinic visit, an eviction notice — and what happened. Stories are reviewed by the Community Advisory Circle before publication. We never share details that could identify a vulnerable resident or expose anyone to risk; the safety-first framing the Equity Office names in the playbook is non-negotiable for us.
