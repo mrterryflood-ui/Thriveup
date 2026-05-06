@@ -10,7 +10,7 @@ import {
   Briefcase, BarChart3, DollarSign, CheckCircle2,
   BookOpen, GraduationCap, Building2, Factory, School,
   HandshakeIcon, Quote, Award, TrendingUp,
-  Wrench, ChevronDown, Mail,
+  Wrench, ChevronDown, Mail, Calendar,
   Map, Microscope, Layers,
   Globe, ExternalLink, Brain, Stethoscope, Baby, User,
   Siren, Eye, Pill, MessageSquare, Activity,
@@ -853,6 +853,36 @@ export default function LandingPage() {
       <SuccessStories />
       <EcosystemPlatformsSection />
       <DeepDiveSection />
+
+      <section className="py-12 px-4 sm:py-16 sm:px-6 bg-gradient-to-br from-primary/5 via-background to-primary/10 border-t" data-testid="section-book-appointment">
+        <div className="max-w-3xl mx-auto text-center">
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-primary/10 mb-4">
+            <Calendar className="h-7 w-7 text-primary" />
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-bold mb-3" data-testid="text-book-appointment-heading">
+            Talk with Dr. Flood
+          </h2>
+          <p className="text-base sm:text-lg text-muted-foreground mb-2 max-w-2xl mx-auto" data-testid="text-book-appointment-subheading">
+            Funder, partner, community leader, or organization curious about how this fits your work?
+          </p>
+          <p className="text-sm text-muted-foreground mb-6 max-w-2xl mx-auto">
+            Book a 30-minute conversation directly on Dr. Flood's calendar — no forms, no gatekeepers.
+          </p>
+          <Button
+            size="lg"
+            className="gap-2"
+            onClick={() => window.open('https://calendar.google.com/calendar/appointments/schedules/AcZssZ2O1JcnlDSXEidpWJKtc02RF37MRUytN66JNOkHDRxDParffIH6eSlbRe0DVXUbfpJwGFRp2bFG?gv=true', '_blank', 'noopener,noreferrer')}
+            data-testid="button-book-appointment"
+          >
+            <Calendar className="h-4 w-4" />
+            Book an Appointment
+            <ExternalLink className="h-3.5 w-3.5" />
+          </Button>
+          <p className="text-xs text-muted-foreground/70 mt-4">
+            Opens in Google Calendar · Free · No commitment
+          </p>
+        </div>
+      </section>
 
       <footer className="py-8 px-4 sm:py-10 sm:px-6 border-t bg-card" data-testid="footer-main">
         <div className="max-w-5xl mx-auto">

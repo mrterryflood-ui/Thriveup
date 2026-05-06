@@ -255,3 +255,9 @@ Full reference: `docs/grants/Top-5-Grants-URLs-and-Requirements.md`
 - Add to partner outreach templates?
 - Embed on which website(s)?
 - Personal vs. TCAF-shared calendar (affects public exposure)?
+
+**Status (May 6, 2026):** Embedded on home page (`client/src/pages/landing.tsx`), section `section-book-appointment`, placed between Deep Dive and footer. Button opens calendar in new tab.
+
+**⚠️ Spotted while editing landing.tsx — flag for later (NOT changed):**
+- Footer contact email is `president@thecollaborativeadvocate.org` (line 895). Per current institutional-email rule, public-facing email should be `terryflood@thrivingcommunitiesforall.com`. Decide whether to swap or keep both.
+- Footer brand text reads "The Collaborative Advocate Foundation 501(c)(3)" (line 869). Per honest-disclosure rule, TCAF 501(c)(3) is **pending IRS determination** (Tracking 28101P7B, filed 4/27/2026) — sidebar already says this correctly, but footer reads as if final. Worth aligning.
