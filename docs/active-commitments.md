@@ -346,3 +346,59 @@ TCAF is the only operator addressing all three non-clinical drivers — civic ex
 - Provider cultural-responsiveness coaching, health-literacy adaptation
 - Reported metrics: 4,567 dialect recognitions; 2,345 translations; 890 health-lit adaptations
 - Grant alignment: HRSA LEP, ACL accessibility, St. David's, SSG Fox, WIOA accessibility
+
+---
+## Talk Your Talk (formerly LexiBridge / Speech Bridge) — DEEP READ (May 6, 2026)
+
+**URLs:** talkyourtalk.net (custom, verified) · speech-bridge-mrterryflood.replit.app (repl)
+
+### What changed from the registry
+- **REBRANDED:** LexiBridge → Talk Your Talk · "Your Voice, Understood."
+- **DOMAIN MOVED:** lexibridge.net (DNS dead) → talkyourtalk.net (live, HTTP 200)
+- **MASSIVE EXPANSION:** 5 languages → 107 spoken languages + 18 sign languages
+- **NEW CAPABILITIES:** crisis detection · PWA offline phrase boards · passwordless email auth · accessibility menu in global header
+
+### The thesis (most important part)
+*"Not a chatbot. Not a keyboard. A translation layer between **lived language and institutional language**."*
+This is register-to-register, not language-to-language. That single framing is the strongest grant-narrative hook in our entire stack.
+
+### Verified live (May 6, 2026)
+- Homepage: "Your Voice, Understood." hero · email sign-in gate · install prompt · Accessibility + EN/ES toggle in header
+- PWA manifest: name "Talk Your Talk" · theme #D46A43 (terracotta) · bg #FAF7F2 (cream) · categories ["communication","accessibility","education"]
+- Inner routes (/about, /languages, /crisis, /pricing, etc.) all 404 in the SPA — everything is gated behind email auth
+
+### What I CANNOT verify (need from user for proposal-grade detail)
+- The actual list of 107 spoken languages
+- The actual list of 18 sign languages (ASL? BSL? International Sign? Indigenous SLs?)
+- Crisis detection rules + escalation paths (does it route to 988? to LifeBridge?)
+- Provider workflow UI
+- Live usage metrics (registry numbers are pre-rebrand and unverified)
+
+### Best grant fits (now expanded — sign-language coverage opens new doors)
+- HRSA Language Access Plan (meaningful access, not literal translation)
+- CMS Office of Minority Health (health-literacy + LEP)
+- DOJ LEP Initiative (court interpreter access — sign languages rare here)
+- ED Office of English Language Acquisition (OELA) — ELL family communication
+- ACL — disability + Deaf/HoH access (the 18 sign languages are gold here)
+- FEMA Whole Community — offline phrase boards for disasters
+- VA Equity Action Plan — veteran lived-language access
+- 988 / SAMHSA — crisis-line accessibility (built-in crisis detection is rare)
+- Knight / Mozilla — civic-tech LEP
+
+### REVISED ECOSYSTEM FRAMING — now a QUARTET
+Talk Your Talk is the **horizontal accessibility substrate** under the other three.
+
+| Platform | Layer | Barrier removed |
+|---|---|---|
+| Talk Your Talk | Communication substrate (under all 3) | Can't be understood in your own voice |
+| Civic Signal | Civic intelligence | Can't see/influence government |
+| LifeBridge | Safety-net navigation | Can't navigate services |
+| ThriveUp Academy | Skill building | Can't build new-economy skills |
+
+Pitch line: *"Three service platforms, one accessibility substrate. You can't get civic information you don't understand. You can't navigate a 211 in a language no one offered. You can't learn AI through a screen reader that mispronounces your name. Talk Your Talk runs underneath."*
+
+### Hub DB updated this session
+- Renamed: LexiBridge (Speech Bridge) → Talk Your Talk (formerly LexiBridge)
+- URL: → https://talkyourtalk.net
+- health_status: unknown → online (verified live)
+- Description, capabilities (JSON), and grant_alignment array all rewritten to match current site
