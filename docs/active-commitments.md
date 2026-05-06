@@ -200,3 +200,15 @@ Full reference: `docs/grants/Top-5-Grants-URLs-and-Requirements.md`
 - **Fiscal sponsor (backup if 501(c)(3) status blocks):** Abundant Life Church
 - **City of Austin Vendor Code:** TBD — register at https://financeonline.austintexas.gov
 - **SAM.gov UEI:** TBD — verify status before federal grants (#1, #3, #4, #5 from top-5)
+
+---
+## AEI FY26 Submission — May 7, 2026 update
+
+- **Live deadline confirmed:** Sunday May 10, 2026 11:59 PM CST (portal countdown is source of truth; published "May 8" was extended without page-text update)
+- **Portal:** aei.grantplatform.com (Good Grants platform, NOT Mercury Grants — earlier assumption was wrong)
+- **Logged in:** Terry Flood ✅
+- **Application file:** docs/grants/AEI-FY26-Application-Responses-FINAL.md (paste-ready, all 7 tabs)
+- **Confirmed by user:** No prior City of Austin funding (+15 bonus); apply as TCAF directly (not fiscal sponsor); budget under $500K (small-org preference)
+- **Estimated score:** 106-114 / 115
+- **Vendor registration deadline:** May 15, 2026 — must be ACTIVE not just submitted
+- **Outstanding before submit:** phone numbers + institutional emails for Dr. Flood and Meredith Sisnett (do NOT use personal Gmail)
