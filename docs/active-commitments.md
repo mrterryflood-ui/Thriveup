@@ -157,3 +157,29 @@ Full memo: `docs/grants/Top-5-Grants-To-Pursue-Today.md`. Synthesizes 24-platfor
 - ☐ Call Austin VA Medical Center Homeless Programs office for GPD intro
 
 **Excluded with reasoning** (full list in memo): HUD FYI competitive (no FY26 NOFO), SAMHSA NCTSI III (current grants run to 2028), CDC REACH (mid-cycle), CDMRP family (pre-announcement), MBDA CRP (no 2026 NOFO), RWJF LDEC (closed 3/3), DOL Apprenticeship (closed 4/3), Title IV-A (LEA-only).
+
+---
+
+## URLs & Requirements Pulled — May 7, 2026 (CORRECTION TO TOP-5)
+
+Full reference: `docs/grants/Top-5-Grants-URLs-and-Requirements.md`
+
+**CORRECTION:** VA GPD FY2027 (PDO + Service Center) deadline was **Feb 18, 2026 — already closed**. Removed from active-apply list. Demoted to FY2028 prep track (open VA Medical Center conversation now, Jim Currier as advisor candidate, submit Feb 2027 cycle).
+
+**REPLACEMENT #5: HRSA-26-037 RCORP-Impact** — confirmed OPEN, posted 4/29/2026, deadline **June 1, 2026**, $750K/yr × 4yrs ($3M total), $60M program / ~80 awards. Same CFDA family as RCORP-Planning. Requires multi-sector consortium (≥3 separately-owned partners, ≥50% rural).
+
+**Verified deadlines for the corrected 5:**
+1. HRSA-26-036 RCORP-Planning — **May 29, 2026** (22 days)
+2. St. David's Community Driven Change — May 2026 cycle, LOI dates being finalized
+3. NIH PA-25-302 R03 — **June 16, 2026** (40 days)
+4. NSF SBIR/STTR Project Pitch — rolling, reopening in coming weeks
+5. HRSA-26-037 RCORP-Impact — **June 1, 2026** (25 days)
+
+**Critical infrastructure blocker (one fix unblocks 4 of 5):** SAM.gov / TIN registration must be active and clean. Verify TODAY at https://sam.gov before doing anything else on grants #1, #3, #5 (and #4 via STTR partner).
+
+**Other registrations needed:**
+- Grants.gov organizational registration → unblocks #1, #3, #5
+- eRA Commons (Dr. Flood as PI, TCAF as Signing Official) → unblocks #3
+- NSF Research.gov / SBIR portal (small-business partner registers as prime) → unblocks #4
+
+**NSF STTR pathway clarified:** TCAF as 501(c)(3) cannot lead pure SBIR. Must use STTR with for-profit small-business prime (40%+ work) + TCAF as research partner (30%+ work). Pinnacle Business Conglomerate is candidate prime; or external partner.

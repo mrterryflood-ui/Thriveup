@@ -148,44 +148,40 @@ This is TCAF's largest near-term federal upside. NSF SBIR/STTR funds **hard-tech
 
 ---
 
-## #5 — VA Grant & Per Diem (GPD) FY2027 — Service Center / TIP NOFOs
-**VA Veterans Transitional Housing & Supportive Services**
+## #5 — HRSA-26-037 RCORP-Impact *(corrected — VA GPD FY2027 had already closed Feb 18, 2026)*
+**Rural Communities Opioid Response Program — Impact track**
 
 | Field | Detail |
 |---|---|
-| **Status** | ✅ **OPEN** — Three FY2027 NOFOs announced (TIP, PDO, Service Center). Awards begin Oct 1, 2026 |
-| **Funder** | VA Homeless Programs |
-| **Award** | Per diem reimbursement (PDO) or capital + per diem (TIP); 3-year periods |
-| **Fit Score** | **84/100** |
+| **Status** | ✅ **OPEN** — Posted **April 29, 2026**; Deadline **June 1, 2026** |
+| **Funder** | HRSA / Federal Office of Rural Health Policy |
+| **Award** | Up to **$750K/year × 4 years = $3M total**; ~80 awards / $60M total |
+| **Fit Score** | **88/100** (higher dollars but stricter consortium track-record requirement than #1) |
+| **Companion to #1** | Same program family. RCORP-Planning is the lower-barrier entry; RCORP-Impact is the larger 4-year award. Submit both if rural-anchor track record can be assembled, or Planning only as lead bet. |
+
+**See full URLs and requirements in `docs/grants/Top-5-Grants-URLs-and-Requirements.md`.**
+
+**VA GPD FY2027 demoted:** PDO + Service Center deadline **already passed Feb 18, 2026**. Awards land July–Sept 2026 for grants beginning Oct 1, 2026. Reposition as FY2028 prep — open conversation with Austin VA Medical Center Homeless Programs office now, position Jim Currier as advisor, submit FY2028 cycle (likely Feb 2027). Original platform combination (M2C + LifeBridge youth-homelessness module + Whole-Person MH + PillScheduler + MCE/Pinnacle) carries forward as-is for that cycle.
 
 ### Why this one
-TCAF has *better* veteran service infrastructure than most existing GPD providers — you just don't have the housing facility. The **Service Center NOFO** is the version that does NOT require a residential facility — it funds drop-in centers providing wraparound services to homeless veterans. **That's a clean fit for TCAF's existing model.**
-
-This is also where the **Jim Currier meeting in a few days** becomes strategic leverage: he's an Austin-based national authority on youth-housing policy, and his FYI implementation experience translates directly to GPD program design. He's a candidate Letter of Support source for this submission.
+RCORP-Impact is the natural larger sibling to #1. Same domain, same consortium-building expertise, but $3M over 4 years instead of $100K over 18 months — and the same TCAF platform combination (LifeBridge + Whole-Person MH + PillScheduler + Talk Your Talk + SafeCogniCare + M2C) maps cleanly to all five program goals. Pursuing both means a single consortium-building effort serves two grant submissions.
 
 ### Platform combination
-| Platform | Role |
-|---|---|
-| **M2C (Mission Transition)** | Veteran-specific transition platform = the program backbone |
-| **LifeBridge — Youth Homelessness Program (built and live)** | Repurposable for adult homeless veterans; same warm-handoff infrastructure. Plus a strategic angle: many homeless veterans are former foster youth (40% of foster youth experience homelessness within 4 years of aging out, and disproportionately enlist) — TCAF's youth-homelessness module + M2C = a novel "youth-to-veteran continuity" GPD model. |
-| **Whole-Person Mental Health** | Trauma-informed assessment (PTSD, MST, suicidality) — required for VA scoring |
-| **PillScheduler** | MAT and chronic-condition medication management for veteran population |
-| **MCE / Pinnacle** | Veteran employment pathway via Black-led VOSB ecosystem |
+Identical core stack to #1 (RCORP-Planning), with deeper integration commitments — see #1 above and full requirements in `docs/grants/Top-5-Grants-URLs-and-Requirements.md`.
 
 ### Honest gating
-- Need a Letter of Support from local **VA Medical Center Homeless Programs** office — start that conversation this week.
-- Service Center track avoids the "physical housing facility" blocker that disqualifies TCAF from PDO/TIP. Lead with Service Center.
-- Jim Currier should not be asked for a letter at the first meeting (per established posture). If a second meeting happens within the GPD submission window, the ask becomes natural.
+- **Higher bar than Planning:** RCORP-Impact is for orgs that can demonstrate readiness to deliver direct services in Year 1 — not just plan. Lead consortium member should have prior SUD service track record (TCAF can co-lead; needs a clinical-services partner that does).
+- **Realistic call:** If a strong rural-anchor SUD partner can be assembled, submit BOTH Planning and Impact (same consortium, two applications). If not, Planning-only is the right move and Impact becomes the FY2027 follow-on.
 
 ---
 
 # Cross-cutting moves to start TODAY (regardless of which 5 you prioritize)
 
-1. **Verify SAM.gov TIN status is clean.** This was a flagged blocker for federal submissions in earlier matrices. Without a clean SAM.gov, #1, #3, #4, and #5 cannot submit. Check first.
+1. **Verify SAM.gov TIN status is clean.** Without a clean SAM.gov, #1, #3, #4, and #5 cannot submit. Check first — this is the single biggest blocker. https://sam.gov
 2. **Submit the NSF Project Pitch this week.** It's 2 pages, free, and produces a yes/no in 21 days. No reason not to.
-3. **Bastrop/Caldwell/Lee county outreach for RCORP-Planning consortium.** Need 4+ rural-county partners. Same outreach playbook as AEI but for SUD-serving CBOs.
+3. **Bastrop/Caldwell/Lee county outreach for RCORP consortium.** Need 4+ rural-county partners — serves both #1 and #5. Same outreach playbook as AEI but for SUD-serving CBOs.
 4. **Open the St. David's conversation formally.** "Actively evaluating" is the right honest framing — but the cycle is open, and the relationship is ripe to convert.
-5. **VA Medical Center Homeless Programs office, Austin** — call this week. Request 30-min intro for GPD Service Center positioning.
+5. **Confirm STTR small-business prime for #4** (Pinnacle Business Conglomerate or external partner) — TCAF as 501(c)(3) cannot lead pure SBIR.
 
 ---
 
@@ -200,7 +196,7 @@ This is also where the **Jim Currier meeting in a few days** becomes strategic l
 | **MBDA Capital Readiness** | No 2026 NOFO; last cycle was 2023. |
 | **DOL Apprenticeship Pay-for-Performance** | Closed April 3, 2026. Watch for next round. |
 | **RWJF Local Data for Equitable Communities** | Closed March 3, 2026. |
-| **HRSA RCORP-Impact** | Companion to #1, but Impact requires prior planning work. Pursue Implementation track in 12 months *after* winning Planning. |
+| **VA GPD FY2027 (PDO + Service Center)** | Deadline **Feb 18, 2026 — already passed**. Demoted to FY2028 prep track (open VA Medical Center Homeless Programs conversation now, Jim Currier as advisor candidate, target Feb 2027 cycle). |
 | **Title IV-A / Stronger Connections** | Nonprofit cannot apply directly; requires LEA partnership. Possible via PfISD but is a different motion than a TCAF lead-application. |
 | **AEI FY26 Equity Mini Grant** | Submitting tomorrow — already covered. |
 
