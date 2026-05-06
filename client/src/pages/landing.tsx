@@ -896,7 +896,7 @@ export default function LandingPage() {
                 Empowering youth, veterans, returning citizens, families, and the organizations that champion them — with AI-powered workforce development and community infrastructure built to deploy in any U.S. county. Texas is our first deployment.
               </p>
               <p className="text-xs text-muted-foreground/70" data-testid="text-footer-foundation">
-                The Collaborative Advocate Foundation 501(c)(3)
+                The Collaborative Advocate Foundation · 501(c)(3) status pending IRS determination
               </p>
             </div>
             <div data-testid="footer-column-platform">
@@ -922,8 +922,8 @@ export default function LandingPage() {
               <h4 className="font-semibold text-sm mb-2">Contact</h4>
               <ul className="space-y-1.5">
                 <li>
-                  <a href="mailto:president@thecollaborativeadvocate.org" className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5" data-testid="link-footer-email">
-                    <Mail className="h-3 w-3" /> president@thecollaborativeadvocate.org
+                  <a href="mailto:terryflood@thrivingcommunitiesforall.com" className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5" data-testid="link-footer-email">
+                    <Mail className="h-3 w-3" /> terryflood@thrivingcommunitiesforall.com
                   </a>
                 </li>
                 <li className="text-xs text-muted-foreground/70 mt-2">

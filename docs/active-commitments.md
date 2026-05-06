@@ -261,3 +261,7 @@ Full reference: `docs/grants/Top-5-Grants-URLs-and-Requirements.md`
 **⚠️ Spotted while editing landing.tsx — flag for later (NOT changed):**
 - Footer contact email is `president@thecollaborativeadvocate.org` (line 895). Per current institutional-email rule, public-facing email should be `terryflood@thrivingcommunitiesforall.com`. Decide whether to swap or keep both.
 - Footer brand text reads "The Collaborative Advocate Foundation 501(c)(3)" (line 869). Per honest-disclosure rule, TCAF 501(c)(3) is **pending IRS determination** (Tracking 28101P7B, filed 4/27/2026) — sidebar already says this correctly, but footer reads as if final. Worth aligning.
+
+**Resolved (May 6, 2026):**
+- Footer email swapped: `president@thecollaborativeadvocate.org` → `terryflood@thrivingcommunitiesforall.com`
+- Footer 501(c)(3) line softened to "501(c)(3) status pending IRS determination" (matches sidebar)
