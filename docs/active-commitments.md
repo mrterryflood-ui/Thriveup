@@ -265,3 +265,17 @@ Full reference: `docs/grants/Top-5-Grants-URLs-and-Requirements.md`
 **Resolved (May 6, 2026):**
 - Footer email swapped: `president@thecollaborativeadvocate.org` → `terryflood@thrivingcommunitiesforall.com`
 - Footer 501(c)(3) line softened to "501(c)(3) status pending IRS determination" (matches sidebar)
+
+---
+## Legal Platform — power2thepeople.net (May 6, 2026)
+
+- **Live URL:** https://power2thepeople.net (custom domain, verified)
+- **Replit repl:** civic-signal-pwa.replit.app
+- **Status:** NOT YET registered in `ecosystem_platforms` table — needs to be added once user provides the canonical name + role + domain + capabilities.
+- **Known so far:** Legal-services platform; user said "more robust than ever." Will be covered in a separate session.
+
+**To-do when user is ready:**
+1. Get canonical name (working name = "Power 2 The People" / civic-signal)
+2. Add row to `ecosystem_platforms` with role/domain/description/capabilities/grant_alignment
+3. Add to outbound pinger list
+4. Write the unified grant-narrative trio (LexiBridge + LifeBridge + Power2ThePeople) covering communication access + SDOH navigation + legal services for OJJDP, BJA Second Chance, SAMHSA reentry, HRSA, DOL WIOA grants
