@@ -485,3 +485,52 @@ Honest count = **90 spoken + 18 sign = 108 total**. The "107" claim on the homep
 **Workaround until fixed:** Re-run rename UPDATE if the row reverts again. For proposal-writing purposes, the grant_alignment + description fields persist correctly, so the data we need IS in the hub — only the displayed name/URL revert.
 
 **Related pinger bug (still open from earlier):** Pinger marks platforms "online" when DNS fails / heartbeat is >7 days old. Both bugs live on the same hub-vs-connector boundary and should probably be fixed together.
+
+---
+## Talk Your Talk — HOMEPAGE UPDATE (May 6, 2026, post-update by user)
+
+### Headline count reconciled: 89 spoken + 18 sign = 107 total
+- Previous registry pull: 90 spoken
+- Current site: 89 spoken
+- **Use 89 / 18 / 107 going forward** (matches current public-facing copy, "See all 107 →" chip)
+- One spoken language was apparently consolidated; not material for proposals
+
+### NEW: Talk Your Talk is now a LEARNING platform too
+The homepage just added a "Learning that meets you where you are" section with 6 feature cards. This expands the platform's grant story from accessibility/communication-only to ALSO covering ELL education, family literacy, classroom tech, and AI-tutor pedagogy.
+
+**6 new learning surfaces (each with its own deep-link CTA):**
+| Surface | Route | What it is | Grant angle |
+|---|---|---|---|
+| **Snap & Learn** | /snap-learn | Point your camera → bilingual flashcard | ED OELA, family literacy, ELL apps |
+| **Spaced-Repetition Review** | /snap-learn/review | SM-2 algorithm (Anki-style) | Evidence-based pedagogy — citable in proposals |
+| **Match Game** | /snap-learn/match | Tap-the-photo learning through play | Early childhood, IDEA Part C |
+| **Live Learning Sessions** | /live | Kahoot-style classroom, 6-letter join code | Title III, ESSER, classroom tech grants |
+| **Belonging Path** | /learn | 12-unit guided journey | Workforce readiness, citizenship prep, refugee resettlement |
+| **Family Circles & Mentor Match** | /family /mentor | Family literacy + 1:1 mentoring | ED family literacy, AmeriCorps, IMLS |
+
+**Plus:** "Ask Lexi — your patient AI guide" CTA strip → /chat (accessible AI tutor)
+
+### Updated hero copy (verbatim, May 6 2026)
+> "A dialect-aware, multilingual communication bridge across **89 spoken and 18 sign languages** — with real-time interpretation, crisis detection, **snap-a-photo vocabulary learning, live classroom games**, and deep respect for every voice."
+
+### Updated "Our Why" pull-quote (verbatim)
+> "89 spoken languages. 18 sign languages. Crisis detection that works in all of them. Learning games that make new vocabulary stick."
+
+### Expanded grant fit list (added with the learning surface)
+- **ED Office of English Language Acquisition (OELA)** — strengthened: now has actual learning product
+- **ED Title III** — supplemental services to ELLs (camera flashcards, family circles)
+- **ED ESSER / classroom tech** — Live Learning Sessions = Kahoot-style for multilingual classrooms
+- **IDEA Part B & Part C** — sign-language coverage + Match Game for early childhood
+- **ED Family Literacy / Even Start** — Family Circles + Snap & Learn
+- **AmeriCorps / National Service** — Mentor Match
+- **IMLS (Institute of Museum and Library Services)** — library-based ELL programming
+- **NSF STEM ed (multilingual)** — pedagogy + spaced repetition
+
+### Revised quartet positioning (updated)
+Talk Your Talk is no longer "just" the horizontal accessibility substrate. It's now **substrate + learning loop**:
+- LifeBridge gets you to the resource
+- Civic Signal gets you civic agency
+- ThriveUp Academy builds workforce skills
+- **Talk Your Talk lets you be understood AND helps you learn the new language/vocabulary you need to navigate any of the above** — in your dialect, with your family, at your pace, with crisis safety always one tap away.
+
+That dual-role framing (interpretation + learning) is unusually strong. Most grant programs fund one OR the other; you can pitch into both buckets with the same platform.
