@@ -279,3 +279,45 @@ Full reference: `docs/grants/Top-5-Grants-URLs-and-Requirements.md`
 2. Add row to `ecosystem_platforms` with role/domain/description/capabilities/grant_alignment
 3. Add to outbound pinger list
 4. Write the unified grant-narrative trio (LexiBridge + LifeBridge + Power2ThePeople) covering communication access + SDOH navigation + legal services for OJJDP, BJA Second Chance, SAMHSA reentry, HRSA, DOL WIOA grants
+
+---
+## Three-Platform Deep Read (May 6, 2026)
+
+### Civic Signal — power2thepeople.net
+- Civic intelligence terminal. NOT legal aid. Apolitical, primary-source only.
+- 18 routes: Dashboard, Feed, Bills, Courts, Regulations, Reps, Vote, Prepare, Dormant Laws, Repealed, Policy Stories, Ask AI, Search
+- Live Civic Feed (verified counts today): 1,448 court items · 880 ordinances · 360 meetings · 74 repeals · 69 bills · 41 regs · 32 CBO estimates
+- Prepare = 10-step "affairs in order" wizard (caringinfo.org + ready.gov sources, explicit "not legal advice" disclaimer)
+- 60-second onboarding: register-to-vote, prepare-wizard, ask-AI
+- Robots.txt blocks GPTBot + ChatGPT-User (responsible AI stance)
+- Best grant fits: Knight Foundation (civic info), Democracy Fund, NSF Civic Innovation, FEMA Whole Community, NIJ/BJS court transparency, Mozilla/Ford public-interest tech
+
+### LifeBridge — lifetransitionsaid.org
+- Virtual CHW with named AI persona "Julia" + 24/7 crisis-line banner (988, DV, NAMI, SAMHSA, Crisis Text, 211)
+- Resource Locator: 2,935 indexed resources (verified today), filterable by ZIP/state/area-type/faith/charity/needs/category
+- 5 service lines (CRITICAL — not just 211):
+  1. I Need Help Now — Find Resources, Talk to Julia, Crisis Help
+  2. **Foster Youth Aging Out** — Toolkit, Transition Plan, Wellbeing Check-in, My Rights, State Benefits  ← MAJOR SPECIALTY
+  3. Caregivers & Families — New Guardians & Foster Parents, **Family Reunification**, Partners (Foster Care)
+  4. Wellness & Healing — SSB Hub, Healing & Education, Self-Assessment, Safety Plan
+  5. Local & Community — Austin Housing, MAP-GAP, Community Explorer, Library Search
+- Bilingual EN/ES
+- **REFRAME for grants:** This is a Chafee Foster Care Independence Program tool, not just a 211. Major HHS/ACF grant angle.
+- Best grant fits: HHS/ACF Chafee, HRSA CHW training, SAMHSA crisis services, HUD CoC, USDA SNAP-Ed, DOJ OVW, St. David's (Foster Youth angle), SSG Fox
+
+### ThriveUp Academy — thrivingcommunitiesforall.com
+- Schema.org markup declares EducationalOrganization with **5-course AI Mastery Curriculum** mapped K-12: AI Explorer (3-5), Guide (3-5), Architect (6-8), Innovator (9-10), Master (11-12) — TEKS-alignable
+- Marcus persona is the strongest reentry narrative across all our materials: foster youth → incarcerated → reentering, "Borders aren't real, but laws and policies are"
+- 10 service domains in sidebar; Texas as St. David's pilot deployment (national framing)
+- Footer 501(c)(3) wording correctly reads "status pending IRS determination" (just fixed)
+- Robots.txt blocks GPTBot + ChatGPT-User (matches Civic Signal stance)
+- Best grant fits: AEI (in flight), WIOA Title I Youth & Adult, OJJDP/BJA Second Chance (Marcus narrative), DOE i3/EIR (AI K-12 curriculum), NSF ITEST / CS for All, Knight/Lumina/Strada, St. David's (active evaluation)
+
+### THE TRIO NARRATIVE (use in federal proposals where integrated service delivery is scored)
+| Platform | Barrier removed | Who feels it most |
+|---|---|---|
+| Civic Signal | Can't see/understand/influence government | Returning citizens, low-income, rural, LEP |
+| LifeBridge | Can't navigate the safety net | Foster youth aging out, families in crisis, vets in non-combat life events |
+| ThriveUp Academy | Can't build skills for the new economy | Under-resourced learners of all ages |
+
+TCAF is the only operator addressing all three non-clinical drivers — civic exclusion, navigation failure, skills gap — with one shared identity, one data layer, one outcome metric set.
