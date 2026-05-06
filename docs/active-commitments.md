@@ -212,3 +212,25 @@ Full reference: `docs/grants/Top-5-Grants-URLs-and-Requirements.md`
 - **Estimated score:** 106-114 / 115
 - **Vendor registration deadline:** May 15, 2026 — must be ACTIVE not just submitted
 - **Outstanding before submit:** phone numbers + institutional emails for Dr. Flood and Meredith Sisnett (do NOT use personal Gmail)
+
+---
+## 🚨 PERMANENT RULE — Meredith Sisnett & City of Austin
+
+**Meredith Sisnett is a City of Austin employee.** She is therefore ineligible to be listed on ANY City of Austin grant, proposal, contract, or related material — including AEI Equity Mini Grants, Cultural Arts, APH, EDD, Public Health, AHFC, or any other City-funded opportunity.
+
+**She may serve as an external consultant on NON-City projects only** (federal, state, foundation, private).
+
+**Hard rule for all future sessions:**
+- ❌ DO NOT list Meredith on any City of Austin application as staff, contact, co-lead, board member, or partner
+- ❌ DO NOT include Meredith CV/bio/letters of support in any City of Austin submission packet
+- ✅ Always confirm "is this a City of Austin opportunity?" before adding Meredith to any document
+- ✅ When unsure, leave Meredith out and ask user
+
+**AEI FY26 application updates made May 7, 2026:**
+- Removed Meredith from AEI-FY26-Application-Responses-FINAL.md (field 2.10 now blank)
+- Removed Meredith from AEI-FY26-Equity-Mini-Grant-Narrative.md Section 8 (org capacity)
+- terryflood@thrivingcommunitiesforall.com is the ONLY listed institutional email on AEI application
+
+**Confirmed institutional emails:**
+- terryflood@thrivingcommunitiesforall.com (Dr. Flood — primary on all proposals)
+- msisnett@thrivingcommunitiesforall.com (Meredith — for NON-City work only)

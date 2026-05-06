@@ -42,14 +42,16 @@
 | 2.6 Annual Operating Budget | Under $500,000 |
 | 2.7 501(c)(3)? | **No — applying as an organizational vendor.** TCAF's 501(c)(3) application is filed and pending IRS determination (IRS Tracking 281OIP7B, filed April 27, 2026; EIN 41-3618003). |
 | 2.8 Fiscal Sponsor (optional) | Not applicable — TCAF is contracting directly as a City vendor. (Backup fiscal sponsor available if needed: Abundant Life Church.) |
-| 2.9 Primary Contact | Dr. Terry Flood, DHA — President, TCAF — [phone] — [institutional email] |
-| 2.10 Secondary Contact (optional) | Meredith Sisnett — Co-Lead, TCAF — [phone] — [institutional email] |
-| 2.11 Org General Email Intake (optional) | [institutional intake email] |
+| 2.9 Primary Contact | Dr. Terry Flood, DHA — President, TCAF — [phone] — **terryflood@thrivingcommunitiesforall.com** |
+| 2.10 Secondary Contact (optional) | **Leave blank** — TCAF will name a secondary contact only after onboarding if City staff requires one. (See note below.) |
+| 2.11 Org General Email Intake (optional) | **info@thrivingcommunitiesforall.com** (or terryflood@ if not yet set up) |
 | 2.12 Council District(s) primarily served | **District 1, District 3, District 4, District 7, Travis County, ETJ** (Eastern Crescent priority ZIPs: 78702, 78721, 78723, 78724, 78744, 78753, 78758) |
 | 2.13 Prior Equity Mini Grant award? | **No** |
 | 2.14 How did you hear about this opportunity? | Through the City of Austin Equity & Inclusion website (austintexas.gov/equity-inclusion/grant-programs) and direct outreach with the Equity Office team. |
 
-> **⚠️ Fill in your phone numbers and institutional email addresses before submitting.** Do not use personal Gmail.
+> **⚠️ Fill in your phone number for primary contact before submitting.** Use only `terryflood@thrivingcommunitiesforall.com` — do not use personal Gmail.
+>
+> **🚨 CONFLICT OF INTEREST RULE — DO NOT LIST MEREDITH SISNETT ON THIS APPLICATION OR ANY CITY OF AUSTIN MATERIAL.** Meredith is a City of Austin employee and is therefore ineligible to appear as staff, contact, board member, or co-lead on any City of Austin grant or proposal. She may serve as an external consultant on non-City projects only. Leave field 2.10 blank or list a non-Meredith secondary contact only.
 
 ---
 
@@ -204,8 +206,10 @@ Recommended attachments (only if portal allows):
 
 ## Pre-submission checklist
 
-- [ ] Phone numbers filled in for primary + secondary contact (Tab 3)
-- [ ] Institutional email addresses filled in (NOT personal Gmail) (Tab 3)
+- [ ] Phone number filled in for primary contact (Tab 3, field 2.9)
+- [ ] Primary email = `terryflood@thrivingcommunitiesforall.com` (Tab 3, field 2.9) — NOT personal Gmail
+- [ ] Secondary contact (2.10) **left blank** — Meredith Sisnett is a City of Austin employee and CANNOT appear on any City application
+- [ ] Confirm no Meredith reference anywhere in submission packet (attachments, letters, narrative)
 - [ ] Vendor registration confirmed active by May 15, 2026
 - [ ] All 4 scored answers reviewed for typos
 - [ ] Click **Submit** before Sunday May 10, 11:59 PM CST

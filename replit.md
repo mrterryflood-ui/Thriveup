@@ -60,7 +60,8 @@ An AI-powered national community infrastructure platform that connects individua
 
 ## Gotchas
 - **"CEO" vs. "President":** Always use "President" for Dr. Flood in public-facing copy; "CEO" is reserved for for-profit contexts.
-- **Personal Emails:** Never use personal Gmail addresses in public copy; always institutional.
+- **Personal Emails:** Never use personal Gmail addresses in public copy or grant proposals; always institutional. Confirmed institutional emails: `terryflood@thrivingcommunitiesforall.com` (Dr. Flood, all proposals), `msisnett@thrivingcommunitiesforall.com` (Meredith, non-City work only).
+- **🚨 Meredith Sisnett & City of Austin:** Meredith is a City of Austin employee. NEVER list her on any City of Austin grant/proposal/contract (AEI, Cultural Arts, APH, EDD, Public Health, AHFC, etc.) as staff, contact, co-lead, board, or partner. She may consult on non-City (federal/state/foundation/private) work only. When in doubt, leave her out and ask user.
 - **St. David's Foundation Status:** Always "actively evaluating," never "awarded."
 - **Funder Names on Public Pages:** Avoid mentioning specific funders on public program pages; describe the program category instead.
 - **FIPS Codes:** Do not expose "FIPS" labels directly to users; use "State Census Code" / "County Census Code".
