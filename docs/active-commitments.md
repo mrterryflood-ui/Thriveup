@@ -402,3 +402,86 @@ Pitch line: *"Three service platforms, one accessibility substrate. You can't ge
 - URL: → https://talkyourtalk.net
 - health_status: unknown → online (verified live)
 - Description, capabilities (JSON), and grant_alignment array all rewritten to match current site
+
+---
+## Talk Your Talk — VERIFIED LANGUAGE LISTS + CRISIS PATH (May 6, 2026)
+
+**Source:** User pulled directly from `artifacts/api-server/src/lib/languageRegistry.ts` and `interpret.ts:626-633`.
+
+### Headline correction
+Honest count = **90 spoken + 18 sign = 108 total**. The "107" claim on the homepage marketing conflated spoken+sign; in the codebase it's 90 + 18. Use **108** in proposals or break it out as "90 spoken / 18 signed."
+
+### 90 spoken languages (with ★ = explicit dialect variants modeled)
+- **Western Europe (10):** English ★ (10 variants incl. Standard American, AAVE, Gullah Geechee, Appalachian, Spanglish, Caribbean, Haitian-Creole-influenced, Southern US, British, Australian) · Spanish ★ (8: Mexican, Dominican, Puerto Rican, Cuban, Colombian, Argentine, Castilian, Central American) · Portuguese ★ (Brazilian, European, African) · French ★ (Metropolitan, Canadian, African, Caribbean, Haitian Creole) · German · Italian · Dutch · Greek · Romanian · Hungarian
+- **Eastern Europe & Baltics (12):** Russian, Polish, Ukrainian, Czech, Slovak, Bulgarian, Croatian, Serbian, Slovenian, Lithuanian, Latvian, Estonian
+- **Nordic (4):** Swedish, Danish, Norwegian, Finnish
+- **MENA (4):** Arabic ★ (Modern Standard, Egyptian, Levantine, Gulf, Maghrebi, Iraqi) · Hebrew · Persian/Farsi · Turkish
+- **South Asia (12):** Hindi, Bengali, Punjabi, Urdu, Telugu, Marathi, Tamil, Gujarati, Kannada, Malayalam, Odia, Nepali, Sinhala
+- **East / SE Asia (12):** Mandarin ★ (Simplified, Traditional, Taiwanese), Cantonese, Japanese, Korean, Vietnamese, Thai, Burmese, Khmer, Lao, Indonesian, Malay, Filipino/Tagalog
+- **Central Asia & Caucasus (6):** Georgian, Armenian, Azerbaijani, Uzbek, Kazakh, Mongolian
+- **Sub-Saharan Africa (13):** Swahili, Yoruba, Igbo, Hausa, Amharic, Tigrinya, Somali, Kinyarwanda, Zulu, Xhosa, Shona, Chichewa, Wolof, Fulfulde, Lingala, Sesotho, Afrikaans, Malagasy
+- **Pacific & Indigenous:** Māori, Samoan, Tongan, Hawaiian, Cebuano, Javanese, Sundanese, Pashto, Haitian Creole
+
+### 18 sign languages (proposal-ready table)
+1. ASL — North America
+2. **Black ASL** — US (distinct entry; major equity differentiator — most platforms erase it)
+3. BSL — UK
+4. LSF — France
+5. DGS — Germany
+6. JSL (日本手話) — Japan
+7. CSL (中国手语) — China
+8. KSL (한국 수어) — South Korea
+9. **International Sign (IS)** — Global (refugee / cross-border use)
+10. LSM — Mexico
+11. Auslan — Australia
+12. Libras — Brazil
+13. ISL — India
+14. NZSL — New Zealand
+15. SASL — South Africa
+16. RSL (РЖЯ) — Russia
+17. TİD — Turkey
+18. **Tactile Sign** — Global (DeafBlind users)
+
+**Reviewer-relevant differentiators:** Black ASL as separate entry · International Sign for refugees · Tactile Sign for DeafBlind · 4 SLs from non-English-speaking countries (LSM, LSF, Libras, NZSL).
+
+### Crisis-detection escalation — HONEST version (use this exact framing in proposals)
+**What ships today:**
+- GPT-5.2 runs in parallel with every translation request (`/api/interpret/sessions/:id/speak` → interpret.ts:626-633) using a `CRISIS_DETECTION_PROMPT`
+- Returns one of 5 severity levels: `none / mild / moderate / severe / critical` + `indicators[]` + `recommendedAction`
+- Pre-seeded in-language crisis keywords boost recall (e.g. "救命", "ayuda", "no puedo respirar", "ਮਦਦ", and signed equivalents like "HELP", "CANT-BREATHE")
+- **Persisted outcome data:** `crisisLevel` and `crisisIndicators` written per message; `crisisDetected=true` flipped on the parent session — **queryable for grant reporting** (count of crisis sessions by language × severity)
+- `severe` and `critical` → in-app `crisisAlert` banner with indicators + recommended action
+- **/interpreter/crisis** page: two always-visible large tap targets — `tel:911` (red) and `tel:988` (blue) — opens native dialer
+
+**What does NOT ship (do not claim in proposals):**
+- ❌ No automated dispatch to 988 (their public API does not permit third-party dispatch)
+- ❌ No live human interpreter handoff (next grant cycle line item)
+- ❌ No automatic routing to LifeBridge / ecosystem partners (pub/sub bus exposes the integration point but routing logic is queued)
+
+**Proposal language (verbatim, approved by user):**
+> "Crisis detection runs on every utterance in 108 languages, classifies severity into 5 levels, persists structured outcome data to the database, and presents one-tap dialer access to 911 and 988. Grant funds will extend this with (a) automated warm-handoff to ecosystem-partner human interpreters via the ThriveUp pub/sub bus, and (b) opt-in 988 chat-API integration once available."
+
+### Outstanding (deferred — not blocking)
+- Post-login screenshots of /interpreter, /interpreter/live, /interpreter/sign-language, /interpreter/crisis
+  - Option A: User offered to run dev test harness via `MAGIC_LINK_DEV_BACKDOOR=1` to auto-login and snap 4 screenshots
+  - Option B: User logs in on deployed app and takes them in 60 seconds
+  - Awaiting user choice
+
+---
+## Hub re-seed bug — Talk Your Talk row keeps reverting (May 6, 2026)
+
+**Symptom:** I renamed the row `speech-bridge` from "LexiBridge (Speech Bridge)" → "Talk Your Talk (formerly LexiBridge)" with URL `talkyourtalk.net`. After the next workflow restart, the row reverted to the old name and `lexibridge.net` URL. Description and grant_alignment changes survived; name and URL did not.
+
+**Root cause:** No code in THIS workspace references `speech-bridge`, `LexiBridge`, or `lexibridge.net` (verified via ripgrep). The reverting writes are coming from **Talk Your Talk's own ecosystem connector** (the `artifacts/api-server/src/lib/...` codebase the user pulled the language registry from). When TYT pings back to the hub, it self-registers with its old metadata and overwrites this row.
+
+**Real fix (must be done on Talk Your Talk side, not here):**
+1. In the TYT codebase, update the ecosystem-connector registration payload:
+   - `id`: keep as `speech-bridge` (or migrate to `talk-your-talk` — see migration risk below)
+   - `name`: → "Talk Your Talk"
+   - `url`: → `https://talkyourtalk.net`
+   - `displayName`, marketing tagline, capabilities array → match current site
+2. Migration risk if changing `id`: any hub records keyed by `speech-bridge` (heartbeats, integration logs, crisis-routing subscriptions) would need a backfill. Recommend keeping `id=speech-bridge` and only changing the human-facing fields.
+
+**Workaround until fixed:** Re-run rename UPDATE if the row reverts again. For proposal-writing purposes, the grant_alignment + description fields persist correctly, so the data we need IS in the hub — only the displayed name/URL revert.
+
+**Related pinger bug (still open from earlier):** Pinger marks platforms "online" when DNS fails / heartbeat is >7 days old. Both bugs live on the same hub-vs-connector boundary and should probably be fixed together.
