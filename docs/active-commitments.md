@@ -183,3 +183,20 @@ Full reference: `docs/grants/Top-5-Grants-URLs-and-Requirements.md`
 - NSF Research.gov / SBIR portal (small-business partner registers as prime) → unblocks #4
 
 **NSF STTR pathway clarified:** TCAF as 501(c)(3) cannot lead pure SBIR. Must use STTR with for-profit small-business prime (40%+ work) + TCAF as research partner (30%+ work). Pinnacle Business Conglomerate is candidate prime; or external partner.
+
+---
+
+## Lesson — May 7, 2026 (mid-AEI submission)
+**Don't ask the user for facts already in memory during live submissions.** When user is filling out a vendor portal / W-9 / SF-424 in real time, pull every field from this file and `AEI-FY26-Equity-Mini-Grant-Narrative.md` and present a complete, fillable answer — not a template with blanks.
+
+**TCAF Submission-Ready Quick Reference (use for ALL future grant fields):**
+- **Legal name:** The Collaborative Advocate Foundation
+- **DBA:** TCAF
+- **EIN:** 41-3618003
+- **501(c)(3):** Pending — IRS Tracking 281OIP7B, filed 4/27/2026
+- **Address:** 17912 Stefano Drive, Pflugerville, TX 78660 (Travis County)
+- **President / Signer:** Dr. Terry Flood, DHA
+- **Federal tax classification on W-9:** "Other" → "Nonprofit corporation — 501(c)(3) determination pending (IRS Tracking 281OIP7B)"
+- **Fiscal sponsor (backup if 501(c)(3) status blocks):** Abundant Life Church
+- **City of Austin Vendor Code:** TBD — register at https://financeonline.austintexas.gov
+- **SAM.gov UEI:** TBD — verify status before federal grants (#1, #3, #4, #5 from top-5)
