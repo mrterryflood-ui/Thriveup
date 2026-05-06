@@ -321,3 +321,28 @@ Full reference: `docs/grants/Top-5-Grants-URLs-and-Requirements.md`
 | ThriveUp Academy | Can't build skills for the new economy | Under-resourced learners of all ages |
 
 TCAF is the only operator addressing all three non-clinical drivers — civic exclusion, navigation failure, skills gap — with one shared identity, one data layer, one outcome metric set.
+
+---
+## LexiBridge Evaluation Attempt — BLOCKED (May 6, 2026)
+
+**Status:** Could not evaluate live. `lexibridge.net` does not resolve in public DNS ("Could not resolve host"). Tested both apex and www, http and https — all HTTP 000.
+
+**Hub data inconsistency found:**
+- `ecosystem_platforms.health_status` was reading "online" but `last_heartbeat = 2026-03-22` (6+ weeks stale)
+- This is the false-positive case from our gotcha: pinger marks "online" even when DNS fails
+- **Action taken:** Set `health_status = 'unknown'` and appended scan note to description
+- **Bug to fix later:** Pinger should not mark a platform "online" when DNS resolution fails or heartbeat is >7 days old
+
+**No alternate URL found in workspace:** No code references to a Replit-hosted fallback URL for LexiBridge.
+
+**Awaiting from user (any one):**
+- Correct public domain (lexibridge.com / .org / .ai / speechbridge.net / etc.)
+- Replit deployment URL (e.g. lexibridge--mrterryflood.replit.app)
+- Screenshot of live home page
+
+**Pre-evaluation registry summary (NOT VERIFIED against live build):**
+- Dialect-aware comms platform: AAVE, Spanglish, Cajun, Appalachian + 12 dialects
+- Multi-language: EN/ES/Vietnamese/Mandarin/Arabic
+- Provider cultural-responsiveness coaching, health-literacy adaptation
+- Reported metrics: 4,567 dialect recognitions; 2,345 translations; 890 health-lit adaptations
+- Grant alignment: HRSA LEP, ACL accessibility, St. David's, SSG Fox, WIOA accessibility
