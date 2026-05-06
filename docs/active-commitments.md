@@ -79,3 +79,56 @@ Full brief at `docs/grants/AEI-Funder-Intelligence.md`. Key adopted findings:
 ## Lesson committed to playbook
 
 `docs/grants/STRATEGIC-INTELLIGENCE-PLAYBOOK.md` lessons #18, #19, #20 added: AEI coalition-bonus rule, Tabbara-discipline-mandatory-for-all-grants rule, City of Austin 501(c)(3)-not-required rule.
+
+---
+
+## AEI Outreach Outcomes — May 7, 2026
+
+**El Buen Samaritano (Georgia Hernandez):** Polite decline on letter of support. **Important: El Buen is also submitting under this same FY26 procurement** — direct competitor this cycle. Door open for future collaboration if TCAF is funded or pursues future opportunities. Narrative §6 updated for transparent disclosure (El Buen moved off ⭐ priority and into honest "also submitting under this procurement" note); ⭐ markers removed from list (no formal lead partner confirmed yet).
+
+**Lesson:** Listing a direct competitor as ⭐ priority partner in a competitive grant would have been an integrity risk. AEI reviewers may cross-reference applicant-listed partners against other submissions in the same cycle. **Going forward: confirm partner is NOT submitting separately before claiming them as anchor partner.**
+
+**Other 4 outreach contacts (Foundation Communities, AVANCE, Literacy Austin, Multicultural Refugee Coalition):** No response yet at time of submission. Coalition list of 10 stands on its own merit (named-intent commitment, not claimed signed partners).
+
+---
+
+## Jim Currier, MSW — meeting in a few days (May 8–10 window)
+
+**Source:** LinkedIn 1st-degree connection (new), Austin TX-based.
+
+**Role:**
+- Director of Youth Housing & Employment
+- National Foster Youth to Independence (FYI) Program Implementation Leader
+- Child Welfare Housing Policy Expert
+- Youth Homelessness Prevention Advocate
+
+**Background:** Systems-focused leader, 25+ years at the intersection of child welfare and housing. Centered on preventing homelessness for youth transitioning out of foster care.
+
+**Why this matters strategically for TCAF:**
+1. **National FYI Program** = HUD's Foster Youth to Independence voucher program — federal housing assistance for youth aging out of foster care, administered through Public Housing Authorities. Jim leads national implementation = direct line to HUD/HHS/Children's Bureau funding flows.
+2. **Austin-based 1st-degree connection** in a niche we already serve (LifeBridge, ISSS, Whole-Person Mental Health, ThriveUp Academy financial literacy, FAFSA navigator) but have no senior advisor in.
+3. **Letter-of-support / advisor candidate** for HHS/HRSA, HUD, Children's Bureau, and SAMHSA grants where youth transition is in scope.
+
+**TCAF surface area that aligns with Jim's work:**
+
+| TCAF asset | Direct alignment with Jim's domain |
+|---|---|
+| **LifeBridge** | Resource navigator + CHW dispatch — exactly the warm-handoff infrastructure foster youth lack at age-out |
+| **Whole-Person Mental Health Ecosystem** | Trauma-informed, multilingual; foster-experienced youth carry disproportionate trauma load |
+| **ISSS (K-12 multi-tiered supports)** | Many foster youth need IEP/504 advocacy; ISSS infrastructure already deployed in districts |
+| **Perfectly Different** | Neurodiversity / IEP-504 navigation — overrepresented in foster population |
+| **ThriveUp Academy** | Financial literacy + workforce readiness — exactly what FYI youth need |
+| **FAFSA navigator + apprenticeship tracker** | Foster youth have specific FAFSA pathways (independent student status, ETV); we already build this |
+| **Talk Your Talk** | Multilingual support for youth in mixed-status families and refugee youth in foster care |
+
+**Suggested meeting posture (per user's "short, plain English" preference):**
+- Listen first — let Jim describe what's broken in FYI implementation
+- Show, don't tell — pull up LifeBridge live, walk the resource navigator + CHW dispatch
+- Ask one specific ask, not five — best ask = "Would you be willing to advise TCAF on how our infrastructure could plug into FYI implementation, and where the federal funding pathways are we should be tracking?"
+- Defer the letter-of-support ask to a second meeting, if at all — first meeting builds the relationship
+
+**Federal grants where Jim becomes a strategic asset:**
+- HUD FYI program / Continuum of Care
+- HHS Children's Bureau (Chafee Foster Care Independence)
+- SAMHSA youth-serving programs
+- NSF SBIR/STTR (next on TCAF queue) — youth tech as a vertical

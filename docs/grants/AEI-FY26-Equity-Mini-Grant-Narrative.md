@@ -122,21 +122,21 @@ The pilot does not segment service delivery by subpopulation; the platform meets
 
 **Reach methodology:** Organic recruitment via partner CBOs and AISD/Manor ISD/PfISD parent communications channels (TCAF holds existing community-engagement relationships with Pflugerville ISD).
 
-**Targeted partner CBOs — TCAF will work with the following Austin immigrant-serving organizations.** The Equity Office program guidance is explicit: *"If a project is working to build coalitions in partnership with other organizations addressing the same issue, it would be an even stronger candidate for a mini grant award."* TCAF responds with a named, intentional coalition. Outreach is active and TCAF is committed to onboarding 4–6 of these as embedded warm-handoff partners during Year 1. Outreach for the highest-priority partners (⭐) is initiated through warm referrals from established Austin community connectors:
+**Targeted partner CBOs — TCAF will work with the following Austin immigrant-serving organizations.** The Equity Office program guidance is explicit: *"If a project is working to build coalitions in partnership with other organizations addressing the same issue, it would be an even stronger candidate for a mini grant award."* TCAF responds with a named, intentional coalition that TCAF intends to engage during Year 1 implementation:
 
-1. ⭐ **El Buen Samaritano** — ESL, health education, digital literacy, family services; deep Latino-community trust
-2. **Multicultural Refugee Coalition** — refugee resettlement
-3. **Foundation Communities** — ESL + childcare + housing + financial wraparound
-4. **Casa Marianella** — refugee shelter and legal navigation
-5. **AVANCE-Austin** — two-generation model serving Latino parents and children
-6. **Catholic Charities of Central Texas** — refugee resettlement
-7. **Literacy Austin** — adult literacy and ESL for lowest-income residents
-8. **Refugee Services of Texas** — Austin office, refugee resettlement
-9. **Workers Defense Project** — immigrant worker rights and wage theft
-10. **RAICES** — immigration legal services
-11. **Sixth Square** — community-based partner (warm intro in process)
+1. **Multicultural Refugee Coalition** — refugee resettlement and post-resettlement services
+2. **Foundation Communities** — ESL + childcare + housing + financial wraparound
+3. **Casa Marianella** — refugee shelter and legal navigation
+4. **AVANCE-Austin** — two-generation model serving Latino parents and children
+5. **Catholic Charities of Central Texas** — refugee resettlement
+6. **Literacy Austin** — adult literacy and ESL for lowest-income residents
+7. **Refugee Services of Texas** — Austin office, refugee resettlement
+8. **Workers Defense Project** — immigrant worker rights and wage theft
+9. **RAICES** — immigration legal services
+10. **Sixth Square** — community-based partner (warm intro in process)
+11. **El Buen Samaritano** — ESL, health education, digital literacy, family services. *Disclosed for transparency:* El Buen has informed TCAF that it is also submitting under this same FY26 procurement; we have noted areas of mutual interest for collaboration in future cycles regardless of award outcome.
 
-Letters of support from confirming partners are attached separately to the submission packet. The pilot's design does not require all 11 — only 4–6 — but TCAF maintains durable relationships with all targeted partners as part of the broader Austin community-infrastructure strategy.
+The pilot's design does not require all 11 — only 4–6 active warm-handoff partners during Year 1 — but TCAF maintains durable relationships with every organization listed and will continue building coalition capacity across the broader Austin immigrant-serving ecosystem regardless of which partners formalize during this cycle. Letters of support from confirming partners are attached separately to the submission packet.
 
 ---
 
