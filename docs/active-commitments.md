@@ -135,3 +135,25 @@ Full brief at `docs/grants/AEI-Funder-Intelligence.md`. Key adopted findings:
 - HHS Children's Bureau (Chafee Foster Care Independence)
 - SAMHSA youth-serving programs
 - NSF SBIR/STTR (next on TCAF queue) — youth tech as a vertical
+
+---
+
+## Top-5 Grants Memo Generated — May 7, 2026
+
+Full memo: `docs/grants/Top-5-Grants-To-Pursue-Today.md`. Synthesizes 24-platform ecosystem against currently-open NOFOs.
+
+**The 5 (priority order):**
+1. **HRSA RCORP-Planning (HRSA-26-036)** — posted 4/29/2026, OPEN. Combines LifeBridge + Whole-Person MH + PillScheduler + Talk Your Talk + SafeCogniCare + M2C. Need rural multi-county consortium (Bastrop/Caldwell/Lee).
+2. **St. David's Foundation Community Driven Change** — open cycle, $100M+/yr funder, Travis County. Sankofa BirthRight + TheHealthyBlkMan + Whole-Person MH + LifeBridge + Perfectly Different. Convert "actively evaluating" → first formal LOI.
+3. **NIH R03 PA-25-302** — June 16 deadline (40 days). Pair with NIMHD/NIMH NOSI on multilingual behavioral health screening. Whole-Person MH + Talk Your Talk + LifeBridge.
+4. **NSF SBIR/STTR Phase I — Project Pitch** — reopening imminently. Submit pitch this week (2 pages, 21-day decision). Must use STTR pathway (TCAF is 501c3). LifeBridge + Talk Your Talk + Whole-Person MH + ISSS + Code Canvas as the AI synthesis story.
+5. **VA GPD FY2027 — Service Center NOFO** — open. M2C + LifeBridge youth homelessness module (novel "foster-to-veteran continuity" angle) + Whole-Person MH + PillScheduler. Jim Currier potential LOS source for round 2 meeting.
+
+**TODAY actions surfaced by memo (regardless of which 5 prioritized):**
+- ☐ Verify SAM.gov TIN status is clean (blocker for #1/#3/#4/#5)
+- ☐ Submit NSF Project Pitch this week
+- ☐ Begin Bastrop/Caldwell/Lee CBO outreach for RCORP consortium
+- ☐ Open formal St. David's CDC conversation
+- ☐ Call Austin VA Medical Center Homeless Programs office for GPD intro
+
+**Excluded with reasoning** (full list in memo): HUD FYI competitive (no FY26 NOFO), SAMHSA NCTSI III (current grants run to 2028), CDC REACH (mid-cycle), CDMRP family (pre-announcement), MBDA CRP (no 2026 NOFO), RWJF LDEC (closed 3/3), DOL Apprenticeship (closed 4/3), Title IV-A (LEA-only).
