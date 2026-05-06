@@ -1,0 +1,140 @@
+Form W-9
+(Rev. March 2024)
+Department of the Treasury Internal Revenue Service
+Request for Taxpayer Identification Number and Certification
+Go to www.irs.gov/FormW9 for instructions and the latest information.
+
+Give form to the requester. Do not send to the IRS.
+
+
+
+
+Before you begin. For guidance related to the purpose of Form W-9, see Purpose of Form, below.
+1  Name of entity/individual. An entry is required. (For a sole proprietor or disregarded entity, 
+enter the owner’s name on line 1, and enter the business/disregarded entity’s name on line 2.)
+
+
+
+
+
+
+
+
+
+2 Business name/disregarded entity name, if different from above.
+
+
+
+
+
+
+
+
+
+
+
+3a Check the appropriate box for federal tax classification of the entity/individual whose name is 
+entered on line 1. Check only one of the following seven boxes.
+Individual/sole proprietor     C corporation     S corporation     Partnership     Trust/estate 
+LLC. Enter the tax classification (C = C corporation, S = S corporation, P = Partnership)  .  .  .  
+.
+Note: Check the “LLC” box above and, in the entry space, enter the appropriate code (C, S, or P) 
+for the tax classification of the LLC, unless it is a disregarded entity. A disregarded entity 
+should instead check the appropriate box for the tax classification of its owner.
+Other (see instructions)
+
+3b If on line 3a you checked “Partnership” or “Trust/estate,” or checked “LLC” and entered “P” as 
+its tax classification, and you are providing this form to a partnership, trust, or estate in which 
+you have an ownership interest, check this box if you have any foreign partners, owners, or 
+beneficiaries. See instructions .  .  .  .  .  .  .  .  .
+
+
+
+
+
+
+
+
+
+
+
+4 Exemptions (codes apply only to certain entities, not individuals; see instructions on page 3):
+
+Exempt payee code (if any)
+
+Exemption from Foreign Account Tax Compliance Act (FATCA) reporting code (if any)
+
+(Applies to accounts maintained outside the United States.)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+5  Address (number, street, and apt. or suite no.). See instructions.                 Requester’s 
+name and address (optional)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+6 City, state, and ZIP code
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+7 List account number(s) here (optional)
