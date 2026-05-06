@@ -242,3 +242,16 @@ Full reference: `docs/grants/Top-5-Grants-URLs-and-Requirements.md`
 - **Email:** terryflood@thrivingcommunitiesforall.com
 - **Title:** President, TCAF
 - **Use on:** All grant proposals, partner outreach, City of Austin materials, federal/state/foundation submissions
+
+---
+## Dr. Flood — Calendar Booking Link (May 7, 2026)
+
+**Booking URL:** https://calendar.google.com/calendar/appointments/schedules/AcZssZ2O1JcnlDSXEidpWJKtc02RF37MRUytN66JNOkHDRxDParffIH6eSlbRe0DVXUbfpJwGFRp2bFG?gv=true
+
+**Embed snippet (HTML):** Available; ask if needed.
+
+**Pending decisions:**
+- Add to AEI application primary contact?
+- Add to partner outreach templates?
+- Embed on which website(s)?
+- Personal vs. TCAF-shared calendar (affects public exposure)?
