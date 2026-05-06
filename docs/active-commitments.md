@@ -113,13 +113,16 @@ Full brief at `docs/grants/AEI-Funder-Intelligence.md`. Key adopted findings:
 
 | TCAF asset | Direct alignment with Jim's domain |
 |---|---|
-| **LifeBridge** | Resource navigator + CHW dispatch — exactly the warm-handoff infrastructure foster youth lack at age-out |
+| **LifeBridge / Life Transitions Aid — Youth Homelessness Program (built and live)** | **This is the lead alignment.** A full youth-homelessness module already deployed inside LifeBridge — exactly the domain Jim leads nationally. Not a future plan; a built program. Open this first in the meeting. |
+| **LifeBridge — resource navigator + CHW dispatch** | The warm-handoff infrastructure foster youth lack at age-out: 20,000+ verified resources across housing, food, healthcare, ID/documents, employment |
 | **Whole-Person Mental Health Ecosystem** | Trauma-informed, multilingual; foster-experienced youth carry disproportionate trauma load |
 | **ISSS (K-12 multi-tiered supports)** | Many foster youth need IEP/504 advocacy; ISSS infrastructure already deployed in districts |
 | **Perfectly Different** | Neurodiversity / IEP-504 navigation — overrepresented in foster population |
-| **ThriveUp Academy** | Financial literacy + workforce readiness — exactly what FYI youth need |
+| **ThriveUp Academy** | Financial literacy + workforce readiness — exactly what FYI youth need at independence |
 | **FAFSA navigator + apprenticeship tracker** | Foster youth have specific FAFSA pathways (independent student status, ETV); we already build this |
 | **Talk Your Talk** | Multilingual support for youth in mixed-status families and refugee youth in foster care |
+
+**Critical meeting move:** Lead with the LifeBridge Youth Homelessness Program. Jim runs national FYI implementation — he sees pitches every week. What he doesn't see is a *built and operating* youth-homelessness platform run by an Austin-based organization. That changes the conversation from "let me tell you about our concept" to "let me show you what's already running and ask where it's missing pieces you'd want to see."
 
 **Suggested meeting posture (per user's "short, plain English" preference):**
 - Listen first — let Jim describe what's broken in FYI implementation
