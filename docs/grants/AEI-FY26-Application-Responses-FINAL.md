@@ -25,8 +25,8 @@
 |---|---|
 | 1.1 Work in Austin / Travis County / ETJ? | **Yes** |
 | 1.2 Operating budget over $500,000? | **No** |
-| 1.3 Vendor / Fiscal Sponsor pathway acknowledgement | ☑ Acknowledged — TCAF is registering directly as a City of Austin vendor (vendor registration started May 7, 2026). |
-| 1.4 Able to meet vendor registration / contracting requirement by May 15, 2026? | **Yes** |
+| 1.3 Vendor / Fiscal Sponsor pathway acknowledgement | ☑ Acknowledged — TCAF is contracting directly as a City of Austin vendor. **Vendor registration APPROVED May 7, 2026** (Austin Finance Online — confirmation email on file). |
+| 1.4 Able to meet vendor registration / contracting requirement by May 15, 2026? | **Yes — already met.** Vendor account approved May 7, 2026, eight days ahead of the May 15 deadline. |
 
 ---
 
@@ -40,8 +40,8 @@
 | 2.4 Mailing Address | 17912 Stefano Drive, Pflugerville, TX 78660 |
 | 2.5 Website / Social Media | https://thrivingcommunitiesforall.com • https://talkyourtalk.net |
 | 2.6 Annual Operating Budget | Under $500,000 |
-| 2.7 501(c)(3)? | **No — applying as an organizational vendor.** TCAF's 501(c)(3) application is filed and pending IRS determination (IRS Tracking 281OIP7B, filed April 27, 2026; EIN 41-3618003). |
-| 2.8 Fiscal Sponsor (optional) | Not applicable — TCAF is contracting directly as a City vendor. (Backup fiscal sponsor available if needed: Abundant Life Church.) |
+| 2.7 501(c)(3)? | **No — applying as an organizational vendor.** TCAF's 501(c)(3) application is filed and pending IRS determination (IRS Tracking 281OIP7B, filed April 27, 2026; EIN 41-3618003). City of Austin vendor registration approved May 7, 2026. |
+| 2.8 Fiscal Sponsor (optional) | Not applicable — TCAF is contracting directly as an approved City of Austin vendor (registration confirmed May 7, 2026). (Backup fiscal sponsor available if needed: Abundant Life Church.) |
 | 2.9 Primary Contact | Dr. Terry Flood, DHA — President, TCAF — **(254) 319-8460** — **terryflood@thrivingcommunitiesforall.com** |
 | 2.10 Secondary Contact (optional) | **Leave blank** — TCAF will name a secondary contact only after onboarding if City staff requires one. (See note below.) |
 | 2.11 Org General Email Intake (optional) | **info@thrivingcommunitiesforall.com** (or terryflood@ if not yet set up) |
@@ -256,7 +256,7 @@ Recommended attachments (only if portal allows):
 - [x] Primary email = `terryflood@thrivingcommunitiesforall.com` (Tab 3, field 2.9) — NOT personal Gmail
 - [ ] Secondary contact (2.10) **left blank** — Meredith Sisnett is a City of Austin employee and CANNOT appear on any City application
 - [ ] Confirm no Meredith reference anywhere in submission packet (attachments, letters, narrative)
-- [ ] Vendor registration confirmed active by May 15, 2026
+- [x] Vendor registration confirmed active by May 15, 2026 — **APPROVED May 7, 2026** (Austin Finance Online)
 - [ ] All 4 scored answers reviewed for typos
 - [ ] Click **Submit** before Sunday May 10, 11:59 PM CST
 
