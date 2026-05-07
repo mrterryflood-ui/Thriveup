@@ -4,6 +4,19 @@
 
 ---
 
+## 🟢 City of Austin vendor account — APPROVED (May 7, 2026)
+
+- **Status:** Approval email received from Austin Finance Online (VendorReg@austintexas.gov, 512-974-2018).
+- **What this unlocks:** TCAF can now respond to City of Austin solicitations directly — AEI, Cultural Arts, APH (Austin Public Health), EDD, AHFC, Public Works, Watershed, etc. No more being shut out at the registration gate.
+- **Next operational steps:**
+  1. Capture the vendor ID / login credentials in the secure vault (NOT in this repo). Need them for every City RFP/RFQ from now on.
+  2. Update Dr. Flood's standing capability statement to add "Registered City of Austin vendor — Austin Finance Online" to the credentials block.
+  3. Audit the AEI FY26 Equity Mini Grant submission package — confirm the application form is using the now-active vendor record (not a placeholder).
+  4. Subscribe to City of Austin solicitation alerts (AustinFinanceOnline + Austin Bid Search) so we see RFPs the day they post.
+- **🚨 Hard rule still applies:** Meredith Sisnett is a City of Austin employee. She MUST NOT appear on any City of Austin grant/proposal/contract as staff, contact, co-lead, board, or partner. Vendor approval does not change this — it makes the rule MORE important, not less, because the conflict-of-interest exposure is now real for live City work.
+
+---
+
 ## Active Grant: AEI FY26 Equity Mini Grant ($25K, deadline May 8, 2026)
 
 - **Narrative:** `docs/grants/AEI-FY26-Equity-Mini-Grant-Narrative.md` — INTEGRATED draft complete (May 5). Sections §1, §2, §3, §6, §7, §10, §11 all updated. Awaiting Dr. Flood's end-to-end read.
