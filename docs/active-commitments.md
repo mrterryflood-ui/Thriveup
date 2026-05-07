@@ -17,12 +17,26 @@
 
 ---
 
-## Active Grant: AEI FY26 Equity Mini Grant ($25K, deadline May 8, 2026)
+## ✅ AEI FY26 Equity Mini Grant — SUBMITTED (May 7, 2026)
 
-- **Narrative:** `docs/grants/AEI-FY26-Equity-Mini-Grant-Narrative.md` — INTEGRATED draft complete (May 5). Sections §1, §2, §3, §6, §7, §10, §11 all updated. Awaiting Dr. Flood's end-to-end read.
+- **Status:** Application **submitted** via aei.grantplatform.com on May 7, 2026 (3 days ahead of the May 10, 11:59 PM CST deadline). Confirmation email received from City of Austin Equity & Inclusion (equity@austintexas.gov).
+- **What was submitted:** Tab 1–7 of `docs/grants/AEI-FY26-Application-Responses-FINAL.md` — Project: "Talk Your Talk: Language-Accessible Navigation for Austin's Eastern Crescent," Category: Immigrant & Refugee Services, Ask: $25,000 over 12–15 months.
+- **Narrative attachment:** `docs/grants/AEI-FY26-Equity-Mini-Grant-Narrative.md` (cleaned May 7 — corrected "89 spoken + 18 sign = 107 total" formula in 6 places; replaced stale "22-platform ecosystem" framing with the now-stronger "approved City of Austin vendor as of May 7, 2026" lede).
+- **Optional Tab 5/6 "share more" section:** Drafted in chat, may or may not have been pasted in (Dr. Flood's call). Includes APOC volunteer-service disclosure framed for transparency.
+- **🚨 Confirmation email contains a date typo:** Says applicants will be notified "by **late June 2024**" — this is an AEI portal template bug (year not updated). Real expected notification window: **late June 2026**. Don't be alarmed; don't email equity@ to ask unless other applicants are also confused.
+- **Award notification expected:** Late June 2026.
+- **If NOT awarded:** AEI offers debrief / coaching session with Equity & Inclusion staff — take it. Free intelligence for the next City of Austin RFP.
+
+### Post-submission follow-ups
+- [ ] Subscribe to AEI portal email broadcasts in user profile (per confirmation email).
+- [ ] Send partner outreach emails (`docs/grants/AEI-Partner-Outreach-Email-Template.md`) — letters of support strengthen the application even if attached late, and they build the coalition independent of award outcome.
+- [ ] Calendar reminder: late June 2026 — check for award decision.
+- [ ] Calendar reminder: if awarded, Community Advisory Circle must be seated in Month 1 per Q3 commitment.
+
+### Original active items (kept for partner pipeline reference)
+
 - **Partner outreach template:** `docs/grants/AEI-Partner-Outreach-Email-Template.md` — ready to send.
 - **Letters of support folder:** `docs/grants/AEI-letters-of-support/` (create when first letter arrives).
-- **Submission package:** Narrative + integrated budget table + returned partner letters + EIN 41-3618003 + IRS 501(c)(3) determination-pending statement.
 
 ### AEI Partner Pipeline — Meredith referrals (received May 5, 2026)
 
