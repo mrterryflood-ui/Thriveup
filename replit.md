@@ -27,7 +27,7 @@ An AI-powered national community infrastructure platform that connects individua
 - **Partnership Status Component:** `client/src/components/partnership-status.tsx`
 - **Sidebar Navigation:** `client/src/components/app-sidebar.tsx`
 - **Grant Strategy:** `docs/grants/STRATEGIC-INTELLIGENCE-PLAYBOOK.md`, `CDMRP-FY2026-Master-Grant-Strategy.md`
-- **Quartet One-Pager (drop-in for narratives):** `docs/grants/QUARTET-ONE-PAGER.md` — verified May 6, 2026; Talk Your Talk = 89 spoken + 18 sign + 6 learning surfaces + honest crisis path
+- **Quartet-on-a-Safety-Floor One-Pager (drop-in for narratives):** `docs/grants/QUARTET-ONE-PAGER.md` — verified May 7, 2026; the **five-platform** narrative: Talk Your Talk (89 spoken + 18 sign + 6 learning surfaces + honest crisis path) as substrate, Civic Signal + LifeBridge + ThriveUp as service surfaces, **Whole-Person Health Ecosystem (mentalwellnesssupport.net)** as the behavioral-health safety floor underneath. Crisis-detection events from TYT route INTO WPH.
 - **MAP-GAP Lessons Learned:** `.agents/skills/map-gap/lessons-learned.md`
 - **Proposal Pipeline Seed:** `server/seed-proposal-pipeline.ts`
 - **Active Commitments / Continuity Log:** `docs/active-commitments.md` — running session memory (active grants, partner pipeline, ecosystem scan results, legal status, next-thread queue). Read at session start; update at session end.

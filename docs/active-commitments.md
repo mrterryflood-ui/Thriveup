@@ -552,3 +552,24 @@ Added a "Live Links — for the reviewer" section to `docs/grants/AEI-FY26-Appli
 - talkyourtalk.net/about, /how-to-install, /languages, /sign-languages, /privacy, /how-it-works, /providers, /crisis, /pricing ❌ (all gated behind email sign-in)
 
 **Lesson learned:** SPA routes return 200 even when they 404 inside the React router. Always visually verify before putting a link in a grant. Body-size comparison helps (identical bytes = SPA shell only) but visual confirmation is required.
+
+---
+## Quartet → Quintet reframe (May 7, 2026)
+
+User caught a strategic miss: the AEI quartet narrative omitted the mental-health platform. Added **Whole-Person Health Ecosystem** (mentalwellnesssupport.net, DB id `whole-person-health`) as the **behavioral-health safety floor** underneath the four agency platforms.
+
+**Verified live:** mentalwellnesssupport.net renders "You don't have to figure this out alone" hero, sticky 988 Call-or-Text bar, role-based entry (myself / child or teen / someone I love / provider or educator / veteran or military family / help right now), no-login required.
+
+**What ships (per DB description):** C-SSRS, PHQ-9, GAD-7, PCL-5 validated screenings · safety plans with auto-escalation · Reach a Vet crisis pathway · MAP-GAP biopsychosocial assessment · 20,670+ resources across 2,091 community groups, 60 condition guides, 19 population hubs · offline-capable PWA.
+
+**Architectural role:** Every platform in the 24-platform ecosystem routes crisis, referral, and assessment data through WPH. It is the connective tissue, NOT a peer of the four.
+
+**Edits made:**
+- AEI Q2 — added "behavioral-health safety floor underneath all of this" paragraph after the six-surfaces list
+- AEI Live Links — added WPH section as fifth platform group
+- `docs/grants/QUARTET-ONE-PAGER.md` — fully rewritten as five-platform "quartet on a safety floor" narrative; added "Lead with the safety floor" guidance for SAMHSA/SSG Fox/St. David's BH/AHRQ/ACL crisis rubrics
+- `replit.md` Pointers — updated to reflect quintet framing
+
+**WholeMind Learning (wholemindlearning.com) — DO NOT LINK:** Loaded blank to a parking-page redirect (`/lander?oref=...`). Not currently public. Different platform from Whole-Person Health despite similar naming.
+
+**Lesson learned:** When user references "X app," check the full ecosystem_platforms table, not just the platforms in working memory. The 24-platform ecosystem has multiple platforms per domain; assuming a "quartet" because that's what's in front of you risks omitting the most relevant platform for a given rubric. **Always pull the full DB list before locking a narrative.**
