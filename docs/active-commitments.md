@@ -573,3 +573,21 @@ User caught a strategic miss: the AEI quartet narrative omitted the mental-healt
 **WholeMind Learning (wholemindlearning.com) — DO NOT LINK:** Loaded blank to a parking-page redirect (`/lander?oref=...`). Not currently public. Different platform from Whole-Person Health despite similar naming.
 
 **Lesson learned:** When user references "X app," check the full ecosystem_platforms table, not just the platforms in working memory. The 24-platform ecosystem has multiple platforms per domain; assuming a "quartet" because that's what's in front of you risks omitting the most relevant platform for a given rubric. **Always pull the full DB list before locking a narrative.**
+
+---
+## Full ecosystem catalog committed to replit.md (May 7, 2026)
+
+User feedback: *"You should know everyone and it should be in the md. Not knowing is going to make me miss opportunities."* This was the right call — we already lost one round today (quartet→quintet) because Whole-Person Health wasn't in working memory.
+
+**Now in `replit.md` as `## Ecosystem catalog — all 24 platforms (+ 1 unregistered)`:** every platform with id, name, URL, one-line description, grant alignment, and verified live/dead status as of May 7, 2026.
+
+**Liveness summary (verified May 7, 2026):**
+- ✅ LIVE (12): mce, lifebridge, safereport, isss + betterscience (shared URL), sankofa-maternal + sankofa (shared URL), sankofa-mens, perfectly-different, safecognicare, whole-person-health, collaborative-advocate, m2c
+- ✅ LIVE but unregistered in hub: Civic Signal (power2thepeople.net) — needs registration
+- ⚠️ Live at correct URL but DB row wrong: speech-bridge (DB says lexibridge.net dead; true URL talkyourtalk.net live)
+- 🚧 Host up, 404: emergency-mgmt, sankofa-feminine-health
+- ❌ DNS dead / parked: autoimmune-thrive, pillscheduler, wholemind (parking lander), ad-targeting, video-creator-ai, ecosystem-nexus, code-canvas, pinnacle-business-conglomerate
+
+**Standing rule going forward:** Read the `## Ecosystem catalog` section at the start of every grant work session. Re-probe URLs before linking in submissions. Register Civic Signal in the hub DB. Fix TYT URL when in TYT workspace.
+
+**Why this matters:** 11 of 24 platforms are currently not public-facing. If a future grant rubric matches one of those (e.g., a TBI-focused SAMHSA grant matches SafeCogniCare ✅ and PillScheduler ❌), I need to know which is reachable to a reviewer and which is internal-only — without that, I either over-promise or under-pitch.
