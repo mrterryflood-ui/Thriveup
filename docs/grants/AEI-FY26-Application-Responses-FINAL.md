@@ -197,8 +197,31 @@ Recommended attachments (only if portal allows):
 
 - 2–3 short letters of support from coalition partners (Multicultural Refugee Coalition, Foundation Communities, AVANCE-Austin are the strongest candidates if available by Sunday)
 - One-page Talk Your Talk visual overview (optional)
+- Live links sheet (next section) — printed or pasted into the supplemental notes field if the portal allows
 
 **Skip if pressed for time.** Section 4 is unscored.
+
+---
+
+## Live Links — for the reviewer
+
+*All links below were verified live and rendering on May 6, 2026. Each link goes to a public, logged-out page — no account required. We have included only links we have visually confirmed render real content; we have not padded this list with routes that 404 inside the app or require a sign-in.*
+
+**Talk Your Talk — the multilingual interpreter and learning platform**
+- **Home:** https://talkyourtalk.net — *"Your Voice, Understood." A dialect-aware, multilingual communication bridge across 89 spoken and 18 sign languages. Installable from the home page (Add to Home Screen).*
+- *Note for the reviewer: the interpreter, Snap & Learn, Live Learning Sessions, Family Circles, and Mentor Match surfaces are gated behind the resident's email sign-in, which is a deliberate privacy choice for a tool used in medical, legal, and crisis settings. We can provide a guided demo or post-login screenshots on request.*
+
+**Civic Signal — the civic intelligence terminal**
+- **Home / Live Civic Feed:** https://power2thepeople.net/feed — *Real-time mix of bills, court rulings, federal regulations, CBO scores, and city ordinances; filterable by source type and topic; 1,448 court items, 880 ordinances, 360 meetings indexed at last scan.*
+- **Get your affairs in order (10-step Prepare wizard):** https://power2thepeople.net/prepare — *Calm, ten-step walk-through of the documents, contacts, and decisions every adult should set up — explicitly cites primary sources (ready.gov, caringinfo.org), explicitly says "not legal advice," available in EN/ES.*
+
+**LifeBridge — virtual community health worker**
+- **Home:** https://lifetransitionsaid.org — *"You Are Not Alone." Virtual CHW pitch, immediately-visible 24/7 crisis bar (988, DV Hotline, NAMI HelpLine, SAMHSA, Crisis Text, 2-1-1), Find Resources search across housing/jobs/benefits/healthcare/food, and dedicated service-line entry points for Foster Youth Aging Out, Caregivers & Families, and SSB Wellness.*
+
+**ThriveUp Academy — workforce + skills**
+- **Academy / Panther Village:** https://thrivingcommunitiesforall.com/academy — *The K-12 + adult learning campus: Wallet, House Points, Career Explorer, Mentor Hub, Mentor Finder, Quest Board, Dream Lab, Learning Center, Game Room, Power Station; sidebar surfaces Programs, Research & Methodology, Community Intelligence, Workforce & Economic, Criminal Justice & Reentry, AI Literacy & Tools, and the Texas (St. David's) pilot.*
+
+**A note on honest disclosure.** Some of these platforms have additional surfaces — partnership dashboards, internal pipeline tracking, post-login interpreter and learning surfaces — that we have intentionally not linked here because they are gated, not because they don't exist. The Equity Office is welcome to request a guided demo at any point during review.
 
 ---
 

@@ -534,3 +534,21 @@ Talk Your Talk is no longer "just" the horizontal accessibility substrate. It's 
 - **Talk Your Talk lets you be understood AND helps you learn the new language/vocabulary you need to navigate any of the above** — in your dialect, with your family, at your pace, with crisis safety always one tap away.
 
 That dual-role framing (interpretation + learning) is unusually strong. Most grant programs fund one OR the other; you can pitch into both buckets with the same platform.
+
+---
+## AEI FY26 — Live Links section added (May 6, 2026)
+
+Added a "Live Links — for the reviewer" section to `docs/grants/AEI-FY26-Application-Responses-FINAL.md` between Tab 5 and the pre-submission checklist.
+
+**Links visually verified (all rendered to logged-out reviewer):**
+- talkyourtalk.net/ → home
+- power2thepeople.net/feed → Live Civic Feed (1448 court / 880 ord / 360 mtg, topic filters)
+- power2thepeople.net/prepare → 10-step "Get your affairs in order" wizard with ready.gov/caringinfo.org sources
+- lifetransitionsaid.org/ → "You Are Not Alone" + 24/7 crisis bar (988/DV/NAMI/SAMHSA/Crisis Text/2-1-1) + Find Resources search
+- thrivingcommunitiesforall.com/academy → Panther Village campus
+
+**Routes verified to 404 inside the SPA (DO NOT LINK in proposals):**
+- lifetransitionsaid.org/julia ❌
+- talkyourtalk.net/about, /how-to-install, /languages, /sign-languages, /privacy, /how-it-works, /providers, /crisis, /pricing ❌ (all gated behind email sign-in)
+
+**Lesson learned:** SPA routes return 200 even when they 404 inside the React router. Always visually verify before putting a link in a grant. Body-size comparison helps (identical bytes = SPA shell only) but visual confirmation is required.
