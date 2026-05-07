@@ -582,7 +582,7 @@ User feedback: *"You should know everyone and it should be in the md. Not knowin
 **Now in `replit.md` as `## Ecosystem catalog — all 24 platforms (+ 1 unregistered)`:** every platform with id, name, URL, one-line description, grant alignment, and verified live/dead status as of May 7, 2026.
 
 **Liveness summary (verified May 7, 2026):**
-- ✅ LIVE (12): mce, lifebridge, safereport, isss + betterscience (shared URL), sankofa-maternal + sankofa (shared URL), sankofa-mens, perfectly-different, safecognicare, whole-person-health, collaborative-advocate, m2c
+- ✅ LIVE (13): mce, lifebridge, safereport, isss + betterscience (shared URL), sankofa-maternal + sankofa (shared URL), sankofa-mens, **sankofa-feminine-health (at herhealthmatters2.com / myhealthybreast.com — old yourfeminineneeds.com is unbound)**, perfectly-different, safecognicare, whole-person-health, collaborative-advocate, m2c
 - ✅ LIVE but unregistered in hub: Civic Signal (power2thepeople.net) — needs registration
 - ⚠️ Live at correct URL but DB row wrong: speech-bridge (DB says lexibridge.net dead; true URL talkyourtalk.net live)
 - 🚧 Host up, 404: emergency-mgmt, sankofa-feminine-health
@@ -591,3 +591,14 @@ User feedback: *"You should know everyone and it should be in the md. Not knowin
 **Standing rule going forward:** Read the `## Ecosystem catalog` section at the start of every grant work session. Re-probe URLs before linking in submissions. Register Civic Signal in the hub DB. Fix TYT URL when in TYT workspace.
 
 **Why this matters:** 11 of 24 platforms are currently not public-facing. If a future grant rubric matches one of those (e.g., a TBI-focused SAMHSA grant matches SafeCogniCare ✅ and PillScheduler ❌), I need to know which is reachable to a reviewer and which is internal-only — without that, I either over-promise or under-pitch.
+
+---
+## Lesson: probe ALL aliases before declaring a platform dead (May 7, 2026)
+
+Almost removed `sankofa-feminine-health` from the registry because `yourfeminineneeds.com` returned 404. User caught it: the platform is live at TWO verified alternate domains (`herhealthmatters2.com` and `myhealthybreast.com` — both serve the identical 3268-byte "HerHealth Network by Sankofa — Women's Health Equity Platform" payload).
+
+**New standing rule:** Before flagging any platform as dead/404 in the catalog, check the project's Publishing → Domains tab for verified alternate URLs, AND probe each alias. The hub DB only stores ONE URL per platform; aliases live in the deploying workspace's domain config.
+
+**DB now reflects truth:**
+- `sankofa-feminine-health` restored: url=`herhealthmatters2.com`, public_visible=true, alias `myhealthybreast.com` documented in description
+- Updated catalog count: 13 live (was 12), 9 hidden (was 9 incl. feminine, now 9 truly dead)

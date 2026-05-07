@@ -14,7 +14,7 @@ An AI-powered national community infrastructure platform that connects individua
 - **Backend:** Express.js (Node.js), PostgreSQL (Neon-backed) via Drizzle ORM
 - **Auth:** Replit Auth (OIDC)
 - **AI:** Google Gemini 2.0 Flash, Anthropic Claude Haiku 4.5, OpenAI GPT-4o-mini, Replit AI Integrations GPT-5-nano, OpenRouter (DeepSeek R1)
-- **Internationalization:** English + Spanish (`useLanguage()` from `@/lib/i18n`)
+- **Internationalization:** EN + ES human-translated; 8 additional languages (VI, ZH, AR, KO, FR, TL, HI, MY) via opt-in AI translation (gpt-4o-mini, batched, localStorage-cached). `useLanguage()` from `@/lib/i18n`; `<LanguageSelector />` from `@/components/language-selector`. Endpoint: `POST /api/translate` (server/translate-routes.ts) using `AI_INTEGRATIONS_OPENAI_API_KEY`. RTL auto-applied for Arabic.
 - **Build Tool:** Vite
 
 ## Where things live
@@ -68,7 +68,7 @@ An AI-powered national community infrastructure platform that connects individua
 | `sankofa` | Sankofa Health Network | yourhealthbirthright.net | Health-equity gateway orchestrating the 5 Sankofa sub-platforms; culturally-responsive BH assessments, GIS resource matching. | St. David's, SSG Fox, Foundation | ✅ |
 | `sankofa-maternal-health` | Black Maternal Health Network | yourhealthbirthright.net *(shared)* | Black maternal mortality response: doula matching, EPDS/PHQ-9 peripartum screening, postpartum recovery, CHW dispatch. | St. David's, SSG Fox, Foundation | ✅ |
 | `sankofa-mens-health` | Black Men's Health Hub | thehealthyblkman.com | Prostate/CV/diabetes prevention, BH stigma reduction, AUDIT-C/DAST-10, peer-mentor matching for Black men. | St. David's, SSG Fox, Foundation | ✅ |
-| `sankofa-feminine-health` | Holistic Black Feminine Health Hub | yourfeminineneeds.com | OB/GYN, hormonal wellness, cancer awareness, menopause, culturally-responsive provider matching. | St. David's, Foundation | 🚧 (404) |
+| `sankofa-feminine-health` | **HerHealth Network** (Holistic Black Feminine Health Hub) | **herhealthmatters2.com** (alias: myhealthybreast.com) — *old yourfeminineneeds.com is unbound; URL+name fixed in `ECOSYSTEM_PLATFORMS` array May 7, 2026* | OB/GYN, hormonal wellness, cervical/breast cancer awareness, menopause, culturally-responsive provider matching. | St. David's, Foundation | ✅ |
 | `safecognicare` | SafeCogniCare | safecognicare.com | TBI/ADHD/dementia/peripartum cognitive: MoCA/MMSE/Trail Making, early intervention, family caregiver burden. Critical for veteran TBI + maternal cognitive change. | SSG Fox, St. David's, Foundation | ✅ |
 | `perfectly-different` | Perfectly Different | neurodifferentassistant.app | Neurodiversity-affirming (autism, ADHD, AuDHD): IEP/504 templates, crisis routes to WPH, evidence-based therapy library. | St. David's, Foundation, WIOA | ✅ |
 | `pillscheduler` | PillScheduler | pillscheduler.net | Polypharmacy management: adaptive reminders, FDA interaction DB, care-team coordination, adherence scoring. | SSG Fox, St. David's, Foundation | ❌ |
@@ -106,7 +106,7 @@ An AI-powered national community infrastructure platform that connects individua
 ### Critical caveats for any grant work
 1. **Civic Signal is not in the hub DB.** It's part of the quintet but missing from `ecosystem_platforms`. Register it before next ecosystem-wide claim.
 2. **TYT row's URL is wrong.** DB says `lexibridge.net` (dead). True URL is `talkyourtalk.net`. The TYT connector self-registers as "LexiBridge" on every heartbeat — fix lives in TYT workspace, not here.
-3. **11 of 24 platforms are not currently public-facing** (DNS dead, parked, or 404). Never link to a platform in a proposal without re-probing first. The ecosystem-alignment-scan script (`scripts/ecosystem-alignment-scan.sh`) and the probe pattern in `docs/active-commitments.md` ("SPA route 200 ≠ real page") apply here too.
+3. **9 of 24 platforms are not currently public-facing** (DNS dead, parked, or 404). Never link to a platform in a proposal without re-probing first. **Probe ALL known aliases before declaring a platform dead** — `sankofa-feminine-health` was nearly removed because `yourfeminineneeds.com` 404s, but the same site is live at `herhealthmatters2.com` AND `myhealthybreast.com` (same payload). Always check the project's Publishing → Domains tab for verified alternate URLs. The ecosystem-alignment-scan script (`scripts/ecosystem-alignment-scan.sh`) and the probe pattern in `docs/active-commitments.md` ("SPA route 200 ≠ real page") apply here too.
 4. **Some URLs are shared.** `implementationineducatio.com` hosts BOTH `isss` and `betterscience`. `yourhealthbirthright.net` hosts BOTH `sankofa` and `sankofa-maternal-health`. `thrivingcommunitiesforall.com/academy` is ThriveUp Academy on the `collaborative-advocate` domain.
 5. **Always pull the full table before locking a narrative.** Today's quartet→quintet miss happened because I worked from in-context platforms instead of the DB. The cost is missed grant fits.
 
@@ -133,6 +133,7 @@ An AI-powered national community infrastructure platform that connects individua
 - **`curl HTTP 000`:** This indicates an unbound custom domain, not necessarily that the platform is down. Check `ecosystem_platforms.health_status` in the hub DB for true platform status.
 - **Hub pinger false-positive:** Marks platforms "online" even when DNS fails or heartbeat is >7 days stale. Bug logged in `docs/active-commitments.md` — fix at hub-vs-connector boundary.
 - **TYT connector self-registration:** Talk Your Talk's connector still announces itself as "LexiBridge (Speech Bridge)" / `lexibridge.net` — overwrites hub row name+URL on every heartbeat. Description and grant_alignment fields survive. Real fix lives in TYT workspace (`artifacts/api-server/...`), not this one.
+- **🚨 ECOSYSTEM_PLATFORMS hardcoded array overwrites the DB on every startup.** Lives in `server/ecosystem-connector.ts:658` (`const ECOSYSTEM_PLATFORMS = [...]`). The startup auto-sync (a) UPDATEs name/url/role/domain/description/capabilities/dataFlowConfig/grantAlignment to match this array, (b) DELETEs any DB row whose ID isn't in the array. So any DB-only edit to those fields gets wiped within seconds. **`publicVisible` is NOT in the update set, so it survives.** When you add/rename/re-URL a platform, edit BOTH the DB and this hardcoded array, or the DB change is ephemeral. (How sankofa-feminine-health URL kept reverting; how Civic Signal got "Removed stale platform" deleted on first restart.)
 - **Talk Your Talk rebrand:** Old name LexiBridge / Speech Bridge → new name **Talk Your Talk** (`talkyourtalk.net`). Verified count: **89 spoken + 18 sign = 107 total** (homepage marketing previously said "107 + 18" conflated). Use **89 / 18 / 107** in all proposals.
 
 ## Pointers

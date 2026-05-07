@@ -654,6 +654,26 @@ const eventSchema = z.object({
 
 const ECOSYSTEM_PLATFORMS = [
   {
+    id: "civic-signal",
+    name: "Civic Signal",
+    url: "https://power2thepeople.net",
+    role: "civic-intelligence",
+    domain: "civic-engagement",
+    description: "Civic intelligence terminal that lets residents see and act on government before decisions are already made. Real-time Live Civic Feed mixing federal bills, court rulings, federal regulations, CBO cost estimates, and city ordinances (1,448 court items / 880 ordinances / 360 meetings indexed). 10-step 'Get your affairs in order' wizard with healthcare-directive and power-of-attorney walkthroughs sourced from ready.gov and caringinfo.org. Vote tools, civic Q&A via Ask AI, EN/ES throughout. Part of the quintet (Talk Your Talk · Civic Signal · LifeBridge · ThriveUp Academy · Whole-Person Health) — the civic-engagement surface that turns lived knowledge into civic action.",
+    capabilities: {
+      features: ["Live Civic Feed", "Federal Bills Tracker", "Court Rulings Index", "Federal Regulations Watch", "CBO Cost Estimates", "City Ordinances Index", "Public Meetings Calendar", "10-Step Prepare Wizard", "Healthcare Directive Builder", "Power of Attorney Walkthrough", "Vote Tools", "Civic Q&A (Ask AI)", "Bilingual EN/ES UI"],
+      indexedItems: { courtItems: 1448, ordinances: 880, meetings: 360 },
+      integrationDepth: "Surfaces civic context to LifeBridge (resource navigation), Whole-Person Health (advance directives), and ThriveUp Academy (civic literacy curriculum)",
+      outcomeMetrics: ["Civic feed daily impressions tracked","Prepare Wizard completion rate","Bilingual session ratio","Civic Q&A queries answered"],
+      grantNarrative: "Provides civic-engagement infrastructure and prepare-wizard outcomes for Knight Foundation, Mozilla, and place-based foundation grants targeting civic participation and digital literacy",
+    },
+    dataFlowConfig: {
+      sends: ["civic_alerts", "prepare_wizard_completions", "advance_directive_drafts", "civic_engagement_metrics"],
+      receives: ["resource_referrals", "crisis_routing", "literacy_curriculum_links"],
+    },
+    grantAlignment: ["foundation", "knight", "mozilla", "wioa"],
+  },
+  {
     id: "whole-person-health",
     name: "Whole-Person Health Ecosystem",
     url: "https://mentalwellnesssupport.net",
@@ -716,11 +736,11 @@ const ECOSYSTEM_PLATFORMS = [
   },
   {
     id: "sankofa-feminine-health",
-    name: "Holistic Black Feminine Health Hub",
-    url: "https://yourfeminineneeds.com",
+    name: "HerHealth Network (Holistic Black Feminine Health Hub)",
+    url: "https://herhealthmatters2.com",
     role: "feminine-health",
     domain: "health-equity",
-    description: "Comprehensive OB/GYN health platform for Black women — reproductive health education, hormonal wellness tracking, preventive screening scheduling, cervical/breast cancer awareness, menopause management, community support groups, and culturally responsive provider matching. Integrates with Black Maternal Health Network for pregnancy pathways, SafeCogniCare for peripartum cognitive assessment, and Whole-Person Health for crisis escalation. Produces population-specific health outcome data addressing the 3x maternal mortality gap in Black communities.",
+    description: "Comprehensive OB/GYN health platform for Black women — reproductive health education, hormonal wellness tracking, preventive screening scheduling, cervical/breast cancer awareness, menopause management, community support groups, and culturally responsive provider matching. Part of the Sankofa Health Network family. Also reachable at the alias domain myhealthybreast.com (both serve the same site). Integrates with Black Maternal Health Network for pregnancy pathways, SafeCogniCare for peripartum cognitive assessment, and Whole-Person Health for crisis escalation. Produces population-specific health outcome data addressing the 3x maternal mortality gap in Black communities.",
     capabilities: {
       features: ["Reproductive Health Education", "Preventive Screening Scheduler", "Hormonal Wellness Tracker", "Cervical Cancer Awareness", "Breast Cancer Screening Navigation", "Menopause Management", "Community Support Groups", "Culturally Responsive Provider Matching", "Pregnancy Pathway Routing", "Health Literacy Resources", "Telehealth Coordination"],
       parentNetwork: "sankofa",

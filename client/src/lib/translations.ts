@@ -1,7 +1,21 @@
-export type Language = 'en' | 'es';
+export const LANGUAGES = [
+  { code: 'en', name: 'English',           native: 'English',     flag: '🇺🇸', source: 'human', rtl: false },
+  { code: 'es', name: 'Spanish',           native: 'Español',     flag: '🇲🇽', source: 'human', rtl: false },
+  { code: 'vi', name: 'Vietnamese',        native: 'Tiếng Việt',  flag: '🇻🇳', source: 'ai',    rtl: false },
+  { code: 'zh', name: 'Chinese (Simplified)', native: '简体中文', flag: '🇨🇳', source: 'ai',    rtl: false },
+  { code: 'ar', name: 'Arabic',            native: 'العربية',     flag: '🇸🇦', source: 'ai',    rtl: true  },
+  { code: 'ko', name: 'Korean',            native: '한국어',       flag: '🇰🇷', source: 'ai',    rtl: false },
+  { code: 'fr', name: 'French',            native: 'Français',    flag: '🇫🇷', source: 'ai',    rtl: false },
+  { code: 'tl', name: 'Tagalog',           native: 'Tagalog',     flag: '🇵🇭', source: 'ai',    rtl: false },
+  { code: 'hi', name: 'Hindi',             native: 'हिन्दी',        flag: '🇮🇳', source: 'ai',    rtl: false },
+  { code: 'my', name: 'Burmese',           native: 'မြန်မာ',       flag: '🇲🇲', source: 'ai',    rtl: false },
+] as const;
+
+export type Language = typeof LANGUAGES[number]['code'];
 export type TranslationKey = string;
 
 export const translations: Record<Language, Record<string, string>> = {
+  vi: {}, zh: {}, ar: {}, ko: {}, fr: {}, tl: {}, hi: {}, my: {},
   en: {
     "nav.dashboard": "Dashboard",
     "nav.subjects": "Subjects",

@@ -1,4 +1,4 @@
-import { Globe, WifiOff, Wifi } from "lucide-react";
+import { WifiOff, Wifi } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "./theme-provider";
 import { useLanguage } from "@/lib/i18n";
@@ -9,31 +9,16 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { LanguageSelector } from "./language-selector";
 
 export function HeaderControls() {
   const { theme, toggleTheme } = useTheme();
-  const { language, setLanguage, t } = useLanguage();
+  const { language } = useLanguage();
   const { isLowBandwidth, toggleBandwidth } = useBandwidth();
 
   return (
     <div className="flex items-center gap-1">
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            size="icon"
-            variant="ghost"
-            onClick={() => setLanguage(language === "en" ? "es" : "en")}
-            data-testid="button-language-toggle"
-            className="toggle-elevate"
-            aria-label={language === "en" ? "Switch to Spanish" : "Switch to English"}
-          >
-            <Globe className="h-4 w-4" />
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>
-          {language === "en" ? "Cambiar a Español" : "Switch to English"}
-        </TooltipContent>
-      </Tooltip>
+      <LanguageSelector />
 
       <Tooltip>
         <TooltipTrigger asChild>

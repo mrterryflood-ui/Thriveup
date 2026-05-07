@@ -89,6 +89,7 @@ import { dosageTrackingMiddleware } from "./dosage-middleware";
 import { registerOnboardingRoutes } from "./onboarding-routes";
 import { registerPreventionStrategiesRoutes } from "./prevention-strategies-routes";
 import { registerEcosystemCapacityRoutes } from "./ecosystem-capacity-routes";
+import { registerTranslateRoutes } from "./translate-routes";
 import { registerEcosystemConnectorRoutes } from "./ecosystem-connector";
 import { registerEcosystemRpliceBridgeRoutes } from "./ecosystem-rplice-bridge";
 import { registerAgentCommunicationRoutes } from "./agent-communication";
@@ -421,6 +422,7 @@ export async function registerRoutes(
   registerParentEducationRoutes(app);
   registerOnboardingRoutes(app);
   registerEcosystemCapacityRoutes(app);
+  registerTranslateRoutes(app);
   registerEcosystemConnectorRoutes(app);
   registerRAGRoutes(app);
   registerFacilitatorRoutes(app);
