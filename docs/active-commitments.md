@@ -4,6 +4,26 @@
 
 ---
 
+## 🔔 SURFACE TO USER — pending reminders
+
+> **Agent: at session start, scan this section. If the current time is at/past the `surface_after` timestamp, raise the item to the user before doing anything else and clear it once acknowledged.**
+
+| Surface after (UTC) | Topic | Message to deliver |
+|---|---|---|
+| **2026-05-09T21:00Z** *(set May 9, 2026 ~09:00 UTC)* | **SAM.gov API key** | "You asked me to remind you about SAM.gov in 12 hours. The discovery scanner is currently 401-ing on SAM.gov for lack of an API key — once you add `SAM_GOV_API_KEY` (request free at https://sam.gov/data-services), the daily scan will pick up federal opportunities that we're currently missing. Want me to walk through the request flow?" |
+
+(I cannot push a notification on my own — the platform here doesn't expose a scheduler to me. The honest mechanism is this section + the session-bootstrap protocol that reads it. If we don't open a session in the next 12+ hours, the reminder won't fire on time, but it will still be the first thing I raise whenever you next open the project.)
+
+---
+
+## 📅 Recurring jobs (auto-running)
+
+- **Daily grant discovery scan** — `setInterval` 24h, server-side. Sources: Grants.gov ✅, USASpending.gov ✅, SAM.gov ❌ (needs key), curated state/foundation/corporate, **City of Austin (5 funders, May 9, 2026)**, **Statewide Texas (8 funders: TDHCA, TVC, Hogg, EHF, Meadows, RGK, CFT, TX Bar Foundation — `source='tx_statewide'`, May 9, 2026)**, **Aggregator portals (BidNet Direct + RFP Mart — `source='aggregator'`, May 9, 2026; manual review only, no auto-scrape — paywall/no-API)**.
+- **Weekly grant digest email** — *NEW May 9, 2026.* Auto-sends every Monday 8am America/Chicago to the recipient list. **Restart-safe** via DB sentinel row (`grant_alerts.alertType='weekly_digest_sent'`) — no double-send if server restarts inside the 8am window. Default recipient: `terryflood@thrivingcommunitiesforall.com` (Dr. Flood institutional). Override with env var `GRANT_DIGEST_RECIPIENTS` (comma-separated emails). On-request path remains `POST /api/grants/digest/send` (admin-only). Known edge case: if email send succeeds but sentinel write fails, next hourly tick within the 8am window may re-send (bounded to ≤1 hour).
+- **BidNet Direct & RFP Mart — manual weekly review reminder** — listed as opportunities with `(recurring scan target)` in the title and explicit "AUTO-SCRAPING NOT WIRED" disclosure in the description. BidNet's TX State & Local subscription is ~$1,500/yr if we want full content access. RFP Mart has free email alerts — recommend setting those up for TX + ecosystem-aligned categories.
+
+---
+
 ## 🟢 City of Austin vendor account — APPROVED (May 7, 2026)
 
 - **Status:** Approval email received from Austin Finance Online (VendorReg@austintexas.gov, 512-974-2018).

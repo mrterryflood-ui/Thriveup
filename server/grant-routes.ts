@@ -3514,6 +3514,26 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
         { title: "⭐ PRIORITY: PM C2 Transport — Capability Statement Solicitation (Army PEO C3T)", agency: "U.S. Army / PEO C3T (Program Executive Office Command, Control & Communications-Tactical)", description: "Army PM C2 Transport capability statement solicitation. Emergency Management maps to all 6 Program Assessment Elements (PAEs): Transport Network Ops, Network Security, Spectrum Management, Satellite Communications, Tactical Radio Systems, Network Modernization. Full COMSEC tier alignment and C2 transport alignment table built. Capability statement live at /capability-statement. Email submission deadline April 3, 2026 at 1300 EST. In-person event April 28-29, 2026 in Augusta, GA if selected.", fundingAmount: "Contract Vehicle (TBD upon award)", sourceUrl: "https://emergency-mgmt.replit.app/capability-statement", grantType: "federal", focusAreas: ["command and control", "C2 transport", "COMSEC", "tactical communications", "network security", "satellite communications", "spectrum management", "defense contracting", "emergency communications"], eligibilityCriteria: "Organizations with C2 transport capabilities and SAM.gov registration", source: "federal_dod", category: "defense", deadline: new Date("2026-04-03T18:00:00Z") },
         { title: "⭐ PRIORITY: U.S. Space Force SkillBridge & DoD Workforce Transition", agency: "U.S. Space Force / Department of Defense", description: "DoD SkillBridge program and Space Force workforce transition initiatives supporting military-to-civilian career pipelines. Funds training providers offering space, cyber, AI/ML, and defense technology credential programs for transitioning service members. Includes Guardian workforce development, Space Operations career pathways, and cybersecurity training. Rolling BAA cycles and annual solicitations.", fundingAmount: "$500,000 - $1,500,000", sourceUrl: "https://skillbridge.osd.mil/", grantType: "federal", focusAreas: ["veteran transition", "military to civilian", "SkillBridge", "space operations", "cybersecurity", "AI/ML workforce", "defense technology", "credential translation", "career pathways"], eligibilityCriteria: "DoD SkillBridge-approved or pending training providers supporting military transition", source: "federal_dod", category: "workforce" },
         { title: "DoD Cyber Workforce Development Grants", agency: "Department of Defense / Cyber Command", description: "Federal funding for cybersecurity workforce development, training pipeline creation, and credential programs. Supports programs producing CompTIA Security+, CISSP, and cyber operations certifications for transitioning military and underserved populations.", fundingAmount: "$250,000 - $1,000,000", sourceUrl: "https://www.cybercom.mil/", grantType: "federal", focusAreas: ["cybersecurity", "workforce development", "military transition", "credential programs", "STEM"], eligibilityCriteria: "Training providers with cybersecurity credential programs", source: "federal_dod", category: "workforce" },
+        // === City of Austin local funding sources (added May 9, 2026) ===
+        // 🚨 GOTCHA: Per replit.md firewall, Meredith Sisnett (City of Austin employee) MUST NOT be listed
+        // on ANY of these as staff/co-lead/board/partner. Confirm with Dr. Flood before each submission.
+        { title: "City of Austin — Austin Economic Injury (AEI) / EDD Small Business Grants", agency: "City of Austin Economic Development Department", description: "City of Austin EDD funds small business technical assistance, minority/women/veteran business development, BIPOC entrepreneur cohorts, and economic-injury recovery for underserved Austin neighborhoods. Recurring rounds; check the bid portal for current solicitations.", fundingAmount: "$25,000 - $250,000", sourceUrl: "https://www.austintexas.gov/department/economic-development", grantType: "city_grant", focusAreas: ["small business", "minority business", "economic development", "workforce", "entrepreneurship", "BIPOC"], eligibilityCriteria: "Austin-area 501(c)(3) nonprofits, BIPOC-owned small businesses, MWBE certified entities. CONFIRM staff list with Dr. Flood — Meredith Sisnett firewall.", source: "city_austin", category: "workforce" },
+        { title: "City of Austin — Cultural Arts Funding (Nexus, Elevate, Thrive)", agency: "City of Austin Economic Development Department — Cultural Arts Division", description: "City of Austin's three cultural arts programs: Nexus (project-based, $5K), Elevate (operational, up to $150K for established orgs), and Thrive (multi-year capacity, up to $150K/yr × 3 for BIPOC-led legacy orgs). Funds creative workforce, community arts education, and culturally-rooted programming.", fundingAmount: "$5,000 - $450,000 (3-yr)", sourceUrl: "https://www.austintexas.gov/department/cultural-funding", grantType: "city_grant", focusAreas: ["cultural arts", "BIPOC arts organizations", "community engagement", "creative workforce", "arts education"], eligibilityCriteria: "Austin-based individual artists, arts orgs, or fiscally-sponsored projects. CONFIRM staff list with Dr. Flood — Meredith Sisnett firewall.", source: "city_austin", category: "community" },
+        { title: "Austin Public Health (APH) — Community Services Block Grant & Wellness", agency: "Austin Public Health (City of Austin)", description: "APH funds behavioral health, harm reduction, maternal/child health, food security, immunization access, HIV services, and CSBG-funded poverty alleviation programs serving Travis County residents. Recurring competitive solicitations posted to AustinTexas.gov bid portal.", fundingAmount: "$50,000 - $500,000", sourceUrl: "https://www.austintexas.gov/department/health", grantType: "city_grant", focusAreas: ["behavioral health", "maternal health", "food security", "harm reduction", "community wellness", "health equity", "CSBG"], eligibilityCriteria: "Austin/Travis County 501(c)(3)s with relevant service history. CONFIRM staff list with Dr. Flood — Meredith Sisnett firewall.", source: "city_austin", category: "health" },
+        { title: "Austin Housing Finance Corporation (AHFC) — Community Development Programs", agency: "Austin Housing Finance Corporation / City of Austin Housing Department", description: "AHFC funds affordable housing development, supportive housing, homelessness prevention, tenant stabilization, and CHDO operating support. Includes RHDA (Rental Housing Development Assistance) and OHDA (Ownership Housing Development Assistance) NOFA cycles.", fundingAmount: "$100,000 - $5,000,000", sourceUrl: "https://www.austintexas.gov/department/housing", grantType: "city_grant", focusAreas: ["affordable housing", "homelessness prevention", "supportive housing", "community development", "tenant services"], eligibilityCriteria: "Certified CHDOs, affordable housing developers, supportive-services nonprofits in Austin. CONFIRM staff list with Dr. Flood — Meredith Sisnett firewall.", source: "city_austin", category: "community" },
+        { title: "City of Austin — Bid & Solicitation Portal (recurring scan target)", agency: "City of Austin Purchasing Office", description: "Master portal for ALL active City of Austin bids, RFPs, RFQs, and grant solicitations across every department (EDD, APH, AHFC, AEDD, Parks, Watershed, ATD). Manual review weekly recommended; this entry is a placeholder to keep the portal in the discovery digest. AUTO-SCRAPING NOT YET WIRED — treat as a manual review reminder until a source connector is built.", fundingAmount: "Varies by solicitation", sourceUrl: "https://www.austintexas.gov/financeonline/finance/contracting_central.cfm", grantType: "city_grant", focusAreas: ["all city departments", "RFP", "RFQ", "bid", "solicitation"], eligibilityCriteria: "Per individual solicitation. CONFIRM staff list with Dr. Flood for any City response — Meredith Sisnett firewall.", source: "city_austin", category: "community" },
+        // === Aggregator portals (added May 9, 2026) — paywalled, no public API. Recurring manual-review reminders. ===
+        { title: "BidNet Direct — Texas State & Local RFPs (recurring scan target)", agency: "BidNet Direct (national aggregator)", description: "BidNet Direct aggregates state, county, city, and special-district RFPs/RFQs across Texas and 49 other states. Includes filters for nonprofit-eligible solicitations, set-asides, and registration with hundreds of TX agencies. PAID SUBSCRIPTION REQUIRED for full access (~$1,500/yr Texas State & Local). Free tier shows headlines only. AUTO-SCRAPING NOT WIRED (paywall) — treat as a recurring weekly manual review reminder. Worth the subscription if we land 1+ award per year.", fundingAmount: "Varies by solicitation", sourceUrl: "https://www.bidnetdirect.com/texas", grantType: "aggregator", focusAreas: ["RFP", "RFQ", "state and local", "Texas", "set-asides", "MWBE", "nonprofit"], eligibilityCriteria: "Per individual solicitation. Subscription needed for proposal-ready details.", source: "aggregator", category: "community" },
+        { title: "RFP Mart — Public-Sector RFPs (recurring scan target)", agency: "RFPMart.com (national aggregator)", description: "RFPMart aggregates public-sector RFPs/RFQs/RFIs across the U.S. with strong coverage of Texas state agencies, school districts, and municipalities. Free email-alert tier (filterable by category and state) gives same-day notification of new postings. AUTO-SCRAPING NOT WIRED — treat as a recurring weekly manual review reminder. Recommendation: set up free email alerts for TX + categories matching the ecosystem (workforce, behavioral health, IT services, training, community services).", fundingAmount: "Varies by solicitation", sourceUrl: "https://www.rfpmart.com/", grantType: "aggregator", focusAreas: ["RFP", "RFQ", "RFI", "Texas", "school districts", "municipalities", "state agencies"], eligibilityCriteria: "Per individual solicitation. Set up free TX email alerts for proactive flow.", source: "aggregator", category: "community" },
+        // === Statewide Texas funders (added May 9, 2026) — covers TWC + TEA + TX HHSC entries above ===
+        { title: "TDHCA — Community Affairs / CSBG / Homelessness Programs", agency: "Texas Department of Housing and Community Affairs (State of Texas)", description: "TDHCA Community Affairs Division administers CSBG, LIHEAP, weatherization, ESG (Emergency Solutions Grant), and homelessness prevention NOFAs across all 254 Texas counties. Includes statewide nonprofit-eligible homelessness, energy assistance, and community services funding.", fundingAmount: "$50,000 - $2,000,000", sourceUrl: "https://www.tdhca.texas.gov/community-affairs", grantType: "state_grant", focusAreas: ["homelessness", "CSBG", "LIHEAP", "energy assistance", "community services", "ESG"], eligibilityCriteria: "Texas-based 501(c)(3)s, CAAs, and ESG-eligible service providers", source: "tx_statewide", category: "community" },
+        { title: "Texas Veterans Commission — Veterans Mental Health & Fund for Veterans Assistance", agency: "Texas Veterans Commission (State of Texas)", description: "TVC administers the Fund for Veterans Assistance (FVA) supporting community-based veteran services across Texas: mental health, transportation, housing, employment, family services, and crisis intervention. Annual NOFA with two tracks (general and county-targeted).", fundingAmount: "$50,000 - $250,000", sourceUrl: "https://www.tvc.texas.gov/grants/", grantType: "state_grant", focusAreas: ["veteran services", "veteran mental health", "veteran housing", "veteran employment", "crisis intervention"], eligibilityCriteria: "Texas-based 501(c)(3)s and government entities serving veterans and their families", source: "tx_statewide", category: "health" },
+        { title: "Hogg Foundation for Mental Health — Statewide Texas Mental Health Funding", agency: "Hogg Foundation for Mental Health (UT Austin / statewide TX)", description: "Hogg Foundation funds statewide Texas mental-health initiatives spanning policy advocacy, peer-led recovery, anti-stigma, mental-health workforce, and culturally-responsive community programs. Supports both project grants and longer-term capacity grants. Strong alignment with whole-person health and behavioral health platforms.", fundingAmount: "$25,000 - $1,500,000", sourceUrl: "https://hogg.utexas.edu/grants", grantType: "foundation", focusAreas: ["mental health", "behavioral health", "peer support", "policy advocacy", "anti-stigma", "mental health workforce"], eligibilityCriteria: "Texas-based 501(c)(3)s and university-affiliated programs", source: "tx_statewide", category: "health" },
+        { title: "Episcopal Health Foundation — Texas Community Health & Health Equity", agency: "Episcopal Health Foundation (statewide TX, headquartered Houston)", description: "EHF funds community health, health equity, social determinants of health, and church-community partnerships across the 57-county Episcopal Diocese of Texas footprint (most of east/central/southeast Texas, including Travis County). Multi-year capacity, project, and CHW-focused grants.", fundingAmount: "$50,000 - $750,000", sourceUrl: "https://www.episcopalhealth.org/grants/", grantType: "foundation", focusAreas: ["community health", "health equity", "social determinants of health", "community health workers", "faith-based partnerships"], eligibilityCriteria: "501(c)(3)s within the 57-county EHF service area (Travis County eligible)", source: "tx_statewide", category: "health" },
+        { title: "Meadows Foundation — Statewide Texas General-Operating & Project Grants", agency: "Meadows Foundation (statewide TX)", description: "Meadows funds statewide Texas grants across health, education, civic engagement, mental health, and arts/culture. Strong track record on community-led programs, criminal justice reform, and behavioral health. Annual rolling intake.", fundingAmount: "$25,000 - $500,000", sourceUrl: "https://www.mfi.org/grants", grantType: "foundation", focusAreas: ["health", "education", "mental health", "criminal justice reform", "civic engagement", "arts and culture"], eligibilityCriteria: "Texas-based 501(c)(3)s with statewide or regional reach", source: "tx_statewide", category: "community" },
+        { title: "RGK Foundation — Statewide Texas Education, Community & Health", agency: "RGK Foundation (Austin, TX — statewide reach)", description: "RGK funds statewide Texas education, community service, and health initiatives — particularly programs serving disadvantaged youth, formal/informal education, leadership development, and innovation in community health. Annual cycles.", fundingAmount: "$25,000 - $250,000", sourceUrl: "https://www.rgkfoundation.org/grants/", grantType: "foundation", focusAreas: ["education", "community service", "youth development", "health", "leadership development"], eligibilityCriteria: "Texas and U.S. 501(c)(3)s with strong evaluation plans", source: "tx_statewide", category: "education" },
+        { title: "Communities Foundation of Texas (CFT) — Statewide TX Community Grants", agency: "Communities Foundation of Texas (statewide TX)", description: "CFT runs statewide grant cycles plus North Texas Giving Day pass-through, scholarship funds, and Working Families Success grants. Focus areas include education, workforce, health, basic needs, and BIPOC-led nonprofits. Multi-year capacity grants available.", fundingAmount: "$10,000 - $500,000", sourceUrl: "https://www.cftexas.org/grants", grantType: "foundation", focusAreas: ["education", "workforce", "health", "basic needs", "BIPOC-led nonprofits", "working families"], eligibilityCriteria: "Texas 501(c)(3)s, with priority on North Texas + statewide programs", source: "tx_statewide", category: "community" },
+        { title: "Texas Bar Foundation — Justice, Reentry & Civil Legal Aid Grants", agency: "Texas Bar Foundation (statewide TX)", description: "Texas Bar Foundation funds legal aid, civil rights, criminal justice reform, reentry support, court-related programs, and pro-bono initiatives across all 254 Texas counties. Annual competitive grants plus a separate Lloyd Lochridge Fellowship.", fundingAmount: "$5,000 - $100,000", sourceUrl: "https://www.txbf.org/grants/", grantType: "foundation", focusAreas: ["legal aid", "civil rights", "criminal justice reform", "reentry", "pro-bono"], eligibilityCriteria: "Texas-based 501(c)(3)s and bar-affiliated programs", source: "tx_statewide", category: "justice" },
       ];
 
       for (const co of curatedOpportunities) {
@@ -6540,4 +6560,110 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
     lastDiscoveryResult = await runDailyGrantDiscovery();
     lastDailyDiscoveryRun = new Date();
   }, 24 * 60 * 60 * 1000);
+
+  // === Weekly Monday digest (added May 9, 2026) ===
+  // User directive: "Every Monday and upon request." On-request path is POST /api/grants/digest/send.
+  // Auto path: hourly tick — fires when it is Monday 8:00–8:59 AM America/Chicago AND the last
+  // automated send was >6 days ago. RESTART-SAFE: last-send timestamp is persisted to the
+  // grant_alerts table (sentinel row with alertType='weekly_digest_sent') so a restart inside
+  // the Monday 8am window does NOT cause a double-send. Recipients: GRANT_DIGEST_RECIPIENTS
+  // env var (comma-separated) OR default to Dr. Flood institutional.
+  const DEFAULT_DIGEST_RECIPIENT = "terryflood@thrivingcommunitiesforall.com";
+  const WEEKLY_DIGEST_SENTINEL = "weekly_digest_sent";
+
+  async function getLastWeeklyDigestSentAt(): Promise<Date | null> {
+    try {
+      const rows = await db.select({ createdAt: grantAlerts.createdAt })
+        .from(grantAlerts)
+        .where(eq(grantAlerts.alertType, WEEKLY_DIGEST_SENTINEL))
+        .orderBy(desc(grantAlerts.createdAt))
+        .limit(1);
+      return rows[0]?.createdAt ?? null;
+    } catch (e) {
+      console.error("[GrantDigestCron] Failed to read last-sent sentinel:", e);
+      return null;
+    }
+  }
+
+  async function recordWeeklyDigestSent(recipientCount: number, opportunityCount: number): Promise<void> {
+    try {
+      await db.insert(grantAlerts).values({
+        grantId: null as any,
+        alertType: WEEKLY_DIGEST_SENTINEL,
+        title: "Weekly Monday digest auto-sent",
+        message: `Sent to ${recipientCount} recipient(s); ${opportunityCount} opportunities included.`,
+        fitScore: 0,
+      });
+    } catch (e) {
+      // CRITICAL: if we can't record the send, refuse to claim success — next tick will retry.
+      console.error("[GrantDigestCron] FAILED to record sentinel — next tick may re-send:", e);
+      throw e;
+    }
+  }
+
+  async function sendWeeklyDigestAuto(): Promise<{ ok: boolean; sentTo: string[]; count: number; error?: string }> {
+    const days = 7;
+    const recipientsRaw = (process.env.GRANT_DIGEST_RECIPIENTS || DEFAULT_DIGEST_RECIPIENT).trim();
+    const recipients = recipientsRaw.split(",").map(s => s.trim()).filter(s => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(s));
+    if (recipients.length === 0) {
+      return { ok: false, sentTo: [], count: 0, error: "No valid recipients configured (GRANT_DIGEST_RECIPIENTS env var or default)." };
+    }
+    try {
+      const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+      const rows = await db.select().from(grantOpportunities)
+        .where(gte(grantOpportunities.createdAt, since))
+        .orderBy(desc(grantOpportunities.fitScore), desc(grantOpportunities.createdAt))
+        .limit(50);
+      const html = renderGrantDigestHtml(rows, days);
+      const subject = `[ThriveUp] Weekly Grant Digest — ${rows.length} new opportunities (Mon ${new Date().toLocaleDateString("en-US", { timeZone: "America/Chicago" })})`;
+      const { sendPartnerNotification } = await import("./email-service");
+      const sent: string[] = [];
+      for (const r of recipients) {
+        const ok = await sendPartnerNotification(r, subject, html);
+        if (ok) sent.push(r);
+        else console.error(`[GrantDigestCron] Email send failed for ${r}`);
+      }
+      return { ok: sent.length > 0, sentTo: sent, count: rows.length };
+    } catch (e) {
+      console.error("[GrantDigestCron] Auto-send error:", e);
+      return { ok: false, sentTo: [], count: 0, error: String(e) };
+    }
+  }
+
+  setInterval(async () => {
+    try {
+      // Compute current day-of-week and hour in America/Chicago
+      const fmt = new Intl.DateTimeFormat("en-US", {
+        timeZone: "America/Chicago",
+        weekday: "short",
+        hour: "2-digit",
+        hour12: false,
+      });
+      const parts = fmt.formatToParts(new Date());
+      const weekday = parts.find(p => p.type === "weekday")?.value;
+      const hour = parseInt(parts.find(p => p.type === "hour")?.value || "0", 10);
+      const isMondayMorning = weekday === "Mon" && hour === 8;
+      if (!isMondayMorning) return;
+      // RESTART-SAFE: read last-sent timestamp from DB sentinel, not in-memory variable.
+      const lastSent = await getLastWeeklyDigestSentAt();
+      const sinceLast = lastSent ? Date.now() - lastSent.getTime() : Infinity;
+      if (sinceLast < 6 * 24 * 60 * 60 * 1000) return; // already sent this Monday
+      console.log("[GrantDigestCron] Monday 8am CT detected — sending weekly digest...");
+      const result = await sendWeeklyDigestAuto();
+      if (result.ok) {
+        try {
+          await recordWeeklyDigestSent(result.sentTo.length, result.count);
+          console.log(`[GrantDigestCron] Sent to ${result.sentTo.length} recipient(s) — ${result.count} opportunities; sentinel persisted.`);
+        } catch {
+          console.error("[GrantDigestCron] Send succeeded but sentinel write failed — manual cleanup may be needed to prevent next-tick duplicate.");
+        }
+      } else {
+        console.error("[GrantDigestCron] FAILED:", result.error || "Email provider rejected");
+      }
+    } catch (e) {
+      console.error("[GrantDigestCron] tick error:", e);
+    }
+  }, 60 * 60 * 1000); // hourly tick
+
+  console.log("[GrantDigestCron] Weekly Monday digest enabled (8am America/Chicago). Recipients env: GRANT_DIGEST_RECIPIENTS (default: " + DEFAULT_DIGEST_RECIPIENT + ")");
 }
