@@ -4738,4 +4738,24 @@ export const insertSafetyEscalationSchema = createInsertSchema(safetyEscalations
 export type InsertSafetyEscalation = z.infer<typeof insertSafetyEscalationSchema>;
 export type SafetyEscalation = typeof safetyEscalations.$inferSelect;
 
+export const platformFunderFit = pgTable("platform_funder_fit", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  platformId: varchar("platform_id", { length: 80 }).notNull(),
+  platformName: text("platform_name").notNull(),
+  platformPublicVisible: boolean("platform_public_visible").notNull().default(false),
+  funderSlug: varchar("funder_slug", { length: 80 }).notNull(),
+  funderName: text("funder_name").notNull(),
+  fitPoints: integer("fit_points").notNull().default(0),
+  isQuintetMatch: boolean("is_quintet_match").notNull().default(false),
+  matchBasis: text("match_basis"),
+  rubricVersion: varchar("rubric_version", { length: 40 }).notNull(),
+  scoredAt: timestamp("scored_at").defaultNow(),
+}, (t) => [
+  index("idx_pff_funder").on(t.funderSlug),
+  index("idx_pff_platform").on(t.platformId),
+]);
+export const insertPlatformFunderFitSchema = createInsertSchema(platformFunderFit).omit({ id: true, scoredAt: true });
+export type InsertPlatformFunderFit = z.infer<typeof insertPlatformFunderFitSchema>;
+export type PlatformFunderFit = typeof platformFunderFit.$inferSelect;
+
 export * from "./models/auth";

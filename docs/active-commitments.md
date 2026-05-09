@@ -37,6 +37,46 @@
 
 ---
 
+## 📐 Funder fit scoring methodology v1.2026-05-09 (NEW May 9, 2026)
+
+**Reproducible rubric replacing all gut-feel scoring.** Lives in code as the `platform_funder_fit` table + the 6-component aggregation below. Re-runnable any time.
+
+**Score = A + B + C + D + E + F (max 100).**
+
+| Component | Range | Source of truth |
+|---|---|---|
+| **A. Platform fits** | 0–30 | `platform_funder_fit` table. Each row = one platform↔funder match with citation in `match_basis`. Public_visible platform = 4 pts; non-public = 2 pts. Sum capped at 30 (a single proposal can't credibly lead with more than ~7 platforms). |
+| **B. Quintet hits** | 0–40 | Count of fits where `is_quintet_match = true` × 8. Quintet IDs: `speech-bridge` (TYT), `civic-signal`, `lifebridge`, `whole-person-health`, `thriveup-academy`. |
+| **C. Cycle favorability** | -5 to +10 | Rolling LOI = +10 · 2+ cycles/yr = +8 · Annual NOFA = +5 · Closed = 0 · Irregular = -5 |
+| **D. Match requirement** | -5 to +5 | None = +5 · Cash match = 0 · ESG-style 100% = -5 |
+| **E. Award size fit** | 0–10 | $25K–$500K (sweet spot) = +10 · Wider with overlap = +5 · Sub-$25K only = 0 |
+| **F. Geographic eligibility** | -10 to +5 | Statewide TX, no penalty = +5 · Statewide but other-region preference = 0 · Out-of-area = -10 |
+
+**Honest results, statewide TX 8 funders (May 9, 2026):**
+
+| Rank | Funder | A | B | C | D | E | F | Total |
+|---|---|--:|--:|--:|--:|--:|--:|--:|
+| 1 | Meadows Foundation | 30 | 40 | 10 | 5 | 10 | 5 | **100** |
+| 2 | Episcopal Health Foundation | 30 | 32 | 10 | 5 | 10 | 5 | **92** |
+| 3 | Hogg Foundation for Mental Health | 30 | 32 | 8 | 5 | 10 | 5 | **90** |
+| 4 | Communities Foundation of Texas | 30 | 32 | 5 | 5 | 10 | 0 | **82** |
+| 5 | TVC FVA | 30 | 24 | 5 | 5 | 10 | 5 | **79** |
+| 6 | RGK Foundation | 18 | 24 | 10 | 5 | 10 | 5 | **72** |
+| 6 | Texas Bar Foundation | 20 | 32 | 5 | 5 | 5 | 5 | **72** |
+| 8 | TDHCA Community Affairs | 16 | 24 | 5 | -5 | 5 | 5 | **50** |
+
+**Disclosed correction:** TVC FVA was scored 95 in my Round-1 narrative (claimed 5/5 quintet). The `platform_funder_fit` table shows only **3/5 quintet platforms** have explicitly veteran-tagged capabilities in the live DB (WPH, LifeBridge, TYT). ThriveUp Academy and Civic Signal touch veterans narratively but lack the DB-tagged veteran capability — so the honest data-backed score is 79, not 95. TVC drops from rank #2 → rank #5. M2C's veteran specialization is captured in component A (it's one of the 8 vet-tagged platforms), not B.
+
+**Cadence #1–#3 status (May 9, 2026):**
+- ✅ #1 Push data-backed fit scores into `grant_opportunities.fit_score` — 8 rows, written through `samgov_notice_id`.
+- ✅ #2 Tabbara prior-award research on top 4 funders → `docs/grants/Tabbara-Top4-Intel.md` (Meadows $24.1M/160 awards 2024 · TVC $44.2M/181 grants FY24 · EHF $37.9M/156 awards 2024 · Hogg PPF/PFG/HPA concluding 2026, RFF active). Named officers identified for EHF (Cindy Lucia, Patrick Moreno-Covington); Hogg portal `hogg.fluxx.io`.
+- ✅ #3 `platform_funder_fit` table built (`shared/schema.ts` lines 4744-4762), `npm run db:push` applied, 66 fit rows seeded for 8 funders.
+- ⏳ #4 BidNet Direct + RFP Mart credentialed scrapers — secret request opened to user (BIDNET_USERNAME/PASSWORD/SAVED_SEARCH_URL, RFPMART_USERNAME/PASSWORD).
+
+**Future re-runs:** to re-score after platform changes, re-populate `platform_funder_fit` from the live `ecosystem_platforms` table, then aggregate via the SQL in this section. No gut.
+
+---
+
 ## ✅ AEI FY26 Equity Mini Grant — SUBMITTED (May 7, 2026)
 
 - **Status:** Application **submitted** via aei.grantplatform.com on May 7, 2026 (3 days ahead of the May 10, 11:59 PM CST deadline). Confirmation email received from City of Austin Equity & Inclusion (equity@austintexas.gov).
