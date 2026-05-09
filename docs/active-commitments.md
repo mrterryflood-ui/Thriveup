@@ -46,6 +46,39 @@
 
 SAM.gov · Grants.gov · Texas Workforce Commission · St. David's Foundation (active engagement) · RWJF · **City of Austin Austin Bid Search + AustinFinanceOnline (now reachable as approved vendor since May 7)** · Travis County/CapMetro/AISD RFPs · Foundation Directory Online (Candid) · Inside Philanthropy + Philanthropy News Digest · Bloomberg/MacArthur/Ford/Knight/Gates (issue-area RFPs).
 
+---
+
+## Pipeline tracker (built May 9, 2026)
+
+**The discovery engine was already automated** — daily 24-hour scan of SAM.gov + Grants.gov + USASpending.gov + curated state/foundation feeds. ~580 opportunities tracked, ~54 new/week. Audit reveals:
+
+### What's automated (was already running before today)
+- Daily scan cron in `server/grant-routes.ts:6359`
+- AI fit scoring + alert generation (`grant_alerts` table, 32 high-fit alerts logged)
+- 39 keyword domains scanned (workforce, BH, reentry, veteran, AI, maternal, etc.)
+- Status endpoint: `GET /api/grants/discovery/status`
+- Manual trigger: `POST /api/grants/discovery/run-now`
+
+### What was MISSING and got built today (May 9, 2026)
+- **"This Week" tab** in `/grant-command-center` — first tab, default view
+  - Shows last-N-days new opps (1/3/7/14/30 day window, configurable)
+  - Min-fit filter (all / ≥40 / ≥70)
+  - Fit distribution stat cards + by-source breakdown
+  - "Upcoming deadlines (act fast)" list with days-remaining urgency badges
+  - "Refresh" + "Preview Email" actions
+- **API endpoints:**
+  - `GET /api/grants/this-week?days=N&minFit=N` — JSON of new opps + stats
+  - `GET /api/grants/digest/preview?days=N` — rendered HTML preview of email digest
+  - `POST /api/grants/digest/send` — admin-only manual trigger, body `{to: "email", days: 7}`
+- **Email digest scaffolding** — uses Resend (already wired). Includes Tabbara-discipline reminder block.
+
+### Still NOT built (need user input or larger scope — propose next session)
+- [ ] **Auto-cron weekly email digest** — needs (a) recipient address confirmation (Dr. Flood `terryflood@thrivingcommunitiesforall.com`?), (b) preferred send day (Monday morning?). Ready to flip on with one config change.
+- [ ] **SAM.gov API key** — currently throwing 401 on every keyword (visible in logs). Without it, ~30 federal sources are dark.
+- [ ] **City of Austin Austin Bid Search source** — would scrape https://www.austintexas.gov/financeonline/finance/bid_search.cfm (now reachable as approved vendor since May 7).
+- [ ] **Saved searches** — custom user-defined keyword + region + amount triggers (schema add).
+- [ ] **Tabbara prior-awards UI workflow** — DB fields exist (`priorAwardsReviewed`, `priorAwardsCount`, etc. on `proposalPipeline`), no UI to enforce review-before-draft yet.
+
 ### Original active items (kept for partner pipeline reference)
 
 - **Partner outreach template:** `docs/grants/AEI-Partner-Outreach-Email-Template.md` — ready to send.

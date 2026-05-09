@@ -12,8 +12,217 @@ import {
   Target, Clock, CheckCircle2, AlertTriangle, Calendar,
   Plus, Search, FileText, DollarSign, Building2,
   ChevronRight, ExternalLink, Filter, TrendingUp,
-  BarChart3, Bell, Archive, XCircle, Send
+  BarChart3, Bell, Archive, XCircle, Send, Sparkles, Mail, RefreshCw
 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+
+interface ThisWeekResponse {
+  windowDays: number;
+  since: string;
+  totalNew: number;
+  bySource: Record<string, number>;
+  fitDistribution: { high: number; medium: number; low: number };
+  upcomingDeadlines: Array<{
+    id: string; title: string; agency: string | null;
+    deadline: string | null; fitScore: number | null; sourceUrl: string | null;
+  }>;
+  opportunities: Array<{
+    id: string; title: string; agency: string | null; fundingAmount: string | null;
+    deadline: string | null; description: string | null; sourceUrl: string | null;
+    fitScore: number | null; source: string | null; createdAt: string;
+    focusAreas: string[] | null;
+  }>;
+  lastDiscoveryRun: string | null;
+}
+
+function ThisWeekView() {
+  const [days, setDays] = useState(7);
+  const [minFit, setMinFit] = useState(0);
+  const { data, isLoading, refetch, isFetching } = useQuery<ThisWeekResponse>({
+    queryKey: ["/api/grants/this-week", days, minFit],
+    queryFn: async () => {
+      const res = await fetch(`/api/grants/this-week?days=${days}&minFit=${minFit}`);
+      if (!res.ok) throw new Error("Failed to load");
+      return res.json();
+    },
+  });
+
+  const lastRun = data?.lastDiscoveryRun ? new Date(data.lastDiscoveryRun) : null;
+  const lastRunStr = lastRun ? `${lastRun.toLocaleString()}` : "Not yet run this session";
+
+  return (
+    <div className="space-y-4" data-testid="view-this-week">
+      <Card className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 border-blue-200 dark:border-blue-800">
+        <div className="flex items-start justify-between gap-3 flex-wrap">
+          <div>
+            <h3 className="font-semibold text-base flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-blue-600" />
+              Discovery Engine Status
+            </h3>
+            <p className="text-xs text-muted-foreground mt-1">
+              Daily auto-scan: SAM.gov · Grants.gov · USASpending.gov · curated state/foundation feeds.
+            </p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Last run: <span className="font-mono">{lastRunStr}</span>
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Button
+              size="sm" variant="outline"
+              onClick={() => refetch()}
+              disabled={isFetching}
+              data-testid="button-refresh-this-week"
+            >
+              <RefreshCw className={`h-3.5 w-3.5 mr-1.5 ${isFetching ? "animate-spin" : ""}`} />
+              Refresh
+            </Button>
+            <Button
+              size="sm" variant="outline"
+              onClick={() => window.open(`/api/grants/digest/preview?days=${days}`, "_blank")}
+              data-testid="button-preview-digest"
+            >
+              <Mail className="h-3.5 w-3.5 mr-1.5" />
+              Preview Email
+            </Button>
+          </div>
+        </div>
+      </Card>
+
+      <div className="flex flex-wrap gap-2 items-center">
+        <Label className="text-xs text-muted-foreground">Window:</Label>
+        <Select value={String(days)} onValueChange={(v) => setDays(parseInt(v))}>
+          <SelectTrigger className="w-[140px] h-9" data-testid="select-window-days">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="1">Last 24 hours</SelectItem>
+            <SelectItem value="3">Last 3 days</SelectItem>
+            <SelectItem value="7">Last 7 days</SelectItem>
+            <SelectItem value="14">Last 14 days</SelectItem>
+            <SelectItem value="30">Last 30 days</SelectItem>
+          </SelectContent>
+        </Select>
+        <Label className="text-xs text-muted-foreground ml-3">Min fit:</Label>
+        <Select value={String(minFit)} onValueChange={(v) => setMinFit(parseInt(v))}>
+          <SelectTrigger className="w-[140px] h-9" data-testid="select-min-fit">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="0">All grants</SelectItem>
+            <SelectItem value="40">Medium+ (≥40)</SelectItem>
+            <SelectItem value="70">High fit only (≥70)</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {isLoading ? (
+        <Card className="p-8 text-center text-muted-foreground text-sm">Loading…</Card>
+      ) : !data || data.totalNew === 0 ? (
+        <Card className="p-8 text-center">
+          <Target className="h-8 w-8 mx-auto mb-2 opacity-40" />
+          <p className="text-sm text-muted-foreground">No new opportunities in the selected window.</p>
+        </Card>
+      ) : (
+        <>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <Card className="p-3 bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800">
+              <div className="text-2xl font-bold text-green-700 dark:text-green-300" data-testid="stat-high-fit">{data.fitDistribution.high}</div>
+              <div className="text-[10px] uppercase font-medium text-green-700 dark:text-green-400">High fit (≥70)</div>
+            </Card>
+            <Card className="p-3 bg-amber-50 dark:bg-amber-950 border-amber-200 dark:border-amber-800">
+              <div className="text-2xl font-bold text-amber-700 dark:text-amber-300" data-testid="stat-medium-fit">{data.fitDistribution.medium}</div>
+              <div className="text-[10px] uppercase font-medium text-amber-700 dark:text-amber-400">Medium (40-69)</div>
+            </Card>
+            <Card className="p-3">
+              <div className="text-2xl font-bold" data-testid="stat-total-new">{data.totalNew}</div>
+              <div className="text-[10px] uppercase font-medium text-muted-foreground">Total new</div>
+            </Card>
+            <Card className="p-3">
+              <div className="text-2xl font-bold" data-testid="stat-upcoming-deadlines">{data.upcomingDeadlines.length}</div>
+              <div className="text-[10px] uppercase font-medium text-muted-foreground">Upcoming deadlines</div>
+            </Card>
+          </div>
+
+          <Card className="p-3">
+            <div className="text-xs font-medium mb-2 text-muted-foreground">By source:</div>
+            <div className="flex flex-wrap gap-1.5">
+              {Object.entries(data.bySource).sort((a, b) => b[1] - a[1]).map(([s, n]) => (
+                <Badge key={s} variant="secondary" className="text-[10px]" data-testid={`badge-source-${s}`}>
+                  {s}: {n}
+                </Badge>
+              ))}
+            </div>
+          </Card>
+
+          {data.upcomingDeadlines.length > 0 && (
+            <Card className="p-3 border-orange-200 dark:border-orange-800">
+              <div className="text-xs font-semibold mb-2 flex items-center gap-1.5 text-orange-700 dark:text-orange-300">
+                <Clock className="h-3.5 w-3.5" /> Upcoming deadlines (act fast)
+              </div>
+              <div className="space-y-1.5">
+                {data.upcomingDeadlines.map((g) => {
+                  const daysLeft = g.deadline ? Math.ceil((new Date(g.deadline).getTime() - Date.now()) / 86400000) : null;
+                  return (
+                    <div key={g.id} className="flex items-center justify-between gap-2 text-xs border-b border-border pb-1.5 last:border-0" data-testid={`row-deadline-${g.id}`}>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium truncate">{g.title}</div>
+                        <div className="text-muted-foreground text-[10px]">{g.agency}</div>
+                      </div>
+                      <Badge variant={daysLeft && daysLeft <= 14 ? "destructive" : "secondary"} className="text-[10px] shrink-0">
+                        {daysLeft !== null ? `${daysLeft}d` : "—"}
+                      </Badge>
+                      {g.sourceUrl && (
+                        <a href={g.sourceUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline shrink-0" data-testid={`link-deadline-${g.id}`}>
+                          <ExternalLink className="h-3 w-3" />
+                        </a>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </Card>
+          )}
+
+          <Card>
+            <div className="p-3 border-b border-border">
+              <h3 className="text-sm font-semibold">All new opportunities (sorted by fit score)</h3>
+            </div>
+            <div className="divide-y divide-border">
+              {data.opportunities.map((g) => {
+                const fs = g.fitScore || 0;
+                const fitColor = fs >= 70 ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                  : fs >= 40 ? "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200"
+                  : "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300";
+                return (
+                  <div key={g.id} className="p-3 hover:bg-muted/30 transition-colors" data-testid={`row-opportunity-${g.id}`}>
+                    <div className="flex items-start gap-3">
+                      <Badge className={`shrink-0 font-mono ${fitColor}`} data-testid={`badge-fit-${g.id}`}>{fs}</Badge>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium text-sm" data-testid={`text-title-${g.id}`}>{g.title}</div>
+                        <div className="text-xs text-muted-foreground mt-0.5">{g.agency}</div>
+                        <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-[11px] text-muted-foreground mt-1">
+                          <span><strong>Deadline:</strong> {g.deadline ? new Date(g.deadline).toISOString().slice(0, 10) : "rolling"}</span>
+                          <span><strong>Amount:</strong> {g.fundingAmount || "TBD"}</span>
+                          <span><strong>Source:</strong> {g.source}</span>
+                          <span><strong>Added:</strong> {new Date(g.createdAt).toISOString().slice(0, 10)}</span>
+                        </div>
+                        {g.sourceUrl && (
+                          <a href={g.sourceUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline inline-flex items-center gap-1 mt-1.5" data-testid={`link-source-${g.id}`}>
+                            View opportunity <ExternalLink className="h-3 w-3" />
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </Card>
+        </>
+      )}
+    </div>
+  );
+}
 
 type GrantStatus =
   | "identified"
@@ -2822,8 +3031,11 @@ export default function GrantCommandCenterPage() {
 
       <PipelineStats grants={grants} />
 
-      <Tabs defaultValue="pipeline" className="space-y-4">
+      <Tabs defaultValue="this-week" className="space-y-4">
         <TabsList>
+          <TabsTrigger value="this-week" data-testid="tab-this-week">
+            <Sparkles className="h-3.5 w-3.5 mr-1.5" /> This Week
+          </TabsTrigger>
           <TabsTrigger value="pipeline" data-testid="tab-pipeline">
             <Target className="h-3.5 w-3.5 mr-1.5" /> Pipeline
           </TabsTrigger>
@@ -2834,6 +3046,10 @@ export default function GrantCommandCenterPage() {
             <Bell className="h-3.5 w-3.5 mr-1.5" /> Recurring Watch
           </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="this-week">
+          <ThisWeekView />
+        </TabsContent>
 
         <TabsContent value="pipeline" className="space-y-3">
           <div className="flex flex-col md:flex-row gap-2">

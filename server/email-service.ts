@@ -98,9 +98,9 @@ export async function sendPartnerNotification(
   partnerEmail: string,
   subject: string,
   content: string
-) {
+): Promise<boolean> {
   const { client, fromEmail } = await getResendClient();
-  await safeSend(() => client.emails.send({
+  return await safeSend(() => client.emails.send({
     from: fromEmail,
     to: partnerEmail,
     subject,

@@ -31,6 +31,8 @@ An AI-powered national community infrastructure platform that connects individua
 - **MAP-GAP Lessons Learned:** `.agents/skills/map-gap/lessons-learned.md`
 - **Proposal Pipeline Seed:** `server/seed-proposal-pipeline.ts`
 - **Active Commitments / Continuity Log:** `docs/active-commitments.md` — running session memory (active grants, partner pipeline, ecosystem scan results, legal status, next-thread queue). Read at session start; update at session end.
+- **Grant Discovery Engine (already automated, running daily):** `server/grant-routes.ts` — 24h `setInterval` scan (line ~6359). Sources: SAM.gov (needs key — currently 401), Grants.gov (live, ~45 new/wk), USASpending.gov (live), curated state/foundation/corporate. ~580 opps tracked, ~54 new/week. Stats: `GET /api/grants/discovery/status`. Manual trigger: `POST /api/grants/discovery/run-now`.
+- **"This Week" digest tab (new May 9, 2026):** Inside `/grant-command-center` → "This Week" tab. Shows last-N-days new opportunities sorted by fit score, fit distribution, source breakdown, upcoming deadlines, with email-preview button. Endpoints: `GET /api/grants/this-week?days=7&minFit=0`, `GET /api/grants/digest/preview?days=7` (HTML), `POST /api/grants/digest/send` (admin-only, manual trigger; auto-cron NOT enabled — needs recipient confirmation).
 
 ## Architecture decisions
 - **Collaborative AI:** Employs a 4-engine synthesis (Gemini, Claude, GPT-4o-mini, DeepSeek R1) with RAG and implementation science frameworks for comprehensive AI capabilities.

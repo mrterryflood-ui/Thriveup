@@ -542,6 +542,81 @@ const grantCreateSchema = insertGrantOpportunitySchema.pick({
   eligibilityCriteria: true, focusAreas: true, sourceUrl: true, grantType: true,
 });
 
+function renderGrantDigestHtml(rows: GrantOpportunity[], days: number): string {
+  const high = rows.filter(r => (r.fitScore || 0) >= 70);
+  const medium = rows.filter(r => (r.fitScore || 0) >= 40 && (r.fitScore || 0) < 70);
+  const bySource: Record<string, number> = {};
+  for (const r of rows) bySource[r.source || "unknown"] = (bySource[r.source || "unknown"] || 0) + 1;
+
+  const renderRow = (g: GrantOpportunity) => {
+    const fs = g.fitScore || 0;
+    const fitColor = fs >= 70 ? "#276749" : fs >= 40 ? "#b7791f" : "#718096";
+    const fitLabel = fs >= 70 ? "HIGH FIT" : fs >= 40 ? "MEDIUM" : "LOW";
+    const deadlineStr = g.deadline ? new Date(g.deadline).toISOString().slice(0, 10) : "rolling / not stated";
+    const amount = g.fundingAmount || (g.awardCeiling ? `$${g.awardCeiling.toLocaleString()} ceiling` : "amount TBD");
+    return `
+      <tr style="border-bottom:1px solid #e2e8f0;">
+        <td style="padding:10px 8px;vertical-align:top;width:60px;">
+          <div style="background:${fitColor};color:white;font-size:11px;font-weight:bold;padding:3px 6px;border-radius:3px;text-align:center;">${fs}</div>
+          <div style="font-size:9px;color:${fitColor};text-align:center;margin-top:2px;">${fitLabel}</div>
+        </td>
+        <td style="padding:10px 8px;vertical-align:top;">
+          <div style="font-size:13px;font-weight:600;color:#1a365d;line-height:1.3;">${escapeHtml(g.title || "(no title)")}</div>
+          <div style="font-size:11px;color:#4a5568;margin-top:3px;">${escapeHtml(g.agency || "")}</div>
+          <div style="font-size:10px;color:#718096;margin-top:4px;">
+            <strong>Deadline:</strong> ${deadlineStr} &nbsp;·&nbsp; <strong>Amount:</strong> ${escapeHtml(amount)} &nbsp;·&nbsp; <strong>Source:</strong> ${escapeHtml(g.source || "unknown")}
+          </div>
+          ${g.sourceUrl ? `<div style="font-size:10px;margin-top:4px;"><a href="${escapeHtml(g.sourceUrl)}" style="color:#3182ce;">View opportunity →</a></div>` : ""}
+        </td>
+      </tr>`;
+  };
+
+  const sourceSummary = Object.entries(bySource)
+    .sort((a, b) => b[1] - a[1])
+    .map(([s, n]) => `<span style="display:inline-block;background:#edf2f7;padding:3px 8px;margin:2px;border-radius:3px;font-size:11px;"><strong>${escapeHtml(s)}</strong>: ${n}</span>`)
+    .join("");
+
+  return `
+<div style="max-width:720px;margin:0 auto;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;color:#2d3748;">
+  <div style="background:#1a365d;color:white;padding:20px;border-radius:6px 6px 0 0;">
+    <h1 style="margin:0;font-size:22px;">ThriveUp Grant Digest</h1>
+    <p style="margin:6px 0 0;font-size:13px;opacity:0.9;">${rows.length} new opportunities ingested in the last ${days} day${days === 1 ? "" : "s"}</p>
+  </div>
+  <div style="padding:18px;border:1px solid #e2e8f0;border-top:none;background:white;">
+    <table style="width:100%;border-collapse:collapse;margin-bottom:16px;">
+      <tr>
+        <td style="padding:8px;background:#f0fff4;border:1px solid #c6f6d5;text-align:center;width:33%;">
+          <div style="font-size:24px;font-weight:bold;color:#276749;">${high.length}</div>
+          <div style="font-size:11px;color:#2f855a;">HIGH FIT (≥70)</div>
+        </td>
+        <td style="padding:8px;background:#fffaf0;border:1px solid #feebc8;text-align:center;width:33%;">
+          <div style="font-size:24px;font-weight:bold;color:#b7791f;">${medium.length}</div>
+          <div style="font-size:11px;color:#975a16;">MEDIUM (40-69)</div>
+        </td>
+        <td style="padding:8px;background:#f7fafc;border:1px solid #e2e8f0;text-align:center;width:34%;">
+          <div style="font-size:24px;font-weight:bold;color:#4a5568;">${rows.length}</div>
+          <div style="font-size:11px;color:#718096;">TOTAL NEW</div>
+        </td>
+      </tr>
+    </table>
+
+    <div style="font-size:11px;color:#718096;margin-bottom:16px;">${sourceSummary}</div>
+
+    ${high.length > 0 ? `<h2 style="font-size:15px;color:#276749;border-bottom:2px solid #276749;padding-bottom:6px;margin-top:18px;">⭐ High-Fit Opportunities</h2>
+    <table style="width:100%;border-collapse:collapse;">${high.slice(0, 20).map(renderRow).join("")}</table>` : ""}
+
+    ${medium.length > 0 ? `<h2 style="font-size:15px;color:#b7791f;border-bottom:2px solid #b7791f;padding-bottom:6px;margin-top:24px;">Medium-Fit Opportunities (worth a look)</h2>
+    <table style="width:100%;border-collapse:collapse;">${medium.slice(0, 15).map(renderRow).join("")}</table>` : ""}
+
+    <div style="margin-top:24px;padding:12px;background:#ebf8ff;border-left:4px solid #3182ce;font-size:12px;color:#2c5282;border-radius:4px;">
+      <strong>Tabbara discipline reminder:</strong> Before drafting ANY proposal, log 20-30 prior award abstracts in the proposal pipeline. Skipping this step is the #1 cause of weak narratives.
+    </div>
+
+    <p style="font-size:11px;color:#a0aec0;margin-top:18px;text-align:center;">Generated by ThriveUp Grant Discovery Engine. Daily auto-scan: SAM.gov · Grants.gov · USASpending.gov · curated state/foundation feeds.</p>
+  </div>
+</div>`;
+}
+
 function grantToCSVRow(g: GrantOpportunity): string {
   const escape = (v: unknown) => {
     let s = String(v ?? "");
@@ -1072,7 +1147,10 @@ export function registerGrantRoutes(app: Express) {
     }
   });
 
-  app.get("/api/grants/:id", async (req, res) => {
+  app.get("/api/grants/:id", async (req, res, next) => {
+    // Reserved subpaths handled by other routes; let Express continue to them.
+    const reserved = new Set(["this-week", "digest", "discovery", "stats", "alerts", "report", "platform", "section-drafts", "collaborator-value-map"]);
+    if (reserved.has(getParamId(req))) return next();
     try {
       const [grant] = await db.select().from(grantOpportunities).where(eq(grantOpportunities.id, getParamId(req)));
       if (!grant) return res.status(404).json({ error: "Grant not found" });
@@ -3574,6 +3652,107 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
       res.json({ success: true, ...result, ranAt: lastDailyDiscoveryRun.toISOString() });
     } catch (error) {
       res.status(500).json({ error: "Manual discovery run failed", details: String(error) });
+    }
+  });
+
+  // === Weekly digest: "This Week's New RFPs" ===
+  // Returns opportunities ingested in the last N days, sorted by fit score (desc) then deadline.
+  // Default 7 days. Used by the "This Week" tab in Grant Command Center.
+  app.get("/api/grants/this-week", async (req, res) => {
+    try {
+      const days = Math.max(1, Math.min(90, parseInt(String(req.query.days || "7"), 10) || 7));
+      const minFit = Math.max(0, Math.min(100, parseInt(String(req.query.minFit || "0"), 10) || 0));
+      const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+
+      const rows = await db.select().from(grantOpportunities)
+        .where(and(
+          gte(grantOpportunities.createdAt, since),
+          gte(grantOpportunities.fitScore, minFit),
+        ))
+        .orderBy(desc(grantOpportunities.fitScore), desc(grantOpportunities.createdAt))
+        .limit(200);
+
+      const totalsBySource: Record<string, number> = {};
+      let highFit = 0, mediumFit = 0, lowFit = 0;
+      for (const r of rows) {
+        totalsBySource[r.source || "unknown"] = (totalsBySource[r.source || "unknown"] || 0) + 1;
+        const fs = r.fitScore || 0;
+        if (fs >= 70) highFit++;
+        else if (fs >= 40) mediumFit++;
+        else lowFit++;
+      }
+
+      const upcomingDeadlines = rows
+        .filter(r => r.deadline && new Date(r.deadline).getTime() > Date.now())
+        .sort((a, b) => new Date(a.deadline!).getTime() - new Date(b.deadline!).getTime())
+        .slice(0, 10);
+
+      res.json({
+        windowDays: days,
+        since: since.toISOString(),
+        totalNew: rows.length,
+        bySource: totalsBySource,
+        fitDistribution: { high: highFit, medium: mediumFit, low: lowFit },
+        upcomingDeadlines: upcomingDeadlines.map(g => ({
+          id: g.id, title: g.title, agency: g.agency, deadline: g.deadline,
+          fitScore: g.fitScore, sourceUrl: g.sourceUrl,
+        })),
+        opportunities: rows,
+        lastDiscoveryRun: lastDailyDiscoveryRun?.toISOString() || null,
+      });
+    } catch (error) {
+      console.error("Error in GET /api/grants/this-week", error);
+      res.status(500).json({ error: "Internal server error", details: String(error) });
+    }
+  });
+
+  // Returns the digest as ready-to-send HTML (for preview before email send).
+  app.get("/api/grants/digest/preview", async (req, res) => {
+    try {
+      const days = Math.max(1, Math.min(90, parseInt(String(req.query.days || "7"), 10) || 7));
+      const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+      const rows = await db.select().from(grantOpportunities)
+        .where(gte(grantOpportunities.createdAt, since))
+        .orderBy(desc(grantOpportunities.fitScore), desc(grantOpportunities.createdAt))
+        .limit(50);
+      const html = renderGrantDigestHtml(rows, days);
+      res.type("html").send(html);
+    } catch (error) {
+      console.error("Error in GET /api/grants/digest/preview", error);
+      res.status(500).json({ error: "Internal server error", details: String(error) });
+    }
+  });
+
+  // Manually send the digest to a recipient. Strict admin-only (role === "admin").
+  // No auto-cron yet — toggle when ready.
+  app.post("/api/grants/digest/send", requireAuth, async (req, res) => {
+    try {
+      const userId = getUserId(req);
+      const user = userId ? await storage.getUser(userId) : null;
+      if (user?.role !== "admin") {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+      const days = Math.max(1, Math.min(90, parseInt(String(req.body?.days || "7"), 10) || 7));
+      const recipient = String(req.body?.to || "").trim();
+      if (!recipient || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(recipient)) {
+        return res.status(400).json({ error: "Valid 'to' email required" });
+      }
+      const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+      const rows = await db.select().from(grantOpportunities)
+        .where(gte(grantOpportunities.createdAt, since))
+        .orderBy(desc(grantOpportunities.fitScore), desc(grantOpportunities.createdAt))
+        .limit(50);
+      const html = renderGrantDigestHtml(rows, days);
+      const subject = `[ThriveUp] Grant Digest — ${rows.length} new opportunities (last ${days} days)`;
+      const { sendPartnerNotification } = await import("./email-service");
+      const ok = await sendPartnerNotification(recipient, subject, html);
+      if (!ok) {
+        return res.status(502).json({ error: "Email provider rejected the send. Check server logs for [Email] FAILED entry." });
+      }
+      res.json({ ok: true, sentTo: recipient, count: rows.length, windowDays: days });
+    } catch (error) {
+      console.error("Error in POST /api/grants/digest/send", error);
+      res.status(500).json({ error: "Send failed", details: String(error) });
     }
   });
 
