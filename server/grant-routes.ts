@@ -3675,6 +3675,38 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
     }
   });
 
+  // Manual-trigger BidNet Direct + RFP Mart aggregator pull. NOT on auto-cron because
+  // (a) both portals are paywalled and ToS-sensitive, (b) HTML is parsed by regex and
+  // is fragile. Admin-only.
+  app.post("/api/grants/discovery/aggregators/run-now", requireAdmin, async (req, res) => {
+    try {
+      const target = String(req.query.target || "both"); // "bidnet" | "rfpmart" | "both"
+      const { fetchBidNetSavedSearch, fetchRfpMartFeed, importAggregatorBatch } = await import("./scrapers/aggregators");
+      const results: Record<string, unknown> = {};
+      const errors: string[] = [];
+
+      if (target === "bidnet" || target === "both") {
+        try {
+          const opps = await fetchBidNetSavedSearch();
+          const imp = await importAggregatorBatch(opps, computeFitScore, generateReadinessChecklist);
+          results.bidnet = { fetched: opps.length, ...imp };
+        } catch (e) { errors.push(`bidnet: ${String(e)}`); results.bidnet = { error: String(e) }; }
+      }
+      if (target === "rfpmart" || target === "both") {
+        try {
+          const opps = await fetchRfpMartFeed();
+          const imp = await importAggregatorBatch(opps, computeFitScore, generateReadinessChecklist);
+          results.rfpmart = { fetched: opps.length, ...imp };
+        } catch (e) { errors.push(`rfpmart: ${String(e)}`); results.rfpmart = { error: String(e) }; }
+      }
+
+      res.json({ success: errors.length === 0, results, errors, ranAt: new Date().toISOString() });
+    } catch (error) {
+      console.error("Aggregator run failed:", error);
+      res.status(500).json({ error: "Aggregator run failed", details: String(error) });
+    }
+  });
+
   // === Weekly digest: "This Week's New RFPs" ===
   // Returns opportunities ingested in the last N days, sorted by fit score (desc) then deadline.
   // Default 7 days. Used by the "This Week" tab in Grant Command Center.

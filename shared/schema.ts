@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, integer, boolean, timestamp, jsonb, decimal, real, serial, numeric, index } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, integer, boolean, timestamp, jsonb, decimal, real, serial, numeric, index, uniqueIndex } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -4747,12 +4747,13 @@ export const platformFunderFit = pgTable("platform_funder_fit", {
   funderName: text("funder_name").notNull(),
   fitPoints: integer("fit_points").notNull().default(0),
   isQuintetMatch: boolean("is_quintet_match").notNull().default(false),
-  matchBasis: text("match_basis"),
+  matchBasis: text("match_basis").notNull(),
   rubricVersion: varchar("rubric_version", { length: 40 }).notNull(),
   scoredAt: timestamp("scored_at").defaultNow(),
 }, (t) => [
   index("idx_pff_funder").on(t.funderSlug),
   index("idx_pff_platform").on(t.platformId),
+  uniqueIndex("uq_pff_platform_funder_version").on(t.platformId, t.funderSlug, t.rubricVersion),
 ]);
 export const insertPlatformFunderFitSchema = createInsertSchema(platformFunderFit).omit({ id: true, scoredAt: true });
 export type InsertPlatformFunderFit = z.infer<typeof insertPlatformFunderFitSchema>;

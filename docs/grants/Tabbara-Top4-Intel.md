@@ -40,7 +40,9 @@
 
 ---
 
-## 2. Texas Veterans Commission — Fund for Veterans' Assistance — Fit 95 (Tier 1A)
+## 2. Texas Veterans Commission — Fund for Veterans' Assistance — Fit 79 (Tier 1B)
+
+> **Score correction (May 9, 2026):** Originally drafted at 95 in the narrative pass. Re-derived strictly from the `platform_funder_fit` table the same day → **79**. Reason: only 3/5 quintet platforms (WPH, LifeBridge, TYT) carry explicit veteran-tagged capabilities in the live DB. ThriveUp Academy and Civic Signal touch veterans narratively but aren't veteran-tagged in `ecosystem_platforms.grant_alignment` or `description`, so component B drops from 40 to 24. M2C's veteran specialization is captured in component A (it is one of 8 vet-tagged platforms), not B. **Caveat: this rubric likely under-weights a deeply-vet-specialized stack for vet-only funders. Consider a `funder_domain_specialization_bonus` in v2 of the rubric.** Current ranking: TVC moves from #2 → #5.
 
 | Field | Value |
 |---|---|
@@ -147,11 +149,12 @@
 
 ---
 
-## Summary table — Tier 1A capture sequence
+## Summary table — capture sequence (post-correction)
 
 | Rank | Funder | Score | Cycle action this quarter | Capture probability (round-1) |
 |---|---|---|---|---|
 | 1 | Meadows | 100 | Submit rolling LOI within 30 days | High |
-| 2 | TVC FVA | 95 | Prep FY27 application (already-open portal) | Medium-high (cash-flow & first-time-applicant) |
-| 3 | EHF | 92 | Cold-LOI to Cindy Lucia next quarterly window | Medium |
-| 4 | Hogg | 90 | Wait for next RFF RFP; line up UT/Dell-Med co-PI in interim | Medium |
+| 2 | EHF | 92 | Cold-LOI to Cindy Lucia next quarterly window | Medium |
+| 3 | Hogg | 90 | Wait for next RFF RFP; line up UT/Dell-Med co-PI in interim | Medium |
+| 4 | CFT | 82 | Submit to Working Families Success cycle; expect North-TX preference penalty | Medium-low |
+| 5 | TVC FVA | 79 | Prep FY27 application (already-open portal) — **strategic priority despite lower rubric score, given M2C-centric narrative** | Medium-high (cash-flow & first-time-applicant gates) |
