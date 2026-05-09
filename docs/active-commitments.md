@@ -33,6 +33,19 @@
 - [ ] Calendar reminder: late June 2026 — check for award decision.
 - [ ] Calendar reminder: if awarded, Community Advisory Circle must be seated in Month 1 per Q3 commitment.
 
+---
+
+## Funding sources EVALUATED & EXCLUDED (don't re-evaluate)
+
+| Source | Evaluated | Verdict | Why |
+|---|---|---|---|
+| **DANA Foundation** (Italian, RUNTS-registered) | May 8, 2026 | ❌ Geographic mismatch | Funds locally led development in the Global South; TCAF is US/Texas-based serving US residents. AI-screened intake calibrated against Global South community orgs. |
+| **globalsouthopportunities.com** (the aggregator site) | May 8, 2026 | ❌ Whole-site mismatch | Site explicitly serves "marginalized communities, particularly in the Global South." Sampled funding listings (Beyond Borders Scotland, ICRISAT, IGAD, AfCFTA) all geographically restrict to Global South orgs. Not worth monitoring for TCAF pipeline. |
+
+## Funding sources to PRIORITIZE for TCAF pipeline
+
+SAM.gov · Grants.gov · Texas Workforce Commission · St. David's Foundation (active engagement) · RWJF · **City of Austin Austin Bid Search + AustinFinanceOnline (now reachable as approved vendor since May 7)** · Travis County/CapMetro/AISD RFPs · Foundation Directory Online (Candid) · Inside Philanthropy + Philanthropy News Digest · Bloomberg/MacArthur/Ford/Knight/Gates (issue-area RFPs).
+
 ### Original active items (kept for partner pipeline reference)
 
 - **Partner outreach template:** `docs/grants/AEI-Partner-Outreach-Email-Template.md` — ready to send.
