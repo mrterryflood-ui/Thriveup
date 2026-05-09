@@ -31,6 +31,7 @@ const SOURCES = {
   replitMd: resolve(ROOT, "replit.md"),
   activeCommitments: resolve(ROOT, "docs/active-commitments.md"),
   lessonsLearned: resolve(ROOT, ".agents/skills/map-gap/lessons-learned.md"),
+  ecosystemCatalog: resolve(ROOT, "docs/ecosystem-catalog.md"),
 };
 const OUT_PATH = resolve(ROOT, ".agents/knowledge/compiled.json");
 
@@ -125,6 +126,7 @@ async function main() {
   const replitMd = safeRead(SOURCES.replitMd);
   const activeCommitments = safeRead(SOURCES.activeCommitments);
   const lessons = safeRead(SOURCES.lessonsLearned);
+  const ecosystemCatalog = safeRead(SOURCES.ecosystemCatalog);
 
   if (!replitMd) throw new Error(`Cannot read ${SOURCES.replitMd}`);
 
@@ -135,6 +137,23 @@ async function main() {
   const lessonSections = lessons
     ? parseMarkdownSections(lessons.content, ".agents/skills/map-gap/lessons-learned.md")
     : [];
+  const catalogSections = ecosystemCatalog
+    ? parseMarkdownSections(ecosystemCatalog.content, "docs/ecosystem-catalog.md")
+    : [];
+
+  // Extract ecosystem caveats (numbered list under "Critical caveats for any grant work")
+  const caveatsSection = catalogSections.find(s => /critical caveats/i.test(s.heading));
+  const ecosystemCaveats: Array<{ id: number; rule: string }> = [];
+  if (caveatsSection) {
+    const lineRe = /^\d+\.\s+(.+?)(?=\n\d+\.|\n\n|$)/gms;
+    let cm: RegExpExecArray | null;
+    let n = 1;
+    while ((cm = lineRe.exec(caveatsSection.body)) !== null) {
+      ecosystemCaveats.push({ id: n++, rule: cm[1].replace(/\s+/g, " ").trim().slice(0, 600) });
+    }
+  }
+  const quintetSection = catalogSections.find(s => /quintet/i.test(s.heading));
+  const quintet = quintetSection ? quintetSection.body.slice(0, 400) : "";
 
   // Section lookup helpers
   const findSection = (sections: Section[], slug: string) => sections.find(s => s.id === slug);
@@ -268,12 +287,13 @@ async function main() {
   };
 
   const compiled = {
-    version: "1.0.0",
+    version: "1.1.0",
     compiledAt: new Date().toISOString(),
     sources: [
       { path: "replit.md", mtime: replitMd.mtime },
       activeCommitments && { path: "docs/active-commitments.md", mtime: activeCommitments.mtime },
       lessons && { path: ".agents/skills/map-gap/lessons-learned.md", mtime: lessons.mtime },
+      ecosystemCatalog && { path: "docs/ecosystem-catalog.md", mtime: ecosystemCatalog.mtime },
       { path: "DB:ecosystem_platforms", mtime: new Date().toISOString() },
     ].filter(Boolean),
     project,
@@ -283,6 +303,8 @@ async function main() {
     user_preferences: userPreferences,
     vocab,
     platforms,
+    quintet,
+    ecosystem_caveats: ecosystemCaveats,
     active_commitments: {
       sections: activeCommitmentSections,
       no_go_list: noGoList,
@@ -297,6 +319,7 @@ async function main() {
       lessons: lessonsParsed.length,
       no_go: noGoList.length,
       active_commitment_sections: activeCommitmentSections.length,
+      ecosystem_caveats: ecosystemCaveats.length,
     },
   };
 

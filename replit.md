@@ -33,12 +33,13 @@ An AI-powered national community infrastructure platform that connects individua
 - **Active Commitments / Continuity Log:** `docs/active-commitments.md` — running session memory (active grants, partner pipeline, ecosystem scan results, legal status, next-thread queue). Read at session start; update at session end.
 - **Grant Discovery Engine (already automated, running daily):** `server/grant-routes.ts` — 24h `setInterval` scan (line ~6359). Sources: SAM.gov (needs key — currently 401), Grants.gov (live, ~45 new/wk), USASpending.gov (live), curated state/foundation/corporate. ~580 opps tracked, ~54 new/week. Stats: `GET /api/grants/discovery/status`. Manual trigger: `POST /api/grants/discovery/run-now`.
 - **"This Week" digest tab (new May 9, 2026):** Inside `/grant-command-center` → "This Week" tab. Shows last-N-days new opportunities sorted by fit score, fit distribution, source breakdown, upcoming deadlines, with email-preview button. Endpoints: `GET /api/grants/this-week?days=7&minFit=0`, `GET /api/grants/digest/preview?days=7` (HTML), `POST /api/grants/digest/send` (admin-only, manual trigger; auto-cron NOT enabled — needs recipient confirmation).
-- **🧠 Compiled Agent Knowledge Layer (new May 9, 2026):** Internal-only deterministic knowledge index for the Replit Agent (me). Inspired by VentureBeat's "RAG era is ending" article — replaces fuzzy retrieval with precomputed structured lookups for agent self-orientation. **End-user RAG (`server/rag-engine.ts`, 86 chunks) is UNTOUCHED and continues serving the public AI assistant — the two are parallel, not a swap.**
-  - Compiler: `scripts/compile-agent-knowledge.ts` — reads replit.md + docs/active-commitments.md + .agents/skills/map-gap/lessons-learned.md + queries `ecosystem_platforms` DB → emits `.agents/knowledge/compiled.json`.
-  - Output schema: `{ version, compiledAt, sources, project, stack, file_pointers, gotchas, user_preferences, vocab, platforms (live from DB), active_commitments{sections, no_go_list}, lessons_learned, session_protocol, counts }`. Stable IDs (slugified). Currently: 15 gotchas, 5 vocab mappings, 25 platforms, 5 no-go entries.
-  - Endpoints (`server/agent-knowledge-routes.ts`): `GET /api/agent/knowledge` (full index), `GET /api/agent/knowledge/topic/:key` (slice — gotchas, vocab, platforms, active_commitments, lessons_learned, etc.), `POST /api/agent/knowledge/recompile` (admin-only, runs compiler).
-  - Rebuild trigger: any time you edit replit.md, active-commitments.md, lessons-learned.md, or platform DB rows. Run `tsx scripts/compile-agent-knowledge.ts` OR POST recompile.
-  - Agent session protocol now lives inside the index itself (`session_protocol` key) so it's queryable, not just prose.
+- **🧠 Compiled Agent Knowledge Layer (May 9, 2026):** Internal-only deterministic knowledge index for the Replit Agent. Inspired by VentureBeat's "RAG era is ending" + Towards Data Science's "unified agentic memory across harnesses using hooks." End-user RAG (`server/rag-engine.ts`, 86 chunks) is **UNTOUCHED** — these are parallel.
+  - **Compiler:** `scripts/compile-agent-knowledge.ts` — reads `replit.md`, `docs/active-commitments.md`, `.agents/skills/map-gap/lessons-learned.md`, `docs/ecosystem-catalog.md`, queries `ecosystem_platforms` DB → emits `.agents/knowledge/compiled.json`. Re-run with `npx tsx scripts/compile-agent-knowledge.ts` after editing any source.
+  - **Hook endpoint (do this first at session start):** `GET /api/agent/knowledge/session-bootstrap` — compact briefing (~3KB): project header, session protocol, user prefs, vocab, critical gotchas only, quintet, ecosystem caveats, no-go list, file pointers, drill-down topics. Skips the verbose platform table.
+  - **Drill-down:** `GET /api/agent/knowledge/topic/:key` — full slice for any top-level key (`platforms`, `gotchas`, `lessons_learned`, `ecosystem_caveats`, `active_commitments`, `vocab`, `file_pointers`, etc.).
+  - **Full index:** `GET /api/agent/knowledge` (everything). **Recompile:** `POST /api/agent/knowledge/recompile` (admin-only, concurrency-locked).
+  - **Current counts:** 15 gotchas (3 critical) · 4 vocab · 25 platforms · 4 no-go · 5 ecosystem caveats · 7 lessons · 31 active-commitment sections · 16 file pointers.
+- **24-platform catalog moved out:** Full ecosystem catalog now lives at `docs/ecosystem-catalog.md` (compiled into the knowledge layer). `replit.md` keeps a one-paragraph summary + top caveats only — slimmed from 157 to ~105 lines while preserving 100% recall via the hook.
 
 ## Architecture decisions
 - **Collaborative AI:** Employs a 4-engine synthesis (Gemini, Claude, GPT-4o-mini, DeepSeek R1) with RAG and implementation science frameworks for comprehensive AI capabilities.
@@ -58,65 +59,14 @@ An AI-powered national community infrastructure platform that connects individua
 - **Donor Engagement:** Cryptographically-verifiable outcome receipts linking charitable gifts to service events.
 - **Ecosystem Management:** Hub for monitoring and managing the 24-platform ecosystem, including status and interoperability.
 
-## Ecosystem catalog — all 24 platforms (+ 1 unregistered)
-*Read this before writing any grant narrative. Verified liveness: May 7, 2026. Source of truth: `ecosystem_platforms` table; this table is a snapshot. Re-probe before linking in submissions.*
+## Ecosystem catalog
+**The full 24-platform catalog (+ 1 unregistered: Civic Signal) lives in `docs/ecosystem-catalog.md`** — moved May 9, 2026 to keep this file scannable. Read it before writing any grant narrative. The compiler reads it too, so it's also queryable at `GET /api/agent/knowledge/topic/ecosystem_caveats` and the live DB rows at `GET /api/agent/knowledge/topic/platforms`.
 
-**Status legend:** ✅ live & rendering · ⚠️ row exists but URL/data wrong · 🚧 host up but returns 404 · ❌ DNS dead, parked, or unreachable
+**Quintet to lead with in narratives:** Talk Your Talk · Civic Signal · LifeBridge · ThriveUp Academy · Whole-Person Health Ecosystem. Drop-in: `docs/grants/QUARTET-ONE-PAGER.md`.
 
-### Known but NOT in hub DB (must register)
-| ID | Name | URL | What it does | Status |
-|---|---|---|---|---|
-| (none) | **Civic Signal** | power2thepeople.net | Civic intelligence terminal: Live Civic Feed (1,448 court / 880 ord / 360 mtg), 10-step Prepare wizard, EN/ES. **One of the quartet but not registered in hub.** | ✅ |
+**Top caveats** (full list in `docs/ecosystem-catalog.md`): Civic Signal not in hub DB · TYT row's URL is wrong (`lexibridge.net` ≠ `talkyourtalk.net`) · 9 of 24 platforms aren't public-facing — re-probe before linking in submissions, check ALL aliases (`yourfeminineneeds.com` 404s but `herhealthmatters2.com` is live) · Some URLs are shared (`implementationineducatio.com` hosts both `isss` and `betterscience`).
 
-### Health Equity (10 platforms)
-| ID | Name | URL | What it does | Grants | Status |
-|---|---|---|---|---|---|
-| `whole-person-health` | **Whole-Person Health Ecosystem** | mentalwellnesssupport.net | **Behavioral-health safety floor under entire ecosystem.** No-login. C-SSRS/PHQ-9/GAD-7/PCL-5 screenings, safety plans, Reach-a-Vet, MAP-GAP, 20,670+ resources, offline PWA. Every platform routes crisis here. | SSG Fox, St. David's, WIOA, Foundation | ✅ |
-| `speech-bridge` | **Talk Your Talk** *(DB still says "LexiBridge")* | DB: lexibridge.net ❌ · **TRUE: talkyourtalk.net** ✅ | 89 spoken + 18 sign langs (incl. Black ASL, Intl Sign, Tactile Sign), 6 learning surfaces, crisis detection on every utterance, honest no-auto-988 disclosure. | St. David's, SSG Fox, WIOA, Foundation | ⚠️ true URL live; DB row needs URL+name fix (TYT connector self-registers — fix in TYT workspace) |
-| `sankofa` | Sankofa Health Network | yourhealthbirthright.net | Health-equity gateway orchestrating the 5 Sankofa sub-platforms; culturally-responsive BH assessments, GIS resource matching. | St. David's, SSG Fox, Foundation | ✅ |
-| `sankofa-maternal-health` | Black Maternal Health Network | yourhealthbirthright.net *(shared)* | Black maternal mortality response: doula matching, EPDS/PHQ-9 peripartum screening, postpartum recovery, CHW dispatch. | St. David's, SSG Fox, Foundation | ✅ |
-| `sankofa-mens-health` | Black Men's Health Hub | thehealthyblkman.com | Prostate/CV/diabetes prevention, BH stigma reduction, AUDIT-C/DAST-10, peer-mentor matching for Black men. | St. David's, SSG Fox, Foundation | ✅ |
-| `sankofa-feminine-health` | **HerHealth Network** (Holistic Black Feminine Health Hub) | **herhealthmatters2.com** (alias: myhealthybreast.com) — *old yourfeminineneeds.com is unbound; URL+name fixed in `ECOSYSTEM_PLATFORMS` array May 7, 2026* | OB/GYN, hormonal wellness, cervical/breast cancer awareness, menopause, culturally-responsive provider matching. | St. David's, Foundation | ✅ |
-| `safecognicare` | SafeCogniCare | safecognicare.com | TBI/ADHD/dementia/peripartum cognitive: MoCA/MMSE/Trail Making, early intervention, family caregiver burden. Critical for veteran TBI + maternal cognitive change. | SSG Fox, St. David's, Foundation | ✅ |
-| `perfectly-different` | Perfectly Different | neurodifferentassistant.app | Neurodiversity-affirming (autism, ADHD, AuDHD): IEP/504 templates, crisis routes to WPH, evidence-based therapy library. | St. David's, Foundation, WIOA | ✅ |
-| `pillscheduler` | PillScheduler | pillscheduler.net | Polypharmacy management: adaptive reminders, FDA interaction DB, care-team coordination, adherence scoring. | SSG Fox, St. David's, Foundation | ❌ |
-| `autoimmune-thrive` | Autoimmune Center of Excellence | autoimmunethrive.com | Lived-experience-built autoimmune companion: symptom check-ins, flare tracking, 80+ condition guides. | St. David's, Foundation, WIOA, SSG Fox | ❌ |
-
-### Community / Workforce / Veterans (4 platforms)
-| ID | Name | URL | What it does | Grants | Status |
-|---|---|---|---|---|---|
-| `lifebridge` | **LifeBridge** | lifetransitionsaid.org | Virtual 211 + CHW coordination across housing/food/health/MH/SUD/DV/crisis. 20,670+ resources. Addresses non-combat veteran-suicide drivers (divorce, job loss, retirement, bereavement). | St. David's, SSG Fox | ✅ |
-| `collaborative-advocate` | **The Collaborative Advocate** *(TCAF parent org)* | thrivingcommunitiesforall.com | The 501(c)(3) entity itself. Veteran-founded, Black-led VOSB. Service-delivery + grant-execution arm. Hosts ThriveUp Academy `/academy`. | All | ✅ |
-| `m2c` | Mission Transition (M2C) | vetmissiontransition.com | Full mil-to-civ transition: MOS/AFSC translation, GI Bill/VA/disability claims, identity transition for loss-of-purpose crisis, employer matching. | SSG Fox, WIOA, Foundation | ✅ |
-| `mce` | Minority Center of Excellence | minoritycenterofexcellence.com | 656,794 SAM.gov records; 14 AI tools across 6-stage business lifecycle; dual-AI (GPT+Claude) proposal review; 50-state certification coverage. | WIOA, Foundation, SSG Fox | ✅ |
-
-### Education (3 platforms)
-| ID | Name | URL | What it does | Grants | Status |
-|---|---|---|---|---|---|
-| `isss` | ISSS — Integrated Supports for Thriving Youth | implementationineducatio.com *(shared)* | Whole-child MTSS engine, early-warning indicators, Thrive Score, CFIR/RE-AIM fidelity tracking. | WIOA, Foundation, St. David's | ✅ |
-| `betterscience` | RPLICE — Research-to-Practice Lifecycle | implementationineducatio.com *(shared)* | Closes science→practice gap: live evidence search, project assessment, implementation planning, outcome tracking. CFIR 2.0 + RE-AIM. | SSG Fox, Foundation, WIOA, St. David's | ✅ |
-| `wholemind` | WholeMind Learning | wholemindlearning.com | Free Pre-K-12 visual-first learning, silent accessibility mode, AI homework help, gamified engagement. | WIOA, Foundation, St. David's | ❌ (parking lander) |
-
-### Compliance / Operations / Marketing / System (7 platforms)
-| ID | Name | URL | What it does | Grants | Status |
-|---|---|---|---|---|---|
-| `safereport` | SafeReport | safereports.net | Mandatory-reporter incident management: 50-state reg DB, 7-stage lifecycle, blockchain-anchored audit trails, court-admissible evidence. | SSG Fox, Foundation, St. David's | ✅ |
-| `emergency-mgmt` | Emergency Management | emergency-mgmt.replit.app | Risk intelligence: geographic risk maps, multi-factor safety analytics, ingests SafeReport/WPH/LifeBridge data for predictive safety models. | SSG Fox, Foundation, St. David's | 🚧 (404) |
-| `ecosystem-nexus` | Ecosystem Nexus | ecosystemnexus.net | Cross-platform health monitoring, directive enforcement, triad team-of-teams coordination, bilateral exchange protocols. | All | ❌ |
-| `code-canvas` | Code Canvas — System Evaluator | codecanvaseval.com | Independent code/architecture/perf audits across the ecosystem; QA backbone. | All | ❌ |
-| `ad-targeting` | Advertising Targeting for Platforms | adtargetingplatforms.com | Audience segmentation, A/B campaigns, cross-platform ad delivery for grant-funded program outreach. | WIOA, St. David's, Foundation, SSG Fox | ❌ |
-| `video-creator-ai` | Video Creator AI | videocreatorai.com | AI content production for the ecosystem: promo videos, grant decks, training, platform showcases. | All | ❌ |
-| `pinnacle-business-conglomerate` | Pinnacle Business Conglomerate | pinnaclebusinessconglomerate.com | Cradle-to-grave contractor enablement for minority/veteran-owned: 8(a)/HUBZone/SDVOSB/WOSB cert, dual-AI proposal dev, milestone tracking. | All | ❌ |
-
-### Quintet (the 5 platforms to lead with in narratives)
-**Talk Your Talk · Civic Signal · LifeBridge · ThriveUp Academy · Whole-Person Health Ecosystem.** See `docs/grants/QUARTET-ONE-PAGER.md` for the drop-in narrative.
-
-### Critical caveats for any grant work
-1. **Civic Signal is not in the hub DB.** It's part of the quintet but missing from `ecosystem_platforms`. Register it before next ecosystem-wide claim.
-2. **TYT row's URL is wrong.** DB says `lexibridge.net` (dead). True URL is `talkyourtalk.net`. The TYT connector self-registers as "LexiBridge" on every heartbeat — fix lives in TYT workspace, not here.
-3. **9 of 24 platforms are not currently public-facing** (DNS dead, parked, or 404). Never link to a platform in a proposal without re-probing first. **Probe ALL known aliases before declaring a platform dead** — `sankofa-feminine-health` was nearly removed because `yourfeminineneeds.com` 404s, but the same site is live at `herhealthmatters2.com` AND `myhealthybreast.com` (same payload). Always check the project's Publishing → Domains tab for verified alternate URLs. The ecosystem-alignment-scan script (`scripts/ecosystem-alignment-scan.sh`) and the probe pattern in `docs/active-commitments.md` ("SPA route 200 ≠ real page") apply here too.
-4. **Some URLs are shared.** `implementationineducatio.com` hosts BOTH `isss` and `betterscience`. `yourhealthbirthright.net` hosts BOTH `sankofa` and `sankofa-maternal-health`. `thrivingcommunitiesforall.com/academy` is ThriveUp Academy on the `collaborative-advocate` domain.
-5. **Always pull the full table before locking a narrative.** Today's quartet→quintet miss happened because I worked from in-context platforms instead of the DB. The cost is missed grant fits.
+<!-- The huge inline table that used to be here was extracted to docs/ecosystem-catalog.md on May 9, 2026 to reduce replit.md size while keeping recall via the compiler + bootstrap hook. -->
 
 ## User preferences
 - Prioritize iterative development; explain major changes before implementation.

@@ -654,7 +654,7 @@ User caught a strategic miss: the AEI quartet narrative omitted the mental-healt
 
 User feedback: *"You should know everyone and it should be in the md. Not knowing is going to make me miss opportunities."* This was the right call — we already lost one round today (quartet→quintet) because Whole-Person Health wasn't in working memory.
 
-**Now in `replit.md` as `## Ecosystem catalog — all 24 platforms (+ 1 unregistered)`:** every platform with id, name, URL, one-line description, grant alignment, and verified live/dead status as of May 7, 2026.
+**Now in `docs/ecosystem-catalog.md` (moved from replit.md May 9, 2026 to slim the README):** every platform with id, name, URL, one-line description, grant alignment, and verified live/dead status as of May 7, 2026. Also queryable structured via `GET /api/agent/knowledge/topic/platforms` (live DB rows) and `GET /api/agent/knowledge/topic/ecosystem_caveats` (parsed caveats).
 
 **Liveness summary (verified May 7, 2026):**
 - ✅ LIVE (13): mce, lifebridge, safereport, isss + betterscience (shared URL), sankofa-maternal + sankofa (shared URL), sankofa-mens, **sankofa-feminine-health (at herhealthmatters2.com / myhealthybreast.com — old yourfeminineneeds.com is unbound)**, perfectly-different, safecognicare, whole-person-health, collaborative-advocate, m2c

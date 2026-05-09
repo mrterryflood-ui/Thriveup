@@ -9,9 +9,14 @@
  * public AI assistant.
  *
  * Endpoints:
- *   GET  /api/agent/knowledge          — full compiled index
- *   GET  /api/agent/knowledge/topic/:k — narrowed slice by top-level key
- *   POST /api/agent/knowledge/recompile — re-run the compiler (admin-only)
+ *   GET  /api/agent/knowledge                     — full compiled index
+ *   GET  /api/agent/knowledge/topic/:k            — narrowed slice by top-level key
+ *   GET  /api/agent/knowledge/session-bootstrap   — compact briefing for session start (the "hook")
+ *   POST /api/agent/knowledge/recompile           — re-run the compiler (admin-only)
+ *
+ * The session-bootstrap endpoint follows the "unified agentic memory across harnesses
+ * via hooks" pattern: a single deterministic injection point the agent calls at fixed
+ * lifecycle moments instead of fuzzy-loading prose at random.
  */
 
 import type { Express, Request, Response } from "express";
@@ -30,6 +35,17 @@ function getUserId(req: Request): string | null {
   return u?.claims?.sub || u?.id || null;
 }
 
+// All knowledge endpoints expose internal evaluation data (no-go funder reasoning,
+// gotchas with personnel firewall warnings, internal platform metadata). Require auth.
+async function requireAuthedAgent(req: Request, res: Response): Promise<boolean> {
+  const userId = getUserId(req);
+  if (!userId) {
+    res.status(401).json({ error: "Authentication required for agent knowledge endpoints" });
+    return false;
+  }
+  return true;
+}
+
 function loadCompiled(): { ok: true; data: any; mtime: string } | { ok: false; error: string } {
   try {
     if (!existsSync(COMPILED_PATH)) {
@@ -45,8 +61,9 @@ function loadCompiled(): { ok: true; data: any; mtime: string } | { ok: false; e
 }
 
 export function registerAgentKnowledgeRoutes(app: Express) {
-  // GET full compiled index
-  app.get("/api/agent/knowledge", async (_req: Request, res: Response) => {
+  // GET full compiled index (auth required — exposes internal data)
+  app.get("/api/agent/knowledge", async (req: Request, res: Response) => {
+    if (!(await requireAuthedAgent(req, res))) return;
     const result = loadCompiled();
     if (!result.ok) return res.status(503).json({ error: result.error });
     res.json({ ...result.data, fileLastModified: result.mtime });
@@ -54,6 +71,7 @@ export function registerAgentKnowledgeRoutes(app: Express) {
 
   // GET single top-level slice (e.g. /api/agent/knowledge/topic/gotchas)
   app.get("/api/agent/knowledge/topic/:key", async (req: Request, res: Response) => {
+    if (!(await requireAuthedAgent(req, res))) return;
     const result = loadCompiled();
     if (!result.ok) return res.status(503).json({ error: result.error });
     const key = req.params.key;
@@ -64,6 +82,36 @@ export function registerAgentKnowledgeRoutes(app: Express) {
       });
     }
     res.json({ topic: key, value: result.data[key], compiledAt: result.data.compiledAt });
+  });
+
+  // GET session-bootstrap — compact briefing for agent session start.
+  // Returns only the minimum the agent needs to orient deterministically:
+  // project header, gotchas (critical), user preferences, vocab, no-go list,
+  // ecosystem caveats, quintet, session protocol, file pointers. Skips the
+  // verbose platform table and full lessons (those are available via /topic/:k).
+  app.get("/api/agent/knowledge/session-bootstrap", async (req: Request, res: Response) => {
+    if (!(await requireAuthedAgent(req, res))) return;
+    const result = loadCompiled();
+    if (!result.ok) return res.status(503).json({ error: result.error });
+    const d = result.data;
+    res.json({
+      version: d.version,
+      compiledAt: d.compiledAt,
+      project: d.project,
+      session_protocol: d.session_protocol,
+      user_preferences: d.user_preferences,
+      vocab: d.vocab,
+      critical_gotchas: (d.gotchas || []).filter((g: any) => g.severity === "critical"),
+      all_gotchas_count: (d.gotchas || []).length,
+      quintet: d.quintet,
+      ecosystem_caveats: d.ecosystem_caveats,
+      active_commitments_no_go_list: d.active_commitments?.no_go_list || [],
+      active_commitments_section_titles: (d.active_commitments?.sections || []).map((s: any) => s.heading),
+      file_pointers: d.file_pointers,
+      platform_count: (d.platforms || []).length,
+      drill_down_topics: Object.keys(d).filter(k => !["version", "compiledAt", "sources", "counts", "fileLastModified"].includes(k)),
+      hint: "GET /api/agent/knowledge/topic/:key for full slice (e.g. platforms, lessons_learned, gotchas).",
+    });
   });
 
   // POST recompile (admin-only) — runs the compile script in a child process

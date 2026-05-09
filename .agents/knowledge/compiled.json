@@ -1,10 +1,10 @@
 {
-  "version": "1.0.0",
-  "compiledAt": "2026-05-09T08:46:01.222Z",
+  "version": "1.1.0",
+  "compiledAt": "2026-05-09T08:58:18.373Z",
   "sources": [
     {
       "path": "replit.md",
-      "mtime": "2026-05-09T08:45:57.739Z"
+      "mtime": "2026-05-09T08:57:53.452Z"
     },
     {
       "path": "docs/active-commitments.md",
@@ -15,8 +15,12 @@
       "mtime": "2026-04-04T03:31:06.655Z"
     },
     {
+      "path": "docs/ecosystem-catalog.md",
+      "mtime": "2026-05-09T08:55:20.310Z"
+    },
+    {
       "path": "DB:ecosystem_platforms",
-      "mtime": "2026-05-09T08:46:01.222Z"
+      "mtime": "2026-05-09T08:58:18.373Z"
     }
   ],
   "project": {
@@ -93,8 +97,12 @@
       "detail": "Inside `/grant-command-center` → \"This Week\" tab. Shows last-N-days new opportunities sorted by fit score, fit distribution, source breakdown, upcoming deadlines, with email-preview button. Endpoints: `GET /api/grants/this-week?days=7&minFit=0`, `GET /api/grants/digest/preview?days=7` (HTML), `POST /api/grants/digest/send` (admin-only, manual trigger; auto-cron NOT enabled — needs recipient confirmation)."
     },
     {
-      "label": "🧠 Compiled Agent Knowledge Layer (new May 9, 2026)",
-      "detail": "Internal-only deterministic knowledge index for the Replit Agent (me). Inspired by VentureBeat's \"RAG era is ending\" article — replaces fuzzy retrieval with precomputed structured lookups for agent self-orientation. **End-user RAG (`server/rag-engine.ts`, 86 chunks) is UNTOUCHED and continues serving the public AI assistant — the two are parallel, not a swap.**"
+      "label": "🧠 Compiled Agent Knowledge Layer (May 9, 2026)",
+      "detail": "Internal-only deterministic knowledge index for the Replit Agent. Inspired by VentureBeat's \"RAG era is ending\" + Towards Data Science's \"unified agentic memory across harnesses using hooks.\" End-user RAG (`server/rag-engine.ts`, 86 chunks) is **UNTOUCHED** — these are parallel."
+    },
+    {
+      "label": "24-platform catalog moved out",
+      "detail": "Full ecosystem catalog now lives at `docs/ecosystem-catalog.md` (compiled into the knowledge layer). `replit.md` keeps a one-paragraph summary + top caveats only — slimmed from 157 to ~105 lines while preserving 100% recall via the hook."
     }
   ],
   "gotchas": [
@@ -222,48 +230,49 @@
   ],
   "platforms": [
     {
-      "id": "sankofa",
-      "name": "Sankofa Health Network",
-      "url": "https://yourhealthbirthright.net",
-      "role": "health-gateway",
-      "domain": "health-equity",
+      "id": "mce",
+      "name": "Minority Center of Excellence",
+      "url": "https://minoritycenterofexcellence.com",
+      "role": "business-ecosystem",
+      "domain": "business-intelligence",
       "status": "registered",
       "health_status": "online",
       "public_visible": true,
-      "description": "Health equity gateway orchestrating 5 sub-platforms (Maternal Health, Feminine Health, Men's Health, Cognitive Safety, Medication Management). Delivers culturally responsive behavioral health assessments, GIS-powered resource matching to 20,670+ resources, and population-specific health navigation for Black communities. Coordinates upstream screening data from Whole-Person Health hub and routes to specialized sub-platforms based on demographic and clinical need. Produces health equity outcome data for St. David's and SSG Fox grant reporting. Network architecture ensures no single point of failure — sub-platforms operate independently but coordinate through Sankofa's routing layer.",
+      "description": "First comprehensive digital ecosystem for minority-owned businesses with 656,794 curated SAM.gov records. 14 AI-powered tools covering the 6-stage business lifecycle (Start → Certify → Find → Bid → Win → Scale). Dual-AI proposal review system (GPT + Claude cross-validation), live SAM.gov integration pulling real federal opportunities, 50-state + DC certification coverage, Business Health Score algorithm, Teaming Hub for joint venture matching, and Certification Wizard for 8(a)/HUBZone/WOSB/SDVOSB guidance. Integrates with Pinnacle for contractor enablement, M2C for veteran entrepreneurs, and Whole-Person Health for workforce wellness. Produces business outcome data (certifications obtained, contracts won, revenue impact) for WIOA and foundation grants.",
       "capabilities": {
+        "records": 656794,
         "features": [
-          "Black Maternal Health Network Coordination",
-          "Mental Health Rights Advocacy",
-          "Breast Cancer Awareness & Screening",
-          "Black Men's Health Programs",
-          "Feminine OB Health Navigation",
-          "Cognitive Safety Protocols",
-          "Pill Management Integration",
-          "Behavioral Health Assessments",
-          "GIS Resource Matching",
-          "Sub-Platform Orchestration",
-          "Health Equity Analytics",
-          "Culturally Responsive Care Navigation",
-          "Population Health Dashboard",
-          "Community Health Worker Coordination"
+          "6-Stage Business Lifecycle Engine",
+          "656,794 SAM.gov Records",
+          "14 AI Tools",
+          "Dual-AI Proposal Review (GPT+Claude)",
+          "SAM.gov Live Integration",
+          "Business Health Score Algorithm",
+          "Certification Wizard (8(a)/HUBZone/WOSB/SDVOSB)",
+          "Teaming Hub",
+          "Contract Intelligence Dashboard",
+          "Revenue Impact Tracker",
+          "50-State Certification Coverage",
+          "Proposal Template Library",
+          "Market Research Tools",
+          "Competitor Analysis"
         ],
-        "subPlatforms": 5,
-        "grantNarrative": "Provides health equity outcome metrics, population-specific engagement data, and culturally responsive care delivery evidence for St. David's and SSG Fox reporting",
+        "grantNarrative": "Produces business certification rates, contract win data, revenue impact metrics, and minority business growth outcomes for WIOA workforce and foundation economic development grants",
         "outcomeMetrics": [
-          "Health equity screenings completed: 2,340 across 5 sub-platforms",
-          "GIS resource matches: 1,456 referrals with 71% completion",
-          "Sub-platform coordination events: 890 cross-referrals",
-          "Culturally responsive care navigation sessions: 678",
-          "Population health dashboard active metrics: 34 tracked indicators",
-          "Community health worker dispatches: 234"
+          "SAM.gov records curated: 656,794",
+          "Business certifications assisted: 89",
+          "Contract opportunities matched: 1,234",
+          "Dual-AI proposal reviews: 345",
+          "Business Health Score assessments: 567",
+          "Teaming Hub matches: 78",
+          "Revenue impact tracked: $4.2M across client portfolio"
         ],
-        "integrationDepth": "Orchestrates 5 sub-platforms and routes to/from Whole-Person Health hub, LifeBridge resources, and SafeCogniCare cognitive assessments"
+        "integrationDepth": "Bidirectional with Pinnacle (contractor enablement), M2C (veteran entrepreneurs), Ad Targeting (business outreach), Video Creator AI (marketing content)"
       },
       "grant_alignment": [
-        "st-davids",
-        "ssg-fox",
-        "foundation"
+        "wioa",
+        "foundation",
+        "ssg-fox"
       ],
       "last_heartbeat": null
     },
@@ -311,51 +320,48 @@
       "last_heartbeat": "2026-03-19T21:03:20.478Z"
     },
     {
-      "id": "mce",
-      "name": "Minority Center of Excellence",
-      "url": "https://minoritycenterofexcellence.com",
-      "role": "business-ecosystem",
-      "domain": "business-intelligence",
-      "status": "registered",
+      "id": "speech-bridge",
+      "name": "LexiBridge (Speech Bridge)",
+      "url": "https://lexibridge.net",
+      "role": "communication-accessibility",
+      "domain": "health-equity",
+      "status": "active",
       "health_status": "online",
       "public_visible": true,
-      "description": "First comprehensive digital ecosystem for minority-owned businesses with 656,794 curated SAM.gov records. 14 AI-powered tools covering the 6-stage business lifecycle (Start → Certify → Find → Bid → Win → Scale). Dual-AI proposal review system (GPT + Claude cross-validation), live SAM.gov integration pulling real federal opportunities, 50-state + DC certification coverage, Business Health Score algorithm, Teaming Hub for joint venture matching, and Certification Wizard for 8(a)/HUBZone/WOSB/SDVOSB guidance. Integrates with Pinnacle for contractor enablement, M2C for veteran entrepreneurs, and Whole-Person Health for workforce wellness. Produces business outcome data (certifications obtained, contracts won, revenue impact) for WIOA and foundation grants.",
+      "description": "Dialect-aware, inclusive communication platform that bridges language and communication gaps for underserved populations. Advanced dialect recognition covering AAVE, Spanglish, Cajun, Appalachian, and 12+ regional dialects; real-time speech-to-text with accessibility features for hearing impairment; multi-language translation (English/Spanish/Vietnamese/Mandarin/Arabic); culturally responsive communication training for providers; patient communication support ensuring health literacy; and inclusive language tools that adapt clinical terminology to community-accessible language. Critical accessibility layer ensuring every platform in the ecosystem can serve populations regardless of language or communication barriers. Integrates with all health platforms for clinical communication, ISSS for school communication, and M2C for veteran communication support.",
       "capabilities": {
-        "records": 656794,
         "features": [
-          "6-Stage Business Lifecycle Engine",
-          "656,794 SAM.gov Records",
-          "14 AI Tools",
-          "Dual-AI Proposal Review (GPT+Claude)",
-          "SAM.gov Live Integration",
-          "Business Health Score Algorithm",
-          "Certification Wizard (8(a)/HUBZone/WOSB/SDVOSB)",
-          "Teaming Hub",
-          "Contract Intelligence Dashboard",
-          "Revenue Impact Tracker",
-          "50-State Certification Coverage",
-          "Proposal Template Library",
-          "Market Research Tools",
-          "Competitor Analysis"
+          "Dialect Recognition (12+ Dialects)",
+          "AAVE Linguistic Support",
+          "Real-Time Speech-to-Text",
+          "Hearing Accessibility Tools",
+          "Multi-Language Translation",
+          "Culturally Responsive Provider Training",
+          "Patient Communication Support",
+          "Health Literacy Adaptation",
+          "Clinical Terminology Simplification",
+          "Community Language Tools",
+          "Provider Communication Coaching",
+          "Accessibility Compliance Engine"
         ],
-        "grantNarrative": "Produces business certification rates, contract win data, revenue impact metrics, and minority business growth outcomes for WIOA workforce and foundation economic development grants",
+        "grantNarrative": "Provides language accessibility metrics, communication barrier reduction data, health literacy improvement outcomes, and cultural responsiveness evidence for St. David's health equity, SSG Fox veteran, and WIOA workforce accessibility grants",
         "outcomeMetrics": [
-          "SAM.gov records curated: 656,794",
-          "Business certifications assisted: 89",
-          "Contract opportunities matched: 1,234",
-          "Dual-AI proposal reviews: 345",
-          "Business Health Score assessments: 567",
-          "Teaming Hub matches: 78",
-          "Revenue impact tracked: $4.2M across client portfolio"
+          "Dialect recognitions processed: 4,567",
+          "Multi-language translations: 2,345",
+          "Health literacy adaptations: 890",
+          "Provider communication coaching sessions: 67",
+          "Accessibility compliance checks: 234",
+          "Patient communication support events: 456"
         ],
-        "integrationDepth": "Bidirectional with Pinnacle (contractor enablement), M2C (veteran entrepreneurs), Ad Targeting (business outreach), Video Creator AI (marketing content)"
+        "integrationDepth": "Accessibility layer for all 22 sibling platforms — ensures clinical communications, educational content, and business tools are accessible regardless of language or dialect"
       },
       "grant_alignment": [
+        "st-davids",
+        "ssg-fox",
         "wioa",
-        "foundation",
-        "ssg-fox"
+        "foundation"
       ],
-      "last_heartbeat": null
+      "last_heartbeat": "2026-03-22T03:08:23.128Z"
     },
     {
       "id": "isss",
@@ -410,48 +416,50 @@
       "last_heartbeat": null
     },
     {
-      "id": "speech-bridge",
-      "name": "LexiBridge (Speech Bridge)",
-      "url": "https://lexibridge.net",
-      "role": "communication-accessibility",
+      "id": "sankofa",
+      "name": "Sankofa Health Network",
+      "url": "https://yourhealthbirthright.net",
+      "role": "health-gateway",
       "domain": "health-equity",
-      "status": "active",
+      "status": "registered",
       "health_status": "online",
       "public_visible": true,
-      "description": "Dialect-aware, inclusive communication platform that bridges language and communication gaps for underserved populations. Advanced dialect recognition covering AAVE, Spanglish, Cajun, Appalachian, and 12+ regional dialects; real-time speech-to-text with accessibility features for hearing impairment; multi-language translation (English/Spanish/Vietnamese/Mandarin/Arabic); culturally responsive communication training for providers; patient communication support ensuring health literacy; and inclusive language tools that adapt clinical terminology to community-accessible language. Critical accessibility layer ensuring every platform in the ecosystem can serve populations regardless of language or communication barriers. Integrates with all health platforms for clinical communication, ISSS for school communication, and M2C for veteran communication support.",
+      "description": "Health equity gateway orchestrating 5 sub-platforms (Maternal Health, Feminine Health, Men's Health, Cognitive Safety, Medication Management). Delivers culturally responsive behavioral health assessments, GIS-powered resource matching to 20,670+ resources, and population-specific health navigation for Black communities. Coordinates upstream screening data from Whole-Person Health hub and routes to specialized sub-platforms based on demographic and clinical need. Produces health equity outcome data for St. David's and SSG Fox grant reporting. Network architecture ensures no single point of failure — sub-platforms operate independently but coordinate through Sankofa's routing layer.",
       "capabilities": {
         "features": [
-          "Dialect Recognition (12+ Dialects)",
-          "AAVE Linguistic Support",
-          "Real-Time Speech-to-Text",
-          "Hearing Accessibility Tools",
-          "Multi-Language Translation",
-          "Culturally Responsive Provider Training",
-          "Patient Communication Support",
-          "Health Literacy Adaptation",
-          "Clinical Terminology Simplification",
-          "Community Language Tools",
-          "Provider Communication Coaching",
-          "Accessibility Compliance Engine"
+          "Black Maternal Health Network Coordination",
+          "Mental Health Rights Advocacy",
+          "Breast Cancer Awareness & Screening",
+          "Black Men's Health Programs",
+          "Feminine OB Health Navigation",
+          "Cognitive Safety Protocols",
+          "Pill Management Integration",
+          "Behavioral Health Assessments",
+          "GIS Resource Matching",
+          "Sub-Platform Orchestration",
+          "Health Equity Analytics",
+          "Culturally Responsive Care Navigation",
+          "Population Health Dashboard",
+          "Community Health Worker Coordination"
         ],
-        "grantNarrative": "Provides language accessibility metrics, communication barrier reduction data, health literacy improvement outcomes, and cultural responsiveness evidence for St. David's health equity, SSG Fox veteran, and WIOA workforce accessibility grants",
+        "subPlatforms": 5,
+        "grantNarrative": "Provides health equity outcome metrics, population-specific engagement data, and culturally responsive care delivery evidence for St. David's and SSG Fox reporting",
         "outcomeMetrics": [
-          "Dialect recognitions processed: 4,567",
-          "Multi-language translations: 2,345",
-          "Health literacy adaptations: 890",
-          "Provider communication coaching sessions: 67",
-          "Accessibility compliance checks: 234",
-          "Patient communication support events: 456"
+          "Health equity screenings completed: 2,340 across 5 sub-platforms",
+          "GIS resource matches: 1,456 referrals with 71% completion",
+          "Sub-platform coordination events: 890 cross-referrals",
+          "Culturally responsive care navigation sessions: 678",
+          "Population health dashboard active metrics: 34 tracked indicators",
+          "Community health worker dispatches: 234"
         ],
-        "integrationDepth": "Accessibility layer for all 22 sibling platforms — ensures clinical communications, educational content, and business tools are accessible regardless of language or dialect"
+        "integrationDepth": "Orchestrates 5 sub-platforms and routes to/from Whole-Person Health hub, LifeBridge resources, and SafeCogniCare cognitive assessments"
       },
       "grant_alignment": [
         "st-davids",
         "ssg-fox",
-        "wioa",
         "foundation"
       ],
-      "last_heartbeat": "2026-03-22T03:08:23.128Z"
+      "last_heartbeat": null
     },
     {
       "id": "sankofa-feminine-health",
@@ -638,42 +646,6 @@
       "last_heartbeat": null
     },
     {
-      "id": "collaborative-advocate",
-      "name": "The Collaborative Advocate",
-      "url": "https://thrivingcommunitiesforall.com",
-      "role": "vosb-services",
-      "domain": "veteran-services",
-      "status": "active",
-      "health_status": "online",
-      "public_visible": true,
-      "description": "The organizational entity — 501(c)(3) nonprofit, veteran-founded, Black-led Veteran-Owned Small Business (VOSB) serving as the service delivery arm and grant execution partner for the entire ThriveUp ecosystem. Founded by Dr. Terry Flood. Provides veteran advocacy with lived-experience credibility, peer support coordination matching veterans to trained peers, workforce development consulting for employers hiring veterans, and direct grant execution management for WIOA ($200K-$500K), SSG Fox VA ($750K), St. David's (up to $1M), and Foundation ($100K-$500K) grants. The organizational backbone that gives the ecosystem its 501(c)(3) fiscal sponsorship, DUNS/SAM.gov registration, and grant eligibility.",
-      "capabilities": {
-        "features": [
-          "501(c)(3) Fiscal Sponsorship",
-          "Veteran Advocacy",
-          "Peer Support Coordination",
-          "Workforce Development Consulting",
-          "Grant Execution Management",
-          "Community Partnerships",
-          "Service Delivery Operations",
-          "DUNS/SAM Registration",
-          "Board Governance",
-          "Program Evaluation",
-          "Stakeholder Engagement",
-          "Policy Advocacy"
-        ],
-        "grantNarrative": "The applicant organization for all ecosystem grants — provides organizational credibility, 501(c)(3) status, veteran-founded narrative, and program oversight for SSG Fox, WIOA, St. David's, and foundation funding",
-        "integrationDepth": "Organizational backbone for all 24 platforms — provides fiscal sponsorship, grant eligibility, and operational governance for every ecosystem component"
-      },
-      "grant_alignment": [
-        "ssg-fox",
-        "wioa",
-        "st-davids",
-        "foundation"
-      ],
-      "last_heartbeat": "2026-03-21T19:56:50.152Z"
-    },
-    {
       "id": "m2c",
       "name": "Mission Transition (M2C)",
       "url": "https://vetmissiontransition.com",
@@ -720,6 +692,42 @@
         "foundation"
       ],
       "last_heartbeat": null
+    },
+    {
+      "id": "collaborative-advocate",
+      "name": "The Collaborative Advocate",
+      "url": "https://thrivingcommunitiesforall.com",
+      "role": "vosb-services",
+      "domain": "veteran-services",
+      "status": "active",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "The organizational entity — 501(c)(3) nonprofit, veteran-founded, Black-led Veteran-Owned Small Business (VOSB) serving as the service delivery arm and grant execution partner for the entire ThriveUp ecosystem. Founded by Dr. Terry Flood. Provides veteran advocacy with lived-experience credibility, peer support coordination matching veterans to trained peers, workforce development consulting for employers hiring veterans, and direct grant execution management for WIOA ($200K-$500K), SSG Fox VA ($750K), St. David's (up to $1M), and Foundation ($100K-$500K) grants. The organizational backbone that gives the ecosystem its 501(c)(3) fiscal sponsorship, DUNS/SAM.gov registration, and grant eligibility.",
+      "capabilities": {
+        "features": [
+          "501(c)(3) Fiscal Sponsorship",
+          "Veteran Advocacy",
+          "Peer Support Coordination",
+          "Workforce Development Consulting",
+          "Grant Execution Management",
+          "Community Partnerships",
+          "Service Delivery Operations",
+          "DUNS/SAM Registration",
+          "Board Governance",
+          "Program Evaluation",
+          "Stakeholder Engagement",
+          "Policy Advocacy"
+        ],
+        "grantNarrative": "The applicant organization for all ecosystem grants — provides organizational credibility, 501(c)(3) status, veteran-founded narrative, and program oversight for SSG Fox, WIOA, St. David's, and foundation funding",
+        "integrationDepth": "Organizational backbone for all 24 platforms — provides fiscal sponsorship, grant eligibility, and operational governance for every ecosystem component"
+      },
+      "grant_alignment": [
+        "ssg-fox",
+        "wioa",
+        "st-davids",
+        "foundation"
+      ],
+      "last_heartbeat": "2026-03-21T19:56:50.152Z"
     },
     {
       "id": "emergency-mgmt",
@@ -970,6 +978,50 @@
       "last_heartbeat": null
     },
     {
+      "id": "video-creator-ai",
+      "name": "Video Creator AI",
+      "url": "https://videocreatorai.com",
+      "role": "content-production",
+      "domain": "marketing-content",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": false,
+      "description": "AI-powered content production engine serving the entire 24-platform ecosystem — produces promotional videos, grant presentation decks, training content, marketing materials, platform showcase videos, and holistic ecosystem overview content. Receives authoritative platform identity profiles to ensure accurate representation. Generates content for grant applications (SSG Fox, WIOA, St. David's), conference presentations, stakeholder briefings, and community outreach. Each platform gets a professional public face through consistent branding and messaging. Integrates with Ad Targeting for campaign-ready assets and all platforms for content source material.",
+      "capabilities": {
+        "features": [
+          "AI Video Generation",
+          "Grant Presentation Decks",
+          "Training Content Production",
+          "Marketing Video Suite",
+          "Platform Showcase Videos",
+          "Ecosystem Overview Content",
+          "Conference Presentations",
+          "Stakeholder Briefing Videos",
+          "Community Outreach Materials",
+          "Consistent Brand Enforcement",
+          "Multi-Platform Content Pipeline",
+          "Social Media Assets"
+        ],
+        "grantNarrative": "Produces grant application video supplements, outcome visualization content, and stakeholder communication materials that strengthen every grant submission across the ecosystem",
+        "outcomeMetrics": [
+          "Videos produced: 234 across 24 platforms",
+          "Grant presentation decks: 45",
+          "Training content pieces: 89",
+          "Platform showcase videos: 22",
+          "Social media assets: 567",
+          "Conference presentation materials: 12"
+        ],
+        "integrationDepth": "Receives identity profiles from all 22 sibling platforms — produces content assets consumed by Ad Targeting for campaigns and by every platform for their public presence"
+      },
+      "grant_alignment": [
+        "wioa",
+        "ssg-fox",
+        "st-davids",
+        "foundation"
+      ],
+      "last_heartbeat": null
+    },
+    {
       "id": "perfectly-different",
       "name": "Perfectly Different",
       "url": "https://neurodifferentassistant.app",
@@ -1054,94 +1106,6 @@
         "ssg-fox"
       ],
       "last_heartbeat": "2026-03-31T11:57:03.776Z"
-    },
-    {
-      "id": "video-creator-ai",
-      "name": "Video Creator AI",
-      "url": "https://videocreatorai.com",
-      "role": "content-production",
-      "domain": "marketing-content",
-      "status": "registered",
-      "health_status": "online",
-      "public_visible": false,
-      "description": "AI-powered content production engine serving the entire 24-platform ecosystem — produces promotional videos, grant presentation decks, training content, marketing materials, platform showcase videos, and holistic ecosystem overview content. Receives authoritative platform identity profiles to ensure accurate representation. Generates content for grant applications (SSG Fox, WIOA, St. David's), conference presentations, stakeholder briefings, and community outreach. Each platform gets a professional public face through consistent branding and messaging. Integrates with Ad Targeting for campaign-ready assets and all platforms for content source material.",
-      "capabilities": {
-        "features": [
-          "AI Video Generation",
-          "Grant Presentation Decks",
-          "Training Content Production",
-          "Marketing Video Suite",
-          "Platform Showcase Videos",
-          "Ecosystem Overview Content",
-          "Conference Presentations",
-          "Stakeholder Briefing Videos",
-          "Community Outreach Materials",
-          "Consistent Brand Enforcement",
-          "Multi-Platform Content Pipeline",
-          "Social Media Assets"
-        ],
-        "grantNarrative": "Produces grant application video supplements, outcome visualization content, and stakeholder communication materials that strengthen every grant submission across the ecosystem",
-        "outcomeMetrics": [
-          "Videos produced: 234 across 24 platforms",
-          "Grant presentation decks: 45",
-          "Training content pieces: 89",
-          "Platform showcase videos: 22",
-          "Social media assets: 567",
-          "Conference presentation materials: 12"
-        ],
-        "integrationDepth": "Receives identity profiles from all 22 sibling platforms — produces content assets consumed by Ad Targeting for campaigns and by every platform for their public presence"
-      },
-      "grant_alignment": [
-        "wioa",
-        "ssg-fox",
-        "st-davids",
-        "foundation"
-      ],
-      "last_heartbeat": null
-    },
-    {
-      "id": "safecognicare",
-      "name": "SafeCogniCare",
-      "url": "https://safecognicare.com",
-      "role": "cognitive-health",
-      "domain": "health-equity",
-      "status": "registered",
-      "health_status": "online",
-      "public_visible": true,
-      "description": "Cognitive safety platform specializing in TBI (Traumatic Brain Injury), ADHD, dementia, and peripartum cognitive changes — validated cognitive health assessments (MoCA, MMSE, Trail Making), early intervention tools with automated provider alerts, comprehensive safety protocols for cognitive impairment scenarios, care coordination with family/providers/community resources, and family support resources including caregiver burden assessment. Critical for veteran populations (TBI prevalence) and maternal health (peripartum cognitive changes). Integrates with Whole-Person Health for crisis routing, PillScheduler for medication complexity matching to cognitive capacity, Perfectly Different for neurodevelopmental overlap, and M2C for veteran TBI pathways.",
-      "capabilities": {
-        "features": [
-          "Cognitive Health Assessments (MoCA/MMSE)",
-          "Trail Making Test Digital",
-          "Early Intervention Alerts",
-          "Safety Protocols",
-          "Care Coordination Dashboard",
-          "Family Support Resources",
-          "Caregiver Burden Assessment",
-          "TBI Screening & Tracking",
-          "Cognitive Decline Monitoring",
-          "Provider Communication Portal",
-          "Medication Complexity Matching",
-          "Emergency Safety Plans"
-        ],
-        "grantNarrative": "Provides cognitive screening completion rates, TBI intervention outcomes, caregiver support metrics, and cognitive decline monitoring data for SSG Fox veteran and St. David's health equity grants",
-        "outcomeMetrics": [
-          "Cognitive assessments completed (MoCA/MMSE): 567",
-          "TBI screenings: 234 (veteran population)",
-          "Early intervention alerts triggered: 89",
-          "Safety protocol activations: 45",
-          "Caregiver burden assessments: 178",
-          "Cognitive decline monitoring: 345 active patients",
-          "Provider communication events: 234"
-        ],
-        "integrationDepth": "Bidirectional with Whole-Person Health (crisis), PillScheduler (medication complexity), Perfectly Different (neurodevelopmental), M2C (veteran TBI), Maternal Health (peripartum cognition)"
-      },
-      "grant_alignment": [
-        "ssg-fox",
-        "st-davids",
-        "foundation"
-      ],
-      "last_heartbeat": null
     },
     {
       "id": "lifebridge",
@@ -1237,6 +1201,95 @@
       "last_heartbeat": null
     },
     {
+      "id": "safecognicare",
+      "name": "SafeCogniCare",
+      "url": "https://safecognicare.com",
+      "role": "cognitive-health",
+      "domain": "health-equity",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "Cognitive safety platform specializing in TBI (Traumatic Brain Injury), ADHD, dementia, and peripartum cognitive changes — validated cognitive health assessments (MoCA, MMSE, Trail Making), early intervention tools with automated provider alerts, comprehensive safety protocols for cognitive impairment scenarios, care coordination with family/providers/community resources, and family support resources including caregiver burden assessment. Critical for veteran populations (TBI prevalence) and maternal health (peripartum cognitive changes). Integrates with Whole-Person Health for crisis routing, PillScheduler for medication complexity matching to cognitive capacity, Perfectly Different for neurodevelopmental overlap, and M2C for veteran TBI pathways.",
+      "capabilities": {
+        "features": [
+          "Cognitive Health Assessments (MoCA/MMSE)",
+          "Trail Making Test Digital",
+          "Early Intervention Alerts",
+          "Safety Protocols",
+          "Care Coordination Dashboard",
+          "Family Support Resources",
+          "Caregiver Burden Assessment",
+          "TBI Screening & Tracking",
+          "Cognitive Decline Monitoring",
+          "Provider Communication Portal",
+          "Medication Complexity Matching",
+          "Emergency Safety Plans"
+        ],
+        "grantNarrative": "Provides cognitive screening completion rates, TBI intervention outcomes, caregiver support metrics, and cognitive decline monitoring data for SSG Fox veteran and St. David's health equity grants",
+        "outcomeMetrics": [
+          "Cognitive assessments completed (MoCA/MMSE): 567",
+          "TBI screenings: 234 (veteran population)",
+          "Early intervention alerts triggered: 89",
+          "Safety protocol activations: 45",
+          "Caregiver burden assessments: 178",
+          "Cognitive decline monitoring: 345 active patients",
+          "Provider communication events: 234"
+        ],
+        "integrationDepth": "Bidirectional with Whole-Person Health (crisis), PillScheduler (medication complexity), Perfectly Different (neurodevelopmental), M2C (veteran TBI), Maternal Health (peripartum cognition)"
+      },
+      "grant_alignment": [
+        "ssg-fox",
+        "st-davids",
+        "foundation"
+      ],
+      "last_heartbeat": null
+    },
+    {
+      "id": "ad-targeting",
+      "name": "Advertising Targeting for Platforms",
+      "url": "https://adtargetingplatforms.com",
+      "role": "ad-intelligence",
+      "domain": "marketing-content",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": false,
+      "description": "Advertising intelligence and community outreach platform enabling data-driven targeting to reach underserved populations with relevant services and grant-funded programs. Advanced audience segmentation based on demographic, geographic, and needs-based data; campaign optimization with A/B testing; performance analytics with conversion tracking; and cross-platform ad delivery coordinating outreach across all 22 sibling platforms. Ensures grant-funded programs reach their intended beneficiaries — veteran families, Black maternal health populations, minority business owners, neurodivergent individuals, and youth at risk. Integrates with Video Creator AI for campaign-ready assets and all platforms for service offering data.",
+      "capabilities": {
+        "features": [
+          "Audience Segmentation Engine",
+          "Campaign Optimization & A/B Testing",
+          "Precision Ad Targeting",
+          "Performance Analytics & Conversion Tracking",
+          "Cross-Platform Ad Delivery",
+          "Community Outreach Coordination",
+          "Grant Program Promotion",
+          "Demographic Targeting",
+          "Geographic Targeting",
+          "Needs-Based Targeting",
+          "Social Media Campaign Management",
+          "ROI Reporting"
+        ],
+        "grantNarrative": "Provides program reach metrics, community engagement data, demographic penetration rates, and campaign ROI for WIOA workforce recruitment and St. David's community health outreach grants",
+        "outcomeMetrics": [
+          "Campaign impressions: 234,567",
+          "Audience segments created: 89",
+          "A/B tests completed: 34",
+          "Conversion tracking events: 1,234",
+          "Cross-platform ad deliveries: 567",
+          "Community reach: 45,678 unique individuals",
+          "Grant program promotion campaigns: 23"
+        ],
+        "integrationDepth": "Receives content assets from Video Creator AI, service offerings from all platforms, and community demographics to target underserved populations with relevant services"
+      },
+      "grant_alignment": [
+        "wioa",
+        "st-davids",
+        "foundation",
+        "ssg-fox"
+      ],
+      "last_heartbeat": null
+    },
+    {
       "id": "wholemind",
       "name": "WholeMind Learning",
       "url": "https://wholemindlearning.com",
@@ -1288,51 +1341,6 @@
       "last_heartbeat": "2026-03-19T02:25:57.923Z"
     },
     {
-      "id": "ad-targeting",
-      "name": "Advertising Targeting for Platforms",
-      "url": "https://adtargetingplatforms.com",
-      "role": "ad-intelligence",
-      "domain": "marketing-content",
-      "status": "registered",
-      "health_status": "online",
-      "public_visible": false,
-      "description": "Advertising intelligence and community outreach platform enabling data-driven targeting to reach underserved populations with relevant services and grant-funded programs. Advanced audience segmentation based on demographic, geographic, and needs-based data; campaign optimization with A/B testing; performance analytics with conversion tracking; and cross-platform ad delivery coordinating outreach across all 22 sibling platforms. Ensures grant-funded programs reach their intended beneficiaries — veteran families, Black maternal health populations, minority business owners, neurodivergent individuals, and youth at risk. Integrates with Video Creator AI for campaign-ready assets and all platforms for service offering data.",
-      "capabilities": {
-        "features": [
-          "Audience Segmentation Engine",
-          "Campaign Optimization & A/B Testing",
-          "Precision Ad Targeting",
-          "Performance Analytics & Conversion Tracking",
-          "Cross-Platform Ad Delivery",
-          "Community Outreach Coordination",
-          "Grant Program Promotion",
-          "Demographic Targeting",
-          "Geographic Targeting",
-          "Needs-Based Targeting",
-          "Social Media Campaign Management",
-          "ROI Reporting"
-        ],
-        "grantNarrative": "Provides program reach metrics, community engagement data, demographic penetration rates, and campaign ROI for WIOA workforce recruitment and St. David's community health outreach grants",
-        "outcomeMetrics": [
-          "Campaign impressions: 234,567",
-          "Audience segments created: 89",
-          "A/B tests completed: 34",
-          "Conversion tracking events: 1,234",
-          "Cross-platform ad deliveries: 567",
-          "Community reach: 45,678 unique individuals",
-          "Grant program promotion campaigns: 23"
-        ],
-        "integrationDepth": "Receives content assets from Video Creator AI, service offerings from all platforms, and community demographics to target underserved populations with relevant services"
-      },
-      "grant_alignment": [
-        "wioa",
-        "st-davids",
-        "foundation",
-        "ssg-fox"
-      ],
-      "last_heartbeat": null
-    },
-    {
       "id": "ecosystem-nexus",
       "name": "Ecosystem Nexus",
       "url": "https://ecosystemnexus.net",
@@ -1375,6 +1383,29 @@
         "foundation"
       ],
       "last_heartbeat": "2026-03-22T03:08:34.284Z"
+    }
+  ],
+  "quintet": "**Talk Your Talk · Civic Signal · LifeBridge · ThriveUp Academy · Whole-Person Health Ecosystem.** See `docs/grants/QUARTET-ONE-PAGER.md` for the drop-in narrative.",
+  "ecosystem_caveats": [
+    {
+      "id": 1,
+      "rule": "**Civic Signal is not in the hub DB.** It's part of the quintet but missing from `ecosystem_platforms`. Register it before next ecosystem-wide claim."
+    },
+    {
+      "id": 2,
+      "rule": "**TYT row's URL is wrong.** DB says `lexibridge.net` (dead). True URL is `talkyourtalk.net`. The TYT connector self-registers as \"LexiBridge\" on every heartbeat — fix lives in TYT workspace, not here."
+    },
+    {
+      "id": 3,
+      "rule": "**9 of 24 platforms are not currently public-facing** (DNS dead, parked, or 404). Never link to a platform in a proposal without re-probing first. **Probe ALL known aliases before declaring a platform dead** — `sankofa-feminine-health` was nearly removed because `yourfeminineneeds.com` 404s, but the same site is live at `herhealthmatters2.com` AND `myhealthybreast.com` (same payload). Always check the project's Publishing → Domains tab for verified alternate URLs. The ecosystem-alignment-scan script (`scripts/ecosystem-alignment-scan.sh`) and the probe pattern in `docs/active-commitments.md` ("
+    },
+    {
+      "id": 4,
+      "rule": "**Some URLs are shared.** `implementationineducatio.com` hosts BOTH `isss` and `betterscience`. `yourhealthbirthright.net` hosts BOTH `sankofa` and `sankofa-maternal-health`. `thrivingcommunitiesforall.com/academy` is ThriveUp Academy on the `collaborative-advocate` domain."
+    },
+    {
+      "id": 5,
+      "rule": "**Always pull the full table before locking a narrative.** The cost of working from in-context guesses instead of the live DB is missed grant fits."
     }
   ],
   "active_commitments": {
@@ -1625,9 +1656,10 @@
     "gotchas": 15,
     "vocab": 4,
     "platforms": 25,
-    "file_pointers": 16,
+    "file_pointers": 17,
     "lessons": 7,
     "no_go": 4,
-    "active_commitment_sections": 31
+    "active_commitment_sections": 31,
+    "ecosystem_caveats": 5
   }
 }
