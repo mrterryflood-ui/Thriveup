@@ -5,7 +5,7 @@
 ---
 
 ## The 30-second version
-TCAF runs a **built-and-operating** youth-homelessness platform inside LifeBridge, with a dedicated **Foster Youth Aging Out** specialty area, wired into a multilingual mental-health stack, K-12 student-support infrastructure, and an AI-skills-and-FAFSA pipeline. We are an Austin-based 501(c)(3) (IRS determination pending) building national platform infrastructure, with Texas as the pilot. The infrastructure is deployed today — this is not a concept deck.
+TCAF runs a **built-and-operating** youth-homelessness platform inside LifeBridge, with a dedicated **Foster Youth Aging Out** specialty area, wired into a multilingual mental-health stack, K-12 student-support infrastructure, and an AI-skills-and-FAFSA pipeline. We are an Austin-based 501(c)(3) (IRS determination pending) operating **15 public-facing service platforms** under one parent organization, with Texas as the pilot deployment for what is architected as national infrastructure. The infrastructure is deployed today — this is not a concept deck.
 
 ---
 
@@ -78,4 +78,4 @@ A pilot conversation in any one of those three lanes is more valuable than a gen
 - **Quintet one-pager (drop-in):** `docs/grants/QUARTET-ONE-PAGER.md`
 - **Funder intelligence (Meadows, TVC, EHF, Hogg):** `docs/grants/Tabbara-Top4-Intel.md`
 - **Active commitments / continuity log:** `docs/active-commitments.md`
-- **Ecosystem catalog (25 platforms):** `docs/ecosystem-catalog.md`
+- **Ecosystem catalog:** `docs/ecosystem-catalog.md` (15 public-facing service platforms — full count incl. internal/dev rows = 25 in DB; use 15 in external briefings)
