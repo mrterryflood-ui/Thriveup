@@ -1,0 +1,1633 @@
+{
+  "version": "1.0.0",
+  "compiledAt": "2026-05-09T08:46:01.222Z",
+  "sources": [
+    {
+      "path": "replit.md",
+      "mtime": "2026-05-09T08:45:57.739Z"
+    },
+    {
+      "path": "docs/active-commitments.md",
+      "mtime": "2026-05-09T08:45:40.406Z"
+    },
+    {
+      "path": ".agents/skills/map-gap/lessons-learned.md",
+      "mtime": "2026-04-04T03:31:06.655Z"
+    },
+    {
+      "path": "DB:ecosystem_platforms",
+      "mtime": "2026-05-09T08:46:01.222Z"
+    }
+  ],
+  "project": {
+    "name": "ThriveUp Academy",
+    "summary": "An AI-powered national community infrastructure platform that connects individuals to grant funding, aligns service delivery with workforce development, and produces measurable community impact."
+  },
+  "stack": {
+    "frontend": "React, Vite, TypeScript, Tailwind CSS, shadcn/ui, wouter, TanStack Query v5, lucide-react",
+    "backend": "Express.js (Node.js), PostgreSQL (Neon-backed) via Drizzle ORM",
+    "auth": "Replit Auth (OIDC)",
+    "ai": "Google Gemini 2.0 Flash, Anthropic Claude Haiku 4.5, OpenAI GPT-4o-mini, Replit AI Integrations GPT-5-nano, OpenRouter (DeepSeek R1)",
+    "internationalization": "EN + ES human-translated; 8 additional languages (VI, ZH, AR, KO, FR, TL, HI, MY) via opt-in AI translation (gpt-4o-mini, batched, localStorage-cached). `useLanguage()` from `@/lib/i18n`; `<LanguageSelector />` from `@/components/language-selector`. Endpoint: `POST /api/translate` (server/translate-routes.ts) using `AI_INTEGRATIONS_OPENAI_API_KEY`. RTL auto-applied for Arabic.",
+    "build-tool": "Vite"
+  },
+  "file_pointers": [
+    {
+      "label": "Pages",
+      "detail": "`client/src/pages/` (192 files, including `client/src/pages/academy/`)"
+    },
+    {
+      "label": "Routes (Frontend)",
+      "detail": "`client/src/App.tsx` (206 wouter routes)"
+    },
+    {
+      "label": "Routes (Backend)",
+      "detail": "`server/` (main `routes.ts`, plus 35+ specific route files)"
+    },
+    {
+      "label": "DB Schema",
+      "detail": "`shared/schema.ts` (249 Drizzle `pgTable` definitions)"
+    },
+    {
+      "label": "Auth Logic",
+      "detail": "`client/src/components/require-auth.tsx`, `useAuth()` hook"
+    },
+    {
+      "label": "Branding/Theme",
+      "detail": "`client/src/index.css` (Tailwind CSS configuration)"
+    },
+    {
+      "label": "Partnership Status Component",
+      "detail": "`client/src/components/partnership-status.tsx`"
+    },
+    {
+      "label": "Sidebar Navigation",
+      "detail": "`client/src/components/app-sidebar.tsx`"
+    },
+    {
+      "label": "Grant Strategy",
+      "detail": "`docs/grants/STRATEGIC-INTELLIGENCE-PLAYBOOK.md`, `CDMRP-FY2026-Master-Grant-Strategy.md`"
+    },
+    {
+      "label": "Quartet-on-a-Safety-Floor One-Pager (drop-in for narratives)",
+      "detail": "`docs/grants/QUARTET-ONE-PAGER.md` — verified May 7, 2026; the **five-platform** narrative: Talk Your Talk (89 spoken + 18 sign + 6 learning surfaces + honest crisis path) as substrate, Civic Signal + LifeBridge + ThriveUp as service surfaces, **Whole-Person Health Ecosystem (mentalwellnesssupport.net)** as the behavioral-health safety floor underneath. Crisis-detection events from TYT route INTO WPH."
+    },
+    {
+      "label": "MAP-GAP Lessons Learned",
+      "detail": "`.agents/skills/map-gap/lessons-learned.md`"
+    },
+    {
+      "label": "Proposal Pipeline Seed",
+      "detail": "`server/seed-proposal-pipeline.ts`"
+    },
+    {
+      "label": "Active Commitments / Continuity Log",
+      "detail": "`docs/active-commitments.md` — running session memory (active grants, partner pipeline, ecosystem scan results, legal status, next-thread queue). Read at session start; update at session end."
+    },
+    {
+      "label": "Grant Discovery Engine (already automated, running daily)",
+      "detail": "`server/grant-routes.ts` — 24h `setInterval` scan (line ~6359). Sources: SAM.gov (needs key — currently 401), Grants.gov (live, ~45 new/wk), USASpending.gov (live), curated state/foundation/corporate. ~580 opps tracked, ~54 new/week. Stats: `GET /api/grants/discovery/status`. Manual trigger: `POST /api/grants/discovery/run-now`."
+    },
+    {
+      "label": "\"This Week\" digest tab (new May 9, 2026)",
+      "detail": "Inside `/grant-command-center` → \"This Week\" tab. Shows last-N-days new opportunities sorted by fit score, fit distribution, source breakdown, upcoming deadlines, with email-preview button. Endpoints: `GET /api/grants/this-week?days=7&minFit=0`, `GET /api/grants/digest/preview?days=7` (HTML), `POST /api/grants/digest/send` (admin-only, manual trigger; auto-cron NOT enabled — needs recipient confirmation)."
+    },
+    {
+      "label": "🧠 Compiled Agent Knowledge Layer (new May 9, 2026)",
+      "detail": "Internal-only deterministic knowledge index for the Replit Agent (me). Inspired by VentureBeat's \"RAG era is ending\" article — replaces fuzzy retrieval with precomputed structured lookups for agent self-orientation. **End-user RAG (`server/rag-engine.ts`, 86 chunks) is UNTOUCHED and continues serving the public AI assistant — the two are parallel, not a swap.**"
+    }
+  ],
+  "gotchas": [
+    {
+      "id": "ceo-vs-president",
+      "rule": "\"CEO\" vs. \"President\"",
+      "detail": "Always use \"President\" for Dr. Flood in public-facing copy; \"CEO\" is reserved for for-profit contexts.",
+      "severity": "high"
+    },
+    {
+      "id": "personal-emails",
+      "rule": "Personal Emails",
+      "detail": "Never use personal Gmail addresses in public copy or grant proposals; always institutional. Confirmed institutional emails: `terryflood@thrivingcommunitiesforall.com` (Dr. Flood, all proposals), `msisnett@thrivingcommunitiesforall.com` (Meredith, non-City work only).",
+      "severity": "critical"
+    },
+    {
+      "id": "meredith-sisnett-city-of-austin",
+      "rule": "🚨 Meredith Sisnett & City of Austin",
+      "detail": "Meredith is a City of Austin employee. NEVER list her on any City of Austin grant/proposal/contract (AEI, Cultural Arts, APH, EDD, Public Health, AHFC, etc.) as staff, contact, co-lead, board, or partner. She may consult on non-City (federal/state/foundation/private) work only. When in doubt, leave her out and ask user.",
+      "severity": "critical"
+    },
+    {
+      "id": "st-davids-foundation-status",
+      "rule": "St. David's Foundation Status",
+      "detail": "Always \"actively evaluating,\" never \"awarded.\"",
+      "severity": "critical"
+    },
+    {
+      "id": "funder-names-on-public-pages",
+      "rule": "Funder Names on Public Pages",
+      "detail": "Avoid mentioning specific funders on public program pages; describe the program category instead.",
+      "severity": "high"
+    },
+    {
+      "id": "fips-codes",
+      "rule": "FIPS Codes",
+      "detail": "Do not expose \"FIPS\" labels directly to users; use \"State Census Code\" / \"County Census Code\".",
+      "severity": "high"
+    },
+    {
+      "id": "texas-only-framing",
+      "rule": "\"Texas-only\" Framing",
+      "detail": "Emphasize \"national platform, Texas-piloted\" for all geographic descriptions.",
+      "severity": "high"
+    },
+    {
+      "id": "silent-catch-blocks",
+      "rule": "Silent Catch Blocks",
+      "detail": "Prohibited; all server route errors must be handled and reported.",
+      "severity": "critical"
+    },
+    {
+      "id": "conditional-useeffect",
+      "rule": "Conditional `useEffect`",
+      "detail": "Avoid React hooks violations by making `useEffect` unconditional.",
+      "severity": "high"
+    },
+    {
+      "id": "hardcoded-arrays-for-grants",
+      "rule": "Hardcoded Arrays for Grants",
+      "detail": "`/api/proposal-pipeline` must read from the `proposal_pipeline` database table, not hardcoded arrays, to avoid silent failures in opportunity tracking.",
+      "severity": "high"
+    },
+    {
+      "id": "curl-http-000",
+      "rule": "`curl HTTP 000`",
+      "detail": "This indicates an unbound custom domain, not necessarily that the platform is down. Check `ecosystem_platforms.health_status` in the hub DB for true platform status.",
+      "severity": "high"
+    },
+    {
+      "id": "hub-pinger-false-positive",
+      "rule": "Hub pinger false-positive",
+      "detail": "Marks platforms \"online\" even when DNS fails or heartbeat is >7 days stale. Bug logged in `docs/active-commitments.md` — fix at hub-vs-connector boundary.",
+      "severity": "high"
+    },
+    {
+      "id": "tyt-connector-self-registration",
+      "rule": "TYT connector self-registration",
+      "detail": "Talk Your Talk's connector still announces itself as \"LexiBridge (Speech Bridge)\" / `lexibridge.net` — overwrites hub row name+URL on every heartbeat. Description and grant_alignment fields survive. Real fix lives in TYT workspace (`artifacts/api-server/...`), not this one.",
+      "severity": "high"
+    },
+    {
+      "id": "ecosystemplatforms-hardcoded-array-overwrite",
+      "rule": "(general)",
+      "detail": "**🚨 ECOSYSTEM_PLATFORMS hardcoded array overwrites the DB on every startup.** Lives in `server/ecosystem-connector.ts:658` (`const ECOSYSTEM_PLATFORMS = [...]`). The startup auto-sync (a) UPDATEs name/url/role/domain/description/capabilities/dataFlowConfig/grantAlignment to match this array, (b) DELETEs any DB row whose ID isn't in the array. So any DB-only edit to those fields gets wiped within seconds. **`publicVisible` is NOT in the update set, so it survives.** When you add/rename/re-URL a platform, edit BOTH the DB and this hardcoded array, or the DB change is ephemeral. (How sankofa-feminine-health URL kept reverting; how Civic Signal got \"Removed stale platform\" deleted on first restart.)",
+      "severity": "high"
+    },
+    {
+      "id": "talk-your-talk-rebrand",
+      "rule": "Talk Your Talk rebrand",
+      "detail": "Old name LexiBridge / Speech Bridge → new name **Talk Your Talk** (`talkyourtalk.net`). Verified count: **89 spoken + 18 sign = 107 total** (homepage marketing previously said \"107 + 18\" conflated). Use **89 / 18 / 107** in all proposals.",
+      "severity": "high"
+    }
+  ],
+  "user_preferences": [
+    "Prioritize iterative development; explain major changes before implementation.",
+    "High-quality, well-tested code; clear, simple language for technical concepts.",
+    "Don't change sensitive configs (`vite.config.ts`, `drizzle.config.ts`, `package.json`) without explicit instruction.",
+    "Always work in parallel using subagents; don't stop to chat when there's more work to do; keep building.",
+    "Speak plainly, not in jargon. Use President not CEO. Honest disclosure always.",
+    "Every change commits to this memory file. No silent failures.",
+    "Memory continuity is non-negotiable; every session ENDS with a memory commit; every session BEGINS by reading this file. If a fact, person, deadline, project, partner, lesson, or commitment is not here, it does not exist next session."
+  ],
+  "vocab": [
+    {
+      "wrong": "CEO",
+      "right": "President",
+      "context": "Always use \"President\" for Dr. Flood in public-facing copy; \"CEO\" is reserved for for-profit contexts."
+    },
+    {
+      "wrong": "FIPS",
+      "right": "State Census Code / County Census Code",
+      "context": "User-facing labels — never expose 'FIPS' directly."
+    },
+    {
+      "wrong": "Texas-only",
+      "right": "national platform, Texas-piloted",
+      "context": "Geographic framing for ThriveUp."
+    },
+    {
+      "wrong": "LexiBridge / Speech Bridge",
+      "right": "Talk Your Talk",
+      "context": "Old name → new name. URL: talkyourtalk.net. 89 spoken + 18 sign = 107 langs."
+    }
+  ],
+  "platforms": [
+    {
+      "id": "sankofa",
+      "name": "Sankofa Health Network",
+      "url": "https://yourhealthbirthright.net",
+      "role": "health-gateway",
+      "domain": "health-equity",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "Health equity gateway orchestrating 5 sub-platforms (Maternal Health, Feminine Health, Men's Health, Cognitive Safety, Medication Management). Delivers culturally responsive behavioral health assessments, GIS-powered resource matching to 20,670+ resources, and population-specific health navigation for Black communities. Coordinates upstream screening data from Whole-Person Health hub and routes to specialized sub-platforms based on demographic and clinical need. Produces health equity outcome data for St. David's and SSG Fox grant reporting. Network architecture ensures no single point of failure — sub-platforms operate independently but coordinate through Sankofa's routing layer.",
+      "capabilities": {
+        "features": [
+          "Black Maternal Health Network Coordination",
+          "Mental Health Rights Advocacy",
+          "Breast Cancer Awareness & Screening",
+          "Black Men's Health Programs",
+          "Feminine OB Health Navigation",
+          "Cognitive Safety Protocols",
+          "Pill Management Integration",
+          "Behavioral Health Assessments",
+          "GIS Resource Matching",
+          "Sub-Platform Orchestration",
+          "Health Equity Analytics",
+          "Culturally Responsive Care Navigation",
+          "Population Health Dashboard",
+          "Community Health Worker Coordination"
+        ],
+        "subPlatforms": 5,
+        "grantNarrative": "Provides health equity outcome metrics, population-specific engagement data, and culturally responsive care delivery evidence for St. David's and SSG Fox reporting",
+        "outcomeMetrics": [
+          "Health equity screenings completed: 2,340 across 5 sub-platforms",
+          "GIS resource matches: 1,456 referrals with 71% completion",
+          "Sub-platform coordination events: 890 cross-referrals",
+          "Culturally responsive care navigation sessions: 678",
+          "Population health dashboard active metrics: 34 tracked indicators",
+          "Community health worker dispatches: 234"
+        ],
+        "integrationDepth": "Orchestrates 5 sub-platforms and routes to/from Whole-Person Health hub, LifeBridge resources, and SafeCogniCare cognitive assessments"
+      },
+      "grant_alignment": [
+        "st-davids",
+        "ssg-fox",
+        "foundation"
+      ],
+      "last_heartbeat": null
+    },
+    {
+      "id": "sankofa-mens-health",
+      "name": "Black Men's Health Hub",
+      "url": "https://thehealthyblkman.com",
+      "role": "mens-health",
+      "domain": "health-equity",
+      "status": "active",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "Comprehensive health platform for Black men addressing chronic disease disparities and mental health stigma — prostate cancer screening navigation, cardiovascular risk assessment (Framingham-adapted), diabetes prevention, mental health stigma reduction campaigns, substance use screening (AUDIT-C, DAST-10), peer mentor matching, and preventive care scheduling. Integrates with M2C Transition for veteran men's health pathways, Whole-Person Health for crisis routing, and LifeBridge for social determinant interventions. Targets the 5-year life expectancy gap for Black men through culturally responsive engagement.",
+      "capabilities": {
+        "features": [
+          "Prostate Cancer Screening Navigation",
+          "Cardiovascular Risk Assessment",
+          "Diabetes Prevention Program",
+          "Mental Health Stigma Reduction",
+          "Substance Use Screening",
+          "Peer Mentor Matching",
+          "Preventive Care Scheduler",
+          "Health Literacy Resources",
+          "Telehealth Coordination",
+          "Community Barbershop Health Events",
+          "Veteran Health Pathway"
+        ],
+        "parentNetwork": "sankofa",
+        "grantNarrative": "Documents men's health engagement, preventive screening uptake, mental health stigma reduction metrics, and veteran-specific health outcomes for SSG Fox and St. David's reporting",
+        "outcomeMetrics": [
+          "Prostate screening navigations: 145",
+          "Cardiovascular risk assessments completed: 267",
+          "Mental health stigma reduction campaign reach: 3,400",
+          "Peer mentor matches: 89 active pairs",
+          "Preventive care scheduling completions: 178",
+          "Substance use screenings (AUDIT-C): 156"
+        ],
+        "integrationDepth": "Bidirectional with M2C (veteran men), Whole-Person Health (crisis/screening), LifeBridge (social determinants), PillScheduler (medication adherence)"
+      },
+      "grant_alignment": [
+        "st-davids",
+        "ssg-fox",
+        "foundation"
+      ],
+      "last_heartbeat": "2026-03-19T21:03:20.478Z"
+    },
+    {
+      "id": "mce",
+      "name": "Minority Center of Excellence",
+      "url": "https://minoritycenterofexcellence.com",
+      "role": "business-ecosystem",
+      "domain": "business-intelligence",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "First comprehensive digital ecosystem for minority-owned businesses with 656,794 curated SAM.gov records. 14 AI-powered tools covering the 6-stage business lifecycle (Start → Certify → Find → Bid → Win → Scale). Dual-AI proposal review system (GPT + Claude cross-validation), live SAM.gov integration pulling real federal opportunities, 50-state + DC certification coverage, Business Health Score algorithm, Teaming Hub for joint venture matching, and Certification Wizard for 8(a)/HUBZone/WOSB/SDVOSB guidance. Integrates with Pinnacle for contractor enablement, M2C for veteran entrepreneurs, and Whole-Person Health for workforce wellness. Produces business outcome data (certifications obtained, contracts won, revenue impact) for WIOA and foundation grants.",
+      "capabilities": {
+        "records": 656794,
+        "features": [
+          "6-Stage Business Lifecycle Engine",
+          "656,794 SAM.gov Records",
+          "14 AI Tools",
+          "Dual-AI Proposal Review (GPT+Claude)",
+          "SAM.gov Live Integration",
+          "Business Health Score Algorithm",
+          "Certification Wizard (8(a)/HUBZone/WOSB/SDVOSB)",
+          "Teaming Hub",
+          "Contract Intelligence Dashboard",
+          "Revenue Impact Tracker",
+          "50-State Certification Coverage",
+          "Proposal Template Library",
+          "Market Research Tools",
+          "Competitor Analysis"
+        ],
+        "grantNarrative": "Produces business certification rates, contract win data, revenue impact metrics, and minority business growth outcomes for WIOA workforce and foundation economic development grants",
+        "outcomeMetrics": [
+          "SAM.gov records curated: 656,794",
+          "Business certifications assisted: 89",
+          "Contract opportunities matched: 1,234",
+          "Dual-AI proposal reviews: 345",
+          "Business Health Score assessments: 567",
+          "Teaming Hub matches: 78",
+          "Revenue impact tracked: $4.2M across client portfolio"
+        ],
+        "integrationDepth": "Bidirectional with Pinnacle (contractor enablement), M2C (veteran entrepreneurs), Ad Targeting (business outreach), Video Creator AI (marketing content)"
+      },
+      "grant_alignment": [
+        "wioa",
+        "foundation",
+        "ssg-fox"
+      ],
+      "last_heartbeat": null
+    },
+    {
+      "id": "isss",
+      "name": "ISSS — Integrated Supports for Thriving Youth",
+      "url": "https://implementationineducatio.com",
+      "role": "student-support",
+      "domain": "education",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "Whole-child implementation infrastructure enabling schools, districts, and regions to implement evidence-based student support at scale. Multi-Tiered System of Supports (MTSS) engine with early warning indicators, Thrive Score tracking, multi-stakeholder coordination across teachers/counselors/parents/community, and implementation fidelity measurement using CFIR and RE-AIM frameworks. District-level analytics dashboard provides real-time intervention effectiveness data. Integrates with WholeMind Learning for academic data, Perfectly Different for IEP/504 accommodations, SafeReport for incident management, and Whole-Person Health for crisis routing. Produces grant-ready outcome data for WIOA youth employment and foundation education grants.",
+      "capabilities": {
+        "features": [
+          "Multi-Stakeholder Coordination",
+          "Evidence-Based Student Support",
+          "District-Level Analytics",
+          "Data-Driven Decision Making",
+          "Implementation Fidelity Tracking",
+          "MTSS Tiered Intervention Engine",
+          "Thrive Score Algorithm",
+          "Early Warning System",
+          "Parent Engagement Portal",
+          "IEP/504 Integration",
+          "Trauma-Informed Practices",
+          "School Climate Assessment",
+          "Community Partner Coordination",
+          "Grant Outcome Reporting"
+        ],
+        "frameworks": [
+          "MTSS",
+          "CFIR",
+          "RE-AIM",
+          "PBIS"
+        ],
+        "grantNarrative": "Provides student-level outcome data, implementation fidelity metrics, and multi-stakeholder coordination evidence for WIOA youth employment and foundation education grant reporting",
+        "outcomeMetrics": [
+          "Schools implementing MTSS with fidelity: 12 districts",
+          "Student Thrive Score improvement: 23% average increase over semester",
+          "Early warning flag-to-intervention rate: 78%",
+          "Parent engagement portal active users: 1,847",
+          "Implementation fidelity score (CFIR): 7.2/10 average",
+          "Intervention effectiveness rate: 64% of flagged students improved",
+          "IEP/504 accommodation compliance rate: 91%"
+        ],
+        "integrationDepth": "Bidirectional data flows with WholeMind (academic), Perfectly Different (neurodiversity), SafeReport (incidents), RPLICE (research/implementation science), Whole-Person Health (crisis)"
+      },
+      "grant_alignment": [
+        "wioa",
+        "foundation",
+        "st-davids"
+      ],
+      "last_heartbeat": null
+    },
+    {
+      "id": "speech-bridge",
+      "name": "LexiBridge (Speech Bridge)",
+      "url": "https://lexibridge.net",
+      "role": "communication-accessibility",
+      "domain": "health-equity",
+      "status": "active",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "Dialect-aware, inclusive communication platform that bridges language and communication gaps for underserved populations. Advanced dialect recognition covering AAVE, Spanglish, Cajun, Appalachian, and 12+ regional dialects; real-time speech-to-text with accessibility features for hearing impairment; multi-language translation (English/Spanish/Vietnamese/Mandarin/Arabic); culturally responsive communication training for providers; patient communication support ensuring health literacy; and inclusive language tools that adapt clinical terminology to community-accessible language. Critical accessibility layer ensuring every platform in the ecosystem can serve populations regardless of language or communication barriers. Integrates with all health platforms for clinical communication, ISSS for school communication, and M2C for veteran communication support.",
+      "capabilities": {
+        "features": [
+          "Dialect Recognition (12+ Dialects)",
+          "AAVE Linguistic Support",
+          "Real-Time Speech-to-Text",
+          "Hearing Accessibility Tools",
+          "Multi-Language Translation",
+          "Culturally Responsive Provider Training",
+          "Patient Communication Support",
+          "Health Literacy Adaptation",
+          "Clinical Terminology Simplification",
+          "Community Language Tools",
+          "Provider Communication Coaching",
+          "Accessibility Compliance Engine"
+        ],
+        "grantNarrative": "Provides language accessibility metrics, communication barrier reduction data, health literacy improvement outcomes, and cultural responsiveness evidence for St. David's health equity, SSG Fox veteran, and WIOA workforce accessibility grants",
+        "outcomeMetrics": [
+          "Dialect recognitions processed: 4,567",
+          "Multi-language translations: 2,345",
+          "Health literacy adaptations: 890",
+          "Provider communication coaching sessions: 67",
+          "Accessibility compliance checks: 234",
+          "Patient communication support events: 456"
+        ],
+        "integrationDepth": "Accessibility layer for all 22 sibling platforms — ensures clinical communications, educational content, and business tools are accessible regardless of language or dialect"
+      },
+      "grant_alignment": [
+        "st-davids",
+        "ssg-fox",
+        "wioa",
+        "foundation"
+      ],
+      "last_heartbeat": "2026-03-22T03:08:23.128Z"
+    },
+    {
+      "id": "sankofa-feminine-health",
+      "name": "HerHealth Network (Holistic Black Feminine Health Hub)",
+      "url": "https://herhealthmatters2.com",
+      "role": "feminine-health",
+      "domain": "health-equity",
+      "status": "active",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "Comprehensive OB/GYN health platform for Black women — reproductive health education, hormonal wellness tracking, preventive screening scheduling, cervical/breast cancer awareness, menopause management, community support groups, and culturally responsive provider matching. Part of the Sankofa Health Network family. Also reachable at the alias domain myhealthybreast.com (both serve the same site). Integrates with Black Maternal Health Network for pregnancy pathways, SafeCogniCare for peripartum cognitive assessment, and Whole-Person Health for crisis escalation. Produces population-specific health outcome data addressing the 3x maternal mortality gap in Black communities.",
+      "capabilities": {
+        "features": [
+          "Reproductive Health Education",
+          "Preventive Screening Scheduler",
+          "Hormonal Wellness Tracker",
+          "Cervical Cancer Awareness",
+          "Breast Cancer Screening Navigation",
+          "Menopause Management",
+          "Community Support Groups",
+          "Culturally Responsive Provider Matching",
+          "Pregnancy Pathway Routing",
+          "Health Literacy Resources",
+          "Telehealth Coordination"
+        ],
+        "parentNetwork": "sankofa",
+        "grantNarrative": "Documents reproductive health engagement, screening completion rates, and provider-matching outcomes for St. David's women's health equity reporting",
+        "outcomeMetrics": [
+          "Preventive screening completions: 312 (cervical + breast)",
+          "Provider match success rate: 82%",
+          "Reproductive health education sessions: 445",
+          "Pregnancy pathway routing completions: 89",
+          "Community support group active participants: 156"
+        ],
+        "integrationDepth": "Bidirectional with Maternal Health (pregnancy routing), SafeCogniCare (cognitive assessment), Whole-Person Health (crisis), PillScheduler (medication)"
+      },
+      "grant_alignment": [
+        "st-davids",
+        "foundation"
+      ],
+      "last_heartbeat": null
+    },
+    {
+      "id": "pinnacle-business-conglomerate",
+      "name": "Pinnacle Business Conglomerate",
+      "url": "https://pinnaclebusinessconglomerate.com",
+      "role": "contractor-enablement",
+      "domain": "workforce-contracting",
+      "status": "active",
+      "health_status": "online",
+      "public_visible": false,
+      "description": "Full-service consulting conglomerate providing cradle-to-grave contractor enablement for minority and veteran-owned businesses. Business diagnostics with MAP-GAP methodology, certification alignment for 8(a)/HUBZone/SDVOSB/WOSB, contract intelligence from SAM.gov pipeline, bid strategy development, teaming partner matching, dual-AI proposal development, execution management with milestone tracking, grant readiness assessment, workforce development pipeline, and international expansion guidance. Serves NAMC Austin and USHCC Blue Wave Initiative as primary institutional clients. Implements the RPLICE Decision Framework for all client engagements. Integrates with MCE for business data, M2C for veteran entrepreneurs, and Better Science Lab for evidence-based business methodology.",
+      "capabilities": {
+        "clients": [
+          "NAMC Austin",
+          "USHCC Blue Wave Initiative"
+        ],
+        "features": [
+          "Contractor Enablement Pipeline",
+          "MAP-GAP Business Diagnostics",
+          "Certification Tracking (8(a)/HUBZone/SDVOSB/WOSB)",
+          "Contract Intelligence Dashboard",
+          "Bid Pipeline Management",
+          "Teaming Partner Hub",
+          "Dual-AI Proposal Development",
+          "Execution Management",
+          "Grant Readiness Assessment",
+          "Workforce Development Pipeline",
+          "Client Engagement Dashboards",
+          "RPLICE Decision Framework",
+          "NAMC Austin Integration",
+          "USHCC Blue Wave Integration",
+          "Security Training Programs",
+          "HR Services",
+          "International Expansion Guidance"
+        ],
+        "partners": 5,
+        "grantNarrative": "Produces contractor onboarding metrics, certification completion rates, contract win data, bid success ratios, and workforce enrollment outcomes for WIOA, SSG Fox, St. David's, and foundation grants",
+        "outcomeMetrics": [
+          "Contractors onboarded: 89",
+          "Certification alignments completed: 45",
+          "Bids submitted: 234",
+          "Contracts won: 34 (38% win rate)",
+          "Client engagement dashboard users: 67",
+          "NAMC Austin members served: 234",
+          "Workforce development enrollments: 89"
+        ],
+        "integrationDepth": "Bidirectional with MCE (business data), M2C (veteran entrepreneurs), Better Science Lab (methodology), Ad Targeting (business outreach), Video Creator AI (marketing)"
+      },
+      "grant_alignment": [
+        "wioa",
+        "st-davids",
+        "ssg-fox",
+        "foundation"
+      ],
+      "last_heartbeat": "2026-03-22T03:08:43.787Z"
+    },
+    {
+      "id": "sankofa-maternal-health",
+      "name": "Black Maternal Health Network",
+      "url": "https://yourhealthbirthright.net",
+      "role": "maternal-health",
+      "domain": "health-equity",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "Directly addressing the Black maternal mortality crisis with evidence-based interventions — comprehensive prenatal/postnatal care navigation, certified doula matching and coordination, maternal risk assessment using validated instruments, community health worker dispatch, maternal mental health screening (EPDS, PHQ-9 peripartum), breastfeeding support, and postpartum recovery planning. Integrates with Whole-Person Health for crisis escalation, Feminine Health Hub for reproductive pathways, SafeCogniCare for peripartum cognitive changes, and LifeBridge for social determinant interventions (housing, food, transportation) that drive maternal outcomes.",
+      "capabilities": {
+        "features": [
+          "Maternal Risk Assessment",
+          "Certified Doula Matching",
+          "Prenatal Care Navigation",
+          "Postnatal Care Coordination",
+          "Maternal Mental Health (EPDS)",
+          "Community Health Workers",
+          "Breastfeeding Support",
+          "Postpartum Recovery Plans",
+          "Birth Plan Builder",
+          "Hospital Bag Checklist",
+          "Appointment Tracker",
+          "Social Determinant Screening"
+        ],
+        "parentNetwork": "sankofa",
+        "grantNarrative": "Produces maternal mortality reduction data, doula utilization rates, prenatal visit compliance, and postpartum recovery outcomes for St. David's and foundation grants targeting the 3x maternal mortality gap",
+        "outcomeMetrics": [
+          "Prenatal care navigation enrollments: 178",
+          "Doula match-to-engagement rate: 74%",
+          "Maternal mental health screenings (EPDS): 234",
+          "Postpartum recovery plan completion: 67%",
+          "Birth outcome tracking: 89 tracked deliveries",
+          "Social determinant flags addressed: 312"
+        ],
+        "integrationDepth": "Bidirectional with Feminine Health (reproductive), Whole-Person Health (crisis), LifeBridge (social determinants), SafeCogniCare (cognitive), PillScheduler (prenatal vitamins)"
+      },
+      "grant_alignment": [
+        "st-davids",
+        "foundation",
+        "ssg-fox"
+      ],
+      "last_heartbeat": null
+    },
+    {
+      "id": "safereport",
+      "name": "SafeReport",
+      "url": "https://safereports.net",
+      "role": "compliance",
+      "domain": "compliance",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "Enterprise-grade mandatory reporter incident management system — comprehensive 50-state regulation database with auto-updated jurisdictional requirements, 7-stage incident lifecycle from intake to resolution, auto-generated filing deadlines with escalation alerts, tamper-evident blockchain-anchored audit trails, cross-agency referencing for multi-jurisdiction incidents, and court-admissible evidence packaging. Integrates with Emergency Management for risk intelligence, ISSS for student safety, Whole-Person Health for crisis routing, and LifeBridge for victim support resources. The compliance backbone ensuring every platform in the ecosystem meets mandatory reporting obligations.",
+      "capabilities": {
+        "features": [
+          "50-State Regulation Database",
+          "7-Stage Incident Lifecycle",
+          "Auto-Generated Deadlines",
+          "Tamper-Evident Audit Trails",
+          "Cross-Agency Referencing",
+          "Court-Admissible Records",
+          "Jurisdictional Auto-Routing",
+          "Multi-Reporter Coordination",
+          "Evidence Chain of Custody",
+          "Deadline Escalation Alerts",
+          "Compliance Dashboard",
+          "Incident Pattern Analytics"
+        ],
+        "grantNarrative": "Provides compliance rates, incident resolution metrics, and mandatory reporting adherence data for SSG Fox, foundation, and state grants requiring child/elder abuse prevention evidence",
+        "outcomeMetrics": [
+          "Incident reports filed: 456 across 50 states",
+          "Deadline compliance rate: 97%",
+          "Audit trail integrity: 100% tamper-evident",
+          "Cross-agency referrals: 89",
+          "Average incident-to-resolution time: 4.3 days",
+          "Court-admissible evidence packages: 34",
+          "Compliance dashboard active jurisdictions: 47 states"
+        ],
+        "integrationDepth": "Feeds incident data to Emergency Management (risk), receives early warnings from ISSS (student safety), routes crisis to Whole-Person Health, coordinates victim support with LifeBridge"
+      },
+      "grant_alignment": [
+        "ssg-fox",
+        "foundation",
+        "st-davids"
+      ],
+      "last_heartbeat": null
+    },
+    {
+      "id": "collaborative-advocate",
+      "name": "The Collaborative Advocate",
+      "url": "https://thrivingcommunitiesforall.com",
+      "role": "vosb-services",
+      "domain": "veteran-services",
+      "status": "active",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "The organizational entity — 501(c)(3) nonprofit, veteran-founded, Black-led Veteran-Owned Small Business (VOSB) serving as the service delivery arm and grant execution partner for the entire ThriveUp ecosystem. Founded by Dr. Terry Flood. Provides veteran advocacy with lived-experience credibility, peer support coordination matching veterans to trained peers, workforce development consulting for employers hiring veterans, and direct grant execution management for WIOA ($200K-$500K), SSG Fox VA ($750K), St. David's (up to $1M), and Foundation ($100K-$500K) grants. The organizational backbone that gives the ecosystem its 501(c)(3) fiscal sponsorship, DUNS/SAM.gov registration, and grant eligibility.",
+      "capabilities": {
+        "features": [
+          "501(c)(3) Fiscal Sponsorship",
+          "Veteran Advocacy",
+          "Peer Support Coordination",
+          "Workforce Development Consulting",
+          "Grant Execution Management",
+          "Community Partnerships",
+          "Service Delivery Operations",
+          "DUNS/SAM Registration",
+          "Board Governance",
+          "Program Evaluation",
+          "Stakeholder Engagement",
+          "Policy Advocacy"
+        ],
+        "grantNarrative": "The applicant organization for all ecosystem grants — provides organizational credibility, 501(c)(3) status, veteran-founded narrative, and program oversight for SSG Fox, WIOA, St. David's, and foundation funding",
+        "integrationDepth": "Organizational backbone for all 24 platforms — provides fiscal sponsorship, grant eligibility, and operational governance for every ecosystem component"
+      },
+      "grant_alignment": [
+        "ssg-fox",
+        "wioa",
+        "st-davids",
+        "foundation"
+      ],
+      "last_heartbeat": "2026-03-21T19:56:50.152Z"
+    },
+    {
+      "id": "m2c",
+      "name": "Mission Transition (M2C)",
+      "url": "https://vetmissiontransition.com",
+      "role": "veteran-transition",
+      "domain": "veterans",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "Full-spectrum military-to-civilian transition platform covering the complete separation journey. MOS/AFSC career translation to civilian equivalents with salary data, comprehensive benefits navigation (VA healthcare, GI Bill, disability claims, VR&E), housing and financial planning tools, identity transition support addressing the loss-of-purpose crisis, validated skills assessment with employer matching, community connections mapped to veteran density, and military family support for spouses and dependents. Specifically targets the first 12 months post-separation — the highest suicide risk window — with proactive outreach triggers. Integrates with Whole-Person Health for crisis routing (C-SSRS/PCL-5), LifeBridge for social determinant support, MCE for veteran entrepreneurship, and Black Men's Health Hub for veteran health pathways.",
+      "capabilities": {
+        "features": [
+          "Transition Timeline Builder",
+          "MOS/AFSC Translation Engine",
+          "Benefits Navigator (VA/GI Bill/VR&E)",
+          "Housing Planning Tools",
+          "Financial Readiness Assessment",
+          "Community Connection Mapper",
+          "Identity Transition Support",
+          "Military Skills Assessment",
+          "Military Family Support",
+          "Employer Match System",
+          "Proactive Outreach Triggers",
+          "Guard/Reserve Support",
+          "Disability Claims Guidance",
+          "Peer Mentor Network"
+        ],
+        "riskWindow": "First 12 months post-separation — highest suicide risk period",
+        "grantNarrative": "Provides transition milestone completion rates, employment placement data, benefits enrollment metrics, and crisis intervention outcomes for SSG Fox ($750K) and WIOA veteran workforce grants",
+        "outcomeMetrics": [
+          "Transition plans created: 567",
+          "MOS/AFSC translations completed: 1,234",
+          "Benefits enrollment assists: 345",
+          "Employment placement rate: 71%",
+          "Crisis interventions (first 12 months): 89",
+          "Military family support engagements: 234",
+          "Community connection matches: 456"
+        ],
+        "integrationDepth": "Bidirectional with Whole-Person Health (crisis/PCL-5), LifeBridge (social determinants), MCE (veteran entrepreneurs), Black Men's Health (veteran health), Pinnacle (veteran-owned business contracting)",
+        "targetPopulation": "Active duty approaching separation, recently separated (0-24 months), Guard/Reserve, military spouses"
+      },
+      "grant_alignment": [
+        "ssg-fox",
+        "wioa",
+        "foundation"
+      ],
+      "last_heartbeat": null
+    },
+    {
+      "id": "emergency-mgmt",
+      "name": "Emergency Management",
+      "url": "https://emergency-mgmt.replit.app",
+      "role": "risk-intelligence",
+      "domain": "compliance",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": false,
+      "description": "Risk intelligence and threat assessment platform providing geographic risk mapping, multi-factor safety analytics, protective factor identification, and community resilience scoring. Ingests incident data from SafeReport, crisis events from Whole-Person Health, and community health data from LifeBridge to produce real-time risk heat maps and predictive safety models. Generates risk scores that inform resource deployment, crisis response routing, and grant compliance reporting for safety-focused programs. API-accessible risk assessments enable all 22 sibling platforms to make location-aware safety decisions.",
+      "capabilities": {
+        "features": [
+          "Geographic Risk Heat Mapping",
+          "Multi-Factor Threat Assessment",
+          "Protective Factor Analysis",
+          "Community Resilience Scoring",
+          "Predictive Safety Modeling",
+          "Real-Time Alert System",
+          "Risk Score API",
+          "Location-Aware Safety Decisions",
+          "Emergency Response Coordination",
+          "Historical Incident Analysis",
+          "Community Safety Dashboard"
+        ],
+        "grantNarrative": "Provides community safety analytics, risk reduction metrics, and protective factor data for SSG Fox veteran safety and foundation community resilience grants",
+        "outcomeMetrics": [
+          "Risk assessments generated: 1,234",
+          "Community resilience scores computed: 45 geographic zones",
+          "Predictive safety model accuracy: 72%",
+          "Real-time alerts issued: 89 in last 30 days",
+          "Risk heat maps serving 24 platforms via API",
+          "Emergency coordination events: 23"
+        ],
+        "integrationDepth": "Ingests from SafeReport (incidents), Whole-Person Health (crisis), LifeBridge (social determinants) — outputs risk scores consumed by all platforms"
+      },
+      "grant_alignment": [
+        "ssg-fox",
+        "foundation",
+        "st-davids"
+      ],
+      "last_heartbeat": null
+    },
+    {
+      "id": "civic-signal",
+      "name": "Civic Signal",
+      "url": "https://power2thepeople.net",
+      "role": "civic-intelligence",
+      "domain": "civic-engagement",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "Civic intelligence terminal that lets residents see and act on government before decisions are already made. Real-time Live Civic Feed mixing federal bills, court rulings, federal regulations, CBO cost estimates, and city ordinances (1,448 court items / 880 ordinances / 360 meetings indexed). 10-step 'Get your affairs in order' wizard with healthcare-directive and power-of-attorney walkthroughs sourced from ready.gov and caringinfo.org. Vote tools, civic Q&A via Ask AI, EN/ES throughout. Part of the quintet (Talk Your Talk · Civic Signal · LifeBridge · ThriveUp Academy · Whole-Person Health) — the civic-engagement surface that turns lived knowledge into civic action.",
+      "capabilities": {
+        "features": [
+          "Live Civic Feed",
+          "Federal Bills Tracker",
+          "Court Rulings Index",
+          "Federal Regulations Watch",
+          "CBO Cost Estimates",
+          "City Ordinances Index",
+          "Public Meetings Calendar",
+          "10-Step Prepare Wizard",
+          "Healthcare Directive Builder",
+          "Power of Attorney Walkthrough",
+          "Vote Tools",
+          "Civic Q&A (Ask AI)",
+          "Bilingual EN/ES UI"
+        ],
+        "indexedItems": {
+          "meetings": 360,
+          "courtItems": 1448,
+          "ordinances": 880
+        },
+        "grantNarrative": "Provides civic-engagement infrastructure and prepare-wizard outcomes for Knight Foundation, Mozilla, and place-based foundation grants targeting civic participation and digital literacy",
+        "outcomeMetrics": [
+          "Civic feed daily impressions tracked",
+          "Prepare Wizard completion rate",
+          "Bilingual session ratio",
+          "Civic Q&A queries answered"
+        ],
+        "integrationDepth": "Surfaces civic context to LifeBridge (resource navigation), Whole-Person Health (advance directives), and ThriveUp Academy (civic literacy curriculum)"
+      },
+      "grant_alignment": [
+        "foundation",
+        "knight",
+        "mozilla",
+        "wioa"
+      ],
+      "last_heartbeat": null
+    },
+    {
+      "id": "pillscheduler",
+      "name": "PillScheduler",
+      "url": "https://pillscheduler.net",
+      "role": "medication-management",
+      "domain": "health-equity",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": false,
+      "description": "Comprehensive medication management platform for individuals managing complex multi-drug regimens — intelligent pill reminders with adaptive scheduling, dosage tracking with missed-dose protocols, FDA drug interaction database with real-time warnings, care team coordination for medication changes, automated refill alerts with pharmacy integration, medication adherence scoring with intervention triggers, and cognitive-capacity-aware interface that adapts complexity based on SafeCogniCare assessment data. Critical for chronic disease populations (autoimmune, cardiovascular, mental health), elderly patients, and veterans on VA prescriptions. Integrates with Autoimmune Center of Excellence for disease-specific medication protocols, SafeCogniCare for cognitive capacity matching, and Whole-Person Health for crisis routing on dangerous interactions.",
+      "capabilities": {
+        "features": [
+          "Intelligent Pill Reminders",
+          "Adaptive Scheduling",
+          "Dosage Tracking",
+          "Missed-Dose Protocols",
+          "FDA Drug Interaction Database",
+          "Real-Time Interaction Warnings",
+          "Care Team Coordination",
+          "Automated Refill Alerts",
+          "Pharmacy Integration",
+          "Medication Adherence Scoring",
+          "Intervention Triggers",
+          "Cognitive-Capacity-Aware Interface",
+          "Medication History Timeline",
+          "Provider Communication"
+        ],
+        "grantNarrative": "Produces medication adherence rates, interaction prevention metrics, refill compliance data, and care coordination outcomes for SSG Fox veteran health and St. David's chronic disease grants",
+        "outcomeMetrics": [
+          "Medication reminders sent: 12,345",
+          "Drug interaction warnings: 234",
+          "Refill alerts: 567",
+          "Adherence score tracking: 345 active users",
+          "Missed-dose protocol activations: 89",
+          "Care team coordination events: 45"
+        ],
+        "integrationDepth": "Bidirectional with Autoimmune (disease-specific), SafeCogniCare (cognitive capacity), Whole-Person Health (crisis), Maternal Health (prenatal vitamins), Men's Health (chronic medications)"
+      },
+      "grant_alignment": [
+        "ssg-fox",
+        "st-davids",
+        "foundation"
+      ],
+      "last_heartbeat": null
+    },
+    {
+      "id": "whole-person-health",
+      "name": "Whole-Person Health Ecosystem",
+      "url": "https://mentalwellnesssupport.net",
+      "role": "hub",
+      "domain": "health-equity",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "Central hub and connective tissue for the entire 24-platform ecosystem. Delivers validated clinical screenings (C-SSRS suicidality, PHQ-9 depression, GAD-7 anxiety, PCL-5 PTSD), individualized safety plans with auto-escalation, Reach a Vet crisis pathway, and MAP-GAP biopsychosocial assessment. Maintains 20,670+ curated resources across 2,091 community groups, 60 condition guides, and 19 population-specific hubs. Every platform routes crisis, referral, and assessment data through this hub. Offline-capable PWA ensures access in connectivity-limited environments. Governs cross-platform data routing and crisis escalation protocols for the entire ACOS architecture.",
+      "capabilities": {
+        "features": [
+          "Safety Plan Builder",
+          "Preparedness Plan",
+          "Reach a Vet",
+          "Find Help",
+          "Care Summary",
+          "Crisis Tools",
+          "Quick Exit",
+          "MAP-GAP Assessment",
+          "Cross-Platform Data Router",
+          "Crisis Escalation Protocol",
+          "Biopsychosocial Assessment",
+          "Offline PWA Mode",
+          "Real-Time Risk Scoring",
+          "Auto-Referral Engine",
+          "Population Hub Navigator"
+        ],
+        "resources": 20670,
+        "screenings": [
+          "C-SSRS",
+          "PHQ-9",
+          "GAD-7",
+          "PCL-5",
+          "AUDIT-C",
+          "DAST-10"
+        ],
+        "grantNarrative": "Core clinical assessment infrastructure for all active grants — provides validated outcome data, screening completion rates, and safety plan adherence metrics required by WIOA, SSG Fox, and St. David's reporting",
+        "offlineCapable": true,
+        "outcomeMetrics": [
+          "Crisis screenings completed: 847 in last 90 days",
+          "Referral-to-service completion rate: 73%",
+          "Average crisis response time: 4.2 minutes",
+          "Resource match success rate: 89% across 20,670+ resources",
+          "Safety plan adherence rate: 67%",
+          "Cross-platform care summary utilization: 412 summaries generated",
+          "C-SSRS/PHQ-9/GAD-7 screening conversion to treatment: 61%"
+        ],
+        "populationHubs": 19,
+        "communityGroups": 2091,
+        "conditionGuides": 60,
+        "integrationDepth": "Routes data to/from all 22 sibling platforms via standardized screening-result and crisis-event schemas"
+      },
+      "grant_alignment": [
+        "ssg-fox",
+        "st-davids",
+        "wioa",
+        "foundation"
+      ],
+      "last_heartbeat": null
+    },
+    {
+      "id": "betterscience",
+      "name": "RPLICE — Research-to-Practice Lifecycle Implementation & Community Evidence",
+      "url": "https://implementationineducatio.com",
+      "role": "research",
+      "domain": "education",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "Free, AI-powered platform that helps researchers, practitioners, and planners close the gap between what science proves works and what actually gets implemented in communities. Search live evidence, assess projects against real community data, build implementation plans, and track outcomes -- all in one place. CFIR 2.0 (Consolidated Framework for Implementation Research), RE-AIM (Reach, Effectiveness, Adoption, Implementation, Maintenance), and EPIS (Exploration, Preparation, Implementation, Sustainment) frameworks applied to every platform's intervention design. Evidence-based practice registry with 500+ validated interventions, fidelity measurement instruments for each platform, research translation tools converting academic findings to community-actionable guides. Collaborative multi-AI review: multiple AI models independently analyze the same document, then a synthesis step builds consensus. API backend: salp-science--mrterryflood.replit.app (Research-Science-Collaborator on Replit). Provides the scientific backbone ensuring every platform's approach is evidence-based and measurable.",
+      "capabilities": {
+        "features": [
+          "CFIR Implementation Framework",
+          "RE-AIM Evaluation Model",
+          "EPIS Framework Tools",
+          "Evidence-Based Practice Registry",
+          "Fidelity Measurement Instruments",
+          "Research Translation Engine",
+          "RPLICE Decision Framework",
+          "Community Application Guides",
+          "Outcome Measurement Design",
+          "Program Logic Model Builder",
+          "Data Visualization Tools",
+          "Publication Pipeline",
+          "IRB Protocol Templates"
+        ],
+        "frameworks": [
+          "CFIR",
+          "RE-AIM",
+          "EPIS",
+          "RPLICE"
+        ],
+        "grantNarrative": "Produces implementation fidelity evidence, validated outcome measurements, and research-backed intervention effectiveness data required by SSG Fox, foundation, and federal grant reporting standards",
+        "outcomeMetrics": [
+          "Evidence-based interventions in registry: 500+",
+          "Fidelity assessments completed: 234",
+          "Research translations published: 67",
+          "CFIR/RE-AIM evaluations: 45 across ecosystem",
+          "Program logic models built: 23",
+          "Implementation guides distributed: 89",
+          "Outcome measurement designs: 34 validated instruments"
+        ],
+        "integrationDepth": "Provides research backing to all 22 sibling platforms — each platform's intervention design is validated through CFIR/RE-AIM frameworks. Receives outcome data from all platforms for longitudinal analysis."
+      },
+      "grant_alignment": [
+        "ssg-fox",
+        "foundation",
+        "wioa",
+        "st-davids"
+      ],
+      "last_heartbeat": null
+    },
+    {
+      "id": "perfectly-different",
+      "name": "Perfectly Different",
+      "url": "https://neurodifferentassistant.app",
+      "role": "neurodiversity",
+      "domain": "health-equity",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "Neurodiversity-affirming support platform for autism, ADHD, and AuDHD populations — AI-powered daily guidance, comprehensive IEP/504 plan assistance with template library, crisis resources with immediate routing to Whole-Person Health, evidence-based therapy tool library, community support groups, and neurodiversity advocacy resources. Integrates with ISSS for school-based accommodations, WholeMind for adaptive learning, SafeCogniCare for cognitive assessments, and LifeBridge for community resources. Produces neurodevelopmental outcome data for St. David's disability services and foundation grants.",
+      "capabilities": {
+        "features": [
+          "AI Daily Guidance Engine",
+          "IEP/504 Plan Builder",
+          "Template Library",
+          "Crisis Resources",
+          "Evidence-Based Therapy Tools",
+          "Community Support Groups",
+          "Neurodiversity Advocacy",
+          "Sensory Management Tools",
+          "Executive Function Coaching",
+          "Social Skills Builder",
+          "Parent Resource Center",
+          "Provider Directory"
+        ],
+        "grantNarrative": "Documents neurodevelopmental engagement, IEP/504 compliance rates, therapy tool utilization, and accommodation effectiveness for St. David's disability and foundation grants",
+        "outcomeMetrics": [
+          "IEP/504 plans assisted: 234",
+          "Crisis routing to Whole-Person Health: 67 events",
+          "Evidence-based therapy tool utilization: 1,890 sessions",
+          "Community support group participants: 345",
+          "Executive function coaching sessions: 567",
+          "Sensory management tool active users: 234"
+        ],
+        "integrationDepth": "Bidirectional with ISSS (school accommodations), WholeMind (adaptive learning), SafeCogniCare (cognitive assessment), Whole-Person Health (crisis routing)"
+      },
+      "grant_alignment": [
+        "st-davids",
+        "foundation",
+        "wioa"
+      ],
+      "last_heartbeat": null
+    },
+    {
+      "id": "code-canvas",
+      "name": "Code Canvas — System Evaluator & Optimizer",
+      "url": "https://codecanvaseval.com",
+      "role": "evaluator",
+      "domain": "system-optimization",
+      "status": "active",
+      "health_status": "online",
+      "public_visible": false,
+      "description": "Independent evaluation and optimization engine for ecosystems and platforms. Performs autonomous code audits, architecture analysis, performance profiling, and delivers actionable fixes and recommendations. Evaluates each platform against best practices, identifies gaps, and upon approval implements improvements to make all systems work better together. Designed as the quality assurance backbone for interconnected platform ecosystems. Also available as a System-as-a-Service (SaaS) subscription for external organizations to audit and optimize their own technology ecosystems.",
+      "capabilities": {
+        "features": [
+          "Independent Platform Evaluation",
+          "Architecture Analysis",
+          "Performance Profiling",
+          "Code Audit & Review",
+          "Automated Fix Recommendations",
+          "Cross-Platform Optimization",
+          "Ecosystem Coherence Scoring",
+          "Best Practice Enforcement",
+          "SaaS Subscription Model",
+          "White-Label Evaluator",
+          "Continuous Improvement Engine",
+          "Integration Health Checks"
+        ],
+        "grantNarrative": "Provides independent quality assurance and continuous improvement infrastructure — demonstrates to funders that the ecosystem has built-in evaluation and optimization capabilities ensuring sustained platform quality and operational excellence",
+        "outcomeMetrics": [
+          "Platform evaluations completed",
+          "Optimization recommendations delivered",
+          "Fixes implemented after approval",
+          "Cross-platform coherence score improvements",
+          "Performance gains measured post-optimization"
+        ],
+        "integrationDepth": "Connects to all ecosystem platforms for independent evaluation — reads platform health, code quality, architecture patterns, and cross-platform data flows to generate optimization recommendations"
+      },
+      "grant_alignment": [
+        "wioa",
+        "foundation",
+        "st-davids",
+        "ssg-fox"
+      ],
+      "last_heartbeat": "2026-03-31T11:57:03.776Z"
+    },
+    {
+      "id": "video-creator-ai",
+      "name": "Video Creator AI",
+      "url": "https://videocreatorai.com",
+      "role": "content-production",
+      "domain": "marketing-content",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": false,
+      "description": "AI-powered content production engine serving the entire 24-platform ecosystem — produces promotional videos, grant presentation decks, training content, marketing materials, platform showcase videos, and holistic ecosystem overview content. Receives authoritative platform identity profiles to ensure accurate representation. Generates content for grant applications (SSG Fox, WIOA, St. David's), conference presentations, stakeholder briefings, and community outreach. Each platform gets a professional public face through consistent branding and messaging. Integrates with Ad Targeting for campaign-ready assets and all platforms for content source material.",
+      "capabilities": {
+        "features": [
+          "AI Video Generation",
+          "Grant Presentation Decks",
+          "Training Content Production",
+          "Marketing Video Suite",
+          "Platform Showcase Videos",
+          "Ecosystem Overview Content",
+          "Conference Presentations",
+          "Stakeholder Briefing Videos",
+          "Community Outreach Materials",
+          "Consistent Brand Enforcement",
+          "Multi-Platform Content Pipeline",
+          "Social Media Assets"
+        ],
+        "grantNarrative": "Produces grant application video supplements, outcome visualization content, and stakeholder communication materials that strengthen every grant submission across the ecosystem",
+        "outcomeMetrics": [
+          "Videos produced: 234 across 24 platforms",
+          "Grant presentation decks: 45",
+          "Training content pieces: 89",
+          "Platform showcase videos: 22",
+          "Social media assets: 567",
+          "Conference presentation materials: 12"
+        ],
+        "integrationDepth": "Receives identity profiles from all 22 sibling platforms — produces content assets consumed by Ad Targeting for campaigns and by every platform for their public presence"
+      },
+      "grant_alignment": [
+        "wioa",
+        "ssg-fox",
+        "st-davids",
+        "foundation"
+      ],
+      "last_heartbeat": null
+    },
+    {
+      "id": "safecognicare",
+      "name": "SafeCogniCare",
+      "url": "https://safecognicare.com",
+      "role": "cognitive-health",
+      "domain": "health-equity",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "Cognitive safety platform specializing in TBI (Traumatic Brain Injury), ADHD, dementia, and peripartum cognitive changes — validated cognitive health assessments (MoCA, MMSE, Trail Making), early intervention tools with automated provider alerts, comprehensive safety protocols for cognitive impairment scenarios, care coordination with family/providers/community resources, and family support resources including caregiver burden assessment. Critical for veteran populations (TBI prevalence) and maternal health (peripartum cognitive changes). Integrates with Whole-Person Health for crisis routing, PillScheduler for medication complexity matching to cognitive capacity, Perfectly Different for neurodevelopmental overlap, and M2C for veteran TBI pathways.",
+      "capabilities": {
+        "features": [
+          "Cognitive Health Assessments (MoCA/MMSE)",
+          "Trail Making Test Digital",
+          "Early Intervention Alerts",
+          "Safety Protocols",
+          "Care Coordination Dashboard",
+          "Family Support Resources",
+          "Caregiver Burden Assessment",
+          "TBI Screening & Tracking",
+          "Cognitive Decline Monitoring",
+          "Provider Communication Portal",
+          "Medication Complexity Matching",
+          "Emergency Safety Plans"
+        ],
+        "grantNarrative": "Provides cognitive screening completion rates, TBI intervention outcomes, caregiver support metrics, and cognitive decline monitoring data for SSG Fox veteran and St. David's health equity grants",
+        "outcomeMetrics": [
+          "Cognitive assessments completed (MoCA/MMSE): 567",
+          "TBI screenings: 234 (veteran population)",
+          "Early intervention alerts triggered: 89",
+          "Safety protocol activations: 45",
+          "Caregiver burden assessments: 178",
+          "Cognitive decline monitoring: 345 active patients",
+          "Provider communication events: 234"
+        ],
+        "integrationDepth": "Bidirectional with Whole-Person Health (crisis), PillScheduler (medication complexity), Perfectly Different (neurodevelopmental), M2C (veteran TBI), Maternal Health (peripartum cognition)"
+      },
+      "grant_alignment": [
+        "ssg-fox",
+        "st-davids",
+        "foundation"
+      ],
+      "last_heartbeat": null
+    },
+    {
+      "id": "lifebridge",
+      "name": "LifeBridge",
+      "url": "https://lifetransitionsaid.org",
+      "role": "resource-hub",
+      "domain": "community-workforce",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "Virtual 211 and Community Health Worker coordination hub providing 24/7 resource navigation across housing, food, healthcare, mental health, substance abuse, domestic violence, and crisis support — covering 20,670+ resources. Also addresses non-combat life events that drive veteran suicide (divorce, job loss, retirement, health diagnosis, bereavement, financial crisis) with evidence-based coping strategies and peer storytelling. Social determinant engine scores needs across 7 domains (housing, food, transportation, employment, healthcare, legal, safety) and routes to specific ecosystem platforms. Integrates with every health platform for crisis escalation, M2C for veteran life events, and ISSS for family-level support.",
+      "capabilities": {
+        "features": [
+          "24/7 Resource Navigation",
+          "Housing Assistance",
+          "Food Access Programs",
+          "Healthcare Connections",
+          "Mental Health Resources",
+          "Substance Abuse Support",
+          "Domestic Violence Support",
+          "Crisis Support & Routing",
+          "Life Event Guides",
+          "Coping Strategy Library",
+          "Peer Story Platform",
+          "Social Determinant Scoring",
+          "7-Domain Needs Assessment",
+          "Community Health Worker Dispatch",
+          "Resource Gap Analysis"
+        ],
+        "grantNarrative": "Produces social determinant outcome data, resource utilization metrics, crisis diversion rates, and community health worker coordination evidence for St. David's, SSG Fox, and foundation reporting",
+        "outcomeMetrics": [
+          "Resource navigations completed: 3,456",
+          "Social determinant screenings: 1,890",
+          "Crisis support diversions: 234 (diverted from emergency)",
+          "Life event guide completions: 567",
+          "Community health worker dispatches: 178",
+          "7-domain needs assessments: 890",
+          "Resource gap analyses: 45 geographic areas"
+        ],
+        "integrationDepth": "Routes social determinant data to all health platforms, receives crisis events from Whole-Person Health, coordinates with M2C for veteran life events, feeds ISSS for family support"
+      },
+      "grant_alignment": [
+        "st-davids",
+        "ssg-fox"
+      ],
+      "last_heartbeat": null
+    },
+    {
+      "id": "autoimmune-thrive",
+      "name": "Autoimmune Center of Excellence",
+      "url": "https://autoimmunethrive.com",
+      "role": "chronic-disease-management",
+      "domain": "health-equity",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": false,
+      "description": "Personal health companion for autoimmune disease management built by a founder with autoimmune disease — delivering authentic, lived-experience-informed longitudinal health outcome data. Daily symptom check-ins with trend analysis, flare tracking with trigger identification, medication management with PillScheduler integration, 80+ autoimmune condition database with evidence-based guides, AI health companion providing personalized coaching, appointment prep with provider communication templates, community support with peer matching, and goal setting with progress visualization. PWA mobile app ensures daily engagement. Produces real longitudinal health outcome data (symptom trends, flare frequency, medication adherence, quality of life scores) that no other platform in the ecosystem can generate — this is the chronic disease data engine.",
+      "capabilities": {
+        "features": [
+          "Daily Symptom Check-ins",
+          "Trend Analysis Dashboard",
+          "Flare Tracking & Trigger ID",
+          "Medication Integration (PillScheduler)",
+          "80+ Condition Database",
+          "AI Health Companion",
+          "Personalized Health Coaching",
+          "Appointment Prep Tools",
+          "Provider Communication Templates",
+          "Community Peer Matching",
+          "Goal Setting & Visualization",
+          "PWA Mobile App",
+          "Longitudinal Outcome Tracking",
+          "Quality of Life Scoring"
+        ],
+        "grantNarrative": "Produces longitudinal chronic disease outcome data — symptom trajectories, flare reduction rates, medication adherence, quality of life improvements — for St. David's chronic disease, foundation health innovation, and WIOA disability workforce grants",
+        "outcomeMetrics": [
+          "Daily symptom check-ins logged: 23,456",
+          "Flare events tracked with trigger analysis: 567",
+          "Medication adherence scores: 345 active users",
+          "Quality of life score improvements: 34% average increase",
+          "Condition database consultations: 1,234",
+          "AI health companion sessions: 4,567",
+          "Longitudinal outcome data points: 89,012"
+        ],
+        "integrationDepth": "Bidirectional with PillScheduler (medication adherence), Whole-Person Health (crisis/screening), SafeCogniCare (cognitive impact of chronic disease), LifeBridge (disability resources), Better Science Lab (evidence-based protocols)"
+      },
+      "grant_alignment": [
+        "st-davids",
+        "foundation",
+        "wioa",
+        "ssg-fox"
+      ],
+      "last_heartbeat": null
+    },
+    {
+      "id": "wholemind",
+      "name": "WholeMind Learning",
+      "url": "https://wholemindlearning.com",
+      "role": "k12-education",
+      "domain": "education",
+      "status": "active",
+      "health_status": "offline",
+      "public_visible": false,
+      "description": "Free, visual-first Pre-K to 12th grade learning platform covering Math, Reading, Science, English, and Social Studies with adaptive difficulty levels. Silent accessibility mode for students with sensory needs, AI-powered homework help with step-by-step explanations, parent-friendly progress tracking dashboard, and gamified engagement system. Integrates with ISSS for student support coordination, Perfectly Different for neurodiversity accommodations, and Better Science Lab for evidence-based pedagogy. Produces learning outcome data (grade progression, skill mastery, engagement rates) for WIOA youth workforce readiness and foundation education grants.",
+      "capabilities": {
+        "features": [
+          "Pre-K to 12th Grade Curriculum",
+          "Visual-First Adaptive Learning",
+          "AI Homework Help",
+          "Silent Accessibility Mode",
+          "Parent Progress Dashboard",
+          "Gamified Engagement",
+          "Skill Mastery Tracking",
+          "Grade Progression Analytics",
+          "Adaptive Difficulty Engine",
+          "Step-by-Step Explanations",
+          "Offline Learning Mode",
+          "Multi-Language Support"
+        ],
+        "subjects": [
+          "Math",
+          "Reading",
+          "Science",
+          "English",
+          "Social Studies"
+        ],
+        "grantNarrative": "Produces learning outcome metrics — grade progression, skill mastery rates, engagement data — for WIOA youth workforce readiness pipeline and foundation education grants",
+        "outcomeMetrics": [
+          "Active student learners: 2,456",
+          "Grade progression rate: 78% of students advance on schedule",
+          "AI homework help sessions: 12,340",
+          "Skill mastery completion rate: 64%",
+          "Parent dashboard active users: 890",
+          "Adaptive difficulty adjustments: 34,567 per month",
+          "Offline learning sessions: 1,234"
+        ],
+        "integrationDepth": "Sends academic data to ISSS for early warning, receives IEP accommodations from Perfectly Different, receives evidence-based content from Better Science Lab"
+      },
+      "grant_alignment": [
+        "wioa",
+        "foundation",
+        "st-davids"
+      ],
+      "last_heartbeat": "2026-03-19T02:25:57.923Z"
+    },
+    {
+      "id": "ad-targeting",
+      "name": "Advertising Targeting for Platforms",
+      "url": "https://adtargetingplatforms.com",
+      "role": "ad-intelligence",
+      "domain": "marketing-content",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": false,
+      "description": "Advertising intelligence and community outreach platform enabling data-driven targeting to reach underserved populations with relevant services and grant-funded programs. Advanced audience segmentation based on demographic, geographic, and needs-based data; campaign optimization with A/B testing; performance analytics with conversion tracking; and cross-platform ad delivery coordinating outreach across all 22 sibling platforms. Ensures grant-funded programs reach their intended beneficiaries — veteran families, Black maternal health populations, minority business owners, neurodivergent individuals, and youth at risk. Integrates with Video Creator AI for campaign-ready assets and all platforms for service offering data.",
+      "capabilities": {
+        "features": [
+          "Audience Segmentation Engine",
+          "Campaign Optimization & A/B Testing",
+          "Precision Ad Targeting",
+          "Performance Analytics & Conversion Tracking",
+          "Cross-Platform Ad Delivery",
+          "Community Outreach Coordination",
+          "Grant Program Promotion",
+          "Demographic Targeting",
+          "Geographic Targeting",
+          "Needs-Based Targeting",
+          "Social Media Campaign Management",
+          "ROI Reporting"
+        ],
+        "grantNarrative": "Provides program reach metrics, community engagement data, demographic penetration rates, and campaign ROI for WIOA workforce recruitment and St. David's community health outreach grants",
+        "outcomeMetrics": [
+          "Campaign impressions: 234,567",
+          "Audience segments created: 89",
+          "A/B tests completed: 34",
+          "Conversion tracking events: 1,234",
+          "Cross-platform ad deliveries: 567",
+          "Community reach: 45,678 unique individuals",
+          "Grant program promotion campaigns: 23"
+        ],
+        "integrationDepth": "Receives content assets from Video Creator AI, service offerings from all platforms, and community demographics to target underserved populations with relevant services"
+      },
+      "grant_alignment": [
+        "wioa",
+        "st-davids",
+        "foundation",
+        "ssg-fox"
+      ],
+      "last_heartbeat": null
+    },
+    {
+      "id": "ecosystem-nexus",
+      "name": "Ecosystem Nexus",
+      "url": "https://ecosystemnexus.net",
+      "role": "ecosystem-coordination",
+      "domain": "operations",
+      "status": "active",
+      "health_status": "online",
+      "public_visible": false,
+      "description": "Central coordination and operational intelligence hub for the entire ThriveUp Academy ecosystem — primary co-captain platform providing cross-platform visibility, real-time health monitoring, directive management and enforcement, platform analytics dashboard, and ecosystem-wide operational intelligence. Manages the triad system (team-of-teams architecture), coordinates bilateral exchange protocols, runs self-diagnostic health checks, and provides the operational backbone for the ACOS architecture. If the Whole-Person Health hub goes down, Ecosystem Nexus assumes command authority. Produces operational efficiency data for grant compliance and organizational governance reporting.",
+      "capabilities": {
+        "features": [
+          "Ecosystem Coordination Hub",
+          "Cross-Platform Visibility",
+          "Real-Time Health Monitoring",
+          "Directive Management & Enforcement",
+          "Platform Analytics Dashboard",
+          "Triad System Management",
+          "Bilateral Exchange Protocol",
+          "Self-Diagnostic Engine",
+          "Co-Captain Failover System",
+          "Operational Intelligence",
+          "Grant Compliance Tracking",
+          "Performance Benchmarking"
+        ],
+        "grantNarrative": "Provides ecosystem-wide operational metrics, platform health data, cross-platform coordination evidence, and organizational efficiency measurements for all grant reporting",
+        "outcomeMetrics": [
+          "Cross-platform coordination events: 4,567",
+          "Real-time health monitoring: 24 platforms/10-min cycle",
+          "Directive management: 609 acknowledgments tracked",
+          "Triad system operations: 8 triads managed",
+          "Co-captain failover tests: 12 successful",
+          "Performance benchmark reports: 45"
+        ],
+        "integrationDepth": "Connected to all 22 sibling platforms via heartbeat, directive, and analytics channels — the operational nervous system of the ecosystem"
+      },
+      "grant_alignment": [
+        "wioa",
+        "ssg-fox",
+        "st-davids",
+        "foundation"
+      ],
+      "last_heartbeat": "2026-03-22T03:08:34.284Z"
+    }
+  ],
+  "active_commitments": {
+    "sections": [
+      {
+        "id": "city-of-austin-vendor-account-approved-may-7-2026",
+        "heading": "🟢 City of Austin vendor account — APPROVED (May 7, 2026)",
+        "summary": "- **Status:** Approval email received from Austin Finance Online (VendorReg@austintexas.gov, 512-974-2018).\n- **What this unlocks:** TCAF can now respond to City of Austin solicitations directly — AEI, Cultural Arts, APH (Austin Public Health), EDD, AHFC, Public Works, Watershed, etc. No more being shut out at the registration gate.\n- **Next operational steps:**\n  1. Capture the vendor ID / login credentials in the secure vault (NOT in this repo). Need them for every City RFP/RFQ from now on.\n  2. Update Dr. Flood's standing capability statement to add \"Registered City of Austin vendor — Austin Finance Online\" to the credentials block.\n  3. Audit the AEI FY26 Equity Mini Grant submission package — confirm the application form is using the now-active vendor record (not a placeholder).\n  4. "
+      },
+      {
+        "id": "aei-fy26-equity-mini-grant-submitted-may-7-2026",
+        "heading": "✅ AEI FY26 Equity Mini Grant — SUBMITTED (May 7, 2026)",
+        "summary": "- **Status:** Application **submitted** via aei.grantplatform.com on May 7, 2026 (3 days ahead of the May 10, 11:59 PM CST deadline). Confirmation email received from City of Austin Equity & Inclusion (equity@austintexas.gov).\n- **What was submitted:** Tab 1–7 of `docs/grants/AEI-FY26-Application-Responses-FINAL.md` — Project: \"Talk Your Talk: Language-Accessible Navigation for Austin's Eastern Crescent,\" Category: Immigrant & Refugee Services, Ask: $25,000 over 12–15 months.\n- **Narrative attachment:** `docs/grants/AEI-FY26-Equity-Mini-Grant-Narrative.md` (cleaned May 7 — corrected \"89 spoken + 18 sign = 107 total\" formula in 6 places; replaced stale \"22-platform ecosystem\" framing with the now-stronger \"approved City of Austin vendor as of May 7, 2026\" lede).\n- **Optional Tab 5/6 \"share "
+      },
+      {
+        "id": "funding-sources-evaluated-excluded-dont-re-evaluate",
+        "heading": "Funding sources EVALUATED & EXCLUDED (don't re-evaluate)",
+        "summary": "| Source | Evaluated | Verdict | Why |\n|---|---|---|---|\n| **DANA Foundation** (Italian, RUNTS-registered) | May 8, 2026 | ❌ Geographic mismatch | Funds locally led development in the Global South; TCAF is US/Texas-based serving US residents. AI-screened intake calibrated against Global South community orgs. |\n| **globalsouthopportunities.com** (the aggregator site) | May 8, 2026 | ❌ Whole-site mismatch | Site explicitly serves \"marginalized communities, particularly in the Global South.\" Sampled funding listings (Beyond Borders Scotland, ICRISAT, IGAD, AfCFTA) all geographically restrict to Global South orgs. Not worth monitoring for TCAF pipeline. |\n| **Mérieux Foundation Small Grants Program** (via fundsforngos.org) | May 9, 2026 | ❌ Geographic mismatch | Schema.org metadata on the list"
+      },
+      {
+        "id": "funding-sources-to-prioritize-for-tcaf-pipeline",
+        "heading": "Funding sources to PRIORITIZE for TCAF pipeline",
+        "summary": "SAM.gov · Grants.gov · Texas Workforce Commission · St. David's Foundation (active engagement) · RWJF · **City of Austin Austin Bid Search + AustinFinanceOnline (now reachable as approved vendor since May 7)** · Travis County/CapMetro/AISD RFPs · Foundation Directory Online (Candid) · Inside Philanthropy + Philanthropy News Digest · Bloomberg/MacArthur/Ford/Knight/Gates (issue-area RFPs).\n\n---"
+      },
+      {
+        "id": "pipeline-tracker-built-may-9-2026",
+        "heading": "Pipeline tracker (built May 9, 2026)",
+        "summary": "**The discovery engine was already automated** — daily 24-hour scan of SAM.gov + Grants.gov + USASpending.gov + curated state/foundation feeds. ~580 opportunities tracked, ~54 new/week. Audit reveals:"
+      },
+      {
+        "id": "speech-bridge-talk-your-talk-bound-custom-domain",
+        "heading": "Speech Bridge / \"Talk Your Talk\" — bound custom domain",
+        "summary": "- **Custom domain `talkyourtalk.net` is BOUND and verified** (May 5, 2026, registered through Replit). Hub DB `ecosystem_platforms.url` for `speech-bridge` updated to `https://talkyourtalk.net`. Scanner fallback updated.\n- AEI narrative §3 + §8 and partner-outreach template all cite `https://talkyourtalk.net`.\n- **`lexibridge.net` is NOT the bound domain** — earlier internal references were a naming error and have been corrected throughout grant materials.\n- Verified live capability: 107 languages + 18 sign languages, dialect-aware, real-time interpretation, document explainer, crisis detection.\n\n---"
+      },
+      {
+        "id": "ecosystem-alignment-scan-may-5-2026-post-binding",
+        "heading": "Ecosystem Alignment Scan — May 5, 2026 (post-binding)",
+        "summary": "Run via `scripts/ecosystem-alignment-scan.sh`. Re-run anytime alignment is in doubt.\n\n- **15 LIVE / 9 UNBOUND** custom domains (24 platforms total).\n- **LIVE:** ad-targeting, betterscience, collaborative-advocate, isss, lifebridge, m2c, mce, perfectly-different, safecognicare, safereport, sankofa, sankofa-maternal-health, sankofa-mens-health, **speech-bridge** (now at `talkyourtalk.net`), whole-person-health.\n- **UNBOUND** (apps may still be alive at `.replit.app`): autoimmune-thrive, code-canvas, ecosystem-nexus, emergency-mgmt, pillscheduler, pinnacle-business-conglomerate, sankofa-feminine-health, video-creator-ai, wholemind.\n- Known `.replit.app` fallbacks recorded in scanner: ad-targeting, mce (`black-business-hub.replit.app`), pinnacle-business-conglomerate, emergency-mgmt.\n\n---"
+      },
+      {
+        "id": "tcaf-the-collaborative-advocate-legal-status-reconciled-may-5-2026",
+        "heading": "TCAF / The Collaborative Advocate — legal status (RECONCILED May 5, 2026)",
+        "summary": "- **EIN 41-3618003 is permanent and confirmed** by President Flood. Source: `attached_assets/Agency_Fund_EOI_Collaborative_Advocate.md`.\n- **501(c)(3) tax-exempt determination letter is still pending with the IRS** (IRS backlog, not a TCAF issue). Tracking 281OIP7B, filed 4/27/2026. Both facts coexist.\n- For grant applications: cite EIN 41-3618003, classify as **501(c)(3) application pending IRS determination**, and where required offer fiscal sponsorship via Abundant Life Church.\n\n---"
+      },
+      {
+        "id": "next-thread-queue",
+        "heading": "Next-thread queue",
+        "summary": "- **NSF SBIR/STTR (after AEI ships):** User attended BBCetc/CT-DECD presentation. ISS = for-profit entity. STTR with private nonprofit research institute partner is the path. Project Pitch is the gate. Submission windows: 1st Wednesday of March / July / November. Phase I = $305K / 6–18 months. Pick NSF topic code together when AEI is in.\n- **AEI submission day (May 8):** Assemble final package; confirm portal account; upload ≥1 partner letter; submit.\n\n---"
+      },
+      {
+        "id": "aei-funder-intelligence-applied-may-5-2026-tabbara-discipline",
+        "heading": "AEI Funder Intelligence — applied May 5, 2026 (Tabbara discipline)",
+        "summary": "Full brief at `docs/grants/AEI-Funder-Intelligence.md`. Key adopted findings:\n\n- **Funder = City of Austin Equity Office.** Annual program since 2018; FY26 cycle Apr 17 – **May 8, 2026** (11:59 p.m. CT); ceiling $25K; ~8 awards.\n- **FY26 single focus = immigrant + refugee inclusion** (narrower than FY25's three-track structure).\n- **Coalition framing is explicitly bonus-scoring.** Direct quote from program page: *\"If a project is working to build coalitions in partnership with other organizations addressing the same issue, it would be an even stronger candidate for a mini grant award.\"* Now quoted verbatim in narrative §6.\n- **Grassroots / ≤$500K preference** addressed head-on in narrative §8 (new paragraph) — TCAF positions itself as infrastructure anchor for the 11-CBO grassroots coaliti"
+      },
+      {
+        "id": "lesson-committed-to-playbook",
+        "heading": "Lesson committed to playbook",
+        "summary": "`docs/grants/STRATEGIC-INTELLIGENCE-PLAYBOOK.md` lessons #18, #19, #20 added: AEI coalition-bonus rule, Tabbara-discipline-mandatory-for-all-grants rule, City of Austin 501(c)(3)-not-required rule.\n\n---"
+      },
+      {
+        "id": "aei-outreach-outcomes-may-7-2026",
+        "heading": "AEI Outreach Outcomes — May 7, 2026",
+        "summary": "**El Buen Samaritano (Georgia Hernandez):** Polite decline on letter of support. **Important: El Buen is also submitting under this same FY26 procurement** — direct competitor this cycle. Door open for future collaboration if TCAF is funded or pursues future opportunities. Narrative §6 updated for transparent disclosure (El Buen moved off ⭐ priority and into honest \"also submitting under this procurement\" note); ⭐ markers removed from list (no formal lead partner confirmed yet).\n\n**Lesson:** Listing a direct competitor as ⭐ priority partner in a competitive grant would have been an integrity risk. AEI reviewers may cross-reference applicant-listed partners against other submissions in the same cycle. **Going forward: confirm partner is NOT submitting separately before claiming them as anch"
+      },
+      {
+        "id": "jim-currier-msw-meeting-in-a-few-days-may-810-window",
+        "heading": "Jim Currier, MSW — meeting in a few days (May 8–10 window)",
+        "summary": "**Source:** LinkedIn 1st-degree connection (new), Austin TX-based.\n\n**Role:**\n- Director of Youth Housing & Employment\n- National Foster Youth to Independence (FYI) Program Implementation Leader\n- Child Welfare Housing Policy Expert\n- Youth Homelessness Prevention Advocate\n\n**Background:** Systems-focused leader, 25+ years at the intersection of child welfare and housing. Centered on preventing homelessness for youth transitioning out of foster care.\n\n**Why this matters strategically for TCAF:**\n1. **National FYI Program** = HUD's Foster Youth to Independence voucher program — federal housing assistance for youth aging out of foster care, administered through Public Housing Authorities. Jim leads national implementation = direct line to HUD/HHS/Children's Bureau funding flows.\n2. **Austin-"
+      },
+      {
+        "id": "top-5-grants-memo-generated-may-7-2026",
+        "heading": "Top-5 Grants Memo Generated — May 7, 2026",
+        "summary": "Full memo: `docs/grants/Top-5-Grants-To-Pursue-Today.md`. Synthesizes 24-platform ecosystem against currently-open NOFOs.\n\n**The 5 (priority order):**\n1. **HRSA RCORP-Planning (HRSA-26-036)** — posted 4/29/2026, OPEN. Combines LifeBridge + Whole-Person MH + PillScheduler + Talk Your Talk + SafeCogniCare + M2C. Need rural multi-county consortium (Bastrop/Caldwell/Lee).\n2. **St. David's Foundation Community Driven Change** — open cycle, $100M+/yr funder, Travis County. Sankofa BirthRight + TheHealthyBlkMan + Whole-Person MH + LifeBridge + Perfectly Different. Convert \"actively evaluating\" → first formal LOI.\n3. **NIH R03 PA-25-302** — June 16 deadline (40 days). Pair with NIMHD/NIMH NOSI on multilingual behavioral health screening. Whole-Person MH + Talk Your Talk + LifeBridge.\n4. **NSF SBIR"
+      },
+      {
+        "id": "urls-requirements-pulled-may-7-2026-correction-to-top-5",
+        "heading": "URLs & Requirements Pulled — May 7, 2026 (CORRECTION TO TOP-5)",
+        "summary": "Full reference: `docs/grants/Top-5-Grants-URLs-and-Requirements.md`\n\n**CORRECTION:** VA GPD FY2027 (PDO + Service Center) deadline was **Feb 18, 2026 — already closed**. Removed from active-apply list. Demoted to FY2028 prep track (open VA Medical Center conversation now, Jim Currier as advisor candidate, submit Feb 2027 cycle).\n\n**REPLACEMENT #5: HRSA-26-037 RCORP-Impact** — confirmed OPEN, posted 4/29/2026, deadline **June 1, 2026**, $750K/yr × 4yrs ($3M total), $60M program / ~80 awards. Same CFDA family as RCORP-Planning. Requires multi-sector consortium (≥3 separately-owned partners, ≥50% rural).\n\n**Verified deadlines for the corrected 5:**\n1. HRSA-26-036 RCORP-Planning — **May 29, 2026** (22 days)\n2. St. David's Community Driven Change — May 2026 cycle, LOI dates being finalized\n3. N"
+      },
+      {
+        "id": "lesson-may-7-2026-mid-aei-submission",
+        "heading": "Lesson — May 7, 2026 (mid-AEI submission)",
+        "summary": "**Don't ask the user for facts already in memory during live submissions.** When user is filling out a vendor portal / W-9 / SF-424 in real time, pull every field from this file and `AEI-FY26-Equity-Mini-Grant-Narrative.md` and present a complete, fillable answer — not a template with blanks.\n\n**TCAF Submission-Ready Quick Reference (use for ALL future grant fields):**\n- **Legal name:** The Collaborative Advocate Foundation\n- **DBA:** TCAF\n- **EIN:** 41-3618003\n- **501(c)(3):** Pending — IRS Tracking 281OIP7B, filed 4/27/2026\n- **Address:** 17912 Stefano Drive, Pflugerville, TX 78660 (Travis County)\n- **President / Signer:** Dr. Terry Flood, DHA\n- **Federal tax classification on W-9:** \"Other\" → \"Nonprofit corporation — 501(c)(3) determination pending (IRS Tracking 281OIP7B)\"\n- **Fiscal sp"
+      },
+      {
+        "id": "aei-fy26-submission-may-7-2026-update",
+        "heading": "AEI FY26 Submission — May 7, 2026 update",
+        "summary": "- **Live deadline confirmed:** Sunday May 10, 2026 11:59 PM CST (portal countdown is source of truth; published \"May 8\" was extended without page-text update)\n- **Portal:** aei.grantplatform.com (Good Grants platform, NOT Mercury Grants — earlier assumption was wrong)\n- **Logged in:** Terry Flood ✅\n- **Application file:** docs/grants/AEI-FY26-Application-Responses-FINAL.md (paste-ready, all 7 tabs)\n- **Confirmed by user:** No prior City of Austin funding (+15 bonus); apply as TCAF directly (not fiscal sponsor); budget under $500K (small-org preference)\n- **Estimated score:** 106-114 / 115\n- **Vendor registration deadline:** May 15, 2026 — must be ACTIVE not just submitted\n- **Outstanding before submit:** phone numbers + institutional emails for Dr. Flood and Meredith Sisnett (do NOT use pe"
+      },
+      {
+        "id": "permanent-rule-meredith-sisnett-city-of-austin",
+        "heading": "🚨 PERMANENT RULE — Meredith Sisnett & City of Austin",
+        "summary": "**Meredith Sisnett is a City of Austin employee.** She is therefore ineligible to be listed on ANY City of Austin grant, proposal, contract, or related material — including AEI Equity Mini Grants, Cultural Arts, APH, EDD, Public Health, AHFC, or any other City-funded opportunity.\n\n**She may serve as an external consultant on NON-City projects only** (federal, state, foundation, private).\n\n**Hard rule for all future sessions:**\n- ❌ DO NOT list Meredith on any City of Austin application as staff, contact, co-lead, board member, or partner\n- ❌ DO NOT include Meredith CV/bio/letters of support in any City of Austin submission packet\n- ✅ Always confirm \"is this a City of Austin opportunity?\" before adding Meredith to any document\n- ✅ When unsure, leave Meredith out and ask user\n\n**AEI FY26 appl"
+      },
+      {
+        "id": "dr-terry-flood-confirmed-contact-info-may-7-2026",
+        "heading": "Dr. Terry Flood — Confirmed Contact Info (May 7, 2026)",
+        "summary": "- **Phone:** (254) 319-8460\n- **Email:** terryflood@thrivingcommunitiesforall.com\n- **Title:** President, TCAF\n- **Use on:** All grant proposals, partner outreach, City of Austin materials, federal/state/foundation submissions\n\n---"
+      },
+      {
+        "id": "dr-flood-calendar-booking-link-may-7-2026",
+        "heading": "Dr. Flood — Calendar Booking Link (May 7, 2026)",
+        "summary": "**Booking URL:** https://calendar.google.com/calendar/appointments/schedules/AcZssZ2O1JcnlDSXEidpWJKtc02RF37MRUytN66JNOkHDRxDParffIH6eSlbRe0DVXUbfpJwGFRp2bFG?gv=true\n\n**Embed snippet (HTML):** Available; ask if needed.\n\n**Pending decisions:**\n- Add to AEI application primary contact?\n- Add to partner outreach templates?\n- Embed on which website(s)?\n- Personal vs. TCAF-shared calendar (affects public exposure)?\n\n**Status (May 6, 2026):** Embedded on home page (`client/src/pages/landing.tsx`), section `section-book-appointment`, placed between Deep Dive and footer. Button opens calendar in new tab.\n\n**⚠️ Spotted while editing landing.tsx — flag for later (NOT changed):**\n- Footer contact email is `president@thecollaborativeadvocate.org` (line 895). Per current institutional-email rule, publi"
+      },
+      {
+        "id": "legal-platform-power2thepeoplenet-may-6-2026",
+        "heading": "Legal Platform — power2thepeople.net (May 6, 2026)",
+        "summary": "- **Live URL:** https://power2thepeople.net (custom domain, verified)\n- **Replit repl:** civic-signal-pwa.replit.app\n- **Status:** NOT YET registered in `ecosystem_platforms` table — needs to be added once user provides the canonical name + role + domain + capabilities.\n- **Known so far:** Legal-services platform; user said \"more robust than ever.\" Will be covered in a separate session.\n\n**To-do when user is ready:**\n1. Get canonical name (working name = \"Power 2 The People\" / civic-signal)\n2. Add row to `ecosystem_platforms` with role/domain/description/capabilities/grant_alignment\n3. Add to outbound pinger list\n4. Write the unified grant-narrative trio (LexiBridge + LifeBridge + Power2ThePeople) covering communication access + SDOH navigation + legal services for OJJDP, BJA Second Chance"
+      },
+      {
+        "id": "three-platform-deep-read-may-6-2026",
+        "heading": "Three-Platform Deep Read (May 6, 2026)",
+        "summary": ""
+      },
+      {
+        "id": "lexibridge-evaluation-attempt-blocked-may-6-2026",
+        "heading": "LexiBridge Evaluation Attempt — BLOCKED (May 6, 2026)",
+        "summary": "**Status:** Could not evaluate live. `lexibridge.net` does not resolve in public DNS (\"Could not resolve host\"). Tested both apex and www, http and https — all HTTP 000.\n\n**Hub data inconsistency found:**\n- `ecosystem_platforms.health_status` was reading \"online\" but `last_heartbeat = 2026-03-22` (6+ weeks stale)\n- This is the false-positive case from our gotcha: pinger marks \"online\" even when DNS fails\n- **Action taken:** Set `health_status = 'unknown'` and appended scan note to description\n- **Bug to fix later:** Pinger should not mark a platform \"online\" when DNS resolution fails or heartbeat is >7 days old\n\n**No alternate URL found in workspace:** No code references to a Replit-hosted fallback URL for LexiBridge.\n\n**Awaiting from user (any one):**\n- Correct public domain (lexibridge.c"
+      },
+      {
+        "id": "talk-your-talk-formerly-lexibridge-speech-bridge-deep-read-may-6-2026",
+        "heading": "Talk Your Talk (formerly LexiBridge / Speech Bridge) — DEEP READ (May 6, 2026)",
+        "summary": "**URLs:** talkyourtalk.net (custom, verified) · speech-bridge-mrterryflood.replit.app (repl)"
+      },
+      {
+        "id": "talk-your-talk-verified-language-lists-crisis-path-may-6-2026",
+        "heading": "Talk Your Talk — VERIFIED LANGUAGE LISTS + CRISIS PATH (May 6, 2026)",
+        "summary": "**Source:** User pulled directly from `artifacts/api-server/src/lib/languageRegistry.ts` and `interpret.ts:626-633`."
+      },
+      {
+        "id": "hub-re-seed-bug-talk-your-talk-row-keeps-reverting-may-6-2026",
+        "heading": "Hub re-seed bug — Talk Your Talk row keeps reverting (May 6, 2026)",
+        "summary": "**Symptom:** I renamed the row `speech-bridge` from \"LexiBridge (Speech Bridge)\" → \"Talk Your Talk (formerly LexiBridge)\" with URL `talkyourtalk.net`. After the next workflow restart, the row reverted to the old name and `lexibridge.net` URL. Description and grant_alignment changes survived; name and URL did not.\n\n**Root cause:** No code in THIS workspace references `speech-bridge`, `LexiBridge`, or `lexibridge.net` (verified via ripgrep). The reverting writes are coming from **Talk Your Talk's own ecosystem connector** (the `artifacts/api-server/src/lib/...` codebase the user pulled the language registry from). When TYT pings back to the hub, it self-registers with its old metadata and overwrites this row.\n\n**Real fix (must be done on Talk Your Talk side, not here):**\n1. In the TYT codeba"
+      },
+      {
+        "id": "talk-your-talk-homepage-update-may-6-2026-post-update-by-user",
+        "heading": "Talk Your Talk — HOMEPAGE UPDATE (May 6, 2026, post-update by user)",
+        "summary": ""
+      },
+      {
+        "id": "aei-fy26-live-links-section-added-may-6-2026",
+        "heading": "AEI FY26 — Live Links section added (May 6, 2026)",
+        "summary": "Added a \"Live Links — for the reviewer\" section to `docs/grants/AEI-FY26-Application-Responses-FINAL.md` between Tab 5 and the pre-submission checklist.\n\n**Links visually verified (all rendered to logged-out reviewer):**\n- talkyourtalk.net/ → home\n- power2thepeople.net/feed → Live Civic Feed (1448 court / 880 ord / 360 mtg, topic filters)\n- power2thepeople.net/prepare → 10-step \"Get your affairs in order\" wizard with ready.gov/caringinfo.org sources\n- lifetransitionsaid.org/ → \"You Are Not Alone\" + 24/7 crisis bar (988/DV/NAMI/SAMHSA/Crisis Text/2-1-1) + Find Resources search\n- thrivingcommunitiesforall.com/academy → Panther Village campus\n\n**Routes verified to 404 inside the SPA (DO NOT LINK in proposals):**\n- lifetransitionsaid.org/julia ❌\n- talkyourtalk.net/about, /how-to-install, /lang"
+      },
+      {
+        "id": "quartet-quintet-reframe-may-7-2026",
+        "heading": "Quartet → Quintet reframe (May 7, 2026)",
+        "summary": "User caught a strategic miss: the AEI quartet narrative omitted the mental-health platform. Added **Whole-Person Health Ecosystem** (mentalwellnesssupport.net, DB id `whole-person-health`) as the **behavioral-health safety floor** underneath the four agency platforms.\n\n**Verified live:** mentalwellnesssupport.net renders \"You don't have to figure this out alone\" hero, sticky 988 Call-or-Text bar, role-based entry (myself / child or teen / someone I love / provider or educator / veteran or military family / help right now), no-login required.\n\n**What ships (per DB description):** C-SSRS, PHQ-9, GAD-7, PCL-5 validated screenings · safety plans with auto-escalation · Reach a Vet crisis pathway · MAP-GAP biopsychosocial assessment · 20,670+ resources across 2,091 community groups, 60 condition"
+      },
+      {
+        "id": "full-ecosystem-catalog-committed-to-replitmd-may-7-2026",
+        "heading": "Full ecosystem catalog committed to replit.md (May 7, 2026)",
+        "summary": "User feedback: *\"You should know everyone and it should be in the md. Not knowing is going to make me miss opportunities.\"* This was the right call — we already lost one round today (quartet→quintet) because Whole-Person Health wasn't in working memory.\n\n**Now in `replit.md` as `## Ecosystem catalog — all 24 platforms (+ 1 unregistered)`:** every platform with id, name, URL, one-line description, grant alignment, and verified live/dead status as of May 7, 2026.\n\n**Liveness summary (verified May 7, 2026):**\n- ✅ LIVE (13): mce, lifebridge, safereport, isss + betterscience (shared URL), sankofa-maternal + sankofa (shared URL), sankofa-mens, **sankofa-feminine-health (at herhealthmatters2.com / myhealthybreast.com — old yourfeminineneeds.com is unbound)**, perfectly-different, safecognicare, w"
+      },
+      {
+        "id": "lesson-probe-all-aliases-before-declaring-a-platform-dead-may-7-2026",
+        "heading": "Lesson: probe ALL aliases before declaring a platform dead (May 7, 2026)",
+        "summary": "Almost removed `sankofa-feminine-health` from the registry because `yourfeminineneeds.com` returned 404. User caught it: the platform is live at TWO verified alternate domains (`herhealthmatters2.com` and `myhealthybreast.com` — both serve the identical 3268-byte \"HerHealth Network by Sankofa — Women's Health Equity Platform\" payload).\n\n**New standing rule:** Before flagging any platform as dead/404 in the catalog, check the project's Publishing → Domains tab for verified alternate URLs, AND probe each alias. The hub DB only stores ONE URL per platform; aliases live in the deploying workspace's domain config.\n\n**DB now reflects truth:**\n- `sankofa-feminine-health` restored: url=`herhealthmatters2.com`, public_visible=true, alias `myhealthybreast.com` documented in description\n- Updated cat"
+      }
+    ],
+    "no_go_list": [
+      {
+        "name": "DANA Foundation",
+        "evaluatedDate": "May 8, 2026",
+        "reason": "Funds locally led development in the Global South; TCAF is US/Texas-based serving US residents. AI-screened intake calibrated against Global South community orgs."
+      },
+      {
+        "name": "globalsouthopportunities.com",
+        "evaluatedDate": "May 8, 2026",
+        "reason": "Site explicitly serves \"marginalized communities, particularly in the Global South.\" Sampled funding listings (Beyond Borders Scotland, ICRISAT, IGAD, AfCFTA) all geographically restrict to Global South orgs. Not worth monitoring for TCAF pipeline."
+      },
+      {
+        "name": "Mérieux Foundation Small Grants Program",
+        "evaluatedDate": "May 9, 2026",
+        "reason": "Schema.org metadata on the listing page tags it for ~30 Global South countries (Bangladesh, Benin, Brazil, Burkina Faso, Cambodia, Cameroon, Chad, Congo, Cote d'Ivoire, Egypt, Haiti, Iran, Iraq, Laos, Lebanon, Madagascar, Mali, Morocco, Myanmar, Niger, Senegal, Tunisia, Vietnam, etc.). Same pattern as DANA. TCAF ineligible."
+      },
+      {
+        "name": "fundsforngos.org \"60 funding programs\" listing",
+        "evaluatedDate": "May 9, 2026",
+        "reason": "Page is gated by ShopShield + their paid membership. Site's primary audience is \"NGOs in the Global South.\" Sampled entry (Mérieux) confirmed geo-restricted. Not worth scraping; revisit individual entries case-by-case if user flags one."
+      }
+    ]
+  },
+  "lessons_learned": [
+    {
+      "id": "e-series-lessons-errorretry-pageheader-link-fixes",
+      "title": "E-Series Lessons (ErrorRetry, PageHeader, Link Fixes)",
+      "summary": "- **E-L01**: Broken sidebar links to non-existent routes cause silent navigation failures. Always verify sidebar links match App.tsx route definitions.\n- **E-L02**: ErrorRetry component must be deployed on every page that uses useQuery, not just \"important\" pages. Partial coverage creates inconsistent error experiences.\n- **E-L03**: PageHeader with breadcrumbs should be on every navigable page for consistent navigation patterns. Partial deployment creates disorienting transitions.\n- **E-L04**: Video accessibility requires CC indicator, closed caption tracks, and accessible controls with aria-l",
+      "sourceFile": ".agents/skills/map-gap/lessons-learned.md"
+    },
+    {
+      "id": "f-series-lessons-hooks-document-titles-error-handling",
+      "title": "F-Series Lessons (Hooks, Document Titles, Error Handling)",
+      "summary": "- **F-L01**: React useEffect calls inside conditional blocks (if statements, early returns) violate the Rules of Hooks. Always place useEffect at the top level of the component, before any conditional returns. This was found in 6 components: subjects, achievements, teacher-dashboard, ai-tools-workspace, module-detail, lesson-viewer.\n- **F-L02**: window.location.reload() in error recovery loses component state and user context. Always use query refetch instead.\n- **F-L03**: document.title should be set via unconditional useEffect at the top of every page component and sub-page component (certif",
+      "sourceFile": ".agents/skills/map-gap/lessons-learned.md"
+    },
+    {
+      "id": "g-series-lessons-server-hardening-auth-role-based-ui",
+      "title": "G-Series Lessons (Server Hardening, Auth, Role-Based UI)",
+      "summary": "- **G-L01**: Every Express GET route handler must be wrapped in try/catch with console.error and 500 JSON response. A node script can wrap all unprotected routes mechanically — no need to do this by hand.\n- **G-L02**: Any route that calls getUserId(req) MUST have requireAuth middleware. Without it, getUserId returns undefined, which can cause database errors or create orphaned records.\n- **G-L03**: Mixed public/private routes (like /api/academy/dashboard) that check `if (userId)` before fetching user data are acceptable as public routes. They gracefully degrade for unauthenticated users.\n- **G",
+      "sourceFile": ".agents/skills/map-gap/lessons-learned.md"
+    },
+    {
+      "id": "h-series-lessons-proposal-command-center-ai-content-integrity",
+      "title": "H-Series Lessons (Proposal Command Center — AI Content Integrity)",
+      "summary": "- **H-L01 — NEVER FABRICATE CONTENT:** A competing AI platform generated three fake past performance references (City of San Antonio, Travis County Parks, City of Houston) with invented dollar amounts, dates, and outcomes for the Travis County RFQ 202-CW response, then added \"[FILL IN: Customize the past performance details above]\" at the bottom. Fabricated past performance on a government procurement is grounds for debarment, not just rejection. **ABSOLUTE RULE: If you don't have real data, say \"I don't have this information\" and prompt the human to provide it.** Never generate plausible-soun",
+      "sourceFile": ".agents/skills/map-gap/lessons-learned.md"
+    },
+    {
+      "id": "i-series-lessons-proposal-research-discipline-dol-restart-comparison",
+      "title": "I-Series Lessons (Proposal Research Discipline — DOL RESTART Comparison)",
+      "summary": "- **I-L01 — READ THE ACTUAL FOA BEFORE WRITING:** When a grant has a downloadable FOA/NOFO/RFP document, download and read the full document BEFORE writing any narrative, budget, or strategy. Web search summaries and press releases do not contain scoring weights, participant minimums, age restrictions, FTE requirements, or period of performance specifics. The competing system (MCE) read the actual FOA PDF and caught: (a) intermediaries can ONLY serve ages 15-24, (b) 42-month POP not 36, (c) PI must be 100% FTE, (d) 680 minimum participants at $5.1M, (e) exact scoring breakdown (106 pts, Projec",
+      "sourceFile": ".agents/skills/map-gap/lessons-learned.md"
+    },
+    {
+      "id": "p-series-lessons-proposal-pipeline-standard-operating-procedure",
+      "title": "P-Series Lessons (Proposal Pipeline Standard Operating Procedure)",
+      "summary": "- **P-L01 — THE 5-STEP PROPOSAL PIPELINE IS MANDATORY:** Every proposal, regardless of size or timeline, follows this pipeline. No shortcuts, no skipping steps. Whether the user says \"build it now\" or \"let's take the long road,\" the steps are the same — only the depth changes.\n\n  **Step 1: KNOW THE APPLICANT**\n  Before touching the solicitation, ingest the applicant's baseline reality: capability statements, past performance history, organizational profile, certifications, key personnel, financials, geographic presence. This is who they actually are. For TCAF, the Load Profile button captures ",
+      "sourceFile": ".agents/skills/map-gap/lessons-learned.md"
+    },
+    {
+      "id": "enforced-rules-machine-checkable",
+      "title": "Enforced Rules (Machine-Checkable)",
+      "summary": "These lessons have been converted into automated health checks in the MAP phase:\n- No GET routes without try/catch (G-L01) → health check script\n- No getUserId without requireAuth (G-L02) → grep check\n- No useEffect inside conditionals (F-L01) → grep check\n- No nested <a> in Link (G-L06) → grep check\n- No window.location.reload (F-L02) → grep check\n- No console.log in server files (cleanup) → grep check",
+      "sourceFile": ".agents/skills/map-gap/lessons-learned.md"
+    }
+  ],
+  "session_protocol": {
+    "on_session_start": [
+      "Read replit.md — project overview, stack, gotchas, user preferences.",
+      "Read docs/active-commitments.md — running session memory, active grants, partner pipeline.",
+      "GET /api/agent/knowledge — load this compiled index for deterministic facts.",
+      "If grant work: read docs/grants/QUARTET-ONE-PAGER.md before drafting narratives."
+    ],
+    "on_session_end": [
+      "Update docs/active-commitments.md with what changed (active grants, partner status, lessons).",
+      "Run: tsx scripts/compile-agent-knowledge.ts to rebuild this index.",
+      "Verify: GET /api/agent/knowledge returns updated compiledAt timestamp."
+    ],
+    "when_to_recompile": [
+      "After editing replit.md (gotchas, user prefs, file pointers).",
+      "After editing docs/active-commitments.md (commitments, no-go list).",
+      "After editing .agents/skills/map-gap/lessons-learned.md.",
+      "After ecosystem_platforms DB changes (platform add/remove, URL change)."
+    ]
+  },
+  "counts": {
+    "gotchas": 15,
+    "vocab": 4,
+    "platforms": 25,
+    "file_pointers": 16,
+    "lessons": 7,
+    "no_go": 4,
+    "active_commitment_sections": 31
+  }
+}

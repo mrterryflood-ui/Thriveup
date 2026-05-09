@@ -41,6 +41,8 @@
 |---|---|---|---|
 | **DANA Foundation** (Italian, RUNTS-registered) | May 8, 2026 | ❌ Geographic mismatch | Funds locally led development in the Global South; TCAF is US/Texas-based serving US residents. AI-screened intake calibrated against Global South community orgs. |
 | **globalsouthopportunities.com** (the aggregator site) | May 8, 2026 | ❌ Whole-site mismatch | Site explicitly serves "marginalized communities, particularly in the Global South." Sampled funding listings (Beyond Borders Scotland, ICRISAT, IGAD, AfCFTA) all geographically restrict to Global South orgs. Not worth monitoring for TCAF pipeline. |
+| **Mérieux Foundation Small Grants Program** (via fundsforngos.org) | May 9, 2026 | ❌ Geographic mismatch | Schema.org metadata on the listing page tags it for ~30 Global South countries (Bangladesh, Benin, Brazil, Burkina Faso, Cambodia, Cameroon, Chad, Congo, Cote d'Ivoire, Egypt, Haiti, Iran, Iraq, Laos, Lebanon, Madagascar, Mali, Morocco, Myanmar, Niger, Senegal, Tunisia, Vietnam, etc.). Same pattern as DANA. TCAF ineligible. |
+| **fundsforngos.org "60 funding programs" listing** | May 9, 2026 | ⚠️ Cloudflare-blocked + Premium-paywalled | Page is gated by ShopShield + their paid membership. Site's primary audience is "NGOs in the Global South." Sampled entry (Mérieux) confirmed geo-restricted. Not worth scraping; revisit individual entries case-by-case if user flags one. |
 
 ## Funding sources to PRIORITIZE for TCAF pipeline
 

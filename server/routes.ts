@@ -75,6 +75,7 @@ import { registerBenefitsRoutes } from "./benefits-routes";
 import { registerResidentJourneyRoutes } from "./resident-journey";
 import { detectCrisisSignal, escalateCrisis, buildDeEscalationResponse } from "./safety-escalation";
 import { registerGrantRoutes } from "./grant-routes";
+import { registerAgentKnowledgeRoutes } from "./agent-knowledge-routes";
 import { registerReentryRoutes } from "./reentry-routes";
 import { registerPartnerRoutes } from "./partner-routes";
 import { registerOutcomeRoutes } from "./outcome-routes";
@@ -401,6 +402,7 @@ export async function registerRoutes(
   registerObjectStorageRoutes(app);
   registerCrossPlatformRoutes(app);
   registerGrantRoutes(app);
+  registerAgentKnowledgeRoutes(app);
   const { registerLoiRoutes } = await import("./loi-routes");
   registerLoiRoutes(app);
   const { registerMouRoutes } = await import("./mou-routes");
