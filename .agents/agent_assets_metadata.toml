@@ -432,3 +432,15 @@ id = "X6oQM4dC_dytQFeEaL6HD"
 uri = "file://attached_assets/wab2_loi_submission.txt"
 type = "text"
 title = "WAB2 LOI Submission Paste Sheet — Apr 27, 2026 5pm CT"
+
+[[outputs]]
+id = "qaBCDcjvhhoEfiX-W3HZ8"
+uri = "file://dist/Foster-Youth-Leave-Behind.pptx"
+type = "slides"
+title = "Foster Youth Leave-Behind (PPTX, 17 slides)"
+
+[[outputs]]
+id = "WUlfGhZJXaUDMctEQ3WQK"
+uri = "file://docs/grants/Foster-Youth-Executive-Briefing.md"
+type = "text"
+title = "Foster Youth Executive Briefing (5–10 pages)"

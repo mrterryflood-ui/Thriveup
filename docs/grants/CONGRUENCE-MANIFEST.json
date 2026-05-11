@@ -1,6 +1,6 @@
 {
   "$comment": "Audio = video. Every claim in the Foster Youth Transition briefing maps to a URL + one or more test IDs that prove the claim is demonstrable. The congruence-audit script consumes this file. UPDATE THIS WHENEVER YOU ADD OR REMOVE A CLAIM IN THE BRIEFING.",
-  "version": 1,
+  "version": 2,
   "lastUpdated": "2026-05-11",
   "owners": ["Dr. Terry Flood (President, TCAF)"],
   "audience": "Jim Currier (HUD FYI National Implementation Leader) — Austin meeting prep",
@@ -217,6 +217,22 @@
       "testIds": ["page-foster-youth-benefits"],
       "evidenceUrl": "client/src/pages/foster-youth/benefits.tsx",
       "evidenceFiles": ["client/src/data/foster-youth/state-ilp.ts"]
+    },
+    {
+      "id": "FY-019-state-portal",
+      "claim": "State-Agency Portal: privileged CSV bulk-upload (≤5,000 rows / 2MB), agency picker, recharts stratification, ISS-style stakeholder coordination dialog, honest live-vs-MOU disclosure",
+      "url": "/foster-youth/state-portal",
+      "testIds": ["page-foster-youth-state-portal", "text-page-title", "alert-honest-disclosure", "tab-caseload", "tab-upload", "tab-agency", "tab-method", "button-download-sample", "button-upload-csv", "chart-stratification"],
+      "evidenceUrl": "client/src/pages/foster-youth/state-portal.tsx",
+      "evidenceFiles": ["server/foster-youth-agency-routes.ts", "server/foster-youth-risk.ts"]
+    },
+    {
+      "id": "FY-020-policy-comparison",
+      "claim": "50-state Policy Comparison page: federal-floor disclosure, two-state side-by-side, what's-working national rollup, full all-state matrix; honest 'unverified' marking where statute not confirmed",
+      "url": "/foster-youth/policy-comparison",
+      "testIds": ["page-foster-youth-policy-comparison", "text-page-title", "alert-federal-floor", "alert-roadmap", "tab-compare", "tab-rollup", "tab-matrix", "select-state-a", "select-state-b", "table-comparison", "table-all-states"],
+      "evidenceUrl": "client/src/pages/foster-youth/policy-comparison.tsx",
+      "evidenceFiles": ["client/src/data/foster-youth/state-policies.ts"]
     }
   ],
   "externalUrls": [

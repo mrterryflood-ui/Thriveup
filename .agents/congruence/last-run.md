@@ -1,10 +1,10 @@
 # Congruence Audit Report
-**Run at:** 2026-05-11T12:19:08.353Z
-**Manifest version:** 1 (last updated 2026-05-11)
+**Run at:** 2026-05-11T13:05:39.714Z
+**Manifest version:** 2 (last updated 2026-05-11)
 **Audience:** Jim Currier (HUD FYI National Implementation Leader) — Austin meeting prep
 
 ## Summary
-- **PASS:** 152 / 152
+- **PASS:** 175 / 175
 - **WARN:** 0
 - **FAIL:** 0
 - **Verdict:** ✅ CONGRUENT
@@ -247,6 +247,35 @@ URL: `/foster-youth/cohort-analytics`
 URL: `/foster-youth/benefits`
 - ✓ url — HTTP 200
 - ✓ page-foster-youth-benefits — test-id present (source: client/src/pages/foster-youth/benefits.tsx)
+
+### ✅ FY-019-state-portal — State-Agency Portal: privileged CSV bulk-upload (≤5,000 rows / 2MB), agency picker, recharts stratification, ISS-style stakeholder coordination dialog, honest live-vs-MOU disclosure
+URL: `/foster-youth/state-portal`
+- ✓ url — HTTP 200
+- ✓ page-foster-youth-state-portal — test-id present (source: client/src/pages/foster-youth/state-portal.tsx)
+- ✓ text-page-title — test-id present (source: client/src/pages/foster-youth/state-portal.tsx)
+- ✓ alert-honest-disclosure — test-id present (source: client/src/pages/foster-youth/state-portal.tsx)
+- ✓ tab-caseload — test-id present (source: client/src/pages/foster-youth/state-portal.tsx)
+- ✓ tab-upload — test-id present (source: client/src/pages/foster-youth/state-portal.tsx)
+- ✓ tab-agency — test-id present (source: client/src/pages/foster-youth/state-portal.tsx)
+- ✓ tab-method — test-id present (source: client/src/pages/foster-youth/state-portal.tsx)
+- ✓ button-download-sample — test-id present (source: client/src/pages/foster-youth/state-portal.tsx)
+- ✓ button-upload-csv — test-id present (source: client/src/pages/foster-youth/state-portal.tsx)
+- ✓ chart-stratification — test-id present (source: client/src/pages/foster-youth/state-portal.tsx)
+
+### ✅ FY-020-policy-comparison — 50-state Policy Comparison page: federal-floor disclosure, two-state side-by-side, what's-working national rollup, full all-state matrix; honest 'unverified' marking where statute not confirmed
+URL: `/foster-youth/policy-comparison`
+- ✓ url — HTTP 200
+- ✓ page-foster-youth-policy-comparison — test-id present (source: client/src/pages/foster-youth/policy-comparison.tsx)
+- ✓ text-page-title — test-id present (source: client/src/pages/foster-youth/policy-comparison.tsx)
+- ✓ alert-federal-floor — test-id present (source: client/src/pages/foster-youth/policy-comparison.tsx)
+- ✓ alert-roadmap — test-id present (source: client/src/pages/foster-youth/policy-comparison.tsx)
+- ✓ tab-compare — test-id present (source: client/src/pages/foster-youth/policy-comparison.tsx)
+- ✓ tab-rollup — test-id present (source: client/src/pages/foster-youth/policy-comparison.tsx)
+- ✓ tab-matrix — test-id present (source: client/src/pages/foster-youth/policy-comparison.tsx)
+- ✓ select-state-a — test-id present (source: client/src/pages/foster-youth/policy-comparison.tsx)
+- ✓ select-state-b — test-id present (source: client/src/pages/foster-youth/policy-comparison.tsx)
+- ✓ table-comparison — test-id present (source: client/src/pages/foster-youth/policy-comparison.tsx)
+- ✓ table-all-states — test-id present (source: client/src/pages/foster-youth/policy-comparison.tsx)
 
 ## External URLs
 - ✅ **EXT-LB** `https://lifetransitionsaid.org/` — HTTP 200, keywords present

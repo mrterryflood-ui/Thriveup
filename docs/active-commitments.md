@@ -810,3 +810,23 @@ Almost removed `sankofa-feminine-health` from the registry because `yourfeminine
 - Client (`intake.tsx`) captures returned token, persists `{id, token}` to localStorage as `foster-youth-intake-credentials`, sends `x-intake-token` header on all subsequent requests, switches POST→PATCH after first save.
 - Verified end-to-end via curl: GET w/o token → 403 · wrong token → 403 · right token → 200 · analyze w/o token → 403 · upload-url with bad docType → 400 · POST with attempted `body.id` injection → server returns a fresh new id (no overwrite). Congruence audit re-ran 152/152 PASS after refactor.
 - New gotcha + lesson P-L08 added: "Public, no-auth wizards need capability tokens. Period."
+
+---
+
+## 🆕 May 11, 2026 (later same day) — Foster Youth: Agency Portal + Policy Comparison + Leave-Behind PPTX shipped
+
+**Built for the Jim Currier visit (today, second build of the day):**
+- **State-Agency Portal** at `/foster-youth/state-portal` — privileged-only (admin/case_manager/teacher). CSV bulk upload (≤5,000 rows / 2MB), recharts stratification, ISS-style stakeholder coordination panel per case (caseworker · school · healthcare · ILP · CASA/GAL · court · PHA · MH clinician). Sample CSV public for download.
+- **50-State Policy Comparison** at `/foster-youth/policy-comparison` — public read-only. Federal-floor disclosure, two-state side-by-side, what's-working national rollup, full all-state matrix. Honest "Unverified" marking — no conjecture. Roadmap card explicitly disclaims the 30-year longitudinal causal model (NDACAN restricted-access micro-data ≈18 mo approval).
+- **Risk engine:** `server/foster-youth-risk.ts` — pure deterministic `scoreCase()` returning `{score, tier, factors[]}`; every factor cites a published source (Midwest Study, NYTD, Casey, Vera, AAP, NWGFCE, CSSP, True Colors United, IDEA §300.43). Tiers: 0–19 Stable / 20–39 Watch / 40–59 Elevated / 60+ Critical. **Tiers describe urgency of system response, never deficit in the youth.**
+- **Server:** `server/foster-youth-agency-routes.ts` — `requirePrivileged` on every endpoint except `/agency/sample-csv`; bulk-CSV parsed inline (no papaparse dep), size+row caps enforced server-side; Drizzle schema additions: `foster_youth_agencies`, `foster_youth_agency_cases` (de-identified — no name/SSN/DOB/address; only `externalCaseId` + age in years), `foster_youth_case_events`. `db:push --force` clean.
+- **State-policy data:** `client/src/data/foster-youth/state-policies.ts` — 50 + DC; EFC populated for ~41 states; tuition-waiver/etc. only with statute citation + source URL — every other field `active: null` (Unverified) on purpose. `FEDERAL_FLOOR_NOTE` re-asserts ACA §2004 / Chafee / ETV / FAFSA Independent / FYI / McKinney-Vento / RHYA.
+- **Sidebar:** "State-Agency Portal" (Building2) + "Policy Comparison (50 states)" (Scale) added under "Youth Aging Out of Foster Care" group.
+- **Congruence:** Manifest bumped to v2; FY-019-state-portal + FY-020-policy-comparison added. **`npx tsx scripts/congruence-audit.ts` → 175/175 PASS, 0 FAIL.**
+- **Leave-behind PPTX + Executive Briefing (generated LAST from live system as source-of-truth):**
+  - `dist/Foster-Youth-Leave-Behind.pptx` — ~210KB, 17 slides (cover → evidence → honest disclosure → ecosystem → 11 surface slides → risk-method deep-dive → policy deep-dive → ask → contact). Generator script `scripts/generate-foster-youth-pptx.ts` REFUSES to run if audit shows any FAIL.
+  - `docs/grants/Foster-Youth-Executive-Briefing.md` — ~10KB / 5–10 pages, claim-for-claim with the deck. Uses only manifest-verified claims — no conjecture.
+  - Re-run: `npx tsx scripts/generate-foster-youth-pptx.ts`.
+- **Briefings updated:** `Foster-Youth-Transition-Briefing.md` (new rows 10 + 11 in live-URL table) and `Foster-Youth-Jim-Currier-Meeting-Prep.md` (new minute-22-to-26 walkthrough sections for portal + policy comparison).
+
+**Two new gotchas captured (P-L09 + P-L10) — see `.agents/skills/map-gap/lessons-learned.md`.**

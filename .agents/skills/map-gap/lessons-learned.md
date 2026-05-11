@@ -163,3 +163,48 @@ These lessons have been converted into automated health checks in the MAP phase:
 **Verification I ran before declaring done:** GET without token → 403 · GET wrong token → 403 · GET right token → 200 · analyze without token → 403 · upload-url without token → 403 · upload-url with bad docType → 400 · POST with `body.id` set → returns a NEW server-generated id. All passed.
 
 **The deeper lesson:** Honest disclosure isn't only about what we say in copy — it's about what the system actually does. A page that says "no login required, you control your information" is a LIE if anyone with the URL can read or overwrite the data. Truth lives in the code path, not the marketing.
+
+---
+
+## P-L09 — pptxgenjs is CommonJS-default-export; ESM `import X from "pptxgenjs"` fails
+
+**Symptom:** Under tsx-ESM (`scripts/generate-foster-youth-pptx.ts`), `import PptxGenJS from "pptxgenjs"; new PptxGenJS()` throws `TypeError: PptxGenJS is not a constructor`.
+
+**Root cause:** `pptxgenjs` exports the constructor via `module.exports = PptxGenJS` (no `default` key, no named export). tsx's ESM interop returns an empty namespace object; the `default` shim is `undefined`.
+
+**Fix (works under tsx-ESM in this codebase):**
+```ts
+import { createRequire } from "node:module";
+const require = createRequire(import.meta.url);
+const PptxGenJS = require("pptxgenjs") as typeof import("pptxgenjs");
+```
+
+**Generalizable rule:** When a CJS package's `module.exports = ClassOrFn` and you're under tsx-ESM, do NOT trust the default-import shim. Prefer `createRequire(import.meta.url)` for the constructor; use named imports only if the package documents them as named ESM exports.
+
+---
+
+## P-L10 — In this codebase, `req.params.foo` types as `string | string[]` and breaks Drizzle `eq()`
+
+**Symptom:** Compiling `server/foster-youth-agency-routes.ts` failed with TS2769 ("No overload matches this call") on calls like `eq(table.id, agencyId)` after destructuring `const { agencyId } = req.params;`.
+
+**Root cause:** Express's typings are widened in this project so `req.params` is `Record<string, string | string[]>`. Drizzle's `eq()` overloads do not accept `string | string[]`.
+
+**Fix:** Always coerce before passing to Drizzle column comparisons OR insert values:
+```ts
+const agencyId = String(req.params.agencyId);
+await db.select().from(agencies).where(eq(agencies.id, agencyId));
+```
+
+**Generalizable rule:** Never destructure `req.params` directly into a Drizzle call site. Coerce with `String(...)` or schema-validate with Zod's `z.string().uuid()` first. Same applies to `req.query` values used in DB filters.
+
+---
+
+## P-L11 — When the audit report uses Markdown bold (`**FAIL:**`), brittle `/FAIL:\s*\d+/` regexes silently miss
+
+**Symptom:** PPTX generator's safety gate ("refuse to publish if any FAIL") was triggered with `FAIL_COUNT = 999` (the safe-default) even after a clean 175/175 PASS audit.
+
+**Root cause:** `scripts/congruence-audit.ts` writes the verdict as `- **PASS:** 175 / 175` / `- **FAIL:** 0`. The PPTX gate's regex `/FAIL:\s*(\d+)/` did not allow for the leading `**` from Markdown bolding, so it didn't match → fell through to the safe default of 999.
+
+**Fix:** Make the regex tolerant of optional Markdown bold: `/FAIL:\*?\*?\s*(\d+)/`. Or — better — parse the audit JSON if/when the auditor emits one.
+
+**Generalizable rule:** When two scripts couple via parsed text, the producer's format change silently breaks the consumer. Either (a) make the regex tolerant of trivial formatting (bold, whitespace, punctuation), (b) emit a machine-readable artifact alongside the human-readable one (`.json` next to `.md`), or (c) have the producer and consumer share a single utility. **Safe-default values (`FAIL_COUNT = 999`) saved us here — they should be the rule whenever a parser miss could mean "publish bad evidence."**

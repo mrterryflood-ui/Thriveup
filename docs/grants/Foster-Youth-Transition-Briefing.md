@@ -26,6 +26,8 @@ Six clickable, working tools for young people aging out of foster care, anchored
 | 7 | FAFSA navigator with foster-youth Independent-Student + ETV mode | `/fafsa-navigator?audience=foster` | `fafsa-navigator.tsx` · test ID `callout-foster-mode` |
 | 8 | Crisis numbers (988, Crisis Text 741741, 1-800-RUNAWAY) on every page in the journey | All foster-youth pages | test IDs `link-crisis-988`, `link-crisis-text`, `link-crisis-runaway` |
 | 9 | Marcus's full reentry-cycle narrative | `/resident-journey` | `resident-journey.tsx` · test ID `card-marcus-narrative` |
+| 10 | **State-Agency Portal** — privileged CSV bulk-upload (≤5,000 rows), deterministic risk stratification (every factor cited), ISS-style stakeholder coordination, honest live-vs-MOU disclosure | `/foster-youth/state-portal` | `state-portal.tsx` + `server/foster-youth-agency-routes.ts` + `server/foster-youth-risk.ts` |
+| 11 | **50-State Policy Comparison** — federal floor + state-by-state matrix; verified statutes only, "unverified" marked honestly | `/foster-youth/policy-comparison` | `policy-comparison.tsx` + `client/src/data/foster-youth/state-policies.ts` |
 
 **Every row above is auto-verified by `scripts/congruence-audit.ts`.** Run it before you brief. Zero FAILs is the precondition for using this document.
 

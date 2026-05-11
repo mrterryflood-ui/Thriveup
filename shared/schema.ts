@@ -4837,3 +4837,79 @@ export type FosterYouthIntakeDocument = typeof fosterYouthIntakeDocuments.$infer
 export const insertFosterYouthEventSchema = createInsertSchema(fosterYouthEvents).omit({ id: true, occurredAt: true });
 export type InsertFosterYouthEvent = z.infer<typeof insertFosterYouthEventSchema>;
 export type FosterYouthEvent = typeof fosterYouthEvents.$inferSelect;
+
+// =====================================================================
+// State-Agency Caseload (national rollout scaffold).
+// Stores DE-IDENTIFIED case rows uploaded by state/county child-welfare
+// agency staff. NEVER store names, SSNs, addresses, or DOB — only an
+// agency-internal externalCaseId + a coarse age band. Risk score is
+// derived deterministically from documented research factors.
+// All access requires admin or case_manager role (see agency routes).
+// =====================================================================
+export const fosterYouthAgencies = pgTable("foster_youth_agencies", {
+  id: varchar("id", { length: 64 }).primaryKey(),                // e.g. "TX-DFPS", "CA-CDSS-LA"
+  name: varchar("name", { length: 200 }).notNull(),
+  stateCode: varchar("state_code", { length: 2 }).notNull(),
+  agencyType: varchar("agency_type", { length: 64 }).notNull().default("state"), // state | county | tribal | private
+  contactName: varchar("contact_name", { length: 200 }),
+  contactEmail: varchar("contact_email", { length: 200 }),
+  status: varchar("status", { length: 32 }).notNull().default("demo"), // demo | mou_pending | active
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const fosterYouthAgencyCases = pgTable("foster_youth_agency_cases", {
+  id: varchar("id", { length: 64 }).primaryKey(),
+  agencyId: varchar("agency_id", { length: 64 }).notNull().references(() => fosterYouthAgencies.id, { onDelete: "cascade" }),
+  externalCaseId: varchar("external_case_id", { length: 80 }).notNull(),  // de-identified, agency-internal
+  stateCode: varchar("state_code", { length: 2 }).notNull(),
+  ageYears: integer("age_years"),
+  currentPlacementType: varchar("current_placement_type", { length: 64 }), // family|kinship|group_home|RTC|ILP|emergency|runaway|unknown
+  monthsInCare: integer("months_in_care"),
+  placementCount: integer("placement_count"),
+  schoolDisruptions: integer("school_disruptions"),
+  ageAtFirstRemoval: integer("age_at_first_removal"),
+  hasIep: boolean("has_iep"),
+  mentalHealthDx: boolean("mental_health_dx"),
+  mhInTreatment: boolean("mh_in_treatment"),
+  priorRunaway: boolean("prior_runaway"),
+  justiceContact: boolean("justice_contact"),
+  pregnantOrParenting: boolean("pregnant_or_parenting"),
+  siblingsSeparated: boolean("siblings_separated"),
+  permanentConnectionAdult: boolean("permanent_connection_adult"),
+  pregEducDocsComplete: boolean("preg_educ_docs_complete"),
+  lgbtqPlus: boolean("lgbtq_plus"),
+  notes: text("notes"),
+  // Computed by server on insert/update — not user-editable.
+  riskScore: integer("risk_score").notNull().default(0),
+  riskTier: varchar("risk_tier", { length: 32 }).notNull().default("stable"), // stable|watch|elevated|critical
+  riskFactors: jsonb("risk_factors"),  // array of {id,label,points,citation,sourceUrl}
+  uploadedBy: varchar("uploaded_by", { length: 64 }),
+  source: varchar("source", { length: 32 }).notNull().default("manual"), // manual | csv_bulk | api
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const fosterYouthCaseEvents = pgTable("foster_youth_case_events", {
+  id: varchar("id", { length: 64 }).primaryKey(),
+  caseId: varchar("case_id", { length: 64 }).notNull().references(() => fosterYouthAgencyCases.id, { onDelete: "cascade" }),
+  agencyId: varchar("agency_id", { length: 64 }).notNull(),
+  eventType: varchar("event_type", { length: 80 }).notNull(), // ingest|score|alert|note|stakeholder_loop|status_change
+  actorUserId: varchar("actor_user_id", { length: 64 }),
+  payload: jsonb("payload"),
+  occurredAt: timestamp("occurred_at").defaultNow().notNull(),
+});
+
+export const insertFosterYouthAgencySchema = createInsertSchema(fosterYouthAgencies).omit({ createdAt: true });
+export type InsertFosterYouthAgency = z.infer<typeof insertFosterYouthAgencySchema>;
+export type FosterYouthAgency = typeof fosterYouthAgencies.$inferSelect;
+
+export const insertFosterYouthAgencyCaseSchema = createInsertSchema(fosterYouthAgencyCases).omit({
+  id: true, createdAt: true, updatedAt: true, riskScore: true, riskTier: true, riskFactors: true,
+});
+export type InsertFosterYouthAgencyCase = z.infer<typeof insertFosterYouthAgencyCaseSchema>;
+export type FosterYouthAgencyCase = typeof fosterYouthAgencyCases.$inferSelect;
+
+export const insertFosterYouthCaseEventSchema = createInsertSchema(fosterYouthCaseEvents).omit({ id: true, occurredAt: true });
+export type InsertFosterYouthCaseEvent = z.infer<typeof insertFosterYouthCaseEventSchema>;
+export type FosterYouthCaseEvent = typeof fosterYouthCaseEvents.$inferSelect;

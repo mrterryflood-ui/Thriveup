@@ -61,7 +61,20 @@
 - Navigate to **`/fafsa-navigator?audience=foster`**.
 - "We bolted a foster-youth mode onto our existing FAFSA tool. Independent-student status is automatic. ETV stacks on Pell. Marcus's nephew uses this."
 
-### Minute 25–28 — The bigger picture (loud and proud)
+### Minute 22–24 — National Agency Portal (the new ask)
+- Navigate to **`/foster-youth/state-portal`**.
+- "This is what a state or county child-welfare agency would log into. They upload de-identified caseload data, the system stratifies it by documented research factors — Midwest Study, NYTD, Casey, Vera — and surfaces who needs coordinated stakeholder attention before they age out."
+- Click the **Method & Sources** tab. "Every factor cites a source. No black box. The youth is never 'high risk' — the system response is."
+- Click a case → show the ISS-style stakeholder coordination panel. "Caseworker, school counselor, healthcare PCP, mental-health clinician, CASA/GAL, court, PHA — who needs to be in the room. Modeled on the integrated student-support pattern at implementationineducatio.com."
+- Honest disclosure card: "What's live is the engine. What's roadmap is the CCWIS integration and FERPA/HIPAA MOU."
+
+### Minute 24–26 — 50-State Policy Comparison
+- Navigate to **`/foster-youth/policy-comparison`**.
+- "Non-adversarial. We surface what's working in each state so we can lift the floor everywhere. Pick TX and CA. Show extended foster care to 21, tuition waiver, transitional housing, ID waiver."
+- Show "What's working nationally" rollup. "Most states have extended care; tuition waiver coverage is uneven; that's the next federal advocacy lane."
+- Show roadmap card honestly: "30-year longitudinal causal model needs NDACAN restricted-access micro-data — we won't pretend we have it."
+
+### Minute 26–28 — The bigger picture (loud and proud)
 - "This is one experience inside a 5-platform ecosystem. Talk Your Talk gives us 89 spoken + 18 sign = 107 languages — meaningful access for LEP foster youth. Civic Signal handles community advocacy. LifeBridge is the 20,670-resource navigator backbone. ThriveUp Academy is the AI-enabled workforce/education arm. Whole-Person Health is the behavioral-health safety floor underneath all of it. **Crisis events from any platform route INTO Whole-Person Health.**"
 - Show evidence base doc briefly: "Every number we just cited is sourced. Midwest Study, NYTD, AFCARS, Casey, Vera. Bibliography lives in `Foster-Youth-Evidence-Base.md`."
 - "Federal envelope in this lane: ~$500M+ annually — Chafee · ETV · FYI · YHDP · RHYA · WIOA · OJJDP. Texas's slice is ~$15M+. We are asking for nothing today; we are showing readiness."

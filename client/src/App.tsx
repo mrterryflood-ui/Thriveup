@@ -3,6 +3,7 @@ import { Switch, Route } from "wouter";
 import { queryClient, apiRequest } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
+import { RequireAuth } from "@/components/require-auth";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
@@ -218,6 +219,8 @@ const FosterYouthRightsPage = lazy(() => import("@/pages/foster-youth/rights"));
 const FosterYouthBenefitsPage = lazy(() => import("@/pages/foster-youth/benefits"));
 const FosterYouthIntakePage = lazy(() => import("@/pages/foster-youth/intake"));
 const FosterYouthCohortAnalyticsPage = lazy(() => import("@/pages/foster-youth/cohort-analytics"));
+const FosterYouthStatePortalPage = lazy(() => import("@/pages/foster-youth/state-portal"));
+const FosterYouthPolicyComparisonPage = lazy(() => import("@/pages/foster-youth/policy-comparison"));
 
 function PageFallback() {
   return (
@@ -442,6 +445,12 @@ function AppRouter() {
       <Route path="/foster-youth/benefits" component={FosterYouthBenefitsPage} />
       <Route path="/foster-youth/intake" component={FosterYouthIntakePage} />
       <Route path="/foster-youth/cohort-analytics" component={FosterYouthCohortAnalyticsPage} />
+      <Route path="/foster-youth/state-portal">
+        <RequireAuth reason="The State-Agency Portal contains de-identified caseload data and is restricted to TCAF privileged staff (admin, case manager, teacher).">
+          <FosterYouthStatePortalPage />
+        </RequireAuth>
+      </Route>
+      <Route path="/foster-youth/policy-comparison" component={FosterYouthPolicyComparisonPage} />
       <Route path="/fafsa-navigator" component={FafsaNavigatorPage} />
       <Route path="/neighborhood" component={NeighborhoodLookupPage} />
       <Route path="/data-sources" component={DataSourcesPage} />
