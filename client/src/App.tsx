@@ -216,6 +216,8 @@ const FosterYouthTransitionPlanPage = lazy(() => import("@/pages/foster-youth/tr
 const FosterYouthWellbeingPage = lazy(() => import("@/pages/foster-youth/wellbeing"));
 const FosterYouthRightsPage = lazy(() => import("@/pages/foster-youth/rights"));
 const FosterYouthBenefitsPage = lazy(() => import("@/pages/foster-youth/benefits"));
+const FosterYouthIntakePage = lazy(() => import("@/pages/foster-youth/intake"));
+const FosterYouthCohortAnalyticsPage = lazy(() => import("@/pages/foster-youth/cohort-analytics"));
 
 function PageFallback() {
   return (
@@ -438,6 +440,8 @@ function AppRouter() {
       <Route path="/foster-youth/wellbeing" component={FosterYouthWellbeingPage} />
       <Route path="/foster-youth/rights" component={FosterYouthRightsPage} />
       <Route path="/foster-youth/benefits" component={FosterYouthBenefitsPage} />
+      <Route path="/foster-youth/intake" component={FosterYouthIntakePage} />
+      <Route path="/foster-youth/cohort-analytics" component={FosterYouthCohortAnalyticsPage} />
       <Route path="/fafsa-navigator" component={FafsaNavigatorPage} />
       <Route path="/neighborhood" component={NeighborhoodLookupPage} />
       <Route path="/data-sources" component={DataSourcesPage} />

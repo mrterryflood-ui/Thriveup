@@ -780,6 +780,33 @@ Almost removed `sankofa-feminine-health` from the registry because `yourfeminine
 - Architect review: round 1 found 5 issues (all fixed), round 2 found 1 issue (audit scoping — fixed). No outstanding architect findings.
 
 **Open follow-ups for future sessions (NOT blockers for Jim's visit):**
-- Build out states 2–50 in benefits navigator with named ILP coordinators + warm-handoff phone numbers (TX is full-detail today; others use federal-only + ILP search pointer — honestly disclosed in the page).
-- Begin Week 1 of Outcome Tracking Plan (event_log schema + `useTracker("foster-youth")`).
+- ~~Build out states 2–50 in benefits navigator~~ ✅ DONE May 11, 2026 — all 50 + DC live via `client/src/data/foster-youth/state-ilp.ts`. Phone/coordinator BLANK where unverified (no conjecture). Statute-cited extras for ~15 states.
+- Verify ILP coordinator names + phones state-by-state from official sources; fill blanks. **Hard rule: only fill what we can verify on the agency's own page.**
+- ~~Begin Week 1 of Outcome Tracking Plan (event_log schema + `useTracker("foster-youth")`)~~ ✅ Schema live: `foster_youth_events` table + `POST /api/foster-youth/event` endpoint. Wire `useTracker` calls into the 6 public pages next.
 - Post-meeting: capture every commitment Jim makes → log here.
+
+---
+
+## 🆕 May 11, 2026 — Foster Youth expansion shipped (same-day add)
+
+**Built for the Jim Currier visit (today, 30-min slot):**
+- **Live AI-assisted Intake wizard** at `/foster-youth/intake` — 4 steps (basics → checklist → document upload → personalized 30/60/90 plan). Backend in `server/foster-youth-intake-routes.ts`. AI fallback chain: Anthropic Claude Haiku 4.5 → Replit-OpenAI gpt-5-nano → OpenAI gpt-4o-mini. Object-storage signed URLs for documents. Telemetry via `foster_youth_events` (sessionId-based, no PII required). **Why:** so Jim can watch a real intake processed end-to-end in the meeting.
+- **All 50 states + DC** in `/foster-youth/benefits` — `client/src/data/foster-youth/state-ilp.ts`. Verified official agency landing URLs; phone/coordinator BLANK where not yet verified (honest disclosure in UI). Statute-cited extras for CA THP-Plus, FL PESS, KY/MA/NC/OK/OR/PA/VA tuition waivers, MI Fostering Futures, WA Passport, etc.
+- **Cohort analytics dashboard** at `/foster-youth/cohort-analytics` (admin-gated) — segments intakes/documents/events by state, event type, recency. **Why:** every user gets a data story; we can prove engagement to funders.
+- **DB tables added & pushed:** `foster_youth_intakes`, `foster_youth_intake_documents`, `foster_youth_events` (`shared/schema.ts` + `npm run db:push --force`).
+- **Sidebar items added:** "AI-assisted Intake" (Sparkles icon) + "Cohort Analytics (admin)" (BarChart3 icon) inside the existing "Youth Aging Out of Foster Care" group.
+- **Hub tile added:** `tile-intake` (fuchsia→purple) on `/foster-youth`.
+- **Congruence:** 152/152 PASS (was 127/127). Auditor enhanced — template-literal cross-file lookup so dynamic IDs sourced from sibling data files (e.g. `option-state-${s.code}` from `STATE_ILP`) verify cleanly when `evidenceFiles[]` lists the data file. Manifest entries: FY-016-hub-intake-tile, FY-016-intake-wizard, FY-017-cohort-analytics, FY-018-50-states.
+- **E2E:** added intake + cohort-analytics walkthroughs to `tests/e2e/foster-youth-journey.spec.ts`. Browser e2e via runTest passed steps 1-6 + 8; step 7 (cohort analytics) returned the expected 401 + "Unauthorized" alert for non-admin sessions — admin gating working as designed, NOT a bug.
+
+**Security hardening applied AFTER first architect pass (same day, before Jim's visit):** Architect flagged severe IDOR + AI/storage cost-runaway because all intake-scoped endpoints were gated only by "knows the intake ID." Fixed by:
+- Adding `accessToken` column to `foster_youth_intakes` (npm run db:push --force succeeded).
+- POST /api/foster-youth/intake now strips `body.id`, server-generates id+token, returns token ONCE at top level (stripped from intake row).
+- New PATCH /api/foster-youth/intake/:id endpoint replaces upsert-by-client-id. Token-gated.
+- GET/upload-url/document/analyze all require `x-intake-token` header (or admin/teacher/case_manager role) via `authorizeIntake()` + `tokensMatch()` w/ `timingSafeEqual`.
+- Per-IP rate limits: analyze 5/10min, upload-url 30/10min, intake-create 30/10min, event 200/10min. `Retry-After` headers set. Privileged roles bypass.
+- Allowlists: docType (10 types), contentType (PDF/JPEG/PNG/HEIC/WebP), max 15MB/file, max 10 docs/intake, 50KB extracted-text cap.
+- Field allowlist `pickIntakeFields()` validates and length-caps every user-supplied field; rejects nonsense ages outside 13-26.
+- Client (`intake.tsx`) captures returned token, persists `{id, token}` to localStorage as `foster-youth-intake-credentials`, sends `x-intake-token` header on all subsequent requests, switches POST→PATCH after first save.
+- Verified end-to-end via curl: GET w/o token → 403 · wrong token → 403 · right token → 200 · analyze w/o token → 403 · upload-url with bad docType → 400 · POST with attempted `body.id` injection → server returns a fresh new id (no overwrite). Congruence audit re-ran 152/152 PASS after refactor.
+- New gotcha + lesson P-L08 added: "Public, no-auth wizards need capability tokens. Period."

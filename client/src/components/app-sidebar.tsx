@@ -82,6 +82,8 @@ const fosterYouthItems: NavItem[] = [
   { title: "My Rights", url: "/foster-youth/rights", icon: Scale },
   { title: "State Benefits (50 states)", url: "/foster-youth/benefits", icon: Landmark },
   { title: "FAFSA & ETV (foster mode)", url: "/fafsa-navigator?audience=foster", icon: GraduationCap },
+  { title: "AI-assisted Intake", url: "/foster-youth/intake", icon: Sparkles },
+  { title: "Cohort Analytics (admin)", url: "/foster-youth/cohort-analytics", icon: BarChart3 },
 ];
 
 const justiceReentryItems: NavItem[] = [

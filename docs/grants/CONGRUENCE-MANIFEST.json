@@ -52,7 +52,8 @@
       "claim": "State Benefits Navigator covers all 50 states + DC, Texas first with full detail",
       "url": "/foster-youth/benefits",
       "testIds": ["page-foster-youth-benefits", "select-state-trigger", "option-state-TX", "option-state-CA", "option-state-NY", "card-benefit-tx-pal", "card-benefit-fed-medicaid", "card-benefit-fed-fyi", "card-benefit-fed-etv"],
-      "evidenceUrl": "client/src/pages/foster-youth/benefits.tsx"
+      "evidenceUrl": "client/src/pages/foster-youth/benefits.tsx",
+      "evidenceFiles": ["client/src/data/foster-youth/state-ilp.ts"]
     },
     {
       "id": "FY-008",
@@ -187,6 +188,35 @@
       "url": "/foster-youth/wellbeing",
       "testIds": ["action-mh"],
       "evidenceUrl": "client/src/pages/foster-youth/wellbeing.tsx"
+    },
+    {
+      "id": "FY-016-hub-intake-tile",
+      "claim": "AI-assisted Intake tile surfaced from the Foster Youth hub",
+      "url": "/foster-youth",
+      "testIds": ["tile-intake"],
+      "evidenceUrl": "client/src/pages/foster-youth/hub.tsx"
+    },
+    {
+      "id": "FY-016-intake-wizard",
+      "claim": "Live AI-assisted Intake wizard: 4 steps (basics, checklist, document upload, AI plan) with honest disclosure and crisis routing",
+      "url": "/foster-youth/intake",
+      "testIds": ["page-foster-youth-intake", "alert-honest", "stepper", "card-step-1", "input-first-name", "input-age", "input-age-out-date", "select-state-trigger", "needs-checklist", "button-next-step-2"],
+      "evidenceUrl": "client/src/pages/foster-youth/intake.tsx"
+    },
+    {
+      "id": "FY-017-cohort-analytics",
+      "claim": "Cohort analytics dashboard segments intakes/documents/events so each user has a data story (admin-only)",
+      "url": "/foster-youth/cohort-analytics",
+      "testIds": ["page-foster-youth-cohort-analytics", "text-analytics-title", "select-window-trigger", "card-stat-intakes", "card-stat-analyzed", "card-stat-documents", "card-by-state", "card-by-event", "card-recent-intakes"],
+      "evidenceUrl": "client/src/pages/foster-youth/cohort-analytics.tsx"
+    },
+    {
+      "id": "FY-018-50-states",
+      "claim": "State Benefits navigator covers all 50 states + DC, sourced from STATE_ILP catalog (blank fields where unverified, no conjecture)",
+      "url": "/foster-youth/benefits",
+      "testIds": ["page-foster-youth-benefits"],
+      "evidenceUrl": "client/src/pages/foster-youth/benefits.tsx",
+      "evidenceFiles": ["client/src/data/foster-youth/state-ilp.ts"]
     }
   ],
   "externalUrls": [

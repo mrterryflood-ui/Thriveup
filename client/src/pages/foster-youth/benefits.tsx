@@ -6,24 +6,9 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { ArrowLeft, Landmark, ExternalLink, Phone, Search, Info } from "lucide-react";
+import { ArrowLeft, Landmark, ExternalLink, Phone, Search, Info, Sparkles } from "lucide-react";
 import { CrisisStrip } from "@/components/foster-youth/crisis-strip";
-
-const STATES = [
-  { code: "AL", name: "Alabama" }, { code: "AK", name: "Alaska" }, { code: "AZ", name: "Arizona" }, { code: "AR", name: "Arkansas" },
-  { code: "CA", name: "California" }, { code: "CO", name: "Colorado" }, { code: "CT", name: "Connecticut" }, { code: "DE", name: "Delaware" },
-  { code: "DC", name: "District of Columbia" }, { code: "FL", name: "Florida" }, { code: "GA", name: "Georgia" }, { code: "HI", name: "Hawaii" },
-  { code: "ID", name: "Idaho" }, { code: "IL", name: "Illinois" }, { code: "IN", name: "Indiana" }, { code: "IA", name: "Iowa" },
-  { code: "KS", name: "Kansas" }, { code: "KY", name: "Kentucky" }, { code: "LA", name: "Louisiana" }, { code: "ME", name: "Maine" },
-  { code: "MD", name: "Maryland" }, { code: "MA", name: "Massachusetts" }, { code: "MI", name: "Michigan" }, { code: "MN", name: "Minnesota" },
-  { code: "MS", name: "Mississippi" }, { code: "MO", name: "Missouri" }, { code: "MT", name: "Montana" }, { code: "NE", name: "Nebraska" },
-  { code: "NV", name: "Nevada" }, { code: "NH", name: "New Hampshire" }, { code: "NJ", name: "New Jersey" }, { code: "NM", name: "New Mexico" },
-  { code: "NY", name: "New York" }, { code: "NC", name: "North Carolina" }, { code: "ND", name: "North Dakota" }, { code: "OH", name: "Ohio" },
-  { code: "OK", name: "Oklahoma" }, { code: "OR", name: "Oregon" }, { code: "PA", name: "Pennsylvania" }, { code: "RI", name: "Rhode Island" },
-  { code: "SC", name: "South Carolina" }, { code: "SD", name: "South Dakota" }, { code: "TN", name: "Tennessee" }, { code: "TX", name: "Texas" },
-  { code: "UT", name: "Utah" }, { code: "VT", name: "Vermont" }, { code: "VA", name: "Virginia" }, { code: "WA", name: "Washington" },
-  { code: "WV", name: "West Virginia" }, { code: "WI", name: "Wisconsin" }, { code: "WY", name: "Wyoming" },
-];
+import { STATE_ILP } from "@/data/foster-youth/state-ilp";
 
 interface Benefit {
   id: string;
@@ -34,7 +19,7 @@ interface Benefit {
   blurb: string;
 }
 
-// Federal benefits (apply to all states)
+// Federal benefits — apply to all states. Cited to statute / regulation.
 const FEDERAL_BENEFITS: Benefit[] = [
   { id: "fed-medicaid", category: "healthcare", title: "Medicaid (FFCC) until age 26 — no income test", applyUrl: "https://www.healthcare.gov/medicaid-chip/getting-medicaid-chip/", applyPhone: "1-800-318-2596", blurb: "ACA §2004 entitles every former foster youth to free Medicaid until 26th birthday." },
   { id: "fed-snap", category: "income", title: "SNAP (food assistance)", applyUrl: "https://www.fns.usda.gov/snap/state-directory", blurb: "Apply through your state portal. Most former foster youth qualify based on income." },
@@ -46,46 +31,6 @@ const FEDERAL_BENEFITS: Benefit[] = [
   { id: "fed-passport", category: "id", title: "U.S. Passport", applyUrl: "https://travel.state.gov/content/travel/en/passports.html", blurb: "$130 + $35 execution. Strongest proof of identity." },
 ];
 
-// State Independent Living Coordinator URLs (Chafee/PAL/ILP — official state child welfare agency landing or ILP page where known)
-const STATE_BENEFITS: Record<string, Benefit[]> = {
-  TX: [
-    { id: "tx-pal", category: "income", title: "Texas PAL (Preparation for Adult Living) — transitional living allowance + life skills", applyUrl: "https://www.dfps.texas.gov/Child_Protection/Youth/Preparation_for_Adult_Living.asp", applyPhone: "1-800-720-7777", blurb: "Texas's Chafee program. Up to ~$1,000/mo transitional living allowance for qualifying youth." },
-    { id: "tx-extended", category: "housing", title: "Texas Extended Foster Care to age 21", applyUrl: "https://www.dfps.texas.gov/Child_Protection/Youth/Extended_Foster_Care.asp", blurb: "Voluntary extension. Sign before your 18th birthday or re-enter between 18 and 21." },
-    { id: "tx-tuition", category: "education", title: "Texas Tuition and Fee Waiver — public colleges (Texas Education Code §54.366)", applyUrl: "https://www.collegeforalltexans.com/index.cfm?ObjectID=A3119543-FA2E-7B91-1D86027F47AA8AC8", blurb: "Tuition + mandatory fees waived at any Texas public college. Up to age 25 if continuously enrolled." },
-    { id: "tx-id", category: "id", title: "Texas DPS ID/License Fee Waiver (Texas Transp. Code §521.1811)", applyUrl: "https://www.dps.texas.gov/section/driver-license", blurb: "Free state ID or driver's license under 21 if in foster care at age 16+." },
-    { id: "tx-medicaid", category: "healthcare", title: "Texas Medicaid (FFCC) — apply via Your Texas Benefits", applyUrl: "https://www.yourtexasbenefits.com/", applyPhone: "2-1-1", blurb: "Choose 'Former Foster Care Children' category." },
-    { id: "tx-snap", category: "income", title: "Texas SNAP — apply via Your Texas Benefits", applyUrl: "https://www.yourtexasbenefits.com/", applyPhone: "2-1-1", blurb: "Apply for SNAP, TANF, CHIP, and Medicaid in one application." },
-  ],
-};
-
-// For all other states, we provide the federal benefits + a generic state-ILP-coordinator pointer.
-function buildGenericState(stateCode: string, stateName: string): Benefit[] {
-  return [
-    {
-      id: `${stateCode.toLowerCase()}-ilp`,
-      category: "income",
-      title: `${stateName} Chafee / Independent Living Program`,
-      applyUrl: `https://www.google.com/search?q=${encodeURIComponent(stateName + " Chafee independent living program foster youth")}`,
-      blurb: `Every state must offer Chafee independent-living services through age 23. Search for "${stateName} ILP coordinator" or call 211 from within ${stateName}.`,
-    },
-    {
-      id: `${stateCode.toLowerCase()}-medicaid`,
-      category: "healthcare",
-      title: `${stateName} Medicaid (FFCC) — apply through state portal`,
-      applyUrl: "https://www.healthcare.gov/medicaid-chip/getting-medicaid-chip/",
-      blurb: `ACA §2004 entitles you to Medicaid until age 26. Apply through ${stateName}'s state Medicaid portal.`,
-    },
-    {
-      id: `${stateCode.toLowerCase()}-211`,
-      category: "income",
-      title: `211 — ${stateName}`,
-      applyUrl: "https://www.211.org/",
-      applyPhone: "2-1-1",
-      blurb: "Local benefits navigation, food pantries, emergency shelter, utility assistance.",
-    },
-  ];
-}
-
 const CATEGORY_LABEL: Record<Benefit["category"], string> = {
   housing: "Housing",
   healthcare: "Healthcare",
@@ -94,17 +39,36 @@ const CATEGORY_LABEL: Record<Benefit["category"], string> = {
   id: "Identity Documents",
 };
 
+function buildStateBenefits(stateCode: string): { benefits: Benefit[]; agencyBenefit: Benefit; hasExtras: boolean } {
+  const state = STATE_ILP.find((s) => s.code === stateCode);
+  if (!state) {
+    return { benefits: [], agencyBenefit: {
+      id: "fallback-211", category: "income", title: "Call 211", applyUrl: "https://www.211.org/", applyPhone: "2-1-1", blurb: "Local benefits navigation in any state.",
+    }, hasExtras: false };
+  }
+  const agencyBenefit: Benefit = {
+    id: `${stateCode.toLowerCase()}-agency`,
+    category: "income",
+    title: state.agencyName,
+    applyUrl: state.agencyUrl,
+    applyPhone: state.ilpPhone,
+    blurb: state.ilpCoordinator
+      ? `State child-welfare agency for ${state.name}. Independent Living coordinator: ${state.ilpCoordinator}.`
+      : `Official ${state.name} child-welfare agency landing page. Named ILP coordinator and direct phone not yet verified — call 211 for warm handoff or use the agency's contact form.`,
+  };
+  const extras: Benefit[] = (state.stateExtras ?? []).map((e) => ({
+    id: e.id, category: e.category, title: e.title, applyUrl: e.url, applyPhone: e.phone, blurb: e.blurb,
+  }));
+  return { benefits: extras, agencyBenefit, hasExtras: extras.length > 0 };
+}
+
 export default function FosterYouthBenefitsPage() {
   const [stateCode, setStateCode] = useState<string>("TX");
   const [filter, setFilter] = useState<string>("");
 
-  const stateName = STATES.find((s) => s.code === stateCode)?.name ?? "";
-
-  const stateBenefits = useMemo(() => {
-    return STATE_BENEFITS[stateCode] ?? buildGenericState(stateCode, stateName);
-  }, [stateCode, stateName]);
-
-  const allBenefits = useMemo(() => [...FEDERAL_BENEFITS, ...stateBenefits], [stateBenefits]);
+  const stateName = STATE_ILP.find((s) => s.code === stateCode)?.name ?? "";
+  const { benefits: stateExtras, agencyBenefit, hasExtras } = useMemo(() => buildStateBenefits(stateCode), [stateCode]);
+  const allBenefits = useMemo(() => [...FEDERAL_BENEFITS, agencyBenefit, ...stateExtras], [agencyBenefit, stateExtras]);
 
   const filtered = useMemo(() => {
     if (!filter.trim()) return allBenefits;
@@ -120,8 +84,6 @@ export default function FosterYouthBenefitsPage() {
     }
     return grouped;
   }, [filtered]);
-
-  const isCustomState = !!STATE_BENEFITS[stateCode];
 
   return (
     <div className="min-h-screen bg-background" data-testid="page-foster-youth-benefits">
@@ -146,22 +108,28 @@ export default function FosterYouthBenefitsPage() {
 
         <Alert className="mb-6" data-testid="alert-50-states">
           <Info className="h-4 w-4" />
-          <AlertTitle>50 states + DC, Texas first</AlertTitle>
+          <AlertTitle>50 states + DC — federal floor everywhere, state extras where statute exists</AlertTitle>
           <AlertDescription>
-            Federal benefits are the same everywhere. State Chafee/ILP programs, tuition waivers, and Medicaid portals vary. Texas is fully detailed today; other states show federal benefits + a state-specific Chafee/ILP search pointer. Real warm-handoff numbers being added on a rolling basis.
+            Federal benefits are identical in every state and shown for all of them. Each state's Independent Living Program agency is linked to its official landing page. Where the named ILP coordinator's direct phone isn't yet verified, that field is left blank rather than fabricated — call 211 for a warm handoff. State-specific tuition waivers, transitional living allowances, and extended-care programs are added as we verify them.
           </AlertDescription>
         </Alert>
 
-        {/* Selectors */}
+        <Alert className="mb-6 border-violet-200 bg-violet-50 dark:bg-violet-950/30 dark:border-violet-900" data-testid="alert-intake-cta">
+          <Sparkles className="h-4 w-4 text-violet-600" />
+          <AlertTitle>Want a personalized plan instead?</AlertTitle>
+          <AlertDescription>
+            The AI-assisted intake takes 4 short steps and gives you a 30/60/90-day plan tailored to your state, age, and current situation.
+            <Link href="/foster-youth/intake"><Button size="sm" className="ml-2" data-testid="button-go-intake">Start the intake</Button></Link>
+          </AlertDescription>
+        </Alert>
+
         <div className="grid sm:grid-cols-2 gap-3 mb-6">
           <div data-testid="control-state-select">
             <label className="text-sm font-medium block mb-1">Your state</label>
             <Select value={stateCode} onValueChange={setStateCode}>
-              <SelectTrigger data-testid="select-state-trigger">
-                <SelectValue />
-              </SelectTrigger>
+              <SelectTrigger data-testid="select-state-trigger"><SelectValue /></SelectTrigger>
               <SelectContent data-testid="select-state-content">
-                {STATES.map((s) => (
+                {STATE_ILP.map((s) => (
                   <SelectItem key={s.code} value={s.code} data-testid={`option-state-${s.code}`}>{s.name}</SelectItem>
                 ))}
               </SelectContent>
@@ -176,17 +144,16 @@ export default function FosterYouthBenefitsPage() {
           </div>
         </div>
 
-        {!isCustomState && (
+        {!hasExtras && (
           <Alert className="mb-6" data-testid="alert-state-rolling">
             <Info className="h-4 w-4" />
-            <AlertTitle>{stateName}: federal benefits shown + Chafee/ILP search pointer</AlertTitle>
+            <AlertTitle>{stateName}: federal benefits + agency landing shown</AlertTitle>
             <AlertDescription>
-              State-specific tuition waivers, ID-fee waivers, and extended-care policies are being added state by state. For now: call 211 from within {stateName} for local benefits navigation, and search "{stateName} Chafee independent living program."
+              State-specific tuition waivers, transitional living allowances, and ID-fee waivers for {stateName} are being verified statute-by-statute. The federal floor (Medicaid to 26, ETV up to $5,000/yr, FYI vouchers, FAFSA Independent + Pell) applies in {stateName} just like everywhere else. Call 211 for local navigation.
             </AlertDescription>
           </Alert>
         )}
 
-        {/* Benefits by category */}
         {(Object.keys(CATEGORY_LABEL) as Benefit["category"][]).map((cat) => {
           const items = byCategory[cat];
           if (!items || items.length === 0) return null;

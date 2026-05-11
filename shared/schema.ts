@@ -4760,3 +4760,80 @@ export type InsertPlatformFunderFit = z.infer<typeof insertPlatformFunderFitSche
 export type PlatformFunderFit = typeof platformFunderFit.$inferSelect;
 
 export * from "./models/auth";
+
+// ============================================================================
+// FOSTER YOUTH INTAKE WIZARD (May 11, 2026 — built for Jim Currier visit)
+// AI-assisted holistic intake for individual foster youth aging out.
+// All rows tagged cohort='foster-youth' for analytics segmentation.
+// ============================================================================
+export const fosterYouthIntakes = pgTable("foster_youth_intakes", {
+  id: varchar("id", { length: 64 }).primaryKey(),
+  cohort: varchar("cohort", { length: 64 }).notNull().default("foster-youth"),
+  sessionId: varchar("session_id", { length: 128 }),
+  firstName: varchar("first_name", { length: 120 }),
+  preferredName: varchar("preferred_name", { length: 120 }),
+  pronouns: varchar("pronouns", { length: 60 }),
+  age: integer("age"),
+  ageOutDate: varchar("age_out_date", { length: 32 }),
+  stateCode: varchar("state_code", { length: 2 }),
+  currentSituation: text("current_situation"),
+  immediateNeeds: text("immediate_needs").array(),
+  hasStateId: boolean("has_state_id").default(false),
+  hasSsnCard: boolean("has_ssn_card").default(false),
+  hasBirthCert: boolean("has_birth_cert").default(false),
+  hasMedicaid: boolean("has_medicaid").default(false),
+  hasHousing: boolean("has_housing").default(false),
+  enrolledSchool: boolean("enrolled_school").default(false),
+  employed: boolean("employed").default(false),
+  ilpCoordinator: varchar("ilp_coordinator", { length: 200 }),
+  ilpPhone: varchar("ilp_phone", { length: 60 }),
+  caseworker: varchar("caseworker", { length: 200 }),
+  accessToken: varchar("access_token", { length: 64 }),
+  aiSummary: text("ai_summary"),
+  aiEligiblePrograms: jsonb("ai_eligible_programs"),
+  aiPriorities: jsonb("ai_priorities"),
+  ai30DayPlan: jsonb("ai_30_day_plan"),
+  ai60DayPlan: jsonb("ai_60_day_plan"),
+  ai90DayPlan: jsonb("ai_90_day_plan"),
+  aiWarmHandoffs: jsonb("ai_warm_handoffs"),
+  aiProvider: varchar("ai_provider", { length: 60 }),
+  aiAnalyzedAt: timestamp("ai_analyzed_at"),
+  createdBy: varchar("created_by", { length: 128 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const fosterYouthIntakeDocuments = pgTable("foster_youth_intake_documents", {
+  id: varchar("id", { length: 64 }).primaryKey(),
+  intakeId: varchar("intake_id", { length: 64 }).notNull().references(() => fosterYouthIntakes.id, { onDelete: "cascade" }),
+  docType: varchar("doc_type", { length: 60 }).notNull(),
+  filename: varchar("filename", { length: 300 }).notNull(),
+  contentType: varchar("content_type", { length: 100 }),
+  size: integer("size"),
+  objectPath: varchar("object_path", { length: 500 }).notNull(),
+  extractedText: text("extracted_text"),
+  uploadedAt: timestamp("uploaded_at").defaultNow().notNull(),
+});
+
+export const fosterYouthEvents = pgTable("foster_youth_events", {
+  id: varchar("id", { length: 64 }).primaryKey(),
+  cohort: varchar("cohort", { length: 64 }).notNull().default("foster-youth"),
+  sessionId: varchar("session_id", { length: 128 }),
+  intakeId: varchar("intake_id", { length: 64 }),
+  eventType: varchar("event_type", { length: 80 }).notNull(),
+  page: varchar("page", { length: 200 }),
+  metadata: jsonb("metadata"),
+  occurredAt: timestamp("occurred_at").defaultNow().notNull(),
+});
+
+export const insertFosterYouthIntakeSchema = createInsertSchema(fosterYouthIntakes).omit({ id: true, createdAt: true, updatedAt: true, aiAnalyzedAt: true });
+export type InsertFosterYouthIntake = z.infer<typeof insertFosterYouthIntakeSchema>;
+export type FosterYouthIntake = typeof fosterYouthIntakes.$inferSelect;
+
+export const insertFosterYouthIntakeDocumentSchema = createInsertSchema(fosterYouthIntakeDocuments).omit({ id: true, uploadedAt: true });
+export type InsertFosterYouthIntakeDocument = z.infer<typeof insertFosterYouthIntakeDocumentSchema>;
+export type FosterYouthIntakeDocument = typeof fosterYouthIntakeDocuments.$inferSelect;
+
+export const insertFosterYouthEventSchema = createInsertSchema(fosterYouthEvents).omit({ id: true, occurredAt: true });
+export type InsertFosterYouthEvent = z.infer<typeof insertFosterYouthEventSchema>;
+export type FosterYouthEvent = typeof fosterYouthEvents.$inferSelect;

@@ -16,6 +16,7 @@ const HUB_TILES = [
   { url: "/foster-youth/rights", title: "My Rights", titleEs: "Mis Derechos", desc: "Plain-language federal + state rights: Chafee, ETV, FYI vouchers, Medicaid-to-26, school stability.", icon: Scale, color: "from-amber-500 to-orange-600", testId: "tile-rights" },
   { url: "/foster-youth/benefits", title: "State Benefits", titleEs: "Beneficios Estatales", desc: "All 50 states. Eligibility, application links, warm-handoff phone numbers. Texas first.", icon: Landmark, color: "from-emerald-500 to-green-600", testId: "tile-benefits" },
   { url: "/fafsa-navigator?audience=foster", title: "FAFSA & ETV", titleEs: "FAFSA y ETV", desc: "Independent-student status + Education and Training Voucher (up to $5,000/year, age up to 26).", icon: GraduationCap, color: "from-cyan-500 to-blue-600", testId: "tile-fafsa" },
+  { url: "/foster-youth/intake", title: "AI-assisted Intake", titleEs: "Admisión Asistida por IA", desc: "Tell us about you in 4 short steps. Upload documents. Get a personalized 30/60/90-day plan with eligible programs and warm-handoff numbers.", icon: Sparkles, color: "from-fuchsia-500 to-purple-600", testId: "tile-intake" },
 ];
 
 const SYSTEM_GAP_STATS = [

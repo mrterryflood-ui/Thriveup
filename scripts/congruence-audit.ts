@@ -132,16 +132,22 @@ async function auditClaim(claim: Claim): Promise<Result[]> {
         where = `source: ${p}`;
         break;
       }
-      // 2) Template-literal match: prefix in a data-testid template + suffix as a string literal in the same file.
+      // 2) Template-literal match: prefix in a data-testid template (in this file) + suffix as a
+      //    string literal in ANY of the claim's evidence files (template files often render values
+      //    sourced from a sibling data file, e.g. STATE_ILP). Searching only the same file caused
+      //    false negatives; cross-file search is safe because the set is scoped to this claim.
       let hit = false;
       for (const { prefix, suffix } of prefixCandidates) {
         if (t.includes(`data-testid={\`${prefix}`)) {
-          if (t.includes(`"${suffix}"`) || t.includes(`'${suffix}'`)) {
-            found = true;
-            hit = true;
-            where = `template: ${p} \`${prefix}\${...}\` + suffix "${suffix}"`;
-            break;
+          for (const { path: p2, text: t2 } of fileTexts) {
+            if (t2.includes(`"${suffix}"`) || t2.includes(`'${suffix}'`)) {
+              found = true;
+              hit = true;
+              where = `template: ${p} \`${prefix}\${...}\` + suffix "${suffix}" (from ${p2})`;
+              break;
+            }
           }
+          if (hit) break;
         }
       }
       if (hit) break;

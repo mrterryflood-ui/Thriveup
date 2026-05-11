@@ -1,10 +1,10 @@
 # Congruence Audit Report
-**Run at:** 2026-05-11T11:44:05.310Z
+**Run at:** 2026-05-11T12:19:08.353Z
 **Manifest version:** 1 (last updated 2026-05-11)
 **Audience:** Jim Currier (HUD FYI National Implementation Leader) — Austin meeting prep
 
 ## Summary
-- **PASS:** 127 / 127
+- **PASS:** 152 / 152
 - **WARN:** 0
 - **FAIL:** 0
 - **Verdict:** ✅ CONGRUENT
@@ -23,12 +23,12 @@ URL: `/foster-youth/toolkit`
 - ✓ url — HTTP 200
 - ✓ page-foster-youth-toolkit — test-id present (source: client/src/pages/foster-youth/toolkit.tsx)
 - ✓ card-progress — test-id present (source: client/src/pages/foster-youth/toolkit.tsx)
-- ✓ section-cat-identity-documents — test-id present (template: client/src/pages/foster-youth/toolkit.tsx `section-cat-${...}` + suffix "identity-documents")
-- ✓ section-cat-records-you-own — test-id present (template: client/src/pages/foster-youth/toolkit.tsx `section-cat-${...}` + suffix "records-you-own")
-- ✓ section-cat-money-banking — test-id present (template: client/src/pages/foster-youth/toolkit.tsx `section-cat-${...}` + suffix "money-banking")
-- ✓ section-cat-healthcare — test-id present (template: client/src/pages/foster-youth/toolkit.tsx `section-cat-${...}` + suffix "healthcare")
-- ✓ section-cat-housing — test-id present (template: client/src/pages/foster-youth/toolkit.tsx `section-cat-${...}` + suffix "housing")
-- ✓ section-cat-support-network — test-id present (template: client/src/pages/foster-youth/toolkit.tsx `section-cat-${...}` + suffix "support-network")
+- ✓ section-cat-identity-documents — test-id present (template: client/src/pages/foster-youth/toolkit.tsx `section-cat-${...}` + suffix "identity-documents" (from client/src/pages/foster-youth/toolkit.tsx))
+- ✓ section-cat-records-you-own — test-id present (template: client/src/pages/foster-youth/toolkit.tsx `section-cat-${...}` + suffix "records-you-own" (from client/src/pages/foster-youth/toolkit.tsx))
+- ✓ section-cat-money-banking — test-id present (template: client/src/pages/foster-youth/toolkit.tsx `section-cat-${...}` + suffix "money-banking" (from client/src/pages/foster-youth/toolkit.tsx))
+- ✓ section-cat-healthcare — test-id present (template: client/src/pages/foster-youth/toolkit.tsx `section-cat-${...}` + suffix "healthcare" (from client/src/pages/foster-youth/toolkit.tsx))
+- ✓ section-cat-housing — test-id present (template: client/src/pages/foster-youth/toolkit.tsx `section-cat-${...}` + suffix "housing" (from client/src/pages/foster-youth/toolkit.tsx))
+- ✓ section-cat-support-network — test-id present (template: client/src/pages/foster-youth/toolkit.tsx `section-cat-${...}` + suffix "support-network" (from client/src/pages/foster-youth/toolkit.tsx))
 
 ### ✅ FY-003 — Structured 90-day-before / 90-day-after Transition Plan with save-and-resume
 URL: `/foster-youth/transition-plan`
@@ -43,10 +43,10 @@ URL: `/foster-youth/transition-plan`
 URL: `/foster-youth/wellbeing`
 - ✓ url — HTTP 200
 - ✓ page-foster-youth-wellbeing — test-id present (source: client/src/pages/foster-youth/wellbeing.tsx)
-- ✓ card-item-phq1 — test-id present (template: client/src/pages/foster-youth/wellbeing.tsx `card-item-${...}` + suffix "phq1")
-- ✓ card-item-phq2 — test-id present (template: client/src/pages/foster-youth/wellbeing.tsx `card-item-${...}` + suffix "phq2")
-- ✓ card-item-gad1 — test-id present (template: client/src/pages/foster-youth/wellbeing.tsx `card-item-${...}` + suffix "gad1")
-- ✓ card-item-gad2 — test-id present (template: client/src/pages/foster-youth/wellbeing.tsx `card-item-${...}` + suffix "gad2")
+- ✓ card-item-phq1 — test-id present (template: client/src/pages/foster-youth/wellbeing.tsx `card-item-${...}` + suffix "phq1" (from client/src/pages/foster-youth/wellbeing.tsx))
+- ✓ card-item-phq2 — test-id present (template: client/src/pages/foster-youth/wellbeing.tsx `card-item-${...}` + suffix "phq2" (from client/src/pages/foster-youth/wellbeing.tsx))
+- ✓ card-item-gad1 — test-id present (template: client/src/pages/foster-youth/wellbeing.tsx `card-item-${...}` + suffix "gad1" (from client/src/pages/foster-youth/wellbeing.tsx))
+- ✓ card-item-gad2 — test-id present (template: client/src/pages/foster-youth/wellbeing.tsx `card-item-${...}` + suffix "gad2" (from client/src/pages/foster-youth/wellbeing.tsx))
 - ✓ card-housing — test-id present (source: client/src/pages/foster-youth/wellbeing.tsx)
 - ✓ card-food — test-id present (source: client/src/pages/foster-youth/wellbeing.tsx)
 - ✓ alert-crisis-banner — test-id present (source: client/src/pages/foster-youth/wellbeing.tsx)
@@ -56,35 +56,35 @@ URL: `/foster-youth/wellbeing`
 URL: `/foster-youth/rights`
 - ✓ url — HTTP 200
 - ✓ page-foster-youth-rights — test-id present (source: client/src/pages/foster-youth/rights.tsx)
-- ✓ accordion-right-chafee — test-id present (template: client/src/pages/foster-youth/rights.tsx `accordion-right-${...}` + suffix "chafee")
-- ✓ accordion-right-etv — test-id present (template: client/src/pages/foster-youth/rights.tsx `accordion-right-${...}` + suffix "etv")
-- ✓ accordion-right-fyi — test-id present (template: client/src/pages/foster-youth/rights.tsx `accordion-right-${...}` + suffix "fyi")
-- ✓ accordion-right-medicaid26 — test-id present (template: client/src/pages/foster-youth/rights.tsx `accordion-right-${...}` + suffix "medicaid26")
-- ✓ accordion-right-fafsa-independent — test-id present (template: client/src/pages/foster-youth/rights.tsx `accordion-right-${...}` + suffix "fafsa-independent")
-- ✓ accordion-right-mckinney-vento — test-id present (template: client/src/pages/foster-youth/rights.tsx `accordion-right-${...}` + suffix "mckinney-vento")
-- ✓ accordion-right-ferpa-credit — test-id present (template: client/src/pages/foster-youth/rights.tsx `accordion-right-${...}` + suffix "ferpa-credit")
-- ✓ accordion-right-rhya — test-id present (template: client/src/pages/foster-youth/rights.tsx `accordion-right-${...}` + suffix "rhya")
+- ✓ accordion-right-chafee — test-id present (template: client/src/pages/foster-youth/rights.tsx `accordion-right-${...}` + suffix "chafee" (from client/src/pages/foster-youth/rights.tsx))
+- ✓ accordion-right-etv — test-id present (template: client/src/pages/foster-youth/rights.tsx `accordion-right-${...}` + suffix "etv" (from client/src/pages/foster-youth/rights.tsx))
+- ✓ accordion-right-fyi — test-id present (template: client/src/pages/foster-youth/rights.tsx `accordion-right-${...}` + suffix "fyi" (from client/src/pages/foster-youth/rights.tsx))
+- ✓ accordion-right-medicaid26 — test-id present (template: client/src/pages/foster-youth/rights.tsx `accordion-right-${...}` + suffix "medicaid26" (from client/src/pages/foster-youth/rights.tsx))
+- ✓ accordion-right-fafsa-independent — test-id present (template: client/src/pages/foster-youth/rights.tsx `accordion-right-${...}` + suffix "fafsa-independent" (from client/src/pages/foster-youth/rights.tsx))
+- ✓ accordion-right-mckinney-vento — test-id present (template: client/src/pages/foster-youth/rights.tsx `accordion-right-${...}` + suffix "mckinney-vento" (from client/src/pages/foster-youth/rights.tsx))
+- ✓ accordion-right-ferpa-credit — test-id present (template: client/src/pages/foster-youth/rights.tsx `accordion-right-${...}` + suffix "ferpa-credit" (from client/src/pages/foster-youth/rights.tsx))
+- ✓ accordion-right-rhya — test-id present (template: client/src/pages/foster-youth/rights.tsx `accordion-right-${...}` + suffix "rhya" (from client/src/pages/foster-youth/rights.tsx))
 
 ### ✅ FY-006 — Texas-specific rights: PAL, Extended Foster Care to 21, ID fee waiver, Tuition waiver
 URL: `/foster-youth/rights`
 - ✓ url — HTTP 200
-- ✓ accordion-right-tx-pal — test-id present (template: client/src/pages/foster-youth/rights.tsx `accordion-right-${...}` + suffix "tx-pal")
-- ✓ accordion-right-tx-extended — test-id present (template: client/src/pages/foster-youth/rights.tsx `accordion-right-${...}` + suffix "tx-extended")
-- ✓ accordion-right-tx-id-fee — test-id present (template: client/src/pages/foster-youth/rights.tsx `accordion-right-${...}` + suffix "tx-id-fee")
-- ✓ accordion-right-tx-tuition — test-id present (template: client/src/pages/foster-youth/rights.tsx `accordion-right-${...}` + suffix "tx-tuition")
+- ✓ accordion-right-tx-pal — test-id present (template: client/src/pages/foster-youth/rights.tsx `accordion-right-${...}` + suffix "tx-pal" (from client/src/pages/foster-youth/rights.tsx))
+- ✓ accordion-right-tx-extended — test-id present (template: client/src/pages/foster-youth/rights.tsx `accordion-right-${...}` + suffix "tx-extended" (from client/src/pages/foster-youth/rights.tsx))
+- ✓ accordion-right-tx-id-fee — test-id present (template: client/src/pages/foster-youth/rights.tsx `accordion-right-${...}` + suffix "tx-id-fee" (from client/src/pages/foster-youth/rights.tsx))
+- ✓ accordion-right-tx-tuition — test-id present (template: client/src/pages/foster-youth/rights.tsx `accordion-right-${...}` + suffix "tx-tuition" (from client/src/pages/foster-youth/rights.tsx))
 
 ### ✅ FY-007 — State Benefits Navigator covers all 50 states + DC, Texas first with full detail
 URL: `/foster-youth/benefits`
 - ✓ url — HTTP 200
 - ✓ page-foster-youth-benefits — test-id present (source: client/src/pages/foster-youth/benefits.tsx)
 - ✓ select-state-trigger — test-id present (source: client/src/pages/foster-youth/benefits.tsx)
-- ✓ option-state-TX — test-id present (template: client/src/pages/foster-youth/benefits.tsx `option-state-${...}` + suffix "TX")
-- ✓ option-state-CA — test-id present (template: client/src/pages/foster-youth/benefits.tsx `option-state-${...}` + suffix "CA")
-- ✓ option-state-NY — test-id present (template: client/src/pages/foster-youth/benefits.tsx `option-state-${...}` + suffix "NY")
-- ✓ card-benefit-tx-pal — test-id present (template: client/src/pages/foster-youth/benefits.tsx `card-benefit-${...}` + suffix "tx-pal")
-- ✓ card-benefit-fed-medicaid — test-id present (template: client/src/pages/foster-youth/benefits.tsx `card-benefit-${...}` + suffix "fed-medicaid")
-- ✓ card-benefit-fed-fyi — test-id present (template: client/src/pages/foster-youth/benefits.tsx `card-benefit-${...}` + suffix "fed-fyi")
-- ✓ card-benefit-fed-etv — test-id present (template: client/src/pages/foster-youth/benefits.tsx `card-benefit-${...}` + suffix "fed-etv")
+- ✓ option-state-TX — test-id present (template: client/src/pages/foster-youth/benefits.tsx `option-state-${...}` + suffix "TX" (from client/src/pages/foster-youth/benefits.tsx))
+- ✓ option-state-CA — test-id present (template: client/src/pages/foster-youth/benefits.tsx `option-state-${...}` + suffix "CA" (from client/src/data/foster-youth/state-ilp.ts))
+- ✓ option-state-NY — test-id present (template: client/src/pages/foster-youth/benefits.tsx `option-state-${...}` + suffix "NY" (from client/src/data/foster-youth/state-ilp.ts))
+- ✓ card-benefit-tx-pal — test-id present (template: client/src/pages/foster-youth/benefits.tsx `card-benefit-${...}` + suffix "tx-pal" (from client/src/data/foster-youth/state-ilp.ts))
+- ✓ card-benefit-fed-medicaid — test-id present (template: client/src/pages/foster-youth/benefits.tsx `card-benefit-${...}` + suffix "fed-medicaid" (from client/src/pages/foster-youth/benefits.tsx))
+- ✓ card-benefit-fed-fyi — test-id present (template: client/src/pages/foster-youth/benefits.tsx `card-benefit-${...}` + suffix "fed-fyi" (from client/src/pages/foster-youth/benefits.tsx))
+- ✓ card-benefit-fed-etv — test-id present (template: client/src/pages/foster-youth/benefits.tsx `card-benefit-${...}` + suffix "fed-etv" (from client/src/pages/foster-youth/benefits.tsx))
 
 ### ✅ FY-008 — FAFSA navigator with foster-youth (independent-student + ETV) mode
 URL: `/fafsa-navigator?audience=foster`
@@ -159,8 +159,8 @@ URL: `/foster-youth`
 ### ✅ FY-011-toolkit — Bilingual EN/ES on toolkit (each item shows English title + Spanish title)
 URL: `/foster-youth/toolkit`
 - ✓ url — HTTP 200
-- ✓ text-item-title-es-id-ssn — test-id present (template: client/src/pages/foster-youth/toolkit.tsx `text-item-title-es-${...}` + suffix "id-ssn")
-- ✓ text-item-title-es-rec-medical — test-id present (template: client/src/pages/foster-youth/toolkit.tsx `text-item-title-es-${...}` + suffix "rec-medical")
+- ✓ text-item-title-es-id-ssn — test-id present (template: client/src/pages/foster-youth/toolkit.tsx `text-item-title-es-${...}` + suffix "id-ssn" (from client/src/pages/foster-youth/toolkit.tsx))
+- ✓ text-item-title-es-rec-medical — test-id present (template: client/src/pages/foster-youth/toolkit.tsx `text-item-title-es-${...}` + suffix "rec-medical" (from client/src/pages/foster-youth/toolkit.tsx))
 
 ### ✅ FY-011-transition — Bilingual EN/ES on transition plan (Spanish page subtitle)
 URL: `/foster-youth/transition-plan`
@@ -171,15 +171,15 @@ URL: `/foster-youth/transition-plan`
 URL: `/foster-youth/wellbeing`
 - ✓ url — HTTP 200
 - ✓ text-wb-title-es — test-id present (source: client/src/pages/foster-youth/wellbeing.tsx)
-- ✓ text-question-es-phq1 — test-id present (template: client/src/pages/foster-youth/wellbeing.tsx `text-question-es-${...}` + suffix "phq1")
-- ✓ text-question-es-gad1 — test-id present (template: client/src/pages/foster-youth/wellbeing.tsx `text-question-es-${...}` + suffix "gad1")
+- ✓ text-question-es-phq1 — test-id present (template: client/src/pages/foster-youth/wellbeing.tsx `text-question-es-${...}` + suffix "phq1" (from client/src/pages/foster-youth/wellbeing.tsx))
+- ✓ text-question-es-gad1 — test-id present (template: client/src/pages/foster-youth/wellbeing.tsx `text-question-es-${...}` + suffix "gad1" (from client/src/pages/foster-youth/wellbeing.tsx))
 
 ### ✅ FY-011-rights — Bilingual EN/ES on rights (Spanish title under each right)
 URL: `/foster-youth/rights`
 - ✓ url — HTTP 200
-- ✓ text-right-title-es-chafee — test-id present (template: client/src/pages/foster-youth/rights.tsx `text-right-title-es-${...}` + suffix "chafee")
-- ✓ text-right-title-es-etv — test-id present (template: client/src/pages/foster-youth/rights.tsx `text-right-title-es-${...}` + suffix "etv")
-- ✓ text-right-title-es-tx-pal — test-id present (template: client/src/pages/foster-youth/rights.tsx `text-right-title-es-${...}` + suffix "tx-pal")
+- ✓ text-right-title-es-chafee — test-id present (template: client/src/pages/foster-youth/rights.tsx `text-right-title-es-${...}` + suffix "chafee" (from client/src/pages/foster-youth/rights.tsx))
+- ✓ text-right-title-es-etv — test-id present (template: client/src/pages/foster-youth/rights.tsx `text-right-title-es-${...}` + suffix "etv" (from client/src/pages/foster-youth/rights.tsx))
+- ✓ text-right-title-es-tx-pal — test-id present (template: client/src/pages/foster-youth/rights.tsx `text-right-title-es-${...}` + suffix "tx-pal" (from client/src/pages/foster-youth/rights.tsx))
 
 ### ✅ FY-011-benefits — Bilingual EN/ES on benefits (Spanish page subtitle)
 URL: `/foster-youth/benefits`
@@ -210,6 +210,43 @@ URL: `/foster-youth/wellbeing`
 URL: `/foster-youth/wellbeing`
 - ✓ url — HTTP 200
 - ✓ action-mh — test-id present (source: client/src/pages/foster-youth/wellbeing.tsx)
+
+### ✅ FY-016-hub-intake-tile — AI-assisted Intake tile surfaced from the Foster Youth hub
+URL: `/foster-youth`
+- ✓ url — HTTP 200
+- ✓ tile-intake — test-id present (source: client/src/pages/foster-youth/hub.tsx)
+
+### ✅ FY-016-intake-wizard — Live AI-assisted Intake wizard: 4 steps (basics, checklist, document upload, AI plan) with honest disclosure and crisis routing
+URL: `/foster-youth/intake`
+- ✓ url — HTTP 200
+- ✓ page-foster-youth-intake — test-id present (source: client/src/pages/foster-youth/intake.tsx)
+- ✓ alert-honest — test-id present (source: client/src/pages/foster-youth/intake.tsx)
+- ✓ stepper — test-id present (source: client/src/pages/foster-youth/intake.tsx)
+- ✓ card-step-1 — test-id present (source: client/src/pages/foster-youth/intake.tsx)
+- ✓ input-first-name — test-id present (source: client/src/pages/foster-youth/intake.tsx)
+- ✓ input-age — test-id present (source: client/src/pages/foster-youth/intake.tsx)
+- ✓ input-age-out-date — test-id present (source: client/src/pages/foster-youth/intake.tsx)
+- ✓ select-state-trigger — test-id present (source: client/src/pages/foster-youth/intake.tsx)
+- ✓ needs-checklist — test-id present (source: client/src/pages/foster-youth/intake.tsx)
+- ✓ button-next-step-2 — test-id present (source: client/src/pages/foster-youth/intake.tsx)
+
+### ✅ FY-017-cohort-analytics — Cohort analytics dashboard segments intakes/documents/events so each user has a data story (admin-only)
+URL: `/foster-youth/cohort-analytics`
+- ✓ url — HTTP 200
+- ✓ page-foster-youth-cohort-analytics — test-id present (source: client/src/pages/foster-youth/cohort-analytics.tsx)
+- ✓ text-analytics-title — test-id present (source: client/src/pages/foster-youth/cohort-analytics.tsx)
+- ✓ select-window-trigger — test-id present (source: client/src/pages/foster-youth/cohort-analytics.tsx)
+- ✓ card-stat-intakes — test-id present (source: client/src/pages/foster-youth/cohort-analytics.tsx)
+- ✓ card-stat-analyzed — test-id present (source: client/src/pages/foster-youth/cohort-analytics.tsx)
+- ✓ card-stat-documents — test-id present (source: client/src/pages/foster-youth/cohort-analytics.tsx)
+- ✓ card-by-state — test-id present (source: client/src/pages/foster-youth/cohort-analytics.tsx)
+- ✓ card-by-event — test-id present (source: client/src/pages/foster-youth/cohort-analytics.tsx)
+- ✓ card-recent-intakes — test-id present (source: client/src/pages/foster-youth/cohort-analytics.tsx)
+
+### ✅ FY-018-50-states — State Benefits navigator covers all 50 states + DC, sourced from STATE_ILP catalog (blank fields where unverified, no conjecture)
+URL: `/foster-youth/benefits`
+- ✓ url — HTTP 200
+- ✓ page-foster-youth-benefits — test-id present (source: client/src/pages/foster-youth/benefits.tsx)
 
 ## External URLs
 - ✅ **EXT-LB** `https://lifetransitionsaid.org/` — HTTP 200, keywords present

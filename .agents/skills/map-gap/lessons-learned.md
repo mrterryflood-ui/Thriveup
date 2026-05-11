@@ -123,3 +123,43 @@ These lessons have been converted into automated health checks in the MAP phase:
 **Fix (now standing rule):** Every claim names exactly one `evidenceUrl` and an optional `evidenceFiles[]` allowlist. The audit ONLY scans those files for the claim's test IDs — never the whole tree. If a claim genuinely needs evidence from two files (e.g. a page using a shared component), list both explicitly. If you can't, you don't have the evidence.
 
 **Why the cross-file scan existed in the first place:** convenience — it made early FAILs go away faster. That's the trap. Convenience masks honesty. Trade convenience for truth, every time.
+
+---
+
+## P-L06 (May 11, 2026) — Template-literal test IDs need cross-file evidence allowlists, not file-local-only scans
+
+**Lesson:** When a page renders `data-testid={`prefix-${x}`}` from a list imported from a sibling data file (e.g. `STATE_ILP`), the auditor's template-literal mode needs to find the suffix literal somewhere in the claim's evidence set — not just in the same file as the template. The original implementation searched only the file containing the template; that produced false negatives whenever the data was sourced from a sibling module (the honest pattern for keeping data and presentation separate).
+
+**Wrong move:** Either (a) inlining literal test IDs as comments in the template file just to satisfy the auditor (fake congruence), or (b) reverting to a tree-wide scan (false positives across pages).
+
+**Right move:** Keep the per-claim scope intact. Within that scope, allow the suffix literal to live in any of the claim's `evidenceFiles[]`. The template stays in the page; the suffix lives in the data. Both files are explicitly listed by the manifest, so the trust boundary is preserved. See the audit fix in `scripts/congruence-audit.ts` (May 11, 2026) and FY-007 / FY-018 in `docs/grants/CONGRUENCE-MANIFEST.json`.
+
+**Standing rule:** If a page-level test ID is dynamically generated from a sibling data module, the manifest entry MUST list both the page and the data file under `evidenceUrl` + `evidenceFiles[]`. No exceptions. If you can't list both, you don't have the evidence.
+
+## P-L07 (May 11, 2026) — Admin-gated routes will FAIL e2e with non-admin sessions; that's PASS, not FAIL
+
+**Lesson:** When an e2e harness walks a route that is intentionally admin-gated, a 401 + on-page error alert is the correct, demonstrable behavior — not a regression. Test plans should explicitly accept "either renders the dashboard OR renders the unauthorized alert" for such routes; otherwise the harness reports a failure that is actually a working access control.
+
+**Wrong move:** Loosen the admin gate so the test passes (catastrophic — leaks intake telemetry).
+
+**Right move:** Update the test plan acceptance criterion. For admin-gated UI, prove (a) the page renders without crashing, (b) the title/controls render, (c) the unauthorized alert renders for non-admin. If the test must verify the data path, give the harness an admin-role override (per the `testing` skill's clerk-auth override pattern), don't open the route.
+
+## P-L08 (May 11, 2026) — Public, no-auth wizards need capability tokens. Period.
+
+**Lesson:** I shipped the foster-youth intake wizard with all endpoints (`GET/PATCH/upload-url/document/analyze`) gated only by "URL knows the intake ID." The architect immediately flagged it as severe: anyone who guesses or scrapes an ID can read/update someone else's record (IDOR), trigger paid LLM calls (Anthropic+OpenAI), or mint signed object-storage upload URLs. Worse: the original POST handler accepted `body.id` and upserted, so a single replayed POST could overwrite an existing intake.
+
+**Wrong instinct that caused this:** "It's a public tool — no auth means no auth." That conflates *user authentication* with *resource authorization*. A public tool can require zero login AND still need per-resource access control.
+
+**Right pattern (now standing rule for any unauthenticated wizard that mutates server state):**
+1. **Server generates the id.** Strip `body.id` on create. No exceptions.
+2. **Server generates a per-row capability token** (`randomBytes(24).toString("base64url")`) and stores it on the row.
+3. **Return the token ONCE in the create response** — client persists to `localStorage` (paired with the id).
+4. **Every subsequent op requires the token via `x-intake-token` header** (or query string fallback). Constant-time compare with `timingSafeEqual`.
+5. **Privileged roles (admin/teacher/case_manager) bypass** so internal staff still have access.
+6. **Per-IP rate limits on the expensive endpoints** (AI analyze, signed upload URL) using a small in-memory bucket Map, with `Retry-After` headers. Privileged roles skip the limiter.
+7. **Validate everything the client sends:** allowlist of doc types, allowlist of content types, max file size, max docs per intake, length caps on text fields. Don't trust the client even after the token check.
+8. **Strip the token from every read response** (defense in depth — even admin endpoints don't need to see other youths' tokens).
+
+**Verification I ran before declaring done:** GET without token → 403 · GET wrong token → 403 · GET right token → 200 · analyze without token → 403 · upload-url without token → 403 · upload-url with bad docType → 400 · POST with `body.id` set → returns a NEW server-generated id. All passed.
+
+**The deeper lesson:** Honest disclosure isn't only about what we say in copy — it's about what the system actually does. A page that says "no login required, you control your information" is a LIE if anyone with the URL can read or overwrite the data. Truth lives in the code path, not the marketing.

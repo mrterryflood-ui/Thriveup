@@ -83,4 +83,24 @@ test.describe("Foster Youth Aging Out — congruence walkthrough", () => {
     await expect(page.getByTestId("card-benefit-fed-medicaid")).toBeVisible();
     await expect(page.getByTestId("card-benefit-fed-fyi")).toBeVisible();
   });
+
+  test("AI-assisted Intake wizard renders step 1 with honest disclosure + can advance", async ({ page }) => {
+    await page.goto(`${BASE}/foster-youth/intake`);
+    await expect(page.getByTestId("page-foster-youth-intake")).toBeVisible();
+    await expect(page.getByTestId("alert-honest")).toBeVisible();
+    await expect(page.getByTestId("stepper")).toBeVisible();
+    await expect(page.getByTestId("card-step-1")).toBeVisible();
+    await page.getByTestId("input-first-name").fill("Marcus");
+    await page.getByTestId("input-age").fill("18");
+    await page.getByTestId("input-age-out-date").fill("2026-08-01");
+    // state defaults to TX in the form
+    await expect(page.getByTestId("button-next-step-2")).toBeEnabled();
+  });
+
+  test("Cohort analytics page renders headers and stat cards", async ({ page }) => {
+    await page.goto(`${BASE}/foster-youth/cohort-analytics`);
+    await expect(page.getByTestId("page-foster-youth-cohort-analytics")).toBeVisible();
+    await expect(page.getByTestId("text-analytics-title")).toBeVisible();
+    await expect(page.getByTestId("select-window-trigger")).toBeVisible();
+  });
 });
