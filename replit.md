@@ -77,6 +77,20 @@ An AI-powered national community infrastructure platform that connects individua
 - Every change commits to this memory file. No silent failures.
 - Memory continuity is non-negotiable; every session ENDS with a memory commit; every session BEGINS by reading this file. If a fact, person, deadline, project, partner, lesson, or commitment is not here, it does not exist next session.
 
+## Foster Youth Aging Out experience (built May 11, 2026 for Jim Currier visit)
+- **6 pages under `client/src/pages/foster-youth/`**: `hub.tsx` (`/foster-youth`) · `toolkit.tsx` · `transition-plan.tsx` · `wellbeing.tsx` (PHQ-2 + GAD-2 + housing/food, crisis routing on red flags) · `rights.tsx` (federal + Texas, every entry shows the legal source) · `benefits.tsx` (50 states + DC, Texas full-detail). Bilingual EN/ES, no login, localStorage persistence, crisis numbers (988/741741/1-800-RUNAWAY) on every page. Routes registered in `client/src/App.tsx`; sidebar nav array `fosterYouthItems` defined in `client/src/components/app-sidebar.tsx` (JSX SidebarGroup render still TODO).
+- **FAFSA foster mode**: `/fafsa-navigator?audience=foster` shows an Independent-Student + ETV callout. Root testid is `page-fafsa-navigator` (renamed from `fafsa-navigator` for audit consistency).
+- **Federal coverage mapped & cited**: Chafee (42 USC §677), ETV (§677(i)), HUD FYI (24 CFR §982 youth set-aside), ACA §2004 Medicaid-to-26, FAFSA Independent (HEA §480(d)), McKinney-Vento, RHYA, plus Texas PAL/Extended FC/ID waiver/Tuition waiver.
+- **Briefing pack**: `docs/grants/Foster-Youth-Transition-Briefing.md` (live-URL table; do not brief if audit fails) · `Foster-Youth-Jim-Currier-Meeting-Prep.md` (30-min click-by-click walkthrough + Q&A + ask) · `Foster-Youth-Outcome-Tracking-Plan.md` (30-day plan to segment LifeBridge analytics).
+
+## Self-Audit Congruence System (NEW — use for every funder briefing)
+- **Iron rule:** Audio = video. A claim in a briefing must be clickable on a live URL and verifiable via a `data-testid`.
+- **Manifest:** `docs/grants/CONGRUENCE-MANIFEST.json` — every claim → URL → required test IDs → evidence file.
+- **Audit:** `npx tsx scripts/congruence-audit.ts` — fetches URLs, statically asserts test IDs exist (literal AND template-literal-aware), probes external URLs for 200 + keywords. Writes `.agents/congruence/last-run.md`. Exits non-zero on any FAIL.
+- **E2E:** `npx playwright test tests/e2e/foster-youth-journey.spec.ts` walks hub → toolkit → transition-plan → wellbeing → rights → benefits.
+- **Latest run (May 11, 2026): 127/127 PASS — verdict CONGRUENT.** (Hardened post-architect-review: query string preserved on internal probe; external keyword miss is FAIL not WARN; crisis routing + bilingual coverage proven on all 6 pages via shared `<CrisisStrip />`; test-id search SCOPED to each claim's `evidenceUrl` (+ optional `evidenceFiles[]`) — no more cross-file false positives.)
+- **Discipline:** Add a manifest entry BEFORE adding a claim to a briefing. No FAILs before any meeting. See lessons P-L04 + P-L05 in `.agents/skills/map-gap/lessons-learned.md`.
+
 ## Gotchas
 - **"CEO" vs. "President":** Always use "President" for Dr. Flood in public-facing copy; "CEO" is reserved for for-profit contexts.
 - **Personal Emails:** Never use personal Gmail addresses in public copy or grant proposals; always institutional. Confirmed institutional emails: `terryflood@thrivingcommunitiesforall.com` (Dr. Flood, all proposals), `msisnett@thrivingcommunitiesforall.com` (Meredith, non-City work only).

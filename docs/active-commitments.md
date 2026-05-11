@@ -737,3 +737,34 @@ Almost removed `sankofa-feminine-health` from the registry because `yourfeminine
 **DB now reflects truth:**
 - `sankofa-feminine-health` restored: url=`herhealthmatters2.com`, public_visible=true, alias `myhealthybreast.com` documented in description
 - Updated catalog count: 13 live (was 12), 9 hidden (was 9 incl. feminine, now 9 truly dead)
+
+---
+## Foster Youth Aging Out — comprehensive build for Jim Currier (May 11, 2026)
+
+**Trigger:** Jim Currier (HUD FYI National Implementation Leader) Austin visit. Iron rule: AI assistance with no conjecture or assumptions. Audio = video. Multidisciplinary lens (impl science · engineering · social work · customer discovery · UX · marketing · community health).
+
+**Built (all live, all clickable):**
+- 6 foster-youth pages under `client/src/pages/foster-youth/`: hub · toolkit · transition-plan · wellbeing · rights · benefits — bilingual EN/ES, no login, crisis routing on every page (988 / 741741 / 1-800-RUNAWAY).
+- Routes wired in `client/src/App.tsx` (lazy imports + 6 routes before `/fafsa-navigator`).
+- Sidebar nav array `fosterYouthItems` added in `client/src/components/app-sidebar.tsx` (NOTE: array exists; SidebarGroup JSX render of this group still needs to be added — left as a follow-up since the routes are reachable directly).
+- FAFSA navigator gained foster-youth mode at `/fafsa-navigator?audience=foster` (callout banner + Independent-Student/ETV pathway). Renamed root testid `fafsa-navigator` → `page-fafsa-navigator`.
+- State Benefits Navigator covers all 50 states + DC; Texas full-detail today, others on rolling buildout (federal benefits + state Chafee/ILP search pointer).
+
+**Congruence system (NEW — keep using this for every funder briefing):**
+- `docs/grants/CONGRUENCE-MANIFEST.json` — 15 claims (FY-001..FY-015) + 4 external URL checks. Each claim → URL → required test IDs → evidence file.
+- `scripts/congruence-audit.ts` — fetches each URL, asserts each test ID is present (literal OR template-literal pattern), checks external URLs respond 200 with expected keywords. Writes `.agents/congruence/last-run.md`. Exit non-zero if any FAIL. **Run before every briefing.**
+- Latest run: **PASS 83 / 83 — VERDICT: CONGRUENT.**
+- Playwright e2e at `tests/e2e/foster-youth-journey.spec.ts` — walks the entire journey.
+
+**Briefing artifacts:**
+- `docs/grants/Foster-Youth-Transition-Briefing.md` — every claim links to a working URL; honest disclosure first (501(c)(3) pending, not a placing agency, no current state ILP contract). Do not brief if congruence audit shows any FAIL.
+- `docs/grants/Foster-Youth-Jim-Currier-Meeting-Prep.md` — 30-minute click-by-click walkthrough; anticipated Q&A; the ask (FYI rubric disqualifiers, PHA introductions, evaluation evidence HUD wants).
+- `docs/grants/Foster-Youth-Outcome-Tracking-Plan.md` — 30-day plan to segment LifeBridge analytics for foster-youth cohort. Today we honestly cannot report foster-youth-specific outcomes; this plan closes the gap.
+
+**Federal program coverage mapped & cited:** Chafee (42 USC §677) · ETV (42 USC §677(i)) · HUD FYI (24 CFR §982 youth set-aside) · ACA §2004 Medicaid-to-26 · FAFSA Independent-Student (HEA §480(d)) · McKinney-Vento (42 USC §11431) · RHYA (34 USC §11201) · TX PAL · TX Extended FC (Tex. Fam. Code §263.602) · TX ID waiver (Tex. Transp. Code §521.1811) · TX Tuition waiver (Tex. Educ. Code §54.366).
+
+**Next-thread queue:**
+- Render `fosterYouthItems` SidebarGroup in app-sidebar.tsx JSX (array exists, JSX render is pending).
+- Build out states 2–50 in benefits navigator with named ILP coordinators + warm-handoff phone numbers (currently TX is full-detail; others use federal-only + ILP search pointer).
+- Begin Week 1 of Outcome Tracking Plan (event_log schema + `useTracker("foster-youth")`).
+- Post-meeting: capture every commitment Jim makes → log here.

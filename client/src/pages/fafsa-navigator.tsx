@@ -201,6 +201,7 @@ function ExampleCard({ title, description }: { title: string; description: strin
 
 export default function FafsaNavigatorPage() {
   const [activeTab, setActiveTab] = useState("wizard");
+  const isFosterMode = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("audience") === "foster";
   const [wizardStep, setWizardStep] = useState(0);
   const [checkedItems, setCheckedItems] = useState<Set<string>>(new Set());
   const [estimatorData, setEstimatorData] = useState<EstimatorData>({
@@ -281,7 +282,7 @@ export default function FafsaNavigatorPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50/50 to-background dark:from-blue-950/10 dark:to-background" data-testid="fafsa-navigator">
+    <div className="min-h-screen bg-gradient-to-b from-blue-50/50 to-background dark:from-blue-950/10 dark:to-background" data-testid="page-fafsa-navigator">
       <div className="max-w-5xl mx-auto p-4 md:p-6">
         <div className="text-center mb-6">
           <div className="flex items-center justify-center gap-2 mb-2">
@@ -346,6 +347,26 @@ export default function FafsaNavigatorPage() {
             )}
           </CardContent>
         </Card>
+
+        {isFosterMode && (
+          <div className="rounded-lg border-2 border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-950/30 p-4 mb-4" data-testid="callout-foster-mode" data-page-testid="page-fafsa-navigator">
+            <div className="flex items-start gap-3">
+              <HandHeart className="h-5 w-5 text-amber-700 dark:text-amber-400 shrink-0 mt-1" />
+              <div className="flex-1">
+                <h3 className="font-bold text-amber-900 dark:text-amber-100 mb-1" data-testid="text-foster-mode-title">Foster Youth Mode — Independent Student + ETV pathway</h3>
+                <p className="text-sm text-amber-900 dark:text-amber-100 mb-2" data-testid="text-foster-mode-body">
+                  If you spent any time in foster care after age 13, you file FAFSA as an <strong>independent student</strong> — your parents' income does not count. On top of Pell Grant, you may also qualify for the <strong>Education and Training Voucher (ETV)</strong> — up to <strong>$5,000/year through age 26</strong>. Combine both for the strongest aid package.
+                </p>
+                <ul className="text-sm text-amber-900 dark:text-amber-100 list-disc pl-5 space-y-1" data-testid="list-foster-mode-actions">
+                  <li>On FAFSA, answer <strong>YES</strong> to: "Were you in foster care, an orphan, or a ward of the court at any time since you turned 13?"</li>
+                  <li>Apply for ETV through your state ETV coordinator or <a href="https://www.fc2success.org/programs/education-training-voucher-program/" target="_blank" rel="noreferrer" className="underline">Foster Care to Success</a>.</li>
+                  <li>If you're in Texas: combine with the <strong>Texas Tuition and Fee Waiver</strong> (Texas Education Code §54.366) for any Texas public college.</li>
+                  <li>See your full rights at <a href="/foster-youth/rights" className="underline">Foster Youth — My Rights</a>.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        )}
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
           <TabsList className="grid grid-cols-3 md:grid-cols-6 w-full">

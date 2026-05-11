@@ -1,0 +1,198 @@
+{
+  "$comment": "Audio = video. Every claim in the Foster Youth Transition briefing maps to a URL + one or more test IDs that prove the claim is demonstrable. The congruence-audit script consumes this file. UPDATE THIS WHENEVER YOU ADD OR REMOVE A CLAIM IN THE BRIEFING.",
+  "version": 1,
+  "lastUpdated": "2026-05-11",
+  "owners": ["Dr. Terry Flood (President, TCAF)"],
+  "audience": "Jim Currier (HUD FYI National Implementation Leader) — Austin meeting prep",
+  "claims": [
+    {
+      "id": "FY-001",
+      "claim": "Foster Youth Aging Out hub exists with Marcus narrative anchor",
+      "url": "/foster-youth",
+      "testIds": ["page-foster-youth-hub", "card-marcus", "text-marcus-title", "section-tools"],
+      "evidenceUrl": "client/src/pages/foster-youth/hub.tsx"
+    },
+    {
+      "id": "FY-002",
+      "claim": "Aging-Out Toolkit with categorized checklist (identity, records, money, healthcare, housing, support)",
+      "url": "/foster-youth/toolkit",
+      "testIds": ["page-foster-youth-toolkit", "card-progress", "section-cat-identity-documents", "section-cat-records-you-own", "section-cat-money-banking", "section-cat-healthcare", "section-cat-housing", "section-cat-support-network"],
+      "evidenceUrl": "client/src/pages/foster-youth/toolkit.tsx"
+    },
+    {
+      "id": "FY-003",
+      "claim": "Structured 90-day-before / 90-day-after Transition Plan with save-and-resume",
+      "url": "/foster-youth/transition-plan",
+      "testIds": ["page-foster-youth-transition-plan", "tab-before", "tab-after", "button-save", "button-print"],
+      "evidenceUrl": "client/src/pages/foster-youth/transition-plan.tsx"
+    },
+    {
+      "id": "FY-004",
+      "claim": "Wellbeing Check-in uses validated PHQ-2 + GAD-2 + housing/food screen with crisis-routing on red flags",
+      "url": "/foster-youth/wellbeing",
+      "testIds": ["page-foster-youth-wellbeing", "card-item-phq1", "card-item-phq2", "card-item-gad1", "card-item-gad2", "card-housing", "card-food", "alert-crisis-banner", "button-see-results"],
+      "evidenceUrl": "client/src/pages/foster-youth/wellbeing.tsx"
+    },
+    {
+      "id": "FY-005",
+      "claim": "My Rights — federal: Chafee, ETV, FYI, Medicaid-to-26, FAFSA independent, McKinney-Vento, credit-report, RHYA",
+      "url": "/foster-youth/rights",
+      "testIds": ["page-foster-youth-rights", "accordion-right-chafee", "accordion-right-etv", "accordion-right-fyi", "accordion-right-medicaid26", "accordion-right-fafsa-independent", "accordion-right-mckinney-vento", "accordion-right-ferpa-credit", "accordion-right-rhya"],
+      "evidenceUrl": "client/src/pages/foster-youth/rights.tsx"
+    },
+    {
+      "id": "FY-006",
+      "claim": "Texas-specific rights: PAL, Extended Foster Care to 21, ID fee waiver, Tuition waiver",
+      "url": "/foster-youth/rights",
+      "testIds": ["accordion-right-tx-pal", "accordion-right-tx-extended", "accordion-right-tx-id-fee", "accordion-right-tx-tuition"],
+      "evidenceUrl": "client/src/pages/foster-youth/rights.tsx"
+    },
+    {
+      "id": "FY-007",
+      "claim": "State Benefits Navigator covers all 50 states + DC, Texas first with full detail",
+      "url": "/foster-youth/benefits",
+      "testIds": ["page-foster-youth-benefits", "select-state-trigger", "option-state-TX", "option-state-CA", "option-state-NY", "card-benefit-tx-pal", "card-benefit-fed-medicaid", "card-benefit-fed-fyi", "card-benefit-fed-etv"],
+      "evidenceUrl": "client/src/pages/foster-youth/benefits.tsx"
+    },
+    {
+      "id": "FY-008",
+      "claim": "FAFSA navigator with foster-youth (independent-student + ETV) mode",
+      "url": "/fafsa-navigator?audience=foster",
+      "testIds": ["page-fafsa-navigator", "callout-foster-mode"],
+      "evidenceUrl": "client/src/pages/fafsa-navigator.tsx"
+    },
+    {
+      "id": "FY-009-hub",
+      "claim": "Crisis routing visible on hub: 988, 741741 text, 1-800-RUNAWAY",
+      "url": "/foster-youth",
+      "testIds": ["banner-crisis", "link-crisis-988", "link-crisis-text", "link-crisis-runaway"],
+      "evidenceUrl": "client/src/pages/foster-youth/hub.tsx"
+    },
+    {
+      "id": "FY-009-toolkit",
+      "claim": "Crisis routing visible on toolkit",
+      "url": "/foster-youth/toolkit",
+      "testIds": ["banner-crisis", "link-crisis-988", "link-crisis-text", "link-crisis-runaway"],
+      "evidenceUrl": "client/src/components/foster-youth/crisis-strip.tsx"
+    },
+    {
+      "id": "FY-009-transition",
+      "claim": "Crisis routing visible on transition plan",
+      "url": "/foster-youth/transition-plan",
+      "testIds": ["banner-crisis", "link-crisis-988", "link-crisis-text", "link-crisis-runaway"],
+      "evidenceUrl": "client/src/components/foster-youth/crisis-strip.tsx"
+    },
+    {
+      "id": "FY-009-wellbeing",
+      "claim": "Crisis routing visible on wellbeing (in-page banner)",
+      "url": "/foster-youth/wellbeing",
+      "testIds": ["alert-crisis-banner", "link-crisis-988", "link-crisis-text", "link-crisis-runaway"],
+      "evidenceUrl": "client/src/pages/foster-youth/wellbeing.tsx"
+    },
+    {
+      "id": "FY-009-rights",
+      "claim": "Crisis routing visible on rights",
+      "url": "/foster-youth/rights",
+      "testIds": ["banner-crisis", "link-crisis-988", "link-crisis-text", "link-crisis-runaway"],
+      "evidenceUrl": "client/src/components/foster-youth/crisis-strip.tsx"
+    },
+    {
+      "id": "FY-009-benefits",
+      "claim": "Crisis routing visible on benefits",
+      "url": "/foster-youth/benefits",
+      "testIds": ["banner-crisis", "link-crisis-988", "link-crisis-text", "link-crisis-runaway"],
+      "evidenceUrl": "client/src/components/foster-youth/crisis-strip.tsx"
+    },
+    {
+      "id": "FY-010",
+      "claim": "Marcus narrative anchored canonically",
+      "url": "/resident-journey",
+      "testIds": ["card-marcus-narrative", "text-marcus-headline"],
+      "evidenceUrl": "client/src/pages/resident-journey.tsx"
+    },
+    {
+      "id": "FY-011-hub",
+      "claim": "Bilingual EN/ES on hub (Spanish appears under each English tile title)",
+      "url": "/foster-youth",
+      "testIds": ["tile-toolkit-title-es", "tile-transition-plan-title-es", "tile-wellbeing-title-es", "tile-rights-title-es", "tile-benefits-title-es", "tile-fafsa-title-es"],
+      "evidenceUrl": "client/src/pages/foster-youth/hub.tsx"
+    },
+    {
+      "id": "FY-011-toolkit",
+      "claim": "Bilingual EN/ES on toolkit (each item shows English title + Spanish title)",
+      "url": "/foster-youth/toolkit",
+      "testIds": ["text-item-title-es-id-ssn", "text-item-title-es-rec-medical"],
+      "evidenceUrl": "client/src/pages/foster-youth/toolkit.tsx"
+    },
+    {
+      "id": "FY-011-transition",
+      "claim": "Bilingual EN/ES on transition plan (Spanish page subtitle)",
+      "url": "/foster-youth/transition-plan",
+      "testIds": ["text-tp-title-es"],
+      "evidenceUrl": "client/src/pages/foster-youth/transition-plan.tsx"
+    },
+    {
+      "id": "FY-011-wellbeing",
+      "claim": "Bilingual EN/ES on wellbeing (Spanish question text per item + page subtitle)",
+      "url": "/foster-youth/wellbeing",
+      "testIds": ["text-wb-title-es", "text-question-es-phq1", "text-question-es-gad1"],
+      "evidenceUrl": "client/src/pages/foster-youth/wellbeing.tsx"
+    },
+    {
+      "id": "FY-011-rights",
+      "claim": "Bilingual EN/ES on rights (Spanish title under each right)",
+      "url": "/foster-youth/rights",
+      "testIds": ["text-right-title-es-chafee", "text-right-title-es-etv", "text-right-title-es-tx-pal"],
+      "evidenceUrl": "client/src/pages/foster-youth/rights.tsx"
+    },
+    {
+      "id": "FY-011-benefits",
+      "claim": "Bilingual EN/ES on benefits (Spanish page subtitle)",
+      "url": "/foster-youth/benefits",
+      "testIds": ["text-benefits-title-es"],
+      "evidenceUrl": "client/src/pages/foster-youth/benefits.tsx"
+    },
+    {
+      "id": "FY-012",
+      "claim": "Honest disclosure block visible: 501(c)(3) pending, not a placing agency, no current state ILP contract",
+      "url": "/foster-youth",
+      "testIds": ["alert-honest-disclosure"],
+      "evidenceUrl": "client/src/pages/foster-youth/hub.tsx"
+    },
+    {
+      "id": "FY-013",
+      "claim": "Quintet ecosystem framing: Talk Your Talk, Civic Signal, LifeBridge, ThriveUp Academy, Whole-Person Health",
+      "url": "/foster-youth",
+      "testIds": ["text-partners-body"],
+      "evidenceUrl": "client/src/pages/foster-youth/hub.tsx"
+    },
+    {
+      "id": "FY-014",
+      "claim": "LifeBridge 20,670-resource navigator linked from foster-youth journey",
+      "url": "/foster-youth",
+      "testIds": ["button-lifebridge"],
+      "evidenceUrl": "client/src/pages/foster-youth/hub.tsx",
+      "evidenceFiles": ["client/src/pages/foster-youth/wellbeing.tsx"]
+    },
+    {
+      "id": "FY-014-wellbeing-resources",
+      "claim": "LifeBridge resource action also surfaced from wellbeing warm-handoff",
+      "url": "/foster-youth/wellbeing",
+      "testIds": ["action-resources"],
+      "evidenceUrl": "client/src/pages/foster-youth/wellbeing.tsx"
+    },
+    {
+      "id": "FY-015",
+      "claim": "Whole-Person Mental Health crisis routing linked from wellbeing red-flag results",
+      "url": "/foster-youth/wellbeing",
+      "testIds": ["action-mh"],
+      "evidenceUrl": "client/src/pages/foster-youth/wellbeing.tsx"
+    }
+  ],
+  "externalUrls": [
+    {"id": "EXT-LB", "url": "https://lifetransitionsaid.org/", "expectStatus": 200, "expectKeywords": ["LifeBridge", "211", "resources"]},
+    {"id": "EXT-LB-RES", "url": "https://lifetransitionsaid.org/resources", "expectStatus": 200, "expectKeywords": []},
+    {"id": "EXT-TYT", "url": "https://talkyourtalk.net/", "expectStatus": 200, "expectKeywords": ["language", "sign"]},
+    {"id": "EXT-WPH", "url": "https://mentalwellnesssupport.net/", "expectStatus": 200, "expectKeywords": []}
+  ]
+}

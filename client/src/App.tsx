@@ -210,6 +210,12 @@ const CorridorDocsLivePage = lazy(() => import("@/pages/corridor-docs-live"));
 const NetworkMembersPage = lazy(() => import("@/pages/network-members"));
 const ResidentJourneyPage = lazy(() => import("@/pages/resident-journey"));
 const CaseManagerViewPage = lazy(() => import("@/pages/case-manager-view"));
+const FosterYouthHubPage = lazy(() => import("@/pages/foster-youth/hub"));
+const FosterYouthToolkitPage = lazy(() => import("@/pages/foster-youth/toolkit"));
+const FosterYouthTransitionPlanPage = lazy(() => import("@/pages/foster-youth/transition-plan"));
+const FosterYouthWellbeingPage = lazy(() => import("@/pages/foster-youth/wellbeing"));
+const FosterYouthRightsPage = lazy(() => import("@/pages/foster-youth/rights"));
+const FosterYouthBenefitsPage = lazy(() => import("@/pages/foster-youth/benefits"));
 
 function PageFallback() {
   return (
@@ -426,6 +432,12 @@ function AppRouter() {
       <Route path="/proposal-pipeline" component={ProposalPipelinePage} />
       <Route path="/apprenticeship-tracker" component={ApprenticeshipTrackerPage} />
       <Route path="/opportunity-youth" component={OpportunityYouthPage} />
+      <Route path="/foster-youth" component={FosterYouthHubPage} />
+      <Route path="/foster-youth/toolkit" component={FosterYouthToolkitPage} />
+      <Route path="/foster-youth/transition-plan" component={FosterYouthTransitionPlanPage} />
+      <Route path="/foster-youth/wellbeing" component={FosterYouthWellbeingPage} />
+      <Route path="/foster-youth/rights" component={FosterYouthRightsPage} />
+      <Route path="/foster-youth/benefits" component={FosterYouthBenefitsPage} />
       <Route path="/fafsa-navigator" component={FafsaNavigatorPage} />
       <Route path="/neighborhood" component={NeighborhoodLookupPage} />
       <Route path="/data-sources" component={DataSourcesPage} />

@@ -80,3 +80,46 @@ These lessons have been converted into automated health checks in the MAP phase:
 - No nested <a> in Link (G-L06) → grep check
 - No window.location.reload (F-L02) → grep check
 - No console.log in server files (cleanup) → grep check
+
+## P-L04 — Audio = Video (Self-Audit Congruence) — added May 11, 2026
+
+**Lesson:** Briefing claims and demonstrable software must always match. A funder who clicks something the briefing claims and lands on a 404 (or a page missing the feature) loses trust faster than any positive narrative can rebuild it.
+
+**Mechanism (now permanent infrastructure):**
+1. **Manifest-first.** Before briefing, write `docs/grants/CONGRUENCE-MANIFEST.json` with every claim → URL → required `data-testid`s → evidence file path.
+2. **Audit script.** `scripts/congruence-audit.ts` consumes the manifest, fetches each URL, statically asserts every test ID exists in source (handles both literal `"foo"` and template-literal `data-testid={\`prefix-${...}\`}` patterns where the suffix appears as a string in the same file), and probes external URLs for HTTP 200 + expected keywords.
+3. **Report.** Writes `.agents/congruence/last-run.md`. Non-zero exit on any FAIL.
+4. **Iron rule:** Do not brief if any FAIL. The briefing PDF and the live demo are the same artifact.
+
+**Why this rule exists:** The first manifest run on the foster-youth build returned 35 FAILs — every one of them was a template-literal test ID (`card-item-${id}`, `accordion-right-${r.id}`, `option-state-${s.code}`, `${t.testId}-title-es`) that the literal-string grep couldn't see. The IDs were correct in code but invisible to a static auditor — exactly the kind of "looks right when I write it, looks wrong when an outsider checks it" trap that breaks reviewer trust. Two fixes: (a) teach the auditor to read template-literal prefixes + verify the suffix appears as a string in the same file; (b) for nested templates, prefer literal-id rendering OR include a "static-auditor anchor" comment with quoted IDs in the source.
+
+**Reusable beyond foster-youth:** Use this manifest+audit pattern for every funder briefing going forward. AEI, CDMRP, SAMHSA, St. David's — same structure. One file per audience. One command before the meeting.
+
+## P-L05 — Don't treat planning notes as built features — added May 11, 2026
+
+**Lesson:** Briefings and proposals must distinguish "we plan to," "we are building," and "you can click this right now." Mixing them is the fastest way to lose a sophisticated reviewer.
+
+**Discipline:**
+- Every claim in a public-facing or funder-facing document gets a column for "Live URL" and "Test-ID proof file." If both columns can't be filled, the claim is reframed as roadmap, not capability.
+- The Foster-Youth-Transition-Briefing.md uses this structure — see the "What is live, today, that you can click" table.
+- Honest disclosure block always appears before the value proposition.
+
+**Tooling support:** The congruence audit (P-L04) makes this lesson enforceable. If the manifest claims it, the audit verifies it. If you didn't write the manifest entry, you can't put the claim in the briefing.
+
+## P-L06 — Architect review caught congruence-audit overconfidence (May 11, 2026)
+
+**Lesson:** Self-auditing tools must themselves be audited. The first version of the foster-youth congruence audit returned 83/83 PASS — but architect review found three quiet over-claims that would have embarrassed us in front of a HUD reviewer:
+
+1. **Query strings were stripped before fetch.** `/fafsa-navigator?audience=foster` was probed as `/fafsa-navigator`, so the query-conditioned foster-mode callout wasn't actually being verified. **Fix:** keep the query string on the internal probe — fetch the URL exactly as the briefing tells the funder to click.
+2. **External keyword mismatch was a WARN, not a FAIL.** A live page that's missing the keywords the manifest expected means the briefing is pointing at the wrong page. **Fix:** missing required keywords is now a FAIL.
+3. **"Crisis on every page" and "Bilingual on every page" claims were proven by ONE page each.** The claim said every page, the audit only checked one. **Fix:** split those single claims into per-page entries (FY-009-hub, FY-009-toolkit, …) so every page must independently prove the property. Side benefit: forced creation of a shared `<CrisisStrip />` component used on all 6 pages with stable test IDs.
+
+**Standing rule:** After the audit goes green, run the architect (`responsibility: "evaluate_task"`, `includeGitDiff: true`) once more. The audit proves the manifest. The architect proves the manifest is honest. Two checks, not one.
+
+## P-L07 — Self-audits must be scoped, not global (May 11, 2026)
+
+**Lesson:** A static auditor that scans the whole repo for any test-id can "prove" a claim about page A using a test-id that lives in page B. That's a false positive that *looks* green. The architect caught one in the first hardened version: FY-002 claimed toolkit categories existed on `/foster-youth/toolkit`, and the audit "proved" `section-cat-healthcare` from `benefits.tsx` instead of `toolkit.tsx`.
+
+**Fix (now standing rule):** Every claim names exactly one `evidenceUrl` and an optional `evidenceFiles[]` allowlist. The audit ONLY scans those files for the claim's test IDs — never the whole tree. If a claim genuinely needs evidence from two files (e.g. a page using a shared component), list both explicitly. If you can't, you don't have the evidence.
+
+**Why the cross-file scan existed in the first place:** convenience — it made early FAILs go away faster. That's the trap. Convenience masks honesty. Trade convenience for truth, every time.

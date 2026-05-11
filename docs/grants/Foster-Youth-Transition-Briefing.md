@@ -1,81 +1,99 @@
-# What TCAF Offers for Foster Care — Transitioning Youth
-**Briefing pack — May 2026**
-*President: Dr. Terry Flood · terryflood@thrivingcommunitiesforall.com*
+# Foster Youth Aging Out — Transition Supports Briefing
+**Audience:** HUD/HHS implementation leaders, Public Housing Authorities, child-welfare partners, foundations.
+**Operator:** Thriving Communities for All Foundation, Inc. (TCAF). 501(c)(3) — IRS determination pending.
+**President:** Dr. Terry Flood.
+**Last verified live:** 2026-05-11. **Audit:** `npx tsx scripts/congruence-audit.ts` → `.agents/congruence/last-run.md`.
+
+> **Honest disclosure (always first):** TCAF is a 501(c)(3) with IRS determination pending. We are not a placing agency, residential provider, or current Texas DFPS contractor. The infrastructure described in this briefing is built and live; the contracting relationships and funded designations are conversations in progress.
 
 ---
 
 ## The 30-second version
-TCAF runs a **built-and-operating** youth-homelessness platform inside LifeBridge, with a dedicated **Foster Youth Aging Out** specialty area, wired into a multilingual mental-health stack, K-12 student-support infrastructure, and an AI-skills-and-FAFSA pipeline. We are an Austin-based 501(c)(3) (IRS determination pending) operating **15 public-facing service platforms** under one parent organization, with Texas as the pilot deployment for what is architected as national infrastructure. The infrastructure is deployed today — this is not a concept deck.
+Six clickable, working tools for young people aging out of foster care, anchored on a parent platform (ThriveUp Academy) that sits inside a 5-platform ecosystem (Talk Your Talk · Civic Signal · LifeBridge · ThriveUp Academy · Whole-Person Health Ecosystem). Bilingual EN/ES. No login. National in design, Texas-piloted. Mapped explicitly to John H. Chafee, ETV, HUD FYI, ACA §2004 Medicaid-to-26, FAFSA Independent-Student status, McKinney-Vento, and RHYA.
 
 ---
 
-## The five things we already do for transitioning foster youth
+## What is live, today, that you can click
 
-| # | What | Where it lives | Why it matters at age-out |
+| # | Claim | Live URL | Proof |
 |---|---|---|---|
-| 1 | **LifeBridge — Youth Homelessness Program** with a dedicated **Foster Youth Aging Out** track (Toolkit, Transition Plan, Wellbeing Check-in, My Rights, State Benefits) | LifeBridge platform, live, bilingual EN/ES | The warm-handoff infrastructure foster youth lose the day they age out: 20,000+ verified resources across housing, food, healthcare, ID/documents, employment, plus a CHW dispatch layer |
-| 2 | **Whole-Person Mental Health Ecosystem** — trauma-informed, multilingual, with crisis routing (PCL-5, C-SSRS) | mentalwellnesssupport.net | Foster-experienced youth carry a disproportionate trauma load; this is the safety floor under everything else |
-| 3 | **Talk Your Talk** — communication accessibility in **89 spoken + 18 sign = 107 languages** | talkyourtalk.net | Multilingual support for refugee youth in foster care, mixed-status families, and youth with hearing/communication differences |
-| 4 | **ISSS + Perfectly Different + WholeMind Learning** — K-12 multi-tiered supports, IEP/504 navigation, academic continuity | District-deployed | Foster youth are over-represented in IEP/504 populations; school disruption is the #1 academic risk factor |
-| 5 | **ThriveUp Academy + FAFSA navigator + apprenticeship tracker** | thrivingcommunitiesforall.com | Financial literacy, AI literacy, workforce readiness, and the **independent-student FAFSA + ETV (Education and Training Voucher)** pathway most caseworkers don't have time to walk youth through |
+| 1 | Foster Youth Hub with Marcus narrative anchor and 6-tool door | `/foster-youth` | `client/src/pages/foster-youth/hub.tsx` · test IDs: `page-foster-youth-hub`, `card-marcus`, `section-tools`, `alert-honest-disclosure` |
+| 2 | Aging-Out Toolkit — 18 categorized items, save-and-resume, progress tracker, critical/high/important triage | `/foster-youth/toolkit` | `toolkit.tsx` · 6 categories, localStorage persistence |
+| 3 | Structured 90-days-before / 90-days-after Transition Plan, save and print for court hearing | `/foster-youth/transition-plan` | `transition-plan.tsx` · maps to Fostering Connections Act §475(5)(H) |
+| 4 | Wellbeing Check-in — validated PHQ-2 + GAD-2 + housing/food screen, crisis-routing on red flags, no PII collected | `/foster-youth/wellbeing` | `wellbeing.tsx` · routes to 988, LifeBridge, Whole-Person MH |
+| 5 | My Rights — federal (Chafee, ETV, HUD FYI, Medicaid-to-26, FAFSA Independent, McKinney-Vento, free credit report, RHYA) + Texas (PAL, Extended FC to 21, ID fee waiver, tuition waiver) — every entry shows the legal source | `/foster-youth/rights` | `rights.tsx` |
+| 6 | State Benefits Navigator — all 50 states + DC, Texas full-detail, federal benefits across all states, apply links + phone numbers | `/foster-youth/benefits` | `benefits.tsx` |
+| 7 | FAFSA navigator with foster-youth Independent-Student + ETV mode | `/fafsa-navigator?audience=foster` | `fafsa-navigator.tsx` · test ID `callout-foster-mode` |
+| 8 | Crisis numbers (988, Crisis Text 741741, 1-800-RUNAWAY) on every page in the journey | All foster-youth pages | test IDs `link-crisis-988`, `link-crisis-text`, `link-crisis-runaway` |
+| 9 | Marcus's full reentry-cycle narrative | `/resident-journey` | `resident-journey.tsx` · test ID `card-marcus-narrative` |
 
-**The trio that makes us unusual:** Civic Signal (rights/voice) + LifeBridge (navigation) + ThriveUp Academy (skills). We are the only operator we know of addressing all three non-clinical drivers with one shared identity, one data layer, one outcome metric set.
-
----
-
-## The Marcus narrative (use in the briefing if appropriate)
-Across our materials, the strongest reentry narrative is **Marcus**: foster youth → incarcerated → reentering. We treat foster-to-justice-system pipeline interruption as a first-class outcome, not a footnote. *"Borders aren't real, but laws and policies are."*
-
----
-
-## Federal & foundation funding lanes that align (live or in pipeline)
-
-**Federal:**
-- **HUD Foster Youth to Independence (FYI) voucher program** — the federal housing voucher for youth aging out of foster care. Jim Currier (national FYI implementation leader) is an active relationship for TCAF.
-- **HHS / ACF — John H. Chafee Foster Care Program for Successful Transition to Adulthood** — direct fit for the LifeBridge Foster Youth Aging Out tool. *Best single program-level fit in the federal portfolio.*
-- **HHS / ACF — Education and Training Voucher (ETV)** — the FAFSA/postsecondary pathway we already build for.
-- **HHS / HRSA — Maternal & Child Health, CHW training** — peer-navigator infrastructure.
-- **SAMHSA — youth-serving programs**, juvenile-justice-involved youth MH.
-- **HUD Continuum of Care** — youth set-asides.
-- **DOJ / OJJDP** — youth mentoring, juvenile reentry, second-chance.
-- **DOL WIOA Title I Youth** — workforce pathway for the 16–24 bracket where foster youth are over-represented.
-
-**Foundation:**
-- **St. David's Foundation** — actively evaluating; foster youth angle is one of our strongest within their lanes.
-- **Communities Foundation of Texas** — Working Families Success category includes transition-age supports.
-- **Hogg Foundation for Mental Health** — direct fit for the Whole-Person MH pathway under foster youth trauma load.
-- **Episcopal Health Foundation** — community-driven SDOH; foster youth health-equity angle.
-- **Meadows Foundation** — human services + education; both lanes touch foster youth transitions.
-
-(Full data-backed funder fit scoring — Meadows 100, EHF 92, Hogg 90, CFT 82 — lives in the `platform_funder_fit` table; methodology in `docs/active-commitments.md`.)
+**Every row above is auto-verified by `scripts/congruence-audit.ts`.** Run it before you brief. Zero FAILs is the precondition for using this document.
 
 ---
 
-## Active relationship to mention in the briefing
-**Jim Currier, MSW** — Director of Youth Housing & Employment, **National Foster Youth to Independence (FYI) Program Implementation Leader**, 25+ years at the intersection of child welfare and housing. Austin-based, 1st-degree connection. TCAF is in early conversation with Jim about advisory and federal-funding-pathway alignment. Lead with the **LifeBridge Youth Homelessness Program** in any conversation he is part of — it changes the discussion from "let me tell you about our concept" to "let me show you what's already running."
+## Why this exists — the evidence base
+*(full citations: `docs/grants/Foster-Youth-Evidence-Base.md`)*
+
+| Figure | Number | Source |
+|---|---|---|
+| Former foster youth experiencing homelessness by age 26 | 36% | Midwest Study (Chapin Hall) |
+| Former foster youth (male) convicted of a crime by age 26 | 60% | Midwest Study (Chapin Hall) |
+| Former foster youth earning a 4-year degree by age 26 | ~6–8% (vs. 36% of peers) | Midwest Study |
+| Lifetime PTSD among former foster youth | ~25% (2x U.S. war veterans) | Casey Northwest Alumni Study |
+| Annual federal envelope across foster-youth transition supports | $500M+ (Chafee · ETV · FYI · YHDP · RHYA · WIOA · OJJDP) | ACF + HUD + DOJ FY24 appropriations |
 
 ---
 
-## What we are honestly NOT (so we don't get caught flat in Q&A)
-- We are **not** a licensed child-placing agency. We don't take placements.
-- We are **not** a residential provider. We don't operate housing units.
-- We are **not** an Independent Living Program (ILP) contractor with the State of Texas — yet. The infrastructure is built; the contracting relationship is the next conversation.
-- 501(c)(3) determination is **pending** with the IRS — disclose this; don't paper over it.
-- We are **infrastructure**: the navigation layer, the data layer, the outcome layer that lets the agencies and providers who *do* take placements reach foster youth at scale, in their language, with warm handoffs that don't break at age-out.
+## How this maps to federal programs
+
+| Federal program | What it funds | Where TCAF fits |
+|---|---|---|
+| **John H. Chafee Foster Care Program for Successful Transition to Adulthood** (42 USC §677) | State independent-living services through age 23 | Supportive-services partner — Toolkit, Transition Plan, Rights, Benefits Navigator |
+| **Education and Training Voucher** (42 USC §677(i)) | Up to $5,000/year postsecondary, through age 26 | FAFSA navigator (foster mode) + Rights + Benefits |
+| **HUD Foster Youth to Independence (FYI)** (24 CFR §982 youth set-aside) | Up to 36 months Housing-Choice rental assistance, ages 18–24 | Designed to wrap services around PHA-issued vouchers; ready for MOU |
+| **ACA §2004 Medicaid (Former Foster Care Children)** | Free Medicaid through age 26, no income test, all 50 states | Surfaced and explained in Rights + Benefits |
+| **McKinney-Vento + ESSA Title IX** (42 USC §11431) | School stability, immediate enrollment, transportation for homeless K-12 students | Surfaced and explained in Rights |
+| **Runaway and Homeless Youth Act (RHYA)** (34 USC §11201) | Basic Center, Transitional Living, Street Outreach | Surfaced in Rights + Wellbeing crisis routing |
 
 ---
 
-## The single ask
-If the briefing audience can offer one thing, the highest-leverage ask is:
-> **"Who in your network is the right person for us to talk to about plugging the LifeBridge Foster Youth Aging Out infrastructure into [their state ILP / their PHA's FYI rollout / their county's Chafee allocation]?"**
-
-A pilot conversation in any one of those three lanes is more valuable than a generic letter of support.
+## What honest disclosure looks like in this briefing
+- **Population:** ~20,000 young people age out of U.S. foster care every year (AFCARS). The infrastructure here is national in design, Texas-piloted today.
+- **Outcome data we publish:** LifeBridge has produced 3,456 resource navigations, 234 crisis-support diversions, 178 CHW dispatches across all populations served — **not yet segmented by foster-youth user**. Our 30-day plan to fix that lives in `Foster-Youth-Outcome-Tracking-Plan.md`.
+- **Outcome data we do NOT yet publish:** foster-youth-specific impact numbers. We will not claim them until at least one full month of segmented analytics is on the dashboard.
+- **What we do not yet have:** signed Texas DFPS contract; HUD FYI sub-grantee designation; PHA partnership in Travis County. Each is the next conversation.
+- **Funder posture:** St. David's Foundation is "actively evaluating" — not awarded.
 
 ---
 
-## Pointers for follow-up
-- **Live demo URL:** LifeBridge → Foster Youth Aging Out section
-- **Quintet one-pager (drop-in):** `docs/grants/QUARTET-ONE-PAGER.md`
-- **Funder intelligence (Meadows, TVC, EHF, Hogg):** `docs/grants/Tabbara-Top4-Intel.md`
-- **Active commitments / continuity log:** `docs/active-commitments.md`
-- **Ecosystem catalog:** `docs/ecosystem-catalog.md` (15 public-facing service platforms — full count incl. internal/dev rows = 25 in DB; use 15 in external briefings)
+## What we ask of partners
+1. **Public Housing Authorities:** Talk with us about FYI MOU as supportive-services partner. We bring the wrap; you bring the voucher.
+2. **State Independent-Living Coordinators (Texas DFPS PAL and counterparts):** Pilot site agreement. Refer your aging-out cohort to the Hub. We instrument outcomes for your reporting.
+3. **HUD/HHS funders:** Tell us which evaluation evidence and rubric items most often disqualify non-traditional partners. We will instrument and report whatever you specify.
+4. **Foundations:** Capital to scale state-by-state buildout of the Benefits Navigator (40+ states still in "federal-only + search pointer" mode today).
+
+---
+
+## The 5-platform ecosystem (one-pager)
+- **Talk Your Talk** (`talkyourtalk.net`) — multilingual access: 89 spoken + 18 sign = 107 total. Crisis-detection events route into Whole-Person Health.
+- **Civic Signal** — community advocacy and civic-engagement layer.
+- **LifeBridge** (`lifetransitionsaid.org`) — 20,670+ verified resources, 211 + SDOH navigation, bilingual EN/ES.
+- **ThriveUp Academy** — workforce, AI literacy, FAFSA, ETV, and the Foster Youth Aging Out experience documented here.
+- **Whole-Person Health Ecosystem** (`mentalwellnesssupport.net`) — behavioral-health safety floor; receives crisis events from every platform.
+
+(Full ecosystem catalog: `docs/ecosystem-catalog.md`. **In external copy use "15 service platforms operated by TCAF."**)
+
+---
+
+## Pre-briefing checklist
+- [ ] `npx tsx scripts/congruence-audit.ts` returns zero FAILs (`.agents/congruence/last-run.md`)
+- [ ] `npx playwright test tests/e2e/foster-youth-journey.spec.ts` passes
+- [ ] All 6 foster-youth pages render in the deployed environment
+- [ ] Crisis numbers tested live (988 + 741741 + 1-800-RUNAWAY)
+- [ ] LifeBridge resource navigator at `/resources` returns 200
+- [ ] Day-of meeting prep: `Foster-Youth-Jim-Currier-Meeting-Prep.md`
+
+## Contact
+- **Dr. Terry Flood, President** · `terryflood@thrivingcommunitiesforall.com`
+- TCAF · Thriving Communities for All Foundation, Inc. · 501(c)(3) IRS determination pending
+- All proposals route through the institutional email above; never personal Gmail.

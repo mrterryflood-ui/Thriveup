@@ -74,6 +74,16 @@ const workforceSolutionsItems: NavItem[] = [
   { title: "Dream Design", url: "/academy/dreams", icon: Target },
 ];
 
+const fosterYouthItems: NavItem[] = [
+  { title: "Foster Youth Hub", url: "/foster-youth", icon: HandHeart },
+  { title: "Aging-Out Toolkit", url: "/foster-youth/toolkit", icon: ClipboardCheck },
+  { title: "Transition Plan", url: "/foster-youth/transition-plan", icon: Route },
+  { title: "Wellbeing Check-in", url: "/foster-youth/wellbeing", icon: Heart },
+  { title: "My Rights", url: "/foster-youth/rights", icon: Scale },
+  { title: "State Benefits (50 states)", url: "/foster-youth/benefits", icon: Landmark },
+  { title: "FAFSA & ETV (foster mode)", url: "/fafsa-navigator?audience=foster", icon: GraduationCap },
+];
+
 const justiceReentryItems: NavItem[] = [
   { title: "Reentry Program (overview)", url: "/reentry-program", icon: Scale },
   { title: "Reentry Operational Dashboard", url: "/reentry", icon: Scale },
