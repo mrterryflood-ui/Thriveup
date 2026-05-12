@@ -1,6 +1,8 @@
 # Active Commitments — TCAF / ThriveUp Academy
 
-**Maintained as the live continuity log.** `replit.md` is kept tight (~80 lines) per platform guideline; this file holds the running operational memory that earlier lived in "Cycle L" of `replit.md`. Read at session start. Update at session end.
+**Maintained as the live continuity log.** `replit.md` is kept tight (~87 lines) per platform guideline; this file holds the running operational memory that earlier lived in "Cycle L" of `replit.md`. Read at session start. Update at session end.
+
+**Compaction May 12, 2026:** Foster-youth build history (May 11 build sections + Self-Audit Congruence section) extracted from `replit.md` → `docs/foster-youth-build-log.md`. Compiler now reads it (`scripts/compile-agent-knowledge.ts` SOURCES + sections + counts). Knowledge layer count: 19 gotchas · 17 lessons · 25 platforms · 14 file pointers · 38 active-commitment sections · 5 ecosystem caveats · 3 foster-youth build-log sections. `replit.md`: 139 → 87 lines. Zero facts lost; recall preserved via `GET /api/agent/knowledge/topic/foster_youth_build_log`.
 
 ---
 

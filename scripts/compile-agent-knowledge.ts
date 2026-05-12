@@ -32,6 +32,7 @@ const SOURCES = {
   activeCommitments: resolve(ROOT, "docs/active-commitments.md"),
   lessonsLearned: resolve(ROOT, ".agents/skills/map-gap/lessons-learned.md"),
   ecosystemCatalog: resolve(ROOT, "docs/ecosystem-catalog.md"),
+  fosterYouthBuildLog: resolve(ROOT, "docs/foster-youth-build-log.md"),
 };
 const OUT_PATH = resolve(ROOT, ".agents/knowledge/compiled.json");
 
@@ -127,6 +128,7 @@ async function main() {
   const activeCommitments = safeRead(SOURCES.activeCommitments);
   const lessons = safeRead(SOURCES.lessonsLearned);
   const ecosystemCatalog = safeRead(SOURCES.ecosystemCatalog);
+  const fosterBuildLog = safeRead(SOURCES.fosterYouthBuildLog);
 
   if (!replitMd) throw new Error(`Cannot read ${SOURCES.replitMd}`);
 
@@ -139,6 +141,9 @@ async function main() {
     : [];
   const catalogSections = ecosystemCatalog
     ? parseMarkdownSections(ecosystemCatalog.content, "docs/ecosystem-catalog.md")
+    : [];
+  const fosterBuildLogSections = fosterBuildLog
+    ? parseMarkdownSections(fosterBuildLog.content, "docs/foster-youth-build-log.md")
     : [];
 
   // Extract ecosystem caveats (numbered list under "Critical caveats for any grant work")
@@ -294,6 +299,7 @@ async function main() {
       activeCommitments && { path: "docs/active-commitments.md", mtime: activeCommitments.mtime },
       lessons && { path: ".agents/skills/map-gap/lessons-learned.md", mtime: lessons.mtime },
       ecosystemCatalog && { path: "docs/ecosystem-catalog.md", mtime: ecosystemCatalog.mtime },
+      fosterBuildLog && { path: "docs/foster-youth-build-log.md", mtime: fosterBuildLog.mtime },
       { path: "DB:ecosystem_platforms", mtime: new Date().toISOString() },
     ].filter(Boolean),
     project,
@@ -310,6 +316,13 @@ async function main() {
       no_go_list: noGoList,
     },
     lessons_learned: lessonsParsed,
+    foster_youth_build_log: fosterBuildLogSections.map(s => ({
+      id: s.id,
+      heading: s.heading,
+      level: s.level,
+      body: s.body,
+      sourceFile: s.sourceFile,
+    })),
     session_protocol: sessionProtocol,
     counts: {
       gotchas: gotchas.length,
@@ -320,6 +333,7 @@ async function main() {
       no_go: noGoList.length,
       active_commitment_sections: activeCommitmentSections.length,
       ecosystem_caveats: ecosystemCaveats.length,
+      foster_youth_build_log_sections: fosterBuildLogSections.length,
     },
   };
 
