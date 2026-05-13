@@ -184,11 +184,14 @@ Run via `scripts/ecosystem-alignment-scan.sh`. Re-run anytime alignment is in do
 
 ---
 
-## TCAF / The Collaborative Advocate — legal status (RECONCILED May 5, 2026)
+## TCAF / The Collaborative Advocate — legal status (UPDATED May 12, 2026 — IRS DETERMINATION RECEIVED)
 
-- **EIN 41-3618003 is permanent and confirmed** by President Flood. Source: `attached_assets/Agency_Fund_EOI_Collaborative_Advocate.md`.
-- **501(c)(3) tax-exempt determination letter is still pending with the IRS** (IRS backlog, not a TCAF issue). Tracking 281OIP7B, filed 4/27/2026. Both facts coexist.
-- For grant applications: cite EIN 41-3618003, classify as **501(c)(3) application pending IRS determination**, and where required offer fiscal sponsorship via Abundant Life Church.
+- **🚨 EIN correction pending user confirmation:** IRS Letter 947 photographed 05/12/2026 shows **EIN 41-3618503** (with a **5**). All prior memory + grant submissions used **41-3618003** (sourced from a typed EOI markdown). **IRS letter is authoritative**; awaiting user double-check of the SS-4 / determination email before mass-correcting submitted grant docs (NSF-TechAccess-LOI-Draft, St-Davids-WAB2-LOI-Package, TWC-RFA-32026-00162-FORM-A-APPLICATION, TX-Reentry-Stipend-Pilot-Overview, RWJF-CV, TCAF-Organizational-Budget-FY2025-2026, grant-command-center.tsx notes, landing.tsx footer, 5 .cjs PPTX generators). **If 41-3618503 is correct, file corrections with TWC and any funder who received the prior number.**
+- **501(c)(3) DETERMINED** by IRS Letter 947 dated **04/30/2026**, effective **01/14/2026**. Public charity under **170(b)(1)(A)(vi)** (publicly-supported organization). Contributions ARE deductible. Form 990/990-EZ/990-N required. Accounting period ends Dec 31. No addendum.
+- Person to contact at IRS if questions: **Mrs. Hurst, ID# 1793423, 877-829-5500**.
+- **Stop using:** "501(c)(3) determination pending," "Tracking 281OIP7B," "fiscal sponsorship via Abundant Life Church," "during the determination period." All superseded.
+- **Start using:** "501(c)(3) public charity, IRS Letter 947 dated 04/30/2026, effective 01/14/2026, contributions tax-deductible under IRC §170."
+- **Source image:** `attached_assets/image_1778714299327.jpg` (do NOT publish this image — it contains the IRS contact name + ID# which is sensitive).
 
 ---
 
