@@ -841,7 +841,7 @@ export default function CommunityResourceDirectoryPage() {
         </Card>
 
         <div className="mt-6 text-center text-xs text-slate-500 pb-8">
-          <p>The Collaborative Advocate Foundation (501(c)(3)) | EIN: 41-3618003 | Dr. Terry Flood, Founder</p>
+          <p>The Collaborative Advocate Foundation (501(c)(3)) | EIN: 41-3618503 | Dr. Terry Flood, Founder</p>
           <p className="mt-1">Veteran-founded. Black-led. Community-driven. 17912 Stefano Drive, Pflugerville, TX 78660</p>
         </div>
       </div>

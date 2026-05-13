@@ -2,7 +2,7 @@
 ## The Collaborative Advocate Foundation (TCAF)
 
 **Applicant:** [TBD — TCAF directly OR Abundant Life Church (ALC) as fiscal sponsor; final decision pending applicant-eligibility confirmation with Borealis]
-**EIN:** [TBD — TCAF EIN 41-3618003 if applicant is TCAF; ALC EIN if fiscal sponsor route]
+**EIN:** [TBD — TCAF EIN 41-3618503 if applicant is TCAF; ALC EIN if fiscal sponsor route]
 **Address:** 17912 Stefano Drive, Pflugerville, TX 78660
 **Contact:** Dr. Terry Flood Sr., President, TCAF
 **Amount Requested:** $100,000 ($50,000/year x 2 years)

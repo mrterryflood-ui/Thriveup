@@ -317,7 +317,7 @@ export default function DonorsPage() {
             </Button>
           </div>
           <p className="text-xs text-muted-foreground pt-2">
-            TCAF · 17912 Stefano Drive, Pflugerville, TX 78660 · EIN 41-3618003 (501(c)(3) determination pending)
+            TCAF · 17912 Stefano Drive, Pflugerville, TX 78660 · EIN 41-3618503 (501(c)(3) determination pending)
           </p>
         </section>
 

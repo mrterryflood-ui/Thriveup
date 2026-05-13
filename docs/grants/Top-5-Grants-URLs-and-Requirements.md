@@ -241,7 +241,7 @@
 **Fix:**
 1. Log in at https://sam.gov
 2. Confirm registration status: **Active** (not Submitted, not Expired)
-3. Verify EIN 41-3618003 matches IRS records exactly
+3. Verify EIN 41-3618503 matches IRS records exactly
 4. If TIN mismatch: file IRS Form SS-4 amendment OR call SAM.gov help desk (866-606-8220)
 5. Renewal cycle: every 12 months
 

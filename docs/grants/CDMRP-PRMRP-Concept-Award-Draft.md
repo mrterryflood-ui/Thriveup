@@ -11,7 +11,7 @@
 **Submission Portal:** eBRAP.org (Pre-Application) → Grants.gov (Full Application)
 **FY2026 Status:** Pre-announcement phase; FOAs expected May–August 2026 based on FY25 patterns
 **PI:** Terry Flood, DHA
-**Organization Type:** Veteran-Owned Small Business (VOSB) Nonprofit, EIN 41-3618003
+**Organization Type:** Veteran-Owned Small Business (VOSB) Nonprofit, EIN 41-3618503
 
 ---
 

@@ -1031,7 +1031,7 @@ export function registerBenefitsRoutes(app: Express) {
           lead: {
             name: "The Collaborative Advocate Foundation (TCAF)",
             role: "Technology conduit & coalition coordinator",
-            ein: "41-3618003",
+            ein: "41-3618503",
             type: "501(c)(3) nonprofit",
             description: "Veteran-founded, Black-led nonprofit providing the Benefits Intelligence System that connects CHWs, partner nonprofits, and community organizations to close enrollment gaps",
           },
@@ -1238,7 +1238,7 @@ CRITICAL CONTEXT:
 - St. David's Foundation "We All Benefit 2.0: Building Economic Stability" grant
 - $35M over 3 years across 5 counties: Travis, Williamson, Hays, Bastrop, Caldwell
 - LOI due April 27, 2026 at 5 PM CT. If accepted, full application June 18, 2026
-- TCAF EIN: 41-3618003 | Address: 17912 Stefano Drive, Pflugerville, TX 78660 (Williamson County)
+- TCAF EIN: 41-3618503 | Address: 17912 Stefano Drive, Pflugerville, TX 78660 (Williamson County)
 - TCAF is the TECH CONDUIT — not replacing existing organizations but connecting them
 - Three entities: TCAF (grants/nonprofit), CIP LLC EIN 41-4996540 (tech/AI), M&T Consulting EIN 41-4952178 (staffing)
 
@@ -1455,7 +1455,7 @@ Write EXACTLY 450 words (±20). Do NOT include a title or headers — just flowi
 
 APPLICANT:
 - The Collaborative Advocate Foundation (TCAF)
-- 501(c)(3) nonprofit, EIN 41-3618003
+- 501(c)(3) nonprofit, EIN 41-3618503
 - Headquartered at 17912 Stefano Drive, Pflugerville, TX 78660 (Williamson County)
 - Veteran-founded, Black-led organization. Founder: Dr. Terry Flood, DHA
 - Three entities: TCAF (nonprofit/grants), CIP LLC (tech/AI), M&T Consulting (staffing)

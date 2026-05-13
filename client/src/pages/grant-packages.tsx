@@ -534,7 +534,7 @@ TCAF POSITIONING: Headquartered in Pflugerville (Williamson County). Technology 
       { label: "Collaborative Logic, Not a List", detail: "Collaboratives need LOGIC — each partner has a specific, well-defined role complementary to others. Not 20 orgs on paper. Can apply individually AND as collaborative if doing different things." },
       { label: "HHSC CPP Not Required for All", detail: "Only one org in collaborative needs Community Partner Program access. But being on the PATH to CPP strengthens the application. Level 3 = gold standard." },
       { label: "Flexible Funding = Truly Flexible", detail: "Emergency food, rent, transport while benefits pending — all eligible. As long as expense supports benefits enrollment and economic stability. $35M total, ~$12M/year, 15-25 grants." },
-      { label: "501(c)(3) or Public Entity Lead", detail: "Lead applicant must be 501(c)(3) or public entity. Non-501c3 partners = subcontract. TCAF (EIN 41-3618003) qualifies as lead." },
+      { label: "501(c)(3) or Public Entity Lead", detail: "Lead applicant must be 501(c)(3) or public entity. Non-501c3 partners = subcontract. TCAF (EIN 41-3618503) qualifies as lead." },
       { label: "Sign Up for Office Hours", detail: "St. David's strongly recommends office hours with program staff (Kim, Kori) to discuss specific application questions and eligibility." },
     ],
     competitiveEdge: [
@@ -1357,7 +1357,7 @@ This review is stored in the RPLICE assessment database and will be updated when
       },
     ],
     preExecutionChecklist: [
-      { id: "stpe-1", category: "Eligibility", item: "TCAF is 501(c)(3) — EIN 41-3618003", status: "verified", notes: "Confirmed. Lead applicant eligible." },
+      { id: "stpe-1", category: "Eligibility", item: "TCAF is 501(c)(3) — EIN 41-3618503", status: "verified", notes: "Confirmed. Lead applicant eligible." },
       { id: "stpe-2", category: "Eligibility", item: "Benefits enrollment is central to proposed work", status: "verified", notes: "SNAP, Medicaid, CHIP, EITC, CTC, WIC, SSI — multi-benefit screening is the core model." },
       { id: "stpe-3", category: "Geography", item: "Headquarters in Pflugerville (Williamson County)", status: "verified", notes: "Williamson County = St. David's wants to BUILD capacity here. Geographic authenticity." },
       { id: "stpe-4", category: "LOI", item: "500-word LOI draft completed", status: "verified", notes: "Draft in LOI section. ~490 words. Needs Dr. Flood's voice and personal examples before submission." },
@@ -2396,7 +2396,7 @@ PROPOSAL SUBMISSION CHECKLIST:
     grantKnowledge: `BB Collective Research Grant — $50,000.
 PURPOSE: Support Black-led organizations conducting community-driven research that addresses systemic inequities. Prioritizes research methodologies that center lived experience and community voice.
 ALIGNMENT: TCAF's RPLICE platform operationalizes implementation science frameworks (CFIR 2.0, RE-AIM) through AI-powered analysis. Combined with MEASURE's CARE Model for equity-centered evaluation, this creates a publishable, fundable methodology for ethical community AI.
-SUBMITTING ENTITY: The Collaborative Advocate Foundation — EIN 41-3618003, 501(c)(3).`,
+SUBMITTING ENTITY: The Collaborative Advocate Foundation — EIN 41-3618503, 501(c)(3).`,
     essentials: [
       { label: "Black-Led Organization", detail: "TCAF is veteran-founded, Black-led 501(c)(3) — Dr. Terry Flood, DHA, is President and principal researcher", critical: true },
       { label: "Community-Driven Research", detail: "Three Realities methodology + RPLICE RAG architecture ensures research is driven by community voice, not institutional assumption", critical: true },
@@ -2429,7 +2429,7 @@ SUBMITTING ENTITY: The Collaborative Advocate Foundation — EIN 41-3618003, 501
 
 APPLICANT ORGANIZATION:
 The Collaborative Advocate Foundation
-EIN: 41-3618003 | 501(c)(3) Nonprofit
+EIN: 41-3618503 | 501(c)(3) Nonprofit
 17912 Stefano Drive, Pflugerville, TX 78660
 Contact: Dr. Terry Flood, DHA — President
 Email: president@thecollaborativeadvocate.org | Website: thrivingcommunitiesforall.com
@@ -2467,7 +2467,7 @@ Dr. Terry Flood holds a Doctorate in Health Administration, MS in Implementation
       { id: "bb-budget", name: "Budget & Justification", description: "$50K allocation across research activities, technology, personnel, and dissemination", icon: DollarSign, status: "draft" as ApprovalStatus,
         content: `BUDGET — BB COLLECTIVE RESEARCH GRANT ($50,000)
 
-APPLICANT: The Collaborative Advocate Foundation | EIN: 41-3618003
+APPLICANT: The Collaborative Advocate Foundation | EIN: 41-3618503
 
 PERSONNEL ($20,000 — 40%):
 - Principal Investigator (Dr. Terry Flood, DHA): $12,000 (20% effort, 12 months)
@@ -2501,7 +2501,7 @@ Technology costs are minimal because RPLICE is already built and operational. Th
         content: `ORGANIZATIONAL CAPACITY — THE COLLABORATIVE ADVOCATE FOUNDATION
 
 ORGANIZATION: The Collaborative Advocate Foundation
-EIN: 41-3618003 | 501(c)(3) Nonprofit
+EIN: 41-3618503 | 501(c)(3) Nonprofit
 Address: 17912 Stefano Drive, Pflugerville, TX 78660
 Website: thrivingcommunitiesforall.com
 Founded: Veteran-founded, Black-led nonprofit
@@ -2569,7 +2569,7 @@ RPLICE is not a proposal — it is a live system that has already conducted CFIR
       },
     ],
     preExecutionChecklist: [
-      { id: "bbpe-1", category: "Eligibility", item: "501(c)(3) determination letter", status: "verified" as const, notes: "TCAF EIN 41-3618003" },
+      { id: "bbpe-1", category: "Eligibility", item: "501(c)(3) determination letter", status: "verified" as const, notes: "TCAF EIN 41-3618503" },
       { id: "bbpe-2", category: "Eligibility", item: "Black-led organization verification", status: "verified" as const, notes: "Dr. Terry Flood, DHA — President" },
       { id: "bbpe-3", category: "Technology", item: "RPLICE operational and accessible", status: "verified" as const, notes: "bettersciencelab.com — live" },
       { id: "bbpe-4", category: "Partnerships", item: "MEASURE partnership confirmed", status: "action-needed" as const, notes: "Dr. Flood must confirm with Meme Styles" },
@@ -2617,7 +2617,7 @@ RPLICE is not a proposal — it is a live system that has already conducted CFIR
     grantKnowledge: `Rare Impact Fund — Strengthening the Nonclinical Youth Mental Health Workforce — $250,000-$500,000.
 PURPOSE: Invest in nonprofit partners building career pathways for nonclinical youth mental health providers — peer mentors, community health workers, navigators, and educators. 2-year grants.
 PRIORITIES: (1) Expand culturally responsive nonclinical support, (2) Strengthen workforce pipeline for undervalued mental health roles, (3) Elevate youth voices and equity strategies, (4) Build legitimacy for nonclinical roles in mental health ecosystem.
-SUBMITTING ENTITY: The Collaborative Advocate Foundation — EIN 41-3618003, 501(c)(3).
+SUBMITTING ENTITY: The Collaborative Advocate Foundation — EIN 41-3618503, 501(c)(3).
 WHY WE FIT: ThriveUp Academy provides the workforce training infrastructure. RPLICE tracks whether training programs produce competent nonclinical providers. WholeMind Learning addresses K-12 mental health. Sankofa Health provides culturally responsive screening. Three Realities ensures youth voice drives program design.
 LOI DEADLINE: April 10, 2026.`,
     essentials: [
@@ -2660,7 +2660,7 @@ Strengthening the Nonclinical Youth Mental Health Workforce
 
 APPLICANT ORGANIZATION:
 The Collaborative Advocate Foundation
-EIN: 41-3618003 | 501(c)(3) Nonprofit
+EIN: 41-3618503 | 501(c)(3) Nonprofit
 17912 Stefano Drive, Pflugerville, TX 78660
 Contact: Dr. Terry Flood, DHA — President
 Email: president@thecollaborativeadvocate.org | Website: thrivingcommunitiesforall.com
@@ -2696,7 +2696,7 @@ TARGET OUTCOMES (2-year):
       { id: "rif-narrative", name: "Full Proposal Narrative", description: "Complete program design — prepared for full proposal invitation", icon: BookOpen, status: "draft" as ApprovalStatus,
         content: `FULL PROPOSAL NARRATIVE — RARE IMPACT FUND (DRAFT — for full submission if LOI accepted)
 
-APPLICANT: The Collaborative Advocate Foundation | EIN: 41-3618003
+APPLICANT: The Collaborative Advocate Foundation | EIN: 41-3618503
 
 PROGRAM: "Pathways to Purpose: AI-Powered Career Development for Nonclinical Youth Mental Health Providers"
 
@@ -2745,7 +2745,7 @@ Integral Care (Travis County LMHA), CommUnityCare Health Centers, AISD/Manor ISD
       { id: "rif-budget", name: "Budget & Justification", description: "$400K allocation over 2 years — personnel, technology, training, community engagement", icon: DollarSign, status: "draft" as ApprovalStatus,
         content: `BUDGET — RARE IMPACT FUND ($400,000 over 2 years)
 
-APPLICANT: The Collaborative Advocate Foundation | EIN: 41-3618003
+APPLICANT: The Collaborative Advocate Foundation | EIN: 41-3618503
 
 YEAR 1 ($210,000):
 Personnel ($120,000):
@@ -2780,7 +2780,7 @@ NOTE: Platform infrastructure costs are minimal because the 24-platform ecosyste
       { id: "rif-outcomes", name: "Outcomes Framework", description: "Measurable outcomes tracked via RPLICE", icon: BarChart3, status: "draft" as ApprovalStatus,
         content: `OUTCOMES FRAMEWORK — RARE IMPACT FUND
 
-APPLICANT: The Collaborative Advocate Foundation | EIN: 41-3618003
+APPLICANT: The Collaborative Advocate Foundation | EIN: 41-3618503
 
 All outcomes tracked via RPLICE implementation fidelity monitoring (bettersciencelab.com).
 
@@ -2857,7 +2857,7 @@ All outcomes assessed through RPLICE's 4-engine AI + RAG architecture. Scholarly
       },
     ],
     preExecutionChecklist: [
-      { id: "rifpe-1", category: "Eligibility", item: "501(c)(3) determination letter", status: "verified" as const, notes: "TCAF EIN 41-3618003" },
+      { id: "rifpe-1", category: "Eligibility", item: "501(c)(3) determination letter", status: "verified" as const, notes: "TCAF EIN 41-3618503" },
       { id: "rifpe-2", category: "Alignment", item: "Nonclinical workforce pathway documented", status: "verified" as const, notes: "ThriveUp Academy career pathways" },
       { id: "rifpe-3", category: "Technology", item: "Training platform operational", status: "verified" as const, notes: "thrivingcommunitiesforall.com — live" },
       { id: "rifpe-4", category: "Technology", item: "Mental health screening tools operational", status: "verified" as const, notes: "Sankofa Health — yourhealthbirthright.net" },
@@ -2907,7 +2907,7 @@ All outcomes assessed through RPLICE's 4-engine AI + RAG architecture. Scholarly
     grantKnowledge: `Centene Foundation — Behavioral Health Community Innovation Grants — Up to $500,000.
 PURPOSE: Fund innovative behavioral health programs in underserved communities. Focuses on integrated care models, community health workers, technology-enabled access, and culturally responsive approaches.
 ALIGNMENT: TCAF's Whole-Person Health platform (mentalwellnesssupport.net) provides behavioral health screening and support. Sankofa Health (yourhealthbirthright.net) delivers culturally responsive health tools. RPLICE validates whether behavioral health interventions are delivered with fidelity.
-SUBMITTING ENTITY: The Collaborative Advocate Foundation — EIN 41-3618003, 501(c)(3).
+SUBMITTING ENTITY: The Collaborative Advocate Foundation — EIN 41-3618503, 501(c)(3).
 DEADLINE: May 31, 2026.`,
     essentials: [
       { label: "Behavioral Health Focus", detail: "Must address behavioral health access, integration, or innovation — Whole-Person Health + Sankofa Health are direct alignment", critical: true },
@@ -2946,7 +2946,7 @@ DEADLINE: May 31, 2026.`,
 
 APPLICANT ORGANIZATION:
 The Collaborative Advocate Foundation
-EIN: 41-3618003 | 501(c)(3) Nonprofit
+EIN: 41-3618503 | 501(c)(3) Nonprofit
 17912 Stefano Drive, Pflugerville, TX 78660
 Contact: Dr. Terry Flood, DHA — President
 Email: president@thecollaborativeadvocate.org | Website: thrivingcommunitiesforall.com
@@ -2981,7 +2981,7 @@ AFFILIATED ENTITIES:
       { id: "cen-budget", name: "Budget & Justification", description: "$350K-$500K — behavioral health personnel, technology, community engagement", icon: DollarSign, status: "draft" as ApprovalStatus,
         content: `BUDGET — CENTENE FOUNDATION BEHAVIORAL HEALTH GRANT ($400,000)
 
-APPLICANT: The Collaborative Advocate Foundation | EIN: 41-3618003
+APPLICANT: The Collaborative Advocate Foundation | EIN: 41-3618503
 
 PERSONNEL ($200,000 — 50%):
 - Program Director (Dr. Terry Flood, DHA — 40% effort): $60,000
@@ -3021,7 +3021,7 @@ NOTE: The 24-platform technology infrastructure is already built and operational
       { id: "cen-outcomes", name: "Outcomes & Evaluation", description: "Behavioral health screening rates, treatment connection, fidelity scores via RPLICE", icon: BarChart3, status: "draft" as ApprovalStatus,
         content: `OUTCOMES & EVALUATION — CENTENE FOUNDATION BEHAVIORAL HEALTH GRANT
 
-APPLICANT: The Collaborative Advocate Foundation | EIN: 41-3618003
+APPLICANT: The Collaborative Advocate Foundation | EIN: 41-3618503
 
 All outcomes tracked via RPLICE implementation fidelity monitoring (bettersciencelab.com).
 
@@ -3060,7 +3060,7 @@ Mixed-methods: quantitative outcome tracking via RPLICE + qualitative community 
         content: `ORGANIZATIONAL CAPACITY — CENTENE FOUNDATION BEHAVIORAL HEALTH GRANT
 
 ORGANIZATION: The Collaborative Advocate Foundation
-EIN: 41-3618003 | 501(c)(3) Nonprofit
+EIN: 41-3618503 | 501(c)(3) Nonprofit
 Address: 17912 Stefano Drive, Pflugerville, TX 78660
 Website: thrivingcommunitiesforall.com
 
@@ -3092,7 +3092,7 @@ Centene operates Sendero Health Plans in Travis County. Our behavioral health se
       { id: "cen-partnerships", name: "Partnership Documentation", description: "Integral Care, CommUnityCare, and community organization partnerships", icon: Handshake, status: "draft" as ApprovalStatus,
         content: `PARTNERSHIP DOCUMENTATION — CENTENE FOUNDATION BEHAVIORAL HEALTH GRANT
 
-APPLICANT: The Collaborative Advocate Foundation | EIN: 41-3618003
+APPLICANT: The Collaborative Advocate Foundation | EIN: 41-3618503
 
 PARTNERSHIP 1: INTEGRAL CARE (Travis County LMHA)
 Role: Primary behavioral health referral partner. Integral Care is the Local Mental Health Authority for Travis County, providing crisis services, psychiatric care, and community-based behavioral health programs.
@@ -3157,7 +3157,7 @@ Status: Partnership letters to be requested.`,
       },
     ],
     preExecutionChecklist: [
-      { id: "cenpe-1", category: "Eligibility", item: "501(c)(3) determination letter", status: "verified" as const, notes: "TCAF EIN 41-3618003" },
+      { id: "cenpe-1", category: "Eligibility", item: "501(c)(3) determination letter", status: "verified" as const, notes: "TCAF EIN 41-3618503" },
       { id: "cenpe-2", category: "Technology", item: "Behavioral health screening operational", status: "verified" as const, notes: "Whole-Person Health + Sankofa Health — both live" },
       { id: "cenpe-3", category: "Partnerships", item: "Integral Care partnership", status: "action-needed" as const, notes: "Dr. Flood must initiate contact" },
       { id: "cenpe-4", category: "Partnerships", item: "Sendero Health Plans alignment documented", status: "pending" as const, notes: "Centene subsidiary in Travis County" },
@@ -3205,7 +3205,7 @@ Status: Partnership letters to be requested.`,
     grantKnowledge: `Austin FC Dream Starter Competition — $100,000.
 PURPOSE: 6th annual business competition inviting Austin entrepreneurs from underrepresented groups to compete for $100K in Dream Starter funds. Presented by Q2. Winner announced May 28, 2026.
 ALIGNMENT: TCAF is veteran-founded, Black-led, Austin-based — precisely the underrepresented entrepreneur profile. MCE (Minority Center of Excellence) demonstrates business infrastructure. The 24-platform ACOS ecosystem shows scalable technology business.
-SUBMITTING ENTITY: The Collaborative Advocate Foundation — EIN 41-3618003, or Collaboration & Implementation Professionals LLC (EIN 41-4996540).
+SUBMITTING ENTITY: The Collaborative Advocate Foundation — EIN 41-3618503, or Collaboration & Implementation Professionals LLC (EIN 41-4996540).
 APPLICATION: Via Typeform at austinfc.typeform.com/to/bYJOT3j9.
 DEADLINE: April 13, 2026 at 11:59 PM.`,
     essentials: [
@@ -3240,7 +3240,7 @@ DEADLINE: April 13, 2026 at 11:59 PM.`,
         content: `AUSTIN FC DREAM STARTER — APPLICATION CONTENT
 
 ENTREPRENEUR: Dr. Terry Flood, DHA
-BUSINESS: The Collaborative Advocate Foundation (501(c)(3), EIN 41-3618003) & Collaboration & Implementation Professionals LLC (VOSB, EIN 41-4996540)
+BUSINESS: The Collaborative Advocate Foundation (501(c)(3), EIN 41-3618503) & Collaboration & Implementation Professionals LLC (VOSB, EIN 41-4996540)
 LOCATION: 17912 Stefano Drive, Pflugerville, TX 78660
 EMAIL: president@thecollaborativeadvocate.org
 
@@ -3358,7 +3358,7 @@ ELIGIBLE APPLICANTS: 501(c)(3) nonprofits (TCAF qualifies directly), federally r
 KEY DATES: Grants.gov deadline May 4, 2026. JustGrants deadline May 11, 2026, 8:59 PM ET.
 PRIORITIES: (1) Evidence-based mentoring programs, (2) Transitional services including employment, housing, substance abuse treatment, (3) Risk/needs assessment tools, (4) Data-driven recidivism reduction strategies.
 WHY WE FIT: Justice Command Center provides tract-level crime migration analysis (Buffalo East Side, Wilmington Creekwood, Austin gentrification corridor). Dr. Flood's implementation science approach — "crime migrates with gentrification" and "county averages lie, tract-level tells truth" — is exactly the evidence-based framework BJA wants. Workforce development pathways (CHW certification, career explorer) serve as reentry employment pipelines. Veteran-founded, Black-led nonprofit checks multiple DOJ priority areas.
-SUBMITTING ENTITY: The Collaborative Advocate Foundation — EIN 41-3618003, 501(c)(3).`,
+SUBMITTING ENTITY: The Collaborative Advocate Foundation — EIN 41-3618503, 501(c)(3).`,
     serviceArea: {
       region: "Central Texas",
       state: "Texas",
@@ -3468,7 +3468,7 @@ SUBMITTING ENTITY: The Collaborative Advocate Foundation — EIN 41-3618003, 501
       { id: "sca-pe1", category: "Registration", item: "SAM.gov registration active", status: "verified" as const, notes: "", guidance: "Must be active before submission. Verify UEI number matches across Grants.gov and JustGrants.", resources: [{ label: "SAM.gov", url: "https://sam.gov" }] },
       { id: "sca-pe2", category: "Registration", item: "Grants.gov account active", status: "pending" as const, notes: "", guidance: "Need active Grants.gov account to submit SF-424. Register at grants.gov if not already registered.", resources: [{ label: "Grants.gov", url: "https://www.grants.gov" }] },
       { id: "sca-pe3", category: "Registration", item: "JustGrants account active", status: "pending" as const, notes: "", guidance: "DOJ uses JustGrants for full application. Separate from Grants.gov. Register at justgrants.usdoj.gov.", resources: [{ label: "JustGrants", url: "https://justgrants.usdoj.gov" }] },
-      { id: "sca-pe4", category: "Compliance", item: "501(c)(3) status confirmed", status: "verified" as const, notes: "EIN 41-3618003", guidance: "TCAF's 501(c)(3) status is current. Include IRS determination letter in application." },
+      { id: "sca-pe4", category: "Compliance", item: "501(c)(3) status confirmed", status: "verified" as const, notes: "EIN 41-3618503", guidance: "TCAF's 501(c)(3) status is current. Include IRS determination letter in application." },
       { id: "sca-pe5", category: "Partnerships", item: "Criminal justice agency letters secured", status: "action-needed" as const, notes: "Contact Travis County Reentry Roundtable, probation/parole", guidance: "Need letters from local criminal justice agencies demonstrating collaboration and referral pipeline." },
       { id: "sca-pe6", category: "Partnerships", item: "Second-chance employer commitments (3-5)", status: "action-needed" as const, notes: "Target Goodwill, H-E-B, Foundation Communities", guidance: "Need signed commitment letters from employers willing to hire justice-involved adults." },
       { id: "sca-pe7", category: "Data", item: "Justice Command Center reentry data ready", status: "verified" as const, notes: "Tract-level crime migration analysis operational", guidance: "Justice Command Center already has Austin gentrification corridor analysis. Add reentry-specific metrics." },
@@ -3530,7 +3530,7 @@ ELIGIBILITY: 501(c)(3) or 501(c)(4) with 3+ year performance record. Must serve 
 ALSO AVAILABLE: Community Impact Grants — smaller grants aligned to CRA requirements, same focus areas.
 NOT ELIGIBLE: Political advocacy, for-profit orgs, municipalities, membership orgs, ticketed events.
 APPLICATION REQUIREMENTS: Financial statements, board member list, organization chart. Impact Statement required at conclusion of grant year.
-SUBMITTING ENTITY: The Collaborative Advocate Foundation — EIN 41-3618003, 501(c)(3), 17912 Stefano Drive, Pflugerville, TX 78660.
+SUBMITTING ENTITY: The Collaborative Advocate Foundation — EIN 41-3618503, 501(c)(3), 17912 Stefano Drive, Pflugerville, TX 78660.
 WHY WE WIN: Veteran-founded (Dr. Terry Flood, U.S. Army veteran), Black-led, 501(c)(3) with 3+ years, serving low-to-moderate-income communities in Austin service area. We hit TWO of their three categories. 24-platform technology ecosystem demonstrates innovation and scale that most local nonprofits can't match.`,
     essentials: [
       { label: "Two Category Fit", detail: "TCAF qualifies for Veterans & First Responders ($100K) AND Education & Workforce Development ($50K) — can potentially apply for both", critical: true },
@@ -3598,7 +3598,7 @@ WHY WE WIN: Veteran-founded (Dr. Terry Flood, U.S. Army veteran), Black-led, 501
       },
     ],
     preExecutionChecklist: [
-      { id: "txcf-pe1", category: "Compliance", item: "501(c)(3) status confirmed", status: "verified" as const, notes: "EIN 41-3618003", guidance: "TCAF's 501(c)(3) status is current." },
+      { id: "txcf-pe1", category: "Compliance", item: "501(c)(3) status confirmed", status: "verified" as const, notes: "EIN 41-3618503", guidance: "TCAF's 501(c)(3) status is current." },
       { id: "txcf-pe2", category: "Compliance", item: "Active in IRS Publication 78", status: "action-needed" as const, notes: "Verify at apps.irs.gov/app/eos/", guidance: "Must be searchable in IRS Tax Exempt Organization Search.", resources: [{ label: "IRS TEOS", url: "https://apps.irs.gov/app/eos/" }] },
       { id: "txcf-pe3", category: "Documentation", item: "3+ year performance record documented", status: "action-needed" as const, notes: "Compile program data, outcomes, testimonials", guidance: "Foundation requires minimum 3-year track record of program performance." },
       { id: "txcf-pe4", category: "Documentation", item: "Current financial statements ready", status: "pending" as const, notes: "", guidance: "Audited or reviewed financial statements preferred. At minimum, compiled statements + Form 990." },
@@ -3657,7 +3657,7 @@ STATUS: 2025-2026 cycle is CLOSED/IN PROGRESS. 2027-2028 RFP expected to be rele
 FOCUS AREAS: Access to care, health literacy, food security/nutrition, behavioral health, social determinants of health (SDoH). Must drive transformative, measurable changes in health equity.
 APPROACH: Strategic, collaborative grants — they want multi-organization partnerships, not solo programs. Community-driven solutions with data-driven approaches.
 WHY WE FIT: Sankofa Health (culturally responsive screening), PillScheduler (medication adherence), WholeMind Learning (mental health), AutoImmune Thrive (chronic disease), Speech Bridge (communication access). 7 health-focused platforms across the ecosystem. CHW workforce pipeline directly addresses access to care in underserved communities.
-SUBMITTING ENTITY: The Collaborative Advocate Foundation — EIN 41-3618003, 501(c)(3).
+SUBMITTING ENTITY: The Collaborative Advocate Foundation — EIN 41-3618503, 501(c)(3).
 WATCH LIST: Sign up for email notifications at texashealth.org/community-health/community-impact to be notified when 2027-2028 RFP drops.`,
     essentials: [
       { label: "WATCH LIST — Not Open Yet", detail: "2025-2026 cycle is underway. 2027-2028 RFP expected to release mid-to-late 2026. Sign up for notifications now.", critical: true },
@@ -3723,7 +3723,7 @@ WATCH LIST: Sign up for email notifications at texashealth.org/community-health/
     ],
     preExecutionChecklist: [
       { id: "txhr-pe1", category: "Notification", item: "Email notification list signup", status: "action-needed" as const, notes: "Sign up at texashealth.org", guidance: "Critical first step — ensures you know when the 2027-2028 RFP drops.", resources: [{ label: "THR Grant Opportunities", url: "https://www.texashealth.org/community-health/community-impact/Grant-Opportunities" }] },
-      { id: "txhr-pe2", category: "Compliance", item: "501(c)(3) status confirmed", status: "verified" as const, notes: "EIN 41-3618003", guidance: "TCAF's 501(c)(3) status is current." },
+      { id: "txhr-pe2", category: "Compliance", item: "501(c)(3) status confirmed", status: "verified" as const, notes: "EIN 41-3618503", guidance: "TCAF's 501(c)(3) status is current." },
       { id: "txhr-pe3", category: "Partnerships", item: "Health system collaborative partners identified", status: "action-needed" as const, notes: "Need FQHC, hospital, or LMHA partner", guidance: "Texas Health wants collaborative applications. Identify and approach partners NOW, before the RFP drops." },
       { id: "txhr-pe4", category: "Data", item: "Health disparity data compiled for Central Texas", status: "pending" as const, notes: "", guidance: "Census tract health data for Travis County — the foundation expects data-driven applications." },
       { id: "txhr-pe5", category: "Technology", item: "Health platform demos ready", status: "verified" as const, notes: "Sankofa, PillScheduler, WholeMind, AutoImmune Thrive all operational", guidance: "All health platforms are live and can be demoed to Texas Health reviewers if needed." },

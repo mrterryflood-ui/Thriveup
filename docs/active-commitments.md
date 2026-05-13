@@ -186,7 +186,7 @@ Run via `scripts/ecosystem-alignment-scan.sh`. Re-run anytime alignment is in do
 
 ## TCAF / The Collaborative Advocate — legal status (UPDATED May 12, 2026 — IRS DETERMINATION RECEIVED)
 
-- **🚨 EIN correction pending user confirmation:** IRS Letter 947 photographed 05/12/2026 shows **EIN 41-3618503** (with a **5**). All prior memory + grant submissions used **41-3618003** (sourced from a typed EOI markdown). **IRS letter is authoritative**; awaiting user double-check of the SS-4 / determination email before mass-correcting submitted grant docs (NSF-TechAccess-LOI-Draft, St-Davids-WAB2-LOI-Package, TWC-RFA-32026-00162-FORM-A-APPLICATION, TX-Reentry-Stipend-Pilot-Overview, RWJF-CV, TCAF-Organizational-Budget-FY2025-2026, grant-command-center.tsx notes, landing.tsx footer, 5 .cjs PPTX generators). **If 41-3618503 is correct, file corrections with TWC and any funder who received the prior number.**
+- **🚨 EIN CORRECTED May 12, 2026 (user confirmed IRS letter is authoritative):** Was **41-3618003** (typo in originally-typed `attached_assets/Agency_Fund_EOI_Collaborative_Advocate.md`), now **41-3618503**. Mass-replaced across 61 project files via `sed`. `attached_assets/` left untouched as historical record of what was originally entered. **Funders who likely received the wrong EIN — file corrections:** (a) **🔴 City of Austin AEI FY26** (Equity Mini-Grant Narrative + Application Responses FINAL — submitted; user confirms entered manually so the submitted form may have either number — check the submitted PDF on AustinFirst portal first); (b) **🔴 TWC RFA 32026-00162** (FORM-A-APPLICATION submitted with old EIN — file Form A correction with TWC contracts office); (c) **🟡 Spencer Foundation Narrative SUBMISSION.doc** (check whether actually submitted vs. draft); (d) **🟡 St. David's WAB2 LOI Package** (LOI submitted via GivingData 4/27/2026 — check what EIN was on the GivingData form); (e) **🟢 NSF TechAccess, NSF ATE, NSF STEM K-12, DOL RESTART, CDMRP PRMRP, RARE Impact Fund, Borealis DIF x Tech, RWJF CV** — drafts only, no correction needed, just resubmit clean. (f) **🟢 Public site landing.tsx footer + grant-command-center.tsx notes** — auto-fixed in sweep, no funder action needed.
 - **501(c)(3) DETERMINED** by IRS Letter 947 dated **04/30/2026**, effective **01/14/2026**. Public charity under **170(b)(1)(A)(vi)** (publicly-supported organization). Contributions ARE deductible. Form 990/990-EZ/990-N required. Accounting period ends Dec 31. No addendum.
 - Person to contact at IRS if questions: **Mrs. Hurst, ID# 1793423, 877-829-5500**.
 - **Stop using:** "501(c)(3) determination pending," "Tracking 281OIP7B," "fiscal sponsorship via Abundant Life Church," "during the determination period." All superseded.
@@ -332,12 +332,12 @@ Full reference: `docs/grants/Top-5-Grants-URLs-and-Requirements.md`
 **TCAF Submission-Ready Quick Reference (use for ALL future grant fields):**
 - **Legal name:** The Collaborative Advocate Foundation
 - **DBA:** TCAF
-- **EIN:** 41-3618003
-- **501(c)(3):** Pending — IRS Tracking 281OIP7B, filed 4/27/2026
+- **EIN:** 41-3618503 *(corrected May 12, 2026 from typo `41-3618003` — IRS Letter 947 authoritative)*
+- **501(c)(3):** **DETERMINED** — IRS Letter 947 dated 04/30/2026, effective 01/14/2026, public charity under IRC §170(b)(1)(A)(vi), contributions deductible
 - **Address:** 17912 Stefano Drive, Pflugerville, TX 78660 (Travis County)
 - **President / Signer:** Dr. Terry Flood, DHA
-- **Federal tax classification on W-9:** "Other" → "Nonprofit corporation — 501(c)(3) determination pending (IRS Tracking 281OIP7B)"
-- **Fiscal sponsor (backup if 501(c)(3) status blocks):** Abundant Life Church
+- **Federal tax classification on W-9:** "Other" → "Nonprofit corporation — 501(c)(3) public charity, IRS Letter 947 dated 04/30/2026"
+- **Fiscal sponsor:** N/A — no longer needed (TCAF holds direct 501(c)(3) determination)
 - **City of Austin Vendor Code:** TBD — register at https://financeonline.austintexas.gov
 - **SAM.gov UEI:** TBD — verify status before federal grants (#1, #3, #4, #5 from top-5)
 
@@ -400,7 +400,7 @@ Full reference: `docs/grants/Top-5-Grants-URLs-and-Requirements.md`
 
 **⚠️ Spotted while editing landing.tsx — flag for later (NOT changed):**
 - Footer contact email is `president@thecollaborativeadvocate.org` (line 895). Per current institutional-email rule, public-facing email should be `terryflood@thrivingcommunitiesforall.com`. Decide whether to swap or keep both.
-- Footer brand text reads "The Collaborative Advocate Foundation 501(c)(3)" (line 869). Per honest-disclosure rule, TCAF 501(c)(3) is **pending IRS determination** (Tracking 28101P7B, filed 4/27/2026) — sidebar already says this correctly, but footer reads as if final. Worth aligning.
+- ~~Footer brand text reads "The Collaborative Advocate Foundation 501(c)(3)" — pending IRS determination~~ **RESOLVED May 12, 2026:** IRS Letter 947 received; 501(c)(3) determined effective 01/14/2026. Footer language is now factually correct. Sidebar/footer alignment task closed. **TODO:** sweep all narratives for "pending IRS determination" / "during the determination period" hedge language and replace with the determination citation (separate task — too risky for sed; needs manual review per-document).
 
 **Resolved (May 6, 2026):**
 - Footer email swapped: `president@thecollaborativeadvocate.org` → `terryflood@thrivingcommunitiesforall.com`

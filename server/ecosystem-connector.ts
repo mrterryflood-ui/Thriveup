@@ -10005,7 +10005,7 @@ if (typeof module !== "undefined") {
         ecosystem: "ThriveUp Academy — Collaborative Advocate Ecosystem",
         parent: "The Collaborative Advocate Foundation (501(c)(3))",
         founder: "Dr. Terry Flood",
-        ein: "41-3618003",
+        ein: "41-3618503",
         hub: "https://thrivingcommunitiesforall.com",
         version: "3.0",
         lastUpdated: new Date().toISOString(),

@@ -8,7 +8,7 @@
 ## APPLICANT
 
 **The Collaborative Advocate Foundation (TCAF)**
-501(c)(3) | EIN 41-3618003
+501(c)(3) | EIN 41-3618503
 17912 Stefano Drive, Pflugerville, TX 78660
 Veteran-founded | Black-led
 

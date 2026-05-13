@@ -21,7 +21,7 @@ import { BackToTop } from "@/components/back-to-top";
 import jsPDF from "jspdf";
 
 const ENTITIES = [
-  { name: "The Collaborative Advocate Foundation", role: "Fiscal Agent & Research Engine", type: "501(c)(3) Nonprofit", ein: "41-3618003", icon: Building2 },
+  { name: "The Collaborative Advocate Foundation", role: "Fiscal Agent & Research Engine", type: "501(c)(3) Nonprofit", ein: "41-3618503", icon: Building2 },
   { name: "Collaboration & Implementation Professionals LLC", role: "Technology & Consulting", type: "Veteran-Owned Small Business", ein: "41-4996540", icon: Briefcase },
   { name: "M&T Consulting Solutions LLC", role: "Strategic Advisory & Program Design", type: "Consulting Entity", ein: "41-4952178", icon: GraduationCap },
 ];

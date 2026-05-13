@@ -4,7 +4,7 @@
 ### Central Texas Regional Coalition for Public Benefits Enrollment
 **The Collaborative Advocate Foundation (TCAF)**  
 17912 Stefano Drive, Pflugerville, TX 78660 | Williamson County  
-EIN: 41-3618003 | Contact: Dr. Terry Flood, DHA
+EIN: 41-3618503 | Contact: Dr. Terry Flood, DHA
 
 ---
 

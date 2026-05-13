@@ -40,7 +40,7 @@
 | 2.4 Mailing Address | 17912 Stefano Drive, Pflugerville, TX 78660 |
 | 2.5 Website / Social Media | https://thrivingcommunitiesforall.com • https://talkyourtalk.net |
 | 2.6 Annual Operating Budget | Under $500,000 |
-| 2.7 501(c)(3)? | **No — applying as an organizational vendor.** TCAF's 501(c)(3) application is filed and pending IRS determination (IRS Tracking 281OIP7B, filed April 27, 2026; EIN 41-3618003). City of Austin vendor registration approved May 7, 2026. |
+| 2.7 501(c)(3)? | **No — applying as an organizational vendor.** TCAF's 501(c)(3) application is filed and pending IRS determination (IRS Tracking 281OIP7B, filed April 27, 2026; EIN 41-3618503). City of Austin vendor registration approved May 7, 2026. |
 | 2.8 Fiscal Sponsor (optional) | Not applicable — TCAF is contracting directly as an approved City of Austin vendor (registration confirmed May 7, 2026). (Backup fiscal sponsor available if needed: Abundant Life Church.) |
 | 2.9 Primary Contact | Dr. Terry Flood, DHA — President, TCAF — **(254) 319-8460** — **terryflood@thrivingcommunitiesforall.com** |
 | 2.10 Secondary Contact (optional) | **Leave blank** — TCAF will name a secondary contact only after onboarding if City staff requires one. (See note below.) |

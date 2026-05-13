@@ -1,6 +1,6 @@
 # HerHealth Network by Sankofa — Grant Opportunities Prospectus
 ## 33 Evaluated Opportunities: Federal, State, Local & Foundation
-**Prepared**: April 2026 | **Platform**: herhealthmatters2.com | **Applicant Type**: Nonprofit (VOSB, EIN 41-3618003)
+**Prepared**: April 2026 | **Platform**: herhealthmatters2.com | **Applicant Type**: Nonprofit (VOSB, EIN 41-3618503)
 
 ---
 
@@ -394,7 +394,7 @@
 | Komen Community Grants | komen.org/community-grants | Susan G. Komen |
 | RWJF Grants | rwjf.org/en/grants | Robert Wood Johnson Foundation |
 
-**Your EIN**: 41-3618003 | **SAM.gov registration**: Verify current and active | **VOSB status**: Verify current at vetbiz.va.gov
+**Your EIN**: 41-3618503 | **SAM.gov registration**: Verify current and active | **VOSB status**: Verify current at vetbiz.va.gov
 
 ---
 

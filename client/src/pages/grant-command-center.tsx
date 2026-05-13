@@ -485,7 +485,7 @@ const INITIAL_GRANTS: GrantEntry[] = [
     platforms: ["TCAF", "LifeBridge"],
     category: "federal",
     documents: [],
-    notes: "Housing instability cascade mapping in Austin, TX (ZIP codes 78741, 78702, 78753). Partners: Austin Housing Authority, ECHO, Foundation Communities, Central Health, Integral Care. RPLICE Pipeline at /r03-pipeline. SAM.gov registration required (EIN 41-3618003). Most urgent NIH submission.",
+    notes: "Housing instability cascade mapping in Austin, TX (ZIP codes 78741, 78702, 78753). Partners: Austin Housing Authority, ECHO, Foundation Communities, Central Health, Integral Care. RPLICE Pipeline at /r03-pipeline. SAM.gov registration required (EIN 41-3618503). Most urgent NIH submission.",
     url: "https://grants.nih.gov/grants/guide/pa-files/PA-25-302.html",
     submitUrl: "https://public.era.nih.gov/assist",
     submitPortal: "NIH ASSIST / eRA Commons",

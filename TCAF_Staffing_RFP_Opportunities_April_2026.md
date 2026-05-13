@@ -1,6 +1,6 @@
 # TCAF + M&T Consulting — Staffing & Service RFP Opportunities
 ## Revised Analysis: Staffing Capability Unlocks 25+ Additional Opportunities
-### Dr. Terry Flood | TCAF (EIN 41-3618003) | M&T Consulting (EIN 41-4952178)
+### Dr. Terry Flood | TCAF (EIN 41-3618503) | M&T Consulting (EIN 41-4952178)
 
 ---
 
@@ -108,7 +108,7 @@
 
 | Entity | EIN | Best For |
 |--------|-----|----------|
-| **TCAF** | 41-3618003 | Grants, community health, CHW programs, youth education, prevention, nonprofit-required RFPs |
+| **TCAF** | 41-3618503 | Grants, community health, CHW programs, youth education, prevention, nonprofit-required RFPs |
 | **M&T Consulting** | 41-4952178 | Staffing contracts, consulting engagements, benefits consulting, for-profit RFP responses |
 | **CIP LLC** | 41-4996540 | Technology/platform contracts, AI services, software delivery |
 

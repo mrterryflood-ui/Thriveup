@@ -1,6 +1,6 @@
 # St. David's We All Benefit 2.0 — Letter of Intent (FINAL DRAFT)
 ## The Collaborative Advocate Foundation (TCAF)
-## EIN: 41-3618003
+## EIN: 41-3618503
 ### Submitted via GivingData Portal
 ### Due: April 27, 2026 at 5:00 PM CT
 
@@ -37,7 +37,7 @@ We are stronger together. We are asking for the resources to prove it.
 **Word Count: 500**
 
 **Organization:** The Collaborative Advocate Foundation (TCAF)
-**EIN:** 41-3618003
+**EIN:** 41-3618503
 **Address:** 17912 Stefano Drive, Pflugerville, TX 78660 (Williamson County)
 **Contact:** Dr. Terry Flood, mr.terryflood@gmail.com, 254-319-8460
 **Public Data Platform:** thrivingcommunitiesforall.com/sdoh-explorer

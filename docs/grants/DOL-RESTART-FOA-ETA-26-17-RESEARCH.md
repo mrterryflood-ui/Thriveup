@@ -247,7 +247,7 @@ All costs must be:
 ### TCAF Strengths for This Application:
 1. **AI and Digital Literacy Training** — ThriveUp is literally what the FOA asks for
 2. **Criminal Justice Background** — Dr. Flood's MS Criminal Justice is directly relevant
-3. **501(c)(3) Status** — TCAF (EIN 41-3618003) is eligible
+3. **501(c)(3) Status** — TCAF (EIN 41-3618503) is eligible
 4. **Implementation Science** — Evidence-based program design is a scoring priority
 5. **Workforce Development Experience** — TWC RFA already demonstrates this capability
 

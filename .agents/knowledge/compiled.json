@@ -1,14 +1,14 @@
 {
   "version": "1.1.0",
-  "compiledAt": "2026-05-13T23:20:03.275Z",
+  "compiledAt": "2026-05-13T23:22:08.118Z",
   "sources": [
     {
       "path": "replit.md",
-      "mtime": "2026-05-13T23:19:46.904Z"
+      "mtime": "2026-05-13T23:21:17.650Z"
     },
     {
       "path": "docs/active-commitments.md",
-      "mtime": "2026-05-13T23:19:59.977Z"
+      "mtime": "2026-05-13T23:22:02.708Z"
     },
     {
       "path": ".agents/skills/map-gap/lessons-learned.md",
@@ -24,7 +24,7 @@
     },
     {
       "path": "DB:ecosystem_platforms",
-      "mtime": "2026-05-13T23:20:03.275Z"
+      "mtime": "2026-05-13T23:22:08.118Z"
     }
   ],
   "project": {
@@ -212,9 +212,9 @@
       "severity": "high"
     },
     {
-      "id": "caftcaf-entity-facts-irs-letter-947-dated-04302026-photographed-may-12-2026",
-      "rule": "🚨 CAF/TCAF entity facts (IRS Letter 947, dated 04/30/2026, photographed May 12, 2026)",
-      "detail": "Legal name **The Collaborative Advocate Foundation Inc** (DBA TCAF) · **EIN 41-3618503** (the **5**, not the 0 that was previously typed in `Agency_Fund_EOI_Collaborative_Advocate.md` — IRS letter is source of truth, USER PENDING CONFIRMATION May 12, 2026 before mass-correcting submitted grants) · **501(c)(3) DETERMINED** (no longer \"pending\") · Public charity under **170(b)(1)(A)(vi)** · Effective date of exemption **01/14/2026** · Contributions deductible YES · Form 990/990-EZ/990-N required YES · Accounting period ends **December 31** · IRS contact: Mrs. Hurst, ID 1793423, 877-829-5500 · Address: 17912 Stefano Drive, Pflugerville, TX 78660 · c/o Terry D Flood Sr. · **Stop using \"fiscal sponsorship via Abundant Life Church\" hedge — no longer needed.** · Stop using \"Tracking 281OIP7B / pending determination\" — superseded by Letter 947.",
+      "id": "caftcaf-entity-facts-irs-letter-947-dated-04302026-user-confirmed-may-12-2026",
+      "rule": "🚨 CAF/TCAF entity facts (IRS Letter 947, dated 04/30/2026; user-confirmed May 12, 2026)",
+      "detail": "Legal name **The Collaborative Advocate Foundation Inc** (DBA TCAF) · **EIN 41-3618503** (the **5** — corrected May 12, 2026 from typo `41-3618003` that propagated from `attached_assets/Agency_Fund_EOI_Collaborative_Advocate.md`; 61 project files swept) · **501(c)(3) DETERMINED** (no longer \"pending\") · Public charity under **170(b)(1)(A)(vi)** · Effective date of exemption **01/14/2026** · Contributions deductible YES · Form 990/990-EZ/990-N required YES · Accounting period ends **December 31** · IRS contact: Mrs. Hurst, ID 1793423, 877-829-5500 · Address: 17912 Stefano Drive, Pflugerville, TX 78660 · c/o Terry D Flood Sr. · **Stop using \"fiscal sponsorship via Abundant Life Church\" hedge — no longer needed.** · Stop using \"Tracking 281OIP7B / pending determination\" — superseded by Letter 947. · **`attached_assets/` retains old EIN as historical record of what was originally typed — do NOT edit.**",
       "severity": "high"
     }
   ],
@@ -1484,7 +1484,7 @@
       {
         "id": "tcaf-the-collaborative-advocate-legal-status-updated-may-12-2026-irs-determinati",
         "heading": "TCAF / The Collaborative Advocate — legal status (UPDATED May 12, 2026 — IRS DETERMINATION RECEIVED)",
-        "summary": "- **🚨 EIN correction pending user confirmation:** IRS Letter 947 photographed 05/12/2026 shows **EIN 41-3618503** (with a **5**). All prior memory + grant submissions used **41-3618003** (sourced from a typed EOI markdown). **IRS letter is authoritative**; awaiting user double-check of the SS-4 / determination email before mass-correcting submitted grant docs (NSF-TechAccess-LOI-Draft, St-Davids-WAB2-LOI-Package, TWC-RFA-32026-00162-FORM-A-APPLICATION, TX-Reentry-Stipend-Pilot-Overview, RWJF-CV, TCAF-Organizational-Budget-FY2025-2026, grant-command-center.tsx notes, landing.tsx footer, 5 .cjs PPTX generators). **If 41-3618503 is correct, file corrections with TWC and any funder who received the prior number.**\n- **501(c)(3) DETERMINED** by IRS Letter 947 dated **04/30/2026**, effective **"
+        "summary": "- **🚨 EIN CORRECTED May 12, 2026 (user confirmed IRS letter is authoritative):** Was **41-3618003** (typo in originally-typed `attached_assets/Agency_Fund_EOI_Collaborative_Advocate.md`), now **41-3618503**. Mass-replaced across 61 project files via `sed`. `attached_assets/` left untouched as historical record of what was originally entered. **Funders who likely received the wrong EIN — file corrections:** (a) **🔴 City of Austin AEI FY26** (Equity Mini-Grant Narrative + Application Responses FINAL — submitted; user confirms entered manually so the submitted form may have either number — check the submitted PDF on AustinFirst portal first); (b) **🔴 TWC RFA 32026-00162** (FORM-A-APPLICATION submitted with old EIN — file Form A correction with TWC contracts office); (c) **🟡 Spencer Founda"
       },
       {
         "id": "next-thread-queue",
@@ -1524,7 +1524,7 @@
       {
         "id": "lesson-may-7-2026-mid-aei-submission",
         "heading": "Lesson — May 7, 2026 (mid-AEI submission)",
-        "summary": "**Don't ask the user for facts already in memory during live submissions.** When user is filling out a vendor portal / W-9 / SF-424 in real time, pull every field from this file and `AEI-FY26-Equity-Mini-Grant-Narrative.md` and present a complete, fillable answer — not a template with blanks.\n\n**TCAF Submission-Ready Quick Reference (use for ALL future grant fields):**\n- **Legal name:** The Collaborative Advocate Foundation\n- **DBA:** TCAF\n- **EIN:** 41-3618003\n- **501(c)(3):** Pending — IRS Tracking 281OIP7B, filed 4/27/2026\n- **Address:** 17912 Stefano Drive, Pflugerville, TX 78660 (Travis County)\n- **President / Signer:** Dr. Terry Flood, DHA\n- **Federal tax classification on W-9:** \"Other\" → \"Nonprofit corporation — 501(c)(3) determination pending (IRS Tracking 281OIP7B)\"\n- **Fiscal sp"
+        "summary": "**Don't ask the user for facts already in memory during live submissions.** When user is filling out a vendor portal / W-9 / SF-424 in real time, pull every field from this file and `AEI-FY26-Equity-Mini-Grant-Narrative.md` and present a complete, fillable answer — not a template with blanks.\n\n**TCAF Submission-Ready Quick Reference (use for ALL future grant fields):**\n- **Legal name:** The Collaborative Advocate Foundation\n- **DBA:** TCAF\n- **EIN:** 41-3618503 *(corrected May 12, 2026 from typo `41-3618003` — IRS Letter 947 authoritative)*\n- **501(c)(3):** **DETERMINED** — IRS Letter 947 dated 04/30/2026, effective 01/14/2026, public charity under IRC §170(b)(1)(A)(vi), contributions deductible\n- **Address:** 17912 Stefano Drive, Pflugerville, TX 78660 (Travis County)\n- **President / Sign"
       },
       {
         "id": "aei-fy26-submission-may-7-2026-update",

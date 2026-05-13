@@ -197,7 +197,7 @@ export default function StDavidsWAB2WorkspacePage() {
               St. David's We All Benefit 2.0 — LOI Workspace
             </h1>
             <p className="text-muted-foreground mt-1">
-              The Collaborative Advocate Foundation (TCAF) · EIN 41-3618003 · Building Economic Stability
+              The Collaborative Advocate Foundation (TCAF) · EIN 41-3618503 · Building Economic Stability
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -415,7 +415,7 @@ export default function StDavidsWAB2WorkspacePage() {
                 <div>
                   <div className="font-semibold mb-1">Organization</div>
                   <div className="text-muted-foreground">The Collaborative Advocate Foundation (TCAF)</div>
-                  <div className="text-muted-foreground">EIN: 41-3618003</div>
+                  <div className="text-muted-foreground">EIN: 41-3618503</div>
                   <div className="text-muted-foreground">17912 Stefano Drive, Pflugerville, TX 78660</div>
                 </div>
                 <div>

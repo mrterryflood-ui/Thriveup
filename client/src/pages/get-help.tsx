@@ -491,7 +491,7 @@ export default function GetHelpPage() {
         </Card>
 
         <div className="mt-6 text-center text-xs text-muted-foreground space-y-1">
-          <p>The Collaborative Advocate Foundation (TCAF) · 501(c)(3) · EIN 41-3618003</p>
+          <p>The Collaborative Advocate Foundation (TCAF) · 501(c)(3) · EIN 41-3618503</p>
           <p>HHSC Community Partner Program · thrivingcommunitiesforall.com</p>
           <p>Dr. Terry Flood, Founder · US Army Veteran (17 years) · president@thecollaborativeadvocate.org · 254-319-8460</p>
         </div>

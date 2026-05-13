@@ -229,7 +229,7 @@ This is NOT a program that disappears when funding ends.
 ## About TCAF
 
 **The Collaborative Advocate Foundation**
-- 501(c)(3) nonprofit | EIN: 41-3618003
+- 501(c)(3) nonprofit | EIN: 41-3618503
 - Veteran-founded, Black-led
 - Headquartered in Pflugerville, TX (Williamson County)
 - Founded by Dr. Terry Flood, DHA

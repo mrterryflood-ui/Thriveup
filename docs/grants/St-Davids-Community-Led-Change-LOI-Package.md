@@ -2,7 +2,7 @@
 ## Complete LOI Strategy Package
 
 **Applicant:** The Collaborative Advocate Foundation (TCAF)
-**EIN:** 41-3618003 | 501(c)(3) Nonprofit
+**EIN:** 41-3618503 | 501(c)(3) Nonprofit
 **Address:** 17912 Stefano Drive, Pflugerville, TX 78660 (Williamson County)
 **Contact:** Dr. Terry Flood, DHA — President
 **Email:** mr.terryflood@gmail.com

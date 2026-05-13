@@ -33,7 +33,7 @@ Prof. Laura Franco, Austin Community College
 ## Participating Organizations
 
 **Lead Institution:**
-The Collaborative Advocate Foundation (TCAF) — 501(c)(3) nonprofit, EIN 41-3618003, Pflugerville, TX
+The Collaborative Advocate Foundation (TCAF) — 501(c)(3) nonprofit, EIN 41-3618503, Pflugerville, TX
 
 **Sub-Awardee / Research Partner:**
 [University partner — TBD: Huston-Tillotson University, Texas State University, or Prairie View A&M]
@@ -87,7 +87,7 @@ TCAF brings something no university-only proposal can match: a 24-platform AI-po
 ---
 
 **Organization:** The Collaborative Advocate Foundation (TCAF)
-**EIN:** 41-3618003
+**EIN:** 41-3618503
 **Address:** 17912 Stefano Drive, Pflugerville, TX 78660
 **PI Contact:** Dr. Terry Flood, mr.terryflood@gmail.com, 254-319-8460
 **Website:** https://thrivingcommunitiesforall.com

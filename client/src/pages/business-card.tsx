@@ -165,7 +165,7 @@ function BusinessCardBack({ data, theme }: { data: CardData; theme: string }) {
         </div>
 
         <p className={`text-[8px] mt-3 font-medium ${t.subtext}`}>
-          501(c)(3) Nonprofit | EIN: 41-3618003
+          501(c)(3) Nonprofit | EIN: 41-3618503
         </p>
         <p className={`text-[8px] ${t.subtext}`}>{data.website}</p>
       </div>

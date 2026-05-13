@@ -312,7 +312,7 @@ slide.addShape(pres.ShapeType.rect, {
   x: 0, y: 7.05, w: 13.33, h: 0.45,
   fill: { color: C.navy },
 });
-slide.addText("thrivingcommunitiesforall.com  |  mr.terryflood@gmail.com  |  Pflugerville, TX 78660  |  EIN 41-3618003", {
+slide.addText("thrivingcommunitiesforall.com  |  mr.terryflood@gmail.com  |  Pflugerville, TX 78660  |  EIN 41-3618503", {
   x: 0.5, y: 7.05, w: 12, h: 0.45,
   fontSize: 10, fontFace: "Arial", color: C.gold, align: "center",
 });
