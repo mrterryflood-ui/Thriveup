@@ -1,6 +1,6 @@
 {
   "version": "1.1.0",
-  "compiledAt": "2026-05-14T14:58:48.189Z",
+  "compiledAt": "2026-05-14T18:05:30.100Z",
   "sources": [
     {
       "path": "replit.md",
@@ -8,7 +8,7 @@
     },
     {
       "path": "docs/active-commitments.md",
-      "mtime": "2026-05-14T14:58:40.370Z"
+      "mtime": "2026-05-14T18:05:24.335Z"
     },
     {
       "path": ".agents/skills/map-gap/lessons-learned.md",
@@ -24,7 +24,7 @@
     },
     {
       "path": "DB:ecosystem_platforms",
-      "mtime": "2026-05-14T14:58:48.189Z"
+      "mtime": "2026-05-14T18:05:30.100Z"
     }
   ],
   "project": {
@@ -275,53 +275,6 @@
   ],
   "platforms": [
     {
-      "id": "mce",
-      "name": "Minority Center of Excellence",
-      "url": "https://minoritycenterofexcellence.com",
-      "role": "business-ecosystem",
-      "domain": "business-intelligence",
-      "status": "registered",
-      "health_status": "online",
-      "public_visible": true,
-      "description": "First comprehensive digital ecosystem for minority-owned businesses with 656,794 curated SAM.gov records. 14 AI-powered tools covering the 6-stage business lifecycle (Start → Certify → Find → Bid → Win → Scale). Dual-AI proposal review system (GPT + Claude cross-validation), live SAM.gov integration pulling real federal opportunities, 50-state + DC certification coverage, Business Health Score algorithm, Teaming Hub for joint venture matching, and Certification Wizard for 8(a)/HUBZone/WOSB/SDVOSB guidance. Integrates with Pinnacle for contractor enablement, M2C for veteran entrepreneurs, and Whole-Person Health for workforce wellness. Produces business outcome data (certifications obtained, contracts won, revenue impact) for WIOA and foundation grants.",
-      "capabilities": {
-        "records": 656794,
-        "features": [
-          "6-Stage Business Lifecycle Engine",
-          "656,794 SAM.gov Records",
-          "14 AI Tools",
-          "Dual-AI Proposal Review (GPT+Claude)",
-          "SAM.gov Live Integration",
-          "Business Health Score Algorithm",
-          "Certification Wizard (8(a)/HUBZone/WOSB/SDVOSB)",
-          "Teaming Hub",
-          "Contract Intelligence Dashboard",
-          "Revenue Impact Tracker",
-          "50-State Certification Coverage",
-          "Proposal Template Library",
-          "Market Research Tools",
-          "Competitor Analysis"
-        ],
-        "grantNarrative": "Produces business certification rates, contract win data, revenue impact metrics, and minority business growth outcomes for WIOA workforce and foundation economic development grants",
-        "outcomeMetrics": [
-          "SAM.gov records curated: 656,794",
-          "Business certifications assisted: 89",
-          "Contract opportunities matched: 1,234",
-          "Dual-AI proposal reviews: 345",
-          "Business Health Score assessments: 567",
-          "Teaming Hub matches: 78",
-          "Revenue impact tracked: $4.2M across client portfolio"
-        ],
-        "integrationDepth": "Bidirectional with Pinnacle (contractor enablement), M2C (veteran entrepreneurs), Ad Targeting (business outreach), Video Creator AI (marketing content)"
-      },
-      "grant_alignment": [
-        "wioa",
-        "foundation",
-        "ssg-fox"
-      ],
-      "last_heartbeat": null
-    },
-    {
       "id": "ad-targeting",
       "name": "Advertising Targeting for Platforms",
       "url": "https://adtargetingplatforms.com",
@@ -410,6 +363,99 @@
       "last_heartbeat": "2026-03-31T11:57:03.776Z"
     },
     {
+      "id": "mce",
+      "name": "Minority Center of Excellence",
+      "url": "https://minoritycenterofexcellence.com",
+      "role": "business-ecosystem",
+      "domain": "business-intelligence",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "First comprehensive digital ecosystem for minority-owned businesses with 656,794 curated SAM.gov records. 14 AI-powered tools covering the 6-stage business lifecycle (Start → Certify → Find → Bid → Win → Scale). Dual-AI proposal review system (GPT + Claude cross-validation), live SAM.gov integration pulling real federal opportunities, 50-state + DC certification coverage, Business Health Score algorithm, Teaming Hub for joint venture matching, and Certification Wizard for 8(a)/HUBZone/WOSB/SDVOSB guidance. Integrates with Pinnacle for contractor enablement, M2C for veteran entrepreneurs, and Whole-Person Health for workforce wellness. Produces business outcome data (certifications obtained, contracts won, revenue impact) for WIOA and foundation grants.",
+      "capabilities": {
+        "records": 656794,
+        "features": [
+          "6-Stage Business Lifecycle Engine",
+          "656,794 SAM.gov Records",
+          "14 AI Tools",
+          "Dual-AI Proposal Review (GPT+Claude)",
+          "SAM.gov Live Integration",
+          "Business Health Score Algorithm",
+          "Certification Wizard (8(a)/HUBZone/WOSB/SDVOSB)",
+          "Teaming Hub",
+          "Contract Intelligence Dashboard",
+          "Revenue Impact Tracker",
+          "50-State Certification Coverage",
+          "Proposal Template Library",
+          "Market Research Tools",
+          "Competitor Analysis"
+        ],
+        "grantNarrative": "Produces business certification rates, contract win data, revenue impact metrics, and minority business growth outcomes for WIOA workforce and foundation economic development grants",
+        "outcomeMetrics": [
+          "SAM.gov records curated: 656,794",
+          "Business certifications assisted: 89",
+          "Contract opportunities matched: 1,234",
+          "Dual-AI proposal reviews: 345",
+          "Business Health Score assessments: 567",
+          "Teaming Hub matches: 78",
+          "Revenue impact tracked: $4.2M across client portfolio"
+        ],
+        "integrationDepth": "Bidirectional with Pinnacle (contractor enablement), M2C (veteran entrepreneurs), Ad Targeting (business outreach), Video Creator AI (marketing content)"
+      },
+      "grant_alignment": [
+        "wioa",
+        "foundation",
+        "ssg-fox"
+      ],
+      "last_heartbeat": null
+    },
+    {
+      "id": "sankofa",
+      "name": "Sankofa Health Network",
+      "url": "https://yourhealthbirthright.net",
+      "role": "health-gateway",
+      "domain": "health-equity",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "Health equity gateway orchestrating 5 sub-platforms (Maternal Health, Feminine Health, Men's Health, Cognitive Safety, Medication Management). Delivers culturally responsive behavioral health assessments, GIS-powered resource matching to 20,670+ resources, and population-specific health navigation for Black communities. Coordinates upstream screening data from Whole-Person Health hub and routes to specialized sub-platforms based on demographic and clinical need. Produces health equity outcome data for St. David's and SSG Fox grant reporting. Network architecture ensures no single point of failure — sub-platforms operate independently but coordinate through Sankofa's routing layer.",
+      "capabilities": {
+        "features": [
+          "Black Maternal Health Network Coordination",
+          "Mental Health Rights Advocacy",
+          "Breast Cancer Awareness & Screening",
+          "Black Men's Health Programs",
+          "Feminine OB Health Navigation",
+          "Cognitive Safety Protocols",
+          "Pill Management Integration",
+          "Behavioral Health Assessments",
+          "GIS Resource Matching",
+          "Sub-Platform Orchestration",
+          "Health Equity Analytics",
+          "Culturally Responsive Care Navigation",
+          "Population Health Dashboard",
+          "Community Health Worker Coordination"
+        ],
+        "subPlatforms": 5,
+        "grantNarrative": "Provides health equity outcome metrics, population-specific engagement data, and culturally responsive care delivery evidence for St. David's and SSG Fox reporting",
+        "outcomeMetrics": [
+          "Health equity screenings completed: 2,340 across 5 sub-platforms",
+          "GIS resource matches: 1,456 referrals with 71% completion",
+          "Sub-platform coordination events: 890 cross-referrals",
+          "Culturally responsive care navigation sessions: 678",
+          "Population health dashboard active metrics: 34 tracked indicators",
+          "Community health worker dispatches: 234"
+        ],
+        "integrationDepth": "Orchestrates 5 sub-platforms and routes to/from Whole-Person Health hub, LifeBridge resources, and SafeCogniCare cognitive assessments"
+      },
+      "grant_alignment": [
+        "st-davids",
+        "ssg-fox",
+        "foundation"
+      ],
+      "last_heartbeat": null
+    },
+    {
       "id": "sankofa-feminine-health",
       "name": "HerHealth Network (Holistic Black Feminine Health Hub)",
       "url": "https://herhealthmatters2.com",
@@ -447,6 +493,50 @@
       "grant_alignment": [
         "st-davids",
         "foundation"
+      ],
+      "last_heartbeat": null
+    },
+    {
+      "id": "sankofa-maternal-health",
+      "name": "Black Maternal Health Network",
+      "url": "https://yourhealthbirthright.net",
+      "role": "maternal-health",
+      "domain": "health-equity",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "Directly addressing the Black maternal mortality crisis with evidence-based interventions — comprehensive prenatal/postnatal care navigation, certified doula matching and coordination, maternal risk assessment using validated instruments, community health worker dispatch, maternal mental health screening (EPDS, PHQ-9 peripartum), breastfeeding support, and postpartum recovery planning. Integrates with Whole-Person Health for crisis escalation, Feminine Health Hub for reproductive pathways, SafeCogniCare for peripartum cognitive changes, and LifeBridge for social determinant interventions (housing, food, transportation) that drive maternal outcomes.",
+      "capabilities": {
+        "features": [
+          "Maternal Risk Assessment",
+          "Certified Doula Matching",
+          "Prenatal Care Navigation",
+          "Postnatal Care Coordination",
+          "Maternal Mental Health (EPDS)",
+          "Community Health Workers",
+          "Breastfeeding Support",
+          "Postpartum Recovery Plans",
+          "Birth Plan Builder",
+          "Hospital Bag Checklist",
+          "Appointment Tracker",
+          "Social Determinant Screening"
+        ],
+        "parentNetwork": "sankofa",
+        "grantNarrative": "Produces maternal mortality reduction data, doula utilization rates, prenatal visit compliance, and postpartum recovery outcomes for St. David's and foundation grants targeting the 3x maternal mortality gap",
+        "outcomeMetrics": [
+          "Prenatal care navigation enrollments: 178",
+          "Doula match-to-engagement rate: 74%",
+          "Maternal mental health screenings (EPDS): 234",
+          "Postpartum recovery plan completion: 67%",
+          "Birth outcome tracking: 89 tracked deliveries",
+          "Social determinant flags addressed: 312"
+        ],
+        "integrationDepth": "Bidirectional with Feminine Health (reproductive), Whole-Person Health (crisis), LifeBridge (social determinants), SafeCogniCare (cognitive), PillScheduler (prenatal vitamins)"
+      },
+      "grant_alignment": [
+        "st-davids",
+        "foundation",
+        "ssg-fox"
       ],
       "last_heartbeat": null
     },
@@ -495,46 +585,54 @@
       "last_heartbeat": "2026-03-22T03:08:23.128Z"
     },
     {
-      "id": "sankofa-maternal-health",
-      "name": "Black Maternal Health Network",
-      "url": "https://yourhealthbirthright.net",
-      "role": "maternal-health",
-      "domain": "health-equity",
+      "id": "isss",
+      "name": "ISSS — Integrated Supports for Thriving Youth",
+      "url": "https://implementationineducatio.com",
+      "role": "student-support",
+      "domain": "education",
       "status": "registered",
       "health_status": "online",
       "public_visible": true,
-      "description": "Directly addressing the Black maternal mortality crisis with evidence-based interventions — comprehensive prenatal/postnatal care navigation, certified doula matching and coordination, maternal risk assessment using validated instruments, community health worker dispatch, maternal mental health screening (EPDS, PHQ-9 peripartum), breastfeeding support, and postpartum recovery planning. Integrates with Whole-Person Health for crisis escalation, Feminine Health Hub for reproductive pathways, SafeCogniCare for peripartum cognitive changes, and LifeBridge for social determinant interventions (housing, food, transportation) that drive maternal outcomes.",
+      "description": "Whole-child implementation infrastructure enabling schools, districts, and regions to implement evidence-based student support at scale. Multi-Tiered System of Supports (MTSS) engine with early warning indicators, Thrive Score tracking, multi-stakeholder coordination across teachers/counselors/parents/community, and implementation fidelity measurement using CFIR and RE-AIM frameworks. District-level analytics dashboard provides real-time intervention effectiveness data. Integrates with WholeMind Learning for academic data, Perfectly Different for IEP/504 accommodations, SafeReport for incident management, and Whole-Person Health for crisis routing. Produces grant-ready outcome data for WIOA youth employment and foundation education grants.",
       "capabilities": {
         "features": [
-          "Maternal Risk Assessment",
-          "Certified Doula Matching",
-          "Prenatal Care Navigation",
-          "Postnatal Care Coordination",
-          "Maternal Mental Health (EPDS)",
-          "Community Health Workers",
-          "Breastfeeding Support",
-          "Postpartum Recovery Plans",
-          "Birth Plan Builder",
-          "Hospital Bag Checklist",
-          "Appointment Tracker",
-          "Social Determinant Screening"
+          "Multi-Stakeholder Coordination",
+          "Evidence-Based Student Support",
+          "District-Level Analytics",
+          "Data-Driven Decision Making",
+          "Implementation Fidelity Tracking",
+          "MTSS Tiered Intervention Engine",
+          "Thrive Score Algorithm",
+          "Early Warning System",
+          "Parent Engagement Portal",
+          "IEP/504 Integration",
+          "Trauma-Informed Practices",
+          "School Climate Assessment",
+          "Community Partner Coordination",
+          "Grant Outcome Reporting"
         ],
-        "parentNetwork": "sankofa",
-        "grantNarrative": "Produces maternal mortality reduction data, doula utilization rates, prenatal visit compliance, and postpartum recovery outcomes for St. David's and foundation grants targeting the 3x maternal mortality gap",
+        "frameworks": [
+          "MTSS",
+          "CFIR",
+          "RE-AIM",
+          "PBIS"
+        ],
+        "grantNarrative": "Provides student-level outcome data, implementation fidelity metrics, and multi-stakeholder coordination evidence for WIOA youth employment and foundation education grant reporting",
         "outcomeMetrics": [
-          "Prenatal care navigation enrollments: 178",
-          "Doula match-to-engagement rate: 74%",
-          "Maternal mental health screenings (EPDS): 234",
-          "Postpartum recovery plan completion: 67%",
-          "Birth outcome tracking: 89 tracked deliveries",
-          "Social determinant flags addressed: 312"
+          "Schools implementing MTSS with fidelity: 12 districts",
+          "Student Thrive Score improvement: 23% average increase over semester",
+          "Early warning flag-to-intervention rate: 78%",
+          "Parent engagement portal active users: 1,847",
+          "Implementation fidelity score (CFIR): 7.2/10 average",
+          "Intervention effectiveness rate: 64% of flagged students improved",
+          "IEP/504 accommodation compliance rate: 91%"
         ],
-        "integrationDepth": "Bidirectional with Feminine Health (reproductive), Whole-Person Health (crisis), LifeBridge (social determinants), SafeCogniCare (cognitive), PillScheduler (prenatal vitamins)"
+        "integrationDepth": "Bidirectional data flows with WholeMind (academic), Perfectly Different (neurodiversity), SafeReport (incidents), RPLICE (research/implementation science), Whole-Person Health (crisis)"
       },
       "grant_alignment": [
-        "st-davids",
+        "wioa",
         "foundation",
-        "ssg-fox"
+        "st-davids"
       ],
       "last_heartbeat": null
     },
@@ -594,54 +692,46 @@
       "last_heartbeat": "2026-03-22T03:08:43.787Z"
     },
     {
-      "id": "isss",
-      "name": "ISSS — Integrated Supports for Thriving Youth",
-      "url": "https://implementationineducatio.com",
-      "role": "student-support",
-      "domain": "education",
+      "id": "safecognicare",
+      "name": "SafeCogniCare",
+      "url": "https://safecognicare.com",
+      "role": "cognitive-health",
+      "domain": "health-equity",
       "status": "registered",
       "health_status": "online",
       "public_visible": true,
-      "description": "Whole-child implementation infrastructure enabling schools, districts, and regions to implement evidence-based student support at scale. Multi-Tiered System of Supports (MTSS) engine with early warning indicators, Thrive Score tracking, multi-stakeholder coordination across teachers/counselors/parents/community, and implementation fidelity measurement using CFIR and RE-AIM frameworks. District-level analytics dashboard provides real-time intervention effectiveness data. Integrates with WholeMind Learning for academic data, Perfectly Different for IEP/504 accommodations, SafeReport for incident management, and Whole-Person Health for crisis routing. Produces grant-ready outcome data for WIOA youth employment and foundation education grants.",
+      "description": "Cognitive safety platform specializing in TBI (Traumatic Brain Injury), ADHD, dementia, and peripartum cognitive changes — validated cognitive health assessments (MoCA, MMSE, Trail Making), early intervention tools with automated provider alerts, comprehensive safety protocols for cognitive impairment scenarios, care coordination with family/providers/community resources, and family support resources including caregiver burden assessment. Critical for veteran populations (TBI prevalence) and maternal health (peripartum cognitive changes). Integrates with Whole-Person Health for crisis routing, PillScheduler for medication complexity matching to cognitive capacity, Perfectly Different for neurodevelopmental overlap, and M2C for veteran TBI pathways.",
       "capabilities": {
         "features": [
-          "Multi-Stakeholder Coordination",
-          "Evidence-Based Student Support",
-          "District-Level Analytics",
-          "Data-Driven Decision Making",
-          "Implementation Fidelity Tracking",
-          "MTSS Tiered Intervention Engine",
-          "Thrive Score Algorithm",
-          "Early Warning System",
-          "Parent Engagement Portal",
-          "IEP/504 Integration",
-          "Trauma-Informed Practices",
-          "School Climate Assessment",
-          "Community Partner Coordination",
-          "Grant Outcome Reporting"
+          "Cognitive Health Assessments (MoCA/MMSE)",
+          "Trail Making Test Digital",
+          "Early Intervention Alerts",
+          "Safety Protocols",
+          "Care Coordination Dashboard",
+          "Family Support Resources",
+          "Caregiver Burden Assessment",
+          "TBI Screening & Tracking",
+          "Cognitive Decline Monitoring",
+          "Provider Communication Portal",
+          "Medication Complexity Matching",
+          "Emergency Safety Plans"
         ],
-        "frameworks": [
-          "MTSS",
-          "CFIR",
-          "RE-AIM",
-          "PBIS"
-        ],
-        "grantNarrative": "Provides student-level outcome data, implementation fidelity metrics, and multi-stakeholder coordination evidence for WIOA youth employment and foundation education grant reporting",
+        "grantNarrative": "Provides cognitive screening completion rates, TBI intervention outcomes, caregiver support metrics, and cognitive decline monitoring data for SSG Fox veteran and St. David's health equity grants",
         "outcomeMetrics": [
-          "Schools implementing MTSS with fidelity: 12 districts",
-          "Student Thrive Score improvement: 23% average increase over semester",
-          "Early warning flag-to-intervention rate: 78%",
-          "Parent engagement portal active users: 1,847",
-          "Implementation fidelity score (CFIR): 7.2/10 average",
-          "Intervention effectiveness rate: 64% of flagged students improved",
-          "IEP/504 accommodation compliance rate: 91%"
+          "Cognitive assessments completed (MoCA/MMSE): 567",
+          "TBI screenings: 234 (veteran population)",
+          "Early intervention alerts triggered: 89",
+          "Safety protocol activations: 45",
+          "Caregiver burden assessments: 178",
+          "Cognitive decline monitoring: 345 active patients",
+          "Provider communication events: 234"
         ],
-        "integrationDepth": "Bidirectional data flows with WholeMind (academic), Perfectly Different (neurodiversity), SafeReport (incidents), RPLICE (research/implementation science), Whole-Person Health (crisis)"
+        "integrationDepth": "Bidirectional with Whole-Person Health (crisis), PillScheduler (medication complexity), Perfectly Different (neurodevelopmental), M2C (veteran TBI), Maternal Health (peripartum cognition)"
       },
       "grant_alignment": [
-        "wioa",
-        "foundation",
-        "st-davids"
+        "ssg-fox",
+        "st-davids",
+        "foundation"
       ],
       "last_heartbeat": null
     },
@@ -689,50 +779,6 @@
         "foundation",
         "wioa",
         "ssg-fox"
-      ],
-      "last_heartbeat": null
-    },
-    {
-      "id": "safecognicare",
-      "name": "SafeCogniCare",
-      "url": "https://safecognicare.com",
-      "role": "cognitive-health",
-      "domain": "health-equity",
-      "status": "registered",
-      "health_status": "online",
-      "public_visible": true,
-      "description": "Cognitive safety platform specializing in TBI (Traumatic Brain Injury), ADHD, dementia, and peripartum cognitive changes — validated cognitive health assessments (MoCA, MMSE, Trail Making), early intervention tools with automated provider alerts, comprehensive safety protocols for cognitive impairment scenarios, care coordination with family/providers/community resources, and family support resources including caregiver burden assessment. Critical for veteran populations (TBI prevalence) and maternal health (peripartum cognitive changes). Integrates with Whole-Person Health for crisis routing, PillScheduler for medication complexity matching to cognitive capacity, Perfectly Different for neurodevelopmental overlap, and M2C for veteran TBI pathways.",
-      "capabilities": {
-        "features": [
-          "Cognitive Health Assessments (MoCA/MMSE)",
-          "Trail Making Test Digital",
-          "Early Intervention Alerts",
-          "Safety Protocols",
-          "Care Coordination Dashboard",
-          "Family Support Resources",
-          "Caregiver Burden Assessment",
-          "TBI Screening & Tracking",
-          "Cognitive Decline Monitoring",
-          "Provider Communication Portal",
-          "Medication Complexity Matching",
-          "Emergency Safety Plans"
-        ],
-        "grantNarrative": "Provides cognitive screening completion rates, TBI intervention outcomes, caregiver support metrics, and cognitive decline monitoring data for SSG Fox veteran and St. David's health equity grants",
-        "outcomeMetrics": [
-          "Cognitive assessments completed (MoCA/MMSE): 567",
-          "TBI screenings: 234 (veteran population)",
-          "Early intervention alerts triggered: 89",
-          "Safety protocol activations: 45",
-          "Caregiver burden assessments: 178",
-          "Cognitive decline monitoring: 345 active patients",
-          "Provider communication events: 234"
-        ],
-        "integrationDepth": "Bidirectional with Whole-Person Health (crisis), PillScheduler (medication complexity), Perfectly Different (neurodevelopmental), M2C (veteran TBI), Maternal Health (peripartum cognition)"
-      },
-      "grant_alignment": [
-        "ssg-fox",
-        "st-davids",
-        "foundation"
       ],
       "last_heartbeat": null
     },
@@ -937,6 +983,42 @@
       "last_heartbeat": null
     },
     {
+      "id": "collaborative-advocate",
+      "name": "The Collaborative Advocate",
+      "url": "https://thrivingcommunitiesforall.com",
+      "role": "vosb-services",
+      "domain": "veteran-services",
+      "status": "active",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "The organizational entity — 501(c)(3) nonprofit, veteran-founded, Black-led Veteran-Owned Small Business (VOSB) serving as the service delivery arm and grant execution partner for the entire ThriveUp ecosystem. Founded by Dr. Terry Flood. Provides veteran advocacy with lived-experience credibility, peer support coordination matching veterans to trained peers, workforce development consulting for employers hiring veterans, and direct grant execution management for WIOA ($200K-$500K), SSG Fox VA ($750K), St. David's (up to $1M), and Foundation ($100K-$500K) grants. The organizational backbone that gives the ecosystem its 501(c)(3) fiscal sponsorship, DUNS/SAM.gov registration, and grant eligibility.",
+      "capabilities": {
+        "features": [
+          "501(c)(3) Fiscal Sponsorship",
+          "Veteran Advocacy",
+          "Peer Support Coordination",
+          "Workforce Development Consulting",
+          "Grant Execution Management",
+          "Community Partnerships",
+          "Service Delivery Operations",
+          "DUNS/SAM Registration",
+          "Board Governance",
+          "Program Evaluation",
+          "Stakeholder Engagement",
+          "Policy Advocacy"
+        ],
+        "grantNarrative": "The applicant organization for all ecosystem grants — provides organizational credibility, 501(c)(3) status, veteran-founded narrative, and program oversight for SSG Fox, WIOA, St. David's, and foundation funding",
+        "integrationDepth": "Organizational backbone for all 24 platforms — provides fiscal sponsorship, grant eligibility, and operational governance for every ecosystem component"
+      },
+      "grant_alignment": [
+        "ssg-fox",
+        "wioa",
+        "st-davids",
+        "foundation"
+      ],
+      "last_heartbeat": "2026-03-21T19:56:50.152Z"
+    },
+    {
       "id": "emergency-mgmt",
       "name": "Emergency Management",
       "url": "https://emergency-mgmt.replit.app",
@@ -977,42 +1059,6 @@
         "st-davids"
       ],
       "last_heartbeat": null
-    },
-    {
-      "id": "collaborative-advocate",
-      "name": "The Collaborative Advocate",
-      "url": "https://thrivingcommunitiesforall.com",
-      "role": "vosb-services",
-      "domain": "veteran-services",
-      "status": "active",
-      "health_status": "online",
-      "public_visible": true,
-      "description": "The organizational entity — 501(c)(3) nonprofit, veteran-founded, Black-led Veteran-Owned Small Business (VOSB) serving as the service delivery arm and grant execution partner for the entire ThriveUp ecosystem. Founded by Dr. Terry Flood. Provides veteran advocacy with lived-experience credibility, peer support coordination matching veterans to trained peers, workforce development consulting for employers hiring veterans, and direct grant execution management for WIOA ($200K-$500K), SSG Fox VA ($750K), St. David's (up to $1M), and Foundation ($100K-$500K) grants. The organizational backbone that gives the ecosystem its 501(c)(3) fiscal sponsorship, DUNS/SAM.gov registration, and grant eligibility.",
-      "capabilities": {
-        "features": [
-          "501(c)(3) Fiscal Sponsorship",
-          "Veteran Advocacy",
-          "Peer Support Coordination",
-          "Workforce Development Consulting",
-          "Grant Execution Management",
-          "Community Partnerships",
-          "Service Delivery Operations",
-          "DUNS/SAM Registration",
-          "Board Governance",
-          "Program Evaluation",
-          "Stakeholder Engagement",
-          "Policy Advocacy"
-        ],
-        "grantNarrative": "The applicant organization for all ecosystem grants — provides organizational credibility, 501(c)(3) status, veteran-founded narrative, and program oversight for SSG Fox, WIOA, St. David's, and foundation funding",
-        "integrationDepth": "Organizational backbone for all 24 platforms — provides fiscal sponsorship, grant eligibility, and operational governance for every ecosystem component"
-      },
-      "grant_alignment": [
-        "ssg-fox",
-        "wioa",
-        "st-davids",
-        "foundation"
-      ],
-      "last_heartbeat": "2026-03-21T19:56:50.152Z"
     },
     {
       "id": "m2c",
@@ -1199,96 +1245,6 @@
       "last_heartbeat": null
     },
     {
-      "id": "sankofa",
-      "name": "Sankofa Health Network",
-      "url": "https://yourhealthbirthright.net",
-      "role": "health-gateway",
-      "domain": "health-equity",
-      "status": "registered",
-      "health_status": "online",
-      "public_visible": true,
-      "description": "Health equity gateway orchestrating 5 sub-platforms (Maternal Health, Feminine Health, Men's Health, Cognitive Safety, Medication Management). Delivers culturally responsive behavioral health assessments, GIS-powered resource matching to 20,670+ resources, and population-specific health navigation for Black communities. Coordinates upstream screening data from Whole-Person Health hub and routes to specialized sub-platforms based on demographic and clinical need. Produces health equity outcome data for St. David's and SSG Fox grant reporting. Network architecture ensures no single point of failure — sub-platforms operate independently but coordinate through Sankofa's routing layer.",
-      "capabilities": {
-        "features": [
-          "Black Maternal Health Network Coordination",
-          "Mental Health Rights Advocacy",
-          "Breast Cancer Awareness & Screening",
-          "Black Men's Health Programs",
-          "Feminine OB Health Navigation",
-          "Cognitive Safety Protocols",
-          "Pill Management Integration",
-          "Behavioral Health Assessments",
-          "GIS Resource Matching",
-          "Sub-Platform Orchestration",
-          "Health Equity Analytics",
-          "Culturally Responsive Care Navigation",
-          "Population Health Dashboard",
-          "Community Health Worker Coordination"
-        ],
-        "subPlatforms": 5,
-        "grantNarrative": "Provides health equity outcome metrics, population-specific engagement data, and culturally responsive care delivery evidence for St. David's and SSG Fox reporting",
-        "outcomeMetrics": [
-          "Health equity screenings completed: 2,340 across 5 sub-platforms",
-          "GIS resource matches: 1,456 referrals with 71% completion",
-          "Sub-platform coordination events: 890 cross-referrals",
-          "Culturally responsive care navigation sessions: 678",
-          "Population health dashboard active metrics: 34 tracked indicators",
-          "Community health worker dispatches: 234"
-        ],
-        "integrationDepth": "Orchestrates 5 sub-platforms and routes to/from Whole-Person Health hub, LifeBridge resources, and SafeCogniCare cognitive assessments"
-      },
-      "grant_alignment": [
-        "st-davids",
-        "ssg-fox",
-        "foundation"
-      ],
-      "last_heartbeat": null
-    },
-    {
-      "id": "ecosystem-nexus",
-      "name": "Ecosystem Nexus",
-      "url": "https://ecosystemnexus.net",
-      "role": "ecosystem-coordination",
-      "domain": "operations",
-      "status": "active",
-      "health_status": "online",
-      "public_visible": false,
-      "description": "Central coordination and operational intelligence hub for the entire ThriveUp Academy ecosystem — primary co-captain platform providing cross-platform visibility, real-time health monitoring, directive management and enforcement, platform analytics dashboard, and ecosystem-wide operational intelligence. Manages the triad system (team-of-teams architecture), coordinates bilateral exchange protocols, runs self-diagnostic health checks, and provides the operational backbone for the ACOS architecture. If the Whole-Person Health hub goes down, Ecosystem Nexus assumes command authority. Produces operational efficiency data for grant compliance and organizational governance reporting.",
-      "capabilities": {
-        "features": [
-          "Ecosystem Coordination Hub",
-          "Cross-Platform Visibility",
-          "Real-Time Health Monitoring",
-          "Directive Management & Enforcement",
-          "Platform Analytics Dashboard",
-          "Triad System Management",
-          "Bilateral Exchange Protocol",
-          "Self-Diagnostic Engine",
-          "Co-Captain Failover System",
-          "Operational Intelligence",
-          "Grant Compliance Tracking",
-          "Performance Benchmarking"
-        ],
-        "grantNarrative": "Provides ecosystem-wide operational metrics, platform health data, cross-platform coordination evidence, and organizational efficiency measurements for all grant reporting",
-        "outcomeMetrics": [
-          "Cross-platform coordination events: 4,567",
-          "Real-time health monitoring: 24 platforms/10-min cycle",
-          "Directive management: 609 acknowledgments tracked",
-          "Triad system operations: 8 triads managed",
-          "Co-captain failover tests: 12 successful",
-          "Performance benchmark reports: 45"
-        ],
-        "integrationDepth": "Connected to all 22 sibling platforms via heartbeat, directive, and analytics channels — the operational nervous system of the ecosystem"
-      },
-      "grant_alignment": [
-        "wioa",
-        "ssg-fox",
-        "st-davids",
-        "foundation"
-      ],
-      "last_heartbeat": "2026-03-22T03:08:34.284Z"
-    },
-    {
       "id": "wholemind",
       "name": "WholeMind Learning",
       "url": "https://wholemindlearning.com",
@@ -1386,6 +1342,50 @@
       "last_heartbeat": null
     },
     {
+      "id": "ecosystem-nexus",
+      "name": "Ecosystem Nexus",
+      "url": "https://ecosystemnexus.net",
+      "role": "ecosystem-coordination",
+      "domain": "operations",
+      "status": "active",
+      "health_status": "online",
+      "public_visible": false,
+      "description": "Central coordination and operational intelligence hub for the entire ThriveUp Academy ecosystem — primary co-captain platform providing cross-platform visibility, real-time health monitoring, directive management and enforcement, platform analytics dashboard, and ecosystem-wide operational intelligence. Manages the triad system (team-of-teams architecture), coordinates bilateral exchange protocols, runs self-diagnostic health checks, and provides the operational backbone for the ACOS architecture. If the Whole-Person Health hub goes down, Ecosystem Nexus assumes command authority. Produces operational efficiency data for grant compliance and organizational governance reporting.",
+      "capabilities": {
+        "features": [
+          "Ecosystem Coordination Hub",
+          "Cross-Platform Visibility",
+          "Real-Time Health Monitoring",
+          "Directive Management & Enforcement",
+          "Platform Analytics Dashboard",
+          "Triad System Management",
+          "Bilateral Exchange Protocol",
+          "Self-Diagnostic Engine",
+          "Co-Captain Failover System",
+          "Operational Intelligence",
+          "Grant Compliance Tracking",
+          "Performance Benchmarking"
+        ],
+        "grantNarrative": "Provides ecosystem-wide operational metrics, platform health data, cross-platform coordination evidence, and organizational efficiency measurements for all grant reporting",
+        "outcomeMetrics": [
+          "Cross-platform coordination events: 4,567",
+          "Real-time health monitoring: 24 platforms/10-min cycle",
+          "Directive management: 609 acknowledgments tracked",
+          "Triad system operations: 8 triads managed",
+          "Co-captain failover tests: 12 successful",
+          "Performance benchmark reports: 45"
+        ],
+        "integrationDepth": "Connected to all 22 sibling platforms via heartbeat, directive, and analytics channels — the operational nervous system of the ecosystem"
+      },
+      "grant_alignment": [
+        "wioa",
+        "ssg-fox",
+        "st-davids",
+        "foundation"
+      ],
+      "last_heartbeat": "2026-03-22T03:08:34.284Z"
+    },
+    {
       "id": "video-creator-ai",
       "name": "Video Creator AI",
       "url": "https://videocreatorai.com",
@@ -1456,9 +1456,9 @@
   "active_commitments": {
     "sections": [
       {
-        "id": "anika-amie-contamination-rwjf-draft-quarantined-may-12-2026",
-        "heading": "🚨 Anika Amie contamination — RWJF draft quarantined (May 12, 2026)",
-        "summary": "User confirmed May 12, 2026: **does NOT know \"Anika Amie.\"** This name was embedded in 4 files as \"TCAF Founder & Executive Director\" / \"Project Director\" / grant-writing principle source. Origin unknown — possibly: (a) a different organization's draft that was renamed to TCAF and the principals weren't swept, (b) an AI-generated placeholder that survived editing, or (c) someone else who worked on these docs before user took over.\n\n**Actions taken:**\n- `docs/grants/RWJF-Global-Ideas-2026-Brief-Proposal.md` — DO-NOT-USE header banner added at top of file.\n- `docs/grants/RWJF-Brief-Proposal-Narrative-UPLOAD.doc` — Anika references replaced with `[QUARANTINED]` markers in-line.\n- `docs/grants/STRATEGIC-INTELLIGENCE-PLAYBOOK.md` — \"Anika Amie\" attribution stripped, replaced with \"Standard gran"
+        "id": "sba-opportunity-decisions-may-12-2026",
+        "heading": "SBA opportunity decisions (May 12, 2026)",
+        "summary": ""
       },
       {
         "id": "tcaf-samgov-federal-registration-identifiers-added-may-12-2026",

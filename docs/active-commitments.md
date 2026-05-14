@@ -1,6 +1,64 @@
 # Active Commitments — TCAF / ThriveUp Academy
 
-## 🚨 Anika Amie contamination — RWJF draft quarantined (May 12, 2026)
+## SBA opportunity decisions (May 12, 2026)
+
+### ⛔ PASSED: SBA Manufacturing in America Empower to Grow (E2G) — June 15, 2026 deadline
+- **$50M pool, ~30 days to deadline.** Reviewed and declined as prime.
+- **Reasoning:** TCAF has no manufacturing portfolio, no prior manufacturing-related federal awards (Tabbara checklist would expose this), no existing small-manufacturer roster, competing against Texas MEP / TSTC / ACC manufacturing programs / manufacturing-focused workforce boards who do this every cycle. Opportunity cost too high vs. existing high-fit pursuits (NIH PAR-25-144, NSF TechAccess, CDMRP, RWJF, Spencer, St. David's, TWC).
+- **Status:** Do NOT pursue as prime. Could subaward to a manufacturing-prime if invited (Texas MEP at UT-Arlington, TEEX, ACC, Greater Austin Black Chamber). Don't initiate.
+- **Action taken instead:** Use this as the trigger to introduce TCAF to **Jarvis Brewer** (Texas SBA Small Business Program Manager, Jarvis.Brewer@gov.texas.gov) as a long-term relationship — ask him to flag aligned opportunities in coming cycles, NOT to pitch E2G.
+
+### SBA program landscape — TCAF fit assessment (researched May 12, 2026)
+
+| Program | Pool | Cycle | TCAF Fit | Aligned Platform | Notes |
+|---|---|---|---|---|---|
+| **SBA PRIME** (Program for Investment in Microentrepreneurs) — CFDA 59.050 | $7M FY26 appropriated | FY26 NOFO **not yet posted** as of May 14, 2026 | 🟢 **STRONG** | Minority Center of Excellence · ThriveUp Academy (financial literacy/entrepreneurship) | Funds nonprofit microenterprise dev orgs serving businesses with <5 employees lacking conventional credit. **501(c)(3) required ✅.** Watch Grants.gov. Highest natural fit. |
+| **SBA WBC** (Women's Business Center) Cooperative Agreement | Multi-year cooperative agreement | Annual Program Announcement; 5-yr initial / 3-yr renewal | 🟢 **STRONG** *(with caveat)* | HerHealth Network · Black Maternal Health Hub | 501(c)(3) ✅. **Caveat:** requires a full-time WBC Program Director whose time is solely dedicated to the WBC project. Major staffing commitment. Texas already has WBCs (Greater Houston Women's Chamber, WBEA Houston). Travis County / Austin may be unfilled gap. |
+| **SBA VBOC** (Veterans Business Outreach Center) | Cooperative agreement | Renews periodically; 31 nationwide | 🟡 **MEDIUM-STRONG** | Mission Transition (M2C) | Dr. Flood is **US Army Retiree** — natural alignment. **BUT:** Texas already has VBOCs at **UT-RGV** and **UT-Arlington** (incumbent advantage). Partnership/subaward path likelier than displacing. |
+| **SBA Minority Business Development Grants** *(already in TCAF discovery DB, fit_score 71)* | $100K–$300K | Varies | 🟢 **STRONG** | Minority Center of Excellence | Already tracked. Source: sba.gov/funding-programs/grants. |
+| **SBA GAFC** (Growth Accelerator Fund Competition) | $9M total in prizes — $75K Stage 1 / $150K Stage 2 | FY26 not announced; FY25 was Jan–Sept 2025 | 🟡 **MEDIUM** | ThriveUp Academy (incubation elements) · RPLICE | For Entrepreneurship Support Orgs / accelerators. TCAF isn't primarily an accelerator, but the AI-literacy + workforce + financial-literacy bundle is plausibly framed as one. Lower priority than PRIME / WBC. |
+| **SBA Community Navigator Pilot Program (CNPP) successor** | Original $100M ended May 2024 | **No active successor announced** | 🟢 **STRONG when reborn** | All 15 platforms (literal navigator architecture) | TCAF's whole platform IS the hub-and-spoke navigator model CNPP funded. **Watch closely** — if Congress reauthorizes, this is TCAF's natural lane. |
+| **SBA SBDC** (Small Business Development Center) | Cooperative agreement | CY25 cycle expired April 22, 2026 | 🔴 **LOW** | n/a | State-administered (Texas SBDC Network at UTSA). Incumbent-locked. |
+| **SBA E2G Manufacturing** | $50M | Deadline June 15, 2026 | 🔴 **PASS** | n/a | Reasoning above. |
+
+### Decisions
+- **🟢 PURSUE (watch & prepare):** SBA PRIME — pre-position to apply when FY26 NOFO drops. Draft the technical-assistance narrative now using Minority Center of Excellence + ThriveUp Academy + RPLICE outcome measurement. Need: full microenterprise client roster build (currently TCAF has individual-services audience, not micro-business owners specifically — bridge by surveying ThriveUp Academy graduates for self-employed/business-curious).
+- **🟢 PURSUE (relationship-build):** SBA WBC — explore whether Austin/Travis County has an unfilled gap. If yes, this is a long-horizon (12-24 month) build. Requires hiring a dedicated WBC Program Director, so it's a strategic commitment, not opportunistic.
+- **🟡 PURSUE (partnership-route):** SBA VBOC — reach out to UT-Arlington VBOC (`vboc.uta.edu`) about subaward partnership for veteran-led nonprofit-to-business pipeline programs. Lever Dr. Flood's Army Retiree status. Lower-risk than competing for a new VBOC slot.
+- **🟢 WATCH:** SBA Community Navigator successor — set Grants.gov alerts for "Community Navigator," "navigator pilot," "entrepreneurship navigator." If reauthorized, TCAF should apply as Hub.
+- **🟡 PURSUE (existing track):** SBA Minority Business Development Grants — already in DB at fit_score 71. Refresh the eligibility check next time NOFO posts.
+- **🔴 SKIP:** SBA E2G Manufacturing (decision above), SBA SBDC (incumbent-locked).
+
+### Jarvis Brewer intro email — draft (May 12, 2026, do NOT send before review)
+
+> **To:** Jarvis.Brewer@gov.texas.gov
+> **Subject:** TCAF — Introduction from Texas-based 501(c)(3) interested in SBA partnership opportunities
+>
+> Dear Mr. Brewer,
+>
+> I'm Dr. Terry Flood, President of The Collaborative Advocate Foundation (TCAF), a Texas-based 501(c)(3) (EIN 41-3618503, determination effective January 14, 2026; SAM.gov UEI KDDVD1FGLW35, registration submitted). We operate 15 public-facing service platforms — a national community-infrastructure model piloted in Travis County — including Minority Center of Excellence, Mission Transition (military-to-civilian pathways), and ThriveUp Academy (AI literacy, financial literacy, workforce pathways).
+>
+> I'm reaching out following the Texas Economic Development Corporation's notice on the SBA Manufacturing in America Empower to Grow (E2G) Initiative. After honest review, E2G isn't a fit for TCAF as prime — we don't operate a small-manufacturer portfolio. But the framing in your team's note — *"other opportunities in that same domain"* — suggests there may be programs better aligned with our work in **microenterprise development, women's business ownership, veteran entrepreneurship, and minority-business technical assistance.**
+>
+> I'd value 15 minutes to introduce TCAF and ask which Texas-specific SBA cycles you'd recommend we track. Specifically, I'm watching SBA PRIME (FY26 NOFO not yet posted), WBC cooperative agreements, VBOC partnership pathways with UT-RGV and UT-Arlington, and any Community Navigator successor program.
+>
+> I'm also happy to be added to your distribution list for Texas SBA opportunities relevant to nonprofit Resource Partners and entrepreneurship support organizations.
+>
+> With appreciation,
+>
+> **Dr. Terry Flood, DHA**
+> President, The Collaborative Advocate Foundation
+> US Army Retiree · DSHS-Certified CHW Instructor #657
+> terryflood@thrivingcommunitiesforall.com · 254-319-8460
+> SAM UEI: KDDVD1FGLW35 · EIN: 41-3618503
+
+**Pre-send checklist:**
+- [ ] Email address: confirmed correct? (User is updating institutional email; hold if change is imminent)
+- [ ] SAM status still "Submitted"? Update language if it has flipped to Active
+- [ ] Phone: 254-319-8460 still primary?
+- [ ] Verify Jarvis Brewer email domain (gov.texas.gov, not state.tx.us) before sending
+
+### 🚨 Anika Amie contamination — RWJF draft quarantined (May 12, 2026)
 
 User confirmed May 12, 2026: **does NOT know "Anika Amie."** This name was embedded in 4 files as "TCAF Founder & Executive Director" / "Project Director" / grant-writing principle source. Origin unknown — possibly: (a) a different organization's draft that was renamed to TCAF and the principals weren't swept, (b) an AI-generated placeholder that survived editing, or (c) someone else who worked on these docs before user took over.
 
