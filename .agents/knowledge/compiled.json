@@ -1,6 +1,6 @@
 {
   "version": "1.1.0",
-  "compiledAt": "2026-05-14T00:38:46.930Z",
+  "compiledAt": "2026-05-14T10:37:04.442Z",
   "sources": [
     {
       "path": "replit.md",
@@ -8,7 +8,7 @@
     },
     {
       "path": "docs/active-commitments.md",
-      "mtime": "2026-05-14T00:38:38.090Z"
+      "mtime": "2026-05-14T10:36:59.641Z"
     },
     {
       "path": ".agents/skills/map-gap/lessons-learned.md",
@@ -24,7 +24,7 @@
     },
     {
       "path": "DB:ecosystem_platforms",
-      "mtime": "2026-05-14T00:38:46.930Z"
+      "mtime": "2026-05-14T10:37:04.442Z"
     }
   ],
   "project": {
@@ -572,6 +572,58 @@
       "last_heartbeat": "2026-03-22T03:08:23.128Z"
     },
     {
+      "id": "isss",
+      "name": "ISSS — Integrated Supports for Thriving Youth",
+      "url": "https://implementationineducatio.com",
+      "role": "student-support",
+      "domain": "education",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "Whole-child implementation infrastructure enabling schools, districts, and regions to implement evidence-based student support at scale. Multi-Tiered System of Supports (MTSS) engine with early warning indicators, Thrive Score tracking, multi-stakeholder coordination across teachers/counselors/parents/community, and implementation fidelity measurement using CFIR and RE-AIM frameworks. District-level analytics dashboard provides real-time intervention effectiveness data. Integrates with WholeMind Learning for academic data, Perfectly Different for IEP/504 accommodations, SafeReport for incident management, and Whole-Person Health for crisis routing. Produces grant-ready outcome data for WIOA youth employment and foundation education grants.",
+      "capabilities": {
+        "features": [
+          "Multi-Stakeholder Coordination",
+          "Evidence-Based Student Support",
+          "District-Level Analytics",
+          "Data-Driven Decision Making",
+          "Implementation Fidelity Tracking",
+          "MTSS Tiered Intervention Engine",
+          "Thrive Score Algorithm",
+          "Early Warning System",
+          "Parent Engagement Portal",
+          "IEP/504 Integration",
+          "Trauma-Informed Practices",
+          "School Climate Assessment",
+          "Community Partner Coordination",
+          "Grant Outcome Reporting"
+        ],
+        "frameworks": [
+          "MTSS",
+          "CFIR",
+          "RE-AIM",
+          "PBIS"
+        ],
+        "grantNarrative": "Provides student-level outcome data, implementation fidelity metrics, and multi-stakeholder coordination evidence for WIOA youth employment and foundation education grant reporting",
+        "outcomeMetrics": [
+          "Schools implementing MTSS with fidelity: 12 districts",
+          "Student Thrive Score improvement: 23% average increase over semester",
+          "Early warning flag-to-intervention rate: 78%",
+          "Parent engagement portal active users: 1,847",
+          "Implementation fidelity score (CFIR): 7.2/10 average",
+          "Intervention effectiveness rate: 64% of flagged students improved",
+          "IEP/504 accommodation compliance rate: 91%"
+        ],
+        "integrationDepth": "Bidirectional data flows with WholeMind (academic), Perfectly Different (neurodiversity), SafeReport (incidents), RPLICE (research/implementation science), Whole-Person Health (crisis)"
+      },
+      "grant_alignment": [
+        "wioa",
+        "foundation",
+        "st-davids"
+      ],
+      "last_heartbeat": null
+    },
+    {
       "id": "pinnacle-business-conglomerate",
       "name": "Pinnacle Business Conglomerate",
       "url": "https://pinnaclebusinessconglomerate.com",
@@ -625,58 +677,6 @@
         "foundation"
       ],
       "last_heartbeat": "2026-03-22T03:08:43.787Z"
-    },
-    {
-      "id": "isss",
-      "name": "ISSS — Integrated Supports for Thriving Youth",
-      "url": "https://implementationineducatio.com",
-      "role": "student-support",
-      "domain": "education",
-      "status": "registered",
-      "health_status": "online",
-      "public_visible": true,
-      "description": "Whole-child implementation infrastructure enabling schools, districts, and regions to implement evidence-based student support at scale. Multi-Tiered System of Supports (MTSS) engine with early warning indicators, Thrive Score tracking, multi-stakeholder coordination across teachers/counselors/parents/community, and implementation fidelity measurement using CFIR and RE-AIM frameworks. District-level analytics dashboard provides real-time intervention effectiveness data. Integrates with WholeMind Learning for academic data, Perfectly Different for IEP/504 accommodations, SafeReport for incident management, and Whole-Person Health for crisis routing. Produces grant-ready outcome data for WIOA youth employment and foundation education grants.",
-      "capabilities": {
-        "features": [
-          "Multi-Stakeholder Coordination",
-          "Evidence-Based Student Support",
-          "District-Level Analytics",
-          "Data-Driven Decision Making",
-          "Implementation Fidelity Tracking",
-          "MTSS Tiered Intervention Engine",
-          "Thrive Score Algorithm",
-          "Early Warning System",
-          "Parent Engagement Portal",
-          "IEP/504 Integration",
-          "Trauma-Informed Practices",
-          "School Climate Assessment",
-          "Community Partner Coordination",
-          "Grant Outcome Reporting"
-        ],
-        "frameworks": [
-          "MTSS",
-          "CFIR",
-          "RE-AIM",
-          "PBIS"
-        ],
-        "grantNarrative": "Provides student-level outcome data, implementation fidelity metrics, and multi-stakeholder coordination evidence for WIOA youth employment and foundation education grant reporting",
-        "outcomeMetrics": [
-          "Schools implementing MTSS with fidelity: 12 districts",
-          "Student Thrive Score improvement: 23% average increase over semester",
-          "Early warning flag-to-intervention rate: 78%",
-          "Parent engagement portal active users: 1,847",
-          "Implementation fidelity score (CFIR): 7.2/10 average",
-          "Intervention effectiveness rate: 64% of flagged students improved",
-          "IEP/504 accommodation compliance rate: 91%"
-        ],
-        "integrationDepth": "Bidirectional data flows with WholeMind (academic), Perfectly Different (neurodiversity), SafeReport (incidents), RPLICE (research/implementation science), Whole-Person Health (crisis)"
-      },
-      "grant_alignment": [
-        "wioa",
-        "foundation",
-        "st-davids"
-      ],
-      "last_heartbeat": null
     },
     {
       "id": "autoimmune-thrive",
@@ -787,6 +787,48 @@
       "last_heartbeat": null
     },
     {
+      "id": "emergency-mgmt",
+      "name": "Emergency Management",
+      "url": "https://emergency-mgmt.replit.app",
+      "role": "risk-intelligence",
+      "domain": "compliance",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": false,
+      "description": "Risk intelligence and threat assessment platform providing geographic risk mapping, multi-factor safety analytics, protective factor identification, and community resilience scoring. Ingests incident data from SafeReport, crisis events from Whole-Person Health, and community health data from LifeBridge to produce real-time risk heat maps and predictive safety models. Generates risk scores that inform resource deployment, crisis response routing, and grant compliance reporting for safety-focused programs. API-accessible risk assessments enable all 22 sibling platforms to make location-aware safety decisions.",
+      "capabilities": {
+        "features": [
+          "Geographic Risk Heat Mapping",
+          "Multi-Factor Threat Assessment",
+          "Protective Factor Analysis",
+          "Community Resilience Scoring",
+          "Predictive Safety Modeling",
+          "Real-Time Alert System",
+          "Risk Score API",
+          "Location-Aware Safety Decisions",
+          "Emergency Response Coordination",
+          "Historical Incident Analysis",
+          "Community Safety Dashboard"
+        ],
+        "grantNarrative": "Provides community safety analytics, risk reduction metrics, and protective factor data for SSG Fox veteran safety and foundation community resilience grants",
+        "outcomeMetrics": [
+          "Risk assessments generated: 1,234",
+          "Community resilience scores computed: 45 geographic zones",
+          "Predictive safety model accuracy: 72%",
+          "Real-time alerts issued: 89 in last 30 days",
+          "Risk heat maps serving 24 platforms via API",
+          "Emergency coordination events: 23"
+        ],
+        "integrationDepth": "Ingests from SafeReport (incidents), Whole-Person Health (crisis), LifeBridge (social determinants) — outputs risk scores consumed by all platforms"
+      },
+      "grant_alignment": [
+        "ssg-fox",
+        "foundation",
+        "st-davids"
+      ],
+      "last_heartbeat": null
+    },
+    {
       "id": "sankofa-mens-health",
       "name": "Black Men's Health Hub",
       "url": "https://thehealthyblkman.com",
@@ -828,48 +870,6 @@
         "foundation"
       ],
       "last_heartbeat": "2026-03-19T21:03:20.478Z"
-    },
-    {
-      "id": "emergency-mgmt",
-      "name": "Emergency Management",
-      "url": "https://emergency-mgmt.replit.app",
-      "role": "risk-intelligence",
-      "domain": "compliance",
-      "status": "registered",
-      "health_status": "online",
-      "public_visible": false,
-      "description": "Risk intelligence and threat assessment platform providing geographic risk mapping, multi-factor safety analytics, protective factor identification, and community resilience scoring. Ingests incident data from SafeReport, crisis events from Whole-Person Health, and community health data from LifeBridge to produce real-time risk heat maps and predictive safety models. Generates risk scores that inform resource deployment, crisis response routing, and grant compliance reporting for safety-focused programs. API-accessible risk assessments enable all 22 sibling platforms to make location-aware safety decisions.",
-      "capabilities": {
-        "features": [
-          "Geographic Risk Heat Mapping",
-          "Multi-Factor Threat Assessment",
-          "Protective Factor Analysis",
-          "Community Resilience Scoring",
-          "Predictive Safety Modeling",
-          "Real-Time Alert System",
-          "Risk Score API",
-          "Location-Aware Safety Decisions",
-          "Emergency Response Coordination",
-          "Historical Incident Analysis",
-          "Community Safety Dashboard"
-        ],
-        "grantNarrative": "Provides community safety analytics, risk reduction metrics, and protective factor data for SSG Fox veteran safety and foundation community resilience grants",
-        "outcomeMetrics": [
-          "Risk assessments generated: 1,234",
-          "Community resilience scores computed: 45 geographic zones",
-          "Predictive safety model accuracy: 72%",
-          "Real-time alerts issued: 89 in last 30 days",
-          "Risk heat maps serving 24 platforms via API",
-          "Emergency coordination events: 23"
-        ],
-        "integrationDepth": "Ingests from SafeReport (incidents), Whole-Person Health (crisis), LifeBridge (social determinants) — outputs risk scores consumed by all platforms"
-      },
-      "grant_alignment": [
-        "ssg-fox",
-        "foundation",
-        "st-davids"
-      ],
-      "last_heartbeat": null
     },
     {
       "id": "pillscheduler",
@@ -917,42 +917,6 @@
       "last_heartbeat": null
     },
     {
-      "id": "collaborative-advocate",
-      "name": "The Collaborative Advocate",
-      "url": "https://thrivingcommunitiesforall.com",
-      "role": "vosb-services",
-      "domain": "veteran-services",
-      "status": "active",
-      "health_status": "online",
-      "public_visible": true,
-      "description": "The organizational entity — 501(c)(3) nonprofit, veteran-founded, Black-led Veteran-Owned Small Business (VOSB) serving as the service delivery arm and grant execution partner for the entire ThriveUp ecosystem. Founded by Dr. Terry Flood. Provides veteran advocacy with lived-experience credibility, peer support coordination matching veterans to trained peers, workforce development consulting for employers hiring veterans, and direct grant execution management for WIOA ($200K-$500K), SSG Fox VA ($750K), St. David's (up to $1M), and Foundation ($100K-$500K) grants. The organizational backbone that gives the ecosystem its 501(c)(3) fiscal sponsorship, DUNS/SAM.gov registration, and grant eligibility.",
-      "capabilities": {
-        "features": [
-          "501(c)(3) Fiscal Sponsorship",
-          "Veteran Advocacy",
-          "Peer Support Coordination",
-          "Workforce Development Consulting",
-          "Grant Execution Management",
-          "Community Partnerships",
-          "Service Delivery Operations",
-          "DUNS/SAM Registration",
-          "Board Governance",
-          "Program Evaluation",
-          "Stakeholder Engagement",
-          "Policy Advocacy"
-        ],
-        "grantNarrative": "The applicant organization for all ecosystem grants — provides organizational credibility, 501(c)(3) status, veteran-founded narrative, and program oversight for SSG Fox, WIOA, St. David's, and foundation funding",
-        "integrationDepth": "Organizational backbone for all 24 platforms — provides fiscal sponsorship, grant eligibility, and operational governance for every ecosystem component"
-      },
-      "grant_alignment": [
-        "ssg-fox",
-        "wioa",
-        "st-davids",
-        "foundation"
-      ],
-      "last_heartbeat": "2026-03-21T19:56:50.152Z"
-    },
-    {
       "id": "safereport",
       "name": "SafeReport",
       "url": "https://safereports.net",
@@ -995,6 +959,42 @@
         "st-davids"
       ],
       "last_heartbeat": null
+    },
+    {
+      "id": "collaborative-advocate",
+      "name": "The Collaborative Advocate",
+      "url": "https://thrivingcommunitiesforall.com",
+      "role": "vosb-services",
+      "domain": "veteran-services",
+      "status": "active",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "The organizational entity — 501(c)(3) nonprofit, veteran-founded, Black-led Veteran-Owned Small Business (VOSB) serving as the service delivery arm and grant execution partner for the entire ThriveUp ecosystem. Founded by Dr. Terry Flood. Provides veteran advocacy with lived-experience credibility, peer support coordination matching veterans to trained peers, workforce development consulting for employers hiring veterans, and direct grant execution management for WIOA ($200K-$500K), SSG Fox VA ($750K), St. David's (up to $1M), and Foundation ($100K-$500K) grants. The organizational backbone that gives the ecosystem its 501(c)(3) fiscal sponsorship, DUNS/SAM.gov registration, and grant eligibility.",
+      "capabilities": {
+        "features": [
+          "501(c)(3) Fiscal Sponsorship",
+          "Veteran Advocacy",
+          "Peer Support Coordination",
+          "Workforce Development Consulting",
+          "Grant Execution Management",
+          "Community Partnerships",
+          "Service Delivery Operations",
+          "DUNS/SAM Registration",
+          "Board Governance",
+          "Program Evaluation",
+          "Stakeholder Engagement",
+          "Policy Advocacy"
+        ],
+        "grantNarrative": "The applicant organization for all ecosystem grants — provides organizational credibility, 501(c)(3) status, veteran-founded narrative, and program oversight for SSG Fox, WIOA, St. David's, and foundation funding",
+        "integrationDepth": "Organizational backbone for all 24 platforms — provides fiscal sponsorship, grant eligibility, and operational governance for every ecosystem component"
+      },
+      "grant_alignment": [
+        "ssg-fox",
+        "wioa",
+        "st-davids",
+        "foundation"
+      ],
+      "last_heartbeat": "2026-03-21T19:56:50.152Z"
     },
     {
       "id": "m2c",
@@ -1041,51 +1041,6 @@
         "ssg-fox",
         "wioa",
         "foundation"
-      ],
-      "last_heartbeat": null
-    },
-    {
-      "id": "ad-targeting",
-      "name": "Advertising Targeting for Platforms",
-      "url": "https://adtargetingplatforms.com",
-      "role": "ad-intelligence",
-      "domain": "marketing-content",
-      "status": "registered",
-      "health_status": "online",
-      "public_visible": false,
-      "description": "Advertising intelligence and community outreach platform enabling data-driven targeting to reach underserved populations with relevant services and grant-funded programs. Advanced audience segmentation based on demographic, geographic, and needs-based data; campaign optimization with A/B testing; performance analytics with conversion tracking; and cross-platform ad delivery coordinating outreach across all 22 sibling platforms. Ensures grant-funded programs reach their intended beneficiaries — veteran families, Black maternal health populations, minority business owners, neurodivergent individuals, and youth at risk. Integrates with Video Creator AI for campaign-ready assets and all platforms for service offering data.",
-      "capabilities": {
-        "features": [
-          "Audience Segmentation Engine",
-          "Campaign Optimization & A/B Testing",
-          "Precision Ad Targeting",
-          "Performance Analytics & Conversion Tracking",
-          "Cross-Platform Ad Delivery",
-          "Community Outreach Coordination",
-          "Grant Program Promotion",
-          "Demographic Targeting",
-          "Geographic Targeting",
-          "Needs-Based Targeting",
-          "Social Media Campaign Management",
-          "ROI Reporting"
-        ],
-        "grantNarrative": "Provides program reach metrics, community engagement data, demographic penetration rates, and campaign ROI for WIOA workforce recruitment and St. David's community health outreach grants",
-        "outcomeMetrics": [
-          "Campaign impressions: 234,567",
-          "Audience segments created: 89",
-          "A/B tests completed: 34",
-          "Conversion tracking events: 1,234",
-          "Cross-platform ad deliveries: 567",
-          "Community reach: 45,678 unique individuals",
-          "Grant program promotion campaigns: 23"
-        ],
-        "integrationDepth": "Receives content assets from Video Creator AI, service offerings from all platforms, and community demographics to target underserved populations with relevant services"
-      },
-      "grant_alignment": [
-        "wioa",
-        "st-davids",
-        "foundation",
-        "ssg-fox"
       ],
       "last_heartbeat": null
     },
@@ -1181,6 +1136,51 @@
       "last_heartbeat": null
     },
     {
+      "id": "ad-targeting",
+      "name": "Advertising Targeting for Platforms",
+      "url": "https://adtargetingplatforms.com",
+      "role": "ad-intelligence",
+      "domain": "marketing-content",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": false,
+      "description": "Advertising intelligence and community outreach platform enabling data-driven targeting to reach underserved populations with relevant services and grant-funded programs. Advanced audience segmentation based on demographic, geographic, and needs-based data; campaign optimization with A/B testing; performance analytics with conversion tracking; and cross-platform ad delivery coordinating outreach across all 22 sibling platforms. Ensures grant-funded programs reach their intended beneficiaries — veteran families, Black maternal health populations, minority business owners, neurodivergent individuals, and youth at risk. Integrates with Video Creator AI for campaign-ready assets and all platforms for service offering data.",
+      "capabilities": {
+        "features": [
+          "Audience Segmentation Engine",
+          "Campaign Optimization & A/B Testing",
+          "Precision Ad Targeting",
+          "Performance Analytics & Conversion Tracking",
+          "Cross-Platform Ad Delivery",
+          "Community Outreach Coordination",
+          "Grant Program Promotion",
+          "Demographic Targeting",
+          "Geographic Targeting",
+          "Needs-Based Targeting",
+          "Social Media Campaign Management",
+          "ROI Reporting"
+        ],
+        "grantNarrative": "Provides program reach metrics, community engagement data, demographic penetration rates, and campaign ROI for WIOA workforce recruitment and St. David's community health outreach grants",
+        "outcomeMetrics": [
+          "Campaign impressions: 234,567",
+          "Audience segments created: 89",
+          "A/B tests completed: 34",
+          "Conversion tracking events: 1,234",
+          "Cross-platform ad deliveries: 567",
+          "Community reach: 45,678 unique individuals",
+          "Grant program promotion campaigns: 23"
+        ],
+        "integrationDepth": "Receives content assets from Video Creator AI, service offerings from all platforms, and community demographics to target underserved populations with relevant services"
+      },
+      "grant_alignment": [
+        "wioa",
+        "st-davids",
+        "foundation",
+        "ssg-fox"
+      ],
+      "last_heartbeat": null
+    },
+    {
       "id": "sankofa",
       "name": "Sankofa Health Network",
       "url": "https://yourhealthbirthright.net",
@@ -1225,6 +1225,50 @@
         "foundation"
       ],
       "last_heartbeat": null
+    },
+    {
+      "id": "ecosystem-nexus",
+      "name": "Ecosystem Nexus",
+      "url": "https://ecosystemnexus.net",
+      "role": "ecosystem-coordination",
+      "domain": "operations",
+      "status": "active",
+      "health_status": "online",
+      "public_visible": false,
+      "description": "Central coordination and operational intelligence hub for the entire ThriveUp Academy ecosystem — primary co-captain platform providing cross-platform visibility, real-time health monitoring, directive management and enforcement, platform analytics dashboard, and ecosystem-wide operational intelligence. Manages the triad system (team-of-teams architecture), coordinates bilateral exchange protocols, runs self-diagnostic health checks, and provides the operational backbone for the ACOS architecture. If the Whole-Person Health hub goes down, Ecosystem Nexus assumes command authority. Produces operational efficiency data for grant compliance and organizational governance reporting.",
+      "capabilities": {
+        "features": [
+          "Ecosystem Coordination Hub",
+          "Cross-Platform Visibility",
+          "Real-Time Health Monitoring",
+          "Directive Management & Enforcement",
+          "Platform Analytics Dashboard",
+          "Triad System Management",
+          "Bilateral Exchange Protocol",
+          "Self-Diagnostic Engine",
+          "Co-Captain Failover System",
+          "Operational Intelligence",
+          "Grant Compliance Tracking",
+          "Performance Benchmarking"
+        ],
+        "grantNarrative": "Provides ecosystem-wide operational metrics, platform health data, cross-platform coordination evidence, and organizational efficiency measurements for all grant reporting",
+        "outcomeMetrics": [
+          "Cross-platform coordination events: 4,567",
+          "Real-time health monitoring: 24 platforms/10-min cycle",
+          "Directive management: 609 acknowledgments tracked",
+          "Triad system operations: 8 triads managed",
+          "Co-captain failover tests: 12 successful",
+          "Performance benchmark reports: 45"
+        ],
+        "integrationDepth": "Connected to all 22 sibling platforms via heartbeat, directive, and analytics channels — the operational nervous system of the ecosystem"
+      },
+      "grant_alignment": [
+        "wioa",
+        "ssg-fox",
+        "st-davids",
+        "foundation"
+      ],
+      "last_heartbeat": "2026-03-22T03:08:34.284Z"
     },
     {
       "id": "video-creator-ai",
@@ -1366,50 +1410,6 @@
         "ssg-fox"
       ],
       "last_heartbeat": null
-    },
-    {
-      "id": "ecosystem-nexus",
-      "name": "Ecosystem Nexus",
-      "url": "https://ecosystemnexus.net",
-      "role": "ecosystem-coordination",
-      "domain": "operations",
-      "status": "active",
-      "health_status": "online",
-      "public_visible": false,
-      "description": "Central coordination and operational intelligence hub for the entire ThriveUp Academy ecosystem — primary co-captain platform providing cross-platform visibility, real-time health monitoring, directive management and enforcement, platform analytics dashboard, and ecosystem-wide operational intelligence. Manages the triad system (team-of-teams architecture), coordinates bilateral exchange protocols, runs self-diagnostic health checks, and provides the operational backbone for the ACOS architecture. If the Whole-Person Health hub goes down, Ecosystem Nexus assumes command authority. Produces operational efficiency data for grant compliance and organizational governance reporting.",
-      "capabilities": {
-        "features": [
-          "Ecosystem Coordination Hub",
-          "Cross-Platform Visibility",
-          "Real-Time Health Monitoring",
-          "Directive Management & Enforcement",
-          "Platform Analytics Dashboard",
-          "Triad System Management",
-          "Bilateral Exchange Protocol",
-          "Self-Diagnostic Engine",
-          "Co-Captain Failover System",
-          "Operational Intelligence",
-          "Grant Compliance Tracking",
-          "Performance Benchmarking"
-        ],
-        "grantNarrative": "Provides ecosystem-wide operational metrics, platform health data, cross-platform coordination evidence, and organizational efficiency measurements for all grant reporting",
-        "outcomeMetrics": [
-          "Cross-platform coordination events: 4,567",
-          "Real-time health monitoring: 24 platforms/10-min cycle",
-          "Directive management: 609 acknowledgments tracked",
-          "Triad system operations: 8 triads managed",
-          "Co-captain failover tests: 12 successful",
-          "Performance benchmark reports: 45"
-        ],
-        "integrationDepth": "Connected to all 22 sibling platforms via heartbeat, directive, and analytics channels — the operational nervous system of the ecosystem"
-      },
-      "grant_alignment": [
-        "wioa",
-        "ssg-fox",
-        "st-davids",
-        "foundation"
-      ],
-      "last_heartbeat": "2026-03-22T03:08:34.284Z"
     }
   ],
   "quintet": "**Talk Your Talk · Civic Signal · LifeBridge · ThriveUp Academy · Whole-Person Health Ecosystem.** See `docs/grants/QUARTET-ONE-PAGER.md` for the drop-in narrative.",

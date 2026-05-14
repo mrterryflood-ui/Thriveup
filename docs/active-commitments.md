@@ -39,8 +39,8 @@
 ### Healthcare AI (Stanford Medicine CME)
 - **Stanford School of Medicine — AI Series: Introduction to Healthcare** (06/28/2024) — 12 hrs Enduring Material, **12.00 AMA PRA Category 1 Credit(s)™**. Event ID 47051. *(Cite when claiming healthcare-AI domain expertise — particularly Gates EDU AI LOI, NIH R03/R01, CDMRP, RWJF, NSF TechAccess.)*
 
-### ⚠️ Credential inconsistency to flag (NOT silently fixed)
-- The Stanford CME certificate is issued to **"TERRY FLOOD, DMSc"** (Doctor of Medical Science) — a different doctoral credential than your conferred **DHA** (Doctor of Health Administration). Two possibilities: (a) the registration was submitted under a different doctoral credential at the time, or (b) Stanford's system pulled an outdated record. **User: please confirm which is correct.** Until confirmed, the safe default for grant work remains **"Dr. Terry Flood, DHA"** — do NOT cite "DMSc" anywhere unless you tell me it's an additional conferred degree.
+### ✅ Credential confirmed (resolved May 12, 2026)
+- The Stanford CME certificate prints **"TERRY FLOOD, DMSc"** — that was a Stanford registration/system artifact, NOT an additional doctoral credential. **User confirmed May 12, 2026: doctoral credential is DHA only.** Cite the Stanford CME activity itself freely (12 AMA PRA Cat 1 credits, Event ID 47051, 06/28/2024); do NOT propagate "DMSc" as a credential in any narrative, biosketch, signature block, or proposal. Default credential everywhere: **"Dr. Terry Flood, DHA."**
 
 ---
 
