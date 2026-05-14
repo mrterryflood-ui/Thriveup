@@ -380,7 +380,7 @@ const ECOSYSTEM_PLATFORMS_DATA = [
       { name: "Mission Transition (M2C)", url: "https://vetmissiontransition.com", desc: "Military-to-civilian transition — MOS translation, benefits navigation, identity support, targeting the first 12-month risk window", icon: Shield },
       { name: "Minority Center of Excellence", url: "https://minoritycenterofexcellence.com", desc: "656,794 SAM.gov records, 14 AI tools, dual-AI proposal review, certification wizard for 8(a)/HUBZone/WOSB/SDVOSB", icon: Building2 },
       { name: "Pinnacle Business Conglomerate", url: "https://pinnaclebusinessconglomerate.com", desc: "Contractor enablement — business diagnostics, bid strategy, teaming, dual-AI proposal development, serving NAMC Austin & USHCC", icon: Briefcase },
-      { name: "The Collaborative Advocate", url: "https://thrivingcommunitiesforall.com", desc: "501(c)(3) nonprofit, veteran-founded, Black-led — the organizational backbone providing fiscal sponsorship and grant execution", icon: HandshakeIcon },
+      { name: "The Collaborative Advocate", url: "https://thrivingcommunitiesforall.com", desc: "IRS-determined 501(c)(3), SAM.gov Active (UEI KDDVD1FGLW35, CAGE 209N1), veteran-founded, Black-led — the organizational backbone for grant execution across the ecosystem", icon: HandshakeIcon },
     ],
   },
   {
@@ -896,7 +896,7 @@ export default function LandingPage() {
                 Empowering youth, veterans, returning citizens, families, and the organizations that champion them — with AI-powered workforce development and community infrastructure built to deploy in any U.S. county. Texas is our first deployment.
               </p>
               <p className="text-xs text-muted-foreground/70" data-testid="text-footer-foundation">
-                The Collaborative Advocate Foundation · 501(c)(3) status pending IRS determination
+                The Collaborative Advocate Foundation · IRS-determined 501(c)(3) (Letter 947, eff. 01/14/2026) · SAM Active · CAGE 209N1
               </p>
             </div>
             <div data-testid="footer-column-platform">

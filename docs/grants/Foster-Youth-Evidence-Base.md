@@ -139,7 +139,7 @@ Every published evaluation of Chafee/ETV/FYI implementation surfaces the same op
 - A funded Chafee sub-grantee designation (path identified; not pursued yet)
 - An active HUD FYI MOU with a Public Housing Authority (Jim Currier conversation is the door)
 
-**We disclose:** TCAF's IRS 501(c)(3) determination is pending. Dr. Terry Flood is President. Texas-piloted, national-architected. Honest framing in all materials.
+**We disclose:** TCAF is an IRS-determined 501(c)(3) (Letter 947, effective January 14, 2026); SAM.gov Active (UEI KDDVD1FGLW35); CAGE 209N1. Dr. Terry Flood is President. Texas-piloted, national-architected. Honest framing in all materials.
 
 ---
 

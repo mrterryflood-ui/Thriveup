@@ -107,7 +107,7 @@ const POSITIONING_LANGUAGE = [
   {
     key: "Three Entities",
     icon: Target,
-    value: "The Collaborative Advocate LLC provides fiscal sponsorship and grant compliance. ThriveUp Academy delivers direct youth services. The Minority Center of Excellence manages contracting and employer partnerships, creating a unified ecosystem of support.",
+    value: "The Collaborative Advocate Foundation (TCAF) — an IRS-determined 501(c)(3), SAM.gov Active (CAGE 209N1) — holds direct grant eligibility and grant compliance. ThriveUp Academy delivers direct youth services. The Minority Center of Excellence manages contracting and employer partnerships, creating a unified ecosystem of support.",
   },
   {
     key: "Outcomes Framework",
@@ -420,7 +420,7 @@ export default function GrantNarrativePage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="p-4 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800">
             <h3 className="font-semibold text-blue-700 dark:text-blue-400 mb-1">The Collaborative Advocate LLC</h3>
-            <p className="text-xs font-medium text-muted-foreground mb-2">Fiscal Sponsor & Grant Compliance</p>
+            <p className="text-xs font-medium text-muted-foreground mb-2">Grant Applicant of Record & Compliance</p>
             <ul className="space-y-1 text-sm text-muted-foreground">
               <li>Grant application and management</li>
               <li>Financial oversight and reporting</li>

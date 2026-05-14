@@ -419,7 +419,7 @@ const INITIAL_GRANTS: GrantEntry[] = [
       { name: "Operating Budget", path: "/attached_assets/TCAF-Organizational-Budget-FY2025-2026.doc" },
       { name: "Submission Walkthrough", path: "/docs/grants/SUBMISSION-WALKTHROUGH-StDavids-WAB2-LOI.md" },
     ],
-    notes: "LOI SUBMITTED April 27, 2026 via GivingData portal. $1M / 24 months ask, regional 5-county scope (Travis, Williamson, Hays, Bastrop, Caldwell), 18,000+ enrollment target with ≥40% rural Bastrop+Caldwell, $24M+ household benefit value, Dell Med / UT SSW external evaluation. Fiscal sponsor: TBD (1023-EZ filed same day, IRS Tracking 281OIP7B / Agency 77368798693, determination letter expected 2-4 weeks). LOI confirmation received from foundation. Decision typically 6-10 weeks.",
+    notes: "LOI SUBMITTED April 27, 2026 via GivingData portal. $1M / 24 months ask, regional 5-county scope (Travis, Williamson, Hays, Bastrop, Caldwell), 18,000+ enrollment target with ≥40% rural Bastrop+Caldwell, $24M+ household benefit value, Dell Med / UT SSW external evaluation. TCAF is now IRS-determined 501(c)(3) (Letter 947, eff. 01/14/2026), SAM.gov Active (UEI KDDVD1FGLW35), CAGE 209N1 — applying directly, no fiscal sponsor needed. LOI confirmation received from foundation. Decision typically 6-10 weeks.",
     url: "https://stdavidsfoundation.org/funding-opportunities",
     submitUrl: "https://stdavidsfoundation.org/funding-opportunities",
     submitPortal: "GivingData (St. David's Foundation Grants Portal)",

@@ -74,7 +74,7 @@ K-12 AI Mastery Curriculum, Marcus reentry persona for justice-involved learners
 
 - **Dr. Flood:** *President*, not CEO. Email: `terryflood@thrivingcommunitiesforall.com`. Phone: (254) 319-8460. Never personal Gmail.
 - **Meredith Sisnett:** City of Austin employee. **Never** list on any City of Austin grant, contract, or proposal as staff, contact, board, co-lead, or partner. Non-City work only.
-- **501(c)(3):** "Status pending IRS determination" — never "awarded."
+- **501(c)(3):** TCAF is IRS-determined under section 170(b)(1)(A)(vi) (Letter 947, effective January 14, 2026). SAM.gov Active (UEI KDDVD1FGLW35); CAGE 209N1.
 - **St. David's Foundation:** "Actively evaluating" — never "awarded."
 - **Geographic framing:** "National platform, Texas-piloted." Travis County is implementation template, not limitation.
 - **Funder names on public pages:** Avoid. Describe the program category instead.

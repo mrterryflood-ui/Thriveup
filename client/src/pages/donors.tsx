@@ -283,10 +283,10 @@ export default function DonorsPage() {
             </CardHeader>
             <CardContent className="text-sm text-muted-foreground space-y-2">
               <p>
-                The Collaborative Advocate Foundation (TCAF) is veteran-founded and Black-led. Our 501(c)(3) determination is in active filing with the IRS (filed April 27, 2026 · Tracking 281OIP7B). Founder: Dr. Terry Flood, DHA — President.
+                The Collaborative Advocate Foundation (TCAF) is veteran-founded and Black-led. IRS-determined 501(c)(3) (Letter 947, effective January 14, 2026; public charity under 170(b)(1)(A)(vi)). Contributions are tax-deductible. President: Dr. Terry Flood, DHA.
               </p>
               <p>
-                During the determination window, Abundant Life Church (a 501(c)(3) in good standing) is the fiduciary on grant submissions and tax-deductible gifts. Donors can also designate gifts to TCAF directly; receipts will be issued under the appropriate entity.
+                Gifts go directly to TCAF and are tax-deductible to the fullest extent allowed by law. Receipts are issued under TCAF (EIN 41-3618503).
               </p>
               <p>
                 The Outcome Receipts pilot is live on a real cohort in Travis, Williamson, Hays, Bastrop, and Caldwell counties. Resident PII is stripped at the receipt boundary. Hashes are deterministic and re-derivable.
@@ -317,7 +317,7 @@ export default function DonorsPage() {
             </Button>
           </div>
           <p className="text-xs text-muted-foreground pt-2">
-            TCAF · 17912 Stefano Drive, Pflugerville, TX 78660 · EIN 41-3618503 (501(c)(3) determination pending)
+            TCAF · 17912 Stefano Drive, Pflugerville, TX 78660-7020 · EIN 41-3618503 · 501(c)(3) determined (IRS Letter 947, eff. 01/14/2026)
           </p>
         </section>
 

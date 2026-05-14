@@ -1,10 +1,10 @@
 # Foster Youth Aging Out — Transition Supports Briefing
 **Audience:** HUD/HHS implementation leaders, Public Housing Authorities, child-welfare partners, foundations.
-**Operator:** Thriving Communities for All Foundation, Inc. (TCAF). 501(c)(3) — IRS determination pending.
+**Operator:** The Collaborative Advocate Foundation, Inc. (TCAF). IRS-determined 501(c)(3) (Letter 947, effective January 14, 2026). SAM.gov Active (UEI KDDVD1FGLW35). CAGE 209N1.
 **President:** Dr. Terry Flood.
 **Last verified live:** 2026-05-11. **Audit:** `npx tsx scripts/congruence-audit.ts` → `.agents/congruence/last-run.md`.
 
-> **Honest disclosure (always first):** TCAF is a 501(c)(3) with IRS determination pending. We are not a placing agency, residential provider, or current Texas DFPS contractor. The infrastructure described in this briefing is built and live; the contracting relationships and funded designations are conversations in progress.
+> **Honest disclosure (always first):** TCAF is an IRS-determined 501(c)(3) (Letter 947, effective January 14, 2026), SAM.gov Active (UEI KDDVD1FGLW35), CAGE 209N1. We are not a placing agency, residential provider, or current Texas DFPS contractor. The infrastructure described in this briefing is built and live; the contracting relationships and funded designations are conversations in progress.
 
 ---
 
@@ -97,5 +97,5 @@ Six clickable, working tools for young people aging out of foster care, anchored
 
 ## Contact
 - **Dr. Terry Flood, President** · `terryflood@thrivingcommunitiesforall.com`
-- TCAF · Thriving Communities for All Foundation, Inc. · 501(c)(3) IRS determination pending
+- TCAF · The Collaborative Advocate Foundation, Inc. · 501(c)(3) determined (IRS Letter 947, eff. 01/14/2026) · SAM Active · CAGE 209N1
 - All proposals route through the institutional email above; never personal Gmail.

@@ -1,4 +1,25 @@
-# MAP-GAP Lessons Learned Registry
+# MAP-GAP Lessons Learned
+
+## P-L11 — Status-change sweeps must be exhaustive (May 14, 2026)
+When a foundational entity-status fact changes (e.g., 501(c)(3) "pending" → "determined", SAM "Submitted" → "Active", CAGE "pending" → assigned), a single-file update is never enough. The stale claim propagates across:
+- Public-facing copy (donor pages, landing footers, about pages, non-discrimination, transparency matrix, sidebar)
+- Grant narratives (every NOFO draft + assurance section + organizational-capacity section)
+- Server-side AI prompts (donor-receipt generation prompts that hardcode pilot-status claims)
+- Server-side grant-fit feature lists (capability area descriptions with "Pending 501(c)(3) determination workflows")
+- Page-component checklists (status: "pending" entries that should flip to "complete")
+- Congruence-manifest expected-text claims (assertion strings must match new page text or audit breaks)
+- PPTX/Markdown briefing generators (footer strings, honest-disclosure blocks, contact slides)
+- Drizzle/JSON config in grant-tracking UI (Owner enums, MOU labels)
+
+**Pattern:** After any entity-status update, run `rg -n -i "<old-claim-pattern>" -g '!attached_assets' -g '!.agents/knowledge'` exhaustively, batch-edit in parallel, then re-run the congruence audit. Two passes are typical; the second pass catches Badge components, JSON manifest claims, and AI prompt strings the first pass missed. **Don't stop sweeping until rg returns zero hits.**
+
+**Concrete trigger (this session):** SAM "Submitted" → "Active" + CAGE 209N1 assignment cascaded into 32 files across 4 layers (client copy, server prompts/connectors, grant docs, checklist UX). The architect review caught a UX regression (invalid `status: "complete"` enum value not in the `"verified" | "pending" | "action-needed"` union) and 8 stale TCAF-as-fiscal-sponsor self-claims I missed on first pass — most critically `server/ecosystem-connector.ts` where the hardcoded array auto-syncs and overwrites DB rows on every startup.
+
+**Always run architect() review after status-change sweeps.** Manual rg + congruence audit caught 80% of the stale references but missed (a) checklist enum violations that compile but render incorrectly, (b) reverse-direction claims ("TCAF provides fiscal sponsorship") that don't match the original sweep pattern, and (c) self-description fields buried in server-side connector arrays.
+
+---
+
+## Registry
 
 Persistent lessons from each improvement cycle. Each lesson should inform future cycles and, where possible, become an automated health check.
 

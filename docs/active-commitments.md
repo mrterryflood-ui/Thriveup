@@ -36,7 +36,7 @@
 >
 > Dear Mr. Brewer,
 >
-> I'm Dr. Terry Flood, President of The Collaborative Advocate Foundation (TCAF), a Texas-based 501(c)(3) (EIN 41-3618503, determination effective January 14, 2026; SAM.gov UEI KDDVD1FGLW35, registration submitted). We operate 15 public-facing service platforms — a national community-infrastructure model piloted in Travis County — including Minority Center of Excellence, Mission Transition (military-to-civilian pathways), and ThriveUp Academy (AI literacy, financial literacy, workforce pathways).
+> I'm Dr. Terry Flood, President of The Collaborative Advocate Foundation (TCAF), a Texas-based 501(c)(3) (EIN 41-3618503, determination effective January 14, 2026; **SAM.gov UEI KDDVD1FGLW35 — ACTIVE; CAGE 209N1**). We operate 15 public-facing service platforms — a national community-infrastructure model piloted in Travis County — including Minority Center of Excellence, Mission Transition (military-to-civilian pathways), and ThriveUp Academy (AI literacy, financial literacy, workforce pathways).
 >
 > I'm reaching out following the Texas Economic Development Corporation's notice on the SBA Manufacturing in America Empower to Grow (E2G) Initiative. After honest review, E2G isn't a fit for TCAF as prime — we don't operate a small-manufacturer portfolio. But the framing in your team's note — *"other opportunities in that same domain"* — suggests there may be programs better aligned with our work in **microenterprise development, women's business ownership, veteran entrepreneurship, and minority-business technical assistance.**
 >
@@ -50,11 +50,11 @@
 > President, The Collaborative Advocate Foundation
 > US Army Retiree · DSHS-Certified CHW Instructor #657
 > terryflood@thrivingcommunitiesforall.com · 254-319-8460
-> SAM UEI: KDDVD1FGLW35 · EIN: 41-3618503
+> SAM UEI: KDDVD1FGLW35 (Active) · CAGE: 209N1 · EIN: 41-3618503
 
 **Pre-send checklist:**
 - [ ] Email address: confirmed correct? (User is updating institutional email; hold if change is imminent)
-- [ ] SAM status still "Submitted"? Update language if it has flipped to Active
+- [x] ~~SAM status~~ — **Active as of May 14, 2026, CAGE 209N1** (updated in draft)
 - [ ] Phone: 254-319-8460 still primary?
 - [ ] Verify Jarvis Brewer email domain (gov.texas.gov, not state.tx.us) before sending
 
@@ -76,13 +76,14 @@ User confirmed May 12, 2026: **does NOT know "Anika Amie."** This name was embed
 
 ## TCAF SAM.gov + Federal Registration Identifiers (added May 12, 2026)
 
-- **SAM.gov UEI:** **KDDVD1FGLW35** ✅ (visible in Entity Workspace screenshot 19:36)
-- **SAM.gov registration status:** **Submitted Registration** — *not yet "Active"*. Means TCAF can be referenced (UEI is live), but cannot YET receive federal awards until validation completes (typically 7–10 business days; IRS TIN match is the usual gate). **🚨 Do NOT claim "SAM-active" in any narrative until status flips to Active.** Honest current language: *"TCAF SAM.gov registration submitted (UEI KDDVD1FGLW35); activation pending validation."*
-- **CAGE / NCAGE Code:** **PENDING** — user awaiting 5-digit ID from CAGE review team. *(CAGE is auto-issued by DLA after SAM activation; tracks separately.)* Do NOT type a placeholder; leave blank on forms or write "CAGE pending DLA assignment."
+- **SAM.gov UEI:** **KDDVD1FGLW35** ✅
+- **SAM.gov registration status:** ✅ **ACTIVE** as of **May 14, 2026** (confirmed via SAM.gov donotreply notification at 13:46). TCAF is now eligible to receive federal awards. Honest language for narratives: *"TCAF is SAM.gov-active (UEI KDDVD1FGLW35), CAGE 209N1, IRS-determined 501(c)(3) under 170(b)(1)(A)(vi)."*
+- **CAGE Code:** ✅ **209N1** — auto-assigned by DLA CAGE Program at SAM activation. Use on all federal forms requiring CAGE/NCAGE.
+- **SAM annual renewal:** **2027-05-06** is the renewal date in SAM. **Set calendar reminder for ~2027-04-01** to start renewal workflow. Missing the renewal = loss of federal-award eligibility (active → expired) — non-trivial to recover.
 - **Physical Address (SAM-verified, full ZIP+4):** **17912 Stefano Dr, Pflugerville, TX 78660-7020 USA** *(memory previously had `78660` — extend to `78660-7020` on any federal form that asks for ZIP+4)*.
 - **Doing Business As (in SAM):** blank. *(TCAF is held in memory as the DBA, but it is NOT registered as such in SAM. For federal forms, default to legal name `The Collaborative Advocate Foundation`; only add `(DBA TCAF)` where the form has a DBA field.)*
 
-**🔔 SURFACE TO USER on/after 2026-05-22:** "It's been ~10 business days since you submitted SAM.gov registration on May 12. Check entity status at https://sam.gov — if it flipped to **Active**, give me the activation date and I'll update memory. If it's still Submitted/in-process, check the validation hold reason."
+**🔔 SURFACE TO USER on/after 2027-04-01:** "TCAF's SAM.gov registration renews on 2027-05-06. Start the renewal workflow now — missing the renewal = loss of federal-award eligibility."
 
 ---
 

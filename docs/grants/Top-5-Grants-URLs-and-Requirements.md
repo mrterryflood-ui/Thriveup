@@ -64,7 +64,7 @@
 
 ### Eligibility
 - **501(c)(3) status required** with valid IRS determination letter at LOI submission
-  - **TCAF gating:** TCAF currently has IRS 501(c)(3) **pending** (Tracking 281OIP7B per active-commitments). Use Abundant Life Church as fiscal sponsor if determination not in hand at LOI time
+  - **TCAF gating:** TCAF is an IRS-determined 501(c)(3) (Letter 947, effective 01/14/2026); SAM.gov Active; CAGE 209N1. Apply directly — no fiscal sponsor needed.
 - **Annual operating budget ≥ $250,000**
 - Demonstrated impact on individuals' and families' health and wellness
 - Community-led, community-focused organizations encouraged
@@ -78,7 +78,7 @@
 - Civic Health alignment
 
 ### TODAY actions
-- ☐ Confirm fiscal sponsor arrangement with Abundant Life Church if 501(c)(3) determination not yet in hand
+- ☑ 501(c)(3) determination in hand (IRS Letter 947, eff. 01/14/2026) — no fiscal sponsor needed
 - ☐ Pull current TCAF operating budget figure to confirm ≥$250K threshold
 - ☐ Email/call St. David's CDC program officer to convert "actively evaluating" status into a scheduled LOI conversation
 - ☐ Watch their Funding Opportunities page for exact LOI deadline posting

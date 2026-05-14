@@ -71,7 +71,7 @@ const SHARED_REGISTRATIONS: ChecklistItem[] = [
     id: "reg-ein",
     label: "Federal EIN active for Abundant Life Church",
     owner: "Abundant Life",
-    detail: "Required on every federal application as the legal applicant.",
+    detail: "Legacy: ALC was named legal applicant on in-flight applications submitted under the prior fiscal-sponsorship structure. Going forward (post-May 14, 2026), TCAF applies directly as IRS-determined 501(c)(3), SAM.gov Active, CAGE 209N1.",
   },
   {
     id: "reg-sam",
@@ -167,7 +167,7 @@ const PACKAGES: Pkg[] = [
       { id: "bja-doc-articles", label: "Articles of incorporation + bylaws", owner: "Abundant Life" },
       { id: "bja-doc-audit", label: "Most recent financial statements / Form 990", owner: "Abundant Life" },
       { id: "bja-doc-board", label: "Current board roster with affiliations", owner: "Abundant Life" },
-      { id: "bja-doc-mou", label: "MOU between Abundant Life and TCAF (fiscal sponsor / tech partner)", owner: "Joint" },
+      { id: "bja-doc-mou", label: "MOU between Abundant Life Church and TCAF (community-delivery partnership)", owner: "Joint" },
       { id: "bja-doc-budget", label: "Detailed line-item budget + budget narrative", owner: "Joint" },
       { id: "bja-doc-logic", label: "Logic model + performance measure plan", owner: "TCAF" },
       { id: "bja-doc-letters", label: "3+ partner letters of support (corrections, courts, workforce)", owner: "Abundant Life" },

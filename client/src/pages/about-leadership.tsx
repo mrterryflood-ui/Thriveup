@@ -101,21 +101,21 @@ export default function AboutLeadershipPage() {
               </div>
               <div>
                 <p className="font-bold">Abundant Life Church (ALC)</p>
-                <Badge variant="secondary" className="text-xs mt-1">501(c)(3) — Active</Badge>
+                <Badge variant="secondary" className="text-xs mt-1">Community-Delivery Partner</Badge>
               </div>
             </div>
             <div className="space-y-2 text-sm">
               <div>
                 <p className="font-semibold text-xs uppercase tracking-wide text-muted-foreground">Role</p>
-                <p>Legal applicant and fiscal sponsor (fiduciary). Holds the 501(c)(3) determination. Provides community presence, programmatic reach, and the chartered nonprofit standing required for federal and foundation grant eligibility.</p>
+                <p>Community-delivery and faith-community partner for joint programming. Provides community presence, programmatic reach, and trusted relationships within the populations TCAF serves. Not a fiscal sponsor — TCAF holds its own IRS 501(c)(3) determination and applies for awards directly.</p>
               </div>
               <div>
                 <p className="font-semibold text-xs uppercase tracking-wide text-muted-foreground">Responsibilities</p>
                 <ul className="list-disc list-inside text-muted-foreground space-y-0.5">
-                  <li>Receives grant funds as the legal applicant</li>
-                  <li>Holds programmatic accountability under the grant</li>
-                  <li>Provides community-rooted program delivery</li>
-                  <li>Maintains 501(c)(3) compliance and reporting</li>
+                  <li>Community-rooted program delivery on joint initiatives</li>
+                  <li>Faith-community engagement and outreach</li>
+                  <li>Co-design of culturally responsive programming</li>
+                  <li>Host site for in-person services where appropriate</li>
                 </ul>
               </div>
             </div>
@@ -128,7 +128,7 @@ export default function AboutLeadershipPage() {
               </div>
               <div>
                 <p className="font-bold">The Collaborative Advocate Foundation (TCAF)</p>
-                <Badge variant="outline" className="text-xs mt-1 border-amber-400 text-amber-700 dark:text-amber-400">501(c)(3) — Pending IRS Determination</Badge>
+                <Badge variant="outline" className="text-xs mt-1 border-emerald-400 text-emerald-700 dark:text-emerald-400">501(c)(3) — IRS-Determined (Letter 947, eff. 01/14/2026)</Badge>
               </div>
             </div>
             <div className="space-y-2 text-sm">
@@ -155,8 +155,8 @@ export default function AboutLeadershipPage() {
             <div className="space-y-1.5 text-sm">
               <p className="font-semibold">501(c)(3) Status — Honest Disclosure</p>
               <p className="text-muted-foreground">
-                <span className="font-medium text-foreground">Abundant Life Church</span> holds an active 501(c)(3) determination from the IRS and serves as the legal applicant for all current grant submissions.{" "}
-                <span className="font-medium text-foreground">TCAF</span>'s independent 501(c)(3) application was filed with the IRS on April 27, 2026 (IRS Tracking <span className="font-mono text-xs">281OIP7B</span>) and is currently pending determination. During pendency, TCAF operates as a sub-recipient and technology partner under ALC's fiscal sponsorship — a structurally sound and IRS-compliant pattern used by hundreds of fiscally-sponsored organizations.
+                <span className="font-medium text-foreground">TCAF</span> is an IRS-determined 501(c)(3) under section 170(b)(1)(A)(vi) (Letter 947, effective January 14, 2026; EIN 41-3618503) and is SAM.gov Active (UEI KDDVD1FGLW35; CAGE 209N1), eligible to apply for and receive federal, state, and local awards directly.{" "}
+                <span className="font-medium text-foreground">Abundant Life Church</span> remains a community-delivery and faith-community partner for joint programming where appropriate, but is not a required fiduciary for TCAF awards.
               </p>
               <p className="text-xs text-muted-foreground italic">We disclose this structure transparently because federal reviewers and foundation program officers reward applicants who name their status honestly. We will update this page within 30 days of any change in TCAF's IRS determination.</p>
             </div>

@@ -259,7 +259,7 @@ function OrderModal({ tier, onClose }: { tier: Tier; onClose: () => void }) {
                 </div>
                 <div>
                   <p className="font-semibold text-sm">PayPal</p>
-                  <p className="text-xs text-muted-foreground">PayPal · ALC fiscal sponsor</p>
+                  <p className="text-xs text-muted-foreground">PayPal · TCAF direct (EIN 41-3618503)</p>
                 </div>
                 <ArrowRight className="w-4 h-4 ml-auto text-muted-foreground" />
               </a>
@@ -592,7 +592,7 @@ export default function PricingPage() {
               <CreditCard className="w-6 h-6 text-blue-600" />
             </div>
             <span className="text-xs font-medium">PayPal</span>
-            <span className="text-xs text-muted-foreground">PayPal · ALC fiscal sponsor</span>
+            <span className="text-xs text-muted-foreground">PayPal · TCAF direct (EIN 41-3618503)</span>
           </a>
           <div className="flex flex-col items-center gap-2">
             <div className="w-12 h-12 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">

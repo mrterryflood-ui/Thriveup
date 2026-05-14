@@ -1,6 +1,6 @@
 # Jim Currier (Austin Visit) — Meeting Prep
 **Audience:** Jim Currier, MSW · National Foster Youth to Independence (FYI) Implementation Leader · 25+ years at the child-welfare/housing intersection.
-**Host:** Dr. Terry Flood, President, Thriving Communities for All Foundation, Inc. (TCAF). 501(c)(3) pending.
+**Host:** Dr. Terry Flood, President, The Collaborative Advocate Foundation, Inc. (TCAF). IRS-determined 501(c)(3) (Letter 947, eff. 01/14/2026). SAM.gov Active. CAGE 209N1.
 **Posture:** Stay ready, don't have to get ready. Loud and proud. Honest disclosure always.
 **Iron rule:** AI assistance with no conjecture or assumptions. Every claim demonstrable on a live URL.
 
@@ -26,7 +26,7 @@
 - Show: crisis banner (988, 741741, 1-800-RUNAWAY) — first thing on page, every page.
 - Show: Marcus anchor — "the headline story."
 - Show: 6 tiles. "Six tools, one door, use them in any order. Bilingual EN/ES from the title down."
-- Show: honest-disclosure block. "501(c)(3) pending. Not a placing agency. No state ILP contract today. We say what is true."
+- Show: honest-disclosure block. "501(c)(3) determined. SAM Active. CAGE 209N1. Not a placing agency. No state ILP contract today. We say what is true."
 - Show: partners section — "the quintet" (Talk Your Talk · Civic Signal · LifeBridge · ThriveUp Academy · Whole-Person Health).
 
 ### Minute 7–10 — Toolkit
@@ -91,7 +91,7 @@
 
 | Question Jim might ask | Answer |
 |---|---|
-| "Are you a Title IV-E placing agency?" | "No. We are a 501(c)(3) (IRS pending) operating community infrastructure. We are designed to wrap around placing agencies and PHAs, not replace them." |
+| "Are you a Title IV-E placing agency?" | "No. We are an IRS-determined 501(c)(3) (Letter 947, eff. 01/14/2026), SAM Active, CAGE 209N1, operating community infrastructure. We are designed to wrap around placing agencies and PHAs, not replace them." |
 | "Do you have a current Texas DFPS contract?" | "Not today. Conversations are at the early stage. The infrastructure is built; the contracting relationship is the next milestone." |
 | "How do I know your tools work for foster youth specifically vs. the general population?" | "Honest answer: today, our LifeBridge analytics aren't segmented by foster-youth user. We have a 30-day plan to fix that — see `Foster-Youth-Outcome-Tracking-Plan.md`. We can be reporting foster-youth-specific outcome numbers within 30 days of starting that work." |
 | "Where's the data going?" | "Wellbeing check-in: nowhere — local browser only. Toolkit + Transition Plan: localStorage only. We do not collect PII on these tools. Authenticated tools (FAFSA navigator, etc.) run on our PostgreSQL stack with Replit Auth." |
@@ -113,7 +113,7 @@
 
 ## Always say
 - ✅ "President not CEO."
-- ✅ "501(c)(3), IRS determination pending."
+- ✅ "IRS-determined 501(c)(3) (Letter 947, eff. 01/14/2026), SAM.gov Active (UEI KDDVD1FGLW35), CAGE 209N1."
 - ✅ "National platform, Texas-piloted."
 - ✅ "15 service platforms operated by TCAF."
 - ✅ "89 spoken + 18 sign = 107 total."

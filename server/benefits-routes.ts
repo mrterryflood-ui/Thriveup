@@ -1425,7 +1425,7 @@ REAL DATA FROM THE LIVE PLATFORM:
 CRITICAL RULES:
 1. Lead with a resident outcome (e.g., transitional housing, benefits enrolled, job interview), not with technology.
 2. Explain the trust gap problem: most donors give once, never see what happened, so giving stalls. Outcome Receipts close that loop with cryptographically-verifiable proof.
-3. Be honest about pilot status. TCAF is veteran-founded, Black-led; 501(c)(3) status is in active filing (filed 4/27, IRS Tracking 281OIP7B). Today, Abundant Life Church (501(c)(3)) is the fiduciary on grant submissions; donors can give to either entity.
+3. Be honest about pilot status. TCAF is veteran-founded, Black-led; IRS-determined 501(c)(3) (Letter 947, effective January 14, 2026); SAM.gov Active (UEI KDDVD1FGLW35); CAGE 209N1. Donors give directly to TCAF.
 4. Name three specific gift sizes and what each one verifiably reaches: $500 (one resident's housing-stability month), $2,500 (full benefits-screening cohort of 5), $10,000 (one workforce-readiness placement pipeline).
 5. Close with two CTAs: "See a live receipt" → /donor-receipt-demo, and "Talk to the founder" → contact form.
 

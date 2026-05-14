@@ -651,7 +651,7 @@ export function AppSidebar() {
             <span>ThriveUp Academy · TCAF · ALC</span>
           </div>
           <p className="text-[10px] text-muted-foreground leading-snug" data-testid="text-pilot-transparency">
-            National community-infrastructure platform. Live pilot in Travis County, Texas — the template for the all-50-states + 5-territory rollout via the open Hub Adoption Kit. ALC is the 501(c)(3) fiduciary; TCAF 501(c)(3) status pending IRS determination (Tracking 281OIP7B, filed 4/27/2026).
+            National community-infrastructure platform. Live pilot in Travis County, Texas — the template for the all-50-states + 5-territory rollout via the open Hub Adoption Kit. TCAF is an IRS-determined 501(c)(3) (Letter 947, effective January 14, 2026); SAM.gov Active (UEI KDDVD1FGLW35); CAGE 209N1.
           </p>
         </div>
       </SidebarFooter>

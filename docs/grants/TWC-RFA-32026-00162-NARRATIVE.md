@@ -2,11 +2,11 @@
 
 ## Application Narrative — The Collaborative Advocate Foundation
 
-**Applicant:** The Collaborative Advocate Foundation (Texas nonprofit corporation; 501(c)(3) determination pending)
-**SAM.gov UEI:** KDDVD1FGLW35 (registration submitted Apr 19, 2026; CAGE activation in process)
+**Applicant:** The Collaborative Advocate Foundation (Texas nonprofit corporation; IRS-determined 501(c)(3), Letter 947, effective January 14, 2026)
+**SAM.gov UEI:** KDDVD1FGLW35 (ACTIVE as of May 14, 2026; CAGE 209N1)
 **Program Name:** ThriveUp Workforce Readiness Academy
 **Contact:** Dr. Terry Flood, President
-**Email:** mr.terryflood@gmail.com
+**Email:** terryflood@thrivingcommunitiesforall.com
 **Location:** Austin, Texas (serving Pflugerville ISD and surrounding districts)
 **Amount Requested:** Up to $2,000,000
 **Grant Period:** July 2026 — June 2028 (24 months initial, up to 5 years)
@@ -19,7 +19,7 @@
 
 ### 1.1 Organization Background
 
-The Collaborative Advocate Foundation is a Texas nonprofit corporation, registered with the Texas Secretary of State, headquartered in Pflugerville, Texas (Austin metro). We are veteran-founded and Black-led, registered on SAM.gov (UEI KDDVD1FGLW35), and purpose-built to serve under-resourced communities through technology-driven workforce development, education, and comprehensive support services. Our IRS 501(c)(3) determination is pending; nonprofit status is verifiable via Texas Secretary of State filings.
+The Collaborative Advocate Foundation is a Texas nonprofit corporation, registered with the Texas Secretary of State, headquartered in Pflugerville, Texas (Austin metro). We are veteran-founded and Black-led, IRS-determined 501(c)(3) (Letter 947, effective January 14, 2026; public charity under 170(b)(1)(A)(vi)), SAM.gov Active (UEI KDDVD1FGLW35), CAGE 209N1, and purpose-built to serve under-resourced communities through technology-driven workforce development, education, and comprehensive support services.
 
 Our founder, Dr. Terry Flood, is a military veteran who brings operational discipline, community understanding, and firsthand knowledge of the barriers facing the populations we serve. Dr. Flood currently serves on the School Health Advisory Council (SHAC) for Pflugerville Independent School District, establishing a direct partnership pipeline to the CTE students this RFA is designed to serve.
 
@@ -43,7 +43,7 @@ This ecosystem approach means that when a CTE student enrolls in our workforce r
 - Active WIOA-aligned workforce development programming
 - Established SHAC membership with Pflugerville ISD
 - Regional hubs in Austin, Manor, and Pflugerville
-- SAM.gov UEI: KDDVD1FGLW35 (registration submitted Apr 19, 2026; in final CAGE activation. Per 2 CFR §25, the assigned UEI satisfies the federal identifier requirement during the activation window.)
+- SAM.gov UEI: KDDVD1FGLW35 (ACTIVE as of May 14, 2026); CAGE Code: 209N1
 - Experience serving justice-involved youth, veterans, and families navigating systemic barriers
 - Technology infrastructure capable of scaling to serve 500+ students simultaneously
 
@@ -373,7 +373,7 @@ Beyond the grant period, the program sustains through:
 
 ## 8. ASSURANCES
 
-- The Collaborative Advocate Foundation is a Texas nonprofit corporation registered with the Texas Secretary of State (501(c)(3) determination pending IRS review)
+- The Collaborative Advocate Foundation is a Texas nonprofit corporation registered with the Texas Secretary of State; IRS-determined 501(c)(3) (Letter 947, effective January 14, 2026)
 - We are registered on SAM.gov
 - We will comply with all TWC reporting requirements and contract terms
 - We will not alter Form B formulas

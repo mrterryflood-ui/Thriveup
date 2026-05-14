@@ -33,8 +33,8 @@ export default function NonDiscriminationPage() {
         </CardHeader>
         <CardContent className="space-y-4 text-sm leading-relaxed">
           <p data-testid="text-commitment">
-            The Collaborative Advocate Foundation (TCAF) and Abundant Life Church (ALC), operating jointly
-            as fiscal sponsor and program partner, do not discriminate on the basis of race, color, national
+            The Collaborative Advocate Foundation (TCAF), and any community-delivery partners
+            operating jointly with TCAF, do not discriminate on the basis of race, color, national
             origin, ethnicity, ancestry, religion, creed, sex, gender identity or expression, sexual
             orientation, age, marital status, parental status, military or veteran status, character of
             military discharge (including OTH), disability, genetic information, citizenship status,

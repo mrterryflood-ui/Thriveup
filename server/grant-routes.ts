@@ -78,8 +78,8 @@ const PLATFORM_CAPABILITIES = [
   { area: "Ecosystem Coordination", features: ["24-platform ACOS architecture", "Pre-Build Gate enforcement", "Capability Orchestration Map", "7-triad team-of-teams", "Bilateral collaboration exchange", "Multi-agency coordination"], grantKeywords: ["coordination", "collaboration", "partnership", "multi-agency", "intermediary", "backbone organization", "collective impact", "systems integration"] },
   { area: "Criminal Justice & Reentry", features: ["Reentry navigation infrastructure", "Second Chance Act program design", "Restorative justice coordination", "Probation/parole partner workflows", "Recidivism tracking", "Faith-based reentry partnerships"], grantKeywords: ["reentry", "re-entry", "second chance", "restorative justice", "recidivism", "prisoner reentry", "returning citizen", "formerly incarcerated", "justice involved", "justice-involved", "probation", "parole", "diversion", "juvenile justice", "crime victim", "desistance", "community corrections"] },
   { area: "AI for Good & Responsible Technology", features: ["AI Workforce Academy curricula", "Responsible AI literacy modules", "AI for nonprofit operations", "Agent-to-agent referral automation", "Bias auditing & evaluation harness"], grantKeywords: ["artificial intelligence", "ai for good", "ai for charitable", "responsible ai", "responsible artificial intelligence", "ai literacy", "machine learning", "trustworthy ai", "ai-ready", "ai readiness", "human-centered ai", "ai workforce", "ai adoption"] },
-  { area: "Faith-Based & Community Partnerships", features: ["Abundant Life Church 501(c)(3) fiduciary partnership", "Faith-community navigation hubs", "Congregational health programs", "Interfaith coalition coordination"], grantKeywords: ["faith-based", "faith based", "faith community", "congregation", "congregational", "interfaith", "religious organization", "houses of worship"] },
-  { area: "Fiscal Sponsorship & Nonprofit Capacity", features: ["TCAF/Abundant Life fiduciary structure", "Pending 501(c)(3) determination workflows", "Backbone organization services", "Sub-recipient compliance"], grantKeywords: ["fiscal sponsor", "fiscally sponsored", "fiscal sponsorship", "intermediary organization", "capacity building", "nonprofit infrastructure", "501(c)(3)", "fiduciary", "subaward", "sub-award", "pass-through entity"] },
+  { area: "Faith-Based & Community Partnerships", features: ["Abundant Life Church community-delivery partner", "Faith-community navigation hubs", "Congregational health programs", "Interfaith coalition coordination"], grantKeywords: ["faith-based", "faith based", "faith community", "congregation", "congregational", "interfaith", "religious organization", "houses of worship"] },
+  { area: "Nonprofit Capacity & Backbone Services", features: ["IRS-determined 501(c)(3) under 170(b)(1)(A)(vi)", "SAM.gov Active (CAGE 209N1) — direct federal-award eligibility", "Backbone organization services", "Sub-recipient compliance and pass-through capability"], grantKeywords: ["intermediary organization", "capacity building", "nonprofit infrastructure", "501(c)(3)", "backbone organization", "subaward", "sub-award", "pass-through entity"] },
 ];
 
 const COLLABORATOR_VALUE_PROPOSITIONS: Record<string, { theyGet: string[]; weGet: string[] }> = {
@@ -138,9 +138,9 @@ interface FitResult {
 }
 
 // Tier-1 keywords are exact ecosystem fits — each adds bonus points to the fit score.
-// These reflect TCAF/Abundant Life's strongest, most-distinctive capabilities.
+// These reflect TCAF's strongest, most-distinctive capabilities.
 const TIER1_KEYWORDS: Record<string, number> = {
-  // Criminal justice & reentry — the church-fiduciary sweet spot
+  // Criminal justice & reentry — TCAF's anchor capability domain
   "second chance act": 18, "prisoner reentry": 15, "second chance": 12,
   "reentry": 12, "re-entry": 12, "restorative justice": 12,
   "returning citizen": 12, "formerly incarcerated": 12, "justice-involved": 10,

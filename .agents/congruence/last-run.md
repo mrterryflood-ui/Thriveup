@@ -1,5 +1,5 @@
 # Congruence Audit Report
-**Run at:** 2026-05-11T13:05:39.714Z
+**Run at:** 2026-05-14T19:11:36.326Z
 **Manifest version:** 2 (last updated 2026-05-11)
 **Audience:** Jim Currier (HUD FYI National Implementation Leader) — Austin meeting prep
 
@@ -186,7 +186,7 @@ URL: `/foster-youth/benefits`
 - ✓ url — HTTP 200
 - ✓ text-benefits-title-es — test-id present (source: client/src/pages/foster-youth/benefits.tsx)
 
-### ✅ FY-012 — Honest disclosure block visible: 501(c)(3) pending, not a placing agency, no current state ILP contract
+### ✅ FY-012 — Honest disclosure block visible: IRS-determined 501(c)(3) (Letter 947, eff. 01/14/2026), SAM Active, CAGE 209N1, not a placing agency, no current state ILP contract
 URL: `/foster-youth`
 - ✓ url — HTTP 200
 - ✓ alert-honest-disclosure — test-id present (source: client/src/pages/foster-youth/hub.tsx)

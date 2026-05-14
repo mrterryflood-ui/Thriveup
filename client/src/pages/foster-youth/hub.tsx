@@ -158,7 +158,7 @@ export default function FosterYouthHubPage() {
           <AlertTriangle className="h-4 w-4" />
           <AlertTitle>Honest disclosure</AlertTitle>
           <AlertDescription className="text-sm leading-relaxed mt-2">
-            Thriving Communities for All Foundation, Inc. (TCAF) operates this platform. <strong>TCAF is a 501(c)(3) with IRS determination pending.</strong> We are not a placing agency, residential provider, or current Texas DFPS contractor. The infrastructure here is built and live; the contracting relationships and funded designations are conversations in progress. Use the tools today; everything you build with them belongs to you.
+            The Collaborative Advocate Foundation, Inc. (TCAF) operates this platform. <strong>TCAF is an IRS-determined 501(c)(3) (Letter 947, effective January 14, 2026), SAM.gov Active (UEI KDDVD1FGLW35), CAGE 209N1.</strong> We are not a placing agency, residential provider, or current Texas DFPS contractor. The infrastructure here is built and live; the contracting relationships and funded designations are conversations in progress. Use the tools today; everything you build with them belongs to you.
           </AlertDescription>
         </Alert>
       </section>

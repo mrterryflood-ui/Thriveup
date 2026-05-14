@@ -61,7 +61,7 @@ const ENTITIES: BusinessEntity[] = [
     website: "https://thrivingcommunitiesforall.com",
     responsibleParty: "Dr. Terry Flood, President",
     principalActivity: "Workforce Development, Community Health, Veteran Services",
-    description: "Veteran-founded, Black-led 501(c)(3) nonprofit serving as the organizational backbone and fiscal sponsor for the 24-platform ThriveUp Academy ACOS ecosystem. Delivers workforce development, veteran transition services, community health programs, and youth education through an interdependent platform architecture. SAM.gov registered (UEI active). Grant execution partner for WIOA, SSG Fox VA, St. David's Foundation, TWC, and federal/state workforce programs.",
+    description: "Veteran-founded, Black-led IRS-determined 501(c)(3) nonprofit (Letter 947, effective January 14, 2026; EIN 41-3618503) serving as the organizational backbone for the ThriveUp Academy ACOS ecosystem. Delivers workforce development, veteran transition services, community health programs, and youth education through an interdependent platform architecture. SAM.gov Active (UEI KDDVD1FGLW35; CAGE 209N1) — eligible to receive federal awards directly. Grant execution lead for WIOA, SSG Fox VA, St. David's Foundation, TWC, and federal/state workforce programs.",
     color: "border-violet-500",
     icon: Shield,
     keyFacts: [
@@ -801,7 +801,7 @@ export default function BusinessDocumentsPage() {
           <div className="grid md:grid-cols-3 gap-4 text-sm">
             <div className="p-3 bg-violet-50 dark:bg-violet-950/30 rounded-lg border border-violet-200 dark:border-violet-800">
               <div className="font-semibold text-violet-700 dark:text-violet-300">The Collaborative Advocate Foundation</div>
-              <div className="text-xs text-muted-foreground mt-1">501(c)(3) Nonprofit — Mission delivery, grant execution, tax-exempt donations, and fiscal sponsorship for the 24-platform ecosystem.</div>
+              <div className="text-xs text-muted-foreground mt-1">IRS-determined 501(c)(3) — Mission delivery, grant execution, and tax-exempt donations for the ecosystem. SAM.gov Active; CAGE 209N1.</div>
               <div className="text-xs font-mono mt-2">EIN: 41-3618503</div>
             </div>
             <div className="p-3 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800">

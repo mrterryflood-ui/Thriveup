@@ -62,7 +62,7 @@ const ORG_STRUCTURE = [
     color: "bg-blue-50 dark:bg-blue-950/30",
     borderColor: "border-blue-200 dark:border-blue-800",
     textColor: "text-blue-700 dark:text-blue-400",
-    role: "Fiscal Sponsor & Grant Compliance",
+    role: "Grant Applicant of Record & Compliance",
     positions: [
       { title: "Executive Director", fte: "1.0", focus: "Strategic leadership, grant compliance, interagency coordination" },
       { title: "Grants & Compliance Manager", fte: "1.0", focus: "Federal reporting, financial oversight, audit readiness" },

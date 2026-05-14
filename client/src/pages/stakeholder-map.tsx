@@ -46,7 +46,7 @@ const STAKEHOLDERS: Stakeholder[] = [
   { name: "Texas State University — School of Social Work", role: "Implementation research and outcome measurement partner", category: "research", stage: "aspirational" },
 
   // Community / coalitions
-  { name: "Abundant Life Church", role: "501(c)(3) fiscal sponsor and community delivery partner", category: "community", stage: "active" },
+  { name: "Abundant Life Church", role: "Community delivery and faith-community partner", category: "community", stage: "active" },
   { name: "Goodwill Central Texas", role: "Workforce development and employer pipeline (reentry)", category: "community", stage: "discovery" },
   { name: "Faith-network host families", role: "Transitional housing pathway for returning citizens", category: "community", stage: "outreach" },
 

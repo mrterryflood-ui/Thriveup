@@ -85,7 +85,7 @@ function header(slide: PptxGenJS.Slide, text: string) {
 }
 function footer(slide: PptxGenJS.Slide, page: number, total: number) {
   slide.addText(
-    `Thriving Communities for All Foundation, Inc. · 501(c)(3) IRS determination pending · Dr. Terry Flood, President · ${page}/${total}`,
+    `The Collaborative Advocate Foundation, Inc. · 501(c)(3) determined (IRS Letter 947, eff. 01/14/2026) · Dr. Terry Flood, President · ${page}/${total}`,
     { x: 0.5, y: 7.1, w: 12.3, h: 0.3, fontSize: 9, color: GRAY, align: "left" },
   );
 }
@@ -103,7 +103,7 @@ let pageNum = 0;
     x: 0.5, y: 2.7, w: 12.3, h: 0.8, fontSize: 22, color: "E5E7EB",
   });
   s.addText("Thriving Communities for All Foundation, Inc. (TCAF)", { x: 0.5, y: 5.5, w: 12.3, h: 0.4, fontSize: 16, color: "FFFFFF" });
-  s.addText("Dr. Terry Flood, President · 501(c)(3) IRS determination pending", { x: 0.5, y: 5.9, w: 12.3, h: 0.4, fontSize: 14, color: "E5E7EB" });
+  s.addText("Dr. Terry Flood, President · 501(c)(3) determined (IRS Letter 947, eff. 01/14/2026) · SAM Active · CAGE 209N1", { x: 0.5, y: 5.9, w: 12.3, h: 0.4, fontSize: 14, color: "E5E7EB" });
   s.addText(`Verified live system: ${PASS_COUNT}/${PASS_COUNT} congruence checks passing as of ${MANIFEST.lastUpdated}`, {
     x: 0.5, y: 6.5, w: 12.3, h: 0.4, fontSize: 12, color: "9CA3AF", italic: true,
   });
@@ -136,7 +136,7 @@ let pageNum = 0;
   const s = pptx.addSlide();
   header(s, "What is honest about this work");
   const items = [
-    "TCAF is a 501(c)(3); IRS determination pending. We are not a placing agency.",
+    "TCAF is an IRS-determined 501(c)(3) (Letter 947, eff. 01/14/2026); SAM.gov Active; CAGE 209N1. We are not a placing agency.",
     "We have no current Texas DFPS contract. Conversations are early-stage.",
     "St. David's Foundation status: actively evaluating, not awarded.",
     "Outcome data: LifeBridge has produced 3,456 resource navigations, 234 crisis-support diversions, 178 CHW dispatches across all populations served — not yet segmented by foster-youth user. 30-day plan to segment lives in Foster-Youth-Outcome-Tracking-Plan.md.",
@@ -278,7 +278,7 @@ const pptxPath = path.join(outDir, "Foster-Youth-Leave-Behind.pptx");
   const md: string[] = [];
   md.push(`# Foster Youth Aging Out — Executive Briefing`);
   md.push(``);
-  md.push(`**Operator:** Thriving Communities for All Foundation, Inc. (TCAF). 501(c)(3) IRS determination pending.`);
+  md.push(`**Operator:** The Collaborative Advocate Foundation, Inc. (TCAF). 501(c)(3) determined (IRS Letter 947, eff. 01/14/2026). SAM.gov Active (UEI KDDVD1FGLW35). CAGE 209N1.`);
   md.push(`**President:** Dr. Terry Flood.`);
   md.push(`**Generated:** ${new Date().toISOString().slice(0, 10)} from the live system.`);
   md.push(`**Verification:** ${PASS_COUNT}/${PASS_COUNT} congruence checks passing as of ${MANIFEST.lastUpdated} (\`scripts/congruence-audit.ts\`).`);
@@ -320,7 +320,7 @@ const pptxPath = path.join(outDir, "Foster-Youth-Leave-Behind.pptx");
 
   md.push(`## 4. Honest disclosure`);
   md.push(``);
-  md.push(`- **TCAF is a 501(c)(3) with IRS determination pending.** We are not a placing agency, residential provider, or current Texas DFPS contractor.`);
+  md.push(`- **TCAF is an IRS-determined 501(c)(3) (Letter 947, eff. 01/14/2026), SAM.gov Active, CAGE 209N1.** We are not a placing agency, residential provider, or current Texas DFPS contractor.`);
   md.push(`- **No current Texas DFPS contract.** The infrastructure is built; the contracting relationship is the next milestone.`);
   md.push(`- **St. David's Foundation status:** actively evaluating, not awarded.`);
   md.push(`- **Outcome data we publish:** LifeBridge has produced 3,456 resource navigations, 234 crisis-support diversions, 178 CHW dispatches across all populations served — **not yet segmented by foster-youth user**. Plan to segment in 30 days lives in \`docs/grants/Foster-Youth-Outcome-Tracking-Plan.md\`.`);
@@ -398,7 +398,7 @@ const pptxPath = path.join(outDir, "Foster-Youth-Leave-Behind.pptx");
   md.push(`## 10. Contact`);
   md.push(``);
   md.push(`- **Dr. Terry Flood, President** · \`terryflood@thrivingcommunitiesforall.com\``);
-  md.push(`- TCAF · Thriving Communities for All Foundation, Inc. · 501(c)(3) IRS determination pending`);
+  md.push(`- TCAF · The Collaborative Advocate Foundation, Inc. · 501(c)(3) determined (IRS Letter 947, eff. 01/14/2026) · SAM Active · CAGE 209N1`);
   md.push(`- All proposals route through the institutional email above; never personal Gmail.`);
   md.push(`- Audit: \`npx tsx scripts/congruence-audit.ts\` → \`.agents/congruence/last-run.md\` (must show 0 FAIL before any external use of this briefing).`);
   md.push(``);

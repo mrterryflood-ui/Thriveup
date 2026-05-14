@@ -1,6 +1,6 @@
 # Foster Youth Aging Out — Executive Briefing
 
-**Operator:** Thriving Communities for All Foundation, Inc. (TCAF). 501(c)(3) IRS determination pending.
+**Operator:** The Collaborative Advocate Foundation, Inc. (TCAF). IRS-determined 501(c)(3) (Letter 947, effective January 14, 2026). SAM.gov Active (UEI KDDVD1FGLW35). CAGE 209N1.
 **President:** Dr. Terry Flood.
 **Generated:** 2026-05-11 from the live system.
 **Verification:** 175/175 congruence checks passing as of 2026-05-11 (`scripts/congruence-audit.ts`).
@@ -43,7 +43,7 @@ Every row above is auto-verified by `scripts/congruence-audit.ts` (last run: 175
 
 ## 4. Honest disclosure
 
-- **TCAF is a 501(c)(3) with IRS determination pending.** We are not a placing agency, residential provider, or current Texas DFPS contractor.
+- **TCAF is an IRS-determined 501(c)(3) (Letter 947, effective January 14, 2026), SAM.gov Active, CAGE 209N1.** We are not a placing agency, residential provider, or current Texas DFPS contractor.
 - **No current Texas DFPS contract.** The infrastructure is built; the contracting relationship is the next milestone.
 - **St. David's Foundation status:** actively evaluating, not awarded.
 - **Outcome data we publish:** LifeBridge has produced 3,456 resource navigations, 234 crisis-support diversions, 178 CHW dispatches across all populations served — **not yet segmented by foster-youth user**. Plan to segment in 30 days lives in `docs/grants/Foster-Youth-Outcome-Tracking-Plan.md`.
@@ -115,6 +115,6 @@ In external copy: **"15 service platforms operated by TCAF."** "25" is internal 
 ## 10. Contact
 
 - **Dr. Terry Flood, President** · `terryflood@thrivingcommunitiesforall.com`
-- TCAF · Thriving Communities for All Foundation, Inc. · 501(c)(3) IRS determination pending
+- TCAF · The Collaborative Advocate Foundation, Inc. · 501(c)(3) determined (IRS Letter 947, eff. 01/14/2026) · SAM Active · CAGE 209N1
 - All proposals route through the institutional email above; never personal Gmail.
 - Audit: `npx tsx scripts/congruence-audit.ts` → `.agents/congruence/last-run.md` (must show 0 FAIL before any external use of this briefing).

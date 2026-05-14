@@ -155,7 +155,7 @@
     },
     {
       "id": "FY-012",
-      "claim": "Honest disclosure block visible: 501(c)(3) pending, not a placing agency, no current state ILP contract",
+      "claim": "Honest disclosure block visible: IRS-determined 501(c)(3) (Letter 947, eff. 01/14/2026), SAM Active, CAGE 209N1, not a placing agency, no current state ILP contract",
       "url": "/foster-youth",
       "testIds": ["alert-honest-disclosure"],
       "evidenceUrl": "client/src/pages/foster-youth/hub.tsx"
