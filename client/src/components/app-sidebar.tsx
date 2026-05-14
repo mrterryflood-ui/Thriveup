@@ -88,6 +88,12 @@ const fosterYouthItems: NavItem[] = [
   { title: "Policy Comparison (50 states)", url: "/foster-youth/policy-comparison", icon: Scale },
 ];
 
+const communityPartnersItems: NavItem[] = [
+  { title: "Vann Collaboration Hub", url: "/partners/vann-hub", icon: Handshake },
+  { title: "Family & Program Tracker", url: "/partners/family-program-tracker", icon: Users },
+  { title: "RFP-Match Storyteller", url: "/partners/rfp-storyteller", icon: Sparkles },
+];
+
 const justiceReentryItems: NavItem[] = [
   { title: "Reentry Program (overview)", url: "/reentry-program", icon: Scale },
   { title: "Reentry Operational Dashboard", url: "/reentry", icon: Scale },
@@ -496,6 +502,7 @@ export function AppSidebar() {
             Plus: AI Literacy, Where We Operate, About */}
         <NavSection label="Texas (St. David's Pilot)" items={texasPilotItems} location={location} />
         <NavSection label="Youth Aging Out of Foster Care" items={fosterYouthItems} location={location} />
+        <NavSection label="Community Partners" items={communityPartnersItems} location={location} />
         <NavSection label="Programs" items={programsItems} location={location} />
         {isAuthenticated && (
           <NavSection label="Grant Engine (internal)" items={grantEngineItems} location={location} />

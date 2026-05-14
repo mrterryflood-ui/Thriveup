@@ -229,3 +229,29 @@ await db.select().from(agencies).where(eq(agencies.id, agencyId));
 **Fix:** Make the regex tolerant of optional Markdown bold: `/FAIL:\*?\*?\s*(\d+)/`. Or — better — parse the audit JSON if/when the auditor emits one.
 
 **Generalizable rule:** When two scripts couple via parsed text, the producer's format change silently breaks the consumer. Either (a) make the regex tolerant of trivial formatting (bold, whitespace, punctuation), (b) emit a machine-readable artifact alongside the human-readable one (`.json` next to `.md`), or (c) have the producer and consumer share a single utility. **Safe-default values (`FAIL_COUNT = 999`) saved us here — they should be the rule whenever a parser miss could mean "publish bad evidence."**
+
+---
+
+## P-L11 — Congruence manifest testIds must be literal strings in source, not computed via template literals (May 14, 2026)
+
+**Context:** Built three new pages for the Vann Collaboration Kit. Added testIds to ecosystem cards via `data-testid={`card-ecosystem-${e.name.toLowerCase().replace(/\s+/g, "-")}`}`. Added matching IDs to `CONGRUENCE-MANIFEST.json`. Audit reported 9 FAILs — every card-ecosystem-* claim failed.
+
+**Cause:** The congruence audit checks **the source file** for the literal testId string (SPA fallback when SSR isn't available). A template literal like `` `card-ecosystem-${e.name...}` `` never appears as a literal in the file, so the audit can't find it.
+
+**Fix:** Give each list entry an explicit `id` field and reference it directly: `data-testid={`card-ecosystem-${e.id}`}`. Better still: write the testIds as fully literal strings when you can. Audit went from 214 PASS / 9 FAIL → 223 PASS / 0 FAIL with a 2-line change.
+
+**General rule:** If a testId is going into the congruence manifest, write it so a `grep` over the source file would find it character-for-character.
+
+## P-L12 — Multi-tenant demo data: org isolation must be enforced in the route, not just by convention (May 14, 2026)
+
+**Context:** Vann tracker has two orgs (`sistahs-cwt`, `iasis-ccc`) seeded into the same database. The naive query `db.select().from(households)` would mix them.
+
+**Pattern adopted:** Every list endpoint in `server/community-program-routes.ts` takes `orgId` from the URL path and uses `eq(households.orgId, orgId)` in the where clause. The seed function tags every row with its org. The frontend org-picker drives the URL; switching orgs re-issues queries with the new path. Stats are computed per-org server-side so the client never sees the other tenant's rows.
+
+**Lesson:** When you seed two demo tenants into the same table, build the route surface around `:orgId` from the start. Adding tenant scoping after the fact is an audit nightmare and a security risk.
+
+## P-L13 — Dr. Vann email-driven pivot: when memory says "user X wants Y," verify (May 14, 2026)
+
+**Context:** Prior memory (May 12, 2026 entry) explicitly noted that Dr. Vann had **not** discussed foster youth with the user. Two days later her actual email arrived asking for "something similar to what you showed for our youth program" — referring to her husband's church youth ministry, NOT foster care. The May-12 lesson held: prior memory's hypothesis was right to be cautious, and the May-13 email confirmed the actual lane (Iasis Joshua Generation + Sistahs Can We Talk women's health). Built the tracker accordingly.
+
+**Lesson reinforced:** Inherited memory framings are hypotheses, not facts. Wait for the user's actual words before committing infrastructure. P-L13 confirms P-L11's general rule from May 12.

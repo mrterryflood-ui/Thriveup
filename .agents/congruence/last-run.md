@@ -1,10 +1,10 @@
 # Congruence Audit Report
-**Run at:** 2026-05-14T19:11:36.326Z
-**Manifest version:** 2 (last updated 2026-05-11)
+**Run at:** 2026-05-14T19:52:27.933Z
+**Manifest version:** 2 (last updated 2026-05-14)
 **Audience:** Jim Currier (HUD FYI National Implementation Leader) — Austin meeting prep
 
 ## Summary
-- **PASS:** 175 / 175
+- **PASS:** 223 / 223
 - **WARN:** 0
 - **FAIL:** 0
 - **Verdict:** ✅ CONGRUENT
@@ -276,6 +276,63 @@ URL: `/foster-youth/policy-comparison`
 - ✓ select-state-b — test-id present (source: client/src/pages/foster-youth/policy-comparison.tsx)
 - ✓ table-comparison — test-id present (source: client/src/pages/foster-youth/policy-comparison.tsx)
 - ✓ table-all-states — test-id present (source: client/src/pages/foster-youth/policy-comparison.tsx)
+
+### ✅ VANN-001-hub — Vann Collaboration Hub: welcome card, who's-who 3-card, ecosystem map (9 surfaces), 7-min walkthrough script, COI disclosure, CTAs to tracker + RFP storyteller. Honest disclosure footer.
+URL: `/partners/vann-hub`
+- ✓ url — HTTP 200
+- ✓ page-vann-hub — test-id present (source: client/src/pages/partners/vann-collaboration-hub.tsx)
+- ✓ text-page-title — test-id present (source: client/src/pages/partners/vann-collaboration-hub.tsx)
+- ✓ cta-tracker — test-id present (source: client/src/pages/partners/vann-collaboration-hub.tsx)
+- ✓ cta-storyteller — test-id present (source: client/src/pages/partners/vann-collaboration-hub.tsx)
+- ✓ badge-aff-sedgwick — test-id present (source: client/src/pages/partners/vann-collaboration-hub.tsx)
+- ✓ badge-aff-ksun — test-id present (source: client/src/pages/partners/vann-collaboration-hub.tsx)
+- ✓ card-ecosystem-thriveup-academy — test-id present (template: client/src/pages/partners/vann-collaboration-hub.tsx `card-ecosystem-${...}` + suffix "thriveup-academy" (from client/src/pages/partners/vann-collaboration-hub.tsx))
+- ✓ card-ecosystem-whole-person-health — test-id present (template: client/src/pages/partners/vann-collaboration-hub.tsx `card-ecosystem-${...}` + suffix "whole-person-health" (from client/src/pages/partners/vann-collaboration-hub.tsx))
+- ✓ card-ecosystem-bible-study-buddies — test-id present (template: client/src/pages/partners/vann-collaboration-hub.tsx `card-ecosystem-${...}` + suffix "bible-study-buddies" (from client/src/pages/partners/vann-collaboration-hub.tsx))
+- ✓ card-ecosystem-talk-your-talk — test-id present (template: client/src/pages/partners/vann-collaboration-hub.tsx `card-ecosystem-${...}` + suffix "talk-your-talk" (from client/src/pages/partners/vann-collaboration-hub.tsx))
+- ✓ card-ecosystem-lifebridge-virtual-211 — test-id present (template: client/src/pages/partners/vann-collaboration-hub.tsx `card-ecosystem-${...}` + suffix "lifebridge-virtual-211" (from client/src/pages/partners/vann-collaboration-hub.tsx))
+- ✓ card-ecosystem-safereport — test-id present (template: client/src/pages/partners/vann-collaboration-hub.tsx `card-ecosystem-${...}` + suffix "safereport" (from client/src/pages/partners/vann-collaboration-hub.tsx))
+- ✓ card-ecosystem-sankofa-health-network — test-id present (template: client/src/pages/partners/vann-collaboration-hub.tsx `card-ecosystem-${...}` + suffix "sankofa-health-network" (from client/src/pages/partners/vann-collaboration-hub.tsx))
+- ✓ card-ecosystem-herhealth-network — test-id present (template: client/src/pages/partners/vann-collaboration-hub.tsx `card-ecosystem-${...}` + suffix "herhealth-network" (from client/src/pages/partners/vann-collaboration-hub.tsx))
+- ✓ card-ecosystem-civic-signal — test-id present (template: client/src/pages/partners/vann-collaboration-hub.tsx `card-ecosystem-${...}` + suffix "civic-signal" (from client/src/pages/partners/vann-collaboration-hub.tsx))
+
+### ✅ VANN-002-family-tracker — Family & Program Tracker: org picker, household list, family detail panel with member chips + enrollments + attendance trend (recharts) + services received, attendance check-in dialog, CSV upload with sample, CSV export, stats tiles, COI disclosure card on Iasis tenant, demo-data alert.
+URL: `/partners/family-program-tracker`
+- ✓ url — HTTP 200
+- ✓ page-family-program-tracker — test-id present (source: client/src/pages/partners/family-program-tracker.tsx)
+- ✓ text-page-title — test-id present (source: client/src/pages/partners/family-program-tracker.tsx)
+- ✓ select-org — test-id present (source: client/src/pages/partners/family-program-tracker.tsx)
+- ✓ button-open-upload — test-id present (source: client/src/pages/partners/family-program-tracker.tsx)
+- ✓ button-export-csv — test-id present (source: client/src/pages/partners/family-program-tracker.tsx)
+- ✓ stat-households — test-id present (source: client/src/pages/partners/family-program-tracker.tsx)
+- ✓ stat-members — test-id present (source: client/src/pages/partners/family-program-tracker.tsx)
+- ✓ stat-programs — test-id present (source: client/src/pages/partners/family-program-tracker.tsx)
+- ✓ stat-attendance — test-id present (source: client/src/pages/partners/family-program-tracker.tsx)
+- ✓ stat-meals — test-id present (source: client/src/pages/partners/family-program-tracker.tsx)
+- ✓ stat-transport — test-id present (source: client/src/pages/partners/family-program-tracker.tsx)
+- ✓ tab-households — test-id present (source: client/src/pages/partners/family-program-tracker.tsx)
+- ✓ tab-reach — test-id present (source: client/src/pages/partners/family-program-tracker.tsx)
+- ✓ tab-services — test-id present (source: client/src/pages/partners/family-program-tracker.tsx)
+
+### ✅ VANN-003-rfp-storyteller — RFP-Match Storyteller: side-by-side SAMHSA Minority Behavioral Health (federal scaling-up) and Wichita CDBG Public Services (local scaling-out) panels. Each requirement quoted verbatim and crosswalked to live tracker data. Sample narrative paragraph per panel.
+URL: `/partners/rfp-storyteller`
+- ✓ url — HTTP 200
+- ✓ page-rfp-storyteller — test-id present (source: client/src/pages/partners/rfp-storyteller.tsx)
+- ✓ text-page-title — test-id present (source: client/src/pages/partners/rfp-storyteller.tsx)
+- ✓ select-org — test-id present (source: client/src/pages/partners/rfp-storyteller.tsx)
+- ✓ tab-samhsa — test-id present (source: client/src/pages/partners/rfp-storyteller.tsx)
+- ✓ tab-cdbg — test-id present (source: client/src/pages/partners/rfp-storyteller.tsx)
+- ✓ card-req-samhsa-r1 — test-id present (template: client/src/pages/partners/rfp-storyteller.tsx `card-req-${...}` + suffix "samhsa-r1" (from client/src/pages/partners/rfp-storyteller.tsx))
+- ✓ card-req-samhsa-r2 — test-id present (template: client/src/pages/partners/rfp-storyteller.tsx `card-req-${...}` + suffix "samhsa-r2" (from client/src/pages/partners/rfp-storyteller.tsx))
+- ✓ card-req-samhsa-r3 — test-id present (template: client/src/pages/partners/rfp-storyteller.tsx `card-req-${...}` + suffix "samhsa-r3" (from client/src/pages/partners/rfp-storyteller.tsx))
+- ✓ card-req-samhsa-r4 — test-id present (template: client/src/pages/partners/rfp-storyteller.tsx `card-req-${...}` + suffix "samhsa-r4" (from client/src/pages/partners/rfp-storyteller.tsx))
+- ✓ card-req-samhsa-r5 — test-id present (template: client/src/pages/partners/rfp-storyteller.tsx `card-req-${...}` + suffix "samhsa-r5" (from client/src/pages/partners/rfp-storyteller.tsx))
+- ✓ card-req-cdbg-r1 — test-id present (template: client/src/pages/partners/rfp-storyteller.tsx `card-req-${...}` + suffix "cdbg-r1" (from client/src/pages/partners/rfp-storyteller.tsx))
+- ✓ card-req-cdbg-r2 — test-id present (template: client/src/pages/partners/rfp-storyteller.tsx `card-req-${...}` + suffix "cdbg-r2" (from client/src/pages/partners/rfp-storyteller.tsx))
+- ✓ card-req-cdbg-r3 — test-id present (template: client/src/pages/partners/rfp-storyteller.tsx `card-req-${...}` + suffix "cdbg-r3" (from client/src/pages/partners/rfp-storyteller.tsx))
+- ✓ card-req-cdbg-r4 — test-id present (template: client/src/pages/partners/rfp-storyteller.tsx `card-req-${...}` + suffix "cdbg-r4" (from client/src/pages/partners/rfp-storyteller.tsx))
+- ✓ card-req-cdbg-r5 — test-id present (template: client/src/pages/partners/rfp-storyteller.tsx `card-req-${...}` + suffix "cdbg-r5" (from client/src/pages/partners/rfp-storyteller.tsx))
+- ✓ text-sample-narrative — test-id present (source: client/src/pages/partners/rfp-storyteller.tsx)
 
 ## External URLs
 - ✅ **EXT-LB** `https://lifetransitionsaid.org/` — HTTP 200, keywords present

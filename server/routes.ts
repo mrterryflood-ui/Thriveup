@@ -116,6 +116,8 @@ import { registerChainWebRoutes } from "./corridor-chainweb";
 import { registerCorridorDocRoutes } from "./corridor-docs";
 import { registerFosterYouthIntakeRoutes } from "./foster-youth-intake-routes";
 import { registerFosterYouthAgencyRoutes } from "./foster-youth-agency-routes";
+import { registerCommunityProgramRoutes } from "./community-program-routes";
+import { seedVannDemo } from "./seed-vann-demo";
 
 const AI_TOOLS = [
   { toolKey: "presentation-builder", name: "Presentation Builder", description: "Create slide-by-slide presentations with AI-generated content, talking points, and visual suggestions", category: "create", iconName: "presentation", gradeBand: "all", requiredModuleKey: "ai-presentations", promptTemplate: "PRESENTATION_BUILDER", outputFormat: "slides", sortOrder: 1 },
@@ -452,6 +454,11 @@ export async function registerRoutes(
   registerCorridorDocRoutes(app);
   registerFosterYouthIntakeRoutes(app);
   registerFosterYouthAgencyRoutes(app);
+  registerCommunityProgramRoutes(app);
+  // Idempotent demo seed for the Vann collaboration kit. Safe to call on every boot.
+  seedVannDemo()
+    .then((r) => { if (!r.skipped) console.log("[seed] Vann demo seeded:", r.orgs.join(", ")); })
+    .catch((e) => { console.error("[seed] Vann demo failed:", e); });
   storage.seedData().catch(err => console.error("[Seed] Data seeding failed:", err));
 
   app.get("/api/ai-provider", (_req, res) => {

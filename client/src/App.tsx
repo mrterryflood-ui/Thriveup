@@ -221,6 +221,9 @@ const FosterYouthIntakePage = lazy(() => import("@/pages/foster-youth/intake"));
 const FosterYouthCohortAnalyticsPage = lazy(() => import("@/pages/foster-youth/cohort-analytics"));
 const FosterYouthStatePortalPage = lazy(() => import("@/pages/foster-youth/state-portal"));
 const FosterYouthPolicyComparisonPage = lazy(() => import("@/pages/foster-youth/policy-comparison"));
+const VannCollaborationHubPage = lazy(() => import("@/pages/partners/vann-collaboration-hub"));
+const FamilyProgramTrackerPage = lazy(() => import("@/pages/partners/family-program-tracker"));
+const RfpStorytellerPage = lazy(() => import("@/pages/partners/rfp-storyteller"));
 
 function PageFallback() {
   return (
@@ -451,6 +454,17 @@ function AppRouter() {
         </RequireAuth>
       </Route>
       <Route path="/foster-youth/policy-comparison" component={FosterYouthPolicyComparisonPage} />
+      <Route path="/partners/vann-hub" component={VannCollaborationHubPage} />
+      <Route path="/partners/family-program-tracker">
+        <RequireAuth reason="The Family & Program Tracker contains community-partner household data (illustrative demo for the Dr. Vann conversation). Sign in to view.">
+          <FamilyProgramTrackerPage />
+        </RequireAuth>
+      </Route>
+      <Route path="/partners/rfp-storyteller">
+        <RequireAuth reason="The RFP-Match Storyteller reads live tracker data. Sign in to view.">
+          <RfpStorytellerPage />
+        </RequireAuth>
+      </Route>
       <Route path="/fafsa-navigator" component={FafsaNavigatorPage} />
       <Route path="/neighborhood" component={NeighborhoodLookupPage} />
       <Route path="/data-sources" component={DataSourcesPage} />

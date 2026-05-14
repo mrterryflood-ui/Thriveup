@@ -1,18 +1,18 @@
 {
   "version": "1.1.0",
-  "compiledAt": "2026-05-14T19:11:33.303Z",
+  "compiledAt": "2026-05-14T19:43:53.621Z",
   "sources": [
     {
       "path": "replit.md",
-      "mtime": "2026-05-14T18:56:20.877Z"
+      "mtime": "2026-05-14T19:43:16.527Z"
     },
     {
       "path": "docs/active-commitments.md",
-      "mtime": "2026-05-14T18:56:57.390Z"
+      "mtime": "2026-05-14T19:43:33.348Z"
     },
     {
       "path": ".agents/skills/map-gap/lessons-learned.md",
-      "mtime": "2026-05-14T19:11:26.091Z"
+      "mtime": "2026-05-14T19:43:49.204Z"
     },
     {
       "path": "docs/ecosystem-catalog.md",
@@ -24,7 +24,7 @@
     },
     {
       "path": "DB:ecosystem_platforms",
-      "mtime": "2026-05-14T19:11:33.303Z"
+      "mtime": "2026-05-14T19:43:53.621Z"
     }
   ],
   "project": {
@@ -78,6 +78,10 @@
     {
       "label": "Foster-Youth build log (May 11, 2026)",
       "detail": "`docs/foster-youth-build-log.md` — full detail of intake wizard, state portal, policy comparison, risk engine, congruence audit, leave-behind PPTX. Sidebar group `fosterYouthItems` in `app-sidebar.tsx`."
+    },
+    {
+      "label": "Vann Collaboration Kit (May 14, 2026)",
+      "detail": "`docs/partners/Vann-Vanntastic-Strategy-Memo.md` + `docs/partners/Vann-Meeting-Brief.md`. Three pages — `/partners/vann-hub`, `/partners/family-program-tracker`, `/partners/rfp-storyteller`. Schema: 7 tables in `shared/schema.ts` (`community_partner_orgs`, `households`, `household_members`, `community_programs`, `program_enrollments`, `program_attendance`, plus `community_services`). Routes: `server/community-program-routes.ts`. Seed: `server/seed-vann-demo.ts` (idempotent, runs on boot; logs `[seed] Vann demo seeded: sistahs-cwt, iasis-ccc`). Sidebar group `communityPartnersItems` in `app-sidebar.tsx`. Leave-behind PPTX: `scripts/generate-vann-leavebehind-pptx.ts` → `dist/Vann-Collaboration-LeaveBehind.pptx`. Two anchor RFPs in storyteller: SAMHSA Minority BH (federal scaling-up) + Wichita CDBG Public Services (local scaling-out). The three entities at the table: **Sistahs Can We Talk Inc.** (KS 501(c)(3) since 2015, Dr. Vann Founder & President) · **Iasis Christian Center** (Pentecostal/Apostolic, 37+ yrs, Sr Pastor William Vann + First Lady Michelle — COI on every City of Wichita / federal grant) · **Vanntastic Solutions LLC** (for-profit coaching)."
     },
     {
       "label": "Ecosystem catalog",
@@ -210,6 +214,18 @@
       "rule": "(general)",
       "detail": "**🚨 P-L10 — `req.params` typed `string | string[]`.** Destructuring breaks Drizzle `eq()` overload. Always coerce: `const agencyId = String(req.params.agencyId);`.",
       "severity": "high"
+    },
+    {
+      "id": "dr-vann-email-asked-for-youth-family-attendance-services-tracker-may-13-2026",
+      "rule": "🚨 Dr. Vann email asked for \"youth + family + attendance + services\" tracker (May 13, 2026)",
+      "detail": "Her exact words: *\"Something similar to what you showed for our youth program. I want to be able to track attendance, family structure, and services the families are engaged in.\"* This is the Iasis Christian Center youth program (Joshua Generation 12+ / Academy of Excellence ≤11, Wed 5:30–7pm w/ meal & transport) AND Sistahs Can We Talk's women's-health programs. Pivot from child-protection lens to community-asset lens — family is the unit, not the individual. Built as `/partners/family-program-tracker` May 14, 2026. **Iasis side requires standing COI disclosure on every federal/City of Wichita grant — Pastor William Vann is her husband.**",
+      "severity": "high"
+    },
+    {
+      "id": "three-vann-entities-keep-them-straight-may-14-2026",
+      "rule": "🚨 Three Vann entities — keep them straight (May 14, 2026)",
+      "detail": "(1) **Sistahs Can We Talk Inc.** — KS 501(c)(3) since 2015; primary KS-side grant applicant; Dr. J. Michelle Vann Founder & President; 29th & Grove Wichita; BIPOC women's health, Healthy Me Initiative, free cancer screenings, youth mentoring, digital storytelling. (2) **Iasis Christian Center** — Pentecostal/Apostolic church, 37+ yrs; Sr Pastor William Vann (spouse) + First Lady Michelle Vann; Wednesday youth programs. **NEVER list as City of Wichita grant applicant without spouse-relationship COI on the face of the application.** (3) **Vanntastic Solutions LLC** — for-profit executive wellness coaching + speaking + books (*Healthy Plates*, *Stop the Merry-Go-Round*, *Help Along the Journey*, *From Supporting Role to Leading Lady*); never an applicant on nonprofit/government grants. Affiliations that change strategy: **Sedgwick County Mental Health Advisory Board seat** (opens SAMHSA + county discretionary), **KSUN Radio 95.9 host**, Tabor College Wichita Adjunct, Wichita Public Schools 20-yr veteran, Greater Wichita Ministerial League, WeKan, Health & Wellness Coalition of Wichita, Anthropocene Alliance.",
+      "severity": "critical"
     },
     {
       "id": "dr-vann-foster-youth-conversation-may-12-2026",
@@ -407,6 +423,47 @@
       "last_heartbeat": "2026-03-22T03:08:23.128Z"
     },
     {
+      "id": "sankofa-feminine-health",
+      "name": "HerHealth Network (Holistic Black Feminine Health Hub)",
+      "url": "https://herhealthmatters2.com",
+      "role": "feminine-health",
+      "domain": "health-equity",
+      "status": "active",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "Comprehensive OB/GYN health platform for Black women — reproductive health education, hormonal wellness tracking, preventive screening scheduling, cervical/breast cancer awareness, menopause management, community support groups, and culturally responsive provider matching. Part of the Sankofa Health Network family. Also reachable at the alias domain myhealthybreast.com (both serve the same site). Integrates with Black Maternal Health Network for pregnancy pathways, SafeCogniCare for peripartum cognitive assessment, and Whole-Person Health for crisis escalation. Produces population-specific health outcome data addressing the 3x maternal mortality gap in Black communities.",
+      "capabilities": {
+        "features": [
+          "Reproductive Health Education",
+          "Preventive Screening Scheduler",
+          "Hormonal Wellness Tracker",
+          "Cervical Cancer Awareness",
+          "Breast Cancer Screening Navigation",
+          "Menopause Management",
+          "Community Support Groups",
+          "Culturally Responsive Provider Matching",
+          "Pregnancy Pathway Routing",
+          "Health Literacy Resources",
+          "Telehealth Coordination"
+        ],
+        "parentNetwork": "sankofa",
+        "grantNarrative": "Documents reproductive health engagement, screening completion rates, and provider-matching outcomes for St. David's women's health equity reporting",
+        "outcomeMetrics": [
+          "Preventive screening completions: 312 (cervical + breast)",
+          "Provider match success rate: 82%",
+          "Reproductive health education sessions: 445",
+          "Pregnancy pathway routing completions: 89",
+          "Community support group active participants: 156"
+        ],
+        "integrationDepth": "Bidirectional with Maternal Health (pregnancy routing), SafeCogniCare (cognitive assessment), Whole-Person Health (crisis), PillScheduler (medication)"
+      },
+      "grant_alignment": [
+        "st-davids",
+        "foundation"
+      ],
+      "last_heartbeat": null
+    },
+    {
       "id": "sankofa-maternal-health",
       "name": "Black Maternal Health Network",
       "url": "https://yourhealthbirthright.net",
@@ -447,47 +504,6 @@
         "st-davids",
         "foundation",
         "ssg-fox"
-      ],
-      "last_heartbeat": null
-    },
-    {
-      "id": "sankofa-feminine-health",
-      "name": "HerHealth Network (Holistic Black Feminine Health Hub)",
-      "url": "https://herhealthmatters2.com",
-      "role": "feminine-health",
-      "domain": "health-equity",
-      "status": "active",
-      "health_status": "online",
-      "public_visible": true,
-      "description": "Comprehensive OB/GYN health platform for Black women — reproductive health education, hormonal wellness tracking, preventive screening scheduling, cervical/breast cancer awareness, menopause management, community support groups, and culturally responsive provider matching. Part of the Sankofa Health Network family. Also reachable at the alias domain myhealthybreast.com (both serve the same site). Integrates with Black Maternal Health Network for pregnancy pathways, SafeCogniCare for peripartum cognitive assessment, and Whole-Person Health for crisis escalation. Produces population-specific health outcome data addressing the 3x maternal mortality gap in Black communities.",
-      "capabilities": {
-        "features": [
-          "Reproductive Health Education",
-          "Preventive Screening Scheduler",
-          "Hormonal Wellness Tracker",
-          "Cervical Cancer Awareness",
-          "Breast Cancer Screening Navigation",
-          "Menopause Management",
-          "Community Support Groups",
-          "Culturally Responsive Provider Matching",
-          "Pregnancy Pathway Routing",
-          "Health Literacy Resources",
-          "Telehealth Coordination"
-        ],
-        "parentNetwork": "sankofa",
-        "grantNarrative": "Documents reproductive health engagement, screening completion rates, and provider-matching outcomes for St. David's women's health equity reporting",
-        "outcomeMetrics": [
-          "Preventive screening completions: 312 (cervical + breast)",
-          "Provider match success rate: 82%",
-          "Reproductive health education sessions: 445",
-          "Pregnancy pathway routing completions: 89",
-          "Community support group active participants: 156"
-        ],
-        "integrationDepth": "Bidirectional with Maternal Health (pregnancy routing), SafeCogniCare (cognitive assessment), Whole-Person Health (crisis), PillScheduler (medication)"
-      },
-      "grant_alignment": [
-        "st-davids",
-        "foundation"
       ],
       "last_heartbeat": null
     },
@@ -540,52 +556,6 @@
         "wioa",
         "foundation",
         "st-davids"
-      ],
-      "last_heartbeat": null
-    },
-    {
-      "id": "sankofa",
-      "name": "Sankofa Health Network",
-      "url": "https://yourhealthbirthright.net",
-      "role": "health-gateway",
-      "domain": "health-equity",
-      "status": "registered",
-      "health_status": "online",
-      "public_visible": true,
-      "description": "Health equity gateway orchestrating 5 sub-platforms (Maternal Health, Feminine Health, Men's Health, Cognitive Safety, Medication Management). Delivers culturally responsive behavioral health assessments, GIS-powered resource matching to 20,670+ resources, and population-specific health navigation for Black communities. Coordinates upstream screening data from Whole-Person Health hub and routes to specialized sub-platforms based on demographic and clinical need. Produces health equity outcome data for St. David's and SSG Fox grant reporting. Network architecture ensures no single point of failure — sub-platforms operate independently but coordinate through Sankofa's routing layer.",
-      "capabilities": {
-        "features": [
-          "Black Maternal Health Network Coordination",
-          "Mental Health Rights Advocacy",
-          "Breast Cancer Awareness & Screening",
-          "Black Men's Health Programs",
-          "Feminine OB Health Navigation",
-          "Cognitive Safety Protocols",
-          "Pill Management Integration",
-          "Behavioral Health Assessments",
-          "GIS Resource Matching",
-          "Sub-Platform Orchestration",
-          "Health Equity Analytics",
-          "Culturally Responsive Care Navigation",
-          "Population Health Dashboard",
-          "Community Health Worker Coordination"
-        ],
-        "subPlatforms": 5,
-        "grantNarrative": "Provides health equity outcome metrics, population-specific engagement data, and culturally responsive care delivery evidence for St. David's and SSG Fox reporting",
-        "outcomeMetrics": [
-          "Health equity screenings completed: 2,340 across 5 sub-platforms",
-          "GIS resource matches: 1,456 referrals with 71% completion",
-          "Sub-platform coordination events: 890 cross-referrals",
-          "Culturally responsive care navigation sessions: 678",
-          "Population health dashboard active metrics: 34 tracked indicators",
-          "Community health worker dispatches: 234"
-        ],
-        "integrationDepth": "Orchestrates 5 sub-platforms and routes to/from Whole-Person Health hub, LifeBridge resources, and SafeCogniCare cognitive assessments"
-      },
-      "grant_alignment": [
-        "st-davids",
-        "ssg-fox",
-        "foundation"
       ],
       "last_heartbeat": null
     },
@@ -643,6 +613,96 @@
         "foundation"
       ],
       "last_heartbeat": "2026-03-22T03:08:43.787Z"
+    },
+    {
+      "id": "sankofa",
+      "name": "Sankofa Health Network",
+      "url": "https://yourhealthbirthright.net",
+      "role": "health-gateway",
+      "domain": "health-equity",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "Health equity gateway orchestrating 5 sub-platforms (Maternal Health, Feminine Health, Men's Health, Cognitive Safety, Medication Management). Delivers culturally responsive behavioral health assessments, GIS-powered resource matching to 20,670+ resources, and population-specific health navigation for Black communities. Coordinates upstream screening data from Whole-Person Health hub and routes to specialized sub-platforms based on demographic and clinical need. Produces health equity outcome data for St. David's and SSG Fox grant reporting. Network architecture ensures no single point of failure — sub-platforms operate independently but coordinate through Sankofa's routing layer.",
+      "capabilities": {
+        "features": [
+          "Black Maternal Health Network Coordination",
+          "Mental Health Rights Advocacy",
+          "Breast Cancer Awareness & Screening",
+          "Black Men's Health Programs",
+          "Feminine OB Health Navigation",
+          "Cognitive Safety Protocols",
+          "Pill Management Integration",
+          "Behavioral Health Assessments",
+          "GIS Resource Matching",
+          "Sub-Platform Orchestration",
+          "Health Equity Analytics",
+          "Culturally Responsive Care Navigation",
+          "Population Health Dashboard",
+          "Community Health Worker Coordination"
+        ],
+        "subPlatforms": 5,
+        "grantNarrative": "Provides health equity outcome metrics, population-specific engagement data, and culturally responsive care delivery evidence for St. David's and SSG Fox reporting",
+        "outcomeMetrics": [
+          "Health equity screenings completed: 2,340 across 5 sub-platforms",
+          "GIS resource matches: 1,456 referrals with 71% completion",
+          "Sub-platform coordination events: 890 cross-referrals",
+          "Culturally responsive care navigation sessions: 678",
+          "Population health dashboard active metrics: 34 tracked indicators",
+          "Community health worker dispatches: 234"
+        ],
+        "integrationDepth": "Orchestrates 5 sub-platforms and routes to/from Whole-Person Health hub, LifeBridge resources, and SafeCogniCare cognitive assessments"
+      },
+      "grant_alignment": [
+        "st-davids",
+        "ssg-fox",
+        "foundation"
+      ],
+      "last_heartbeat": null
+    },
+    {
+      "id": "safecognicare",
+      "name": "SafeCogniCare",
+      "url": "https://safecognicare.com",
+      "role": "cognitive-health",
+      "domain": "health-equity",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "Cognitive safety platform specializing in TBI (Traumatic Brain Injury), ADHD, dementia, and peripartum cognitive changes — validated cognitive health assessments (MoCA, MMSE, Trail Making), early intervention tools with automated provider alerts, comprehensive safety protocols for cognitive impairment scenarios, care coordination with family/providers/community resources, and family support resources including caregiver burden assessment. Critical for veteran populations (TBI prevalence) and maternal health (peripartum cognitive changes). Integrates with Whole-Person Health for crisis routing, PillScheduler for medication complexity matching to cognitive capacity, Perfectly Different for neurodevelopmental overlap, and M2C for veteran TBI pathways.",
+      "capabilities": {
+        "features": [
+          "Cognitive Health Assessments (MoCA/MMSE)",
+          "Trail Making Test Digital",
+          "Early Intervention Alerts",
+          "Safety Protocols",
+          "Care Coordination Dashboard",
+          "Family Support Resources",
+          "Caregiver Burden Assessment",
+          "TBI Screening & Tracking",
+          "Cognitive Decline Monitoring",
+          "Provider Communication Portal",
+          "Medication Complexity Matching",
+          "Emergency Safety Plans"
+        ],
+        "grantNarrative": "Provides cognitive screening completion rates, TBI intervention outcomes, caregiver support metrics, and cognitive decline monitoring data for SSG Fox veteran and St. David's health equity grants",
+        "outcomeMetrics": [
+          "Cognitive assessments completed (MoCA/MMSE): 567",
+          "TBI screenings: 234 (veteran population)",
+          "Early intervention alerts triggered: 89",
+          "Safety protocol activations: 45",
+          "Caregiver burden assessments: 178",
+          "Cognitive decline monitoring: 345 active patients",
+          "Provider communication events: 234"
+        ],
+        "integrationDepth": "Bidirectional with Whole-Person Health (crisis), PillScheduler (medication complexity), Perfectly Different (neurodevelopmental), M2C (veteran TBI), Maternal Health (peripartum cognition)"
+      },
+      "grant_alignment": [
+        "ssg-fox",
+        "st-davids",
+        "foundation"
+      ],
+      "last_heartbeat": null
     },
     {
       "id": "mce",
@@ -735,50 +795,6 @@
         "foundation",
         "wioa",
         "ssg-fox"
-      ],
-      "last_heartbeat": null
-    },
-    {
-      "id": "safecognicare",
-      "name": "SafeCogniCare",
-      "url": "https://safecognicare.com",
-      "role": "cognitive-health",
-      "domain": "health-equity",
-      "status": "registered",
-      "health_status": "online",
-      "public_visible": true,
-      "description": "Cognitive safety platform specializing in TBI (Traumatic Brain Injury), ADHD, dementia, and peripartum cognitive changes — validated cognitive health assessments (MoCA, MMSE, Trail Making), early intervention tools with automated provider alerts, comprehensive safety protocols for cognitive impairment scenarios, care coordination with family/providers/community resources, and family support resources including caregiver burden assessment. Critical for veteran populations (TBI prevalence) and maternal health (peripartum cognitive changes). Integrates with Whole-Person Health for crisis routing, PillScheduler for medication complexity matching to cognitive capacity, Perfectly Different for neurodevelopmental overlap, and M2C for veteran TBI pathways.",
-      "capabilities": {
-        "features": [
-          "Cognitive Health Assessments (MoCA/MMSE)",
-          "Trail Making Test Digital",
-          "Early Intervention Alerts",
-          "Safety Protocols",
-          "Care Coordination Dashboard",
-          "Family Support Resources",
-          "Caregiver Burden Assessment",
-          "TBI Screening & Tracking",
-          "Cognitive Decline Monitoring",
-          "Provider Communication Portal",
-          "Medication Complexity Matching",
-          "Emergency Safety Plans"
-        ],
-        "grantNarrative": "Provides cognitive screening completion rates, TBI intervention outcomes, caregiver support metrics, and cognitive decline monitoring data for SSG Fox veteran and St. David's health equity grants",
-        "outcomeMetrics": [
-          "Cognitive assessments completed (MoCA/MMSE): 567",
-          "TBI screenings: 234 (veteran population)",
-          "Early intervention alerts triggered: 89",
-          "Safety protocol activations: 45",
-          "Caregiver burden assessments: 178",
-          "Cognitive decline monitoring: 345 active patients",
-          "Provider communication events: 234"
-        ],
-        "integrationDepth": "Bidirectional with Whole-Person Health (crisis), PillScheduler (medication complexity), Perfectly Different (neurodevelopmental), M2C (veteran TBI), Maternal Health (peripartum cognition)"
-      },
-      "grant_alignment": [
-        "ssg-fox",
-        "st-davids",
-        "foundation"
       ],
       "last_heartbeat": null
     },
@@ -983,42 +999,6 @@
       "last_heartbeat": null
     },
     {
-      "id": "collaborative-advocate",
-      "name": "The Collaborative Advocate",
-      "url": "https://thrivingcommunitiesforall.com",
-      "role": "vosb-services",
-      "domain": "veteran-services",
-      "status": "active",
-      "health_status": "online",
-      "public_visible": true,
-      "description": "The organizational entity — 501(c)(3) nonprofit, veteran-founded, Black-led Veteran-Owned Small Business (VOSB) serving as the service delivery arm and grant execution partner for the entire ThriveUp ecosystem. Founded by Dr. Terry Flood. Provides veteran advocacy with lived-experience credibility, peer support coordination matching veterans to trained peers, workforce development consulting for employers hiring veterans, and direct grant execution management for WIOA ($200K-$500K), SSG Fox VA ($750K), St. David's (up to $1M), and Foundation ($100K-$500K) grants. The organizational backbone that gives the ecosystem its 501(c)(3) fiscal sponsorship, DUNS/SAM.gov registration, and grant eligibility.",
-      "capabilities": {
-        "features": [
-          "501(c)(3) Fiscal Sponsorship",
-          "Veteran Advocacy",
-          "Peer Support Coordination",
-          "Workforce Development Consulting",
-          "Grant Execution Management",
-          "Community Partnerships",
-          "Service Delivery Operations",
-          "DUNS/SAM Registration",
-          "Board Governance",
-          "Program Evaluation",
-          "Stakeholder Engagement",
-          "Policy Advocacy"
-        ],
-        "grantNarrative": "The applicant organization for all ecosystem grants — provides organizational credibility, 501(c)(3) status, veteran-founded narrative, and program oversight for SSG Fox, WIOA, St. David's, and foundation funding",
-        "integrationDepth": "Organizational backbone for all 24 platforms — provides fiscal sponsorship, grant eligibility, and operational governance for every ecosystem component"
-      },
-      "grant_alignment": [
-        "ssg-fox",
-        "wioa",
-        "st-davids",
-        "foundation"
-      ],
-      "last_heartbeat": "2026-03-21T19:56:50.152Z"
-    },
-    {
       "id": "emergency-mgmt",
       "name": "Emergency Management",
       "url": "https://emergency-mgmt.replit.app",
@@ -1059,6 +1039,43 @@
         "st-davids"
       ],
       "last_heartbeat": null
+    },
+    {
+      "id": "collaborative-advocate",
+      "name": "The Collaborative Advocate",
+      "url": "https://thrivingcommunitiesforall.com",
+      "role": "vosb-services",
+      "domain": "veteran-services",
+      "status": "active",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "The organizational entity — IRS-determined 501(c)(3) nonprofit (Letter 947, effective January 14, 2026; EIN 41-3618503; public charity under 170(b)(1)(A)(vi)), veteran-founded, Black-led — serving as the service delivery arm and grant execution lead for the entire ThriveUp ecosystem. Founded by Dr. Terry Flood. SAM.gov Active (UEI KDDVD1FGLW35; CAGE 209N1) — eligible to apply for and receive federal awards directly. Provides veteran advocacy with lived-experience credibility, peer support coordination matching veterans to trained peers, workforce development consulting for employers hiring veterans, and direct grant execution management for WIOA ($200K-$500K), SSG Fox VA ($750K), St. David's (up to $1M), and Foundation ($100K-$500K) grants. The organizational backbone that holds the ecosystem's 501(c)(3) determination, SAM.gov registration, and direct federal-award eligibility.",
+      "capabilities": {
+        "features": [
+          "IRS-Determined 501(c)(3) (Letter 947, eff. 01/14/2026)",
+          "SAM.gov Active (UEI KDDVD1FGLW35; CAGE 209N1)",
+          "Direct Federal Award Eligibility",
+          "Veteran Advocacy",
+          "Peer Support Coordination",
+          "Workforce Development Consulting",
+          "Grant Execution Management",
+          "Community Partnerships",
+          "Service Delivery Operations",
+          "Board Governance",
+          "Program Evaluation",
+          "Stakeholder Engagement",
+          "Policy Advocacy"
+        ],
+        "grantNarrative": "The applicant organization for all ecosystem grants — IRS-determined 501(c)(3) under 170(b)(1)(A)(vi), SAM.gov Active (UEI KDDVD1FGLW35), CAGE 209N1, veteran-founded, Black-led — providing program oversight and direct federal-award eligibility for SSG Fox, WIOA, St. David's, and foundation funding",
+        "integrationDepth": "Organizational backbone for the ecosystem — provides direct grant eligibility (IRS-determined 501(c)(3), SAM.gov Active, CAGE 209N1) and operational governance for every component"
+      },
+      "grant_alignment": [
+        "ssg-fox",
+        "wioa",
+        "st-davids",
+        "foundation"
+      ],
+      "last_heartbeat": "2026-03-21T19:56:50.152Z"
     },
     {
       "id": "m2c",
@@ -1105,49 +1122,6 @@
         "ssg-fox",
         "wioa",
         "foundation"
-      ],
-      "last_heartbeat": null
-    },
-    {
-      "id": "perfectly-different",
-      "name": "Perfectly Different",
-      "url": "https://neurodifferentassistant.app",
-      "role": "neurodiversity",
-      "domain": "health-equity",
-      "status": "registered",
-      "health_status": "online",
-      "public_visible": true,
-      "description": "Neurodiversity-affirming support platform for autism, ADHD, and AuDHD populations — AI-powered daily guidance, comprehensive IEP/504 plan assistance with template library, crisis resources with immediate routing to Whole-Person Health, evidence-based therapy tool library, community support groups, and neurodiversity advocacy resources. Integrates with ISSS for school-based accommodations, WholeMind for adaptive learning, SafeCogniCare for cognitive assessments, and LifeBridge for community resources. Produces neurodevelopmental outcome data for St. David's disability services and foundation grants.",
-      "capabilities": {
-        "features": [
-          "AI Daily Guidance Engine",
-          "IEP/504 Plan Builder",
-          "Template Library",
-          "Crisis Resources",
-          "Evidence-Based Therapy Tools",
-          "Community Support Groups",
-          "Neurodiversity Advocacy",
-          "Sensory Management Tools",
-          "Executive Function Coaching",
-          "Social Skills Builder",
-          "Parent Resource Center",
-          "Provider Directory"
-        ],
-        "grantNarrative": "Documents neurodevelopmental engagement, IEP/504 compliance rates, therapy tool utilization, and accommodation effectiveness for St. David's disability and foundation grants",
-        "outcomeMetrics": [
-          "IEP/504 plans assisted: 234",
-          "Crisis routing to Whole-Person Health: 67 events",
-          "Evidence-based therapy tool utilization: 1,890 sessions",
-          "Community support group participants: 345",
-          "Executive function coaching sessions: 567",
-          "Sensory management tool active users: 234"
-        ],
-        "integrationDepth": "Bidirectional with ISSS (school accommodations), WholeMind (adaptive learning), SafeCogniCare (cognitive assessment), Whole-Person Health (crisis routing)"
-      },
-      "grant_alignment": [
-        "st-davids",
-        "foundation",
-        "wioa"
       ],
       "last_heartbeat": null
     },
@@ -1200,6 +1174,49 @@
       "last_heartbeat": null
     },
     {
+      "id": "perfectly-different",
+      "name": "Perfectly Different",
+      "url": "https://neurodifferentassistant.app",
+      "role": "neurodiversity",
+      "domain": "health-equity",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "Neurodiversity-affirming support platform for autism, ADHD, and AuDHD populations — AI-powered daily guidance, comprehensive IEP/504 plan assistance with template library, crisis resources with immediate routing to Whole-Person Health, evidence-based therapy tool library, community support groups, and neurodiversity advocacy resources. Integrates with ISSS for school-based accommodations, WholeMind for adaptive learning, SafeCogniCare for cognitive assessments, and LifeBridge for community resources. Produces neurodevelopmental outcome data for St. David's disability services and foundation grants.",
+      "capabilities": {
+        "features": [
+          "AI Daily Guidance Engine",
+          "IEP/504 Plan Builder",
+          "Template Library",
+          "Crisis Resources",
+          "Evidence-Based Therapy Tools",
+          "Community Support Groups",
+          "Neurodiversity Advocacy",
+          "Sensory Management Tools",
+          "Executive Function Coaching",
+          "Social Skills Builder",
+          "Parent Resource Center",
+          "Provider Directory"
+        ],
+        "grantNarrative": "Documents neurodevelopmental engagement, IEP/504 compliance rates, therapy tool utilization, and accommodation effectiveness for St. David's disability and foundation grants",
+        "outcomeMetrics": [
+          "IEP/504 plans assisted: 234",
+          "Crisis routing to Whole-Person Health: 67 events",
+          "Evidence-based therapy tool utilization: 1,890 sessions",
+          "Community support group participants: 345",
+          "Executive function coaching sessions: 567",
+          "Sensory management tool active users: 234"
+        ],
+        "integrationDepth": "Bidirectional with ISSS (school accommodations), WholeMind (adaptive learning), SafeCogniCare (cognitive assessment), Whole-Person Health (crisis routing)"
+      },
+      "grant_alignment": [
+        "st-davids",
+        "foundation",
+        "wioa"
+      ],
+      "last_heartbeat": null
+    },
+    {
       "id": "pillscheduler",
       "name": "PillScheduler",
       "url": "https://pillscheduler.net",
@@ -1243,6 +1260,57 @@
         "foundation"
       ],
       "last_heartbeat": null
+    },
+    {
+      "id": "wholemind",
+      "name": "WholeMind Learning",
+      "url": "https://wholemindlearning.com",
+      "role": "k12-education",
+      "domain": "education",
+      "status": "active",
+      "health_status": "online",
+      "public_visible": false,
+      "description": "Free, visual-first Pre-K to 12th grade learning platform covering Math, Reading, Science, English, and Social Studies with adaptive difficulty levels. Silent accessibility mode for students with sensory needs, AI-powered homework help with step-by-step explanations, parent-friendly progress tracking dashboard, and gamified engagement system. Integrates with ISSS for student support coordination, Perfectly Different for neurodiversity accommodations, and Better Science Lab for evidence-based pedagogy. Produces learning outcome data (grade progression, skill mastery, engagement rates) for WIOA youth workforce readiness and foundation education grants.",
+      "capabilities": {
+        "features": [
+          "Pre-K to 12th Grade Curriculum",
+          "Visual-First Adaptive Learning",
+          "AI Homework Help",
+          "Silent Accessibility Mode",
+          "Parent Progress Dashboard",
+          "Gamified Engagement",
+          "Skill Mastery Tracking",
+          "Grade Progression Analytics",
+          "Adaptive Difficulty Engine",
+          "Step-by-Step Explanations",
+          "Offline Learning Mode",
+          "Multi-Language Support"
+        ],
+        "subjects": [
+          "Math",
+          "Reading",
+          "Science",
+          "English",
+          "Social Studies"
+        ],
+        "grantNarrative": "Produces learning outcome metrics — grade progression, skill mastery rates, engagement data — for WIOA youth workforce readiness pipeline and foundation education grants",
+        "outcomeMetrics": [
+          "Active student learners: 2,456",
+          "Grade progression rate: 78% of students advance on schedule",
+          "AI homework help sessions: 12,340",
+          "Skill mastery completion rate: 64%",
+          "Parent dashboard active users: 890",
+          "Adaptive difficulty adjustments: 34,567 per month",
+          "Offline learning sessions: 1,234"
+        ],
+        "integrationDepth": "Sends academic data to ISSS for early warning, receives IEP accommodations from Perfectly Different, receives evidence-based content from Better Science Lab"
+      },
+      "grant_alignment": [
+        "wioa",
+        "foundation",
+        "st-davids"
+      ],
+      "last_heartbeat": "2026-03-19T02:25:57.923Z"
     },
     {
       "id": "lifebridge",
@@ -1333,57 +1401,6 @@
         "foundation"
       ],
       "last_heartbeat": null
-    },
-    {
-      "id": "wholemind",
-      "name": "WholeMind Learning",
-      "url": "https://wholemindlearning.com",
-      "role": "k12-education",
-      "domain": "education",
-      "status": "active",
-      "health_status": "online",
-      "public_visible": false,
-      "description": "Free, visual-first Pre-K to 12th grade learning platform covering Math, Reading, Science, English, and Social Studies with adaptive difficulty levels. Silent accessibility mode for students with sensory needs, AI-powered homework help with step-by-step explanations, parent-friendly progress tracking dashboard, and gamified engagement system. Integrates with ISSS for student support coordination, Perfectly Different for neurodiversity accommodations, and Better Science Lab for evidence-based pedagogy. Produces learning outcome data (grade progression, skill mastery, engagement rates) for WIOA youth workforce readiness and foundation education grants.",
-      "capabilities": {
-        "features": [
-          "Pre-K to 12th Grade Curriculum",
-          "Visual-First Adaptive Learning",
-          "AI Homework Help",
-          "Silent Accessibility Mode",
-          "Parent Progress Dashboard",
-          "Gamified Engagement",
-          "Skill Mastery Tracking",
-          "Grade Progression Analytics",
-          "Adaptive Difficulty Engine",
-          "Step-by-Step Explanations",
-          "Offline Learning Mode",
-          "Multi-Language Support"
-        ],
-        "subjects": [
-          "Math",
-          "Reading",
-          "Science",
-          "English",
-          "Social Studies"
-        ],
-        "grantNarrative": "Produces learning outcome metrics — grade progression, skill mastery rates, engagement data — for WIOA youth workforce readiness pipeline and foundation education grants",
-        "outcomeMetrics": [
-          "Active student learners: 2,456",
-          "Grade progression rate: 78% of students advance on schedule",
-          "AI homework help sessions: 12,340",
-          "Skill mastery completion rate: 64%",
-          "Parent dashboard active users: 890",
-          "Adaptive difficulty adjustments: 34,567 per month",
-          "Offline learning sessions: 1,234"
-        ],
-        "integrationDepth": "Sends academic data to ISSS for early warning, receives IEP accommodations from Perfectly Different, receives evidence-based content from Better Science Lab"
-      },
-      "grant_alignment": [
-        "wioa",
-        "foundation",
-        "st-davids"
-      ],
-      "last_heartbeat": "2026-03-19T02:25:57.923Z"
     },
     {
       "id": "ecosystem-nexus",
@@ -1674,6 +1691,11 @@
         "id": "may-11-2026-later-same-day-foster-youth-agency-portal-policy-comparison-leave-be",
         "heading": "🆕 May 11, 2026 (later same day) — Foster Youth: Agency Portal + Policy Comparison + Leave-Behind PPTX shipped",
         "summary": "**Built for the Jim Currier visit (today, second build of the day):**\n- **State-Agency Portal** at `/foster-youth/state-portal` — privileged-only (admin/case_manager/teacher). CSV bulk upload (≤5,000 rows / 2MB), recharts stratification, ISS-style stakeholder coordination panel per case (caseworker · school · healthcare · ILP · CASA/GAL · court · PHA · MH clinician). Sample CSV public for download.\n- **50-State Policy Comparison** at `/foster-youth/policy-comparison` — public read-only. Federal-floor disclosure, two-state side-by-side, what's-working national rollup, full all-state matrix. Honest \"Unverified\" marking — no conjecture. Roadmap card explicitly disclaims the 30-year longitudinal causal model (NDACAN restricted-access micro-data ≈18 mo approval).\n- **Risk engine:** `server/fost"
+      },
+      {
+        "id": "vann-collaboration-kit-may-14-2026",
+        "heading": "Vann Collaboration Kit (May 14, 2026)",
+        "summary": "**Trigger:** Dr. J. Michelle Vann email May 13, 2026 requesting a tracker similar to the foster-youth demo, for attendance + family structure + services. Customer is both **Sistahs Can We Talk Inc.** (her KS 501(c)(3)) and **Iasis Christian Center** (her husband's church). Standing meeting on the calendar.\n\n**Built (May 14, 2026):**\n- Schema: 7 tables appended to `shared/schema.ts` — `community_partner_orgs`, `households`, `household_members`, `community_programs`, `program_enrollments`, `program_attendance`, `community_services`. db:push --force ran clean.\n- Routes: `server/community-program-routes.ts` — orgs / households / members / programs / enrollments / attendance / services / stats / CSV-export / bulk-CSV upload. Mounted at `/api/community/*` in `server/routes.ts`.\n- Seed: `server/s"
       }
     ],
     "no_go_list": [
@@ -1813,6 +1835,24 @@
       "title": "P-L11 — When the audit report uses Markdown bold (`**FAIL:**`), brittle `/FAIL:\\s*\\d+/` regexes silently miss",
       "summary": "**Symptom:** PPTX generator's safety gate (\"refuse to publish if any FAIL\") was triggered with `FAIL_COUNT = 999` (the safe-default) even after a clean 175/175 PASS audit.\n\n**Root cause:** `scripts/congruence-audit.ts` writes the verdict as `- **PASS:** 175 / 175` / `- **FAIL:** 0`. The PPTX gate's regex `/FAIL:\\s*(\\d+)/` did not allow for the leading `**` from Markdown bolding, so it didn't match → fell through to the safe default of 999.\n\n**Fix:** Make the regex tolerant of optional Markdown bold: `/FAIL:\\*?\\*?\\s*(\\d+)/`. Or — better — parse the audit JSON if/when the auditor emits one.\n\n**G",
       "sourceFile": ".agents/skills/map-gap/lessons-learned.md"
+    },
+    {
+      "id": "p-l11-congruence-manifest-testids-must-be-literal-strings-in-source-not-computed",
+      "title": "P-L11 — Congruence manifest testIds must be literal strings in source, not computed via template literals (May 14, 2026)",
+      "summary": "**Context:** Built three new pages for the Vann Collaboration Kit. Added testIds to ecosystem cards via `data-testid={`card-ecosystem-${e.name.toLowerCase().replace(/\\s+/g, \"-\")}`}`. Added matching IDs to `CONGRUENCE-MANIFEST.json`. Audit reported 9 FAILs — every card-ecosystem-* claim failed.\n\n**Cause:** The congruence audit checks **the source file** for the literal testId string (SPA fallback when SSR isn't available). A template literal like `` `card-ecosystem-${e.name...}` `` never appears as a literal in the file, so the audit can't find it.\n\n**Fix:** Give each list entry an explicit `id",
+      "sourceFile": ".agents/skills/map-gap/lessons-learned.md"
+    },
+    {
+      "id": "p-l12-multi-tenant-demo-data-org-isolation-must-be-enforced-in-the-route-not-jus",
+      "title": "P-L12 — Multi-tenant demo data: org isolation must be enforced in the route, not just by convention (May 14, 2026)",
+      "summary": "**Context:** Vann tracker has two orgs (`sistahs-cwt`, `iasis-ccc`) seeded into the same database. The naive query `db.select().from(households)` would mix them.\n\n**Pattern adopted:** Every list endpoint in `server/community-program-routes.ts` takes `orgId` from the URL path and uses `eq(households.orgId, orgId)` in the where clause. The seed function tags every row with its org. The frontend org-picker drives the URL; switching orgs re-issues queries with the new path. Stats are computed per-org server-side so the client never sees the other tenant's rows.\n\n**Lesson:** When you seed two demo ",
+      "sourceFile": ".agents/skills/map-gap/lessons-learned.md"
+    },
+    {
+      "id": "p-l13-dr-vann-email-driven-pivot-when-memory-says-user-x-wants-y-verify-may-14-2",
+      "title": "P-L13 — Dr. Vann email-driven pivot: when memory says \"user X wants Y,\" verify (May 14, 2026)",
+      "summary": "**Context:** Prior memory (May 12, 2026 entry) explicitly noted that Dr. Vann had **not** discussed foster youth with the user. Two days later her actual email arrived asking for \"something similar to what you showed for our youth program\" — referring to her husband's church youth ministry, NOT foster care. The May-12 lesson held: prior memory's hypothesis was right to be cautious, and the May-13 email confirmed the actual lane (Iasis Joshua Generation + Sistahs Can We Talk women's health). Built the tracker accordingly.\n\n**Lesson reinforced:** Inherited memory framings are hypotheses, not fac",
+      "sourceFile": ".agents/skills/map-gap/lessons-learned.md"
     }
   ],
   "foster_youth_build_log": [
@@ -1858,13 +1898,13 @@
     ]
   },
   "counts": {
-    "gotchas": 24,
+    "gotchas": 26,
     "vocab": 4,
     "platforms": 25,
-    "file_pointers": 14,
-    "lessons": 19,
+    "file_pointers": 15,
+    "lessons": 22,
     "no_go": 4,
-    "active_commitment_sections": 44,
+    "active_commitment_sections": 45,
     "ecosystem_caveats": 5,
     "foster_youth_build_log_sections": 3
   }

@@ -4913,3 +4913,140 @@ export type FosterYouthAgencyCase = typeof fosterYouthAgencyCases.$inferSelect;
 export const insertFosterYouthCaseEventSchema = createInsertSchema(fosterYouthCaseEvents).omit({ id: true, occurredAt: true });
 export type InsertFosterYouthCaseEvent = z.infer<typeof insertFosterYouthCaseEventSchema>;
 export type FosterYouthCaseEvent = typeof fosterYouthCaseEvents.$inferSelect;
+
+// =====================================================================================
+// Community Partner / Family-and-Program tracker
+// Generic, multi-tenant tracker for community partner orgs (nonprofits, faith communities,
+// schools, clinics) to manage HOUSEHOLDS as the unit, with members, program enrollments,
+// recurring attendance, and discrete services received. Designed for partners like
+// Sistahs Can We Talk (BIPOC women's health nonprofit) and Iasis Christian Center
+// (faith-community youth programs). Per-org isolation is enforced at the query layer.
+// =====================================================================================
+
+export const communityPartnerOrgs = pgTable("community_partner_orgs", {
+  id: varchar("id", { length: 64 }).primaryKey(),
+  name: varchar("name", { length: 200 }).notNull(),
+  orgType: varchar("org_type", { length: 32 }).notNull().default("nonprofit"), // nonprofit | faith | school | clinic | agency
+  stateCode: varchar("state_code", { length: 2 }).notNull(),
+  city: varchar("city", { length: 80 }),
+  websiteUrl: varchar("website_url", { length: 300 }),
+  primaryContactName: varchar("primary_contact_name", { length: 200 }),
+  primaryContactEmail: varchar("primary_contact_email", { length: 200 }),
+  status: varchar("status", { length: 32 }).notNull().default("demo"), // demo | active | mou_pending | sunset
+  coiDisclosure: text("coi_disclosure"),                                // visible disclosure card text
+  missionSummary: text("mission_summary"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const households = pgTable("households", {
+  id: varchar("id", { length: 64 }).primaryKey(),
+  orgId: varchar("org_id", { length: 64 }).notNull().references(() => communityPartnerOrgs.id, { onDelete: "cascade" }),
+  externalHouseholdId: varchar("external_household_id", { length: 80 }),
+  householdName: varchar("household_name", { length: 200 }).notNull(),
+  primaryLanguage: varchar("primary_language", { length: 16 }).notNull().default("en"),
+  city: varchar("city", { length: 80 }),
+  zipCode: varchar("zip_code", { length: 16 }),
+  enteredOn: timestamp("entered_on").defaultNow().notNull(),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const householdMembers = pgTable("household_members", {
+  id: varchar("id", { length: 64 }).primaryKey(),
+  householdId: varchar("household_id", { length: 64 }).notNull().references(() => households.id, { onDelete: "cascade" }),
+  orgId: varchar("org_id", { length: 64 }).notNull(),
+  displayName: varchar("display_name", { length: 200 }).notNull(),
+  relationship: varchar("relationship", { length: 32 }).notNull(), // parent | guardian | child | grandparent | sibling | spouse | other_adult
+  ageYears: integer("age_years"),
+  pronouns: varchar("pronouns", { length: 32 }),
+  preferredLanguage: varchar("preferred_language", { length: 16 }),
+  contactPhone: varchar("contact_phone", { length: 32 }),
+  contactEmail: varchar("contact_email", { length: 200 }),
+  isPrimaryContact: boolean("is_primary_contact").notNull().default(false),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const communityPrograms = pgTable("community_programs", {
+  id: varchar("id", { length: 64 }).primaryKey(),
+  orgId: varchar("org_id", { length: 64 }).notNull().references(() => communityPartnerOrgs.id, { onDelete: "cascade" }),
+  name: varchar("name", { length: 200 }).notNull(),
+  category: varchar("category", { length: 64 }).notNull(), // youth | women_wellness | family | faith_formation | health_screening | mentoring | adult_education
+  ageMin: integer("age_min"),
+  ageMax: integer("age_max"),
+  cadence: varchar("cadence", { length: 32 }), // weekly | biweekly | monthly | quarterly | event
+  scheduleNote: varchar("schedule_note", { length: 200 }),
+  provides: text("provides").array(), // ["meal","transportation","curriculum","childcare"]
+  description: text("description"),
+  active: boolean("active").notNull().default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const programEnrollments = pgTable("program_enrollments", {
+  id: varchar("id", { length: 64 }).primaryKey(),
+  memberId: varchar("member_id", { length: 64 }).notNull().references(() => householdMembers.id, { onDelete: "cascade" }),
+  programId: varchar("program_id", { length: 64 }).notNull().references(() => communityPrograms.id, { onDelete: "cascade" }),
+  orgId: varchar("org_id", { length: 64 }).notNull(),
+  enrolledOn: timestamp("enrolled_on").defaultNow().notNull(),
+  endedOn: timestamp("ended_on"),
+  status: varchar("status", { length: 32 }).notNull().default("active"), // active | paused | completed | withdrawn
+  notes: text("notes"),
+});
+
+export const programAttendance = pgTable("program_attendance", {
+  id: varchar("id", { length: 64 }).primaryKey(),
+  enrollmentId: varchar("enrollment_id", { length: 64 }).notNull().references(() => programEnrollments.id, { onDelete: "cascade" }),
+  memberId: varchar("member_id", { length: 64 }).notNull(),
+  programId: varchar("program_id", { length: 64 }).notNull(),
+  orgId: varchar("org_id", { length: 64 }).notNull(),
+  sessionDate: timestamp("session_date").notNull(),
+  status: varchar("status", { length: 32 }).notNull().default("present"), // present | absent | excused | late
+  receivedMeal: boolean("received_meal").notNull().default(false),
+  receivedTransport: boolean("received_transport").notNull().default(false),
+  notes: text("notes"),
+  recordedAt: timestamp("recorded_at").defaultNow().notNull(),
+  recordedBy: varchar("recorded_by", { length: 64 }),
+});
+
+export const householdServicesReceived = pgTable("household_services_received", {
+  id: varchar("id", { length: 64 }).primaryKey(),
+  householdId: varchar("household_id", { length: 64 }).notNull().references(() => households.id, { onDelete: "cascade" }),
+  orgId: varchar("org_id", { length: 64 }).notNull(),
+  serviceType: varchar("service_type", { length: 80 }).notNull(), // cancer_screening | counseling | food_assistance | resource_referral | digital_storytelling | phq9 | gad7 | etc
+  serviceDate: timestamp("service_date").notNull(),
+  recipientMemberId: varchar("recipient_member_id", { length: 64 }),
+  outcome: varchar("outcome", { length: 64 }), // completed | referred_out | declined | scheduled | no_show
+  notes: text("notes"),
+  recordedAt: timestamp("recorded_at").defaultNow().notNull(),
+  recordedBy: varchar("recorded_by", { length: 64 }),
+});
+
+export const insertCommunityPartnerOrgSchema = createInsertSchema(communityPartnerOrgs).omit({ createdAt: true });
+export type InsertCommunityPartnerOrg = z.infer<typeof insertCommunityPartnerOrgSchema>;
+export type CommunityPartnerOrg = typeof communityPartnerOrgs.$inferSelect;
+
+export const insertHouseholdSchema = createInsertSchema(households).omit({ id: true, createdAt: true, updatedAt: true, enteredOn: true });
+export type InsertHousehold = z.infer<typeof insertHouseholdSchema>;
+export type Household = typeof households.$inferSelect;
+
+export const insertHouseholdMemberSchema = createInsertSchema(householdMembers).omit({ id: true, createdAt: true });
+export type InsertHouseholdMember = z.infer<typeof insertHouseholdMemberSchema>;
+export type HouseholdMember = typeof householdMembers.$inferSelect;
+
+export const insertCommunityProgramSchema = createInsertSchema(communityPrograms).omit({ id: true, createdAt: true });
+export type InsertCommunityProgram = z.infer<typeof insertCommunityProgramSchema>;
+export type CommunityProgram = typeof communityPrograms.$inferSelect;
+
+export const insertProgramEnrollmentSchema = createInsertSchema(programEnrollments).omit({ id: true, enrolledOn: true });
+export type InsertProgramEnrollment = z.infer<typeof insertProgramEnrollmentSchema>;
+export type ProgramEnrollment = typeof programEnrollments.$inferSelect;
+
+export const insertProgramAttendanceSchema = createInsertSchema(programAttendance).omit({ id: true, recordedAt: true });
+export type InsertProgramAttendance = z.infer<typeof insertProgramAttendanceSchema>;
+export type ProgramAttendance = typeof programAttendance.$inferSelect;
+
+export const insertHouseholdServiceReceivedSchema = createInsertSchema(householdServicesReceived).omit({ id: true, recordedAt: true });
+export type InsertHouseholdServiceReceived = z.infer<typeof insertHouseholdServiceReceivedSchema>;
+export type HouseholdServiceReceived = typeof householdServicesReceived.$inferSelect;

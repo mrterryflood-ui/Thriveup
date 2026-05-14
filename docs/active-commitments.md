@@ -1026,3 +1026,33 @@ Almost removed `sankofa-feminine-health` from the registry because `yourfeminine
 - **Briefings updated:** `Foster-Youth-Transition-Briefing.md` (new rows 10 + 11 in live-URL table) and `Foster-Youth-Jim-Currier-Meeting-Prep.md` (new minute-22-to-26 walkthrough sections for portal + policy comparison).
 
 **Two new gotchas captured (P-L09 + P-L10) — see `.agents/skills/map-gap/lessons-learned.md`.**
+
+---
+
+## Vann Collaboration Kit (May 14, 2026)
+
+**Trigger:** Dr. J. Michelle Vann email May 13, 2026 requesting a tracker similar to the foster-youth demo, for attendance + family structure + services. Customer is both **Sistahs Can We Talk Inc.** (her KS 501(c)(3)) and **Iasis Christian Center** (her husband's church). Standing meeting on the calendar.
+
+**Built (May 14, 2026):**
+- Schema: 7 tables appended to `shared/schema.ts` — `community_partner_orgs`, `households`, `household_members`, `community_programs`, `program_enrollments`, `program_attendance`, `community_services`. db:push --force ran clean.
+- Routes: `server/community-program-routes.ts` — orgs / households / members / programs / enrollments / attendance / services / stats / CSV-export / bulk-CSV upload. Mounted at `/api/community/*` in `server/routes.ts`.
+- Seed: `server/seed-vann-demo.ts` — idempotent, runs on boot. Verified log: `[seed] Vann demo seeded: sistahs-cwt, iasis-ccc`. Each org gets 8 placeholder households, 24 individuals, 3 programs, ~12 weeks attendance, services. Clearly labeled as illustrative demo cohort.
+- Pages: `client/src/pages/partners/{vann-collaboration-hub,family-program-tracker,rfp-storyteller}.tsx`. Sidebar group `communityPartnersItems` in `app-sidebar.tsx`. App.tsx routes registered at `/partners/vann-hub`, `/partners/family-program-tracker`, `/partners/rfp-storyteller`.
+- Leave-behind: `scripts/generate-vann-leavebehind-pptx.ts` → `dist/Vann-Collaboration-LeaveBehind.pptx` (10 slides, reads live stats from `/api/community/orgs/*/stats` at generation time).
+- Memos: `docs/partners/Vann-Vanntastic-Strategy-Memo.md` + `docs/partners/Vann-Meeting-Brief.md`.
+- Congruence: 3 new claims (`VANN-001-hub`, `VANN-002-family-tracker`, `VANN-003-rfp-storyteller`) in `docs/grants/CONGRUENCE-MANIFEST.json`. Audit: **223 PASS / 0 FAIL**.
+
+**Anchor RFPs in the storyteller:**
+- SAMHSA Minority Behavioral Health (federal scaling-up) — TCAF prime, Sistahs CWT subrecipient, evaluation via TCAF research bench, letter of support via Dr. Vann's Sedgwick County MH Advisory Board seat.
+- City of Wichita CDBG Public Services 2026 (local scaling-out) — Sistahs CWT prime, TCAF as technology + evaluation partner. $50K floor / ~$475K pool. ZoomGrants-ready exports built in.
+
+**The ask (slide 10 of leave-behind):**
+1. Sistahs CWT named subrecipient on a joint SAMHSA Minority Behavioral Health proposal within 12 months.
+2. Sistahs CWT named subrecipient on a joint HRSA Healthy Start proposal.
+3. Sistahs CWT primes Wichita CDBG 2026; TCAF provides tech + eval.
+4. Letter-of-support exchange between Dr. Flood and Dr. Vann, both directions.
+5. 30-day check-in scheduled.
+
+**COI hard rule:** Iasis Christian Center has its own tenant in the tracker, but every federal/City of Wichita grant citing Iasis attendance data must include the standing spouse-relationship disclosure on the face of the application. The hub page renders this disclosure card automatically; the leave-behind PPTX repeats it on Slide 2 and again in the honest-disclosure footer on Slide 10.
+
+**Day-one usability:** CSV upload accepts a household roster from a spreadsheet, attendance check-in supports tablet use during Wednesday 5:30–7pm sessions, CSV/JSON export feeds funder reports.
