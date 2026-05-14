@@ -23,10 +23,12 @@
 ```
 Dr. Terry Flood
 US ARMY RETIREE
-DHA, EdD(c), MSIOP, MSW(c), MSL, MSCJPP, MSHRM, MSIS(c), BHA, CHW-I
+DHA, MSIOP, MSL, MSCJPP, MSHRM, MSIS(c — conferred 06/10/2026), BHA, CHW-I
 254-319-8460
 ```
-*Note: `(c)` = candidate (in progress). **Conferred (use freely):** DHA, MSIOP, MSL, MSCJPP, MSHRM, BHA, CHW-I. **Candidate / in progress (always mark with `(c)`, never claim as conferred):** EdD(c), MSW(c), MSIS(c). For grant submissions stick to "Dr. Terry Flood, DHA" per existing convention unless user specifies otherwise.*
+*Note (corrected May 12, 2026): **Conferred (use freely):** DHA, MSIOP, MSL, MSCJPP, MSHRM, BHA, CHW-I. **Candidate (mark `(c)` until 06/10/2026, then drop the `(c)`):** MSIS — graduates **June 10, 2026**. **Discontinued (do NOT list anywhere — user stopped pursuing):** ~~EdD~~, ~~MSW~~. For grant submissions default to "Dr. Terry Flood, DHA" unless user specifies otherwise.*
+
+**🔔 SURFACE TO USER on/after 2026-06-10:** "Your MSIS conferred today (per your June 10, 2026 graduation date). I'm dropping the `(c)` from your credential block. Confirm to lock in." (Surface-after entry should be added to the reminders table at top of this file.)
 
 ---
 
@@ -44,6 +46,7 @@ DHA, EdD(c), MSIOP, MSW(c), MSL, MSCJPP, MSHRM, MSIS(c), BHA, CHW-I
 | Surface after (UTC) | Topic | Message to deliver |
 |---|---|---|
 | **2026-05-09T21:00Z** *(set May 9, 2026 ~09:00 UTC)* | **SAM.gov API key** | "You asked me to remind you about SAM.gov in 12 hours. The discovery scanner is currently 401-ing on SAM.gov for lack of an API key — once you add `SAM_GOV_API_KEY` (request free at https://sam.gov/data-services), the daily scan will pick up federal opportunities that we're currently missing. Want me to walk through the request flow?" |
+| **2026-06-10T14:00Z** *(set May 12, 2026)* | **MSIS conferred** | "Today is your MSIS graduation per your June 10, 2026 date. Confirm conferral and I'll drop the `(c)` from your credential block in `docs/active-commitments.md` and any active grant narrative drafts that list MSIS(c)." |
 
 (I cannot push a notification on my own — the platform here doesn't expose a scheduler to me. The honest mechanism is this section + the session-bootstrap protocol that reads it. If we don't open a session in the next 12+ hours, the reminder won't fire on time, but it will still be the first thing I raise whenever you next open the project.)
 
