@@ -1,6 +1,6 @@
 {
   "version": "1.1.0",
-  "compiledAt": "2026-05-14T00:17:58.519Z",
+  "compiledAt": "2026-05-14T00:20:30.072Z",
   "sources": [
     {
       "path": "replit.md",
@@ -8,7 +8,7 @@
     },
     {
       "path": "docs/active-commitments.md",
-      "mtime": "2026-05-14T00:17:55.247Z"
+      "mtime": "2026-05-14T00:20:26.973Z"
     },
     {
       "path": ".agents/skills/map-gap/lessons-learned.md",
@@ -24,7 +24,7 @@
     },
     {
       "path": "DB:ecosystem_platforms",
-      "mtime": "2026-05-14T00:17:58.519Z"
+      "mtime": "2026-05-14T00:20:30.072Z"
     }
   ],
   "project": {
@@ -1439,7 +1439,7 @@
       {
         "id": "dr-flood-signature-block-from-may-12-2026-thread-for-future-use",
         "heading": "Dr. Flood signature block (from May 12, 2026 thread — for future use)",
-        "summary": "```\nDr. Terry Flood\nUS ARMY RETIREE\nDHA, EdD, MSIOP, MSW(c), MSL, MSCJPP, MSHRM, MSIS(c), BHA, CHW-I\n254-319-8460\n```\n*Note: `(c)` = candidate (in progress). Use full credential string ONLY when user has signed a thread with it; for grant submissions stick to \"Dr. Terry Flood, DHA\" per existing convention unless user specifies otherwise.*\n\n---\n\n\n**Maintained as the live continuity log.** `replit.md` is kept tight (~87 lines) per platform guideline; this file holds the running operational memory that earlier lived in \"Cycle L\" of `replit.md`. Read at session start. Update at session end.\n\n**Compaction May 12, 2026:** Foster-youth build history (May 11 build sections + Self-Audit Congruence section) extracted from `replit.md` → `docs/foster-youth-build-log.md`. Compiler now reads it (`script"
+        "summary": "```\nDr. Terry Flood\nUS ARMY RETIREE\nDHA, EdD(c), MSIOP, MSW(c), MSL, MSCJPP, MSHRM, MSIS(c), BHA, CHW-I\n254-319-8460\n```\n*Note: `(c)` = candidate (in progress). **Conferred (use freely):** DHA, MSIOP, MSL, MSCJPP, MSHRM, BHA, CHW-I. **Candidate / in progress (always mark with `(c)`, never claim as conferred):** EdD(c), MSW(c), MSIS(c). For grant submissions stick to \"Dr. Terry Flood, DHA\" per existing convention unless user specifies otherwise.*\n\n---\n\n\n**Maintained as the live continuity log.** `replit.md` is kept tight (~87 lines) per platform guideline; this file holds the running operational memory that earlier lived in \"Cycle L\" of `replit.md`. Read at session start. Update at session end.\n\n**Compaction May 12, 2026:** Foster-youth build history (May 11 build sections + Self-Audit Cong"
       },
       {
         "id": "surface-to-user-pending-reminders",

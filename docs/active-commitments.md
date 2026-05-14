@@ -23,10 +23,10 @@
 ```
 Dr. Terry Flood
 US ARMY RETIREE
-DHA, EdD, MSIOP, MSW(c), MSL, MSCJPP, MSHRM, MSIS(c), BHA, CHW-I
+DHA, EdD(c), MSIOP, MSW(c), MSL, MSCJPP, MSHRM, MSIS(c), BHA, CHW-I
 254-319-8460
 ```
-*Note: `(c)` = candidate (in progress). Use full credential string ONLY when user has signed a thread with it; for grant submissions stick to "Dr. Terry Flood, DHA" per existing convention unless user specifies otherwise.*
+*Note: `(c)` = candidate (in progress). **Conferred (use freely):** DHA, MSIOP, MSL, MSCJPP, MSHRM, BHA, CHW-I. **Candidate / in progress (always mark with `(c)`, never claim as conferred):** EdD(c), MSW(c), MSIS(c). For grant submissions stick to "Dr. Terry Flood, DHA" per existing convention unless user specifies otherwise.*
 
 ---
 
