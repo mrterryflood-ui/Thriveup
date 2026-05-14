@@ -1,14 +1,14 @@
 {
   "version": "1.1.0",
-  "compiledAt": "2026-05-14T14:50:43.091Z",
+  "compiledAt": "2026-05-14T14:58:48.189Z",
   "sources": [
     {
       "path": "replit.md",
-      "mtime": "2026-05-14T14:50:38.958Z"
+      "mtime": "2026-05-14T14:58:43.460Z"
     },
     {
       "path": "docs/active-commitments.md",
-      "mtime": "2026-05-14T14:50:33.570Z"
+      "mtime": "2026-05-14T14:58:40.370Z"
     },
     {
       "path": ".agents/skills/map-gap/lessons-learned.md",
@@ -24,7 +24,7 @@
     },
     {
       "path": "DB:ecosystem_platforms",
-      "mtime": "2026-05-14T14:50:43.091Z"
+      "mtime": "2026-05-14T14:58:48.189Z"
     }
   ],
   "project": {
@@ -210,6 +210,12 @@
       "rule": "(general)",
       "detail": "**🚨 P-L10 — `req.params` typed `string | string[]`.** Destructuring breaks Drizzle `eq()` overload. Always coerce: `const agencyId = String(req.params.agencyId);`.",
       "severity": "high"
+    },
+    {
+      "id": "dr-vann-foster-youth-conversation-may-12-2026",
+      "rule": "🚨 Dr. Vann ≠ foster-youth conversation (May 12, 2026)",
+      "detail": "Prior memory falsely claimed Dr. Vann had asked for a foster-youth-style tracker. **User corrected: he has never discussed foster youth with her.** Stay in her confirmed lane (wellness coaching, behavioral engagement, women's mindset) until user explicitly opens new topics. General lesson: when memory says \"user X expressed interest in Y,\" treat it as a hypothesis to verify with user, not a fact to act on.",
+      "severity": "critical"
     },
     {
       "id": "anika-amie-tcaf-principal-may-12-2026",
@@ -445,50 +451,6 @@
       "last_heartbeat": null
     },
     {
-      "id": "sankofa-maternal-health",
-      "name": "Black Maternal Health Network",
-      "url": "https://yourhealthbirthright.net",
-      "role": "maternal-health",
-      "domain": "health-equity",
-      "status": "registered",
-      "health_status": "online",
-      "public_visible": true,
-      "description": "Directly addressing the Black maternal mortality crisis with evidence-based interventions — comprehensive prenatal/postnatal care navigation, certified doula matching and coordination, maternal risk assessment using validated instruments, community health worker dispatch, maternal mental health screening (EPDS, PHQ-9 peripartum), breastfeeding support, and postpartum recovery planning. Integrates with Whole-Person Health for crisis escalation, Feminine Health Hub for reproductive pathways, SafeCogniCare for peripartum cognitive changes, and LifeBridge for social determinant interventions (housing, food, transportation) that drive maternal outcomes.",
-      "capabilities": {
-        "features": [
-          "Maternal Risk Assessment",
-          "Certified Doula Matching",
-          "Prenatal Care Navigation",
-          "Postnatal Care Coordination",
-          "Maternal Mental Health (EPDS)",
-          "Community Health Workers",
-          "Breastfeeding Support",
-          "Postpartum Recovery Plans",
-          "Birth Plan Builder",
-          "Hospital Bag Checklist",
-          "Appointment Tracker",
-          "Social Determinant Screening"
-        ],
-        "parentNetwork": "sankofa",
-        "grantNarrative": "Produces maternal mortality reduction data, doula utilization rates, prenatal visit compliance, and postpartum recovery outcomes for St. David's and foundation grants targeting the 3x maternal mortality gap",
-        "outcomeMetrics": [
-          "Prenatal care navigation enrollments: 178",
-          "Doula match-to-engagement rate: 74%",
-          "Maternal mental health screenings (EPDS): 234",
-          "Postpartum recovery plan completion: 67%",
-          "Birth outcome tracking: 89 tracked deliveries",
-          "Social determinant flags addressed: 312"
-        ],
-        "integrationDepth": "Bidirectional with Feminine Health (reproductive), Whole-Person Health (crisis), LifeBridge (social determinants), SafeCogniCare (cognitive), PillScheduler (prenatal vitamins)"
-      },
-      "grant_alignment": [
-        "st-davids",
-        "foundation",
-        "ssg-fox"
-      ],
-      "last_heartbeat": null
-    },
-    {
       "id": "speech-bridge",
       "name": "LexiBridge (Speech Bridge)",
       "url": "https://lexibridge.net",
@@ -533,54 +495,46 @@
       "last_heartbeat": "2026-03-22T03:08:23.128Z"
     },
     {
-      "id": "isss",
-      "name": "ISSS — Integrated Supports for Thriving Youth",
-      "url": "https://implementationineducatio.com",
-      "role": "student-support",
-      "domain": "education",
+      "id": "sankofa-maternal-health",
+      "name": "Black Maternal Health Network",
+      "url": "https://yourhealthbirthright.net",
+      "role": "maternal-health",
+      "domain": "health-equity",
       "status": "registered",
       "health_status": "online",
       "public_visible": true,
-      "description": "Whole-child implementation infrastructure enabling schools, districts, and regions to implement evidence-based student support at scale. Multi-Tiered System of Supports (MTSS) engine with early warning indicators, Thrive Score tracking, multi-stakeholder coordination across teachers/counselors/parents/community, and implementation fidelity measurement using CFIR and RE-AIM frameworks. District-level analytics dashboard provides real-time intervention effectiveness data. Integrates with WholeMind Learning for academic data, Perfectly Different for IEP/504 accommodations, SafeReport for incident management, and Whole-Person Health for crisis routing. Produces grant-ready outcome data for WIOA youth employment and foundation education grants.",
+      "description": "Directly addressing the Black maternal mortality crisis with evidence-based interventions — comprehensive prenatal/postnatal care navigation, certified doula matching and coordination, maternal risk assessment using validated instruments, community health worker dispatch, maternal mental health screening (EPDS, PHQ-9 peripartum), breastfeeding support, and postpartum recovery planning. Integrates with Whole-Person Health for crisis escalation, Feminine Health Hub for reproductive pathways, SafeCogniCare for peripartum cognitive changes, and LifeBridge for social determinant interventions (housing, food, transportation) that drive maternal outcomes.",
       "capabilities": {
         "features": [
-          "Multi-Stakeholder Coordination",
-          "Evidence-Based Student Support",
-          "District-Level Analytics",
-          "Data-Driven Decision Making",
-          "Implementation Fidelity Tracking",
-          "MTSS Tiered Intervention Engine",
-          "Thrive Score Algorithm",
-          "Early Warning System",
-          "Parent Engagement Portal",
-          "IEP/504 Integration",
-          "Trauma-Informed Practices",
-          "School Climate Assessment",
-          "Community Partner Coordination",
-          "Grant Outcome Reporting"
+          "Maternal Risk Assessment",
+          "Certified Doula Matching",
+          "Prenatal Care Navigation",
+          "Postnatal Care Coordination",
+          "Maternal Mental Health (EPDS)",
+          "Community Health Workers",
+          "Breastfeeding Support",
+          "Postpartum Recovery Plans",
+          "Birth Plan Builder",
+          "Hospital Bag Checklist",
+          "Appointment Tracker",
+          "Social Determinant Screening"
         ],
-        "frameworks": [
-          "MTSS",
-          "CFIR",
-          "RE-AIM",
-          "PBIS"
-        ],
-        "grantNarrative": "Provides student-level outcome data, implementation fidelity metrics, and multi-stakeholder coordination evidence for WIOA youth employment and foundation education grant reporting",
+        "parentNetwork": "sankofa",
+        "grantNarrative": "Produces maternal mortality reduction data, doula utilization rates, prenatal visit compliance, and postpartum recovery outcomes for St. David's and foundation grants targeting the 3x maternal mortality gap",
         "outcomeMetrics": [
-          "Schools implementing MTSS with fidelity: 12 districts",
-          "Student Thrive Score improvement: 23% average increase over semester",
-          "Early warning flag-to-intervention rate: 78%",
-          "Parent engagement portal active users: 1,847",
-          "Implementation fidelity score (CFIR): 7.2/10 average",
-          "Intervention effectiveness rate: 64% of flagged students improved",
-          "IEP/504 accommodation compliance rate: 91%"
+          "Prenatal care navigation enrollments: 178",
+          "Doula match-to-engagement rate: 74%",
+          "Maternal mental health screenings (EPDS): 234",
+          "Postpartum recovery plan completion: 67%",
+          "Birth outcome tracking: 89 tracked deliveries",
+          "Social determinant flags addressed: 312"
         ],
-        "integrationDepth": "Bidirectional data flows with WholeMind (academic), Perfectly Different (neurodiversity), SafeReport (incidents), RPLICE (research/implementation science), Whole-Person Health (crisis)"
+        "integrationDepth": "Bidirectional with Feminine Health (reproductive), Whole-Person Health (crisis), LifeBridge (social determinants), SafeCogniCare (cognitive), PillScheduler (prenatal vitamins)"
       },
       "grant_alignment": [
-        "wioa",
+        "st-davids",
         "foundation",
-        "st-davids"
+        "ssg-fox"
       ],
       "last_heartbeat": null
     },
@@ -640,46 +594,54 @@
       "last_heartbeat": "2026-03-22T03:08:43.787Z"
     },
     {
-      "id": "safecognicare",
-      "name": "SafeCogniCare",
-      "url": "https://safecognicare.com",
-      "role": "cognitive-health",
-      "domain": "health-equity",
+      "id": "isss",
+      "name": "ISSS — Integrated Supports for Thriving Youth",
+      "url": "https://implementationineducatio.com",
+      "role": "student-support",
+      "domain": "education",
       "status": "registered",
       "health_status": "online",
       "public_visible": true,
-      "description": "Cognitive safety platform specializing in TBI (Traumatic Brain Injury), ADHD, dementia, and peripartum cognitive changes — validated cognitive health assessments (MoCA, MMSE, Trail Making), early intervention tools with automated provider alerts, comprehensive safety protocols for cognitive impairment scenarios, care coordination with family/providers/community resources, and family support resources including caregiver burden assessment. Critical for veteran populations (TBI prevalence) and maternal health (peripartum cognitive changes). Integrates with Whole-Person Health for crisis routing, PillScheduler for medication complexity matching to cognitive capacity, Perfectly Different for neurodevelopmental overlap, and M2C for veteran TBI pathways.",
+      "description": "Whole-child implementation infrastructure enabling schools, districts, and regions to implement evidence-based student support at scale. Multi-Tiered System of Supports (MTSS) engine with early warning indicators, Thrive Score tracking, multi-stakeholder coordination across teachers/counselors/parents/community, and implementation fidelity measurement using CFIR and RE-AIM frameworks. District-level analytics dashboard provides real-time intervention effectiveness data. Integrates with WholeMind Learning for academic data, Perfectly Different for IEP/504 accommodations, SafeReport for incident management, and Whole-Person Health for crisis routing. Produces grant-ready outcome data for WIOA youth employment and foundation education grants.",
       "capabilities": {
         "features": [
-          "Cognitive Health Assessments (MoCA/MMSE)",
-          "Trail Making Test Digital",
-          "Early Intervention Alerts",
-          "Safety Protocols",
-          "Care Coordination Dashboard",
-          "Family Support Resources",
-          "Caregiver Burden Assessment",
-          "TBI Screening & Tracking",
-          "Cognitive Decline Monitoring",
-          "Provider Communication Portal",
-          "Medication Complexity Matching",
-          "Emergency Safety Plans"
+          "Multi-Stakeholder Coordination",
+          "Evidence-Based Student Support",
+          "District-Level Analytics",
+          "Data-Driven Decision Making",
+          "Implementation Fidelity Tracking",
+          "MTSS Tiered Intervention Engine",
+          "Thrive Score Algorithm",
+          "Early Warning System",
+          "Parent Engagement Portal",
+          "IEP/504 Integration",
+          "Trauma-Informed Practices",
+          "School Climate Assessment",
+          "Community Partner Coordination",
+          "Grant Outcome Reporting"
         ],
-        "grantNarrative": "Provides cognitive screening completion rates, TBI intervention outcomes, caregiver support metrics, and cognitive decline monitoring data for SSG Fox veteran and St. David's health equity grants",
+        "frameworks": [
+          "MTSS",
+          "CFIR",
+          "RE-AIM",
+          "PBIS"
+        ],
+        "grantNarrative": "Provides student-level outcome data, implementation fidelity metrics, and multi-stakeholder coordination evidence for WIOA youth employment and foundation education grant reporting",
         "outcomeMetrics": [
-          "Cognitive assessments completed (MoCA/MMSE): 567",
-          "TBI screenings: 234 (veteran population)",
-          "Early intervention alerts triggered: 89",
-          "Safety protocol activations: 45",
-          "Caregiver burden assessments: 178",
-          "Cognitive decline monitoring: 345 active patients",
-          "Provider communication events: 234"
+          "Schools implementing MTSS with fidelity: 12 districts",
+          "Student Thrive Score improvement: 23% average increase over semester",
+          "Early warning flag-to-intervention rate: 78%",
+          "Parent engagement portal active users: 1,847",
+          "Implementation fidelity score (CFIR): 7.2/10 average",
+          "Intervention effectiveness rate: 64% of flagged students improved",
+          "IEP/504 accommodation compliance rate: 91%"
         ],
-        "integrationDepth": "Bidirectional with Whole-Person Health (crisis), PillScheduler (medication complexity), Perfectly Different (neurodevelopmental), M2C (veteran TBI), Maternal Health (peripartum cognition)"
+        "integrationDepth": "Bidirectional data flows with WholeMind (academic), Perfectly Different (neurodiversity), SafeReport (incidents), RPLICE (research/implementation science), Whole-Person Health (crisis)"
       },
       "grant_alignment": [
-        "ssg-fox",
-        "st-davids",
-        "foundation"
+        "wioa",
+        "foundation",
+        "st-davids"
       ],
       "last_heartbeat": null
     },
@@ -727,6 +689,50 @@
         "foundation",
         "wioa",
         "ssg-fox"
+      ],
+      "last_heartbeat": null
+    },
+    {
+      "id": "safecognicare",
+      "name": "SafeCogniCare",
+      "url": "https://safecognicare.com",
+      "role": "cognitive-health",
+      "domain": "health-equity",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "Cognitive safety platform specializing in TBI (Traumatic Brain Injury), ADHD, dementia, and peripartum cognitive changes — validated cognitive health assessments (MoCA, MMSE, Trail Making), early intervention tools with automated provider alerts, comprehensive safety protocols for cognitive impairment scenarios, care coordination with family/providers/community resources, and family support resources including caregiver burden assessment. Critical for veteran populations (TBI prevalence) and maternal health (peripartum cognitive changes). Integrates with Whole-Person Health for crisis routing, PillScheduler for medication complexity matching to cognitive capacity, Perfectly Different for neurodevelopmental overlap, and M2C for veteran TBI pathways.",
+      "capabilities": {
+        "features": [
+          "Cognitive Health Assessments (MoCA/MMSE)",
+          "Trail Making Test Digital",
+          "Early Intervention Alerts",
+          "Safety Protocols",
+          "Care Coordination Dashboard",
+          "Family Support Resources",
+          "Caregiver Burden Assessment",
+          "TBI Screening & Tracking",
+          "Cognitive Decline Monitoring",
+          "Provider Communication Portal",
+          "Medication Complexity Matching",
+          "Emergency Safety Plans"
+        ],
+        "grantNarrative": "Provides cognitive screening completion rates, TBI intervention outcomes, caregiver support metrics, and cognitive decline monitoring data for SSG Fox veteran and St. David's health equity grants",
+        "outcomeMetrics": [
+          "Cognitive assessments completed (MoCA/MMSE): 567",
+          "TBI screenings: 234 (veteran population)",
+          "Early intervention alerts triggered: 89",
+          "Safety protocol activations: 45",
+          "Caregiver burden assessments: 178",
+          "Cognitive decline monitoring: 345 active patients",
+          "Provider communication events: 234"
+        ],
+        "integrationDepth": "Bidirectional with Whole-Person Health (crisis), PillScheduler (medication complexity), Perfectly Different (neurodevelopmental), M2C (veteran TBI), Maternal Health (peripartum cognition)"
+      },
+      "grant_alignment": [
+        "ssg-fox",
+        "st-davids",
+        "foundation"
       ],
       "last_heartbeat": null
     },
@@ -781,6 +787,49 @@
         "st-davids"
       ],
       "last_heartbeat": null
+    },
+    {
+      "id": "sankofa-mens-health",
+      "name": "Black Men's Health Hub",
+      "url": "https://thehealthyblkman.com",
+      "role": "mens-health",
+      "domain": "health-equity",
+      "status": "active",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "Comprehensive health platform for Black men addressing chronic disease disparities and mental health stigma — prostate cancer screening navigation, cardiovascular risk assessment (Framingham-adapted), diabetes prevention, mental health stigma reduction campaigns, substance use screening (AUDIT-C, DAST-10), peer mentor matching, and preventive care scheduling. Integrates with M2C Transition for veteran men's health pathways, Whole-Person Health for crisis routing, and LifeBridge for social determinant interventions. Targets the 5-year life expectancy gap for Black men through culturally responsive engagement.",
+      "capabilities": {
+        "features": [
+          "Prostate Cancer Screening Navigation",
+          "Cardiovascular Risk Assessment",
+          "Diabetes Prevention Program",
+          "Mental Health Stigma Reduction",
+          "Substance Use Screening",
+          "Peer Mentor Matching",
+          "Preventive Care Scheduler",
+          "Health Literacy Resources",
+          "Telehealth Coordination",
+          "Community Barbershop Health Events",
+          "Veteran Health Pathway"
+        ],
+        "parentNetwork": "sankofa",
+        "grantNarrative": "Documents men's health engagement, preventive screening uptake, mental health stigma reduction metrics, and veteran-specific health outcomes for SSG Fox and St. David's reporting",
+        "outcomeMetrics": [
+          "Prostate screening navigations: 145",
+          "Cardiovascular risk assessments completed: 267",
+          "Mental health stigma reduction campaign reach: 3,400",
+          "Peer mentor matches: 89 active pairs",
+          "Preventive care scheduling completions: 178",
+          "Substance use screenings (AUDIT-C): 156"
+        ],
+        "integrationDepth": "Bidirectional with M2C (veteran men), Whole-Person Health (crisis/screening), LifeBridge (social determinants), PillScheduler (medication adherence)"
+      },
+      "grant_alignment": [
+        "st-davids",
+        "ssg-fox",
+        "foundation"
+      ],
+      "last_heartbeat": "2026-03-19T21:03:20.478Z"
     },
     {
       "id": "whole-person-health",
@@ -842,49 +891,6 @@
         "foundation"
       ],
       "last_heartbeat": null
-    },
-    {
-      "id": "sankofa-mens-health",
-      "name": "Black Men's Health Hub",
-      "url": "https://thehealthyblkman.com",
-      "role": "mens-health",
-      "domain": "health-equity",
-      "status": "active",
-      "health_status": "online",
-      "public_visible": true,
-      "description": "Comprehensive health platform for Black men addressing chronic disease disparities and mental health stigma — prostate cancer screening navigation, cardiovascular risk assessment (Framingham-adapted), diabetes prevention, mental health stigma reduction campaigns, substance use screening (AUDIT-C, DAST-10), peer mentor matching, and preventive care scheduling. Integrates with M2C Transition for veteran men's health pathways, Whole-Person Health for crisis routing, and LifeBridge for social determinant interventions. Targets the 5-year life expectancy gap for Black men through culturally responsive engagement.",
-      "capabilities": {
-        "features": [
-          "Prostate Cancer Screening Navigation",
-          "Cardiovascular Risk Assessment",
-          "Diabetes Prevention Program",
-          "Mental Health Stigma Reduction",
-          "Substance Use Screening",
-          "Peer Mentor Matching",
-          "Preventive Care Scheduler",
-          "Health Literacy Resources",
-          "Telehealth Coordination",
-          "Community Barbershop Health Events",
-          "Veteran Health Pathway"
-        ],
-        "parentNetwork": "sankofa",
-        "grantNarrative": "Documents men's health engagement, preventive screening uptake, mental health stigma reduction metrics, and veteran-specific health outcomes for SSG Fox and St. David's reporting",
-        "outcomeMetrics": [
-          "Prostate screening navigations: 145",
-          "Cardiovascular risk assessments completed: 267",
-          "Mental health stigma reduction campaign reach: 3,400",
-          "Peer mentor matches: 89 active pairs",
-          "Preventive care scheduling completions: 178",
-          "Substance use screenings (AUDIT-C): 156"
-        ],
-        "integrationDepth": "Bidirectional with M2C (veteran men), Whole-Person Health (crisis/screening), LifeBridge (social determinants), PillScheduler (medication adherence)"
-      },
-      "grant_alignment": [
-        "st-davids",
-        "ssg-fox",
-        "foundation"
-      ],
-      "last_heartbeat": "2026-03-19T21:03:20.478Z"
     },
     {
       "id": "safereport",
@@ -1105,6 +1111,49 @@
       "last_heartbeat": null
     },
     {
+      "id": "perfectly-different",
+      "name": "Perfectly Different",
+      "url": "https://neurodifferentassistant.app",
+      "role": "neurodiversity",
+      "domain": "health-equity",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "Neurodiversity-affirming support platform for autism, ADHD, and AuDHD populations — AI-powered daily guidance, comprehensive IEP/504 plan assistance with template library, crisis resources with immediate routing to Whole-Person Health, evidence-based therapy tool library, community support groups, and neurodiversity advocacy resources. Integrates with ISSS for school-based accommodations, WholeMind for adaptive learning, SafeCogniCare for cognitive assessments, and LifeBridge for community resources. Produces neurodevelopmental outcome data for St. David's disability services and foundation grants.",
+      "capabilities": {
+        "features": [
+          "AI Daily Guidance Engine",
+          "IEP/504 Plan Builder",
+          "Template Library",
+          "Crisis Resources",
+          "Evidence-Based Therapy Tools",
+          "Community Support Groups",
+          "Neurodiversity Advocacy",
+          "Sensory Management Tools",
+          "Executive Function Coaching",
+          "Social Skills Builder",
+          "Parent Resource Center",
+          "Provider Directory"
+        ],
+        "grantNarrative": "Documents neurodevelopmental engagement, IEP/504 compliance rates, therapy tool utilization, and accommodation effectiveness for St. David's disability and foundation grants",
+        "outcomeMetrics": [
+          "IEP/504 plans assisted: 234",
+          "Crisis routing to Whole-Person Health: 67 events",
+          "Evidence-based therapy tool utilization: 1,890 sessions",
+          "Community support group participants: 345",
+          "Executive function coaching sessions: 567",
+          "Sensory management tool active users: 234"
+        ],
+        "integrationDepth": "Bidirectional with ISSS (school accommodations), WholeMind (adaptive learning), SafeCogniCare (cognitive assessment), Whole-Person Health (crisis routing)"
+      },
+      "grant_alignment": [
+        "st-davids",
+        "foundation",
+        "wioa"
+      ],
+      "last_heartbeat": null
+    },
+    {
       "id": "pillscheduler",
       "name": "PillScheduler",
       "url": "https://pillscheduler.net",
@@ -1150,49 +1199,6 @@
       "last_heartbeat": null
     },
     {
-      "id": "perfectly-different",
-      "name": "Perfectly Different",
-      "url": "https://neurodifferentassistant.app",
-      "role": "neurodiversity",
-      "domain": "health-equity",
-      "status": "registered",
-      "health_status": "online",
-      "public_visible": true,
-      "description": "Neurodiversity-affirming support platform for autism, ADHD, and AuDHD populations — AI-powered daily guidance, comprehensive IEP/504 plan assistance with template library, crisis resources with immediate routing to Whole-Person Health, evidence-based therapy tool library, community support groups, and neurodiversity advocacy resources. Integrates with ISSS for school-based accommodations, WholeMind for adaptive learning, SafeCogniCare for cognitive assessments, and LifeBridge for community resources. Produces neurodevelopmental outcome data for St. David's disability services and foundation grants.",
-      "capabilities": {
-        "features": [
-          "AI Daily Guidance Engine",
-          "IEP/504 Plan Builder",
-          "Template Library",
-          "Crisis Resources",
-          "Evidence-Based Therapy Tools",
-          "Community Support Groups",
-          "Neurodiversity Advocacy",
-          "Sensory Management Tools",
-          "Executive Function Coaching",
-          "Social Skills Builder",
-          "Parent Resource Center",
-          "Provider Directory"
-        ],
-        "grantNarrative": "Documents neurodevelopmental engagement, IEP/504 compliance rates, therapy tool utilization, and accommodation effectiveness for St. David's disability and foundation grants",
-        "outcomeMetrics": [
-          "IEP/504 plans assisted: 234",
-          "Crisis routing to Whole-Person Health: 67 events",
-          "Evidence-based therapy tool utilization: 1,890 sessions",
-          "Community support group participants: 345",
-          "Executive function coaching sessions: 567",
-          "Sensory management tool active users: 234"
-        ],
-        "integrationDepth": "Bidirectional with ISSS (school accommodations), WholeMind (adaptive learning), SafeCogniCare (cognitive assessment), Whole-Person Health (crisis routing)"
-      },
-      "grant_alignment": [
-        "st-davids",
-        "foundation",
-        "wioa"
-      ],
-      "last_heartbeat": null
-    },
-    {
       "id": "sankofa",
       "name": "Sankofa Health Network",
       "url": "https://yourhealthbirthright.net",
@@ -1234,96 +1240,6 @@
       "grant_alignment": [
         "st-davids",
         "ssg-fox",
-        "foundation"
-      ],
-      "last_heartbeat": null
-    },
-    {
-      "id": "lifebridge",
-      "name": "LifeBridge",
-      "url": "https://lifetransitionsaid.org",
-      "role": "resource-hub",
-      "domain": "community-workforce",
-      "status": "registered",
-      "health_status": "online",
-      "public_visible": true,
-      "description": "Virtual 211 and Community Health Worker coordination hub providing 24/7 resource navigation across housing, food, healthcare, mental health, substance abuse, domestic violence, and crisis support — covering 20,670+ resources. Also addresses non-combat life events that drive veteran suicide (divorce, job loss, retirement, health diagnosis, bereavement, financial crisis) with evidence-based coping strategies and peer storytelling. Social determinant engine scores needs across 7 domains (housing, food, transportation, employment, healthcare, legal, safety) and routes to specific ecosystem platforms. Integrates with every health platform for crisis escalation, M2C for veteran life events, and ISSS for family-level support.",
-      "capabilities": {
-        "features": [
-          "24/7 Resource Navigation",
-          "Housing Assistance",
-          "Food Access Programs",
-          "Healthcare Connections",
-          "Mental Health Resources",
-          "Substance Abuse Support",
-          "Domestic Violence Support",
-          "Crisis Support & Routing",
-          "Life Event Guides",
-          "Coping Strategy Library",
-          "Peer Story Platform",
-          "Social Determinant Scoring",
-          "7-Domain Needs Assessment",
-          "Community Health Worker Dispatch",
-          "Resource Gap Analysis"
-        ],
-        "grantNarrative": "Produces social determinant outcome data, resource utilization metrics, crisis diversion rates, and community health worker coordination evidence for St. David's, SSG Fox, and foundation reporting",
-        "outcomeMetrics": [
-          "Resource navigations completed: 3,456",
-          "Social determinant screenings: 1,890",
-          "Crisis support diversions: 234 (diverted from emergency)",
-          "Life event guide completions: 567",
-          "Community health worker dispatches: 178",
-          "7-domain needs assessments: 890",
-          "Resource gap analyses: 45 geographic areas"
-        ],
-        "integrationDepth": "Routes social determinant data to all health platforms, receives crisis events from Whole-Person Health, coordinates with M2C for veteran life events, feeds ISSS for family support"
-      },
-      "grant_alignment": [
-        "st-davids",
-        "ssg-fox"
-      ],
-      "last_heartbeat": null
-    },
-    {
-      "id": "video-creator-ai",
-      "name": "Video Creator AI",
-      "url": "https://videocreatorai.com",
-      "role": "content-production",
-      "domain": "marketing-content",
-      "status": "registered",
-      "health_status": "online",
-      "public_visible": false,
-      "description": "AI-powered content production engine serving the entire 24-platform ecosystem — produces promotional videos, grant presentation decks, training content, marketing materials, platform showcase videos, and holistic ecosystem overview content. Receives authoritative platform identity profiles to ensure accurate representation. Generates content for grant applications (SSG Fox, WIOA, St. David's), conference presentations, stakeholder briefings, and community outreach. Each platform gets a professional public face through consistent branding and messaging. Integrates with Ad Targeting for campaign-ready assets and all platforms for content source material.",
-      "capabilities": {
-        "features": [
-          "AI Video Generation",
-          "Grant Presentation Decks",
-          "Training Content Production",
-          "Marketing Video Suite",
-          "Platform Showcase Videos",
-          "Ecosystem Overview Content",
-          "Conference Presentations",
-          "Stakeholder Briefing Videos",
-          "Community Outreach Materials",
-          "Consistent Brand Enforcement",
-          "Multi-Platform Content Pipeline",
-          "Social Media Assets"
-        ],
-        "grantNarrative": "Produces grant application video supplements, outcome visualization content, and stakeholder communication materials that strengthen every grant submission across the ecosystem",
-        "outcomeMetrics": [
-          "Videos produced: 234 across 24 platforms",
-          "Grant presentation decks: 45",
-          "Training content pieces: 89",
-          "Platform showcase videos: 22",
-          "Social media assets: 567",
-          "Conference presentation materials: 12"
-        ],
-        "integrationDepth": "Receives identity profiles from all 22 sibling platforms — produces content assets consumed by Ad Targeting for campaigns and by every platform for their public presence"
-      },
-      "grant_alignment": [
-        "wioa",
-        "ssg-fox",
-        "st-davids",
         "foundation"
       ],
       "last_heartbeat": null
@@ -1422,6 +1338,96 @@
         "st-davids"
       ],
       "last_heartbeat": "2026-03-19T02:25:57.923Z"
+    },
+    {
+      "id": "lifebridge",
+      "name": "LifeBridge",
+      "url": "https://lifetransitionsaid.org",
+      "role": "resource-hub",
+      "domain": "community-workforce",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "Virtual 211 and Community Health Worker coordination hub providing 24/7 resource navigation across housing, food, healthcare, mental health, substance abuse, domestic violence, and crisis support — covering 20,670+ resources. Also addresses non-combat life events that drive veteran suicide (divorce, job loss, retirement, health diagnosis, bereavement, financial crisis) with evidence-based coping strategies and peer storytelling. Social determinant engine scores needs across 7 domains (housing, food, transportation, employment, healthcare, legal, safety) and routes to specific ecosystem platforms. Integrates with every health platform for crisis escalation, M2C for veteran life events, and ISSS for family-level support.",
+      "capabilities": {
+        "features": [
+          "24/7 Resource Navigation",
+          "Housing Assistance",
+          "Food Access Programs",
+          "Healthcare Connections",
+          "Mental Health Resources",
+          "Substance Abuse Support",
+          "Domestic Violence Support",
+          "Crisis Support & Routing",
+          "Life Event Guides",
+          "Coping Strategy Library",
+          "Peer Story Platform",
+          "Social Determinant Scoring",
+          "7-Domain Needs Assessment",
+          "Community Health Worker Dispatch",
+          "Resource Gap Analysis"
+        ],
+        "grantNarrative": "Produces social determinant outcome data, resource utilization metrics, crisis diversion rates, and community health worker coordination evidence for St. David's, SSG Fox, and foundation reporting",
+        "outcomeMetrics": [
+          "Resource navigations completed: 3,456",
+          "Social determinant screenings: 1,890",
+          "Crisis support diversions: 234 (diverted from emergency)",
+          "Life event guide completions: 567",
+          "Community health worker dispatches: 178",
+          "7-domain needs assessments: 890",
+          "Resource gap analyses: 45 geographic areas"
+        ],
+        "integrationDepth": "Routes social determinant data to all health platforms, receives crisis events from Whole-Person Health, coordinates with M2C for veteran life events, feeds ISSS for family support"
+      },
+      "grant_alignment": [
+        "st-davids",
+        "ssg-fox"
+      ],
+      "last_heartbeat": null
+    },
+    {
+      "id": "video-creator-ai",
+      "name": "Video Creator AI",
+      "url": "https://videocreatorai.com",
+      "role": "content-production",
+      "domain": "marketing-content",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": false,
+      "description": "AI-powered content production engine serving the entire 24-platform ecosystem — produces promotional videos, grant presentation decks, training content, marketing materials, platform showcase videos, and holistic ecosystem overview content. Receives authoritative platform identity profiles to ensure accurate representation. Generates content for grant applications (SSG Fox, WIOA, St. David's), conference presentations, stakeholder briefings, and community outreach. Each platform gets a professional public face through consistent branding and messaging. Integrates with Ad Targeting for campaign-ready assets and all platforms for content source material.",
+      "capabilities": {
+        "features": [
+          "AI Video Generation",
+          "Grant Presentation Decks",
+          "Training Content Production",
+          "Marketing Video Suite",
+          "Platform Showcase Videos",
+          "Ecosystem Overview Content",
+          "Conference Presentations",
+          "Stakeholder Briefing Videos",
+          "Community Outreach Materials",
+          "Consistent Brand Enforcement",
+          "Multi-Platform Content Pipeline",
+          "Social Media Assets"
+        ],
+        "grantNarrative": "Produces grant application video supplements, outcome visualization content, and stakeholder communication materials that strengthen every grant submission across the ecosystem",
+        "outcomeMetrics": [
+          "Videos produced: 234 across 24 platforms",
+          "Grant presentation decks: 45",
+          "Training content pieces: 89",
+          "Platform showcase videos: 22",
+          "Social media assets: 567",
+          "Conference presentation materials: 12"
+        ],
+        "integrationDepth": "Receives identity profiles from all 22 sibling platforms — produces content assets consumed by Ad Targeting for campaigns and by every platform for their public presence"
+      },
+      "grant_alignment": [
+        "wioa",
+        "ssg-fox",
+        "st-davids",
+        "foundation"
+      ],
+      "last_heartbeat": null
     }
   ],
   "quintet": "**Talk Your Talk · Civic Signal · LifeBridge · ThriveUp Academy · Whole-Person Health Ecosystem.** See `docs/grants/QUARTET-ONE-PAGER.md` for the drop-in narrative.",
@@ -1840,7 +1846,7 @@
     ]
   },
   "counts": {
-    "gotchas": 23,
+    "gotchas": 24,
     "vocab": 4,
     "platforms": 25,
     "file_pointers": 14,
