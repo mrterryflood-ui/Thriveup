@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useLocation, Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -89,10 +89,29 @@ const fosterYouthItems: NavItem[] = [
 ];
 
 const communityPartnersItems: NavItem[] = [
-  { title: "Vann Collaboration Hub", url: "/partners/vann-hub", icon: Handshake },
+  { title: "Community Partner Hub", url: "/partners/vann-hub", icon: Handshake },
   { title: "Family & Program Tracker", url: "/partners/family-program-tracker", icon: Users },
   { title: "RFP-Match Storyteller", url: "/partners/rfp-storyteller", icon: Sparkles },
 ];
+
+function useDemoPartnersFlag(): boolean {
+  const [on, setOn] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    return window.localStorage.getItem("tcaf_demo_partners") === "1";
+  });
+  useEffect(() => {
+    function sync() {
+      setOn(window.localStorage.getItem("tcaf_demo_partners") === "1");
+    }
+    window.addEventListener("storage", sync);
+    window.addEventListener("tcaf-demo-partners-changed", sync);
+    return () => {
+      window.removeEventListener("storage", sync);
+      window.removeEventListener("tcaf-demo-partners-changed", sync);
+    };
+  }, []);
+  return on;
+}
 
 const justiceReentryItems: NavItem[] = [
   { title: "Reentry Program (overview)", url: "/reentry-program", icon: Scale },
@@ -407,6 +426,7 @@ function NavSection({ label, items, location }: { label: string; items: NavItem[
 export function AppSidebar() {
   const [location] = useLocation();
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
+  const demoPartnersOn = useDemoPartnersFlag();
   const { data: progressData } = useQuery<StudentProgress>({
     queryKey: ["/api/progress"],
   });
@@ -502,7 +522,9 @@ export function AppSidebar() {
             Plus: AI Literacy, Where We Operate, About */}
         <NavSection label="Texas (St. David's Pilot)" items={texasPilotItems} location={location} />
         <NavSection label="Youth Aging Out of Foster Care" items={fosterYouthItems} location={location} />
-        <NavSection label="Community Partners" items={communityPartnersItems} location={location} />
+        {demoPartnersOn && (
+          <NavSection label="Community Partners" items={communityPartnersItems} location={location} />
+        )}
         <NavSection label="Programs" items={programsItems} location={location} />
         {isAuthenticated && (
           <NavSection label="Grant Engine (internal)" items={grantEngineItems} location={location} />

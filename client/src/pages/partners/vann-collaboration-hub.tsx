@@ -26,8 +26,11 @@ export default function VannCollaborationHubPage() {
       <div className="space-y-2">
         <div className="flex items-center gap-2">
           <Handshake className="h-7 w-7 text-primary" />
-          <h1 className="text-3xl font-bold tracking-tight" data-testid="text-page-title">Vann Collaboration Hub</h1>
+          <h1 className="text-3xl font-bold tracking-tight" data-testid="text-page-title">Community Partner Hub</h1>
         </div>
+        <p className="text-xs uppercase tracking-wide text-muted-foreground">
+          Featured collaboration: Sistahs Can We Talk + Iasis Christian Center
+        </p>
         <p className="text-muted-foreground max-w-3xl">
           A working-session workspace for Dr. J. Michelle Vann (Sistahs Can We Talk &amp; Iasis Christian Center) and TCAF /
           ThriveUp Academy. Two seeded organizations, the full ecosystem map, a working family/youth tracker, and

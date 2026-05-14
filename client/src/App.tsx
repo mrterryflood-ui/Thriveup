@@ -550,6 +550,28 @@ function EmbedLayout({ children }: { children: React.ReactNode }) {
   );
 }
 
+function DemoFlagsHandler() {
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const demo = params.get("demo");
+    if (demo === "partners-on") {
+      window.localStorage.setItem("tcaf_demo_partners", "1");
+      window.dispatchEvent(new Event("tcaf-demo-partners-changed"));
+      params.delete("demo");
+      const q = params.toString();
+      window.history.replaceState({}, "", window.location.pathname + (q ? `?${q}` : "") + window.location.hash);
+    } else if (demo === "partners-off") {
+      window.localStorage.removeItem("tcaf_demo_partners");
+      window.dispatchEvent(new Event("tcaf-demo-partners-changed"));
+      params.delete("demo");
+      const q = params.toString();
+      window.history.replaceState({}, "", window.location.pathname + (q ? `?${q}` : "") + window.location.hash);
+    }
+  }, []);
+  return null;
+}
+
 function App() {
   return (
     <ThemeProvider>
@@ -558,6 +580,7 @@ function App() {
           <BandwidthProvider>
             <QueryClientProvider client={queryClient}>
               <TooltipProvider>
+                <DemoFlagsHandler />
                 <Switch>
                   <Route path="/presentation">
                     <PresentationLayout />

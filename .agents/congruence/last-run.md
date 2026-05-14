@@ -1,5 +1,5 @@
 # Congruence Audit Report
-**Run at:** 2026-05-14T19:52:27.933Z
+**Run at:** 2026-05-14T19:58:37.012Z
 **Manifest version:** 2 (last updated 2026-05-14)
 **Audience:** Jim Currier (HUD FYI National Implementation Leader) — Austin meeting prep
 
@@ -277,7 +277,7 @@ URL: `/foster-youth/policy-comparison`
 - ✓ table-comparison — test-id present (source: client/src/pages/foster-youth/policy-comparison.tsx)
 - ✓ table-all-states — test-id present (source: client/src/pages/foster-youth/policy-comparison.tsx)
 
-### ✅ VANN-001-hub — Vann Collaboration Hub: welcome card, who's-who 3-card, ecosystem map (9 surfaces), 7-min walkthrough script, COI disclosure, CTAs to tracker + RFP storyteller. Honest disclosure footer.
+### ✅ VANN-001-hub — Community Partner Hub (featured: Sistahs Can We Talk + Iasis Christian Center): welcome card, who's-who 3-card, ecosystem map (9 surfaces), 7-min walkthrough script, COI disclosure, CTAs to tracker + RFP storyteller. Honest disclosure footer.
 URL: `/partners/vann-hub`
 - ✓ url — HTTP 200
 - ✓ page-vann-hub — test-id present (source: client/src/pages/partners/vann-collaboration-hub.tsx)
