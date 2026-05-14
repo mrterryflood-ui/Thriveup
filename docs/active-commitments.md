@@ -1,5 +1,49 @@
 # Active Commitments — TCAF / ThriveUp Academy
 
+## TCAF SAM.gov + Federal Registration Identifiers (added May 12, 2026)
+
+- **SAM.gov UEI:** **KDDVD1FGLW35** ✅ (visible in Entity Workspace screenshot 19:36)
+- **SAM.gov registration status:** **Submitted Registration** — *not yet "Active"*. Means TCAF can be referenced (UEI is live), but cannot YET receive federal awards until validation completes (typically 7–10 business days; IRS TIN match is the usual gate). **🚨 Do NOT claim "SAM-active" in any narrative until status flips to Active.** Honest current language: *"TCAF SAM.gov registration submitted (UEI KDDVD1FGLW35); activation pending validation."*
+- **CAGE / NCAGE Code:** **PENDING** — user awaiting 5-digit ID from CAGE review team. *(CAGE is auto-issued by DLA after SAM activation; tracks separately.)* Do NOT type a placeholder; leave blank on forms or write "CAGE pending DLA assignment."
+- **Physical Address (SAM-verified, full ZIP+4):** **17912 Stefano Dr, Pflugerville, TX 78660-7020 USA** *(memory previously had `78660` — extend to `78660-7020` on any federal form that asks for ZIP+4)*.
+- **Doing Business As (in SAM):** blank. *(TCAF is held in memory as the DBA, but it is NOT registered as such in SAM. For federal forms, default to legal name `The Collaborative Advocate Foundation`; only add `(DBA TCAF)` where the form has a DBA field.)*
+
+**🔔 SURFACE TO USER on/after 2026-05-22:** "It's been ~10 business days since you submitted SAM.gov registration on May 12. Check entity status at https://sam.gov — if it flipped to **Active**, give me the activation date and I'll update memory. If it's still Submitted/in-process, check the validation hold reason."
+
+---
+
+## Dr. Flood — Federal Grant & Compliance Credentials (added May 12, 2026 from PDF)
+
+> **Source:** `attached_assets/All_certs_including_Grants_(1)_1778719050629.pdf`. Use these in NIH biosketch "Other Experience and Professional Memberships," NSF SciENcv, COR/PI qualification statements, and SDVOSB/CAGE narrative justification.
+
+### Grant management & federal contracting (DAU — Defense Acquisition University)
+- **GRT 0020** Introduction to Grants and Agreements Management — **Pre-Award Phase** (07/26/2024)
+- **GRT 0030** Introduction to Grants and Agreements Management — **Award Phase** (07/26/2024)
+- **GRT 0040** Introduction to Grants and Agreements Management — **Post-Award Phase** (07/26/2024)
+- **CON 0210** R&D Processes & Programs (07/26/2024)
+- **CCON 021** Legal Considerations for Research and Development Instruments (07/26/2024)
+- **ACQ 0800** Federally Funded Research and Development Centers (07/26/2024)
+- **FCR 110** Contracting Officer's Representative (COR) Level 1 — **8 CLPs** (07/25/2024)
+
+### Community Health Worker (Texas DSHS)
+- **168-Hour CHW Instructor Certification Course** — Texas Dept of State Health Services. Competency areas (20 hrs each except Knowledge Base 28 hrs): Communication, Interpersonal, Service Coordination, Capacity-Building, Advocacy, Teaching, Organizational Skills, Knowledge Base. Issued 06/22/2023 (course 03/02/2023–06/22/2023). Provider: University of North Texas Health Science Center (TX DSHS Site #73). Instructor: Frances Villafane, MPH, CHWI.
+- **DSHS-Certified Instructor # 657** *(this is the new piece — CHW-I credential in the signature block IS this certification.)*
+
+### Emergency Management / Incident Command (FEMA EMI + TEEX)
+- **IS-100.C** Introduction to Incident Command System (07/12/2024) — 0.20 IACET CEU
+- **IS-200.C** Basic ICS for Initial Response (07/12/2024) — 0.40 IACET CEU
+- **IS-700.B** Introduction to NIMS (07/12/2024) — 0.40 IACET CEU
+- **IS-800.D** National Response Framework, An Introduction (07/12/2024) — 0.30 IACET CEU
+- **TEEX AWR-111** Internet-Based EMS Concepts for CBRNE Events (07/12/2024) — 3 hrs / 0.3 CEU. TEEX ID 2247700.
+
+### Healthcare AI (Stanford Medicine CME)
+- **Stanford School of Medicine — AI Series: Introduction to Healthcare** (06/28/2024) — 12 hrs Enduring Material, **12.00 AMA PRA Category 1 Credit(s)™**. Event ID 47051. *(Cite when claiming healthcare-AI domain expertise — particularly Gates EDU AI LOI, NIH R03/R01, CDMRP, RWJF, NSF TechAccess.)*
+
+### ⚠️ Credential inconsistency to flag (NOT silently fixed)
+- The Stanford CME certificate is issued to **"TERRY FLOOD, DMSc"** (Doctor of Medical Science) — a different doctoral credential than your conferred **DHA** (Doctor of Health Administration). Two possibilities: (a) the registration was submitted under a different doctoral credential at the time, or (b) Stanford's system pulled an outdated record. **User: please confirm which is correct.** Until confirmed, the safe default for grant work remains **"Dr. Terry Flood, DHA"** — do NOT cite "DMSc" anywhere unless you tell me it's an additional conferred degree.
+
+---
+
 ## Network roster — Wichita / Sedgwick County circle (added May 12, 2026)
 
 > Captured for memory continuity. User asked these be remembered as community partners with mutual interest and shared spaces. **User is handling the Sedgwick County Weight Loss/GLP-1 RFP themselves** — do NOT engage on the RFI; just know the players for future projects.

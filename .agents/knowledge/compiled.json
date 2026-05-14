@@ -1,14 +1,14 @@
 {
   "version": "1.1.0",
-  "compiledAt": "2026-05-14T00:28:50.031Z",
+  "compiledAt": "2026-05-14T00:38:46.930Z",
   "sources": [
     {
       "path": "replit.md",
-      "mtime": "2026-05-13T23:21:17.650Z"
+      "mtime": "2026-05-14T00:38:43.540Z"
     },
     {
       "path": "docs/active-commitments.md",
-      "mtime": "2026-05-14T00:28:39.163Z"
+      "mtime": "2026-05-14T00:38:38.090Z"
     },
     {
       "path": ".agents/skills/map-gap/lessons-learned.md",
@@ -24,7 +24,7 @@
     },
     {
       "path": "DB:ecosystem_platforms",
-      "mtime": "2026-05-14T00:28:50.031Z"
+      "mtime": "2026-05-14T00:38:46.930Z"
     }
   ],
   "project": {
@@ -212,6 +212,12 @@
       "severity": "high"
     },
     {
+      "id": "samgov-federal-ids-added-may-12-2026",
+      "rule": "🚨 SAM.gov & federal IDs (added May 12, 2026)",
+      "detail": "UEI **KDDVD1FGLW35** · status **Submitted Registration** (NOT YET Active — do not claim \"SAM-active\" until validation completes ~7–10 business days from 05/12/2026) · CAGE **PENDING** (5-digit ID coming from DLA review team; leave blank on forms until issued) · Full ZIP+4 = **78660-7020** · DBA field in SAM = blank, so default to legal name \"The Collaborative Advocate Foundation\" on federal forms. Detail in `docs/active-commitments.md` \"TCAF SAM.gov + Federal Registration Identifiers\" section.",
+      "severity": "high"
+    },
+    {
       "id": "caftcaf-entity-facts-irs-letter-947-dated-04302026-user-confirmed-may-12-2026",
       "rule": "🚨 CAF/TCAF entity facts (IRS Letter 947, dated 04/30/2026; user-confirmed May 12, 2026)",
       "detail": "Legal name **The Collaborative Advocate Foundation Inc** (DBA TCAF) · **EIN 41-3618503** (the **5** — corrected May 12, 2026 from typo `41-3618003` that propagated from `attached_assets/Agency_Fund_EOI_Collaborative_Advocate.md`; 61 project files swept) · **501(c)(3) DETERMINED** (no longer \"pending\") · Public charity under **170(b)(1)(A)(vi)** · Effective date of exemption **01/14/2026** · Contributions deductible YES · Form 990/990-EZ/990-N required YES · Accounting period ends **December 31** · IRS contact: Mrs. Hurst, ID 1793423, 877-829-5500 · Address: 17912 Stefano Drive, Pflugerville, TX 78660 · c/o Terry D Flood Sr. · **Stop using \"fiscal sponsorship via Abundant Life Church\" hedge — no longer needed.** · Stop using \"Tracking 281OIP7B / pending determination\" — superseded by Letter 947. · **`attached_assets/` retains old EIN as historical record of what was originally typed — do NOT edit.**",
@@ -250,49 +256,6 @@
     }
   ],
   "platforms": [
-    {
-      "id": "code-canvas",
-      "name": "Code Canvas — System Evaluator & Optimizer",
-      "url": "https://codecanvaseval.com",
-      "role": "evaluator",
-      "domain": "system-optimization",
-      "status": "active",
-      "health_status": "online",
-      "public_visible": false,
-      "description": "Independent evaluation and optimization engine for ecosystems and platforms. Performs autonomous code audits, architecture analysis, performance profiling, and delivers actionable fixes and recommendations. Evaluates each platform against best practices, identifies gaps, and upon approval implements improvements to make all systems work better together. Designed as the quality assurance backbone for interconnected platform ecosystems. Also available as a System-as-a-Service (SaaS) subscription for external organizations to audit and optimize their own technology ecosystems.",
-      "capabilities": {
-        "features": [
-          "Independent Platform Evaluation",
-          "Architecture Analysis",
-          "Performance Profiling",
-          "Code Audit & Review",
-          "Automated Fix Recommendations",
-          "Cross-Platform Optimization",
-          "Ecosystem Coherence Scoring",
-          "Best Practice Enforcement",
-          "SaaS Subscription Model",
-          "White-Label Evaluator",
-          "Continuous Improvement Engine",
-          "Integration Health Checks"
-        ],
-        "grantNarrative": "Provides independent quality assurance and continuous improvement infrastructure — demonstrates to funders that the ecosystem has built-in evaluation and optimization capabilities ensuring sustained platform quality and operational excellence",
-        "outcomeMetrics": [
-          "Platform evaluations completed",
-          "Optimization recommendations delivered",
-          "Fixes implemented after approval",
-          "Cross-platform coherence score improvements",
-          "Performance gains measured post-optimization"
-        ],
-        "integrationDepth": "Connects to all ecosystem platforms for independent evaluation — reads platform health, code quality, architecture patterns, and cross-platform data flows to generate optimization recommendations"
-      },
-      "grant_alignment": [
-        "wioa",
-        "foundation",
-        "st-davids",
-        "ssg-fox"
-      ],
-      "last_heartbeat": "2026-03-31T11:57:03.776Z"
-    },
     {
       "id": "mce",
       "name": "Minority Center of Excellence",
@@ -339,6 +302,49 @@
         "ssg-fox"
       ],
       "last_heartbeat": null
+    },
+    {
+      "id": "code-canvas",
+      "name": "Code Canvas — System Evaluator & Optimizer",
+      "url": "https://codecanvaseval.com",
+      "role": "evaluator",
+      "domain": "system-optimization",
+      "status": "active",
+      "health_status": "online",
+      "public_visible": false,
+      "description": "Independent evaluation and optimization engine for ecosystems and platforms. Performs autonomous code audits, architecture analysis, performance profiling, and delivers actionable fixes and recommendations. Evaluates each platform against best practices, identifies gaps, and upon approval implements improvements to make all systems work better together. Designed as the quality assurance backbone for interconnected platform ecosystems. Also available as a System-as-a-Service (SaaS) subscription for external organizations to audit and optimize their own technology ecosystems.",
+      "capabilities": {
+        "features": [
+          "Independent Platform Evaluation",
+          "Architecture Analysis",
+          "Performance Profiling",
+          "Code Audit & Review",
+          "Automated Fix Recommendations",
+          "Cross-Platform Optimization",
+          "Ecosystem Coherence Scoring",
+          "Best Practice Enforcement",
+          "SaaS Subscription Model",
+          "White-Label Evaluator",
+          "Continuous Improvement Engine",
+          "Integration Health Checks"
+        ],
+        "grantNarrative": "Provides independent quality assurance and continuous improvement infrastructure — demonstrates to funders that the ecosystem has built-in evaluation and optimization capabilities ensuring sustained platform quality and operational excellence",
+        "outcomeMetrics": [
+          "Platform evaluations completed",
+          "Optimization recommendations delivered",
+          "Fixes implemented after approval",
+          "Cross-platform coherence score improvements",
+          "Performance gains measured post-optimization"
+        ],
+        "integrationDepth": "Connects to all ecosystem platforms for independent evaluation — reads platform health, code quality, architecture patterns, and cross-platform data flows to generate optimization recommendations"
+      },
+      "grant_alignment": [
+        "wioa",
+        "foundation",
+        "st-davids",
+        "ssg-fox"
+      ],
+      "last_heartbeat": "2026-03-31T11:57:03.776Z"
     },
     {
       "id": "betterscience",
@@ -389,50 +395,6 @@
         "foundation",
         "wioa",
         "st-davids"
-      ],
-      "last_heartbeat": null
-    },
-    {
-      "id": "sankofa-maternal-health",
-      "name": "Black Maternal Health Network",
-      "url": "https://yourhealthbirthright.net",
-      "role": "maternal-health",
-      "domain": "health-equity",
-      "status": "registered",
-      "health_status": "online",
-      "public_visible": true,
-      "description": "Directly addressing the Black maternal mortality crisis with evidence-based interventions — comprehensive prenatal/postnatal care navigation, certified doula matching and coordination, maternal risk assessment using validated instruments, community health worker dispatch, maternal mental health screening (EPDS, PHQ-9 peripartum), breastfeeding support, and postpartum recovery planning. Integrates with Whole-Person Health for crisis escalation, Feminine Health Hub for reproductive pathways, SafeCogniCare for peripartum cognitive changes, and LifeBridge for social determinant interventions (housing, food, transportation) that drive maternal outcomes.",
-      "capabilities": {
-        "features": [
-          "Maternal Risk Assessment",
-          "Certified Doula Matching",
-          "Prenatal Care Navigation",
-          "Postnatal Care Coordination",
-          "Maternal Mental Health (EPDS)",
-          "Community Health Workers",
-          "Breastfeeding Support",
-          "Postpartum Recovery Plans",
-          "Birth Plan Builder",
-          "Hospital Bag Checklist",
-          "Appointment Tracker",
-          "Social Determinant Screening"
-        ],
-        "parentNetwork": "sankofa",
-        "grantNarrative": "Produces maternal mortality reduction data, doula utilization rates, prenatal visit compliance, and postpartum recovery outcomes for St. David's and foundation grants targeting the 3x maternal mortality gap",
-        "outcomeMetrics": [
-          "Prenatal care navigation enrollments: 178",
-          "Doula match-to-engagement rate: 74%",
-          "Maternal mental health screenings (EPDS): 234",
-          "Postpartum recovery plan completion: 67%",
-          "Birth outcome tracking: 89 tracked deliveries",
-          "Social determinant flags addressed: 312"
-        ],
-        "integrationDepth": "Bidirectional with Feminine Health (reproductive), Whole-Person Health (crisis), LifeBridge (social determinants), SafeCogniCare (cognitive), PillScheduler (prenatal vitamins)"
-      },
-      "grant_alignment": [
-        "st-davids",
-        "foundation",
-        "ssg-fox"
       ],
       "last_heartbeat": null
     },
@@ -522,6 +484,50 @@
       "last_heartbeat": null
     },
     {
+      "id": "sankofa-maternal-health",
+      "name": "Black Maternal Health Network",
+      "url": "https://yourhealthbirthright.net",
+      "role": "maternal-health",
+      "domain": "health-equity",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "Directly addressing the Black maternal mortality crisis with evidence-based interventions — comprehensive prenatal/postnatal care navigation, certified doula matching and coordination, maternal risk assessment using validated instruments, community health worker dispatch, maternal mental health screening (EPDS, PHQ-9 peripartum), breastfeeding support, and postpartum recovery planning. Integrates with Whole-Person Health for crisis escalation, Feminine Health Hub for reproductive pathways, SafeCogniCare for peripartum cognitive changes, and LifeBridge for social determinant interventions (housing, food, transportation) that drive maternal outcomes.",
+      "capabilities": {
+        "features": [
+          "Maternal Risk Assessment",
+          "Certified Doula Matching",
+          "Prenatal Care Navigation",
+          "Postnatal Care Coordination",
+          "Maternal Mental Health (EPDS)",
+          "Community Health Workers",
+          "Breastfeeding Support",
+          "Postpartum Recovery Plans",
+          "Birth Plan Builder",
+          "Hospital Bag Checklist",
+          "Appointment Tracker",
+          "Social Determinant Screening"
+        ],
+        "parentNetwork": "sankofa",
+        "grantNarrative": "Produces maternal mortality reduction data, doula utilization rates, prenatal visit compliance, and postpartum recovery outcomes for St. David's and foundation grants targeting the 3x maternal mortality gap",
+        "outcomeMetrics": [
+          "Prenatal care navigation enrollments: 178",
+          "Doula match-to-engagement rate: 74%",
+          "Maternal mental health screenings (EPDS): 234",
+          "Postpartum recovery plan completion: 67%",
+          "Birth outcome tracking: 89 tracked deliveries",
+          "Social determinant flags addressed: 312"
+        ],
+        "integrationDepth": "Bidirectional with Feminine Health (reproductive), Whole-Person Health (crisis), LifeBridge (social determinants), SafeCogniCare (cognitive), PillScheduler (prenatal vitamins)"
+      },
+      "grant_alignment": [
+        "st-davids",
+        "foundation",
+        "ssg-fox"
+      ],
+      "last_heartbeat": null
+    },
+    {
       "id": "speech-bridge",
       "name": "LexiBridge (Speech Bridge)",
       "url": "https://lexibridge.net",
@@ -564,58 +570,6 @@
         "foundation"
       ],
       "last_heartbeat": "2026-03-22T03:08:23.128Z"
-    },
-    {
-      "id": "isss",
-      "name": "ISSS — Integrated Supports for Thriving Youth",
-      "url": "https://implementationineducatio.com",
-      "role": "student-support",
-      "domain": "education",
-      "status": "registered",
-      "health_status": "online",
-      "public_visible": true,
-      "description": "Whole-child implementation infrastructure enabling schools, districts, and regions to implement evidence-based student support at scale. Multi-Tiered System of Supports (MTSS) engine with early warning indicators, Thrive Score tracking, multi-stakeholder coordination across teachers/counselors/parents/community, and implementation fidelity measurement using CFIR and RE-AIM frameworks. District-level analytics dashboard provides real-time intervention effectiveness data. Integrates with WholeMind Learning for academic data, Perfectly Different for IEP/504 accommodations, SafeReport for incident management, and Whole-Person Health for crisis routing. Produces grant-ready outcome data for WIOA youth employment and foundation education grants.",
-      "capabilities": {
-        "features": [
-          "Multi-Stakeholder Coordination",
-          "Evidence-Based Student Support",
-          "District-Level Analytics",
-          "Data-Driven Decision Making",
-          "Implementation Fidelity Tracking",
-          "MTSS Tiered Intervention Engine",
-          "Thrive Score Algorithm",
-          "Early Warning System",
-          "Parent Engagement Portal",
-          "IEP/504 Integration",
-          "Trauma-Informed Practices",
-          "School Climate Assessment",
-          "Community Partner Coordination",
-          "Grant Outcome Reporting"
-        ],
-        "frameworks": [
-          "MTSS",
-          "CFIR",
-          "RE-AIM",
-          "PBIS"
-        ],
-        "grantNarrative": "Provides student-level outcome data, implementation fidelity metrics, and multi-stakeholder coordination evidence for WIOA youth employment and foundation education grant reporting",
-        "outcomeMetrics": [
-          "Schools implementing MTSS with fidelity: 12 districts",
-          "Student Thrive Score improvement: 23% average increase over semester",
-          "Early warning flag-to-intervention rate: 78%",
-          "Parent engagement portal active users: 1,847",
-          "Implementation fidelity score (CFIR): 7.2/10 average",
-          "Intervention effectiveness rate: 64% of flagged students improved",
-          "IEP/504 accommodation compliance rate: 91%"
-        ],
-        "integrationDepth": "Bidirectional data flows with WholeMind (academic), Perfectly Different (neurodiversity), SafeReport (incidents), RPLICE (research/implementation science), Whole-Person Health (crisis)"
-      },
-      "grant_alignment": [
-        "wioa",
-        "foundation",
-        "st-davids"
-      ],
-      "last_heartbeat": null
     },
     {
       "id": "pinnacle-business-conglomerate",
@@ -671,6 +625,58 @@
         "foundation"
       ],
       "last_heartbeat": "2026-03-22T03:08:43.787Z"
+    },
+    {
+      "id": "isss",
+      "name": "ISSS — Integrated Supports for Thriving Youth",
+      "url": "https://implementationineducatio.com",
+      "role": "student-support",
+      "domain": "education",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "Whole-child implementation infrastructure enabling schools, districts, and regions to implement evidence-based student support at scale. Multi-Tiered System of Supports (MTSS) engine with early warning indicators, Thrive Score tracking, multi-stakeholder coordination across teachers/counselors/parents/community, and implementation fidelity measurement using CFIR and RE-AIM frameworks. District-level analytics dashboard provides real-time intervention effectiveness data. Integrates with WholeMind Learning for academic data, Perfectly Different for IEP/504 accommodations, SafeReport for incident management, and Whole-Person Health for crisis routing. Produces grant-ready outcome data for WIOA youth employment and foundation education grants.",
+      "capabilities": {
+        "features": [
+          "Multi-Stakeholder Coordination",
+          "Evidence-Based Student Support",
+          "District-Level Analytics",
+          "Data-Driven Decision Making",
+          "Implementation Fidelity Tracking",
+          "MTSS Tiered Intervention Engine",
+          "Thrive Score Algorithm",
+          "Early Warning System",
+          "Parent Engagement Portal",
+          "IEP/504 Integration",
+          "Trauma-Informed Practices",
+          "School Climate Assessment",
+          "Community Partner Coordination",
+          "Grant Outcome Reporting"
+        ],
+        "frameworks": [
+          "MTSS",
+          "CFIR",
+          "RE-AIM",
+          "PBIS"
+        ],
+        "grantNarrative": "Provides student-level outcome data, implementation fidelity metrics, and multi-stakeholder coordination evidence for WIOA youth employment and foundation education grant reporting",
+        "outcomeMetrics": [
+          "Schools implementing MTSS with fidelity: 12 districts",
+          "Student Thrive Score improvement: 23% average increase over semester",
+          "Early warning flag-to-intervention rate: 78%",
+          "Parent engagement portal active users: 1,847",
+          "Implementation fidelity score (CFIR): 7.2/10 average",
+          "Intervention effectiveness rate: 64% of flagged students improved",
+          "IEP/504 accommodation compliance rate: 91%"
+        ],
+        "integrationDepth": "Bidirectional data flows with WholeMind (academic), Perfectly Different (neurodiversity), SafeReport (incidents), RPLICE (research/implementation science), Whole-Person Health (crisis)"
+      },
+      "grant_alignment": [
+        "wioa",
+        "foundation",
+        "st-davids"
+      ],
+      "last_heartbeat": null
     },
     {
       "id": "autoimmune-thrive",
@@ -911,6 +917,42 @@
       "last_heartbeat": null
     },
     {
+      "id": "collaborative-advocate",
+      "name": "The Collaborative Advocate",
+      "url": "https://thrivingcommunitiesforall.com",
+      "role": "vosb-services",
+      "domain": "veteran-services",
+      "status": "active",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "The organizational entity — 501(c)(3) nonprofit, veteran-founded, Black-led Veteran-Owned Small Business (VOSB) serving as the service delivery arm and grant execution partner for the entire ThriveUp ecosystem. Founded by Dr. Terry Flood. Provides veteran advocacy with lived-experience credibility, peer support coordination matching veterans to trained peers, workforce development consulting for employers hiring veterans, and direct grant execution management for WIOA ($200K-$500K), SSG Fox VA ($750K), St. David's (up to $1M), and Foundation ($100K-$500K) grants. The organizational backbone that gives the ecosystem its 501(c)(3) fiscal sponsorship, DUNS/SAM.gov registration, and grant eligibility.",
+      "capabilities": {
+        "features": [
+          "501(c)(3) Fiscal Sponsorship",
+          "Veteran Advocacy",
+          "Peer Support Coordination",
+          "Workforce Development Consulting",
+          "Grant Execution Management",
+          "Community Partnerships",
+          "Service Delivery Operations",
+          "DUNS/SAM Registration",
+          "Board Governance",
+          "Program Evaluation",
+          "Stakeholder Engagement",
+          "Policy Advocacy"
+        ],
+        "grantNarrative": "The applicant organization for all ecosystem grants — provides organizational credibility, 501(c)(3) status, veteran-founded narrative, and program oversight for SSG Fox, WIOA, St. David's, and foundation funding",
+        "integrationDepth": "Organizational backbone for all 24 platforms — provides fiscal sponsorship, grant eligibility, and operational governance for every ecosystem component"
+      },
+      "grant_alignment": [
+        "ssg-fox",
+        "wioa",
+        "st-davids",
+        "foundation"
+      ],
+      "last_heartbeat": "2026-03-21T19:56:50.152Z"
+    },
+    {
       "id": "safereport",
       "name": "SafeReport",
       "url": "https://safereports.net",
@@ -953,42 +995,6 @@
         "st-davids"
       ],
       "last_heartbeat": null
-    },
-    {
-      "id": "collaborative-advocate",
-      "name": "The Collaborative Advocate",
-      "url": "https://thrivingcommunitiesforall.com",
-      "role": "vosb-services",
-      "domain": "veteran-services",
-      "status": "active",
-      "health_status": "online",
-      "public_visible": true,
-      "description": "The organizational entity — 501(c)(3) nonprofit, veteran-founded, Black-led Veteran-Owned Small Business (VOSB) serving as the service delivery arm and grant execution partner for the entire ThriveUp ecosystem. Founded by Dr. Terry Flood. Provides veteran advocacy with lived-experience credibility, peer support coordination matching veterans to trained peers, workforce development consulting for employers hiring veterans, and direct grant execution management for WIOA ($200K-$500K), SSG Fox VA ($750K), St. David's (up to $1M), and Foundation ($100K-$500K) grants. The organizational backbone that gives the ecosystem its 501(c)(3) fiscal sponsorship, DUNS/SAM.gov registration, and grant eligibility.",
-      "capabilities": {
-        "features": [
-          "501(c)(3) Fiscal Sponsorship",
-          "Veteran Advocacy",
-          "Peer Support Coordination",
-          "Workforce Development Consulting",
-          "Grant Execution Management",
-          "Community Partnerships",
-          "Service Delivery Operations",
-          "DUNS/SAM Registration",
-          "Board Governance",
-          "Program Evaluation",
-          "Stakeholder Engagement",
-          "Policy Advocacy"
-        ],
-        "grantNarrative": "The applicant organization for all ecosystem grants — provides organizational credibility, 501(c)(3) status, veteran-founded narrative, and program oversight for SSG Fox, WIOA, St. David's, and foundation funding",
-        "integrationDepth": "Organizational backbone for all 24 platforms — provides fiscal sponsorship, grant eligibility, and operational governance for every ecosystem component"
-      },
-      "grant_alignment": [
-        "ssg-fox",
-        "wioa",
-        "st-davids",
-        "foundation"
-      ],
-      "last_heartbeat": "2026-03-21T19:56:50.152Z"
     },
     {
       "id": "m2c",
@@ -1084,49 +1090,6 @@
       "last_heartbeat": null
     },
     {
-      "id": "perfectly-different",
-      "name": "Perfectly Different",
-      "url": "https://neurodifferentassistant.app",
-      "role": "neurodiversity",
-      "domain": "health-equity",
-      "status": "registered",
-      "health_status": "online",
-      "public_visible": true,
-      "description": "Neurodiversity-affirming support platform for autism, ADHD, and AuDHD populations — AI-powered daily guidance, comprehensive IEP/504 plan assistance with template library, crisis resources with immediate routing to Whole-Person Health, evidence-based therapy tool library, community support groups, and neurodiversity advocacy resources. Integrates with ISSS for school-based accommodations, WholeMind for adaptive learning, SafeCogniCare for cognitive assessments, and LifeBridge for community resources. Produces neurodevelopmental outcome data for St. David's disability services and foundation grants.",
-      "capabilities": {
-        "features": [
-          "AI Daily Guidance Engine",
-          "IEP/504 Plan Builder",
-          "Template Library",
-          "Crisis Resources",
-          "Evidence-Based Therapy Tools",
-          "Community Support Groups",
-          "Neurodiversity Advocacy",
-          "Sensory Management Tools",
-          "Executive Function Coaching",
-          "Social Skills Builder",
-          "Parent Resource Center",
-          "Provider Directory"
-        ],
-        "grantNarrative": "Documents neurodevelopmental engagement, IEP/504 compliance rates, therapy tool utilization, and accommodation effectiveness for St. David's disability and foundation grants",
-        "outcomeMetrics": [
-          "IEP/504 plans assisted: 234",
-          "Crisis routing to Whole-Person Health: 67 events",
-          "Evidence-based therapy tool utilization: 1,890 sessions",
-          "Community support group participants: 345",
-          "Executive function coaching sessions: 567",
-          "Sensory management tool active users: 234"
-        ],
-        "integrationDepth": "Bidirectional with ISSS (school accommodations), WholeMind (adaptive learning), SafeCogniCare (cognitive assessment), Whole-Person Health (crisis routing)"
-      },
-      "grant_alignment": [
-        "st-davids",
-        "foundation",
-        "wioa"
-      ],
-      "last_heartbeat": null
-    },
-    {
       "id": "civic-signal",
       "name": "Civic Signal",
       "url": "https://power2thepeople.net",
@@ -1175,6 +1138,49 @@
       "last_heartbeat": null
     },
     {
+      "id": "perfectly-different",
+      "name": "Perfectly Different",
+      "url": "https://neurodifferentassistant.app",
+      "role": "neurodiversity",
+      "domain": "health-equity",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "Neurodiversity-affirming support platform for autism, ADHD, and AuDHD populations — AI-powered daily guidance, comprehensive IEP/504 plan assistance with template library, crisis resources with immediate routing to Whole-Person Health, evidence-based therapy tool library, community support groups, and neurodiversity advocacy resources. Integrates with ISSS for school-based accommodations, WholeMind for adaptive learning, SafeCogniCare for cognitive assessments, and LifeBridge for community resources. Produces neurodevelopmental outcome data for St. David's disability services and foundation grants.",
+      "capabilities": {
+        "features": [
+          "AI Daily Guidance Engine",
+          "IEP/504 Plan Builder",
+          "Template Library",
+          "Crisis Resources",
+          "Evidence-Based Therapy Tools",
+          "Community Support Groups",
+          "Neurodiversity Advocacy",
+          "Sensory Management Tools",
+          "Executive Function Coaching",
+          "Social Skills Builder",
+          "Parent Resource Center",
+          "Provider Directory"
+        ],
+        "grantNarrative": "Documents neurodevelopmental engagement, IEP/504 compliance rates, therapy tool utilization, and accommodation effectiveness for St. David's disability and foundation grants",
+        "outcomeMetrics": [
+          "IEP/504 plans assisted: 234",
+          "Crisis routing to Whole-Person Health: 67 events",
+          "Evidence-based therapy tool utilization: 1,890 sessions",
+          "Community support group participants: 345",
+          "Executive function coaching sessions: 567",
+          "Sensory management tool active users: 234"
+        ],
+        "integrationDepth": "Bidirectional with ISSS (school accommodations), WholeMind (adaptive learning), SafeCogniCare (cognitive assessment), Whole-Person Health (crisis routing)"
+      },
+      "grant_alignment": [
+        "st-davids",
+        "foundation",
+        "wioa"
+      ],
+      "last_heartbeat": null
+    },
+    {
       "id": "sankofa",
       "name": "Sankofa Health Network",
       "url": "https://yourhealthbirthright.net",
@@ -1217,52 +1223,6 @@
         "st-davids",
         "ssg-fox",
         "foundation"
-      ],
-      "last_heartbeat": null
-    },
-    {
-      "id": "lifebridge",
-      "name": "LifeBridge",
-      "url": "https://lifetransitionsaid.org",
-      "role": "resource-hub",
-      "domain": "community-workforce",
-      "status": "registered",
-      "health_status": "online",
-      "public_visible": true,
-      "description": "Virtual 211 and Community Health Worker coordination hub providing 24/7 resource navigation across housing, food, healthcare, mental health, substance abuse, domestic violence, and crisis support — covering 20,670+ resources. Also addresses non-combat life events that drive veteran suicide (divorce, job loss, retirement, health diagnosis, bereavement, financial crisis) with evidence-based coping strategies and peer storytelling. Social determinant engine scores needs across 7 domains (housing, food, transportation, employment, healthcare, legal, safety) and routes to specific ecosystem platforms. Integrates with every health platform for crisis escalation, M2C for veteran life events, and ISSS for family-level support.",
-      "capabilities": {
-        "features": [
-          "24/7 Resource Navigation",
-          "Housing Assistance",
-          "Food Access Programs",
-          "Healthcare Connections",
-          "Mental Health Resources",
-          "Substance Abuse Support",
-          "Domestic Violence Support",
-          "Crisis Support & Routing",
-          "Life Event Guides",
-          "Coping Strategy Library",
-          "Peer Story Platform",
-          "Social Determinant Scoring",
-          "7-Domain Needs Assessment",
-          "Community Health Worker Dispatch",
-          "Resource Gap Analysis"
-        ],
-        "grantNarrative": "Produces social determinant outcome data, resource utilization metrics, crisis diversion rates, and community health worker coordination evidence for St. David's, SSG Fox, and foundation reporting",
-        "outcomeMetrics": [
-          "Resource navigations completed: 3,456",
-          "Social determinant screenings: 1,890",
-          "Crisis support diversions: 234 (diverted from emergency)",
-          "Life event guide completions: 567",
-          "Community health worker dispatches: 178",
-          "7-domain needs assessments: 890",
-          "Resource gap analyses: 45 geographic areas"
-        ],
-        "integrationDepth": "Routes social determinant data to all health platforms, receives crisis events from Whole-Person Health, coordinates with M2C for veteran life events, feeds ISSS for family support"
-      },
-      "grant_alignment": [
-        "st-davids",
-        "ssg-fox"
       ],
       "last_heartbeat": null
     },
@@ -1362,6 +1322,52 @@
       "last_heartbeat": "2026-03-19T02:25:57.923Z"
     },
     {
+      "id": "lifebridge",
+      "name": "LifeBridge",
+      "url": "https://lifetransitionsaid.org",
+      "role": "resource-hub",
+      "domain": "community-workforce",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "Virtual 211 and Community Health Worker coordination hub providing 24/7 resource navigation across housing, food, healthcare, mental health, substance abuse, domestic violence, and crisis support — covering 20,670+ resources. Also addresses non-combat life events that drive veteran suicide (divorce, job loss, retirement, health diagnosis, bereavement, financial crisis) with evidence-based coping strategies and peer storytelling. Social determinant engine scores needs across 7 domains (housing, food, transportation, employment, healthcare, legal, safety) and routes to specific ecosystem platforms. Integrates with every health platform for crisis escalation, M2C for veteran life events, and ISSS for family-level support.",
+      "capabilities": {
+        "features": [
+          "24/7 Resource Navigation",
+          "Housing Assistance",
+          "Food Access Programs",
+          "Healthcare Connections",
+          "Mental Health Resources",
+          "Substance Abuse Support",
+          "Domestic Violence Support",
+          "Crisis Support & Routing",
+          "Life Event Guides",
+          "Coping Strategy Library",
+          "Peer Story Platform",
+          "Social Determinant Scoring",
+          "7-Domain Needs Assessment",
+          "Community Health Worker Dispatch",
+          "Resource Gap Analysis"
+        ],
+        "grantNarrative": "Produces social determinant outcome data, resource utilization metrics, crisis diversion rates, and community health worker coordination evidence for St. David's, SSG Fox, and foundation reporting",
+        "outcomeMetrics": [
+          "Resource navigations completed: 3,456",
+          "Social determinant screenings: 1,890",
+          "Crisis support diversions: 234 (diverted from emergency)",
+          "Life event guide completions: 567",
+          "Community health worker dispatches: 178",
+          "7-domain needs assessments: 890",
+          "Resource gap analyses: 45 geographic areas"
+        ],
+        "integrationDepth": "Routes social determinant data to all health platforms, receives crisis events from Whole-Person Health, coordinates with M2C for veteran life events, feeds ISSS for family support"
+      },
+      "grant_alignment": [
+        "st-davids",
+        "ssg-fox"
+      ],
+      "last_heartbeat": null
+    },
+    {
       "id": "ecosystem-nexus",
       "name": "Ecosystem Nexus",
       "url": "https://ecosystemnexus.net",
@@ -1432,6 +1438,16 @@
   "active_commitments": {
     "sections": [
       {
+        "id": "tcaf-samgov-federal-registration-identifiers-added-may-12-2026",
+        "heading": "TCAF SAM.gov + Federal Registration Identifiers (added May 12, 2026)",
+        "summary": "- **SAM.gov UEI:** **KDDVD1FGLW35** ✅ (visible in Entity Workspace screenshot 19:36)\n- **SAM.gov registration status:** **Submitted Registration** — *not yet \"Active\"*. Means TCAF can be referenced (UEI is live), but cannot YET receive federal awards until validation completes (typically 7–10 business days; IRS TIN match is the usual gate). **🚨 Do NOT claim \"SAM-active\" in any narrative until status flips to Active.** Honest current language: *\"TCAF SAM.gov registration submitted (UEI KDDVD1FGLW35); activation pending validation.\"*\n- **CAGE / NCAGE Code:** **PENDING** — user awaiting 5-digit ID from CAGE review team. *(CAGE is auto-issued by DLA after SAM activation; tracks separately.)* Do NOT type a placeholder; leave blank on forms or write \"CAGE pending DLA assignment.\"\n- **Physical A"
+      },
+      {
+        "id": "dr-flood-federal-grant-compliance-credentials-added-may-12-2026-from-pdf",
+        "heading": "Dr. Flood — Federal Grant & Compliance Credentials (added May 12, 2026 from PDF)",
+        "summary": "> **Source:** `attached_assets/All_certs_including_Grants_(1)_1778719050629.pdf`. Use these in NIH biosketch \"Other Experience and Professional Memberships,\" NSF SciENcv, COR/PI qualification statements, and SDVOSB/CAGE narrative justification."
+      },
+      {
         "id": "network-roster-wichita-sedgwick-county-circle-added-may-12-2026",
         "heading": "Network roster — Wichita / Sedgwick County circle (added May 12, 2026)",
         "summary": "> Captured for memory continuity. User asked these be remembered as community partners with mutual interest and shared spaces. **User is handling the Sedgwick County Weight Loss/GLP-1 RFP themselves** — do NOT engage on the RFI; just know the players for future projects.\n\n- **Eric Hargrave** — Founder, **Hargrave Innovative Solutions (HIS)**. Role on the team: government contract management, compliance oversight, reporting coordination, administrative support. Initiated the Sedgwick County RFP outreach (May 12, 2026 thread w/ Flood, Love, Vann). Treat as a long-term contracting/compliance partner, not just one-RFP.\n- **Dr. Chela Love, DNP, FNP** — Founder & Clinical Lead, **Love Clinic & Med Spa**, Wichita, KS.\n  - 214 S Rock Rd, Suite 101, Wichita, KS 67207 · (316) 669-4770 · `chelalove@l"
@@ -1444,7 +1460,7 @@
       {
         "id": "surface-to-user-pending-reminders",
         "heading": "🔔 SURFACE TO USER — pending reminders",
-        "summary": "> **Agent: at session start, scan this section. If the current time is at/past the `surface_after` timestamp, raise the item to the user before doing anything else and clear it once acknowledged.**\n\n| Surface after (UTC) | Topic | Message to deliver |\n|---|---|---|\n| **2026-05-09T21:00Z** *(set May 9, 2026 ~09:00 UTC)* | **SAM.gov API key** | \"You asked me to remind you about SAM.gov in 12 hours. The discovery scanner is currently 401-ing on SAM.gov for lack of an API key — once you add `SAM_GOV_API_KEY` (request free at https://sam.gov/data-services), the daily scan will pick up federal opportunities that we're currently missing. Want me to walk through the request flow?\" |\n\n(I cannot push a notification on my own — the platform here doesn't expose a scheduler to me. The honest mechanism "
+        "summary": "> **Agent: at session start, scan this section. If the current time is at/past the `surface_after` timestamp, raise the item to the user before doing anything else and clear it once acknowledged.**\n\n| Surface after (UTC) | Topic | Message to deliver |\n|---|---|---|\n| **2026-05-09T21:00Z** *(set May 9, 2026 ~09:00 UTC)* | **SAM.gov API key** | \"You asked me to remind you about SAM.gov in 12 hours. The discovery scanner is currently 401-ing on SAM.gov for lack of an API key — once you add `SAM_GOV_API_KEY` (request free at https://sam.gov/data-services), the daily scan will pick up federal opportunities that we're currently missing. Want me to walk through the request flow?\" |\n| **2026-06-10T14:00Z** *(set May 12, 2026)* | **MSIS conferred** | \"Today is your MSIS graduation per your June 10,"
       },
       {
         "id": "recurring-jobs-auto-running",
@@ -1802,13 +1818,13 @@
     ]
   },
   "counts": {
-    "gotchas": 20,
+    "gotchas": 21,
     "vocab": 4,
     "platforms": 25,
     "file_pointers": 14,
     "lessons": 17,
     "no_go": 4,
-    "active_commitment_sections": 40,
+    "active_commitment_sections": 42,
     "ecosystem_caveats": 5,
     "foster_youth_build_log_sections": 3
   }
