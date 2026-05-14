@@ -1,5 +1,21 @@
 # Active Commitments — TCAF / ThriveUp Academy
 
+## 🚨 Anika Amie contamination — RWJF draft quarantined (May 12, 2026)
+
+User confirmed May 12, 2026: **does NOT know "Anika Amie."** This name was embedded in 4 files as "TCAF Founder & Executive Director" / "Project Director" / grant-writing principle source. Origin unknown — possibly: (a) a different organization's draft that was renamed to TCAF and the principals weren't swept, (b) an AI-generated placeholder that survived editing, or (c) someone else who worked on these docs before user took over.
+
+**Actions taken:**
+- `docs/grants/RWJF-Global-Ideas-2026-Brief-Proposal.md` — DO-NOT-USE header banner added at top of file.
+- `docs/grants/RWJF-Brief-Proposal-Narrative-UPLOAD.doc` — Anika references replaced with `[QUARANTINED]` markers in-line.
+- `docs/grants/STRATEGIC-INTELLIGENCE-PLAYBOOK.md` — "Anika Amie" attribution stripped, replaced with "Standard grant-writing convention" (the principle stands on its own merit).
+- `server/rag-engine.ts` line 670 — RAG knowledge entry stripped Anika attribution. The principle remains, the false source is gone. **No silent change**: this RAG entry feeds public-facing AI answers; the principle is bog-standard grant-writing wisdom (objectives need baselines).
+
+**RWJF status:** NOT submitting. CFP #3504 deadline (April 13, 2026) is past. Drafts contaminated. CV files (`RWJF-CV-Terry-Flood.doc`, `RWJF-CV-Meredith-Sisnett.doc`) are clean and reusable for other funders.
+
+**Lesson to add to MAP-GAP (`lessons-learned.md`):** Whenever inheriting or copy-editing a grant draft, run `rg -i "founder|executive director|project director|principal investigator|applicant name"` against the doc and confirm every named person is a known TCAF principal *before* citing it as TCAF's voice.
+
+---
+
 ## TCAF SAM.gov + Federal Registration Identifiers (added May 12, 2026)
 
 - **SAM.gov UEI:** **KDDVD1FGLW35** ✅ (visible in Entity Workspace screenshot 19:36)
@@ -41,6 +57,44 @@
 
 ### ✅ Credential confirmed (resolved May 12, 2026)
 - The Stanford CME certificate prints **"TERRY FLOOD, DMSc"** — that was a Stanford registration/system artifact, NOT an additional doctoral credential. **User confirmed May 12, 2026: doctoral credential is DHA only.** Cite the Stanford CME activity itself freely (12 AMA PRA Cat 1 credits, Event ID 47051, 06/28/2024); do NOT propagate "DMSc" as a credential in any narrative, biosketch, signature block, or proposal. Default credential everywhere: **"Dr. Terry Flood, DHA."**
+
+---
+
+## Candid (free tier) — grant research workflow (added May 12, 2026)
+
+User directive May 12, 2026: **"start using free version of Candid for grants."** Candid is the merged Foundation Center + GuideStar nonprofit data org (candid.org). Paid Foundation Directory Online is $$$ — we are explicitly on the free path.
+
+### Free Candid services TCAF should claim/use NOW
+
+| Service | URL | What it does | Priority |
+|---|---|---|---|
+| **Candid Nonprofit Profile** (formerly GuideStar) | candid.org/profile | Public-facing TCAF profile that funders check FIRST when vetting. Earn Bronze→Silver→Gold→Platinum Transparency seals by adding more data. **MUST CLAIM** under EIN 41-3618503. | 🔴 #1 |
+| **Demographics via Candid** | candid.org/demographics | DEI data on board/staff publicly attached to profile. Required by many foundations now. Free. | 🟡 #2 |
+| **990 Finder** | candid.org/research-and-verify-nonprofits/990-finder | Free Form 990 lookup for any nonprofit. Use for: (a) competitive intel on peer orgs, (b) funder-prospect research (who they've given to historically). | 🟢 use as needed |
+| **RFP Bulletin** | philanthropynewsdigest.org/rfps | Free weekly RFP email digest from Candid. Subscribe `terryflood@thrivingcommunitiesforall.com`. | 🟡 #3 |
+| **Philanthropy News Digest** | philanthropynewsdigest.org | Free news of major gifts/RFPs/grants. Daily email available. | 🟡 #3 |
+| **GrantSpace** | grantspace.org | Free learning library: proposal writing, budgets, evaluation. Not a discovery tool — a training tool. | 🟢 reference |
+| **Foundation Directory — Quick Start (free version)** | fconline.foundationcenter.org | LIMITED free search of 100K+ foundations (very restrictive vs paid FDO, but real). Useful for one-off prospect lookups. | 🟢 occasional |
+| **Issue Lab** | issuelab.org | Free knowledge library of nonprofit research/whitepapers. Use for grant-narrative literature reviews. | 🟢 reference |
+
+### What Candid free tier does NOT give us
+- No API access (paid tier only)
+- No automated grant-discovery feed → cannot wire directly into `server/grant-routes.ts` discovery engine without paying
+- No full-text search of foundation 990 grant histories
+- No saved searches, no email alerts on funder activity
+
+### Integration into existing Grant Discovery Engine
+- **Manual additions only.** When the Candid RFP Bulletin email arrives weekly, eyeball it and `POST /api/grants/discovery/run-now` to manually add anything new.
+- **NOT a candidate** for adding as an automated source in `server/grant-routes.ts:6359` (would require paid API).
+
+### First-week action checklist
+1. **Claim TCAF Candid Nonprofit Profile** under EIN 41-3618503. Use Letter 947 to verify 501(c)(3) status field. Address: 17912 Stefano Dr, Pflugerville, TX 78660-7020.
+2. Add Dr. Flood as authorized contact: `terryflood@thrivingcommunitiesforall.com` (pending email update — wait if user is changing email).
+3. Submit Demographics survey to attach DEI data → unlocks Silver seal at minimum.
+4. Subscribe RFP Bulletin to `terryflood@thrivingcommunitiesforall.com`.
+5. Add Candid profile URL to public site footer + grant applications "additional info" sections.
+
+**🔔 SURFACE TO USER on next session:** "Have you claimed the TCAF Candid Nonprofit Profile yet? Funders check there before they read your proposal — Silver+ Transparency seal is table stakes."
 
 ---
 

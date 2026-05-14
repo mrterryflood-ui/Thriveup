@@ -4,8 +4,8 @@
 ---
 
 ## 1. GRANT WRITING: Objectives Must Be Measured Against Baseline Data
-**Source:** Anika Amie, Grants Consulting/Management/Federal Grants
-**Date:** April 11, 2026
+**Source:** Standard federal grant-writing practice (attribution to "Anika Amie" stripped May 12, 2026 — user does not know this person; principle stands on its own as established grant-writing convention).
+**Date logged:** April 11, 2026
 
 Objectives are NOT evaluated independently — they are assessed in direct relation to the data presented in the Need Statement.
 
@@ -152,7 +152,7 @@ Texas is investing **$1 BILLION over five years** through Rural Texas Strong to 
 
 | # | Lesson | Source | Applied To |
 |---|--------|--------|------------|
-| 1 | Objectives must reference specific baseline data from Need Statement | Anika Amie | All grant narratives |
+| 1 | Objectives must reference specific baseline data from Need Statement | Standard grant-writing convention | All grant narratives |
 | 2 | Reduce perceived risk before RFP drops — show deployed systems, not concepts | David Cuellar | CDMRP, all federal |
 | 3 | Compliance Matrix: map every L requirement to proposal section + page | Compliance Gate | All federal proposals |
 | 4 | Austin/Travis County is NOT in AmeriHealth Caritas TX service area | Internal analysis | Grant screening |

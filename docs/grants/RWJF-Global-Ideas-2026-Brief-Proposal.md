@@ -1,3 +1,18 @@
+# 🛑 DO NOT USE — QUARANTINED MAY 12, 2026
+
+**Status:** **NOT SUBMITTING.** User confirmed May 12, 2026: this draft is contaminated and will not be filed.
+
+**Reasons quarantined:**
+1. **Wrong legal name** — doc reads "The Community Advocacy Foundation"; correct is "The Collaborative Advocate Foundation Inc" (per IRS Letter 947).
+2. **Unknown PI** — doc lists "Anika Amie, Black woman founder and Executive Director" as Project Director. User does NOT know Anika Amie. This draft was authored against a different organization or person and incorrectly tagged TCAF.
+3. **Deadline already passed** — RWJF CFP #3504 brief proposal closed April 13, 2026.
+
+**Do NOT:** re-use this draft, cite from it, copy passages into other proposals, or treat the "Sankofa Knowledge Systems" framing here as TCAF's voice.
+
+**Do:** If/when RWJF reopens or another funder fits, start a fresh draft from `client/src/pages` ecosystem facts + correct IRS Letter 947 entity facts + Dr. Terry Flood, DHA as PI.
+
+---
+
 # RWJF — Learning from Abroad to Reimagine Health Knowledge Systems for Equity and Wellbeing
 
 ## BRIEF PROPOSAL — TCAF (The Community Advocacy Foundation)

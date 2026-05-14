@@ -1,14 +1,14 @@
 {
   "version": "1.1.0",
-  "compiledAt": "2026-05-14T10:37:04.442Z",
+  "compiledAt": "2026-05-14T14:50:43.091Z",
   "sources": [
     {
       "path": "replit.md",
-      "mtime": "2026-05-14T00:38:43.540Z"
+      "mtime": "2026-05-14T14:50:38.958Z"
     },
     {
       "path": "docs/active-commitments.md",
-      "mtime": "2026-05-14T10:36:59.641Z"
+      "mtime": "2026-05-14T14:50:33.570Z"
     },
     {
       "path": ".agents/skills/map-gap/lessons-learned.md",
@@ -24,7 +24,7 @@
     },
     {
       "path": "DB:ecosystem_platforms",
-      "mtime": "2026-05-14T10:37:04.442Z"
+      "mtime": "2026-05-14T14:50:43.091Z"
     }
   ],
   "project": {
@@ -212,6 +212,18 @@
       "severity": "high"
     },
     {
+      "id": "anika-amie-tcaf-principal-may-12-2026",
+      "rule": "🚨 Anika Amie ≠ TCAF principal (May 12, 2026)",
+      "detail": "Name was embedded in inherited RWJF draft + `STRATEGIC-INTELLIGENCE-PLAYBOOK.md` attribution + `server/rag-engine.ts:670` source citation as \"TCAF Founder/ED.\" User does not know this person. RWJF draft quarantined with DO-NOT-USE banner; playbook + RAG stripped of false attribution; principle preserved. **Rule:** before treating ANY inherited grant draft as TCAF voice, `rg -i \"founder|executive director|project director|principal investigator|applicant name\"` and verify every named person is a known TCAF principal.",
+      "severity": "high"
+    },
+    {
+      "id": "candid-free-tier-for-grants-may-12-2026",
+      "rule": "🚨 Candid (free tier) for grants (May 12, 2026)",
+      "detail": "User directive — use Candid free tier (candid.org). First priority is claiming TCAF Nonprofit Profile under EIN 41-3618503 (Silver+ seal). NO API access on free tier → no automated wiring into `server/grant-routes.ts` discovery engine; manual RFP Bulletin only. Full workflow in `docs/active-commitments.md` \"Candid (free tier)\" section.",
+      "severity": "high"
+    },
+    {
       "id": "samgov-federal-ids-added-may-12-2026",
       "rule": "🚨 SAM.gov & federal IDs (added May 12, 2026)",
       "detail": "UEI **KDDVD1FGLW35** · status **Submitted Registration** (NOT YET Active — do not claim \"SAM-active\" until validation completes ~7–10 business days from 05/12/2026) · CAGE **PENDING** (5-digit ID coming from DLA review team; leave blank on forms until issued) · Full ZIP+4 = **78660-7020** · DBA field in SAM = blank, so default to legal name \"The Collaborative Advocate Foundation\" on federal forms. Detail in `docs/active-commitments.md` \"TCAF SAM.gov + Federal Registration Identifiers\" section.",
@@ -304,6 +316,51 @@
       "last_heartbeat": null
     },
     {
+      "id": "ad-targeting",
+      "name": "Advertising Targeting for Platforms",
+      "url": "https://adtargetingplatforms.com",
+      "role": "ad-intelligence",
+      "domain": "marketing-content",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": false,
+      "description": "Advertising intelligence and community outreach platform enabling data-driven targeting to reach underserved populations with relevant services and grant-funded programs. Advanced audience segmentation based on demographic, geographic, and needs-based data; campaign optimization with A/B testing; performance analytics with conversion tracking; and cross-platform ad delivery coordinating outreach across all 22 sibling platforms. Ensures grant-funded programs reach their intended beneficiaries — veteran families, Black maternal health populations, minority business owners, neurodivergent individuals, and youth at risk. Integrates with Video Creator AI for campaign-ready assets and all platforms for service offering data.",
+      "capabilities": {
+        "features": [
+          "Audience Segmentation Engine",
+          "Campaign Optimization & A/B Testing",
+          "Precision Ad Targeting",
+          "Performance Analytics & Conversion Tracking",
+          "Cross-Platform Ad Delivery",
+          "Community Outreach Coordination",
+          "Grant Program Promotion",
+          "Demographic Targeting",
+          "Geographic Targeting",
+          "Needs-Based Targeting",
+          "Social Media Campaign Management",
+          "ROI Reporting"
+        ],
+        "grantNarrative": "Provides program reach metrics, community engagement data, demographic penetration rates, and campaign ROI for WIOA workforce recruitment and St. David's community health outreach grants",
+        "outcomeMetrics": [
+          "Campaign impressions: 234,567",
+          "Audience segments created: 89",
+          "A/B tests completed: 34",
+          "Conversion tracking events: 1,234",
+          "Cross-platform ad deliveries: 567",
+          "Community reach: 45,678 unique individuals",
+          "Grant program promotion campaigns: 23"
+        ],
+        "integrationDepth": "Receives content assets from Video Creator AI, service offerings from all platforms, and community demographics to target underserved populations with relevant services"
+      },
+      "grant_alignment": [
+        "wioa",
+        "st-davids",
+        "foundation",
+        "ssg-fox"
+      ],
+      "last_heartbeat": null
+    },
+    {
       "id": "code-canvas",
       "name": "Code Canvas — System Evaluator & Optimizer",
       "url": "https://codecanvaseval.com",
@@ -345,102 +402,6 @@
         "ssg-fox"
       ],
       "last_heartbeat": "2026-03-31T11:57:03.776Z"
-    },
-    {
-      "id": "betterscience",
-      "name": "RPLICE — Research-to-Practice Lifecycle Implementation & Community Evidence",
-      "url": "https://implementationineducatio.com",
-      "role": "research",
-      "domain": "education",
-      "status": "registered",
-      "health_status": "online",
-      "public_visible": true,
-      "description": "Free, AI-powered platform that helps researchers, practitioners, and planners close the gap between what science proves works and what actually gets implemented in communities. Search live evidence, assess projects against real community data, build implementation plans, and track outcomes -- all in one place. CFIR 2.0 (Consolidated Framework for Implementation Research), RE-AIM (Reach, Effectiveness, Adoption, Implementation, Maintenance), and EPIS (Exploration, Preparation, Implementation, Sustainment) frameworks applied to every platform's intervention design. Evidence-based practice registry with 500+ validated interventions, fidelity measurement instruments for each platform, research translation tools converting academic findings to community-actionable guides. Collaborative multi-AI review: multiple AI models independently analyze the same document, then a synthesis step builds consensus. API backend: salp-science--mrterryflood.replit.app (Research-Science-Collaborator on Replit). Provides the scientific backbone ensuring every platform's approach is evidence-based and measurable.",
-      "capabilities": {
-        "features": [
-          "CFIR Implementation Framework",
-          "RE-AIM Evaluation Model",
-          "EPIS Framework Tools",
-          "Evidence-Based Practice Registry",
-          "Fidelity Measurement Instruments",
-          "Research Translation Engine",
-          "RPLICE Decision Framework",
-          "Community Application Guides",
-          "Outcome Measurement Design",
-          "Program Logic Model Builder",
-          "Data Visualization Tools",
-          "Publication Pipeline",
-          "IRB Protocol Templates"
-        ],
-        "frameworks": [
-          "CFIR",
-          "RE-AIM",
-          "EPIS",
-          "RPLICE"
-        ],
-        "grantNarrative": "Produces implementation fidelity evidence, validated outcome measurements, and research-backed intervention effectiveness data required by SSG Fox, foundation, and federal grant reporting standards",
-        "outcomeMetrics": [
-          "Evidence-based interventions in registry: 500+",
-          "Fidelity assessments completed: 234",
-          "Research translations published: 67",
-          "CFIR/RE-AIM evaluations: 45 across ecosystem",
-          "Program logic models built: 23",
-          "Implementation guides distributed: 89",
-          "Outcome measurement designs: 34 validated instruments"
-        ],
-        "integrationDepth": "Provides research backing to all 22 sibling platforms — each platform's intervention design is validated through CFIR/RE-AIM frameworks. Receives outcome data from all platforms for longitudinal analysis."
-      },
-      "grant_alignment": [
-        "ssg-fox",
-        "foundation",
-        "wioa",
-        "st-davids"
-      ],
-      "last_heartbeat": null
-    },
-    {
-      "id": "safecognicare",
-      "name": "SafeCogniCare",
-      "url": "https://safecognicare.com",
-      "role": "cognitive-health",
-      "domain": "health-equity",
-      "status": "registered",
-      "health_status": "online",
-      "public_visible": true,
-      "description": "Cognitive safety platform specializing in TBI (Traumatic Brain Injury), ADHD, dementia, and peripartum cognitive changes — validated cognitive health assessments (MoCA, MMSE, Trail Making), early intervention tools with automated provider alerts, comprehensive safety protocols for cognitive impairment scenarios, care coordination with family/providers/community resources, and family support resources including caregiver burden assessment. Critical for veteran populations (TBI prevalence) and maternal health (peripartum cognitive changes). Integrates with Whole-Person Health for crisis routing, PillScheduler for medication complexity matching to cognitive capacity, Perfectly Different for neurodevelopmental overlap, and M2C for veteran TBI pathways.",
-      "capabilities": {
-        "features": [
-          "Cognitive Health Assessments (MoCA/MMSE)",
-          "Trail Making Test Digital",
-          "Early Intervention Alerts",
-          "Safety Protocols",
-          "Care Coordination Dashboard",
-          "Family Support Resources",
-          "Caregiver Burden Assessment",
-          "TBI Screening & Tracking",
-          "Cognitive Decline Monitoring",
-          "Provider Communication Portal",
-          "Medication Complexity Matching",
-          "Emergency Safety Plans"
-        ],
-        "grantNarrative": "Provides cognitive screening completion rates, TBI intervention outcomes, caregiver support metrics, and cognitive decline monitoring data for SSG Fox veteran and St. David's health equity grants",
-        "outcomeMetrics": [
-          "Cognitive assessments completed (MoCA/MMSE): 567",
-          "TBI screenings: 234 (veteran population)",
-          "Early intervention alerts triggered: 89",
-          "Safety protocol activations: 45",
-          "Caregiver burden assessments: 178",
-          "Cognitive decline monitoring: 345 active patients",
-          "Provider communication events: 234"
-        ],
-        "integrationDepth": "Bidirectional with Whole-Person Health (crisis), PillScheduler (medication complexity), Perfectly Different (neurodevelopmental), M2C (veteran TBI), Maternal Health (peripartum cognition)"
-      },
-      "grant_alignment": [
-        "ssg-fox",
-        "st-davids",
-        "foundation"
-      ],
-      "last_heartbeat": null
     },
     {
       "id": "sankofa-feminine-health",
@@ -679,6 +640,50 @@
       "last_heartbeat": "2026-03-22T03:08:43.787Z"
     },
     {
+      "id": "safecognicare",
+      "name": "SafeCogniCare",
+      "url": "https://safecognicare.com",
+      "role": "cognitive-health",
+      "domain": "health-equity",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "Cognitive safety platform specializing in TBI (Traumatic Brain Injury), ADHD, dementia, and peripartum cognitive changes — validated cognitive health assessments (MoCA, MMSE, Trail Making), early intervention tools with automated provider alerts, comprehensive safety protocols for cognitive impairment scenarios, care coordination with family/providers/community resources, and family support resources including caregiver burden assessment. Critical for veteran populations (TBI prevalence) and maternal health (peripartum cognitive changes). Integrates with Whole-Person Health for crisis routing, PillScheduler for medication complexity matching to cognitive capacity, Perfectly Different for neurodevelopmental overlap, and M2C for veteran TBI pathways.",
+      "capabilities": {
+        "features": [
+          "Cognitive Health Assessments (MoCA/MMSE)",
+          "Trail Making Test Digital",
+          "Early Intervention Alerts",
+          "Safety Protocols",
+          "Care Coordination Dashboard",
+          "Family Support Resources",
+          "Caregiver Burden Assessment",
+          "TBI Screening & Tracking",
+          "Cognitive Decline Monitoring",
+          "Provider Communication Portal",
+          "Medication Complexity Matching",
+          "Emergency Safety Plans"
+        ],
+        "grantNarrative": "Provides cognitive screening completion rates, TBI intervention outcomes, caregiver support metrics, and cognitive decline monitoring data for SSG Fox veteran and St. David's health equity grants",
+        "outcomeMetrics": [
+          "Cognitive assessments completed (MoCA/MMSE): 567",
+          "TBI screenings: 234 (veteran population)",
+          "Early intervention alerts triggered: 89",
+          "Safety protocol activations: 45",
+          "Caregiver burden assessments: 178",
+          "Cognitive decline monitoring: 345 active patients",
+          "Provider communication events: 234"
+        ],
+        "integrationDepth": "Bidirectional with Whole-Person Health (crisis), PillScheduler (medication complexity), Perfectly Different (neurodevelopmental), M2C (veteran TBI), Maternal Health (peripartum cognition)"
+      },
+      "grant_alignment": [
+        "ssg-fox",
+        "st-davids",
+        "foundation"
+      ],
+      "last_heartbeat": null
+    },
+    {
       "id": "autoimmune-thrive",
       "name": "Autoimmune Center of Excellence",
       "url": "https://autoimmunethrive.com",
@@ -722,6 +727,58 @@
         "foundation",
         "wioa",
         "ssg-fox"
+      ],
+      "last_heartbeat": null
+    },
+    {
+      "id": "betterscience",
+      "name": "RPLICE — Research-to-Practice Lifecycle Implementation & Community Evidence",
+      "url": "https://implementationineducatio.com",
+      "role": "research",
+      "domain": "education",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "Free, AI-powered platform that helps researchers, practitioners, and planners close the gap between what science proves works and what actually gets implemented in communities. Search live evidence, assess projects against real community data, build implementation plans, and track outcomes -- all in one place. CFIR 2.0 (Consolidated Framework for Implementation Research), RE-AIM (Reach, Effectiveness, Adoption, Implementation, Maintenance), and EPIS (Exploration, Preparation, Implementation, Sustainment) frameworks applied to every platform's intervention design. Evidence-based practice registry with 500+ validated interventions, fidelity measurement instruments for each platform, research translation tools converting academic findings to community-actionable guides. Collaborative multi-AI review: multiple AI models independently analyze the same document, then a synthesis step builds consensus. API backend: salp-science--mrterryflood.replit.app (Research-Science-Collaborator on Replit). Provides the scientific backbone ensuring every platform's approach is evidence-based and measurable.",
+      "capabilities": {
+        "features": [
+          "CFIR Implementation Framework",
+          "RE-AIM Evaluation Model",
+          "EPIS Framework Tools",
+          "Evidence-Based Practice Registry",
+          "Fidelity Measurement Instruments",
+          "Research Translation Engine",
+          "RPLICE Decision Framework",
+          "Community Application Guides",
+          "Outcome Measurement Design",
+          "Program Logic Model Builder",
+          "Data Visualization Tools",
+          "Publication Pipeline",
+          "IRB Protocol Templates"
+        ],
+        "frameworks": [
+          "CFIR",
+          "RE-AIM",
+          "EPIS",
+          "RPLICE"
+        ],
+        "grantNarrative": "Produces implementation fidelity evidence, validated outcome measurements, and research-backed intervention effectiveness data required by SSG Fox, foundation, and federal grant reporting standards",
+        "outcomeMetrics": [
+          "Evidence-based interventions in registry: 500+",
+          "Fidelity assessments completed: 234",
+          "Research translations published: 67",
+          "CFIR/RE-AIM evaluations: 45 across ecosystem",
+          "Program logic models built: 23",
+          "Implementation guides distributed: 89",
+          "Outcome measurement designs: 34 validated instruments"
+        ],
+        "integrationDepth": "Provides research backing to all 22 sibling platforms — each platform's intervention design is validated through CFIR/RE-AIM frameworks. Receives outcome data from all platforms for longitudinal analysis."
+      },
+      "grant_alignment": [
+        "ssg-fox",
+        "foundation",
+        "wioa",
+        "st-davids"
       ],
       "last_heartbeat": null
     },
@@ -787,48 +844,6 @@
       "last_heartbeat": null
     },
     {
-      "id": "emergency-mgmt",
-      "name": "Emergency Management",
-      "url": "https://emergency-mgmt.replit.app",
-      "role": "risk-intelligence",
-      "domain": "compliance",
-      "status": "registered",
-      "health_status": "online",
-      "public_visible": false,
-      "description": "Risk intelligence and threat assessment platform providing geographic risk mapping, multi-factor safety analytics, protective factor identification, and community resilience scoring. Ingests incident data from SafeReport, crisis events from Whole-Person Health, and community health data from LifeBridge to produce real-time risk heat maps and predictive safety models. Generates risk scores that inform resource deployment, crisis response routing, and grant compliance reporting for safety-focused programs. API-accessible risk assessments enable all 22 sibling platforms to make location-aware safety decisions.",
-      "capabilities": {
-        "features": [
-          "Geographic Risk Heat Mapping",
-          "Multi-Factor Threat Assessment",
-          "Protective Factor Analysis",
-          "Community Resilience Scoring",
-          "Predictive Safety Modeling",
-          "Real-Time Alert System",
-          "Risk Score API",
-          "Location-Aware Safety Decisions",
-          "Emergency Response Coordination",
-          "Historical Incident Analysis",
-          "Community Safety Dashboard"
-        ],
-        "grantNarrative": "Provides community safety analytics, risk reduction metrics, and protective factor data for SSG Fox veteran safety and foundation community resilience grants",
-        "outcomeMetrics": [
-          "Risk assessments generated: 1,234",
-          "Community resilience scores computed: 45 geographic zones",
-          "Predictive safety model accuracy: 72%",
-          "Real-time alerts issued: 89 in last 30 days",
-          "Risk heat maps serving 24 platforms via API",
-          "Emergency coordination events: 23"
-        ],
-        "integrationDepth": "Ingests from SafeReport (incidents), Whole-Person Health (crisis), LifeBridge (social determinants) — outputs risk scores consumed by all platforms"
-      },
-      "grant_alignment": [
-        "ssg-fox",
-        "foundation",
-        "st-davids"
-      ],
-      "last_heartbeat": null
-    },
-    {
       "id": "sankofa-mens-health",
       "name": "Black Men's Health Hub",
       "url": "https://thehealthyblkman.com",
@@ -872,51 +887,6 @@
       "last_heartbeat": "2026-03-19T21:03:20.478Z"
     },
     {
-      "id": "pillscheduler",
-      "name": "PillScheduler",
-      "url": "https://pillscheduler.net",
-      "role": "medication-management",
-      "domain": "health-equity",
-      "status": "registered",
-      "health_status": "online",
-      "public_visible": false,
-      "description": "Comprehensive medication management platform for individuals managing complex multi-drug regimens — intelligent pill reminders with adaptive scheduling, dosage tracking with missed-dose protocols, FDA drug interaction database with real-time warnings, care team coordination for medication changes, automated refill alerts with pharmacy integration, medication adherence scoring with intervention triggers, and cognitive-capacity-aware interface that adapts complexity based on SafeCogniCare assessment data. Critical for chronic disease populations (autoimmune, cardiovascular, mental health), elderly patients, and veterans on VA prescriptions. Integrates with Autoimmune Center of Excellence for disease-specific medication protocols, SafeCogniCare for cognitive capacity matching, and Whole-Person Health for crisis routing on dangerous interactions.",
-      "capabilities": {
-        "features": [
-          "Intelligent Pill Reminders",
-          "Adaptive Scheduling",
-          "Dosage Tracking",
-          "Missed-Dose Protocols",
-          "FDA Drug Interaction Database",
-          "Real-Time Interaction Warnings",
-          "Care Team Coordination",
-          "Automated Refill Alerts",
-          "Pharmacy Integration",
-          "Medication Adherence Scoring",
-          "Intervention Triggers",
-          "Cognitive-Capacity-Aware Interface",
-          "Medication History Timeline",
-          "Provider Communication"
-        ],
-        "grantNarrative": "Produces medication adherence rates, interaction prevention metrics, refill compliance data, and care coordination outcomes for SSG Fox veteran health and St. David's chronic disease grants",
-        "outcomeMetrics": [
-          "Medication reminders sent: 12,345",
-          "Drug interaction warnings: 234",
-          "Refill alerts: 567",
-          "Adherence score tracking: 345 active users",
-          "Missed-dose protocol activations: 89",
-          "Care team coordination events: 45"
-        ],
-        "integrationDepth": "Bidirectional with Autoimmune (disease-specific), SafeCogniCare (cognitive capacity), Whole-Person Health (crisis), Maternal Health (prenatal vitamins), Men's Health (chronic medications)"
-      },
-      "grant_alignment": [
-        "ssg-fox",
-        "st-davids",
-        "foundation"
-      ],
-      "last_heartbeat": null
-    },
-    {
       "id": "safereport",
       "name": "SafeReport",
       "url": "https://safereports.net",
@@ -952,6 +922,48 @@
           "Compliance dashboard active jurisdictions: 47 states"
         ],
         "integrationDepth": "Feeds incident data to Emergency Management (risk), receives early warnings from ISSS (student safety), routes crisis to Whole-Person Health, coordinates victim support with LifeBridge"
+      },
+      "grant_alignment": [
+        "ssg-fox",
+        "foundation",
+        "st-davids"
+      ],
+      "last_heartbeat": null
+    },
+    {
+      "id": "emergency-mgmt",
+      "name": "Emergency Management",
+      "url": "https://emergency-mgmt.replit.app",
+      "role": "risk-intelligence",
+      "domain": "compliance",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": false,
+      "description": "Risk intelligence and threat assessment platform providing geographic risk mapping, multi-factor safety analytics, protective factor identification, and community resilience scoring. Ingests incident data from SafeReport, crisis events from Whole-Person Health, and community health data from LifeBridge to produce real-time risk heat maps and predictive safety models. Generates risk scores that inform resource deployment, crisis response routing, and grant compliance reporting for safety-focused programs. API-accessible risk assessments enable all 22 sibling platforms to make location-aware safety decisions.",
+      "capabilities": {
+        "features": [
+          "Geographic Risk Heat Mapping",
+          "Multi-Factor Threat Assessment",
+          "Protective Factor Analysis",
+          "Community Resilience Scoring",
+          "Predictive Safety Modeling",
+          "Real-Time Alert System",
+          "Risk Score API",
+          "Location-Aware Safety Decisions",
+          "Emergency Response Coordination",
+          "Historical Incident Analysis",
+          "Community Safety Dashboard"
+        ],
+        "grantNarrative": "Provides community safety analytics, risk reduction metrics, and protective factor data for SSG Fox veteran safety and foundation community resilience grants",
+        "outcomeMetrics": [
+          "Risk assessments generated: 1,234",
+          "Community resilience scores computed: 45 geographic zones",
+          "Predictive safety model accuracy: 72%",
+          "Real-time alerts issued: 89 in last 30 days",
+          "Risk heat maps serving 24 platforms via API",
+          "Emergency coordination events: 23"
+        ],
+        "integrationDepth": "Ingests from SafeReport (incidents), Whole-Person Health (crisis), LifeBridge (social determinants) — outputs risk scores consumed by all platforms"
       },
       "grant_alignment": [
         "ssg-fox",
@@ -1093,6 +1105,51 @@
       "last_heartbeat": null
     },
     {
+      "id": "pillscheduler",
+      "name": "PillScheduler",
+      "url": "https://pillscheduler.net",
+      "role": "medication-management",
+      "domain": "health-equity",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": false,
+      "description": "Comprehensive medication management platform for individuals managing complex multi-drug regimens — intelligent pill reminders with adaptive scheduling, dosage tracking with missed-dose protocols, FDA drug interaction database with real-time warnings, care team coordination for medication changes, automated refill alerts with pharmacy integration, medication adherence scoring with intervention triggers, and cognitive-capacity-aware interface that adapts complexity based on SafeCogniCare assessment data. Critical for chronic disease populations (autoimmune, cardiovascular, mental health), elderly patients, and veterans on VA prescriptions. Integrates with Autoimmune Center of Excellence for disease-specific medication protocols, SafeCogniCare for cognitive capacity matching, and Whole-Person Health for crisis routing on dangerous interactions.",
+      "capabilities": {
+        "features": [
+          "Intelligent Pill Reminders",
+          "Adaptive Scheduling",
+          "Dosage Tracking",
+          "Missed-Dose Protocols",
+          "FDA Drug Interaction Database",
+          "Real-Time Interaction Warnings",
+          "Care Team Coordination",
+          "Automated Refill Alerts",
+          "Pharmacy Integration",
+          "Medication Adherence Scoring",
+          "Intervention Triggers",
+          "Cognitive-Capacity-Aware Interface",
+          "Medication History Timeline",
+          "Provider Communication"
+        ],
+        "grantNarrative": "Produces medication adherence rates, interaction prevention metrics, refill compliance data, and care coordination outcomes for SSG Fox veteran health and St. David's chronic disease grants",
+        "outcomeMetrics": [
+          "Medication reminders sent: 12,345",
+          "Drug interaction warnings: 234",
+          "Refill alerts: 567",
+          "Adherence score tracking: 345 active users",
+          "Missed-dose protocol activations: 89",
+          "Care team coordination events: 45"
+        ],
+        "integrationDepth": "Bidirectional with Autoimmune (disease-specific), SafeCogniCare (cognitive capacity), Whole-Person Health (crisis), Maternal Health (prenatal vitamins), Men's Health (chronic medications)"
+      },
+      "grant_alignment": [
+        "ssg-fox",
+        "st-davids",
+        "foundation"
+      ],
+      "last_heartbeat": null
+    },
+    {
       "id": "perfectly-different",
       "name": "Perfectly Different",
       "url": "https://neurodifferentassistant.app",
@@ -1132,51 +1189,6 @@
         "st-davids",
         "foundation",
         "wioa"
-      ],
-      "last_heartbeat": null
-    },
-    {
-      "id": "ad-targeting",
-      "name": "Advertising Targeting for Platforms",
-      "url": "https://adtargetingplatforms.com",
-      "role": "ad-intelligence",
-      "domain": "marketing-content",
-      "status": "registered",
-      "health_status": "online",
-      "public_visible": false,
-      "description": "Advertising intelligence and community outreach platform enabling data-driven targeting to reach underserved populations with relevant services and grant-funded programs. Advanced audience segmentation based on demographic, geographic, and needs-based data; campaign optimization with A/B testing; performance analytics with conversion tracking; and cross-platform ad delivery coordinating outreach across all 22 sibling platforms. Ensures grant-funded programs reach their intended beneficiaries — veteran families, Black maternal health populations, minority business owners, neurodivergent individuals, and youth at risk. Integrates with Video Creator AI for campaign-ready assets and all platforms for service offering data.",
-      "capabilities": {
-        "features": [
-          "Audience Segmentation Engine",
-          "Campaign Optimization & A/B Testing",
-          "Precision Ad Targeting",
-          "Performance Analytics & Conversion Tracking",
-          "Cross-Platform Ad Delivery",
-          "Community Outreach Coordination",
-          "Grant Program Promotion",
-          "Demographic Targeting",
-          "Geographic Targeting",
-          "Needs-Based Targeting",
-          "Social Media Campaign Management",
-          "ROI Reporting"
-        ],
-        "grantNarrative": "Provides program reach metrics, community engagement data, demographic penetration rates, and campaign ROI for WIOA workforce recruitment and St. David's community health outreach grants",
-        "outcomeMetrics": [
-          "Campaign impressions: 234,567",
-          "Audience segments created: 89",
-          "A/B tests completed: 34",
-          "Conversion tracking events: 1,234",
-          "Cross-platform ad deliveries: 567",
-          "Community reach: 45,678 unique individuals",
-          "Grant program promotion campaigns: 23"
-        ],
-        "integrationDepth": "Receives content assets from Video Creator AI, service offerings from all platforms, and community demographics to target underserved populations with relevant services"
-      },
-      "grant_alignment": [
-        "wioa",
-        "st-davids",
-        "foundation",
-        "ssg-fox"
       ],
       "last_heartbeat": null
     },
@@ -1227,48 +1239,50 @@
       "last_heartbeat": null
     },
     {
-      "id": "ecosystem-nexus",
-      "name": "Ecosystem Nexus",
-      "url": "https://ecosystemnexus.net",
-      "role": "ecosystem-coordination",
-      "domain": "operations",
-      "status": "active",
+      "id": "lifebridge",
+      "name": "LifeBridge",
+      "url": "https://lifetransitionsaid.org",
+      "role": "resource-hub",
+      "domain": "community-workforce",
+      "status": "registered",
       "health_status": "online",
-      "public_visible": false,
-      "description": "Central coordination and operational intelligence hub for the entire ThriveUp Academy ecosystem — primary co-captain platform providing cross-platform visibility, real-time health monitoring, directive management and enforcement, platform analytics dashboard, and ecosystem-wide operational intelligence. Manages the triad system (team-of-teams architecture), coordinates bilateral exchange protocols, runs self-diagnostic health checks, and provides the operational backbone for the ACOS architecture. If the Whole-Person Health hub goes down, Ecosystem Nexus assumes command authority. Produces operational efficiency data for grant compliance and organizational governance reporting.",
+      "public_visible": true,
+      "description": "Virtual 211 and Community Health Worker coordination hub providing 24/7 resource navigation across housing, food, healthcare, mental health, substance abuse, domestic violence, and crisis support — covering 20,670+ resources. Also addresses non-combat life events that drive veteran suicide (divorce, job loss, retirement, health diagnosis, bereavement, financial crisis) with evidence-based coping strategies and peer storytelling. Social determinant engine scores needs across 7 domains (housing, food, transportation, employment, healthcare, legal, safety) and routes to specific ecosystem platforms. Integrates with every health platform for crisis escalation, M2C for veteran life events, and ISSS for family-level support.",
       "capabilities": {
         "features": [
-          "Ecosystem Coordination Hub",
-          "Cross-Platform Visibility",
-          "Real-Time Health Monitoring",
-          "Directive Management & Enforcement",
-          "Platform Analytics Dashboard",
-          "Triad System Management",
-          "Bilateral Exchange Protocol",
-          "Self-Diagnostic Engine",
-          "Co-Captain Failover System",
-          "Operational Intelligence",
-          "Grant Compliance Tracking",
-          "Performance Benchmarking"
+          "24/7 Resource Navigation",
+          "Housing Assistance",
+          "Food Access Programs",
+          "Healthcare Connections",
+          "Mental Health Resources",
+          "Substance Abuse Support",
+          "Domestic Violence Support",
+          "Crisis Support & Routing",
+          "Life Event Guides",
+          "Coping Strategy Library",
+          "Peer Story Platform",
+          "Social Determinant Scoring",
+          "7-Domain Needs Assessment",
+          "Community Health Worker Dispatch",
+          "Resource Gap Analysis"
         ],
-        "grantNarrative": "Provides ecosystem-wide operational metrics, platform health data, cross-platform coordination evidence, and organizational efficiency measurements for all grant reporting",
+        "grantNarrative": "Produces social determinant outcome data, resource utilization metrics, crisis diversion rates, and community health worker coordination evidence for St. David's, SSG Fox, and foundation reporting",
         "outcomeMetrics": [
-          "Cross-platform coordination events: 4,567",
-          "Real-time health monitoring: 24 platforms/10-min cycle",
-          "Directive management: 609 acknowledgments tracked",
-          "Triad system operations: 8 triads managed",
-          "Co-captain failover tests: 12 successful",
-          "Performance benchmark reports: 45"
+          "Resource navigations completed: 3,456",
+          "Social determinant screenings: 1,890",
+          "Crisis support diversions: 234 (diverted from emergency)",
+          "Life event guide completions: 567",
+          "Community health worker dispatches: 178",
+          "7-domain needs assessments: 890",
+          "Resource gap analyses: 45 geographic areas"
         ],
-        "integrationDepth": "Connected to all 22 sibling platforms via heartbeat, directive, and analytics channels — the operational nervous system of the ecosystem"
+        "integrationDepth": "Routes social determinant data to all health platforms, receives crisis events from Whole-Person Health, coordinates with M2C for veteran life events, feeds ISSS for family support"
       },
       "grant_alignment": [
-        "wioa",
-        "ssg-fox",
         "st-davids",
-        "foundation"
+        "ssg-fox"
       ],
-      "last_heartbeat": "2026-03-22T03:08:34.284Z"
+      "last_heartbeat": null
     },
     {
       "id": "video-creator-ai",
@@ -1313,6 +1327,50 @@
         "foundation"
       ],
       "last_heartbeat": null
+    },
+    {
+      "id": "ecosystem-nexus",
+      "name": "Ecosystem Nexus",
+      "url": "https://ecosystemnexus.net",
+      "role": "ecosystem-coordination",
+      "domain": "operations",
+      "status": "active",
+      "health_status": "online",
+      "public_visible": false,
+      "description": "Central coordination and operational intelligence hub for the entire ThriveUp Academy ecosystem — primary co-captain platform providing cross-platform visibility, real-time health monitoring, directive management and enforcement, platform analytics dashboard, and ecosystem-wide operational intelligence. Manages the triad system (team-of-teams architecture), coordinates bilateral exchange protocols, runs self-diagnostic health checks, and provides the operational backbone for the ACOS architecture. If the Whole-Person Health hub goes down, Ecosystem Nexus assumes command authority. Produces operational efficiency data for grant compliance and organizational governance reporting.",
+      "capabilities": {
+        "features": [
+          "Ecosystem Coordination Hub",
+          "Cross-Platform Visibility",
+          "Real-Time Health Monitoring",
+          "Directive Management & Enforcement",
+          "Platform Analytics Dashboard",
+          "Triad System Management",
+          "Bilateral Exchange Protocol",
+          "Self-Diagnostic Engine",
+          "Co-Captain Failover System",
+          "Operational Intelligence",
+          "Grant Compliance Tracking",
+          "Performance Benchmarking"
+        ],
+        "grantNarrative": "Provides ecosystem-wide operational metrics, platform health data, cross-platform coordination evidence, and organizational efficiency measurements for all grant reporting",
+        "outcomeMetrics": [
+          "Cross-platform coordination events: 4,567",
+          "Real-time health monitoring: 24 platforms/10-min cycle",
+          "Directive management: 609 acknowledgments tracked",
+          "Triad system operations: 8 triads managed",
+          "Co-captain failover tests: 12 successful",
+          "Performance benchmark reports: 45"
+        ],
+        "integrationDepth": "Connected to all 22 sibling platforms via heartbeat, directive, and analytics channels — the operational nervous system of the ecosystem"
+      },
+      "grant_alignment": [
+        "wioa",
+        "ssg-fox",
+        "st-davids",
+        "foundation"
+      ],
+      "last_heartbeat": "2026-03-22T03:08:34.284Z"
     },
     {
       "id": "wholemind",
@@ -1364,52 +1422,6 @@
         "st-davids"
       ],
       "last_heartbeat": "2026-03-19T02:25:57.923Z"
-    },
-    {
-      "id": "lifebridge",
-      "name": "LifeBridge",
-      "url": "https://lifetransitionsaid.org",
-      "role": "resource-hub",
-      "domain": "community-workforce",
-      "status": "registered",
-      "health_status": "online",
-      "public_visible": true,
-      "description": "Virtual 211 and Community Health Worker coordination hub providing 24/7 resource navigation across housing, food, healthcare, mental health, substance abuse, domestic violence, and crisis support — covering 20,670+ resources. Also addresses non-combat life events that drive veteran suicide (divorce, job loss, retirement, health diagnosis, bereavement, financial crisis) with evidence-based coping strategies and peer storytelling. Social determinant engine scores needs across 7 domains (housing, food, transportation, employment, healthcare, legal, safety) and routes to specific ecosystem platforms. Integrates with every health platform for crisis escalation, M2C for veteran life events, and ISSS for family-level support.",
-      "capabilities": {
-        "features": [
-          "24/7 Resource Navigation",
-          "Housing Assistance",
-          "Food Access Programs",
-          "Healthcare Connections",
-          "Mental Health Resources",
-          "Substance Abuse Support",
-          "Domestic Violence Support",
-          "Crisis Support & Routing",
-          "Life Event Guides",
-          "Coping Strategy Library",
-          "Peer Story Platform",
-          "Social Determinant Scoring",
-          "7-Domain Needs Assessment",
-          "Community Health Worker Dispatch",
-          "Resource Gap Analysis"
-        ],
-        "grantNarrative": "Produces social determinant outcome data, resource utilization metrics, crisis diversion rates, and community health worker coordination evidence for St. David's, SSG Fox, and foundation reporting",
-        "outcomeMetrics": [
-          "Resource navigations completed: 3,456",
-          "Social determinant screenings: 1,890",
-          "Crisis support diversions: 234 (diverted from emergency)",
-          "Life event guide completions: 567",
-          "Community health worker dispatches: 178",
-          "7-domain needs assessments: 890",
-          "Resource gap analyses: 45 geographic areas"
-        ],
-        "integrationDepth": "Routes social determinant data to all health platforms, receives crisis events from Whole-Person Health, coordinates with M2C for veteran life events, feeds ISSS for family support"
-      },
-      "grant_alignment": [
-        "st-davids",
-        "ssg-fox"
-      ],
-      "last_heartbeat": null
     }
   ],
   "quintet": "**Talk Your Talk · Civic Signal · LifeBridge · ThriveUp Academy · Whole-Person Health Ecosystem.** See `docs/grants/QUARTET-ONE-PAGER.md` for the drop-in narrative.",
@@ -1438,6 +1450,11 @@
   "active_commitments": {
     "sections": [
       {
+        "id": "anika-amie-contamination-rwjf-draft-quarantined-may-12-2026",
+        "heading": "🚨 Anika Amie contamination — RWJF draft quarantined (May 12, 2026)",
+        "summary": "User confirmed May 12, 2026: **does NOT know \"Anika Amie.\"** This name was embedded in 4 files as \"TCAF Founder & Executive Director\" / \"Project Director\" / grant-writing principle source. Origin unknown — possibly: (a) a different organization's draft that was renamed to TCAF and the principals weren't swept, (b) an AI-generated placeholder that survived editing, or (c) someone else who worked on these docs before user took over.\n\n**Actions taken:**\n- `docs/grants/RWJF-Global-Ideas-2026-Brief-Proposal.md` — DO-NOT-USE header banner added at top of file.\n- `docs/grants/RWJF-Brief-Proposal-Narrative-UPLOAD.doc` — Anika references replaced with `[QUARANTINED]` markers in-line.\n- `docs/grants/STRATEGIC-INTELLIGENCE-PLAYBOOK.md` — \"Anika Amie\" attribution stripped, replaced with \"Standard gran"
+      },
+      {
         "id": "tcaf-samgov-federal-registration-identifiers-added-may-12-2026",
         "heading": "TCAF SAM.gov + Federal Registration Identifiers (added May 12, 2026)",
         "summary": "- **SAM.gov UEI:** **KDDVD1FGLW35** ✅ (visible in Entity Workspace screenshot 19:36)\n- **SAM.gov registration status:** **Submitted Registration** — *not yet \"Active\"*. Means TCAF can be referenced (UEI is live), but cannot YET receive federal awards until validation completes (typically 7–10 business days; IRS TIN match is the usual gate). **🚨 Do NOT claim \"SAM-active\" in any narrative until status flips to Active.** Honest current language: *\"TCAF SAM.gov registration submitted (UEI KDDVD1FGLW35); activation pending validation.\"*\n- **CAGE / NCAGE Code:** **PENDING** — user awaiting 5-digit ID from CAGE review team. *(CAGE is auto-issued by DLA after SAM activation; tracks separately.)* Do NOT type a placeholder; leave blank on forms or write \"CAGE pending DLA assignment.\"\n- **Physical A"
@@ -1446,6 +1463,11 @@
         "id": "dr-flood-federal-grant-compliance-credentials-added-may-12-2026-from-pdf",
         "heading": "Dr. Flood — Federal Grant & Compliance Credentials (added May 12, 2026 from PDF)",
         "summary": "> **Source:** `attached_assets/All_certs_including_Grants_(1)_1778719050629.pdf`. Use these in NIH biosketch \"Other Experience and Professional Memberships,\" NSF SciENcv, COR/PI qualification statements, and SDVOSB/CAGE narrative justification."
+      },
+      {
+        "id": "candid-free-tier-grant-research-workflow-added-may-12-2026",
+        "heading": "Candid (free tier) — grant research workflow (added May 12, 2026)",
+        "summary": "User directive May 12, 2026: **\"start using free version of Candid for grants.\"** Candid is the merged Foundation Center + GuideStar nonprofit data org (candid.org). Paid Foundation Directory Online is $$$ — we are explicitly on the free path."
       },
       {
         "id": "network-roster-wichita-sedgwick-county-circle-added-may-12-2026",
@@ -1818,13 +1840,13 @@
     ]
   },
   "counts": {
-    "gotchas": 21,
+    "gotchas": 23,
     "vocab": 4,
     "platforms": 25,
     "file_pointers": 14,
     "lessons": 17,
     "no_go": 4,
-    "active_commitment_sections": 42,
+    "active_commitment_sections": 44,
     "ecosystem_caveats": 5,
     "foster_youth_build_log_sections": 3
   }
