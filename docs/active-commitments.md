@@ -1,5 +1,30 @@
 # Active Commitments — TCAF / ThriveUp Academy
 
+## Grant Opportunity Scan (May 14, 2026) — 20 NEW non-federal opportunities
+
+Full brief: **`docs/grants/Grant-Opportunity-Scan-2026-05-14.md`**. Sliced 5 each across Local (Greater Austin) · State (Texas) · Public Foundations · Private Foundations. Pulled from `grant_opportunities` (648 rows, 208 high-fit) minus the 29 already in `proposal_pipeline`.
+
+### Time-sensitive — act this week
+- **F2 Centene Foundation — Behavioral Health Community Grants (Spring 2026), deadline 2026-05-31.** Whole-Person Health + Sankofa + Talk-Your-Talk-into-WPH crisis routing. Draft concept now.
+- **Federal CJ adds (separate, for federal pipeline, NOT this brief):** BJA FY25 Second Chance Act — Improving Reentry Education & Employment (due 2026-05-04) and Family-Based SUD Treatment (due 2026-05-04). Flag if not already triaged.
+
+### Top non-federal pursuits to open after Centene
+1. **F1 Cigna Youth Mental Health 2026** ($150K, rolling) — direct fit with Vann Family Program Tracker (Iasis youth + Sistahs CWT women's-health bridge).
+2. **L4 St. David's Community Health Grants** (up to $1M) — separate line from WAB2/CLC. Always framed "actively evaluating," never "awarded."
+3. **P1 Episcopal Health Foundation** ($50K–$750K) — strongest single statewide HE shot; HerHealth + Black Maternal Health + Whole-Person Health bundle.
+4. **S2 Texas Veterans Commission VMH** ($50K–$250K) — M2C + Whole-Person Health veterans BH narrative.
+5. **S1 TWC WIOA Grants** ($200K–$500K) — distinct from RFA 32026; broader statutory stream w/ multiple sub-RFAs per cycle.
+
+### Iron-rule reminders embedded in the brief
+- **Meredith Sisnett never on City of Austin lines** (L1 AEI/EDD, L2 APH, L5 AHFC, Cultural Arts alt). Dr. Flood-only contact.
+- **St. David's = "actively evaluating," never "awarded."**
+- **Tabbara prior-award checklist mandatory** for every line (SAM.gov + USASpending.gov + sbir.gov + funder 990 via Candid free tier) before LOI.
+- **"National platform, Texas-piloted"** framing — never "Texas-only."
+- **President**, not CEO.
+
+### Domain coverage gap (logged for next scan)
+- **Criminal Justice off-federal is thin.** Only S5 Texas Bar Foundation surfaced. CJ funding concentrates federally — BJA Second Chance Act + OJJDP go on federal pipeline, not this list. Watch foundation side for future cycles (Public Welfare, Charles Koch Inst Crim Justice, Tow Foundation, Ford Foundation Justice already in pipeline).
+
 ## SBA opportunity decisions (May 12, 2026)
 
 ### ⛔ PASSED: SBA Manufacturing in America Empower to Grow (E2G) — June 15, 2026 deadline
