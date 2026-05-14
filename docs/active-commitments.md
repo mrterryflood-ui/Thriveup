@@ -1,5 +1,36 @@
 # Active Commitments — TCAF / ThriveUp Academy
 
+## Network roster — Wichita / Sedgwick County circle (added May 12, 2026)
+
+> Captured for memory continuity. User asked these be remembered as community partners with mutual interest and shared spaces. **User is handling the Sedgwick County Weight Loss/GLP-1 RFP themselves** — do NOT engage on the RFI; just know the players for future projects.
+
+- **Eric Hargrave** — Founder, **Hargrave Innovative Solutions (HIS)**. Role on the team: government contract management, compliance oversight, reporting coordination, administrative support. Initiated the Sedgwick County RFP outreach (May 12, 2026 thread w/ Flood, Love, Vann). Treat as a long-term contracting/compliance partner, not just one-RFP.
+- **Dr. Chela Love, DNP, FNP** — Founder & Clinical Lead, **Love Clinic & Med Spa**, Wichita, KS.
+  - 214 S Rock Rd, Suite 101, Wichita, KS 67207 · (316) 669-4770 · `chelalove@loveclinicmedspa.com` · `loveclinicmedspa.com` (also `lovemed.org`)
+  - Education: BS Wichita State; MS + DNP Maryville University of St. Louis. 10+ yrs clinical experience. Bilingual practice. "No insurance required" primary care + medical aesthetics model.
+  - Established booking/payments infrastructure: **CareCredit, WellnessLiving, Fresha** (useful for any TCAF program needing patient-facing billing/scheduling).
+  - Hours: M–Th 9:00–4:30, F 9:00–12:00.
+  - On the Sedgwick team: clinical lead + medical oversight (incl. GLP-1 prescribing).
+- **Dr. J. Michelle Vann, DCC, ThD, MS** — Founder/CEO, **Vanntastic Solutions** (`vanntastic.com` / `jmichellevann.com`), Wichita, KS.
+  - (316) 350-2601 (office). Executive Wellness Coach, speaker, author, nonprofit founder. Focus: women's mindset transformation, behavioral engagement, lifestyle accountability. Affiliated with **The Center ICT** (Wichita community org).
+  - On the Sedgwick team: wellness coaching + behavioral engagement + lifestyle accountability.
+  - Direct interest she expressed to Flood (May 12 thread): wants something similar to TCAF's youth program for **tracking attendance, family structure, and services families are engaged in** — flag her as a likely user/partner for the Foster-Youth state portal + LifeBridge family-services tracker.
+  - **🚨 Disambiguation:** This is **NOT** Dr. Tosha Michelle Vann, MD (pediatrician in Kansas City, KS). Different person, different credentials, different city. Do not conflate.
+- **Sedgwick County RFP context (FYI only — user handling):** Employee Ancillary Benefits — Weight Loss/Weight Management Program. Population health outcomes, measurable ROI, behavioral engagement, reporting analytics, GLP-1 medication oversight. **Updated due date June 2, 2026.** Combined team structure: Love Clinic (clinical) · Vanntastic (coaching) · TCAF/Dr. Flood (digital platform/app, reporting, participant engagement) · HIS/Hargrave (contract mgmt + compliance + admin).
+
+## Dr. Flood signature block (from May 12, 2026 thread — for future use)
+
+```
+Dr. Terry Flood
+US ARMY RETIREE
+DHA, EdD, MSIOP, MSW(c), MSL, MSCJPP, MSHRM, MSIS(c), BHA, CHW-I
+254-319-8460
+```
+*Note: `(c)` = candidate (in progress). Use full credential string ONLY when user has signed a thread with it; for grant submissions stick to "Dr. Terry Flood, DHA" per existing convention unless user specifies otherwise.*
+
+---
+
+
 **Maintained as the live continuity log.** `replit.md` is kept tight (~87 lines) per platform guideline; this file holds the running operational memory that earlier lived in "Cycle L" of `replit.md`. Read at session start. Update at session end.
 
 **Compaction May 12, 2026:** Foster-youth build history (May 11 build sections + Self-Audit Congruence section) extracted from `replit.md` → `docs/foster-youth-build-log.md`. Compiler now reads it (`scripts/compile-agent-knowledge.ts` SOURCES + sections + counts). Knowledge layer count: 19 gotchas · 17 lessons · 25 platforms · 14 file pointers · 38 active-commitment sections · 5 ecosystem caveats · 3 foster-youth build-log sections. `replit.md`: 139 → 87 lines. Zero facts lost; recall preserved via `GET /api/agent/knowledge/topic/foster_youth_build_log`.
