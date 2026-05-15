@@ -1,5 +1,13 @@
 # MAP-GAP Lessons Learned
 
+## P-L16 — Auto-scraped grant rows score lower than they should (May 15, 2026)
+
+The Grants.gov auto-scraper in our discovery engine populates thin rows (title repeated as description, eligibility blank, focus_areas empty). The keyword-based `computeFitScore` then assigns these rows ~40–60 points lower than the same opportunity in a curated record. Trigger case: SSG Fox FY27 — curated row scored 85, Grants.gov scrape of the same NOFO scored 59. User caught it. Fix forward: (a) when surfacing top opportunities to the user, dedupe by CFDA + funder + title-similarity and keep the highest-score row; (b) enrich auto-scraped thin rows with curated fields before scoring; (c) never trust a scraped fit_score alone — check for a duplicate curated row first.
+
+## P-L15 — Never conjecture, always verify (iron rule, May 15, 2026)
+
+Never offer "best estimates," "inferred ranges," or "sweet spot" sizing for any grant amount, deadline, funder policy, or application window without pulling it from a primary source (funder's own website, RFP attachment, 990-PF Schedule I, or direct funder communication). If the answer requires a number or a date and we don't have it verified, the answer is "I have not verified — verifying now" followed by a real lookup, NOT a confident guess. Subagent answers that cite our own internal drafts as "verification" are circular reasoning and must be rejected. Trigger case: Centene Foundation May 31, 2026 deadline was carried forward as fact from a stale intelligence file — verification on 2026-05-15 from centene.com/who-we-are/centene-foundation/becoming-a-partner.html showed Centene Foundation moved to invitation-only in 2026 and the open-cycle does not exist. Almost wasted a submission. Cost of failure: lost trust + wasted partner time. Iron rule, zero exceptions.
+
 ## P-L14 — Read memory before claiming "we don't have X" (May 15, 2026)
 
 **Trigger.** Mid-Centene-draft, when the question "who are the local partners?" came up, I answered as if TCAF had no external partners. The user pushed back. The list was already in `docs/active-commitments.md` (line 275: "Network roster — Wichita / Sedgwick County circle") with the four KS partners + the Austin AEI pipeline. I had to be told the file I was supposed to be running on existed.

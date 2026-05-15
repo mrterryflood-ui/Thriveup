@@ -68,6 +68,17 @@
 
 **Deadline:** 2026-05-31. Target internal sign-off + submission: by May 30.
 
+## SSG Fox Suicide Prevention Grant — TCAF is applying (verified May 15, 2026)
+
+User confirmed TCAF is **already applying** for SSG Fox FY27 (deadline 2026-06-12 at 4:59 PM ET). Verified intel and full funder brief at `docs/grants/ssg-fox-fy27/00-funder-brief.md`. Headlines:
+- Up to $750,000 per Priority 2 (new applicant) org · $112M FY27 pool · one-year award starting 2026-09-30
+- Submission via eGMS (NOT Grants.gov directly) — confirm ID.me + eGMS access before 2026-04-13 app open (already open as of this verification)
+- TCAF strengths: Dr. Flood (Army Retiree) · M2C platform · C-SSRS already in WPH+SafeReport · McConnell AFB+KS Guard pipeline · SDOH via LifeBridge · 0 PHI compliance posture via SafeReport
+- Gap list (must close by 2026-06-12): named veteran-org LOSs (VFW/Legion/McConnell TAP/KS Guard family-readiness/KCVA/Wichita Vet Center/**Robert J. Dole VAMC** as clinical-linkage anchor); Sedgwick County Veterans Crisis Line call density verified citation; outcome tracking commitment mirroring VA's 91.8%-risk-reduction benchmark
+- Do NOT include: Iasis (youth ministry, not veteran), Sistahs CWT (women's health, not veteran-focused; Dr. Vann's MH Advisory Board seat can surface in governance narrative only with her permission), Vanntastic LLC (for-profit, ineligible always)
+
+DB cleanup performed: Fox duplicate-row issue (one curated row fit 85 + one Grants.gov thin scrape fit 59) merged into single row fit 92, status 'pursuing'. Centene Spring 2026 stale row marked status 'discontinued_invitation_only' fit 0. **Platform bug logged:** Grants.gov auto-scraper produces thin rows that score below curated records for the same opportunity; dedup + enrichment between scraped and curated rows is broken. Lesson: never trust a scraped fit_score alone — check for a duplicate curated row first.
+
 **Tabbara prior-award check (completed):**
 - **USASpending.gov:** TCAF returns 0 prior federal awards. Disclosed plainly in concept (`01:21`, `01:114`).
 - **SAM.gov:** UEI KDDVD1FGLW35 · CAGE 209N1 · status ACTIVE (per replit.md memory; renewal 2027-05-06).
