@@ -50,7 +50,7 @@ const ENTITIES: BusinessEntity[] = [
     name: "The Collaborative Advocate Foundation",
     legalName: "THE COLLABORATIVE ADVOCATE FOUNDATION",
     type: "501(c)(3) Nonprofit",
-    ein: "41-3618503",
+    ein: "41-3618003",
     status: "Active",
     formation: "Austin, TX",
     state: "TX",
@@ -61,7 +61,7 @@ const ENTITIES: BusinessEntity[] = [
     website: "https://thrivingcommunitiesforall.com",
     responsibleParty: "Dr. Terry Flood, President",
     principalActivity: "Workforce Development, Community Health, Veteran Services",
-    description: "Veteran-founded, Black-led IRS-determined 501(c)(3) nonprofit (Letter 947, effective January 14, 2026; EIN 41-3618503) serving as the organizational backbone for the ThriveUp Academy ACOS ecosystem. Delivers workforce development, veteran transition services, community health programs, and youth education through an interdependent platform architecture. SAM.gov Active (UEI KDDVD1FGLW35; CAGE 209N1) — eligible to receive federal awards directly. Grant execution lead for WIOA, SSG Fox VA, St. David's Foundation, TWC, and federal/state workforce programs.",
+    description: "Veteran-founded, Black-led IRS-determined 501(c)(3) nonprofit (Letter 947, effective January 14, 2026; EIN 41-3618003) serving as the organizational backbone for the ThriveUp Academy ACOS ecosystem. Delivers workforce development, veteran transition services, community health programs, and youth education through an interdependent platform architecture. SAM.gov Active (UEI KDDVD1FGLW35; CAGE 209N1) — eligible to receive federal awards directly. Grant execution lead for WIOA, SSG Fox VA, St. David's Foundation, TWC, and federal/state workforce programs.",
     color: "border-violet-500",
     icon: Shield,
     keyFacts: [
@@ -82,7 +82,7 @@ Executive Summary
 ORGANIZATION OVERVIEW
 The Collaborative Advocate Foundation is a 501(c)(3) nonprofit organization headquartered in Austin, Texas. Founded by Dr. Terry Flood, a veteran and community advocate, the organization is veteran-founded and Black-led, delivering workforce development, community health, veteran transition services, and youth education through an innovative 24-platform technology ecosystem.
 
-EIN: 41-3618503
+EIN: 41-3618003
 Address: 17912 Stefano Drive, Pflugerville, TX 78660
 Phone: 254-319-8460
 Email: president@thecollaborativeadvocate.org
@@ -157,7 +157,7 @@ CORE COMPETENCIES
 
 ORGANIZATION DATA
 Legal Name: The Collaborative Advocate Foundation
-EIN: 41-3618503
+EIN: 41-3618003
 Type: 501(c)(3) Nonprofit
 SAM.gov: Registered (UEI Active)
 NAICS Codes: 611430, 624190, 621999, 611710
@@ -227,7 +227,7 @@ BY THE NUMBERS
 • $3.55M–$6.25M+ Grant Pipeline
 • 221+ Grant Opportunities Tracked
 
-EIN: 41-3618503
+EIN: 41-3618003
 SAM.gov: Registered (UEI Active)
 Address: 17912 Stefano Drive, Pflugerville, TX 78660
 Phone: 254-319-8460 | Email: president@thecollaborativeadvocate.org` },
@@ -802,7 +802,7 @@ export default function BusinessDocumentsPage() {
             <div className="p-3 bg-violet-50 dark:bg-violet-950/30 rounded-lg border border-violet-200 dark:border-violet-800">
               <div className="font-semibold text-violet-700 dark:text-violet-300">The Collaborative Advocate Foundation</div>
               <div className="text-xs text-muted-foreground mt-1">IRS-determined 501(c)(3) — Mission delivery, grant execution, and tax-exempt donations for the ecosystem. SAM.gov Active; CAGE 209N1.</div>
-              <div className="text-xs font-mono mt-2">EIN: 41-3618503</div>
+              <div className="text-xs font-mono mt-2">EIN: 41-3618003</div>
             </div>
             <div className="p-3 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800">
               <div className="font-semibold text-blue-700 dark:text-blue-300">Collaboration & Implementation Professionals LLC</div>

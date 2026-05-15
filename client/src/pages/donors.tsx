@@ -286,7 +286,7 @@ export default function DonorsPage() {
                 The Collaborative Advocate Foundation (TCAF) is veteran-founded and Black-led. IRS-determined 501(c)(3) (Letter 947, effective January 14, 2026; public charity under 170(b)(1)(A)(vi)). Contributions are tax-deductible. President: Dr. Terry Flood, DHA.
               </p>
               <p>
-                Gifts go directly to TCAF and are tax-deductible to the fullest extent allowed by law. Receipts are issued under TCAF (EIN 41-3618503).
+                Gifts go directly to TCAF and are tax-deductible to the fullest extent allowed by law. Receipts are issued under TCAF (EIN 41-3618003).
               </p>
               <p>
                 The Outcome Receipts pilot is live on a real cohort in Travis, Williamson, Hays, Bastrop, and Caldwell counties. Resident PII is stripped at the receipt boundary. Hashes are deterministic and re-derivable.
@@ -317,7 +317,7 @@ export default function DonorsPage() {
             </Button>
           </div>
           <p className="text-xs text-muted-foreground pt-2">
-            TCAF · 17912 Stefano Drive, Pflugerville, TX 78660-7020 · EIN 41-3618503 · 501(c)(3) determined (IRS Letter 947, eff. 01/14/2026)
+            TCAF · 17912 Stefano Drive, Pflugerville, TX 78660-7020 · EIN 41-3618003 · 501(c)(3) determined (IRS Letter 947, eff. 01/14/2026)
           </p>
         </section>
 

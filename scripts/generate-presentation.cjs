@@ -55,7 +55,7 @@ slide.addText("Dr. Terry Flood\nPresident | U.S. Army Veteran", {
   x: 1, y: 4.5, w: 11, h: 0.9,
   fontSize: 18, fontFace: "Arial", color: COLORS.white, align: "center", lineSpacingMultiple: 1.3,
 });
-slide.addText("The Collaborative Advocate Foundation\n501(c)(3) | EIN 41-3618503", {
+slide.addText("The Collaborative Advocate Foundation\n501(c)(3) | EIN 41-3618003", {
   x: 1, y: 5.5, w: 11, h: 0.7,
   fontSize: 14, fontFace: "Arial", color: "AABBCC", align: "center", lineSpacingMultiple: 1.3,
 });
@@ -676,7 +676,7 @@ const contactItems = [
   "mr.terryflood@gmail.com",
   "thrivingcommunitiesforall.com",
   "17912 Stefano Drive, Pflugerville, TX 78660",
-  "The Collaborative Advocate Foundation  |  EIN 41-3618503",
+  "The Collaborative Advocate Foundation  |  EIN 41-3618003",
 ];
 contactItems.forEach((c, i) => {
   slide.addText(c, {

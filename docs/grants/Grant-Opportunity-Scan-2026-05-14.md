@@ -2,7 +2,7 @@
 
 **Scope:** 20 NEW opportunities (federal already covered in pipeline) — 5 each across Local (Greater Austin) · State (Texas) · Public Foundations · Private Foundations. Each entry includes: **score justification · how to raise the score · what's involved · collaborators needed (mapped to our ecosystem) · source + URL.**
 
-**Applicant entity:** The Collaborative Advocate Foundation Inc. (DBA TCAF) · EIN 41-3618503 · 501(c)(3) determined eff. 01/14/2026 · UEI **KDDVD1FGLW35** · CAGE **209N1** · SAM.gov **ACTIVE** (renewal 2027-05-06).
+**Applicant entity:** The Collaborative Advocate Foundation Inc. (DBA TCAF) · EIN 41-3618003 · 501(c)(3) determined eff. 01/14/2026 · UEI **KDDVD1FGLW35** · CAGE **209N1** · SAM.gov **ACTIVE** (renewal 2027-05-06).
 
 ---
 

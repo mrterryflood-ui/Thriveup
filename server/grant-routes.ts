@@ -1308,7 +1308,7 @@ export function registerGrantRoutes(app: Express) {
         SAMHSA: `Generate a SAMHSA Community Mental Health grant narrative section for ThriveUp, a holistic youth development platform with integrated behavioral health support. The program follows a Three-Pillar framework: Relief (immediate stabilization), Stabilize (skill building), and Contribute (career pathways and community engagement). Focus on trauma-informed care, behavioral health screening, mental health integration, and whole-child support.`,
         ST_DAVIDS_LOI: `Generate a Letter of Intent (LOI) for St. David's Foundation "We All Benefit 2.0: Building Economic Stability" grant program.
 
-APPLICANT: The Collaborative Advocate Foundation, 501(c)(3), EIN 41-3618503. Veteran-founded, Black-led. Dr. Terry Flood, President. 17912 Stefano Drive, Pflugerville, TX 78660.
+APPLICANT: The Collaborative Advocate Foundation, 501(c)(3), EIN 41-3618003. Veteran-founded, Black-led. Dr. Terry Flood, President. 17912 Stefano Drive, Pflugerville, TX 78660.
 
 VOICE & VALUES — This is who we are:
 - We are EQUITY-FOCUSED and EQUALITY and ACCESS driven. Not theoretical equity — tract-level data that exposes the neighborhoods county averages hide.
@@ -1343,7 +1343,7 @@ AUSTIN CRISIS DATA TO WEAVE IN:
 
 Write the LOI in 500-750 words. Professional but passionate. This should sound like a problem solver who builds infrastructure, not someone asking for charity. Use plain paragraphs, no markdown formatting. The tone is: "We see what's broken. We built the tools. Here's what we'll do."`,
         ST_DAVIDS_FULL: `Generate a full grant narrative for St. David's Foundation "We All Benefit 2.0" application. Use the same voice, values, and ecosystem alignment as the LOI but expanded to 2,000-2,500 words with detailed sections: (1) Organizational Background, (2) Community Need with Census tract-level data, (3) Program Design showing how 24 platforms create comprehensive economic stability pathways, (4) Community Voice through Three Realities methodology, (5) Populations Served including homeless, immigrants, veterans, justice-involved, foster youth — no one left behind, (6) Data & Measurement Infrastructure showing 8 federal sources and locked baselines, (7) Collaborative Approach showing ecosystem coordination and partner integration, (8) Sustainability beyond the grant period. Emphasize equity, access, collaborative accountability, transparency, data-led decision making, and holistic comprehensive service delivery.`,
-        COLLABORATION: `Generate a collaboration proposal narrative for ThriveUp Academy ACOS (Autonomous Collaborative Operating System), a 24-platform AI-powered ecosystem under The Collaborative Advocate Foundation (501(c)(3), EIN 41-3618503). This is NOT a grant request — it is a partnership proposal showing mutual value. ThriveUp offers collaborators: tract-level community data (not county averages), 8 integrated federal data sources (CDC PLACES, SVI, FBI Crime, Census ACS, USDA Food Atlas, HUD, SAMHSA, BLS), GIS mapping infrastructure, autonomous agent coordination across 24 platforms, and implementation science validation (CFIR, RE-AIM). In return, collaborators bring credibility, network access, co-validation, and shared impact measurement. Frame this as infrastructure the collaborator doesn't have to build themselves — they plug into what already exists. Emphasize mutual accountability, shared data, and joint community impact.`,
+        COLLABORATION: `Generate a collaboration proposal narrative for ThriveUp Academy ACOS (Autonomous Collaborative Operating System), a 24-platform AI-powered ecosystem under The Collaborative Advocate Foundation (501(c)(3), EIN 41-3618003). This is NOT a grant request — it is a partnership proposal showing mutual value. ThriveUp offers collaborators: tract-level community data (not county averages), 8 integrated federal data sources (CDC PLACES, SVI, FBI Crime, Census ACS, USDA Food Atlas, HUD, SAMHSA, BLS), GIS mapping infrastructure, autonomous agent coordination across 24 platforms, and implementation science validation (CFIR, RE-AIM). In return, collaborators bring credibility, network access, co-validation, and shared impact measurement. Frame this as infrastructure the collaborator doesn't have to build themselves — they plug into what already exists. Emphasize mutual accountability, shared data, and joint community impact.`,
         DATA_PARTNERSHIP: `Generate a data partnership proposal for ThriveUp Academy's community measurement infrastructure. ThriveUp has built tract-level data analysis across 8 federal sources — CDC PLACES API, CDC/ATSDR SVI, FBI Crime Data Explorer, Census ACS, USDA Food Atlas, HUD, SAMHSA, and BLS. The platform exposes the neighborhoods where poverty exceeds 40% and unemployment tops 20% that county averages hide. For data-focused organizations like Measure Austin, United Way, and community foundations, this is shared infrastructure: API access, community data packages, GIS visualization, and automated reporting. Frame this as a two-way data relationship — not a one-sided ask.`,
       };
 
@@ -1414,7 +1414,7 @@ RELATIONSHIP TYPE: ${relType}
 This is NOT a grant request. This is a mutual-value partnership proposal.
 
 ABOUT THRIVEUP:
-- The Collaborative Advocate Foundation, 501(c)(3), EIN 41-3618503
+- The Collaborative Advocate Foundation, 501(c)(3), EIN 41-3618003
 - Veteran-founded, Black-led, Dr. Terry Flood, President
 - 24-platform Autonomous Collaborative Operating System (ACOS)
 - ${Number(participants.count)} participants served, ${Number(outcomes.count)} outcomes tracked
@@ -5902,7 +5902,7 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
       doc.fontSize(14).fillColor(NAVY).font("Helvetica-Bold").text("The Collaborative Advocate Foundation (TCAF)", 60, 400, { width: PW });
       doc.font("Helvetica");
       doc.fontSize(10).fillColor(MEDIUM).text("Dr. Terry Flood, DHA/DBA \u2014 President / Principal Investigator", 60, 424, { width: PW });
-      doc.text("EIN: 41-3618503 | 501(c)(3) Tax-Exempt Nonprofit", 60, 440, { width: PW });
+      doc.text("EIN: 41-3618003 | 501(c)(3) Tax-Exempt Nonprofit", 60, 440, { width: PW });
       doc.text("17912 Stefano Drive, Pflugerville, TX 78660", 60, 456, { width: PW });
       doc.text("Email: president@thecollaborativeadvocate.org", 60, 472, { width: PW });
 
@@ -6152,7 +6152,7 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
       sectionHeading("C.3 \u2014 Organizational Capacity");
 
       subHeading("Organizational Overview");
-      para("The Collaborative Advocate Foundation (TCAF) is a 501(c)(3) tax-exempt nonprofit (EIN 41-3618503) founded by Dr. Terry Flood. TCAF operates the ThriveUp Academy, a 24-platform AI-powered ecosystem serving workforce development, community health, behavioral health, education, emergency management, and economic development. TCAF is veteran-founded, Black-led, and headquartered in Pflugerville, Texas.");
+      para("The Collaborative Advocate Foundation (TCAF) is a 501(c)(3) tax-exempt nonprofit (EIN 41-3618003) founded by Dr. Terry Flood. TCAF operates the ThriveUp Academy, a 24-platform AI-powered ecosystem serving workforce development, community health, behavioral health, education, emergency management, and economic development. TCAF is veteran-founded, Black-led, and headquartered in Pflugerville, Texas.");
 
       subHeading("Principal Investigator: Dr. Terry Flood, DHA/DBA");
       para("Dr. Flood brings a uniquely integrated credential set directly relevant to the RESTART initiative:");

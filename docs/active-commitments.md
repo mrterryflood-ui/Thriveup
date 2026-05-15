@@ -49,7 +49,7 @@
 4. **Hargrave Innovative Solutions** — Eric Hargrave, Wichita; fixed-fee compliance/reporting
 5. **Vanntastic Solutions LLC** — **EXPLICITLY EXCLUDED** from any role; for-profit, COI
 
-**Iron rules maintained:** EIN 41-3618503 · UEI KDDVD1FGLW35 · CAGE 209N1 · SAM ACTIVE · President not CEO · Institutional email only · Anika Amie NOT a TCAF principal · No Meredith on this submission · 0 prior federal awards disclosed plainly · Fringe 2.74% (payroll taxes only, honest) · 10% indirect.
+**Iron rules maintained:** EIN 41-3618003 · UEI KDDVD1FGLW35 · CAGE 209N1 · SAM ACTIVE · President not CEO · Institutional email only · Anika Amie NOT a TCAF principal · No Meredith on this submission · 0 prior federal awards disclosed plainly · Fringe 2.74% (payroll taxes only, honest) · 10% indirect.
 
 **Bonus framing:** Centene Foundation HQ Saint Louis MO is geographically closer to Wichita than to most coastal grantee concentrations — added as "geographic-of-interest, not a substantive argument."
 
@@ -95,7 +95,7 @@ Headlines:
 - 12-month outcome targets (in one-pager): 250 reached · 75 first-time VA enrollments · 120 Stanley-Brown safety plans · 60 988/VCL warm hand-offs (72-hr follow-up) · 400 peer-support sessions · 180 family members engaged.
 
 **🚨 BLOCKERS found in 2026-05-15 evaluation of vetmissiontransition.com submission pages:**
-1. **EIN typo `41-3618003` in TWO public places** (`/ssg-fox-program` hero subhead + `/ssg-fox-onepager` applicant line). Correct is **41-3618503** per IRS Letter 947. SAM.gov mismatch on submission = invalid application. Fix BEFORE submission.
+1. ~~EIN typo on public pages~~ — **RESOLVED 2026-05-15 PM (agent error, not a real blocker).** Live EIN `41-3618003` on `/ssg-fox-program` + `/ssg-fox-onepager` is **correct** per IRS EIN Assignment PDFs (`attached_assets/The_Collaborative_Advocate_EIN_Nonprofit_IRS_*.pdf`, 1/14/26 3:51 PM) + user-supplied SAM.gov + Swyft Filings screenshots — all confirm `003`. Agent had memory wrong (claimed `503` was correct); 72 files in this codebase were swept back to `003`. M2C site never had a problem on this front.
 2. **`/evidence/tcaf` Live Evidence Dashboard is empty** ("This organization's evidence dashboard is not available.") while the one-pager Evaluation paragraph publicly cites it as the place where monthly de-identified outcomes will publish. Either populate (org profile + pre-award baseline + post-award timeline) or remove the URL from the public materials.
 3. **Hero "91.8% — our model"** reads as if M2C achieves it; reword to attribute to FY25 SSG Fox grantee aggregate.
 4. **"ThriveUp 20-platform veteran services ecosystem (Grade A — 97% compliance)"** is triple-wrong: 15 not 20, not all veteran, unverified grade. Reword to "15 public-facing service platforms; M2C is the veteran-services anchor."
@@ -121,7 +121,7 @@ DB cleanup performed: Fox duplicate-row issue (one curated row fit 85 + one Gran
 - Tax period ends May annually — they make grant decisions on a roughly seasonal cycle aligned with their FY.
 
 **Architect review findings + fixes applied:**
-- ✅ Iron rules clean: "President" not "CEO"; no Meredith; St. David's "actively evaluating"; national-platform-Texas-piloted; institutional emails only; EIN 41-3618503 in all 3 files; no Anika Amie; no Abundant Life hedge.
+- ✅ Iron rules clean: "President" not "CEO"; no Meredith; St. David's "actively evaluating"; national-platform-Texas-piloted; institutional emails only; EIN 41-3618003 in all 3 files; no Anika Amie; no Abundant Life hedge.
 - ✅ Capability honesty: TYT 89+18=107; SafeReport FHIR+CDS Hooks+HITL+0 PHI; WPH validated screening; all platform claims trace to ecosystem-catalog.md and replit.md.
 - ✅ Tabbara disclosure: "no prior federal awards" stated explicitly.
 - ✅ Centene fit: ~~Superior HealthPlan named~~ **(superseded May 15, 2026 — see KS pivot section above; concept now names Sunflower Health Plan / KanCare as the Centene Kansas MCO)**; BH + health equity priorities cited.
@@ -129,7 +129,7 @@ DB cleanup performed: Fox duplicate-row issue (one curated row fit 85 + one Gran
 - ✅ Targets consistent across docs (1,500 residents · 400 crisis events · 250 CDS sessions · 200 veteran · 500 SDOH).
 - **FIXED:** Fringe math inconsistency. Was "$73,000 × 5.3% = $2,000" (impossible — 5.3% of $73K is $3,869). Corrected to "$73,000 × 2.74% = $2,000 (partial payroll taxes only; full benefits package not yet in place)". Honest framing matches narrative explanation in `03-budget-narrative.md:1d`.
 - **FIXED:** FTE allocation inconsistency between concept paper and budget. Concept said "0.5 BH coord + 0.25 evaluation"; budget said "0.50 + 0.20". Reconciled both to budget-side numbers (0.15 Flood / 0.50 coordinator / 0.20 evaluation). Total still $75K personnel.
-- ❌ Architect false-positive: claimed EIN typo `41-3618003` in budget+narrative — verified, all three files actually use `41-3618503`. No change needed.
+- ❌ Architect false-positive: claimed EIN typo in budget+narrative — verified, all three files use the correct `41-3618003`. No change needed.
 
 **Budget at a glance:**
 | Category | $ | % |
@@ -216,7 +216,7 @@ Full brief: **`docs/grants/Grant-Opportunity-Scan-2026-05-14.md`**. Sliced 5 eac
 >
 > Dear Mr. Brewer,
 >
-> I'm Dr. Terry Flood, President of The Collaborative Advocate Foundation (TCAF), a Texas-based 501(c)(3) (EIN 41-3618503, determination effective January 14, 2026; **SAM.gov UEI KDDVD1FGLW35 — ACTIVE; CAGE 209N1**). We operate 15 public-facing service platforms — a national community-infrastructure model piloted in Travis County — including Minority Center of Excellence, Mission Transition (military-to-civilian pathways), and ThriveUp Academy (AI literacy, financial literacy, workforce pathways).
+> I'm Dr. Terry Flood, President of The Collaborative Advocate Foundation (TCAF), a Texas-based 501(c)(3) (EIN 41-3618003, determination effective January 14, 2026; **SAM.gov UEI KDDVD1FGLW35 — ACTIVE; CAGE 209N1**). We operate 15 public-facing service platforms — a national community-infrastructure model piloted in Travis County — including Minority Center of Excellence, Mission Transition (military-to-civilian pathways), and ThriveUp Academy (AI literacy, financial literacy, workforce pathways).
 >
 > I'm reaching out following the Texas Economic Development Corporation's notice on the SBA Manufacturing in America Empower to Grow (E2G) Initiative. After honest review, E2G isn't a fit for TCAF as prime — we don't operate a small-manufacturer portfolio. But the framing in your team's note — *"other opportunities in that same domain"* — suggests there may be programs better aligned with our work in **microenterprise development, women's business ownership, veteran entrepreneurship, and minority-business technical assistance.**
 >
@@ -230,7 +230,7 @@ Full brief: **`docs/grants/Grant-Opportunity-Scan-2026-05-14.md`**. Sliced 5 eac
 > President, The Collaborative Advocate Foundation
 > US Army Retiree · DSHS-Certified CHW Instructor #657
 > terryflood@thrivingcommunitiesforall.com · 254-319-8460
-> SAM UEI: KDDVD1FGLW35 (Active) · CAGE: 209N1 · EIN: 41-3618503
+> SAM UEI: KDDVD1FGLW35 (Active) · CAGE: 209N1 · EIN: 41-3618003
 
 **Pre-send checklist:**
 - [ ] Email address: confirmed correct? (User is updating institutional email; hold if change is imminent)
@@ -307,7 +307,7 @@ User directive May 12, 2026: **"start using free version of Candid for grants."*
 
 | Service | URL | What it does | Priority |
 |---|---|---|---|
-| **Candid Nonprofit Profile** (formerly GuideStar) | candid.org/profile | Public-facing TCAF profile that funders check FIRST when vetting. Earn Bronze→Silver→Gold→Platinum Transparency seals by adding more data. **MUST CLAIM** under EIN 41-3618503. | 🔴 #1 |
+| **Candid Nonprofit Profile** (formerly GuideStar) | candid.org/profile | Public-facing TCAF profile that funders check FIRST when vetting. Earn Bronze→Silver→Gold→Platinum Transparency seals by adding more data. **MUST CLAIM** under EIN 41-3618003. | 🔴 #1 |
 | **Demographics via Candid** | candid.org/demographics | DEI data on board/staff publicly attached to profile. Required by many foundations now. Free. | 🟡 #2 |
 | **990 Finder** | candid.org/research-and-verify-nonprofits/990-finder | Free Form 990 lookup for any nonprofit. Use for: (a) competitive intel on peer orgs, (b) funder-prospect research (who they've given to historically). | 🟢 use as needed |
 | **RFP Bulletin** | philanthropynewsdigest.org/rfps | Free weekly RFP email digest from Candid. Subscribe `terryflood@thrivingcommunitiesforall.com`. | 🟡 #3 |
@@ -327,7 +327,7 @@ User directive May 12, 2026: **"start using free version of Candid for grants."*
 - **NOT a candidate** for adding as an automated source in `server/grant-routes.ts:6359` (would require paid API).
 
 ### First-week action checklist
-1. **Claim TCAF Candid Nonprofit Profile** under EIN 41-3618503. Use Letter 947 to verify 501(c)(3) status field. Address: 17912 Stefano Dr, Pflugerville, TX 78660-7020.
+1. **Claim TCAF Candid Nonprofit Profile** under EIN 41-3618003. Use Letter 947 to verify 501(c)(3) status field. Address: 17912 Stefano Dr, Pflugerville, TX 78660-7020.
 2. Add Dr. Flood as authorized contact: `terryflood@thrivingcommunitiesforall.com` (pending email update — wait if user is changing email).
 3. Submit Demographics survey to attach DEI data → unlocks Silver seal at minimum.
 4. Subscribe RFP Bulletin to `terryflood@thrivingcommunitiesforall.com`.
@@ -557,7 +557,12 @@ Run via `scripts/ecosystem-alignment-scan.sh`. Re-run anytime alignment is in do
 
 ## TCAF / The Collaborative Advocate — legal status (UPDATED May 12, 2026 — IRS DETERMINATION RECEIVED)
 
-- **🚨 EIN CORRECTED May 12, 2026 (user confirmed IRS letter is authoritative):** Was **41-3618003** (typo in originally-typed `attached_assets/Agency_Fund_EOI_Collaborative_Advocate.md`), now **41-3618503**. Mass-replaced across 61 project files via `sed`. `attached_assets/` left untouched as historical record of what was originally entered. **Funders who likely received the wrong EIN — file corrections:** (a) **🔴 City of Austin AEI FY26** (Equity Mini-Grant Narrative + Application Responses FINAL — submitted; user confirms entered manually so the submitted form may have either number — check the submitted PDF on AustinFirst portal first); (b) **🔴 TWC RFA 32026-00162** (FORM-A-APPLICATION submitted with old EIN — file Form A correction with TWC contracts office); (c) **🟡 Spencer Foundation Narrative SUBMISSION.doc** (check whether actually submitted vs. draft); (d) **🟡 St. David's WAB2 LOI Package** (LOI submitted via GivingData 4/27/2026 — check what EIN was on the GivingData form); (e) **🟢 NSF TechAccess, NSF ATE, NSF STEM K-12, DOL RESTART, CDMRP PRMRP, RARE Impact Fund, Borealis DIF x Tech, RWJF CV** — drafts only, no correction needed, just resubmit clean. (f) **🟢 Public site landing.tsx footer + grant-command-center.tsx notes** — auto-fixed in sweep, no funder action needed.
+- **🚨 EIN HISTORY — TWO sweeps, full record (May 12 + May 15, 2026):**
+  - **The truth (primary-source verified 2026-05-15):** EIN is `41-3618003`. Verified from IRS EIN Assignment PDFs in `attached_assets/The_Collaborative_Advocate_EIN_Nonprofit_IRS_*.pdf` (dated 1/14/26 3:51 PM, matching Letter 947's exemption effective date) + SAM.gov entity record + Swyft Filings business record + IRS sa.www4.irs.gov screenshots user supplied 2026-05-15.
+  - **May 12 sweep (WRONG):** Agent replaced `41-3618003` → `41-3618503` across ~61 files claiming the `003` was a typo and `503` was correct per "IRS Letter 947." Agent never opened the IRS PDFs. The PDFs said `003` all along. This sweep was the error.
+  - **May 15 sweep (CORRECTION):** Agent reverted `41-3618503` → `41-3618003` across 72 files (count grew between sweeps as new content was authored using the wrong number). `attached_assets/` left untouched both times.
+  - **Funder-side implications (now that we know `003` is right all along):** any grant submitted before May 12 with EIN `41-3618003` was CORRECT. Any grant drafted or submitted between May 12 and May 15 with EIN `41-3618503` was WRONG and may need correction. Check each: (a) **City of Austin AEI FY26** — submitted, verify which EIN appeared on the submitted PDF in AustinFirst portal; (b) **TWC RFA 32026-00162** — FORM-A-APPLICATION submitted, verify EIN on submitted Form A; (c) **Spencer Foundation Narrative** — check submission status; (d) **St. David's WAB2 LOI** — submitted via GivingData 4/27/2026 (before May 12 sweep, so likely correct `003`); (e) NSF / DOL / CDMRP / RARE / Borealis / RWJF drafts — drafts only, no correction needed.
+  - **Live public-facing sites:** ThriveUp Academy pages (`landing.tsx`, `grant-command-center.tsx`, etc.) carried wrong `503` for 3 days; now correct. M2C / vetmissiontransition.com (separate Replit project) was never touched by either sweep — its `003` has been correct continuously.
 - **501(c)(3) DETERMINED** by IRS Letter 947 dated **04/30/2026**, effective **01/14/2026**. Public charity under **170(b)(1)(A)(vi)** (publicly-supported organization). Contributions ARE deductible. Form 990/990-EZ/990-N required. Accounting period ends Dec 31. No addendum.
 - Person to contact at IRS if questions: **Mrs. Hurst, ID# 1793423, 877-829-5500**.
 - **Stop using:** "501(c)(3) determination pending," "Tracking 281OIP7B," "fiscal sponsorship via Abundant Life Church," "during the determination period." All superseded.
@@ -703,7 +708,7 @@ Full reference: `docs/grants/Top-5-Grants-URLs-and-Requirements.md`
 **TCAF Submission-Ready Quick Reference (use for ALL future grant fields):**
 - **Legal name:** The Collaborative Advocate Foundation
 - **DBA:** TCAF
-- **EIN:** 41-3618503 *(corrected May 12, 2026 from typo `41-3618003` — IRS Letter 947 authoritative)*
+- **EIN:** 41-3618003 *(primary-source verified 2026-05-15 from IRS EIN Assignment PDFs in `attached_assets/` + SAM.gov + Swyft Filings; the May 12 "correction" to `503` was an agent error, reverted 2026-05-15)*
 - **501(c)(3):** **DETERMINED** — IRS Letter 947 dated 04/30/2026, effective 01/14/2026, public charity under IRC §170(b)(1)(A)(vi), contributions deductible
 - **Address:** 17912 Stefano Drive, Pflugerville, TX 78660 (Travis County)
 - **President / Signer:** Dr. Terry Flood, DHA

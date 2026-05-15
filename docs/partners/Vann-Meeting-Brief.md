@@ -53,7 +53,7 @@ First Kansas anchor partner. Real community trust in a 2.5×-cancer-rate environ
 ## Iron-rule reminders (President, not CEO)
 
 - Dr. Flood = **President**, not CEO. Institutional email only: `terryflood@thrivingcommunitiesforall.com`.
-- TCAF = **IRS-determined 501(c)(3)** (Letter 947, eff. 01/14/2026; EIN 41-3618503; 170(b)(1)(A)(vi)); **SAM.gov Active** (UEI KDDVD1FGLW35; CAGE 209N1). **No fiscal-sponsor language.**
+- TCAF = **IRS-determined 501(c)(3)** (Letter 947, eff. 01/14/2026; EIN 41-3618003; 170(b)(1)(A)(vi)); **SAM.gov Active** (UEI KDDVD1FGLW35; CAGE 209N1). **No fiscal-sponsor language.**
 - St. David's = "actively evaluating," never "awarded."
 - Public footprint = 15 service platforms (not 25).
 - If she asks about Talk Your Talk: 89 spoken + 18 sign = 107.

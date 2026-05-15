@@ -15,7 +15,7 @@
 ## Why This Is a Strong Fit
 
 ### No University-as-Lead Requirement
-Spencer awards to any nonprofit, public institution, school district, or 501(c)(3). TCAF (EIN: 41-3618503) qualifies directly. This sidesteps the IHE partnership barrier faced with NSF.
+Spencer awards to any nonprofit, public institution, school district, or 501(c)(3). TCAF (EIN: 41-3618003) qualifies directly. This sidesteps the IHE partnership barrier faced with NSF.
 
 ### Field-Initiated
 No requirement to frame around STEM. Proposal can be exactly what ISSS does: implementation science infrastructure for whole-child support. No contorting the proposal to fit a narrow category.
@@ -172,4 +172,4 @@ TCAF is a 501(c)(3) nonprofit -- fully eligible. VOSB status is not a barrier as
 
 ---
 
-*The Collaborative Advocate Foundation (TCAF) -- EIN: 41-3618503 -- 17912 Stefano Drive, Pflugerville, TX 78660*
+*The Collaborative Advocate Foundation (TCAF) -- EIN: 41-3618003 -- 17912 Stefano Drive, Pflugerville, TX 78660*

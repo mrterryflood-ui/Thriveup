@@ -2,7 +2,7 @@
 
 **Project Title:** Talk Your Talk — Belonging & Voice Initiative for Austin's Immigrant & Refugee Communities
 **Applicant:** The Collaborative Advocate Foundation (TCAF)
-**EIN:** 41-3618503 · IRS-determined 501(c)(3) (Letter 947, effective January 14, 2026; public charity under 170(b)(1)(A)(vi)) · SAM.gov Active (UEI KDDVD1FGLW35) · CAGE 209N1
+**EIN:** 41-3618003 · IRS-determined 501(c)(3) (Letter 947, effective January 14, 2026; public charity under 170(b)(1)(A)(vi)) · SAM.gov Active (UEI KDDVD1FGLW35) · CAGE 209N1
 **Address:** 17912 Stefano Drive, Pflugerville, TX 78660 (Travis County)
 **Service Area:** Travis, Williamson, Hays, Bastrop, Caldwell counties
 **Primary Contact:** Dr. Terry Flood, DHA — President
@@ -158,7 +158,7 @@ The pilot's design does not require all 11 — only 4–6 active warm-handoff pa
 
 ## 8. Organizational Capacity
 
-The Collaborative Advocate Foundation (TCAF) is a Travis County–based, Veteran-Founded, Black-Led organization (EIN 41-3618503) that is an **approved City of Austin vendor as of May 7, 2026** (Austin Finance Online) and an **IRS-determined 501(c)(3)** (Letter 947, effective January 14, 2026; public charity under 170(b)(1)(A)(vi)). TCAF is SAM.gov Active (UEI KDDVD1FGLW35) with CAGE Code 209N1, eligible to apply for federal, state, and local awards directly without a fiscal sponsor. TCAF operates a multi-platform technology ecosystem developed and maintained in-house, including:
+The Collaborative Advocate Foundation (TCAF) is a Travis County–based, Veteran-Founded, Black-Led organization (EIN 41-3618003) that is an **approved City of Austin vendor as of May 7, 2026** (Austin Finance Online) and an **IRS-determined 501(c)(3)** (Letter 947, effective January 14, 2026; public charity under 170(b)(1)(A)(vi)). TCAF is SAM.gov Active (UEI KDDVD1FGLW35) with CAGE Code 209N1, eligible to apply for federal, state, and local awards directly without a fiscal sponsor. TCAF operates a multi-platform technology ecosystem developed and maintained in-house, including:
 
 - **Talk Your Talk** — 89-spoken-language and 18-sign-language interpreter (107 total) with dialect awareness and crisis detection (https://talkyourtalk.net)
 - **LifeBridge** — Virtual 211 with a Community Health Worker hub spanning 20,000+ verified resources (https://lifetransitionsaid.org)

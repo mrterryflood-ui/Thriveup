@@ -192,7 +192,7 @@ Respectfully,
 Dr. Terry Flood, DHA
 President, The Collaborative Advocate Foundation
 U.S. Army Veteran — Bronze Star x2
-EIN: 41-3618503
+EIN: 41-3618003
 17912 Stefano Drive, Pflugerville, TX 78660
 Email: president@thecollaborativeadvocate.org
 Website: thrivingcommunitiesforall.com
@@ -587,7 +587,7 @@ DOCUMENTS YOU NEED TO GATHER
 ═══════════════════════════════════════════════════
 
 □ IRS 501(c)(3) DETERMINATION LETTER
-  Status: TCAF has this — EIN 41-3618503
+  Status: TCAF has this — EIN 41-3618003
   Action: Locate the original IRS letter and have a PDF ready
 
 □ MOST RECENT FORM 990
@@ -688,7 +688,7 @@ Respectfully,
 Dr. Terry Flood, DHA
 President
 The Collaborative Advocate Foundation
-EIN: 41-3618503
+EIN: 41-3618003
 17912 Stefano Drive, Pflugerville, TX 78660
 Email: president@thecollaborativeadvocate.org
 Website: thrivingcommunitiesforall.com

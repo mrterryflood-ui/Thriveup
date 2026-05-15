@@ -13,7 +13,7 @@ Austin, Texas
 
 **Co-PI / Platform & Implementation Science Partner:**
 **The Collaborative Advocate Foundation (TCAF)**
-501(c)(3) | EIN 41-3618503
+501(c)(3) | EIN 41-3618003
 17912 Stefano Drive, Pflugerville, TX 78660
 Veteran-founded | Black-led
 

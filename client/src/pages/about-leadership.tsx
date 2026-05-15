@@ -155,7 +155,7 @@ export default function AboutLeadershipPage() {
             <div className="space-y-1.5 text-sm">
               <p className="font-semibold">501(c)(3) Status — Honest Disclosure</p>
               <p className="text-muted-foreground">
-                <span className="font-medium text-foreground">TCAF</span> is an IRS-determined 501(c)(3) under section 170(b)(1)(A)(vi) (Letter 947, effective January 14, 2026; EIN 41-3618503) and is SAM.gov Active (UEI KDDVD1FGLW35; CAGE 209N1), eligible to apply for and receive federal, state, and local awards directly.{" "}
+                <span className="font-medium text-foreground">TCAF</span> is an IRS-determined 501(c)(3) under section 170(b)(1)(A)(vi) (Letter 947, effective January 14, 2026; EIN 41-3618003) and is SAM.gov Active (UEI KDDVD1FGLW35; CAGE 209N1), eligible to apply for and receive federal, state, and local awards directly.{" "}
                 <span className="font-medium text-foreground">Abundant Life Church</span> remains a community-delivery and faith-community partner for joint programming where appropriate, but is not a required fiduciary for TCAF awards.
               </p>
               <p className="text-xs text-muted-foreground italic">We disclose this structure transparently because federal reviewers and foundation program officers reward applicants who name their status honestly. We will update this page within 30 days of any change in TCAF's IRS determination.</p>

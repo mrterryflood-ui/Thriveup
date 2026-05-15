@@ -1,5 +1,5 @@
 # TCAF Federal Health Grant Opportunities
-## The Collaborative Advocate Foundation | EIN 41-3618503
+## The Collaborative Advocate Foundation | EIN 41-3618003
 ### Prepared: April 1, 2026
 ### Dr. Terry Flood, President
 
@@ -183,7 +183,7 @@ This document identifies open and upcoming federal health grant opportunities fr
 - **SAM.gov:** Verify TCAF registration is current (required for all federal grants)
 - **Grants.gov:** Ensure organizational profile is active
 - **eRA Commons:** Required for NIH submissions — register if not already
-- **EIN:** 41-3618503 (TCAF)
+- **EIN:** 41-3618003 (TCAF)
 - **DUNS/UEI:** Verify current Unique Entity Identifier
 
 ---

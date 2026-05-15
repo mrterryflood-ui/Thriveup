@@ -256,7 +256,7 @@ async function main() {
     { text: "5.  ", options: { bold: true, color: "FBBF24" } }, { text: "30-day check-in scheduled. No fiscal-sponsor structure required — both organizations are independent 501(c)(3)s.", options: { color: "FFFFFF" } },
   ], { x: 0.5, y: 1.3, w: 12.3, h: 4.8, fontSize: 16 });
   s10.addText("Honest disclosure", { x: 0.5, y: 6.0, w: 12, h: 0.3, fontSize: 11, bold: true, color: "FBBF24" });
-  s10.addText("Demo cohort data is illustrative placeholders for the conversation. No real Sistahs CWT or Iasis member data is represented. TCAF is IRS-determined 501(c)(3) (Letter 947, eff. 01/14/2026; EIN 41-3618503), SAM.gov ACTIVE (UEI KDDVD1FGLW35, CAGE 209N1). St. David's Foundation status: actively evaluating.", { x: 0.5, y: 6.3, w: 12.3, h: 1.0, fontSize: 10, color: "CBD5E1", italic: true });
+  s10.addText("Demo cohort data is illustrative placeholders for the conversation. No real Sistahs CWT or Iasis member data is represented. TCAF is IRS-determined 501(c)(3) (Letter 947, eff. 01/14/2026; EIN 41-3618003), SAM.gov ACTIVE (UEI KDDVD1FGLW35, CAGE 209N1). St. David's Foundation status: actively evaluating.", { x: 0.5, y: 6.3, w: 12.3, h: 1.0, fontSize: 10, color: "CBD5E1", italic: true });
 
   // ----- Write -----
   const outDir = path.join(ROOT, "dist");

@@ -1,7 +1,7 @@
 # Concept Paper — Centene Foundation Behavioral Health Community Grants (Spring 2026)
 
 **Applicant:** The Collaborative Advocate Foundation Inc. (DBA TCAF)
-**EIN:** 41-3618503 · **UEI:** KDDVD1FGLW35 · **CAGE:** 209N1 · **SAM.gov:** ACTIVE
+**EIN:** 41-3618003 · **UEI:** KDDVD1FGLW35 · **CAGE:** 209N1 · **SAM.gov:** ACTIVE
 **501(c)(3) Status:** Determined under §170(b)(1)(A)(vi), effective 01/14/2026
 **Address:** 17912 Stefano Drive, Pflugerville, TX 78660-7020
 **Primary Contact:** Terry D. Flood, Sr., President · terryflood@thrivingcommunitiesforall.com

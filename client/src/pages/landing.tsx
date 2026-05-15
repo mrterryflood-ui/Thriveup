@@ -123,7 +123,7 @@ function TrustBar() {
     <div className="py-6 px-4 text-center" data-testid="section-trust-bar">
       <div className="max-w-5xl mx-auto">
         <p className="text-sm text-muted-foreground mb-3">
-          <strong>The Collaborative Advocate Foundation</strong> (EIN 41-3618503) is a 501(c)(3) nonprofit, veteran-founded and Black-led, headquartered in Pflugerville, TX. Led by Dr. Terry Flood, DHA/DBA.
+          <strong>The Collaborative Advocate Foundation</strong> (EIN 41-3618003) is a 501(c)(3) nonprofit, veteran-founded and Black-led, headquartered in Pflugerville, TX. Led by Dr. Terry Flood, DHA/DBA.
         </p>
         <div className="flex flex-wrap items-center justify-center gap-3">
           <Badge variant="outline" className="text-xs" data-testid="badge-trust-501c3">

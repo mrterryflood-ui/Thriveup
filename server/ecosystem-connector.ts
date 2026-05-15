@@ -995,7 +995,7 @@ const ECOSYSTEM_PLATFORMS = [
     url: "https://thrivingcommunitiesforall.com",
     role: "vosb-services",
     domain: "veteran-services",
-    description: "The organizational entity — IRS-determined 501(c)(3) nonprofit (Letter 947, effective January 14, 2026; EIN 41-3618503; public charity under 170(b)(1)(A)(vi)), veteran-founded, Black-led — serving as the service delivery arm and grant execution lead for the entire ThriveUp ecosystem. Founded by Dr. Terry Flood. SAM.gov Active (UEI KDDVD1FGLW35; CAGE 209N1) — eligible to apply for and receive federal awards directly. Provides veteran advocacy with lived-experience credibility, peer support coordination matching veterans to trained peers, workforce development consulting for employers hiring veterans, and direct grant execution management for WIOA ($200K-$500K), SSG Fox VA ($750K), St. David's (up to $1M), and Foundation ($100K-$500K) grants. The organizational backbone that holds the ecosystem's 501(c)(3) determination, SAM.gov registration, and direct federal-award eligibility.",
+    description: "The organizational entity — IRS-determined 501(c)(3) nonprofit (Letter 947, effective January 14, 2026; EIN 41-3618003; public charity under 170(b)(1)(A)(vi)), veteran-founded, Black-led — serving as the service delivery arm and grant execution lead for the entire ThriveUp ecosystem. Founded by Dr. Terry Flood. SAM.gov Active (UEI KDDVD1FGLW35; CAGE 209N1) — eligible to apply for and receive federal awards directly. Provides veteran advocacy with lived-experience credibility, peer support coordination matching veterans to trained peers, workforce development consulting for employers hiring veterans, and direct grant execution management for WIOA ($200K-$500K), SSG Fox VA ($750K), St. David's (up to $1M), and Foundation ($100K-$500K) grants. The organizational backbone that holds the ecosystem's 501(c)(3) determination, SAM.gov registration, and direct federal-award eligibility.",
     capabilities: {
       features: ["IRS-Determined 501(c)(3) (Letter 947, eff. 01/14/2026)", "SAM.gov Active (UEI KDDVD1FGLW35; CAGE 209N1)", "Direct Federal Award Eligibility", "Veteran Advocacy", "Peer Support Coordination", "Workforce Development Consulting", "Grant Execution Management", "Community Partnerships", "Service Delivery Operations", "Board Governance", "Program Evaluation", "Stakeholder Engagement", "Policy Advocacy"],
       integrationDepth: "Organizational backbone for the ecosystem — provides direct grant eligibility (IRS-determined 501(c)(3), SAM.gov Active, CAGE 209N1) and operational governance for every component",
@@ -10005,7 +10005,7 @@ if (typeof module !== "undefined") {
         ecosystem: "ThriveUp Academy — Collaborative Advocate Ecosystem",
         parent: "The Collaborative Advocate Foundation (501(c)(3))",
         founder: "Dr. Terry Flood",
-        ein: "41-3618503",
+        ein: "41-3618003",
         hub: "https://thrivingcommunitiesforall.com",
         version: "3.0",
         lastUpdated: new Date().toISOString(),

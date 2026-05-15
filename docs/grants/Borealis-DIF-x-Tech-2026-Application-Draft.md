@@ -2,7 +2,7 @@
 ## The Collaborative Advocate Foundation (TCAF)
 
 **Applicant:** The Collaborative Advocate Foundation (TCAF) — applying directly as an IRS-determined 501(c)(3) (Letter 947, effective January 14, 2026); SAM.gov Active; CAGE 209N1.
-**EIN:** 41-3618503
+**EIN:** 41-3618003
 **Address:** 17912 Stefano Drive, Pflugerville, TX 78660
 **Contact:** Dr. Terry Flood Sr., President, TCAF
 **Amount Requested:** $100,000 ($50,000/year x 2 years)
@@ -92,7 +92,7 @@ TCAF's ecosystem generates real-time outcome data. For this initiative, we will 
 
 ## 5. Organizational Status
 
-The Collaborative Advocate Foundation (TCAF) is an IRS-determined 501(c)(3) nonprofit organization based in Pflugerville, Texas (Letter 947, effective January 14, 2026; public charity under 170(b)(1)(A)(vi); EIN 41-3618503). TCAF is SAM.gov Active (UEI KDDVD1FGLW35) with CAGE Code 209N1, eligible to apply for and receive federal awards directly. Founded by Dr. Terry Flood Sr., TCAF operates a 15-platform AI-powered ecosystem serving communities across health equity, education, workforce development, veteran services, criminal justice reentry, and disability inclusion.
+The Collaborative Advocate Foundation (TCAF) is an IRS-determined 501(c)(3) nonprofit organization based in Pflugerville, Texas (Letter 947, effective January 14, 2026; public charity under 170(b)(1)(A)(vi); EIN 41-3618003). TCAF is SAM.gov Active (UEI KDDVD1FGLW35) with CAGE Code 209N1, eligible to apply for and receive federal awards directly. Founded by Dr. Terry Flood Sr., TCAF operates a 15-platform AI-powered ecosystem serving communities across health equity, education, workforce development, veteran services, criminal justice reentry, and disability inclusion.
 
 Dr. Flood holds a Doctorate in Healthcare Administration along with graduate degrees in Implementation Science, Psychology, Human Resource Management, Business Administration, Criminal Justice, and Public Policy. He is a veteran and leads three entities: TCAF (nonprofit programs), Collaboration and Implementation Professionals LLC (veteran-owned small business for technology and consulting), and M&T Consulting Solutions LLC (strategic advisory).
 

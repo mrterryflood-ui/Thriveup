@@ -1,6 +1,6 @@
 # CDMRP FY2026 — Master Grant Strategy
 ## 31 Programs | $1.25 Billion Addressable | Sankofa Ecosystem + RPLICE
-**Prepared**: April 11, 2026 | **Applicant**: Nonprofit (VOSB, 501(c)(3), EIN 41-3618503)
+**Prepared**: April 11, 2026 | **Applicant**: Nonprofit (VOSB, 501(c)(3), EIN 41-3618003)
 **Submission Portals**: eBRAP.org (pre-application) → Grants.gov (full application)
 **CFDA Number**: 12.420 (search this on Grants.gov for all CDMRP opportunities)
 

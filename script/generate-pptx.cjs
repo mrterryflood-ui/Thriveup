@@ -53,7 +53,7 @@ addSlide({
     slide.addText("Autonomous Collaborative Operating System (ACOS)", { x: 0.8, y: 2.8, w: 11.5, h: 0.7, fontSize: 22, fontFace: "Arial", color: "E8E0E0", align: "center" });
     slide.addText("24-Platform AI-Powered Workforce Development & Community Enablement Ecosystem", { x: 0.8, y: 3.6, w: 11.5, h: 0.6, fontSize: 16, fontFace: "Arial", color: "D0D0D0", align: "center" });
     slide.addShape(pptx.ShapeType.rect, { x: 4.5, y: 4.5, w: 4.0, h: 0.04, fill: { color: "FFFFFF" } });
-    slide.addText("The Collaborative Advocate Foundation  |  501(c)(3)  |  EIN 41-3618503", { x: 0.8, y: 5.0, w: 11.5, h: 0.5, fontSize: 13, fontFace: "Arial", color: "CCCCCC", align: "center" });
+    slide.addText("The Collaborative Advocate Foundation  |  501(c)(3)  |  EIN 41-3618003", { x: 0.8, y: 5.0, w: 11.5, h: 0.5, fontSize: 13, fontFace: "Arial", color: "CCCCCC", align: "center" });
     slide.addText("Veteran-Founded  |  Black-Led  |  Dr. Terry Flood, President", { x: 0.8, y: 5.5, w: 11.5, h: 0.5, fontSize: 13, fontFace: "Arial", color: "BBBBBB", align: "center" });
     slide.addText("17912 Stefano Drive, Pflugerville, TX 78660  |  mr.terryflood@gmail.com", { x: 0.8, y: 6.1, w: 11.5, h: 0.4, fontSize: 11, fontFace: "Arial", color: "999999", align: "center" });
     addFooter(slide, 1, TOTAL_SLIDES);
@@ -86,7 +86,7 @@ addSlide({
 
     slide.addText("THREE ENTITIES", { x: 5.0, y: 0.5, w: 7.5, h: 0.4, fontSize: 11, fontFace: "Arial", color: MAROON, bold: true, charSpacing: 3 });
     const entities = [
-      { name: "The Collaborative Advocate Foundation", type: "501(c)(3) Nonprofit", ein: "41-3618503", role: "Fiscal Agent & Research Engine" },
+      { name: "The Collaborative Advocate Foundation", type: "501(c)(3) Nonprofit", ein: "41-3618003", role: "Fiscal Agent & Research Engine" },
       { name: "Collaboration & Implementation Professionals LLC", type: "Veteran-Owned Small Business", ein: "41-4996540", role: "Technology & Consulting" },
       { name: "M&T Consulting Solutions LLC", type: "Consulting Entity", ein: "41-4952178", role: "Strategic Advisory & Program Design" },
     ];
@@ -1072,7 +1072,7 @@ addSlide({
     slide.addShape(pptx.ShapeType.roundRect, { x: 7.0, y: 5.8, w: 3.5, h: 0.7, fill: { color: "3A3035" }, rectRadius: 0.1, line: { color: "999999", width: 1 } });
     slide.addText("View Impact Dashboard", { x: 7.0, y: 5.8, w: 3.5, h: 0.7, fontSize: 12, fontFace: "Arial", color: WHITE, bold: true, align: "center", valign: "middle" });
 
-    slide.addText("The Collaborative Advocate Foundation  |  501(c)(3)  |  EIN 41-3618503  |  Veteran-Founded  |  Black-Led", {
+    slide.addText("The Collaborative Advocate Foundation  |  501(c)(3)  |  EIN 41-3618003  |  Veteran-Founded  |  Black-Led", {
       x: 0.8, y: 6.6, w: 11.5, h: 0.4, fontSize: 10, fontFace: "Arial", color: "999999", align: "center"
     });
     addFooter(slide, 30, TOTAL_SLIDES);

@@ -462,7 +462,7 @@ export default function CoalitionPortalPage() {
                 <div className="p-3 rounded-lg bg-muted/50 text-sm">
                   <p><strong>Three entities work as one:</strong></p>
                   <ul className="mt-1 space-y-1 text-muted-foreground">
-                    <li>TCAF (EIN 41-3618503) — Grants, nonprofit operations, community relationships</li>
+                    <li>TCAF (EIN 41-3618003) — Grants, nonprofit operations, community relationships</li>
                     <li>CIP LLC (EIN 41-4996540) — Technology development, AI, data engineering</li>
                     <li>M&T Consulting (EIN 41-4952178) — Staffing, payroll, CHW employment</li>
                   </ul>
@@ -679,7 +679,7 @@ export default function CoalitionPortalPage() {
               <CardContent className="pt-4 text-center space-y-2">
                 <p className="text-sm font-medium">Questions? Reach out directly:</p>
                 <a href="mailto:president@thecollaborativeadvocate.org" className="inline-flex items-center gap-1 text-sm text-primary hover:underline"><Mail className="h-4 w-4" /> president@thecollaborativeadvocate.org</a>
-                <p className="text-xs text-muted-foreground">The Collaborative Advocate Foundation · 501(c)(3) · EIN 41-3618503<br />17912 Stefano Drive, Pflugerville, TX 78660 · Williamson County</p>
+                <p className="text-xs text-muted-foreground">The Collaborative Advocate Foundation · 501(c)(3) · EIN 41-3618003<br />17912 Stefano Drive, Pflugerville, TX 78660 · Williamson County</p>
               </CardContent>
             </Card>
           </TabsContent>

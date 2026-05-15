@@ -27,7 +27,7 @@
 
 Dear [First Name],
 
-I'm writing on behalf of The Collaborative Advocate Foundation (TCAF), a Pflugerville-based 501(c)(3) (EIN 41-3618503, Veteran-Founded, Black-Led). We're submitting an application this Thursday (May 8) to the City of Austin's FY26 Equity Mini Grant Program — $25,000 over 15 months for community work serving Austin and Travis County immigrant and refugee residents.
+I'm writing on behalf of The Collaborative Advocate Foundation (TCAF), a Pflugerville-based 501(c)(3) (EIN 41-3618003, Veteran-Founded, Black-Led). We're submitting an application this Thursday (May 8) to the City of Austin's FY26 Equity Mini Grant Program — $25,000 over 15 months for community work serving Austin and Travis County immigrant and refugee residents.
 
 The project is called **Talk Your Talk — Belonging & Voice Initiative**. Briefly:
 

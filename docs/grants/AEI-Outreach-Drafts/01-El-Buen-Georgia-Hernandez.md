@@ -14,7 +14,7 @@
 
 Dear Georgia,
 
-Meredith pointed me your way — thank you in advance for the introduction. I'm Dr. Terry Flood, President of The Collaborative Advocate Foundation (TCAF), a Pflugerville-based 501(c)(3) (EIN 41-3618503, Veteran-Founded, Black-Led).
+Meredith pointed me your way — thank you in advance for the introduction. I'm Dr. Terry Flood, President of The Collaborative Advocate Foundation (TCAF), a Pflugerville-based 501(c)(3) (EIN 41-3618003, Veteran-Founded, Black-Led).
 
 We're submitting an application this Thursday (May 8) to the City of Austin's FY26 Equity Mini Grant Program — $25,000 over 15 months for community work serving Austin and Travis County immigrant and refugee residents, with priority focus on the Eastern Crescent (78702, 78721, 78723, 78724, 78744, 78753, 78758).
 

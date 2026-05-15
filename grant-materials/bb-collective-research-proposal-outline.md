@@ -133,7 +133,7 @@ This study is innovative because it:
 - Public Policy (graduate level)
 
 **Relevant Experience:**
-- President, The Collaborative Advocate Foundation (501(c)(3), EIN 41-3618503)
+- President, The Collaborative Advocate Foundation (501(c)(3), EIN 41-3618003)
 - Veteran-founded, Black-led nonprofit serving Central Texas
 - Designed and built a 24-platform integrated community technology ecosystem (ACOS — Autonomous Community Operating System)
 - Implemented RE-AIM evaluation and CFIR assessment frameworks within the ecosystem

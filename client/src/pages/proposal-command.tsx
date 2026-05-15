@@ -74,7 +74,7 @@ const EMPTY_PROFILE: CompanyProfile = {
 const TCAF_PROFILE: CompanyProfile = {
   companyName: "The Collaborative Advocate Foundation (TCAF)",
   companyType: "nonprofit-501c3",
-  ein: "41-3618503",
+  ein: "41-3618003",
   address: "17912 Stefano Drive, Pflugerville, TX 78660",
   contactName: "Dr. Terry Flood, DHA/DBA, President",
   phone: "",

@@ -2,7 +2,7 @@
 ### Live-Researched April 10, 2026 | 24-Platform Ecosystem Match
 
 > **Rule**: No research partnerships required. Letters of support only.
-> **EIN**: 41-3618503 | **SAM.gov**: TIN mismatch still blocks federal submissions — resolve ASAP
+> **EIN**: 41-3618003 | **SAM.gov**: TIN mismatch still blocks federal submissions — resolve ASAP
 
 ---
 

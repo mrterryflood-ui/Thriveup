@@ -1,6 +1,6 @@
 # Budget Narrative — Centene Foundation Behavioral Health Community Grant (Spring 2026)
 
-**Applicant:** The Collaborative Advocate Foundation Inc. (DBA TCAF) · EIN 41-3618503
+**Applicant:** The Collaborative Advocate Foundation Inc. (DBA TCAF) · EIN 41-3618003
 **Project:** Compliance-Grade Behavioral Health for the Multilingual Medicaid Cohort
 **Period:** 12 months · **Total Request:** $150,000
 

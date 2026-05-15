@@ -33,7 +33,7 @@ function addTitleSlide() {
   slide.addText("PROPOSED PILOT STUDY", { x: 0.8, y: 1.0, w: 8.4, h: 0.4, fontSize: 14, color: COLORS.emerald, fontFace: "Arial", bold: true, letterSpacing: 3 });
   slide.addText("Invest $7,600\nto Save $75,000", { x: 0.8, y: 1.5, w: 8.4, h: 2.0, fontSize: 40, color: COLORS.white, fontFace: "Arial", bold: true, lineSpacing: 48 });
   slide.addText("A Texas Reentry Stipend Pilot to Break the Cycle of Recidivism", { x: 0.8, y: 3.5, w: 8.4, h: 0.6, fontSize: 18, color: "94A3B8", fontFace: "Arial" });
-  slide.addText("The Collaborative Advocate Foundation (TCAF)\nDr. Terry Flood, DHA -- President\nEIN: 41-3618503", { x: 0.8, y: 4.5, w: 5, h: 1.0, fontSize: 12, color: "CBD5E1", fontFace: "Arial", lineSpacing: 18 });
+  slide.addText("The Collaborative Advocate Foundation (TCAF)\nDr. Terry Flood, DHA -- President\nEIN: 41-3618003", { x: 0.8, y: 4.5, w: 5, h: 1.0, fontSize: 12, color: "CBD5E1", fontFace: "Arial", lineSpacing: 18 });
 
   const statsData = [
     { val: "$50", label: "Gate Money", color: COLORS.red },
@@ -323,7 +323,7 @@ function addClosingSlide() {
   slide.addText("The difference may be as simple as having enough\nmoney to survive the first 90 days.", { x: 0.8, y: 5.2, w: 8.4, h: 0.7, fontSize: 14, color: COLORS.white, fontFace: "Arial", align: "center", italic: true, lineSpacing: 22 });
 
   slide.addShape(pptx.shapes.RECTANGLE, { x: 0, y: 6.2, w: 10, h: 1.3, fill: { color: "0B1120" } });
-  slide.addText("The Collaborative Advocate Foundation  |  EIN: 41-3618503", { x: 0.8, y: 6.3, w: 8.4, h: 0.35, fontSize: 12, color: COLORS.emerald, fontFace: "Arial", align: "center", bold: true });
+  slide.addText("The Collaborative Advocate Foundation  |  EIN: 41-3618003", { x: 0.8, y: 6.3, w: 8.4, h: 0.35, fontSize: 12, color: COLORS.emerald, fontFace: "Arial", align: "center", bold: true });
   slide.addText("Dr. Terry Flood, DHA  |  mr.terryflood@gmail.com\n17912 Stefano Drive, Pflugerville, TX 78660", { x: 0.8, y: 6.7, w: 8.4, h: 0.5, fontSize: 11, color: "94A3B8", fontFace: "Arial", align: "center", lineSpacing: 16 });
 }
 

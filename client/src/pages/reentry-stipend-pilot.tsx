@@ -1038,7 +1038,7 @@ function CallToAction() {
             The Collaborative Advocate Foundation
           </Badge>
           <Badge className="bg-blue-600 text-white px-4 py-2 text-sm">
-            501(c)(3) -- EIN: 41-3618503
+            501(c)(3) -- EIN: 41-3618003
           </Badge>
           <Badge variant="outline" className="text-slate-300 border-slate-600 px-4 py-2 text-sm">
             Veteran-Founded -- Black-Led

@@ -478,7 +478,7 @@ export default function BenefitsScreenerPage() {
             <div className="text-center text-xs text-muted-foreground space-y-1 pb-8">
               <p>This screening is for informational purposes only. Final eligibility is determined by the program.</p>
               <p>Data sources: U.S. Census Bureau ACS, Federal Poverty Level Guidelines, state Medicaid/SNAP agencies</p>
-              <p className="font-medium">The Collaborative Advocate Foundation · 501(c)(3) · EIN 41-3618503</p>
+              <p className="font-medium">The Collaborative Advocate Foundation · 501(c)(3) · EIN 41-3618003</p>
             </div>
           </div>
         )}
