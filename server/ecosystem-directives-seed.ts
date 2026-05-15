@@ -2147,7 +2147,7 @@ YOUR WEBSITE IS BROKEN. https://the-colaberitive-advocate--mrterryflood.replit.a
    - /pflugerville — Pflugerville services, Samsung/Tesla corridor workforce placement
 
 4. INSTALL THE ECOSYSTEM CONNECTOR
-   - Your API key is: tveco_8ecb04e39e03b6ab5d2a42d292ab84baea248b58d1ffa26b2a345085f844018c
+   - Your API key is available from your platform record in the hub dashboard (contact a hub administrator)
    - Add the heartbeat function that fires every 5 minutes
    - Process your 28+ pending directives — each one requires real work
    - Stop being the only platform at 0% compliance

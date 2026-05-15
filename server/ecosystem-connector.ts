@@ -1533,7 +1533,7 @@ export function registerEcosystemConnectorRoutes(app: Express) {
     try {
       const validIds = ECOSYSTEM_PLATFORMS.map((p) => p.id);
       const PINNED_API_KEYS: Record<string, string> = {
-        "code-canvas": "tveco_78d94a8e622ef2f7dbb12e91de04797259f80733546f76313ff5623b04644600",
+        ...(process.env.CODE_CANVAS_ECOSYSTEM_KEY ? { "code-canvas": process.env.CODE_CANVAS_ECOSYSTEM_KEY } : {}),
       };
 
       for (const platform of ECOSYSTEM_PLATFORMS) {
@@ -1561,6 +1561,72 @@ export function registerEcosystemConnectorRoutes(app: Express) {
         }
       }
       console.log(`[Ecosystem] Synced ${ECOSYSTEM_PLATFORMS.length} platform definitions to DB`);
+
+      // ---------------------------------------------------------------
+      // CREDENTIAL ROTATION — revoke all ecosystem keys that were
+      // previously exposed in source control (committed as plaintext).
+      // Keys are identified by their SHA-256 hash so no plaintext
+      // credentials are stored in this file.
+      // Any platform whose current DB key matches a known-leaked hash
+      // receives a freshly generated key immediately on startup.
+      // ---------------------------------------------------------------
+      const hashKey = (k: string) => crypto.createHash("sha256").update(k).digest("hex");
+
+      const LEAKED_PLATFORM_KEY_HASHES = new Set([
+        "7d0da6f62af988568dce5b43c9e5257c2c0292b06608853edf20942a57b852ed",
+        "84b4d016a62d128e3ad754c1d332d458934da22206d75f19fbfc924e83f8cd4d",
+        "fe145c020b067a9bd4111e0bfd615668fd542a934078503b810c87aff1920254",
+        "907619af3f120722caf10f05a188db98ee5968450f8ebe769de1b9a638af1a99",
+        "bd9aaafcf50268422a3b17a74d85e8712c2c6e2b11fe9239a1e34ed1cd8c09c2",
+        "23128d46ff69f4bf4efb67fae6c7539f7f8fd8c2c7310fa3f361ed0559b799f2",
+        "a443101a0997bc3a0560480f8f6f03525fd8da80ef5acb6ca225bcc69dd1c0d6",
+        "1bee7c3cdff6f39d1145d33d5c8e4963e72590f0f83594df1c90346822dd61bf",
+        "58b23d89652234ed2a14b347770193fbd2517a23be801100503f3e44aa9670e5",
+        "bdb1363c9a35360554cf5997270f993a1dd3cd702eda047379e33526291261a8",
+        "f06361d3cf5d12e48b895ec775a54fe418a6488be91cb4dd3f57aa5634d0e0b0",
+        "472fdb5d798ede39c3a341444c65b2adea33268661f5cea6ae9c46964104851b",
+        "97095dbf0d11b3c2387da061ecb571130f8f6ded3bdb01f1f6e8bea90ab96776",
+        "08202867bfd0cefe7c879cb9075d1c84546a2628c2540fcdf350c4f5cc898e7f",
+        "1443139032ebf68f52fb04e4159be0e7969618adbb15173dba28f4e22896dca0",
+        "ac1b68f185a24d34279cceb8971f11985bdf0cbf37c89988bc982c2cf86de98b",
+        "77c2e99898262200e01984c73cbcbce41655fa449f32613b25c657eaaad33f9f",
+        "eaa618a58737c9ac664299c8e29fff2d02963127f03636e118b04a8c9fe478e5",
+        "53b82cba6786f27386c40f2f3a654a0b531675bcfe1ba3cb3179d1ad37b2451a",
+      ]);
+      const LEAKED_SHADOW_KEY_HASHES = new Set([
+        "1b8e212824c3b72b82acf3dd2ed13b3f8c974a6a4b314bbbe5a0c14ba7c9f1e1",
+      ]);
+
+      const allPlatformRows = await db.select({ id: ecosystemPlatforms.id, apiKey: ecosystemPlatforms.apiKey }).from(ecosystemPlatforms);
+      let rotatedCount = 0;
+      for (const row of allPlatformRows) {
+        if (LEAKED_PLATFORM_KEY_HASHES.has(hashKey(row.apiKey))) {
+          const freshKey = generateApiKey();
+          await db.update(ecosystemPlatforms).set({ apiKey: freshKey }).where(eq(ecosystemPlatforms.id, row.id));
+          rotatedCount++;
+        }
+      }
+      if (rotatedCount > 0) {
+        console.log(`[Ecosystem] Rotated ${rotatedCount} compromised platform API key(s) — operators must update ECOSYSTEM_API_KEY env var`);
+      }
+
+      const shadowRegistrations = await db
+        .select({ id: ecosystemEvents.id, eventData: ecosystemEvents.eventData })
+        .from(ecosystemEvents)
+        .where(eq(ecosystemEvents.eventType, "shadow-observer-registered"));
+      for (const reg of shadowRegistrations) {
+        const data = reg.eventData;
+        if (data === null || typeof data !== "object" || Array.isArray(data)) continue;
+        const existingKey = (data as Record<string, unknown>).shadowKey;
+        if (typeof existingKey === "string" && LEAKED_SHADOW_KEY_HASHES.has(hashKey(existingKey))) {
+          const freshShadowKey = `tveco_shadow_${crypto.randomBytes(12).toString("hex")}`;
+          await db.update(ecosystemEvents)
+            .set({ eventData: { ...(data as Record<string, unknown>), shadowKey: freshShadowKey } })
+            .where(eq(ecosystemEvents.id, reg.id));
+          console.log(`[Ecosystem] Rotated leaked shadow observer key in registration ${reg.id}`);
+        }
+      }
+      // ---------------------------------------------------------------
 
       const allDirectives = await db.select().from(ecosystemDirectives);
       const allPlatformIds = ECOSYSTEM_PLATFORMS.map(p => p.id);
@@ -2987,12 +3053,28 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
     }
   });
 
-  function requireShadowAuth(req: Request, res: Response, next: Function) {
+  async function requireShadowAuth(req: Request, res: Response, next: Function) {
     const shadowKey = req.headers["x-shadow-key"] as string;
-    if (!shadowKey || !shadowKey.startsWith("tveco_shadow_")) {
+    if (!shadowKey) {
       return res.status(401).json({ error: "Shadow observer authentication required. Use x-shadow-key header." });
     }
-    next();
+    try {
+      const registrations = await db
+        .select({ eventData: ecosystemEvents.eventData })
+        .from(ecosystemEvents)
+        .where(eq(ecosystemEvents.eventType, "shadow-observer-registered"));
+      const isRegistered = registrations.some((row) => {
+        const data = row.eventData;
+        if (data === null || typeof data !== "object" || Array.isArray(data)) return false;
+        return (data as Record<string, unknown>).shadowKey === shadowKey;
+      });
+      if (!isRegistered) {
+        return res.status(401).json({ error: "Shadow observer authentication required. Use x-shadow-key header." });
+      }
+      next();
+    } catch {
+      return res.status(500).json({ error: "Authentication check failed" });
+    }
   }
 
   app.get("/api/ecosystem/shadow/observe", requireShadowAuth, async (_req, res) => {
@@ -5515,26 +5597,10 @@ if (typeof module !== "undefined") {
       const apiKey = req.headers["x-ecosystem-key"] as string;
       let [platform] = await db.select().from(ecosystemPlatforms).where(eq(ecosystemPlatforms.apiKey, apiKey));
 
-      // If key not found, try to auto-register: check if platformId is in the body
-      if (!platform && req.body.platformId) {
-        const [knownPlatform] = await db.select().from(ecosystemPlatforms)
-          .where(eq(ecosystemPlatforms.id, req.body.platformId));
-        if (knownPlatform && apiKey.startsWith("tveco_")) {
-          // Platform exists but key doesn't match — auto-update the key
-          await db.update(ecosystemPlatforms)
-            .set({ apiKey })
-            .where(eq(ecosystemPlatforms.id, knownPlatform.id));
-          console.log(`[Ecosystem] Auto-registered key for ${knownPlatform.name} (${knownPlatform.id}) — key mismatch resolved`);
-          [platform] = await db.select().from(ecosystemPlatforms).where(eq(ecosystemPlatforms.id, knownPlatform.id));
-        }
-      }
-
       if (!platform) {
         return res.status(403).json({
           error: "Invalid ecosystem key",
-          fix: "Your key does not match what the hub has on file. This can happen if keys were regenerated. To fix this, either: (1) Include your platformId in the heartbeat body and the hub will auto-register your key, or (2) POST to /api/ecosystem/register-key with { platformId: 'your-id', apiKey: 'your-tveco-key' } to update your key in the hub.",
-          registerEndpoint: "POST https://thrivingcommunitiesforall.com/api/ecosystem/register-key",
-          registerBody: { platformId: "your-platform-id", apiKey: "your-tveco_-key" },
+          fix: "Your key does not match what the hub has on file. Contact a hub administrator to update your key via POST /api/ecosystem/register-key (admin auth required).",
         });
       }
 
@@ -6979,22 +7045,9 @@ if (typeof module !== "undefined") {
       const apiKey = req.headers["x-ecosystem-key"] as string;
       let [platform] = await db.select().from(ecosystemPlatforms).where(eq(ecosystemPlatforms.apiKey, apiKey));
 
-      // Auto-register key if platformId provided and key doesn't match
-      if (!platform && req.body.platformId) {
-        const [knownPlatform] = await db.select().from(ecosystemPlatforms)
-          .where(eq(ecosystemPlatforms.id, req.body.platformId));
-        if (knownPlatform && apiKey.startsWith("tveco_")) {
-          await db.update(ecosystemPlatforms)
-            .set({ apiKey })
-            .where(eq(ecosystemPlatforms.id, knownPlatform.id));
-          console.log(`[Ecosystem] Auto-registered key for ${knownPlatform.name} via compliance-report`);
-          [platform] = await db.select().from(ecosystemPlatforms).where(eq(ecosystemPlatforms.id, knownPlatform.id));
-        }
-      }
-
       if (!platform) return res.status(403).json({
         error: "Invalid ecosystem key",
-        fix: "Include platformId in the request body so the hub can auto-register your key, or POST to /api/ecosystem/register-key with { platformId, apiKey }",
+        fix: "Contact a hub administrator to update your key via POST /api/ecosystem/register-key (admin auth required).",
       });
 
       const { completedWork, inProgress, blockers, capabilities, notes } = req.body;
@@ -7088,22 +7141,10 @@ if (typeof module !== "undefined") {
       const apiKey = req.headers["x-ecosystem-key"] as string;
       let [platform] = await db.select().from(ecosystemPlatforms).where(eq(ecosystemPlatforms.apiKey, apiKey));
 
-      if (!platform && req.body.platformId) {
-        const [knownPlatform] = await db.select().from(ecosystemPlatforms)
-          .where(eq(ecosystemPlatforms.id, req.body.platformId));
-        if (knownPlatform && apiKey.startsWith("tveco_")) {
-          await db.update(ecosystemPlatforms)
-            .set({ apiKey })
-            .where(eq(ecosystemPlatforms.id, knownPlatform.id));
-          console.log(`[Ecosystem] Auto-registered key for ${knownPlatform.name} via event`);
-          [platform] = await db.select().from(ecosystemPlatforms).where(eq(ecosystemPlatforms.id, knownPlatform.id));
-        }
-      }
-
       if (!platform) {
         return res.status(403).json({
           error: "Invalid ecosystem key",
-          fix: "Include platformId in the request body so the hub can auto-register your key",
+          fix: "Contact a hub administrator to update your key via POST /api/ecosystem/register-key (admin auth required).",
         });
       }
 

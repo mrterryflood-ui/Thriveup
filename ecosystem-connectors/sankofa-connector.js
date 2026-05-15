@@ -24,7 +24,7 @@
 const THRIVE_ECOSYSTEM_CONFIG = {
   hubUrl: "https://thrivingcommunitiesforall.com",
   platformId: "sankofa",
-  apiKey: "tveco_45a82277fb28b17e607db26d4b715083edb607a74573d4ba4701b3e9b36d7480",
+  apiKey: process.env.ECOSYSTEM_API_KEY || "",
   heartbeatIntervalMs: 5 * 60 * 1000,
 };
 

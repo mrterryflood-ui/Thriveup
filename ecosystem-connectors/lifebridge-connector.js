@@ -24,7 +24,7 @@
 const THRIVE_ECOSYSTEM_CONFIG = {
   hubUrl: "https://thrivingcommunitiesforall.com",
   platformId: "lifebridge",
-  apiKey: "tveco_0a55b7de3e0b2c681dc5e7a2eab96b01c3fa0c8d12268c9da62d5dd010c23544",
+  apiKey: process.env.ECOSYSTEM_API_KEY || "",
   heartbeatIntervalMs: 5 * 60 * 1000,
 };
 

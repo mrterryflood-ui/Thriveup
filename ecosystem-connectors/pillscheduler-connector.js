@@ -24,7 +24,7 @@
 const THRIVE_ECOSYSTEM_CONFIG = {
   hubUrl: "https://thrivingcommunitiesforall.com",
   platformId: "pillscheduler",
-  apiKey: "tveco_4da8eeb3cd4e659db53bd2dd4ca3b721db57bee1c529966d5ac2858896acd737",
+  apiKey: process.env.ECOSYSTEM_API_KEY || "",
   heartbeatIntervalMs: 5 * 60 * 1000,
 };
 

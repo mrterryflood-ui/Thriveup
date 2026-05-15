@@ -22,7 +22,7 @@
 const THRIVE_ECOSYSTEM_CONFIG = {
   hubUrl: "https://thrivingcommunitiesforall.com",
   platformId: "shield-atlas",
-  apiKey: "tveco_2e228922bd33bc188d70f134364cce871e5be07fd62f986e3b52c541b472cbfc",
+  apiKey: process.env.ECOSYSTEM_API_KEY || "",
   heartbeatIntervalMs: 5 * 60 * 1000,
 };
 

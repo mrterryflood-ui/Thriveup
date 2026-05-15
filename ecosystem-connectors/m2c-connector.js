@@ -24,7 +24,7 @@
 const THRIVE_ECOSYSTEM_CONFIG = {
   hubUrl: "https://thrivingcommunitiesforall.com",
   platformId: "m2c",
-  apiKey: "tveco_e9e39eff7d96d3b26b2d7bef45eb267f24906c3095977a063f2df7cd12541682",
+  apiKey: process.env.ECOSYSTEM_API_KEY || "",
   heartbeatIntervalMs: 5 * 60 * 1000,
 };
 

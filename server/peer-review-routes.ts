@@ -100,7 +100,7 @@ let evaluationInProgress = false;
 
 function requireAuth(req: Request, res: Response, next: Function) {
   const shadowKey = req.headers["x-shadow-key"];
-  if (shadowKey === process.env.SHADOW_OBSERVER_KEY || shadowKey === "tveco_shadow_d6aba30aa25c4dde5ecd4428") {
+  if (process.env.SHADOW_OBSERVER_KEY && shadowKey === process.env.SHADOW_OBSERVER_KEY) {
     return next();
   }
   if ((req as any).isAuthenticated?.() || (req as any).user) {

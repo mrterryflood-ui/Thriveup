@@ -25,7 +25,7 @@
 const THRIVE_ECOSYSTEM_CONFIG = {
   hubUrl: "https://thrivingcommunitiesforall.com",
   platformId: "sankofa-mens-health",
-  apiKey: "tveco_e40557e29a300a27f30e5c6c410a63036a9285e8ed72d08bd02301d7e42d6436",
+  apiKey: process.env.ECOSYSTEM_API_KEY || "",
   heartbeatIntervalMs: 5 * 60 * 1000,
 };
 

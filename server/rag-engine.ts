@@ -1090,7 +1090,14 @@ export function registerRAGRoutes(app: Express) {
   app.post("/api/ecosystem-ai/refresh-knowledge", async (req: Request, res: Response) => {
     try {
       const ecosystemKey = req.headers["x-ecosystem-key"] as string;
-      if (!ecosystemKey || !ecosystemKey.startsWith("tveco_")) {
+      if (!ecosystemKey) {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+      const [knownPlatform] = await db
+        .select({ id: ecosystemPlatforms.id })
+        .from(ecosystemPlatforms)
+        .where(eq(ecosystemPlatforms.apiKey, ecosystemKey));
+      if (!knownPlatform) {
         return res.status(403).json({ error: "Admin access required" });
       }
 

@@ -24,7 +24,7 @@
 const THRIVE_ECOSYSTEM_CONFIG = {
   hubUrl: "https://thrivingcommunitiesforall.com",
   platformId: "perfectly-different",
-  apiKey: "tveco_91708976c9d033e4c68f33b5bd651f4a7c2e9e01a514acd848aeb27fadfdb0ea",
+  apiKey: process.env.ECOSYSTEM_API_KEY || "",
   heartbeatIntervalMs: 5 * 60 * 1000,
 };
 
