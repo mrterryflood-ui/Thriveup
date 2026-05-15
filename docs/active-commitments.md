@@ -1372,3 +1372,39 @@ Architect first review flagged additional leaks beyond Wave-3 batch. Second swee
 **Iron Rule lesson logged:** "draft package exists with a 'pattern-based projected deadline'" is NOT the same as "live opportunity." Any future grant pipeline status of "loi_drafted" must be checked against a live primary source for cycle status before being treated as actionable. The replit.md gotcha at line 81 already lists CLC and Community Health Grants as future St. David's targets — those references are still strategically accurate (these ARE the historical St. David's program lines we want to pursue), but the pipeline status of any individual CLC draft must reflect "awaiting cycle announcement," not "ready to submit."
 
 **Replacement priority for this session (post-Centene-dead, post-CLC-parked):** Cigna Foundation Youth Mental Health 2026 (was #3 in the top-5 list; now becomes the next active drafting pursuit). Direct fit with the live Vann Family Program Tracker. Next-cycle expected June 2026 per the Grant Opportunity Scan F1 entry, but that needs same-day primary-source verification before we draft.
+
+### 2026-05-15 — Snyk API & Web added to security stack
+
+**Onboarding email received 2026-05-15.** Snyk API & Web (formerly Probely; login at https://probely.app) is now part of TCAF's application security program. This is DAST/runtime coverage — scans the deployed site for auth-bypass, IDOR, injection, exposed endpoints, broken-function-level-authorization. Complements the SAST + dependency scanning already in place.
+
+**Security stack now (May 15, 2026):**
+| Layer | Tool | Coverage |
+|---|---|---|
+| Dependency vulns | `npm audit` (built-in) | 0 findings as of Task #30 merge |
+| SAST (static) | Replit security_scan skill | Last scan: Task #29 merged 2026-05-15 |
+| DAST (runtime) | Snyk API & Web (Probely) | Login: https://probely.app — needs target URL configured |
+| Authorization boundaries | requireAuth middleware (manual) | Tasks #31 merged · #32 in flight · #33/#34 queued |
+| Threat model | `threat_model.md` (versioned) | Current — last updated May 14, 2026 |
+
+**Next actions for Snyk API & Web (not blocking anything else):**
+1. Set scan target — most useful is the publicly-routable surface. Options: thrivingcommunitiesforall.com OR the new thecollaberativeadvocate.com OR the .replit.app deployment URL.
+2. Configure authenticated scans for routes behind Replit Auth — Snyk supports recording a login flow.
+3. Schedule recurring weekly scans · alerts to `terryflood@thrivingcommunitiesforall.com`.
+4. Don't point Snyk at internal dev/preview URLs — Replit's edge adds X-Robots-Tag: none on `.replit.dev` but DOES NOT block scanners; running DAST against dev wastes scan credits.
+
+### 2026-05-15 — Task #32 merged: Ecosystem auth boundaries hardened + key rotation live
+
+**Security wins:**
+- 17 connector files moved from hardcoded `tveco_*` keys → `process.env.ECOSYSTEM_API_KEY`
+- code-canvas pinned key removed → `process.env.CODE_CANVAS_ECOSYSTEM_KEY`
+- Shadow-observer fallback key removed (peer-review-routes.ts)
+- Prefix-only auth (`startsWith("tveco_")` / `startsWith("tveco_shadow_")`) replaced with real DB lookups in rag-engine.ts and ecosystem-connector.ts
+- Auto-registration bypass closed (heartbeat/event/compliance routes no longer accept any tveco_ key + known platformId to overwrite credentials)
+- **Startup key rotation:** SHA-256 hashes of 19 leaked ecosystem keys + 1 shadow key trigger automatic rotation on boot
+
+**🚨 Operational follow-ups (NOT yet done — surface to user):**
+1. **External connector deployments need env-var refresh.** Each of the 17 connector deployments running outside this codebase (Sankofa, LifeBridge, M2C, WPH, SafeReport, ISSS, BetterScience, Perfectly Different, SafeCogniCare, Shield Atlas, Sankofa Men's, PillScheduler, Sankofa Feminine, Sankofa Maternal, WholeMind, Collaborative Advocate, code-canvas) must have `ECOSYSTEM_API_KEY` set to a freshly-issued key from the hub dashboard. Until done, their heartbeats will fail auth and the hub will show them offline.
+2. **`.replit` shared env cleanup still pending externally** — FBI_CRIME_API_KEY, SAM_GOV_API_KEY, Network_Secrets_thriving were removed from the secrets manager API but the `.replit` source file still contains references (agent tools can't edit `.replit`). User action: rotate those three values upstream.
+3. **Interplay with existing gotcha (replit.md):** `ECOSYSTEM_PLATFORMS hardcoded array overwrites DB on startup` — the new key rotation runs at startup too, AFTER the platform array sync. Verify on next deploy that the rotation is working (apiKey field changes on rows whose old key was leaked) and platformId stability is preserved (no row deletions caused by rotation).
+
+**Snyk API & Web tie-in:** with auth boundaries now tightened at code level, running DAST against the deployed surface (next on the security task list) becomes much more meaningful — it'll catch any boundary gaps the SAST/manual reviews missed.
